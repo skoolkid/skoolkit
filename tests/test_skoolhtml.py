@@ -718,6 +718,21 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
                 error_msg = '{}: {}'.format(prefix, error_msg)
             self.assertEqual(cm.exception.args[0], error_msg)
 
+    def _test_image_macro_with_replacement_field_in_filename(self, macro, defdir=UDGDIR, snapshot=(0,) * 8):
+        writer = self._get_writer(snapshot=snapshot, mock_file_info=True)
+        for prefix, path, alt in (
+                ('Font', 'images/font', ''),
+                ('Screenshot', 'images/scr', '|screenshot'),
+                ('UDG', 'images/udgs', '|{donotreplacethis}'),
+                ('Nonexistent', defdir + '/{NonexistentImagePath}', '')
+        ):
+            fname = '{{{}ImagePath}}/foo.png{}'.format(prefix, alt)
+            exp_image_path = '{}/foo.png'.format(path)
+            exp_src = '../{}'.format(exp_image_path)
+            output = writer.expand('{}({})'.format(macro, fname), ASMDIR)
+            self._assert_img_equals(output, alt[1:] or 'foo', exp_src)
+            self.assertEqual(writer.file_info.fname, exp_image_path)
+
     def _test_invalid_image_macro(self, writer, macro, error_msg, prefix):
         self._assert_error(writer, macro, error_msg, prefix)
 
@@ -946,6 +961,9 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         output = writer.expand('#FONT:( )0({}|{})'.format(fname, alt), ASMDIR)
         self._assert_img_equals(output, alt, exp_src)
         self.assertEqual(writer.file_info.fname, exp_image_path)
+
+    def test_macro_font_with_replacement_field_in_filename(self):
+        self._test_image_macro_with_replacement_field_in_filename('#FONT0,1', FONTDIR)
 
     def test_macro_foreach_entry_omits_i_blocks(self):
         skool = '\n'.join((
@@ -1751,6 +1769,9 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         self._assert_img_equals(output, alt, exp_src)
         self.assertEqual(writer.file_info.fname, exp_image_path)
 
+    def test_macro_scr_with_replacement_field_in_filename(self):
+        self._test_image_macro_with_replacement_field_in_filename('#SCR1,0,0,1,1,0,0', SCRDIR, (0,) * 2048)
+
     def test_macro_table(self):
         src1 = '\n'.join((
             '(data)',
@@ -2098,6 +2119,9 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         output = writer.expand('#UDG0(|{})'.format(alt), ASMDIR)
         self._assert_img_equals(output, alt, exp_src)
         self.assertEqual(writer.file_info.fname, exp_image_path)
+
+    def test_macro_udg_with_replacement_field_in_filename(self):
+        self._test_image_macro_with_replacement_field_in_filename('#UDG0')
 
     def test_macro_udgarray(self):
         snapshot = [0] * 65536
@@ -2490,6 +2514,9 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         output = writer.expand('#UDGARRAY*frame1;frame2({}|{})'.format(fname, alt), ASMDIR)
         self._assert_img_equals(output, alt, exp_src)
         self.assertEqual(writer.file_info.fname, exp_image_path)
+
+    def test_macro_udgarray_with_replacement_field_in_filename(self):
+        self._test_image_macro_with_replacement_field_in_filename('#UDGARRAY1;0')
 
     def test_macro_udgtable(self):
         src = '\n'.join((

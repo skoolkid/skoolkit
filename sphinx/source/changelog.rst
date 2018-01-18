@@ -12,6 +12,8 @@ Changelog
   User-Agent header used in an HTTP request)
 * Added support to the :ref:`Resources` section for specifying files using
   wildcard characters (``*``, ``?`` and ``[]``)
+* Added support for image path ID replacement fields in the ``fname`` parameter
+  of the :ref:`image macros <imageMacros>` (e.g. ``#SCR2({UDGImagePath}/scr)``)
 * The ``address`` parameter of the :ref:`org` directive is now optional and
   defaults to the address of the next instruction
 * The ``LABEL`` parameter of the :ref:`label` directive may be left blank to

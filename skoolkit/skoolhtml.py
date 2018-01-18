@@ -103,6 +103,7 @@ class HtmlWriter:
         self.asm_anchor_template = self.game_vars['AddressAnchor']
         self.asm_single_page_template = self.game_vars.get('AsmSinglePageTemplate')
         self.paths = self.get_dictionary('Paths')
+        self.image_paths = {k: v for k, v in self.paths.items() if k.endswith('ImagePath')}
         self.titles = self.get_dictionary('Titles')
         self.page_headers = self.get_dictionary('PageHeaders')
         links = self.get_dictionary('Links')
@@ -1088,12 +1089,15 @@ class HtmlWriter:
         of the disassembly. If `fname` does not end with '.png' or '.gif', an
         appropriate suffix will be appended (depending on the default image
         format). If `fname` starts with a '/', it will be removed and the
-        remainder returned (in which case `path_id` is ignored). If `fname` is
-        blank, `None` is returned.
+        remainder returned. If `fname` is blank, `None` is returned. If `fname`
+        contains an image path ID replacement field, the corresponding
+        parameter value from the :ref:`Paths` section will be substituted.
 
         :param fname: The name of the image file.
         :param path_id: The ID of the target directory (as defined in the
-                        :ref:`paths` section of the ref file).
+                        :ref:`paths` section). This is not used if `fname`
+                        starts with a '/' or contains an image path ID
+                        replacement field.
         :param frames: The list of frames (instances of
                        :class:`~skoolkit.graphics.Frame`) that define the
                        image. If supplied, it is used to determine whether the
@@ -1101,12 +1105,21 @@ class HtmlWriter:
                        suffix accordingly.
         """
         if fname:
+            orig_fname = prev_fname = fname
+            while True:
+                try:
+                    fname = fname.format(**self.image_paths)
+                except KeyError:
+                    break
+                if fname == prev_fname or fname == orig_fname:
+                    break
+                prev_fname = fname
             if fname[-4:].lower() in ('.png', '.gif'):
                 suffix = ''
             else:
                 suffix = '.' + self.image_writer.select_format(frames)
-            if fname[0] == '/':
-                return '{0}{1}'.format(fname[1:], suffix)
+            if orig_fname != fname or fname.startswith('/'):
+                return fname.lstrip('/') + suffix
             if path_id in self.paths:
                 return join(self.paths[path_id], '{0}{1}'.format(fname, suffix))
             raise SkoolKitError("Unknown path ID '{0}' for image file '{1}'".format(path_id, fname))

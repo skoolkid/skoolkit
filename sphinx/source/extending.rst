@@ -411,6 +411,9 @@ HtmlWriter provides the following image-related convenience methods.
    .. versionchanged:: 5.1
       Added the *frames* parameter.
 
+   .. versionchanged:: 6.3
+      *fname* may contain image path ID replacement fields.
+
 .. automethod:: skoolkit.skoolhtml.HtmlWriter.need_image
 .. automethod:: skoolkit.skoolhtml.HtmlWriter.write_image
 

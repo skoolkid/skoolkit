@@ -977,15 +977,24 @@ of text rendered in the game font. ::
 * ``attr`` is the attribute byte to use (default: 56)
 * ``scale`` is the scale of the image (default: 2)
 * ``CROP`` is the cropping specification (see :ref:`cropping`)
-* ``fname`` is the name of the image file (default: '`font`'); '`.png`' or
-  '`.gif`' will be appended (depending on the default image format specified in
-  the :ref:`ref-ImageWriter` section of the ref file) if not present
+* ``fname`` is the name of the image file (default: '`font`')
+
+If ``fname`` contains an image path ID replacement field (e.g.
+``{ScreenshotImagePath}/font``), the corresponding parameter value from the
+:ref:`Paths` section will be substituted.
+
+If ``fname`` starts with a '/', the filename is taken to be relative to the
+root of the HTML disassembly.
+
+If ``fname`` contains no image path ID replacement fields and does not start
+with a '/', the filename is taken to be relative to the directory defined by
+the ``FontImagePath`` parameter in the :ref:`paths` section.
+
+If ``fname`` does not end with '`.png`' or '`.gif`', that suffix (depending on
+the default image format specified in the :ref:`ref-ImageWriter` section of the
+ref file) will be appended.
 
 If an image with the given filename doesn't already exist, it will be created.
-If ``fname`` starts with a '/', the filename is taken to be relative to the
-root of the HTML disassembly; otherwise the filename is taken to be relative to
-the directory defined by the ``FontImagePath`` parameter in the :ref:`paths`
-section of the ref file.
 
 For example::
 
@@ -1003,6 +1012,9 @@ See :ref:`stringParameters` for details on alternative ways to supply the
 +---------+------------------------------------------------------------------+
 | Version | Changes                                                          |
 +=========+==================================================================+
+| 6.3     | Added support for image path ID replacement fields in the        |
+|         | ``fname`` parameter                                              |
++---------+------------------------------------------------------------------+
 | 5.1     | Added support for arithmetic expressions and skool macros in the |
 |         | numeric parameters                                               |
 +---------+------------------------------------------------------------------+
@@ -1041,15 +1053,24 @@ snapshot (in turn constructed from the contents of the skool file). ::
 * ``df`` is the base address of the display file (default: 16384)
 * ``af`` is the base address of the attribute file (default: 22528)
 * ``CROP`` is the cropping specification (see :ref:`cropping`)
-* ``fname`` is the name of the image file (default: '`scr`'); '`.png`' or
-  '`.gif`' will be appended (depending on the default image format specified in
-  the :ref:`ref-ImageWriter` section of the ref file) if not present
+* ``fname`` is the name of the image file (default: '`scr`')
+
+If ``fname`` contains an image path ID replacement field (e.g.
+``{UDGImagePath}/scr``), the corresponding parameter value from the
+:ref:`Paths` section will be substituted.
+
+If ``fname`` starts with a '/', the filename is taken to be relative to the
+root of the HTML disassembly.
+
+If ``fname`` contains no image path ID replacement fields and does not start
+with a '/', the filename is taken to be relative to the directory defined by
+the ``ScreenshotImagePath`` parameter in the :ref:`paths` section.
+
+If ``fname`` does not end with '`.png`' or '`.gif`', that suffix (depending on
+the default image format specified in the :ref:`ref-ImageWriter` section of the
+ref file) will be appended.
 
 If an image with the given filename doesn't already exist, it will be created.
-If ``fname`` starts with a '/', the filename is taken to be relative to the
-root of the HTML disassembly; otherwise the filename is taken to be relative to
-the directory defined by the ``ScreenshotImagePath`` parameter in the
-:ref:`paths` section of the ref file.
 
 For example::
 
@@ -1068,6 +1089,9 @@ For example::
 +---------+------------------------------------------------------------------+
 | Version | Changes                                                          |
 +=========+==================================================================+
+| 6.3     | Added support for image path ID replacement fields in the        |
+|         | ``fname`` parameter                                              |
++---------+------------------------------------------------------------------+
 | 5.1     | Added support for arithmetic expressions and skool macros in the |
 |         | numeric parameters                                               |
 +---------+------------------------------------------------------------------+
@@ -1107,9 +1131,7 @@ of a UDG (an 8x8 block of pixels). ::
 * ``MASK`` is the mask specification (see below)
 * ``CROP`` is the cropping specification (see :ref:`cropping`)
 * ``fname`` is the name of the image file (if not given, a name specified by
-  the ``UDGFilename`` parameter in the :ref:`Paths` section will be used);
-  '`.png`' or '`.gif`' will be appended (depending on the default image format
-  specified in the :ref:`ref-ImageWriter` section) if not present
+  the ``UDGFilename`` parameter in the :ref:`Paths` section will be used)
 
 The mask specification (``MASK``) takes the form::
 
@@ -1123,11 +1145,22 @@ Note that if any of the parameters in the mask specification is expressed using
 arithmetic operations or skool macros, then the entire specification must be
 enclosed in parentheses.
 
-If an image with the given filename (``fname``) doesn't already exist, it will
-be created.  If ``fname`` starts with a '/', the filename is taken to be
-relative to the root of the HTML disassembly; otherwise the filename is taken
-to be relative to the directory defined by the ``UDGImagePath`` parameter in
-the :ref:`paths` section of the ref file.
+If ``fname`` contains an image path ID replacement field (e.g.
+``{ScreenshotImagePath}/udg``), the corresponding parameter value from the
+:ref:`Paths` section will be substituted.
+
+If ``fname`` starts with a '/', the filename is taken to be relative to the
+root of the HTML disassembly.
+
+If ``fname`` contains no image path ID replacement fields and does not start
+with a '/', the filename is taken to be relative to the directory defined by
+the ``UDGImagePath`` parameter in the :ref:`paths` section.
+
+If ``fname`` does not end with '`.png`' or '`.gif`', that suffix (depending on
+the default image format specified in the :ref:`ref-ImageWriter` section of the
+ref file) will be appended.
+
+If an image with the given filename doesn't already exist, it will be created.
 
 For example::
 
@@ -1142,6 +1175,9 @@ or `safe_key.gif`), with attribute byte 6 (INK 6: PAPER 0).
 +---------+------------------------------------------------------------------+
 | Version | Changes                                                          |
 +=========+==================================================================+
+| 6.3     | Added support for image path ID replacement fields in the        |
+|         | ``fname`` parameter                                              |
++---------+------------------------------------------------------------------+
 | 5.1     | Added support for arithmetic expressions and skool macros in the |
 |         | numeric parameters                                               |
 +---------+------------------------------------------------------------------+
@@ -1187,9 +1223,7 @@ image of an array of UDGs (8x8 blocks of pixels). ::
   it is (default: 0)
 * ``mask`` is the type of mask to apply (see :ref:`masks`)
 * ``CROP`` is the cropping specification (see :ref:`cropping`)
-* ``fname`` is the name of the image file; '`.png`' or '`.gif`' will be
-  appended (depending on the default image format specified in the
-  :ref:`ref-ImageWriter` section of the ref file) if not present
+* ``fname`` is the name of the image file
 
 ``SPEC1``, ``SPEC2`` etc. are UDG specifications for the sets of UDGs that make
 up the array. Each UDG specification has the form::
@@ -1249,11 +1283,22 @@ must be enclosed in parentheses:
 * the part of a mask specification after the comma that follows the address
   range
 
-If an image with the given filename (``fname``) doesn't already exist, it will
-be created.  If ``fname`` starts with a '/', the filename is taken to be
-relative to the root of the HTML disassembly; otherwise the filename is taken
-to be relative to the directory defined by the ``UDGImagePath`` parameter in
-the :ref:`paths` section of the ref file.
+If ``fname`` contains an image path ID replacement field (e.g.
+``{ScreenshotImagePath}/udgs``), the corresponding parameter value from the
+:ref:`Paths` section will be substituted.
+
+If ``fname`` starts with a '/', the filename is taken to be relative to the
+root of the HTML disassembly.
+
+If ``fname`` contains no image path ID replacement fields and does not start
+with a '/', the filename is taken to be relative to the directory defined by
+the ``UDGImagePath`` parameter in the :ref:`paths` section.
+
+If ``fname`` does not end with '`.png`' or '`.gif`', that suffix (depending on
+the default image format specified in the :ref:`ref-ImageWriter` section of the
+ref file) will be appended.
+
+If an image with the given filename doesn't already exist, it will be created.
 
 For example::
 
@@ -1269,6 +1314,9 @@ named `base_sprite.png`.
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 6.3     | Added support for image path ID replacement fields in the         |
+|         | ``fname`` parameter                                               |
++---------+-------------------------------------------------------------------+
 | 5.1     | Added support for arithmetic expressions and skool macros in the  |
 |         | numeric parameters                                                |
 +---------+-------------------------------------------------------------------+
