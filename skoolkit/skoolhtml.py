@@ -1105,24 +1105,28 @@ class HtmlWriter:
                        suffix accordingly.
         """
         if fname:
-            orig_fname = prev_fname = fname
-            while True:
-                try:
-                    fname = fname.format(**self.image_paths)
-                except KeyError:
-                    break
-                if fname == prev_fname or fname == orig_fname:
-                    break
-                prev_fname = fname
-            if fname[-4:].lower() in ('.png', '.gif'):
+            expanded = self._expand_image_path(fname)
+            if expanded[-4:].lower() in ('.png', '.gif'):
                 suffix = ''
             else:
                 suffix = '.' + self.image_writer.select_format(frames)
-            if orig_fname != fname or fname.startswith('/'):
-                return fname.lstrip('/') + suffix
+            if expanded != fname or fname.startswith('/'):
+                return expanded.lstrip('/') + suffix
             if path_id in self.paths:
-                return join(self.paths[path_id], '{0}{1}'.format(fname, suffix))
+                return join(self._expand_image_path(self.paths[path_id]), fname + suffix)
             raise SkoolKitError("Unknown path ID '{0}' for image file '{1}'".format(path_id, fname))
+
+    def _expand_image_path(self, path):
+        orig_path = prev_path = path
+        while True:
+            try:
+                path = path.format(**self.image_paths)
+            except KeyError:
+                break
+            if path == prev_path or path == orig_path:
+                break
+            prev_path = path
+        return path
 
     def needs_cwd(self):
         return True

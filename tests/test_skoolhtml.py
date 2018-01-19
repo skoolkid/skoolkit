@@ -81,9 +81,10 @@ LinkOperands=CALL,DEFW,DJNZ,JP,JR
 {REF_SECTIONS[PageHeaders]}
 [Paths]
 CodePath={ASMDIR}
-FontImagePath=images/font
-ScreenshotImagePath={SCRDIR}
-UDGImagePath={UDGDIR}
+FontImagePath={{ImagePath}}/font
+ImagePath=images
+ScreenshotImagePath={{ImagePath}}/scr
+UDGImagePath={{ImagePath}}/udgs
 UDGFilename=udg{{addr}}_{{attr}}x{{scale}}
 AsmSinglePage=asm.html
 Bugs={REFERENCE_DIR}/bugs.html
@@ -722,6 +723,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         writer = self._get_writer(snapshot=snapshot, mock_file_info=True)
         for prefix, path, alt in (
                 ('Font', 'images/font', ''),
+                ('', 'images', ''),
                 ('Screenshot', 'images/scr', '|screenshot'),
                 ('UDG', 'images/udgs', '|{donotreplacethis}'),
                 ('Nonexistent', defdir + '/{NonexistentImagePath}', '')

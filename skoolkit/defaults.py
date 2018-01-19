@@ -1,4 +1,4 @@
-# Copyright 2014-2017 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2014-2018 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -232,11 +232,12 @@ Asm-w=Data
 SECTIONS['Paths'] = """
 CodePath=asm
 FontPath=.
-FontImagePath=images/font
+FontImagePath={ImagePath}/font
+ImagePath=images
 JavaScriptPath=.
-ScreenshotImagePath=images/scr
+ScreenshotImagePath={ImagePath}/scr
 StyleSheetPath=.
-UDGImagePath=images/udgs
+UDGImagePath={ImagePath}/udgs
 AsmSinglePage=asm.html
 Bugs=reference/bugs.html
 Changelog=reference/changelog.html
