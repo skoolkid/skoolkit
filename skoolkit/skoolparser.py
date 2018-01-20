@@ -208,12 +208,12 @@ def parse_address_comments(comments):
 
 def read_skool(skoolfile, asm=0, asm_mode=-1, fix_mode=0):
     modes = {
-        'isub': asm_mode > 0,
-        'ssub': asm_mode > 1,
-        'rsub': asm_mode > 2,
-        'ofix': fix_mode > 0,
-        'bfix': fix_mode > 1,
-        'rfix': fix_mode > 2
+        'isub': ('-', '+')[asm_mode > 0],
+        'ssub': ('-', '+')[asm_mode > 1],
+        'rsub': ('-', '+')[asm_mode > 2],
+        'ofix': ('-', '+')[fix_mode > 0],
+        'bfix': ('-', '+')[fix_mode > 1],
+        'rfix': ('-', '+')[fix_mode > 2]
     }
     stack = []
     lines = []
@@ -224,14 +224,7 @@ def read_skool(skoolfile, asm=0, asm_mode=-1, fix_mode=0):
         if asm_mode >= 0 and line.startswith('@'):
             directive = s_line[1:]
             if parse_asm_block_directive(directive, stack):
-                include = True
-                for p, i in stack:
-                    if modes[p]:
-                        include = i == '+'
-                    else:
-                        include = i == '-'
-                    if not include:
-                        break
+                include = all(i == modes[p] for p, i in stack)
                 continue
             if asm and directive.startswith(('start', 'end')):
                 started = directive.startswith('start')
