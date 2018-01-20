@@ -38,23 +38,14 @@ class BinWriter:
         f = open_file(skoolfile)
         for block in read_skool(f, 0, self.asm_mode, self.fix_mode):
             for line in block:
-                if line.startswith(';'):
+                if line.lstrip().startswith(';'):
                     continue
                 if line.startswith('@'):
                     self._parse_asm_directive(line[1:])
                     continue
-                s_line = line.lstrip()
-                if not s_line:
-                    # This line is blank
-                    continue
-                # Check whether we're in a block that can be skipped
                 if line.startswith(SKIP_BLOCKS):
                     break
-                if s_line.startswith(';'):
-                    # This line is a continuation of an instruction comment
-                    continue
                 if line[0] in VALID_CTLS:
-                    # This line contains an instruction
                     self._parse_instruction(line)
         f.close()
 

@@ -237,7 +237,8 @@ def read_skool(skoolfile, asm=0, asm_mode=-1, fix_mode=0):
                 started = directive.startswith('start')
                 continue
         if started and include:
-            lines.append(s_line)
+            if s_line or asm_mode < 0:
+                lines.append(s_line)
             if not s_line:
                 yield lines
                 lines = []
@@ -367,12 +368,10 @@ class SkoolParser:
                     continue
 
                 s_line = line.lstrip()
-                if not s_line:
-                    continue
-
-                if s_line[0] == ';' and map_entry and instruction:
-                    # This is an instruction comment continuation line
-                    address_comments[-1][1] = '{0} {1}'.format(address_comments[-1][1], s_line[1:].lstrip())
+                if s_line.startswith(';'):
+                    if map_entry and instruction:
+                        # This is an instruction comment continuation line
+                        address_comments[-1][1] = '{0} {1}'.format(address_comments[-1][1], s_line[1:].lstrip())
                     continue
 
                 # This line contains an instruction

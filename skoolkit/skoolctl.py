@@ -460,14 +460,11 @@ class SkoolParser:
                     continue
 
                 s_line = line.lstrip()
-                if not s_line:
-                    continue
-
                 if s_line.startswith(';'):
                     if map_entry and instruction:
                         # This is an instruction comment continuation line
                         address_comments[-1][1] = '{} {}'.format(address_comments[-1][1], s_line[1:].lstrip())
-                    continue # pragma: no cover
+                    continue
 
                 # This line contains an instruction
                 instruction, address_comment = self._parse_instruction(line)
