@@ -455,7 +455,7 @@ class AsmWriter:
                 self.write_line(oline)
                 if len(oline) > self.line_width:
                     self.warn('Line is {0} characters long:\n{1}'.format(len(oline), oline))
-                continue # pragma: no cover
+                continue
 
             ignoreua = instruction.ignoreua
             iaddress = instruction.address
