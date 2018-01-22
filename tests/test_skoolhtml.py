@@ -1365,6 +1365,24 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         output = writer.expand(nest_macros('#R#(49152@{})', 'other'), ASMDIR)
         self._assert_link_equals(output, '../other/49152.html', 'C000')
 
+    def test_macro_r_with_remote_directive(self):
+        ref = '[OtherCode:other]'
+        skool = '\n'.join((
+            '@remote=other:40000,$9c45',
+            'c32768 RET'
+        ))
+        for base, case, addr1, addr2 in (
+            (0, 0, '40000', '9c45'),
+            (BASE_10, 0, '40000', '40005'),
+            (BASE_16, 0, '9C40', '9C45'),
+            (BASE_16, CASE_UPPER, '9C40', '9C45'),
+            (BASE_16, CASE_LOWER, '9c40', '9c45')
+        ):
+            writer = self._get_writer(ref=ref, skool=skool, base=base, case=case)
+            with self.subTest(base=base, case=case):
+                self._assert_link_equals(writer.expand('#R40000@other', ASMDIR), '../other/40000.html', addr1)
+                self._assert_link_equals(writer.expand('#R40005@other', ASMDIR), '../other/40000.html#40005', addr2)
+
     def test_macro_r_other_code_asm_single_page(self):
         ref = '\n'.join((
             '[Game]',

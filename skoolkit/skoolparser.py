@@ -535,8 +535,10 @@ class SkoolParser:
         address = parse_int(addrs[0])
         if address is not None:
             remote_entry = RemoteEntry(asm_id, address)
-            remote_entry.add_instruction(Instruction('r', addrs[0], asm_id))
+            addr_str = self.mode.apply_base(self.mode.apply_case(addrs[0])[0])[0]
+            remote_entry.add_instruction(Instruction('r', addr_str, asm_id))
             for addr_str in addrs[1:]:
+                addr_str = self.mode.apply_base(self.mode.apply_case(addr_str)[0])[0]
                 remote_entry.add_instruction(Instruction(' ', addr_str, ''))
             for instruction in remote_entry.instructions:
                 self._instructions.setdefault(instruction.address, []).append(instruction)
@@ -770,7 +772,7 @@ class Mode:
             return self.hex4fmt.format(parse_int(operand))
         return operand
 
-    def apply_case(self, addr_str, operation):
+    def apply_case(self, addr_str, operation=''):
         if self.lower:
             addr_str = addr_str.lower()
         elif self.upper:
@@ -782,7 +784,7 @@ class Mode:
                 operation = re.sub('(I[XY])L', r'\1l', operation)
         return addr_str, operation
 
-    def apply_base(self, addr_str, operation):
+    def apply_base(self, addr_str, operation=''):
         address = parse_int(addr_str)
         if self.decimal:
             if address is not None:

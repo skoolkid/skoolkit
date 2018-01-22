@@ -332,6 +332,24 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
         output = writer.expand(nest_macros('#R#(49152@{})', 'other'))
         self.assertEqual(output, 'c000')
 
+    def test_macro_r_with_remote_directive(self):
+        skool = '\n'.join((
+            '@start',
+            '@remote=other:40000,$9c45',
+            'c32768 RET'
+        ))
+        for base, case, addr1, addr2 in (
+            (0, 0, '40000', '9c45'),
+            (BASE_10, 0, '40000', '40005'),
+            (BASE_16, 0, '9C40', '9C45'),
+            (BASE_16, CASE_UPPER, '9C40', '9C45'),
+            (BASE_16, CASE_LOWER, '9c40', '9c45'),
+        ):
+            writer = self._get_writer(skool, base=base, case=case)
+            with self.subTest(base=base, case=case):
+                self.assertEqual(writer.expand('#R40000@other'), addr1)
+                self.assertEqual(writer.expand('#R40005@other'), addr2)
+
     def test_macro_r_lower(self):
         skool = '\n'.join((
             '@start',
