@@ -449,10 +449,12 @@ class SkoolParser:
 
     def _add_replacement(self, s):
         try:
-            elements = s[1:].split(s[0])
-            self._replacements.append((elements[0].replace('\\i', INTEGER), elements[1]))
-        except IndexError:
+            pattern, rep = s[1:].split(s[0])[:2]
+            self._replacements.append((re.compile(pattern.replace('\\i', INTEGER)), rep))
+        except (IndexError, ValueError):
             pass
+        except re.error as e:
+            raise SkoolParsingError("Failed to compile regular expression '{}': {}".format(pattern, e.args[0]))
 
     def apply_replacements(self, repf):
         for entry in self.memory_map:
@@ -463,11 +465,11 @@ class SkoolParser:
             item.apply_replacements(self._replace)
 
     def _replace(self, text):
-        for pattern, rep in self._replacements:
+        for regex, rep in self._replacements:
             try:
-                text = re.sub(pattern, rep, text)
-            except Exception as e:
-                raise SkoolParsingError("Failed to replace '{}' with '{}': {}".format(pattern, rep, e.args[0]))
+                text = regex.sub(rep, text)
+            except re.error as e:
+                raise SkoolParsingError("Failed to replace '{}' with '{}': {}".format(regex.pattern, rep, e.args[0]))
         return text
 
     def _parse_asm_directive(self, directive):

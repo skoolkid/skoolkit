@@ -2911,7 +2911,7 @@ class SkoolParserTest(SkoolKitTestCase):
             '; Routine',
             'c32768 RET',
         ))
-        self.assert_error(skool, "Failed to replace '\[abc' with 'xyz': (unexpected end of regular expression|unterminated character set at position 0)")
+        self.assert_error(skool, "Failed to compile regular expression '\[abc': (unexpected end of regular expression|unterminated character set at position 0)")
 
     def test_replace_directive_with_invalid_replacement(self):
         skool = '\n'.join((
