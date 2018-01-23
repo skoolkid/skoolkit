@@ -1,4 +1,4 @@
-# Copyright 2015, 2017 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2015, 2017, 2018 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -32,27 +32,26 @@ def find_unquoted(text, char, start=0, end=None, neg=False):
         return -1
     return end
 
-def split_unquoted(text, sep, maxsplit=0):
-    i = 0
-    quoted = False
-    elements = ['']
-    while i < len(text):
-        c = text[i]
-        if c == '"':
-            quoted = not quoted
-        elif c == '\\' and quoted:
-            elements[-1] += text[i:i + 2]
-            i += 2
-            continue
-        elif c == sep and not quoted:
+def split_unquoted(text, sep, maxsplit=-1):
+    if '"' not in text:
+        return text.split(sep, maxsplit)
+    elements = []
+    quoted = 0
+    for p in text.split(sep):
+        if quoted:
+            elements[-1] += sep + p
+        else:
+            elements.append(p)
+        i = 0
+        while i < len(p):
+            c = p[i]
+            if c == '"':
+                quoted = 1 - quoted
+            elif c == '\\' and quoted:
+                i += 1
             i += 1
-            if len(elements) == maxsplit > 0:
-                elements.append(text[i:])
-                break
-            elements.append('')
-            continue
-        elements[-1] += c
-        i += 1
+    if len(elements) > maxsplit + 1 > 0:
+        elements[maxsplit:] = [sep.join(elements[maxsplit:])]
     return elements
 
 def partition_unquoted(text, sep, default=''):
