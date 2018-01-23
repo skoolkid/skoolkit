@@ -14,6 +14,8 @@
 # You should have received a copy of the GNU General Public License along with
 # SkoolKit. If not, see <http://www.gnu.org/licenses/>.
 
+import re
+
 def find_unquoted(text, char, start=0, end=None, neg=False):
     i = start
     if end is None:
@@ -61,20 +63,4 @@ def partition_unquoted(text, sep, default=''):
     return (text, '', default)
 
 def split_quoted(text):
-    i = 0
-    elements = ['']
-    while i < len(text):
-        c = text[i]
-        i += 1
-        if elements[-1].startswith('"'):
-            if c == '"':
-                elements[-1] += c
-                elements.append('')
-                continue
-            if c == '\\':
-                c += text[i:i + 1]
-                i += 1
-        elif c == '"':
-            elements.append('')
-        elements[-1] += c
-    return [e for e in elements if e]
+    return [e for e in re.split(r'("(?:[^"\\]|\\.)*")', text) if e]
