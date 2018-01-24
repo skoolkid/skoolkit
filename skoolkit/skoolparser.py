@@ -411,7 +411,7 @@ class SkoolParser:
                 if map_entry:
                     map_entry.end_comment = join_comments(self.comments, split=True)
                     map_entry.ignoreua['e'] = len(self.ignores) > 0
-                else:
+                elif not self.header:
                     self.header += self.comments
                 self.comments[:] = []
 

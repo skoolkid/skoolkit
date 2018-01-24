@@ -859,7 +859,7 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
             self.assertEqual(asm[1], '  {0} ; A=0'.format('DEFB 123'.ljust(width)))
 
     def test_header(self):
-        skool = [
+        skool = '\n'.join((
             '@start',
             '; Header line 1.',
             ';   * Header line 2 (indented)',
@@ -867,11 +867,24 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
             ';',
             '; See <http://skoolkit.ca/>.',
             '',
+            '; Ignored.',
+            '',
             '; Start',
-            'c32768 JP 49152'
+            'c32768 JP 49152',
+            '',
+            '; Also ignored.'
+        ))
+        exp_asm = [
+            '; Header line 1.',
+            ';   * Header line 2 (indented)',
+            ';   * Header line #THREE (also indented)',
+            ';',
+            '; See <http://skoolkit.ca/>.',
+            '',
+            '; Start',
+            '  JP 49152'
         ]
-        asm = self._get_asm('\n'.join(skool))
-        self.assertEqual(skool[1:-1], asm[:len(skool) - 2])
+        self.assertEqual(exp_asm, self._get_asm(skool)[:-1])
 
     def test_registers(self):
         skool = '\n'.join((
