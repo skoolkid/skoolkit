@@ -17,6 +17,10 @@ Changelog
   image path ID in terms of another
 * Added support for image path ID replacement fields in the ``fname`` parameter
   of the :ref:`image macros <imageMacros>` (e.g. ``#SCR2({UDGImagePath}/scr)``)
+* The :ref:`assemble` directive can specify what to assemble in HTML mode and
+  ASM mode separately
+* By default in ASM mode, DEFB/DEFM/DEFS/DEFW statements are no longer
+  converted into byte values for the purpose of populating the memory snapshot
 * The ``address`` parameter of the :ref:`org` directive is now optional and
   defaults to the address of the next instruction
 * The ``LABEL`` parameter of the :ref:`label` directive may be left blank to

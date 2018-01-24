@@ -1584,7 +1584,7 @@ class SkoolParserTest(SkoolKitTestCase):
             ' 24613 DEFM %11110000,"bc"',
             ' 24616 DEFS 2'
         ))
-        parser = self._get_parser(skool)
+        parser = self._get_parser(skool, html=True)
         self.assertEqual(parser.snapshot[24591:24600], [1, 44, 1, 97, 98, 99, 7, 7, 7])
         self.assertEqual(parser.snapshot[24600:24609], [160, 44, 129, 97, 98, 17, 170, 170, 170])
         self.assertEqual(parser.snapshot[24609:24618], [15, 99, 15, 170, 240, 98, 99, 0, 0])
@@ -1676,7 +1676,7 @@ class SkoolParserTest(SkoolKitTestCase):
             'd30000 DEFB 1,2,3',
             ' 50000 DEFB 3,2,1'
         ))
-        parser = self._get_parser(skool)
+        parser = self._get_parser(skool, html=True)
         self.assertEqual(len(parser.memory_map), 0)
         snapshot = parser.snapshot
         self.assertEqual(snapshot[30000:30003], [1, 2, 3])
@@ -1689,7 +1689,7 @@ class SkoolParserTest(SkoolKitTestCase):
             '; Start',
             '32768 JP 49152'
         ))
-        snapshot = self._get_parser(skool).snapshot
+        snapshot = self._get_parser(skool, html=True).snapshot
         self.assertEqual([1, 10, 170, 48, 49, 128], snapshot[23296:23302])
         self.assertEqual([48, 72, 136, 144, 104, 4, 10, 4], snapshot[30000:30008])
 
@@ -1700,7 +1700,7 @@ class SkoolParserTest(SkoolKitTestCase):
             '; Start',
             '32768 JP 49152'
         ))
-        snapshot = self._get_parser(skool).snapshot
+        snapshot = self._get_parser(skool, html=True).snapshot
         self.assertEqual([16] * 6, snapshot[23296:23302])
         self.assertEqual([49] * 4, snapshot[30000:30004])
 
@@ -1711,7 +1711,7 @@ class SkoolParserTest(SkoolKitTestCase):
             '; Start',
             '32768 JP 49152'
         ))
-        snapshot = self._get_parser(skool).snapshot
+        snapshot = self._get_parser(skool, html=True).snapshot
         self.assertEqual([1, 128, 2, 128, 0, 1, 48, 0], snapshot[23296:23304])
         self.assertEqual([0, 128], snapshot[30000:30002])
 
@@ -3066,30 +3066,65 @@ class SkoolParserTest(SkoolKitTestCase):
         self.assertEqual(instruction.operation, 'LD L,24')
         self.assertEqual(instruction.comment.text, '24 is the LSB')
 
+    def test_asm_mode_assemble(self):
+        skool = '\n'.join((
+            '@start',
+            'c24000 XOR A',
+            ' 24001 DEFB 1',
+            '@assemble=,0',
+            ' 24002 XOR B',
+            ' 24003 DEFB 2',
+            '@assemble=,1',
+            ' 24004 XOR C',
+            ' 24005 DEFB 3'
+        ))
+        snapshot = self._get_parser(skool, asm_mode=1).snapshot
+        self.assertEqual([0, 0, 0, 2, 169, 3], snapshot[24000:24006])
+
+    def test_asm_mode_assemble_missing_or_bad_value(self):
+        skool = '\n'.join((
+            '@start',
+            '@assemble=,1',
+            'c24000 XOR A',
+            '@assemble=0',
+            ' 24001 XOR B',
+            '@assemble=0,',
+            ' 24002 XOR C',
+            '@assemble=0,x',
+            ' 24003 XOR D'
+        ))
+        snapshot = self._get_parser(skool, asm_mode=1).snapshot
+        self.assertEqual([175, 168, 169, 170], snapshot[24000:24004])
+
     def test_html_mode_assemble(self):
         skool = '\n'.join((
-            'c30000 LD A,1',
+            'c30000 XOR A',
+            ' 30001 DEFB 1',
             '@assemble=1',
-            ' 30002 LD A,2',
-            '@assemble=0',
-            ' 30004 LD A,3'
+            ' 30002 XOR B',
+            ' 30003 DEFB 2',
+            '@assemble=-1',
+            ' 30004 XOR C',
+            ' 30005 DEFB 3'
         ))
         snapshot = self._get_parser(skool, html=True).snapshot
-        self.assertEqual([0, 0, 62, 2, 0, 0], snapshot[30000:30006])
+        self.assertEqual([0, 1, 168, 2, 0, 0], snapshot[30000:30006])
 
-    def test_html_mode_assemble_bad_values(self):
+    def test_html_mode_assemble_missing_or_bad_value(self):
         skool = '\n'.join((
             '@assemble=1',
-            'c40000 LD A,4',
+            'c40000 XOR A',
             '@assemble=off',
-            ' 40002 LD A,5',
+            ' 40001 XOR B',
             '@assemble=0',
-            ' 40004 LD A,6',
-            '@assemble=on',
-            ' 40006 LD A,7'
+            ' 40002 XOR C',
+            '@assemble=on,-1',
+            ' 40003 XOR D',
+            '@assemble=,1',
+            ' 40004 XOR E'
         ))
         snapshot = self._get_parser(skool, html=True).snapshot
-        self.assertEqual([62, 4, 62, 5, 0, 0, 0, 0], snapshot[40000:40008])
+        self.assertEqual([175, 168, 0, 0, 0], snapshot[40000:40005])
 
     def test_asm_mode_rem(self):
         skool = '\n'.join((
@@ -3610,7 +3645,7 @@ class SkoolParserTest(SkoolKitTestCase):
 
     def test_clone(self):
         skool = 'b40000 DEFB 1,2,3,4,5,6,7,8'
-        parser = self._get_parser(skool)
+        parser = self._get_parser(skool, html=True)
         skool2 = 'b40002 DEFB 9,10,11,12'
         skool2file = self.write_text_file(skool2, suffix='.skool')
         clone = parser.clone(skool2file)

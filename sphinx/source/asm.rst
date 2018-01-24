@@ -170,13 +170,23 @@ subsections.
 
 @assemble
 ^^^^^^^^^
-The ``@assemble`` directive controls whether assembly language instructions
-are converted into byte values for the purpose of populating the memory
-snapshot. ::
+The ``@assemble`` directive controls whether assembly language instructions,
+``DEFB``, ``DEFM``, ``DEFS`` and ``DEFW`` statements, and :ref:`defb`,
+:ref:`defs` and :ref:`defw` directives are converted into byte values for the
+purpose of populating the memory snapshot. ::
 
-  @assemble=N
+  @assemble=H,A
 
-* ``N`` is ``1`` to start converting at the next instruction, or ``0`` to stop
+``H`` is an integer value that determines what is converted in HTML mode, and
+``A`` is an integer value that determines what is converted in ASM mode:
+
+* ``-1`` - do not convert anything (this is the default in ASM mode)
+* ``0`` - convert ``DEFB``, ``DEFM``, ``DEFS`` and ``DEFW`` statements and
+  ``@defb``, ``@defs`` and ``@defw`` directives only (this is the default in
+  HTML mode)
+* ``1`` - convert assembly language instructions as well
+
+If ``H`` or ``A`` is blank or omitted, its value is left unchanged.
 
 For example::
 
@@ -193,13 +203,12 @@ The ``@assemble=1`` directive is required to define the bytes for addresses
 44919-44926. If it were not present, the memory snapshot would contain zeroes
 at those addresses, and the image created by the ``#UDG`` macro would be blank.
 
-Note that ``DEFB``, ``DEFM``, ``DEFS`` and ``DEFW`` statements are always
-converted into byte values and inserted into the memory snapshot; the
-``@assemble`` directive is only required for assembly language instructions.
-
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 6.3     | Added support for specifying what's assembled in HTML mode and    |
+|         | ASM mode separately                                               |
++---------+-------------------------------------------------------------------+
 | 6.1     | Added the ability to assemble instructions whose operands contain |
 |         | arithmetic expressions                                            |
 +---------+-------------------------------------------------------------------+
