@@ -27,6 +27,8 @@ PACKAGE_DIR = os.path.dirname(__file__)
 BASE_10 = 10
 BASE_16 = 16
 
+WRAPPER = textwrap.TextWrapper(break_long_words=False, break_on_hyphens=False)
+
 def error(msg):
     sys.stderr.write('ERROR: {0}\n'.format(msg))
     sys.exit(1)
@@ -52,7 +54,8 @@ def write_text(text):
     sys.stdout.write(text)
 
 def wrap(text, width):
-    return textwrap.wrap(text, width, break_long_words=False, break_on_hyphens=False)
+    WRAPPER.width = width
+    return WRAPPER.wrap(text)
 
 def get_int_param(num_str, accept0x=False):
     try:
