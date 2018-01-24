@@ -55,6 +55,10 @@ def wrap(text, width):
     return textwrap.wrap(text, width, break_long_words=False, break_on_hyphens=False)
 
 def get_int_param(num_str, accept0x=False):
+    try:
+        return int(num_str)
+    except ValueError:
+        pass
     if num_str.startswith('$'):
         return int(num_str[1:], 16)
     if accept0x and num_str.startswith('0x'):
@@ -62,10 +66,13 @@ def get_int_param(num_str, accept0x=False):
     if num_str.startswith('%'):
         return int(num_str[1:], 2)
     if num_str.startswith('"') and num_str.endswith('"'):
-        if num_str.startswith('"\\'):
-            return ord(num_str[2:-1])
-        return ord(num_str[1:-1])
-    return int(num_str)
+        try:
+            if num_str.startswith('"\\'):
+                return ord(num_str[2:-1])
+            return ord(num_str[1:-1])
+        except TypeError:
+            pass
+    raise ValueError
 
 def parse_int(num_str, default=None):
     try:

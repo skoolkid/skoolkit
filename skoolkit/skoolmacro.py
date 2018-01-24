@@ -1,4 +1,4 @@
-# Copyright 2012-2017 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2012-2018 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -19,7 +19,7 @@ import html
 import inspect
 import re
 
-from skoolkit import BASE_10, BASE_16, VERSION, SkoolKitError, SkoolParsingError
+from skoolkit import BASE_10, BASE_16, VERSION, SkoolKitError, SkoolParsingError, get_int_param
 from skoolkit.graphics import Udg
 
 _map_cache = {}
@@ -320,6 +320,10 @@ def _parse_image_fname(text, index, fname=''):
     return end, fname, frame, alt
 
 def evaluate(param, safe=False):
+    try:
+        return get_int_param(param)
+    except ValueError:
+        pass
     param = html.unescape(param)
     if safe or set(param) <= AE_CHARS:
         try:
