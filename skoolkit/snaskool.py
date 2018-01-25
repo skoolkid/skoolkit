@@ -61,7 +61,7 @@ def _get_code_blocks(snapshot, start, end, fname):
     except OSError as e:
         if e.errno == 2:
             raise SkoolKitError('{0}: file not found'.format(fname))
-        raise # pragma: no cover
+        raise SkoolKitError('Failed to get size of {}: {}'.format(fname, e.strerror))
 
     if size == 8192:
         # Assume this is a Z80 map file

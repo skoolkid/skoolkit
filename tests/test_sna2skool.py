@@ -1,3 +1,4 @@
+import os.path
 import re
 import unittest
 from unittest.mock import patch, Mock
@@ -780,6 +781,15 @@ class OptionsTest(SkoolKitTestCase):
 
     def test_option_M_zero_hexadecimal(self):
         self._test_option_M(self._create_zero_log(TEST_MAP, False), '--map')
+
+    @patch.object(os.path, 'getsize', Mock(side_effect=OSError(1, "Not allowed")))
+    def test_option_M_getsize_failure(self):
+        ctlfile = self.write_text_file()
+        mapfile = self.write_bin_file()
+        binfile = self.write_bin_file()
+        error = "Failed to get size of {}: Not allowed".format(mapfile)
+        with self.assertRaisesRegex(SkoolKitError, error):
+            self.run_sna2skool('-g {} -M {} {}'.format(ctlfile, mapfile, binfile))
 
     @patch.object(sna2skool, 'read_bin_file', Mock(return_value=[]))
     def _test_option_M_invalid_map(self, code_map, line_no, invalid_line, error):
