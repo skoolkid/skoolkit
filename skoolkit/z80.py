@@ -17,6 +17,7 @@
 import re
 from functools import partial
 
+from skoolkit import get_int_param
 from skoolkit.textutils import split_unquoted, split_quoted
 
 REG = ('B', 'C', 'D', 'E', 'H', 'L', '(HL)', 'A')
@@ -53,14 +54,20 @@ def _convert_nums(text):
 
 def _parse_expr(text, limit, brackets, non_neg, default):
     try:
-        if not brackets or (text.startswith("(") and text.endswith(")")):
-            s = _convert_nums(_convert_chars(text))
-            if set(s) <= OPERAND_AE_CHARS:
-                value = int(eval(s.replace('/', '//')))
-                if not (abs(value) >= limit or (non_neg and value < 0)):
-                    return value % limit
+        in_brackets = text.startswith("(") and text.endswith(")")
+        if not brackets or in_brackets:
+            if in_brackets:
+                text = text[1:-1]
+            try:
+                value = get_int_param(text)
+            except ValueError:
+                s = _convert_nums(_convert_chars(text))
+                if set(s) <= OPERAND_AE_CHARS:
+                    value = int(eval(s.replace('/', '//')))
+            if not (abs(value) >= limit or (non_neg and value < 0)):
+                return value % limit
         raise ValueError
-    except:
+    except (ValueError, TypeError, UnboundLocalError):
         if default is None:
             raise ValueError
         return default
