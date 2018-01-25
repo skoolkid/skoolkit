@@ -17,19 +17,17 @@
 import re
 
 def find_unquoted(text, char, start=0, end=None, neg=False):
-    i = start
     if end is None:
         end = len(text)
-    quoted = False
-    while i < end:
-        c = text[i]
-        if c == char and not quoted:
-            return i
-        if c == '\\' and quoted:
-            i += 1
-        elif c == '"':
-            quoted = not quoted
-        i += 1
+    index = text.find(char, start, end)
+    if index >= 0:
+        if '"' not in text or index < text.index('"', start, end):
+            return index
+        for p in split_quoted(text[start:end]):
+            index = p.find(char)
+            if index >= 0 and ('"' not in p or index < p.index('"')):
+                return start + index
+            start += len(p)
     if neg:
         return -1
     return end
