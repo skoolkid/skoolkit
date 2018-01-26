@@ -4,9 +4,9 @@ BUILD = build
 HTML_OPTIONS = $(HTML_OPTS)
 HTML_OPTIONS += -d $(BUILD)/html -t
 HTML_OPTIONS += $(foreach theme,$(THEMES),-T $(theme))
-NOSETESTS34 ?= $(HOME)/Python/Python3.4/bin/nosetests
-NOSETESTS35 ?= $(HOME)/Python/Python3.5/bin/nosetests
-NOSETESTS36 ?= $(HOME)/Python/Python3.6/bin/nosetests
+NOSE34 ?= $(HOME)/Python/Python3.4/bin/nose2
+NOSE35 ?= $(HOME)/Python/Python3.5/bin/nose2
+NOSE36 ?= $(HOME)/Python/Python3.6/bin/nose2
 TESTS ?= asm ctl html sft
 
 .PHONY: usage
@@ -46,8 +46,8 @@ write-tests:
 
 .PHONY: test
 test: write-tests
-	nosetests3 -w tests
+	nose2-3
 
 .PHONY: test%
 test%: write-tests
-	$(NOSETESTS$*) -w tests
+	$(NOSE$*)

@@ -1,7 +1,7 @@
-NOSETESTS ?= nosetests3
-NOSETESTS34 ?= $(HOME)/Python/Python3.4/bin/nosetests
-NOSETESTS35 ?= $(HOME)/Python/Python3.5/bin/nosetests
-NOSETESTS36 ?= $(HOME)/Python/Python3.6/bin/nosetests
+NOSE ?= nose2-3
+NOSE34 ?= $(HOME)/Python/Python3.4/bin/nose2
+NOSE35 ?= $(HOME)/Python/Python3.5/bin/nose2
+NOSE36 ?= $(HOME)/Python/Python3.6/bin/nose2
 OPTIONS = -d build/html -t
 
 OPTIONS += $(foreach theme,$(THEMES),-T $(theme))
@@ -57,23 +57,23 @@ remove-disassembly-tests:
 
 .PHONY: test
 test: remove-disassembly-tests
-	$(NOSETESTS) -w tests
+	$(NOSE)
 
 .PHONY: test-all
 test-all: write-disassembly-tests
-	$(NOSETESTS) -w tests
+	$(NOSE)
 
 .PHONY: test%
 test%: remove-disassembly-tests
-	$(NOSETESTS$*) -w tests
+	$(NOSE$*)
 
 .PHONY: test%-all
 test%-all: write-disassembly-tests
-	$(NOSETESTS$*) -w tests
+	$(NOSE$*)
 
 .PHONY: test-cover
 test-cover: remove-disassembly-tests
-	$(NOSETESTS) -w tests --with-coverage --cover-package=skoolkit --cover-erase
+	$(NOSE) -C --coverage skoolkit
 
 .PHONY: release
 release:
