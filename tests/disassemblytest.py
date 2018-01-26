@@ -173,7 +173,7 @@ class SftTestCase(DisassembliesTestCase):
         if not skool:
             skool = self._write_skool(snapshot, ctl)
         with open(skool) as f:
-            orig_skool = f.read().split('\n')
+            orig_skool = f.read().rstrip().split('\n')
         args = '{} {}'.format(options, skool)
         sft, stderr = self.run_skool2sft(args, out_lines=False)
         self.assertEqual(stderr, '')
@@ -182,4 +182,4 @@ class SftTestCase(DisassembliesTestCase):
         if sna2skool_opts:
             options += ' {}'.format(sna2skool_opts)
         output, stderr = self.run_sna2skool('{} {}'.format(options, snapshot))
-        self.assertEqual(orig_skool[:-1], output)
+        self.assertEqual(orig_skool, output)
