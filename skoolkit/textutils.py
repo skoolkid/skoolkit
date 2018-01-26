@@ -21,7 +21,7 @@ def find_unquoted(text, char, start=0, end=None, neg=False):
         end = len(text)
     index = text.find(char, start, end)
     if index >= 0:
-        if '"' not in text or index < text.index('"', start, end):
+        if '"' not in text[start:end] or index < text.index('"', start, end):
             return index
         for p in split_quoted(text[start:end]):
             index = p.find(char)
