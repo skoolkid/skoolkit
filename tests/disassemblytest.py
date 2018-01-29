@@ -86,15 +86,13 @@ class DisassembliesTestCase(SkoolKitTestCase):
         return self.write_text_file(output)
 
 class AsmTestCase(DisassembliesTestCase):
-    def _test_asm(self, options, skool=None, snapshot=None, ctl=None, writer=None, clean=True):
+    def _test_asm(self, options, skool=None, snapshot=None, ctl=None, clean=True):
         if not skool:
             skool = self._write_skool(snapshot, ctl)
-        if writer:
-            options += ' -W {}'.format(writer)
         output, stderr = self.run_skool2asm('{} {}'.format(options, skool), err_lines=True)
         if clean:
             self.assertTrue(stderr[0].startswith('Parsed {}'.format(skool)))
-            self.assertEqual(len(stderr), 3 if writer else 2)
+            self.assertIn(len(stderr), (2, 3))
         else:
             self.assertTrue(any([line.startswith('Parsed {}'.format(skool)) for line in stderr]))
         self.assertTrue(stderr[-1].startswith('Wrote ASM to stdout'))
@@ -141,7 +139,7 @@ class HtmlTestCase(DisassembliesTestCase):
                     error_msg.append('  {} -> {}'.format(fname, link_dest))
             self.fail('\n'.join(error_msg))
 
-    def _test_html(self, options, skool=None, snapshot=None, ctl=None, output=None, writer=None, ref=None):
+    def _test_html(self, options, skool=None, snapshot=None, ctl=None, output=None, ref=None):
         base = case = None
         if '-H' in options:
             base = 16
@@ -155,8 +153,6 @@ class HtmlTestCase(DisassembliesTestCase):
         if not skool:
             skool = self._write_skool(snapshot, ctl)
             options += ' -c Config/SkoolFile={}'.format(skool)
-        if writer:
-            options += ' -W {}'.format(writer)
         if not ref:
             ref = skool[:-5] + 'ref'
         shutil.rmtree(self.odir, True)

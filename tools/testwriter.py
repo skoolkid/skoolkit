@@ -16,31 +16,35 @@ sys.path.insert(0, '{}/tests'.format(SKOOLKIT_HOME))
 import disassemblytest
 """.lstrip()
 
-def _write_tests(test_type, snapshot, output, skool, html_writer, asm_writer, sna2skool_opts, ctl, ref, clean):
+def _write_tests(test_type, sources, snapshot, output, skool, sna2skool_opts, ctl, ref, clean):
     print(PROLOGUE)
     variables = []
+    if sources:
+        print("SOURCEDIR = '{}'\n".format(os.path.abspath('sources')))
     if skool:
         _add_variable(variables, 'SKOOL', skool)
     else:
-        _add_variable(variables, 'SNAPSHOT', snapshot)
-        _add_variable(variables, 'CTL', ctl)
+        _add_variable(variables, 'SNAPSHOT', os.path.abspath(snapshot))
+        _add_variable(variables, 'CTL', os.path.abspath(ctl))
     if test_type == 'asm':
-        if asm_writer:
-            _add_variable(variables, 'WRITER', asm_writer)
         if not clean:
             _add_variable(variables, 'CLEAN', clean)
     elif test_type == 'html':
         _add_variable(variables, 'OUTPUT', output, True)
-        if html_writer:
-            _add_variable(variables, 'WRITER', html_writer)
         if ref:
-            _add_variable(variables, 'REF', ref)
+            _add_variable(variables, 'REF', os.path.abspath(ref))
     elif test_type == 'sft':
-        _add_variable(variables, 'SNAPSHOT', snapshot)
+        _add_variable(variables, 'SNAPSHOT', os.path.abspath(snapshot))
         if sna2skool_opts:
             _add_variable(variables, 'SNA2SKOOL_OPTS', sna2skool_opts)
     class_name = '{}TestCase'.format(test_type.capitalize())
     print('class {0}(disassemblytest.{0}):'.format(class_name))
+    if sources:
+        print('    @classmethod')
+        print('    def setUpClass(cls):')
+        print('        super().setUpClass()')
+        print('        os.chdir(SOURCEDIR)')
+        print('')
     for options in OPTIONS_LISTS[test_type]:
         method_name_suffix = options.replace('-', '_').replace(' ', '')
         method_name = 'test_{}{}'.format(test_type, method_name_suffix)
@@ -92,8 +96,8 @@ OPTIONS_LISTS = {
 
 TEST_TYPES = sorted(OPTIONS_LISTS)
 
-def write_tests(skool=None, snapshot=None, output=None, html_writer=None, asm_writer=None, sna2skool_opts=None, ctl=None, ref=None, clean=True):
+def write_tests(skool=None, snapshot=None, output=None, sna2skool_opts=None, sources=True, ctl=None, ref=None, clean=True):
     if len(sys.argv) != 2 or sys.argv[1] not in TEST_TYPES:
         sys.stderr.write("Usage: {} {}\n".format(os.path.basename(sys.argv[0]), '|'.join(TEST_TYPES)))
         sys.exit(1)
-    _write_tests(sys.argv[1], snapshot, output, skool, html_writer, asm_writer, sna2skool_opts, ctl, ref, clean)
+    _write_tests(sys.argv[1], sources, snapshot, output, skool, sna2skool_opts, ctl, ref, clean)

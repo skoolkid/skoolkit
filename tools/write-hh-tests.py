@@ -13,11 +13,11 @@ if not os.path.isdir(SKOOLKIT_HOME):
 sys.path.insert(0, '{}/tools'.format(SKOOLKIT_HOME))
 from testwriter import write_tests
 
-SNAPSHOT = '{}/build/hungry_horace.z80'.format(SKOOLKIT_HOME)
+SNAPSHOT = 'build/hungry_horace.z80'
 
-CTL = '{}/examples/hungry_horace.ctl'.format(SKOOLKIT_HOME)
+CTL = 'examples/hungry_horace.ctl'
 
-REF = '{}/examples/hungry_horace.ref'.format(SKOOLKIT_HOME)
+REF = 'examples/hungry_horace.ref'
 
 OUTPUT = """Using skool file: {skoolfile}
 Using ref file: {reffile}
@@ -33,4 +33,4 @@ Copying {SKOOLKIT_HOME}/skoolkit/resources/skoolkit.css to {odir}/hungry_horace/
   Writing hungry_horace/reference/changelog.html
   Writing hungry_horace/index.html"""
 
-write_tests(snapshot=SNAPSHOT, output=OUTPUT, ctl=CTL, ref=REF, clean=False)
+write_tests(snapshot=SNAPSHOT, output=OUTPUT, sources=False, ctl=CTL, ref=REF, clean=False)
