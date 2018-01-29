@@ -3987,6 +3987,121 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             writer.write_asm_entries()
         self.assertEqual(cm.exception.args[0], "Cannot find code path for 'save' disassembly")
 
+    def test_indented_comment_lines_are_ignored(self):
+        skool = '\n'.join((
+            '; Routine',
+            ';',
+            ' ; Ignore me.',
+            '; Paragraph 1.',
+            ' ; Ignore me too,',
+            '; .',
+            ' ; Ignore me three.',
+            '; Paragraph 2.',
+            ';',
+            '; HL Address',
+            ' ; Ignore me four.',
+            ';',
+            ' ; Ignore me five.',
+            '; Start comment paragraph 1.',
+            '; .',
+            ' ; Ignore me six.',
+            '; Start comment paragraph 2.',
+            'c50000 XOR A',
+            '; Mid-block comment.',
+            ' ; Ignore me seven.',
+            '; Mid-block comment continued.',
+            ' 50001 RET',
+            '; End comment.',
+            ' ; Ignore me eight.',
+            '; End comment continued.'
+        ))
+        writer = self._get_writer(skool=skool)
+        writer.write_asm_entries()
+
+        content = """
+            <div class="description">50000: Routine</div>
+            <table class="disassembly">
+            <tr>
+            <td class="routine-comment" colspan="4">
+            <div class="details">
+            <div class="paragraph">
+            Paragraph 1.
+            </div>
+            <div class="paragraph">
+            Paragraph 2.
+            </div>
+            </div>
+            <table class="input-1">
+            <tr class="asm-input-header">
+            <th colspan="2">Input</th>
+            </tr>
+            <tr>
+            <td class="register">HL</td>
+            <td class="register-desc">Address</td>
+            </tr>
+            </table>
+            <table class="output-0">
+            <tr class="asm-output-header">
+            <th colspan="2">Output</th>
+            </tr>
+            </table>
+            </td>
+            </tr>
+            <tr>
+            <td class="routine-comment" colspan="4">
+            <span id="50000"></span>
+            <div class="comments">
+            <div class="paragraph">
+            Start comment paragraph 1.
+            </div>
+            <div class="paragraph">
+            Start comment paragraph 2.
+            </div>
+            </div>
+            </td>
+            </tr>
+            <tr>
+            <td class="asm-label-0"></td>
+            <td class="address-2"><span id="50000"></span>50000</td>
+            <td class="instruction">XOR A</td>
+            <td class="comment-10" rowspan="1"></td>
+            </tr>
+            <tr>
+            <td class="routine-comment" colspan="4">
+            <span id="50001"></span>
+            <div class="comments">
+            <div class="paragraph">
+            Mid-block comment. Mid-block comment continued.
+            </div>
+            </div>
+            </td>
+            </tr>
+            <tr>
+            <td class="asm-label-0"></td>
+            <td class="address-1"><span id="50001"></span>50001</td>
+            <td class="instruction">RET</td>
+            <td class="comment-10" rowspan="1"></td>
+            </tr>
+            <tr>
+            <td class="routine-comment" colspan="4">
+            <div class="comments">
+            <div class="paragraph">
+            End comment. End comment continued.
+            </div>
+            </div>
+            </td>
+            </tr>
+            </table>
+        """
+        subs = {
+            'title': 'Routine at 50000',
+            'body_class': 'Asm-c',
+            'header': 'Routines',
+            'up': 50000,
+            'content': content
+        }
+        self._assert_files_equal(join(ASMDIR, '50000.html'), subs)
+
     def test_block_start_comment(self):
         start_comment = ('Start comment paragraph 1.', 'Paragraph 2.')
         skool = '\n'.join((

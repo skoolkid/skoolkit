@@ -886,6 +886,54 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
         ]
         self.assertEqual(exp_asm, self._get_asm(skool)[:-1])
 
+    def test_indented_comment_lines_are_ignored(self):
+        skool = '\n'.join((
+            '@start',
+            '; Routine',
+            ';',
+            ' ; Ignore me.',
+            '; Paragraph 1.',
+            ' ; Ignore me too,',
+            '; .',
+            ' ; Ignore me three.',
+            '; Paragraph 2.',
+            ';',
+            '; HL Address',
+            ' ; Ignore me four.',
+            ';',
+            ' ; Ignore me five.',
+            '; Start comment paragraph 1.',
+            '; .',
+            ' ; Ignore me six.',
+            '; Start comment paragraph 2.',
+            'c50000 XOR A',
+            '; Mid-block comment.',
+            ' ; Ignore me seven.',
+            '; Mid-block comment continued.',
+            ' 50001 RET',
+            '; End comment.',
+            ' ; Ignore me eight.',
+            '; End comment continued.'
+        ))
+        exp_asm = [
+            '; Routine',
+            ';',
+            '; Paragraph 1.',
+            ';',
+            '; Paragraph 2.',
+            ';',
+            '; HL Address',
+            ';',
+            '; Start comment paragraph 1.',
+            ';',
+            '; Start comment paragraph 2.',
+            '  XOR A',
+            '; Mid-block comment. Mid-block comment continued.',
+            '  RET',
+            '; End comment. End comment continued.'
+        ]
+        self.assertEqual(exp_asm, self._get_asm(skool)[:-1])
+
     def test_registers(self):
         skool = '\n'.join((
             '@start',

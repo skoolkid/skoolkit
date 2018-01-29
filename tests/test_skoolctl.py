@@ -1465,6 +1465,47 @@ class CtlWriterTest(SkoolKitTestCase):
         ]
         self._test_ctl(skool, exp_ctl)
 
+    def test_indented_comment_lines_are_ignored(self):
+        skool = '\n'.join((
+            '; Routine',
+            ';',
+            ' ; Ignore me.',
+            '; Paragraph 1.',
+            ' ; Ignore me too,',
+            '; .',
+            ' ; Ignore me three.',
+            '; Paragraph 2.',
+            ';',
+            '; HL Address',
+            ' ; Ignore me four.',
+            ';',
+            ' ; Ignore me five.',
+            '; Start comment paragraph 1.',
+            '; .',
+            ' ; Ignore me six.',
+            '; Start comment paragraph 2.',
+            'c50000 XOR A',
+            '; Mid-block comment.',
+            ' ; Ignore me seven.',
+            '; Mid-block comment continued.',
+            ' 50001 RET',
+            '; End comment.',
+            ' ; Ignore me eight.',
+            '; End comment continued.'
+        ))
+        exp_ctl = [
+            'c 50000 Routine',
+            'D 50000 Paragraph 1.',
+            'D 50000 Paragraph 2.',
+            'R 50000 HL Address',
+            'N 50000 Start comment paragraph 1.',
+            'N 50000 Start comment paragraph 2.',
+            'N 50001 Mid-block comment. Mid-block comment continued.',
+            'E 50000 End comment. End comment continued.',
+            'i 50002'
+        ]
+        self._test_ctl(skool, exp_ctl)
+
     def test_M_directives(self):
         skool = '\n'.join((
             'c30000 LD A,B   ; {Regular M directive',
