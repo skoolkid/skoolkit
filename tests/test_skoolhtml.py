@@ -1,6 +1,7 @@
 import html
 from os.path import basename, isfile
 from posixpath import join
+from textwrap import dedent
 import unittest
 from unittest.mock import patch
 
@@ -217,11 +218,11 @@ class HtmlWriterTestCase(SkoolKitTestCase):
         self.skoolfile = None
         ref_parser = RefParser()
         if ref is not None:
-            ref_parser.parse(StringIO(ref))
+            ref_parser.parse(StringIO(dedent(ref).strip()))
         if skool is None:
             skool_parser = MockSkoolParser(snapshot, base=base, case=case)
         else:
-            self.skoolfile = self.write_text_file(skool, suffix='.skool')
+            self.skoolfile = self.write_text_file(dedent(skool).strip(), suffix='.skool')
             skool_parser = SkoolParser(self.skoolfile, case=case, base=base, html=True, create_labels=create_labels, asm_labels=asm_labels)
         self.odir = self.make_directory()
         if mock_file_info:
@@ -279,11 +280,11 @@ class HtmlWriterTest(HtmlWriterTestCase):
                 self._get_writer(ref=ref)
 
     def test_OtherCode_Source_parameter(self):
-        ref = '\n'.join((
-            '[OtherCode:load]',
-            '[OtherCode:save]',
-            'Source=save.sks'
-        ))
+        ref = """
+            [OtherCode:load]
+            [OtherCode:save]
+            Source=save.sks
+        """
         writer = self._get_writer(ref=ref)
         self.assertEqual(len(writer.other_code), 2)
         i = 0
@@ -295,47 +296,47 @@ class HtmlWriterTest(HtmlWriterTestCase):
             i += 1
 
     def test_replace_directive(self):
-        ref = '\n'.join((
-            '[Test]',
-            'Hello @all.',
-            'Goodbye @all.'
-        ))
-        skool = '\n'.join((
-            '@replace=/@all/everyone',
-            'c32768 RET'
-        ))
+        ref = """
+            [Test]
+            Hello @all.
+            Goodbye @all.
+        """
+        skool = """
+            @replace=/@all/everyone
+            c32768 RET
+        """
         writer = self._get_writer(ref=ref, skool=skool)
         section = writer.get_section('Test', lines=True)
         self.assertEqual(['Hello everyone.', 'Goodbye everyone.'], section)
 
     def test_replace_directive_on_entry_section_name(self):
-        ref = '\n'.join((
-            '[Test#foo]',
-            'Work#foo.'
-        ))
-        skool = '\n'.join((
-            '@replace=/#foo/ing',
-            'c32768 RET'
-        ))
+        ref = """
+            [Test#foo]
+            Work#foo.
+        """
+        skool = """
+            @replace=/#foo/ing
+            c32768 RET
+        """
         writer = self._get_writer(ref=ref, skool=skool)
         section = writer.get_section('Testing', lines=True)
         self.assertEqual(['Working.'], section)
 
     def test_non_empty_box_page_is_registered(self):
-        ref = '\n'.join((
-            '[Page:Foo]',
-            'SectionPrefix=Foo',
-            '[Foo:foo:Foo]',
-            'Hello.'
-        ))
+        ref = """
+            [Page:Foo]
+            SectionPrefix=Foo
+            [Foo:foo:Foo]
+            Hello.
+        """
         writer = self._get_writer(ref=ref)
         self.assertIn('Foo', writer.get_page_ids())
 
     def test_empty_box_page_is_not_registered(self):
-        ref = '\n'.join((
-            '[Page:Bar]',
-            'SectionPrefix=Bar'
-        ))
+        ref = """
+            [Page:Bar]
+            SectionPrefix=Bar
+        """
         writer = self._get_writer(ref=ref)
         self.assertNotIn('Bar', writer.get_page_ids())
 
@@ -403,14 +404,14 @@ class MethodTest(HtmlWriterTestCase):
         self._assert_scr_equal(writer, 10, 10)
 
     def test_ref_parsing(self):
-        ref = '\n'.join((
-            '[Links]',
-            'Bugs=[Bugs] (program errors)',
-            'Pokes=[Pokes [with square brackets in the link text]] (cheats)',
-            '',
-            '[MemoryMap:TestMap]',
-            'EntryTypes=w',
-        ))
+        ref = """
+            [Links]
+            Bugs=[Bugs] (program errors)
+            Pokes=[Pokes [with square brackets in the link text]] (cheats)
+
+            [MemoryMap:TestMap]
+            EntryTypes=w
+        """
         writer = self._get_writer(ref=ref, skool='w30000 DEFW 0')
 
         # [Links]
@@ -435,21 +436,21 @@ class MethodTest(HtmlWriterTestCase):
         self.assertEqual(section, 'Baz')
 
     def test_get_section_trim_lines(self):
-        ref = '\n'.join((
-            '[Foo]',
-            '  Line 1.',
-            '    Line 2.'
-        ))
+        ref = """
+            [Foo]
+              Line 1.
+                Line 2.
+        """
         writer = self._get_writer(ref=ref)
         section = writer.get_section('Foo')
         self.assertEqual(section, 'Line 1.\nLine 2.')
 
     def test_get_section_no_trim_lines(self):
-        ref = '\n'.join((
-            '[Foo]',
-            '  Line 1.',
-            '    Line 2.'
-        ))
+        ref = """
+            [Foo]
+              Line 1.
+                Line 2.
+        """
         writer = self._get_writer(ref=ref)
         section = writer.get_section('Foo', trim=False)
         self.assertEqual(section, '  Line 1.\n    Line 2.')
@@ -624,24 +625,24 @@ class MethodTest(HtmlWriterTestCase):
 
     def test_format_template_page_specific_template_exists(self):
         page_id = 'CustomPage'
-        ref = '\n'.join((
-            '[Template:{}-foo]'.format(page_id),
-            '!!{bar}!!',
-            '[Template:foo]',
-            '{bar}',
-        ))
+        ref = """
+            [Template:{}-foo]
+            !!{{bar}}!!
+            [Template:foo]
+            {{bar}}
+        """.format(page_id)
         writer = self._get_writer(ref=ref)
         writer.skoolkit['page_id'] = page_id
         output = writer.format_template('foo', {'bar': 'baz'})
         self.assertEqual(output, '!!baz!!')
 
     def test_format_template_unused_default(self):
-        ref = '\n'.join((
-            '[Template:foo]',
-            '{bar}',
-            '[Template:default-foo]',
-            '<<{bar}>>',
-        ))
+        ref = """
+            [Template:foo]
+            {bar}
+            [Template:default-foo]
+            <<{bar}>>
+        """
         writer = self._get_writer(ref=ref)
         output = writer.format_template('foo', {'bar': 'baz'}, 'default-foo')
         self.assertEqual(output, 'baz')
@@ -968,11 +969,11 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         self._test_image_macro_with_replacement_field_in_filename('#FONT0,1', FONTDIR)
 
     def test_macro_foreach_entry_omits_i_blocks(self):
-        skool = '\n'.join((
-            'i23296 DEFS 1280',
-            '',
-            'c24576 RET'
-        ))
+        skool = """
+            i23296 DEFS 1280
+
+            c24576 RET
+        """
         writer = self._get_writer(skool=skool)
 
         output = writer.expand('#FOREACH(ENTRY)(n,n, )')
@@ -1008,52 +1009,52 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         self.assertEqual(writer.expand('#IF({html})(PASS,FAIL)'), 'PASS')
 
     def test_macro_include_no_paragraphs(self):
-        ref = '\n'.join((
-            '[Foo]',
-            'Bar',
-            '',
-            '#IF0(Baz,Qux)'
-        ))
-        exp_html = '\n'.join((
-            'Bar',
-            '',
-            'Qux'
-        ))
+        ref = """
+            [Foo]
+            Bar
+
+            #IF0(Baz,Qux)
+        """
+        exp_html = dedent("""
+            Bar
+
+            Qux
+        """).strip()
         writer = self._get_writer(ref=ref)
 
         for params in ('(Foo)', '0[Foo]', '(){Foo}', '(0+0)/Foo/'):
             output = writer.expand('#INCLUDE' + params, ASMDIR)
-            self.assertEqual(output, exp_html)
+            self.assertEqual(exp_html, output)
 
     def test_macro_include_with_paragraphs(self):
-        ref = '\n'.join((
-            '[Foo]',
-            'Bar',
-            '',
-            '#IF1(Baz,Qux)'
-        ))
-        exp_html = '\n'.join((
-            '<div class="paragraph">',
-            'Bar',
-            '</div>',
-            '<div class="paragraph">',
-            'Baz',
-            '</div>'
-        ))
+        ref = """
+            [Foo]
+            Bar
+
+            #IF1(Baz,Qux)
+        """
+        exp_html = dedent("""
+            <div class="paragraph">
+            Bar
+            </div>
+            <div class="paragraph">
+            Baz
+            </div>
+        """).strip()
         writer = self._get_writer(ref=ref)
 
         for params in ('1(Foo)', '(1)[Foo]', '(1*1){Foo}', '(0+1)/Foo/'):
             output = writer.expand('#INCLUDE' + params, ASMDIR)
-            self.assertEqual(output, exp_html)
+            self.assertEqual(exp_html, output)
 
     def test_macro_link(self):
-        ref = '\n'.join((
-            '[Page:page]',
-            '[Page:page2]',
-            '[Links]',
-            'page=Custom page',
-            'page2=Custom page 2'
-        ))
+        ref = """
+            [Page:page]
+            [Page:page2]
+            [Links]
+            page=Custom page
+            page2=Custom page 2
+        """
         writer = self._get_writer(ref=ref)
 
         link_text = 'bugs'
@@ -1086,23 +1087,23 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         self._assert_link_equals(output, '../page2.html', link_text)
 
     def test_macro_link_to_memory_map_page(self):
-        skool = '\n'.join((
-            'c40000 RET',
-            '',
-            'b40001 DEFB 0',
-            '',
-            't40002 DEFM "!"'
-        ))
+        skool = """
+            c40000 RET
+
+            b40001 DEFB 0
+
+            t40002 DEFM "!"
+        """
         address_fmt = '{address:04x}'
-        ref = '\n'.join((
-            '[Game]',
-            'AddressAnchor={}'.format(address_fmt),
-            '[MemoryMap:MemoryMap]',
-            '[MemoryMap:RoutinesMap]',
-            'EntryTypes=c',
-            '[MemoryMap:CustomMap]',
-            'EntryTypes=bt'
-        ))
+        ref = """
+            [Game]
+            AddressAnchor={}
+            [MemoryMap:MemoryMap]
+            [MemoryMap:RoutinesMap]
+            EntryTypes=c
+            [MemoryMap:CustomMap]
+            EntryTypes=bt
+        """.format(address_fmt)
         writer = self._get_writer(skool=skool, ref=ref)
 
         # Anchor matches an entry address - anchor should be converted
@@ -1129,23 +1130,23 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
 
     def test_macro_link_to_non_memory_map_page_with_entry_address_anchor(self):
         skool = 'c40000 RET'
-        ref = '\n'.join((
-            '[Game]',
-            'AddressAnchor={address:04x}',
-            '[Page:CustomPage]',
-            'PageContent=Hello'
-        ))
+        ref = """
+            [Game]
+            AddressAnchor={address:04x}
+            [Page:CustomPage]
+            PageContent=Hello
+        """
         writer = self._get_writer(skool=skool, ref=ref)
         output = writer.expand('#LINK:CustomPage#40000(foo)', ASMDIR)
         self._assert_link_equals(output, '../CustomPage.html#40000', 'foo')
 
     def test_macro_link_to_box_page_item_with_blank_link_text(self):
-        ref = '\n'.join((
-            '[Page:Boxes]',
-            'SectionPrefix=Box',
-            '[Box:item1:Item 1]',
-            'This is item 1.'
-        ))
+        ref = """
+            [Page:Boxes]
+            SectionPrefix=Box
+            [Box:item1:Item 1]
+            This is item 1.
+        """
         writer = self._get_writer(ref=ref)
         output = writer.expand('#LINK:Boxes#item1()', ASMDIR)
         self._assert_link_equals(output, '../Boxes.html#item1', 'Item 1')
@@ -1159,25 +1160,25 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
 
         # List with a CSS class and an item containing a skool macro
         src = "(default){ Item 1 }{ Item 2 }{ #R32768 }"
-        html = '\n'.join((
-            '<ul class="default">',
-            '<li>Item 1</li>',
-            '<li>Item 2</li>',
-            '<li><a href="32768.html">32768</a></li>',
-            '</ul>'
-        ))
+        exp_html = """
+            <ul class="default">
+            <li>Item 1</li>
+            <li>Item 2</li>
+            <li><a href="32768.html">32768</a></li>
+            </ul>
+        """
         output = writer.expand('#LIST{}\nLIST#'.format(src), ASMDIR)
-        self.assertEqual(output, html)
+        self.assertEqual(dedent(exp_html).strip(), output)
 
         # List with no CSS class
         src = "{ Item 1 }"
-        html = '\n'.join((
-            '<ul class="">',
-            '<li>Item 1</li>',
-            '</ul>'
-        ))
+        exp_html = """
+            <ul class="">
+            <li>Item 1</li>
+            </ul>
+        """
         output = writer.expand('#LIST{}\nLIST#'.format(src))
-        self.assertEqual(output, html)
+        self.assertEqual(dedent(exp_html).strip(), output)
 
         # Empty list
         output = writer.expand('#LIST LIST#')
@@ -1203,38 +1204,38 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         self.assertEqual(writer.expand('#MAP({html})(FAIL,1:PASS)'), 'PASS')
 
     def test_macro_r(self):
-        skool = '\n'.join((
-            'c00000 LD A,B',
-            '',
-            'c00007 LD A,C',
-            '',
-            'c00016 LD A,D',
-            '',
-            'c00115 LD A,E',
-            '',
-            'c01114 LD A,H',
-            '',
-            '; Routine',
-            'c24576 LD HL,$6003',
-            '',
-            '; Data',
-            'b$6003 DEFB 123',
-            ' $6004 DEFB 246',
-            '',
-            '; Another routine',
-            'c24581 NOP',
-            ' 24582 NOP',
-            '',
-            '; Yet another routine',
-            'c24583 CALL 24581',
-            '',
-            '; Another routine still',
-            'c24586 CALL 24581',
-            ' 24589 JP 24582',
-            '',
-            '; The final routine',
-            'c24592 CALL 24582'
-        ))
+        skool = """
+            c00000 LD A,B
+
+            c00007 LD A,C
+
+            c00016 LD A,D
+
+            c00115 LD A,E
+
+            c01114 LD A,H
+
+            ; Routine
+            c24576 LD HL,$6003
+
+            ; Data
+            b$6003 DEFB 123
+             $6004 DEFB 246
+
+            ; Another routine
+            c24581 NOP
+             24582 NOP
+
+            ; Yet another routine
+            c24583 CALL 24581
+
+            ; Another routine still
+            c24586 CALL 24581
+             24589 JP 24582
+
+            ; The final routine
+            c24592 CALL 24582
+        """
         writer = self._get_writer(skool=skool)
 
         # Reference address is 0
@@ -1322,17 +1323,17 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         self._assert_link_equals(output, 'asm.html#40001', '40001')
 
     def test_macro_r_other_code(self):
-        ref = '\n'.join((
-            '[OtherCode:other]',
-            'Source=other.skool'
-        ))
-        skool = '\n'.join((
-            'c49152 LD DE,0',
-            ' 49155 RET',
-            '',
-            'r$C000 other',
-            ' $c003'
-        ))
+        ref = """
+            [OtherCode:other]
+            Source=other.skool
+        """
+        skool = """
+            c49152 LD DE,0
+             49155 RET
+
+            r$C000 other
+             $c003
+        """
         writer = self._get_writer(ref=ref, skool=skool)
 
         # Reference with the same address as a remote entry
@@ -1367,10 +1368,10 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
 
     def test_macro_r_with_remote_directive(self):
         ref = '[OtherCode:other]'
-        skool = '\n'.join((
-            '@remote=other:40000,$9c45',
-            'c32768 RET'
-        ))
+        skool = """
+            @remote=other:40000,$9c45
+            c32768 RET
+        """
         for base, case, addr1, addr2 in (
             (0, 0, '40000', '9c45'),
             (BASE_10, 0, '40000', '40005'),
@@ -1384,28 +1385,28 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
                 self._assert_link_equals(writer.expand('#R40005@other', ASMDIR), '../other/40000.html#40005', addr2)
 
     def test_macro_r_other_code_asm_single_page(self):
-        ref = '\n'.join((
-            '[Game]',
-            'AsmSinglePageTemplate=AsmAllInOne',
-            '[OtherCode:other]'
-        ))
+        ref = """
+            [Game]
+            AsmSinglePageTemplate=AsmAllInOne
+            [OtherCode:other]
+        """
         writer = self._get_writer(ref=ref, skool='')
 
         output = writer.expand('#R40000@other', '')
         self._assert_link_equals(output, 'other/asm.html#40000', '40000')
 
     def test_macro_r_decimal(self):
-        ref = '\n'.join((
-            '[OtherCode:other]',
-            'Source=other.skool'
-        ))
-        skool = '\n'.join((
-            'c32768 LD A,B',
-            ' 32769 RET',
-            '',
-            'r$C000 other',
-            ' $C003'
-        ))
+        ref = """
+            [OtherCode:other]
+            Source=other.skool
+        """
+        skool = """
+            c32768 LD A,B
+             32769 RET
+
+            r$C000 other
+             $C003
+        """
         writer = self._get_writer(ref=ref, skool=skool, base=BASE_10)
 
         # Routine
@@ -1429,17 +1430,17 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         self._assert_link_equals(output, '../other/49152.html#49155', '49155')
 
     def test_macro_r_hex(self):
-        ref = '\n'.join((
-            '[OtherCode:other]',
-            'Source=other.skool'
-        ))
-        skool = '\n'.join((
-            'c32768 LD A,B',
-            ' 32769 RET',
-            '',
-            'r$C000 other',
-            ' $C003'
-        ))
+        ref = """
+            [OtherCode:other]
+            Source=other.skool
+        """
+        skool = """
+            c32768 LD A,B
+             32769 RET
+
+            r$C000 other
+             $C003
+        """
         writer = self._get_writer(ref=ref, skool=skool, base=BASE_16)
 
         # Routine
@@ -1463,19 +1464,19 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         self._assert_link_equals(output, '../other/49152.html#49155', 'C003')
 
     def test_macro_r_hex_lower(self):
-        ref = '\n'.join((
-            '[OtherCode:Other]',
-            'Source=other.skool',
-            '[Paths]',
-            'Other-CodePath=other'
-        ))
-        skool = '\n'.join((
-            'c40970 LD A,B',
-            ' 40971 RET',
-            '',
-            'r$C000 other',
-            ' $C003'
-        ))
+        ref = """
+            [OtherCode:Other]
+            Source=other.skool
+            [Paths]
+            Other-CodePath=other
+        """
+        skool = """
+            c40970 LD A,B
+             40971 RET
+
+            r$C000 other
+             $C003
+        """
         writer = self._get_writer(ref=ref, skool=skool, case=CASE_LOWER, base=BASE_16)
 
         # Routine
@@ -1499,17 +1500,17 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         self._assert_link_equals(output, '../other/49152.html#49155', 'c003')
 
     def test_macro_r_hex_upper(self):
-        ref = '\n'.join((
-            '[OtherCode:other]',
-            'Source=other.skool'
-        ))
-        skool = '\n'.join((
-            'c$a00a LD A,B',
-            ' 40971 RET',
-            '',
-            'r$c000 other',
-            ' $c003'
-        ))
+        ref = """
+            [OtherCode:other]
+            Source=other.skool
+        """
+        skool = """
+            c$a00a LD A,B
+             40971 RET
+
+            r$c000 other
+             $c003
+        """
         writer = self._get_writer(ref=ref, skool=skool, case=CASE_UPPER, base=BASE_16)
 
         # Routine
@@ -1534,13 +1535,13 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
 
     def test_macro_r_with_custom_asm_filenames(self):
         ref = '[Paths]\nCodeFiles={address:04X}.html'
-        skool = '\n'.join((
-            '; Data at 32768',
-            'b32768 DEFS 12345',
-            '',
-            '; Routine at 45113',
-            'c45113 RET'
-        ))
+        skool = """
+            ; Data at 32768
+            b32768 DEFS 12345
+
+            ; Routine at 45113
+            c45113 RET
+        """
         writer = self._get_writer(ref=ref, skool=skool)
 
         for address in (32768, 45113):
@@ -1557,11 +1558,11 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
 
     def test_macro_r_with_custom_asm_anchor(self):
         ref = '[Game]\nAddressAnchor={address:04x}'
-        skool = '\n'.join((
-            '; Routine at 40000',
-            'c40000 LD A,B',
-            ' 40001 RET'
-        ))
+        skool = """
+            ; Routine at 40000
+            c40000 LD A,B
+             40001 RET
+        """
         writer = self._get_writer(ref=ref, skool=skool)
 
         output = writer.expand('#R40001', ASMDIR)
@@ -1569,11 +1570,11 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
 
     def test_macro_r_with_custom_asm_anchor_containing_skool_macro(self):
         ref = '[Game]\nAddressAnchor=#IF({base}==10)({address},{address:04x})'
-        skool = '\n'.join((
-            '; Routine at 50000',
-            'c50000 LD A,B',
-            ' 50001 RET'
-        ))
+        skool = """
+            ; Routine at 50000
+            c50000 LD A,B
+             50001 RET
+        """
         writer = self._get_writer(ref=ref, skool=skool)
 
         output = writer.expand('#R50001', ASMDIR)
@@ -1793,12 +1794,11 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         self._test_image_macro_with_replacement_field_in_filename('#SCR1,0,0,1,1,0,0', SCRDIR, (0,) * 2048)
 
     def test_macro_table(self):
-        src1 = '\n'.join((
-            '(data)',
-            '{ =h Col1 | =h Col2 | =h,c2 Cols3+4 }',
-            '{ =r2 X   | Y       | Za  | Zb }',
-            '{           Y2      | Za2 | =t }'
-        ))
+        src1 = """(data)
+            { =h Col1 | =h Col2 | =h,c2 Cols3+4 }
+            { =r2 X   | Y       | Za  | Zb }
+            {           Y2      | Za2 | =t }
+        """
         html1 = """
             <table class="data">
             <tr>
@@ -1820,11 +1820,10 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
             </table>
         """
 
-        src2 = '\n'.join((
-            '(,centre)',
-            '{ =h Header }',
-            '{ Cell }'
-        ))
+        src2 = """(,centre)
+            { =h Header }
+            { Cell }
+        """
         html2 = """
             <table class="">
             <tr>
@@ -2539,12 +2538,11 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         self._test_image_macro_with_replacement_field_in_filename('#UDGARRAY1;0')
 
     def test_macro_udgtable(self):
-        src = '\n'.join((
-            '(data)',
-            '{ =h Col1 | =h Col2 | =h,c2 Cols3+4 }',
-            '{ =r2 X   | Y       | Za  | Zb }',
-            '{           Y2      | Za2 | =t }'
-        ))
+        src = """(data)
+            { =h Col1 | =h Col2 | =h,c2 Cols3+4 }
+            { =r2 X   | Y       | Za  | Zb }
+            {           Y2      | Za2 | =t }
+        """
         html = """
             <table class="data">
             <tr>
@@ -2651,13 +2649,13 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
 
     def test_parameter_LinkInternalOperands_0(self):
         ref = '[Game]\nLinkInternalOperands=0'
-        skool = '\n'.join((
-            '; Routine at 30000',
-            'c30000 CALL 30003',
-            ' 30003 JP 30006',
-            ' 30006 DJNZ 30006',
-            ' 30009 JR 30000'
-        ))
+        skool = """
+            ; Routine at 30000
+            c30000 CALL 30003
+             30003 JP 30006
+             30006 DJNZ 30006
+             30009 JR 30000
+        """
         writer = self._get_writer(ref=ref, skool=skool)
         self.assertFalse(writer.link_internal_operands)
         writer.write_asm_entries()
@@ -2675,13 +2673,13 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
 
     def test_parameter_LinkInternalOperands_1(self):
         ref = '[Game]\nLinkInternalOperands=1'
-        skool = '\n'.join((
-            '; Routine at 40000',
-            'c40000 CALL 40003',
-            ' 40003 JP 40006',
-            ' 40006 DJNZ 40006',
-            ' 40009 JR 40000'
-        ))
+        skool = """
+            ; Routine at 40000
+            c40000 CALL 40003
+             40003 JP 40006
+             40006 DJNZ 40006
+             40009 JR 40000
+        """
         writer = self._get_writer(ref=ref, skool=skool)
         self.assertTrue(writer.link_internal_operands)
         writer.write_asm_entries()
@@ -2699,18 +2697,18 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
 
     def test_parameter_LinkOperands(self):
         ref = '[Game]\nLinkOperands={}'
-        skool = '\n'.join((
-            '; Routine at 32768',
-            'c32768 RET',
-            '',
-            '; Routine at 32769',
-            'c32769 CALL 32768',
-            ' 32772 DEFW 32768',
-            ' 32774 DJNZ 32768',
-            ' 32776 JP 32768',
-            ' 32779 JR 32768',
-            ' 32781 LD HL,32768'
-        ))
+        skool = """
+            ; Routine at 32768
+            c32768 RET
+
+            ; Routine at 32769
+            c32769 CALL 32768
+             32772 DEFW 32768
+             32774 DJNZ 32768
+             32776 JP 32768
+             32779 JR 32768
+             32781 LD HL,32768
+        """
         for param_value in ('CALL,JP,JR', 'CALL,DEFW,djnz,JP,LD'):
             writer = self._get_writer(ref=ref.format(param_value), skool=skool)
             link_operands = tuple(param_value.upper().split(','))
@@ -2740,19 +2738,19 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
 
     def test_html_escape(self):
         # Check that HTML characters from the skool file are escaped
-        skool = '\n'.join((
-            '; Save & quit',
-            ';',
-            '; This routine saves & quits.',
-            ';',
-            '; A Some value >= 5',
-            ';',
-            '; First we save & quit.',
-            'c24576 CALL 32768',
-            '; Message: <&>',
-            ' 24579 DEFM "<&>" ; a <= b & b >= c',
-            '; </done>'
-        ))
+        skool = """
+            ; Save & quit
+            ;
+            ; This routine saves & quits.
+            ;
+            ; A Some value >= 5
+            ;
+            ; First we save & quit.
+            c24576 CALL 32768
+            ; Message: <&>
+             24579 DEFM "<&>" ; a <= b & b >= c
+            ; </done>
+        """
         writer = self._get_writer(skool=skool)
         writer.write_entry(ASMDIR, 0, writer.paths['MemoryMap'])
         html = self._read_file(join(ASMDIR, '24576.html'))
@@ -2779,14 +2777,14 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         exp_image_path = '{}/{}.png'.format(FONTDIR, fname)
         exp_src = '../{}'.format(exp_image_path)
         message = '<&>'
-        skool = '\n'.join((
-            '; Font',
-            ';',
-            '; #FONT:({}){}({})'.format(message, font_addr, fname),
-            'b30048 DEFS 8,1 ; &',
-            ' 30224 DEFS 8,2 ; <',
-            ' 30240 DEFS 8,3 ; >'
-        ))
+        skool = """
+            ; Font
+            ;
+            ; #FONT:({}){}({})
+            b30048 DEFS 8,1 ; &
+             30224 DEFS 8,2 ; <
+             30240 DEFS 8,3 ; >
+        """.format(message, font_addr, fname)
         writer = self._get_writer(skool=skool, mock_file_info=True)
         writer.write_asm_entries()
         udg_array = [[]]
@@ -2797,12 +2795,12 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
 
     def test_macro_html_parameter_is_not_html_escaped(self):
         text = '<&>'
-        skool = '\n'.join((
-            '; Routine at 50000',
-            ';',
-            '; #HTML({})'.format(text),
-            'c50000 RET'
-        ))
+        skool = """
+            ; Routine at 50000
+            ;
+            ; #HTML({})
+            c50000 RET
+        """.format(text)
         writer = self._get_writer(skool=skool)
         writer.write_asm_entries()
 
@@ -2923,18 +2921,18 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
     def test_write_index_other_code(self):
         # Other code
         files = ('other/other.html', 'load/index.html')
-        ref = '\n'.join((
-            '[OtherCode:otherCode]',
-            'Source=other.skool',
-            '[OtherCode:otherCode2]',
-            'Source=load.skool',
-            '[Links]',
-            'otherCode-Index=Startup code',
-            'otherCode2-Index=Loading code',
-            '[Paths]',
-            'otherCode-Index={}',
-            'otherCode2-Index={}'
-        )).format(*files)
+        ref = """
+            [OtherCode:otherCode]
+            Source=other.skool
+            [OtherCode:otherCode2]
+            Source=load.skool
+            [Links]
+            otherCode-Index=Startup code
+            otherCode2-Index=Loading code
+            [Paths]
+            otherCode-Index={}
+            otherCode2-Index={}
+        """.format(*files)
         content = """
             <div class="section-header">Other code</div>
             <ul class="index-list">
@@ -2948,37 +2946,37 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         # Defined by [Game], [Index], [Index:*:*], [Links] and [Paths] sections
         title_prefix = 'The woefully incomplete'
         title_suffix = 'disassembly of the RAM'
-        ref = '\n'.join((
-            '[Game]',
-            'TitlePrefix={}'.format(title_prefix),
-            'TitleSuffix={}'.format(title_suffix),
-            '',
-            '[Index]',
-            'Reference',
-            'MemoryMaps',
-            '',
-            '[Index:Reference:Reference material]',
-            'Bugs',
-            'Facts',
-            '',
-            '[Index:MemoryMaps:RAM maps]',
-            'RoutinesMap',
-            'WordMap',
-            '',
-            '[Links]',
-            'WordMap=Words',
-            'Facts=Facts',
-            '',
-            '[MemoryMap:WordMap]',
-            'EntryTypes=w',
-            '',
-            '[Paths]',
-            'RoutinesMap=memorymaps/routines.html',
-            'WordMap=memorymaps/words.html',
-            'Bugs=ref/bugs.html',
-            'Facts=ref/facts.html',
-            'Changelog=ref/changelog.html',
-        ))
+        ref = """
+            [Game]
+            TitlePrefix={}
+            TitleSuffix={}
+
+            [Index]
+            Reference
+            MemoryMaps
+
+            [Index:Reference:Reference material]
+            Bugs
+            Facts
+
+            [Index:MemoryMaps:RAM maps]
+            RoutinesMap
+            WordMap
+
+            [Links]
+            WordMap=Words
+            Facts=Facts
+
+            [MemoryMap:WordMap]
+            EntryTypes=w
+
+            [Paths]
+            RoutinesMap=memorymaps/routines.html
+            WordMap=memorymaps/words.html
+            Bugs=ref/bugs.html
+            Facts=ref/facts.html
+            Changelog=ref/changelog.html
+        """.format(title_prefix, title_suffix)
         files = [
             'ref/bugs.html',
             'ref/facts.html',
@@ -3006,21 +3004,21 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         self._test_write_index(files, content, ref, custom_subs)
 
     def test_write_index_with_custom_link_text(self):
-        ref = '\n'.join((
-            '[Links]',
-            'Bugs=[Bugs] (glitches)',
-            'Changelog=Change log',
-            'DataMap=Game data',
-            'Facts=[Facts] (trivia)',
-            'GameStatusBuffer=Workspace',
-            'Glossary=List of terms',
-            'GraphicGlitches=Graphic bugs',
-            'MemoryMap=All code and data',
-            'MessagesMap=Strings',
-            'Pokes=POKEs',
-            'RoutinesMap=Game code',
-            'UnusedMap=Unused bytes'
-        ))
+        ref = """
+            [Links]
+            Bugs=[Bugs] (glitches)
+            Changelog=Change log
+            DataMap=Game data
+            Facts=[Facts] (trivia)
+            GameStatusBuffer=Workspace
+            Glossary=List of terms
+            GraphicGlitches=Graphic bugs
+            MemoryMap=All code and data
+            MessagesMap=Strings
+            Pokes=POKEs
+            RoutinesMap=Game code
+            UnusedMap=Unused bytes
+        """
         files = [
             'buffers/gbuffer.html',
             'graphics/glitches.html',
@@ -3064,13 +3062,13 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         self._test_write_index(files, content, ref)
 
     def test_write_index_with_custom_link_text_containing_skool_macros(self):
-        ref = '\n'.join((
-            '[Links]',
-            'Bugs=[Bugs#IF1(!)] (#N23)',
-            'Changelog=[Changelog#IF1(?)] (#EVAL35,16)',
-            'start-Index=Startup code (#IF1(23))',
-            '[OtherCode:start]'
-        ))
+        ref = """
+            [Links]
+            Bugs=[Bugs#IF1(!)] (#N23)
+            Changelog=[Changelog#IF1(?)] (#EVAL35,16)
+            start-Index=Startup code (#IF1(23))
+            [OtherCode:start]
+        """
         files = [
             'reference/bugs.html',
             'reference/changelog.html',
@@ -3090,12 +3088,12 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         self._test_write_index(files, content, ref)
 
     def test_write_index_with_custom_link_to_existing_page_specified_using_skool_macro(self):
-        ref = '\n'.join((
-            '[Page:AlreadyThere]',
-            'Content=asm/#MAP({base})(32768,16:8000).html',
-            '[Index:DataTables:Data tables and buffers]',
-            'AlreadyThere'
-        ))
+        ref = """
+            [Page:AlreadyThere]
+            Content=asm/#MAP({base})(32768,16:8000).html
+            [Index:DataTables:Data tables and buffers]
+            AlreadyThere
+        """
         files = ['asm/32768.html']
         content = """
             <div class="section-header">Data tables and buffers</div>
@@ -3111,22 +3109,22 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         release = 'foo'
         c = 'bar'
         created = 'baz'
-        ref = '\n'.join((
-            '[Game]',
-            'Copyright={}',
-            'Created={}',
-            'Release={}'
-        )).format(c, created, release)
-        footer = '\n'.join((
-            '<footer>',
-            '<div class="release">{}</div>',
-            '<div class="copyright">{}</div>',
-            '<div class="created">{}</div>',
-            '</footer>',
-            '</body>',
-            '</html>'
-        )).format(release, c, created)
-        custom_subs = {'footer': footer}
+        ref = """
+            [Game]
+            Copyright={}
+            Created={}
+            Release={}
+        """.format(c, created, release)
+        footer = """
+            <footer>
+            <div class="release">{}</div>
+            <div class="copyright">{}</div>
+            <div class="created">{}</div>
+            </footer>
+            </body>
+            </html>
+        """.format(release, c, created)
+        custom_subs = {'footer': dedent(footer).strip()}
         self._test_write_index(files, content, ref, custom_subs)
 
     def test_write_index_empty_with_logo_image(self):
@@ -3150,45 +3148,45 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         self._assert_files_equal('index.html', subs, True)
 
     def test_write_asm_entries(self):
-        ref = '\n'.join((
-            '[OtherCode:start]',
-            'Source=start.skool'
-        ))
-        skool = '\n'.join((
-            '; Routine at 24576',
-            ';',
-            '; Description of routine at 24576.',
-            ';',
-            '; A Some value',
-            '; B Some other value',
-            'c24576 LD A,B  ; Comment for instruction at 24576',
-            '; Mid-routine comment above 24577.',
-            '*24577 RET',
-            '; End comment for routine at 24576.',
-            '',
-            '; Data block at 24578',
-            'b24578 DEFB 0',
-            '',
-            '; Routine at 24579',
-            'c24579 JR 24577',
-            '',
-            '; GSB entry at 24581',
-            'g24581 DEFW 123',
-            '',
-            '; Unused',
-            'u24583 DEFB 0',
-            '',
-            '; Routine at 24584 (register section but no description)',
-            ';',
-            '; .',
-            ';',
-            '; A 0',
-            'c24584 CALL 30000  ; {Comment for the instructions at 24584 and 24587',
-            ' 24587 JP 30003    ; }',
-            '',
-            'r30000 start',
-            ' 30003',
-        ))
+        ref = """
+            [OtherCode:start]
+            Source=start.skool
+        """
+        skool = """
+            ; Routine at 24576
+            ;
+            ; Description of routine at 24576.
+            ;
+            ; A Some value
+            ; B Some other value
+            c24576 LD A,B  ; Comment for instruction at 24576
+            ; Mid-routine comment above 24577.
+            *24577 RET
+            ; End comment for routine at 24576.
+
+            ; Data block at 24578
+            b24578 DEFB 0
+
+            ; Routine at 24579
+            c24579 JR 24577
+
+            ; GSB entry at 24581
+            g24581 DEFW 123
+
+            ; Unused
+            u24583 DEFB 0
+
+            ; Routine at 24584 (register section but no description)
+            ;
+            ; .
+            ;
+            ; A 0
+            c24584 CALL 30000  ; {Comment for the instructions at 24584 and 24587
+             24587 JP 30003    ; }
+
+            r30000 start
+             30003
+        """
         writer = self._get_writer(ref=ref, skool=skool)
         writer.write_asm_entries()
 
@@ -3471,45 +3469,44 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         self._assert_files_equal(join(ASMDIR, '24584.html'), subs)
 
     def test_write_asm_entries_with_decimal_addresses_below_10000(self):
-        skool = '\n'.join((
-            'c00000 RET',
-            '',
-            'c00002 RET',
-            '',
-            'c00044 RET',
-            '',
-            'c00666 RET',
-            '',
-            'c08888 RET'
-        ))
-        entry_template = '\n'.join((
-            '<div class="description">{address:05d}: </div>',
-            '<table class="disassembly">',
-            '<tr>',
-            '<td class="routine-comment" colspan="4">',
-            '<div class="details">',
-            '</div>',
-            '<table class="input-0">',
-            '<tr class="asm-input-header">',
-            '<th colspan="2">Input</th>',
-            '</tr>',
-            '</table>',
-            '<table class="output-0">',
-            '<tr class="asm-output-header">',
-            '<th colspan="2">Output</th>',
-            '</tr>',
-            '</table>',
-            '</td>',
-            '</tr>',
-            '<tr>',
-            '<td class="asm-label-0"></td>',
-            '<td class="address-2"><span id="{address}"></span>{address:05d}</td>',
-            '<td class="instruction">RET</td>',
-            '<td class="comment-10" rowspan="1"></td>',
-            '</tr>',
-            '</table>',
-            ''
-        ))
+        skool = """
+            c00000 RET
+
+            c00002 RET
+
+            c00044 RET
+
+            c00666 RET
+
+            c08888 RET
+        """
+        entry_template = """
+            <div class="description">{address:05d}: </div>
+            <table class="disassembly">
+            <tr>
+            <td class="routine-comment" colspan="4">
+            <div class="details">
+            </div>
+            <table class="input-0">
+            <tr class="asm-input-header">
+            <th colspan="2">Input</th>
+            </tr>
+            </table>
+            <table class="output-0">
+            <tr class="asm-output-header">
+            <th colspan="2">Output</th>
+            </tr>
+            </table>
+            </td>
+            </tr>
+            <tr>
+            <td class="asm-label-0"></td>
+            <td class="address-2"><span id="{address}"></span>{address:05d}</td>
+            <td class="instruction">RET</td>
+            <td class="comment-10" rowspan="1"></td>
+            </tr>
+            </table>
+        """
         common_subs = {
             'body_class': 'Asm-c',
             'header': 'Routines'
@@ -3591,46 +3588,46 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             'u': 'Unused bytes',
             'w': 'Words'
         }
-        ref = '\n'.join((
-            '[Titles]',
-            'Asm-b={titles[b]}',
-            'Asm-c={titles[c]}',
-            'Asm-g={titles[g]}',
-            'Asm-s={titles[s]}',
-            'Asm-t={titles[t]}',
-            'Asm-u={titles[u]}',
-            'Asm-w={titles[w]}',
-            '[PageHeaders]',
-            'Asm-b={headers[b]}',
-            'Asm-c={headers[c]}',
-            'Asm-g={headers[g]}',
-            'Asm-s={headers[s]}',
-            'Asm-t={headers[t]}',
-            'Asm-u={headers[u]}',
-            'Asm-w={headers[w]}',
-        )).format(titles=titles, headers=headers)
-        skool = '\n'.join((
-            '; b',
-            'b30000 DEFB 0',
-            '',
-            '; c',
-            'c30001 RET',
-            '',
-            '; g',
-            'g30002 DEFB 0',
-            '',
-            '; s',
-            's30003 DEFS 1',
-            '',
-            '; t',
-            't30004 DEFM "a"',
-            '',
-            '; u',
-            'u30005 DEFB 0',
-            '',
-            '; w',
-            'w30006 DEFW 0'
-        ))
+        ref = """
+            [Titles]
+            Asm-b={titles[b]}
+            Asm-c={titles[c]}
+            Asm-g={titles[g]}
+            Asm-s={titles[s]}
+            Asm-t={titles[t]}
+            Asm-u={titles[u]}
+            Asm-w={titles[w]}
+            [PageHeaders]
+            Asm-b={headers[b]}
+            Asm-c={headers[c]}
+            Asm-g={headers[g]}
+            Asm-s={headers[s]}
+            Asm-t={headers[t]}
+            Asm-u={headers[u]}
+            Asm-w={headers[w]}
+        """.format(titles=titles, headers=headers)
+        skool = """
+            ; b
+            b30000 DEFB 0
+
+            ; c
+            c30001 RET
+
+            ; g
+            g30002 DEFB 0
+
+            ; s
+            s30003 DEFS 1
+
+            ; t
+            t30004 DEFM "a"
+
+            ; u
+            u30005 DEFB 0
+
+            ; w
+            w30006 DEFW 0
+        """
         writer = self._get_writer(ref=ref, skool=skool)
         writer.write_asm_entries()
 
@@ -3643,13 +3640,13 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
 
     def test_write_asm_entries_with_custom_filenames(self):
         ref = '[Paths]\nCodeFiles=asm-{address:04x}.html'
-        skool = '\n'.join((
-            '; Data',
-            'b30000 DEFS 10000',
-            '',
-            '; More data',
-            'b40000 DEFS 10000'
-        ))
+        skool = """
+            ; Data
+            b30000 DEFS 10000
+
+            ; More data
+            b40000 DEFS 10000
+        """
         writer = self._get_writer(ref=ref, skool=skool)
         writer.write_asm_entries()
 
@@ -3660,13 +3657,13 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
 
     def test_write_asm_entries_with_custom_filenames_specified_by_skool_macro(self):
         ref = '[Paths]\nCodeFiles=0#IF({base}==16)(x{address:04x},d{address}).html'
-        skool = '\n'.join((
-            '; Data',
-            'b40000 DEFS 10000',
-            '',
-            '; More data',
-            'b50000 DEFS 10000'
-        ))
+        skool = """
+            ; Data
+            b40000 DEFS 10000
+
+            ; More data
+            b50000 DEFS 10000
+        """
         writer = self._get_writer(ref=ref, skool=skool)
         writer.write_asm_entries()
 
@@ -3683,17 +3680,17 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             writer.write_asm_entries()
 
     def test_write_asm_entries_with_custom_anchors(self):
-        ref = '\n'.join((
-            '[Game]',
-            'AddressAnchor={address:04X}',
-            'LinkInternalOperands=1'
-        ))
-        skool = '\n'.join((
-            '; Routine at 50000',
-            'c50000 LD A,B',
-            '; Jump back.',
-            ' 50001 JR 50000'
-        ))
+        ref = """
+            [Game]
+            AddressAnchor={address:04X}
+            LinkInternalOperands=1
+        """
+        skool = """
+            ; Routine at 50000
+            c50000 LD A,B
+            ; Jump back.
+             50001 JR 50000
+        """
         writer = self._get_writer(ref=ref, skool=skool)
         writer.write_asm_entries()
 
@@ -3750,17 +3747,17 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         self._assert_files_equal(join(ASMDIR, '50000.html'), subs)
 
     def test_write_asm_entries_with_custom_address_anchor_containing_skool_macro(self):
-        ref = '\n'.join((
-            '[Game]',
-            'AddressAnchor=#IF(0)({address},{address:04X})',
-            'LinkInternalOperands=1'
-        ))
-        skool = '\n'.join((
-            '; Routine at 30000',
-            'c30000 LD A,B',
-            '; Jump back.',
-            ' 30001 JR 30000'
-        ))
+        ref = """
+            [Game]
+            AddressAnchor=#IF(0)({address},{address:04X})
+            LinkInternalOperands=1
+        """
+        skool = """
+            ; Routine at 30000
+            c30000 LD A,B
+            ; Jump back.
+             30001 JR 30000
+        """
         writer = self._get_writer(ref=ref, skool=skool)
         writer.write_asm_entries()
 
@@ -3818,18 +3815,18 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
 
     def test_write_asm_entries_on_single_page(self):
         ref = '[Game]\nAsmSinglePageTemplate=AsmAllInOne'
-        skool = '\n'.join((
-            '; Routine at 32768',
-            'c32768 CALL 32775',
-            ' 32771 JR Z,32776',
-            ' 32773 JR 32768',
-            '',
-            '; Routine at 32775',
-            ';',
-            '; Used by the routine at #R32768.',
-            'c32775 LD A,B',
-            '*32776 RET'
-        ))
+        skool = """
+            ; Routine at 32768
+            c32768 CALL 32775
+             32771 JR Z,32776
+             32773 JR 32768
+
+            ; Routine at 32775
+            ;
+            ; Used by the routine at #R32768.
+            c32775 LD A,B
+            *32776 RET
+        """
         writer = self._get_writer(ref=ref, skool=skool)
         writer.write_asm_entries()
 
@@ -3919,16 +3916,16 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         path = 'allinone.html'
         header = 'All the entries'
         title = 'The disassembly'
-        ref = '\n'.join((
-            '[Game]',
-            'AsmSinglePageTemplate=AsmAllInOne',
-            '[Paths]',
-            'AsmSinglePage={}',
-            '[Titles]',
-            'AsmSinglePage={}',
-            '[PageHeaders]',
-            'AsmSinglePage={}'
-        )).format(path, title, header)
+        ref = """
+            [Game]
+            AsmSinglePageTemplate=AsmAllInOne
+            [Paths]
+            AsmSinglePage={}
+            [Titles]
+            AsmSinglePage={}
+            [PageHeaders]
+            AsmSinglePage={}
+        """.format(path, title, header)
         skool = '; Routine at 40000\nc40000 RET'
         content = """
             <div id="40000" class="description">40000: Routine at 40000</div>
@@ -3977,44 +3974,44 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             writer.write_asm_entries()
 
     def test_write_asm_entries_with_missing_OtherCode_section(self):
-        skool = '\n'.join((
-            'c30000 JP 50000',
-            '',
-            'r50000 save'
-        ))
+        skool = """
+            c30000 JP 50000
+
+            r50000 save
+        """
         writer = self._get_writer(skool=skool)
         with self.assertRaises(SkoolKitError) as cm:
             writer.write_asm_entries()
         self.assertEqual(cm.exception.args[0], "Cannot find code path for 'save' disassembly")
 
     def test_indented_comment_lines_are_ignored(self):
-        skool = '\n'.join((
-            '; Routine',
-            ';',
-            ' ; Ignore me.',
-            '; Paragraph 1.',
-            ' ; Ignore me too,',
-            '; .',
-            ' ; Ignore me three.',
-            '; Paragraph 2.',
-            ';',
-            '; HL Address',
-            ' ; Ignore me four.',
-            ';',
-            ' ; Ignore me five.',
-            '; Start comment paragraph 1.',
-            '; .',
-            ' ; Ignore me six.',
-            '; Start comment paragraph 2.',
-            'c50000 XOR A',
-            '; Mid-block comment.',
-            ' ; Ignore me seven.',
-            '; Mid-block comment continued.',
-            ' 50001 RET',
-            '; End comment.',
-            ' ; Ignore me eight.',
-            '; End comment continued.'
-        ))
+        skool = """
+            ; Routine
+            ;
+             ; Ignore me.
+            ; Paragraph 1.
+             ; Ignore me too,
+            ; .
+             ; Ignore me three.
+            ; Paragraph 2.
+            ;
+            ; HL Address
+             ; Ignore me four.
+            ;
+             ; Ignore me five.
+            ; Start comment paragraph 1.
+            ; .
+             ; Ignore me six.
+            ; Start comment paragraph 2.
+            c50000 XOR A
+            ; Mid-block comment.
+             ; Ignore me seven.
+            ; Mid-block comment continued.
+             50001 RET
+            ; End comment.
+             ; Ignore me eight.
+            ; End comment continued.
+        """
         writer = self._get_writer(skool=skool)
         writer.write_asm_entries()
 
@@ -4104,18 +4101,18 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
 
     def test_block_start_comment(self):
         start_comment = ('Start comment paragraph 1.', 'Paragraph 2.')
-        skool = '\n'.join((
-            '; Routine with a start comment',
-            ';',
-            '; .',
-            ';',
-            '; .',
-            ';',
-            '; {}',
-            '; .',
-            '; {}',
-            'c40000 RET'
-        )).format(*start_comment)
+        skool = """
+            ; Routine with a start comment
+            ;
+            ; .
+            ;
+            ; .
+            ;
+            ; {}
+            ; .
+            ; {}
+            c40000 RET
+        """.format(*start_comment)
         writer = self._get_writer(skool=skool)
         writer.write_asm_entries()
 
@@ -4169,20 +4166,20 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         self._assert_files_equal(join(ASMDIR, '40000.html'), subs)
 
     def test_asm_labels(self):
-        skool = '\n'.join((
-            '; Routine with a label',
-            '@label=START',
-            'c50000 LD B,5     ; Loop 5 times',
-            '*50002 DJNZ 50002',
-            ' 50004 RET',
-            '',
-            '; Routine without a label',
-            'c50005 JP 50000',
-            '',
-            '; DEFW statement with a @keep directive',
-            '@keep',
-            'w50008 DEFW 50000',
-        ))
+        skool = """
+            ; Routine with a label
+            @label=START
+            c50000 LD B,5     ; Loop 5 times
+            *50002 DJNZ 50002
+             50004 RET
+
+            ; Routine without a label
+            c50005 JP 50000
+
+            ; DEFW statement with a @keep directive
+            @keep
+            w50008 DEFW 50000
+        """
         writer = self._get_writer(skool=skool, asm_labels=True)
         writer.write_asm_entries()
 
@@ -4314,19 +4311,19 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         self._assert_files_equal(join(ASMDIR, '50008.html'), subs)
 
     def test_asm_labels_and_rst_instructions(self):
-        ref = '\n'.join((
-            '[Game]',
-            'LinkOperands=CALL,DEFW,DJNZ,JP,JR,RST'
-        ))
-        skool = '\n'.join((
-            '; Start',
-            'c00000 RST 8  ; This operand should not be replaced by a label',
-            ' 00001 DEFS 7',
-            '',
-            '; Restart routine at 8',
-            '@label=DONOTHING',
-            'c00008 RET'
-        ))
+        ref = """
+            [Game]
+            LinkOperands=CALL,DEFW,DJNZ,JP,JR,RST
+        """
+        skool = """
+            ; Start
+            c00000 RST 8  ; This operand should not be replaced by a label
+             00001 DEFS 7
+
+            ; Restart routine at 8
+            @label=DONOTHING
+            c00008 RET
+        """
         writer = self._get_writer(ref=ref, skool=skool, asm_labels=True)
         writer.write_asm_entries()
 
@@ -4375,13 +4372,13 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         self._assert_files_equal(join(ASMDIR, '0.html'), subs)
 
     def test_nolabel_directive(self):
-        skool = '\n'.join((
-            '; Routine with a @nolabel directive',
-            '@label=START',
-            'c50000 XOR A',
-            '@nolabel',
-            '*50001 JR 50001'
-        ))
+        skool = """
+            ; Routine with a @nolabel directive
+            @label=START
+            c50000 XOR A
+            @nolabel
+            *50001 JR 50001
+        """
         writer = self._get_writer(skool=skool, asm_labels=True)
         writer.write_asm_entries()
 
@@ -4428,13 +4425,13 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         self._assert_files_equal(join(ASMDIR, '50000.html'), subs)
 
     def test_blank_label_directive(self):
-        skool = '\n'.join((
-            '; Routine with a blank @label directive',
-            '@label=START',
-            'c50000 XOR A',
-            '@label=',
-            '*50001 JR 50001'
-        ))
+        skool = """
+            ; Routine with a blank @label directive
+            @label=START
+            c50000 XOR A
+            @label=
+            *50001 JR 50001
+        """
         writer = self._get_writer(skool=skool, asm_labels=True)
         writer.write_asm_entries()
 
@@ -4481,28 +4478,28 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         self._assert_files_equal(join(ASMDIR, '50000.html'), subs)
 
     def test_write_map(self):
-        skool = '\n'.join((
-            '; Routine',
-            'c30000 RET',
-            '',
-            '; Bytes',
-            'b30001 DEFB 1,2',
-            '',
-            '; Words',
-            'w30003 DEFW 257,65534',
-            '',
-            '; GSB entry',
-            'g30007 DEFB 0',
-            '',
-            '; Unused',
-            'u30008 DEFB 0',
-            '',
-            '; Zeroes',
-            's30009 DEFS 9',
-            '',
-            '; Text',
-            't30018 DEFM "Hi"'
-        ))
+        skool = """
+            ; Routine
+            c30000 RET
+
+            ; Bytes
+            b30001 DEFB 1,2
+
+            ; Words
+            w30003 DEFW 257,65534
+
+            ; GSB entry
+            g30007 DEFB 0
+
+            ; Unused
+            u30008 DEFB 0
+
+            ; Zeroes
+            s30009 DEFS 9
+
+            ; Text
+            t30018 DEFM "Hi"
+        """
         writer = self._get_writer(skool=skool)
 
         # Memory map
@@ -4841,13 +4838,13 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
 
     def test_write_map_with_single_page_template(self):
         ref = '[Game]\nAsmSinglePageTemplate=AsmAllInOne'
-        skool = '\n'.join((
-            '; A routine here',
-            'c32768 RET',
-            '',
-            '; A data block there',
-            'b32769 DEFB 0'
-        ))
+        skool = """
+            ; A routine here
+            c32768 RET
+
+            ; A data block there
+            b32769 DEFB 0
+        """
         content = """
             <div class="map-intro"></div>
             <table class="map">
@@ -4894,12 +4891,12 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
 
     def test_write_map_with_single_page_template_using_custom_path(self):
         path = 'disassembly.html'
-        ref = '\n'.join((
-            '[Game]',
-            'AsmSinglePageTemplate=AsmAllInOne',
-            '[Paths]',
-            'AsmSinglePage={}'
-        )).format(path)
+        ref = """
+            [Game]
+            AsmSinglePageTemplate=AsmAllInOne
+            [Paths]
+            AsmSinglePage={}
+        """.format(path)
         skool = '; A routine\nc30000 RET'
         content = """
             <div class="map-intro"></div>
@@ -4935,47 +4932,47 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         self._assert_files_equal(join(MAPS_DIR, 'all.html'), subs)
 
     def test_write_custom_map(self):
-        skool = '\n'.join((
-            '; Routine',
-            ';',
-            '; Return early, return often.',
-            'c30000 RET',
-            '',
-            '; Bytes',
-            'b30001 DEFB 1,2',
-            '',
-            '; GSB entry',
-            'g30003 DEFB 0',
-            '',
-            '; Unused',
-            'u30004 DEFB 0',
-            '',
-            '; Zeroes',
-            's30005 DEFS 6',
-            '',
-            '; Text',
-            't30011 DEFM "Hi"'
-        ))
+        skool = """
+            ; Routine
+            ;
+            ; Return early, return often.
+            c30000 RET
+
+            ; Bytes
+            b30001 DEFB 1,2
+
+            ; GSB entry
+            g30003 DEFB 0
+
+            ; Unused
+            u30004 DEFB 0
+
+            ; Zeroes
+            s30005 DEFS 6
+
+            ; Text
+            t30011 DEFM "Hi"
+        """
         map_id = 'CustomMap'
         map_intro = 'Introduction.'
         map_path = 'maps/custom.html'
         map_title = 'Custom map'
-        ref = '\n'.join((
-            '[MemoryMap:{0}]',
-            'EntryDescriptions=1',
-            'EntryTypes=cg',
-            'Intro={1}',
-            'LengthColumn=1',
-            ''
-            '[Paths]',
-            '{0}={2}',
-            '',
-            '[PageHeaders]',
-            '{0}={3}',
-            '',
-            '[Titles]',
-            '{0}={3}'
-        )).format(map_id, map_intro, map_path, map_title)
+        ref = """
+            [MemoryMap:{0}]
+            EntryDescriptions=1
+            EntryTypes=cg
+            Intro={1}
+            LengthColumn=1
+
+            [Paths]
+            {0}={2}
+
+            [PageHeaders]
+            {0}={3}
+
+            [Titles]
+            {0}={3}
+        """.format(map_id, map_intro, map_path, map_title)
         writer = self._get_writer(ref=ref, skool=skool)
 
         content = """
@@ -5024,10 +5021,10 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         self._assert_files_equal(map_path, subs)
 
     def test_write_map_with_PageByteColumns_containing_skool_macro(self):
-        ref = '\n'.join((
-            '[MemoryMap:MemoryMap]',
-            'PageByteColumns=#IF({base}==16)(0,1)'
-        ))
+        ref = """
+            [MemoryMap:MemoryMap]
+            PageByteColumns=#IF({base}==16)(0,1)
+        """
         skool = '; Routine at 45678\nc45678 RET'
         writer = self._get_writer(ref=ref, skool=skool, base=BASE_16)
 
@@ -5099,42 +5096,42 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         self._assert_files_equal(join(MAPS_DIR, 'all.html'), subs)
 
     def test_write_map_with_decimal_addresses_below_10000(self):
-        skool = '\n'.join((
-            'c00000 RET',
-            '',
-            'c00002 RET',
-            '',
-            'c00044 RET',
-            '',
-            'c00666 RET',
-            '',
-            'c08888 RET'
-        ))
-        exp_content = '\n'.join((
-            '<div class="map-intro"></div>',
-            '<table class="map">',
-            '<tr>',
-            '<th class="map-page-1">Page</th>',
-            '<th class="map-byte-1">Byte</th>',
-            '<th>Address</th>',
-            '<th class="map-length-0">Length</th>',
-            '<th>Description</th>',
-            '</tr>\n'
-        ))
+        skool = """
+            c00000 RET
+
+            c00002 RET
+
+            c00044 RET
+
+            c00666 RET
+
+            c08888 RET
+        """
+        exp_content = """
+            <div class="map-intro"></div>
+            <table class="map">
+            <tr>
+            <th class="map-page-1">Page</th>
+            <th class="map-byte-1">Byte</th>
+            <th>Address</th>
+            <th class="map-length-0">Length</th>
+            <th>Description</th>
+            </tr>\n
+        """
         for address in (0, 2, 44, 666, 8888):
-            exp_content += '\n'.join((
-                '<tr>',
-                '<td class="map-page-1">{}</td>'.format(address // 256),
-                '<td class="map-byte-1">{}</td>'.format(address % 256),
-                '<td class="map-c"><span id="{0}"></span><a href="../asm/{0}.html">{0:05d}</a></td>'.format(address),
-                '<td class="map-length-0">1</td>',
-                '<td class="map-c-desc">',
-                '<div class="map-entry-title-10"></div>',
-                '<div class="map-entry-desc-0">',
-                '</div>',
-                '</td>',
-                '</tr>\n'
-            ))
+            exp_content += """
+                <tr>
+                <td class="map-page-1">{0}</td>
+                <td class="map-byte-1">{1}</td>
+                <td class="map-c"><span id="{2}"></span><a href="../asm/{2}.html">{2:05d}</a></td>
+                <td class="map-length-0">1</td>
+                <td class="map-c-desc">
+                <div class="map-entry-title-10"></div>
+                <div class="map-entry-desc-0">
+                </div>
+                </td>
+                </tr>\n
+            """.format(address // 256, address % 256, address)
         exp_content += '</table>\n'
 
         # Memory map
@@ -5149,31 +5146,31 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             self._assert_files_equal(join(MAPS_DIR, 'all.html'), subs)
 
     def test_write_map_with_includes_but_no_entry_types(self):
-        ref = '\n'.join((
-            '[MemoryMap:Custom]',
-            'EntryTypes=',
-            'Includes=30001,30003,30004'
-        ))
-        skool = '\n'.join((
-            '; GSB entry',
-            ';',
-            '; Number of lives.',
-            'g30000 DEFB 4',
-            '',
-            '; Data',
-            'w30001 DEFW 78',
-            '',
-            '; Message ID',
-            't30003 DEFB 0',
-            '',
-            '; Another message ID',
-            't30004 DEFB 0',
-            '',
-            '; Code',
-            'c30005 RET',
-            '',
-            'i30006',
-        ))
+        ref = """
+            [MemoryMap:Custom]
+            EntryTypes=
+            Includes=30001,30003,30004
+        """
+        skool = """
+            ; GSB entry
+            ;
+            ; Number of lives.
+            g30000 DEFB 4
+
+            ; Data
+            w30001 DEFW 78
+
+            ; Message ID
+            t30003 DEFB 0
+
+            ; Another message ID
+            t30004 DEFB 0
+
+            ; Code
+            c30005 RET
+
+            i30006
+        """
         content = """
             <div class="map-intro"></div>
             <table class="map">
@@ -5232,14 +5229,14 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         title = 'Data blocks'
         header = 'Blocks of data'
         path = 'foo/bar/data.html'
-        ref = '\n'.join((
-            '[Titles]',
-            'DataMap={}',
-            '[PageHeaders]',
-            'DataMap={}',
-            '[Paths]',
-            'DataMap={}'
-        )).format(title, header, path)
+        ref = """
+            [Titles]
+            DataMap={}
+            [PageHeaders]
+            DataMap={}
+            [Paths]
+            DataMap={}
+        """.format(title, header, path)
         writer = self._get_writer(ref=ref, skool='b30000 DEFB 0')
         writer.write_map('DataMap')
         self._assert_title_equals(path, title, header)
@@ -5248,14 +5245,14 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         title = 'All the RAM'
         header = 'Every bit'
         path = 'memory_map.html'
-        ref = '\n'.join((
-            '[Titles]',
-            'MemoryMap={}',
-            '[PageHeaders]',
-            'MemoryMap={}',
-            '[Paths]',
-            'MemoryMap={}'
-        )).format(title, header, path)
+        ref = """
+            [Titles]
+            MemoryMap={}
+            [PageHeaders]
+            MemoryMap={}
+            [Paths]
+            MemoryMap={}
+        """.format(title, header, path)
         writer = self._get_writer(ref=ref, skool='c30000 RET')
         writer.write_map('MemoryMap')
         self._assert_title_equals(path, title, header)
@@ -5264,14 +5261,14 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         title = 'Strings'
         header = 'Text'
         path = 'text/strings.html'
-        ref = '\n'.join((
-            '[Titles]',
-            'MessagesMap={}',
-            '[PageHeaders]',
-            'MessagesMap={}',
-            '[Paths]',
-            'MessagesMap={}'
-        )).format(title, header, path)
+        ref = """
+            [Titles]
+            MessagesMap={}
+            [PageHeaders]
+            MessagesMap={}
+            [Paths]
+            MessagesMap={}
+        """.format(title, header, path)
         writer = self._get_writer(ref=ref, skool='t30000 DEFM "a"')
         writer.write_map('MessagesMap')
         self._assert_title_equals(path, title, header)
@@ -5280,14 +5277,14 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         title = 'All the code'
         header = 'Game code'
         path = 'mappage/code.html'
-        ref = '\n'.join((
-            '[Titles]',
-            'RoutinesMap={}',
-            '[PageHeaders]',
-            'RoutinesMap={}',
-            '[Paths]',
-            'RoutinesMap={}'
-        )).format(title, header, path)
+        ref = """
+            [Titles]
+            RoutinesMap={}
+            [PageHeaders]
+            RoutinesMap={}
+            [Paths]
+            RoutinesMap={}
+        """.format(title, header, path)
         writer = self._get_writer(ref=ref, skool='c30000 RET')
         writer.write_map('RoutinesMap')
         self._assert_title_equals(path, title, header)
@@ -5296,14 +5293,14 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         title = 'Bytes of no use'
         header = 'Unused memory'
         path = 'unused_bytes.html'
-        ref = '\n'.join((
-            '[Titles]',
-            'UnusedMap={}',
-            '[PageHeaders]',
-            'UnusedMap={}',
-            '[Paths]',
-            'UnusedMap={}'
-        )).format(title, header, path)
+        ref = """
+            [Titles]
+            UnusedMap={}
+            [PageHeaders]
+            UnusedMap={}
+            [Paths]
+            UnusedMap={}
+        """.format(title, header, path)
         writer = self._get_writer(ref=ref, skool='u30000 DEFB 0')
         writer.write_map('UnusedMap')
         self._assert_title_equals(path, title, header)
@@ -5311,16 +5308,16 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
     def test_write_other_code_asm_entries(self):
         code_id = 'startup'
         ref = '[OtherCode:{}]'.format(code_id)
-        other_skool = '\n'.join((
-            '; Some data',
-            'b30000 DEFB 0',
-            '',
-            '; A routine',
-            'c30001 RET'
-            '',
-            '; A message',
-            't30002 DEFM "a"'
-        ))
+        other_skool = """
+            ; Some data
+            b30000 DEFB 0
+
+            ; A routine
+            c30001 RET
+
+            ; A message
+            t30002 DEFM "a"
+        """
         main_writer = self._get_writer(ref=ref, skool=other_skool)
 
         code = main_writer.other_code[0][1]
@@ -5473,52 +5470,52 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             'u': 'Unused bytes',
             'w': 'Words'
         }
-        ref = '\n'.join((
-            '[OtherCode:{code_id}]',
-            '',
-            '[Paths]',
-            '{code_id}-CodePath={code_path}',
-            '',
-            '[Titles]',
-            '{code_id}-Asm-b={titles[b]}',
-            '{code_id}-Asm-c={titles[c]}',
-            '{code_id}-Asm-g={titles[g]}',
-            '{code_id}-Asm-s={titles[s]}',
-            '{code_id}-Asm-t={titles[t]}',
-            '{code_id}-Asm-u={titles[u]}',
-            '{code_id}-Asm-w={titles[w]}',
-            '',
-            '[PageHeaders]',
-            '{code_id}-Asm-b={headers[b]}',
-            '{code_id}-Asm-c={headers[c]}',
-            '{code_id}-Asm-g={headers[g]}',
-            '{code_id}-Asm-s={headers[s]}',
-            '{code_id}-Asm-t={headers[t]}',
-            '{code_id}-Asm-u={headers[u]}',
-            '{code_id}-Asm-w={headers[w]}',
-        )).format(code_id=code_id, code_path=code_path, titles=titles, headers=headers)
-        other_skool = '\n'.join((
-            '; b',
-            'b30000 DEFB 0',
-            '',
-            '; c',
-            'c30001 RET',
-            '',
-            '; g',
-            'g30002 DEFB 0',
-            '',
-            '; s',
-            's30003 DEFS 1',
-            '',
-            '; t',
-            't30004 DEFM "a"',
-            '',
-            '; u',
-            'u30005 DEFB 0',
-            '',
-            '; w',
-            'w30006 DEFW 0'
-        ))
+        ref = """
+            [OtherCode:{code_id}]
+
+            [Paths]
+            {code_id}-CodePath={code_path}
+
+            [Titles]
+            {code_id}-Asm-b={titles[b]}
+            {code_id}-Asm-c={titles[c]}
+            {code_id}-Asm-g={titles[g]}
+            {code_id}-Asm-s={titles[s]}
+            {code_id}-Asm-t={titles[t]}
+            {code_id}-Asm-u={titles[u]}
+            {code_id}-Asm-w={titles[w]}
+
+            [PageHeaders]
+            {code_id}-Asm-b={headers[b]}
+            {code_id}-Asm-c={headers[c]}
+            {code_id}-Asm-g={headers[g]}
+            {code_id}-Asm-s={headers[s]}
+            {code_id}-Asm-t={headers[t]}
+            {code_id}-Asm-u={headers[u]}
+            {code_id}-Asm-w={headers[w]}
+        """.format(code_id=code_id, code_path=code_path, titles=titles, headers=headers)
+        other_skool = """
+            ; b
+            b30000 DEFB 0
+
+            ; c
+            c30001 RET
+
+            ; g
+            g30002 DEFB 0
+
+            ; s
+            s30003 DEFS 1
+
+            ; t
+            t30004 DEFM "a"
+
+            ; u
+            u30005 DEFB 0
+
+            ; w
+            w30006 DEFW 0
+        """
         main_writer = self._get_writer(ref=ref, skool=other_skool)
 
         code = main_writer.other_code[0][1]
@@ -5544,18 +5541,18 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
 
     def test_write_other_code_using_single_page_template(self):
         code_id = 'other'
-        ref = '\n'.join((
-            '[Game]',
-            'AsmSinglePageTemplate=AsmAllInOne',
-            '[OtherCode:{}]',
-        )).format(code_id)
-        other_skool = '\n'.join((
-            '; Routine at 40000',
-            'c40000 JR 40002',
-            '',
-            '; Routine at 40002',
-            'c40002 JR 40000'
-        ))
+        ref = """
+            [Game]
+            AsmSinglePageTemplate=AsmAllInOne
+            [OtherCode:{}]
+        """.format(code_id)
+        other_skool = """
+            ; Routine at 40000
+            c40000 JR 40002
+
+            ; Routine at 40002
+            c40002 JR 40000
+        """
         main_writer = self._get_writer(ref=ref, skool=other_skool)
         code = main_writer.other_code[0][1]
         index_page_id = code['IndexPageId']
@@ -5634,17 +5631,17 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         path = 'code.html'
         title = 'All the other code'
         header = 'The disassembly'
-        ref = '\n'.join((
-            '[Game]',
-            'AsmSinglePageTemplate=AsmAllInOne',
-            '[Paths]',
-            '{0}-AsmSinglePage={1}',
-            '[Titles]',
-            '{0}-AsmSinglePage={2}',
-            '[PageHeaders]',
-            '{0}-AsmSinglePage={3}',
-            '[OtherCode:{0}]',
-        )).format(code_id, path, title, header)
+        ref = """
+            [Game]
+            AsmSinglePageTemplate=AsmAllInOne
+            [Paths]
+            {0}-AsmSinglePage={1}
+            [Titles]
+            {0}-AsmSinglePage={2}
+            [PageHeaders]
+            {0}-AsmSinglePage={3}
+            [OtherCode:{0}]
+        """.format(code_id, path, title, header)
         other_skool = '; Routine at 40000\nc40000 RET'
         main_writer = self._get_writer(ref=ref, skool=other_skool)
         code = main_writer.other_code[0][1]
@@ -5738,11 +5735,11 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
 
     def test_write_other_code_index_using_single_page_template(self):
         code_id = 'other'
-        ref = '\n'.join((
-            '[Game]',
-            'AsmSinglePageTemplate=AsmAllInOne',
-            '[OtherCode:{}]'
-        )).format(code_id)
+        ref = """
+            [Game]
+            AsmSinglePageTemplate=AsmAllInOne
+            [OtherCode:{}]
+        """.format(code_id)
         routine_title = 'Other code'
         skool = '; {}\nc65535 RET'.format(routine_title)
         main_writer = self._get_writer(ref=ref, skool=skool)
@@ -5788,13 +5785,13 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
     def test_write_other_code_index_using_single_page_template_with_custom_path(self):
         code_id = 'secondary'
         asm_single_page = 'disassembly.html'
-        ref = '\n'.join((
-            '[Game]',
-            'AsmSinglePageTemplate=AsmAllInOne',
-            '[Paths]',
-            '{0}-AsmSinglePage={0}/{1}',
-            '[OtherCode:{0}]'
-        )).format(code_id, asm_single_page)
+        ref = """
+            [Game]
+            AsmSinglePageTemplate=AsmAllInOne
+            [Paths]
+            {0}-AsmSinglePage={0}/{1}
+            [OtherCode:{0}]
+        """.format(code_id, asm_single_page)
         routine_title = 'Other code'
         skool = '; {}\nc65535 RET'.format(routine_title)
         main_writer = self._get_writer(ref=ref, skool=skool)
@@ -5838,41 +5835,41 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         self._assert_files_equal(index_path, subs)
 
     def test_write_changelog(self):
-        ref = '\n'.join((
-            '[Changelog:20120706]',
-            '-',
-            '',
-            'There are blank lines...',
-            '',
-            '...between these...',
-            '',
-            '...top-level items',
-            '[Changelog:20120705]',
-            '-',
-            '',
-            'There are no blank lines...',
-            '...between these...',
-            '...top-level items',
-            '[Changelog:20120704]',
-            'Documented many #LINK:Bugs(bugs).',
-            '',
-            '1',
-            '  2',
-            '    3',
-            '    4',
-            '  5',
-            '',
-            '6',
-            '[Changelog:20120703]',
-            '-',
-            '',
-            '1',
-            '  2',
-            '    3',
-            '4',
-            '[Changelog:20120702]',
-            'Initial release'
-        ))
+        ref = """
+            [Changelog:20120706]
+            -
+
+            There are blank lines...
+
+            ...between these...
+
+            ...top-level items
+            [Changelog:20120705]
+            -
+
+            There are no blank lines...
+            ...between these...
+            ...top-level items
+            [Changelog:20120704]
+            Documented many #LINK:Bugs(bugs).
+
+            1
+              2
+                3
+                4
+              5
+
+            6
+            [Changelog:20120703]
+            -
+
+            1
+              2
+                3
+            4
+            [Changelog:20120702]
+            Initial release
+        """
         content = """
             <ul class="contents">
             <li><a href="#20120706">20120706</a></li>
@@ -5956,14 +5953,14 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         title = 'Log of changes'
         header = 'What has changed?'
         path = 'changes/log.html'
-        ref = '\n'.join((
-            '[Titles]',
-            'Changelog={}',
-            '[PageHeaders]',
-            'Changelog={}',
-            '[Paths]',
-            'Changelog={}'
-        )).format(title, header, path)
+        ref = """
+            [Titles]
+            Changelog={}
+            [PageHeaders]
+            Changelog={}
+            [Paths]
+            Changelog={}
+        """.format(title, header, path)
         writer = self._get_writer(ref=ref, skool='')
         writer.write_page('Changelog')
         self._assert_title_equals(path, title, header)
@@ -5971,12 +5968,12 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
     def test_write_changelog_entry_with_specified_anchor(self):
         anchor = 'latest'
         title = '20161101'
-        ref = '\n'.join((
-            '[Changelog:{}:{}]'.format(anchor, title),
-            '-',
-            '',
-            'Item 1'
-        ))
+        ref = """
+            [Changelog:{}:{}]
+            -
+
+            Item 1
+        """.format(anchor, title)
         content = """
             <ul class="contents">
             <li><a href="#{0}">{1}</a></li>
@@ -6000,15 +5997,15 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         self._assert_files_equal(join(REFERENCE_DIR, 'changelog.html'), subs)
 
     def test_write_glossary(self):
-        ref = '\n'.join((
-            '[Glossary:Term1]',
-            'Definition 1.',
-            '',
-            '[Glossary:Term2]',
-            'Definition 2. Paragraph 1.',
-            '',
-            'Definition 2. Paragraph 2.',
-        ))
+        ref = """
+            [Glossary:Term1]
+            Definition 1.
+
+            [Glossary:Term2]
+            Definition 2. Paragraph 1.
+
+            Definition 2. Paragraph 2.
+        """
         content = """
             <ul class="contents">
             <li><a href="#term1">Term1</a></li>
@@ -6045,31 +6042,31 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         title = 'Terminology'
         header = 'Terms'
         path = 'terminology.html'
-        ref = '\n'.join((
-            '[Titles]',
-            'Glossary={}',
-            '[PageHeaders]',
-            'Glossary={}',
-            '[Paths]',
-            'Glossary={}'
-        )).format(title, header, path)
+        ref = """
+            [Titles]
+            Glossary={}
+            [PageHeaders]
+            Glossary={}
+            [Paths]
+            Glossary={}
+        """.format(title, header, path)
         writer = self._get_writer(ref=ref, skool='')
         writer.write_page('Glossary')
         self._assert_title_equals(path, title, header)
 
     def test_write_page(self):
         page_id = 'page'
-        ref = '\n'.join((
-            '[Page:{0}]',
-            'JavaScript=test-html.js',
-            'PageContent=<b>This is the content of the custom page.</b>',
-            '',
-            '[PageHeaders]',
-            '{0}=Custom page',
-            '',
-            '[Titles]',
-            '{0}=Custom page'
-        )).format(page_id)
+        ref = """
+            [Page:{0}]
+            JavaScript=test-html.js
+            PageContent=<b>This is the content of the custom page.</b>
+
+            [PageHeaders]
+            {0}=Custom page
+
+            [Titles]
+            {0}=Custom page
+        """.format(page_id)
         writer = self._get_writer(ref=ref, skool='')
         writer.write_page(page_id)
         subs = {
@@ -6101,23 +6098,23 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         page_id = 'mypage'
         header = 'Welcome to my page'
         title = 'This is my page'
-        ref = '\n'.join((
-            '[Page:{0}]',
-            'JavaScript={0}.js',
-            'SectionPrefix={0}',
-            '[{0}:item1:Item 1]',
-            'Item 1, paragraph 1.',
-            '',
-            'Item 1, paragraph 2.',
-            '[{0}:item2:Item 2]',
-            'Item 2, paragraph 1.',
-            '',
-            'Item 2, paragraph 2.',
-            '[Titles]',
-            '{0}={1}',
-            '[PageHeaders]',
-            '{0}={2}'
-        )).format(page_id, title, header)
+        ref = """
+            [Page:{0}]
+            JavaScript={0}.js
+            SectionPrefix={0}
+            [{0}:item1:Item 1]
+            Item 1, paragraph 1.
+
+            Item 1, paragraph 2.
+            [{0}:item2:Item 2]
+            Item 2, paragraph 1.
+
+            Item 2, paragraph 2.
+            [Titles]
+            {0}={1}
+            [PageHeaders]
+            {0}={2}
+        """.format(page_id, title, header)
         exp_content = """
             <ul class="contents">
             <li><a href="#item1">Item 1</a></li>
@@ -6161,12 +6158,12 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         page_id = 'Custom'
         title = 'Item 1\t(First)'
         exp_anchor = 'item_1__first_'
-        ref = '\n'.join((
-            '[Page:{0}]',
-            'SectionPrefix={0}',
-            '[{0}:{1}]',
-            'This is an item.'
-        )).format(page_id, title)
+        ref = """
+            [Page:{0}]
+            SectionPrefix={0}
+            [{0}:{1}]
+            This is an item.
+        """.format(page_id, title)
         content = """
             <ul class="contents">
             <li><a href="#{0}">{1}</a></li>
@@ -6192,18 +6189,18 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
 
     def test_write_page_with_section_prefix_as_list_items(self):
         page_id = 'MyListItemsPage'
-        ref = '\n'.join((
-            '[Page:{0}]',
-            'SectionPrefix=Entry',
-            'SectionType=ListItems',
-            '[Entry:entry1:Entry 1]',
-            'Intro.',
-            '',
-            'Item 1',
-            '  Subitem 1A',
-            '  Subitem 1B',
-            'Item 2'
-        )).format(page_id)
+        ref = """
+            [Page:{0}]
+            SectionPrefix=Entry
+            SectionType=ListItems
+            [Entry:entry1:Entry 1]
+            Intro.
+
+            Item 1
+              Subitem 1A
+              Subitem 1B
+            Item 2
+        """.format(page_id)
         exp_content = """
             <ul class="contents">
             <li><a href="#entry1">Entry 1</a></li>
@@ -6236,12 +6233,12 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         self._assert_files_equal('{}.html'.format(page_id), subs)
 
     def test_write_bugs(self):
-        ref = '\n'.join((
-            '[Bug:b1:Showstopper]',
-            'This bug is bad.',
-            '',
-            'Really bad.',
-        ))
+        ref = """
+            [Bug:b1:Showstopper]
+            This bug is bad.
+
+            Really bad.
+        """
         content = """
             <ul class="contents">
             <li><a href="#b1">Showstopper</a></li>
@@ -6270,23 +6267,23 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         title = 'Things that go wrong'
         header = 'Misfeatures'
         path = 'ref/wrongness.html'
-        ref = '\n'.join((
-            '[Titles]',
-            'Bugs={}',
-            '[PageHeaders]',
-            'Bugs={}',
-            '[Paths]',
-            'Bugs={}'
-        )).format(title, header, path)
+        ref = """
+            [Titles]
+            Bugs={}
+            [PageHeaders]
+            Bugs={}
+            [Paths]
+            Bugs={}
+        """.format(title, header, path)
         writer = self._get_writer(ref=ref, skool='')
         writer.write_page('Bugs')
         self._assert_title_equals(path, title, header)
 
     def test_write_bugs_with_missing_anchor(self):
-        ref = '\n'.join((
-            '[Bug:Bug 1]',
-            'This is a bug.'
-        ))
+        ref = """
+            [Bug:Bug 1]
+            This is a bug.
+        """
         content = """
             <ul class="contents">
             <li><a href="#bug_1">Bug 1</a></li>
@@ -6309,15 +6306,15 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         self._assert_files_equal(join(REFERENCE_DIR, 'bugs.html'), subs)
 
     def test_write_facts(self):
-        ref = '\n'.join((
-            '[Fact:f1:Interesting fact]',
-            'Hello.',
-            '',
-            'Goodbye.',
-            '',
-            '[Fact:f2:Another interesting fact]',
-            'Yes.',
-        ))
+        ref = """
+            [Fact:f1:Interesting fact]
+            Hello.
+
+            Goodbye.
+
+            [Fact:f2:Another interesting fact]
+            Yes.
+        """
         content = """
             <ul class="contents">
             <li><a href="#f1">Interesting fact</a></li>
@@ -6354,23 +6351,23 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         title = 'Things that are true'
         header = 'Stuff you may not know'
         path = 'true_stuff.html'
-        ref = '\n'.join((
-            '[Titles]',
-            'Facts={}',
-            '[PageHeaders]',
-            'Facts={}',
-            '[Paths]',
-            'Facts={}'
-        )).format(title, header, path)
+        ref = """
+            [Titles]
+            Facts={}
+            [PageHeaders]
+            Facts={}
+            [Paths]
+            Facts={}
+        """.format(title, header, path)
         writer = self._get_writer(ref=ref, skool='')
         writer.write_page('Facts')
         self._assert_title_equals(path, title, header)
 
     def test_write_facts_with_missing_anchor(self):
-        ref = '\n'.join((
-            '[Fact:Fact A]',
-            'This is a fact.'
-        ))
+        ref = """
+            [Fact:Fact A]
+            This is a fact.
+        """
         content = """
             <ul class="contents">
             <li><a href="#fact_a">Fact A</a></li>
@@ -6419,23 +6416,23 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         title = 'Hacking the game'
         header = 'Cheats'
         path = 'qux/xyzzy/hacks.html'
-        ref = '\n'.join((
-            '[Titles]',
-            'Pokes={}',
-            '[PageHeaders]',
-            'Pokes={}',
-            '[Paths]',
-            'Pokes={}'
-        )).format(title, header, path)
+        ref = """
+            [Titles]
+            Pokes={}
+            [PageHeaders]
+            Pokes={}
+            [Paths]
+            Pokes={}
+        """.format(title, header, path)
         writer = self._get_writer(ref=ref, skool='')
         writer.write_page('Pokes')
         self._assert_title_equals(path, title, header)
 
     def test_write_pokes_with_missing_anchor(self):
-        ref = '\n'.join((
-            '[Poke:POKE A]',
-            'This is a POKE.'
-        ))
+        ref = """
+            [Poke:POKE A]
+            This is a POKE.
+        """
         content = """
             <ul class="contents">
             <li><a href="#poke_a">POKE A</a></li>
@@ -6484,23 +6481,23 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         title = 'Bugs with the graphics'
         header = 'Graphical wrongness'
         path = 'cgi/graphic_bugs.html'
-        ref = '\n'.join((
-            '[Titles]',
-            'GraphicGlitches={}',
-            '[PageHeaders]',
-            'GraphicGlitches={}',
-            '[Paths]',
-            'GraphicGlitches={}'
-        )).format(title, header, path)
+        ref = """
+            [Titles]
+            GraphicGlitches={}
+            [PageHeaders]
+            GraphicGlitches={}
+            [Paths]
+            GraphicGlitches={}
+        """.format(title, header, path)
         writer = self._get_writer(ref=ref, skool='')
         writer.write_page('GraphicGlitches')
         self._assert_title_equals(path, title, header)
 
     def test_write_graphic_glitches_with_missing_anchor(self):
-        ref = '\n'.join((
-            '[GraphicGlitch:Glitch 1]',
-            'This is a graphic glitch.'
-        ))
+        ref = """
+            [GraphicGlitch:Glitch 1]
+            This is a graphic glitch.
+        """
         content = """
             <ul class="contents">
             <li><a href="#glitch_1">Glitch 1</a></li>
@@ -6523,18 +6520,18 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         self._assert_files_equal(join(GRAPHICS_DIR, 'glitches.html'), subs)
 
     def test_write_gsb_page(self):
-        skool = '\n'.join((
-            '; GSB entry 1',
-            ';',
-            '; Number of lives.',
-            'g30000 DEFB 4',
-            '',
-            '; GSB entry 2',
-            'g30001 DEFW 78',
-            '',
-            '; Not a game status buffer entry',
-            't30003 DEFM "a"'
-        ))
+        skool = """
+            ; GSB entry 1
+            ;
+            ; Number of lives.
+            g30000 DEFB 4
+
+            ; GSB entry 2
+            g30001 DEFW 78
+
+            ; Not a game status buffer entry
+            t30003 DEFM "a"
+        """
         content = """
             <div class="map-intro"></div>
             <table class="map">
@@ -6583,26 +6580,26 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
 
     def test_write_gsb_page_with_gsb_includes(self):
         ref = '[Game]\nGameStatusBufferIncludes=30003,30004'
-        skool = '\n'.join((
-            '; GSB entry 1',
-            ';',
-            '; Number of lives.',
-            'g30000 DEFB 4',
-            '',
-            '; GSB entry 2',
-            'g30001 DEFW 78',
-            '',
-            '; Message ID',
-            't30003 DEFB 0',
-            '',
-            '; Another message ID',
-            't30004 DEFB 0',
-            '',
-            '; Not a game status buffer entry',
-            'c30005 RET',
-            '',
-            'i30006',
-        ))
+        skool = """
+            ; GSB entry 1
+            ;
+            ; Number of lives.
+            g30000 DEFB 4
+
+            ; GSB entry 2
+            g30001 DEFW 78
+
+            ; Message ID
+            t30003 DEFB 0
+
+            ; Another message ID
+            t30004 DEFB 0
+
+            ; Not a game status buffer entry
+            c30005 RET
+
+            i30006
+        """
         content = """
             <div class="map-intro"></div>
             <table class="map">
@@ -6672,31 +6669,31 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         self._assert_files_equal(join(BUFFERS_DIR, 'gbuffer.html'), subs)
 
     def test_write_gsb_page_with_includes(self):
-        ref = '\n'.join((
-            '[MemoryMap:GameStatusBuffer]',
-            'EntryTypes=g',
-            'Includes=30003,30004'
-        ))
-        skool = '\n'.join((
-            '; GSB entry 1',
-            ';',
-            '; Number of lives.',
-            'g30000 DEFB 4',
-            '',
-            '; GSB entry 2',
-            'g30001 DEFW 78',
-            '',
-            '; Message ID',
-            't30003 DEFB 0',
-            '',
-            '; Another message ID',
-            't30004 DEFB 0',
-            '',
-            '; Not a game status buffer entry',
-            'c30005 RET',
-            '',
-            'i30006',
-        ))
+        ref = """
+            [MemoryMap:GameStatusBuffer]
+            EntryTypes=g
+            Includes=30003,30004
+        """
+        skool = """
+            ; GSB entry 1
+            ;
+            ; Number of lives.
+            g30000 DEFB 4
+
+            ; GSB entry 2
+            g30001 DEFW 78
+
+            ; Message ID
+            t30003 DEFB 0
+
+            ; Another message ID
+            t30004 DEFB 0
+
+            ; Not a game status buffer entry
+            c30005 RET
+
+            i30006
+        """
         content = """
             <div class="map-intro"></div>
             <table class="map">
@@ -6769,14 +6766,14 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         title = 'Workspace'
         header = 'Status buffer'
         path = 'game/status_buffer.html'
-        ref = '\n'.join((
-            '[Titles]',
-            'GameStatusBuffer={}',
-            '[PageHeaders]',
-            'GameStatusBuffer={}',
-            '[Paths]',
-            'GameStatusBuffer={}'
-        )).format(title, header, path)
+        ref = """
+            [Titles]
+            GameStatusBuffer={}
+            [PageHeaders]
+            GameStatusBuffer={}
+            [Paths]
+            GameStatusBuffer={}
+        """.format(title, header, path)
         writer = self._get_writer(ref=ref, skool='g32768 DEFB 0')
         writer.write_map('GameStatusBuffer')
         self._assert_title_equals(path, title, header)
@@ -6799,16 +6796,16 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
 
     def test_unwritten_maps(self):
         ref = '[MemoryMap:UnusedMap]\nWrite=0'
-        skool = '\n'.join((
-            '; Routine',
-            'c40000 RET',
-            '',
-            '; Data',
-            'b40001 DEFB 0',
-            '',
-            '; Unused',
-            'u40002 DEFB 0',
-        ))
+        skool = """
+            ; Routine
+            c40000 RET
+
+            ; Data
+            b40001 DEFB 0
+
+            ; Unused
+            u40002 DEFB 0
+        """
         writer = self._get_writer(ref=ref, skool=skool)
         self.assertIn('MemoryMap', writer.main_memory_maps)
         self.assertIn('RoutinesMap', writer.main_memory_maps)
@@ -6817,17 +6814,17 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         self.assertNotIn('UnusedMap', writer.main_memory_maps)   # Write=0
 
     def test_format_registers_with_prefixes(self):
-        skool = '\n'.join((
-            '; Routine at 24576',
-            ';',
-            '; .',
-            ';',
-            ';  Input:A Some value',
-            ';        B Some other value',
-            '; Output:D The result',
-            ';        E Result flags',
-            'c24576 RET ; Done'
-        ))
+        skool = """
+            ; Routine at 24576
+            ;
+            ; .
+            ;
+            ;  Input:A Some value
+            ;        B Some other value
+            ; Output:D The result
+            ;        E Result flags
+            c24576 RET ; Done
+        """
         writer = self._get_writer(skool=skool)
         writer.write_asm_entries()
 
@@ -6886,13 +6883,13 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
     def test_write_page_with_single_global_js(self):
         global_js = 'js/global.js'
         page_id = 'Custom'
-        ref = '\n'.join((
-            '[Game]',
-            'JavaScript={0}',
-            '[Page:{1}]',
-            '[Template:{1}]',
-            '{{m_javascript}}'
-        )).format(global_js, page_id)
+        ref = """
+            [Game]
+            JavaScript={0}
+            [Page:{1}]
+            [Template:{1}]
+            {{m_javascript}}
+        """.format(global_js, page_id)
         writer = self._get_writer(ref=ref)
         writer.write_page(page_id)
         js_path = basename(global_js)
@@ -6902,14 +6899,14 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         js_files = ['js/global1.js', 'js.global2.js']
         global_js = ';'.join(js_files)
         page_id = 'Custom'
-        ref = '\n'.join((
-            '[Game]',
-            'JavaScript={0}',
-            '[Page:{1}]',
-            'Path=',
-            '[Template:{1}]',
-            '{{m_javascript}}'
-        )).format(global_js, page_id)
+        ref = """
+            [Game]
+            JavaScript={0}
+            [Page:{1}]
+            Path=
+            [Template:{1}]
+            {{m_javascript}}
+        """.format(global_js, page_id)
         writer = self._get_writer(ref=ref)
         writer.write_page(page_id)
         js_paths = [basename(js) for js in js_files]
@@ -6920,12 +6917,12 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
     def test_write_page_with_single_local_js(self):
         page_id = 'Custom'
         js = 'js/script.js'
-        ref = '\n'.join((
-            '[Page:{0}]',
-            'JavaScript={1}',
-            '[Template:{0}]',
-            '{{m_javascript}}'
-        )).format(page_id, js)
+        ref = """
+            [Page:{0}]
+            JavaScript={1}
+            [Template:{0}]
+            {{m_javascript}}
+        """.format(page_id, js)
         writer = self._get_writer(ref=ref)
         writer.write_page(page_id)
         js_path = basename(js)
@@ -6935,12 +6932,12 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         page_id = 'Custom'
         js_files = ['js/script1.js', 'js/script2.js']
         js = ';'.join(js_files)
-        ref = '\n'.join((
-            '[Page:{0}]',
-            'JavaScript={1}',
-            '[Template:{0}]',
-            '{{m_javascript}}'
-        )).format(page_id, js)
+        ref = """
+            [Page:{0}]
+            JavaScript={1}
+            [Template:{0}]
+            {{m_javascript}}
+        """.format(page_id, js)
         writer = self._get_writer(ref=ref)
         writer.write_page(page_id)
         js_paths = [basename(js) for js in js_files]
@@ -6954,14 +6951,14 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         local_js_files = ['js/local1.js', 'js/local2.js']
         local_js = ';'.join(local_js_files)
         page_id = 'Custom'
-        ref = '\n'.join((
-            '[Game]',
-            'JavaScript={0}',
-            '[Page:{1}]',
-            'JavaScript={2}',
-            '[Template:{1}]',
-            '{{m_javascript}}'
-        )).format(global_js, page_id, local_js)
+        ref = """
+            [Game]
+            JavaScript={0}
+            [Page:{1}]
+            JavaScript={2}
+            [Template:{1}]
+            {{m_javascript}}
+        """.format(global_js, page_id, local_js)
         writer = self._get_writer(ref=ref)
         writer.write_page(page_id)
         page = self._read_file(page_id + '.html', True)
@@ -6971,14 +6968,14 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
     def test_write_page_with_single_css(self):
         css = 'css/game.css'
         page_id = 'Custom'
-        ref = '\n'.join((
-            '[Game]',
-            'StyleSheet={0}',
-            '[Page:{1}]',
-            'Path=',
-            '[Template:{1}]',
-            '{{m_stylesheet}}'
-        )).format(css, page_id)
+        ref = """
+            [Game]
+            StyleSheet={0}
+            [Page:{1}]
+            Path=
+            [Template:{1}]
+            {{m_stylesheet}}
+        """.format(css, page_id)
         writer = self._get_writer(ref=ref)
         writer.write_page(page_id)
         page = self._read_file(page_id + '.html')
@@ -6987,14 +6984,14 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
     def test_write_page_with_multiple_css(self):
         css_files = ['css/game.css', 'css/foo.css']
         page_id = 'Custom'
-        ref = '\n'.join((
-            '[Game]',
-            'StyleSheet={0}',
-            '[Page:{1}]',
-            'Path=',
-            '[Template:{1}]',
-            '{{m_stylesheet}}'
-        )).format(';'.join(css_files), page_id)
+        ref = """
+            [Game]
+            StyleSheet={0}
+            [Page:{1}]
+            Path=
+            [Template:{1}]
+            {{m_stylesheet}}
+        """.format(';'.join(css_files), page_id)
         writer = self._get_writer(ref=ref)
         writer.write_page(page_id)
         page = self._read_file(page_id + '.html', True)
@@ -7005,11 +7002,11 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
     def test_write_page_no_game_name(self):
         page_id = 'Custom'
         path = '{}.html'.format(page_id)
-        ref = '\n'.join((
-            '[Page:{0}]',
-            '[Template:{0}]',
-            '{{Game[Logo]}}'
-        )).format(page_id)
+        ref = """
+            [Page:{0}]
+            [Template:{0}]
+            {{Game[Logo]}}
+        """.format(page_id)
         writer = self._get_writer(ref=ref, skool='')
         writer.write_page(page_id)
         game_name = self.skoolfile[:-6]
@@ -7021,15 +7018,15 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         page_id = 'Custom'
         cwd = 'subdir'
         path = '{}/custom.html'.format(cwd)
-        ref = '\n'.join((
-            '[Game]',
-            'Game={0}',
-            '[Page:{1}]',
-            '[Paths]',
-            '{1}={2}',
-            '[Template:{1}]',
-            '{{Game[Logo]}}'
-        )).format(game_name, page_id, path)
+        ref = """
+            [Game]
+            Game={0}
+            [Page:{1}]
+            [Paths]
+            {1}={2}
+            [Template:{1}]
+            {{Game[Logo]}}
+        """.format(game_name, page_id, path)
         writer = self._get_writer(ref=ref)
         writer.write_page(page_id)
         page = self._read_file(path, True)
@@ -7039,15 +7036,15 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         page_id = 'Custom'
         cwd = 'subdir'
         path = '{}/custom.html'.format(cwd)
-        ref = '\n'.join((
-            '[Game]',
-            'LogoImage=images/nonexistent.png',
-            '[Page:{0}]',
-            '[Paths]',
-            '{0}={1}',
-            '[Template:{0}]',
-            '{{Game[Logo]}}'
-        )).format(page_id, path)
+        ref = """
+            [Game]
+            LogoImage=images/nonexistent.png
+            [Page:{0}]
+            [Paths]
+            {0}={1}
+            [Template:{0}]
+            {{Game[Logo]}}
+        """.format(page_id, path)
         writer = self._get_writer(ref=ref, skool='')
         writer.write_page(page_id)
         game_name = self.skoolfile[:-6]
@@ -7059,15 +7056,15 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         page_id = 'Custom'
         cwd = 'subdir/subdir2'
         path = '{}/custom.html'.format(cwd)
-        ref = '\n'.join((
-            '[Game]',
-            'LogoImage={0}',
-            '[Page:{1}]',
-            '[Paths]',
-            '{1}={2}',
-            '[Template:{1}]',
-            '{{Game[Logo]}}'
-        )).format(logo_image_fname, page_id, path)
+        ref = """
+            [Game]
+            LogoImage={0}
+            [Page:{1}]
+            [Paths]
+            {1}={2}
+            [Template:{1}]
+            {{Game[Logo]}}
+        """.format(logo_image_fname, page_id, path)
         writer = self._get_writer(ref=ref, skool='')
         logo_image = self.write_bin_file(path=join(writer.file_info.odir, logo_image_fname))
         writer.write_page(page_id)
@@ -7079,13 +7076,13 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
     def test_write_page_with_logo(self):
         logo = 'ABC #UDG30000 123'
         page_id = 'custom'
-        ref = '\n'.join((
-            '[Game]',
-            'Logo={0}',
-            '[Page:{1}]',
-            '[Template:{1}]',
-            '{{Game[Logo]}}'
-        )).format(logo, page_id)
+        ref = """
+            [Game]
+            Logo={0}
+            [Page:{1}]
+            [Template:{1}]
+            {{Game[Logo]}}
+        """.format(logo, page_id)
         writer = self._get_writer(ref=ref, skool='')
         cwd = ''
         writer.write_page(page_id)
@@ -7096,19 +7093,19 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
     def test_write_page_with_path_and_title_and_page_header_containing_skool_macros(self):
         page_id = 'SMTest'
         content = 'Hi.'
-        ref = '\n'.join((
-            '[Page:{0}]',
-            'PageContent={1}',
-            '',
-            '[Paths]',
-            '{0}=item#EVAL85,16.html',
-            '',
-            '[PageHeaders]',
-            '{0}=Item #EVAL85,2,8',
-            '',
-            '[Titles]',
-            '{0}=Items (#EVAL85,2,8)'
-        )).format(page_id, content)
+        ref = """
+            [Page:{0}]
+            PageContent={1}
+
+            [Paths]
+            {0}=item#EVAL85,16.html
+
+            [PageHeaders]
+            {0}=Item #EVAL85,2,8
+
+            [Titles]
+            {0}=Items (#EVAL85,2,8)
+        """.format(page_id, content)
         writer = self._get_writer(ref=ref, skool='')
         writer.write_page(page_id)
         subs = {
@@ -7122,11 +7119,11 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
 
     def test_write_page_with_broken_template(self):
         page_id = 'Custom'
-        ref = '\n'.join((
-            '[Page:{0}]',
-            '[Template:{0}]',
-            '{{this_will_not_work}}'
-        )).format(page_id)
+        ref = """
+            [Page:{0}]
+            [Template:{0}]
+            {{this_will_not_work}}
+        """.format(page_id)
         writer = self._get_writer(ref=ref)
         with self.assertRaisesRegex(SkoolKitError, "^Unknown field 'this_will_not_work' in Custom template$"):
             writer.write_page(page_id)
@@ -7139,13 +7136,13 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
 
     def test_custom_map_with_custom_page_template(self):
         map_id = 'CustomMap'
-        ref = '\n'.join((
-            '[MemoryMap:{0}]',
-            'EntryTypes=c',
-            'Intro=Bar',
-            '[Template:{0}]',
-            '<foo>{{MemoryMap[Intro]}}</foo>'
-        )).format(map_id)
+        ref = """
+            [MemoryMap:{0}]
+            EntryTypes=c
+            Intro=Bar
+            [Template:{0}]
+            <foo>{{MemoryMap[Intro]}}</foo>
+        """.format(map_id)
 
         writer = self._get_writer(ref=ref, skool='c50000 RET')
         writer.write_map(map_id)
@@ -7155,16 +7152,16 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
     def test_changelog_with_custom_item_template(self):
         # Test that the 'Changelog-list_item' template is used if defined
         # instead of the default 'list_item' template)
-        ref = '\n'.join((
-            '[Changelog:20141123]',
-            '-',
-            '',
-            'Item 1',
-            'Item 2',
-            '',
-            '[Template:Changelog-list_item]',
-            '<li>* {item}</li>'
-        ))
+        ref = """
+            [Changelog:20141123]
+            -
+
+            Item 1
+            Item 2
+
+            [Template:Changelog-list_item]
+            <li>* {item}</li>
+        """
         content = """
             <ul class="contents">
             <li><a href="#20141123">20141123</a></li>
@@ -7192,12 +7189,12 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
     def test_page_with_custom_page_template(self):
         page_id = 'Custom'
         content = 'hello'
-        ref = '\n'.join((
-            '[Page:{0}]',
-            'PageContent={1}',
-            '[Template:{0}]',
-            '<foo>{{content}}</foo>'
-        )).format(page_id, content)
+        ref = """
+            [Page:{0}]
+            PageContent={1}
+            [Template:{0}]
+            <foo>{{content}}</foo>
+        """.format(page_id, content)
 
         writer = self._get_writer(ref=ref, skool='')
         writer.write_page(page_id)
@@ -7208,15 +7205,15 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
         page_id = 'PageWithCustomFooter'
         content = 'hey'
         footer = '<footer>Notes</footer>'
-        ref = '\n'.join((
-            '[Page:{0}]',
-            'PageContent={1}',
-            '[Template:{0}]',
-            '<bar>{{content}}</bar>',
-            '{{t_footer}}',
-            '[Template:footer]',
-            footer
-        )).format(page_id, content)
+        ref = """
+            [Page:{0}]
+            PageContent={1}
+            [Template:{0}]
+            <bar>{{content}}</bar>
+            {{t_footer}}
+            [Template:footer]
+            {2}
+        """.format(page_id, content, footer)
 
         writer = self._get_writer(ref=ref, skool='')
         writer.write_page(page_id)
@@ -7226,12 +7223,12 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
     def test_page_with_content_defined_by_include_macro(self):
         page_id = 'MyPage'
         content = 'This is the content of my page.'
-        ref = '\n'.join((
-            '[Page:{0}]',
-            'PageContent=#INCLUDE({0})',
-            '[{0}]',
-            content
-        )).format(page_id)
+        ref = """
+            [Page:{0}]
+            PageContent=#INCLUDE({0})
+            [{0}]
+            {1}
+        """.format(page_id, content)
         subs = {
             'header': page_id,
             'body_class': page_id,
@@ -7245,17 +7242,17 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
 
     def test_box_page_with_custom_page_template(self):
         page_id = 'MyCustomBoxPage'
-        ref = '\n'.join((
-            '[Page:{}]',
-            'SectionPrefix=Entry',
-            '',
-            '[Entry:Entry 1]',
-            'First entry.',
-            '',
-            '[Template:{}]',
-            'Just the entries!',
-            '{entries}'
-        )).replace('{}', page_id)
+        ref = """
+            [Page:{}]
+            SectionPrefix=Entry
+
+            [Entry:Entry 1]
+            First entry.
+
+            [Template:{}]
+            Just the entries!
+            {entries}
+        """.replace('{}', page_id)
         exp_content = """
             Just the entries!
             <div><span id="entry_1"></span></div>
@@ -7273,35 +7270,35 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
 
     def test_box_page_as_list_items_with_custom_subtemplates(self):
         page_id = 'MyListItemsPage'
-        ref = '\n'.join((
-            '[Page:{}]',
-            'SectionPrefix=Entry',
-            'SectionType=ListItems',
-            '',
-            '[Entry:entry1:Entry 1]',
-            'Intro.',
-            '',
-            'Item 1',
-            '  Subitem 1A',
-            '  Subitem 1B',
-            'Item 2',
-            '',
-            '[Template:{}-entry]',
-            '<div>{t_anchor}</div>',
-            '<div class="entry entry-{num}">',
-            '<div class="entry-title">{title}</div>',
-            '<div class="entry-intro">{description}</div>',
-            '{t_list_items}',
-            '</div>',
-            '',
-            '[Template:{}-item_list]',
-            '<ul class="level{indent}">',
-            '{m_list_item}',
-            '</ul>',
-            '',
-            '[Template:{}-list_item]',
-            '<li>* {item}</li>'
-        )).replace('{}', page_id)
+        ref = """
+            [Page:{}]
+            SectionPrefix=Entry
+            SectionType=ListItems
+
+            [Entry:entry1:Entry 1]
+            Intro.
+
+            Item 1
+              Subitem 1A
+              Subitem 1B
+            Item 2
+
+            [Template:{}-entry]
+            <div>{t_anchor}</div>
+            <div class="entry entry-{num}">
+            <div class="entry-title">{title}</div>
+            <div class="entry-intro">{description}</div>
+            {t_list_items}
+            </div>
+
+            [Template:{}-item_list]
+            <ul class="level{indent}">
+            {m_list_item}
+            </ul>
+
+            [Template:{}-list_item]
+            <li>* {item}</li>
+        """.replace('{}', page_id)
         exp_content = """
             <ul class="contents">
             <li><a href="#entry1">Entry 1</a></li>
@@ -7335,67 +7332,67 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
 
     def test_box_page_as_bullet_points(self):
         page_id = 'Changes'
-        ref = '\n'.join((
-            '[Page:{}]'.format(page_id),
-            'SectionPrefix=Change',
-            'SectionType=BulletPoints',
-            '',
-            '[Change:20170106]',
-            '-',
-            '',
-            '- There are blank lines...',
-            '',
-            '- ...between these...',
-            '',
-            '- ...top-level items',
-            '',
-            '[Change:20170105]',
-            '-',
-            '',
-            '- There are no blank lines...',
-            '- ...between these...',
-            '- ...top-level items',
-            '',
-            '[Change:20170104]',
-            'Many #LINK:Facts(changes).',
-            '',
-            '- This is',
-            '  bullet point 1',
-            '  - This is bullet',
-            '    point 2',
-            '    - This is bullet point',
-            '      3',
-            '    - This',
-            '      is bullet',
-            '      point 4',
-            '  - This is bullet point 5',
-            '',
-            '',
-            '- This is #LINK:Bugs(bullet',
-            '  point 6)',
-            '',
-            '[Change:20170103]',
-            '-',
-            '',
-            '- This is bullet point 1',
-            '',
-            '  - This is bullet',
-            '    point 2',
-            '    - This is',
-            '      bullet point 3',
-            '- This is',
-            '  bullet point 4',
-            '',
-            '[Change:20170102]',
-            'Intro on #HTML(two',
-            'lines).',
-            '',
-            'This item is ignored (no bullet)',
-            '',
-            '- This is the first item',
-            '[Change:20170101]',
-            'Initial release'
-        ))
+        ref = """
+            [Page:{}]
+            SectionPrefix=Change
+            SectionType=BulletPoints
+
+            [Change:20170106]
+            -
+
+            - There are blank lines...
+
+            - ...between these...
+
+            - ...top-level items
+
+            [Change:20170105]
+            -
+
+            - There are no blank lines...
+            - ...between these...
+            - ...top-level items
+
+            [Change:20170104]
+            Many #LINK:Facts(changes).
+
+            - This is
+              bullet point 1
+              - This is bullet
+                point 2
+                - This is bullet point
+                  3
+                - This
+                  is bullet
+                  point 4
+              - This is bullet point 5
+
+
+            - This is #LINK:Bugs(bullet
+              point 6)
+
+            [Change:20170103]
+            -
+
+            - This is bullet point 1
+
+              - This is bullet
+                point 2
+                - This is
+                  bullet point 3
+            - This is
+              bullet point 4
+
+            [Change:20170102]
+            Intro on #HTML(two
+            lines).
+
+            This item is ignored (no bullet)
+
+            - This is the first item
+            [Change:20170101]
+            Initial release
+        """.format(page_id)
         content = """
             <ul class="contents">
             <li><a href="#20170106">20170106</a></li>
@@ -7488,13 +7485,13 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
 
     def test_box_page_with_skool_macros_in_section_name(self):
         page_id = 'MyPageWithSkoolMacrosInTheSectionName'
-        ref = '\n'.join((
-            '[Page:{}]',
-            'SectionPrefix=Entry',
-            '',
-            '[Entry:entry#EVAL1,2,8:Entry #EVAL1,16,2]',
-            'Hello.'
-        )).format(page_id)
+        ref = """
+            [Page:{}]
+            SectionPrefix=Entry
+
+            [Entry:entry#EVAL1,2,8:Entry #EVAL1,16,2]
+            Hello.
+        """.format(page_id)
         exp_content = """
             <ul class="contents">
             <li><a href="#entry00000001">Entry 01</a></li>
@@ -7521,16 +7518,16 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
 
     def test_box_page_as_list_items_with_skool_macros_in_section_name(self):
         page_id = 'MyListItemsPageWithSkoolMacrosInTheSectionName'
-        ref = '\n'.join((
-            '[Page:{}]',
-            'SectionPrefix=Entry',
-            'SectionType=ListItems',
-            '',
-            '[Entry:entry#EVAL1,2,8:Entry #EVAL1,16,2]',
-            '-',
-            '',
-            'An item'
-        )).format(page_id)
+        ref = """
+            [Page:{}]
+            SectionPrefix=Entry
+            SectionType=ListItems
+
+            [Entry:entry#EVAL1,2,8:Entry #EVAL1,16,2]
+            -
+
+            An item
+        """.format(page_id)
         exp_content = """
             <ul class="contents">
             <li><a href="#entry00000001">Entry 01</a></li>
@@ -7558,16 +7555,16 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
 
     def test_box_page_as_bullet_points_with_skool_macros_in_section_name(self):
         page_id = 'MyBulletPointsPageWithSkoolMacrosInTheSectionName'
-        ref = '\n'.join((
-            '[Page:{}]',
-            'SectionPrefix=Entry',
-            'SectionType=BulletPoints',
-            '',
-            '[Entry:entry#EVAL1,2,8:Entry #EVAL1,16,2]',
-            '-',
-            '',
-            '- A bullet point'
-        )).format(page_id)
+        ref = """
+            [Page:{}]
+            SectionPrefix=Entry
+            SectionType=BulletPoints
+
+            [Entry:entry#EVAL1,2,8:Entry #EVAL1,16,2]
+            -
+
+            - A bullet point
+        """.format(page_id)
         exp_content = """
             <ul class="contents">
             <li><a href="#entry00000001">Entry 01</a></li>
@@ -7595,33 +7592,33 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
 
     def test_page_with_custom_table_templates(self):
         page_id = 'JustSomePage'
-        ref = '\n'.join((
-            '[Page:{}]',
-            'PageContent=#INCLUDE({})',
-            '',
-            '[{}]',
-            '#TABLE',
-            '{ =h This | =h That }',
-            '{ 1A | 1B }',
-            '{ 2A | 2B }',
-            'TABLE#',
-            '',
-            '[Template:{}-table]',
-            'BEGIN TABLE (',
-            '{m_table_row}',
-            ') END TABLE',
-            '',
-            '[Template:{}-table_row]',
-            '<row>',
-            '{cells}',
-            '</row>',
-            '',
-            '[Template:{}-table_header_cell]',
-            '<header>{contents}</header>',
-            '',
-            '[Template:{}-table_cell]',
-            '<cell>{contents}</cell>'
-        )).replace('{}', page_id)
+        ref = """
+            [Page:{}]
+            PageContent=#INCLUDE({})
+
+            [{}]
+            #TABLE
+            { =h This | =h That }
+            { 1A | 1B }
+            { 2A | 2B }
+            TABLE#
+
+            [Template:{}-table]
+            BEGIN TABLE (
+            {m_table_row}
+            ) END TABLE
+
+            [Template:{}-table_row]
+            <row>
+            {cells}
+            </row>
+
+            [Template:{}-table_header_cell]
+            <header>{contents}</header>
+
+            [Template:{}-table_cell]
+            <cell>{contents}</cell>
+        """.replace('{}', page_id)
         exp_content = """
             BEGIN TABLE (
             <row>
@@ -7651,19 +7648,19 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
         self._assert_files_equal('{}.html'.format(page_id), subs)
 
     def test_custom_asm_instruction_template(self):
-        skool = '\n'.join((
-            '; Routine at 32768',
-            '@label=START',
-            'c32768 XOR A  ; Clear A.'
-        ))
-        ref = '\n'.join((
-            '[Template:Asm]',
-            '{entry[title]}',
-            '{disassembly}',
-            '',
-            '[Template:asm_instruction]',
-            '{label} {address} {location:04X}: {operation} ; {comment}'
-        ))
+        skool = """
+            ; Routine at 32768
+            @label=START
+            c32768 XOR A  ; Clear A.
+        """
+        ref = """
+            [Template:Asm]
+            {entry[title]}
+            {disassembly}
+
+            [Template:asm_instruction]
+            {label} {address} {location:04X}: {operation} ; {comment}
+        """
         exp_content = """
             Routine at 32768
             START 32768 8000: XOR A ; Clear A.
@@ -7674,36 +7671,36 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
         self._assert_content_equal(exp_content, 'asm/32768.html')
 
     def test_custom_asm_c_page_with_custom_subtemplates(self):
-        skool = '\n'.join((
-            '; Routine at 32768',
-            ';',
-            '; Do stuff.',
-            ';',
-            '; HL 0',
-            'c32768 XOR A  ; #REGa=0'
-        ))
-        ref = '\n'.join((
-            '[Template:Asm-c]',
-            '{entry[title]}',
-            '{entry[description]}',
-            '{registers_input}',
-            '{disassembly}',
-            '',
-            '[Template:Asm-c-asm_register]',
-            '{name} register: {description}',
-            '',
-            '[Template:Asm-c-asm_comment]',
-            '{m_paragraph}',
-            '',
-            '[Template:Asm-c-paragraph]',
-            '{paragraph}',
-            '',
-            '[Template:Asm-c-asm_instruction]',
-            '{address}: {operation} ; {comment}',
-            '',
-            '[Template:Asm-c-reg]',
-            '{reg}'
-        ))
+        skool = """
+            ; Routine at 32768
+            ;
+            ; Do stuff.
+            ;
+            ; HL 0
+            c32768 XOR A  ; #REGa=0
+        """
+        ref = """
+            [Template:Asm-c]
+            {entry[title]}
+            {entry[description]}
+            {registers_input}
+            {disassembly}
+
+            [Template:Asm-c-asm_register]
+            {name} register: {description}
+
+            [Template:Asm-c-asm_comment]
+            {m_paragraph}
+
+            [Template:Asm-c-paragraph]
+            {paragraph}
+
+            [Template:Asm-c-asm_instruction]
+            {address}: {operation} ; {comment}
+
+            [Template:Asm-c-reg]
+            {reg}
+        """
         exp_content = """
             Routine at 32768
             Do stuff.
@@ -7717,38 +7714,38 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
 
     def test_custom_other_code_asm_c_page_with_custom_subtemplates(self):
         code_id = 'Stuff'
-        other_skool = '\n'.join((
-            '; Routine at 32768',
-            ';',
-            '; Do stuff.',
-            ';',
-            '; HL 0',
-            'c32768 LD B,A  ; #REGb=#REGa'
-        ))
-        ref = '\n'.join((
-            '[OtherCode:{}]',
-            '',
-            '[Template:{}-Asm-c]',
-            '{entry[title]}',
-            '{entry[description]}',
-            '{registers_input}',
-            '{disassembly}',
-            '',
-            '[Template:{}-Asm-c-asm_register]',
-            '{name} register: {description}',
-            '',
-            '[Template:{}-Asm-c-asm_comment]',
-            '{m_paragraph}',
-            '',
-            '[Template:{}-Asm-c-paragraph]',
-            '{paragraph}',
-            '',
-            '[Template:{}-Asm-c-asm_instruction]',
-            '{address}: {operation} ; {comment}',
-            '',
-            '[Template:{}-Asm-c-reg]',
-            '{reg}'
-        )).replace('{}', code_id)
+        other_skool = """
+            ; Routine at 32768
+            ;
+            ; Do stuff.
+            ;
+            ; HL 0
+            c32768 LD B,A  ; #REGb=#REGa
+        """
+        ref = """
+            [OtherCode:{}]
+
+            [Template:{}-Asm-c]
+            {entry[title]}
+            {entry[description]}
+            {registers_input}
+            {disassembly}
+
+            [Template:{}-Asm-c-asm_register]
+            {name} register: {description}
+
+            [Template:{}-Asm-c-asm_comment]
+            {m_paragraph}
+
+            [Template:{}-Asm-c-paragraph]
+            {paragraph}
+
+            [Template:{}-Asm-c-asm_instruction]
+            {address}: {operation} ; {comment}
+
+            [Template:{}-Asm-c-reg]
+            {reg}
+        """.replace('{}', code_id)
         exp_content = """
             Routine at 32768
             Do stuff.
@@ -7764,27 +7761,27 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
         self._assert_content_equal(exp_content, '{}/32768.html'.format(asm_path))
 
     def test_custom_asm_single_page_with_custom_subtemplates(self):
-        skool = '\n'.join((
-            '; Routine at 32768',
-            'c32768 XOR A',
-            '',
-            '; Data block at 32769',
-            'b32769 DEFB 0',
-        ))
-        ref = '\n'.join((
-            '[Game]',
-            'AsmSinglePageTemplate=AsmAllInOne',
-            '',
-            '[Template:AsmSinglePage]',
-            '{m_asm_entry}',
-            '',
-            '[Template:AsmSinglePage-asm_entry]',
-            '{entry[title]}',
-            '{disassembly}',
-            '',
-            '[Template:AsmSinglePage-asm_instruction]',
-            '{address}: {operation}'
-        ))
+        skool = """
+            ; Routine at 32768
+            c32768 XOR A
+
+            ; Data block at 32769
+            b32769 DEFB 0
+        """
+        ref = """
+            [Game]
+            AsmSinglePageTemplate=AsmAllInOne
+
+            [Template:AsmSinglePage]
+            {m_asm_entry}
+
+            [Template:AsmSinglePage-asm_entry]
+            {entry[title]}
+            {disassembly}
+
+            [Template:AsmSinglePage-asm_instruction]
+            {address}: {operation}
+        """
         exp_content = """
             Routine at 32768
             32768: XOR A
@@ -7798,29 +7795,29 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
 
     def test_custom_other_code_asm_single_page_with_custom_subtemplates(self):
         code_id = 'Other'
-        other_skool = '\n'.join((
-            '; Routine at 49152',
-            'c49152 XOR B',
-            '',
-            '; Data block at 49153',
-            'b49153 DEFB 1',
-        ))
-        ref = '\n'.join((
-            '[OtherCode:{}]',
-            '',
-            '[Game]',
-            'AsmSinglePageTemplate=AsmAllInOne',
-            '',
-            '[Template:{}-AsmSinglePage]',
-            '{m_asm_entry}',
-            '',
-            '[Template:{}-AsmSinglePage-asm_entry]',
-            '{entry[title]}',
-            '{disassembly}',
-            '',
-            '[Template:{}-AsmSinglePage-asm_instruction]',
-            '{address}: {operation}'
-        )).replace('{}', code_id)
+        other_skool = """
+            ; Routine at 49152
+            c49152 XOR B
+
+            ; Data block at 49153
+            b49153 DEFB 1
+        """
+        ref = """
+            [OtherCode:{}]
+
+            [Game]
+            AsmSinglePageTemplate=AsmAllInOne
+
+            [Template:{}-AsmSinglePage]
+            {m_asm_entry}
+
+            [Template:{}-AsmSinglePage-asm_entry]
+            {entry[title]}
+            {disassembly}
+
+            [Template:{}-AsmSinglePage-asm_instruction]
+            {address}: {operation}
+        """.replace('{}', code_id)
         exp_content = """
             Routine at 49152
             49152: XOR B
@@ -7836,21 +7833,21 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
         self._assert_content_equal(exp_content, '{}/asm.html'.format(code_id))
 
     def test_custom_asm_b_page_with_custom_subtemplates(self):
-        skool = '\n'.join((
-            '; Data block at 32768',
-            'b32768 DEFB 0'
-        ))
-        ref = '\n'.join((
-            '[Template:Asm-b]',
-            '{entry[title]}',
-            '{disassembly}',
-            '',
-            '[Template:Asm-b-asm_instruction]',
-            '{t_anchor}: {operation}',
-            '',
-            '[Template:Asm-b-anchor]',
-            '{anchor}'
-        ))
+        skool = """
+            ; Data block at 32768
+            b32768 DEFB 0
+        """
+        ref = """
+            [Template:Asm-b]
+            {entry[title]}
+            {disassembly}
+
+            [Template:Asm-b-asm_instruction]
+            {t_anchor}: {operation}
+
+            [Template:Asm-b-anchor]
+            {anchor}
+        """
         exp_content = """
             Data block at 32768
             32768: DEFB 0
@@ -7862,29 +7859,29 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
 
     def test_custom_other_code_asm_b_page_with_custom_subtemplates(self):
         code_id = 'Stuff'
-        other_skool = '\n'.join((
-            '; Data block at 32768',
-            ';',
-            '; #LINK:Bugs(bug)',
-            'b32768 DEFB 0'
-        ))
-        ref = '\n'.join((
-            '[OtherCode:{}]',
-            '',
-            '[Template:{}-Asm-b]',
-            '{entry[title]}',
-            '{entry[description]}',
-            '{disassembly}',
-            '',
-            '[Template:{}-Asm-b-asm_instruction]',
-            '{address}: {operation}',
-            '',
-            '[Template:{}-Asm-b-paragraph]',
-            '{paragraph}',
-            '',
-            '[Template:{}-Asm-b-link]',
-            'Link: {href} ({link_text})'
-        )).replace('{}', code_id)
+        other_skool = """
+            ; Data block at 32768
+            ;
+            ; #LINK:Bugs(bug)
+            b32768 DEFB 0
+        """
+        ref = """
+            [OtherCode:{}]
+
+            [Template:{}-Asm-b]
+            {entry[title]}
+            {entry[description]}
+            {disassembly}
+
+            [Template:{}-Asm-b-asm_instruction]
+            {address}: {operation}
+
+            [Template:{}-Asm-b-paragraph]
+            {paragraph}
+
+            [Template:{}-Asm-b-link]
+            Link: {href} ({link_text})
+        """.replace('{}', code_id)
         exp_content = """
             Data block at 32768
             Link: ../reference/bugs.html (bug)
@@ -7899,22 +7896,22 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
         self._assert_content_equal(exp_content, '{}/32768.html'.format(asm_path))
 
     def test_custom_asm_g_page_with_custom_subtemplates(self):
-        skool = '\n'.join((
-            '; Game status buffer entry at 32768',
-            'g32768 DEFB 0'
-        ))
-        ref = '\n'.join((
-            '[Template:Asm-g]',
-            '{entry[title]}',
-            '{disassembly}',
-            '{t_footer}',
-            '',
-            '[Template:Asm-g-asm_instruction]',
-            '{address}: {operation}',
-            '',
-            '[Template:Asm-g-footer]',
-            '(done)'
-        ))
+        skool = """
+            ; Game status buffer entry at 32768
+            g32768 DEFB 0
+        """
+        ref = """
+            [Template:Asm-g]
+            {entry[title]}
+            {disassembly}
+            {t_footer}
+
+            [Template:Asm-g-asm_instruction]
+            {address}: {operation}
+
+            [Template:Asm-g-footer]
+            (done)
+        """
         exp_content = """
             Game status buffer entry at 32768
             32768: DEFB 0
@@ -7927,33 +7924,33 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
 
     def test_custom_other_code_asm_g_page_with_custom_subtemplates(self):
         code_id = 'Stuff'
-        other_skool = '\n'.join((
-            '; Game status buffer entry at 32768',
-            ';',
-            '; #LIST { Thing 1 } { Thing 2 } LIST#',
-            'g32768 DEFB 0'
-        ))
-        ref = '\n'.join((
-            '[OtherCode:{}]',
-            '',
-            '[Template:{}-Asm-g]',
-            '{entry[title]}',
-            '{entry[description]}',
-            '{disassembly}',
-            '',
-            '[Template:{}-Asm-g-asm_instruction]',
-            '{address}: {operation}',
-            '',
-            '[Template:{}-Asm-g-paragraph]',
-            '{paragraph}',
-            '',
-            '[Template:{}-Asm-g-list]',
-            'Items:',
-            '{m_list_item}',
-            '',
-            '[Template:{}-Asm-g-list_item]',
-            '+ {item}'
-        )).replace('{}', code_id)
+        other_skool = """
+            ; Game status buffer entry at 32768
+            ;
+            ; #LIST { Thing 1 } { Thing 2 } LIST#
+            g32768 DEFB 0
+        """
+        ref = """
+            [OtherCode:{}]
+
+            [Template:{}-Asm-g]
+            {entry[title]}
+            {entry[description]}
+            {disassembly}
+
+            [Template:{}-Asm-g-asm_instruction]
+            {address}: {operation}
+
+            [Template:{}-Asm-g-paragraph]
+            {paragraph}
+
+            [Template:{}-Asm-g-list]
+            Items:
+            {m_list_item}
+
+            [Template:{}-Asm-g-list_item]
+            + {item}
+        """.replace('{}', code_id)
         exp_content = """
             Game status buffer entry at 32768
             Items:
@@ -7970,22 +7967,22 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
         self._assert_content_equal(exp_content, '{}/32768.html'.format(asm_path))
 
     def test_custom_asm_s_page_with_custom_subtemplates(self):
-        skool = '\n'.join((
-            '; Space',
-            's32768 DEFS 10'
-        ))
-        ref = '\n'.join((
-            '[Template:Asm-s]',
-            '{m_stylesheet}',
-            '{entry[title]}',
-            '{disassembly}',
-            '',
-            '[Template:Asm-s-asm_instruction]',
-            '{address}: {operation}',
-            '',
-            '[Template:Asm-s-stylesheet]',
-            '-- {href} --'
-        ))
+        skool = """
+            ; Space
+            s32768 DEFS 10
+        """
+        ref = """
+            [Template:Asm-s]
+            {m_stylesheet}
+            {entry[title]}
+            {disassembly}
+
+            [Template:Asm-s-asm_instruction]
+            {address}: {operation}
+
+            [Template:Asm-s-stylesheet]
+            -- {href} --
+        """
         exp_content = """
             -- ../skoolkit.css --
             Space
@@ -7998,20 +7995,20 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
 
     def test_custom_other_code_asm_s_page_with_custom_subtemplate(self):
         code_id = 'Stuff'
-        other_skool = '\n'.join((
-            '; Space',
-            's32768 DEFS 10'
-        ))
-        ref = '\n'.join((
-            '[OtherCode:{}]',
-            '',
-            '[Template:{}-Asm-s]',
-            '{entry[title]}',
-            '{disassembly}',
-            '',
-            '[Template:{}-Asm-s-asm_instruction]',
-            '{address}: {operation}'
-        )).replace('{}', code_id)
+        other_skool = """
+            ; Space
+            s32768 DEFS 10
+        """
+        ref = """
+            [OtherCode:{}]
+
+            [Template:{}-Asm-s]
+            {entry[title]}
+            {disassembly}
+
+            [Template:{}-Asm-s-asm_instruction]
+            {address}: {operation}
+        """.replace('{}', code_id)
         exp_content = """
             Space
             32768: DEFS 10
@@ -8025,25 +8022,25 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
         self._assert_content_equal(exp_content, '{}/32768.html'.format(asm_path))
 
     def test_custom_asm_t_page_with_custom_subtemplates(self):
-        skool = '\n'.join((
-            '; Message at 32768',
-            't32768 DEFM "Hello"'
-        ))
-        ref = '\n'.join((
-            '[Game]',
-            'JavaScript=foo.js',
-            '',
-            '[Template:Asm-t]',
-            '{m_javascript}',
-            '{entry[title]}',
-            '{disassembly}',
-            '',
-            '[Template:Asm-t-asm_instruction]',
-            '{address}: {operation}',
-            '',
-            '[Template:Asm-t-javascript]',
-            '-- {src} --'
-        ))
+        skool = """
+            ; Message at 32768
+            t32768 DEFM "Hello"
+        """
+        ref = """
+            [Game]
+            JavaScript=foo.js
+
+            [Template:Asm-t]
+            {m_javascript}
+            {entry[title]}
+            {disassembly}
+
+            [Template:Asm-t-asm_instruction]
+            {address}: {operation}
+
+            [Template:Asm-t-javascript]
+            -- {src} --
+        """
         exp_content = """
             -- ../foo.js --
             Message at 32768
@@ -8056,20 +8053,20 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
 
     def test_custom_other_code_asm_t_page_with_custom_subtemplate(self):
         code_id = 'Stuff'
-        other_skool = '\n'.join((
-            '; Message at 32768',
-            't32768 DEFM "Hello"'
-        ))
-        ref = '\n'.join((
-            '[OtherCode:{}]',
-            '',
-            '[Template:{}-Asm-t]',
-            '{entry[title]}',
-            '{disassembly}',
-            '',
-            '[Template:{}-Asm-t-asm_instruction]',
-            '{address}: {operation}'
-        )).replace('{}', code_id)
+        other_skool = """
+            ; Message at 32768
+            t32768 DEFM "Hello"
+        """
+        ref = """
+            [OtherCode:{}]
+
+            [Template:{}-Asm-t]
+            {entry[title]}
+            {disassembly}
+
+            [Template:{}-Asm-t-asm_instruction]
+            {address}: {operation}
+        """.replace('{}', code_id)
         exp_content = """
             Message at 32768
             32768: DEFM "Hello"
@@ -8083,27 +8080,27 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
         self._assert_content_equal(exp_content, '{}/32768.html'.format(asm_path))
 
     def test_custom_asm_u_page_with_custom_subtemplates(self):
-        skool = '\n'.join((
-            '; Unused',
-            ';',
-            '; #UDG32768',
-            'u32768 DEFS 100'
-        ))
-        ref = '\n'.join((
-            '[Template:Asm-u]',
-            '{entry[title]}',
-            '{entry[description]}',
-            '{disassembly}',
-            '',
-            '[Template:Asm-u-asm_instruction]',
-            '{address}: {operation}',
-            '',
-            '[Template:Asm-u-paragraph]',
-            '{paragraph}',
-            '',
-            '[Template:Asm-u-img]',
-            'Image: {src}'
-        ))
+        skool = """
+            ; Unused
+            ;
+            ; #UDG32768
+            u32768 DEFS 100
+        """
+        ref = """
+            [Template:Asm-u]
+            {entry[title]}
+            {entry[description]}
+            {disassembly}
+
+            [Template:Asm-u-asm_instruction]
+            {address}: {operation}
+
+            [Template:Asm-u-paragraph]
+            {paragraph}
+
+            [Template:Asm-u-img]
+            Image: {src}
+        """
         exp_content = """
             Unused
             Image: ../images/udgs/udg32768_56x4.png
@@ -8116,20 +8113,20 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
 
     def test_custom_other_code_asm_u_page_with_custom_subtemplate(self):
         code_id = 'Stuff'
-        other_skool = '\n'.join((
-            '; Unused',
-            'u32768 DEFS 100'
-        ))
-        ref = '\n'.join((
-            '[OtherCode:{}]',
-            '',
-            '[Template:{}-Asm-u]',
-            '{entry[title]}',
-            '{disassembly}',
-            '',
-            '[Template:{}-Asm-u-asm_instruction]',
-            '{address}: {operation}'
-        )).replace('{}', code_id)
+        other_skool = """
+            ; Unused
+            u32768 DEFS 100
+        """
+        ref = """
+            [OtherCode:{}]
+
+            [Template:{}-Asm-u]
+            {entry[title]}
+            {disassembly}
+
+            [Template:{}-Asm-u-asm_instruction]
+            {address}: {operation}
+        """.replace('{}', code_id)
         exp_content = """
             Unused
             32768: DEFS 100
@@ -8143,18 +8140,18 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
         self._assert_content_equal(exp_content, '{}/32768.html'.format(asm_path))
 
     def test_custom_asm_w_page_with_custom_subtemplate(self):
-        skool = '\n'.join((
-            '; A word',
-            'w32768 DEFW 1759'
-        ))
-        ref = '\n'.join((
-            '[Template:Asm-w]',
-            '{entry[title]}',
-            '{disassembly}',
-            '',
-            '[Template:Asm-w-asm_instruction]',
-            '{address}: {operation}'
-        ))
+        skool = """
+            ; A word
+            w32768 DEFW 1759
+        """
+        ref = """
+            [Template:Asm-w]
+            {entry[title]}
+            {disassembly}
+
+            [Template:Asm-w-asm_instruction]
+            {address}: {operation}
+        """
         exp_content = """
             A word
             32768: DEFW 1759
@@ -8166,20 +8163,20 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
 
     def test_custom_other_code_asm_w_page_with_custom_subtemplate(self):
         code_id = 'Stuff'
-        other_skool = '\n'.join((
-            '; A word',
-            'w32768 DEFW 1759'
-        ))
-        ref = '\n'.join((
-            '[OtherCode:{}]',
-            '',
-            '[Template:{}-Asm-w]',
-            '{entry[title]}',
-            '{disassembly}',
-            '',
-            '[Template:{}-Asm-w-asm_instruction]',
-            '{address}: {operation}'
-        )).replace('{}', code_id)
+        other_skool = """
+            ; A word
+            w32768 DEFW 1759
+        """
+        ref = """
+            [OtherCode:{}]
+
+            [Template:{}-Asm-w]
+            {entry[title]}
+            {disassembly}
+
+            [Template:{}-Asm-w-asm_instruction]
+            {address}: {operation}
+        """.replace('{}', code_id)
         exp_content = """
             A word
             32768: DEFW 1759
@@ -8194,30 +8191,30 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
 
     def test_custom_box_page_with_custom_subtemplates(self):
         page_id = 'MyBoxes'
-        ref = '\n'.join((
-            '[Page:{}]',
-            'SectionPrefix=Box',
-            '',
-            '[Box:Box 1]',
-            'Stuff.',
-            '',
-            '[Box:Box 2]',
-            'More stuff.',
-            '',
-            '[Template:{}]',
-            '{m_contents_list_item}',
-            '',
-            '{entries}',
-            '',
-            '[Template:{}-contents_list_item]',
-            '* {title}',
-            '',
-            '[Template:{}-paragraph]',
-            '{paragraph}',
-            '',
-            '[Template:{}-entry]',
-            '{title}: {contents}'
-        )).replace('{}', page_id)
+        ref = """
+            [Page:{}]
+            SectionPrefix=Box
+
+            [Box:Box 1]
+            Stuff.
+
+            [Box:Box 2]
+            More stuff.
+
+            [Template:{}]
+            {m_contents_list_item}
+
+            {entries}
+
+            [Template:{}-contents_list_item]
+            * {title}
+
+            [Template:{}-paragraph]
+            {paragraph}
+
+            [Template:{}-entry]
+            {title}: {contents}
+        """.replace('{}', page_id)
         exp_content = """
             * Box 1
             * Box 2
@@ -8231,26 +8228,26 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
         self._assert_content_equal(exp_content, '{}.html'.format(page_id))
 
     def test_custom_map_page_with_custom_subtemplates(self):
-        skool = '\n'.join((
-            '; Routine at 49152',
-            ';',
-            '; Reset HL.',
-            'c49152 LD HL,0'
-        ))
-        ref = '\n'.join((
-            '[MemoryMap:MemoryMap]',
-            'EntryDescriptions=1',
-            '',
-            '[Template:MemoryMap]',
-            '{m_map_entry}',
-            '',
-            '[Template:MemoryMap-map_entry]',
-            '{entry[address]}: {entry[title]}',
-            '{entry[description]}',
-            '',
-            '[Template:MemoryMap-paragraph]',
-            '{paragraph}'
-        ))
+        skool = """
+            ; Routine at 49152
+            ;
+            ; Reset HL.
+            c49152 LD HL,0
+        """
+        ref = """
+            [MemoryMap:MemoryMap]
+            EntryDescriptions=1
+
+            [Template:MemoryMap]
+            {m_map_entry}
+
+            [Template:MemoryMap-map_entry]
+            {entry[address]}: {entry[title]}
+            {entry[description]}
+
+            [Template:MemoryMap-paragraph]
+            {paragraph}
+        """
         exp_content = """
             49152: Routine at 49152
             Reset HL.
