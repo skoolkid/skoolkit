@@ -1,5 +1,6 @@
 import os.path
 import re
+from textwrap import dedent
 import unittest
 from unittest.mock import patch, Mock
 
@@ -397,22 +398,22 @@ class OptionsTest(SkoolKitTestCase):
 
     @patch.object(sna2skool, 'run', mock_run)
     def test_config_read_from_file(self):
-        ini = '\n'.join((
-            '[sna2skool]',
-            'Base=16',
-            'Case=1',
-            'CtlHex=1',
-            'DefbMod=8',
-            'DefbSize=12',
-            'DefbZfill=1',
-            'DefmSize=92',
-            'LineWidth=119',
-            'ListRefs=2',
-            'Text=1',
-            'Title-b=Data at {address}',
-            'Title-c=Code at {address}'
-        ))
-        self.write_text_file(ini, 'skoolkit.ini')
+        ini = """
+            [sna2skool]
+            Base=16
+            Case=1
+            CtlHex=1
+            DefbMod=8
+            DefbSize=12
+            DefbZfill=1
+            DefmSize=92
+            LineWidth=119
+            ListRefs=2
+            Text=1
+            Title-b=Data at {address}
+            Title-c=Code at {address}
+        """
+        self.write_text_file(dedent(ini).strip(), 'skoolkit.ini')
         sna2skool.main(('test.sna',))
         snafile, options, config = run_args
         self.assertEqual(snafile, 'test.sna')
@@ -437,13 +438,13 @@ class OptionsTest(SkoolKitTestCase):
 
     @patch.object(sna2skool, 'run', mock_run)
     def test_invalid_option_values_read_from_file(self):
-        ini = '\n'.join((
-            '[sna2skool]',
-            'CtlHex=?',
-            'DefbMod=16',
-            'DefbSize=x'
-        ))
-        self.write_text_file(ini, 'skoolkit.ini')
+        ini = """
+            [sna2skool]
+            CtlHex=?
+            DefbMod=16
+            DefbSize=x
+        """
+        self.write_text_file(dedent(ini).strip(), 'skoolkit.ini')
         sna2skool.main(('test.sna',))
         snafile, options = run_args[:2]
         self.assertEqual(snafile, 'test.sna')
@@ -455,12 +456,12 @@ class OptionsTest(SkoolKitTestCase):
     @patch.object(sna2skool, 'CtlParser', MockCtlParser)
     @patch.object(sna2skool, 'SkoolWriter', MockSkoolWriter)
     def test_writer_config_read_from_file(self):
-        ini = '\n'.join((
-            '[sna2skool]',
-            'Title-b=Data at {address}',
-            'Title-c=Code at {address}'
-        ))
-        self.write_text_file(ini, 'skoolkit.ini')
+        ini = """
+            [sna2skool]
+            Title-b=Data at {address}
+            Title-c=Code at {address}
+        """
+        self.write_text_file(dedent(ini).strip(), 'skoolkit.ini')
         output, error = self.run_sna2skool('test.sna')
         self.assertEqual(error, '')
         config = mock_skool_writer.config
@@ -873,12 +874,12 @@ class OptionsTest(SkoolKitTestCase):
 
     @patch.object(sna2skool, 'run', mock_run)
     def test_option_I_overrides_config_read_from_file(self):
-        ini = '\n'.join((
-            '[sna2skool]',
-            'Base=16',
-            'CtlHex=2'
-        ))
-        self.write_text_file(ini, 'skoolkit.ini')
+        ini = """
+            [sna2skool]
+            Base=16
+            CtlHex=2
+        """
+        self.write_text_file(dedent(ini).strip(), 'skoolkit.ini')
         self.run_sna2skool('-I Base=10 --ini CtlHex=1 test.skool')
         options = run_args[1]
         self.assertEqual(options.params, ['Base=10', 'CtlHex=1'])
@@ -979,69 +980,69 @@ class OptionsTest(SkoolKitTestCase):
 
     @patch.object(sna2skool, 'get_config', mock_config)
     def test_option_show_config(self):
-        output, error = self.run_sna2skool('--show-config', catch_exit=0)
+        output, error = self.run_sna2skool('--show-config', catch_exit=0, out_lines=False)
         self.assertEqual(error, '')
-        exp_output = [
-            'Base=10',
-            'Case=2',
-            'CtlHex=0',
-            'DefbMod=1',
-            'DefbSize=8',
-            'DefbZfill=0',
-            'DefmSize=66',
-            'EntryPointRef=This entry point is used by the routine at {ref}.',
-            'EntryPointRefs=This entry point is used by the routines at {refs} and {ref}.',
-            'LineWidth=79',
-            'ListRefs=1',
-            'Ref=Used by the routine at {ref}.',
-            'Refs=Used by the routines at {refs} and {ref}.',
-            'Text=0',
-            'Title-b=Data block at {address}',
-            'Title-c=Routine at {address}',
-            'Title-g=Game status buffer entry at {address}',
-            'Title-i=Ignored',
-            'Title-s=Unused',
-            'Title-t=Message at {address}',
-            'Title-u=Unused',
-            'Title-w=Data block at {address}'
-        ]
-        self.assertEqual(exp_output, output)
+        exp_output = """
+            Base=10
+            Case=2
+            CtlHex=0
+            DefbMod=1
+            DefbSize=8
+            DefbZfill=0
+            DefmSize=66
+            EntryPointRef=This entry point is used by the routine at {ref}.
+            EntryPointRefs=This entry point is used by the routines at {refs} and {ref}.
+            LineWidth=79
+            ListRefs=1
+            Ref=Used by the routine at {ref}.
+            Refs=Used by the routines at {refs} and {ref}.
+            Text=0
+            Title-b=Data block at {address}
+            Title-c=Routine at {address}
+            Title-g=Game status buffer entry at {address}
+            Title-i=Ignored
+            Title-s=Unused
+            Title-t=Message at {address}
+            Title-u=Unused
+            Title-w=Data block at {address}
+        """
+        self.assertEqual(dedent(exp_output).strip(), output.rstrip())
 
     def test_option_show_config_read_from_file(self):
-        ini = '\n'.join((
-            '[sna2skool]',
-            'Case=1',
-            'Ref=Called by the routine at {ref}.',
-            'Title-t=Text at {address}'
-        ))
-        self.write_text_file(ini, 'skoolkit.ini')
-        output, error = self.run_sna2skool('--show-config', catch_exit=0)
+        ini = """
+            [sna2skool]
+            Case=1
+            Ref=Called by the routine at {ref}.
+            Title-t=Text at {address}
+        """
+        self.write_text_file(dedent(ini).strip(), 'skoolkit.ini')
+        output, error = self.run_sna2skool('--show-config', catch_exit=0, out_lines=False)
         self.assertEqual(error, '')
-        exp_output = [
-            'Base=10',
-            'Case=1',
-            'CtlHex=0',
-            'DefbMod=1',
-            'DefbSize=8',
-            'DefbZfill=0',
-            'DefmSize=66',
-            'EntryPointRef=This entry point is used by the routine at {ref}.',
-            'EntryPointRefs=This entry point is used by the routines at {refs} and {ref}.',
-            'LineWidth=79',
-            'ListRefs=1',
-            'Ref=Called by the routine at {ref}.',
-            'Refs=Used by the routines at {refs} and {ref}.',
-            'Text=0',
-            'Title-b=Data block at {address}',
-            'Title-c=Routine at {address}',
-            'Title-g=Game status buffer entry at {address}',
-            'Title-i=Ignored',
-            'Title-s=Unused',
-            'Title-t=Text at {address}',
-            'Title-u=Unused',
-            'Title-w=Data block at {address}'
-        ]
-        self.assertEqual(exp_output, output)
+        exp_output = """
+            Base=10
+            Case=1
+            CtlHex=0
+            DefbMod=1
+            DefbSize=8
+            DefbZfill=0
+            DefmSize=66
+            EntryPointRef=This entry point is used by the routine at {ref}.
+            EntryPointRefs=This entry point is used by the routines at {refs} and {ref}.
+            LineWidth=79
+            ListRefs=1
+            Ref=Called by the routine at {ref}.
+            Refs=Used by the routines at {refs} and {ref}.
+            Text=0
+            Title-b=Data block at {address}
+            Title-c=Routine at {address}
+            Title-g=Game status buffer entry at {address}
+            Title-i=Ignored
+            Title-s=Unused
+            Title-t=Text at {address}
+            Title-u=Unused
+            Title-w=Data block at {address}
+        """
+        self.assertEqual(dedent(exp_output).strip(), output.rstrip())
 
     @patch.object(sna2skool, 'get_snapshot', mock_get_snapshot)
     @patch.object(sna2skool, 'CtlParser', MockCtlParser)
