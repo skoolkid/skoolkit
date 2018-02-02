@@ -1,4 +1,5 @@
 import os
+import textwrap
 import unittest
 import urllib
 from zipfile import ZipFile
@@ -723,13 +724,13 @@ class Tap2SnaTest(SkoolKitTestCase):
     def test_args_from_file(self):
         data = [1, 2, 3, 4]
         start = 49152
-        args = '\n'.join((
-            '; Comment',
-            '# Another comment',
-            '--force ; Overwrite',
-            '--ram load=1,{} # Load first block'.format(start)
-        ))
-        args_file = self.write_text_file(args, suffix='.t2s')
+        args = """
+            ; Comment
+            # Another comment
+            --force ; Overwrite
+            --ram load=1,{} # Load first block
+        """.format(start)
+        args_file = self.write_text_file(textwrap.dedent(args).strip(), suffix='.t2s')
         snapshot = self._get_snapshot(start, data, '@{}'.format(args_file))
         self.assertEqual(data, snapshot[start:start + len(data)])
 
