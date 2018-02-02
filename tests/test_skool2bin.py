@@ -1,3 +1,4 @@
+import textwrap
 import unittest
 from unittest.mock import patch
 
@@ -198,7 +199,7 @@ class BinWriterTest(SkoolKitTestCase):
             skoolfile = '-'
             binfile = self.write_bin_file(suffix='.bin')
         else:
-            skoolfile = self.write_text_file(skool, suffix='.skool')
+            skoolfile = self.write_text_file(textwrap.dedent(skool).strip(), suffix='.skool')
             binfile = skoolfile[:-6] + '.bin'
             self.tempfiles.append(binfile)
         bin_writer = skool2bin.BinWriter(skoolfile, asm_mode, fix_mode)
@@ -213,31 +214,31 @@ class BinWriterTest(SkoolKitTestCase):
         self.assertEqual(stderr[-1], "Wrote {}: start={}, end={}, size={}".format(binfile, base_address, base_address + size, size))
 
     def test_write(self):
-        skool = '\n'.join((
-            '; Routine at 30000',
-            '@label=START',
-            'c30000 RET',
-            '',
-            '; Routine at 30001',
-            '@ssub-begin',
-            'c30001 LD A,10  ; Load the',
-            '                ; accumulator with 10',
-            '@ssub+else',
-            'c30001 LD A,11  ; Load the',
-            '                ; accumulator with 11',
-            '@ssub+end',
-            ' 30003 RET',
-            '',
-            'd30004 DEFB 0'
-        ))
+        skool = """
+            ; Routine at 30000
+            @label=START
+            c30000 RET
+
+            ; Routine at 30001
+            @ssub-begin
+            c30001 LD A,10  ; Load the
+                            ; accumulator with 10
+            @ssub+else
+            c30001 LD A,11  ; Load the
+                            ; accumulator with 11
+            @ssub+end
+             30003 RET
+
+            d30004 DEFB 0
+        """
         self._test_write(skool, 30000, [201, 62, 10, 201])
 
     def test_write_i_block(self):
-        skool = '\n'.join((
-            'i29999 DEFB 128',
-            '',
-            'c30000 RET'
-        ))
+        skool = """
+            i29999 DEFB 128
+
+            c30000 RET
+        """
         self._test_write(skool, 29999, [128, 201])
 
     def test_nonexistent_skool_file(self):
@@ -252,11 +253,11 @@ class BinWriterTest(SkoolKitTestCase):
         self.assertEqual(cm.exception.args[0], 'Invalid address (4000d):\nc4000d RET')
 
     def test_invalid_instruction(self):
-        skool = '\n'.join((
-            'c40000 LD A,B',
-            ' 40001 XOR HL',
-            ' 40002 RET'
-        ))
+        skool = """
+            c40000 LD A,B
+             40001 XOR HL
+             40002 RET
+        """
         self._test_write(skool, 40000, [120, 0, 201], ['WARNING: Failed to assemble:', ' 40001 XOR HL'])
 
     def test_skool_file_from_stdin(self):
@@ -271,167 +272,167 @@ class BinWriterTest(SkoolKitTestCase):
         self.assertEqual(self.err.getvalue(), "Wrote stdout: start=30000, end=30003, size=3\n")
 
     def test_start_address(self):
-        skool = '\n'.join((
-            'c50000 LD A,C',
-            ' 50001 XOR B',
-            ' 50002 RET'
-        ))
+        skool = """
+            c50000 LD A,C
+             50001 XOR B
+             50002 RET
+        """
         self._test_write(skool, 50001, [168, 201], start=50001)
 
     def test_end_address(self):
-        skool = '\n'.join((
-            'c60000 LD A,C',
-            ' 60001 XOR B',
-            ' 60002 RET'
-        ))
+        skool = """
+            c60000 LD A,C
+             60001 XOR B
+             60002 RET
+        """
         self._test_write(skool, 60000, [121, 168], end=60002)
 
     def test_start_address_and_end_address(self):
-        skool = '\n'.join((
-            'c32768 LD A,C',
-            ' 32769 XOR B',
-            ' 32770 RET'
-        ))
+        skool = """
+            c32768 LD A,C
+             32769 XOR B
+             32770 RET
+        """
         self._test_write(skool, 32769, [168], start=32769, end=32770)
 
     def test_isub_mode(self):
-        skool = '\n'.join((
-            '@isub+begin',
-            'c39997 JP 40000',
-            '@isub+end',
-            '',
-            'c40000 XOR A',
-            '@isub=LD B,1',
-            '@ssub=LD B,2',
-            ' 40001 LD B,n',
-            ' 40003 RET',
-        ))
+        skool = """
+            @isub+begin
+            c39997 JP 40000
+            @isub+end
+
+            c40000 XOR A
+            @isub=LD B,1
+            @ssub=LD B,2
+             40001 LD B,n
+             40003 RET
+        """
         exp_data = [195, 64, 156, 175, 6, 1, 201]
         self._test_write(skool, 39997, exp_data, asm_mode=1)
 
     def test_ssub_mode(self):
-        skool = '\n'.join((
-            '@ssub-begin',
-            'c50000 INC L',
-            '@ssub+else',
-            'c50000 INC HL',
-            '@ssub+end',
-            '@ssub=INC DE',
-            ' 50001 INC E',
-            '@rsub-begin',
-            ' 50002 RET',
-            '@rsub+else',
-            '; The following @ssub directive should be ignored.',
-            '@ssub=RET P',
-            ' 50002 JP 32768',
-            '@rsub+end',
-        ))
+        skool = """
+            @ssub-begin
+            c50000 INC L
+            @ssub+else
+            c50000 INC HL
+            @ssub+end
+            @ssub=INC DE
+             50001 INC E
+            @rsub-begin
+             50002 RET
+            @rsub+else
+            ; The following @ssub directive should be ignored.
+            @ssub=RET P
+             50002 JP 32768
+            @rsub+end
+        """
         exp_data = [35, 19, 201]
         self._test_write(skool, 50000, exp_data, asm_mode=2)
 
     def test_ssub_overrides_isub(self):
-        skool = '\n'.join((
-            '@ssub=LD A,2',
-            '@isub=LD A,1',
-            'c30000 LD A,0',
-        ))
+        skool = """
+            @ssub=LD A,2
+            @isub=LD A,1
+            c30000 LD A,0
+        """
         exp_data = [62, 2]
         self._test_write(skool, 30000, exp_data, asm_mode=2)
 
     def test_ofix_mode(self):
-        skool = '\n'.join((
-            '@ofix-begin',
-            'c60000 LD A,1',
-            '@ofix+else',
-            'c60000 LD A,2',
-            '@ofix+end',
-            '@bfix-begin',
-            ' 60002 LD B,1',
-            '@bfix+else',
-            ' 60002 LD B,2',
-            '@bfix+end',
-            '@rfix-begin',
-            ' 60004 LD C,1',
-            '@rfix+else',
-            ' 60004 LD C,2',
-            '@rfix+end',
-            '@ofix=LD D,2',
-            ' 60006 LD D,1',
-            '@bfix=LD E,2',
-            ' 60008 LD E,1',
-            '@rfix=LD H,2',
-            ' 60010 LD H,1',
-        ))
+        skool = """
+            @ofix-begin
+            c60000 LD A,1
+            @ofix+else
+            c60000 LD A,2
+            @ofix+end
+            @bfix-begin
+             60002 LD B,1
+            @bfix+else
+             60002 LD B,2
+            @bfix+end
+            @rfix-begin
+             60004 LD C,1
+            @rfix+else
+             60004 LD C,2
+            @rfix+end
+            @ofix=LD D,2
+             60006 LD D,1
+            @bfix=LD E,2
+             60008 LD E,1
+            @rfix=LD H,2
+             60010 LD H,1
+        """
         exp_data = [62, 2, 6, 1, 14, 1, 22, 2, 30, 1, 38, 1]
         self._test_write(skool, 60000, exp_data, fix_mode=1)
 
     def test_bfix_mode(self):
-        skool = '\n'.join((
-            '@ofix-begin',
-            'c60000 LD A,1',
-            '@ofix+else',
-            'c60000 LD A,2',
-            '@ofix+end',
-            '@bfix-begin',
-            ' 60002 LD B,1',
-            '@bfix+else',
-            ' 60002 LD B,2',
-            '@bfix+end',
-            '@rfix-begin',
-            ' 60004 LD C,1',
-            '@rfix+else',
-            ' 60004 LD C,2',
-            '@rfix+end',
-            '@ofix=LD D,2',
-            ' 60006 LD D,1',
-            '@bfix=LD E,2',
-            ' 60008 LD E,1',
-            '@rfix=LD H,2',
-            ' 60010 LD H,1',
-        ))
+        skool = """
+            @ofix-begin
+            c60000 LD A,1
+            @ofix+else
+            c60000 LD A,2
+            @ofix+end
+            @bfix-begin
+             60002 LD B,1
+            @bfix+else
+             60002 LD B,2
+            @bfix+end
+            @rfix-begin
+             60004 LD C,1
+            @rfix+else
+             60004 LD C,2
+            @rfix+end
+            @ofix=LD D,2
+             60006 LD D,1
+            @bfix=LD E,2
+             60008 LD E,1
+            @rfix=LD H,2
+             60010 LD H,1
+        """
         exp_data = [62, 2, 6, 2, 14, 1, 22, 2, 30, 2, 38, 1]
         self._test_write(skool, 60000, exp_data, fix_mode=2)
 
     def test_bfix_overrides_ofix(self):
-        skool = '\n'.join((
-            '@bfix=LD B,2',
-            '@ofix=LD B,1',
-            'c30000 LD B,0',
-        ))
+        skool = """
+            @bfix=LD B,2
+            @ofix=LD B,1
+            c30000 LD B,0
+        """
         exp_data = [6, 2]
         self._test_write(skool, 30000, exp_data, fix_mode=2)
 
     def test_bfix_block_directive_spanning_two_entries_fix_mode_0(self):
-        skool = '\n'.join((
-            '; Data',
-            'b32768 DEFB 1',
-            '@bfix-begin',
-            ' 32769 DEFB 2',
-            '',
-            '; Unused',
-            'u32770 DEFB 3',
-            '@bfix+else',
-            ' 32769 DEFB 4',
-            ' 32770 DEFB 8',
-            '@bfix+end'
-        ))
+        skool = """
+            ; Data
+            b32768 DEFB 1
+            @bfix-begin
+             32769 DEFB 2
+
+            ; Unused
+            u32770 DEFB 3
+            @bfix+else
+             32769 DEFB 4
+             32770 DEFB 8
+            @bfix+end
+        """
         exp_data = [1, 2, 3]
         self._test_write(skool, 32768, exp_data)
 
     def test_bfix_block_directive_spanning_two_entries_fix_mode_2(self):
-        skool = '\n'.join((
-            '; Data',
-            'b32768 DEFB 1',
-            '@bfix-begin',
-            ' 32769 DEFB 2',
-            '',
-            '; Unused',
-            'u32770 DEFB 3',
-            '@bfix+else',
-            ' 32769 DEFB 4',
-            ' 32770 DEFB 8',
-            '@bfix+end'
-        ))
+        skool = """
+            ; Data
+            b32768 DEFB 1
+            @bfix-begin
+             32769 DEFB 2
+
+            ; Unused
+            u32770 DEFB 3
+            @bfix+else
+             32769 DEFB 4
+             32770 DEFB 8
+            @bfix+end
+        """
         exp_data = [1, 4, 8]
         self._test_write(skool, 32768, exp_data, fix_mode=2)
 
