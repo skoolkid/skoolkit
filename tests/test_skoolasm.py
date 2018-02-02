@@ -1,6 +1,6 @@
 import re
 import unittest
-import textwrap
+from textwrap import dedent, wrap
 
 from skoolkittest import SkoolKitTestCase
 from macrotest import CommonSkoolMacroTest, nest_macros
@@ -27,7 +27,7 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
             skool_parser = MockSkoolParser(snapshot, base, case)
             properties = {}
         else:
-            skoolfile = self.write_text_file(skool, suffix='.skool')
+            skoolfile = self.write_text_file(dedent(skool).strip(), suffix='.skool')
             skool_parser = SkoolParser(skoolfile, case=case, base=base, asm_mode=asm_mode, fix_mode=fix_mode)
             properties = dict(skool_parser.properties)
             properties['crlf'] = '1' if crlf else '0'
@@ -38,12 +38,16 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
 
     def _get_asm(self, skool, crlf=False, tab=False, case=0, base=0, instr_width=23, warn=False, asm_mode=1, fix_mode=0):
         self.clear_streams()
-        writer = self._get_writer(skool, crlf, tab, case, base, instr_width, warn, asm_mode, fix_mode)
+        writer = self._get_writer(dedent(skool).strip(), crlf, tab, case, base, instr_width, warn, asm_mode, fix_mode)
         writer.write()
-        asm = self.out.getvalue().split('\n')[:-1]
+        asm = self.out.getvalue()
         if warn:
-            return asm, self.err.getvalue().split('\n')[:-1]
+            return asm, self.err.getvalue()
         return asm
+
+    def _test_asm(self, skool, exp_asm, crlf=False, tab=False, case=0, base=0, instr_width=23, warn=False, asm_mode=1, fix_mode=0):
+        asm = self._get_asm(skool, crlf, tab, case, base, instr_width, warn, asm_mode, fix_mode)
+        self.assertEqual(dedent(exp_asm).strip('\n'), asm.rstrip())
 
     def _assert_error(self, writer, text, error_msg=None, prefix=None):
         with self.assertRaises(SkoolParsingError) as cm:
@@ -86,13 +90,13 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
         return 'OK'
 
     def test_macros_are_expanded(self):
-        skool = '\n'.join((
-            '@start',
-            '; Data',
-            'b$6003 DEFB 123 ; #REGa=0',
-            " $6004 DEFB $23 ; '#'",
-        ))
-        asm = self._get_asm(skool)
+        skool = """
+            @start
+            ; Data
+            b$6003 DEFB 123 ; #REGa=0
+             $6004 DEFB $23 ; '#'
+        """
+        asm = self._get_asm(skool).split('\n')
         self.assertEqual(asm[1], '  DEFB 123                ; A=0')
         self.assertEqual(asm[2], "  DEFB $23                ; '#'")
 
@@ -182,25 +186,25 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
         self.assertEqual(writer.expand('#MAP({html})(FAIL,0:PASS)'), 'PASS')
 
     def test_macro_r(self):
-        skool = '\n'.join((
-            '@start',
-            'c00000 LD A,B',
-            '',
-            'c00004 LD A,C',
-            '',
-            'c00015 LD A,D',
-            '',
-            'c00116 LD A,E',
-            '',
-            'c01117 LD A,H',
-            '',
-            'c11118 LD A,L',
-            '',
-            '@label=DOSTUFF',
-            'c24576 LD HL,0',
-            '',
-            'b$6003 DEFB 123'
-        ))
+        skool = """
+            @start
+            c00000 LD A,B
+
+            c00004 LD A,C
+
+            c00015 LD A,D
+
+            c00116 LD A,E
+
+            c01117 LD A,H
+
+            c11118 LD A,L
+
+            @label=DOSTUFF
+            c24576 LD HL,0
+
+            b$6003 DEFB 123
+        """
         writer = self._get_writer(skool, warn=True)
 
         # Reference address is 0
@@ -293,14 +297,14 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
         self.assertEqual(self.err.getvalue(), '')
 
     def test_macro_r_other_code(self):
-        skool = '\n'.join((
-            '@start',
-            'c49152 LD HL,0',
-            ' $c003 RET',
-            '',
-            'r$c000 other',
-            ' $C003'
-        ))
+        skool = """
+            @start
+            c49152 LD HL,0
+             $c003 RET
+
+            r$c000 other
+             $C003
+        """
         writer = self._get_writer(skool)
 
         # Reference with the same address as a remote entry
@@ -333,11 +337,11 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
         self.assertEqual(output, 'c000')
 
     def test_macro_r_with_remote_directive(self):
-        skool = '\n'.join((
-            '@start',
-            '@remote=other:40000,$9c45',
-            'c32768 RET'
-        ))
+        skool = """
+            @start
+            @remote=other:40000,$9c45
+            c32768 RET
+        """
         for base, case, addr1, addr2 in (
             (0, 0, '40000', '9c45'),
             (BASE_10, 0, '40000', '40005'),
@@ -351,15 +355,15 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
                 self.assertEqual(writer.expand('#R40005@other'), addr2)
 
     def test_macro_r_lower(self):
-        skool = '\n'.join((
-            '@start',
-            '@label=START',
-            'c32000 RET',
-            '',
-            'b$7D01 DEFB 0',
-            '',
-            'r$C000 other'
-        ))
+        skool = """
+            @start
+            @label=START
+            c32000 RET
+
+            b$7D01 DEFB 0
+
+            r$C000 other
+        """
         writer = self._get_writer(skool, case=CASE_LOWER)
 
         # Label
@@ -379,12 +383,12 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
         self.assertEqual(output, 'c000')
 
     def test_macro_r_hex(self):
-        skool = '\n'.join((
-            '@start',
-            'c24580 RET',
-            '',
-            'r49152 other',
-        ))
+        skool = """
+            @start
+            c24580 RET
+
+            r49152 other
+        """
         writer = self._get_writer(skool, base=BASE_16)
 
         # No label
@@ -412,12 +416,12 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
         self.assertEqual(self.err.getvalue(), '')
 
     def test_macro_r_hex_lower(self):
-        skool = '\n'.join((
-            '@start',
-            'c24590 RET',
-            '',
-            'r49152 other'
-        ))
+        skool = """
+            @start
+            c24590 RET
+
+            r49152 other
+        """
         writer = self._get_writer(skool, base=BASE_16, case=CASE_LOWER)
 
         # No label
@@ -445,12 +449,12 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
         self.assertEqual(self.err.getvalue(), '')
 
     def test_macro_r_decimal(self):
-        skool = '\n'.join((
-            '@start',
-            'c$8000 LD A,B',
-            '',
-            'r$C000 other'
-        ))
+        skool = """
+            @start
+            c$8000 LD A,B
+
+            r$C000 other
+        """
         writer = self._get_writer(skool, base=BASE_10)
 
         # No label
@@ -540,16 +544,16 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
             self._assert_error(writer, macro + params, 'Found unknown macro: {}'.format(macro))
 
     def test_property_comment_width_min(self):
-        skool = '\n'.join((
-            '@start',
-            '@set-comment-width-min={}',
-            '; Data',
-            'c35000 DEFB 255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255 ; {}',
-        ))
+        skool = """
+            @start
+            @set-comment-width-min={}
+            ; Data
+            c35000 DEFB 255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255 ; {}
+        """
         line_width = 79
         comment = 'This comment should have the designated minimum width'
         for width in (10, 15, 20, 'x'):
-            asm = self._get_asm(skool.format(width, comment))
+            asm = self._get_asm(skool.format(width, comment)).split('\n')
             try:
                 comment_width_min = int(width)
             except ValueError:
@@ -558,7 +562,7 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
             instr_width = len(instruction)
             indent = ' ' * instr_width
             comment_width = line_width - 2 - instr_width
-            comment_lines = textwrap.wrap(comment, max((comment_width, comment_width_min)))
+            comment_lines = wrap(comment, max((comment_width, comment_width_min)))
             exp_lines = [instruction + '; ' + comment_lines[0]]
             for comment_line in comment_lines[1:]:
                 exp_lines.append('{}; {}'.format(indent, comment_line))
@@ -566,14 +570,14 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
                 self.assertEqual(asm[line_no], exp_line)
 
     def test_property_indent(self):
-        skool = '\n'.join((
-            '@start',
-            '@set-indent={}',
-            '; Data',
-            'b40000 DEFB 0 ; Comment',
-        ))
+        skool = """
+            @start
+            @set-indent={}
+            ; Data
+            b40000 DEFB 0 ; Comment
+        """
         for indent in (1, 5, 'x'):
-            asm = self._get_asm(skool.format(indent))
+            asm = self._get_asm(skool.format(indent)).split('\n')
             try:
                 indent_size = int(indent)
             except ValueError:
@@ -581,39 +585,39 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
             self.assertEqual(asm[1], '{}DEFB 0                  ; Comment'.format(' ' * indent_size))
 
     def test_property_label_colons(self):
-        skool = '\n'.join((
-            '@start',
-            '@set-label-colons={}',
-            '@label=START',
-            'c30000 RET'
-        ))
+        skool = """
+            @start
+            @set-label-colons={}
+            @label=START
+            c30000 RET
+        """
 
         # label-colons=0
-        asm = self._get_asm(skool.format(0))
+        asm = self._get_asm(skool.format(0)).split('\n')
         self.assertEqual(asm[0], 'START')
 
         # label-colons=1
-        asm = self._get_asm(skool.format(1))
+        asm = self._get_asm(skool.format(1)).split('\n')
         self.assertEqual(asm[0], 'START:')
 
     def test_property_line_width(self):
-        skool = '\n'.join((
-            '@start',
-            '@set-line-width={}',
-            '; Routine',
-            'c49152 RET ; This is a fairly long instruction comment, which makes it suitable',
-            '           ; for testing various line widths',
-        ))
+        skool = """
+            @start
+            @set-line-width={}
+            ; Routine
+            c49152 RET ; This is a fairly long instruction comment, which makes it suitable
+                       ; for testing various line widths
+        """
         indent = ' ' * 25
         instruction = '  RET'.ljust(len(indent))
         comment = 'This is a fairly long instruction comment, which makes it suitable for testing various line widths'
         for width in (65, 80, 95, 'x'):
-            asm = self._get_asm(skool.format(width))
+            asm = self._get_asm(skool.format(width)).split('\n')
             try:
                 line_width = int(width)
             except ValueError:
                 line_width = 79
-            comment_lines = textwrap.wrap(comment, line_width - len(instruction) - 3)
+            comment_lines = wrap(comment, line_width - len(instruction) - 3)
             exp_lines = [instruction + ' ; ' + comment_lines[0]]
             for comment_line in comment_lines[1:]:
                 exp_lines.append('{} ; {}'.format(indent, comment_line))
@@ -621,216 +625,212 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
                 self.assertEqual(asm[line_no], exp_line)
 
     def test_property_wrap_column_width_min(self):
-        skool = '\n'.join((
-            '@start',
-            '@set-wrap-column-width-min={}',
-            '; Routine',
-            ';',
-            '; #TABLE(,:w)',
-            '; {{ {} | An unwrappable column whose contents extend the table width beyond 80 characters }}',
-            '; TABLE#',
-            'c40000 RET',
-        ))
+        skool = """
+            @start
+            @set-wrap-column-width-min={}
+            ; Routine
+            ;
+            ; #TABLE(,:w)
+            ; {{ {} | An unwrappable column whose contents extend the table width beyond 80 characters }}
+            ; TABLE#
+            c40000 RET
+        """
         text = 'This wrappable text should have the designated minimum width'
         for width in (10, 18, 26, 'Z'):
-            asm = self._get_asm(skool.format(width, text))
+            asm = self._get_asm(skool.format(width, text)).split('\n')
             try:
                 wrap_column_width_min = int(width)
             except ValueError:
                 wrap_column_width_min = 10
-            text_lines = textwrap.wrap(text, wrap_column_width_min)
+            text_lines = wrap(text, wrap_column_width_min)
             actual_width = max([len(line) for line in text_lines])
             exp_lines = ['; | {} |'.format(line.ljust(actual_width)) for line in text_lines]
             for line_no, exp_line in enumerate(exp_lines, 3):
                 self.assertEqual(asm[line_no][:len(exp_line)], exp_line)
 
     def test_continuation_line(self):
-        skool = '\n'.join((
-            '@start',
-            '; Routine',
-            'c40000 LD A,B ; This instruction has a long comment that will require a',
-            '              ; continuation line',
-        ))
-        asm = self._get_asm(skool)
+        skool = """
+            @start
+            ; Routine
+            c40000 LD A,B ; This instruction has a long comment that will require a
+                          ; continuation line
+        """
+        asm = self._get_asm(skool).split('\n')
         self.assertEqual(asm[2], '                          ; require a continuation line')
 
     def test_warn_unconverted_addresses(self):
-        skool = '\n'.join((
-            '@start',
-            '; Routine at 32768',
-            ';',
-            '; Used by the routine at 32768.',
-            ';',
-            '; HL 32768',
-            'c32768 LD A,B  ; This instruction is at 32768',
-            '; This mid-routine comment is above 32769.',
-            ' 32769 RET',
-        ))
-        self._get_asm(skool, warn=True)
-        warnings = self.err.getvalue().split('\n')[:-1]
-        self.assertEqual(len(warnings), 10)
-        self.assertEqual(warnings[0], 'WARNING: Comment contains address (32768) not converted to a label:')
-        self.assertEqual(warnings[1], '; Routine at 32768')
-        self.assertEqual(warnings[2], 'WARNING: Comment contains address (32768) not converted to a label:')
-        self.assertEqual(warnings[3], '; Used by the routine at 32768.')
-        self.assertEqual(warnings[4], 'WARNING: Register description contains address (32768) not converted to a label:')
-        self.assertEqual(warnings[5], '; HL 32768')
-        self.assertEqual(warnings[6], 'WARNING: Comment at 32768 contains address (32768) not converted to a label:')
-        self.assertEqual(warnings[7], '  LD A,B                  ; This instruction is at 32768')
-        self.assertEqual(warnings[8], 'WARNING: Comment above 32769 contains address (32769) not converted to a label:')
-        self.assertEqual(warnings[9], '; This mid-routine comment is above 32769.')
+        skool = """
+            @start
+            ; Routine at 32768
+            ;
+            ; Used by the routine at 32768.
+            ;
+            ; HL 32768
+            c32768 LD A,B  ; This instruction is at 32768
+            ; This mid-routine comment is above 32769.
+             32769 RET
+        """
+        warnings = self._get_asm(skool, warn=True)[1]
+        exp_warnings = """
+            WARNING: Comment contains address (32768) not converted to a label:
+            ; Routine at 32768
+            WARNING: Comment contains address (32768) not converted to a label:
+            ; Used by the routine at 32768.
+            WARNING: Register description contains address (32768) not converted to a label:
+            ; HL 32768
+            WARNING: Comment at 32768 contains address (32768) not converted to a label:
+              LD A,B                  ; This instruction is at 32768
+            WARNING: Comment above 32769 contains address (32769) not converted to a label:
+            ; This mid-routine comment is above 32769.
+        """
+        self.assertEqual(dedent(exp_warnings).strip(), warnings.rstrip())
 
     def test_warn_unconverted_addresses_below_10000(self):
-        skool = '\n'.join((
-            '@start',
-            '; Routine at 0 - no match (too low)',
-            ';',
-            '; Used by the routine at 1  - no match (too low).',
-            ';',
-            '; A 1000.0 - no match',
-            '; B 1000/1 - no match',
-            '; C 1000*0 - no match',
-            '; D 1000+0 - no match',
-            '; E 24 - no match (too low)',
-            '; HL 256 - no match (too low)',
-            ';',
-            '; This routine is used 257-1024 times.',
-            'c00000 RET ; Or is it 9999 times?',
-            '; Or is it 7354 times?',
-            '',
-            '; 12345 - no match; 1234 - match.',
-            'c09999 RET ; But not 10000 times!'
-        ))
-        exp_warnings = [
-            'WARNING: Comment above 0 contains address (257) not converted to a label:',
-            '; This routine is used 257-1024 times.',
-            'WARNING: Comment at 0 contains address (9999) not converted to a label:',
-            '  RET                     ; Or is it 9999 times?',
-            'WARNING: Comment contains address (7354) not converted to a label:',
-            '; Or is it 7354 times?',
-            'WARNING: Comment contains address (1234) not converted to a label:',
-            '; 12345 - no match; 1234 - match.'
-        ]
+        skool = """
+            @start
+            ; Routine at 0 - no match (too low)
+            ;
+            ; Used by the routine at 1  - no match (too low).
+            ;
+            ; A 1000.0 - no match
+            ; B 1000/1 - no match
+            ; C 1000*0 - no match
+            ; D 1000+0 - no match
+            ; E 24 - no match (too low)
+            ; HL 256 - no match (too low)
+            ;
+            ; This routine is used 257-1024 times.
+            c00000 RET ; Or is it 9999 times?
+            ; Or is it 7354 times?
 
-        self._get_asm(skool, warn=True)
-        warnings = self.err.getvalue().split('\n')[:-1]
-        self.assertEqual(exp_warnings, warnings)
+            ; 12345 - no match; 1234 - match.
+            c09999 RET ; But not 10000 times!
+        """
+        exp_warnings = """
+            WARNING: Comment above 0 contains address (257) not converted to a label:
+            ; This routine is used 257-1024 times.
+            WARNING: Comment at 0 contains address (9999) not converted to a label:
+              RET                     ; Or is it 9999 times?
+            WARNING: Comment contains address (7354) not converted to a label:
+            ; Or is it 7354 times?
+            WARNING: Comment contains address (1234) not converted to a label:
+            ; 12345 - no match; 1234 - match.
+        """
+        warnings = self._get_asm(skool, warn=True)[1]
+        self.assertEqual(dedent(exp_warnings).strip(), warnings.rstrip())
 
     def test_warn_unconverted_hexadecimal_addresses(self):
-        skool = '\n'.join((
-            '@start',
-            '; Routine at $0000',
-            ';',
-            '; Used by the routine at 0x0001.',
-            ';',
-            '; BC 0018 - no match (missing prefix)',
-            '; DE $0018 - a match',
-            ';',
-            '; This routine is used $01D8 times.',
-            'c$0000 RET ; Or is it 0x270e times?',
-            '; Or is it 0x1CBA times?',
-            '',
-            'c$DEAD RET ; This is at $DEAD',
-            "; $DEAF won't match - out of bounds."
-        ))
-        exp_warnings = [
-            'WARNING: Comment contains address ($0000) not converted to a label:',
-            '; Routine at $0000',
-            'WARNING: Comment contains address (0x0001) not converted to a label:',
-            '; Used by the routine at 0x0001.',
-            'WARNING: Register description contains address ($0018) not converted to a label:',
-            '; DE $0018 - a match',
-            'WARNING: Comment above 0 contains address ($01D8) not converted to a label:',
-            '; This routine is used $01D8 times.',
-            'WARNING: Comment at 0 contains address (0x270e) not converted to a label:',
-            '  RET                     ; Or is it 0x270e times?',
-            'WARNING: Comment contains address (0x1CBA) not converted to a label:',
-            '; Or is it 0x1CBA times?',
-            'WARNING: Comment at 57005 contains address ($DEAD) not converted to a label:',
-            '  RET                     ; This is at $DEAD'
-        ]
+        skool = """
+            @start
+            ; Routine at $0000
+            ;
+            ; Used by the routine at 0x0001.
+            ;
+            ; BC 0018 - no match (missing prefix)
+            ; DE $0018 - a match
+            ;
+            ; This routine is used $01D8 times.
+            c$0000 RET ; Or is it 0x270e times?
+            ; Or is it 0x1CBA times?
 
-        self._get_asm(skool, warn=True)
-        warnings = self.err.getvalue().split('\n')[:-1]
-        self.assertEqual(exp_warnings, warnings)
+            c$DEAD RET ; This is at $DEAD
+            ; $DEAF won't match - out of bounds.
+        """
+        exp_warnings = """
+            WARNING: Comment contains address ($0000) not converted to a label:
+            ; Routine at $0000
+            WARNING: Comment contains address (0x0001) not converted to a label:
+            ; Used by the routine at 0x0001.
+            WARNING: Register description contains address ($0018) not converted to a label:
+            ; DE $0018 - a match
+            WARNING: Comment above 0 contains address ($01D8) not converted to a label:
+            ; This routine is used $01D8 times.
+            WARNING: Comment at 0 contains address (0x270e) not converted to a label:
+              RET                     ; Or is it 0x270e times?
+            WARNING: Comment contains address (0x1CBA) not converted to a label:
+            ; Or is it 0x1CBA times?
+            WARNING: Comment at 57005 contains address ($DEAD) not converted to a label:
+              RET                     ; This is at $DEAD
+        """
+        warnings = self._get_asm(skool, warn=True)[1]
+        self.assertEqual(dedent(exp_warnings).strip(), warnings.rstrip())
 
     def test_warn_long_line(self):
-        skool = '\n'.join((
-            '@start',
-            '; Routine',
-            'c30000 BIT 3,(IX+101) ; Pneumonoultramicroscopicsilicovolcanoconiosis',
-        ))
-        self._get_asm(skool, instr_width=30, warn=True)
-        warnings = self.err.getvalue().split('\n')[:-1]
-        self.assertEqual(len(warnings), 2)
-        self.assertEqual(warnings[0], 'WARNING: Line is 80 characters long:')
-        self.assertEqual(warnings[1], '  BIT 3,(IX+101)                 ; Pneumonoultramicroscopicsilicovolcanoconiosis')
+        skool = """
+            @start
+            ; Routine
+            c30000 BIT 3,(IX+101) ; Pneumonoultramicroscopicsilicovolcanoconiosis
+        """
+        warnings = self._get_asm(skool, instr_width=30, warn=True)[1]
+        exp_warnings = """
+            WARNING: Line is 80 characters long:
+              BIT 3,(IX+101)                 ; Pneumonoultramicroscopicsilicovolcanoconiosis
+        """
+        self.assertEqual(dedent(exp_warnings).strip(), warnings.rstrip())
 
     def test_warn_wide_table(self):
-        skool = '\n'.join((
-            '@start',
-            '; Routine',
-            ';',
-            '; #TABLE',
-            '; { This is cell A1 | This is cell A2 | This is cell A3 | This is cell A4 | This is cell A5 }',
-            '; TABLE#',
-            'c50000 RET',
-        ))
-        self._get_asm(skool, warn=True)
-        warnings = self.err.getvalue().split('\n')[:-1]
-        self.assertEqual(len(warnings), 1)
-        self.assertEqual(warnings[0], 'WARNING: Table in entry at 50000 is 91 characters wide')
+        skool = """
+            @start
+            ; Routine
+            ;
+            ; #TABLE
+            ; { This is cell A1 | This is cell A2 | This is cell A3 | This is cell A4 | This is cell A5 }
+            ; TABLE#
+            c50000 RET
+        """
+        warnings = self._get_asm(skool, warn=True)[1]
+        self.assertEqual(warnings.rstrip(), 'WARNING: Table in entry at 50000 is 91 characters wide')
 
     def test_suppress_warnings(self):
-        skool = '\n'.join((
-            '@start',
-            '; Routine at 24576',
-            'c24576 JP 24576 ; VeryLongWordThatWouldNormallyTriggerALongLineWarning',
-        ))
+        skool = """
+            @start
+            ; Routine at 24576
+            c24576 JP 24576 ; VeryLongWordThatWouldNormallyTriggerALongLineWarning
+        """
         self._get_asm(skool, warn=False)
-        warnings = self.err.getvalue().split('\n')[:-1]
-        self.assertEqual(len(warnings), 0)
+        warnings = self.err.getvalue()
+        self.assertEqual(warnings, '')
 
     def test_option_crlf(self):
-        skool = '\n'.join((
-            '@start',
-            '; Routine',
-            'c32768 RET',
-        ))
-        asm = self._get_asm(skool, crlf=True)
-        self.assertTrue(all(line.endswith('\r') for line in asm))
+        skool = """
+            @start
+            ; Routine
+            c32768 RET
+        """
+        asm = self._get_asm(skool, crlf=True).split('\n')
+        self.assertTrue(all(line.endswith('\r') for line in asm[:-1]))
 
     def test_option_tab(self):
-        skool = '\n'.join((
-            '@start',
-            '; Routine',
-            'c32768 LD A,B',
-            ' 32769 RET',
-        ))
-        asm = self._get_asm(skool, tab=True)
+        skool = """
+            @start
+            ; Routine
+            c32768 LD A,B
+             32769 RET
+        """
+        asm = self._get_asm(skool, tab=True).split('\n')
         for line in asm:
             if line and line[0].isspace():
                 self.assertEqual(line[0], '\t')
 
     def test_option_lower(self):
-        skool = '\n'.join((
-            '@start',
-            '@org=24576',
-            '',
-            '; Routine',
-            ';',
-            '; Description.',
-            ';',
-            '; A Value',
-            '; B Another value',
-            '@label=DOSTUFF',
-            'c24576 LD HL,$6003',
-            '',
-            '; Data',
-            'b$6003 DEFB 123 ; #REGa=0',
-            ' $6004 DEFB 246 ; #R24576',
-        ))
-        asm = self._get_asm(skool, case=CASE_LOWER)
+        skool = """
+            @start
+            @org=24576
+
+            ; Routine
+            ;
+            ; Description.
+            ;
+            ; A Value
+            ; B Another value
+            @label=DOSTUFF
+            c24576 LD HL,$6003
+
+            ; Data
+            b$6003 DEFB 123 ; #REGa=0
+             $6004 DEFB 246 ; #R24576
+        """
+        asm = self._get_asm(skool, case=CASE_LOWER).split('\n')
 
         # Test that the ORG directive is in lower case
         self.assertEqual(asm[0], '  org 24576')
@@ -849,113 +849,113 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
         self.assertEqual(asm[13], '  defb 246                ; DOSTUFF')
 
     def test_option_instr_width(self):
-        skool = '\n'.join((
-            '@start',
-            '; Data',
-            'b$6003 DEFB 123 ; #REGa=0',
-        ))
+        skool = """
+            @start
+            ; Data
+            b$6003 DEFB 123 ; #REGa=0
+        """
         for width in (5, 10, 15, 20, 25, 30):
-            asm = self._get_asm(skool, instr_width=width)
+            asm = self._get_asm(skool, instr_width=width).split('\n')
             self.assertEqual(asm[1], '  {0} ; A=0'.format('DEFB 123'.ljust(width)))
 
     def test_header(self):
-        skool = '\n'.join((
-            '@start',
-            '; Header line 1.',
-            ';   * Header line 2 (indented)',
-            ';   * Header line #THREE (also indented)',
-            ';',
-            '; See <http://skoolkit.ca/>.',
-            '',
-            '; Ignored.',
-            '',
-            '; Start',
-            'c32768 JP 49152',
-            '',
-            '; Also ignored.'
-        ))
-        exp_asm = [
-            '; Header line 1.',
-            ';   * Header line 2 (indented)',
-            ';   * Header line #THREE (also indented)',
-            ';',
-            '; See <http://skoolkit.ca/>.',
-            '',
-            '; Start',
-            '  JP 49152'
-        ]
-        self.assertEqual(exp_asm, self._get_asm(skool)[:-1])
+        skool = """
+            @start
+            ; Header line 1.
+            ;   * Header line 2 (indented)
+            ;   * Header line #THREE (also indented)
+            ;
+            ; See <http://skoolkit.ca/>.
+
+            ; Ignored.
+
+            ; Start
+            c32768 JP 49152
+
+            ; Also ignored.
+        """
+        exp_asm = """
+            ; Header line 1.
+            ;   * Header line 2 (indented)
+            ;   * Header line #THREE (also indented)
+            ;
+            ; See <http://skoolkit.ca/>.
+
+            ; Start
+              JP 49152
+        """
+        self._test_asm(skool, exp_asm)
 
     def test_indented_comment_lines_are_ignored(self):
-        skool = '\n'.join((
-            '@start',
-            '; Routine',
-            ';',
-            ' ; Ignore me.',
-            '; Paragraph 1.',
-            ' ; Ignore me too,',
-            '; .',
-            ' ; Ignore me three.',
-            '; Paragraph 2.',
-            ';',
-            '; HL Address',
-            ' ; Ignore me four.',
-            ';',
-            ' ; Ignore me five.',
-            '; Start comment paragraph 1.',
-            '; .',
-            ' ; Ignore me six.',
-            '; Start comment paragraph 2.',
-            'c50000 XOR A',
-            '; Mid-block comment.',
-            ' ; Ignore me seven.',
-            '; Mid-block comment continued.',
-            ' 50001 RET',
-            '; End comment.',
-            ' ; Ignore me eight.',
-            '; End comment continued.'
-        ))
-        exp_asm = [
-            '; Routine',
-            ';',
-            '; Paragraph 1.',
-            ';',
-            '; Paragraph 2.',
-            ';',
-            '; HL Address',
-            ';',
-            '; Start comment paragraph 1.',
-            ';',
-            '; Start comment paragraph 2.',
-            '  XOR A',
-            '; Mid-block comment. Mid-block comment continued.',
-            '  RET',
-            '; End comment. End comment continued.'
-        ]
-        self.assertEqual(exp_asm, self._get_asm(skool)[:-1])
+        skool = """
+            @start
+            ; Routine
+            ;
+             ; Ignore me.
+            ; Paragraph 1.
+             ; Ignore me too
+            ; .
+             ; Ignore me three.
+            ; Paragraph 2.
+            ;
+            ; HL Address
+             ; Ignore me four.
+            ;
+             ; Ignore me five.
+            ; Start comment paragraph 1.
+            ; .
+             ; Ignore me six.
+            ; Start comment paragraph 2.
+            c50000 XOR A
+            ; Mid-block comment.
+             ; Ignore me seven.
+            ; Mid-block comment continued.
+             50001 RET
+            ; End comment.
+             ; Ignore me eight.
+            ; End comment continued.
+        """
+        exp_asm = """
+            ; Routine
+            ;
+            ; Paragraph 1.
+            ;
+            ; Paragraph 2.
+            ;
+            ; HL Address
+            ;
+            ; Start comment paragraph 1.
+            ;
+            ; Start comment paragraph 2.
+              XOR A
+            ; Mid-block comment. Mid-block comment continued.
+              RET
+            ; End comment. End comment continued.
+        """
+        self._test_asm(skool, exp_asm)
 
     def test_registers(self):
-        skool = '\n'.join((
-            '@start',
-            '; Test parsing of register blocks (1)',
-            ';',
-            '; Traditional.',
-            ';',
-            '; A Some value',
-            '; B Some other value',
-            'c24604 RET',
-            '',
-            '; Test parsing of register blocks (2)',
-            ';',
-            '; With prefixes.',
-            ';',
-            '; Input:a Some value',
-            ';       b Some other value',
-            '; Output:c The result',
-            ';        d',
-            'c24605 RET',
-        ))
-        asm = self._get_asm(skool)
+        skool = """
+            @start
+            ; Test parsing of register blocks (1)
+            ;
+            ; Traditional.
+            ;
+            ; A Some value
+            ; B Some other value
+            c24604 RET
+
+            ; Test parsing of register blocks (2)
+            ;
+            ; With prefixes.
+            ;
+            ; Input:a Some value
+            ;       b Some other value
+            ; Output:c The result
+            ;        d
+            c24605 RET
+        """
+        asm = self._get_asm(skool).split('\n')
 
         # Traditional
         self.assertEqual(asm[4], '; A Some value')
@@ -968,77 +968,77 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
         self.assertEqual(asm[15], ';        d')
 
     def test_register_description_continuation_lines(self):
-        skool = '\n'.join((
-            '@start',
-            '; Routine',
-            ';',
-            '; .',
-            ';',
-            '; BC This register description is long enough that it needs to be',
-            ';   .split over two lines',
-            '; DE Short register description',
-            '; HL Another register description that is long enough to need',
-            '; .  splitting over two lines',
-            'c40000 RET'
-        ))
-        asm = self._get_asm(skool)
-
-        exp_asm = [
-            '; BC This register description is long enough that it needs to be split over',
-            ';    two lines',
-            '; DE Short register description',
-            '; HL Another register description that is long enough to need splitting over',
-            ';    two lines',
-            '  RET'
-        ]
-        self.assertEqual(exp_asm, asm[2:2 + len(exp_asm)])
+        skool = """
+            @start
+            ; Routine
+            ;
+            ; .
+            ;
+            ; BC This register description is long enough that it needs to be
+            ;   .split over two lines
+            ; DE Short register description
+            ; HL Another register description that is long enough to need
+            ; .  splitting over two lines
+            c40000 RET
+        """
+        exp_asm = """
+            ; Routine
+            ;
+            ; BC This register description is long enough that it needs to be split over
+            ;    two lines
+            ; DE Short register description
+            ; HL Another register description that is long enough to need splitting over
+            ;    two lines
+              RET
+        """
+        self._test_asm(skool, exp_asm)
 
     def test_registers_in_non_code_blocks(self):
-        skool = '\n'.join((
-            '@start',
-            '; Byte',
-            ';',
-            '; .',
-            ';',
-            '; A Some value',
-            'b54321 DEFB 0',
-            '',
-            '; GSB entry',
-            ';',
-            '; .',
-            ';',
-            '; B Some value',
-            'g54322 DEFB 0',
-            '',
-            '; Space',
-            ';',
-            '; .',
-            ';',
-            '; C Some value',
-            's54323 DEFS 10',
-            '',
-            '; Message',
-            ';',
-            '; .',
-            ';',
-            '; D Some value',
-            't54333 DEFM "Hi"',
-            '',
-            '; Unused code',
-            ';',
-            '; .',
-            ';',
-            '; E Some value',
-            'u54335 LD HL,12345',
-            '',
-            '; Words',
-            ';',
-            '; .',
-            ';',
-            '; H Some value',
-            'w54338 DEFW 1,2'
-        ))
-        asm = self._get_asm(skool)
+        skool = """
+            @start
+            ; Byte
+            ;
+            ; .
+            ;
+            ; A Some value
+            b54321 DEFB 0
+
+            ; GSB entry
+            ;
+            ; .
+            ;
+            ; B Some value
+            g54322 DEFB 0
+
+            ; Space
+            ;
+            ; .
+            ;
+            ; C Some value
+            s54323 DEFS 10
+
+            ; Message
+            ;
+            ; .
+            ;
+            ; D Some value
+            t54333 DEFM "Hi"
+
+            ; Unused code
+            ;
+            ; .
+            ;
+            ; E Some value
+            u54335 LD HL,12345
+
+            ; Words
+            ;
+            ; .
+            ;
+            ; H Some value
+            w54338 DEFW 1,2
+        """
+        asm = self._get_asm(skool).split('\n')
 
         line_no = 2
         for address, reg_name in ((54321, 'A'), (54322, 'B'), (54323, 'C'), (54333, 'D'), (54335, 'E'), (54338, 'H')):
@@ -1047,641 +1047,613 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
 
     def test_start_comment(self):
         start_comment = 'This is a start comment.'
-        skool = '\n'.join((
-            '@start',
-            '; Test a start comment',
-            ';',
-            '; .',
-            ';',
-            '; .',
-            ';',
-            '; {}'.format(start_comment),
-            'c50000 RET'
-        ))
-        exp_asm = [
-            '; Test a start comment',
-            ';',
-            '; {}'.format(start_comment),
-            '  RET'
-        ]
-        asm = self._get_asm(skool)
-        self.assertEqual(exp_asm, asm[:len(exp_asm)])
+        skool = """
+            @start
+            ; Test a start comment
+            ;
+            ; .
+            ;
+            ; .
+            ;
+            ; {}'.format(start_comment)
+            c50000 RET
+        """
+        exp_asm = """
+            ; Test a start comment
+            ;
+            ; {}'.format(start_comment)
+              RET
+        """
+        self._test_asm(skool, exp_asm)
 
     def test_multi_paragraph_start_comment(self):
         start_comment = ('First paragraph.', 'Second paragraph.')
-        skool = '\n'.join((
-            '@start',
-            '; Test a multi-paragraph start comment',
-            ';',
-            '; .',
-            ';',
-            '; .',
-            ';',
-            '; {}'.format(start_comment[0]),
-            '; .',
-            '; {}'.format(start_comment[1]),
-            'c50000 RET'
-        ))
-        exp_asm = [
-            '; Test a multi-paragraph start comment',
-            ';',
-            '; {}'.format(start_comment[0]),
-            ';',
-            '; {}'.format(start_comment[1]),
-            '  RET'
-        ]
-        asm = self._get_asm(skool)
-        self.assertEqual(exp_asm, asm[:len(exp_asm)])
+        skool = """
+            @start
+            ; Test a multi-paragraph start comment
+            ;
+            ; .
+            ;
+            ; .
+            ;
+            ; {}'.format(start_comment[0])
+            ; .
+            ; {}'.format(start_comment[1])
+            c50000 RET
+        """
+        exp_asm = """
+            ; Test a multi-paragraph start comment
+            ;
+            ; {}'.format(start_comment[0])
+            ;
+            ; {}'.format(start_comment[1])
+              RET
+        """
+        self._test_asm(skool, exp_asm)
 
     def test_empty_description(self):
-        skool = '\n'.join((
-            '@start',
-            '; Test an empty description',
-            ';',
-            '; #HTML(#UDG32768)',
-            'c24604 RET',
-        ))
-        asm = self._get_asm(skool)
+        skool = """
+            @start
+            ; Test an empty description
+            ;
+            ; #HTML(#UDG32768)
+            c24604 RET
+        """
+        asm = self._get_asm(skool).split('\n')
         self.assertEqual(asm[0], '; Test an empty description')
         self.assertEqual(asm[1], '  RET')
 
     def test_empty_description_with_registers(self):
-        skool = '\n'.join((
-            '@start',
-            '; Test an empty description and a register section',
-            ';',
-            '; .',
-            ';',
-            '; A 0',
-            '; B 1',
-            'c25600 RET',
-        ))
-        asm = self._get_asm(skool)
+        skool = """
+            @start
+            ; Test an empty description and a register section
+            ;
+            ; .
+            ;
+            ; A 0
+            ; B 1
+            c25600 RET
+        """
+        asm = self._get_asm(skool).split('\n')
         self.assertEqual(asm[0], '; Test an empty description and a register section')
         self.assertEqual(asm[1], ';')
         self.assertEqual(asm[2], '; A 0')
         self.assertEqual(asm[4], '  RET')
 
     def test_end_comment(self):
-        skool = '\n'.join((
-            '@start',
-            '; Start',
-            'c49152 RET',
-            '; End comment.',
-        ))
-        asm = self._get_asm(skool)
+        skool = """
+            @start
+            ; Start
+            c49152 RET
+            ; End comment.
+        """
+        asm = self._get_asm(skool).split('\n')
         self.assertEqual(asm[1], '  RET')
         self.assertEqual(asm[2], '; End comment.')
 
     def test_entry_point_labels(self):
-        skool = '\n'.join((
-            '@start',
-            '; Routine',
-            '@label=START',
-            'c40000 LD A,B',
-            '*40001 LD C,D',
-            '*40002 RET',
-        ))
-        asm = self._get_asm(skool)
+        skool = """
+            @start
+            ; Routine
+            @label=START
+            c40000 LD A,B
+            *40001 LD C,D
+            *40002 RET
+        """
+        asm = self._get_asm(skool).split('\n')
         self.assertEqual(asm[1], 'START:')
         self.assertEqual(asm[3], 'START_0:')
         self.assertEqual(asm[5], 'START_1:')
 
     def test_equ_directives(self):
-        skool = '\n'.join((
-            '@start',
-            '@equ=DFILE=16384',
-            '@equ=ATTRS=22528',
-            'c32768 LD HL,16384',
-            ' 32771 LD DE,22528'
-        ))
-        exp_asm = [
-            'DFILE EQU 16384',
-            'ATTRS EQU 22528',
-            '',
-            '  LD HL,DFILE',
-            '  LD DE,ATTRS',
-            ''
-        ]
-        asm = self._get_asm(skool)
-        self.assertEqual(exp_asm, asm)
+        skool = """
+            @start
+            @equ=DFILE=16384
+            @equ=ATTRS=22528
+            c32768 LD HL,16384
+             32771 LD DE,22528
+        """
+        exp_asm = """
+            DFILE EQU 16384
+            ATTRS EQU 22528
+
+              LD HL,DFILE
+              LD DE,ATTRS
+        """
+        self._test_asm(skool, exp_asm)
 
     def test_equ_values_are_not_converted(self):
-        skool = '\n'.join((
-            '@start',
-            '@equ=DFILE=16384',
-            '@equ=ATTRS=$5800',
-            '@equ=Foo=$abCD',
-            'c32768 LD HL,16384',
-            ' 32771 LD DE,22528'
-        ))
-        exp_asm = [
-            'DFILE EQU 16384',
-            'ATTRS EQU $5800',
-            'Foo EQU $abCD',
-            '',
-            '  LD HL,DFILE',
-            '  LD DE,ATTRS',
-            ''
-        ]
-        asm = self._get_asm(skool)
-        self.assertEqual(exp_asm, asm)
+        skool = """
+            @start
+            @equ=DFILE=16384
+            @equ=ATTRS=$5800
+            @equ=Foo=$abCD
+            c32768 LD HL,16384
+             32771 LD DE,22528
+        """
+        exp_asm = """
+            DFILE EQU 16384
+            ATTRS EQU $5800
+            Foo EQU $abCD
+
+              LD HL,DFILE
+              LD DE,ATTRS
+        """
+        self._test_asm(skool, exp_asm)
 
     def test_equ_value_converted_to_decimal(self):
-        skool = '\n'.join((
-            '@start',
-            '@equ=DFILE=$4000',
-            'c$8000 LD HL,$4000'
-        ))
-        exp_asm = [
-            'DFILE EQU 16384',
-            '',
-            '  LD HL,DFILE',
-            ''
-        ]
-        asm = self._get_asm(skool, base=BASE_10)
-        self.assertEqual(exp_asm, asm)
+        skool = """
+            @start
+            @equ=DFILE=$4000
+            c$8000 LD HL,$4000
+        """
+        exp_asm = """
+            DFILE EQU 16384
+
+              LD HL,DFILE
+        """
+        self._test_asm(skool, exp_asm, base=BASE_10)
 
     def test_equ_value_converted_to_hex(self):
-        skool = '\n'.join((
-            '@start',
-            '@equ=DFILE=16384',
-            'c32778 LD HL,16384'
-        ))
-        exp_asm = [
-            'DFILE EQU $4000',
-            '',
-            '  LD HL,DFILE',
-            ''
-        ]
-        asm = self._get_asm(skool, base=BASE_16)
-        self.assertEqual(exp_asm, asm)
+        skool = """
+            @start
+            @equ=DFILE=16384
+            c32778 LD HL,16384
+        """
+        exp_asm = """
+            DFILE EQU $4000
+
+              LD HL,DFILE
+        """
+        self._test_asm(skool, exp_asm, base=BASE_16)
 
     def test_equ_value_converted_to_lower_case_hex(self):
-        skool = '\n'.join((
-            '@start',
-            '@equ=Foo=$F0AD',
-            'c32768 LD HL,61613'
-        ))
-        exp_asm = [
-            'Foo equ $f0ad',
-            '',
-            '  ld hl,Foo',
-            ''
-        ]
-        asm = self._get_asm(skool, base=BASE_16, case=CASE_LOWER)
-        self.assertEqual(exp_asm, asm)
+        skool = """
+            @start
+            @equ=Foo=$F0AD
+            c32768 LD HL,61613
+        """
+        exp_asm = """
+            Foo equ $f0ad
+
+              ld hl,Foo
+        """
+        self._test_asm(skool, exp_asm, base=BASE_16, case=CASE_LOWER)
 
     def test_equ_value_converted_to_upper_case_hex(self):
-        skool = '\n'.join((
-            '@start',
-            '@equ=Foo=$f0ad',
-            'c32768 LD HL,61613'
-        ))
-        exp_asm = [
-            'Foo EQU $F0AD',
-            '',
-            '  LD HL,Foo',
-            ''
-        ]
-        asm = self._get_asm(skool, base=BASE_16, case=CASE_UPPER)
-        self.assertEqual(exp_asm, asm)
+        skool = """
+            @start
+            @equ=Foo=$f0ad
+            c32768 LD HL,61613
+        """
+        exp_asm = """
+            Foo EQU $F0AD
+
+              LD HL,Foo
+        """
+        self._test_asm(skool, exp_asm, base=BASE_16, case=CASE_UPPER)
 
     def test_equ_value_preserved_if_not_valid_integer(self):
-        skool = '\n'.join((
-            '@start',
-            '@equ=FOO=BadValue',
-            'c32768 RET'
-        ))
-        exp_asm = [
-            'FOO EQU BadValue',
-            '',
-            '  RET',
-            ''
-        ]
-        asm = self._get_asm(skool)
-        self.assertEqual(exp_asm, asm)
+        skool = """
+            @start
+            @equ=FOO=BadValue
+            c32768 RET
+        """
+        exp_asm = """
+            FOO EQU BadValue
+
+              RET
+        """
+        self._test_asm(skool, exp_asm)
 
     def test_org_with_default_address(self):
-        skool = '\n'.join((
-            '@start',
-            '@org',
-            'c32768 RET'
-        ))
-        asm = self._get_asm(skool)
+        skool = """
+            @start
+            @org
+            c32768 RET
+        """
+        asm = self._get_asm(skool).split('\n')
         self.assertEqual(asm[0], '  ORG 32768')
 
     def test_org_with_default_address_in_hex(self):
-        skool = '\n'.join((
-            '@start',
-            '@org',
-            'c$A0F1 RET'
-        ))
-        asm = self._get_asm(skool)
+        skool = """
+            @start
+            @org
+            c$A0F1 RET
+        """
+        asm = self._get_asm(skool).split('\n')
         self.assertEqual(asm[0], '  ORG $A0F1')
 
     def test_org_address_converted_to_decimal(self):
-        skool = '\n'.join((
-            '@start',
-            '@org=$8000',
-            'c$8000 RET'
-        ))
-        asm = self._get_asm(skool, base=BASE_10)
+        skool = """
+            @start
+            @org=$8000
+            c$8000 RET
+        """
+        asm = self._get_asm(skool, base=BASE_10).split('\n')
         self.assertEqual(asm[0], '  ORG 32768')
 
     def test_org_address_converted_to_hex(self):
-        skool = '\n'.join((
-            '@start',
-            '@org=32778',
-            'c32778 RET'
-        ))
-        asm = self._get_asm(skool, base=BASE_16)
+        skool = """
+            @start
+            @org=32778
+            c32778 RET
+        """
+        asm = self._get_asm(skool, base=BASE_16).split('\n')
         self.assertEqual(asm[0], '  ORG $800A')
 
     def test_org_address_converted_to_lower_case_hex(self):
-        skool = '\n'.join((
-            '@start',
-            '@org=61613',
-            'c61613 RET'
-        ))
-        asm = self._get_asm(skool, base=BASE_16, case=CASE_LOWER)
+        skool = """
+            @start
+            @org=61613
+            c61613 RET
+        """
+        asm = self._get_asm(skool, base=BASE_16, case=CASE_LOWER).split('\n')
         self.assertEqual(asm[0], '  org $f0ad')
 
     def test_org_address_converted_to_upper_case_hex(self):
-        skool = '\n'.join((
-            '@start',
-            '@org=$f0ad',
-            'c$f0ad RET'
-        ))
-        asm = self._get_asm(skool, base=BASE_16, case=CASE_UPPER)
+        skool = """
+            @start
+            @org=$f0ad
+            c$f0ad RET
+        """
+        asm = self._get_asm(skool, base=BASE_16, case=CASE_UPPER).split('\n')
         self.assertEqual(asm[0], '  ORG $F0AD')
 
     def test_ignoreua_directive_on_entry_title(self):
-        skool = '\n'.join((
-            '@start',
-            '@ignoreua',
-            '; Routine at 32768',
-            'c32768 RET'
-        ))
-        self._get_asm(skool, warn=True)
-        warnings = self.err.getvalue().split('\n')[:-1]
-        self.assertEqual(len(warnings), 0)
+        skool = """
+            @start
+            @ignoreua
+            ; Routine at 32768
+            c32768 RET
+        """
+        warnings = self._get_asm(skool, warn=True)[1]
+        self.assertEqual(warnings, '')
 
     def test_ignoreua_directive_on_entry_description(self):
-        skool = '\n'.join((
-            '@start',
-            '; Routine',
-            ';',
-            '@ignoreua',
-            '; Description of routine at 32768.',
-            'c32768 RET'
-        ))
-        self._get_asm(skool, warn=True)
-        warnings = self.err.getvalue().split('\n')[:-1]
-        self.assertEqual(len(warnings), 0)
+        skool = """
+            @start
+            ; Routine
+            ;
+            @ignoreua
+            ; Description of routine at 32768.
+            c32768 RET
+        """
+        warnings = self._get_asm(skool, warn=True)[1]
+        self.assertEqual(warnings, '')
 
     def test_ignoreua_directive_on_register_description(self):
-        skool = '\n'.join((
-            '@start',
-            '; Routine',
-            ';',
-            '; .',
-            ';',
-            '@ignoreua',
-            '; HL 32768',
-            'c32768 RET'
-        ))
-        self._get_asm(skool, warn=True)
-        warnings = self.err.getvalue().split('\n')[:-1]
-        self.assertEqual(len(warnings), 0)
+        skool = """
+            @start
+            ; Routine
+            ;
+            ; .
+            ;
+            @ignoreua
+            ; HL 32768
+            c32768 RET
+        """
+        warnings = self._get_asm(skool, warn=True)[1]
+        self.assertEqual(warnings, '')
 
     def test_ignoreua_directive_on_start_comment(self):
-        skool = '\n'.join((
-            '@start',
-            '; Routine',
-            ';',
-            '; Description.',
-            ';',
-            '; .',
-            ';',
-            '@ignoreua',
-            '; Start comment for the routine at 32768.',
-            'c32768 RET'
-        ))
-        self._get_asm(skool, warn=True)
-        warnings = self.err.getvalue().split('\n')[:-1]
-        self.assertEqual(len(warnings), 0)
+        skool = """
+            @start
+            ; Routine
+            ;
+            ; Description.
+            ;
+            ; .
+            ;
+            @ignoreua
+            ; Start comment for the routine at 32768.
+            c32768 RET
+        """
+        warnings = self._get_asm(skool, warn=True)[1]
+        self.assertEqual(warnings, '')
 
     def test_ignoreua_directive_on_instruction_comment(self):
-        skool = '\n'.join((
-            '@start',
-            '; Routine',
-            '@ignoreua',
-            'c32768 LD A,B ; This is the instruction at 32768'
-        ))
-        self._get_asm(skool, warn=True)
-        warnings = self.err.getvalue().split('\n')[:-1]
-        self.assertEqual(len(warnings), 0)
+        skool = """
+            @start
+            ; Routine
+            @ignoreua
+            c32768 LD A,B ; This is the instruction at 32768
+        """
+        warnings = self._get_asm(skool, warn=True)[1]
+        self.assertEqual(warnings, '')
 
     def test_ignoreua_directive_on_mid_block_comment(self):
-        skool = '\n'.join((
-            '@start',
-            '; Routine',
-            'c32768 LD A,B ;',
-            '@ignoreua',
-            '; This is the mid-routine comment above 32769.',
-            ' 32769 RET'
-        ))
-        self._get_asm(skool, warn=True)
-        warnings = self.err.getvalue().split('\n')[:-1]
-        self.assertEqual(len(warnings), 0)
+        skool = """
+            @start
+            ; Routine
+            c32768 LD A,B ;
+            @ignoreua
+            ; This is the mid-routine comment above 32769.
+             32769 RET
+        """
+        warnings = self._get_asm(skool, warn=True)[1]
+        self.assertEqual(warnings, '')
 
     def test_ignoreua_directive_on_end_comment(self):
-        skool = '\n'.join((
-            '@start',
-            '; Routine',
-            'c32768 LD A,B ;',
-            ' 32769 RET',
-            '@ignoreua',
-            '; This is the end comment after 32769.',
-            '',
-            '; The @ignoreua directive above should not spill over',
-            'c32770 RET'
-        ))
-        self._get_asm(skool, warn=True)
-        warnings = self.err.getvalue().split('\n')[:-1]
-        self.assertEqual(len(warnings), 0)
+        skool = """
+            @start
+            ; Routine
+            c32768 LD A,B ;
+             32769 RET
+            @ignoreua
+            ; This is the end comment after 32769.
+
+            ; The @ignoreua directive above should not spill over
+            c32770 RET
+        """
+        warnings = self._get_asm(skool, warn=True)[1]
+        self.assertEqual(warnings, '')
 
     def test_nowarn_directive(self):
-        skool = '\n'.join((
-            '@start',
-            '; Routine',
-            '@nowarn',
-            'c30000 LD HL,30003',
-            '',
-            '; Routine',
-            '@label=NEXT',
-            '@nowarn',
-            'c30003 CALL 30000',
-            '@nowarn',
-            ' 30006 CALL 30001',
-        ))
+        skool = """
+            @start
+            ; Routine
+            @nowarn
+            c30000 LD HL,30003
+
+            ; Routine
+            @label=NEXT
+            @nowarn
+            c30003 CALL 30000
+            @nowarn
+             30006 CALL 30001
+        """
         for asm_mode in (1, 2, 3):
-            self._get_asm(skool, warn=True, asm_mode=asm_mode)
-            warnings = self.err.getvalue().split('\n')[:-1]
-            self.assertEqual(len(warnings), 0)
+            warnings = self._get_asm(skool, warn=True, asm_mode=asm_mode)[1]
+            self.assertEqual(warnings, '')
 
     def test_keep_directive(self):
-        skool = '\n'.join((
-            '@start',
-            '; Routine',
-            '@keep',
-            'c30000 LD HL,30006',
-            '@keep',
-            ' 30003 LD DE,30006+30007',
-            '',
-            '; Routine',
-            '@label=NEXT',
-            'c30006 XOR A',
-            '@label=END',
-            ' 30007 RET'
-        ))
-        asm = self._get_asm(skool)
+        skool = """
+            @start
+            ; Routine
+            @keep
+            c30000 LD HL,30006
+            @keep
+             30003 LD DE,30006+30007
+
+            ; Routine
+            @label=NEXT
+            c30006 XOR A
+            @label=END
+             30007 RET
+        """
+        asm = self._get_asm(skool).split('\n', 3)
         self.assertEqual(asm[1], '  LD HL,30006')
         self.assertEqual(asm[2], '  LD DE,30006+30007')
 
     def test_keep_directive_with_isub(self):
-        skool = '\n'.join((
-            '@start',
-            '; Routine',
-            '@keep',
-            '@isub=LD HL,30003+2',
-            'c30000 LD HL,30005',
-            '',
-            '; Routine',
-            '@label=NEXT',
-            'c30003 RET'
-        ))
-        asm = self._get_asm(skool)
+        skool = """
+            @start
+            ; Routine
+            @keep
+            @isub=LD HL,30003+2
+            c30000 LD HL,30005
+
+            ; Routine
+            @label=NEXT
+            c30003 RET
+        """
+        asm = self._get_asm(skool).split('\n', 2)
         self.assertEqual(asm[1], '  LD HL,30003+2')
 
     def test_keep_directive_with_ssub(self):
-        skool = '\n'.join((
-            '@start',
-            '; Routine',
-            '@keep',
-            '@ssub=LD HL,30003+2',
-            'c30000 LD HL,30005',
-            '',
-            '; Routine',
-            '@label=NEXT',
-            'c30003 RET'
-        ))
-        asm = self._get_asm(skool, asm_mode=2)
+        skool = """
+            @start
+            ; Routine
+            @keep
+            @ssub=LD HL,30003+2
+            c30000 LD HL,30005
+
+            ; Routine
+            @label=NEXT
+            c30003 RET
+        """
+        asm = self._get_asm(skool, asm_mode=2).split('\n', 2)
         self.assertEqual(asm[1], '  LD HL,30003+2')
 
     def test_keep_directive_with_rsub(self):
-        skool = '\n'.join((
-            '@start',
-            '; Routine',
-            '@keep',
-            '@rsub=LD HL,30003+2',
-            'c30000 LD HL,30005',
-            '',
-            '; Routine',
-            '@label=NEXT',
-            'c30003 RET'
-        ))
-        asm = self._get_asm(skool, asm_mode=3)
+        skool = """
+            @start
+            ; Routine
+            @keep
+            @rsub=LD HL,30003+2
+            c30000 LD HL,30005
+
+            ; Routine
+            @label=NEXT
+            c30003 RET
+        """
+        asm = self._get_asm(skool, asm_mode=3).split('\n', 2)
         self.assertEqual(asm[1], '  LD HL,30003+2')
 
     def test_keep_directive_with_one_value(self):
-        skool = '\n'.join((
-            '@start',
-            '; Routine',
-            '@keep=30003',
-            'c30000 LD HL,30003',
-            '',
-            '; Routine',
-            '@label=NEXT',
-            'c30003 RET',
-        ))
-        asm = self._get_asm(skool)
+        skool = """
+            @start
+            ; Routine
+            @keep=30003
+            c30000 LD HL,30003
+
+            ; Routine
+            @label=NEXT
+            c30003 RET
+        """
+        asm = self._get_asm(skool).split('\n', 2)
         self.assertEqual(asm[1], '  LD HL,30003')
 
     def test_keep_directive_with_one_hex_value(self):
-        skool = '\n'.join((
-            '@start',
-            '; Routine',
-            '@keep=$7533',
-            'c30000 LD HL,30003',
-            '',
-            '; Routine',
-            '@label=NEXT',
-            'c30003 RET',
-        ))
-        asm = self._get_asm(skool)
+        skool = """
+            @start
+            ; Routine
+            @keep=$7533
+            c30000 LD HL,30003
+
+            ; Routine
+            @label=NEXT
+            c30003 RET
+        """
+        asm = self._get_asm(skool).split('\n', 2)
         self.assertEqual(asm[1], '  LD HL,30003')
 
     def test_keep_directive_with_one_unused_value(self):
-        skool = '\n'.join((
-            '@start',
-            '; Routine',
-            '@keep=30004',
-            'c30000 LD HL,30003',
-            '',
-            '; Routine',
-            '@label=NEXT',
-            'c30003 RET',
-        ))
-        asm = self._get_asm(skool)
+        skool = """
+            @start
+            ; Routine
+            @keep=30004
+            c30000 LD HL,30003
+
+            ; Routine
+            @label=NEXT
+            c30003 RET
+        """
+        asm = self._get_asm(skool).split('\n', 2)
         self.assertEqual(asm[1], '  LD HL,NEXT')
 
     def test_keep_directive_with_one_of_two_values(self):
-        skool = '\n'.join((
-            '@start',
-            '; Routine',
-            '@keep=30004',
-            'c30000 LD HL,30003+30004',
-            '',
-            '; Routine',
-            '@label=NEXT',
-            'c30003 XOR A',
-            '@label=END',
-            ' 30004 RET'
-        ))
-        asm = self._get_asm(skool)
+        skool = """
+            @start
+            ; Routine
+            @keep=30004
+            c30000 LD HL,30003+30004
+
+            ; Routine
+            @label=NEXT
+            c30003 XOR A
+            @label=END
+             30004 RET
+        """
+        asm = self._get_asm(skool).split('\n', 2)
         self.assertEqual(asm[1], '  LD HL,NEXT+30004')
 
     def test_keep_directive_with_two_values(self):
-        skool = '\n'.join((
-            '@start',
-            '; Routine',
-            '@keep=30003,30004',
-            'c30000 LD HL,30003+30004',
-            '',
-            '; Routine',
-            '@label=NEXT',
-            'c30003 XOR A',
-            '@label=END',
-            ' 30004 RET'
-        ))
-        asm = self._get_asm(skool)
+        skool = """
+            @start
+            ; Routine
+            @keep=30003,30004
+            c30000 LD HL,30003+30004
+
+            ; Routine
+            @label=NEXT
+            c30003 XOR A
+            @label=END
+             30004 RET
+        """
+        asm = self._get_asm(skool).split('\n', 2)
         self.assertEqual(asm[1], '  LD HL,30003+30004')
 
     def test_nolabel_directive(self):
-        skool = '\n'.join((
-            '@start',
-            '; Start',
-            '@label=START',
-            'c32768 LD A,B',
-            '@nolabel',
-            '*32769 RET',
-        ))
-        asm = self._get_asm(skool)
+        skool = """
+            @start
+            ; Start
+            @label=START
+            c32768 LD A,B
+            @nolabel
+            *32769 RET
+        """
+        asm = self._get_asm(skool).split('\n')
         self.assertEqual(asm[1], 'START:')
         self.assertEqual(asm[2], '  LD A,B')
         self.assertEqual(asm[3], '  RET')
 
     def test_blank_label_directive(self):
-        skool = '\n'.join((
-            '@start',
-            '; Start',
-            '@label=START',
-            'c32768 LD A,B',
-            '@label=',
-            '*32769 RET',
-        ))
-        asm = self._get_asm(skool)
+        skool = """
+            @start
+            ; Start
+            @label=START
+            c32768 LD A,B
+            @label=
+            *32769 RET
+        """
+        asm = self._get_asm(skool).split('\n')
         self.assertEqual(asm[1], 'START:')
         self.assertEqual(asm[2], '  LD A,B')
         self.assertEqual(asm[3], '  RET')
 
     def test_comment_for_wide_instruction(self):
-        skool = '\n'.join((
-            '@start',
-            'c30000 LD B,0     ; Comment',
-            '@label=VERYLONGLABELINDEEDOHYES',
-            ' 30002 DJNZ 30002 ; Comment for the DJNZ instruction with the very long',
-            '                  ; label; the lines in the comment for this instruction',
-            '                  ; should be aligned on the left (but not necessarily',
-            '                  ; aligned with the comments for the other instructions)',
-            ' 30004 RET        ; Comment',
-        ))
-        exp_asm = [
-            '  LD B,0                  ; Comment',
-            'VERYLONGLABELINDEEDOHYES:',
-            '  DJNZ VERYLONGLABELINDEEDOHYES ; Comment for the DJNZ instruction with the',
-            '                                ; very long label; the lines in the comment for',
-            '                                ; this instruction should be aligned on the',
-            '                                ; left (but not necessarily aligned with the',
-            '                                ; comments for the other instructions)',
-            '  RET                     ; Comment',
-            '',
-        ]
-        self.assertEqual(exp_asm, self._get_asm(skool))
+        skool = """
+            @start
+            c30000 LD B,0     ; Comment
+            @label=VERYLONGLABELINDEEDOHYES
+             30002 DJNZ 30002 ; Comment for the DJNZ instruction with the very long
+                              ; label; the lines in the comment for this instruction
+                              ; should be aligned on the left (but not necessarily
+                              ; aligned with the comments for the other instructions)
+             30004 RET        ; Comment
+        """
+        exp_asm = """
+              LD B,0                  ; Comment
+            VERYLONGLABELINDEEDOHYES:
+              DJNZ VERYLONGLABELINDEEDOHYES ; Comment for the DJNZ instruction with the
+                                            ; very long label; the lines in the comment for
+                                            ; this instruction should be aligned on the
+                                            ; left (but not necessarily aligned with the
+                                            ; comments for the other instructions)
+              RET                     ; Comment
+        """
+        self._test_asm(skool, exp_asm)
 
     def test_comment_for_sub_block_containing_wide_instruction(self):
-        skool = '\n'.join((
-            '@start',
-            'c30000 LD B,0     ; Comment',
-            '@label=VERYLONGLABELINDEEDOHYES',
-            ' 30002 HALT       ; {Comment for the DJNZ loop with the very long label;',
-            ' 30003 DJNZ 30002 ; the lines in the comment for these instructions',
-            ' 30005 XOR A      ; should be aligned on the left (but not necessarily',
-            '                  ; aligned with the comments for the other instructions)}',
-            ' 30006 RET        ; Comment',
-        ))
-        exp_asm = [
-            '  LD B,0                  ; Comment',
-            'VERYLONGLABELINDEEDOHYES:',
-            '  HALT                          ; Comment for the DJNZ loop with the very long',
-            '  DJNZ VERYLONGLABELINDEEDOHYES ; label; the lines in the comment for these',
-            '  XOR A                         ; instructions should be aligned on the left',
-            '                                ; (but not necessarily aligned with the',
-            '                                ; comments for the other instructions)',
-            '  RET                     ; Comment',
-            '',
-        ]
-        self.assertEqual(exp_asm, self._get_asm(skool))
+        skool = """
+            @start
+            c30000 LD B,0     ; Comment
+            @label=VERYLONGLABELINDEEDOHYES
+             30002 HALT       ; {Comment for the DJNZ loop with the very long label;
+             30003 DJNZ 30002 ; the lines in the comment for these instructions
+             30005 XOR A      ; should be aligned on the left (but not necessarily
+                              ; aligned with the comments for the other instructions)}
+             30006 RET        ; Comment
+        """
+        exp_asm = """
+              LD B,0                  ; Comment
+            VERYLONGLABELINDEEDOHYES:
+              HALT                          ; Comment for the DJNZ loop with the very long
+              DJNZ VERYLONGLABELINDEEDOHYES ; label; the lines in the comment for these
+              XOR A                         ; instructions should be aligned on the left
+                                            ; (but not necessarily aligned with the
+                                            ; comments for the other instructions)
+              RET                     ; Comment
+        """
+        self._test_asm(skool, exp_asm)
 
     def test_blank_line_in_comment_for_sub_block(self):
-        skool = '\n'.join((
-            '@start',
-            '; Data',
-            'b32768 DEFB 215,217,213,211 ; {Some data',
-            ' 32772 DEFB 0               ; }',
-            ' 32773 DEFB 255',
-            ' 32774 DEFB 0,1,2,3         ; Some other data',
-        ))
-        exp_asm = [
-            '; Data',
-            '  DEFB 215,217,213,211    ; Some data',
-            '  DEFB 0                  ;',
-            '  DEFB 255',
-            '  DEFB 0,1,2,3            ; Some other data',
-            '',
-        ]
-        self.assertEqual(exp_asm, self._get_asm(skool))
+        skool = """
+            @start
+            ; Data
+            b32768 DEFB 215,217,213,211 ; {Some data
+             32772 DEFB 0               ; }
+             32773 DEFB 255
+             32774 DEFB 0,1,2,3         ; Some other data
+        """
+        exp_asm = """
+            ; Data
+              DEFB 215,217,213,211    ; Some data
+              DEFB 0                  ;
+              DEFB 255
+              DEFB 0,1,2,3            ; Some other data
+        """
+        self._test_asm(skool, exp_asm)
 
     def test_blank_line_in_comment_for_sub_block_containing_wide_instruction(self):
-        skool = '\n'.join((
-            '@start',
-            '; Data',
-            'b32768 DEFB 215,217,213,211,254,13 ; {Some data',
-            ' 32774 DEFB 0                      ; }',
-            ' 32775 DEFB 255',
-            ' 32776 DEFB 0,1,2,3                ; Some other data',
-        ))
-        exp_asm = [
-            '; Data',
-            '  DEFB 215,217,213,211,254,13 ; Some data',
-            '  DEFB 0                      ;',
-            '  DEFB 255',
-            '  DEFB 0,1,2,3            ; Some other data',
-            '',
-        ]
-        self.assertEqual(exp_asm, self._get_asm(skool))
+        skool = """
+            @start
+            ; Data
+            b32768 DEFB 215,217,213,211,254,13 ; {Some data
+             32774 DEFB 0                      ; }
+             32775 DEFB 255
+             32776 DEFB 0,1,2,3                ; Some other data
+        """
+        exp_asm = """
+            ; Data
+              DEFB 215,217,213,211,254,13 ; Some data
+              DEFB 0                      ;
+              DEFB 255
+              DEFB 0,1,2,3            ; Some other data
+        """
+        self._test_asm(skool, exp_asm)
 
 class TableMacroTest(SkoolKitTestCase):
     def _get_writer(self, skool='', crlf=False, tab=False, instr_width=23, warn=False):
@@ -1696,409 +1668,409 @@ class TableMacroTest(SkoolKitTestCase):
 
     def _assert_error(self, skool, error):
         self.clear_streams()
-        writer = self._get_writer(skool)
+        writer = self._get_writer(dedent(skool).strip())
         with self.assertRaises(SkoolParsingError) as cm:
             writer.write()
-        self.assertEqual(cm.exception.args[0], error)
+        self.assertEqual(cm.exception.args[0], dedent(error).strip())
 
     def _test_table(self, src_lines, exp_output):
         writer = self._get_writer()
-        table = '#TABLE{}\nTABLE#'.format('\n'.join(src_lines))
+        table = '#TABLE{}\nTABLE#'.format(dedent(src_lines).strip())
         output = writer.format(table, 79)
-        self.assertEqual(output, exp_output)
+        self.assertEqual(dedent(exp_output).strip('\n'), '\n'.join(output))
 
     def test_headers_and_colspans_and_rowspans(self):
         # Headers, colspans 1 and 2, rowspans 1 and 2
-        src = (
-            '(data)',
-            '{ =h Col1 | =h Col2 | =h,c2 Cols3+4 }',
-            '{ =r2 X   | Y       | Za  | Zb }',
-            '{           Y2      | Za2 | Zb2 }',
-        )
-        exp_output = [
-            '+------+------+-----------+',
-            '| Col1 | Col2 | Cols3+4   |',
-            '+------+------+-----+-----+',
-            '| X    | Y    | Za  | Zb  |',
-            '|      | Y2   | Za2 | Zb2 |',
-            '+------+------+-----+-----+',
-        ]
+        src = """
+            (data)
+            { =h Col1 | =h Col2 | =h,c2 Cols3+4 }
+            { =r2 X   | Y       | Za  | Zb }
+            {           Y2      | Za2 | Zb2 }
+        """
+        exp_output = """
+            +------+------+-----------+
+            | Col1 | Col2 | Cols3+4   |
+            +------+------+-----+-----+
+            | X    | Y    | Za  | Zb  |
+            |      | Y2   | Za2 | Zb2 |
+            +------+------+-----+-----+
+        """
         self._test_table(src, exp_output)
 
     def test_cell_with_rowspan_2_in_middle_column(self):
         # Cell with rowspan > 1 in the middle column
-        src = (
-            '{ A1 cell | =r2 This is a cell with rowspan=2 | C1 cell }',
-            '{ A2 cell | C2 cell }',
-        )
-        exp_output = [
-            '+---------+-------------------------------+---------+',
-            '| A1 cell | This is a cell with rowspan=2 | C1 cell |',
-            '| A2 cell |                               | C2 cell |',
-            '+---------+-------------------------------+---------+',
-        ]
+        src = """
+            { A1 cell | =r2 This is a cell with rowspan=2 | C1 cell }
+            { A2 cell | C2 cell }
+        """
+        exp_output = """
+            +---------+-------------------------------+---------+
+            | A1 cell | This is a cell with rowspan=2 | C1 cell |
+            | A2 cell |                               | C2 cell |
+            +---------+-------------------------------+---------+
+        """
         self._test_table(src, exp_output)
 
     def test_cell_with_rowspan_2_in_last_column(self):
         # Cell with rowspan > 1 in the rightmost column
-        src = (
-            '{ A1 cell | B1 cell | =r2 This is a cell with rowspan=2 }',
-            '{ A2 cell | B2 cell }',
-        )
-        exp_output = [
-            '+---------+---------+-------------------------------+',
-            '| A1 cell | B1 cell | This is a cell with rowspan=2 |',
-            '| A2 cell | B2 cell |                               |',
-            '+---------+---------+-------------------------------+',
-        ]
+        src = """
+            { A1 cell | B1 cell | =r2 This is a cell with rowspan=2 }
+            { A2 cell | B2 cell }
+        """
+        exp_output = """
+            +---------+---------+-------------------------------+
+            | A1 cell | B1 cell | This is a cell with rowspan=2 |
+            | A2 cell | B2 cell |                               |
+            +---------+---------+-------------------------------+
+        """
         self._test_table(src, exp_output)
 
     def test_cell_with_colspan_2_and_wrapped_contents(self):
         # Cell with colspan > 1 and wrapped contents
-        src = (
-            '(,:w)',
-            '{ =c2 Cell with colspan=2 and contents that will be wrapped onto the following line }',
-            '{ A2 | B2 }',
-        )
+        src = """
+            (,:w)
+            { =c2 Cell with colspan=2 and contents that will be wrapped onto the following line }
+            { A2 | B2 }
+        """
 
-        exp_output = [
-            '+--------------------------------------------------------------------------+',
-            '| Cell with colspan=2 and contents that will be wrapped onto the following |',
-            '| line                                                                     |',
-            '| A2                                  | B2                                 |',
-            '+-------------------------------------+------------------------------------+',
-        ]
+        exp_output = """
+            +--------------------------------------------------------------------------+
+            | Cell with colspan=2 and contents that will be wrapped onto the following |
+            | line                                                                     |
+            | A2                                  | B2                                 |
+            +-------------------------------------+------------------------------------+
+        """
         self._test_table(src, exp_output)
 
     def test_cell_in_first_column_with_rowspan_2_and_wrapped_contents(self):
         # Cell in the first column with rowspan > 1 and wrapped contents
-        src = (
-            '(,:w)',
-            '{ =r2 This cell has rowspan=2 and contains text that will wrap onto the next line | B1 }',
-            '{ B2 }',
-        )
-        exp_output = [
-            '+-------------------------------------------------------------------+----+',
-            '| This cell has rowspan=2 and contains text that will wrap onto the | B1 |',
-            '| next line                                                         | B2 |',
-            '+-------------------------------------------------------------------+----+',
-        ]
+        src = """
+            (,:w)
+            { =r2 This cell has rowspan=2 and contains text that will wrap onto the next line | B1 }
+            { B2 }
+        """
+        exp_output = """
+            +-------------------------------------------------------------------+----+
+            | This cell has rowspan=2 and contains text that will wrap onto the | B1 |
+            | next line                                                         | B2 |
+            +-------------------------------------------------------------------+----+
+        """
         self._test_table(src, exp_output)
 
     def test_cell_in_middle_column_with_rowspan_2_and_wrapped_contents(self):
         # Cell in the middle column with rowspan > 1 and wrapped contents
-        src = (
-            '(,,:w)',
-            '{ A1 | =r2 This cell has rowspan=2 and contains text that will wrap onto the next line | C1 }',
-            '{ A2 | C2 }',
-        )
-        exp_output = [
-            '+----+---------------------------------------------------------------+----+',
-            '| A1 | This cell has rowspan=2 and contains text that will wrap onto | C1 |',
-            '| A2 | the next line                                                 | C2 |',
-            '+----+---------------------------------------------------------------+----+',
-        ]
+        src = """
+            (,,:w)
+            { A1 | =r2 This cell has rowspan=2 and contains text that will wrap onto the next line | C1 }
+            { A2 | C2 }
+        """
+        exp_output = """
+            +----+---------------------------------------------------------------+----+
+            | A1 | This cell has rowspan=2 and contains text that will wrap onto | C1 |
+            | A2 | the next line                                                 | C2 |
+            +----+---------------------------------------------------------------+----+
+        """
         self._test_table(src, exp_output)
 
     def test_cell_in_last_column_with_rowspan_2_and_wrapped_contents(self):
         # Cell in the last column with rowspan > 1 and wrapped contents
-        src = (
-            '(,,:w)',
-            '{ A1 | =r2 This cell has rowspan=2 and contains text that will wrap onto the next line }',
-            '{ A2 }',
-        )
-        exp_output = [
-            '+----+-------------------------------------------------------------------+',
-            '| A1 | This cell has rowspan=2 and contains text that will wrap onto the |',
-            '| A2 | next line                                                         |',
-            '+----+-------------------------------------------------------------------+',
-        ]
+        src = """
+            (,,:w)
+            { A1 | =r2 This cell has rowspan=2 and contains text that will wrap onto the next line }
+            { A2 }
+        """
+        exp_output = """
+            +----+-------------------------------------------------------------------+
+            | A1 | This cell has rowspan=2 and contains text that will wrap onto the |
+            | A2 | next line                                                         |
+            +----+-------------------------------------------------------------------+
+        """
         self._test_table(src, exp_output)
 
     def test_short_header_row(self):
         # Header row shorter than the remaining rows
-        src = (
-            '{ =h H1 | =h H2 }',
-            '{ A1    | B1    | C1 }',
-            '{ A2    | B2    | C2 }',
-        )
-        exp_output = [
-            '+----+----+',
-            '| H1 | H2 |',
-            '+----+----+----+',
-            '| A1 | B1 | C1 |',
-            '| A2 | B2 | C2 |',
-            '+----+----+----+',
-        ]
+        src = """
+            { =h H1 | =h H2 }
+            { A1    | B1    | C1 }
+            { A2    | B2    | C2 }
+        """
+        exp_output = """
+            +----+----+
+            | H1 | H2 |
+            +----+----+----+
+            | A1 | B1 | C1 |
+            | A2 | B2 | C2 |
+            +----+----+----+
+        """
         self._test_table(src, exp_output)
 
     def test_transparent_cell_in_top_left_corner(self):
         # Transparent cell in the top left corner
-        src = (
-            '{ =t | =h H2 }',
-            '{ A1 | B1 }',
-        )
-        exp_output = [
-            '     +----+',
-            '     | H2 |',
-            '+----+----+',
-            '| A1 | B1 |',
-            '+----+----+',
-        ]
+        src = """
+            { =t | =h H2 }
+            { A1 | B1 }
+        """
+        exp_output = """
+                 +----+
+                 | H2 |
+            +----+----+
+            | A1 | B1 |
+            +----+----+
+        """
         self._test_table(src, exp_output)
 
     def test_transparent_cell_in_top_right_corner(self):
         # Transparent cell in the top right corner
-        src = (
-            '{ =h H1 | =t }',
-            '{ A1    | B1 }',
-        )
-        exp_output = [
-            '+----+',
-            '| H1 |',
-            '+----+----+',
-            '| A1 | B1 |',
-            '+----+----+',
-        ]
+        src = """
+            { =h H1 | =t }
+            { A1    | B1 }
+        """
+        exp_output = """
+            +----+
+            | H1 |
+            +----+----+
+            | A1 | B1 |
+            +----+----+
+        """
         self._test_table(src, exp_output)
 
     def test_transparent_cell_in_bottom_right_corner(self):
         # Transparent cell in the bottom right corner
-        src = (
-            '{ =h H1 | =h H2 }',
-            '{ A1    | =t }',
-        )
-        exp_output = [
-            '+----+----+',
-            '| H1 | H2 |',
-            '+----+----+',
-            '| A1 |',
-            '+----+',
-        ]
+        src = """
+            { =h H1 | =h H2 }
+            { A1    | =t }
+        """
+        exp_output = """
+            +----+----+
+            | H1 | H2 |
+            +----+----+
+            | A1 |
+            +----+
+        """
         self._test_table(src, exp_output)
 
     def test_transparent_cell_in_bottom_left_corner(self):
         # Transparent cell in the bottom left corner
-        src = (
-            '{ =h H1 | =h H2 }',
-            '{ =t    | B1 }',
-        )
-        exp_output = [
-            '+----+----+',
-            '| H1 | H2 |',
-            '+----+----+',
-            '     | B1 |',
-            '     +----+',
-        ]
+        src = """
+            { =h H1 | =h H2 }
+            { =t    | B1 }
+        """
+        exp_output = """
+            +----+----+
+            | H1 | H2 |
+            +----+----+
+                 | B1 |
+                 +----+
+        """
         self._test_table(src, exp_output)
 
     def test_transparent_cells_with_rowspan_2_in_top_corners(self):
         # Transparent cells with rowspan > 1 in the top corners
-        src = (
-            '{ =t,r2 | H1    | =t,r2 }',
-            '{         =h H2         }',
-            '{ A1    | B1    | C1    }',
-        )
-        exp_output = [
-            '     +----+',
-            '     | H1 |',
-            '     | H2 |',
-            '+----+----+----+',
-            '| A1 | B1 | C1 |',
-            '+----+----+----+',
-        ]
+        src = """
+            { =t,r2 | H1    | =t,r2 }
+            {         =h H2         }
+            { A1    | B1    | C1    }
+        """
+        exp_output = """
+                 +----+
+                 | H1 |
+                 | H2 |
+            +----+----+----+
+            | A1 | B1 | C1 |
+            +----+----+----+
+        """
         self._test_table(src, exp_output)
 
     def test_transparent_cells__with_rowspan_2_in_bottom_corners(self):
         # Transparent cells with rowspan > 1 in the bottom corners
-        src = (
-            '{ =h H1 | =h H2 | =h H3 }',
-            '{ =t,r2 | B1    | =t,r2 }',
-            '{         B2 }',
-        )
-        exp_output = [
-            '+----+----+----+',
-            '| H1 | H2 | H3 |',
-            '+----+----+----+',
-            '     | B1 |',
-            '     | B2 |',
-            '     +----+',
-        ]
+        src = """
+            { =h H1 | =h H2 | =h H3 }
+            { =t,r2 | B1    | =t,r2 }
+            {         B2 }
+        """
+        exp_output = """
+            +----+----+----+
+            | H1 | H2 | H3 |
+            +----+----+----+
+                 | B1 |
+                 | B2 |
+                 +----+
+        """
         self._test_table(src, exp_output)
 
     def test_adjacent_transparent_cells_in_bottom_right_corner(self):
         # Adjacent transparent cells
-        src = (
-            '{ =h H1 | =h H2 | =h H3 }',
-            '{ =h A1 | =h B1 | =t,r2 }',
-            '{ A2    | =t }',
-        )
-        exp_output = [
-            '+----+----+----+',
-            '| H1 | H2 | H3 |',
-            '+----+----+----+',
-            '| A1 | B1 |',
-            '+----+----+',
-            '| A2 |',
-            '+----+',
-        ]
+        src = """
+            { =h H1 | =h H2 | =h H3 }
+            { =h A1 | =h B1 | =t,r2 }
+            { A2    | =t }
+        """
+        exp_output = """
+            +----+----+----+
+            | H1 | H2 | H3 |
+            +----+----+----+
+            | A1 | B1 |
+            +----+----+
+            | A2 |
+            +----+
+        """
         self._test_table(src, exp_output)
 
     def test_adjacent_transparent_cells_in_bottom_left_corner(self):
         # More adjacent transparent cells
-        src = (
-            '{ =h H1 | =h H2 | =h H3 }',
-            '{ =t,r2 | =h B1 | =h C1 }',
-            '{         =t    | C2 }',
-        )
-        exp_output = [
-            '+----+----+----+',
-            '| H1 | H2 | H3 |',
-            '+----+----+----+',
-            '     | B1 | C1 |',
-            '     +----+----+',
-            '          | C2 |',
-            '          +----+',
-        ]
+        src = """
+            { =h H1 | =h H2 | =h H3 }
+            { =t,r2 | =h B1 | =h C1 }
+            {         =t    | C2 }
+        """
+        exp_output = """
+            +----+----+----+
+            | H1 | H2 | H3 |
+            +----+----+----+
+                 | B1 | C1 |
+                 +----+----+
+                      | C2 |
+                      +----+
+        """
         self._test_table(src, exp_output)
 
     def test_short_header_row_ending_with_transparent_cell(self):
         # Short header row ending with a (redundant) transparent cell
-        src = (
-            '{ =h A1 | =t }',
-            '{ A2 | B2 | C2 }',
-        )
-        exp_output = [
-            '+----+',
-            '| A1 |',
-            '+----+----+----+',
-            '| A2 | B2 | C2 |',
-            '+----+----+----+',
-        ]
+        src = """
+            { =h A1 | =t }
+            { A2 | B2 | C2 }
+        """
+        exp_output = """
+            +----+
+            | A1 |
+            +----+----+----+
+            | A2 | B2 | C2 |
+            +----+----+----+
+        """
         self._test_table(src, exp_output)
 
     def test_transparent_cell_in_last_column_of_middle_row(self):
         # Transparent cell in the last column between the top and bottom rows
-        src = (
-            '{ =h A1 | =h B1 | =h C1 }',
-            '{ =h A2 | =h B2 | =t }',
-            '{ A3 | B3 | C3 }',
-        )
-        exp_output = [
-            '+----+----+----+',
-            '| A1 | B1 | C1 |',
-            '+----+----+----+',
-            '| A2 | B2 |',
-            '+----+----+----+',
-            '| A3 | B3 | C3 |',
-            '+----+----+----+',
-        ]
+        src = """
+            { =h A1 | =h B1 | =h C1 }
+            { =h A2 | =h B2 | =t }
+            { A3 | B3 | C3 }
+        """
+        exp_output = """
+            +----+----+----+
+            | A1 | B1 | C1 |
+            +----+----+----+
+            | A2 | B2 |
+            +----+----+----+
+            | A3 | B3 | C3 |
+            +----+----+----+
+        """
         self._test_table(src, exp_output)
 
     def test_transparent_cell_in_middle_column_of_bottom_row(self):
         # Transparent cell in the bottom row between the first and last columns
-        src = (
-            '{ =h A1 | =h B1 | =h C1 }',
-            '{ =h A2 | =h B2 | =h C2 }',
-            '{ A3 | =t | C3 }',
-        )
-        exp_output = [
-            '+----+----+----+',
-            '| A1 | B1 | C1 |',
-            '+----+----+----+',
-            '| A2 | B2 | C2 |',
-            '+----+----+----+',
-            '| A3 |    | C3 |',
-            '+----+    +----+',
-        ]
+        src = """
+            { =h A1 | =h B1 | =h C1 }
+            { =h A2 | =h B2 | =h C2 }
+            { A3 | =t | C3 }
+        """
+        exp_output = """
+            +----+----+----+
+            | A1 | B1 | C1 |
+            +----+----+----+
+            | A2 | B2 | C2 |
+            +----+----+----+
+            | A3 |    | C3 |
+            +----+    +----+
+        """
         self._test_table(src, exp_output)
 
     def test_transparent_cell_in_first_column_of_middle_row(self):
         # Transparent cell in the first column between the top and bottom rows
-        src = (
-            '{ =h A1 | =h B1 | =h C1 }',
-            '{ =t | =h B2 | =h C2 }',
-            '{ A3 | B3 | C3 }',
-        )
-        exp_output = [
-            '+----+----+----+',
-            '| A1 | B1 | C1 |',
-            '+----+----+----+',
-            '     | B2 | C2 |',
-            '+----+----+----+',
-            '| A3 | B3 | C3 |',
-            '+----+----+----+',
-        ]
+        src = """
+            { =h A1 | =h B1 | =h C1 }
+            { =t | =h B2 | =h C2 }
+            { A3 | B3 | C3 }
+        """
+        exp_output = """
+            +----+----+----+
+            | A1 | B1 | C1 |
+            +----+----+----+
+                 | B2 | C2 |
+            +----+----+----+
+            | A3 | B3 | C3 |
+            +----+----+----+
+        """
         self._test_table(src, exp_output)
 
     def test_transparent_cell_in_middle_column_of_top_row(self):
         # Transparent cell in the top row between the first and last columns
-        src = (
-            '{ =h A1 | =t | =h C1 }',
-            '{ =h A2 | =h B2 | =h C2 }',
-            '{ A3 | B3 | C3 }',
-        )
-        exp_output = [
-            '+----+    +----+',
-            '| A1 |    | C1 |',
-            '+----+----+----+',
-            '| A2 | B2 | C2 |',
-            '+----+----+----+',
-            '| A3 | B3 | C3 |',
-            '+----+----+----+',
-        ]
+        src = """
+            { =h A1 | =t | =h C1 }
+            { =h A2 | =h B2 | =h C2 }
+            { A3 | B3 | C3 }
+        """
+        exp_output = """
+            +----+    +----+
+            | A1 |    | C1 |
+            +----+----+----+
+            | A2 | B2 | C2 |
+            +----+----+----+
+            | A3 | B3 | C3 |
+            +----+----+----+
+        """
         self._test_table(src, exp_output)
 
     def test_header_cell_with_rowspan_2_and_wrapped_contents_in_first_column(self):
         # Header cell with rowspan > 1 and wrapped contents in the first column
-        src = (
-            '(,:w)',
-            '{ =h,r2 The contents of this cell are wrapped onto two lines because of their excessive length | =h B1 }',
-            '{ =h B2 }',
-        )
-        exp_output = [
-            '+-----------------------------------------------------------------+----+',
-            '| The contents of this cell are wrapped onto two lines because of | B1 |',
-            '| their excessive length                                          +----+',
-            '|                                                                 | B2 |',
-            '+-----------------------------------------------------------------+----+',
-        ]
+        src = """
+            (,:w)
+            { =h,r2 The contents of this cell are wrapped onto two lines because of their excessive length | =h B1 }
+            { =h B2 }
+        """
+        exp_output = """
+            +-----------------------------------------------------------------+----+
+            | The contents of this cell are wrapped onto two lines because of | B1 |
+            | their excessive length                                          +----+
+            |                                                                 | B2 |
+            +-----------------------------------------------------------------+----+
+        """
         self._test_table(src, exp_output)
 
     def test_header_cell_with_rowspan_2_and_wrapped_contents_in_last_column(self):
         # Header cell with rowspan > 1 and wrapped contents in the last column
-        src = (
-            '(,,:w)',
-            '; { =h A1 | =h,r2 The contents of this cell are wrapped onto two lines because of their excessive length }',
-            '; { =h A2 }',
-        )
-        exp_output = [
-            '+----+-----------------------------------------------------------------+',
-            '| A1 | The contents of this cell are wrapped onto two lines because of |',
-            '+----+ their excessive length                                          |',
-            '| A2 |                                                                 |',
-            '+----+-----------------------------------------------------------------+',
-        ]
+        src = """
+            (,,:w)
+            ; { =h A1 | =h,r2 The contents of this cell are wrapped onto two lines because of their excessive length }
+            ; { =h A2 }
+        """
+        exp_output = """
+            +----+-----------------------------------------------------------------+
+            | A1 | The contents of this cell are wrapped onto two lines because of |
+            +----+ their excessive length                                          |
+            | A2 |                                                                 |
+            +----+-----------------------------------------------------------------+
+        """
         self._test_table(src, exp_output)
 
     def test_header_cell_with_rowspan_2_and_wrapped_contents_in_middle_column(self):
         # Header cell with rowspan > 1 and wrapped contents in the middle column
-        src = (
-            '(,,:w)',
-            '{ =h A1 | =h,r2 The contents of this cell are wrapped onto two lines because of their excessive length | =h C1 }',
-            '{ =h A2 | =h C2 }',
-        )
-        exp_output = [
-            '+----+-----------------------------------------------------------------+----+',
-            '| A1 | The contents of this cell are wrapped onto two lines because of | C1 |',
-            '+----+ their excessive length                                          +----+',
-            '| A2 |                                                                 | C2 |',
-            '+----+-----------------------------------------------------------------+----+',
-        ]
+        src = """
+            (,,:w)
+            { =h A1 | =h,r2 The contents of this cell are wrapped onto two lines because of their excessive length | =h C1 }
+            { =h A2 | =h C2 }
+        """
+        exp_output = """
+            +----+-----------------------------------------------------------------+----+
+            | A1 | The contents of this cell are wrapped onto two lines because of | C1 |
+            +----+ their excessive length                                          +----+
+            | A2 |                                                                 | C2 |
+            +----+-----------------------------------------------------------------+----+
+        """
         self._test_table(src, exp_output)
 
     def test_empty_table(self):
-        self._test_table((), [])
+        self._test_table('', '')
 
     def test_nested_macros(self):
         writer = self._get_writer()
@@ -2107,12 +2079,12 @@ class TableMacroTest(SkoolKitTestCase):
             '{ A }',
             'TABLE#'
         ))
-        exp_output = [
-            '+---+',
-            '| A |',
-            '+---+'
-        ]
-        self.assertEqual(exp_output, writer.format(macro, 79))
+        exp_output = """
+            +---+
+            | A |
+            +---+
+        """
+        self.assertEqual(dedent(exp_output).strip(), '\n'.join(writer.format(macro, 79)))
 
     def test_missing_end_marker(self):
         writer = self._get_writer()
@@ -2121,53 +2093,53 @@ class TableMacroTest(SkoolKitTestCase):
 
     def test_no_closing_bracket_in_css_class_list(self):
         # No closing ')' in CSS class list
-        skool = '\n'.join((
-            '@start',
-            '; Routine',
-            ';',
-            '; #TABLE(class1,class2,',
-            '; { Hi }',
-            '; TABLE#',
-            'c32768 RET',
-        ))
-        error = '\n'.join((
-            "Cannot find closing ')' in table CSS class list:",
-            '(class1,class2, { Hi } TABLE#',
-        ))
+        skool = """
+            @start
+            ; Routine
+            ;
+            ; #TABLE(class1,class2,
+            ; { Hi }
+            ; TABLE#
+            c32768 RET
+        """
+        error = """
+            Cannot find closing ')' in table CSS class list:
+            (class1,class2, { Hi } TABLE#
+        """
         self._assert_error(skool, error)
 
     def test_no_space_after_opening_brace(self):
         # No space after the opening '{'
-        skool = '\n'.join((
-            '@start',
-            '; Routine',
-            ';',
-            '; #TABLE',
-            '; {Lo }',
-            '; TABLE#',
-            'c49152 RET',
-        ))
-        error = '\n'.join((
-            "Cannot find opening '{ ' in table row:",
-            '{Lo } TABLE#',
-        ))
+        skool = """
+            @start
+            ; Routine
+            ;
+            ; #TABLE
+            ; {Lo }
+            ; TABLE#
+            c49152 RET
+        """
+        error = """
+            Cannot find opening '{ ' in table row:
+            {Lo } TABLE#
+        """
         self._assert_error(skool, error)
 
     def test_no_space_before_closing_brace(self):
         # No space before the closing '}'
-        skool = '\n'.join((
-            '@start',
-            '; Routine',
-            ';',
-            '; #TABLE',
-            '; { Yo}',
-            '; TABLE#',
-            'c24576 RET',
-        ))
-        error = '\n'.join((
-            "Cannot find closing ' }' in table row:",
-            '{ Yo} TABLE#',
-        ))
+        skool = """
+            @start
+            ; Routine
+            ;
+            ; #TABLE
+            ; { Yo}
+            ; TABLE#
+            c24576 RET
+        """
+        error = """
+            Cannot find closing ' }' in table row:
+            { Yo} TABLE#
+        """
         self._assert_error(skool, error)
 
 class ListMacroTest(SkoolKitTestCase):
@@ -2183,44 +2155,44 @@ class ListMacroTest(SkoolKitTestCase):
 
     def _assert_error(self, skool, error):
         self.clear_streams()
-        writer = self._get_writer(skool)
+        writer = self._get_writer(dedent(skool).strip())
         with self.assertRaises(SkoolParsingError) as cm:
             writer.write()
-        self.assertEqual(cm.exception.args[0], error)
+        self.assertEqual(cm.exception.args[0], dedent(error).strip())
 
     def _test_list(self, src_lines, exp_output, bullet='*'):
         writer = self._get_writer()
         writer.bullet = bullet
-        list_src = '#LIST{}\nLIST#'.format('\n'.join(src_lines))
+        list_src = '#LIST{}\nLIST#'.format(dedent(src_lines).strip())
         output = writer.format(list_src, 79)
-        self.assertEqual(exp_output, output)
+        self.assertEqual(dedent(exp_output).strip(), '\n'.join(output))
 
     def test_wrapped_item(self):
-        src = (
-            '(data)',
-            '{ Really long item that should end up being wrapped onto two lines when rendered in ASM mode }',
-            '{ Short item with a skool macro: #REGa }',
-        )
-        exp_output = [
-            '* Really long item that should end up being wrapped onto two lines when',
-            '  rendered in ASM mode',
-            '* Short item with a skool macro: A',
-        ]
+        src = """
+            (data)
+            { Really long item that should end up being wrapped onto two lines when rendered in ASM mode }
+            { Short item with a skool macro: #REGa }
+        """
+        exp_output = """
+            * Really long item that should end up being wrapped onto two lines when
+              rendered in ASM mode
+            * Short item with a skool macro: A
+        """
         self._test_list(src, exp_output)
 
     def test_bullet(self):
-        src = (
-            '{ First item }',
-            '{ Second item }',
-        )
-        exp_output = [
-            '-- First item',
-            '-- Second item',
-        ]
+        src = """
+            { First item }
+            { Second item }
+        """
+        exp_output = """
+            -- First item
+            -- Second item
+        """
         self._test_list(src, exp_output, '--')
 
     def test_empty_list(self):
-        self._test_list((), [])
+        self._test_list('', '')
 
     def test_nested_macros(self):
         writer = self._get_writer()
@@ -2238,53 +2210,53 @@ class ListMacroTest(SkoolKitTestCase):
 
     def test_no_closing_bracket_in_parameter_list(self):
         # No closing ')' in parameter list
-        skool = '\n'.join((
-            '@start',
-            '; Routine',
-            ';',
-            '; #LIST(default',
-            '; { Item 1 }',
-            '; LIST#',
-            'c32768 RET',
-        ))
-        error = '\n'.join((
-            "Cannot find closing ')' in parameter list:",
-            '(default { Item 1 } LIST#',
-        ))
+        skool = """
+            @start
+            ; Routine
+            ;
+            ; #LIST(default
+            ; { Item 1 }
+            ; LIST#
+            c32768 RET
+        """
+        error = """
+            Cannot find closing ')' in parameter list:
+            (default { Item 1 } LIST#
+        """
         self._assert_error(skool, error)
 
     def test_no_space_after_opening_brace(self):
         # No space after the opening '{'
-        skool = '\n'.join((
-            '@start',
-            '; Routine',
-            ';',
-            '; #LIST',
-            '; {Item }',
-            '; LIST#',
-            'c40000 RET',
-        ))
-        error = '\n'.join((
-            "Cannot find opening '{ ' in list item:",
-            '{Item } LIST#',
-        ))
+        skool = """
+            @start
+            ; Routine
+            ;
+            ; #LIST
+            ; {Item }
+            ; LIST#
+            c40000 RET
+        """
+        error = """
+            Cannot find opening '{ ' in list item:
+            {Item } LIST#
+        """
         self._assert_error(skool, error)
 
     def test_no_space_before_closing_brace(self):
         # No space before the closing '}'
-        skool = '\n'.join((
-            '@start',
-            '; Routine',
-            ';',
-            '; #LIST',
-            '; { Item}',
-            '; LIST#',
-            'c50000 RET',
-        ))
-        error = '\n'.join((
-            "Cannot find closing ' }' in list item:",
-            '{ Item} LIST#',
-        ))
+        skool = """
+            @start
+            ; Routine
+            ;
+            ; #LIST
+            ; { Item}
+            ; LIST#
+            c50000 RET
+        """
+        error = """
+            Cannot find closing ' }' in list item:
+            { Item} LIST#
+        """
         self._assert_error(skool, error)
 
 if __name__ == '__main__':
