@@ -1,3 +1,4 @@
+import textwrap
 import unittest
 
 from skoolkittest import SkoolKitTestCase
@@ -5,7 +6,7 @@ from skoolkit.refparser import RefParser
 
 class RefParserTest(SkoolKitTestCase):
     def _get_parser(self, contents):
-        reffile = self.write_text_file(contents, suffix='.ref')
+        reffile = self.write_text_file(textwrap.dedent(contents).strip(), suffix='.ref')
         ref_parser = RefParser()
         ref_parser.parse(reffile)
         return ref_parser
@@ -16,22 +17,22 @@ class RefParserTest(SkoolKitTestCase):
         self.assertFalse(ref_parser.has_section('NonexistentSection'))
 
     def test_has_sections(self):
-        ref = '\n'.join((
-            '[Prefix:1]',
-            'Foo',
-            '[Prefix:2]',
-            'Bar'
-        ))
+        ref = """
+            [Prefix:1]
+            Foo
+            [Prefix:2]
+            Bar
+        """
         ref_parser = self._get_parser(ref)
         self.assertTrue(ref_parser.has_sections('Prefix'))
         self.assertFalse(ref_parser.has_sections('NonexistentPrefix'))
 
     def test_get_dictionary(self):
-        ref = '\n'.join((
-            '[Section]',
-            '1=Foo',
-            'Blah=Bar'
-        ))
+        ref = """
+            [Section]
+            1=Foo
+            Blah=Bar
+        """
         ref_parser = self._get_parser(ref)
         section_dict = ref_parser.get_dictionary('Section')
         self.assertIn(1, section_dict)
@@ -40,12 +41,12 @@ class RefParserTest(SkoolKitTestCase):
         self.assertEqual(section_dict['Blah'], 'Bar')
 
     def test_get_dictionary_with_invalid_line(self):
-        ref = '\n'.join((
-            '[Section]',
-            'Blah=Foo',
-            'Bar',
-            'Baz=Qux'
-        ))
+        ref = """
+            [Section]
+            Blah=Foo
+            Bar
+            Baz=Qux
+        """
         ref_parser = self._get_parser(ref)
         section_dict = ref_parser.get_dictionary('Section')
         self.assertIn('Blah', section_dict)
@@ -53,14 +54,14 @@ class RefParserTest(SkoolKitTestCase):
         self.assertIn('Baz', section_dict)
 
     def test_get_dictionaries(self):
-        ref = '\n'.join((
-            '[Section:Foo]',
-            'A=B=C',
-            '[Section:Bar]',
-            'baz=qux',
-            '[Section]',
-            'x=y'
-        ))
+        ref = """
+            [Section:Foo]
+            A=B=C
+            [Section:Bar]
+            baz=qux
+            [Section]
+            x=y
+        """
         ref_parser = self._get_parser(ref)
         section_dicts = ref_parser.get_dictionaries('Section')
         self.assertEqual(len(section_dicts), 2)
@@ -76,33 +77,33 @@ class RefParserTest(SkoolKitTestCase):
         self.assertEqual(dict2['baz'], 'qux')
 
     def test_get_section(self):
-        ref = '\n'.join((
-            '[Apple]',
-            'Line 1',
-            'Line 2'
-        ))
+        ref = """
+            [Apple]
+            Line 1
+            Line 2
+        """
         ref_parser = self._get_parser(ref)
         section = ref_parser.get_section('Apple')
         self.assertEqual(section, 'Line 1\nLine 2')
 
     def test_get_section_as_lines(self):
-        ref = '\n'.join((
-            '[Apple]',
-            'Line 1',
-            'Line 2'
-        ))
+        ref = """
+            [Apple]
+            Line 1
+            Line 2
+        """
         ref_parser = self._get_parser(ref)
         section = ref_parser.get_section('Apple', lines=True)
         self.assertEqual(section, ['Line 1', 'Line 2'])
 
     def test_get_section_as_paragraphs(self):
-        ref = '\n'.join((
-            '[Apple]',
-            'P1, L1',
-            'P1, L2',
-            '',
-            'P2, L1'
-        ))
+        ref = """
+            [Apple]
+            P1, L1
+            P1, L2
+
+            P2, L1
+        """
         ref_parser = self._get_parser(ref)
         paragraphs = ref_parser.get_section('Apple', paragraphs=True)
         self.assertEqual(len(paragraphs), 2)
@@ -110,13 +111,13 @@ class RefParserTest(SkoolKitTestCase):
         self.assertEqual(paragraphs[1], 'P2, L1')
 
     def test_get_section_as_paragraphs_and_lines(self):
-        ref = '\n'.join((
-            '[Apple]',
-            'P1, L1',
-            'P1, L2',
-            '',
-            'P2, L1'
-        ))
+        ref = """
+            [Apple]
+            P1, L1
+            P1, L2
+
+            P2, L1
+        """
         ref_parser = self._get_parser(ref)
         paragraphs = ref_parser.get_section('Apple', paragraphs=True, lines=True)
         self.assertEqual(len(paragraphs), 2)
@@ -129,12 +130,12 @@ class RefParserTest(SkoolKitTestCase):
         self.assertEqual(section, '')
 
     def test_get_sections(self):
-        ref = '\n'.join((
-            '[Prefix:1]',
-            'Foo',
-            '[Prefix:2]',
-            'Bar'
-        ))
+        ref = """
+            [Prefix:1]
+            Foo
+            [Prefix:2]
+            Bar
+        """
         ref_parser = self._get_parser(ref)
         sections = ref_parser.get_sections('Prefix')
         self.assertEqual(len(sections), 2)
@@ -150,12 +151,12 @@ class RefParserTest(SkoolKitTestCase):
         self.assertEqual(section2, 'Bar')
 
     def test_get_sections_with_two_colons(self):
-        ref = '\n'.join((
-            '[Prefix:1:A]',
-            'Foo',
-            '[Prefix:2:B]',
-            'Bar'
-        ))
+        ref = """
+            [Prefix:1:A]
+            Foo
+            [Prefix:2:B]
+            Bar
+        """
         ref_parser = self._get_parser(ref)
         sections = ref_parser.get_sections('Prefix')
         self.assertEqual(len(sections), 2)
@@ -187,23 +188,23 @@ class RefParserTest(SkoolKitTestCase):
         self.assertEqual(foo['Q'], '0')
 
     def test_section_content_is_trimmed(self):
-        ref = '\n'.join((
-            '[Xyzzy]',
-            'Hi',
-            '',
-            ''
-        ))
+        ref = """
+            [Xyzzy]
+            Hi
+
+
+        """
         ref_parser = self._get_parser(ref)
         section = ref_parser.get_section('Xyzzy')
         self.assertEqual(section, 'Hi')
 
     def test_comment(self):
-        ref = '\n'.join((
-            '[Foo]',
-            '; This is a comment',
-            'Bar',
-            '; This is another comment'
-        ))
+        ref = """
+            [Foo]
+            ; This is a comment
+            Bar
+            ; This is another comment
+        """
         ref_parser = self._get_parser(ref)
         section = ref_parser.get_section('Foo')
         self.assertEqual(section, 'Bar')
@@ -215,33 +216,33 @@ class RefParserTest(SkoolKitTestCase):
         self.assertEqual(section, '; This is not a comment')
 
     def test_unclosed_section_header(self):
-        ref = '\n'.join((
-            '[Foo',
-            'Bar',
-            '[Baz]',
-            'Qux'
-        ))
+        ref = """
+            [Foo
+            Bar
+            [Baz]
+            Qux
+        """
         ref_parser = self._get_parser(ref)
         self.assertEqual(ref_parser.get_section('Foo'), '')
         self.assertEqual(ref_parser.get_section('Baz'), 'Qux')
 
     def test_escaped_square_brackets(self):
-        ref = '\n'.join((
-            '[Foo]',
-            'Bar',
-            '[[Baz]',
-            'Qux',
-            '[[Xyzzy'
-        ))
-        exp_contents = '\n'.join((
-            'Bar',
-            '[Baz]',
-            'Qux',
-            '[Xyzzy'
-        ))
+        ref = """
+            [Foo]
+            Bar
+            [[Baz]
+            Qux
+            [[Xyzzy
+        """
+        exp_contents = """
+            Bar
+            [Baz]
+            Qux
+            [Xyzzy
+        """
         ref_parser = self._get_parser(ref)
         section = ref_parser.get_section('Foo')
-        self.assertEqual(exp_contents, section)
+        self.assertEqual(textwrap.dedent(exp_contents).strip(), section)
 
 if __name__ == '__main__':
     unittest.main()
