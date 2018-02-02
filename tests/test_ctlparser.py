@@ -1,3 +1,4 @@
+import textwrap
 import unittest
 
 from skoolkittest import SkoolKitTestCase
@@ -45,7 +46,7 @@ T 30730,15,10:B5"""
 class CtlParserTest(SkoolKitTestCase):
     def _get_ctl_parser(self, ctl, min_address=0, max_address=65536):
         ctl_parser = CtlParser()
-        ctlfile = self.write_text_file(ctl)
+        ctlfile = self.write_text_file(textwrap.dedent(ctl).strip())
         ctl_parser.parse_ctl(ctlfile, min_address, max_address)
         return ctl_parser
 
@@ -459,11 +460,11 @@ class CtlParserTest(SkoolKitTestCase):
         self._check_instruction_asm_directives(exp_instruction_asm_directives, blocks)
 
     def test_blank_directive_out_of_order(self):
-        ctl = '\n'.join((
-            'c 65534',
-            'b 65535',
-            '  65534,1 This is a C directive'
-        ))
+        ctl = """
+            c 65534
+            b 65535
+              65534,1 This is a C directive
+        """
         blocks = self._get_ctl_parser(ctl).get_blocks()
 
         exp_subctls = {
@@ -473,12 +474,12 @@ class CtlParserTest(SkoolKitTestCase):
         self._check_subctls(exp_subctls, blocks)
 
     def test_blank_directive_with_no_containing_block(self):
-        ctl = '\n'.join((
-            '  30000',
-            'b 30001'
-        ))
+        ctl = """
+              30000
+            b 30001
+        """
         ctl_parser = CtlParser()
-        ctlfile = self.write_text_file(ctl)
+        ctlfile = self.write_text_file(textwrap.dedent(ctl))
         ctl_parser.parse_ctl(ctlfile)
 
         warnings = self.err.getvalue().split('\n')[0:-1:2]
@@ -800,29 +801,29 @@ class CtlParserTest(SkoolKitTestCase):
         self.assertEqual(invalid_ctls, warnings[1::2])
 
     def test_comments(self):
-        ctl = '\n'.join((
-            '# This is a comment',
-            'b 32768',
-            '% This is also a comment',
-            'w 32769',
-            '; This is a comment too'
-        ))
+        ctl = """
+            # This is a comment
+            b 32768
+            % This is also a comment
+            w 32769
+            ; This is a comment too
+        """
         ctl_parser = self._get_ctl_parser(ctl)
 
         self.assertEqual(self.err.getvalue(), '')
         self._check_ctls({32768: 'b', 32769: 'w'}, ctl_parser.get_blocks())
 
     def test_bases(self):
-        ctl = '\n'.join((
-            'c 50000 Test numeric instruction operand bases',
-            '  50000,b',
-            '  50002,h2',
-            '  50006,hb',
-            '  50010,6,d2,nb4',
-            '  50016,,c2,dc4',
-            '  50022,6,b2',
-            '  50028,b6,n2,2,h2'
-        ))
+        ctl = """
+            c 50000 Test numeric instruction operand bases
+              50000,b
+              50002,h2
+              50006,hb
+              50010,6,d2,nb4
+              50016,,c2,dc4
+              50022,6,b2
+              50028,b6,n2,2,h2
+        """
         ctl_parser = self._get_ctl_parser(ctl)
 
         exp_sublengths = {
@@ -843,20 +844,20 @@ class CtlParserTest(SkoolKitTestCase):
         self._check_sublengths(exp_sublengths, ctl_parser.get_blocks())
 
     def test_byte_formats(self):
-        ctl = '\n'.join((
-            'b 40000 Test byte formats',
-            '  40000,b 5 bytes in binary format',
-            '  40005,b5 5 more bytes in binary format',
-            'B 40010,b10,5,d3,h2 5 binary, 3 decimal, 2 hex',
-            'B 40020,b,2:d3:h5 2 binary, 3 decimal, 5 hex, one line',
-            '  40030,,b6,3,h1 6 binary, 3 default, 1 hex',
-            '  40040,10,b5:2:h3 5 binary, 2 default, 3 hex, one line',
-            '  40050,10,1,T9 1 default, 9 text',
-            '  40060,10,h4:T6 4 hex, 6 text, one line',
-            'T 40070,10,3,b7 3 text, 7 binary',
-            'T 40080,10,2:h8 2 text, 8 hex, one line',
-            'T 40090,10,5,B5 5 text, 5 default'
-        ))
+        ctl = """
+            b 40000 Test byte formats
+              40000,b 5 bytes in binary format
+              40005,b5 5 more bytes in binary format
+            B 40010,b10,5,d3,h2 5 binary, 3 decimal, 2 hex
+            B 40020,b,2:d3:h5 2 binary, 3 decimal, 5 hex, one line
+              40030,,b6,3,h1 6 binary, 3 default, 1 hex
+              40040,10,b5:2:h3 5 binary, 2 default, 3 hex, one line
+              40050,10,1,T9 1 default, 9 text
+              40060,10,h4:T6 4 hex, 6 text, one line
+            T 40070,10,3,b7 3 text, 7 binary
+            T 40080,10,2:h8 2 text, 8 hex, one line
+            T 40090,10,5,B5 5 text, 5 default
+        """
         ctl_parser = self._get_ctl_parser(ctl)
 
         exp_sublengths = {
@@ -883,15 +884,15 @@ class CtlParserTest(SkoolKitTestCase):
         self._check_sublengths(exp_sublengths, ctl_parser.get_blocks())
 
     def test_word_formats(self):
-        ctl = '\n'.join((
-            'w 40000 Test word formats',
-            '  40000,10 5 default',
-            '  40010,b10 5 words in binary format',
-            'W 40020,b10,6,d2,h2 3 binary, 1 decimal, 1 hex',
-            'W 40030,b10,4:d4:h2 2 binary, 2 decimal, 1 hex, one line',
-            '  40040,10,b2,4,h4 1 binary, 2 default, 2 hex',
-            '  40050,10,b2:6:h2 1 binary, 3 default, 1 hex, one line',
-        ))
+        ctl = """
+            w 40000 Test word formats
+              40000,10 5 default
+              40010,b10 5 words in binary format
+            W 40020,b10,6,d2,h2 3 binary, 1 decimal, 1 hex
+            W 40030,b10,4:d4:h2 2 binary, 2 decimal, 1 hex, one line
+              40040,10,b2,4,h4 1 binary, 2 default, 2 hex
+              40050,10,b2:6:h2 1 binary, 3 default, 1 hex, one line
+        """
         ctl_parser = self._get_ctl_parser(ctl)
 
         exp_sublengths = {
@@ -910,23 +911,23 @@ class CtlParserTest(SkoolKitTestCase):
         self._check_sublengths(exp_sublengths, ctl_parser.get_blocks())
 
     def test_s_directives(self):
-        ctl = '\n'.join((
-            's 50000 Test s/S directives',
-            '  50000,10',
-            '  50010,b10',
-            '  50020,d10',
-            '  50030,h10',
-            'S 50040,b20,5,d5,h5',
-            'S 50060,d20,b5,5,h5',
-            'S 50080,h20,b5,d5,5',
-            '  50100,20,b5,d5,5',
-            '  50120,20,d20:b%10001000',
-            '  50140,20,20:h$44',
-            '  50160,12,10:h10,h2:2',
-            '  50172,8,2:c",",2:c";",4:c"!"',
-            '  50180,70,5:c"*"*2,58:c":",2:c" "',
-            '  50250,10,4:c"\\"",6:c"\\\\"'
-        ))
+        ctl = """
+            s 50000 Test s/S directives
+              50000,10
+              50010,b10
+              50020,d10
+              50030,h10
+            S 50040,b20,5,d5,h5
+            S 50060,d20,b5,5,h5
+            S 50080,h20,b5,d5,5
+              50100,20,b5,d5,5
+              50120,20,d20:b%10001000
+              50140,20,20:h$44
+              50160,12,10:h10,h2:2
+              50172,8,2:c",",2:c";",4:c"!"
+              50180,70,5:c"*"*2,58:c":",2:c" "
+              50250,10,4:c"\\"",6:c"\\\\"
+        """
         ctl_parser = self._get_ctl_parser(ctl)
 
         exp_sublengths = {
@@ -964,11 +965,11 @@ class CtlParserTest(SkoolKitTestCase):
         self._check_sublengths(exp_sublengths, ctl_parser.get_blocks())
 
     def test_assemble_directives(self):
-        ctl = '\n'.join((
-            '@ 30000 assemble=1',
-            'c 30000 Routine at 30000',
-            '@ 30001 assemble=0'
-        ))
+        ctl = """
+            @ 30000 assemble=1
+            c 30000 Routine at 30000
+            @ 30001 assemble=0
+        """
         blocks = self._get_ctl_parser(ctl).get_blocks()
 
         exp_entry_directives = {
@@ -982,11 +983,11 @@ class CtlParserTest(SkoolKitTestCase):
         self._check_instruction_asm_directives(exp_instruction_directives, blocks)
 
     def test_bfix_directives(self):
-        ctl = '\n'.join((
-            '@ 40000 bfix=XOR A',
-            'c 40000 Routine at 40000',
-            '@ 40001 bfix=XOR B'
-        ))
+        ctl = """
+            @ 40000 bfix=XOR A
+            c 40000 Routine at 40000
+            @ 40001 bfix=XOR B
+        """
         blocks = self._get_ctl_parser(ctl).get_blocks()
 
         exp_entry_directives = {
@@ -1000,12 +1001,12 @@ class CtlParserTest(SkoolKitTestCase):
         self._check_instruction_asm_directives(exp_instruction_directives, blocks)
 
     def test_end_directives(self):
-        ctl = '\n'.join((
-            'c 40000 Routine at 40000',
-            '@ 40001 end',
-            '@ 40002 end',
-            'c 40002 Routine at 40002'
-        ))
+        ctl = """
+            c 40000 Routine at 40000
+            @ 40001 end
+            @ 40002 end
+            c 40002 Routine at 40002
+        """
         blocks = self._get_ctl_parser(ctl).get_blocks()
 
         exp_entry_directives = {
@@ -1019,11 +1020,11 @@ class CtlParserTest(SkoolKitTestCase):
         self._check_instruction_asm_directives(exp_instruction_directives, blocks)
 
     def test_equ_directives(self):
-        ctl = '\n'.join((
-            '@ 50000 equ=ATTRS=22528',
-            'c 50000 Routine at 50000',
-            '@ 50001 equ=UDG=23675'
-        ))
+        ctl = """
+            @ 50000 equ=ATTRS=22528
+            c 50000 Routine at 50000
+            @ 50001 equ=UDG=23675
+        """
         blocks = self._get_ctl_parser(ctl).get_blocks()
 
         exp_entry_directives = {
@@ -1036,29 +1037,29 @@ class CtlParserTest(SkoolKitTestCase):
         self._check_instruction_asm_directives(exp_instruction_directives, blocks)
 
     def test_ignoreua_directives(self):
-        ctl = '\n'.join((
-            '@ 30000 ignoreua:t',
-            'c 30000 Routine at 30000',
-            'c 30001 Routine',
-            '@ 30001 ignoreua:d',
-            'D 30001 Description of the routine at 30001',
-            '@ 30001 ignoreua:r',
-            'R 30001 HL 30001',
-            '@ 30001 ignoreua',
-            '  30001 Instruction-level comment at 30001',
-            'c 30002 Routine',
-            '@ 30003 ignoreua:m',
-            'N 30003 Mid-block comment above 30003.',
-            '@ 30003 ignoreua:i',
-            '  30003 Instruction-level comment at 30003',
-            'c 30004 Routine',
-            '@ 30004 ignoreua:i',
-            '  30004,1 Instruction-level comment at 30004',
-            '@ 30005 ignoreua:m',
-            'N 30005 Mid-block comment above 30005.',
-            '@ 30004 ignoreua:e',
-            'E 30004 End comment for the routine at 30004.'
-        ))
+        ctl = """
+            @ 30000 ignoreua:t
+            c 30000 Routine at 30000
+            c 30001 Routine
+            @ 30001 ignoreua:d
+            D 30001 Description of the routine at 30001
+            @ 30001 ignoreua:r
+            R 30001 HL 30001
+            @ 30001 ignoreua
+              30001 Instruction-level comment at 30001
+            c 30002 Routine
+            @ 30003 ignoreua:m
+            N 30003 Mid-block comment above 30003.
+            @ 30003 ignoreua:i
+              30003 Instruction-level comment at 30003
+            c 30004 Routine
+            @ 30004 ignoreua:i
+              30004,1 Instruction-level comment at 30004
+            @ 30005 ignoreua:m
+            N 30005 Mid-block comment above 30005.
+            @ 30004 ignoreua:e
+            E 30004 End comment for the routine at 30004.
+        """
         blocks = self._get_ctl_parser(ctl).get_blocks()
 
         exp_entry_directives = {
@@ -1077,11 +1078,11 @@ class CtlParserTest(SkoolKitTestCase):
         self._check_ignoreua_directives(exp_entry_directives, exp_other_directives, blocks)
 
     def test_isub_directives(self):
-        ctl = '\n'.join((
-            '@ 40000 isub=LD A,1',
-            'c 40000 Routine at 40000',
-            '@ 40002 isub=LD A,2'
-        ))
+        ctl = """
+            @ 40000 isub=LD A,1
+            c 40000 Routine at 40000
+            @ 40002 isub=LD A,2
+        """
         blocks = self._get_ctl_parser(ctl).get_blocks()
 
         exp_entry_directives = {
@@ -1095,11 +1096,11 @@ class CtlParserTest(SkoolKitTestCase):
         self._check_instruction_asm_directives(exp_instruction_directives, blocks)
 
     def test_keep_directives(self):
-        ctl = '\n'.join((
-            '@ 50000 keep',
-            'c 50000 Routine at 50000',
-            '@ 50003 keep'
-        ))
+        ctl = """
+            @ 50000 keep
+            c 50000 Routine at 50000
+            @ 50003 keep
+        """
         blocks = self._get_ctl_parser(ctl).get_blocks()
 
         exp_entry_directives = {
@@ -1113,11 +1114,11 @@ class CtlParserTest(SkoolKitTestCase):
         self._check_instruction_asm_directives(exp_instruction_directives, blocks)
 
     def test_label_directives(self):
-        ctl = '\n'.join((
-            '@ 60000 label=START',
-            'c 60000 Routine at 60000',
-            '@ 60003 label=LOOP'
-        ))
+        ctl = """
+            @ 60000 label=START
+            c 60000 Routine at 60000
+            @ 60003 label=LOOP
+        """
         blocks = self._get_ctl_parser(ctl).get_blocks()
 
         exp_entry_directives = {
@@ -1131,11 +1132,11 @@ class CtlParserTest(SkoolKitTestCase):
         self._check_instruction_asm_directives(exp_instruction_directives, blocks)
 
     def test_nolabel_directives(self):
-        ctl = '\n'.join((
-            '@ 30000 nolabel',
-            'c 30000 Routine at 30000',
-            '@ 30003 nolabel'
-        ))
+        ctl = """
+            @ 30000 nolabel
+            c 30000 Routine at 30000
+            @ 30003 nolabel
+        """
         blocks = self._get_ctl_parser(ctl).get_blocks()
 
         exp_entry_directives = {
@@ -1149,11 +1150,11 @@ class CtlParserTest(SkoolKitTestCase):
         self._check_instruction_asm_directives(exp_instruction_directives, blocks)
 
     def test_nowarn_directives(self):
-        ctl = '\n'.join((
-            '@ 40000 nowarn',
-            'c 40000 Routine at 40000',
-            '@ 40003 nowarn'
-        ))
+        ctl = """
+            @ 40000 nowarn
+            c 40000 Routine at 40000
+            @ 40003 nowarn
+        """
         blocks = self._get_ctl_parser(ctl).get_blocks()
 
         exp_entry_directives = {
@@ -1167,11 +1168,11 @@ class CtlParserTest(SkoolKitTestCase):
         self._check_instruction_asm_directives(exp_instruction_directives, blocks)
 
     def test_ofix_directives(self):
-        ctl = '\n'.join((
-            '@ 50000 ofix=LD HL,12345',
-            'c 50000 Routine at 50000',
-            '@ 50003 ofix=CALL 34567'
-        ))
+        ctl = """
+            @ 50000 ofix=LD HL,12345
+            c 50000 Routine at 50000
+            @ 50003 ofix=CALL 34567
+        """
         blocks = self._get_ctl_parser(ctl).get_blocks()
 
         exp_entry_directives = {
@@ -1185,11 +1186,11 @@ class CtlParserTest(SkoolKitTestCase):
         self._check_instruction_asm_directives(exp_instruction_directives, blocks)
 
     def test_org_directives(self):
-        ctl = '\n'.join((
-            '@ 60000 org=60000',
-            'c 60000 Routine at 60000',
-            '@ 60001 org'
-        ))
+        ctl = """
+            @ 60000 org=60000
+            c 60000 Routine at 60000
+            @ 60001 org
+        """
         blocks = self._get_ctl_parser(ctl).get_blocks()
 
         exp_entry_directives = {
@@ -1202,11 +1203,11 @@ class CtlParserTest(SkoolKitTestCase):
         self._check_instruction_asm_directives(exp_instruction_directives, blocks)
 
     def test_rem_directives(self):
-        ctl = '\n'.join((
-            '@ 30000 rem=It begins',
-            'c 30000 Routine at 30000',
-            '@ 30010 rem=It ends'
-        ))
+        ctl = """
+            @ 30000 rem=It begins
+            c 30000 Routine at 30000
+            @ 30010 rem=It ends
+        """
         blocks = self._get_ctl_parser(ctl).get_blocks()
 
         exp_entry_directives = {
@@ -1220,11 +1221,11 @@ class CtlParserTest(SkoolKitTestCase):
         self._check_instruction_asm_directives(exp_instruction_directives, blocks)
 
     def test_replace_directives(self):
-        ctl = '\n'.join((
-            '@ 40000 replace=/foo/bar',
-            'c 40000 Routine at 40000',
-            '@ 40001 replace=/baz/qux'
-        ))
+        ctl = """
+            @ 40000 replace=/foo/bar
+            c 40000 Routine at 40000
+            @ 40001 replace=/baz/qux
+        """
         blocks = self._get_ctl_parser(ctl).get_blocks()
 
         exp_entry_directives = {
@@ -1237,11 +1238,11 @@ class CtlParserTest(SkoolKitTestCase):
         self._check_instruction_asm_directives(exp_instruction_directives, blocks)
 
     def test_rfix_directives(self):
-        ctl = '\n'.join((
-            '@ 50000 rfix=LD BC,0',
-            'c 50000 Routine at 50000',
-            '@ 50002 rfix=LD HL,0'
-        ))
+        ctl = """
+            @ 50000 rfix=LD BC,0
+            c 50000 Routine at 50000
+            @ 50002 rfix=LD HL,0
+        """
         blocks = self._get_ctl_parser(ctl).get_blocks()
 
         exp_entry_directives = {
@@ -1255,11 +1256,11 @@ class CtlParserTest(SkoolKitTestCase):
         self._check_instruction_asm_directives(exp_instruction_directives, blocks)
 
     def test_rsub_directives(self):
-        ctl = '\n'.join((
-            '@ 60000 rsub=LD DE,0',
-            'c 60000 Routine at 60000',
-            '@ 60002 rsub=LD IX,0'
-        ))
+        ctl = """
+            @ 60000 rsub=LD DE,0
+            c 60000 Routine at 60000
+            @ 60002 rsub=LD IX,0
+        """
         blocks = self._get_ctl_parser(ctl).get_blocks()
 
         exp_entry_directives = {
@@ -1273,11 +1274,11 @@ class CtlParserTest(SkoolKitTestCase):
         self._check_instruction_asm_directives(exp_instruction_directives, blocks)
 
     def test_set_directives(self):
-        ctl = '\n'.join((
-            '@ 30000 set-crlf=1',
-            'c 30000 Routine at 30000',
-            '@ 30001 set-tab=1'
-        ))
+        ctl = """
+            @ 30000 set-crlf=1
+            c 30000 Routine at 30000
+            @ 30001 set-tab=1
+        """
         blocks = self._get_ctl_parser(ctl).get_blocks()
 
         exp_entry_directives = {
@@ -1290,11 +1291,11 @@ class CtlParserTest(SkoolKitTestCase):
         self._check_instruction_asm_directives(exp_instruction_directives, blocks)
 
     def test_ssub_directives(self):
-        ctl = '\n'.join((
-            '@ 40000 ssub=INC HL',
-            'c 40000 Routine at 60000',
-            '@ 40001 ssub=INC BC'
-        ))
+        ctl = """
+            @ 40000 ssub=INC HL
+            c 40000 Routine at 60000
+            @ 40001 ssub=INC BC
+        """
         blocks = self._get_ctl_parser(ctl).get_blocks()
 
         exp_entry_directives = {
@@ -1308,11 +1309,11 @@ class CtlParserTest(SkoolKitTestCase):
         self._check_instruction_asm_directives(exp_instruction_directives, blocks)
 
     def test_start_directives(self):
-        ctl = '\n'.join((
-            '@ 50000 start',
-            'c 50000 Routine at 50000',
-            '@ 50001 start'
-        ))
+        ctl = """
+            @ 50000 start
+            c 50000 Routine at 50000
+            @ 50001 start
+        """
         blocks = self._get_ctl_parser(ctl).get_blocks()
 
         exp_entry_directives = {
@@ -1325,11 +1326,11 @@ class CtlParserTest(SkoolKitTestCase):
         self._check_instruction_asm_directives(exp_instruction_directives, blocks)
 
     def test_writer_directives(self):
-        ctl = '\n'.join((
-            '@ 60000 writer=x.y.z',
-            'c 60000 Routine at 60000',
-            '@ 60001 writer=foo.bar.baz'
-        ))
+        ctl = """
+            @ 60000 writer=x.y.z
+            c 60000 Routine at 60000
+            @ 60001 writer=foo.bar.baz
+        """
         blocks = self._get_ctl_parser(ctl).get_blocks()
 
         exp_entry_directives = {
@@ -1342,13 +1343,13 @@ class CtlParserTest(SkoolKitTestCase):
         self._check_instruction_asm_directives(exp_instruction_directives, blocks)
 
     def test_order_of_entry_asm_directives_is_preserved(self):
-        ctl = '\n'.join((
-            '@ 30000 start',
-            '@ 30000 equ=ATTRS=22528',
-            '@ 30000 replace=/foo/bar',
-            '@ 30000 replace=/baz/qux',
-            'c 30000 Routine at 30000'
-        ))
+        ctl = """
+            @ 30000 start
+            @ 30000 equ=ATTRS=22528
+            @ 30000 replace=/foo/bar
+            @ 30000 replace=/baz/qux
+            c 30000 Routine at 30000
+        """
         blocks = self._get_ctl_parser(ctl).get_blocks()
 
         exp_entry_directives = {
@@ -1357,13 +1358,13 @@ class CtlParserTest(SkoolKitTestCase):
         self._check_entry_asm_directives(exp_entry_directives, blocks)
 
     def test_registers(self):
-        ctl = '\n'.join((
-            'c 40000 Routine',
-            'R 40000 BC Important value',
-            'R 40000 DE',
-            'R 40000',
-            'R 40000 HL Another important value'
-        ))
+        ctl = """
+            c 40000 Routine
+            R 40000 BC Important value
+            R 40000 DE
+            R 40000
+            R 40000 HL Another important value
+        """
         ctl_parser = self._get_ctl_parser(ctl)
         blocks = ctl_parser.get_blocks()
         self.assertEqual(len(blocks), 1)
@@ -1376,13 +1377,13 @@ class CtlParserTest(SkoolKitTestCase):
         self.assertEqual(exp_registers, blocks[0].registers)
 
     def test_N_directive(self):
-        ctl = '\n'.join((
-            'c 40000 Routine',
-            'D 40000 Description.',
-            'N 40000 Paragraph 1.',
-            'N 40000 Paragraph 2.',
-            'N 40001 Mid-routine comment.'
-        ))
+        ctl = """
+            c 40000 Routine
+            D 40000 Description.
+            N 40000 Paragraph 1.
+            N 40000 Paragraph 2.
+            N 40001 Mid-routine comment.
+        """
         ctl_parser = self._get_ctl_parser(ctl)
         blocks = ctl_parser.get_blocks()
         self.assertEqual(len(blocks), 1)
@@ -1394,12 +1395,12 @@ class CtlParserTest(SkoolKitTestCase):
         self.assertEqual(['Mid-routine comment.'], sub_blocks[1].header)
 
     def test_M_directive_terminates_previous_sub_block(self):
-        ctl = '\n'.join((
-            'c 65533',
-            '  65533 This sub-block is terminated by the following M directive',
-            'M 65534,2 This spans an implicit "C" sub-block and a "B" sub-block',
-            'B 65535,1'
-        ))
+        ctl = """
+            c 65533
+              65533 This sub-block is terminated by the following M directive
+            M 65534,2 This spans an implicit "C" sub-block and a "B" sub-block
+            B 65535,1
+        """
         ctl_parser = self._get_ctl_parser(ctl)
         blocks = ctl_parser.get_blocks()
 
@@ -1418,23 +1419,23 @@ class CtlParserTest(SkoolKitTestCase):
         length = 25
         count = 2
         end = start + length * count
-        ctl = '\n'.join((
-            '@ 30000 start',
-            '@ 30000 org=30000',
-            'c 30000 This entry should not be repeated',
-            'D 30000 This entry description should not be repeated',
-            'R 30000 HL This register should not be repeated',
-            '  30000,5 Begin',
-            'B 30005,5,1,2',
-            'N 30010 A mid-block comment',
-            'M 30010,10 A multi-line comment',
-            'S 30010,6',
-            'W 30016,4,4',
-            '@ 30020 label=END',
-            'T 30020,5,4:B1 End',
-            'E 30000 This end comment should not be repeated',
-            'L {},{},{}'.format(start, length, count)
-        ))
+        ctl = """
+            @ 30000 start
+            @ 30000 org=30000
+            c 30000 This entry should not be repeated
+            D 30000 This entry description should not be repeated
+            R 30000 HL This register should not be repeated
+              30000,5 Begin
+            B 30005,5,1,2
+            N 30010 A mid-block comment
+            M 30010,10 A multi-line comment
+            S 30010,6
+            W 30016,4,4
+            @ 30020 label=END
+            T 30020,5,4:B1 End
+            E 30000 This end comment should not be repeated
+            L {},{},{}
+        """.format(start, length, count)
         ctl_parser = self._get_ctl_parser(ctl)
         blocks = ctl_parser.get_blocks()
         self.assertEqual(len(blocks), 1)
@@ -1491,23 +1492,23 @@ class CtlParserTest(SkoolKitTestCase):
         length = 25
         count = 3
         end = start + length * count
-        ctl = '\n'.join((
-            '@ 40000 start',
-            '@ 40000 org=40000',
-            'c 40000 This entry should be repeated',
-            'D 40000 This entry description should be repeated',
-            'R 40000 HL This register should be repeated',
-            '  40000,5 Begin',
-            'B 40005,5,1,2',
-            'N 40010 A mid-block comment',
-            'M 40010,10 A multi-line comment',
-            'S 40010,6',
-            'W 40016,4,4',
-            '@ 40020 label=END',
-            'T 40020,5,4:B1 End',
-            'E 40000 This end comment should be repeated',
-            'L {},{},{},1'.format(start, length, count)
-        ))
+        ctl = """
+            @ 40000 start
+            @ 40000 org=40000
+            c 40000 This entry should be repeated
+            D 40000 This entry description should be repeated
+            R 40000 HL This register should be repeated
+              40000,5 Begin
+            B 40005,5,1,2
+            N 40010 A mid-block comment
+            M 40010,10 A multi-line comment
+            S 40010,6
+            W 40016,4,4
+            @ 40020 label=END
+            T 40020,5,4:B1 End
+            E 40000 This end comment should be repeated
+            L {},{},{},1
+        """.format(start, length, count)
         ctl_parser = self._get_ctl_parser(ctl)
         blocks = ctl_parser.get_blocks()
         sub_block_map = {s.start: s for b in blocks for s in b.blocks}
@@ -1575,11 +1576,11 @@ class CtlParserTest(SkoolKitTestCase):
         self._check_instruction_asm_directives(exp_directives, blocks)
 
     def test_loop_crossing_64k_boundary(self):
-        ctl = '\n'.join((
-            'u 65532',
-            'W 65532,2',
-            'L 65532,2,3'
-        ))
+        ctl = """
+            u 65532
+            W 65532,2
+            L 65532,2,3
+        """
         ctl_parser = self._get_ctl_parser(ctl)
         warnings = self.err.getvalue().split('\n')
 
@@ -1592,10 +1593,10 @@ class CtlParserTest(SkoolKitTestCase):
         self._check_subctls(exp_subctls, ctl_parser.get_blocks())
 
     def test_loop_with_entries_crossing_64k_boundary(self):
-        ctl = '\n'.join((
-            'b 65534',
-            'L 65534,1,4,1'
-        ))
+        ctl = """
+            b 65534
+            L 65534,1,4,1
+        """
         ctl_parser = self._get_ctl_parser(ctl)
         warnings = self.err.getvalue().split('\n')
 
@@ -1608,15 +1609,15 @@ class CtlParserTest(SkoolKitTestCase):
         self.assertEqual(blocks[-1].start, 65535)
 
     def test_loop_is_trimmed_by_max_address(self):
-        ctl = '\n'.join((
-            'b 30000',
-            'N 30000 A comment',
-            'M 30000,10 Some bytes and text',
-            'B 30000,5',
-            'T 30005,5,4:B1',
-            'B 30010,10 Some more bytes',
-            'L 30000,20,3'
-        ))
+        ctl = """
+            b 30000
+            N 30000 A comment
+            M 30000,10 Some bytes and text
+            B 30000,5
+            T 30005,5,4:B1
+            B 30010,10 Some more bytes
+            L 30000,20,3
+        """
         blocks = self._get_ctl_parser(ctl, max_address=30040).get_blocks()
 
         exp_subctls = {
@@ -1670,15 +1671,15 @@ class CtlParserTest(SkoolKitTestCase):
         self._check_sublengths(exp_sublengths, blocks)
 
     def test_loop_with_entries_is_trimmed_by_max_address(self):
-        ctl = '\n'.join((
-            'b 30000 A block of bytes',
-            'D 30000 This is a block of bytes',
-            'R 30000 A 0',
-            'B 30000,5',
-            'T 30005,5',
-            'E 30000 The end',
-            'L 30000,10,3,1'
-        ))
+        ctl = """
+            b 30000 A block of bytes
+            D 30000 This is a block of bytes
+            R 30000 A 0
+            B 30000,5
+            T 30005,5
+            E 30000 The end
+            L 30000,10,3,1
+        """
         blocks = self._get_ctl_parser(ctl, max_address=30020).get_blocks()
 
         exp_ctls = {
@@ -1714,19 +1715,19 @@ class CtlParserTest(SkoolKitTestCase):
         self._check_end_comments(exp_end_comments, blocks)
 
     def test_terminate_multiline_comments(self):
-        ctl = '\n'.join((
-            'c 30000',
-            'M 30000 No length specified, should end at 30002',
-            'c 30002',
-            'M 30002 No length specified, should end at 30003',
-            'N 30003 This comment implicitly terminates the M directive above',
-            'c 30004',
-            'M 30004,5 Excessive length specified, should end at 30006',
-            'c 30006',
-            'M 30006,2 Excessive length specified, should end at 30007',
-            'N 30007 This comment implicitly terminates the M directive above',
-            'c 30008'
-        ))
+        ctl = """
+            c 30000
+            M 30000 No length specified, should end at 30002
+            c 30002
+            M 30002 No length specified, should end at 30003
+            N 30003 This comment implicitly terminates the M directive above
+            c 30004
+            M 30004,5 Excessive length specified, should end at 30006
+            c 30006
+            M 30006,2 Excessive length specified, should end at 30007
+            N 30007 This comment implicitly terminates the M directive above
+            c 30008
+        """
         blocks = self._get_ctl_parser(ctl).get_blocks()
         m_comment_end_map = {s.start: s.multiline_comment[0] for b in blocks for s in b.blocks if s.multiline_comment}
         exp_end_map = {
