@@ -83,17 +83,17 @@ class CommonSkoolMacroTest:
         self._assert_error(writer, '#CHR(2 ...', 'No closing bracket: (2 ...', prefix)
 
     def test_macro_d(self):
-        skool = '\n'.join((
-            '@start',
-            '',
-            '; First routine',
-            'c32768 RET',
-            '',
-            '; Second routine',
-            'c32769 RET',
-            '',
-            'c32770 RET',
-        ))
+        skool = """
+            @start
+
+            ; First routine
+            c32768 RET
+
+            ; Second routine
+            c32769 RET
+
+            c32770 RET
+        """
         writer = self._get_writer(skool=skool)
 
         # Decimal address
@@ -361,28 +361,28 @@ class CommonSkoolMacroTest:
         self.assertEqual(output, 'a, b and c')
 
     def test_macro_foreach_with_entry(self):
-        skool = '\n'.join((
-            '@start',
-            'b30000 DEFB 1,2,3',
-            '',
-            'c30003 RET',
-            '',
-            'g30004 DEFB 0',
-            '',
-            's30005 DEFS 5',
-            '',
-            'c30010 RET',
-            '',
-            'b30011 DEFB 4,5,6',
-            '',
-            't30014 DEFM "Hey"',
-            '',
-            'u30017 DEFS 3',
-            '',
-            'w30020 DEFW 10000,20000',
-            '',
-            'c30024 RET',
-        ))
+        skool = """
+            @start
+            b30000 DEFB 1,2,3
+
+            c30003 RET
+
+            g30004 DEFB 0
+
+            s30005 DEFS 5
+
+            c30010 RET
+
+            b30011 DEFB 4,5,6
+
+            t30014 DEFM "Hey"
+
+            u30017 DEFS 3
+
+            w30020 DEFW 10000,20000
+
+            c30024 RET
+        """
         writer = self._get_writer(skool=skool)
 
         # All entries
@@ -406,17 +406,17 @@ class CommonSkoolMacroTest:
         self.assertEqual(output, '')
 
     def test_macro_foreach_with_eref(self):
-        skool = '\n'.join((
-            '@start',
-            'c30000 CALL 30004',
-            '',
-            'c30003 LD A,B',
-            ' 30004 LD B,C',
-            '',
-            'c30005 JP 30004',
-            '',
-            'c30008 JR 30004'
-        ))
+        skool = """
+            @start
+            c30000 CALL 30004
+
+            c30003 LD A,B
+             30004 LD B,C
+
+            c30005 JP 30004
+
+            c30008 JR 30004
+        """
         writer = self._get_writer(skool=skool)
 
         cwd = ('asm',) if writer.needs_cwd() else ()
@@ -441,18 +441,18 @@ class CommonSkoolMacroTest:
         self.assertEqual(writer.expand('#FOREACH[EREF(x)](n,n)'), 'EREF(x)')
 
     def test_macro_foreach_with_ref(self):
-        skool = '\n'.join((
-            '@start',
-            '; Used by the routines at 9, 89 and 789',
-            'c00001 LD A,B',
-            ' 00002 RET',
-            '',
-            'c00009 CALL 1',
-            '',
-            'c00089 CALL 1',
-            '',
-            'c00789 JP 2'
-        ))
+        skool = """
+            @start
+            ; Used by the routines at 9, 89 and 789
+            c00001 LD A,B
+             00002 RET
+
+            c00009 CALL 1
+
+            c00089 CALL 1
+
+            c00789 JP 2
+        """
         writer = self._get_writer(skool=skool)
 
         cwd = ('asm',) if writer.needs_cwd() else ()
