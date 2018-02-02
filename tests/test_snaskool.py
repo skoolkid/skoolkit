@@ -1,5 +1,6 @@
 from io import StringIO
 import re
+import textwrap
 import unittest
 
 from skoolkittest import SkoolKitTestCase
@@ -221,7 +222,7 @@ CONFIG = {k: v[0] for k, v in COMMANDS['sna2skool'].items()}
 class DisassemblyTest(SkoolKitTestCase):
     def _test_disassembly(self, snapshot, ctl, exp_instructions, **kwargs):
         ctl_parser = CtlParser()
-        ctl_parser.parse_ctl(StringIO(ctl))
+        ctl_parser.parse_ctl(StringIO(textwrap.dedent(ctl).strip()))
         disassembly = Disassembly(snapshot, ctl_parser, CONFIG, True, **kwargs)
         entries = disassembly.entries
         self.assertEqual(len(entries), 2)
@@ -478,22 +479,22 @@ class DisassemblyTest(SkoolKitTestCase):
 
     def test_byte_formats(self):
         snapshot = [42] * 75
-        ctl = '\n'.join((
-            'b 00000',
-            '  00000,b5',
-            '  00005,b15',
-            '  00020,b5,2,d2,h1',
-            'B 00025,b5,2:d2:h1',
-            '  00030,h10,5:d3:b2',
-            'B 00040,5,b1,h2',
-            '  00045,5,h1,T4',
-            '  00050,5,b2:T3',
-            'T 00055,5,h2,3',
-            'T 00060,5,2:d3',
-            'T 00065,5,3,B1',
-            'T 00070,5,B2:h3',
-            'i 00075'
-        ))
+        ctl = """
+            b 00000
+              00000,b5
+              00005,b15
+              00020,b5,2,d2,h1
+            B 00025,b5,2:d2:h1
+              00030,h10,5:d3:b2
+            B 00040,5,b1,h2
+              00045,5,h1,T4
+              00050,5,b2:T3
+            T 00055,5,h2,3
+            T 00060,5,2:d3
+            T 00065,5,3,B1
+            T 00070,5,B2:h3
+            i 00075
+        """
         exp_instructions = [
             ( 0, 'DEFB %00101010,%00101010,%00101010,%00101010,%00101010'),
             ( 5, 'DEFB %00101010,%00101010,%00101010,%00101010,%00101010,%00101010,%00101010,%00101010'),
@@ -521,31 +522,31 @@ class DisassemblyTest(SkoolKitTestCase):
 
     def test_byte_formats_hex(self):
         snapshot = [85] * 4
-        ctl = '\n'.join((
-            'b 00000',
-            '  00000,4,b1:d1:h1:1',
-            'i 00004'
-        ))
+        ctl = """
+            b 00000
+              00000,4,b1:d1:h1:1
+            i 00004
+        """
         exp_instructions = [(0, 'DEFB %01010101,85,$55,$55')]
         self._test_disassembly(snapshot, ctl, exp_instructions, asm_hex=True)
 
     def test_word_formats(self):
         snapshot = [170, 53] * 32 + [33, 0] * 2
-        ctl = '\n'.join((
-            'w 00000',
-            '  00000,4',
-            '  00004,b4',
-            '  00008,d4',
-            'W 00012,h4',
-            'W 00016,b8,2,d2,h4',
-            '  00024,d8,b4:2:h2',
-            '  00032,h8,b2:d4:2',
-            '  00040,8,b2,4,h2',
-            'W 00048,8,b2:2:h4',
-            '  00056,8,4',
-            '  00064,4,c2:2',
-            'i 00068'
-        ))
+        ctl = """
+            w 00000
+              00000,4
+              00004,b4
+              00008,d4
+            W 00012,h4
+            W 00016,b8,2,d2,h4
+              00024,d8,b4:2:h2
+              00032,h8,b2:d4:2
+              00040,8,b2,4,h2
+            W 00048,8,b2:2:h4
+              00056,8,4
+              00064,4,c2:2
+            i 00068
+        """
         exp_instructions = [
             ( 0, 'DEFW 13738'),
             ( 2, 'DEFW 13738'),
@@ -572,11 +573,11 @@ class DisassemblyTest(SkoolKitTestCase):
 
     def test_word_formats_hex(self):
         snapshot = [240] * 8
-        ctl = '\n'.join((
-            'w 00000',
-            '  00000,8,b2,d2,h2,2',
-            'i 00008'
-        ))
+        ctl = """
+            w 00000
+              00000,8,b2,d2,h2,2
+            i 00008
+        """
         exp_instructions = [
             (0, 'DEFW %1111000011110000'),
             (2, 'DEFW 61680'),
@@ -587,25 +588,25 @@ class DisassemblyTest(SkoolKitTestCase):
 
     def test_s_directives(self):
         snapshot = []
-        ctl = '\n'.join((
-            's 00000',
-            '  00000,4',
-            '  00004,b4',
-            'S 00008,d4',
-            '  00012,h8',
-            '  00020,40,b10,10,h10',
-            'S 00060,b40,10,d10,h10',
-            '  00100,d40,b10,10,h10',
-            '  00140,h60,b10,d10,40',
-            'S 00200,768,b256,d256,h256',
-            '  00968,56,16:b%10101010,40:h17',
-            '  01024,32,16:c";",16:c"?"',
-            '  01056,8,4:c",",4:c" "',
-            '  01064,10,3:c"*"*2,4:c":"',
-            '  01074,16,8:c43',
-            '  01090,10,4:c"\\"",6:c"\\\\"',
-            'i 01100'
-        ))
+        ctl = """
+            s 00000
+              00000,4
+              00004,b4
+            S 00008,d4
+              00012,h8
+              00020,40,b10,10,h10
+            S 00060,b40,10,d10,h10
+              00100,d40,b10,10,h10
+              00140,h60,b10,d10,40
+            S 00200,768,b256,d256,h256
+              00968,56,16:b%10101010,40:h17
+              01024,32,16:c";",16:c"?"
+              01056,8,4:c",",4:c" "
+              01064,10,3:c"*"*2,4:c":"
+              01074,16,8:c43
+              01090,10,4:c"\\"",6:c"\\\\"
+            i 01100
+        """
         exp_instructions = [
             (  0, 'DEFS 4'),
             (  4, 'DEFS %00000100'),
@@ -647,11 +648,11 @@ class DisassemblyTest(SkoolKitTestCase):
 
     def test_s_directives_hex(self):
         snapshot = []
-        ctl = '\n'.join((
-            's 00000',
-            '  00000,14,d2:b1,h2:128,h10:2',
-            'i 00014'
-        ))
+        ctl = """
+            s 00000
+              00000,14,d2:b1,h2:128,h10:2
+            i 00014
+        """
         exp_instructions = [
             (0, 'DEFS 2,%00000001'),
             (2, 'DEFS 2,$80'),
@@ -684,17 +685,17 @@ class DisassemblyTest(SkoolKitTestCase):
             214, 38,    # 00044 SUB 38
             238, 39     # 00046 XOR 39
         ]
-        ctl = '\n'.join((
-            'c 00000',
-            '  00000,b14,8,h2,4',
-            '  00014,,h12,d2',
-            '  00028,d',
-            '  00032,bd4',
-            '  00036,h4',
-            '  00040,d4',
-            '  00044,n4',
-            'i 00048'
-        ))
+        ctl = """
+            c 00000
+              00000,b14,8,h2,4
+              00014,,h12,d2
+              00028,d
+              00032,bd4
+              00036,h4
+              00040,d4
+              00044,n4
+            i 00048
+        """
         exp_instructions = [
             (0, 'LD A,%00000101'),
             (2, 'LD B,%00000110'),
@@ -747,20 +748,20 @@ class DisassemblyTest(SkoolKitTestCase):
             253, 203, 175, 142, # 00072 RES 1,(IY-81)
             221, 203, 192, 214, # 00076 SET 2,(IX-64)
         ]
-        ctl = '\n'.join((
-            'c 00000',
-            '  00000,h,3,d3',
-            '  00009,b9,3,d3,3',
-            '  00018,,3,d6',
-            '  00027,h6',
-            '  00033,b7',
-            '  00040,d12',
-            '  00052,bn',
-            '  00060,nb',
-            '  00068,dn8',
-            '  00076,nb4',
-            'i 00080',
-        ))
+        ctl = """
+            c 00000
+              00000,h,3,d3
+              00009,b9,3,d3,3
+              00018,,3,d6
+              00027,h6
+              00033,b7
+              00040,d12
+              00052,bn
+              00060,nb
+              00068,dn8
+              00076,nb4
+            i 00080
+        """
         exp_instructions = [
             (0, 'LD A,(IX+$0F)'),
             (3, 'LD (IY-23),B'),
@@ -799,17 +800,17 @@ class DisassemblyTest(SkoolKitTestCase):
             221, 54, 194, 111, # 00024 LD (IX-62),111
             253, 54, 183, 199, # 00028 LD (IY-73),199
         ]
-        ctl = '\n'.join((
-            'c 00000',
-            '  00000,d',
-            '  00004,db',
-            '  00008,b4',
-            '  00012,bd4',
-            '  00016,n',
-            '  00020,dn',
-            '  00024,,nd4,nn4',
-            'i 00032',
-        ))
+        ctl = """
+            c 00000
+              00000,d
+              00004,db
+              00008,b4
+              00012,bd4
+              00016,n
+              00020,dn
+              00024,,nd4,nn4
+            i 00032
+        """
         exp_instructions = [
             (0, 'LD (IX+45),87'),
             (4, 'LD (IY+54),%01001110'),
@@ -863,24 +864,24 @@ class DisassemblyTest(SkoolKitTestCase):
             242, 164, 130,     # 00120 JP P,33444
             250, 140, 134,     # 00123 JP M,34444
         ]
-        ctl = '\n'.join((
-            'c 00000',
-            '  00000,h9,d3,h3',
-            '  00009,b,3,d4,4',
-            '  00020,,3,d8',
-            '  00031,n',
-            '  00042,h7',
-            '  00049,d8',
-            '  00057,b7',
-            '  00064,n8',
-            '  00072,dn',
-            '  00084,nb',
-            '  00096,dn9',
-            '  00105,nd9',
-            '  00114,bh',
-            '  00120,dh',
-            'i 00126',
-        ))
+        ctl = """
+            c 00000
+              00000,h9,d3,h3
+              00009,b,3,d4,4
+              00020,,3,d8
+              00031,n
+              00042,h7
+              00049,d8
+              00057,b7
+              00064,n8
+              00072,dn
+              00084,nb
+              00096,dn9
+              00105,nd9
+              00114,bh
+              00120,dh
+            i 00126
+        """
         exp_instructions = [
             (0, 'LD BC,1'),
             (3, 'LD DE,$000C'),
@@ -936,19 +937,19 @@ class DisassemblyTest(SkoolKitTestCase):
             24, 252, # 00016 JR 14
             32, 254, # 00018 JR NZ,18
         ]
-        ctl = '\n'.join((
-            'c 00000',
-            '  00000,d',
-            '  00002,b',
-            '  00004,h',
-            '  00006,n',
-            '  00008,d2',
-            '  00010,b2',
-            '  00012,h2',
-            '  00014,n2',
-            '  00016,,dn2,nd2',
-            'i 00020',
-        ))
+        ctl = """
+            c 00000
+              00000,d
+              00002,b
+              00004,h
+              00006,n
+              00008,d2
+              00010,b2
+              00012,h2
+              00014,n2
+              00016,,dn2,nd2
+            i 00020
+        """
         exp_instructions = [
             (0, 'DJNZ 0'),
             (2, 'JR %0000000000000100'),
@@ -976,17 +977,17 @@ class DisassemblyTest(SkoolKitTestCase):
             199, # 00008 RST 0
             207, # 00009 RST 8
         ]
-        ctl = '\n'.join((
-            'c 00000',
-            '  00000,b',
-            '  00001,n',
-            '  00002,h',
-            '  00003,d',
-            '  00004,4,b1,n1,h1,d1',
-            '  00008,dn1',
-            '  00009,nd1',
-            'i 00010',
-        ))
+        ctl = """
+            c 00000
+              00000,b
+              00001,n
+              00002,h
+              00003,d
+              00004,4,b1,n1,h1,d1
+              00008,dn1
+              00009,nd1
+            i 00010
+        """
         exp_instructions = [
             (0, 'RST %00000000'),
             (1, 'RST $08'),
@@ -1016,13 +1017,13 @@ class DisassemblyTest(SkoolKitTestCase):
             30, 128,        # 00023 LD E,128
             1, 0, 1,        # 00025 LD BC,256
         ]
-        ctl = '\n'.join((
-            'c 00000',
-            '  00000,c',
-            '  00010,nc',
-            '  00014,c',
-            'i 00028',
-        ))
+        ctl = """
+            c 00000
+              00000,c
+              00010,nc
+              00014,c
+            i 00028
+        """
         exp_instructions = [
             (0, 'LD A,"\\""'),
             (2, 'ADD A,"\\\\"'),
@@ -1051,18 +1052,18 @@ class DisassemblyTest(SkoolKitTestCase):
             'Title-w': 'Words at {address}'
         }
         snapshot = [0] * 9
-        ctl = '\n'.join((
-            'b 00000',
-            'c 00001',
-            'g 00002',
-            'i 00003',
-            'D 00003 Force a title for this ignored block.',
-            's 00004',
-            't 00005',
-            'u 00006',
-            'w 00007',
-            'i 00009'
-        ))
+        ctl = """
+            b 00000
+            c 00001
+            g 00002
+            i 00003
+            D 00003 Force a title for this ignored block.
+            s 00004
+            t 00005
+            u 00006
+            w 00007
+            i 00009
+        """
         exp_titles = [
             'Bytes at 0',
             'Code at 1',
@@ -1075,7 +1076,7 @@ class DisassemblyTest(SkoolKitTestCase):
             None
         ]
         ctl_parser = CtlParser()
-        ctl_parser.parse_ctl(StringIO(ctl))
+        ctl_parser.parse_ctl(StringIO(textwrap.dedent(ctl).strip()))
         config = CONFIG.copy()
         config.update(params)
         disassembly = Disassembly(snapshot, ctl_parser, config, True)
@@ -1086,13 +1087,13 @@ class DisassemblyTest(SkoolKitTestCase):
         snapshot = [0, 0]
         for entry_type in 'bcgistuw':
             params = {'Title-' + entry_type: 'Stuff at {address:04X}'}
-            ctl = '\n'.join((
-                '{} 00000'.format(entry_type),
-                'D 00000 Comment.',
-                'i 00002'
-            ))
+            ctl = """
+                {} 00000
+                D 00000 Comment.
+                i 00002
+            """.format(entry_type)
             ctl_parser = CtlParser()
-            ctl_parser.parse_ctl(StringIO(ctl))
+            ctl_parser.parse_ctl(StringIO(textwrap.dedent(ctl).strip()))
             config = CONFIG.copy()
             config.update(params)
             error = "^Failed to format Title-{} template: Unknown format code 'X' for object of type 'str'$".format(entry_type)
@@ -1113,7 +1114,7 @@ class SkoolWriterTest(SkoolKitTestCase):
     def _get_writer(self, snapshot, ctl, params=None, line_width=79, defb_size=8, defb_mod=1,
                     zfill=False, defm_width=66, base=10, case=2):
         ctl_parser = CtlParser()
-        ctl_parser.parse_ctl(StringIO(ctl))
+        ctl_parser.parse_ctl(StringIO(textwrap.dedent(ctl).strip()))
         options = MockOptions(line_width, defb_size, defb_mod, zfill, defm_width, base, case)
         config = CONFIG.copy()
         config.update(params or {})
@@ -1122,8 +1123,8 @@ class SkoolWriterTest(SkoolKitTestCase):
     def _test_write_skool(self, snapshot, ctl, exp_skool, write_refs=1, show_text=False, **kwargs):
         writer = self._get_writer(snapshot, ctl, **kwargs)
         writer.write_skool(write_refs, show_text)
-        skool = self.out.getvalue().rstrip().split('\n')
-        self.assertEqual(exp_skool, skool)
+        skool = self.out.getvalue().rstrip()
+        self.assertEqual(textwrap.dedent(exp_skool).strip(), skool)
 
     def test_write_skool(self):
         writer = self._get_writer(WRITER_SNAPSHOT, WRITER_CTL)
@@ -1134,75 +1135,75 @@ class SkoolWriterTest(SkoolKitTestCase):
     def test_empty_disassembly(self):
         snapshot = []
         ctl = ''
-        exp_skool = ['']
+        exp_skool = ''
         self._test_write_skool(snapshot, ctl, exp_skool)
 
     def test_line_width_short(self):
         snapshot = [175, 201]
-        ctl = '\n'.join((
-            'c 00000 A routine at address 0 with a title that will be wrapped over two lines',
-            'D 00000 A description of the routine at address 0 that will be wrapped over two lines',
-            'R 00000 HL A description of the HL register for the routine at address 0 (also wrapped over two lines)',
-            'N 00000 A start comment for the routine at address 0 that will be wrapped over two lines',
-            '  00000 An instruction-level comment at address 0 that will be wrapped over two lines',
-            'N 00001 A mid-routine comment above the instruction at address 1 (again, wrapped over two lines)',
-            'E 00000 An end comment for the routine at address 0 that will be wrapped over two lines',
-            'i 00002'
-        ))
-        exp_skool = [
-            '@start',
-            '@org=0',
-            '; A routine at address 0 with a title that will be wrapped over',
-            '; two lines',
-            ';',
-            '; A description of the routine at address 0 that will be wrapped',
-            '; over two lines',
-            ';',
-            '; HL A description of the HL register for the routine at address',
-            '; .  0 (also wrapped over two lines)',
-            ';',
-            '; A start comment for the routine at address 0 that will be',
-            '; wrapped over two lines',
-            'c00000 XOR A         ; An instruction-level comment at address 0',
-            '                     ; that will be wrapped over two lines',
-            '; A mid-routine comment above the instruction at address 1',
-            '; (again, wrapped over two lines)',
-            ' 00001 RET           ;',
-            '; An end comment for the routine at address 0 that will be',
-            '; wrapped over two lines'
-        ]
+        ctl = """
+            c 00000 A routine at address 0 with a title that will be wrapped over two lines
+            D 00000 A description of the routine at address 0 that will be wrapped over two lines
+            R 00000 HL A description of the HL register for the routine at address 0 (also wrapped over two lines)
+            N 00000 A start comment for the routine at address 0 that will be wrapped over two lines
+              00000 An instruction-level comment at address 0 that will be wrapped over two lines
+            N 00001 A mid-routine comment above the instruction at address 1 (again, wrapped over two lines)
+            E 00000 An end comment for the routine at address 0 that will be wrapped over two lines
+            i 00002
+        """
+        exp_skool = """
+            @start
+            @org=0
+            ; A routine at address 0 with a title that will be wrapped over
+            ; two lines
+            ;
+            ; A description of the routine at address 0 that will be wrapped
+            ; over two lines
+            ;
+            ; HL A description of the HL register for the routine at address
+            ; .  0 (also wrapped over two lines)
+            ;
+            ; A start comment for the routine at address 0 that will be
+            ; wrapped over two lines
+            c00000 XOR A         ; An instruction-level comment at address 0
+                                 ; that will be wrapped over two lines
+            ; A mid-routine comment above the instruction at address 1
+            ; (again, wrapped over two lines)
+             00001 RET           ;
+            ; An end comment for the routine at address 0 that will be
+            ; wrapped over two lines
+        """
         self._test_write_skool(snapshot, ctl, exp_skool, line_width=64)
 
     def test_line_width_long(self):
         snapshot = [175, 201]
-        ctl = '\n'.join((
-            'c 00000 A routine at address zero with a 92-character title that will actually fit on a single line!',
-            'D 00000 A particularly long description of the routine at address 0 that, sadly, will not quite fit on one line',
-            'R 00000 HL A long description of the HL register for the routine at address 0 (on one line only)',
-            'N 00000 An extremely long start comment for the routine at address 0 that will, despite its extraordinary length (and large number of characters), take up only two lines',
-            '  00000 A long instruction-level comment that has no continuation line',
-            'N 00001 A rather long mid-routine comment above the instruction at address 1 that does not quite fit on one line',
-            'E 00000 A long end comment for the routine at address 0 that confines itself to one line',
-            'i 00002'
-        ))
-        exp_skool = [
-            '@start',
-            '@org=0',
-            '; A routine at address zero with a 92-character title that will actually fit on a single line!',
-            ';',
-            '; A particularly long description of the routine at address 0 that, sadly, will not quite fit',
-            '; on one line',
-            ';',
-            '; HL A long description of the HL register for the routine at address 0 (on one line only)',
-            ';',
-            '; An extremely long start comment for the routine at address 0 that will, despite its',
-            '; extraordinary length (and large number of characters), take up only two lines',
-            'c00000 XOR A         ; A long instruction-level comment that has no continuation line',
-            '; A rather long mid-routine comment above the instruction at address 1 that does not quite fit',
-            '; on one line',
-            ' 00001 RET           ;',
-            '; A long end comment for the routine at address 0 that confines itself to one line'
-        ]
+        ctl = """
+            c 00000 A routine at address zero with a 92-character title that will actually fit on a single line!
+            D 00000 A particularly long description of the routine at address 0 that, sadly, will not quite fit on one line
+            R 00000 HL A long description of the HL register for the routine at address 0 (on one line only)
+            N 00000 An extremely long start comment for the routine at address 0 that will, despite its extraordinary length (and large number of characters), take up only two lines
+              00000 A long instruction-level comment that has no continuation line
+            N 00001 A rather long mid-routine comment above the instruction at address 1 that does not quite fit on one line
+            E 00000 A long end comment for the routine at address 0 that confines itself to one line
+            i 00002
+        """
+        exp_skool = """
+            @start
+            @org=0
+            ; A routine at address zero with a 92-character title that will actually fit on a single line!
+            ;
+            ; A particularly long description of the routine at address 0 that, sadly, will not quite fit
+            ; on one line
+            ;
+            ; HL A long description of the HL register for the routine at address 0 (on one line only)
+            ;
+            ; An extremely long start comment for the routine at address 0 that will, despite its
+            ; extraordinary length (and large number of characters), take up only two lines
+            c00000 XOR A         ; A long instruction-level comment that has no continuation line
+            ; A rather long mid-routine comment above the instruction at address 1 that does not quite fit
+            ; on one line
+             00001 RET           ;
+            ; A long end comment for the routine at address 0 that confines itself to one line
+        """
         self._test_write_skool(snapshot, ctl, exp_skool, line_width=94)
 
     def test_write_refs_never(self):
@@ -1214,26 +1215,26 @@ class SkoolWriterTest(SkoolKitTestCase):
             24, 251, # 30003 JR 30000
             24, 250  # 30005 JR 30001
         ]
-        ctl = '\n'.join((
-            'c 30000',
-            'c 30003',
-            'c 30005',
-            'i 30007'
-        ))
-        exp_skool = [
-            '@start',
-            '@org=30000',
-            '; Routine at 30000',
-            'c30000 XOR A         ;',
-            '*30001 LD (BC),A     ;',
-            ' 30002 RET           ;',
-            '',
-            '; Routine at 30003',
-            'c30003 JR 30000      ;',
-            '',
-            '; Routine at 30005',
-            'c30005 JR 30001      ;'
-        ]
+        ctl = """
+            c 30000
+            c 30003
+            c 30005
+            i 30007
+        """
+        exp_skool = """
+            @start
+            @org=30000
+            ; Routine at 30000
+            c30000 XOR A         ;
+            *30001 LD (BC),A     ;
+             30002 RET           ;
+
+            ; Routine at 30003
+            c30003 JR 30000      ;
+
+            ; Routine at 30005
+            c30005 JR 30001      ;
+        """
         self._test_write_skool(snapshot, ctl, exp_skool, write_refs=0)
 
     def test_write_refs_default(self):
@@ -1248,37 +1249,37 @@ class SkoolWriterTest(SkoolKitTestCase):
             24, 248, # 40008 JR 40002
             24, 247  # 40010 JR 40003
         ]
-        ctl = '\n'.join((
-            'c 40000',
-            'D 40000 Routine description.',
-            'N 40001 Mid-routine comment.',
-            'c 40002',
-            'c 40004',
-            'i 40012'
-        ))
-        exp_skool = [
-            '@start',
-            '@org=40000',
-            '; Routine at 40000',
-            ';',
-            '; Routine description.',
-            'c40000 XOR A         ;',
-            '; Mid-routine comment.',
-            '*40001 RET           ;',
-            '',
-            '; Routine at 40002',
-            ';',
-            '; Used by the routine at #R40004.',
-            'c40002 XOR A         ;',
-            '; This entry point is used by the routine at #R40004.',
-            '*40003 RET           ;',
-            '',
-            '; Routine at 40004',
-            'c40004 JR 40000      ;',
-            ' 40006 JR 40001      ;',
-            ' 40008 JR 40002      ;',
-            ' 40010 JR 40003      ;'
-        ]
+        ctl = """
+            c 40000
+            D 40000 Routine description.
+            N 40001 Mid-routine comment.
+            c 40002
+            c 40004
+            i 40012
+        """
+        exp_skool = """
+            @start
+            @org=40000
+            ; Routine at 40000
+            ;
+            ; Routine description.
+            c40000 XOR A         ;
+            ; Mid-routine comment.
+            *40001 RET           ;
+
+            ; Routine at 40002
+            ;
+            ; Used by the routine at #R40004.
+            c40002 XOR A         ;
+            ; This entry point is used by the routine at #R40004.
+            *40003 RET           ;
+
+            ; Routine at 40004
+            c40004 JR 40000      ;
+             40006 JR 40001      ;
+             40008 JR 40002      ;
+             40010 JR 40003      ;
+        """
         self._test_write_skool(snapshot, ctl, exp_skool, write_refs=1)
 
     def test_write_refs_always(self):
@@ -1293,41 +1294,41 @@ class SkoolWriterTest(SkoolKitTestCase):
             24, 248, # 50008 JR 50002
             24, 247  # 50010 JR 50003
         ]
-        ctl = '\n'.join((
-            'c 50000',
-            'D 50000 Routine description.',
-            'N 50001 Mid-routine comment.',
-            'c 50002',
-            'c 50004',
-            'i 50012'
-        ))
-        exp_skool = [
-            '@start',
-            '@org=50000',
-            '; Routine at 50000',
-            ';',
-            '; Used by the routine at #R50004.',
-            '; .',
-            '; Routine description.',
-            'c50000 XOR A         ;',
-            '; This entry point is used by the routine at #R50004.',
-            '; .',
-            '; Mid-routine comment.',
-            '*50001 RET           ;',
-            '',
-            '; Routine at 50002',
-            ';',
-            '; Used by the routine at #R50004.',
-            'c50002 XOR A         ;',
-            '; This entry point is used by the routine at #R50004.',
-            '*50003 RET           ;',
-            '',
-            '; Routine at 50004',
-            'c50004 JR 50000      ;',
-            ' 50006 JR 50001      ;',
-            ' 50008 JR 50002      ;',
-            ' 50010 JR 50003      ;'
-        ]
+        ctl = """
+            c 50000
+            D 50000 Routine description.
+            N 50001 Mid-routine comment.
+            c 50002
+            c 50004
+            i 50012
+        """
+        exp_skool = """
+            @start
+            @org=50000
+            ; Routine at 50000
+            ;
+            ; Used by the routine at #R50004.
+            ; .
+            ; Routine description.
+            c50000 XOR A         ;
+            ; This entry point is used by the routine at #R50004.
+            ; .
+            ; Mid-routine comment.
+            *50001 RET           ;
+
+            ; Routine at 50002
+            ;
+            ; Used by the routine at #R50004.
+            c50002 XOR A         ;
+            ; This entry point is used by the routine at #R50004.
+            *50003 RET           ;
+
+            ; Routine at 50004
+            c50004 JR 50000      ;
+             50006 JR 50001      ;
+             50008 JR 50002      ;
+             50010 JR 50003      ;
+        """
         self._test_write_skool(snapshot, ctl, exp_skool, write_refs=2)
 
     def test_bad_blocks(self):
@@ -1341,10 +1342,10 @@ class SkoolWriterTest(SkoolKitTestCase):
         self.assertEqual(warnings[0], 'WARNING: Code block at 65533 overlaps the following block at 65534')
 
     def test_blank_multi_instruction_comment(self):
-        ctl = '\n'.join((
-            'c 65534',
-            '  65534,2 .'
-        ))
+        ctl = """
+            c 65534
+              65534,2 .
+        """
         writer = self._get_writer([0] * 65536, ctl)
         writer.write_skool(0, False)
         skool = self.out.getvalue().split('\n')[:-1]
@@ -1354,11 +1355,11 @@ class SkoolWriterTest(SkoolKitTestCase):
     def test_instruction_comments_starting_with_a_dot(self):
         comment1 = '...'
         comment2 = '...and so it ends'
-        ctl = '\n'.join((
-            'c 65534',
-            '  65534,1 {}'.format(comment1),
-            '  65535,1 {}'.format(comment2)
-        ))
+        ctl = """
+            c 65534
+              65534,1 {}
+              65535,1 {}
+        """.format(comment1, comment2)
         writer = self._get_writer([0] * 65536, ctl)
         writer.write_skool(0, False)
         skool = self.out.getvalue().split('\n')[:-1]
@@ -1368,11 +1369,11 @@ class SkoolWriterTest(SkoolKitTestCase):
     def test_multi_instruction_comments_starting_with_a_dot(self):
         comment1 = '...'
         comment2 = '...and so it ends'
-        ctl = '\n'.join((
-            'c 65532',
-            '  65532,2 .{}'.format(comment1),
-            '  65534,2 {}'.format(comment2)
-        ))
+        ctl = """
+            c 65532
+              65532,2 .{}
+              65534,2 {}
+        """.format(comment1, comment2)
         writer = self._get_writer([0] * 65536, ctl)
         writer.write_skool(0, False)
         skool = self.out.getvalue().split('\n')[:-1]
@@ -1382,18 +1383,18 @@ class SkoolWriterTest(SkoolKitTestCase):
         self.assertEqual(skool[-1], ' 65535 NOP           ; }')
 
     def test_decimal_addresses_below_10000(self):
-        ctl = '\n'.join((
-            'b 00000',
-            'i 00001',
-            'b 00003',
-            'i 00004',
-            'b 00023',
-            'i 00024',
-            'b 00573',
-            'i 00574',
-            'b 01876',
-            'i 01877',
-        ))
+        ctl = """
+            b 00000
+            i 00001
+            b 00003
+            i 00004
+            b 00023
+            i 00024
+            b 00573
+            i 00574
+            b 01876
+            i 01877
+        """
         writer = self._get_writer([0] * 1877, ctl)
         writer.write_skool(0, False)
         skool = self.out.getvalue().split('\n')[:-1]
@@ -1414,677 +1415,677 @@ class SkoolWriterTest(SkoolKitTestCase):
             self.assertEqual(skool[1], '@org={}'.format(org))
 
     def test_no_table_end_marker(self):
-        ctl = '\n'.join((
-            'b 00000',
-            'D 00000 #TABLE { this table has no end marker }',
-            'i 00001'
-        ))
+        ctl = """
+            b 00000
+            D 00000 #TABLE { this table has no end marker }
+            i 00001
+        """
         writer = self._get_writer([0], ctl)
         with self.assertRaisesRegex(SkoolKitError, re.escape("No end marker found: #TABLE { this table h...")):
             writer.write_skool(0, False)
 
     def test_no_table_row_end_marker(self):
-        ctl = '\n'.join((
-            'b 00000',
-            'D 00000 #TABLE { this row has no end marker} TABLE#',
-            'i 00001'
-        ))
+        ctl = """
+            b 00000
+            D 00000 #TABLE { this row has no end marker} TABLE#
+            i 00001
+        """
         writer = self._get_writer([0], ctl)
         with self.assertRaisesRegex(SkoolKitError, re.escape("No closing ' }' on row/item: { this row has ...")):
             writer.write_skool(0, False)
 
     def test_no_udgtable_end_marker(self):
-        ctl = '\n'.join((
-            'b 00000',
-            'D 00000 #UDGTABLE { this table has no end marker }',
-            'i 00001'
-        ))
+        ctl = """
+            b 00000
+            D 00000 #UDGTABLE { this table has no end marker }
+            i 00001
+        """
         writer = self._get_writer([0], ctl)
         with self.assertRaisesRegex(SkoolKitError, re.escape("No end marker found: #UDGTABLE { this table h...")):
             writer.write_skool(0, False)
 
     def test_no_udgtable_row_end_marker(self):
-        ctl = '\n'.join((
-            'b 00000',
-            'D 00000 #UDGTABLE { this row has no end marker} UDGTABLE#',
-            'i 00001'
-        ))
+        ctl = """
+            b 00000
+            D 00000 #UDGTABLE { this row has no end marker} UDGTABLE#
+            i 00001
+        """
         writer = self._get_writer([0], ctl)
         with self.assertRaisesRegex(SkoolKitError, re.escape("No closing ' }' on row/item: { this row has ...")):
             writer.write_skool(0, False)
 
     def test_no_list_end_marker(self):
-        ctl = '\n'.join((
-            'b 00000',
-            'D 00000 #LIST { this list has no end marker }',
-            'i 00001'
-        ))
+        ctl = """
+            b 00000
+            D 00000 #LIST { this list has no end marker }
+            i 00001
+        """
         writer = self._get_writer([0], ctl)
         with self.assertRaisesRegex(SkoolKitError, re.escape("No end marker found: #LIST { this list ha...")):
             writer.write_skool(0, False)
 
     def test_no_list_item_end_marker(self):
-        ctl = '\n'.join((
-            'b 00000',
-            'D 00000 #LIST { this item has no end marker} LIST#',
-            'i 00001'
-        ))
+        ctl = """
+            b 00000
+            D 00000 #LIST { this item has no end marker} LIST#
+            i 00001
+        """
         writer = self._get_writer([0], ctl)
         with self.assertRaisesRegex(SkoolKitError, re.escape("No closing ' }' on row/item: { this item has...")):
             writer.write_skool(0, False)
 
     def test_defb_directives(self):
         snapshot = [0] * 5
-        ctl = '\n'.join((
-            '@ 00000 defb=0:1,$02,%11',
-            '@ 00000 defb=3:"Hi" ; Hi',
-            'b 00000 Data defined by @defb directives',
-            'i 00005'
-        ))
-        exp_skool = [
-            '@start',
-            '@org=0',
-            '@defb=0:1,$02,%11',
-            '@defb=3:"Hi" ; Hi',
-            '; Data defined by @defb directives',
-            'b00000 DEFB 1,2,3,72,105'
-        ]
+        ctl = """
+            @ 00000 defb=0:1,$02,%11
+            @ 00000 defb=3:"Hi" ; Hi
+            b 00000 Data defined by @defb directives
+            i 00005
+        """
+        exp_skool = """
+            @start
+            @org=0
+            @defb=0:1,$02,%11
+            @defb=3:"Hi" ; Hi
+            ; Data defined by @defb directives
+            b00000 DEFB 1,2,3,72,105
+        """
         self._test_write_skool(snapshot, ctl, exp_skool)
 
     def test_defs_directives(self):
         snapshot = [0] * 5
-        ctl = '\n'.join((
-            '@ 00000 defs=0:3,2',
-            '@ 00000 defs=3:2,"!" ; !!',
-            'b 00000 Data defined by @defs directives',
-            'i 00005'
-        ))
-        exp_skool = [
-            '@start',
-            '@org=0',
-            '@defs=0:3,2',
-            '@defs=3:2,"!" ; !!',
-            '; Data defined by @defs directives',
-            'b00000 DEFB 2,2,2,33,33'
-        ]
+        ctl = """
+            @ 00000 defs=0:3,2
+            @ 00000 defs=3:2,"!" ; !!
+            b 00000 Data defined by @defs directives
+            i 00005
+        """
+        exp_skool = """
+            @start
+            @org=0
+            @defs=0:3,2
+            @defs=3:2,"!" ; !!
+            ; Data defined by @defs directives
+            b00000 DEFB 2,2,2,33,33
+        """
         self._test_write_skool(snapshot, ctl, exp_skool)
 
     def test_defw_directives(self):
         snapshot = [0] * 6
-        ctl = '\n'.join((
-            '@ 00000 defw=0:257,513',
-            '@ 00000 defw=4:$8001 ; 32769',
-            'b 00000 Data defined by @defw directives',
-            'i 00006'
-        ))
-        exp_skool = [
-            '@start',
-            '@org=0',
-            '@defw=0:257,513',
-            '@defw=4:$8001 ; 32769',
-            '; Data defined by @defw directives',
-            'b00000 DEFB 1,1,1,2,1,128'
-        ]
+        ctl = """
+            @ 00000 defw=0:257,513
+            @ 00000 defw=4:$8001 ; 32769
+            b 00000 Data defined by @defw directives
+            i 00006
+        """
+        exp_skool = """
+            @start
+            @org=0
+            @defw=0:257,513
+            @defw=4:$8001 ; 32769
+            ; Data defined by @defw directives
+            b00000 DEFB 1,1,1,2,1,128
+        """
         self._test_write_skool(snapshot, ctl, exp_skool)
 
     def test_end_directives(self):
-        ctl = '\n'.join((
-            'c 00000 Routine at 0',
-            '@ 00001 end',
-            '@ 00002 end',
-            'c 00002 Routine at 2',
-            'i 00003'
-        ))
-        exp_skool = [
-            '@start',
-            '@org=0',
-            '; Routine at 0',
-            'c00000 XOR A         ;',
-            '@end',
-            ' 00001 RET           ;',
-            '',
-            '@end',
-            '; Routine at 2',
-            'c00002 RET           ;',
-        ]
+        ctl = """
+            c 00000 Routine at 0
+            @ 00001 end
+            @ 00002 end
+            c 00002 Routine at 2
+            i 00003
+        """
+        exp_skool = """
+            @start
+            @org=0
+            ; Routine at 0
+            c00000 XOR A         ;
+            @end
+             00001 RET           ;
+
+            @end
+            ; Routine at 2
+            c00002 RET           ;
+        """
         snapshot = [175, 201, 201]
         self._test_write_skool(snapshot, ctl, exp_skool)
 
     def test_equ_directives(self):
-        ctl = '\n'.join((
-            '@ 00000 equ=ATTRS=22528',
-            'c 00000 Routine at 0',
-            '@ 00001 equ=UDG=23675',
-            'i 00002'
-        ))
-        exp_skool = [
-            '@start',
-            '@org=0',
-            '@equ=ATTRS=22528',
-            '; Routine at 0',
-            'c00000 XOR A         ;',
-            '@equ=UDG=23675',
-            ' 00001 RET           ;'
-        ]
+        ctl = """
+            @ 00000 equ=ATTRS=22528
+            c 00000 Routine at 0
+            @ 00001 equ=UDG=23675
+            i 00002
+        """
+        exp_skool = """
+            @start
+            @org=0
+            @equ=ATTRS=22528
+            ; Routine at 0
+            c00000 XOR A         ;
+            @equ=UDG=23675
+             00001 RET           ;
+        """
         snapshot = [175, 201]
         self._test_write_skool(snapshot, ctl, exp_skool)
 
     def test_org_directives(self):
-        ctl = '\n'.join((
-            '@ 00000 org=0',
-            'c 00000 Routine at 0',
-            '@ 00001 org',
-            'i 00002'
-        ))
-        exp_skool = [
-            '@start',
-            '@org=0',
-            '; Routine at 0',
-            'c00000 XOR A         ;',
-            '@org',
-            ' 00001 RET           ;'
-        ]
+        ctl = """
+            @ 00000 org=0
+            c 00000 Routine at 0
+            @ 00001 org
+            i 00002
+        """
+        exp_skool = """
+            @start
+            @org=0
+            ; Routine at 0
+            c00000 XOR A         ;
+            @org
+             00001 RET           ;
+        """
         snapshot = [175, 201]
         self._test_write_skool(snapshot, ctl, exp_skool)
 
     def test_remote_directives(self):
-        ctl = '\n'.join((
-            '@ 00000 remote=main:24576',
-            'c 00000 Routine at 0',
-            '@ 00001 remote=load:32768',
-            'i 00002'
-        ))
-        exp_skool = [
-            '@start',
-            '@org=0',
-            '@remote=main:24576',
-            '; Routine at 0',
-            'c00000 XOR A         ;',
-            '@remote=load:32768',
-            ' 00001 RET           ;'
-        ]
+        ctl = """
+            @ 00000 remote=main:24576
+            c 00000 Routine at 0
+            @ 00001 remote=load:32768
+            i 00002
+        """
+        exp_skool = """
+            @start
+            @org=0
+            @remote=main:24576
+            ; Routine at 0
+            c00000 XOR A         ;
+            @remote=load:32768
+             00001 RET           ;
+        """
         snapshot = [175, 201]
         self._test_write_skool(snapshot, ctl, exp_skool)
 
     def test_replace_directives(self):
-        ctl = '\n'.join((
-            '@ 00000 replace=/foo/bar',
-            'c 00000 Routine at 0',
-            '@ 00001 replace=/baz/qux',
-            'i 00002'
-        ))
-        exp_skool = [
-            '@start',
-            '@org=0',
-            '@replace=/foo/bar',
-            '; Routine at 0',
-            'c00000 XOR A         ;',
-            '@replace=/baz/qux',
-            ' 00001 RET           ;'
-        ]
+        ctl = """
+            @ 00000 replace=/foo/bar
+            c 00000 Routine at 0
+            @ 00001 replace=/baz/qux
+            i 00002
+        """
+        exp_skool = """
+            @start
+            @org=0
+            @replace=/foo/bar
+            ; Routine at 0
+            c00000 XOR A         ;
+            @replace=/baz/qux
+             00001 RET           ;
+        """
         snapshot = [175, 201]
         self._test_write_skool(snapshot, ctl, exp_skool)
 
     def test_set_directives(self):
-        ctl = '\n'.join((
-            '@ 00000 set-crlf=1',
-            'c 00000 Routine at 0',
-            '@ 00001 set-tab=1',
-            'i 00002'
-        ))
-        exp_skool = [
-            '@start',
-            '@org=0',
-            '@set-crlf=1',
-            '; Routine at 0',
-            'c00000 XOR A         ;',
-            '@set-tab=1',
-            ' 00001 RET           ;'
-        ]
+        ctl = """
+            @ 00000 set-crlf=1
+            c 00000 Routine at 0
+            @ 00001 set-tab=1
+            i 00002
+        """
+        exp_skool = """
+            @start
+            @org=0
+            @set-crlf=1
+            ; Routine at 0
+            c00000 XOR A         ;
+            @set-tab=1
+             00001 RET           ;
+        """
         snapshot = [175, 201]
         self._test_write_skool(snapshot, ctl, exp_skool)
 
     def test_start_directives(self):
-        ctl = '\n'.join((
-            '@ 00000 start',
-            'c 00000 Routine at 0',
-            '@ 00001 start',
-            'i 00002'
-        ))
-        exp_skool = [
-            '@start',
-            '; Routine at 0',
-            'c00000 XOR A         ;',
-            '@start',
-            ' 00001 RET           ;'
-        ]
+        ctl = """
+            @ 00000 start
+            c 00000 Routine at 0
+            @ 00001 start
+            i 00002
+        """
+        exp_skool = """
+            @start
+            ; Routine at 0
+            c00000 XOR A         ;
+            @start
+             00001 RET           ;
+        """
         snapshot = [175, 201]
         self._test_write_skool(snapshot, ctl, exp_skool)
 
     def test_writer_directives(self):
-        ctl = '\n'.join((
-            '@ 00000 writer=x.y.z',
-            'c 00000 Routine at 0',
-            '@ 00001 writer=foo.bar.baz',
-            'i 00002'
-        ))
-        exp_skool = [
-            '@start',
-            '@org=0',
-            '@writer=x.y.z',
-            '; Routine at 0',
-            'c00000 XOR A         ;',
-            '@writer=foo.bar.baz',
-            ' 00001 RET           ;'
-        ]
+        ctl = """
+            @ 00000 writer=x.y.z
+            c 00000 Routine at 0
+            @ 00001 writer=foo.bar.baz
+            i 00002
+        """
+        exp_skool = """
+            @start
+            @org=0
+            @writer=x.y.z
+            ; Routine at 0
+            c00000 XOR A         ;
+            @writer=foo.bar.baz
+             00001 RET           ;
+        """
         snapshot = [175, 201]
         self._test_write_skool(snapshot, ctl, exp_skool)
 
     def test_order_of_entry_asm_directives_is_preserved(self):
-        ctl = '\n'.join((
-            '@ 00000 start',
-            '@ 00000 equ=ATTRS=22528',
-            '@ 00000 replace=/foo/bar',
-            '@ 00000 replace=/baz/qux',
-            'c 00000 Routine at 0',
-            'i 00001'
-        ))
-        exp_skool = [
-            '@start',
-            '@equ=ATTRS=22528',
-            '@replace=/foo/bar',
-            '@replace=/baz/qux',
-            '; Routine at 0',
-            'c00000 RET           ;'
-        ]
+        ctl = """
+            @ 00000 start
+            @ 00000 equ=ATTRS=22528
+            @ 00000 replace=/foo/bar
+            @ 00000 replace=/baz/qux
+            c 00000 Routine at 0
+            i 00001
+        """
+        exp_skool = """
+            @start
+            @equ=ATTRS=22528
+            @replace=/foo/bar
+            @replace=/baz/qux
+            ; Routine at 0
+            c00000 RET           ;
+        """
         snapshot = [201]
         self._test_write_skool(snapshot, ctl, exp_skool)
 
     def test_ignoreua_directives(self):
-        ctl = '\n'.join((
-            '@ 10000 ignoreua:t',
-            'c 10000 Routine at 10000',
-            '@ 10000 ignoreua:d',
-            'D 10000 Description of the routine at 10000.',
-            '@ 10000 ignoreua:r',
-            'R 10000 HL 10000',
-            '@ 10000 ignoreua:m',
-            'N 10000 Start comment.',
-            '@ 10000 ignoreua',
-            '  10000 Instruction-level comment at 10000',
-            '@ 10001 ignoreua:m',
-            'N 10001 Mid-block comment above 10001.',
-            '@ 10001 ignoreua:i',
-            '  10001 Instruction-level comment at 10001',
-            '@ 10000 ignoreua:e',
-            'E 10000 End comment for the routine at 10000.',
-            'i 10002'
-        ))
-        exp_skool = [
-            '@start',
-            '@org=10000',
-            '@ignoreua',
-            '; Routine at 10000',
-            ';',
-            '@ignoreua',
-            '; Description of the routine at 10000.',
-            ';',
-            '@ignoreua',
-            '; HL 10000',
-            ';',
-            '@ignoreua',
-            '; Start comment.',
-            '@ignoreua',
-            'c10000 LD A,B        ; Instruction-level comment at 10000',
-            '@ignoreua',
-            '; Mid-block comment above 10001.',
-            '@ignoreua',
-            ' 10001 RET           ; Instruction-level comment at 10001',
-            '@ignoreua',
-            '; End comment for the routine at 10000.'
-        ]
+        ctl = """
+            @ 10000 ignoreua:t
+            c 10000 Routine at 10000
+            @ 10000 ignoreua:d
+            D 10000 Description of the routine at 10000.
+            @ 10000 ignoreua:r
+            R 10000 HL 10000
+            @ 10000 ignoreua:m
+            N 10000 Start comment.
+            @ 10000 ignoreua
+              10000 Instruction-level comment at 10000
+            @ 10001 ignoreua:m
+            N 10001 Mid-block comment above 10001.
+            @ 10001 ignoreua:i
+              10001 Instruction-level comment at 10001
+            @ 10000 ignoreua:e
+            E 10000 End comment for the routine at 10000.
+            i 10002
+        """
+        exp_skool = """
+            @start
+            @org=10000
+            @ignoreua
+            ; Routine at 10000
+            ;
+            @ignoreua
+            ; Description of the routine at 10000.
+            ;
+            @ignoreua
+            ; HL 10000
+            ;
+            @ignoreua
+            ; Start comment.
+            @ignoreua
+            c10000 LD A,B        ; Instruction-level comment at 10000
+            @ignoreua
+            ; Mid-block comment above 10001.
+            @ignoreua
+             10001 RET           ; Instruction-level comment at 10001
+            @ignoreua
+            ; End comment for the routine at 10000.
+        """
         snapshot = [0] * 10000 + [120, 201]
         self._test_write_skool(snapshot, ctl, exp_skool)
 
     def test_ignoreua_directives_write_refs(self):
-        ctl = '\n'.join((
-            'c 10000 Routine at 10000',
-            '@ 10000 ignoreua:d',
-            'D 10000 Description of the routine at 10000.',
-            'c 10002 Routine at 10002',
-            '@ 10003 ignoreua:m',
-            'N 10003 Mid-block comment above 10003.',
-            'i 10005'
-        ))
-        exp_skool = [
-            '@start',
-            '@org=10000',
-            '; Routine at 10000',
-            ';',
-            '@ignoreua',
-            '; Used by the routine at #R10002.',
-            '; .',
-            '; Description of the routine at 10000.',
-            'c10000 JR 10003      ;',
-            '',
-            '; Routine at 10002',
-            'c10002 LD A,B        ;',
-            '@ignoreua',
-            '; This entry point is used by the routine at #R10000.',
-            '; .',
-            '; Mid-block comment above 10003.',
-            '*10003 JR 10000      ;',
-        ]
+        ctl = """
+            c 10000 Routine at 10000
+            @ 10000 ignoreua:d
+            D 10000 Description of the routine at 10000.
+            c 10002 Routine at 10002
+            @ 10003 ignoreua:m
+            N 10003 Mid-block comment above 10003.
+            i 10005
+        """
+        exp_skool = """
+            @start
+            @org=10000
+            ; Routine at 10000
+            ;
+            @ignoreua
+            ; Used by the routine at #R10002.
+            ; .
+            ; Description of the routine at 10000.
+            c10000 JR 10003      ;
+
+            ; Routine at 10002
+            c10002 LD A,B        ;
+            @ignoreua
+            ; This entry point is used by the routine at #R10000.
+            ; .
+            ; Mid-block comment above 10003.
+            *10003 JR 10000      ;
+        """
         snapshot = [0] * 10000 + [24, 1, 120, 24, 251]
         self._test_write_skool(snapshot, ctl, exp_skool, write_refs=2)
 
     def test_assemble_directives(self):
-        ctl = '\n'.join((
-            'c 00000',
-            '@ 00001 assemble=1',
-            '@ 00002 assemble=0',
-            'i 00003'
-        ))
-        exp_skool = [
-            '@start',
-            '@org=0',
-            '; Routine at 0',
-            'c00000 NOP           ;',
-            '@assemble=1',
-            ' 00001 NOP           ;',
-            '@assemble=0',
-            ' 00002 NOP           ;'
-        ]
+        ctl = """
+            c 00000
+            @ 00001 assemble=1
+            @ 00002 assemble=0
+            i 00003
+        """
+        exp_skool = """
+            @start
+            @org=0
+            ; Routine at 0
+            c00000 NOP           ;
+            @assemble=1
+             00001 NOP           ;
+            @assemble=0
+             00002 NOP           ;
+        """
         self._test_write_skool([0] * 3, ctl, exp_skool)
 
     def test_bfix_directives(self):
-        ctl = '\n'.join((
-            'c 00000 Routine at 0',
-            '@ 00000 bfix=XOR B',
-            '@ 00001 bfix=RET Z',
-            'i 00002'
-        ))
-        exp_skool = [
-            '@start',
-            '@org=0',
-            '; Routine at 0',
-            '@bfix=XOR B',
-            'c00000 XOR A         ;',
-            '@bfix=RET Z',
-            ' 00001 RET           ;'
-        ]
+        ctl = """
+            c 00000 Routine at 0
+            @ 00000 bfix=XOR B
+            @ 00001 bfix=RET Z
+            i 00002
+        """
+        exp_skool = """
+            @start
+            @org=0
+            ; Routine at 0
+            @bfix=XOR B
+            c00000 XOR A         ;
+            @bfix=RET Z
+             00001 RET           ;
+        """
         snapshot = [175, 201]
         self._test_write_skool(snapshot, ctl, exp_skool)
 
     def test_isub_directives(self):
-        ctl = '\n'.join((
-            'c 00000 Routine at 0',
-            '@ 00000 isub=XOR B',
-            '@ 00001 isub=RET Z',
-            'i 00002'
-        ))
-        exp_skool = [
-            '@start',
-            '@org=0',
-            '; Routine at 0',
-            '@isub=XOR B',
-            'c00000 XOR A         ;',
-            '@isub=RET Z',
-            ' 00001 RET           ;'
-        ]
+        ctl = """
+            c 00000 Routine at 0
+            @ 00000 isub=XOR B
+            @ 00001 isub=RET Z
+            i 00002
+        """
+        exp_skool = """
+            @start
+            @org=0
+            ; Routine at 0
+            @isub=XOR B
+            c00000 XOR A         ;
+            @isub=RET Z
+             00001 RET           ;
+        """
         snapshot = [175, 201]
         self._test_write_skool(snapshot, ctl, exp_skool)
 
     def test_keep_directives(self):
-        ctl = '\n'.join((
-            'c 00000 Routine at 0',
-            '@ 00000 keep',
-            '@ 00003 keep',
-            'i 00006'
-        ))
-        exp_skool = [
-            '@start',
-            '@org=0',
-            '; Routine at 0',
-            '@keep',
-            'c00000 LD BC,0       ;',
-            '@keep',
-            ' 00003 LD DE,0       ;'
-        ]
+        ctl = """
+            c 00000 Routine at 0
+            @ 00000 keep
+            @ 00003 keep
+            i 00006
+        """
+        exp_skool = """
+            @start
+            @org=0
+            ; Routine at 0
+            @keep
+            c00000 LD BC,0       ;
+            @keep
+             00003 LD DE,0       ;
+        """
         snapshot = [1, 0, 0, 17, 0, 0]
         self._test_write_skool(snapshot, ctl, exp_skool)
 
     def test_nolabel_directives(self):
-        ctl = '\n'.join((
-            'c 00000 Routine at 0',
-            '@ 00000 nolabel',
-            '@ 00002 nolabel',
-            'i 00004'
-        ))
-        exp_skool = [
-            '@start',
-            '@org=0',
-            '; Routine at 0',
-            '@nolabel',
-            'c00000 JR 2          ;',
-            '@nolabel',
-            '*00002 JR 0          ;'
-        ]
+        ctl = """
+            c 00000 Routine at 0
+            @ 00000 nolabel
+            @ 00002 nolabel
+            i 00004
+        """
+        exp_skool = """
+            @start
+            @org=0
+            ; Routine at 0
+            @nolabel
+            c00000 JR 2          ;
+            @nolabel
+            *00002 JR 0          ;
+        """
         snapshot = [24, 0, 24, 252]
         self._test_write_skool(snapshot, ctl, exp_skool)
 
     def test_nowarn_directive(self):
-        ctl = '\n'.join((
-            'c 00000 Routine at 0',
-            '@ 00000 nowarn',
-            'i 00004'
-        ))
-        exp_skool = [
-            '@start',
-            '@org=0',
-            '; Routine at 0',
-            '@nowarn',
-            'c00000 LD BC,3       ;',
-            ' 00003 RET           ;'
-        ]
+        ctl = """
+            c 00000 Routine at 0
+            @ 00000 nowarn
+            i 00004
+        """
+        exp_skool = """
+            @start
+            @org=0
+            ; Routine at 0
+            @nowarn
+            c00000 LD BC,3       ;
+             00003 RET           ;
+        """
         snapshot = [1, 3, 0, 201]
         self._test_write_skool(snapshot, ctl, exp_skool)
 
     def test_ofix_directives(self):
-        ctl = '\n'.join((
-            'c 00000 Routine at 0',
-            '@ 00000 ofix=LD A,0',
-            '@ 00002 ofix=LD B,0',
-            'i 00004'
-        ))
-        exp_skool = [
-            '@start',
-            '@org=0',
-            '; Routine at 0',
-            '@ofix=LD A,0',
-            'c00000 LD A,1        ;',
-            '@ofix=LD B,0',
-            ' 00002 LD B,1        ;'
-        ]
+        ctl = """
+            c 00000 Routine at 0
+            @ 00000 ofix=LD A,0
+            @ 00002 ofix=LD B,0
+            i 00004
+        """
+        exp_skool = """
+            @start
+            @org=0
+            ; Routine at 0
+            @ofix=LD A,0
+            c00000 LD A,1        ;
+            @ofix=LD B,0
+             00002 LD B,1        ;
+        """
         snapshot = [62, 1, 6, 1]
         self._test_write_skool(snapshot, ctl, exp_skool)
 
     def test_rem_directives(self):
-        ctl = '\n'.join((
-            'c 00000 Routine at 0',
-            '@ 00000 rem=It begins',
-            '@ 00001 rem=Done',
-            'i 00002'
-        ))
-        exp_skool = [
-            '@start',
-            '@org=0',
-            '; Routine at 0',
-            '@rem=It begins',
-            'c00000 XOR A         ;',
-            '@rem=Done',
-            ' 00001 RET           ;'
-        ]
+        ctl = """
+            c 00000 Routine at 0
+            @ 00000 rem=It begins
+            @ 00001 rem=Done
+            i 00002
+        """
+        exp_skool = """
+            @start
+            @org=0
+            ; Routine at 0
+            @rem=It begins
+            c00000 XOR A         ;
+            @rem=Done
+             00001 RET           ;
+        """
         snapshot = [175, 201]
         self._test_write_skool(snapshot, ctl, exp_skool)
 
     def test_rfix_directive(self):
-        ctl = '\n'.join((
-            'c 00000',
-            '@ 00000 rfix=LD DE,0',
-            'i 00002',
-        ))
-        exp_skool = [
-            '@start',
-            '@org=0',
-            '; Routine at 0',
-            '@rfix=LD DE,0',
-            'c00000 LD D,0        ;'
-        ]
+        ctl = """
+            c 00000
+            @ 00000 rfix=LD DE,0
+            i 00002
+        """
+        exp_skool = """
+            @start
+            @org=0
+            ; Routine at 0
+            @rfix=LD DE,0
+            c00000 LD D,0        ;
+        """
         self._test_write_skool([22, 0], ctl, exp_skool)
 
     def test_rsub_directives(self):
-        ctl = '\n'.join((
-            'c 00000 Routine at 0',
-            '@ 00000 rsub=LD BC,0',
-            '@ 00002 rsub=LD DE,0',
-            'i 00004'
-        ))
-        exp_skool = [
-            '@start',
-            '@org=0',
-            '; Routine at 0',
-            '@rsub=LD BC,0',
-            'c00000 LD B,0        ;',
-            '@rsub=LD DE,0',
-            ' 00002 LD E,0        ;'
-        ]
+        ctl = """
+            c 00000 Routine at 0
+            @ 00000 rsub=LD BC,0
+            @ 00002 rsub=LD DE,0
+            i 00004
+        """
+        exp_skool = """
+            @start
+            @org=0
+            ; Routine at 0
+            @rsub=LD BC,0
+            c00000 LD B,0        ;
+            @rsub=LD DE,0
+             00002 LD E,0        ;
+        """
         snapshot = [6, 0, 30, 0]
         self._test_write_skool(snapshot, ctl, exp_skool)
 
     def test_ssub_directives(self):
-        ctl = '\n'.join((
-            'c 00000 Routine at 0',
-            '@ 00000 ssub=LD A,32768%256',
-            '@ 00002 ssub=LD B,32768%256',
-            'i 00004'
-        ))
-        exp_skool = [
-            '@start',
-            '@org=0',
-            '; Routine at 0',
-            '@ssub=LD A,32768%256',
-            'c00000 LD A,0        ;',
-            '@ssub=LD B,32768%256',
-            ' 00002 LD B,0        ;'
-        ]
+        ctl = """
+            c 00000 Routine at 0
+            @ 00000 ssub=LD A,32768%256
+            @ 00002 ssub=LD B,32768%256
+            i 00004
+        """
+        exp_skool = """
+            @start
+            @org=0
+            ; Routine at 0
+            @ssub=LD A,32768%256
+            c00000 LD A,0        ;
+            @ssub=LD B,32768%256
+             00002 LD B,0        ;
+        """
         snapshot = [62, 0, 6, 0]
         self._test_write_skool(snapshot, ctl, exp_skool)
 
     def test_registers(self):
-        ctl = '\n'.join((
-            'c 00000 Routine',
-            'R 00000 BC This register description is long enough that it needs to be split over two lines',
-            'R 00000 DE Short register description',
-            'R 00000',
-            'R 00000 HL Another register description that is long enough to need splitting over two lines',
-            'R 00000 IX',
-            'i 00001'
-        ))
-        exp_skool = [
-            '@start',
-            '@org=0',
-            '; Routine',
-            ';',
-            '; .',
-            ';',
-            '; BC This register description is long enough that it needs to be split over',
-            '; .  two lines',
-            '; DE Short register description',
-            '; HL Another register description that is long enough to need splitting over',
-            '; .  two lines',
-            '; IX',
-            'c00000 NOP           ;'
-        ]
+        ctl = """
+            c 00000 Routine
+            R 00000 BC This register description is long enough that it needs to be split over two lines
+            R 00000 DE Short register description
+            R 00000
+            R 00000 HL Another register description that is long enough to need splitting over two lines
+            R 00000 IX
+            i 00001
+        """
+        exp_skool = """
+            @start
+            @org=0
+            ; Routine
+            ;
+            ; .
+            ;
+            ; BC This register description is long enough that it needs to be split over
+            ; .  two lines
+            ; DE Short register description
+            ; HL Another register description that is long enough to need splitting over
+            ; .  two lines
+            ; IX
+            c00000 NOP           ;
+        """
         self._test_write_skool([0], ctl, exp_skool)
 
     def test_registers_with_prefixes(self):
-        ctl = '\n'.join((
-            'c 00000 Routine',
-            'R 00000 Input:A An important parameter with a long description that will be split over two lines',
-            'R 00000 B Another important parameter',
-            'R 00000 Output:DE The result',
-            'R 00000 HL',
-            'i 00001'
-        ))
-        exp_skool = [
-            '@start',
-            '@org=0',
-            '; Routine',
-            ';',
-            '; .',
-            ';',
-            ';  Input:A An important parameter with a long description that will be split',
-            '; .        over two lines',
-            ';        B Another important parameter',
-            '; Output:DE The result',
-            ';        HL',
-            'c00000 NOP           ;'
-        ]
+        ctl = """
+            c 00000 Routine
+            R 00000 Input:A An important parameter with a long description that will be split over two lines
+            R 00000 B Another important parameter
+            R 00000 Output:DE The result
+            R 00000 HL
+            i 00001
+        """
+        exp_skool = """
+            @start
+            @org=0
+            ; Routine
+            ;
+            ; .
+            ;
+            ;  Input:A An important parameter with a long description that will be split
+            ; .        over two lines
+            ;        B Another important parameter
+            ; Output:DE The result
+            ;        HL
+            c00000 NOP           ;
+        """
         self._test_write_skool([0], ctl, exp_skool)
 
     def test_start_comment(self):
-        ctl = '\n'.join((
-            'c 00000',
-            'N 00000 Start comment.',
-            'i 00001'
-        ))
-        exp_skool = [
-            '@start',
-            '@org=0',
-            '; Routine at 0',
-            ';',
-            '; .',
-            ';',
-            '; .',
-            ';',
-            '; Start comment.',
-            'c00000 NOP           ;'
-        ]
+        ctl = """
+            c 00000
+            N 00000 Start comment.
+            i 00001
+        """
+        exp_skool = """
+            @start
+            @org=0
+            ; Routine at 0
+            ;
+            ; .
+            ;
+            ; .
+            ;
+            ; Start comment.
+            c00000 NOP           ;
+        """
         self._test_write_skool([0], ctl, exp_skool)
 
     def test_multi_paragraph_start_comment(self):
-        ctl = '\n'.join((
-            'c 00000 Routine',
-            'D 00000 Description.',
-            'N 00000 Start comment paragraph 1.',
-            'N 00000 Paragraph 2.',
-            'i 00001'
-        ))
-        exp_skool = [
-            '@start',
-            '@org=0',
-            '; Routine',
-            ';',
-            '; Description.',
-            ';',
-            '; .',
-            ';',
-            '; Start comment paragraph 1.',
-            '; .',
-            '; Paragraph 2.',
-            'c00000 NOP           ;'
-        ]
+        ctl = """
+            c 00000 Routine
+            D 00000 Description.
+            N 00000 Start comment paragraph 1.
+            N 00000 Paragraph 2.
+            i 00001
+        """
+        exp_skool = """
+            @start
+            @org=0
+            ; Routine
+            ;
+            ; Description.
+            ;
+            ; .
+            ;
+            ; Start comment paragraph 1.
+            ; .
+            ; Paragraph 2.
+            c00000 NOP           ;
+        """
         self._test_write_skool([0], ctl, exp_skool)
 
     def test_loop(self):
-        ctl = '\n'.join((
-            'b 00000 Two bytes and one word, times ten',
-            'B 00000,2',
-            'W 00002',
-            'L 00000,4,10',
-            'i 00040'
-        ))
+        ctl = """
+            b 00000 Two bytes and one word, times ten
+            B 00000,2
+            W 00002
+            L 00000,4,10
+            i 00040
+        """
         writer = self._get_writer([0] * 40, ctl)
         writer.write_skool(0, False)
         skool = self.out.getvalue().split('\n')[:-2]
@@ -2097,12 +2098,12 @@ class SkoolWriterTest(SkoolKitTestCase):
             address += 4
 
     def test_loop_with_entries(self):
-        ctl = '\n'.join((
-            'b 00000 A block of five pairs of bytes',
-            'B 00000,10,2',
-            'L 00000,10,3,1',
-            'i 00030'
-        ))
+        ctl = """
+            b 00000 A block of five pairs of bytes
+            B 00000,10,2
+            L 00000,10,3,1
+            i 00030
+        """
         writer = self._get_writer([0] * 30, ctl)
         writer.write_skool(0, False)
         skool = self.out.getvalue().split('\n')[:-2]
@@ -2123,430 +2124,430 @@ class SkoolWriterTest(SkoolKitTestCase):
             0,   # 00001 NOP
             201, # 00002 RET
         ]
-        ctl = '\n'.join((
-            'c 00000',
-            'M 00000,3 This is really LD A,0',
-            'B 00000,1',
-            'N 00002 This comment should not be swallowed by the overlong M directive.',
-            'i 00003',
-        ))
-        exp_skool = [
-            '@start',
-            '@org=0',
-            '; Routine at 0',
-            'c00000 DEFB 62       ; {This is really LD A,0',
-            ' 00001 NOP           ; }',
-            '; This comment should not be swallowed by the overlong M directive.',
-            ' 00002 RET           ;',
-        ]
+        ctl = """
+            c 00000
+            M 00000,3 This is really LD A,0
+            B 00000,1
+            N 00002 This comment should not be swallowed by the overlong M directive.
+            i 00003
+        """
+        exp_skool = """
+            @start
+            @org=0
+            ; Routine at 0
+            c00000 DEFB 62       ; {This is really LD A,0
+             00001 NOP           ; }
+            ; This comment should not be swallowed by the overlong M directive.
+             00002 RET           ;
+        """
         self._test_write_skool(snapshot, ctl, exp_skool)
 
     def test_lower_case_hexadecimal(self):
         snapshot = [0] * 10 + [255]
-        ctl = '\n'.join((
-            'b 00010',
-            'i 00011'
-        ))
-        exp_skool = [
-            '@start',
-            '@org=$000a',
-            '; Data block at 000a',
-            'b$000a defb $ff'
-        ]
+        ctl = """
+            b 00010
+            i 00011
+        """
+        exp_skool = """
+            @start
+            @org=$000a
+            ; Data block at 000a
+            b$000a defb $ff
+        """
         self._test_write_skool(snapshot, ctl, exp_skool, base=16, case=1)
 
     def test_defm_width(self):
         snapshot = [65] * 4
-        ctl = '\n'.join((
-            't 00000',
-            'i 00004'
-        ))
-        exp_skool = [
-            '@start',
-            '@org=0',
-            '; Message at 0',
-            't00000 DEFM "AA"',
-            ' 00002 DEFM "AA"'
-        ]
+        ctl = """
+            t 00000
+            i 00004
+        """
+        exp_skool = """
+            @start
+            @org=0
+            ; Message at 0
+            t00000 DEFM "AA"
+             00002 DEFM "AA"
+        """
         self._test_write_skool(snapshot, ctl, exp_skool, defm_width=2)
 
     def test_defb_mod(self):
         snapshot = [0] * 14
-        ctl = '\n'.join((
-            'b 00002',
-            'i 00014'
-        ))
-        exp_skool = [
-            '@start',
-            '@org=2',
-            '; Data block at 2',
-            'b00002 DEFB 0,0',
-            ' 00004 DEFB 0,0,0,0,0,0,0,0',
-            ' 00012 DEFB 0,0'
-        ]
+        ctl = """
+            b 00002
+            i 00014
+        """
+        exp_skool = """
+            @start
+            @org=2
+            ; Data block at 2
+            b00002 DEFB 0,0
+             00004 DEFB 0,0,0,0,0,0,0,0
+             00012 DEFB 0,0
+        """
         self._test_write_skool(snapshot, ctl, exp_skool, defb_mod=4)
 
     def test_defb_size(self):
         snapshot = [0] * 5
-        ctl = '\n'.join((
-            'b 00000',
-            'i 00005'
-        ))
-        exp_skool = [
-            '@start',
-            '@org=0',
-            '; Data block at 0',
-            'b00000 DEFB 0,0,0',
-            ' 00003 DEFB 0,0'
-        ]
+        ctl = """
+            b 00000
+            i 00005
+        """
+        exp_skool = """
+            @start
+            @org=0
+            ; Data block at 0
+            b00000 DEFB 0,0,0
+             00003 DEFB 0,0
+        """
         self._test_write_skool(snapshot, ctl, exp_skool, defb_size=3)
 
     def test_zfill(self):
         snapshot = [0] * 5
-        ctl = '\n'.join((
-            'b 00000',
-            'i 00005'
-        ))
-        exp_skool = [
-            '@start',
-            '@org=0',
-            '; Data block at 0',
-            'b00000 DEFB 000,000,000,000,000'
-        ]
+        ctl = """
+            b 00000
+            i 00005
+        """
+        exp_skool = """
+            @start
+            @org=0
+            ; Data block at 0
+            b00000 DEFB 000,000,000,000,000
+        """
         self._test_write_skool(snapshot, ctl, exp_skool, zfill=True)
 
     def test_show_text(self):
         snapshot = [49, 127, 50]
-        ctl = '\n'.join((
-            'c 00000',
-            'i 00003'
-        ))
-        exp_skool = [
-            '@start',
-            '@org=0',
-            '; Routine at 0',
-            'c00000 LD SP,12927   ; [1.2]',
-        ]
+        ctl = """
+            c 00000
+            i 00003
+        """
+        exp_skool = """
+            @start
+            @org=0
+            ; Routine at 0
+            c00000 LD SP,12927   ; [1.2]
+        """
         self._test_write_skool(snapshot, ctl, exp_skool, show_text=True)
 
     def test_braces_in_instruction_comments(self):
         snapshot = [0] * 39
-        ctl = '\n'.join((
-            'b 00000',
-            '  00000,1,1 {unmatched opening brace',
-            '  00001,1,1 unmatched closing brace}',
-            '  00002,1,1 {matched braces}',
-            '  00003,2,1 {unmatched opening brace',
-            '  00005,2,1 unmatched closing brace}',
-            '  00007,2,1 {matched braces}',
-            '  00009,2,1 { unmatched opening brace with a space',
-            '  00011,2,1 unmatched closing brace with a space }',
-            '  00013,2,1 { matched braces with spaces }',
-            '  00015,1,1 {{unmatched opening braces}',
-            '  00016,1,1 {unmatched closing braces}}',
-            '  00017,1,1 {{matched pairs of braces}}',
-            '  00018,2,1 {{unmatched opening braces}',
-            '  00020,2,1 {unmatched closing braces}}',
-            '  00022,2,1 {{matched pairs of braces}}',
-            '  00024,2,1 {{{unmatched opening braces on a comment that spans two lines}}',
-            '  00026,2,1 {{unmatched closing braces on a comment that spans two lines}}}',
-            '  00028,2,1 {{{matched pairs of braces on a comment that spans two lines}}}',
-            '  00030,1,1 unmatched {opening brace in the middle',
-            '  00031,1,1 unmatched closing brace} in the middle',
-            '  00032,1,1 matched {braces} in the middle',
-            '  00033,2,1 unmatched {opening brace in the middle',
-            '  00035,2,1 unmatched closing brace} in the middle',
-            '  00037,2,1 matched {{braces}} in the middle',
-            'i 00039'
-        ))
-        exp_skool = [
-            '@start',
-            '@org=0',
-            '; Data block at 0',
-            'b00000 DEFB 0        ; { {unmatched opening brace}}',
-            ' 00001 DEFB 0        ; unmatched closing brace}',
-            ' 00002 DEFB 0        ; { {matched braces} }',
-            ' 00003 DEFB 0        ; { {unmatched opening brace',
-            ' 00004 DEFB 0        ; }}',
-            ' 00005 DEFB 0        ; {{unmatched closing brace}',
-            ' 00006 DEFB 0        ; }',
-            ' 00007 DEFB 0        ; { {matched braces}',
-            ' 00008 DEFB 0        ; }',
-            ' 00009 DEFB 0        ; { { unmatched opening brace with a space',
-            ' 00010 DEFB 0        ; }}',
-            ' 00011 DEFB 0        ; {{unmatched closing brace with a space }',
-            ' 00012 DEFB 0        ; }',
-            ' 00013 DEFB 0        ; { { matched braces with spaces }',
-            ' 00014 DEFB 0        ; }',
-            ' 00015 DEFB 0        ; { {{unmatched opening braces} }}',
-            ' 00016 DEFB 0        ; { {unmatched closing braces}} }',
-            ' 00017 DEFB 0        ; { {{matched pairs of braces}} }',
-            ' 00018 DEFB 0        ; { {{unmatched opening braces}',
-            ' 00019 DEFB 0        ; }}',
-            ' 00020 DEFB 0        ; {{ {unmatched closing braces}}',
-            ' 00021 DEFB 0        ; }',
-            ' 00022 DEFB 0        ; { {{matched pairs of braces}}',
-            ' 00023 DEFB 0        ; }',
-            ' 00024 DEFB 0        ; { {{{unmatched opening braces on a comment that spans',
-            ' 00025 DEFB 0        ; two lines}} }}',
-            ' 00026 DEFB 0        ; {{ {{unmatched closing braces on a comment that spans',
-            ' 00027 DEFB 0        ; two lines}}} }',
-            ' 00028 DEFB 0        ; { {{{matched pairs of braces on a comment that spans two',
-            ' 00029 DEFB 0        ; lines}}} }',
-            ' 00030 DEFB 0        ; unmatched {opening brace in the middle',
-            ' 00031 DEFB 0        ; unmatched closing brace} in the middle',
-            ' 00032 DEFB 0        ; matched {braces} in the middle',
-            ' 00033 DEFB 0        ; {unmatched {opening brace in the middle',
-            ' 00034 DEFB 0        ; }}',
-            ' 00035 DEFB 0        ; {{unmatched closing brace} in the middle',
-            ' 00036 DEFB 0        ; }',
-            ' 00037 DEFB 0        ; {matched {{braces}} in the middle',
-            ' 00038 DEFB 0        ; }',
-        ]
+        ctl = """
+            b 00000
+              00000,1,1 {unmatched opening brace
+              00001,1,1 unmatched closing brace}
+              00002,1,1 {matched braces}
+              00003,2,1 {unmatched opening brace
+              00005,2,1 unmatched closing brace}
+              00007,2,1 {matched braces}
+              00009,2,1 { unmatched opening brace with a space
+              00011,2,1 unmatched closing brace with a space }
+              00013,2,1 { matched braces with spaces }
+              00015,1,1 {{unmatched opening braces}
+              00016,1,1 {unmatched closing braces}}
+              00017,1,1 {{matched pairs of braces}}
+              00018,2,1 {{unmatched opening braces}
+              00020,2,1 {unmatched closing braces}}
+              00022,2,1 {{matched pairs of braces}}
+              00024,2,1 {{{unmatched opening braces on a comment that spans two lines}}
+              00026,2,1 {{unmatched closing braces on a comment that spans two lines}}}
+              00028,2,1 {{{matched pairs of braces on a comment that spans two lines}}}
+              00030,1,1 unmatched {opening brace in the middle
+              00031,1,1 unmatched closing brace} in the middle
+              00032,1,1 matched {braces} in the middle
+              00033,2,1 unmatched {opening brace in the middle
+              00035,2,1 unmatched closing brace} in the middle
+              00037,2,1 matched {{braces}} in the middle
+            i 00039
+        """
+        exp_skool = """
+            @start
+            @org=0
+            ; Data block at 0
+            b00000 DEFB 0        ; { {unmatched opening brace}}
+             00001 DEFB 0        ; unmatched closing brace}
+             00002 DEFB 0        ; { {matched braces} }
+             00003 DEFB 0        ; { {unmatched opening brace
+             00004 DEFB 0        ; }}
+             00005 DEFB 0        ; {{unmatched closing brace}
+             00006 DEFB 0        ; }
+             00007 DEFB 0        ; { {matched braces}
+             00008 DEFB 0        ; }
+             00009 DEFB 0        ; { { unmatched opening brace with a space
+             00010 DEFB 0        ; }}
+             00011 DEFB 0        ; {{unmatched closing brace with a space }
+             00012 DEFB 0        ; }
+             00013 DEFB 0        ; { { matched braces with spaces }
+             00014 DEFB 0        ; }
+             00015 DEFB 0        ; { {{unmatched opening braces} }}
+             00016 DEFB 0        ; { {unmatched closing braces}} }
+             00017 DEFB 0        ; { {{matched pairs of braces}} }
+             00018 DEFB 0        ; { {{unmatched opening braces}
+             00019 DEFB 0        ; }}
+             00020 DEFB 0        ; {{ {unmatched closing braces}}
+             00021 DEFB 0        ; }
+             00022 DEFB 0        ; { {{matched pairs of braces}}
+             00023 DEFB 0        ; }
+             00024 DEFB 0        ; { {{{unmatched opening braces on a comment that spans
+             00025 DEFB 0        ; two lines}} }}
+             00026 DEFB 0        ; {{ {{unmatched closing braces on a comment that spans
+             00027 DEFB 0        ; two lines}}} }
+             00028 DEFB 0        ; { {{{matched pairs of braces on a comment that spans two
+             00029 DEFB 0        ; lines}}} }
+             00030 DEFB 0        ; unmatched {opening brace in the middle
+             00031 DEFB 0        ; unmatched closing brace} in the middle
+             00032 DEFB 0        ; matched {braces} in the middle
+             00033 DEFB 0        ; {unmatched {opening brace in the middle
+             00034 DEFB 0        ; }}
+             00035 DEFB 0        ; {{unmatched closing brace} in the middle
+             00036 DEFB 0        ; }
+             00037 DEFB 0        ; {matched {{braces}} in the middle
+             00038 DEFB 0        ; }
+        """
         self._test_write_skool(snapshot, ctl, exp_skool)
 
     def test_ignore_blocks_with_no_title_and_no_sub_blocks(self):
         snapshot = [0] * 3
-        ctl = '\n'.join((
-            'b 00000',
-            'i 00001',
-            'b 00002',
-            'i 00003'
-        ))
-        exp_skool = [
-            '@start',
-            '@org=0',
-            '; Data block at 0',
-            'b00000 DEFB 0',
-            '',
-            'i00001',
-            '',
-            '; Data block at 2',
-            'b00002 DEFB 0'
-        ]
+        ctl = """
+            b 00000
+            i 00001
+            b 00002
+            i 00003
+        """
+        exp_skool = """
+            @start
+            @org=0
+            ; Data block at 0
+            b00000 DEFB 0
+
+            i00001
+
+            ; Data block at 2
+            b00002 DEFB 0
+        """
         self._test_write_skool(snapshot, ctl, exp_skool)
 
     def test_ignore_blocks_with_title_but_no_sub_blocks(self):
         snapshot = [0] * 3
-        ctl = '\n'.join((
-            'b 00000',
-            'i 00001 The middle',
-            'b 00002',
-            'i 00003 The end'
-        ))
-        exp_skool = [
-            '@start',
-            '@org=0',
-            '; Data block at 0',
-            'b00000 DEFB 0',
-            '',
-            '; The middle',
-            'i00001',
-            '',
-            '; Data block at 2',
-            'b00002 DEFB 0',
-            '',
-            '; The end',
-            'i00003'
-        ]
+        ctl = """
+            b 00000
+            i 00001 The middle
+            b 00002
+            i 00003 The end
+        """
+        exp_skool = """
+            @start
+            @org=0
+            ; Data block at 0
+            b00000 DEFB 0
+
+            ; The middle
+            i00001
+
+            ; Data block at 2
+            b00002 DEFB 0
+
+            ; The end
+            i00003
+        """
         self._test_write_skool(snapshot, ctl, exp_skool)
 
     def test_ignore_blocks_with_sub_block_but_no_title(self):
         snapshot = [0] * 3
-        ctl = '\n'.join((
-            'b 00000',
-            'i 00001',
-            'B 00001',
-            'b 00002',
-            'i 00003',
-            'S 00003'
-        ))
-        exp_skool = [
-            '@start',
-            '@org=0',
-            '; Data block at 0',
-            'b00000 DEFB 0',
-            '',
-            'i00001 DEFB 0',
-            '',
-            '; Data block at 2',
-            'b00002 DEFB 0',
-            '',
-            'i00003 DEFS 65533'
-        ]
+        ctl = """
+            b 00000
+            i 00001
+            B 00001
+            b 00002
+            i 00003
+            S 00003
+        """
+        exp_skool = """
+            @start
+            @org=0
+            ; Data block at 0
+            b00000 DEFB 0
+
+            i00001 DEFB 0
+
+            ; Data block at 2
+            b00002 DEFB 0
+
+            i00003 DEFS 65533
+        """
         self._test_write_skool(snapshot, ctl, exp_skool)
 
     def test_ignore_blocks_with_title_and_sub_block(self):
         snapshot = [0] * 3
-        ctl = '\n'.join((
-            'b 00000',
-            'i 00001 The middle',
-            'S 00001',
-            'b 00002',
-            'i 00003 The end',
-            'D 00003 Unused from here on out.',
-            'S 00003'
-        ))
-        exp_skool = [
-            '@start',
-            '@org=0',
-            '; Data block at 0',
-            'b00000 DEFB 0',
-            '',
-            '; The middle',
-            'i00001 DEFS 1',
-            '',
-            '; Data block at 2',
-            'b00002 DEFB 0',
-            '',
-            '; The end',
-            ';',
-            '; Unused from here on out.',
-            'i00003 DEFS 65533'
-        ]
+        ctl = """
+            b 00000
+            i 00001 The middle
+            S 00001
+            b 00002
+            i 00003 The end
+            D 00003 Unused from here on out.
+            S 00003
+        """
+        exp_skool = """
+            @start
+            @org=0
+            ; Data block at 0
+            b00000 DEFB 0
+
+            ; The middle
+            i00001 DEFS 1
+
+            ; Data block at 2
+            b00002 DEFB 0
+
+            ; The end
+            ;
+            ; Unused from here on out.
+            i00003 DEFS 65533
+        """
         self._test_write_skool(snapshot, ctl, exp_skool)
 
     def test_ignore_block_with_description_but_no_title(self):
         snapshot = [0] * 3
-        ctl = '\n'.join((
-            'b 00000',
-            'i 00001',
-            'D 00001 Unused from here on out.'
-        ))
-        exp_skool = [
-            '@start',
-            '@org=0',
-            '; Data block at 0',
-            'b00000 DEFB 0',
-            '',
-            '; Ignored',
-            ';',
-            '; Unused from here on out.',
-            'i00001'
-        ]
+        ctl = """
+            b 00000
+            i 00001
+            D 00001 Unused from here on out.
+        """
+        exp_skool = """
+            @start
+            @org=0
+            ; Data block at 0
+            b00000 DEFB 0
+
+            ; Ignored
+            ;
+            ; Unused from here on out.
+            i00001
+        """
         self._test_write_skool(snapshot, ctl, exp_skool)
 
     def test_ignore_block_with_registers_but_no_title(self):
         snapshot = [0, 201]
-        ctl = '\n'.join((
-            'b 00000',
-            'i 00001',
-            'R 00001 A 0',
-            'C 00001,1',
-            'S 00002'
-        ))
-        exp_skool = [
-            '@start',
-            '@org=0',
-            '; Data block at 0',
-            'b00000 DEFB 0',
-            '',
-            '; Ignored',
-            ';',
-            '; .',
-            ';',
-            '; A 0',
-            'i00001 RET',
-            ' 00002 DEFS 65534'
-        ]
+        ctl = """
+            b 00000
+            i 00001
+            R 00001 A 0
+            C 00001,1
+            S 00002
+        """
+        exp_skool = """
+            @start
+            @org=0
+            ; Data block at 0
+            b00000 DEFB 0
+
+            ; Ignored
+            ;
+            ; .
+            ;
+            ; A 0
+            i00001 RET
+             00002 DEFS 65534
+        """
         self._test_write_skool(snapshot, ctl, exp_skool)
 
     def test_ignore_block_with_start_comment_but_no_title(self):
         snapshot = [0]
-        ctl = '\n'.join((
-            'b 00000',
-            'i 00001',
-            'N 00001 It ends here.'
-        ))
-        exp_skool = [
-            '@start',
-            '@org=0',
-            '; Data block at 0',
-            'b00000 DEFB 0',
-            '',
-            '; Ignored',
-            ';',
-            '; .',
-            ';',
-            '; .',
-            ';',
-            '; It ends here.',
-            'i00001'
-        ]
+        ctl = """
+            b 00000
+            i 00001
+            N 00001 It ends here.
+        """
+        exp_skool = """
+            @start
+            @org=0
+            ; Data block at 0
+            b00000 DEFB 0
+
+            ; Ignored
+            ;
+            ; .
+            ;
+            ; .
+            ;
+            ; It ends here.
+            i00001
+        """
         self._test_write_skool(snapshot, ctl, exp_skool)
 
     def test_references_to_and_from_a_non_code_block(self):
         snapshot = [24, 0, 24, 0, 24, 250]
-        ctl = '\n'.join((
-            'c 00000',
-            'u 00002',
-            'C 00002',
-            'i 00006',
-        ))
-        exp_skool = [
-            '@start',
-            '@org=0',
-            '; Routine at 0',
-            ';',
-            '; Used by the routine at #R2.',
-            'c00000 JR 2          ;',
-            '',
-            '; Unused',
-            ';',
-            '; Used by the routine at #R0.',
-            'u00002 JR 4',
-            '*00004 JR 0'
-        ]
+        ctl = """
+            c 00000
+            u 00002
+            C 00002
+            i 00006
+        """
+        exp_skool = """
+            @start
+            @org=0
+            ; Routine at 0
+            ;
+            ; Used by the routine at #R2.
+            c00000 JR 2          ;
+
+            ; Unused
+            ;
+            ; Used by the routine at #R0.
+            u00002 JR 4
+            *00004 JR 0
+        """
         self._test_write_skool(snapshot, ctl, exp_skool, write_refs=2)
 
     def test_M_directive_terminates_previous_sub_block(self):
         snapshot = [120, 207, 2]
-        ctl = '\n'.join((
-            'c 00000',
-            '  00000 This sub-block is terminated by the M directive',
-            'M 00001,2 This spans an implicit "C" sub-block and a "B" sub-block',
-            'B 00002,1',
-            'i 00003'
-        ))
-        exp_skool = [
-            '@start',
-            '@org=0',
-            '; Routine at 0',
-            'c00000 LD A,B        ; This sub-block is terminated by the M directive',
-            ' 00001 RST 8         ; {This spans an implicit "C" sub-block and a "B"',
-            ' 00002 DEFB 2        ; sub-block}'
-        ]
+        ctl = """
+            c 00000
+              00000 This sub-block is terminated by the M directive
+            M 00001,2 This spans an implicit "C" sub-block and a "B" sub-block
+            B 00002,1
+            i 00003
+        """
+        exp_skool = """
+            @start
+            @org=0
+            ; Routine at 0
+            c00000 LD A,B        ; This sub-block is terminated by the M directive
+             00001 RST 8         ; {This spans an implicit "C" sub-block and a "B"
+             00002 DEFB 2        ; sub-block}
+        """
         self._test_write_skool(snapshot, ctl, exp_skool)
 
     def test_custom_Ref(self):
         params = {'Ref': 'Used by the subroutine at {ref}.'}
         snapshot = [201, 24, 253]
-        ctl = '\n'.join((
-            'c 00000',
-            'c 00001',
-            'i 00003'
-        ))
-        exp_skool = [
-            '@start',
-            '@org=0',
-            '; Routine at 0',
-            ';',
-            '; Used by the subroutine at #R1.',
-            'c00000 RET           ;',
-            '',
-            '; Routine at 1',
-            'c00001 JR 0          ;'
-        ]
+        ctl = """
+            c 00000
+            c 00001
+            i 00003
+        """
+        exp_skool = """
+            @start
+            @org=0
+            ; Routine at 0
+            ;
+            ; Used by the subroutine at #R1.
+            c00000 RET           ;
+
+            ; Routine at 1
+            c00001 JR 0          ;
+        """
         self._test_write_skool(snapshot, ctl, exp_skool, params=params)
 
     def test_invalid_custom_Ref(self):
         params = {'Ref': 'Used by the subroutine at {ref:04X}.'}
         snapshot = [201, 24, 253]
-        ctl = '\n'.join((
-            'c 00000',
-            'c 00001',
-            'i 00003'
-        ))
+        ctl = """
+            c 00000
+            c 00001
+            i 00003
+        """
         writer = self._get_writer(snapshot, ctl, params=params)
 
         with self.assertRaisesRegex(SkoolKitError, "^Failed to format Ref template: Unknown format code 'X' for object of type 'str'$"):
@@ -2555,66 +2556,66 @@ class SkoolWriterTest(SkoolKitTestCase):
     def test_custom_Refs_with_two_referrers(self):
         params = {'Refs': 'Used by the subroutines at {refs} and {ref}.'}
         snapshot = [201, 24, 253, 24, 251]
-        ctl = '\n'.join((
-            'c 00000',
-            'c 00001',
-            'c 00003',
-            'i 00005'
-        ))
-        exp_skool = [
-            '@start',
-            '@org=0',
-            '; Routine at 0',
-            ';',
-            '; Used by the subroutines at #R1 and #R3.',
-            'c00000 RET           ;',
-            '',
-            '; Routine at 1',
-            'c00001 JR 0          ;',
-            '',
-            '; Routine at 3',
-            'c00003 JR 0          ;'
-        ]
+        ctl = """
+            c 00000
+            c 00001
+            c 00003
+            i 00005
+        """
+        exp_skool = """
+            @start
+            @org=0
+            ; Routine at 0
+            ;
+            ; Used by the subroutines at #R1 and #R3.
+            c00000 RET           ;
+
+            ; Routine at 1
+            c00001 JR 0          ;
+
+            ; Routine at 3
+            c00003 JR 0          ;
+        """
         self._test_write_skool(snapshot, ctl, exp_skool, params=params)
 
     def test_custom_Refs_with_three_referrers(self):
         params = {'Refs': 'Used by the subroutines at {refs} and {ref}.'}
         snapshot = [201, 24, 253, 24, 251, 24, 249]
-        ctl = '\n'.join((
-            'c 00000',
-            'c 00001',
-            'c 00003',
-            'c 00005',
-            'i 00007'
-        ))
-        exp_skool = [
-            '@start',
-            '@org=0',
-            '; Routine at 0',
-            ';',
-            '; Used by the subroutines at #R1, #R3 and #R5.',
-            'c00000 RET           ;',
-            '',
-            '; Routine at 1',
-            'c00001 JR 0          ;',
-            '',
-            '; Routine at 3',
-            'c00003 JR 0          ;',
-            '',
-            '; Routine at 5',
-            'c00005 JR 0          ;'
-        ]
+        ctl = """
+            c 00000
+            c 00001
+            c 00003
+            c 00005
+            i 00007
+        """
+        exp_skool = """
+            @start
+            @org=0
+            ; Routine at 0
+            ;
+            ; Used by the subroutines at #R1, #R3 and #R5.
+            c00000 RET           ;
+
+            ; Routine at 1
+            c00001 JR 0          ;
+
+            ; Routine at 3
+            c00003 JR 0          ;
+
+            ; Routine at 5
+            c00005 JR 0          ;
+        """
         self._test_write_skool(snapshot, ctl, exp_skool, params=params)
 
     def test_invalid_custom_Refs(self):
         params = {'Refs': 'Used by the subroutines at {refs} and {lastref}.'}
         snapshot = [201, 24, 253, 24, 251]
-        ctl = '\n'.join((
-            'c 00000',
-            'c 00001',
-            'c 00003',
-            'i 00005'
-        ))
+        ctl = """
+            c 00000
+            c 00001
+            c 00003
+            i 00005
+        """
         writer = self._get_writer(snapshot, ctl, params=params)
 
         with self.assertRaisesRegex(SkoolKitError, "^Unknown field 'lastref' in Refs template$"):
@@ -2623,32 +2624,32 @@ class SkoolWriterTest(SkoolKitTestCase):
     def test_custom_EntryPointRef(self):
         params = {'EntryPointRef': 'Used by the subroutine at {ref}.'}
         snapshot = [175, 201, 24, 253]
-        ctl = '\n'.join((
-            'c 00000',
-            'c 00002',
-            'i 00004'
-        ))
-        exp_skool = [
-            '@start',
-            '@org=0',
-            '; Routine at 0',
-            'c00000 XOR A         ;',
-            '; Used by the subroutine at #R2.',
-            '*00001 RET           ;',
-            '',
-            '; Routine at 2',
-            'c00002 JR 1          ;'
-        ]
+        ctl = """
+            c 00000
+            c 00002
+            i 00004
+        """
+        exp_skool = """
+            @start
+            @org=0
+            ; Routine at 0
+            c00000 XOR A         ;
+            ; Used by the subroutine at #R2.
+            *00001 RET           ;
+
+            ; Routine at 2
+            c00002 JR 1          ;
+        """
         self._test_write_skool(snapshot, ctl, exp_skool, params=params)
 
     def test_invalid_custom_EntryPointRef(self):
         params = {'EntryPointRef': 'Used by the subroutine at {ref:04x}.'}
         snapshot = [175, 201, 24, 253]
-        ctl = '\n'.join((
-            'c 00000',
-            'c 00002',
-            'i 00004'
-        ))
+        ctl = """
+            c 00000
+            c 00002
+            i 00004
+        """
         writer = self._get_writer(snapshot, ctl, params=params)
 
         with self.assertRaisesRegex(SkoolKitError, "^Failed to format EntryPointRef template: Unknown format code 'x' for object of type 'str'$"):
@@ -2657,67 +2658,67 @@ class SkoolWriterTest(SkoolKitTestCase):
     def test_custom_EntryPointRefs_with_two_referrers(self):
         params = {'EntryPointRefs': 'Used by the subroutines at {refs} and {ref}.'}
         snapshot = [175, 201, 24, 253, 24, 251]
-        ctl = '\n'.join((
-            'c 00000',
-            'c 00002',
-            'c 00004',
-            'i 00006'
-        ))
-        exp_skool = [
-            '@start',
-            '@org=0',
-            '; Routine at 0',
-            'c00000 XOR A         ;',
-            '; Used by the subroutines at #R2 and #R4.',
-            '*00001 RET           ;',
-            '',
-            '; Routine at 2',
-            'c00002 JR 1          ;',
-            '',
-            '; Routine at 4',
-            'c00004 JR 1          ;'
-        ]
+        ctl = """
+            c 00000
+            c 00002
+            c 00004
+            i 00006
+        """
+        exp_skool = """
+            @start
+            @org=0
+            ; Routine at 0
+            c00000 XOR A         ;
+            ; Used by the subroutines at #R2 and #R4.
+            *00001 RET           ;
+
+            ; Routine at 2
+            c00002 JR 1          ;
+
+            ; Routine at 4
+            c00004 JR 1          ;
+        """
         self._test_write_skool(snapshot, ctl, exp_skool, params=params)
 
     def test_custom_EntryPointRefs_with_three_referrers(self):
         params = {'EntryPointRefs': 'Used by the subroutines at {refs} and {ref}.'}
         snapshot = [175, 201, 24, 253, 24, 251, 24, 249]
-        ctl = '\n'.join((
-            'c 00000',
-            'c 00002',
-            'c 00004',
-            'c 00006',
-            'i 00008'
-        ))
-        exp_skool = [
-            '@start',
-            '@org=0',
-            '; Routine at 0',
-            'c00000 XOR A         ;',
-            '; Used by the subroutines at #R2, #R4 and #R6.',
-            '*00001 RET           ;',
-            '',
-            '; Routine at 2',
-            'c00002 JR 1          ;',
-            '',
-            '; Routine at 4',
-            'c00004 JR 1          ;',
-            '',
-            '; Routine at 6',
-            'c00006 JR 1          ;'
-        ]
+        ctl = """
+            c 00000
+            c 00002
+            c 00004
+            c 00006
+            i 00008
+        """
+        exp_skool = """
+            @start
+            @org=0
+            ; Routine at 0
+            c00000 XOR A         ;
+            ; Used by the subroutines at #R2, #R4 and #R6.
+            *00001 RET           ;
+
+            ; Routine at 2
+            c00002 JR 1          ;
+
+            ; Routine at 4
+            c00004 JR 1          ;
+
+            ; Routine at 6
+            c00006 JR 1          ;
+        """
         self._test_write_skool(snapshot, ctl, exp_skool, params=params)
 
     def test_invalid_custom_EntryPointRefs(self):
         params = {'EntryPointRefs': 'Used by the subroutines at {refs} and {finalref}.'}
         snapshot = [175, 201, 24, 253, 24, 251, 24, 249]
-        ctl = '\n'.join((
-            'c 00000',
-            'c 00002',
-            'c 00004',
-            'c 00006',
-            'i 00008'
-        ))
+        ctl = """
+            c 00000
+            c 00002
+            c 00004
+            c 00006
+            i 00008
+        """
         writer = self._get_writer(snapshot, ctl, params=params)
 
         with self.assertRaisesRegex(SkoolKitError, "^Unknown field 'finalref' in EntryPointRefs template$"):
@@ -2729,37 +2730,37 @@ class SkoolWriterTest(SkoolKitTestCase):
             'Title-c': 'Code at {address}'
         }
         snapshot = [201, 0]
-        ctl = '\n'.join((
-            'c 00000',
-            'b 00001',
-            'i 00002'
-        ))
-        exp_skool = [
-            '@start',
-            '@org=0',
-            '; Code at 0',
-            'c00000 RET           ;',
-            '',
-            '; Data at 1',
-            'b00001 DEFB 0'
-        ]
+        ctl = """
+            c 00000
+            b 00001
+            i 00002
+        """
+        exp_skool = """
+            @start
+            @org=0
+            ; Code at 0
+            c00000 RET           ;
+
+            ; Data at 1
+            b00001 DEFB 0
+        """
         self._test_write_skool(snapshot, ctl, exp_skool, params=params)
 
 class CtlWriterTest(SkoolKitTestCase):
     def test_decimal_addresses_below_10000(self):
         ctls = {0: 'b', 1: 'c', 22: 't', 333: 'w', 4444: 's'}
-        exp_ctl = [
-            'b 00000',
-            'c 00001',
-            't 00022',
-            'w 00333',
-            's 04444'
-        ]
+        exp_ctl = """
+            b 00000
+            c 00001
+            t 00022
+            w 00333
+            s 04444
+        """
         ctlfile = self.write_bin_file()
         write_ctl(ctlfile, ctls, 0)
         with open(ctlfile, 'r') as f:
-            ctl = [line.rstrip() for line in f]
-        self.assertEqual(exp_ctl, ctl)
+            ctl = f.read().rstrip()
+        self.assertEqual(textwrap.dedent(exp_ctl).strip(), ctl)
 
     def test_lower_case_hexadecimal_addresses(self):
         ctls = {57005: 'c', 64181: 'b'}
