@@ -1,3 +1,4 @@
+import textwrap
 import unittest
 from unittest.mock import patch
 
@@ -120,11 +121,11 @@ class Skool2CtlTest(SkoolKitTestCase):
         self._check_ctl_writer(skoolfile, min_address=start, max_address=end)
 
     def test_run(self):
-        skool = '\n'.join((
-            '; Test skool file for skool2ctl testing',
-            'c65535 RET'
-        ))
-        skoolfile = self.write_text_file(skool, suffix='.skool')
+        skool = """
+            ; Test skool file for skool2ctl testing
+            c65535 RET
+        """
+        skoolfile = self.write_text_file(textwrap.dedent(skool).strip(), suffix='.skool')
         output, error = self.run_skool2ctl(skoolfile)
         self.assertEqual(len(error), 0)
         self.assertEqual(['c 65535 Test skool file for skool2ctl testing'], output)
