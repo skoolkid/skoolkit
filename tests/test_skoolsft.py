@@ -1,4 +1,5 @@
 from io import StringIO
+import textwrap
 import unittest
 
 from skoolkittest import SkoolKitTestCase
@@ -278,7 +279,7 @@ tT49193,5:B5,B1:7:B2
 bB49213,1:T2*2,1,2:T1*3
 
 ; Another ignore block
-iI49229""".split('\n')
+iI49229"""
 
 TEST_BYTE_FORMATS_SKOOL = """; Binary and mixed-base DEFB/DEFM statements
 b30000 DEFB %10111101,$42,26
@@ -433,11 +434,11 @@ c62000 LD A,","
 
 class SftWriterTest(SkoolKitTestCase):
     def _test_sft(self, skool, exp_sft, write_hex=0, preserve_base=False, min_address=0, max_address=65536):
-        skoolfile = StringIO(skool)
+        skoolfile = StringIO(textwrap.dedent(skool).strip())
         writer = SftWriter(skoolfile, write_hex, preserve_base)
         writer.write(min_address, max_address)
-        sft = self.out.getvalue().split('\n')[:-1]
-        self.assertEqual(exp_sft, sft)
+        sft = self.out.getvalue()
+        self.assertEqual(textwrap.dedent(exp_sft).strip(), sft.rstrip())
 
     def test_invalid_address(self):
         writer = SftWriter(self.write_text_file('c4000f RET'))
@@ -449,76 +450,76 @@ class SftWriterTest(SkoolKitTestCase):
         self._test_sft(TEST_SKOOL, TEST_SFT)
 
     def test_write_hex(self):
-        self._test_sft('c40177 RET', ['cC$9CF1,1'], write_hex=1)
+        self._test_sft('c40177 RET', 'cC$9CF1,1', write_hex=1)
 
     def test_write_hex_lower(self):
-        self._test_sft('c40177 RET', ['cC$9cf1,1'], write_hex=-1)
+        self._test_sft('c40177 RET', 'cC$9cf1,1', write_hex=-1)
 
     def test_decimal_addresses_below_10000(self):
-        skool = '\n'.join((
-            'b00000 DEFB 0,0,0,0',
-            ' 00004 DEFW 0,0,0,0',
-            ' 00012 DEFM "Hello"',
-            ' 00123 DEFS 1000',
-            ' 01123 RET'
-        ))
-        exp_sft = [
-            'bB00000,4',
-            ' W00004,8',
-            ' T00012,5',
-            ' S00123,1000',
-            ' C01123,1'
-        ]
+        skool = """
+            b00000 DEFB 0,0,0,0
+             00004 DEFW 0,0,0,0
+             00012 DEFM "Hello"
+             00123 DEFS 1000
+             01123 RET
+        """
+        exp_sft = """
+            bB00000,4
+             W00004,8
+             T00012,5
+             S00123,1000
+             C01123,1
+        """
         self._test_sft(skool, exp_sft)
 
     def test_byte_formats_no_base(self):
-        exp_sft = [
-            '; Binary and mixed-base DEFB/DEFM statements',
-            'bB30000,b1:2,2:b2:3,b2,3,5,T5,b1:T2:2',
-            ' T30030,b1:B2,B2:b2:B3,b2,B3,B5,5,b1:2:B2'
-        ]
+        exp_sft = """
+            ; Binary and mixed-base DEFB/DEFM statements
+            bB30000,b1:2,2:b2:3,b2,3,5,T5,b1:T2:2
+             T30030,b1:B2,B2:b2:B3,b2,B3,B5,5,b1:2:B2
+        """
         self._test_sft(TEST_BYTE_FORMATS_SKOOL, exp_sft, preserve_base=False)
 
     def test_byte_formats_preserve_base(self):
-        exp_sft = [
-            '; Binary and mixed-base DEFB/DEFM statements',
-            'bB30000,b1:h1:d1,h2:b2:d3,b2,d3,h5,T5,b1:T2:d1:h1',
-            ' T30030,b1:h1:d1,h2:b2:d3,b2,d3,h5,5,b1:2:d1:h1'
-        ]
+        exp_sft = """
+            ; Binary and mixed-base DEFB/DEFM statements
+            bB30000,b1:h1:d1,h2:b2:d3,b2,d3,h5,T5,b1:T2:d1:h1
+             T30030,b1:h1:d1,h2:b2:d3,b2,d3,h5,5,b1:2:d1:h1
+        """
         self._test_sft(TEST_BYTE_FORMATS_SKOOL, exp_sft, preserve_base=True)
 
     def test_word_formats_no_base(self):
-        exp_sft = [
-            '; Binary and mixed-base DEFW statements',
-            'wW40000,b4,2:c2:2,8,2:b2:2,4:b2:4*2,4*4,b4*2'
-        ]
+        exp_sft = """
+            ; Binary and mixed-base DEFW statements
+            wW40000,b4,2:c2:2,8,2:b2:2,4:b2:4*2,4*4,b4*2
+        """
         self._test_sft(TEST_WORD_FORMATS_SKOOL, exp_sft, preserve_base=False)
 
     def test_word_formats_preserve_base(self):
-        exp_sft = [
-            '; Binary and mixed-base DEFW statements',
-            'wW40000,b4,d2:c2:d2,h8,d2:b2:h2,h4:b2:d4*2,d4*2,h4*2,b4*2'
-        ]
+        exp_sft = """
+            ; Binary and mixed-base DEFW statements
+            wW40000,b4,d2:c2:d2,h8,d2:b2:h2,h4:b2:d4*2,d4*2,h4*2,b4*2
+        """
         self._test_sft(TEST_WORD_FORMATS_SKOOL, exp_sft, preserve_base=True)
 
     def test_s_directives_no_base(self):
-        exp_sft = [
-            '; DEFS statements in various bases',
-            'sS50000,b%0000000111110100,1000,$07D0,500:b%10101010,$0100:170',
-            ' S54256,256:c"\\"";30 {Tricky characters',
-            ' S54512,88:c"\\\\",50:c",";30',
-            ' S54650,50:c";";30 }'
-        ]
+        exp_sft = """
+            ; DEFS statements in various bases
+            sS50000,b%0000000111110100,1000,$07D0,500:b%10101010,$0100:170
+             S54256,256:c"\\"";30 {Tricky characters
+             S54512,88:c"\\\\",50:c",";30
+             S54650,50:c";";30 }
+        """
         self._test_sft(TEST_S_DIRECTIVES_SKOOL, exp_sft, preserve_base=False)
 
     def test_s_directives_preserve_base(self):
-        exp_sft = [
-            '; DEFS statements in various bases',
-            'sS50000,b%0000000111110100,d1000,h$07D0,d500:b%10101010,h$0100:d170',
-            ' S54256,d256:c"\\"";30 {Tricky characters',
-            ' S54512,d88:c"\\\\",d50:c",";30',
-            ' S54650,d50:c";";30 }'
-        ]
+        exp_sft = """
+            ; DEFS statements in various bases
+            sS50000,b%0000000111110100,d1000,h$07D0,d500:b%10101010,h$0100:d170
+             S54256,d256:c"\\"";30 {Tricky characters
+             S54512,d88:c"\\\\",d50:c",";30
+             S54650,d50:c";";30 }
+        """
         self._test_sft(TEST_S_DIRECTIVES_SKOOL, exp_sft, preserve_base=True)
 
     def test_s_directive_invalid_size(self):
@@ -532,367 +533,367 @@ class SftWriterTest(SkoolKitTestCase):
             writer.write()
 
     def test_operand_bases_no_base(self):
-        exp_sft = [
-            '; Operations in various bases',
-            'cC60000,2;33 Decimal',
-            ' C60002,b2;33 {Binary, hexadecimal',
-            ' C60004,2;33 }',
-            ' C60006,b2;33 Space',
-            ' C60008,2;32 Tab',
-            ' C60010,2;32 Another tab',
-            ' C60012,2;32 Tab, space',
-            ' C60014,3;33 Two spaces',
-            ' C60017,b3;33 Two spaces, two spaces',
-            ' C60020,3;31 Tab, tab',
-            ' C60023,b3,3,b3',
-            ' C60032,3;33 {Hexadecimal, decimal',
-            ' C60035,3;33 }',
-            ' C60038,6,b3,3,nb4,4,bn4,4,b2,3,b3,6,b4,7,b4,7,b4,8,b3,8,b3,8,b4,4,b2,3,b3,5,b2,4,b2,3,b3,6,b3,6,b4,8,b4,8,b4,4',
-            ' C60218,2;33 {No operands',
-            ' C60220,2;33',
-            ' C60222,2;33 }',
-            ' C60224,4,b4,26'
-        ]
+        exp_sft = """
+            ; Operations in various bases
+            cC60000,2;33 Decimal
+             C60002,b2;33 {Binary, hexadecimal
+             C60004,2;33 }
+             C60006,b2;33 Space
+             C60008,2;32 Tab
+             C60010,2;32 Another tab
+             C60012,2;32 Tab, space
+             C60014,3;33 Two spaces
+             C60017,b3;33 Two spaces, two spaces
+             C60020,3;31 Tab, tab
+             C60023,b3,3,b3
+             C60032,3;33 {Hexadecimal, decimal
+             C60035,3;33 }
+             C60038,6,b3,3,nb4,4,bn4,4,b2,3,b3,6,b4,7,b4,7,b4,8,b3,8,b3,8,b4,4,b2,3,b3,5,b2,4,b2,3,b3,6,b3,6,b4,8,b4,8,b4,4
+             C60218,2;33 {No operands
+             C60220,2;33
+             C60222,2;33 }
+             C60224,4,b4,26
+        """
         self._test_sft(TEST_OPERAND_BASES_SKOOL, exp_sft, preserve_base=False)
 
     def test_operand_bases_preserve_base(self):
-        exp_sft = [
-            '; Operations in various bases',
-            'cC60000,d2;33 Decimal',
-            ' C60002,b2;33 {Binary, hexadecimal',
-            ' C60004,h2;33 }',
-            ' C60006,b2;33 Space',
-            ' C60008,h2;32 Tab',
-            ' C60010,d2;32 Another tab',
-            ' C60012,h2;32 Tab, space',
-            ' C60014,d3;33 Two spaces',
-            ' C60017,b3;33 Two spaces, two spaces',
-            ' C60020,h3;31 Tab, tab',
-            ' C60023,b3,d3,b3',
-            ' C60032,h3;33 {Hexadecimal, decimal',
-            ' C60035,d3;33 }',
-            ' C60038,d3,h3,b3,h3,hb4,dh4,bd4,hh4,b2,h3,b3,d3,h3,b4,d4,h3,b4,d4,h3,b4,d4,h4,b3,d4,h4,b3,d4,h4,b4,d2,h2,b2,h3,b3,d3,h2,b2,d2,h2,b2,h3,b3,d3,h3,b3,d3,h3,b4,d4,h4,b4,d4,h4,b4,d4',
-            ' C60218,2;33 {No operands',
-            ' C60220,2;33',
-            ' C60222,2;33 }',
-            ' C60224,h4,b4,d7,h5,d2,h3,d3,h4,d2'
-        ]
+        exp_sft = """
+            ; Operations in various bases
+            cC60000,d2;33 Decimal
+             C60002,b2;33 {Binary, hexadecimal
+             C60004,h2;33 }
+             C60006,b2;33 Space
+             C60008,h2;32 Tab
+             C60010,d2;32 Another tab
+             C60012,h2;32 Tab, space
+             C60014,d3;33 Two spaces
+             C60017,b3;33 Two spaces, two spaces
+             C60020,h3;31 Tab, tab
+             C60023,b3,d3,b3
+             C60032,h3;33 {Hexadecimal, decimal
+             C60035,d3;33 }
+             C60038,d3,h3,b3,h3,hb4,dh4,bd4,hh4,b2,h3,b3,d3,h3,b4,d4,h3,b4,d4,h3,b4,d4,h4,b3,d4,h4,b3,d4,h4,b4,d2,h2,b2,h3,b3,d3,h2,b2,d2,h2,b2,h3,b3,d3,h3,b3,d3,h3,b4,d4,h4,b4,d4,h4,b4,d4
+             C60218,2;33 {No operands
+             C60220,2;33
+             C60222,2;33 }
+             C60224,h4,b4,d7,h5,d2,h3,d3,h4,d2
+        """
         self._test_sft(TEST_OPERAND_BASES_SKOOL, exp_sft, preserve_base=True)
 
     def test_character_operands_no_base(self):
-        exp_sft = [
-            '; Instruction operands as characters',
-            'cC61000,c6,2,c5,nc4'
-        ]
+        exp_sft = """
+            ; Instruction operands as characters
+            cC61000,c6,2,c5,nc4
+        """
         self._test_sft(TEST_CHARACTER_OPERANDS_SKOOL, exp_sft, preserve_base=False)
 
     def test_character_operands_preserve_base(self):
-        exp_sft = [
-            '; Instruction operands as characters',
-            'cC61000,c6,d2,c5,hc4'
-        ]
+        exp_sft = """
+            ; Instruction operands as characters
+            cC61000,c6,d2,c5,hc4
+        """
         self._test_sft(TEST_CHARACTER_OPERANDS_SKOOL, exp_sft, preserve_base=True)
 
     def test_operands_with_commas_no_base(self):
-        exp_sft = [
-            '; Instruction operands that contain commas',
-            'cC62000,c8,nc4,cn4,cc4'
-        ]
+        exp_sft = """
+            ; Instruction operands that contain commas
+            cC62000,c8,nc4,cn4,cc4
+        """
         self._test_sft(TEST_OPERANDS_WITH_COMMAS_SKOOL, exp_sft, preserve_base=False)
 
     def test_operands_with_commas_preserve_base(self):
-        exp_sft = [
-            '; Instruction operands that contain commas',
-            'cC62000,c8,dc4,ch4,cc4'
-        ]
+        exp_sft = """
+            ; Instruction operands that contain commas
+            cC62000,c8,dc4,ch4,cc4
+        """
         self._test_sft(TEST_OPERANDS_WITH_COMMAS_SKOOL, exp_sft, preserve_base=True)
 
     def test_semicolons_in_instructions(self):
-        skool = '\n'.join((
-            'c60000 CP ";"             ; First comment',
-            ' 60002 LD A,";"           ; Comment 2',
-            ' 60004 LD B,(IX+";")      ; Comment 3',
-            ' 60007 LD (IX+";"),C      ; Comment 4',
-            ' 60010 LD (IX+";"),";"    ; Comment 5',
-           r' 60014 LD (IX+"\""),";"   ; Comment 6',
-           r' 60018 LD (IX+"\\"),";"   ; Comment 7',
-            ' 60022 DEFB 5,"hi;",6     ; Comment 8',
-            ' 60027 DEFM ";0;",0       ; Last comment'
-        ))
-        exp_sft = [
-            'cC60000,c2;26 First comment',
-            ' C60002,c2;26 Comment 2',
-            ' C60004,c3;26 Comment 3',
-            ' C60007,c3;26 Comment 4',
-            ' C60010,cc4;26 Comment 5',
-            ' C60014,cc4;26 Comment 6',
-            ' C60018,cc4;26 Comment 7',
-            ' B60022,1:T3:1;26 Comment 8',
-            ' T60027,3:B1;26 Last comment',
-        ]
+        skool = r"""
+            c60000 CP ";"             ; First comment
+             60002 LD A,";"           ; Comment 2
+             60004 LD B,(IX+";")      ; Comment 3
+             60007 LD (IX+";"),C      ; Comment 4
+             60010 LD (IX+";"),";"    ; Comment 5
+             60014 LD (IX+"\""),";"   ; Comment 6
+             60018 LD (IX+"\\"),";"   ; Comment 7
+             60022 DEFB 5,"hi;",6     ; Comment 8
+             60027 DEFM ";0;",0       ; Last comment
+        """
+        exp_sft = """
+            cC60000,c2;26 First comment
+             C60002,c2;26 Comment 2
+             C60004,c3;26 Comment 3
+             C60007,c3;26 Comment 4
+             C60010,cc4;26 Comment 5
+             C60014,cc4;26 Comment 6
+             C60018,cc4;26 Comment 7
+             B60022,1:T3:1;26 Comment 8
+             T60027,3:B1;26 Last comment
+        """
         self._test_sft(skool, exp_sft)
 
     def test_arithmetic_expressions(self):
-        skool = '\n'.join((
-            'b40000 DEFB "a"+128',
-            ' 40001 DEFB "H","i"+$80',
-            ' 40003 DEFB 32768/256,32768%256,1+2,3*4,5-6',
-            ' 40008 DEFM "a"+128',
-            ' 40009 DEFM "H","i"+$80',
-            ' 40011 DEFM 32768/256,32768%256,1+2,3*4,5-6',
-            ' 40016 DEFS 256*2," "+128'
-        ))
-        exp_sft = [
-            'bB40000,1,T1:1,5',
-            ' T40008,B1,1:B1,B5',
-            ' S40016,512:160'
-        ]
+        skool = """
+            b40000 DEFB "a"+128
+             40001 DEFB "H","i"+$80
+             40003 DEFB 32768/256,32768%256,1+2,3*4,5-6
+             40008 DEFM "a"+128
+             40009 DEFM "H","i"+$80
+             40011 DEFM 32768/256,32768%256,1+2,3*4,5-6
+             40016 DEFS 256*2," "+128
+        """
+        exp_sft = """
+            bB40000,1,T1:1,5
+             T40008,B1,1:B1,B5
+             S40016,512:160
+        """
         self._test_sft(skool, exp_sft)
 
     def test_gap_between_instructions(self):
-        skool = '\n'.join((
-            'c25000 LD A,10',
-            ' 26000 LD C,D'
-        ))
-        exp_sft = [
-            'cC25000,2',
-            ' C26000,1',
-        ]
+        skool = """
+            c25000 LD A,10
+             26000 LD C,D
+        """
+        exp_sft = """
+            cC25000,2
+             C26000,1
+        """
         self._test_sft(skool, exp_sft)
 
     def test_instructions_in_wrong_order(self):
-        skool = '\n'.join((
-            'c26000 LD C,10',
-            ' 25000 LD A,B'
-        ))
-        exp_sft = [
-            'cC26000,2',
-            ' C25000,1',
-        ]
+        skool = """
+            c26000 LD C,10
+             25000 LD A,B
+        """
+        exp_sft = """
+            cC26000,2
+             C25000,1
+        """
         self._test_sft(skool, exp_sft)
 
     def test_invalid_instruction_has_size_one_and_is_not_compressed(self):
-        skool = '\n'.join((
-            'c30000 LD A,n  ;',
-            ' 30002 INC A   ;',
-            ' 30003 SUB B   ;',
-            ' 30004 RET     ;',
-        ))
-        exp_sft = [
-            'cC30000,1;15',
-            ' C30002,3;15',
-        ]
+        skool = """
+            c30000 LD A,n  ;
+             30002 INC A   ;
+             30003 SUB B   ;
+             30004 RET     ;
+        """
+        exp_sft = """
+            cC30000,1;15
+             C30002,3;15
+        """
         self._test_sft(skool, exp_sft)
 
     def test_compression_of_commentless_defb_sequence(self):
-        skool = '\n'.join((
-            'b40000 DEFB 0     ;',
-            ' 40001 DEFB 0,0   ;',
-            ' 40003 DEFB 0,0,0 ;',
-        ))
-        exp_sft = ['bB40000,1,2,3;18']
+        skool = """
+            b40000 DEFB 0     ;
+             40001 DEFB 0,0   ;
+             40003 DEFB 0,0,0 ;
+        """
+        exp_sft = "bB40000,1,2,3;18"
         self._test_sft(skool, exp_sft)
 
     def test_min_address(self):
-        skool = '\n'.join((
-            'b40000 DEFB 0',
-            '',
-            '; Data at 40001',
-            'b40001 DEFB 1',
-            '',
-            'b40002 DEFB 2',
-        ))
-        exp_sft = [
-            '; Data at 40001',
-            'bB40001,1',
-            '',
-            'bB40002,1',
-        ]
+        skool = """
+            b40000 DEFB 0
+
+            ; Data at 40001
+            b40001 DEFB 1
+
+            b40002 DEFB 2
+        """
+        exp_sft = """
+            ; Data at 40001
+            bB40001,1
+
+            bB40002,1
+        """
         self._test_sft(skool, exp_sft, min_address=40001)
 
     def test_min_address_between_entries(self):
-        skool = '\n'.join((
-            'c40000 LD A,B',
-            '; Mid-block comment.',
-            ' 40001 INC A',
-            ' 40002 RET',
-            '',
-            '; Routine at 40003',
-            'c40003 RET',
-            '',
-            'c40004 RET',
-        ))
-        exp_sft = [
-            '; Routine at 40003',
-            'cC40003,1',
-            '',
-            'cC40004,1',
-        ]
+        skool = """
+            c40000 LD A,B
+            ; Mid-block comment.
+             40001 INC A
+             40002 RET
+
+            ; Routine at 40003
+            c40003 RET
+
+            c40004 RET
+        """
+        exp_sft = """
+            ; Routine at 40003
+            cC40003,1
+
+            cC40004,1
+        """
         self._test_sft(skool, exp_sft, min_address=40001)
 
     def test_min_address_gives_no_content(self):
-        skool = '\n'.join((
-            'b40000 DEFB 0',
-            '',
-            'b40001 DEFB 1',
-        ))
-        exp_sft = []
+        skool = """
+            b40000 DEFB 0
+
+            b40001 DEFB 1
+        """
+        exp_sft = ""
         self._test_sft(skool, exp_sft, min_address=40002)
 
     def test_max_address(self):
-        skool = '\n'.join((
-            'b40000 DEFB 0',
-            '',
-            'b40001 DEFB 1',
-            '; End comment.',
-            '',
-            'b40002 DEFB 2',
-        ))
-        exp_sft = [
-            'bB40000,1',
-            '',
-            'bB40001,1',
-            '; End comment.',
-        ]
+        skool = """
+            b40000 DEFB 0
+
+            b40001 DEFB 1
+            ; End comment.
+
+            b40002 DEFB 2
+        """
+        exp_sft = """
+            bB40000,1
+
+            bB40001,1
+            ; End comment.
+        """
         self._test_sft(skool, exp_sft, max_address=40002)
 
     def test_max_address_at_mid_block_comment(self):
-        skool = '\n'.join((
-            'c50000 RET',
-            '',
-            'c50001 LD A,B',
-            ' 50002 INC A',
-            '; And here we return.',
-            ' 50003 RET',
-        ))
-        exp_sft = [
-            'cC50000,1',
-            '',
-            'cC50001,2',
-        ]
+        skool = """
+            c50000 RET
+
+            c50001 LD A,B
+             50002 INC A
+            ; And here we return.
+             50003 RET
+        """
+        exp_sft = """
+            cC50000,1
+
+            cC50001,2
+        """
         self._test_sft(skool, exp_sft, max_address=50003)
 
     def test_max_address_gives_no_content(self):
-        skool = '\n'.join((
-            'b40000 DEFB 0',
-            '',
-            'b40001 DEFB 1',
-        ))
-        exp_sft = []
+        skool = """
+            b40000 DEFB 0
+
+            b40001 DEFB 1
+        """
+        exp_sft = ""
         self._test_sft(skool, exp_sft, max_address=40000)
 
     def test_min_and_max_address(self):
-        skool = '\n'.join((
-            'b40000 DEFB 0',
-            '',
-            'b40001 DEFB 1',
-            '',
-            'b40002 DEFB 2',
-            '',
-            'b40003 DEFB 3',
-        ))
-        exp_sft = [
-            'bB40001,1',
-            '',
-            'bB40002,1',
-        ]
+        skool = """
+            b40000 DEFB 0
+
+            b40001 DEFB 1
+
+            b40002 DEFB 2
+
+            b40003 DEFB 3
+        """
+        exp_sft = """
+            bB40001,1
+
+            bB40002,1
+        """
         self._test_sft(skool, exp_sft, min_address=40001, max_address=40003)
 
     def test_min_and_max_address_with_entries_in_wrong_order(self):
-        skool = '\n'.join((
-            'b40003 DEFB 3',
-            '',
-            'b40002 DEFB 2',
-            '',
-            'b40001 DEFB 1',
-            '',
-            'b40000 DEFB 0'
-        ))
-        exp_sft = [
-            'bB40002,1',
-            '',
-            'bB40001,1',
-        ]
+        skool = """
+            b40003 DEFB 3
+
+            b40002 DEFB 2
+
+            b40001 DEFB 1
+
+            b40000 DEFB 0
+        """
+        exp_sft = """
+            bB40002,1
+
+            bB40001,1
+        """
         self._test_sft(skool, exp_sft, min_address=40001, max_address=40003)
 
     def test_min_and_max_address_give_no_content(self):
-        skool = '\n'.join((
-            'b40000 DEFB 0',
-            '',
-            'b40001 DEFB 1',
-            '',
-            'b40002 DEFB 2',
-        ))
-        exp_sft = []
+        skool = """
+            b40000 DEFB 0
+
+            b40001 DEFB 1
+
+            b40002 DEFB 2
+        """
+        exp_sft = ""
         self._test_sft(skool, exp_sft, min_address=40001, max_address=40001)
 
     def test_max_address_after_asm_block_directive(self):
-        skool = '\n'.join((
-            'c30000 LD A,(HL)',
-            '@ssub-begin',
-            ' 30001 INC L',
-            '@ssub+else',
-            '       INC HL',
-            '@ssub+end',
-            ' 30002 RET',
-        ))
-        exp_sft = [
-            'cC30000,1',
-            '@ssub-begin',
-            ' C30001,1',
-            '@ssub+else',
-            '       INC HL',
-            '@ssub+end',
-        ]
+        skool = """
+            c30000 LD A,(HL)
+            @ssub-begin
+             30001 INC L
+            @ssub+else
+                   INC HL
+            @ssub+end
+             30002 RET
+        """
+        exp_sft = """
+            cC30000,1
+            @ssub-begin
+             C30001,1
+            @ssub+else
+                   INC HL
+            @ssub+end
+        """
         self._test_sft(skool, exp_sft, max_address=30002)
 
     def test_i_block_with_no_instruction(self):
         skool = 'i40000'
-        exp_sft = ['iI40000']
+        exp_sft = "iI40000"
         self._test_sft(skool, exp_sft)
 
     def test_i_block_with_no_instruction_hex(self):
         skool = 'i40000'
-        exp_sft = ['iI$9C40']
+        exp_sft = 'iI$9C40'
         self._test_sft(skool, exp_sft, write_hex=1)
 
     def test_i_block_with_no_instruction_hex_lower(self):
         skool = 'i40000'
-        exp_sft = ['iI$9c40']
+        exp_sft = 'iI$9c40'
         self._test_sft(skool, exp_sft, write_hex=-1)
 
     def test_i_block_with_no_instruction_and_a_comment(self):
         skool = 'i40000 ; Ignored'
-        exp_sft = ['iI40000;7 Ignored']
+        exp_sft = 'iI40000;7 Ignored'
         self._test_sft(skool, exp_sft)
 
     def test_i_block_with_one_instruction(self):
         skool = 'i40000 DEFS 20'
-        exp_sft = ['iS40000,20']
+        exp_sft = 'iS40000,20'
         self._test_sft(skool, exp_sft)
 
     def test_i_block_with_one_instruction_and_a_comment(self):
         skool = 'i40000 DEFS 20 ; Ignored'
-        exp_sft = ['iS40000,20;15 Ignored']
+        exp_sft = 'iS40000,20;15 Ignored'
         self._test_sft(skool, exp_sft)
 
     def test_i_block_with_two_instructions(self):
-        skool = '\n'.join((
-            'i40000 DEFS 20',
-            ' 40020 DEFS 30'
-        ))
-        exp_sft = ['iS40000,20,30']
+        skool = """
+            i40000 DEFS 20
+             40020 DEFS 30
+        """
+        exp_sft = 'iS40000,20,30'
         self._test_sft(skool, exp_sft)
 
     def test_i_block_with_two_instructions_and_comments(self):
-        skool = '\n'.join((
-            'i40000 DEFB 0 ; Ignored',
-            ' 40001 DEFW 0 ; Also ignored'
-        ))
-        exp_sft = [
-            'iB40000,1;14 Ignored',
-            ' W40001,2;14 Also ignored'
-        ]
+        skool = """
+            i40000 DEFB 0 ; Ignored
+             40001 DEFW 0 ; Also ignored
+        """
+        exp_sft = """
+            iB40000,1;14 Ignored
+             W40001,2;14 Also ignored
+        """
         self._test_sft(skool, exp_sft)
 
 if __name__ == '__main__':
