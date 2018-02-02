@@ -1,3 +1,4 @@
+import textwrap
 import unittest
 from unittest.mock import patch
 
@@ -191,11 +192,11 @@ class Sna2ImgTest(SkoolKitTestCase):
     @patch.object(sna2img, 'ImageWriter', MockImageWriter)
     @patch.object(sna2img, 'open')
     def test_option_b(self, mock_open):
-        skool = '\n'.join((
-            '@bfix=DEFB 2,2,2,2,2,2,2,2',
-            'b32768 DEFB 1,1,1,1,1,1,1,1'
-        ))
-        infile = self.write_text_file(skool, suffix='.skool')
+        skool = """
+            @bfix=DEFB 2,2,2,2,2,2,2,2
+            b32768 DEFB 1,1,1,1,1,1,1,1
+        """
+        infile = self.write_text_file(textwrap.dedent(skool).strip(), suffix='.skool')
         for option in ('-b', '--bfix'):
             output, error = self.run_sna2img('{} -e UDG32768 {}'.format(option, infile))
             self.assertEqual(error, '')
