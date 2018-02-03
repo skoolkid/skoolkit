@@ -206,8 +206,8 @@ at those addresses, and the image created by the ``#UDG`` macro would be blank.
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
-| 6.3     | Added support for specifying what's assembled in HTML mode and    |
-|         | ASM mode separately                                               |
+| 6.3     | Added support for specifying what's converted in HTML mode and    |
+|         | ASM mode separately, and for switching off conversion entirely    |
 +---------+-------------------------------------------------------------------+
 | 6.1     | Added the ability to assemble instructions whose operands contain |
 |         | arithmetic expressions                                            |
