@@ -974,11 +974,11 @@ class HtmlWriter:
     # API
     def handle_image(self, frames, fname='', cwd=None, alt=None, path_id=DEF_IMG_PATH):
         """Register a named frame for an image, and write an image file if
-        required. This is a convenience method that calls
-        :meth:`~skoolkit.skoolhtml.HtmlWriter.image_path`,
-        :meth:`~skoolkit.skoolhtml.HtmlWriter.need_image`,
-        :meth:`~skoolkit.skoolhtml.HtmlWriter.write_animated_image` and
-        :meth:`~skoolkit.skoolhtml.HtmlWriter.img_element` as appropriate.
+        required. If `fname` is blank, no image file will be created.  If
+        `fname` does not end with '.png' or '.gif', an appropriate suffix will
+        be appended (depending on the default image format). If `fname`
+        contains an image path ID replacement field, the corresponding
+        parameter value from the :ref:`Paths` section will be substituted.
 
         :param frames: The list of frames (instances of
                        :class:`~skoolkit.graphics.Frame`) from which to build
@@ -988,7 +988,9 @@ class HtmlWriter:
                     of the image file will be computed).
         :param alt: The alt text to use for the image.
         :param path_id: The ID of the target directory (as defined in the
-                        :ref:`paths` section of the ref file).
+                        :ref:`paths` section of the ref file). This is not used
+                        if `fname` starts with a '/' or contains an image path
+                        ID replacement field.
         :return: The ``<img .../>`` element, or an empty string if no image is
                  created.
         """
