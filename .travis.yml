@@ -4,8 +4,8 @@ python:
   - 3.5
   - 3.6
 install:
-  - if [[ $TRAVIS_PYTHON_VERSION == 3.5* ]]; then pip install codecov; fi
+  - if [[ $TRAVIS_PYTHON_VERSION == 3.5* ]]; then pip install codecov nose2; fi
 script:
-  - if [[ $TRAVIS_PYTHON_VERSION == 3.5* ]]; then nosetests -w tests --with-coverage --cover-package=skoolkit; else nosetests -w tests; fi
+  - if [[ $TRAVIS_PYTHON_VERSION == 3.5* ]]; then nose2 -C --coverage skoolkit; else nose2; fi
 after_success:
   - if [[ $TRAVIS_PYTHON_VERSION == 3.5* ]]; then codecov; fi
