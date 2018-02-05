@@ -1,4 +1,4 @@
-# Copyright 2008-2017 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2008-2018 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -115,7 +115,7 @@ class Udg(object):
         return Udg(self.attr, self.data[:])
 
 class Frame(object):
-    """Create a frame of an animated image.
+    """Create a frame of a still or animated image.
 
     :param udgs: The two-dimensional array of tiles (instances of
                  :class:`~skoolkit.graphics.Udg`) from which to build the

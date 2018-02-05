@@ -110,15 +110,13 @@ filename). The method (let's call it `sprite`) would look something like this:
 
 .. code-block:: python
 
+  from skoolkit.graphics import Frame
   from skoolkit.skoolhtml import HtmlWriter
 
   class GameHtmlWriter(HtmlWriter):
       def sprite(self, cwd, sprite_id, fname):
-          img_path = self.image_path(fname)
-          if self.need_image(img_path):
-              udgs = self.build_sprite(sprite_id)
-              self.write_image(img_path, udgs)
-          return self.img_element(cwd, img_path)
+          udgs = self.build_sprite(sprite_id)
+          return self.handle_image([Frame(udgs)], fname, cwd)
 
 With this method (and an appropriate implementation of the `build_sprite`
 method) in place, it's possible to use a ``#CALL`` macro like this::
@@ -346,8 +344,9 @@ contents of data tables. These methods are described below.
 
 Graphics
 --------
-If you are going to implement custom image-creating ``#CALL`` methods or skool
-macros, you will need to make use of the skoolkit.graphics.Udg class.
+If you are going to implement a custom image-creating ``#CALL`` method or skool
+macro, you will need to make use of the skoolkit.graphics.Udg and
+skoolkit.graphics.Frame classes.
 
 The Udg class represents an 8x8 graphic (8 bytes) with a single attribute byte,
 and an optional mask.
@@ -357,12 +356,12 @@ and an optional mask.
    .. versionchanged:: 5.4
       The Udg class moved from skoolkit.skoolhtml to skoolkit.graphics.
 
-A simple ``#INVERSE`` macro that creates an inverse image of a UDG might be
-implemented like this:
+An ``#INVERSE`` macro that creates an inverse image of a UDG with scale 2 might
+be implemented like this:
 
 .. code-block:: python
 
-  from skoolkit.graphics import Udg
+  from skoolkit.graphics import Frame, Udg
   from skoolkit.skoolhtml import HtmlWriter
   from skoolkit.skoolmacro import parse_ints
 
@@ -370,12 +369,10 @@ implemented like this:
       # #INVERSEaddress,attr
       def expand_inverse(self, text, index, cwd):
           end, address, attr = parse_ints(text, index, 2)
-          img_path = self.image_path('inverse{}_{}'.format(address, attr))
-          if self.need_image(img_path):
-              udg_data = [b ^ 255 for b in self.snapshot[address:address + 8]]
-              udg = Udg(attr, udg_data)
-              self.write_image(img_path, [[udg]])
-          return end, self.img_element(cwd, img_path)
+          udg_data = [b ^ 255 for b in self.snapshot[address:address + 8]]
+          frame = Frame([[Udg(attr, udg_data)]], 2)
+          fname = 'inverse{}_{}'.format(address, attr)
+          return end, self.handle_image([frame], fname, cwd)
 
 The Udg class provides two methods for manipulating an 8x8 graphic: `flip` and
 `rotate`.
@@ -383,11 +380,7 @@ The Udg class provides two methods for manipulating an 8x8 graphic: `flip` and
 .. automethod:: skoolkit.graphics.Udg.flip
 .. automethod:: skoolkit.graphics.Udg.rotate
 
-If you are going to implement ``#CALL`` methods or skool macros that create
-animated images, you will need to make use of the skoolkit.graphics.Frame
-class.
-
-The Frame class represents a single frame of an animated image.
+The Frame class represents a single frame of a still or animated image.
 
 .. autoclass:: skoolkit.graphics.Frame
 
