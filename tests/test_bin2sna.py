@@ -1,4 +1,5 @@
 import os
+import textwrap
 import unittest
 from unittest.mock import patch
 
@@ -22,7 +23,7 @@ class Bin2SnaTest(SkoolKitTestCase):
         else:
             outfile = infile + '.z80'
         output, error = self.run_bin2sna(args)
-        self.assertEqual([], output)
+        self.assertEqual(output, '')
         self.assertEqual(error, '')
         self.assertTrue(os.path.isfile(outfile))
         self.tempfiles.append(outfile)
@@ -77,19 +78,19 @@ class Bin2SnaTest(SkoolKitTestCase):
 
     def test_no_arguments(self):
         output, error = self.run_bin2sna(catch_exit=2)
-        self.assertEqual([], output)
+        self.assertEqual(output, '')
         self.assertTrue(error.startswith('usage: bin2sna.py'))
 
     def test_invalid_option(self):
         output, error = self.run_bin2sna('-x test_invalid_option.bin', catch_exit=2)
-        self.assertEqual([], output)
+        self.assertEqual(output, '')
         self.assertTrue(error.startswith('usage: bin2sna.py'))
 
     def test_invalid_option_value(self):
         binfile = self.write_bin_file(suffix='.bin')
         for option in ('-b !', '-o ABC', '-p Q', '-s ?'):
             output, error = self.run_bin2sna('{} {}'.format(option, binfile), catch_exit=2)
-            self.assertEqual([], output)
+            self.assertEqual(output, '')
             self.assertTrue(error.startswith('usage: bin2sna.py'))
 
     def test_no_options(self):
@@ -255,24 +256,24 @@ class Bin2SnaTest(SkoolKitTestCase):
     def test_option_reg_help(self):
         output, error = self.run_bin2sna('--reg help')
         self.assertEqual(error, '')
-        exp_output = [
-            'Usage: -r name=value, --reg name=value',
-            '',
-            'Set the value of a register or register pair. For example:',
-            '',
-            '  --reg hl=32768',
-            '  --reg b=17',
-            '',
-            "To set the value of an alternate (shadow) register, use the '^' prefix:",
-            '',
-            '  --reg ^hl=10072',
-            '',
-            'Recognised register names are:',
-            '',
-            '  ^a, ^b, ^bc, ^c, ^d, ^de, ^e, ^f, ^h, ^hl, ^l, a, b, bc, c, d, de, e,',
-            '  f, h, hl, i, ix, iy, l, pc, r, sp'
-        ]
-        self.assertEqual(exp_output, output)
+        exp_output = """
+            Usage: -r name=value, --reg name=value
+
+            Set the value of a register or register pair. For example:
+
+              --reg hl=32768
+              --reg b=17
+
+            To set the value of an alternate (shadow) register, use the '^' prefix:
+
+              --reg ^hl=10072
+
+            Recognised register names are:
+
+              ^a, ^b, ^bc, ^c, ^d, ^de, ^e, ^f, ^h, ^hl, ^l, a, b, bc, c, d, de, e,
+              f, h, hl, i, ix, iy, l, pc, r, sp
+        """
+        self.assertEqual(textwrap.dedent(exp_output).lstrip(), output)
 
     def test_option_s(self):
         data = [2, 3, 4]
@@ -304,21 +305,21 @@ class Bin2SnaTest(SkoolKitTestCase):
     def test_option_state_help(self):
         output, error = self.run_bin2sna('--state help')
         self.assertEqual(error, '')
-        exp_output = [
-            'Usage: -S name=value, --state name=value',
-            '',
-            'Set a hardware state attribute. Recognised names and their default values are:',
-            '',
-            '  border - border colour (default=0)',
-            '  iff    - interrupt flip-flop: 0=disabled, 1=enabled (default=1)',
-            '  im     - interrupt mode (default=1)'
-        ]
-        self.assertEqual(exp_output, output)
+        exp_output = """
+            Usage: -S name=value, --state name=value
+
+            Set a hardware state attribute. Recognised names and their default values are:
+
+              border - border colour (default=0)
+              iff    - interrupt flip-flop: 0=disabled, 1=enabled (default=1)
+              im     - interrupt mode (default=1)
+        """
+        self.assertEqual(textwrap.dedent(exp_output).lstrip(), output)
 
     def test_option_V(self):
         for option in ('-V', '--version'):
-            output, error = self.run_bin2sna(option, err_lines=True, catch_exit=0)
-            self.assertEqual(['SkoolKit {}'.format(VERSION)], output + error)
+            output, error = self.run_bin2sna(option, catch_exit=0)
+            self.assertEqual(output, 'SkoolKit {}\n'.format(VERSION))
 
 if __name__ == '__main__':
     unittest.main()
