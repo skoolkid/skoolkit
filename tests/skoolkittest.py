@@ -329,7 +329,7 @@ class SkoolKitTestCase(TestCase):
             lines.pop()
         return lines
 
-    def _run_skoolkit_command(self, cmd, args, out_lines, err_lines, catch_exit):
+    def _run_skoolkit_command(self, cmd, args, out_lines=False, err_lines=False, catch_exit=None):
         self.clear_streams()
         if catch_exit is None:
             cmd(args.split())
@@ -377,5 +377,5 @@ class SkoolKitTestCase(TestCase):
     def run_tap2sna(self, args='', out_lines=True, err_lines=False, catch_exit=None):
         return self._run_skoolkit_command(tap2sna.main, args, out_lines, err_lines, catch_exit)
 
-    def run_tapinfo(self, args='', out_lines=True, err_lines=False, catch_exit=None):
-        return self._run_skoolkit_command(tapinfo.main, args, out_lines, err_lines, catch_exit)
+    def run_tapinfo(self, args='', catch_exit=None):
+        return self._run_skoolkit_command(tapinfo.main, args, catch_exit=catch_exit)
