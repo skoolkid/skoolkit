@@ -1,3 +1,4 @@
+import textwrap
 import unittest
 from unittest.mock import patch
 
@@ -42,7 +43,7 @@ class SnapmodTest(SkoolKitTestCase):
         outfile = '{}-out.z80'.format(infile[:-4])
         self.tempfiles.append(outfile)
         output, error = self.run_snapmod('{} {} {}'.format(options, infile, outfile))
-        self.assertEqual([], output)
+        self.assertEqual(output, '')
         self.assertEqual(error, '')
         z80_header = list(read_bin_file(outfile, len(exp_header)))
         self.assertEqual(exp_header, z80_header)
@@ -113,13 +114,13 @@ class SnapmodTest(SkoolKitTestCase):
     def test_no_clobber_input_file(self):
         infile = self.write_bin_file(suffix='.z80')
         output, error = self.run_snapmod('-p 16384,0 {}'.format(infile))
-        self.assertEqual(output[0], '{}: file already exists; use -f to overwrite'.format(infile))
+        self.assertEqual(output, '{}: file already exists; use -f to overwrite\n'.format(infile))
         self.assertEqual(error, '')
 
     def test_no_clobber_output_file(self):
         outfile = self.write_bin_file(suffix='.z80')
         output, error = self.run_snapmod('-p 16384,0 in.z80 {}'.format(outfile))
-        self.assertEqual(output[0], '{}: file already exists; use -f to overwrite'.format(outfile))
+        self.assertEqual(output, '{}: file already exists; use -f to overwrite\n'.format(outfile))
         self.assertEqual(error, '')
 
     def test_option_f_clobber_input_file(self):
@@ -130,7 +131,7 @@ class SnapmodTest(SkoolKitTestCase):
         ram = [0] * 49152
         infile = self.write_z80_file(header, ram, 1)
         output, error = self.run_snapmod('-f -s border=1 {}'.format(infile))
-        self.assertEqual([], output)
+        self.assertEqual(output, '')
         self.assertEqual(error, '')
         z80_header = list(read_bin_file(infile, len(exp_header)))
         self.assertEqual(exp_header, z80_header)
@@ -144,7 +145,7 @@ class SnapmodTest(SkoolKitTestCase):
         infile = self.write_z80_file(header, ram, 1)
         outfile = self.write_bin_file(suffix='.z80')
         output, error = self.run_snapmod('--force -s border=2 {} {}'.format(infile, outfile))
-        self.assertEqual([], output)
+        self.assertEqual(output, '')
         self.assertEqual(error, '')
         z80_header = list(read_bin_file(outfile, len(exp_header)))
         self.assertEqual(exp_header, z80_header)
@@ -153,7 +154,7 @@ class SnapmodTest(SkoolKitTestCase):
     def test_options_m_move(self):
         for option in ('-m', '--move'):
             output, error = self.run_snapmod('{0} 30000,10,40000 {0} 50000,20,60000 test.z80'.format(option))
-            self.assertEqual([], output)
+            self.assertEqual(output, '')
             self.assertEqual(error, '')
             infile, options, outfile = run_args
             self.assertEqual(['30000,10,40000', '50000,20,60000'], options.moves)
@@ -198,7 +199,7 @@ class SnapmodTest(SkoolKitTestCase):
     def test_options_p_poke(self):
         for option in ('-p', '--poke'):
             output, error = self.run_snapmod('{0} 32768,1 {0} 40000-40010,2 test.z80'.format(option))
-            self.assertEqual([], output)
+            self.assertEqual(output, '')
             self.assertEqual(error, '')
             infile, options, outfile = run_args
             self.assertEqual(['32768,1', '40000-40010,2'], options.pokes)
@@ -353,30 +354,30 @@ class SnapmodTest(SkoolKitTestCase):
     def test_reg_help(self):
         output, error = self.run_snapmod('--reg help')
         self.assertEqual(error, '')
-        exp_output = [
-            'Usage: -r name=value, --reg name=value',
-            '',
-            'Set the value of a register or register pair. For example:',
-            '',
-            '  --reg hl=32768',
-            '  --reg b=17',
-            '',
-            "To set the value of an alternate (shadow) register, use the '^' prefix:",
-            '',
-            '  --reg ^hl=10072',
-            '',
-            'Recognised register names are:',
-            '',
-            '  ^a, ^b, ^bc, ^c, ^d, ^de, ^e, ^f, ^h, ^hl, ^l, a, b, bc, c, d, de, e,',
-            '  f, h, hl, i, ix, iy, l, pc, r, sp'
-        ]
-        self.assertEqual(exp_output, output)
+        exp_output = """
+            Usage: -r name=value, --reg name=value
+
+            Set the value of a register or register pair. For example:
+
+              --reg hl=32768
+              --reg b=17
+
+            To set the value of an alternate (shadow) register, use the '^' prefix:
+
+              --reg ^hl=10072
+
+            Recognised register names are:
+
+              ^a, ^b, ^bc, ^c, ^d, ^de, ^e, ^f, ^h, ^hl, ^l, a, b, bc, c, d, de, e,
+              f, h, hl, i, ix, iy, l, pc, r, sp
+        """
+        self.assertEqual(textwrap.dedent(exp_output).lstrip(), output)
 
     @patch.object(snapmod, 'run', mock_run)
     def test_options_s_state(self):
         for option in ('-s', '--state'):
             output, error = self.run_snapmod('{0} im=1 {0} iff=1 test.z80'.format(option))
-            self.assertEqual([], output)
+            self.assertEqual(output, '')
             self.assertEqual(error, '')
             infile, options, outfile = run_args
             self.assertEqual(['im=1', 'iff=1'], options.state)
@@ -402,21 +403,21 @@ class SnapmodTest(SkoolKitTestCase):
     def test_state_help(self):
         output, error = self.run_snapmod('--state help')
         self.assertEqual(error, '')
-        exp_output = [
-            'Usage: -s name=value, --state name=value',
-            '',
-            'Set a hardware state attribute. Recognised names and their default values are:',
-            '',
-            '  border - border colour (default=0)',
-            '  iff    - interrupt flip-flop: 0=disabled, 1=enabled (default=1)',
-            '  im     - interrupt mode (default=1)'
-        ]
-        self.assertEqual(exp_output, output)
+        exp_output = """
+            Usage: -s name=value, --state name=value
+
+            Set a hardware state attribute. Recognised names and their default values are:
+
+              border - border colour (default=0)
+              iff    - interrupt flip-flop: 0=disabled, 1=enabled (default=1)
+              im     - interrupt mode (default=1)
+        """
+        self.assertEqual(textwrap.dedent(exp_output).lstrip(), output)
 
     def test_option_V(self):
         for option in ('-V', '--version'):
-            output, error = self.run_snapmod(option, err_lines=True, catch_exit=0)
-            self.assertEqual(['SkoolKit {}'.format(VERSION)], output + error)
+            output, error = self.run_snapmod(option, catch_exit=0)
+            self.assertEqual(output, 'SkoolKit {}\n'.format(VERSION))
 
 if __name__ == '__main__':
     unittest.main()
