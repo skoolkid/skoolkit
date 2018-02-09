@@ -362,8 +362,8 @@ class SkoolKitTestCase(TestCase):
     def run_skool2html(self, args='', out_lines=True, err_lines=False, catch_exit=None):
         return self._run_skoolkit_command(skool2html.main, args, out_lines, err_lines, catch_exit)
 
-    def run_skool2sft(self, args='', out_lines=True, err_lines=False, catch_exit=None):
-        return self._run_skoolkit_command(skool2sft.main, args, out_lines, err_lines, catch_exit)
+    def run_skool2sft(self, args='', catch_exit=None):
+        return self._run_skoolkit_command(skool2sft.main, args, catch_exit=catch_exit)
 
     def run_sna2skool(self, args='', out_lines=True, err_lines=False, catch_exit=None):
         return self._run_skoolkit_command(sna2skool.main, args, out_lines, err_lines, catch_exit)

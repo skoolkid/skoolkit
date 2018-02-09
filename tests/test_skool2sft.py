@@ -19,13 +19,13 @@ class MockSftWriter:
 class Skool2SftTest(SkoolKitTestCase):
     def test_no_arguments(self):
         output, error = self.run_skool2sft(catch_exit=2)
-        self.assertEqual(len(output), 0)
+        self.assertEqual(output, '')
         self.assertTrue(error.startswith('usage: skool2sft.py'))
 
     def test_invalid_arguments(self):
         for args in ('-h', '-x test.skool'):
             output, error = self.run_skool2sft(args, catch_exit=2)
-            self.assertEqual(len(output), 0)
+            self.assertEqual(output, '')
             self.assertTrue(error.startswith('usage: skool2sft.py'))
 
     @patch.object(skool2sft, 'SftWriter', MockSftWriter)
@@ -42,8 +42,8 @@ class Skool2SftTest(SkoolKitTestCase):
 
     def test_option_V(self):
         for option in ('-V', '--version'):
-            output, error = self.run_skool2sft(option, err_lines=True, catch_exit=0)
-            self.assertEqual(['SkoolKit {}'.format(VERSION)], output + error)
+            output, error = self.run_skool2sft(option, catch_exit=0)
+            self.assertEqual(output, 'SkoolKit {}\n'.format(VERSION))
 
     @patch.object(skool2sft, 'SftWriter', MockSftWriter)
     def test_option_h(self):
@@ -123,10 +123,8 @@ class Skool2SftTest(SkoolKitTestCase):
         skool = '; Routine\nc32768 RET'
         skoolfile = self.write_text_file(skool, suffix='.skool')
         output, error = self.run_skool2sft(skoolfile)
-        self.assertEqual(len(error), 0)
-        self.assertEqual(len(output), 2)
-        self.assertEqual(output[0], '; Routine')
-        self.assertEqual(output[1], 'cC32768,1')
+        self.assertEqual(error, '')
+        self.assertEqual(output, '; Routine\ncC32768,1\n')
 
 if __name__ == '__main__':
     unittest.main()

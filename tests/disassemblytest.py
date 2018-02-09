@@ -172,7 +172,7 @@ class SftTestCase(DisassembliesTestCase):
         with open(skool) as f:
             orig_skool = f.read().rstrip().split('\n')
         args = '{} {}'.format(options, skool)
-        sft, stderr = self.run_skool2sft(args, out_lines=False)
+        sft, stderr = self.run_skool2sft(args)
         self.assertEqual(stderr, '')
         sftfile = self.write_text_file(sft)
         options = '-T {}'.format(sftfile)
