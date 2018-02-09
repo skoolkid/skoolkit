@@ -89,7 +89,8 @@ class AsmTestCase(DisassembliesTestCase):
     def _test_asm(self, options, skool=None, snapshot=None, ctl=None, clean=True):
         if not skool:
             skool = self._write_skool(snapshot, ctl)
-        output, stderr = self.run_skool2asm('{} {}'.format(options, skool), err_lines=True)
+        output, stderr = self.run_skool2asm('{} {}'.format(options, skool))
+        stderr = [line.rstrip() for line in stderr.split('\n')][:-1]
         if clean:
             self.assertTrue(stderr[0].startswith('Parsed {}'.format(skool)))
             self.assertIn(len(stderr), (2, 3))

@@ -1,4 +1,5 @@
 import os
+import re
 from textwrap import dedent
 import unittest
 from unittest.mock import patch, Mock
@@ -177,8 +178,8 @@ class Skool2AsmTest(SkoolKitTestCase):
             c60000 RET
         """
         self.write_stdin(dedent(skool).strip())
-        output, error = self.run_skool2asm('-', err_lines=True)
-        self.assertEqual(error[0][:12], 'Parsed stdin')
+        output, error = self.run_skool2asm('-')
+        self.assertEqual(error[:12], 'Parsed stdin')
 
     @patch.object(skool2asm, 'SkoolParser', MockSkoolParser)
     @patch.object(skool2asm, 'AsmWriter', MockAsmWriter)
@@ -233,15 +234,14 @@ class Skool2AsmTest(SkoolKitTestCase):
 
     def test_option_V(self):
         for option in ('-V', '--version'):
-            output, error = self.run_skool2asm(option, err_lines=True, catch_exit=0)
-            self.assertEqual(['SkoolKit {}'.format(VERSION)], output + error)
+            output, error = self.run_skool2asm(option, catch_exit=0)
+            self.assertEqual(output, 'SkoolKit {}\n'.format(VERSION))
 
     def test_option_p(self):
         for option in ('-p', '--package-dir'):
             output, error = self.run_skool2asm(option, catch_exit=0)
             self.assertEqual(error, '')
-            self.assertEqual(len(output), 1)
-            self.assertEqual(output[0], os.path.dirname(skoolkit.__file__))
+            self.assertEqual(output, os.path.dirname(skoolkit.__file__) + '\n')
 
     @patch.object(skool2asm, 'SkoolParser', MockSkoolParser)
     @patch.object(skool2asm, 'AsmWriter', MockAsmWriter)
@@ -434,8 +434,8 @@ class Skool2AsmTest(SkoolKitTestCase):
 
         # Test a writer that exists
         skoolfile = self._write_skool_file(skool.format('test_skool2asm.MockAsmWriter'))
-        output, error = self.run_skool2asm(skoolfile, err_lines=True)
-        self.assertEqual(error[1], 'Using ASM writer test_skool2asm.MockAsmWriter')
+        output, error = self.run_skool2asm(skoolfile)
+        self.assertTrue(re.search('\nUsing ASM writer test_skool2asm.MockAsmWriter\n', error))
         self.assertTrue(mock_asm_writer.wrote)
 
     @patch.object(skool2asm, 'get_class', Mock(return_value=MockAsmWriter))
@@ -448,8 +448,8 @@ class Skool2AsmTest(SkoolKitTestCase):
         """
         skoolfile = self._write_skool_file(skool)
         for option in ('-W', '--writer'):
-            output, error = self.run_skool2asm('{} dummy_value {}'.format(option, skoolfile), err_lines=True)
-            self.assertEqual(error[1], 'Using ASM writer dummy_value')
+            output, error = self.run_skool2asm('{} dummy_value {}'.format(option, skoolfile))
+            self.assertTrue(re.search('\nUsing ASM writer dummy_value\n', error))
             self.assertTrue(mock_asm_writer.wrote)
             mock_asm_writer.wrote = False
 
@@ -522,7 +522,7 @@ class Skool2AsmTest(SkoolKitTestCase):
 
     @patch.object(skool2asm, 'get_config', mock_config)
     def test_option_show_config(self):
-        output, error = self.run_skool2asm('--show-config', catch_exit=0, out_lines=False)
+        output, error = self.run_skool2asm('--show-config', catch_exit=0)
         self.assertEqual(error, '')
         exp_output = """
             Base=0
@@ -541,7 +541,7 @@ class Skool2AsmTest(SkoolKitTestCase):
             Quiet=1
         """
         self.write_text_file(dedent(ini).strip(), 'skoolkit.ini')
-        output, error = self.run_skool2asm('--show-config', catch_exit=0, out_lines=False)
+        output, error = self.run_skool2asm('--show-config', catch_exit=0)
         self.assertEqual(error, '')
         exp_output = """
             Base=10
