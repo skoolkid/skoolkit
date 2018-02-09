@@ -32,6 +32,8 @@ Changelog
   beginning of a line is handled in an instruction-level comment
 * Fixed the bug in :ref:`skool2ctl.py` that prevents an :ref:`ignoreua`
   directive on a block end comment from being preserved correctly
+* Fixed :ref:`sna2skool.py` so that it can generate a control file for a
+  snapshot whose final byte (at 65535) is 24 or 237
 
 6.2 (2018-01-01)
 ----------------

@@ -173,24 +173,19 @@ def _get_addresses(f, fname, size, start, end):
 
 def _is_terminal_instruction(instruction):
     data = instruction.bytes
-    if data[0] == 201:
-        # RET
+    if data[0] in (195, 201, 233):
+        # JP nn / RET / JP (HL)
         return True
-    if data[0] == 237 and data[1] in (69, 77, 85, 93, 101, 109, 117, 125):
-        # RETN/RETI
-        return True
-    if data[0] == 233:
-        # JP (HL)
-        return True
-    if len(data) == 2 and data[0] in (221, 253) and data[1] == 233:
-        # JP (IX)/JP (IY)
-        return True
-    if data[0] == 24 and data[1] > 0:
-        # JR d (d != 0)
-        return True
-    if data[0] == 195:
-        # JP nn
-        return True
+    if len(data) == 2:
+        if data[0] == 237 and data[1] in (69, 77, 85, 93, 101, 109, 117, 125):
+            # RETN/RETI
+            return True
+        if data[0] in (221, 253) and data[1] == 233:
+            # JP (IX)/JP (IY)
+            return True
+        if data[0] == 24 and data[1] > 0:
+            # JR d (d != 0)
+            return True
     return False
 
 def _find_terminal_instruction(disassembler, ctls, start, end=65536, ctl=None):

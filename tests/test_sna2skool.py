@@ -621,6 +621,32 @@ class OptionsTest(SkoolKitTestCase):
 
     @patch.object(sna2skool, 'CtlParser', MockCtlParser)
     @patch.object(sna2skool, 'SkoolWriter', MockSkoolWriter)
+    def test_option_g_with_jr_across_64k_boundary(self):
+        ctlfile = self.write_text_file()
+        data = [24]
+        binfile = self.write_bin_file(data)
+        output, error = self.run_sna2skool('-g {} {}'.format(ctlfile, binfile))
+        self.assertEqual(error, '')
+        with open(ctlfile, 'r') as f:
+            gen_ctl = f.read()
+        self.assertEqual(gen_ctl, 'b 65535\n')
+        self.assertTrue(mock_skool_writer.wrote_skool)
+
+    @patch.object(sna2skool, 'CtlParser', MockCtlParser)
+    @patch.object(sna2skool, 'SkoolWriter', MockSkoolWriter)
+    def test_option_g_with_237_at_65535(self):
+        ctlfile = self.write_text_file()
+        data = [237]
+        binfile = self.write_bin_file(data)
+        output, error = self.run_sna2skool('-g {} {}'.format(ctlfile, binfile))
+        self.assertEqual(error, '')
+        with open(ctlfile, 'r') as f:
+            gen_ctl = f.read()
+        self.assertEqual(gen_ctl, 'b 65535\n')
+        self.assertTrue(mock_skool_writer.wrote_skool)
+
+    @patch.object(sna2skool, 'CtlParser', MockCtlParser)
+    @patch.object(sna2skool, 'SkoolWriter', MockSkoolWriter)
     def test_option_g_with_invalid_ix_prefix(self):
         ctlfile = self.write_text_file()
         data = [
@@ -685,6 +711,34 @@ class OptionsTest(SkoolKitTestCase):
         with open(ctlfile, 'r') as f:
             gen_ctl = [line.rstrip() for line in f]
         self.assertEqual(['c 30000', 'b 30003', 'i 30005'], gen_ctl)
+        self.assertTrue(mock_skool_writer.wrote_skool)
+
+    @patch.object(sna2skool, 'CtlParser', MockCtlParser)
+    @patch.object(sna2skool, 'SkoolWriter', MockSkoolWriter)
+    def test_options_g_and_M_with_jr_across_64k_boundary(self):
+        ctlfile = self.write_text_file()
+        data = [24]
+        binfile = self.write_bin_file(data)
+        mapfile = self.write_bin_file(self._create_z80_map([65535]))
+        output, error = self.run_sna2skool('-g {} -M {} {}'.format(ctlfile, mapfile, binfile))
+        self.assertEqual(error, 'Reading {}\n'.format(mapfile))
+        with open(ctlfile, 'r') as f:
+            gen_ctl = f.read()
+        self.assertEqual(gen_ctl, 'c 65535\n')
+        self.assertTrue(mock_skool_writer.wrote_skool)
+
+    @patch.object(sna2skool, 'CtlParser', MockCtlParser)
+    @patch.object(sna2skool, 'SkoolWriter', MockSkoolWriter)
+    def test_options_g_and_M_with_237_at_65535(self):
+        ctlfile = self.write_text_file()
+        data = [237]
+        binfile = self.write_bin_file(data)
+        mapfile = self.write_bin_file(self._create_z80_map([65535]))
+        output, error = self.run_sna2skool('-g {} -M {} {}'.format(ctlfile, mapfile, binfile))
+        self.assertEqual(error, 'Reading {}\n'.format(mapfile))
+        with open(ctlfile, 'r') as f:
+            gen_ctl = f.read()
+        self.assertEqual(gen_ctl, 'c 65535\n')
         self.assertTrue(mock_skool_writer.wrote_skool)
 
     @patch.object(sna2skool, 'CtlParser', MockCtlParser)
