@@ -81,8 +81,8 @@ class DisassembliesTestCase(SkoolKitTestCase):
             self.fail("{} not found".format(snapshot))
         os.environ['SKOOLKIT_HOME'] = SKOOLKIT_HOME
         options = '-c {}'.format(ctl)
-        output, error = self.run_sna2skool('{} {}'.format(options, snapshot), out_lines=False, err_lines=True)
-        self.assertEqual(['Using control file: {}'.format(ctl)], error)
+        output, error = self.run_sna2skool('{} {}'.format(options, snapshot))
+        self.assertEqual(error, 'Using control file: {}\n'.format(ctl))
         return self.write_text_file(output)
 
 class AsmTestCase(DisassembliesTestCase):
@@ -170,7 +170,7 @@ class SftTestCase(DisassembliesTestCase):
         if not skool:
             skool = self._write_skool(snapshot, ctl)
         with open(skool) as f:
-            orig_skool = f.read().rstrip().split('\n')
+            orig_skool = f.read().rstrip()
         args = '{} {}'.format(options, skool)
         sft, stderr = self.run_skool2sft(args)
         self.assertEqual(stderr, '')
@@ -179,4 +179,4 @@ class SftTestCase(DisassembliesTestCase):
         if sna2skool_opts:
             options += ' {}'.format(sna2skool_opts)
         output, stderr = self.run_sna2skool('{} {}'.format(options, snapshot))
-        self.assertEqual(orig_skool, output)
+        self.assertEqual(orig_skool, output.rstrip())
