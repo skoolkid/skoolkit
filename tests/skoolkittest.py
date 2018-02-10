@@ -319,12 +319,9 @@ class SkoolKitTestCase(TestCase):
             szx.extend(rampages[bank])
         return self.write_bin_file(szx, suffix='.szx')
 
-    def to_lines(self, text, strip_cr=True):
+    def to_lines(self, text):
         # Use rstrip() to remove '\r' characters (useful on Windows)
-        if strip_cr:
-            lines = [line.rstrip() for line in text.split('\n')]
-        else:
-            lines = text.split('\n')
+        lines = [line.rstrip() for line in text.split('\n')]
         if lines[-1] == '':
             lines.pop()
         return lines
@@ -353,8 +350,8 @@ class SkoolKitTestCase(TestCase):
     def run_skool2asm(self, args='', catch_exit=None):
         return self._run_skoolkit_command(skool2asm.main, args, catch_exit=catch_exit)
 
-    def run_skool2bin(self, args='', out_lines=True, err_lines=False, catch_exit=None):
-        return self._run_skoolkit_command(skool2bin.main, args, out_lines, err_lines, catch_exit)
+    def run_skool2bin(self, args='', catch_exit=None):
+        return self._run_skoolkit_command(skool2bin.main, args, catch_exit=catch_exit)
 
     def run_skool2ctl(self, args='', out_lines=True, err_lines=False, catch_exit=None):
         return self._run_skoolkit_command(skool2ctl.main, args, out_lines, err_lines, catch_exit)

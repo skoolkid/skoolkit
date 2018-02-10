@@ -188,13 +188,13 @@ class Skool2BinTest(SkoolKitTestCase):
 
     def test_option_V(self):
         for option in ('-V', '--version'):
-            output, error = self.run_skool2bin(option, err_lines=True, catch_exit=0)
-            self.assertEqual(['SkoolKit {}'.format(VERSION)], output + error)
+            output, error = self.run_skool2bin(option, catch_exit=0)
+            self.assertEqual(output, 'SkoolKit {}\n'.format(VERSION))
 
 class BinWriterTest(SkoolKitTestCase):
     stdout_binary = True
 
-    def _test_write(self, skool, base_address, exp_data, exp_err=None, asm_mode=0, fix_mode=0, start=None, end=None):
+    def _test_write(self, skool, base_address, exp_data, exp_err='', asm_mode=0, fix_mode=0, start=None, end=None):
         if skool is None:
             skoolfile = '-'
             binfile = self.write_bin_file(suffix='.bin')
@@ -208,10 +208,8 @@ class BinWriterTest(SkoolKitTestCase):
             data = list(f.read())
         self.assertEqual(exp_data, data)
         size = len(data)
-        stderr = self.to_lines(self.err.getvalue(), True)
-        if exp_err:
-            self.assertEqual(exp_err, stderr[:-1])
-        self.assertEqual(stderr[-1], "Wrote {}: start={}, end={}, size={}".format(binfile, base_address, base_address + size, size))
+        status = "Wrote {}: start={}, end={}, size={}\n".format(binfile, base_address, base_address + size, size)
+        self.assertEqual(exp_err + status, self.err.getvalue())
 
     def test_write(self):
         skool = """
@@ -258,7 +256,7 @@ class BinWriterTest(SkoolKitTestCase):
              40001 XOR HL
              40002 RET
         """
-        self._test_write(skool, 40000, [120, 0, 201], ['WARNING: Failed to assemble:', ' 40001 XOR HL'])
+        self._test_write(skool, 40000, [120, 0, 201], 'WARNING: Failed to assemble:\n 40001 XOR HL\n')
 
     def test_skool_file_from_stdin(self):
         self.write_stdin('c49152 RET')
