@@ -14,7 +14,7 @@ class Bin2TapTest(SkoolKitTestCase):
         if tapfile is None:
             tapfile = args.split()[-1][:-4] + '.tap'
         output, error = self.run_bin2tap(args)
-        self.assertEqual(output, [])
+        self.assertEqual(output, '')
         self.assertEqual(error, '')
         self.assertTrue(os.path.isfile(tapfile))
         self.tempfiles.append(tapfile)
@@ -213,19 +213,19 @@ class Bin2TapTest(SkoolKitTestCase):
 
     def test_no_arguments(self):
         output, error = self.run_bin2tap(catch_exit=2)
-        self.assertEqual(len(output), 0)
+        self.assertEqual(output, '')
         self.assertTrue(error.startswith('usage: bin2tap.py'))
 
     def test_invalid_option(self):
         output, error = self.run_bin2tap('-x test_invalid_option.bin', catch_exit=2)
-        self.assertEqual(len(output), 0)
+        self.assertEqual(output, '')
         self.assertTrue(error.startswith('usage: bin2tap.py'))
 
     def test_invalid_option_value(self):
         binfile = self.write_bin_file(suffix='.bin')
         for option in ('-o ABC', '-s =', '-p q'):
             output, error = self.run_bin2tap('{0} {1}'.format(option, binfile), catch_exit=2)
-            self.assertEqual(len(output), 0)
+            self.assertEqual(output, '')
             self.assertTrue(error.startswith('usage: bin2tap.py'))
 
     def test_empty_bin(self):
@@ -275,8 +275,8 @@ class Bin2TapTest(SkoolKitTestCase):
 
     def test_option_V(self):
         for option in ('-V', '--version'):
-            output, error = self.run_bin2tap(option, err_lines=True, catch_exit=0)
-            self.assertEqual(['SkoolKit {}'.format(VERSION)], output + error)
+            output, error = self.run_bin2tap(option, catch_exit=0)
+            self.assertEqual(output, 'SkoolKit {}\n'.format(VERSION))
 
     def test_option_c(self):
         org = 40000
