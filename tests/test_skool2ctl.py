@@ -35,13 +35,13 @@ class Skool2CtlTest(SkoolKitTestCase):
 
     def test_no_arguments(self):
         output, error = self.run_skool2ctl(catch_exit=2)
-        self.assertEqual(len(output), 0)
+        self.assertEqual(output, '')
         self.assertTrue(error.startswith('usage: skool2ctl.py'))
 
     def test_invalid_arguments(self):
         for args in ('-h', '-x test.skool'):
             output, error = self.run_skool2ctl(args, catch_exit=2)
-            self.assertEqual(len(output), 0)
+            self.assertEqual(output, '')
             self.assertTrue(error.startswith('usage: skool2ctl.py'))
 
     @patch.object(skool2ctl, 'CtlWriter', MockCtlWriter)
@@ -52,8 +52,8 @@ class Skool2CtlTest(SkoolKitTestCase):
 
     def test_option_V(self):
         for option in ('-V', '--version'):
-            output, error = self.run_skool2ctl(option, err_lines=True, catch_exit=0)
-            self.assertEqual(['SkoolKit {}'.format(VERSION)], output + error)
+            output, error = self.run_skool2ctl(option, catch_exit=0)
+            self.assertEqual(output, 'SkoolKit {}\n'.format(VERSION))
 
     @patch.object(skool2ctl, 'CtlWriter', MockCtlWriter)
     def test_option_w(self):
@@ -127,8 +127,8 @@ class Skool2CtlTest(SkoolKitTestCase):
         """
         skoolfile = self.write_text_file(textwrap.dedent(skool).strip(), suffix='.skool')
         output, error = self.run_skool2ctl(skoolfile)
-        self.assertEqual(len(error), 0)
-        self.assertEqual(['c 65535 Test skool file for skool2ctl testing'], output)
+        self.assertEqual(error, '')
+        self.assertEqual(output, 'c 65535 Test skool file for skool2ctl testing\n')
 
 if __name__ == '__main__':
     unittest.main()
