@@ -319,14 +319,7 @@ class SkoolKitTestCase(TestCase):
             szx.extend(rampages[bank])
         return self.write_bin_file(szx, suffix='.szx')
 
-    def to_lines(self, text):
-        # Use rstrip() to remove '\r' characters (useful on Windows)
-        lines = [line.rstrip() for line in text.split('\n')]
-        if lines[-1] == '':
-            lines.pop()
-        return lines
-
-    def _run_skoolkit_command(self, cmd, args, out_lines=False, err_lines=False, catch_exit=None):
+    def _run_skoolkit_command(self, cmd, args, catch_exit):
         self.clear_streams()
         if catch_exit is None:
             cmd(args.split())
@@ -334,45 +327,43 @@ class SkoolKitTestCase(TestCase):
             with self.assertRaises(SystemExit) as cm:
                 cmd(args.split())
             self.assertEqual(cm.exception.args[0], catch_exit)
-        out = self.to_lines(self.out.getvalue()) if out_lines else self.out.getvalue()
-        err = self.to_lines(self.err.getvalue()) if err_lines else self.err.getvalue()
-        return out, err
+        return self.out.getvalue(), self.err.getvalue()
 
     def run_bin2sna(self, args='', catch_exit=None):
-        return self._run_skoolkit_command(bin2sna.main, args, catch_exit=catch_exit)
+        return self._run_skoolkit_command(bin2sna.main, args, catch_exit)
 
     def run_bin2tap(self, args='', catch_exit=None):
-        return self._run_skoolkit_command(bin2tap.main, args, catch_exit=catch_exit)
+        return self._run_skoolkit_command(bin2tap.main, args, catch_exit)
 
     def run_sna2img(self, args='', catch_exit=None):
-        return self._run_skoolkit_command(sna2img.main, args, catch_exit=catch_exit)
+        return self._run_skoolkit_command(sna2img.main, args, catch_exit)
 
     def run_skool2asm(self, args='', catch_exit=None):
-        return self._run_skoolkit_command(skool2asm.main, args, catch_exit=catch_exit)
+        return self._run_skoolkit_command(skool2asm.main, args, catch_exit)
 
     def run_skool2bin(self, args='', catch_exit=None):
-        return self._run_skoolkit_command(skool2bin.main, args, catch_exit=catch_exit)
+        return self._run_skoolkit_command(skool2bin.main, args, catch_exit)
 
     def run_skool2ctl(self, args='', catch_exit=None):
-        return self._run_skoolkit_command(skool2ctl.main, args, catch_exit=catch_exit)
+        return self._run_skoolkit_command(skool2ctl.main, args, catch_exit)
 
     def run_skool2html(self, args='', catch_exit=None):
-        return self._run_skoolkit_command(skool2html.main, args, catch_exit=catch_exit)
+        return self._run_skoolkit_command(skool2html.main, args, catch_exit)
 
     def run_skool2sft(self, args='', catch_exit=None):
-        return self._run_skoolkit_command(skool2sft.main, args, catch_exit=catch_exit)
+        return self._run_skoolkit_command(skool2sft.main, args, catch_exit)
 
     def run_sna2skool(self, args='', catch_exit=None):
-        return self._run_skoolkit_command(sna2skool.main, args, catch_exit=catch_exit)
+        return self._run_skoolkit_command(sna2skool.main, args, catch_exit)
 
     def run_snapinfo(self, args='', catch_exit=None):
-        return self._run_skoolkit_command(snapinfo.main, args, catch_exit=catch_exit)
+        return self._run_skoolkit_command(snapinfo.main, args, catch_exit)
 
     def run_snapmod(self, args='', catch_exit=None):
-        return self._run_skoolkit_command(snapmod.main, args, catch_exit=catch_exit)
+        return self._run_skoolkit_command(snapmod.main, args, catch_exit)
 
-    def run_tap2sna(self, args='', out_lines=True, err_lines=False, catch_exit=None):
-        return self._run_skoolkit_command(tap2sna.main, args, out_lines, err_lines, catch_exit)
+    def run_tap2sna(self, args='', catch_exit=None):
+        return self._run_skoolkit_command(tap2sna.main, args, catch_exit)
 
     def run_tapinfo(self, args='', catch_exit=None):
-        return self._run_skoolkit_command(tapinfo.main, args, catch_exit=catch_exit)
+        return self._run_skoolkit_command(tapinfo.main, args, catch_exit)

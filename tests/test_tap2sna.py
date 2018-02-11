@@ -55,8 +55,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         if load_options is None:
             load_options = '--ram load=1,{}'.format(start)
         output, error = self.run_tap2sna('--force {} {} {} {}'.format(load_options, options, tape_file, z80file))
-        self.assertEqual(len(output), 1)
-        self.assertEqual(output[0], 'Writing {}'.format(z80file))
+        self.assertEqual(output, 'Writing {}\n'.format(z80file))
         self.assertEqual(error, '')
         return get_snapshot(z80file)
 
@@ -83,13 +82,13 @@ class Tap2SnaTest(SkoolKitTestCase):
 
     def test_no_arguments(self):
         output, error = self.run_tap2sna(catch_exit=2)
-        self.assertEqual(len(output), 0)
+        self.assertEqual(output, '')
         self.assertTrue(error.startswith('usage:'))
 
     def test_invalid_arguments(self):
         for args in ('--foo', '-k test.zip'):
             output, error = self.run_tap2sna(args, catch_exit=2)
-            self.assertEqual(len(output), 0)
+            self.assertEqual(output, '')
             self.assertTrue(error.startswith('usage:'))
 
     def test_option_d(self):
@@ -107,7 +106,7 @@ class Tap2SnaTest(SkoolKitTestCase):
     def test_options_p_stack(self):
         for option, stack in (('-p', 24576), ('--stack', 49152)):
             output, error = self.run_tap2sna('{} {} in.tap out.z80'.format(option, stack))
-            self.assertEqual([], output)
+            self.assertEqual(output, '')
             self.assertEqual(error, '')
             url, options, z80 = make_z80_args
             self.assertEqual(['sp={}'.format(stack)], options.reg)
@@ -116,7 +115,7 @@ class Tap2SnaTest(SkoolKitTestCase):
     def test_options_p_stack_with_hex_address(self):
         for option, stack in (('-p', '0x6ff0'), ('--stack', '0x9ABC')):
             output, error = self.run_tap2sna('{} {} in.tap out.z80'.format(option, stack))
-            self.assertEqual([], output)
+            self.assertEqual(output, '')
             self.assertEqual(error, '')
             url, options, z80 = make_z80_args
             self.assertEqual(['sp={}'.format(int(stack[2:], 16))], options.reg)
@@ -139,7 +138,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         exp_reg = ['pc={}'.format(start)]
         for option in ('-s', '--start'):
             output, error = self.run_tap2sna('{} {} in.tap out.z80'.format(option, start))
-            self.assertEqual([], output)
+            self.assertEqual(output, '')
             self.assertEqual(error, '')
             url, options, z80 = make_z80_args
             self.assertEqual(exp_reg, options.reg)
@@ -150,7 +149,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         exp_reg = ['pc={}'.format(start)]
         for option in ('-s', '--start'):
             output, error = self.run_tap2sna('{} 0x{:04X} in.tap out.z80'.format(option, start))
-            self.assertEqual([], output)
+            self.assertEqual(output, '')
             self.assertEqual(error, '')
             url, options, z80 = make_z80_args
             self.assertEqual(exp_reg, options.reg)
@@ -174,7 +173,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         url = 'http://example.com/test.tap'
         for option, user_agent in (('-u', 'Wget/1.18'), ('--user-agent', 'SkoolKit/6.3')):
             output, error = self.run_tap2sna('{} {} --ram load=1,23296 {} test.z80'.format(option, user_agent, url))
-            self.assertEqual(output[0], 'Downloading {}'.format(url))
+            self.assertTrue(output.startswith('Downloading {}\n'.format(url)))
             self.assertEqual(error, '')
             request = mock_urlopen.call_args[0][0]
             self.assertEqual({'User-agent': user_agent}, request.headers)
@@ -183,8 +182,8 @@ class Tap2SnaTest(SkoolKitTestCase):
 
     def test_option_V(self):
         for option in ('-V', '--version'):
-            output, error = self.run_tap2sna(option, err_lines=True, catch_exit=0)
-            self.assertEqual(['SkoolKit {}'.format(VERSION)], output + error)
+            output, error = self.run_tap2sna(option, catch_exit=0)
+            self.assertEqual(output, 'SkoolKit {}\n'.format(VERSION))
 
     def test_nonexistent_tap_file(self):
         tap_fname = 'test.tap'
@@ -439,7 +438,7 @@ class Tap2SnaTest(SkoolKitTestCase):
 
     def test_ram_help(self):
         output, error = self.run_tap2sna('--ram help')
-        self.assertEqual(output[0], 'Usage: --ram load=block,start[,length,step,offset,inc]')
+        self.assertTrue(output.startswith('Usage: --ram load=block,start[,length,step,offset,inc]\n'))
         self.assertEqual(error, '')
 
     def test_tap_file_in_zip_archive(self):
@@ -450,9 +449,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         z80file = self.write_bin_file(suffix='.z80')
         start = 16385
         output, error = self.run_tap2sna('--force --ram load=1,{} {} {}'.format(start, zip_fname, z80file))
-        self.assertEqual(len(output), 2)
-        self.assertEqual(output[0], 'Extracting {}'.format(tap_name))
-        self.assertEqual(output[1], 'Writing {}'.format(z80file))
+        self.assertEqual(output, 'Extracting {}\nWriting {}\n'.format(tap_name, z80file))
         self.assertEqual(error, '')
         snapshot = get_snapshot(z80file)
         self.assertEqual(data, snapshot[start:start + len(data)])
@@ -654,7 +651,7 @@ class Tap2SnaTest(SkoolKitTestCase):
 
     def test_reg_help(self):
         output, error = self.run_tap2sna('--reg help')
-        self.assertEqual(output[0], 'Usage: --reg name=value')
+        self.assertTrue(output.startswith('Usage: --reg name=value\n'))
         self.assertEqual(error, '')
 
     def test_default_state(self):
@@ -718,7 +715,7 @@ class Tap2SnaTest(SkoolKitTestCase):
 
     def test_state_help(self):
         output, error = self.run_tap2sna('--state help')
-        self.assertEqual(output[0], 'Usage: --state name=value')
+        self.assertTrue(output.startswith('Usage: --state name=value\n'))
         self.assertEqual(error, '')
 
     def test_args_from_file(self):
@@ -741,7 +738,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         start = 17000
         url = 'http://example.com/test.tap'
         output, error = self.run_tap2sna('--ram load=1,{} {} test.z80'.format(start, url))
-        self.assertEqual(output[0], 'Downloading {}'.format(url))
+        self.assertTrue(output.startswith('Downloading {}\n'.format(url)))
         self.assertEqual(error, '')
         self.assertEqual(data, snapshot[start:start + len(data)])
 
@@ -755,7 +752,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         tapfile = self._write_tap([block])
         z80file = self.write_bin_file(suffix='.z80')
         output, error = self.run_tap2sna('--ram load=1,16384 {} {}'.format(tapfile, z80file))
-        self.assertEqual(output[0], '{}: file already exists; use -f to overwrite'.format(z80file))
+        self.assertTrue(output.startswith('{}: file already exists; use -f to overwrite\n'.format(z80file)))
         self.assertEqual(error, '')
 
 if __name__ == '__main__':
