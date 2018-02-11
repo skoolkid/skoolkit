@@ -365,8 +365,8 @@ class SkoolKitTestCase(TestCase):
     def run_sna2skool(self, args='', catch_exit=None):
         return self._run_skoolkit_command(sna2skool.main, args, catch_exit=catch_exit)
 
-    def run_snapinfo(self, args='', out_lines=False, err_lines=False, catch_exit=None):
-        return self._run_skoolkit_command(snapinfo.main, args, out_lines, err_lines, catch_exit)
+    def run_snapinfo(self, args='', catch_exit=None):
+        return self._run_skoolkit_command(snapinfo.main, args, catch_exit=catch_exit)
 
     def run_snapmod(self, args='', catch_exit=None):
         return self._run_skoolkit_command(snapmod.main, args, catch_exit=catch_exit)
