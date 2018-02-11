@@ -50,7 +50,7 @@ class Sna2ImgTest(SkoolKitTestCase):
             prefix, sep, suffix = infile.rpartition('.')
             exp_outfile = '{}.{}'.format(prefix or suffix, img_format)
         output, error = self.run_sna2img(args)
-        self.assertEqual([], output)
+        self.assertEqual(output, '')
         self.assertEqual(error, '')
         self.assertEqual(iw_options or {}, image_writer.options)
         self.assertEqual(image_writer.img_format, img_format)
@@ -102,12 +102,12 @@ class Sna2ImgTest(SkoolKitTestCase):
 
     def test_no_arguments(self):
         output, error = self.run_sna2img(catch_exit=2)
-        self.assertEqual(len(output), 0)
+        self.assertEqual(output, '')
         self.assertTrue(error.startswith('usage: sna2img.py'))
 
     def test_invalid_option(self):
         output, error = self.run_sna2img('-x test.z80', catch_exit=2)
-        self.assertEqual(len(output), 0)
+        self.assertEqual(output, '')
         self.assertTrue(error.startswith('usage: sna2img.py'))
 
     def test_nonexistent_scr_file(self):
@@ -216,7 +216,7 @@ class Sna2ImgTest(SkoolKitTestCase):
     def test_options_e_expand(self):
         for option, value in (('-e', 'UDG32768'), ('--expand', 'FONT49152')):
             output, error = self.run_sna2img('{} {} test.scr'.format(option, value))
-            self.assertEqual([], output)
+            self.assertEqual(output, '')
             self.assertEqual(error, '')
             infile, outfile, options = run_args
             self.assertEqual(options.macro, value)
@@ -389,7 +389,7 @@ class Sna2ImgTest(SkoolKitTestCase):
     def test_options_f_flip(self):
         for option, value in (('-f', 1), ('--flip', 2)):
             output, error = self.run_sna2img('{} {} test.scr'.format(option, value))
-            self.assertEqual([], output)
+            self.assertEqual(output, '')
             self.assertEqual(error, '')
             infile, outfile, options = run_args
             self.assertEqual(options.flip, value)
@@ -418,7 +418,7 @@ class Sna2ImgTest(SkoolKitTestCase):
     def test_option_f_invalid_value(self):
         scrfile = self.write_bin_file(suffix='.scr')
         output, error = self.run_sna2img('-f ? {}'.format(scrfile), catch_exit=2)
-        self.assertEqual(len(output), 0)
+        self.assertEqual(output, '')
         self.assertTrue(error.startswith('usage: sna2img.py'))
         self.assertTrue(error.endswith("error: argument -f/--flip: invalid int value: '?'\n"))
 
@@ -426,7 +426,7 @@ class Sna2ImgTest(SkoolKitTestCase):
     def test_options_i_invert(self):
         for option in ('-i', '--invert'):
             output, error = self.run_sna2img('{} test.scr'.format(option))
-            self.assertEqual([], output)
+            self.assertEqual(output, '')
             self.assertEqual(error, '')
             infile, outfile, options = run_args
             self.assertTrue(options.invert)
@@ -444,7 +444,7 @@ class Sna2ImgTest(SkoolKitTestCase):
     def test_options_m_move(self):
         for option, value in (('-m', '32768,256,49152'), ('--move', '24576,6912,16384')):
             output, error = self.run_sna2img('{} {} test.scr'.format(option, value))
-            self.assertEqual([], output)
+            self.assertEqual(output, '')
             self.assertEqual(error, '')
             options = run_args[2]
             self.assertEqual(options.moves, [value])
@@ -482,7 +482,7 @@ class Sna2ImgTest(SkoolKitTestCase):
     def test_options_n_no_animation(self):
         for option in ('-n', '--no-animation'):
             output, error = self.run_sna2img('{} test.scr'.format(option))
-            self.assertEqual([], output)
+            self.assertEqual(output, '')
             self.assertEqual(error, '')
             infile, outfile, options = run_args
             self.assertFalse(options.animated)
@@ -499,7 +499,7 @@ class Sna2ImgTest(SkoolKitTestCase):
     def test_options_o_origin(self):
         for option, value in (('-o', (3, 4)), ('--origin', (5, 6))):
             output, error = self.run_sna2img('{} {},{} test.scr'.format(option, *value))
-            self.assertEqual([], output)
+            self.assertEqual(output, '')
             self.assertEqual(error, '')
             infile, outfile, options = run_args
             self.assertEqual(options.origin, value)
@@ -528,7 +528,7 @@ class Sna2ImgTest(SkoolKitTestCase):
         scrfile = self.write_bin_file(suffix='.scr')
         for coords in ('x,1', '1,y', 'p,q', '1', '1,2,3'):
             output, error = self.run_sna2img('-o {} {}'.format(coords, scrfile), catch_exit=2)
-            self.assertEqual(len(output), 0)
+            self.assertEqual(output, '')
             self.assertTrue(error.startswith('usage: sna2img.py'))
             self.assertTrue(error.endswith("error: argument -o/--origin: invalid coordinates: '{}'\n".format(coords)))
 
@@ -554,7 +554,7 @@ class Sna2ImgTest(SkoolKitTestCase):
     def test_option_O_invalid_values(self):
         for a in ('q', '0xfffg', '?'):
             output, error = self.run_sna2img('-O {} test-O.scr'.format(a), catch_exit=2)
-            self.assertEqual(len(output), 0)
+            self.assertEqual(output, '')
             self.assertTrue(error.startswith('usage: sna2img.py'))
             self.assertTrue(error.endswith("error: argument -O/--org: invalid integer: '{}'\n".format(a)))
 
@@ -562,7 +562,7 @@ class Sna2ImgTest(SkoolKitTestCase):
     def test_options_p_poke(self):
         for option, value in (('-p', '32768,0'), ('--poke', '30000-30009,5')):
             output, error = self.run_sna2img('{} {} test.scr'.format(option, value))
-            self.assertEqual([], output)
+            self.assertEqual(output, '')
             self.assertEqual(error, '')
             infile, outfile, options = run_args
             self.assertEqual(options.pokes, [value])
@@ -644,7 +644,7 @@ class Sna2ImgTest(SkoolKitTestCase):
     def test_options_r_rotate(self):
         for option, value in (('-r', 1), ('--rotate', 3)):
             output, error = self.run_sna2img('{} {} test.scr'.format(option, value))
-            self.assertEqual([], output)
+            self.assertEqual(output, '')
             self.assertEqual(error, '')
             infile, outfile, options = run_args
             self.assertEqual(options.rotate, value)
@@ -673,7 +673,7 @@ class Sna2ImgTest(SkoolKitTestCase):
     def test_option_r_invalid_value(self):
         scrfile = self.write_bin_file(suffix='.scr')
         output, error = self.run_sna2img('-r X {}'.format(scrfile), catch_exit=2)
-        self.assertEqual(len(output), 0)
+        self.assertEqual(output, '')
         self.assertTrue(error.startswith('usage: sna2img.py'))
         self.assertTrue(error.endswith("error: argument -r/--rotate: invalid int value: 'X'\n"))
 
@@ -681,7 +681,7 @@ class Sna2ImgTest(SkoolKitTestCase):
     def test_options_s_scale(self):
         for option, value in (('-s ', 2), ('--scale', 3)):
             output, error = self.run_sna2img('{} {} test.scr'.format(option, value))
-            self.assertEqual([], output)
+            self.assertEqual(output, '')
             self.assertEqual(error, '')
             infile, outfile, options = run_args
             self.assertEqual(options.scale, value)
@@ -696,7 +696,7 @@ class Sna2ImgTest(SkoolKitTestCase):
     def test_option_s_invalid_value(self):
         scrfile = self.write_bin_file(suffix='.scr')
         output, error = self.run_sna2img('-s Q {}'.format(scrfile), catch_exit=2)
-        self.assertEqual(len(output), 0)
+        self.assertEqual(output, '')
         self.assertTrue(error.startswith('usage: sna2img.py'))
         self.assertTrue(error.endswith("error: argument -s/--scale: invalid int value: 'Q'\n"))
 
@@ -704,7 +704,7 @@ class Sna2ImgTest(SkoolKitTestCase):
     def test_options_S_size(self):
         for option, value in (('-S ', (5, 6)), ('--size', (7, 8))):
             output, error = self.run_sna2img('{} {}x{} test.scr'.format(option, *value))
-            self.assertEqual([], output)
+            self.assertEqual(output, '')
             self.assertEqual(error, '')
             infile, outfile, options = run_args
             self.assertEqual(options.size, value)
@@ -726,8 +726,8 @@ class Sna2ImgTest(SkoolKitTestCase):
 
     def test_option_V(self):
         for option in ('-V', '--version'):
-            output, error = self.run_sna2img(option, err_lines=True, catch_exit=0)
-            self.assertEqual(['SkoolKit {}'.format(VERSION)], output + error)
+            output, error = self.run_sna2img(option, catch_exit=0)
+            self.assertEqual(output, 'SkoolKit {}\n'.format(VERSION))
 
 if __name__ == '__main__':
     unittest.main()

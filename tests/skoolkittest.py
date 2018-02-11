@@ -344,8 +344,8 @@ class SkoolKitTestCase(TestCase):
     def run_bin2tap(self, args='', catch_exit=None):
         return self._run_skoolkit_command(bin2tap.main, args, catch_exit=catch_exit)
 
-    def run_sna2img(self, args='', out_lines=True, err_lines=False, catch_exit=None):
-        return self._run_skoolkit_command(sna2img.main, args, out_lines, err_lines, catch_exit)
+    def run_sna2img(self, args='', catch_exit=None):
+        return self._run_skoolkit_command(sna2img.main, args, catch_exit=catch_exit)
 
     def run_skool2asm(self, args='', catch_exit=None):
         return self._run_skoolkit_command(skool2asm.main, args, catch_exit=catch_exit)
