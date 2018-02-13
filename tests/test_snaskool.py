@@ -1781,6 +1781,7 @@ class SkoolWriterTest(SkoolKitTestCase):
 
     def test_assemble_directives(self):
         ctl = """
+            @ 00000 assemble=2,-1
             c 00000
             @ 00001 assemble=1
             @ 00002 assemble=0
@@ -1789,6 +1790,7 @@ class SkoolWriterTest(SkoolKitTestCase):
         exp_skool = """
             @start
             @org=0
+            @assemble=2,-1
             ; Routine at 0
             c00000 NOP           ;
             @assemble=1

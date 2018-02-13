@@ -1036,6 +1036,7 @@ class CtlWriterTest(SkoolKitTestCase):
 
     def test_assemble_directives(self):
         skool = """
+            @assemble=2,-1
             c30000 LD A,1
             @assemble=1
              30002 LD B,2
@@ -1043,6 +1044,7 @@ class CtlWriterTest(SkoolKitTestCase):
              30004 LD C,3
         """
         exp_ctl = """
+            @ 30000 assemble=2,-1
             c 30000
             @ 30002 assemble=1
             @ 30004 assemble=0

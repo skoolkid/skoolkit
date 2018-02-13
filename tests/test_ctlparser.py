@@ -973,10 +973,9 @@ class CtlParserTest(SkoolKitTestCase):
         blocks = self._get_ctl_parser(ctl).get_blocks()
 
         exp_entry_directives = {
-            30000: []
+            30000: ['assemble=1']
         }
         exp_instruction_directives = {
-            30000: ['assemble=1'],
             30001: ['assemble=0']
         }
         self._check_entry_asm_directives(exp_entry_directives, blocks)
