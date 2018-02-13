@@ -1152,7 +1152,7 @@ class SkoolWriterTest(SkoolKitTestCase):
         """
         exp_skool = """
             @start
-            @org=0
+            @org
             ; A routine at address 0 with a title that will be wrapped over
             ; two lines
             ;
@@ -1188,7 +1188,7 @@ class SkoolWriterTest(SkoolKitTestCase):
         """
         exp_skool = """
             @start
-            @org=0
+            @org
             ; A routine at address zero with a 92-character title that will actually fit on a single line!
             ;
             ; A particularly long description of the routine at address 0 that, sadly, will not quite fit
@@ -1223,7 +1223,7 @@ class SkoolWriterTest(SkoolKitTestCase):
         """
         exp_skool = """
             @start
-            @org=30000
+            @org
             ; Routine at 30000
             c30000 XOR A         ;
             *30001 LD (BC),A     ;
@@ -1259,7 +1259,7 @@ class SkoolWriterTest(SkoolKitTestCase):
         """
         exp_skool = """
             @start
-            @org=40000
+            @org
             ; Routine at 40000
             ;
             ; Routine description.
@@ -1304,7 +1304,7 @@ class SkoolWriterTest(SkoolKitTestCase):
         """
         exp_skool = """
             @start
-            @org=50000
+            @org
             ; Routine at 50000
             ;
             ; Used by the routine at #R50004.
@@ -1404,16 +1404,6 @@ class SkoolWriterTest(SkoolKitTestCase):
         self.assertEqual(skool[18], 'b00573 DEFB 0')
         self.assertEqual(skool[23], 'b01876 DEFB 0')
 
-    def test_decimal_org_addresses_below_10000(self):
-        snapshot = [0] * 1235
-        for org in (0, 1, 12, 123, 1234):
-            ctl = 'b {:05d}\ni {:05d}'.format(org, org + 1)
-            writer = self._get_writer(snapshot, ctl)
-            self.clear_streams()
-            writer.write_skool(0, False)
-            skool = self.out.getvalue().split('\n')[:-1]
-            self.assertEqual(skool[1], '@org={}'.format(org))
-
     def test_no_table_end_marker(self):
         ctl = """
             b 00000
@@ -1484,7 +1474,7 @@ class SkoolWriterTest(SkoolKitTestCase):
         """
         exp_skool = """
             @start
-            @org=0
+            @org
             @defb=0:1,$02,%11
             @defb=3:"Hi" ; Hi
             ; Data defined by @defb directives
@@ -1502,7 +1492,7 @@ class SkoolWriterTest(SkoolKitTestCase):
         """
         exp_skool = """
             @start
-            @org=0
+            @org
             @defs=0:3,2
             @defs=3:2,"!" ; !!
             ; Data defined by @defs directives
@@ -1520,7 +1510,7 @@ class SkoolWriterTest(SkoolKitTestCase):
         """
         exp_skool = """
             @start
-            @org=0
+            @org
             @defw=0:257,513
             @defw=4:$8001 ; 32769
             ; Data defined by @defw directives
@@ -1538,7 +1528,7 @@ class SkoolWriterTest(SkoolKitTestCase):
         """
         exp_skool = """
             @start
-            @org=0
+            @org
             ; Routine at 0
             c00000 XOR A         ;
             @end
@@ -1560,7 +1550,7 @@ class SkoolWriterTest(SkoolKitTestCase):
         """
         exp_skool = """
             @start
-            @org=0
+            @org
             @equ=ATTRS=22528
             ; Routine at 0
             c00000 XOR A         ;
@@ -1597,7 +1587,7 @@ class SkoolWriterTest(SkoolKitTestCase):
         """
         exp_skool = """
             @start
-            @org=0
+            @org
             @remote=main:24576
             ; Routine at 0
             c00000 XOR A         ;
@@ -1616,7 +1606,7 @@ class SkoolWriterTest(SkoolKitTestCase):
         """
         exp_skool = """
             @start
-            @org=0
+            @org
             @replace=/foo/bar
             ; Routine at 0
             c00000 XOR A         ;
@@ -1635,7 +1625,7 @@ class SkoolWriterTest(SkoolKitTestCase):
         """
         exp_skool = """
             @start
-            @org=0
+            @org
             @set-crlf=1
             ; Routine at 0
             c00000 XOR A         ;
@@ -1671,7 +1661,7 @@ class SkoolWriterTest(SkoolKitTestCase):
         """
         exp_skool = """
             @start
-            @org=0
+            @org
             @writer=x.y.z
             ; Routine at 0
             c00000 XOR A         ;
@@ -1723,7 +1713,7 @@ class SkoolWriterTest(SkoolKitTestCase):
         """
         exp_skool = """
             @start
-            @org=10000
+            @org
             @ignoreua
             ; Routine at 10000
             ;
@@ -1759,7 +1749,7 @@ class SkoolWriterTest(SkoolKitTestCase):
         """
         exp_skool = """
             @start
-            @org=10000
+            @org
             ; Routine at 10000
             ;
             @ignoreua
@@ -1789,7 +1779,7 @@ class SkoolWriterTest(SkoolKitTestCase):
         """
         exp_skool = """
             @start
-            @org=0
+            @org
             @assemble=2,-1
             ; Routine at 0
             c00000 NOP           ;
@@ -1809,7 +1799,7 @@ class SkoolWriterTest(SkoolKitTestCase):
         """
         exp_skool = """
             @start
-            @org=0
+            @org
             ; Routine at 0
             @bfix=XOR B
             c00000 XOR A         ;
@@ -1828,7 +1818,7 @@ class SkoolWriterTest(SkoolKitTestCase):
         """
         exp_skool = """
             @start
-            @org=0
+            @org
             ; Routine at 0
             @isub=XOR B
             c00000 XOR A         ;
@@ -1847,7 +1837,7 @@ class SkoolWriterTest(SkoolKitTestCase):
         """
         exp_skool = """
             @start
-            @org=0
+            @org
             ; Routine at 0
             @keep
             c00000 LD BC,0       ;
@@ -1866,7 +1856,7 @@ class SkoolWriterTest(SkoolKitTestCase):
         """
         exp_skool = """
             @start
-            @org=0
+            @org
             ; Routine at 0
             @nolabel
             c00000 JR 2          ;
@@ -1884,7 +1874,7 @@ class SkoolWriterTest(SkoolKitTestCase):
         """
         exp_skool = """
             @start
-            @org=0
+            @org
             ; Routine at 0
             @nowarn
             c00000 LD BC,3       ;
@@ -1902,7 +1892,7 @@ class SkoolWriterTest(SkoolKitTestCase):
         """
         exp_skool = """
             @start
-            @org=0
+            @org
             ; Routine at 0
             @ofix=LD A,0
             c00000 LD A,1        ;
@@ -1921,7 +1911,7 @@ class SkoolWriterTest(SkoolKitTestCase):
         """
         exp_skool = """
             @start
-            @org=0
+            @org
             ; Routine at 0
             @rem=It begins
             c00000 XOR A         ;
@@ -1939,7 +1929,7 @@ class SkoolWriterTest(SkoolKitTestCase):
         """
         exp_skool = """
             @start
-            @org=0
+            @org
             ; Routine at 0
             @rfix=LD DE,0
             c00000 LD D,0        ;
@@ -1955,7 +1945,7 @@ class SkoolWriterTest(SkoolKitTestCase):
         """
         exp_skool = """
             @start
-            @org=0
+            @org
             ; Routine at 0
             @rsub=LD BC,0
             c00000 LD B,0        ;
@@ -1974,7 +1964,7 @@ class SkoolWriterTest(SkoolKitTestCase):
         """
         exp_skool = """
             @start
-            @org=0
+            @org
             ; Routine at 0
             @ssub=LD A,32768%256
             c00000 LD A,0        ;
@@ -1996,7 +1986,7 @@ class SkoolWriterTest(SkoolKitTestCase):
         """
         exp_skool = """
             @start
-            @org=0
+            @org
             ; Routine
             ;
             ; .
@@ -2022,7 +2012,7 @@ class SkoolWriterTest(SkoolKitTestCase):
         """
         exp_skool = """
             @start
-            @org=0
+            @org
             ; Routine
             ;
             ; .
@@ -2044,7 +2034,7 @@ class SkoolWriterTest(SkoolKitTestCase):
         """
         exp_skool = """
             @start
-            @org=0
+            @org
             ; Routine at 0
             ;
             ; .
@@ -2066,7 +2056,7 @@ class SkoolWriterTest(SkoolKitTestCase):
         """
         exp_skool = """
             @start
-            @org=0
+            @org
             ; Routine
             ;
             ; Description.
@@ -2135,7 +2125,7 @@ class SkoolWriterTest(SkoolKitTestCase):
         """
         exp_skool = """
             @start
-            @org=0
+            @org
             ; Routine at 0
             c00000 DEFB 62       ; {This is really LD A,0
              00001 NOP           ; }
@@ -2152,7 +2142,7 @@ class SkoolWriterTest(SkoolKitTestCase):
         """
         exp_skool = """
             @start
-            @org=$000a
+            @org
             ; Data block at 000a
             b$000a defb $ff
         """
@@ -2166,7 +2156,7 @@ class SkoolWriterTest(SkoolKitTestCase):
         """
         exp_skool = """
             @start
-            @org=0
+            @org
             ; Message at 0
             t00000 DEFM "AA"
              00002 DEFM "AA"
@@ -2181,7 +2171,7 @@ class SkoolWriterTest(SkoolKitTestCase):
         """
         exp_skool = """
             @start
-            @org=2
+            @org
             ; Data block at 2
             b00002 DEFB 0,0
              00004 DEFB 0,0,0,0,0,0,0,0
@@ -2197,7 +2187,7 @@ class SkoolWriterTest(SkoolKitTestCase):
         """
         exp_skool = """
             @start
-            @org=0
+            @org
             ; Data block at 0
             b00000 DEFB 0,0,0
              00003 DEFB 0,0
@@ -2212,7 +2202,7 @@ class SkoolWriterTest(SkoolKitTestCase):
         """
         exp_skool = """
             @start
-            @org=0
+            @org
             ; Data block at 0
             b00000 DEFB 000,000,000,000,000
         """
@@ -2226,7 +2216,7 @@ class SkoolWriterTest(SkoolKitTestCase):
         """
         exp_skool = """
             @start
-            @org=0
+            @org
             ; Routine at 0
             c00000 LD SP,12927   ; [1.2]
         """
@@ -2264,7 +2254,7 @@ class SkoolWriterTest(SkoolKitTestCase):
         """
         exp_skool = """
             @start
-            @org=0
+            @org
             ; Data block at 0
             b00000 DEFB 0        ; { {unmatched opening brace}}
              00001 DEFB 0        ; unmatched closing brace}
@@ -2318,7 +2308,7 @@ class SkoolWriterTest(SkoolKitTestCase):
         """
         exp_skool = """
             @start
-            @org=0
+            @org
             ; Data block at 0
             b00000 DEFB 0
 
@@ -2339,7 +2329,7 @@ class SkoolWriterTest(SkoolKitTestCase):
         """
         exp_skool = """
             @start
-            @org=0
+            @org
             ; Data block at 0
             b00000 DEFB 0
 
@@ -2366,7 +2356,7 @@ class SkoolWriterTest(SkoolKitTestCase):
         """
         exp_skool = """
             @start
-            @org=0
+            @org
             ; Data block at 0
             b00000 DEFB 0
 
@@ -2392,7 +2382,7 @@ class SkoolWriterTest(SkoolKitTestCase):
         """
         exp_skool = """
             @start
-            @org=0
+            @org
             ; Data block at 0
             b00000 DEFB 0
 
@@ -2418,7 +2408,7 @@ class SkoolWriterTest(SkoolKitTestCase):
         """
         exp_skool = """
             @start
-            @org=0
+            @org
             ; Data block at 0
             b00000 DEFB 0
 
@@ -2440,7 +2430,7 @@ class SkoolWriterTest(SkoolKitTestCase):
         """
         exp_skool = """
             @start
-            @org=0
+            @org
             ; Data block at 0
             b00000 DEFB 0
 
@@ -2463,7 +2453,7 @@ class SkoolWriterTest(SkoolKitTestCase):
         """
         exp_skool = """
             @start
-            @org=0
+            @org
             ; Data block at 0
             b00000 DEFB 0
 
@@ -2488,7 +2478,7 @@ class SkoolWriterTest(SkoolKitTestCase):
         """
         exp_skool = """
             @start
-            @org=0
+            @org
             ; Routine at 0
             ;
             ; Used by the routine at #R2.
@@ -2513,7 +2503,7 @@ class SkoolWriterTest(SkoolKitTestCase):
         """
         exp_skool = """
             @start
-            @org=0
+            @org
             ; Routine at 0
             c00000 LD A,B        ; This sub-block is terminated by the M directive
              00001 RST 8         ; {This spans an implicit "C" sub-block and a "B"
@@ -2531,7 +2521,7 @@ class SkoolWriterTest(SkoolKitTestCase):
         """
         exp_skool = """
             @start
-            @org=0
+            @org
             ; Routine at 0
             ;
             ; Used by the subroutine at #R1.
@@ -2566,7 +2556,7 @@ class SkoolWriterTest(SkoolKitTestCase):
         """
         exp_skool = """
             @start
-            @org=0
+            @org
             ; Routine at 0
             ;
             ; Used by the subroutines at #R1 and #R3.
@@ -2592,7 +2582,7 @@ class SkoolWriterTest(SkoolKitTestCase):
         """
         exp_skool = """
             @start
-            @org=0
+            @org
             ; Routine at 0
             ;
             ; Used by the subroutines at #R1, #R3 and #R5.
@@ -2633,7 +2623,7 @@ class SkoolWriterTest(SkoolKitTestCase):
         """
         exp_skool = """
             @start
-            @org=0
+            @org
             ; Routine at 0
             c00000 XOR A         ;
             ; Used by the subroutine at #R2.
@@ -2668,7 +2658,7 @@ class SkoolWriterTest(SkoolKitTestCase):
         """
         exp_skool = """
             @start
-            @org=0
+            @org
             ; Routine at 0
             c00000 XOR A         ;
             ; Used by the subroutines at #R2 and #R4.
@@ -2694,7 +2684,7 @@ class SkoolWriterTest(SkoolKitTestCase):
         """
         exp_skool = """
             @start
-            @org=0
+            @org
             ; Routine at 0
             c00000 XOR A         ;
             ; Used by the subroutines at #R2, #R4 and #R6.
@@ -2739,7 +2729,7 @@ class SkoolWriterTest(SkoolKitTestCase):
         """
         exp_skool = """
             @start
-            @org=0
+            @org
             ; Code at 0
             c00000 RET           ;
 

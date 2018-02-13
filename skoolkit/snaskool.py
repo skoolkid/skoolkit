@@ -720,7 +720,7 @@ class SkoolWriter:
         if not self.disassembly.contains_entry_asm_directive(AD_START):
             self.write_asm_directives(AD_START)
             if not self.disassembly.contains_entry_asm_directive(AD_ORG):
-                self.write_asm_directives('{}={}'.format(AD_ORG, self.address_str(self.disassembly.org, False)))
+                self.write_asm_directives(AD_ORG)
         for entry_index, entry in enumerate(self.disassembly.entries):
             if entry_index:
                 write_line('')
