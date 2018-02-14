@@ -116,6 +116,11 @@ class CtlParserTest(SkoolKitTestCase):
         self.assertEqual(exp_entry_directives, entry_directives)
         self.assertEqual(exp_other_directives, other_directives)
 
+    def _test_asm_directives(self, ctl, exp_entry_directives, exp_instruction_directives):
+        blocks = self._get_ctl_parser(ctl).get_blocks()
+        self._check_entry_asm_directives(exp_entry_directives, blocks)
+        self._check_instruction_asm_directives(exp_instruction_directives, blocks)
+
     def test_parse_ctl(self):
         ctl_parser = self._get_ctl_parser(CTL)
         blocks = ctl_parser.get_blocks()
@@ -970,16 +975,13 @@ class CtlParserTest(SkoolKitTestCase):
             c 30000 Routine at 30000
             @ 30001 assemble=0
         """
-        blocks = self._get_ctl_parser(ctl).get_blocks()
-
         exp_entry_directives = {
             30000: ['assemble=1']
         }
         exp_instruction_directives = {
             30001: ['assemble=0']
         }
-        self._check_entry_asm_directives(exp_entry_directives, blocks)
-        self._check_instruction_asm_directives(exp_instruction_directives, blocks)
+        self._test_asm_directives(ctl, exp_entry_directives, exp_instruction_directives)
 
     def test_bfix_directives(self):
         ctl = """
@@ -987,8 +989,6 @@ class CtlParserTest(SkoolKitTestCase):
             c 40000 Routine at 40000
             @ 40001 bfix=XOR B
         """
-        blocks = self._get_ctl_parser(ctl).get_blocks()
-
         exp_entry_directives = {
             40000: []
         }
@@ -996,8 +996,49 @@ class CtlParserTest(SkoolKitTestCase):
             40000: ['bfix=XOR A'],
             40001: ['bfix=XOR B']
         }
-        self._check_entry_asm_directives(exp_entry_directives, blocks)
-        self._check_instruction_asm_directives(exp_instruction_directives, blocks)
+        self._test_asm_directives(ctl, exp_entry_directives, exp_instruction_directives)
+
+    def test_defb_directives(self):
+        ctl = """
+            @ 30000 defb=49152:13
+            c 30000 Routine at 30000
+            @ 30001 defb=49153:14
+        """
+        exp_entry_directives = {
+            30000: ['defb=49152:13']
+        }
+        exp_instruction_directives = {
+            30001: ['defb=49153:14']
+        }
+        self._test_asm_directives(ctl, exp_entry_directives, exp_instruction_directives)
+
+    def test_defs_directives(self):
+        ctl = """
+            @ 40000 defs=32768:10,2
+            c 40000 Routine at 40000
+            @ 40001 defs=32778:11,3
+        """
+        exp_entry_directives = {
+            40000: ['defs=32768:10,2']
+        }
+        exp_instruction_directives = {
+            40001: ['defs=32778:11,3']
+        }
+        self._test_asm_directives(ctl, exp_entry_directives, exp_instruction_directives)
+
+    def test_defw_directives(self):
+        ctl = """
+            @ 50000 defw=24576:32767
+            c 50000 Routine at 50000
+            @ 50001 defw=24577:65535
+        """
+        exp_entry_directives = {
+            50000: ['defw=24576:32767']
+        }
+        exp_instruction_directives = {
+            50001: ['defw=24577:65535']
+        }
+        self._test_asm_directives(ctl, exp_entry_directives, exp_instruction_directives)
 
     def test_end_directives(self):
         ctl = """
@@ -1006,8 +1047,6 @@ class CtlParserTest(SkoolKitTestCase):
             @ 40002 end
             c 40002 Routine at 40002
         """
-        blocks = self._get_ctl_parser(ctl).get_blocks()
-
         exp_entry_directives = {
             40000: [],
             40002: ['end']
@@ -1015,8 +1054,7 @@ class CtlParserTest(SkoolKitTestCase):
         exp_instruction_directives = {
             40001: ['end']
         }
-        self._check_entry_asm_directives(exp_entry_directives, blocks)
-        self._check_instruction_asm_directives(exp_instruction_directives, blocks)
+        self._test_asm_directives(ctl, exp_entry_directives, exp_instruction_directives)
 
     def test_equ_directives(self):
         ctl = """
@@ -1024,16 +1062,13 @@ class CtlParserTest(SkoolKitTestCase):
             c 50000 Routine at 50000
             @ 50001 equ=UDG=23675
         """
-        blocks = self._get_ctl_parser(ctl).get_blocks()
-
         exp_entry_directives = {
             50000: ['equ=ATTRS=22528'],
         }
         exp_instruction_directives = {
             50001: ['equ=UDG=23675']
         }
-        self._check_entry_asm_directives(exp_entry_directives, blocks)
-        self._check_instruction_asm_directives(exp_instruction_directives, blocks)
+        self._test_asm_directives(ctl, exp_entry_directives, exp_instruction_directives)
 
     def test_ignoreua_directives(self):
         ctl = """
@@ -1082,8 +1117,6 @@ class CtlParserTest(SkoolKitTestCase):
             c 40000 Routine at 40000
             @ 40002 isub=LD A,2
         """
-        blocks = self._get_ctl_parser(ctl).get_blocks()
-
         exp_entry_directives = {
             40000: []
         }
@@ -1091,8 +1124,7 @@ class CtlParserTest(SkoolKitTestCase):
             40000: ['isub=LD A,1'],
             40002: ['isub=LD A,2']
         }
-        self._check_entry_asm_directives(exp_entry_directives, blocks)
-        self._check_instruction_asm_directives(exp_instruction_directives, blocks)
+        self._test_asm_directives(ctl, exp_entry_directives, exp_instruction_directives)
 
     def test_keep_directives(self):
         ctl = """
@@ -1100,8 +1132,6 @@ class CtlParserTest(SkoolKitTestCase):
             c 50000 Routine at 50000
             @ 50003 keep
         """
-        blocks = self._get_ctl_parser(ctl).get_blocks()
-
         exp_entry_directives = {
             50000: []
         }
@@ -1109,8 +1139,7 @@ class CtlParserTest(SkoolKitTestCase):
             50000: ['keep'],
             50003: ['keep']
         }
-        self._check_entry_asm_directives(exp_entry_directives, blocks)
-        self._check_instruction_asm_directives(exp_instruction_directives, blocks)
+        self._test_asm_directives(ctl, exp_entry_directives, exp_instruction_directives)
 
     def test_label_directives(self):
         ctl = """
@@ -1118,8 +1147,6 @@ class CtlParserTest(SkoolKitTestCase):
             c 60000 Routine at 60000
             @ 60003 label=LOOP
         """
-        blocks = self._get_ctl_parser(ctl).get_blocks()
-
         exp_entry_directives = {
             60000: []
         }
@@ -1127,8 +1154,7 @@ class CtlParserTest(SkoolKitTestCase):
             60000: ['label=START'],
             60003: ['label=LOOP']
         }
-        self._check_entry_asm_directives(exp_entry_directives, blocks)
-        self._check_instruction_asm_directives(exp_instruction_directives, blocks)
+        self._test_asm_directives(ctl, exp_entry_directives, exp_instruction_directives)
 
     def test_nolabel_directives(self):
         ctl = """
@@ -1136,8 +1162,6 @@ class CtlParserTest(SkoolKitTestCase):
             c 30000 Routine at 30000
             @ 30003 nolabel
         """
-        blocks = self._get_ctl_parser(ctl).get_blocks()
-
         exp_entry_directives = {
             30000: []
         }
@@ -1145,8 +1169,7 @@ class CtlParserTest(SkoolKitTestCase):
             30000: ['nolabel'],
             30003: ['nolabel']
         }
-        self._check_entry_asm_directives(exp_entry_directives, blocks)
-        self._check_instruction_asm_directives(exp_instruction_directives, blocks)
+        self._test_asm_directives(ctl, exp_entry_directives, exp_instruction_directives)
 
     def test_nowarn_directives(self):
         ctl = """
@@ -1154,8 +1177,6 @@ class CtlParserTest(SkoolKitTestCase):
             c 40000 Routine at 40000
             @ 40003 nowarn
         """
-        blocks = self._get_ctl_parser(ctl).get_blocks()
-
         exp_entry_directives = {
             40000: []
         }
@@ -1163,8 +1184,7 @@ class CtlParserTest(SkoolKitTestCase):
             40000: ['nowarn'],
             40003: ['nowarn']
         }
-        self._check_entry_asm_directives(exp_entry_directives, blocks)
-        self._check_instruction_asm_directives(exp_instruction_directives, blocks)
+        self._test_asm_directives(ctl, exp_entry_directives, exp_instruction_directives)
 
     def test_ofix_directives(self):
         ctl = """
@@ -1172,8 +1192,6 @@ class CtlParserTest(SkoolKitTestCase):
             c 50000 Routine at 50000
             @ 50003 ofix=CALL 34567
         """
-        blocks = self._get_ctl_parser(ctl).get_blocks()
-
         exp_entry_directives = {
             50000: []
         }
@@ -1181,8 +1199,7 @@ class CtlParserTest(SkoolKitTestCase):
             50000: ['ofix=LD HL,12345'],
             50003: ['ofix=CALL 34567']
         }
-        self._check_entry_asm_directives(exp_entry_directives, blocks)
-        self._check_instruction_asm_directives(exp_instruction_directives, blocks)
+        self._test_asm_directives(ctl, exp_entry_directives, exp_instruction_directives)
 
     def test_org_directives(self):
         ctl = """
@@ -1190,16 +1207,13 @@ class CtlParserTest(SkoolKitTestCase):
             c 60000 Routine at 60000
             @ 60001 org
         """
-        blocks = self._get_ctl_parser(ctl).get_blocks()
-
         exp_entry_directives = {
             60000: ['org=60000'],
         }
         exp_instruction_directives = {
             60001: ['org']
         }
-        self._check_entry_asm_directives(exp_entry_directives, blocks)
-        self._check_instruction_asm_directives(exp_instruction_directives, blocks)
+        self._test_asm_directives(ctl, exp_entry_directives, exp_instruction_directives)
 
     def test_rem_directives(self):
         ctl = """
@@ -1207,8 +1221,6 @@ class CtlParserTest(SkoolKitTestCase):
             c 30000 Routine at 30000
             @ 30010 rem=It ends
         """
-        blocks = self._get_ctl_parser(ctl).get_blocks()
-
         exp_entry_directives = {
             30000: []
         }
@@ -1216,8 +1228,7 @@ class CtlParserTest(SkoolKitTestCase):
             30000: ['rem=It begins'],
             30010: ['rem=It ends']
         }
-        self._check_entry_asm_directives(exp_entry_directives, blocks)
-        self._check_instruction_asm_directives(exp_instruction_directives, blocks)
+        self._test_asm_directives(ctl, exp_entry_directives, exp_instruction_directives)
 
     def test_replace_directives(self):
         ctl = """
@@ -1225,16 +1236,13 @@ class CtlParserTest(SkoolKitTestCase):
             c 40000 Routine at 40000
             @ 40001 replace=/baz/qux
         """
-        blocks = self._get_ctl_parser(ctl).get_blocks()
-
         exp_entry_directives = {
             40000: ['replace=/foo/bar'],
         }
         exp_instruction_directives = {
             40001: ['replace=/baz/qux']
         }
-        self._check_entry_asm_directives(exp_entry_directives, blocks)
-        self._check_instruction_asm_directives(exp_instruction_directives, blocks)
+        self._test_asm_directives(ctl, exp_entry_directives, exp_instruction_directives)
 
     def test_rfix_directives(self):
         ctl = """
@@ -1242,8 +1250,6 @@ class CtlParserTest(SkoolKitTestCase):
             c 50000 Routine at 50000
             @ 50002 rfix=LD HL,0
         """
-        blocks = self._get_ctl_parser(ctl).get_blocks()
-
         exp_entry_directives = {
             50000: []
         }
@@ -1251,8 +1257,7 @@ class CtlParserTest(SkoolKitTestCase):
             50000: ['rfix=LD BC,0'],
             50002: ['rfix=LD HL,0']
         }
-        self._check_entry_asm_directives(exp_entry_directives, blocks)
-        self._check_instruction_asm_directives(exp_instruction_directives, blocks)
+        self._test_asm_directives(ctl, exp_entry_directives, exp_instruction_directives)
 
     def test_rsub_directives(self):
         ctl = """
@@ -1260,8 +1265,6 @@ class CtlParserTest(SkoolKitTestCase):
             c 60000 Routine at 60000
             @ 60002 rsub=LD IX,0
         """
-        blocks = self._get_ctl_parser(ctl).get_blocks()
-
         exp_entry_directives = {
             60000: []
         }
@@ -1269,8 +1272,7 @@ class CtlParserTest(SkoolKitTestCase):
             60000: ['rsub=LD DE,0'],
             60002: ['rsub=LD IX,0']
         }
-        self._check_entry_asm_directives(exp_entry_directives, blocks)
-        self._check_instruction_asm_directives(exp_instruction_directives, blocks)
+        self._test_asm_directives(ctl, exp_entry_directives, exp_instruction_directives)
 
     def test_set_directives(self):
         ctl = """
@@ -1278,16 +1280,13 @@ class CtlParserTest(SkoolKitTestCase):
             c 30000 Routine at 30000
             @ 30001 set-tab=1
         """
-        blocks = self._get_ctl_parser(ctl).get_blocks()
-
         exp_entry_directives = {
             30000: ['set-crlf=1'],
         }
         exp_instruction_directives = {
             30001: ['set-tab=1']
         }
-        self._check_entry_asm_directives(exp_entry_directives, blocks)
-        self._check_instruction_asm_directives(exp_instruction_directives, blocks)
+        self._test_asm_directives(ctl, exp_entry_directives, exp_instruction_directives)
 
     def test_ssub_directives(self):
         ctl = """
@@ -1295,8 +1294,6 @@ class CtlParserTest(SkoolKitTestCase):
             c 40000 Routine at 60000
             @ 40001 ssub=INC BC
         """
-        blocks = self._get_ctl_parser(ctl).get_blocks()
-
         exp_entry_directives = {
             40000: []
         }
@@ -1304,8 +1301,7 @@ class CtlParserTest(SkoolKitTestCase):
             40000: ['ssub=INC HL'],
             40001: ['ssub=INC BC']
         }
-        self._check_entry_asm_directives(exp_entry_directives, blocks)
-        self._check_instruction_asm_directives(exp_instruction_directives, blocks)
+        self._test_asm_directives(ctl, exp_entry_directives, exp_instruction_directives)
 
     def test_start_directives(self):
         ctl = """
@@ -1313,16 +1309,13 @@ class CtlParserTest(SkoolKitTestCase):
             c 50000 Routine at 50000
             @ 50001 start
         """
-        blocks = self._get_ctl_parser(ctl).get_blocks()
-
         exp_entry_directives = {
             50000: ['start'],
         }
         exp_instruction_directives = {
             50001: ['start']
         }
-        self._check_entry_asm_directives(exp_entry_directives, blocks)
-        self._check_instruction_asm_directives(exp_instruction_directives, blocks)
+        self._test_asm_directives(ctl, exp_entry_directives, exp_instruction_directives)
 
     def test_writer_directives(self):
         ctl = """
@@ -1330,16 +1323,13 @@ class CtlParserTest(SkoolKitTestCase):
             c 60000 Routine at 60000
             @ 60001 writer=foo.bar.baz
         """
-        blocks = self._get_ctl_parser(ctl).get_blocks()
-
         exp_entry_directives = {
             60000: ['writer=x.y.z'],
         }
         exp_instruction_directives = {
             60001: ['writer=foo.bar.baz']
         }
-        self._check_entry_asm_directives(exp_entry_directives, blocks)
-        self._check_instruction_asm_directives(exp_instruction_directives, blocks)
+        self._test_asm_directives(ctl, exp_entry_directives, exp_instruction_directives)
 
     def test_order_of_entry_asm_directives_is_preserved(self):
         ctl = """
