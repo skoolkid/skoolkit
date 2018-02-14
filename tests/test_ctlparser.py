@@ -1230,6 +1230,20 @@ class CtlParserTest(SkoolKitTestCase):
         }
         self._test_asm_directives(ctl, exp_entry_directives, exp_instruction_directives)
 
+    def test_remote_directives(self):
+        ctl = """
+            @ 32768 remote=main:29012,29015
+            c 32768 Routine at 32768
+            @ 32769 remote=start:20112
+        """
+        exp_entry_directives = {
+            32768: ['remote=main:29012,29015']
+        }
+        exp_instruction_directives = {
+            32769: ['remote=start:20112']
+        }
+        self._test_asm_directives(ctl, exp_entry_directives, exp_instruction_directives)
+
     def test_replace_directives(self):
         ctl = """
             @ 40000 replace=/foo/bar
