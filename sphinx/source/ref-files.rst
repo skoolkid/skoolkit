@@ -789,7 +789,9 @@ where:
   the disassembly; the directory will be created if it doesn't already exist
 
 The files to be copied must be present in `skool2html.py`'s search path in
-order for it to find them; to see the search path, run ``skool2html.py -s``.
+order for it to find them. To see the search path, run::
+
+  $ skool2html.py -s
 
 ``fname`` may contain the special wildcard characters ``*``, ``?`` and ``[]``,
 which are expanded as follows:
