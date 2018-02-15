@@ -73,7 +73,7 @@ test%-all: write-disassembly-tests
 
 .PHONY: test-cover
 test-cover: remove-disassembly-tests
-	$(NOSE) -C --coverage skoolkit
+	$(NOSE) -C --coverage skoolkit --coverage-report term-missing
 
 .PHONY: release
 release:
