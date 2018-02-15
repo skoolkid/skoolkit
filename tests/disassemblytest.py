@@ -160,7 +160,7 @@ class HtmlTestCase(DisassembliesTestCase):
         stdout, error = self.run_skool2html('-d {} {} {}'.format(self.odir, options, ref))
         self.assertEqual(error, '')
         reps = {'odir': self.odir, 'SKOOLKIT_HOME': SKOOLKIT_HOME, 'skoolfile': skool, 'reffile': ref}
-        exp_output = macro_expander.expand(output.format(**reps)).split('\n')
+        exp_output = macro_expander.expand(output.format_map(reps)) + '\n'
         self.assertEqual(exp_output, stdout)
         self._validate_xhtml()
         self._check_links()
