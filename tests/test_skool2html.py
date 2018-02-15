@@ -28,10 +28,6 @@ class TestHtmlWriter(HtmlWriter):
     def add_call(self, method_name, args):
         self.call_dict.setdefault(method_name, []).append(args)
 
-    def write_logo_image(self, *args):
-        self.add_call('write_logo_image', args)
-        return True
-
     def write_asm_entries(self, *args):
         self.add_call('write_asm_entries', args)
 
@@ -40,27 +36,6 @@ class TestHtmlWriter(HtmlWriter):
 
     def write_page(self, *args):
         self.add_call('write_page', args)
-
-    def write_graphics(self, *args):
-        self.add_call('write_graphics', args)
-
-    def write_graphic_glitches(self, *args):
-        self.add_call('write_graphic_glitches', args)
-
-    def write_changelog(self, *args):
-        self.add_call('write_changelog', args)
-
-    def write_bugs(self, *args):
-        self.add_call('write_bugs', args)
-
-    def write_facts(self, *args):
-        self.add_call('write_facts', args)
-
-    def write_glossary(self, *args):
-        self.add_call('write_glossary', args)
-
-    def write_pokes(self, *args):
-        self.add_call('write_pokes', args)
 
     def write_entries(self, *args):
         self.add_call('write_entries', args)
