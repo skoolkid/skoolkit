@@ -32,16 +32,11 @@ class Tap2SnaTest(SkoolKitTestCase):
             return archive_fname
         return self.write_bin_file(tap_data, suffix='.tap')
 
-    def _write_tzx(self, blocks, zip_archive=False, tzx_name=None):
+    def _write_tzx(self, blocks):
         tzx_data = [ord(c) for c in "ZXTape!"]
         tzx_data.extend((26, 1, 20))
         for block in blocks:
             tzx_data.extend(block)
-        if zip_archive:
-            archive_fname = self.write_bin_file(suffix='.zip')
-            with ZipFile(archive_fname, 'w') as archive:
-                archive.writestr(tzx_name or 'game.tzx', bytearray(tzx_data))
-            return archive_fname
         return self.write_bin_file(tzx_data, suffix='.tzx')
 
     def _get_snapshot(self, start=16384, data=None, options='', load_options=None, blocks=None, tzx=False):
@@ -591,8 +586,6 @@ class Tap2SnaTest(SkoolKitTestCase):
             else:
                 value = z80_header[offset] + 256 * z80_header[offset + 1]
             self.assertEqual(value, exp_value)
-            if reg == 'r' and exp_value & 128:
-                self.assertEqual(z80_header[12] & 1, 1)
 
     def test_reg(self):
         block = create_tap_data_block([1])
