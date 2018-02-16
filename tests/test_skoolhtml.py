@@ -8256,6 +8256,3 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
         writer = self._get_writer(ref=ref, skool=skool)
         writer.write_map('MemoryMap')
         self._assert_content_equal(exp_content, 'maps/all.html')
-
-if __name__ == '__main__':
-    unittest.main()

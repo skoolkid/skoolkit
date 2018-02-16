@@ -2761,6 +2761,3 @@ class CtlWriterTest(SkoolKitTestCase):
         with open(ctlfile, 'r') as f:
             ctl = [line.rstrip() for line in f]
         self.assertEqual(['c $dead', 'b $fab5'], ctl)
-
-if __name__ == '__main__':
-    unittest.main()

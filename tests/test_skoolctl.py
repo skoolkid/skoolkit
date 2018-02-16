@@ -1768,6 +1768,3 @@ class CtlWriterTest(SkoolKitTestCase):
             i 32771
         """
         self._test_ctl(skool, exp_ctl)
-
-if __name__ == '__main__':
-    unittest.main()

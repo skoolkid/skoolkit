@@ -243,6 +243,3 @@ class RefParserTest(SkoolKitTestCase):
         ref_parser = self._get_parser(ref)
         section = ref_parser.get_section('Foo')
         self.assertEqual(textwrap.dedent(exp_contents).strip(), section)
-
-if __name__ == '__main__':
-    unittest.main()

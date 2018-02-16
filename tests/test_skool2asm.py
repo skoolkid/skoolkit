@@ -649,6 +649,3 @@ class Skool2AsmTest(SkoolKitTestCase):
         self.run_skool2asm('--set instruction-width={} {}'.format(width, skoolfile))
         self.assertEqual(mock_asm_writer.properties['instruction-width'], width)
         self.assertTrue(mock_asm_writer.wrote)
-
-if __name__ == '__main__':
-    unittest.main()

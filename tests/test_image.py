@@ -1408,6 +1408,3 @@ class GifWriterTest(SkoolKitTestCase, ImageWriterTest):
             udgs.append(Udg((index // 64) & 127, udg_data))
             index += 64
         self._test_image([udgs], exp_clear_codes=2)
-
-if __name__ == '__main__':
-    unittest.main()

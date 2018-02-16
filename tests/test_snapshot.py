@@ -246,6 +246,3 @@ class SZXTest(SnapshotTest):
         exp_ram = [(n + 173) & 255 for n in range(49152)]
         pages = {1: [(n + 19) & 255 for n in range(16384)]}
         self._test_szx(exp_ram, False, machine_id=2, pages=pages, page=1)
-
-if __name__ == '__main__':
-    unittest.main()

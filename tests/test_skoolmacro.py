@@ -491,6 +491,3 @@ class SkoolMacroTest(SkoolKitTestCase):
             end, addresses = parse_address_range(spec, 0, width)
             self.assertEqual(end, len(spec), spec)
             self.assertEqual(exp_addresses, addresses)
-
-if __name__ == '__main__':
-    unittest.main()

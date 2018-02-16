@@ -626,6 +626,3 @@ class VariableListerTest(SkoolKitTestCase):
             'j=36'
         ]
         self._test_variables(variables, exp_output)
-
-if __name__ == '__main__':
-    unittest.main()

@@ -125,6 +125,3 @@ class Skool2SftTest(SkoolKitTestCase):
         output, error = self.run_skool2sft(skoolfile)
         self.assertEqual(error, '')
         self.assertEqual(output, '; Routine\ncC32768,1\n')
-
-if __name__ == '__main__':
-    unittest.main()

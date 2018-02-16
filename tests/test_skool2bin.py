@@ -433,6 +433,3 @@ class BinWriterTest(SkoolKitTestCase):
         """
         exp_data = [1, 4, 8]
         self._test_write(skool, 32768, exp_data, fix_mode=2)
-
-if __name__ == '__main__':
-    unittest.main()

@@ -1286,6 +1286,3 @@ class Skool2HtmlTest(SkoolKitTestCase):
         self.assertIn('\nUsing ref files: {}, {}\n'.format(reffile, extra_reffile), output)
         html_writer = write_disassembly_args[0]
         self.assertEqual(html_writer.game_vars['Game'], 'Baz')
-
-if __name__ == '__main__':
-    unittest.main()

@@ -438,6 +438,3 @@ class Bin2TapTest(SkoolKitTestCase):
         clear = 32768
         tap_data = self._run('-S {} -c {} {}'.format(scrfile, clear, binfile))
         self._check_tap_with_clear_command(tap_data, data, binfile, clear, scr=scr)
-
-if __name__ == '__main__':
-    unittest.main()

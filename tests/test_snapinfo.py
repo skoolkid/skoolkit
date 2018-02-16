@@ -1313,6 +1313,3 @@ class SnapinfoTest(SkoolKitTestCase):
         self._test_bad_spec('-w', '32768-?', exp_error)
         self._test_bad_spec('--word', '32768-32868-q', exp_error)
         self._test_bad_spec('-w', '32768-32868-2-3', exp_error)
-
-if __name__ == '__main__':
-    unittest.main()

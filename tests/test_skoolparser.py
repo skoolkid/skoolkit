@@ -3682,6 +3682,3 @@ class TableParserTest(SkoolKitTestCase):
 
     def test_invalid_rowspan_indicator(self):
         self.assert_error('#TABLE { =rY Hi } TABLE#', "Invalid rowspan indicator: 'rY'")
-
-if __name__ == '__main__':
-    unittest.main()

@@ -895,6 +895,3 @@ class SftWriterTest(SkoolKitTestCase):
              W40001,2;14 Also ignored
         """
         self._test_sft(skool, exp_sft)
-
-if __name__ == '__main__':
-    unittest.main()

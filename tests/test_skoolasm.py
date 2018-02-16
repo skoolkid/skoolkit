@@ -2258,6 +2258,3 @@ class ListMacroTest(SkoolKitTestCase):
             { Item} LIST#
         """
         self._assert_error(skool, error)
-
-if __name__ == '__main__':
-    unittest.main()

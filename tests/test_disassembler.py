@@ -2077,6 +2077,3 @@ class DisassemblerTest(SkoolKitTestCase):
         instructions = disassembler.defw_range(0, 2, sublengths)
         self.assertEqual(len(instructions), 1)
         self.assertEqual(instructions[0].operation, 'defw $ffff')
-
-if __name__ == '__main__':
-    unittest.main()

@@ -1453,6 +1453,3 @@ class SftParserTest(SkoolKitTestCase):
              00002 DEFS 1
         """
         self._test_disassembly(sft, exp_skool, snapshot)
-
-if __name__ == '__main__':
-    unittest.main()

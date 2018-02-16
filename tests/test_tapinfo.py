@@ -540,6 +540,3 @@ class TapinfoTest(SkoolKitTestCase):
         for option in ('-V', '--version'):
             output, error = self.run_tapinfo(option, catch_exit=0)
             self.assertEqual(output, 'SkoolKit {}\n'.format(VERSION))
-
-if __name__ == '__main__':
-    unittest.main()

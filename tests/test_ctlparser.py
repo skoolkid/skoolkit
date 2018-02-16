@@ -1740,6 +1740,3 @@ class CtlParserTest(SkoolKitTestCase):
             30006: 30007
         }
         self.assertEqual(exp_end_map, m_comment_end_map)
-
-if __name__ == '__main__':
-    unittest.main()

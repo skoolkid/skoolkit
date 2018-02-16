@@ -47,6 +47,3 @@ class SkoolKitTest(SkoolKitTestCase):
         module_name = os.path.basename(module)[:-3]
         writer_class = get_class(':{}.{}'.format(module_name, class_name), default_path)
         self.assertEqual(writer_class.__name__, class_name)
-
-if __name__ == '__main__':
-    unittest.main()

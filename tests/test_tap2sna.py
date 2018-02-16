@@ -754,6 +754,3 @@ class Tap2SnaTest(SkoolKitTestCase):
         output, error = self.run_tap2sna('--ram load=1,16384 {} {}'.format(tapfile, z80file))
         self.assertTrue(output.startswith('{}: file already exists; use -f to overwrite\n'.format(z80file)))
         self.assertEqual(error, '')
-
-if __name__ == '__main__':
-    unittest.main()

@@ -209,6 +209,3 @@ class GraphicsTest(SkoolKitTestCase):
         for i, udg in enumerate(font_udg_array[0]):
             self.assertEqual(udg.attr, attr)
             self.assertEqual(udg.data, chars[i])
-
-if __name__ == '__main__':
-    unittest.main()

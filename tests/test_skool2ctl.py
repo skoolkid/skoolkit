@@ -129,6 +129,3 @@ class Skool2CtlTest(SkoolKitTestCase):
         output, error = self.run_skool2ctl(skoolfile)
         self.assertEqual(error, '')
         self.assertEqual(output, 'c 65535 Test skool file for skool2ctl testing\n')
-
-if __name__ == '__main__':
-    unittest.main()

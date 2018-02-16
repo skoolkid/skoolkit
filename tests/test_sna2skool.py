@@ -1279,6 +1279,3 @@ class OptionsTest(SkoolKitTestCase):
         self.run_sna2skool('-g test.ctl -M {} {}'.format(code_map_file, binfile))
         self.assertEqual({65531: 'c', 65535: 'c', 65536: 'i'}, mock_ctl_parser.ctls)
         self.assertTrue(mock_skool_writer.wrote_skool)
-
-if __name__ == '__main__':
-    unittest.main()

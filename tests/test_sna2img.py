@@ -728,6 +728,3 @@ class Sna2ImgTest(SkoolKitTestCase):
         for option in ('-V', '--version'):
             output, error = self.run_sna2img(option, catch_exit=0)
             self.assertEqual(output, 'SkoolKit {}\n'.format(VERSION))
-
-if __name__ == '__main__':
-    unittest.main()
