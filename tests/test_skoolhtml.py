@@ -678,21 +678,6 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         patch.object(skoolhtml, 'REF_FILE', SKOOL_MACRO_MINIMAL_REF_FILE).start()
         self.addCleanup(patch.stopall)
 
-    def _assert_html_equal(self, html, exp_html, eol=False, trim=False):
-        lines = []
-        for line in html.split('\n'):
-            s_line = line.lstrip()
-            if s_line or not trim:
-                lines.append(s_line)
-        exp_lines = []
-        for line in exp_html.split('\n'):
-            s_line = line.lstrip()
-            if s_line:
-                exp_lines.append(s_line)
-        if eol:
-            exp_lines.append('')
-        self.assertEqual(exp_lines, lines)
-
     def _check_animated_image(self, image_writer, frames):
         self.assertEqual(len(image_writer.frames), len(frames))
         for i, frame in enumerate(image_writer.frames):
@@ -738,10 +723,6 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
 
     def _test_invalid_image_macro(self, writer, macro, error_msg, prefix):
         self._assert_error(writer, macro, error_msg, prefix)
-
-    def _test_invalid_reference_macro(self, macro):
-        writer, prefix = CommonSkoolMacroTest._test_invalid_reference_macro(self, macro)
-        self._assert_error(writer, '#{}#nonexistentItem()'.format(macro), "Cannot determine title of item 'nonexistentItem'", prefix)
 
     def _test_call(self, cwd, arg1, arg2, arg3=None):
         # Method used to test the #CALL macro
@@ -1838,7 +1819,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         writer = self._get_writer(skool='c32768 RET')
         for src, html in ((src1, html1), (src2, html2)):
             output = writer.expand('#TABLE{}\nTABLE#'.format(src))
-            self._assert_html_equal(output, html)
+            self.assertEqual(dedent(html).strip(), output)
 
         # Cell containing a skool macro
         output = writer.expand('#TABLE { #R32768 } TABLE#', ASMDIR)
@@ -2565,7 +2546,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         """
         writer = self._get_writer()
         output = writer.expand('#UDGTABLE{}\nUDGTABLE#'.format(src))
-        self._assert_html_equal(output, html)
+        self.assertEqual(dedent(html).strip(), output)
 
         # Empty table
         output = writer.expand('#UDGTABLE UDGTABLE#')
