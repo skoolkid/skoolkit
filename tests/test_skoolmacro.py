@@ -208,23 +208,23 @@ class SkoolMacroTest(SkoolKitTestCase):
 
     def test_parse_strings_too_many_parameters(self):
         text = '(foo,bar,baz)'
-        with self.assertRaises(TooManyParametersError) as e:
+        with self.assertRaises(TooManyParametersError) as cm:
             parse_strings(text, num=2)
-            self.assertEqual(e[0], "Too many parameters (expected 2): '{}'".format(text[1:-1]))
-            self.assertEqual(e[1], len(text))
+        self.assertEqual(cm.exception.args[0], "Too many parameters (expected 2): '{}'".format(text[1:-1]))
+        self.assertEqual(cm.exception.args[1], len(text))
 
     def test_parse_strings_missing_parameters(self):
         text = '(foo,bar)'
-        with self.assertRaises(MissingParameterError) as e:
+        with self.assertRaises(MissingParameterError) as cm:
             parse_strings(text, num=3)
-            self.assertEqual(e[0], "Not enough parameters (expected 3): '{}'".format(text[1:-1]))
-            self.assertEqual(e[1], len(text))
+        self.assertEqual(cm.exception.args[0], "Not enough parameters (expected 3): '{}'".format(text[1:-1]))
+        self.assertEqual(cm.exception.args[1], len(text))
 
         text = '{foo,bar}'
-        with self.assertRaises(MissingParameterError) as e:
+        with self.assertRaises(MissingParameterError) as cm:
             parse_strings(text, num=5, defaults=('qux',))
-            self.assertEqual(e[0], "Not enough parameters (expected 4): '{}'".format(text[1:-1]))
-            self.assertEqual(e[1], len(text))
+        self.assertEqual(cm.exception.args[0], "Not enough parameters (expected 4): '{}'".format(text[1:-1]))
+        self.assertEqual(cm.exception.args[1], len(text))
 
     def test_parse_brackets(self):
         self.assertEqual((0, None), parse_brackets(''))
