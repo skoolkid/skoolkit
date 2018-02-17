@@ -47,11 +47,6 @@ class SnapinfoTest(SkoolKitTestCase):
         self.assertEqual(error, '')
         self.assertEqual(textwrap.dedent(exp_output).lstrip(), output)
 
-    def _test_basic(self, data, exp_output, option):
-        ram = [0] * 49152
-        ram[7371:7371 + len(data)] = data
-        self._test_sna(ram, exp_output, ('-b', '--basic')[option])
-
     def _test_bad_spec(self, option, bad_spec, exp_error, add_spec=True):
         snafile = self.write_bin_file((0,) * 49179, suffix='.sna')
         with self.assertRaises(SkoolKitError) as cm:
