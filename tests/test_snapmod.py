@@ -32,9 +32,7 @@ class SnapmodTest(SkoolKitTestCase):
             self.run_snapmod('{} {} {}'.format(option, infile, outfile))
         self.assertEqual(cm.exception.args[0], exp_error)
 
-    def _test_z80(self, options, header, exp_header=None, ram=None, exp_ram=None, version=3, compress=False):
-        if exp_header is None:
-            exp_header = header
+    def _test_z80(self, options, header, exp_header, ram=None, exp_ram=None, version=3, compress=False):
         if ram is None:
             ram = [0] * 49152
         if exp_ram is None:
