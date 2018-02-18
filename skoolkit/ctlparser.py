@@ -326,7 +326,7 @@ class CtlParser:
     def apply_asm_data_directives(self, snapshot):
         for directives in self._asm_directives.values():
             for directive in directives:
-                if directive.startswith(('defb=', 'defs=','defw=')):
+                if directive.startswith(('defb=', 'defs=', 'defw=')):
                     parse_asm_data_directive(snapshot, directive)
 
 class Block:
