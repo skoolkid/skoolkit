@@ -1,7 +1,7 @@
 Changelog
 =========
 
-6.3b1
+6.3rc
 -----
 * Added the :ref:`defb`, :ref:`defs` and :ref:`defw` directives (for inserting
   byte values and word values into the memory snapshot)
