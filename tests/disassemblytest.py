@@ -23,19 +23,14 @@ def _find_ids_and_hrefs(elements, doc_anchors, doc_hrefs):
             element_id = node.getAttribute('id')
             if element_id:
                 doc_anchors.add(element_id)
-            if node.tagName in ('a', 'link', 'img', 'script'):
-                if node.tagName == 'a':
-                    element_name = node.getAttribute('name')
-                    if element_name:
-                        doc_anchors.add(element_name)
-                if node.tagName in ('a', 'link'):
-                    element_href = node.getAttribute('href')
-                    if element_href:
-                        doc_hrefs.add(element_href)
-                elif node.tagName in ('img', 'script'):
-                    element_src = node.getAttribute('src')
-                    if element_src:
-                        doc_hrefs.add(element_src)
+            if node.tagName in ('a', 'link'):
+                element_href = node.getAttribute('href')
+                if element_href:
+                    doc_hrefs.add(element_href)
+            elif node.tagName in ('img', 'script'):
+                element_src = node.getAttribute('src')
+                if element_src:
+                    doc_hrefs.add(element_src)
             _find_ids_and_hrefs(node.childNodes, doc_anchors, doc_hrefs)
 
 def _read_files(root_dir):
@@ -77,8 +72,7 @@ def check_links(root_dir):
 
 class DisassembliesTestCase(SkoolKitTestCase):
     def _write_skool(self, snapshot, ctl):
-        if not os.path.isfile(snapshot):
-            self.fail("{} not found".format(snapshot))
+        self.assertTrue(os.path.isfile(snapshot), "{} not found".format(snapshot))
         os.environ['SKOOLKIT_HOME'] = SKOOLKIT_HOME
         options = '-c {}'.format(ctl)
         output, error = self.run_sna2skool('{} {}'.format(options, snapshot))
