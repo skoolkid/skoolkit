@@ -809,8 +809,8 @@ class OptionsTest(SkoolKitTestCase):
             exp_error = 'Reading {}: .*100%\x08\x08\x08\x08\n'.format(code_map_file)
         output, error = self.run_sna2skool('-g {} {} {} -o {} {}'.format(ctlfile, option, code_map_file, TEST_MAP_BIN_ORG, binfile))
         match = re.match(exp_error, error)
-        if match is None or match.group() != error:
-            self.fail('"{}" != "{}"'.format(error, exp_error))
+        self.assertIsNotNone(match)
+        self.assertEqual(match.group(), error)
         with open(ctlfile, 'r') as f:
             lines = [line.rstrip() for line in f]
         self.assertEqual(TEST_MAP_CTL_G.split('\n'), lines)
