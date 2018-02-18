@@ -15,7 +15,7 @@ test_bin2sna() {
   cd $(mktemp -d)
   z80=bin2sna-test.z80
   echo Hi | $bin2sna -o 30000 - $z80
-  diff -u <($sna2skool -s 30000 -e 30002 $z80) <(echo -e "@start\n@org=30000\n; Routine at 30000\nc30000 LD C,B        ;\n 30001 LD L,C        ;")
+  diff -u <($sna2skool -s 30000 -e 30002 $z80) <(echo -e "@start\n@org\n; Routine at 30000\nc30000 LD C,B        ;\n 30001 LD L,C        ;")
 }
 
 test_bin2tap() {
@@ -30,12 +30,12 @@ test_bin2tap() {
 
 test_sna2skool() {
   echo -n "Testing sna2skool.py..."
-  diff -u <(echo -n Hi | ./sna2skool.py -) <(echo -e "@start\n@org=65534\n; Routine at 65534\nc65534 LD C,B        ;\n 65535 LD L,C        ;")
+  diff -u <(echo -n Hi | ./sna2skool.py -) <(echo -e "@start\n@org\n; Routine at 65534\nc65534 LD C,B        ;\n 65535 LD L,C        ;")
 }
 
 test_sna2skool_ctl() {
   echo -n "Testing sna2skool.py --ctl..."
-  diff -u <(echo "t 65534" | ./sna2skool.py --ctl - <(echo -n Hi) 2> /dev/null) <(echo -e '@start\n@org=65534\n; Message at 65534\nt65534 DEFM "Hi"')
+  diff -u <(echo "t 65534" | ./sna2skool.py --ctl - <(echo -n Hi) 2> /dev/null) <(echo -e '@start\n@org\n; Message at 65534\nt65534 DEFM "Hi"')
 }
 
 test_sna2skool_sft() {
