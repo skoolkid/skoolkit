@@ -1,8 +1,8 @@
 Changelog
 =========
 
-6.3rc
------
+6.3 (2018-02-19)
+----------------
 * Added the :ref:`defb`, :ref:`defs` and :ref:`defw` directives (for inserting
   byte values and word values into the memory snapshot)
 * Added the :ref:`remote` directive (for creating a remote entry)
