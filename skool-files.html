@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Skool files &#8212; SkoolKit 6.2 documentation</title>
+    <title>Skool files &#8212; SkoolKit 6.3 documentation</title>
     
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '6.2',
+        VERSION:     '6.3',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="top" title="SkoolKit 6.2 documentation" href="index.html" />
+    <link rel="top" title="SkoolKit 6.3 documentation" href="index.html" />
     <link rel="next" title="Skool file templates" href="skool-file-templates.html" />
     <link rel="prev" title="Control files" href="control-files.html" /> 
   </head>
@@ -42,7 +42,7 @@
         <li class="right" >
           <a href="control-files.html" title="Control files"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 6.2 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 6.3 documentation</a> &#187;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
@@ -336,6 +336,11 @@ contain zeroes at addresses 44919-44926, and the image created by the <code clas
 macro would be blank. The reason for this is that by default, the skool file
 parser does not convert assembly language instructions into byte values.
 However, this behaviour can be changed by using the <a class="reference internal" href="asm.html#assemble"><span class="std std-ref">&#64;assemble</span></a> directive.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Data definition entries are deprecated since version 6.3. Use the
+<a class="reference internal" href="asm.html#defb"><span class="std std-ref">&#64;defb</span></a>, <a class="reference internal" href="asm.html#defs"><span class="std std-ref">&#64;defs</span></a> and <a class="reference internal" href="asm.html#defw"><span class="std std-ref">&#64;defw</span></a> directives instead.</p>
+</div>
 </div>
 <div class="section" id="remote-entries">
 <span id="rentry"></span><h2>Remote entries<a class="headerlink" href="#remote-entries" title="Permalink to this headline">¶</a></h2>
@@ -369,6 +374,11 @@ hyperlinks to remote entry points using the short form:</p>
 not defined):</p>
 <div class="highlight-none"><div class="highlight"><pre><span></span>#R29012@main#29015(29015)
 </pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Defining a remote entry as described above is deprecated since version 6.3.
+Use the <a class="reference internal" href="asm.html#remote"><span class="std std-ref">&#64;remote</span></a> directive instead.</p>
 </div>
 </div>
 <div class="section" id="revision-history">
@@ -432,7 +442,7 @@ entry description by using a dot (<code class="docutils literal"><span class="pr
         <li class="right" >
           <a href="control-files.html" title="Control files"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 6.2 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 6.3 documentation</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">

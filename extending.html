@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Extending SkoolKit &#8212; SkoolKit 6.2 documentation</title>
+    <title>Extending SkoolKit &#8212; SkoolKit 6.3 documentation</title>
     
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '6.2',
+        VERSION:     '6.3',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="top" title="SkoolKit 6.2 documentation" href="index.html" />
+    <link rel="top" title="SkoolKit 6.3 documentation" href="index.html" />
     <link rel="prev" title="ASM modes and directives" href="asm.html" /> 
   </head>
   <body role="document">
@@ -38,7 +38,7 @@
         <li class="right" >
           <a href="asm.html" title="ASM modes and directives"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 6.2 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 6.3 documentation</a> &#187;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
@@ -186,15 +186,13 @@ created).</p>
 <p>Let&#8217;s say your sprite-image-creating method will accept two parameters (in
 addition to <cite>cwd</cite>): <cite>sprite_id</cite> (the sprite identifier) and  <cite>fname</cite> (the image
 filename). The method (let&#8217;s call it <cite>sprite</cite>) would look something like this:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">skoolkit.skoolhtml</span> <span class="kn">import</span> <span class="n">HtmlWriter</span>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">skoolkit.graphics</span> <span class="kn">import</span> <span class="n">Frame</span>
+<span class="kn">from</span> <span class="nn">skoolkit.skoolhtml</span> <span class="kn">import</span> <span class="n">HtmlWriter</span>
 
 <span class="k">class</span> <span class="nc">GameHtmlWriter</span><span class="p">(</span><span class="n">HtmlWriter</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">sprite</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cwd</span><span class="p">,</span> <span class="n">sprite_id</span><span class="p">,</span> <span class="n">fname</span><span class="p">):</span>
-        <span class="n">img_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">image_path</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">need_image</span><span class="p">(</span><span class="n">img_path</span><span class="p">):</span>
-            <span class="n">udgs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">build_sprite</span><span class="p">(</span><span class="n">sprite_id</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">write_image</span><span class="p">(</span><span class="n">img_path</span><span class="p">,</span> <span class="n">udgs</span><span class="p">)</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">img_element</span><span class="p">(</span><span class="n">cwd</span><span class="p">,</span> <span class="n">img_path</span><span class="p">)</span>
+        <span class="n">udgs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">build_sprite</span><span class="p">(</span><span class="n">sprite_id</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">handle_image</span><span class="p">([</span><span class="n">Frame</span><span class="p">(</span><span class="n">udgs</span><span class="p">)],</span> <span class="n">fname</span><span class="p">,</span> <span class="n">cwd</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>With this method (and an appropriate implementation of the <cite>build_sprite</cite>
@@ -664,8 +662,9 @@ was most recently saved (by
 </div>
 <div class="section" id="graphics">
 <span id="ext-graphics"></span><h2>Graphics<a class="headerlink" href="#graphics" title="Permalink to this headline">¶</a></h2>
-<p>If you are going to implement custom image-creating <code class="docutils literal"><span class="pre">#CALL</span></code> methods or skool
-macros, you will need to make use of the skoolkit.graphics.Udg class.</p>
+<p>If you are going to implement a custom image-creating <code class="docutils literal"><span class="pre">#CALL</span></code> method or skool
+macro, you will need to make use of the skoolkit.graphics.Udg and
+skoolkit.graphics.Frame classes.</p>
 <p>The Udg class represents an 8x8 graphic (8 bytes) with a single attribute byte,
 and an optional mask.</p>
 <dl class="class">
@@ -690,9 +689,9 @@ and an optional mask.</p>
 </div>
 </dd></dl>
 
-<p>A simple <code class="docutils literal"><span class="pre">#INVERSE</span></code> macro that creates an inverse image of a UDG might be
-implemented like this:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">skoolkit.graphics</span> <span class="kn">import</span> <span class="n">Udg</span>
+<p>An <code class="docutils literal"><span class="pre">#INVERSE</span></code> macro that creates an inverse image of a UDG with scale 2 might
+be implemented like this:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">skoolkit.graphics</span> <span class="kn">import</span> <span class="n">Frame</span><span class="p">,</span> <span class="n">Udg</span>
 <span class="kn">from</span> <span class="nn">skoolkit.skoolhtml</span> <span class="kn">import</span> <span class="n">HtmlWriter</span>
 <span class="kn">from</span> <span class="nn">skoolkit.skoolmacro</span> <span class="kn">import</span> <span class="n">parse_ints</span>
 
@@ -700,12 +699,10 @@ implemented like this:</p>
     <span class="c1"># #INVERSEaddress,attr</span>
     <span class="k">def</span> <span class="nf">expand_inverse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">cwd</span><span class="p">):</span>
         <span class="n">end</span><span class="p">,</span> <span class="n">address</span><span class="p">,</span> <span class="n">attr</span> <span class="o">=</span> <span class="n">parse_ints</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
-        <span class="n">img_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">image_path</span><span class="p">(</span><span class="s1">&#39;inverse{}_{}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">address</span><span class="p">,</span> <span class="n">attr</span><span class="p">))</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">need_image</span><span class="p">(</span><span class="n">img_path</span><span class="p">):</span>
-            <span class="n">udg_data</span> <span class="o">=</span> <span class="p">[</span><span class="n">b</span> <span class="o">^</span> <span class="mi">255</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">snapshot</span><span class="p">[</span><span class="n">address</span><span class="p">:</span><span class="n">address</span> <span class="o">+</span> <span class="mi">8</span><span class="p">]]</span>
-            <span class="n">udg</span> <span class="o">=</span> <span class="n">Udg</span><span class="p">(</span><span class="n">attr</span><span class="p">,</span> <span class="n">udg_data</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">write_image</span><span class="p">(</span><span class="n">img_path</span><span class="p">,</span> <span class="p">[[</span><span class="n">udg</span><span class="p">]])</span>
-        <span class="k">return</span> <span class="n">end</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">img_element</span><span class="p">(</span><span class="n">cwd</span><span class="p">,</span> <span class="n">img_path</span><span class="p">)</span>
+        <span class="n">udg_data</span> <span class="o">=</span> <span class="p">[</span><span class="n">b</span> <span class="o">^</span> <span class="mi">255</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">snapshot</span><span class="p">[</span><span class="n">address</span><span class="p">:</span><span class="n">address</span> <span class="o">+</span> <span class="mi">8</span><span class="p">]]</span>
+        <span class="n">frame</span> <span class="o">=</span> <span class="n">Frame</span><span class="p">([[</span><span class="n">Udg</span><span class="p">(</span><span class="n">attr</span><span class="p">,</span> <span class="n">udg_data</span><span class="p">)]],</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="n">fname</span> <span class="o">=</span> <span class="s1">&#39;inverse{}_{}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">address</span><span class="p">,</span> <span class="n">attr</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">end</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">handle_image</span><span class="p">([</span><span class="n">frame</span><span class="p">],</span> <span class="n">fname</span><span class="p">,</span> <span class="n">cwd</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>The Udg class provides two methods for manipulating an 8x8 graphic: <cite>flip</cite> and
@@ -739,14 +736,11 @@ horizontally and vertically.</td>
 </table>
 </dd></dl>
 
-<p>If you are going to implement <code class="docutils literal"><span class="pre">#CALL</span></code> methods or skool macros that create
-animated images, you will need to make use of the skoolkit.graphics.Frame
-class.</p>
-<p>The Frame class represents a single frame of an animated image.</p>
+<p>The Frame class represents a single frame of a still or animated image.</p>
 <dl class="class">
 <dt id="skoolkit.graphics.Frame">
 <em class="property">class </em><code class="descclassname">skoolkit.graphics.</code><code class="descname">Frame</code><span class="sig-paren">(</span><em>udgs</em>, <em>scale=1</em>, <em>mask=0</em>, <em>x=0</em>, <em>y=0</em>, <em>width=None</em>, <em>height=None</em>, <em>delay=32</em>, <em>name=''</em><span class="sig-paren">)</span><a class="headerlink" href="#skoolkit.graphics.Frame" title="Permalink to this definition">¶</a></dt>
-<dd><p>Create a frame of an animated image.</p>
+<dd><p>Create a frame of a still or animated image.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -790,7 +784,8 @@ added the <em>name</em> parameter.</p>
 </div>
 </dd></dl>
 
-<p>HtmlWriter provides the following image-related convenience methods.</p>
+<p>HtmlWriter and skoolkit.graphics provide the following image-related methods
+and functions.</p>
 <dl class="method">
 <dt id="skoolkit.skoolhtml.HtmlWriter.image_path">
 <code class="descclassname">HtmlWriter.</code><code class="descname">image_path</code><span class="sig-paren">(</span><em>fname</em>, <em>path_id='UDGImagePath'</em>, <em>frames=()</em><span class="sig-paren">)</span><a class="headerlink" href="#skoolkit.skoolhtml.HtmlWriter.image_path" title="Permalink to this definition">¶</a></dt>
@@ -798,8 +793,9 @@ added the <em>name</em> parameter.</p>
 of the disassembly. If <cite>fname</cite> does not end with &#8216;.png&#8217; or &#8216;.gif&#8217;, an
 appropriate suffix will be appended (depending on the default image
 format). If <cite>fname</cite> starts with a &#8216;/&#8217;, it will be removed and the
-remainder returned (in which case <cite>path_id</cite> is ignored). If <cite>fname</cite> is
-blank, <cite>None</cite> is returned.</p>
+remainder returned. If <cite>fname</cite> is blank, <cite>None</cite> is returned. If <cite>fname</cite>
+contains an image path ID replacement field, the corresponding
+parameter value from the <a class="reference internal" href="ref-files.html#paths"><span class="std std-ref">[Paths]</span></a> section will be substituted.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -807,7 +803,9 @@ blank, <cite>None</cite> is returned.</p>
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>fname</strong> &#8211; The name of the image file.</li>
 <li><strong>path_id</strong> &#8211; The ID of the target directory (as defined in the
-<a class="reference internal" href="ref-files.html#paths"><span class="std std-ref">[Paths]</span></a> section of the ref file).</li>
+<a class="reference internal" href="ref-files.html#paths"><span class="std std-ref">[Paths]</span></a> section). This is not used if <cite>fname</cite>
+starts with a &#8216;/&#8217; or contains an image path ID
+replacement field.</li>
 <li><strong>frames</strong> &#8211; The list of frames (instances of
 <a class="reference internal" href="#skoolkit.graphics.Frame" title="skoolkit.graphics.Frame"><code class="xref py py-class docutils literal"><span class="pre">Frame</span></code></a>) that define the
 image. If supplied, it is used to determine whether the
@@ -821,8 +819,16 @@ suffix accordingly.</li>
 <div class="versionchanged">
 <p><span class="versionmodified">Changed in version 5.1: </span>Added the <em>frames</em> parameter.</p>
 </div>
+<div class="versionchanged">
+<p><span class="versionmodified">Changed in version 6.3: </span><em>fname</em> may contain image path ID replacement fields.</p>
+</div>
 </dd></dl>
 
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The <code class="xref py py-meth docutils literal"><span class="pre">image_path()</span></code> method is deprecated since version 6.3. Use
+<a class="reference internal" href="#skoolkit.skoolhtml.HtmlWriter.handle_image" title="skoolkit.skoolhtml.HtmlWriter.handle_image"><code class="xref py py-meth docutils literal"><span class="pre">handle_image()</span></code></a> instead.</p>
+</div>
 <dl class="method">
 <dt id="skoolkit.skoolhtml.HtmlWriter.need_image">
 <code class="descclassname">HtmlWriter.</code><code class="descname">need_image</code><span class="sig-paren">(</span><em>image_path</em><span class="sig-paren">)</span><a class="headerlink" href="#skoolkit.skoolhtml.HtmlWriter.need_image" title="Permalink to this definition">¶</a></dt>
@@ -842,6 +848,11 @@ directory of the disassembly.</td>
 </table>
 </dd></dl>
 
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The <code class="xref py py-meth docutils literal"><span class="pre">need_image()</span></code> method is deprecated since version 6.3. Use
+<a class="reference internal" href="#skoolkit.skoolhtml.HtmlWriter.handle_image" title="skoolkit.skoolhtml.HtmlWriter.handle_image"><code class="xref py py-meth docutils literal"><span class="pre">handle_image()</span></code></a> instead.</p>
+</div>
 <dl class="method">
 <dt id="skoolkit.skoolhtml.HtmlWriter.write_image">
 <code class="descclassname">HtmlWriter.</code><code class="descname">write_image</code><span class="sig-paren">(</span><em>image_path</em>, <em>udgs</em>, <em>crop_rect=()</em>, <em>scale=2</em>, <em>mask=0</em><span class="sig-paren">)</span><a class="headerlink" href="#skoolkit.skoolhtml.HtmlWriter.write_image" title="Permalink to this definition">¶</a></dt>
@@ -876,6 +887,11 @@ the final image.</li>
 </div>
 </dd></dl>
 
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The <code class="xref py py-meth docutils literal"><span class="pre">write_image()</span></code> method is deprecated since version 6.3. Use
+<a class="reference internal" href="#skoolkit.skoolhtml.HtmlWriter.handle_image" title="skoolkit.skoolhtml.HtmlWriter.handle_image"><code class="xref py py-meth docutils literal"><span class="pre">handle_image()</span></code></a> instead.</p>
+</div>
 <dl class="method">
 <dt id="skoolkit.skoolhtml.HtmlWriter.img_element">
 <code class="descclassname">HtmlWriter.</code><code class="descname">img_element</code><span class="sig-paren">(</span><em>cwd</em>, <em>image_path</em>, <em>alt=None</em><span class="sig-paren">)</span><a class="headerlink" href="#skoolkit.skoolhtml.HtmlWriter.img_element" title="Permalink to this definition">¶</a></dt>
@@ -899,6 +915,11 @@ removed) will be used.</li>
 </table>
 </dd></dl>
 
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The <code class="xref py py-meth docutils literal"><span class="pre">img_element()</span></code> method is deprecated since version 6.3. Use
+<a class="reference internal" href="#skoolkit.skoolhtml.HtmlWriter.handle_image" title="skoolkit.skoolhtml.HtmlWriter.handle_image"><code class="xref py py-meth docutils literal"><span class="pre">handle_image()</span></code></a> instead.</p>
+</div>
 <dl class="method">
 <dt id="skoolkit.skoolhtml.HtmlWriter.write_animated_image">
 <code class="descclassname">HtmlWriter.</code><code class="descname">write_animated_image</code><span class="sig-paren">(</span><em>image_path</em>, <em>frames</em><span class="sig-paren">)</span><a class="headerlink" href="#skoolkit.skoolhtml.HtmlWriter.write_animated_image" title="Permalink to this definition">¶</a></dt>
@@ -924,15 +945,20 @@ the image.</li>
 </div>
 </dd></dl>
 
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The <code class="xref py py-meth docutils literal"><span class="pre">write_animated_image()</span></code> method is deprecated since version 6.3. Use
+<a class="reference internal" href="#skoolkit.skoolhtml.HtmlWriter.handle_image" title="skoolkit.skoolhtml.HtmlWriter.handle_image"><code class="xref py py-meth docutils literal"><span class="pre">handle_image()</span></code></a> instead.</p>
+</div>
 <dl class="method">
 <dt id="skoolkit.skoolhtml.HtmlWriter.handle_image">
 <code class="descclassname">HtmlWriter.</code><code class="descname">handle_image</code><span class="sig-paren">(</span><em>frames</em>, <em>fname=''</em>, <em>cwd=None</em>, <em>alt=None</em>, <em>path_id='UDGImagePath'</em><span class="sig-paren">)</span><a class="headerlink" href="#skoolkit.skoolhtml.HtmlWriter.handle_image" title="Permalink to this definition">¶</a></dt>
 <dd><p>Register a named frame for an image, and write an image file if
-required. This is a convenience method that calls
-<a class="reference internal" href="#skoolkit.skoolhtml.HtmlWriter.image_path" title="skoolkit.skoolhtml.HtmlWriter.image_path"><code class="xref py py-meth docutils literal"><span class="pre">image_path()</span></code></a>,
-<a class="reference internal" href="#skoolkit.skoolhtml.HtmlWriter.need_image" title="skoolkit.skoolhtml.HtmlWriter.need_image"><code class="xref py py-meth docutils literal"><span class="pre">need_image()</span></code></a>,
-<a class="reference internal" href="#skoolkit.skoolhtml.HtmlWriter.write_animated_image" title="skoolkit.skoolhtml.HtmlWriter.write_animated_image"><code class="xref py py-meth docutils literal"><span class="pre">write_animated_image()</span></code></a> and
-<a class="reference internal" href="#skoolkit.skoolhtml.HtmlWriter.img_element" title="skoolkit.skoolhtml.HtmlWriter.img_element"><code class="xref py py-meth docutils literal"><span class="pre">img_element()</span></code></a> as appropriate.</p>
+required. If <cite>fname</cite> is blank, no image file will be created.  If
+<cite>fname</cite> does not end with &#8216;.png&#8217; or &#8216;.gif&#8217;, an appropriate suffix will
+be appended (depending on the default image format). If <cite>fname</cite>
+contains an image path ID replacement field, the corresponding
+parameter value from the <a class="reference internal" href="ref-files.html#paths"><span class="std std-ref">[Paths]</span></a> section will be substituted.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -946,7 +972,9 @@ the image.</li>
 of the image file will be computed).</li>
 <li><strong>alt</strong> &#8211; The alt text to use for the image.</li>
 <li><strong>path_id</strong> &#8211; The ID of the target directory (as defined in the
-<a class="reference internal" href="ref-files.html#paths"><span class="std std-ref">[Paths]</span></a> section of the ref file).</li>
+<a class="reference internal" href="ref-files.html#paths"><span class="std std-ref">[Paths]</span></a> section of the ref file). This is not used
+if <cite>fname</cite> starts with a &#8216;/&#8217; or contains an image path
+ID replacement field.</li>
 </ul>
 </td>
 </tr>
@@ -958,6 +986,10 @@ created.</p>
 </table>
 <div class="versionadded">
 <p><span class="versionmodified">New in version 5.1.</span></p>
+</div>
+<div class="versionchanged">
+<p><span class="versionmodified">Changed in version 6.3: </span><em>fname</em> may contain an image path ID replacement field (e.g.
+<code class="docutils literal"><span class="pre">{UDGImagePath}</span></code>).</p>
 </div>
 </dd></dl>
 
@@ -1075,7 +1107,7 @@ subclasses may override it.</p>
         <li class="right" >
           <a href="asm.html" title="ASM modes and directives"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 6.2 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 6.3 documentation</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">

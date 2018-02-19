@@ -259,6 +259,10 @@ macro would be blank. The reason for this is that by default, the skool file
 parser does not convert assembly language instructions into byte values.
 However, this behaviour can be changed by using the :ref:`assemble` directive.
 
+.. note::
+   Data definition entries are deprecated since version 6.3. Use the
+   :ref:`defb`, :ref:`defs` and :ref:`defw` directives instead.
+
 .. _rEntry:
 
 Remote entries
@@ -295,6 +299,10 @@ instead of the longer form (which would be required if the remote entry were
 not defined)::
 
   #R29012@main#29015(29015)
+
+.. note::
+   Defining a remote entry as described above is deprecated since version 6.3.
+   Use the :ref:`remote` directive instead.
 
 Revision history
 ----------------

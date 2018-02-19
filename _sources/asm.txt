@@ -170,13 +170,23 @@ subsections.
 
 @assemble
 ^^^^^^^^^
-The ``@assemble`` directive controls whether assembly language instructions
-are converted into byte values for the purpose of populating the memory
-snapshot. ::
+The ``@assemble`` directive controls whether assembly language instructions,
+``DEFB``, ``DEFM``, ``DEFS`` and ``DEFW`` statements, and :ref:`defb`,
+:ref:`defs` and :ref:`defw` directives are converted into byte values for the
+purpose of populating the memory snapshot. ::
 
-  @assemble=N
+  @assemble=H,A
 
-* ``N`` is ``1`` to start converting at the next instruction, or ``0`` to stop
+``H`` is an integer value that determines what is converted in HTML mode, and
+``A`` is an integer value that determines what is converted in ASM mode:
+
+* ``-1`` - do not convert anything (this is the default in ASM mode)
+* ``0`` - convert ``DEFB``, ``DEFM``, ``DEFS`` and ``DEFW`` statements and
+  ``@defb``, ``@defs`` and ``@defw`` directives only (this is the default in
+  HTML mode)
+* ``1`` - convert assembly language instructions as well
+
+If ``H`` or ``A`` is blank or omitted, its value is left unchanged.
 
 For example::
 
@@ -193,13 +203,12 @@ The ``@assemble=1`` directive is required to define the bytes for addresses
 44919-44926. If it were not present, the memory snapshot would contain zeroes
 at those addresses, and the image created by the ``#UDG`` macro would be blank.
 
-Note that ``DEFB``, ``DEFM``, ``DEFS`` and ``DEFW`` statements are always
-converted into byte values and inserted into the memory snapshot; the
-``@assemble`` directive is only required for assembly language instructions.
-
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 6.3     | Added support for specifying what's converted in HTML mode and    |
+|         | ASM mode separately, and for switching off conversion entirely    |
++---------+-------------------------------------------------------------------+
 | 6.1     | Added the ability to assemble instructions whose operands contain |
 |         | arithmetic expressions                                            |
 +---------+-------------------------------------------------------------------+
@@ -269,6 +278,108 @@ For example::
   @bfix+else
          JR NZ,32232   ;
   @bfix+end
+
+.. _defb:
+
+@defb
+^^^^^
+The ``@defb`` directive inserts byte values into the memory snapshot at a given
+address. ::
+
+  @defb=address:value1[,value2...]
+
+* ``address`` is the address
+* ``value1``, ``value2`` etc. are the byte values (as might appear in a
+  ``DEFB`` statement)
+
+The sequence of comma-separated values may be followed by a semicolon (``;``)
+and arbitrary text, which will be ignored.
+
+For example::
+
+  @defb=30000:5,"Hello" ; Welcome message
+
+This will insert the value 5 followed by the ASCII codes of the characters in
+"Hello" into the memory snapshot at address 30000.
+
+``@defb`` directives are processed not only when :ref:`skool2asm.py` or
+:ref:`skool2html.py` is run, but also when :ref:`sna2skool.py` is run on a
+control file or skool file template; thus the ``@defb`` directive can be used
+to override the contents of the snapshot that is read by `sna2skool.py`.
+
++---------+---------+
+| Version | Changes |
++=========+=========+
+| 6.3     | New     |
++---------+---------+
+
+.. _defs:
+
+@defs
+^^^^^
+The ``@defs`` directive inserts a sequence of byte values into the memory
+snapshot at a given address. ::
+
+  @defs=address:length[,value]
+
+* ``address`` is the address
+* ``length`` is the length of the sequence
+* ``value`` is the byte value (default: 0)
+
+The directive may be followed by a semicolon (``;``) and arbitrary text, which
+will be ignored.
+
+For example::
+
+  @defs=30000:5,$FF ; Five 255s
+
+This will insert the value 255 into the memory snapshot at addresses
+30000-30004.
+
+``@defs`` directives are processed not only when :ref:`skool2asm.py` or
+:ref:`skool2html.py` is run, but also when :ref:`sna2skool.py` is run on a
+control file or skool file template; thus the ``@defs`` directive can be used
+to override the contents of the snapshot that is read by `sna2skool.py`.
+
++---------+---------+
+| Version | Changes |
++=========+=========+
+| 6.3     | New     |
++---------+---------+
+
+.. _defw:
+
+@defw
+^^^^^
+The ``@defw`` directive inserts word values into the memory snapshot at a given
+address. ::
+
+  @defw=address:value1[,value2...]
+
+* ``address`` is the address
+* ``value1``, ``value2`` etc. are the word values (as might appear in a
+  ``DEFW`` statement)
+
+The sequence of comma-separated values may be followed by a semicolon (``;``)
+and arbitrary text, which will be ignored.
+
+For example::
+
+  @defw=30000:32768,32775 ; Message addresses
+
+This will insert the word values 32768 and 32775 into the memory snapshot at
+addresses 30000 and 30002.
+
+``@defw`` directives are processed not only when :ref:`skool2asm.py` or
+:ref:`skool2html.py` is run, but also when :ref:`sna2skool.py` is run on a
+control file or skool file template; thus the ``@defw`` directive can be used
+to override the contents of the snapshot that is read by `sna2skool.py`.
+
++---------+---------+
+| Version | Changes |
++=========+=========+
+| 6.3     | New     |
++---------+---------+
 
 .. _end:
 
@@ -491,6 +602,16 @@ For example::
 
 This sets the label for the routine at 24576 to ``ENDGAME``.
 
+If ``LABEL`` is blank (``@label=``), the next instruction is prevented from
+having a label automatically generated.
+
++---------+-------------------------------------------------------------------+
+| Version | Changes                                                           |
++=========+===================================================================+
+| 6.3     | ``LABEL`` may be blank (to prevent the next instruction from      |
+|         | having a label automatically generated)                           |
++---------+-------------------------------------------------------------------+
+
 .. _nolabel:
 
 @nolabel
@@ -543,6 +664,10 @@ And the output when not in ``@bfix`` mode will be::
     LD (HL),A
     INC L
     JR NZ,TOGGLE_0
+
+.. note::
+   The ``@nolabel`` directive is deprecated since version 6.3. Use a blank
+   :ref:`label` directive (``@label=``) instead.
 
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
@@ -620,9 +745,19 @@ The syntax is equivalent to that for the :ref:`bfixBlockDirectives`.
 ^^^^
 The ``@org`` directive inserts an ``ORG`` assembler directive. ::
 
-  @org=ADDRESS
+  @org[=address]
 
-* ``ADDRESS`` is the ``ORG`` address
+* ``address`` is the ``ORG`` address; if not specified, it defaults to the
+  address of the next instruction
+
+Note that the ``@org`` directive works only on the first instruction in an
+entry.
+
++---------+-------------------------------------------------------------------+
+| Version | Changes                                                           |
++=========+===================================================================+
+| 6.3     | The ``address`` parameter is optional                             |
++---------+-------------------------------------------------------------------+
 
 .. _rem:
 
@@ -646,6 +781,37 @@ For example::
 +=========+=======================+
 | 2.4     | The ``=`` is required |
 +---------+-----------------------+
+
+.. _remote:
+
+@remote
+^^^^^^^
+The ``@remote`` directive creates a remote entry in a skool file. A remote
+entry enables ``JR``, ``JP`` and ``CALL`` instructions to be hyperlinked to an
+entry defined in another skool file. ::
+
+  @remote=code:address[,address2...]
+
+* ``code`` is the ID of the disassembly defined in the other skool file
+* ``address`` is the address of the remote entry
+* ``address2`` etc. are addresses of other entry points in the remote entry
+
+For example::
+
+  @remote=main:29012,29015
+
+This directive, if it appeared in a secondary skool file, would enable
+references to the routine at 29012 and its entry point at 29015 in the main
+disassembly. It would also enable the :ref:`R` macro to create a hyperlink to a
+remote entry point using the form::
+
+  #R29015@main
+
++---------+---------+
+| Version | Changes |
++=========+=========+
+| 6.3     | New     |
++---------+---------+
 
 .. _replace:
 

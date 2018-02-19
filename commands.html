@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Commands &#8212; SkoolKit 6.2 documentation</title>
+    <title>Commands &#8212; SkoolKit 6.3 documentation</title>
     
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '6.2',
+        VERSION:     '6.3',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="top" title="SkoolKit 6.2 documentation" href="index.html" />
+    <link rel="top" title="SkoolKit 6.3 documentation" href="index.html" />
     <link rel="next" title="Supported assemblers" href="assemblers.html" />
     <link rel="prev" title="Disassembly DIY" href="diy.html" /> 
   </head>
@@ -42,7 +42,7 @@
         <li class="right" >
           <a href="diy.html" title="Disassembly DIY"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 6.2 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 6.3 documentation</a> &#187;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
@@ -135,6 +135,11 @@ Options:
                         length of file.bin).
   -p STACK, --stack STACK
                         Set the stack pointer (default: ORG).
+  -P a[-b[-c]],[^+]v, --poke a[-b[-c]],[^+]v
+                        POKE N,v for N in {a, a+c, a+2c..., b}. Prefix &#39;v&#39;
+                        with &#39;^&#39; to perform an XOR operation, or &#39;+&#39; to
+                        perform an ADD operation. This option may be used
+                        multiple times.
   -r name=value, --reg name=value
                         Set the value of a register. Do &#39;--reg help&#39; for more
                         information. This option may be used multiple times.
@@ -159,12 +164,15 @@ Options:
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>6.2</td>
+<tr class="row-even"><td>6.3</td>
+<td>Added the <code class="docutils literal"><span class="pre">--poke</span></code> option</td>
+</tr>
+<tr class="row-odd"><td>6.2</td>
 <td>Added the <code class="docutils literal"><span class="pre">--reg</span></code> and <code class="docutils literal"><span class="pre">--state</span></code> options; the <code class="docutils literal"><span class="pre">--org</span></code>,
 <code class="docutils literal"><span class="pre">--stack</span></code> and <code class="docutils literal"><span class="pre">--start</span></code> options accept a hexadecimal integer
 prefixed by &#8216;0x&#8217;</td>
 </tr>
-<tr class="row-odd"><td>5.2</td>
+<tr class="row-even"><td>5.2</td>
 <td>New</td>
 </tr>
 </tbody>
@@ -1253,6 +1261,8 @@ Options:
   --state name=value    Set a hardware state attribute. Do &#39;--state help&#39; for
                         more information. This option may be used multiple
                         times.
+  -u AGENT, --user-agent AGENT
+                        Set the User-Agent header.
   -V, --version         Show SkoolKit version number and exit.
 </pre></div>
 </div>
@@ -1308,19 +1318,22 @@ given on the command line.</p>
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>6.2</td>
+<tr class="row-even"><td>6.3</td>
+<td>Added the <code class="docutils literal"><span class="pre">--user-agent</span></code> option</td>
+</tr>
+<tr class="row-odd"><td>6.2</td>
 <td>The <code class="docutils literal"><span class="pre">--ram</span></code>, <code class="docutils literal"><span class="pre">--reg</span></code>, <code class="docutils literal"><span class="pre">--stack</span></code> and <code class="docutils literal"><span class="pre">--start</span></code> options
 accept hexadecimal integers prefixed by &#8216;0x&#8217;</td>
 </tr>
-<tr class="row-odd"><td>5.3</td>
+<tr class="row-even"><td>5.3</td>
 <td>Added the <code class="docutils literal"><span class="pre">--stack</span></code> and <code class="docutils literal"><span class="pre">--start</span></code> options</td>
 </tr>
-<tr class="row-even"><td>4.5</td>
+<tr class="row-odd"><td>4.5</td>
 <td>Added support for TZX block type 0x14 (pure data), for loading
 the first and last bytes of a tape block, and for modifying
 memory with XOR and ADD operations</td>
 </tr>
-<tr class="row-odd"><td>3.5</td>
+<tr class="row-even"><td>3.5</td>
 <td>New</td>
 </tr>
 </tbody>
@@ -1393,7 +1406,7 @@ Options:
         <li class="right" >
           <a href="diy.html" title="Disassembly DIY"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 6.2 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 6.3 documentation</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">

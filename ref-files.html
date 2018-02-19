@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Ref files &#8212; SkoolKit 6.2 documentation</title>
+    <title>Ref files &#8212; SkoolKit 6.3 documentation</title>
     
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '6.2',
+        VERSION:     '6.3',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="top" title="SkoolKit 6.2 documentation" href="index.html" />
+    <link rel="top" title="SkoolKit 6.3 documentation" href="index.html" />
     <link rel="next" title="HTML templates" href="html-templates.html" />
     <link rel="prev" title="Skool macros" href="skool-macros.html" /> 
   </head>
@@ -42,7 +42,7 @@
         <li class="right" >
           <a href="skool-macros.html" title="Skool macros"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 6.2 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 6.3 documentation</a> &#187;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
@@ -922,20 +922,22 @@ standard Python format string that recognises the macro parameters <code class="
 <li><code class="docutils literal"><span class="pre">CodePath</span></code> - the directory in which the disassembly pages are written
 (default: <code class="docutils literal"><span class="pre">asm</span></code>)</li>
 <li><code class="docutils literal"><span class="pre">FontImagePath</span></code> - the directory in which font images (created by the
-<a class="reference internal" href="skool-macros.html#font"><span class="std std-ref">#FONT</span></a> macro) are placed (default: <code class="docutils literal"><span class="pre">images/font</span></code>)</li>
+<a class="reference internal" href="skool-macros.html#font"><span class="std std-ref">#FONT</span></a> macro) are placed (default: <code class="docutils literal"><span class="pre">{ImagePath}/font</span></code>)</li>
 <li><code class="docutils literal"><span class="pre">FontPath</span></code> - the directory in which font files specified by the <code class="docutils literal"><span class="pre">Font</span></code>
 parameter in the <a class="reference internal" href="#ref-game"><span class="std std-ref">[Game]</span></a> section are placed (default: <code class="docutils literal"><span class="pre">.</span></code>)</li>
+<li><code class="docutils literal"><span class="pre">ImagePath</span></code> - the base directory in which images are placed (default:
+<code class="docutils literal"><span class="pre">images</span></code>)</li>
 <li><code class="docutils literal"><span class="pre">JavaScriptPath</span></code> - the directory in which JavaScript files specified by the
 <code class="docutils literal"><span class="pre">JavaScript</span></code> parameter in the <a class="reference internal" href="#ref-game"><span class="std std-ref">[Game]</span></a> section and <a class="reference internal" href="#page"><span class="std std-ref">[Page:*]</span></a>
 sections are placed (default: <code class="docutils literal"><span class="pre">.</span></code>)</li>
 <li><code class="docutils literal"><span class="pre">ScreenshotImagePath</span></code> - the directory in which screenshot images (created
-by the <a class="reference internal" href="skool-macros.html#scr"><span class="std std-ref">#SCR</span></a> macro) are placed (default: <code class="docutils literal"><span class="pre">images/scr</span></code>)</li>
+by the <a class="reference internal" href="skool-macros.html#scr"><span class="std std-ref">#SCR</span></a> macro) are placed (default: <code class="docutils literal"><span class="pre">{ImagePath}/scr</span></code>)</li>
 <li><code class="docutils literal"><span class="pre">StyleSheetPath</span></code> - the directory in which CSS files specified by the
 <code class="docutils literal"><span class="pre">StyleSheet</span></code> parameter in the <a class="reference internal" href="#ref-game"><span class="std std-ref">[Game]</span></a> section are placed (default:
 <code class="docutils literal"><span class="pre">.</span></code>)</li>
 <li><code class="docutils literal"><span class="pre">UDGImagePath</span></code> - the directory in which UDG images (created by the
 <a class="reference internal" href="skool-macros.html#udg"><span class="std std-ref">#UDG</span></a> or <a class="reference internal" href="skool-macros.html#udgarray"><span class="std std-ref">#UDGARRAY</span></a> macro) are placed (default:
-<code class="docutils literal"><span class="pre">images/udgs</span></code>)</li>
+<code class="docutils literal"><span class="pre">{ImagePath}/udgs</span></code>)</li>
 </ul>
 <p>Every parameter in this section may contain <a class="reference internal" href="skool-macros.html#skoolmacros"><span class="std std-ref">skool macros</span></a>.</p>
 <p>The <code class="docutils literal"><span class="pre">CodeFiles</span></code> parameter contains a standard Python format string that
@@ -957,33 +959,37 @@ decimal addresses otherwise: <code class="docutils literal"><span class="pre">{a
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>6.0</td>
+<tr class="row-even"><td>6.3</td>
+<td>Added the <code class="docutils literal"><span class="pre">ImagePath</span></code> directory ID and the ability to define
+one image path ID in terms of another</td>
+</tr>
+<tr class="row-odd"><td>6.0</td>
 <td>Paths may contain <a class="reference internal" href="skool-macros.html#skoolmacros"><span class="std std-ref">skool macros</span></a>; added the
 <code class="docutils literal"><span class="pre">UDGFilename</span></code> parameter (which used to live in the
 <a class="reference internal" href="#ref-game"><span class="std std-ref">[Game]</span></a> section)</td>
 </tr>
-<tr class="row-odd"><td>5.3</td>
+<tr class="row-even"><td>5.3</td>
 <td>Added the <code class="docutils literal"><span class="pre">AsmSinglePage</span></code> file ID</td>
 </tr>
-<tr class="row-even"><td>4.3</td>
+<tr class="row-odd"><td>4.3</td>
 <td>Added the <code class="docutils literal"><span class="pre">CodeFiles</span></code> file ID</td>
 </tr>
-<tr class="row-odd"><td>3.1.1</td>
+<tr class="row-even"><td>3.1.1</td>
 <td>Added the <code class="docutils literal"><span class="pre">FontPath</span></code> directory ID</td>
 </tr>
-<tr class="row-even"><td>2.5</td>
+<tr class="row-odd"><td>2.5</td>
 <td>Added the <code class="docutils literal"><span class="pre">UnusedMap</span></code> file ID</td>
 </tr>
-<tr class="row-odd"><td>2.2.5</td>
+<tr class="row-even"><td>2.2.5</td>
 <td>Added the <code class="docutils literal"><span class="pre">Changelog</span></code> file ID</td>
 </tr>
-<tr class="row-even"><td>2.1.1</td>
+<tr class="row-odd"><td>2.1.1</td>
 <td>Added the <code class="docutils literal"><span class="pre">CodePath</span></code> directory ID</td>
 </tr>
-<tr class="row-odd"><td>2.0.5</td>
+<tr class="row-even"><td>2.0.5</td>
 <td>Added the <code class="docutils literal"><span class="pre">FontImagePath</span></code> directory ID</td>
 </tr>
-<tr class="row-even"><td>2.0</td>
+<tr class="row-odd"><td>2.0</td>
 <td>New</td>
 </tr>
 </tbody>
@@ -1003,14 +1009,26 @@ build directory when <a class="reference internal" href="commands.html#skool2htm
 the disassembly; the directory will be created if it doesn&#8217;t already exist</li>
 </ul>
 <p>The files to be copied must be present in <cite>skool2html.py</cite>&#8216;s search path in
-order for it to find them; to see the search path, run <code class="docutils literal"><span class="pre">skool2html.py</span> <span class="pre">-s</span></code>.</p>
+order for it to find them. To see the search path, run:</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>$ skool2html.py -s
+</pre></div>
+</div>
+<p><code class="docutils literal"><span class="pre">fname</span></code> may contain the special wildcard characters <code class="docutils literal"><span class="pre">*</span></code>, <code class="docutils literal"><span class="pre">?</span></code> and <code class="docutils literal"><span class="pre">[]</span></code>,
+which are expanded as follows:</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">*</span></code> - matches any number of characters</li>
+<li><code class="docutils literal"><span class="pre">?</span></code> - matches any single character</li>
+<li><code class="docutils literal"><span class="pre">[seq]</span></code> - matches any character in <code class="docutils literal"><span class="pre">seq</span></code>; <code class="docutils literal"><span class="pre">seq</span></code> may be a simple
+sequence of characters (e.g. <code class="docutils literal"><span class="pre">abcde</span></code>) or a range (e.g. <code class="docutils literal"><span class="pre">a-e</span></code>)</li>
+<li><code class="docutils literal"><span class="pre">[!seq]</span></code> - matches any character not in <code class="docutils literal"><span class="pre">seq</span></code></li>
+</ul>
 <p>If your disassembly requires pre-built images or other resources that SkoolKit
 does not build, listing them in this section ensures that they will be copied
 into place whenever the disassembly is built.</p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="50%" />
-<col width="50%" />
+<col width="12%" />
+<col width="88%" />
 </colgroup>
 <thead valign="bottom">
 <tr class="row-odd"><th class="head">Version</th>
@@ -1018,7 +1036,11 @@ into place whenever the disassembly is built.</p>
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>3.6</td>
+<tr class="row-even"><td>6.3</td>
+<td>Added support for pathname pattern expansion using wildcard
+characters</td>
+</tr>
+<tr class="row-odd"><td>3.6</td>
 <td>New</td>
 </tr>
 </tbody>
@@ -1292,7 +1314,7 @@ with the first one removed.</p>
         <li class="right" >
           <a href="skool-macros.html" title="Skool macros"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 6.2 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 6.3 documentation</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">

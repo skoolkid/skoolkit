@@ -718,20 +718,22 @@ Recognised directory IDs and their default paths are:
 * ``CodePath`` - the directory in which the disassembly pages are written
   (default: ``asm``)
 * ``FontImagePath`` - the directory in which font images (created by the
-  :ref:`#FONT <FONT>` macro) are placed (default: ``images/font``)
+  :ref:`#FONT <FONT>` macro) are placed (default: ``{ImagePath}/font``)
 * ``FontPath`` - the directory in which font files specified by the ``Font``
   parameter in the :ref:`ref-Game` section are placed (default: ``.``)
+* ``ImagePath`` - the base directory in which images are placed (default:
+  ``images``)
 * ``JavaScriptPath`` - the directory in which JavaScript files specified by the
   ``JavaScript`` parameter in the :ref:`ref-Game` section and :ref:`Page`
   sections are placed (default: ``.``)
 * ``ScreenshotImagePath`` - the directory in which screenshot images (created
-  by the :ref:`#SCR <SCR>` macro) are placed (default: ``images/scr``)
+  by the :ref:`#SCR <SCR>` macro) are placed (default: ``{ImagePath}/scr``)
 * ``StyleSheetPath`` - the directory in which CSS files specified by the
   ``StyleSheet`` parameter in the :ref:`ref-Game` section are placed (default:
   ``.``)
 * ``UDGImagePath`` - the directory in which UDG images (created by the
   :ref:`#UDG <UDG>` or :ref:`#UDGARRAY <UDGARRAY>` macro) are placed (default:
-  ``images/udgs``)
+  ``{ImagePath}/udgs``)
 
 Every parameter in this section may contain :ref:`skool macros <skoolMacros>`.
 
@@ -747,6 +749,9 @@ decimal addresses otherwise: ``{address#IF({base}==16)(:04X)}.html``.
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 6.3     | Added the ``ImagePath`` directory ID and the ability to define    |
+|         | one image path ID in terms of another                             |
++---------+-------------------------------------------------------------------+
 | 6.0     | Paths may contain :ref:`skool macros <skoolMacros>`; added the    |
 |         | ``UDGFilename`` parameter (which used to live in the              |
 |         | :ref:`ref-Game` section)                                          |
@@ -784,17 +789,31 @@ where:
   the disassembly; the directory will be created if it doesn't already exist
 
 The files to be copied must be present in `skool2html.py`'s search path in
-order for it to find them; to see the search path, run ``skool2html.py -s``.
+order for it to find them. To see the search path, run::
+
+  $ skool2html.py -s
+
+``fname`` may contain the special wildcard characters ``*``, ``?`` and ``[]``,
+which are expanded as follows:
+
+* ``*`` - matches any number of characters
+* ``?`` - matches any single character
+* ``[seq]`` - matches any character in ``seq``; ``seq`` may be a simple
+  sequence of characters (e.g. ``abcde``) or a range (e.g. ``a-e``)
+* ``[!seq]`` - matches any character not in ``seq``
 
 If your disassembly requires pre-built images or other resources that SkoolKit
 does not build, listing them in this section ensures that they will be copied
 into place whenever the disassembly is built.
 
-+---------+---------+
-| Version | Changes |
-+=========+=========+
-| 3.6     | New     |
-+---------+---------+
++---------+-------------------------------------------------------------------+
+| Version | Changes                                                           |
++=========+===================================================================+
+| 6.3     | Added support for pathname pattern expansion using wildcard       |
+|         | characters                                                        |
++---------+-------------------------------------------------------------------+
+| 3.6     | New                                                               |
++---------+-------------------------------------------------------------------+
 
 .. _template:
 

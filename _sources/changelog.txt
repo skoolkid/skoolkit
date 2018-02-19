@@ -1,6 +1,40 @@
 Changelog
 =========
 
+6.3 (2018-02-19)
+----------------
+* Added the :ref:`defb`, :ref:`defs` and :ref:`defw` directives (for inserting
+  byte values and word values into the memory snapshot)
+* Added the :ref:`remote` directive (for creating a remote entry)
+* Added the ``--poke`` option to :ref:`bin2sna.py` (for performing POKE
+  operations on the snapshot)
+* Added the ``--user-agent`` option to :ref:`tap2sna.py` (for setting the
+  User-Agent header used in an HTTP request)
+* Added support to the :ref:`Resources` section for specifying files using
+  wildcard characters (``*``, ``?`` and ``[]``)
+* Added the ``ImagePath`` parameter to the :ref:`Paths` section (for specifying
+  the base directory in which to place images) and the ability to define one
+  image path ID in terms of another
+* Added support for image path ID replacement fields in the ``fname`` parameter
+  of the :ref:`image macros <imageMacros>` (e.g. ``#SCR2({UDGImagePath}/scr)``)
+* The :ref:`assemble` directive can specify what to assemble in HTML mode and
+  ASM mode separately
+* By default in ASM mode, DEFB/DEFM/DEFS/DEFW statements are no longer
+  converted into byte values for the purpose of populating the memory snapshot
+* The ``address`` parameter of the :ref:`org` directive is now optional and
+  defaults to the address of the next instruction
+* The ``LABEL`` parameter of the :ref:`label` directive may be left blank to
+  prevent the next instruction from having a label automatically generated
+* Added the ``location`` identifier to the :ref:`t_asm_instruction` template
+* Added support for parsing block-level comments that are not left-padded by a
+  space
+* Fixed how an opening brace at the end of a line or a closing brace at the
+  beginning of a line is handled in an instruction-level comment
+* Fixed the bug in :ref:`skool2ctl.py` that prevents an :ref:`ignoreua`
+  directive on a block end comment from being preserved correctly
+* Fixed :ref:`sna2skool.py` so that it can generate a control file for a
+  snapshot whose final byte (at 65535) is 24 or 237
+
 6.2 (2018-01-01)
 ----------------
 * Added the ``--reg`` option to :ref:`bin2sna.py` (for setting the value of a
