@@ -638,11 +638,14 @@ In ASM mode, lists are rendered as plain text, with each item on its own line,
 and an asterisk as the bullet character. The bullet character can be changed by
 using a :ref:`set` directive to set the ``bullet`` property on the ASM writer.
 
-+---------+---------+
-| Version | Changes |
-+=========+=========+
-| 3.2     | New     |
-+---------+---------+
++---------+-------------------------------------------------------------------+
+| Version | Changes                                                           |
++=========+===================================================================+
+| 6.4     | In ASM mode, ``#LIST`` can be used in an instruction-level        |
+|         | comment and as a parameter of another macro                       |
++---------+-------------------------------------------------------------------+
+| 3.2     | New                                                               |
++---------+-------------------------------------------------------------------+
 
 .. _N:
 
@@ -915,6 +918,13 @@ more than 79 characters wide when rendered. For example::
   ; TABLE#
 
 See also :ref:`UDGTABLE`.
+
++---------+-------------------------------------------------------------------+
+| Version | Changes                                                           |
++=========+===================================================================+
+| 6.4     | In ASM mode, ``#TABLE`` can be used in an instruction-level       |
+|         | comment and as a parameter of another macro                       |
++---------+-------------------------------------------------------------------+
 
 .. _UDGTABLE:
 

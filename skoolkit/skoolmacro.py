@@ -417,30 +417,34 @@ def expand_macros(writer, text, *cwd):
     _writer = writer
     _cwd = cwd
 
-    if text.find('#') < 0:
+    if '#' not in text:
         return text
 
+    index = 0
     while 1:
-        search = RE_MACRO.search(text)
+        search = RE_MACRO.search(text, index)
         if not search:
             break
         marker = search.group()
         if marker not in writer.macros:
             raise SkoolParsingError('Found unknown macro: {}'.format(marker))
-        start, index = search.span()
+        index, start = search.span()
 
-        while RE_EXPAND.match(text, index):
-            end, expr = parse_strings(text, index + 1, 1)
-            text = text[:index] + expand_macros(writer, expr, *cwd) + text[end:]
+        while RE_EXPAND.match(text, start):
+            end, expr = parse_strings(text, start + 1, 1)
+            text = text[:start] + expand_macros(writer, expr, *cwd) + text[end:]
 
         repf = writer.macros[marker]
         try:
-            end, rep = repf(text, index, *cwd)
+            end, rep = repf(text, start, *cwd)
         except UnsupportedMacroError:
             raise SkoolParsingError('Found unsupported macro: {}'.format(marker))
         except MacroParsingError as e:
             raise SkoolParsingError('Error while parsing {} macro: {}'.format(marker, e.args[0]))
-        text = text[:start] + rep + text[end:]
+        if rep is None:
+            index = end
+        else:
+            text = text[:index] + rep + text[end:]
 
     return text
 

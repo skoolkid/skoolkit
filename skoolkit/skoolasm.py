@@ -233,6 +233,9 @@ class AsmWriter:
             raise MacroParsingError("Blank link text: #LINK{}".format(text[index:end]))
         return end, link_text
 
+    def expand_list(self, text, index):
+        return self._ignore_block(text, index, LIST_MARKER, LIST_END_MARKER)
+
     def expand_map(self, text, index):
         return skoolmacro.parse_map(text, index, self.fields)
 
@@ -275,6 +278,9 @@ class AsmWriter:
     def expand_space(self, text, index):
         return skoolmacro.parse_space(text, index, ' ')
 
+    def expand_table(self, text, index):
+        return self._ignore_block(text, index, TABLE_MARKER, TABLE_END_MARKER)
+
     def expand_udg(self, text, index):
         if self.handle_unsupported_macros:
             return skoolmacro.parse_udg(text, index)[0], ''
@@ -289,6 +295,9 @@ class AsmWriter:
             return end, ''
         raise UnsupportedMacroError()
 
+    def expand_udgtable(self, text, index):
+        return self._ignore_block(text, index, UDGTABLE_MARKER, TABLE_END_MARKER, '')
+
     def expand_version(self, text, index):
         return skoolmacro.parse_version(text, index)
 
@@ -297,43 +306,32 @@ class AsmWriter:
         """Return `text` with skool macros expanded."""
         return skoolmacro.expand_macros(self, text).strip()
 
-    def find_markers(self, block_indexes, text, marker, end_marker):
-        index = 0
-        while text.find(marker, index) >= 0:
-            block_index = text.index(marker, index)
-            try:
-                block_end_index = text.index(end_marker, block_index) + len(end_marker)
-            except ValueError:
-                raise SkoolParsingError("Missing end marker: {}...".format(text[block_index:block_index + len(marker) + 15]))
-            block_indexes.append(block_index)
-            block_indexes.append(block_end_index)
-            index = block_end_index
+    def _ignore_block(self, text, index, marker, end_marker, rep=None):
+        try:
+            return text.index(end_marker, index) + len(end_marker), rep
+        except ValueError:
+            raise SkoolParsingError("Missing end marker: {}...".format(text[index - len(marker):index + 15]))
 
     def extract_blocks(self, text):
-        # Find table and list markers
-        block_indexes = []
-        self.find_markers(block_indexes, text, TABLE_MARKER, TABLE_END_MARKER)
-        self.find_markers(block_indexes, text, UDGTABLE_MARKER, TABLE_END_MARKER)
-        self.find_markers(block_indexes, text, LIST_MARKER, LIST_END_MARKER)
-
-        # Extract blocks
         blocks = []
-        all_indexes = [0]
-        all_indexes += block_indexes
-        all_indexes.sort()
-        all_indexes.append(len(text))
-        for i in range(len(all_indexes) - 1):
-            start = all_indexes[i]
-            end = all_indexes[i + 1]
-            block = text[start:end].strip()
-            if block and not block.startswith(UDGTABLE_MARKER):
-                blocks.append(block)
-
+        index = 0
+        while 1:
+            l_index = text.find(LIST_MARKER, index)
+            t_index = text.find(TABLE_MARKER, index)
+            if l_index < 0 and t_index < 0:
+                blocks.append(text[index:].strip())
+                break
+            if t_index < 0 or 0 <= l_index < t_index:
+                index = text.index(LIST_END_MARKER, l_index) + len(LIST_END_MARKER)
+                blocks.append(text[l_index:index])
+            else:
+                index = text.index(TABLE_END_MARKER, t_index) + len(TABLE_END_MARKER)
+                blocks.append(text[t_index:index])
         return blocks
 
     def format(self, text, width):
         lines = []
-        for block in self.extract_blocks(text):
+        for block in self.extract_blocks(self.expand(text)):
             if block.startswith(TABLE_MARKER):
                 table_lines = self.table_writer.format_table(block[len(TABLE_MARKER):].lstrip())
                 if table_lines:
@@ -351,8 +349,8 @@ class AsmWriter:
                         item_lines.append('{0} {1}'.format(bullet, line))
                         bullet = indent
                     lines.extend(item_lines)
-            else:
-                lines.extend(wrap(self.expand(block), width))
+            elif block:
+                lines.extend(wrap(block, width))
         return lines
 
     def print_comment_lines(self, paragraphs, instruction=None, ignoreua=False, started=False):
@@ -463,7 +461,7 @@ class AsmWriter:
             rowspan = rows = instruction.comment.rowspan
             instr_width = max([len(i.operation) for i in instructions[i:i + rowspan]] + [self.instr_width])
             comment_width = self.line_width - 3 - instr_width - self.indent_width
-            lines = wrap(self.expand(instruction.comment.text), max((comment_width, self.min_comment_width)))
+            lines = self.format(instruction.comment.text, max(comment_width, self.min_comment_width))
 
 class TableWriter:
     def __init__(self, asm_writer, max_width, min_col_width):

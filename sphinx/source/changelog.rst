@@ -3,6 +3,8 @@ Changelog
 
 6.4b1
 -----
+* In ASM mode, a :ref:`list` or :ref:`table` macro can now be used in an
+  instruction-level comment and as a parameter of another macro
 
 6.3 (2018-02-19)
 ----------------

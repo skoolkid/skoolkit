@@ -1657,7 +1657,7 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
 
 class TableMacroTest(SkoolKitTestCase):
     def _get_writer(self, skool='', crlf=False, tab=False, instr_width=23, warn=False):
-        skoolfile = self.write_text_file(skool, suffix='.skool')
+        skoolfile = self.write_text_file(dedent(skool).strip(), suffix='.skool')
         skool_parser = SkoolParser(skoolfile, asm_mode=1)
         properties = dict(skool_parser.properties)
         properties['crlf'] = '1' if crlf else '0'
@@ -1668,7 +1668,7 @@ class TableMacroTest(SkoolKitTestCase):
 
     def _assert_error(self, skool, error):
         self.clear_streams()
-        writer = self._get_writer(dedent(skool).strip())
+        writer = self._get_writer(skool)
         with self.assertRaises(SkoolParsingError) as cm:
             writer.write()
         self.assertEqual(cm.exception.args[0], dedent(error).strip())
@@ -2086,6 +2086,42 @@ class TableMacroTest(SkoolKitTestCase):
         """
         self.assertEqual(dedent(exp_output).strip(), '\n'.join(writer.format(macro, 79)))
 
+    def test_as_argument_of_other_macro(self):
+        skool = """
+            @start
+            ; Routine
+            ;
+            ; #IF({asm})(#TABLE { Row A } { Row B } TABLE#)
+            c32768 RET
+        """
+        exp_output = """
+            ; Routine
+            ;
+            ; +-------+
+            ; | Row A |
+            ; | Row B |
+            ; +-------+
+              RET
+        """
+        self._get_writer(skool).write()
+        self.assertEqual(dedent(exp_output).strip(), self.out.getvalue().strip())
+
+    def test_in_instruction_comment(self):
+        skool = """
+            @start
+            ; Routine
+            c32768 RET ; #TABLE { We are } { done. } TABLE#
+        """
+        exp_output = """
+            ; Routine
+              RET                     ; +--------+
+                                      ; | We are |
+                                      ; | done.  |
+                                      ; +--------+
+        """
+        self._get_writer(skool).write()
+        self.assertEqual(dedent(exp_output).strip(), self.out.getvalue().strip())
+
     def test_missing_end_marker(self):
         writer = self._get_writer()
         with self.assertRaisesRegex(SkoolParsingError, re.escape("Missing end marker: #TABLE { A1 }...")):
@@ -2144,7 +2180,7 @@ class TableMacroTest(SkoolKitTestCase):
 
 class ListMacroTest(SkoolKitTestCase):
     def _get_writer(self, skool='', crlf=False, tab=False, instr_width=23, warn=False):
-        skoolfile = self.write_text_file(skool, suffix='.skool')
+        skoolfile = self.write_text_file(dedent(skool).strip(), suffix='.skool')
         skool_parser = SkoolParser(skoolfile, asm_mode=1)
         properties = dict(skool_parser.properties)
         properties['crlf'] = '1' if crlf else '0'
@@ -2155,7 +2191,7 @@ class ListMacroTest(SkoolKitTestCase):
 
     def _assert_error(self, skool, error):
         self.clear_streams()
-        writer = self._get_writer(dedent(skool).strip())
+        writer = self._get_writer(skool)
         with self.assertRaises(SkoolParsingError) as cm:
             writer.write()
         self.assertEqual(cm.exception.args[0], dedent(error).strip())
@@ -2202,6 +2238,38 @@ class ListMacroTest(SkoolKitTestCase):
             'LIST#'
         ))
         self.assertEqual(['* A'], writer.format(macro, 79))
+
+    def test_as_argument_of_other_macro(self):
+        skool = """
+            @start
+            ; Routine
+            ;
+            ; #IF({asm})(#LIST { Item A } { Item B } LIST#)
+            c32768 RET
+        """
+        exp_output = """
+            ; Routine
+            ;
+            ; * Item A
+            ; * Item B
+              RET
+        """
+        self._get_writer(skool).write()
+        self.assertEqual(dedent(exp_output).strip(), self.out.getvalue().strip())
+
+    def test_in_instruction_comment(self):
+        skool = """
+            @start
+            ; Routine
+            c32768 RET ; #LIST { We are } { done. } LIST#
+        """
+        exp_output = """
+            ; Routine
+              RET                     ; * We are
+                                      ; * done.
+        """
+        self._get_writer(skool).write()
+        self.assertEqual(dedent(exp_output).strip(), self.out.getvalue().strip())
 
     def test_missing_end_marker(self):
         writer = self._get_writer()
