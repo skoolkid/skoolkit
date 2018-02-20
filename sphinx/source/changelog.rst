@@ -5,6 +5,8 @@ Changelog
 -----
 * In ASM mode, a :ref:`list` or :ref:`table` macro can now be used in an
   instruction-level comment and as a parameter of another macro
+* In ASM mode, the :ref:`list` macro produces unindented items when the bullet
+  character is an empty string
 
 6.3 (2018-02-19)
 ----------------

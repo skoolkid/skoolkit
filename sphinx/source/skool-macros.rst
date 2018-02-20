@@ -641,8 +641,10 @@ using a :ref:`set` directive to set the ``bullet`` property on the ASM writer.
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
-| 6.4     | In ASM mode, ``#LIST`` can be used in an instruction-level        |
-|         | comment and as a parameter of another macro                       |
+| 6.4     | In ASM mode: ``#LIST`` can be used in an instruction-level        |
+|         | comment and as a parameter of another macro; if the bullet        |
+|         | character is an empty string, list items are no longer indented   |
+|         | by one space                                                      |
 +---------+-------------------------------------------------------------------+
 | 3.2     | New                                                               |
 +---------+-------------------------------------------------------------------+

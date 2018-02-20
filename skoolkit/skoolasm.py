@@ -343,11 +343,14 @@ class AsmWriter:
                 list_obj = self.list_parser.parse_list(self, block[len(LIST_MARKER):].lstrip())
                 for item in list_obj.items:
                     item_lines = []
-                    bullet = self.bullet
-                    indent = ' ' * len(bullet)
-                    for line in wrap(item, width - len(bullet) - 1):
-                        item_lines.append('{0} {1}'.format(bullet, line))
-                        bullet = indent
+                    if self.bullet:
+                        prefix = self.bullet + ' '
+                        indent = ' ' * len(prefix)
+                    else:
+                        prefix = indent = ''
+                    for line in wrap(item, width - len(prefix)):
+                        item_lines.append(prefix + line)
+                        prefix = indent
                     lines.extend(item_lines)
             elif block:
                 lines.extend(wrap(block, width))

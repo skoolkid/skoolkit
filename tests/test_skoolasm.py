@@ -2227,6 +2227,17 @@ class ListMacroTest(SkoolKitTestCase):
         """
         self._test_list(src, exp_output, '--')
 
+    def test_no_bullet(self):
+        src = """
+            { 1) First item }
+            { 2) Second item }
+        """
+        exp_output = """
+            1) First item
+            2) Second item
+        """
+        self._test_list(src, exp_output, '')
+
     def test_empty_list(self):
         self._test_list('', '')
 
