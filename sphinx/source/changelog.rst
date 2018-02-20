@@ -1,6 +1,9 @@
 Changelog
 =========
 
+6.4b1
+-----
+
 6.3 (2018-02-19)
 ----------------
 * Added the :ref:`defb`, :ref:`defs` and :ref:`defw` directives (for inserting
