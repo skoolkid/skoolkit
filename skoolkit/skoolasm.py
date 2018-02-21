@@ -55,7 +55,6 @@ class AsmWriter:
         if self.parser.memory_map:
             self.end_address = self.parser.memory_map[-1].instructions[-1].address
 
-        self.bullet = properties.get('bullet', '*')
         self.lower = self.case == CASE_LOWER
 
         # Field widths (line = indent + instruction + ' ; ' + comment)
@@ -90,7 +89,7 @@ class AsmWriter:
         self.snapshot = self.parser.snapshot
         self._snapshots = [(self.snapshot, '')]
 
-        self.list_parser = ListParser()
+        self.list_parser = ListParser(properties.get('bullet', '*'))
 
         self.macros = skoolmacro.get_macros(self)
 
@@ -343,8 +342,8 @@ class AsmWriter:
                 list_obj = self.list_parser.parse_list(self, block[len(LIST_MARKER):].lstrip())
                 for item in list_obj.items:
                     item_lines = []
-                    if self.bullet:
-                        prefix = self.bullet + ' '
+                    if list_obj.bullet:
+                        prefix = list_obj.bullet + ' '
                         indent = ' ' * len(prefix)
                     else:
                         prefix = indent = ''

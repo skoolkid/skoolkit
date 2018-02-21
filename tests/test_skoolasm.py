@@ -2179,14 +2179,12 @@ class TableMacroTest(SkoolKitTestCase):
         self._assert_error(skool, error)
 
 class ListMacroTest(SkoolKitTestCase):
-    def _get_writer(self, skool='', crlf=False, tab=False, instr_width=23, warn=False):
+    def _get_writer(self, skool='', bullet=None):
         skoolfile = self.write_text_file(dedent(skool).strip(), suffix='.skool')
         skool_parser = SkoolParser(skoolfile, asm_mode=1)
         properties = dict(skool_parser.properties)
-        properties['crlf'] = '1' if crlf else '0'
-        properties['tab'] = '1' if tab else '0'
-        properties['instruction-width'] = instr_width
-        properties['warnings'] = '1' if warn else '0'
+        if bullet is not None:
+            properties['bullet'] = bullet
         return AsmWriter(skool_parser, properties)
 
     def _assert_error(self, skool, error):
@@ -2197,8 +2195,7 @@ class ListMacroTest(SkoolKitTestCase):
         self.assertEqual(cm.exception.args[0], dedent(error).strip())
 
     def _test_list(self, src_lines, exp_output, bullet='*'):
-        writer = self._get_writer()
-        writer.bullet = bullet
+        writer = self._get_writer(bullet=bullet)
         list_src = '#LIST{}\nLIST#'.format(dedent(src_lines).strip())
         output = writer.format(list_src, 79)
         self.assertEqual(dedent(exp_output).strip(), '\n'.join(output))
@@ -2227,6 +2224,28 @@ class ListMacroTest(SkoolKitTestCase):
         """
         self._test_list(src, exp_output, '--')
 
+    def test_bullet_parameter(self):
+        src = """(,+)
+            { First item }
+            { Second item }
+        """
+        exp_output = """
+            + First item
+            + Second item
+        """
+        self._test_list(src, exp_output)
+
+    def test_bullet_parameter_as_macro(self):
+        src = """(,#IF({base}<16)(-,+))
+            { First item }
+            { Second item }
+        """
+        exp_output = """
+            - First item
+            - Second item
+        """
+        self._test_list(src, exp_output)
+
     def test_no_bullet(self):
         src = """
             { 1) First item }
@@ -2237,6 +2256,17 @@ class ListMacroTest(SkoolKitTestCase):
             2) Second item
         """
         self._test_list(src, exp_output, '')
+
+    def test_blank_bullet_parameter(self):
+        src = """(,)
+            { 1) First item }
+            { 2) Second item }
+        """
+        exp_output = """
+            1) First item
+            2) Second item
+        """
+        self._test_list(src, exp_output)
 
     def test_empty_list(self):
         self._test_list('', '')

@@ -630,9 +630,10 @@ section.
 The ``#LIST`` macro marks the beginning of a list of bulleted items; ``LIST#``
 is used to mark the end. Between these markers, the list items are defined. ::
 
-  #LIST[(class)]<items>LIST#
+  #LIST[(class[,bullet])]<items>LIST#
 
 * ``class`` is the CSS class to use for the ``<ul>`` element
+* ``bullet`` is the bullet character to use in ASM mode
 
 Each item in a list must start with ``{`` followed by a whitespace character,
 and end with ``}`` preceded by a whitespace character.
@@ -647,8 +648,9 @@ For example::
 This list has two items, and will have the CSS class 'data'.
 
 In ASM mode, lists are rendered as plain text, with each item on its own line,
-and an asterisk as the bullet character. The bullet character can be changed by
-using a :ref:`set` directive to set the ``bullet`` property on the ASM writer.
+and an asterisk as the bullet character. The bullet character can be changed
+for all lists by using a :ref:`set` directive to set the ``bullet`` property,
+or it can be changed for a specific list by setting the ``bullet`` parameter.
 
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
@@ -656,7 +658,7 @@ using a :ref:`set` directive to set the ``bullet`` property on the ASM writer.
 | 6.4     | In ASM mode: ``#LIST`` can be used in an instruction-level        |
 |         | comment and as a parameter of another macro; if the bullet        |
 |         | character is an empty string, list items are no longer indented   |
-|         | by one space                                                      |
+|         | by one space; added the ``bullet`` parameter                      |
 +---------+-------------------------------------------------------------------+
 | 3.2     | New                                                               |
 +---------+-------------------------------------------------------------------+

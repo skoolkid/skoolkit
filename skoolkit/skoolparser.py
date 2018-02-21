@@ -18,7 +18,7 @@ import html
 import re
 
 from skoolkit import BASE_10, BASE_16, SkoolParsingError, warn, wrap, get_int_param, parse_int, open_file
-from skoolkit.skoolmacro import INTEGER, ClosingBracketError, parse_brackets
+from skoolkit.skoolmacro import INTEGER, ClosingBracketError, parse_brackets, parse_strings
 from skoolkit.textutils import partition_unquoted, split_quoted, split_unquoted
 from skoolkit.z80 import assemble, convert_case, get_size, split_operation
 
@@ -1192,6 +1192,9 @@ class Cell:
         return max([len(line) for line in self.contents])
 
 class ListParser:
+    def __init__(self, bullet=''):
+        self.bullet = bullet
+
     def parse_text(self, writer, text, index, *cwd):
         try:
             end = text.index(LIST_END_MARKER, index) + len(LIST_END_MARKER)
@@ -1204,12 +1207,14 @@ class ListParser:
         for ws_char in '\n\r\t':
             text = text.replace(ws_char, ' ')
 
-        try:
-            index, params = parse_brackets(text, default='')
-        except ClosingBracketError:
-            raise SkoolParsingError("Cannot find closing ')' in parameter list:\n{}".format(list_def))
-        css_class = writer.expand(params, *cwd).strip()
-        list_obj = List(css_class)
+        if text.startswith('('):
+            try:
+                index, params = parse_strings(text, 0, 2, ('', self.bullet))
+            except ClosingBracketError:
+                raise SkoolParsingError("Cannot find closing ')' in parameter list:\n{}".format(list_def))
+        else:
+            index, params = 0, ('', self.bullet)
+        list_obj = List(writer.expand(params[0], *cwd).strip(), writer.expand(params[1], *cwd))
 
         text = writer.expand(text[index:], *cwd)
         index = 0
@@ -1226,8 +1231,9 @@ class ListParser:
         return list_obj
 
 class List:
-    def __init__(self, css_class):
+    def __init__(self, css_class, bullet):
         self.css_class = css_class
+        self.bullet = bullet
         self.items = []
 
     def add_item(self, text):

@@ -6,7 +6,8 @@ Changelog
 * In ASM mode, a :ref:`list` or :ref:`table` macro can now be used in an
   instruction-level comment and as a parameter of another macro
 * In ASM mode, the :ref:`list` macro produces unindented items when the bullet
-  character is an empty string
+  character is an empty string, and the bullet character can be specified by
+  the ``bullet`` parameter
 * Commas that appear between parentheses are retained when a sequence of
   :ref:`string parameters <stringParameters>` is split, making it easier to
   nest macros (e.g. ``#FOR0,9(n,#IF(n%2)(Y,N))``)
