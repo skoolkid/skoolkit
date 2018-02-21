@@ -7,6 +7,9 @@ Changelog
   instruction-level comment and as a parameter of another macro
 * In ASM mode, the :ref:`list` macro produces unindented items when the bullet
   character is an empty string
+* Commas that appear between parentheses are retained when a sequence of
+  :ref:`string parameters <stringParameters>` is split, making it easier to
+  nest macros (e.g. ``#FOR0,9(n,#IF(n%2)(Y,N))``)
 
 6.3 (2018-02-19)
 ----------------

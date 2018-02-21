@@ -113,6 +113,16 @@ separated by commas::
   [string1,string2]
   {string1,string2}
 
+When a comma-separated sequence of string parameters is split, any commas that
+appear between parentheses are retained. For example, the string parameters
+of the outer ``#FOR`` macro in::
+
+  #FOR0,1(n,#FOR(0,1)(m,(n,m),;),;)
+
+are split into ``n``, ``#FOR(0,1)(m,(n,m),;)`` and ``;``, and the string
+parameters of the inner ``#FOR`` macro are split into ``m``, ``(n,m)``, and
+``;``.
+
 Alternatively, an arbitrary delimiter - ``d``, which cannot be whitespace - and
 separator - ``s``, which can be whitespace - may be used. (They can be the same
 character.) The string parameters must open with ``ds``, be separated by ``s``,
@@ -121,10 +131,12 @@ and close with ``sd``. For example::
   //same/delimiter/and/separator//
   | different delimiter and separator |
 
-This form is required if any of the strings contain a comma.
-
 Note that if an alternative delimiter or separator is used, it must not be '&',
 '<' or '>'.
+
+.. versionchanged:: 6.4
+   When a comma-separated sequence of string parameters is split, any commas
+   that appear between parentheses are retained.
 
 SMPL macros
 ^^^^^^^^^^^

@@ -169,7 +169,10 @@ def parse_strings(text, index=0, num=0, defaults=()):
         end += len(delim2)
 
     if split:
-        args = param_string.split(sep)
+        if sep == ',':
+            args = _split_unbracketed(param_string)
+        else:
+            args = param_string.split(sep)
     else:
         args = param_string
 
@@ -246,6 +249,26 @@ def parse_image_macro(text, index=0, defaults=(), names=(), fname=''):
     end, crop_rect = _parse_crop_spec(text, result[0])
     end, fname, frame, alt = _parse_image_fname(text, end, fname)
     return end, crop_rect, fname, frame, alt, result[1:]
+
+def _split_unbracketed(text):
+    if '(' not in text:
+        return text.split(',')
+    index = 0
+    chunks = ['']
+    start = text.index('(')
+    while start >= 0:
+        pieces = text[index:start].split(',')
+        if pieces[0]:
+            chunks[-1] += pieces[0]
+        chunks.extend(pieces[1:])
+        index = parse_brackets(text, start)[0]
+        chunks[-1] += text[start:index]
+        start = text.find('(', index)
+    pieces = text[index:].split(',')
+    if pieces[0]:
+        chunks[-1] += pieces[0]
+    chunks.extend(pieces[1:])
+    return chunks
 
 def parse_address_range(text, index, width):
     elements = []

@@ -241,6 +241,10 @@ class CommonSkoolMacroTest:
         self.assertEqual(writer.expand(nest_macros('#FOR(1,3,{})(n,n)', 2)), '13')
         self.assertEqual(writer.expand(nest_macros('#FOR(1,3)||n|{}||', 'n')), '123')
 
+        # Commas inside brackets
+        self.assertEqual(writer.expand('#FOR0,1(n,(0,n),:)'), '(0,0):(0,1)')
+        self.assertEqual(writer.expand('#FOR0,1(n,#FOR(0,1)(m,(n,m),;),;)'), '(0,0);(0,1);(1,0);(1,1)')
+
     def test_macro_for_with_separator(self):
         writer = self._get_writer()
 
@@ -317,6 +321,11 @@ class CommonSkoolMacroTest:
         # Nested macros
         output = writer.expand(nest_macros('#FOREACH(0,1,2)||n|({})||', 'n'))
         self.assertEqual(output, '(0)(1)(2)')
+
+        # Commas inside brackets
+        self.assertEqual(writer.expand('#FOREACH(0,1)(n,(0,n),:)'), '(0,0):(0,1)')
+        self.assertEqual(writer.expand('#FOREACH(0,1)(n,#FOREACH(0,1)(m,(n,m),;),;)'), '(0,0);(0,1);(1,0);(1,1)')
+        self.assertEqual(writer.expand('#FOREACH((0,0),(1,1))(n,(0,n),|)'), '(0,(0,0))|(0,(1,1))')
 
     def test_macro_foreach_with_separator(self):
         writer = self._get_writer()
@@ -550,6 +559,10 @@ class CommonSkoolMacroTest:
         self.assertEqual(writer.expand('#IF0(aye)'), '')
         self.assertEqual(writer.expand('#IF1()'), '')
         self.assertEqual(writer.expand('#IF0()'), '')
+
+        # Commas inside brackets
+        self.assertEqual(writer.expand('#IF1((0,1),(1,2))'), '(0,1)')
+        self.assertEqual(writer.expand('#IF1(#IF0(0,1),2)'), '1')
 
     def test_macro_if_base_none(self):
         writer = self._get_writer()
