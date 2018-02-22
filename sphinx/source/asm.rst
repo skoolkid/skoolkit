@@ -423,6 +423,50 @@ replace the operand of the instruction at 32768 with a label: ``LD HL,ATTRS``.
 | 5.4     | New     |
 +---------+---------+
 
+.. _asm-if:
+
+@if
+^^^
+The ``@if`` directive conditionally processes other ASM directives based on the
+value of an arithmetic expression. ::
+
+  @if(expr)(true[,false])
+
+* ``expr`` is the arithmetic expression
+* ``true`` is processed when ``expr`` is true
+* ``false`` (if given) is processed when ``expr`` is false
+
+The following replacement fields may appear in the ``expr`` parameter:
+
+* ``asm`` - 1 if in :ref:`isubMode`, 2 if in :ref:`ssubMode`, 3 if in
+  :ref:`rsubMode`, or 0 otherwise
+* ``base`` - 10 if the ``--decimal`` option is used with :ref:`skool2asm.py`
+  or :ref:`skool2html.py`, 16 if the ``--hex`` option is used, or 0 if neither
+  option is used
+* ``case`` - 1 if the ``--lower`` option is used with :ref:`skool2asm.py`
+  or :ref:`skool2html.py`, 2 if the ``--upper`` option is used, or 0 if neither
+  option is used
+* ``html`` - 1 if in HTML mode, 0 otherwise
+
+For example::
+
+  @if({case}==1))(replace=/#hl/hl,replace=/#hl/HL)
+
+would process ``replace=/#hl/hl`` if in lower case mode, or ``replace=/#hl/HL``
+otherwise.
+
+See :ref:`numericParameters` for details on the operators that may be used in
+the ``expr`` parameter.
+
+The ``true`` and ``false`` parameters may be supplied in the same way as they
+are for the :ref:`if` macro. See :ref:`stringParameters` for more details.
+
++---------+---------+
+| Version | Changes |
++=========+=========+
+| 6.4     | New     |
++---------+---------+
+
 .. _ignoreua:
 
 @ignoreua

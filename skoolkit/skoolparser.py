@@ -18,7 +18,7 @@ import html
 import re
 
 from skoolkit import BASE_10, BASE_16, SkoolParsingError, warn, wrap, get_int_param, parse_int, open_file
-from skoolkit.skoolmacro import INTEGER, ClosingBracketError, parse_brackets, parse_strings
+from skoolkit.skoolmacro import INTEGER, ClosingBracketError, MacroParsingError, parse_brackets, parse_if, parse_strings
 from skoolkit.textutils import partition_unquoted, split_quoted, split_unquoted
 from skoolkit.z80 import assemble, convert_case, get_size, split_operation
 
@@ -268,6 +268,7 @@ class SkoolParser:
         self.mode = Mode(case, base, asm_mode, warnings, fix_mode, html, create_labels, asm_labels)
         self.case = case
         self.base = base
+        self.fields = {'asm': asm_mode, 'base': base, 'case': case, 'html': int(html)}
 
         self.snapshot = snapshot or [0] * 65536  # 64K of Spectrum memory
         self._instructions = {}                  # address -> [Instructions]
@@ -497,8 +498,12 @@ class SkoolParser:
                 self.mode.assemble = html_value
             elif not (self.mode.html or asm_value is None):
                 self.mode.assemble = asm_value
-
-        if self.mode.asm_mode:
+        elif directive.startswith('if('):
+            try:
+                self._parse_asm_directive(parse_if(directive, 2, self.fields)[1])
+            except MacroParsingError:
+                pass
+        elif self.mode.asm_mode:
             if directive.startswith('rsub='):
                 self.mode.rsub = directive[5:].rstrip()
             elif directive.startswith('ssub='):

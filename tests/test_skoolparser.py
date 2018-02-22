@@ -1716,6 +1716,77 @@ class SkoolParserTest(SkoolKitTestCase):
         self.assertEqual([1, 128, 2, 128, 0, 1, 48, 0], snapshot[23296:23304])
         self.assertEqual([0, 128], snapshot[30000:30002])
 
+    def test_if_directive_asm(self):
+        skool = """
+            @start
+            @if({asm}==0)(replace=/#zero/0)
+            @if({asm}==1)(replace=/#one/1)
+            @if({asm}==1)(replace=/#two/2,replace=/#two/TWO)
+            @if({asm}==2)(replace=/#three/3,replace=/#three/THREE)
+            ; Routine at 40000
+            ;
+            ; #zero-#one-#two-#three
+            c40000 RET
+        """
+        entry = self._get_parser(skool, asm_mode=1).get_entry(40000)
+        self.assertEqual(['#zero-1-2-THREE'], entry.details)
+
+    def test_if_directive_base(self):
+        skool = """
+            @if({base}==0)(replace=/#zero/0)
+            @if({base}==10)(replace=/#one/1)
+            @if({base}==10)(replace=/#two/2,replace=/#two/TWO)
+            @if({base}==16)(replace=/#three/3,replace=/#three/THREE)
+            ; Routine at 40000
+            ;
+            ; #zero-#one-#two-#three
+            c40000 RET
+        """
+        entry = self._get_parser(skool, base=10).get_entry(40000)
+        self.assertEqual(['#zero-1-2-THREE'], entry.details)
+
+    def test_if_directive_case(self):
+        skool = """
+            @if({case}==0)(replace=/#zero/0)
+            @if({case}==1)(replace=/#one/1)
+            @if({case}==1)(replace=/#two/2,replace=/#two/TWO)
+            @if({case}==2)(replace=/#three/3,replace=/#three/THREE)
+            ; Routine at 40000
+            ;
+            ; #zero-#one-#two-#three
+            c40000 RET
+        """
+        entry = self._get_parser(skool, case=1).get_entry(40000)
+        self.assertEqual(['#zero-1-2-THREE'], entry.details)
+
+    def test_if_directive_html(self):
+        skool = """
+            @if({html}==0)(replace=/#zero/0)
+            @if({html}==1)(replace=/#one/1)
+            @if({html}==1)(replace=/#two/2,replace=/#two/TWO)
+            @if({html}==0)(replace=/#three/3,replace=/#three/THREE)
+            ; Routine at 40000
+            ;
+            ; #zero-#one-#two-#three
+            c40000 RET
+        """
+        entry = self._get_parser(skool, html=True).get_entry(40000)
+        self.assertEqual(['#zero-1-2-THREE'], entry.details)
+
+    def test_if_directive_ignored_if_invalid(self):
+        skool = """
+            @if(x)(replace=/#zero/0)
+            @if(1(replace=/#one/1)
+            @if(2)(replace=/#two/2
+            @if(3)(replace=/#three/3,replace=/#three/THREE,replace=/#three/1+2)
+            ; Routine at 40000
+            ;
+            ; #zero-#one-#two-#three
+            c40000 RET
+        """
+        entry = self._get_parser(skool).get_entry(40000)
+        self.assertEqual(['#zero-#one-#two-#three'], entry.details)
+
     def test_remote_entry(self):
         skool = """
             r16384 start
