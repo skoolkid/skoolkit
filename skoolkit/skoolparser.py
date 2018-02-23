@@ -399,7 +399,7 @@ class SkoolParser:
                         self.comments[:] = []
                         self.mode.ignoremrcua = 0 in self.ignores
 
-                self.mode.apply_asm_attributes(instruction)
+                self.mode.apply_asm_attributes(instruction, address_comments[-1])
                 self.ignores[:] = []
 
                 # Set bytes in the snapshot if the instruction is DEF{B,M,S,W}
@@ -730,7 +730,7 @@ class Mode:
         for section in 'tdr':
             self.entry_ignoreua[section] = False
 
-    def apply_asm_attributes(self, instruction):
+    def apply_asm_attributes(self, instruction, address_comment):
         instruction.keep = self.keep
         instruction.nolabel = self.nolabel or self.label == ''
 
@@ -755,7 +755,7 @@ class Mode:
             if sub is not None:
                 _, sub = self.apply_case('', sub)
                 _, sub = self.apply_base('', sub)
-                instruction.apply_sub(sub)
+                instruction.apply_sub(sub, address_comment)
 
             instruction.warn = not self.nowarn
             instruction.ignoreua = self.ignoreua
@@ -890,9 +890,12 @@ class Instruction:
             self.referrers.append(routine)
         self.container.add_referrer(routine)
 
-    def apply_sub(self, sub):
+    def apply_sub(self, sub, address_comment):
         self.sub = sub
-        self.operation = sub
+        operation, sep, comment = partition_unquoted(sub, ';')
+        self.operation = operation.rstrip()
+        if sep:
+            address_comment[1] = comment.lstrip()
 
     def is_in_routine(self):
         return self.container.is_routine()

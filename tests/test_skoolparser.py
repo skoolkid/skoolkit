@@ -3005,9 +3005,49 @@ class SkoolParserTest(SkoolKitTestCase):
             @isub=LD A,(32512)
             c60000 LD A,(m)
         """
-        for asm_mode in (1, 2, 3):
+        for asm_mode, op in (
+                (0, 'LD A,(m)'),
+                (1, 'LD A,(32512)'),
+                (2, 'LD A,(32512)'),
+                (3, 'LD A,(32512)')
+        ):
             parser = self._get_parser(skool, asm_mode=asm_mode)
-            self.assertEqual(parser.get_instruction(60000).operation, 'LD A,(32512)')
+            self.assertEqual(parser.get_instruction(60000).operation, op)
+
+    def test_isub_directive_with_comment(self):
+        skool = """
+            @start
+            ; Routine
+            @isub=LD A,(32768) ; Get the counter.
+            c60000 LD A,(N)    ; Set A=(N).
+        """
+        for asm_mode, op, comment in (
+                (0, 'LD A,(N)', 'Set A=(N).'),
+                (1, 'LD A,(32768)', 'Get the counter.'),
+                (2, 'LD A,(32768)', 'Get the counter.'),
+                (3, 'LD A,(32768)', 'Get the counter.')
+        ):
+            instruction = self._get_parser(skool, asm_mode=asm_mode).get_instruction(60000)
+            self.assertEqual(instruction.operation, op)
+            self.assertEqual(instruction.comment.text, comment)
+
+    def test_isub_directive_with_multi_line_comment(self):
+        skool = """
+            @start
+            ; Routine
+            @isub=LD A,(32768) ; Get the counter
+            c60000 LD A,(N)    ; Set A=(N)
+                               ; before proceeding.
+        """
+        for asm_mode, op, comment in (
+                (0, 'LD A,(N)', 'Set A=(N) before proceeding.'),
+                (1, 'LD A,(32768)', 'Get the counter before proceeding.'),
+                (2, 'LD A,(32768)', 'Get the counter before proceeding.'),
+                (3, 'LD A,(32768)', 'Get the counter before proceeding.')
+        ):
+            instruction = self._get_parser(skool, asm_mode=asm_mode).get_instruction(60000)
+            self.assertEqual(instruction.operation, op)
+            self.assertEqual(instruction.comment.text, comment)
 
     def test_isub_block_directive(self):
         skool = """
@@ -3025,6 +3065,79 @@ class SkoolParserTest(SkoolKitTestCase):
             parser = self._get_parser(skool, asm_mode=asm_mode)
             self.assertEqual(['Actual description.'], parser.get_entry(24576).details)
 
+    def test_ssub_directive(self):
+        skool = """
+            @start
+            ; Routine
+            @ssub=INC DE
+            c50000 INC E
+        """
+        for asm_mode, op in (
+                (0, 'INC E'),
+                (1, 'INC E'),
+                (2, 'INC DE'),
+                (3, 'INC DE')
+        ):
+            instruction = self._get_parser(skool, asm_mode=asm_mode).get_instruction(50000)
+            self.assertEqual(instruction.operation, op)
+
+    def test_ssub_directive_with_comment(self):
+        skool = """
+            @start
+            ; Routine
+            @ssub=INC DE ; Increment DE.
+            c50000 INC E ; Add 1 to E.
+        """
+        for asm_mode, op, comment in (
+                (0, 'INC E', 'Add 1 to E.'),
+                (1, 'INC E', 'Add 1 to E.'),
+                (2, 'INC DE', 'Increment DE.'),
+                (3, 'INC DE', 'Increment DE.')
+        ):
+            instruction = self._get_parser(skool, asm_mode=asm_mode).get_instruction(50000)
+            self.assertEqual(instruction.operation, op)
+            self.assertEqual(instruction.comment.text, comment)
+
+    def test_ssub_directive_with_multi_line_comment(self):
+        skool = """
+            @start
+            ; Routine
+            @ssub=INC DE ; Increment DE
+            c50000 INC E ; Add 1 to E
+                         ; first.
+        """
+        for asm_mode, op, comment in (
+                (0, 'INC E', 'Add 1 to E first.'),
+                (1, 'INC E', 'Add 1 to E first.'),
+                (2, 'INC DE', 'Increment DE first.'),
+                (3, 'INC DE', 'Increment DE first.')
+        ):
+            instruction = self._get_parser(skool, asm_mode=asm_mode).get_instruction(50000)
+            self.assertEqual(instruction.operation, op)
+            self.assertEqual(instruction.comment.text, comment)
+
+    def test_ssub_block_directive(self):
+        skool = """
+            @start
+            ; Routine
+            @ssub-begin
+            c50000 LD L,24 ; 24 is the LSB
+            @ssub+else
+            c50000 LD L,50003%256 ; This is the LSB
+            @ssub+end
+             50002 RET
+        """
+        for asm_mode, exp_operation, exp_comment in (
+                (0, 'LD L,24', '24 is the LSB'),
+                (1, 'LD L,24', '24 is the LSB'),
+                (2, 'LD L,50003%256', 'This is the LSB'),
+                (3, 'LD L,50003%256', 'This is the LSB')
+        ):
+            parser = self._get_parser(skool, asm_mode=asm_mode)
+            instruction = parser.get_entry(50000).instructions[0]
+            self.assertEqual(instruction.operation, exp_operation)
+            self.assertEqual(instruction.comment.text, exp_comment)
+
     def test_rsub_directive(self):
         skool = """
             @start
@@ -3032,11 +3145,154 @@ class SkoolParserTest(SkoolKitTestCase):
             @rsub=INC HL
             c23456 INC L
         """
-        for asm_mode in (1, 2):
+        for asm_mode, op in (
+                (0, 'INC L'),
+                (1, 'INC L'),
+                (2, 'INC L'),
+                (3, 'INC HL')
+        ):
             parser = self._get_parser(skool, asm_mode=asm_mode)
-            self.assertEqual(parser.get_instruction(23456).operation, 'INC L')
-        parser = self._get_parser(skool, asm_mode=3)
-        self.assertEqual(parser.get_instruction(23456).operation, 'INC HL')
+            self.assertEqual(parser.get_instruction(23456).operation, op)
+
+    def test_rsub_directive_with_comment(self):
+        skool = """
+            @start
+            ; Routine
+            @rsub=INC HL ; Increment HL.
+            c23456 INC L ; Add 1 to L.
+        """
+        for asm_mode, op, comment in (
+                (0, 'INC L', 'Add 1 to L.'),
+                (1, 'INC L', 'Add 1 to L.'),
+                (2, 'INC L', 'Add 1 to L.'),
+                (3, 'INC HL', 'Increment HL.')
+        ):
+            instruction = self._get_parser(skool, asm_mode=asm_mode).get_instruction(23456)
+            self.assertEqual(instruction.operation, op)
+            self.assertEqual(instruction.comment.text, comment)
+
+    def test_rsub_directive_with_multi_line_comment(self):
+        skool = """
+            @start
+            ; Routine
+            @rsub=INC HL ; Increment HL
+            c23456 INC L ; Add 1 to L
+                         ; to begin with.
+        """
+        for asm_mode, op, comment in (
+                (0, 'INC L', 'Add 1 to L to begin with.'),
+                (1, 'INC L', 'Add 1 to L to begin with.'),
+                (2, 'INC L', 'Add 1 to L to begin with.'),
+                (3, 'INC HL', 'Increment HL to begin with.')
+        ):
+            instruction = self._get_parser(skool, asm_mode=asm_mode).get_instruction(23456)
+            self.assertEqual(instruction.operation, op)
+            self.assertEqual(instruction.comment.text, comment)
+
+    def test_ofix_directive_with_comment(self):
+        skool = """
+            @start
+            ; Routine
+            @ofix=LD A,(32768)  ; Get the counter from 32768.
+            c40000 LD A,(32769) ; Get the value from 32769.
+        """
+        for fix_mode, op, comment in (
+                (0, 'LD A,(32769)', 'Get the value from 32769.'),
+                (1, 'LD A,(32768)', 'Get the counter from 32768.'),
+                (2, 'LD A,(32768)', 'Get the counter from 32768.'),
+                (3, 'LD A,(32768)', 'Get the counter from 32768.')
+        ):
+            instruction = self._get_parser(skool, asm_mode=1, fix_mode=fix_mode).get_instruction(40000)
+            self.assertEqual(instruction.operation, op)
+            self.assertEqual(instruction.comment.text, comment)
+
+    def test_ofix_directive_with_multi_line_comment(self):
+        skool = """
+            @start
+            ; Routine
+            @ofix=LD A,(32768)  ; Get the counter from 32768
+            c40000 LD A,(32769) ; Get the value from 32769
+                                ; before continuing.
+        """
+        for fix_mode, op, comment in (
+                (0, 'LD A,(32769)', 'Get the value from 32769 before continuing.'),
+                (1, 'LD A,(32768)', 'Get the counter from 32768 before continuing.'),
+                (2, 'LD A,(32768)', 'Get the counter from 32768 before continuing.'),
+                (3, 'LD A,(32768)', 'Get the counter from 32768 before continuing.')
+        ):
+            instruction = self._get_parser(skool, asm_mode=1, fix_mode=fix_mode).get_instruction(40000)
+            self.assertEqual(instruction.operation, op)
+            self.assertEqual(instruction.comment.text, comment)
+
+    def test_bfix_directive_with_comment(self):
+        skool = """
+            @start
+            ; Routine
+            @bfix=LD A,(32768)  ; Get the counter from 32768.
+            c50000 LD A,(32769) ; Get the value from 32769.
+        """
+        for fix_mode, op, comment in (
+                (0, 'LD A,(32769)', 'Get the value from 32769.'),
+                (1, 'LD A,(32769)', 'Get the value from 32769.'),
+                (2, 'LD A,(32768)', 'Get the counter from 32768.'),
+                (3, 'LD A,(32768)', 'Get the counter from 32768.')
+        ):
+            instruction = self._get_parser(skool, asm_mode=1, fix_mode=fix_mode).get_instruction(50000)
+            self.assertEqual(instruction.operation, op)
+            self.assertEqual(instruction.comment.text, comment)
+
+    def test_bfix_directive_with_multi_line_comment(self):
+        skool = """
+            @start
+            ; Routine
+            @bfix=LD A,(32768)  ; Get the counter from 32768
+            c50000 LD A,(32769) ; Get the value from 32769
+                                ; now.
+        """
+        for fix_mode, op, comment in (
+                (0, 'LD A,(32769)', 'Get the value from 32769 now.'),
+                (1, 'LD A,(32769)', 'Get the value from 32769 now.'),
+                (2, 'LD A,(32768)', 'Get the counter from 32768 now.'),
+                (3, 'LD A,(32768)', 'Get the counter from 32768 now.')
+        ):
+            instruction = self._get_parser(skool, asm_mode=1, fix_mode=fix_mode).get_instruction(50000)
+            self.assertEqual(instruction.operation, op)
+            self.assertEqual(instruction.comment.text, comment)
+
+    def test_rfix_directive_with_comment(self):
+        skool = """
+            @start
+            ; Routine
+            @rfix=LD A,(32768)  ; Get the counter from 32768.
+            c60000 LD A,(32769) ; Get the value from 32769.
+        """
+        for fix_mode, op, comment in (
+                (0, 'LD A,(32769)', 'Get the value from 32769.'),
+                (1, 'LD A,(32769)', 'Get the value from 32769.'),
+                (2, 'LD A,(32769)', 'Get the value from 32769.'),
+                (3, 'LD A,(32768)', 'Get the counter from 32768.')
+        ):
+            instruction = self._get_parser(skool, asm_mode=3, fix_mode=fix_mode).get_instruction(60000)
+            self.assertEqual(instruction.operation, op)
+            self.assertEqual(instruction.comment.text, comment)
+
+    def test_rfix_directive_with_multi_line_comment(self):
+        skool = """
+            @start
+            ; Routine
+            @rfix=LD A,(32768)  ; Get the counter from 32768
+            c60000 LD A,(32769) ; Get the value from 32769
+                                ; first.
+        """
+        for fix_mode, op, comment in (
+                (0, 'LD A,(32769)', 'Get the value from 32769 first.'),
+                (1, 'LD A,(32769)', 'Get the value from 32769 first.'),
+                (2, 'LD A,(32769)', 'Get the value from 32769 first.'),
+                (3, 'LD A,(32768)', 'Get the counter from 32768 first.')
+        ):
+            instruction = self._get_parser(skool, asm_mode=3, fix_mode=fix_mode).get_instruction(60000)
+            self.assertEqual(instruction.operation, op)
+            self.assertEqual(instruction.comment.text, comment)
 
     def test_no_asm_labels(self):
         skool = """
@@ -3218,39 +3474,6 @@ class SkoolParserTest(SkoolKitTestCase):
         parser = self._get_parser(skool, asm_mode=1)
         entry = parser.get_entry(50000)
         self.assertEqual(entry.details, ['Foo.'])
-
-    def test_asm_mode_ssub_directive(self):
-        skool = """
-            @start
-            ; Routine
-            @ssub=INC DE
-            c50000 INC E
-        """
-        for asm_mode, exp_op in ((1, 'INC E'), (2, 'INC DE'), (3, 'INC DE')):
-            parser = self._get_parser(skool, asm_mode=asm_mode)
-            instruction = parser.get_entry(50000).instructions[0]
-            self.assertEqual(instruction.operation, exp_op)
-
-    def test_asm_mode_ssub_block_directive(self):
-        skool = """
-            @start
-            ; Routine
-            @ssub-begin
-            c50000 LD L,24 ; 24 is the LSB
-            @ssub+else
-            c50000 LD L,50003%256 ; This is the LSB
-            @ssub+end
-             50002 RET
-        """
-        for asm_mode, exp_operation, exp_comment in (
-                (1, 'LD L,24', '24 is the LSB'),
-                (2, 'LD L,50003%256', 'This is the LSB'),
-                (3, 'LD L,50003%256', 'This is the LSB')
-        ):
-            parser = self._get_parser(skool, asm_mode=asm_mode)
-            instruction = parser.get_entry(50000).instructions[0]
-            self.assertEqual(instruction.operation, exp_operation)
-            self.assertEqual(instruction.comment.text, exp_comment)
 
     def test_fix_mode_0(self):
         skool = """

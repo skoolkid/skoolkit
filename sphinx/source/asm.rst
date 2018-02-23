@@ -219,17 +219,28 @@ at those addresses, and the image created by the ``#UDG`` macro would be blank.
 
 @bfix
 ^^^^^
-The ``@bfix`` directive makes an instruction substitution in :ref:`bfixMode`.
-::
+The ``@bfix`` directive makes an instruction and comment substitution in
+:ref:`bfixMode`. ::
 
-  @bfix=INSTRUCTION
+  @bfix=INSTRUCTION[ ; comment]
 
 * ``INSTRUCTION`` is the replacement instruction
+* ``comment`` is the replacement comment; if not given, the existing comment is
+  left unchanged
 
 For example::
 
-  @bfix=XOR B
-   29713 XOR C
+  @bfix=AND B ; Apply the mask
+   29713 AND C ; This should be 'AND B'
+
+This ``@bfix`` directive replaces ``AND C`` with ``AND B``, and also replaces
+the comment.
+
++---------+-------------------------------------------------------------------+
+| Version | Changes                                                           |
++=========+===================================================================+
+| 6.4     | Added support for replacing the comment                           |
++---------+-------------------------------------------------------------------+
 
 .. _bfixBlockDirectives:
 
@@ -572,12 +583,14 @@ that has not been converted to a label.
 
 @isub
 ^^^^^
-The ``@isub`` directive makes an instruction substitution in :ref:`isubMode`.
-::
+The ``@isub`` directive makes an instruction and comment substitution in
+:ref:`isubMode`. ::
 
-  @isub=INSTRUCTION
+  @isub=INSTRUCTION[ ; comment]
 
 * ``INSTRUCTION`` is the replacement instruction
+* ``comment`` is the replacement comment; if not given, the existing comment is
+  left unchanged
 
 For example::
 
@@ -586,6 +599,12 @@ For example::
 
 This ``@isub`` directive ensures that ``LD A,(m)`` is replaced by the valid
 instruction ``LD A,(32512)`` when rendering in ASM mode.
+
++---------+-------------------------------------------------------------------+
+| Version | Changes                                                           |
++=========+===================================================================+
+| 6.4     | Added support for replacing the comment                           |
++---------+-------------------------------------------------------------------+
 
 .. _isubBlockDirectives:
 
@@ -759,12 +778,14 @@ instruction to be replaced with a label, but not in this case).
 
 @ofix
 ^^^^^
-The ``@ofix`` directive makes an instruction substitution in :ref:`ofixMode`.
-::
+The ``@ofix`` directive makes an instruction and comment substitution in
+:ref:`ofixMode`. ::
 
-  @ofix=INSTRUCTION
+  @ofix=INSTRUCTION[ ; comment]
 
 * ``INSTRUCTION`` is the replacement instruction (with a corrected operand)
+* ``comment`` is the replacement comment; if not given, the existing comment is
+  left unchanged
 
 For example::
 
@@ -773,6 +794,12 @@ For example::
 
 This ``@ofix`` directive replaces the operand of the ``JR NZ`` instruction with
 26067.
+
++---------+-------------------------------------------------------------------+
+| Version | Changes                                                           |
++=========+===================================================================+
+| 6.4     | Added support for replacing the comment                           |
++---------+-------------------------------------------------------------------+
 
 .. _ofixBlockDirectives:
 
@@ -927,23 +954,30 @@ See also :ref:`definingMacrosWithReplace`.
 
 @rfix
 ^^^^^
-The ``@rfix`` directive makes an instruction substitution in :ref:`rfixMode`.
-::
+The ``@rfix`` directive makes an instruction and comment substitution in
+:ref:`rfixMode`. ::
 
-  @rfix=INSTRUCTION
+  @rfix=INSTRUCTION[ ; comment]
 
 * ``INSTRUCTION`` is the replacement instruction
+* ``comment`` is the replacement comment; if not given, the existing comment is
+  left unchanged
 
 For example::
 
-  @rfix=LD HL,0
-   27519 LD L,0
+  @rfix=LD HL,0 ; Clear #REGhl
+   27519 LD L,0 ; Clear #REGl
 
-+---------+---------+
-| Version | Changes |
-+=========+=========+
-| 5.2     | New     |
-+---------+---------+
+This ``@rfix`` directive replaces the instruction at 27519 with ``LD HL,0`` and
+also replaces the comment.
+
++---------+-------------------------------------------------------------------+
+| Version | Changes                                                           |
++=========+===================================================================+
+| 6.4     | Added support for replacing the comment                           |
++---------+-------------------------------------------------------------------+
+| 5.2     | New                                                               |
++---------+-------------------------------------------------------------------+
 
 .. _rfixBlockDirectives:
 
@@ -958,17 +992,28 @@ The syntax is equivalent to that for the :ref:`bfixBlockDirectives`.
 
 @rsub
 ^^^^^
-The ``@rsub`` directive makes an instruction substitution in :ref:`rsubMode`.
-::
+The ``@rsub`` directive makes an instruction and comment substitution in
+:ref:`rsubMode`. ::
 
-  @rsub=INSTRUCTION
+  @rsub=INSTRUCTION[ ; comment]
 
 * ``INSTRUCTION`` is the replacement instruction
+* ``comment`` is the replacement comment; if not given, the existing comment is
+  left unchanged
 
 For example::
 
   @rsub=LD BC,0
    30143 LD C,0        ; Reset #REGbc to 0
+
+This ``@rsub`` directive replaces the instruction at 30143 with ``LD BC,0`` and
+leaves the comment unchanged.
+
++---------+-------------------------------------------------------------------+
+| Version | Changes                                                           |
++=========+===================================================================+
+| 6.4     | Added support for replacing the comment                           |
++---------+-------------------------------------------------------------------+
 
 .. _rsubBlockDirectives:
 
@@ -1040,12 +1085,15 @@ This ``@set`` directive sets the bullet character to '+'.
 
 @ssub
 ^^^^^
-The ``@ssub`` directive makes an instruction substitution in :ref:`ssubMode`.
-::
+The ``@ssub`` directive makes an instruction and comment substitution in
+:ref:`ssubMode`. ::
 
-  @ssub=INSTRUCTION
+  @ssub=INSTRUCTION[ ; comment]
+
 
 * ``INSTRUCTION`` is the replacement instruction
+* ``comment`` is the replacement comment; if not given, the existing comment is
+  left unchanged
 
 For example::
 
@@ -1058,6 +1106,12 @@ This ``@ssub`` directive replaces ``LD (27016),A`` with ``LD (27015+1),A``; the
 ``27015`` will be replaced by the label for that address before rendering.
 (``27016`` cannot be replaced by a label, since it is not the address of an
 instruction.)
+
++---------+-------------------------------------------------------------------+
+| Version | Changes                                                           |
++=========+===================================================================+
+| 6.4     | Added support for replacing the comment                           |
++---------+-------------------------------------------------------------------+
 
 .. _ssubBlockDirectives:
 

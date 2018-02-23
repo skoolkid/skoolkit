@@ -5,6 +5,8 @@ Changelog
 -----
 * Added the :ref:`asm-if` directive (for conditionally processing other ASM
   directives)
+* The :ref:`isub`, :ref:`ssub`, :ref:`rsub`, :ref:`ofix`, :ref:`bfix` and
+  :ref:`rfix` directives can replace comments as well as instructions
 * In ASM mode, a :ref:`list` or :ref:`table` macro can now be used in an
   instruction-level comment and as a parameter of another macro
 * In ASM mode, the :ref:`list` macro produces unindented items when the bullet
