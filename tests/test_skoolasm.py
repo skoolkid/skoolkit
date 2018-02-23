@@ -1055,15 +1055,15 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
             ;
             ; .
             ;
-            ; {}'.format(start_comment)
+            ; {}
             c50000 RET
-        """
+        """.format(start_comment)
         exp_asm = """
             ; Test a start comment
             ;
-            ; {}'.format(start_comment)
+            ; {}
               RET
-        """
+        """.format(start_comment)
         self._test_asm(skool, exp_asm)
 
     def test_multi_paragraph_start_comment(self):
@@ -1076,19 +1076,19 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
             ;
             ; .
             ;
-            ; {}'.format(start_comment[0])
+            ; {}
             ; .
-            ; {}'.format(start_comment[1])
+            ; {}
             c50000 RET
-        """
+        """.format(*start_comment)
         exp_asm = """
             ; Test a multi-paragraph start comment
             ;
-            ; {}'.format(start_comment[0])
+            ; {}
             ;
-            ; {}'.format(start_comment[1])
+            ; {}
               RET
-        """
+        """.format(*start_comment)
         self._test_asm(skool, exp_asm)
 
     def test_empty_description(self):
