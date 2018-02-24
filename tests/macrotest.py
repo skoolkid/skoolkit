@@ -933,6 +933,21 @@ class CommonSkoolMacroTest:
 
         return writer, prefix
 
+    def test_macro_raw(self):
+        writer = self._get_writer()
+
+        self.assertEqual(writer.expand('#RAW(#SPACE)'), '#SPACE')
+        self.assertEqual(writer.expand('#RAW[#IF(1)(1)]'), '#IF(1)(1)')
+        self.assertEqual(writer.expand('#RAW{12#FOR3,4(n,n)56}'), '12#FOR3,4(n,n)56')
+        self.assertEqual(writer.expand('#RAW/12#FOREACH(3,4)(m,m)56/'), '12#FOREACH(3,4)(m,m)56')
+
+    def test_macro_raw_invalid(self):
+        writer = self._get_writer()
+        prefix = ERROR_PREFIX.format('RAW')
+
+        self._assert_error(writer, '#RAW', 'No text parameter', prefix)
+        self._assert_error(writer, '#RAW:unterminated', 'No terminating delimiter: :unterminated', prefix)
+
     def test_macro_reg(self):
         writer = self._get_writer()
         template = '<span class="register">{}</span>' if writer.needs_cwd() else '{}'

@@ -307,9 +307,12 @@ class AsmWriter:
 
     def _ignore_block(self, text, index, marker, end_marker, rep=None):
         try:
-            return text.index(end_marker, index) + len(end_marker), rep
+            end = text.index(end_marker, index) + len(end_marker)
         except ValueError:
             raise SkoolParsingError("Missing end marker: {}...".format(text[index - len(marker):index + 15]))
+        if rep is None:
+            rep = text[index - len(marker):end]
+        return -end, rep
 
     def extract_blocks(self, text):
         blocks = []

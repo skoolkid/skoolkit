@@ -428,7 +428,7 @@ def get_params(param_string, num=0, defaults=(), names=(), safe=True):
     return params
 
 def get_macros(writer):
-    macros = {}
+    macros = {'#RAW': parse_raw}
     for name, method in inspect.getmembers(writer, inspect.ismethod):
         match = RE_MACRO_METHOD.match(name)
         if match:
@@ -464,10 +464,9 @@ def expand_macros(writer, text, *cwd):
             raise SkoolParsingError('Found unsupported macro: {}'.format(marker))
         except MacroParsingError as e:
             raise SkoolParsingError('Error while parsing {} macro: {}'.format(marker, e.args[0]))
-        if rep is None:
-            index = end
-        else:
-            text = text[:index] + rep + text[end:]
+        text = text[:index] + rep + text[abs(end):]
+        if end < 0:
+            index = -end
 
     return text
 
@@ -760,6 +759,11 @@ def parse_r(text, index):
         anchor = ''
     end, link_text = parse_brackets(text, end)
     return end, addr_str, address, code_id, anchor, link_text
+
+def parse_raw(text, index, *cwd):
+    # #RAW(text)
+    end, raw = parse_strings(text, index, 1)
+    return -end, raw
 
 def parse_reg(text, index, lower):
     # #REGreg

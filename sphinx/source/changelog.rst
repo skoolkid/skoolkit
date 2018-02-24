@@ -5,6 +5,8 @@ Changelog
 -----
 * Added the :ref:`asm-if` directive (for conditionally processing other ASM
   directives)
+* Added the :ref:`RAW` macro (which prevents any macros or macro-like tokens in
+  its sole string argument from being epxanded)
 * The :ref:`isub`, :ref:`ssub`, :ref:`rsub`, :ref:`ofix`, :ref:`bfix` and
   :ref:`rfix` directives can replace comments as well as instructions
 * In ASM mode, a :ref:`list` or :ref:`table` macro can now be used in an

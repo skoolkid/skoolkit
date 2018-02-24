@@ -772,6 +772,31 @@ section.
 | 2.0     | Added support for the ``@code`` notation                        |
 +---------+-----------------------------------------------------------------+
 
+.. _RAW:
+
+#RAW
+----
+The ``#RAW`` macro expands to the exact value of its sole string argument,
+leaving any other macros (or macro-like tokens) it contains unexpanded. ::
+
+  #RAW(text)
+
+For example::
+
+  ; See the routine at #RAW(#BEEF).
+
+This instance of the ``#RAW`` macro expands to '#BEEF'.
+
+See :ref:`stringParameters` for details on alternative ways to supply the
+``text`` parameter. Note that if an alternative delimiter is used, it must not
+be an upper case letter.
+
++---------+---------+
+| Version | Changes |
++=========+=========+
+| 6.4     | New     |
++---------+---------+
+
 .. _REG:
 
 #REG
