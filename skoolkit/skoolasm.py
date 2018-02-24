@@ -297,9 +297,6 @@ class AsmWriter:
     def expand_udgtable(self, text, index):
         return self._ignore_block(text, index, UDGTABLE_MARKER, TABLE_END_MARKER, '')
 
-    def expand_version(self, text, index):
-        return skoolmacro.parse_version(text, index)
-
     # API
     def expand(self, text):
         """Return `text` with skool macros expanded."""

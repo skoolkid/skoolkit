@@ -428,7 +428,10 @@ def get_params(param_string, num=0, defaults=(), names=(), safe=True):
     return params
 
 def get_macros(writer):
-    macros = {'#RAW': parse_raw}
+    macros = {
+        '#RAW': parse_raw,
+        '#VERSION': parse_version
+    }
     for name, method in inspect.getmembers(writer, inspect.ismethod):
         match = RE_MACRO_METHOD.match(name)
         if match:
@@ -899,5 +902,5 @@ def parse_udgarray_with_frames(text, index, frame_map=None):
 
     return end, fname, alt, frames
 
-def parse_version(text, index):
+def parse_version(text, index, *cwd):
     return index, VERSION

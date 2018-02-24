@@ -1292,9 +1292,6 @@ class HtmlWriter:
     def expand_udgtable(self, text, index, cwd):
         return self.expand_table(text, index, cwd)
 
-    def expand_version(self, text, index, cwd):
-        return skoolmacro.parse_version(text, index)
-
     # API
     def expand(self, text, cwd=None):
         """Return `text` with skool macros expanded. `cwd` is the current
