@@ -7,9 +7,9 @@ Changelog
   directives)
 * Added the :ref:`RAW` macro (which prevents any macros or macro-like tokens in
   its sole string argument from being expanded)
-* Added the ``--var`` option to :ref:`skool2html.py` (for defining a variable
-  that can be used by the :ref:`asm-if` directive and the :ref:`IF` and
-  :ref:`MAP` macros)
+* Added the ``--var`` option to :ref:`skool2asm.py` and :ref:`skool2html.py`
+  (for defining a variable that can be used by the :ref:`asm-if` directive and
+  the :ref:`IF` and :ref:`MAP` macros)
 * The ``asm`` replacement field available to the :ref:`IF` and :ref:`MAP`
   macros now indicates the exact ASM mode: 1 (:ref:`isubMode`), 2
   (:ref:`ssubMode`), 3 (:ref:`rsubMode`), or 0 (none)

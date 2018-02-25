@@ -259,13 +259,13 @@ class SkoolParser:
     :param asm_labels: Whether to parse `@label` directives.
     :param min_address: Ignore addresses below this one.
     :param max_address: Ignore addresses above this one.
-    :param snapshot: Base snapshot to use instead of an empty one.
     :param variables: List of 'name=value' strings defining variables that can
                       be used by `@if`, `#IF` and `#MAP`.
+    :param snapshot: Base snapshot to use instead of an empty one.
     """
     def __init__(self, skoolfile, case=0, base=0, asm_mode=0, warnings=False, fix_mode=0, html=False,
-                 create_labels=False, asm_labels=True, min_address=0, max_address=65536, snapshot=None,
-                 variables=()):
+                 create_labels=False, asm_labels=True, min_address=0, max_address=65536, variables=(),
+                 snapshot=None):
         self.skoolfile = skoolfile
         self.mode = Mode(case, base, asm_mode, warnings, fix_mode, html, create_labels, asm_labels)
         self.case = case

@@ -175,6 +175,8 @@ assembler (see :ref:`supportedAssemblers`). For example::
     -S ADDR, --start ADDR
                           Start converting at this address.
     -u, --upper           Write the disassembly in upper case.
+    --var name=value      Define a variable that can be used by @if, #IF and #MAP.
+                          This option may be used multiple times.
     -V, --version         Show SkoolKit version number and exit.
     -w, --no-warnings     Suppress warnings.
     -W CLASS, --writer CLASS
@@ -222,6 +224,8 @@ Configuration parameters may also be set on the command line by using the
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 6.4     | Added the ``--var`` option                                        |
++---------+-------------------------------------------------------------------+
 | 6.2     | Added the ``--show-config`` option; the ``--end`` and ``--start`` |
 |         | options accept a hexadecimal integer prefixed by '0x'             |
 +---------+-------------------------------------------------------------------+

@@ -1,4 +1,4 @@
-# Copyright 2008-2017 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2008-2018 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -39,7 +39,7 @@ def run(skoolfile, options):
         fname = skoolfile
     parser = clock(options.quiet, 'Parsed {}'.format(fname), SkoolParser, skoolfile,
                    options.case, options.base, options.asm_mode, options.warn, options.fix_mode,
-                   False, options.create_labels, True, options.start, options.end)
+                   False, options.create_labels, True, options.start, options.end, options.variables)
 
     # Write the ASM file
     cls_name = options.writer or parser.asm_writer_class
@@ -106,6 +106,8 @@ def main(args):
                        help="Start converting at this address.")
     group.add_argument('-u', '--upper', dest='case', action='store_const', const=CASE_UPPER, default=config['Case'],
                        help="Write the disassembly in upper case.")
+    group.add_argument('--var', dest='variables', metavar='name=value', action='append', default=[],
+                       help="Define a variable that can be used by @if, #IF and #MAP.\nThis option may be used multiple times.")
     group.add_argument('-V', '--version', action='version', version='SkoolKit {}'.format(VERSION),
                        help='Show SkoolKit version number and exit.')
     group.add_argument('-w', '--no-warnings', dest='warn', action='store_const', const=0, default=config['Warnings'],

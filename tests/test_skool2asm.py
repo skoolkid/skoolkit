@@ -19,7 +19,7 @@ def mock_config(name):
 
 class MockSkoolParser:
     def __init__(self, skoolfile, case, base, asm_mode, warnings, fix_mode, html,
-                 create_labels, asm_labels, min_address, max_address):
+                 create_labels, asm_labels, min_address, max_address, variables):
         global mock_skool_parser
         mock_skool_parser = self
         self.skoolfile = skoolfile
@@ -76,6 +76,7 @@ class Skool2AsmTest(SkoolKitTestCase):
         self.assertEqual(options.end, 65536)
         self.assertEqual(options.properties, [])
         self.assertEqual(options.params, [])
+        self.assertEqual(options.variables, [])
 
     @patch.object(skool2asm, 'SkoolParser', MockSkoolParser)
     @patch.object(skool2asm, 'AsmWriter', MockAsmWriter)
@@ -551,6 +552,20 @@ class Skool2AsmTest(SkoolKitTestCase):
             Warnings=1
         """
         self.assertEqual(dedent(exp_output).strip(), output.rstrip())
+
+    @patch.object(skool2asm, 'run', mock_run)
+    @patch.object(skool2asm, 'get_config', mock_config)
+    def test_option_var(self):
+        self.run_skool2asm('--var foo=1 test-var.skool')
+        options = run_args[1]
+        self.assertEqual(['foo=1'], options.variables)
+
+    @patch.object(skool2asm, 'run', mock_run)
+    @patch.object(skool2asm, 'get_config', mock_config)
+    def test_option_var_multiple(self):
+        self.run_skool2asm('--var bar=2 --var baz=3 test-var-multiple.skool')
+        options = run_args[1]
+        self.assertEqual(['bar=2', 'baz=3'], options.variables)
 
     @patch.object(skool2asm, 'AsmWriter', MockAsmWriter)
     def test_tab_property(self):

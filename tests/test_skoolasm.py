@@ -16,6 +16,7 @@ class MockSkoolParser:
         self.base = base
         self.case = case
         self.memory_map = ()
+        self.fields = {'asm': 1, 'base': base, 'case': case, 'html': 0}
 
     def get_entry(self, address):
         return None

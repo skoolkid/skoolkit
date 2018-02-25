@@ -81,8 +81,8 @@ replacement fields:
   option is used
 * ``html`` - 1 if in HTML mode, 0 otherwise
 * ``vars`` - a dictionary of variables defined by the ``--var`` option of
-  :ref:`skool2html.py`; accessing an undefined variable in this dictionary
-  yields the value '0'
+  :ref:`skool2asm.py` or :ref:`skool2html.py`; accessing an undefined variable
+  in this dictionary yields the value '0'
 
 For example::
 

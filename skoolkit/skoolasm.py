@@ -30,12 +30,7 @@ class AsmWriter:
         self.parser = parser
         self.show_warnings = self._get_int_property(properties, 'warnings', 1)
 
-        self.fields = {
-            'asm': 1,
-            'base': self.base,
-            'case': self.case,
-            'html': 0
-        }
+        self.fields = parser.fields
 
         # Build a label dictionary
         self.labels = {}
