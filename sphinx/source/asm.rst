@@ -447,17 +447,8 @@ value of an arithmetic expression. ::
 * ``true`` is processed when ``expr`` is true
 * ``false`` (if given) is processed when ``expr`` is false
 
-The following replacement fields may appear in the ``expr`` parameter:
-
-* ``asm`` - 1 if in :ref:`isubMode`, 2 if in :ref:`ssubMode`, 3 if in
-  :ref:`rsubMode`, or 0 otherwise
-* ``base`` - 10 if the ``--decimal`` option is used with :ref:`skool2asm.py`
-  or :ref:`skool2html.py`, 16 if the ``--hex`` option is used, or 0 if neither
-  option is used
-* ``case`` - 1 if the ``--lower`` option is used with :ref:`skool2asm.py`
-  or :ref:`skool2html.py`, 2 if the ``--upper`` option is used, or 0 if neither
-  option is used
-* ``html`` - 1 if in HTML mode, 0 otherwise
+See :ref:`numericParameters` for details on the operators and replacement
+fields that may be used in the ``expr`` parameter.
 
 For example::
 
@@ -465,9 +456,6 @@ For example::
 
 would process ``replace=/#hl/hl`` if in lower case mode, or ``replace=/#hl/HL``
 otherwise.
-
-See :ref:`numericParameters` for details on the operators that may be used in
-the ``expr`` parameter.
 
 The ``true`` and ``false`` parameters may be supplied in the same way as they
 are for the :ref:`if` macro. See :ref:`stringParameters` for more details.

@@ -14,6 +14,7 @@
 # You should have received a copy of the GNU General Public License along with
 # SkoolKit. If not, see <http://www.gnu.org/licenses/>.
 
+from collections import defaultdict
 import html
 import re
 
@@ -241,12 +242,10 @@ class SkoolParser:
     """Parses a skool file.
 
     :param skoolfile: The name of the skool file to parse.
-    :param case: :data:`~skoolkit.skoolparser.CASE_UPPER` to force upper case,
-                 :data:`~skoolkit.skoolparser.CASE_LOWER` to force lower case,
-                 or 0 to leave case unchanged.
-    :param base: :data:`~skoolkit.skoolparser.BASE_10` to force decimal,
-                 :data:`~skoolkit.skoolparser.BASE_16` to force hexadecimal, or
-                 0 to leave number bases unchanged.
+    :param case: 2 to force upper case, 1 to force lower case, or 0 to leave
+                 case unchanged.
+    :param base: 10 to force decimal, 16 to force hexadecimal, or 0 to leave
+                 number bases unchanged.
     :param asm_mode: 0 to ignore ASM directives, 1 to parse them in `@isub`
                      mode, 2 to parse them in `@ssub` mode, or 3 to parse them
                      in `@rsub` mode.
@@ -261,15 +260,24 @@ class SkoolParser:
     :param min_address: Ignore addresses below this one.
     :param max_address: Ignore addresses above this one.
     :param snapshot: Base snapshot to use instead of an empty one.
+    :param variables: List of 'name=value' strings defining variables that can
+                      be used by `@if`, `#IF` and `#MAP`.
     """
     def __init__(self, skoolfile, case=0, base=0, asm_mode=0, warnings=False, fix_mode=0, html=False,
-                 create_labels=False, asm_labels=True, min_address=0, max_address=65536, snapshot=None):
+                 create_labels=False, asm_labels=True, min_address=0, max_address=65536, snapshot=None,
+                 variables=()):
         self.skoolfile = skoolfile
         self.mode = Mode(case, base, asm_mode, warnings, fix_mode, html, create_labels, asm_labels)
         self.case = case
         self.base = base
-        self.fields = {'asm': asm_mode, 'base': base, 'case': case, 'html': int(html)}
-
+        self.variables = variables
+        self.fields = {
+            'asm': asm_mode,
+            'base': base,
+            'case': case,
+            'html': int(html),
+            'vars': self._get_vars()
+        }
         self.snapshot = snapshot or [0] * 65536  # 64K of Spectrum memory
         self._instructions = {}                  # address -> [Instructions]
         self._entries = {}                       # address -> SkoolEntry
@@ -299,8 +307,16 @@ class SkoolParser:
             self.mode.html,
             self.mode.create_labels,
             self.mode.asm_labels,
-            snapshot=self.snapshot[:]
+            snapshot=self.snapshot[:],
+            variables=self.variables
         )
+
+    def _get_vars(self):
+        vars_dict = defaultdict(int)
+        for name, sep, value in [v.partition('=') for v in self.variables]:
+            if sep:
+                vars_dict[name] = value
+        return vars_dict
 
     def get_entry(self, address):
         """Return the routine or data block that starts at `address`."""

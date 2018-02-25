@@ -431,6 +431,8 @@ list::
                           Use this CSS theme. This option may be used multiple
                           times.
     -u, --upper           Write the disassembly in upper case.
+    --var name=value      Define a variable that can be used by @if, #IF and #MAP.
+                          This option may be used multiple times.
     -V, --version         Show SkoolKit version number and exit.
     -w X, --write X       Write only these files, where X is one or more of:
                             d = Disassembly files   o = Other code
@@ -521,6 +523,8 @@ Configuration parameters may also be set on the command line by using the
 +---------+------------------------------------------------------------------+
 | Version | Changes                                                          |
 +=========+==================================================================+
+| 6.4     | Added the ``--var`` option                                       |
++---------+------------------------------------------------------------------+
 | 6.2     | Added the ``--show-config`` option                               |
 +---------+------------------------------------------------------------------+
 | 6.1     | Configuration is read from `skoolkit.ini` if present; added the  |

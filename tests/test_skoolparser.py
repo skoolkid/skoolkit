@@ -1773,6 +1773,20 @@ class SkoolParserTest(SkoolKitTestCase):
         entry = self._get_parser(skool, html=True).get_entry(40000)
         self.assertEqual(['#zero-1-2-THREE'], entry.details)
 
+    def test_if_directive_with_variables(self):
+        skool = """
+            @if({vars[foo]}==0)(replace=/#zero/0)
+            @if({vars[foo]}==1)(replace=/#one/1)
+            @if({vars[bar]}==2)(replace=/#two/2,replace=/#two/TWO)
+            @if({vars[baz]}==1)(replace=/#three/3,replace=/#three/THREE)
+            ; Routine at 40000
+            ;
+            ; #zero-#one-#two-#three
+            c40000 RET
+        """
+        parser = self._get_parser(skool, html=True, variables=('foo=1', 'bar=2', 'baz:1'))
+        self.assertEqual(['#zero-1-2-THREE'], parser.get_entry(40000).details)
+
     def test_if_directive_ignored_if_invalid(self):
         skool = """
             @if(x)(replace=/#zero/0)

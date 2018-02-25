@@ -75,12 +75,7 @@ class HtmlWriter:
         self.defaults.parse(StringIO(REF_FILE))
         self.file_info = file_info
 
-        self.fields = {
-            'asm': 0,
-            'base': self.base,
-            'case': self.case,
-            'html': 1
-        }
+        self.fields = skool_parser.fields
 
         colours = self._parse_colours(self.get_dictionary('Colours'))
         iw_options = self.get_dictionary('ImageWriter')

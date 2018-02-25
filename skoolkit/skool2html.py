@@ -240,7 +240,8 @@ def process_file(infile, topdir, options):
     else:
         fname = skoolfile_f
     skool_parser = clock(SkoolParser, 'Parsing {}'.format(fname), skoolfile_f, case=options.case, base=options.base,
-                         html=True, create_labels=options.create_labels, asm_labels=options.asm_labels)
+                         html=True, create_labels=options.create_labels, asm_labels=options.asm_labels,
+                         variables=options.variables)
     file_info = FileInfo(topdir, game_dir, options.new_images)
     html_writer = html_writer_class(skool_parser, ref_parser, file_info)
 
@@ -394,6 +395,8 @@ def main(args):
                        help="Use this CSS theme. This option may be used multiple\ntimes.")
     group.add_argument('-u', '--upper', dest='case', action='store_const', const=CASE_UPPER, default=config['Case'],
                        help="Write the disassembly in upper case.")
+    group.add_argument('--var', dest='variables', metavar='name=value', action='append', default=[],
+                       help="Define a variable that can be used by @if, #IF and #MAP.\nThis option may be used multiple times.")
     group.add_argument('-V', '--version', action='version',
                        version='SkoolKit {}'.format(VERSION),
                        help='Show SkoolKit version number and exit.')

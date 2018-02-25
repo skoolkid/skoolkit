@@ -54,6 +54,7 @@ class MockSkoolParser:
         self.snapshot = None
         self.entries = {}
         self.memory_map = []
+        self.fields = {}
         mock_skool_parser = self
 
     def get_entry(self, address):
@@ -159,6 +160,7 @@ class Skool2HtmlTest(SkoolKitTestCase):
         self.assertEqual(options.pages, [])
         self.assertEqual(options.output_dir, '.')
         self.assertEqual(options.params, [])
+        self.assertEqual(options.variables, [])
 
     @patch.object(skool2html, 'run', mock_run)
     def test_config_read_from_file(self):
@@ -1166,6 +1168,20 @@ class Skool2HtmlTest(SkoolKitTestCase):
             Time=0
         """
         self.assertEqual(dedent(exp_output).strip(), output.rstrip())
+
+    @patch.object(skool2html, 'run', mock_run)
+    @patch.object(skool2html, 'get_config', mock_config)
+    def test_option_var(self):
+        self.run_skool2html('--var foo=1 test-var.skool')
+        options = run_args[1]
+        self.assertEqual(['foo=1'], options.variables)
+
+    @patch.object(skool2html, 'run', mock_run)
+    @patch.object(skool2html, 'get_config', mock_config)
+    def test_option_var_multiple(self):
+        self.run_skool2html('--var bar=2 --var baz=3 test-var-multiple.skool')
+        options = run_args[1]
+        self.assertEqual(['bar=2', 'baz=3'], options.variables)
 
     @patch.object(skool2html, 'get_class', Mock(return_value=TestHtmlWriter))
     @patch.object(skool2html, 'SkoolParser', MockSkoolParser)

@@ -67,10 +67,12 @@ Parentheses and spaces are also permitted in an arithmetic expression::
 
   #IF(1 == 2 || (1 <= 2 && 2 < 3))(Yes,No)
 
-The ``expr`` parameter of the :ref:`IF` macro and the ``key`` parameter of the
-:ref:`MAP` macro also recognise some replacement fields:
+The ``expr`` parameter of the :ref:`asm-if` directive and the :ref:`IF` macro,
+and the ``key`` parameter of the :ref:`MAP` macro also recognise some
+replacement fields:
 
-* ``asm`` - 1 if in ASM mode, 0 otherwise
+* ``asm`` - 1 if in :ref:`isubMode`, 2 if in :ref:`ssubMode`, 3 if in
+  :ref:`rsubMode`, or 0 otherwise
 * ``base`` - 10 if the ``--decimal`` option is used with :ref:`skool2asm.py`
   or :ref:`skool2html.py`, 16 if the ``--hex`` option is used, or 0 if neither
   option is used
@@ -78,6 +80,9 @@ The ``expr`` parameter of the :ref:`IF` macro and the ``key`` parameter of the
   or :ref:`skool2html.py`, 2 if the ``--upper`` option is used, or 0 if neither
   option is used
 * ``html`` - 1 if in HTML mode, 0 otherwise
+* ``vars`` - a dictionary of variables defined by the ``--var`` option of
+  :ref:`skool2html.py`; accessing an undefined variable in this dictionary
+  yields the value '0'
 
 For example::
 
@@ -87,6 +92,10 @@ expands to ``hl`` if in lower case mode, or ``HL`` otherwise.
 
 Note that if a replacement field is used, the numeric parameter must be
 enclosed in parentheses.
+
+.. versionchanged:: 6.4
+   The ``asm`` replacement field indicates the exact ASM mode; added the
+   ``vars`` replacement field.
 
 .. _stringParameters:
 
