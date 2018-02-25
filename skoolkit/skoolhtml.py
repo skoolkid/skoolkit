@@ -268,12 +268,15 @@ class HtmlWriter:
                         otherwise.
         :return: The formatted string.
         """
+        if default is None:
+            tname = '{}-{}'.format(self._get_page_id(), name)
+            default = name
+        else:
+            tname = name
+        if tname not in self.templates:
+            tname = re.sub('Asm-[bcgstuw]', 'Asm', tname)
         try:
-            if default is None:
-                tname = '{}-{}'.format(self._get_page_id(), name)
-                template = self.templates.get(tname, self.templates[name])
-            else:
-                template = self.templates.get(name, self.templates[default])
+            template = self.templates.get(tname, self.templates[default])
         except KeyError as e:
             raise SkoolKitError("'{}' template does not exist".format(e.args[0]))
         fields.update(self.template_subs)
@@ -824,7 +827,8 @@ class HtmlWriter:
         subs['prev_entry'] = prev_entry_dict
         subs['next_entry'] = next_entry_dict
 
-        self.write_file(fname, self._format_page(cwd, subs, 'Asm'))
+        html = self._format_page(cwd, subs, 'Asm', footer_subs={'entry': subs['entry']})
+        self.write_file(fname, html)
 
     def _write_asm_single_page(self, map_file):
         page_id = self._get_asm_page_id(self.code_id)
@@ -910,7 +914,7 @@ class HtmlWriter:
         self.game['Logo'] = self.game['LogoImage'] = self._get_logo(cwd)
         return fname, cwd
 
-    def _format_page(self, cwd, subs, default, js=None):
+    def _format_page(self, cwd, subs, default, js=None, footer_subs=None):
         if cwd not in self.stylesheets:
             stylesheets = []
             for css_file in self.game_vars['StyleSheet'].split(';'):
@@ -933,7 +937,7 @@ class HtmlWriter:
 
         subs['m_stylesheet'] = self.stylesheets[cwd]
         subs['m_javascript'] = self.javascript[js_key]
-        subs['t_footer'] = self.format_template('footer', {})
+        subs['t_footer'] = self.format_template('footer', footer_subs or {})
         return self.format_template(self._get_page_id(), subs, default)
 
     def _get_logo(self, cwd):

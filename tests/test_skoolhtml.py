@@ -7652,6 +7652,33 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
         writer.write_asm_entries()
         self._assert_content_equal(exp_content, 'asm/32768.html')
 
+    def test_custom_asm_footer_template(self):
+        skool = """
+            ; Routine at 32768
+            c32768 RET ; That's it.
+        """
+        ref = """
+            [Template:Asm]
+            {entry[title]}
+            {disassembly}
+            {t_footer}
+
+            [Template:asm_instruction]
+            {address}: {operation} ; {comment}
+
+            [Template:Asm-footer]
+            That was the entry at {entry[location]}.
+        """
+        exp_content = """
+            Routine at 32768
+            32768: RET ; That's it.
+            That was the entry at 32768.
+        """
+
+        writer = self._get_writer(ref=ref, skool=skool, asm_labels=True)
+        writer.write_asm_entries()
+        self._assert_content_equal(exp_content, 'asm/32768.html')
+
     def test_custom_asm_c_page_with_custom_subtemplates(self):
         skool = """
             ; Routine at 32768
@@ -7681,6 +7708,48 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
             {address}: {operation} ; {comment}
 
             [Template:Asm-c-reg]
+            {reg}
+        """
+        exp_content = """
+            Routine at 32768
+            Do stuff.
+            HL register: 0
+            32768: XOR A ; A=0
+        """
+
+        writer = self._get_writer(ref=ref, skool=skool)
+        writer.write_asm_entries()
+        self._assert_content_equal(exp_content, 'asm/32768.html')
+
+    def test_custom_asm_page_with_custom_subtemplates(self):
+        skool = """
+            ; Routine at 32768
+            ;
+            ; Do stuff.
+            ;
+            ; HL 0
+            c32768 XOR A  ; #REGa=0
+        """
+        ref = """
+            [Template:Asm]
+            {entry[title]}
+            {entry[description]}
+            {registers_input}
+            {disassembly}
+
+            [Template:Asm-asm_register]
+            {name} register: {description}
+
+            [Template:Asm-asm_comment]
+            {m_paragraph}
+
+            [Template:Asm-paragraph]
+            {paragraph}
+
+            [Template:Asm-asm_instruction]
+            {address}: {operation} ; {comment}
+
+            [Template:Asm-reg]
             {reg}
         """
         exp_content = """
@@ -7726,6 +7795,54 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
             {address}: {operation} ; {comment}
 
             [Template:{}-Asm-c-reg]
+            {reg}
+        """.replace('{}', code_id)
+        exp_content = """
+            Routine at 32768
+            Do stuff.
+            HL register: 0
+            32768: LD B,A ; B=A
+        """
+
+        main_writer = self._get_writer(ref=ref, skool=other_skool)
+        oc_writer = main_writer.clone(main_writer.parser, code_id)
+        oc_writer.write_file = self._mock_write_file
+        asm_path = map_path = 'other'
+        oc_writer.write_entries(asm_path, map_path)
+        self._assert_content_equal(exp_content, '{}/32768.html'.format(asm_path))
+
+    def test_custom_other_code_asm_page_with_custom_subtemplates(self):
+        code_id = 'Stuff'
+        other_skool = """
+            ; Routine at 32768
+            ;
+            ; Do stuff.
+            ;
+            ; HL 0
+            c32768 LD B,A  ; #REGb=#REGa
+        """
+        ref = """
+            [OtherCode:{}]
+
+            [Template:{}-Asm]
+            {entry[title]}
+            {entry[description]}
+            {registers_input}
+            {disassembly}
+
+            [Template:{}-Asm-asm_register]
+            {name} register: {description}
+
+            [Template:{}-Asm-asm_comment]
+            {m_paragraph}
+
+            [Template:{}-Asm-paragraph]
+            {paragraph}
+
+            [Template:{}-Asm-asm_instruction]
+            {address}: {operation} ; {comment}
+
+            [Template:{}-Asm-reg]
             {reg}
         """.replace('{}', code_id)
         exp_content = """

@@ -331,9 +331,19 @@ footer
 The ``footer`` template is the subtemplate used by the full-page templates to
 format the ``<footer>`` element of a page.
 
+When this template is part of a disassembly page, the following additional
+identifier is available:
+
+* ``entry`` - a dictionary of parameters corresponding to the current memory
+  map entry (see :ref:`t_Asm`)
+
 To see the default ``footer`` template, run the following command::
 
   $ skool2html.py -r Template:footer
+
+.. versionchanged:: 6.4
+   The ``entry`` identifier is available when the template is part of a
+   disassembly page.
 
 .. versionadded:: 5.0
 
@@ -722,14 +732,14 @@ SkoolKit uses the ``RoutinesMap`` template if it exists, or the stock
 :ref:`t_MemoryMap` template otherwise.
 
 +-------------------------------+----------------------------+----------------------+
-| Page type                     | Preferred template         | Stock template       |
+| Page type                     | Preferred template(s)      | Stock template       |
 +===============================+============================+======================+
 | Home (index)                  | ``GameIndex``              | :ref:`t_GameIndex`   |
 +-------------------------------+----------------------------+----------------------+
 | :ref:`Other code <otherCode>` | ``CodeID-Index``           | :ref:`t_MemoryMap`   |
 | index                         |                            |                      |
 +-------------------------------+----------------------------+----------------------+
-| Routine/data block            | ``[CodeID-]Asm-*``         | :ref:`t_Asm`         |
+| Routine/data block            | ``[CodeID-]Asm[-*]``       | :ref:`t_Asm`         |
 +-------------------------------+----------------------------+----------------------+
 | Disassembly (single page)     | ``[CodeID-]AsmSinglePage`` | :ref:`t_AsmAllInOne` |
 +-------------------------------+----------------------------+----------------------+
@@ -748,13 +758,13 @@ the footer of the ``Changelog`` page, SkoolKit uses the ``Changelog-footer``
 template if it exists, or the stock :ref:`t_footer` template otherwise.
 
 +-------------------------------+--------------------------------------+------------------------------+
-| Element type                  | Preferred template                   | Stock subtemplate            |
+| Element type                  | Preferred template(s)                | Stock subtemplate            |
 +===============================+======================================+==============================+
-| Registers table               | ``[CodeID-]Asm-*-asm_register``      | :ref:`t_asm_register`        |
+| Registers table               | ``[CodeID-]Asm[-*]-asm_register``    | :ref:`t_asm_register`        |
 +-------------------------------+--------------------------------------+------------------------------+
-| Routine/data block comment    | ``[CodeID-]Asm-*-asm_comment``       | :ref:`t_asm_comment`         |
+| Routine/data block comment    | ``[CodeID-]Asm[-*]-asm_comment``     | :ref:`t_asm_comment`         |
 +-------------------------------+--------------------------------------+------------------------------+
-| Instruction                   | ``[CodeID-]Asm-*-asm_instruction``   | :ref:`t_asm_instruction`     |
+| Instruction                   | ``[CodeID-]Asm[-*]-asm_instruction`` | :ref:`t_asm_instruction`     |
 +-------------------------------+--------------------------------------+------------------------------+
 | Single-page disassembly       | ``[CodeID-]AsmSinglePage-asm_entry`` | :ref:`t_asm_entry`           |
 | routine/data block            |                                      |                              |

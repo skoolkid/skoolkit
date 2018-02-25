@@ -15,6 +15,8 @@ Changelog
   (:ref:`ssubMode`), 3 (:ref:`rsubMode`), or 0 (none)
 * The :ref:`isub`, :ref:`ssub`, :ref:`rsub`, :ref:`ofix`, :ref:`bfix` and
   :ref:`rfix` directives can replace comments as well as instructions
+* Added the ``entry`` identifier to the :ref:`t_footer` template when it is
+  part of a disassembly page
 * In ASM mode, a :ref:`list` or :ref:`table` macro can now be used in an
   instruction-level comment and as a parameter of another macro
 * In ASM mode, the :ref:`list` macro produces unindented items when the bullet
