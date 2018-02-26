@@ -377,21 +377,8 @@ For example::
 will convert the file `game.skool` into a bunch of HTML files. If any files
 named `game*.ref` (e.g. `game.ref`, `game-bugs.ref`, `game-pokes.ref` and so
 on) also exist, they will be used to provide further information to the
-conversion process.
-
-`skool2html.py` can operate directly on ref files, too. For example::
-
-  $ skool2html.py game.ref
-
-In this case, the skool file declared in the :ref:`ref-Config` section will be
-used; if no skool file is declared, `game.skool` will be used if it exists.  In
-addition, any existing files besides `game.ref` that are named `game*.ref`
-(e.g. `game-bugs.ref`, `game-pokes.ref` and so on) will also be used, along
-with any extra files named in the ``RefFiles`` parameter in the
-:ref:`ref-Config` section.
-
-If an input file's name ends with '.ref', it will be treated as a ref file;
-otherwise it will be treated as a skool file.
+conversion process, along with any extra files named in the ``RefFiles``
+parameter in the :ref:`ref-Config` section.
 
 `skool2html.py` supports several options; run it with no arguments to see a
 list::
@@ -446,11 +433,16 @@ list::
                           Specify the HTML writer class to use; shorthand for
                           '--config Config/HtmlWriterClass=CLASS'.
 
-`skool2html.py` searches the following directories for skool files, ref files,
-CSS files, JavaScript files, font files, and files listed in the
-:ref:`resources` section of the ref file:
+.. note::
+   Giving a ref file as the first positional argument is deprecated since
+   version 6.4. In SkoolKit 7.0, `skool2html.py` will require the skool file as
+   the first positional argument.
 
-* The directory that contains the skool or ref file named on the command line
+`skool2html.py` searches the following directories for ref files, CSS files,
+JavaScript files, font files, and files listed in the :ref:`resources` section
+of the ref file:
+
+* The directory that contains the skool file named on the command line
 * The current working directory
 * `./resources`
 * `~/.skoolkit`
@@ -469,7 +461,7 @@ CSS files to use thus::
 
 then::
 
-  $ skool2html.py -T dark -T wide game.ref
+  $ skool2html.py -T dark -T wide game.skool
 
 will use the following CSS files, if they exist, in the order listed:
 
