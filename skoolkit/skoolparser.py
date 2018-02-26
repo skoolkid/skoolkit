@@ -275,6 +275,7 @@ class SkoolParser:
             'asm': asm_mode,
             'base': base,
             'case': case,
+            'fix': fix_mode,
             'html': int(html),
             'vars': self._get_vars()
         }

@@ -1759,6 +1759,21 @@ class SkoolParserTest(SkoolKitTestCase):
         entry = self._get_parser(skool, case=1).get_entry(40000)
         self.assertEqual(['#zero-1-2-THREE'], entry.details)
 
+    def test_if_directive_fix(self):
+        skool = """
+            @start
+            @if({fix}==0)(replace=/#zero/0)
+            @if({fix}==1)(replace=/#one/1)
+            @if({fix}==1)(replace=/#two/2,replace=/#two/TWO)
+            @if({fix}==2)(replace=/#three/3,replace=/#three/THREE)
+            ; Routine at 40000
+            ;
+            ; #zero-#one-#two-#three
+            c40000 RET
+        """
+        entry = self._get_parser(skool, fix_mode=1).get_entry(40000)
+        self.assertEqual(['#zero-1-2-THREE'], entry.details)
+
     def test_if_directive_html(self):
         skool = """
             @if({html}==0)(replace=/#zero/0)

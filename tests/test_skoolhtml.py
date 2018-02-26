@@ -171,7 +171,7 @@ class MockSkoolParser:
         self.base = base
         self.case = case
         self.skoolfile = ''
-        self.fields = {'asm': 0, 'base': base, 'case': case, 'html': 1}
+        self.fields = {'asm': 0, 'base': base, 'case': case, 'fix': 0, 'html': 1}
 
     def get_entry(self, address):
         return self.entries.get(address)
@@ -986,6 +986,10 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         writer = self._get_writer()
         self.assertEqual(writer.expand('#IF({asm})(FAIL,PASS)'), 'PASS')
 
+    def test_macro_if_fix(self):
+        writer = self._get_writer()
+        self.assertEqual(writer.expand('#IF({fix})(FAIL,PASS)'), 'PASS')
+
     def test_macro_if_html(self):
         writer = self._get_writer()
         self.assertEqual(writer.expand('#IF({html})(PASS,FAIL)'), 'PASS')
@@ -1180,6 +1184,10 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
     def test_macro_map_asm(self):
         writer = self._get_writer()
         self.assertEqual(writer.expand('#MAP({asm})(FAIL,0:PASS)'), 'PASS')
+
+    def test_macro_map_fix(self):
+        writer = self._get_writer()
+        self.assertEqual(writer.expand('#MAP({fix})(FAIL,0:PASS)'), 'PASS')
 
     def test_macro_map_html(self):
         writer = self._get_writer()

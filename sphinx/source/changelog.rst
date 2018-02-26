@@ -13,6 +13,9 @@ Changelog
 * The ``asm`` replacement field available to the :ref:`IF` and :ref:`MAP`
   macros now indicates the exact ASM mode: 1 (:ref:`isubMode`), 2
   (:ref:`ssubMode`), 3 (:ref:`rsubMode`), or 0 (none)
+* The :ref:`IF` and :ref:`MAP` macros can now use the ``fix`` replacement
+  field, which indicates the fix mode: 1 (:ref:`ofixMode`), 2
+  (:ref:`bfixMode`), 3 (:ref:`rfixMode`), or 0 (none)
 * The :ref:`isub`, :ref:`ssub`, :ref:`rsub`, :ref:`ofix`, :ref:`bfix` and
   :ref:`rfix` directives can replace comments as well as instructions
 * Added the ``entry`` identifier to the :ref:`t_footer` template when it is

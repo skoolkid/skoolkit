@@ -79,6 +79,8 @@ replacement fields:
 * ``case`` - 1 if the ``--lower`` option is used with :ref:`skool2asm.py`
   or :ref:`skool2html.py`, 2 if the ``--upper`` option is used, or 0 if neither
   option is used
+* ``fix`` - 1 if in :ref:`ofixMode`, 2 if in :ref:`bfixMode`, 3 if in
+  :ref:`rfixMode`, or 0 otherwise
 * ``html`` - 1 if in HTML mode, 0 otherwise
 * ``vars`` - a dictionary of variables defined by the ``--var`` option of
   :ref:`skool2asm.py` or :ref:`skool2html.py`; accessing an undefined variable
@@ -95,7 +97,7 @@ enclosed in parentheses.
 
 .. versionchanged:: 6.4
    The ``asm`` replacement field indicates the exact ASM mode; added the
-   ``vars`` replacement field.
+   ``fix`` and ``vars`` replacement fields.
 
 .. _stringParameters:
 
