@@ -16,10 +16,9 @@
 
 import re
 
-from skoolkit import skoolmacro, SkoolKitError, SkoolParsingError, warn, write_text, wrap
-from skoolkit.skoolmacro import MacroParsingError, UnsupportedMacroError
-from skoolkit.skoolparser import (TableParser, ListParser, CASE_LOWER,
-                                  TABLE_MARKER, TABLE_END_MARKER, LIST_MARKER, LIST_END_MARKER)
+from skoolkit import CASE_LOWER, skoolmacro, SkoolKitError, SkoolParsingError, warn, write_text, wrap
+from skoolkit.skoolparser import (TableParser, ListParser, TABLE_MARKER, TABLE_END_MARKER,
+                                  LIST_MARKER, LIST_END_MARKER)
 
 UDGTABLE_MARKER = '#UDGTABLE'
 
@@ -196,13 +195,10 @@ class AsmWriter:
     def expand_d(self, text, index):
         return skoolmacro.parse_d(text, index, self.parser)
 
-    def expand_eval(self, text, index):
-        return skoolmacro.parse_eval(text, index, self.lower)
-
     def expand_font(self, text, index):
         if self.handle_unsupported_macros:
             return skoolmacro.parse_font(text, index)[0], ''
-        raise UnsupportedMacroError()
+        raise skoolmacro.UnsupportedMacroError()
 
     def expand_for(self, text, index):
         return skoolmacro.parse_for(text, index)
@@ -224,7 +220,7 @@ class AsmWriter:
     def expand_link(self, text, index):
         end, page_id, anchor, link_text = skoolmacro.parse_link(text, index)
         if not link_text:
-            raise MacroParsingError("Blank link text: #LINK{}".format(text[index:end]))
+            raise skoolmacro.MacroParsingError("Blank link text: #LINK{}".format(text[index:end]))
         return end, link_text
 
     def expand_list(self, text, index):
@@ -267,7 +263,7 @@ class AsmWriter:
     def expand_scr(self, text, index):
         if self.handle_unsupported_macros:
             return skoolmacro.parse_scr(text, index)[0], ''
-        raise UnsupportedMacroError()
+        raise skoolmacro.UnsupportedMacroError()
 
     def expand_space(self, text, index):
         return skoolmacro.parse_space(text, index, ' ')
@@ -278,7 +274,7 @@ class AsmWriter:
     def expand_udg(self, text, index):
         if self.handle_unsupported_macros:
             return skoolmacro.parse_udg(text, index)[0], ''
-        raise UnsupportedMacroError()
+        raise skoolmacro.UnsupportedMacroError()
 
     def expand_udgarray(self, text, index):
         if self.handle_unsupported_macros:
@@ -287,7 +283,7 @@ class AsmWriter:
             else:
                 end = skoolmacro.parse_udgarray(text, index)[0]
             return end, ''
-        raise UnsupportedMacroError()
+        raise skoolmacro.UnsupportedMacroError()
 
     def expand_udgtable(self, text, index):
         return self._ignore_block(text, index, UDGTABLE_MARKER, TABLE_END_MARKER, '')

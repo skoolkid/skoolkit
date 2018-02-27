@@ -27,6 +27,9 @@ PACKAGE_DIR = os.path.dirname(__file__)
 BASE_10 = 10
 BASE_16 = 16
 
+CASE_LOWER = 1
+CASE_UPPER = 2
+
 WRAPPER = textwrap.TextWrapper(break_long_words=False, break_on_hyphens=False)
 
 def error(msg):

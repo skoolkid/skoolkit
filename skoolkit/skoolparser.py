@@ -18,7 +18,8 @@ from collections import defaultdict
 import html
 import re
 
-from skoolkit import BASE_10, BASE_16, SkoolParsingError, warn, wrap, get_int_param, parse_int, open_file
+from skoolkit import (BASE_10, BASE_16, CASE_LOWER, CASE_UPPER, SkoolParsingError,
+                      warn, wrap, get_int_param, parse_int, open_file)
 from skoolkit.skoolmacro import INTEGER, ClosingBracketError, MacroParsingError, parse_brackets, parse_if, parse_strings
 from skoolkit.textutils import partition_unquoted, split_quoted, split_unquoted
 from skoolkit.z80 import assemble, convert_case, get_size, split_operation
@@ -31,11 +32,6 @@ COLUMN_WRAP_MARKER = ':w'
 
 LIST_MARKER = '#LIST'
 LIST_END_MARKER = 'LIST#'
-
-#: Force upper case.
-CASE_UPPER = 2
-#: Force lower case.
-CASE_LOWER = 1
 
 def _replace_nums(operation, hex_fmt=None, skip_bit=False, prefix=None):
     elements = re.split('(?<=[\s,(%*/+-])(\$[0-9A-Fa-f]+|\d+)', (prefix or '(') + operation)

@@ -15,11 +15,13 @@
 # SkoolKit. If not, see <http://www.gnu.org/licenses/>.
 
 from collections import defaultdict
+from functools import partial
 import html
 import inspect
 import re
 
-from skoolkit import BASE_10, BASE_16, VERSION, SkoolKitError, SkoolParsingError, get_int_param
+from skoolkit import (BASE_10, BASE_16, CASE_LOWER, VERSION, SkoolKitError,
+                      SkoolParsingError, get_int_param)
 from skoolkit.graphics import Udg
 
 _map_cache = {}
@@ -429,6 +431,7 @@ def get_params(param_string, num=0, defaults=(), names=(), safe=True):
 
 def get_macros(writer):
     macros = {
+        '#EVAL': partial(parse_eval, writer.case == CASE_LOWER),
         '#RAW': parse_raw,
         '#VERSION': parse_version
     }
@@ -534,7 +537,7 @@ def parse_d(text, index, entry_holder):
         raise MacroParsingError('Entry at {} has no description'.format(addr))
     return end, entry.description
 
-def parse_eval(text, index, lower):
+def parse_eval(lower, text, index, *cwd):
     # #EVALexpr[,base,width]
     end, value, base, width = parse_ints(text, index, 3, (10, 1))
     if base == 2:

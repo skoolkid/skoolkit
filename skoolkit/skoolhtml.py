@@ -26,13 +26,12 @@ from collections import defaultdict
 import re
 from io import StringIO
 
-from skoolkit import skoolmacro, SkoolKitError, warn, parse_int, format_template
+from skoolkit import skoolmacro, SkoolKitError, warn, parse_int, format_template, CASE_LOWER
 from skoolkit.defaults import REF_FILE
 from skoolkit.graphics import Frame, adjust_udgs, build_udg, font_udgs, scr_udgs
 from skoolkit.image import ImageWriter
 from skoolkit.refparser import RefParser
-from skoolkit.skoolmacro import MacroParsingError, get_macros, expand_macros
-from skoolkit.skoolparser import TableParser, ListParser, CASE_LOWER
+from skoolkit.skoolparser import TableParser, ListParser
 
 #: The ID of the main disassembly.
 MAIN_CODE_ID = 'main'
@@ -92,7 +91,7 @@ class HtmlWriter:
 
         self.table_parser = TableParser()
         self.list_parser = ListParser()
-        self.macros = get_macros(self)
+        self.macros = skoolmacro.get_macros(self)
 
         self.game_vars = self._expand_values('Game', 'Logo')
         self.asm_anchor_template = self.game_vars['AddressAnchor']
@@ -1142,9 +1141,6 @@ class HtmlWriter:
     def expand_d(self, text, index, cwd):
         return skoolmacro.parse_d(text, index, self)
 
-    def expand_eval(self, text, index, cwd):
-        return skoolmacro.parse_eval(text, index, self.case == CASE_LOWER)
-
     def expand_font(self, text, index, cwd):
         end, crop_rect, fname, frame, alt, params = skoolmacro.parse_font(text, index)
         message, addr, chars, attr, scale = params
@@ -1175,7 +1171,7 @@ class HtmlWriter:
     def expand_link(self, text, index, cwd):
         end, page_id, anchor, link_text = skoolmacro.parse_link(text, index)
         if page_id not in self.paths:
-            raise MacroParsingError("Unknown page ID: {}".format(page_id))
+            raise skoolmacro.MacroParsingError("Unknown page ID: {}".format(page_id))
         if link_text == '':
             if anchor and page_id in self.page_ids and 'entries' in self.pages[page_id]:
                 for item_anchor, title, paragraphs in self.pages[page_id]['entries']:
@@ -1223,7 +1219,7 @@ class HtmlWriter:
             code_path = self.code_path
         container = self.parser.get_container(address, code_id)
         if (not code_id or code_id == self.code_id) and not container:
-            raise MacroParsingError('Could not find instruction at {}'.format(addr_str))
+            raise skoolmacro.MacroParsingError('Could not find instruction at {}'.format(addr_str))
         if self.asm_single_page_template:
             href = self._asm_relpath(cwd, address, code_id)
         else:
@@ -1297,7 +1293,7 @@ class HtmlWriter:
         working directory, which is required by macros that create images or
         hyperlinks.
         """
-        return expand_macros(self, text, cwd)
+        return skoolmacro.expand_macros(self, text, cwd)
 
 class FileInfo:
     """Utility class for file-related operations.

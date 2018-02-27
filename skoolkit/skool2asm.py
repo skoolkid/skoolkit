@@ -18,10 +18,11 @@ import argparse
 import os.path
 import time
 
-from skoolkit import info, get_class, integer, show_package_dir, VERSION, BASE_10, BASE_16
+from skoolkit import (info, get_class, integer, show_package_dir, VERSION,
+                      BASE_10, BASE_16, CASE_LOWER, CASE_UPPER)
 from skoolkit.config import get_config, show_config, update_options
 from skoolkit.skoolasm import AsmWriter
-from skoolkit.skoolparser import SkoolParser, CASE_LOWER, CASE_UPPER
+from skoolkit.skoolparser import SkoolParser
 
 def clock(quiet, prefix, operation, *args, **kwargs):
     go = time.time()

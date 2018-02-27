@@ -24,12 +24,12 @@ import argparse
 from io import StringIO
 
 from skoolkit import (defaults, SkoolKitError, find_file, show_package_dir,
-                      write, write_line, get_class, normpath,
-                      PACKAGE_DIR, VERSION, BASE_10, BASE_16)
+                      write, write_line, get_class, normpath, PACKAGE_DIR,
+                      VERSION, BASE_10, BASE_16, CASE_UPPER, CASE_LOWER)
 from skoolkit.config import get_config, show_config, update_options
 from skoolkit.refparser import RefParser
 from skoolkit.skoolhtml import FileInfo
-from skoolkit.skoolparser import SkoolParser, CASE_UPPER, CASE_LOWER
+from skoolkit.skoolparser import SkoolParser
 
 SEARCH_DIRS = (
     '',
