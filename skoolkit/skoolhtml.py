@@ -1148,9 +1148,6 @@ class HtmlWriter:
         frames = [Frame(udgs, scale, 0, *crop_rect, name=frame)]
         return end, self.handle_image(frames, fname, cwd, alt, 'FontImagePath')
 
-    def expand_for(self, text, index, cwd):
-        return skoolmacro.parse_for(text, index)
-
     def expand_foreach(self, text, index, cwd):
         return skoolmacro.parse_foreach(text, index, self)
 

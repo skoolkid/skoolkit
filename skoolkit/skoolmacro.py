@@ -432,6 +432,7 @@ def get_params(param_string, num=0, defaults=(), names=(), safe=True):
 def get_macros(writer):
     macros = {
         '#EVAL': partial(parse_eval, writer.case == CASE_LOWER),
+        '#FOR': parse_for,
         '#RAW': parse_raw,
         '#VERSION': parse_version
     }
@@ -567,7 +568,7 @@ def parse_font(text, index=0):
     params.insert(0, message)
     return end, crop_rect, fname, frame, alt, params
 
-def parse_for(text, index):
+def parse_for(text, index, *cwd):
     # #FORstart,stop[,step](var,string[,sep,fsep])
     end, start, stop, step = parse_ints(text, index, 3, (1,))
     try:
