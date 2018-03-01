@@ -594,10 +594,11 @@ class CommonSkoolMacroTest:
 
         self._assert_error(writer, '#IF', "No valid expression found: '#IF'", prefix)
         self._assert_error(writer, '#IFx', "No valid expression found: '#IFx'", prefix)
+        self._assert_error(writer, '#IF({asm)(1,0)', "Invalid expression: ({asm)", prefix)
         self._assert_error(writer, '#IF(0)', "No output strings: (0)", prefix)
         self._assert_error(writer, '#IF(0)(true,false,other)', "Too many output strings (expected 2): (0)(true,false,other)", prefix)
         self._assert_error(writer, '#IF1(true,false', "No closing bracket: (true,false", prefix)
-        self._assert_error(writer, '#IF({vase})(true,false)', "Unrecognised field: vase", prefix)
+        self._assert_error(writer, '#IF({vase})(true,false)', "Unrecognised field 'vase': ({vase})", prefix)
 
     def test_macro_include_invalid(self):
         writer = self._get_writer()
@@ -710,11 +711,12 @@ class CommonSkoolMacroTest:
 
         self._assert_error(writer, '#MAP', "No valid expression found: '#MAP'", prefix)
         self._assert_error(writer, '#MAPq', "No valid expression found: '#MAPq'", prefix)
+        self._assert_error(writer, '#MAP({html)(0)', "Invalid expression: ({html)", prefix)
         self._assert_error(writer, '#MAP0', "No mappings provided: 0", prefix)
         self._assert_error(writer, '#MAP0 ()', "No mappings provided: 0", prefix)
         self._assert_error(writer, '#MAP0(1,2:3', "No closing bracket: (1,2:3", prefix)
         self._assert_error(writer, '#MAP0(1,x1:3)', "Invalid key (x1): (1,x1:3)", prefix)
-        self._assert_error(writer, '#MAP({ease})(0)', "Unrecognised field: ease", prefix)
+        self._assert_error(writer, '#MAP({ease})(0)', "Unrecognised field 'ease': ({ease})", prefix)
 
     def test_macro_n_decimal(self):
         for base in (None, BASE_10):

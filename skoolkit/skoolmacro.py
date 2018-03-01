@@ -119,7 +119,12 @@ def parse_ints(text, index=0, num=0, defaults=(), names=(), fields=None):
         if _writer:
             params = _writer.expand(params, *_cwd)
         if fields:
-            params = params.format(**fields)
+            try:
+                params = params.format(**fields)
+            except KeyError as e:
+                raise InvalidParameterError("Unrecognised field '{}': {}".format(e.args[0], text[index:end]))
+            except ValueError:
+                raise InvalidParameterError('Invalid expression: {}'.format(text[index:end]))
         return [end] + get_params(params, num, defaults, names, False)
     if names:
         match = RE_NAMED_PARAMS.match(text, index)
@@ -626,9 +631,7 @@ def parse_if(text, index, fields):
     # #IFexpr(true[,false])
     try:
         end, value = parse_ints(text, index, 1, fields=fields)
-    except KeyError as e:
-        raise InvalidParameterError('Unrecognised field: {}'.format(e.args[0]))
-    except MacroParsingError:
+    except MissingParameterError:
         raise MacroParsingError("No valid expression found: '#IF{}'".format(text[index:]))
     try:
         end, (s_true, s_false) = parse_strings(text, end, 2, ('',))
@@ -675,9 +678,7 @@ def parse_map(text, index, fields):
     # #MAPvalue(default[,k1:v1,k2:v2...])
     try:
         args_index, value = parse_ints(text, index, 1, fields=fields)
-    except KeyError as e:
-        raise InvalidParameterError('Unrecognised field: {}'.format(e.args[0]))
-    except MacroParsingError:
+    except MissingParameterError:
         raise MacroParsingError("No valid expression found: '#MAP{}'".format(text[index:]))
     try:
         end, args = parse_strings(text, args_index)
