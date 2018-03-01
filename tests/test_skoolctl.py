@@ -1137,6 +1137,22 @@ class CtlWriterTest(SkoolKitTestCase):
         """
         self._test_ctl(skool, exp_ctl)
 
+    def test_if_directives(self):
+        skool = """
+            @if({base}==16)(replace=/#base/16)
+            ; Routine
+            c32768 LD A,B
+            @if({case}==1)(replace=/#case/lower)
+             32769 RET
+        """
+        exp_ctl = """
+            @ 32768 if({base}==16)(replace=/#base/16)
+            c 32768 Routine
+            @ 32769 if({case}==1)(replace=/#case/lower)
+            i 32770
+        """
+        self._test_ctl(skool, exp_ctl)
+
     def test_org_directives(self):
         skool = """
             @org=32768
