@@ -2485,9 +2485,8 @@ class SkoolParserTest(SkoolKitTestCase):
             c30000 JR 30001
         """
         self._get_parser(skool, asm_mode=2, warnings=True)
-        warnings = self.err.getvalue().split('\n')[:-1]
-        self.assertEqual(len(warnings), 1)
-        self.assertEqual(warnings[0], 'WARNING: Unreplaced operand: 30000 JR 30001')
+        warnings = self.err.getvalue()
+        self.assertEqual(warnings, 'WARNING: Unreplaced operand: 30000 JR 30001\n')
 
     def test_no_warning_for_operands_outside_disassembly_address_range(self):
         skool = """
@@ -2496,8 +2495,8 @@ class SkoolParserTest(SkoolKitTestCase):
              30002 LD HL,(30005)
         """
         self._get_parser(skool, asm_mode=2, warnings=True)
-        warnings = self.err.getvalue().split('\n')[:-1]
-        self.assertEqual([], warnings)
+        warnings = self.err.getvalue()
+        self.assertEqual(warnings, '')
 
     def test_no_warning_for_remote_entry_address_operand_inside_disassembly_address_range(self):
         skool = """
@@ -2507,8 +2506,18 @@ class SkoolParserTest(SkoolKitTestCase):
             r30001 save
         """
         self._get_parser(skool, asm_mode=2, warnings=True)
-        warnings = self.err.getvalue().split('\n')[:-1]
-        self.assertEqual([], warnings)
+        warnings = self.err.getvalue()
+        self.assertEqual(warnings, '')
+
+    def test_no_warning_when_end_address_cannot_be_calculated(self):
+        skool = """
+            @start
+            c30000 LD BC,30004
+             30003 DEFB 0,,1   ; Cannot calculate end address from faulty DEFB
+        """
+        self._get_parser(skool, asm_mode=2, warnings=True)
+        warnings = self.err.getvalue()
+        self.assertEqual(warnings, '')
 
     def test_address_strings_in_warnings(self):
         skool = """
@@ -2534,8 +2543,8 @@ class SkoolParserTest(SkoolKitTestCase):
             c30000 JR 30001 ; This would normally trigger an unreplaced operand warning
         """
         self._get_parser(skool, asm_mode=2, warnings=False)
-        warnings = self.err.getvalue().split('\n')[:-1]
-        self.assertEqual(len(warnings), 0)
+        warnings = self.err.getvalue()
+        self.assertEqual(warnings, '')
 
     def test_label_substitution_for_address_operands(self):
         skool = """

@@ -491,15 +491,12 @@ def _assemble(operation, address):
             return _assemble_defw(items)
 
     parts = split_operation(operation, True)
-    try:
-        a = MNEMONICS[parts[0]]
-        if isinstance(a, tuple):
-            if len(parts) == 1:
-                return a
-            return
-        return a(address, *parts[1:])
-    except:
+    a = MNEMONICS[parts[0]]
+    if isinstance(a, tuple):
+        if len(parts) == 1:
+            return a
         return
+    return a(address, *parts[1:])
 
 def split_operation(operation, tidy=False):
     if tidy:
@@ -514,4 +511,7 @@ def get_size(operation, address):
     return len(assemble(operation, address))
 
 def assemble(operation, address=None):
-    return _assemble(operation, address) or ()
+    try:
+        return _assemble(operation, address) or ()
+    except:
+        return ()
