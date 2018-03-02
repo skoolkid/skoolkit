@@ -907,6 +907,7 @@ class HtmlWriter:
             fname = self.paths[page_id]
         cwd = os.path.dirname(fname)
         self.skoolkit['page_id'] = page_id
+        self.skoolkit['path'] = fname
         self.skoolkit['index_href'] = self.relpath(cwd, self.paths[P_GAME_INDEX])
         self.skoolkit['title'] = self.expand(self.titles[page_id], cwd)
         self.skoolkit['page_header'] = self.expand(self.page_headers[page_id], cwd)

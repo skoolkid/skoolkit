@@ -7230,6 +7230,22 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
         writer.write_page(page_id)
         self._assert_files_equal('{}.html'.format(page_id), subs)
 
+    def test_page_using_skoolkit_path(self):
+        page_id = 'Custom'
+        path = 'pages/mypage.html'
+        ref = """
+            [Page:{0}]
+            PageContent=
+            [Template:{0}]
+            This page is at {{SkoolKit[path]}}.
+            [Paths]
+            {0}={1}
+        """.format(page_id, path)
+
+        self._get_writer(ref=ref, skool='').write_page(page_id)
+        exp_content = 'This page is at {}.'.format(path)
+        self._assert_content_equal(exp_content, path)
+
     def test_box_page_with_custom_page_template(self):
         page_id = 'MyCustomBoxPage'
         ref = """

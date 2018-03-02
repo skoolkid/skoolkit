@@ -20,6 +20,7 @@ Changelog
   :ref:`rfix` directives can replace comments as well as instructions
 * Added the ``entry`` identifier to the :ref:`t_footer` template when it is
   part of a disassembly page
+* Added ``path`` to the ``SkoolKit`` dictionary in :ref:`htmlTemplates`
 * In ASM mode, a :ref:`list` or :ref:`table` macro can now be used in an
   instruction-level comment and as a parameter of another macro
 * In ASM mode, the :ref:`list` macro produces unindented items when the bullet

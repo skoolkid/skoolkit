@@ -20,6 +20,8 @@ The parameters in the ``SkoolKit`` dictionary are:
 * ``page_header`` - the page header text (as defined in the :ref:`pageHeaders`
   section)
 * ``page_id`` - the page ID (e.g. ``GameIndex``, ``MemoryMap``)
+* ``path`` - the page's filename, including the full path relative to the root
+  of the disassembly
 * ``title`` - the title of the page (as defined in the :ref:`titles` section)
 
 The parameters in a dictionary are accessed using the ``[param]`` notation;
@@ -35,6 +37,9 @@ are available in every full-page template:
 * ``m_stylesheet`` - replaced by one or more copies of the :ref:`t_stylesheet`
   subtemplate
 * ``t_footer`` - replaced by a copy of the :ref:`t_footer` subtemplate
+
+.. versionchanged:: 6.4
+   Added ``path`` to the ``SkoolKit`` dictionary.
 
 .. _t_Asm:
 
