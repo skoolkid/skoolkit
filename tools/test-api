@@ -14,7 +14,7 @@ write_skool() {
 @ignoreua
 ; Test the timestamp() method: #CALL:timestamp()
 ; .
-; Test the TIMESTAMP macro: #TIMESTAMP
+; Test the #RAW(#TIMESTAMP) macro: #TIMESTAMP
 ; .
 ; Test the snapshot attribute: the word at 32768 is #WORD32768
 ; .
@@ -86,8 +86,8 @@ class GameHtmlWriter(HtmlWriter):
     def expand_sprite(self, text, index, cwd):
         end, crop_rect, fname, frame, alt, (attr,) = parse_image_macro(text, index, names=['attr'])
         udgs = [[Udg(attr, self.snapshot[32768:32776])]] * 2
-        frames = [Frame(udgs, 2, 0, *crop_rect, name=frame)]
-        return end, self.handle_image(frames, fname, cwd, alt)
+        frame = Frame(udgs, 2, 0, *crop_rect, name=frame)
+        return end, self.handle_image(frame, fname, cwd, alt)
 
     # #WORDaddress
     def expand_word(self, text, index, cwd):

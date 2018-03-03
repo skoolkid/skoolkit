@@ -979,9 +979,8 @@ class HtmlWriter:
         contains an image path ID replacement field, the corresponding
         parameter value from the :ref:`Paths` section will be substituted.
 
-        :param frames: The list of frames (instances of
-                       :class:`~skoolkit.graphics.Frame`) from which to build
-                       the image.
+        :param frames: A frame (instance of :class:`~skoolkit.graphics.Frame`)
+                       or list of frames from which to build the image.
         :param fname: The name of the image file.
         :param cwd: The current working directory (from which the relative path
                     of the image file will be computed).
@@ -993,6 +992,8 @@ class HtmlWriter:
         :return: The ``<img .../>`` element, or an empty string if no image is
                  created.
         """
+        if isinstance(frames, Frame):
+            frames = [frames]
         if len(frames) == 1:
             self.frames[frames[0].name] = frames[0]
         image_path = self.image_path(fname, path_id, frames)
@@ -1146,8 +1147,8 @@ class HtmlWriter:
         end, crop_rect, fname, frame, alt, params = skoolmacro.parse_font(text, index)
         message, addr, chars, attr, scale = params
         udgs = lambda: font_udgs(self.snapshot, addr, attr, html.unescape(message)[:chars])
-        frames = [Frame(udgs, scale, 0, *crop_rect, name=frame)]
-        return end, self.handle_image(frames, fname, cwd, alt, 'FontImagePath')
+        frame = Frame(udgs, scale, 0, *crop_rect, name=frame)
+        return end, self.handle_image(frame, fname, cwd, alt, 'FontImagePath')
 
     def expand_foreach(self, text, index, cwd):
         return skoolmacro.parse_foreach(text, index, self)
@@ -1246,8 +1247,8 @@ class HtmlWriter:
         end, crop_rect, fname, frame, alt, params = skoolmacro.parse_scr(text, index)
         scale, x, y, w, h, df, af = params
         udgs = lambda: self.screenshot(x, y, w, h, df, af)
-        frames = [Frame(udgs, scale, 0, *crop_rect, name=frame)]
-        return end, self.handle_image(frames, fname, cwd, alt, 'ScreenshotImagePath')
+        frame = Frame(udgs, scale, 0, *crop_rect, name=frame)
+        return end, self.handle_image(frame, fname, cwd, alt, 'ScreenshotImagePath')
 
     def expand_space(self, text, index, cwd):
         return skoolmacro.parse_space(text, index, '&#160;')
@@ -1265,8 +1266,8 @@ class HtmlWriter:
             fname = format_template(self.udg_fname_template, 'UDGFilename', addr=addr, attr=attr, scale=scale)
             if frame == '':
                 frame = fname
-        frames = [Frame(udgs, scale, mask, *crop_rect, name=frame)]
-        return end, self.handle_image(frames, fname, cwd, alt)
+        frame = Frame(udgs, scale, mask, *crop_rect, name=frame)
+        return end, self.handle_image(frame, fname, cwd, alt)
 
     def _expand_udgarray_with_frames(self, text, index, cwd):
         end, fname, alt, frames = skoolmacro.parse_udgarray_with_frames(text, index, self.frames)
@@ -1279,8 +1280,8 @@ class HtmlWriter:
         end, crop_rect, fname, frame, alt, params = skoolmacro.parse_udgarray(text, index, self.snapshot)
         udg_array, scale, flip, rotate, mask = params
         udgs = lambda: adjust_udgs(udg_array, flip, rotate)
-        frames = [Frame(udgs, scale, mask, *crop_rect, name=frame)]
-        return end, self.handle_image(frames, fname, cwd, alt)
+        frame = Frame(udgs, scale, mask, *crop_rect, name=frame)
+        return end, self.handle_image(frame, fname, cwd, alt)
 
     def expand_udgtable(self, text, index, cwd):
         return self.expand_table(text, index, cwd)
