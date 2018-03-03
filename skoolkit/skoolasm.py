@@ -85,6 +85,7 @@ class AsmWriter:
 
         self.list_parser = ListParser(properties.get('bullet', '*'))
 
+        self.space = ' '
         self.macros = skoolmacro.get_macros(self)
 
         self.init()
@@ -261,9 +262,6 @@ class AsmWriter:
         if self.handle_unsupported_macros:
             return skoolmacro.parse_scr(text, index)[0], ''
         raise skoolmacro.UnsupportedMacroError()
-
-    def expand_space(self, text, index):
-        return skoolmacro.parse_space(text, index, ' ')
 
     def expand_table(self, text, index):
         return self._ignore_block(text, index, TABLE_MARKER, TABLE_END_MARKER)

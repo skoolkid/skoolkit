@@ -91,6 +91,7 @@ class HtmlWriter:
 
         self.table_parser = TableParser()
         self.list_parser = ListParser()
+        self.space = '&#160;'
         self.macros = skoolmacro.get_macros(self)
 
         self.game_vars = self._expand_values('Game', 'Logo')
@@ -1249,9 +1250,6 @@ class HtmlWriter:
         udgs = lambda: self.screenshot(x, y, w, h, df, af)
         frame = Frame(udgs, scale, 0, *crop_rect, name=frame)
         return end, self.handle_image(frame, fname, cwd, alt, 'ScreenshotImagePath')
-
-    def expand_space(self, text, index, cwd):
-        return skoolmacro.parse_space(text, index, '&#160;')
 
     def expand_table(self, text, index, cwd):
         # #TABLE[(class[,col1class[,col2class...]])]<rows>TABLE#

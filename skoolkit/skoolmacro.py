@@ -439,6 +439,7 @@ def get_macros(writer):
         '#EVAL': partial(parse_eval, writer.case == CASE_LOWER),
         '#FOR': parse_for,
         '#RAW': parse_raw,
+        '#SPACE': partial(parse_space, writer.space),
         '#VERSION': parse_version
     }
     for name, method in inspect.getmembers(writer, inspect.ismethod):
@@ -796,7 +797,7 @@ def parse_scr(text, index=0):
     defaults = (1, 0, 0, 32, 24, 16384, 22528)
     return parse_image_macro(text, index, defaults, names, 'scr')
 
-def parse_space(text, index, space):
+def parse_space(space, text, index, *cwd):
     # #SPACE[num] or #SPACE([num])
     end, num = parse_ints(text, index, 1, (1,))
     return end, space * num
