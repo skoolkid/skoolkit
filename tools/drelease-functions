@@ -22,7 +22,7 @@ REF=$DHOME/sources/$GAME.ref
 GAMENAME=$(grep ^Game= $REF | cut -c6-)
 VERSION=$(grep ^Release= $REF | awk '{print $NF}')
 RELEASE=$GAME-disassembly-$VERSION
-GHHTMLOPTS="-j style.css -H $GHCONFIG -T ${GHTHEME:-dark}"
+GHHTMLOPTS="-j style.css -H $GHCONFIG -T ${GHTHEME:-dark} --var pub=2"
 SKOOLKIT_TOOLS=$SKOOLKIT_HOME/tools
 if [[ -z $SKDEV ]]; then
   SKOOLKIT_VERSION=$(cd $SKOOLKIT_HOME; git tag | tail -n 1 | cut -c2-)

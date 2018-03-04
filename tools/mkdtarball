@@ -33,7 +33,7 @@ steps:
 
 3. Change to the directory where SkoolKit was unpacked and run this command:
 
-   $ ./skool2html.py $htmlopts$REFFILE
+   $ ./skool2html.py $htmlopts$GAME.skool
 EOF
 }
 
@@ -108,8 +108,6 @@ fi
 
 . $DRELEASERC
 
-REFFILE=$GAME.ref
-
 # Determine the SkoolKit version number
 if [[ ! -f skool2html.py ]]; then
   echo "Error: skool2html.py not found."
@@ -118,9 +116,9 @@ fi
 SK_VERSION=$(./skool2html.py -V 2>&1 | cut -f2 -d' ')
 
 # Determine the disassembly version number
-VERSION=$(grep ^Release= $DHOME/sources/$REFFILE | awk '{print $NF}' || true)
+VERSION=$(grep ^Release= $DHOME/sources/$GAME.ref | awk '{print $NF}' || true)
 if [[ -z $VERSION ]]; then
-  echo "Error: could not find version number in $REFFILE"
+  echo "Error: could not find version number in $GAME.ref"
   exit 1
 fi
 
@@ -138,9 +136,7 @@ rm -rf $ABSDIR
 
 # Build the HTML disassembly
 echo -n "Writing disassembly..."
-cd src
-../skool2html.py $DTCONFIG -q -S ../resources -d ../${ABSDIR} $REFFILE
-cd ..
+./skool2html.py $DTCONFIG -q -d ${ABSDIR} --var pub=1 src/$GAME.skool
 mv ${ABSDIR}/* ${ABSDIR}/html
 echo "done"
 
