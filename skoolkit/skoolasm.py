@@ -86,6 +86,7 @@ class AsmWriter:
         self.list_parser = ListParser(properties.get('bullet', '*'))
 
         self.get_chr = lambda n: chr(n)
+        self.get_reg = lambda r: r
         self.space = ' '
         self.macros = skoolmacro.get_macros(self)
 
@@ -251,9 +252,6 @@ class AsmWriter:
                 self.warn('Could not convert address {} to label'.format(addr_str))
             label = self.parser.get_instruction_addr_str(address, addr_str)
         return end, label
-
-    def expand_reg(self, text, index):
-        return skoolmacro.parse_reg(text, index, self.lower)
 
     def expand_scr(self, text, index):
         if self.handle_unsupported_macros:

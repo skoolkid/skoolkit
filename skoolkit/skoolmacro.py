@@ -440,6 +440,7 @@ def get_macros(writer):
         '#EVAL': partial(parse_eval, writer.case == CASE_LOWER),
         '#FOR': parse_for,
         '#RAW': parse_raw,
+        '#REG': partial(parse_reg, writer.get_reg, writer.case == CASE_LOWER),
         '#SPACE': partial(parse_space, writer.space),
         '#VERSION': parse_version
     }
@@ -776,7 +777,7 @@ def parse_raw(text, index, *cwd):
     end, raw = parse_strings(text, index, 1)
     return -end, raw
 
-def parse_reg(text, index, lower):
+def parse_reg(get_reg, lower, text, index, *cwd):
     # #REGreg
     if index >= len(text):
         raise MacroParsingError('Missing register argument')
@@ -790,8 +791,8 @@ def parse_reg(text, index, lower):
         if not reg:
             raise MacroParsingError('Missing register argument')
     if lower:
-        return end, reg.lower()
-    return end, reg.upper()
+        return end, get_reg(reg.lower())
+    return end, get_reg(reg.upper())
 
 def parse_scr(text, index=0):
     # #SCR[scale,x,y,w,h,df,af][{x,y,width,height}][(fname)]

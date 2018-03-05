@@ -92,6 +92,7 @@ class HtmlWriter:
         self.table_parser = TableParser()
         self.list_parser = ListParser()
         self.get_chr = lambda n: '&#{};'.format(n)
+        self.get_reg = lambda r: self.format_template('reg', {'reg': r})
         self.space = '&#160;'
         self.macros = skoolmacro.get_macros(self)
 
@@ -1236,10 +1237,6 @@ class HtmlWriter:
         asm_label = self.parser.get_asm_label(address)
         inst_addr_str = self.parser.get_instruction_addr_str(address, addr_str, code_id)
         return end, self.format_link(href, link_text or asm_label or inst_addr_str)
-
-    def expand_reg(self, text, index, cwd):
-        end, reg = skoolmacro.parse_reg(text, index, self.case == CASE_LOWER)
-        return end, self.format_template('reg', {'reg': reg})
 
     def expand_scr(self, text, index, cwd):
         end, crop_rect, fname, frame, alt, params = skoolmacro.parse_scr(text, index)
