@@ -439,6 +439,7 @@ def get_macros(writer):
         '#CHR': partial(parse_chr, writer.get_chr),
         '#EVAL': partial(parse_eval, writer.case == CASE_LOWER),
         '#FOR': parse_for,
+        '#N': partial(parse_n, writer.base, writer.case == CASE_LOWER),
         '#RAW': parse_raw,
         '#REG': partial(parse_reg, writer.get_reg, writer.case == CASE_LOWER),
         '#SPACE': partial(parse_space, writer.space),
@@ -706,7 +707,7 @@ def parse_map(text, index, fields):
     _map_cache[map_id] = m
     return end, m[value]
 
-def parse_n(text, index, base, is_lower):
+def parse_n(base, lower, text, index, *cwd):
     # #Nvalue[,hwidth,dwidth,affix,hex][(prefix[,suffix])]
     end, value, hwidth, dwidth, affix, tohex = parse_ints(text, index, 5, (None, 1, 0, 0))
     if affix:
@@ -719,7 +720,7 @@ def parse_n(text, index, base, is_lower):
                 hwidth = 2
             else:
                 hwidth = 4
-        if is_lower:
+        if lower:
             return end, '{}{:0{}x}{}'.format(prefix, value, hwidth, suffix)
         return end, '{}{:0{}X}{}'.format(prefix, value, hwidth, suffix)
     return end, '{:0{}}'.format(value, dwidth)

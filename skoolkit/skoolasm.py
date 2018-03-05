@@ -225,9 +225,6 @@ class AsmWriter:
     def expand_map(self, text, index):
         return skoolmacro.parse_map(text, index, self.fields)
 
-    def expand_n(self, text, index):
-        return skoolmacro.parse_n(text, index, self.base, self.lower)
-
     def expand_peek(self, text, index):
         return skoolmacro.parse_peek(text, index, self.snapshot)
 

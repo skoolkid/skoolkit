@@ -26,7 +26,7 @@ from collections import defaultdict
 import re
 from io import StringIO
 
-from skoolkit import skoolmacro, SkoolKitError, warn, parse_int, format_template, CASE_LOWER
+from skoolkit import skoolmacro, SkoolKitError, warn, parse_int, format_template
 from skoolkit.defaults import REF_FILE
 from skoolkit.graphics import Frame, adjust_udgs, build_udg, font_udgs, scr_udgs
 from skoolkit.image import ImageWriter
@@ -1193,9 +1193,6 @@ class HtmlWriter:
 
     def expand_map(self, text, index, cwd):
         return skoolmacro.parse_map(text, index, self.fields)
-
-    def expand_n(self, text, index, cwd):
-        return skoolmacro.parse_n(text, index, self.base, self.case == CASE_LOWER)
 
     def expand_peek(self, text, index, cwd):
         return skoolmacro.parse_peek(text, index, self.snapshot)
