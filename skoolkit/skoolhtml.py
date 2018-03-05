@@ -91,6 +91,7 @@ class HtmlWriter:
 
         self.table_parser = TableParser()
         self.list_parser = ListParser()
+        self.get_chr = lambda n: '&#{};'.format(n)
         self.space = '&#160;'
         self.macros = skoolmacro.get_macros(self)
 
@@ -1136,10 +1137,6 @@ class HtmlWriter:
 
     def expand_call(self, text, index, cwd):
         return skoolmacro.parse_call(text, index, self, cwd)
-
-    def expand_chr(self, text, index, cwd):
-        end, num = skoolmacro.parse_chr(text, index)
-        return end, '&#{};'.format(num)
 
     def expand_d(self, text, index, cwd):
         return skoolmacro.parse_d(text, index, self)
