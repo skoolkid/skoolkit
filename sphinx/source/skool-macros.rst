@@ -1658,7 +1658,7 @@ If you have several nine-byte tiles arranged one after the other, you might
 want to create images of all of them in a single row of a ``#UDGTABLE``. The
 following ``@replace`` directive defines a ``#tiles`` macro for this purpose::
 
-  @replace=/#tiles\i,\i/#FOR(\1,\1+9*(\2-1),9);;n;#UDG(n+1,#PEEKn); | ;;
+  @replace=/#tiles\i,\i/#FOR(\1,\1+9*(\2-1),9)(n,#UDG(n+1,#PEEKn), | )
 
 Now you can create a ``#UDGTABLE`` of images of a series of 10 tiles starting
 at 32768 like this::
