@@ -1664,3 +1664,28 @@ Now you can create a ``#UDGTABLE`` of images of a series of 10 tiles starting
 at 32768 like this::
 
   #UDGTABLE { #tiles32768,10 } TABLE#
+
+#udg
+----
+The :ref:`UDG` macro is not supported in ASM mode, but ``@replace`` can define
+a ``#udg`` macro that is::
+
+  @replace=/#udg\i/#IF({asm})(#LIST(,) #FOR(\1,\1+7)(u,{ |#FOR(7,0,-1)(n,#IF(#PEEKu&2**n)(*, ))| }) LIST#)
+
+For example::
+
+  ; #udg30000
+   30000 DEFB 48,72,136,144,104,4,10,4
+
+If conversion of DEFB statements has been switched on in ASM mode by the
+:ref:`assemble` directive (e.g. ``@assemble=,0``), this ``#udg`` macro produces
+the following output::
+
+  ; |  **    |
+  ; | *  *   |
+  ; |*   *   |
+  ; |*  *    |
+  ; | ** *   |
+  ; |     *  |
+  ; |    * * |
+  ; |     *  |
