@@ -1560,6 +1560,25 @@ class SkoolWriterTest(SkoolKitTestCase):
         snapshot = [175, 201]
         self._test_write_skool(snapshot, ctl, exp_skool)
 
+    def test_if_directives(self):
+        ctl = """
+            @ 00000 if({asm})(replace=/foo/bar)
+            c 00000 Routine at 0
+            @ 00001 if({fix})(label=NEXT)
+            i 00002
+        """
+        exp_skool = """
+            @start
+            @org
+            @if({asm})(replace=/foo/bar)
+            ; Routine at 0
+            c00000 XOR A         ;
+            @if({fix})(label=NEXT)
+             00001 RET           ;
+        """
+        snapshot = [175, 201]
+        self._test_write_skool(snapshot, ctl, exp_skool)
+
     def test_org_directives(self):
         ctl = """
             @ 00000 org=0
