@@ -21,6 +21,7 @@ r24576 other
 @defs=23299:4,5
 @defw=23303:12345
 @equ=ATTRS=22528
+@if({asm})(replace=/foo/bar)
 @remote=start:23296
 @replace=/#copy/#CHR169
 @set-bullet=.
@@ -163,6 +164,7 @@ r24576 other
 @defs=23299:4,5
 @defw=23303:12345
 @equ=ATTRS=22528
+@if({asm})(replace=/foo/bar)
 @remote=start:23296
 @replace=/#copy/#CHR169
 @set-bullet=.
