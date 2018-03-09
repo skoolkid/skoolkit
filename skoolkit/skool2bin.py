@@ -19,7 +19,7 @@ import argparse
 from skoolkit import SkoolParsingError, get_int_param, info, integer, open_file, warn, VERSION
 from skoolkit.skoolparser import read_skool
 from skoolkit.skoolsft import VALID_CTLS
-from skoolkit.textutils import find_unquoted
+from skoolkit.textutils import find_unquoted, partition_unquoted
 from skoolkit.z80 import assemble
 
 SKIP_BLOCKS = ('d', 'r')
@@ -73,13 +73,13 @@ class BinWriter:
 
     def _parse_asm_directive(self, directive):
         if directive.startswith('isub=') and self.asm_mode > 0:
-            self.subs[3] = directive[5:].rstrip()
+            self.subs[3] = partition_unquoted(directive[5:], ';')[0].rstrip()
         elif directive.startswith('ssub=') and self.asm_mode > 1:
-            self.subs[2] = directive[5:].rstrip()
+            self.subs[2] = partition_unquoted(directive[5:], ';')[0].rstrip()
         elif directive.startswith('ofix=') and self.fix_mode > 0:
-            self.subs[1] = directive[5:].rstrip()
+            self.subs[1] = partition_unquoted(directive[5:], ';')[0].rstrip()
         elif directive.startswith('bfix=') and self.fix_mode > 1:
-            self.subs[0] = directive[5:].rstrip()
+            self.subs[0] = partition_unquoted(directive[5:], ';')[0].rstrip()
 
     def write(self, binfile, start, end):
         if start is None:

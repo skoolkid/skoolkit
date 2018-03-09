@@ -303,9 +303,11 @@ class BinWriterTest(SkoolKitTestCase):
             @isub=LD B,1
             @ssub=LD B,2
              40001 LD B,n
-             40003 RET
+            @isub=LD C,1 ; Set C=1
+             40003 LD C,n
+             40005 RET
         """
-        exp_data = [195, 64, 156, 175, 6, 1, 201]
+        exp_data = [195, 64, 156, 175, 6, 1, 14, 1, 201]
         self._test_write(skool, 39997, exp_data, asm_mode=1)
 
     def test_ssub_mode(self):
@@ -317,15 +319,17 @@ class BinWriterTest(SkoolKitTestCase):
             @ssub+end
             @ssub=INC DE
              50001 INC E
+            @ssub=INC BC ; Increment BC
+             50002 INC C
             @rsub-begin
-             50002 RET
+             50003 RET
             @rsub+else
             ; The following @ssub directive should be ignored.
             @ssub=RET P
-             50002 JP 32768
+             50003 JP 32768
             @rsub+end
         """
-        exp_data = [35, 19, 201]
+        exp_data = [35, 19, 3, 201]
         self._test_write(skool, 50000, exp_data, asm_mode=2)
 
     def test_ssub_overrides_isub(self):
@@ -360,8 +364,10 @@ class BinWriterTest(SkoolKitTestCase):
              60008 LD E,1
             @rfix=LD H,2
              60010 LD H,1
+            @ofix=LD L,2 ; Set L=2
+             60012 LD L,1
         """
-        exp_data = [62, 2, 6, 1, 14, 1, 22, 2, 30, 1, 38, 1]
+        exp_data = [62, 2, 6, 1, 14, 1, 22, 2, 30, 1, 38, 1, 46, 2]
         self._test_write(skool, 60000, exp_data, fix_mode=1)
 
     def test_bfix_mode(self):
@@ -387,8 +393,10 @@ class BinWriterTest(SkoolKitTestCase):
              60008 LD E,1
             @rfix=LD H,2
              60010 LD H,1
+            @bfix=LD L,2 ; Set L=2
+             60012 LD L,1
         """
-        exp_data = [62, 2, 6, 2, 14, 1, 22, 2, 30, 2, 38, 1]
+        exp_data = [62, 2, 6, 2, 14, 1, 22, 2, 30, 2, 38, 1, 46, 2]
         self._test_write(skool, 60000, exp_data, fix_mode=2)
 
     def test_bfix_overrides_ofix(self):
