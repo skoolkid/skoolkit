@@ -766,9 +766,9 @@ class Mode:
             elif self.ssub is not None and self.asm_mode > 1:
                 sub = self.ssub
             if sub is not None:
-                _, sub = self.apply_case('', sub)
-                _, sub = self.apply_base('', sub)
-                instruction.apply_sub(sub, address_comment)
+                op, sep, comment = partition_unquoted(sub, ';')
+                op = self.apply_base('', self.apply_case('', op.rstrip())[1])[1]
+                instruction.apply_sub(op, sep, comment, address_comment)
 
             instruction.warn = not self.nowarn
             instruction.ignoreua = self.ignoreua
@@ -903,10 +903,8 @@ class Instruction:
             self.referrers.append(routine)
         self.container.add_referrer(routine)
 
-    def apply_sub(self, sub, address_comment):
-        self.sub = sub
-        operation, sep, comment = partition_unquoted(sub, ';')
-        self.operation = operation.rstrip()
+    def apply_sub(self, operation, sep, comment, address_comment):
+        self.sub = self.operation = operation
         if sep:
             address_comment[1] = comment.lstrip()
 
