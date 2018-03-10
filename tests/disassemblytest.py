@@ -2,6 +2,7 @@ import sys
 import os
 import shutil
 from collections import namedtuple
+from functools import partial
 from lxml import etree
 from xml.dom.minidom import parse
 from xml.dom import Node
@@ -9,13 +10,13 @@ from xml.dom import Node
 from skoolkittest import SkoolKitTestCase, SKOOLKIT_HOME
 
 sys.path.insert(0, SKOOLKIT_HOME)
+from skoolkit import CASE_LOWER
 from skoolkit.skoolhtml import HtmlWriter
-from skoolkit.skoolmacro import get_macros
+from skoolkit.skoolmacro import parse_n
 
 class MacroExpander(HtmlWriter):
     def __init__(self, base, case):
-        self.parser = namedtuple('SkoolParser', ('base', 'case'))(base, case)
-        self.macros = get_macros(self)
+        self.macros = {'#N': partial(parse_n, base, case == CASE_LOWER)}
 
 def _find_ids_and_hrefs(elements, doc_anchors, doc_hrefs):
     for node in elements:
