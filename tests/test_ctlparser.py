@@ -1070,6 +1070,20 @@ class CtlParserTest(SkoolKitTestCase):
         }
         self._test_asm_directives(ctl, exp_entry_directives, exp_instruction_directives)
 
+    def test_if_directives(self):
+        ctl = """
+            @ 40000 if({asm})(replace=/foo/bar)
+            c 40000 Routine at 40000
+            @ 40001 if({case}==1)(replace=/FOO/foo)
+        """
+        exp_entry_directives = {
+            40000: ['if({asm})(replace=/foo/bar)']
+        }
+        exp_instruction_directives = {
+            40001: ['if({case}==1)(replace=/FOO/foo)']
+        }
+        self._test_asm_directives(ctl, exp_entry_directives, exp_instruction_directives)
+
     def test_ignoreua_directives(self):
         ctl = """
             @ 30000 ignoreua:t
