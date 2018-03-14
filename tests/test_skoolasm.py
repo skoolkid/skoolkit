@@ -144,8 +144,11 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
                 self.assertEqual(output, '')
 
     def test_macro_if_asm(self):
-        writer = self._get_writer()
-        self.assertEqual(writer.expand('#IF({asm})(PASS,FAIL)'), 'PASS')
+        for asm_mode in (0, 1, 2, 3):
+            writer = self._get_writer(asm_mode=asm_mode)
+            macro = '#IF({{asm}}=={})(PASS,FAIL)'.format(asm_mode)
+            with self.subTest(asm_mode=asm_mode):
+                self.assertEqual(writer.expand(macro), 'PASS')
 
     def test_macro_if_fix(self):
         for fix_mode in (0, 1, 2, 3):
@@ -192,8 +195,11 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
         self._assert_error(writer, '#LINK:PageID()', 'Blank link text: #LINK:PageID()', prefix)
 
     def test_macro_map_asm(self):
-        writer = self._get_writer()
-        self.assertEqual(writer.expand('#MAP({asm})(FAIL,1:PASS)'), 'PASS')
+        for asm_mode in (0, 1, 2, 3):
+            writer = self._get_writer(asm_mode=asm_mode)
+            macro = '#MAP({{asm}})(FAIL,{}:PASS)'.format(asm_mode)
+            with self.subTest(asm_mode=asm_mode):
+                self.assertEqual(writer.expand(macro), 'PASS')
 
     def test_macro_map_fix(self):
         for fix_mode in (0, 1, 2, 3):
