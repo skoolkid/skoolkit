@@ -1068,6 +1068,18 @@ class SftParserTest(SkoolKitTestCase):
         """
         self._test_disassembly(sft, exp_skool, snapshot)
 
+    def test_asm_directive_if(self):
+        snapshot = [201]
+        sft = """
+            @if({asm})(replace=/foo/bar)
+            cC00000,1
+        """
+        exp_skool = """
+            @if({asm})(replace=/foo/bar)
+            c00000 RET
+        """
+        self._test_disassembly(sft, exp_skool, snapshot)
+
     def test_asm_directive_ignoreua(self):
         snapshot = [120, 201]
         sft = """
