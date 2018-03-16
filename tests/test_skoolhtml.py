@@ -76,6 +76,7 @@ AddressAnchor={{address}}
 Created=
 LinkInternalOperands=0
 LinkOperands=CALL,DEFW,DJNZ,JP,JR
+StyleSheet=skoolkit.css
 {REF_SECTIONS[Page_Bugs]}
 {REF_SECTIONS[Page_Facts]}
 {REF_SECTIONS[Page_Pokes]}
@@ -164,10 +165,10 @@ PREV_UP_NEXT = """<table class="asm-navigation">
 ERROR_PREFIX = 'Error while parsing #{0} macro'
 
 class MockSkoolParser:
-    def __init__(self, snapshot=None, entries=None, memory_map=(), base=0, case=0):
+    def __init__(self, snapshot, base, case):
         self.snapshot = snapshot
-        self.entries = entries or {}
-        self.memory_map = memory_map
+        self.entries = {}
+        self.memory_map = ()
         self.base = base
         self.case = case
         self.skoolfile = ''
@@ -213,18 +214,20 @@ class HtmlWriterTestCase(SkoolKitTestCase):
     def _mock_write_file(self, fname, contents):
         self.files[fname] = contents
 
-    def _get_writer(self, ref=None, snapshot=(), case=0, base=0,
-                    skool=None, create_labels=False, asm_labels=False,
+    def _get_writer(self, ref=None, snapshot=(), case=0, base=0, skool=None,
+                    create_labels=False, asm_labels=False, variables=(),
                     mock_file_info=False, mock_write_file=True, warn=False):
         self.skoolfile = None
         ref_parser = RefParser()
         if ref is not None:
             ref_parser.parse(StringIO(dedent(ref).strip()))
         if skool is None:
-            skool_parser = MockSkoolParser(snapshot, base=base, case=case)
+            skool_parser = MockSkoolParser(snapshot, base, case)
         else:
             self.skoolfile = self.write_text_file(dedent(skool).strip(), suffix='.skool')
-            skool_parser = SkoolParser(self.skoolfile, case=case, base=base, html=True, create_labels=create_labels, asm_labels=asm_labels)
+            skool_parser = SkoolParser(self.skoolfile, case=case, base=base, html=True,
+                                       create_labels=create_labels, asm_labels=asm_labels,
+                                       variables=variables)
         self.odir = self.make_directory()
         if mock_file_info:
             file_info = MockFileInfo()
@@ -994,6 +997,20 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         writer = self._get_writer()
         self.assertEqual(writer.expand('#IF({html})(PASS,FAIL)'), 'PASS')
 
+    def test_macro_if_clone(self):
+        ref = '[OtherCode:other]'
+        main_writer = self._get_writer(ref=ref, skool='', variables=('foo=1', 'bar=2'))
+        writer = main_writer.clone(main_writer.parser, 'other')
+
+        self.assertEqual(writer.expand('#IF({asm})(FAIL,PASS)'), 'PASS')
+        self.assertEqual(writer.expand('#IF({base})(FAIL,PASS)'), 'PASS')
+        self.assertEqual(writer.expand('#IF({case})(FAIL,PASS)'), 'PASS')
+        self.assertEqual(writer.expand('#IF({fix})(FAIL,PASS)'), 'PASS')
+        self.assertEqual(writer.expand('#IF({html})(PASS,FAIL)'), 'PASS')
+        self.assertEqual(writer.expand('#IF({vars[foo]}==1)(PASS,FAIL)'), 'PASS')
+        self.assertEqual(writer.expand('#IF({vars[bar]}==2)(PASS,FAIL)'), 'PASS')
+        self.assertEqual(writer.expand('#IF({vars[baz]}==0)(PASS,FAIL)'), 'PASS')
+
     def test_macro_include_no_paragraphs(self):
         ref = """
             [Foo]
@@ -1192,6 +1209,20 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
     def test_macro_map_html(self):
         writer = self._get_writer()
         self.assertEqual(writer.expand('#MAP({html})(FAIL,1:PASS)'), 'PASS')
+
+    def test_macro_map_clone(self):
+        ref = '[OtherCode:other]'
+        main_writer = self._get_writer(ref=ref, skool='', variables=('foo=1', 'bar=2'))
+        writer = main_writer.clone(main_writer.parser, 'other')
+
+        self.assertEqual(writer.expand('#MAP({asm})(FAIL,0:PASS)'), 'PASS')
+        self.assertEqual(writer.expand('#MAP({base})(FAIL,0:PASS)'), 'PASS')
+        self.assertEqual(writer.expand('#MAP({case})(FAIL,0:PASS)'), 'PASS')
+        self.assertEqual(writer.expand('#MAP({fix})(FAIL,0:PASS)'), 'PASS')
+        self.assertEqual(writer.expand('#MAP({html})(FAIL,1:PASS)'), 'PASS')
+        self.assertEqual(writer.expand('#MAP({vars[foo]})(FAIL,1:PASS)'), 'PASS')
+        self.assertEqual(writer.expand('#MAP({vars[bar]})(FAIL,2:PASS)'), 'PASS')
+        self.assertEqual(writer.expand('#MAP({vars[baz]})(FAIL,0:PASS)'), 'PASS')
 
     def test_macro_r(self):
         skool = """

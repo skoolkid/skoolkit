@@ -588,6 +588,12 @@ class CommonSkoolMacroTest:
         writer = self._get_writer(case=CASE_UPPER)
         self.assertEqual(writer.expand('#IF({case}==2)(PASS,FAIL)'), 'PASS')
 
+    def test_macro_if_variables(self):
+        writer = self._get_writer(skool='', variables=('foo=1', 'bar=2'))
+        self.assertEqual(writer.expand('#IF({vars[foo]}==1)(PASS,FAIL)'), 'PASS')
+        self.assertEqual(writer.expand('#IF({vars[bar]}==2)(PASS,FAIL)'), 'PASS')
+        self.assertEqual(writer.expand('#IF({vars[baz]})(FAIL,PASS)'), 'PASS')
+
     def test_macro_if_invalid(self):
         writer = self._get_writer()
         prefix = ERROR_PREFIX.format('IF')
@@ -704,6 +710,12 @@ class CommonSkoolMacroTest:
     def test_macro_map_case_upper(self):
         writer = self._get_writer(case=CASE_UPPER)
         self.assertEqual(writer.expand('#MAP({case})(FAIL,2:PASS)'), 'PASS')
+
+    def test_macro_map_variables(self):
+        writer = self._get_writer(skool='', variables=('foo=1', 'bar=2'))
+        self.assertEqual(writer.expand('#MAP({vars[foo]})(FAIL,1:PASS)'), 'PASS')
+        self.assertEqual(writer.expand('#MAP({vars[bar]})(FAIL,2:PASS)'), 'PASS')
+        self.assertEqual(writer.expand('#MAP({vars[baz]})(FAIL,0:PASS)'), 'PASS')
 
     def test_macro_map_invalid(self):
         writer = self._get_writer()

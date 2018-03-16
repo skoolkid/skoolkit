@@ -4079,7 +4079,7 @@ class SkoolParserTest(SkoolKitTestCase):
 
     def test_clone(self):
         skool = 'b40000 DEFB 1,2,3,4,5,6,7,8'
-        parser = self._get_parser(skool, html=True)
+        parser = self._get_parser(skool, html=True, variables=('foo=1', 'bar=2'))
         skool2 = 'b40002 DEFB 9,10,11,12'
         skool2file = self.write_text_file(skool2, suffix='.skool')
         clone = parser.clone(skool2file)
@@ -4093,6 +4093,7 @@ class SkoolParserTest(SkoolKitTestCase):
         self.assertEqual(parser.mode.asm_labels, clone.mode.asm_labels)
         self.assertEqual([1, 2, 3, 4, 5, 6, 7, 8], parser.snapshot[40000:40008])
         self.assertEqual([1, 2, 9, 10, 11, 12, 7, 8], clone.snapshot[40000:40008])
+        self.assertEqual(parser.fields, clone.fields)
 
 class TableParserTest(SkoolKitTestCase):
     class MockWriter:

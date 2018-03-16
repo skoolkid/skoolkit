@@ -29,13 +29,15 @@ class MockSkoolParser:
 
 class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
     def _get_writer(self, skool=None, crlf=False, tab=False, case=0, base=0,
-                    instr_width=23, warn=False, asm_mode=1, fix_mode=0, snapshot=()):
+                    instr_width=23, warn=False, asm_mode=1, fix_mode=0,
+                    variables=(), snapshot=()):
         if skool is None:
             skool_parser = MockSkoolParser(snapshot, base, case, asm_mode, fix_mode)
             properties = {}
         else:
             skoolfile = self.write_text_file(dedent(skool).strip(), suffix='.skool')
-            skool_parser = SkoolParser(skoolfile, case=case, base=base, asm_mode=asm_mode, fix_mode=fix_mode)
+            skool_parser = SkoolParser(skoolfile, case=case, base=base, asm_mode=asm_mode,
+                                       fix_mode=fix_mode, variables=variables)
             properties = dict(skool_parser.properties)
             properties['crlf'] = '1' if crlf else '0'
             properties['tab'] = '1' if tab else '0'
