@@ -1133,12 +1133,6 @@ class HtmlWriter:
             prev_path = path
         return path
 
-    def needs_cwd(self):
-        return True
-
-    def expand_call(self, text, index, cwd):
-        return skoolmacro.parse_call(text, index, self, cwd)
-
     def expand_d(self, text, index, cwd):
         return skoolmacro.parse_d(text, index, self)
 

@@ -1,4 +1,5 @@
 from skoolkit import BASE_10, BASE_16, VERSION
+from skoolkit.skoolhtml import HtmlWriter
 from skoolkit.skoolparser import CASE_LOWER, CASE_UPPER
 
 ERROR_PREFIX = 'Error while parsing #{} macro'
@@ -10,11 +11,8 @@ def nest_macros(template, *values):
 class CommonSkoolMacroTest:
     def _check_call(self, writer, params, *args):
         macro = '#CALL:test_call({})'.format(params)
-        if writer.needs_cwd():
-            cwd = '<cwd>'
-            self.assertEqual(writer.expand(macro, cwd), writer.test_call(*((cwd,) + args)))
-        else:
-            self.assertEqual(writer.expand(macro), writer.test_call(*args))
+        cwd = ('<cwd>',) if isinstance(writer, HtmlWriter) else ()
+        self.assertEqual(writer.expand(macro, *cwd), writer.test_call(*(cwd + args)))
 
     def test_macro_call(self):
         writer = self._get_writer(warn=True)
@@ -428,20 +426,20 @@ class CommonSkoolMacroTest:
         """
         writer = self._get_writer(skool=skool)
 
-        cwd = ('asm',) if writer.needs_cwd() else ()
-        exp_output = writer.expand(*(('#R30000, #R30005 and #R30008',) + cwd))
+        cwd = ('asm',) if isinstance(writer, HtmlWriter) else ()
+        exp_output = writer.expand('#R30000, #R30005 and #R30008', *cwd)
         macro_t = '#FOREACH[EREF{}]||addr|#Raddr|, | and ||'
 
         # Decimal address
-        output = writer.expand(*((macro_t.format(30004),) + cwd))
+        output = writer.expand(macro_t.format(30004), *cwd)
         self.assertEqual(output, exp_output)
 
         # Hexadecimal address
-        output = writer.expand(*((macro_t.format('$7534'),) + cwd))
+        output = writer.expand(macro_t.format('$7534'), *cwd)
         self.assertEqual(output, exp_output)
 
         # Arithmetic expression
-        output = writer.expand(*((macro_t.format('30000 + 8 * (7 + 1) - ($79 - 1) / 2'),) + cwd))
+        output = writer.expand(macro_t.format('30000 + 8 * (7 + 1) - ($79 - 1) / 2'), *cwd)
         self.assertEqual(output, exp_output)
 
     def test_macro_foreach_with_eref_invalid(self):
@@ -464,20 +462,20 @@ class CommonSkoolMacroTest:
         """
         writer = self._get_writer(skool=skool)
 
-        cwd = ('asm',) if writer.needs_cwd() else ()
-        exp_output = writer.expand(*(('#R9, #R89 and #R789',) + cwd))
+        cwd = ('asm',) if isinstance(writer, HtmlWriter) else ()
+        exp_output = writer.expand('#R9, #R89 and #R789', *cwd)
         macro_t = '#FOREACH[REF{}]||addr|#Raddr|, | and ||'
 
         # Decimal address
-        output = writer.expand(*((macro_t.format(1),) + cwd))
+        output = writer.expand(macro_t.format(1), *cwd)
         self.assertEqual(output, exp_output)
 
         # Hexadecimal address
-        output = writer.expand(*((macro_t.format('$0001'),) + cwd))
+        output = writer.expand(macro_t.format('$0001'), *cwd)
         self.assertEqual(output, exp_output)
 
         # Arithmetic expression
-        output = writer.expand(*((macro_t.format('(1 + 5 * (2 + 3) - ($63 + 1) / 4)'),) + cwd))
+        output = writer.expand(macro_t.format('(1 + 5 * (2 + 3) - ($63 + 1) / 4)'), *cwd)
         self.assertEqual(output, exp_output)
 
     def test_macro_foreach_with_ref_invalid(self):
@@ -964,7 +962,7 @@ class CommonSkoolMacroTest:
 
     def test_macro_reg(self):
         writer = self._get_writer()
-        template = '<span class="register">{}</span>' if writer.needs_cwd() else '{}'
+        template = '<span class="register">{}</span>' if isinstance(writer, HtmlWriter) else '{}'
 
         # Upper case, all registers
         for reg in ('a', 'b', 'c', 'd', 'e', 'f', 'h', 'l', "a'", "b'", "c'", "d'", "e'", "f'", "h'", "l'", 'af', 'bc', 'de', 'hl',
@@ -1015,7 +1013,7 @@ class CommonSkoolMacroTest:
 
     def test_macro_space(self):
         writer = self._get_writer()
-        space = '&#160;' if writer.needs_cwd() else ' '
+        space = '&#160;' if isinstance(writer, HtmlWriter) else ' '
 
         self.assertEqual(writer.expand('#SPACE'), space.strip())
         self.assertEqual(writer.expand('"#SPACE10"'), '"{}"'.format(space * 10))

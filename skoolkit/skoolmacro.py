@@ -436,6 +436,7 @@ def get_params(param_string, num=0, defaults=(), names=(), safe=True):
 
 def get_macros(writer):
     macros = {
+        '#CALL': partial(parse_call, writer),
         '#CHR': partial(parse_chr, writer.get_chr),
         '#EVAL': partial(parse_eval, writer.case == CASE_LOWER),
         '#FOR': parse_for,
@@ -486,7 +487,7 @@ def expand_macros(writer, text, *cwd):
 
     return text
 
-def parse_call(text, index, writer, cwd=None):
+def parse_call(writer, text, index, *cwd):
     # #CALL:methodName(args)
     macro = '#CALL'
     if index >= len(text):
@@ -512,7 +513,7 @@ def parse_call(text, index, writer, cwd=None):
 
     if arg_string is None:
         raise MacroParsingError("No argument list specified: {}{}".format(macro, text[index:end]))
-    args = []
+    args = list(cwd)
     if arg_string:
         for arg in writer.expand(arg_string).split(','):
             try:
@@ -523,8 +524,6 @@ def parse_call(text, index, writer, cwd=None):
                 else:
                     args.append(None)
 
-    if writer.needs_cwd():
-        args.insert(0, cwd)
     try:
         retval = method(*args)
     except Exception as e:

@@ -185,12 +185,6 @@ class AsmWriter:
         """
         self._snapshots.append((self.snapshot[:], name))
 
-    def needs_cwd(self):
-        return False
-
-    def expand_call(self, text, index):
-        return skoolmacro.parse_call(text, index, self)
-
     def expand_d(self, text, index):
         return skoolmacro.parse_d(text, index, self.parser)
 
