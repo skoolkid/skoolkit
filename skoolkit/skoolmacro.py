@@ -438,6 +438,7 @@ def get_macros(writer):
     macros = {
         '#CALL': partial(parse_call, writer),
         '#CHR': partial(parse_chr, writer.to_chr),
+        '#D': partial(parse_d, writer.parser),
         '#EVAL': partial(parse_eval, writer.case == CASE_LOWER),
         '#FOR': parse_for,
         '#N': partial(parse_n, writer.base, writer.case == CASE_LOWER),
@@ -537,7 +538,7 @@ def parse_chr(get_chr, text, index, *cwd):
     end, num = parse_ints(text, index, 1)
     return end, get_chr(num)
 
-def parse_d(text, index, entry_holder):
+def parse_d(entry_holder, text, index, *cwd):
     # #Daddr
     end, addr = parse_ints(text, index, 1)
     entry = entry_holder.get_entry(addr)

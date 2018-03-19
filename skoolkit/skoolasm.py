@@ -185,9 +185,6 @@ class AsmWriter:
         """
         self._snapshots.append((self.snapshot[:], name))
 
-    def expand_d(self, text, index):
-        return skoolmacro.parse_d(text, index, self.parser)
-
     def expand_font(self, text, index):
         if self.handle_unsupported_macros:
             return skoolmacro.parse_font(text, index)[0], ''

@@ -1133,9 +1133,6 @@ class HtmlWriter:
             prev_path = path
         return path
 
-    def expand_d(self, text, index, cwd):
-        return skoolmacro.parse_d(text, index, self)
-
     def expand_font(self, text, index, cwd):
         end, crop_rect, fname, frame, alt, params = skoolmacro.parse_font(text, index)
         message, addr, chars, attr, scale = params
