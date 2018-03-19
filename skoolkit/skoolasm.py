@@ -85,7 +85,7 @@ class AsmWriter:
 
         self.list_parser = ListParser(properties.get('bullet', '*'))
 
-        self.get_chr = lambda n: chr(n)
+        self.to_chr = lambda n: chr(n)
         self.get_reg = lambda r: r
         self.space = ' '
         self.macros = skoolmacro.get_macros(self)

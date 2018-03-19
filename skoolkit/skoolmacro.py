@@ -437,7 +437,7 @@ def get_params(param_string, num=0, defaults=(), names=(), safe=True):
 def get_macros(writer):
     macros = {
         '#CALL': partial(parse_call, writer),
-        '#CHR': partial(parse_chr, writer.get_chr),
+        '#CHR': partial(parse_chr, writer.to_chr),
         '#EVAL': partial(parse_eval, writer.case == CASE_LOWER),
         '#FOR': parse_for,
         '#N': partial(parse_n, writer.base, writer.case == CASE_LOWER),
