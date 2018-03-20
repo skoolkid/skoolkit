@@ -190,9 +190,6 @@ class AsmWriter:
             return skoolmacro.parse_font(text, index)[0], ''
         raise skoolmacro.UnsupportedMacroError()
 
-    def expand_foreach(self, text, index):
-        return skoolmacro.parse_foreach(text, index, self.parser)
-
     def expand_html(self, text, index):
         end, message = skoolmacro.parse_html(text, index)
         return end, ''

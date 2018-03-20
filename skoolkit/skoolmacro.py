@@ -441,6 +441,7 @@ def get_macros(writer):
         '#D': partial(parse_d, writer.parser),
         '#EVAL': partial(parse_eval, writer.case == CASE_LOWER),
         '#FOR': parse_for,
+        '#FOREACH': partial(parse_foreach, writer.parser),
         '#N': partial(parse_n, writer.base, writer.case == CASE_LOWER),
         '#RAW': parse_raw,
         '#REG': partial(parse_reg, writer.get_reg, writer.case == CASE_LOWER),
@@ -591,7 +592,7 @@ def parse_for(text, index, *cwd):
         return end, s.replace(var, str(start))
     return end, fsep.join((sep.join([s.replace(var, str(n)) for n in range(start, stop, step)]), s.replace(var, str(stop))))
 
-def parse_foreach(text, index, entry_holder):
+def parse_foreach(entry_holder, text, index, *cwd):
     # #FOREACH([v1,v2,...])(var,string[,sep,fsep])
     try:
         end, values = parse_strings(text, index)
@@ -619,7 +620,7 @@ def parse_foreach(text, index, entry_holder):
                 pass
         elif value.startswith('ENTRY'):
             types = value[5:]
-            values = [str(e.address) for e in entry_holder.memory_map if not types or e.ctl in types]
+            values = [str(e.address) for e in entry_holder.memory_map if e.ctl != 'i' and (not types or e.ctl in types)]
     if not values:
         return end, ''
     if fsep is None:

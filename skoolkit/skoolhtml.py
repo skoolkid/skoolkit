@@ -434,12 +434,6 @@ class HtmlWriter:
         """Return the routine or data block that starts at `address`."""
         return self.parser.get_entry(address)
 
-    def get_entry_point_refs(self, address):
-        """Return the addresses of the routines and data blocks that contain
-        instructions that refer to `address`.
-        """
-        return self.parser.get_entry_point_refs(address)
-
     # API
     def get_snapshot_name(self):
         """Return the name of the current memory snapshot."""
@@ -1139,9 +1133,6 @@ class HtmlWriter:
         udgs = lambda: font_udgs(self.snapshot, addr, attr, html.unescape(message)[:chars])
         frame = Frame(udgs, scale, 0, *crop_rect, name=frame)
         return end, self.handle_image(frame, fname, cwd, alt, 'FontImagePath')
-
-    def expand_foreach(self, text, index, cwd):
-        return skoolmacro.parse_foreach(text, index, self)
 
     def expand_html(self, text, index, cwd):
         end, content = skoolmacro.parse_html(text, index)
