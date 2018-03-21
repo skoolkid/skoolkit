@@ -194,9 +194,6 @@ class AsmWriter:
         end, message = skoolmacro.parse_html(text, index)
         return end, ''
 
-    def expand_if(self, text, index):
-        return skoolmacro.parse_if(text, index, self.fields)
-
     def expand_include(self, text, index):
         end, paragraphs, section = skoolmacro.parse_include(text, index)
         return end, ''

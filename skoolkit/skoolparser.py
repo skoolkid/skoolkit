@@ -513,7 +513,7 @@ class SkoolParser:
                 self.mode.assemble = asm_value
         elif directive.startswith('if('):
             try:
-                self._parse_asm_directive(parse_if(directive, 2, self.fields)[1])
+                self._parse_asm_directive(parse_if(self.fields, directive, 2)[1])
             except MacroParsingError:
                 pass
         elif self.mode.asm_mode:

@@ -442,6 +442,7 @@ def get_macros(writer):
         '#EVAL': partial(parse_eval, writer.case == CASE_LOWER),
         '#FOR': parse_for,
         '#FOREACH': partial(parse_foreach, writer.parser),
+        '#IF': partial(parse_if, writer.fields),
         '#N': partial(parse_n, writer.base, writer.case == CASE_LOWER),
         '#RAW': parse_raw,
         '#REG': partial(parse_reg, writer.get_reg, writer.case == CASE_LOWER),
@@ -633,7 +634,7 @@ def parse_html(text, index):
     # #HTML(text)
     return parse_strings(text, index, 1)
 
-def parse_if(text, index, fields):
+def parse_if(fields, text, index, *cwd):
     # #IFexpr(true[,false])
     try:
         end, value = parse_ints(text, index, 1, fields=fields)

@@ -1138,9 +1138,6 @@ class HtmlWriter:
         end, content = skoolmacro.parse_html(text, index)
         return end, html.unescape(content)
 
-    def expand_if(self, text, index, cwd):
-        return skoolmacro.parse_if(text, index, self.fields)
-
     def expand_include(self, text, index, cwd):
         end, paragraphs, section = skoolmacro.parse_include(text, index)
         content = self.get_section(section, paragraphs)
