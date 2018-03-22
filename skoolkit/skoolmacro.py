@@ -443,6 +443,7 @@ def get_macros(writer):
         '#FOR': parse_for,
         '#FOREACH': partial(parse_foreach, writer.parser),
         '#IF': partial(parse_if, writer.fields),
+        '#MAP': partial(parse_map, writer.fields),
         '#N': partial(parse_n, writer.base, writer.case == CASE_LOWER),
         '#RAW': parse_raw,
         '#REG': partial(parse_reg, writer.get_reg, writer.case == CASE_LOWER),
@@ -681,7 +682,7 @@ def parse_link(text, index):
         raise MacroParsingError("No link text: {}{}".format(macro, text[index:end]))
     return end, page_id, anchor, link_text
 
-def parse_map(text, index, fields):
+def parse_map(fields, text, index, *cwd):
     # #MAPvalue(default[,k1:v1,k2:v2...])
     try:
         args_index, value = parse_ints(text, index, 1, fields=fields)
