@@ -207,9 +207,6 @@ class AsmWriter:
     def expand_list(self, text, index):
         return self._ignore_block(text, index, LIST_MARKER, LIST_END_MARKER)
 
-    def expand_peek(self, text, index):
-        return skoolmacro.parse_peek(text, index, self.snapshot)
-
     def expand_pokes(self, text, index):
         return skoolmacro.parse_pokes(text, index, self.snapshot)
 
