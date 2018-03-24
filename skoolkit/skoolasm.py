@@ -207,9 +207,6 @@ class AsmWriter:
     def expand_list(self, text, index):
         return self._ignore_block(text, index, LIST_MARKER, LIST_END_MARKER)
 
-    def expand_pushs(self, text, index):
-        return skoolmacro.parse_pushs(text, index, self)
-
     def expand_r(self, text, index):
         end, addr_str, address, code_id, anchor, link_text = skoolmacro.parse_r(text, index)
         if link_text:

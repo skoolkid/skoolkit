@@ -448,6 +448,7 @@ def get_macros(writer):
         '#PEEK': partial(parse_peek, writer),
         '#POKES': partial(parse_pokes, writer),
         '#POPS': partial(parse_pops, writer),
+        '#PUSHS': partial(parse_pushs, writer),
         '#RAW': parse_raw,
         '#REG': partial(parse_reg, writer.get_reg, writer.case == CASE_LOWER),
         '#SPACE': partial(parse_space, writer.space),
@@ -752,7 +753,7 @@ def parse_pops(writer, text, index, *cwd):
         raise MacroParsingError(e.args[0])
     return index, ''
 
-def parse_pushs(text, index, writer):
+def parse_pushs(writer, text, index, *cwd):
     # #PUSHS[name]
     end = index
     while end < len(text) and (text[end].isalnum() or text[end] in '$#'):
