@@ -447,6 +447,7 @@ def get_macros(writer):
         '#N': partial(parse_n, writer.base, writer.case == CASE_LOWER),
         '#PEEK': partial(parse_peek, writer),
         '#POKES': partial(parse_pokes, writer),
+        '#POPS': partial(parse_pops, writer),
         '#RAW': parse_raw,
         '#REG': partial(parse_reg, writer.get_reg, writer.case == CASE_LOWER),
         '#SPACE': partial(parse_space, writer.space),
@@ -743,7 +744,7 @@ def parse_pokes(writer, text, index, *cwd):
         writer.snapshot[addr:addr + length * step:step] = [byte] * length
     return end, ''
 
-def parse_pops(text, index, writer):
+def parse_pops(writer, text, index, *cwd):
     # #POPS
     try:
         writer.pop_snapshot()
