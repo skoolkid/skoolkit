@@ -237,17 +237,17 @@ test_disassemblies() {
   targets="test34 test35 test36"
 
   make -C $HUNGRYHORACE_HOME $targets &> $hhlog & PIDhh=$!
-  make -C $ROM_DISASSEMBLY_HOME $targets &> $romlog & PIDrom=$!
   make -C $MANICMINER_HOME $targets &> $mmlog & PIDmm=$!
   make -C $JETSETWILLY_HOME $targets &> $jswlog & PIDjsw=$!
+  make -C $ROM_DISASSEMBLY_HOME $targets &> $romlog & PIDrom=$!
   make -C $SKOOLDAZE_HOME $targets &> $sdlog & PIDsd=$!
   make -C $BACKTOSKOOL_HOME $targets &> $btslog & PIDbts=$!
   make -C $CONTACTSAMCRUISE_HOME $targets &> $csclog & PIDcsc=$!
 
   _wait "Hungry Horace tests" $PIDhh "(see $hhlog)" _
-  _wait "Spectrum ROM tests" $PIDrom "(see $romlog)" _
   _wait "Manic Miner tests" $PIDmm "(see $mmlog)" _
   _wait "Jet Set Willy tests" $PIDjsw "(see $jswlog)" _
+  _wait "Spectrum ROM tests" $PIDrom "(see $romlog)" _
   _wait "Skool Daze tests" $PIDsd "(see $sdlog)" _
   _wait "Back to Skool tests" $PIDbts "(see $btslog)" _
   _wait "Contact Sam Cruise tests" $PIDcsc "(see $csclog)" _
@@ -277,17 +277,17 @@ disassembly_diffs() {
   done
 
   (cd $hhdiffsdir; $DISASSEMBLY_DIFF hh &> $diffslog) & PIDhh=$!
-  (cd $romdiffsdir; $DISASSEMBLY_DIFF rom &> $diffslog) & PIDrom=$!
   (cd $mmdiffsdir; $DISASSEMBLY_DIFF mm &> $diffslog) & PIDmm=$!
   (cd $jswdiffsdir; $DISASSEMBLY_DIFF jsw &> $diffslog) & PIDjsw=$!
+  (cd $romdiffsdir; $DISASSEMBLY_DIFF rom &> $diffslog) & PIDrom=$!
   (cd $sddiffsdir; $DISASSEMBLY_DIFF sd &> $diffslog) & PIDsd=$!
   (cd $btsdiffsdir; $DISASSEMBLY_DIFF bts &> $diffslog) & PIDbts=$!
   (cd $cscdiffsdir; $DISASSEMBLY_DIFF csc &> $diffslog) & PIDcsc=$!
 
   _wait "Hungry Horace disassembly-diff" $PIDhh "(see $hhdiffsdir/$diffslog)"
-  _wait "Spectrum ROM disassembly-diff" $PIDrom "(see $romdiffsdir/$diffslog)"
   _wait "Manic Miner disassembly-diff" $PIDmm "(see $mmdiffsdir/$diffslog)"
   _wait "Jet Set Willy disassembly-diff" $PIDjsw "(see $jswdiffsdir/$diffslog)"
+  _wait "Spectrum ROM disassembly-diff" $PIDrom "(see $romdiffsdir/$diffslog)"
   _wait "Skool Daze disassembly-diff" $PIDsd "(see $sddiffsdir/$diffslog)"
   _wait "Back to Skool disassembly-diff" $PIDbts "(see $btsdiffsdir/$diffslog)"
   _wait "Contact Sam Cruise disassembly-diff" $PIDcsc "(see $cscdiffsdir/$diffslog)"
@@ -312,17 +312,17 @@ check_asms() {
   CHECK_ASMS=$TOOLS/check-asms
 
   (cd $hhasmdir; $CHECK_ASMS hh &> $asmlog) & PIDhh=$!
-  (cd $romasmdir; $CHECK_ASMS rom &> $asmlog) & PIDrom=$!
   (cd $mmasmdir; $CHECK_ASMS mm &> $asmlog) & PIDmm=$!
   (cd $jswasmdir; $CHECK_ASMS jsw &> $asmlog) & PIDjsw=$!
+  (cd $romasmdir; $CHECK_ASMS rom &> $asmlog) & PIDrom=$!
   (cd $sdasmdir; $CHECK_ASMS sd &> $asmlog) & PIDsd=$!
   (cd $btsasmdir; $CHECK_ASMS bts &> $asmlog) & PIDbts=$!
   (cd $cscasmdir; $CHECK_ASMS csc &> $asmlog) & PIDcsc=$!
 
   _wait "Hungry Horace check-asms" $PIDhh "(see $hhasmdir/$asmlog)" _
-  _wait "Spectrum ROM check-asms" $PIDrom "(see $romasmdir/$asmlog)" _
   _wait "Manic Miner check-asms" $PIDmm "(see $mmasmdir/$asmlog)" _
   _wait "Jet Set Willy check-asms" $PIDjsw "(see $jswasmdir/$asmlog)" _
+  _wait "Spectrum ROM check-asms" $PIDrom "(see $romasmdir/$asmlog)" _
   _wait "Skool Daze check-asms" $PIDsd "(see $sdasmdir/$asmlog)" _
   _wait "Back to Skool check-asms" $PIDbts "(see $btsasmdir/$asmlog)" _
   _wait "Contact Sam Cruise check-asms" $PIDcsc "(see $cscasmdir/$asmlog)" _
