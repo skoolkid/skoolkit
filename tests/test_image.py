@@ -1,5 +1,4 @@
 import zlib
-import unittest
 from collections import deque
 from io import BytesIO
 

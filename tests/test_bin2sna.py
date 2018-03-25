@@ -1,6 +1,5 @@
 import os
 import textwrap
-import unittest
 from unittest.mock import patch
 
 from skoolkittest import SkoolKitTestCase, Z80_REGISTERS

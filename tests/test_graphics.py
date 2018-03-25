@@ -1,5 +1,3 @@
-import unittest
-
 from skoolkittest import SkoolKitTestCase
 from skoolkit.graphics import Udg, flip_udgs, rotate_udgs, font_udgs
 

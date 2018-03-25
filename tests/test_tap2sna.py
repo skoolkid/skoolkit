@@ -1,6 +1,5 @@
 import os
 import textwrap
-import unittest
 import urllib
 from zipfile import ZipFile
 from io import BytesIO

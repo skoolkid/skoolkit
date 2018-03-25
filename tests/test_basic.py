@@ -1,5 +1,3 @@
-import unittest
-
 from skoolkittest import SkoolKitTestCase
 from skoolkit.basic import BasicLister, VariableLister
 

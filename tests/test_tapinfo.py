@@ -1,5 +1,4 @@
 from textwrap import dedent
-import unittest
 from unittest.mock import patch
 
 from skoolkittest import (SkoolKitTestCase, create_data_block,

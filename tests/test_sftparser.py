@@ -1,6 +1,5 @@
 import re
 import textwrap
-import unittest
 
 from skoolkittest import SkoolKitTestCase
 from skoolkit.sftparser import SftParser, SftParsingError

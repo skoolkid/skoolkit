@@ -1,5 +1,3 @@
-import unittest
-
 from skoolkittest import SkoolKitTestCase
 from skoolkit.snapshot import get_snapshot, make_z80_ram_block, SnapshotError
 

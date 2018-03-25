@@ -1,5 +1,4 @@
 import re
-import unittest
 from textwrap import dedent, wrap
 
 from skoolkittest import SkoolKitTestCase

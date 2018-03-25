@@ -1,6 +1,5 @@
 from io import StringIO
 import textwrap
-import unittest
 
 from skoolkittest import SkoolKitTestCase
 from skoolkit import SkoolParsingError

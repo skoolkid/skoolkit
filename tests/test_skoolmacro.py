@@ -1,5 +1,4 @@
 import re
-import unittest
 
 from skoolkittest import SkoolKitTestCase
 from skoolkit.skoolmacro import (parse_ints, parse_strings, parse_brackets, parse_image_macro,

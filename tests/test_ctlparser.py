@@ -1,5 +1,4 @@
 import textwrap
-import unittest
 
 from skoolkittest import SkoolKitTestCase
 from skoolkit.ctlparser import CtlParser

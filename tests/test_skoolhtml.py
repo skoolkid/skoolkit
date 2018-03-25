@@ -2,7 +2,6 @@ import html
 from os.path import basename, isfile
 from posixpath import join
 from textwrap import dedent
-import unittest
 from unittest.mock import patch
 
 from skoolkittest import SkoolKitTestCase, StringIO

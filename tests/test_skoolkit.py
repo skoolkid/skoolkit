@@ -1,6 +1,5 @@
 import sys
 import os
-import unittest
 from importlib import invalidate_caches
 
 from skoolkittest import SkoolKitTestCase

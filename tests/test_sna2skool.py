@@ -1,7 +1,6 @@
 import os.path
 import re
 from textwrap import dedent
-import unittest
 from unittest.mock import patch, Mock
 
 from skoolkittest import SkoolKitTestCase
