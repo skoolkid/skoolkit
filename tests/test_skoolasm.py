@@ -559,6 +559,10 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
         output = '\n'.join(writer.format(nest_macros('#UDGTABLE({}){{ Stuff }}UDGTABLE#', 'someclass'), 79))
         self.assertEqual(output, '')
 
+        # Macro following
+        output = '\n'.join(writer.format('#UDGTABLE { Hi } TABLE# #CHR33', 79))
+        self.assertEqual(output, '!')
+
     def test_macro_udgtable_invalid(self):
         writer = self._get_writer()
 

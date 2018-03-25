@@ -491,7 +491,7 @@ def expand_macros(writer, text, *cwd):
             raise SkoolParsingError('Error while parsing {} macro: {}'.format(marker, e.args[0]))
         text = text[:index] + rep + text[abs(end):]
         if end < 0:
-            index = -end
+            index += len(rep)
 
     return text
 
