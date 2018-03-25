@@ -99,11 +99,11 @@ def convert_addresses(lines, index):
     changed = False
     hex_lines = []
     for line in lines:
-        try:
-            address = int(line[index + 1:index + 6])
-            hex_lines.append('{}${:04X}{}'.format(line[:index + 1], address, line[index + 6:]))
+        address = line[index + 1:index + 6]
+        if address.isdigit():
+            hex_lines.append('{}${:04X}{}'.format(line[:index + 1], int(address), line[index + 6:]))
             changed = True
-        except ValueError:
+        else:
             hex_lines.append(line)
     return changed, hex_lines
 
