@@ -1,7 +1,7 @@
 Changelog
 =========
 
-6.4b1
+6.4rc
 -----
 * Added the :ref:`asm-if` directive (for conditionally processing other ASM
   directives)
