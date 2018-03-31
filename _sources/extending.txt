@@ -87,8 +87,8 @@ parameter in the ref file or ``@writer`` directive in the skool file.
 
 Note that if the writer class is specified with a blank module path (e.g.
 ``:game.GameHtmlWriter``), SkoolKit will search for the module in both the
-current working directory and the directory containing the skool file or ref
-file named on the command line.
+current working directory and the directory containing the skool file named on
+the command line.
 
 #CALL methods
 -------------
@@ -116,7 +116,7 @@ filename). The method (let's call it `sprite`) would look something like this:
   class GameHtmlWriter(HtmlWriter):
       def sprite(self, cwd, sprite_id, fname):
           udgs = self.build_sprite(sprite_id)
-          return self.handle_image([Frame(udgs)], fname, cwd)
+          return self.handle_image(Frame(udgs), fname, cwd)
 
 With this method (and an appropriate implementation of the `build_sprite`
 method) in place, it's possible to use a ``#CALL`` macro like this::
@@ -200,8 +200,8 @@ this:
       def expand_sprite(self, text, index, cwd):
           end, crop_rect, fname, frame, alt, (sprite_id,) = parse_image_macro(text, index, names=['id'])
           udgs = self.build_sprite(sprite_id)
-          frames = [Frame(udgs, 2, 0, *crop_rect, name=frame)]
-          return end, self.handle_image(frames, fname, cwd, alt)
+          frame = Frame(udgs, 2, 0, *crop_rect, name=frame)
+          return end, self.handle_image(frame, fname, cwd, alt)
 
 With this method (and an appropriate implementation of the `build_sprite`
 method) in place, the ``#SPRITE`` macro might be used like this::
@@ -372,7 +372,7 @@ be implemented like this:
           udg_data = [b ^ 255 for b in self.snapshot[address:address + 8]]
           frame = Frame([[Udg(attr, udg_data)]], 2)
           fname = 'inverse{}_{}'.format(address, attr)
-          return end, self.handle_image([frame], fname, cwd)
+          return end, self.handle_image(frame, fname, cwd)
 
 The Udg class provides two methods for manipulating an 8x8 graphic: `flip` and
 `rotate`.
@@ -449,6 +449,9 @@ and functions.
    .. versionchanged:: 6.3
       *fname* may contain an image path ID replacement field (e.g.
       ``{UDGImagePath}``).
+
+   .. versionchanged:: 6.4
+      *frames* may be a single frame.
 
 .. automethod:: skoolkit.skoolhtml.HtmlWriter.screenshot
 .. autofunction:: skoolkit.graphics.flip_udgs

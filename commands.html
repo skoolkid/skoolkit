@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Commands &#8212; SkoolKit 6.3 documentation</title>
+    <title>Commands &#8212; SkoolKit 6.4 documentation</title>
     
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '6.3',
+        VERSION:     '6.4',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="top" title="SkoolKit 6.3 documentation" href="index.html" />
+    <link rel="top" title="SkoolKit 6.4 documentation" href="index.html" />
     <link rel="next" title="Supported assemblers" href="assemblers.html" />
     <link rel="prev" title="Disassembly DIY" href="diy.html" /> 
   </head>
@@ -42,7 +42,7 @@
         <li class="right" >
           <a href="diy.html" title="Disassembly DIY"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 6.3 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 6.4 documentation</a> &#187;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
@@ -302,6 +302,8 @@ Options:
   -S ADDR, --start ADDR
                         Start converting at this address.
   -u, --upper           Write the disassembly in upper case.
+  --var name=value      Define a variable that can be used by @if, #IF and #MAP.
+                        This option may be used multiple times.
   -V, --version         Show SkoolKit version number and exit.
   -w, --no-warnings     Suppress warnings.
   -W CLASS, --writer CLASS
@@ -353,33 +355,36 @@ Set-line-width=120
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>6.2</td>
+<tr class="row-even"><td>6.4</td>
+<td>Added the <code class="docutils literal"><span class="pre">--var</span></code> option</td>
+</tr>
+<tr class="row-odd"><td>6.2</td>
 <td>Added the <code class="docutils literal"><span class="pre">--show-config</span></code> option; the <code class="docutils literal"><span class="pre">--end</span></code> and <code class="docutils literal"><span class="pre">--start</span></code>
 options accept a hexadecimal integer prefixed by &#8216;0x&#8217;</td>
 </tr>
-<tr class="row-odd"><td>6.1</td>
+<tr class="row-even"><td>6.1</td>
 <td>Configuration is read from <cite>skoolkit.ini</cite> if present; added the
 <code class="docutils literal"><span class="pre">--ini</span></code> option</td>
 </tr>
-<tr class="row-even"><td>5.0</td>
+<tr class="row-odd"><td>5.0</td>
 <td>Added the <code class="docutils literal"><span class="pre">--set</span></code> option</td>
 </tr>
-<tr class="row-odd"><td>4.5</td>
+<tr class="row-even"><td>4.5</td>
 <td>Added the <code class="docutils literal"><span class="pre">--start</span></code> and <code class="docutils literal"><span class="pre">--end</span></code> options</td>
 </tr>
-<tr class="row-even"><td>4.1</td>
+<tr class="row-odd"><td>4.1</td>
 <td>Added the <code class="docutils literal"><span class="pre">--writer</span></code> option</td>
 </tr>
-<tr class="row-odd"><td>3.4</td>
+<tr class="row-even"><td>3.4</td>
 <td>Added the <code class="docutils literal"><span class="pre">-V</span></code> and <code class="docutils literal"><span class="pre">-p</span></code> options and the long options</td>
 </tr>
-<tr class="row-even"><td>2.2.2</td>
+<tr class="row-odd"><td>2.2.2</td>
 <td>Added the ability to read a skool file from standard input</td>
 </tr>
-<tr class="row-odd"><td>2.1.1</td>
+<tr class="row-even"><td>2.1.1</td>
 <td>Added the <code class="docutils literal"><span class="pre">-u</span></code>, <code class="docutils literal"><span class="pre">-D</span></code> and <code class="docutils literal"><span class="pre">-H</span></code> options</td>
 </tr>
-<tr class="row-even"><td>1.1</td>
+<tr class="row-odd"><td>1.1</td>
 <td>Added the <code class="docutils literal"><span class="pre">-c</span></code> option</td>
 </tr>
 </tbody>
@@ -543,19 +548,8 @@ exist) into a browsable disassembly in HTML format.</p>
 <p>will convert the file <cite>game.skool</cite> into a bunch of HTML files. If any files
 named <cite>game*.ref</cite> (e.g. <cite>game.ref</cite>, <cite>game-bugs.ref</cite>, <cite>game-pokes.ref</cite> and so
 on) also exist, they will be used to provide further information to the
-conversion process.</p>
-<p><cite>skool2html.py</cite> can operate directly on ref files, too. For example:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>$ skool2html.py game.ref
-</pre></div>
-</div>
-<p>In this case, the skool file declared in the <a class="reference internal" href="ref-files.html#ref-config"><span class="std std-ref">[Config]</span></a> section will be
-used; if no skool file is declared, <cite>game.skool</cite> will be used if it exists.  In
-addition, any existing files besides <cite>game.ref</cite> that are named <cite>game*.ref</cite>
-(e.g. <cite>game-bugs.ref</cite>, <cite>game-pokes.ref</cite> and so on) will also be used, along
-with any extra files named in the <code class="docutils literal"><span class="pre">RefFiles</span></code> parameter in the
-<a class="reference internal" href="ref-files.html#ref-config"><span class="std std-ref">[Config]</span></a> section.</p>
-<p>If an input file&#8217;s name ends with &#8216;.ref&#8217;, it will be treated as a ref file;
-otherwise it will be treated as a skool file.</p>
+conversion process, along with any extra files named in the <code class="docutils literal"><span class="pre">RefFiles</span></code>
+parameter in the <a class="reference internal" href="ref-files.html#ref-config"><span class="std std-ref">[Config]</span></a> section.</p>
 <p><cite>skool2html.py</cite> supports several options; run it with no arguments to see a
 list:</p>
 <div class="highlight-none"><div class="highlight"><pre><span></span>usage: skool2html.py [options] FILE [FILE...]
@@ -597,6 +591,8 @@ Options:
                         Use this CSS theme. This option may be used multiple
                         times.
   -u, --upper           Write the disassembly in upper case.
+  --var name=value      Define a variable that can be used by @if, #IF and #MAP.
+                        This option may be used multiple times.
   -V, --version         Show SkoolKit version number and exit.
   -w X, --write X       Write only these files, where X is one or more of:
                           d = Disassembly files   o = Other code
@@ -607,11 +603,17 @@ Options:
                         &#39;--config Config/HtmlWriterClass=CLASS&#39;.
 </pre></div>
 </div>
-<p><cite>skool2html.py</cite> searches the following directories for skool files, ref files,
-CSS files, JavaScript files, font files, and files listed in the
-<a class="reference internal" href="ref-files.html#resources"><span class="std std-ref">[Resources]</span></a> section of the ref file:</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Giving a ref file as the first positional argument is deprecated since
+version 6.4. In SkoolKit 7.0, <cite>skool2html.py</cite> will require the skool file as
+the first positional argument.</p>
+</div>
+<p><cite>skool2html.py</cite> searches the following directories for ref files, CSS files,
+JavaScript files, font files, and files listed in the <a class="reference internal" href="ref-files.html#resources"><span class="std std-ref">[Resources]</span></a> section
+of the ref file:</p>
 <ul class="simple">
-<li>The directory that contains the skool or ref file named on the command line</li>
+<li>The directory that contains the skool file named on the command line</li>
 <li>The current working directory</li>
 <li><cite>./resources</cite></li>
 <li><cite>~/.skoolkit</cite></li>
@@ -628,7 +630,7 @@ StyleSheet=skoolkit.css;game.css
 </pre></div>
 </div>
 <p>then:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>$ skool2html.py -T dark -T wide game.ref
+<div class="highlight-none"><div class="highlight"><pre><span></span>$ skool2html.py -T dark -T wide game.skool
 </pre></div>
 </div>
 <p>will use the following CSS files, if they exist, in the order listed:</p>
@@ -692,65 +694,68 @@ Base=16
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>6.2</td>
+<tr class="row-even"><td>6.4</td>
+<td>Added the <code class="docutils literal"><span class="pre">--var</span></code> option</td>
+</tr>
+<tr class="row-odd"><td>6.2</td>
 <td>Added the <code class="docutils literal"><span class="pre">--show-config</span></code> option</td>
 </tr>
-<tr class="row-odd"><td>6.1</td>
+<tr class="row-even"><td>6.1</td>
 <td>Configuration is read from <cite>skoolkit.ini</cite> if present; added the
 <code class="docutils literal"><span class="pre">--ini</span></code> option</td>
 </tr>
-<tr class="row-even"><td>5.4</td>
+<tr class="row-odd"><td>5.4</td>
 <td>Added the <code class="docutils literal"><span class="pre">--asm-one-page</span></code> option</td>
 </tr>
-<tr class="row-odd"><td>5.0</td>
+<tr class="row-even"><td>5.0</td>
 <td>The <code class="docutils literal"><span class="pre">--theme</span></code> option also looks for a CSS file whose base name
 matches the theme name</td>
 </tr>
-<tr class="row-even"><td>4.1</td>
+<tr class="row-odd"><td>4.1</td>
 <td>Added the <code class="docutils literal"><span class="pre">--search</span></code> and <code class="docutils literal"><span class="pre">--writer</span></code> options</td>
 </tr>
-<tr class="row-odd"><td>4.0</td>
+<tr class="row-even"><td>4.0</td>
 <td>Added the <code class="docutils literal"><span class="pre">--ref-sections</span></code> and <code class="docutils literal"><span class="pre">--ref-file</span></code> options</td>
 </tr>
-<tr class="row-even"><td>3.6</td>
+<tr class="row-odd"><td>3.6</td>
 <td>Added the <code class="docutils literal"><span class="pre">--join-css</span></code> and <code class="docutils literal"><span class="pre">--search-dirs</span></code> options</td>
 </tr>
-<tr class="row-odd"><td>3.5</td>
+<tr class="row-even"><td>3.5</td>
 <td>Added support for multiple CSS themes</td>
 </tr>
-<tr class="row-even"><td>3.4</td>
+<tr class="row-odd"><td>3.4</td>
 <td>Added the <code class="docutils literal"><span class="pre">-a</span></code> and <code class="docutils literal"><span class="pre">-C</span></code> options and the long options</td>
 </tr>
-<tr class="row-odd"><td>3.3.2</td>
+<tr class="row-even"><td>3.3.2</td>
 <td>Added <cite>$PACKAGE_DIR/resources</cite> to the search path; added the
 <code class="docutils literal"><span class="pre">-p</span></code> and <code class="docutils literal"><span class="pre">-T</span></code> options</td>
 </tr>
-<tr class="row-even"><td>3.2</td>
+<tr class="row-odd"><td>3.2</td>
 <td>Added <cite>~/.skoolkit</cite> to the search path</td>
 </tr>
-<tr class="row-odd"><td>3.1</td>
+<tr class="row-even"><td>3.1</td>
 <td>Added the <code class="docutils literal"><span class="pre">-c</span></code> option</td>
 </tr>
-<tr class="row-even"><td>3.0.2</td>
+<tr class="row-odd"><td>3.0.2</td>
 <td>No longer shows timings by default; added the <code class="docutils literal"><span class="pre">-t</span></code> option</td>
 </tr>
-<tr class="row-odd"><td>2.3.1</td>
+<tr class="row-even"><td>2.3.1</td>
 <td>Added support for reading multiple ref files per disassembly</td>
 </tr>
-<tr class="row-even"><td>2.2.2</td>
+<tr class="row-odd"><td>2.2.2</td>
 <td>Added the ability to read a skool file from standard input</td>
 </tr>
-<tr class="row-odd"><td>2.2</td>
+<tr class="row-even"><td>2.2</td>
 <td>No longer writes the Skool Daze and Back to Skool disassemblies
 by default; added the <code class="docutils literal"><span class="pre">-d</span></code> option</td>
 </tr>
-<tr class="row-even"><td>2.1.1</td>
+<tr class="row-odd"><td>2.1.1</td>
 <td>Added the <code class="docutils literal"><span class="pre">-l</span></code>, <code class="docutils literal"><span class="pre">-u</span></code>, <code class="docutils literal"><span class="pre">-D</span></code> and <code class="docutils literal"><span class="pre">-H</span></code> options</td>
 </tr>
-<tr class="row-odd"><td>2.1</td>
+<tr class="row-even"><td>2.1</td>
 <td>Added the <code class="docutils literal"><span class="pre">-o</span></code> and <code class="docutils literal"><span class="pre">-P</span></code> options</td>
 </tr>
-<tr class="row-even"><td>1.4</td>
+<tr class="row-odd"><td>1.4</td>
 <td>Added the <code class="docutils literal"><span class="pre">-V</span></code> option</td>
 </tr>
 </tbody>
@@ -1406,7 +1411,7 @@ Options:
         <li class="right" >
           <a href="diy.html" title="Disassembly DIY"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 6.3 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 6.4 documentation</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">

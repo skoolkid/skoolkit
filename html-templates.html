@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>HTML templates &#8212; SkoolKit 6.3 documentation</title>
+    <title>HTML templates &#8212; SkoolKit 6.4 documentation</title>
     
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '6.3',
+        VERSION:     '6.4',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="top" title="SkoolKit 6.3 documentation" href="index.html" />
+    <link rel="top" title="SkoolKit 6.4 documentation" href="index.html" />
     <link rel="next" title="ASM modes and directives" href="asm.html" />
     <link rel="prev" title="Ref files" href="ref-files.html" /> 
   </head>
@@ -42,7 +42,7 @@
         <li class="right" >
           <a href="ref-files.html" title="Ref files"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 6.3 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 6.4 documentation</a> &#187;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
@@ -136,6 +136,8 @@ being built</li>
 <li><code class="docutils literal"><span class="pre">page_header</span></code> - the page header text (as defined in the <a class="reference internal" href="ref-files.html#pageheaders"><span class="std std-ref">[PageHeaders]</span></a>
 section)</li>
 <li><code class="docutils literal"><span class="pre">page_id</span></code> - the page ID (e.g. <code class="docutils literal"><span class="pre">GameIndex</span></code>, <code class="docutils literal"><span class="pre">MemoryMap</span></code>)</li>
+<li><code class="docutils literal"><span class="pre">path</span></code> - the page&#8217;s filename, including the full path relative to the root
+of the disassembly</li>
 <li><code class="docutils literal"><span class="pre">title</span></code> - the title of the page (as defined in the <a class="reference internal" href="ref-files.html#titles"><span class="std std-ref">[Titles]</span></a> section)</li>
 </ul>
 <p>The parameters in a dictionary are accessed using the <code class="docutils literal"><span class="pre">[param]</span></code> notation;
@@ -151,6 +153,9 @@ are available in every full-page template:</p>
 subtemplate</li>
 <li><code class="docutils literal"><span class="pre">t_footer</span></code> - replaced by a copy of the <a class="reference internal" href="#t-footer"><span class="std std-ref">footer</span></a> subtemplate</li>
 </ul>
+<div class="versionchanged">
+<p><span class="versionmodified">Changed in version 6.4: </span>Added <code class="docutils literal"><span class="pre">path</span></code> to the <code class="docutils literal"><span class="pre">SkoolKit</span></code> dictionary.</p>
+</div>
 <div class="section" id="asm">
 <span id="t-asm"></span><h2>Asm<a class="headerlink" href="#asm" title="Permalink to this headline">¶</a></h2>
 <p>The <code class="docutils literal"><span class="pre">Asm</span></code> template is the full-page template that is used to build
@@ -421,9 +426,19 @@ identifiers):</p>
 <span id="t-footer"></span><h2>footer<a class="headerlink" href="#footer" title="Permalink to this headline">¶</a></h2>
 <p>The <code class="docutils literal"><span class="pre">footer</span></code> template is the subtemplate used by the full-page templates to
 format the <code class="docutils literal"><span class="pre">&lt;footer&gt;</span></code> element of a page.</p>
+<p>When this template is part of a disassembly page, the following additional
+identifier is available:</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">entry</span></code> - a dictionary of parameters corresponding to the current memory
+map entry (see <a class="reference internal" href="#t-asm"><span class="std std-ref">Asm</span></a>)</li>
+</ul>
 <p>To see the default <code class="docutils literal"><span class="pre">footer</span></code> template, run the following command:</p>
 <div class="highlight-none"><div class="highlight"><pre><span></span>$ skool2html.py -r Template:footer
 </pre></div>
+</div>
+<div class="versionchanged">
+<p><span class="versionmodified">Changed in version 6.4: </span>The <code class="docutils literal"><span class="pre">entry</span></code> identifier is available when the template is part of a
+disassembly page.</p>
 </div>
 <div class="versionadded">
 <p><span class="versionmodified">New in version 5.0.</span></p>
@@ -789,7 +804,7 @@ SkoolKit uses the <code class="docutils literal"><span class="pre">RoutinesMap</
 </colgroup>
 <thead valign="bottom">
 <tr class="row-odd"><th class="head">Page type</th>
-<th class="head">Preferred template</th>
+<th class="head">Preferred template(s)</th>
 <th class="head">Stock template</th>
 </tr>
 </thead>
@@ -804,7 +819,7 @@ index</td>
 <td><a class="reference internal" href="#t-memorymap"><span class="std std-ref">MemoryMap</span></a></td>
 </tr>
 <tr class="row-even"><td>Routine/data block</td>
-<td><code class="docutils literal"><span class="pre">[CodeID-]Asm-*</span></code></td>
+<td><code class="docutils literal"><span class="pre">[CodeID-]Asm[-*]</span></code></td>
 <td><a class="reference internal" href="#t-asm"><span class="std std-ref">Asm</span></a></td>
 </tr>
 <tr class="row-odd"><td>Disassembly (single page)</td>
@@ -839,21 +854,21 @@ template if it exists, or the stock <a class="reference internal" href="#t-foote
 </colgroup>
 <thead valign="bottom">
 <tr class="row-odd"><th class="head">Element type</th>
-<th class="head">Preferred template</th>
+<th class="head">Preferred template(s)</th>
 <th class="head">Stock subtemplate</th>
 </tr>
 </thead>
 <tbody valign="top">
 <tr class="row-even"><td>Registers table</td>
-<td><code class="docutils literal"><span class="pre">[CodeID-]Asm-*-asm_register</span></code></td>
+<td><code class="docutils literal"><span class="pre">[CodeID-]Asm[-*]-asm_register</span></code></td>
 <td><a class="reference internal" href="#t-asm-register"><span class="std std-ref">asm_register</span></a></td>
 </tr>
 <tr class="row-odd"><td>Routine/data block comment</td>
-<td><code class="docutils literal"><span class="pre">[CodeID-]Asm-*-asm_comment</span></code></td>
+<td><code class="docutils literal"><span class="pre">[CodeID-]Asm[-*]-asm_comment</span></code></td>
 <td><a class="reference internal" href="#t-asm-comment"><span class="std std-ref">asm_comment</span></a></td>
 </tr>
 <tr class="row-even"><td>Instruction</td>
-<td><code class="docutils literal"><span class="pre">[CodeID-]Asm-*-asm_instruction</span></code></td>
+<td><code class="docutils literal"><span class="pre">[CodeID-]Asm[-*]-asm_instruction</span></code></td>
 <td><a class="reference internal" href="#t-asm-instruction"><span class="std std-ref">asm_instruction</span></a></td>
 </tr>
 <tr class="row-odd"><td>Single-page disassembly
@@ -978,7 +993,7 @@ on the type of code or data block.</p>
         <li class="right" >
           <a href="ref-files.html" title="Ref files"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 6.3 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 6.4 documentation</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">

@@ -1,6 +1,35 @@
 Changelog
 =========
 
+6.4 (2018-03-31)
+----------------
+* Added the :ref:`asm-if` directive (for conditionally processing other ASM
+  directives)
+* Added the :ref:`RAW` macro (which prevents any macros or macro-like tokens in
+  its sole string argument from being expanded)
+* Added the ``--var`` option to :ref:`skool2asm.py` and :ref:`skool2html.py`
+  (for defining a variable that can be used by the :ref:`asm-if` directive and
+  the :ref:`IF` and :ref:`MAP` macros)
+* The ``asm`` replacement field available to the :ref:`IF` and :ref:`MAP`
+  macros now indicates the exact ASM mode: 1 (:ref:`isubMode`), 2
+  (:ref:`ssubMode`), 3 (:ref:`rsubMode`), or 0 (none)
+* The :ref:`IF` and :ref:`MAP` macros can now use the ``fix`` replacement
+  field, which indicates the fix mode: 1 (:ref:`ofixMode`), 2
+  (:ref:`bfixMode`), 3 (:ref:`rfixMode`), or 0 (none)
+* The :ref:`isub`, :ref:`ssub`, :ref:`rsub`, :ref:`ofix`, :ref:`bfix` and
+  :ref:`rfix` directives can replace comments as well as instructions
+* Added the ``entry`` identifier to the :ref:`t_footer` template when it is
+  part of a disassembly page
+* Added ``path`` to the ``SkoolKit`` dictionary in :ref:`htmlTemplates`
+* In ASM mode, a :ref:`list` or :ref:`table` macro can now be used in an
+  instruction-level comment and as a parameter of another macro
+* In ASM mode, the :ref:`list` macro produces unindented items when the bullet
+  character is an empty string, and the bullet character can be specified by
+  the ``bullet`` parameter
+* Commas that appear between parentheses are retained when a sequence of
+  :ref:`string parameters <stringParameters>` is split, making it easier to
+  nest macros (e.g. ``#FOR0,9(n,#IF(n%2)(Y,N))``)
+
 6.3 (2018-02-19)
 ----------------
 * Added the :ref:`defb`, :ref:`defs` and :ref:`defw` directives (for inserting

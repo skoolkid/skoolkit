@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Extending SkoolKit &#8212; SkoolKit 6.3 documentation</title>
+    <title>Extending SkoolKit &#8212; SkoolKit 6.4 documentation</title>
     
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '6.3',
+        VERSION:     '6.4',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="top" title="SkoolKit 6.3 documentation" href="index.html" />
+    <link rel="top" title="SkoolKit 6.4 documentation" href="index.html" />
     <link rel="prev" title="ASM modes and directives" href="asm.html" /> 
   </head>
   <body role="document">
@@ -38,7 +38,7 @@
         <li class="right" >
           <a href="asm.html" title="ASM modes and directives"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 6.3 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 6.4 documentation</a> &#187;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
@@ -168,8 +168,8 @@ by using the <code class="docutils literal"><span class="pre">-W</span></code>/<
 parameter in the ref file or <code class="docutils literal"><span class="pre">&#64;writer</span></code> directive in the skool file.</p>
 <p>Note that if the writer class is specified with a blank module path (e.g.
 <code class="docutils literal"><span class="pre">:game.GameHtmlWriter</span></code>), SkoolKit will search for the module in both the
-current working directory and the directory containing the skool file or ref
-file named on the command line.</p>
+current working directory and the directory containing the skool file named on
+the command line.</p>
 </div>
 <div class="section" id="call-methods">
 <h2>#CALL methods<a class="headerlink" href="#call-methods" title="Permalink to this headline">¶</a></h2>
@@ -192,7 +192,7 @@ filename). The method (let&#8217;s call it <cite>sprite</cite>) would look somet
 <span class="k">class</span> <span class="nc">GameHtmlWriter</span><span class="p">(</span><span class="n">HtmlWriter</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">sprite</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cwd</span><span class="p">,</span> <span class="n">sprite_id</span><span class="p">,</span> <span class="n">fname</span><span class="p">):</span>
         <span class="n">udgs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">build_sprite</span><span class="p">(</span><span class="n">sprite_id</span><span class="p">)</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">handle_image</span><span class="p">([</span><span class="n">Frame</span><span class="p">(</span><span class="n">udgs</span><span class="p">)],</span> <span class="n">fname</span><span class="p">,</span> <span class="n">cwd</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">handle_image</span><span class="p">(</span><span class="n">Frame</span><span class="p">(</span><span class="n">udgs</span><span class="p">),</span> <span class="n">fname</span><span class="p">,</span> <span class="n">cwd</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>With this method (and an appropriate implementation of the <cite>build_sprite</cite>
@@ -269,8 +269,8 @@ this:</p>
     <span class="k">def</span> <span class="nf">expand_sprite</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">cwd</span><span class="p">):</span>
         <span class="n">end</span><span class="p">,</span> <span class="n">crop_rect</span><span class="p">,</span> <span class="n">fname</span><span class="p">,</span> <span class="n">frame</span><span class="p">,</span> <span class="n">alt</span><span class="p">,</span> <span class="p">(</span><span class="n">sprite_id</span><span class="p">,)</span> <span class="o">=</span> <span class="n">parse_image_macro</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">])</span>
         <span class="n">udgs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">build_sprite</span><span class="p">(</span><span class="n">sprite_id</span><span class="p">)</span>
-        <span class="n">frames</span> <span class="o">=</span> <span class="p">[</span><span class="n">Frame</span><span class="p">(</span><span class="n">udgs</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">*</span><span class="n">crop_rect</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">frame</span><span class="p">)]</span>
-        <span class="k">return</span> <span class="n">end</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">handle_image</span><span class="p">(</span><span class="n">frames</span><span class="p">,</span> <span class="n">fname</span><span class="p">,</span> <span class="n">cwd</span><span class="p">,</span> <span class="n">alt</span><span class="p">)</span>
+        <span class="n">frame</span> <span class="o">=</span> <span class="n">Frame</span><span class="p">(</span><span class="n">udgs</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">*</span><span class="n">crop_rect</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">frame</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">end</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">handle_image</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span> <span class="n">fname</span><span class="p">,</span> <span class="n">cwd</span><span class="p">,</span> <span class="n">alt</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>With this method (and an appropriate implementation of the <cite>build_sprite</cite>
@@ -702,7 +702,7 @@ be implemented like this:</p>
         <span class="n">udg_data</span> <span class="o">=</span> <span class="p">[</span><span class="n">b</span> <span class="o">^</span> <span class="mi">255</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">snapshot</span><span class="p">[</span><span class="n">address</span><span class="p">:</span><span class="n">address</span> <span class="o">+</span> <span class="mi">8</span><span class="p">]]</span>
         <span class="n">frame</span> <span class="o">=</span> <span class="n">Frame</span><span class="p">([[</span><span class="n">Udg</span><span class="p">(</span><span class="n">attr</span><span class="p">,</span> <span class="n">udg_data</span><span class="p">)]],</span> <span class="mi">2</span><span class="p">)</span>
         <span class="n">fname</span> <span class="o">=</span> <span class="s1">&#39;inverse{}_{}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">address</span><span class="p">,</span> <span class="n">attr</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">end</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">handle_image</span><span class="p">([</span><span class="n">frame</span><span class="p">],</span> <span class="n">fname</span><span class="p">,</span> <span class="n">cwd</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">end</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">handle_image</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span> <span class="n">fname</span><span class="p">,</span> <span class="n">cwd</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>The Udg class provides two methods for manipulating an 8x8 graphic: <cite>flip</cite> and
@@ -964,9 +964,8 @@ parameter value from the <a class="reference internal" href="ref-files.html#path
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>frames</strong> &#8211; The list of frames (instances of
-<a class="reference internal" href="#skoolkit.graphics.Frame" title="skoolkit.graphics.Frame"><code class="xref py py-class docutils literal"><span class="pre">Frame</span></code></a>) from which to build
-the image.</li>
+<li><strong>frames</strong> &#8211; A frame (instance of <a class="reference internal" href="#skoolkit.graphics.Frame" title="skoolkit.graphics.Frame"><code class="xref py py-class docutils literal"><span class="pre">Frame</span></code></a>)
+or list of frames from which to build the image.</li>
 <li><strong>fname</strong> &#8211; The name of the image file.</li>
 <li><strong>cwd</strong> &#8211; The current working directory (from which the relative path
 of the image file will be computed).</li>
@@ -990,6 +989,9 @@ created.</p>
 <div class="versionchanged">
 <p><span class="versionmodified">Changed in version 6.3: </span><em>fname</em> may contain an image path ID replacement field (e.g.
 <code class="docutils literal"><span class="pre">{UDGImagePath}</span></code>).</p>
+</div>
+<div class="versionchanged">
+<p><span class="versionmodified">Changed in version 6.4: </span><em>frames</em> may be a single frame.</p>
 </div>
 </dd></dl>
 
@@ -1107,7 +1109,7 @@ subclasses may override it.</p>
         <li class="right" >
           <a href="asm.html" title="ASM modes and directives"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 6.3 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 6.4 documentation</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">

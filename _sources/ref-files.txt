@@ -99,6 +99,11 @@ Recognised parameters are:
   :ref:`skool2html.py <skool2html.py>` command line; if not specified, the
   skool file with the same base name as the ref file will be used
 
+.. note::
+   The ``SkoolFile`` parameter is deprecated since version 6.4. In SkoolKit
+   7.0, :ref:`skool2html.py` will require the skool file as the first
+   positional argument.
+
 For information on how to create your own Python class for writing an HTML
 disassembly, see the documentation on
 :ref:`extending SkoolKit <extendingSkoolKit>`.
