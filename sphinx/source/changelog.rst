@@ -1,8 +1,8 @@
 Changelog
 =========
 
-6.4rc
------
+6.4 (2018-03-31)
+----------------
 * Added the :ref:`asm-if` directive (for conditionally processing other ASM
   directives)
 * Added the :ref:`RAW` macro (which prevents any macros or macro-like tokens in
