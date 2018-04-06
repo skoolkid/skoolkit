@@ -1,6 +1,9 @@
 Changelog
 =========
 
+7.0b1
+-----
+
 6.4 (2018-03-31)
 ----------------
 * Added the :ref:`asm-if` directive (for conditionally processing other ASM
