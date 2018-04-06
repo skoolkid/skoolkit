@@ -1140,14 +1140,6 @@ For example::
   ; { #SCR(loading) | This is the loading screen. }
   ; TABLE#
 
-.. note::
-   In SkoolKit 5.0 and earlier versions, ``#SCR(2)`` would create an image file
-   named `2.png` using the default parameter values. However, since the
-   introduction in version 5.1 of support for arithmetic expressions in numeric
-   parameters, ``#SCR(2)`` creates an image file with the default name and
-   scale 2; to create an image file named `2.png` with the default parameter
-   values in SkoolKit 5.1+, write ``#SCR()(2)`` instead.
-
 +---------+------------------------------------------------------------------+
 | Version | Changes                                                          |
 +=========+==================================================================+
