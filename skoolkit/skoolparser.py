@@ -489,8 +489,6 @@ class SkoolParser:
     def _parse_asm_directive(self, directive):
         if directive.startswith('label='):
             self.mode.label = directive[6:].rstrip()
-        elif directive.startswith('nolabel'):
-            self.mode.nolabel = True
         elif directive.startswith(('defb=', 'defs=', 'defw=')):
             if self.mode.assemble >= 0:
                 parse_asm_data_directive(self.snapshot, directive)
@@ -647,7 +645,7 @@ class SkoolParser:
                 if main_label:
                     index = 0
                     for instruction in instructions[1:]:
-                        if instruction.ctl == '*' and not instruction.asm_label and not instruction.nolabel:
+                        if instruction.ctl == '*' and instruction.asm_label is None:
                             instruction.asm_label = '{0}_{1}'.format(main_label, index)
                             index += 1
 
@@ -734,7 +732,6 @@ class Mode:
         self.rsub = None
         self.keep = None
         self.nowarn = False
-        self.nolabel = False
         self.ignoreua = False
         self.ignoremrcua = False
         self.org = None
@@ -745,12 +742,12 @@ class Mode:
 
     def apply_asm_attributes(self, instruction, address_comment):
         instruction.keep = self.keep
-        instruction.nolabel = self.nolabel or self.label == ''
 
-        if self.asm_labels and self.label:
-            if self.label in self.labels:
-                raise SkoolParsingError('Duplicate label {0} at {1}'.format(self.label, instruction.address))
-            self.labels.append(self.label)
+        if self.asm_labels:
+            if self.label:
+                if self.label in self.labels:
+                    raise SkoolParsingError('Duplicate label {} at {}'.format(self.label, instruction.address))
+                self.labels.append(self.label)
             instruction.asm_label = self.label
 
         if not self.html:
@@ -878,7 +875,6 @@ class Instruction:
         self.comment = None
         self.referrers = []
         self.asm_label = None
-        self.nolabel = False
         self.org = addr_str
         # If this instruction has no address, it was inserted between
         # @rsub+begin and @rsub+end; in that case, mark it as a subbed

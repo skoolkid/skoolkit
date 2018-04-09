@@ -1865,25 +1865,6 @@ class SkoolWriterTest(SkoolKitTestCase):
         snapshot = [1, 0, 0, 17, 0, 0]
         self._test_write_skool(snapshot, ctl, exp_skool)
 
-    def test_nolabel_directives(self):
-        ctl = """
-            c 00000 Routine at 0
-            @ 00000 nolabel
-            @ 00002 nolabel
-            i 00004
-        """
-        exp_skool = """
-            @start
-            @org
-            ; Routine at 0
-            @nolabel
-            c00000 JR 2          ;
-            @nolabel
-            *00002 JR 0          ;
-        """
-        snapshot = [24, 0, 24, 252]
-        self._test_write_skool(snapshot, ctl, exp_skool)
-
     def test_nowarn_directive(self):
         ctl = """
             c 00000 Routine at 0

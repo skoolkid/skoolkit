@@ -59,7 +59,6 @@ c32768 NOP          ; Do nothing
  32779 DEFW 12345   ; W sub-block
 @nowarn
  32781 DEFS 2       ; S sub-block
-@nolabel
 @ofix=LD A,6
 *32783 LD A,5       ; {Sub-block with instructions of various types
 @rem=Hello!
@@ -202,7 +201,6 @@ cC32768,1;20 Do nothing
  W32779,2;20 W sub-block
 @nowarn
  S32781,2;20 S sub-block
-@nolabel
 @ofix=LD A,6
 *C32783,2;20 {Sub-block with instructions of various types
 @rem=Hello!

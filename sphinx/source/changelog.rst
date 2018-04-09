@@ -95,7 +95,7 @@ Changelog
 * The :ref:`keep` directive can now specify the values to keep, and is applied
   to instructions that have been replaced by an :ref:`isub`, :ref:`ssub` or
   :ref:`rsub` directive
-* The :ref:`nolabel` directive is now processed in HTML mode
+* The ``@nolabel`` directive is now processed in HTML mode
 
 6.1 (2017-09-03)
 ----------------

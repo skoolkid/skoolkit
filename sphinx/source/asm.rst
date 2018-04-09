@@ -663,69 +663,6 @@ having a label automatically generated.
 |         | having a label automatically generated)                           |
 +---------+-------------------------------------------------------------------+
 
-.. _nolabel:
-
-@nolabel
-^^^^^^^^
-The ``@nolabel`` directive prevents the next instruction from having a label
-automatically generated.
-
-For example::
-
-  @label=TOGGLE
-  c48998 LD HL,32769
-  @bfix+begin
-  @label=LOOP
-  @bfix+end
-   49001 LD A,(HL)
-  @bfix+begin
-  @nolabel
-  @bfix+end
-  *49002 XOR L
-   49003 LD (HL),A
-   49004 INC L
-  @bfix-begin
-   49005 JR NZ,49002
-  @bfix+else
-   49005 JR NZ,49001
-  @bfix+end
-
-The ``@nolabel`` directive here prevents the instruction at 49002 from being
-labelled in :ref:`bfixMode` (because no label is required; instead, the
-previous instruction at 49001 will be labelled).
-
-The output in ``@bfix`` mode will be::
-
-  TOGGLE:
-    LD HL,32769
-  LOOP:
-    LD A,(HL)
-    XOR L
-    LD (HL),A
-    INC L
-    JR NZ,LOOP
-
-And the output when not in ``@bfix`` mode will be::
-
-  TOGGLE:
-    LD HL,32769
-    LD A,(HL)
-  TOGGLE_0:
-    XOR L
-    LD (HL),A
-    INC L
-    JR NZ,TOGGLE_0
-
-.. note::
-   The ``@nolabel`` directive is deprecated since version 6.3. Use a blank
-   :ref:`label` directive (``@label=``) instead.
-
-+---------+-------------------------------------------------------------------+
-| Version | Changes                                                           |
-+=========+===================================================================+
-| 6.2     | The ``@nolabel`` directive is processed in HTML mode              |
-+---------+-------------------------------------------------------------------+
-
 .. _nowarn:
 
 @nowarn

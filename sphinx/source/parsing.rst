@@ -34,7 +34,6 @@ following:
 * :ref:`asm-if`
 * :ref:`keep`
 * :ref:`label`
-* :ref:`nolabel`
 * :ref:`remote`
 * :ref:`replace`
 * :ref:`bfixBlockDirectives`

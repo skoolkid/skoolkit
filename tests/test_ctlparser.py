@@ -1169,21 +1169,6 @@ class CtlParserTest(SkoolKitTestCase):
         }
         self._test_asm_directives(ctl, exp_entry_directives, exp_instruction_directives)
 
-    def test_nolabel_directives(self):
-        ctl = """
-            @ 30000 nolabel
-            c 30000 Routine at 30000
-            @ 30003 nolabel
-        """
-        exp_entry_directives = {
-            30000: []
-        }
-        exp_instruction_directives = {
-            30000: ['nolabel'],
-            30003: ['nolabel']
-        }
-        self._test_asm_directives(ctl, exp_entry_directives, exp_instruction_directives)
-
     def test_nowarn_directives(self):
         ctl = """
             @ 40000 nowarn

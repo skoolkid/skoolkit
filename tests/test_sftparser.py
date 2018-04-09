@@ -1177,18 +1177,6 @@ class SftParserTest(SkoolKitTestCase):
         """
         self._test_disassembly(sft, exp_skool, snapshot)
 
-    def test_asm_directive_nolabel(self):
-        snapshot = [201]
-        sft = """
-            @nolabel
-            cC00000,1
-        """
-        exp_skool = """
-            @nolabel
-            c00000 RET
-        """
-        self._test_disassembly(sft, exp_skool, snapshot)
-
     def test_asm_directive_nowarn(self):
         snapshot = [1, 0, 0]
         sft = """

@@ -1577,20 +1577,6 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
         asm = self._get_asm(skool).split('\n', 2)
         self.assertEqual(asm[1], '  LD HL,30003+30004')
 
-    def test_nolabel_directive(self):
-        skool = """
-            @start
-            ; Start
-            @label=START
-            c32768 LD A,B
-            @nolabel
-            *32769 RET
-        """
-        asm = self._get_asm(skool).split('\n')
-        self.assertEqual(asm[1], 'START:')
-        self.assertEqual(asm[2], '  LD A,B')
-        self.assertEqual(asm[3], '  RET')
-
     def test_blank_label_directive(self):
         skool = """
             @start

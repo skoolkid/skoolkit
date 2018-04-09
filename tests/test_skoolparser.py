@@ -2040,6 +2040,18 @@ class SkoolParserTest(SkoolKitTestCase):
         self.assertEqual(instruction.asm_label, 'L32770')
         self.assertEqual(instruction.operation, 'JR L32768')
 
+    def test_label_overrides_auto_label(self):
+        skool = """
+            c32768 JR 32770
+            @label=END
+            *32770 RET
+        """
+        parser = self._get_parser(skool, create_labels=True, asm_labels=True)
+        instruction = parser.get_instruction(32768)
+        self.assertEqual(instruction.asm_label, 'L32768')
+        self.assertEqual(instruction.operation, 'JR END')
+        self.assertEqual(parser.get_instruction(32770).asm_label, 'END')
+
     def test_create_no_labels(self):
         skool = """
             @start

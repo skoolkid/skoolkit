@@ -61,7 +61,6 @@ c32768 NOP          ; Do nothing
 @keep
  32779 DEFW 12345   ; W sub-block
  32781 defs 2       ; S sub-block
-@nolabel
  32783 LD A,5       ; {Sub-block with instructions of various types
 @ofix=DEFB 2
  32785 DEFB 0       ;
@@ -206,7 +205,6 @@ T 32774,5,5 T sub-block
 W 32779,2,2 W sub-block
 S 32781,2,2 S sub-block
 M 32783,12 Sub-block with instructions of various types and blank lines in the comment
-@ 32783 nolabel
 @ 32785 ofix=DEFB 2
 B 32785,1,1
 @ 32786 rsub=DEFW 0,1,2
@@ -298,7 +296,6 @@ T $8006,5,5 T sub-block
 W $800B,2,2 W sub-block
 S $800D,2,2 S sub-block
 M $800F,12 Sub-block with instructions of various types and blank lines in the comment
-@ $800F nolabel
 @ $8011 ofix=DEFB 2
 B $8011,1,1
 @ $8012 rsub=DEFW 0,1,2
@@ -383,7 +380,6 @@ T 32774,5,5
 @ 32779 keep
 W 32779,2,2
 S 32781,2,2
-@ 32783 nolabel
 @ 32785 ofix=DEFB 2
 B 32785,1,1
 @ 32786 rsub=DEFW 0,1,2
