@@ -166,12 +166,6 @@ class HtmlWriter:
                     self.titles.setdefault(asm_page_id, self.titles[default_asm_page_id])
                     self.page_headers.setdefault(asm_page_id, self.page_headers[default_asm_page_id])
 
-        self.gsb_includes = []
-        for addr_str in self.game_vars.get('GameStatusBufferIncludes', '').split(','):
-            address = parse_int(addr_str)
-            if self.get_entry(address):
-                self.gsb_includes.append(address)
-
         self.main_memory_maps = []
         self.memory_maps = {}
         for map_name, map_details in self.get_dictionaries('MemoryMap'):
@@ -850,9 +844,9 @@ class HtmlWriter:
     def _should_write_map(self, map_details):
         if map_details.get('Write') == '0':
             return False
-        entry_types = map_details.get('EntryTypes', DEF_MEMORY_MAP_ENTRY_TYPES)
-        if map_details['Includes'] or ('G' in entry_types and self.gsb_includes):
+        if map_details['Includes']:
             return True
+        entry_types = map_details.get('EntryTypes', DEF_MEMORY_MAP_ENTRY_TYPES)
         return any([entry.ctl in entry_types for entry in self.memory_map])
 
     def write_map(self, map_name):
@@ -873,7 +867,7 @@ class HtmlWriter:
         t_map_entry_subs = {'MemoryMap': map_dict}
         includes = map_details.get('Includes', ())
         for entry in self.memory_map:
-            if entry.ctl in entry_types or entry.address in includes or ('G' in entry_types and entry.address in self.gsb_includes):
+            if entry.ctl in entry_types or entry.address in includes:
                 t_map_entry_subs['entry'] = self._get_map_entry_dict(cwd, entry, desc)
                 t_map_entry_subs['t_anchor'] = self.format_anchor(self.asm_anchor(entry.address))
                 map_entries.append(self.format_template('map_entry', t_map_entry_subs))

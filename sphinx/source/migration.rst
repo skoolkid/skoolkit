@@ -8,6 +8,14 @@ commands no longer work with your skool files or ref files, or produce broken
 output, look through the following sections for tips on how to migrate your
 disassembly to SkoolKit 7.
 
+GameStatusBufferIncludes
+------------------------
+In SkoolKit 6, the ``GameStatusBufferIncludes`` parameter in the
+:ref:`ref-Game` section specified the addresses of entries to include on the
+'Game status buffer' page in addition to those that are marked with a ``g``. In
+SkoolKit 7, this parameter is not supported; instead, use the ``Includes``
+parameter in the :ref:`[MemoryMap:GameStatusBuffer] <memoryMap>` section.
+
 @nolabel
 --------
 The ``@nolabel`` directive is not supported in SkoolKit 7. Instead you should

@@ -51,7 +51,6 @@ Copyright=
 Created=Created using <a href="http://skoolkit.ca/">SkoolKit</a> #VERSION.
 ; Font=
 ; Game=
-; GameStatusBufferIncludes=
 InputRegisterTableHeader=Input
 ; JavaScript=
 LinkInternalOperands=0
@@ -174,7 +173,7 @@ PageByteColumns=1
 
 SECTIONS['MemoryMap:GameStatusBuffer'] = """
 EntryDescriptions=1
-EntryTypes=gG
+EntryTypes=g
 ; Includes=
 ; Intro=
 LengthColumn=1

@@ -148,10 +148,6 @@ Recognised parameters are:
 * ``Game`` - the name of the game, which appears in the title of every page,
   and also in the header of every page (if no logo is defined); if not
   specified, the base name of the skool file is used
-* ``GameStatusBufferIncludes`` - a comma-separated list of addresses of entries
-  to include on the 'Game status buffer' page in addition to those that are
-  marked with a ``g`` (see the
-  :ref:`skool file format reference <skoolFileFormat>`)
 * ``InputRegisterTableHeader`` - the text displayed in the header of input
   register tables on routine disassembly pages (default: 'Input')
 * ``JavaScript`` - the base name of the JavaScript file to include in every
@@ -181,10 +177,6 @@ Recognised parameters are:
   header of the main index page (default: 'The complete')
 * ``TitleSuffix`` - the suffix to use after the game name or logo in the header
   of the main index page (default: 'RAM disassembly')
-
-.. note::
-   The ``GameStatusBufferIncludes`` parameter is deprecated since version 6.2.
-   Use the ``Includes`` parameter in the :ref:`memoryMap` section instead.
 
 Every parameter in this section may contain :ref:`skool macros <skoolMacros>`.
 
@@ -231,8 +223,6 @@ could produce such an anchor should be avoided.
 |         | ``OutputRegisterTableHeader`` parameters                          |
 +---------+-------------------------------------------------------------------+
 | 2.0.5   | Added the ``Logo`` parameter                                      |
-+---------+-------------------------------------------------------------------+
-| 2.0.3   | Added the ``GameStatusBufferIncludes`` parameter                  |
 +---------+-------------------------------------------------------------------+
 
 .. _ref-ImageWriter:
@@ -434,8 +424,6 @@ Recognised parameters and their default values are:
   * ``b`` - DEFB blocks
   * ``c`` - routines
   * ``g`` - game status buffer entries
-  * ``G`` - entries whose address appears in the ``GameStatusBufferIncludes``
-    parameter in the :ref:`ref-Game` section
   * ``s`` - blocks containing bytes that are all the same value
   * ``t`` - messages
   * ``u`` - unused addresses
@@ -452,11 +440,6 @@ Recognised parameters and their default values are:
   not to (default: ``0``)
 * ``Write`` - ``1`` to write the memory map page, or ``0`` not to (default:
   ``1``)
-
-.. note::
-   The ``G`` identifier in the ``EntryTypes`` parameter (along with the
-   ``GameStatusBufferIncludes`` parameter in the :ref:`ref-Game` section) is
-   deprecated since version 6.2. Use the ``Includes`` parameter instead.
 
 Every parameter in this section may contain :ref:`skool macros <skoolMacros>`.
 
@@ -483,9 +466,7 @@ name matches the page ID, if one exists; otherwise, the stock
 | 6.0     | Every parameter (not just ``Intro``) may contain                 |
 |         | :ref:`skool macros <skoolMacros>`                                |
 +---------+------------------------------------------------------------------+
-| 4.0     | Added the ``EntryDescriptions`` and ``LengthColumn`` parameters, |
-|         | and support for the ``G`` identifier in the ``EntryTypes``       |
-|         | parameter                                                        |
+| 4.0     | Added the ``EntryDescriptions`` and ``LengthColumn`` parameters  |
 +---------+------------------------------------------------------------------+
 | 2.5     | New                                                              |
 +---------+------------------------------------------------------------------+
