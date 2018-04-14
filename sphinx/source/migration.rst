@@ -8,6 +8,22 @@ commands no longer work with your skool files or ref files, or produce broken
 output, look through the following sections for tips on how to migrate your
 disassembly to SkoolKit 7.
 
+sna2skool.py
+------------
+The ``-i``, ``-l``, ``-m``, ``-n``, ``-r``, ``-R``, ``-t`` and ``-z`` options
+of :ref:`sna2skool.py` are not supported in SkoolKit 7. However, the
+corresponding features are still supported, and each one can be controlled by
+the ``-I`` option with an appropriate configuration parameter:
+
+* instead of ``-i/--ctl-hex-lower``, use ``-I CtlHex=1``
+* instead of ``-l/--defm-size L``, use ``-I DefmSize=L``
+* instead of ``-m/--defb-mod M``, use ``-I DefbMod=M``
+* instead of ``-n/--defb-size N``, use ``-I DefbSize=N``
+* instead of ``-r/--no-erefs``, use ``-I ListRefs=0``
+* instead of ``-R/--erefs``, use ``-I ListRefs=2``
+* instead of ``-t/--text``, use ``-I Text=1``
+* instead of ``-z/--defb-zfill``, use ``-I DefbZfill=1``
+
 GameStatusBufferIncludes
 ------------------------
 In SkoolKit 6, the ``GameStatusBufferIncludes`` parameter in the

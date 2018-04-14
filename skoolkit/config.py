@@ -1,4 +1,4 @@
-# Copyright 2017 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2017, 2018 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -25,13 +25,13 @@ COMMANDS = {
         'Base': (10, 'base'),
         'Case': (2, 'case'),
         'CtlHex': (0, 'ctl_hex'),
-        'DefbMod': (1, 'defb_mod'),
-        'DefbSize': (8, 'defb_size'),
-        'DefbZfill': (0, 'zfill'),
-        'DefmSize': (66, 'defm_width'),
+        'DefbMod': (1, ''),
+        'DefbSize': (8, ''),
+        'DefbZfill': (0, ''),
+        'DefmSize': (66, ''),
         'LineWidth': (79, 'line_width'),
-        'ListRefs': (1, 'write_refs'),
-        'Text': (0, 'text'),
+        'ListRefs': (1, ''),
+        'Text': (0, ''),
         'EntryPointRef': ('This entry point is used by the routine at {ref}.', ''),
         'EntryPointRefs': ('This entry point is used by the routines at {refs} and {ref}.', ''),
         'Ref': ('Used by the routine at {ref}.', ''),

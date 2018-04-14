@@ -35,32 +35,18 @@ OPTIONS
 -H, --skool-hex
   Write hexadecimal addresses and operands in the disassembly.
 
--i, --ctl-hex-lower
-  Write lower case hexadecimal addresses in the generated control file.
-
 -I, --ini `param=value`
   Set the value of a configuration parameter (see ``CONFIGURATION``),
   overriding any value found in ``skoolkit.ini``. This option may be used
   multiple times.
 
--l, --defm-size `CHARS`
-  Set the maximum number of characters that may appear in a DEFM statement; the
-  default number is 66.
-
 -L, --lower
   Write the disassembly in lower case.
-
--m, --defb-mod `MOD`
-  Group DEFB blocks by addresses that are divisible by `MOD`.
 
 -M, --map `FILE`
   Specify a code execution map to use when generating a control file. Code
   execution maps produced by the Fuse, SpecEmu, Spud, Zero and Z80 Spectrum
   emulators are supported.
-
--n, --defb-size `BYTES`
-  Set the maximum number of bytes that may appear in a DEFB statement; the
-  default number is 8.
 
 -o, --org `ADDR`
   Specify the origin address of a binary (.bin) file; the default origin
@@ -70,25 +56,12 @@ OPTIONS
 -p, --page `PAGE`
   Specify the page (0-7) of a 128K snapshot to map to 49152-65535.
 
--r, --no-erefs
-  Every routine entry point is decorated with a comment that lists the other
-  routines that use it (unless an alternative comment is defined in a control
-  file). This option suppresses those comments.
-
--R, --erefs
-  Decorate every routine entry point with a comment that lists the other
-  routines that use it; the comment will precede any additional comment defined
-  in a control file.
-
 --show-config
   Show configuration parameter values.
 
 -s, --start `ADDR`
   Start disassembling at this address; the default start address is 16384.
   `ADDR` must be a decimal number, or a hexadecimal number prefixed by '0x'.
-
--t, --text
-  Show ASCII text in the comment fields of the disassembly.
 
 -T, --sft `FILE`
   Specify the skool file template to use (which may be '-' for standard input).
@@ -102,9 +75,6 @@ OPTIONS
 -w, --line-width `WIDTH`
   Set the maximum line width of the skool file (79 by default). This option has
   no effect when creating a skool file from a skool file template.
-
--z, --defb-zfill
-  Pad decimal values in DEFB statements with leading zeroes.
 
 CONFIGURATION
 =============

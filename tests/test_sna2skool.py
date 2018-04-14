@@ -387,12 +387,7 @@ class OptionsTest(SkoolKitTestCase):
         self.assertEqual(options.end, 65536)
         self.assertIsNone(options.org)
         self.assertIsNone(options.page)
-        self.assertFalse(options.text)
-        self.assertEqual(options.write_refs, 1)
-        self.assertEqual(options.defb_size, 8)
-        self.assertEqual(options.defb_mod, 1)
         self.assertEqual(options.line_width, 79)
-        self.assertFalse(options.zfill)
         self.assertEqual(options.params, [])
 
     @patch.object(sna2skool, 'run', mock_run)
@@ -426,12 +421,13 @@ class OptionsTest(SkoolKitTestCase):
         self.assertEqual(options.end, 65536)
         self.assertIsNone(options.org)
         self.assertIsNone(options.page)
-        self.assertTrue(options.text)
-        self.assertEqual(options.write_refs, 2)
-        self.assertEqual(options.defb_size, 12)
-        self.assertEqual(options.defb_mod, 8)
+        self.assertEqual(config.get('Text'), 1)
+        self.assertEqual(config.get('ListRefs'), 2)
+        self.assertEqual(config.get('DefbSize'), 12)
+        self.assertEqual(config.get('DefbMod'), 8)
         self.assertEqual(options.line_width, 119)
-        self.assertTrue(options.zfill)
+        self.assertEqual(config.get('DefbZfill'), 1)
+        self.assertEqual(config.get('DefmSize'), 92)
         self.assertEqual(config.get('Title-b'), 'Data at {address}')
         self.assertEqual(config.get('Title-c'), 'Code at {address}')
 
@@ -445,11 +441,11 @@ class OptionsTest(SkoolKitTestCase):
         """
         self.write_text_file(dedent(ini).strip(), 'skoolkit.ini')
         sna2skool.main(('test.sna',))
-        snafile, options = run_args[:2]
+        snafile, options, config = run_args
         self.assertEqual(snafile, 'test.sna')
         self.assertEqual(options.ctl_hex, 0)
-        self.assertEqual(options.defb_mod, 16)
-        self.assertEqual(options.defb_size, 8)
+        self.assertEqual(config.get('DefbMod'), 16)
+        self.assertEqual(config.get('DefbSize'), 8)
 
     @patch.object(sna2skool, 'get_snapshot', mock_get_snapshot)
     @patch.object(sna2skool, 'CtlParser', MockCtlParser)
@@ -617,6 +613,21 @@ class OptionsTest(SkoolKitTestCase):
                 lines = [line.rstrip() for line in f]
             self.assertEqual(TEST_CTL_G.split('\n'), lines)
             self.assertTrue(mock_skool_writer.wrote_skool)
+
+    @patch.object(sna2skool, 'CtlParser', MockCtlParser)
+    @patch.object(sna2skool, 'SkoolWriter', MockSkoolWriter)
+    def test_option_g_lower_case_hex(self):
+        data = [
+            62, 7, # 65533 LD A,7
+            201,   # 65535 RET
+        ]
+        binfile = self.write_bin_file(data)
+        ctlfile = self.write_text_file()
+        self.run_sna2skool('-g {} -I CtlHex=1 {}'.format(ctlfile, binfile))
+        with open(ctlfile, 'r') as f:
+            gen_ctl = [line.rstrip() for line in f]
+        self.assertEqual(['c $fffd'], gen_ctl)
+        self.assertTrue(mock_skool_writer.wrote_skool)
 
     @patch.object(sna2skool, 'CtlParser', MockCtlParser)
     @patch.object(sna2skool, 'SkoolWriter', MockSkoolWriter)
@@ -882,39 +893,25 @@ class OptionsTest(SkoolKitTestCase):
             self.assertEqual(['c $FACE', 'i $FACF'], gen_ctl)
             self.assertTrue(mock_skool_writer.wrote_skool)
 
-    @patch.object(sna2skool, 'CtlParser', MockCtlParser)
-    @patch.object(sna2skool, 'SkoolWriter', MockSkoolWriter)
-    def test_option_i(self):
-        data = [
-            62, 7, # 65533 LD A,7
-            201,   # 65535 RET
-        ]
-        binfile = self.write_bin_file(data)
-        for option in ('-i', '--ctl-hex-lower'):
-            ctlfile = self.write_text_file()
-            self.run_sna2skool('-g {} {} {}'.format(ctlfile, option, binfile))
-            with open(ctlfile, 'r') as f:
-                gen_ctl = [line.rstrip() for line in f]
-            self.assertEqual(['c $fffd'], gen_ctl)
-            self.assertTrue(mock_skool_writer.wrote_skool)
-
     @patch.object(sna2skool, 'run', mock_run)
     @patch.object(sna2skool, 'get_config', mock_config)
     def test_option_I(self):
-        for option, spec, attr, exp_value in (('-I', 'CtlHex=2', 'ctl_hex', 2), ('--ini', 'Text=1', 'text', 1)):
+        for option, spec, attr, exp_value in (('-I', 'CtlHex=2', 'ctl_hex', 2), ('--ini', 'Case=1', 'case', 1)):
             self.run_sna2skool('{} {} test-I.skool'.format(option, spec))
-            options = run_args[1]
+            options, config = run_args[1:]
             self.assertEqual(options.params, [spec])
             self.assertEqual(getattr(options, attr), exp_value)
+            self.assertEqual(config.get(spec.split('=')[0]), exp_value)
 
     @patch.object(sna2skool, 'run', mock_run)
     @patch.object(sna2skool, 'get_config', mock_config)
     def test_option_I_multiple(self):
-        self.run_sna2skool('-I DefbMod=8 --ini ListRefs=0 test-I-multiple.skool')
-        options = run_args[1]
-        self.assertEqual(options.params, ['DefbMod=8', 'ListRefs=0'])
-        self.assertEqual(options.defb_mod, 8)
-        self.assertEqual(options.write_refs, 0)
+        self.run_sna2skool('-I DefbMod=8 --ini LineWidth=99 test-I-multiple.skool')
+        options, config = run_args[1:]
+        self.assertEqual(options.params, ['DefbMod=8', 'LineWidth=99'])
+        self.assertEqual(config.get('DefbMod'), 8)
+        self.assertEqual(options.line_width, 99)
+        self.assertEqual(config.get('LineWidth'), 99)
 
     @patch.object(sna2skool, 'run', mock_run)
     @patch.object(sna2skool, 'get_config', mock_config)
@@ -943,38 +940,8 @@ class OptionsTest(SkoolKitTestCase):
     @patch.object(sna2skool, 'get_config', mock_config)
     def test_option_I_invalid_value(self):
         self.run_sna2skool('-I Text=x test-I-invalid.skool')
-        options = run_args[1]
-        self.assertEqual(options.text, 0)
-
-    @patch.object(sna2skool, 'get_snapshot', mock_get_snapshot)
-    @patch.object(sna2skool, 'CtlParser', MockCtlParser)
-    @patch.object(sna2skool, 'SkoolWriter', MockSkoolWriter)
-    def test_option_l(self):
-        for option, value in (('-l', 5), ('--defm-size', 8)):
-            output, error = self.run_sna2skool('{} {} test.sna'.format(option, value))
-            self.assertEqual(error, '')
-            self.assertEqual(mock_skool_writer.options.defm_width, value)
-            self.assertTrue(mock_skool_writer.wrote_skool)
-
-    @patch.object(sna2skool, 'get_snapshot', mock_get_snapshot)
-    @patch.object(sna2skool, 'CtlParser', MockCtlParser)
-    @patch.object(sna2skool, 'SkoolWriter', MockSkoolWriter)
-    def test_option_m(self):
-        for option, value in (('-m', 5), ('--defb-mod', 6)):
-            output, error = self.run_sna2skool('{} {} test.sna'.format(option, value))
-            self.assertEqual(error, '')
-            self.assertEqual(mock_skool_writer.options.defb_mod, value)
-            self.assertTrue(mock_skool_writer.wrote_skool)
-
-    @patch.object(sna2skool, 'get_snapshot', mock_get_snapshot)
-    @patch.object(sna2skool, 'CtlParser', MockCtlParser)
-    @patch.object(sna2skool, 'SkoolWriter', MockSkoolWriter)
-    def test_option_n(self):
-        for option, value in (('-n', 3), ('--defb-size', 7)):
-            output, error = self.run_sna2skool('{} {} test.sna'.format(option, value))
-            self.assertEqual(error, '')
-            self.assertEqual(mock_skool_writer.options.defb_size, value)
-            self.assertTrue(mock_skool_writer.wrote_skool)
+        config = run_args[2]
+        self.assertEqual(config.get('Text'), 0)
 
     @patch.object(sna2skool, 'read_bin_file', Mock(return_value=[201]))
     @patch.object(sna2skool, 'CtlParser', MockCtlParser)
@@ -1009,26 +976,6 @@ class OptionsTest(SkoolKitTestCase):
         for option in ('-p', '--page'):
             self.run_sna2skool('-c {} {} 3 {}'.format(ctlfile, option, z80file))
             self.assertEqual(mock_skool_writer.snapshot[49152], 201)
-            self.assertTrue(mock_skool_writer.wrote_skool)
-
-    @patch.object(sna2skool, 'CtlParser', MockCtlParser)
-    @patch.object(sna2skool, 'SkoolWriter', MockSkoolWriter)
-    def test_option_r(self):
-        binfile = self.write_bin_file(suffix='.bin')
-        for option in ('-r', '--no-erefs'):
-            output, error = self.run_sna2skool('{} {}'.format(option, binfile))
-            self.assertEqual(error, '')
-            self.assertEqual(mock_skool_writer.write_refs, 0)
-            self.assertTrue(mock_skool_writer.wrote_skool)
-
-    @patch.object(sna2skool, 'CtlParser', MockCtlParser)
-    @patch.object(sna2skool, 'SkoolWriter', MockSkoolWriter)
-    def test_option_R(self):
-        binfile = self.write_bin_file(suffix='.bin')
-        for option in ('-R', '--erefs'):
-            output, error = self.run_sna2skool('{} {}'.format(option, binfile))
-            self.assertEqual(error, '')
-            self.assertEqual(mock_skool_writer.write_refs, 2)
             self.assertTrue(mock_skool_writer.wrote_skool)
 
     @patch.object(sna2skool, 'get_config', mock_config)
@@ -1171,17 +1118,6 @@ class OptionsTest(SkoolKitTestCase):
         self.assertEqual(mock_sft_parser.min_address, start)
         self.assertEqual(mock_sft_parser.max_address, end)
 
-    @patch.object(sna2skool, 'get_snapshot', mock_get_snapshot)
-    @patch.object(sna2skool, 'CtlParser', MockCtlParser)
-    @patch.object(sna2skool, 'SkoolWriter', MockSkoolWriter)
-    def test_option_t(self):
-        for option in ('-t', '--text'):
-            output, error = self.run_sna2skool('{} test.sna'.format(option))
-            self.assertEqual(error, '')
-            self.assertTrue(mock_skool_writer.text)
-            mock_skool_writer.text = None
-            self.assertTrue(mock_skool_writer.wrote_skool)
-
     @patch.object(sna2skool, 'CtlParser', MockCtlParser)
     @patch.object(sna2skool, 'SkoolWriter', MockSkoolWriter)
     def test_option_w(self):
@@ -1191,15 +1127,6 @@ class OptionsTest(SkoolKitTestCase):
             output, error = self.run_sna2skool('{} {} {}'.format(option, line_width, binfile))
             self.assertEqual(error, '')
             self.assertEqual(mock_skool_writer.options.line_width, line_width)
-            self.assertTrue(mock_skool_writer.wrote_skool)
-
-    @patch.object(sna2skool, 'get_snapshot', mock_get_snapshot)
-    @patch.object(sna2skool, 'CtlParser', MockCtlParser)
-    @patch.object(sna2skool, 'SkoolWriter', MockSkoolWriter)
-    def test_option_z(self):
-        for option in ('-z', '--defb-zfill'):
-            self.run_sna2skool('{} test-z.sna'.format(option))
-            self.assertTrue(mock_skool_writer.options.zfill)
             self.assertTrue(mock_skool_writer.wrote_skool)
 
     @patch.object(sna2skool, 'CtlParser', MockCtlParser)

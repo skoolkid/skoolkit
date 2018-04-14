@@ -1100,21 +1100,16 @@ class DisassemblyTest(SkoolKitTestCase):
                 Disassembly(snapshot, ctl_parser, config, True)
 
 class MockOptions:
-    def __init__(self, line_width, defb_size, defb_mod, zfill, defm_width, base, case):
+    def __init__(self, line_width, base, case):
         self.line_width = line_width
-        self.defb_size = defb_size
-        self.defb_mod = defb_mod
-        self.zfill = zfill
-        self.defm_width = defm_width
         self.base = base
         self.case = case
 
 class SkoolWriterTest(SkoolKitTestCase):
-    def _get_writer(self, snapshot, ctl, params=None, line_width=79, defb_size=8, defb_mod=1,
-                    zfill=False, defm_width=66, base=10, case=2):
+    def _get_writer(self, snapshot, ctl, params=None, line_width=79, base=10, case=2):
         ctl_parser = CtlParser()
         ctl_parser.parse_ctl(StringIO(textwrap.dedent(ctl).strip()))
-        options = MockOptions(line_width, defb_size, defb_mod, zfill, defm_width, base, case)
+        options = MockOptions(line_width, base, case)
         config = CONFIG.copy()
         config.update(params or {})
         return SkoolWriter(snapshot, ctl_parser, options, config)
@@ -2147,7 +2142,7 @@ class SkoolWriterTest(SkoolKitTestCase):
         """
         self._test_write_skool(snapshot, ctl, exp_skool, base=16, case=1)
 
-    def test_defm_width(self):
+    def test_defm_size(self):
         snapshot = [65] * 4
         ctl = """
             t 00000
@@ -2160,7 +2155,7 @@ class SkoolWriterTest(SkoolKitTestCase):
             t00000 DEFM "AA"
              00002 DEFM "AA"
         """
-        self._test_write_skool(snapshot, ctl, exp_skool, defm_width=2)
+        self._test_write_skool(snapshot, ctl, exp_skool, params={'DefmSize': 2})
 
     def test_defb_mod(self):
         snapshot = [0] * 14
@@ -2176,7 +2171,7 @@ class SkoolWriterTest(SkoolKitTestCase):
              00004 DEFB 0,0,0,0,0,0,0,0
              00012 DEFB 0,0
         """
-        self._test_write_skool(snapshot, ctl, exp_skool, defb_mod=4)
+        self._test_write_skool(snapshot, ctl, exp_skool, params={'DefbMod': 4})
 
     def test_defb_size(self):
         snapshot = [0] * 5
@@ -2191,7 +2186,7 @@ class SkoolWriterTest(SkoolKitTestCase):
             b00000 DEFB 0,0,0
              00003 DEFB 0,0
         """
-        self._test_write_skool(snapshot, ctl, exp_skool, defb_size=3)
+        self._test_write_skool(snapshot, ctl, exp_skool, params={'DefbSize': 3})
 
     def test_zfill(self):
         snapshot = [0] * 5
@@ -2205,7 +2200,7 @@ class SkoolWriterTest(SkoolKitTestCase):
             ; Data block at 0
             b00000 DEFB 000,000,000,000,000
         """
-        self._test_write_skool(snapshot, ctl, exp_skool, zfill=True)
+        self._test_write_skool(snapshot, ctl, exp_skool, params={'DefbZfill': 1})
 
     def test_show_text(self):
         snapshot = [49, 127, 50]

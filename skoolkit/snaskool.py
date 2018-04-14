@@ -704,8 +704,8 @@ class SkoolWriter:
     def __init__(self, snapshot, ctl_parser, options, config):
         self.comment_width = max(options.line_width - 2, MIN_COMMENT_WIDTH)
         self.asm_hex = options.base == 16
-        self.disassembly = Disassembly(snapshot, ctl_parser, config, True, options.defb_size, options.defb_mod,
-                                       options.zfill, options.defm_width, self.asm_hex, options.case == 1)
+        self.disassembly = Disassembly(snapshot, ctl_parser, config, True, config['DefbSize'], config['DefbMod'],
+                                       config['DefbZfill'], config['DefmSize'], self.asm_hex, options.case == 1)
         self.address_fmt = get_address_format(self.asm_hex, options.case == 1)
         self.config = config
 

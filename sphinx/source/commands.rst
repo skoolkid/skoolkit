@@ -722,21 +722,6 @@ list::
     -w W, --line-width W  Set the maximum line width of the skool file (default:
                           79).
 
-.. note::
-   The ``-i``, ``-l``, ``-m``, ``-n``, ``-r``, ``-R``, ``-t`` and ``-z``
-   options and their corresponding long options are deprecated since version
-   6.1. Use the ``-I/--ini`` option with an appropriate configuration parameter
-   instead:
-
-    * instead of ``-i/--ctl-hex-lower``, use ``-I CtlHex=1``
-    * instead of ``-l/--defm-size L``, use ``-I DefmSize=L``
-    * instead of ``-m/--defb-mod M``, use ``-I DefbMod=M``
-    * instead of ``-n/--defb-size N``, use ``-I DefbSize=N``
-    * instead of ``-r/--no-erefs``, use ``-I ListRefs=0``
-    * instead of ``-R/--erefs``, use ``-I ListRefs=2``
-    * instead of ``-t/--text``, use ``-I Text=1``
-    * instead of ``-z/--defb-zfill``, use ``-I DefbZfill=1``
-
 If the input filename does not end with '.sna', '.szx' or '.z80', it is assumed
 to be a binary file.
 
@@ -836,11 +821,13 @@ Configuration parameters may also be set on the command line by using the
 +---------+-------------------------------------------------------------------+
 | 5.0     | Added support for SpecEmu's 64K code execution map files          |
 +---------+-------------------------------------------------------------------+
-| 4.4     | Added the ``--ctl-hex-lower`` and ``--end`` options               |
+| 4.4     | Added the ``--end`` option and the ability to write lower case    |
+|         | hexadecimal addresses in a generated control file                 |
 +---------+-------------------------------------------------------------------+
 | 4.3     | Added the ``--line-width`` option                                 |
 +---------+-------------------------------------------------------------------+
-| 3.4     | Added the ``-V`` and ``-R`` options and the long options          |
+| 3.4     | Added the ``-V`` option and the long options, and the ability to  |
+|         | add a comment listing referrers at every routine entry point      |
 +---------+-------------------------------------------------------------------+
 | 3.3     | Added the ``-M`` option, along with support for code execution    |
 |         | maps produced by Fuse, SpecEmu, Spud, Zero and Z80; added the     |
@@ -857,12 +844,16 @@ Configuration parameters may also be set on the command line by using the
 +---------+-------------------------------------------------------------------+
 | 2.0.6   | Added the ``-h`` option                                           |
 +---------+-------------------------------------------------------------------+
-| 2.0.1   | Added the ``-o``, ``-r`` and ``-l`` options, and the ability to   |
-|         | read binary files                                                 |
+| 2.0.1   | Added the ``-o`` option, and the ability to read binary files, to |
+|         | set the maximum number of characters in a DEFM statement, and to  |
+|         | suppress comments that list routine entry point referrers         |
 +---------+-------------------------------------------------------------------+
-| 2.0     | Added the ``-n``, ``-m`` and ``-z`` options                       |
+| 2.0     | Added the ability to group DEFB blocks by addresses divisible by  |
+|         | a given number, to set the maximum number of bytes in a DEFB      |
+|         | statement, and to pad decimal values in DEFB statements with      |
+|         | leading zeroes                                                    |
 +---------+-------------------------------------------------------------------+
-| 1.0.5   | Added the ``-t`` option                                           |
+| 1.0.5   | Added the ability to show ASCII text in comment fields            |
 +---------+-------------------------------------------------------------------+
 | 1.0.4   | Added the ``-g`` and ``-s`` options                               |
 +---------+-------------------------------------------------------------------+
