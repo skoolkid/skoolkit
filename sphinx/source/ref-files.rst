@@ -85,24 +85,17 @@ The ``Config`` section contains configuration parameters in the format::
 Recognised parameters are:
 
 * ``GameDir`` - the root directory of the game's HTML disassembly; if not
-  specified, the base name of the skool or ref file given on the
-  :ref:`skool2html.py <skool2html.py>` command line will be used
+  specified, the base name of the skool file given on the :ref:`skool2html.py`
+  command line will be used
 * ``HtmlWriterClass`` - the name of the Python class to use for writing the
   HTML disassembly of the game (default: ``skoolkit.skoolhtml.HtmlWriter``); if
   the class is in a module that is not in the module search path (e.g. a
   standalone module that is not part of an installed package), the module's
   location may be specified thus: ``/path/to/moduledir:module.classname``
-* ``RefFiles`` - a semicolon-separated list of extra ref files to use (in
-  addition to the one named on the :ref:`skool2html.py` command line, and any
-  others with the same filename prefix)
-* ``SkoolFile`` - the name of the main skool file to use if not given on the
-  :ref:`skool2html.py <skool2html.py>` command line; if not specified, the
-  skool file with the same base name as the ref file will be used
-
-.. note::
-   The ``SkoolFile`` parameter is deprecated since version 6.4. In SkoolKit
-   7.0, :ref:`skool2html.py` will require the skool file as the first
-   positional argument.
+* ``RefFiles`` - a semicolon-separated list of extra ref files to use (after
+  any that are automatically read by virtue of having the same filename prefix
+  as the skool file, and before any others named on the :ref:`skool2html.py`
+  command line)
 
 For information on how to create your own Python class for writing an HTML
 disassembly, see the documentation on

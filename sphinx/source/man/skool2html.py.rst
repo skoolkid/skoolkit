@@ -6,12 +6,12 @@ skool2html.py
 
 SYNOPSIS
 ========
-``skool2html.py`` [options] FILE [FILE...]
+``skool2html.py`` [options] SKOOLFILE [REFFILE...]
 
 DESCRIPTION
 ===========
-``skool2html.py`` converts source skool and ref files to HTML. When FILE is
-'-', ``skool2html.py`` reads from standard input.
+``skool2html.py`` converts a skool file and ref files to HTML. When SKOOLFILE
+is '-', ``skool2html.py`` reads from standard input.
 
 OPTIONS
 =======
@@ -111,12 +111,12 @@ OPTIONS
 
 FILES
 =====
-``skool2html.py`` searches the following directories for skool files, ref
-files, CSS files, JavaScript files, font files, and files listed in the
-[Resources] section of the ref file:
+``skool2html.py`` searches the following directories for ref files, CSS files,
+JavaScript files, font files, and files listed in the [Resources] section of
+the ref file:
 
 |
-| - The directory containing the skool/ref file named on the command line
+| - The directory containing the skool file named on the command line
 | - The current working directory
 | - ./resources
 | - ~/.skoolkit
@@ -126,9 +126,6 @@ files, CSS files, JavaScript files, font files, and files listed in the
 where $PACKAGE_DIR is the directory in which the skoolkit package is installed
 (as shown by ``skool2html.py -p``). When you need a reminder of these
 locations, run ``skool2html.py -s``.
-
-If an input file's name ends with '.ref', it will be treated as a ref file;
-otherwise it will be treated as a skool file.
 
 THEMES
 ======
@@ -142,7 +139,7 @@ the CSS files to use thus:
 then:
 
 |
-|   ``skool2html.py -T dark -T wide game.ref``
+|   ``skool2html.py -T dark -T wide game.skool``
 
 will use the following CSS files, if they exist, in the order listed:
 
@@ -198,23 +195,18 @@ Configuration parameters may also be set on the command line by using the
 
 EXAMPLES
 ========
-1. Build the entire HTML disassembly for 'game1' from a ref file:
+1. Build the entire HTML disassembly for 'game':
 
    |
-   |   ``skool2html.py game1.ref``
+   |   ``skool2html.py game.skool``
 
-2. Build the entire HTML disassembly for 'game2' from a skool file:
-
-   |
-   |   ``skool2html.py game2.skool``
-
-3. Build the entire HTML disassemblies for 'game1' and 'game2', in lower case,
-   using hexadecimal notation, in the ``html`` directory:
+2. Build the entire HTML disassembly for 'game' in lower case, using
+   hexadecimal notation, in the ``html`` directory:
 
    |
-   |   ``skool2html.py -d html -l -H game1.ref game2.skool``
+   |   ``skool2html.py -d html -l -H game.skool``
 
-4. Write only the 'Bugs' and 'Pokes' pages for 'game1':
+3. Write only the 'Bugs' and 'Pokes' pages for 'game':
 
    |
-   |   ``skool2html.py -w P -P Bugs,Pokes game1.ref``
+   |   ``skool2html.py -w P -P Bugs,Pokes game.skool``

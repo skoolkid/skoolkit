@@ -225,7 +225,7 @@ man_pages = [
     ('man/skool2ctl.py', 'skool2ctl.py',
      'convert a skool file into a control file', _authors, 1),
     ('man/skool2html.py', 'skool2html.py',
-     'convert skool and ref files to HTML', _authors, 1),
+     'convert a skool file and ref files to HTML', _authors, 1),
     ('man/skool2sft.py', 'skool2sft.py',
      'convert a skool file into a skool file template', _authors, 1),
     ('man/sna2img.py', 'sna2img.py',

@@ -78,7 +78,7 @@ class DisassembliesTestCase(SkoolKitTestCase):
         options = '-c {}'.format(ctl)
         output, error = self.run_sna2skool('{} {}'.format(options, snapshot))
         self.assertEqual(error, 'Using control file: {}\n'.format(ctl))
-        return self.write_text_file(output)
+        return self.write_text_file(output, ctl[:-3] + 'skool')
 
 class AsmTestCase(DisassembliesTestCase):
     def _test_asm(self, options, skool=None, snapshot=None, ctl=None, clean=True):
@@ -148,11 +148,10 @@ class HtmlTestCase(DisassembliesTestCase):
         macro_expander = MacroExpander(base, case)
         if not skool:
             skool = self._write_skool(snapshot, ctl)
-            options += ' -c Config/SkoolFile={}'.format(skool)
         if not ref:
             ref = skool[:-5] + 'ref'
         shutil.rmtree(self.odir, True)
-        stdout, error = self.run_skool2html('-d {} {} {}'.format(self.odir, options, ref))
+        stdout, error = self.run_skool2html('-d {} {} {}'.format(self.odir, options, skool))
         self.assertEqual(error, '')
         reps = {'odir': self.odir, 'SKOOLKIT_HOME': SKOOLKIT_HOME, 'skoolfile': skool, 'reffile': ref}
         exp_output = macro_expander.expand(output.format_map(reps)) + '\n'

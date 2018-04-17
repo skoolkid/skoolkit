@@ -8,6 +8,25 @@ commands no longer work with your skool files or ref files, or produce broken
 output, look through the following sections for tips on how to migrate your
 disassembly to SkoolKit 7.
 
+skool2html.py
+-------------
+In SkoolKit 6, :ref:`skool2html.py` wrote a separate disassembly for each skool
+file and ref file named on the command line. In SkoolKit 7, it writes a single
+disassembly from the skool file given as the first positional argument; any
+other positional arguments are interpreted as extra ref files.
+
+For example::
+
+  $ skool2html.py game.skool data.ref
+
+will convert the following files into a single HTML disassembly:
+
+* `game.skool`
+* any files named `game*.ref`
+* any files named in the ``RefFiles`` parameter in the :ref:`ref-Config`
+  section
+* `data.ref`
+
 sna2skool.py
 ------------
 The ``-i``, ``-l``, ``-m``, ``-n``, ``-r``, ``-R``, ``-t`` and ``-z`` options

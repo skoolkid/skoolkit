@@ -92,7 +92,6 @@ write_html() {
   sk_version_major=$(echo $sk_version | cut -f1 -d.)
   sk_version_minor=$(echo $sk_version | cut -f2 -d.)
   (($sk_version_major > 6 || ($sk_version_major == 6 && ${sk_version_minor:0:1} >= 4))) && use_pub=1 || use_pub=0
-  reffile=$(basename $skoolfile .skool).ref
   for b in '' '-D' '-H'; do
     for c in '' '-u' '-l'; do
       gamedir=$GAME$b$c
@@ -102,7 +101,7 @@ write_html() {
         [[ $b == -H ]] && varopt="--var pub=2"
       fi
       echo -n "Writing $gamedir HTML disassembly..."
-      ./skool2html.py $b $c -q -d html -c Config/GameDir=$gamedir $varopt src/$reffile
+      ./skool2html.py $b $c -q -d html -c Config/GameDir=$gamedir $varopt src/$skoolfile
       echo "done"
     done
   done

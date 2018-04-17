@@ -378,15 +378,16 @@ will convert the file `game.skool` into a bunch of HTML files. If any files
 named `game*.ref` (e.g. `game.ref`, `game-bugs.ref`, `game-pokes.ref` and so
 on) also exist, they will be used to provide further information to the
 conversion process, along with any extra files named in the ``RefFiles``
-parameter in the :ref:`ref-Config` section.
+parameter in the :ref:`ref-Config` section, and any other ref files named on
+the command line.
 
 `skool2html.py` supports several options; run it with no arguments to see a
 list::
 
-  usage: skool2html.py [options] FILE [FILE...]
+  usage: skool2html.py [options] SKOOLFILE [REFFILE...]
 
-  Convert skool files and ref files to HTML. FILE may be a regular file, or '-'
-  for standard input.
+  Convert a skool file and ref files to HTML. SKOOLFILE may be a regular file, or
+  '-' for standard input.
 
   Options:
     -1, --asm-one-page    Write all routines and data blocks to a single page.
@@ -432,11 +433,6 @@ list::
     -W CLASS, --writer CLASS
                           Specify the HTML writer class to use; shorthand for
                           '--config Config/HtmlWriterClass=CLASS'.
-
-.. note::
-   Giving a ref file as the first positional argument is deprecated since
-   version 6.4. In SkoolKit 7.0, `skool2html.py` will require the skool file as
-   the first positional argument.
 
 `skool2html.py` searches the following directories for ref files, CSS files,
 JavaScript files, font files, and files listed in the :ref:`resources` section
@@ -519,6 +515,9 @@ Configuration parameters may also be set on the command line by using the
 +---------+------------------------------------------------------------------+
 | Version | Changes                                                          |
 +=========+==================================================================+
+| 7.0     | Writes a single disassembly from the skool file given by the     |
+|         | first positional argument                                        |
++---------+------------------------------------------------------------------+
 | 6.4     | Added the ``--var`` option                                       |
 +---------+------------------------------------------------------------------+
 | 6.2     | Added the ``--show-config`` option                               |

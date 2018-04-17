@@ -3,6 +3,9 @@ Changelog
 
 7.0b1
 -----
+* :ref:`skool2html.py` now writes a single disassembly from the the skool file
+  given as the first positional argument; any other positional arguments are
+  interpreted as extra ref files
 
 6.4 (2018-03-31)
 ----------------

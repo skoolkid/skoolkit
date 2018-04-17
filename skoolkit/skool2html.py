@@ -157,24 +157,15 @@ def copy_resources(search_dir, extra_search_dirs, root_dir, fnames, dest_dir, th
         copy_resource(f, root_dir, dest_dir, indent)
     return ';'.join([basename(f) for f in files])
 
-def get_prefix(fname):
-    if '.' in fname:
-        return fname.rsplit('.', 1)[0]
-    return fname
-
-def process_file(infile, topdir, options):
+def run(infiles, options):
     extra_search_dirs = options.search
     pages = options.pages
     stdin = False
 
     skoolfile_f = reffile_f = None
     ref_search_dir = module_path = ''
-    if infile.endswith('.ref'):
-        reffile_f = find(infile, extra_search_dirs)
-        if reffile_f:
-            ref_search_dir = module_path = dirname(reffile_f)
-            prefix = get_prefix(basename(reffile_f))
-    elif infile == '-':
+    infile = infiles[0]
+    if infile == '-':
         stdin = True
         skoolfile_f = infile
         prefix = 'program'
@@ -182,12 +173,12 @@ def process_file(infile, topdir, options):
         skoolfile_f = find(infile, extra_search_dirs)
         if skoolfile_f:
             ref_search_dir = module_path = dirname(skoolfile_f)
-            prefix = get_prefix(basename(skoolfile_f))
+            prefix = basename(skoolfile_f).rsplit('.', 1)[0]
             reffile_f = find('{}.ref'.format(prefix), extra_search_dirs, ref_search_dir)
             if reffile_f:
                 ref_search_dir = dirname(reffile_f)
-    if skoolfile_f is reffile_f is None:
-        raise SkoolKitError('{}: file not found'.format(normpath(infile)))
+        else:
+            raise SkoolKitError('{}: file not found'.format(normpath(infile)))
 
     reffiles = []
     if reffile_f:
@@ -203,21 +194,13 @@ def process_file(infile, topdir, options):
         ref_parser.parse(oreffile_f)
     add_lines(ref_parser, options.config_specs, 'Config')
     config.update(ref_parser.get_dictionary('Config'))
-    extra_reffiles = config.get('RefFiles')
-    if extra_reffiles:
-        for f in extra_reffiles.split(';'):
-            if isfile(os.path.join(ref_search_dir, f)):
-                ref_f = normpath(ref_search_dir, f)
-                if ref_f not in reffiles:
-                    reffiles.append(ref_f)
-                    ref_parser.parse(ref_f)
+    for f in config.get('RefFiles', '').split(';') + infiles[1:]:
+        if f and isfile(os.path.join(ref_search_dir, f)):
+            ref_f = normpath(ref_search_dir, f)
+            if ref_f not in reffiles:
+                reffiles.append(ref_f)
+                ref_parser.parse(ref_f)
     add_lines(ref_parser, options.config_specs)
-
-    if skoolfile_f is None:
-        skoolfile = config.get('SkoolFile', '{}.skool'.format(prefix))
-        skoolfile_f = find(skoolfile, extra_search_dirs, ref_search_dir)
-        if skoolfile_f is None:
-            raise SkoolKitError('{}: file not found'.format(normpath(skoolfile)))
 
     skoolfile_n = normpath(skoolfile_f)
     if not stdin:
@@ -242,6 +225,10 @@ def process_file(infile, topdir, options):
     skool_parser = clock(SkoolParser, 'Parsing {}'.format(fname), skoolfile_f, case=options.case, base=options.base,
                          html=True, create_labels=options.create_labels, asm_labels=options.asm_labels,
                          variables=options.variables)
+    if options.output_dir == '.':
+        topdir = ''
+    else:
+        topdir = normpath(options.output_dir)
     file_info = FileInfo(topdir, game_dir, options.new_images)
     html_writer = html_writer_class(skool_parser, ref_parser, file_info)
 
@@ -325,23 +312,15 @@ def write_disassembly(html_writer, files, search_dir, extra_search_dirs, pages, 
     if 'i' in files:
         clock(html_writer.write_index, '  Writing {}'.format(normpath(game_dir, paths['GameIndex'])))
 
-def run(files, options):
-    if options.output_dir == '.':
-        topdir = ''
-    else:
-        topdir = normpath(options.output_dir)
-    for infile in files:
-        process_file(infile, topdir, options)
-
 def main(args):
     global verbose, show_timings
 
     config = get_config('skool2html')
 
     parser = argparse.ArgumentParser(
-        usage='skool2html.py [options] FILE [FILE...]',
-        description="Convert skool files and ref files to HTML. FILE may be a regular file, or '-'\n"
-                    "for standard input.",
+        usage='skool2html.py [options] SKOOLFILE [REFFILE...]',
+        description="Convert a skool file and ref files to HTML. SKOOLFILE may be a regular file, or\n"
+                    "'-' for standard input.",
         formatter_class=argparse.RawTextHelpFormatter,
         add_help=False
     )

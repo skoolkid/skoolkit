@@ -42,7 +42,6 @@ SECTIONS['Config'] = """
 ; GameDir=
 HtmlWriterClass=skoolkit.skoolhtml.HtmlWriter
 ; RefFiles=
-; SkoolFile=
 """
 
 SECTIONS['Game'] = """
