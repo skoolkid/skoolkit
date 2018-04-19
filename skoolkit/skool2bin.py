@@ -19,7 +19,7 @@ import argparse
 from skoolkit import SkoolParsingError, get_int_param, info, integer, open_file, warn, VERSION
 from skoolkit.skoolparser import read_skool
 from skoolkit.skoolsft import VALID_CTLS
-from skoolkit.textutils import find_unquoted, partition_unquoted
+from skoolkit.textutils import partition_unquoted
 from skoolkit.z80 import assemble
 
 SKIP_BLOCKS = ('d', 'r')
@@ -28,10 +28,16 @@ class BinWriter:
     def __init__(self, skoolfile, asm_mode=0, fix_mode=0):
         self.asm_mode = asm_mode
         self.fix_mode = fix_mode
+        self.weights = {
+            'isub=': int(asm_mode > 0),
+            'ssub=': 2 * int(asm_mode > 1),
+            'ofix=': 3 * int(fix_mode > 0),
+            'bfix=': 4 * int(fix_mode > 1)
+        }
         self.snapshot = [0] * 65536
         self.base_address = len(self.snapshot)
         self.end_address = 0
-        self.subs = [None] * 4
+        self.sub = (0, None)
         self._parse_skool(skoolfile)
 
     def _parse_skool(self, skoolfile):
@@ -54,14 +60,11 @@ class BinWriter:
             address = get_int_param(line[1:6])
         except ValueError:
             raise SkoolParsingError("Invalid address ({}):\n{}".format(line[1:6], line.rstrip()))
-        for sub in self.subs:
-            if sub is not None:
-                operation = sub
-                self.subs = [None] * 4
-                break
+        if self.sub[0]:
+            operation = partition_unquoted(self.sub[1], ';')[0].strip()
+            self.sub = (0, None)
         else:
-            comment_index = find_unquoted(line, ';', 6)
-            operation = line[7:comment_index].strip()
+            operation = partition_unquoted(line[6:], ';')[0].strip()
         data = assemble(operation, address)
         if data:
             end_address = address + len(data)
@@ -72,14 +75,8 @@ class BinWriter:
             warn("Failed to assemble:\n {} {}".format(address, operation))
 
     def _parse_asm_directive(self, directive):
-        if directive.startswith('isub=') and self.asm_mode > 0:
-            self.subs[3] = partition_unquoted(directive[5:], ';')[0].rstrip()
-        elif directive.startswith('ssub=') and self.asm_mode > 1:
-            self.subs[2] = partition_unquoted(directive[5:], ';')[0].rstrip()
-        elif directive.startswith('ofix=') and self.fix_mode > 0:
-            self.subs[1] = partition_unquoted(directive[5:], ';')[0].rstrip()
-        elif directive.startswith('bfix=') and self.fix_mode > 1:
-            self.subs[0] = partition_unquoted(directive[5:], ';')[0].rstrip()
+        if self.weights.get(directive[:5], -1) >= self.sub[0]:
+            self.sub = (self.weights[directive[:5]], directive[5:])
 
     def write(self, binfile, start, end):
         if start is None:

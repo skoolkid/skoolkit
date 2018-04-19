@@ -515,18 +515,8 @@ class SkoolParser:
             except MacroParsingError:
                 pass
         elif self.mode.asm_mode:
-            if directive.startswith('rsub='):
-                self.mode.rsub = directive[5:].rstrip()
-            elif directive.startswith('ssub='):
-                self.mode.ssub = directive[5:].rstrip()
-            elif directive.startswith('isub='):
-                self.mode.isub = directive[5:].rstrip()
-            elif directive.startswith('bfix='):
-                self.mode.bfix = directive[5:].rstrip()
-            elif directive.startswith('ofix='):
-                self.mode.ofix = directive[5:].rstrip()
-            elif directive.startswith('rfix='):
-                self.mode.rfix = directive[5:].rstrip()
+            if directive.startswith(('isub=', 'ssub=', 'rsub=', 'ofix=', 'bfix=', 'rfix=')):
+                self.mode.add_sub(directive[:4], directive[5:].rstrip())
             elif directive.startswith('nowarn'):
                 self.mode.nowarn = True
             elif directive.startswith('ignoreua'):
@@ -719,17 +709,20 @@ class Mode:
             self.hex2fmt = '${0:02X}'
             self.hex4fmt = '${0:04X}'
             self.addr_fmt = '{0:04X}'
+        self.weights = {
+            'isub': int(asm_mode > 0),
+            'ssub': 2 * int(asm_mode > 1),
+            'rsub': 3 * int(asm_mode > 2),
+            'ofix': 4 * int(fix_mode > 0),
+            'bfix': 5 * int(fix_mode > 1),
+            'rfix': 6 * int(fix_mode > 2)
+        }
         self.reset()
         self.reset_entry_ignoreua()
 
     def reset(self):
         self.label = None
-        self.isub = None
-        self.ofix = None
-        self.bfix = None
-        self.rfix = None
-        self.ssub = None
-        self.rsub = None
+        self.sub = (0, None)
         self.keep = None
         self.nowarn = False
         self.ignoreua = False
@@ -739,6 +732,10 @@ class Mode:
     def reset_entry_ignoreua(self):
         for section in 'tdr':
             self.entry_ignoreua[section] = False
+
+    def add_sub(self, directive, value):
+        if self.weights[directive] >= self.sub[0]:
+            self.sub = (self.weights[directive], value)
 
     def apply_asm_attributes(self, instruction, address_comment):
         instruction.keep = self.keep
@@ -750,20 +747,9 @@ class Mode:
                 self.labels.append(self.label)
             instruction.asm_label = self.label
 
-        if not self.html:
-            sub = self.isub
-            if self.rfix is not None and self.fix_mode > 2:
-                sub = self.rfix
-            elif self.bfix is not None and self.fix_mode > 1:
-                sub = self.bfix
-            elif self.ofix is not None and self.fix_mode > 0:
-                sub = self.ofix
-            elif self.rsub is not None and self.asm_mode > 2:
-                sub = self.rsub
-            elif self.ssub is not None and self.asm_mode > 1:
-                sub = self.ssub
-            if sub is not None:
-                op, sep, comment = partition_unquoted(sub, ';')
+        if self.asm_mode:
+            if self.sub[0]:
+                op, sep, comment = partition_unquoted(self.sub[1], ';')
                 op = self.apply_base('', self.apply_case('', op.rstrip())[1])[1]
                 instruction.apply_sub(op, sep, comment, address_comment)
 
