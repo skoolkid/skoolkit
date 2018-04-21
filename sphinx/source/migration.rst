@@ -56,6 +56,16 @@ parameter in the :ref:`[MemoryMap:GameStatusBuffer] <memoryMap>` section.
 The ``@nolabel`` directive is not supported in SkoolKit 7. Instead you should
 use the :ref:`label` directive with a blank label: ``@label=``.
 
+Data definition entries
+-----------------------
+Data definition entries ('d' blocks) are not supported in SkoolKit 7. Use the
+:ref:`defb`, :ref:`defs` and :ref:`defw` directives instead.
+
+Remote entries
+--------------
+Defining a remote entry with an 'r' block is not supported in SkoolKit 7. Use
+the :ref:`remote` directive instead.
+
 skoolkit6to7.py
 ---------------
 The `skoolkit6to7.py`_ script may be used to convert a skool file or ref file

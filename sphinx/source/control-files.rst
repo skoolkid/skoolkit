@@ -492,12 +492,10 @@ A control file can be useful in the early stages of developing a skool file for
 reorganising code and data blocks, but it cannot preserve the following:
 
 * ASM block directives
-* :ref:`data definition entries <dEntry>` ('d' blocks) and
-  :ref:`remote entries <rEntry>` ('r' blocks)
 * comments that are not part of a code or data block
 
-:ref:`skoolFileTemplates`, however, can preserve all of these elements, and so
-may be a better choice for skool files that contain any of them.
+:ref:`skoolFileTemplates`, however, can preserve these elements, and so may be
+a better choice for skool files that contain any of them.
 
 Revision history
 ----------------

@@ -112,31 +112,6 @@ Skool file template comments
 Any line that begins with a hash character (``#``) is ignored by
 `sna2skool.py`, and will not show up in the skool file.
 
-Data definition entries
------------------------
-In the same way as `skool2html.py` uses data definition entries (``d`` blocks)
-in a skool file to insert data into the memory snapshot it constructs,
-`sna2skool.py` uses data definition entries in a skool file template to replace
-data in the snapshot given on the command line. This feature can be used to
-make sure that a 'volatile' part of memory is set to a specific value before
-being disassembled.
-
-For example, if address 32400 holds the number of lives, you could make sure
-that its contents are set to 0 so that it will disassemble to ``DEFB 0``
-(whatever the contents may be in the snapshot itself) thus::
-
-  d32400 DEFB 0
-
-  ; Number of lives
-  bB32400,1
-
-Note that in order to take effect, a ``d`` block must appear before the block
-that it overrides.
-
-.. note::
-   Data definition entries are deprecated since version 6.3. Use the
-   :ref:`defb`, :ref:`defs` and :ref:`defw` directives instead.
-
 Revision history
 ----------------
 +---------+-------------------------------------------------------------------+

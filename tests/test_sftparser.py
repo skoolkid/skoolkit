@@ -7,9 +7,6 @@ from skoolkit.sftparser import SftParser, SftParsingError
 TEST_SFT = """#
 # Test sft file for SftParser unit testing
 #
-; Test processing of a data definition entry
-d24576 DEFB 128
-
 ; Data at 0
 bB0,1
 
@@ -93,10 +90,7 @@ TEST_SNAPSHOT[32772] = 118 # 32772 HALT
 TEST_SNAPSHOT[32784:32789] = [ord(c) for c in "Hello"]
 TEST_SNAPSHOT[32795:32820] = [ord('a')] * 25
 
-TEST_SKOOL = """; Test processing of a data definition entry
-d24576 DEFB 128
-
-; Data at 0
+TEST_SKOOL = """; Data at 0
 b00000 DEFB 0
 
 ; Data at 15
@@ -172,10 +166,7 @@ b32810 DEFB 97,97,"a"
  32819 DEFB 97
 """
 
-TEST_SKOOL_HEX = """; Test processing of a data definition entry
-d24576 DEFB 128
-
-; Data at 0
+TEST_SKOOL_HEX = """; Data at 0
 b$0000 DEFB $00
 
 ; Data at 15
@@ -265,27 +256,14 @@ class SftParserTest(SkoolKitTestCase):
     def test_write_skool(self):
         snapshot, skool = self._parse_sft(TEST_SFT, TEST_SNAPSHOT)
         self.assertEqual(TEST_SKOOL, skool)
-        self.assertEqual(snapshot[24576], 128)
 
     def test_write_skool_hex(self):
         snapshot, skool = self._parse_sft(TEST_SFT, TEST_SNAPSHOT, asm_hex=True)
         self.assertEqual(TEST_SKOOL_HEX, skool)
-        self.assertEqual(snapshot[24576], 128)
 
     def test_write_skool_hex_lower(self):
         snapshot, skool = self._parse_sft('bB19132,1', [0] * 19133, asm_hex=True, asm_lower=True)
         self.assertEqual(skool.rstrip(), 'b$4abc defb $00')
-
-    def test_data_definition_entry(self):
-        sft = """
-            d00000 DEFB 5,"a,b",6
-             00005 DEFM "a;b"
-             00008 DEFW 28527
-             00010 DEFS 2,255
-        """
-        snapshot, skool = self._parse_sft(sft, [0] * 12)
-        exp_data = [5, 97, 44, 98, 6, 97, 59, 98, 111, 111, 255, 255]
-        self.assertEqual(exp_data, snapshot[0:12])
 
     def test_defb_directives(self):
         snapshot = [0] * 5

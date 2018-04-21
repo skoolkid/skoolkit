@@ -7,14 +7,6 @@ from skoolkit.skoolsft import SftWriter
 
 TEST_SKOOL = r"""; Dangling comment not associated with any entry
 
-; Data definition entry
-d49152 DEFB 0 ; Comment 1
- 49153 DEFW 0 ; Comment 2
-
-; Remote entry
-r24576 other
- 24579
-
 @start
 @defb=23296:1,2,3 ; One, two, three
 @defs=23299:4,5
@@ -148,14 +140,6 @@ i49229
 """
 
 TEST_SFT = """; Dangling comment not associated with any entry
-
-; Data definition entry
-d49152 DEFB 0 ; Comment 1
- 49153 DEFW 0 ; Comment 2
-
-; Remote entry
-r24576 other
- 24579
 
 @start
 @defb=23296:1,2,3 ; One, two, three

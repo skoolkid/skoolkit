@@ -332,8 +332,8 @@ To list the options supported by `skool2ctl.py`, run it with no arguments::
                             c = instruction-level comments
 
 If you need to preserve any elements that control files do not support (such as
-data definition entries and ASM block directives), consider using
-:ref:`skool2sft.py` to create a skool file template instead.
+ASM block directives), consider using :ref:`skool2sft.py` to create a skool
+file template instead.
 
 +---------+----------------------------------------------------------------+
 | Version | Changes                                                        |

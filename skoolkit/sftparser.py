@@ -17,8 +17,8 @@
 from skoolkit import SkoolKitError, write_line, get_int_param, parse_int, get_address_format, open_file
 from skoolkit.ctlparser import parse_params
 from skoolkit.disassembler import Disassembler
-from skoolkit.skoolparser import set_bytes, parse_asm_block_directive, parse_asm_data_directive, DIRECTIVES
-from skoolkit.skoolsft import VerbatimLine, VALID_CTLS, VERBATIM_BLOCKS
+from skoolkit.skoolparser import parse_asm_block_directive, parse_asm_data_directive, DIRECTIVES
+from skoolkit.skoolsft import VerbatimLine, VALID_CTLS
 from skoolkit.textutils import find_unquoted, split_unquoted
 
 class SftParsingError(SkoolKitError):
@@ -106,13 +106,6 @@ class SftParser:
         elif directive.startswith(('defb=', 'defs=', 'defw=')):
             parse_asm_data_directive(self.snapshot, directive)
 
-    def _set_bytes(self, line):
-        address = parse_int(line[1:6])
-        if address is not None:
-            comment_index = find_unquoted(line, ';')
-            operation = line[7:comment_index].strip()
-            set_bytes(self.snapshot, address, operation)
-
     def _parse_sft(self, min_address, max_address):
         start_index = -1
         lines = []
@@ -141,15 +134,6 @@ class SftParser:
 
             if not self.disassemble:
                 # This line is inside a '+' block, so include it as is
-                lines.append(VerbatimLine(line))
-                continue
-
-            # Check whether we're in a block that should be restored verbatim
-            if v_block_ctl is None and line.startswith(VERBATIM_BLOCKS):
-                v_block_ctl = line[0]
-            if v_block_ctl:
-                if v_block_ctl == 'd':
-                    self._set_bytes(line)
                 lines.append(VerbatimLine(line))
                 continue
 

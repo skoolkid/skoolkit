@@ -1670,18 +1670,6 @@ class SkoolParserTest(SkoolKitTestCase):
         self.assertEqual(memory_map[0].end_comment, ['The end of the first routine.', 'Really.'])
         self.assertEqual(memory_map[1].end_comment, ['The end of the second routine.'])
 
-    def test_data_definition_entry(self):
-        skool = """
-            ; Data
-            d30000 DEFB 1,2,3
-             50000 DEFB 3,2,1
-        """
-        parser = self._get_parser(skool, html=True)
-        self.assertEqual(len(parser.memory_map), 0)
-        snapshot = parser.snapshot
-        self.assertEqual(snapshot[30000:30003], [1, 2, 3])
-        self.assertEqual(snapshot[50000:50003], [3, 2, 1])
-
     def test_defb_directives(self):
         skool = """
             @defb=23296:1,$0A,%10101010,"01",32768/256
@@ -1814,27 +1802,6 @@ class SkoolParserTest(SkoolKitTestCase):
         """
         entry = self._get_parser(skool).get_entry(40000)
         self.assertEqual(['#zero-#one-#two-#three'], entry.details)
-
-    def test_remote_entry(self):
-        skool = """
-            r16384 start
-
-            ; Routine
-            c32768 JP $4000
-        """
-        parser = self._get_parser(skool)
-        memory_map = parser.memory_map
-        self.assertEqual(len(memory_map), 1)
-        instructions = memory_map[0].instructions
-        self.assertEqual(len(instructions), 1)
-        reference = instructions[0].reference
-        self.assertFalse(reference is None)
-        self.assertEqual(reference.address, 16384)
-        self.assertEqual(reference.addr_str, '$4000')
-        entry = reference.entry
-        self.assertTrue(entry.is_remote())
-        self.assertEqual(entry.asm_id, 'start')
-        self.assertEqual(entry.address, 16384)
 
     def test_remote_directive(self):
         skool = """
@@ -2512,9 +2479,8 @@ class SkoolParserTest(SkoolKitTestCase):
     def test_no_warning_for_remote_entry_address_operand_inside_disassembly_address_range(self):
         skool = """
             @start
+            @remote=save:30001
             c30000 JP 30001
-
-            r30001 save
         """
         self._get_parser(skool, asm_mode=2, warnings=True)
         warnings = self.err.getvalue()

@@ -778,7 +778,7 @@ section.
 +---------+-----------------------------------------------------------------+
 | 3.5     | Added the ability to resolve (in HTML mode) the address of an   |
 |         | entry point in another disassembly when an appropriate          |
-|         | :ref:`remote entry <rEntry>` is defined                         |
+|         | :ref:`remote entry <remote>` is defined                         |
 +---------+-----------------------------------------------------------------+
 | 2.0     | Added support for the ``@code`` notation                        |
 +---------+-----------------------------------------------------------------+

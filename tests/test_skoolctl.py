@@ -9,13 +9,6 @@ DIRECTIVES = 'bcgistuw'
 
 TEST_SKOOL = r"""; Dangling comment not associated with any entry
 
-; Data definition entry (ignored)
-d49153 DEFW 0       ; A comment over two lines
-                    ; (also ignored)
-
-; Remote entry (ignored)
-r24576 start
-
 ; Address 0
 @label=START0
 c00000 RET

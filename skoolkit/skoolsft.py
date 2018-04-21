@@ -22,7 +22,6 @@ from skoolkit.textutils import find_unquoted
 from skoolkit.z80 import get_size
 
 VALID_CTLS = DIRECTIVES + ' *'
-VERBATIM_BLOCKS = ('d', 'r')
 
 class VerbatimLine:
     def __init__(self, text):
@@ -133,12 +132,7 @@ class SftWriter:
                     # This line is blank
                     lines.append(VerbatimLine(line))
                     continue
-                # Check whether we're in a block that should be preserved verbatim
-                if entry_ctl is None and line.startswith(VERBATIM_BLOCKS):
-                    entry_ctl = line[0]
-                if entry_ctl in VERBATIM_BLOCKS:
-                    lines.append(VerbatimLine(line))
-                elif s_line.startswith(';'):
+                if s_line.startswith(';'):
                     # This line is a continuation of an instruction comment
                     comment_index = line.index(';')
                     lines.append(VerbatimLine(" ;{} {}".format(comment_index, line[comment_index + 1:].lstrip())))

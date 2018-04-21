@@ -327,11 +327,9 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
     def test_macro_r_other_code(self):
         skool = """
             @start
+            @remote=other:$c000,$C003
             c49152 LD HL,0
              $c003 RET
-
-            r$c000 other
-             $C003
         """
         writer = self._get_writer(skool)
 
@@ -385,12 +383,11 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
     def test_macro_r_lower(self):
         skool = """
             @start
+            @remote=other:$C000
             @label=START
             c32000 RET
 
             b$7D01 DEFB 0
-
-            r$C000 other
         """
         writer = self._get_writer(skool, case=CASE_LOWER)
 

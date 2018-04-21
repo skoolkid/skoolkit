@@ -398,9 +398,6 @@ class SkoolParser:
                     self.memory_map.append(map_entry)
                     self.comments[:] = []
                     self.base_address = min((address, self.base_address))
-                elif ctl == 'r':
-                    # This is a remote entry
-                    map_entry = RemoteEntry(instruction.operation, address)
 
                 if map_entry:
                     address_comments.append([instruction, address_comment])

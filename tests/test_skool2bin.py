@@ -225,8 +225,6 @@ class BinWriterTest(SkoolKitTestCase):
                             ; accumulator with 11
             @ssub+end
              30003 RET
-
-            d30004 DEFB 0
         """
         self._test_write(skool, 30000, [201, 62, 10, 201])
 

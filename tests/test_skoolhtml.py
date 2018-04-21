@@ -1343,16 +1343,11 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         self._assert_link_equals(output, 'asm.html#40001', '40001')
 
     def test_macro_r_other_code(self):
-        ref = """
-            [OtherCode:other]
-            Source=other.skool
-        """
+        ref = "[OtherCode:other]"
         skool = """
+            @remote=other:$C000,$c003
             c49152 LD DE,0
              49155 RET
-
-            r$C000 other
-             $c003
         """
         writer = self._get_writer(ref=ref, skool=skool)
 
@@ -1416,16 +1411,11 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         self._assert_link_equals(output, 'other/asm.html#40000', '40000')
 
     def test_macro_r_decimal(self):
-        ref = """
-            [OtherCode:other]
-            Source=other.skool
-        """
+        ref = "[OtherCode:other]"
         skool = """
+            @remote=other:$C000,$C003
             c32768 LD A,B
              32769 RET
-
-            r$C000 other
-             $C003
         """
         writer = self._get_writer(ref=ref, skool=skool, base=BASE_10)
 
@@ -1450,16 +1440,11 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         self._assert_link_equals(output, '../other/49152.html#49155', '49155')
 
     def test_macro_r_hex(self):
-        ref = """
-            [OtherCode:other]
-            Source=other.skool
-        """
+        ref = "[OtherCode:other]"
         skool = """
+            @remote=other:$C000,$C003
             c32768 LD A,B
              32769 RET
-
-            r$C000 other
-             $C003
         """
         writer = self._get_writer(ref=ref, skool=skool, base=BASE_16)
 
@@ -1486,16 +1471,13 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
     def test_macro_r_hex_lower(self):
         ref = """
             [OtherCode:Other]
-            Source=other.skool
             [Paths]
             Other-CodePath=other
         """
         skool = """
+            @remote=other:$C000,$C003
             c40970 LD A,B
              40971 RET
-
-            r$C000 other
-             $C003
         """
         writer = self._get_writer(ref=ref, skool=skool, case=CASE_LOWER, base=BASE_16)
 
@@ -1520,16 +1502,11 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         self._assert_link_equals(output, '../other/49152.html#49155', 'c003')
 
     def test_macro_r_hex_upper(self):
-        ref = """
-            [OtherCode:other]
-            Source=other.skool
-        """
+        ref = "[OtherCode:other]"
         skool = """
+            @remote=other:$c000,$c003
             c$a00a LD A,B
              40971 RET
-
-            r$c000 other
-             $c003
         """
         writer = self._get_writer(ref=ref, skool=skool, case=CASE_UPPER, base=BASE_16)
 
@@ -3168,11 +3145,9 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         self._assert_files_equal('index.html', subs, True)
 
     def test_write_asm_entries(self):
-        ref = """
-            [OtherCode:start]
-            Source=start.skool
-        """
+        ref = "[OtherCode:start]"
         skool = """
+            @remote=start:30000,30003
             ; Routine at 24576
             ;
             ; Description of routine at 24576.
@@ -3203,9 +3178,6 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             ; A 0
             c24584 CALL 30000  ; {Comment for the instructions at 24584 and 24587
              24587 JP 30003    ; }
-
-            r30000 start
-             30003
         """
         writer = self._get_writer(ref=ref, skool=skool)
         writer.write_asm_entries()
@@ -3995,9 +3967,8 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
 
     def test_write_asm_entries_with_missing_OtherCode_section(self):
         skool = """
+            @remote=save:50000
             c30000 JP 50000
-
-            r50000 save
         """
         writer = self._get_writer(skool=skool)
         with self.assertRaises(SkoolKitError) as cm:

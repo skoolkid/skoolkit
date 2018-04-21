@@ -22,8 +22,6 @@ from skoolkit.skoolsft import VALID_CTLS
 from skoolkit.textutils import partition_unquoted
 from skoolkit.z80 import assemble
 
-SKIP_BLOCKS = ('d', 'r')
-
 class BinWriter:
     def __init__(self, skoolfile, asm_mode=0, fix_mode=0):
         self.asm_mode = asm_mode
@@ -44,14 +42,9 @@ class BinWriter:
         f = open_file(skoolfile)
         for block in read_skool(f, 0, self.asm_mode, self.fix_mode):
             for line in block:
-                if line.lstrip().startswith(';'):
-                    continue
                 if line.startswith('@'):
                     self._parse_asm_directive(line[1:])
-                    continue
-                if line.startswith(SKIP_BLOCKS):
-                    break
-                if line[0] in VALID_CTLS:
+                elif not line.lstrip().startswith(';') and line[0] in VALID_CTLS:
                     self._parse_instruction(line)
         f.close()
 
