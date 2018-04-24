@@ -499,127 +499,104 @@ class MethodTest(HtmlWriterTestCase):
             actual_contents = f.read()
         self.assertEqual(actual_contents, contents)
 
-    def test_image_path(self):
-        writer = self._get_writer()
+    def test_handle_image(self):
+        writer = self._get_writer(mock_file_info=True)
+        image_writer = writer.image_writer
+        file_info = writer.file_info
+        udgs = [[Udg(0, (0,) * 8)]]
+        frame = Frame(udgs)
+        for img_format in ('png', 'gif'):
+            fname = 'test.' + img_format
+            with self.subTest(img_format=img_format):
+                writer.handle_image(frame, fname)
+                self.assertEqual(file_info.fname, 'images/udgs/' + fname)
+                self.assertEqual(file_info.mode, 'wb')
+                self.assertEqual(image_writer.udg_array, udgs)
+                self.assertEqual(image_writer.img_format, img_format)
+                self.assertEqual(image_writer.scale, 1)
+                self.assertEqual(image_writer.mask, 0)
+                self.assertEqual(image_writer.x, 0)
+                self.assertEqual(image_writer.y, 0)
+                self.assertEqual(image_writer.width, 8)
+                self.assertEqual(image_writer.height, 8)
+
+    def test_handle_image_animated(self):
+        writer = self._get_writer(mock_file_info=True)
+        image_writer = writer.image_writer
+        file_info = writer.file_info
+        udg1 = Udg(1, (1,) * 8)
+        udg2 = Udg(2, (2,) * 8)
+        frames = [Frame([[udg1]]), Frame([[udg2]])]
+        for img_format in ('png', 'gif'):
+            fname = 'test_animated.' + img_format
+            with self.subTest(img_format=img_format):
+                writer.handle_image(frames, fname)
+                self.assertEqual(file_info.fname, 'images/udgs/' + fname)
+                self.assertEqual(file_info.mode, 'wb')
+                self.assertEqual(image_writer.frames, frames)
+                self.assertEqual(image_writer.img_format, img_format)
+
+    def test_handle_image_with_paths(self):
+        writer = self._get_writer(mock_file_info=True)
+        file_info = writer.file_info
+        udgs = [[Udg(0, (0,) * 8)]]
+        frame = Frame(udgs)
         def_img_format = writer.default_image_format
 
-        img_path = writer.image_path('img')
-        self.assertEqual(img_path, '{0}/img.{1}'.format(writer.paths['UDGImagePath'], def_img_format))
+        writer.handle_image(frame, 'img')
+        self.assertEqual(file_info.fname, '{}/img.{}'.format(writer.paths['UDGImagePath'], def_img_format))
 
-        img_path = writer.image_path('/pics/foo.png')
-        self.assertEqual(img_path, 'pics/foo.png')
+        writer.handle_image(frame, '/pics/foo.png')
+        self.assertEqual(file_info.fname, 'pics/foo.png')
 
         path_id = 'ScreenshotImagePath'
-        img_path = writer.image_path('img.gif', path_id)
-        self.assertEqual(img_path, '{0}/img.gif'.format(writer.paths[path_id]))
+        writer.handle_image(frame, 'img.gif', path_id=path_id)
+        self.assertEqual(file_info.fname, '{}/img.gif'.format(writer.paths[path_id]))
 
         path_id = 'UnknownImagePath'
         fname = 'img.png'
         with self.assertRaisesRegex(SkoolKitError, "Unknown path ID '{}' for image file '{}'".format(path_id, fname)):
-            writer.image_path(fname, path_id)
+            writer.handle_image(frame, fname, path_id=path_id)
 
-    def test_image_path_with_frames(self):
-        writer = self._get_writer()
+    def test_handle_image_detects_animation(self):
+        writer = self._get_writer(mock_file_info=True)
+        file_info = writer.file_info
         udg_path = writer.paths['UDGImagePath']
 
         # One frame, no flash
         udgs = [[Udg(1, (0,) * 8)]]
-        img_path = writer.image_path('img', frames=[Frame(udgs)])
-        self.assertEqual(img_path, '{}/img.png'.format(udg_path))
+        writer.handle_image(Frame(udgs), 'img')
+        self.assertEqual(file_info.fname, '{}/img.png'.format(udg_path))
 
         # One frame, flashing, same INK and PAPER
         udgs = [[Udg(128, (0,) * 8)]]
-        img_path = writer.image_path('img', frames=[Frame(udgs)])
-        self.assertEqual(img_path, '{}/img.png'.format(udg_path))
+        writer.handle_image(Frame(udgs), 'img')
+        self.assertEqual(file_info.fname, '{}/img.png'.format(udg_path))
 
         # One frame, flashing, different INK and PAPER
         udgs = [[Udg(129, (0,) * 8)]]
-        img_path = writer.image_path('img', frames=[Frame(udgs)])
-        self.assertEqual(img_path, '{}/img.gif'.format(udg_path))
+        writer.handle_image(Frame(udgs), 'img')
+        self.assertEqual(file_info.fname, '{}/img.gif'.format(udg_path))
 
         # One frame, flashing, fully cropped
         udgs = [[Udg(129, (0,) * 8), Udg(0, (0,) * 8)]]
-        img_path = writer.image_path('img', frames=[Frame(udgs, 1, 0, 8)])
-        self.assertEqual(img_path, '{}/img.png'.format(udg_path))
+        writer.handle_image(Frame(udgs, 1, 0, 8), 'img')
+        self.assertEqual(file_info.fname, '{}/img.png'.format(udg_path))
 
         # One frame, flashing, partly cropped
         udgs = [[Udg(129, (0,) * 8), Udg(0, (0,) * 8)]]
-        img_path = writer.image_path('img', frames=[Frame(udgs, 1, 0, 4)])
-        self.assertEqual(img_path, '{}/img.gif'.format(udg_path))
+        writer.handle_image(Frame(udgs, 1, 0, 4), 'img')
+        self.assertEqual(file_info.fname, '{}/img.gif'.format(udg_path))
 
         # One frame, FLASH bit set, completely transparent (no flash rect)
         udgs = [[Udg(129, (0,) * 8, (255,) * 8)]]
-        img_path = writer.image_path('img', frames=[Frame(udgs, 1, 1)])
-        self.assertEqual(img_path, '{}/img.png'.format(udg_path))
+        writer.handle_image(Frame(udgs, 1, 1), 'img')
+        self.assertEqual(file_info.fname, '{}/img.png'.format(udg_path))
 
         # Two frames
         udgs = [[Udg(0, (0,) * 8)]]
-        img_path = writer.image_path('img', frames=[Frame(udgs)] * 2)
-        self.assertEqual(img_path, '{}/img.gif'.format(udg_path))
-
-    def test_write_image(self):
-        writer = self._get_writer(mock_file_info=True)
-        image_writer = writer.image_writer
-        file_info = writer.file_info
-
-        # PNG
-        image_path = 'images/test.png'
-        udgs = [[Udg(0, (0,) * 8)]]
-        writer.write_image(image_path, udgs)
-        self.assertEqual(file_info.fname, image_path)
-        self.assertEqual(file_info.mode, 'wb')
-        self.assertEqual(image_writer.udg_array, udgs)
-        self.assertEqual(image_writer.img_format, 'png')
-        self.assertEqual(image_writer.scale, 2)
-        self.assertEqual(image_writer.mask, 0)
-        self.assertEqual(image_writer.x, 0)
-        self.assertEqual(image_writer.y, 0)
-        self.assertEqual(image_writer.width, 16)
-        self.assertEqual(image_writer.height, 16)
-
-        # GIF
-        image_path = 'images/test.gif'
-        writer.write_image(image_path, udgs)
-        self.assertEqual(file_info.fname, image_path)
-        self.assertEqual(image_writer.img_format, 'gif')
-
-        # Unsupported format
-        image_path = 'images/test.jpg'
-        with self.assertRaisesRegex(SkoolKitError, 'Unsupported image file format: {}'.format(image_path)):
-            writer.write_image(image_path, udgs)
-
-    def test_write_animated_image_png(self):
-        writer = self._get_writer(mock_file_info=True)
-        image_writer = writer.image_writer
-        file_info = writer.file_info
-
-        image_path = 'images/test_animated.png'
-        frames = object()
-        writer.write_animated_image(image_path, frames)
-        self.assertEqual(file_info.fname, image_path)
-        self.assertEqual(file_info.mode, 'wb')
-        self.assertEqual(image_writer.frames, frames)
-        self.assertEqual(image_writer.img_format, 'png')
-
-    def test_write_animated_image_gif(self):
-        writer = self._get_writer(mock_file_info=True)
-        image_writer = writer.image_writer
-        file_info = writer.file_info
-
-        image_path = 'images/test_animated.gif'
-        frames = object()
-        writer.write_animated_image(image_path, frames)
-        self.assertEqual(file_info.fname, image_path)
-        self.assertEqual(file_info.mode, 'wb')
-        self.assertEqual(image_writer.frames, frames)
-        self.assertEqual(image_writer.img_format, 'gif')
-
-    def test_write_animated_image_unsupported_format(self):
-        writer = self._get_writer(mock_file_info=True)
-
-        image_path = 'images/test_animated.jpg'
-        with self.assertRaisesRegex(SkoolKitError, 'Unsupported image file format: {}'.format(image_path)):
-            writer.write_animated_image(image_path, None)
+        writer.handle_image([Frame(udgs)] * 2, 'img')
+        self.assertEqual(file_info.fname, '{}/img.gif'.format(udg_path))
 
     def test_format_template(self):
         writer = self._get_writer(ref='[Template:foo]\n{bar}')

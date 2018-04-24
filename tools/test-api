@@ -75,12 +75,8 @@ class GameHtmlWriter(HtmlWriter):
         self.init_called = 1
 
     def sprite(self, cwd, attr, fname):
-        img_path = self.image_path(fname)
-        if self.need_image(img_path):
-            # Build udgs for the sprite
-            udgs = [[Udg(attr, self.snapshot[32768:32776])]]
-            self.write_image(img_path, udgs)
-        return self.img_element(cwd, img_path)
+        udgs = [[Udg(attr, self.snapshot[32768:32776])]]
+        return self.handle_image(Frame(udgs, 2), fname, cwd)
 
     # #SPRITEattr[{x,y,width,height}](fname)
     def expand_sprite(self, text, index, cwd):
@@ -97,24 +93,19 @@ class GameHtmlWriter(HtmlWriter):
     # #INVERSEaddress,attr
     def expand_inverse(self, text, index, cwd):
         end, address, attr = parse_ints(text, index, 2)
-        img_path = self.image_path('inverse{0}_{1}'.format(address, attr))
-        if self.need_image(img_path):
-            udg_data = [b ^ 255 for b in self.snapshot[address:address + 8]]
-            udg = Udg(attr, udg_data)
-            self.write_image(img_path, [[udg]])
-        return end, self.img_element(cwd, img_path)
+        fname = 'inverse{}_{}'.format(address, attr)
+        udg_data = [b ^ 255 for b in self.snapshot[address:address + 8]]
+        frame = Frame([[Udg(attr, udg_data)]], 2)
+        return end, self.handle_image(frame, fname, cwd)
 
     def countdown(self, cwd, fname):
-        img_path = self.image_path(fname)
-        if self.need_image(img_path):
-            attr = 56
-            kwargs = dict(scale=4, x=2, y=2, width=28, height=28, delay=100)
-            frames = [Frame([[Udg(attr, self.snapshot[32800:32808])]], **kwargs)]
-            frames.append(Frame([[Udg(attr, self.snapshot[32792:32800])]], **kwargs))
-            frames.append(Frame([[Udg(attr, self.snapshot[32784:32792])]], **kwargs))
-            frames.append(Frame([[Udg(attr, self.snapshot[32776:32784])]], **kwargs))
-            self.write_animated_image(img_path, frames)
-        return self.img_element(cwd, img_path)
+        attr = 56
+        kwargs = dict(scale=4, x=2, y=2, width=28, height=28, delay=100)
+        frames = [Frame([[Udg(attr, self.snapshot[32800:32808])]], **kwargs)]
+        frames.append(Frame([[Udg(attr, self.snapshot[32792:32800])]], **kwargs))
+        frames.append(Frame([[Udg(attr, self.snapshot[32784:32792])]], **kwargs))
+        frames.append(Frame([[Udg(attr, self.snapshot[32776:32784])]], **kwargs))
+        return self.handle_image(frames, fname, cwd)
 
     def timestamp(self, cwd):
         return time.strftime("%a %d %b %Y %H:%M:%S %Z")
@@ -172,7 +163,7 @@ write_ref > build/game.ref
 write_module > skoolkit/game.py
 
 rm -rf build/html/game
-$SKOOL2HTML -d build/html build/game.ref
+$SKOOL2HTML -d build/html build/game.skool
 $SKOOL2ASM build/game.skool > build/game.asm
 
 rm skoolkit/game.py*

@@ -400,48 +400,6 @@ The Frame class represents a single frame of a still or animated image.
 HtmlWriter and skoolkit.graphics provide the following image-related methods
 and functions.
 
-.. automethod:: skoolkit.skoolhtml.HtmlWriter.image_path
-
-   .. versionchanged:: 5.1
-      Added the *frames* parameter.
-
-   .. versionchanged:: 6.3
-      *fname* may contain image path ID replacement fields.
-
-.. note::
-   The :meth:`image_path` method is deprecated since version 6.3. Use
-   :meth:`~skoolkit.skoolhtml.HtmlWriter.handle_image` instead.
-
-.. automethod:: skoolkit.skoolhtml.HtmlWriter.need_image
-
-.. note::
-   The :meth:`need_image` method is deprecated since version 6.3. Use
-   :meth:`~skoolkit.skoolhtml.HtmlWriter.handle_image` instead.
-
-.. automethod:: skoolkit.skoolhtml.HtmlWriter.write_image
-
-   .. versionchanged:: 4.0
-      The *mask* parameter specifies the type of mask to apply (see
-      :ref:`masks`).
-
-.. note::
-   The :meth:`write_image` method is deprecated since version 6.3. Use
-   :meth:`~skoolkit.skoolhtml.HtmlWriter.handle_image` instead.
-
-.. automethod:: skoolkit.skoolhtml.HtmlWriter.img_element
-
-.. note::
-   The :meth:`img_element` method is deprecated since version 6.3. Use
-   :meth:`~skoolkit.skoolhtml.HtmlWriter.handle_image` instead.
-
-.. automethod:: skoolkit.skoolhtml.HtmlWriter.write_animated_image
-
-   .. versionadded:: 3.6
-
-.. note::
-   The :meth:`write_animated_image` method is deprecated since version 6.3. Use
-   :meth:`~skoolkit.skoolhtml.HtmlWriter.handle_image` instead.
-
 .. automethod:: skoolkit.skoolhtml.HtmlWriter.handle_image
 
    .. versionadded:: 5.1

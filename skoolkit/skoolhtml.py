@@ -455,19 +455,6 @@ class HtmlWriter:
     def get_page_ids(self):
         return self.page_ids
 
-    # API
-    def need_image(self, image_path):
-        """Return whether an image file needs to be created. This will be true
-        only if the file doesn't already exist, or all images are being
-        rebuilt. Well-behaved image-creating methods will call this to check
-        whether an image file needs to be written, and thus avoid building an
-        image when it is not necessary.
-
-        :param image_path: The full path of the image file relative to the root
-                           directory of the disassembly.
-        """
-        return self.file_info.need_image(image_path)
-
     def file_exists(self, fname):
         return self.file_info.file_exists(fname)
 
@@ -953,14 +940,6 @@ class HtmlWriter:
     def format_img(self, alt, src):
         return self.format_template('img', {'alt': alt, 'src': src})
 
-    def _get_image_format(self, image_path):
-        img_file_ext = image_path.lower()[-4:]
-        if img_file_ext == '.png':
-            return 'png'
-        if img_file_ext == '.gif':
-            return 'gif'
-        raise SkoolKitError('Unsupported image file format: {}'.format(image_path))
-
     # API
     def handle_image(self, frames, fname='', cwd=None, alt=None, path_id=DEF_IMG_PATH):
         """Register a named frame for an image, and write an image file if
@@ -987,47 +966,17 @@ class HtmlWriter:
             frames = [frames]
         if len(frames) == 1:
             self.frames[frames[0].name] = frames[0]
-        image_path = self.image_path(fname, path_id, frames)
+        image_path = self._image_path(fname, path_id, frames)
         if image_path:
-            if self.need_image(image_path):
-                self.write_animated_image(image_path, frames)
-            return self.img_element(cwd, image_path, alt)
+            if self.file_info.need_image(image_path):
+                self._write_image(image_path, frames)
+            if alt is None:
+                alt = basename(image_path)[:-4]
+            return self.format_img(alt, self.relpath(cwd, image_path))
         return ''
 
-    # API
-    def write_image(self, image_path, udgs, crop_rect=(), scale=2, mask=0):
-        """Create an image and write it to a file.
-
-        :param image_path: The full path of the file to which to write the
-                           image (relative to the root directory of the
-                           disassembly).
-        :param udgs: The two-dimensional array of tiles (instances of
-                     :class:`~skoolkit.graphics.Udg`) from which to build the
-                     image.
-        :param crop_rect: The cropping rectangle, ``(x, y, width, height)``,
-                          where ``x`` and ``y`` are the x- and y-coordinates of
-                          the top-left pixel to include in the final image, and
-                          ``width`` and ``height`` are the width and height of
-                          the final image.
-        :param scale: The scale of the image.
-        :param mask: The type of mask to apply to the tiles: 0 (no mask), 1
-                     (OR-AND mask), or 2 (AND-OR mask).
-        """
-        frame = Frame(udgs, scale, mask, *crop_rect)
-        self.write_animated_image(image_path, [frame])
-
-    # API
-    def write_animated_image(self, image_path, frames):
-        """Create an image and write it to a file.
-
-        :param image_path: The full path of the file to which to write the
-                           image (relative to the root directory of the
-                           disassembly).
-        :param frames: A list of the frames (instances of
-                       :class:`~skoolkit.graphics.Frame`) from which to build
-                       the image.
-        """
-        img_format = self._get_image_format(image_path)
+    def _write_image(self, image_path, frames):
+        img_format = image_path[-3:].lower()
         f = self.file_info.open_file(image_path, mode='wb')
         self.image_writer.write_image(frames, f, img_format)
         f.close()
@@ -1060,42 +1009,23 @@ class HtmlWriter:
         list_subs = {'class': list_obj.css_class, 'm_list_item': '\n'.join(items)}
         return self.format_template('list', list_subs)
 
-    # API
-    def img_element(self, cwd, image_path, alt=None):
-        """Return an ``<img .../>`` element for an image file.
-
-        :param cwd: The current working directory (from which the relative path
-                    of the image file will be computed).
-        :param image_path: The full path of the image file relative to the root
-                           directory of the disassembly.
-        :param alt: The alt text to use for the image; if `None`, the base name
-                    of the image file (with the '.png' or '.gif' suffix
-                    removed) will be used.
-        """
-        if alt is None:
-            alt = basename(image_path)[:-4]
-        return self.format_img(alt, self.relpath(cwd, image_path))
-
-    # API
-    def image_path(self, fname, path_id=DEF_IMG_PATH, frames=()):
+    def _image_path(self, fname, path_id, frames):
         """Return the full path of an image file relative to the root directory
         of the disassembly. If `fname` does not end with '.png' or '.gif', an
-        appropriate suffix will be appended (depending on the default image
-        format). If `fname` starts with a '/', it will be removed and the
-        remainder returned. If `fname` is blank, `None` is returned. If `fname`
-        contains an image path ID replacement field, the corresponding
-        parameter value from the :ref:`Paths` section will be substituted.
+        appropriate suffix is appended (depending on the default image format).
+        If `fname` starts with a '/', it is removed and the remainder returned.
+        If `fname` is blank, `None` is returned. If `fname` contains an image
+        path ID replacement field, the corresponding parameter value from the
+        [Paths] section is substituted.
 
         :param fname: The name of the image file.
         :param path_id: The ID of the target directory (as defined in the
-                        :ref:`paths` section). This is not used if `fname`
-                        starts with a '/' or contains an image path ID
-                        replacement field.
-        :param frames: The list of frames (instances of
-                       :class:`~skoolkit.graphics.Frame`) that define the
-                       image. If supplied, it is used to determine whether the
-                       image is animated, and select the appropriate filename
-                       suffix accordingly.
+                        [Paths] section). This is not used if `fname` starts
+                        with a '/' or contains an image path ID replacement
+                        field.
+        :param frames: The list of Frames that define the image. It is used to
+                       determine whether the image is animated, and select the
+                       appropriate filename suffix accordingly.
         """
         if fname:
             expanded = self._expand_image_path(fname)

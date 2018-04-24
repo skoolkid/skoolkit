@@ -56,6 +56,20 @@ parameter in the :ref:`[MemoryMap:GameStatusBuffer] <memoryMap>` section.
 The ``@nolabel`` directive is not supported in SkoolKit 7. Instead you should
 use the :ref:`label` directive with a blank label: ``@label=``.
 
+Image-related methods
+---------------------
+In SkoolKit 6, the following image-related methods were available on
+HtmlWriter:
+
+* :meth:`image_path`
+* :meth:`img_element`
+* :meth:`need_image`
+* :meth:`write_animated_image`
+* :meth:`write_image`
+
+These methods are not available in SkoolKit 7; instead, use the
+:meth:`~skoolkit.skoolhtml.HtmlWriter.handle_image` method.
+
 Data definition entries
 -----------------------
 Data definition entries ('d' blocks) are not supported in SkoolKit 7. Use the
