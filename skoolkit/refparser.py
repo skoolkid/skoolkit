@@ -1,4 +1,4 @@
-# Copyright 2009-2017 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2009-2018 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -67,16 +67,6 @@ class RefParser:
     def has_section(self, section_name):
         """Return whether there is any section named `section_name`."""
         return section_name in self._sections
-
-    def has_sections(self, section_type):
-        """Return whether there are any sections whose names start with
-        `section_type` followed by a colon.
-        """
-        prefix = section_type + ':'
-        for section_name in self._sections:
-            if section_name.startswith(prefix):
-                return True
-        return False
 
     def get_dictionary(self, section_name):
         """Return a dictionary built from the contents of a section. Each line

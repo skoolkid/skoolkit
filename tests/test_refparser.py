@@ -15,17 +15,6 @@ class RefParserTest(SkoolKitTestCase):
         self.assertTrue(ref_parser.has_section('Section'))
         self.assertFalse(ref_parser.has_section('NonexistentSection'))
 
-    def test_has_sections(self):
-        ref = """
-            [Prefix:1]
-            Foo
-            [Prefix:2]
-            Bar
-        """
-        ref_parser = self._get_parser(ref)
-        self.assertTrue(ref_parser.has_sections('Prefix'))
-        self.assertFalse(ref_parser.has_sections('NonexistentPrefix'))
-
     def test_get_dictionary(self):
         ref = """
             [Section]
