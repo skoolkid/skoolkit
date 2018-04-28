@@ -678,10 +678,7 @@ class Disassembly:
             del self.entry_map[address]
 
     def contains_entry_asm_directive(self, asm_dir):
-        for entry in self.entries:
-            for directive in entry.asm_directives:
-                if directive == asm_dir or directive.startswith(asm_dir + '='):
-                    return True
+        return any(d == asm_dir or d.startswith(asm_dir + '=') for e in self.entries for d in e.asm_directives)
 
     def _calculate_references(self):
         for entry in self.entries:
