@@ -287,6 +287,109 @@ class Skool2HtmlTest(SkoolKitTestCase):
 
     @patch.object(skool2html, 'get_class', Mock(return_value=TestHtmlWriter))
     @patch.object(skool2html, 'SkoolParser', MockSkoolParser)
+    @patch.object(skool2html, 'write_disassembly', mock_write_disassembly)
+    @patch.object(skool2html, 'get_config', mock_config)
+    def test_ref_file_on_command_line(self):
+        ref2 = """
+            [Game]
+            Game=Bar
+        """
+        ref2file = self._write_ref_file(ref2)
+        ref1 = """
+            [Config]
+            RefFiles={}
+            [Game]
+            Game=Foo
+        """.format(ref2file)
+        ref1file = self._write_ref_file(ref1)
+        ref3 = """
+            [Game]
+            Game=Baz
+        """
+        ref3file = self._write_ref_file(ref3)
+        exp_reffiles = (ref1file, ref2file, ref3file)
+        skoolfile = self.write_text_file(path=ref1file[:-4] + '.skool')
+        output, error = self.run_skool2html('{} {}'.format(skoolfile, ref3file))
+        self.assertEqual(error, '')
+        self.assertIn('\nUsing ref files: {}\n'.format(', '.join(exp_reffiles)), output)
+        html_writer = write_disassembly_args[0]
+        self.assertEqual(html_writer.game_vars['Game'], 'Baz')
+
+    @patch.object(skool2html, 'get_class', Mock(return_value=TestHtmlWriter))
+    @patch.object(skool2html, 'SkoolParser', MockSkoolParser)
+    @patch.object(skool2html, 'write_disassembly', mock_write_disassembly)
+    @patch.object(skool2html, 'get_config', mock_config)
+    def test_ref_files_on_command_line(self):
+        ref1 = """
+            [Game]
+            Game=Foo
+        """
+        ref1file = self._write_ref_file(ref1)
+        ref2 = """
+            [Game]
+            Game=Bar
+        """
+        ref2file = self._write_ref_file(ref2)
+        exp_reffiles = (ref1file, ref2file)
+        skoolfile = self.write_text_file(suffix='.skool')
+        output, error = self.run_skool2html('{} {} {}'.format(skoolfile, ref1file, ref2file))
+        self.assertEqual(error, '')
+        self.assertIn('\nUsing ref files: {}\n'.format(', '.join(exp_reffiles)), output)
+        html_writer = write_disassembly_args[0]
+        self.assertEqual(html_writer.game_vars['Game'], 'Bar')
+
+    @patch.object(skool2html, 'get_class', Mock(return_value=TestHtmlWriter))
+    @patch.object(skool2html, 'SkoolParser', MockSkoolParser)
+    @patch.object(skool2html, 'write_disassembly', mock_write_disassembly)
+    @patch.object(skool2html, 'get_config', mock_config)
+    def test_ref_file_on_command_line_is_one_already_automatically_parsed(self):
+        ref2 = """
+            [Game]
+            Game=Bar
+        """
+        ref2file = self._write_ref_file(ref2)
+        ref1 = """
+            [Config]
+            RefFiles={}
+            [Game]
+            Game=Foo
+        """.format(ref2file)
+        ref1file = self._write_ref_file(ref1)
+        exp_reffiles = (ref1file, ref2file)
+        skoolfile = self.write_text_file(path=ref1file[:-4] + '.skool')
+        output, error = self.run_skool2html('{} {}'.format(skoolfile, ref1file))
+        self.assertEqual(error, '')
+        self.assertIn('\nUsing ref files: {}\n'.format(', '.join(exp_reffiles)), output)
+        html_writer = write_disassembly_args[0]
+        self.assertEqual(html_writer.game_vars['Game'], 'Bar')
+
+    @patch.object(skool2html, 'get_class', Mock(return_value=TestHtmlWriter))
+    @patch.object(skool2html, 'SkoolParser', MockSkoolParser)
+    @patch.object(skool2html, 'write_disassembly', mock_write_disassembly)
+    @patch.object(skool2html, 'get_config', mock_config)
+    def test_ref_file_on_command_line_is_already_in_RefFiles_parameter(self):
+        ref2 = """
+            [Game]
+            Game=Bar
+        """
+        ref2file = self._write_ref_file(ref2)
+        ref1 = """
+            [Config]
+            RefFiles={}
+            [Game]
+            Game=Foo
+        """.format(ref2file)
+        ref1file = self._write_ref_file(ref1)
+        exp_reffiles = (ref1file, ref2file)
+        skoolfile = self.write_text_file(path=ref1file[:-4] + '.skool')
+        output, error = self.run_skool2html('{} {}'.format(skoolfile, ref2file))
+        self.assertEqual(error, '')
+        self.assertIn('\nUsing ref files: {}\n'.format(', '.join(exp_reffiles)), output)
+        html_writer = write_disassembly_args[0]
+        self.assertEqual(html_writer.game_vars['Game'], 'Bar')
+
+    @patch.object(skool2html, 'get_class', Mock(return_value=TestHtmlWriter))
+    @patch.object(skool2html, 'SkoolParser', MockSkoolParser)
     def test_nonexistent_css_file(self):
         cssfile = 'abc.css'
         skoolfile = self.write_text_file(suffix='.skool')
