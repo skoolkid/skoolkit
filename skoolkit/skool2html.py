@@ -104,7 +104,7 @@ def add_lines(ref_parser, config_specs, section=None):
         if section is None or section_name == section:
             ref_parser.add_line(section_name, line)
 
-def copy_resource(fname, root_dir, dest_dir, indent=0):
+def copy_resource(fname, root_dir, dest_dir):
     base_f = basename(fname)
     dest_f = normpath(root_dir, dest_dir, base_f)
     if not isfile(dest_f) or os.stat(fname).st_mtime > os.stat(dest_f).st_mtime:
@@ -112,12 +112,12 @@ def copy_resource(fname, root_dir, dest_dir, indent=0):
         dest_d = dirname(dest_f)
         if isfile(dest_d):
             raise SkoolKitError("Cannot copy {0} to {1}: {1} is not a directory".format(fname_n, normpath(dest_dir)))
-        elif not isdir(dest_d):
+        if not isdir(dest_d):
             os.makedirs(dest_d)
-        notify('{}Copying {} to {}'.format(indent * ' ', fname_n, dest_f))
+        notify('Copying {} to {}'.format(fname_n, normpath(dest_dir, base_f)))
         shutil.copy2(fname, dest_f)
 
-def copy_resources(search_dir, extra_search_dirs, root_dir, fnames, dest_dir, themes=(), suffix=None, single_css=None, indent=0):
+def copy_resources(search_dir, extra_search_dirs, root_dir, fnames, dest_dir, themes=(), suffix=None, single_css=None):
     if not fnames:
         return
 
@@ -146,7 +146,7 @@ def copy_resources(search_dir, extra_search_dirs, root_dir, fnames, dest_dir, th
             raise SkoolKitError("Cannot write CSS file '{}': {} already exists and is a directory".format(normpath(single_css), dest_css))
         with open(dest_css, 'w') as css:
             for f in files:
-                notify('{}Appending {} to {}'.format(indent * ' ', normpath(f), dest_css))
+                notify('Appending {} to {}'.format(normpath(f), dest_css))
                 with open(f) as src:
                     for line in src:
                         css.write(line)
@@ -154,7 +154,7 @@ def copy_resources(search_dir, extra_search_dirs, root_dir, fnames, dest_dir, th
         return single_css
 
     for f in files:
-        copy_resource(f, root_dir, dest_dir, indent)
+        copy_resource(f, root_dir, dest_dir)
     return ';'.join([basename(f) for f in files])
 
 def run(infiles, options):
@@ -242,15 +242,14 @@ def run(infiles, options):
     write_disassembly(html_writer, options.files, ref_search_dir, extra_search_dirs, pages, options.themes, options.single_css)
 
 def write_disassembly(html_writer, files, search_dir, extra_search_dirs, pages, css_themes, single_css):
-    game_dir = html_writer.file_info.game_dir
     paths = html_writer.paths
     game_vars = html_writer.game_vars
 
     # Create the disassembly subdirectory if necessary
     odir = html_writer.file_info.odir
     if not isdir(odir):
-        notify('Creating directory {0}'.format(odir))
         os.makedirs(odir)
+    notify('Output directory: ' + odir)
 
     # Copy CSS, JavaScript and font files if necessary
     html_writer.set_style_sheet(copy_resources(search_dir, extra_search_dirs, odir, game_vars.get('StyleSheet'), paths.get('StyleSheetPath', ''), css_themes, '.css', single_css))
@@ -273,22 +272,22 @@ def write_disassembly(html_writer, files, search_dir, extra_search_dirs, pages, 
     # Write disassembly files
     if 'd' in files:
         if html_writer.asm_single_page_template:
-            message = 'Writing {}'.format(normpath(game_dir, paths['AsmSinglePage']))
+            message = 'Writing ' + normpath(paths['AsmSinglePage'])
         else:
-            message = 'Writing disassembly files in {}'.format(normpath(game_dir, html_writer.code_path))
-        clock(html_writer.write_asm_entries, '  ' + message)
+            message = 'Writing disassembly files in ' + normpath(html_writer.code_path)
+        clock(html_writer.write_asm_entries, message)
 
     # Write the memory map files
     if 'm' in files:
         for map_name in html_writer.main_memory_maps:
-            clock(html_writer.write_map, '  Writing {}'.format(normpath(game_dir, paths[map_name])), map_name)
+            clock(html_writer.write_map, 'Writing ' + normpath(paths[map_name]), map_name)
 
     # Write pages defined by [Page:*] sections
     if 'P' in files:
         for page_id in pages:
             page_details = html_writer.pages[page_id]
-            copy_resources(search_dir, extra_search_dirs, odir, page_details.get('JavaScript'), js_path, indent=2)
-            clock(html_writer.write_page, '  Writing {}'.format(normpath(game_dir, paths[page_id])), page_id)
+            copy_resources(search_dir, extra_search_dirs, odir, page_details.get('JavaScript'), js_path)
+            clock(html_writer.write_page, 'Writing ' + normpath(paths[page_id]), page_id)
 
     # Write other code files
     if 'o' in files:
@@ -296,21 +295,21 @@ def write_disassembly(html_writer, files, search_dir, extra_search_dirs, pages, 
             skoolfile = find(code['Source'], extra_search_dirs, search_dir)
             if not skoolfile:
                 raise SkoolKitError('{}: file not found'.format(normpath(code['Source'])))
-            skool2_parser = clock(html_writer.parser.clone, '  Parsing {0}'.format(skoolfile), skoolfile)
+            skool2_parser = clock(html_writer.parser.clone, 'Parsing ' + skoolfile, skoolfile)
             html_writer2 = html_writer.clone(skool2_parser, code_id)
             map_name = code['IndexPageId']
             map_path = paths[map_name]
             asm_path = paths[code['CodePathId']]
-            clock(html_writer2.write_map, '    Writing {}'.format(normpath(game_dir, map_path)), map_name)
+            clock(html_writer2.write_map, 'Writing ' + normpath(map_path), map_name)
             if html_writer.asm_single_page_template:
-                message = 'Writing {}'.format(normpath(game_dir, paths[code['AsmSinglePageId']]))
+                message = 'Writing ' + normpath(paths[code['AsmSinglePageId']])
             else:
-                message = 'Writing disassembly files in {}'.format(normpath(game_dir, asm_path))
-            clock(html_writer2.write_entries, '    ' + message, asm_path, map_path)
+                message = 'Writing disassembly files in ' + normpath(asm_path)
+            clock(html_writer2.write_entries, message, asm_path, map_path)
 
     # Write index.html
     if 'i' in files:
-        clock(html_writer.write_index, '  Writing {}'.format(normpath(game_dir, paths['GameIndex'])))
+        clock(html_writer.write_index, 'Writing ' + normpath(paths['GameIndex']))
 
 def main(args):
     global verbose, show_timings

@@ -259,14 +259,14 @@ class Skool2HtmlTest(SkoolKitTestCase):
             Using skool file: {1}.skool
             Found no ref file for {1}.skool
             Parsing {1}.skool
-            Creating directory {0}/{1}
-            Copying {2} to {0}/{1}/{2}
-              Writing disassembly files in {1}/asm
-              Writing {1}/maps/all.html
-              Writing {1}/maps/routines.html
-              Writing {1}/maps/data.html
-              Writing {1}/maps/messages.html
-              Writing {1}/index.html
+            Output directory: {0}/{1}
+            Copying {2} to {2}
+            Writing disassembly files in asm
+            Writing maps/all.html
+            Writing maps/routines.html
+            Writing maps/data.html
+            Writing maps/messages.html
+            Writing index.html
         """.format(self.odir, game_name, cssfile)
         output, error = self.run_skool2html('-c Game/StyleSheet={} -d {} {}'.format(cssfile, self.odir, skoolfile))
         self.assertEqual(error, '')
@@ -427,7 +427,7 @@ class Skool2HtmlTest(SkoolKitTestCase):
         output, error = self.run_skool2html('-d {} {}'.format(self.odir, skoolfile))
         self.assertEqual(error, '')
         self.assertIn('\nUsing ref file: {}\n'.format(reffile), output)
-        self.assertIn('\nCreating directory {}/{}\n'.format(self.odir, game_dir), output)
+        self.assertIn('\nOutput directory: {}/{}\n'.format(self.odir, game_dir), output)
 
     @patch.object(skool2html, 'get_class', Mock(return_value=TestHtmlWriter))
     @patch.object(skool2html, 'SkoolParser', MockSkoolParser)
@@ -442,7 +442,7 @@ class Skool2HtmlTest(SkoolKitTestCase):
         output, error = self.run_skool2html('-d {} {}'.format(self.odir, skoolfile))
         self.assertEqual(error, '')
         self.assertIn('\nUsing ref files: {}, {}\n'.format(reffile, reffile2), output)
-        self.assertIn('\n  Writing disassembly files in {}/{}\n'.format(game_dir, code_path), output)
+        self.assertIn('\nWriting disassembly files in {}\n'.format(code_path), output)
 
     @patch.object(skool2html, 'get_class', Mock(return_value=TestHtmlWriter))
     @patch.object(skool2html, 'SkoolParser', MockSkoolParser)
@@ -457,7 +457,7 @@ class Skool2HtmlTest(SkoolKitTestCase):
         output, error = self.run_skool2html(skoolfile)
         self.assertEqual(error, '')
         html_writer = write_disassembly_args[0]
-        self.assertEqual(html_writer.file_info.game_dir, game_dir)
+        self.assertEqual(html_writer.file_info.odir, game_dir)
         skool_parser = html_writer.parser
         self.assertEqual(skool_parser.skoolfile, skoolfile)
 
@@ -468,7 +468,7 @@ class Skool2HtmlTest(SkoolKitTestCase):
         game_dir = 'program'
         output, error = self.run_skool2html('-d {} -'.format(self.odir))
         self.assertEqual(error, '')
-        self.assertIn('Parsing skool file from standard input\nCreating directory {}/{}\n'.format(self.odir, game_dir), output)
+        self.assertIn('Parsing skool file from standard input\nOutput directory: {}/{}\n'.format(self.odir, game_dir), output)
         self.assertIsNotNone(html_writer.get_entry(30000))
 
     @patch.object(skool2html, 'get_class', Mock(return_value=TestHtmlWriter))
@@ -478,7 +478,7 @@ class Skool2HtmlTest(SkoolKitTestCase):
         skoolfile = self.write_text_file(suffix='.skool')
         output, error = self.run_skool2html('-d {}/ {}'.format(self.odir, skoolfile))
         self.assertEqual(error, '')
-        self.assertIn('\nCreating directory {}/{}\n'.format(self.odir, skoolfile[:-6]), output)
+        self.assertIn('\nOutput directory: {}/{}\n'.format(self.odir, skoolfile[:-6]), output)
 
     @patch.object(skool2html, 'get_class', Mock(return_value=TestHtmlWriter))
     @patch.object(skool2html, 'SkoolParser', MockSkoolParser)
@@ -489,7 +489,7 @@ class Skool2HtmlTest(SkoolKitTestCase):
         self.tempdirs.append(name)
         output, error = self.run_skool2html(skoolfile)
         self.assertEqual(error, '')
-        self.assertIn('\nCreating directory {}\n'.format(name), output)
+        self.assertIn('\nOutput directory: {}\n'.format(name), output)
 
     @patch.object(skool2html, 'write_disassembly', mock_write_disassembly)
     @patch.object(skool2html, 'get_config', mock_config)
@@ -772,7 +772,7 @@ class Skool2HtmlTest(SkoolKitTestCase):
         skoolfile = self.write_text_file(path='{}.skool'.format(prefix))
         output, error = self.run_skool2html('-d {} {}'.format(self.odir, skoolfile))
         self.assertEqual(error, '')
-        self.assertIn('\n  Writing {}/asm.html\n'.format(os.path.basename(prefix)), output)
+        self.assertIn('\nWriting asm.html\n', output)
 
     @patch.object(skool2html, 'get_class', Mock(return_value=TestHtmlWriter))
     @patch.object(skool2html, 'SkoolParser', MockSkoolParser)
@@ -789,7 +789,7 @@ class Skool2HtmlTest(SkoolKitTestCase):
         skoolfile = self.write_text_file(path='{}.skool'.format(prefix))
         output, error = self.run_skool2html('-d {} {}'.format(self.odir, skoolfile))
         self.assertEqual(error, '')
-        self.assertIn('\n    Writing {}/start/asm.html\n'.format(os.path.basename(prefix)), output)
+        self.assertIn('\nWriting start/asm.html\n', output)
 
     @patch.object(skool2html, 'get_class', Mock(return_value=TestHtmlWriter))
     @patch.object(skool2html, 'SkoolParser', MockSkoolParser)

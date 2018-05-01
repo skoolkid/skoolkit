@@ -1180,7 +1180,6 @@ class FileInfo:
     :param replace_images: Whether existing images should be overwritten.
     """
     def __init__(self, topdir, game_dir, replace_images):
-        self.game_dir = game_dir
         self.odir = join(topdir, game_dir)
         self.replace_images = replace_images
         self.images = set()
