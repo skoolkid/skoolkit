@@ -202,9 +202,6 @@ def run(infiles, options):
                 ref_parser.parse(ref_f)
     add_lines(ref_parser, options.config_specs)
 
-    skoolfile_n = normpath(skoolfile_f)
-    if not stdin:
-        notify('Using skool file: {}'.format(skoolfile_n))
     if reffiles:
         if len(reffiles) > 1:
             suffix = 's'
@@ -212,7 +209,7 @@ def run(infiles, options):
             suffix = ''
         notify('Using ref file{0}: {1}'.format(suffix, ', '.join(reffiles)))
     elif not stdin:
-        notify('Found no ref file for {}'.format(skoolfile_n))
+        notify('Found no ref file for ' + normpath(skoolfile_f))
 
     html_writer_class = get_class(config['HtmlWriterClass'], module_path)
     game_dir = config.get('GameDir', prefix)
