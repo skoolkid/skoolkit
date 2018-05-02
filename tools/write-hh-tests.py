@@ -19,18 +19,17 @@ CTL = 'examples/hungry_horace.ctl'
 
 REF = 'examples/hungry_horace.ref'
 
-OUTPUT = """Using skool file: {skoolfile}
-Using ref file: {reffile}
+OUTPUT = """Using ref file: {reffile}
 Parsing {skoolfile}
-Creating directory {odir}/hungry_horace
-Copying {SKOOLKIT_HOME}/skoolkit/resources/skoolkit.css to {odir}/hungry_horace/skoolkit.css
-  Writing disassembly files in hungry_horace/asm
-  Writing hungry_horace/maps/all.html
-  Writing hungry_horace/maps/routines.html
-  Writing hungry_horace/maps/data.html
-  Writing hungry_horace/maps/messages.html
-  Writing hungry_horace/maps/unused.html
-  Writing hungry_horace/reference/changelog.html
-  Writing hungry_horace/index.html"""
+Output directory: {odir}/hungry_horace
+Copying {SKOOLKIT_HOME}/skoolkit/resources/skoolkit.css to skoolkit.css
+Writing disassembly files in asm
+Writing maps/all.html
+Writing maps/routines.html
+Writing maps/data.html
+Writing maps/messages.html
+Writing maps/unused.html
+Writing reference/changelog.html
+Writing index.html"""
 
 write_tests(snapshot=SNAPSHOT, output=OUTPUT, sources=False, ctl=CTL, ref=REF, clean=False)
