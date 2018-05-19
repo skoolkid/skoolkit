@@ -17,7 +17,7 @@
 import argparse
 
 from skoolkit import SkoolParsingError, get_int_param, info, integer, open_file, warn, VERSION
-from skoolkit.skoolparser import read_skool
+from skoolkit.skoolparser import read_skool, AD_RETAIN
 from skoolkit.skoolsft import VALID_CTLS
 from skoolkit.textutils import partition_unquoted
 from skoolkit.z80 import assemble
@@ -41,6 +41,8 @@ class BinWriter:
     def _parse_skool(self, skoolfile):
         f = open_file(skoolfile)
         for block in read_skool(f, 1, self.asm_mode, self.fix_mode):
+            if block and block[0].startswith(AD_RETAIN):
+                continue
             for line in block:
                 if line.startswith('@'):
                     self._parse_asm_directive(line[1:])

@@ -438,3 +438,27 @@ class BinWriterTest(SkoolKitTestCase):
         """
         exp_data = [1, 4, 8]
         self._test_write(skool, 32768, exp_data, fix_mode=2)
+
+    def test_header_is_ignored(self):
+        skool = """
+            @retain
+            ; The following instruction-like line should be ignored.
+             32768 LD B,1
+
+            ; Data
+            b32770 DEFB 1,2
+        """
+        exp_data = [1, 2]
+        self._test_write(skool, 32770, exp_data)
+
+    def test_footer_is_ignored(self):
+        skool = """
+            ; Data
+            b32768 DEFB 1,2
+
+            @retain
+            ; The following instruction-like line should be ignored.
+             32770 LD B,1
+        """
+        exp_data = [1, 2]
+        self._test_write(skool, 32768, exp_data)
