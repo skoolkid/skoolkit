@@ -2903,6 +2903,72 @@ class SkoolParserTest(SkoolKitTestCase):
         self.assertIsNotNone(parser.get_entry(40003))
         self.assertIsNone(parser.get_entry(40004))
 
+    def test_start_directive_processed_inside_block_directive(self):
+        skool = """
+            @ofix-begin
+            @start
+            @ofix-end
+
+            ; Start
+            c32768 LD A,1
+
+            @start
+            ; End
+            c32770 RET
+        """
+        parser = self._get_parser(skool, asm_mode=1, fix_mode=0)
+        self.assertIsNotNone(parser.get_entry(32768))
+        self.assertIsNotNone(parser.get_entry(32770))
+
+    def test_start_directive_ignored_inside_block_directive(self):
+        skool = """
+            @ofix-begin
+            @start
+            @ofix-end
+
+            ; Start
+            c32768 LD A,1
+
+            @start
+            ; End
+            c32770 RET
+        """
+        parser = self._get_parser(skool, asm_mode=1, fix_mode=1)
+        self.assertIsNone(parser.get_entry(32768))
+        self.assertIsNotNone(parser.get_entry(32770))
+
+    def test_end_directive_processed_inside_block_directive(self):
+        skool = """
+            @start
+            @ofix-begin
+            ; Set A=1
+            c32768 LD A,1
+            @end
+            @ofix-end
+            ; Clear A
+            c32768 LD A,0
+        """
+        parser = self._get_parser(skool, asm_mode=1, fix_mode=0)
+        entry = parser.get_entry(32768)
+        self.assertEqual(entry.description, 'Set A=1')
+        self.assertEqual(entry.instructions[0].operation, 'LD A,1')
+
+    def test_end_directive_ignored_inside_block_directive(self):
+        skool = """
+            @start
+            @ofix-begin
+            ; Set A=1
+            c32768 LD A,1
+            @end
+            @ofix-end
+            ; Clear A
+            c32768 LD A,0
+        """
+        entry = self._get_parser(skool, asm_mode=1, fix_mode=1).get_entry(32768)
+        self.assertIsNotNone(entry)
+        self.assertEqual(entry.description, 'Clear A')
+        self.assertEqual(entry.instructions[0].operation, 'LD A,0')
+
     def test_org_directive(self):
         skool = """
             @start

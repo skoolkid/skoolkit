@@ -18,7 +18,7 @@ import re
 
 from skoolkit import SkoolParsingError, write_line, get_int_param, get_address_format, open_file
 from skoolkit.skoolparser import (Comment, Register, parse_comment_block, parse_instruction,
-                                  parse_address_comments, join_comments, read_skool, DIRECTIVES)
+                                  parse_address_comments, join_comments, read_skool, AD_RETAIN, DIRECTIVES)
 from skoolkit.z80 import get_size, parse_string, parse_word, split_operation
 
 ASM_DIRECTIVES = 'a'
@@ -247,10 +247,21 @@ class CtlWriter:
             if instruction.ignoreua:
                 self._write_asm_directive('{}:{}'.format(AD_IGNOREUA, INSTRUCTION), address)
 
+    def _write_retain_blocks(self, blocks, address, footer=False):
+        prefix = '> ' + address
+        if footer:
+            prefix += ',1'
+        for block in blocks:
+            for line in block:
+                write_line('{} {}'.format(prefix, line))
+
     def write_entry(self, entry):
+        address = self.addr_str(entry.address)
+
+        self._write_retain_blocks(entry.header, address)
+
         for directive in entry.asm_directives:
             self._write_entry_asm_directive(entry, directive)
-        address = self.addr_str(entry.address)
 
         self._write_entry_ignoreua_directive(entry, TITLE)
         if BLOCKS in self.elements:
@@ -279,6 +290,8 @@ class CtlWriter:
         if BLOCK_COMMENTS in self.elements:
             for p in entry.end_comment:
                 write_line('E {0} {1}'.format(address, p))
+
+        self._write_retain_blocks(entry.footer, address, True)
 
     def write_body(self, entry):
         if entry.ctl in 'gu':
@@ -442,7 +455,11 @@ class SkoolParser:
 
     def _parse_skool(self, skoolfile, min_address, max_address):
         address_comments = []
-        for block in read_skool(skoolfile, 0, 0):
+        retains = []
+        for block in read_skool(skoolfile, 1):
+            if block and block[0].startswith(AD_RETAIN):
+                retains.append(block)
+                continue
             map_entry = None
             instruction = None
             comments = []
@@ -497,9 +514,15 @@ class SkoolParser:
 
                 ignores[:] = []
 
-            if comments and map_entry:
-                map_entry.end_comment = join_comments(comments, True)
-                map_entry.ignoreua[END] = len(ignores) > 0
+            if map_entry:
+                if comments:
+                    map_entry.end_comment = join_comments(comments, True)
+                    map_entry.ignoreua[END] = len(ignores) > 0
+                map_entry.header = retains
+                retains = []
+
+        if self.memory_map:
+            self.memory_map[-1].footer = retains
 
         last_entry = None
         last_instruction = None
@@ -584,6 +607,8 @@ class Instruction:
 
 class Entry:
     def __init__(self, ctl, description, details, registers, ignoreua):
+        self.header = ()
+        self.footer = ()
         self.ctl = ctl
         self.description = description
         self.details = details

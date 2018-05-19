@@ -22,9 +22,10 @@ from skoolkit import (SkoolKitError, open_file, read_bin_file, warn, write_line,
 from skoolkit.ctlparser import CtlParser
 from skoolkit.disassembler import Disassembler
 from skoolkit.skoolasm import UDGTABLE_MARKER
-from skoolkit.skoolctl import (AD_START, AD_ORG, AD_IGNOREUA,
-                               TITLE, DESCRIPTION, REGISTERS, MID_BLOCK, INSTRUCTION, END)
-from skoolkit.skoolparser import get_address, TABLE_MARKER, TABLE_END_MARKER, LIST_MARKER, LIST_END_MARKER
+from skoolkit.skoolctl import (AD_IGNOREUA, TITLE, DESCRIPTION, REGISTERS,
+                               MID_BLOCK, INSTRUCTION, END)
+from skoolkit.skoolparser import (get_address, AD_RETAIN, TABLE_MARKER,
+                                  TABLE_END_MARKER, LIST_MARKER, LIST_END_MARKER)
 
 OP_WIDTH = 13
 MIN_COMMENT_WIDTH = 10
@@ -546,7 +547,9 @@ def generate_ctls(snapshot, start, end, code_map):
     return ctls
 
 class Entry:
-    def __init__(self, title, description, ctl, blocks, registers, end_comment, asm_directives, ignoreua_directives):
+    def __init__(self, header, title, description, ctl, blocks, registers,
+                 end_comment, footer, asm_directives, ignoreua_directives):
+        self.header = header
         self.title = title
         self.ctl = ctl
         self.blocks = blocks
@@ -559,6 +562,7 @@ class Entry:
         first_instruction.ctl = ctl
         self.registers = registers
         self.end_comment = end_comment
+        self.footer = footer
         self.asm_directives = asm_directives
         self.ignoreua_directives = ignoreua_directives
         self.address = first_instruction.address
@@ -665,8 +669,8 @@ class Disassembly:
                         sub_block.end = next_sub_block.end
                         i += 1
 
-            entry = Entry(title, block.description, block.ctl, sub_blocks,
-                          block.registers, block.end_comment, block.asm_directives,
+            entry = Entry(block.header, title, block.description, block.ctl, sub_blocks,
+                          block.registers, block.end_comment, block.footer, block.asm_directives,
                           block.ignoreua_directives)
             self.entry_map[entry.address] = entry
             self.entries.append(entry)
@@ -676,9 +680,6 @@ class Disassembly:
     def remove_entry(self, address):
         if address in self.entry_map:
             del self.entry_map[address]
-
-    def contains_entry_asm_directive(self, asm_dir):
-        return any(d == asm_dir or d.startswith(asm_dir + '=') for e in self.entries for d in e.asm_directives)
 
     def _calculate_references(self):
         for entry in self.entries:
@@ -712,18 +713,16 @@ class SkoolWriter:
         return str(address)
 
     def write_skool(self, write_refs, text):
-        if not self.disassembly.entries:
-            return
-        if not self.disassembly.contains_entry_asm_directive(AD_START):
-            self.write_asm_directives(AD_START)
-            if not self.disassembly.contains_entry_asm_directive(AD_ORG):
-                self.write_asm_directives(AD_ORG)
         for entry_index, entry in enumerate(self.disassembly.entries):
             if entry_index:
                 write_line('')
             self._write_entry(entry, write_refs, text)
 
     def _write_entry(self, entry, write_refs, show_text):
+        if entry.header:
+            self._write_retain_blocks(entry.header)
+            write_line('')
+
         self.write_asm_directives(*entry.asm_directives)
         if entry.has_ignoreua_directive(TITLE):
             self.write_asm_directives(AD_IGNOREUA)
@@ -750,6 +749,16 @@ class SkoolWriter:
         if entry.has_ignoreua_directive(END):
             self.write_asm_directives(AD_IGNOREUA)
         self.write_paragraphs(entry.end_comment)
+
+        if entry.footer:
+            write_line('')
+            self._write_retain_blocks(entry.footer)
+
+    def _write_retain_blocks(self, lines):
+        for line_no, line in enumerate(lines):
+            if line_no and line.startswith(AD_RETAIN):
+                write_line('')
+            write_line(line)
 
     def _write_entry_description(self, entry, write_refs):
         wrote_desc = False

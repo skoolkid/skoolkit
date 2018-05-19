@@ -15,6 +15,7 @@
 # SkoolKit. If not, see <http://www.gnu.org/licenses/>.
 
 import bisect
+from collections import defaultdict
 
 from skoolkit import warn, get_int_param, open_file
 from skoolkit.skoolctl import (extract_entry_asm_directives, AD_IGNOREUA,
@@ -90,6 +91,8 @@ class CtlParser:
         self._multiline_comments = {}
         self._asm_directives = {}
         self._ignoreua_directives = {}
+        self._headers = defaultdict(list)
+        self._footers = defaultdict(list)
         self._loops = []
 
     def parse_ctl(self, ctlfile, min_address=0, max_address=65536):
@@ -117,7 +120,12 @@ class CtlParser:
             if ctl:
                 if not min_address <= start < max_address:
                     continue
-                if ctl.islower():
+                if ctl == '>':
+                    if end:
+                        self._footers[start].append(text)
+                    else:
+                        self._headers[start].append(text)
+                elif ctl.islower():
                     self._titles[start] = text
                 elif ctl == 'D':
                     self._descriptions.setdefault(start, []).append(text)
@@ -178,7 +186,7 @@ class CtlParser:
         first_char = line[0]
         content = line[1:].lstrip()
         if content:
-            if first_char in ' bBcCDEgiLMNRsStTuwW':
+            if first_char in ' >bBcCDEgiLMNRsStTuwW':
                 fields = split_unquoted(content, ' ', 1)
                 params = split_unquoted(fields[0], ',')
                 try:
@@ -200,7 +208,7 @@ class CtlParser:
                 except ValueError:
                     raise CtlParserError("invalid integer")
                 if int_params:
-                    if ctl not in 'BCLMSTW':
+                    if ctl not in '>BCLMSTW':
                         raise CtlParserError("extra parameters after address")
                     length = int_params[0]
                     if length is not None:
@@ -287,10 +295,12 @@ class CtlParser:
             if self._asm_directives.get(address) == []:
                 del self._asm_directives[address]
             block.ignoreua_directives = tuple(self._ignoreua_directives.get(address, set()).intersection(ENTRY_COMMENT_TYPES))
+            block.header = self._headers.get(address, ())
             block.title = self._titles.get(address)
             block.description = self._descriptions.get(address, ())
             block.registers = self._registers.get(address, ())
             block.end_comment = self._end_comments.get(address, ())
+            block.footer = self._footers.get(address, ())
             blocks.append(block)
 
         # Create sub-blocks

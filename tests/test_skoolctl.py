@@ -1772,3 +1772,238 @@ class CtlWriterTest(SkoolKitTestCase):
             i 32771
         """
         self._test_ctl(skool, exp_ctl)
+
+    def test_skool_file_ending_with_blank_line(self):
+        skool = "c32768 RET\n\n"
+        exp_ctl = "c 32768\ni 32769\n"
+        CtlWriter(StringIO(skool)).write()
+        self.assertEqual(self.out.getvalue(), exp_ctl)
+
+    def test_header(self):
+        skool = """
+            @retain
+            ; This is a header. So the next line is preserved verbatim.
+            c32767 RET
+
+            ; Routine
+            c32768 RET
+        """
+        exp_ctl = """
+            > 32768 @retain
+            > 32768 ; This is a header. So the next line is preserved verbatim.
+            > 32768 c32767 RET
+            c 32768 Routine
+            i 32769
+        """
+        self._test_ctl(skool, exp_ctl)
+
+    def test_two_headers(self):
+        skool = """
+            @retain
+            ; This is a header.
+
+            @retain
+            ; This is another header.
+
+            ; Routine
+            c32768 RET
+        """
+        exp_ctl = """
+            > 32768 @retain
+            > 32768 ; This is a header.
+            > 32768 @retain
+            > 32768 ; This is another header.
+            c 32768 Routine
+            i 32769
+        """
+        self._test_ctl(skool, exp_ctl)
+
+    def test_header_before_second_entry(self):
+        skool = """
+            ; Routine
+            c32768 RET
+
+            @retain
+            ; This is between two entries.
+
+            ; Another routine
+            c32769 RET
+        """
+        exp_ctl = """
+            c 32768 Routine
+            > 32769 @retain
+            > 32769 ; This is between two entries.
+            c 32769 Another routine
+            i 32770
+        """
+        self._test_ctl(skool, exp_ctl)
+
+    def test_header_preserves_asm_block_directives(self):
+        skool = """
+            @retain
+            ; Disassembly.
+            @isub+begin
+            ; isub mode.
+            @isub+end
+            @ssub+begin
+            ; ssub mode.
+            @ssub+end
+            @rsub+begin
+            ; rsub mode.
+            @rsub+end
+            @ofix+begin
+            ; ofix mode.
+            @ofix+end
+            @bfix+begin
+            ; bfix mode.
+            @bfix+end
+            @rfix+begin
+            ; rfix mode.
+            @rfix+end
+
+            c24576 RET
+        """
+        exp_ctl = """
+            > 24576 @retain
+            > 24576 ; Disassembly.
+            > 24576 @isub+begin
+            > 24576 ; isub mode.
+            > 24576 @isub+end
+            > 24576 @ssub+begin
+            > 24576 ; ssub mode.
+            > 24576 @ssub+end
+            > 24576 @rsub+begin
+            > 24576 ; rsub mode.
+            > 24576 @rsub+end
+            > 24576 @ofix+begin
+            > 24576 ; ofix mode.
+            > 24576 @ofix+end
+            > 24576 @bfix+begin
+            > 24576 ; bfix mode.
+            > 24576 @bfix+end
+            > 24576 @rfix+begin
+            > 24576 ; rfix mode.
+            > 24576 @rfix+end
+            c 24576
+            i 24577
+        """
+        self._test_ctl(skool, exp_ctl)
+
+    def test_header_containing_unclosed_block_directive(self):
+        skool = """
+            @retain
+            ; This block contains an unclosed block directive.
+            @bfix+begin
+            ; Bug fixes.
+
+            ; This comment should not appear in the control file.
+
+            @retain
+            ; This block closes the block directive.
+            @bfix+end
+
+            ; Routine
+            c32768 RET
+        """
+        exp_ctl = """
+            > 32768 @retain
+            > 32768 ; This block contains an unclosed block directive.
+            > 32768 @bfix+begin
+            > 32768 ; Bug fixes.
+            > 32768 @retain
+            > 32768 ; This block closes the block directive.
+            > 32768 @bfix+end
+            c 32768 Routine
+            i 32769
+        """
+        self._test_ctl(skool, exp_ctl)
+
+    def test_footer(self):
+        skool = """
+            ; Routine
+            c32768 RET
+
+            @retain
+            ; This is a footer. So the next line is preserved verbatim.
+            c32769 RET
+        """
+        exp_ctl = """
+            c 32768 Routine
+            > 32768,1 @retain
+            > 32768,1 ; This is a footer. So the next line is preserved verbatim.
+            > 32768,1 c32769 RET
+            i 32769
+        """
+        self._test_ctl(skool, exp_ctl)
+
+    def test_two_footers(self):
+        skool = """
+            ; Routine
+            c32768 RET
+
+            @retain
+            ; This is a footer.
+
+            @retain
+            ; This is another footer.
+        """
+        exp_ctl = """
+            c 32768 Routine
+            > 32768,1 @retain
+            > 32768,1 ; This is a footer.
+            > 32768,1 @retain
+            > 32768,1 ; This is another footer.
+            i 32769
+        """
+        self._test_ctl(skool, exp_ctl)
+
+    def test_footer_preserves_asm_block_directives(self):
+        skool = """
+            c24576 RET
+
+            @retain
+            ; That was a disassembly.
+            @isub+begin
+            ; isub mode.
+            @isub+end
+            @ssub+begin
+            ; ssub mode.
+            @ssub+end
+            @rsub+begin
+            ; rsub mode.
+            @rsub+end
+            @ofix+begin
+            ; ofix mode.
+            @ofix+end
+            @bfix+begin
+            ; bfix mode.
+            @bfix+end
+            @rfix+begin
+            ; rfix mode.
+            @rfix+end
+        """
+        exp_ctl = """
+            c 24576
+            > 24576,1 @retain
+            > 24576,1 ; That was a disassembly.
+            > 24576,1 @isub+begin
+            > 24576,1 ; isub mode.
+            > 24576,1 @isub+end
+            > 24576,1 @ssub+begin
+            > 24576,1 ; ssub mode.
+            > 24576,1 @ssub+end
+            > 24576,1 @rsub+begin
+            > 24576,1 ; rsub mode.
+            > 24576,1 @rsub+end
+            > 24576,1 @ofix+begin
+            > 24576,1 ; ofix mode.
+            > 24576,1 @ofix+end
+            > 24576,1 @bfix+begin
+            > 24576,1 ; bfix mode.
+            > 24576,1 @bfix+end
+            > 24576,1 @rfix+begin
+            > 24576,1 ; rfix mode.
+            > 24576,1 @rfix+end
+            i 24577
+        """
+        self._test_ctl(skool, exp_ctl)

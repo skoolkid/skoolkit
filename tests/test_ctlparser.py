@@ -57,6 +57,14 @@ class CtlParserTest(SkoolKitTestCase):
         ctls = {b.start: b.ctl for b in blocks}
         self.assertEqual(exp_ctls, ctls)
 
+    def _check_headers(self, exp_headers, blocks):
+        headers = {b.start: b.header for b in blocks}
+        self.assertEqual(exp_headers, headers)
+
+    def _check_footers(self, exp_footers, blocks):
+        footers = {b.start: b.footer for b in blocks}
+        self.assertEqual(exp_footers, footers)
+
     def _check_entry_asm_directives(self, exp_entry_asm_directives, blocks):
         entry_asm_directives = {b.start: b.asm_directives for b in blocks}
         self.assertEqual(exp_entry_asm_directives, entry_asm_directives)
@@ -1357,6 +1365,76 @@ class CtlParserTest(SkoolKitTestCase):
             30000: ['start', 'equ=ATTRS=22528', 'replace=/foo/bar', 'replace=/baz/qux']
         }
         self._check_entry_asm_directives(exp_entry_directives, blocks)
+
+    def test_header_block(self):
+        ctl = """
+            > 60000 @retain
+            > 60000 ; This is a header.
+            c 60000 Routine
+        """
+        exp_headers = {60000: ['@retain', '; This is a header.']}
+        exp_footers = {60000: ()}
+
+        blocks = self._get_ctl_parser(ctl).get_blocks()
+        self._check_headers(exp_headers, blocks)
+        self._check_footers(exp_footers, blocks)
+
+    def test_two_header_blocks(self):
+        ctl = """
+            > 30000 @retain
+            > 30000 ; This is a header.
+            > 30000 @retain
+            > 30000 ; This is another header.
+            c 30000 Routine
+        """
+        exp_headers = {
+            30000: [
+                '@retain',
+                '; This is a header.',
+                '@retain',
+                '; This is another header.'
+            ]
+        }
+        exp_footers = {30000: ()}
+
+        blocks = self._get_ctl_parser(ctl).get_blocks()
+        self._check_headers(exp_headers, blocks)
+        self._check_footers(exp_footers, blocks)
+
+    def test_footer_block(self):
+        ctl = """
+            c 50000 Routine
+            > 50000,1 @retain
+            > 50000,1 ; This is a footer.
+        """
+        exp_headers = {50000: ()}
+        exp_footers = {50000: ['@retain', '; This is a footer.']}
+
+        blocks = self._get_ctl_parser(ctl).get_blocks()
+        self._check_headers(exp_headers, blocks)
+        self._check_footers(exp_footers, blocks)
+
+    def test_two_footer_blocks(self):
+        ctl = """
+            c 60000 Routine
+            > 60000,1 @retain
+            > 60000,1 ; This is a footer.
+            > 60000,1 @retain
+            > 60000,1 ; This is another footer.
+        """
+        exp_headers = {60000: ()}
+        exp_footers = {
+            60000: [
+                '@retain',
+                '; This is a footer.',
+                '@retain',
+                '; This is another footer.'
+            ]
+        }
+
+        blocks = self._get_ctl_parser(ctl).get_blocks()
+        self._check_headers(exp_headers, blocks)
+        self._check_footers(exp_footers, blocks)
 
     def test_registers(self):
         ctl = """

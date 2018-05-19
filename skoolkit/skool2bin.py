@@ -40,7 +40,7 @@ class BinWriter:
 
     def _parse_skool(self, skoolfile):
         f = open_file(skoolfile)
-        for block in read_skool(f, 0, self.asm_mode, self.fix_mode):
+        for block in read_skool(f, 1, self.asm_mode, self.fix_mode):
             for line in block:
                 if line.startswith('@'):
                     self._parse_asm_directive(line[1:])

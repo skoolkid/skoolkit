@@ -1145,8 +1145,6 @@ class SkoolWriterTest(SkoolKitTestCase):
             i 00002
         """
         exp_skool = """
-            @start
-            @org
             ; A routine at address 0 with a title that will be wrapped over
             ; two lines
             ;
@@ -1181,8 +1179,6 @@ class SkoolWriterTest(SkoolKitTestCase):
             i 00002
         """
         exp_skool = """
-            @start
-            @org
             ; A routine at address zero with a 92-character title that will actually fit on a single line!
             ;
             ; A particularly long description of the routine at address 0 that, sadly, will not quite fit
@@ -1216,8 +1212,6 @@ class SkoolWriterTest(SkoolKitTestCase):
             i 30007
         """
         exp_skool = """
-            @start
-            @org
             ; Routine at 30000
             c30000 XOR A         ;
             *30001 LD (BC),A     ;
@@ -1252,8 +1246,6 @@ class SkoolWriterTest(SkoolKitTestCase):
             i 40012
         """
         exp_skool = """
-            @start
-            @org
             ; Routine at 40000
             ;
             ; Routine description.
@@ -1297,8 +1289,6 @@ class SkoolWriterTest(SkoolKitTestCase):
             i 50012
         """
         exp_skool = """
-            @start
-            @org
             ; Routine at 50000
             ;
             ; Used by the routine at #R50004.
@@ -1392,11 +1382,11 @@ class SkoolWriterTest(SkoolKitTestCase):
         writer = self._get_writer([0] * 1877, ctl)
         writer.write_skool(0, False)
         skool = self.out.getvalue().split('\n')[:-1]
-        self.assertEqual(skool[3], 'b00000 DEFB 0')
-        self.assertEqual(skool[8], 'b00003 DEFB 0')
-        self.assertEqual(skool[13], 'b00023 DEFB 0')
-        self.assertEqual(skool[18], 'b00573 DEFB 0')
-        self.assertEqual(skool[23], 'b01876 DEFB 0')
+        self.assertEqual(skool[-22], 'b00000 DEFB 0')
+        self.assertEqual(skool[-17], 'b00003 DEFB 0')
+        self.assertEqual(skool[-12], 'b00023 DEFB 0')
+        self.assertEqual(skool[-7], 'b00573 DEFB 0')
+        self.assertEqual(skool[-2], 'b01876 DEFB 0')
 
     def test_no_table_end_marker(self):
         ctl = """
@@ -1467,8 +1457,6 @@ class SkoolWriterTest(SkoolKitTestCase):
             i 00005
         """
         exp_skool = """
-            @start
-            @org
             @defb=0:1,$02,%11
             @defb=3:"Hi" ; Hi
             ; Data defined by @defb directives
@@ -1485,8 +1473,6 @@ class SkoolWriterTest(SkoolKitTestCase):
             i 00005
         """
         exp_skool = """
-            @start
-            @org
             @defs=0:3,2
             @defs=3:2,"!" ; !!
             ; Data defined by @defs directives
@@ -1503,8 +1489,6 @@ class SkoolWriterTest(SkoolKitTestCase):
             i 00006
         """
         exp_skool = """
-            @start
-            @org
             @defw=0:257,513
             @defw=4:$8001 ; 32769
             ; Data defined by @defw directives
@@ -1521,8 +1505,6 @@ class SkoolWriterTest(SkoolKitTestCase):
             i 00003
         """
         exp_skool = """
-            @start
-            @org
             ; Routine at 0
             c00000 XOR A         ;
             @end
@@ -1543,8 +1525,6 @@ class SkoolWriterTest(SkoolKitTestCase):
             i 00002
         """
         exp_skool = """
-            @start
-            @org
             @equ=ATTRS=22528
             ; Routine at 0
             c00000 XOR A         ;
@@ -1562,8 +1542,6 @@ class SkoolWriterTest(SkoolKitTestCase):
             i 00002
         """
         exp_skool = """
-            @start
-            @org
             @if({asm})(replace=/foo/bar)
             ; Routine at 0
             c00000 XOR A         ;
@@ -1581,7 +1559,6 @@ class SkoolWriterTest(SkoolKitTestCase):
             i 00002
         """
         exp_skool = """
-            @start
             @org=0
             ; Routine at 0
             c00000 XOR A         ;
@@ -1599,8 +1576,6 @@ class SkoolWriterTest(SkoolKitTestCase):
             i 00002
         """
         exp_skool = """
-            @start
-            @org
             @remote=main:24576
             ; Routine at 0
             c00000 XOR A         ;
@@ -1618,8 +1593,6 @@ class SkoolWriterTest(SkoolKitTestCase):
             i 00002
         """
         exp_skool = """
-            @start
-            @org
             @replace=/foo/bar
             ; Routine at 0
             c00000 XOR A         ;
@@ -1637,8 +1610,6 @@ class SkoolWriterTest(SkoolKitTestCase):
             i 00002
         """
         exp_skool = """
-            @start
-            @org
             @set-crlf=1
             ; Routine at 0
             c00000 XOR A         ;
@@ -1673,8 +1644,6 @@ class SkoolWriterTest(SkoolKitTestCase):
             i 00002
         """
         exp_skool = """
-            @start
-            @org
             @writer=x.y.z
             ; Routine at 0
             c00000 XOR A         ;
@@ -1725,8 +1694,6 @@ class SkoolWriterTest(SkoolKitTestCase):
             i 10002
         """
         exp_skool = """
-            @start
-            @org
             @ignoreua
             ; Routine at 10000
             ;
@@ -1761,8 +1728,6 @@ class SkoolWriterTest(SkoolKitTestCase):
             i 10005
         """
         exp_skool = """
-            @start
-            @org
             ; Routine at 10000
             ;
             @ignoreua
@@ -1791,8 +1756,6 @@ class SkoolWriterTest(SkoolKitTestCase):
             i 00003
         """
         exp_skool = """
-            @start
-            @org
             @assemble=2,-1
             ; Routine at 0
             c00000 NOP           ;
@@ -1811,8 +1774,6 @@ class SkoolWriterTest(SkoolKitTestCase):
             i 00002
         """
         exp_skool = """
-            @start
-            @org
             ; Routine at 0
             @bfix=XOR B
             c00000 XOR A         ;
@@ -1830,8 +1791,6 @@ class SkoolWriterTest(SkoolKitTestCase):
             i 00002
         """
         exp_skool = """
-            @start
-            @org
             ; Routine at 0
             @isub=XOR B
             c00000 XOR A         ;
@@ -1849,8 +1808,6 @@ class SkoolWriterTest(SkoolKitTestCase):
             i 00006
         """
         exp_skool = """
-            @start
-            @org
             ; Routine at 0
             @keep
             c00000 LD BC,0       ;
@@ -1867,8 +1824,6 @@ class SkoolWriterTest(SkoolKitTestCase):
             i 00004
         """
         exp_skool = """
-            @start
-            @org
             ; Routine at 0
             @nowarn
             c00000 LD BC,3       ;
@@ -1885,8 +1840,6 @@ class SkoolWriterTest(SkoolKitTestCase):
             i 00004
         """
         exp_skool = """
-            @start
-            @org
             ; Routine at 0
             @ofix=LD A,0
             c00000 LD A,1        ;
@@ -1904,8 +1857,6 @@ class SkoolWriterTest(SkoolKitTestCase):
             i 00002
         """
         exp_skool = """
-            @start
-            @org
             ; Routine at 0
             @rem=It begins
             c00000 XOR A         ;
@@ -1922,8 +1873,6 @@ class SkoolWriterTest(SkoolKitTestCase):
             i 00002
         """
         exp_skool = """
-            @start
-            @org
             ; Routine at 0
             @rfix=LD DE,0
             c00000 LD D,0        ;
@@ -1938,8 +1887,6 @@ class SkoolWriterTest(SkoolKitTestCase):
             i 00004
         """
         exp_skool = """
-            @start
-            @org
             ; Routine at 0
             @rsub=LD BC,0
             c00000 LD B,0        ;
@@ -1957,8 +1904,6 @@ class SkoolWriterTest(SkoolKitTestCase):
             i 00004
         """
         exp_skool = """
-            @start
-            @org
             ; Routine at 0
             @ssub=LD A,32768%256
             c00000 LD A,0        ;
@@ -1966,6 +1911,105 @@ class SkoolWriterTest(SkoolKitTestCase):
              00002 LD B,0        ;
         """
         snapshot = [62, 0, 6, 0]
+        self._test_write_skool(snapshot, ctl, exp_skool)
+
+    def test_header(self):
+        ctl = """
+            > 00000 @retain
+            > 00000 ; This is a header.
+            c 00000 Routine
+            i 00001
+        """
+        exp_skool = """
+            @retain
+            ; This is a header.
+
+            ; Routine
+            c00000 RET           ;
+        """
+        snapshot = [201]
+        self._test_write_skool(snapshot, ctl, exp_skool)
+
+    def test_two_headers(self):
+        ctl = """
+            > 00000 @retain
+            > 00000 ; This is a header.
+            > 00000 @retain
+            > 00000 ; This is another header.
+            c 00000 Routine
+            i 00001
+        """
+        exp_skool = """
+            @retain
+            ; This is a header.
+
+            @retain
+            ; This is another header.
+
+            ; Routine
+            c00000 RET           ;
+        """
+        snapshot = [201]
+        self._test_write_skool(snapshot, ctl, exp_skool)
+
+    def test_header_before_second_entry(self):
+        ctl = """
+            c 00000 Routine
+            > 00001 @retain
+            > 00001 ; This is between two entries.
+            c 00001 Another routine
+            i 00002
+        """
+        exp_skool = """
+            ; Routine
+            c00000 RET           ;
+
+            @retain
+            ; This is between two entries.
+
+            ; Another routine
+            c00001 RET           ;
+        """
+        snapshot = [201, 201]
+        self._test_write_skool(snapshot, ctl, exp_skool)
+
+    def test_footer(self):
+        ctl = """
+            c 00000 Routine
+            > 00000,1 @retain
+            > 00000,1 ; This is a footer.
+            i 00001
+        """
+        exp_skool = """
+            ; Routine
+            c00000 RET           ;
+
+            @retain
+            ; This is a footer.
+        """
+        snapshot = [201]
+        self._test_write_skool(snapshot, ctl, exp_skool)
+
+    def test_two_footers(self):
+        ctl = """
+            c 00000 Routine
+            > 00000,1 @retain
+            > 00000,1 ; This is a footer.
+            > 00000,1 @retain
+            > 00000,1 ; This is another footer.
+            i 00001
+        """
+        exp_skool = """
+            ; Routine
+            c00000 RET           ;
+
+            @retain
+            ; This is a footer.
+
+            @retain
+            ; This is another footer.
+        """
+        snapshot = [201]
         self._test_write_skool(snapshot, ctl, exp_skool)
 
     def test_registers(self):
@@ -1979,8 +2023,6 @@ class SkoolWriterTest(SkoolKitTestCase):
             i 00001
         """
         exp_skool = """
-            @start
-            @org
             ; Routine
             ;
             ; .
@@ -2005,8 +2047,6 @@ class SkoolWriterTest(SkoolKitTestCase):
             i 00001
         """
         exp_skool = """
-            @start
-            @org
             ; Routine
             ;
             ; .
@@ -2027,8 +2067,6 @@ class SkoolWriterTest(SkoolKitTestCase):
             i 00001
         """
         exp_skool = """
-            @start
-            @org
             ; Routine at 0
             ;
             ; .
@@ -2049,8 +2087,6 @@ class SkoolWriterTest(SkoolKitTestCase):
             i 00001
         """
         exp_skool = """
-            @start
-            @org
             ; Routine
             ;
             ; Description.
@@ -2077,7 +2113,7 @@ class SkoolWriterTest(SkoolKitTestCase):
         skool = self.out.getvalue().split('\n')[:-2]
         address = 0
         ctl = 'b'
-        for i in range(3, 23, 2):
+        for i in range(1, 21, 2):
             self.assertEqual(skool[i], '{}{:05} DEFB 0,0'.format(ctl, address))
             self.assertEqual(skool[i + 1], ' {:05} DEFW 0'.format(address + 2))
             ctl = ' '
@@ -2094,7 +2130,7 @@ class SkoolWriterTest(SkoolKitTestCase):
         writer.write_skool(0, False)
         skool = self.out.getvalue().split('\n')[:-2]
         address = 0
-        index = 3
+        index = 1
         for i in range(3):
             ctl = 'b'
             for j in range(5):
@@ -2118,8 +2154,6 @@ class SkoolWriterTest(SkoolKitTestCase):
             i 00003
         """
         exp_skool = """
-            @start
-            @org
             ; Routine at 0
             c00000 DEFB 62       ; {This is really LD A,0
              00001 NOP           ; }
@@ -2135,8 +2169,6 @@ class SkoolWriterTest(SkoolKitTestCase):
             i 00011
         """
         exp_skool = """
-            @start
-            @org
             ; Data block at 000a
             b$000a defb $ff
         """
@@ -2149,8 +2181,6 @@ class SkoolWriterTest(SkoolKitTestCase):
             i 00004
         """
         exp_skool = """
-            @start
-            @org
             ; Message at 0
             t00000 DEFM "AA"
              00002 DEFM "AA"
@@ -2164,8 +2194,6 @@ class SkoolWriterTest(SkoolKitTestCase):
             i 00014
         """
         exp_skool = """
-            @start
-            @org
             ; Data block at 2
             b00002 DEFB 0,0
              00004 DEFB 0,0,0,0,0,0,0,0
@@ -2180,8 +2208,6 @@ class SkoolWriterTest(SkoolKitTestCase):
             i 00005
         """
         exp_skool = """
-            @start
-            @org
             ; Data block at 0
             b00000 DEFB 0,0,0
              00003 DEFB 0,0
@@ -2195,8 +2221,6 @@ class SkoolWriterTest(SkoolKitTestCase):
             i 00005
         """
         exp_skool = """
-            @start
-            @org
             ; Data block at 0
             b00000 DEFB 000,000,000,000,000
         """
@@ -2209,8 +2233,6 @@ class SkoolWriterTest(SkoolKitTestCase):
             i 00003
         """
         exp_skool = """
-            @start
-            @org
             ; Routine at 0
             c00000 LD SP,12927   ; [1.2]
         """
@@ -2247,8 +2269,6 @@ class SkoolWriterTest(SkoolKitTestCase):
             i 00039
         """
         exp_skool = """
-            @start
-            @org
             ; Data block at 0
             b00000 DEFB 0        ; { {unmatched opening brace}}
              00001 DEFB 0        ; unmatched closing brace}
@@ -2301,8 +2321,6 @@ class SkoolWriterTest(SkoolKitTestCase):
             i 00003
         """
         exp_skool = """
-            @start
-            @org
             ; Data block at 0
             b00000 DEFB 0
 
@@ -2322,8 +2340,6 @@ class SkoolWriterTest(SkoolKitTestCase):
             i 00003 The end
         """
         exp_skool = """
-            @start
-            @org
             ; Data block at 0
             b00000 DEFB 0
 
@@ -2349,8 +2365,6 @@ class SkoolWriterTest(SkoolKitTestCase):
             S 00003
         """
         exp_skool = """
-            @start
-            @org
             ; Data block at 0
             b00000 DEFB 0
 
@@ -2375,8 +2389,6 @@ class SkoolWriterTest(SkoolKitTestCase):
             S 00003
         """
         exp_skool = """
-            @start
-            @org
             ; Data block at 0
             b00000 DEFB 0
 
@@ -2401,8 +2413,6 @@ class SkoolWriterTest(SkoolKitTestCase):
             D 00001 Unused from here on out.
         """
         exp_skool = """
-            @start
-            @org
             ; Data block at 0
             b00000 DEFB 0
 
@@ -2423,8 +2433,6 @@ class SkoolWriterTest(SkoolKitTestCase):
             S 00002
         """
         exp_skool = """
-            @start
-            @org
             ; Data block at 0
             b00000 DEFB 0
 
@@ -2446,8 +2454,6 @@ class SkoolWriterTest(SkoolKitTestCase):
             N 00001 It ends here.
         """
         exp_skool = """
-            @start
-            @org
             ; Data block at 0
             b00000 DEFB 0
 
@@ -2471,8 +2477,6 @@ class SkoolWriterTest(SkoolKitTestCase):
             i 00006
         """
         exp_skool = """
-            @start
-            @org
             ; Routine at 0
             ;
             ; Used by the routine at #R2.
@@ -2496,8 +2500,6 @@ class SkoolWriterTest(SkoolKitTestCase):
             i 00003
         """
         exp_skool = """
-            @start
-            @org
             ; Routine at 0
             c00000 LD A,B        ; This sub-block is terminated by the M directive
              00001 RST 8         ; {This spans an implicit "C" sub-block and a "B"
@@ -2514,8 +2516,6 @@ class SkoolWriterTest(SkoolKitTestCase):
             i 00003
         """
         exp_skool = """
-            @start
-            @org
             ; Routine at 0
             ;
             ; Used by the subroutine at #R1.
@@ -2549,8 +2549,6 @@ class SkoolWriterTest(SkoolKitTestCase):
             i 00005
         """
         exp_skool = """
-            @start
-            @org
             ; Routine at 0
             ;
             ; Used by the subroutines at #R1 and #R3.
@@ -2575,8 +2573,6 @@ class SkoolWriterTest(SkoolKitTestCase):
             i 00007
         """
         exp_skool = """
-            @start
-            @org
             ; Routine at 0
             ;
             ; Used by the subroutines at #R1, #R3 and #R5.
@@ -2616,8 +2612,6 @@ class SkoolWriterTest(SkoolKitTestCase):
             i 00004
         """
         exp_skool = """
-            @start
-            @org
             ; Routine at 0
             c00000 XOR A         ;
             ; Used by the subroutine at #R2.
@@ -2651,8 +2645,6 @@ class SkoolWriterTest(SkoolKitTestCase):
             i 00006
         """
         exp_skool = """
-            @start
-            @org
             ; Routine at 0
             c00000 XOR A         ;
             ; Used by the subroutines at #R2 and #R4.
@@ -2677,8 +2669,6 @@ class SkoolWriterTest(SkoolKitTestCase):
             i 00008
         """
         exp_skool = """
-            @start
-            @org
             ; Routine at 0
             c00000 XOR A         ;
             ; Used by the subroutines at #R2, #R4 and #R6.
@@ -2722,8 +2712,6 @@ class SkoolWriterTest(SkoolKitTestCase):
             i 00002
         """
         exp_skool = """
-            @start
-            @org
             ; Code at 0
             c00000 RET           ;
 

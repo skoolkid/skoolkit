@@ -889,6 +889,7 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
 
     def test_header(self):
         skool = """
+            @retain
             @start
             ; Header line 1.
             ;   * Header line 2 (indented)
@@ -914,6 +915,327 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
               JP 49152
         """
         self._test_asm(skool, exp_asm)
+
+    def test_two_headers(self):
+        skool = """
+            @retain
+            @start
+            ; First header.
+
+            @retain
+            ; Second header.
+
+            ; Start
+            c32768 JP 49152
+        """
+        exp_asm = """
+            ; First header.
+
+            ; Second header.
+
+            ; Start
+              JP 49152
+        """
+        self._test_asm(skool, exp_asm)
+
+    def test_initial_headers_are_written_before_equs(self):
+        skool = """
+            @retain
+            @start
+            ; This should appear before the EQUs.
+
+            @retain
+            ; And so should this.
+
+            @equ=DFILE=16384
+            @equ=ATTRS=22528
+            ; Start
+            c24576 JP 49152
+        """
+        exp_asm = """
+            ; This should appear before the EQUs.
+
+            ; And so should this.
+
+            DFILE EQU 16384
+            ATTRS EQU 22528
+
+            ; Start
+              JP 49152
+        """
+        self._test_asm(skool, exp_asm)
+
+    def test_header_containing_asm_directives(self):
+        skool = """
+            @retain
+            @start
+            @rem=The following directives should be processed.
+            @replace=/foo/bar
+            @set-indent=4
+
+            ; Does foo=bar?
+            c40000 RET
+        """
+        exp_asm = """
+            ; Does bar=bar?
+                RET
+        """
+        self._test_asm(skool, exp_asm)
+
+    def test_header_containing_instruction_level_asm_directives(self):
+        skool = """
+            @retain
+            @start
+            @rem=These directives should not be applied to the next instruction.
+            @isub=XOR A
+            @label=NO
+            @org
+
+            ; Start
+            c50000 RET
+        """
+        exp_asm = """
+            ; Start
+              RET
+        """
+        self._test_asm(skool, exp_asm)
+
+    def test_header_above_second_entry(self):
+        skool = """
+            @start
+            ; Start
+            c32768 JP 49152
+
+            @retain
+            ; A header above the second entry.
+
+            ; Routine
+            c32771 RET
+        """
+        exp_asm = """
+            ; Start
+              JP 49152
+
+            ; A header above the second entry.
+
+            ; Routine
+              RET
+        """
+        self._test_asm(skool, exp_asm)
+
+    def test_empty_headers_are_ignored(self):
+        skool = """
+            @retain
+            ; This header appears before @start, so should be ignored.
+
+            @start
+            ; Start
+            c30000 JR 30002
+            ; The following header is just empty.
+
+            @retain
+
+            @retain
+            @bfix+begin
+            ; And this one is empty unless in @bfix mode.
+            @bfix+end
+
+            ; Continue
+            c30002 RET
+        """
+        exp_asm = """
+            ; Start
+              JR 30002
+            ; The following header is just empty.
+
+            ; Continue
+              RET
+        """
+        self._test_asm(skool, exp_asm)
+
+    def test_header_with_fix_block_directive(self):
+        skool_t = """
+            @retain
+            @start
+            ; Disassembly.
+            @{0}-begin
+            ; Contains no fixes.
+            @{0}+else
+            ; Contains fixes.
+            @{0}+end
+
+            ; Start
+            c32768 JP 49152
+        """
+        exp_asm_t = """
+            ; Disassembly.
+            ; Contains {}.
+
+            ; Start
+              JP 49152
+        """
+        for index, fix_dir in enumerate(('ofix', 'bfix', 'rfix')):
+            for fix_mode in (0, 1, 2, 3):
+                with self.subTest(fix_dir=fix_dir, fix_mode=fix_mode):
+                    skool = skool_t.format(fix_dir)
+                    exp_asm = exp_asm_t.format('fixes' if fix_mode > index else 'no fixes')
+                    self._test_asm(skool, exp_asm, fix_mode=fix_mode)
+
+    def test_header_with_sub_block_directive(self):
+        skool_t = """
+            @retain
+            @start
+            ; Disassembly.
+            @{0}-begin
+            ; Contains no subs.
+            @{0}+else
+            ; Contains subs.
+            @{0}+end
+
+            ; Start
+            c32768 JP 49152
+        """
+        exp_asm_t = """
+            ; Disassembly.
+            ; Contains {}.
+
+            ; Start
+              JP 49152
+        """
+        for index, sub_dir in enumerate(('isub', 'ssub', 'rsub')):
+            for sub_mode in (1, 2, 3):
+                with self.subTest(sub_dir=sub_dir, sub_mode=sub_mode):
+                    skool = skool_t.format(sub_dir)
+                    exp_asm = exp_asm_t.format('subs' if sub_mode > index else 'no subs')
+                    self._test_asm(skool, exp_asm, asm_mode=sub_mode)
+
+    def test_footer(self):
+        skool = """
+            @start
+            ; Start
+            c65532 JP 49152
+
+            ; Ignored.
+
+            @retain
+            ; Footer line 1.
+            ;   * Footer line 2 (indented)
+            ;   * Footer line #THREE (also indented)
+
+            ; Also ignored.
+        """
+        exp_asm = """
+            ; Start
+              JP 49152
+
+            ; Footer line 1.
+            ;   * Footer line 2 (indented)
+            ;   * Footer line #THREE (also indented)
+        """
+        self._test_asm(skool, exp_asm)
+
+    def test_two_footers(self):
+        skool = """
+            @start
+            ; Start
+            c32768 JP 49152
+
+            @retain
+            ; First footer.
+
+            @retain
+            ; Second footer.
+
+        """
+        exp_asm = """
+            ; Start
+              JP 49152
+
+            ; First footer.
+
+            ; Second footer.
+        """
+        self._test_asm(skool, exp_asm)
+
+    def test_empty_footers_are_ignored(self):
+        skool = """
+            @start
+            ; Start
+            c30000 RET
+
+            @retain
+
+            @retain
+            @ssub+begin
+            ; And this one is empty unless in @ssub mode.
+            @ssub+end
+
+            @retain
+            ; Finally a non-empty footer.
+        """
+        exp_asm = """
+            ; Start
+              RET
+
+            ; Finally a non-empty footer.
+        """
+        self._test_asm(skool, exp_asm)
+
+    def test_footer_with_fix_block_directive(self):
+        skool_t = """
+            @start
+            ; Start
+            c32768 JP 49152
+
+            @retain
+            ; Disassembly.
+            @{0}-begin
+            ; Contains no fixes.
+            @{0}+else
+            ; Contains fixes.
+            @{0}+end
+        """
+        exp_asm_t = """
+            ; Start
+              JP 49152
+
+            ; Disassembly.
+            ; Contains {}.
+        """
+        for index, fix_dir in enumerate(('ofix', 'bfix', 'rfix')):
+            for fix_mode in (0, 1, 2, 3):
+                with self.subTest(fix_dir=fix_dir, fix_mode=fix_mode):
+                    skool = skool_t.format(fix_dir)
+                    exp_asm = exp_asm_t.format('fixes' if fix_mode > index else 'no fixes')
+                    self._test_asm(skool, exp_asm, fix_mode=fix_mode)
+
+    def test_footer_with_sub_block_directive(self):
+        skool_t = """
+            @start
+            ; Start
+            c32768 JP 49152
+
+            @retain
+            ; Disassembly.
+            @{0}-begin
+            ; Contains no subs.
+            @{0}+else
+            ; Contains subs.
+            @{0}+end
+        """
+        exp_asm_t = """
+            ; Start
+              JP 49152
+
+            ; Disassembly.
+            ; Contains {}.
+        """
+        for index, sub_dir in enumerate(('isub', 'ssub', 'rsub')):
+            for sub_mode in (1, 2, 3):
+                with self.subTest(sub_dir=sub_dir, sub_mode=sub_mode):
+                    skool = skool_t.format(sub_dir)
+                    exp_asm = exp_asm_t.format('subs' if sub_mode > index else 'no subs')
+                    self._test_asm(skool, exp_asm, asm_mode=sub_mode)
 
     def test_indented_comment_lines_are_ignored(self):
         skool = """

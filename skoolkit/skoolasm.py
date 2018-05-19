@@ -121,9 +121,10 @@ class AsmWriter:
             warn(s)
 
     def write(self):
-        self.print_header(self.parser.header)
-        self.print_equs(self.parser.equs)
-        for entry in self.parser.memory_map:
+        for index, entry in enumerate(self.parser.memory_map):
+            self.print_retain_blocks(entry.headers)
+            if index == 0:
+                self.print_equs(self.parser.equs)
             first_instruction = entry.instructions[0]
             org = first_instruction.org
             if org:
@@ -137,12 +138,14 @@ class AsmWriter:
             self.entry = entry
             self.print_entry()
             self.write_line('')
+            self.print_retain_blocks(entry.footers)
 
-    def print_header(self, header):
-        if header:
-            for line in header:
-                self.write_line((';' + line).rstrip())
-            self.write_line('')
+    def print_retain_blocks(self, blocks):
+        for block in blocks:
+            if block:
+                for line in block:
+                    self.write_line(line)
+                self.write_line('')
 
     def print_equs(self, equs):
         if equs:
