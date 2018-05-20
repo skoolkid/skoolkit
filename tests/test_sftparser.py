@@ -1430,3 +1430,39 @@ class SftParserTest(SkoolKitTestCase):
              00002 DEFS 1
         """
         self._test_disassembly(sft, exp_skool, snapshot)
+
+    def test_header(self):
+        snapshot = [201, 201]
+        sft = """
+            @retain
+            ; The following line should be restored verbatim.
+            cC00000,1
+
+            cC00001,1
+        """
+        exp_skool = """
+            @retain
+            ; The following line should be restored verbatim.
+            cC00000,1
+
+            c00001 RET
+        """
+        self._test_disassembly(sft, exp_skool, snapshot)
+
+    def test_footer(self):
+        snapshot = [201, 201]
+        sft = """
+            cC00000,1
+
+            @retain
+            ; The following line should be restored verbatim.
+            cC00001,1
+        """
+        exp_skool = """
+            c00000 RET
+
+            @retain
+            ; The following line should be restored verbatim.
+            cC00001,1
+        """
+        self._test_disassembly(sft, exp_skool, snapshot)
