@@ -878,3 +878,47 @@ class SftWriterTest(SkoolKitTestCase):
              W40001,2;14 Also ignored
         """
         self._test_sft(skool, exp_sft)
+
+    def test_skool_file_ending_with_blank_line(self):
+        skool = "c32768 RET\n\n"
+        exp_sft = "cC32768,1\n"
+        SftWriter(StringIO(skool)).write()
+        self.assertEqual(self.out.getvalue(), exp_sft)
+
+    def test_header(self):
+        skool = """
+            @retain
+            ; The following instruction-like line should be preserved verbatim.
+             32768 LD B,1
+
+            ; Data
+            b32770 DEFB 1,2
+        """
+        exp_sft = """
+            @retain
+            ; The following instruction-like line should be preserved verbatim.
+             32768 LD B,1
+
+            ; Data
+            bB32770,2
+        """
+        self._test_sft(skool, exp_sft)
+
+    def test_footer(self):
+        skool = """
+            ; Data
+            b32768 DEFB 1,2
+
+            @retain
+            ; The following instruction-like line should be preserved verbatim.
+             32770 LD B,1
+        """
+        exp_sft = """
+            ; Data
+            bB32768,2
+
+            @retain
+            ; The following instruction-like line should be preserved verbatim.
+             32770 LD B,1
+        """
+        self._test_sft(skool, exp_sft)

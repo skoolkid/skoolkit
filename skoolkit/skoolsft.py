@@ -17,7 +17,7 @@
 from skoolkit import SkoolParsingError, write_line, get_int_param, get_address_format, open_file
 from skoolkit.skoolctl import (get_instruction_ctl, get_lengths, get_operand_bases,
                                get_defb_length, get_defs_length, get_defw_length)
-from skoolkit.skoolparser import parse_asm_block_directive, read_skool, DIRECTIVES
+from skoolkit.skoolparser import parse_asm_block_directive, read_skool, AD_RETAIN, DIRECTIVES
 from skoolkit.textutils import find_unquoted
 from skoolkit.z80 import get_size
 
@@ -113,8 +113,10 @@ class SftWriter:
         sft = []
         f = open_file(self.skoolfile)
         for block in read_skool(f):
+            if block and block[0].startswith(AD_RETAIN):
+                sft.extend([VerbatimLine(line) for line in block])
+                continue
             lines = []
-            entry_ctl = None
             for line in block:
                 if line.startswith(';'):
                     lines.append(VerbatimLine(line))
