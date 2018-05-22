@@ -3,6 +3,8 @@ Changelog
 
 7.0b1
 -----
+* Added the :ref:`retain` directive (for preserving an arbitrary block of lines
+  in a skool file that would otherwise be ignored)
 * :ref:`skool2html.py` now writes a single disassembly from the the skool file
   given as the first positional argument; any other positional arguments are
   interpreted as extra ref files

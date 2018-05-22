@@ -229,11 +229,33 @@ will render as::
 
   DEFB 0                  ; {Unmatched opening brace
 
+@retain blocks
+--------------
+In addition to regular entries (routines and data blocks), a skool file may
+also contain blocks of lines that do not match the format of an entry, such as
+a header comment that appears before the first entry and contains copyright
+information. Normally such blocks are ignored by the SkoolKit commands that
+operate on or produce skool files, but that behaviour can be changed by using
+the ``@retain`` directive. ::
+
+  @retain
+  ; Copyright 2018 J Smith
+
+  ; Start
+  c24576 JP 32768
+
+This ``@retain`` directive ensures that the copyright comment is preserved by
+`skool2asm.py` and `skool2ctl.py`.
+
+See :ref:`retain` for more information.
+
 Revision history
 ----------------
 +---------+-----------------------------------------------------------------+
 | Version | Changes                                                         |
 +=========+=================================================================+
+| 7.0     | Added support for blocks marked by the :ref:`retain` directive  |
++---------+-----------------------------------------------------------------+
 | 4.3     | Added support for the start comment in entry headers; an ASM    |
 |         | directive can be declared by starting a line with ``@``         |
 +---------+-----------------------------------------------------------------+
