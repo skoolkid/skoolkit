@@ -205,6 +205,15 @@ def parse_address_comments(comments):
             instruction.set_comment(rowspan, address_comment)
         i += 1
 
+def add_sub(subs, weight, value):
+    rank = weight
+    if subs:
+        rank -= subs[0][0]
+        if rank > 0:
+            subs[:] = []
+    if weight and rank >= 0:
+        subs.append((weight, len(subs), value))
+
 def read_skool(skoolfile, asm=0, sub_mode=0, fix_mode=0):
     """Read a skool file and return each block as it's found.
 
@@ -563,7 +572,7 @@ class SkoolParser:
                 pass
         elif self.mode.asm_mode:
             if directive.startswith(('isub=', 'ssub=', 'rsub=', 'ofix=', 'bfix=', 'rfix=')):
-                self.mode.add_sub(directive[:4], directive[5:].rstrip())
+                add_sub(self.mode.subs, self.mode.weights[directive[:4]], directive[5:].rstrip())
             elif directive.startswith('nowarn'):
                 self.mode.nowarn = True
             elif directive.startswith('ignoreua'):
@@ -769,7 +778,7 @@ class Mode:
 
     def reset(self):
         self.label = None
-        self.sub = (0, None)
+        self.subs = []
         self.keep = None
         self.nowarn = False
         self.ignoreua = False
@@ -779,10 +788,6 @@ class Mode:
     def reset_entry_ignoreua(self):
         for section in 'tdr':
             self.entry_ignoreua[section] = False
-
-    def add_sub(self, directive, value):
-        if self.weights[directive] >= self.sub[0]:
-            self.sub = (self.weights[directive], value)
 
     def apply_asm_attributes(self, instruction, address_comment):
         instruction.keep = self.keep
@@ -795,10 +800,13 @@ class Mode:
             instruction.asm_label = self.label
 
         if self.asm_mode:
-            if self.sub[0]:
-                op, sep, comment = partition_unquoted(self.sub[1], ';')
+            for weight, index, value in self.subs:
+                op, sep, comment = partition_unquoted(value, ';')
                 op = self.apply_base('', self.apply_case('', op.rstrip())[1])[1]
-                instruction.apply_sub(op, sep, comment, address_comment)
+                if index == 0:
+                    instruction.apply_sub(op, sep, comment, address_comment)
+                elif sep:
+                    address_comment[1] += ' ' + comment.strip()
 
             instruction.warn = not self.nowarn
             instruction.ignoreua = self.ignoreua

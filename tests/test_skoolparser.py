@@ -3471,6 +3471,160 @@ class SkoolParserTest(SkoolKitTestCase):
             self.assertEqual(instruction.operation, op)
             self.assertEqual(instruction.comment.text, comment)
 
+    def test_sub_directive_precedence(self):
+        skool = """
+            @start
+            @isub=LD A,1
+            @ssub=LD A,2
+            @rsub=LD A,3
+            c24576 LD A,0
+        """
+        for asm_mode in (0, 1, 2, 3):
+            with self.subTest(asm_mode=asm_mode):
+                instruction = self._get_parser(skool, asm_mode=asm_mode).get_instruction(24576)
+                self.assertEqual(instruction.operation, 'LD A,{}'.format(asm_mode))
+
+    def test_fix_directive_precedence(self):
+        skool = """
+            @start
+            @ofix=LD A,1
+            @bfix=LD A,2
+            @rfix=LD A,3
+            c24576 LD A,0
+        """
+        for fix_mode in (0, 1, 2, 3):
+            with self.subTest(fix_mode=fix_mode):
+                instruction = self._get_parser(skool, asm_mode=1, fix_mode=fix_mode).get_instruction(24576)
+                self.assertEqual(instruction.operation, 'LD A,{}'.format(fix_mode))
+
+    def test_sub_directives_with_one_comment_continuation_line(self):
+        skool = """
+            @start
+            ; Routine
+            @{0}=LD A,1   ; Initialise the
+            @{0}=         ; counter to 1.
+            c32768 LD A,0 ; Set A=0.
+        """
+        for index, asm_dir in ((1, 'isub'), (2, 'ssub'), (3, 'rsub')):
+            for asm_mode in (0, 1, 2, 3):
+                if asm_mode >= index:
+                    exp_op = 'LD A,1'
+                    exp_comment = 'Initialise the counter to 1.'
+                else:
+                    exp_op = 'LD A,0'
+                    exp_comment = 'Set A=0.'
+                with self.subTest(asm_dir=asm_dir, asm_mode=asm_mode):
+                    instruction = self._get_parser(skool.format(asm_dir), asm_mode=asm_mode).get_instruction(32768)
+                    self.assertEqual(instruction.operation, exp_op)
+                    self.assertEqual(instruction.comment.text, exp_comment)
+
+    def test_sub_directives_with_appended_comment_continuation_line(self):
+        skool = """
+            @start
+            ; Routine
+            @{0}=LD A,1
+            @{0}=         ; to 1
+            c32768 LD A,0 ; Initialise the counter
+        """
+        for index, asm_dir in ((1, 'isub'), (2, 'ssub'), (3, 'rsub')):
+            for asm_mode in (0, 1, 2, 3):
+                if asm_mode >= index:
+                    exp_op = 'LD A,1'
+                    exp_comment = 'Initialise the counter to 1'
+                else:
+                    exp_op = 'LD A,0'
+                    exp_comment = 'Initialise the counter'
+                with self.subTest(asm_dir=asm_dir, asm_mode=asm_mode):
+                    instruction = self._get_parser(skool.format(asm_dir), asm_mode=asm_mode).get_instruction(32768)
+                    self.assertEqual(instruction.operation, exp_op)
+                    self.assertEqual(instruction.comment.text, exp_comment)
+
+    def test_sub_directives_with_two_comment_continuation_lines(self):
+        skool = """
+            @start
+            ; Routine
+            @{0}=LD A,1   ; Initialise
+            @{0}=         ; the counter
+            @{0}=         ; to 1.
+            c32768 LD A,0 ; Set A=0.
+        """
+        for index, asm_dir in ((1, 'isub'), (2, 'ssub'), (3, 'rsub')):
+            for asm_mode in (0, 1, 2, 3):
+                if asm_mode >= index:
+                    exp_op = 'LD A,1'
+                    exp_comment = 'Initialise the counter to 1.'
+                else:
+                    exp_op = 'LD A,0'
+                    exp_comment = 'Set A=0.'
+                with self.subTest(asm_dir=asm_dir, asm_mode=asm_mode):
+                    instruction = self._get_parser(skool.format(asm_dir), asm_mode=asm_mode).get_instruction(32768)
+                    self.assertEqual(instruction.operation, exp_op)
+                    self.assertEqual(instruction.comment.text, exp_comment)
+
+    def test_fix_directives_with_one_comment_continuation_line(self):
+        skool = """
+            @start
+            ; Routine
+            @{0}=LD A,1   ; Initialise the
+            @{0}=         ; counter to 1.
+            c32768 LD A,0 ; Set A=0.
+        """
+        for index, asm_dir in ((1, 'ofix'), (2, 'bfix'), (3, 'rfix')):
+            for fix_mode in (0, 1, 2, 3):
+                if fix_mode >= index:
+                    exp_op = 'LD A,1'
+                    exp_comment = 'Initialise the counter to 1.'
+                else:
+                    exp_op = 'LD A,0'
+                    exp_comment = 'Set A=0.'
+                with self.subTest(asm_dir=asm_dir, fix_mode=fix_mode):
+                    instruction = self._get_parser(skool.format(asm_dir), asm_mode=1, fix_mode=fix_mode).get_instruction(32768)
+                    self.assertEqual(instruction.operation, exp_op)
+                    self.assertEqual(instruction.comment.text, exp_comment)
+
+    def test_fix_directives_with_appended_comment_continuation_line(self):
+        skool = """
+            @start
+            ; Routine
+            @{0}=LD A,1
+            @{0}=         ; to 1
+            c32768 LD A,0 ; Initialise the counter
+        """
+        for index, asm_dir in ((1, 'ofix'), (2, 'bfix'), (3, 'rfix')):
+            for fix_mode in (0, 1, 2, 3):
+                if fix_mode >= index:
+                    exp_op = 'LD A,1'
+                    exp_comment = 'Initialise the counter to 1'
+                else:
+                    exp_op = 'LD A,0'
+                    exp_comment = 'Initialise the counter'
+                with self.subTest(asm_dir=asm_dir, fix_mode=fix_mode):
+                    instruction = self._get_parser(skool.format(asm_dir), asm_mode=1, fix_mode=fix_mode).get_instruction(32768)
+                    self.assertEqual(instruction.operation, exp_op)
+                    self.assertEqual(instruction.comment.text, exp_comment)
+
+    def test_fix_directives_with_two_comment_continuation_lines(self):
+        skool = """
+            @start
+            ; Routine
+            @{0}=LD A,1   ; Initialise
+            @{0}=         ; the counter
+            @{0}=         ; to 1.
+            c32768 LD A,0 ; Set A=0.
+        """
+        for index, asm_dir in ((1, 'ofix'), (2, 'bfix'), (3, 'rfix')):
+            for fix_mode in (0, 1, 2, 3):
+                if fix_mode >= index:
+                    exp_op = 'LD A,1'
+                    exp_comment = 'Initialise the counter to 1.'
+                else:
+                    exp_op = 'LD A,0'
+                    exp_comment = 'Set A=0.'
+                with self.subTest(asm_dir=asm_dir, fix_mode=fix_mode):
+                    instruction = self._get_parser(skool.format(asm_dir), asm_mode=1, fix_mode=fix_mode).get_instruction(32768)
+                    self.assertEqual(instruction.operation, exp_op)
+                    self.assertEqual(instruction.comment.text, exp_comment)
+
     def test_no_asm_labels(self):
         skool = """
             @label=START
