@@ -15,9 +15,10 @@
 # SkoolKit. If not, see <http://www.gnu.org/licenses/>.
 
 import argparse
+from collections import defaultdict
 
 from skoolkit import SkoolParsingError, get_int_param, info, integer, open_file, warn, VERSION
-from skoolkit.skoolparser import add_sub, read_skool, AD_RETAIN
+from skoolkit.skoolparser import read_skool, AD_RETAIN
 from skoolkit.skoolsft import VALID_CTLS
 from skoolkit.textutils import partition_unquoted
 from skoolkit.z80 import assemble
@@ -35,7 +36,7 @@ class BinWriter:
         self.snapshot = [0] * 65536
         self.base_address = len(self.snapshot)
         self.end_address = 0
-        self.subs = []
+        self.subs = defaultdict(list, {0: []})
         self._parse_skool(skoolfile)
 
     def _parse_skool(self, skoolfile):
@@ -45,7 +46,7 @@ class BinWriter:
                 continue
             for line in block:
                 if line.startswith(('@isub=', '@ssub=', '@ofix=', '@bfix=')):
-                    add_sub(self.subs, self.weights[line[1:5]], line[6:])
+                    self.subs[self.weights[line[1:5]]].append(line[6:])
                 elif not line.lstrip().startswith(';') and line[0] in VALID_CTLS:
                     self._parse_instruction(line)
         f.close()
@@ -55,19 +56,23 @@ class BinWriter:
             address = get_int_param(line[1:6])
         except ValueError:
             raise SkoolParsingError("Invalid address ({}):\n{}".format(line[1:6], line.rstrip()))
-        if self.subs:
-            operation = partition_unquoted(self.subs[0][2], ';')[0].strip()
-            self.subs = []
+        if max(self.subs):
+            operations = [partition_unquoted(s, ';')[0].strip() for s in self.subs[max(self.subs)]]
         else:
-            operation = partition_unquoted(line[6:], ';')[0].strip()
-        data = assemble(operation, address)
-        if data:
-            end_address = address + len(data)
-            self.snapshot[address:end_address] = data
-            self.base_address = min(self.base_address, address)
-            self.end_address = max(self.end_address, end_address)
-        else:
-            warn("Failed to assemble:\n {} {}".format(address, operation))
+            operations = [partition_unquoted(line[6:], ';')[0].strip()]
+        self.subs = defaultdict(list, {0: []})
+        for operation in operations:
+            if operation:
+                data = assemble(operation, address)
+                if data:
+                    end_address = address + len(data)
+                    self.snapshot[address:end_address] = data
+                    self.base_address = min(self.base_address, address)
+                    self.end_address = max(self.end_address, end_address)
+                    address = end_address
+                else:
+                    warn("Failed to assemble:\n {} {}".format(address, operation))
+                    break
 
     def write(self, binfile, start, end):
         if start is None:

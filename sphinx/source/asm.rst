@@ -243,11 +243,19 @@ using additional ``@bfix`` directives. For example::
   @bfix=       ; graphic data
    29713 AND C ; This should be 'AND B'
 
+A single instruction can be replaced with two or more by using additional
+``@bfix`` directives. For example, to replace 'LD HL,0' with 'LD L,0' and
+'LD H,L'::
+
+  @bfix=LD L,0   ; Clear L
+  @bfix=LD H,L   ; Clear H
+   36671 LD HL,0 ; Clear HL
+
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
 | 7.0     | Added support for specifying the replacement comment over         |
-|         | multiple lines                                                    |
+|         | multiple lines, and replacing one instruction with two or more    |
 +---------+-------------------------------------------------------------------+
 | 6.4     | Added support for replacing the comment                           |
 +---------+-------------------------------------------------------------------+

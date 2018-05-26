@@ -205,15 +205,6 @@ def parse_address_comments(comments):
             instruction.set_comment(rowspan, address_comment)
         i += 1
 
-def add_sub(subs, weight, value):
-    rank = weight
-    if subs:
-        rank -= subs[0][0]
-        if rank > 0:
-            subs[:] = []
-    if weight and rank >= 0:
-        subs.append((weight, len(subs), value))
-
 def read_skool(skoolfile, asm=0, sub_mode=0, fix_mode=0):
     """Read a skool file and return each block as it's found.
 
@@ -456,7 +447,7 @@ class SkoolParser:
                         self.comments[:] = []
                         self.mode.ignoremrcua = 0 in self.ignores
 
-                self.mode.apply_asm_attributes(instruction, address_comments[-1])
+                self.mode.apply_asm_attributes(instruction, map_entry, self._instructions, address_comments)
                 self.ignores[:] = []
 
                 # Set bytes in the snapshot if the instruction is DEF{B,M,S,W}
@@ -572,7 +563,7 @@ class SkoolParser:
                 pass
         elif self.mode.asm_mode:
             if directive.startswith(('isub=', 'ssub=', 'rsub=', 'ofix=', 'bfix=', 'rfix=')):
-                add_sub(self.mode.subs, self.mode.weights[directive[:4]], directive[5:].rstrip())
+                self.mode.add_sub(directive[:4], directive[5:].rstrip())
             elif directive.startswith('nowarn'):
                 self.mode.nowarn = True
             elif directive.startswith('ignoreua'):
@@ -778,7 +769,7 @@ class Mode:
 
     def reset(self):
         self.label = None
-        self.subs = []
+        self.subs = defaultdict(list, {0: ()})
         self.keep = None
         self.nowarn = False
         self.ignoreua = False
@@ -789,7 +780,12 @@ class Mode:
         for section in 'tdr':
             self.entry_ignoreua[section] = False
 
-    def apply_asm_attributes(self, instruction, address_comment):
+    def add_sub(self, directive, value):
+        weight = self.weights[directive]
+        if weight:
+            self.subs[weight].append(value)
+
+    def apply_asm_attributes(self, instruction, map_entry, instructions, address_comments):
         instruction.keep = self.keep
 
         if self.asm_labels:
@@ -800,13 +796,30 @@ class Mode:
             instruction.asm_label = self.label
 
         if self.asm_mode:
-            for weight, index, value in self.subs:
+            inst = instruction
+            address = inst.address
+            for index, value in enumerate(self.subs[max(self.subs)]):
                 op, sep, comment = partition_unquoted(value, ';')
                 op = self.apply_base('', self.apply_case('', op.rstrip())[1])[1]
                 if index == 0:
-                    instruction.apply_sub(op, sep, comment, address_comment)
+                    instruction.apply_sub(op, sep, comment, address_comments[-1])
+                    size = get_size(op, address) or None
+                elif op:
+                    if address is None:
+                        raise SkoolParsingError("Cannot determine address of instruction after '{} {}'".format(inst.addr_str, inst.operation))
+                    addr_str = self.apply_base(self.apply_case(str(address))[0])[0]
+                    inst = Instruction(' ', addr_str, op)
+                    map_entry.add_instruction(inst)
+                    instructions.setdefault(address, []).append(inst)
+                    address_comments.append([inst, comment])
+                    size = get_size(op, address) or None
                 elif sep:
-                    address_comment[1] += ' ' + comment.strip()
+                    address_comments[-1][1] += ' ' + comment.strip()
+                    size = 0
+                if size is None:
+                    address = None
+                else:
+                    address += size
 
             instruction.warn = not self.nowarn
             instruction.ignoreua = self.ignoreua

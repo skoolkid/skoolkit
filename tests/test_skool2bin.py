@@ -209,6 +209,7 @@ class BinWriterTest(SkoolKitTestCase):
         size = len(data)
         status = "Wrote {}: start={}, end={}, size={}\n".format(binfile, base_address, base_address + size, size)
         self.assertEqual(exp_err + status, self.err.getvalue())
+        self.err.clear()
 
     def test_write(self):
         skool = """
@@ -254,6 +255,24 @@ class BinWriterTest(SkoolKitTestCase):
              40002 RET
         """
         self._test_write(skool, 40000, [120, 0, 201], 'WARNING: Failed to assemble:\n 40001 XOR HL\n')
+
+    def test_invalid_sub_instruction(self):
+        skool = """
+            @start
+            c40000 LD A,B
+            @{}=XOR HL
+             40001 XOR L
+             40002 RET
+        """
+        exp_error = 'WARNING: Failed to assemble:\n 40001 XOR HL\n'
+        for sub_mode, fix_mode, asm_dir in (
+                (1, 0, 'isub'),
+                (2, 0, 'ssub'),
+                (1, 1, 'ofix'),
+                (1, 2, 'bfix')
+        ):
+            with self.subTest(sub_mode=sub_mode, fix_mode=fix_mode, asm_dir=asm_dir):
+                self._test_write(skool.format(asm_dir), 40000, [120, 0, 201], exp_error, asm_mode=sub_mode, fix_mode=fix_mode)
 
     def test_skool_file_from_stdin(self):
         self.write_stdin('c49152 RET')
@@ -302,9 +321,13 @@ class BinWriterTest(SkoolKitTestCase):
              40001 LD B,n
             @isub=LD C,1 ; Set C=1
              40003 LD C,n
-             40005 RET
+            @isub=XOR A  ; Test @isub
+            @isub=       ; adding an instruction.
+            @isub=INC A
+             40005 LD A,1
+             40007 RET
         """
-        exp_data = [195, 64, 156, 175, 6, 1, 14, 1, 201]
+        exp_data = [195, 64, 156, 175, 6, 1, 14, 1, 175, 60, 201]
         self._test_write(skool, 39997, exp_data, asm_mode=1)
 
     def test_ssub_mode(self):
@@ -325,8 +348,11 @@ class BinWriterTest(SkoolKitTestCase):
             @ssub=RET P
              50003 JP 32768
             @rsub+end
+            @ssub=XOR A ; Test @ssub
+            @ssub=INC A ; adding an instruction.
+             50004 LD A,1
         """
-        exp_data = [35, 19, 3, 201]
+        exp_data = [35, 19, 3, 201, 175, 60]
         self._test_write(skool, 50000, exp_data, asm_mode=2)
 
     def test_ssub_overrides_isub(self):
@@ -363,8 +389,12 @@ class BinWriterTest(SkoolKitTestCase):
              60010 LD H,1
             @ofix=LD L,2 ; Set L=2
              60012 LD L,1
+            @ofix=XOR A  ; Test @ofix
+            @ofix=       ; adding an instruction.
+            @ofix=INC A
+             60014 LD A,1
         """
-        exp_data = [62, 2, 6, 1, 14, 1, 22, 2, 30, 1, 38, 1, 46, 2]
+        exp_data = [62, 2, 6, 1, 14, 1, 22, 2, 30, 1, 38, 1, 46, 2, 175, 60]
         self._test_write(skool, 60000, exp_data, fix_mode=1)
 
     def test_bfix_mode(self):
@@ -392,8 +422,11 @@ class BinWriterTest(SkoolKitTestCase):
              60010 LD H,1
             @bfix=LD L,2 ; Set L=2
              60012 LD L,1
+            @bfix=XOR A    ; Test @bfix
+            @bfix=JR 60000 ; adding an instruction.
+             60014 JP 60000
         """
-        exp_data = [62, 2, 6, 2, 14, 1, 22, 2, 30, 2, 38, 1, 46, 2]
+        exp_data = [62, 2, 6, 2, 14, 1, 22, 2, 30, 2, 38, 1, 46, 2, 175, 24, 239]
         self._test_write(skool, 60000, exp_data, fix_mode=2)
 
     def test_bfix_overrides_ofix(self):
