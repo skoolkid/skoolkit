@@ -390,6 +390,7 @@ class SkoolParser:
 
     def _parse_skool(self, skoolfile, min_address, max_address):
         address_comments = []
+        removed = []
         asm = 1 + min(self.mode.asm_mode, 1)
         retains = []
         for block in read_skool(skoolfile, asm, self.mode.asm_mode, self.mode.fix_mode):
@@ -447,7 +448,7 @@ class SkoolParser:
                         self.comments[:] = []
                         self.mode.ignoremrcua = 0 in self.ignores
 
-                self.mode.apply_asm_attributes(instruction, map_entry, self._instructions, address_comments)
+                self.mode.apply_asm_attributes(instruction, map_entry, self._instructions, address_comments, removed)
                 self.ignores[:] = []
 
                 # Set bytes in the snapshot if the instruction is DEF{B,M,S,W}
@@ -464,6 +465,12 @@ class SkoolParser:
                 retains = []
 
             self.comments[:] = []
+
+        for instructions in self._instructions.values():
+            instructions[:] = [i for i in instructions if i not in removed]
+        address_comments = [i for i in address_comments if i[0] not in removed]
+        for entry in self.memory_map:
+            entry.instructions = [i for i in entry.instructions if i not in removed]
 
         if min_address > 0 or max_address < 65536:
             self.memory_map = [e for e in self.memory_map if min_address <= e.address < max_address]
@@ -785,7 +792,7 @@ class Mode:
         if weight:
             self.subs[weight].append(value)
 
-    def apply_asm_attributes(self, instruction, map_entry, instructions, address_comments):
+    def apply_asm_attributes(self, instruction, map_entry, instructions, address_comments, removed):
         instruction.keep = self.keep
 
         if self.asm_labels:
@@ -801,9 +808,14 @@ class Mode:
             for index, value in enumerate(self.subs[max(self.subs)]):
                 op, sep, comment = partition_unquoted(value, ';')
                 op = self.apply_base('', self.apply_case('', op.rstrip())[1])[1]
+                size = 0
                 if index == 0:
-                    instruction.apply_sub(op, sep, comment, address_comments[-1])
-                    size = get_size(op, address) or None
+                    if op:
+                        instruction.apply_sub(op, sep, comment, address_comments[-1])
+                        size = get_size(op, address) or None
+                    else:
+                        removed.append(instruction)
+                        break
                 elif op:
                     if address is None:
                         raise SkoolParsingError("Cannot determine address of instruction after '{} {}'".format(inst.addr_str, inst.operation))
@@ -815,7 +827,6 @@ class Mode:
                     size = get_size(op, address) or None
                 elif sep:
                     address_comments[-1][1] += ' ' + comment.strip()
-                    size = 0
                 if size is None:
                     address = None
                 else:

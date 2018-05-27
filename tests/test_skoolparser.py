@@ -3672,6 +3672,47 @@ class SkoolParserTest(SkoolKitTestCase):
                 self.assertEqual(inst2.org, '32770')
                 self.assertTrue(inst2.warn)
 
+    def test_sub_and_fix_directives_remove_instruction(self):
+        skool = """
+            @start
+            ; Routine
+            @{0}=LD HL,0  ; Clear HL
+            c32768 LD L,0 ; Clear L
+            @{0}=
+             32770 LD H,L ; Clear the
+                          ; H register
+        """
+        exp_instructions = [('32768', 'LD L,0', 'Clear L'), ('32770', 'LD H,L', 'Clear the H register')]
+        exp_subs = [('32768', 'LD HL,0', 'Clear HL')]
+        self._test_sub_and_fix_directives(skool, exp_instructions, exp_subs)
+
+    def test_sub_and_fix_directives_ignored_after_removing_instruction(self):
+        skool = """
+            @start
+            ; Routine
+            @{0}=LD HL,0  ; Clear HL
+            c32768 LD L,0 ; Clear L
+            @{0}=
+            @{0}=LD H,L   ; Ignored
+             32770 LD H,L ; Clear H
+        """
+        exp_instructions = [('32768', 'LD L,0', 'Clear L'), ('32770', 'LD H,L', 'Clear H')]
+        exp_subs = [('32768', 'LD HL,0', 'Clear HL')]
+        self._test_sub_and_fix_directives(skool, exp_instructions, exp_subs)
+
+    def test_sub_and_fix_directives_ignored_if_blank_and_not_first(self):
+        skool = """
+            @start
+            ; Routine
+            @{0}=LD L,0    ; Set L=0
+            @{0}=
+            @{0}=LD H,L    ; Set H=0
+            c32768 LD HL,0 ; Set HL=0
+        """
+        exp_instructions = [('32768', 'LD HL,0', 'Set HL=0')]
+        exp_subs = [('32768', 'LD L,0', 'Set L=0'), ('32770', 'LD H,L', 'Set H=0')]
+        self._test_sub_and_fix_directives(skool, exp_instructions, exp_subs)
+
     def test_no_asm_labels(self):
         skool = """
             @label=START

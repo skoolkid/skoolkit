@@ -57,11 +57,12 @@ class BinWriter:
         except ValueError:
             raise SkoolParsingError("Invalid address ({}):\n{}".format(line[1:6], line.rstrip()))
         if max(self.subs):
-            operations = [partition_unquoted(s, ';')[0].strip() for s in self.subs[max(self.subs)]]
+            operations = [partition_unquoted(s, ';') for s in self.subs[max(self.subs)]]
         else:
-            operations = [partition_unquoted(line[6:], ';')[0].strip()]
+            operations = [partition_unquoted(line[6:], ';')]
         self.subs = defaultdict(list, {0: []})
-        for operation in operations:
+        for index, (op, sep, comment) in enumerate(operations):
+            operation = op.strip()
             if operation:
                 data = assemble(operation, address)
                 if data:
@@ -73,6 +74,8 @@ class BinWriter:
                 else:
                     warn("Failed to assemble:\n {} {}".format(address, operation))
                     break
+            elif index == 0 and not sep:
+                break
 
     def write(self, binfile, start, end):
         if start is None:

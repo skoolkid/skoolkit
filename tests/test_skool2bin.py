@@ -323,11 +323,16 @@ class BinWriterTest(SkoolKitTestCase):
              40003 LD C,n
             @isub=XOR A  ; Test @isub
             @isub=       ; adding an instruction.
-            @isub=INC A
+            @isub=
+            @isub=INC A  ; The previous blank @isub should be ignored.
              40005 LD A,1
-             40007 RET
+            @isub=LD A,1
+             40007 XOR A
+            @isub=
+            @isub=DEC A  ; Ignored.
+             40008 INC A
         """
-        exp_data = [195, 64, 156, 175, 6, 1, 14, 1, 175, 60, 201]
+        exp_data = [195, 64, 156, 175, 6, 1, 14, 1, 175, 60, 62, 1]
         self._test_write(skool, 39997, exp_data, asm_mode=1)
 
     def test_ssub_mode(self):
@@ -348,11 +353,17 @@ class BinWriterTest(SkoolKitTestCase):
             @ssub=RET P
              50003 JP 32768
             @rsub+end
-            @ssub=XOR A ; Test @ssub
-            @ssub=INC A ; adding an instruction.
+            @ssub=XOR A ; Test @ssub adding an instruction.
+            @ssub=
+            @ssub=INC A ; The previous blank @ssub should be ignored.
              50004 LD A,1
+            @ssub=LD A,1
+             50006 XOR A
+            @ssub=
+            @ssub=DEC A  ; Ignored.
+             50007 INC A
         """
-        exp_data = [35, 19, 3, 201, 175, 60]
+        exp_data = [35, 19, 3, 201, 175, 60, 62, 1]
         self._test_write(skool, 50000, exp_data, asm_mode=2)
 
     def test_ssub_overrides_isub(self):
@@ -391,10 +402,16 @@ class BinWriterTest(SkoolKitTestCase):
              60012 LD L,1
             @ofix=XOR A  ; Test @ofix
             @ofix=       ; adding an instruction.
-            @ofix=INC A
+            @ofix=
+            @ofix=INC A  ; The previous blank @ofix should be ignored
              60014 LD A,1
+            @ofix=LD A,1
+             60016 XOR A
+            @ofix=
+            @ofix=DEC A  ; Ignored.
+             60017 INC A
         """
-        exp_data = [62, 2, 6, 1, 14, 1, 22, 2, 30, 1, 38, 1, 46, 2, 175, 60]
+        exp_data = [62, 2, 6, 1, 14, 1, 22, 2, 30, 1, 38, 1, 46, 2, 175, 60, 62, 1]
         self._test_write(skool, 60000, exp_data, fix_mode=1)
 
     def test_bfix_mode(self):
@@ -422,11 +439,17 @@ class BinWriterTest(SkoolKitTestCase):
              60010 LD H,1
             @bfix=LD L,2 ; Set L=2
              60012 LD L,1
-            @bfix=XOR A    ; Test @bfix
-            @bfix=JR 60000 ; adding an instruction.
+            @bfix=XOR A    ; Test @bfix adding an instruction.
+            @bfix=
+            @bfix=JR 60000 ; The previous blank @bfix should be ignored.
              60014 JP 60000
+            @bfix=LD A,1
+             60017 XOR A
+            @bfix=
+            @bfix=DEC A  ; Ignored.
+             60018 INC A
         """
-        exp_data = [62, 2, 6, 2, 14, 1, 22, 2, 30, 2, 38, 1, 46, 2, 175, 24, 239]
+        exp_data = [62, 2, 6, 2, 14, 1, 22, 2, 30, 2, 38, 1, 46, 2, 175, 24, 239, 62, 1]
         self._test_write(skool, 60000, exp_data, fix_mode=2)
 
     def test_bfix_overrides_ofix(self):

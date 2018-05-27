@@ -251,11 +251,20 @@ A single instruction can be replaced with two or more by using additional
   @bfix=LD H,L   ; Clear H
    36671 LD HL,0 ; Clear HL
 
+An instruction can be removed by using a blank ``@bfix`` directive. For
+example, to replace 'XOR A' and 'INC A' with 'LD A,1'::
+
+  @bfix=LD A,1
+   49912 XOR A
+  @bfix=
+   49913 INC A
+
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
 | 7.0     | Added support for specifying the replacement comment over         |
-|         | multiple lines, and replacing one instruction with two or more    |
+|         | multiple lines, replacing one instruction with two or more, and   |
+|         | removing an instruction                                           |
 +---------+-------------------------------------------------------------------+
 | 6.4     | Added support for replacing the comment                           |
 +---------+-------------------------------------------------------------------+

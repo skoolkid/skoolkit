@@ -7,7 +7,7 @@ Changelog
   in a skool file that would otherwise be ignored)
 * The :ref:`isub`, :ref:`ssub`, :ref:`rsub`, :ref:`ofix`, :ref:`bfix` and
   :ref:`rfix` directives can specify the replacement comment over multiple
-  lines, and replace one instruction with two or more
+  lines, replace one instruction with two or more, and remove an instruction
 * :ref:`skool2html.py` now writes a single disassembly from the the skool file
   given as the first positional argument; any other positional arguments are
   interpreted as extra ref files
