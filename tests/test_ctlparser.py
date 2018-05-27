@@ -1368,11 +1368,10 @@ class CtlParserTest(SkoolKitTestCase):
 
     def test_header_block(self):
         ctl = """
-            > 60000 @retain
             > 60000 ; This is a header.
             c 60000 Routine
         """
-        exp_headers = {60000: ['@retain', '; This is a header.']}
+        exp_headers = {60000: ['; This is a header.']}
         exp_footers = {60000: ()}
 
         blocks = self._get_ctl_parser(ctl).get_blocks()
@@ -1381,17 +1380,15 @@ class CtlParserTest(SkoolKitTestCase):
 
     def test_two_header_blocks(self):
         ctl = """
-            > 30000 @retain
             > 30000 ; This is a header.
-            > 30000 @retain
+            > 30000
             > 30000 ; This is another header.
             c 30000 Routine
         """
         exp_headers = {
             30000: [
-                '@retain',
                 '; This is a header.',
-                '@retain',
+                '',
                 '; This is another header.'
             ]
         }
@@ -1404,11 +1401,10 @@ class CtlParserTest(SkoolKitTestCase):
     def test_footer_block(self):
         ctl = """
             c 50000 Routine
-            > 50000,1 @retain
             > 50000,1 ; This is a footer.
         """
         exp_headers = {50000: ()}
-        exp_footers = {50000: ['@retain', '; This is a footer.']}
+        exp_footers = {50000: ['; This is a footer.']}
 
         blocks = self._get_ctl_parser(ctl).get_blocks()
         self._check_headers(exp_headers, blocks)
@@ -1417,17 +1413,15 @@ class CtlParserTest(SkoolKitTestCase):
     def test_two_footer_blocks(self):
         ctl = """
             c 60000 Routine
-            > 60000,1 @retain
             > 60000,1 ; This is a footer.
-            > 60000,1 @retain
+            > 60000,1
             > 60000,1 ; This is another footer.
         """
         exp_headers = {60000: ()}
         exp_footers = {
             60000: [
-                '@retain',
                 '; This is a footer.',
-                '@retain',
+                '',
                 '; This is another footer.'
             ]
         }

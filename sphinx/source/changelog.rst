@@ -3,11 +3,11 @@ Changelog
 
 7.0b1
 -----
-* Added the :ref:`retain` directive (for preserving an arbitrary block of lines
-  in a skool file that would otherwise be ignored)
 * The :ref:`isub`, :ref:`ssub`, :ref:`rsub`, :ref:`ofix`, :ref:`bfix` and
   :ref:`rfix` directives can specify the replacement comment over multiple
   lines, replace one instruction with two or more, and remove an instruction
+* :ref:`nonEntryBlocks` in a skool file are reproduced by :ref:`skool2asm.py`
+  and preserved by :ref:`skool2ctl.py`
 * :ref:`skool2html.py` now writes a single disassembly from the the skool file
   given as the first positional argument; any other positional arguments are
   interpreted as extra ref files

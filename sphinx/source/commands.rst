@@ -224,6 +224,8 @@ Configuration parameters may also be set on the command line by using the
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 7.0     | :ref:`nonEntryBlocks` are reproduced verbatim                     |
++---------+-------------------------------------------------------------------+
 | 6.4     | Added the ``--var`` option                                        |
 +---------+-------------------------------------------------------------------+
 | 6.2     | Added the ``--show-config`` option; the ``--end`` and ``--start`` |
@@ -302,8 +304,8 @@ For example::
 
 In addition to block types and addresses, `game.ctl` will contain block titles,
 block descriptions, registers, mid-block comments, block start and end
-comments, sub-block types and addresses, instruction-level comments, and some
-:ref:`ASM directives <asmDirectives>`.
+comments, sub-block types and addresses, instruction-level comments, non-entry
+blocks, and some :ref:`ASM directives <asmDirectives>`.
 
 To list the options supported by `skool2ctl.py`, run it with no arguments::
 
@@ -330,6 +332,7 @@ To list the options supported by `skool2ctl.py`, run it with no arguments::
                             m = mid-block comments and block start/end comments
                             s = sub-block types and addresses
                             c = instruction-level comments
+                            n = non-entry blocks
 
 If you need to preserve any elements that control files do not support (such as
 ASM block directives), consider using :ref:`skool2sft.py` to create a skool
@@ -338,6 +341,8 @@ file template instead.
 +---------+----------------------------------------------------------------+
 | Version | Changes                                                        |
 +=========+================================================================+
+| 7.0     | Added support for the 'n' identifier in the ``--write`` option |
++---------+----------------------------------------------------------------+
 | 6.2     | The ``--end`` and ``--start`` options accept a hexadecimal     |
 |         | integer prefixed by '0x'                                       |
 +---------+----------------------------------------------------------------+

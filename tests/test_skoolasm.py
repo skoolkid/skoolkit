@@ -845,7 +845,6 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
         skool = """
             @start
             @org=24576
-
             ; Routine
             ;
             ; Description.
@@ -889,7 +888,6 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
 
     def test_header(self):
         skool = """
-            @retain
             @start
             ; Header line 1.
             ;   * Header line 2 (indented)
@@ -897,12 +895,8 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
             ;
             ; See <http://skoolkit.ca/>.
 
-            ; Ignored.
-
             ; Start
             c32768 JP 49152
-
-            ; Also ignored.
         """
         exp_asm = """
             ; Header line 1.
@@ -918,11 +912,9 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
 
     def test_two_headers(self):
         skool = """
-            @retain
             @start
             ; First header.
 
-            @retain
             ; Second header.
 
             ; Start
@@ -940,11 +932,9 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
 
     def test_initial_headers_are_written_before_equs(self):
         skool = """
-            @retain
             @start
             ; This should appear before the EQUs.
 
-            @retain
             ; And so should this.
 
             @equ=DFILE=16384
@@ -967,7 +957,6 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
 
     def test_header_containing_asm_directives(self):
         skool = """
-            @retain
             @start
             @rem=The following directives should be processed.
             @replace=/foo/bar
@@ -984,7 +973,6 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
 
     def test_header_containing_instruction_level_asm_directives(self):
         skool = """
-            @retain
             @start
             @rem=These directives should not be applied to the next instruction.
             @isub=XOR A
@@ -1006,7 +994,6 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
             ; Start
             c32768 JP 49152
 
-            @retain
             ; A header above the second entry.
 
             ; Routine
@@ -1023,21 +1010,16 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
         """
         self._test_asm(skool, exp_asm)
 
-    def test_empty_headers_are_ignored(self):
+    def test_empty_header_is_ignored(self):
         skool = """
-            @retain
             ; This header appears before @start, so should be ignored.
 
             @start
             ; Start
             c30000 JR 30002
-            ; The following header is just empty.
 
-            @retain
-
-            @retain
             @bfix+begin
-            ; And this one is empty unless in @bfix mode.
+            ; This header is empty unless in @bfix mode.
             @bfix+end
 
             ; Continue
@@ -1046,7 +1028,6 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
         exp_asm = """
             ; Start
               JR 30002
-            ; The following header is just empty.
 
             ; Continue
               RET
@@ -1055,7 +1036,6 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
 
     def test_header_with_fix_block_directive(self):
         skool_t = """
-            @retain
             @start
             ; Disassembly.
             @{0}-begin
@@ -1083,7 +1063,6 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
 
     def test_header_with_sub_block_directive(self):
         skool_t = """
-            @retain
             @start
             ; Disassembly.
             @{0}-begin
@@ -1115,14 +1094,9 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
             ; Start
             c65532 JP 49152
 
-            ; Ignored.
-
-            @retain
             ; Footer line 1.
             ;   * Footer line 2 (indented)
             ;   * Footer line #THREE (also indented)
-
-            ; Also ignored.
         """
         exp_asm = """
             ; Start
@@ -1140,10 +1114,8 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
             ; Start
             c32768 JP 49152
 
-            @retain
             ; First footer.
 
-            @retain
             ; Second footer.
 
         """
@@ -1157,20 +1129,16 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
         """
         self._test_asm(skool, exp_asm)
 
-    def test_empty_footers_are_ignored(self):
+    def test_empty_footer_is_ignored(self):
         skool = """
             @start
             ; Start
             c30000 RET
 
-            @retain
-
-            @retain
             @ssub+begin
-            ; And this one is empty unless in @ssub mode.
+            ; This footer is empty unless in @ssub mode.
             @ssub+end
 
-            @retain
             ; Finally a non-empty footer.
         """
         exp_asm = """
@@ -1187,7 +1155,6 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
             ; Start
             c32768 JP 49152
 
-            @retain
             ; Disassembly.
             @{0}-begin
             ; Contains no fixes.
@@ -1215,7 +1182,6 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
             ; Start
             c32768 JP 49152
 
-            @retain
             ; Disassembly.
             @{0}-begin
             ; Contains no subs.

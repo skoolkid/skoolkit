@@ -884,53 +884,6 @@ See also :ref:`definingMacrosWithReplace`.
 | 5.1     | New                                        |
 +---------+--------------------------------------------+
 
-.. _retain:
-
-@retain
-^^^^^^^
-The ``@retain`` directive marks an arbitrary block of non-blank lines - such as
-a 'dangling' comment that is not embedded in an entry - for special treatment
-by the SkoolKit commands that operate on or produce skool files. For example::
-
-  @retain
-  ; Copyright 2018 J Smith
-
-  ; Start
-  c24576 JP 32768
-
-This ``@retain`` directive ensures that the copyright comment is preserved by
-`skool2asm.py`. If the directive weren't present, the copyright comment would
-not appear in the ASM output (because it's not part of an entry).
-
-A block marked by the ``@retain`` directive is handled by the SkoolKit commands
-as follows:
-
-* :ref:`skool2asm.py` processes any ASM directives it contains and retains
-  other lines verbatim; however, ASM directives that normally operate on the
-  next instruction (e.g. ``@label``, ``@org``) will have no effect
-* :ref:`skool2bin.py` ignores it
-* :ref:`skool2ctl.py` preserves each line verbatim using the ``>`` directive
-  (see :ref:`retain-ctl`)
-* :ref:`skool2html.py` ignores it
-* :ref:`skool2sft.py` preserves each line verbatim
-* :ref:`sna2skool.py` restores each line verbatim from a control file or skool
-  file template
-
-Note that in order to be processed correctly, the ``@retain`` directive must
-appear in the first line of a block. This means that if a block is to be
-preserved by `skool2asm.py` but no :ref:`start` directive has already been
-processed, that directive must appear in the second line::
-
-  @retain
-  @start
-  ...
-
-+---------+---------+
-| Version | Changes |
-+=========+=========+
-| 7.0     | New     |
-+---------+---------+
-
 .. _rfix:
 
 @rfix

@@ -24,8 +24,6 @@ from skoolkit.skoolmacro import INTEGER, ClosingBracketError, MacroParsingError,
 from skoolkit.textutils import partition_unquoted, split_quoted, split_unquoted
 from skoolkit.z80 import assemble, convert_case, get_size, split_operation
 
-AD_RETAIN = '@retain'
-
 DIRECTIVES = 'bcgistuw'
 
 TABLE_MARKER = '#TABLE'
@@ -211,8 +209,9 @@ def read_skool(skoolfile, asm=0, sub_mode=0, fix_mode=0):
     :param skoolfile: The file-like object to read.
     :param asm: 0 to read every line, and process no ASM block directives
                 (sft); 1 to read every line, and process ASM block directives
-                except in @retain blocks (bin, ctl, html); or 2 to read lines
-                only between @start and @end, and process all ASM block
+                except in non-entry blocks (ctl); 2 to read every line, and
+                process all ASM block directives (bin, html); or 3 to read
+                lines only between @start and @end, and process all ASM block
                 directives (asm).
     :param sub_mode: 1 to parse @*sub block directives in @isub mode, 2 to
                      parse them in @ssub mode, 3 to parse them in @rsub mode,
@@ -231,42 +230,52 @@ def read_skool(skoolfile, asm=0, sub_mode=0, fix_mode=0):
     }
     stack = []
     lines = []
+    all_lines = []
+    entry = False
     include = True
-    started = asm < 2
-    retain = False
+    started = asm < 3
 
     for line in skoolfile:
         s_line = line.rstrip()
 
         if asm > 0 and line.startswith('@'):
-            if not lines and s_line.startswith(AD_RETAIN):
-                lines.append(s_line)
-                retain = asm < 2
-                continue
             directive = s_line[1:]
             if parse_asm_block_directive(directive, stack):
                 include = all(i == modes[p] for p, i in stack)
-                if retain:
-                    lines.append(s_line)
+                all_lines.append(s_line)
                 continue
-            if asm == 2 and include and directive.startswith(('start', 'end')):
+            if asm == 3 and include and directive.startswith(('start', 'end')):
                 started = directive.startswith('start')
+                all_lines.append(s_line)
                 continue
 
         if s_line:
-            if started and include or retain:
+            all_lines.append(s_line)
+            if started and include:
+                if s_line[0] in DIRECTIVES:
+                    entry = True
                 lines.append(s_line)
             continue
 
         if asm == 0:
+            all_lines.append(s_line)
             lines.append(s_line)
 
-        if include or retain:
-            yield lines
-            lines = []
-            retain = False
+        if asm > 1 and not include:
+            continue
 
-    yield lines
+        if asm > 1 or entry:
+            yield not entry, lines
+        else:
+            yield True, all_lines
+        lines = []
+        all_lines = []
+        entry = False
+
+    if asm > 1 or entry:
+        yield not entry, lines
+    else:
+        yield True, all_lines
 
 class SkoolParser:
     """Parses a skool file.
@@ -391,11 +400,11 @@ class SkoolParser:
     def _parse_skool(self, skoolfile, min_address, max_address):
         address_comments = []
         removed = []
-        asm = 1 + min(self.mode.asm_mode, 1)
-        retains = []
-        for block in read_skool(skoolfile, asm, self.mode.asm_mode, self.mode.fix_mode):
-            if block and block[0].startswith(AD_RETAIN):
-                retains.append(self._parse_retain_block(block))
+        asm = 2 + min(self.mode.asm_mode, 1)
+        non_entries = []
+        for non_entry, block in read_skool(skoolfile, asm, self.mode.asm_mode, self.mode.fix_mode):
+            if non_entry:
+                non_entries.append(self._parse_non_entry(block))
                 continue
             instruction = None
             map_entry = None
@@ -461,8 +470,8 @@ class SkoolParser:
                 if self.comments:
                     map_entry.end_comment = join_comments(self.comments, split=True)
                     map_entry.ignoreua['e'] = len(self.ignores) > 0
-                map_entry.headers = retains
-                retains = []
+                map_entry.headers = non_entries
+                non_entries = []
 
             self.comments[:] = []
 
@@ -485,7 +494,7 @@ class SkoolParser:
             address_comments = [c for c in address_comments if c[0] is None or c[0].address is None or self.base_address <= c[0].address < max_address]
 
         if self.memory_map:
-            self.memory_map[-1].footers = retains
+            self.memory_map[-1].footers = non_entries
             end_address = max([i.address for e in self.memory_map for i in e.instructions if i.address is not None])
             last_instruction = self.get_instruction(end_address)
             self.end_address = end_address + (get_size(last_instruction.operation, end_address) or 1)
@@ -505,9 +514,9 @@ class SkoolParser:
         else:
             self._substitute_labels()
 
-    def _parse_retain_block(self, block):
+    def _parse_non_entry(self, block):
         lines = []
-        for line in block[1:]:
+        for line in block:
             if line.startswith('@'):
                 self._parse_asm_directive(line[1:])
             else:

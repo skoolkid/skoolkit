@@ -18,7 +18,7 @@ import re
 
 from skoolkit import SkoolParsingError, write_line, get_int_param, get_address_format, open_file
 from skoolkit.skoolparser import (Comment, Register, parse_comment_block, parse_instruction,
-                                  parse_address_comments, join_comments, read_skool, AD_RETAIN, DIRECTIVES)
+                                  parse_address_comments, join_comments, read_skool, DIRECTIVES)
 from skoolkit.z80 import get_size, parse_string, parse_word, split_operation
 
 ASM_DIRECTIVES = 'a'
@@ -29,6 +29,7 @@ REGISTERS = 'r'
 BLOCK_COMMENTS = 'm'
 SUBBLOCKS = 's'
 COMMENTS = 'c'
+NON_ENTRY_BLOCKS = 'n'
 
 # ASM directives
 AD_START = 'start'
@@ -215,7 +216,7 @@ def extract_entry_asm_directives(asm_directives):
     return entry_asm_dirs
 
 class CtlWriter:
-    def __init__(self, skoolfile, elements='abtdrmsc', write_hex=0,
+    def __init__(self, skoolfile, elements='abtdrmscn', write_hex=0,
                  preserve_base=False, min_address=0, max_address=65536):
         self.parser = SkoolParser(skoolfile, preserve_base, min_address, max_address)
         self.elements = elements
@@ -247,18 +248,21 @@ class CtlWriter:
             if instruction.ignoreua:
                 self._write_asm_directive('{}:{}'.format(AD_IGNOREUA, INSTRUCTION), address)
 
-    def _write_retain_blocks(self, blocks, address, footer=False):
-        prefix = '> ' + address
-        if footer:
-            prefix += ',1'
-        for block in blocks:
-            for line in block:
-                write_line('{} {}'.format(prefix, line))
+    def _write_blocks(self, blocks, address, footer=False):
+        if NON_ENTRY_BLOCKS in self.elements:
+            prefix = '> ' + address
+            if footer:
+                prefix += ',1'
+            for index, block in enumerate(blocks):
+                if index:
+                    write_line(prefix)
+                for line in block:
+                    write_line('{} {}'.format(prefix, line))
 
     def write_entry(self, entry):
         address = self.addr_str(entry.address)
 
-        self._write_retain_blocks(entry.header, address)
+        self._write_blocks(entry.header, address)
 
         for directive in entry.asm_directives:
             self._write_entry_asm_directive(entry, directive)
@@ -291,7 +295,7 @@ class CtlWriter:
             for p in entry.end_comment:
                 write_line('E {0} {1}'.format(address, p))
 
-        self._write_retain_blocks(entry.footer, address, True)
+        self._write_blocks(entry.footer, address, True)
 
     def write_body(self, entry):
         if entry.ctl in 'gu':
@@ -455,10 +459,10 @@ class SkoolParser:
 
     def _parse_skool(self, skoolfile, min_address, max_address):
         address_comments = []
-        retains = []
-        for block in read_skool(skoolfile, 1):
-            if block and block[0].startswith(AD_RETAIN):
-                retains.append(block)
+        non_entries = []
+        for non_entry, block in read_skool(skoolfile, 1):
+            if non_entry:
+                non_entries.append(block)
                 continue
             map_entry = None
             instruction = None
@@ -518,11 +522,11 @@ class SkoolParser:
                 if comments:
                     map_entry.end_comment = join_comments(comments, True)
                     map_entry.ignoreua[END] = len(ignores) > 0
-                map_entry.header = retains
-                retains = []
+                map_entry.header = non_entries
+                non_entries = []
 
         if self.memory_map:
-            self.memory_map[-1].footer = retains
+            self.memory_map[-1].footer = non_entries
 
         last_entry = None
         last_instruction = None

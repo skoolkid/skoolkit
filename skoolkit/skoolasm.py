@@ -122,7 +122,7 @@ class AsmWriter:
 
     def write(self):
         for index, entry in enumerate(self.parser.memory_map):
-            self.print_retain_blocks(entry.headers)
+            self.print_blocks(entry.headers)
             if index == 0:
                 self.print_equs(self.parser.equs)
             first_instruction = entry.instructions[0]
@@ -138,9 +138,9 @@ class AsmWriter:
             self.entry = entry
             self.print_entry()
             self.write_line('')
-            self.print_retain_blocks(entry.footers)
+            self.print_blocks(entry.footers)
 
-    def print_retain_blocks(self, blocks):
+    def print_blocks(self, blocks):
         for block in blocks:
             if block:
                 for line in block:

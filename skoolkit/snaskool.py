@@ -24,8 +24,8 @@ from skoolkit.disassembler import Disassembler
 from skoolkit.skoolasm import UDGTABLE_MARKER
 from skoolkit.skoolctl import (AD_IGNOREUA, TITLE, DESCRIPTION, REGISTERS,
                                MID_BLOCK, INSTRUCTION, END)
-from skoolkit.skoolparser import (get_address, AD_RETAIN, TABLE_MARKER,
-                                  TABLE_END_MARKER, LIST_MARKER, LIST_END_MARKER)
+from skoolkit.skoolparser import (get_address, TABLE_MARKER, TABLE_END_MARKER,
+                                  LIST_MARKER, LIST_END_MARKER)
 
 OP_WIDTH = 13
 MIN_COMMENT_WIDTH = 10
@@ -720,7 +720,8 @@ class SkoolWriter:
 
     def _write_entry(self, entry, write_refs, show_text):
         if entry.header:
-            self._write_retain_blocks(entry.header)
+            for line in entry.header:
+                write_line(line)
             write_line('')
 
         self.write_asm_directives(*entry.asm_directives)
@@ -752,13 +753,8 @@ class SkoolWriter:
 
         if entry.footer:
             write_line('')
-            self._write_retain_blocks(entry.footer)
-
-    def _write_retain_blocks(self, lines):
-        for line_no, line in enumerate(lines):
-            if line_no and line.startswith(AD_RETAIN):
-                write_line('')
-            write_line(line)
+            for line in entry.footer:
+                write_line(line)
 
     def _write_entry_description(self, entry, write_refs):
         wrote_desc = False

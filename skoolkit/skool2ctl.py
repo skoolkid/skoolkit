@@ -1,4 +1,4 @@
-# Copyright 2010-2015, 2017 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2010-2015, 2017, 2018 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -18,7 +18,7 @@ import argparse
 
 from skoolkit import integer, VERSION
 from skoolkit.skoolctl import (CtlWriter, ASM_DIRECTIVES, BLOCKS, BLOCK_TITLES, BLOCK_DESC,
-                               REGISTERS, BLOCK_COMMENTS, SUBBLOCKS, COMMENTS)
+                               REGISTERS, BLOCK_COMMENTS, SUBBLOCKS, COMMENTS, NON_ENTRY_BLOCKS)
 
 def run(skoolfile, options):
     writer = CtlWriter(skoolfile, options.elements, options.write_hex,
@@ -49,7 +49,7 @@ def main(args):
     group.add_argument('-V', '--version', action='version',
                        version='SkoolKit {}'.format(VERSION),
                        help='Show SkoolKit version number and exit.')
-    elements = (ASM_DIRECTIVES, BLOCKS, BLOCK_TITLES, BLOCK_DESC, REGISTERS, BLOCK_COMMENTS, SUBBLOCKS, COMMENTS)
+    elements = (ASM_DIRECTIVES, BLOCKS, BLOCK_TITLES, BLOCK_DESC, REGISTERS, BLOCK_COMMENTS, SUBBLOCKS, COMMENTS, NON_ENTRY_BLOCKS)
     group.add_argument('-w', '--write', dest='elements', metavar='X', default="".join(elements),
                        help="Write only these elements, where X is one or more of:\n"
                             "  {} = ASM directives\n"
@@ -59,7 +59,8 @@ def main(args):
                             "  {} = registers\n"
                             "  {} = mid-block comments and block start/end comments\n"
                             "  {} = sub-block types and addresses\n"
-                            "  {} = instruction-level comments\n".format(*elements))
+                            "  {} = instruction-level comments\n"
+                            "  {} = non-entry blocks\n".format(*elements))
     namespace, unknown_args = parser.parse_known_args(args)
     if unknown_args or namespace.skoolfile is None:
         parser.exit(2, parser.format_help())

@@ -17,7 +17,7 @@
 from skoolkit import SkoolKitError, write_line, get_int_param, parse_int, get_address_format, open_file
 from skoolkit.ctlparser import parse_params
 from skoolkit.disassembler import Disassembler
-from skoolkit.skoolparser import parse_asm_block_directive, parse_asm_data_directive, AD_RETAIN, DIRECTIVES
+from skoolkit.skoolparser import parse_asm_block_directive, parse_asm_data_directive, DIRECTIVES
 from skoolkit.skoolsft import VerbatimLine, VALID_CTLS
 from skoolkit.textutils import find_unquoted, split_unquoted
 
@@ -109,7 +109,6 @@ class SftParser:
     def _parse_sft(self, min_address, max_address):
         start_index = -1
         lines = []
-        retain = 0
         f = open_file(self.sftfile)
         for line in f:
             if line.startswith('#'):
@@ -118,15 +117,6 @@ class SftParser:
 
             if not line.strip():
                 # This line is blank
-                lines.append(VerbatimLine(line))
-                retain = 0
-                continue
-
-            if retain == 0:
-                retain = 1 + int(line.startswith(AD_RETAIN))
-
-            if retain == 2:
-                # This line is in a @retain block
                 lines.append(VerbatimLine(line))
                 continue
 

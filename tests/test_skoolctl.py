@@ -166,7 +166,8 @@ i49643
 ; End comment on the final block.
 """
 
-TEST_CTL = """c 00000 Address 0
+TEST_CTL = """> 00000 ; Dangling comment not associated with any entry
+c 00000 Address 0
 @ 00000 label=START0
 c 00001 Address with 1 digit
 @ 00001 label=START1
@@ -257,7 +258,8 @@ c 49635 Routine with an empty multi-instruction comment and instruction comments
 i 49643 Another ignore block
 E 49643 End comment on the final block.""".split('\n')
 
-TEST_CTL_HEX = """c $0000 Address 0
+TEST_CTL_HEX = """> $0000 ; Dangling comment not associated with any entry
+c $0000 Address 0
 @ $0000 label=START0
 c $0001 Address with 1 digit
 @ $0001 label=START1
@@ -636,7 +638,7 @@ c62000 LD A,","
 """
 
 class CtlWriterTest(SkoolKitTestCase):
-    def _get_ctl(self, elements='abtdrmsc', write_hex=0, skool=TEST_SKOOL,
+    def _get_ctl(self, elements='abtdrmscn', write_hex=0, skool=TEST_SKOOL,
                  preserve_base=False, min_address=0, max_address=65536):
         skoolfile = StringIO(textwrap.dedent(skool).strip())
         writer = CtlWriter(skoolfile, elements, write_hex, preserve_base, min_address, max_address)
@@ -660,7 +662,7 @@ class CtlWriterTest(SkoolKitTestCase):
         self.assertEqual(TEST_CTL_HEX, self._get_ctl(write_hex=1))
 
     def test_default_elements_no_asm_dirs(self):
-        ctl = self._get_ctl('btdrmsc')
+        ctl = self._get_ctl('btdrmscn')
         test_ctl = '\n'.join([line for line in TEST_CTL if not line.startswith('@')])
         self.assertEqual(test_ctl, ctl)
 
@@ -695,7 +697,7 @@ class CtlWriterTest(SkoolKitTestCase):
         for line in TEST_CTL:
             if line[0] in DIRECTIVES:
                 test_ctl.append(line[:7])
-            elif line[0] == 'R':
+            elif line[0] in 'R':
                 test_ctl.append(line)
         self.assertEqual('\n'.join(test_ctl), ctl)
 
@@ -1781,17 +1783,15 @@ class CtlWriterTest(SkoolKitTestCase):
 
     def test_header(self):
         skool = """
-            @retain
-            ; This is a header. So the next line is preserved verbatim.
-            c32767 RET
+            ; This is a header.
+            @rem=It should be preserved verbatim.
 
             ; Routine
             c32768 RET
         """
         exp_ctl = """
-            > 32768 @retain
-            > 32768 ; This is a header. So the next line is preserved verbatim.
-            > 32768 c32767 RET
+            > 32768 ; This is a header.
+            > 32768 @rem=It should be preserved verbatim.
             c 32768 Routine
             i 32769
         """
@@ -1799,19 +1799,16 @@ class CtlWriterTest(SkoolKitTestCase):
 
     def test_two_headers(self):
         skool = """
-            @retain
             ; This is a header.
 
-            @retain
             ; This is another header.
 
             ; Routine
             c32768 RET
         """
         exp_ctl = """
-            > 32768 @retain
             > 32768 ; This is a header.
-            > 32768 @retain
+            > 32768
             > 32768 ; This is another header.
             c 32768 Routine
             i 32769
@@ -1823,7 +1820,6 @@ class CtlWriterTest(SkoolKitTestCase):
             ; Routine
             c32768 RET
 
-            @retain
             ; This is between two entries.
 
             ; Another routine
@@ -1831,7 +1827,6 @@ class CtlWriterTest(SkoolKitTestCase):
         """
         exp_ctl = """
             c 32768 Routine
-            > 32769 @retain
             > 32769 ; This is between two entries.
             c 32769 Another routine
             i 32770
@@ -1840,7 +1835,6 @@ class CtlWriterTest(SkoolKitTestCase):
 
     def test_header_preserves_asm_block_directives(self):
         skool = """
-            @retain
             ; Disassembly.
             @isub+begin
             ; isub mode.
@@ -1864,7 +1858,6 @@ class CtlWriterTest(SkoolKitTestCase):
             c24576 RET
         """
         exp_ctl = """
-            > 24576 @retain
             > 24576 ; Disassembly.
             > 24576 @isub+begin
             > 24576 ; isub mode.
@@ -1891,14 +1884,12 @@ class CtlWriterTest(SkoolKitTestCase):
 
     def test_header_containing_unclosed_block_directive(self):
         skool = """
-            @retain
             ; This block contains an unclosed block directive.
             @bfix+begin
             ; Bug fixes.
 
-            ; This comment should not appear in the control file.
+            ; This block should appear in the control file.
 
-            @retain
             ; This block closes the block directive.
             @bfix+end
 
@@ -1906,11 +1897,12 @@ class CtlWriterTest(SkoolKitTestCase):
             c32768 RET
         """
         exp_ctl = """
-            > 32768 @retain
             > 32768 ; This block contains an unclosed block directive.
             > 32768 @bfix+begin
             > 32768 ; Bug fixes.
-            > 32768 @retain
+            > 32768
+            > 32768 ; This block should appear in the control file.
+            > 32768
             > 32768 ; This block closes the block directive.
             > 32768 @bfix+end
             c 32768 Routine
@@ -1923,15 +1915,13 @@ class CtlWriterTest(SkoolKitTestCase):
             ; Routine
             c32768 RET
 
-            @retain
-            ; This is a footer. So the next line is preserved verbatim.
-            c32769 RET
+            ; This is a footer.
+            @rem=It should be preserved verbatim.
         """
         exp_ctl = """
             c 32768 Routine
-            > 32768,1 @retain
-            > 32768,1 ; This is a footer. So the next line is preserved verbatim.
-            > 32768,1 c32769 RET
+            > 32768,1 ; This is a footer.
+            > 32768,1 @rem=It should be preserved verbatim.
             i 32769
         """
         self._test_ctl(skool, exp_ctl)
@@ -1941,17 +1931,14 @@ class CtlWriterTest(SkoolKitTestCase):
             ; Routine
             c32768 RET
 
-            @retain
             ; This is a footer.
 
-            @retain
             ; This is another footer.
         """
         exp_ctl = """
             c 32768 Routine
-            > 32768,1 @retain
             > 32768,1 ; This is a footer.
-            > 32768,1 @retain
+            > 32768,1
             > 32768,1 ; This is another footer.
             i 32769
         """
@@ -1961,7 +1948,6 @@ class CtlWriterTest(SkoolKitTestCase):
         skool = """
             c24576 RET
 
-            @retain
             ; That was a disassembly.
             @isub+begin
             ; isub mode.
@@ -1984,7 +1970,6 @@ class CtlWriterTest(SkoolKitTestCase):
         """
         exp_ctl = """
             c 24576
-            > 24576,1 @retain
             > 24576,1 ; That was a disassembly.
             > 24576,1 @isub+begin
             > 24576,1 ; isub mode.

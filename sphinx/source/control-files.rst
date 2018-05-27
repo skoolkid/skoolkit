@@ -473,44 +473,39 @@ Note that this scheme does not apply to multi-instruction comments that contain
 at least one character other than a dot; such comments are preserved verbatim
 (that is, without a dot prefix).
 
-.. _retain-ctl:
+.. _nonEntryBlocks-ctl:
 
-@retain blocks
---------------
+Non-entry blocks
+----------------
 In addition to regular entries (routines and data blocks), a skool file may
 also contain blocks of lines that do not match the format of an entry, such as
 a header comment that appears before the first entry and contains copyright
-information. Normally such blocks are ignored by `skool2ctl.py`, but that
-behaviour can be changed by using the :ref:`retain` directive. ::
+information. Blocks like this can be preserved by the ``>`` directive. For
+example, the copyright header in this skool file::
 
-  @retain
   ; Copyright 2018 J Smith
 
   ; Start
   c24576 JP 32768
 
-This ``@retain`` directive ensures that the copyright comment will be preserved
-by `skool2ctl.py` using the ``>`` directive::
+is preserved thus::
 
-  > 24576 @retain
   > 24576 ; Copyright 2018 J Smith
 
-Note that the address of the ``>`` directives is the address of the next
-regular entry.
+Note that the address of the ``>`` directive is the address of the next regular
+entry.
 
-A ``@retain`` block may also appear at the end of the skool file, after the
+A non-entry block may also appear at the end of the skool file, after the
 last regular entry::
 
   ; The end
   c65535 RET
 
-  @retain
   ; And that was the disassembly.
 
 In this case the block is preserved by the ``>`` directive with the parameter
 ``1`` (indicating a 'footer') following the address of the last entry::
 
-  > 65535,1 @retain
   > 65535,1 ; And that was the disassembly.
 
 Control file comments
@@ -542,8 +537,7 @@ Revision history
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
-| 7.0     | Added the ``>`` directive for preserving blocks marked by         |
-|         | :ref:`retain`                                                     |
+| 7.0     | Added the ``>`` directive for preserving non-entry blocks         |
 +---------+-------------------------------------------------------------------+
 | 4.5     | Added support for specifying character values in DEFS statements  |
 +---------+-------------------------------------------------------------------+

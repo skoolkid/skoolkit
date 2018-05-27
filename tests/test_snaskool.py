@@ -1915,13 +1915,11 @@ class SkoolWriterTest(SkoolKitTestCase):
 
     def test_header(self):
         ctl = """
-            > 00000 @retain
             > 00000 ; This is a header.
             c 00000 Routine
             i 00001
         """
         exp_skool = """
-            @retain
             ; This is a header.
 
             ; Routine
@@ -1932,18 +1930,15 @@ class SkoolWriterTest(SkoolKitTestCase):
 
     def test_two_headers(self):
         ctl = """
-            > 00000 @retain
             > 00000 ; This is a header.
-            > 00000 @retain
+            > 00000
             > 00000 ; This is another header.
             c 00000 Routine
             i 00001
         """
         exp_skool = """
-            @retain
             ; This is a header.
 
-            @retain
             ; This is another header.
 
             ; Routine
@@ -1955,7 +1950,6 @@ class SkoolWriterTest(SkoolKitTestCase):
     def test_header_before_second_entry(self):
         ctl = """
             c 00000 Routine
-            > 00001 @retain
             > 00001 ; This is between two entries.
             c 00001 Another routine
             i 00002
@@ -1964,7 +1958,6 @@ class SkoolWriterTest(SkoolKitTestCase):
             ; Routine
             c00000 RET           ;
 
-            @retain
             ; This is between two entries.
 
             ; Another routine
@@ -1976,7 +1969,6 @@ class SkoolWriterTest(SkoolKitTestCase):
     def test_footer(self):
         ctl = """
             c 00000 Routine
-            > 00000,1 @retain
             > 00000,1 ; This is a footer.
             i 00001
         """
@@ -1984,7 +1976,6 @@ class SkoolWriterTest(SkoolKitTestCase):
             ; Routine
             c00000 RET           ;
 
-            @retain
             ; This is a footer.
         """
         snapshot = [201]
@@ -1993,9 +1984,8 @@ class SkoolWriterTest(SkoolKitTestCase):
     def test_two_footers(self):
         ctl = """
             c 00000 Routine
-            > 00000,1 @retain
             > 00000,1 ; This is a footer.
-            > 00000,1 @retain
+            > 00000,1
             > 00000,1 ; This is another footer.
             i 00001
         """
@@ -2003,10 +1993,8 @@ class SkoolWriterTest(SkoolKitTestCase):
             ; Routine
             c00000 RET           ;
 
-            @retain
             ; This is a footer.
 
-            @retain
             ; This is another footer.
         """
         snapshot = [201]

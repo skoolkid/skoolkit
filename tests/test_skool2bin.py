@@ -497,7 +497,6 @@ class BinWriterTest(SkoolKitTestCase):
 
     def test_header_is_ignored(self):
         skool = """
-            @retain
             ; The following instruction-like line should be ignored.
              32768 LD B,1
 
@@ -512,7 +511,6 @@ class BinWriterTest(SkoolKitTestCase):
             ; Data
             b32768 DEFB 1,2
 
-            @retain
             ; The following instruction-like line should be ignored.
              32770 LD B,1
         """

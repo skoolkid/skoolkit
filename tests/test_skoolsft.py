@@ -887,17 +887,19 @@ class SftWriterTest(SkoolKitTestCase):
 
     def test_header(self):
         skool = """
-            @retain
-            ; The following instruction-like line should be preserved verbatim.
-             32768 LD B,1
+            ; This header should be preserved verbatim.
+            @bfix+begin
+            ; Including this.
+            @bfix+end
 
             ; Data
             b32770 DEFB 1,2
         """
         exp_sft = """
-            @retain
-            ; The following instruction-like line should be preserved verbatim.
-             32768 LD B,1
+            ; This header should be preserved verbatim.
+            @bfix+begin
+            ; Including this.
+            @bfix+end
 
             ; Data
             bB32770,2
@@ -909,16 +911,18 @@ class SftWriterTest(SkoolKitTestCase):
             ; Data
             b32768 DEFB 1,2
 
-            @retain
-            ; The following instruction-like line should be preserved verbatim.
-             32770 LD B,1
+            ; This footer should be preserved verbatim.
+            @bfix+begin
+            ; Including this.
+            @bfix+end
         """
         exp_sft = """
             ; Data
             bB32768,2
 
-            @retain
-            ; The following instruction-like line should be preserved verbatim.
-             32770 LD B,1
+            ; This footer should be preserved verbatim.
+            @bfix+begin
+            ; Including this.
+            @bfix+end
         """
         self._test_sft(skool, exp_sft)

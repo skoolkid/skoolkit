@@ -122,9 +122,9 @@ class CtlParser:
                     continue
                 if ctl == '>':
                     if end:
-                        self._footers[start].append(text)
+                        self._footers[start].append(text or '')
                     else:
-                        self._headers[start].append(text)
+                        self._headers[start].append(text or '')
                 elif ctl.islower():
                     self._titles[start] = text
                 elif ctl == 'D':

@@ -4,7 +4,7 @@ from unittest.mock import patch
 from skoolkittest import SkoolKitTestCase
 from skoolkit import skool2ctl, VERSION
 
-ELEMENTS = 'abtdrmsc'
+ELEMENTS = 'abtdrmscn'
 
 class MockCtlWriter:
     def __init__(self, skoolfile, elements, write_hex, preserve_base, min_address, max_address):
