@@ -468,12 +468,12 @@ class SkoolParser:
             instruction = None
             comments = []
             ignores = []
-            address_comments.append((None, None))
+            address_comments.append((None, None, None))
             for line in block:
                 if line.startswith(';'):
                     comments.append(line[1:])
                     instruction = None
-                    address_comments.append((None, None))
+                    address_comments.append((None, None, None))
                     continue
 
                 if line.startswith('@'):
@@ -484,7 +484,7 @@ class SkoolParser:
                 if s_line.startswith(';'):
                     if map_entry and instruction:
                         # This is an instruction comment continuation line
-                        address_comments[-1][1] = '{} {}'.format(address_comments[-1][1], s_line[1:].lstrip())
+                        address_comments[-1][1].append(s_line[1:].lstrip())
                     continue
 
                 # This line contains an instruction
@@ -506,7 +506,7 @@ class SkoolParser:
                     instruction.ignoremrcua = self.mode.ignoremrcua
 
                 if map_entry:
-                    address_comments.append([instruction, address_comment])
+                    address_comments.append((instruction, [address_comment], []))
                     map_entry.add_instruction(instruction)
                     if comments:
                         instruction.mid_block_comment = join_comments(comments, True)

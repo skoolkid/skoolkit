@@ -236,12 +236,27 @@ For example::
 This ``@bfix`` directive replaces ``AND C`` with ``AND B``, and also replaces
 the comment.
 
-If the replacement comment is long, it can be wrapped over multiple lines by
-using additional ``@bfix`` directives. For example::
+Comment continuation lines can be replaced, removed or added by using
+additional ``@bfix`` directives. For example, to replace both comment lines
+of an instruction that has two::
 
-  @bfix=AND B  ; Apply the mask byte that was just collected from the sprite
-  @bfix=       ; graphic data
-   29713 AND C ; This should be 'AND B'
+  @bfix=AND B  ; This directive replaces the first comment line
+  @bfix=       ; and this directive replaces the second comment line
+   29713 AND C ; Both of these comment lines
+               ; will be replaced
+
+To add a second comment line to an instruction that has only one::
+
+  @bfix=AND B  ; This directive replaces the first comment line
+  @bfix=       ; and this directive adds a second comment line
+   29713 AND C ; This comment line will be replaced
+
+To replace two comment lines with one::
+
+  @bfix=AND B  ; The following directive effectively terminates this comment
+  @bfix=       ;
+   29713 AND C ; This comment line will be replaced
+               ; and this one will be removed
 
 A single instruction can be replaced with two or more by using additional
 ``@bfix`` directives. For example, to replace 'LD HL,0' with 'LD L,0' and
@@ -906,12 +921,27 @@ For example::
 This ``@rfix`` directive replaces ``INC A`` with ``LD A,1``, and also replaces
 the comment.
 
-If the replacement comment is long, it can be wrapped over multiple lines by
-using additional ``@rfix`` directives. For example::
+Comment continuation lines can be replaced, removed or added by using
+additional ``@rfix`` directives. For example, to replace both comment lines
+of an instruction that has two::
 
-  @rfix=LD A,1 ; Reset the counter in the accumulator to the correct initial
-  @rfix=       ; value, namely 1
-   29713 INC A ; Increment A
+  @rfix=AND B  ; This directive replaces the first comment line
+  @rfix=       ; and this directive replaces the second comment line
+   29713 AND C ; Both of these comment lines
+               ; will be replaced
+
+To add a second comment line to an instruction that has only one::
+
+  @rfix=AND B  ; This directive replaces the first comment line
+  @rfix=       ; and this directive adds a second comment line
+   29713 AND C ; This comment line will be replaced
+
+To replace two comment lines with one::
+
+  @rfix=AND B  ; The following directive effectively terminates this comment
+  @rfix=       ;
+   29713 AND C ; This comment line will be replaced
+               ; and this one will be removed
 
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |

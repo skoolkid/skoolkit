@@ -179,11 +179,17 @@ def parse_instruction(line):
     operation, sep, comment = partition_unquoted(line[6:], ';')
     return ctl, addr_str, operation.strip(), comment.strip()
 
+def _join_address_comments(lines, sub_lines):
+    if len(lines) <= len(sub_lines) or (sub_lines and sub_lines[-1] is None):
+        return ' '.join([line for line in sub_lines if line is not None]).strip()
+    return ' '.join(sub_lines + lines[len(sub_lines):]).strip()
+
 def parse_address_comments(comments):
     i = 0
     while i < len(comments):
-        instruction, comment = comments[i]
+        instruction = comments[i][0]
         if instruction:
+            comment = _join_address_comments(*comments[i][1:3])
             comment_lines = []
             if comment.startswith('{'):
                 comment_lines.append(comment.lstrip('{'))
@@ -192,7 +198,7 @@ def parse_address_comments(comments):
                     i += 1
                     if i >= len(comments) or comments[i][0] is None:
                         break
-                    comment = comments[i][1]
+                    comment = _join_address_comments(*comments[i][1:3])
                     comment_lines.append(comment)
                     nesting += comment.count('{') - comment.count('}')
                 comment_lines[-1] = comment_lines[-1].rstrip('}')
@@ -408,7 +414,7 @@ class SkoolParser:
                 continue
             instruction = None
             map_entry = None
-            address_comments.append((None, None))
+            address_comments.append((None, None, None))
             self.ignores[:] = []
             for line in block:
                 if line.startswith('@'):
@@ -419,14 +425,14 @@ class SkoolParser:
                     self.comments.append(line[1:])
                     self.mode.ignoreua = False
                     instruction = None
-                    address_comments.append((None, None))
+                    address_comments.append((None, None, None))
                     continue
 
                 s_line = line.lstrip()
                 if s_line.startswith(';'):
                     if map_entry and instruction:
                         # This is an instruction comment continuation line
-                        address_comments[-1][1] = '{0} {1}'.format(address_comments[-1][1], s_line[1:].lstrip())
+                        address_comments[-1][1].append(s_line[1:].lstrip())
                     continue
 
                 # This line contains an instruction
@@ -448,7 +454,7 @@ class SkoolParser:
                     self.base_address = min((address, self.base_address))
 
                 if map_entry:
-                    address_comments.append([instruction, address_comment])
+                    address_comments.append((instruction, [address_comment], []))
                     if address not in removed:
                         if address is not None:
                             self._instructions.setdefault(address, []).append(instruction)
@@ -824,10 +830,10 @@ class Mode:
                     inst = Instruction(' ', addr_str, op)
                     map_entry.add_instruction(inst)
                     instructions.setdefault(address, []).append(inst)
-                    address_comments.append([inst, comment])
+                    address_comments.append([inst, [], [comment]])
                     size = get_size(op, address) or None
                 elif sep:
-                    address_comments[-1][1] += ' ' + comment.strip()
+                    address_comments[-1][2].append(comment.strip() or None)
                 if size is None:
                     address = None
                 else:
@@ -972,7 +978,9 @@ class Instruction:
     def apply_sub(self, operation, sep, comment, address_comment):
         self.sub = self.operation = operation
         if sep:
-            address_comment[1] = comment.lstrip()
+            address_comment[2].append(comment.lstrip())
+        else:
+            address_comment[2].append(address_comment[1][0])
 
     def is_in_routine(self):
         return self.container.is_routine()
