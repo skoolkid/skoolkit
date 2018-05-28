@@ -41,6 +41,7 @@ class BinWriter:
 
     def _parse_skool(self, skoolfile):
         f = open_file(skoolfile)
+        removed = set()
         for non_entry, block in read_skool(f, 2, self.asm_mode, self.fix_mode):
             if non_entry:
                 continue
@@ -48,34 +49,36 @@ class BinWriter:
                 if line.startswith(('@isub=', '@ssub=', '@ofix=', '@bfix=')):
                     self.subs[self.weights[line[1:5]]].append(line[6:])
                 elif not line.lstrip().startswith(';') and line[0] in VALID_CTLS:
-                    self._parse_instruction(line)
+                    self._parse_instruction(line, removed)
         f.close()
 
-    def _parse_instruction(self, line):
+    def _parse_instruction(self, line, removed):
         try:
             address = get_int_param(line[1:6])
         except ValueError:
             raise SkoolParsingError("Invalid address ({}):\n{}".format(line[1:6], line.rstrip()))
-        if max(self.subs):
-            operations = [partition_unquoted(s, ';') for s in self.subs[max(self.subs)]]
+        subbed = max(self.subs)
+        if subbed:
+            operations = [partition_unquoted(s, ';') for s in self.subs[subbed]]
         else:
             operations = [partition_unquoted(line[6:], ';')]
         self.subs = defaultdict(list, {0: []})
-        for index, (op, sep, comment) in enumerate(operations):
+        for op, sep, comment in operations:
             operation = op.strip()
             if operation:
                 data = assemble(operation, address)
                 if data:
                     end_address = address + len(data)
-                    self.snapshot[address:end_address] = data
-                    self.base_address = min(self.base_address, address)
-                    self.end_address = max(self.end_address, end_address)
+                    if subbed:
+                        removed.update(range(address + 1, end_address))
+                    if address not in removed:
+                        self.snapshot[address:end_address] = data
+                        self.base_address = min(self.base_address, address)
+                        self.end_address = max(self.end_address, end_address)
                     address = end_address
                 else:
                     warn("Failed to assemble:\n {} {}".format(address, operation))
                     break
-            elif index == 0 and not sep:
-                break
 
     def write(self, binfile, start, end):
         if start is None:

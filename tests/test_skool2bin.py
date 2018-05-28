@@ -309,6 +309,14 @@ class BinWriterTest(SkoolKitTestCase):
         """
         self._test_write(skool, 32769, [168], start=32769, end=32770)
 
+    def test_overlapping_instructions(self):
+        skool = """
+            b30000 DEFS 3,1
+             30002 XOR A    ; This instruction 'wins' because it occurs later
+        """
+        exp_data = [1, 1, 175]
+        self._test_write(skool, 30000, exp_data)
+
     def test_isub_mode(self):
         skool = """
             @isub+begin
@@ -323,13 +331,10 @@ class BinWriterTest(SkoolKitTestCase):
              40003 LD C,n
             @isub=XOR A  ; Test @isub
             @isub=       ; adding an instruction.
-            @isub=
-            @isub=INC A  ; The previous blank @isub should be ignored.
+            @isub=INC A
              40005 LD A,1
-            @isub=LD A,1
+            @isub=LD A,1 ; Test @isub replacing two instructions with one.
              40007 XOR A
-            @isub=
-            @isub=DEC A  ; Ignored.
              40008 INC A
         """
         exp_data = [195, 64, 156, 175, 6, 1, 14, 1, 175, 60, 62, 1]
@@ -354,13 +359,10 @@ class BinWriterTest(SkoolKitTestCase):
              50003 JP 32768
             @rsub+end
             @ssub=XOR A ; Test @ssub adding an instruction.
-            @ssub=
-            @ssub=INC A ; The previous blank @ssub should be ignored.
+            @ssub=INC A
              50004 LD A,1
-            @ssub=LD A,1
+            @ssub=LD A,1 ; Test @ssub replacing two instructions with one.
              50006 XOR A
-            @ssub=
-            @ssub=DEC A  ; Ignored.
              50007 INC A
         """
         exp_data = [35, 19, 3, 201, 175, 60, 62, 1]
@@ -402,13 +404,10 @@ class BinWriterTest(SkoolKitTestCase):
              60012 LD L,1
             @ofix=XOR A  ; Test @ofix
             @ofix=       ; adding an instruction.
-            @ofix=
-            @ofix=INC A  ; The previous blank @ofix should be ignored
+            @ofix=INC A
              60014 LD A,1
-            @ofix=LD A,1
+            @ofix=LD A,1 ; Test @ofix replacing two instructions with one.
              60016 XOR A
-            @ofix=
-            @ofix=DEC A  ; Ignored.
              60017 INC A
         """
         exp_data = [62, 2, 6, 1, 14, 1, 22, 2, 30, 1, 38, 1, 46, 2, 175, 60, 62, 1]
@@ -440,13 +439,10 @@ class BinWriterTest(SkoolKitTestCase):
             @bfix=LD L,2 ; Set L=2
              60012 LD L,1
             @bfix=XOR A    ; Test @bfix adding an instruction.
-            @bfix=
-            @bfix=JR 60000 ; The previous blank @bfix should be ignored.
+            @bfix=JR 60000
              60014 JP 60000
-            @bfix=LD A,1
+            @bfix=LD A,1 ; Test @bfix replacing two instructions with one.
              60017 XOR A
-            @bfix=
-            @bfix=DEC A  ; Ignored.
              60018 INC A
         """
         exp_data = [62, 2, 6, 2, 14, 1, 22, 2, 30, 2, 38, 1, 46, 2, 175, 24, 239, 62, 1]

@@ -1207,28 +1207,29 @@ class SkoolParserTest(SkoolKitTestCase):
         skoolfile = self.write_text_file(textwrap.dedent(contents), suffix='.skool')
         return SkoolParser(skoolfile, *args, **kwargs)
 
-    def _test_sub_directives(self, skool, exp_instructions, exp_subs, **kwargs):
-        address = exp_instructions[0][0]
+    def _test_sub_directives(self, skool, exp_instructions, exp_subs, dirs, **kwargs):
         for index, asm_dir in ((1, 'isub'), (2, 'ssub'), (3, 'rsub')):
-            for asm_mode in (0, 1, 2, 3):
-                expected = exp_subs if asm_mode >= index else exp_instructions
-                with self.subTest(asm_dir=asm_dir, asm_mode=asm_mode):
-                    instructions = self._get_parser(skool.format(asm_dir), asm_mode=asm_mode, **kwargs).memory_map[0].instructions
-                    actual = [(i.addr_str, i.operation, i.comment.text) for i in instructions]
-                    self.assertEqual(expected, actual)
+            if index in dirs:
+                for asm_mode in (0, 1, 2, 3):
+                    expected = exp_subs if asm_mode >= index else exp_instructions
+                    with self.subTest(asm_dir=asm_dir, asm_mode=asm_mode):
+                        instructions = self._get_parser(skool.format(asm_dir), asm_mode=asm_mode, **kwargs).memory_map[0].instructions
+                        actual = [(i.addr_str, i.operation, i.comment.text) for i in instructions]
+                        self.assertEqual(expected, actual)
 
-    def _test_fix_directives(self, skool, exp_instructions, exp_subs, **kwargs):
+    def _test_fix_directives(self, skool, exp_instructions, exp_subs, dirs, **kwargs):
         for index, asm_dir in ((1, 'ofix'), (2, 'bfix'), (3, 'rfix')):
-            for fix_mode in (0, 1, 2, 3):
-                expected = exp_subs if fix_mode >= index else exp_instructions
-                with self.subTest(asm_dir=asm_dir, fix_mode=fix_mode):
-                    instructions = self._get_parser(skool.format(asm_dir), asm_mode=1, fix_mode=fix_mode, **kwargs).memory_map[0].instructions
-                    actual = [(i.addr_str, i.operation, i.comment.text) for i in instructions]
-                    self.assertEqual(expected, actual)
+            if index in dirs:
+                for fix_mode in (0, 1, 2, 3):
+                    expected = exp_subs if fix_mode >= index else exp_instructions
+                    with self.subTest(asm_dir=asm_dir, fix_mode=fix_mode):
+                        instructions = self._get_parser(skool.format(asm_dir), asm_mode=1, fix_mode=fix_mode, **kwargs).memory_map[0].instructions
+                        actual = [(i.addr_str, i.operation, i.comment.text) for i in instructions]
+                        self.assertEqual(expected, actual)
 
-    def _test_sub_and_fix_directives(self, skool, exp_instructions, exp_subs, **kwargs):
-        self._test_sub_directives(skool, exp_instructions, exp_subs, **kwargs)
-        self._test_fix_directives(skool, exp_instructions, exp_subs, **kwargs)
+    def _test_sub_and_fix_directives(self, skool, exp_instructions, exp_subs, dirs=(1, 2, 3), **kwargs):
+        self._test_sub_directives(skool, exp_instructions, exp_subs, dirs, **kwargs)
+        self._test_fix_directives(skool, exp_instructions, exp_subs, dirs, **kwargs)
 
     def assert_error(self, skool, error, *args, **kwargs):
         with self.assertRaisesRegex(SkoolParsingError, error):
@@ -3672,46 +3673,58 @@ class SkoolParserTest(SkoolKitTestCase):
                 self.assertEqual(inst2.org, '32770')
                 self.assertTrue(inst2.warn)
 
-    def test_sub_and_fix_directives_remove_instruction(self):
+    def test_sub_and_fix_directives_replace_two_instructions_with_one(self):
         skool = """
             @start
             ; Routine
             @{0}=LD HL,0  ; Clear HL
             c32768 LD L,0 ; Clear L
-            @{0}=
              32770 LD H,L ; Clear the
                           ; H register
         """
-        exp_instructions = [('32768', 'LD L,0', 'Clear L'), ('32770', 'LD H,L', 'Clear the H register')]
+        exp_instructions = [
+            ('32768', 'LD L,0', 'Clear L'),
+            ('32770', 'LD H,L', 'Clear the H register')
+        ]
         exp_subs = [('32768', 'LD HL,0', 'Clear HL')]
-        self._test_sub_and_fix_directives(skool, exp_instructions, exp_subs)
+        self._test_sub_and_fix_directives(skool, exp_instructions, exp_subs, (1, 2))
 
-    def test_sub_and_fix_directives_ignored_after_removing_instruction(self):
+    def test_sub_and_fix_directives_replace_three_instructions_with_one(self):
         skool = """
             @start
             ; Routine
             @{0}=LD HL,0  ; Clear HL
-            c32768 LD L,0 ; Clear L
-            @{0}=
-            @{0}=LD H,L   ; Ignored
-             32770 LD H,L ; Clear H
+            c32768 XOR A  ; Clear A
+             32769 LD H,A ; Clear H
+             32770 LD L,H ; Clear the
+                          ; L register
         """
-        exp_instructions = [('32768', 'LD L,0', 'Clear L'), ('32770', 'LD H,L', 'Clear H')]
+        exp_instructions = [
+            ('32768', 'XOR A', 'Clear A'),
+            ('32769', 'LD H,A', 'Clear H'),
+            ('32770', 'LD L,H', 'Clear the L register')
+        ]
         exp_subs = [('32768', 'LD HL,0', 'Clear HL')]
-        self._test_sub_and_fix_directives(skool, exp_instructions, exp_subs)
+        self._test_sub_and_fix_directives(skool, exp_instructions, exp_subs, (1, 2))
 
-    def test_sub_and_fix_directives_ignored_if_blank_and_not_first(self):
+    def test_rsub_and_rfix_directives_push_instructions_aside(self):
         skool = """
             @start
             ; Routine
-            @{0}=LD L,0    ; Set L=0
-            @{0}=
-            @{0}=LD H,L    ; Set H=0
-            c32768 LD HL,0 ; Set HL=0
+            @{0}=LD L,1   ; Set L=1
+            c32768 INC L  ; Increment L
+             32770 LD H,L ; Set
+                          ; H=L
         """
-        exp_instructions = [('32768', 'LD HL,0', 'Set HL=0')]
-        exp_subs = [('32768', 'LD L,0', 'Set L=0'), ('32770', 'LD H,L', 'Set H=0')]
-        self._test_sub_and_fix_directives(skool, exp_instructions, exp_subs)
+        exp_instructions = [
+            ('32768', 'INC L', 'Increment L'),
+            ('32770', 'LD H,L', 'Set H=L')
+        ]
+        exp_subs = [
+            ('32768', 'LD L,1', 'Set L=1'),
+            ('32770', 'LD H,L', 'Set H=L')
+        ]
+        self._test_sub_and_fix_directives(skool, exp_instructions, exp_subs, [3])
 
     def test_no_asm_labels(self):
         skool = """

@@ -251,12 +251,11 @@ A single instruction can be replaced with two or more by using additional
   @bfix=LD H,L   ; Clear H
    36671 LD HL,0 ; Clear HL
 
-An instruction can be removed by using a blank ``@bfix`` directive. For
+Two or more instructions can also be replaced with a single instruction. For
 example, to replace 'XOR A' and 'INC A' with 'LD A,1'::
 
   @bfix=LD A,1
    49912 XOR A
-  @bfix=
    49913 INC A
 
 +---------+-------------------------------------------------------------------+
@@ -264,7 +263,7 @@ example, to replace 'XOR A' and 'INC A' with 'LD A,1'::
 +=========+===================================================================+
 | 7.0     | Added support for specifying the replacement comment over         |
 |         | multiple lines, replacing one instruction with two or more, and   |
-|         | removing an instruction                                           |
+|         | replacing two or more instructions with one                       |
 +---------+-------------------------------------------------------------------+
 | 6.4     | Added support for replacing the comment                           |
 +---------+-------------------------------------------------------------------+
@@ -607,7 +606,8 @@ The syntax is equivalent to that for the :ref:`bfix` directive.
 | Version | Changes                                                           |
 +=========+===================================================================+
 | 7.0     | Added support for specifying the replacement comment over         |
-|         | multiple lines                                                    |
+|         | multiple lines, replacing one instruction with two or more, and   |
+|         | replacing two or more instructions with one                       |
 +---------+-------------------------------------------------------------------+
 | 6.4     | Added support for replacing the comment                           |
 +---------+-------------------------------------------------------------------+
@@ -730,7 +730,8 @@ The syntax is equivalent to that for the :ref:`bfix` directive.
 | Version | Changes                                                           |
 +=========+===================================================================+
 | 7.0     | Added support for specifying the replacement comment over         |
-|         | multiple lines                                                    |
+|         | multiple lines, replacing one instruction with two or more, and   |
+|         | replacing two or more instructions with one                       |
 +---------+-------------------------------------------------------------------+
 | 6.4     | Added support for replacing the comment                           |
 +---------+-------------------------------------------------------------------+
@@ -889,9 +890,28 @@ See also :ref:`definingMacrosWithReplace`.
 @rfix
 ^^^^^
 The ``@rfix`` directive makes an instruction and comment substitution in
-:ref:`rfixMode`.
+:ref:`rfixMode`. ::
 
-The syntax is equivalent to that for the :ref:`bfix` directive.
+  @rfix=[INSTRUCTION][ ; comment]
+
+* ``INSTRUCTION`` is the replacement instruction
+* ``comment`` is the replacement comment; if not given, the existing comment is
+  left unchanged
+
+For example::
+
+  @rfix=LD A,1 ; Reset A
+   29713 INC A ; Increment A
+
+This ``@rfix`` directive replaces ``INC A`` with ``LD A,1``, and also replaces
+the comment.
+
+If the replacement comment is long, it can be wrapped over multiple lines by
+using additional ``@rfix`` directives. For example::
+
+  @rfix=LD A,1 ; Reset the counter in the accumulator to the correct initial
+  @rfix=       ; value, namely 1
+   29713 INC A ; Increment A
 
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
@@ -920,7 +940,7 @@ The syntax is equivalent to that for the :ref:`bfixBlockDirectives`.
 The ``@rsub`` directive makes an instruction and comment substitution in
 :ref:`rsubMode`.
 
-The syntax is equivalent to that for the :ref:`bfix` directive.
+The syntax is equivalent to that for the :ref:`rfix` directive.
 
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
@@ -1010,7 +1030,8 @@ The syntax is equivalent to that for the :ref:`bfix` directive.
 | Version | Changes                                                           |
 +=========+===================================================================+
 | 7.0     | Added support for specifying the replacement comment over         |
-|         | multiple lines                                                    |
+|         | multiple lines, replacing one instruction with two or more, and   |
+|         | replacing two or more instructions with one                       |
 +---------+-------------------------------------------------------------------+
 | 6.4     | Added support for replacing the comment                           |
 +---------+-------------------------------------------------------------------+

@@ -3,9 +3,12 @@ Changelog
 
 7.0b1
 -----
+* The :ref:`isub`, :ref:`ssub`, :ref:`ofix` and :ref:`bfix` directives can
+  replace one instruction with two or more, and replace two or more
+  instructions with one
 * The :ref:`isub`, :ref:`ssub`, :ref:`rsub`, :ref:`ofix`, :ref:`bfix` and
   :ref:`rfix` directives can specify the replacement comment over multiple
-  lines, replace one instruction with two or more, and remove an instruction
+  lines
 * :ref:`nonEntryBlocks` in a skool file are reproduced by :ref:`skool2asm.py`
   and preserved by :ref:`skool2ctl.py`
 * :ref:`skool2html.py` now writes a single disassembly from the the skool file

@@ -399,7 +399,7 @@ class SkoolParser:
 
     def _parse_skool(self, skoolfile, min_address, max_address):
         address_comments = []
-        removed = []
+        removed = set()
         asm = 2 + min(self.mode.asm_mode, 1)
         non_entries = []
         for non_entry, block in read_skool(skoolfile, asm, self.mode.asm_mode, self.mode.fix_mode):
@@ -449,9 +449,10 @@ class SkoolParser:
 
                 if map_entry:
                     address_comments.append([instruction, address_comment])
-                    if address is not None:
-                        self._instructions.setdefault(address, []).append(instruction)
-                    map_entry.add_instruction(instruction)
+                    if address not in removed:
+                        if address is not None:
+                            self._instructions.setdefault(address, []).append(instruction)
+                        map_entry.add_instruction(instruction)
                     if self.comments:
                         instruction.mid_block_comment = join_comments(self.comments, split=True)
                         self.comments[:] = []
@@ -474,12 +475,6 @@ class SkoolParser:
                 non_entries = []
 
             self.comments[:] = []
-
-        for instructions in self._instructions.values():
-            instructions[:] = [i for i in instructions if i not in removed]
-        address_comments = [i for i in address_comments if i[0] not in removed]
-        for entry in self.memory_map:
-            entry.instructions = [i for i in entry.instructions if i not in removed]
 
         if min_address > 0 or max_address < 65536:
             self.memory_map = [e for e in self.memory_map if min_address <= e.address < max_address]
@@ -814,17 +809,14 @@ class Mode:
         if self.asm_mode:
             inst = instruction
             address = inst.address
-            for index, value in enumerate(self.subs[max(self.subs)]):
+            weight = max(self.subs)
+            for index, value in enumerate(self.subs[weight]):
                 op, sep, comment = partition_unquoted(value, ';')
                 op = self.apply_base('', self.apply_case('', op.rstrip())[1])[1]
                 size = 0
                 if index == 0:
-                    if op:
-                        instruction.apply_sub(op, sep, comment, address_comments[-1])
-                        size = get_size(op, address) or None
-                    else:
-                        removed.append(instruction)
-                        break
+                    instruction.apply_sub(op, sep, comment, address_comments[-1])
+                    size = get_size(op, address) or None
                 elif op:
                     if address is None:
                         raise SkoolParsingError("Cannot determine address of instruction after '{} {}'".format(inst.addr_str, inst.operation))
@@ -839,6 +831,10 @@ class Mode:
                 if size is None:
                     address = None
                 else:
+                    if weight % 3:
+                        # Overlapping instructions will be replaced unless in
+                        # @rfix or @rsub mode
+                        removed.update(range(address + 1, address + size))
                     address += size
 
             instruction.warn = not self.nowarn
