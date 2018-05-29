@@ -1214,7 +1214,7 @@ class SkoolParserTest(SkoolKitTestCase):
                     expected = exp_subs if asm_mode >= index else exp_instructions
                     with self.subTest(asm_dir=asm_dir, asm_mode=asm_mode):
                         instructions = self._get_parser(skool.format(asm_dir), asm_mode=asm_mode, **kwargs).memory_map[0].instructions
-                        actual = [(i.addr_str, i.operation, i.comment.text) for i in instructions]
+                        actual = [(i.addr_str, i.operation, i.comment.text if i.comment else None) for i in instructions]
                         self.assertEqual(expected, actual)
 
     def _test_fix_directives(self, skool, exp_instructions, exp_subs, dirs, **kwargs):
@@ -1224,7 +1224,7 @@ class SkoolParserTest(SkoolKitTestCase):
                     expected = exp_subs if fix_mode >= index else exp_instructions
                     with self.subTest(asm_dir=asm_dir, fix_mode=fix_mode):
                         instructions = self._get_parser(skool.format(asm_dir), asm_mode=1, fix_mode=fix_mode, **kwargs).memory_map[0].instructions
-                        actual = [(i.addr_str, i.operation, i.comment.text) for i in instructions]
+                        actual = [(i.addr_str, i.operation, i.comment.text if i.comment else None) for i in instructions]
                         self.assertEqual(expected, actual)
 
     def _test_sub_and_fix_directives(self, skool, exp_instructions, exp_subs, dirs=(1, 2, 3), **kwargs):
@@ -3585,6 +3585,46 @@ class SkoolParserTest(SkoolKitTestCase):
             ('32770', 'LD L,H', 'Clear the L register')
         ]
         exp_subs = [('32768', 'LD HL,0', 'Clear HL')]
+        self._test_sub_and_fix_directives(skool, exp_instructions, exp_subs, (1, 2))
+
+    def test_sub_and_fix_directives_discard_comment_on_overwritten_instruction(self):
+        skool = """
+            @start
+            ; Routine
+            @{}=LD A,1   ; {{Set A=1 and
+            c32768 XOR A ; {{Set A to 1
+             32769 INC A ; and then
+             32770 RET   ; return}}
+        """
+        exp_instructions = [
+            ('32768', 'XOR A', 'Set A to 1 and then return'),
+            ('32769', 'INC A', None),
+            ('32770', 'RET', None)
+        ]
+        exp_subs = [
+            ('32768', 'LD A,1', 'Set A=1 and return'),
+            ('32770', 'RET', None)
+        ]
+        self._test_sub_and_fix_directives(skool, exp_instructions, exp_subs, (1, 2))
+
+    def test_sub_and_fix_directives_discard_comment_with_opening_brace_on_overwritten_instruction(self):
+        skool = """
+            @start
+            ; Yes, there will be an unmatched closing brace at 32770
+            @{}=LD A,1   ; Set A=1 and
+            c32768 XOR A ; Clear A
+             32769 INC A ; {{Increment A and
+             32770 RET   ; return}}
+        """
+        exp_instructions = [
+            ('32768', 'XOR A', 'Clear A'),
+            ('32769', 'INC A', 'Increment A and return'),
+            ('32770', 'RET', None)
+        ]
+        exp_subs = [
+            ('32768', 'LD A,1', 'Set A=1 and'),
+            ('32770', 'RET', 'return}')
+        ]
         self._test_sub_and_fix_directives(skool, exp_instructions, exp_subs, (1, 2))
 
     def test_rsub_and_rfix_directives_push_instructions_aside(self):

@@ -501,7 +501,7 @@ class SkoolParser:
             self.end_address = end_address + (get_size(last_instruction.operation, end_address) or 1)
 
         # Do some post-processing
-        parse_address_comments(address_comments)
+        parse_address_comments([c for c in address_comments if c[0] is None or c[0].container])
         self.make_replacements(self)
         if self.mode.html:
             for entry in self.memory_map:
