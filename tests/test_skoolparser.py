@@ -3322,6 +3322,17 @@ class SkoolParserTest(SkoolKitTestCase):
         exp_subs = [('32768', 'LD A,1', 'Initialise A.')]
         self._test_sub_and_fix_directives(skool, exp_instructions, exp_subs)
 
+    def test_sub_and_fix_directives_replacing_comment_only(self):
+        skool = """
+            @start
+            ; Routine
+            @{}=          ; Reset A.
+            c32768 LD A,0 ; Initialise A.
+        """
+        exp_instructions = [('32768', 'LD A,0', 'Initialise A.')]
+        exp_subs = [('32768', 'LD A,0', 'Reset A.')]
+        self._test_sub_and_fix_directives(skool, exp_instructions, exp_subs)
+
     def test_sub_and_fix_directives_without_comment_do_not_remove_second_comment_line(self):
         skool = """
             @start

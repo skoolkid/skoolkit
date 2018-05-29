@@ -822,7 +822,7 @@ class Mode:
                 size = 0
                 if index == 0:
                     instruction.apply_sub(op, sep, comment, address_comments[-1])
-                    size = get_size(op, address) or None
+                    size = get_size(instruction.operation, address) or None
                 elif op:
                     if address is None:
                         raise SkoolParsingError("Cannot determine address of instruction after '{} {}'".format(inst.addr_str, inst.operation))
@@ -976,7 +976,8 @@ class Instruction:
         self.container.add_referrer(routine)
 
     def apply_sub(self, operation, sep, comment, address_comment):
-        self.sub = self.operation = operation
+        if operation:
+            self.sub = self.operation = operation
         if sep:
             address_comment[2].append(comment.lstrip())
         else:

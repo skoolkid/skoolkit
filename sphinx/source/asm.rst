@@ -224,7 +224,8 @@ The ``@bfix`` directive makes an instruction and comment substitution in
 
   @bfix=[INSTRUCTION][ ; comment]
 
-* ``INSTRUCTION`` is the replacement instruction
+* ``INSTRUCTION`` is the replacement instruction; if not given, the existing
+  instruction is left unchanged
 * ``comment`` is the replacement comment; if not given, the existing comment is
   left unchanged
 
@@ -909,7 +910,8 @@ The ``@rfix`` directive makes an instruction and comment substitution in
 
   @rfix=[INSTRUCTION][ ; comment]
 
-* ``INSTRUCTION`` is the replacement instruction
+* ``INSTRUCTION`` is the replacement instruction; if not given, the existing
+  instruction is left unchanged
 * ``comment`` is the replacement comment; if not given, the existing comment is
   left unchanged
 
