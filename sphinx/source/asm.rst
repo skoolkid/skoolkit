@@ -690,9 +690,15 @@ This sets the label for the routine at 24576 to ``ENDGAME``.
 If ``LABEL`` is blank (``@label=``), the next instruction is prevented from
 having a label automatically generated.
 
+If ``LABEL`` is ``*`` (``@label=*``), the next instruction will have a label
+automatically generated.
+
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 7.0     | ``LABEL`` may be ``*`` (to provide the next instruction with an   |
+|         | automatically generated label)                                    |
++---------+-------------------------------------------------------------------+
 | 6.3     | ``LABEL`` may be blank (to prevent the next instruction from      |
 |         | having a label automatically generated)                           |
 +---------+-------------------------------------------------------------------+

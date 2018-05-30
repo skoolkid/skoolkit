@@ -699,7 +699,7 @@ class SkoolParser:
                 if main_label:
                     index = 0
                     for instruction in instructions[1:]:
-                        if instruction.ctl == '*' and instruction.asm_label is None:
+                        if instruction.ctl == '*' and instruction.asm_label is None or instruction.asm_label == '*':
                             instruction.asm_label = '{0}_{1}'.format(main_label, index)
                             index += 1
 
