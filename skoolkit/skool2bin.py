@@ -18,6 +18,7 @@ import argparse
 from collections import defaultdict
 
 from skoolkit import SkoolParsingError, get_int_param, info, integer, open_file, warn, VERSION
+from skoolkit.skoolmacro import MacroParsingError, parse_if
 from skoolkit.skoolparser import read_skool
 from skoolkit.skoolsft import VALID_CTLS
 from skoolkit.textutils import partition_unquoted
@@ -33,6 +34,10 @@ class BinWriter:
             'ofix': 3 * int(fix_mode > 0),
             'bfix': 4 * int(fix_mode > 1)
         }
+        self.fields = {
+            'asm': asm_mode,
+            'fix': fix_mode
+        }
         self.snapshot = [0] * 65536
         self.base_address = len(self.snapshot)
         self.end_address = 0
@@ -46,8 +51,8 @@ class BinWriter:
             if non_entry:
                 continue
             for line in block:
-                if line.startswith(('@isub=', '@ssub=', '@ofix=', '@bfix=')):
-                    self.subs[self.weights[line[1:5]]].append(line[6:])
+                if line.startswith('@'):
+                    self._parse_asm_directive(line[1:])
                 elif not line.lstrip().startswith(';') and line[0] in VALID_CTLS:
                     self._parse_instruction(line, removed)
         f.close()
@@ -81,6 +86,15 @@ class BinWriter:
                     warn("Failed to assemble:\n {} {}".format(address, operation))
                     break
             original_op = None
+
+    def _parse_asm_directive(self, directive):
+        if directive.startswith(('isub=', 'ssub=', 'ofix=', 'bfix=')):
+            self.subs[self.weights[directive[:4]]].append(directive[5:])
+        elif directive.startswith('if('):
+            try:
+                self._parse_asm_directive(parse_if(self.fields, directive, 2)[1])
+            except MacroParsingError:
+                pass
 
     def write(self, binfile, start, end):
         if start is None:

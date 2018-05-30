@@ -11,6 +11,8 @@ Changelog
   lines
 * :ref:`nonEntryBlocks` in a skool file are reproduced by :ref:`skool2asm.py`
   and preserved by :ref:`skool2ctl.py`
+* :ref:`skool2bin.py` now processes :ref:`asm-if` directives (in case they
+  contain :ref:`isub`, :ref:`ssub`, :ref:`ofix` or :ref:`bfix` directives)
 * :ref:`skool2html.py` now writes a single disassembly from the the skool file
   given as the first positional argument; any other positional arguments are
   interpreted as extra ref files

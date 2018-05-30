@@ -338,8 +338,10 @@ class BinWriterTest(SkoolKitTestCase):
              40008 INC A
             @isub=       ; Test @isub replacing the comment only.
              40009 SUB B
+            @if({asm})(isub=XOR D)
+             40010 XOR C
         """
-        exp_data = [195, 64, 156, 175, 6, 1, 14, 1, 175, 60, 62, 1, 144]
+        exp_data = [195, 64, 156, 175, 6, 1, 14, 1, 175, 60, 62, 1, 144, 170]
         self._test_write(skool, 39997, exp_data, asm_mode=1)
 
     def test_ssub_mode(self):
@@ -368,8 +370,10 @@ class BinWriterTest(SkoolKitTestCase):
              50007 INC A
             @ssub=       ; Test @ssub replacing the comment only.
              50008 SUB B
+            @if({asm}>1)(ssub=XOR D)
+             50009 XOR C
         """
-        exp_data = [35, 19, 3, 201, 175, 60, 62, 1, 144]
+        exp_data = [35, 19, 3, 201, 175, 60, 62, 1, 144, 170]
         self._test_write(skool, 50000, exp_data, asm_mode=2)
 
     def test_ssub_overrides_isub(self):
@@ -415,8 +419,10 @@ class BinWriterTest(SkoolKitTestCase):
              60017 INC A
             @ofix=       ; Test @ofix replacing the comment only.
              60018 SUB B
+            @if({fix})(ofix=XOR D)
+             60019 XOR C
         """
-        exp_data = [62, 2, 6, 1, 14, 1, 22, 2, 30, 1, 38, 1, 46, 2, 175, 60, 62, 1, 144]
+        exp_data = [62, 2, 6, 1, 14, 1, 22, 2, 30, 1, 38, 1, 46, 2, 175, 60, 62, 1, 144, 170]
         self._test_write(skool, 60000, exp_data, fix_mode=1)
 
     def test_bfix_mode(self):
@@ -452,8 +458,10 @@ class BinWriterTest(SkoolKitTestCase):
              60018 INC A
             @bfix=       ; Test @bfix replacing the comment only.
              60019 SUB B
+            @if({fix}>1)(bfix=XOR D)
+             60020 XOR C
         """
-        exp_data = [62, 2, 6, 2, 14, 1, 22, 2, 30, 2, 38, 1, 46, 2, 175, 24, 239, 62, 1, 144]
+        exp_data = [62, 2, 6, 2, 14, 1, 22, 2, 30, 2, 38, 1, 46, 2, 175, 24, 239, 62, 1, 144, 170]
         self._test_write(skool, 60000, exp_data, fix_mode=2)
 
     def test_bfix_overrides_ofix(self):
@@ -497,6 +505,14 @@ class BinWriterTest(SkoolKitTestCase):
             @bfix+end
         """
         exp_data = [1, 4, 8]
+        self._test_write(skool, 32768, exp_data, fix_mode=2)
+
+    def test_if_directive_ignored_if_invalid(self):
+        skool = """
+            @if(x)(bfix=DEFB 2)
+            b32768 DEFB 1
+        """
+        exp_data = [1]
         self._test_write(skool, 32768, exp_data, fix_mode=2)
 
     def test_header_is_ignored(self):
