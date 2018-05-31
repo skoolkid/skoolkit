@@ -274,12 +274,40 @@ example, to replace 'XOR A' and 'INC A' with 'LD A,1'::
    49912 XOR A
    49913 INC A
 
+A sequence of instructions can be replaced by chaining ``@bfix`` directives.
+For example, to swap two 'XOR' instructions::
+
+  @bfix=XOR C
+  @bfix=XOR B
+   51121 XOR B
+   51122 XOR C
+
+This is equivalent to::
+
+  @bfix=XOR C
+   51121 XOR B
+  @bfix=XOR B
+   51122 XOR C
+
+Note that when ``@bfix`` directives are chained like this, the second and
+subsequent directives replace instruction comments in their entirety, instead
+of line by line. For example::
+
+  @bfix=LD A,D  ; Set A=D
+  @bfix=XOR B   ; Flip the bits
+   51121 LD A,B ; Set A=B
+   51122 XOR C  ; XOR the contents of the accumulator with the contents of the
+                ; C register
+
+replaces both comment lines of the instruction at 51122 with 'Flip the bits'.
+
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
 | 7.0     | Added support for specifying the replacement comment over         |
-|         | multiple lines, replacing one instruction with two or more, and   |
-|         | replacing two or more instructions with one                       |
+|         | multiple lines, replacing one instruction with two or more,       |
+|         | replacing two or more instructions with one, and replacing a      |
+|         | sequence of instructions                                          |
 +---------+-------------------------------------------------------------------+
 | 6.4     | Added support for replacing the comment                           |
 +---------+-------------------------------------------------------------------+
@@ -622,8 +650,9 @@ The syntax is equivalent to that for the :ref:`bfix` directive.
 | Version | Changes                                                           |
 +=========+===================================================================+
 | 7.0     | Added support for specifying the replacement comment over         |
-|         | multiple lines, replacing one instruction with two or more, and   |
-|         | replacing two or more instructions with one                       |
+|         | multiple lines, replacing one instruction with two or more,       |
+|         | replacing two or more instructions with one, and replacing a      |
+|         | sequence of instructions                                          |
 +---------+-------------------------------------------------------------------+
 | 6.4     | Added support for replacing the comment                           |
 +---------+-------------------------------------------------------------------+
@@ -752,8 +781,9 @@ The syntax is equivalent to that for the :ref:`bfix` directive.
 | Version | Changes                                                           |
 +=========+===================================================================+
 | 7.0     | Added support for specifying the replacement comment over         |
-|         | multiple lines, replacing one instruction with two or more, and   |
-|         | replacing two or more instructions with one                       |
+|         | multiple lines, replacing one instruction with two or more,       |
+|         | replacing two or more instructions with one, and replacing a      |
+|         | sequence of instructions                                          |
 +---------+-------------------------------------------------------------------+
 | 6.4     | Added support for replacing the comment                           |
 +---------+-------------------------------------------------------------------+
@@ -1068,8 +1098,9 @@ The syntax is equivalent to that for the :ref:`bfix` directive.
 | Version | Changes                                                           |
 +=========+===================================================================+
 | 7.0     | Added support for specifying the replacement comment over         |
-|         | multiple lines, replacing one instruction with two or more, and   |
-|         | replacing two or more instructions with one                       |
+|         | multiple lines, replacing one instruction with two or more,       |
+|         | replacing two or more instructions with one, and replacing a      |
+|         | sequence of instructions                                          |
 +---------+-------------------------------------------------------------------+
 | 6.4     | Added support for replacing the comment                           |
 +---------+-------------------------------------------------------------------+

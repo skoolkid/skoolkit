@@ -840,7 +840,7 @@ class Mode:
                     if weight % 3:
                         # Overlapping instructions will be replaced unless in
                         # @rfix or @rsub mode
-                        removed.update(range(address + 1, address + size))
+                        removed.update(range(address, address + size))
                     address += size
 
             instruction.warn = not self.nowarn

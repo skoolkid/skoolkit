@@ -3610,6 +3610,69 @@ class SkoolParserTest(SkoolKitTestCase):
         exp_subs = [('32768', 'LD HL,0', 'Clear HL')]
         self._test_sub_and_fix_directives(skool, exp_instructions, exp_subs, (1, 2))
 
+    def test_sub_and_fix_directives_replace_later_instruction(self):
+        skool = """
+            @start
+            ; Routine
+            @{0}=        ; Reset A
+            @{0}=SUB C   ; Subtract C
+            c32768 XOR A ; Clear A
+             32769 SUB B ; Subtract B
+        """
+        exp_instructions = [
+            ('32768', 'XOR A', 'Clear A'),
+            ('32769', 'SUB B', 'Subtract B')
+        ]
+        exp_subs = [
+            ('32768', 'XOR A', 'Reset A'),
+            ('32769', 'SUB C', 'Subtract C')
+        ]
+        self._test_sub_and_fix_directives(skool, exp_instructions, exp_subs, (1, 2))
+
+    def test_sub_and_fix_directives_replace_entire_comment_of_later_instruction(self):
+        skool = """
+            @start
+            ; Routine
+            @{0}=LD A,H   ; Set A=H
+            @{0}=SUB C    ; Subtract C
+            c32768 LD A,L ; Set A=L
+             32769 SUB B  ; Subtract B
+                          ; from A
+        """
+        exp_instructions = [
+            ('32768', 'LD A,L', 'Set A=L'),
+            ('32769', 'SUB B', 'Subtract B from A')
+        ]
+        exp_subs = [
+            ('32768', 'LD A,H', 'Set A=H'),
+            ('32769', 'SUB C', 'Subtract C')
+        ]
+        self._test_sub_and_fix_directives(skool, exp_instructions, exp_subs, (1, 2))
+
+    def test_sub_and_fix_directives_replace_two_later_instructions(self):
+        skool = """
+            @start
+            ; Routine
+            @{0}=LD A,2
+            @{0}=SUB C    ; Subtract C
+            @{0}=         ; from A
+            @{0}=SUB E    ; Subtract E
+            c32768 LD A,1 ; Initialise A
+             32770 SUB B  ; Subtract B
+             32771 SUB D  ; Subtract D
+        """
+        exp_instructions = [
+            ('32768', 'LD A,1', 'Initialise A'),
+            ('32770', 'SUB B', 'Subtract B'),
+            ('32771', 'SUB D', 'Subtract D')
+        ]
+        exp_subs = [
+            ('32768', 'LD A,2', 'Initialise A'),
+            ('32770', 'SUB C', 'Subtract C from A'),
+            ('32771', 'SUB E', 'Subtract E')
+        ]
+        self._test_sub_and_fix_directives(skool, exp_instructions, exp_subs, (1, 2))
+
     def test_sub_and_fix_directives_discard_comment_on_overwritten_instruction(self):
         skool = """
             @start
@@ -3656,16 +3719,16 @@ class SkoolParserTest(SkoolKitTestCase):
             ; Routine
             @{0}=LD L,1   ; Set L=1
             c32768 INC L  ; Increment L
-             32770 LD H,L ; Set
+             32769 LD H,L ; Set
                           ; H=L
         """
         exp_instructions = [
             ('32768', 'INC L', 'Increment L'),
-            ('32770', 'LD H,L', 'Set H=L')
+            ('32769', 'LD H,L', 'Set H=L')
         ]
         exp_subs = [
             ('32768', 'LD L,1', 'Set L=1'),
-            ('32770', 'LD H,L', 'Set H=L')
+            ('32769', 'LD H,L', 'Set H=L')
         ]
         self._test_sub_and_fix_directives(skool, exp_instructions, exp_subs, [3])
 

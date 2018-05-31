@@ -75,12 +75,12 @@ class BinWriter:
                 data = assemble(operation, address)
                 if data:
                     end_address = address + len(data)
-                    if subbed:
-                        removed.update(range(address + 1, end_address))
                     if address not in removed:
                         self.snapshot[address:end_address] = data
                         self.base_address = min(self.base_address, address)
                         self.end_address = max(self.end_address, end_address)
+                    if subbed:
+                        removed.update(range(address, end_address))
                     address = end_address
                 else:
                     warn("Failed to assemble:\n {} {}".format(address, operation))
