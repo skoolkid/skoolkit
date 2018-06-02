@@ -90,6 +90,17 @@ def parse_asm_data_directive(snapshot, directive):
             operation = '{} {}'.format(directive[:4], partition_unquoted(values, ';')[0])
             set_bytes(snapshot, addr, operation)
 
+def parse_asm_sub_fix_directive(directive):
+    op, sep, comment = partition_unquoted(directive, ';')
+    if sep:
+        comment = comment.strip()
+    else:
+        comment = None
+    label, lsep, op = partition_unquoted(op, ':')
+    if lsep:
+        return label.strip(), op.strip(), comment
+    return None, label.strip(), comment
+
 def _html_escape(text):
     return html.escape(text, False)
 
@@ -817,11 +828,11 @@ class Mode:
             address = inst.address
             weight = max(self.subs)
             for index, value in enumerate(self.subs[weight]):
-                op, sep, comment = partition_unquoted(value, ';')
-                op = self.apply_base('', self.apply_case('', op.rstrip())[1])[1]
+                label, op, comment = parse_asm_sub_fix_directive(value)
+                op = self.apply_base('', self.apply_case('', op)[1])[1]
                 size = 0
                 if index == 0:
-                    instruction.apply_sub(op, sep, comment, address_comments[-1])
+                    instruction.apply_sub(op, comment, address_comments[-1])
                     size = get_size(instruction.operation, address) or None
                 elif op:
                     if address is None:
@@ -832,8 +843,10 @@ class Mode:
                     instructions.setdefault(address, []).append(inst)
                     address_comments.append([inst, [], [comment]])
                     size = get_size(op, address) or None
-                elif sep:
-                    address_comments[-1][2].append(comment.strip() or None)
+                elif comment is not None:
+                    address_comments[-1][2].append(comment or None)
+                if self.asm_labels and label is not None and (index == 0 or op):
+                    inst.asm_label = label
                 if size is None:
                     address = None
                 else:
@@ -975,13 +988,13 @@ class Instruction:
             self.referrers.append(routine)
         self.container.add_referrer(routine)
 
-    def apply_sub(self, operation, sep, comment, address_comment):
+    def apply_sub(self, operation, comment, address_comment):
         if operation:
             self.sub = self.operation = operation
-        if sep:
-            address_comment[2].append(comment.lstrip())
-        else:
+        if comment is None:
             address_comment[2].append(address_comment[1][0])
+        else:
+            address_comment[2].append(comment)
 
     def is_in_routine(self):
         return self.container.is_routine()

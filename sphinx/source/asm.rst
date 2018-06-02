@@ -219,11 +219,13 @@ at those addresses, and the image created by the ``#UDG`` macro would be blank.
 
 @bfix
 ^^^^^
-The ``@bfix`` directive makes an instruction and comment substitution in
+The ``@bfix`` directive makes a label, instruction and comment substitution in
 :ref:`bfixMode`. ::
 
-  @bfix=[INSTRUCTION][ ; comment]
+  @bfix=[LABEL:][INSTRUCTION][; comment]
 
+* ``LABEL`` is the replacement label; if not given, any existing label is left
+  unchanged
 * ``INSTRUCTION`` is the replacement instruction; if not given, the existing
   instruction is left unchanged
 * ``comment`` is the replacement comment; if not given, the existing comment is
@@ -231,11 +233,12 @@ The ``@bfix`` directive makes an instruction and comment substitution in
 
 For example::
 
-  @bfix=AND B  ; Apply the mask
-   29713 AND C ; This should be 'AND B'
+  @label=CMASK
+  @bfix=BMASK: AND B ; Apply the mask
+   29713 AND C       ; This should be 'AND B'
 
-This ``@bfix`` directive replaces ``AND C`` with ``AND B``, and also replaces
-the comment.
+This ``@bfix`` directive replaces the instruction ``AND C`` with ``AND B``,
+replaces the label ``CMASK`` with ``BMASK``, and also replaces the comment.
 
 Comment continuation lines can be replaced, removed or added by using
 additional ``@bfix`` directives. For example, to replace both comment lines
@@ -306,8 +309,8 @@ replaces both comment lines of the instruction at 51122 with 'Flip the bits'.
 +=========+===================================================================+
 | 7.0     | Added support for specifying the replacement comment over         |
 |         | multiple lines, replacing one instruction with two or more,       |
-|         | replacing two or more instructions with one, and replacing a      |
-|         | sequence of instructions                                          |
+|         | replacing two or more instructions with one, replacing a sequence |
+|         | of instructions, and replacing the label                          |
 +---------+-------------------------------------------------------------------+
 | 6.4     | Added support for replacing the comment                           |
 +---------+-------------------------------------------------------------------+
@@ -651,8 +654,8 @@ The syntax is equivalent to that for the :ref:`bfix` directive.
 +=========+===================================================================+
 | 7.0     | Added support for specifying the replacement comment over         |
 |         | multiple lines, replacing one instruction with two or more,       |
-|         | replacing two or more instructions with one, and replacing a      |
-|         | sequence of instructions                                          |
+|         | replacing two or more instructions with one, replacing a sequence |
+|         | of instructions, and replacing the label                          |
 +---------+-------------------------------------------------------------------+
 | 6.4     | Added support for replacing the comment                           |
 +---------+-------------------------------------------------------------------+
@@ -782,8 +785,8 @@ The syntax is equivalent to that for the :ref:`bfix` directive.
 +=========+===================================================================+
 | 7.0     | Added support for specifying the replacement comment over         |
 |         | multiple lines, replacing one instruction with two or more,       |
-|         | replacing two or more instructions with one, and replacing a      |
-|         | sequence of instructions                                          |
+|         | replacing two or more instructions with one, replacing a sequence |
+|         | of instructions, and replacing the label                          |
 +---------+-------------------------------------------------------------------+
 | 6.4     | Added support for replacing the comment                           |
 +---------+-------------------------------------------------------------------+
@@ -944,8 +947,10 @@ See also :ref:`definingMacrosWithReplace`.
 The ``@rfix`` directive makes an instruction and comment substitution in
 :ref:`rfixMode`. ::
 
-  @rfix=[INSTRUCTION][ ; comment]
+  @rfix=[LABEL:][INSTRUCTION][; comment]
 
+* ``LABEL`` is the replacement label; if not given, any existing label is left
+  unchanged
 * ``INSTRUCTION`` is the replacement instruction; if not given, the existing
   instruction is left unchanged
 * ``comment`` is the replacement comment; if not given, the existing comment is
@@ -953,11 +958,12 @@ The ``@rfix`` directive makes an instruction and comment substitution in
 
 For example::
 
-  @rfix=LD A,1 ; Reset A
-   29713 INC A ; Increment A
+  @label=ADD1
+  @rfix=RESET: LD A,1 ; Reset A
+   29713 INC A        ; Increment A
 
-This ``@rfix`` directive replaces ``INC A`` with ``LD A,1``, and also replaces
-the comment.
+This ``@rfix`` directive replaces the instruction ``INC A`` with ``LD A,1``,
+replaces the label ``ADD1`` with ``RESET``, and also replaces the comment.
 
 Comment continuation lines can be replaced, removed or added by using
 additional ``@rfix`` directives. For example, to replace both comment lines
@@ -985,7 +991,7 @@ To replace two comment lines with one::
 | Version | Changes                                                           |
 +=========+===================================================================+
 | 7.0     | Added support for specifying the replacement comment over         |
-|         | multiple lines                                                    |
+|         | multiple lines, and replacing the label                           |
 +---------+-------------------------------------------------------------------+
 | 6.4     | Added support for replacing the comment                           |
 +---------+-------------------------------------------------------------------+
@@ -1014,7 +1020,7 @@ The syntax is equivalent to that for the :ref:`rfix` directive.
 | Version | Changes                                                           |
 +=========+===================================================================+
 | 7.0     | Added support for specifying the replacement comment over         |
-|         | multiple lines                                                    |
+|         | multiple lines, and replacing the label                           |
 +---------+-------------------------------------------------------------------+
 | 6.4     | Added support for replacing the comment                           |
 +---------+-------------------------------------------------------------------+
@@ -1099,8 +1105,8 @@ The syntax is equivalent to that for the :ref:`bfix` directive.
 +=========+===================================================================+
 | 7.0     | Added support for specifying the replacement comment over         |
 |         | multiple lines, replacing one instruction with two or more,       |
-|         | replacing two or more instructions with one, and replacing a      |
-|         | sequence of instructions                                          |
+|         | replacing two or more instructions with one, replacing a sequence |
+|         | of instructions, and replacing the label                          |
 +---------+-------------------------------------------------------------------+
 | 6.4     | Added support for replacing the comment                           |
 +---------+-------------------------------------------------------------------+

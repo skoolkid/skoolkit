@@ -1214,7 +1214,10 @@ class SkoolParserTest(SkoolKitTestCase):
                     expected = exp_subs if asm_mode >= index else exp_instructions
                     with self.subTest(asm_dir=asm_dir, asm_mode=asm_mode):
                         instructions = self._get_parser(skool.format(asm_dir), asm_mode=asm_mode, **kwargs).memory_map[0].instructions
-                        actual = [(i.addr_str, i.operation, i.comment.text if i.comment else None) for i in instructions]
+                        if len(expected[0]) == 4:
+                            actual = [(i.asm_label, i.addr_str, i.operation, i.comment.text if i.comment else None) for i in instructions]
+                        else:
+                            actual = [(i.addr_str, i.operation, i.comment.text if i.comment else None) for i in instructions]
                         self.assertEqual(expected, actual)
 
     def _test_fix_directives(self, skool, exp_instructions, exp_subs, dirs, **kwargs):
@@ -1224,7 +1227,10 @@ class SkoolParserTest(SkoolKitTestCase):
                     expected = exp_subs if fix_mode >= index else exp_instructions
                     with self.subTest(asm_dir=asm_dir, fix_mode=fix_mode):
                         instructions = self._get_parser(skool.format(asm_dir), asm_mode=1, fix_mode=fix_mode, **kwargs).memory_map[0].instructions
-                        actual = [(i.addr_str, i.operation, i.comment.text if i.comment else None) for i in instructions]
+                        if len(expected[0]) == 4:
+                            actual = [(i.asm_label, i.addr_str, i.operation, i.comment.text if i.comment else None) for i in instructions]
+                        else:
+                            actual = [(i.addr_str, i.operation, i.comment.text if i.comment else None) for i in instructions]
                         self.assertEqual(expected, actual)
 
     def _test_sub_and_fix_directives(self, skool, exp_instructions, exp_subs, dirs=(1, 2, 3), **kwargs):
@@ -3731,6 +3737,93 @@ class SkoolParserTest(SkoolKitTestCase):
             ('32769', 'LD H,L', 'Set H=L')
         ]
         self._test_sub_and_fix_directives(skool, exp_instructions, exp_subs, [3])
+
+    def test_sub_and_fix_directives_replace_label(self):
+        skool = """
+            @start
+            @label=BEGIN
+            @{}=START:XOR A
+            c32768 XOR A ; Clear A
+        """
+        exp_instructions = [('BEGIN', '32768', 'XOR A', 'Clear A')]
+        exp_subs = [('START', '32768', 'XOR A', 'Clear A')]
+        self._test_sub_and_fix_directives(skool, exp_instructions, exp_subs)
+
+    def test_sub_and_fix_directives_add_auto_label(self):
+        skool = """
+            @start
+            @label=BEGIN
+            c32768 XOR A ; Clear A
+            @{}=*:
+             32769 INC A ; A=1
+        """
+        exp_instructions = [
+            ('BEGIN', '32768', 'XOR A', 'Clear A'),
+            (None, '32769', 'INC A', 'A=1')
+        ]
+        exp_subs = [
+            ('BEGIN', '32768', 'XOR A', 'Clear A'),
+            ('BEGIN_0', '32769', 'INC A', 'A=1')
+        ]
+        self._test_sub_and_fix_directives(skool, exp_instructions, exp_subs)
+
+    def test_sub_and_fix_directives_remove_label(self):
+        skool = """
+            @start
+            @label=BEGIN
+            @{}=:XOR A
+            c32768 XOR A ; Clear A
+        """
+        exp_instructions = [('BEGIN', '32768', 'XOR A', 'Clear A')]
+        exp_subs = [('', '32768', 'XOR A', 'Clear A')]
+        self._test_sub_and_fix_directives(skool, exp_instructions, exp_subs)
+
+    def test_sub_and_fix_directives_remove_auto_label(self):
+        skool = """
+            @start
+            @label=BEGIN
+            c32768 XOR A ; Clear A
+            @{}=:
+            *32769 INC A ; A=1
+        """
+        exp_instructions = [
+            ('BEGIN', '32768', 'XOR A', 'Clear A'),
+            ('BEGIN_0', '32769', 'INC A', 'A=1')
+        ]
+        exp_subs = [
+            ('BEGIN', '32768', 'XOR A', 'Clear A'),
+            ('', '32769', 'INC A', 'A=1')
+        ]
+        self._test_sub_and_fix_directives(skool, exp_instructions, exp_subs)
+
+    def test_sub_and_fix_directives_define_label_for_added_instruction(self):
+        skool = """
+            @start
+            @{0}=XOR A
+            @{0}=ADD1 : INC A
+            c32768 LD A,0 ; Clear A
+        """
+        exp_instructions = [(None, '32768', 'LD A,0', 'Clear A')]
+        exp_subs = [
+            (None, '32768', 'XOR A', 'Clear A'),
+            ('ADD1', '32769', 'INC A', '')
+        ]
+        self._test_sub_and_fix_directives(skool, exp_instructions, exp_subs, (1, 2))
+
+    def test_sub_and_fix_directives_define_auto_label_for_added_instruction(self):
+        skool = """
+            @start
+            @label=START
+            @{0}=XOR A
+            @{0}=*: INC A
+            c32768 LD A,0 ; Clear A
+        """
+        exp_instructions = [('START', '32768', 'LD A,0', 'Clear A')]
+        exp_subs = [
+            ('START', '32768', 'XOR A', 'Clear A'),
+            ('START_0', '32769', 'INC A', '')
+        ]
+        self._test_sub_and_fix_directives(skool, exp_instructions, exp_subs, (1, 2))
 
     def test_no_asm_labels(self):
         skool = """

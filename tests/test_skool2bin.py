@@ -344,8 +344,10 @@ class BinWriterTest(SkoolKitTestCase):
             @isub=OR H   ; a later instruction
              40011 OR D
              40012 OR E
+            @isub=BEGIN: OR B ; Test @isub defining a label
+             40013 OR A
         """
-        exp_data = [195, 64, 156, 175, 6, 1, 14, 1, 175, 60, 62, 1, 144, 170, 178, 180]
+        exp_data = [195, 64, 156, 175, 6, 1, 14, 1, 175, 60, 62, 1, 144, 170, 178, 180, 176]
         self._test_write(skool, 39997, exp_data, asm_mode=1)
 
     def test_ssub_mode(self):
@@ -380,8 +382,10 @@ class BinWriterTest(SkoolKitTestCase):
             @ssub=OR H   ; a later instruction
              50010 OR D
              50011 OR E
+            @ssub=BEGIN: ; Test @ssub defining a label
+             50012 OR A
         """
-        exp_data = [35, 19, 3, 201, 175, 60, 62, 1, 144, 170, 178, 180]
+        exp_data = [35, 19, 3, 201, 175, 60, 62, 1, 144, 170, 178, 180, 183]
         self._test_write(skool, 50000, exp_data, asm_mode=2)
 
     def test_ssub_overrides_isub(self):
@@ -433,8 +437,10 @@ class BinWriterTest(SkoolKitTestCase):
             @ofix=OR H   ; a later instruction
              60020 OR D
              60021 OR E
+            @ofix=BEGIN: OR B ; Test @ofix defining a label
+             60022 OR A
         """
-        exp_data = [62, 2, 6, 1, 14, 1, 22, 2, 30, 1, 38, 1, 46, 2, 175, 60, 62, 1, 144, 170, 178, 180]
+        exp_data = [62, 2, 6, 1, 14, 1, 22, 2, 30, 1, 38, 1, 46, 2, 175, 60, 62, 1, 144, 170, 178, 180, 176]
         self._test_write(skool, 60000, exp_data, fix_mode=1)
 
     def test_bfix_mode(self):
@@ -476,8 +482,10 @@ class BinWriterTest(SkoolKitTestCase):
             @bfix=OR H   ; a later instruction
              60021 OR D
              60022 OR E
+            @bfix=BEGIN: ; Test @bfix defining a label
+             60023 OR A
         """
-        exp_data = [62, 2, 6, 2, 14, 1, 22, 2, 30, 2, 38, 1, 46, 2, 175, 24, 239, 62, 1, 144, 170, 178, 180]
+        exp_data = [62, 2, 6, 2, 14, 1, 22, 2, 30, 2, 38, 1, 46, 2, 175, 24, 239, 62, 1, 144, 170, 178, 180, 183]
         self._test_write(skool, 60000, exp_data, fix_mode=2)
 
     def test_bfix_overrides_ofix(self):

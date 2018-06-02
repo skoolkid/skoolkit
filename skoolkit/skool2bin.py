@@ -19,7 +19,7 @@ from collections import defaultdict
 
 from skoolkit import SkoolParsingError, get_int_param, info, integer, open_file, warn, VERSION
 from skoolkit.skoolmacro import MacroParsingError, parse_if
-from skoolkit.skoolparser import read_skool
+from skoolkit.skoolparser import parse_asm_sub_fix_directive, read_skool
 from skoolkit.skoolsft import VALID_CTLS
 from skoolkit.textutils import partition_unquoted
 from skoolkit.z80 import assemble
@@ -65,12 +65,12 @@ class BinWriter:
         original_op = partition_unquoted(line[6:], ';')[0].strip()
         subbed = max(self.subs)
         if subbed:
-            operations = [partition_unquoted(s, ';') for s in self.subs[subbed]]
+            operations = self.subs[subbed]
         else:
-            operations = [(original_op, '', '')]
+            operations = [original_op]
         self.subs = defaultdict(list, {0: []})
-        for op, sep, comment in operations:
-            operation = op.strip() or original_op
+        for value in operations:
+            operation = parse_asm_sub_fix_directive(value)[1] or original_op
             if operation:
                 data = assemble(operation, address)
                 if data:
