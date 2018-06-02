@@ -172,17 +172,15 @@ class AsmWriter:
         write_text('{0}{1}'.format(s, self.end))
 
     def pop_snapshot(self):
-        """Discard the current memory snapshot and replace it with the one that
-        was most recently saved (by
-        :meth:`~skoolkit.skoolasm.AsmWriter.push_snapshot`)."""
+        """Replace the current memory snapshot with the one most recently saved
+        by :meth:`~skoolkit.skoolasm.AsmWriter.push_snapshot`."""
         if len(self._snapshots) < 2:
             raise SkoolKitError("Cannot pop snapshot when snapshot stack is empty")
-        self.snapshot = self._snapshots.pop()[0]
+        self.snapshot[:] = self._snapshots.pop()[0]
 
     def push_snapshot(self, name=''):
-        """Save the current memory snapshot for later retrieval (by
-        :meth:`~skoolkit.skoolasm.AsmWriter.pop_snapshot`), and put a copy in
-        its place.
+        """Save a copy of the current memory snapshot for later retrieval (by
+        :meth:`~skoolkit.skoolasm.AsmWriter.pop_snapshot`).
 
         :param name: An optional name for the snapshot.
         """

@@ -1958,6 +1958,22 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
         """
         self._test_asm(skool, exp_asm)
 
+    def test_push_snapshot_keeps_original_in_place(self):
+        writer = self._get_writer(snapshot=[0])
+        snapshot = writer.snapshot
+        writer.push_snapshot()
+        writer.snapshot[0] = 1
+        self.assertEqual(snapshot[0], 1)
+
+    def test_pop_snapshot_modifies_snapshot_in_place(self):
+        writer = self._get_writer(snapshot=[0])
+        snapshot = writer.snapshot
+        writer.snapshot[0] = 1
+        writer.push_snapshot()
+        writer.snapshot[0] = 2
+        writer.pop_snapshot()
+        self.assertEqual(snapshot[0], 1)
+
 class TableMacroTest(SkoolKitTestCase):
     def _get_writer(self, skool='', crlf=False, tab=False, instr_width=23, warn=False):
         skoolfile = self.write_text_file(dedent(skool).strip(), suffix='.skool')

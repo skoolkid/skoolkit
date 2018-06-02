@@ -652,6 +652,31 @@ class MethodTest(HtmlWriterTestCase):
         with self.assertRaisesRegex(SkoolKitError, "^'default' template does not exist$"):
             writer.format_template('non-existent', {}, 'default')
 
+    def test_push_snapshot_keeps_original_in_place(self):
+        writer = self._get_writer(snapshot=[0])
+        snapshot = writer.snapshot
+        writer.push_snapshot()
+        writer.snapshot[0] = 1
+        self.assertEqual(snapshot[0], 1)
+
+    def test_pop_snapshot_modifies_snapshot_in_place(self):
+        writer = self._get_writer(snapshot=[0])
+        snapshot = writer.snapshot
+        writer.snapshot[0] = 1
+        writer.push_snapshot()
+        writer.snapshot[0] = 2
+        writer.pop_snapshot()
+        self.assertEqual(snapshot[0], 1)
+
+    def test_get_snapshot_name(self):
+        writer = self._get_writer(snapshot=[])
+        names = ['snapshot1', 'next', 'final']
+        for name in names:
+            writer.push_snapshot(name)
+        while names:
+            self.assertEqual(writer.get_snapshot_name(), names.pop())
+            writer.pop_snapshot()
+
 class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
     def setUp(self):
         HtmlWriterTestCase.setUp(self)
@@ -6609,15 +6634,6 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         self.assertNotIn('ExistingPage', writer.page_ids)
         self.assertIn('ExistingPage', writer.paths)
         self.assertTrue(writer.paths['ExistingPage'], 'asm/32768.html')
-
-    def test_get_snapshot_name(self):
-        writer = self._get_writer()
-        names = ['snapshot1', 'next', 'final']
-        for name in names:
-            writer.push_snapshot(name)
-        while names:
-            self.assertEqual(writer.get_snapshot_name(), names.pop())
-            writer.pop_snapshot()
 
     def test_unwritten_maps(self):
         ref = '[MemoryMap:UnusedMap]\nWrite=0'
