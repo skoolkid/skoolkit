@@ -3488,7 +3488,7 @@ class SkoolParserTest(SkoolKitTestCase):
         """
         exp_instructions = [('32768', 'LD HL,0', 'Clear HL')]
         exp_subs = [('32768', 'LD L,0', 'Clear L'), ('32770', 'LD H,L', 'And then H')]
-        self._test_sub_and_fix_directives(skool, exp_instructions, exp_subs)
+        self._test_sub_and_fix_directives(skool, exp_instructions, exp_subs, (1, 2))
 
     def test_sub_and_fix_directives_add_instruction_hex(self):
         skool = """
@@ -3500,7 +3500,7 @@ class SkoolParserTest(SkoolKitTestCase):
         """
         exp_instructions = [('800A', 'LD HL,$0000', 'Clear HL')]
         exp_subs = [('800A', 'LD L,$00', 'Clear L'), ('800C', 'LD H,L', 'And then H')]
-        self._test_sub_and_fix_directives(skool, exp_instructions, exp_subs, base=BASE_16)
+        self._test_sub_and_fix_directives(skool, exp_instructions, exp_subs, (1, 2), base=BASE_16)
 
     def test_sub_and_fix_directives_add_instruction_lower_case_hex(self):
         skool = """
@@ -3512,7 +3512,7 @@ class SkoolParserTest(SkoolKitTestCase):
         """
         exp_instructions = [('800a', 'ld hl,$0000', 'Clear HL')]
         exp_subs = [('800a', 'ld l,$00', 'Clear L'), ('800c', 'ld h,l', 'And then H')]
-        self._test_sub_and_fix_directives(skool, exp_instructions, exp_subs, base=BASE_16, case=CASE_LOWER)
+        self._test_sub_and_fix_directives(skool, exp_instructions, exp_subs, (1, 2), base=BASE_16, case=CASE_LOWER)
 
     def test_sub_and_fix_directives_add_instruction_with_comment_continuation_line(self):
         skool = """
@@ -3525,7 +3525,7 @@ class SkoolParserTest(SkoolKitTestCase):
         """
         exp_instructions = [('32768', 'LD HL,0', 'Clear HL')]
         exp_subs = [('32768', 'LD L,0', 'Clear L'), ('32770', 'LD H,L', 'And then H, for good measure')]
-        self._test_sub_and_fix_directives(skool, exp_instructions, exp_subs)
+        self._test_sub_and_fix_directives(skool, exp_instructions, exp_subs, (1, 2))
 
     def test_sub_and_fix_directives_add_instruction_after_invalid_instruction(self):
         skool = """
@@ -3539,10 +3539,8 @@ class SkoolParserTest(SkoolKitTestCase):
         for sub_mode, fix_mode, asm_dir in (
                 (1, 0, 'isub'),
                 (2, 0, 'ssub'),
-                (3, 0, 'rsub'),
                 (1, 1, 'ofix'),
-                (1, 2, 'bfix'),
-                (1, 3, 'rfix')
+                (1, 2, 'bfix')
         ):
             with self.subTest(sub_mode=sub_mode, fix_mode=fix_mode, asm_dir=asm_dir):
                 self.assert_error(skool.format(asm_dir), exp_error, asm_mode=sub_mode, fix_mode=fix_mode)
@@ -3562,10 +3560,8 @@ class SkoolParserTest(SkoolKitTestCase):
         for sub_mode, fix_mode, asm_dir in (
                 (1, 0, 'isub'),
                 (2, 0, 'ssub'),
-                (3, 0, 'rsub'),
                 (1, 1, 'ofix'),
-                (1, 2, 'bfix'),
-                (1, 3, 'rfix')
+                (1, 2, 'bfix')
         ):
             with self.subTest(sub_mode=sub_mode, fix_mode=fix_mode, asm_dir=asm_dir):
                 parser = self._get_parser(skool.format(asm_dir), asm_mode=sub_mode, fix_mode=fix_mode)
@@ -3735,6 +3731,28 @@ class SkoolParserTest(SkoolKitTestCase):
         exp_subs = [
             ('32768', 'LD L,1', 'Set L=1'),
             ('32769', 'LD H,L', 'Set H=L')
+        ]
+        self._test_sub_and_fix_directives(skool, exp_instructions, exp_subs, [3])
+
+    def test_rsub_and_rfix_directives_insert_instructions_with_no_address(self):
+        skool = """
+            @start
+            ; Routine
+            @{0}=LD (HL),0   ; {{Clear the address
+            @{0}=INC L       ;
+            @{0}=LD (HL),0   ; }}
+            c32768 LD (HL),0 ; Clear the address
+             32770 RET
+        """
+        exp_instructions = [
+            ('32768', 'LD (HL),0', 'Clear the address'),
+            ('32770', 'RET', '')
+        ]
+        exp_subs = [
+            ('32768', 'LD (HL),0', 'Clear the address'),
+            ('     ', 'INC L', None),
+            ('     ', 'LD (HL),0', None),
+            ('32770', 'RET', '')
         ]
         self._test_sub_and_fix_directives(skool, exp_instructions, exp_subs, [3])
 

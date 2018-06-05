@@ -3,12 +3,14 @@ Changelog
 
 7.0b1
 -----
-* The :ref:`isub`, :ref:`ssub`, :ref:`ofix` and :ref:`bfix` directives can
-  replace one instruction with two or more, replace two or more instructions
-  with one, and replace a sequence of instructions
 * The :ref:`isub`, :ref:`ssub`, :ref:`rsub`, :ref:`ofix`, :ref:`bfix` and
   :ref:`rfix` directives can specify the replacement comment over multiple
   lines, and replace the label
+* The :ref:`isub`, :ref:`ssub`, :ref:`ofix` and :ref:`bfix` directives can
+  replace one instruction with two or more, replace two or more instructions
+  with one, and replace a sequence of instructions
+* The :ref:`rsub` and :ref:`rfix` directives can insert a sequence of
+  instructions
 * :ref:`nonEntryBlocks` in a skool file are reproduced by :ref:`skool2asm.py`
   and preserved by :ref:`skool2ctl.py`
 * :ref:`skool2bin.py` now processes :ref:`asm-if` directives (in case they

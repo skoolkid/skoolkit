@@ -835,14 +835,17 @@ class Mode:
                     instruction.apply_sub(op, comment, address_comments[-1])
                     size = get_size(instruction.operation, address) or None
                 elif op:
-                    if address is None:
-                        raise SkoolParsingError("Cannot determine address of instruction after '{} {}'".format(inst.addr_str, inst.operation))
-                    addr_str = self.apply_base(self.apply_case(str(address))[0])[0]
-                    inst = Instruction(' ', addr_str, op)
+                    if weight % 3:
+                        if address is None:
+                            raise SkoolParsingError("Cannot determine address of instruction after '{} {}'".format(inst.addr_str, inst.operation))
+                        addr_str = self.apply_base(self.apply_case(str(address))[0])[0]
+                        inst = Instruction(' ', addr_str, op)
+                        instructions.setdefault(address, []).append(inst)
+                        size = get_size(op, address) or None
+                    else:
+                        inst = Instruction(' ', '     ', op)
                     map_entry.add_instruction(inst)
-                    instructions.setdefault(address, []).append(inst)
                     address_comments.append([inst, [], [comment]])
-                    size = get_size(op, address) or None
                 elif comment is not None:
                     address_comments[-1][2].append(comment or None)
                 if self.asm_labels and label is not None and (index == 0 or op):
@@ -950,12 +953,12 @@ class Mode:
 class Instruction:
     def __init__(self, ctl, addr_str, operation):
         self.ctl = ctl
-        if addr_str[0].isdigit():
-            self.addr_str = addr_str
-            self.addr_base = BASE_10
-        else:
+        if addr_str.startswith('$'):
             self.addr_str = addr_str[1:]
             self.addr_base = BASE_16
+        else:
+            self.addr_str = addr_str
+            self.addr_base = BASE_10
         self.address = parse_int(addr_str)
         self.operation = operation
         self.container = None
