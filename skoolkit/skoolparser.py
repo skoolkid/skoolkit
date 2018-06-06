@@ -304,7 +304,8 @@ class SkoolParser:
                  number bases unchanged.
     :param asm_mode: 0 to ignore ASM directives, 1 to parse them in `@isub`
                      mode, 2 to parse them in `@ssub` mode, or 3 to parse them
-                     in `@rsub` mode.
+                     in `@rsub` mode. Add 4 to ignore @start and @end
+                     directives.
     :param warnings: Whether to show warnings.
     :param fix_mode: 0 to apply no fixes, 1 to parse `@ofix` directives, 2 to
                      parse `@ofix` and `@bfix` directives, and 3 to parse
@@ -323,7 +324,7 @@ class SkoolParser:
                  create_labels=False, asm_labels=True, min_address=0, max_address=65536, variables=(),
                  snapshot=None):
         self.skoolfile = skoolfile
-        self.mode = Mode(case, base, asm_mode, warnings, fix_mode, html, create_labels, asm_labels)
+        self.mode = Mode(case, base, asm_mode & 3, warnings, fix_mode, html, create_labels, asm_labels)
         self.case = case
         self.base = base
         self.variables = variables
@@ -350,7 +351,7 @@ class SkoolParser:
         self._equ_values = {}
 
         with open_file(skoolfile) as f:
-            self._parse_skool(f, min_address, max_address)
+            self._parse_skool(f, asm_mode, min_address, max_address)
 
     def clone(self, skoolfile):
         return SkoolParser(
@@ -414,10 +415,10 @@ class SkoolParser:
     def convert_address_operand(self, operand):
         return self.mode.convert_address_operand(operand)
 
-    def _parse_skool(self, skoolfile, min_address, max_address):
+    def _parse_skool(self, skoolfile, asm_mode, min_address, max_address):
         address_comments = []
         removed = set()
-        asm = 2 + min(self.mode.asm_mode, 1)
+        asm = 2 + int(1 <= asm_mode <= 3)
         non_entries = []
         for non_entry, block in read_skool(skoolfile, asm, self.mode.asm_mode, self.mode.fix_mode):
             if non_entry:

@@ -160,6 +160,7 @@ assembler (see :ref:`supportedAssemblers`). For example::
                             N=1: @ofix only
                             N=2: @ofix and @bfix
                             N=3: @ofix, @bfix and @rfix (implies -r)
+    -F, --force           Force conversion, ignoring @start and @end directives.
     -H, --hex             Write the disassembly in hexadecimal.
     -I p=v, --ini p=v     Set the value of the configuration parameter 'p' to
                           'v'. This option may be used multiple times.
@@ -224,7 +225,8 @@ Configuration parameters may also be set on the command line by using the
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
-| 7.0     | :ref:`nonEntryBlocks` are reproduced verbatim                     |
+| 7.0     | :ref:`nonEntryBlocks` are reproduced verbatim; added the          |
+|         | ``--force`` option                                                |
 +---------+-------------------------------------------------------------------+
 | 6.4     | Added the ``--var`` option                                        |
 +---------+-------------------------------------------------------------------+

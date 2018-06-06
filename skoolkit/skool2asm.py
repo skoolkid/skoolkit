@@ -38,8 +38,9 @@ def run(skoolfile, options):
         fname = 'stdin'
     else:
         fname = skoolfile
+    asm_mode = options.asm_mode + 4 * int(options.force)
     parser = clock(options.quiet, 'Parsed {}'.format(fname), SkoolParser, skoolfile,
-                   options.case, options.base, options.asm_mode, options.warn, options.fix_mode,
+                   options.case, options.base, asm_mode, options.warn, options.fix_mode,
                    False, options.create_labels, True, options.start, options.end, options.variables)
 
     # Write the ASM file
@@ -85,6 +86,8 @@ def main(args):
                             "  N=1: @ofix only\n"
                             "  N=2: @ofix and @bfix\n"
                             "  N=3: @ofix, @bfix and @rfix (implies -r)")
+    group.add_argument('-F', '--force', dest='force', action='store_true',
+                       help="Force conversion, ignoring @start and @end directives.")
     group.add_argument('-H', '--hex', dest='base', action='store_const', const=BASE_16, default=config['Base'],
                        help="Write the disassembly in hexadecimal.")
     group.add_argument('-I', '--ini', dest='params', metavar='p=v', action='append', default=[],

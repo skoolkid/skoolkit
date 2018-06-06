@@ -1958,6 +1958,31 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
         """
         self._test_asm(skool, exp_asm)
 
+    def test_forced_conversion(self):
+        skool = """
+            ; Start
+            c40000 LD A,B
+
+            @start
+            ; Continue
+            c40001 LD A,C
+            @end
+
+            ; End
+            c40002 LD A,D
+        """
+        exp_asm = """
+            ; Start
+              LD A,B
+
+            ; Continue
+              LD A,C
+
+            ; End
+              LD A,D
+        """
+        self._test_asm(skool, exp_asm, asm_mode=5)
+
     def test_push_snapshot_keeps_original_in_place(self):
         writer = self._get_writer(snapshot=[0])
         snapshot = writer.snapshot

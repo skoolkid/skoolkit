@@ -76,6 +76,7 @@ class Skool2AsmTest(SkoolKitTestCase):
         self.assertEqual(options.properties, [])
         self.assertEqual(options.params, [])
         self.assertEqual(options.variables, [])
+        self.assertFalse(options.force)
 
     @patch.object(skool2asm, 'SkoolParser', MockSkoolParser)
     @patch.object(skool2asm, 'AsmWriter', MockAsmWriter)
@@ -565,6 +566,30 @@ class Skool2AsmTest(SkoolKitTestCase):
         self.run_skool2asm('--var bar=2 --var baz=3 test-var-multiple.skool')
         options = run_args[1]
         self.assertEqual(['bar=2', 'baz=3'], options.variables)
+
+    @patch.object(skool2asm, 'SkoolParser', MockSkoolParser)
+    @patch.object(skool2asm, 'AsmWriter', MockAsmWriter)
+    def test_option_F(self):
+        for option in ('-F', '--force'):
+            output, error = self.run_skool2asm('-q {} test-F.skool'.format(option))
+            self.assertEqual(mock_skool_parser.asm_mode, 5)
+            self.assertTrue(mock_asm_writer.wrote)
+            mock_skool_parser.asm_mode = None
+            mock_asm_writer.wrote = False
+
+    @patch.object(skool2asm, 'SkoolParser', MockSkoolParser)
+    @patch.object(skool2asm, 'AsmWriter', MockAsmWriter)
+    def test_options_F_s(self):
+        output, error = self.run_skool2asm('-q -F -s test-F-s.skool')
+        self.assertEqual(mock_skool_parser.asm_mode, 6)
+        self.assertTrue(mock_asm_writer.wrote)
+
+    @patch.object(skool2asm, 'SkoolParser', MockSkoolParser)
+    @patch.object(skool2asm, 'AsmWriter', MockAsmWriter)
+    def test_options_F_r(self):
+        output, error = self.run_skool2asm('-q -F -r test-F-r.skool')
+        self.assertEqual(mock_skool_parser.asm_mode, 7)
+        self.assertTrue(mock_asm_writer.wrote)
 
     @patch.object(skool2asm, 'AsmWriter', MockAsmWriter)
     def test_tab_property(self):

@@ -35,6 +35,10 @@ OPTIONS
   |   2: @ofix and @bfix
   |   3: @ofix, @bfix and @rfix (implies ``-r``)
 
+-F, --force
+  Force conversion of the entire skool file, ignoring any ``@start`` and
+  ``@end`` directives.
+
 -H, --hex
   Write the disassembly in hexadecimal.
 

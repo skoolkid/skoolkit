@@ -2945,6 +2945,26 @@ class SkoolParserTest(SkoolKitTestCase):
         self.assertIsNotNone(parser.get_entry(40003))
         self.assertIsNone(parser.get_entry(40004))
 
+    def test_start_and_end_directives_ignored_when_asm_mode_not_1_or_2_or_3(self):
+        skool = """
+            @isub=LD A,1
+            @ssub=LD A,2
+            @rsub=LD A,3
+            c40000 LD A,0
+
+            @start
+            c40001 LD A,C
+            @end
+
+            c40002 LD A,D
+        """
+        for asm_mode in (0, 4, 5, 6, 7):
+            with self.subTest(asm_mode=asm_mode):
+                parser = self._get_parser(skool, asm_mode=asm_mode)
+                self.assertIsNotNone(parser.get_entry(40000))
+                self.assertEqual(parser.get_instruction(40000).operation, 'LD A,{}'.format(asm_mode & 3))
+                self.assertIsNotNone(parser.get_entry(40002))
+
     def test_start_directive_processed_inside_block_directive(self):
         skool = """
             @ofix-begin

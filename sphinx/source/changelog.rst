@@ -17,6 +17,8 @@ Changelog
   contain :ref:`isub`, :ref:`ssub`, :ref:`ofix` or :ref:`bfix` directives)
 * The ``LABEL`` parameter of the :ref:`label` directive may be ``*`` to provide
   the next instruction with an automatically generated label
+* Added the ``--force`` option to :ref:`skool2asm.py` (to force conversion of
+  the entire skool file, ignoring any :ref:`start` and :ref:`end` directives)
 * :ref:`skool2html.py` now writes a single disassembly from the the skool file
   given as the first positional argument; any other positional arguments are
   interpreted as extra ref files
