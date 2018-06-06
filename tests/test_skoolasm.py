@@ -1876,6 +1876,39 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
         self.assertEqual(asm[2], '  LD A,B')
         self.assertEqual(asm[3], '  RET')
 
+    def test_remove_directive(self):
+        skool = """
+            @start
+            ; Routine
+            c49152 LD A,0
+            @if({asm}>2)(remove=49154)
+             49154 XOR A
+             49155 RET
+        """
+        exp_asm = """
+            ; Routine
+              LD A,0
+              RET
+        """
+        self._test_asm(skool, exp_asm, asm_mode=3)
+
+    def test_remove_directive_on_entire_entry(self):
+        skool = """
+            @start
+            ; Unused
+            @if({fix}>2)//remove=49152,49154//
+            c49152 LD A,0
+             49154 RET
+
+            ; Data
+            b49155 DEFB 0
+        """
+        exp_asm = """
+            ; Data
+              DEFB 0
+        """
+        self._test_asm(skool, exp_asm, fix_mode=3)
+
     def test_comment_for_wide_instruction(self):
         skool = """
             @start

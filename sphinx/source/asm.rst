@@ -874,6 +874,43 @@ remote entry point using the form::
 | 6.3     | New     |
 +---------+---------+
 
+.. _remove:
+
+@remove
+^^^^^^^
+The ``@remove`` directive removes instructions at specific addresses. ::
+
+  @remove=addr1[,addr2...]
+
+* ``addr1``, ``addr2`` etc. are the addresses of the instructions to remove
+
+For example::
+
+  c40000 XOR A
+  @if({asm}>2)(remove=40001)
+   40001 OR A  ; This instruction is redundant
+   40002 RET
+
+This ``@remove`` directive removes the ``OR A`` instruction at 40001 in
+:ref:`rsub` mode.
+
+The ``@remove`` directive can also remove an entire entry, by specifying the
+address of every instruction in the entry::
+
+  ; Unused
+  @if({asm}>2)//remove=40000,40001//
+  c40000 NOP
+   40001 RET
+
+Note that in order to work, the ``@remove`` directive must appear *before* the
+instructions it intends to remove.
+
++---------+---------+
+| Version | Changes |
++=========+=========+
+| 7.0     | New     |
++---------+---------+
+
 .. _replace:
 
 @replace

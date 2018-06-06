@@ -3141,6 +3141,62 @@ class SkoolParserTest(SkoolKitTestCase):
         """
         self.assert_error(skool, r"Failed to replace 'Routine' with '\\1': invalid group reference")
 
+    def test_remove_directive(self):
+        skool = """
+            @start
+            ; Routine
+            c49152 LD A,0
+            @remove=49154
+             49154 XOR A
+             49155 RET
+        """
+        instructions = self._get_parser(skool, asm_mode=1).get_entry(49152).instructions
+        self.assertEqual(len(instructions), 2)
+        self.assertEqual(instructions[0].address, 49152)
+        self.assertEqual(instructions[1].address, 49155)
+
+    def test_remove_directive_with_two_instructions(self):
+        skool = """
+            @start
+            ; Routine
+            c49152 LD A,0
+            @remove=49154,49155
+             49154 XOR A
+             49155 OR A
+             49156 RET
+        """
+        instructions = self._get_parser(skool, asm_mode=1).get_entry(49152).instructions
+        self.assertEqual(len(instructions), 2)
+        self.assertEqual(instructions[0].address, 49152)
+        self.assertEqual(instructions[1].address, 49156)
+
+    def test_remove_directive_on_entire_entry(self):
+        skool = """
+            @start
+            ; Routine
+            @remove=49152,49154,49155
+            c49152 LD A,0
+             49154 XOR A
+             49155 RET
+
+            ; Data
+            b49156 DEFB 0
+        """
+        parser = self._get_parser(skool, asm_mode=1)
+        self.assertIsNone(parser.get_entry(49152))
+        self.assertIsNotNone(parser.get_entry(49156))
+
+    def test_remove_directive_ignored_in_html_mode(self):
+        skool = """
+            ; Routine
+            c49152 LD A,0
+            @remove=49154
+             49154 XOR A
+             49155 RET
+        """
+        instructions = self._get_parser(skool).get_entry(49152).instructions
+        self.assertEqual(len(instructions), 3)
+
     def test_isub_directive(self):
         skool = """
             @start

@@ -422,7 +422,7 @@ class SkoolParser:
         non_entries = []
         for non_entry, block in read_skool(skoolfile, asm, self.mode.asm_mode, self.mode.fix_mode):
             if non_entry:
-                non_entries.append(self._parse_non_entry(block))
+                non_entries.append(self._parse_non_entry(block, removed))
                 continue
             instruction = None
             map_entry = None
@@ -430,7 +430,7 @@ class SkoolParser:
             self.ignores[:] = []
             for line in block:
                 if line.startswith('@'):
-                    self._parse_asm_directive(line[1:])
+                    self._parse_asm_directive(line[1:], removed)
                     continue
 
                 if line.startswith(';'):
@@ -460,8 +460,6 @@ class SkoolParser:
                     instruction.mid_block_comment = start_comment
                     map_entry.ignoreua.update(self.mode.entry_ignoreua)
                     self.mode.reset_entry_ignoreua()
-                    self._entries[address] = map_entry
-                    self.memory_map.append(map_entry)
                     self.comments[:] = []
                     self.base_address = min((address, self.base_address))
 
@@ -485,7 +483,9 @@ class SkoolParser:
                     if self.mode.assemble > 0 or (self.mode.assemble == 0 and operation.upper().startswith(('DEFB ', 'DEFM ', 'DEFS ', 'DEFW '))):
                         set_bytes(self.snapshot, address, operation)
 
-            if map_entry:
+            if map_entry and map_entry.instructions:
+                self._entries[map_entry.address] = map_entry
+                self.memory_map.append(map_entry)
                 if self.comments:
                     map_entry.end_comment = join_comments(self.comments, split=True)
                     map_entry.ignoreua['e'] = len(self.ignores) > 0
@@ -527,11 +527,11 @@ class SkoolParser:
         else:
             self._substitute_labels()
 
-    def _parse_non_entry(self, block):
+    def _parse_non_entry(self, block, removed):
         lines = []
         for line in block:
             if line.startswith('@'):
-                self._parse_asm_directive(line[1:])
+                self._parse_asm_directive(line[1:], removed)
             else:
                 lines.append(line)
         self.mode.reset()
@@ -562,7 +562,7 @@ class SkoolParser:
                 raise SkoolParsingError("Failed to replace '{}' with '{}': {}".format(regex.pattern, rep, e.args[0]))
         return text
 
-    def _parse_asm_directive(self, directive):
+    def _parse_asm_directive(self, directive, removed):
         if directive.startswith('label='):
             self.mode.label = directive[6:].rstrip()
         elif directive.startswith(('defb=', 'defs=', 'defw=')):
@@ -587,7 +587,7 @@ class SkoolParser:
                 self.mode.assemble = asm_value
         elif directive.startswith('if('):
             try:
-                self._parse_asm_directive(parse_if(self.fields, directive, 2)[1])
+                self._parse_asm_directive(parse_if(self.fields, directive, 2)[1], removed)
             except MacroParsingError:
                 pass
         elif self.mode.asm_mode:
@@ -602,6 +602,9 @@ class SkoolParser:
                 self.mode.org = directive.rstrip().partition('=')[2]
             elif directive.startswith('writer='):
                 self.asm_writer_class = directive[7:].rstrip()
+            elif directive.startswith('remove='):
+                addresses = [parse_int(n) for n in directive[7:].split(',')]
+                removed.update([a for a in addresses if a is not None])
             elif directive.startswith('set-'):
                 name, sep, value = directive[4:].partition('=')
                 if sep:
