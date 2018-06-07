@@ -336,9 +336,13 @@ class CtlWriter:
                     first_instruction = instructions[0]
                     if ctl != 'M' or COMMENTS in self.elements:
                         if ctl == 'M':
-                            offset = first_instruction.comment.rowspan + 1
-                            if j + offset < len(sub_blocks):
-                                length = sub_blocks[j + offset][1][0].address - first_instruction.address
+                            offset = first_instruction.comment.rowspan
+                            index = j + 1
+                            while offset > 0 and index < len(sub_blocks):
+                                offset -= len(sub_blocks[index][1])
+                                index += 1
+                            if index < len(sub_blocks):
+                                length = sub_blocks[index][1][0].address - first_instruction.address
                             elif k + 1 < len(sections):
                                 length = sections[k + 1][1][0].address - first_instruction.address
                             else:

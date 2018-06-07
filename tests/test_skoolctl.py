@@ -1542,6 +1542,19 @@ class CtlWriterTest(SkoolKitTestCase):
             ; Mid-block comment.
              30004 XOR H    ; {M directive extending to the end of the block
              30005 DEFB 0   ; (no explicit length)}
+
+            b30006 DEFW 0   ; {M directive covering a multi-instruction
+             30008 DEFB 0   ; sub-block (3 DEFBs)
+             30009 DEFB 0
+             30010 DEFB 0   ; }
+             30011 DEFW 0   ; {A word and a byte to end
+             30013 DEFB 0   ; }
+
+            b30014 DEFW 0   ; {Another M directive covering a multi-instruction
+             30016 DEFB 0   ; sub-block (2 DEFBs)
+             30017 DEFB 0   ; }
+             30018 DEFW 0
+             30020 DEFB 0
         """
         exp_ctl = """
             c 30000
@@ -1552,7 +1565,20 @@ class CtlWriterTest(SkoolKitTestCase):
             N 30004 Mid-block comment.
             M 30004 M directive extending to the end of the block (no explicit length)
             B 30005,1,1
-            i 30006
+            b 30006
+            M 30006,5 M directive covering a multi-instruction sub-block (3 DEFBs)
+            W 30006,2,2
+              30008,3,1
+            M 30011 A word and a byte to end
+            W 30011,2,2
+              30013,1,1
+            b 30014
+            M 30014,4 Another M directive covering a multi-instruction sub-block (2 DEFBs)
+            W 30014,2,2
+              30016,2,1
+            W 30018,2,2
+              30020,1,1
+            i 30021
         """
         self._test_ctl(skool, exp_ctl)
 

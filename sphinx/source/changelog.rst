@@ -24,6 +24,9 @@ Changelog
 * :ref:`skool2html.py` now writes a single disassembly from the the skool file
   given as the first positional argument; any other positional arguments are
   interpreted as extra ref files
+* Fixed the bug in :ref:`skool2ctl.py` that makes it incorrectly compute the
+  length of an ``M`` directive covering a sub-block containing two or more
+  instructions
 
 6.4 (2018-03-31)
 ----------------
