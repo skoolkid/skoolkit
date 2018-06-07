@@ -1585,6 +1585,26 @@ class SkoolWriterTest(SkoolKitTestCase):
         snapshot = [175, 201]
         self._test_write_skool(snapshot, ctl, exp_skool)
 
+    def test_remove_directives(self):
+        ctl = """
+            c 00000 Routine at 0
+            @ 00000 remove=1
+            @ 00002 remove=2,3
+            i 00005
+        """
+        exp_skool = """
+            ; Routine at 0
+            @remove=1
+            c00000 XOR A         ;
+             00001 XOR B         ;
+            @remove=2,3
+             00002 XOR C         ;
+             00003 XOR D         ;
+             00004 RET           ;
+        """
+        snapshot = [175, 168, 169, 170, 201]
+        self._test_write_skool(snapshot, ctl, exp_skool)
+
     def test_replace_directives(self):
         ctl = """
             @ 00000 replace=/foo/bar

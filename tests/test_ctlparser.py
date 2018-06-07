@@ -1250,6 +1250,21 @@ class CtlParserTest(SkoolKitTestCase):
         }
         self._test_asm_directives(ctl, exp_entry_directives, exp_instruction_directives)
 
+    def test_remove_directives(self):
+        ctl = """
+            c 32768 Routine at 32768
+            @ 32768 remove=32769
+            @ 32769 remove=32770,32771
+        """
+        exp_entry_directives = {
+            32768: []
+        }
+        exp_instruction_directives = {
+            32768: ['remove=32769'],
+            32769: ['remove=32770,32771']
+        }
+        self._test_asm_directives(ctl, exp_entry_directives, exp_instruction_directives)
+
     def test_replace_directives(self):
         ctl = """
             @ 40000 replace=/foo/bar

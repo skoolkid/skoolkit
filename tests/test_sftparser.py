@@ -1237,6 +1237,19 @@ class SftParserTest(SkoolKitTestCase):
         """
         self._test_disassembly(sft, exp_skool, snapshot)
 
+    def test_asm_directive_remove(self):
+        snapshot = [175, 201]
+        sft = """
+            @remove=1
+            cC00000,2
+        """
+        exp_skool = """
+            @remove=1
+            c00000 XOR A
+             00001 RET
+        """
+        self._test_disassembly(sft, exp_skool, snapshot)
+
     def test_asm_directive_replace(self):
         snapshot = [127, 32, 49, 57, 56, 52]
         sft = """

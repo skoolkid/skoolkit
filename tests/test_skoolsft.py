@@ -46,6 +46,7 @@ c32768 NOP          ; Do nothing
 @ssub=DEFB 5,6
  32772 DEFB 4,5     ; }
 ; Mid-block comment
+@remove=32774
  32774 DEFM "Hello" ; T sub-block
 @keep
  32779 DEFW 12345   ; W sub-block
@@ -180,6 +181,7 @@ cC32768,1;20 Do nothing
 @ssub=DEFB 5,6
  B32772,2;20 }
 ; Mid-block comment
+@remove=32774
  T32774,5;20 T sub-block
 @keep
  W32779,2;20 W sub-block

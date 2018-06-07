@@ -3170,6 +3170,21 @@ class SkoolParserTest(SkoolKitTestCase):
         self.assertEqual(instructions[0].address, 49152)
         self.assertEqual(instructions[1].address, 49156)
 
+    def test_remove_directive_with_hex_addresses(self):
+        skool = """
+            @start
+            ; Routine
+            c49152 LD A,0
+            @remove=$C002,$c003
+             49154 XOR A
+             49155 OR A
+             49156 RET
+        """
+        instructions = self._get_parser(skool, asm_mode=1).get_entry(49152).instructions
+        self.assertEqual(len(instructions), 2)
+        self.assertEqual(instructions[0].address, 49152)
+        self.assertEqual(instructions[1].address, 49156)
+
     def test_remove_directive_on_entire_entry(self):
         skool = """
             @start
