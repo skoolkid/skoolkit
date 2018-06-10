@@ -10,7 +10,7 @@ Changelog
   replace one instruction with two or more, replace two or more instructions
   with one, and replace a sequence of instructions
 * The :ref:`rsub` and :ref:`rfix` directives can insert a sequence of
-  instructions
+  instructions before or after the current instruction
 * :ref:`nonEntryBlocks` in a skool file are reproduced by :ref:`skool2asm.py`
   and preserved by :ref:`skool2ctl.py`
 * :ref:`skool2bin.py` now processes :ref:`asm-if` directives (in case they

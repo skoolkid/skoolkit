@@ -70,7 +70,7 @@ class BinWriter:
             operations = [original_op]
         self.subs = defaultdict(list, {0: []})
         for value in operations:
-            operation = parse_asm_sub_fix_directive(value)[1] or original_op
+            operation = parse_asm_sub_fix_directive(value)[2] or original_op
             if operation:
                 data = assemble(operation, address)
                 if data:

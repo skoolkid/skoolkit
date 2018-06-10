@@ -644,7 +644,7 @@ that has not been converted to a label.
 
 @isub
 ^^^^^
-The ``@isub`` directive makes an instruction and comment substitution in
+The ``@isub`` directive makes a label, instruction and comment substitution in
 :ref:`isubMode`.
 
 The syntax is equivalent to that for the :ref:`bfix` directive.
@@ -775,7 +775,7 @@ instruction to be replaced with a label, but not in this case).
 
 @ofix
 ^^^^^
-The ``@ofix`` directive makes an instruction and comment substitution in
+The ``@ofix`` directive makes a label, instruction and comment substitution in
 :ref:`ofixMode`.
 
 The syntax is equivalent to that for the :ref:`bfix` directive.
@@ -984,8 +984,10 @@ See also :ref:`definingMacrosWithReplace`.
 The ``@rfix`` directive makes a label, instruction and comment substitution in
 :ref:`rfixMode`. ::
 
-  @rfix=[LABEL:][INSTRUCTION][; comment]
+  @rfix=[<][LABEL:][INSTRUCTION][; comment]
 
+* ``<`` - if this marker is present, ``INSTRUCTION`` is inserted before the
+  current instruction instead of replacing it
 * ``LABEL`` is the replacement label; if not given, any existing label is left
   unchanged
 * ``INSTRUCTION`` is the replacement instruction; if not given, the existing
@@ -1024,24 +1026,35 @@ To replace two comment lines with one::
    29713 AND C ; This comment line will be replaced
                ; and this one will be removed
 
-A sequence of instructions can be inserted by chaining ``@rfix`` directives.
-For example::
+A sequence of instructions can be inserted after the current instruction by
+chaining ``@rfix`` directives. For example::
 
-  @rfix=LD (HL),C
-  @rfix=INC HL
-  @rfix=LD (HL),B
-   61125 LD (HL),C
+  @rfix=LD (HL),C  ; {Save BC here
+  @rfix=INC HL     ;
+  @rfix=LD (HL),B  ; }
+   61125 LD (HL),C ; Save C here
    61126 RET
 
 This will insert ``INC HL`` and ``LD (HL),B`` between ``LD (HL),C`` and
 ``RET``.
 
+A sequence of instructions can be inserted before the current instruction by
+using the ``<`` marker. For example::
+
+   47191 EX DE,HL
+  @rfix=<LD (HL),C
+  @rfix=<INC HL
+   47192 LD (HL),B
+
+This will insert ``LD (HL),C`` and ``INC HL`` between ``EX DE,HL`` and
+``LD (HL),B``.
+
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
 | 7.0     | Added support for specifying the replacement comment over         |
-|         | multiple lines, inserting a sequence of instructions, and         |
-|         | replacing the label                                               |
+|         | multiple lines, inserting a sequence of instructions before or    |
+|         | after the current instruction, and replacing the label            |
 +---------+-------------------------------------------------------------------+
 | 6.4     | Added support for replacing the comment                           |
 +---------+-------------------------------------------------------------------+
@@ -1061,7 +1074,7 @@ The syntax is equivalent to that for the :ref:`bfixBlockDirectives`.
 
 @rsub
 ^^^^^
-The ``@rsub`` directive makes an instruction and comment substitution in
+The ``@rsub`` directive makes a label, instruction and comment substitution in
 :ref:`rsubMode`.
 
 The syntax is equivalent to that for the :ref:`rfix` directive.
@@ -1070,8 +1083,8 @@ The syntax is equivalent to that for the :ref:`rfix` directive.
 | Version | Changes                                                           |
 +=========+===================================================================+
 | 7.0     | Added support for specifying the replacement comment over         |
-|         | multiple lines, inserting a sequence of instructions, and         |
-|         | replacing the label                                               |
+|         | multiple lines, inserting a sequence of instructions before or    |
+|         | after the current instruction, and replacing the label            |
 +---------+-------------------------------------------------------------------+
 | 6.4     | Added support for replacing the comment                           |
 +---------+-------------------------------------------------------------------+
@@ -1146,7 +1159,7 @@ This ``@set`` directive sets the bullet character to '+'.
 
 @ssub
 ^^^^^
-The ``@ssub`` directive makes an instruction and comment substitution in
+The ``@ssub`` directive makes a label, instruction and comment substitution in
 :ref:`ssubMode`.
 
 The syntax is equivalent to that for the :ref:`bfix` directive.

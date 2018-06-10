@@ -3847,6 +3847,194 @@ class SkoolParserTest(SkoolKitTestCase):
         ]
         self._test_sub_and_fix_directives(skool, exp_instructions, exp_subs, [3])
 
+    def test_rsub_and_rfix_directives_insert_instruction_cleanly(self):
+        skool = """
+            @start
+            ; Routine
+            @keep
+            @ignoreua
+            @label=START
+            @nowarn
+            @{0}=LD HL,0
+            @{0}=XOR A
+            c32768 LD L,0
+        """
+        for sub_mode, fix_mode, asm_dir in (
+                (3, 1, 'rsub'),
+                (3, 3, 'rfix')
+        ):
+            with self.subTest(sub_mode=sub_mode, fix_mode=fix_mode, asm_dir=asm_dir):
+                parser = self._get_parser(skool.format(asm_dir), asm_mode=sub_mode, fix_mode=fix_mode)
+                instructions = parser.get_entry(32768).instructions
+                inst1 = instructions[0]
+                inst2 = instructions[1]
+                self.assertEqual([], inst1.keep)
+                self.assertTrue(inst1.ignoreua)
+                self.assertEqual(inst1.asm_label, 'START')
+                self.assertIsNone(inst1.org)
+                self.assertFalse(inst1.warn)
+                self.assertIsNone(inst2.keep)
+                self.assertFalse(inst2.ignoreua)
+                self.assertIsNone(inst2.asm_label)
+                self.assertEqual(inst2.org, '     ')
+                self.assertTrue(inst2.warn)
+
+    def test_rsub_and_rfix_directives_prepend_instruction(self):
+        skool = """
+            @start
+            ; Routine
+            @{}=<LD H,0   ; Clear H
+            c32768 LD L,H ; Clear L
+        """
+        exp_instructions = [
+            ('32768', 'LD L,H', 'Clear L')
+        ]
+        exp_subs = [
+            ('     ', 'LD H,0', 'Clear H'),
+            ('32768', 'LD L,H', 'Clear L')
+        ]
+        self._test_sub_and_fix_directives(skool, exp_instructions, exp_subs, [3])
+
+    def test_rsub_and_rfix_directives_prepend_instruction_with_comment_continuation_line(self):
+        skool = """
+            @start
+            ; Routine
+            @{0}=<LD H,0  ; Clear the
+            @{0}=<        ; H register
+            c32768 LD L,H ; Clear L
+        """
+        exp_instructions = [
+            ('32768', 'LD L,H', 'Clear L')
+        ]
+        exp_subs = [
+            ('     ', 'LD H,0', 'Clear the H register'),
+            ('32768', 'LD L,H', 'Clear L')
+        ]
+        self._test_sub_and_fix_directives(skool, exp_instructions, exp_subs, [3])
+
+    def test_rsub_and_rfix_directives_prepend_two_instructions(self):
+        skool = """
+            @start
+            ; Routine
+            @{0}=<LD H,0  ; Clear H
+            @{0}=<XOR A   ; Clear A
+            c32768 LD L,H ; Clear L
+        """
+        exp_instructions = [
+            ('32768', 'LD L,H', 'Clear L')
+        ]
+        exp_subs = [
+            ('     ', 'LD H,0', 'Clear H'),
+            ('     ', 'XOR A', 'Clear A'),
+            ('32768', 'LD L,H', 'Clear L')
+        ]
+        self._test_sub_and_fix_directives(skool, exp_instructions, exp_subs, [3])
+
+    def test_rsub_and_rfix_directives_prepend_instruction_and_replace_instruction(self):
+        skool = """
+            @start
+            ; Routine
+            @{0}=<LD H,0  ; Clear H
+            @{0}=LD L,H   ; And L
+            @{0}=         ; likewise
+            c32768 LD L,0 ; Clear L
+        """
+        exp_instructions = [
+            ('32768', 'LD L,0', 'Clear L')
+        ]
+        exp_subs = [
+            ('     ', 'LD H,0', 'Clear H'),
+            ('32768', 'LD L,H', 'And L likewise')
+        ]
+        self._test_sub_and_fix_directives(skool, exp_instructions, exp_subs, [3])
+
+    def test_rsub_and_rfix_directives_prepend_and_replace_and_append(self):
+        skool = """
+            @start
+            ; Routine
+            @{0}=<LD H,0  ; Clear H
+            @{0}=LD L,H   ; And L likewise
+            @{0}=XOR A    ; And A too
+            c32768 LD L,0 ; Clear L
+        """
+        exp_instructions = [
+            ('32768', 'LD L,0', 'Clear L')
+        ]
+        exp_subs = [
+            ('     ', 'LD H,0', 'Clear H'),
+            ('32768', 'LD L,H', 'And L likewise'),
+            ('     ', 'XOR A', 'And A too')
+        ]
+        self._test_sub_and_fix_directives(skool, exp_instructions, exp_subs, [3])
+
+    def test_rsub_and_rfix_directives_prepended_instruction_adopts_mid_block_comment(self):
+        skool = """
+            @start
+            ; Routine
+            c32768 LD L,0 ; Clear L
+            ; Continue.
+            @{0}=<XOR A   ; Clear A
+             32770 LD H,A ; And now H
+        """
+        for sub_mode, fix_mode, asm_dir in (
+                (3, 1, 'rsub'),
+                (3, 3, 'rfix')
+        ):
+            with self.subTest(sub_mode=sub_mode, fix_mode=fix_mode, asm_dir=asm_dir):
+                parser = self._get_parser(skool.format(asm_dir), asm_mode=sub_mode, fix_mode=fix_mode)
+                instructions = parser.get_entry(32768).instructions
+                self.assertEqual(['Continue.'], instructions[1].mid_block_comment)
+                self.assertIsNone(instructions[2].mid_block_comment)
+
+    def test_rsub_and_rfix_directives_prepended_instruction_adopts_org(self):
+        skool = """
+            @start
+            @org
+            ; Routine
+            @{}=<LD H,0
+            c32768 LD L,H
+        """
+        for sub_mode, fix_mode, asm_dir in (
+                (3, 1, 'rsub'),
+                (3, 3, 'rfix')
+        ):
+            with self.subTest(sub_mode=sub_mode, fix_mode=fix_mode, asm_dir=asm_dir):
+                parser = self._get_parser(skool.format(asm_dir), asm_mode=sub_mode, fix_mode=fix_mode)
+                instructions = parser.get_entry(32768).instructions
+                self.assertEqual(instructions[0].org, '32768')
+                self.assertEqual(instructions[1].org, '32768')
+
+    def test_rsub_and_rfix_directives_prepend_instruction_cleanly(self):
+        skool = """
+            @start
+            ; Routine
+            @keep
+            @ignoreua
+            @label=START
+            @nowarn
+            @{}=<LD H,0
+            c32768 LD L,H
+        """
+        for sub_mode, fix_mode, asm_dir in (
+                (3, 1, 'rsub'),
+                (3, 3, 'rfix')
+        ):
+            with self.subTest(sub_mode=sub_mode, fix_mode=fix_mode, asm_dir=asm_dir):
+                parser = self._get_parser(skool.format(asm_dir), asm_mode=sub_mode, fix_mode=fix_mode)
+                instructions = parser.get_entry(32768).instructions
+                inst1 = instructions[0]
+                inst2 = instructions[1]
+                self.assertIsNone(inst1.keep)
+                self.assertFalse(inst1.ignoreua)
+                self.assertIsNone(inst1.asm_label)
+                self.assertIsNone(inst1.org)
+                self.assertTrue(inst1.warn)
+                self.assertEqual([], inst2.keep)
+                self.assertTrue(inst2.ignoreua)
+                self.assertEqual(inst2.asm_label, 'START')
+                self.assertIsNone(inst2.org)
+                self.assertFalse(inst2.warn)
+
     def test_sub_and_fix_directives_replace_label(self):
         skool = """
             @start
@@ -3933,6 +4121,22 @@ class SkoolParserTest(SkoolKitTestCase):
             ('START_0', '32769', 'INC A', '')
         ]
         self._test_sub_and_fix_directives(skool, exp_instructions, exp_subs, (1, 2))
+
+    def test_rsub_and_rfix_directives_prepend_instruction_with_label(self):
+        skool = """
+            @start
+            ; Routine
+            @{0}=<START: LD H,0 ; Clear H
+            c32768 LD L,H       ; Clear L
+        """
+        exp_instructions = [
+            (None, '32768', 'LD L,H', 'Clear L')
+        ]
+        exp_subs = [
+            ('START', '     ', 'LD H,0', 'Clear H'),
+            (None, '32768', 'LD L,H', 'Clear L')
+        ]
+        self._test_sub_and_fix_directives(skool, exp_instructions, exp_subs, [3])
 
     def test_no_asm_labels(self):
         skool = """

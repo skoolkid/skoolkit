@@ -91,6 +91,9 @@ def parse_asm_data_directive(snapshot, directive):
             set_bytes(snapshot, addr, operation)
 
 def parse_asm_sub_fix_directive(directive):
+    prepend = directive.startswith('<')
+    if prepend:
+        directive = directive[1:]
     op, sep, comment = partition_unquoted(directive, ';')
     if sep:
         comment = comment.strip()
@@ -98,8 +101,8 @@ def parse_asm_sub_fix_directive(directive):
         comment = None
     label, lsep, op = partition_unquoted(op, ':')
     if lsep:
-        return label.strip(), op.strip(), comment
-    return None, label.strip(), comment
+        return prepend, label.strip(), op.strip(), comment
+    return prepend, None, label.strip(), comment
 
 def _html_escape(text):
     return html.escape(text, False)
@@ -828,16 +831,35 @@ class Mode:
             instruction.asm_label = self.label
 
         if self.asm_mode:
+            if self.org != '':
+                instruction.org = self.org
             inst = instruction
             address = inst.address
             weight = max(self.subs)
-            for index, value in enumerate(self.subs[weight]):
-                label, op, comment = parse_asm_sub_fix_directive(value)
+            unsubbed = True
+            index = 1
+            address_comment = address_comments[-1]
+            for value in self.subs[weight]:
+                prepend, label, op, comment = parse_asm_sub_fix_directive(value)
                 op = self.apply_base('', self.apply_case('', op)[1])[1]
                 size = 0
-                if index == 0:
-                    instruction.apply_sub(op, comment, address_comments[-1])
+                if prepend:
+                    if weight % 3 == 0:
+                        if op:
+                            inst = Instruction(' ', '     ', op)
+                            inst.mid_block_comment = instruction.mid_block_comment
+                            instruction.mid_block_comment = None
+                            map_entry.add_instruction(inst, True)
+                            address_comment = [inst, [], [comment]]
+                            address_comments.insert(len(address_comments) - 1, address_comment)
+                        elif comment is not None:
+                            address_comment[2].append(comment or None)
+                elif unsubbed:
+                    address_comment = address_comments[-1]
+                    instruction.apply_sub(op, comment, address_comment)
                     size = get_size(instruction.operation, address) or None
+                    unsubbed = False
+                    index = 0
                 elif op:
                     if weight % 3:
                         if address is None:
@@ -849,9 +871,10 @@ class Mode:
                     else:
                         inst = Instruction(' ', '     ', op)
                     map_entry.add_instruction(inst)
-                    address_comments.append([inst, [], [comment]])
+                    address_comment = [inst, [], [comment]]
+                    address_comments.append(address_comment)
                 elif comment is not None:
-                    address_comments[-1][2].append(comment or None)
+                    address_comment[2].append(comment or None)
                 if self.asm_labels and label is not None and (index == 0 or op):
                     inst.asm_label = label
                 if size is None:
@@ -862,12 +885,11 @@ class Mode:
                         # @rfix or @rsub mode
                         removed.update(range(address, address + size))
                     address += size
+                index = 1
 
             instruction.warn = not self.nowarn
             instruction.ignoreua = self.ignoreua
             instruction.ignoremrcua = self.ignoremrcua
-            if self.org != '':
-                instruction.org = self.org
 
         self.reset()
 
@@ -1068,9 +1090,17 @@ class SkoolEntry:
     def is_ignored(self):
         return self.ctl == 'i'
 
-    def add_instruction(self, instruction):
+    def add_instruction(self, instruction, insert=False):
         instruction.container = self
-        self.instructions.append(instruction)
+        if insert:
+            index = len(self.instructions) - 1
+            if index:
+                instruction.org = None
+            else:
+                instruction.org = self.instructions[0].org
+            self.instructions.insert(index, instruction)
+        else:
+            self.instructions.append(instruction)
 
     def add_referrer(self, routine):
         if routine not in self.referrers:
