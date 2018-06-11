@@ -3636,6 +3636,24 @@ class SkoolParserTest(SkoolKitTestCase):
             with self.subTest(sub_mode=sub_mode, fix_mode=fix_mode, asm_dir=asm_dir):
                 self.assert_error(skool.format(asm_dir), exp_error, asm_mode=sub_mode, fix_mode=fix_mode)
 
+    def test_sub_and_fix_directives_override_comment_continuation_lines(self):
+        skool = """
+            @start
+            ; Routine
+            @{0}=XOR A
+            @{0}=         ;
+            @{0}=INC A    ;
+            c32768 LD A,0 ; Clear A
+                          ; in
+                          ; preparation
+        """
+        exp_instructions = [('32768', 'LD A,0', 'Clear A in preparation')]
+        exp_subs = [
+            ('32768', 'XOR A', 'Clear A'),
+            ('32769', 'INC A', '')
+        ]
+        self._test_sub_and_fix_directives(skool, exp_instructions, exp_subs, (1, 2))
+
     def test_sub_and_fix_directives_add_instruction_cleanly(self):
         skool = """
             @start
@@ -3847,6 +3865,26 @@ class SkoolParserTest(SkoolKitTestCase):
         ]
         self._test_sub_and_fix_directives(skool, exp_instructions, exp_subs, [3])
 
+    def test_rsub_and_rfix_directives_override_comment_continuation_lines(self):
+        skool = """
+            @start
+            ; Routine
+            @{0}=LD (HL),0
+            @{0}=            ;
+            @{0}=INC L       ;
+            c32768 LD (HL),0 ; Clear the contents
+                             ; of the address
+                             ; pointed at by HL
+        """
+        exp_instructions = [
+            ('32768', 'LD (HL),0', 'Clear the contents of the address pointed at by HL')
+        ]
+        exp_subs = [
+            ('32768', 'LD (HL),0', 'Clear the contents'),
+            ('     ', 'INC L', '')
+        ]
+        self._test_sub_and_fix_directives(skool, exp_instructions, exp_subs, [3])
+
     def test_rsub_and_rfix_directives_insert_instruction_cleanly(self):
         skool = """
             @start
@@ -4003,6 +4041,23 @@ class SkoolParserTest(SkoolKitTestCase):
                 instructions = parser.get_entry(32768).instructions
                 self.assertEqual(instructions[0].org, '32768')
                 self.assertEqual(instructions[1].org, '32768')
+
+    def test_rsub_and_rfix_directives_prepend_instruction_without_overriding_comment_continuation_lines(self):
+        skool = """
+            @start
+            ; Routine
+            @{0}=<INC HL
+            c32768 LD (HL),0 ; Clear the contents
+                             ; of (HL)
+        """
+        exp_instructions = [
+            ('32768', 'LD (HL),0', 'Clear the contents of (HL)')
+        ]
+        exp_subs = [
+            ('     ', 'INC HL', ''),
+            ('32768', 'LD (HL),0', 'Clear the contents of (HL)'),
+        ]
+        self._test_sub_and_fix_directives(skool, exp_instructions, exp_subs, [3])
 
     def test_rsub_and_rfix_directives_prepend_instruction_cleanly(self):
         skool = """

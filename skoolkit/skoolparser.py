@@ -447,7 +447,7 @@ class SkoolParser:
                 if s_line.startswith(';'):
                     if map_entry and instruction:
                         # This is an instruction comment continuation line
-                        address_comments[-1][1].append(s_line[1:].lstrip())
+                        address_comment[1].append(s_line[1:].lstrip())
                     continue
 
                 # This line contains an instruction
@@ -467,7 +467,8 @@ class SkoolParser:
                     self.base_address = min((address, self.base_address))
 
                 if map_entry:
-                    address_comments.append((instruction, [address_comment], []))
+                    address_comment = (instruction, [address_comment], [])
+                    address_comments.append(address_comment)
                     if address not in removed:
                         if address is not None:
                             self._instructions.setdefault(address, []).append(instruction)
