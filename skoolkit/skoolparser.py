@@ -483,7 +483,7 @@ class SkoolParser:
                 # Set bytes in the snapshot if the instruction is DEF{B,M,S,W}
                 if address is not None:
                     operation = instruction.operation
-                    if self.mode.assemble > 0 or (self.mode.assemble == 0 and operation.upper().startswith(('DEFB ', 'DEFM ', 'DEFS ', 'DEFW '))):
+                    if self.mode.assemble > 1 or (self.mode.assemble and operation.upper().startswith(('DEFB ', 'DEFM ', 'DEFS ', 'DEFW '))):
                         set_bytes(self.snapshot, address, operation)
 
             if map_entry and map_entry.instructions:
@@ -569,7 +569,7 @@ class SkoolParser:
         if directive.startswith('label='):
             self.mode.label = directive[6:].rstrip()
         elif directive.startswith(('defb=', 'defs=', 'defw=')):
-            if self.mode.assemble >= 0:
+            if self.mode.assemble:
                 parse_asm_data_directive(self.snapshot, directive)
         elif directive.startswith('keep'):
             self.mode.keep = []
@@ -777,7 +777,7 @@ class Mode:
         self.html = html
         self.asm_mode = asm_mode
         self.warn = warnings
-        self.assemble = int(html) - 1
+        self.assemble = int(html)
         self.fix_mode = fix_mode
         self.labels = []
         self.create_labels = create_labels

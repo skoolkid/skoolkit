@@ -51,6 +51,11 @@ In SkoolKit 6, the ``GameStatusBufferIncludes`` parameter in the
 SkoolKit 7, this parameter is not supported; instead, use the ``Includes``
 parameter in the :ref:`[MemoryMap:GameStatusBuffer] <memoryMap>` section.
 
+@assemble
+---------
+In SkoolKit 6, the :ref:`assemble` directive accepted the values -1, 0 and 1.
+In SkoolKit 7, the accepted values are 0, 1 and 2.
+
 @nolabel
 --------
 The ``@nolabel`` directive is not supported in SkoolKit 7. Instead you should
@@ -82,9 +87,9 @@ the :ref:`remote` directive instead.
 
 skoolkit6to7.py
 ---------------
-The `skoolkit6to7.py`_ script may be used to convert a skool file or ref file
-that is compatible with SkoolKit 6 into a file that will work with SkoolKit 7.
-For example, to convert `game.ref`::
+The `skoolkit6to7.py`_ script may be used to convert a control file, ref file,
+skool file or skool file template that is compatible with SkoolKit 6 into a
+file that will work with SkoolKit 7. For example, to convert `game.ref`::
 
   $ skoolkit6to7.py game.ref > game7.ref
 

@@ -4248,10 +4248,10 @@ class SkoolParserTest(SkoolKitTestCase):
             @start
             c24000 XOR A
              24001 DEFB 1
-            @assemble=,0
+            @assemble=,1
              24002 XOR B
              24003 DEFB 2
-            @assemble=,1
+            @assemble=,2
              24004 XOR C
              24005 DEFB 3
         """
@@ -4261,13 +4261,13 @@ class SkoolParserTest(SkoolKitTestCase):
     def test_asm_mode_assemble_missing_or_bad_value(self):
         skool = """
             @start
-            @assemble=,1
+            @assemble=,2
             c24000 XOR A
-            @assemble=0
+            @assemble=1
              24001 XOR B
-            @assemble=0,
+            @assemble=1,
              24002 XOR C
-            @assemble=0,x
+            @assemble=1,x
              24003 XOR D
         """
         snapshot = self._get_parser(skool, asm_mode=1).snapshot
@@ -4277,10 +4277,10 @@ class SkoolParserTest(SkoolKitTestCase):
         skool = """
             c30000 XOR A
              30001 DEFB 1
-            @assemble=1
+            @assemble=2
              30002 XOR B
              30003 DEFB 2
-            @assemble=-1
+            @assemble=0
              30004 XOR C
              30005 DEFB 3
         """
@@ -4289,15 +4289,15 @@ class SkoolParserTest(SkoolKitTestCase):
 
     def test_html_mode_assemble_missing_or_bad_value(self):
         skool = """
-            @assemble=1
+            @assemble=2
             c40000 XOR A
             @assemble=off
              40001 XOR B
-            @assemble=0
+            @assemble=1
              40002 XOR C
-            @assemble=on,-1
+            @assemble=on,0
              40003 XOR D
-            @assemble=,1
+            @assemble=,2
              40004 XOR E
         """
         snapshot = self._get_parser(skool, html=True).snapshot

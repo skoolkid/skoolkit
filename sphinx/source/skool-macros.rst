@@ -1670,7 +1670,7 @@ For example::
    30000 DEFB 48,72,136,144,104,4,10,4
 
 If conversion of DEFB statements has been switched on in ASM mode by the
-:ref:`assemble` directive (e.g. ``@assemble=,0``), this ``#udg`` macro produces
+:ref:`assemble` directive (e.g. ``@assemble=,1``), this ``#udg`` macro produces
 the following output::
 
   ; |  **    |

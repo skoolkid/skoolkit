@@ -1769,14 +1769,14 @@ class SkoolWriterTest(SkoolKitTestCase):
 
     def test_assemble_directives(self):
         ctl = """
-            @ 00000 assemble=2,-1
+            @ 00000 assemble=2,0
             c 00000
             @ 00001 assemble=1
             @ 00002 assemble=0
             i 00003
         """
         exp_skool = """
-            @assemble=2,-1
+            @assemble=2,0
             ; Routine at 0
             c00000 NOP           ;
             @assemble=1

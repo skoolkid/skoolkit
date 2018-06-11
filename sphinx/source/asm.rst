@@ -180,11 +180,11 @@ purpose of populating the memory snapshot. ::
 ``H`` is an integer value that determines what is converted in HTML mode, and
 ``A`` is an integer value that determines what is converted in ASM mode:
 
-* ``-1`` - do not convert anything (this is the default in ASM mode)
-* ``0`` - convert ``DEFB``, ``DEFM``, ``DEFS`` and ``DEFW`` statements and
+* ``0`` - do not convert anything (this is the default in ASM mode)
+* ``1`` - convert ``DEFB``, ``DEFM``, ``DEFS`` and ``DEFW`` statements and
   ``@defb``, ``@defs`` and ``@defw`` directives only (this is the default in
   HTML mode)
-* ``1`` - convert assembly language instructions as well
+* ``2`` - convert assembly language instructions as well
 
 If ``H`` or ``A`` is blank or omitted, its value is left unchanged.
 
@@ -193,19 +193,21 @@ For example::
   ; The eight bytes of code in this routine are also used as UDG data.
   ; .
   ; #HTML(#UDG44919)
-  @assemble=1
+  @assemble=2
   c44919 LD DE,46572   ;
    44922 CP 200        ;
    44924 JP 45429      ;
-  @assemble=0
+  @assemble=1
 
-The ``@assemble=1`` directive is required to define the bytes for addresses
+The ``@assemble=2`` directive is required to define the bytes for addresses
 44919-44926. If it were not present, the memory snapshot would contain zeroes
 at those addresses, and the image created by the ``#UDG`` macro would be blank.
 
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 7.0     | The accepted values are 0, 1 and 2 (previously -1, 0 and 1)       |
++---------+-------------------------------------------------------------------+
 | 6.3     | Added support for specifying what's converted in HTML mode and    |
 |         | ASM mode separately, and for switching off conversion entirely    |
 +---------+-------------------------------------------------------------------+

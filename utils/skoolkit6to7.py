@@ -3,8 +3,8 @@ import sys
 import argparse
 
 DESCRIPTION = """
-Convert a ref file, skool file or skool file template from SkoolKit 6 format to
-SkoolKit 7 format and print it on standard output.
+Convert a control file, ref file, skool file or skool file template from
+SkoolKit 6 format to SkoolKit 7 format and print it on standard output.
 """
 
 def _parse_ref(reffile_f):
@@ -85,6 +85,18 @@ def _add_remote(directives, lines):
         directives.append('@remote={}:{}'.format(lines[0][1], ','.join([r[0] for r in lines])))
         lines[:] = []
 
+def _convert_int(n, index):
+    if index < 2:
+        try:
+            return str(1 + int(n))
+        except ValueError:
+            pass
+    return n
+
+def _convert_assemble(value):
+    values = [_convert_int(n, i) for i, n in enumerate(value.rstrip().split(',', 2))]
+    return '@assemble={}\n'.format(','.join(values))
+
 def convert_skool(skoolfile_f):
     directives = []
     remotes = []
@@ -95,6 +107,8 @@ def convert_skool(skoolfile_f):
         if line.startswith((';', '@')):
             if line.startswith('@nolabel'):
                 line = '@label=\n'
+            elif line.startswith('@assemble='):
+                line = _convert_assemble(line[10:].rstrip())
             lines.append(line)
             continue
         s_line = line.strip()
@@ -134,6 +148,16 @@ def convert_skool(skoolfile_f):
         for line in lines:
             sys.stdout.write(line)
 
+def convert_ctl(ctlfile_f):
+    for line in ctlfile_f:
+        if line.startswith('@'):
+            fields = [t for t in line.split(' ') if t]
+            if len(fields) > 2 and fields[2].startswith('assemble='):
+                line = '{} {} {}'.format(fields[0], fields[1], _convert_assemble(fields[2][9:].rstrip())[1:])
+                sys.stdout.write(line)
+                continue
+        sys.stdout.write(line)
+
 def main(args):
     parser = argparse.ArgumentParser(
         usage='skoolkit6to7.py FILE',
@@ -149,8 +173,10 @@ def main(args):
     with open(infile) as f:
         if infile_l.endswith('.ref'):
             convert_ref(f)
-        elif infile_l.endswith(('.ctl', '.css')):
-            print('Input file must be a ref file, skool file or skool file template', file=sys.stderr)
+        elif infile_l.endswith('.ctl'):
+            convert_ctl(f)
+        elif infile_l.endswith('.css'):
+            print('Input file must be a ref file, control file, skool file or skool file template', file=sys.stderr)
         else:
             convert_skool(f)
 
