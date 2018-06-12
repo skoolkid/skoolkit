@@ -871,11 +871,13 @@ class Mode:
                             raise SkoolParsingError("Cannot determine address of instruction after '{} {}'".format(inst.addr_str, inst.operation))
                         addr_str = self.apply_base(self.apply_case(str(address))[0])[0]
                         inst = Instruction(' ', addr_str, op)
-                        instructions.setdefault(address, []).append(inst)
+                        if inst.address not in removed:
+                            instructions.setdefault(address, []).append(inst)
+                            map_entry.add_instruction(inst)
                         size = get_size(op, address) or None
                     else:
                         inst = Instruction(' ', '     ', op)
-                    map_entry.add_instruction(inst)
+                        map_entry.add_instruction(inst)
                     address_comment = [inst, [], [comment]]
                     address_comments.append(address_comment)
                 elif comment is not None:

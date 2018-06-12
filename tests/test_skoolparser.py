@@ -3230,6 +3230,21 @@ class SkoolParserTest(SkoolKitTestCase):
         self.assertEqual(instruction.asm_label, 'START')
         self.assertEqual(instruction.operation, 'RET Z')
 
+    def test_remove_directive_removes_added_instructions(self):
+        skool = """
+            @start
+            @if({fix}>2)(remove=30001-30002)
+            c30000 LD A,B
+            @bfix=CPL
+            @bfix=INC A
+             30001 NEG
+             30003 RET
+        """
+        instructions = self._get_parser(skool, asm_mode=3, fix_mode=3).get_entry(30000).instructions
+        self.assertEqual(len(instructions), 2)
+        self.assertEqual(instructions[0].operation, 'LD A,B')
+        self.assertEqual(instructions[1].operation, 'RET')
+
     def test_remove_directive_ignored_in_html_mode(self):
         skool = """
             ; Routine
