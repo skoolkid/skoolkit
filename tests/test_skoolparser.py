@@ -3201,6 +3201,19 @@ class SkoolParserTest(SkoolKitTestCase):
         self.assertIsNone(parser.get_entry(49152))
         self.assertIsNotNone(parser.get_entry(49156))
 
+    def test_remove_directive_affects_current_entry_only(self):
+        skool = """
+            @start
+            @if({asm}>2)(remove=30000)
+            c30000 RET
+
+            @rsub+begin
+            b30000 DEFB 201
+            @rsub+end
+        """
+        parser = self._get_parser(skool, asm_mode=3)
+        self.assertIsNotNone(parser.get_entry(30000))
+
     def test_remove_directive_discards_label(self):
         skool = """
             @start

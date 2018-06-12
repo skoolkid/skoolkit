@@ -420,10 +420,10 @@ class SkoolParser:
 
     def _parse_skool(self, skoolfile, asm_mode, min_address, max_address):
         address_comments = []
-        removed = set()
         asm = 2 + int(1 <= asm_mode <= 3)
         non_entries = []
         for non_entry, block in read_skool(skoolfile, asm, self.mode.asm_mode, self.mode.fix_mode):
+            removed = set()
             if non_entry:
                 non_entries.append(self._parse_non_entry(block, removed))
                 continue
