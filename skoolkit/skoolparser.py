@@ -831,7 +831,8 @@ class Mode:
             if self.label:
                 if self.label in self.labels:
                     raise SkoolParsingError('Duplicate label {} at {}'.format(self.label, instruction.address))
-                self.labels.append(self.label)
+                if instruction.address not in removed:
+                    self.labels.append(self.label)
             instruction.asm_label = self.label
 
         if self.asm_mode:

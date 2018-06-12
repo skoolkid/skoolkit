@@ -3201,6 +3201,22 @@ class SkoolParserTest(SkoolKitTestCase):
         self.assertIsNone(parser.get_entry(49152))
         self.assertIsNotNone(parser.get_entry(49156))
 
+    def test_remove_directive_discards_label(self):
+        skool = """
+            @start
+            @if({asm}>2)(remove=30000)
+            @label=START
+            c30000 RET
+
+            @rsub+begin
+            @label=START
+            c30001 RET Z
+            @rsub+end
+        """
+        instruction = self._get_parser(skool, asm_mode=3).get_instruction(30001)
+        self.assertEqual(instruction.asm_label, 'START')
+        self.assertEqual(instruction.operation, 'RET Z')
+
     def test_remove_directive_ignored_in_html_mode(self):
         skool = """
             ; Routine
