@@ -1188,7 +1188,7 @@ class CtlWriterTest(SkoolKitTestCase):
             @remove=32769
             ; Routine
             c32768 LD A,B
-            @remove=32770,32771
+            @remove=32770-32771
              32769 XOR C
              32770 AND D
              32771 RET
@@ -1196,7 +1196,7 @@ class CtlWriterTest(SkoolKitTestCase):
         exp_ctl = """
             c 32768 Routine
             @ 32768 remove=32769
-            @ 32769 remove=32770,32771
+            @ 32769 remove=32770-32771
             i 32772
         """
         self._test_ctl(skool, exp_ctl)

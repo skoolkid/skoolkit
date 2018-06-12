@@ -880,11 +880,12 @@ remote entry point using the form::
 
 @remove
 ^^^^^^^
-The ``@remove`` directive removes instructions at specific addresses. ::
+The ``@remove`` directive removes instructions in a range of addresses. ::
 
-  @remove=addr1[,addr2...]
+  @remove=addr1[-addr2]
 
-* ``addr1``, ``addr2`` etc. are the addresses of the instructions to remove
+* ``addr1`` is the address of the first instruction to remove
+* ``addr2``, if given, is the address of the last instruction to remove
 
 For example::
 
@@ -896,11 +897,11 @@ For example::
 This ``@remove`` directive removes the ``OR A`` instruction at 40001 in
 :ref:`rsub` mode.
 
-The ``@remove`` directive can also remove an entire entry, by specifying the
-address of every instruction in the entry::
+The ``@remove`` directive can also remove an entire entry, by specifying an
+address range that covers every instruction in the entry::
 
   ; Unused
-  @if({asm}>2)//remove=40000,40001//
+  @if({asm}>2)//remove=40000-40001//
   c40000 NOP
    40001 RET
 

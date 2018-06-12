@@ -1589,7 +1589,7 @@ class SkoolWriterTest(SkoolKitTestCase):
         ctl = """
             c 00000 Routine at 0
             @ 00000 remove=1
-            @ 00002 remove=2,3
+            @ 00002 remove=2-3
             i 00005
         """
         exp_skool = """
@@ -1597,7 +1597,7 @@ class SkoolWriterTest(SkoolKitTestCase):
             @remove=1
             c00000 XOR A         ;
              00001 XOR B         ;
-            @remove=2,3
+            @remove=2-3
              00002 XOR C         ;
              00003 XOR D         ;
              00004 RET           ;

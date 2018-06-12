@@ -3155,12 +3155,12 @@ class SkoolParserTest(SkoolKitTestCase):
         self.assertEqual(instructions[0].address, 49152)
         self.assertEqual(instructions[1].address, 49155)
 
-    def test_remove_directive_with_two_instructions(self):
+    def test_remove_directive_with_range(self):
         skool = """
             @start
             ; Routine
             c49152 LD A,0
-            @remove=49154,49155
+            @remove=49154-49155
              49154 XOR A
              49155 OR A
              49156 RET
@@ -3175,7 +3175,7 @@ class SkoolParserTest(SkoolKitTestCase):
             @start
             ; Routine
             c49152 LD A,0
-            @remove=$C002,$c003
+            @remove=$C002-$c003
              49154 XOR A
              49155 OR A
              49156 RET
@@ -3189,7 +3189,7 @@ class SkoolParserTest(SkoolKitTestCase):
         skool = """
             @start
             ; Routine
-            @remove=49152,49154,49155
+            @remove=49152-49155
             c49152 LD A,0
              49154 XOR A
              49155 RET

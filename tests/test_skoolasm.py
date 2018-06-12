@@ -1896,7 +1896,7 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
         skool = """
             @start
             ; Unused
-            @if({fix}>2)//remove=49152,49154//
+            @if({fix}>2)//remove=49152-49154//
             c49152 LD A,0
              49154 RET
 

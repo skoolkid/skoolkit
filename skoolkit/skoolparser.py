@@ -607,8 +607,11 @@ class SkoolParser:
             elif directive.startswith('writer='):
                 self.asm_writer_class = directive[7:].rstrip()
             elif directive.startswith('remove='):
-                addresses = [parse_int(n) for n in directive[7:].split(',')]
-                removed.update([a for a in addresses if a is not None])
+                addresses = [parse_int(n) for n in directive[7:].split('-', 1)]
+                if len(addresses) == 1 and addresses[0] is not None:
+                    removed.add(addresses[0])
+                elif len(addresses) == 2 and all(a is not None for a in addresses):
+                    removed.update(range(addresses[0], addresses[1] + 1))
             elif directive.startswith('set-'):
                 name, sep, value = directive[4:].partition('=')
                 if sep:
