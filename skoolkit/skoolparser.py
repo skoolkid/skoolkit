@@ -332,7 +332,7 @@ class SkoolParser:
         self.base = base
         self.variables = variables
         self.fields = {
-            'asm': asm_mode,
+            'asm': asm_mode & 3,
             'base': base,
             'case': case,
             'fix': fix_mode,

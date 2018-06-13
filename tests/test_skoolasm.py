@@ -146,20 +146,27 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
 
     def test_macro_if_asm(self):
         for asm_mode in (0, 1, 2, 3):
-            writer = self._get_writer(asm_mode=asm_mode)
+            writer = self._get_writer('', asm_mode=asm_mode)
             macro = '#IF({{asm}}=={})(PASS,FAIL)'.format(asm_mode)
+            with self.subTest(asm_mode=asm_mode):
+                self.assertEqual(writer.expand(macro), 'PASS')
+
+    def test_macro_if_asm_plus_4(self):
+        for asm_mode in (4, 5, 6, 7):
+            writer = self._get_writer('', asm_mode=asm_mode)
+            macro = '#IF({{asm}}=={})(PASS,FAIL)'.format(asm_mode & 3)
             with self.subTest(asm_mode=asm_mode):
                 self.assertEqual(writer.expand(macro), 'PASS')
 
     def test_macro_if_fix(self):
         for fix_mode in (0, 1, 2, 3):
-            writer = self._get_writer(fix_mode=fix_mode)
+            writer = self._get_writer('', fix_mode=fix_mode)
             macro = '#IF({{fix}}=={})(PASS,FAIL)'.format(fix_mode)
             with self.subTest(fix_mode=fix_mode):
                 self.assertEqual(writer.expand(macro), 'PASS')
 
     def test_macro_if_html(self):
-        writer = self._get_writer()
+        writer = self._get_writer('')
         self.assertEqual(writer.expand('#IF({html})(FAIL,PASS)'), 'PASS')
 
     def test_macro_include(self):
@@ -197,20 +204,27 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
 
     def test_macro_map_asm(self):
         for asm_mode in (0, 1, 2, 3):
-            writer = self._get_writer(asm_mode=asm_mode)
+            writer = self._get_writer('', asm_mode=asm_mode)
             macro = '#MAP({{asm}})(FAIL,{}:PASS)'.format(asm_mode)
+            with self.subTest(asm_mode=asm_mode):
+                self.assertEqual(writer.expand(macro), 'PASS')
+
+    def test_macro_map_asm_plus_4(self):
+        for asm_mode in (4, 5, 6, 7):
+            writer = self._get_writer('', asm_mode=asm_mode)
+            macro = '#MAP({{asm}})(FAIL,{}:PASS)'.format(asm_mode & 3)
             with self.subTest(asm_mode=asm_mode):
                 self.assertEqual(writer.expand(macro), 'PASS')
 
     def test_macro_map_fix(self):
         for fix_mode in (0, 1, 2, 3):
-            writer = self._get_writer(fix_mode=fix_mode)
+            writer = self._get_writer('', fix_mode=fix_mode)
             macro = '#MAP({{fix}})(FAIL,{}:PASS)'.format(fix_mode)
             with self.subTest(fix_mode=fix_mode):
                 self.assertEqual(writer.expand(macro), 'PASS')
 
     def test_macro_map_html(self):
-        writer = self._get_writer()
+        writer = self._get_writer('')
         self.assertEqual(writer.expand('#MAP({html})(FAIL,0:PASS)'), 'PASS')
 
     def test_macro_r(self):

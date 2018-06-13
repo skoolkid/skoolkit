@@ -1748,6 +1748,21 @@ class SkoolParserTest(SkoolKitTestCase):
         entry = self._get_parser(skool, asm_mode=1).get_entry(40000)
         self.assertEqual(['#zero-1-2-THREE'], entry.details)
 
+    def test_if_directive_asm_plus_4(self):
+        skool = """
+            @start
+            @if({asm}==0)(replace=/#zero/0)
+            @if({asm}==1)(replace=/#one/1)
+            @if({asm}==1)(replace=/#two/2,replace=/#two/TWO)
+            @if({asm}==2)(replace=/#three/3,replace=/#three/THREE)
+            ; Routine at 40000
+            ;
+            ; #zero-#one-#two-#three
+            c40000 RET
+        """
+        entry = self._get_parser(skool, asm_mode=5).get_entry(40000)
+        self.assertEqual(['#zero-1-2-THREE'], entry.details)
+
     def test_if_directive_base(self):
         skool = """
             @if({base}==0)(replace=/#zero/0)
