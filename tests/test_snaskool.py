@@ -2728,6 +2728,104 @@ class SkoolWriterTest(SkoolKitTestCase):
         """
         self._test_write_skool(snapshot, ctl, exp_skool, params=params)
 
+    def test_comment_semicolons(self):
+        snapshot = [0] * 48
+        ctl = """
+            c 00000
+              00000,3 Even the blank comment line has a semicolon
+            N 00003 Every line in a code block has semicolon even when there's no comment
+            b 00006
+              00006,3,1 Even the blank comment line has a semicolon
+            N 00009 No semicolons in a data block when there's no comment
+              00009,3,1
+            g 00012
+              00012,3,1 Even the blank comment line has a semicolon
+            N 00015 No semicolons in a data block when there's no comment
+              00015,3,1
+            s 00018
+              00018,3,1 Even the blank comment line has a semicolon
+            N 00021 No semicolons in a data block when there's no comment
+              00021,3,1
+            t 00024
+            B 00024,3,1 Even the blank comment line has a semicolon
+            N 00027 No semicolons in a data block when there's no comment
+            B 00027,3,1
+            u 00030
+              00030,3,1 Even the blank comment line has a semicolon
+            N 00033 No semicolons in a data block when there's no comment
+              00033,3,1
+            w 00036
+              00036,6,2 Even the blank comment line has a semicolon
+            N 00042 No semicolons in a data block when there's no comment
+              00042,6,2
+            i 00048
+        """
+        exp_skool = """
+            ; Routine at 0
+            c00000 NOP           ; {Even the blank comment line has a semicolon
+             00001 NOP           ;
+             00002 NOP           ; }
+            ; Every line in a code block has semicolon even when there's no comment
+             00003 NOP           ;
+             00004 NOP           ;
+             00005 NOP           ;
+
+            ; Data block at 6
+            b00006 DEFB 0        ; {Even the blank comment line has a semicolon
+             00007 DEFB 0        ;
+             00008 DEFB 0        ; }
+            ; No semicolons in a data block when there's no comment
+             00009 DEFB 0
+             00010 DEFB 0
+             00011 DEFB 0
+
+            ; Game status buffer entry at 12
+            g00012 DEFB 0        ; {Even the blank comment line has a semicolon
+             00013 DEFB 0        ;
+             00014 DEFB 0        ; }
+            ; No semicolons in a data block when there's no comment
+             00015 DEFB 0
+             00016 DEFB 0
+             00017 DEFB 0
+
+            ; Unused
+            s00018 DEFS 1        ; {Even the blank comment line has a semicolon
+             00019 DEFS 1        ;
+             00020 DEFS 1        ; }
+            ; No semicolons in a data block when there's no comment
+             00021 DEFS 1
+             00022 DEFS 1
+             00023 DEFS 1
+
+            ; Message at 24
+            t00024 DEFB 0        ; {Even the blank comment line has a semicolon
+             00025 DEFB 0        ;
+             00026 DEFB 0        ; }
+            ; No semicolons in a data block when there's no comment
+             00027 DEFB 0
+             00028 DEFB 0
+             00029 DEFB 0
+
+            ; Unused
+            u00030 DEFB 0        ; {Even the blank comment line has a semicolon
+             00031 DEFB 0        ;
+             00032 DEFB 0        ; }
+            ; No semicolons in a data block when there's no comment
+             00033 DEFB 0
+             00034 DEFB 0
+             00035 DEFB 0
+
+            ; Data block at 36
+            w00036 DEFW 0        ; {Even the blank comment line has a semicolon
+             00038 DEFW 0        ;
+             00040 DEFW 0        ; }
+            ; No semicolons in a data block when there's no comment
+             00042 DEFW 0
+             00044 DEFW 0
+             00046 DEFW 0
+        """
+        self._test_write_skool(snapshot, ctl, exp_skool)
+
 class CtlWriterTest(SkoolKitTestCase):
     def test_decimal_addresses_below_10000(self):
         ctls = {0: 'b', 1: 'c', 22: 't', 333: 'w', 4444: 's'}
