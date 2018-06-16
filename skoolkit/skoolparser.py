@@ -14,7 +14,7 @@
 # You should have received a copy of the GNU General Public License along with
 # SkoolKit. If not, see <http://www.gnu.org/licenses/>.
 
-from collections import defaultdict
+from collections import defaultdict, namedtuple
 import html
 import re
 
@@ -32,6 +32,8 @@ COLUMN_WRAP_MARKER = ':w'
 
 LIST_MARKER = '#LIST'
 LIST_END_MARKER = 'LIST#'
+
+Flags = namedtuple('Flags', 'prepend final')
 
 def _replace_nums(operation, hex_fmt=None, skip_bit=False, prefix=None):
     elements = re.split('(?<=[\s,(%*/+-])(\$[0-9A-Fa-f]+|\d+)', (prefix or '(') + operation)
@@ -91,18 +93,24 @@ def parse_asm_data_directive(snapshot, directive):
             set_bytes(snapshot, addr, operation)
 
 def parse_asm_sub_fix_directive(directive):
-    prepend = directive.startswith('<')
-    if prepend:
-        directive = directive[1:]
+    match = re.match('[</]+', directive)
+    if match:
+        prefix = match.group()
+        directive = directive[len(prefix):]
+    else:
+        prefix = ''
+    prepend = '<' in prefix
+    final = '/' in prefix
     op, sep, comment = partition_unquoted(directive, ';')
     if sep:
         comment = comment.strip()
     else:
         comment = None
     label, lsep, op = partition_unquoted(op, ':')
+    flags = Flags(prepend, final)
     if lsep:
-        return prepend, label.strip(), op.strip(), comment
-    return prepend, None, label.strip(), comment
+        return flags, label.strip(), op.strip(), comment
+    return flags, None, label.strip(), comment
 
 def _html_escape(text):
     return html.escape(text, False)
@@ -845,10 +853,10 @@ class Mode:
             index = 1
             address_comment = address_comments[-1]
             for value in self.subs[weight]:
-                prepend, label, op, comment = parse_asm_sub_fix_directive(value)
+                flags, label, op, comment = parse_asm_sub_fix_directive(value)
                 op = self.apply_base('', self.apply_case('', op)[1])[1]
                 size = 0
-                if prepend:
+                if flags.prepend:
                     if weight % 3 == 0:
                         if op:
                             inst = Instruction(' ', '     ', op)
@@ -858,7 +866,7 @@ class Mode:
                             address_comment = [inst, [], [comment]]
                             address_comments.insert(len(address_comments) - 1, address_comment)
                         elif comment is not None:
-                            address_comment[2].append(comment or None)
+                            address_comment[2].append(comment)
                 elif unsubbed:
                     address_comment = address_comments[-1]
                     instruction.apply_sub(op, comment, address_comment)
@@ -881,7 +889,9 @@ class Mode:
                     address_comment = [inst, [], [comment]]
                     address_comments.append(address_comment)
                 elif comment is not None:
-                    address_comment[2].append(comment or None)
+                    address_comment[2].append(comment)
+                if flags.final:
+                    address_comment[2].append(None)
                 if self.asm_labels and label is not None and (index == 0 or op):
                     inst.asm_label = label
                 if size is None:

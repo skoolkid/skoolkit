@@ -224,8 +224,9 @@ at those addresses, and the image created by the ``#UDG`` macro would be blank.
 The ``@bfix`` directive makes a label, instruction and comment substitution in
 :ref:`bfixMode`. ::
 
-  @bfix=[LABEL:][INSTRUCTION][; comment]
+  @bfix=[/][LABEL:][INSTRUCTION][; comment]
 
+* ``/`` - if this marker is present, any remaining comment lines are removed
 * ``LABEL`` is the replacement label; if not given, any existing label is left
   unchanged
 * ``INSTRUCTION`` is the replacement instruction; if not given, the existing
@@ -259,8 +260,7 @@ To add a second comment line to an instruction that has only one::
 
 To replace two comment lines with one::
 
-  @bfix=AND B  ; The following directive effectively terminates this comment
-  @bfix=       ;
+  @bfix=/AND B ; The '/' in this directive effectively terminates the comment
    29713 AND C ; This comment line will be replaced
                ; and this one will be removed
 
@@ -987,10 +987,11 @@ See also :ref:`definingMacrosWithReplace`.
 The ``@rfix`` directive makes a label, instruction and comment substitution in
 :ref:`rfixMode`. ::
 
-  @rfix=[<][LABEL:][INSTRUCTION][; comment]
+  @rfix=[<][/][LABEL:][INSTRUCTION][; comment]
 
 * ``<`` - if this marker is present, ``INSTRUCTION`` is inserted before the
   current instruction instead of replacing it
+* ``/`` - if this marker is present, any remaining comment lines are removed
 * ``LABEL`` is the replacement label; if not given, any existing label is left
   unchanged
 * ``INSTRUCTION`` is the replacement instruction; if not given, the existing
@@ -1024,8 +1025,7 @@ To add a second comment line to an instruction that has only one::
 
 To replace two comment lines with one::
 
-  @rfix=AND B  ; The following directive effectively terminates this comment
-  @rfix=       ;
+  @rfix=/AND B ; The '/' in this directive effectively terminates the comment
    29713 AND C ; This comment line will be replaced
                ; and this one will be removed
 

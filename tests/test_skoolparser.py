@@ -3590,8 +3590,7 @@ class SkoolParserTest(SkoolKitTestCase):
         skool = """
             @start
             ; Routine
-            @{0}=LD A,1   ; Initialise the counter to 1.
-            @{0}=         ;
+            @{0}=/LD A,1  ; Initialise the counter to 1.
             c32768 LD A,0 ; Reset the
                           ; counter to 0.
         """
@@ -3604,8 +3603,7 @@ class SkoolParserTest(SkoolKitTestCase):
             @start
             ; Routine
             @{0}=LD A,1   ; Initialise the
-            @{0}=         ; counter to 1.
-            @{0}=         ;
+            @{0}=/        ; counter to 1.
             c32768 LD A,0 ; Reset the
                           ; counter
                           ; to 0.
@@ -3618,8 +3616,7 @@ class SkoolParserTest(SkoolKitTestCase):
         skool = """
             @start
             ; Routine
-            @{0}=LD A,1   ; Initialise the counter to 1.
-            @{0}=         ;
+            @{0}=/LD A,1  ; Initialise the counter to 1.
             c32768 LD A,0 ; Reset the
                           ; counter
                           ; to 0.
@@ -3699,8 +3696,7 @@ class SkoolParserTest(SkoolKitTestCase):
         skool = """
             @start
             ; Routine
-            @{0}=XOR A
-            @{0}=         ;
+            @{0}=/XOR A
             @{0}=INC A    ;
             c32768 LD A,0 ; Clear A
                           ; in
@@ -3928,8 +3924,7 @@ class SkoolParserTest(SkoolKitTestCase):
         skool = """
             @start
             ; Routine
-            @{0}=LD (HL),0
-            @{0}=            ;
+            @{0}=/LD (HL),0
             @{0}=INC L       ;
             c32768 LD (HL),0 ; Clear the contents
                              ; of the address
