@@ -832,6 +832,28 @@ class Mode:
         if weight:
             self.subs[weight].append(value)
 
+    def compose_instructions(self, subs, current=False):
+        instructions = []
+        for flags, label, op, comment in subs:
+            op = self.apply_base('', self.apply_case('', op)[1])[1]
+            if op or (current and not instructions):
+                instructions.append((label, op, [comment]))
+            elif instructions:
+                instructions[-1][2].append(comment)
+            if flags.final and instructions:
+                instructions[-1][2].append(None)
+        return instructions
+
+    def process_instruction(self, instruction, label, removed=None, weight=0):
+        if self.asm_labels and label is not None:
+            instruction.asm_label = label
+        if instruction.address is not None:
+            size = get_size(instruction.operation, instruction.address)
+            if size:
+                if weight % 3:
+                    removed.update(range(instruction.address, instruction.address + size))
+                return instruction.address + size
+
     def apply_asm_attributes(self, instruction, map_entry, instructions, address_comments, removed):
         instruction.keep = self.keep
 
@@ -846,67 +868,45 @@ class Mode:
         if self.asm_mode:
             if self.org != '':
                 instruction.org = self.org
-            inst = instruction
-            address = inst.address
-            weight = max(self.subs)
-            unsubbed = True
-            index = 1
-            address_comment = address_comments[-1]
-            for value in self.subs[weight]:
-                flags, label, op, comment = parse_asm_sub_fix_directive(value)
-                op = self.apply_base('', self.apply_case('', op)[1])[1]
-                size = 0
-                if flags.prepend:
-                    if weight % 3 == 0:
-                        if op:
-                            inst = Instruction(' ', '     ', op)
-                            inst.mid_block_comment = instruction.mid_block_comment
-                            instruction.mid_block_comment = None
-                            map_entry.add_instruction(inst, True)
-                            address_comment = [inst, [], [comment]]
-                            address_comments.insert(len(address_comments) - 1, address_comment)
-                        elif comment is not None:
-                            address_comment[2].append(comment)
-                elif unsubbed:
-                    address_comment = address_comments[-1]
-                    instruction.apply_sub(op, comment, address_comment)
-                    size = get_size(instruction.operation, address) or None
-                    unsubbed = False
-                    index = 0
-                elif op:
-                    if weight % 3:
-                        if address is None:
-                            raise SkoolParsingError("Cannot determine address of instruction after '{} {}'".format(inst.addr_str, inst.operation))
-                        addr_str = self.apply_base(self.apply_case(str(address))[0])[0]
-                        inst = Instruction(' ', addr_str, op)
-                        if inst.address not in removed:
-                            instructions.setdefault(address, []).append(inst)
-                            map_entry.add_instruction(inst)
-                        size = get_size(op, address) or None
-                    else:
-                        inst = Instruction(' ', '     ', op)
-                        map_entry.add_instruction(inst)
-                    address_comment = [inst, [], [comment]]
-                    address_comments.append(address_comment)
-                elif comment is not None:
-                    address_comment[2].append(comment)
-                if flags.final:
-                    address_comment[2].append(None)
-                if self.asm_labels and label is not None and (index == 0 or op):
-                    inst.asm_label = label
-                if size is None:
-                    address = None
-                else:
-                    if weight % 3:
-                        # Overlapping instructions will be replaced unless in
-                        # @rfix or @rsub mode
-                        removed.update(range(address, address + size))
-                    address += size
-                index = 1
-
             instruction.warn = not self.nowarn
             instruction.ignoreua = self.ignoreua
             instruction.ignoremrcua = self.ignoremrcua
+
+            weight = max(self.subs)
+            parsed = [parse_asm_sub_fix_directive(d) for d in self.subs[weight]]
+            before = self.compose_instructions(s for s in parsed if s[0].prepend)
+            after = self.compose_instructions((s for s in parsed if not s[0].prepend), True)
+
+            for label, op, comments in before:
+                inst = Instruction(' ', '     ', op)
+                map_entry.add_instruction(inst, True)
+                address_comments.insert(len(address_comments) - 1, (inst, [], comments))
+                self.process_instruction(inst, label)
+
+            address = instruction.address
+            if after:
+                label, op, comments = after.pop(0)
+                if op:
+                    instruction.sub = instruction.operation = op
+                if comments[0] is None:
+                    comments[0] = address_comments[-1][1][0]
+                address_comments[-1][2].extend(comments)
+                address = self.process_instruction(instruction, label, removed, weight)
+
+            for label, op, comments in after:
+                if weight % 3:
+                    if address is None:
+                        raise SkoolParsingError("Cannot determine address of instruction after '{} {}'".format(instruction.addr_str, instruction.operation))
+                    addr_str = self.apply_base(self.apply_case(str(address))[0])[0]
+                    instruction = Instruction(' ', addr_str, op)
+                    if address not in removed:
+                        instructions.setdefault(address, []).append(instruction)
+                        map_entry.add_instruction(instruction)
+                else:
+                    instruction = Instruction(' ', '     ', op)
+                    map_entry.add_instruction(instruction)
+                address_comments.append((instruction, [], comments))
+                address = self.process_instruction(instruction, label, removed, weight)
 
         self.reset()
 
@@ -1034,14 +1034,6 @@ class Instruction:
             self.referrers.append(routine)
         self.container.add_referrer(routine)
 
-    def apply_sub(self, operation, comment, address_comment):
-        if operation:
-            self.sub = self.operation = operation
-        if comment is None:
-            address_comment[2].append(address_comment[1][0])
-        else:
-            address_comment[2].append(comment)
-
     def is_in_routine(self):
         return self.container.is_routine()
 
@@ -1115,6 +1107,8 @@ class SkoolEntry:
                 instruction.org = None
             else:
                 instruction.org = self.instructions[0].org
+            instruction.mid_block_comment = self.instructions[index].mid_block_comment
+            self.instructions[index].mid_block_comment = None
             self.instructions.insert(index, instruction)
         else:
             self.instructions.append(instruction)
