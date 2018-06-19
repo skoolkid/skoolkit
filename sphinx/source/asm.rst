@@ -221,10 +221,14 @@ at those addresses, and the image created by the ``#UDG`` macro would be blank.
 
 @bfix
 ^^^^^
-The ``@bfix`` directive makes a label, instruction and comment substitution in
+The ``@bfix`` directive replaces or removes a label, instruction and comment in
 :ref:`bfixMode`. ::
 
   @bfix=[/][LABEL:][INSTRUCTION][; comment]
+
+or::
+
+  @bfix=!addr1[-addr2]
 
 * ``/`` - if this marker is present, any remaining comment lines are removed
 * ``LABEL`` is the replacement label; if not given, any existing label is left
@@ -233,6 +237,8 @@ The ``@bfix`` directive makes a label, instruction and comment substitution in
   instruction is left unchanged
 * ``comment`` is the replacement comment; if not given, the existing comment is
   left unchanged
+* ``addr1`` is the address of the first instruction to remove
+* ``addr2``, if given, is the address of the last instruction to remove
 
 For example::
 
@@ -306,13 +312,28 @@ of line by line. For example::
 
 replaces both comment lines of the instruction at 51122 with 'Flip the bits'.
 
+The ``@bfix`` directive can also remove individual instructions or an entire
+entry, which is required when making space for instructions appended to the
+previous entry. For example::
+
+  @bfix=XOR A ; Clear A before returning
+  @bfix=RET
+   60445 RET
+
+  ; Unused
+  @bfix=!60446
+  b60446 DEFB 0
+
+These directives insert an ``XOR A`` instruction at 60445 and remove the entry
+at 60446 in order to make space for it.
+
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
 | 7.0     | Added support for specifying the replacement comment over         |
 |         | multiple lines, replacing one instruction with two or more,       |
 |         | replacing two or more instructions with one, replacing a sequence |
-|         | of instructions, and replacing the label                          |
+|         | of instructions, replacing the label, and removing instructions   |
 +---------+-------------------------------------------------------------------+
 | 6.4     | Added support for replacing the comment                           |
 +---------+-------------------------------------------------------------------+
@@ -657,7 +678,7 @@ The syntax is equivalent to that for the :ref:`bfix` directive.
 | 7.0     | Added support for specifying the replacement comment over         |
 |         | multiple lines, replacing one instruction with two or more,       |
 |         | replacing two or more instructions with one, replacing a sequence |
-|         | of instructions, and replacing the label                          |
+|         | of instructions, replacing the label, and removing instructions   |
 +---------+-------------------------------------------------------------------+
 | 6.4     | Added support for replacing the comment                           |
 +---------+-------------------------------------------------------------------+
@@ -788,7 +809,7 @@ The syntax is equivalent to that for the :ref:`bfix` directive.
 | 7.0     | Added support for specifying the replacement comment over         |
 |         | multiple lines, replacing one instruction with two or more,       |
 |         | replacing two or more instructions with one, replacing a sequence |
-|         | of instructions, and replacing the label                          |
+|         | of instructions, replacing the label, and removing instructions   |
 +---------+-------------------------------------------------------------------+
 | 6.4     | Added support for replacing the comment                           |
 +---------+-------------------------------------------------------------------+
@@ -984,10 +1005,14 @@ See also :ref:`definingMacrosWithReplace`.
 
 @rfix
 ^^^^^
-The ``@rfix`` directive makes a label, instruction and comment substitution in
+The ``@rfix`` directive replaces or removes a label, instruction and comment in
 :ref:`rfixMode`. ::
 
   @rfix=[<][/][LABEL:][INSTRUCTION][; comment]
+
+or::
+
+  @rfix=!addr1[-addr2]
 
 * ``<`` - if this marker is present, ``INSTRUCTION`` is inserted before the
   current instruction instead of replacing it
@@ -998,6 +1023,8 @@ The ``@rfix`` directive makes a label, instruction and comment substitution in
   instruction is left unchanged
 * ``comment`` is the replacement comment; if not given, the existing comment is
   left unchanged
+* ``addr1`` is the address of the first instruction to remove
+* ``addr2``, if given, is the address of the last instruction to remove
 
 For example::
 
@@ -1052,12 +1079,30 @@ using the ``<`` marker. For example::
 This will insert ``LD (HL),C`` and ``INC HL`` between ``EX DE,HL`` and
 ``LD (HL),B``.
 
+An instruction can be removed by using the ``!`` notation. For example::
+
+   51184 XOR A
+  @rfix=!51185
+   51185 AND A ; This instruction is redundant
+   51186 RET
+
+This removes the redundant instruction at 51185.
+
+An entire entry can be removed by specifying an address range that covers every
+instruction in the entry::
+
+  ; Unused
+  @rfix=!40000-40001
+  c40000 NOP
+   40001 RET
+
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
 | 7.0     | Added support for specifying the replacement comment over         |
 |         | multiple lines, inserting a sequence of instructions before or    |
-|         | after the current instruction, and replacing the label            |
+|         | after the current instruction, replacing the label, and removing  |
+|         | instructions                                                      |
 +---------+-------------------------------------------------------------------+
 | 6.4     | Added support for replacing the comment                           |
 +---------+-------------------------------------------------------------------+
@@ -1087,7 +1132,8 @@ The syntax is equivalent to that for the :ref:`rfix` directive.
 +=========+===================================================================+
 | 7.0     | Added support for specifying the replacement comment over         |
 |         | multiple lines, inserting a sequence of instructions before or    |
-|         | after the current instruction, and replacing the label            |
+|         | after the current instruction, replacing the label, and removing  |
+|         | instructions                                                      |
 +---------+-------------------------------------------------------------------+
 | 6.4     | Added support for replacing the comment                           |
 +---------+-------------------------------------------------------------------+
@@ -1173,7 +1219,7 @@ The syntax is equivalent to that for the :ref:`bfix` directive.
 | 7.0     | Added support for specifying the replacement comment over         |
 |         | multiple lines, replacing one instruction with two or more,       |
 |         | replacing two or more instructions with one, replacing a sequence |
-|         | of instructions, and replacing the label                          |
+|         | of instructions, replacing the label, and removing instructions   |
 +---------+-------------------------------------------------------------------+
 | 6.4     | Added support for replacing the comment                           |
 +---------+-------------------------------------------------------------------+

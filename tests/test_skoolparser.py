@@ -4247,6 +4247,144 @@ class SkoolParserTest(SkoolKitTestCase):
         ]
         self._test_sub_and_fix_directives(skool, exp_instructions, exp_subs, [3])
 
+    def test_sub_and_fix_directives_remove_instruction(self):
+        skool = """
+            @start
+            c49152 LD A,0
+            @{}=!49154
+             49154 XOR A
+             49155 RET
+        """
+        exp_instructions = [
+            ('49152', 'LD A,0', ''),
+            ('49154', 'XOR A', ''),
+            ('49155', 'RET', '')
+        ]
+        exp_subs = [
+            ('49152', 'LD A,0', ''),
+            ('49155', 'RET', '')
+        ]
+        self._test_sub_and_fix_directives(skool, exp_instructions, exp_subs)
+
+    def test_sub_and_fix_directives_remove_instructions_in_range(self):
+        skool = """
+            @start
+            c49152 LD A,0
+            @{}=!49154-49155
+             49154 XOR A
+             49155 OR A
+             49156 RET
+        """
+        exp_instructions = [
+            ('49152', 'LD A,0', ''),
+            ('49154', 'XOR A', ''),
+            ('49155', 'OR A', ''),
+            ('49156', 'RET', '')
+        ]
+        exp_subs = [
+            ('49152', 'LD A,0', ''),
+            ('49156', 'RET', '')
+        ]
+        self._test_sub_and_fix_directives(skool, exp_instructions, exp_subs)
+
+    def test_sub_and_fix_directives_remove_instructions_with_hex_addresses(self):
+        skool = """
+            @start
+            c49152 LD A,0
+            @{}=!$C002-$c003
+             49154 XOR A
+             49155 OR A
+             49156 RET
+        """
+        exp_instructions = [
+            ('49152', 'LD A,0', ''),
+            ('49154', 'XOR A', ''),
+            ('49155', 'OR A', ''),
+            ('49156', 'RET', '')
+        ]
+        exp_subs = [
+            ('49152', 'LD A,0', ''),
+            ('49156', 'RET', '')
+        ]
+        self._test_sub_and_fix_directives(skool, exp_instructions, exp_subs)
+
+    def test_sub_and_fix_directives_remove_entire_entry(self):
+        skool = """
+            @start
+            @{}=!49152-49155
+            c49152 LD A,0
+             49154 XOR A
+             49155 RET
+
+            ; Data
+            b49156 DEFB 0
+        """
+        for sub_mode, fix_mode, asm_dir in (
+                (1, 0, 'isub'),
+                (2, 0, 'ssub'),
+                (3, 1, 'rsub'),
+                (1, 1, 'ofix'),
+                (1, 2, 'bfix'),
+                (3, 3, 'rfix')
+        ):
+            with self.subTest(sub_mode=sub_mode, fix_mode=fix_mode, asm_dir=asm_dir):
+                parser = self._get_parser(skool.format(asm_dir), asm_mode=sub_mode, fix_mode=fix_mode)
+                self.assertIsNone(parser.get_entry(49152))
+                self.assertIsNotNone(parser.get_entry(49156))
+
+    def test_sub_and_fix_directives_remove_current_entry_only(self):
+        skool = """
+            @start
+            @{0}=!30000
+            c30000 RET
+
+            @{0}+begin
+            b30000 DEFB 201
+            @{0}+end
+        """
+        exp_instructions = [('30000', 'RET', '')]
+        exp_subs = [('30000', 'DEFB 201', '')]
+        self._test_sub_and_fix_directives(skool, exp_instructions, exp_subs)
+
+    def test_sub_and_fix_directives_discard_label_on_removed_instruction(self):
+        skool = """
+            @start
+            @{0}=!30000
+            @label=START
+            c30000 RET
+
+            @{0}+begin
+            @label=START
+            c30001 RET Z
+            @{0}+end
+        """
+        exp_instructions = [('START', '30000', 'RET', '')]
+        exp_subs = [('START', '30001', 'RET Z', '')]
+        self._test_sub_and_fix_directives(skool, exp_instructions, exp_subs)
+
+    def test_sub_and_fix_directives_remove_added_instructions(self):
+        skool = """
+            @start
+            @{0}=!30001-30002
+            c30000 LD A,B
+            @{1}=CPL
+            @{1}=INC A
+             30001 NEG
+             30003 RET
+        """
+        for sub_mode, fix_mode, asm_dirs in (
+                (2, 0, ('ssub', 'isub')),
+                (3, 1, ('rsub', 'ssub')),
+                (1, 2, ('bfix', 'ofix')),
+                (3, 3, ('rfix', 'bfix'))
+        ):
+            with self.subTest(sub_mode=sub_mode, fix_mode=fix_mode, asm_dirs=asm_dirs):
+                parser = self._get_parser(skool.format(*asm_dirs), asm_mode=sub_mode, fix_mode=fix_mode)
+                instructions = parser.get_entry(30000).instructions
+                self.assertEqual(len(instructions), 2)
+                self.assertEqual(instructions[0].operation, 'LD A,B')
+                self.assertEqual(instructions[1].operation, 'RET')
+
     def test_no_asm_labels(self):
         skool = """
             @label=START

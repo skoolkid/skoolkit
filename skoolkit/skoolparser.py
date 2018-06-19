@@ -604,7 +604,12 @@ class SkoolParser:
                 pass
         elif self.mode.asm_mode:
             if directive.startswith(('isub=', 'ssub=', 'rsub=', 'ofix=', 'bfix=', 'rfix=')):
-                self.mode.add_sub(directive[:4], directive[5:].rstrip())
+                value = directive[5:].rstrip()
+                if value.startswith('!'):
+                    if self.mode.weights[directive[:4]]:
+                        self._parse_asm_directive('remove=' + value[1:], removed)
+                else:
+                    self.mode.add_sub(directive[:4], value)
             elif directive.startswith('nowarn'):
                 self.mode.nowarn = True
             elif directive.startswith('ignoreua'):
