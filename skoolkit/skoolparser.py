@@ -33,7 +33,7 @@ COLUMN_WRAP_MARKER = ':w'
 LIST_MARKER = '#LIST'
 LIST_END_MARKER = 'LIST#'
 
-Flags = namedtuple('Flags', 'prepend final')
+Flags = namedtuple('Flags', 'prepend final overwrite')
 
 def _replace_nums(operation, hex_fmt=None, skip_bit=False, prefix=None):
     elements = re.split('(?<=[\s,(%*/+-])(\$[0-9A-Fa-f]+|\d+)', (prefix or '(') + operation)
@@ -93,7 +93,7 @@ def parse_asm_data_directive(snapshot, directive):
             set_bytes(snapshot, addr, operation)
 
 def parse_asm_sub_fix_directive(directive):
-    match = re.match('[</]+', directive)
+    match = re.match('[</|]+', directive)
     if match:
         prefix = match.group()
         directive = directive[len(prefix):]
@@ -101,13 +101,14 @@ def parse_asm_sub_fix_directive(directive):
         prefix = ''
     prepend = '<' in prefix
     final = '/' in prefix
+    overwrite = '|' in prefix
     op, sep, comment = partition_unquoted(directive, ';')
     if sep:
         comment = comment.strip()
     else:
         comment = None
     label, lsep, op = partition_unquoted(op, ':')
-    flags = Flags(prepend, final)
+    flags = Flags(prepend, final, overwrite)
     if lsep:
         return flags, label.strip(), op.strip(), comment
     return flags, None, label.strip(), comment
@@ -842,21 +843,20 @@ class Mode:
         for flags, label, op, comment in subs:
             op = self.apply_base('', self.apply_case('', op)[1])[1]
             if op or (current and not instructions):
-                instructions.append((label, op, [comment]))
+                instructions.append((flags.overwrite, label, op, [comment]))
             elif instructions:
-                instructions[-1][2].append(comment)
+                instructions[-1][-1].append(comment)
             if flags.final and instructions:
-                instructions[-1][2].append(None)
+                instructions[-1][-1].append(None)
         return instructions
 
-    def process_instruction(self, instruction, label, removed=None, weight=0):
+    def process_instruction(self, instruction, label, overwrite=False, removed=None):
         if self.asm_labels and label is not None:
             instruction.asm_label = label
-        if instruction.address is not None:
+        if overwrite:
             size = get_size(instruction.operation, instruction.address)
             if size:
-                if weight % 3:
-                    removed.update(range(instruction.address, instruction.address + size))
+                removed.update(range(instruction.address, instruction.address + size))
                 return instruction.address + size
 
     def apply_asm_attributes(self, instruction, map_entry, instructions, address_comments, removed):
@@ -877,12 +877,11 @@ class Mode:
             instruction.ignoreua = self.ignoreua
             instruction.ignoremrcua = self.ignoremrcua
 
-            weight = max(self.subs)
-            parsed = [parse_asm_sub_fix_directive(d) for d in self.subs[weight]]
+            parsed = [parse_asm_sub_fix_directive(d) for d in self.subs[max(self.subs)]]
             before = self.compose_instructions(s for s in parsed if s[0].prepend)
             after = self.compose_instructions((s for s in parsed if not s[0].prepend), True)
 
-            for label, op, comments in before:
+            for overwrite, label, op, comments in before:
                 inst = Instruction(' ', '     ', op)
                 map_entry.add_instruction(inst, True)
                 address_comments.insert(len(address_comments) - 1, (inst, [], comments))
@@ -890,16 +889,16 @@ class Mode:
 
             address = instruction.address
             if after:
-                label, op, comments = after.pop(0)
+                overwrite, label, op, comments = after.pop(0)
                 if op:
                     instruction.sub = instruction.operation = op
                 if comments[0] is None:
                     comments[0] = address_comments[-1][1][0]
                 address_comments[-1][2].extend(comments)
-                address = self.process_instruction(instruction, label, removed, weight)
+                address = self.process_instruction(instruction, label, overwrite, removed)
 
-            for label, op, comments in after:
-                if weight % 3:
+            for overwrite, label, op, comments in after:
+                if overwrite:
                     if address is None:
                         raise SkoolParsingError("Cannot determine address of instruction after '{} {}'".format(instruction.addr_str, instruction.operation))
                     addr_str = self.apply_base(self.apply_case(str(address))[0])[0]
@@ -911,7 +910,7 @@ class Mode:
                     instruction = Instruction(' ', '     ', op)
                     map_entry.add_instruction(instruction)
                 address_comments.append((instruction, [], comments))
-                address = self.process_instruction(instruction, label, removed, weight)
+                address = self.process_instruction(instruction, label, overwrite, removed)
 
         self.reset()
 

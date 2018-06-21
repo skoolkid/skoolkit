@@ -193,7 +193,7 @@ class Skool2BinTest(SkoolKitTestCase):
 class BinWriterTest(SkoolKitTestCase):
     stdout_binary = True
 
-    def _test_write(self, skool, base_address, exp_data, exp_err='', asm_mode=0, fix_mode=0, start=None, end=None):
+    def _test_write(self, skool, base_address, exp_data, asm_mode=0, fix_mode=0, start=None, end=None):
         if skool is None:
             skoolfile = '-'
             binfile = self.write_bin_file(suffix='.bin')
@@ -208,7 +208,7 @@ class BinWriterTest(SkoolKitTestCase):
         self.assertEqual(exp_data, data)
         size = len(data)
         status = "Wrote {}: start={}, end={}, size={}\n".format(binfile, base_address, base_address + size, size)
-        self.assertEqual(exp_err + status, self.err.getvalue())
+        self.assertEqual(status, self.err.getvalue())
         self.err.clear()
 
     def test_write(self):
@@ -249,12 +249,10 @@ class BinWriterTest(SkoolKitTestCase):
         self.assertEqual(cm.exception.args[0], 'Invalid address (4000d):\nc4000d RET')
 
     def test_invalid_instruction(self):
-        skool = """
-            c40000 LD A,B
-             40001 XOR HL
-             40002 RET
-        """
-        self._test_write(skool, 40000, [120, 0, 201], 'WARNING: Failed to assemble:\n 40001 XOR HL\n')
+        skoolfile = self.write_text_file('c40000 XOR HL', suffix='.skool')
+        with self.assertRaises(SkoolKitError) as cm:
+            self.run_skool2bin(skoolfile)
+        self.assertEqual(cm.exception.args[0], 'Failed to assemble:\n 40000 XOR HL')
 
     def test_invalid_sub_instruction(self):
         skool = """
@@ -264,15 +262,18 @@ class BinWriterTest(SkoolKitTestCase):
              40001 XOR L
              40002 RET
         """
-        exp_error = 'WARNING: Failed to assemble:\n 40001 XOR HL\n'
-        for sub_mode, fix_mode, asm_dir in (
-                (1, 0, 'isub'),
-                (2, 0, 'ssub'),
-                (1, 1, 'ofix'),
-                (1, 2, 'bfix')
+        exp_error = 'Failed to assemble:\n 40001 XOR HL'
+        for option, asm_dir in (
+                ('-i', 'isub'),
+                ('-s', 'ssub'),
+                ('-o', 'ofix'),
+                ('-b', 'bfix')
         ):
-            with self.subTest(sub_mode=sub_mode, fix_mode=fix_mode, asm_dir=asm_dir):
-                self._test_write(skool.format(asm_dir), 40000, [120, 0, 201], exp_error, asm_mode=sub_mode, fix_mode=fix_mode)
+            with self.subTest(option=option, asm_dir=asm_dir):
+                skoolfile = self.write_text_file(textwrap.dedent(skool.format(asm_dir)).strip(), suffix='.skool')
+                with self.assertRaises(SkoolKitError) as cm:
+                    self.run_skool2bin('{} {}'.format(option, skoolfile))
+                self.assertEqual(cm.exception.args[0], 'Failed to assemble:\n 40001 XOR HL')
 
     def test_skool_file_from_stdin(self):
         self.write_stdin('c49152 RET')
@@ -312,9 +313,9 @@ class BinWriterTest(SkoolKitTestCase):
     def test_overlapping_instructions(self):
         skool = """
             b30000 DEFS 3,1
-             30002 XOR A    ; This instruction 'wins' because it occurs later
+             30002 XOR A    ; The address of this instruction is ignored
         """
-        exp_data = [1, 1, 175]
+        exp_data = [1, 1, 1, 175]
         self._test_write(skool, 30000, exp_data)
 
     def test_isub_mode(self):
@@ -329,25 +330,31 @@ class BinWriterTest(SkoolKitTestCase):
              40001 LD B,n
             @isub=LD C,1 ; Set C=1
              40003 LD C,n
-            @isub=XOR A  ; Test @isub
+            @isub=|XOR A ; Test @isub
             @isub=       ; adding an instruction.
-            @isub=INC A
+            @isub=|INC A
              40005 LD A,1
-            @isub=LD A,1 ; Test @isub replacing two instructions with one.
+            @isub=|LD A,1 ; Test @isub replacing two instructions with one.
              40007 XOR A
              40008 INC A
             @isub=       ; Test @isub replacing the comment only.
              40009 SUB B
             @if({asm})(isub=XOR D)
              40010 XOR C
-            @isub=       ; Test @isub replacing
-            @isub=OR H   ; a later instruction
+            @isub=|      ; Test @isub replacing
+            @isub=|OR H  ; a later instruction
              40011 OR D
              40012 OR E
             @isub=BEGIN: OR B ; Test @isub defining a label
              40013 OR A
+            @isub=<LD B,A ; Test @isub inserting an instruction before
+             40014 XOR A
+            @isub=        ; Test @isub inserting an instruction after
+            @isub=XOR C
+             40015 XOR B
+             40016 XOR D
         """
-        exp_data = [195, 64, 156, 175, 6, 1, 14, 1, 175, 60, 62, 1, 144, 170, 178, 180, 176]
+        exp_data = [195, 64, 156, 175, 6, 1, 14, 1, 175, 60, 62, 1, 144, 170, 178, 180, 176, 71, 175, 168, 169, 170]
         self._test_write(skool, 39997, exp_data, asm_mode=1)
 
     def test_ssub_mode(self):
@@ -368,24 +375,30 @@ class BinWriterTest(SkoolKitTestCase):
             @ssub=RET P
              50003 JP 32768
             @rsub+end
-            @ssub=XOR A ; Test @ssub adding an instruction.
-            @ssub=INC A
+            @ssub=|XOR A ; Test @ssub adding an instruction.
+            @ssub=|INC A
              50004 LD A,1
-            @ssub=LD A,1 ; Test @ssub replacing two instructions with one.
+            @ssub=|LD A,1 ; Test @ssub replacing two instructions with one.
              50006 XOR A
              50007 INC A
             @ssub=       ; Test @ssub replacing the comment only.
              50008 SUB B
             @if({asm}>1)(ssub=XOR D)
              50009 XOR C
-            @ssub=       ; Test @ssub replacing
-            @ssub=OR H   ; a later instruction
+            @ssub=|      ; Test @ssub replacing
+            @ssub=|OR H  ; a later instruction
              50010 OR D
              50011 OR E
             @ssub=BEGIN: ; Test @ssub defining a label
              50012 OR A
+            @ssub=<LD B,A ; Test @ssub inserting an instruction before
+             50013 XOR A
+            @ssub=        ; Test @ssub inserting an instruction after
+            @ssub=XOR C
+             50014 XOR B
+             50015 XOR D
         """
-        exp_data = [35, 19, 3, 201, 175, 60, 62, 1, 144, 170, 178, 180, 183]
+        exp_data = [35, 19, 3, 201, 175, 60, 62, 1, 144, 170, 178, 180, 183, 71, 175, 168, 169, 170]
         self._test_write(skool, 50000, exp_data, asm_mode=2)
 
     def test_ssub_overrides_isub(self):
@@ -422,25 +435,31 @@ class BinWriterTest(SkoolKitTestCase):
              60010 LD H,1
             @ofix=LD L,2 ; Set L=2
              60012 LD L,1
-            @ofix=XOR A  ; Test @ofix
+            @ofix=|XOR A ; Test @ofix
             @ofix=       ; adding an instruction.
-            @ofix=INC A
+            @ofix=|INC A
              60014 LD A,1
-            @ofix=LD A,1 ; Test @ofix replacing two instructions with one.
+            @ofix=|LD A,1 ; Test @ofix replacing two instructions with one.
              60016 XOR A
              60017 INC A
             @ofix=       ; Test @ofix replacing the comment only.
              60018 SUB B
             @if({fix})(ofix=XOR D)
              60019 XOR C
-            @ofix=       ; Test @ofix replacing
-            @ofix=OR H   ; a later instruction
+            @ofix=|      ; Test @ofix replacing
+            @ofix=|OR H  ; a later instruction
              60020 OR D
              60021 OR E
             @ofix=BEGIN: OR B ; Test @ofix defining a label
              60022 OR A
+            @ofix=<LD B,A ; Test @ofix inserting an instruction before
+             60023 XOR A
+            @ofix=        ; Test @ofix inserting an instruction after
+            @ofix=XOR C
+             60024 XOR B
+             60025 XOR D
         """
-        exp_data = [62, 2, 6, 1, 14, 1, 22, 2, 30, 1, 38, 1, 46, 2, 175, 60, 62, 1, 144, 170, 178, 180, 176]
+        exp_data = [62, 2, 6, 1, 14, 1, 22, 2, 30, 1, 38, 1, 46, 2, 175, 60, 62, 1, 144, 170, 178, 180, 176, 71, 175, 168, 169, 170]
         self._test_write(skool, 60000, exp_data, fix_mode=1)
 
     def test_bfix_mode(self):
@@ -468,24 +487,30 @@ class BinWriterTest(SkoolKitTestCase):
              60010 LD H,1
             @bfix=LD L,2 ; Set L=2
              60012 LD L,1
-            @bfix=XOR A    ; Test @bfix adding an instruction.
-            @bfix=JR 60000
+            @bfix=|XOR A   ; Test @bfix adding an instruction.
+            @bfix=|JR 60000
              60014 JP 60000
-            @bfix=LD A,1 ; Test @bfix replacing two instructions with one.
+            @bfix=|LD A,1 ; Test @bfix replacing two instructions with one.
              60017 XOR A
              60018 INC A
             @bfix=       ; Test @bfix replacing the comment only.
              60019 SUB B
             @if({fix}>1)(bfix=XOR D)
              60020 XOR C
-            @bfix=       ; Test @bfix replacing
-            @bfix=OR H   ; a later instruction
+            @bfix=|      ; Test @bfix replacing
+            @bfix=|OR H  ; a later instruction
              60021 OR D
              60022 OR E
             @bfix=BEGIN: ; Test @bfix defining a label
              60023 OR A
+            @bfix=<LD B,A ; Test @bfix inserting an instruction before
+             60024 XOR A
+            @bfix=        ; Test @bfix inserting an instruction after
+            @bfix=XOR C
+             60024 XOR B
+             60025 XOR D
         """
-        exp_data = [62, 2, 6, 2, 14, 1, 22, 2, 30, 2, 38, 1, 46, 2, 175, 24, 239, 62, 1, 144, 170, 178, 180, 183]
+        exp_data = [62, 2, 6, 2, 14, 1, 22, 2, 30, 2, 38, 1, 46, 2, 175, 24, 239, 62, 1, 144, 170, 178, 180, 183, 71, 175, 168, 169, 170]
         self._test_write(skool, 60000, exp_data, fix_mode=2)
 
     def test_bfix_overrides_ofix(self):

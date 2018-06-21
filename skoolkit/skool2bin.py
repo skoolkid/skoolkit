@@ -50,18 +50,21 @@ class BinWriter:
         for non_entry, block in read_skool(f, 2, self.asm_mode, self.fix_mode):
             if non_entry:
                 continue
+            address = None
             for line in block:
                 if line.startswith('@'):
                     self._parse_asm_directive(line[1:])
                 elif not line.lstrip().startswith(';') and line[0] in VALID_CTLS:
-                    self._parse_instruction(line, removed)
+                    address = self._parse_instruction(address, line, removed)
         f.close()
 
-    def _parse_instruction(self, line, removed):
+    def _parse_instruction(self, address, line, removed):
         try:
-            address = get_int_param(line[1:6])
+            skool_address = get_int_param(line[1:6])
         except ValueError:
             raise SkoolParsingError("Invalid address ({}):\n{}".format(line[1:6], line.rstrip()))
+        if address is None:
+            address = skool_address
         original_op = partition_unquoted(line[6:], ';')[0].strip()
         subbed = max(self.subs)
         if subbed:
@@ -69,23 +72,34 @@ class BinWriter:
         else:
             operations = [original_op]
         self.subs = defaultdict(list, {0: []})
-        for value in operations:
-            operation = parse_asm_sub_fix_directive(value)[2] or original_op
+        parsed = [parse_asm_sub_fix_directive(v)[::2] for v in operations]
+        before = [i[1] for i in parsed if i[0].prepend and i[1]]
+        for operation in before:
+            address = self._assemble(operation, address)
+        after = [(i[0].overwrite, i[1]) for i in parsed if not i[0].prepend]
+        if not after:
+            after = [(False, original_op)]
+        overwrite, operation = after.pop(0)
+        operation = operation or original_op
+        if skool_address not in removed:
+            address = self._assemble(operation, address, overwrite, removed)
+        for overwrite, operation in after:
             if operation:
-                data = assemble(operation, address)
-                if data:
-                    end_address = address + len(data)
-                    if address not in removed:
-                        self.snapshot[address:end_address] = data
-                        self.base_address = min(self.base_address, address)
-                        self.end_address = max(self.end_address, end_address)
-                    if subbed:
-                        removed.update(range(address, end_address))
-                    address = end_address
-                else:
-                    warn("Failed to assemble:\n {} {}".format(address, operation))
-                    break
-            original_op = None
+                address = self._assemble(operation, address, overwrite, removed)
+        return address
+
+    def _assemble(self, operation, address, overwrite=False, removed=None):
+        data = assemble(operation, address)
+        if data:
+            end_address = address + len(data)
+            if removed is None or address not in removed:
+                self.snapshot[address:end_address] = data
+                self.base_address = min(self.base_address, address)
+                self.end_address = max(self.end_address, end_address)
+            if overwrite:
+                removed.update(range(address, end_address))
+            return end_address
+        raise SkoolParsingError("Failed to assemble:\n {} {}".format(address, operation))
 
     def _parse_asm_directive(self, directive):
         if directive.startswith(('isub=', 'ssub=', 'ofix=', 'bfix=')):
