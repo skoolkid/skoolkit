@@ -444,6 +444,7 @@ class SkoolParser:
             if non_entry:
                 non_entries.append(self._parse_non_entry(block, removed))
                 continue
+            mid_block_comment = None
             instruction = None
             map_entry = None
             address_comments.append((None, None, None))
@@ -477,7 +478,7 @@ class SkoolParser:
                         raise SkoolParsingError("Invalid address: '{}'".format(addr_str))
                     start_comment, desc, details, registers = parse_comment_block(self.comments, self.ignores, self.mode)
                     map_entry = SkoolEntry(address, addr_str, ctl, desc, details, registers)
-                    instruction.mid_block_comment = start_comment
+                    mid_block_comment = start_comment
                     map_entry.ignoreua.update(self.mode.entry_ignoreua)
                     self.mode.reset_entry_ignoreua()
                     self.comments[:] = []
@@ -486,14 +487,16 @@ class SkoolParser:
                 if map_entry:
                     address_comment = (instruction, [address_comment], [])
                     address_comments.append(address_comment)
+                    if self.comments:
+                        mid_block_comment = join_comments(self.comments, split=True)
+                        self.comments[:] = []
+                        self.mode.ignoremrcua = 0 in self.ignores
                     if address not in removed:
+                        instruction.mid_block_comment = mid_block_comment
+                        mid_block_comment = None
                         if address is not None:
                             self._instructions.setdefault(address, []).append(instruction)
                         map_entry.add_instruction(instruction)
-                    if self.comments:
-                        instruction.mid_block_comment = join_comments(self.comments, split=True)
-                        self.comments[:] = []
-                        self.mode.ignoremrcua = 0 in self.ignores
 
                 self.mode.apply_asm_attributes(instruction, map_entry, self._instructions, address_comments, removed)
                 self.ignores[:] = []

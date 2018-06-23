@@ -4392,6 +4392,97 @@ class SkoolParserTest(SkoolKitTestCase):
         exp_subs = [('START', '30001', 'RET Z', '')]
         self._test_sub_and_fix_directives(skool, exp_instructions, exp_subs)
 
+    def test_sub_and_fix_directives_retain_start_comment_on_removed_instruction(self):
+        skool = """
+            @start
+            ; Routine
+            ;
+            ; .
+            ;
+            ; .
+            ;
+            ; Start.
+            @{}=!30000
+            c30000 XOR A
+             30001 RET
+        """
+        for sub_mode, fix_mode, asm_dir in (
+                (1, 0, 'isub'),
+                (2, 0, 'ssub'),
+                (3, 1, 'rsub'),
+                (1, 1, 'ofix'),
+                (1, 2, 'bfix'),
+                (3, 3, 'rfix')
+        ):
+            with self.subTest(sub_mode=sub_mode, fix_mode=fix_mode, asm_dir=asm_dir):
+                parser = self._get_parser(skool.format(asm_dir), asm_mode=sub_mode, fix_mode=fix_mode)
+                self.assertEqual(['Start.'], parser.get_instruction(30001).mid_block_comment)
+
+    def test_sub_and_fix_directives_retain_mid_block_comment_on_removed_instruction(self):
+        skool = """
+            @start
+            c30000 XOR A
+            ; Continue.
+            @{}=!30001
+             30001 INC A
+             30002 RET
+        """
+        for sub_mode, fix_mode, asm_dir in (
+                (1, 0, 'isub'),
+                (2, 0, 'ssub'),
+                (3, 1, 'rsub'),
+                (1, 1, 'ofix'),
+                (1, 2, 'bfix'),
+                (3, 3, 'rfix')
+        ):
+            with self.subTest(sub_mode=sub_mode, fix_mode=fix_mode, asm_dir=asm_dir):
+                parser = self._get_parser(skool.format(asm_dir), asm_mode=sub_mode, fix_mode=fix_mode)
+                self.assertEqual(['Continue.'], parser.get_instruction(30002).mid_block_comment)
+
+    def test_sub_and_fix_directives_drop_mid_block_comment_on_removed_instruction_at_end_of_entry(self):
+        skool = """
+            @start
+            c30000 XOR A
+            ; Continue.
+            @{}=!30001
+             30001 RET
+
+            c30002 LD A,B
+        """
+        for sub_mode, fix_mode, asm_dir in (
+                (1, 0, 'isub'),
+                (2, 0, 'ssub'),
+                (3, 1, 'rsub'),
+                (1, 1, 'ofix'),
+                (1, 2, 'bfix'),
+                (3, 3, 'rfix')
+        ):
+            with self.subTest(sub_mode=sub_mode, fix_mode=fix_mode, asm_dir=asm_dir):
+                parser = self._get_parser(skool.format(asm_dir), asm_mode=sub_mode, fix_mode=fix_mode)
+                self.assertEqual([], parser.get_instruction(30002).mid_block_comment)
+
+    def test_sub_and_fix_directives_drop_mid_block_comment_on_removed_instruction_when_next_instruction_has_one(self):
+        skool = """
+            @start
+            c30000 XOR A
+            ; This comment should disappear...
+            @{}=!30001
+             30001 INC A
+            ; ...and leave this one alone
+             30002 RET
+        """
+        for sub_mode, fix_mode, asm_dir in (
+                (1, 0, 'isub'),
+                (2, 0, 'ssub'),
+                (3, 1, 'rsub'),
+                (1, 1, 'ofix'),
+                (1, 2, 'bfix'),
+                (3, 3, 'rfix')
+        ):
+            with self.subTest(sub_mode=sub_mode, fix_mode=fix_mode, asm_dir=asm_dir):
+                parser = self._get_parser(skool.format(asm_dir), asm_mode=sub_mode, fix_mode=fix_mode)
+                self.assertEqual(['...and leave this one alone'], parser.get_instruction(30002).mid_block_comment)
+
     def test_sub_and_fix_directives_remove_added_instructions(self):
         skool = """
             @start
