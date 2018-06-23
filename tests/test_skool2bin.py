@@ -320,18 +320,14 @@ class BinWriterTest(SkoolKitTestCase):
 
     def test_isub_mode(self):
         skool = """
-            @isub+begin
-            c39997 JP 40000
-            @isub+end
-
             c40000 XOR A
             @isub=LD B,1
             @ssub=LD B,2
              40001 LD B,n
             @isub=LD C,1 ; Set C=1
              40003 LD C,n
-            @isub=|XOR A ; Test @isub
-            @isub=       ; adding an instruction.
+            @isub=|XOR A ; Test @isub replacing
+            @isub=       ; one instruction with two.
             @isub=|INC A
              40005 LD A,1
             @isub=|LD A,1 ; Test @isub replacing two instructions with one.
@@ -353,9 +349,34 @@ class BinWriterTest(SkoolKitTestCase):
             @isub=XOR C
              40015 XOR B
              40016 XOR D
+            @isub=!40017-40019
+             40017 CP 255 ; This should be removed
+
+            @isub+begin
+            @ssub=!40019
+            c40019 CP 1   ; Not removed by @isub=!40017-40019 in previous entry
+            @isub+end
         """
-        exp_data = [195, 64, 156, 175, 6, 1, 14, 1, 175, 60, 62, 1, 144, 170, 178, 180, 176, 71, 175, 168, 169, 170]
-        self._test_write(skool, 39997, exp_data, asm_mode=1)
+        exp_data = [
+            175,   # 40000 XOR A
+            6, 1,  # 40001 LD B,1
+            14, 1, # 40003 LD C,1
+            175,   # 40005 XOR A
+            60,    # 40006 INC A
+            62, 1, # 40007 LD A,1
+            144,   # 40009 SUB B
+            170,   # 40010 XOR D
+            178,   # 40011 OR D
+            180,   # 40012 OR H
+            176,   # 40013 OR B
+            71,    # 40014 LD B,A (inserted)
+            175,   # 40015 XOR A
+            168,   # 40016 XOR B
+            169,   # 40017 XOR C (inserted)
+            170,   # 40018 XOR D
+            254, 1 # 40019 CP 1
+        ]
+        self._test_write(skool, 40000, exp_data, asm_mode=1)
 
     def test_ssub_mode(self):
         skool = """
@@ -375,7 +396,7 @@ class BinWriterTest(SkoolKitTestCase):
             @ssub=RET P
              50003 JP 32768
             @rsub+end
-            @ssub=|XOR A ; Test @ssub adding an instruction.
+            @ssub=|XOR A ; Test @ssub replacing one instruction with two.
             @ssub=|INC A
              50004 LD A,1
             @ssub=|LD A,1 ; Test @ssub replacing two instructions with one.
@@ -397,8 +418,33 @@ class BinWriterTest(SkoolKitTestCase):
             @ssub=XOR C
              50014 XOR B
              50015 XOR D
+            @ssub=!50016-50018
+             50016 RET NZ ; This should be removed
+
+            @ssub+begin
+            c50018 RET    ; Not removed by @ssub=!50016-50018 in previous entry
+            @ssub+end
         """
-        exp_data = [35, 19, 3, 201, 175, 60, 62, 1, 144, 170, 178, 180, 183, 71, 175, 168, 169, 170]
+        exp_data = [
+            35,    # 50000 INC L
+            19,    # 50001
+            3,     # 50002
+            201,   # 50003
+            175,   # 50004 XOR A
+            60,    # 50005
+            62, 1, # 50006 LD A,1
+            144,   # 50008 SUB B
+            170,   # 50009 XOR D
+            178,   # 50010 OR D
+            180,   # 50011 OR H
+            183,   # 50012 OR A
+            71,    # 50013 LD B,A (inserted)
+            175,   # 50014 XOR A
+            168,   # 50015 XOR B
+            169,   # 50016 XOR C (inserted)
+            170,   # 50017 XOR D
+            201    # 50018 RET
+        ]
         self._test_write(skool, 50000, exp_data, asm_mode=2)
 
     def test_ssub_overrides_isub(self):
@@ -427,6 +473,7 @@ class BinWriterTest(SkoolKitTestCase):
             @rfix+else
              60004 LD C,2
             @rfix+end
+            @bfix=!60006
             @ofix=LD D,2
              60006 LD D,1
             @bfix=LD E,2
@@ -435,8 +482,8 @@ class BinWriterTest(SkoolKitTestCase):
              60010 LD H,1
             @ofix=LD L,2 ; Set L=2
              60012 LD L,1
-            @ofix=|XOR A ; Test @ofix
-            @ofix=       ; adding an instruction.
+            @ofix=|XOR A ; Test @ofix replacing
+            @ofix=       ; one instruction with two.
             @ofix=|INC A
              60014 LD A,1
             @ofix=|LD A,1 ; Test @ofix replacing two instructions with one.
@@ -458,8 +505,36 @@ class BinWriterTest(SkoolKitTestCase):
             @ofix=XOR C
              60024 XOR B
              60025 XOR D
+            @ofix=!60026-60028
+             60026 RET NZ ; This should be removed
+
+            @ofix+begin
+            c60028 RET    ; Not removed by @ofix=!60026-60028 in previous entry
+            @ofix+end
         """
-        exp_data = [62, 2, 6, 1, 14, 1, 22, 2, 30, 1, 38, 1, 46, 2, 175, 60, 62, 1, 144, 170, 178, 180, 176, 71, 175, 168, 169, 170]
+        exp_data = [
+            62, 2, # 60000
+            6, 1,  # 60002
+            14, 1, # 60004
+            22, 2, # 60006
+            30, 1, # 60008
+            38, 1, # 60010
+            46, 2, # 60012
+            175,   # 60014
+            60,    # 60015
+            62, 1, # 60016
+            144,   # 60018
+            170,   # 60019
+            178,   # 60020
+            180,   # 60021
+            176,   # 60022
+            71,    # 60023
+            175,   # 60024
+            168,   # 60025
+            169,   # 60026
+            170,   # 60027
+            201    # 60028
+        ]
         self._test_write(skool, 60000, exp_data, fix_mode=1)
 
     def test_bfix_mode(self):
@@ -487,7 +562,7 @@ class BinWriterTest(SkoolKitTestCase):
              60010 LD H,1
             @bfix=LD L,2 ; Set L=2
              60012 LD L,1
-            @bfix=|XOR A   ; Test @bfix adding an instruction.
+            @bfix=|XOR A   ; Test @bfix replacing one instruction with two.
             @bfix=|JR 60000
              60014 JP 60000
             @bfix=|LD A,1 ; Test @bfix replacing two instructions with one.
@@ -507,10 +582,38 @@ class BinWriterTest(SkoolKitTestCase):
              60024 XOR A
             @bfix=        ; Test @bfix inserting an instruction after
             @bfix=XOR C
-             60024 XOR B
-             60025 XOR D
+             60025 XOR B
+             60026 XOR D
+            @bfix=!60027-60029
+             60027 RET NZ ; This should be removed
+
+            @bfix+begin
+            c60029 RET    ; Not removed by @bfix=!60027-60029 in previous entry
+            @bfix+end
         """
-        exp_data = [62, 2, 6, 2, 14, 1, 22, 2, 30, 2, 38, 1, 46, 2, 175, 24, 239, 62, 1, 144, 170, 178, 180, 183, 71, 175, 168, 169, 170]
+        exp_data = [
+            62, 2,   # 60000 LD A,2
+            6, 2,    # 60002 LD B,2
+            14, 1,   # 60004 LD C,1
+            22, 2,   # 60006 LD D,2
+            30, 2,   # 60008 LD E,2
+            38, 1,   # 60010 LD H,1
+            46, 2,   # 60012 LD L,2
+            175,     # 60014 XOR A
+            24, 239, # 60015 JR 60000
+            62, 1,   # 60017 LD A,1
+            144,     # 60019 SUB B
+            170,     # 60020 XOR D
+            178,     # 60021 OR D
+            180,     # 60022 OR H
+            183,     # 60023 OR A
+            71,      # 60024 LD B,A (inserted)
+            175,     # 60025 XOR A
+            168,     # 60026 XOR B
+            169,     # 60027 XOR C (inserted)
+            170,     # 60028 XOR D
+            201      # 60029 RET
+        ]
         self._test_write(skool, 60000, exp_data, fix_mode=2)
 
     def test_bfix_overrides_ofix(self):

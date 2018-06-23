@@ -19,7 +19,7 @@ from collections import defaultdict
 
 from skoolkit import SkoolParsingError, get_int_param, info, integer, open_file, warn, VERSION
 from skoolkit.skoolmacro import MacroParsingError, parse_if
-from skoolkit.skoolparser import parse_asm_sub_fix_directive, read_skool
+from skoolkit.skoolparser import parse_address_range, parse_asm_sub_fix_directive, read_skool
 from skoolkit.skoolsft import VALID_CTLS
 from skoolkit.textutils import partition_unquoted
 from skoolkit.z80 import assemble
@@ -46,14 +46,14 @@ class BinWriter:
 
     def _parse_skool(self, skoolfile):
         f = open_file(skoolfile)
-        removed = set()
         for non_entry, block in read_skool(f, 2, self.asm_mode, self.fix_mode):
             if non_entry:
                 continue
             address = None
+            removed = set()
             for line in block:
                 if line.startswith('@'):
-                    self._parse_asm_directive(line[1:])
+                    self._parse_asm_directive(line[1:], removed)
                 elif not line.lstrip().startswith(';') and line[0] in VALID_CTLS:
                     address = self._parse_instruction(address, line, removed)
         f.close()
@@ -101,12 +101,17 @@ class BinWriter:
             return end_address
         raise SkoolParsingError("Failed to assemble:\n {} {}".format(address, operation))
 
-    def _parse_asm_directive(self, directive):
+    def _parse_asm_directive(self, directive, removed):
         if directive.startswith(('isub=', 'ssub=', 'ofix=', 'bfix=')):
-            self.subs[self.weights[directive[:4]]].append(directive[5:])
+            value = directive[5:].rstrip()
+            if value.startswith('!'):
+                if self.weights[directive[:4]]:
+                    removed.update(parse_address_range(value[1:]))
+            else:
+                self.subs[self.weights[directive[:4]]].append(value)
         elif directive.startswith('if('):
             try:
-                self._parse_asm_directive(parse_if(self.fields, directive, 2)[1])
+                self._parse_asm_directive(parse_if(self.fields, directive, 2)[1], removed)
             except MacroParsingError:
                 pass
 

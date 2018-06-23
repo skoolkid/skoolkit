@@ -113,6 +113,14 @@ def parse_asm_sub_fix_directive(directive):
         return flags, label.strip(), op.strip(), comment
     return flags, None, label.strip(), comment
 
+def parse_address_range(value):
+    addresses = [parse_int(n) for n in value.split('-', 1)]
+    if len(addresses) == 1 and addresses[0] is not None:
+        return addresses
+    if len(addresses) == 2 and all(a is not None for a in addresses):
+        return range(addresses[0], addresses[1] + 1)
+    return ()
+
 def _html_escape(text):
     return html.escape(text, False)
 
@@ -621,11 +629,7 @@ class SkoolParser:
             elif directive.startswith('writer='):
                 self.asm_writer_class = directive[7:].rstrip()
             elif directive.startswith('remove='):
-                addresses = [parse_int(n) for n in directive[7:].split('-', 1)]
-                if len(addresses) == 1 and addresses[0] is not None:
-                    removed.add(addresses[0])
-                elif len(addresses) == 2 and all(a is not None for a in addresses):
-                    removed.update(range(addresses[0], addresses[1] + 1))
+                removed.update(parse_address_range(directive[7:]))
             elif directive.startswith('set-'):
                 name, sep, value = directive[4:].partition('=')
                 if sep:

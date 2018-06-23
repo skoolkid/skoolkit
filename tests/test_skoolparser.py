@@ -4415,6 +4415,22 @@ class SkoolParserTest(SkoolKitTestCase):
                 self.assertEqual(instructions[0].operation, 'LD A,B')
                 self.assertEqual(instructions[1].operation, 'RET')
 
+    def test_sub_and_fix_directives_ignore_invalid_removal_address_range(self):
+        skool = """
+            @start
+            @{0}=!4000x
+            b40000 DEFB 0
+            @{0}=!40001-4000?
+             40001 DEFB 1
+             40002 DEFB 2
+        """
+        exp_instructions = exp_subs = [
+            ('40000', 'DEFB 0', ''),
+            ('40001', 'DEFB 1', ''),
+            ('40002', 'DEFB 2', '')
+        ]
+        self._test_sub_and_fix_directives(skool, exp_instructions, exp_subs)
+
     def test_no_asm_labels(self):
         skool = """
             @label=START
