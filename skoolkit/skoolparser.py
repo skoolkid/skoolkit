@@ -619,7 +619,7 @@ class SkoolParser:
                 value = directive[5:].rstrip()
                 if value.startswith('!'):
                     if self.mode.weights[directive[:4]]:
-                        self._parse_asm_directive('remove=' + value[1:], removed)
+                        removed.update(parse_address_range(value[1:]))
                 else:
                     self.mode.add_sub(directive[:4], value)
             elif directive.startswith('nowarn'):
@@ -631,8 +631,6 @@ class SkoolParser:
                 self.mode.org = directive.rstrip().partition('=')[2]
             elif directive.startswith('writer='):
                 self.asm_writer_class = directive[7:].rstrip()
-            elif directive.startswith('remove='):
-                removed.update(parse_address_range(directive[7:]))
             elif directive.startswith('set-'):
                 name, sep, value = directive[4:].partition('=')
                 if sep:
