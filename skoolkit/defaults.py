@@ -560,7 +560,7 @@ SECTIONS['Template:map_entry'] = """
 <td class="map-{entry[type]}">{t_anchor}<a href="{entry[href]}">{entry[address]}</a></td>
 <td class="map-length-{MemoryMap[LengthColumn]}">{entry[size]}</td>
 <td class="map-{entry[type]}-desc">
-<div class="map-entry-title-1{MemoryMap[EntryDescriptions]}">{entry[title]}</div>
+<div class="map-entry-title-1{MemoryMap[EntryDescriptions]}"><a class="map-entry-title" href="{entry[href]}">{entry[title]}</a></div>
 <div class="map-entry-desc-{MemoryMap[EntryDescriptions]}">
 {entry[description]}
 </div>

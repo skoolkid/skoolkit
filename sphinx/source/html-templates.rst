@@ -575,6 +575,10 @@ To see the default ``map_entry`` template, run the following command::
 
   $ skool2html.py -r Template:map_entry
 
+.. versionchanged:: 7.0
+   The entry title is hyperlinked to the disassembly page for the corresponding
+   entry.
+
 .. _t_paragraph:
 
 paragraph

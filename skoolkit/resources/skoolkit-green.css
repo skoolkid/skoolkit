@@ -5,7 +5,7 @@ body {
 a {
   color: #ffff00;
 }
-a:hover {
+a:hover, a.map-entry-title:hover {
   color: #ff00ff;
 }
 div.box-1, div.list-entry-1 {

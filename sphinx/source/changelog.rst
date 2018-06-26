@@ -17,6 +17,8 @@ Changelog
 * :ref:`skool2html.py` now writes a single disassembly from the the skool file
   given as the first positional argument; any other positional arguments are
   interpreted as extra ref files
+* Every entry title on a memory map page is now hyperlinked to the disassembly
+  page for the corresponding entry
 * Fixed the bug in :ref:`skool2ctl.py` that makes it incorrectly compute the
   length of an ``M`` directive covering a sub-block containing two or more
   instructions

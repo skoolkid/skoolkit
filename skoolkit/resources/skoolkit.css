@@ -10,8 +10,11 @@ a {
   text-decoration: none;
   color: #0000ff;
 }
-a:hover {
+a:hover, a.map-entry-title:hover {
   color: #ff0000;
+}
+a.map-entry-title {
+  color: inherit;
 }
 table.header td {
   vertical-align: middle;
