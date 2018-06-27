@@ -14,6 +14,8 @@ Changelog
   the next instruction with an automatically generated label
 * Added the ``--force`` option to :ref:`skool2asm.py` (to force conversion of
   the entire skool file, ignoring any :ref:`start` and :ref:`end` directives)
+* Added support for appending content to an existing ref file section by adding
+  a '+' suffix to the section name (e.g. ``[Game+]``)
 * :ref:`skool2html.py` now writes a single disassembly from the the skool file
   given as the first positional argument; any other positional arguments are
   interpreted as extra ref files

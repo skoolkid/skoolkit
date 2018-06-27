@@ -28,6 +28,32 @@ class RefParserTest(SkoolKitTestCase):
         self.assertIn('Blah', section_dict)
         self.assertEqual(section_dict['Blah'], 'Bar')
 
+    def test_get_dictionary_with_appended_content(self):
+        ref = """
+            [Section]
+            Foo=1
+            Blah=Qux
+            [Section+]
+            Blah=Bar
+            Baz=1
+        """
+        exp_dict = {
+            'Foo': '1',
+            'Blah': 'Bar',
+            'Baz': '1'
+        }
+        section_dict = self._get_parser(ref).get_dictionary('Section')
+        self.assertEqual(exp_dict, section_dict)
+
+    def test_get_dictionary_with_appended_but_no_existing_content(self):
+        ref = """
+            [Section+]
+            Blah=Bar
+            Baz=1
+        """
+        section_dict = self._get_parser(ref).get_dictionary('Section')
+        self.assertEqual({'Blah': 'Bar', 'Baz': '1'}, section_dict)
+
     def test_get_dictionary_with_invalid_line(self):
         ref = """
             [Section]
@@ -63,6 +89,24 @@ class RefParserTest(SkoolKitTestCase):
         self.assertEqual(suffix2, 'Bar')
         self.assertIn('baz', dict2)
         self.assertEqual(dict2['baz'], 'qux')
+
+    def test_get_dictionaries_with_appended_content(self):
+        ref = """
+            [Section:Foo]
+            A=B=C
+            [Section:Bar]
+            baz=qux
+            [Section:Foo+]
+            x=y
+            [Section:Bar+]
+            Foo=1
+        """
+        exp_dicts = [
+            ('Foo', {'A': 'B=C', 'x': 'y'}),
+            ('Bar', {'baz': 'qux', 'Foo': '1'})
+        ]
+        section_dicts = self._get_parser(ref).get_dictionaries('Section')
+        self.assertEqual(exp_dicts, section_dicts)
 
     def test_get_section(self):
         ref = """
@@ -112,6 +156,17 @@ class RefParserTest(SkoolKitTestCase):
         self.assertEqual(paragraphs[0], ['P1, L1', 'P1, L2'])
         self.assertEqual(paragraphs[1], ['P2, L1'])
 
+    def test_get_section_with_appended_content(self):
+        ref = """
+            [Apple]
+            Line 1
+            Line 2
+            [Apple+]
+            Line 3
+        """
+        section = self._get_parser(ref).get_section('Apple')
+        self.assertEqual(section, 'Line 1\nLine 2\nLine 3')
+
     def test_get_section_that_does_not_exist(self):
         ref_parser = self._get_parser('[Foo]\nBar')
         section = ref_parser.get_section('Bar')
@@ -137,6 +192,24 @@ class RefParserTest(SkoolKitTestCase):
         suffix2, section2 = sections[1]
         self.assertEqual(suffix2, '2')
         self.assertEqual(section2, 'Bar')
+
+    def test_get_sections_with_appended_content(self):
+        ref = """
+            [Prefix:1]
+            Foo
+            [Prefix:2]
+            Bar
+            [Prefix:1+]
+            Baz
+            [Prefix:2+]
+            Qux
+        """
+        exp_sections = [
+            ('1', 'Foo\nBaz'),
+            ('2', 'Bar\nQux')
+        ]
+        sections = self._get_parser(ref).get_sections('Prefix')
+        self.assertEqual(exp_sections, sections)
 
     def test_get_sections_with_two_colons(self):
         ref = """

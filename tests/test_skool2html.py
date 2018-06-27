@@ -341,6 +341,32 @@ class Skool2HtmlTest(SkoolKitTestCase):
     @patch.object(skool2html, 'SkoolParser', MockSkoolParser)
     @patch.object(skool2html, 'write_disassembly', mock_write_disassembly)
     @patch.object(skool2html, 'get_config', mock_config)
+    def test_ref_file_on_command_line_appends_content(self):
+        ref1 = """
+            [Game]
+            AddressAnchor={address:04x}
+            Game=Foo
+        """
+        ref1file = self._write_ref_file(ref1)
+        ref2 = """
+            [Game+]
+            Game=Baz
+            Release=1.0
+        """
+        ref2file = self._write_ref_file(ref2)
+        skoolfile = self.write_text_file(path=ref1file[:-4] + '.skool')
+        output, error = self.run_skool2html('{} {}'.format(skoolfile, ref2file))
+        self.assertEqual(error, '')
+        self.assertIn('Using ref files: {}, {}\n'.format(ref1file, ref2file), output)
+        html_writer = write_disassembly_args[0]
+        self.assertEqual(html_writer.game_vars['AddressAnchor'], '{address:04x}')
+        self.assertEqual(html_writer.game_vars['Game'], 'Baz')
+        self.assertEqual(html_writer.game_vars['Release'], '1.0')
+
+    @patch.object(skool2html, 'get_class', Mock(return_value=TestHtmlWriter))
+    @patch.object(skool2html, 'SkoolParser', MockSkoolParser)
+    @patch.object(skool2html, 'write_disassembly', mock_write_disassembly)
+    @patch.object(skool2html, 'get_config', mock_config)
     def test_ref_file_on_command_line_is_one_already_automatically_parsed(self):
         ref2 = """
             [Game]

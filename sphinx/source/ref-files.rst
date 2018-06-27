@@ -975,6 +975,15 @@ and :ref:`skool macros <skoolMacros>`.
 | 5.4     | The ``anchor`` part of an entry section name is optional        |
 +---------+-----------------------------------------------------------------+
 
+Appending content
+-----------------
+Content may be appended to an existing ref file section defined elsewhere by
+adding a '+' suffix to the section name. For example, to add a line to the
+``[Game]`` section::
+
+  [Game+]
+  AddressAnchor={address:04x}
+
 Ref file comments
 -----------------
 A comment may be added to a ref file by starting a line with a semicolon. For

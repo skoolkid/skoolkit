@@ -27,7 +27,10 @@ class RefParser:
         if section_name:
             while section_lines and not section_lines[-1]:
                 section_lines.pop()
-            self._sections[section_name] = section_lines
+            if section_name.endswith('+'):
+                self._sections.setdefault(section_name[:-1], []).extend(section_lines)
+            else:
+                self._sections[section_name] = section_lines
 
     def parse(self, reffile):
         """Parse a ref file. This method may be called as many times as
