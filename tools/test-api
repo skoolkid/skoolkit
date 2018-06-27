@@ -74,6 +74,9 @@ class GameHtmlWriter(HtmlWriter):
             raise Exception("GameHtmlWriter.case != 0")
         self.init_called = 1
 
+    def init_page(self, skoolkit, game):
+        game['Release'] = 'test-api ' + time.strftime("%Y-%m-%d")
+
     def sprite(self, cwd, attr, fname):
         udgs = [[Udg(attr, self.snapshot[32768:32776])]]
         return self.handle_image(Frame(udgs, 2), fname, cwd)

@@ -888,7 +888,21 @@ class HtmlWriter:
         self.skoolkit['title'] = self.expand(self.titles[page_id], cwd)
         self.skoolkit['page_header'] = self.expand(self.page_headers[page_id], cwd)
         self.game['Logo'] = self.game['LogoImage'] = self._get_logo(cwd)
+        self.init_page(self.skoolkit, self.game)
         return fname, cwd
+
+    # API
+    def init_page(self, skoolkit, game):
+        """Perform page initialisation operations. This method is called after
+        the ``SkoolKit`` and ``Game`` parameter dictionaries have been
+        initialised, and provides those dictionaries as arguments for
+        inspection and customisation before a page is formatted. By default the
+        method does nothing, but subclasses may override it.
+
+        :param skoolkit: The ``SkoolKit`` parameter dictionary.
+        :param game: The ``Game`` parameter dictionary.
+        """
+        pass
 
     def _format_page(self, cwd, subs, default, js=None, footer_subs=None):
         if cwd not in self.stylesheets:

@@ -415,6 +415,16 @@ and functions.
 .. autofunction:: skoolkit.graphics.flip_udgs
 .. autofunction:: skoolkit.graphics.rotate_udgs
 
+HTML page initialisation
+------------------------
+If you need to perform page-specific actions or customise the ``SkoolKit`` and
+``Game`` parameter dictionaries that are used by the :ref:`htmlTemplates`, the
+place to do that is the `init_page()` method.
+
+.. automethod:: skoolkit.skoolhtml.HtmlWriter.init_page
+
+   .. versionadded:: 7.0
+
 Writer initialisation
 ---------------------
 If your AsmWriter or HtmlWriter subclass needs to perform some initialisation
