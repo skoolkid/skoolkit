@@ -136,7 +136,8 @@ rm -rf $ABSDIR
 
 # Build the HTML disassembly
 echo -n "Writing disassembly..."
-./skool2html.py $DTCONFIG -q -d ${ABSDIR} --var pub=1 src/$GAME.skool
+./skool2html.py $DTCONFIG -q -d ${ABSDIR} --var pub=1 src/$GAME.skool publish.ref
+rm -f src/publish.ref
 mv ${ABSDIR}/* ${ABSDIR}/html
 echo "done"
 
