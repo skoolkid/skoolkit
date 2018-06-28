@@ -18,7 +18,7 @@ import bisect
 from collections import defaultdict
 
 from skoolkit import warn, get_int_param, open_file
-from skoolkit.skoolctl import (extract_entry_asm_directives, AD_IGNOREUA,
+from skoolkit.skoolctl import (extract_entry_asm_directives, AD_IGNOREUA, AD_ORG, AD_START,
                                TITLE, DESCRIPTION, REGISTERS, MID_BLOCK, INSTRUCTION, END)
 from skoolkit.skoolparser import parse_asm_data_directive
 from skoolkit.textutils import partition_unquoted, split_unquoted
@@ -79,7 +79,6 @@ def _parse_length(length, subctl=None, default_prefix=None, required=True):
 
 class CtlParser:
     def __init__(self, ctls=None):
-        self._ctls = ctls or {}
         self._subctls = {}
         self._titles = {}
         self._instruction_comments = {}
@@ -94,6 +93,11 @@ class CtlParser:
         self._headers = defaultdict(list)
         self._footers = defaultdict(list)
         self._loops = []
+        if ctls:
+            self._ctls = ctls
+            self._asm_directives[min(ctls)] = [AD_START, AD_ORG]
+        else:
+            self._ctls = {}
 
     def parse_ctl(self, ctlfile, min_address=0, max_address=65536):
         ctl_lines = []

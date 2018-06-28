@@ -128,6 +128,11 @@ class CtlParserTest(SkoolKitTestCase):
         self._check_entry_asm_directives(exp_entry_directives, blocks)
         self._check_instruction_asm_directives(exp_instruction_directives, blocks)
 
+    def test_predefined_ctls_acquire_start_and_org_directives(self):
+        ctl_parser = CtlParser({16384: 'c', 32768: 'i'})
+        exp_entry_asm_directives = {16384: ['start', 'org']}
+        self._check_entry_asm_directives(exp_entry_asm_directives, ctl_parser.get_blocks())
+
     def test_parse_ctl(self):
         ctl_parser = self._get_ctl_parser(CTL)
         blocks = ctl_parser.get_blocks()
