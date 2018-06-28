@@ -812,13 +812,14 @@ class SkoolWriter:
             closing = '}' * max(1 + balance, 1)
             if comment.endswith('}'):
                 closing = ' ' + closing
-            comment = opening + comment + closing
-        comment_lines = wrap(comment, width)
-        if multi_line and len(comment_lines) < rowspan:
-            comment_lines[-1] = comment_lines[-1][:-len(closing)]
-            comment_lines.extend([''] * (rowspan - len(comment_lines) - 1))
-            comment_lines.append(closing.lstrip())
-        return comment_lines
+            comment_lines = wrap(opening + comment, width)
+            if len(comment_lines) < rowspan:
+                comment_lines.extend([''] * (rowspan - len(comment_lines) - 1))
+                comment_lines.append(closing.lstrip())
+            else:
+                comment_lines[-1:] = wrap(comment_lines[-1] + closing, width)
+            return comment_lines
+        return wrap(comment, width)
 
     def _write_body(self, entry, wrote_desc, write_refs, show_text):
         op_width = max((OP_WIDTH, entry.width()))

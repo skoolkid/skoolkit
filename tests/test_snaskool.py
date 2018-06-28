@@ -1196,6 +1196,20 @@ class SkoolWriterTest(SkoolKitTestCase):
         """
         self._test_write_skool(snapshot, ctl, exp_skool, line_width=94)
 
+    def test_multi_line_comment_wrap(self):
+        snapshot = [175, 201]
+        ctl = """
+            c 00000 Wrap test for 55-character line
+              00000,2 This line should not be wrapped
+            i 00002
+        """
+        exp_skool = """
+            ; Wrap test for 55-character line
+            c00000 XOR A         ; {This line should not be wrapped
+             00001 RET           ; }
+        """
+        self._test_write_skool(snapshot, ctl, exp_skool, line_width=55)
+
     def test_write_refs_never(self):
         snapshot = [0] * 65536
         snapshot[30000:30007] = [
