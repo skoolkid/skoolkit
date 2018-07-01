@@ -224,13 +224,13 @@ at those addresses, and the image created by the ``#UDG`` macro would be blank.
 The ``@bfix`` directive replaces, inserts or removes a label, instruction and
 comment in :ref:`bfixMode`. ::
 
-  @bfix=[<][|][/][LABEL:][INSTRUCTION][; comment]
+  @bfix=[>][|][/][LABEL:][INSTRUCTION][; comment]
 
 or, when removing instructions::
 
   @bfix=!addr1[-addr2]
 
-* ``<`` - if this marker is present, ``INSTRUCTION`` is inserted before the
+* ``>`` - if this marker is present, ``INSTRUCTION`` is inserted before the
   current instruction instead of replacing it
 * ``|`` - if this marker is present, ``INSTRUCTION`` overwrites any overlapping
   instructions instead of pushing them aside
@@ -317,11 +317,11 @@ of line by line. For example::
 replaces both comment lines of the instruction at 51122 with 'Flip the bits'.
 
 A sequence of instructions can be inserted before the current instruction by
-using the ``<`` marker. For example::
+using the ``>`` marker. For example::
 
    47191 EX DE,HL
-  @bfix=<LD (HL),C
-  @bfix=<INC HL
+  @bfix=>LD (HL),C
+  @bfix=>INC HL
    47192 LD (HL),B
 
 This will insert ``LD (HL),C`` and ``INC HL`` between ``EX DE,HL`` and

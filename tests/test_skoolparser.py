@@ -3878,7 +3878,7 @@ class SkoolParserTest(SkoolKitTestCase):
         skool = """
             @start
             ; Routine
-            @{}=<LD H,0   ; Clear H
+            @{}=>LD H,0   ; Clear H
             c32768 LD L,H ; Clear L
         """
         exp_instructions = [
@@ -3894,8 +3894,8 @@ class SkoolParserTest(SkoolKitTestCase):
         skool = """
             @start
             ; Routine
-            @{0}=<LD H,0  ; Clear the
-            @{0}=<        ; H register
+            @{0}=>LD H,0  ; Clear the
+            @{0}=>        ; H register
             c32768 LD L,H ; Clear L
         """
         exp_instructions = [
@@ -3911,8 +3911,8 @@ class SkoolParserTest(SkoolKitTestCase):
         skool = """
             @start
             ; Routine
-            @{0}=<LD H,0  ; Clear H
-            @{0}=<XOR A   ; Clear A
+            @{0}=>LD H,0  ; Clear H
+            @{0}=>XOR A   ; Clear A
             c32768 LD L,H ; Clear L
         """
         exp_instructions = [
@@ -3929,7 +3929,7 @@ class SkoolParserTest(SkoolKitTestCase):
         skool = """
             @start
             ; Routine
-            @{0}=<LD H,0  ; Clear H
+            @{0}=>LD H,0  ; Clear H
             @{0}=LD L,H   ; And L
             @{0}=         ; likewise
             c32768 LD L,0 ; Clear L
@@ -3947,7 +3947,7 @@ class SkoolParserTest(SkoolKitTestCase):
         skool = """
             @start
             ; Routine
-            @{0}=<LD H,0  ; Clear H
+            @{0}=>LD H,0  ; Clear H
             @{0}=LD L,H   ; And L likewise
             @{0}=XOR A    ; And A too
             c32768 LD L,0 ; Clear L
@@ -3968,7 +3968,7 @@ class SkoolParserTest(SkoolKitTestCase):
             ; Routine
             c32768 LD L,0 ; Clear L
             ; Continue.
-            @{0}=<XOR A   ; Clear A
+            @{0}=>XOR A   ; Clear A
              32770 LD H,A ; And now H
         """
         for sub_mode, fix_mode, asm_dir in (
@@ -3990,7 +3990,7 @@ class SkoolParserTest(SkoolKitTestCase):
             @start
             @org
             ; Routine
-            @{}=<LD H,0
+            @{}=>LD H,0
             c32768 LD L,H
         """
         for sub_mode, fix_mode, asm_dir in (
@@ -4011,7 +4011,7 @@ class SkoolParserTest(SkoolKitTestCase):
         skool = """
             @start
             ; Routine
-            @{0}=<INC HL
+            @{0}=>INC HL
             c32768 LD (HL),0 ; Clear the contents
                              ; of (HL)
         """
@@ -4032,7 +4032,7 @@ class SkoolParserTest(SkoolKitTestCase):
             @ignoreua
             @label=START
             @nowarn
-            @{}=<LD H,0
+            @{}=>LD H,0
             c32768 LD L,H
         """
         for sub_mode, fix_mode, asm_dir in (
@@ -4150,7 +4150,7 @@ class SkoolParserTest(SkoolKitTestCase):
         skool = """
             @start
             ; Routine
-            @{0}=<START: LD H,0 ; Clear H
+            @{0}=>START: LD H,0 ; Clear H
             c32768 LD L,H       ; Clear L
         """
         exp_instructions = [

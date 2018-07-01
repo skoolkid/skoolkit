@@ -343,7 +343,7 @@ class BinWriterTest(SkoolKitTestCase):
              40012 OR E
             @isub=BEGIN: OR B ; Test @isub defining a label
              40013 OR A
-            @isub=<LD B,A ; Test @isub inserting an instruction before
+            @isub=>LD B,A ; Test @isub inserting an instruction before
              40014 XOR A
             @isub=        ; Test @isub inserting an instruction after
             @isub=XOR C
@@ -412,7 +412,7 @@ class BinWriterTest(SkoolKitTestCase):
              50011 OR E
             @ssub=BEGIN: ; Test @ssub defining a label
              50012 OR A
-            @ssub=<LD B,A ; Test @ssub inserting an instruction before
+            @ssub=>LD B,A ; Test @ssub inserting an instruction before
              50013 XOR A
             @ssub=        ; Test @ssub inserting an instruction after
             @ssub=XOR C
@@ -499,7 +499,7 @@ class BinWriterTest(SkoolKitTestCase):
              60021 OR E
             @ofix=BEGIN: OR B ; Test @ofix defining a label
              60022 OR A
-            @ofix=<LD B,A ; Test @ofix inserting an instruction before
+            @ofix=>LD B,A ; Test @ofix inserting an instruction before
              60023 XOR A
             @ofix=        ; Test @ofix inserting an instruction after
             @ofix=XOR C
@@ -578,7 +578,7 @@ class BinWriterTest(SkoolKitTestCase):
              60022 OR E
             @bfix=BEGIN: ; Test @bfix defining a label
              60023 OR A
-            @bfix=<LD B,A ; Test @bfix inserting an instruction before
+            @bfix=>LD B,A ; Test @bfix inserting an instruction before
              60024 XOR A
             @bfix=        ; Test @bfix inserting an instruction after
             @bfix=XOR C

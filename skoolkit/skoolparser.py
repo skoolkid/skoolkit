@@ -93,13 +93,13 @@ def parse_asm_data_directive(snapshot, directive):
             set_bytes(snapshot, addr, operation)
 
 def parse_asm_sub_fix_directive(directive):
-    match = re.match('[</|]+', directive)
+    match = re.match('[>/|]+', directive)
     if match:
         prefix = match.group()
         directive = directive[len(prefix):]
     else:
         prefix = ''
-    prepend = '<' in prefix
+    prepend = '>' in prefix
     final = '/' in prefix
     overwrite = '|' in prefix
     op, sep, comment = partition_unquoted(directive, ';')
