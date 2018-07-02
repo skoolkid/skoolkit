@@ -103,7 +103,9 @@ TEST_BIN = (
 
 TEST_BIN_ORG = 65400
 
-TEST_CTL_G = """c 65400
+TEST_CTL_G = """@ 65400 start
+@ 65400 org
+c 65400
 c 65404
 c 65406
 c 65409
@@ -235,7 +237,9 @@ TEST_MAP = (
     65498
 )
 
-TEST_MAP_CTL_G = """c 65400
+TEST_MAP_CTL_G = """@ 65400 start
+@ 65400 org
+c 65400
 c 65405
 c 65407
 c 65411
@@ -616,195 +620,197 @@ class OptionsTest(SkoolKitTestCase):
 
     @patch.object(sna2skool, 'CtlParser', MockCtlParser)
     @patch.object(sna2skool, 'SkoolWriter', MockSkoolWriter)
+    def _test_option_g(self, data, exp_ctl, code_map=None, options=''):
+        binfile = self.write_bin_file(data)
+        ctlfile = self.write_text_file()
+        mapfile = None
+        if code_map:
+            mapfile = self.write_bin_file(self._create_z80_map(code_map))
+            options = '-M {} '.format(mapfile) + options
+        output, error = self.run_sna2skool('-g {} {} {}'.format(ctlfile, options, binfile))
+        if mapfile:
+            self.assertEqual(error, 'Reading {}\n'.format(mapfile))
+        with open(ctlfile, 'r') as f:
+            gen_ctl = f.read().rstrip()
+        self.assertEqual(dedent(exp_ctl).strip(), gen_ctl)
+        self.assertTrue(mock_skool_writer.wrote_skool)
+
+    @patch.object(sna2skool, 'CtlParser', MockCtlParser)
+    @patch.object(sna2skool, 'SkoolWriter', MockSkoolWriter)
     def test_option_g_lower_case_hex(self):
         data = [
             62, 7, # 65533 LD A,7
             201,   # 65535 RET
         ]
-        binfile = self.write_bin_file(data)
-        ctlfile = self.write_text_file()
-        self.run_sna2skool('-g {} -I CtlHex=1 {}'.format(ctlfile, binfile))
-        with open(ctlfile, 'r') as f:
-            gen_ctl = [line.rstrip() for line in f]
-        self.assertEqual(['c $fffd'], gen_ctl)
-        self.assertTrue(mock_skool_writer.wrote_skool)
+        exp_ctl = """
+            @ $fffd start
+            @ $fffd org
+            c $fffd
+        """
+        self._test_option_g(data, exp_ctl, options='-I CtlHex=1')
 
     @patch.object(sna2skool, 'CtlParser', MockCtlParser)
     @patch.object(sna2skool, 'SkoolWriter', MockSkoolWriter)
     def test_option_g_with_jr_across_64k_boundary(self):
-        ctlfile = self.write_text_file()
         data = [24]
-        binfile = self.write_bin_file(data)
-        output, error = self.run_sna2skool('-g {} {}'.format(ctlfile, binfile))
-        self.assertEqual(error, '')
-        with open(ctlfile, 'r') as f:
-            gen_ctl = f.read()
-        self.assertEqual(gen_ctl, 'b 65535\n')
-        self.assertTrue(mock_skool_writer.wrote_skool)
+        exp_ctl = """
+            @ 65535 start
+            @ 65535 org
+            b 65535
+        """
+        self._test_option_g(data, exp_ctl)
 
     @patch.object(sna2skool, 'CtlParser', MockCtlParser)
     @patch.object(sna2skool, 'SkoolWriter', MockSkoolWriter)
     def test_option_g_with_237_at_65535(self):
-        ctlfile = self.write_text_file()
         data = [237]
-        binfile = self.write_bin_file(data)
-        output, error = self.run_sna2skool('-g {} {}'.format(ctlfile, binfile))
-        self.assertEqual(error, '')
-        with open(ctlfile, 'r') as f:
-            gen_ctl = f.read()
-        self.assertEqual(gen_ctl, 'b 65535\n')
-        self.assertTrue(mock_skool_writer.wrote_skool)
+        exp_ctl = """
+            @ 65535 start
+            @ 65535 org
+            b 65535
+        """
+        self._test_option_g(data, exp_ctl)
 
     @patch.object(sna2skool, 'CtlParser', MockCtlParser)
     @patch.object(sna2skool, 'SkoolWriter', MockSkoolWriter)
     def test_option_g_with_invalid_ix_prefix(self):
-        ctlfile = self.write_text_file()
         data = [
             221,       # DEFB 221 (IX prefix, no suffix)
             50, 53, 53 # DEFM "255"
         ]
-        binfile = self.write_bin_file(data)
-        output, error = self.run_sna2skool('-g {} {}'.format(ctlfile, binfile))
-        self.assertEqual(error, '')
-        with open(ctlfile, 'r') as f:
-            gen_ctl = [line.rstrip() for line in f]
-        self.assertEqual(['b 65532', 't 65533'], gen_ctl)
-        self.assertTrue(mock_skool_writer.wrote_skool)
+        exp_ctl = """
+            @ 65532 start
+            @ 65532 org
+            b 65532
+            t 65533
+        """
+        self._test_option_g(data, exp_ctl)
 
     @patch.object(sna2skool, 'CtlParser', MockCtlParser)
     @patch.object(sna2skool, 'SkoolWriter', MockSkoolWriter)
     def test_option_g_with_invalid_iy_prefix(self):
-        ctlfile = self.write_text_file()
         data = [
             253,       # DEFB 253 (IY prefix, no suffix)
             50, 53, 53 # DEFM "255"
         ]
-        binfile = self.write_bin_file(data)
-        output, error = self.run_sna2skool('-g {} {}'.format(ctlfile, binfile))
-        self.assertEqual(error, '')
-        with open(ctlfile, 'r') as f:
-            gen_ctl = [line.rstrip() for line in f]
-        self.assertEqual(['b 65532', 't 65533'], gen_ctl)
-        self.assertTrue(mock_skool_writer.wrote_skool)
+        exp_ctl = """
+            @ 65532 start
+            @ 65532 org
+            b 65532
+            t 65533
+        """
+        self._test_option_g(data, exp_ctl)
 
     @patch.object(sna2skool, 'CtlParser', MockCtlParser)
     @patch.object(sna2skool, 'SkoolWriter', MockSkoolWriter)
     def test_option_g_with_end_address_after_ret(self):
-        ctlfile = self.write_text_file()
         data = [
             62, 7, # 30000 LD A,7
             201,   # 30002 RET
             6, 8,  # 30003 LD B,8
             201    # 30005 RET
         ]
-        binfile = self.write_bin_file(data)
-        output, error = self.run_sna2skool('-g {} -o 30000 -e 30003 {}'.format(ctlfile, binfile))
-        self.assertEqual(error, '')
-        with open(ctlfile, 'r') as f:
-            gen_ctl = [line.rstrip() for line in f]
-        self.assertEqual(['c 30000', 'i 30003'], gen_ctl)
-        self.assertTrue(mock_skool_writer.wrote_skool)
+        exp_ctl = """
+            @ 30000 start
+            @ 30000 org
+            c 30000
+            i 30003
+        """
+        self._test_option_g(data, exp_ctl, options='-o 30000 -e 30003')
 
     @patch.object(sna2skool, 'CtlParser', MockCtlParser)
     @patch.object(sna2skool, 'SkoolWriter', MockSkoolWriter)
     def test_option_g_with_end_address_not_after_ret(self):
-        ctlfile = self.write_text_file()
         data = [
             62, 7, # 30000 LD A,7
             201,   # 30002 RET
             6, 8,  # 30003 LD B,8
             201    # 30005 RET
         ]
-        binfile = self.write_bin_file(data)
-        output, error = self.run_sna2skool('-g {} -o 30000 -e 30005 {}'.format(ctlfile, binfile))
-        self.assertEqual(error, '')
-        with open(ctlfile, 'r') as f:
-            gen_ctl = [line.rstrip() for line in f]
-        self.assertEqual(['c 30000', 'b 30003', 'i 30005'], gen_ctl)
-        self.assertTrue(mock_skool_writer.wrote_skool)
+        exp_ctl = """
+            @ 30000 start
+            @ 30000 org
+            c 30000
+            b 30003
+            i 30005
+        """
+        self._test_option_g(data, exp_ctl, options='-o 30000 -e 30005')
 
     @patch.object(sna2skool, 'CtlParser', MockCtlParser)
     @patch.object(sna2skool, 'SkoolWriter', MockSkoolWriter)
     def test_options_g_and_M_with_jr_across_64k_boundary(self):
-        ctlfile = self.write_text_file()
+        code_map = [65535]
         data = [24]
-        binfile = self.write_bin_file(data)
-        mapfile = self.write_bin_file(self._create_z80_map([65535]))
-        output, error = self.run_sna2skool('-g {} -M {} {}'.format(ctlfile, mapfile, binfile))
-        self.assertEqual(error, 'Reading {}\n'.format(mapfile))
-        with open(ctlfile, 'r') as f:
-            gen_ctl = f.read()
-        self.assertEqual(gen_ctl, 'c 65535\n')
-        self.assertTrue(mock_skool_writer.wrote_skool)
+        exp_ctl = """
+            @ 65535 start
+            @ 65535 org
+            c 65535
+        """
+        self._test_option_g(data, exp_ctl, code_map)
 
     @patch.object(sna2skool, 'CtlParser', MockCtlParser)
     @patch.object(sna2skool, 'SkoolWriter', MockSkoolWriter)
     def test_options_g_and_M_with_237_at_65535(self):
-        ctlfile = self.write_text_file()
+        code_map = [65535]
         data = [237]
-        binfile = self.write_bin_file(data)
-        mapfile = self.write_bin_file(self._create_z80_map([65535]))
-        output, error = self.run_sna2skool('-g {} -M {} {}'.format(ctlfile, mapfile, binfile))
-        self.assertEqual(error, 'Reading {}\n'.format(mapfile))
-        with open(ctlfile, 'r') as f:
-            gen_ctl = f.read()
-        self.assertEqual(gen_ctl, 'c 65535\n')
-        self.assertTrue(mock_skool_writer.wrote_skool)
+        exp_ctl = """
+            @ 65535 start
+            @ 65535 org
+            c 65535
+        """
+        self._test_option_g(data, exp_ctl, code_map)
 
     @patch.object(sna2skool, 'CtlParser', MockCtlParser)
     @patch.object(sna2skool, 'SkoolWriter', MockSkoolWriter)
     def test_options_g_and_M_with_end_address_after_ret(self):
-        ctlfile = self.write_text_file()
+        code_map = [30000, 30002, 30003, 30005]
         data = [
             62, 7, # 30000 LD A,7
             201,   # 30002 RET
             6, 8,  # 30003 LD B,8
             201    # 30005 RET
         ]
-        binfile = self.write_bin_file(data)
-        mapfile = self.write_bin_file(self._create_z80_map([30000, 30002, 30003, 30005]))
-        output, error = self.run_sna2skool('-g {} -M {} -o 30000 -e 30003 {}'.format(ctlfile, mapfile, binfile))
-        self.assertEqual(error, 'Reading {}\n'.format(mapfile))
-        with open(ctlfile, 'r') as f:
-            gen_ctl = [line.rstrip() for line in f]
-        self.assertEqual(['c 30000', 'i 30003'], gen_ctl)
-        self.assertTrue(mock_skool_writer.wrote_skool)
+        exp_ctl = """
+            @ 30000 start
+            @ 30000 org
+            c 30000
+            i 30003
+        """
+        self._test_option_g(data, exp_ctl, code_map, '-o 30000 -e 30003')
 
     @patch.object(sna2skool, 'CtlParser', MockCtlParser)
     @patch.object(sna2skool, 'SkoolWriter', MockSkoolWriter)
     def test_options_g_and_M_with_end_address_not_after_ret(self):
-        ctlfile = self.write_text_file()
+        code_map = [30000, 30002, 30003, 30005]
         data = [
             62, 7, # 30000 LD A,7
             201,   # 30002 RET
             6, 8,  # 30003 LD B,8
             201    # 30005 RET
         ]
-        binfile = self.write_bin_file(data)
-        mapfile = self.write_bin_file(self._create_z80_map([30000, 30002, 30003, 30005]))
-        output, error = self.run_sna2skool('-g {} -M {} -o 30000 -e 30005 {}'.format(ctlfile, mapfile, binfile))
-        self.assertEqual(error, 'Reading {}\n'.format(mapfile))
-        with open(ctlfile, 'r') as f:
-            gen_ctl = [line.rstrip() for line in f]
-        self.assertEqual(['c 30000', 'c 30003', 'i 30005'], gen_ctl)
-        self.assertTrue(mock_skool_writer.wrote_skool)
+        exp_ctl = """
+            @ 30000 start
+            @ 30000 org
+            c 30000
+            c 30003
+            i 30005
+        """
+        self._test_option_g(data, exp_ctl, code_map, '-o 30000 -e 30005')
 
     @patch.object(sna2skool, 'CtlParser', MockCtlParser)
     @patch.object(sna2skool, 'SkoolWriter', MockSkoolWriter)
     def test_options_g_and_M_with_end_address_65536(self):
-        ctlfile = self.write_text_file()
+        code_map = [65533, 65535]
         data = [
             62, 7, # 65533 LD A,7
             201,   # 65535 RET
         ]
-        binfile = self.write_bin_file(data)
-        mapfile = self.write_bin_file(self._create_z80_map([65533, 65535]))
-        output, error = self.run_sna2skool('-g {} -M {} {}'.format(ctlfile, mapfile, binfile))
-        self.assertEqual(error, 'Reading {}\n'.format(mapfile))
-        with open(ctlfile, 'r') as f:
-            gen_ctl = [line.rstrip() for line in f]
-        self.assertEqual(['c 65533'], gen_ctl)
-        self.assertTrue(mock_skool_writer.wrote_skool)
+        exp_ctl = """
+            @ 65533 start
+            @ 65533 org
+            c 65533
+        """
+        self._test_option_g(data, exp_ctl, code_map)
 
     @patch.object(sna2skool, 'CtlParser', MockCtlParser)
     @patch.object(sna2skool, 'SkoolWriter', MockSkoolWriter)
@@ -890,7 +896,7 @@ class OptionsTest(SkoolKitTestCase):
             self.run_sna2skool('-g {} {} -o 64206 test-h.bin'.format(ctlfile, option))
             with open(ctlfile, 'r') as f:
                 gen_ctl = [line.rstrip() for line in f]
-            self.assertEqual(['c $FACE', 'i $FACF'], gen_ctl)
+            self.assertEqual(['@ $FACE start', '@ $FACE org', 'c $FACE', 'i $FACF'], gen_ctl)
             self.assertTrue(mock_skool_writer.wrote_skool)
 
     @patch.object(sna2skool, 'run', mock_run)

@@ -22,8 +22,8 @@ from skoolkit import (SkoolKitError, open_file, read_bin_file, warn, write_line,
 from skoolkit.ctlparser import CtlParser
 from skoolkit.disassembler import Disassembler
 from skoolkit.skoolasm import UDGTABLE_MARKER
-from skoolkit.skoolctl import (AD_IGNOREUA, TITLE, DESCRIPTION, REGISTERS,
-                               MID_BLOCK, INSTRUCTION, END)
+from skoolkit.skoolctl import (AD_IGNOREUA, AD_ORG, AD_START, TITLE, DESCRIPTION,
+                               REGISTERS, MID_BLOCK, INSTRUCTION, END)
 from skoolkit.skoolparser import (get_address, TABLE_MARKER, TABLE_END_MARKER,
                                   LIST_MARKER, LIST_END_MARKER)
 
@@ -409,6 +409,9 @@ def write_ctl(ctlfile, ctls, ctl_hex):
     # Write a control file
     addr_fmt = get_address_format(ctl_hex, ctl_hex == 1)
     with open(ctlfile, 'w') as f:
+        start = addr_fmt.format(min(ctls))
+        f.write('@ {} {}\n'.format(start, AD_START))
+        f.write('@ {} {}\n'.format(start, AD_ORG))
         for address in [a for a in sorted(ctls) if a < 65536]:
             f.write('{0} {1}\n'.format(ctls[address], addr_fmt.format(address)))
 
