@@ -18,6 +18,7 @@ BUILD=$DHOME/build
 DIFFSBUILD=$BUILD/disassembly-diff
 DIST=$DHOME/dist
 DTMPDIR=$HOME/tmp
+SKOOL=$DHOME/sources/$GAME.skool
 REF=$DHOME/sources/$GAME.ref
 GAMENAME=$(grep ^Game= $REF | cut -c6-)
 VERSION=$(grep ^Release= $REF | awk '{print $NF}')
@@ -179,31 +180,28 @@ build_tarball() {
 ###############################################################################
 update_ghpages() {
   _require_skoolkit_tarball
-  mkdir -p $BUILD
-  gamedir=$(grep ^GameDir= $REF | cut -c9-)
-  ghrepo=$(echo $gamedir | tr -d _)
-  htmldir=$BUILD/html/$gamedir
-  skdir=$BUILD/skoolkit-$SKOOLKIT_VERSION
-  rm -rf $htmldir $skdir
-  tar xf $SKOOLKIT_TARBALL -C $BUILD
-  mkdir $skdir/tools
-  cp -p $SKOOLKIT_TOOLS/disassembly.mk $skdir/tools
-  _exec "Building disassembly" "make -C $DHOME html SKOOLKIT_HOME=$skdir HTML_OPTS='$GHHTMLOPTS'" $BUILD/$GAME-build.log
-
   _cd_tmpdir
+  cwd=$(pwd)
+  tar xf $SKOOLKIT_TARBALL
+  cd skoolkit-$SKOOLKIT_VERSION
+  htmldir=$cwd/html
+  _exec "Building disassembly" "./skool2html.py -d $htmldir $GHHTMLOPTS $SKOOL publish.ref" $cwd/$GAME-build.log
+
+  ghrepo=$(grep ^GameDir= $REF | cut -c9- | tr -d _)
   echo -n "Cloning $ghrepo repository: "
+  cd $cwd
   git clone -q https://github.com/skoolkid/$ghrepo
   echo "OK"
   cd $ghrepo
   git checkout -q gh-pages
-  rsync -r $htmldir/ .
+  rsync -r $htmldir/*/ .
   cd ..
-  _exec "Checking links" "$SKOOLKIT_TOOLS/check-links.py $ghrepo" $BUILD/$GAME-links.log
+  _exec "Checking links" "$SKOOLKIT_TOOLS/check-links.py $ghrepo" $cwd/$GAME-links.log
   cd $ghrepo
   echo
   git status -bs
   echo
-  cat $BUILD/$GAME-links.log
+  cat $cwd/$GAME-links.log
   cat <<EOM
 
 Now:
