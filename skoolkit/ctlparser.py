@@ -82,14 +82,14 @@ class CtlParser:
         self._subctls = {}
         self._titles = {}
         self._instruction_comments = {}
-        self._descriptions = {}
-        self._registers = {}
-        self._mid_block_comments = {}
-        self._end_comments = {}
+        self._descriptions = defaultdict(list)
+        self._registers = defaultdict(list)
+        self._mid_block_comments = defaultdict(list)
+        self._end_comments = defaultdict(list)
         self._lengths = {}
         self._multiline_comments = {}
-        self._asm_directives = {}
-        self._ignoreua_directives = {}
+        self._asm_directives = defaultdict(list)
+        self._ignoreua_directives = defaultdict(set)
         self._headers = defaultdict(list)
         self._footers = defaultdict(list)
         self._loops = []
@@ -132,19 +132,19 @@ class CtlParser:
                 elif ctl.islower():
                     self._titles[start] = text
                 elif ctl == 'D':
-                    self._descriptions.setdefault(start, []).append(text)
+                    self._descriptions[start].append(text)
                     self._subctls.setdefault(start, None)
                 elif ctl == 'N':
-                    self._mid_block_comments.setdefault(start, []).append(text)
+                    self._mid_block_comments[start].append(text)
                     self._subctls.setdefault(start, None)
                 elif ctl == 'E':
-                    self._end_comments.setdefault(start, []).append(text)
+                    self._end_comments[start].append(text)
                 elif ctl == 'R':
                     if text:
                         fields = text.split(' ', 1)
                         if len(fields) == 1:
                             fields.append('')
-                        self._registers.setdefault(start, []).append(fields)
+                        self._registers[start].append(fields)
                 elif ctl == 'M':
                     self._multiline_comments[start] = (end, text)
                     self._subctls.setdefault(start, None)
@@ -178,7 +178,7 @@ class CtlParser:
                             self._multiline_comments[start] = (address, text)
             elif asm_directive:
                 directive, address = asm_directive
-                self._asm_directives.setdefault(address, []).append(directive)
+                self._asm_directives[address].append(directive)
 
         self._terminate_multiline_comments()
         self._unroll_loops(max_address)
@@ -247,7 +247,7 @@ class CtlParser:
             return directive, address
         if comment_type not in COMMENT_TYPES:
             raise CtlParserError("invalid @ignoreua directive suffix: '{}'".format(comment_type))
-        self._ignoreua_directives.setdefault(address, set()).add(comment_type)
+        self._ignoreua_directives[address].add(comment_type)
 
     def _terminate_multiline_comments(self):
         addresses = sorted(set(self._ctls) | set(self._mid_block_comments) | {65536})
