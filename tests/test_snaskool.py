@@ -1197,16 +1197,29 @@ class SkoolWriterTest(SkoolKitTestCase):
         self._test_write_skool(snapshot, ctl, exp_skool, line_width=94)
 
     def test_multi_line_comment_wrap(self):
-        snapshot = [175, 201]
+        snapshot = [175, 60, 7, 55, 31, 168, 61, 169, 201]
         ctl = """
-            c 00000 Wrap test for 55-character line
+            c 00000 Wrap test for 55-character lines
               00000,2 This line should not be wrapped
-            i 00002
+              00002,3 And neither should this line be
+              00005,2 The second line of this comment should not wrap to the next line
+              00007,2 This comment spans three lines, and the third line should not be wrapped over to the fourth line.
+            i 00009
         """
         exp_skool = """
-            ; Wrap test for 55-character line
+            ; Wrap test for 55-character lines
             c00000 XOR A         ; {This line should not be wrapped
-             00001 RET           ; }
+             00001 INC A         ; }
+             00002 RLCA          ; {And neither should this line be
+             00003 SCF           ;
+             00004 RRA           ; }
+             00005 XOR B         ; {The second line of this comment
+             00006 DEC A         ; should not wrap to the next line
+                                 ; }
+             00007 XOR C         ; {This comment spans three lines,
+             00008 RET           ; and the third line should not be
+                                 ; wrapped over to the fourth line.
+                                 ; }
         """
         self._test_write_skool(snapshot, ctl, exp_skool, line_width=55)
 

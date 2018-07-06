@@ -819,8 +819,10 @@ class SkoolWriter:
             if len(comment_lines) < rowspan:
                 comment_lines.extend([''] * (rowspan - len(comment_lines) - 1))
                 comment_lines.append(closing.lstrip())
+            elif len(comment_lines[-1]) + len(closing) <= width:
+                comment_lines[-1] += closing
             else:
-                comment_lines[-1:] = wrap(comment_lines[-1] + closing, width)
+                comment_lines.append(closing.lstrip())
             return comment_lines
         return wrap(comment, width)
 
