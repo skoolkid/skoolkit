@@ -374,6 +374,58 @@ class SftParserTest(SkoolKitTestCase):
         exp_skool = 'b$0000 DEFB %10101010,170,$AA,$AA'
         self._test_disassembly(sft, exp_skool, snapshot, asm_hex=True)
 
+    def test_inverted_characters(self):
+        snapshot = [225, 226, 72, 233, 76, 239, 225, 0, 62, 225, 225, 225, 128, 222]
+        sft = """
+            bB00000,T1
+             T00001,1
+             B00002,T1:T1
+             T00004,1:1
+             W00006,c2
+             C00008,c2
+             S00010,2:c225
+             B00012,T1
+             T00013,1
+        """
+        exp_skool = """
+            b00000 DEFB "a"+128
+             00001 DEFM "b"+128
+             00002 DEFB "H","i"+128
+             00004 DEFM "L","o"+128
+             00006 DEFW "a"+128
+             00008 LD A,"a"+128
+             00010 DEFS 2,"a"+128
+             00012 DEFB 128
+             00013 DEFM 222
+        """
+        self._test_disassembly(sft, exp_skool, snapshot)
+
+    def test_inverted_characters_hex(self):
+        snapshot = [225, 226, 72, 233, 76, 239, 225, 0, 62, 225, 225, 225, 128, 224]
+        sft = """
+            bB00000,T1
+             T00001,1
+             B00002,T1:T1
+             T00004,1:1
+             W00006,c2
+             C00008,c2
+             S00010,2:c225
+             B00012,T1
+             T00013,1
+        """
+        exp_skool = """
+            b$0000 DEFB "a"+$80
+             $0001 DEFM "b"+$80
+             $0002 DEFB "H","i"+$80
+             $0004 DEFM "L","o"+$80
+             $0006 DEFW "a"+$80
+             $0008 LD A,"a"+$80
+             $000A DEFS 2,"a"+$80
+             $000C DEFB $80
+             $000D DEFM $E0
+        """
+        self._test_disassembly(sft, exp_skool, snapshot, asm_hex=True)
+
     def test_word_formats(self):
         snapshot = [205, 85] * 20 + [32, 0] * 2
         sft = """

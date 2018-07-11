@@ -16,6 +16,8 @@ Changelog
   the entire skool file, ignoring any :ref:`start` and :ref:`end` directives)
 * Added support for appending content to an existing ref file section by adding
   a '+' suffix to the section name (e.g. ``[Game+]``)
+* Added support for preserving 'inverted' characters (with bit 7 set) in and
+  restoring them from a control file or skool file template
 * :ref:`skool2html.py` now writes a single disassembly from the the skool file
   given as the first positional argument; any other positional arguments are
   interpreted as extra ref files

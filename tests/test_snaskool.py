@@ -529,6 +529,62 @@ class DisassemblyTest(SkoolKitTestCase):
         exp_instructions = [(0, 'DEFB %01010101,85,$55,$55')]
         self._test_disassembly(snapshot, ctl, exp_instructions, asm_hex=True)
 
+    def test_inverted_characters(self):
+        snapshot = [225, 226, 72, 233, 76, 239, 225, 0, 62, 225, 225, 225, 128, 222]
+        ctl = """
+            b 00000
+              00000,1,T1
+            T 00001,1,1
+              00002,2,T1:T1
+            T 00004,2,1:1
+            W 00006,2,c2
+            C 00008,c2
+            S 00010,2,2:c225
+              00012,1,T1
+            T 00013,1,1
+            i 00014
+        """
+        exp_instructions = [
+            (0, 'DEFB "a"+128'),
+            (1, 'DEFM "b"+128'),
+            (2, 'DEFB "H","i"+128'),
+            (4, 'DEFM "L","o"+128'),
+            (6, 'DEFW "a"+128'),
+            (8, 'LD A,"a"+128'),
+            (10, 'DEFS 2,"a"+128'),
+            (12, 'DEFB 128'),
+            (13, 'DEFM 222')
+        ]
+        self._test_disassembly(snapshot, ctl, exp_instructions)
+
+    def test_inverted_characters_hex(self):
+        snapshot = [225, 226, 72, 233, 76, 239, 225, 0, 62, 225, 225, 225, 128, 224]
+        ctl = """
+            b 00000
+              00000,1,T1
+            T 00001,1,1
+              00002,2,T1:T1
+            T 00004,2,1:1
+            W 00006,2,c2
+            C 00008,c2
+            S 00010,2,2:c225
+              00012,1,T1
+            T 00013,1,1
+            i 00014
+        """
+        exp_instructions = [
+            (0, 'DEFB "a"+$80'),
+            (1, 'DEFM "b"+$80'),
+            (2, 'DEFB "H","i"+$80'),
+            (4, 'DEFM "L","o"+$80'),
+            (6, 'DEFW "a"+$80'),
+            (8, 'LD A,"a"+$80'),
+            (10, 'DEFS 2,"a"+$80'),
+            (12, 'DEFB $80'),
+            (13, 'DEFM $E0')
+        ]
+        self._test_disassembly(snapshot, ctl, exp_instructions, asm_hex=True)
+
     def test_word_formats(self):
         snapshot = [170, 53] * 32 + [33, 0] * 2
         ctl = """

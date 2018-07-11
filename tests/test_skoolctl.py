@@ -890,20 +890,54 @@ class CtlWriterTest(SkoolKitTestCase):
 
     def test_arithmetic_expressions(self):
         skool = """
-            b40000 DEFB "a"+128
-             40001 DEFB "H","i"+$80
-             40003 DEFB 32768/256,32768%256,1+2,3*4,5-6
-             40008 DEFM "a"+128
-             40009 DEFM "H","i"+$80
-             40011 DEFM 32768/256,32768%256,1+2,3*4,5-6
-             40016 DEFS 256*2," "+128
+            b40000 DEFB 32768/256,32768%256,1+2,3*4,5-6
+             40005 DEFM 32768/256,32768%256,1+2,3*4,5-6
+             40010 DEFS 256*2,128/2
+             40522 DEFS "A"*4,"z"+38
         """
         exp_ctl = """
             b 40000
-              40000,8,1,T1:1,5
-            T 40008,8,B1,1:B1,B5
-            S 40016,512,512:160
-            i 40528
+              40000,5,5
+            T 40005,5,B5
+            S 40010,772,512:64,260:c160
+            i 40782
+        """
+        self._test_ctl(skool, exp_ctl)
+
+    def test_invalid_arithmetic_expressions(self):
+        skool = """
+            b30000 DEFB 1,35/0,"!"
+             30003 DEFB "H","ey"+128
+             30005 DEFM 1,35/0,"!"
+             30008 DEFM "H","ey"+128
+        """
+        exp_ctl = """
+            b 30000
+              30000,5,2:T1,T1:1
+            T 30005,5,B2:1,1:B1
+            i 30010
+        """
+        self._test_ctl(skool, exp_ctl)
+
+    def test_inverted_characters(self):
+        skool = """
+            b40000 DEFB "a"+128
+             40001 DEFB "H","i"+$80
+             40003 DEFM "a"+128
+             40004 DEFM "H","i"+$80
+             40006 DEFW "a"+128
+             40008 DEFW "H","i"+$80
+             40012 LD A,"a"+128
+             40014 DEFS 2,"a"+$80
+        """
+        exp_ctl = """
+            b 40000
+              40000,3,T1,T1:T1
+            T 40003,3,1,1:1
+            W 40006,6,c2,c4
+            C 40012,c2
+            S 40014,2,2:c225
+            i 40016
         """
         self._test_ctl(skool, exp_ctl)
 

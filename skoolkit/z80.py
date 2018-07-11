@@ -72,7 +72,7 @@ def _parse_expr(text, limit, brackets, non_neg, default):
             raise ValueError
         return default
 
-def _parse_byte(text, limit=256, brackets=False, non_neg=False, default=None):
+def parse_byte(text, limit=256, brackets=False, non_neg=False, default=None):
     return _parse_expr(text, limit, brackets, non_neg, default)
 
 def parse_word(text, brackets=False, default=None):
@@ -80,7 +80,7 @@ def parse_word(text, brackets=False, default=None):
 
 def _parse_offset(op):
     if op.startswith(('(IX+', '(IX-', '(IY+', '(IY-')) and op.endswith(')'):
-        offset = _parse_byte(op[4:-1])
+        offset = parse_byte(op[4:-1])
         if op[3] == '-':
             return 256 - offset
         return offset
@@ -113,7 +113,7 @@ def _arithmetic_a(base_code, address, op):
     try:
         return (base_code + _reg_index(op),)
     except ValueError:
-        return (base_code + 70, _parse_byte(op))
+        return (base_code + 70, parse_byte(op))
 
 def _assemble_adc(address, op1, op2):
     if op1 == 'A':
@@ -133,7 +133,7 @@ def _assemble_add(address, op1, op2):
             return (_index_code(op1), 9 + 16 * _reg_pair_index(op2))
 
 def _bit_res_set(base_code, address, op1, op2):
-    bit_offset = base_code + 8 * _parse_byte(op1, 8, non_neg=True)
+    bit_offset = base_code + 8 * parse_byte(op1, 8, non_neg=True)
     if op2.startswith('(I'):
         return (_index_code(op2), 203, _parse_offset(op2), bit_offset + 6)
     return (203, bit_offset + _reg_index(op2))
@@ -182,13 +182,13 @@ def _assemble_ex(address, op1, op2):
             return (_index_code(op2), 227)
 
 def _assemble_im(address, op):
-    return (237, 70 + (0, 16, 24)[_parse_byte(op, 3, non_neg=True)])
+    return (237, 70 + (0, 16, 24)[parse_byte(op, 3, non_neg=True)])
 
 def _assemble_in(address, op1, op2):
     if op2 == '(C)' and op1 != '(HL)':
         return (237, 64 + 8 * _reg_index(op1))
     if op1 == 'A':
-        return (219, _parse_byte(op2, brackets=True, non_neg=True))
+        return (219, parse_byte(op2, brackets=True, non_neg=True))
 
 def _assemble_jp(address, op1, op2=None):
     if op2 is None:
@@ -231,12 +231,12 @@ def _assemble_ld(address, op1, op2):
                     return (10 + 16 * ('(BC)', '(DE)').index(op2),)
             try:
                 # LD A,n
-                return (62, _parse_byte(op2))
+                return (62, parse_byte(op2))
             except ValueError:
                 # LD A,I; LD A,R
                 return (237, 87 + 8 * ('I', 'R').index(op2))
         # LD r,n (r != A)
-        return (6 + 8 * _reg_index(op1), _parse_byte(op2))
+        return (6 + 8 * _reg_index(op1), parse_byte(op2))
 
     if op1 in INDEX_REG:
         index1 = _index_reg_index(op1)
@@ -248,7 +248,7 @@ def _assemble_ld(address, op1, op2):
             # LD I{X,Y}{h,l},r
             return (_index_code(op1), 96 + 8 * (index1 % 2) + _reg_index(op2))
         # LD I{X,Y}{h,l},n
-        return (_index_code(op1), 38 + 8 * (index1 % 2), _parse_byte(op2))
+        return (_index_code(op1), 38 + 8 * (index1 % 2), parse_byte(op2))
 
     if op1.startswith('(I'):
         offset = _parse_offset(op1)
@@ -256,7 +256,7 @@ def _assemble_ld(address, op1, op2):
             # LD (I{X,Y}+d),r
             return (_index_code(op1), 112 + _reg_index(op2), offset)
         # LD (I{X,Y}+d),n
-        return (_index_code(op1), 54, offset, _parse_byte(op2))
+        return (_index_code(op1), 54, offset, parse_byte(op2))
 
     if op1 in REG_PAIRS:
         op1_index = _reg_pair_index(op1)
@@ -315,7 +315,7 @@ def _assemble_out(address, op1, op2):
     if op1 == '(C)' and op2 != '(HL)':
         return (237, 65 + 8 * _reg_index(op2))
     if op2 == 'A':
-        return (211, _parse_byte(op1, brackets=True, non_neg=True))
+        return (211, parse_byte(op1, brackets=True, non_neg=True))
 
 def _pop_push(base_code, address, op):
     if op in INDEX_REG_PAIRS:
@@ -333,7 +333,7 @@ def _rotate_and_shift(base_code, address, op):
     return (203, base_code + _reg_index(op))
 
 def _assemble_rst(address, op):
-    num = _parse_byte(op, 57, non_neg=True)
+    num = parse_byte(op, 57, non_neg=True)
     if num % 8 == 0:
         return (199 + num,)
 
@@ -415,17 +415,22 @@ MNEMONICS = {
 }
 
 def parse_string(item):
-    if item.startswith('"') and item.endswith('"'):
-        data = []
-        i = 1
-        while i < len(item) - 1:
-            if item[i] == '"':
-                return
-            if item[i] == '\\':
+    if item.startswith('"'):
+        if item.endswith('"'):
+            data = []
+            i = 1
+            while i < len(item) - 1:
+                if item[i] == '"':
+                    return
+                if item[i] == '\\':
+                    i += 1
+                data.append(ord(item[i]))
                 i += 1
-            data.append(ord(item[i]))
-            i += 1
-        return data
+            return data
+        try:
+            return [parse_byte(item)]
+        except ValueError:
+            return
 
 def _assemble_defb(items):
     data = []
@@ -434,14 +439,14 @@ def _assemble_defb(items):
         if values is not None:
             data.extend(values)
         else:
-            data.append(_parse_byte(item, default=0))
+            data.append(parse_byte(item, default=0))
     return tuple(data)
 
 def _assemble_defs(items):
     if items:
         span = parse_word(items[0], default=0)
         if len(items) > 1:
-            value = _parse_byte(items[1], default=0)
+            value = parse_byte(items[1], default=0)
         else:
             value = 0
         return (value,) * span

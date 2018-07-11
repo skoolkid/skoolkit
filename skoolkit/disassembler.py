@@ -1,4 +1,4 @@
-# Copyright 2010-2015, 2017 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2010-2015, 2017, 2018 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -14,6 +14,7 @@
 # You should have received a copy of the GNU General Public License along with
 # SkoolKit. If not, see <http://www.gnu.org/licenses/>.
 
+from skoolkit import is_char
 from skoolkit.z80 import convert_case
 
 class Instruction:
@@ -67,10 +68,14 @@ class Disassembler:
     def num_str(self, value, num_bytes=0, base=None):
         if base:
             base = base[0]
-        if base == 'c' and 32 <= value < 127 and value not in (94, 96):
-            if value in (34, 92):
-                return r'"\{}"'.format(chr(value))
-            return '"{}"'.format(chr(value))
+        if base == 'c' and is_char(value & 127):
+            if value & 128:
+                suffix = '+' + self.format_byte(128)
+            else:
+                suffix = ''
+            if value & 127 in (34, 92):
+                return r'"\{}"'.format(chr(value & 127)) + suffix
+            return '"{}"'.format(chr(value & 127)) + suffix
         if base not in self.byte_formats:
             if self.asm_hex:
                 base = 'h'
@@ -158,7 +163,7 @@ class Disassembler:
         msg = []
         for i in range(start, end):
             byte = self.snapshot[i]
-            if 32 <= byte < 127 and byte not in (94, 96):
+            if is_char(byte):
                 msg.append(byte)
             else:
                 if msg:
@@ -234,7 +239,10 @@ class Disassembler:
                     text = not defb
                 chunk = data[i:i + length]
                 if text:
-                    items.append('"{0}"'.format(self.get_message(chunk)))
+                    if length == 1:
+                        items.append(self.num_str(chunk[0], base='c'))
+                    else:
+                        items.append('"{}"'.format(self.get_message(chunk)))
                 else:
                     items.append(','.join([(self.format_byte(b, ctl)) for b in chunk]))
                 i += length

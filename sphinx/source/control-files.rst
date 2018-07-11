@@ -260,6 +260,17 @@ which is equivalent to::
 
   T 50000,8,2:B2,2:B2
 
+A character code may be 'inverted' (i.e. have bit 7 set), typically to indicate
+the end of a string::
+
+  49152 DEFM "Hell","o"+128
+
+This can be encoded thus::
+
+  T 49152,5,4:1
+
+and the terminal character will be restored in the same format.
+
 DEFS statements may specify a byte value other than zero; for example::
 
   60000 DEFS 20,170
@@ -537,7 +548,8 @@ Revision history
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
-| 7.0     | Added the ``>`` directive for preserving non-entry blocks         |
+| 7.0     | Added the ``>`` directive for preserving non-entry blocks; added  |
+|         | support for preserving 'inverted' characters (with bit 7 set)     |
 +---------+-------------------------------------------------------------------+
 | 4.5     | Added support for specifying character values in DEFS statements  |
 +---------+-------------------------------------------------------------------+

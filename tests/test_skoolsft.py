@@ -618,18 +618,48 @@ class SftWriterTest(SkoolKitTestCase):
 
     def test_arithmetic_expressions(self):
         skool = """
-            b40000 DEFB "a"+128
-             40001 DEFB "H","i"+$80
-             40003 DEFB 32768/256,32768%256,1+2,3*4,5-6
-             40008 DEFM "a"+128
-             40009 DEFM "H","i"+$80
-             40011 DEFM 32768/256,32768%256,1+2,3*4,5-6
-             40016 DEFS 256*2," "+128
+            b40000 DEFB 32768/256,32768%256,1+2,3*4,5-6
+             40005 DEFM 32768/256,32768%256,1+2,3*4,5-6
+             40010 DEFS 256*2,128/2
+             40522 DEFS "A"*4,"z"+38
         """
         exp_sft = """
-            bB40000,1,T1:1,5
-             T40008,B1,1:B1,B5
-             S40016,512:160
+            bB40000,5
+             T40005,B5
+             S40010,512:64,260:c160
+        """
+        self._test_sft(skool, exp_sft)
+
+    def test_invalid_arithmetic_expressions(self):
+        skool = """
+            b30000 DEFB 1,35/0,"!"
+             30003 DEFB "H","ey"+128
+             30005 DEFM 1,35/0,"!"
+             30008 DEFM "H","ey"+128
+        """
+        exp_sft = """
+            bB30000,2:T1,T1:1
+             T30005,B2:1,1:B1
+        """
+        self._test_sft(skool, exp_sft)
+
+    def test_inverted_characters(self):
+        skool = """
+            b40000 DEFB "a"+128
+             40001 DEFB "H","i"+$80
+             40003 DEFM "a"+128
+             40004 DEFM "H","i"+$80
+             40006 DEFW "a"+128
+             40008 DEFW "H","i"+$80
+             40012 LD A,"a"+128
+             40014 DEFS 2,"a"+$80
+        """
+        exp_sft = """
+            bB40000,T1,T1:T1
+             T40003,1,1:1
+             W40006,c2,c4
+             C40012,c2
+             S40014,2:c225
         """
         self._test_sft(skool, exp_sft)
 

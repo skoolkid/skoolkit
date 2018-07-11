@@ -16,10 +16,10 @@
 
 import re
 
-from skoolkit import SkoolParsingError, write_line, get_int_param, get_address_format, open_file
+from skoolkit import SkoolParsingError, write_line, get_int_param, get_address_format, open_file, is_char
 from skoolkit.skoolparser import (Comment, Register, parse_comment_block, parse_instruction,
                                   parse_address_comments, join_comments, read_skool, DIRECTIVES)
-from skoolkit.z80 import get_size, parse_string, parse_word, split_operation
+from skoolkit.z80 import get_size, parse_byte, parse_string, parse_word, split_operation
 
 ASM_DIRECTIVES = 'a'
 BLOCKS = 'b'
@@ -70,6 +70,27 @@ def _get_base(item, preserve_base=True):
     if item.startswith('$') and preserve_base:
         return 'h'
     return 'd'
+
+def _format_char(fmt, value, value_str):
+    if is_char(value):
+        return fmt['c'].format(value_str)
+    if 128 <= value < 256 and is_char(value & 127):
+        return fmt['c'].format(value)
+    return fmt['d'].format(value)
+
+def _parse_item(func, fmt, item, operation, preserve_base):
+    try:
+        value = func(item)
+    except ValueError:
+        raise SkoolParsingError("Invalid integer '{}': {}".format(item, operation))
+    value_base = _get_base(item, preserve_base)
+    if value_base == 'c':
+        return value, _format_char(fmt, value, item)
+    try:
+        get_int_param(item)
+        return value, fmt[value_base].format(item)
+    except ValueError:
+        return value, fmt[value_base].format(value)
 
 def get_operand_bases(operation, preserve_base):
     elements = split_operation(operation, True)
@@ -173,20 +194,12 @@ def get_defs_length(operation, preserve_base):
         fmt = FORMAT_PRESERVE_BASE
     else:
         fmt = FORMAT_NO_BASE
-    values = []
-    for item in split_operation(operation)[1:3]:
-        base = _get_base(item, preserve_base)
-        try:
-            value = get_int_param(item)
-        except ValueError:
-            try:
-                item = value = parse_word(item)
-            except ValueError:
-                raise SkoolParsingError("Invalid integer '{}': {}".format(item, operation))
-            if base == 'c':
-                base = 'd'
-        values.append((value, fmt[base].format(item)))
-    return values[0][0], ':'.join([v[1] for v in values])
+    items = split_operation(operation)[1:3]
+    size, size_fmt = _parse_item(parse_word, fmt, items[0], operation, preserve_base)
+    if len(items) == 1:
+        return size, size_fmt
+    value, value_fmt = _parse_item(parse_byte, fmt, items[1], operation, preserve_base)
+    return size, '{}:{}'.format(size_fmt, value_fmt)
 
 def get_lengths(stmt_lengths):
     # Find subsequences of identical statement lengths and abbreviate them,

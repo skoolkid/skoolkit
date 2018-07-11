@@ -117,6 +117,9 @@ Revision history
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 7.0     | Added support for preserving 'inverted' characters (with bit 7    |
+|         | set)                                                              |
++---------+-------------------------------------------------------------------+
 | 5.1     | Added support for preserving ``i`` blocks in the same way as code |
 |         | and data blocks (instead of verbatim)                             |
 +---------+-------------------------------------------------------------------+
