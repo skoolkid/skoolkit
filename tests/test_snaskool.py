@@ -579,7 +579,7 @@ class DisassemblyTest(SkoolKitTestCase):
             (4, 'DEFM "L","o"+$80'),
             (6, 'DEFW "a"+$80'),
             (8, 'LD A,"a"+$80'),
-            (10, 'DEFS 2,"a"+$80'),
+            (10, 'DEFS $02,"a"+$80'),
             (12, 'DEFB $80'),
             (13, 'DEFM $E0')
         ]
@@ -666,7 +666,7 @@ class DisassemblyTest(SkoolKitTestCase):
             (  0, 'DEFS 4'),
             (  4, 'DEFS %00000100'),
             (  8, 'DEFS 4'),
-            ( 12, 'DEFS 8'),
+            ( 12, 'DEFS $08'),
             ( 20, 'DEFS %00001010'),
             ( 30, 'DEFS 10'),
             ( 40, 'DEFS $0A'),
@@ -710,8 +710,8 @@ class DisassemblyTest(SkoolKitTestCase):
         """
         exp_instructions = [
             (0, 'DEFS 2,%00000001'),
-            (2, 'DEFS 2,$80'),
-            (4, 'DEFS $0A,2')
+            (2, 'DEFS $02,$80'),
+            (4, 'DEFS $0A,$02')
         ]
         self._test_disassembly(snapshot, ctl, exp_instructions, asm_hex=True)
 

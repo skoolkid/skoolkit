@@ -420,7 +420,7 @@ class SftParserTest(SkoolKitTestCase):
              $0004 DEFM "L","o"+$80
              $0006 DEFW "a"+$80
              $0008 LD A,"a"+$80
-             $000A DEFS 2,"a"+$80
+             $000A DEFS $02,"a"+$80
              $000C DEFB $80
              $000D DEFM $E0
         """
@@ -479,7 +479,7 @@ class SftParserTest(SkoolKitTestCase):
             s00000 DEFS 1
              00001 DEFS %00000010
              00003 DEFS 3
-             00006 DEFS 4
+             00006 DEFS $04
              00010 DEFS %00001010
              00020 DEFS 10
              00030 DEFS $0A

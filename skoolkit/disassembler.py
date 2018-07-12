@@ -65,7 +65,7 @@ class Disassembler:
             'd': '{}'
         }
 
-    def num_str(self, value, num_bytes=0, base=None):
+    def num_str(self, value, num_bytes=1, base=None):
         if base:
             base = base[0]
         if base == 'c' and is_char(value & 127):
@@ -81,8 +81,6 @@ class Disassembler:
                 base = 'h'
             else:
                 base = 'd'
-        if num_bytes == 0 and value < 10 and base == 'h':
-            return str(value)
         if value > 255 or num_bytes > 1:
             return self.word_formats[base].format(value)
         return self.byte_formats[base].format(value)

@@ -2009,7 +2009,7 @@ class DisassemblerTest(SkoolKitTestCase):
         self.assertEqual(disassembler.num_str(123), '123')
 
         disassembler = self._get_disassembler(asm_hex=True)
-        self.assertEqual(disassembler.num_str(5), '5')
+        self.assertEqual(disassembler.num_str(5), '$05')
         self.assertEqual(disassembler.num_str(10), '$0A')
         self.assertEqual(disassembler.num_str(256), '$0100')
         self.assertEqual(disassembler.num_str(5, 1), '$05')
