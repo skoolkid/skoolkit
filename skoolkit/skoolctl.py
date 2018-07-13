@@ -71,27 +71,6 @@ def _get_base(item, preserve_base=True):
         return 'h'
     return 'd'
 
-def _format_char(fmt, value, value_str):
-    if is_char(value):
-        return fmt['c'].format(value_str)
-    if 128 <= value < 256 and is_char(value & 127):
-        return fmt['c'].format(value)
-    return fmt['d'].format(value)
-
-def _parse_item(func, fmt, item, operation, preserve_base):
-    try:
-        value = func(item)
-    except ValueError:
-        raise SkoolParsingError("Invalid integer '{}': {}".format(item, operation))
-    value_base = _get_base(item, preserve_base)
-    if value_base == 'c':
-        return value, _format_char(fmt, value, item)
-    try:
-        get_int_param(item)
-        return value, fmt[value_base].format(item)
-    except ValueError:
-        return value, fmt[value_base].format(value)
-
 def get_operand_bases(operation, preserve_base):
     elements = split_operation(operation, True)
     if not elements:
@@ -195,11 +174,25 @@ def get_defs_length(operation, preserve_base):
     else:
         fmt = FORMAT_NO_BASE
     items = split_operation(operation)[1:3]
-    size, size_fmt = _parse_item(parse_word, fmt, items[0], operation, preserve_base)
+
+    try:
+        size = parse_word(items[0])
+    except ValueError:
+        raise SkoolParsingError("Invalid integer '{}': {}".format(items[0], operation))
+    size_base = _get_base(items[0], preserve_base)
+    try:
+        get_int_param(items[0])
+        size_fmt = fmt[size_base].format(items[0])
+    except ValueError:
+        size_fmt = fmt[size_base].format(size)
+
     if len(items) == 1:
         return size, size_fmt
-    value, value_fmt = _parse_item(parse_byte, fmt, items[1], operation, preserve_base)
-    return size, '{}:{}'.format(size_fmt, value_fmt)
+
+    value_base = _get_base(items[1], preserve_base)
+    if value_base in 'dh' and not preserve_base:
+        value_base = 'n'
+    return size, '{}:{}'.format(size_fmt, value_base)
 
 def get_lengths(stmt_lengths):
     # Find subsequences of identical statement lengths and abbreviate them,

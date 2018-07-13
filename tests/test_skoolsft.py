@@ -488,20 +488,20 @@ class SftWriterTest(SkoolKitTestCase):
     def test_s_directives_no_base(self):
         exp_sft = """
             ; DEFS statements in various bases
-            sS50000,b%0000000111110100,1000,$07D0,500:b%10101010,$0100:170
-             S54256,256:c"\\"";30 {Tricky characters
-             S54512,88:c"\\\\",50:c",";30
-             S54650,50:c";";30 }
+            sS50000,b%0000000111110100,1000,$07D0,500:b,$0100:n
+             S54256,256:c;30 {Tricky characters
+             S54512,88:c,50:c;30
+             S54650,50:c;30 }
         """
         self._test_sft(TEST_S_DIRECTIVES_SKOOL, exp_sft, preserve_base=False)
 
     def test_s_directives_preserve_base(self):
         exp_sft = """
             ; DEFS statements in various bases
-            sS50000,b%0000000111110100,d1000,h$07D0,d500:b%10101010,h$0100:d170
-             S54256,d256:c"\\"";30 {Tricky characters
-             S54512,d88:c"\\\\",d50:c",";30
-             S54650,d50:c";";30 }
+            sS50000,b%0000000111110100,d1000,h$07D0,d500:b,h$0100:d
+             S54256,d256:c;30 {Tricky characters
+             S54512,d88:c,d50:c;30
+             S54650,d50:c;30 }
         """
         self._test_sft(TEST_S_DIRECTIVES_SKOOL, exp_sft, preserve_base=True)
 
@@ -510,10 +510,10 @@ class SftWriterTest(SkoolKitTestCase):
         with self.assertRaisesRegex(SkoolParsingError, "^Invalid integer 'x': DEFS x,1$"):
             writer.write()
 
-    def test_s_directive_invalid_value(self):
-        writer = SftWriter(StringIO('s30000 DEFS 10,y'))
-        with self.assertRaisesRegex(SkoolParsingError, "^Invalid integer 'y': DEFS 10,y$"):
-            writer.write()
+    def test_s_directive_invalid_value_ignored(self):
+        skool = 's30000 DEFS 10,y$'
+        exp_sft = "sS30000,10:n"
+        self._test_sft(skool, exp_sft)
 
     def test_operand_bases_no_base(self):
         exp_sft = """
@@ -626,7 +626,7 @@ class SftWriterTest(SkoolKitTestCase):
         exp_sft = """
             bB40000,5
              T40005,B5
-             S40010,512:64,260:c160
+             S40010,512:n,c260:c
         """
         self._test_sft(skool, exp_sft)
 
@@ -659,7 +659,7 @@ class SftWriterTest(SkoolKitTestCase):
              T40003,1,1:1
              W40006,c2,c4
              C40012,c2
-             S40014,2:c225
+             S40014,2:c
         """
         self._test_sft(skool, exp_sft)
 

@@ -641,7 +641,7 @@ class DisassemblyTest(SkoolKitTestCase):
         ]
         self._test_disassembly(snapshot, ctl, exp_instructions, asm_hex=True)
 
-    def test_s_directives(self):
+    def test_s_directives_with_no_byte_value(self):
         snapshot = []
         ctl = """
             s 00000
@@ -654,13 +654,8 @@ class DisassemblyTest(SkoolKitTestCase):
               00100,d40,b10,10,h10
               00140,h60,b10,d10,40
             S 00200,768,b256,d256,h256
-              00968,56,16:b%10101010,40:h17
-              01024,32,16:c";",16:c"?"
-              01056,8,4:c",",4:c" "
-              01064,10,3:c"*"*2,4:c":"
-              01074,16,8:c43
-              01090,10,4:c"\\"",6:c"\\\\"
-            i 01100
+            S 00968,328,c" ",c160,c4,c132
+            i 01296
         """
         exp_instructions = [
             (  0, 'DEFS 4'),
@@ -685,19 +680,58 @@ class DisassemblyTest(SkoolKitTestCase):
             (200, 'DEFS %0000000100000000'),
             (456, 'DEFS 256'),
             (712, 'DEFS $0100'),
-            (968, 'DEFS 16,%10101010'),
-            (984, 'DEFS 40,$11'),
-            (1024, 'DEFS 16,";"'),
-            (1040, 'DEFS 16,"?"'),
-            (1056, 'DEFS 4,","'),
-            (1060, 'DEFS 4," "'),
-            (1064, 'DEFS 3,"*"'),
-            (1067, 'DEFS 3,"*"'),
-            (1070, 'DEFS 4,":"'),
-            (1074, 'DEFS 8,"+"'),
-            (1082, 'DEFS 8,"+"'),
-            (1090, 'DEFS 4,"\\""'),
-            (1094, 'DEFS 6,"\\\\"')
+            (968, 'DEFS " "'),
+            (1000, 'DEFS " "+128'),
+            (1160, 'DEFS 4'),
+            (1164, 'DEFS 132')
+        ]
+        self._test_disassembly(snapshot, ctl, exp_instructions)
+
+    def test_s_directives_with_byte_values(self):
+        snapshot = []
+        ctl = """
+            s 00000
+              00000,56,16:b%10101010,40:h17
+              00056,32,16:c";",16:c"?"
+              00088,8,4:c",",4:c" "
+              00096,10,3:c"*"*2,4:c":"
+              00106,16,8:c43
+              00122,10,4:c"\\"",6:c"\\\\"
+            i 00132
+        """
+        exp_instructions = [
+            (0, 'DEFS 16,%10101010'),
+            (16, 'DEFS 40,$11'),
+            (56, 'DEFS 16,";"'),
+            (72, 'DEFS 16,"?"'),
+            (88, 'DEFS 4,","'),
+            (92, 'DEFS 4," "'),
+            (96, 'DEFS 3,"*"'),
+            (99, 'DEFS 3,"*"'),
+            (102, 'DEFS 4,":"'),
+            (106, 'DEFS 8,"+"'),
+            (114, 'DEFS 8,"+"'),
+            (122, 'DEFS 4,"\\""'),
+            (126, 'DEFS 6,"\\\\"')
+        ]
+        self._test_disassembly(snapshot, ctl, exp_instructions)
+
+    def test_s_directives_with_blank_byte_values(self):
+        snapshot = [1, 1, 33, 33, 3, 3, 4, 4, 5, 5, 161, 161, 7, 7, 136, 136]
+        ctl = """
+            s 00000
+              00000,16,2:b,2:c,2:d,2:h,h2:n,2:c*3
+            i 00016
+        """
+        exp_instructions = [
+            (0, 'DEFS 2,%00000001'),
+            (2, 'DEFS 2,"!"'),
+            (4, 'DEFS 2,3'),
+            (6, 'DEFS 2,$04'),
+            (8, 'DEFS $02,5'),
+            (10, 'DEFS 2,"!"+128'),
+            (12, 'DEFS 2,7'),
+            (14, 'DEFS 2,136')
         ]
         self._test_disassembly(snapshot, ctl, exp_instructions)
 
@@ -712,6 +746,25 @@ class DisassemblyTest(SkoolKitTestCase):
             (0, 'DEFS 2,%00000001'),
             (2, 'DEFS $02,$80'),
             (4, 'DEFS $0A,$02')
+        ]
+        self._test_disassembly(snapshot, ctl, exp_instructions, asm_hex=True)
+
+    def test_s_directives_with_blank_byte_values_hex(self):
+        snapshot = [1, 1, 33, 33, 3, 3, 4, 4, 5, 5, 161, 161, 7, 7, 136, 136]
+        ctl = """
+            s 00000
+              00000,16,2:b,2:c,2:d,2:h,d2:n,2:c*3
+            i 00016
+        """
+        exp_instructions = [
+            (0, 'DEFS $02,%00000001'),
+            (2, 'DEFS $02,"!"'),
+            (4, 'DEFS $02,3'),
+            (6, 'DEFS $02,$04'),
+            (8, 'DEFS 2,$05'),
+            (10, 'DEFS $02,"!"+$80'),
+            (12, 'DEFS $02,$07'),
+            (14, 'DEFS $02,$88')
         ]
         self._test_disassembly(snapshot, ctl, exp_instructions, asm_hex=True)
 

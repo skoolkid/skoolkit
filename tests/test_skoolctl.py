@@ -526,8 +526,8 @@ s50000 DEFS %0000000111110100
  54000 DEFS $0100,170
  54256 DEFS 256,"\""          ; {Tricky characters
  54512 DEFS 88,"\\"           ;
- 54600 DEFS 50,","            ;
- 54650 DEFS 50,";"            ; }
+ 54600 DEFS 60,","            ;
+ 54660 DEFS 40,";"            ; }
 """
 
 TEST_OPERAND_BASES_SKOOL = """; Operations in various bases
@@ -764,8 +764,8 @@ class CtlWriterTest(SkoolKitTestCase):
     def test_s_directives_no_base(self):
         exp_ctl = """
             s 50000 DEFS statements in various bases
-              50000,4256,b%0000000111110100,1000,$07D0,500:b%10101010,$0100:170
-              54256,444,256:c"\\"",88:c"\\\\",50:c",",50:c";" Tricky characters
+              50000,4256,b%0000000111110100,1000,$07D0,500:b,$0100:n
+              54256,444,256:c,88:c,60:c,40:c Tricky characters
             i 54700
         """
         self._test_ctl(TEST_S_DIRECTIVES_SKOOL, exp_ctl, preserve_base=False)
@@ -773,8 +773,8 @@ class CtlWriterTest(SkoolKitTestCase):
     def test_s_directives_preserve_base(self):
         exp_ctl = """
             s 50000 DEFS statements in various bases
-              50000,4256,b%0000000111110100,d1000,h$07D0,d500:b%10101010,h$0100:d170
-              54256,444,d256:c"\\"",d88:c"\\\\",d50:c",",d50:c";" Tricky characters
+              50000,4256,b%0000000111110100,d1000,h$07D0,d500:b,h$0100:d
+              54256,444,d256:c,d88:c,d60:c,d40:c Tricky characters
             i 54700
         """
         self._test_ctl(TEST_S_DIRECTIVES_SKOOL, exp_ctl, preserve_base=True)
@@ -783,9 +783,14 @@ class CtlWriterTest(SkoolKitTestCase):
         with self.assertRaisesRegex(SkoolParsingError, "^Invalid integer 'x': DEFS x,1$"):
             CtlWriter(StringIO('s30000 DEFS x,1'))
 
-    def test_s_directive_invalid_value(self):
-        with self.assertRaisesRegex(SkoolParsingError, "^Invalid integer 'y': DEFS 10,y$"):
-            CtlWriter(StringIO('s30000 DEFS 10,y'))
+    def test_s_directive_invalid_value_ignored(self):
+        skool = 's30000 DEFS 10,y$'
+        exp_ctl = """
+            s 30000
+              30000,10,10:n
+            i 30010
+        """
+        self._test_ctl(skool, exp_ctl)
 
     def test_operand_bases_no_base(self):
         exp_ctl = """
@@ -899,7 +904,7 @@ class CtlWriterTest(SkoolKitTestCase):
             b 40000
               40000,5,5
             T 40005,5,B5
-            S 40010,772,512:64,260:c160
+            S 40010,772,512:n,c260:c
             i 40782
         """
         self._test_ctl(skool, exp_ctl)
@@ -936,7 +941,7 @@ class CtlWriterTest(SkoolKitTestCase):
             T 40003,3,1,1:1
             W 40006,6,c2,c4
             C 40012,c2
-            S 40014,2,2:c225
+            S 40014,2,2:c
             i 40016
         """
         self._test_ctl(skool, exp_ctl)

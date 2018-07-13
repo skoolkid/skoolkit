@@ -173,8 +173,13 @@ class Disassembler:
         return instructions
 
     def defs(self, start, end, sublengths):
-        size = end - start
-        items = [self.num_str(value or size, base=base) for value, base in sublengths]
+        size, base = sublengths[0]
+        items = [self.num_str(size or end - start, base=base)]
+        if len(sublengths) > 1:
+            value, base = sublengths[1]
+            if value is None:
+                value = self.snapshot[start]
+            items.append(self.num_str(value, base=base))
         defs_dir = 'DEFS {}'.format(','.join(items))
         if self.asm_lower:
             defs_dir = convert_case(defs_dir)

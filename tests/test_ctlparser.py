@@ -927,9 +927,9 @@ class CtlParserTest(SkoolKitTestCase):
         }
         self._check_sublengths(exp_sublengths, ctl_parser.get_blocks())
 
-    def test_s_directives(self):
+    def test_s_directives_with_no_byte_value(self):
         ctl = """
-            s 50000 Test s/S directives
+            s 50000 Test s/S directives with no byte value
               50000,10
               50010,b10
               50020,d10
@@ -938,12 +938,6 @@ class CtlParserTest(SkoolKitTestCase):
             S 50060,d20,b5,5,h5
             S 50080,h20,b5,d5,5
               50100,20,b5,d5,5
-              50120,20,d20:b%10001000
-              50140,20,20:h$44
-              50160,12,10:h10,h2:2
-              50172,8,2:c",",2:c";",4:c"!"
-              50180,70,5:c"*"*2,58:c":",2:c" "
-              50250,10,4:c"\\"",6:c"\\\\"
         """
         ctl_parser = self._get_ctl_parser(ctl)
 
@@ -964,6 +958,23 @@ class CtlParserTest(SkoolKitTestCase):
             50100: ((5, 'b'),),
             50105: ((5, 'd'),),
             50110: ((5, None),),
+            50120: ((None, None),)
+        }
+        self._check_sublengths(exp_sublengths, ctl_parser.get_blocks())
+
+    def test_s_directives_with_byte_values(self):
+        ctl = """
+            s 50120 Test s/S directives with byte values
+              50120,20,d20:b%10001000
+              50140,20,20:h$44
+              50160,12,10:h10,h2:2
+              50172,8,2:c",",2:c";",4:c"!"
+              50180,70,5:c"*"*2,58:c":",2:c" "
+              50250,10,4:c"\\"",6:c"\\\\"
+        """
+        ctl_parser = self._get_ctl_parser(ctl)
+
+        exp_sublengths = {
             50120: ((20, 'd'), (136, 'b')),
             50140: ((20, None), (68, 'h')),
             50160: ((10, None), (10, 'h')),
@@ -978,6 +989,30 @@ class CtlParserTest(SkoolKitTestCase):
             50250: ((4, None), (34, 'c')),
             50254: ((6, None), (92, 'c')),
             50260: ((None, None),)
+        }
+        self._check_sublengths(exp_sublengths, ctl_parser.get_blocks())
+
+    def test_s_directives_with_blank_byte_values(self):
+        ctl = """
+            s 60000 Test s/S directives with blank byte values
+              60000,20,20:c
+              60020,40,c"(":b
+              60060,10,h$0A:d
+              60070,10,10:h
+              60080,10,b%1010:n
+              60090,10,5:c*2
+        """
+        ctl_parser = self._get_ctl_parser(ctl)
+
+        exp_sublengths = {
+            60000: ((20, None), (None, 'c')),
+            60020: ((40, 'c'), (None, 'b')),
+            60060: ((10, 'h'), (None, 'd')),
+            60070: ((10, None), (None, 'h')),
+            60080: ((10, 'b'), (None, 'n')),
+            60090: ((5, None), (None, 'c')),
+            60095: ((5, None), (None, 'c')),
+            60100: ((None, None),)
         }
         self._check_sublengths(exp_sublengths, ctl_parser.get_blocks())
 

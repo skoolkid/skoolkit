@@ -53,10 +53,13 @@ def _parse_sublengths(spec, subctl, default_prefix):
         sublengths = [spec]
     else:
         sublengths = split_unquoted(spec, ':')
+    required = True
     for num in sublengths:
-        sublength, prefix = _parse_length(num, subctl, default_prefix)
+        sublength, prefix = _parse_length(num, subctl, default_prefix, required)
         lengths.append((sublength, prefix))
-        length += sublength
+        if required or sublength is not None:
+            length += sublength
+        required = subctl != 'S'
     if len(lengths) == 1 and prefix is None:
         return (length, ((length, None),))
     if subctl == 'S':

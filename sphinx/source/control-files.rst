@@ -278,7 +278,10 @@ DEFS statements may specify a byte value other than zero; for example::
 
 These statements can be encoded in a control file thus::
 
-  S 60000,60,20:170,40:85
+  S 60000,60,20:n,40:n
+
+where ``n`` indicates that the byte value should be rendered in the default
+base (see :ref:`numberBases`).
 
 .. _ctlLoops:
 
@@ -362,7 +365,7 @@ will result in something like this::
 and::
 
   B 40000,8,b1:d2:h1,d1,b1,h2
-  S 40008,8,8:c"!"
+  S 40008,8,8:c
 
 will result in something like this::
 
@@ -549,7 +552,8 @@ Revision history
 | Version | Changes                                                           |
 +=========+===================================================================+
 | 7.0     | Added the ``>`` directive for preserving non-entry blocks; added  |
-|         | support for preserving 'inverted' characters (with bit 7 set)     |
+|         | support for preserving 'inverted' characters (with bit 7 set);    |
+|         | the byte value in an ``S`` directive may be left blank            |
 +---------+-------------------------------------------------------------------+
 | 4.5     | Added support for specifying character values in DEFS statements  |
 +---------+-------------------------------------------------------------------+

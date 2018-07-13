@@ -92,7 +92,7 @@ bases or as characters. For example::
 These statements may be preserved in a skool file template thus::
 
   bB40000,b1:d2:h1,d1,b1,h2
-   S40008,8:c"!"
+   S40008,8:c
 
 Instruction operands may also contain numeric values in various bases or as
 characters. For example::
@@ -118,7 +118,7 @@ Revision history
 | Version | Changes                                                           |
 +=========+===================================================================+
 | 7.0     | Added support for preserving 'inverted' characters (with bit 7    |
-|         | set)                                                              |
+|         | set); the byte value in an ``S`` directive may be left blank      |
 +---------+-------------------------------------------------------------------+
 | 5.1     | Added support for preserving ``i`` blocks in the same way as code |
 |         | and data blocks (instead of verbatim)                             |
