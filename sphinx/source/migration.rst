@@ -30,9 +30,10 @@ will convert the following files into a single HTML disassembly:
 sna2skool.py
 ------------
 The ``-i``, ``-l``, ``-m``, ``-n``, ``-r``, ``-R``, ``-t`` and ``-z`` options
-of :ref:`sna2skool.py` are not supported in SkoolKit 7. However, the
-corresponding features are still supported, and each one can be controlled by
-the ``-I`` option with an appropriate configuration parameter:
+of :ref:`sna2skool.py` that were available in SkoolKit 6 are not supported in
+SkoolKit 7. However, the corresponding features are still supported, and each
+one can be controlled by the ``-I`` option with an appropriate configuration
+parameter:
 
 * instead of ``-i/--ctl-hex-lower``, use ``-I CtlHex=1``
 * instead of ``-l/--defm-size L``, use ``-I DefmSize=L``
@@ -42,6 +43,10 @@ the ``-I`` option with an appropriate configuration parameter:
 * instead of ``-R/--erefs``, use ``-I ListRefs=2``
 * instead of ``-t/--text``, use ``-I Text=1``
 * instead of ``-z/--defb-zfill``, use ``-I DefbZfill=1``
+
+In addition, the ``-L`` (``--lower``) option has been renamed ``-l`` (for
+consistency with corresponding options of :ref:`skool2asm.py` and
+:ref:`skool2html.py`).
 
 GameStatusBufferIncludes
 ------------------------

@@ -474,7 +474,7 @@ class OptionsTest(SkoolKitTestCase):
         self.assertTrue(error.startswith('usage: sna2skool.py'))
 
     def test_invalid_option_value(self):
-        for option in (('-s ABC'), ('-o +'), ('-p ='), ('-n q'), ('-m .'), ('-l ?')):
+        for option in (('-s ABC'), ('-o +'), ('-p ='), ('-n q'), ('-m .'), ('-L ?')):
             output, error = self.run_sna2skool(option, catch_exit=2)
             self.assertEqual(output, '')
             self.assertTrue(error.startswith('usage: sna2skool.py'))
@@ -529,7 +529,7 @@ class OptionsTest(SkoolKitTestCase):
     @patch.object(sna2skool, 'CtlParser', MockCtlParser)
     @patch.object(sna2skool, 'SkoolWriter', MockSkoolWriter)
     def test_option_L(self):
-        for option in ('-L', '--lower'):
+        for option in ('-l', '--lower'):
             output, error = self.run_sna2skool('{} test.sna'.format(option))
             self.assertEqual(error, '')
             self.assertEqual(mock_skool_writer.options.case, 1)
@@ -922,7 +922,7 @@ class OptionsTest(SkoolKitTestCase):
     @patch.object(sna2skool, 'run', mock_run)
     @patch.object(sna2skool, 'get_config', mock_config)
     def test_option_I_overrides_other_options(self):
-        self.run_sna2skool('-H -I Base=10 -L --ini Case=2 test.skool')
+        self.run_sna2skool('-H -I Base=10 -l --ini Case=2 test.skool')
         options = run_args[1]
         self.assertEqual(options.params, ['Base=10', 'Case=2'])
         self.assertEqual(options.base, 10)

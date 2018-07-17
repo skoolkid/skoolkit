@@ -714,7 +714,7 @@ list::
                           disassembly.
     -I p=v, --ini p=v     Set the value of the configuration parameter 'p' to
                           'v'. This option may be used multiple times.
-    -L, --lower           Write the disassembly in lower case.
+    -l, --lower           Write the disassembly in lower case.
     -M FILE, --map FILE   Use FILE as a code execution map when generating a
                           control file.
     -o ADDR, --org ADDR   Specify the origin address of a binary (.bin) file
@@ -821,6 +821,8 @@ Configuration parameters may also be set on the command line by using the
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 7.0     | The short option for ``--lower`` is ``-l``                        |
++---------+-------------------------------------------------------------------+
 | 6.2     | Added the ``--show-config`` option; the ``--end``, ``--org`` and  |
 |         | ``--start`` options accept a hexadecimal integer prefixed by '0x' |
 +---------+-------------------------------------------------------------------+
@@ -846,7 +848,7 @@ Configuration parameters may also be set on the command line by using the
 +---------+-------------------------------------------------------------------+
 | 2.4     | Added the ``-T`` option                                           |
 +---------+-------------------------------------------------------------------+
-| 2.1.2   | Added the ``-L`` option                                           |
+| 2.1.2   | Added the ability to write the disassembly in lower case          |
 +---------+-------------------------------------------------------------------+
 | 2.1     | Added the ``-H`` option                                           |
 +---------+-------------------------------------------------------------------+

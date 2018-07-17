@@ -88,7 +88,7 @@ def main(args):
                        help='Write hexadecimal addresses and operands in the disassembly.')
     group.add_argument('-I', '--ini', dest='params', metavar='p=v', action='append', default=[],
                        help="Set the value of the configuration parameter 'p' to 'v'. This option may be used multiple times.")
-    group.add_argument('-L', '--lower', dest='case', action='store_const', const=1, default=config['Case'],
+    group.add_argument('-l', '--lower', dest='case', action='store_const', const=1, default=config['Case'],
                        help='Write the disassembly in lower case.')
     group.add_argument('-M', '--map', dest='code_map', metavar='FILE',
                        help='Use FILE as a code execution map when generating a control file.')

@@ -40,7 +40,7 @@ OPTIONS
   overriding any value found in ``skoolkit.ini``. This option may be used
   multiple times.
 
--L, --lower
+-l, --lower
   Write the disassembly in lower case.
 
 -M, --map `FILE`
