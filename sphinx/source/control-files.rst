@@ -538,13 +538,12 @@ the skool file.
 Limitations
 -----------
 A control file can be useful in the early stages of developing a skool file for
-reorganising code and data blocks, but it cannot preserve the following:
+reorganising code and data blocks, but it cannot preserve an ASM block
+directive that occurs inside a regular entry.
 
-* ASM block directives
-* comments that are not part of a code or data block
-
-:ref:`skoolFileTemplates`, however, can preserve these elements, and so may be
-a better choice for skool files that contain any of them.
+:ref:`skoolFileTemplates`, however, can preserve ASM block directives that
+occur inside regular entries, and so may be a better choice for skool files
+that contain any of them.
 
 Revision history
 ----------------
