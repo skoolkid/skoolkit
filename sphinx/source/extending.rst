@@ -411,6 +411,9 @@ and functions.
    .. versionchanged:: 6.4
       *frames* may be a single frame.
 
+   .. versionchanged:: 7.0
+      *path_id* defaults to ``ImagePath`` (previously ``UDGImagePath``).
+
 .. automethod:: skoolkit.skoolhtml.HtmlWriter.screenshot
 .. autofunction:: skoolkit.graphics.flip_udgs
 .. autofunction:: skoolkit.graphics.rotate_udgs

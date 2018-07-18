@@ -80,6 +80,9 @@ HtmlWriter:
 These methods are not available in SkoolKit 7; instead, use the
 :meth:`~skoolkit.skoolhtml.HtmlWriter.handle_image` method.
 
+In addition, the default value of the `path_id` parameter of
+:meth:`handle_image` has changed from ``UDGImagePath`` to ``ImagePath``.
+
 Data definition entries
 -----------------------
 Data definition entries ('d' blocks) are not supported in SkoolKit 7. Use the

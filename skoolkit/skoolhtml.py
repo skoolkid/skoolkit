@@ -46,8 +46,8 @@ P_UNUSED_MAP = 'UnusedMap'
 P_GSB = 'GameStatusBuffer'
 P_ASM_SINGLE_PAGE = 'AsmSinglePage'
 
-# Default image path ID
-DEF_IMG_PATH = 'UDGImagePath'
+# UDG image path ID
+UDG_IMAGE_PATH = 'UDGImagePath'
 
 # Default memory map entry types
 DEF_MEMORY_MAP_ENTRY_TYPES = 'bcgstuw'
@@ -953,7 +953,7 @@ class HtmlWriter:
         return self.format_template('img', {'alt': alt, 'src': src})
 
     # API
-    def handle_image(self, frames, fname='', cwd=None, alt=None, path_id=DEF_IMG_PATH):
+    def handle_image(self, frames, fname='', cwd=None, alt=None, path_id='ImagePath'):
         """Register a named frame for an image, and write an image file if
         required. If `fname` is blank, no image file will be created.  If
         `fname` does not end with '.png' or '.gif', an appropriate suffix will
@@ -1156,11 +1156,11 @@ class HtmlWriter:
             if frame == '':
                 frame = fname
         frame = Frame(udgs, scale, mask, *crop_rect, name=frame)
-        return end, self.handle_image(frame, fname, cwd, alt)
+        return end, self.handle_image(frame, fname, cwd, alt, UDG_IMAGE_PATH)
 
     def _expand_udgarray_with_frames(self, text, index, cwd):
         end, fname, alt, frames = skoolmacro.parse_udgarray_with_frames(text, index, self.frames)
-        return end, self.handle_image(frames, fname, cwd, alt)
+        return end, self.handle_image(frames, fname, cwd, alt, UDG_IMAGE_PATH)
 
     def expand_udgarray(self, text, index, cwd):
         if index < len(text) and text[index] == '*':
@@ -1170,7 +1170,7 @@ class HtmlWriter:
         udg_array, scale, flip, rotate, mask = params
         udgs = lambda: adjust_udgs(udg_array, flip, rotate)
         frame = Frame(udgs, scale, mask, *crop_rect, name=frame)
-        return end, self.handle_image(frame, fname, cwd, alt)
+        return end, self.handle_image(frame, fname, cwd, alt, UDG_IMAGE_PATH)
 
     def expand_udgtable(self, text, index, cwd):
         return self.expand_table(text, index, cwd)

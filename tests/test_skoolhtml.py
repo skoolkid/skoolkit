@@ -20,6 +20,7 @@ MAPS_DIR = 'maps'
 GRAPHICS_DIR = 'graphics'
 BUFFERS_DIR = 'buffers'
 REFERENCE_DIR = 'reference'
+IMAGEDIR = 'images'
 FONTDIR = 'images/font'
 SCRDIR = 'images/scr'
 UDGDIR = 'images/udgs'
@@ -61,6 +62,7 @@ LinkInternalOperands=0
 LinkOperands=CALL,DEFW,DJNZ,JP,JR
 [Paths]
 CodePath={ASMDIR}
+ImagePath={IMAGEDIR}
 ScreenshotImagePath={SCRDIR}
 UDGImagePath={UDGDIR}
 UDGFilename=udg{{addr}}_{{attr}}x{{scale}}
@@ -509,7 +511,7 @@ class MethodTest(HtmlWriterTestCase):
             fname = 'test.' + img_format
             with self.subTest(img_format=img_format):
                 writer.handle_image(frame, fname)
-                self.assertEqual(file_info.fname, 'images/udgs/' + fname)
+                self.assertEqual(file_info.fname, '{}/{}'.format(IMAGEDIR, fname))
                 self.assertEqual(file_info.mode, 'wb')
                 self.assertEqual(image_writer.udg_array, udgs)
                 self.assertEqual(image_writer.img_format, img_format)
@@ -531,7 +533,7 @@ class MethodTest(HtmlWriterTestCase):
             fname = 'test_animated.' + img_format
             with self.subTest(img_format=img_format):
                 writer.handle_image(frames, fname)
-                self.assertEqual(file_info.fname, 'images/udgs/' + fname)
+                self.assertEqual(file_info.fname, '{}/{}'.format(IMAGEDIR, fname))
                 self.assertEqual(file_info.mode, 'wb')
                 self.assertEqual(image_writer.frames, frames)
                 self.assertEqual(image_writer.img_format, img_format)
@@ -544,7 +546,7 @@ class MethodTest(HtmlWriterTestCase):
         def_img_format = writer.default_image_format
 
         writer.handle_image(frame, 'img')
-        self.assertEqual(file_info.fname, '{}/img.{}'.format(writer.paths['UDGImagePath'], def_img_format))
+        self.assertEqual(file_info.fname, '{}/img.{}'.format(writer.paths['ImagePath'], def_img_format))
 
         writer.handle_image(frame, '/pics/foo.png')
         self.assertEqual(file_info.fname, 'pics/foo.png')
@@ -561,7 +563,7 @@ class MethodTest(HtmlWriterTestCase):
     def test_handle_image_detects_animation(self):
         writer = self._get_writer(mock_file_info=True)
         file_info = writer.file_info
-        udg_path = writer.paths['UDGImagePath']
+        udg_path = writer.paths['ImagePath']
 
         # One frame, no flash
         udgs = [[Udg(1, (0,) * 8)]]
