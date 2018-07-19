@@ -231,16 +231,16 @@ to parse the parameters of a skool macro.
 
 .. autofunction:: skoolkit.skoolmacro.parse_ints
 
-   .. versionchanged:: 4.0
-      Added the *names* parameter and support for keyword arguments; *index*
-      defaults to 0.
+   .. versionchanged:: 6.0
+      Added the *fields* parameter.
 
    .. versionchanged:: 5.1
       Added support for parameters expressed using arithmetic operators and
       skool macros.
 
-   .. versionchanged:: 6.0
-      Added the *fields* parameter.
+   .. versionchanged:: 4.0
+      Added the *names* parameter and support for keyword arguments; *index*
+      defaults to 0.
 
 .. autofunction:: skoolkit.skoolmacro.parse_strings
 
@@ -384,35 +384,35 @@ The Frame class represents a single frame of a still or animated image.
 
 .. autoclass:: skoolkit.graphics.Frame
 
-   .. versionadded:: 3.6
-
-   .. versionchanged:: 4.0
-      The *mask* parameter specifies the type of mask to apply (see
-      :ref:`masks`).
+   .. versionchanged:: 5.4
+      The Frame class moved from skoolkit.skoolhtml to skoolkit.graphics.
 
    .. versionchanged:: 5.1
       The *udgs* parameter can be a function that returns the array of tiles;
       added the *name* parameter.
 
-   .. versionchanged:: 5.4
-      The Frame class moved from skoolkit.skoolhtml to skoolkit.graphics.
+   .. versionchanged:: 4.0
+      The *mask* parameter specifies the type of mask to apply (see
+      :ref:`masks`).
+
+   .. versionadded:: 3.6
 
 HtmlWriter and skoolkit.graphics provide the following image-related methods
 and functions.
 
 .. automethod:: skoolkit.skoolhtml.HtmlWriter.handle_image
 
-   .. versionadded:: 5.1
+   .. versionchanged:: 7.0
+      *path_id* defaults to ``ImagePath`` (previously ``UDGImagePath``).
+
+   .. versionchanged:: 6.4
+      *frames* may be a single frame.
 
    .. versionchanged:: 6.3
       *fname* may contain an image path ID replacement field (e.g.
       ``{UDGImagePath}``).
 
-   .. versionchanged:: 6.4
-      *frames* may be a single frame.
-
-   .. versionchanged:: 7.0
-      *path_id* defaults to ``ImagePath`` (previously ``UDGImagePath``).
+   .. versionadded:: 5.1
 
 .. automethod:: skoolkit.skoolhtml.HtmlWriter.screenshot
 .. autofunction:: skoolkit.graphics.flip_udgs
