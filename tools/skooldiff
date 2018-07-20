@@ -28,25 +28,15 @@ ctl=0
 GAME=$1
 read_ddiffsrc $GAME
 
-if [ "$GAME" = "rom" ]; then
-  SKOOL=$DHOME/sources/rom.skool
-  SNA2SKOOL_OPTS="-o 0 -H"
-else
-  SKOOL=$(ls -1 $DHOME/sources/*.skool | grep -Ev '/(load|save|start).skool')
-fi
-
+[[ $GAME = rom ]] && SNA2SKOOL_OPTS="-o 0 -H"
+SKOOL=$DHOME/sources/$GAME.skool
 SKOOL2=$GAME.skool
-DIFF=$GAME.diff
 
 if ((ctl == 1)); then
-  CTL=$GAME.ctl
-  $SKOOLKIT_HOME/skool2ctl.py $SKOOL > $CTL
-  $SKOOLKIT_HOME/sna2skool.py $SNA2SKOOL_OPTS -c $CTL $SNAPSHOT > $SKOOL2
+  $SKOOLKIT_HOME/skool2ctl.py $SKOOL | $SKOOLKIT_HOME/sna2skool.py $SNA2SKOOL_OPTS -c - $SNAPSHOT > $SKOOL2
 else
-  SFT=$GAME.sft
-  $SKOOLKIT_HOME/skool2sft.py $SKOOL > $SFT
-  $SKOOLKIT_HOME/sna2skool.py $SNA2SKOOL_OPTS -T $SFT $SNAPSHOT > $SKOOL2
-fi
+  $SKOOLKIT_HOME/skool2sft.py $SKOOL | $SKOOLKIT_HOME/sna2skool.py $SNA2SKOOL_OPTS -T - $SNAPSHOT > $SKOOL2
+fi 2>/dev/null
 
 if colordiff -Bu $SKOOL $SKOOL2; then
   echo "No differences" 1>&2
