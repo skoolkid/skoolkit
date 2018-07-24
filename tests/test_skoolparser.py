@@ -3154,22 +3154,6 @@ class SkoolParserTest(SkoolKitTestCase):
         """
         self.assert_error(skool, r"Failed to replace 'Routine' with '\\1': invalid group reference")
 
-    def test_isub_directive(self):
-        skool = """
-            @start
-            ; Routine
-            @isub=LD A,(32512)
-            c60000 LD A,(m)
-        """
-        for asm_mode, op in (
-                (0, 'LD A,(m)'),
-                (1, 'LD A,(32512)'),
-                (2, 'LD A,(32512)'),
-                (3, 'LD A,(32512)')
-        ):
-            parser = self._get_parser(skool, asm_mode=asm_mode)
-            self.assertEqual(parser.get_instruction(60000).operation, op)
-
     def test_isub_directive_with_comment_in_lower_and_upper_case(self):
         skool = """
             @start
@@ -3201,22 +3185,6 @@ class SkoolParserTest(SkoolKitTestCase):
         for asm_mode in (1, 2, 3):
             parser = self._get_parser(skool, asm_mode=asm_mode)
             self.assertEqual(['Actual description.'], parser.get_entry(24576).details)
-
-    def test_ssub_directive(self):
-        skool = """
-            @start
-            ; Routine
-            @ssub=INC DE
-            c50000 INC E
-        """
-        for asm_mode, op in (
-                (0, 'INC E'),
-                (1, 'INC E'),
-                (2, 'INC DE'),
-                (3, 'INC DE')
-        ):
-            instruction = self._get_parser(skool, asm_mode=asm_mode).get_instruction(50000)
-            self.assertEqual(instruction.operation, op)
 
     def test_ssub_directive_with_comment_in_lower_and_upper_case(self):
         skool = """
@@ -3255,22 +3223,6 @@ class SkoolParserTest(SkoolKitTestCase):
             instruction = parser.get_entry(50000).instructions[0]
             self.assertEqual(instruction.operation, exp_operation)
             self.assertEqual(instruction.comment.text, exp_comment)
-
-    def test_rsub_directive(self):
-        skool = """
-            @start
-            ; Routine
-            @rsub=INC HL
-            c23456 INC L
-        """
-        for asm_mode, op in (
-                (0, 'INC L'),
-                (1, 'INC L'),
-                (2, 'INC L'),
-                (3, 'INC HL')
-        ):
-            parser = self._get_parser(skool, asm_mode=asm_mode)
-            self.assertEqual(parser.get_instruction(23456).operation, op)
 
     def test_rsub_directive_with_comment_in_lower_and_upper_case(self):
         skool = """
