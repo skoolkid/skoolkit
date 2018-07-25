@@ -2074,6 +2074,18 @@ class SkoolParserTest(SkoolKitTestCase):
         self.assertEqual(instruction.operation, 'JR L32768_0')
         self.assertEqual(parser.get_instruction(32770).asm_label, 'L32768_0')
 
+    def test_label_sets_two_auto_labels_without_duplicate_label_error(self):
+        skool = """
+            c32768 JR 32770
+            @label=*
+             32770 JR 32772
+            @label=*
+             32772 RET
+        """
+        parser = self._get_parser(skool, create_labels=True, asm_labels=True)
+        self.assertEqual(parser.get_instruction(32770).asm_label, 'L32768_0')
+        self.assertEqual(parser.get_instruction(32772).asm_label, 'L32768_1')
+
     def test_create_no_labels(self):
         skool = """
             @start

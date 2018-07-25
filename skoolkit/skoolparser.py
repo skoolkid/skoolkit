@@ -868,7 +868,7 @@ class Mode:
         instruction.keep = self.keep
 
         if self.asm_labels:
-            if self.label:
+            if self.label and self.label != '*':
                 if self.label in self.labels:
                     raise SkoolParsingError('Duplicate label {} at {}'.format(self.label, instruction.address))
                 if instruction.address not in removed:
