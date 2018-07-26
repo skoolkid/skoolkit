@@ -1235,6 +1235,21 @@ class SkoolParserTest(SkoolKitTestCase):
         self._test_sub_directives(skool, exp_instructions, exp_subs, **kwargs)
         self._test_fix_directives(skool, exp_instructions, exp_subs, **kwargs)
 
+    def _assert_sub_and_fix_directives(self, skool, assert_f=None, exp_error=None, **kwargs):
+        for sub_mode, fix_mode, asm_dir in (
+                (1, 0, 'isub'),
+                (2, 0, 'ssub'),
+                (3, 1, 'rsub'),
+                (1, 1, 'ofix'),
+                (1, 2, 'bfix'),
+                (3, 3, 'rfix')
+        ):
+            with self.subTest(sub_mode=sub_mode, fix_mode=fix_mode, asm_dir=asm_dir, **kwargs):
+                if assert_f:
+                    assert_f(self._get_parser(skool.format(asm_dir), asm_mode=sub_mode, fix_mode=fix_mode, **kwargs))
+                else:
+                    self.assert_error(skool.format(asm_dir), exp_error, asm_mode=sub_mode, fix_mode=fix_mode, **kwargs)
+
     def assert_error(self, skool, error, *args, **kwargs):
         with self.assertRaisesRegex(SkoolParsingError, error):
             self._get_parser(skool, *args, **kwargs)
@@ -3166,22 +3181,6 @@ class SkoolParserTest(SkoolKitTestCase):
         """
         self.assert_error(skool, r"Failed to replace 'Routine' with '\\1': invalid group reference")
 
-    def test_isub_directive_with_comment_in_lower_and_upper_case(self):
-        skool = """
-            @start
-            ; Routine
-            @isub=LD A,(32768) ; Get the counter.
-            c60000 LD A,(N)    ; Set A=(N).
-        """
-        for case, op in (
-                (0, 'LD A,(32768)'),
-                (1, 'ld a,(32768)'),
-                (2, 'LD A,(32768)')
-        ):
-            instruction = self._get_parser(skool, asm_mode=1, case=case).get_instruction(60000)
-            self.assertEqual(instruction.operation, op)
-            self.assertEqual(instruction.comment.text, 'Get the counter.')
-
     def test_isub_block_directive(self):
         skool = """
             @start
@@ -3197,22 +3196,6 @@ class SkoolParserTest(SkoolKitTestCase):
         for asm_mode in (1, 2, 3):
             parser = self._get_parser(skool, asm_mode=asm_mode)
             self.assertEqual(['Actual description.'], parser.get_entry(24576).details)
-
-    def test_ssub_directive_with_comment_in_lower_and_upper_case(self):
-        skool = """
-            @start
-            ; Routine
-            @ssub=INC DE ; Increment DE.
-            c50000 INC E ; Add 1 to E.
-        """
-        for case, op in (
-                (0, 'INC DE'),
-                (1, 'inc de'),
-                (2, 'INC DE')
-        ):
-            instruction = self._get_parser(skool, asm_mode=2, case=case).get_instruction(50000)
-            self.assertEqual(instruction.operation, op)
-            self.assertEqual(instruction.comment.text, 'Increment DE.')
 
     def test_ssub_block_directive(self):
         skool = """
@@ -3235,70 +3218,6 @@ class SkoolParserTest(SkoolKitTestCase):
             instruction = parser.get_entry(50000).instructions[0]
             self.assertEqual(instruction.operation, exp_operation)
             self.assertEqual(instruction.comment.text, exp_comment)
-
-    def test_rsub_directive_with_comment_in_lower_and_upper_case(self):
-        skool = """
-            @start
-            ; Routine
-            @rsub=INC HL ; Increment HL.
-            c23456 INC L ; Add 1 to L.
-        """
-        for case, op in (
-                (0, 'INC HL'),
-                (1, 'inc hl'),
-                (2, 'INC HL')
-        ):
-            instruction = self._get_parser(skool, asm_mode=3, case=case).get_instruction(23456)
-            self.assertEqual(instruction.operation, op)
-            self.assertEqual(instruction.comment.text, 'Increment HL.')
-
-    def test_ofix_directive_with_comment_in_lower_and_upper_case(self):
-        skool = """
-            @start
-            ; Routine
-            @ofix=LD A,(32768)  ; Get the counter from 32768.
-            c40000 LD A,(32769) ; Get the value from 32769.
-        """
-        for case, op in (
-                (0, 'LD A,(32768)'),
-                (1, 'ld a,(32768)'),
-                (2, 'LD A,(32768)')
-        ):
-            instruction = self._get_parser(skool, asm_mode=1, fix_mode=1, case=case).get_instruction(40000)
-            self.assertEqual(instruction.operation, op)
-            self.assertEqual(instruction.comment.text, 'Get the counter from 32768.')
-
-    def test_bfix_directive_with_comment_in_lower_and_upper_case(self):
-        skool = """
-            @start
-            ; Routine
-            @bfix=LD A,(32768)  ; Get the counter from 32768.
-            c50000 LD A,(32769) ; Get the value from 32769.
-        """
-        for case, op in (
-                (0, 'LD A,(32768)'),
-                (1, 'ld a,(32768)'),
-                (2, 'LD A,(32768)')
-        ):
-            instruction = self._get_parser(skool, asm_mode=1, fix_mode=2, case=case).get_instruction(50000)
-            self.assertEqual(instruction.operation, op)
-            self.assertEqual(instruction.comment.text, 'Get the counter from 32768.')
-
-    def test_rfix_directive_with_comment_in_lower_and_upper_case(self):
-        skool = """
-            @start
-            ; Routine
-            @rfix=LD A,(32768)  ; Get the counter from 32768.
-            c60000 LD A,(32769) ; Get the value from 32769.
-        """
-        for case, op in (
-                (0, 'LD A,(32768)'),
-                (1, 'ld a,(32768)'),
-                (2, 'LD A,(32768)')
-        ):
-            instruction = self._get_parser(skool, asm_mode=3, fix_mode=3, case=case).get_instruction(60000)
-            self.assertEqual(instruction.operation, op)
-            self.assertEqual(instruction.comment.text, 'Get the counter from 32768.')
 
     def test_sub_directive_precedence(self):
         skool = """
@@ -3336,6 +3255,24 @@ class SkoolParserTest(SkoolKitTestCase):
         exp_instructions = [('32768', 'LD A,0', 'Initialise A.')]
         exp_subs = [('32768', 'LD A,1', 'Initialise A.')]
         self._test_sub_and_fix_directives(skool, exp_instructions, exp_subs)
+
+    def test_sub_and_fix_directives_with_comment_in_lower_and_upper_case(self):
+        skool = """
+            @start
+            ; Routine
+            @{}=INC DE ; Increment DE.
+            c50000 INC E ; Add 1 to E.
+        """
+        for case, op in (
+                (0, 'INC DE'),
+                (1, 'inc de'),
+                (2, 'INC DE')
+        ):
+            def func(parser):
+                instruction = parser.get_instruction(50000)
+                self.assertEqual(instruction.operation, op)
+                self.assertEqual(instruction.comment.text, 'Increment DE.')
+            self._assert_sub_and_fix_directives(skool, func, case=case)
 
     def test_sub_and_fix_directives_replacing_comment_only(self):
         skool = """
@@ -3542,16 +3479,7 @@ class SkoolParserTest(SkoolKitTestCase):
             c32768 LD HL,0
         """
         exp_error = "Cannot determine address of instruction after '32768 LD L,X'"
-        for sub_mode, fix_mode, asm_dir in (
-                (1, 0, 'isub'),
-                (2, 0, 'ssub'),
-                (3, 1, 'rsub'),
-                (1, 1, 'ofix'),
-                (1, 2, 'bfix'),
-                (3, 3, 'rfix')
-        ):
-            with self.subTest(sub_mode=sub_mode, fix_mode=fix_mode, asm_dir=asm_dir):
-                self.assert_error(skool.format(asm_dir), exp_error, asm_mode=sub_mode, fix_mode=fix_mode)
+        self._assert_sub_and_fix_directives(skool, exp_error=exp_error)
 
     def test_sub_and_fix_directives_override_comment_continuation_lines(self):
         skool = """
@@ -3582,28 +3510,20 @@ class SkoolParserTest(SkoolKitTestCase):
             @{0}=|LD H,L
             c32768 LD HL,0
         """
-        for sub_mode, fix_mode, asm_dir in (
-                (1, 0, 'isub'),
-                (2, 0, 'ssub'),
-                (3, 1, 'rsub'),
-                (1, 1, 'ofix'),
-                (1, 2, 'bfix'),
-                (3, 3, 'rfix')
-        ):
-            with self.subTest(sub_mode=sub_mode, fix_mode=fix_mode, asm_dir=asm_dir):
-                parser = self._get_parser(skool.format(asm_dir), asm_mode=sub_mode, fix_mode=fix_mode)
-                inst1 = parser.get_instruction(32768)
-                inst2 = parser.get_instruction(32770)
-                self.assertEqual([], inst1.keep)
-                self.assertTrue(inst1.ignoreua)
-                self.assertEqual(inst1.asm_label, 'START')
-                self.assertIsNone(inst1.org)
-                self.assertFalse(inst1.warn)
-                self.assertIsNone(inst2.keep)
-                self.assertFalse(inst2.ignoreua)
-                self.assertIsNone(inst2.asm_label)
-                self.assertEqual(inst2.org, '32770')
-                self.assertTrue(inst2.warn)
+        def func(parser):
+            inst1 = parser.get_instruction(32768)
+            inst2 = parser.get_instruction(32770)
+            self.assertEqual([], inst1.keep)
+            self.assertTrue(inst1.ignoreua)
+            self.assertEqual(inst1.asm_label, 'START')
+            self.assertIsNone(inst1.org)
+            self.assertFalse(inst1.warn)
+            self.assertIsNone(inst2.keep)
+            self.assertFalse(inst2.ignoreua)
+            self.assertIsNone(inst2.asm_label)
+            self.assertEqual(inst2.org, '32770')
+            self.assertTrue(inst2.warn)
+        self._assert_sub_and_fix_directives(skool, func)
 
     def test_sub_and_fix_directives_replace_two_instructions_with_one(self):
         skool = """
@@ -3814,29 +3734,21 @@ class SkoolParserTest(SkoolKitTestCase):
             @{0}=XOR A
             c32768 LD L,0
         """
-        for sub_mode, fix_mode, asm_dir in (
-                (1, 0, 'isub'),
-                (2, 0, 'ssub'),
-                (3, 1, 'rsub'),
-                (1, 1, 'ofix'),
-                (1, 2, 'bfix'),
-                (3, 3, 'rfix')
-        ):
-            with self.subTest(sub_mode=sub_mode, fix_mode=fix_mode, asm_dir=asm_dir):
-                parser = self._get_parser(skool.format(asm_dir), asm_mode=sub_mode, fix_mode=fix_mode)
-                instructions = parser.get_entry(32768).instructions
-                inst1 = instructions[0]
-                inst2 = instructions[1]
-                self.assertEqual([], inst1.keep)
-                self.assertTrue(inst1.ignoreua)
-                self.assertEqual(inst1.asm_label, 'START')
-                self.assertIsNone(inst1.org)
-                self.assertFalse(inst1.warn)
-                self.assertIsNone(inst2.keep)
-                self.assertFalse(inst2.ignoreua)
-                self.assertIsNone(inst2.asm_label)
-                self.assertEqual(inst2.org, '     ')
-                self.assertTrue(inst2.warn)
+        def func(parser):
+            instructions = parser.get_entry(32768).instructions
+            inst1 = instructions[0]
+            inst2 = instructions[1]
+            self.assertEqual([], inst1.keep)
+            self.assertTrue(inst1.ignoreua)
+            self.assertEqual(inst1.asm_label, 'START')
+            self.assertIsNone(inst1.org)
+            self.assertFalse(inst1.warn)
+            self.assertIsNone(inst2.keep)
+            self.assertFalse(inst2.ignoreua)
+            self.assertIsNone(inst2.asm_label)
+            self.assertEqual(inst2.org, '     ')
+            self.assertTrue(inst2.warn)
+        self._assert_sub_and_fix_directives(skool, func)
 
     def test_sub_and_fix_directives_prepend_instruction(self):
         skool = """
@@ -3935,19 +3847,11 @@ class SkoolParserTest(SkoolKitTestCase):
             @{0}=>XOR A   ; Clear A
              32770 LD H,A ; And now H
         """
-        for sub_mode, fix_mode, asm_dir in (
-                (1, 0, 'isub'),
-                (2, 0, 'ssub'),
-                (3, 1, 'rsub'),
-                (1, 1, 'ofix'),
-                (1, 2, 'bfix'),
-                (3, 3, 'rfix')
-        ):
-            with self.subTest(sub_mode=sub_mode, fix_mode=fix_mode, asm_dir=asm_dir):
-                parser = self._get_parser(skool.format(asm_dir), asm_mode=sub_mode, fix_mode=fix_mode)
-                instructions = parser.get_entry(32768).instructions
-                self.assertEqual(['Continue.'], instructions[1].mid_block_comment)
-                self.assertIsNone(instructions[2].mid_block_comment)
+        def func(parser):
+            instructions = parser.get_entry(32768).instructions
+            self.assertEqual(['Continue.'], instructions[1].mid_block_comment)
+            self.assertIsNone(instructions[2].mid_block_comment)
+        self._assert_sub_and_fix_directives(skool, func)
 
     def test_sub_and_fix_directives_prepended_instruction_adopts_org(self):
         skool = """
@@ -3957,19 +3861,11 @@ class SkoolParserTest(SkoolKitTestCase):
             @{}=>LD H,0
             c32768 LD L,H
         """
-        for sub_mode, fix_mode, asm_dir in (
-                (1, 0, 'isub'),
-                (2, 0, 'ssub'),
-                (3, 1, 'rsub'),
-                (1, 1, 'ofix'),
-                (1, 2, 'bfix'),
-                (3, 3, 'rfix')
-        ):
-            with self.subTest(sub_mode=sub_mode, fix_mode=fix_mode, asm_dir=asm_dir):
-                parser = self._get_parser(skool.format(asm_dir), asm_mode=sub_mode, fix_mode=fix_mode)
-                instructions = parser.get_entry(32768).instructions
-                self.assertEqual(instructions[0].org, '32768')
-                self.assertEqual(instructions[1].org, '32768')
+        def func(parser):
+            instructions = parser.get_entry(32768).instructions
+            self.assertEqual(instructions[0].org, '32768')
+            self.assertEqual(instructions[1].org, '32768')
+        self._assert_sub_and_fix_directives(skool, func)
 
     def test_sub_and_fix_directives_prepend_instruction_without_overriding_comment_continuation_lines(self):
         skool = """
@@ -3999,29 +3895,21 @@ class SkoolParserTest(SkoolKitTestCase):
             @{}=>LD H,0
             c32768 LD L,H
         """
-        for sub_mode, fix_mode, asm_dir in (
-                (1, 0, 'isub'),
-                (2, 0, 'ssub'),
-                (3, 1, 'rsub'),
-                (1, 1, 'ofix'),
-                (1, 2, 'bfix'),
-                (3, 3, 'rfix')
-        ):
-            with self.subTest(sub_mode=sub_mode, fix_mode=fix_mode, asm_dir=asm_dir):
-                parser = self._get_parser(skool.format(asm_dir), asm_mode=sub_mode, fix_mode=fix_mode)
-                instructions = parser.get_entry(32768).instructions
-                inst1 = instructions[0]
-                inst2 = instructions[1]
-                self.assertIsNone(inst1.keep)
-                self.assertFalse(inst1.ignoreua)
-                self.assertIsNone(inst1.asm_label)
-                self.assertIsNone(inst1.org)
-                self.assertTrue(inst1.warn)
-                self.assertEqual([], inst2.keep)
-                self.assertTrue(inst2.ignoreua)
-                self.assertEqual(inst2.asm_label, 'START')
-                self.assertIsNone(inst2.org)
-                self.assertFalse(inst2.warn)
+        def func(parser):
+            instructions = parser.get_entry(32768).instructions
+            inst1 = instructions[0]
+            inst2 = instructions[1]
+            self.assertIsNone(inst1.keep)
+            self.assertFalse(inst1.ignoreua)
+            self.assertIsNone(inst1.asm_label)
+            self.assertIsNone(inst1.org)
+            self.assertTrue(inst1.warn)
+            self.assertEqual([], inst2.keep)
+            self.assertTrue(inst2.ignoreua)
+            self.assertEqual(inst2.asm_label, 'START')
+            self.assertIsNone(inst2.org)
+            self.assertFalse(inst2.warn)
+        self._assert_sub_and_fix_directives(skool, func)
 
     def test_sub_and_fix_directives_replace_label(self):
         skool = """
@@ -4198,18 +4086,10 @@ class SkoolParserTest(SkoolKitTestCase):
             ; Data
             b49156 DEFB 0
         """
-        for sub_mode, fix_mode, asm_dir in (
-                (1, 0, 'isub'),
-                (2, 0, 'ssub'),
-                (3, 1, 'rsub'),
-                (1, 1, 'ofix'),
-                (1, 2, 'bfix'),
-                (3, 3, 'rfix')
-        ):
-            with self.subTest(sub_mode=sub_mode, fix_mode=fix_mode, asm_dir=asm_dir):
-                parser = self._get_parser(skool.format(asm_dir), asm_mode=sub_mode, fix_mode=fix_mode)
-                self.assertIsNone(parser.get_entry(49152))
-                self.assertIsNotNone(parser.get_entry(49156))
+        def func(parser):
+            self.assertIsNone(parser.get_entry(49152))
+            self.assertIsNotNone(parser.get_entry(49156))
+        self._assert_sub_and_fix_directives(skool, func)
 
     def test_sub_and_fix_directives_remove_current_entry_only(self):
         skool = """
@@ -4255,17 +4135,8 @@ class SkoolParserTest(SkoolKitTestCase):
             c30000 XOR A
              30001 RET
         """
-        for sub_mode, fix_mode, asm_dir in (
-                (1, 0, 'isub'),
-                (2, 0, 'ssub'),
-                (3, 1, 'rsub'),
-                (1, 1, 'ofix'),
-                (1, 2, 'bfix'),
-                (3, 3, 'rfix')
-        ):
-            with self.subTest(sub_mode=sub_mode, fix_mode=fix_mode, asm_dir=asm_dir):
-                parser = self._get_parser(skool.format(asm_dir), asm_mode=sub_mode, fix_mode=fix_mode)
-                self.assertEqual(['Start.'], parser.get_instruction(30001).mid_block_comment)
+        func = lambda p: self.assertEqual(['Start.'], p.get_instruction(30001).mid_block_comment)
+        self._assert_sub_and_fix_directives(skool, func)
 
     def test_sub_and_fix_directives_retain_mid_block_comment_on_removed_instruction(self):
         skool = """
@@ -4276,17 +4147,8 @@ class SkoolParserTest(SkoolKitTestCase):
              30001 INC A
              30002 RET
         """
-        for sub_mode, fix_mode, asm_dir in (
-                (1, 0, 'isub'),
-                (2, 0, 'ssub'),
-                (3, 1, 'rsub'),
-                (1, 1, 'ofix'),
-                (1, 2, 'bfix'),
-                (3, 3, 'rfix')
-        ):
-            with self.subTest(sub_mode=sub_mode, fix_mode=fix_mode, asm_dir=asm_dir):
-                parser = self._get_parser(skool.format(asm_dir), asm_mode=sub_mode, fix_mode=fix_mode)
-                self.assertEqual(['Continue.'], parser.get_instruction(30002).mid_block_comment)
+        func = lambda p: self.assertEqual(['Continue.'], p.get_instruction(30002).mid_block_comment)
+        self._assert_sub_and_fix_directives(skool, func)
 
     def test_sub_and_fix_directives_drop_mid_block_comment_on_removed_instruction_at_end_of_entry(self):
         skool = """
@@ -4298,17 +4160,8 @@ class SkoolParserTest(SkoolKitTestCase):
 
             c30002 LD A,B
         """
-        for sub_mode, fix_mode, asm_dir in (
-                (1, 0, 'isub'),
-                (2, 0, 'ssub'),
-                (3, 1, 'rsub'),
-                (1, 1, 'ofix'),
-                (1, 2, 'bfix'),
-                (3, 3, 'rfix')
-        ):
-            with self.subTest(sub_mode=sub_mode, fix_mode=fix_mode, asm_dir=asm_dir):
-                parser = self._get_parser(skool.format(asm_dir), asm_mode=sub_mode, fix_mode=fix_mode)
-                self.assertEqual([], parser.get_instruction(30002).mid_block_comment)
+        func = lambda p: self.assertEqual([], p.get_instruction(30002).mid_block_comment)
+        self._assert_sub_and_fix_directives(skool, func)
 
     def test_sub_and_fix_directives_drop_mid_block_comment_on_removed_instruction_when_next_instruction_has_one(self):
         skool = """
@@ -4320,17 +4173,8 @@ class SkoolParserTest(SkoolKitTestCase):
             ; ...and leave this one alone
              30002 RET
         """
-        for sub_mode, fix_mode, asm_dir in (
-                (1, 0, 'isub'),
-                (2, 0, 'ssub'),
-                (3, 1, 'rsub'),
-                (1, 1, 'ofix'),
-                (1, 2, 'bfix'),
-                (3, 3, 'rfix')
-        ):
-            with self.subTest(sub_mode=sub_mode, fix_mode=fix_mode, asm_dir=asm_dir):
-                parser = self._get_parser(skool.format(asm_dir), asm_mode=sub_mode, fix_mode=fix_mode)
-                self.assertEqual(['...and leave this one alone'], parser.get_instruction(30002).mid_block_comment)
+        func = lambda p: self.assertEqual(['...and leave this one alone'], p.get_instruction(30002).mid_block_comment)
+        self._assert_sub_and_fix_directives(skool, func)
 
     def test_sub_and_fix_directives_remove_added_instructions(self):
         skool = """
