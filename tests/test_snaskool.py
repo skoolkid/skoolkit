@@ -2596,8 +2596,9 @@ class SkoolWriterTest(SkoolKitTestCase):
         snapshot = [24, 0, 24, 0, 24, 250]
         ctl = """
             c 00000
-            u 00002
-            C 00002
+            b 00002
+            C 00002 This will create a reference
+            C 00004 And so will this
             i 00006
         """
         exp_skool = """
@@ -2606,11 +2607,32 @@ class SkoolWriterTest(SkoolKitTestCase):
             ; Used by the routine at #R2.
             c00000 JR 2          ;
 
+            ; Data block at 2
+            ;
+            ; Used by the routine at #R0.
+            b00002 JR 4          ; This will create a reference
+            *00004 JR 0          ; And so will this
+        """
+        self._test_write_skool(snapshot, ctl, exp_skool, write_refs=2)
+
+    def test_references_to_and_from_an_unused_code_block(self):
+        snapshot = [24, 0, 24, 0, 24, 250]
+        ctl = """
+            c 00000
+            u 00002
+            C 00002 This will create a reference
+            C 00004 But this won't
+            i 00006
+        """
+        exp_skool = """
+            ; Routine at 0
+            c00000 JR 2          ;
+
             ; Unused
             ;
             ; Used by the routine at #R0.
-            u00002 JR 4
-            *00004 JR 0
+            u00002 JR 4          ; This will create a reference
+            *00004 JR 0          ; But this won't
         """
         self._test_write_skool(snapshot, ctl, exp_skool, write_refs=2)
 

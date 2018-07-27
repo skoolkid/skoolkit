@@ -695,7 +695,7 @@ class Disassembly:
                     addr_str = get_address(operation)
                     if addr_str:
                         callee = self.instructions.get(parse_int(addr_str))
-                        if callee:
+                        if callee and (entry.ctl != 'u' or callee.entry == entry):
                             callee.add_referrer(entry)
 
     def _address_str(self, address):
