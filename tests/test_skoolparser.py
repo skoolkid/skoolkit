@@ -2117,6 +2117,21 @@ class SkoolParserTest(SkoolKitTestCase):
         self.assertIsNone(instruction.asm_label)
         self.assertEqual(instruction.operation, 'JR START')
 
+    def test_label_marks_instruction_as_entry_point(self):
+        skool = """
+            c30000 INC A
+            @label=LABEL1
+             30001 XOR B   ; Not an entry point (no '*' in the label)
+            @label=*LABEL2
+             30002 AND C
+            @label=*
+             30003 RET
+        """
+        parser = self._get_parser(skool)
+        self.assertEqual(parser.get_instruction(30001).ctl, ' ')
+        self.assertEqual(parser.get_instruction(30002).ctl, '*')
+        self.assertEqual(parser.get_instruction(30003).ctl, '*')
+
     def test_set_directive(self):
         skool = """
             @start

@@ -4366,6 +4366,58 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         }
         self._assert_files_equal(join(ASMDIR, '0.html'), subs)
 
+    def test_label_marks_instruction_as_entry_point(self):
+        skool = """
+            ; Start
+            c50000 XOR A
+            @label=*SELF
+             50001 JR 50001
+        """
+        writer = self._get_writer(skool=skool)
+        writer.write_asm_entries()
+
+        content = """
+            <div class="description">50000: Start</div>
+            <table class="disassembly">
+            <tr>
+            <td class="routine-comment" colspan="4">
+            <div class="details">
+            </div>
+            <table class="input-0">
+            <tr class="asm-input-header">
+            <th colspan="2">Input</th>
+            </tr>
+            </table>
+            <table class="output-0">
+            <tr class="asm-output-header">
+            <th colspan="2">Output</th>
+            </tr>
+            </table>
+            </td>
+            </tr>
+            <tr>
+            <td class="asm-label-0"></td>
+            <td class="address-2"><span id="50000"></span>50000</td>
+            <td class="instruction">XOR A</td>
+            <td class="comment-10" rowspan="1"></td>
+            </tr>
+            <tr>
+            <td class="asm-label-0"></td>
+            <td class="address-2"><span id="50001"></span>50001</td>
+            <td class="instruction">JR 50001</td>
+            <td class="comment-10" rowspan="1"></td>
+            </tr>
+            </table>
+        """
+        subs = {
+            'header': 'Routines',
+            'title': 'Routine at 50000',
+            'body_class': 'Asm-c',
+            'up': 50000,
+            'content': content
+        }
+        self._assert_files_equal(join(ASMDIR, '50000.html'), subs)
+
     def test_blank_label_directive(self):
         skool = """
             ; Routine with a blank @label directive

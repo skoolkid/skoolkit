@@ -867,6 +867,10 @@ class Mode:
     def apply_asm_attributes(self, instruction, map_entry, instructions, address_comments, removed):
         instruction.keep = self.keep
 
+        if self.label and self.label.startswith('*'):
+            if len(self.label) > 1:
+                self.label = self.label[1:]
+            instruction.ctl = '*'
         if self.asm_labels:
             if self.label and self.label != '*':
                 if self.label in self.labels:
