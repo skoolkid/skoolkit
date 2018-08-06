@@ -871,6 +871,8 @@ class Mode:
             if len(self.label) > 1:
                 self.label = self.label[1:]
             instruction.ctl = '*'
+        elif self.label == '':
+            instruction.ctl = ' '
         if self.asm_labels:
             if self.label and self.label != '*':
                 if self.label in self.labels:

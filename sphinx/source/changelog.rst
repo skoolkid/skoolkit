@@ -10,9 +10,8 @@ Changelog
   and preserved by :ref:`skool2ctl.py`
 * :ref:`skool2bin.py` now processes :ref:`asm-if` directives (in case they
   contain :ref:`isub`, :ref:`ssub`, :ref:`ofix` or :ref:`bfix` directives)
-* The ``LABEL`` parameter of the :ref:`label` directive may start with ``*``
-  (to mark the next instruction as an entry point), or be ``*`` (to
-  automatically generate a label for the next instruction)
+* The :ref:`label` directive can now add an entry point marker to the next
+  instruction, or remove one if present
 * Added the ``--force`` option to :ref:`skool2asm.py` (to force conversion of
   the entire skool file, ignoring any :ref:`start` and :ref:`end` directives)
 * Added support for appending content to an existing ref file section by adding

@@ -2132,6 +2132,15 @@ class SkoolParserTest(SkoolKitTestCase):
         self.assertEqual(parser.get_instruction(30002).ctl, '*')
         self.assertEqual(parser.get_instruction(30003).ctl, '*')
 
+    def test_label_unmarks_instruction_as_entry_point(self):
+        skool = """
+            c30000 INC A
+            @label=
+            *30001 RET
+        """
+        parser = self._get_parser(skool)
+        self.assertEqual(parser.get_instruction(30001).ctl, ' ')
+
     def test_set_directive(self):
         skool = """
             @start

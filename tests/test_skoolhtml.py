@@ -4456,7 +4456,7 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             </tr>
             <tr>
             <td class="asm-label-1"></td>
-            <td class="address-2"><span id="50001"></span>50001</td>
+            <td class="address-1"><span id="50001"></span>50001</td>
             <td class="instruction">JR 50001</td>
             <td class="comment-10" rowspan="1"></td>
             </tr>

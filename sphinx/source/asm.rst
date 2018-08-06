@@ -769,8 +769,9 @@ For example::
 
 This sets the label for the routine at 24576 to ``ENDGAME``.
 
-If ``LABEL`` is blank (``@label=``), the next instruction is prevented from
-having a label automatically generated.
+If ``LABEL`` is blank (``@label=``), the next instruction will have its entry
+point marker removed (if it has one), and be prevented from having a label
+automatically generated.
 
 If ``LABEL`` starts with ``*`` (e.g. ``@label=*LOOP``), the next instruction
 will be marked as an entry point (as if the instruction line in the skool file
@@ -782,9 +783,8 @@ as an entry point, and have a label automatically generated.
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
-| 7.0     | ``LABEL`` may start with ``*`` (to mark the next instruction as   |
-|         | an entry point), or be ``*`` (to automatically generate a label   |
-|         | for the next instruction)                                         |
+| 7.0     | An entry point marker (``*``) can be added to or removed from the |
+|         | next instruction                                                  |
 +---------+-------------------------------------------------------------------+
 | 6.3     | ``LABEL`` may be blank (to prevent the next instruction from      |
 |         | having a label automatically generated)                           |
