@@ -22,8 +22,8 @@ from skoolkit import (SkoolKitError, open_file, read_bin_file, warn, write_line,
 from skoolkit.ctlparser import CtlParser
 from skoolkit.disassembler import Disassembler
 from skoolkit.skoolasm import UDGTABLE_MARKER
-from skoolkit.skoolctl import (AD_IGNOREUA, AD_ORG, AD_START, TITLE, DESCRIPTION,
-                               REGISTERS, MID_BLOCK, INSTRUCTION, END)
+from skoolkit.skoolctl import (AD_IGNOREUA, AD_LABEL, AD_ORG, AD_START, TITLE,
+                               DESCRIPTION, REGISTERS, MID_BLOCK, INSTRUCTION, END)
 from skoolkit.skoolparser import (get_address, TABLE_MARKER, TABLE_END_MARKER,
                                   LIST_MARKER, LIST_END_MARKER)
 
@@ -653,10 +653,7 @@ class Disassembly:
                         address += length
                 else:
                     instructions = self.disassembler.ignore(sub_block.start, sub_block.end)
-                sub_block.instructions = instructions
-                for instruction in instructions:
-                    self.instructions[instruction.address] = instruction
-                    instruction.asm_directives = sub_block.asm_directives.get(instruction.address, ())
+                self._add_instructions(sub_block, instructions)
 
             sub_blocks = []
             i = 0
@@ -684,6 +681,19 @@ class Disassembly:
         if address in self.entry_map:
             del self.entry_map[address]
 
+    def _add_instructions(self, sub_block, instructions):
+        sub_block.instructions = instructions
+        for instruction in instructions:
+            self.instructions[instruction.address] = instruction
+            instruction.asm_directives = sub_block.asm_directives.get(instruction.address, ())
+            instruction.label = None
+            for asm_dir in instruction.asm_directives:
+                if asm_dir.startswith(AD_LABEL + '='):
+                    instruction.label = asm_dir[6:]
+                    if instruction.label.startswith('*'):
+                        instruction.ctl = '*'
+                    break
+
     def _calculate_references(self):
         for entry in self.entries:
             for instruction in entry.instructions:
@@ -695,7 +705,7 @@ class Disassembly:
                     addr_str = get_address(operation)
                     if addr_str:
                         callee = self.instructions.get(parse_int(addr_str))
-                        if callee and (entry.ctl != 'u' or callee.entry == entry):
+                        if callee and (entry.ctl != 'u' or callee.entry == entry) and callee.label != '':
                             callee.add_referrer(entry)
 
     def _address_str(self, address):

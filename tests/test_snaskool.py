@@ -1953,6 +1953,43 @@ class SkoolWriterTest(SkoolKitTestCase):
         snapshot = [1, 0, 0, 17, 0, 0]
         self._test_write_skool(snapshot, ctl, exp_skool)
 
+    def test_label_directive_marks_entry_point(self):
+        ctl = """
+            c 00000 Routine at 0
+            @ 00001 label=*
+            @ 00002 label=*END
+            i 00003
+        """
+        exp_skool = """
+            ; Routine at 0
+            c00000 XOR A         ;
+            @label=*
+            *00001 INC A         ;
+            @label=*END
+            *00002 RET           ;
+        """
+        snapshot = [175, 60, 201]
+        self._test_write_skool(snapshot, ctl, exp_skool)
+
+    def test_label_directive_unmarks_entry_point(self):
+        ctl = """
+            c 00000 Routine at 0
+            @ 00001 label=
+            c 00002 Routine at 2
+            i 00004
+        """
+        exp_skool = """
+            ; Routine at 0
+            c00000 XOR A         ;
+            @label=
+             00001 RET           ;
+
+            ; Routine at 2
+            c00002 JR 1          ;
+        """
+        snapshot = [175, 201, 24, 253]
+        self._test_write_skool(snapshot, ctl, exp_skool)
+
     def test_nowarn_directive(self):
         ctl = """
             c 00000 Routine at 0
