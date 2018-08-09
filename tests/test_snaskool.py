@@ -1224,6 +1224,7 @@ class SkoolWriterTest(SkoolKitTestCase):
         return SkoolWriter(snapshot, ctl_parser, options, config)
 
     def _test_write_skool(self, snapshot, ctl, exp_skool, write_refs=1, show_text=False, **kwargs):
+        self.clear_streams()
         writer = self._get_writer(snapshot, ctl, **kwargs)
         writer.write_skool(write_refs, show_text)
         skool = self.out.getvalue().rstrip()
@@ -1524,7 +1525,67 @@ class SkoolWriterTest(SkoolKitTestCase):
         self.assertEqual(skool[-7], 'b00573 DEFB 0')
         self.assertEqual(skool[-2], 'b01876 DEFB 0')
 
-    def test_no_table_end_marker(self):
+    def test_table_with_nowrap_flag(self):
+        snapshot = [0]
+        ctl = """
+            b 00000 Test table nowrap flag
+            D 00000 #TABLE{}<nowrap> {{ This table's rows should not be wrapped, because the TABLE macro has a nowrap flag }} {{ The nowrap flag is between the angle brackets (<nowrap>) before the first row }} TABLE#
+            i 00001
+        """
+        exp_skool = """
+            ; Test table nowrap flag
+            ;
+            ; #TABLE{}<nowrap>
+            ; {{ This table's rows should not be wrapped, because the TABLE macro has a nowrap flag }}
+            ; {{ The nowrap flag is between the angle brackets (<nowrap>) before the first row }}
+            ; TABLE#
+            b00000 DEFB 0
+        """
+        for params in ('', '(default)'):
+            with self.subTest(params=params):
+                self._test_write_skool(snapshot, ctl.format(params), exp_skool.format(params))
+
+    def test_table_with_no_whitespace_around_rows(self):
+        snapshot = [0]
+        ctl = """
+            b 00000 Test no whitespace around rows
+            D 00000 #TABLE{}{{ Row 1 }}{{ Row 2 }}TABLE#
+            i 00001
+        """
+        exp_skool = """
+            ; Test no whitespace around rows
+            ;
+            ; #TABLE{}
+            ; {{ Row 1 }}
+            ; {{ Row 2 }}
+            ; TABLE#
+            b00000 DEFB 0
+        """
+        for params in ('', '(default)', '<nowrap>', '(default)<nowrap>'):
+            with self.subTest(params=params):
+                self._test_write_skool(snapshot, ctl.format(params), exp_skool.format(params))
+
+    def test_table_without_closing_bracket_on_parameters(self):
+        ctl = """
+            b 00000
+            D 00000 #TABLE(Oops { No closing bracket } TABLE#
+            i 00001
+        """
+        writer = self._get_writer([0], ctl)
+        with self.assertRaisesRegex(SkoolKitError, re.escape("No closing ')' on parameter list: (Oops { No clos...")):
+            writer.write_skool(0, False)
+
+    def test_table_without_closing_bracket_on_flags(self):
+        ctl = """
+            b 00000
+            D 00000 #TABLE<nowrap { No closing angle bracket } TABLE#
+            i 00001
+        """
+        writer = self._get_writer([0], ctl)
+        with self.assertRaisesRegex(SkoolKitError, re.escape("No closing '>' on flags: <nowrap { No cl...")):
+            writer.write_skool(0, False)
+
+    def test_table_without_end_marker(self):
         ctl = """
             b 00000
             D 00000 #TABLE { this table has no end marker }
@@ -1534,7 +1595,7 @@ class SkoolWriterTest(SkoolKitTestCase):
         with self.assertRaisesRegex(SkoolKitError, re.escape("No end marker found: #TABLE { this table h...")):
             writer.write_skool(0, False)
 
-    def test_no_table_row_end_marker(self):
+    def test_table_without_row_end_marker(self):
         ctl = """
             b 00000
             D 00000 #TABLE { this row has no end marker} TABLE#
@@ -1544,7 +1605,67 @@ class SkoolWriterTest(SkoolKitTestCase):
         with self.assertRaisesRegex(SkoolKitError, re.escape("No closing ' }' on row/item: { this row has ...")):
             writer.write_skool(0, False)
 
-    def test_no_udgtable_end_marker(self):
+    def test_udgtable_with_nowrap_flag(self):
+        snapshot = [0]
+        ctl = """
+            b 00000 Test UDG table nowrap flag
+            D 00000 #UDGTABLE{}<nowrap> {{ This table's rows should not be wrapped, because the UDGTABLE macro has a nowrap flag }} {{ The nowrap flag is between the angle brackets (<nowrap>) before the first row }} TABLE#
+            i 00001
+        """
+        exp_skool = """
+            ; Test UDG table nowrap flag
+            ;
+            ; #UDGTABLE{}<nowrap>
+            ; {{ This table's rows should not be wrapped, because the UDGTABLE macro has a nowrap flag }}
+            ; {{ The nowrap flag is between the angle brackets (<nowrap>) before the first row }}
+            ; TABLE#
+            b00000 DEFB 0
+        """
+        for params in ('', '(default)'):
+            with self.subTest(params=params):
+                self._test_write_skool(snapshot, ctl.format(params), exp_skool.format(params))
+
+    def test_udgtable_with_no_whitespace_around_rows(self):
+        snapshot = [0]
+        ctl = """
+            b 00000 Test no whitespace around rows
+            D 00000 #UDGTABLE{}{{ Row 1 }}{{ Row 2 }}TABLE#
+            i 00001
+        """
+        exp_skool = """
+            ; Test no whitespace around rows
+            ;
+            ; #UDGTABLE{}
+            ; {{ Row 1 }}
+            ; {{ Row 2 }}
+            ; TABLE#
+            b00000 DEFB 0
+        """
+        for params in ('', '(default)', '<nowrap>', '(default)<nowrap>'):
+            with self.subTest(params=params):
+                self._test_write_skool(snapshot, ctl.format(params), exp_skool.format(params))
+
+    def test_udgtable_without_closing_bracket_on_parameters(self):
+        ctl = """
+            b 00000
+            D 00000 #UDGTABLE(Oops { No closing bracket } TABLE#
+            i 00001
+        """
+        writer = self._get_writer([0], ctl)
+        with self.assertRaisesRegex(SkoolKitError, re.escape("No closing ')' on parameter list: (Oops { No clos...")):
+            writer.write_skool(0, False)
+
+    def test_udgtable_without_closing_bracket_on_flags(self):
+        ctl = """
+            b 00000
+            D 00000 #UDGTABLE<nowrap { No closing angle bracket } TABLE#
+            i 00001
+        """
+        writer = self._get_writer([0], ctl)
+        with self.assertRaisesRegex(SkoolKitError, re.escape("No closing '>' on flags: <nowrap { No cl...")):
+            writer.write_skool(0, False)
+
+    def test_udgtable_without_end_marker(self):
         ctl = """
             b 00000
             D 00000 #UDGTABLE { this table has no end marker }
@@ -1554,7 +1675,7 @@ class SkoolWriterTest(SkoolKitTestCase):
         with self.assertRaisesRegex(SkoolKitError, re.escape("No end marker found: #UDGTABLE { this table h...")):
             writer.write_skool(0, False)
 
-    def test_no_udgtable_row_end_marker(self):
+    def test_udgtable_without_row_end_marker(self):
         ctl = """
             b 00000
             D 00000 #UDGTABLE { this row has no end marker} UDGTABLE#
@@ -1564,7 +1685,67 @@ class SkoolWriterTest(SkoolKitTestCase):
         with self.assertRaisesRegex(SkoolKitError, re.escape("No closing ' }' on row/item: { this row has ...")):
             writer.write_skool(0, False)
 
-    def test_no_list_end_marker(self):
+    def test_list_with_nowrap_flag(self):
+        snapshot = [0]
+        ctl = """
+            b 00000 Test list nowrap flag
+            D 00000 #LIST{}<nowrap> {{ This list's items should not be wrapped, because the LIST macro has a nowrap flag }} {{ The nowrap flag is between the angle brackets (<nowrap>) before the first item }} LIST#
+            i 00001
+        """
+        exp_skool = """
+            ; Test list nowrap flag
+            ;
+            ; #LIST{}<nowrap>
+            ; {{ This list's items should not be wrapped, because the LIST macro has a nowrap flag }}
+            ; {{ The nowrap flag is between the angle brackets (<nowrap>) before the first item }}
+            ; LIST#
+            b00000 DEFB 0
+        """
+        for params in ('', '(default)'):
+            with self.subTest(params=params):
+                self._test_write_skool(snapshot, ctl.format(params), exp_skool.format(params))
+
+    def test_list_with_no_whitespace_around_items(self):
+        snapshot = [0]
+        ctl = """
+            b 00000 Test no whitespace around items
+            D 00000 #LIST{}{{ Item 1 }}{{ Item 2 }}LIST#
+            i 00001
+        """
+        exp_skool = """
+            ; Test no whitespace around items
+            ;
+            ; #LIST{}
+            ; {{ Item 1 }}
+            ; {{ Item 2 }}
+            ; LIST#
+            b00000 DEFB 0
+        """
+        for params in ('', '(default)', '<nowrap>', '(default)<nowrap>'):
+            with self.subTest(params=params):
+                self._test_write_skool(snapshot, ctl.format(params), exp_skool.format(params))
+
+    def test_list_without_closing_bracket_on_parameters(self):
+        ctl = """
+            b 00000
+            D 00000 #LIST(Oops { No closing bracket } LIST#
+            i 00001
+        """
+        writer = self._get_writer([0], ctl)
+        with self.assertRaisesRegex(SkoolKitError, re.escape("No closing ')' on parameter list: (Oops { No clos...")):
+            writer.write_skool(0, False)
+
+    def test_list_without_closing_bracket_on_flags(self):
+        ctl = """
+            b 00000
+            D 00000 #LIST<nowrap { No closing angle bracket } LIST#
+            i 00001
+        """
+        writer = self._get_writer([0], ctl)
+        with self.assertRaisesRegex(SkoolKitError, re.escape("No closing '>' on flags: <nowrap { No cl...")):
+            writer.write_skool(0, False)
+
+    def test_list_without_end_marker(self):
         ctl = """
             b 00000
             D 00000 #LIST { this list has no end marker }
@@ -1574,7 +1755,7 @@ class SkoolWriterTest(SkoolKitTestCase):
         with self.assertRaisesRegex(SkoolKitError, re.escape("No end marker found: #LIST { this list ha...")):
             writer.write_skool(0, False)
 
-    def test_no_list_item_end_marker(self):
+    def test_list_without_item_end_marker(self):
         ctl = """
             b 00000
             D 00000 #LIST { this item has no end marker} LIST#

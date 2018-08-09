@@ -24,6 +24,7 @@ from skoolkit.disassembler import Disassembler
 from skoolkit.skoolasm import UDGTABLE_MARKER
 from skoolkit.skoolctl import (AD_IGNOREUA, AD_LABEL, AD_ORG, AD_START, TITLE,
                                DESCRIPTION, REGISTERS, MID_BLOCK, INSTRUCTION, END)
+from skoolkit.skoolmacro import ClosingBracketError, parse_brackets
 from skoolkit.skoolparser import (get_address, TABLE_MARKER, TABLE_END_MARKER,
                                   LIST_MARKER, LIST_END_MARKER)
 
@@ -942,15 +943,25 @@ class SkoolWriter:
 
     def wrap(self, text):
         lines = []
-        for line in self.parse_blocks(text):
-            lines.extend(wrap(line, self.comment_width))
+        for line, nowrap in self.parse_blocks(text):
+            if nowrap:
+                lines.append(line)
+            else:
+                lines.extend(wrap(line, self.comment_width))
         return lines
 
-    def parse_block(self, text, start):
-        indexes = []
-        index = text.index(' ', start)
-        indexes.append(index)
-        index += 1
+    def parse_block(self, text, begin):
+        try:
+            index = parse_brackets(text, begin)[0]
+        except ClosingBracketError:
+            raise SkoolKitError("No closing ')' on parameter list: {}...".format(text[begin:begin + 15]))
+        try:
+            index, flags = parse_brackets(text, index, '', '<', '>')
+        except ClosingBracketError:
+            raise SkoolKitError("No closing '>' on flags: {}...".format(text[index:index + 15]))
+        nowrap = flags == 'nowrap'
+
+        indexes = [(index, False)]
 
         # Parse the table rows or list items
         while True:
@@ -962,9 +973,10 @@ class SkoolWriter:
             except ValueError:
                 raise SkoolKitError("No closing ' }}' on row/item: {}...".format(text[start:start + 15]))
             index = end + 2
-            indexes.append(index)
+            indexes.append((index, nowrap))
 
-        indexes.append(len(text))
+
+        indexes.append((len(text), False))
         return indexes
 
     def parse_blocks(self, text):
@@ -974,12 +986,11 @@ class SkoolWriter:
         # Find table/list markers and row/item definitions
         index = 0
         while True:
-            starts = [text.find(marker[0], index) for marker in markers]
-            for i, start in enumerate(starts):
+            starts = [(marker[0], marker[1], text.find(marker[0], index)) for marker in markers]
+            for marker, end_marker, start in starts:
                 if start >= 0:
                     if start > 0:
-                        indexes.append(start - 1)
-                    marker, end_marker = markers[i]
+                        indexes.append((start - 1, False))
                     try:
                         end = text.index(end_marker, start) + len(end_marker)
                     except ValueError:
@@ -988,16 +999,14 @@ class SkoolWriter:
                     break
             else:
                 break
-            index = indexes[-1] + 1
+            index = indexes[-1][0] + 1
 
-        # Insert newlines
-        end = len(text)
-        if end not in indexes:
-            indexes.append(end)
-        indexes.sort()
+        if not indexes or indexes[-1][0] != len(text):
+            indexes.append((len(text), False))
+        indexes.sort(key=lambda e: e[0])
         lines = []
         start = 0
-        for end in indexes:
-            lines.append(text[start:end])
-            start = end + 1
+        for end, nowrap in indexes:
+            lines.append((text[start:end].strip(), nowrap))
+            start = end
         return lines

@@ -641,7 +641,7 @@ section.
 The ``#LIST`` macro marks the beginning of a list of bulleted items; ``LIST#``
 is used to mark the end. Between these markers, the list items are defined. ::
 
-  #LIST[(class[,bullet])]<items>LIST#
+  #LIST[(class[,bullet])][<nowrap>][items]LIST#
 
 * ``class`` is the CSS class to use for the ``<ul>`` element
 * ``bullet`` is the bullet character to use in ASM mode
@@ -663,9 +663,15 @@ and an asterisk as the bullet character. The bullet character can be changed
 for all lists by using a :ref:`set` directive to set the ``bullet`` property,
 or it can be changed for a specific list by setting the ``bullet`` parameter.
 
+If ``<nowrap>`` is present, :ref:`sna2skool.py` will write each list item on a
+single line (instead of wrapping it over multiple lines) when reading from a
+control file.
+
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 7.0     | Added the ``nowrap`` flag                                         |
++---------+-------------------------------------------------------------------+
 | 6.4     | In ASM mode: ``#LIST`` can be used in an instruction-level        |
 |         | comment and as a parameter of another macro; if the bullet        |
 |         | character is an empty string, list items are no longer indented   |
@@ -902,7 +908,7 @@ text where necessary. For example::
 The ``#TABLE`` macro marks the beginning of a table; ``TABLE#`` is used to mark
 the end. Between these markers, the rows of the table are defined. ::
 
-  #TABLE[([class[,class1[:w][,class2[:w]...]]])]<rows>TABLE#
+  #TABLE[([class[,class1[:w][,class2[:w]...]]])][<nowrap>][rows]TABLE#
 
 * ``class`` is the CSS class to use for the ``<table>`` element
 * ``class1``, ``class2`` etc. are the CSS classes to use for the ``<td>``
@@ -969,11 +975,17 @@ more than 79 characters wide when rendered. For example::
   ; { 0    | Text in this column will be wrapped in ASM mode to make the table less than 80 characters wide }
   ; TABLE#
 
+If ``<nowrap>`` is present, :ref:`sna2skool.py` will write each table row on a
+single line (instead of wrapping it over multiple lines) when reading from a
+control file.
+
 See also :ref:`UDGTABLE`.
 
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 7.0     | Added the ``nowrap`` flag                                         |
++---------+-------------------------------------------------------------------+
 | 6.4     | In ASM mode, ``#TABLE`` can be used in an instruction-level       |
 |         | comment and as a parameter of another macro                       |
 +---------+-------------------------------------------------------------------+
