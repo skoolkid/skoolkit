@@ -1545,6 +1545,39 @@ class SkoolWriterTest(SkoolKitTestCase):
             with self.subTest(params=params):
                 self._test_write_skool(snapshot, ctl.format(params), exp_skool.format(params))
 
+    def test_table_with_wrapalign_flag(self):
+        snapshot = [0]
+        rows = (
+            '{ Single column with text that should wrap over to the next line with a small indent to maintain alignment }',
+            '{      Another single column with text that should wrap over to the next line with a larger indent to maintain alignment }',
+            '{ First column | Second column | Third column | Fourth column with text that should wrap over to the next two lines with an indent }',
+            '{ First column | Second column | Third column | Fourth column ends here | Fifth column indented on the next line }'
+        )
+        ctl = """
+            b 00000 Test table wrapalign flag
+            D 00000 #TABLE*<wrapalign> {} TABLE#
+            i 00001
+        """.format(' '.join(rows))
+        exp_skool = """
+            ; Test table wrapalign flag
+            ;
+            ; #TABLE*<wrapalign>
+            ; { Single column with text that should wrap over to the next line with a small
+            ;   indent to maintain alignment }
+            ; {      Another single column with text that should wrap over to the next line
+            ;        with a larger indent to maintain alignment }
+            ; { First column | Second column | Third column | Fourth column with text that
+            ;                                                 should wrap over to the next
+            ;                                                 two lines with an indent }
+            ; { First column | Second column | Third column | Fourth column ends here |
+            ;   Fifth column indented on the next line }
+            ; TABLE#
+            b00000 DEFB 0
+        """
+        for params in ('', '(default)'):
+            with self.subTest(params=params):
+                self._test_write_skool(snapshot, ctl.replace('*', params), exp_skool.replace('*', params))
+
     def test_table_with_no_whitespace_around_rows(self):
         snapshot = [0]
         ctl = """
@@ -1625,6 +1658,39 @@ class SkoolWriterTest(SkoolKitTestCase):
             with self.subTest(params=params):
                 self._test_write_skool(snapshot, ctl.format(params), exp_skool.format(params))
 
+    def test_udgtable_with_wrapalign_flag(self):
+        snapshot = [0]
+        rows = (
+            '{ Single column with text that should wrap over to the next line with a small indent to maintain alignment }',
+            '{      Another single column with text that should wrap over to the next line with a larger indent to maintain alignment }',
+            '{ First column | Second column | Third column | Fourth column with text that should wrap over to the next two lines with an indent }',
+            '{ First column | Second column | Third column | Fourth column ends here | Fifth column indented on the next line }'
+        )
+        ctl = """
+            b 00000 Test UDG table wrapalign flag
+            D 00000 #UDGTABLE*<wrapalign> {} TABLE#
+            i 00001
+        """.format(' '.join(rows))
+        exp_skool = """
+            ; Test UDG table wrapalign flag
+            ;
+            ; #UDGTABLE*<wrapalign>
+            ; { Single column with text that should wrap over to the next line with a small
+            ;   indent to maintain alignment }
+            ; {      Another single column with text that should wrap over to the next line
+            ;        with a larger indent to maintain alignment }
+            ; { First column | Second column | Third column | Fourth column with text that
+            ;                                                 should wrap over to the next
+            ;                                                 two lines with an indent }
+            ; { First column | Second column | Third column | Fourth column ends here |
+            ;   Fifth column indented on the next line }
+            ; TABLE#
+            b00000 DEFB 0
+        """
+        for params in ('', '(default)'):
+            with self.subTest(params=params):
+                self._test_write_skool(snapshot, ctl.replace('*', params), exp_skool.replace('*', params))
+
     def test_udgtable_with_no_whitespace_around_rows(self):
         snapshot = [0]
         ctl = """
@@ -1704,6 +1770,32 @@ class SkoolWriterTest(SkoolKitTestCase):
         for params in ('', '(default)'):
             with self.subTest(params=params):
                 self._test_write_skool(snapshot, ctl.format(params), exp_skool.format(params))
+
+    def test_list_with_wrapalign_flag(self):
+        snapshot = [0]
+        items = (
+            '{ The text of this item should wrap over to the next line with a small indent to maintain alignment }',
+            '{      The text of this item should wrap over to the next line with a larger indent to maintain alignment }'
+        )
+        ctl = """
+            b 00000 Test list wrapalign flag
+            D 00000 #LIST*<wrapalign> {} LIST#
+            i 00001
+        """.format(' '.join(items))
+        exp_skool = """
+            ; Test list wrapalign flag
+            ;
+            ; #LIST*<wrapalign>
+            ; { The text of this item should wrap over to the next line with a small indent
+            ;   to maintain alignment }
+            ; {      The text of this item should wrap over to the next line with a larger
+            ;        indent to maintain alignment }
+            ; LIST#
+            b00000 DEFB 0
+        """
+        for params in ('', '(default)'):
+            with self.subTest(params=params):
+                self._test_write_skool(snapshot, ctl.replace('*', params), exp_skool.replace('*', params))
 
     def test_list_with_no_whitespace_around_items(self):
         snapshot = [0]

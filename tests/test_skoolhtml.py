@@ -1195,13 +1195,14 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         output = writer.expand(nest_macros('#LIST({}){{ A }}LIST#', css_class))
         self.assertEqual(output, '<ul class="{}">\n<li>A</li>\n</ul>'.format(css_class))
 
-    def test_macro_list_with_nowrap_flag(self):
+    def test_macro_list_with_wrap_flag(self):
         writer = self._get_writer()
         html = '<ul class="{}">\n<li>A</li>\n</ul>'
         for params, exp_class_name in (('', ''), ('(default)', 'default')):
-            with self.subTest(params=params):
-                output = writer.expand('#LIST{}<nowrap> {{ A }} LIST#'.format(params))
-                self.assertEqual(html.format(exp_class_name), output)
+            for flag in ('nowrap', 'wrapalign'):
+                with self.subTest(params=params, flag=flag):
+                    output = writer.expand('#LIST{}<{}> {{ A }} LIST#'.format(params, flag))
+                    self.assertEqual(html.format(exp_class_name), output)
 
     def test_macro_list_invalid(self):
         writer = self._get_writer()
@@ -1862,13 +1863,14 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         output = writer.expand(nest_macros('#TABLE({}){{ A }}TABLE#', css_class))
         self.assertEqual(output, '<table class="{}">\n<tr>\n<td class="" colspan="1" rowspan="1">A</td>\n</tr>\n</table>'.format(css_class))
 
-    def test_macro_table_with_nowrap_flag(self):
+    def test_macro_table_with_wrap_flag(self):
         writer = self._get_writer()
         html = '<table class="{}">\n<tr>\n<td class="" colspan="1" rowspan="1">A</td>\n</tr>\n</table>'
         for params, exp_class_name in (('', ''), ('(default)', 'default')):
-            with self.subTest(params=params):
-                output = writer.expand('#TABLE{}<nowrap> {{ A }} TABLE#'.format(params))
-                self.assertEqual(html.format(exp_class_name), output)
+            for flag in ('nowrap', 'wrapalign'):
+                with self.subTest(params=params, flag=flag):
+                    output = writer.expand('#TABLE{}<{}> {{ A }} TABLE#'.format(params, flag))
+                    self.assertEqual(html.format(exp_class_name), output)
 
     def test_macro_table_invalid(self):
         writer = self._get_writer()
@@ -2593,13 +2595,14 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         output = writer.expand(nest_macros('#UDGTABLE({}){{ A }}UDGTABLE#', css_class))
         self.assertEqual(output, '<table class="{}">\n<tr>\n<td class="" colspan="1" rowspan="1">A</td>\n</tr>\n</table>'.format(css_class))
 
-    def test_macro_udgtable_with_nowrap_flag(self):
+    def test_macro_udgtable_with_wrap_flag(self):
         writer = self._get_writer()
         html = '<table class="{}">\n<tr>\n<td class="" colspan="1" rowspan="1">A</td>\n</tr>\n</table>'
         for params, exp_class_name in (('', ''), ('(default)', 'default')):
-            with self.subTest(params=params):
-                output = writer.expand('#UDGTABLE{}<nowrap> {{ A }} TABLE#'.format(params))
-                self.assertEqual(html.format(exp_class_name), output)
+            for flag in ('nowrap', 'wrapalign'):
+                with self.subTest(params=params, flag=flag):
+                    output = writer.expand('#UDGTABLE{}<{}> {{ A }} TABLE#'.format(params, flag))
+                    self.assertEqual(html.format(exp_class_name), output)
 
     def test_macro_udgtable_invalid(self):
         writer = self._get_writer()

@@ -2427,9 +2427,9 @@ class TableMacroTest(SkoolKitTestCase):
         """
         self._test_table(src, exp_output)
 
-    def test_nowrap_flag(self):
+    def test_wrap_flag(self):
         src = """
-            {}<nowrap>
+            {}<{}>
             {{ A }}
         """
         exp_output = """
@@ -2438,8 +2438,9 @@ class TableMacroTest(SkoolKitTestCase):
             +---+
         """
         for params in ('', '(default)'):
-            with self.subTest(params=params):
-                self._test_table(src.format(params), exp_output)
+            for flag in ('nowrap', 'wrapalign'):
+                with self.subTest(params=params, flag=flag):
+                    self._test_table(src.format(params, flag), exp_output)
 
     def test_empty_table(self):
         self._test_table('', '')
@@ -2640,15 +2641,16 @@ class ListMacroTest(SkoolKitTestCase):
         """
         self._test_list(src, exp_output)
 
-    def test_nowrap_flag(self):
+    def test_wrap_flag(self):
         src = """
-            {}<nowrap>
+            {}<{}>
             {{ A }}
         """
         exp_output = "* A"
         for params in ('', '(default)'):
-            with self.subTest(params=params):
-                self._test_list(src.format(params), exp_output)
+            for flag in ('nowrap', 'wrapalign'):
+                with self.subTest(params=params, flag=flag):
+                    self._test_list(src.format(params, flag), exp_output)
 
     def test_empty_list(self):
         self._test_list('', '')

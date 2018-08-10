@@ -943,11 +943,23 @@ class SkoolWriter:
 
     def wrap(self, text):
         lines = []
-        for line, nowrap in self.parse_blocks(text):
-            if nowrap:
+        for line, wrap_flag in self.parse_blocks(text):
+            if wrap_flag == 0:
                 lines.append(line)
-            else:
+            elif wrap_flag == 1:
                 lines.extend(wrap(line, self.comment_width))
+            else:
+                block = wrap(line, self.comment_width)
+                lines.append(block[0])
+                if len(block) > 1:
+                    if block[0].endswith(' |'):
+                        indent = 2
+                    else:
+                        indent = block[0].rfind(' | ') + 3
+                    while indent < len(block[0]) and block[0][indent] == ' ':
+                        indent += 1
+                    pad = ' ' * indent
+                    lines.extend(pad + line for line in wrap(' '.join(block[1:]), self.comment_width - indent))
         return lines
 
     def parse_block(self, text, begin):
@@ -956,12 +968,16 @@ class SkoolWriter:
         except ClosingBracketError:
             raise SkoolKitError("No closing ')' on parameter list: {}...".format(text[begin:begin + 15]))
         try:
-            index, flags = parse_brackets(text, index, '', '<', '>')
+            index, flag = parse_brackets(text, index, '', '<', '>')
         except ClosingBracketError:
             raise SkoolKitError("No closing '>' on flags: {}...".format(text[index:index + 15]))
-        nowrap = flags == 'nowrap'
+        wrap_flag = 1
+        if flag == 'nowrap':
+            wrap_flag = 0
+        elif flag == 'wrapalign':
+            wrap_flag = 2
 
-        indexes = [(index, False)]
+        indexes = [(index, 1)]
 
         # Parse the table rows or list items
         while True:
@@ -973,10 +989,10 @@ class SkoolWriter:
             except ValueError:
                 raise SkoolKitError("No closing ' }}' on row/item: {}...".format(text[start:start + 15]))
             index = end + 2
-            indexes.append((index, nowrap))
+            indexes.append((index, wrap_flag))
 
 
-        indexes.append((len(text), False))
+        indexes.append((len(text), 1))
         return indexes
 
     def parse_blocks(self, text):
@@ -990,7 +1006,7 @@ class SkoolWriter:
             for marker, end_marker, start in starts:
                 if start >= 0:
                     if start > 0:
-                        indexes.append((start - 1, False))
+                        indexes.append((start - 1, 1))
                     try:
                         end = text.index(end_marker, start) + len(end_marker)
                     except ValueError:
@@ -1002,11 +1018,11 @@ class SkoolWriter:
             index = indexes[-1][0] + 1
 
         if not indexes or indexes[-1][0] != len(text):
-            indexes.append((len(text), False))
+            indexes.append((len(text), 1))
         indexes.sort(key=lambda e: e[0])
         lines = []
         start = 0
-        for end, nowrap in indexes:
-            lines.append((text[start:end].strip(), nowrap))
+        for end, wrap_flag in indexes:
+            lines.append((text[start:end].strip(), wrap_flag))
             start = end
         return lines
