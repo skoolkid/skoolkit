@@ -38,6 +38,4 @@ else
   $SKOOLKIT_HOME/skool2sft.py $SKOOL | $SKOOLKIT_HOME/sna2skool.py $SNA2SKOOL_OPTS -T - $SNAPSHOT > $SKOOL2
 fi 2>/dev/null
 
-if colordiff -Bu $SKOOL $SKOOL2; then
-  echo "No differences" 1>&2
-fi
+colordiff -Bu $SKOOL $SKOOL2 && echo "No differences" 1>&2

@@ -150,7 +150,8 @@ check_tap() {
 ###############################################################################
 skooldiff() {
   _cd_tmpdir
-  _exec "Running skooldiff" "$SKOOLKIT_TOOLS/skooldiff $GAME" $(pwd)/skooldiff.log
+  _exec "Running skooldiff (sft)" "$SKOOLKIT_TOOLS/skooldiff $GAME" $(pwd)/skooldiff-sft.log
+  _exec "Running skooldiff (ctl)" "$SKOOLKIT_TOOLS/skooldiff -c $GAME" $(pwd)/skooldiff-ctl.log
 }
 
 ###############################################################################
