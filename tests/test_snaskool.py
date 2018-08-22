@@ -1527,23 +1527,29 @@ class SkoolWriterTest(SkoolKitTestCase):
 
     def test_table_with_nowrap_flag(self):
         snapshot = [0]
+        rows = (
+            "{ This table's rows should not be wrapped, because the TABLE macro has a nowrap flag }",
+            "{ The nowrap flag is between the angle brackets (<nowrap>) before the first row }"
+        )
         ctl = """
             b 00000 Test table nowrap flag
-            D 00000 #TABLE{}<nowrap> {{ This table's rows should not be wrapped, because the TABLE macro has a nowrap flag }} {{ The nowrap flag is between the angle brackets (<nowrap>) before the first row }} TABLE#
+            D 00000 #*<nowrap> {} TABLE#
             i 00001
-        """
+        """.format(' '.join(rows))
         exp_skool = """
             ; Test table nowrap flag
             ;
-            ; #TABLE{}<nowrap>
-            ; {{ This table's rows should not be wrapped, because the TABLE macro has a nowrap flag }}
-            ; {{ The nowrap flag is between the angle brackets (<nowrap>) before the first row }}
+            ; #*<nowrap>
+            ; { This table's rows should not be wrapped, because the TABLE macro has a nowrap flag }
+            ; { The nowrap flag is between the angle brackets (<nowrap>) before the first row }
             ; TABLE#
             b00000 DEFB 0
         """
-        for params in ('', '(default)'):
-            with self.subTest(params=params):
-                self._test_write_skool(snapshot, ctl.format(params), exp_skool.format(params))
+        for macro in ('TABLE', 'UDGTABLE'):
+            for params in ('', '(default)'):
+                args = macro + params
+                with self.subTest(args=args):
+                    self._test_write_skool(snapshot, ctl.replace('*', args), exp_skool.replace('*', args))
 
     def test_table_with_wrapalign_flag(self):
         snapshot = [0]
@@ -1555,13 +1561,13 @@ class SkoolWriterTest(SkoolKitTestCase):
         )
         ctl = """
             b 00000 Test table wrapalign flag
-            D 00000 #TABLE*<wrapalign> {} TABLE#
+            D 00000 #*<wrapalign> {} TABLE#
             i 00001
         """.format(' '.join(rows))
         exp_skool = """
             ; Test table wrapalign flag
             ;
-            ; #TABLE*<wrapalign>
+            ; #*<wrapalign>
             ; { Single column with text that should wrap over to the next line with a small
             ;   indent to maintain alignment }
             ; {      Another single column with text that should wrap over to the next line
@@ -1574,182 +1580,81 @@ class SkoolWriterTest(SkoolKitTestCase):
             ; TABLE#
             b00000 DEFB 0
         """
-        for params in ('', '(default)'):
-            with self.subTest(params=params):
-                self._test_write_skool(snapshot, ctl.replace('*', params), exp_skool.replace('*', params))
+        for macro in ('TABLE', 'UDGTABLE'):
+            for params in ('', '(default)'):
+                args = macro + params
+                with self.subTest(args=args):
+                    self._test_write_skool(snapshot, ctl.replace('*', args), exp_skool.replace('*', args))
 
     def test_table_with_no_whitespace_around_rows(self):
         snapshot = [0]
         ctl = """
             b 00000 Test no whitespace around rows
-            D 00000 #TABLE{}{{ Row 1 }}{{ Row 2 }}TABLE#
+            D 00000 #*{ Row 1 }{ Row 2 }TABLE#
             i 00001
         """
         exp_skool = """
             ; Test no whitespace around rows
             ;
-            ; #TABLE{}
-            ; {{ Row 1 }}
-            ; {{ Row 2 }}
+            ; #*
+            ; { Row 1 }
+            ; { Row 2 }
             ; TABLE#
             b00000 DEFB 0
         """
-        for params in ('', '(default)', '<nowrap>', '(default)<nowrap>'):
-            with self.subTest(params=params):
-                self._test_write_skool(snapshot, ctl.format(params), exp_skool.format(params))
+        for macro in ('TABLE', 'UDGTABLE'):
+            for params in ('', '(default)', '<nowrap>', '(default)<nowrap>'):
+                args = macro + params
+                with self.subTest(args=args):
+                    self._test_write_skool(snapshot, ctl.replace('*', args), exp_skool.replace('*', args))
 
     def test_table_without_closing_bracket_on_parameters(self):
         ctl = """
             b 00000
-            D 00000 #TABLE(Oops { No closing bracket } TABLE#
+            D 00000 #*(Oops { No closing bracket } TABLE#
             i 00001
         """
-        writer = self._get_writer([0], ctl)
-        with self.assertRaisesRegex(SkoolKitError, re.escape("No closing ')' on parameter list: (Oops { No clos...")):
-            writer.write_skool(0, False)
+        for macro in ('TABLE', 'UDGTABLE'):
+            with self.subTest(macro=macro):
+                writer = self._get_writer([0], ctl.replace('*', macro))
+                with self.assertRaisesRegex(SkoolKitError, re.escape("No closing ')' on parameter list: (Oops { No clos...")):
+                    writer.write_skool(0, False)
 
     def test_table_without_closing_bracket_on_flags(self):
         ctl = """
             b 00000
-            D 00000 #TABLE<nowrap { No closing angle bracket } TABLE#
+            D 00000 #*<nowrap { No closing angle bracket } TABLE#
             i 00001
         """
-        writer = self._get_writer([0], ctl)
-        with self.assertRaisesRegex(SkoolKitError, re.escape("No closing '>' on flags: <nowrap { No cl...")):
-            writer.write_skool(0, False)
+        for macro in ('TABLE', 'UDGTABLE'):
+            with self.subTest(macro=macro):
+                writer = self._get_writer([0], ctl.replace('*', macro))
+                with self.assertRaisesRegex(SkoolKitError, re.escape("No closing '>' on flags: <nowrap { No cl...")):
+                    writer.write_skool(0, False)
 
     def test_table_without_end_marker(self):
         ctl = """
             b 00000
-            D 00000 #TABLE { this table has no end marker }
+            D 00000 #* { this table has no end marker }
             i 00001
         """
-        writer = self._get_writer([0], ctl)
-        with self.assertRaisesRegex(SkoolKitError, re.escape("No end marker found: #TABLE { this table h...")):
-            writer.write_skool(0, False)
+        for macro in ('TABLE', 'UDGTABLE'):
+            with self.subTest(macro=macro):
+                writer = self._get_writer([0], ctl.replace('*', macro))
+                with self.assertRaisesRegex(SkoolKitError, re.escape("No end marker found: #* { this table h...".replace('*', macro))):
+                    writer.write_skool(0, False)
 
     def test_table_without_row_end_marker(self):
         ctl = """
             b 00000
-            D 00000 #TABLE { this row has no end marker} TABLE#
+            D 00000 #* { this row has no end marker} TABLE#
             i 00001
         """
-        writer = self._get_writer([0], ctl)
-        with self.assertRaisesRegex(SkoolKitError, re.escape("No closing ' }' on row/item: { this row has ...")):
-            writer.write_skool(0, False)
-
-    def test_udgtable_with_nowrap_flag(self):
-        snapshot = [0]
-        ctl = """
-            b 00000 Test UDG table nowrap flag
-            D 00000 #UDGTABLE{}<nowrap> {{ This table's rows should not be wrapped, because the UDGTABLE macro has a nowrap flag }} {{ The nowrap flag is between the angle brackets (<nowrap>) before the first row }} TABLE#
-            i 00001
-        """
-        exp_skool = """
-            ; Test UDG table nowrap flag
-            ;
-            ; #UDGTABLE{}<nowrap>
-            ; {{ This table's rows should not be wrapped, because the UDGTABLE macro has a nowrap flag }}
-            ; {{ The nowrap flag is between the angle brackets (<nowrap>) before the first row }}
-            ; TABLE#
-            b00000 DEFB 0
-        """
-        for params in ('', '(default)'):
-            with self.subTest(params=params):
-                self._test_write_skool(snapshot, ctl.format(params), exp_skool.format(params))
-
-    def test_udgtable_with_wrapalign_flag(self):
-        snapshot = [0]
-        rows = (
-            '{ Single column with text that should wrap over to the next line with a small indent to maintain alignment }',
-            '{      Another single column with text that should wrap over to the next line with a larger indent to maintain alignment }',
-            '{ First column | Second column | Third column | Fourth column with text that should wrap over to the next two lines with an indent }',
-            '{ First column | Second column | Third column | Fourth column ends here | Fifth column indented on the next line }'
-        )
-        ctl = """
-            b 00000 Test UDG table wrapalign flag
-            D 00000 #UDGTABLE*<wrapalign> {} TABLE#
-            i 00001
-        """.format(' '.join(rows))
-        exp_skool = """
-            ; Test UDG table wrapalign flag
-            ;
-            ; #UDGTABLE*<wrapalign>
-            ; { Single column with text that should wrap over to the next line with a small
-            ;   indent to maintain alignment }
-            ; {      Another single column with text that should wrap over to the next line
-            ;        with a larger indent to maintain alignment }
-            ; { First column | Second column | Third column | Fourth column with text that
-            ;                                                 should wrap over to the next
-            ;                                                 two lines with an indent }
-            ; { First column | Second column | Third column | Fourth column ends here |
-            ;   Fifth column indented on the next line }
-            ; TABLE#
-            b00000 DEFB 0
-        """
-        for params in ('', '(default)'):
-            with self.subTest(params=params):
-                self._test_write_skool(snapshot, ctl.replace('*', params), exp_skool.replace('*', params))
-
-    def test_udgtable_with_no_whitespace_around_rows(self):
-        snapshot = [0]
-        ctl = """
-            b 00000 Test no whitespace around rows
-            D 00000 #UDGTABLE{}{{ Row 1 }}{{ Row 2 }}TABLE#
-            i 00001
-        """
-        exp_skool = """
-            ; Test no whitespace around rows
-            ;
-            ; #UDGTABLE{}
-            ; {{ Row 1 }}
-            ; {{ Row 2 }}
-            ; TABLE#
-            b00000 DEFB 0
-        """
-        for params in ('', '(default)', '<nowrap>', '(default)<nowrap>'):
-            with self.subTest(params=params):
-                self._test_write_skool(snapshot, ctl.format(params), exp_skool.format(params))
-
-    def test_udgtable_without_closing_bracket_on_parameters(self):
-        ctl = """
-            b 00000
-            D 00000 #UDGTABLE(Oops { No closing bracket } TABLE#
-            i 00001
-        """
-        writer = self._get_writer([0], ctl)
-        with self.assertRaisesRegex(SkoolKitError, re.escape("No closing ')' on parameter list: (Oops { No clos...")):
-            writer.write_skool(0, False)
-
-    def test_udgtable_without_closing_bracket_on_flags(self):
-        ctl = """
-            b 00000
-            D 00000 #UDGTABLE<nowrap { No closing angle bracket } TABLE#
-            i 00001
-        """
-        writer = self._get_writer([0], ctl)
-        with self.assertRaisesRegex(SkoolKitError, re.escape("No closing '>' on flags: <nowrap { No cl...")):
-            writer.write_skool(0, False)
-
-    def test_udgtable_without_end_marker(self):
-        ctl = """
-            b 00000
-            D 00000 #UDGTABLE { this table has no end marker }
-            i 00001
-        """
-        writer = self._get_writer([0], ctl)
-        with self.assertRaisesRegex(SkoolKitError, re.escape("No end marker found: #UDGTABLE { this table h...")):
-            writer.write_skool(0, False)
-
-    def test_udgtable_without_row_end_marker(self):
-        ctl = """
-            b 00000
-            D 00000 #UDGTABLE { this row has no end marker} UDGTABLE#
-            i 00001
-        """
-        writer = self._get_writer([0], ctl)
-        with self.assertRaisesRegex(SkoolKitError, re.escape("No closing ' }' on row/item: { this row has ...")):
-            writer.write_skool(0, False)
+        for macro in ('TABLE', 'UDGTABLE'):
+            with self.subTest(macro=macro):
+                writer = self._get_writer([0], ctl.replace('*', macro))
+                with self.assertRaisesRegex(SkoolKitError, re.escape("No closing ' }' on row/item: { this row has ...")):
+                    writer.write_skool(0, False)
 
     def test_list_with_nowrap_flag(self):
         snapshot = [0]
