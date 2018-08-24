@@ -389,17 +389,13 @@ def _generate_ctls_without_code_map(snapshot, start, end):
             break
         disassembly.build()
 
-    # Mark any NOP sequences at the beginning of a block as a separate zero
-    # block
+    # Mark a NOP sequence at the beginning of a block as a separate zero block
     for entry in disassembly.entries:
-        if entry.instructions[0].operation != 'NOP':
-            continue
-        for instruction in entry.instructions[1:]:
-            if instruction.operation != 'NOP':
-                break
         ctls[entry.address] = 's'
-        if entry.instructions[-1].operation != 'NOP':
-            ctls[instruction.address] = 'c'
+        for instruction in entry.instructions:
+            if instruction.operation != 'NOP':
+                ctls[instruction.address] = 'c'
+                break
 
     # See which blocks marked as code look like text or data
     _analyse_blocks(disassembly, ctls)

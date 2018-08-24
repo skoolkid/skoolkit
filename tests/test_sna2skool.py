@@ -738,6 +738,18 @@ class OptionsTest(SkoolKitTestCase):
 
     @patch.object(sna2skool, 'CtlParser', MockCtlParser)
     @patch.object(sna2skool, 'SkoolWriter', MockSkoolWriter)
+    def test_option_g_with_data_block_starting_and_ending_with_zero(self):
+        data = [0, 255, 0] # DEFB 0,255,0
+        exp_ctl = """
+            @ 30000 start
+            @ 30000 org
+            b 30000
+            i 30003
+        """
+        self._test_option_g(data, exp_ctl, options='-o 30000 -e 30003')
+
+    @patch.object(sna2skool, 'CtlParser', MockCtlParser)
+    @patch.object(sna2skool, 'SkoolWriter', MockSkoolWriter)
     def test_options_g_and_M_with_jr_across_64k_boundary(self):
         code_map = [65535]
         data = [24]
