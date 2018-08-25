@@ -313,14 +313,8 @@ def _generate_ctls_with_code_map(snapshot, start, end, code_map):
 
     # (7) Mark data blocks of all zeroes with 's'
     for ctl, b_start, b_end in _get_blocks(ctls):
-        if ctl == 'b':
-            z_end = b_start
-            while z_end < b_end and snapshot[z_end] == 0:
-                z_end += 1
-            if z_end > b_start:
-                ctls[b_start] = 's'
-                if z_end < b_end:
-                    ctls[z_end] = 'b'
+        if ctl == 'b' and sum(snapshot[b_start:b_end]) == 0:
+            ctls[b_start] = 's'
 
     return ctls
 
