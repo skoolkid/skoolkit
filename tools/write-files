@@ -83,13 +83,13 @@ write_ctls() {
 write_genctls() {
   (($sk_version_major > 6 || ($sk_version_major == 6 && $sk_version_minor >= 1))) && use_I=1 || use_I=0
   v60opts=('' '-i' '-h')
+  profile="$SNAPSHOT.profile"
   for ctlhex in 0 1 2; do
+    [[ $use_I == 1 ]] && opts="$sna2skool_opts -I CtlHex=$ctlhex" || opts="$sna2skool_opts ${v60opts[ctlhex]}"
     genctlfile=genctl/$GAME-$ctlhex.ctl
-    if [[ $use_I == 1 ]]; then
-      run_cmd "./sna2skool.py $sna2skool_opts -I CtlHex=$ctlhex -g $genctlfile $SNAPSHOT" /dev/null 0 $genctlfile
-    else
-      run_cmd "./sna2skool.py $sna2skool_opts ${v60opts[ctlhex]} -g $genctlfile $SNAPSHOT" /dev/null 0 $genctlfile
-    fi
+    run_cmd "./sna2skool.py $opts -g $genctlfile $SNAPSHOT" /dev/null 0 $genctlfile
+    mapgenctlfile=genctl/$GAME-M-$ctlhex.ctl
+    [[ -f $profile ]] && run_cmd "./sna2skool.py $opts -M $profile -g $mapgenctlfile $SNAPSHOT" /dev/null 0 $mapgenctlfile
   done
 }
 
