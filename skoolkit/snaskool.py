@@ -510,17 +510,14 @@ def _analyse_blocks(disassembly, ctls):
         if entry.bad_blocks or (ctls[entry.address] == 'c' and not _is_terminal_instruction(entry.instructions[-1])):
             ctls[entry.address] = 'b'
 
-    # Mark any NOP sequences at the beginning of a code block as a separate
-    # zero block
+    # Mark a NOP sequence at the beginning of a code block as a zero block
     for ctl, start, end in _get_blocks(ctls):
         if ctl == 'c':
-            z_end = start
-            while z_end < end and snapshot[z_end] == 0:
-                z_end += 1
-            if z_end > start:
-                ctls[start] = 's'
-                if z_end < end:
-                    ctls[z_end] = 'c'
+            ctls[start] = 's'
+            for address in range(start, end):
+                if snapshot[address]:
+                    ctls[address] = 'c'
+                    break
 
 def generate_ctls(snapshot, start, end, code_map):
     if code_map:
