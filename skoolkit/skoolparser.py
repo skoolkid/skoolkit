@@ -870,6 +870,8 @@ class Mode:
         if self.label and self.label.startswith('*'):
             if len(self.label) > 1:
                 self.label = self.label[1:]
+            elif not self.create_labels:
+                self.label = None
             instruction.ctl = '*'
         elif self.label == '':
             instruction.ctl = ' '

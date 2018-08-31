@@ -2107,6 +2107,7 @@ class SkoolParserTest(SkoolKitTestCase):
             @label=START
             c32768 JR 32770
 
+            @label=*
             c32770 JR 32768
         """
         parser = self._get_parser(skool, create_labels=False, asm_labels=True)
