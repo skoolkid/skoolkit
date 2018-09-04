@@ -735,7 +735,7 @@ class SkoolParser:
             instructions = entry.instructions
             if instructions:
                 main_label = instructions[0].asm_label
-                if not main_label and self.mode.create_labels:
+                if self.mode.create_labels and (not main_label or main_label == '*'):
                     main_label = instructions[0].asm_label = 'L{0}'.format(entry.addr_str)
                 if main_label:
                     index = 0
