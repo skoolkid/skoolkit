@@ -3958,6 +3958,23 @@ class SkoolParserTest(SkoolKitTestCase):
         exp_subs = [('START', '32768', 'XOR A', 'Clear A')]
         self._test_sub_and_fix_directives(skool, exp_instructions, exp_subs)
 
+    def test_sub_and_fix_directives_do_not_add_auto_label(self):
+        skool = """
+            @start
+            @label=BEGIN
+            c32768 JR 32770
+            ; This should not set an auto-label, because we're not creating
+            ; default labels.
+            @{}=*:
+             32770 RET ; Done
+        """
+        exp_instructions = [
+            ('BEGIN', '32768', 'JR 32770', ''),
+            (None, '32770', 'RET', 'Done')
+        ]
+        exp_subs = exp_instructions
+        self._test_sub_and_fix_directives(skool, exp_instructions, exp_subs)
+
     def test_sub_and_fix_directives_add_auto_label(self):
         skool = """
             @start
@@ -3974,7 +3991,7 @@ class SkoolParserTest(SkoolKitTestCase):
             ('BEGIN', '32768', 'XOR A', 'Clear A'),
             ('BEGIN_0', '32769', 'INC A', 'A=1')
         ]
-        self._test_sub_and_fix_directives(skool, exp_instructions, exp_subs)
+        self._test_sub_and_fix_directives(skool, exp_instructions, exp_subs, create_labels=True)
 
     def test_sub_and_fix_directives_remove_label(self):
         skool = """
@@ -4032,7 +4049,7 @@ class SkoolParserTest(SkoolKitTestCase):
             ('START', '32768', 'XOR A', 'Clear A'),
             ('START_0', '32769', 'INC A', '')
         ]
-        self._test_sub_and_fix_directives(skool, exp_instructions, exp_subs)
+        self._test_sub_and_fix_directives(skool, exp_instructions, exp_subs, create_labels=True)
 
     def test_sub_and_fix_directives_prepend_instruction_with_label(self):
         skool = """

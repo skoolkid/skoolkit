@@ -857,7 +857,10 @@ class Mode:
 
     def process_instruction(self, instruction, label, overwrite=False, removed=None):
         if self.asm_labels and label is not None:
-            instruction.asm_label = label
+            if label == '*' and not self.create_labels:
+                instruction.asm_label = None
+            else:
+                instruction.asm_label = label
         if overwrite:
             size = get_size(instruction.operation, instruction.address)
             if size:
