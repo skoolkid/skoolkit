@@ -3993,6 +3993,50 @@ class SkoolParserTest(SkoolKitTestCase):
         ]
         self._test_sub_and_fix_directives(skool, exp_instructions, exp_subs, create_labels=True)
 
+    def test_sub_and_fix_directives_add_two_auto_labels(self):
+        skool = """
+            @start
+            @label=BEGIN
+            c32768 XOR A ; Clear A
+            @{0}=*:
+             32769 INC A ; A=1
+            @{0}=*:
+             32770 RET ; Finished
+        """
+        exp_instructions = [
+            ('BEGIN', '32768', 'XOR A', 'Clear A'),
+            (None, '32769', 'INC A', 'A=1'),
+            (None, '32770', 'RET', 'Finished')
+        ]
+        exp_subs = [
+            ('BEGIN', '32768', 'XOR A', 'Clear A'),
+            ('BEGIN_0', '32769', 'INC A', 'A=1'),
+            ('BEGIN_1', '32770', 'RET', 'Finished')
+        ]
+        self._test_sub_and_fix_directives(skool, exp_instructions, exp_subs, create_labels=True)
+
+    def test_sub_and_fix_directives_add_same_label_twice(self):
+        skool = """
+            @start
+            @{0}=SAME:
+            c32768 XOR A
+            @{0}=SAME:
+             32769 RET
+        """
+        exp_error = "Duplicate label SAME at 32769"
+        self._assert_sub_and_fix_directives(skool, exp_error=exp_error)
+
+    def test_sub_and_fix_directives_add_duplicate_label(self):
+        skool = """
+            @start
+            @label=SAME
+            c32768 XOR A
+            @{}=SAME:
+             32769 RET
+        """
+        exp_error = "Duplicate label SAME at 32769"
+        self._assert_sub_and_fix_directives(skool, exp_error=exp_error)
+
     def test_sub_and_fix_directives_remove_label(self):
         skool = """
             @start
@@ -4002,6 +4046,26 @@ class SkoolParserTest(SkoolKitTestCase):
         """
         exp_instructions = [('BEGIN', '32768', 'XOR A', 'Clear A')]
         exp_subs = [('', '32768', 'XOR A', 'Clear A')]
+        self._test_sub_and_fix_directives(skool, exp_instructions, exp_subs)
+
+    def test_sub_and_fix_directives_remove_two_labels(self):
+        skool = """
+            @start
+            @label=BEGIN
+            @{0}=:XOR A
+            c32768 XOR A ; Clear A
+            @label=END
+            @{0}=:
+             32769 RET   ; Done
+        """
+        exp_instructions = [
+            ('BEGIN', '32768', 'XOR A', 'Clear A'),
+            ('END', '32769', 'RET', 'Done')
+        ]
+        exp_subs = [
+            ('', '32768', 'XOR A', 'Clear A'),
+            ('', '32769', 'RET', 'Done')
+        ]
         self._test_sub_and_fix_directives(skool, exp_instructions, exp_subs)
 
     def test_sub_and_fix_directives_remove_auto_label(self):

@@ -857,6 +857,10 @@ class Mode:
 
     def process_instruction(self, instruction, label, overwrite=False, removed=None):
         if self.asm_labels and label is not None:
+            if label in self.labels:
+                raise SkoolParsingError('Duplicate label {} at {}'.format(label, instruction.address))
+            if label and label != '*':
+                self.labels.append(label)
             if label == '*' and not self.create_labels:
                 instruction.asm_label = None
             else:
