@@ -855,16 +855,26 @@ class Mode:
                 instructions[-1][-1].append(None)
         return instructions
 
-    def process_instruction(self, instruction, label, overwrite=False, removed=None):
-        if self.asm_labels and label is not None:
-            if label in self.labels:
-                raise SkoolParsingError('Duplicate label {} at {}'.format(label, instruction.address))
+    def process_label(self, instruction, label, removed=None):
+        if label and label.startswith('*'):
+            if len(label) > 1:
+                label = label[1:]
+            elif not self.create_labels:
+                label = None
+            instruction.ctl = '*'
+        elif label == '':
+            instruction.ctl = ' '
+        if self.asm_labels:
             if label and label != '*':
-                self.labels.append(label)
-            if label == '*' and not self.create_labels:
-                instruction.asm_label = None
-            else:
-                instruction.asm_label = label
+                if label in self.labels:
+                    raise SkoolParsingError('Duplicate label {} at {}'.format(label, instruction.address))
+                if removed is None or instruction.address not in removed:
+                    self.labels.append(label)
+            instruction.asm_label = label
+
+    def process_instruction(self, instruction, label, overwrite=False, removed=None):
+        if label is not None:
+            self.process_label(instruction, label)
         if overwrite:
             size = get_size(instruction.operation, instruction.address)
             if size:
@@ -874,21 +884,7 @@ class Mode:
     def apply_asm_attributes(self, instruction, map_entry, instructions, address_comments, removed):
         instruction.keep = self.keep
 
-        if self.label and self.label.startswith('*'):
-            if len(self.label) > 1:
-                self.label = self.label[1:]
-            elif not self.create_labels:
-                self.label = None
-            instruction.ctl = '*'
-        elif self.label == '':
-            instruction.ctl = ' '
-        if self.asm_labels:
-            if self.label and self.label != '*':
-                if self.label in self.labels:
-                    raise SkoolParsingError('Duplicate label {} at {}'.format(self.label, instruction.address))
-                if instruction.address not in removed:
-                    self.labels.append(self.label)
-            instruction.asm_label = self.label
+        self.process_label(instruction, self.label, removed)
 
         if self.asm_mode:
             if self.org != '':

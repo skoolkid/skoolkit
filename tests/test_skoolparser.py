@@ -3961,7 +3961,6 @@ class SkoolParserTest(SkoolKitTestCase):
     def test_sub_and_fix_directives_do_not_add_auto_label(self):
         skool = """
             @start
-            @label=BEGIN
             c32768 JR 32770
             ; This should not set an auto-label, because we're not creating
             ; default labels.
@@ -3969,11 +3968,28 @@ class SkoolParserTest(SkoolKitTestCase):
              32770 RET ; Done
         """
         exp_instructions = [
-            ('BEGIN', '32768', 'JR 32770', ''),
+            (None, '32768', 'JR 32770', ''),
             (None, '32770', 'RET', 'Done')
         ]
         exp_subs = exp_instructions
         self._test_sub_and_fix_directives(skool, exp_instructions, exp_subs)
+
+    def test_sub_and_fix_directives_add_default_auto_label(self):
+        skool = """
+            @start
+            c32768 JR 32770
+            @{}=*:
+             32770 RET ; Done
+        """
+        exp_instructions = [
+            ('L32768', '32768', 'JR 32770', ''),
+            (None, '32770', 'RET', 'Done')
+        ]
+        exp_subs = [
+            ('L32768', '32768', 'JR L32768_0', ''),
+            ('L32768_0', '32770', 'RET', 'Done')
+        ]
+        self._test_sub_and_fix_directives(skool, exp_instructions, exp_subs, create_labels=True)
 
     def test_sub_and_fix_directives_add_auto_label(self):
         skool = """
@@ -3991,7 +4007,7 @@ class SkoolParserTest(SkoolKitTestCase):
             ('BEGIN', '32768', 'XOR A', 'Clear A'),
             ('BEGIN_0', '32769', 'INC A', 'A=1')
         ]
-        self._test_sub_and_fix_directives(skool, exp_instructions, exp_subs, create_labels=True)
+        self._test_sub_and_fix_directives(skool, exp_instructions, exp_subs)
 
     def test_sub_and_fix_directives_add_two_auto_labels(self):
         skool = """
@@ -4013,7 +4029,7 @@ class SkoolParserTest(SkoolKitTestCase):
             ('BEGIN_0', '32769', 'INC A', 'A=1'),
             ('BEGIN_1', '32770', 'RET', 'Finished')
         ]
-        self._test_sub_and_fix_directives(skool, exp_instructions, exp_subs, create_labels=True)
+        self._test_sub_and_fix_directives(skool, exp_instructions, exp_subs)
 
     def test_sub_and_fix_directives_add_same_label_twice(self):
         skool = """
@@ -4033,6 +4049,35 @@ class SkoolParserTest(SkoolKitTestCase):
             c32768 XOR A
             @{}=SAME:
              32769 RET
+        """
+        exp_error = "Duplicate label SAME at 32769"
+        self._assert_sub_and_fix_directives(skool, exp_error=exp_error)
+
+    def test_sub_and_fix_directives_add_label_with_entry_point_marker(self):
+        skool = """
+            @start
+            @label=BEGIN
+            c32768 XOR A ; Clear A
+            @{}=*END:
+             32769 RET   ; Done
+        """
+        exp_instructions = [
+            ('BEGIN', '32768', 'XOR A', 'Clear A'),
+            (None, '32769', 'RET', 'Done')
+        ]
+        exp_subs = [
+            ('BEGIN', '32768', 'XOR A', 'Clear A'),
+            ('END', '32769', 'RET', 'Done')
+        ]
+        self._test_sub_and_fix_directives(skool, exp_instructions, exp_subs)
+
+    def test_sub_and_fix_directives_add_duplicate_label_with_entry_point_marker(self):
+        skool = """
+            @start
+            @label=SAME
+            c32768 XOR A ; Clear A
+            @{}=*SAME:
+             32769 RET   ; Done
         """
         exp_error = "Duplicate label SAME at 32769"
         self._assert_sub_and_fix_directives(skool, exp_error=exp_error)
