@@ -3958,6 +3958,17 @@ class SkoolParserTest(SkoolKitTestCase):
         exp_subs = [('START', '32768', 'XOR A', 'Clear A')]
         self._test_sub_and_fix_directives(skool, exp_instructions, exp_subs)
 
+    def test_sub_and_fix_directives_replace_label_and_comment_only(self):
+        skool = """
+            @start
+            @label=BEGIN
+            @{}=START:   ; A=0
+            c32768 XOR A ; Clear A
+        """
+        exp_instructions = [('BEGIN', '32768', 'XOR A', 'Clear A')]
+        exp_subs = [('START', '32768', 'XOR A', 'A=0')]
+        self._test_sub_and_fix_directives(skool, exp_instructions, exp_subs)
+
     def test_sub_and_fix_directives_do_not_add_auto_label(self):
         skool = """
             @start
