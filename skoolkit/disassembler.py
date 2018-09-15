@@ -37,12 +37,6 @@ class Instruction:
         return len(self.bytes)
 
 class Disassembler:
-    ops = {}
-    after_CB = {}
-    after_DD = {}
-    after_ED = {}
-    after_DDCB = {}
-
     def __init__(self, snapshot, defb_size=8, defb_mod=1, zfill=False, defm_width=66, asm_hex=False, asm_lower=False):
         self.snapshot = snapshot
         self.defb_size = defb_size
@@ -330,699 +324,709 @@ class Disassembler:
             lines.append(self.defm_line(address + i, data[i:i + self.defm_width]))
         return lines
 
-    ops[0] = no_arg, 'NOP'
-    ops[1] = word_arg, 'LD BC,{0}'
-    ops[2] = no_arg, 'LD (BC),A'
-    ops[3] = no_arg, 'INC BC'
-    ops[4] = no_arg, 'INC B'
-    ops[5] = no_arg, 'DEC B'
-    ops[6] = byte_arg, 'LD B,{0}'
-    ops[7] = no_arg, 'RLCA'
-    ops[8] = no_arg, "EX AF,AF'"
-    ops[9] = no_arg, 'ADD HL,BC'
-    ops[10] = no_arg, 'LD A,(BC)'
-    ops[11] = no_arg, 'DEC BC'
-    ops[12] = no_arg, 'INC C'
-    ops[13] = no_arg, 'DEC C'
-    ops[14] = byte_arg, 'LD C,{0}'
-    ops[15] = no_arg, 'RRCA'
-    ops[16] = jr_arg, 'DJNZ {0}'
-    ops[17] = word_arg, 'LD DE,{0}'
-    ops[18] = no_arg, 'LD (DE),A'
-    ops[19] = no_arg, 'INC DE'
-    ops[20] = no_arg, 'INC D'
-    ops[21] = no_arg, 'DEC D'
-    ops[22] = byte_arg, 'LD D,{0}'
-    ops[23] = no_arg, 'RLA'
-    ops[24] = jr_arg, 'JR {0}'
-    ops[25] = no_arg, 'ADD HL,DE'
-    ops[26] = no_arg, 'LD A,(DE)'
-    ops[27] = no_arg, 'DEC DE'
-    ops[28] = no_arg, 'INC E'
-    ops[29] = no_arg, 'DEC E'
-    ops[30] = byte_arg, 'LD E,{0}'
-    ops[31] = no_arg, 'RRA'
-    ops[32] = jr_arg, 'JR NZ,{0}'
-    ops[33] = word_arg, 'LD HL,{0}'
-    ops[34] = word_arg, 'LD ({0}),HL'
-    ops[35] = no_arg, 'INC HL'
-    ops[36] = no_arg, 'INC H'
-    ops[37] = no_arg, 'DEC H'
-    ops[38] = byte_arg, 'LD H,{0}'
-    ops[39] = no_arg, 'DAA'
-    ops[40] = jr_arg, 'JR Z,{0}'
-    ops[41] = no_arg, 'ADD HL,HL'
-    ops[42] = word_arg, 'LD HL,({0})'
-    ops[43] = no_arg, 'DEC HL'
-    ops[44] = no_arg, 'INC L'
-    ops[45] = no_arg, 'DEC L'
-    ops[46] = byte_arg, 'LD L,{0}'
-    ops[47] = no_arg, 'CPL'
-    ops[48] = jr_arg, 'JR NC,{0}'
-    ops[49] = word_arg, 'LD SP,{0}'
-    ops[50] = word_arg, 'LD ({0}),A'
-    ops[51] = no_arg, 'INC SP'
-    ops[52] = no_arg, 'INC (HL)'
-    ops[53] = no_arg, 'DEC (HL)'
-    ops[54] = byte_arg, 'LD (HL),{0}'
-    ops[55] = no_arg, 'SCF'
-    ops[56] = jr_arg, 'JR C,{0}'
-    ops[57] = no_arg, 'ADD HL,SP'
-    ops[58] = word_arg, 'LD A,({0})'
-    ops[59] = no_arg, 'DEC SP'
-    ops[60] = no_arg, 'INC A'
-    ops[61] = no_arg, 'DEC A'
-    ops[62] = byte_arg, 'LD A,{0}'
-    ops[63] = no_arg, 'CCF'
-    ops[64] = no_arg, 'LD B,B'
-    ops[65] = no_arg, 'LD B,C'
-    ops[66] = no_arg, 'LD B,D'
-    ops[67] = no_arg, 'LD B,E'
-    ops[68] = no_arg, 'LD B,H'
-    ops[69] = no_arg, 'LD B,L'
-    ops[70] = no_arg, 'LD B,(HL)'
-    ops[71] = no_arg, 'LD B,A'
-    ops[72] = no_arg, 'LD C,B'
-    ops[73] = no_arg, 'LD C,C'
-    ops[74] = no_arg, 'LD C,D'
-    ops[75] = no_arg, 'LD C,E'
-    ops[76] = no_arg, 'LD C,H'
-    ops[77] = no_arg, 'LD C,L'
-    ops[78] = no_arg, 'LD C,(HL)'
-    ops[79] = no_arg, 'LD C,A'
-    ops[80] = no_arg, 'LD D,B'
-    ops[81] = no_arg, 'LD D,C'
-    ops[82] = no_arg, 'LD D,D'
-    ops[83] = no_arg, 'LD D,E'
-    ops[84] = no_arg, 'LD D,H'
-    ops[85] = no_arg, 'LD D,L'
-    ops[86] = no_arg, 'LD D,(HL)'
-    ops[87] = no_arg, 'LD D,A'
-    ops[88] = no_arg, 'LD E,B'
-    ops[89] = no_arg, 'LD E,C'
-    ops[90] = no_arg, 'LD E,D'
-    ops[91] = no_arg, 'LD E,E'
-    ops[92] = no_arg, 'LD E,H'
-    ops[93] = no_arg, 'LD E,L'
-    ops[94] = no_arg, 'LD E,(HL)'
-    ops[95] = no_arg, 'LD E,A'
-    ops[96] = no_arg, 'LD H,B'
-    ops[97] = no_arg, 'LD H,C'
-    ops[98] = no_arg, 'LD H,D'
-    ops[99] = no_arg, 'LD H,E'
-    ops[100] = no_arg, 'LD H,H'
-    ops[101] = no_arg, 'LD H,L'
-    ops[102] = no_arg, 'LD H,(HL)'
-    ops[103] = no_arg, 'LD H,A'
-    ops[104] = no_arg, 'LD L,B'
-    ops[105] = no_arg, 'LD L,C'
-    ops[106] = no_arg, 'LD L,D'
-    ops[107] = no_arg, 'LD L,E'
-    ops[108] = no_arg, 'LD L,H'
-    ops[109] = no_arg, 'LD L,L'
-    ops[110] = no_arg, 'LD L,(HL)'
-    ops[111] = no_arg, 'LD L,A'
-    ops[112] = no_arg, 'LD (HL),B'
-    ops[113] = no_arg, 'LD (HL),C'
-    ops[114] = no_arg, 'LD (HL),D'
-    ops[115] = no_arg, 'LD (HL),E'
-    ops[116] = no_arg, 'LD (HL),H'
-    ops[117] = no_arg, 'LD (HL),L'
-    ops[118] = no_arg, 'HALT'
-    ops[119] = no_arg, 'LD (HL),A'
-    ops[120] = no_arg, 'LD A,B'
-    ops[121] = no_arg, 'LD A,C'
-    ops[122] = no_arg, 'LD A,D'
-    ops[123] = no_arg, 'LD A,E'
-    ops[124] = no_arg, 'LD A,H'
-    ops[125] = no_arg, 'LD A,L'
-    ops[126] = no_arg, 'LD A,(HL)'
-    ops[127] = no_arg, 'LD A,A'
-    ops[128] = no_arg, 'ADD A,B'
-    ops[129] = no_arg, 'ADD A,C'
-    ops[130] = no_arg, 'ADD A,D'
-    ops[131] = no_arg, 'ADD A,E'
-    ops[132] = no_arg, 'ADD A,H'
-    ops[133] = no_arg, 'ADD A,L'
-    ops[134] = no_arg, 'ADD A,(HL)'
-    ops[135] = no_arg, 'ADD A,A'
-    ops[136] = no_arg, 'ADC A,B'
-    ops[137] = no_arg, 'ADC A,C'
-    ops[138] = no_arg, 'ADC A,D'
-    ops[139] = no_arg, 'ADC A,E'
-    ops[140] = no_arg, 'ADC A,H'
-    ops[141] = no_arg, 'ADC A,L'
-    ops[142] = no_arg, 'ADC A,(HL)'
-    ops[143] = no_arg, 'ADC A,A'
-    ops[144] = no_arg, 'SUB B'
-    ops[145] = no_arg, 'SUB C'
-    ops[146] = no_arg, 'SUB D'
-    ops[147] = no_arg, 'SUB E'
-    ops[148] = no_arg, 'SUB H'
-    ops[149] = no_arg, 'SUB L'
-    ops[150] = no_arg, 'SUB (HL)'
-    ops[151] = no_arg, 'SUB A'
-    ops[152] = no_arg, 'SBC A,B'
-    ops[153] = no_arg, 'SBC A,C'
-    ops[154] = no_arg, 'SBC A,D'
-    ops[155] = no_arg, 'SBC A,E'
-    ops[156] = no_arg, 'SBC A,H'
-    ops[157] = no_arg, 'SBC A,L'
-    ops[158] = no_arg, 'SBC A,(HL)'
-    ops[159] = no_arg, 'SBC A,A'
-    ops[160] = no_arg, 'AND B'
-    ops[161] = no_arg, 'AND C'
-    ops[162] = no_arg, 'AND D'
-    ops[163] = no_arg, 'AND E'
-    ops[164] = no_arg, 'AND H'
-    ops[165] = no_arg, 'AND L'
-    ops[166] = no_arg, 'AND (HL)'
-    ops[167] = no_arg, 'AND A'
-    ops[168] = no_arg, 'XOR B'
-    ops[169] = no_arg, 'XOR C'
-    ops[170] = no_arg, 'XOR D'
-    ops[171] = no_arg, 'XOR E'
-    ops[172] = no_arg, 'XOR H'
-    ops[173] = no_arg, 'XOR L'
-    ops[174] = no_arg, 'XOR (HL)'
-    ops[175] = no_arg, 'XOR A'
-    ops[176] = no_arg, 'OR B'
-    ops[177] = no_arg, 'OR C'
-    ops[178] = no_arg, 'OR D'
-    ops[179] = no_arg, 'OR E'
-    ops[180] = no_arg, 'OR H'
-    ops[181] = no_arg, 'OR L'
-    ops[182] = no_arg, 'OR (HL)'
-    ops[183] = no_arg, 'OR A'
-    ops[184] = no_arg, 'CP B'
-    ops[185] = no_arg, 'CP C'
-    ops[186] = no_arg, 'CP D'
-    ops[187] = no_arg, 'CP E'
-    ops[188] = no_arg, 'CP H'
-    ops[189] = no_arg, 'CP L'
-    ops[190] = no_arg, 'CP (HL)'
-    ops[191] = no_arg, 'CP A'
-    ops[192] = no_arg, 'RET NZ'
-    ops[193] = no_arg, 'POP BC'
-    ops[194] = word_arg, 'JP NZ,{0}'
-    ops[195] = word_arg, 'JP {0}'
-    ops[196] = word_arg, 'CALL NZ,{0}'
-    ops[197] = no_arg, 'PUSH BC'
-    ops[198] = byte_arg, 'ADD A,{0}'
-    ops[199] = rst_arg, 0
-    ops[200] = no_arg, 'RET Z'
-    ops[201] = no_arg, 'RET'
-    ops[202] = word_arg, 'JP Z,{0}'
-    ops[203] = cb_arg, None
-    ops[204] = word_arg, 'CALL Z,{0}'
-    ops[205] = word_arg, 'CALL {0}'
-    ops[206] = byte_arg, 'ADC A,{0}'
-    ops[207] = rst_arg, 8
-    ops[208] = no_arg, 'RET NC'
-    ops[209] = no_arg, 'POP DE'
-    ops[210] = word_arg, 'JP NC,{0}'
-    ops[211] = byte_arg, 'OUT ({0}),A'
-    ops[212] = word_arg, 'CALL NC,{0}'
-    ops[213] = no_arg, 'PUSH DE'
-    ops[214] = byte_arg, 'SUB {0}'
-    ops[215] = rst_arg, 16
-    ops[216] = no_arg, 'RET C'
-    ops[217] = no_arg, 'EXX'
-    ops[218] = word_arg, 'JP C,{0}'
-    ops[219] = byte_arg, 'IN A,({0})'
-    ops[220] = word_arg, 'CALL C,{0}'
-    ops[221] = dd_arg, None
-    ops[222] = byte_arg, 'SBC A,{0}'
-    ops[223] = rst_arg, 24
-    ops[224] = no_arg, 'RET PO'
-    ops[225] = no_arg, 'POP HL'
-    ops[226] = word_arg, 'JP PO,{0}'
-    ops[227] = no_arg, 'EX (SP),HL'
-    ops[228] = word_arg, 'CALL PO,{0}'
-    ops[229] = no_arg, 'PUSH HL'
-    ops[230] = byte_arg, 'AND {0}'
-    ops[231] = rst_arg, 32
-    ops[232] = no_arg, 'RET PE'
-    ops[233] = no_arg, 'JP (HL)'
-    ops[234] = word_arg, 'JP PE,{0}'
-    ops[235] = no_arg, 'EX DE,HL'
-    ops[236] = word_arg, 'CALL PE,{0}'
-    ops[237] = ed_arg, None
-    ops[238] = byte_arg, 'XOR {0}'
-    ops[239] = rst_arg, 40
-    ops[240] = no_arg, 'RET P'
-    ops[241] = no_arg, 'POP AF'
-    ops[242] = word_arg, 'JP P,{0}'
-    ops[243] = no_arg, 'DI'
-    ops[244] = word_arg, 'CALL P,{0}'
-    ops[245] = no_arg, 'PUSH AF'
-    ops[246] = byte_arg, 'OR {0}'
-    ops[247] = rst_arg, 48
-    ops[248] = no_arg, 'RET M'
-    ops[249] = no_arg, 'LD SP,HL'
-    ops[250] = word_arg, 'JP M,{0}'
-    ops[251] = no_arg, 'EI'
-    ops[252] = word_arg, 'CALL M,{0}'
-    ops[253] = fd_arg, None
-    ops[254] = byte_arg, 'CP {0}'
-    ops[255] = rst_arg, 56
+    ops = {
+        0x00: (no_arg, 'NOP'),
+        0x01: (word_arg, 'LD BC,{}'),
+        0x02: (no_arg, 'LD (BC),A'),
+        0x03: (no_arg, 'INC BC'),
+        0x04: (no_arg, 'INC B'),
+        0x05: (no_arg, 'DEC B'),
+        0x06: (byte_arg, 'LD B,{}'),
+        0x07: (no_arg, 'RLCA'),
+        0x08: (no_arg, "EX AF,AF'"),
+        0x09: (no_arg, 'ADD HL,BC'),
+        0x0A: (no_arg, 'LD A,(BC)'),
+        0x0B: (no_arg, 'DEC BC'),
+        0x0C: (no_arg, 'INC C'),
+        0x0D: (no_arg, 'DEC C'),
+        0x0E: (byte_arg, 'LD C,{}'),
+        0x0F: (no_arg, 'RRCA'),
+        0x10: (jr_arg, 'DJNZ {}'),
+        0x11: (word_arg, 'LD DE,{}'),
+        0x12: (no_arg, 'LD (DE),A'),
+        0x13: (no_arg, 'INC DE'),
+        0x14: (no_arg, 'INC D'),
+        0x15: (no_arg, 'DEC D'),
+        0x16: (byte_arg, 'LD D,{}'),
+        0x17: (no_arg, 'RLA'),
+        0x18: (jr_arg, 'JR {}'),
+        0x19: (no_arg, 'ADD HL,DE'),
+        0x1A: (no_arg, 'LD A,(DE)'),
+        0x1B: (no_arg, 'DEC DE'),
+        0x1C: (no_arg, 'INC E'),
+        0x1D: (no_arg, 'DEC E'),
+        0x1E: (byte_arg, 'LD E,{}'),
+        0x1F: (no_arg, 'RRA'),
+        0x20: (jr_arg, 'JR NZ,{}'),
+        0x21: (word_arg, 'LD HL,{}'),
+        0x22: (word_arg, 'LD ({}),HL'),
+        0x23: (no_arg, 'INC HL'),
+        0x24: (no_arg, 'INC H'),
+        0x25: (no_arg, 'DEC H'),
+        0x26: (byte_arg, 'LD H,{}'),
+        0x27: (no_arg, 'DAA'),
+        0x28: (jr_arg, 'JR Z,{}'),
+        0x29: (no_arg, 'ADD HL,HL'),
+        0x2A: (word_arg, 'LD HL,({})'),
+        0x2B: (no_arg, 'DEC HL'),
+        0x2C: (no_arg, 'INC L'),
+        0x2D: (no_arg, 'DEC L'),
+        0x2E: (byte_arg, 'LD L,{}'),
+        0x2F: (no_arg, 'CPL'),
+        0x30: (jr_arg, 'JR NC,{}'),
+        0x31: (word_arg, 'LD SP,{}'),
+        0x32: (word_arg, 'LD ({}),A'),
+        0x33: (no_arg, 'INC SP'),
+        0x34: (no_arg, 'INC (HL)'),
+        0x35: (no_arg, 'DEC (HL)'),
+        0x36: (byte_arg, 'LD (HL),{}'),
+        0x37: (no_arg, 'SCF'),
+        0x38: (jr_arg, 'JR C,{}'),
+        0x39: (no_arg, 'ADD HL,SP'),
+        0x3A: (word_arg, 'LD A,({})'),
+        0x3B: (no_arg, 'DEC SP'),
+        0x3C: (no_arg, 'INC A'),
+        0x3D: (no_arg, 'DEC A'),
+        0x3E: (byte_arg, 'LD A,{}'),
+        0x3F: (no_arg, 'CCF'),
+        0x40: (no_arg, 'LD B,B'),
+        0x41: (no_arg, 'LD B,C'),
+        0x42: (no_arg, 'LD B,D'),
+        0x43: (no_arg, 'LD B,E'),
+        0x44: (no_arg, 'LD B,H'),
+        0x45: (no_arg, 'LD B,L'),
+        0x46: (no_arg, 'LD B,(HL)'),
+        0x47: (no_arg, 'LD B,A'),
+        0x48: (no_arg, 'LD C,B'),
+        0x49: (no_arg, 'LD C,C'),
+        0x4A: (no_arg, 'LD C,D'),
+        0x4B: (no_arg, 'LD C,E'),
+        0x4C: (no_arg, 'LD C,H'),
+        0x4D: (no_arg, 'LD C,L'),
+        0x4E: (no_arg, 'LD C,(HL)'),
+        0x4F: (no_arg, 'LD C,A'),
+        0x50: (no_arg, 'LD D,B'),
+        0x51: (no_arg, 'LD D,C'),
+        0x52: (no_arg, 'LD D,D'),
+        0x53: (no_arg, 'LD D,E'),
+        0x54: (no_arg, 'LD D,H'),
+        0x55: (no_arg, 'LD D,L'),
+        0x56: (no_arg, 'LD D,(HL)'),
+        0x57: (no_arg, 'LD D,A'),
+        0x58: (no_arg, 'LD E,B'),
+        0x59: (no_arg, 'LD E,C'),
+        0x5A: (no_arg, 'LD E,D'),
+        0x5B: (no_arg, 'LD E,E'),
+        0x5C: (no_arg, 'LD E,H'),
+        0x5D: (no_arg, 'LD E,L'),
+        0x5E: (no_arg, 'LD E,(HL)'),
+        0x5F: (no_arg, 'LD E,A'),
+        0x60: (no_arg, 'LD H,B'),
+        0x61: (no_arg, 'LD H,C'),
+        0x62: (no_arg, 'LD H,D'),
+        0x63: (no_arg, 'LD H,E'),
+        0x64: (no_arg, 'LD H,H'),
+        0x65: (no_arg, 'LD H,L'),
+        0x66: (no_arg, 'LD H,(HL)'),
+        0x67: (no_arg, 'LD H,A'),
+        0x68: (no_arg, 'LD L,B'),
+        0x69: (no_arg, 'LD L,C'),
+        0x6A: (no_arg, 'LD L,D'),
+        0x6B: (no_arg, 'LD L,E'),
+        0x6C: (no_arg, 'LD L,H'),
+        0x6D: (no_arg, 'LD L,L'),
+        0x6E: (no_arg, 'LD L,(HL)'),
+        0x6F: (no_arg, 'LD L,A'),
+        0x70: (no_arg, 'LD (HL),B'),
+        0x71: (no_arg, 'LD (HL),C'),
+        0x72: (no_arg, 'LD (HL),D'),
+        0x73: (no_arg, 'LD (HL),E'),
+        0x74: (no_arg, 'LD (HL),H'),
+        0x75: (no_arg, 'LD (HL),L'),
+        0x76: (no_arg, 'HALT'),
+        0x77: (no_arg, 'LD (HL),A'),
+        0x78: (no_arg, 'LD A,B'),
+        0x79: (no_arg, 'LD A,C'),
+        0x7A: (no_arg, 'LD A,D'),
+        0x7B: (no_arg, 'LD A,E'),
+        0x7C: (no_arg, 'LD A,H'),
+        0x7D: (no_arg, 'LD A,L'),
+        0x7E: (no_arg, 'LD A,(HL)'),
+        0x7F: (no_arg, 'LD A,A'),
+        0x80: (no_arg, 'ADD A,B'),
+        0x81: (no_arg, 'ADD A,C'),
+        0x82: (no_arg, 'ADD A,D'),
+        0x83: (no_arg, 'ADD A,E'),
+        0x84: (no_arg, 'ADD A,H'),
+        0x85: (no_arg, 'ADD A,L'),
+        0x86: (no_arg, 'ADD A,(HL)'),
+        0x87: (no_arg, 'ADD A,A'),
+        0x88: (no_arg, 'ADC A,B'),
+        0x89: (no_arg, 'ADC A,C'),
+        0x8A: (no_arg, 'ADC A,D'),
+        0x8B: (no_arg, 'ADC A,E'),
+        0x8C: (no_arg, 'ADC A,H'),
+        0x8D: (no_arg, 'ADC A,L'),
+        0x8E: (no_arg, 'ADC A,(HL)'),
+        0x8F: (no_arg, 'ADC A,A'),
+        0x90: (no_arg, 'SUB B'),
+        0x91: (no_arg, 'SUB C'),
+        0x92: (no_arg, 'SUB D'),
+        0x93: (no_arg, 'SUB E'),
+        0x94: (no_arg, 'SUB H'),
+        0x95: (no_arg, 'SUB L'),
+        0x96: (no_arg, 'SUB (HL)'),
+        0x97: (no_arg, 'SUB A'),
+        0x98: (no_arg, 'SBC A,B'),
+        0x99: (no_arg, 'SBC A,C'),
+        0x9A: (no_arg, 'SBC A,D'),
+        0x9B: (no_arg, 'SBC A,E'),
+        0x9C: (no_arg, 'SBC A,H'),
+        0x9D: (no_arg, 'SBC A,L'),
+        0x9E: (no_arg, 'SBC A,(HL)'),
+        0x9F: (no_arg, 'SBC A,A'),
+        0xA0: (no_arg, 'AND B'),
+        0xA1: (no_arg, 'AND C'),
+        0xA2: (no_arg, 'AND D'),
+        0xA3: (no_arg, 'AND E'),
+        0xA4: (no_arg, 'AND H'),
+        0xA5: (no_arg, 'AND L'),
+        0xA6: (no_arg, 'AND (HL)'),
+        0xA7: (no_arg, 'AND A'),
+        0xA8: (no_arg, 'XOR B'),
+        0xA9: (no_arg, 'XOR C'),
+        0xAA: (no_arg, 'XOR D'),
+        0xAB: (no_arg, 'XOR E'),
+        0xAC: (no_arg, 'XOR H'),
+        0xAD: (no_arg, 'XOR L'),
+        0xAE: (no_arg, 'XOR (HL)'),
+        0xAF: (no_arg, 'XOR A'),
+        0xB0: (no_arg, 'OR B'),
+        0xB1: (no_arg, 'OR C'),
+        0xB2: (no_arg, 'OR D'),
+        0xB3: (no_arg, 'OR E'),
+        0xB4: (no_arg, 'OR H'),
+        0xB5: (no_arg, 'OR L'),
+        0xB6: (no_arg, 'OR (HL)'),
+        0xB7: (no_arg, 'OR A'),
+        0xB8: (no_arg, 'CP B'),
+        0xB9: (no_arg, 'CP C'),
+        0xBA: (no_arg, 'CP D'),
+        0xBB: (no_arg, 'CP E'),
+        0xBC: (no_arg, 'CP H'),
+        0xBD: (no_arg, 'CP L'),
+        0xBE: (no_arg, 'CP (HL)'),
+        0xBF: (no_arg, 'CP A'),
+        0xC0: (no_arg, 'RET NZ'),
+        0xC1: (no_arg, 'POP BC'),
+        0xC2: (word_arg, 'JP NZ,{}'),
+        0xC3: (word_arg, 'JP {}'),
+        0xC4: (word_arg, 'CALL NZ,{}'),
+        0xC5: (no_arg, 'PUSH BC'),
+        0xC6: (byte_arg, 'ADD A,{}'),
+        0xC7: (rst_arg, 0),
+        0xC8: (no_arg, 'RET Z'),
+        0xC9: (no_arg, 'RET'),
+        0xCA: (word_arg, 'JP Z,{}'),
+        0xCB: (cb_arg, None),
+        0xCC: (word_arg, 'CALL Z,{}'),
+        0xCD: (word_arg, 'CALL {}'),
+        0xCE: (byte_arg, 'ADC A,{}'),
+        0xCF: (rst_arg, 8),
+        0xD0: (no_arg, 'RET NC'),
+        0xD1: (no_arg, 'POP DE'),
+        0xD2: (word_arg, 'JP NC,{}'),
+        0xD3: (byte_arg, 'OUT ({}),A'),
+        0xD4: (word_arg, 'CALL NC,{}'),
+        0xD5: (no_arg, 'PUSH DE'),
+        0xD6: (byte_arg, 'SUB {}'),
+        0xD7: (rst_arg, 16),
+        0xD8: (no_arg, 'RET C'),
+        0xD9: (no_arg, 'EXX'),
+        0xDA: (word_arg, 'JP C,{}'),
+        0xDB: (byte_arg, 'IN A,({})'),
+        0xDC: (word_arg, 'CALL C,{}'),
+        0xDD: (dd_arg, None),
+        0xDE: (byte_arg, 'SBC A,{}'),
+        0xDF: (rst_arg, 24),
+        0xE0: (no_arg, 'RET PO'),
+        0xE1: (no_arg, 'POP HL'),
+        0xE2: (word_arg, 'JP PO,{}'),
+        0xE3: (no_arg, 'EX (SP),HL'),
+        0xE4: (word_arg, 'CALL PO,{}'),
+        0xE5: (no_arg, 'PUSH HL'),
+        0xE6: (byte_arg, 'AND {}'),
+        0xE7: (rst_arg, 32),
+        0xE8: (no_arg, 'RET PE'),
+        0xE9: (no_arg, 'JP (HL)'),
+        0xEA: (word_arg, 'JP PE,{}'),
+        0xEB: (no_arg, 'EX DE,HL'),
+        0xEC: (word_arg, 'CALL PE,{}'),
+        0xED: (ed_arg, None),
+        0xEE: (byte_arg, 'XOR {}'),
+        0xEF: (rst_arg, 40),
+        0xF0: (no_arg, 'RET P'),
+        0xF1: (no_arg, 'POP AF'),
+        0xF2: (word_arg, 'JP P,{}'),
+        0xF3: (no_arg, 'DI'),
+        0xF4: (word_arg, 'CALL P,{}'),
+        0xF5: (no_arg, 'PUSH AF'),
+        0xF6: (byte_arg, 'OR {}'),
+        0xF7: (rst_arg, 48),
+        0xF8: (no_arg, 'RET M'),
+        0xF9: (no_arg, 'LD SP,HL'),
+        0xFA: (word_arg, 'JP M,{}'),
+        0xFB: (no_arg, 'EI'),
+        0xFC: (word_arg, 'CALL M,{}'),
+        0xFD: (fd_arg, None),
+        0xFE: (byte_arg, 'CP {}'),
+        0xFF: (rst_arg, 56)
+    }
 
-    after_CB[0] = 'RLC B'
-    after_CB[1] = 'RLC C'
-    after_CB[2] = 'RLC D'
-    after_CB[3] = 'RLC E'
-    after_CB[4] = 'RLC H'
-    after_CB[5] = 'RLC L'
-    after_CB[6] = 'RLC (HL)'
-    after_CB[7] = 'RLC A'
-    after_CB[8] = 'RRC B'
-    after_CB[9] = 'RRC C'
-    after_CB[10] = 'RRC D'
-    after_CB[11] = 'RRC E'
-    after_CB[12] = 'RRC H'
-    after_CB[13] = 'RRC L'
-    after_CB[14] = 'RRC (HL)'
-    after_CB[15] = 'RRC A'
-    after_CB[16] = 'RL B'
-    after_CB[17] = 'RL C'
-    after_CB[18] = 'RL D'
-    after_CB[19] = 'RL E'
-    after_CB[20] = 'RL H'
-    after_CB[21] = 'RL L'
-    after_CB[22] = 'RL (HL)'
-    after_CB[23] = 'RL A'
-    after_CB[24] = 'RR B'
-    after_CB[25] = 'RR C'
-    after_CB[26] = 'RR D'
-    after_CB[27] = 'RR E'
-    after_CB[28] = 'RR H'
-    after_CB[29] = 'RR L'
-    after_CB[30] = 'RR (HL)'
-    after_CB[31] = 'RR A'
-    after_CB[32] = 'SLA B'
-    after_CB[33] = 'SLA C'
-    after_CB[34] = 'SLA D'
-    after_CB[35] = 'SLA E'
-    after_CB[36] = 'SLA H'
-    after_CB[37] = 'SLA L'
-    after_CB[38] = 'SLA (HL)'
-    after_CB[39] = 'SLA A'
-    after_CB[40] = 'SRA B'
-    after_CB[41] = 'SRA C'
-    after_CB[42] = 'SRA D'
-    after_CB[43] = 'SRA E'
-    after_CB[44] = 'SRA H'
-    after_CB[45] = 'SRA L'
-    after_CB[46] = 'SRA (HL)'
-    after_CB[47] = 'SRA A'
-    after_CB[48] = 'SLL B'
-    after_CB[49] = 'SLL C'
-    after_CB[50] = 'SLL D'
-    after_CB[51] = 'SLL E'
-    after_CB[52] = 'SLL H'
-    after_CB[53] = 'SLL L'
-    after_CB[54] = 'SLL (HL)'
-    after_CB[55] = 'SLL A'
-    after_CB[56] = 'SRL B'
-    after_CB[57] = 'SRL C'
-    after_CB[58] = 'SRL D'
-    after_CB[59] = 'SRL E'
-    after_CB[60] = 'SRL H'
-    after_CB[61] = 'SRL L'
-    after_CB[62] = 'SRL (HL)'
-    after_CB[63] = 'SRL A'
-    after_CB[64] = 'BIT 0,B'
-    after_CB[65] = 'BIT 0,C'
-    after_CB[66] = 'BIT 0,D'
-    after_CB[67] = 'BIT 0,E'
-    after_CB[68] = 'BIT 0,H'
-    after_CB[69] = 'BIT 0,L'
-    after_CB[70] = 'BIT 0,(HL)'
-    after_CB[71] = 'BIT 0,A'
-    after_CB[72] = 'BIT 1,B'
-    after_CB[73] = 'BIT 1,C'
-    after_CB[74] = 'BIT 1,D'
-    after_CB[75] = 'BIT 1,E'
-    after_CB[76] = 'BIT 1,H'
-    after_CB[77] = 'BIT 1,L'
-    after_CB[78] = 'BIT 1,(HL)'
-    after_CB[79] = 'BIT 1,A'
-    after_CB[80] = 'BIT 2,B'
-    after_CB[81] = 'BIT 2,C'
-    after_CB[82] = 'BIT 2,D'
-    after_CB[83] = 'BIT 2,E'
-    after_CB[84] = 'BIT 2,H'
-    after_CB[85] = 'BIT 2,L'
-    after_CB[86] = 'BIT 2,(HL)'
-    after_CB[87] = 'BIT 2,A'
-    after_CB[88] = 'BIT 3,B'
-    after_CB[89] = 'BIT 3,C'
-    after_CB[90] = 'BIT 3,D'
-    after_CB[91] = 'BIT 3,E'
-    after_CB[92] = 'BIT 3,H'
-    after_CB[93] = 'BIT 3,L'
-    after_CB[94] = 'BIT 3,(HL)'
-    after_CB[95] = 'BIT 3,A'
-    after_CB[96] = 'BIT 4,B'
-    after_CB[97] = 'BIT 4,C'
-    after_CB[98] = 'BIT 4,D'
-    after_CB[99] = 'BIT 4,E'
-    after_CB[100] = 'BIT 4,H'
-    after_CB[101] = 'BIT 4,L'
-    after_CB[102] = 'BIT 4,(HL)'
-    after_CB[103] = 'BIT 4,A'
-    after_CB[104] = 'BIT 5,B'
-    after_CB[105] = 'BIT 5,C'
-    after_CB[106] = 'BIT 5,D'
-    after_CB[107] = 'BIT 5,E'
-    after_CB[108] = 'BIT 5,H'
-    after_CB[109] = 'BIT 5,L'
-    after_CB[110] = 'BIT 5,(HL)'
-    after_CB[111] = 'BIT 5,A'
-    after_CB[112] = 'BIT 6,B'
-    after_CB[113] = 'BIT 6,C'
-    after_CB[114] = 'BIT 6,D'
-    after_CB[115] = 'BIT 6,E'
-    after_CB[116] = 'BIT 6,H'
-    after_CB[117] = 'BIT 6,L'
-    after_CB[118] = 'BIT 6,(HL)'
-    after_CB[119] = 'BIT 6,A'
-    after_CB[120] = 'BIT 7,B'
-    after_CB[121] = 'BIT 7,C'
-    after_CB[122] = 'BIT 7,D'
-    after_CB[123] = 'BIT 7,E'
-    after_CB[124] = 'BIT 7,H'
-    after_CB[125] = 'BIT 7,L'
-    after_CB[126] = 'BIT 7,(HL)'
-    after_CB[127] = 'BIT 7,A'
-    after_CB[128] = 'RES 0,B'
-    after_CB[129] = 'RES 0,C'
-    after_CB[130] = 'RES 0,D'
-    after_CB[131] = 'RES 0,E'
-    after_CB[132] = 'RES 0,H'
-    after_CB[133] = 'RES 0,L'
-    after_CB[134] = 'RES 0,(HL)'
-    after_CB[135] = 'RES 0,A'
-    after_CB[136] = 'RES 1,B'
-    after_CB[137] = 'RES 1,C'
-    after_CB[138] = 'RES 1,D'
-    after_CB[139] = 'RES 1,E'
-    after_CB[140] = 'RES 1,H'
-    after_CB[141] = 'RES 1,L'
-    after_CB[142] = 'RES 1,(HL)'
-    after_CB[143] = 'RES 1,A'
-    after_CB[144] = 'RES 2,B'
-    after_CB[145] = 'RES 2,C'
-    after_CB[146] = 'RES 2,D'
-    after_CB[147] = 'RES 2,E'
-    after_CB[148] = 'RES 2,H'
-    after_CB[149] = 'RES 2,L'
-    after_CB[150] = 'RES 2,(HL)'
-    after_CB[151] = 'RES 2,A'
-    after_CB[152] = 'RES 3,B'
-    after_CB[153] = 'RES 3,C'
-    after_CB[154] = 'RES 3,D'
-    after_CB[155] = 'RES 3,E'
-    after_CB[156] = 'RES 3,H'
-    after_CB[157] = 'RES 3,L'
-    after_CB[158] = 'RES 3,(HL)'
-    after_CB[159] = 'RES 3,A'
-    after_CB[160] = 'RES 4,B'
-    after_CB[161] = 'RES 4,C'
-    after_CB[162] = 'RES 4,D'
-    after_CB[163] = 'RES 4,E'
-    after_CB[164] = 'RES 4,H'
-    after_CB[165] = 'RES 4,L'
-    after_CB[166] = 'RES 4,(HL)'
-    after_CB[167] = 'RES 4,A'
-    after_CB[168] = 'RES 5,B'
-    after_CB[169] = 'RES 5,C'
-    after_CB[170] = 'RES 5,D'
-    after_CB[171] = 'RES 5,E'
-    after_CB[172] = 'RES 5,H'
-    after_CB[173] = 'RES 5,L'
-    after_CB[174] = 'RES 5,(HL)'
-    after_CB[175] = 'RES 5,A'
-    after_CB[176] = 'RES 6,B'
-    after_CB[177] = 'RES 6,C'
-    after_CB[178] = 'RES 6,D'
-    after_CB[179] = 'RES 6,E'
-    after_CB[180] = 'RES 6,H'
-    after_CB[181] = 'RES 6,L'
-    after_CB[182] = 'RES 6,(HL)'
-    after_CB[183] = 'RES 6,A'
-    after_CB[184] = 'RES 7,B'
-    after_CB[185] = 'RES 7,C'
-    after_CB[186] = 'RES 7,D'
-    after_CB[187] = 'RES 7,E'
-    after_CB[188] = 'RES 7,H'
-    after_CB[189] = 'RES 7,L'
-    after_CB[190] = 'RES 7,(HL)'
-    after_CB[191] = 'RES 7,A'
-    after_CB[192] = 'SET 0,B'
-    after_CB[193] = 'SET 0,C'
-    after_CB[194] = 'SET 0,D'
-    after_CB[195] = 'SET 0,E'
-    after_CB[196] = 'SET 0,H'
-    after_CB[197] = 'SET 0,L'
-    after_CB[198] = 'SET 0,(HL)'
-    after_CB[199] = 'SET 0,A'
-    after_CB[200] = 'SET 1,B'
-    after_CB[201] = 'SET 1,C'
-    after_CB[202] = 'SET 1,D'
-    after_CB[203] = 'SET 1,E'
-    after_CB[204] = 'SET 1,H'
-    after_CB[205] = 'SET 1,L'
-    after_CB[206] = 'SET 1,(HL)'
-    after_CB[207] = 'SET 1,A'
-    after_CB[208] = 'SET 2,B'
-    after_CB[209] = 'SET 2,C'
-    after_CB[210] = 'SET 2,D'
-    after_CB[211] = 'SET 2,E'
-    after_CB[212] = 'SET 2,H'
-    after_CB[213] = 'SET 2,L'
-    after_CB[214] = 'SET 2,(HL)'
-    after_CB[215] = 'SET 2,A'
-    after_CB[216] = 'SET 3,B'
-    after_CB[217] = 'SET 3,C'
-    after_CB[218] = 'SET 3,D'
-    after_CB[219] = 'SET 3,E'
-    after_CB[220] = 'SET 3,H'
-    after_CB[221] = 'SET 3,L'
-    after_CB[222] = 'SET 3,(HL)'
-    after_CB[223] = 'SET 3,A'
-    after_CB[224] = 'SET 4,B'
-    after_CB[225] = 'SET 4,C'
-    after_CB[226] = 'SET 4,D'
-    after_CB[227] = 'SET 4,E'
-    after_CB[228] = 'SET 4,H'
-    after_CB[229] = 'SET 4,L'
-    after_CB[230] = 'SET 4,(HL)'
-    after_CB[231] = 'SET 4,A'
-    after_CB[232] = 'SET 5,B'
-    after_CB[233] = 'SET 5,C'
-    after_CB[234] = 'SET 5,D'
-    after_CB[235] = 'SET 5,E'
-    after_CB[236] = 'SET 5,H'
-    after_CB[237] = 'SET 5,L'
-    after_CB[238] = 'SET 5,(HL)'
-    after_CB[239] = 'SET 5,A'
-    after_CB[240] = 'SET 6,B'
-    after_CB[241] = 'SET 6,C'
-    after_CB[242] = 'SET 6,D'
-    after_CB[243] = 'SET 6,E'
-    after_CB[244] = 'SET 6,H'
-    after_CB[245] = 'SET 6,L'
-    after_CB[246] = 'SET 6,(HL)'
-    after_CB[247] = 'SET 6,A'
-    after_CB[248] = 'SET 7,B'
-    after_CB[249] = 'SET 7,C'
-    after_CB[250] = 'SET 7,D'
-    after_CB[251] = 'SET 7,E'
-    after_CB[252] = 'SET 7,H'
-    after_CB[253] = 'SET 7,L'
-    after_CB[254] = 'SET 7,(HL)'
-    after_CB[255] = 'SET 7,A'
+    after_CB = {
+        0x00: 'RLC B',
+        0x01: 'RLC C',
+        0x02: 'RLC D',
+        0x03: 'RLC E',
+        0x04: 'RLC H',
+        0x05: 'RLC L',
+        0x06: 'RLC (HL)',
+        0x07: 'RLC A',
+        0x08: 'RRC B',
+        0x09: 'RRC C',
+        0x0A: 'RRC D',
+        0x0B: 'RRC E',
+        0x0C: 'RRC H',
+        0x0D: 'RRC L',
+        0x0E: 'RRC (HL)',
+        0x0F: 'RRC A',
+        0x10: 'RL B',
+        0x11: 'RL C',
+        0x12: 'RL D',
+        0x13: 'RL E',
+        0x14: 'RL H',
+        0x15: 'RL L',
+        0x16: 'RL (HL)',
+        0x17: 'RL A',
+        0x18: 'RR B',
+        0x19: 'RR C',
+        0x1A: 'RR D',
+        0x1B: 'RR E',
+        0x1C: 'RR H',
+        0x1D: 'RR L',
+        0x1E: 'RR (HL)',
+        0x1F: 'RR A',
+        0x20: 'SLA B',
+        0x21: 'SLA C',
+        0x22: 'SLA D',
+        0x23: 'SLA E',
+        0x24: 'SLA H',
+        0x25: 'SLA L',
+        0x26: 'SLA (HL)',
+        0x27: 'SLA A',
+        0x28: 'SRA B',
+        0x29: 'SRA C',
+        0x2A: 'SRA D',
+        0x2B: 'SRA E',
+        0x2C: 'SRA H',
+        0x2D: 'SRA L',
+        0x2E: 'SRA (HL)',
+        0x2F: 'SRA A',
+        0x30: 'SLL B',
+        0x31: 'SLL C',
+        0x32: 'SLL D',
+        0x33: 'SLL E',
+        0x34: 'SLL H',
+        0x35: 'SLL L',
+        0x36: 'SLL (HL)',
+        0x37: 'SLL A',
+        0x38: 'SRL B',
+        0x39: 'SRL C',
+        0x3A: 'SRL D',
+        0x3B: 'SRL E',
+        0x3C: 'SRL H',
+        0x3D: 'SRL L',
+        0x3E: 'SRL (HL)',
+        0x3F: 'SRL A',
+        0x40: 'BIT 0,B',
+        0x41: 'BIT 0,C',
+        0x42: 'BIT 0,D',
+        0x43: 'BIT 0,E',
+        0x44: 'BIT 0,H',
+        0x45: 'BIT 0,L',
+        0x46: 'BIT 0,(HL)',
+        0x47: 'BIT 0,A',
+        0x48: 'BIT 1,B',
+        0x49: 'BIT 1,C',
+        0x4A: 'BIT 1,D',
+        0x4B: 'BIT 1,E',
+        0x4C: 'BIT 1,H',
+        0x4D: 'BIT 1,L',
+        0x4E: 'BIT 1,(HL)',
+        0x4F: 'BIT 1,A',
+        0x50: 'BIT 2,B',
+        0x51: 'BIT 2,C',
+        0x52: 'BIT 2,D',
+        0x53: 'BIT 2,E',
+        0x54: 'BIT 2,H',
+        0x55: 'BIT 2,L',
+        0x56: 'BIT 2,(HL)',
+        0x57: 'BIT 2,A',
+        0x58: 'BIT 3,B',
+        0x59: 'BIT 3,C',
+        0x5A: 'BIT 3,D',
+        0x5B: 'BIT 3,E',
+        0x5C: 'BIT 3,H',
+        0x5D: 'BIT 3,L',
+        0x5E: 'BIT 3,(HL)',
+        0x5F: 'BIT 3,A',
+        0x60: 'BIT 4,B',
+        0x61: 'BIT 4,C',
+        0x62: 'BIT 4,D',
+        0x63: 'BIT 4,E',
+        0x64: 'BIT 4,H',
+        0x65: 'BIT 4,L',
+        0x66: 'BIT 4,(HL)',
+        0x67: 'BIT 4,A',
+        0x68: 'BIT 5,B',
+        0x69: 'BIT 5,C',
+        0x6A: 'BIT 5,D',
+        0x6B: 'BIT 5,E',
+        0x6C: 'BIT 5,H',
+        0x6D: 'BIT 5,L',
+        0x6E: 'BIT 5,(HL)',
+        0x6F: 'BIT 5,A',
+        0x70: 'BIT 6,B',
+        0x71: 'BIT 6,C',
+        0x72: 'BIT 6,D',
+        0x73: 'BIT 6,E',
+        0x74: 'BIT 6,H',
+        0x75: 'BIT 6,L',
+        0x76: 'BIT 6,(HL)',
+        0x77: 'BIT 6,A',
+        0x78: 'BIT 7,B',
+        0x79: 'BIT 7,C',
+        0x7A: 'BIT 7,D',
+        0x7B: 'BIT 7,E',
+        0x7C: 'BIT 7,H',
+        0x7D: 'BIT 7,L',
+        0x7E: 'BIT 7,(HL)',
+        0x7F: 'BIT 7,A',
+        0x80: 'RES 0,B',
+        0x81: 'RES 0,C',
+        0x82: 'RES 0,D',
+        0x83: 'RES 0,E',
+        0x84: 'RES 0,H',
+        0x85: 'RES 0,L',
+        0x86: 'RES 0,(HL)',
+        0x87: 'RES 0,A',
+        0x88: 'RES 1,B',
+        0x89: 'RES 1,C',
+        0x8A: 'RES 1,D',
+        0x8B: 'RES 1,E',
+        0x8C: 'RES 1,H',
+        0x8D: 'RES 1,L',
+        0x8E: 'RES 1,(HL)',
+        0x8F: 'RES 1,A',
+        0x90: 'RES 2,B',
+        0x91: 'RES 2,C',
+        0x92: 'RES 2,D',
+        0x93: 'RES 2,E',
+        0x94: 'RES 2,H',
+        0x95: 'RES 2,L',
+        0x96: 'RES 2,(HL)',
+        0x97: 'RES 2,A',
+        0x98: 'RES 3,B',
+        0x99: 'RES 3,C',
+        0x9A: 'RES 3,D',
+        0x9B: 'RES 3,E',
+        0x9C: 'RES 3,H',
+        0x9D: 'RES 3,L',
+        0x9E: 'RES 3,(HL)',
+        0x9F: 'RES 3,A',
+        0xA0: 'RES 4,B',
+        0xA1: 'RES 4,C',
+        0xA2: 'RES 4,D',
+        0xA3: 'RES 4,E',
+        0xA4: 'RES 4,H',
+        0xA5: 'RES 4,L',
+        0xA6: 'RES 4,(HL)',
+        0xA7: 'RES 4,A',
+        0xA8: 'RES 5,B',
+        0xA9: 'RES 5,C',
+        0xAA: 'RES 5,D',
+        0xAB: 'RES 5,E',
+        0xAC: 'RES 5,H',
+        0xAD: 'RES 5,L',
+        0xAE: 'RES 5,(HL)',
+        0xAF: 'RES 5,A',
+        0xB0: 'RES 6,B',
+        0xB1: 'RES 6,C',
+        0xB2: 'RES 6,D',
+        0xB3: 'RES 6,E',
+        0xB4: 'RES 6,H',
+        0xB5: 'RES 6,L',
+        0xB6: 'RES 6,(HL)',
+        0xB7: 'RES 6,A',
+        0xB8: 'RES 7,B',
+        0xB9: 'RES 7,C',
+        0xBA: 'RES 7,D',
+        0xBB: 'RES 7,E',
+        0xBC: 'RES 7,H',
+        0xBD: 'RES 7,L',
+        0xBE: 'RES 7,(HL)',
+        0xBF: 'RES 7,A',
+        0xC0: 'SET 0,B',
+        0xC1: 'SET 0,C',
+        0xC2: 'SET 0,D',
+        0xC3: 'SET 0,E',
+        0xC4: 'SET 0,H',
+        0xC5: 'SET 0,L',
+        0xC6: 'SET 0,(HL)',
+        0xC7: 'SET 0,A',
+        0xC8: 'SET 1,B',
+        0xC9: 'SET 1,C',
+        0xCA: 'SET 1,D',
+        0xCB: 'SET 1,E',
+        0xCC: 'SET 1,H',
+        0xCD: 'SET 1,L',
+        0xCE: 'SET 1,(HL)',
+        0xCF: 'SET 1,A',
+        0xD0: 'SET 2,B',
+        0xD1: 'SET 2,C',
+        0xD2: 'SET 2,D',
+        0xD3: 'SET 2,E',
+        0xD4: 'SET 2,H',
+        0xD5: 'SET 2,L',
+        0xD6: 'SET 2,(HL)',
+        0xD7: 'SET 2,A',
+        0xD8: 'SET 3,B',
+        0xD9: 'SET 3,C',
+        0xDA: 'SET 3,D',
+        0xDB: 'SET 3,E',
+        0xDC: 'SET 3,H',
+        0xDD: 'SET 3,L',
+        0xDE: 'SET 3,(HL)',
+        0xDF: 'SET 3,A',
+        0xE0: 'SET 4,B',
+        0xE1: 'SET 4,C',
+        0xE2: 'SET 4,D',
+        0xE3: 'SET 4,E',
+        0xE4: 'SET 4,H',
+        0xE5: 'SET 4,L',
+        0xE6: 'SET 4,(HL)',
+        0xE7: 'SET 4,A',
+        0xE8: 'SET 5,B',
+        0xE9: 'SET 5,C',
+        0xEA: 'SET 5,D',
+        0xEB: 'SET 5,E',
+        0xEC: 'SET 5,H',
+        0xED: 'SET 5,L',
+        0xEE: 'SET 5,(HL)',
+        0xEF: 'SET 5,A',
+        0xF0: 'SET 6,B',
+        0xF1: 'SET 6,C',
+        0xF2: 'SET 6,D',
+        0xF3: 'SET 6,E',
+        0xF4: 'SET 6,H',
+        0xF5: 'SET 6,L',
+        0xF6: 'SET 6,(HL)',
+        0xF7: 'SET 6,A',
+        0xF8: 'SET 7,B',
+        0xF9: 'SET 7,C',
+        0xFA: 'SET 7,D',
+        0xFB: 'SET 7,E',
+        0xFC: 'SET 7,H',
+        0xFD: 'SET 7,L',
+        0xFE: 'SET 7,(HL)',
+        0xFF: 'SET 7,A'
+    }
 
-    after_DD[9] = no_arg, 'ADD IX,BC'
-    after_DD[25] = no_arg, 'ADD IX,DE'
-    after_DD[33] = word_arg, 'LD IX,{0}'
-    after_DD[34] = word_arg, 'LD ({0}),IX'
-    after_DD[35] = no_arg, 'INC IX'
-    after_DD[36] = no_arg, 'INC IXh'
-    after_DD[37] = no_arg, 'DEC IXh'
-    after_DD[38] = byte_arg, 'LD IXh,{0}'
-    after_DD[41] = no_arg, 'ADD IX,IX'
-    after_DD[42] = word_arg, 'LD IX,({0})'
-    after_DD[43] = no_arg, 'DEC IX'
-    after_DD[44] = no_arg, 'INC IXl'
-    after_DD[45] = no_arg, 'DEC IXl'
-    after_DD[46] = byte_arg, 'LD IXl,{0}'
-    after_DD[52] = index, 'INC (IX{0})'
-    after_DD[53] = index, 'DEC (IX{0})'
-    after_DD[54] = index_arg, 'LD (IX{0}),{1}'
-    after_DD[57] = no_arg, 'ADD IX,SP'
-    after_DD[68] = no_arg, 'LD B,IXh'
-    after_DD[69] = no_arg, 'LD B,IXl'
-    after_DD[70] = index, 'LD B,(IX{0})'
-    after_DD[76] = no_arg, 'LD C,IXh'
-    after_DD[77] = no_arg, 'LD C,IXl'
-    after_DD[78] = index, 'LD C,(IX{0})'
-    after_DD[84] = no_arg, 'LD D,IXh'
-    after_DD[85] = no_arg, 'LD D,IXl'
-    after_DD[86] = index, 'LD D,(IX{0})'
-    after_DD[92] = no_arg, 'LD E,IXh'
-    after_DD[93] = no_arg, 'LD E,IXl'
-    after_DD[94] = index, 'LD E,(IX{0})'
-    after_DD[96] = no_arg, 'LD IXh,B'
-    after_DD[97] = no_arg, 'LD IXh,C'
-    after_DD[98] = no_arg, 'LD IXh,D'
-    after_DD[99] = no_arg, 'LD IXh,E'
-    after_DD[100] = no_arg, 'LD IXh,IXh'
-    after_DD[101] = no_arg, 'LD IXh,IXl'
-    after_DD[102] = index, 'LD H,(IX{0})'
-    after_DD[103] = no_arg, 'LD IXh,A'
-    after_DD[104] = no_arg, 'LD IXl,B'
-    after_DD[105] = no_arg, 'LD IXl,C'
-    after_DD[106] = no_arg, 'LD IXl,D'
-    after_DD[107] = no_arg, 'LD IXl,E'
-    after_DD[108] = no_arg, 'LD IXl,IXh'
-    after_DD[109] = no_arg, 'LD IXl,IXl'
-    after_DD[110] = index, 'LD L,(IX{0})'
-    after_DD[111] = no_arg, 'LD IXl,A'
-    after_DD[112] = index, 'LD (IX{0}),B'
-    after_DD[113] = index, 'LD (IX{0}),C'
-    after_DD[114] = index, 'LD (IX{0}),D'
-    after_DD[115] = index, 'LD (IX{0}),E'
-    after_DD[116] = index, 'LD (IX{0}),H'
-    after_DD[117] = index, 'LD (IX{0}),L'
-    after_DD[119] = index, 'LD (IX{0}),A'
-    after_DD[124] = no_arg, 'LD A,IXh'
-    after_DD[125] = no_arg, 'LD A,IXl'
-    after_DD[126] = index, 'LD A,(IX{0})'
-    after_DD[132] = no_arg, 'ADD A,IXh'
-    after_DD[133] = no_arg, 'ADD A,IXl'
-    after_DD[134] = index, 'ADD A,(IX{0})'
-    after_DD[140] = no_arg, 'ADC A,IXh'
-    after_DD[141] = no_arg, 'ADC A,IXl'
-    after_DD[142] = index, 'ADC A,(IX{0})'
-    after_DD[148] = no_arg, 'SUB IXh'
-    after_DD[149] = no_arg, 'SUB IXl'
-    after_DD[150] = index, 'SUB (IX{0})'
-    after_DD[156] = no_arg, 'SBC A,IXh'
-    after_DD[157] = no_arg, 'SBC A,IXl'
-    after_DD[158] = index, 'SBC A,(IX{0})'
-    after_DD[164] = no_arg, 'AND IXh'
-    after_DD[165] = no_arg, 'AND IXl'
-    after_DD[166] = index, 'AND (IX{0})'
-    after_DD[172] = no_arg, 'XOR IXh'
-    after_DD[173] = no_arg, 'XOR IXl'
-    after_DD[174] = index, 'XOR (IX{0})'
-    after_DD[180] = no_arg, 'OR IXh'
-    after_DD[181] = no_arg, 'OR IXl'
-    after_DD[182] = index, 'OR (IX{0})'
-    after_DD[188] = no_arg, 'CP IXh'
-    after_DD[189] = no_arg, 'CP IXl'
-    after_DD[190] = index, 'CP (IX{0})'
-    after_DD[203] = ddcb_arg, None
-    after_DD[225] = no_arg, 'POP IX'
-    after_DD[227] = no_arg, 'EX (SP),IX'
-    after_DD[229] = no_arg, 'PUSH IX'
-    after_DD[233] = no_arg, 'JP (IX)'
-    after_DD[249] = no_arg, 'LD SP,IX'
+    after_DD = {
+        0x09: (no_arg, 'ADD IX,BC'),
+        0x19: (no_arg, 'ADD IX,DE'),
+        0x21: (word_arg, 'LD IX,{}'),
+        0x22: (word_arg, 'LD ({}),IX'),
+        0x23: (no_arg, 'INC IX'),
+        0x24: (no_arg, 'INC IXh'),
+        0x25: (no_arg, 'DEC IXh'),
+        0x26: (byte_arg, 'LD IXh,{}'),
+        0x29: (no_arg, 'ADD IX,IX'),
+        0x2A: (word_arg, 'LD IX,({})'),
+        0x2B: (no_arg, 'DEC IX'),
+        0x2C: (no_arg, 'INC IXl'),
+        0x2D: (no_arg, 'DEC IXl'),
+        0x2E: (byte_arg, 'LD IXl,{}'),
+        0x34: (index, 'INC (IX{})'),
+        0x35: (index, 'DEC (IX{})'),
+        0x36: (index_arg, 'LD (IX{}),{}'),
+        0x39: (no_arg, 'ADD IX,SP'),
+        0x44: (no_arg, 'LD B,IXh'),
+        0x45: (no_arg, 'LD B,IXl'),
+        0x46: (index, 'LD B,(IX{})'),
+        0x4C: (no_arg, 'LD C,IXh'),
+        0x4D: (no_arg, 'LD C,IXl'),
+        0x4E: (index, 'LD C,(IX{})'),
+        0x54: (no_arg, 'LD D,IXh'),
+        0x55: (no_arg, 'LD D,IXl'),
+        0x56: (index, 'LD D,(IX{})'),
+        0x5C: (no_arg, 'LD E,IXh'),
+        0x5D: (no_arg, 'LD E,IXl'),
+        0x5E: (index, 'LD E,(IX{})'),
+        0x60: (no_arg, 'LD IXh,B'),
+        0x61: (no_arg, 'LD IXh,C'),
+        0x62: (no_arg, 'LD IXh,D'),
+        0x63: (no_arg, 'LD IXh,E'),
+        0x64: (no_arg, 'LD IXh,IXh'),
+        0x65: (no_arg, 'LD IXh,IXl'),
+        0x66: (index, 'LD H,(IX{})'),
+        0x67: (no_arg, 'LD IXh,A'),
+        0x68: (no_arg, 'LD IXl,B'),
+        0x69: (no_arg, 'LD IXl,C'),
+        0x6A: (no_arg, 'LD IXl,D'),
+        0x6B: (no_arg, 'LD IXl,E'),
+        0x6C: (no_arg, 'LD IXl,IXh'),
+        0x6D: (no_arg, 'LD IXl,IXl'),
+        0x6E: (index, 'LD L,(IX{})'),
+        0x6F: (no_arg, 'LD IXl,A'),
+        0x70: (index, 'LD (IX{}),B'),
+        0x71: (index, 'LD (IX{}),C'),
+        0x72: (index, 'LD (IX{}),D'),
+        0x73: (index, 'LD (IX{}),E'),
+        0x74: (index, 'LD (IX{}),H'),
+        0x75: (index, 'LD (IX{}),L'),
+        0x77: (index, 'LD (IX{}),A'),
+        0x7C: (no_arg, 'LD A,IXh'),
+        0x7D: (no_arg, 'LD A,IXl'),
+        0x7E: (index, 'LD A,(IX{})'),
+        0x84: (no_arg, 'ADD A,IXh'),
+        0x85: (no_arg, 'ADD A,IXl'),
+        0x86: (index, 'ADD A,(IX{})'),
+        0x8C: (no_arg, 'ADC A,IXh'),
+        0x8D: (no_arg, 'ADC A,IXl'),
+        0x8E: (index, 'ADC A,(IX{})'),
+        0x94: (no_arg, 'SUB IXh'),
+        0x95: (no_arg, 'SUB IXl'),
+        0x96: (index, 'SUB (IX{})'),
+        0x9C: (no_arg, 'SBC A,IXh'),
+        0x9D: (no_arg, 'SBC A,IXl'),
+        0x9E: (index, 'SBC A,(IX{})'),
+        0xA4: (no_arg, 'AND IXh'),
+        0xA5: (no_arg, 'AND IXl'),
+        0xA6: (index, 'AND (IX{})'),
+        0xAC: (no_arg, 'XOR IXh'),
+        0xAD: (no_arg, 'XOR IXl'),
+        0xAE: (index, 'XOR (IX{})'),
+        0xB4: (no_arg, 'OR IXh'),
+        0xB5: (no_arg, 'OR IXl'),
+        0xB6: (index, 'OR (IX{})'),
+        0xBC: (no_arg, 'CP IXh'),
+        0xBD: (no_arg, 'CP IXl'),
+        0xBE: (index, 'CP (IX{})'),
+        0xCB: (ddcb_arg, None),
+        0xE1: (no_arg, 'POP IX'),
+        0xE3: (no_arg, 'EX (SP),IX'),
+        0xE5: (no_arg, 'PUSH IX'),
+        0xE9: (no_arg, 'JP (IX)'),
+        0xF9: (no_arg, 'LD SP,IX')
+    }
 
-    after_ED[64] = no_arg, 'IN B,(C)'
-    after_ED[65] = no_arg, 'OUT (C),B'
-    after_ED[66] = no_arg, 'SBC HL,BC'
-    after_ED[67] = word_arg, 'LD ({0}),BC'
-    after_ED[68] = no_arg, 'NEG'
-    after_ED[69] = no_arg, 'RETN'
-    after_ED[70] = no_arg, 'IM 0'
-    after_ED[71] = no_arg, 'LD I,A'
-    after_ED[72] = no_arg, 'IN C,(C)'
-    after_ED[73] = no_arg, 'OUT (C),C'
-    after_ED[74] = no_arg, 'ADC HL,BC'
-    after_ED[75] = word_arg, 'LD BC,({0})'
-    after_ED[77] = no_arg, 'RETI'
-    after_ED[79] = no_arg, 'LD R,A'
-    after_ED[80] = no_arg, 'IN D,(C)'
-    after_ED[81] = no_arg, 'OUT (C),D'
-    after_ED[82] = no_arg, 'SBC HL,DE'
-    after_ED[83] = word_arg, 'LD ({0}),DE'
-    after_ED[86] = no_arg, 'IM 1'
-    after_ED[87] = no_arg, 'LD A,I'
-    after_ED[88] = no_arg, 'IN E,(C)'
-    after_ED[89] = no_arg, 'OUT (C),E'
-    after_ED[90] = no_arg, 'ADC HL,DE'
-    after_ED[91] = word_arg, 'LD DE,({0})'
-    after_ED[94] = no_arg, 'IM 2'
-    after_ED[95] = no_arg, 'LD A,R'
-    after_ED[96] = no_arg, 'IN H,(C)'
-    after_ED[97] = no_arg, 'OUT (C),H'
-    after_ED[98] = no_arg, 'SBC HL,HL'
-    # ED63 is 'LD (nn),HL', but if we disassemble to that, it won't assemble
-    # back to the same bytes
-    after_ED[99] = defb4, None
-    after_ED[103] = no_arg, 'RRD'
-    after_ED[104] = no_arg, 'IN L,(C)'
-    after_ED[105] = no_arg, 'OUT (C),L'
-    after_ED[106] = no_arg, 'ADC HL,HL'
-    # ED6B is 'LD HL,(nn)', but if we disassemble to that, it won't assemble
-    # back to the same bytes
-    after_ED[107] = defb4, None
-    after_ED[111] = no_arg, 'RLD'
-    after_ED[114] = no_arg, 'SBC HL,SP'
-    after_ED[115] = word_arg, 'LD ({0}),SP'
-    after_ED[120] = no_arg, 'IN A,(C)'
-    after_ED[121] = no_arg, 'OUT (C),A'
-    after_ED[122] = no_arg, 'ADC HL,SP'
-    after_ED[123] = word_arg, 'LD SP,({0})'
-    after_ED[160] = no_arg, 'LDI'
-    after_ED[161] = no_arg, 'CPI'
-    after_ED[162] = no_arg, 'INI'
-    after_ED[163] = no_arg, 'OUTI'
-    after_ED[168] = no_arg, 'LDD'
-    after_ED[169] = no_arg, 'CPD'
-    after_ED[170] = no_arg, 'IND'
-    after_ED[171] = no_arg, 'OUTD'
-    after_ED[176] = no_arg, 'LDIR'
-    after_ED[177] = no_arg, 'CPIR'
-    after_ED[178] = no_arg, 'INIR'
-    after_ED[179] = no_arg, 'OTIR'
-    after_ED[184] = no_arg, 'LDDR'
-    after_ED[185] = no_arg, 'CPDR'
-    after_ED[186] = no_arg, 'INDR'
-    after_ED[187] = no_arg, 'OTDR'
+    after_ED = {
+        0x40: (no_arg, 'IN B,(C)'),
+        0x41: (no_arg, 'OUT (C),B'),
+        0x42: (no_arg, 'SBC HL,BC'),
+        0x43: (word_arg, 'LD ({}),BC'),
+        0x44: (no_arg, 'NEG'),
+        0x45: (no_arg, 'RETN'),
+        0x46: (no_arg, 'IM 0'),
+        0x47: (no_arg, 'LD I,A'),
+        0x48: (no_arg, 'IN C,(C)'),
+        0x49: (no_arg, 'OUT (C),C'),
+        0x4A: (no_arg, 'ADC HL,BC'),
+        0x4B: (word_arg, 'LD BC,({})'),
+        0x4D: (no_arg, 'RETI'),
+        0x4F: (no_arg, 'LD R,A'),
+        0x50: (no_arg, 'IN D,(C)'),
+        0x51: (no_arg, 'OUT (C),D'),
+        0x52: (no_arg, 'SBC HL,DE'),
+        0x53: (word_arg, 'LD ({}),DE'),
+        0x56: (no_arg, 'IM 1'),
+        0x57: (no_arg, 'LD A,I'),
+        0x58: (no_arg, 'IN E,(C)'),
+        0x59: (no_arg, 'OUT (C),E'),
+        0x5A: (no_arg, 'ADC HL,DE'),
+        0x5B: (word_arg, 'LD DE,({})'),
+        0x5E: (no_arg, 'IM 2'),
+        0x5F: (no_arg, 'LD A,R'),
+        0x60: (no_arg, 'IN H,(C)'),
+        0x61: (no_arg, 'OUT (C),H'),
+        0x62: (no_arg, 'SBC HL,HL'),
+        # ED63 is 'LD (nn),HL', but if we disassemble to that, it won't
+        # assemble back to the same bytes
+        0x63: (defb4, None),
+        0x67: (no_arg, 'RRD'),
+        0x68: (no_arg, 'IN L,(C)'),
+        0x69: (no_arg, 'OUT (C),L'),
+        0x6A: (no_arg, 'ADC HL,HL'),
+        # ED6B is 'LD HL,(nn)', but if we disassemble to that, it won't
+        # assemble back to the same bytes
+        0x6B: (defb4, None),
+        0x6F: (no_arg, 'RLD'),
+        0x72: (no_arg, 'SBC HL,SP'),
+        0x73: (word_arg, 'LD ({}),SP'),
+        0x78: (no_arg, 'IN A,(C)'),
+        0x79: (no_arg, 'OUT (C),A'),
+        0x7A: (no_arg, 'ADC HL,SP'),
+        0x7B: (word_arg, 'LD SP,({})'),
+        0xA0: (no_arg, 'LDI'),
+        0xA1: (no_arg, 'CPI'),
+        0xA2: (no_arg, 'INI'),
+        0xA3: (no_arg, 'OUTI'),
+        0xA8: (no_arg, 'LDD'),
+        0xA9: (no_arg, 'CPD'),
+        0xAA: (no_arg, 'IND'),
+        0xAB: (no_arg, 'OUTD'),
+        0xB0: (no_arg, 'LDIR'),
+        0xB1: (no_arg, 'CPIR'),
+        0xB2: (no_arg, 'INIR'),
+        0xB3: (no_arg, 'OTIR'),
+        0xB8: (no_arg, 'LDDR'),
+        0xB9: (no_arg, 'CPDR'),
+        0xBA: (no_arg, 'INDR'),
+        0xBB: (no_arg, 'OTDR')
+    }
 
-    after_DDCB[6] = index, 'RLC (IX{0})'
-    after_DDCB[14] = index, 'RRC (IX{0})'
-    after_DDCB[22] = index, 'RL (IX{0})'
-    after_DDCB[30] = index, 'RR (IX{0})'
-    after_DDCB[38] = index, 'SLA (IX{0})'
-    after_DDCB[46] = index, 'SRA (IX{0})'
-    after_DDCB[54] = index, 'SLL (IX{0})'
-    after_DDCB[62] = index, 'SRL (IX{0})'
-    after_DDCB[70] = index, 'BIT 0,(IX{0})'
-    after_DDCB[78] = index, 'BIT 1,(IX{0})'
-    after_DDCB[86] = index, 'BIT 2,(IX{0})'
-    after_DDCB[94] = index, 'BIT 3,(IX{0})'
-    after_DDCB[102] = index, 'BIT 4,(IX{0})'
-    after_DDCB[110] = index, 'BIT 5,(IX{0})'
-    after_DDCB[118] = index, 'BIT 6,(IX{0})'
-    after_DDCB[126] = index, 'BIT 7,(IX{0})'
-    after_DDCB[134] = index, 'RES 0,(IX{0})'
-    after_DDCB[142] = index, 'RES 1,(IX{0})'
-    after_DDCB[150] = index, 'RES 2,(IX{0})'
-    after_DDCB[158] = index, 'RES 3,(IX{0})'
-    after_DDCB[166] = index, 'RES 4,(IX{0})'
-    after_DDCB[174] = index, 'RES 5,(IX{0})'
-    after_DDCB[182] = index, 'RES 6,(IX{0})'
-    after_DDCB[190] = index, 'RES 7,(IX{0})'
-    after_DDCB[198] = index, 'SET 0,(IX{0})'
-    after_DDCB[206] = index, 'SET 1,(IX{0})'
-    after_DDCB[214] = index, 'SET 2,(IX{0})'
-    after_DDCB[222] = index, 'SET 3,(IX{0})'
-    after_DDCB[230] = index, 'SET 4,(IX{0})'
-    after_DDCB[238] = index, 'SET 5,(IX{0})'
-    after_DDCB[246] = index, 'SET 6,(IX{0})'
-    after_DDCB[254] = index, 'SET 7,(IX{0})'
+    after_DDCB = {
+        0x06: (index, 'RLC (IX{})'),
+        0x0E: (index, 'RRC (IX{})'),
+        0x16: (index, 'RL (IX{})'),
+        0x1E: (index, 'RR (IX{})'),
+        0x26: (index, 'SLA (IX{})'),
+        0x2E: (index, 'SRA (IX{})'),
+        0x36: (index, 'SLL (IX{})'),
+        0x3E: (index, 'SRL (IX{})'),
+        0x46: (index, 'BIT 0,(IX{})'),
+        0x4E: (index, 'BIT 1,(IX{})'),
+        0x56: (index, 'BIT 2,(IX{})'),
+        0x5E: (index, 'BIT 3,(IX{})'),
+        0x66: (index, 'BIT 4,(IX{})'),
+        0x6E: (index, 'BIT 5,(IX{})'),
+        0x76: (index, 'BIT 6,(IX{})'),
+        0x7E: (index, 'BIT 7,(IX{})'),
+        0x86: (index, 'RES 0,(IX{})'),
+        0x8E: (index, 'RES 1,(IX{})'),
+        0x96: (index, 'RES 2,(IX{})'),
+        0x9E: (index, 'RES 3,(IX{})'),
+        0xA6: (index, 'RES 4,(IX{})'),
+        0xAE: (index, 'RES 5,(IX{})'),
+        0xB6: (index, 'RES 6,(IX{})'),
+        0xBE: (index, 'RES 7,(IX{})'),
+        0xC6: (index, 'SET 0,(IX{})'),
+        0xCE: (index, 'SET 1,(IX{})'),
+        0xD6: (index, 'SET 2,(IX{})'),
+        0xDE: (index, 'SET 3,(IX{})'),
+        0xE6: (index, 'SET 4,(IX{})'),
+        0xEE: (index, 'SET 5,(IX{})'),
+        0xF6: (index, 'SET 6,(IX{})'),
+        0xFE: (index, 'SET 7,(IX{})')
+    }
