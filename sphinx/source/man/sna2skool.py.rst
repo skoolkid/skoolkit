@@ -26,13 +26,7 @@ OPTIONS
   Stop disassembling at this address; the default end address is 65536. `ADDR`
   must be a decimal number, or a hexadecimal number prefixed by '0x'.
 
--g, --generate-ctl `FILE`
-  Generate a control file in `FILE`.
-
--h, --ctl-hex
-  Write upper case hexadecimal addresses in the generated control file.
-
--H, --skool-hex
+-H, --hex
   Write hexadecimal addresses and operands in the disassembly.
 
 -I, --ini `param=value`
@@ -42,11 +36,6 @@ OPTIONS
 
 -l, --lower
   Write the disassembly in lower case.
-
--M, --map `FILE`
-  Specify a code execution map to use when generating a control file. Code
-  execution maps produced by the Fuse, SpecEmu, Spud, Zero and Z80 Spectrum
-  emulators are supported.
 
 -o, --org `ADDR`
   Specify the origin address of a binary (.bin) file; the default origin
@@ -86,8 +75,6 @@ configuration parameters are:
   decimal (``10``, the default).
 :Case: Write the disassembly in lower case (``1``) or upper case (``2``, the
   default).
-:CtlHex: Write addresses in a generated control file in decimal (``0``, the
-  default), lower case hexadecimal (``1``), or upper case hexadecimal (``2``).
 :DefbMod: Group DEFB blocks by addresses that are divisible by this number
   (default: ``1``).
 :DefbSize: Maximum number of bytes per DEFB statement (default: ``8``).
@@ -158,21 +145,7 @@ EXAMPLES
    |
    |   ``sna2skool.py -c blocks.ctl game.z80 > game.skool``
 
-4. Generate a control file (using rudimentary static code analysis) for
-   ``game.z80`` named ``game.ctl`` and use it to produce a corresponding skool
-   file:
-
-   |
-   |   ``sna2skool.py -g game.ctl game.z80 > game.skool``
-
-5. Generate a control file (using a profile produced by the Fuse emulator) for
-   ``game.z80`` named ``game.ctl`` and use it to produce a corresponding skool
-   file:
-
-   |
-   |   ``sna2skool.py -M game.profile -g game.ctl game.z80 > game.skool``
-
-6. Convert ``game.szx`` into a skool file, using the skool file template
+4. Convert ``game.szx`` into a skool file, using the skool file template
    ``blocks.sft``:
 
    |

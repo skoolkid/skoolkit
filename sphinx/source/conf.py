@@ -228,6 +228,8 @@ man_pages = [
      'convert a skool file and ref files to HTML', _authors, 1),
     ('man/skool2sft.py', 'skool2sft.py',
      'convert a skool file into a skool file template', _authors, 1),
+    ('man/sna2ctl.py', 'sna2ctl.py',
+     'generate a control file for a binary file or a snapshot', _authors, 1),
     ('man/sna2img.py', 'sna2img.py',
      'convert a binary file or a SCR/SKOOL/SNA/SZX/Z80 file into a PNG or GIF file', _authors, 1),
     ('man/sna2skool.py', 'sna2skool.py',

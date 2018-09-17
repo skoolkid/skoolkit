@@ -3,7 +3,7 @@ set -e # Abort on errors
 
 SKTMPDIR=$HOME/tmp
 SKOOLKIT_KEY=938CD04A
-COMMANDS=$(echo {bin2{sna,tap},skool2{asm,bin,ctl,html,sft},sna2{img,skool},snap{info,mod},tap{2sna,info}}.py)
+COMMANDS=$(echo {bin2{sna,tap},skool2{asm,bin,ctl,html,sft},sna2{ctl,img,skool},snap{info,mod},tap{2sna,info}}.py)
 
 ###############################################################################
 # Check required environment variables

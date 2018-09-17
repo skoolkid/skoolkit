@@ -619,6 +619,58 @@ To list the options supported by `skool2sft.py`, run it with no arguments::
 | 2.4     | New                                                         |
 +---------+-------------------------------------------------------------+
 
+.. _sna2ctl.py:
+
+sna2ctl.py
+----------
+`sna2ctl.py` generates a control file for a binary (raw memory) file or a SNA,
+SZX or Z80 snapshot. For example::
+
+  $ sna2ctl.py game.z80 > game.ctl
+
+Now `game.ctl` can be used by :ref:`sna2skool.py` to convert `game.z80` into a
+skool file split into blocks of code and data.
+
+`sna2ctl.py` supports several options; run it with no arguments to see a list::
+
+  usage: sna2ctl.py [options] FILE
+
+  Generate a control file for a binary (raw memory) file or a SNA, SZX or Z80
+  snapshot. FILE may be a regular file, or '-' for standard input.
+
+  Options:
+    -e ADDR, --end ADDR   Stop at this address (default=65536).
+    -h, --hex             Write upper case hexadecimal addresses.
+    -l, --hex-lower       Write lower case hexadecimal addresses.
+    -m FILE, --map FILE   Use FILE as a code execution map.
+    -o ADDR, --org ADDR   Specify the origin address of a binary file (default:
+                          65536 - length).
+    -p PAGE, --page PAGE  Specify the page (0-7) of a 128K snapshot to map to
+                          49152-65535.
+    -s ADDR, --start ADDR
+                          Start at this address (default=16384).
+    -V, --version         Show SkoolKit version number and exit.
+
+If the input filename does not end with '.sna', '.szx' or '.z80', it is assumed
+to be a binary file.
+
+The ``-m`` option may be used to specify a code execution map to use when
+generating a control file. The supported file formats are:
+
+* Profiles created by the Fuse emulator
+* Code execution logs created by the SpecEmu, Spud and Zero emulators
+* Map files created by the SpecEmu and Z80 emulators
+
+If the file specified by the ``-m`` option is 8192 bytes long, it is assumed to
+be a Z80 map file; if it is 65536 bytes long, it is assumed to be a SpecEmu map
+file; otherwise it is assumed to be in one of the other supported formats.
+
++---------+---------+
+| Version | Changes |
++=========+=========+
+| 7.0     | New     |
++---------+---------+
+
 .. _sna2img.py:
 
 sna2img.py
@@ -706,17 +758,11 @@ list::
     -c FILE, --ctl FILE   Use FILE as the control file (may be '-' for standard
                           input).
     -e ADDR, --end ADDR   Stop disassembling at this address (default=65536).
-    -g FILE, --generate-ctl FILE
-                          Generate a control file in FILE.
-    -h, --ctl-hex         Write upper case hexadecimal addresses in the
-                          generated control file.
-    -H, --skool-hex       Write hexadecimal addresses and operands in the
+    -H, --hex             Write hexadecimal addresses and operands in the
                           disassembly.
     -I p=v, --ini p=v     Set the value of the configuration parameter 'p' to
                           'v'. This option may be used multiple times.
     -l, --lower           Write the disassembly in lower case.
-    -M FILE, --map FILE   Use FILE as a code execution map when generating a
-                          control file.
     -o ADDR, --org ADDR   Specify the origin address of a binary (.bin) file
                           (default: 65536 - length).
     -p PAGE, --page PAGE  Specify the page (0-7) of a 128K snapshot to map to
@@ -738,18 +784,6 @@ By default, any :ref:`control file <controlFiles>` or
 '.sft' suffix) matches the input filename (minus the '.bin', '.sna', '.szx' or
 '.z80' suffix, if any) will be used, if present.
 
-The ``-M`` option may be used (in conjunction with the ``-g`` option) to
-specify a code execution map to use when generating a control file. The
-supported file formats are:
-
-* Profiles created by the Fuse emulator
-* Code execution logs created by the SpecEmu, Spud and Zero emulators
-* Map files created by the SpecEmu and Z80 emulators
-
-If the file specified by the ``-M`` option is 8192 bytes long, it is assumed to
-be a Z80 map file; if it is 65536 bytes long, it is assumed to be a SpecEmu map
-file; otherwise it is assumed to be in one of the other supported formats.
-
 .. _sna2skool-conf:
 
 Configuration
@@ -762,9 +796,6 @@ configuration parameters are:
   or decimal (``10``, the default)
 * ``Case`` - write the disassembly in lower case (``1``) or upper case (``2``,
   the default)
-* ``CtlHex`` - write addresses in a generated control file in decimal (``0``,
-  the default), lower case hexadecimal (``1``),  or upper case hexadecimal
-  (``2``)
 * ``DefbMod`` - group DEFB blocks by addresses that are divisible by this
   number (default: ``1``)
 * ``DefbSize`` - maximum number of bytes per DEFB statement (default: ``8``)
@@ -821,7 +852,8 @@ Configuration parameters may also be set on the command line by using the
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
-| 7.0     | The short option for ``--lower`` is ``-l``                        |
+| 7.0     | The short option for ``--lower`` is ``-l``; the long option for   |
+|         | ``-H`` is ``--hex``                                               |
 +---------+-------------------------------------------------------------------+
 | 6.2     | Added the ``--show-config`` option; the ``--end``, ``--org`` and  |
 |         | ``--start`` options accept a hexadecimal integer prefixed by '0x' |
@@ -829,19 +861,14 @@ Configuration parameters may also be set on the command line by using the
 | 6.1     | Configuration is read from `skoolkit.ini` if present; added the   |
 |         | ``--ini`` option                                                  |
 +---------+-------------------------------------------------------------------+
-| 5.0     | Added support for SpecEmu's 64K code execution map files          |
-+---------+-------------------------------------------------------------------+
-| 4.4     | Added the ``--end`` option and the ability to write lower case    |
-|         | hexadecimal addresses in a generated control file                 |
+| 4.4     | Added the ``--end`` option                                        |
 +---------+-------------------------------------------------------------------+
 | 4.3     | Added the ``--line-width`` option                                 |
 +---------+-------------------------------------------------------------------+
 | 3.4     | Added the ``-V`` option and the long options, and the ability to  |
 |         | add a comment listing referrers at every routine entry point      |
 +---------+-------------------------------------------------------------------+
-| 3.3     | Added the ``-M`` option, along with support for code execution    |
-|         | maps produced by Fuse, SpecEmu, Spud, Zero and Z80; added the     |
-|         | ability to read 128K SNA snapshots                                |
+| 3.3     | Added the ability to read 128K SNA snapshots                      |
 +---------+-------------------------------------------------------------------+
 | 3.2     | Added the ``-p`` option, and the ability to read SZX snapshots    |
 |         | and 128K Z80 snapshots                                            |
@@ -851,8 +878,6 @@ Configuration parameters may also be set on the command line by using the
 | 2.1.2   | Added the ability to write the disassembly in lower case          |
 +---------+-------------------------------------------------------------------+
 | 2.1     | Added the ``-H`` option                                           |
-+---------+-------------------------------------------------------------------+
-| 2.0.6   | Added the ``-h`` option                                           |
 +---------+-------------------------------------------------------------------+
 | 2.0.1   | Added the ``-o`` option, and the ability to read binary files, to |
 |         | set the maximum number of characters in a DEFM statement, and to  |
@@ -865,7 +890,7 @@ Configuration parameters may also be set on the command line by using the
 +---------+-------------------------------------------------------------------+
 | 1.0.5   | Added the ability to show ASCII text in comment fields            |
 +---------+-------------------------------------------------------------------+
-| 1.0.4   | Added the ``-g`` and ``-s`` options                               |
+| 1.0.4   | Added the ``-s`` option                                           |
 +---------+-------------------------------------------------------------------+
 
 .. _snapinfo.py:

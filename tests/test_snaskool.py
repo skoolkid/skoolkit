@@ -5,7 +5,7 @@ import textwrap
 from skoolkittest import SkoolKitTestCase
 from skoolkit import SkoolKitError
 from skoolkit.config import COMMANDS
-from skoolkit.snaskool import Disassembly, SkoolWriter, write_ctl
+from skoolkit.snaskool import Disassembly, SkoolWriter
 from skoolkit.ctlparser import CtlParser
 
 DISASSEMBLY_SNAPSHOT = [0] * 65536
@@ -3178,35 +3178,3 @@ class SkoolWriterTest(SkoolKitTestCase):
              00046 DEFW 0
         """
         self._test_write_skool(snapshot, ctl, exp_skool)
-
-class CtlWriterTest(SkoolKitTestCase):
-    def test_decimal_addresses_below_10000(self):
-        ctls = {0: 'b', 1: 'c', 22: 't', 333: 'w', 4444: 's'}
-        exp_ctl = """
-            @ 00000 start
-            @ 00000 org
-            b 00000
-            c 00001
-            t 00022
-            w 00333
-            s 04444
-        """
-        ctlfile = self.write_bin_file()
-        write_ctl(ctlfile, ctls, 0)
-        with open(ctlfile, 'r') as f:
-            ctl = f.read().rstrip()
-        self.assertEqual(textwrap.dedent(exp_ctl).strip(), ctl)
-
-    def test_lower_case_hexadecimal_addresses(self):
-        ctls = {57005: 'c', 64181: 'b'}
-        exp_ctl = """
-            @ $dead start
-            @ $dead org
-            c $dead
-            b $fab5
-        """
-        ctlfile = self.write_bin_file()
-        write_ctl(ctlfile, ctls, 1)
-        with open(ctlfile, 'r') as f:
-            ctl = f.read().rstrip()
-        self.assertEqual(textwrap.dedent(exp_ctl).strip(), ctl)

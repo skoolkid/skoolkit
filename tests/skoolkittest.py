@@ -11,8 +11,8 @@ from unittest import TestCase
 SKOOLKIT_HOME = abspath(dirname(dirname(__file__)))
 sys.path.insert(0, SKOOLKIT_HOME)
 from skoolkit import (bin2sna, bin2tap, sna2img, skool2asm, skool2bin,
-                      skool2ctl, skool2html, skool2sft, sna2skool, snapinfo,
-                      snapmod, tap2sna, tapinfo)
+                      skool2ctl, skool2html, skool2sft, sna2ctl, sna2skool,
+                      snapinfo, snapmod, tap2sna, tapinfo)
 
 Z80_REGISTERS = {
     'a': 0, 'f': 1, 'bc': 2, 'c': 2, 'b': 3, 'hl': 4, 'l': 4, 'h': 5,
@@ -352,6 +352,9 @@ class SkoolKitTestCase(TestCase):
 
     def run_skool2sft(self, args='', catch_exit=None):
         return self._run_skoolkit_command(skool2sft.main, args, catch_exit)
+
+    def run_sna2ctl(self, args='', catch_exit=None):
+        return self._run_skoolkit_command(sna2ctl.main, args, catch_exit)
 
     def run_sna2skool(self, args='', catch_exit=None):
         return self._run_skoolkit_command(sna2skool.main, args, catch_exit)

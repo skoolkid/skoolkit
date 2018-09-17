@@ -8,6 +8,8 @@ Changelog
   lines, replace the label, and insert, overwrite and remove instructions
 * :ref:`nonEntryBlocks` in a skool file are reproduced by :ref:`skool2asm.py`
   and preserved by :ref:`skool2ctl.py`
+* Moved the ability to generate a control file from :ref:`sna2skool.py` to the
+  new :ref:`sna2ctl.py` command
 * :ref:`skool2bin.py` now processes :ref:`asm-if` directives (in case they
   contain :ref:`isub`, :ref:`ssub`, :ref:`ofix` or :ref:`bfix` directives)
 * The :ref:`label` directive can now add an entry point marker to the next

@@ -24,7 +24,6 @@ COMMANDS = {
     'sna2skool': {
         'Base': (10, 'base'),
         'Case': (2, 'case'),
-        'CtlHex': (0, 'ctl_hex'),
         'DefbMod': (1, ''),
         'DefbSize': (8, ''),
         'DefbZfill': (0, ''),

@@ -91,6 +91,7 @@ setup(
         'skool2ctl.py',
         'skool2html.py',
         'skool2sft.py',
+        'sna2ctl.py',
         'sna2img.py',
         'sna2skool.py',
         'snapinfo.py',

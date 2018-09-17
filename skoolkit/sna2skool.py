@@ -21,7 +21,7 @@ from skoolkit.config import get_config, show_config, update_options
 from skoolkit.ctlparser import CtlParser
 from skoolkit.sftparser import SftParser
 from skoolkit.snapshot import get_snapshot
-from skoolkit.snaskool import SkoolWriter, generate_ctls, write_ctl
+from skoolkit.snaskool import SkoolWriter
 
 START = 16384
 END = 65536
@@ -51,12 +51,7 @@ def run(snafile, options, config):
         writer.write_skool(options.start, options.end)
         return
 
-    if options.genctlfile:
-        # Generate a control file
-        ctls = generate_ctls(snapshot, start, end, options.code_map)
-        write_ctl(options.genctlfile, ctls, options.ctl_hex)
-        ctl_parser = CtlParser(ctls)
-    elif options.ctlfile:
+    if options.ctlfile:
         # Use a control file
         info('Using control file: {}'.format(options.ctlfile))
         ctl_parser = CtlParser()
@@ -80,18 +75,12 @@ def main(args):
                        help="Use FILE as the control file (may be '-' for standard input).")
     group.add_argument('-e', '--end', dest='end', metavar='ADDR', type=integer, default=END,
                        help='Stop disassembling at this address (default={}).'.format(END))
-    group.add_argument('-g', '--generate-ctl', dest='genctlfile', metavar='FILE',
-                       help='Generate a control file in FILE.')
-    group.add_argument('-h', '--ctl-hex', dest='ctl_hex', action='store_const', const=2, default=config['CtlHex'],
-                       help='Write upper case hexadecimal addresses in the generated control file.')
-    group.add_argument('-H', '--skool-hex', dest='base', action='store_const', const=16, default=config['Base'],
+    group.add_argument('-H', '--hex', dest='base', action='store_const', const=16, default=config['Base'],
                        help='Write hexadecimal addresses and operands in the disassembly.')
     group.add_argument('-I', '--ini', dest='params', metavar='p=v', action='append', default=[],
                        help="Set the value of the configuration parameter 'p' to 'v'. This option may be used multiple times.")
     group.add_argument('-l', '--lower', dest='case', action='store_const', const=1, default=config['Case'],
                        help='Write the disassembly in lower case.')
-    group.add_argument('-M', '--map', dest='code_map', metavar='FILE',
-                       help='Use FILE as a code execution map when generating a control file.')
     group.add_argument('-o', '--org', dest='org', metavar='ADDR', type=integer,
                        help='Specify the origin address of a binary (.bin) file (default: 65536 - length).')
     group.add_argument('-p', '--page', dest='page', metavar='PAGE', type=int, choices=list(range(8)),
