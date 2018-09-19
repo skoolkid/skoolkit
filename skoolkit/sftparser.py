@@ -14,7 +14,7 @@
 # You should have received a copy of the GNU General Public License along with
 # SkoolKit. If not, see <http://www.gnu.org/licenses/>.
 
-from skoolkit import SkoolKitError, write_line, get_int_param, parse_int, get_address_format, open_file
+from skoolkit import SkoolKitError, write_line, get_int_param, get_address_format, open_file
 from skoolkit.ctlparser import parse_params
 from skoolkit.disassembler import Disassembler
 from skoolkit.skoolparser import parse_asm_block_directive, parse_asm_data_directive, DIRECTIVES

@@ -17,7 +17,7 @@
 import argparse
 from collections import defaultdict
 
-from skoolkit import SkoolParsingError, get_int_param, info, integer, open_file, warn, VERSION
+from skoolkit import SkoolParsingError, get_int_param, info, integer, open_file, VERSION
 from skoolkit.skoolmacro import MacroParsingError, parse_if
 from skoolkit.skoolparser import parse_address_range, parse_asm_sub_fix_directive, read_skool
 from skoolkit.skoolsft import VALID_CTLS

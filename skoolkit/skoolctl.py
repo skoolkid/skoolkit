@@ -16,10 +16,10 @@
 
 import re
 
-from skoolkit import SkoolParsingError, write_line, get_int_param, get_address_format, open_file, is_char
+from skoolkit import SkoolParsingError, write_line, get_int_param, get_address_format, open_file
 from skoolkit.skoolparser import (Comment, Register, parse_comment_block, parse_instruction,
                                   parse_address_comments, join_comments, read_skool, DIRECTIVES)
-from skoolkit.z80 import get_size, parse_byte, parse_string, parse_word, split_operation
+from skoolkit.z80 import get_size, parse_string, parse_word, split_operation
 
 ASM_DIRECTIVES = 'a'
 BLOCKS = 'b'
