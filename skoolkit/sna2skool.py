@@ -20,29 +20,13 @@ from skoolkit import find_file, info, integer, read_bin_file, VERSION
 from skoolkit.config import get_config, show_config, update_options
 from skoolkit.ctlparser import CtlParser
 from skoolkit.sftparser import SftParser
-from skoolkit.snapshot import get_snapshot
+from skoolkit.snapshot import make_snapshot
 from skoolkit.snaskool import SkoolWriter
 
-START = 16384
 END = 65536
 
 def run(snafile, options, config):
-    # Read the snapshot file
-    if snafile[-4:].lower() in ('.sna', '.szx', '.z80'):
-        snapshot = get_snapshot(snafile, options.page)
-        start = max(START, options.start)
-    else:
-        ram = read_bin_file(snafile, 65536)
-        if options.org is None:
-            org = 65536 - len(ram)
-        else:
-            org = options.org
-        snapshot = [0] * org
-        snapshot.extend(ram)
-        start = max(org, options.start)
-    end = min(options.end, len(snapshot))
-
-    snapshot += [0] * (65536 - len(snapshot))
+    snapshot, start, end = make_snapshot(snafile, options.org, options.start, options.end, options.page)
 
     if options.sftfile:
         # Use a skool file template
@@ -88,7 +72,7 @@ def main(args):
     group.add_argument('--show-config', dest='show_config', action='store_true',
                        help="Show configuration parameter values.")
     group.add_argument('-s', '--start', dest='start', metavar='ADDR', type=integer, default=0,
-                       help='Start disassembling at this address (default={}).'.format(START))
+                       help='Start disassembling at this address (default=16384).')
     group.add_argument('-T', '--sft', dest='sftfile', metavar='FILE',
                        help="Use FILE as the skool file template (may be '-' for standard input).")
     group.add_argument('-V', '--version', action='version', version='SkoolKit {}'.format(VERSION),

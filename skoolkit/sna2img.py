@@ -1,4 +1,4 @@
-# Copyright 2013, 2015-2017 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2013, 2015-2018 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -21,7 +21,7 @@ from builtins import open
 
 from skoolkit import SkoolKitError, integer, read_bin_file, VERSION, skoolmacro
 from skoolkit.image import ImageWriter, GIF_ENABLE_ANIMATION, PNG_ENABLE_ANIMATION
-from skoolkit.snapshot import get_snapshot, move, poke
+from skoolkit.snapshot import make_snapshot, move, poke
 from skoolkit.graphics import Frame, flip_udgs, rotate_udgs, adjust_udgs, build_udg, font_udgs, scr_udgs
 from skoolkit.skool2bin import BinWriter
 
@@ -80,19 +80,10 @@ def _write_image(frame, img_file, animated):
         image_writer.write_image([frame], f, image_format)
 
 def run(infile, outfile, options):
-    if options.binary or options.org is not None:
-        snapshot = read_bin_file(infile, 49152)
-        if options.org is None:
-            org = 65536 - len(snapshot)
-        else:
-            org = options.org
-        snapshot = [0] * org + list(snapshot) + [0] * (65536 - org - len(snapshot))
+    if options.binary or options.org is not None or infile[-4:].lower() in ('.sna', '.szx', '.z80'):
+        snapshot = make_snapshot(infile, options.org)[0]
     elif infile[-4:].lower() == '.scr':
-        scr = read_bin_file(infile, 6912)
-        snapshot = [0] * 65536
-        snapshot[16384:16384 + len(scr)] = scr
-    elif infile[-4:].lower() in ('.sna', '.szx', '.z80'):
-        snapshot = get_snapshot(infile)
+        snapshot = make_snapshot(infile, 16384)[0]
     else:
         try:
             snapshot = BinWriter(infile, fix_mode=options.fix_mode).snapshot

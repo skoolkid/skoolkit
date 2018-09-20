@@ -18,28 +18,12 @@ import argparse
 
 from skoolkit import integer, read_bin_file, VERSION
 from skoolkit.snactl import generate_ctls, write_ctl
-from skoolkit.snapshot import get_snapshot
+from skoolkit.snapshot import make_snapshot
 
-START = 16384
 END = 65536
 
 def run(snafile, options):
-    if snafile[-4:].lower() in ('.sna', '.szx', '.z80'):
-        snapshot = get_snapshot(snafile, options.page)
-        start = max(START, options.start)
-    else:
-        ram = read_bin_file(snafile, 65536)
-        if options.org is None:
-            org = 65536 - len(ram)
-        else:
-            org = options.org
-        snapshot = [0] * org
-        snapshot.extend(ram)
-        start = max(org, options.start)
-    end = min(options.end, len(snapshot))
-
-    snapshot += [0] * (65536 - len(snapshot))
-
+    snapshot, start, end = make_snapshot(snafile, options.org, options.start, options.end, options.page)
     ctls = generate_ctls(snapshot, start, end, options.code_map)
     write_ctl(ctls, options.ctl_hex)
 
@@ -65,7 +49,7 @@ def main(args):
     group.add_argument('-p', '--page', dest='page', metavar='PAGE', type=int, choices=list(range(8)),
                        help='Specify the page (0-7) of a 128K snapshot to map to 49152-65535.')
     group.add_argument('-s', '--start', dest='start', metavar='ADDR', type=integer, default=0,
-                       help='Start at this address (default={}).'.format(START))
+                       help='Start at this address (default=16384).')
     group.add_argument('-V', '--version', action='version', version='SkoolKit {}'.format(VERSION),
                        help='Show SkoolKit version number and exit.')
 

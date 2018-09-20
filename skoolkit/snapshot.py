@@ -1,4 +1,4 @@
-# Copyright 2009-2013, 2015-2017 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2009-2013, 2015-2018 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -67,6 +67,16 @@ def get_snapshot(fname, page=None):
     mem = [0] * 16384
     mem.extend(ram)
     return mem
+
+def make_snapshot(fname, org=None, start=16384, end=65536, page=None):
+    if fname[-4:].lower() in ('.sna', '.szx', '.z80'):
+        return get_snapshot(fname, page), max(16384, start), end
+    ram = read_bin_file(fname, 65536)
+    if org is None:
+        org = 65536 - len(ram)
+    mem = [0] * 65536
+    mem[org:org + len(ram)] = ram
+    return mem, max(org, start), min(end, org + len(ram))
 
 def set_z80_registers(z80, *specs):
     for spec in specs:

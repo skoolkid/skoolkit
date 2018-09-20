@@ -4,7 +4,7 @@ from textwrap import dedent
 from unittest.mock import patch, Mock
 
 from skoolkittest import SkoolKitTestCase
-from skoolkit import sna2ctl, SkoolKitError, VERSION
+from skoolkit import sna2ctl, snapshot, SkoolKitError, VERSION
 
 # Binary data designed to test the default static code analysis algorithm:
 #   1. Insert block separators after byte sequences 201 ('RET'), 195,n,n
@@ -261,12 +261,10 @@ c 65498
 i 65499
 """
 
-get_blank_snapshot = Mock(return_value=[0] * 65536)
-
-def mock_get_snapshot(*args):
-    global get_snapshot_args
-    get_snapshot_args = args
-    return []
+def mock_make_snapshot(fname, org, start, end, page):
+    global make_snapshot_args
+    make_snapshot_args = fname, org, start, end, page
+    return [0] * 65536, max(16384, start), end
 
 def mock_run(*args):
     global run_args
@@ -507,7 +505,7 @@ class Sna2CtlTest(SkoolKitTestCase):
         code_map = (65531, 65534)
         self._test_generation(data, exp_ctl, code_map)
 
-    @patch.object(sna2ctl, 'get_snapshot', get_blank_snapshot)
+    @patch.object(sna2ctl, 'make_snapshot', mock_make_snapshot)
     def test_option_e(self):
         exp_ctl = """
             s 16384
@@ -516,7 +514,7 @@ class Sna2CtlTest(SkoolKitTestCase):
         for option in ('-e', '--end'):
             self._test_generation('test_e.sna', exp_ctl, options='{} 16386'.format(option))
 
-    @patch.object(sna2ctl, 'get_snapshot', get_blank_snapshot)
+    @patch.object(sna2ctl, 'make_snapshot', mock_make_snapshot)
     def test_option_e_with_hex_address(self):
         exp_ctl = """
             s 16384
@@ -525,7 +523,7 @@ class Sna2CtlTest(SkoolKitTestCase):
         for option in ('-e', '--end'):
             self._test_generation('test_e.sna', exp_ctl, options='{} 0x4002'.format(option))
 
-    @patch.object(sna2ctl, 'read_bin_file', Mock(return_value=[201]))
+    @patch.object(snapshot, 'read_bin_file', Mock(return_value=[201]))
     def test_option_h(self):
         exp_ctl = """
             c $FACE
@@ -534,7 +532,7 @@ class Sna2CtlTest(SkoolKitTestCase):
         for option in ('-h', '--hex'):
             self._test_generation('test-h.bin', exp_ctl, options='{} -o 64206'.format(option))
 
-    @patch.object(sna2ctl, 'read_bin_file', Mock(return_value=[201]))
+    @patch.object(snapshot, 'read_bin_file', Mock(return_value=[201]))
     def test_option_l(self):
         exp_ctl = """
             c $face
@@ -636,7 +634,7 @@ class Sna2CtlTest(SkoolKitTestCase):
         with self.assertRaisesRegex(SkoolKitError, error):
             self.run_sna2ctl('-m {} {}'.format(mapfile, binfile))
 
-    @patch.object(sna2ctl, 'read_bin_file', Mock(return_value=[]))
+    @patch.object(snapshot, 'read_bin_file', Mock(return_value=[]))
     def _test_option_m_invalid_map(self, code_map, line_no, invalid_line, error):
         code_map_file = self.write_text_file('\n'.join(code_map), suffix='.log')
         with self.assertRaisesRegex(SkoolKitError, '{}, line {}: {}: {}'.format(code_map_file, line_no, error, invalid_line)):
@@ -652,14 +650,14 @@ class Sna2CtlTest(SkoolKitTestCase):
         code_map = ['All numbers are in hexadecimal', '8000\t11111\tNOP', invalid_line, '8002\t11117\tNOP']
         self._test_option_m_invalid_map(code_map, 3, invalid_line, 'Address out of range')
 
-    @patch.object(sna2ctl, 'read_bin_file', Mock(return_value=[]))
+    @patch.object(snapshot, 'read_bin_file', Mock(return_value=[]))
     def test_option_m_unrecognised_format(self):
         for code_map in ('', 'PC=FEDC'):
             code_map_file = self.write_text_file(code_map, suffix='.log')
             with self.assertRaisesRegex(SkoolKitError, '{}: Unrecognised format'.format(code_map_file)):
                 self.run_sna2ctl('-m {} test-unrecognised-map.bin'.format(code_map_file))
 
-    @patch.object(sna2ctl, 'read_bin_file', Mock(return_value=[201]))
+    @patch.object(snapshot, 'read_bin_file', Mock(return_value=[201]))
     def test_option_o(self):
         for option, value in (('-o', 49152), ('--org', 32768)):
             exp_ctl = """
@@ -668,7 +666,7 @@ class Sna2CtlTest(SkoolKitTestCase):
             """.format(value, value + 1)
             self._test_generation('test.bin', exp_ctl, options='{} {}'.format(option, value))
 
-    @patch.object(sna2ctl, 'read_bin_file', Mock(return_value=[201]))
+    @patch.object(snapshot, 'read_bin_file', Mock(return_value=[201]))
     def test_option_o_with_hex_address(self):
         for option, value in (('-o', '0x7f00'), ('--org', '0xAB0C')):
             org = int(value[2:], 16)
@@ -678,21 +676,22 @@ class Sna2CtlTest(SkoolKitTestCase):
             """.format(org, org + 1)
             self._test_generation('test.bin', exp_ctl, options='{} {}'.format(option, value))
 
-    @patch.object(sna2ctl, 'get_snapshot', mock_get_snapshot)
+    @patch.object(sna2ctl, 'make_snapshot', mock_make_snapshot)
+    @patch.object(sna2ctl, 'generate_ctls', Mock(return_value={0: 'i'}))
     def test_option_p(self):
         for option, exp_page in (('-p', 3), ('--page', 5)):
             output, error = self.run_sna2ctl('{} {} test_p.sna'.format(option, exp_page))
             self.assertEqual(error, '')
-            fname, page = get_snapshot_args
+            page = make_snapshot_args[4]
             self.assertEqual(page, exp_page)
 
-    @patch.object(sna2ctl, 'get_snapshot', get_blank_snapshot)
+    @patch.object(sna2ctl, 'make_snapshot', mock_make_snapshot)
     def test_option_s(self):
         exp_ctl = 's 65534\n'
         for option in ('-s', '--start'):
             self._test_generation('test.sna', exp_ctl, options='{} 65534'.format(option))
 
-    @patch.object(sna2ctl, 'get_snapshot', get_blank_snapshot)
+    @patch.object(sna2ctl, 'make_snapshot', mock_make_snapshot)
     def test_option_s_with_hex_address(self):
         exp_ctl = 's 65534\n'
         for option in ('-s', '--start'):

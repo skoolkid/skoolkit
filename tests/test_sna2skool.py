@@ -2,10 +2,11 @@ from textwrap import dedent
 from unittest.mock import patch, Mock
 
 from skoolkittest import SkoolKitTestCase
-from skoolkit import sna2skool, SkoolKitError, VERSION
+from skoolkit import sna2skool, snapshot, SkoolKitError, VERSION
 from skoolkit.config import COMMANDS
 
-mock_get_snapshot = Mock(return_value=[0] * 65536)
+def mock_make_snapshot(fname, org, start, end, page):
+    return [0] * 65536, max(16384, start), end
 
 class MockCtlParser:
     def __init__(self, ctls=None):
@@ -128,7 +129,7 @@ class Sna2SkoolTest(SkoolKitTestCase):
         self.assertEqual(config.get('DefbMod'), 16)
         self.assertEqual(config.get('DefbSize'), 8)
 
-    @patch.object(sna2skool, 'get_snapshot', mock_get_snapshot)
+    @patch.object(sna2skool, 'make_snapshot', mock_make_snapshot)
     @patch.object(sna2skool, 'CtlParser', MockCtlParser)
     @patch.object(sna2skool, 'SkoolWriter', MockSkoolWriter)
     def test_writer_config_read_from_file(self):
@@ -183,7 +184,7 @@ class Sna2SkoolTest(SkoolKitTestCase):
             output, error = self.run_sna2skool(option, catch_exit=0)
             self.assertEqual(output, 'SkoolKit {}\n'.format(VERSION))
 
-    @patch.object(sna2skool, 'get_snapshot', mock_get_snapshot)
+    @patch.object(sna2skool, 'make_snapshot', mock_make_snapshot)
     @patch.object(sna2skool, 'CtlParser', MockCtlParser)
     @patch.object(sna2skool, 'SkoolWriter', MockSkoolWriter)
     def test_option_H(self):
@@ -193,7 +194,7 @@ class Sna2SkoolTest(SkoolKitTestCase):
             self.assertEqual(mock_skool_writer.options.base, 16)
             self.assertTrue(mock_skool_writer.wrote_skool)
 
-    @patch.object(sna2skool, 'get_snapshot', mock_get_snapshot)
+    @patch.object(sna2skool, 'make_snapshot', mock_make_snapshot)
     @patch.object(sna2skool, 'CtlParser', MockCtlParser)
     @patch.object(sna2skool, 'SkoolWriter', MockSkoolWriter)
     def test_option_L(self):
@@ -203,7 +204,7 @@ class Sna2SkoolTest(SkoolKitTestCase):
             self.assertEqual(mock_skool_writer.options.case, 1)
             self.assertTrue(mock_skool_writer.wrote_skool)
 
-    @patch.object(sna2skool, 'get_snapshot', mock_get_snapshot)
+    @patch.object(sna2skool, 'make_snapshot', mock_make_snapshot)
     @patch.object(sna2skool, 'SftParser', MockSftParser)
     def test_option_T(self):
         sftfile = 'test-T.ctl'
@@ -213,7 +214,7 @@ class Sna2SkoolTest(SkoolKitTestCase):
             self.assertEqual(mock_sft_parser.sftfile, sftfile)
             self.assertTrue(mock_sft_parser.wrote_skool)
 
-    @patch.object(sna2skool, 'get_snapshot', mock_get_snapshot)
+    @patch.object(sna2skool, 'make_snapshot', mock_make_snapshot)
     @patch.object(sna2skool, 'CtlParser', MockCtlParser)
     @patch.object(sna2skool, 'SkoolWriter', MockSkoolWriter)
     def test_option_c(self):
@@ -249,7 +250,7 @@ class Sna2SkoolTest(SkoolKitTestCase):
             self.assertEqual(ctls[end], 'i')
             self.assertTrue(mock_skool_writer.wrote_skool)
 
-    @patch.object(sna2skool, 'get_snapshot', mock_get_snapshot)
+    @patch.object(sna2skool, 'make_snapshot', mock_make_snapshot)
     @patch.object(sna2skool, 'CtlParser', MockCtlParser)
     @patch.object(sna2skool, 'SkoolWriter', MockSkoolWriter)
     def test_options_e_and_c(self):
@@ -262,7 +263,7 @@ class Sna2SkoolTest(SkoolKitTestCase):
         self.assertEqual(mock_ctl_parser.max_address, end)
         self.assertTrue(mock_skool_writer.wrote_skool)
 
-    @patch.object(sna2skool, 'get_snapshot', mock_get_snapshot)
+    @patch.object(sna2skool, 'make_snapshot', mock_make_snapshot)
     @patch.object(sna2skool, 'SftParser', MockSftParser)
     def test_options_e_and_T(self):
         sftfile = 'test.sft'
@@ -323,7 +324,7 @@ class Sna2SkoolTest(SkoolKitTestCase):
         config = run_args[2]
         self.assertEqual(config.get('Text'), 0)
 
-    @patch.object(sna2skool, 'read_bin_file', Mock(return_value=[201]))
+    @patch.object(snapshot, 'read_bin_file', Mock(return_value=[201]))
     @patch.object(sna2skool, 'CtlParser', MockCtlParser)
     @patch.object(sna2skool, 'SkoolWriter', MockSkoolWriter)
     def test_option_o(self):
@@ -334,7 +335,7 @@ class Sna2SkoolTest(SkoolKitTestCase):
             self.assertEqual(mock_skool_writer.snapshot[value], 201)
             self.assertTrue(mock_skool_writer.wrote_skool)
 
-    @patch.object(sna2skool, 'read_bin_file', Mock(return_value=[201]))
+    @patch.object(snapshot, 'read_bin_file', Mock(return_value=[201]))
     @patch.object(sna2skool, 'CtlParser', MockCtlParser)
     @patch.object(sna2skool, 'SkoolWriter', MockSkoolWriter)
     def test_option_o_with_hex_address(self):
@@ -422,7 +423,7 @@ class Sna2SkoolTest(SkoolKitTestCase):
         """
         self.assertEqual(dedent(exp_output).strip(), output.rstrip())
 
-    @patch.object(sna2skool, 'get_snapshot', mock_get_snapshot)
+    @patch.object(sna2skool, 'make_snapshot', mock_make_snapshot)
     @patch.object(sna2skool, 'CtlParser', MockCtlParser)
     @patch.object(sna2skool, 'SkoolWriter', MockSkoolWriter)
     def test_option_s(self):
@@ -434,7 +435,7 @@ class Sna2SkoolTest(SkoolKitTestCase):
             self.assertEqual(exp_ctls, mock_ctl_parser.ctls)
             self.assertTrue(mock_skool_writer.wrote_skool)
 
-    @patch.object(sna2skool, 'get_snapshot', mock_get_snapshot)
+    @patch.object(sna2skool, 'make_snapshot', mock_make_snapshot)
     @patch.object(sna2skool, 'CtlParser', MockCtlParser)
     @patch.object(sna2skool, 'SkoolWriter', MockSkoolWriter)
     def test_option_s_with_hex_address(self):
@@ -446,7 +447,7 @@ class Sna2SkoolTest(SkoolKitTestCase):
             self.assertEqual(exp_ctls, mock_ctl_parser.ctls)
             self.assertTrue(mock_skool_writer.wrote_skool)
 
-    @patch.object(sna2skool, 'get_snapshot', mock_get_snapshot)
+    @patch.object(sna2skool, 'make_snapshot', mock_make_snapshot)
     @patch.object(sna2skool, 'CtlParser', MockCtlParser)
     @patch.object(sna2skool, 'SkoolWriter', MockSkoolWriter)
     def test_options_s_and_c(self):
@@ -459,7 +460,7 @@ class Sna2SkoolTest(SkoolKitTestCase):
         self.assertEqual(mock_ctl_parser.max_address, 65536)
         self.assertTrue(mock_skool_writer.wrote_skool)
 
-    @patch.object(sna2skool, 'get_snapshot', mock_get_snapshot)
+    @patch.object(sna2skool, 'make_snapshot', mock_make_snapshot)
     @patch.object(sna2skool, 'CtlParser', MockCtlParser)
     @patch.object(sna2skool, 'SkoolWriter', MockSkoolWriter)
     def test_options_s_and_e_and_c(self):
@@ -473,7 +474,7 @@ class Sna2SkoolTest(SkoolKitTestCase):
         self.assertEqual(mock_ctl_parser.max_address, end)
         self.assertTrue(mock_skool_writer.wrote_skool)
 
-    @patch.object(sna2skool, 'get_snapshot', mock_get_snapshot)
+    @patch.object(sna2skool, 'make_snapshot', mock_make_snapshot)
     @patch.object(sna2skool, 'SftParser', MockSftParser)
     def test_options_s_and_T(self):
         sftfile = 'test.sft'
@@ -484,7 +485,7 @@ class Sna2SkoolTest(SkoolKitTestCase):
         self.assertEqual(mock_sft_parser.min_address, start)
         self.assertEqual(mock_sft_parser.max_address, 65536)
 
-    @patch.object(sna2skool, 'get_snapshot', mock_get_snapshot)
+    @patch.object(sna2skool, 'make_snapshot', mock_make_snapshot)
     @patch.object(sna2skool, 'SftParser', MockSftParser)
     def test_options_s_and_e_and_T(self):
         sftfile = 'test.sft'
