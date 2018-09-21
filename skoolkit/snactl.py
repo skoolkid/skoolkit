@@ -477,7 +477,8 @@ def _analyse_blocks(disassembly, ctls):
                 if text_blocks:
                     for t_start, t_end in text_blocks:
                         ctls[t_start] = 't'
-                        ctls[t_end] = 'c'
+                        if t_end < end:
+                            ctls[t_end] = 'c'
                     disassembly.remove_entry(start)
                     done = False
                 elif _check_for_data(snapshot, start, end):

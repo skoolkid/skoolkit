@@ -458,6 +458,18 @@ class Sna2CtlTest(SkoolKitTestCase):
         """
         self._test_generation(data, exp_ctl, options='-o 30000 -e 30005')
 
+    def test_end_address_after_text(self):
+        data = [
+            72, 101, 121, # 30000 DEFM "Hey"
+            175,          # 30003 XOR A
+            201           # 30004 RET
+        ]
+        exp_ctl = """
+            t 30000
+            i 30003
+        """
+        self._test_generation(data, exp_ctl, options='-o 30000 -e 30003')
+
     def test_data_block_starting_and_ending_with_zero(self):
         data = [0, 255, 0] # DEFB 0,255,0
         exp_ctl = """
