@@ -31,8 +31,8 @@ Changelog
 * Fixed the bug in :ref:`skool2ctl.py` that makes it incorrectly compute the
   length of an ``M`` directive covering a sub-block containing two or more
   instructions
-* Fixed how blocks of zeroes are detected when :ref:`sna2skool.py` is
-  generating a control file
+* Fixed how blocks of zeroes are detected and how an ``--end`` address is
+  handled when generating a control file
 
 6.4 (2018-03-31)
 ----------------
