@@ -3526,7 +3526,7 @@ class SkoolParserTest(SkoolKitTestCase):
         exp_error = "Cannot determine address of instruction after '32768 LD L,X'"
         self._assert_sub_and_fix_directives(skool, exp_error=exp_error)
 
-    def test_sub_and_fix_directives_override_comment_continuation_lines(self):
+    def test_sub_and_fix_directives_override_comment_continuation_lines_when_overwriting(self):
         skool = """
             @start
             ; Routine
