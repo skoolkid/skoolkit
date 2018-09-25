@@ -16,7 +16,7 @@
 
 import argparse
 
-from skoolkit import find_file, info, integer, read_bin_file, VERSION
+from skoolkit import find_file, info, integer, VERSION
 from skoolkit.config import get_config, show_config, update_options
 from skoolkit.ctlparser import CtlParser
 from skoolkit.sftparser import SftParser

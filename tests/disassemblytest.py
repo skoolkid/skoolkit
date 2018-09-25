@@ -1,7 +1,6 @@
 import sys
 import os
 import shutil
-from collections import namedtuple
 from functools import partial
 from lxml import etree
 from xml.dom.minidom import parse

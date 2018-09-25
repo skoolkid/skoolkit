@@ -16,7 +16,7 @@
 
 import argparse
 
-from skoolkit import integer, read_bin_file, VERSION
+from skoolkit import integer, VERSION
 from skoolkit.snactl import generate_ctls, write_ctl
 from skoolkit.snapshot import make_snapshot
 

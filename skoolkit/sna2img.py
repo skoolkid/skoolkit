@@ -19,7 +19,7 @@ import argparse
 import re
 from builtins import open
 
-from skoolkit import SkoolKitError, integer, read_bin_file, VERSION, skoolmacro
+from skoolkit import SkoolKitError, integer, VERSION, skoolmacro
 from skoolkit.image import ImageWriter, GIF_ENABLE_ANIMATION, PNG_ENABLE_ANIMATION
 from skoolkit.snapshot import make_snapshot, move, poke
 from skoolkit.graphics import Frame, flip_udgs, rotate_udgs, adjust_udgs, build_udg, font_udgs, scr_udgs
