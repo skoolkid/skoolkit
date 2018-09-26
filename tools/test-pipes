@@ -35,7 +35,7 @@ test_sna2skool() {
 
 test_sna2skool_ctl() {
   echo -n "Testing sna2skool.py --ctl..."
-  diff -u <(echo "t 65534" | ./sna2skool.py --ctl - <(echo -n Hi) 2> /dev/null) <(echo -e '@start\n@org\n; Message at 65534\nt65534 DEFM "Hi"')
+  diff -u <(echo "t 65534" | ./sna2skool.py --ctl - <(echo -n Hi) 2> /dev/null) <(echo -e '; Message at 65534\nt65534 DEFM "Hi"')
 }
 
 test_sna2skool_sft() {
