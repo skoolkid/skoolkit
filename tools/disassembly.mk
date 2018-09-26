@@ -4,9 +4,6 @@ BUILD = build
 HTML_OPTIONS = $(HTML_OPTS)
 HTML_OPTIONS += -d $(BUILD)/html -t
 HTML_OPTIONS += $(foreach theme,$(THEMES),-T $(theme))
-NOSE34 ?= $(HOME)/Python/Python3.4/bin/nose2
-NOSE35 ?= $(HOME)/Python/Python3.5/bin/nose2
-NOSE36 ?= $(HOME)/Python/Python3.6/bin/nose2
 TESTS ?= asm ctl html sft
 
 .PHONY: usage
@@ -16,7 +13,7 @@ usage:
 	@echo "  html      build the HTML disassembly"
 	@echo "  asm       build the ASM disassembly"
 	@echo "  test      run tests with default Python 3 interpreter"
-	@echo "  test3X    run tests with Python 3.X (4<=X<=6)"
+	@echo "  test3X    run tests with Python 3.X (4<=X<=7)"
 	@$(MAKE) -s _targets
 	@echo ""
 	@echo "Variables:"
@@ -48,6 +45,6 @@ write-tests:
 test: write-tests
 	nose2-3
 
-.PHONY: test%
-test%: write-tests
-	$(NOSE$*)
+.PHONY: test3%
+test3%: write-tests
+	$(HOME)/Python/Python3.$*/bin/nose2
