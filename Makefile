@@ -40,7 +40,7 @@ clean:
 hh:
 	if [ ! -f build/hungry_horace.z80 ]; then ./tap2sna.py -d build @examples/hungry_horace.t2s; fi
 	./sna2skool.py -c examples/hungry_horace.ctl build/hungry_horace.z80 > build/hungry_horace.skool
-	./skool2html.py $(OPTIONS) -S build examples/hungry_horace.ref
+	./skool2html.py $(OPTIONS) build/hungry_horace.skool examples/hungry_horace.ref
 
 .PHONY: write-disassembly-tests
 write-disassembly-tests:
