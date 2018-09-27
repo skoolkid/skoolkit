@@ -415,6 +415,25 @@ class Skool2HtmlTest(SkoolKitTestCase):
 
     @patch.object(skool2html, 'get_class', Mock(return_value=TestHtmlWriter))
     @patch.object(skool2html, 'SkoolParser', MockSkoolParser)
+    @patch.object(skool2html, 'write_disassembly', mock_write_disassembly)
+    @patch.object(skool2html, 'get_config', mock_config)
+    def test_skool_file_and_ref_file_in_separate_subdirectories(self):
+        skool_path = os.path.join(self.make_directory(), 'test.skool')
+        skoolfile = self.write_text_file(path=skool_path)
+        ref = """
+            [Game]
+            Game=Bar
+        """
+        ref_path = os.path.join(self.make_directory(), 'extra.ref')
+        reffile = self._write_ref_file(ref, path=ref_path)
+        output, error = self.run_skool2html('{} {}'.format(skoolfile, reffile))
+        self.assertEqual(error, '')
+        self.assertIn('Using ref file: {}\n'.format(reffile), output)
+        html_writer = write_disassembly_args[0]
+        self.assertEqual(html_writer.game_vars['Game'], 'Bar')
+
+    @patch.object(skool2html, 'get_class', Mock(return_value=TestHtmlWriter))
+    @patch.object(skool2html, 'SkoolParser', MockSkoolParser)
     def test_nonexistent_css_file(self):
         cssfile = 'abc.css'
         skoolfile = self.write_text_file(suffix='.skool')

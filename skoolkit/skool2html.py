@@ -157,6 +157,14 @@ def copy_resources(search_dir, extra_search_dirs, root_dir, fnames, dest_dir, th
         copy_resource(f, root_dir, dest_dir)
     return ';'.join([basename(f) for f in files])
 
+def parse_ref_files(reffiles, ref_parser, fnames, search_dir=''):
+    for f in fnames:
+        if f and isfile(os.path.join(search_dir, f)):
+            ref_f = normpath(search_dir, f)
+            if ref_f not in reffiles:
+                reffiles.append(ref_f)
+                ref_parser.parse(ref_f)
+
 def run(infiles, options):
     extra_search_dirs = options.search
     pages = options.pages
@@ -194,12 +202,8 @@ def run(infiles, options):
         ref_parser.parse(oreffile_f)
     add_lines(ref_parser, options.config_specs, 'Config')
     config.update(ref_parser.get_dictionary('Config'))
-    for f in config.get('RefFiles', '').split(';') + infiles[1:]:
-        if f and isfile(os.path.join(ref_search_dir, f)):
-            ref_f = normpath(ref_search_dir, f)
-            if ref_f not in reffiles:
-                reffiles.append(ref_f)
-                ref_parser.parse(ref_f)
+    parse_ref_files(reffiles, ref_parser, config.get('RefFiles', '').split(';'), ref_search_dir)
+    parse_ref_files(reffiles, ref_parser, infiles[1:])
     add_lines(ref_parser, options.config_specs)
 
     if reffiles:
