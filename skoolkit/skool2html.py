@@ -168,25 +168,22 @@ def parse_ref_files(reffiles, ref_parser, fnames, search_dir=''):
 def run(infiles, options):
     extra_search_dirs = options.search
     pages = options.pages
-    stdin = False
 
-    skoolfile_f = reffile_f = None
+    reffile_f = None
     ref_search_dir = module_path = ''
-    infile = infiles[0]
-    if infile == '-':
-        stdin = True
-        skoolfile_f = infile
+    skoolfile = infiles[0]
+    if skoolfile == '-':
+        fname = 'skool file from standard input'
         prefix = 'program'
+    elif isfile(skoolfile):
+        fname = normpath(skoolfile)
+        ref_search_dir = module_path = dirname(skoolfile)
+        prefix = basename(skoolfile).rsplit('.', 1)[0]
+        reffile_f = find('{}.ref'.format(prefix), extra_search_dirs, ref_search_dir)
+        if reffile_f:
+            ref_search_dir = dirname(reffile_f)
     else:
-        skoolfile_f = find(infile, extra_search_dirs)
-        if skoolfile_f:
-            ref_search_dir = module_path = dirname(skoolfile_f)
-            prefix = basename(skoolfile_f).rsplit('.', 1)[0]
-            reffile_f = find('{}.ref'.format(prefix), extra_search_dirs, ref_search_dir)
-            if reffile_f:
-                ref_search_dir = dirname(reffile_f)
-        else:
-            raise SkoolKitError('{}: file not found'.format(normpath(infile)))
+        raise SkoolKitError('{}: file not found'.format(normpath(skoolfile)))
 
     reffiles = []
     if reffile_f:
@@ -212,18 +209,14 @@ def run(infiles, options):
         else:
             suffix = ''
         notify('Using ref file{0}: {1}'.format(suffix, ', '.join(reffiles)))
-    elif not stdin:
-        notify('Found no ref file for ' + normpath(skoolfile_f))
+    elif skoolfile != '-':
+        notify('Found no ref file for ' + normpath(skoolfile))
 
     html_writer_class = get_class(config['HtmlWriterClass'], module_path)
     game_dir = config.get('GameDir', prefix)
 
     # Parse the skool file and initialise the writer
-    if stdin:
-        fname = 'skool file from standard input'
-    else:
-        fname = skoolfile_f
-    skool_parser = clock(SkoolParser, 'Parsing {}'.format(fname), skoolfile_f, case=options.case, base=options.base,
+    skool_parser = clock(SkoolParser, 'Parsing {}'.format(fname), skoolfile, case=options.case, base=options.base,
                          html=True, create_labels=options.create_labels, asm_labels=options.asm_labels,
                          variables=options.variables)
     if options.output_dir == '.':
