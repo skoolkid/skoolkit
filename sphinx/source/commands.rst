@@ -385,10 +385,10 @@ For example::
 
 will convert the file `game.skool` into a bunch of HTML files. If any files
 named `game*.ref` (e.g. `game.ref`, `game-bugs.ref`, `game-pokes.ref` and so
-on) also exist, they will be used to provide further information to the
-conversion process, along with any extra files named in the ``RefFiles``
-parameter in the :ref:`ref-Config` section, and any other ref files named on
-the command line.
+on) also exist in the same directory as `game.skool`, they will be used to
+provide further information to the conversion process, along with any extra
+files named in the ``RefFiles`` parameter in the :ref:`ref-Config` section, and
+any other ref files named on the command line.
 
 `skool2html.py` supports several options; run it with no arguments to see a
 list::
@@ -443,9 +443,9 @@ list::
                           Specify the HTML writer class to use; shorthand for
                           '--config Config/HtmlWriterClass=CLASS'.
 
-`skool2html.py` searches the following directories for ref files, CSS files,
-JavaScript files, font files, and files listed in the :ref:`resources` section
-of the ref file:
+`skool2html.py` searches the following directories for CSS files, JavaScript
+files, font files, and files listed in the :ref:`resources` section of the ref
+file:
 
 * The directory that contains the skool file named on the command line
 * The current working directory

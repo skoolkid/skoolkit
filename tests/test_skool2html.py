@@ -428,7 +428,8 @@ class Skool2HtmlTest(SkoolKitTestCase):
         reffile = self._write_ref_file(ref, path=ref_path)
         output, error = self.run_skool2html('{} {}'.format(skoolfile, reffile))
         self.assertEqual(error, '')
-        self.assertIn('Using ref file: {}\n'.format(reffile), output)
+        self.assertIn('Using ref file: {}\n'.format(normpath(reffile)), output)
+        self.assertIn('Parsing {}\n'.format(normpath(skoolfile)), output)
         html_writer = write_disassembly_args[0]
         self.assertEqual(html_writer.game_vars['Game'], 'Bar')
 
@@ -871,16 +872,16 @@ class Skool2HtmlTest(SkoolKitTestCase):
             StyleSheet={}
             JavaScript={}
         """.format(css_fname, js_fname)
-        reffile = self._write_ref_file(ref)
         resource_dir1 = self.make_directory()
         resource_dir2 = self.make_directory()
         resource_dir3 = self.make_directory()
         cssfile = self.write_text_file(path='{}/{}'.format(resource_dir1, css_fname))
         jsfile = self.write_text_file(path='{}/{}'.format(resource_dir2, js_fname))
-        skoolfile = self.write_text_file(path='{}/{}.skool'.format(resource_dir3, reffile[:-4]))
+        skoolfile = self.write_text_file(path='{}/option_S.skool'.format(resource_dir3))
+        reffile = self._write_ref_file(ref, path='{}/option_S.ref'.format(resource_dir3))
         output, error = self.run_skool2html('-S {} --search {} -S {} -d {} {}'.format(resource_dir1, resource_dir2, resource_dir3, self.odir, skoolfile))
         self.assertEqual(error, '')
-        game_dir = os.path.join(self.odir, reffile[:-4])
+        game_dir = os.path.join(self.odir, 'option_S')
         self.assertTrue(os.path.isfile(os.path.join(game_dir, css_fname)))
         self.assertTrue(os.path.isfile(os.path.join(game_dir, js_fname)))
 

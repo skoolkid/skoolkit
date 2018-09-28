@@ -166,10 +166,6 @@ def parse_ref_files(reffiles, ref_parser, fnames, search_dir=''):
                 ref_parser.parse(ref_f)
 
 def run(infiles, options):
-    extra_search_dirs = options.search
-    pages = options.pages
-
-    reffile_f = None
     ref_search_dir = module_path = ''
     skoolfile = infiles[0]
     if skoolfile == '-':
@@ -179,19 +175,14 @@ def run(infiles, options):
         fname = normpath(skoolfile)
         ref_search_dir = module_path = dirname(skoolfile)
         prefix = basename(skoolfile).rsplit('.', 1)[0]
-        reffile_f = find('{}.ref'.format(prefix), extra_search_dirs, ref_search_dir)
-        if reffile_f:
-            ref_search_dir = dirname(reffile_f)
     else:
         raise SkoolKitError('{}: file not found'.format(normpath(skoolfile)))
 
-    reffiles = []
-    if reffile_f:
-        reffiles.append(normpath(reffile_f))
-    base_ref = prefix + '.ref'
-    for f in sorted(os.listdir(ref_search_dir or '.')):
-        if isfile(os.path.join(ref_search_dir, f)) and f.endswith('.ref') and f.startswith(prefix) and f != base_ref:
-            reffiles.append(normpath(ref_search_dir, f))
+    reffiles = sorted(normpath(f) for f in glob.glob(os.path.join(ref_search_dir, prefix + '*.ref')))
+    main_ref = normpath(ref_search_dir, prefix + '.ref')
+    if main_ref in reffiles:
+        reffiles.remove(main_ref)
+        reffiles.insert(0, main_ref)
     ref_parser = RefParser()
     ref_parser.parse(StringIO(defaults.get_section('Config')))
     config = ref_parser.get_dictionary('Config')
@@ -228,12 +219,12 @@ def run(infiles, options):
 
     # Check that the specified pages exist
     all_page_ids = html_writer.get_page_ids()
-    for page_id in pages:
+    for page_id in options.pages:
         if page_id not in all_page_ids:
             raise SkoolKitError('Invalid page ID: {0}'.format(page_id))
-    pages = pages or all_page_ids
+    pages = options.pages or all_page_ids
 
-    write_disassembly(html_writer, options.files, ref_search_dir, extra_search_dirs, pages, options.themes, options.single_css)
+    write_disassembly(html_writer, options.files, ref_search_dir, options.search, pages, options.themes, options.single_css)
 
 def write_disassembly(html_writer, files, search_dir, extra_search_dirs, pages, css_themes, single_css):
     paths = html_writer.paths
