@@ -7,7 +7,7 @@ write_skool() {
   cat <<EOF
 @start
 @writer=skoolkit.game.GameAsmWriter
-@assemble=,0
+@assemble=,1
 
 ; Start
 ;
