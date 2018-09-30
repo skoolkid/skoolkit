@@ -1,7 +1,7 @@
 Changelog
 =========
 
-7.0b1
+7.0rc
 -----
 * The :ref:`isub`, :ref:`ssub`, :ref:`rsub`, :ref:`ofix`, :ref:`bfix` and
   :ref:`rfix` directives can specify the replacement comment over multiple
