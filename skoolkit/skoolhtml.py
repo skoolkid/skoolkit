@@ -448,7 +448,8 @@ class HtmlWriter:
 
         :param name: An optional name for the snapshot.
         """
-        self._snapshots.append((self.snapshot[:], name))
+        self._snapshots.append((self.snapshot, name))
+        self.snapshot = self.snapshot[:]
 
     def get_page_ids(self):
         return self.page_ids
