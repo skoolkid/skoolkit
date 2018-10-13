@@ -21,7 +21,7 @@ import posixpath
 import textwrap
 import importlib
 
-VERSION = '7.0rc'
+VERSION = '7.0'
 PACKAGE_DIR = os.path.dirname(__file__)
 
 BASE_10 = 10

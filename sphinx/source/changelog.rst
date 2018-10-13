@@ -1,8 +1,8 @@
 Changelog
 =========
 
-7.0rc
------
+7.0 (2018-10-13)
+----------------
 * The :ref:`isub`, :ref:`ssub`, :ref:`rsub`, :ref:`ofix`, :ref:`bfix` and
   :ref:`rfix` directives can specify the replacement comment over multiple
   lines, replace the label, and insert, overwrite and remove instructions
