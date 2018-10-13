@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Skool files &#8212; SkoolKit 6.4 documentation</title>
+    <title>Skool files &#8212; SkoolKit 7.0 documentation</title>
     
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '6.4',
+        VERSION:     '7.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="top" title="SkoolKit 6.4 documentation" href="index.html" />
+    <link rel="top" title="SkoolKit 7.0 documentation" href="index.html" />
     <link rel="next" title="Skool file templates" href="skool-file-templates.html" />
     <link rel="prev" title="Control files" href="control-files.html" /> 
   </head>
@@ -42,7 +42,7 @@
         <li class="right" >
           <a href="control-files.html" title="Control files"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 6.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 7.0 documentation</a> &#187;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
@@ -58,8 +58,7 @@
 <li><a class="reference internal" href="#asm-directives">ASM directives</a></li>
 <li><a class="reference internal" href="#escaping-characters">Escaping characters</a></li>
 <li><a class="reference internal" href="#braces-in-comments">Braces in comments</a></li>
-<li><a class="reference internal" href="#data-definition-entries">Data definition entries</a></li>
-<li><a class="reference internal" href="#remote-entries">Remote entries</a></li>
+<li><a class="reference internal" href="#non-entry-blocks">Non-entry blocks</a></li>
 <li><a class="reference internal" href="#revision-history">Revision history</a></li>
 </ul>
 </li>
@@ -112,7 +111,7 @@ blank lines, and an entry must not contain any blank lines</li>
 <li>an entry header is a sequence of comment lines broken into four sections;
 see <a class="reference internal" href="#entryheaderformat"><span class="std std-ref">Entry header format</span></a></li>
 <li>each line in an entry may start with one of the following characters:
-<code class="docutils literal"><span class="pre">;*</span> <span class="pre">&#64;bcdgirstuw</span></code>; see <a class="reference internal" href="#entrylineformat"><span class="std std-ref">Entry line format</span></a></li>
+<code class="docutils literal"><span class="pre">;*</span> <span class="pre">&#64;bcgistuw</span></code>; see <a class="reference internal" href="#entrylineformat"><span class="std std-ref">Entry line format</span></a></li>
 <li>tables (grids) have their own markup syntax; see <a class="reference internal" href="skool-macros.html#table"><span class="std std-ref">#TABLE</span></a> for details</li>
 </ul>
 <div class="section" id="entry-header-format">
@@ -184,18 +183,15 @@ by starting the second and subsequent lines with a dot (<code class="docutils li
 </div>
 <div class="section" id="entry-line-format">
 <span id="entrylineformat"></span><h3>Entry line format<a class="headerlink" href="#entry-line-format" title="Permalink to this headline">¶</a></h3>
-<p>Each line in an entry may start with one of <code class="docutils literal"><span class="pre">;*</span> <span class="pre">&#64;bcdgirstuw</span></code>, where:</p>
+<p>Each line in an entry may start with one of <code class="docutils literal"><span class="pre">;*</span> <span class="pre">&#64;bcgistuw</span></code>, where:</p>
 <ul class="simple">
 <li><code class="docutils literal"><span class="pre">;</span></code> begins a comment line</li>
 <li><code class="docutils literal"><span class="pre">*</span></code> denotes an entry point in a routine</li>
 <li><code class="docutils literal"><span class="pre">&#64;</span></code> begins an <a class="reference internal" href="#asm"><span class="std std-ref">ASM directive</span></a></li>
 <li><code class="docutils literal"><span class="pre">b</span></code> denotes the first instruction in a data block</li>
 <li><code class="docutils literal"><span class="pre">c</span></code> denotes the first instruction in a code block (routine)</li>
-<li><code class="docutils literal"><span class="pre">d</span></code> denotes the first instruction in a
-<a class="reference internal" href="#dentry"><span class="std std-ref">data definition entry</span></a></li>
 <li><code class="docutils literal"><span class="pre">g</span></code> denotes the first instruction in a game status buffer entry</li>
 <li><code class="docutils literal"><span class="pre">i</span></code> denotes an ignored entry</li>
-<li><code class="docutils literal"><span class="pre">r</span></code> denotes the first instruction in a <a class="reference internal" href="#rentry"><span class="std std-ref">remote entry</span></a></li>
 <li><code class="docutils literal"><span class="pre">s</span></code> denotes the first instruction in a data block containing bytes that
 are all the same value (typically unused zeroes)</li>
 <li><code class="docutils literal"><span class="pre">t</span></code> denotes the first instruction in a data block that contains text</li>
@@ -313,73 +309,21 @@ DEFB 0                  ; unmatched closing brace}
 </pre></div>
 </div>
 </div>
-<div class="section" id="data-definition-entries">
-<span id="dentry"></span><h2>Data definition entries<a class="headerlink" href="#data-definition-entries" title="Permalink to this headline">¶</a></h2>
-<p>If the first instruction line in an entry starts with <code class="docutils literal"><span class="pre">d</span></code>, the entry is
-regarded as a data definition entry. Such entries do not appear in the memory
-map generated by <cite>skool2html.py</cite>, but may contain <code class="docutils literal"><span class="pre">DEFB</span></code>, <code class="docutils literal"><span class="pre">DEFM</span></code>, <code class="docutils literal"><span class="pre">DEFS</span></code>
-and <code class="docutils literal"><span class="pre">DEFW</span></code> statements that will be used to insert data into the memory
-snapshot.</p>
-<p>For example:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>; The eight bytes of code in this routine are also used as UDG data.
-; .
-; #HTML(#UDG44919)
-c44919 LD DE,46572   ;
- 44922 CP 200        ;
- 44924 JP 45429      ;
+<div class="section" id="non-entry-blocks">
+<span id="nonentryblocks"></span><h2>Non-entry blocks<a class="headerlink" href="#non-entry-blocks" title="Permalink to this headline">¶</a></h2>
+<p>In addition to regular entries (routines and data blocks), a skool file may
+also contain blocks of lines that do not match the format of an entry, such as
+a header comment that appears before the first entry and contains copyright
+information. For example:</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>; Copyright 2018 J Smith
 
-d44919 DEFB 17,236,181,254,200,195,117,177
+; Start
+c24576 JP 32768
 </pre></div>
 </div>
-<p>If this data definition entry were not present, the memory snapshot would
-contain zeroes at addresses 44919-44926, and the image created by the <code class="docutils literal"><span class="pre">#UDG</span></code>
-macro would be blank. The reason for this is that by default, the skool file
-parser does not convert assembly language instructions into byte values.
-However, this behaviour can be changed by using the <a class="reference internal" href="asm.html#assemble"><span class="std std-ref">&#64;assemble</span></a> directive.</p>
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">Data definition entries are deprecated since version 6.3. Use the
-<a class="reference internal" href="asm.html#defb"><span class="std std-ref">&#64;defb</span></a>, <a class="reference internal" href="asm.html#defs"><span class="std std-ref">&#64;defs</span></a> and <a class="reference internal" href="asm.html#defw"><span class="std std-ref">&#64;defw</span></a> directives instead.</p>
-</div>
-</div>
-<div class="section" id="remote-entries">
-<span id="rentry"></span><h2>Remote entries<a class="headerlink" href="#remote-entries" title="Permalink to this headline">¶</a></h2>
-<p>If the first instruction line in an entry starts with <code class="docutils literal"><span class="pre">r</span></code>, the entry is
-regarded as a remote entry. Such entries do not appear in the memory map
-generated by <cite>skool2html.py</cite>, but they enable <code class="docutils literal"><span class="pre">JR</span></code>, <code class="docutils literal"><span class="pre">JP</span></code> and <code class="docutils literal"><span class="pre">CALL</span></code>
-instructions to be hyperlinked to entries defined in other skool files.</p>
-<p>For example:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>r26880 main
-</pre></div>
-</div>
-<p>This entry, if it were present in a secondary skool file, would enable any
-<code class="docutils literal"><span class="pre">JR</span></code>, <code class="docutils literal"><span class="pre">JP</span></code> and <code class="docutils literal"><span class="pre">CALL</span></code> instruction with 26880 as the operand to be
-hyperlinked to that routine in the main disassembly (the entry for which should
-be defined in the main skool file).</p>
-<p>If the desired target of the hyperlink is an entry point within a routine that
-is defined in another skool file (as opposed to the address of the routine
-itself), both the routine address and the entry point address should be
-declared in the remote entry. For example:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>r29012 main
- 29015
-</pre></div>
-</div>
-<p>This enables hyperlinks to 29015 in the main disassembly, which is an entry
-point in the routine at 29012. It also enables the <a class="reference internal" href="skool-macros.html#r"><span class="std std-ref">#R</span></a> macro to create
-hyperlinks to remote entry points using the short form:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>#R29015@main
-</pre></div>
-</div>
-<p>instead of the longer form (which would be required if the remote entry were
-not defined):</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>#R29012@main#29015(29015)
-</pre></div>
-</div>
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">Defining a remote entry as described above is deprecated since version 6.3.
-Use the <a class="reference internal" href="asm.html#remote"><span class="std std-ref">&#64;remote</span></a> directive instead.</p>
-</div>
+<p>Non-entry blocks such as this copyright comment are reproduced by
+<cite>skool2asm.py</cite>, ignored by <cite>skool2html.py</cite>, and preserved verbatim by
+<cite>skool2ctl.py</cite> and <cite>skool2sft.py</cite>.</p>
 </div>
 <div class="section" id="revision-history">
 <h2>Revision history<a class="headerlink" href="#revision-history" title="Permalink to this headline">¶</a></h2>
@@ -416,9 +360,6 @@ entry description by using a dot (<code class="docutils literal"><span class="pr
 <tr class="row-odd"><td>2.1</td>
 <td>Added support for hexadecimal numbers</td>
 </tr>
-<tr class="row-even"><td>2.0</td>
-<td>Added support for data definition entries and remote entries</td>
-</tr>
 </tbody>
 </table>
 </div>
@@ -442,7 +383,7 @@ entry description by using a dot (<code class="docutils literal"><span class="pr
         <li class="right" >
           <a href="control-files.html" title="Control files"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 6.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 7.0 documentation</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">

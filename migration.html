@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Migrating from SkoolKit 5 &#8212; SkoolKit 6.4 documentation</title>
+    <title>Migrating from SkoolKit 6 &#8212; SkoolKit 7.0 documentation</title>
     
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '6.4',
+        VERSION:     '7.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="top" title="SkoolKit 6.4 documentation" href="index.html" />
+    <link rel="top" title="SkoolKit 7.0 documentation" href="index.html" />
     <link rel="next" title="Changelog" href="changelog.html" />
     <link rel="prev" title="Supported assemblers" href="assemblers.html" /> 
   </head>
@@ -42,33 +42,23 @@
         <li class="right" >
           <a href="assemblers.html" title="Supported assemblers"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 6.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 7.0 documentation</a> &#187;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
   <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
-<li><a class="reference internal" href="#">Migrating from SkoolKit 5</a><ul>
-<li><a class="reference internal" href="#bug-fact-poke">#BUG, #FACT, #POKE</a></li>
-<li><a class="reference internal" href="#erefs-refs">#EREFS, #REFS</a></li>
-<li><a class="reference internal" href="#pagecontent">[PageContent:*]</a></li>
-<li><a class="reference internal" href="#created">Created</a></li>
-<li><a class="reference internal" href="#defaultanimationformat">DefaultAnimationFormat</a></li>
-<li><a class="reference internal" href="#udgfilename">UDGFilename</a></li>
-<li><a class="reference internal" href="#changelog-templates">changelog_* templates</a></li>
-<li><a class="reference internal" href="#css-selectors">CSS selectors</a></li>
-<li><a class="reference internal" href="#pageheaders-asm-t">PageHeaders:Asm-t</a></li>
-<li><a class="reference internal" href="#titles-asm-t">Titles:Asm-t</a></li>
-<li><a class="reference internal" href="#bin2tap-py-t">bin2tap.py -t</a></li>
-<li><a class="reference internal" href="#skool2ctl-py-a">skool2ctl.py -a</a></li>
-<li><a class="reference internal" href="#skool2html-py-w">skool2html.py -w</a></li>
-<li><a class="reference internal" href="#udg">Udg</a></li>
-<li><a class="reference internal" href="#flip-udgs">flip_udgs()</a></li>
-<li><a class="reference internal" href="#rotate-udgs">rotate_udgs()</a></li>
-<li><a class="reference internal" href="#parse-image-params">parse_image_params()</a></li>
-<li><a class="reference internal" href="#parse-params">parse_params()</a></li>
-<li><a class="reference internal" href="#skoolkit5to6-py">skoolkit5to6.py</a></li>
+<li><a class="reference internal" href="#">Migrating from SkoolKit 6</a><ul>
+<li><a class="reference internal" href="#skool2html-py">skool2html.py</a></li>
+<li><a class="reference internal" href="#sna2skool-py">sna2skool.py</a></li>
+<li><a class="reference internal" href="#gamestatusbufferincludes">GameStatusBufferIncludes</a></li>
+<li><a class="reference internal" href="#assemble">&#64;assemble</a></li>
+<li><a class="reference internal" href="#nolabel">&#64;nolabel</a></li>
+<li><a class="reference internal" href="#image-related-methods">Image-related methods</a></li>
+<li><a class="reference internal" href="#data-definition-entries">Data definition entries</a></li>
+<li><a class="reference internal" href="#remote-entries">Remote entries</a></li>
+<li><a class="reference internal" href="#skoolkit6to7-py">skoolkit6to7.py</a></li>
 </ul>
 </li>
 </ul>
@@ -104,236 +94,106 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="migrating-from-skoolkit-5">
-<span id="migrating"></span><h1>Migrating from SkoolKit 5<a class="headerlink" href="#migrating-from-skoolkit-5" title="Permalink to this headline">¶</a></h1>
-<p>SkoolKit 6 includes some changes that make it incompatible with SkoolKit 5. If
-you have developed a disassembly using SkoolKit 5 and find that the SkoolKit
+  <div class="section" id="migrating-from-skoolkit-6">
+<span id="migrating"></span><h1>Migrating from SkoolKit 6<a class="headerlink" href="#migrating-from-skoolkit-6" title="Permalink to this headline">¶</a></h1>
+<p>SkoolKit 7 includes some changes that make it incompatible with SkoolKit 6. If
+you have developed a disassembly using SkoolKit 6 and find that the SkoolKit
 commands no longer work with your skool files or ref files, or produce broken
 output, look through the following sections for tips on how to migrate your
-disassembly to SkoolKit 6.</p>
-<div class="section" id="bug-fact-poke">
-<h2>#BUG, #FACT, #POKE<a class="headerlink" href="#bug-fact-poke" title="Permalink to this headline">¶</a></h2>
-<p>The <code class="docutils literal"><span class="pre">#BUG</span></code>, <code class="docutils literal"><span class="pre">#FACT</span></code> and <code class="docutils literal"><span class="pre">#POKE</span></code> macros are not supported in SkoolKit 6.
-However, they can be brought back into service by using suitable <a class="reference internal" href="asm.html#replace"><span class="std std-ref">&#64;replace</span></a>
-directives to convert them into equivalent <a class="reference internal" href="skool-macros.html#link"><span class="std std-ref">#LINK</span></a> macros. For example:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>@replace=/#BUG(#[a-zA-Z\d$#]+(?![a-zA-Z\d$#(])|(?![#(A-Z]))/#LINK:Bugs\1(bug)
-@replace=/#BUG(?![A-Z])/#LINK:Bugs
+disassembly to SkoolKit 7.</p>
+<div class="section" id="skool2html-py">
+<h2>skool2html.py<a class="headerlink" href="#skool2html-py" title="Permalink to this headline">¶</a></h2>
+<p>In SkoolKit 6, <a class="reference internal" href="commands.html#skool2html-py"><span class="std std-ref">skool2html.py</span></a> wrote a separate disassembly for each skool
+file and ref file named on the command line. In SkoolKit 7, it writes a single
+disassembly from the skool file given as the first positional argument; any
+other positional arguments are interpreted as extra ref files.</p>
+<p>For example:</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>$ skool2html.py game.skool data.ref
 </pre></div>
 </div>
-<p>The first directive replaces <code class="docutils literal"><span class="pre">#BUG</span></code> macros that have no link text parameter
-(as in <code class="docutils literal"><span class="pre">This</span> <span class="pre">is</span> <span class="pre">a</span> <span class="pre">#BUG#bug1.</span></code>); it may be omitted if all the <code class="docutils literal"><span class="pre">#BUG</span></code> macros
-in your disassembly have a link text parameter. The second directive replaces
-<code class="docutils literal"><span class="pre">#BUG</span></code> macros that do have a link text parameter.</p>
-<p>The corresponding <code class="docutils literal"><span class="pre">&#64;replace</span></code> directives for the <code class="docutils literal"><span class="pre">#FACT</span></code> macro are:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>@replace=/#FACT(#[a-zA-Z\d$#]+(?![a-zA-Z\d$#(])|(?![#(A-Z]))/#LINK:Facts\1(fact)
-@replace=/#FACT(?![A-Z])/#LINK:Facts
-</pre></div>
+<p>will convert the following files into a single HTML disassembly:</p>
+<ul class="simple">
+<li><cite>game.skool</cite></li>
+<li>any files named <cite>game*.ref</cite></li>
+<li>any files named in the <code class="docutils literal"><span class="pre">RefFiles</span></code> parameter in the <a class="reference internal" href="ref-files.html#ref-config"><span class="std std-ref">[Config]</span></a>
+section</li>
+<li><cite>data.ref</cite></li>
+</ul>
 </div>
-<p>And for the <code class="docutils literal"><span class="pre">#POKE</span></code> macro:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>@replace=/#POKE(#[a-zA-Z\d$#]+(?![a-zA-Z\d$#(])|(?![#(A-Z]))/#LINK:Pokes\1(poke)
-@replace=/#POKE(?![A-Z])/#LINK:Pokes
-</pre></div>
+<div class="section" id="sna2skool-py">
+<h2>sna2skool.py<a class="headerlink" href="#sna2skool-py" title="Permalink to this headline">¶</a></h2>
+<p>The <code class="docutils literal"><span class="pre">-l</span></code>, <code class="docutils literal"><span class="pre">-m</span></code>, <code class="docutils literal"><span class="pre">-n</span></code>, <code class="docutils literal"><span class="pre">-r</span></code>, <code class="docutils literal"><span class="pre">-R</span></code>, <code class="docutils literal"><span class="pre">-t</span></code> and <code class="docutils literal"><span class="pre">-z</span></code> options of
+<a class="reference internal" href="commands.html#sna2skool-py"><span class="std std-ref">sna2skool.py</span></a> that were available in SkoolKit 6 are not supported in
+SkoolKit 7. However, the corresponding features are still supported, and each
+one can be controlled by the <code class="docutils literal"><span class="pre">-I</span></code> option with an appropriate configuration
+parameter:</p>
+<ul class="simple">
+<li>instead of <code class="docutils literal"><span class="pre">-l/--defm-size</span> <span class="pre">L</span></code>, use <code class="docutils literal"><span class="pre">-I</span> <span class="pre">DefmSize=L</span></code></li>
+<li>instead of <code class="docutils literal"><span class="pre">-m/--defb-mod</span> <span class="pre">M</span></code>, use <code class="docutils literal"><span class="pre">-I</span> <span class="pre">DefbMod=M</span></code></li>
+<li>instead of <code class="docutils literal"><span class="pre">-n/--defb-size</span> <span class="pre">N</span></code>, use <code class="docutils literal"><span class="pre">-I</span> <span class="pre">DefbSize=N</span></code></li>
+<li>instead of <code class="docutils literal"><span class="pre">-r/--no-erefs</span></code>, use <code class="docutils literal"><span class="pre">-I</span> <span class="pre">ListRefs=0</span></code></li>
+<li>instead of <code class="docutils literal"><span class="pre">-R/--erefs</span></code>, use <code class="docutils literal"><span class="pre">-I</span> <span class="pre">ListRefs=2</span></code></li>
+<li>instead of <code class="docutils literal"><span class="pre">-t/--text</span></code>, use <code class="docutils literal"><span class="pre">-I</span> <span class="pre">Text=1</span></code></li>
+<li>instead of <code class="docutils literal"><span class="pre">-z/--defb-zfill</span></code>, use <code class="docutils literal"><span class="pre">-I</span> <span class="pre">DefbZfill=1</span></code></li>
+</ul>
+<p>In addition, the ability to generate a control file has been moved to the
+<a class="reference internal" href="commands.html#sna2ctl-py"><span class="std std-ref">sna2ctl.py</span></a> command; accordingly, the <code class="docutils literal"><span class="pre">-g</span></code>, <code class="docutils literal"><span class="pre">-h</span></code> and <code class="docutils literal"><span class="pre">-M</span></code> options
+are no longer supported.</p>
+<p>Finally, the <code class="docutils literal"><span class="pre">-L</span></code> (<code class="docutils literal"><span class="pre">--lower</span></code>) option has been renamed <code class="docutils literal"><span class="pre">-l</span></code> and the
+<code class="docutils literal"><span class="pre">--skool-hex</span></code> (<code class="docutils literal"><span class="pre">-H</span></code>) option has been renamed <code class="docutils literal"><span class="pre">--hex</span></code> (for consistency
+with the corresponding options of <a class="reference internal" href="commands.html#skool2asm-py"><span class="std std-ref">skool2asm.py</span></a> and
+<a class="reference internal" href="commands.html#skool2html-py"><span class="std std-ref">skool2html.py</span></a>).</p>
 </div>
+<div class="section" id="gamestatusbufferincludes">
+<h2>GameStatusBufferIncludes<a class="headerlink" href="#gamestatusbufferincludes" title="Permalink to this headline">¶</a></h2>
+<p>In SkoolKit 6, the <code class="docutils literal"><span class="pre">GameStatusBufferIncludes</span></code> parameter in the
+<a class="reference internal" href="ref-files.html#ref-game"><span class="std std-ref">[Game]</span></a> section specified the addresses of entries to include on the
+&#8216;Game status buffer&#8217; page in addition to those that are marked with a <code class="docutils literal"><span class="pre">g</span></code>. In
+SkoolKit 7, this parameter is not supported; instead, use the <code class="docutils literal"><span class="pre">Includes</span></code>
+parameter in the <a class="reference internal" href="ref-files.html#memorymap"><span class="std std-ref">[MemoryMap:GameStatusBuffer]</span></a> section.</p>
 </div>
-<div class="section" id="erefs-refs">
-<h2>#EREFS, #REFS<a class="headerlink" href="#erefs-refs" title="Permalink to this headline">¶</a></h2>
-<p>The <code class="docutils literal"><span class="pre">#EREFS</span></code> and <code class="docutils literal"><span class="pre">#REFS</span></code> macros are not supported in SkoolKit 6.</p>
-<p>A near equivalent to the <code class="docutils literal"><span class="pre">#EREFS</span></code> macro can be defined by using the
-<a class="reference internal" href="asm.html#replace"><span class="std std-ref">&#64;replace</span></a> directive thus:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>@replace=/#erefs\i/#IF(#neref\1);;the routine#IF(#neref\1&gt;1)(s) at #FOREACH(EREF\1)||n|#Rn|, | and ||;no other routines;;
-@replace=/#neref\i/0#FOREACH(EREF\1)(n,+1)
-</pre></div>
+<div class="section" id="assemble">
+<h2>&#64;assemble<a class="headerlink" href="#assemble" title="Permalink to this headline">¶</a></h2>
+<p>In SkoolKit 6, the <a class="reference internal" href="asm.html#assemble"><span class="std std-ref">&#64;assemble</span></a> directive accepted the values -1, 0 and 1.
+In SkoolKit 7, the accepted values are 0, 1 and 2.</p>
 </div>
-<p>and used like this:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>; This entry point is used by #erefs32769.
-</pre></div>
+<div class="section" id="nolabel">
+<h2>&#64;nolabel<a class="headerlink" href="#nolabel" title="Permalink to this headline">¶</a></h2>
+<p>The <code class="docutils literal"><span class="pre">&#64;nolabel</span></code> directive is not supported in SkoolKit 7. Instead you should
+use the <a class="reference internal" href="asm.html#label"><span class="std std-ref">&#64;label</span></a> directive with a blank label: <code class="docutils literal"><span class="pre">&#64;label=</span></code>.</p>
 </div>
-<p>A near equivalent to the <code class="docutils literal"><span class="pre">#REFS</span></code> macro can be defined by using the
-<a class="reference internal" href="asm.html#replace"><span class="std std-ref">&#64;replace</span></a> directive thus:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>@replace=/#refs\i/#IF(#nref\1);;the routine#IF(#nref\1&gt;1)(s) at #FOREACH(REF\1)||n|#Rn|, | and ||;no other routines;;
-@replace=/#nref\i/0#FOREACH(REF\1)(n,+1)
-</pre></div>
+<div class="section" id="image-related-methods">
+<h2>Image-related methods<a class="headerlink" href="#image-related-methods" title="Permalink to this headline">¶</a></h2>
+<p>In SkoolKit 6, the following image-related methods were available on
+HtmlWriter:</p>
+<ul class="simple">
+<li><code class="xref py py-meth docutils literal"><span class="pre">image_path()</span></code></li>
+<li><code class="xref py py-meth docutils literal"><span class="pre">img_element()</span></code></li>
+<li><code class="xref py py-meth docutils literal"><span class="pre">need_image()</span></code></li>
+<li><code class="xref py py-meth docutils literal"><span class="pre">write_animated_image()</span></code></li>
+<li><code class="xref py py-meth docutils literal"><span class="pre">write_image()</span></code></li>
+</ul>
+<p>These methods are not available in SkoolKit 7; instead, use the
+<a class="reference internal" href="extending.html#skoolkit.skoolhtml.HtmlWriter.handle_image" title="skoolkit.skoolhtml.HtmlWriter.handle_image"><code class="xref py py-meth docutils literal"><span class="pre">handle_image()</span></code></a> method.</p>
+<p>In addition, the default value of the <cite>path_id</cite> parameter of
+<code class="xref py py-meth docutils literal"><span class="pre">handle_image()</span></code> has changed from <code class="docutils literal"><span class="pre">UDGImagePath</span></code> to <code class="docutils literal"><span class="pre">ImagePath</span></code>.</p>
 </div>
-<p>and used like this:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>; Used by #refs32768.
-</pre></div>
+<div class="section" id="data-definition-entries">
+<h2>Data definition entries<a class="headerlink" href="#data-definition-entries" title="Permalink to this headline">¶</a></h2>
+<p>Data definition entries (&#8216;d&#8217; blocks) are not supported in SkoolKit 7. Use the
+<a class="reference internal" href="asm.html#defb"><span class="std std-ref">&#64;defb</span></a>, <a class="reference internal" href="asm.html#defs"><span class="std std-ref">&#64;defs</span></a> and <a class="reference internal" href="asm.html#defw"><span class="std std-ref">&#64;defw</span></a> directives instead.</p>
 </div>
+<div class="section" id="remote-entries">
+<h2>Remote entries<a class="headerlink" href="#remote-entries" title="Permalink to this headline">¶</a></h2>
+<p>Defining a remote entry with an &#8216;r&#8217; block is not supported in SkoolKit 7. Use
+the <a class="reference internal" href="asm.html#remote"><span class="std std-ref">&#64;remote</span></a> directive instead.</p>
 </div>
-<div class="section" id="pagecontent">
-<h2>[PageContent:*]<a class="headerlink" href="#pagecontent" title="Permalink to this headline">¶</a></h2>
-<p><code class="docutils literal"><span class="pre">[PageContent:*]</span></code> sections are not supported in SkoolKit 6; instead, the
-<code class="docutils literal"><span class="pre">PageContent</span></code> parameter in the <a class="reference internal" href="ref-files.html#page"><span class="std std-ref">[Page:*]</span></a> section should be used.</p>
-<p>If you have a <code class="docutils literal"><span class="pre">[PageContent:*]</span></code> section consisting of a single line, then
-bring that line into the <code class="docutils literal"><span class="pre">PageContent</span></code> parameter of a corresponding
-<code class="docutils literal"><span class="pre">[Page:*]</span></code> section. For example:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>[PageContent:MyPage]
-#CALL:myPageContents()
-</pre></div>
-</div>
-<p>can be replaced by:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>[Page:MyPage]
-PageContent=#CALL:myPageContents()
-</pre></div>
-</div>
-<p>If you have a <code class="docutils literal"><span class="pre">[PageContent:*]</span></code> section consisting of more than one line,
-then add a <code class="docutils literal"><span class="pre">[Page:*]</span></code> section (or update an existing one) with a
-<code class="docutils literal"><span class="pre">PageContent</span></code> parameter that uses the <a class="reference internal" href="skool-macros.html#include"><span class="std std-ref">#INCLUDE</span></a> macro. For example:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>[PageContent:MyOtherPage]
-Line 1.
-Line 2.
-</pre></div>
-</div>
-<p>can be activated by adding a corresponding <code class="docutils literal"><span class="pre">[Page:*]</span></code> section:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>[Page:MyOtherPage]
-PageContent=#INCLUDE(PageContent:MyOtherPage)
-</pre></div>
-</div>
-</div>
-<div class="section" id="created">
-<h2>Created<a class="headerlink" href="#created" title="Permalink to this headline">¶</a></h2>
-<p>In SkoolKit 5, wherever <code class="docutils literal"><span class="pre">$VERSION</span></code> appeared in the <code class="docutils literal"><span class="pre">Created</span></code> parameter in
-the <a class="reference internal" href="ref-files.html#ref-game"><span class="std std-ref">[Game]</span></a> section, it was replaced by the version number of SkoolKit.
-In SkoolKit 6, this replacement is no longer made; use the <a class="reference internal" href="skool-macros.html#version"><span class="std std-ref">#VERSION</span></a> macro
-instead.</p>
-</div>
-<div class="section" id="defaultanimationformat">
-<h2>DefaultAnimationFormat<a class="headerlink" href="#defaultanimationformat" title="Permalink to this headline">¶</a></h2>
-<p>In SkoolKit 5, the <code class="docutils literal"><span class="pre">DefaultAnimationFormat</span></code> parameter in the
-<a class="reference internal" href="ref-files.html#ref-imagewriter"><span class="std std-ref">[ImageWriter]</span></a> section defaulted to the value of the <code class="docutils literal"><span class="pre">DefaultFormat</span></code>
-parameter (<code class="docutils literal"><span class="pre">png</span></code> by default). In SkoolKit 6, <code class="docutils literal"><span class="pre">DefaultAnimationFormat</span></code>
-defaults to <code class="docutils literal"><span class="pre">gif</span></code>.</p>
-</div>
-<div class="section" id="udgfilename">
-<h2>UDGFilename<a class="headerlink" href="#udgfilename" title="Permalink to this headline">¶</a></h2>
-<p>In SkoolKit 5, the <code class="docutils literal"><span class="pre">UDGFilename</span></code> parameter lived in the <a class="reference internal" href="ref-files.html#ref-game"><span class="std std-ref">[Game]</span></a>
-section. In SkoolKit 6, it has moved to the <a class="reference internal" href="ref-files.html#paths"><span class="std std-ref">[Paths]</span></a> section.</p>
-</div>
-<div class="section" id="changelog-templates">
-<h2>changelog_* templates<a class="headerlink" href="#changelog-templates" title="Permalink to this headline">¶</a></h2>
-<p>The <code class="docutils literal"><span class="pre">changelog_entry</span></code> and <code class="docutils literal"><span class="pre">changelog_item_list</span></code> templates have been renamed
-<a class="reference internal" href="html-templates.html#t-list-entry"><span class="std std-ref">list_entry</span></a> and <a class="reference internal" href="html-templates.html#t-list-items"><span class="std std-ref">list_items</span></a>. (They are general purpose
-templates used not just by the &#8216;Changelog&#8217; page, but by any
-<a class="reference internal" href="ref-files.html#boxpages"><span class="std std-ref">box page</span></a> whose <code class="docutils literal"><span class="pre">SectionType</span></code> is <code class="docutils literal"><span class="pre">BulletPoints</span></code> or
-<code class="docutils literal"><span class="pre">ListItems</span></code>.) Accordingly, the <code class="docutils literal"><span class="pre">t_changelog_item_list</span></code> and
-<code class="docutils literal"><span class="pre">m_changelog_item</span></code> identifiers in those templates have been renamed
-<code class="docutils literal"><span class="pre">t_list_items</span></code> and <code class="docutils literal"><span class="pre">m_list_item</span></code>.</p>
-</div>
-<div class="section" id="css-selectors">
-<h2>CSS selectors<a class="headerlink" href="#css-selectors" title="Permalink to this headline">¶</a></h2>
-<p>The <cite>class</cite> attributes of some HTML elements have changed in SkoolKit 6.</p>
-<p>The following table lists the selectors that appeared in the CSS files in
-SkoolKit 5, and their replacements in SkoolKit 6.</p>
-<table border="1" class="docutils">
-<colgroup>
-<col width="49%" />
-<col width="51%" />
-</colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">SkoolKit 5</th>
-<th class="head">SkoolKit 6</th>
-</tr>
-</thead>
-<tbody valign="top">
-<tr class="row-even"><td>div.changelog</td>
-<td>div.list-entry</td>
-</tr>
-<tr class="row-odd"><td>div.changelog-1</td>
-<td>div.list-entry-1</td>
-</tr>
-<tr class="row-even"><td>div.changelog-2</td>
-<td>div.list-entry-2</td>
-</tr>
-<tr class="row-odd"><td>div.changelog-desc</td>
-<td>div.list-entry-desc</td>
-</tr>
-<tr class="row-even"><td>div.changelog-title</td>
-<td>div.list-entry-title</td>
-</tr>
-<tr class="row-odd"><td>ul.changelog</td>
-<td>ul.list-entry</td>
-</tr>
-</tbody>
-</table>
-<p>In addition, the &#8216;ul.changelogN&#8217; selector (N=1, 2, 3 etc.), which is used in
-the stock <a class="reference internal" href="html-templates.html#t-list-items"><span class="std std-ref">list_items</span></a> template but is unstyled (i.e. does not appear in
-any of the CSS files), has been replaced by &#8216;ul.list-entryN&#8217; in SkoolKit 6.</p>
-</div>
-<div class="section" id="pageheaders-asm-t">
-<h2>PageHeaders:Asm-t<a class="headerlink" href="#pageheaders-asm-t" title="Permalink to this headline">¶</a></h2>
-<p>In SkoolKit 5, the default <a class="reference internal" href="ref-files.html#pageheaders"><span class="std std-ref">header</span></a> for <code class="docutils literal"><span class="pre">Asm-t</span></code> pages
-(disassembly pages for &#8216;t&#8217; blocks) was &#8216;Data&#8217;. In SkoolKit 6, it is &#8216;Messages&#8217;.</p>
-</div>
-<div class="section" id="titles-asm-t">
-<h2>Titles:Asm-t<a class="headerlink" href="#titles-asm-t" title="Permalink to this headline">¶</a></h2>
-<p>In SkoolKit 5, the default <a class="reference internal" href="ref-files.html#titles"><span class="std std-ref">title</span></a> for <code class="docutils literal"><span class="pre">Asm-t</span></code> pages
-(disassembly pages for &#8216;t&#8217; blocks) was &#8216;Data at&#8217;. In SkoolKit 6, it is &#8216;Text
-at&#8217;.</p>
-</div>
-<div class="section" id="bin2tap-py-t">
-<h2>bin2tap.py -t<a class="headerlink" href="#bin2tap-py-t" title="Permalink to this headline">¶</a></h2>
-<p>In SkoolKit 5, <a class="reference internal" href="commands.html#bin2tap-py"><span class="std std-ref">bin2tap.py</span></a> had a <code class="docutils literal"><span class="pre">-t/--tapfile</span></code> option for specifying
-the output TAP filename. In SkoolKit 6, this option is not supported; instead
-the TAP filename should be specified, if necessary, after the input filename.
-For example:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>$ bin2tap.py in.bin out.tap
-</pre></div>
-</div>
-</div>
-<div class="section" id="skool2ctl-py-a">
-<h2>skool2ctl.py -a<a class="headerlink" href="#skool2ctl-py-a" title="Permalink to this headline">¶</a></h2>
-<p>In SkoolKit 5, <a class="reference internal" href="commands.html#skool2ctl-py"><span class="std std-ref">skool2ctl.py</span></a> had a <code class="docutils literal"><span class="pre">-a/--no-asm-dirs</span></code> option for
-omitting ASM directives from the output. In SkoolKit 6, this option is not
-supported; instead, the <code class="docutils literal"><span class="pre">-w/--write</span></code> option now recognises the &#8216;a&#8217; identifier
-for specifying whether to include ASM directives in the output.</p>
-</div>
-<div class="section" id="skool2html-py-w">
-<h2>skool2html.py -w<a class="headerlink" href="#skool2html-py-w" title="Permalink to this headline">¶</a></h2>
-<p>In SkoolKit 5, the <code class="docutils literal"><span class="pre">-w/--write</span></code> option of <a class="reference internal" href="commands.html#skool2html-py"><span class="std std-ref">skool2html.py</span></a> recognised the
-&#8216;B&#8217; (Graphic glitches), &#8216;b&#8217; (Bugs), &#8216;c&#8217; (Changelog), &#8216;p&#8217; (Pokes), &#8216;t&#8217; (Trivia)
-and &#8216;y&#8217; (Glossary) file identifiers. In SkoolKit 6, these file identifiers are
-not supported; instead, the &#8216;P&#8217; file identifier should be used along with the
-<code class="docutils literal"><span class="pre">-P/--pages</span></code> option.</p>
-<p>For example, to write only the &#8216;Bugs&#8217; and &#8216;Changelog&#8217; pages:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>$ skool2html.py --write P --pages Bugs,Changelog game.ref
-</pre></div>
-</div>
-</div>
-<div class="section" id="udg">
-<h2>Udg<a class="headerlink" href="#udg" title="Permalink to this headline">¶</a></h2>
-<p>In SkoolKit 5.4, the <a class="reference internal" href="extending.html#skoolkit.graphics.Udg" title="skoolkit.graphics.Udg"><code class="xref py py-class docutils literal"><span class="pre">Udg</span></code></a> class moved from
-skoolkit.skoolhtml to skoolkit.graphics, but was still available in
-skoolkit.skoolhtml. In SkoolKit 6, it is no longer available in
-skoolkit.skoolhtml.</p>
-</div>
-<div class="section" id="flip-udgs">
-<h2>flip_udgs()<a class="headerlink" href="#flip-udgs" title="Permalink to this headline">¶</a></h2>
-<p>The <code class="xref py py-meth docutils literal"><span class="pre">flip_udgs()</span></code> method on HtmlWriter has been removed in SkoolKit 6. Use
-the <a class="reference internal" href="extending.html#skoolkit.graphics.flip_udgs" title="skoolkit.graphics.flip_udgs"><code class="xref py py-func docutils literal"><span class="pre">flip_udgs()</span></code></a> function in skoolkit.graphics instead.</p>
-</div>
-<div class="section" id="rotate-udgs">
-<h2>rotate_udgs()<a class="headerlink" href="#rotate-udgs" title="Permalink to this headline">¶</a></h2>
-<p>The <code class="xref py py-meth docutils literal"><span class="pre">rotate_udgs()</span></code> method on HtmlWriter has been removed in SkoolKit 6.
-Use the <a class="reference internal" href="extending.html#skoolkit.graphics.rotate_udgs" title="skoolkit.graphics.rotate_udgs"><code class="xref py py-func docutils literal"><span class="pre">rotate_udgs()</span></code></a> function in skoolkit.graphics
-instead.</p>
-</div>
-<div class="section" id="parse-image-params">
-<h2>parse_image_params()<a class="headerlink" href="#parse-image-params" title="Permalink to this headline">¶</a></h2>
-<p>The <code class="xref py py-meth docutils literal"><span class="pre">parse_image_params()</span></code> method on HtmlWriter has been removed in
-SkoolKit 6. Use the <a class="reference internal" href="extending.html#skoolkit.skoolmacro.parse_image_macro" title="skoolkit.skoolmacro.parse_image_macro"><code class="xref py py-func docutils literal"><span class="pre">parse_image_macro()</span></code></a> function
-instead.</p>
-</div>
-<div class="section" id="parse-params">
-<h2>parse_params()<a class="headerlink" href="#parse-params" title="Permalink to this headline">¶</a></h2>
-<p>The <code class="xref py py-func docutils literal"><span class="pre">parse_params()</span></code> function in skoolkit.skoolmacro has been removed in
-SkoolKit 6. Use the <a class="reference internal" href="extending.html#skoolkit.skoolmacro.parse_ints" title="skoolkit.skoolmacro.parse_ints"><code class="xref py py-func docutils literal"><span class="pre">parse_ints()</span></code></a> and
-<a class="reference internal" href="extending.html#skoolkit.skoolmacro.parse_brackets" title="skoolkit.skoolmacro.parse_brackets"><code class="xref py py-func docutils literal"><span class="pre">parse_brackets()</span></code></a> functions instead.</p>
-</div>
-<div class="section" id="skoolkit5to6-py">
-<h2>skoolkit5to6.py<a class="headerlink" href="#skoolkit5to6-py" title="Permalink to this headline">¶</a></h2>
-<p>The <a class="reference external" href="https://github.com/skoolkid/skoolkit/raw/master/utils/skoolkit5to6.py">skoolkit5to6.py</a> script may be used to convert a ref file or CSS file
-that is compatible with SkoolKit 5 into a file that will work with SkoolKit 6.
-For example, to convert <cite>game.ref</cite>:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>$ skoolkit5to6.py game.ref &gt; game6.ref
+<div class="section" id="skoolkit6to7-py">
+<h2>skoolkit6to7.py<a class="headerlink" href="#skoolkit6to7-py" title="Permalink to this headline">¶</a></h2>
+<p>The <a class="reference external" href="https://github.com/skoolkid/skoolkit/raw/master/utils/skoolkit6to7.py">skoolkit6to7.py</a> script may be used to convert a control file, ref file,
+skool file or skool file template that is compatible with SkoolKit 6 into a
+file that will work with SkoolKit 7. For example, to convert <cite>game.ref</cite>:</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>$ skoolkit6to7.py game.ref &gt; game7.ref
 </pre></div>
 </div>
 </div>
@@ -357,7 +217,7 @@ For example, to convert <cite>game.ref</cite>:</p>
         <li class="right" >
           <a href="assemblers.html" title="Supported assemblers"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 6.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 7.0 documentation</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">

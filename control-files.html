@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Control files &#8212; SkoolKit 6.4 documentation</title>
+    <title>Control files &#8212; SkoolKit 7.0 documentation</title>
     
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '6.4',
+        VERSION:     '7.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="top" title="SkoolKit 6.4 documentation" href="index.html" />
+    <link rel="top" title="SkoolKit 7.0 documentation" href="index.html" />
     <link rel="next" title="Skool files" href="skool-files.html" />
     <link rel="prev" title="Parsing, rendering, and modes" href="parsing.html" /> 
   </head>
@@ -42,7 +42,7 @@
         <li class="right" >
           <a href="parsing.html" title="Parsing, rendering, and modes"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 6.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 7.0 documentation</a> &#187;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
@@ -61,6 +61,7 @@
 <li><a class="reference internal" href="#number-bases">Number bases</a></li>
 <li><a class="reference internal" href="#asm-directives">ASM directives</a></li>
 <li><a class="reference internal" href="#instruction-level-comments">Instruction-level comments</a></li>
+<li><a class="reference internal" href="#non-entry-blocks">Non-entry blocks</a></li>
 <li><a class="reference internal" href="#control-file-comments">Control file comments</a></li>
 <li><a class="reference internal" href="#limitations">Limitations</a></li>
 <li><a class="reference internal" href="#revision-history">Revision history</a></li>
@@ -358,15 +359,27 @@ notation can also be combined with the &#8216;*&#8217; notation; for example:</p
 <div class="highlight-none"><div class="highlight"><pre><span></span>T 50000,8,2:B2,2:B2
 </pre></div>
 </div>
+<p>A character code may be &#8216;inverted&#8217; (i.e. have bit 7 set), typically to indicate
+the end of a string:</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>49152 DEFM &quot;Hell&quot;,&quot;o&quot;+128
+</pre></div>
+</div>
+<p>This can be encoded thus:</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>T 49152,5,4:1
+</pre></div>
+</div>
+<p>and the terminal character will be restored in the same format.</p>
 <p>DEFS statements may specify a byte value other than zero; for example:</p>
 <div class="highlight-none"><div class="highlight"><pre><span></span>60000 DEFS 20,170
 60020 DEFS 40,85
 </pre></div>
 </div>
 <p>These statements can be encoded in a control file thus:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>S 60000,60,20:170,40:85
+<div class="highlight-none"><div class="highlight"><pre><span></span>S 60000,60,20:n,40:n
 </pre></div>
 </div>
+<p>where <code class="docutils literal"><span class="pre">n</span></code> indicates that the byte value should be rendered in the default
+base (see <a class="reference internal" href="#numberbases"><span class="std std-ref">Number bases</span></a>).</p>
 </div>
 <div class="section" id="loops">
 <span id="ctlloops"></span><h2>Loops<a class="headerlink" href="#loops" title="Permalink to this headline">¶</a></h2>
@@ -444,7 +457,7 @@ C 30002,c
 </div>
 <p>and:</p>
 <div class="highlight-none"><div class="highlight"><pre><span></span>B 40000,8,b1:d2:h1,d1,b1,h2
-S 40008,8,8:c&quot;!&quot;
+S 40008,8,8:c
 </pre></div>
 </div>
 <p>will result in something like this:</p>
@@ -568,6 +581,39 @@ prefixed to the comment. So:</p>
 at least one character other than a dot; such comments are preserved verbatim
 (that is, without a dot prefix).</p>
 </div>
+<div class="section" id="non-entry-blocks">
+<span id="nonentryblocks-ctl"></span><h2>Non-entry blocks<a class="headerlink" href="#non-entry-blocks" title="Permalink to this headline">¶</a></h2>
+<p>In addition to regular entries (routines and data blocks), a skool file may
+also contain blocks of lines that do not match the format of an entry, such as
+a header comment that appears before the first entry and contains copyright
+information. Blocks like this can be preserved by the <code class="docutils literal"><span class="pre">&gt;</span></code> directive. For
+example, the copyright header in this skool file:</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>; Copyright 2018 J Smith
+
+; Start
+c24576 JP 32768
+</pre></div>
+</div>
+<p>is preserved thus:</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>&gt; 24576 ; Copyright 2018 J Smith
+</pre></div>
+</div>
+<p>Note that the address of the <code class="docutils literal"><span class="pre">&gt;</span></code> directive is the address of the next regular
+entry.</p>
+<p>A non-entry block may also appear at the end of the skool file, after the
+last regular entry:</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>; The end
+c65535 RET
+
+; And that was the disassembly.
+</pre></div>
+</div>
+<p>In this case the block is preserved by the <code class="docutils literal"><span class="pre">&gt;</span></code> directive with the parameter
+<code class="docutils literal"><span class="pre">1</span></code> (indicating a &#8216;footer&#8217;) following the address of the last entry:</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>&gt; 65535,1 ; And that was the disassembly.
+</pre></div>
+</div>
+</div>
 <div class="section" id="control-file-comments">
 <h2>Control file comments<a class="headerlink" href="#control-file-comments" title="Permalink to this headline">¶</a></h2>
 <p>A comment may be added to a control file by starting a line with a hash
@@ -584,15 +630,11 @@ the skool file.</p>
 <div class="section" id="limitations">
 <h2>Limitations<a class="headerlink" href="#limitations" title="Permalink to this headline">¶</a></h2>
 <p>A control file can be useful in the early stages of developing a skool file for
-reorganising code and data blocks, but it cannot preserve the following:</p>
-<ul class="simple">
-<li>ASM block directives</li>
-<li><a class="reference internal" href="skool-files.html#dentry"><span class="std std-ref">data definition entries</span></a> (&#8216;d&#8217; blocks) and
-<a class="reference internal" href="skool-files.html#rentry"><span class="std std-ref">remote entries</span></a> (&#8216;r&#8217; blocks)</li>
-<li>comments that are not part of a code or data block</li>
-</ul>
-<p><a class="reference internal" href="skool-file-templates.html#skoolfiletemplates"><span class="std std-ref">Skool file templates</span></a>, however, can preserve all of these elements, and so
-may be a better choice for skool files that contain any of them.</p>
+reorganising code and data blocks, but it cannot preserve an ASM block
+directive that occurs inside a regular entry.</p>
+<p><a class="reference internal" href="skool-file-templates.html#skoolfiletemplates"><span class="std std-ref">Skool file templates</span></a>, however, can preserve ASM block directives that
+occur inside regular entries, and so may be a better choice for skool files
+that contain any of them.</p>
 </div>
 <div class="section" id="revision-history">
 <h2>Revision history<a class="headerlink" href="#revision-history" title="Permalink to this headline">¶</a></h2>
@@ -607,56 +649,61 @@ may be a better choice for skool files that contain any of them.</p>
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>4.5</td>
+<tr class="row-even"><td>7.0</td>
+<td>Added the <code class="docutils literal"><span class="pre">&gt;</span></code> directive for preserving non-entry blocks; added
+support for preserving &#8216;inverted&#8217; characters (with bit 7 set);
+the byte value in an <code class="docutils literal"><span class="pre">S</span></code> directive may be left blank</td>
+</tr>
+<tr class="row-odd"><td>4.5</td>
 <td>Added support for specifying character values in DEFS statements</td>
 </tr>
-<tr class="row-odd"><td>4.4</td>
+<tr class="row-even"><td>4.4</td>
 <td>Added support for specifying that numeric values in instruction
 operands be rendered as characters or in a specific base; added
 support for specifying character values in DEFW statements</td>
 </tr>
-<tr class="row-even"><td>4.3</td>
+<tr class="row-odd"><td>4.3</td>
 <td>Added the <code class="docutils literal"><span class="pre">&#64;</span></code> directive, the <code class="docutils literal"><span class="pre">N</span></code> directive and support for
 block start comments</td>
 </tr>
-<tr class="row-odd"><td>4.2</td>
+<tr class="row-even"><td>4.2</td>
 <td>Added the <code class="docutils literal"><span class="pre">L</span></code> directive and support for preserving the location
 of <a class="reference internal" href="asm.html#ignoreua"><span class="std std-ref">&#64;ignoreua</span></a> directives</td>
 </tr>
-<tr class="row-even"><td>3.7</td>
+<tr class="row-odd"><td>3.7</td>
 <td>Added support for binary numbers; added support for specifying
 the base of numeric values in DEFB, DEFM, DEFS and DEFW
 statements; added the <code class="docutils literal"><span class="pre">s</span></code> and <code class="docutils literal"><span class="pre">S</span></code> directives and support for
 DEFS statements with non-zero byte values</td>
 </tr>
-<tr class="row-odd"><td>3.6</td>
+<tr class="row-even"><td>3.6</td>
 <td>Added support for preserving blank comments that span two or more
 instructions</td>
 </tr>
-<tr class="row-even"><td>3.1.4</td>
+<tr class="row-odd"><td>3.1.4</td>
 <td>Added support for DEFB and DEFM statements that contain both
 strings and bytes</td>
 </tr>
-<tr class="row-odd"><td>2.4</td>
+<tr class="row-even"><td>2.4</td>
 <td>Added support for non-block ASM directives</td>
 </tr>
-<tr class="row-even"><td>2.2</td>
+<tr class="row-odd"><td>2.2</td>
 <td>Added support for the <code class="docutils literal"><span class="pre">*</span></code> notation in DEFB, DEFM, DEFS and DEFW
 statement length lists</td>
 </tr>
-<tr class="row-odd"><td>2.1.2</td>
+<tr class="row-even"><td>2.1.2</td>
 <td>Added support for DEFM, DEFS and DEFW statement lengths</td>
 </tr>
-<tr class="row-even"><td>2.1.1</td>
+<tr class="row-odd"><td>2.1.1</td>
 <td>Added the <code class="docutils literal"><span class="pre">M</span></code> directive</td>
 </tr>
-<tr class="row-odd"><td>2.1</td>
+<tr class="row-even"><td>2.1</td>
 <td>Added support for DEFB statement lengths</td>
 </tr>
-<tr class="row-even"><td>2.0.6</td>
+<tr class="row-odd"><td>2.0.6</td>
 <td>Added support for hexadecimal numbers</td>
 </tr>
-<tr class="row-odd"><td>1.0.7</td>
+<tr class="row-even"><td>1.0.7</td>
 <td>Added support for block titles, block descriptions, register
 values, mid-block comments, block end comments, sub-block types
 and instruction-level comments</td>
@@ -684,7 +731,7 @@ and instruction-level comments</td>
         <li class="right" >
           <a href="parsing.html" title="Parsing, rendering, and modes"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 6.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 7.0 documentation</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">

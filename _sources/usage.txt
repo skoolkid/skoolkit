@@ -22,7 +22,7 @@ location. However, if you would like to install SkoolKit as a Python package,
 you can do so by using the supplied ``setup.py`` script.
 
 .. _skoolkit.ca: http://skoolkit.ca/?page_id=177
-.. _PyPI: https://pypi.python.org/pypi/skoolkit
+.. _PyPI: https://pypi.org/project/skoolkit/
 .. _pip: https://pip.pypa.io/
 .. _PPA: https://launchpad.net/~rjdymond/+archive/ppa
 .. _copr repo: https://copr.fedorainfracloud.org/coprs/rjdymond/SkoolKit/

@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Ref files &#8212; SkoolKit 6.4 documentation</title>
+    <title>Ref files &#8212; SkoolKit 7.0 documentation</title>
     
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '6.4',
+        VERSION:     '7.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="top" title="SkoolKit 6.4 documentation" href="index.html" />
+    <link rel="top" title="SkoolKit 7.0 documentation" href="index.html" />
     <link rel="next" title="HTML templates" href="html-templates.html" />
     <link rel="prev" title="Skool macros" href="skool-macros.html" /> 
   </head>
@@ -42,7 +42,7 @@
         <li class="right" >
           <a href="skool-macros.html" title="Skool macros"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 6.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 7.0 documentation</a> &#187;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
@@ -66,6 +66,7 @@
 <li><a class="reference internal" href="#template">[Template:*]</a></li>
 <li><a class="reference internal" href="#titles">[Titles]</a></li>
 <li><a class="reference internal" href="#box-pages">Box pages</a></li>
+<li><a class="reference internal" href="#appending-content">Appending content</a></li>
 <li><a class="reference internal" href="#ref-file-comments">Ref file comments</a></li>
 <li><a class="reference internal" href="#square-brackets">Square brackets</a></li>
 </ul>
@@ -194,26 +195,18 @@ short 3-digit form)</li>
 <p>Recognised parameters are:</p>
 <ul class="simple">
 <li><code class="docutils literal"><span class="pre">GameDir</span></code> - the root directory of the game&#8217;s HTML disassembly; if not
-specified, the base name of the skool or ref file given on the
-<a class="reference internal" href="commands.html#skool2html-py"><span class="std std-ref">skool2html.py</span></a> command line will be used</li>
+specified, the base name of the skool file given on the <a class="reference internal" href="commands.html#skool2html-py"><span class="std std-ref">skool2html.py</span></a>
+command line will be used</li>
 <li><code class="docutils literal"><span class="pre">HtmlWriterClass</span></code> - the name of the Python class to use for writing the
 HTML disassembly of the game (default: <code class="docutils literal"><span class="pre">skoolkit.skoolhtml.HtmlWriter</span></code>); if
 the class is in a module that is not in the module search path (e.g. a
 standalone module that is not part of an installed package), the module&#8217;s
 location may be specified thus: <code class="docutils literal"><span class="pre">/path/to/moduledir:module.classname</span></code></li>
-<li><code class="docutils literal"><span class="pre">RefFiles</span></code> - a semicolon-separated list of extra ref files to use (in
-addition to the one named on the <a class="reference internal" href="commands.html#skool2html-py"><span class="std std-ref">skool2html.py</span></a> command line, and any
-others with the same filename prefix)</li>
-<li><code class="docutils literal"><span class="pre">SkoolFile</span></code> - the name of the main skool file to use if not given on the
-<a class="reference internal" href="commands.html#skool2html-py"><span class="std std-ref">skool2html.py</span></a> command line; if not specified, the
-skool file with the same base name as the ref file will be used</li>
+<li><code class="docutils literal"><span class="pre">RefFiles</span></code> - a semicolon-separated list of extra ref files to use (after
+any that are automatically read by virtue of having the same filename prefix
+as the skool file, and before any others named on the <a class="reference internal" href="commands.html#skool2html-py"><span class="std std-ref">skool2html.py</span></a>
+command line)</li>
 </ul>
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">The <code class="docutils literal"><span class="pre">SkoolFile</span></code> parameter is deprecated since version 6.4. In SkoolKit
-7.0, <a class="reference internal" href="commands.html#skool2html-py"><span class="std std-ref">skool2html.py</span></a> will require the skool file as the first
-positional argument.</p>
-</div>
 <p>For information on how to create your own Python class for writing an HTML
 disassembly, see the documentation on
 <a class="reference internal" href="extending.html#extendingskoolkit"><span class="std std-ref">extending SkoolKit</span></a>.</p>
@@ -269,10 +262,6 @@ font files can be declared by separating their names with semicolons</li>
 <li><code class="docutils literal"><span class="pre">Game</span></code> - the name of the game, which appears in the title of every page,
 and also in the header of every page (if no logo is defined); if not
 specified, the base name of the skool file is used</li>
-<li><code class="docutils literal"><span class="pre">GameStatusBufferIncludes</span></code> - a comma-separated list of addresses of entries
-to include on the &#8216;Game status buffer&#8217; page in addition to those that are
-marked with a <code class="docutils literal"><span class="pre">g</span></code> (see the
-<a class="reference internal" href="skool-files.html#skoolfileformat"><span class="std std-ref">skool file format reference</span></a>)</li>
 <li><code class="docutils literal"><span class="pre">InputRegisterTableHeader</span></code> - the text displayed in the header of input
 register tables on routine disassembly pages (default: &#8216;Input&#8217;)</li>
 <li><code class="docutils literal"><span class="pre">JavaScript</span></code> - the base name of the JavaScript file to include in every
@@ -303,11 +292,6 @@ header of the main index page (default: &#8216;The complete&#8217;)</li>
 <li><code class="docutils literal"><span class="pre">TitleSuffix</span></code> - the suffix to use after the game name or logo in the header
 of the main index page (default: &#8216;RAM disassembly&#8217;)</li>
 </ul>
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">The <code class="docutils literal"><span class="pre">GameStatusBufferIncludes</span></code> parameter is deprecated since version 6.2.
-Use the <code class="docutils literal"><span class="pre">Includes</span></code> parameter in the <a class="reference internal" href="#memorymap"><span class="std std-ref">[MemoryMap:*]</span></a> section instead.</p>
-</div>
 <p>Every parameter in this section may contain <a class="reference internal" href="skool-macros.html#skoolmacros"><span class="std std-ref">skool macros</span></a>.</p>
 <p>The <code class="docutils literal"><span class="pre">AddressAnchor</span></code> parameter contains a standard Python format string that
 specifies the format of the anchors attached to instructions on disassembly
@@ -368,9 +352,6 @@ to live in the <code class="docutils literal"><span class="pre">[Info]</span></c
 </tr>
 <tr class="row-odd"><td>2.0.5</td>
 <td>Added the <code class="docutils literal"><span class="pre">Logo</span></code> parameter</td>
-</tr>
-<tr class="row-even"><td>2.0.3</td>
-<td>Added the <code class="docutils literal"><span class="pre">GameStatusBufferIncludes</span></code> parameter</td>
 </tr>
 </tbody>
 </table>
@@ -607,8 +588,6 @@ type is shown); entry types are identified as follows:<ul>
 <li><code class="docutils literal"><span class="pre">b</span></code> - DEFB blocks</li>
 <li><code class="docutils literal"><span class="pre">c</span></code> - routines</li>
 <li><code class="docutils literal"><span class="pre">g</span></code> - game status buffer entries</li>
-<li><code class="docutils literal"><span class="pre">G</span></code> - entries whose address appears in the <code class="docutils literal"><span class="pre">GameStatusBufferIncludes</span></code>
-parameter in the <a class="reference internal" href="#ref-game"><span class="std std-ref">[Game]</span></a> section</li>
 <li><code class="docutils literal"><span class="pre">s</span></code> - blocks containing bytes that are all the same value</li>
 <li><code class="docutils literal"><span class="pre">t</span></code> - messages</li>
 <li><code class="docutils literal"><span class="pre">u</span></code> - unused addresses</li>
@@ -627,12 +606,6 @@ not to (default: <code class="docutils literal"><span class="pre">0</span></code
 <li><code class="docutils literal"><span class="pre">Write</span></code> - <code class="docutils literal"><span class="pre">1</span></code> to write the memory map page, or <code class="docutils literal"><span class="pre">0</span></code> not to (default:
 <code class="docutils literal"><span class="pre">1</span></code>)</li>
 </ul>
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">The <code class="docutils literal"><span class="pre">G</span></code> identifier in the <code class="docutils literal"><span class="pre">EntryTypes</span></code> parameter (along with the
-<code class="docutils literal"><span class="pre">GameStatusBufferIncludes</span></code> parameter in the <a class="reference internal" href="#ref-game"><span class="std std-ref">[Game]</span></a> section) is
-deprecated since version 6.2. Use the <code class="docutils literal"><span class="pre">Includes</span></code> parameter instead.</p>
-</div>
 <p>Every parameter in this section may contain <a class="reference internal" href="skool-macros.html#skoolmacros"><span class="std std-ref">skool macros</span></a>.</p>
 <p>To see the default memory map pages and their properties, run the following
 command:</p>
@@ -666,9 +639,7 @@ name matches the page ID, if one exists; otherwise, the stock
 <a class="reference internal" href="skool-macros.html#skoolmacros"><span class="std std-ref">skool macros</span></a></td>
 </tr>
 <tr class="row-even"><td>4.0</td>
-<td>Added the <code class="docutils literal"><span class="pre">EntryDescriptions</span></code> and <code class="docutils literal"><span class="pre">LengthColumn</span></code> parameters,
-and support for the <code class="docutils literal"><span class="pre">G</span></code> identifier in the <code class="docutils literal"><span class="pre">EntryTypes</span></code>
-parameter</td>
+<td>Added the <code class="docutils literal"><span class="pre">EntryDescriptions</span></code> and <code class="docutils literal"><span class="pre">LengthColumn</span></code> parameters</td>
 </tr>
 <tr class="row-odd"><td>2.5</td>
 <td>New</td>
@@ -1258,6 +1229,16 @@ an entry section name may contain
 </tbody>
 </table>
 </div>
+<div class="section" id="appending-content">
+<h2>Appending content<a class="headerlink" href="#appending-content" title="Permalink to this headline">¶</a></h2>
+<p>Content may be appended to an existing ref file section defined elsewhere by
+adding a &#8216;+&#8217; suffix to the section name. For example, to add a line to the
+<code class="docutils literal"><span class="pre">[Game]</span></code> section:</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>[Game+]
+AddressAnchor={address:04x}
+</pre></div>
+</div>
+</div>
 <div class="section" id="ref-file-comments">
 <h2>Ref file comments<a class="headerlink" href="#ref-file-comments" title="Permalink to this headline">¶</a></h2>
 <p>A comment may be added to a ref file by starting a line with a semicolon. For
@@ -1320,7 +1301,7 @@ with the first one removed.</p>
         <li class="right" >
           <a href="skool-macros.html" title="Skool macros"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 6.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 7.0 documentation</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">

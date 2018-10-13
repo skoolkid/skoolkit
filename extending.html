@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Extending SkoolKit &#8212; SkoolKit 6.4 documentation</title>
+    <title>Extending SkoolKit &#8212; SkoolKit 7.0 documentation</title>
     
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '6.4',
+        VERSION:     '7.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="top" title="SkoolKit 6.4 documentation" href="index.html" />
+    <link rel="top" title="SkoolKit 7.0 documentation" href="index.html" />
     <link rel="prev" title="ASM modes and directives" href="asm.html" /> 
   </head>
   <body role="document">
@@ -38,7 +38,7 @@
         <li class="right" >
           <a href="asm.html" title="ASM modes and directives"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 6.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 7.0 documentation</a> &#187;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
@@ -56,6 +56,7 @@
 <li><a class="reference internal" href="#base-and-case">Base and case</a></li>
 <li><a class="reference internal" href="#memory-snapshots">Memory snapshots</a></li>
 <li><a class="reference internal" href="#graphics">Graphics</a></li>
+<li><a class="reference internal" href="#html-page-initialisation">HTML page initialisation</a></li>
 <li><a class="reference internal" href="#writer-initialisation">Writer initialisation</a></li>
 </ul>
 </li>
@@ -332,15 +333,15 @@ wherever they appear in the parameter string.</li>
 </tbody>
 </table>
 <div class="versionchanged">
-<p><span class="versionmodified">Changed in version 4.0: </span>Added the <em>names</em> parameter and support for keyword arguments; <em>index</em>
-defaults to 0.</p>
+<p><span class="versionmodified">Changed in version 6.0: </span>Added the <em>fields</em> parameter.</p>
 </div>
 <div class="versionchanged">
 <p><span class="versionmodified">Changed in version 5.1: </span>Added support for parameters expressed using arithmetic operators and
 skool macros.</p>
 </div>
 <div class="versionchanged">
-<p><span class="versionmodified">Changed in version 6.0: </span>Added the <em>fields</em> parameter.</p>
+<p><span class="versionmodified">Changed in version 4.0: </span>Added the <em>names</em> parameter and support for keyword arguments; <em>index</em>
+defaults to 0.</p>
 </div>
 </dd></dl>
 
@@ -632,9 +633,8 @@ contents of data tables. These methods are described below.</p>
 <dl class="method">
 <dt id="skoolkit.skoolhtml.HtmlWriter.push_snapshot">
 <code class="descclassname">HtmlWriter.</code><code class="descname">push_snapshot</code><span class="sig-paren">(</span><em>name=''</em><span class="sig-paren">)</span><a class="headerlink" href="#skoolkit.skoolhtml.HtmlWriter.push_snapshot" title="Permalink to this definition">¶</a></dt>
-<dd><p>Save the current memory snapshot for later retrieval (by
-<a class="reference internal" href="#skoolkit.skoolhtml.HtmlWriter.pop_snapshot" title="skoolkit.skoolhtml.HtmlWriter.pop_snapshot"><code class="xref py py-meth docutils literal"><span class="pre">pop_snapshot()</span></code></a>), and put a copy in
-its place.</p>
+<dd><p>Save a copy of the current memory snapshot for later retrieval (by
+<a class="reference internal" href="#skoolkit.skoolhtml.HtmlWriter.pop_snapshot" title="skoolkit.skoolhtml.HtmlWriter.pop_snapshot"><code class="xref py py-meth docutils literal"><span class="pre">pop_snapshot()</span></code></a>).</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -648,9 +648,8 @@ its place.</p>
 <dl class="method">
 <dt id="skoolkit.skoolhtml.HtmlWriter.pop_snapshot">
 <code class="descclassname">HtmlWriter.</code><code class="descname">pop_snapshot</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#skoolkit.skoolhtml.HtmlWriter.pop_snapshot" title="Permalink to this definition">¶</a></dt>
-<dd><p>Discard the current memory snapshot and replace it with the one that
-was most recently saved (by
-<a class="reference internal" href="#skoolkit.skoolhtml.HtmlWriter.push_snapshot" title="skoolkit.skoolhtml.HtmlWriter.push_snapshot"><code class="xref py py-meth docutils literal"><span class="pre">push_snapshot()</span></code></a>).</p>
+<dd><p>Replace the current memory snapshot with the one most recently saved
+by <a class="reference internal" href="#skoolkit.skoolhtml.HtmlWriter.push_snapshot" title="skoolkit.skoolhtml.HtmlWriter.push_snapshot"><code class="xref py py-meth docutils literal"><span class="pre">push_snapshot()</span></code></a>.</p>
 </dd></dl>
 
 <dl class="method">
@@ -768,191 +767,27 @@ second.</li>
 </tr>
 </tbody>
 </table>
-<div class="versionadded">
-<p><span class="versionmodified">New in version 3.6.</span></p>
-</div>
 <div class="versionchanged">
-<p><span class="versionmodified">Changed in version 4.0: </span>The <em>mask</em> parameter specifies the type of mask to apply (see
-<a class="reference internal" href="skool-macros.html#masks"><span class="std std-ref">Masks</span></a>).</p>
+<p><span class="versionmodified">Changed in version 5.4: </span>The Frame class moved from skoolkit.skoolhtml to skoolkit.graphics.</p>
 </div>
 <div class="versionchanged">
 <p><span class="versionmodified">Changed in version 5.1: </span>The <em>udgs</em> parameter can be a function that returns the array of tiles;
 added the <em>name</em> parameter.</p>
 </div>
 <div class="versionchanged">
-<p><span class="versionmodified">Changed in version 5.4: </span>The Frame class moved from skoolkit.skoolhtml to skoolkit.graphics.</p>
+<p><span class="versionmodified">Changed in version 4.0: </span>The <em>mask</em> parameter specifies the type of mask to apply (see
+<a class="reference internal" href="skool-macros.html#masks"><span class="std std-ref">Masks</span></a>).</p>
+</div>
+<div class="versionadded">
+<p><span class="versionmodified">New in version 3.6.</span></p>
 </div>
 </dd></dl>
 
 <p>HtmlWriter and skoolkit.graphics provide the following image-related methods
 and functions.</p>
 <dl class="method">
-<dt id="skoolkit.skoolhtml.HtmlWriter.image_path">
-<code class="descclassname">HtmlWriter.</code><code class="descname">image_path</code><span class="sig-paren">(</span><em>fname</em>, <em>path_id='UDGImagePath'</em>, <em>frames=()</em><span class="sig-paren">)</span><a class="headerlink" href="#skoolkit.skoolhtml.HtmlWriter.image_path" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the full path of an image file relative to the root directory
-of the disassembly. If <cite>fname</cite> does not end with &#8216;.png&#8217; or &#8216;.gif&#8217;, an
-appropriate suffix will be appended (depending on the default image
-format). If <cite>fname</cite> starts with a &#8216;/&#8217;, it will be removed and the
-remainder returned. If <cite>fname</cite> is blank, <cite>None</cite> is returned. If <cite>fname</cite>
-contains an image path ID replacement field, the corresponding
-parameter value from the <a class="reference internal" href="ref-files.html#paths"><span class="std std-ref">[Paths]</span></a> section will be substituted.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>fname</strong> &#8211; The name of the image file.</li>
-<li><strong>path_id</strong> &#8211; The ID of the target directory (as defined in the
-<a class="reference internal" href="ref-files.html#paths"><span class="std std-ref">[Paths]</span></a> section). This is not used if <cite>fname</cite>
-starts with a &#8216;/&#8217; or contains an image path ID
-replacement field.</li>
-<li><strong>frames</strong> &#8211; The list of frames (instances of
-<a class="reference internal" href="#skoolkit.graphics.Frame" title="skoolkit.graphics.Frame"><code class="xref py py-class docutils literal"><span class="pre">Frame</span></code></a>) that define the
-image. If supplied, it is used to determine whether the
-image is animated, and select the appropriate filename
-suffix accordingly.</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
-<div class="versionchanged">
-<p><span class="versionmodified">Changed in version 5.1: </span>Added the <em>frames</em> parameter.</p>
-</div>
-<div class="versionchanged">
-<p><span class="versionmodified">Changed in version 6.3: </span><em>fname</em> may contain image path ID replacement fields.</p>
-</div>
-</dd></dl>
-
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">The <code class="xref py py-meth docutils literal"><span class="pre">image_path()</span></code> method is deprecated since version 6.3. Use
-<a class="reference internal" href="#skoolkit.skoolhtml.HtmlWriter.handle_image" title="skoolkit.skoolhtml.HtmlWriter.handle_image"><code class="xref py py-meth docutils literal"><span class="pre">handle_image()</span></code></a> instead.</p>
-</div>
-<dl class="method">
-<dt id="skoolkit.skoolhtml.HtmlWriter.need_image">
-<code class="descclassname">HtmlWriter.</code><code class="descname">need_image</code><span class="sig-paren">(</span><em>image_path</em><span class="sig-paren">)</span><a class="headerlink" href="#skoolkit.skoolhtml.HtmlWriter.need_image" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return whether an image file needs to be created. This will be true
-only if the file doesn&#8217;t already exist, or all images are being
-rebuilt. Well-behaved image-creating methods will call this to check
-whether an image file needs to be written, and thus avoid building an
-image when it is not necessary.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>image_path</strong> &#8211; The full path of the image file relative to the root
-directory of the disassembly.</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">The <code class="xref py py-meth docutils literal"><span class="pre">need_image()</span></code> method is deprecated since version 6.3. Use
-<a class="reference internal" href="#skoolkit.skoolhtml.HtmlWriter.handle_image" title="skoolkit.skoolhtml.HtmlWriter.handle_image"><code class="xref py py-meth docutils literal"><span class="pre">handle_image()</span></code></a> instead.</p>
-</div>
-<dl class="method">
-<dt id="skoolkit.skoolhtml.HtmlWriter.write_image">
-<code class="descclassname">HtmlWriter.</code><code class="descname">write_image</code><span class="sig-paren">(</span><em>image_path</em>, <em>udgs</em>, <em>crop_rect=()</em>, <em>scale=2</em>, <em>mask=0</em><span class="sig-paren">)</span><a class="headerlink" href="#skoolkit.skoolhtml.HtmlWriter.write_image" title="Permalink to this definition">¶</a></dt>
-<dd><p>Create an image and write it to a file.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>image_path</strong> &#8211; The full path of the file to which to write the
-image (relative to the root directory of the
-disassembly).</li>
-<li><strong>udgs</strong> &#8211; The two-dimensional array of tiles (instances of
-<a class="reference internal" href="#skoolkit.graphics.Udg" title="skoolkit.graphics.Udg"><code class="xref py py-class docutils literal"><span class="pre">Udg</span></code></a>) from which to build the
-image.</li>
-<li><strong>crop_rect</strong> &#8211; The cropping rectangle, <code class="docutils literal"><span class="pre">(x,</span> <span class="pre">y,</span> <span class="pre">width,</span> <span class="pre">height)</span></code>,
-where <code class="docutils literal"><span class="pre">x</span></code> and <code class="docutils literal"><span class="pre">y</span></code> are the x- and y-coordinates of
-the top-left pixel to include in the final image, and
-<code class="docutils literal"><span class="pre">width</span></code> and <code class="docutils literal"><span class="pre">height</span></code> are the width and height of
-the final image.</li>
-<li><strong>scale</strong> &#8211; The scale of the image.</li>
-<li><strong>mask</strong> &#8211; The type of mask to apply to the tiles: 0 (no mask), 1
-(OR-AND mask), or 2 (AND-OR mask).</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
-<div class="versionchanged">
-<p><span class="versionmodified">Changed in version 4.0: </span>The <em>mask</em> parameter specifies the type of mask to apply (see
-<a class="reference internal" href="skool-macros.html#masks"><span class="std std-ref">Masks</span></a>).</p>
-</div>
-</dd></dl>
-
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">The <code class="xref py py-meth docutils literal"><span class="pre">write_image()</span></code> method is deprecated since version 6.3. Use
-<a class="reference internal" href="#skoolkit.skoolhtml.HtmlWriter.handle_image" title="skoolkit.skoolhtml.HtmlWriter.handle_image"><code class="xref py py-meth docutils literal"><span class="pre">handle_image()</span></code></a> instead.</p>
-</div>
-<dl class="method">
-<dt id="skoolkit.skoolhtml.HtmlWriter.img_element">
-<code class="descclassname">HtmlWriter.</code><code class="descname">img_element</code><span class="sig-paren">(</span><em>cwd</em>, <em>image_path</em>, <em>alt=None</em><span class="sig-paren">)</span><a class="headerlink" href="#skoolkit.skoolhtml.HtmlWriter.img_element" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return an <code class="docutils literal"><span class="pre">&lt;img</span> <span class="pre">.../&gt;</span></code> element for an image file.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>cwd</strong> &#8211; The current working directory (from which the relative path
-of the image file will be computed).</li>
-<li><strong>image_path</strong> &#8211; The full path of the image file relative to the root
-directory of the disassembly.</li>
-<li><strong>alt</strong> &#8211; The alt text to use for the image; if <cite>None</cite>, the base name
-of the image file (with the &#8216;.png&#8217; or &#8216;.gif&#8217; suffix
-removed) will be used.</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">The <code class="xref py py-meth docutils literal"><span class="pre">img_element()</span></code> method is deprecated since version 6.3. Use
-<a class="reference internal" href="#skoolkit.skoolhtml.HtmlWriter.handle_image" title="skoolkit.skoolhtml.HtmlWriter.handle_image"><code class="xref py py-meth docutils literal"><span class="pre">handle_image()</span></code></a> instead.</p>
-</div>
-<dl class="method">
-<dt id="skoolkit.skoolhtml.HtmlWriter.write_animated_image">
-<code class="descclassname">HtmlWriter.</code><code class="descname">write_animated_image</code><span class="sig-paren">(</span><em>image_path</em>, <em>frames</em><span class="sig-paren">)</span><a class="headerlink" href="#skoolkit.skoolhtml.HtmlWriter.write_animated_image" title="Permalink to this definition">¶</a></dt>
-<dd><p>Create an image and write it to a file.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>image_path</strong> &#8211; The full path of the file to which to write the
-image (relative to the root directory of the
-disassembly).</li>
-<li><strong>frames</strong> &#8211; A list of the frames (instances of
-<a class="reference internal" href="#skoolkit.graphics.Frame" title="skoolkit.graphics.Frame"><code class="xref py py-class docutils literal"><span class="pre">Frame</span></code></a>) from which to build
-the image.</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
-<div class="versionadded">
-<p><span class="versionmodified">New in version 3.6.</span></p>
-</div>
-</dd></dl>
-
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">The <code class="xref py py-meth docutils literal"><span class="pre">write_animated_image()</span></code> method is deprecated since version 6.3. Use
-<a class="reference internal" href="#skoolkit.skoolhtml.HtmlWriter.handle_image" title="skoolkit.skoolhtml.HtmlWriter.handle_image"><code class="xref py py-meth docutils literal"><span class="pre">handle_image()</span></code></a> instead.</p>
-</div>
-<dl class="method">
 <dt id="skoolkit.skoolhtml.HtmlWriter.handle_image">
-<code class="descclassname">HtmlWriter.</code><code class="descname">handle_image</code><span class="sig-paren">(</span><em>frames</em>, <em>fname=''</em>, <em>cwd=None</em>, <em>alt=None</em>, <em>path_id='UDGImagePath'</em><span class="sig-paren">)</span><a class="headerlink" href="#skoolkit.skoolhtml.HtmlWriter.handle_image" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">HtmlWriter.</code><code class="descname">handle_image</code><span class="sig-paren">(</span><em>frames</em>, <em>fname=''</em>, <em>cwd=None</em>, <em>alt=None</em>, <em>path_id='ImagePath'</em><span class="sig-paren">)</span><a class="headerlink" href="#skoolkit.skoolhtml.HtmlWriter.handle_image" title="Permalink to this definition">¶</a></dt>
 <dd><p>Register a named frame for an image, and write an image file if
 required. If <cite>fname</cite> is blank, no image file will be created.  If
 <cite>fname</cite> does not end with &#8216;.png&#8217; or &#8216;.gif&#8217;, an appropriate suffix will
@@ -983,15 +818,18 @@ created.</p>
 </tr>
 </tbody>
 </table>
-<div class="versionadded">
-<p><span class="versionmodified">New in version 5.1.</span></p>
+<div class="versionchanged">
+<p><span class="versionmodified">Changed in version 7.0: </span><em>path_id</em> defaults to <code class="docutils literal"><span class="pre">ImagePath</span></code> (previously <code class="docutils literal"><span class="pre">UDGImagePath</span></code>).</p>
+</div>
+<div class="versionchanged">
+<p><span class="versionmodified">Changed in version 6.4: </span><em>frames</em> may be a single frame.</p>
 </div>
 <div class="versionchanged">
 <p><span class="versionmodified">Changed in version 6.3: </span><em>fname</em> may contain an image path ID replacement field (e.g.
 <code class="docutils literal"><span class="pre">{UDGImagePath}</span></code>).</p>
 </div>
-<div class="versionchanged">
-<p><span class="versionmodified">Changed in version 6.4: </span><em>frames</em> may be a single frame.</p>
+<div class="versionadded">
+<p><span class="versionmodified">New in version 5.1.</span></p>
 </div>
 </dd></dl>
 
@@ -1058,6 +896,37 @@ horizontally and vertically.</li>
 </dd></dl>
 
 </div>
+<div class="section" id="html-page-initialisation">
+<h2>HTML page initialisation<a class="headerlink" href="#html-page-initialisation" title="Permalink to this headline">¶</a></h2>
+<p>If you need to perform page-specific actions or customise the <code class="docutils literal"><span class="pre">SkoolKit</span></code> and
+<code class="docutils literal"><span class="pre">Game</span></code> parameter dictionaries that are used by the <a class="reference internal" href="html-templates.html#htmltemplates"><span class="std std-ref">HTML templates</span></a>, the
+place to do that is the <cite>init_page()</cite> method.</p>
+<dl class="method">
+<dt id="skoolkit.skoolhtml.HtmlWriter.init_page">
+<code class="descclassname">HtmlWriter.</code><code class="descname">init_page</code><span class="sig-paren">(</span><em>skoolkit</em>, <em>game</em><span class="sig-paren">)</span><a class="headerlink" href="#skoolkit.skoolhtml.HtmlWriter.init_page" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform page initialisation operations. This method is called after
+the <code class="docutils literal"><span class="pre">SkoolKit</span></code> and <code class="docutils literal"><span class="pre">Game</span></code> parameter dictionaries have been
+initialised, and provides those dictionaries as arguments for
+inspection and customisation before a page is formatted. By default the
+method does nothing, but subclasses may override it.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>skoolkit</strong> &#8211; The <code class="docutils literal"><span class="pre">SkoolKit</span></code> parameter dictionary.</li>
+<li><strong>game</strong> &#8211; The <code class="docutils literal"><span class="pre">Game</span></code> parameter dictionary.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="versionadded">
+<p><span class="versionmodified">New in version 7.0.</span></p>
+</div>
+</dd></dl>
+
+</div>
 <div class="section" id="writer-initialisation">
 <h2>Writer initialisation<a class="headerlink" href="#writer-initialisation" title="Permalink to this headline">¶</a></h2>
 <p>If your AsmWriter or HtmlWriter subclass needs to perform some initialisation
@@ -1109,7 +978,7 @@ subclasses may override it.</p>
         <li class="right" >
           <a href="asm.html" title="ASM modes and directives"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 6.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 7.0 documentation</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">

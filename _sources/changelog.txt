@@ -1,6 +1,39 @@
 Changelog
 =========
 
+7.0 (2018-10-13)
+----------------
+* The :ref:`isub`, :ref:`ssub`, :ref:`rsub`, :ref:`ofix`, :ref:`bfix` and
+  :ref:`rfix` directives can specify the replacement comment over multiple
+  lines, replace the label, and insert, overwrite and remove instructions
+* :ref:`nonEntryBlocks` in a skool file are reproduced by :ref:`skool2asm.py`
+  and preserved by :ref:`skool2ctl.py`
+* Moved the ability to generate a control file from :ref:`sna2skool.py` to the
+  new :ref:`sna2ctl.py` command
+* :ref:`skool2bin.py` now processes :ref:`asm-if` directives (in case they
+  contain :ref:`isub`, :ref:`ssub`, :ref:`ofix` or :ref:`bfix` directives)
+* The :ref:`label` directive can now add an entry point marker to the next
+  instruction, or remove one if present
+* Added the ``--force`` option to :ref:`skool2asm.py` (to force conversion of
+  the entire skool file, ignoring any :ref:`start` and :ref:`end` directives)
+* Added support for appending content to an existing ref file section by adding
+  a '+' suffix to the section name (e.g. ``[Game+]``)
+* Added support for preserving 'inverted' characters (with bit 7 set) in and
+  restoring them from a control file or skool file template
+* Added support to the :ref:`list`, :ref:`table` and :ref:`udgtable` macros for
+  the ``nowrap`` and ``wrapalign`` flags (which control how :ref:`sna2skool.py`
+  renders each list item or table row when reading from a control file)
+* :ref:`skool2html.py` now writes a single disassembly from the the skool file
+  given as the first positional argument; any other positional arguments are
+  interpreted as extra ref files
+* Every entry title on a memory map page is now hyperlinked to the disassembly
+  page for the corresponding entry
+* Fixed the bug in :ref:`skool2ctl.py` that makes it incorrectly compute the
+  length of an ``M`` directive covering a sub-block containing two or more
+  instructions
+* Fixed how blocks of zeroes are detected and how an ``--end`` address is
+  handled when generating a control file
+
 6.4 (2018-03-31)
 ----------------
 * Added the :ref:`asm-if` directive (for conditionally processing other ASM
@@ -92,7 +125,7 @@ Changelog
 * The :ref:`keep` directive can now specify the values to keep, and is applied
   to instructions that have been replaced by an :ref:`isub`, :ref:`ssub` or
   :ref:`rsub` directive
-* The :ref:`nolabel` directive is now processed in HTML mode
+* The ``@nolabel`` directive is now processed in HTML mode
 
 6.1 (2017-09-03)
 ----------------

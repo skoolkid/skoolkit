@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Skool file templates &#8212; SkoolKit 6.4 documentation</title>
+    <title>Skool file templates &#8212; SkoolKit 7.0 documentation</title>
     
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '6.4',
+        VERSION:     '7.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="top" title="SkoolKit 6.4 documentation" href="index.html" />
+    <link rel="top" title="SkoolKit 7.0 documentation" href="index.html" />
     <link rel="next" title="Skool macros" href="skool-macros.html" />
     <link rel="prev" title="Skool files" href="skool-files.html" /> 
   </head>
@@ -42,7 +42,7 @@
         <li class="right" >
           <a href="skool-files.html" title="Skool files"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 6.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 7.0 documentation</a> &#187;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
@@ -53,7 +53,6 @@
 <li><a class="reference internal" href="#skool-file-template-format">Skool file template format</a></li>
 <li><a class="reference internal" href="#sub-block-syntax">Sub-block syntax</a></li>
 <li><a class="reference internal" href="#skool-file-template-comments">Skool file template comments</a></li>
-<li><a class="reference internal" href="#data-definition-entries">Data definition entries</a></li>
 <li><a class="reference internal" href="#revision-history">Revision history</a></li>
 </ul>
 </li>
@@ -174,7 +173,7 @@ bases or as characters. For example:</p>
 </div>
 <p>These statements may be preserved in a skool file template thus:</p>
 <div class="highlight-none"><div class="highlight"><pre><span></span>bB40000,b1:d2:h1,d1,b1,h2
- S40008,8:c&quot;!&quot;
+ S40008,8:c
 </pre></div>
 </div>
 <p>Instruction operands may also contain numeric values in various bases or as
@@ -196,31 +195,6 @@ on sublength parameters thus:</p>
 <p>Any line that begins with a hash character (<code class="docutils literal"><span class="pre">#</span></code>) is ignored by
 <cite>sna2skool.py</cite>, and will not show up in the skool file.</p>
 </div>
-<div class="section" id="data-definition-entries">
-<h2>Data definition entries<a class="headerlink" href="#data-definition-entries" title="Permalink to this headline">¶</a></h2>
-<p>In the same way as <cite>skool2html.py</cite> uses data definition entries (<code class="docutils literal"><span class="pre">d</span></code> blocks)
-in a skool file to insert data into the memory snapshot it constructs,
-<cite>sna2skool.py</cite> uses data definition entries in a skool file template to replace
-data in the snapshot given on the command line. This feature can be used to
-make sure that a &#8216;volatile&#8217; part of memory is set to a specific value before
-being disassembled.</p>
-<p>For example, if address 32400 holds the number of lives, you could make sure
-that its contents are set to 0 so that it will disassemble to <code class="docutils literal"><span class="pre">DEFB</span> <span class="pre">0</span></code>
-(whatever the contents may be in the snapshot itself) thus:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>d32400 DEFB 0
-
-; Number of lives
-bB32400,1
-</pre></div>
-</div>
-<p>Note that in order to take effect, a <code class="docutils literal"><span class="pre">d</span></code> block must appear before the block
-that it overrides.</p>
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">Data definition entries are deprecated since version 6.3. Use the
-<a class="reference internal" href="asm.html#defb"><span class="std std-ref">&#64;defb</span></a>, <a class="reference internal" href="asm.html#defs"><span class="std std-ref">&#64;defs</span></a> and <a class="reference internal" href="asm.html#defw"><span class="std std-ref">&#64;defw</span></a> directives instead.</p>
-</div>
-</div>
 <div class="section" id="revision-history">
 <h2>Revision history<a class="headerlink" href="#revision-history" title="Permalink to this headline">¶</a></h2>
 <table border="1" class="docutils">
@@ -234,29 +208,33 @@ that it overrides.</p>
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>5.1</td>
+<tr class="row-even"><td>7.0</td>
+<td>Added support for preserving &#8216;inverted&#8217; characters (with bit 7
+set); the byte value in an <code class="docutils literal"><span class="pre">S</span></code> directive may be left blank</td>
+</tr>
+<tr class="row-odd"><td>5.1</td>
 <td>Added support for preserving <code class="docutils literal"><span class="pre">i</span></code> blocks in the same way as code
 and data blocks (instead of verbatim)</td>
 </tr>
-<tr class="row-odd"><td>4.5</td>
+<tr class="row-even"><td>4.5</td>
 <td>Added support for specifying character values in DEFS statements</td>
 </tr>
-<tr class="row-even"><td>4.4</td>
+<tr class="row-odd"><td>4.4</td>
 <td>Added support for specifying that numeric values in instruction
 operands be rendered as characters or in a specific base; added
 support for specifying character values in DEFW statements</td>
 </tr>
-<tr class="row-odd"><td>3.7</td>
+<tr class="row-even"><td>3.7</td>
 <td>Added support for binary numbers; added support for specifying
 the base of numeric values in DEFB, DEFM, DEFS and DEFW
 statements; added the <code class="docutils literal"><span class="pre">s</span></code> and <code class="docutils literal"><span class="pre">S</span></code> directives and support for
 DEFS statements with non-zero byte values</td>
 </tr>
-<tr class="row-even"><td>3.1.4</td>
+<tr class="row-odd"><td>3.1.4</td>
 <td>Added support for DEFB and DEFM statements that contain both
 strings and bytes</td>
 </tr>
-<tr class="row-odd"><td>2.4</td>
+<tr class="row-even"><td>2.4</td>
 <td>New</td>
 </tr>
 </tbody>
@@ -282,7 +260,7 @@ strings and bytes</td>
         <li class="right" >
           <a href="skool-files.html" title="Skool files"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 6.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 7.0 documentation</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">

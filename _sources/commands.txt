@@ -160,6 +160,7 @@ assembler (see :ref:`supportedAssemblers`). For example::
                             N=1: @ofix only
                             N=2: @ofix and @bfix
                             N=3: @ofix, @bfix and @rfix (implies -r)
+    -F, --force           Force conversion, ignoring @start and @end directives.
     -H, --hex             Write the disassembly in hexadecimal.
     -I p=v, --ini p=v     Set the value of the configuration parameter 'p' to
                           'v'. This option may be used multiple times.
@@ -224,6 +225,9 @@ Configuration parameters may also be set on the command line by using the
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 7.0     | :ref:`nonEntryBlocks` are reproduced verbatim; added the          |
+|         | ``--force`` option                                                |
++---------+-------------------------------------------------------------------+
 | 6.4     | Added the ``--var`` option                                        |
 +---------+-------------------------------------------------------------------+
 | 6.2     | Added the ``--show-config`` option; the ``--end`` and ``--start`` |
@@ -278,6 +282,8 @@ To list the options supported by `skool2bin.py`, run it with no arguments::
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 7.0     | :ref:`asm-if` directives are processed                            |
++---------+-------------------------------------------------------------------+
 | 6.2     | The ``--end`` and ``--start`` options accept a hexadecimal        |
 |         | integer prefixed by '0x'                                          |
 +---------+-------------------------------------------------------------------+
@@ -302,8 +308,8 @@ For example::
 
 In addition to block types and addresses, `game.ctl` will contain block titles,
 block descriptions, registers, mid-block comments, block start and end
-comments, sub-block types and addresses, instruction-level comments, and some
-:ref:`ASM directives <asmDirectives>`.
+comments, sub-block types and addresses, instruction-level comments, non-entry
+blocks, and some :ref:`ASM directives <asmDirectives>`.
 
 To list the options supported by `skool2ctl.py`, run it with no arguments::
 
@@ -330,14 +336,17 @@ To list the options supported by `skool2ctl.py`, run it with no arguments::
                             m = mid-block comments and block start/end comments
                             s = sub-block types and addresses
                             c = instruction-level comments
+                            n = non-entry blocks
 
 If you need to preserve any elements that control files do not support (such as
-data definition entries and ASM block directives), consider using
-:ref:`skool2sft.py` to create a skool file template instead.
+ASM block directives), consider using :ref:`skool2sft.py` to create a skool
+file template instead.
 
 +---------+----------------------------------------------------------------+
 | Version | Changes                                                        |
 +=========+================================================================+
+| 7.0     | Added support for the 'n' identifier in the ``--write`` option |
++---------+----------------------------------------------------------------+
 | 6.2     | The ``--end`` and ``--start`` options accept a hexadecimal     |
 |         | integer prefixed by '0x'                                       |
 +---------+----------------------------------------------------------------+
@@ -376,17 +385,18 @@ For example::
 
 will convert the file `game.skool` into a bunch of HTML files. If any files
 named `game*.ref` (e.g. `game.ref`, `game-bugs.ref`, `game-pokes.ref` and so
-on) also exist, they will be used to provide further information to the
-conversion process, along with any extra files named in the ``RefFiles``
-parameter in the :ref:`ref-Config` section.
+on) also exist in the same directory as `game.skool`, they will be used to
+provide further information to the conversion process, along with any extra
+files named in the ``RefFiles`` parameter in the :ref:`ref-Config` section, and
+any other ref files named on the command line.
 
 `skool2html.py` supports several options; run it with no arguments to see a
 list::
 
-  usage: skool2html.py [options] FILE [FILE...]
+  usage: skool2html.py [options] SKOOLFILE [REFFILE...]
 
-  Convert skool files and ref files to HTML. FILE may be a regular file, or '-'
-  for standard input.
+  Convert a skool file and ref files to HTML. SKOOLFILE may be a regular file, or
+  '-' for standard input.
 
   Options:
     -1, --asm-one-page    Write all routines and data blocks to a single page.
@@ -433,14 +443,9 @@ list::
                           Specify the HTML writer class to use; shorthand for
                           '--config Config/HtmlWriterClass=CLASS'.
 
-.. note::
-   Giving a ref file as the first positional argument is deprecated since
-   version 6.4. In SkoolKit 7.0, `skool2html.py` will require the skool file as
-   the first positional argument.
-
-`skool2html.py` searches the following directories for ref files, CSS files,
-JavaScript files, font files, and files listed in the :ref:`resources` section
-of the ref file:
+`skool2html.py` searches the following directories for CSS files, JavaScript
+files, font files, and files listed in the :ref:`resources` section of the ref
+file:
 
 * The directory that contains the skool file named on the command line
 * The current working directory
@@ -519,6 +524,9 @@ Configuration parameters may also be set on the command line by using the
 +---------+------------------------------------------------------------------+
 | Version | Changes                                                          |
 +=========+==================================================================+
+| 7.0     | Writes a single disassembly from the skool file given by the     |
+|         | first positional argument                                        |
++---------+------------------------------------------------------------------+
 | 6.4     | Added the ``--var`` option                                       |
 +---------+------------------------------------------------------------------+
 | 6.2     | Added the ``--show-config`` option                               |
@@ -611,6 +619,58 @@ To list the options supported by `skool2sft.py`, run it with no arguments::
 | 2.4     | New                                                         |
 +---------+-------------------------------------------------------------+
 
+.. _sna2ctl.py:
+
+sna2ctl.py
+----------
+`sna2ctl.py` generates a control file for a binary (raw memory) file or a SNA,
+SZX or Z80 snapshot. For example::
+
+  $ sna2ctl.py game.z80 > game.ctl
+
+Now `game.ctl` can be used by :ref:`sna2skool.py` to convert `game.z80` into a
+skool file split into blocks of code and data.
+
+`sna2ctl.py` supports several options; run it with no arguments to see a list::
+
+  usage: sna2ctl.py [options] FILE
+
+  Generate a control file for a binary (raw memory) file or a SNA, SZX or Z80
+  snapshot. FILE may be a regular file, or '-' for standard input.
+
+  Options:
+    -e ADDR, --end ADDR   Stop at this address (default=65536).
+    -h, --hex             Write upper case hexadecimal addresses.
+    -l, --hex-lower       Write lower case hexadecimal addresses.
+    -m FILE, --map FILE   Use FILE as a code execution map.
+    -o ADDR, --org ADDR   Specify the origin address of a binary file (default:
+                          65536 - length).
+    -p PAGE, --page PAGE  Specify the page (0-7) of a 128K snapshot to map to
+                          49152-65535.
+    -s ADDR, --start ADDR
+                          Start at this address (default=16384).
+    -V, --version         Show SkoolKit version number and exit.
+
+If the input filename does not end with '.sna', '.szx' or '.z80', it is assumed
+to be a binary file.
+
+The ``-m`` option may be used to specify a code execution map to use when
+generating a control file. The supported file formats are:
+
+* Profiles created by the Fuse emulator
+* Code execution logs created by the SpecEmu, Spud and Zero emulators
+* Map files created by the SpecEmu and Z80 emulators
+
+If the file specified by the ``-m`` option is 8192 bytes long, it is assumed to
+be a Z80 map file; if it is 65536 bytes long, it is assumed to be a SpecEmu map
+file; otherwise it is assumed to be in one of the other supported formats.
+
++---------+---------+
+| Version | Changes |
++=========+=========+
+| 7.0     | New     |
++---------+---------+
+
 .. _sna2img.py:
 
 sna2img.py
@@ -698,17 +758,11 @@ list::
     -c FILE, --ctl FILE   Use FILE as the control file (may be '-' for standard
                           input).
     -e ADDR, --end ADDR   Stop disassembling at this address (default=65536).
-    -g FILE, --generate-ctl FILE
-                          Generate a control file in FILE.
-    -h, --ctl-hex         Write upper case hexadecimal addresses in the
-                          generated control file.
-    -H, --skool-hex       Write hexadecimal addresses and operands in the
+    -H, --hex             Write hexadecimal addresses and operands in the
                           disassembly.
     -I p=v, --ini p=v     Set the value of the configuration parameter 'p' to
                           'v'. This option may be used multiple times.
-    -L, --lower           Write the disassembly in lower case.
-    -M FILE, --map FILE   Use FILE as a code execution map when generating a
-                          control file.
+    -l, --lower           Write the disassembly in lower case.
     -o ADDR, --org ADDR   Specify the origin address of a binary (.bin) file
                           (default: 65536 - length).
     -p PAGE, --page PAGE  Specify the page (0-7) of a 128K snapshot to map to
@@ -722,21 +776,6 @@ list::
     -w W, --line-width W  Set the maximum line width of the skool file (default:
                           79).
 
-.. note::
-   The ``-i``, ``-l``, ``-m``, ``-n``, ``-r``, ``-R``, ``-t`` and ``-z``
-   options and their corresponding long options are deprecated since version
-   6.1. Use the ``-I/--ini`` option with an appropriate configuration parameter
-   instead:
-
-    * instead of ``-i/--ctl-hex-lower``, use ``-I CtlHex=1``
-    * instead of ``-l/--defm-size L``, use ``-I DefmSize=L``
-    * instead of ``-m/--defb-mod M``, use ``-I DefbMod=M``
-    * instead of ``-n/--defb-size N``, use ``-I DefbSize=N``
-    * instead of ``-r/--no-erefs``, use ``-I ListRefs=0``
-    * instead of ``-R/--erefs``, use ``-I ListRefs=2``
-    * instead of ``-t/--text``, use ``-I Text=1``
-    * instead of ``-z/--defb-zfill``, use ``-I DefbZfill=1``
-
 If the input filename does not end with '.sna', '.szx' or '.z80', it is assumed
 to be a binary file.
 
@@ -744,18 +783,6 @@ By default, any :ref:`control file <controlFiles>` or
 :ref:`skool file template <skoolFileTemplates>` whose name (minus the '.ctl' or
 '.sft' suffix) matches the input filename (minus the '.bin', '.sna', '.szx' or
 '.z80' suffix, if any) will be used, if present.
-
-The ``-M`` option may be used (in conjunction with the ``-g`` option) to
-specify a code execution map to use when generating a control file. The
-supported file formats are:
-
-* Profiles created by the Fuse emulator
-* Code execution logs created by the SpecEmu, Spud and Zero emulators
-* Map files created by the SpecEmu and Z80 emulators
-
-If the file specified by the ``-M`` option is 8192 bytes long, it is assumed to
-be a Z80 map file; if it is 65536 bytes long, it is assumed to be a SpecEmu map
-file; otherwise it is assumed to be in one of the other supported formats.
 
 .. _sna2skool-conf:
 
@@ -769,9 +796,6 @@ configuration parameters are:
   or decimal (``10``, the default)
 * ``Case`` - write the disassembly in lower case (``1``) or upper case (``2``,
   the default)
-* ``CtlHex`` - write addresses in a generated control file in decimal (``0``,
-  the default), lower case hexadecimal (``1``),  or upper case hexadecimal
-  (``2``)
 * ``DefbMod`` - group DEFB blocks by addresses that are divisible by this
   number (default: ``1``)
 * ``DefbSize`` - maximum number of bytes per DEFB statement (default: ``8``)
@@ -828,43 +852,45 @@ Configuration parameters may also be set on the command line by using the
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 7.0     | The short option for ``--lower`` is ``-l``; the long option for   |
+|         | ``-H`` is ``--hex``                                               |
++---------+-------------------------------------------------------------------+
 | 6.2     | Added the ``--show-config`` option; the ``--end``, ``--org`` and  |
 |         | ``--start`` options accept a hexadecimal integer prefixed by '0x' |
 +---------+-------------------------------------------------------------------+
 | 6.1     | Configuration is read from `skoolkit.ini` if present; added the   |
 |         | ``--ini`` option                                                  |
 +---------+-------------------------------------------------------------------+
-| 5.0     | Added support for SpecEmu's 64K code execution map files          |
-+---------+-------------------------------------------------------------------+
-| 4.4     | Added the ``--ctl-hex-lower`` and ``--end`` options               |
+| 4.4     | Added the ``--end`` option                                        |
 +---------+-------------------------------------------------------------------+
 | 4.3     | Added the ``--line-width`` option                                 |
 +---------+-------------------------------------------------------------------+
-| 3.4     | Added the ``-V`` and ``-R`` options and the long options          |
+| 3.4     | Added the ``-V`` option and the long options, and the ability to  |
+|         | add a comment listing referrers at every routine entry point      |
 +---------+-------------------------------------------------------------------+
-| 3.3     | Added the ``-M`` option, along with support for code execution    |
-|         | maps produced by Fuse, SpecEmu, Spud, Zero and Z80; added the     |
-|         | ability to read 128K SNA snapshots                                |
+| 3.3     | Added the ability to read 128K SNA snapshots                      |
 +---------+-------------------------------------------------------------------+
 | 3.2     | Added the ``-p`` option, and the ability to read SZX snapshots    |
 |         | and 128K Z80 snapshots                                            |
 +---------+-------------------------------------------------------------------+
 | 2.4     | Added the ``-T`` option                                           |
 +---------+-------------------------------------------------------------------+
-| 2.1.2   | Added the ``-L`` option                                           |
+| 2.1.2   | Added the ability to write the disassembly in lower case          |
 +---------+-------------------------------------------------------------------+
 | 2.1     | Added the ``-H`` option                                           |
 +---------+-------------------------------------------------------------------+
-| 2.0.6   | Added the ``-h`` option                                           |
+| 2.0.1   | Added the ``-o`` option, and the ability to read binary files, to |
+|         | set the maximum number of characters in a DEFM statement, and to  |
+|         | suppress comments that list routine entry point referrers         |
 +---------+-------------------------------------------------------------------+
-| 2.0.1   | Added the ``-o``, ``-r`` and ``-l`` options, and the ability to   |
-|         | read binary files                                                 |
+| 2.0     | Added the ability to group DEFB blocks by addresses divisible by  |
+|         | a given number, to set the maximum number of bytes in a DEFB      |
+|         | statement, and to pad decimal values in DEFB statements with      |
+|         | leading zeroes                                                    |
 +---------+-------------------------------------------------------------------+
-| 2.0     | Added the ``-n``, ``-m`` and ``-z`` options                       |
+| 1.0.5   | Added the ability to show ASCII text in comment fields            |
 +---------+-------------------------------------------------------------------+
-| 1.0.5   | Added the ``-t`` option                                           |
-+---------+-------------------------------------------------------------------+
-| 1.0.4   | Added the ``-g`` and ``-s`` options                               |
+| 1.0.4   | Added the ``-s`` option                                           |
 +---------+-------------------------------------------------------------------+
 
 .. _snapinfo.py:

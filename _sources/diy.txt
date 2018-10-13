@@ -111,24 +111,24 @@ Generating a control file
 -------------------------
 If you are planning to create a disassembly of some game other than Hungry
 Horace, you will need to create your own control file. To get started, you can
-use the ``-g`` option with `sna2skool.py` to perform a rudimentary static code
-analysis of the snapshot file and generate a corresponding control file::
+use :ref:`sna2ctl.py` to perform a rudimentary static code analysis of the
+snapshot file and generate a corresponding control file::
 
-  $ sna2skool.py -g game.ctl game.z80 > game.skool
+  $ sna2ctl.py game.z80 > game.ctl
+  $ sna2skool.py -c game.ctl game.z80 > game.skool
 
 This will do a reasonable job of splitting the snapshot into blocks, but won't
-be 100% accurate (except by accident); you will need to examine the resultant
-skool file (`game.skool` in this case) to see which blocks have been
-incorrectly marked as text, data or code, and then edit the generated control
-file (`game.ctl`) accordingly.
+be 100% accurate (except by accident). You will need to examine the resultant
+skool file (`game.skool` ) to see which blocks have been incorrectly marked as
+text, data or code, and then edit the control file (`game.ctl`) accordingly.
 
 To generate a better control file, you could use a code execution map produced
-by an emulator to tell `sna2skool.py` where at least some of the code is in the
-snapshot. `sna2skool.py` will read a map (otherwise known as a profile or
-trace) produced by Fuse, SpecEmu, Spud, Zero or Z80 when specified by the
-``-M`` option::
+by an emulator to tell `sna2ctl.py` where at least some of the code is in the
+snapshot. `sna2ctl.py` will read a map (otherwise known as a profile or trace)
+produced by Fuse, SpecEmu, Spud, Zero or Z80 when specified by the ``-m``
+option::
 
-  $ sna2skool.py -M game.map -g game.ctl game.z80 > game.skool
+  $ sna2ctl.py -m game.map game.z80 > game.ctl
 
 Needless to say, in general, the better the map, the more accurate the
 resulting control file will be. To create a good map file, you should ideally
@@ -138,12 +138,14 @@ supports playing back RZX files, you could grab a recording of your chosen game
 from the `RZX Archive <http://rzxarchive.co.uk/>`_, and set the emulator's
 profiler or tracer going while the recording plays back.
 
-By default, `sna2skool.py` generates a control file and a skool file with
-addresses and instruction operands in decimal notation. If you prefer to work
-in hexadecimal, however, use the ``-h`` option to produce a hexadecimal control
-file, and the ``-H`` option to produce a hexadecimal skool file::
+By default, `sna2ctl.py` and `sna2skool.py` generate control files and skool
+files with addresses and instruction operands in decimal notation. If you
+prefer to work in hexadecimal, however, use the ``-h`` option of `sna2ctl.py`
+to produce a hexadecimal control file, and the ``-H`` option of `sna2skool.py`
+to produce a hexadecimal skool file::
 
-  $ sna2skool.py -h -H -g game.ctl game.z80 > game.skool
+  $ sna2ctl.py -h game.z80 > game.ctl
+  $ sna2skool.py -H -c game.ctl game.z80 > game.skool
 
 Developing the skool file
 -------------------------

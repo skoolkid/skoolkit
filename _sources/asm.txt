@@ -180,11 +180,11 @@ purpose of populating the memory snapshot. ::
 ``H`` is an integer value that determines what is converted in HTML mode, and
 ``A`` is an integer value that determines what is converted in ASM mode:
 
-* ``-1`` - do not convert anything (this is the default in ASM mode)
-* ``0`` - convert ``DEFB``, ``DEFM``, ``DEFS`` and ``DEFW`` statements and
+* ``0`` - do not convert anything (this is the default in ASM mode)
+* ``1`` - convert ``DEFB``, ``DEFM``, ``DEFS`` and ``DEFW`` statements and
   ``@defb``, ``@defs`` and ``@defw`` directives only (this is the default in
   HTML mode)
-* ``1`` - convert assembly language instructions as well
+* ``2`` - convert assembly language instructions as well
 
 If ``H`` or ``A`` is blank or omitted, its value is left unchanged.
 
@@ -193,19 +193,21 @@ For example::
   ; The eight bytes of code in this routine are also used as UDG data.
   ; .
   ; #HTML(#UDG44919)
-  @assemble=1
+  @assemble=2
   c44919 LD DE,46572   ;
    44922 CP 200        ;
    44924 JP 45429      ;
-  @assemble=0
+  @assemble=1
 
-The ``@assemble=1`` directive is required to define the bytes for addresses
+The ``@assemble=2`` directive is required to define the bytes for addresses
 44919-44926. If it were not present, the memory snapshot would contain zeroes
 at those addresses, and the image created by the ``#UDG`` macro would be blank.
 
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 7.0     | The accepted values are 0, 1 and 2 (previously -1, 0 and 1)       |
++---------+-------------------------------------------------------------------+
 | 6.3     | Added support for specifying what's converted in HTML mode and    |
 |         | ASM mode separately, and for switching off conversion entirely    |
 +---------+-------------------------------------------------------------------+
@@ -219,26 +221,148 @@ at those addresses, and the image created by the ``#UDG`` macro would be blank.
 
 @bfix
 ^^^^^
-The ``@bfix`` directive makes an instruction and comment substitution in
-:ref:`bfixMode`. ::
+The ``@bfix`` directive replaces, inserts or removes a label, instruction and
+comment in :ref:`bfixMode`. ::
 
-  @bfix=INSTRUCTION[ ; comment]
+  @bfix=[>][|][/][LABEL:][INSTRUCTION][; comment]
 
-* ``INSTRUCTION`` is the replacement instruction
+or, when removing instructions::
+
+  @bfix=!addr1[-addr2]
+
+* ``>`` - if this marker is present, ``INSTRUCTION`` is inserted before the
+  current instruction instead of replacing it
+* ``|`` - if this marker is present, ``INSTRUCTION`` overwrites any overlapping
+  instructions instead of pushing them aside
+* ``/`` - if this marker is present, any remaining comment lines are removed
+* ``LABEL`` is the replacement label; if not given, any existing label is left
+  unchanged
+* ``INSTRUCTION`` is the replacement instruction; if not given, the existing
+  instruction is left unchanged
 * ``comment`` is the replacement comment; if not given, the existing comment is
   left unchanged
+* ``addr1`` is the address of the first instruction to remove
+* ``addr2``, if given, is the address of the last instruction to remove
 
 For example::
 
-  @bfix=AND B ; Apply the mask
-   29713 AND C ; This should be 'AND B'
+  @label=CMASK
+  @bfix=BMASK: AND B ; Apply the mask
+   29713 AND C       ; This should be 'AND B'
 
-This ``@bfix`` directive replaces ``AND C`` with ``AND B``, and also replaces
-the comment.
+This ``@bfix`` directive replaces the instruction ``AND C`` with ``AND B``,
+replaces the label ``CMASK`` with ``BMASK``, and also replaces the comment.
+
+Comment continuation lines can be replaced, removed or added by using
+additional ``@bfix`` directives. For example, to replace both comment lines
+of an instruction that has two::
+
+  @bfix=AND B  ; This directive replaces the first comment line
+  @bfix=       ; and this directive replaces the second comment line
+   29713 AND C ; Both of these comment lines
+               ; will be replaced
+
+To add a second comment line to an instruction that has only one::
+
+  @bfix=AND B  ; This directive replaces the first comment line
+  @bfix=       ; and this directive adds a second comment line
+   29713 AND C ; This comment line will be replaced
+
+To replace two comment lines with one::
+
+  @bfix=/AND B ; The '/' in this directive effectively terminates the comment
+   29713 AND C ; This comment line will be replaced
+               ; and this one will be removed
+
+A single instruction can be replaced with two or more by using the ``|``
+(overwrite) marker. For example, to replace ``LD HL,0`` with ``LD L,0`` and
+``LD H,L``::
+
+  @bfix=|LD L,0  ; Clear L
+  @bfix=|LD H,L  ; Clear H
+   36671 LD HL,0 ; Clear HL
+
+Two or more instructions can also be replaced with a single instruction. For
+example, to replace ``XOR A`` and ``INC A`` with ``LD A,1``::
+
+  @bfix=|LD A,1
+   49912 XOR A
+   49913 INC A
+
+A sequence of instructions can be replaced by chaining ``@bfix`` directives.
+For example, to swap two ``XOR`` instructions::
+
+  @bfix=|XOR C
+  @bfix=|XOR B
+   51121 XOR B
+   51122 XOR C
+
+This is equivalent to::
+
+  @bfix=XOR C
+   51121 XOR B
+  @bfix=XOR B
+   51122 XOR C
+
+Note that when ``@bfix`` directives are chained like this, the second and
+subsequent directives replace instruction comments in their entirety, instead
+of line by line. For example::
+
+  @bfix=|LD A,D ; Set A=D
+  @bfix=|XOR B  ; Flip the bits
+   51121 LD A,B ; Set A=B
+   51122 XOR C  ; XOR the contents of the accumulator with the contents of the
+                ; C register
+
+replaces both comment lines of the instruction at 51122 with 'Flip the bits'.
+
+A sequence of instructions can be inserted before the current instruction by
+using the ``>`` marker. For example::
+
+   47191 EX DE,HL
+  @bfix=>LD (HL),C
+  @bfix=>INC HL
+   47192 LD (HL),B
+
+This will insert ``LD (HL),C`` and ``INC HL`` between ``EX DE,HL`` and
+``LD (HL),B``.
+
+A sequence of instructions can be inserted after the current instruction by
+chaining ``@bfix`` directives. For example::
+
+  @bfix=LD (HL),C  ; {Save BC here
+  @bfix=INC HL     ;
+  @bfix=LD (HL),B  ; }
+   61125 LD (HL),C ; Save C here
+   61126 RET
+
+This will insert ``INC HL`` and ``LD (HL),B`` between ``LD (HL),C`` and
+``RET``.
+
+An instruction can be removed by using the ``!`` notation. For example::
+
+   51184 XOR A
+  @bfix=!51185
+   51185 AND A ; This instruction is redundant
+   51186 RET
+
+This removes the redundant instruction at 51185.
+
+An entire entry can be removed by specifying an address range that covers every
+instruction in the entry::
+
+  ; Unused
+  @bfix=!40000-40001
+  c40000 NOP
+   40001 RET
 
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 7.0     | Added support for specifying the replacement comment over         |
+|         | multiple lines, replacing the label, and inserting, overwriting   |
+|         | and removing instructions                                         |
++---------+-------------------------------------------------------------------+
 | 6.4     | Added support for replacing the comment                           |
 +---------+-------------------------------------------------------------------+
 
@@ -571,26 +695,18 @@ that has not been converted to a label.
 
 @isub
 ^^^^^
-The ``@isub`` directive makes an instruction and comment substitution in
-:ref:`isubMode`. ::
+The ``@isub`` directive replaces, inserts or removes a label, instruction and
+comment in :ref:`isubMode`.
 
-  @isub=INSTRUCTION[ ; comment]
-
-* ``INSTRUCTION`` is the replacement instruction
-* ``comment`` is the replacement comment; if not given, the existing comment is
-  left unchanged
-
-For example::
-
-  @isub=LD A,(32512)
-   25396 LD A,(m)
-
-This ``@isub`` directive ensures that ``LD A,(m)`` is replaced by the valid
-instruction ``LD A,(32512)`` when rendering in ASM mode.
+The syntax is equivalent to that for the :ref:`bfix` directive.
 
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 7.0     | Added support for specifying the replacement comment over         |
+|         | multiple lines, replacing the label, and inserting, overwriting   |
+|         | and removing instructions                                         |
++---------+-------------------------------------------------------------------+
 | 6.4     | Added support for replacing the comment                           |
 +---------+-------------------------------------------------------------------+
 
@@ -653,77 +769,31 @@ For example::
 
 This sets the label for the routine at 24576 to ``ENDGAME``.
 
-If ``LABEL`` is blank (``@label=``), the next instruction is prevented from
-having a label automatically generated.
-
-+---------+-------------------------------------------------------------------+
-| Version | Changes                                                           |
-+=========+===================================================================+
-| 6.3     | ``LABEL`` may be blank (to prevent the next instruction from      |
-|         | having a label automatically generated)                           |
-+---------+-------------------------------------------------------------------+
-
-.. _nolabel:
-
-@nolabel
-^^^^^^^^
-The ``@nolabel`` directive prevents the next instruction from having a label
+If ``LABEL`` is blank (``@label=``), the next instruction will have its entry
+point marker removed (if it has one), and be prevented from having a label
 automatically generated.
 
-For example::
+If ``LABEL`` starts with ``*`` (e.g. ``@label=*LOOP``), the next instruction
+will be marked as an entry point (as if the instruction line in the skool file
+started with ``*``), in addition to having its label set.
 
-  @label=TOGGLE
-  c48998 LD HL,32769
-  @bfix+begin
-  @label=LOOP
-  @bfix+end
-   49001 LD A,(HL)
-  @bfix+begin
-  @nolabel
-  @bfix+end
-  *49002 XOR L
-   49003 LD (HL),A
-   49004 INC L
-  @bfix-begin
-   49005 JR NZ,49002
-  @bfix+else
-   49005 JR NZ,49001
-  @bfix+end
+If ``LABEL`` is just ``*`` (``@label=*``), the next instruction will be marked
+as an entry point, and have a label automatically generated.
 
-The ``@nolabel`` directive here prevents the instruction at 49002 from being
-labelled in :ref:`bfixMode` (because no label is required; instead, the
-previous instruction at 49001 will be labelled).
-
-The output in ``@bfix`` mode will be::
-
-  TOGGLE:
-    LD HL,32769
-  LOOP:
-    LD A,(HL)
-    XOR L
-    LD (HL),A
-    INC L
-    JR NZ,LOOP
-
-And the output when not in ``@bfix`` mode will be::
-
-  TOGGLE:
-    LD HL,32769
-    LD A,(HL)
-  TOGGLE_0:
-    XOR L
-    LD (HL),A
-    INC L
-    JR NZ,TOGGLE_0
-
-.. note::
-   The ``@nolabel`` directive is deprecated since version 6.3. Use a blank
-   :ref:`label` directive (``@label=``) instead.
+In addition to being processed when :ref:`skool2asm.py` or :ref:`skool2html.py`
+is run, ``@label`` directive values are checked by :ref:`sna2skool.py` while
+reading a control file. They can be used to prevent an entry point marker from
+being added to an instruction where it otherwise would be (``@label=``), or
+force one to be added where it otherwise wouldn't (``@label=*``).
 
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
-| 6.2     | The ``@nolabel`` directive is processed in HTML mode              |
+| 7.0     | An entry point marker (``*``) can be added to or removed from the |
+|         | next instruction                                                  |
++---------+-------------------------------------------------------------------+
+| 6.3     | ``LABEL`` may be blank (to prevent the next instruction from      |
+|         | having a label automatically generated)                           |
 +---------+-------------------------------------------------------------------+
 
 .. _nowarn:
@@ -766,26 +836,18 @@ instruction to be replaced with a label, but not in this case).
 
 @ofix
 ^^^^^
-The ``@ofix`` directive makes an instruction and comment substitution in
-:ref:`ofixMode`. ::
+The ``@ofix`` directive replaces, inserts or removes a label, instruction and
+comment in :ref:`ofixMode`.
 
-  @ofix=INSTRUCTION[ ; comment]
-
-* ``INSTRUCTION`` is the replacement instruction (with a corrected operand)
-* ``comment`` is the replacement comment; if not given, the existing comment is
-  left unchanged
-
-For example::
-
-  @ofix=JR NZ,26067
-   25989 JR NZ,26068
-
-This ``@ofix`` directive replaces the operand of the ``JR NZ`` instruction with
-26067.
+The syntax is equivalent to that for the :ref:`bfix` directive.
 
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 7.0     | Added support for specifying the replacement comment over         |
+|         | multiple lines, replacing the label, and inserting, overwriting   |
+|         | and removing instructions                                         |
++---------+-------------------------------------------------------------------+
 | 6.4     | Added support for replacing the comment                           |
 +---------+-------------------------------------------------------------------+
 
@@ -942,26 +1004,18 @@ See also :ref:`definingMacrosWithReplace`.
 
 @rfix
 ^^^^^
-The ``@rfix`` directive makes an instruction and comment substitution in
-:ref:`rfixMode`. ::
+The ``@rfix`` directive replaces, inserts or removes a label, instruction and
+comment in :ref:`rfixMode`.
 
-  @rfix=INSTRUCTION[ ; comment]
-
-* ``INSTRUCTION`` is the replacement instruction
-* ``comment`` is the replacement comment; if not given, the existing comment is
-  left unchanged
-
-For example::
-
-  @rfix=LD HL,0 ; Clear #REGhl
-   27519 LD L,0 ; Clear #REGl
-
-This ``@rfix`` directive replaces the instruction at 27519 with ``LD HL,0`` and
-also replaces the comment.
+The syntax is equivalent to that for the :ref:`bfix` directive.
 
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 7.0     | Added support for specifying the replacement comment over         |
+|         | multiple lines, replacing the label, and inserting, overwriting   |
+|         | and removing instructions                                         |
++---------+-------------------------------------------------------------------+
 | 6.4     | Added support for replacing the comment                           |
 +---------+-------------------------------------------------------------------+
 | 5.2     | New                                                               |
@@ -980,26 +1034,18 @@ The syntax is equivalent to that for the :ref:`bfixBlockDirectives`.
 
 @rsub
 ^^^^^
-The ``@rsub`` directive makes an instruction and comment substitution in
-:ref:`rsubMode`. ::
+The ``@rsub`` directive replaces, inserts or removes a label, instruction and
+comment in :ref:`rsubMode`.
 
-  @rsub=INSTRUCTION[ ; comment]
-
-* ``INSTRUCTION`` is the replacement instruction
-* ``comment`` is the replacement comment; if not given, the existing comment is
-  left unchanged
-
-For example::
-
-  @rsub=LD BC,0
-   30143 LD C,0        ; Reset #REGbc to 0
-
-This ``@rsub`` directive replaces the instruction at 30143 with ``LD BC,0`` and
-leaves the comment unchanged.
+The syntax is equivalent to that for the :ref:`rfix` directive.
 
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 7.0     | Added support for specifying the replacement comment over         |
+|         | multiple lines, replacing the label, and inserting, overwriting   |
+|         | and removing instructions                                         |
++---------+-------------------------------------------------------------------+
 | 6.4     | Added support for replacing the comment                           |
 +---------+-------------------------------------------------------------------+
 
@@ -1073,31 +1119,18 @@ This ``@set`` directive sets the bullet character to '+'.
 
 @ssub
 ^^^^^
-The ``@ssub`` directive makes an instruction and comment substitution in
-:ref:`ssubMode`. ::
+The ``@ssub`` directive replaces, inserts or removes a label, instruction and
+comment in :ref:`ssubMode`.
 
-  @ssub=INSTRUCTION[ ; comment]
-
-
-* ``INSTRUCTION`` is the replacement instruction
-* ``comment`` is the replacement comment; if not given, the existing comment is
-  left unchanged
-
-For example::
-
-  @ssub=LD (27015+1),A
-  *27012 LD (27016),A  ; Change the instruction below from SET 0,B to RES 0,B
-                       ; or vice versa
-   27015 SET 0,B
-
-This ``@ssub`` directive replaces ``LD (27016),A`` with ``LD (27015+1),A``; the
-``27015`` will be replaced by the label for that address before rendering.
-(``27016`` cannot be replaced by a label, since it is not the address of an
-instruction.)
+The syntax is equivalent to that for the :ref:`bfix` directive.
 
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 7.0     | Added support for specifying the replacement comment over         |
+|         | multiple lines, replacing the label, and inserting, overwriting   |
+|         | and removing instructions                                         |
++---------+-------------------------------------------------------------------+
 | 6.4     | Added support for replacing the comment                           |
 +---------+-------------------------------------------------------------------+
 
