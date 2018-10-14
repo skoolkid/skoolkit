@@ -20,6 +20,7 @@ DIST=$DHOME/dist
 DTMPDIR=$HOME/tmp
 SKOOL=$DHOME/sources/$GAME.skool
 REF=$DHOME/sources/$GAME.ref
+PUBLISHREF=$DHOME/sources/publish.ref
 GAMENAME=$(grep ^Game= $REF | cut -c6-)
 VERSION=$(grep ^Release= $REF | awk '{print $NF}')
 RELEASE=$GAME-disassembly-$VERSION
@@ -186,7 +187,7 @@ update_ghpages() {
   tar xf $SKOOLKIT_TARBALL
   cd skoolkit-$SKOOLKIT_VERSION
   htmldir=$cwd/html
-  _exec "Building disassembly" "./skool2html.py -d $htmldir $GHHTMLOPTS $SKOOL publish.ref" $cwd/$GAME-build.log
+  _exec "Building disassembly" "./skool2html.py -d $htmldir $GHHTMLOPTS $SKOOL $PUBLISHREF" $cwd/$GAME-build.log
 
   ghrepo=$(grep ^GameDir= $REF | cut -c9- | tr -d _)
   echo -n "Cloning $ghrepo repository: "
