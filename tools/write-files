@@ -89,15 +89,14 @@ write_genctls() {
 }
 
 write_html() {
-  (($sk_version_major > 6 || ($sk_version_major == 6 && $sk_version_minor >= 4))) && use_pub=1 || use_pub=0
   for b in '' '-D' '-H'; do
     for c in '' '-u' '-l'; do
       gamedir=$GAME$b$c
       varopt=""
       reffile=""
-      if [[ $use_pub == 1 && -z $c ]] ; then
-        [[ $b == -D ]] && varopt="--var pub=1" && reffile=publish.ref
-        [[ $b == -H ]] && varopt="--var pub=2" && reffile=publish.ref
+      if [[ -z $c ]]; then
+        [[ $b == -D ]] && varopt="--var pub=1" && reffile=$DHOME/sources/publish.ref
+        [[ $b == -H ]] && varopt="--var pub=2" && reffile=$DHOME/sources/publish.ref
       fi
       echo -n "Writing $gamedir HTML disassembly..."
       ./skool2html.py $b $c -q -d html -c Config/GameDir=$gamedir $varopt src/$skoolfile $reffile
