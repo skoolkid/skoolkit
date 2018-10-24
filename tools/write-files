@@ -106,12 +106,11 @@ write_html() {
 }
 
 write_skools() {
-  (($sk_version_major > 6)) && lower=-l || lower=-L
   ctl=/tmp/${GAME}.ctl
   run_cmd "./skool2ctl.py src/$skoolfile" $ctl 1
   for b in '' '-H'; do
-    for c in '' $lower; do
-      run_cmd "./sna2skool.py $snapshot_opts -c $ctl $b $c $SNAPSHOT" skool/$GAME$b${c^^}.skool
+    for c in '' '-l'; do
+      run_cmd "./sna2skool.py $snapshot_opts -c $ctl $b $c $SNAPSHOT" skool/$GAME$b$c.skool
     done
   done
   rm -f $ctl
@@ -139,9 +138,6 @@ GAME=$1
 read_ddiffsrc $GAME
 skoolfile=$(basename $(ls -1 src/*.skool | grep -Ev '/.*(load|save|start).skool'))
 [ "$GAME" = "rom" ] && snapshot_opts="-o 0"
-sk_version=$(./skool2html.py -V 2>&1 | egrep -o '[0-9]+\.[0-9]+')
-sk_version_major=$(echo $sk_version | cut -f1 -d.)
-sk_version_minor=$(echo $sk_version | cut -f2 -d.)
 
 shift
 while [ "$1" != "" ]; do
