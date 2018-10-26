@@ -14,8 +14,7 @@ Usage: $(basename $0) [options] $GAMES [TYPE [TYPE ...]]
   type is built and compared.
 
   Details on the old disassembly version number and the version of SkoolKit to
-  use to build it are read from .ddiffsrc in the disassembly's home directory,
-  but may be overridden on the command line by using the '-v' and '-o' options.
+  use to build it are read from .ddiffsrc in the disassembly's home directory.
 
   Environment variables:
     SKOOLDAZE_HOME - home directory of the Skool Daze disassembly
@@ -35,13 +34,11 @@ Options:
                \$SKOOLKIT_HOME)
   -n           Do not write the current version of the disassembly if the
                'disassembly-current-X.Y.Z' directory already exists
-  -o x.y.z     Use this version of SkoolKit to build the old disassembly
   -r           Write the old version of the disassembly even if the
                'disassembly-YYYYMMDD-x.y.z' directory already exists
   -t           Do not build a tarball of the current development version of
                SkoolKit if 'skoolkit-DEV.tar.xz' (where DEV is the current
                development version number) already exists
-  -v YYYYMMDD  Specify the version number of the old disassembly
 EOU
   exit 1
 }
@@ -112,8 +109,6 @@ SKOOLKIT_VERSION=dev
 
 while getopts ":v:o:c:rnt" opt; do
   case $opt in
-    v) OLD_DISASSEMBLY_VERSION=$OPTARG ;;
-    o) OLD_SKOOLKIT_VERSION=$OPTARG ;;
     c) SKOOLKIT_VERSION=$OPTARG ;;
     r) WRITE_OLD=1 ;;
     n) WRITE_NEW=0 ;;
@@ -129,16 +124,16 @@ shift $((OPTIND - 1))
 GAME=$1
 
 read_ddiffsrc $GAME
-OLD_DISASSEMBLY_VERSION=${OLD_DISASSEMBLY_VERSION:-$OLD_VERSION}
-OLD_SKOOLKIT_VERSION=${OLD_SKOOLKIT_VERSION:-$SK_OLD_VERSION}
+OLD_DISASSEMBLY_VERSION=$OLD_VERSION
+OLD_SKOOLKIT_VERSION=$SK_OLD_VERSION
 
 if [ -z "$OLD_DISASSEMBLY_VERSION" ]; then
-  echo "Old disassembly version not specified in $rcpath or on the command line"
+  echo "Old disassembly version not specified in $rcpath"
   exit 1
 fi
 if [ -z "$OLD_SKOOLKIT_VERSION" ]; then
   echo "Version of SkoolKit to use to build the old disassembly not specified"
-  echo "in $rcpath or on the command line"
+  echo "in $rcpath"
   exit 1
 fi
 if [ -z "$SKOOLKIT_VERSION" ]; then
