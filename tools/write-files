@@ -21,8 +21,8 @@ run_cmd() {
 }
 
 write_asms() {
-  for suffix in '' '-load' '-save' '-start'; do
-    skool=src/$(basename $skoolfile .skool)$suffix.skool
+  for name in $GAME load save start; do
+    skool=src/$name.skool
     if [ ! -f "$skool" ]; then
       continue
     fi
@@ -37,7 +37,7 @@ write_asms() {
             infix=""
           fi
           for p in '' '-s' '-r'; do
-            run_cmd "./skool2asm.py -q $b $c $f $p $skool" asm/$GAME$suffix$b$c$infix$p.asm
+            run_cmd "./skool2asm.py -q $b $c $f $p $skool" asm/$name$b$c$infix$p.asm
           done
         done
       done
