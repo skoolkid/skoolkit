@@ -1,90 +1,33 @@
 GAMES="sd|bts|csc|mm|jsw|rom|hh"
 
+_error() {
+  echo "Error: $1" 1>&2
+  exit 1
+}
+
 read_ddiffsrc() {
-  GAME=$1
+  game=$1
+  [[ -z $game ]] && usage
 
-  case "$GAME" in
-    sd|bts|csc|mm|jsw|rom|hh) ;;
-    *) usage ;;
-  esac
+  declare -A dhomes
+  dhomes=(
+    [sd]=SKOOLDAZE_HOME
+    [bts]=BACKTOSKOOL_HOME
+    [csc]=CONTACTSAMCRUISE_HOME
+    [mm]=MANICMINER_HOME
+    [jsw]=JETSETWILLY_HOME
+    [rom]=ROM_DISASSEMBLY_HOME
+    [hh]=HUNGRYHORACE_HOME
+  )
+  dhome_v=${dhomes[$game]}
+  [[ -n $dhome_v ]] || usage
 
-  if [ "$GAME" = "sd" ]; then
-    if [ -z "$SKOOLDAZE_HOME" ]; then
-      echo "Error: SKOOLDAZE_HOME not defined."
-      exit 1
-    fi
-    if [ ! -d "$SKOOLDAZE_HOME" ]; then
-      echo "Error: directory not found: $SKOOLDAZE_HOME"
-      exit 1
-    fi
-    DHOME=$SKOOLDAZE_HOME
-  elif [ "$GAME" = "bts" ]; then
-    if [ -z "$BACKTOSKOOL_HOME" ]; then
-      echo "Error: BACKTOSKOOL_HOME not defined."
-      exit 1
-    fi
-    if [ ! -d "$BACKTOSKOOL_HOME" ]; then
-      echo "Error: directory not found: $BACKTOSKOOL_HOME"
-      exit 1
-    fi
-    DHOME=$BACKTOSKOOL_HOME
-  elif [ "$GAME" = "csc" ]; then
-    if [ -z "$CONTACTSAMCRUISE_HOME" ]; then
-      echo "Error: CONTACTSAMCRUISE_HOME not defined."
-      exit 1
-    fi
-    if [ ! -d "$CONTACTSAMCRUISE_HOME" ]; then
-      echo "Error: directory not found: $CONTACTSAMCRUISE_HOME"
-      exit 1
-    fi
-    DHOME=$CONTACTSAMCRUISE_HOME
-  elif [ "$GAME" = "mm" ]; then
-    if [ -z "$MANICMINER_HOME" ]; then
-      echo "Error: MANICMINER_HOME not defined."
-      exit 1
-    fi
-    if [ ! -d "$MANICMINER_HOME" ]; then
-      echo "Error: directory not found: $MANICMINER_HOME"
-      exit 1
-    fi
-    DHOME=$MANICMINER_HOME
-  elif [ "$GAME" = "jsw" ]; then
-    if [ -z "$JETSETWILLY_HOME" ]; then
-      echo "Error: JETSETWILLY_HOME not defined."
-      exit 1
-    fi
-    if [ ! -d "$JETSETWILLY_HOME" ]; then
-      echo "Error: directory not found: $JETSETWILLY_HOME"
-      exit 1
-    fi
-    DHOME=$JETSETWILLY_HOME
-  elif [ "$GAME" = "rom" ]; then
-    if [ -z "$ROM_DISASSEMBLY_HOME" ]; then
-      echo "Error: ROM_DISASSEMBLY_HOME not defined."
-      exit 1
-    fi
-    if [ ! -d "$ROM_DISASSEMBLY_HOME" ]; then
-      echo "Error: directory not found: $ROM_DISASSEMBLY_HOME"
-      exit 1
-    fi
-    DHOME=$ROM_DISASSEMBLY_HOME
-  elif [ "$GAME" = "hh" ]; then
-    if [ -z "$HUNGRYHORACE_HOME" ]; then
-      echo "Error: HUNGRYHORACE_HOME not defined."
-      exit 1
-    fi
-    if [ ! -d "$HUNGRYHORACE_HOME" ]; then
-      echo "Error: directory not found: $HUNGRYHORACE_HOME"
-      exit 1
-    fi
-    DHOME=$HUNGRYHORACE_HOME
-  fi
+  DHOME=${!dhome_v}
+  [[ -n $DHOME ]] || _error "$dhome_v not defined"
+  [[ -d $DHOME ]] || _error "$DHOME: directory not found"
 
   rcpath=$DHOME/.ddiffsrc
-  if [ -f "$rcpath" ]; then
-    . $rcpath
-  else
-    echo "$rcpath: file not found" 1>&2
-    exit 1
-  fi
+  [[ -f $rcpath ]] || _error "$rcpath: file not found"
+
+  . $rcpath
 }
