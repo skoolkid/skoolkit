@@ -1,6 +1,9 @@
 Changelog
 =========
 
+7.1b1
+-----
+
 7.0 (2018-10-13)
 ----------------
 * The :ref:`isub`, :ref:`ssub`, :ref:`rsub`, :ref:`ofix`, :ref:`bfix` and
