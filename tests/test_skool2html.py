@@ -1247,6 +1247,7 @@ class Skool2HtmlTest(SkoolKitTestCase):
         output, error = self.run_skool2html('--show-config', catch_exit=0)
         self.assertEqual(error, '')
         exp_output = """
+            [skool2html]
             AsmLabels=0
             AsmOnePage=0
             Base=0
@@ -1274,6 +1275,7 @@ class Skool2HtmlTest(SkoolKitTestCase):
         output, error = self.run_skool2html('--show-config', catch_exit=0)
         self.assertEqual(error, '')
         exp_output = """
+            [skool2html]
             AsmLabels=1
             AsmOnePage=0
             Base=0

@@ -82,7 +82,7 @@ def main(args):
 
     namespace, unknown_args = parser.parse_known_args(args)
     if namespace.show_config:
-        show_config(config)
+        show_config('sna2skool', config)
     snafile = namespace.snafile
     if unknown_args or snafile is None:
         parser.exit(2, parser.format_help())

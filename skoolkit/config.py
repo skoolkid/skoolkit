@@ -108,7 +108,8 @@ def update_options(name, options, specs, config=None):
             except ValueError:
                 pass
 
-def show_config(config):
+def show_config(section_name, config):
+    print('[{}]'.format(section_name))
     for name in sorted(config):
         value = config[name]
         if isinstance(value, list):

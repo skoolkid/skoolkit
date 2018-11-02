@@ -526,6 +526,7 @@ class Skool2AsmTest(SkoolKitTestCase):
         output, error = self.run_skool2asm('--show-config', catch_exit=0)
         self.assertEqual(error, '')
         exp_output = """
+            [skool2asm]
             Base=0
             Case=0
             CreateLabels=0
@@ -545,6 +546,7 @@ class Skool2AsmTest(SkoolKitTestCase):
         output, error = self.run_skool2asm('--show-config', catch_exit=0)
         self.assertEqual(error, '')
         exp_output = """
+            [skool2asm]
             Base=10
             Case=1
             CreateLabels=0

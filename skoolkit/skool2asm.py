@@ -121,7 +121,7 @@ def main(args):
 
     namespace, unknown_args = parser.parse_known_args(args)
     if namespace.show_config:
-        show_config(config)
+        show_config('skool2asm', config)
     if namespace.package_dir:
         show_package_dir()
     if unknown_args or namespace.skoolfile is None:

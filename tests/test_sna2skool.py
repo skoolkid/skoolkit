@@ -364,6 +364,7 @@ class Sna2SkoolTest(SkoolKitTestCase):
         output, error = self.run_sna2skool('--show-config', catch_exit=0)
         self.assertEqual(error, '')
         exp_output = """
+            [sna2skool]
             Base=10
             Case=2
             DefbMod=1
@@ -399,6 +400,7 @@ class Sna2SkoolTest(SkoolKitTestCase):
         output, error = self.run_sna2skool('--show-config', catch_exit=0)
         self.assertEqual(error, '')
         exp_output = """
+            [sna2skool]
             Base=10
             Case=1
             DefbMod=1

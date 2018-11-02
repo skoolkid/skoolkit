@@ -375,7 +375,7 @@ def main(args):
     start = time.time()
     namespace, unknown_args = parser.parse_known_args(args)
     if namespace.show_config:
-        show_config(config)
+        show_config('skool2html', config)
     if namespace.package_dir:
         show_package_dir()
     if namespace.search_dirs:
