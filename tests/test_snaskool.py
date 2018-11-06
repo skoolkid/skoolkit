@@ -2553,6 +2553,51 @@ class SkoolWriterTest(SkoolKitTestCase):
         """
         self._test_write_skool(snapshot, ctl, exp_skool, params={'DefbSize': 3})
 
+    def test_instruction_width_very_small(self):
+        snapshot = [175, 201]
+        ctl = """
+            c 00000
+              00000 These comments should
+              00001 hug the instructions
+            i 00002
+        """
+        exp_skool = """
+            ; Routine at 0
+            c00000 XOR A ; These comments should
+             00001 RET   ; hug the instructions
+        """
+        self._test_write_skool(snapshot, ctl, exp_skool, params={'InstructionWidth': 1})
+
+    def test_instruction_width_small(self):
+        snapshot = [175, 201]
+        ctl = """
+            c 00000
+              00000 These comments should be
+              00001 close to the instructions
+            i 00002
+        """
+        exp_skool = """
+            ; Routine at 0
+            c00000 XOR A   ; These comments should be
+             00001 RET     ; close to the instructions
+        """
+        self._test_write_skool(snapshot, ctl, exp_skool, params={'InstructionWidth': 7})
+
+    def test_instruction_width_large(self):
+        snapshot = [175, 201]
+        ctl = """
+            c 00000
+              00000 These comments should be far
+              00001 away from the instructions
+            i 00002
+        """
+        exp_skool = """
+            ; Routine at 0
+            c00000 XOR A             ; These comments should be far
+             00001 RET               ; away from the instructions
+        """
+        self._test_write_skool(snapshot, ctl, exp_skool, params={'InstructionWidth': 17})
+
     def test_zfill(self):
         snapshot = [0] * 5
         ctl = """

@@ -24,7 +24,6 @@ from skoolkit.skoolmacro import ClosingBracketError, parse_brackets
 from skoolkit.skoolparser import (get_address, TABLE_MARKER, TABLE_END_MARKER,
                                   LIST_MARKER, LIST_END_MARKER)
 
-OP_WIDTH = 13
 MIN_COMMENT_WIDTH = 10
 MIN_INSTRUCTION_COMMENT_WIDTH = 10
 
@@ -316,7 +315,7 @@ class SkoolWriter:
         return wrap(comment, width)
 
     def _write_body(self, entry, wrote_desc, write_refs, show_text):
-        op_width = max((OP_WIDTH, entry.width()))
+        op_width = max((self.config['InstructionWidth'], entry.width()))
         line_width = op_width + 8
         first_block = True
         for block in entry.blocks:

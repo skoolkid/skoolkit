@@ -3,6 +3,9 @@ Changelog
 
 7.1b1
 -----
+* Added the ``InstructionWidth`` configuration parameter for
+  :ref:`sna2skool.py` (to specify the minimum width of the instruction field in
+  a skool file)
 
 7.0 (2018-10-13)
 ----------------

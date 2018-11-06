@@ -87,6 +87,8 @@ configuration parameters are:
 :EntryPointRefs: Template used to format the comment for an entry point with
   two or more referrers (default: ``This entry point is used by the routines at
   {refs} and {ref}.``).
+:InstructionWidth: Minimum width of the instruction field in the skool file
+  (default: ``13``).
 :LineWidth: Maximum line width of the skool file (default: ``79``).
 :ListRefs: When to add a comment that lists routine or entry point referrers:
   never (``0``), if no other comment is defined at the entry point (``1``, the

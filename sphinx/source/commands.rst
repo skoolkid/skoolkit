@@ -809,6 +809,8 @@ configuration parameters are:
 * ``EntryPointRefs`` - template used to format the comment for an entry point
   with two or more referrers (default: ``This entry point is used by the
   routines at {refs} and {ref}.``)
+* ``InstructionWidth`` - minimum width of the instruction field in the skool
+  file (default: ``13``)
 * ``LineWidth`` - maximum line width of the skool file (default: ``79``)
 * ``ListRefs`` - when to add a comment that lists routine or entry point
   referrers: never (``0``), if no other comment is defined at the entry point
@@ -852,6 +854,8 @@ Configuration parameters may also be set on the command line by using the
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 7.1     | Added the ``InstructionWidth`` configuration parameter            |
++---------+-------------------------------------------------------------------+
 | 7.0     | The short option for ``--lower`` is ``-l``; the long option for   |
 |         | ``-H`` is ``--hex``                                               |
 +---------+-------------------------------------------------------------------+

@@ -28,6 +28,7 @@ COMMANDS = {
         'DefbSize': (8, ''),
         'DefbZfill': (0, ''),
         'DefmSize': (66, ''),
+        'InstructionWidth': (13, ''),
         'LineWidth': (79, 'line_width'),
         'ListRefs': (1, ''),
         'Text': (0, ''),

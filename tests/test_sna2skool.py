@@ -373,6 +373,7 @@ class Sna2SkoolTest(SkoolKitTestCase):
             DefmSize=66
             EntryPointRef=This entry point is used by the routine at {ref}.
             EntryPointRefs=This entry point is used by the routines at {refs} and {ref}.
+            InstructionWidth=13
             LineWidth=79
             ListRefs=1
             Ref=Used by the routine at {ref}.
@@ -409,6 +410,7 @@ class Sna2SkoolTest(SkoolKitTestCase):
             DefmSize=66
             EntryPointRef=This entry point is used by the routine at {ref}.
             EntryPointRefs=This entry point is used by the routines at {refs} and {ref}.
+            InstructionWidth=13
             LineWidth=79
             ListRefs=1
             Ref=Called by the routine at {ref}.
