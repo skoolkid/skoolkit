@@ -2513,6 +2513,37 @@ class SkoolWriterTest(SkoolKitTestCase):
         """
         self._test_write_skool(snapshot, ctl, exp_skool, base=16, case=1)
 
+    def test_comment_width_min_small(self):
+        snapshot = [100] * 75
+        ctl = """
+            b 00000
+              00000,75,15 One word per line
+            i 00075
+        """
+        exp_skool = """
+            ; Data block at 0
+            b00000 DEFB 100,100,100,100,100,100,100,100,100,100,100,100,100,100,100 ; {One
+             00015 DEFB 100,100,100,100,100,100,100,100,100,100,100,100,100,100,100 ; word
+             00030 DEFB 100,100,100,100,100,100,100,100,100,100,100,100,100,100,100 ; per
+             00045 DEFB 100,100,100,100,100,100,100,100,100,100,100,100,100,100,100 ; line
+             00060 DEFB 100,100,100,100,100,100,100,100,100,100,100,100,100,100,100 ; }
+        """
+        self._test_write_skool(snapshot, ctl, exp_skool, params={'CommentWidthMin': 4})
+
+    def test_comment_width_min_large(self):
+        snapshot = [100] * 30
+        ctl = """
+            b 00000
+              00000,30,15 At least 23 characters on each comment line
+            i 00030
+        """
+        exp_skool = """
+            ; Data block at 0
+            b00000 DEFB 100,100,100,100,100,100,100,100,100,100,100,100,100,100,100 ; {At least 23 characters
+             00015 DEFB 100,100,100,100,100,100,100,100,100,100,100,100,100,100,100 ; on each comment line}
+        """
+        self._test_write_skool(snapshot, ctl, exp_skool, params={'CommentWidthMin': 23})
+
     def test_defm_size(self):
         snapshot = [65] * 4
         ctl = """

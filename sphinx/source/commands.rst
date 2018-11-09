@@ -796,6 +796,8 @@ configuration parameters are:
   or decimal (``10``, the default)
 * ``Case`` - write the disassembly in lower case (``1``) or upper case (``2``,
   the default)
+* ``CommentWidthMin`` - minimum width of the instruction comment field in the
+  skool file (default: ``10``)
 * ``DefbMod`` - group DEFB blocks by addresses that are divisible by this
   number (default: ``1``)
 * ``DefbSize`` - maximum number of bytes per DEFB statement (default: ``8``)
@@ -854,7 +856,8 @@ Configuration parameters may also be set on the command line by using the
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
-| 7.1     | Added the ``InstructionWidth`` configuration parameter            |
+| 7.1     | Added the ``CommentWidthMin`` and ``InstructionWidth``            |
+|         | configuration parameters                                          |
 +---------+-------------------------------------------------------------------+
 | 7.0     | The short option for ``--lower`` is ``-l``; the long option for   |
 |         | ``-H`` is ``--hex``                                               |

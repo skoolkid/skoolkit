@@ -25,7 +25,6 @@ from skoolkit.skoolparser import (get_address, TABLE_MARKER, TABLE_END_MARKER,
                                   LIST_MARKER, LIST_END_MARKER)
 
 MIN_COMMENT_WIDTH = 10
-MIN_INSTRUCTION_COMMENT_WIDTH = 10
 
 class Entry:
     def __init__(self, header, title, description, ctl, blocks, registers,
@@ -340,7 +339,7 @@ class SkoolWriter:
                 elif ignoreua_m:
                     self.write_asm_directives(AD_IGNOREUA)
                 self.write_paragraphs(block.header)
-            comment_width = max(self.comment_width - line_width, MIN_INSTRUCTION_COMMENT_WIDTH)
+            comment_width = max(self.comment_width - line_width, self.config['CommentWidthMin'])
             comment_lines = self._format_block_comment(block, comment_width)
             self._write_instructions(entry, block, op_width, comment_lines, write_refs, show_text)
             indent = ' ' * line_width

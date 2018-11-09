@@ -367,6 +367,7 @@ class Sna2SkoolTest(SkoolKitTestCase):
             [sna2skool]
             Base=10
             Case=2
+            CommentWidthMin=10
             DefbMod=1
             DefbSize=8
             DefbZfill=0
@@ -404,6 +405,7 @@ class Sna2SkoolTest(SkoolKitTestCase):
             [sna2skool]
             Base=10
             Case=1
+            CommentWidthMin=10
             DefbMod=1
             DefbSize=8
             DefbZfill=0
