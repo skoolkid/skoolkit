@@ -10,7 +10,7 @@ SYNOPSIS
 
 DESCRIPTION
 ===========
-``sna2kool.py`` converts a binary (raw memory) file or a SNA, SZX or Z80
+``sna2skool.py`` converts a binary (raw memory) file or a SNA, SZX or Z80
 snapshot into a skool file. The skool file is written to standard output. When
 FILE is '-', ``sna2skool.py`` reads from standard input.
 
@@ -99,6 +99,9 @@ configuration parameters are:
   referrer (default: ``Used by the routine at {ref}.``).
 :Refs: Template used to format the comment for a routine with two or more
   referrers (default: ``Used by the routines at {refs} and {ref}.``).
+:Semicolons: Block types (``b``, ``c``, ``g``, ``i``, ``s``, ``t``, ``u``,
+  ``w``) in which comment semicolons are written for instructions that have no
+  comment (default: ``c``).
 :Text: Show ASCII text in the comment fields (``1``), or don't (``0``, the
   default).
 :Title-b: Template used to format the title for an untitled 'b' block (default:

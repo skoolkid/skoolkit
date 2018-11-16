@@ -37,6 +37,7 @@ COMMANDS = {
         'EntryPointRefs': ('This entry point is used by the routines at {refs} and {ref}.', ''),
         'Ref': ('Used by the routine at {ref}.', ''),
         'Refs': ('Used by the routines at {refs} and {ref}.', ''),
+        'Semicolons': ('c', ''),
         'Title-b': ('Data block at {address}', ''),
         'Title-c': ('Routine at {address}', ''),
         'Title-g': ('Game status buffer entry at {address}', ''),

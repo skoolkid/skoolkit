@@ -364,7 +364,7 @@ class SkoolWriter:
             self.write_asm_directives(*instruction.asm_directives)
             if block.has_ignoreua_directive(instruction.address, INSTRUCTION):
                 self.write_asm_directives(AD_IGNOREUA)
-            if entry.ctl == 'c' or comment or block.comment:
+            if entry.ctl in self.config['Semicolons'] or comment or block.comment:
                 write_line(('{}{} {} ; {}'.format(ctl, self.address_str(address), operation.ljust(op_width), comment)).rstrip())
             else:
                 write_line(('{}{} {}'.format(ctl, self.address_str(address), operation)).rstrip())

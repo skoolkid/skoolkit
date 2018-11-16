@@ -821,6 +821,9 @@ configuration parameters are:
   referrer (default: ``Used by the routine at {ref}.``)
 * ``Refs`` - template used to format the comment for a routine with two or more
   referrers (default: ``Used by the routines at {refs} and {ref}.``)
+* ``Semicolons`` - block types (``b``, ``c``, ``g``, ``i``, ``s``, ``t``,
+  ``u``, ``w``) in which comment semicolons are written for instructions that
+  have no comment (default: ``c``)
 * ``Text`` - show ASCII text in the comment fields (``1``), or don't (``0``,
   the default)
 * ``Title-b`` - template used to format the title for an untitled 'b' block
@@ -856,8 +859,8 @@ Configuration parameters may also be set on the command line by using the
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
-| 7.1     | Added the ``CommentWidthMin`` and ``InstructionWidth``            |
-|         | configuration parameters                                          |
+| 7.1     | Added the ``CommentWidthMin``, ``InstructionWidth`` and           |
+|         | ``Semicolons`` configuration parameters                           |
 +---------+-------------------------------------------------------------------+
 | 7.0     | The short option for ``--lower`` is ``-l``; the long option for   |
 |         | ``-H`` is ``--hex``                                               |

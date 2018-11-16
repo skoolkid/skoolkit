@@ -9,6 +9,9 @@ Changelog
 * Added the ``InstructionWidth`` configuration parameter for
   :ref:`sna2skool.py` (to specify the minimum width of the instruction field in
   a skool file)
+* Added the ``Semicolons`` configuration parameter for :ref:`sna2skool.py` (to
+  specify the block types in which comment semicolons are written for
+  instructions that have no comment)
 
 7.0 (2018-10-13)
 ----------------

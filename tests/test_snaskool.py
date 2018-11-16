@@ -2629,6 +2629,86 @@ class SkoolWriterTest(SkoolKitTestCase):
         """
         self._test_write_skool(snapshot, ctl, exp_skool, params={'InstructionWidth': 17})
 
+    def test_semicolons_bcgi(self):
+        snapshot = [0, 201, 0, 0, 0, 65, 0, 0, 0]
+        ctl = """
+            b 00000
+            c 00001
+            g 00002
+            i 00003
+            B 00003
+            s 00004
+            t 00005
+            u 00006
+            w 00007
+            i 00009
+        """
+        exp_skool = """
+            ; Data block at 0
+            b00000 DEFB 0        ;
+
+            ; Routine at 1
+            c00001 RET           ;
+
+            ; Game status buffer entry at 2
+            g00002 DEFB 0        ;
+
+            i00003 DEFB 0        ;
+
+            ; Unused
+            s00004 DEFS 1
+
+            ; Message at 5
+            t00005 DEFM "A"
+
+            ; Unused
+            u00006 DEFB 0
+
+            ; Data block at 7
+            w00007 DEFW 0
+        """
+        self._test_write_skool(snapshot, ctl, exp_skool, params={'Semicolons': 'bcgi'})
+
+    def test_semicolons_stuw(self):
+        snapshot = [0, 201, 0, 0, 0, 65, 0, 0, 0]
+        ctl = """
+            b 00000
+            c 00001
+            g 00002
+            i 00003
+            B 00003
+            s 00004
+            t 00005
+            u 00006
+            w 00007
+            i 00009
+        """
+        exp_skool = """
+            ; Data block at 0
+            b00000 DEFB 0
+
+            ; Routine at 1
+            c00001 RET
+
+            ; Game status buffer entry at 2
+            g00002 DEFB 0
+
+            i00003 DEFB 0
+
+            ; Unused
+            s00004 DEFS 1        ;
+
+            ; Message at 5
+            t00005 DEFM "A"      ;
+
+            ; Unused
+            u00006 DEFB 0        ;
+
+            ; Data block at 7
+            w00007 DEFW 0        ;
+        """
+        self._test_write_skool(snapshot, ctl, exp_skool, params={'Semicolons': 'stuw'})
+
     def test_zfill(self):
         snapshot = [0] * 5
         ctl = """

@@ -379,6 +379,7 @@ class Sna2SkoolTest(SkoolKitTestCase):
             ListRefs=1
             Ref=Used by the routine at {ref}.
             Refs=Used by the routines at {refs} and {ref}.
+            Semicolons=c
             Text=0
             Title-b=Data block at {address}
             Title-c=Routine at {address}
@@ -417,6 +418,7 @@ class Sna2SkoolTest(SkoolKitTestCase):
             ListRefs=1
             Ref=Called by the routine at {ref}.
             Refs=Used by the routines at {refs} and {ref}.
+            Semicolons=c
             Text=0
             Title-b=Data block at {address}
             Title-c=Routine at {address}
