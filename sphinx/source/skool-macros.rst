@@ -1287,7 +1287,7 @@ or `safe_key.gif`), with attribute byte 6 (INK 6: PAPER 0).
 In HTML mode, the ``#UDGARRAY`` macro expands to an ``<img>`` element for the
 image of an array of UDGs (8x8 blocks of pixels). ::
 
-  #UDGARRAYwidth[,attr,scale,step,inc,flip,rotate,mask];SPEC1[;SPEC2;...][{CROP}](fname)
+  #UDGARRAYwidth[,attr,scale,step,inc,flip,rotate,mask];SPEC1[;SPEC2;...][@ATTRS1[;ATTRS2;...]][{CROP}](fname)
 
 * ``width`` is the width of the image (in UDGs)
 * ``attr`` is the default attribute byte of each UDG (default: 56)
@@ -1327,16 +1327,20 @@ The mask specification (``MASK``) takes the form::
 * ``step`` is the interval between successive bytes of each mask UDG in the set
   (defaults to the value of ``step`` for the set of UDGs)
 
-Address range specifications (``addr``) may be given in one of the following
-forms:
+``ATTRS1``, ``ATTRS2`` etc. are attribute address range specifications (see
+below). If supplied, attribute values are taken from the specified addresses
+instead of the ``attr`` parameter values.
+
+Address range specifications (for both UDGs and attributes) may be given in one
+of the following forms:
 
 * a single address (e.g. ``39144``)
 * a simple address range (e.g. ``33008-33015``)
 * an address range with a step (e.g. ``32768-33792-256``)
 * an address range with a horizontal and a vertical step (e.g.
   ``63476-63525-1-16``; this form specifies the step between the base addresses
-  of adjacent UDGs in each row as 1, and the step between the base addresses of
-  adjacent UDGs in each column as 16)
+  of adjacent items in each row as 1, and the step between the base addresses
+  of adjacent items in each column as 16)
 
 Any of these forms of address ranges can be repeated by appending ``xN``, where
 ``N`` is the desired number of repetitions. For example:
@@ -1353,14 +1357,10 @@ including the first semicolon), if any of the following parts of the parameter
 string is expressed using arithmetic operations or skool macros, then that part
 must be enclosed in parentheses:
 
-* any of the 1-5 parts of a UDG address range specification (separated by ``-``
-  and ``x``)
-* the part of a UDG specification after the comma that follows the address
-  range
-* any of the 1-5 parts of a mask address range specification (separated by
-  ``-`` and ``x``)
-* the part of a mask specification after the comma that follows the address
-  range
+* any of the 1-5 parts of a UDG, mask or attribute address range specification
+  (separated by ``-`` and ``x``)
+* the part of a UDG or mask specification after the comma that follows the
+  address range
 
 If ``fname`` contains an image path ID replacement field (e.g.
 ``{ScreenshotImagePath}/udgs``), the corresponding parameter value from the
@@ -1393,6 +1393,8 @@ named `base_sprite.png`.
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 7.1     | Added the ability to specify attribute addresses                  |
++---------+-------------------------------------------------------------------+
 | 6.3     | Added support for image path ID replacement fields in the         |
 |         | ``fname`` parameter                                               |
 +---------+-------------------------------------------------------------------+

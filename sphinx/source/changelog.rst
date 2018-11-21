@@ -3,6 +3,8 @@ Changelog
 
 7.1b1
 -----
+* The :ref:`UDGARRAY` macro now has the ability to specify attribute addresses
+  (as an alternative to specifying attribute values)
 * Added the ``CommentWidthMin`` configuration parameter for :ref:`sna2skool.py`
   (to specify the minimum width of the instruction comment field in a skool
   file)

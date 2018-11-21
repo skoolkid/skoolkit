@@ -834,6 +834,7 @@ def parse_udgarray(text, index, snapshot=None, req_fname=True):
     end, width, attr, scale, step, inc, flip, rotate, mask = parse_ints(text, index, defaults=defaults, names=names)
     udg_array = [[]]
     has_masks = False
+
     while end < len(text) and text[end] == ';':
         names = ('attr', 'step', 'inc')
         defaults = (attr, step, inc)
@@ -867,10 +868,28 @@ def parse_udgarray(text, index, snapshot=None, req_fname=True):
                     udg_array.append([udg])
                 else:
                     udg_array[-1].append(udg)
+
     if len(udg_array) > 1 and len(udg_array[-1]) < width:
         udg_array[-1].extend((FILL_UDG,) * (width - len(udg_array[-1])))
     if not has_masks:
         mask = 0
+
+    if end < len(text) and text[end] == '@':
+        end, attr_addresses = parse_address_range(text, end + 1, width)
+        if attr_addresses is None:
+            raise MacroParsingError('Expected attribute address range specification: #UDGARRAY{}'.format(text[index:end]))
+        while end < len(text) and text[end] == ';':
+            end, addresses = parse_address_range(text, end + 1, width)
+            if addresses is None:
+                raise MacroParsingError('Expected attribute address range specification: #UDGARRAY{}'.format(text[index:end]))
+            attr_addresses.extend(addresses)
+        if snapshot:
+            for i, attr_addr in enumerate(attr_addresses):
+                y = i // width
+                if y >= len(udg_array):
+                    break
+                udg_array[y][i % width].attr = snapshot[attr_addr & 65535]
+
     end, crop_rect = _parse_crop_spec(text, end)
     end, fname, frame, alt = _parse_image_fname(text, end)
     if req_fname:

@@ -2320,6 +2320,77 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         self._assert_img_equals(output, fname, exp_src)
         self._check_image(writer, [[udg1, udg2]], scale, path=exp_image_path)
 
+    def test_macro_udgarray_with_attribute_addresses(self):
+        snapshot = [0] * 38
+        writer = self._get_writer(snapshot=snapshot, mock_file_info=True)
+
+        # Individual addresses and address range
+        fname = 'attr_addrs'
+        exp_image_path = '{}/{}.png'.format(UDGDIR, fname)
+        exp_src = '../{}'.format(exp_image_path)
+        attrs = [1, 2, 3, 4]
+        snapshot[32:32 + len(attrs)] = attrs
+        exp_udgs = [[Udg(a, [0] * 8) for a in attrs]]
+        output = writer.expand('#UDGARRAY4;0-24-8@32;33;34-35({})'.format(fname), ASMDIR)
+        self._assert_img_equals(output, fname, exp_src)
+        self._check_image(writer, exp_udgs, path=exp_image_path)
+
+        # Address with multiplier
+        fname = 'attr_addrs_mult'
+        exp_image_path = '{}/{}.png'.format(UDGDIR, fname)
+        exp_src = '../{}'.format(exp_image_path)
+        snapshot[32] = 4
+        exp_udgs = [[Udg(4, [0] * 8)]] * 3
+        output = writer.expand('#UDGARRAY1;0;8;16@32x3({})'.format(fname), ASMDIR)
+        self._assert_img_equals(output, fname, exp_src)
+        self._check_image(writer, exp_udgs, path=exp_image_path)
+
+        # Address range with step
+        fname = 'attr_addrs_step'
+        exp_image_path = '{}/{}.png'.format(UDGDIR, fname)
+        exp_src = '../{}'.format(exp_image_path)
+        attrs = [12, 13, 14]
+        step = 2
+        snapshot[32:32 + step * len(attrs):step] = attrs
+        exp_udgs = [[Udg(a, [0] * 8) for a in attrs]]
+        output = writer.expand('#UDGARRAY3;0;8;16@32-36-{}({})'.format(step, fname), ASMDIR)
+        self._assert_img_equals(output, fname, exp_src)
+        self._check_image(writer, exp_udgs, path=exp_image_path)
+
+        # Address range with horizontal step and vertical step
+        fname = 'attr_addrs_hstep_vstep'
+        exp_image_path = '{}/{}.png'.format(UDGDIR, fname)
+        exp_src = '../{}'.format(exp_image_path)
+        attrs = [15, 16, 17, 18]
+        snapshot[32:34] = attrs[:2]
+        snapshot[36:38] = attrs[2:]
+        exp_udgs = [[Udg(a, [0] * 8) for a in attrs[:2]], [Udg(a, [0] * 8) for a in attrs[2:]]]
+        output = writer.expand('#UDGARRAY2;0-24-8@32-37-1-4({})'.format(fname), ASMDIR)
+        self._assert_img_equals(output, fname, exp_src)
+        self._check_image(writer, exp_udgs, path=exp_image_path)
+
+        # Address range too long
+        fname = 'attr_addrs_long'
+        exp_image_path = '{}/{}.png'.format(UDGDIR, fname)
+        exp_src = '../{}'.format(exp_image_path)
+        attrs = [19, 20, 21]
+        snapshot[32:32 + len(attrs)] = attrs
+        exp_udgs = [[Udg(a, [0] * 8) for a in attrs]]
+        output = writer.expand('#UDGARRAY3;0;8;16@32-36({})'.format(fname), ASMDIR)
+        self._assert_img_equals(output, fname, exp_src)
+        self._check_image(writer, exp_udgs, path=exp_image_path)
+
+        # Address range too short
+        fname = 'attr_addrs_short'
+        exp_image_path = '{}/{}.png'.format(UDGDIR, fname)
+        exp_src = '../{}'.format(exp_image_path)
+        attrs = [22, 23]
+        snapshot[32:32 + len(attrs)] = attrs
+        exp_udgs = [[Udg(a, [0] * 8) for a in attrs] + [Udg(56, [0] * 8)]]
+        output = writer.expand('#UDGARRAY3;0;8;16@32-33({})'.format(fname), ASMDIR)
+        self._assert_img_equals(output, fname, exp_src)
+        self._check_image(writer, exp_udgs, path=exp_image_path)
+
     def test_macro_udgarray_with_short_array(self):
         writer = self._get_writer(snapshot=[0] * 24, mock_file_info=True)
 
