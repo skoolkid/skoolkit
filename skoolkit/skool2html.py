@@ -280,7 +280,7 @@ def write_disassembly(html_writer, files, search_dir, extra_search_dirs, pages, 
             skoolfile = find(code['Source'], extra_search_dirs, search_dir)
             if not skoolfile:
                 raise SkoolKitError('{}: file not found'.format(normpath(code['Source'])))
-            skool2_parser = clock(html_writer.parser.clone, 'Parsing ' + skoolfile, skoolfile)
+            skool2_parser = clock(html_writer.parser.clone, 'Parsing ' + normpath(skoolfile), skoolfile)
             html_writer2 = html_writer.clone(skool2_parser, code_id)
             map_name = code['IndexPageId']
             map_path = paths[map_name]

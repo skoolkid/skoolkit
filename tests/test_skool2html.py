@@ -838,6 +838,23 @@ class Skool2HtmlTest(SkoolKitTestCase):
 
     @patch.object(skool2html, 'get_class', Mock(return_value=TestHtmlWriter))
     @patch.object(skool2html, 'SkoolParser', MockSkoolParser)
+    @patch.object(skool2html, 'get_config', mock_config)
+    def test_other_code_source_in_subdirectory(self):
+        subdir = self.make_directory()
+        ref = """
+            [OtherCode:start]
+            Source={}
+        """.format(os.path.join(subdir, 'start.skool'))
+        self.write_text_file(path='{}/start.skool'.format(subdir))
+        reffile = self._write_ref_file(ref)
+        prefix = reffile[:-4]
+        skoolfile = self.write_text_file(path='{}.skool'.format(prefix))
+        output, error = self.run_skool2html('-d {} {}'.format(self.odir, skoolfile))
+        self.assertEqual(error, '')
+        self.assertIn('\nParsing {}/start.skool\n'.format(subdir), output)
+
+    @patch.object(skool2html, 'get_class', Mock(return_value=TestHtmlWriter))
+    @patch.object(skool2html, 'SkoolParser', MockSkoolParser)
     @patch.object(skool2html, 'write_disassembly', mock_write_disassembly)
     def test_option_1(self):
         skoolfile = self.write_text_file(suffix='.skool')
