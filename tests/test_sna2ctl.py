@@ -6,127 +6,6 @@ from unittest.mock import patch, Mock
 from skoolkittest import SkoolKitTestCase
 from skoolkit import sna2ctl, snapshot, SkoolKitError, VERSION
 
-# Binary data designed to test the default static code analysis algorithm:
-#   1. Insert block separators after byte sequences 201 ('RET'), 195,n,n
-#      ('JP nn') and 24,d ('JR d').
-#   2. Scan for adjacent blocks A and B that overlap (i.e. B starts in the
-#      middle of the last instruction in A), and join them.
-#   3. Scan the disassembly for blocks that don't end in a 'RET', 'JP nn' or
-#      'JR d' instruction, and join them to the following block.
-#   4. Scan the disassembly for pairs of adjacent blocks where the start
-#      address of the second block is JRed or JPed to from the first block, and
-#      join such pairs.
-#   5. Mark any sequence of NOPs at the beginning of a block as a separate zero
-#      block.
-#   6. Examine code blocks for text or data; if text is found, mark any blocks
-#      larger than 8 bytes in between as code.
-#   7. Scan the disassembly for pairs of adjacent blocks that overlap, and mark
-#      the first block in each pair as data; also mark code blocks that have no
-#      terminal instruction as data.
-#   8. Mark any sequence of NOPs at the beginning of a code block as a separate
-#      zero block.
-TEST_BIN = (
-    # Test that 'RET', 'JP nn' and 'JR d' create block boundaries.
-    120,           # 65400 LD A,B
-    195, 126, 255, # 65401 JP 65406
-    175,           # 65404 XOR A
-    201,           # 65405 RET
-    65,            # 65406 LD B,C
-    24, 247,       # 65407 JR 65400
-
-    # Test that byte sequences (201), (195,n,n) and (24,d) don't create block
-    # boundaries when they do not correspond to 'RET', 'JP nn' or 'JR d'
-    # instructions.
-    62, 201,       # 65409 LD A,201
-    6, 195,        # 65411 LD B,195
-    14, 128,       # 65413 LD C,128
-    62, 24,        # 65415 LD A,24
-    201,           # 65417 RET
-
-    # Test that two adjacent blocks are joined when the first block JPs into
-    # the second block.
-    167,           # 65418 AND A
-    194, 144, 255, # 65419 JP NZ,65424
-    60,            # 65422 INC A
-    201,           # 65423 RET
-    61,            # 65424 DEC A
-    201,           # 65425 RET
-
-    # Test that two adjacent blocks are joined when the first block JRs into
-    # the second block.
-    167,           # 65426 AND A
-    40, 2,         # 65427 JR Z,65431
-    61,            # 65429 DEC A
-    201,           # 65430 RET
-    60,            # 65431 INC A
-    201,           # 65432 RET
-
-    # Test that a sequence of NOPs at the beginning of a block is marked as a
-    # separate zero block.
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, # 65433 DEFS 10
-    167,                          # 65443 AND A
-    201,                          # 65444 RET
-
-    # Test that overlapping blocks are joined.
-    33, 201, 0,    # 65445 LD HL,201
-    201,           # 65448 RET
-
-    # Test that text-like data is marked as such, and that any block of 9 or
-    # more bytes in between is marked as code if it doesn't overlap and has a
-    # terminal instruction, or data otherwise.
-    72, 101, 108, 108, 111, 46,   # 65449 DEFM "Hello."
-    33, 0, 0, 1, 0, 0, 17, 0, 0,  # 65455 DEFB 33,0,0,1,0,0,17,0,0
-    72, 97, 108, 108, 111, 46,    # 65464 DEFM "Hallo."
-    1, 0, 0, 1, 0, 0, 221, 33, 0, # 65470 DEFB 1,0,0,1,0,0,221,33,0
-    72, 117, 108, 108, 111, 46,   # 65479 DEFM "Hullo."
-    1, 0, 0,                      # 65485 LD BC,0
-    17, 0, 0,                     # 65488 LD DE,0
-    62, 0,                        # 65491 LD A,0
-    201,                          # 65493 RET
-    72, 97, 108, 108, 111, 46,    # 65494 DEFM "Hallo."
-
-    0, 0,                         # 65500 DEFB 0,0
-    201,                          # 65502 RET
-
-    # Test that a data-like block is marked as such.
-    7, 7, 7, 7,    # 65503 DEFB 7,7,7,7
-    201,           # 65507 RET
-
-    # Some code to separate the data blocks.
-    201,           # 65508 RET
-
-    # Test that another data-like block is marked as such.
-    1, 2, 2, 1, 2, 2, 1, 2, 2, 2, # 65509 DEFB 1,2,2,1,2,2,1,2,2,2
-    201,                          # 65519 RET
-)
-
-TEST_BIN_ORG = 65400
-
-TEST_CTL_G = """
-c 65400
-c 65404
-c 65406
-c 65409
-c 65418
-c 65426
-s 65433
-c 65443
-c 65445
-t 65449
-b 65455
-t 65464
-b 65470
-t 65479
-c 65485
-t 65494
-s 65500
-c 65502
-b 65503
-c 65508
-b 65509
-i 65520
-"""
-
 # Binary data designed to test the static code analysis algorithm that is used
 # when a code map is provided:
 #  1. Use the code map to create an initial set of 'c' ctls, and mark all
@@ -390,23 +269,171 @@ class Sna2CtlTest(SkoolKitTestCase):
             self.assertEqual(error, 'Reading {}\n'.format(mapfile))
         else:
             self.assertEqual(error, '')
-        ctl = dedent(exp_ctl).lstrip()
+        ctl = dedent(exp_ctl).strip()
         org = ctl[2:7]
-        ctl = '@ {0} start\n@ {0} org\n'.format(org) + ctl
+        ctl = '@ {0} start\n@ {0} org\n'.format(org) + ctl + '\n'
         self.assertEqual(ctl, output)
 
-    def test_generation(self):
-        binfile = self.write_bin_file(TEST_BIN, suffix='.bin')
-        self._test_generation(binfile, TEST_CTL_G, options='-o {}'.format(TEST_BIN_ORG))
+    def test_terminal_instructions(self):
+        data = [
+            120,             # 65415 LD A,B
+            195, 126, 255,   # 65416 JP 65406
+            175,             # 65419 XOR A
+            201,             # 65420 RET
+            65,              # 65421 LD B,C
+            24, 247,         # 65422 JR 65400
+            175,             # 65424 XOR A
+            233,             # 65425 JP (HL)
+            175,             # 65426 XOR A
+            221, 233,        # 65427 JP (IX)
+            253, 203, 0, 6,  # 65429 RLC (IY+0)
+            253, 233,        # 65433 JP (IY)
+            221, 203, 0, 70, # 65435 BIT 0,(IX+0)
+            237, 69,         # 65439 RETN
+            203, 64,         # 65441 BIT 0,B
+            237, 77          # 65443 RETI
+        ]
+        exp_ctl = """
+            c 65415
+            c 65419
+            c 65421
+            c 65424
+            c 65426
+            c 65429
+            c 65435
+            c 65441
+            i 65445
+        """
+        self._test_generation(data, exp_ctl, options='-o 65415')
+
+    def test_terminal_bytes(self):
+        # Test that byte sequences (201), (195,n,n) and (24,d) don't create
+        # block boundaries when they do not correspond to 'RET', 'JP nn' or
+        # 'JR d' instructions
+        data = [
+            62, 201, # 65527 LD A,201
+            6, 195,  # 65529 LD B,195
+            14, 128, # 65531 LD C,128
+            62, 24,  # 65533 LD A,24
+            201      # 65535 RET
+        ]
+        exp_ctl = "c 65527"
+        self._test_generation(data, exp_ctl)
+
+    def test_nop_sequence_before_code_block(self):
+        data = [
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, # 65524 DEFS 10
+            167,                          # 65534 AND A
+            201                           # 65535 RET
+        ]
+        exp_ctl = """
+            s 65524
+            c 65534
+        """
+        self._test_generation(data, exp_ctl)
+
+    def test_text_in_code_block(self):
+        data = [
+            175,                                 # 65526 XOR A
+            76, 111, 78, 103, 119, 111, 114, 68, # 65527 DEFM "LoNgworD"
+            201                                  # 65535 RET
+        ]
+        exp_ctl = """
+            b 65526
+            t 65527
+            c 65535
+        """
+        self._test_generation(data, exp_ctl)
+
+    def test_text_too_short_in_code_block(self):
+        data = [
+            175,                        # 65527 XOR A
+            49, 50, 51, 52, 53, 54, 55, # 65528 DEFM "1234567"
+            201                         # 65535 RET
+        ]
+        exp_ctl = "c 65527"
+        self._test_generation(data, exp_ctl)
+
+    def test_text_in_data_block(self):
+        data = [
+            0,                      # 65529 DEFB 0
+            72, 101, 108, 108, 111, # 65530 DEFM "Hello"
+            0                       # 65535 DEFB 0
+        ]
+        exp_ctl = """
+            b 65529
+            t 65530
+            b 65535
+        """
+        self._test_generation(data, exp_ctl)
+
+    def test_text_too_short_in_data_block(self):
+        data = [
+            0,       # 65532 DEFB 0
+            72, 101, # 65533 DEFM "He"
+            0        # 65535 DEFB 0
+        ]
+        exp_ctl = "b 65532"
+        self._test_generation(data, exp_ctl)
+
+    def test_text_too_little_variation(self):
+        data = [101] * 5 # DEFM "eeeee"
+        exp_ctl = "b 65531"
+        self._test_generation(data, exp_ctl)
+
+    def test_text_too_much_punctuation(self):
+        data = [104, 101, 121, 46] # DEFM "hey."
+        exp_ctl = "b 65532"
+        self._test_generation(data, exp_ctl)
 
     def test_jr_across_64k_boundary(self):
         data = [24]
-        exp_ctl = "b 65535\n"
+        exp_ctl = "b 65535"
         self._test_generation(data, exp_ctl)
 
-    def test_237_at_65535(self):
+    def test_CB_at_65535(self):
+        data = [203]
+        exp_ctl = "b 65535"
+        self._test_generation(data, exp_ctl)
+
+    def test_DD_at_65535(self):
+        data = [221]
+        exp_ctl = "b 65535"
+        self._test_generation(data, exp_ctl)
+
+    def test_ED_at_65535(self):
         data = [237]
-        exp_ctl = "b 65535\n"
+        exp_ctl = "b 65535"
+        self._test_generation(data, exp_ctl)
+
+    def test_FD_at_65535(self):
+        data = [253]
+        exp_ctl = "b 65535"
+        self._test_generation(data, exp_ctl)
+
+    def test_DDCB_at_65534(self):
+        data = [221, 203]
+        exp_ctl = "b 65534"
+        self._test_generation(data, exp_ctl)
+
+    def test_FDCB_at_65534(self):
+        data = [253, 203]
+        exp_ctl = "b 65534"
+        self._test_generation(data, exp_ctl)
+
+    def test_invalid_DDCB_prefix(self):
+        data = [221, 203, 0, 0]
+        exp_ctl = "b 65532"
+        self._test_generation(data, exp_ctl)
+
+    def test_invalid_ED_prefix(self):
+        data = [237, 0]
+        exp_ctl = "b 65534"
+        self._test_generation(data, exp_ctl)
+
+    def test_invalid_FDCB_prefix(self):
+        data = [253, 203, 0, 0]
+        exp_ctl = "b 65532"
         self._test_generation(data, exp_ctl)
 
     def test_invalid_ix_prefix(self):
@@ -500,7 +527,7 @@ class Sna2CtlTest(SkoolKitTestCase):
 
     def test_unrecognised_snapshot_format_is_treated_as_binary(self):
         data = [62, 0, 201]
-        exp_ctl = "c 65533\n"
+        exp_ctl = "c 65533"
         binfile = self.write_bin_file(data, suffix='.qux')
         self._test_generation(binfile, exp_ctl)
 
@@ -556,13 +583,13 @@ class Sna2CtlTest(SkoolKitTestCase):
     def test_option_m_with_jr_across_64k_boundary(self):
         code_map = [65535]
         data = [24]
-        exp_ctl = "c 65535\n"
+        exp_ctl = "c 65535"
         self._test_generation(data, exp_ctl, code_map)
 
     def test_option_m_with_237_at_65535(self):
         code_map = [65535]
         data = [237]
-        exp_ctl = "c 65535\n"
+        exp_ctl = "c 65535"
         self._test_generation(data, exp_ctl, code_map)
 
     def test_option_m_with_end_address_after_ret(self):
@@ -600,7 +627,7 @@ class Sna2CtlTest(SkoolKitTestCase):
             62, 7, # 65533 LD A,7
             201,   # 65535 RET
         ]
-        exp_ctl = "c 65533\n"
+        exp_ctl = "c 65533"
         self._test_generation(data, exp_ctl, code_map)
 
     def _test_option_m(self, code_map, option, map_file=False):
@@ -699,13 +726,13 @@ class Sna2CtlTest(SkoolKitTestCase):
 
     @patch.object(sna2ctl, 'make_snapshot', mock_make_snapshot)
     def test_option_s(self):
-        exp_ctl = 's 65534\n'
+        exp_ctl = 's 65534'
         for option in ('-s', '--start'):
             self._test_generation('test.sna', exp_ctl, options='{} 65534'.format(option))
 
     @patch.object(sna2ctl, 'make_snapshot', mock_make_snapshot)
     def test_option_s_with_hex_address(self):
-        exp_ctl = 's 65534\n'
+        exp_ctl = 's 65534'
         for option in ('-s', '--start'):
             self._test_generation('test.sna', exp_ctl, options='{} 0xfffe'.format(option))
 

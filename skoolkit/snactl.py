@@ -20,15 +20,15 @@ import os
 from skoolkit import SkoolKitError, open_file, read_bin_file, write_line, get_address_format
 from skoolkit.ctlparser import CtlParser
 from skoolkit.disassembler import Disassembler
+from skoolkit.opcodes import END, decode
 from skoolkit.skoolctl import AD_ORG, AD_START
 from skoolkit.snaskool import Disassembly
 
-# The maximum number of distinct bytes that can be in a data block (as a
-# fraction of the block length)
-UNIQUE_BYTES_MAX = 0.3
+# The minimum allowed length of a text block in a data block
+MIN_LENGTH_DATA = 3
 
-# The minimum allowed length of a text block
-MIN_LENGTH = 3
+# The minimum allowed length of a text block in a code block
+MIN_LENGTH_CODE = 8
 
 # The minimum number of distinct characters that must be in a text block (as a
 # fraction of the block length)
@@ -204,6 +204,14 @@ def _find_terminal_instruction(disassembler, ctls, start, end=65536, ctl=None):
             break
     return address
 
+def _get_blocks(ctls):
+    # Determine the block start and end addresses
+    blocks = [[ctls[address], address, None] for address in sorted(ctls)]
+    for i, block in enumerate(blocks[1:]):
+        blocks[i][2] = block[1]
+    blocks.pop()
+    return blocks
+
 def _generate_ctls_with_code_map(snapshot, start, end, code_map):
     # (1) Use the code map to create an initial set of 'c' ctls, and mark all
     #     unexecuted blocks as 'U' (unknown)
@@ -314,81 +322,129 @@ def _generate_ctls_with_code_map(snapshot, start, end, code_map):
 
     return ctls
 
+def _check_text(t_blocks, t_start, t_end, text, min_length):
+    if len(text) < min_length:
+        return
+
+    letters = set()
+    punc = []
+    text_s = text.strip()
+    length_s = len(text_s)
+    for c in text_s:
+        if c in PUNC_CHARS:
+            punc.append(c)
+        else:
+            letters.add(c)
+    if len(letters) < length_s * UNIQUE_CHARS_MIN:
+        return
+    if len(punc) > length_s * PUNC_CHARS_MAX:
+        return
+
+    if t_blocks:
+        prev_t_block = t_blocks[-1]
+        if prev_t_block[1] + TEXT_GAP_MAX >= t_start:
+            # If the previous t-block is close to this one, merge them
+            prev_t_block[1] = t_end
+            return
+    t_blocks.append([t_start, t_end])
+
+def _get_text_blocks(snapshot, start, end, min_length=MIN_LENGTH_DATA):
+    t_blocks = []
+    if end - start >= min_length:
+        text = ''
+        for address in range(start, end):
+            char = chr(snapshot[address])
+            if char in CHARS:
+                if not text:
+                    t_start = address
+                text += char
+            elif text:
+                _check_text(t_blocks, t_start, address, text, min_length)
+                text = ''
+        if text:
+            _check_text(t_blocks, t_start, end, text, min_length)
+    return t_blocks
+
+def _catch_data(ctls, ctl_addr, count, max_count, addr, op, op_bytes):
+    if count >= max_count > 0:
+        # A 2-instruction sequence ending with 'LD H,(HL)' or 'LD L,(HL)' is OK
+        if not (count == 2 and op_bytes[0] in (0x66, 0x6E)):
+            if not ctls or ctls[-1][1] != 'b':
+                ctls.append((ctl_addr, 'b'))
+            return addr
+    return ctl_addr
+
 def _generate_ctls_without_code_map(snapshot, start, end):
-    ctls = {start: 'c', end: 'i'}
+    ctls = []
+    ctl_addr = start
+    prev_max_count, prev_op_id, prev_op, prev_op_bytes = 0, None, None, ()
+    count = 1
+    for addr, size, max_count, op_id, operation in decode(snapshot, start, end):
+        op_bytes = snapshot[addr:addr + size]
+        if op_id == END:
+            # Catch data-like sequences that precede a terminal instruction
+            ctl_addr = _catch_data(ctls, ctl_addr, count, prev_max_count, addr, prev_op, prev_op_bytes)
+            ctls.append((ctl_addr, 'c'))
+            ctl_addr = addr + size
+            prev_max_count, prev_op_id, prev_op, prev_op_bytes = 0, None, None, ()
+            count = 1
+            continue
+        if op_id == prev_op_id:
+            count += 1
+        elif prev_op:
+            ctl_addr = _catch_data(ctls, ctl_addr, count, prev_max_count, addr, prev_op, prev_op_bytes)
+            count = 1
+        prev_max_count, prev_op_id, prev_op, prev_op_bytes = max_count, op_id, operation, op_bytes
 
-    # Look for potential 'RET', 'JR d' and 'JP nn' instructions and assume that
-    # they end a block (after which another block follows); note that we don't
-    # bother examining the final byte because no block can follow it
-    for address in range(start, end - 1):
-        b = snapshot[address]
-        if b == 201:
-            ctls[address + 1] = 'c'
-        elif b == 195 and address < end - 3:
-            ctls[address + 3] = 'c'
-        elif b == 24 and address < end - 2:
-            ctls[address + 2] = 'c'
+    if not ctls or ctls[-1][0] != ctl_addr:
+        ctls.append((ctl_addr, 'b'))
+    ctls.append((end, 'i'))
 
-    ctl_parser = CtlParser(ctls)
-    disassembly = Disassembly(snapshot, ctl_parser)
+    ctls = dict(ctls)
 
-    # Scan the disassembly for pairs of adjacent blocks that overlap, and join
-    # such pairs
-    while True:
-        done = True
-        for entry in disassembly.entries[:-1]:
-            if entry.bad_blocks:
-                del ctls[entry.next.address]
-                disassembly.remove_entry(entry.address)
-                disassembly.remove_entry(entry.next.address)
-                done = False
-        if done:
-            break
-        disassembly.build()
-
-    # Scan the disassembly for blocks that don't end in a 'RET', 'JP nn' or
-    # 'JR d' instruction, and join them to the next block
-    changed = False
-    for entry in disassembly.entries[:-1]:
-        last_instr = entry.instructions[-1].operation
-        if last_instr != 'RET' and not (last_instr[:2] in ('JP', 'JR') and last_instr[3:].isdigit()):
-            next_address = entry.next.address
-            if next_address < end:
-                del ctls[entry.next.address]
-                disassembly.remove_entry(entry.address)
-                disassembly.remove_entry(entry.next.address)
-                changed = True
-    if changed:
-        disassembly.build()
-
-    # Scan the disassembly for pairs of adjacent blocks where the start address
-    # of the second block is JRed or JPed to from the first block, and join
-    # such pairs
-    while True:
-        done = True
-        for entry in disassembly.entries[:-1]:
-            for instruction in entry.instructions:
-                operation = instruction.operation
-                if operation[:2] in ('JR', 'JP') and operation[-5:] == str(entry.next.address):
-                    del ctls[entry.next.address]
-                    disassembly.remove_entry(entry.address)
-                    disassembly.remove_entry(entry.next.address)
-                    done = False
+    # Mark a NOP sequence at the beginning of a code block as a zero block,
+    # and mark a data block of all zeroes as a zero block
+    edges = sorted(ctls)
+    for i in range(len(edges) - 1):
+        start, end = edges[i], edges[i + 1]
+        if ctls[start] == 'c':
+            ctls[start] = 's'
+            for address in range(start, end):
+                if snapshot[address]:
+                    ctls[address] = 'c'
                     break
-        if done:
-            break
-        disassembly.build()
+        elif set(snapshot[start:end]) == {0}:
+            ctls[start] = 's'
 
-    # Mark a NOP sequence at the beginning of a block as a separate zero block
-    for entry in disassembly.entries:
-        ctls[entry.address] = 's'
-        for instruction in entry.instructions:
-            if instruction.operation != 'NOP':
-                ctls[instruction.address] = 'c'
-                break
+    # Join any adjacent data and zero blocks
+    ctls_s = sorted(ctls.items())
+    prev_addr, prev_ctl = ctls_s[0]
+    for addr, ctl in ctls_s[1:]:
+        if ctl in 'bs' and prev_ctl in 'bs':
+            ctls[prev_addr] = 'b'
+            del ctls[addr]
+        else:
+            prev_addr, prev_ctl = addr, ctl
 
-    # See which blocks marked as code look like text or data
-    _analyse_blocks(disassembly, ctls)
+    # Look for text
+    edges = sorted(ctls)
+    for i in range(len(edges) - 1):
+        start, end = edges[i], edges[i + 1]
+        if ctls[start] == 'b':
+            for t_start, t_end in _get_text_blocks(snapshot, start, end):
+                ctls[t_start] = 't'
+                if t_end < end:
+                    ctls[t_end] = 'b'
+        elif ctls[start] == 'c':
+            text_blocks = _get_text_blocks(snapshot, start, end, MIN_LENGTH_CODE)
+            if text_blocks:
+                ctls[start] = 'b'
+                for t_start, t_end in text_blocks:
+                    ctls[t_start] = 't'
+                    if t_end < end:
+                        ctls[t_end] = 'b'
+                if t_end < end:
+                    ctls[t_end] = 'c'
 
     return ctls
 
@@ -400,134 +456,7 @@ def write_ctl(ctls, ctl_hex):
     for address in [a for a in sorted(ctls) if a < 65536]:
         write_line('{} {}'.format(ctls[address], addr_fmt.format(address)))
 
-def _check_for_data(snapshot, start, end):
-    size = end - start
-    if size > 3:
-        count = 1
-        prev_b = snapshot[start]
-        for a in range(start + 1, end):
-            b = snapshot[a]
-            if b == prev_b:
-                count += 1
-                if count > 3:
-                    return True
-            else:
-                count = 1
-                prev_b = b
-    if size > 9:
-        d = len(set(snapshot[start:end]))
-        return d < size * UNIQUE_BYTES_MAX
-
-def _check_text(t_blocks, t_start, t_end, letters, punc):
-    length = t_end - t_start
-    if length >= MIN_LENGTH and len(set(letters)) >= length * UNIQUE_CHARS_MIN and len(punc) <= length * PUNC_CHARS_MAX:
-        t_block = [t_start, t_end]
-        if t_blocks:
-            prev_t_block = t_blocks[-1]
-            if prev_t_block[1] + TEXT_GAP_MAX >= t_start:
-                # If the previous t-block is close to this one, merge them
-                prev_t_block[1] = t_end
-            else:
-                t_blocks.append(t_block)
-        else:
-            t_blocks.append(t_block)
-
-def _get_text_blocks(snapshot, start, end):
-    t_blocks = []
-    if end - start >= MIN_LENGTH:
-        letters = []
-        punc = []
-        t_start = None
-        for address in range(start, end):
-            char = chr(snapshot[address])
-            if char in CHARS:
-                if char in PUNC_CHARS:
-                    punc.append(char)
-                else:
-                    letters.append(char)
-                if t_start is None:
-                    t_start = address
-            else:
-                if t_start:
-                    _check_text(t_blocks, t_start, address, letters, punc)
-                letters[:] = []
-                punc[:] = []
-                t_start = None
-        if t_start:
-            _check_text(t_blocks, t_start, end, letters, punc)
-    return t_blocks
-
-def _get_blocks(ctls):
-    # Determine the block start and end addresses
-    blocks = [[ctls[address], address, None] for address in sorted(ctls)]
-    for i, block in enumerate(blocks[1:]):
-        blocks[i][2] = block[1]
-    blocks.pop()
-    return blocks
-
-def _analyse_blocks(disassembly, ctls):
-    snapshot = disassembly.disassembler.snapshot
-
-    # See which blocks marked as code look like text or data
-    while 1:
-        done = True
-        for ctl, start, end in _get_blocks(ctls):
-            if ctl == 'c':
-                text_blocks = _get_text_blocks(snapshot, start, end)
-                if text_blocks:
-                    for t_start, t_end in text_blocks:
-                        ctls[t_start] = 't'
-                        if t_end < end:
-                            ctls[t_end] = 'c'
-                    disassembly.remove_entry(start)
-                    done = False
-                elif _check_for_data(snapshot, start, end):
-                    ctls[start] = 'b'
-                    disassembly.remove_entry(start)
-                else:
-                    # This block is unidentified (it doesn't look like text or
-                    # data); mark it with an 'X' so that we don't examine it
-                    # again
-                    ctls[start] = 'X'
-        if done:
-            break
-
-    # Relabel the unidentified blocks as code
-    for address, ctl in ctls.items():
-        if ctl == 'X':
-            ctls[address] = 'c'
-
-    # Scan the disassembly for pairs of adjacent blocks that overlap, and mark
-    # the first block in each pair as data; also mark code blocks that have no
-    # terminal instruction as data
-    disassembly.build()
-    for entry in disassembly.entries:
-        if entry.bad_blocks or (ctls[entry.address] == 'c' and not _is_terminal_instruction(entry.instructions[-1])):
-            ctls[entry.address] = 'b'
-
-    # Mark a NOP sequence at the beginning of a code block as a zero block
-    for ctl, start, end in _get_blocks(ctls):
-        if ctl == 'c':
-            ctls[start] = 's'
-            for address in range(start, end):
-                if snapshot[address]:
-                    ctls[address] = 'c'
-                    break
-
 def generate_ctls(snapshot, start, end, code_map):
     if code_map:
-        ctls = _generate_ctls_with_code_map(snapshot, start, end, code_map)
-    else:
-        ctls = _generate_ctls_without_code_map(snapshot, start, end)
-
-    # Join any adjacent data and zero blocks
-    blocks = _get_blocks(ctls)
-    prev_block = blocks[0]
-    for block in blocks[1:]:
-        if prev_block[0] in 'bs' and block[0] in 'bs':
-            ctls[prev_block[1]] = 'b'
-            del ctls[block[1]]
-        else:
-            prev_block = block
-
-    return ctls
+        return _generate_ctls_with_code_map(snapshot, start, end, code_map)
+    return _generate_ctls_without_code_map(snapshot, start, end)
