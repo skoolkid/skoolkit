@@ -5,6 +5,11 @@ Changelog
 -----
 * Improved the performance and accuracy of the control file generation
   algorithm used by :ref:`sna2ctl.py` when no code map is provided
+* Added support to :ref:`sna2ctl.py <sna2ctl-conf>` for reading configuration
+  from `skoolkit.ini`
+* Added the ``--ini`` and ``--show-config`` options to :ref:`sna2ctl.py` (for
+  setting the value of a configuration parameter and for showing all
+  configuration parameter values)
 * The :ref:`UDGARRAY` macro now has the ability to specify attribute addresses
   (as an alternative to specifying attribute values)
 * Added the ``CommentWidthMin`` configuration parameter for :ref:`sna2skool.py`

@@ -641,12 +641,15 @@ skool file split into blocks of code and data.
   Options:
     -e ADDR, --end ADDR   Stop at this address (default=65536).
     -h, --hex             Write upper case hexadecimal addresses.
+    -I p=v, --ini p=v     Set the value of the configuration parameter 'p' to
+                          'v'. This option may be used multiple times.
     -l, --hex-lower       Write lower case hexadecimal addresses.
     -m FILE, --map FILE   Use FILE as a code execution map.
     -o ADDR, --org ADDR   Specify the origin address of a binary file (default:
                           65536 - length).
     -p PAGE, --page PAGE  Specify the page (0-7) of a 128K snapshot to map to
                           49152-65535.
+    --show-config         Show configuration parameter values.
     -s ADDR, --start ADDR
                           Start at this address (default=16384).
     -V, --version         Show SkoolKit version number and exit.
@@ -665,11 +668,37 @@ If the file specified by the ``-m`` option is 8192 bytes long, it is assumed to
 be a Z80 map file; if it is 65536 bytes long, it is assumed to be a SpecEmu map
 file; otherwise it is assumed to be in one of the other supported formats.
 
-+---------+---------+
-| Version | Changes |
-+=========+=========+
-| 7.0     | New     |
-+---------+---------+
+.. _sna2ctl-conf:
+
+Configuration
+^^^^^^^^^^^^^
+`sna2ctl.py` will read configuration from a file named `skoolkit.ini` in the
+current working directory or in `~/.skoolkit`, if present. The recognised
+configuration parameters are:
+
+* ``Hex`` - write addresses in decimal (``0``, the default), lower case
+  hexadecimal (``1``),  or upper case hexadecimal (``2``)
+
+Configuration parameters must appear in a ``[sna2ctl]`` section. For example,
+to make `sna2ctl.py` write upper case hexadecimal addresses by default (without
+having to use the ``-h`` option on the command line), add the following section
+to `skoolkit.ini`::
+
+  [sna2ctl]
+  Hex=2
+
+Configuration parameters may also be set on the command line by using the
+``--ini`` option. Parameter values set this way will override any found in
+`skoolkit.ini`.
+
++---------+-------------------------------------------------------------------+
+| Version | Changes                                                           |
++=========+===================================================================+
+| 7.1     | Configuration is read from `skoolkit.ini` if present; added the   |
+|         | ``--ini`` and ``--show-config`` options                           |
++---------+-------------------------------------------------------------------+
+| 7.0     | New                                                               |
++---------+-------------------------------------------------------------------+
 
 .. _sna2img.py:
 

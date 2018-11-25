@@ -21,6 +21,9 @@ from skoolkit import find_file
 from skoolkit.refparser import RefParser
 
 COMMANDS = {
+    'sna2ctl' : {
+        'Hex': (0, 'ctl_hex')
+    },
     'sna2skool': {
         'Base': (10, 'base'),
         'Case': (2, 'case'),

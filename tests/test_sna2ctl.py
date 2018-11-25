@@ -5,6 +5,7 @@ from unittest.mock import patch, Mock
 
 from skoolkittest import SkoolKitTestCase
 from skoolkit import sna2ctl, snapshot, SkoolKitError, VERSION
+from skoolkit.config import COMMANDS
 
 # Binary data designed to test the static code analysis algorithm that is used
 # when a code map is provided:
@@ -149,6 +150,9 @@ def mock_run(*args):
     global run_args
     run_args = args
 
+def mock_config(name):
+    return {k: v[0] for k, v in COMMANDS[name].items()}
+
 class Sna2CtlTest(SkoolKitTestCase):
     def _create_z80_map(self, addresses):
         bits = []
@@ -211,6 +215,7 @@ class Sna2CtlTest(SkoolKitTestCase):
         return log
 
     @patch.object(sna2ctl, 'run', mock_run)
+    @patch.object(sna2ctl, 'get_config', mock_config)
     def test_default_option_values(self):
         sna2ctl.main(('test.sna',))
         snafile, options = run_args
@@ -221,6 +226,35 @@ class Sna2CtlTest(SkoolKitTestCase):
         self.assertIsNone(options.code_map)
         self.assertIsNone(options.org)
         self.assertIsNone(options.page)
+
+    @patch.object(sna2ctl, 'run', mock_run)
+    def test_config_read_from_file(self):
+        ini = """
+            [sna2ctl]
+            Hex=1
+        """
+        self.write_text_file(dedent(ini).strip(), 'skoolkit.ini')
+        sna2ctl.main(('test.sna',))
+        snafile, options = run_args
+        self.assertEqual(snafile, 'test.sna')
+        self.assertEqual(options.ctl_hex, 1)
+        self.assertEqual(options.start, 0)
+        self.assertEqual(options.end, 65536)
+        self.assertIsNone(options.code_map)
+        self.assertIsNone(options.org)
+        self.assertIsNone(options.page)
+
+    @patch.object(sna2ctl, 'run', mock_run)
+    def test_invalid_option_values_read_from_file(self):
+        ini = """
+            [sna2ctl]
+            Hex=?
+        """
+        self.write_text_file(dedent(ini).strip(), 'skoolkit.ini')
+        sna2ctl.main(('test.sna',))
+        snafile, options = run_args
+        self.assertEqual(snafile, 'test.sna')
+        self.assertEqual(options.ctl_hex, 0)
 
     def test_invalid_option(self):
         output, error = self.run_sna2ctl('-x dummy.bin', catch_exit=2)
@@ -571,6 +605,41 @@ class Sna2CtlTest(SkoolKitTestCase):
         for option in ('-h', '--hex'):
             self._test_generation('test-h.bin', exp_ctl, options='{} -o 64206'.format(option))
 
+    @patch.object(sna2ctl, 'run', mock_run)
+    @patch.object(sna2ctl, 'get_config', mock_config)
+    def test_option_I(self):
+        self.run_sna2ctl('-I Hex=1 test-I.sna')
+        options = run_args[1]
+        self.assertEqual(['Hex=1'], options.params)
+        self.assertEqual(options.ctl_hex, 1)
+
+    @patch.object(sna2ctl, 'run', mock_run)
+    @patch.object(sna2ctl, 'get_config', mock_config)
+    def test_option_I_overrides_other_options(self):
+        self.run_sna2ctl('-h -I Hex=1 test.sna')
+        options = run_args[1]
+        self.assertEqual(['Hex=1'], options.params)
+        self.assertEqual(options.ctl_hex, 1)
+
+    @patch.object(sna2ctl, 'run', mock_run)
+    def test_option_I_overrides_config_read_from_file(self):
+        ini = """
+            [sna2ctl]
+            Hex=2
+        """
+        self.write_text_file(dedent(ini).strip(), 'skoolkit.ini')
+        self.run_sna2ctl('--ini Hex=1 test.bin')
+        options = run_args[1]
+        self.assertEqual(['Hex=1'], options.params)
+        self.assertEqual(options.ctl_hex, 1)
+
+    @patch.object(sna2ctl, 'run', mock_run)
+    @patch.object(sna2ctl, 'get_config', mock_config)
+    def test_option_I_invalid_value(self):
+        self.run_sna2ctl('-I Hex=x test-I-invalid.sna')
+        options = run_args[1]
+        self.assertEqual(options.ctl_hex, 0)
+
     @patch.object(snapshot, 'read_bin_file', Mock(return_value=[201]))
     def test_option_l(self):
         exp_ctl = """
@@ -723,6 +792,30 @@ class Sna2CtlTest(SkoolKitTestCase):
             self.assertEqual(error, '')
             page = make_snapshot_args[4]
             self.assertEqual(page, exp_page)
+
+    @patch.object(sna2ctl, 'get_config', mock_config)
+    def test_option_show_config(self):
+        output, error = self.run_sna2ctl('--show-config', catch_exit=0)
+        self.assertEqual(error, '')
+        exp_output = """
+            [sna2ctl]
+            Hex=0
+        """
+        self.assertEqual(dedent(exp_output).strip(), output.rstrip())
+
+    def test_option_show_config_read_from_file(self):
+        ini = """
+            [sna2ctl]
+            Hex=1
+        """
+        self.write_text_file(dedent(ini).strip(), 'skoolkit.ini')
+        output, error = self.run_sna2ctl('--show-config', catch_exit=0)
+        self.assertEqual(error, '')
+        exp_output = """
+            [sna2ctl]
+            Hex=1
+        """
+        self.assertEqual(dedent(exp_output).strip(), output.rstrip())
 
     @patch.object(sna2ctl, 'make_snapshot', mock_make_snapshot)
     def test_option_s(self):
