@@ -64,18 +64,24 @@ class Disassembler:
             base = base[0]
         if base == 'c' and is_char(value & 127):
             if value & 128:
-                suffix = '+' + self.format_byte(128)
+                suffix = '+' + self.num_str(128)
             else:
                 suffix = ''
             if value & 127 in (34, 92):
                 return r'"\{}"'.format(chr(value & 127)) + suffix
             return '"{}"'.format(chr(value & 127)) + suffix
+        if base == 'm':
+            base = 'd'
+            if num_bytes == 1:
+                value -= 256
+            else:
+                value -= 65536
         if base not in self.byte_formats:
             if self.asm_hex:
                 base = 'h'
             else:
                 base = 'd'
-        if value > 255 or num_bytes > 1:
+        if abs(value) > 255 or num_bytes > 1:
             return self.word_formats[base].format(value)
         return self.byte_formats[base].format(value)
 
@@ -213,20 +219,12 @@ class Disassembler:
     def rst_arg(self, rst_address, a, base):
         return 'RST {}'.format(self.num_str(rst_address, 1, base)), 1
 
-    def format_byte(self, value, base=None):
-        if base not in self.byte_formats:
-            if self.asm_hex:
-                base = 'h'
-            else:
-                base = 'd'
-        return self.byte_formats[base].format(value)
-
     def defb_items(self, data, sublengths, defb=True):
         if sublengths[0][0]:
             items = []
             i = 0
             for length, ctl in sublengths:
-                if ctl and ctl in 'Bbdh':
+                if ctl and ctl in 'Bbdhm':
                     text = False
                 elif ctl == 'T':
                     text = True
@@ -241,11 +239,11 @@ class Disassembler:
                     else:
                         items.append('"{}"'.format(self.get_message(chunk)))
                 else:
-                    items.append(','.join([(self.format_byte(b, ctl)) for b in chunk]))
+                    items.append(','.join(self.num_str(b, 1, ctl) for b in chunk))
                 i += length
         else:
             base = sublengths[0][1]
-            items = [self.format_byte(b, base) for b in data]
+            items = [self.num_str(b, 1, base) for b in data]
         return ','.join(items)
 
     def defb_dir(self, data, sublengths=((None, None),)):

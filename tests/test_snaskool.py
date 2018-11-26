@@ -483,14 +483,14 @@ class DisassemblyTest(SkoolKitTestCase):
               00000,b5
               00005,b15
               00020,b5,2,d2,h1
-            B 00025,b5,2:d2:h1
+            B 00025,b5,2:d1:m1:h1
               00030,h10,5:d3:b2
             B 00040,5,b1,h2
               00045,5,h1,T4
               00050,5,b2:T3
             T 00055,5,h2,3
             T 00060,5,2:d3
-            T 00065,5,3,B1
+            T 00065,5,3,B1,m1
             T 00070,5,B2:h3
             i 00075
         """
@@ -501,7 +501,7 @@ class DisassemblyTest(SkoolKitTestCase):
             (20, 'DEFB %00101010,%00101010'),
             (22, 'DEFB 42,42'),
             (24, 'DEFB $2A'),
-            (25, 'DEFB %00101010,%00101010,42,42,$2A'),
+            (25, 'DEFB %00101010,%00101010,42,-214,$2A'),
             (30, 'DEFB $2A,$2A,$2A,$2A,$2A,42,42,42,%00101010,%00101010'),
             (40, 'DEFB %00101010'),
             (41, 'DEFB $2A,$2A'),
@@ -514,19 +514,19 @@ class DisassemblyTest(SkoolKitTestCase):
             (60, 'DEFM "**",42,42,42'),
             (65, 'DEFM "***"'),
             (68, 'DEFM 42'),
-            (69, 'DEFM 42'),
+            (69, 'DEFM -214'),
             (70, 'DEFM 42,42,$2A,$2A,$2A')
         ]
         self._test_disassembly(snapshot, ctl, exp_instructions)
 
     def test_byte_formats_hex(self):
-        snapshot = [85] * 4
+        snapshot = [85] * 5
         ctl = """
             b 00000
-              00000,4,b1:d1:h1:1
-            i 00004
+              00000,5,b1:d1:h1:1:m1
+            i 00005
         """
-        exp_instructions = [(0, 'DEFB %01010101,85,$55,$55')]
+        exp_instructions = [(0, 'DEFB %01010101,85,$55,$55,-171')]
         self._test_disassembly(snapshot, ctl, exp_instructions, asm_hex=True)
 
     def test_inverted_characters(self):
@@ -596,8 +596,8 @@ class DisassemblyTest(SkoolKitTestCase):
             W 00016,b8,2,d2,h4
               00024,d8,b4:2:h2
               00032,h8,b2:d4:2
-              00040,8,b2,4,h2
-            W 00048,8,b2:2:h4
+              00040,8,b2,2,m2,h2
+            W 00048,8,b2:2:m2:h2
               00056,8,4
               00064,4,c2:2
             i 00068
@@ -617,9 +617,10 @@ class DisassemblyTest(SkoolKitTestCase):
             (24, 'DEFW %0011010110101010,%0011010110101010,13738,$35AA'),
             (32, 'DEFW %0011010110101010,13738,13738,$35AA'),
             (40, 'DEFW %0011010110101010'),
-            (42, 'DEFW 13738,13738'),
+            (42, 'DEFW 13738'),
+            (44, 'DEFW -51798'),
             (46, 'DEFW $35AA'),
-            (48, 'DEFW %0011010110101010,13738,$35AA,$35AA'),
+            (48, 'DEFW %0011010110101010,13738,-51798,$35AA'),
             (56, 'DEFW 13738,13738'),
             (60, 'DEFW 13738,13738'),
             (64, 'DEFW "!",33')
@@ -627,17 +628,18 @@ class DisassemblyTest(SkoolKitTestCase):
         self._test_disassembly(snapshot, ctl, exp_instructions)
 
     def test_word_formats_hex(self):
-        snapshot = [240] * 8
+        snapshot = [240] * 10
         ctl = """
             w 00000
-              00000,8,b2,d2,h2,2
-            i 00008
+              00000,10,b2,d2,h2,2,m2
+            i 00010
         """
         exp_instructions = [
             (0, 'DEFW %1111000011110000'),
             (2, 'DEFW 61680'),
             (4, 'DEFW $F0F0'),
-            (6, 'DEFW $F0F0')
+            (6, 'DEFW $F0F0'),
+            (8, 'DEFW -3856')
         ]
         self._test_disassembly(snapshot, ctl, exp_instructions, asm_hex=True)
 
@@ -717,11 +719,11 @@ class DisassemblyTest(SkoolKitTestCase):
         self._test_disassembly(snapshot, ctl, exp_instructions)
 
     def test_s_directives_with_blank_byte_values(self):
-        snapshot = [1, 1, 33, 33, 3, 3, 4, 4, 5, 5, 161, 161, 7, 7, 136, 136]
+        snapshot = [1, 1, 33, 33, 3, 3, 4, 4, 5, 5, 161, 161, 7, 7, 136, 136, 255, 255]
         ctl = """
             s 00000
-              00000,16,2:b,2:c,2:d,2:h,h2:n,2:c*3
-            i 00016
+              00000,16,2:b,2:c,2:d,2:h,h2:n,2:c*3,2:m
+            i 00018
         """
         exp_instructions = [
             (0, 'DEFS 2,%00000001'),
@@ -731,7 +733,8 @@ class DisassemblyTest(SkoolKitTestCase):
             (8, 'DEFS $02,5'),
             (10, 'DEFS 2,"!"+128'),
             (12, 'DEFS 2,7'),
-            (14, 'DEFS 2,136')
+            (14, 'DEFS 2,136'),
+            (16, 'DEFS 2,-1')
         ]
         self._test_disassembly(snapshot, ctl, exp_instructions)
 
@@ -750,11 +753,11 @@ class DisassemblyTest(SkoolKitTestCase):
         self._test_disassembly(snapshot, ctl, exp_instructions, asm_hex=True)
 
     def test_s_directives_with_blank_byte_values_hex(self):
-        snapshot = [1, 1, 33, 33, 3, 3, 4, 4, 5, 5, 161, 161, 7, 7, 136, 136]
+        snapshot = [1, 1, 33, 33, 3, 3, 4, 4, 5, 5, 161, 161, 7, 7, 136, 136, 255, 255]
         ctl = """
             s 00000
-              00000,16,2:b,2:c,2:d,2:h,d2:n,2:c*3
-            i 00016
+              00000,16,2:b,2:c,2:d,2:h,d2:n,2:c*3,2:m
+            i 00018
         """
         exp_instructions = [
             (0, 'DEFS $02,%00000001'),
@@ -764,7 +767,8 @@ class DisassemblyTest(SkoolKitTestCase):
             (8, 'DEFS 2,$05'),
             (10, 'DEFS $02,"!"+$80'),
             (12, 'DEFS $02,$07'),
-            (14, 'DEFS $02,$88')
+            (14, 'DEFS $02,$88'),
+            (16, 'DEFS $02,-1')
         ]
         self._test_disassembly(snapshot, ctl, exp_instructions, asm_hex=True)
 
@@ -795,7 +799,7 @@ class DisassemblyTest(SkoolKitTestCase):
         ]
         ctl = """
             c 00000
-              00000,b14,8,h2,4
+              00000,b14,6,m2,h2,4
               00014,,h12,d2
               00028,d
               00032,bd4
@@ -808,7 +812,7 @@ class DisassemblyTest(SkoolKitTestCase):
             (0, 'LD A,%00000101'),
             (2, 'LD B,%00000110'),
             (4, 'LD C,%00000111'),
-            (6, 'LD D,%11110000'),
+            (6, 'LD D,-16'),
             (8, 'LD E,$80'),
             (10, 'LD H,%11001000'),
             (12, 'LD L,%01100100'),
@@ -974,7 +978,7 @@ class DisassemblyTest(SkoolKitTestCase):
         ]
         ctl = """
             c 00000
-              00000,h9,d3,h3
+              00000,9,d3,h3,m3
               00009,b,3,d4,4
               00020,,3,d8
               00031,n
@@ -993,7 +997,7 @@ class DisassemblyTest(SkoolKitTestCase):
         exp_instructions = [
             (0, 'LD BC,1'),
             (3, 'LD DE,$000C'),
-            (6, 'LD HL,$007B'),
+            (6, 'LD HL,-65413'),
             (9, 'LD SP,%0000010011010010'),
             (12, 'LD IX,12345'),
             (16, 'LD IY,%0101101110100000'),

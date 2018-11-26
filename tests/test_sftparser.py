@@ -334,14 +334,14 @@ class SftParserTest(SkoolKitTestCase):
             bB00000,b5
              B00005,h15
              B00020,b2,d2,h1
-             B00025,b2:d2:h1
+             B00025,b2:d1:m1:h1
              B00030,h5:d3:b2
              B00040,b1,h2*2
              B00045,h1,T4
              B00050,b2:T3
              T00055,h2,3
              T00060,2:d3
-             T00065,3,B1*2
+             T00065,2,B1*2,m1
              T00070,B2:h3
         """
         exp_skool = """
@@ -350,7 +350,7 @@ class SftParserTest(SkoolKitTestCase):
              00020 DEFB %00101010,%00101010
              00022 DEFB 42,42
              00024 DEFB $2A
-             00025 DEFB %00101010,%00101010,42,42,$2A
+             00025 DEFB %00101010,%00101010,42,-214,$2A
              00030 DEFB $2A,$2A,$2A,$2A,$2A,42,42,42,%00101010,%00101010
              00040 DEFB %00101010
              00041 DEFB $2A,$2A
@@ -361,17 +361,18 @@ class SftParserTest(SkoolKitTestCase):
              00055 DEFM $2A,$2A
              00057 DEFM "***"
              00060 DEFM "**",42,42,42
-             00065 DEFM "***"
+             00065 DEFM "**"
+             00067 DEFM 42
              00068 DEFM 42
-             00069 DEFM 42
+             00069 DEFM -214
              00070 DEFM 42,42,$2A,$2A,$2A
         """
         self._test_disassembly(sft, exp_skool, snapshot)
 
     def test_byte_formats_hex(self):
-        snapshot = [170] * 4
-        sft = 'bB00000,b1:d1:h1:1'
-        exp_skool = 'b$0000 DEFB %10101010,170,$AA,$AA'
+        snapshot = [170] * 5
+        sft = 'bB00000,b1:d1:h1:1:m1'
+        exp_skool = 'b$0000 DEFB %10101010,170,$AA,$AA,-86'
         self._test_disassembly(sft, exp_skool, snapshot, asm_hex=True)
 
     def test_inverted_characters(self):
@@ -434,8 +435,8 @@ class SftParserTest(SkoolKitTestCase):
              W00008,d4
              W00012,h4
              W00016,2,d2,h4
-             W00024,b4:2:h2
-             W00032,b2,4,h2
+             W00024,b2:m2:2:h2
+             W00032,b2,4,m2
              W00040,c2:2
         """
         exp_skool = """
@@ -446,22 +447,23 @@ class SftParserTest(SkoolKitTestCase):
              00016 DEFW 21965
              00018 DEFW 21965
              00020 DEFW $55CD,$55CD
-             00024 DEFW %0101010111001101,%0101010111001101,21965,$55CD
+             00024 DEFW %0101010111001101,-43571,21965,$55CD
              00032 DEFW %0101010111001101
              00034 DEFW 21965,21965
-             00038 DEFW $55CD
+             00038 DEFW -43571
              00040 DEFW " ",32
         """
         self._test_disassembly(sft, exp_skool, snapshot)
 
     def test_word_formats_hex(self):
-        snapshot = [170] * 8
-        sft = 'wW00000,b2,d2,h2,2'
+        snapshot = [170] * 10
+        sft = 'wW00000,b2,d2,h2,2,m2'
         exp_skool = """
             w$0000 DEFW %1010101010101010
              $0002 DEFW 43690
              $0004 DEFW $AAAA
              $0006 DEFW $AAAA
+             $0008 DEFW -21846
         """
         self._test_disassembly(sft, exp_skool, snapshot, asm_hex=True)
 
@@ -512,9 +514,9 @@ class SftParserTest(SkoolKitTestCase):
         self._test_disassembly(sft, exp_skool)
 
     def test_s_directives_with_blank_byte_values(self):
-        snapshot = [1, 1, 33, 33, 3, 3, 4, 4, 5, 5, 161, 161, 7, 7, 136, 136]
+        snapshot = [1, 1, 33, 33, 3, 3, 4, 4, 5, 5, 161, 161, 7, 7, 136, 136, 255, 255]
         sft = """
-            sS00000,2:b,2:c,2:d,2:h,h2:n,2:c*3
+            sS00000,2:b,2:c,2:d,2:h,h2:n,2:c*3,2:m
         """
         exp_skool = """
             s00000 DEFS 2,%00000001
@@ -525,6 +527,7 @@ class SftParserTest(SkoolKitTestCase):
              00010 DEFS 2,"!"+128
              00012 DEFS 2,7
              00014 DEFS 2,136
+             00016 DEFS 2,-1
         """
         self._test_disassembly(sft, exp_skool, snapshot)
 
@@ -539,9 +542,9 @@ class SftParserTest(SkoolKitTestCase):
         self._test_disassembly(sft, exp_skool, asm_hex=True)
 
     def test_s_directives_with_blank_byte_values_hex(self):
-        snapshot = [1, 1, 33, 33, 3, 3, 4, 4, 5, 5, 161, 161, 7, 7, 136, 136]
+        snapshot = [1, 1, 33, 33, 3, 3, 4, 4, 5, 5, 161, 161, 7, 7, 136, 136, 255, 255]
         sft = """
-            sS00000,2:b,2:c,2:d,2:h,d2:n,2:c*3
+            sS00000,2:b,2:c,2:d,2:h,d2:n,2:c*3,2:m
         """
         exp_skool = """
             s$0000 DEFS $02,%00000001
@@ -552,6 +555,7 @@ class SftParserTest(SkoolKitTestCase):
              $000A DEFS $02,"!"+$80
              $000C DEFS $02,$07
              $000E DEFS $02,$88
+             $0010 DEFS $02,-1
         """
         self._test_disassembly(sft, exp_skool, snapshot, asm_hex=True)
 
@@ -582,7 +586,7 @@ class SftParserTest(SkoolKitTestCase):
         ]
         sft = """
             cC00000,b6
-             C00006,d6,h8
+             C00006,m2,d4,h8
              C00020,n6
              C00026,bn6
              C00032,nb6,bd4,hb6
@@ -591,7 +595,7 @@ class SftParserTest(SkoolKitTestCase):
             c00000 LD A,%00000101
              00002 LD B,%00000110
              00004 LD C,%00000111
-             00006 LD D,240
+             00006 LD D,-16
              00008 LD E,128
              00010 LD H,200
              00012 LD L,$64
@@ -808,7 +812,7 @@ class SftParserTest(SkoolKitTestCase):
             250, 140, 134,     # 00123 JP M,34444
         ]
         sft = """
-            cC00000,n9
+            cC00000,n6,m3
              C00009,d11
              C00020,b11,h11,dn7
              C00049,nd8
@@ -823,7 +827,7 @@ class SftParserTest(SkoolKitTestCase):
         exp_skool = """
             c$0000 LD BC,$0001
              $0003 LD DE,$000C
-             $0006 LD HL,$007B
+             $0006 LD HL,-65413
              $0009 LD SP,1234
              $000C LD IX,12345
              $0010 LD IY,23456

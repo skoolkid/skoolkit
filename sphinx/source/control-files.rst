@@ -348,9 +348,10 @@ Number bases
 Numeric values in instruction operands and DEFB, DEFM, DEFS and DEFW statements
 are normally rendered in either decimal or hexadecimal, depending on the
 options passed to :ref:`sna2skool.py`. To render a numeric value in a specific
-base or as a character, attach a ``b`` (binary), ``c`` (character), ``d``
-(decimal) or ``h`` (hexadecimal) prefix to the relevant length or sublength
-parameter on the ``B``, ``C``, ``S``, ``T`` or ``W`` directive.
+base, as a negative number, or as a character, attach a ``b`` (binary), ``c``
+(character), ``d`` (decimal), ``h`` (hexadecimal) or ``m`` (minus) prefix to
+the relevant length or sublength parameter on the ``B``, ``C``, ``S``, ``T``
+or ``W`` directive.
 
 For example::
 
@@ -364,13 +365,13 @@ will result in something like this::
 
 and::
 
-  B 40000,8,b1:d2:h1,d1,b1,h2
+  B 40000,8,b1:d2:h1,m1,b1,h2
   S 40008,8,8:c
 
 will result in something like this::
 
   40000 DEFB %10101010,23,43,$5F
-  40004 DEFB 56
+  40004 DEFB -1
   40005 DEFB %11110000
   40006 DEFB $2B,$80
   40008 DEFS 8,"!"
@@ -550,6 +551,10 @@ Revision history
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 7.1     | Added support for specifying that numeric values in instruction   |
+|         | operands and DEFB, DEFM, DEFS and DEFW statements be rendered as  |
+|         | negative decimal numbers                                          |
++---------+-------------------------------------------------------------------+
 | 7.0     | Added the ``>`` directive for preserving non-entry blocks; added  |
 |         | support for preserving 'inverted' characters (with bit 7 set);    |
 |         | the byte value in an ``S`` directive may be left blank            |

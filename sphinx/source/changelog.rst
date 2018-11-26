@@ -12,6 +12,9 @@ Changelog
   configuration parameter values)
 * The :ref:`UDGARRAY` macro now has the ability to specify attribute addresses
   (as an alternative to specifying attribute values)
+* Added support to control files and skool file templates for specifying that
+  numeric values in instruction operands and DEFB, DEFM, DEFS and DEFW
+  statements be rendered as negative decimal numbers
 * Added the ``CommentWidthMin`` configuration parameter for :ref:`sna2skool.py`
   (to specify the minimum width of the instruction comment field in a skool
   file)

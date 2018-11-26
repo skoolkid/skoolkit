@@ -27,7 +27,7 @@ COMMENT_TYPES = (TITLE, DESCRIPTION, REGISTERS, MID_BLOCK, INSTRUCTION, END)
 
 ENTRY_COMMENT_TYPES = (TITLE, DESCRIPTION, REGISTERS, END)
 
-BASES = ('b', 'c', 'd', 'h', 'n')
+BASES = ('b', 'c', 'd', 'h', 'm', 'n')
 
 class CtlParserError(Exception):
     pass
