@@ -224,7 +224,7 @@ at those addresses, and the image created by the ``#UDG`` macro would be blank.
 The ``@bfix`` directive replaces, inserts or removes a label, instruction and
 comment in :ref:`bfixMode`. ::
 
-  @bfix=[>][|][/][LABEL:][INSTRUCTION][; comment]
+  @bfix=[>][|][+][/][LABEL:][INSTRUCTION][; comment]
 
 or, when removing instructions::
 
@@ -234,6 +234,8 @@ or, when removing instructions::
   current instruction instead of replacing it
 * ``|`` - if this marker is present, ``INSTRUCTION`` overwrites any overlapping
   instructions instead of pushing them aside
+* ``+`` - if this marker is present, ``INSTRUCTION`` is inserted after the
+  current instruction instead of replacing it
 * ``/`` - if this marker is present, any remaining comment lines are removed
 * ``LABEL`` is the replacement label; if not given, any existing label is left
   unchanged
@@ -320,24 +322,40 @@ A sequence of instructions can be inserted before the current instruction by
 using the ``>`` marker. For example::
 
    47191 EX DE,HL
+  ; A mid-block comment.
   @bfix=>LD (HL),C
   @bfix=>INC HL
    47192 LD (HL),B
 
 This will insert ``LD (HL),C`` and ``INC HL`` between ``EX DE,HL`` and
-``LD (HL),B``.
+``LD (HL),B``. The mid-block comment that was above ``LD (HL),B`` will now be
+above ``LD (HL),C``.
 
-A sequence of instructions can be inserted after the current instruction by
-chaining ``@bfix`` directives. For example::
+A sequence of instructions can be inserted after the current instruction
+(without first specifying a replacement for it) by using the ``+`` marker. For
+example::
 
-  @bfix=LD (HL),C  ; {Save BC here
+  @bfix=+LD (HL),C
+  @bfix=INC HL
+   47191 EX DE,HL
+  ; A mid-block comment.
+   47192 LD (HL),B
+
+This will insert ``LD (HL),C`` and ``INC HL`` between ``EX DE,HL`` and
+``LD (HL),B``. In this case, the mid-block comment above ``LD (HL),B`` will
+remain there.
+
+The current instruction can be replaced and a sequence of instructions inserted
+after it by chaining ``@bfix`` directives. For example::
+
+  @bfix=LD (HL),B  ; {Save B and C here
   @bfix=INC HL     ;
-  @bfix=LD (HL),B  ; }
-   61125 LD (HL),C ; Save C here
+  @bfix=LD (HL),C  ; }
+   61125 LD (HL),A ; Save A here
    61126 RET
 
-This will insert ``INC HL`` and ``LD (HL),B`` between ``LD (HL),C`` and
-``RET``.
+This will replace ``LD (HL),A`` with ``LD (HL),B`` and insert ``INC HL`` and
+``LD (HL),C`` before the ``RET`` instruction.
 
 An instruction can be removed by using the ``!`` notation. For example::
 
@@ -359,6 +377,9 @@ instruction in the entry::
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 7.1     | Added support for the ``+`` marker (to insert an instruction      |
+|         | after the current one)                                            |
++---------+-------------------------------------------------------------------+
 | 7.0     | Added support for specifying the replacement comment over         |
 |         | multiple lines, replacing the label, and inserting, overwriting   |
 |         | and removing instructions                                         |
@@ -703,6 +724,9 @@ The syntax is equivalent to that for the :ref:`bfix` directive.
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 7.1     | Added support for the ``+`` marker (to insert an instruction      |
+|         | after the current one)                                            |
++---------+-------------------------------------------------------------------+
 | 7.0     | Added support for specifying the replacement comment over         |
 |         | multiple lines, replacing the label, and inserting, overwriting   |
 |         | and removing instructions                                         |
@@ -844,6 +868,9 @@ The syntax is equivalent to that for the :ref:`bfix` directive.
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 7.1     | Added support for the ``+`` marker (to insert an instruction      |
+|         | after the current one)                                            |
++---------+-------------------------------------------------------------------+
 | 7.0     | Added support for specifying the replacement comment over         |
 |         | multiple lines, replacing the label, and inserting, overwriting   |
 |         | and removing instructions                                         |
@@ -1012,6 +1039,9 @@ The syntax is equivalent to that for the :ref:`bfix` directive.
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 7.1     | Added support for the ``+`` marker (to insert an instruction      |
+|         | after the current one)                                            |
++---------+-------------------------------------------------------------------+
 | 7.0     | Added support for specifying the replacement comment over         |
 |         | multiple lines, replacing the label, and inserting, overwriting   |
 |         | and removing instructions                                         |
@@ -1042,6 +1072,9 @@ The syntax is equivalent to that for the :ref:`rfix` directive.
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 7.1     | Added support for the ``+`` marker (to insert an instruction      |
+|         | after the current one)                                            |
++---------+-------------------------------------------------------------------+
 | 7.0     | Added support for specifying the replacement comment over         |
 |         | multiple lines, replacing the label, and inserting, overwriting   |
 |         | and removing instructions                                         |
@@ -1127,6 +1160,9 @@ The syntax is equivalent to that for the :ref:`bfix` directive.
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 7.1     | Added support for the ``+`` marker (to insert an instruction      |
+|         | after the current one)                                            |
++---------+-------------------------------------------------------------------+
 | 7.0     | Added support for specifying the replacement comment over         |
 |         | multiple lines, replacing the label, and inserting, overwriting   |
 |         | and removing instructions                                         |

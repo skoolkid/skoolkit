@@ -33,7 +33,7 @@ COLUMN_WRAP_MARKER = ':w'
 LIST_MARKER = '#LIST'
 LIST_END_MARKER = 'LIST#'
 
-Flags = namedtuple('Flags', 'prepend final overwrite')
+Flags = namedtuple('Flags', 'prepend final overwrite append')
 
 def _replace_nums(operation, hex_fmt=None, skip_bit=False, prefix=None):
     elements = re.split('(?<=[\s,(%*/+-])(\$[0-9A-Fa-f]+|\d+)', (prefix or '(') + operation)
@@ -93,7 +93,7 @@ def parse_asm_data_directive(snapshot, directive):
             set_bytes(snapshot, addr, operation)
 
 def parse_asm_sub_fix_directive(directive):
-    match = re.match('[>/|]+', directive)
+    match = re.match('[>/|+]+', directive)
     if match:
         prefix = match.group()
         directive = directive[len(prefix):]
@@ -102,13 +102,14 @@ def parse_asm_sub_fix_directive(directive):
     prepend = '>' in prefix
     final = '/' in prefix
     overwrite = '|' in prefix
+    append = '+' in prefix
     op, sep, comment = partition_unquoted(directive, ';')
     if sep:
         comment = comment.strip()
     else:
         comment = None
     label, lsep, op = partition_unquoted(op, ':')
-    flags = Flags(prepend, final, overwrite)
+    flags = Flags(prepend, final, overwrite, append)
     if lsep:
         return flags, label.strip(), op.strip(), comment
     return flags, None, label.strip(), comment
@@ -846,6 +847,8 @@ class Mode:
     def compose_instructions(self, subs, current=False):
         instructions = []
         for flags, label, op, comment in subs:
+            if flags.append and not instructions:
+                instructions.append((False, None, '', [None]))
             op = self.apply_base('', self.apply_case('', op)[1])[1]
             if op or (current and not instructions):
                 instructions.append((flags.overwrite, label, op, [comment]))

@@ -3811,6 +3811,22 @@ class SkoolParserTest(SkoolKitTestCase):
         ]
         self._test_sub_and_fix_directives(skool, exp_instructions, exp_subs)
 
+    def test_sub_and_fix_directives_append_instruction(self):
+        skool = """
+            @start
+            ; Routine
+            @{}=+LD L,H   ; Clear L
+            c32768 LD H,0 ; Clear H
+        """
+        exp_instructions = [
+            ('32768', 'LD H,0', 'Clear H')
+        ]
+        exp_subs = [
+            ('32768', 'LD H,0', 'Clear H'),
+            ('     ', 'LD L,H', 'Clear L')
+        ]
+        self._test_sub_and_fix_directives(skool, exp_instructions, exp_subs)
+
     def test_sub_and_fix_directives_prepend_instruction_with_comment_continuation_line(self):
         skool = """
             @start
@@ -3825,6 +3841,23 @@ class SkoolParserTest(SkoolKitTestCase):
         exp_subs = [
             ('     ', 'LD H,0', 'Clear the H register'),
             ('32768', 'LD L,H', 'Clear L')
+        ]
+        self._test_sub_and_fix_directives(skool, exp_instructions, exp_subs)
+
+    def test_sub_and_fix_directives_append_instruction_with_comment_continuation_line(self):
+        skool = """
+            @start
+            ; Routine
+            @{0}=+LD L,H  ; Clear the
+            @{0}=         ; L register
+            c32768 LD H,0 ; Clear H
+        """
+        exp_instructions = [
+            ('32768', 'LD H,0', 'Clear H')
+        ]
+        exp_subs = [
+            ('32768', 'LD H,0', 'Clear H'),
+            ('     ', 'LD L,H', 'Clear the L register')
         ]
         self._test_sub_and_fix_directives(skool, exp_instructions, exp_subs)
 
@@ -3843,6 +3876,24 @@ class SkoolParserTest(SkoolKitTestCase):
             ('     ', 'LD H,0', 'Clear H'),
             ('     ', 'XOR A', 'Clear A'),
             ('32768', 'LD L,H', 'Clear L')
+        ]
+        self._test_sub_and_fix_directives(skool, exp_instructions, exp_subs)
+
+    def test_sub_and_fix_directives_append_two_instructions(self):
+        skool = """
+            @start
+            ; Routine
+            @{0}=+LD L,H  ; Clear L
+            @{0}=XOR A    ; Clear A
+            c32768 LD H,0 ; Clear H
+        """
+        exp_instructions = [
+            ('32768', 'LD H,0', 'Clear H')
+        ]
+        exp_subs = [
+            ('32768', 'LD H,0', 'Clear H'),
+            ('     ', 'LD L,H', 'Clear L'),
+            ('     ', 'XOR A', 'Clear A')
         ]
         self._test_sub_and_fix_directives(skool, exp_instructions, exp_subs)
 
@@ -3883,6 +3934,24 @@ class SkoolParserTest(SkoolKitTestCase):
         ]
         self._test_sub_and_fix_directives(skool, exp_instructions, exp_subs)
 
+    def test_sub_and_fix_directives_prepend_and_append(self):
+        skool = """
+            @start
+            ; Routine
+            @{0}=>LD H,0  ; Clear H
+            @{0}=+XOR A   ; And A too
+            c32768 LD L,0 ; Clear L
+        """
+        exp_instructions = [
+            ('32768', 'LD L,0', 'Clear L')
+        ]
+        exp_subs = [
+            ('     ', 'LD H,0', 'Clear H'),
+            ('32768', 'LD L,0', 'Clear L'),
+            ('     ', 'XOR A', 'And A too')
+        ]
+        self._test_sub_and_fix_directives(skool, exp_instructions, exp_subs)
+
     def test_sub_and_fix_directives_prepended_instruction_adopts_mid_block_comment(self):
         skool = """
             @start
@@ -3896,6 +3965,21 @@ class SkoolParserTest(SkoolKitTestCase):
             instructions = parser.get_entry(32768).instructions
             self.assertEqual(['Continue.'], instructions[1].mid_block_comment)
             self.assertIsNone(instructions[2].mid_block_comment)
+        self._assert_sub_and_fix_directives(skool, func)
+
+    def test_sub_and_fix_directives_append_instruction_before_mid_block_comment(self):
+        skool = """
+            @start
+            ; Routine
+            @{0}=+XOR A   ; Clear A
+            c32768 LD L,0 ; Clear L
+            ; Continue.
+             32770 LD H,A ; And now H
+        """
+        def func(parser):
+            instructions = parser.get_entry(32768).instructions
+            self.assertIsNone(instructions[1].mid_block_comment)
+            self.assertEqual(['Continue.'], instructions[2].mid_block_comment)
         self._assert_sub_and_fix_directives(skool, func)
 
     def test_sub_and_fix_directives_prepended_instruction_adopts_org(self):
@@ -3926,6 +4010,23 @@ class SkoolParserTest(SkoolKitTestCase):
         exp_subs = [
             ('     ', 'INC HL', ''),
             ('32768', 'LD (HL),0', 'Clear the contents of (HL)'),
+        ]
+        self._test_sub_and_fix_directives(skool, exp_instructions, exp_subs)
+
+    def test_sub_and_fix_directives_append_instruction_without_overriding_comment_continuation_lines(self):
+        skool = """
+            @start
+            ; Routine
+            @{}=+INC HL
+            c32768 LD (HL),0 ; Clear the contents
+                             ; of (HL)
+        """
+        exp_instructions = [
+            ('32768', 'LD (HL),0', 'Clear the contents of (HL)')
+        ]
+        exp_subs = [
+            ('32768', 'LD (HL),0', 'Clear the contents of (HL)'),
+            ('     ', 'INC HL', '')
         ]
         self._test_sub_and_fix_directives(skool, exp_instructions, exp_subs)
 
@@ -4193,6 +4294,22 @@ class SkoolParserTest(SkoolKitTestCase):
         exp_subs = [
             ('START', '     ', 'LD H,0', 'Clear H'),
             (None, '32768', 'LD L,H', 'Clear L')
+        ]
+        self._test_sub_and_fix_directives(skool, exp_instructions, exp_subs)
+
+    def test_sub_and_fix_directives_append_instruction_with_label(self):
+        skool = """
+            @start
+            ; Routine
+            @{}=+START: LD H,L  ; Clear H
+            c32768 LD L,0       ; Clear L
+        """
+        exp_instructions = [
+            (None, '32768', 'LD L,0', 'Clear L')
+        ]
+        exp_subs = [
+            (None, '32768', 'LD L,0', 'Clear L'),
+            ('START', '     ', 'LD H,L', 'Clear H')
         ]
         self._test_sub_and_fix_directives(skool, exp_instructions, exp_subs)
 

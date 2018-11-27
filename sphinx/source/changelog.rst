@@ -15,6 +15,9 @@ Changelog
 * Added support to control files and skool file templates for specifying that
   numeric values in instruction operands and DEFB, DEFM, DEFS and DEFW
   statements be rendered as negative decimal numbers
+* The :ref:`isub`, :ref:`ssub`, :ref:`rsub`, :ref:`ofix`, :ref:`bfix` and
+  :ref:`rfix` directives can insert an instruction after the current one
+  (without first specifying a replacement for it) by using the ``+`` marker
 * Added the ``CommentWidthMin`` configuration parameter for :ref:`sna2skool.py`
   (to specify the minimum width of the instruction comment field in a skool
   file)
