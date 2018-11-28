@@ -76,14 +76,14 @@ class BinWriter:
         before = [i[1] for i in parsed if i[0].prepend and i[1]]
         for operation in before:
             address = self._assemble(operation, address)
-        after = [(i[0].overwrite, i[1]) for i in parsed if not i[0].prepend]
-        if not after:
-            after = [(False, original_op)]
-        overwrite, operation = after.pop(0)
+        after = [(i[0].overwrite, i[1], i[0].append) for i in parsed if not i[0].prepend]
+        if not after or after[0][2]:
+            after.insert(0, (False, original_op, False))
+        overwrite, operation = after.pop(0)[:2]
         operation = operation or original_op
         if skool_address not in removed:
             address = self._assemble(operation, address, overwrite, removed)
-        for overwrite, operation in after:
+        for overwrite, operation, append in after:
             if operation:
                 address = self._assemble(operation, address, overwrite, removed)
         return address

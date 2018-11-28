@@ -345,8 +345,7 @@ class BinWriterTest(SkoolKitTestCase):
              40013 OR A
             @isub=>LD B,A ; Test @isub inserting an instruction before
              40014 XOR A
-            @isub=        ; Test @isub inserting an instruction after
-            @isub=XOR C
+            @isub=+XOR C  ; Test @isub inserting an instruction after
              40015 XOR B
              40016 XOR D
             @isub=!40017-40019
@@ -414,8 +413,7 @@ class BinWriterTest(SkoolKitTestCase):
              50012 OR A
             @ssub=>LD B,A ; Test @ssub inserting an instruction before
              50013 XOR A
-            @ssub=        ; Test @ssub inserting an instruction after
-            @ssub=XOR C
+            @ssub=+XOR C  ; Test @ssub inserting an instruction after
              50014 XOR B
              50015 XOR D
             @ssub=!50016-50018
@@ -501,8 +499,7 @@ class BinWriterTest(SkoolKitTestCase):
              60022 OR A
             @ofix=>LD B,A ; Test @ofix inserting an instruction before
              60023 XOR A
-            @ofix=        ; Test @ofix inserting an instruction after
-            @ofix=XOR C
+            @ofix=+XOR C  ; Test @ofix inserting an instruction after
              60024 XOR B
              60025 XOR D
             @ofix=!60026-60028
@@ -580,8 +577,7 @@ class BinWriterTest(SkoolKitTestCase):
              60023 OR A
             @bfix=>LD B,A ; Test @bfix inserting an instruction before
              60024 XOR A
-            @bfix=        ; Test @bfix inserting an instruction after
-            @bfix=XOR C
+            @bfix=+XOR C  ; Test @bfix inserting an instruction after
              60025 XOR B
              60026 XOR D
             @bfix=!60027-60029
