@@ -19,7 +19,7 @@ Changelog
   :ref:`rfix` directives can insert an instruction after the current one
   (without first specifying a replacement for it) by using the ``+`` marker
 * :ref:`tapinfo.py` now shows pulse lengths in TZX block type 0x13 (pulse
-  sequence)
+  sequence) and full info for TZX block type 0x14 (pure data)
 * Added the ``CommentWidthMin`` configuration parameter for :ref:`sna2skool.py`
   (to specify the minimum width of the instruction comment field in a skool
   file)

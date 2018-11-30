@@ -184,11 +184,18 @@ class TapinfoTest(SkoolKitTestCase):
     def test_tzx_block_0x14(self):
         data = [1, 2, 3]
         block = [20] # Block ID
-        block.extend([0] * 7)
+        block.extend((1, 1)) # Length of 0-pulse
+        block.extend((2, 2)) # Length of 1-pulse
+        block.append(6) # Used bits in last byte
+        block.extend((232, 3)) # Pause length
         block.extend((len(data), 0, 0))
         block.extend(data)
         exp_output = """
             1: Pure data (0x14)
+              0-pulse: 257
+              1-pulse: 514
+              Used bits in last byte: 6
+              Pause: 1000ms
               Length: 3
               Data: 1, 2, 3
         """

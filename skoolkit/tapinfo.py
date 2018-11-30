@@ -83,6 +83,10 @@ def _get_block_info(data, i, block_num):
             i += 2
     elif block_id == 20:
         header = 'Pure data'
+        info.append('0-pulse: {}'.format(get_word(data, i)))
+        info.append('1-pulse: {}'.format(get_word(data, i + 2)))
+        info.append('Used bits in last byte: {}'.format(data[i + 4]))
+        info.append('Pause: {}ms'.format(get_word(data, i + 5)))
         length = get_word3(data, i + 7)
         tape_data = data[i + 10:i + 10 + length]
         i += length + 10
@@ -187,6 +191,8 @@ def _print_block(index, data, info=(), block_id=None, header=None):
         print("{}:".format(index))
     else:
         print("{}: {} (0x{:02X})".format(index, header, block_id))
+    for line in info:
+        _print_info(line)
     if data and block_id in (None, 16):
         data_type = "Unknown"
         name_str = None
@@ -220,8 +226,6 @@ def _print_block(index, data, info=(), block_id=None, header=None):
         else:
             data_summary = _bytes_to_str(data)
         _print_info("Data: {}".format(data_summary))
-    for line in info:
-        _print_info(line)
 
 def _list_basic(cur_block_num, data, block_num, address):
     if block_num == cur_block_num:
