@@ -76,8 +76,11 @@ def _get_block_info(data, i, block_num):
         i += 4
     elif block_id == 19:
         header = 'Pulse sequence'
-        info.append('Pulses: {}'.format(data[i]))
-        i += 2 * data[i] + 1
+        num_pulses = data[i]
+        i += 1
+        for pulse in range(num_pulses):
+            info.append('Pulse {}/{}: {}'.format(pulse + 1, num_pulses, get_word(data, i)))
+            i += 2
     elif block_id == 20:
         header = 'Pure data'
         length = get_word3(data, i + 7)

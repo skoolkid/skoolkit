@@ -173,11 +173,12 @@ class TapinfoTest(SkoolKitTestCase):
     def test_tzx_block_0x13(self):
         block = [19] # Block ID
         block.append(2) # Number of pulses
-        block.extend((0, 1, 0, 1)) # Pulse lengths
+        block.extend((0, 1, 0, 2)) # Pulse lengths
         exp_output = """
             1: Pulse sequence (0x13)
-              Pulses: {}
-        """.format(block[1])
+              Pulse 1/2: 256
+              Pulse 2/2: 512
+        """
         self._test_tzx_block(block, exp_output)
 
     def test_tzx_block_0x14(self):
