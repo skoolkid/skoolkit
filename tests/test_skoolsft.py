@@ -663,6 +663,27 @@ class SftWriterTest(SkoolKitTestCase):
         """
         self._test_sft(skool, exp_sft)
 
+    def test_negative_operands(self):
+        skool = """
+            b50000 DEFB -1
+             50001 DEFB 0,-1,-2
+             50004 DEFM -3
+             50005 DEFM -2,-1,"!"
+             50008 DEFW -1
+             50010 DEFW 0,-1
+             50014 LD A,-1
+             50016 LD BC,-1
+             50019 DEFS 2,-1
+        """
+        exp_sft = """
+            bB50000,m1,1:m2
+             T50004,m1,m2:1
+             W50008,m2,2:m2
+             C50014,m5
+             S50019,2:m
+        """
+        self._test_sft(skool, exp_sft)
+
     def test_gap_between_instructions(self):
         skool = """
             c25000 LD A,10

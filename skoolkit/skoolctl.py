@@ -53,14 +53,16 @@ FORMAT_NO_BASE = {
     'b': 'b{}',
     'c': 'c{}',
     'd': '{}',
-    'h': '{}'
+    'h': '{}',
+    'm': 'm{}'
 }
 
 FORMAT_PRESERVE_BASE = {
     'b': 'b{}',
     'c': 'c{}',
     'd': 'd{}',
-    'h': 'h{}'
+    'h': 'h{}',
+    'm': 'm{}'
 }
 
 def _get_base(item, preserve_base=True):
@@ -70,6 +72,8 @@ def _get_base(item, preserve_base=True):
         return 'c'
     if item.startswith('$') and preserve_base:
         return 'h'
+    if item.startswith('-'):
+        return 'm'
     return 'd'
 
 def get_operand_bases(operation, preserve_base):
@@ -77,9 +81,9 @@ def get_operand_bases(operation, preserve_base):
     if not elements:
         return ''
     if preserve_base:
-        base_fmt = {'b': 'b', 'c': 'c', 'd': 'd', 'h': 'h'}
+        base_fmt = {'b': 'b', 'c': 'c', 'd': 'd', 'h': 'h', 'm': 'm'}
     else:
-        base_fmt = {'b': 'b', 'c': 'c', 'd': 'n', 'h': 'n'}
+        base_fmt = {'b': 'b', 'c': 'c', 'd': 'n', 'h': 'n', 'm': 'm'}
     if elements[0] in ('BIT', 'RES', 'SET'):
         operands = elements[2:]
     else:
@@ -92,7 +96,7 @@ def get_operand_bases(operation, preserve_base):
             num = operand[1:]
         else:
             num = operand
-        if num.startswith(('"', '%', '$', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9')):
+        if num.startswith(('"', '%', '$', '-', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9')):
             bases += base_fmt[_get_base(num)]
     if bases in ('n', 'nn'):
         return ''
@@ -116,7 +120,7 @@ def get_defb_length(operation, preserve_base):
         byte_fmt = FORMAT_NO_BASE
         text_fmt = 'T{}'
     else:
-        byte_fmt = {'b': 'b{}', 'd': 'B{}', 'h': 'B{}'}
+        byte_fmt = {'b': 'b{}', 'd': 'B{}', 'h': 'B{}', 'm': 'm{}'}
         text_fmt = '{}'
     if preserve_base:
         byte_fmt = FORMAT_PRESERVE_BASE

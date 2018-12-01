@@ -946,6 +946,29 @@ class CtlWriterTest(SkoolKitTestCase):
         """
         self._test_ctl(skool, exp_ctl)
 
+    def test_negative_operands(self):
+        skool = """
+            b50000 DEFB -1
+             50001 DEFB 0,-1,-2
+             50004 DEFM -3
+             50005 DEFM -2,-1,"!"
+             50008 DEFW -1
+             50010 DEFW 0,-1
+             50014 LD A,-1
+             50016 LD BC,-1
+             50019 DEFS 2,-1
+        """
+        exp_ctl = """
+            b 50000
+              50000,4,m1,1:m2
+            T 50004,4,m1,m2:1
+            W 50008,6,m2,2:m2
+            C 50014,m5
+            S 50019,2,2:m
+            i 50021
+        """
+        self._test_ctl(skool, exp_ctl)
+
     def test_ignoreua_directives(self):
         skool = """
             @ignoreua
