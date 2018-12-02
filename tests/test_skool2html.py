@@ -904,11 +904,10 @@ class Skool2HtmlTest(SkoolKitTestCase):
 
     def test_option_s(self):
         exp_preamble = """
-            skool2html.py searches the following directories for skool files, ref files,
-            CSS files, JavaScript files, font files, and files listed in the [Resources]
-            section of the ref file:
+            skool2html.py searches the following directories for CSS files, JavaScript
+            files, font files, and files listed in the [Resources] section of the ref file:
 
-            - The directory that contains the skool or ref file named on the command line
+            - The directory that contains the skool file named on the command line
             - The current working directory
             - {}
             - {}

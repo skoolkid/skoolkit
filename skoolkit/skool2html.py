@@ -39,16 +39,15 @@ SEARCH_DIRS = (
 )
 
 SEARCH_DIRS_MSG = """
-skool2html.py searches the following directories for skool files, ref files,
-CSS files, JavaScript files, font files, and files listed in the [Resources]
-section of the ref file:
+skool2html.py searches the following directories for CSS files, JavaScript
+files, font files, and files listed in the [Resources] section of the ref file:
 
 """.lstrip()
 
 def show_search_dirs():
     write(SEARCH_DIRS_MSG)
     prefix = '- '
-    write_line(prefix + 'The directory that contains the skool or ref file named on the command line')
+    write_line(prefix + 'The directory that contains the skool file named on the command line')
     for search_dir in SEARCH_DIRS:
         if not search_dir:
             search_dir = 'The current working directory'
