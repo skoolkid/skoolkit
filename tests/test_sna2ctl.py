@@ -218,7 +218,7 @@ class Sna2CtlTest(SkoolKitTestCase):
     @patch.object(sna2ctl, 'get_config', mock_config)
     def test_default_option_values(self):
         sna2ctl.main(('test.sna',))
-        snafile, options = run_args
+        snafile, options = run_args[:2]
         self.assertEqual(snafile, 'test.sna')
         self.assertEqual(options.ctl_hex, 0)
         self.assertEqual(options.start, 0)
@@ -226,16 +226,18 @@ class Sna2CtlTest(SkoolKitTestCase):
         self.assertIsNone(options.code_map)
         self.assertIsNone(options.org)
         self.assertIsNone(options.page)
+        self.assertEqual([], options.params)
 
     @patch.object(sna2ctl, 'run', mock_run)
     def test_config_read_from_file(self):
         ini = """
             [sna2ctl]
             Hex=1
+            TextChars=abcdefghijklmnopqrstuvwxyz
         """
         self.write_text_file(dedent(ini).strip(), 'skoolkit.ini')
         sna2ctl.main(('test.sna',))
-        snafile, options = run_args
+        snafile, options, config = run_args
         self.assertEqual(snafile, 'test.sna')
         self.assertEqual(options.ctl_hex, 1)
         self.assertEqual(options.start, 0)
@@ -243,6 +245,8 @@ class Sna2CtlTest(SkoolKitTestCase):
         self.assertIsNone(options.code_map)
         self.assertIsNone(options.org)
         self.assertIsNone(options.page)
+        self.assertEqual(config['Hex'], 1)
+        self.assertEqual(config['TextChars'], 'abcdefghijklmnopqrstuvwxyz')
 
     @patch.object(sna2ctl, 'run', mock_run)
     def test_invalid_option_values_read_from_file(self):
@@ -252,9 +256,10 @@ class Sna2CtlTest(SkoolKitTestCase):
         """
         self.write_text_file(dedent(ini).strip(), 'skoolkit.ini')
         sna2ctl.main(('test.sna',))
-        snafile, options = run_args
+        snafile, options, config = run_args
         self.assertEqual(snafile, 'test.sna')
         self.assertEqual(options.ctl_hex, 0)
+        self.assertEqual(config['Hex'], 0)
 
     def test_invalid_option(self):
         output, error = self.run_sna2ctl('-x dummy.bin', catch_exit=2)
@@ -419,6 +424,17 @@ class Sna2CtlTest(SkoolKitTestCase):
         data = [104, 101, 121, 46] # DEFM "hey."
         exp_ctl = "b 65532"
         self._test_generation(data, exp_ctl)
+
+    def test_config_TextChars(self):
+        data = [
+            104, 101, 108, 108, 111, # 65526 DEFM "hello"
+            72, 69, 76, 76, 79       # 65531 DEFM "HELLO"
+        ]
+        exp_ctl = """
+            t 65526
+            b 65531
+        """
+        self._test_generation(data, exp_ctl, options='-I TextChars=abcdefghijklmnopqrstuvwxyz')
 
     def test_jr_across_64k_boundary(self):
         data = [24]
@@ -609,29 +625,44 @@ class Sna2CtlTest(SkoolKitTestCase):
     @patch.object(sna2ctl, 'get_config', mock_config)
     def test_option_I(self):
         self.run_sna2ctl('-I Hex=1 test-I.sna')
-        options = run_args[1]
+        options, config = run_args[1:]
         self.assertEqual(['Hex=1'], options.params)
         self.assertEqual(options.ctl_hex, 1)
+        self.assertEqual(config['Hex'], 1)
 
     @patch.object(sna2ctl, 'run', mock_run)
     @patch.object(sna2ctl, 'get_config', mock_config)
     def test_option_I_overrides_other_options(self):
         self.run_sna2ctl('-h -I Hex=1 test.sna')
-        options = run_args[1]
+        options, config = run_args[1:]
         self.assertEqual(['Hex=1'], options.params)
         self.assertEqual(options.ctl_hex, 1)
+        self.assertEqual(config['Hex'], 1)
 
     @patch.object(sna2ctl, 'run', mock_run)
     def test_option_I_overrides_config_read_from_file(self):
         ini = """
             [sna2ctl]
             Hex=2
+            TextChars=abc
         """
         self.write_text_file(dedent(ini).strip(), 'skoolkit.ini')
-        self.run_sna2ctl('--ini Hex=1 test.bin')
-        options = run_args[1]
-        self.assertEqual(['Hex=1'], options.params)
+        self.run_sna2ctl('--ini Hex=1 -I TextChars=xyz test.bin')
+        options, config = run_args[1:]
+        self.assertEqual(['Hex=1', 'TextChars=xyz'], options.params)
         self.assertEqual(options.ctl_hex, 1)
+        self.assertEqual(config['Hex'], 1)
+        self.assertEqual(config['TextChars'], 'xyz')
+
+    @patch.object(sna2ctl, 'run', mock_run)
+    @patch.object(sna2ctl, 'get_config', mock_config)
+    def test_option_I_multiple(self):
+        self.run_sna2ctl('-I Hex=1 --ini TextChars=abc test-I-multiple.bin')
+        options, config = run_args[1:]
+        self.assertEqual(['Hex=1', 'TextChars=abc'], options.params)
+        self.assertEqual(options.ctl_hex, 1)
+        self.assertEqual(config['Hex'], 1)
+        self.assertEqual(config['TextChars'], 'abc')
 
     @patch.object(sna2ctl, 'run', mock_run)
     @patch.object(sna2ctl, 'get_config', mock_config)
@@ -800,6 +831,7 @@ class Sna2CtlTest(SkoolKitTestCase):
         exp_output = """
             [sna2ctl]
             Hex=0
+            TextChars=,. abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789
         """
         self.assertEqual(dedent(exp_output).strip(), output.rstrip())
 
@@ -807,6 +839,7 @@ class Sna2CtlTest(SkoolKitTestCase):
         ini = """
             [sna2ctl]
             Hex=1
+            TextChars=abcdefghijklmnopqrstuvwxyz
         """
         self.write_text_file(dedent(ini).strip(), 'skoolkit.ini')
         output, error = self.run_sna2ctl('--show-config', catch_exit=0)
@@ -814,6 +847,7 @@ class Sna2CtlTest(SkoolKitTestCase):
         exp_output = """
             [sna2ctl]
             Hex=1
+            TextChars=abcdefghijklmnopqrstuvwxyz
         """
         self.assertEqual(dedent(exp_output).strip(), output.rstrip())
 

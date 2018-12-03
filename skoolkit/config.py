@@ -22,7 +22,8 @@ from skoolkit.refparser import RefParser
 
 COMMANDS = {
     'sna2ctl' : {
-        'Hex': (0, 'ctl_hex')
+        'Hex': (0, 'ctl_hex'),
+        'TextChars': (',. abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789', '')
     },
     'sna2skool': {
         'Base': (10, 'base'),

@@ -23,9 +23,9 @@ from skoolkit.snapshot import make_snapshot
 
 END = 65536
 
-def run(snafile, options):
+def run(snafile, options, config):
     snapshot, start, end = make_snapshot(snafile, options.org, options.start, options.end, options.page)
-    ctls = generate_ctls(snapshot, start, end, options.code_map)
+    ctls = generate_ctls(snapshot, start, end, config, options.code_map)
     write_ctl(ctls, options.ctl_hex)
 
 def main(args):
@@ -65,4 +65,4 @@ def main(args):
     if unknown_args or namespace.snafile is None:
         parser.exit(2, parser.format_help())
     update_options('sna2ctl', namespace, namespace.params, config)
-    run(namespace.snafile, namespace)
+    run(namespace.snafile, namespace, config)

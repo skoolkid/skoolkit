@@ -38,9 +38,6 @@ UNIQUE_CHARS_MIN = 0.25
 # a fraction of the block length)
 PUNC_CHARS_MAX = 0.2
 
-# The characters allowed in a text block
-CHARS = ' ,.abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
-
 # The punctuation characters allowed in a text block
 PUNC_CHARS = ',.'
 
@@ -212,7 +209,7 @@ def _get_blocks(ctls):
     blocks.pop()
     return blocks
 
-def _generate_ctls_with_code_map(snapshot, start, end, code_map):
+def _generate_ctls_with_code_map(snapshot, start, end, config, code_map):
     # (1) Use the code map to create an initial set of 'c' ctls, and mark all
     #     unexecuted blocks as 'U' (unknown)
     # (2) Where a 'c' block doesn't end with a RET/JP/JR, extend it up to the
@@ -310,7 +307,7 @@ def _generate_ctls_with_code_map(snapshot, start, end, code_map):
     for ctl, b_start, b_end in _get_blocks(ctls):
         if ctl == 'U':
             ctls[b_start] = 'b'
-            for t_start, t_end in _get_text_blocks(snapshot, b_start, b_end):
+            for t_start, t_end in _get_text_blocks(snapshot, b_start, b_end, config):
                 ctls[t_start] = 't'
                 if t_end < b_end:
                     ctls[t_end] = 'b'
@@ -348,13 +345,13 @@ def _check_text(t_blocks, t_start, t_end, text, min_length):
             return
     t_blocks.append([t_start, t_end])
 
-def _get_text_blocks(snapshot, start, end, min_length=MIN_LENGTH_DATA):
+def _get_text_blocks(snapshot, start, end, config, min_length=MIN_LENGTH_DATA):
     t_blocks = []
     if end - start >= min_length:
         text = ''
         for address in range(start, end):
             char = chr(snapshot[address])
-            if char in CHARS:
+            if char in config['TextChars']:
                 if not text:
                     t_start = address
                 text += char
@@ -374,7 +371,7 @@ def _catch_data(ctls, ctl_addr, count, max_count, addr, op, op_bytes):
             return addr
     return ctl_addr
 
-def _generate_ctls_without_code_map(snapshot, start, end):
+def _generate_ctls_without_code_map(snapshot, start, end, config):
     ctls = []
     ctl_addr = start
     prev_max_count, prev_op_id, prev_op, prev_op_bytes = 0, None, None, ()
@@ -431,12 +428,12 @@ def _generate_ctls_without_code_map(snapshot, start, end):
     for i in range(len(edges) - 1):
         start, end = edges[i], edges[i + 1]
         if ctls[start] == 'b':
-            for t_start, t_end in _get_text_blocks(snapshot, start, end):
+            for t_start, t_end in _get_text_blocks(snapshot, start, end, config):
                 ctls[t_start] = 't'
                 if t_end < end:
                     ctls[t_end] = 'b'
         elif ctls[start] == 'c':
-            text_blocks = _get_text_blocks(snapshot, start, end, MIN_LENGTH_CODE)
+            text_blocks = _get_text_blocks(snapshot, start, end, config, MIN_LENGTH_CODE)
             if text_blocks:
                 ctls[start] = 'b'
                 for t_start, t_end in text_blocks:
@@ -456,7 +453,7 @@ def write_ctl(ctls, ctl_hex):
     for address in [a for a in sorted(ctls) if a < 65536]:
         write_line('{} {}'.format(ctls[address], addr_fmt.format(address)))
 
-def generate_ctls(snapshot, start, end, code_map):
+def generate_ctls(snapshot, start, end, config, code_map):
     if code_map:
-        return _generate_ctls_with_code_map(snapshot, start, end, code_map)
-    return _generate_ctls_without_code_map(snapshot, start, end)
+        return _generate_ctls_with_code_map(snapshot, start, end, config, code_map)
+    return _generate_ctls_without_code_map(snapshot, start, end, config)

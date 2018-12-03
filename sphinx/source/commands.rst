@@ -678,6 +678,8 @@ configuration parameters are:
 
 * ``Hex`` - write addresses in decimal (``0``, the default), lower case
   hexadecimal (``1``),  or upper case hexadecimal (``2``)
+* ``TextChars`` - characters eligible for being marked as text (default:
+  ``,. abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789``)
 
 Configuration parameters must appear in a ``[sna2ctl]`` section. For example,
 to make `sna2ctl.py` write upper case hexadecimal addresses by default (without
