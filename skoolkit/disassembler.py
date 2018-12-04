@@ -224,7 +224,7 @@ class Disassembler:
             items = []
             i = 0
             for length, ctl in sublengths:
-                if ctl and ctl in 'Bbdhm':
+                if ctl and ctl in 'Bbdhmn':
                     text = False
                 elif ctl == 'T':
                     text = True

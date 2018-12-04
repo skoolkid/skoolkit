@@ -333,14 +333,14 @@ class SftParserTest(SkoolKitTestCase):
         sft = """
             bB00000,b5
              B00005,h15
-             B00020,b2,d2,h1
+             B00020,b2,d1:n1,h1
              B00025,b2:d1:m1:h1
              B00030,h5:d3:b2
              B00040,b1,h2*2
              B00045,h1,T4
              B00050,b2:T3
              T00055,h2,3
-             T00060,2:d3
+             T00060,2:d2:n1
              T00065,2,B1*2,m1
              T00070,B2:h3
         """
@@ -370,9 +370,15 @@ class SftParserTest(SkoolKitTestCase):
         self._test_disassembly(sft, exp_skool, snapshot)
 
     def test_byte_formats_hex(self):
-        snapshot = [170] * 5
-        sft = 'bB00000,b1:d1:h1:1:m1'
-        exp_skool = 'b$0000 DEFB %10101010,170,$AA,$AA,-86'
+        snapshot = [33] * 12
+        sft = """
+            bB00000,b1:d1:h1:1:m1:n1
+             T00006,b1:d1:h1:1:m1:n1
+        """
+        exp_skool = """
+            b$0000 DEFB %00100001,33,$21,$21,-223,$21
+             $0006 DEFM %00100001,33,$21,"!",-223,$21
+        """
         self._test_disassembly(sft, exp_skool, snapshot, asm_hex=True)
 
     def test_inverted_characters(self):
@@ -434,7 +440,7 @@ class SftParserTest(SkoolKitTestCase):
              W00004,b4
              W00008,d4
              W00012,h4
-             W00016,2,d2,h4
+             W00016,2,d2,h2:n2
              W00024,b2:m2:2:h2
              W00032,b2,4,m2
              W00040,c2:2
@@ -446,7 +452,7 @@ class SftParserTest(SkoolKitTestCase):
              00012 DEFW $55CD,$55CD
              00016 DEFW 21965
              00018 DEFW 21965
-             00020 DEFW $55CD,$55CD
+             00020 DEFW $55CD,21965
              00024 DEFW %0101010111001101,-43571,21965,$55CD
              00032 DEFW %0101010111001101
              00034 DEFW 21965,21965
@@ -456,21 +462,22 @@ class SftParserTest(SkoolKitTestCase):
         self._test_disassembly(sft, exp_skool, snapshot)
 
     def test_word_formats_hex(self):
-        snapshot = [170] * 10
-        sft = 'wW00000,b2,d2,h2,2,m2'
+        snapshot = [170] * 12
+        sft = 'wW00000,b2,d2,h2,2,m2,n2'
         exp_skool = """
             w$0000 DEFW %1010101010101010
              $0002 DEFW 43690
              $0004 DEFW $AAAA
              $0006 DEFW $AAAA
              $0008 DEFW -21846
+             $000A DEFW $AAAA
         """
         self._test_disassembly(sft, exp_skool, snapshot, asm_hex=True)
 
     def test_s_directives_with_no_byte_value(self):
         sft = """
             sS00000,1,b2,d3,h4
-             S00010,b10,d10,h10
+             S00010,b10,d10,h5,n5
              S00040,10
              S00050,b300,d300,h300
              S00950,c" ",c160,c4,c132
@@ -482,7 +489,8 @@ class SftParserTest(SkoolKitTestCase):
              00006 DEFS $04
              00010 DEFS %00001010
              00020 DEFS 10
-             00030 DEFS $0A
+             00030 DEFS $05
+             00035 DEFS 5
              00040 DEFS 10
              00050 DEFS %0000000100101100
              00350 DEFS 300
@@ -532,12 +540,13 @@ class SftParserTest(SkoolKitTestCase):
         self._test_disassembly(sft, exp_skool, snapshot)
 
     def test_s_directives_hex(self):
-        sft = 'sS00000,b10,d10,h10,10'
+        sft = 'sS00000,b10,d10,h10,10,n10'
         exp_skool = """
             s$0000 DEFS %00001010
              $000A DEFS 10
              $0014 DEFS $0A
              $001E DEFS $0A
+             $0028 DEFS $0A
         """
         self._test_disassembly(sft, exp_skool, asm_hex=True)
 
