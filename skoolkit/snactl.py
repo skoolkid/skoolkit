@@ -19,7 +19,6 @@ import os
 
 from skoolkit import SkoolKitError, open_file, read_bin_file, write_line, get_address_format
 from skoolkit.ctlparser import CtlParser
-from skoolkit.disassembler import Disassembler
 from skoolkit.opcodes import END, decode
 from skoolkit.skoolctl import AD_ORG, AD_START
 from skoolkit.snaskool import Disassembly
@@ -88,9 +87,8 @@ def _get_code_blocks(snapshot, start, end, fname):
     sys.stderr.write('\n')
 
     code_blocks = []
-    disassembler = Disassembler(snapshot)
     for address in addresses:
-        size = disassembler.disassemble(address, address + 1)[0].size()
+        size = next(decode(snapshot, address, address + 1))[1]
         if code_blocks and address <= sum(code_blocks[-1]):
             if address == sum(code_blocks[-1]):
                 code_blocks[-1][1] += size
@@ -166,36 +164,19 @@ def _get_addresses(f, fname, size, start, end):
 
     return sorted(addresses)
 
-def _is_terminal_instruction(instruction):
-    data = instruction.bytes
-    if data[0] in (195, 201, 233):
-        # JP nn / RET / JP (HL)
-        return True
-    if len(data) == 2:
-        if data[0] == 237 and data[1] in (69, 77, 85, 93, 101, 109, 117, 125):
-            # RETN/RETI
-            return True
-        if data[0] in (221, 253) and data[1] == 233:
-            # JP (IX)/JP (IY)
-            return True
-        if data[0] == 24 and data[1] > 0:
-            # JR d (d != 0)
-            return True
-    return False
-
-def _find_terminal_instruction(disassembler, ctls, start, end=65536, ctl=None):
+def _find_terminal_instruction(snapshot, ctls, start, end, ctl=None):
     address = start
     while address < end:
-        instruction = disassembler.disassemble(address, address + 1)[0]
-        address = instruction.address + instruction.size()
+        i_addr, size, max_count, op_id = next(decode(snapshot, address, address + 1))[:4]
+        address += size
         if ctl is None:
-            for a in range(instruction.address, address):
+            for a in range(i_addr, address):
                 if a in ctls:
                     next_ctl = ctls[a]
                     del ctls[a]
             if ctls.get(address) == 'c':
                 break
-        if _is_terminal_instruction(instruction):
+        if op_id == END:
             if address < 65536 and address not in ctls:
                 ctls[address] = ctl or next_ctl
             break
@@ -234,14 +215,14 @@ def _generate_ctls_with_code_map(snapshot, start, end, config, code_map):
 
     # (2) Where a 'c' block doesn't end with a RET/JP/JR, extend it up to the
     # next RET/JP/JR in the following 'U' blocks, or up to the next 'c' block
-    disassembler = Disassembler(snapshot)
     while 1:
         done = True
         for ctl, b_start, b_end in _get_blocks(ctls):
             if ctl == 'c':
-                if _is_terminal_instruction(disassembler.disassemble(b_start, b_end)[-1]):
+                last_op_id = list(decode(snapshot, b_start, b_end))[-1][3]
+                if last_op_id == END:
                     continue
-                if _find_terminal_instruction(disassembler, ctls, b_end, end) < end:
+                if _find_terminal_instruction(snapshot, ctls, b_end, end) < end:
                     done = False
                     break
         if done:
@@ -264,7 +245,7 @@ def _generate_ctls_with_code_map(snapshot, start, end, config, code_map):
                                 e_end = entry.next.address
                             else:
                                 e_end = 65536
-                            _find_terminal_instruction(disassembler, ctls, instruction.address, e_end, entry.ctl)
+                            _find_terminal_instruction(snapshot, ctls, instruction.address, e_end, entry.ctl)
                             disassembly.remove_entry(entry.address)
                             done = False
                             break
@@ -278,11 +259,11 @@ def _generate_ctls_with_code_map(snapshot, start, end, config, code_map):
     # (4) Split 'c' blocks on RET/JP/JR
     for ctl, b_address, b_end in _get_blocks(ctls):
         if ctl == 'c':
-            next_address = _find_terminal_instruction(disassembler, ctls, b_address, b_end, 'c')
+            next_address = _find_terminal_instruction(snapshot, ctls, b_address, b_end, 'c')
             if next_address < b_end:
                 disassembly.remove_entry(b_address)
                 while next_address < b_end:
-                    next_address = _find_terminal_instruction(disassembler, ctls, next_address, b_end, 'c')
+                    next_address = _find_terminal_instruction(snapshot, ctls, next_address, b_end, 'c')
 
     # (5) Scan the disassembly for pairs of adjacent blocks where the start
     # address of the second block is JRed or JPed to from the first block, and
