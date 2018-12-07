@@ -415,11 +415,6 @@ class Sna2CtlTest(SkoolKitTestCase):
         exp_ctl = "b 65532"
         self._test_generation(data, exp_ctl)
 
-    def test_text_too_little_variation(self):
-        data = [101] * 5 # DEFM "eeeee"
-        exp_ctl = "b 65531"
-        self._test_generation(data, exp_ctl)
-
     def test_text_too_much_punctuation(self):
         data = [104, 101, 121, 46] # DEFM "hey."
         exp_ctl = "b 65532"

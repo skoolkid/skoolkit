@@ -29,10 +29,6 @@ MIN_LENGTH_DATA = 3
 # The minimum allowed length of a text block in a code block
 MIN_LENGTH_CODE = 8
 
-# The minimum number of distinct characters that must be in a text block (as a
-# fraction of the block length)
-UNIQUE_CHARS_MIN = 0.25
-
 # The maximum number of punctuation characters that can be in a text block (as
 # a fraction of the block length)
 PUNC_CHARS_MAX = 0.2
@@ -304,17 +300,12 @@ def _check_text(t_blocks, t_start, t_end, text, min_length):
     if len(text) < min_length:
         return
 
-    letters = set()
     punc = []
     text_s = text.strip()
     length_s = len(text_s)
     for c in text_s:
         if c in PUNC_CHARS:
             punc.append(c)
-        else:
-            letters.add(c)
-    if len(letters) < length_s * UNIQUE_CHARS_MIN:
-        return
     if len(punc) > length_s * PUNC_CHARS_MAX:
         return
 
