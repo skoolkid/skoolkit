@@ -29,13 +29,6 @@ MIN_LENGTH_DATA = 3
 # The minimum allowed length of a text block in a code block
 MIN_LENGTH_CODE = 8
 
-# The maximum number of punctuation characters that can be in a text block (as
-# a fraction of the block length)
-PUNC_CHARS_MAX = 0.2
-
-# The punctuation characters allowed in a text block
-PUNC_CHARS = ',.'
-
 # If two text blocks are separated by no more than this number of bytes, they
 # will be joined
 TEXT_GAP_MAX = 8
@@ -298,15 +291,6 @@ def _generate_ctls_with_code_map(snapshot, start, end, config, code_map):
 
 def _check_text(t_blocks, t_start, t_end, text, min_length):
     if len(text) < min_length:
-        return
-
-    punc = []
-    text_s = text.strip()
-    length_s = len(text_s)
-    for c in text_s:
-        if c in PUNC_CHARS:
-            punc.append(c)
-    if len(punc) > length_s * PUNC_CHARS_MAX:
         return
 
     if t_blocks:
