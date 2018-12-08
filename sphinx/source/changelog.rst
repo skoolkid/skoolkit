@@ -14,7 +14,7 @@ Changelog
   (as an alternative to specifying attribute values)
 * Added support to control files and skool file templates for specifying that
   numeric values in instruction operands and DEFB, DEFM, DEFS and DEFW
-  statements be rendered as negative decimal numbers
+  statements be rendered as negative numbers
 * The :ref:`isub`, :ref:`ssub`, :ref:`rsub`, :ref:`ofix`, :ref:`bfix` and
   :ref:`rfix` directives can insert an instruction after the current one
   (without first specifying a replacement for it) by using the ``+`` marker

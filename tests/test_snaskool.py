@@ -528,8 +528,8 @@ class DisassemblyTest(SkoolKitTestCase):
             i 00012
         """
         exp_instructions = [
-            (0, 'DEFB $55,%01010101,85,$55,-171,$55'),
-            (6, 'DEFM "U",%01010101,85,$55,-171,$55')
+            (0, 'DEFB $55,%01010101,85,$55,-$AB,$55'),
+            (6, 'DEFM "U",%01010101,85,$55,-$AB,$55')
         ]
         self._test_disassembly(snapshot, ctl, exp_instructions, asm_hex=True)
 
@@ -643,7 +643,7 @@ class DisassemblyTest(SkoolKitTestCase):
             (2, 'DEFW 61680'),
             (4, 'DEFW $F0F0'),
             (6, 'DEFW $F0F0'),
-            (8, 'DEFW -3856'),
+            (8, 'DEFW -$0F10'),
             (10, 'DEFW $F0F0')
         ]
         self._test_disassembly(snapshot, ctl, exp_instructions, asm_hex=True)
@@ -776,7 +776,7 @@ class DisassemblyTest(SkoolKitTestCase):
             (10, 'DEFS $02,"!"+$80'),
             (12, 'DEFS $02,$07'),
             (14, 'DEFS $02,$88'),
-            (16, 'DEFS $02,-1')
+            (16, 'DEFS $02,-$01')
         ]
         self._test_disassembly(snapshot, ctl, exp_instructions, asm_hex=True)
 
@@ -820,7 +820,7 @@ class DisassemblyTest(SkoolKitTestCase):
             (0, 'LD A,%00000101'),
             (2, 'LD B,%00000110'),
             (4, 'LD C,%00000111'),
-            (6, 'LD D,-16'),
+            (6, 'LD D,-$10'),
             (8, 'LD E,$80'),
             (10, 'LD H,%11001000'),
             (12, 'LD L,%01100100'),
@@ -1005,7 +1005,7 @@ class DisassemblyTest(SkoolKitTestCase):
         exp_instructions = [
             (0, 'LD BC,1'),
             (3, 'LD DE,$000C'),
-            (6, 'LD HL,-65413'),
+            (6, 'LD HL,-$FF85'),
             (9, 'LD SP,%0000010011010010'),
             (12, 'LD IX,12345'),
             (16, 'LD IY,%0101101110100000'),

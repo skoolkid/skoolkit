@@ -666,13 +666,13 @@ class SftWriterTest(SkoolKitTestCase):
     def test_negative_operands(self):
         skool = """
             b50000 DEFB -1
-             50001 DEFB 0,-1,-2
+             50001 DEFB 0,-$01,-2
              50004 DEFM -3
-             50005 DEFM -2,-1,"!"
+             50005 DEFM -2,-$01,"!"
              50008 DEFW -1
-             50010 DEFW 0,-1
+             50010 DEFW 0,-$01
              50014 LD A,-1
-             50016 LD BC,-1
+             50016 LD BC,-$0001
              50019 DEFS 2,-1
         """
         exp_sft = """

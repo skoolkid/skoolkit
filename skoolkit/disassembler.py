@@ -70,20 +70,21 @@ class Disassembler:
             if value & 127 in (34, 92):
                 return r'"\{}"'.format(chr(value & 127)) + suffix
             return '"{}"'.format(chr(value & 127)) + suffix
+        sign = ''
         if base == 'm':
-            base = 'd'
+            sign = '-'
             if num_bytes == 1:
-                value -= 256
+                value = 256 - value
             else:
-                value -= 65536
+                value = 65536 - value
         if base not in self.byte_formats:
             if self.asm_hex:
                 base = 'h'
             else:
                 base = 'd'
-        if abs(value) > 255 or num_bytes > 1:
-            return self.word_formats[base].format(value)
-        return self.byte_formats[base].format(value)
+        if value > 255 or num_bytes > 1:
+            return sign + self.word_formats[base].format(value)
+        return sign + self.byte_formats[base].format(value)
 
     def disassemble(self, start, end=65536, base=None):
         instructions = []

@@ -376,8 +376,8 @@ class SftParserTest(SkoolKitTestCase):
              T00006,b1:d1:h1:1:m1:n1
         """
         exp_skool = """
-            b$0000 DEFB %00100001,33,$21,$21,-223,$21
-             $0006 DEFM %00100001,33,$21,"!",-223,$21
+            b$0000 DEFB %00100001,33,$21,$21,-$DF,$21
+             $0006 DEFM %00100001,33,$21,"!",-$DF,$21
         """
         self._test_disassembly(sft, exp_skool, snapshot, asm_hex=True)
 
@@ -469,7 +469,7 @@ class SftParserTest(SkoolKitTestCase):
              $0002 DEFW 43690
              $0004 DEFW $AAAA
              $0006 DEFW $AAAA
-             $0008 DEFW -21846
+             $0008 DEFW -$5556
              $000A DEFW $AAAA
         """
         self._test_disassembly(sft, exp_skool, snapshot, asm_hex=True)
@@ -564,7 +564,7 @@ class SftParserTest(SkoolKitTestCase):
              $000A DEFS $02,"!"+$80
              $000C DEFS $02,$07
              $000E DEFS $02,$88
-             $0010 DEFS $02,-1
+             $0010 DEFS $02,-$01
         """
         self._test_disassembly(sft, exp_skool, snapshot, asm_hex=True)
 
@@ -836,7 +836,7 @@ class SftParserTest(SkoolKitTestCase):
         exp_skool = """
             c$0000 LD BC,$0001
              $0003 LD DE,$000C
-             $0006 LD HL,-65413
+             $0006 LD HL,-$FF85
              $0009 LD SP,1234
              $000C LD IX,12345
              $0010 LD IY,23456
