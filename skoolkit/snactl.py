@@ -29,10 +29,6 @@ MIN_LENGTH_DATA = 3
 # The minimum allowed length of a text block in a code block
 MIN_LENGTH_CODE = 8
 
-# If two text blocks are separated by no more than this number of bytes, they
-# will be joined
-TEXT_GAP_MAX = 8
-
 class CodeMapError(SkoolKitError):
     pass
 
@@ -290,16 +286,8 @@ def _generate_ctls_with_code_map(snapshot, start, end, config, code_map):
     return ctls
 
 def _check_text(t_blocks, t_start, t_end, text, min_length):
-    if len(text) < min_length:
-        return
-
-    if t_blocks:
-        prev_t_block = t_blocks[-1]
-        if prev_t_block[1] + TEXT_GAP_MAX >= t_start:
-            # If the previous t-block is close to this one, merge them
-            prev_t_block[1] = t_end
-            return
-    t_blocks.append([t_start, t_end])
+    if len(text) >= min_length:
+        t_blocks.append((t_start, t_end))
 
 def _get_text_blocks(snapshot, start, end, config, min_length=MIN_LENGTH_DATA):
     t_blocks = []
