@@ -1464,15 +1464,57 @@ class SkoolWriterTest(SkoolKitTestCase):
         """
         self._test_write_skool(snapshot, ctl, exp_skool, write_refs=2)
 
-    def test_bad_blocks(self):
-        snapshot = [0] * 65536
-        snapshot[65533:65535] = [62, 195]
-        ctls = ('c 65533', 'c 65534')
-        writer = self._get_writer(snapshot, '\n'.join(ctls))
+    def test_code_block_overlaps_code_block(self):
+        snapshot = [175, 6, 175, 201]
+        ctl = """
+            c 00000
+            c 00002
+            i 00004
+        """
+        writer = self._get_writer(snapshot, ctl)
         writer.write_skool(0, False)
         warnings = self.err.getvalue().split('\n')[:-1]
         self.assertEqual(len(warnings), 1)
-        self.assertEqual(warnings[0], 'WARNING: Code block at 65533 overlaps the following block at 65534')
+        self.assertEqual(warnings[0], 'WARNING: Instruction at 1 overlaps the following instruction at 2')
+
+    def test_code_block_overlaps_data_block(self):
+        snapshot = [175, 6, 0]
+        ctl = """
+            c 00000
+            b 00002
+            i 00003
+        """
+        writer = self._get_writer(snapshot, ctl)
+        writer.write_skool(0, False)
+        warnings = self.err.getvalue().split('\n')[:-1]
+        self.assertEqual(len(warnings), 1)
+        self.assertEqual(warnings[0], 'WARNING: Instruction at 1 overlaps the following instruction at 2')
+
+    def test_data_block_overlaps_code_block(self):
+        snapshot = [175, 201]
+        ctl = """
+            w 00000
+            c 00001
+            i 00002
+        """
+        writer = self._get_writer(snapshot, ctl)
+        writer.write_skool(0, False)
+        warnings = self.err.getvalue().split('\n')[:-1]
+        self.assertEqual(len(warnings), 1)
+        self.assertEqual(warnings[0], 'WARNING: Instruction at 0 overlaps the following instruction at 1')
+
+    def test_data_block_overlaps_data_block(self):
+        snapshot = [0] * 2
+        ctl = """
+            w 00000
+            b 00001
+            i 00002
+        """
+        writer = self._get_writer(snapshot, ctl)
+        writer.write_skool(0, False)
+        warnings = self.err.getvalue().split('\n')[:-1]
+        self.assertEqual(len(warnings), 1)
+        self.assertEqual(warnings[0], 'WARNING: Instruction at 0 overlaps the following instruction at 1')
 
     def test_blank_multi_instruction_comment(self):
         ctl = """

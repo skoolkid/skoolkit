@@ -222,7 +222,9 @@ class SkoolWriter:
             return
 
         for block in entry.bad_blocks:
-            warn('Code block at {} overlaps the following block at {}'.format(self.address_str(block.start, False), self.address_str(block.end, False)))
+            addr1 = self.address_str(block.instructions[-1].address, False)
+            addr2 = self.address_str(block.end, False)
+            warn('Instruction at {} overlaps the following instruction at {}'.format(addr1, addr2))
 
         if entry.title:
             self.write_comment(entry.title)
