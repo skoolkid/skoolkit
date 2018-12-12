@@ -255,6 +255,8 @@ class Sna2CtlTest(SkoolKitTestCase):
         ini = """
             [sna2ctl]
             Hex=?
+            TextMinLengthCode=x
+            TextMinLengthData=!
         """
         self.write_text_file(dedent(ini).strip(), 'skoolkit.ini')
         sna2ctl.main(('test.sna',))
@@ -262,6 +264,8 @@ class Sna2CtlTest(SkoolKitTestCase):
         self.assertEqual(snafile, 'test.sna')
         self.assertEqual(options.ctl_hex, 0)
         self.assertEqual(config['Hex'], 0)
+        self.assertEqual(config['TextMinLengthCode'], 8)
+        self.assertEqual(config['TextMinLengthData'], 3)
 
     def test_invalid_option(self):
         output, error = self.run_sna2ctl('-x dummy.bin', catch_exit=2)
@@ -427,6 +431,31 @@ class Sna2CtlTest(SkoolKitTestCase):
             b 65531
         """
         self._test_generation(data, exp_ctl, options='-I TextChars=abcdefghijklmnopqrstuvwxyz')
+
+    def test_config_TextMinLengthCode(self):
+        data = [
+            175,               # 65530 XOR A
+            119, 111, 114, 68, # 65531 DEFM "worD"
+            201                # 65535 RET
+        ]
+        exp_ctl = """
+            b 65530
+            t 65531
+            c 65535
+        """
+        self._test_generation(data, exp_ctl, options='-I TextMinLengthCode=4')
+
+    def test_config_TextMinLengthData(self):
+        data = [
+            72, 69, 76, 76, 79,    # 65524 DEFM "hello"
+            0,
+            72, 69, 76, 76, 79, 46 # 65530 DEFM "hello."
+        ]
+        exp_ctl = """
+            b 65524
+            t 65530
+        """
+        self._test_generation(data, exp_ctl, options='-I TextMinLengthData=6')
 
     def test_jr_across_64k_boundary(self):
         data = [24]
@@ -824,6 +853,8 @@ class Sna2CtlTest(SkoolKitTestCase):
             [sna2ctl]
             Hex=0
             TextChars=,. abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789
+            TextMinLengthCode=8
+            TextMinLengthData=3
         """
         self.assertEqual(dedent(exp_output).strip(), output.rstrip())
 
@@ -832,6 +863,8 @@ class Sna2CtlTest(SkoolKitTestCase):
             [sna2ctl]
             Hex=1
             TextChars=abcdefghijklmnopqrstuvwxyz
+            TextMinLengthCode=12
+            TextMinLengthData=2
         """
         self.write_text_file(dedent(ini).strip(), 'skoolkit.ini')
         output, error = self.run_sna2ctl('--show-config', catch_exit=0)
@@ -840,6 +873,8 @@ class Sna2CtlTest(SkoolKitTestCase):
             [sna2ctl]
             Hex=1
             TextChars=abcdefghijklmnopqrstuvwxyz
+            TextMinLengthCode=12
+            TextMinLengthData=2
         """
         self.assertEqual(dedent(exp_output).strip(), output.rstrip())
 

@@ -23,12 +23,6 @@ from skoolkit.opcodes import END, decode
 from skoolkit.skoolctl import AD_ORG, AD_START
 from skoolkit.snaskool import Disassembly
 
-# The minimum allowed length of a text block in a data block
-MIN_LENGTH_DATA = 3
-
-# The minimum allowed length of a text block in a code block
-MIN_LENGTH_CODE = 8
-
 class CodeMapError(SkoolKitError):
     pass
 
@@ -289,7 +283,11 @@ def _check_text(t_blocks, t_start, t_end, text, min_length):
     if len(text) >= min_length:
         t_blocks.append((t_start, t_end))
 
-def _get_text_blocks(snapshot, start, end, config, min_length=MIN_LENGTH_DATA):
+def _get_text_blocks(snapshot, start, end, config, data=True):
+    if data:
+        min_length = config['TextMinLengthData']
+    else:
+        min_length = config['TextMinLengthCode']
     t_blocks = []
     if end - start >= min_length:
         text = ''
@@ -377,7 +375,7 @@ def _generate_ctls_without_code_map(snapshot, start, end, config):
                 if t_end < end:
                     ctls[t_end] = 'b'
         elif ctls[start] == 'c':
-            text_blocks = _get_text_blocks(snapshot, start, end, config, MIN_LENGTH_CODE)
+            text_blocks = _get_text_blocks(snapshot, start, end, config, False)
             if text_blocks:
                 ctls[start] = 'b'
                 for t_start, t_end in text_blocks:

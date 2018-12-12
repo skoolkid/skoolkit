@@ -59,6 +59,10 @@ configuration parameters are:
   (``1``),  or upper case hexadecimal (``2``).
 :TextChars: Characters eligible for being marked as text (default:
   ``,. abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789``).
+:TextMinLengthCode: The minimum length of a string of characters eligible for
+  being marked as text in a block identified as code (default: ``8``).
+:TextMinLengthData: The minimum length of a string of characters eligible for
+  being marked as text in a block identified as data (default: ``3``).
 
 Configuration parameters must appear in a ``[sna2ctl]`` section. For example,
 to make ``sna2ctl.py`` write upper case hexadecimal addresses by default
