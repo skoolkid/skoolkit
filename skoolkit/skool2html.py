@@ -158,8 +158,10 @@ def copy_resources(search_dir, extra_search_dirs, root_dir, fnames, dest_dir, th
 
 def parse_ref_files(reffiles, ref_parser, fnames, search_dir=''):
     for f in fnames:
-        if f and isfile(os.path.join(search_dir, f)):
+        if f:
             ref_f = normpath(search_dir, f)
+            if not isfile(os.path.join(search_dir, f)):
+                raise SkoolKitError('{}: file not found'.format(ref_f))
             if ref_f not in reffiles:
                 reffiles.append(ref_f)
                 ref_parser.parse(ref_f)

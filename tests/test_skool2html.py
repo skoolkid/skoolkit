@@ -433,6 +433,13 @@ class Skool2HtmlTest(SkoolKitTestCase):
         html_writer = write_disassembly_args[0]
         self.assertEqual(html_writer.game_vars['Game'], 'Bar')
 
+    @patch.object(skool2html, 'SkoolParser', MockSkoolParser)
+    def test_nonexistent_ref_file_on_command_line(self):
+        skoolfile = self.write_text_file(suffix='.skool')
+        reffile = 'nonexistent.ref'
+        with self.assertRaisesRegex(SkoolKitError, '{}: file not found'.format(reffile)):
+            self.run_skool2html('-d {} {} {}'.format(self.odir, skoolfile, reffile))
+
     @patch.object(skool2html, 'get_class', Mock(return_value=TestHtmlWriter))
     @patch.object(skool2html, 'SkoolParser', MockSkoolParser)
     def test_nonexistent_css_file(self):
@@ -1385,23 +1392,16 @@ class Skool2HtmlTest(SkoolKitTestCase):
     @patch.object(skool2html, 'write_disassembly', mock_write_disassembly)
     @patch.object(skool2html, 'get_config', mock_config)
     def test_Config_RefFiles_parameter_contains_nonexistent_file(self):
-        ref1 = """
-            [Paths]
-            CodePath=disassembly
-        """
-        ref1file = self._write_ref_file(ref1)
+        ref1file = self._write_ref_file('')
+        ref2file = 'nonexistent.ref'
         ref = """
             [Config]
-            RefFiles={};nonexistent.ref
-        """.format(ref1file)
+            RefFiles={};{}
+        """.format(ref1file, ref2file)
         reffile = self._write_ref_file(ref)
         skoolfile = self.write_text_file(path='{}.skool'.format(reffile[:-4]))
-        exp_reffiles = (reffile, ref1file)
-        output, error = self.run_skool2html(skoolfile)
-        self.assertEqual(error, '')
-        self.assertIn('Using ref files: {}\n'.format(', '.join(exp_reffiles)), output)
-        html_writer = write_disassembly_args[0]
-        self.assertEqual(html_writer.paths['CodePath'], 'disassembly')
+        with self.assertRaisesRegex(SkoolKitError, '{}: file not found'.format(ref2file)):
+            self.run_skool2html('-d {} {}'.format(self.odir, skoolfile))
 
     @patch.object(skool2html, 'get_class', Mock(return_value=TestHtmlWriter))
     @patch.object(skool2html, 'SkoolParser', MockSkoolParser)
