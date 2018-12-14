@@ -381,6 +381,24 @@ class SftParserTest(SkoolKitTestCase):
         """
         self._test_disassembly(sft, exp_skool, snapshot, asm_hex=True)
 
+    def test_text_containing_invalid_characters(self):
+        snapshot = [65, 0, 66, 94, 67, 96, 127, 68, 255]
+        sft = "tT00000,9"
+        exp_skool = 't00000 DEFM "A",0,"B",94,"C",96,127,"D",255'
+        self._test_disassembly(sft, exp_skool, snapshot)
+
+    def test_text_containing_invalid_characters_hex(self):
+        snapshot = [65, 0, 66, 94, 67, 96, 127, 68, 255]
+        sft = "tT00000,9"
+        exp_skool = 't$0000 DEFM "A",$00,"B",$5E,"C",$60,$7F,"D",$FF'
+        self._test_disassembly(sft, exp_skool, snapshot, asm_hex=True)
+
+    def test_text_containing_invalid_characters_hex_lower(self):
+        snapshot = [65, 0, 66, 94, 67, 96, 127, 68, 255]
+        sft = "tT00000,9"
+        exp_skool = 't$0000 defm "A",$00,"B",$5e,"C",$60,$7f,"D",$ff'
+        self._test_disassembly(sft, exp_skool, snapshot, asm_hex=True, asm_lower=True)
+
     def test_inverted_characters(self):
         snapshot = [225, 226, 72, 233, 76, 239, 225, 0, 62, 225, 225, 225, 128, 222]
         sft = """

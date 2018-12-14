@@ -190,13 +190,23 @@ class Disassembler:
         return [Instruction(start, '', self.snapshot[start:end])]
 
     def get_message(self, data):
-        message = ''
+        items = []
         for b in data:
-            char = chr(b)
-            if char in '\\"':
-                message += '\\'
-            message += char
-        return message
+            if is_char(b):
+                char = chr(b)
+                if char in '\\"':
+                    char = '\\' + char
+                if items and items[-1].startswith('"'):
+                    items[-1] += char
+                else:
+                    items.append('"' + char)
+            else:
+                if items and items[-1].startswith('"'):
+                    items[-1] += '"'
+                items.append(self.num_str(b))
+        if items[-1].startswith('"'):
+            items[-1] += '"'
+        return ','.join(items)
 
     def no_arg(self, template, a, base):
         return template, 1
@@ -238,7 +248,7 @@ class Disassembler:
                     if length == 1:
                         items.append(self.num_str(chunk[0], base='c'))
                     else:
-                        items.append('"{}"'.format(self.get_message(chunk)))
+                        items.append(self.get_message(chunk))
                 else:
                     items.append(','.join(self.num_str(b, 1, ctl) for b in chunk))
                 i += length
@@ -312,7 +322,7 @@ class Disassembler:
         return Instruction(address, self.defb_dir(data, sublengths), data)
 
     def defm_line(self, address, data):
-        defm_dir = 'DEFM "{}"'.format(self.get_message(data))
+        defm_dir = 'DEFM {}'.format(self.get_message(data))
         if self.asm_lower:
             defm_dir = convert_case(defm_dir)
         return Instruction(address, defm_dir, data)
