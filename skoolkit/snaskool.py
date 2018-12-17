@@ -124,7 +124,7 @@ class Disassembly:
                         elif sub_block.ctl == 'w':
                             instructions += self.disassembler.defw_range(address, end, sublengths)
                         elif sub_block.ctl == 's':
-                            instructions.append(self.disassembler.defs(address, end, sublengths))
+                            instructions += self.disassembler.defs(address, end, sublengths)
                         else:
                             instructions += self.disassembler.defb_range(address, end, sublengths)
                         address += length

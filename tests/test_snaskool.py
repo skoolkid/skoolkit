@@ -678,8 +678,8 @@ class DisassemblyTest(SkoolKitTestCase):
         ]
         self._test_disassembly(snapshot, ctl, exp_instructions, asm_hex=True)
 
-    def test_s_directives_with_no_byte_value(self):
-        snapshot = []
+    def test_s_directives(self):
+        snapshot = [1] * 4 + [0] * 1292
         ctl = """
             s 00000
               00000,4
@@ -695,7 +695,7 @@ class DisassemblyTest(SkoolKitTestCase):
             i 01296
         """
         exp_instructions = [
-            (  0, 'DEFS 4'),
+            (  0, 'DEFS 4,1'),
             (  4, 'DEFS %00000100'),
             (  8, 'DEFS 4'),
             ( 12, 'DEFS $08'),
@@ -725,41 +725,26 @@ class DisassemblyTest(SkoolKitTestCase):
         ]
         self._test_disassembly(snapshot, ctl, exp_instructions)
 
-    def test_s_directives_with_byte_values(self):
-        snapshot = []
+    def test_s_directives_hex(self):
+        snapshot = [1, 1, 128, 128, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1]
         ctl = """
             s 00000
-              00000,56,16:b%10101010,n30:h17,h10:n32
-              00056,32,16:c";",16:c"?"
-              00088,8,4:c",",4:c" "
-              00096,10,3:c"*"*2,4:c":"
-              00106,16,8:c43
-              00122,10,4:c"\\"",6:c"\\\\"
-            i 00132
+              00000,20,d2,h2,b10,n6
+            i 00020
         """
         exp_instructions = [
-            (0, 'DEFS 16,%10101010'),
-            (16, 'DEFS 30,$11'),
-            (46, 'DEFS $0A,32'),
-            (56, 'DEFS 16,";"'),
-            (72, 'DEFS 16,"?"'),
-            (88, 'DEFS 4,","'),
-            (92, 'DEFS 4," "'),
-            (96, 'DEFS 3,"*"'),
-            (99, 'DEFS 3,"*"'),
-            (102, 'DEFS 4,":"'),
-            (106, 'DEFS 8,"+"'),
-            (114, 'DEFS 8,"+"'),
-            (122, 'DEFS 4,"\\""'),
-            (126, 'DEFS 6,"\\\\"')
+            (0, 'DEFS 2,$01'),
+            (2, 'DEFS $02,$80'),
+            (4, 'DEFS %00001010,$02'),
+            (14, 'DEFS $06,$01')
         ]
-        self._test_disassembly(snapshot, ctl, exp_instructions)
+        self._test_disassembly(snapshot, ctl, exp_instructions, asm_hex=True)
 
-    def test_s_directives_with_blank_byte_values(self):
+    def test_s_directives_with_byte_value_base(self):
         snapshot = [1, 1, 33, 33, 3, 3, 4, 4, 5, 5, 161, 161, 7, 7, 136, 136, 255, 255]
         ctl = """
             s 00000
-              00000,16,2:b,2:c,2:d,2:h,h2:n,2:c*3,2:m
+              00000,18,2:b,2:c,2:d,2:h,h2:n,2:c*3,2:m
             i 00018
         """
         exp_instructions = [
@@ -775,26 +760,11 @@ class DisassemblyTest(SkoolKitTestCase):
         ]
         self._test_disassembly(snapshot, ctl, exp_instructions)
 
-    def test_s_directives_hex(self):
-        snapshot = []
-        ctl = """
-            s 00000
-              00000,20,d2:b1,h2:128,h10:2,n6:1
-            i 00020
-        """
-        exp_instructions = [
-            (0, 'DEFS 2,%00000001'),
-            (2, 'DEFS $02,$80'),
-            (4, 'DEFS $0A,$02'),
-            (14, 'DEFS $06,$01')
-        ]
-        self._test_disassembly(snapshot, ctl, exp_instructions, asm_hex=True)
-
-    def test_s_directives_with_blank_byte_values_hex(self):
+    def test_s_directives_with_byte_value_base_hex(self):
         snapshot = [1, 1, 33, 33, 3, 3, 4, 4, 5, 5, 161, 161, 7, 7, 136, 136, 255, 255]
         ctl = """
             s 00000
-              00000,16,2:b,2:c,2:d,2:h,d2:n,2:c*3,2:m
+              00000,18,2:b,2:c,2:d,2:h,d2:n,2:c*3,2:m
             i 00018
         """
         exp_instructions = [
@@ -809,6 +779,20 @@ class DisassemblyTest(SkoolKitTestCase):
             (16, 'DEFS $02,-$01')
         ]
         self._test_disassembly(snapshot, ctl, exp_instructions, asm_hex=True)
+
+    def test_s_directives_with_mixed_values(self):
+        snapshot = [0, 1, 2, 3, 4, 5]
+        ctl = """
+            s 00000
+              00000,6,2,2:h,2:n
+            i 00006
+        """
+        exp_instructions = [
+            (0, 'DEFB 0,1'),
+            (2, 'DEFB 2,3'),
+            (4, 'DEFB 4,5')
+        ]
+        self._test_disassembly(snapshot, ctl, exp_instructions)
 
     def test_byte_arg_bases(self):
         snapshot = [
@@ -2934,7 +2918,7 @@ class SkoolWriterTest(SkoolKitTestCase):
         self._test_write_skool(snapshot, ctl, exp_skool)
 
     def test_ignore_blocks_with_sub_block_but_no_title(self):
-        snapshot = [0] * 3
+        snapshot = [0] * 4
         ctl = """
             b 00000
             i 00001
@@ -2942,6 +2926,7 @@ class SkoolWriterTest(SkoolKitTestCase):
             b 00002
             i 00003
             S 00003
+            i 00004
         """
         exp_skool = """
             ; Data block at 0
@@ -2952,12 +2937,12 @@ class SkoolWriterTest(SkoolKitTestCase):
             ; Data block at 2
             b00002 DEFB 0
 
-            i00003 DEFS 65533
+            i00003 DEFS 1
         """
         self._test_write_skool(snapshot, ctl, exp_skool)
 
     def test_ignore_blocks_with_title_and_sub_block(self):
-        snapshot = [0] * 3
+        snapshot = [0] * 4
         ctl = """
             b 00000
             i 00001 The middle
@@ -2966,6 +2951,7 @@ class SkoolWriterTest(SkoolKitTestCase):
             i 00003 The end
             D 00003 Unused from here on out.
             S 00003
+            i 00004
         """
         exp_skool = """
             ; Data block at 0
@@ -2980,7 +2966,7 @@ class SkoolWriterTest(SkoolKitTestCase):
             ; The end
             ;
             ; Unused from here on out.
-            i00003 DEFS 65533
+            i00003 DEFS 1
         """
         self._test_write_skool(snapshot, ctl, exp_skool)
 
@@ -3009,7 +2995,7 @@ class SkoolWriterTest(SkoolKitTestCase):
             i 00001
             R 00001 A 0
             C 00001,1
-            S 00002
+            i 00002
         """
         exp_skool = """
             ; Data block at 0
@@ -3021,7 +3007,6 @@ class SkoolWriterTest(SkoolKitTestCase):
             ;
             ; A 0
             i00001 RET
-             00002 DEFS 65534
         """
         self._test_write_skool(snapshot, ctl, exp_skool)
 

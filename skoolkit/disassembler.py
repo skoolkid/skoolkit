@@ -174,17 +174,21 @@ class Disassembler:
         return instructions
 
     def defs(self, start, end, sublengths):
+        data = self.snapshot[start:end]
+        values = set(data)
+        if len(values) > 1:
+            return self.defb_range(start, end, ((end - start, None),))
+        value = values.pop()
         size, base = sublengths[0]
         items = [self.num_str(size or end - start, base=base)]
         if len(sublengths) > 1:
-            value, base = sublengths[1]
-            if value is None:
-                value = self.snapshot[start]
-            items.append(self.num_str(value, base=base))
+            items.append(self.num_str(value, base=sublengths[1][1]))
+        elif value:
+            items.append(self.num_str(value))
         defs_dir = 'DEFS {}'.format(','.join(items))
         if self.asm_lower:
             defs_dir = convert_case(defs_dir)
-        return Instruction(start, defs_dir, self.snapshot[start:end])
+        return [Instruction(start, defs_dir, data)]
 
     def ignore(self, start, end):
         return [Instruction(start, '', self.snapshot[start:end])]

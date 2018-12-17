@@ -271,18 +271,6 @@ This can be encoded thus::
 
 and the terminal character will be restored in the same format.
 
-DEFS statements may specify a byte value other than zero; for example::
-
-  60000 DEFS 20,170
-  60020 DEFS 40,85
-
-These statements can be encoded in a control file thus::
-
-  S 60000,60,20:n,40:n
-
-where ``n`` indicates that the byte value should be rendered in the default
-base (see :ref:`numberBases`).
-
 .. _ctlLoops:
 
 Loops

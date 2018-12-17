@@ -62,7 +62,7 @@ tT32784,5
 wW32789,4
 
 ; Test the S directive
-sS32793,10
+sS32793,1
 
 ; Test an invalid control directive
 a32794 NOP
@@ -148,7 +148,7 @@ t32784 DEFM "Hello"
 w32789 DEFW 0,0
 
 ; Test the S directive
-s32793 DEFS 10
+s32793 DEFS 1
 
 ; Test an invalid control directive
 a32794 NOP
@@ -224,7 +224,7 @@ t$8010 DEFM "Hello"
 w$8015 DEFW $0000,$0000
 
 ; Test the S directive
-s$8019 DEFS $0A
+s$8019 DEFS $01
 
 ; Test an invalid control directive
 a32794 NOP
@@ -492,19 +492,20 @@ class SftParserTest(SkoolKitTestCase):
         """
         self._test_disassembly(sft, exp_skool, snapshot, asm_hex=True)
 
-    def test_s_directives_with_no_byte_value(self):
+    def test_s_directives(self):
+        snapshot = [1] * 4 + [0] * 1274
         sft = """
-            sS00000,1,b2,d3,h4
+            sS00000,4,b3,d2,h1
              S00010,b10,d10,h5,n5
              S00040,10
              S00050,b300,d300,h300
              S00950,c" ",c160,c4,c132
         """
         exp_skool = """
-            s00000 DEFS 1
-             00001 DEFS %00000010
-             00003 DEFS 3
-             00006 DEFS $04
+            s00000 DEFS 4,1
+             00004 DEFS %00000011
+             00007 DEFS 2
+             00009 DEFS $01
              00010 DEFS %00001010
              00020 DEFS 10
              00030 DEFS $05
@@ -518,32 +519,23 @@ class SftParserTest(SkoolKitTestCase):
              01142 DEFS 4
              01146 DEFS 132
         """
-        self._test_disassembly(sft, exp_skool)
+        self._test_disassembly(sft, exp_skool, snapshot)
 
-    def test_s_directives_with_byte_value(self):
-        sft = """
-            sS00950,10:c",",10:c";",30:c"&"
-             S01000,5:c"*"*2,10:c" ",15:c":"
-             S01035,4:c"\\"",6:c"\\\\"
-        """
+    def test_s_directives_hex(self):
+        snapshot = [1] * 10 + [0] * 40
+        sft = 'sS00000,d10,b10,h10,10,n10'
         exp_skool = """
-            s00950 DEFS 10,","
-             00960 DEFS 10,";"
-             00970 DEFS 30,"&"
-             01000 DEFS 5,"*"
-             01005 DEFS 5,"*"
-             01010 DEFS 10," "
-             01020 DEFS 15,":"
-             01035 DEFS 4,"\\""
-             01039 DEFS 6,"\\\\"
+            s$0000 DEFS 10,$01
+             $000A DEFS %00001010
+             $0014 DEFS $0A
+             $001E DEFS $0A
+             $0028 DEFS $0A
         """
-        self._test_disassembly(sft, exp_skool)
+        self._test_disassembly(sft, exp_skool, snapshot, asm_hex=True)
 
-    def test_s_directives_with_blank_byte_values(self):
+    def test_s_directives_with_byte_value_base(self):
         snapshot = [1, 1, 33, 33, 3, 3, 4, 4, 5, 5, 161, 161, 7, 7, 136, 136, 255, 255]
-        sft = """
-            sS00000,2:b,2:c,2:d,2:h,h2:n,2:c*3,2:m
-        """
+        sft = 'sS00000,2:b,2:c,2:d,2:h,h2:n,2:c*3,2:m'
         exp_skool = """
             s00000 DEFS 2,%00000001
              00002 DEFS 2,"!"
@@ -557,22 +549,9 @@ class SftParserTest(SkoolKitTestCase):
         """
         self._test_disassembly(sft, exp_skool, snapshot)
 
-    def test_s_directives_hex(self):
-        sft = 'sS00000,b10,d10,h10,10,n10'
-        exp_skool = """
-            s$0000 DEFS %00001010
-             $000A DEFS 10
-             $0014 DEFS $0A
-             $001E DEFS $0A
-             $0028 DEFS $0A
-        """
-        self._test_disassembly(sft, exp_skool, asm_hex=True)
-
-    def test_s_directives_with_blank_byte_values_hex(self):
+    def test_s_directives_with_byte_value_base_hex(self):
         snapshot = [1, 1, 33, 33, 3, 3, 4, 4, 5, 5, 161, 161, 7, 7, 136, 136, 255, 255]
-        sft = """
-            sS00000,2:b,2:c,2:d,2:h,d2:n,2:c*3,2:m
-        """
+        sft = 'sS00000,2:b,2:c,2:d,2:h,d2:n,2:c*3,2:m'
         exp_skool = """
             s$0000 DEFS $02,%00000001
              $0002 DEFS $02,"!"
@@ -585,6 +564,16 @@ class SftParserTest(SkoolKitTestCase):
              $0010 DEFS $02,-$01
         """
         self._test_disassembly(sft, exp_skool, snapshot, asm_hex=True)
+
+    def test_s_directives_with_mixed_values(self):
+        snapshot = [0, 1, 2, 3, 4, 5]
+        sft = 'sS00000,2,2:h,2:n'
+        exp_skool = """
+            s00000 DEFB 0,1
+             00002 DEFB 2,3
+             00004 DEFB 4,5
+        """
+        self._test_disassembly(sft, exp_skool, snapshot)
 
     def test_byte_arg_bases(self):
         snapshot = [
