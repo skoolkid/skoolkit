@@ -57,8 +57,9 @@ configuration parameters are:
 
 :Hex: Write addresses in decimal (``0``, the default), lower case hexadecimal
   (``1``),  or upper case hexadecimal (``2``).
-:TextChars: Characters eligible for being marked as text (default:
-  ``,. abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789``).
+:TextChars: Characters eligible for being marked as text (default: letters,
+  digits, space, and the following non-alphanumeric characters:
+  ``!"$%&\'()*+,-./:;<=>?[]``).
 :TextMinLengthCode: The minimum length of a string of characters eligible for
   being marked as text in a block identified as code (default: ``8``).
 :TextMinLengthData: The minimum length of a string of characters eligible for

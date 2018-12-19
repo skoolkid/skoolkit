@@ -852,7 +852,7 @@ class Sna2CtlTest(SkoolKitTestCase):
         exp_output = """
             [sna2ctl]
             Hex=0
-            TextChars=,. abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789
+            TextChars=0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ !"$%&'()*+,-./:;<=>?[]
             TextMinLengthCode=8
             TextMinLengthData=3
         """
