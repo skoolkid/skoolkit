@@ -682,7 +682,7 @@ configuration parameters are:
   letters, digits, space, and the following non-alphanumeric characters:
   ``!"$%&\'()*+,-./:;<=>?[]``)
 * ``TextMinLengthCode`` - the minimum length of a string of characters eligible
-  for being marked as text in a block identified as code (default: ``8``)
+  for being marked as text in a block identified as code (default: ``12``)
 * ``TextMinLengthData`` - the minimum length of a string of characters eligible
   for being marked as text in a block identified as data (default: ``3``)
 

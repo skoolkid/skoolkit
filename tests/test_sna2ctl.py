@@ -264,7 +264,7 @@ class Sna2CtlTest(SkoolKitTestCase):
         self.assertEqual(snafile, 'test.sna')
         self.assertEqual(options.ctl_hex, 0)
         self.assertEqual(config['Hex'], 0)
-        self.assertEqual(config['TextMinLengthCode'], 8)
+        self.assertEqual(config['TextMinLengthCode'], 12)
         self.assertEqual(config['TextMinLengthData'], 3)
 
     def test_invalid_option(self):
@@ -379,13 +379,15 @@ class Sna2CtlTest(SkoolKitTestCase):
 
     def test_text_in_code_block(self):
         data = [
-            175,                                 # 65526 XOR A
-            76, 111, 78, 103, 119, 111, 114, 68, # 65527 DEFM "LoNgworD"
-            201                                  # 65535 RET
+            175,                # 65522 XOR A
+            115, 111, 77, 101,  # 65523 DEFM "soMe"
+            116, 101, 120, 116, # 65527 DEFM "text"
+            104, 101, 114, 101, # 65531 DEFM "here"
+            201                 # 65535 RET
         ]
         exp_ctl = """
-            b 65526
-            t 65527
+            b 65522
+            t 65523
             c 65535
         """
         self._test_generation(data, exp_ctl)
@@ -853,7 +855,7 @@ class Sna2CtlTest(SkoolKitTestCase):
             [sna2ctl]
             Hex=0
             TextChars=0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ !"$%&'()*+,-./:;<=>?[]
-            TextMinLengthCode=8
+            TextMinLengthCode=12
             TextMinLengthData=3
         """
         self.assertEqual(dedent(exp_output).strip(), output.rstrip())

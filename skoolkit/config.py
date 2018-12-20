@@ -24,7 +24,7 @@ COMMANDS = {
     'sna2ctl' : {
         'Hex': (0, 'ctl_hex'),
         'TextChars': ('0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ !"$%&\'()*+,-./:;<=>?[]', ''),
-        'TextMinLengthCode': (8, ''),
+        'TextMinLengthCode': (12, ''),
         'TextMinLengthData': (3, '')
     },
     'sna2skool': {
