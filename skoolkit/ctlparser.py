@@ -102,20 +102,11 @@ class CtlParser:
         else:
             self._ctls = {}
 
-    def parse_ctl(self, ctlfile, min_address=0, max_address=65536):
+    def parse_ctls(self, ctlfiles, min_address=0, max_address=65536):
         ctl_lines = []
-        with open_file(ctlfile) as f:
-            for line in f:
-                s_line = line.rstrip()
-                if s_line:
-                    ctl_lines.append(s_line)
-                    if s_line.startswith(('b', 'c', 'g', 'i', 's', 't', 'u', 'w')):
-                        try:
-                            address = get_int_param(s_line[1:].lstrip().split(' ', 1)[0])
-                            if min_address <= address < max_address:
-                                self._ctls[address] = s_line[0]
-                        except ValueError:
-                            pass
+        for ctlfile in ctlfiles:
+            self._parse_ctl_file(ctlfile, ctl_lines, min_address, max_address)
+
         entry_addresses = sorted(self._ctls)
 
         for line_no, s_line in enumerate(ctl_lines, 1):
@@ -186,6 +177,20 @@ class CtlParser:
         self._terminate_multiline_comments()
         self._unroll_loops(max_address)
         self._ctls[max_address] = 'i'
+
+    def _parse_ctl_file(self, ctlfile, ctl_lines, min_address, max_address):
+        with open_file(ctlfile) as f:
+            for line in f:
+                s_line = line.rstrip()
+                if s_line:
+                    ctl_lines.append(s_line)
+                    if s_line.startswith(('b', 'c', 'g', 'i', 's', 't', 'u', 'w')):
+                        try:
+                            address = get_int_param(s_line[1:].lstrip().split(' ', 1)[0])
+                            if min_address <= address < max_address:
+                                self._ctls[address] = s_line[0]
+                        except ValueError:
+                            pass
 
     def _parse_ctl_line(self, line, entry_addresses):
         ctl = start = end = text = asm_directive = None

@@ -10,6 +10,8 @@ Changelog
 * Added the ``--ini`` and ``--show-config`` options to :ref:`sna2ctl.py` (for
   setting the value of a configuration parameter and for showing all
   configuration parameter values)
+* Added support to :ref:`sna2skool.py` for reading multiple default control
+  files, and for using the ``--ctl`` option multiple times
 * The :ref:`UDGARRAY` macro now has the ability to specify attribute addresses
   (as an alternative to specifying attribute values)
 * Added support to control files and skool file templates for specifying that

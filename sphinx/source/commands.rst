@@ -791,8 +791,8 @@ list::
   file. FILE may be a regular file, or '-' for standard input.
 
   Options:
-    -c FILE, --ctl FILE   Use FILE as the control file (may be '-' for standard
-                          input).
+    -c FILE, --ctl FILE   Use FILE as a control file (may be '-' for standard
+                          input). This option may be used multiple times.
     -e ADDR, --end ADDR   Stop disassembling at this address (default=65536).
     -H, --hex             Write hexadecimal addresses and operands in the
                           disassembly.
@@ -815,10 +815,13 @@ list::
 If the input filename does not end with '.sna', '.szx' or '.z80', it is assumed
 to be a binary file.
 
-By default, any :ref:`control file <controlFiles>` or
-:ref:`skool file template <skoolFileTemplates>` whose name (minus the '.ctl' or
-'.sft' suffix) matches the input filename (minus the '.bin', '.sna', '.szx' or
-'.z80' suffix, if any) will be used, if present.
+By default, any file whose name is equal to the input filename (minus the
+'.bin', '.sna', '.szx' or '.z80' suffix, if any) followed by '.sft' will be
+used as a :ref:`skool file template <skoolFileTemplates>`.
+
+Otherwise, any files whose names start with the input filename (minus the
+'.bin', '.sna', '.szx' or '.z80' suffix, if any) and end with '.ctl' will be
+used as :ref:`control files <controlFiles>`.
 
 .. _sna2skool-conf:
 
@@ -895,8 +898,10 @@ Configuration parameters may also be set on the command line by using the
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
-| 7.1     | Added the ``CommentWidthMin``, ``InstructionWidth`` and           |
-|         | ``Semicolons`` configuration parameters                           |
+| 7.1     | Added support for reading multiple default control files, and for |
+|         | using the ``--ctl`` option multiple times; added the              |
+|         | ``CommentWidthMin``, ``InstructionWidth`` and ``Semicolons``      |
+|         | configuration parameters                                          |
 +---------+-------------------------------------------------------------------+
 | 7.0     | The short option for ``--lower`` is ``-l``; the long option for   |
 |         | ``-H`` is ``--hex``                                               |

@@ -14,8 +14,8 @@ class MockCtlParser:
         self.ctls = ctls
         mock_ctl_parser = self
 
-    def parse_ctl(self, ctlfile, min_address, max_address):
-        self.ctlfile = ctlfile
+    def parse_ctls(self, ctlfiles, min_address, max_address):
+        self.ctlfiles = ctlfiles
         self.min_address = min_address
         self.max_address = max_address
 
@@ -64,7 +64,7 @@ class Sna2SkoolTest(SkoolKitTestCase):
         sna2skool.main(('test.sna',))
         snafile, options = run_args[:2]
         self.assertEqual(snafile, 'test.sna')
-        self.assertIsNone(options.ctlfile)
+        self.assertEqual([], options.ctlfiles)
         self.assertIsNone(options.sftfile)
         self.assertEqual(options.base, 10)
         self.assertEqual(options.case, 2)
@@ -95,7 +95,7 @@ class Sna2SkoolTest(SkoolKitTestCase):
         sna2skool.main(('test.sna',))
         snafile, options, config = run_args
         self.assertEqual(snafile, 'test.sna')
-        self.assertIsNone(options.ctlfile)
+        self.assertEqual([], options.ctlfiles)
         self.assertIsNone(options.sftfile)
         self.assertEqual(options.base, 16)
         self.assertEqual(options.case, 1)
@@ -222,8 +222,19 @@ class Sna2SkoolTest(SkoolKitTestCase):
         for option in ('-c', '--ctl'):
             output, error = self.run_sna2skool('{} {} test.sna'.format(option, ctlfile))
             self.assertEqual(error, 'Using control file: {}\n'.format(ctlfile))
-            self.assertEqual(mock_ctl_parser.ctlfile, ctlfile)
+            self.assertEqual([ctlfile], mock_ctl_parser.ctlfiles)
             self.assertTrue(mock_skool_writer.wrote_skool)
+
+    @patch.object(sna2skool, 'make_snapshot', mock_make_snapshot)
+    @patch.object(sna2skool, 'CtlParser', MockCtlParser)
+    @patch.object(sna2skool, 'SkoolWriter', MockSkoolWriter)
+    def test_option_c_multiple(self):
+        ctlfiles = ['test-c-multiple-1.ctl', 'test-c-multiple-2.ctl']
+        options = ['-c ' + ctlfile for ctlfile in ctlfiles]
+        output, error = self.run_sna2skool('{} test.sna'.format(' '.join(options)))
+        self.assertEqual(error, 'Using control files: {}\n'.format(', '.join(ctlfiles)))
+        self.assertEqual(ctlfiles, mock_ctl_parser.ctlfiles)
+        self.assertTrue(mock_skool_writer.wrote_skool)
 
     @patch.object(sna2skool, 'CtlParser', MockCtlParser)
     @patch.object(sna2skool, 'SkoolWriter', MockSkoolWriter)
@@ -258,7 +269,7 @@ class Sna2SkoolTest(SkoolKitTestCase):
         end = 34576
         output, error = self.run_sna2skool('-c {} -e {} test.sna'.format(ctlfile, end))
         self.assertEqual(error, 'Using control file: {}\n'.format(ctlfile))
-        self.assertEqual(mock_ctl_parser.ctlfile, ctlfile)
+        self.assertEqual([ctlfile], mock_ctl_parser.ctlfiles)
         self.assertEqual(mock_ctl_parser.min_address, 0)
         self.assertEqual(mock_ctl_parser.max_address, end)
         self.assertTrue(mock_skool_writer.wrote_skool)
@@ -463,7 +474,7 @@ class Sna2SkoolTest(SkoolKitTestCase):
         start = 12345
         output, error = self.run_sna2skool('-c {} -s {} test.sna'.format(ctlfile, start))
         self.assertEqual(error, 'Using control file: {}\n'.format(ctlfile))
-        self.assertEqual(mock_ctl_parser.ctlfile, ctlfile)
+        self.assertEqual([ctlfile], mock_ctl_parser.ctlfiles)
         self.assertEqual(mock_ctl_parser.min_address, start)
         self.assertEqual(mock_ctl_parser.max_address, 65536)
         self.assertTrue(mock_skool_writer.wrote_skool)
@@ -477,7 +488,7 @@ class Sna2SkoolTest(SkoolKitTestCase):
         end = 23456
         output, error = self.run_sna2skool('-c {} -s {} -e {} test.z80'.format(ctlfile, start, end))
         self.assertEqual(error, 'Using control file: {}\n'.format(ctlfile))
-        self.assertEqual(mock_ctl_parser.ctlfile, ctlfile)
+        self.assertEqual([ctlfile], mock_ctl_parser.ctlfiles)
         self.assertEqual(mock_ctl_parser.min_address, start)
         self.assertEqual(mock_ctl_parser.max_address, end)
         self.assertTrue(mock_skool_writer.wrote_skool)
@@ -535,13 +546,17 @@ class Sna2SkoolTest(SkoolKitTestCase):
         options = run_args[1]
         self.assertEqual(options.sftfile, sftfile)
 
+    @patch.object(sna2skool, 'run', mock_run)
+    def test_ctl_overrides_default_sft(self):
         # Test that a control file specified by the '-c' option takes
         # precedence over the default skool file template
+        snafile = 'test-ctl-overrides-default-sft.sna'
+        sftfile = '{}.sft'.format(snafile[:-4])
         ctlfile = self.write_text_file(suffix='.ctl')
         sna2skool.main(('-c', ctlfile, snafile))
         options = run_args[1]
         self.assertIsNone(options.sftfile)
-        self.assertEqual(options.ctlfile, ctlfile)
+        self.assertEqual([ctlfile], options.ctlfiles)
 
     @patch.object(sna2skool, 'run', mock_run)
     def test_default_sft_for_unrecognised_snapshot_format(self):
@@ -551,22 +566,41 @@ class Sna2SkoolTest(SkoolKitTestCase):
         options = run_args[1]
         self.assertEqual(options.sftfile, sftfile)
 
-    @patch.object(sna2skool, 'run', mock_run)
+    @patch.object(sna2skool, 'make_snapshot', mock_make_snapshot)
+    @patch.object(sna2skool, 'CtlParser', MockCtlParser)
+    @patch.object(sna2skool, 'SkoolWriter', MockSkoolWriter)
     def test_default_ctl(self):
-        # Test that the default control file is used if present
         snafile = 'test-default-ctl.sna'
         ctlfile = '{}.ctl'.format(snafile[:-4])
         self.write_text_file(path=ctlfile)
-        sna2skool.main((snafile,))
-        options = run_args[1]
-        self.assertEqual(options.ctlfile, ctlfile)
+        output, error = self.run_sna2skool(snafile)
+        self.assertEqual(error, 'Using control file: {}\n'.format(ctlfile))
+        self.assertEqual([ctlfile], mock_ctl_parser.ctlfiles)
+        self.assertTrue(mock_skool_writer.wrote_skool)
 
+    @patch.object(sna2skool, 'make_snapshot', mock_make_snapshot)
+    @patch.object(sna2skool, 'CtlParser', MockCtlParser)
+    @patch.object(sna2skool, 'SkoolWriter', MockSkoolWriter)
+    def test_multiple_default_ctls(self):
+        snafile = 'test-default-ctls.sna'
+        prefix = snafile[:-4]
+        suffixes = ('-1', '-2', '-last')
+        ctlfiles = [self.write_text_file(path='{}{}.ctl'.format(prefix, s)) for s in suffixes]
+        output, error = self.run_sna2skool(snafile)
+        self.assertEqual(error, 'Using control files: {}\n'.format(', '.join(ctlfiles)))
+        self.assertEqual(ctlfiles, mock_ctl_parser.ctlfiles)
+        self.assertTrue(mock_skool_writer.wrote_skool)
+
+    @patch.object(sna2skool, 'run', mock_run)
+    def test_sft_overrides_default_ctl(self):
         # Test that a skool file template specified by the '-T' option takes
         # precedence over the default control file
+        snafile = 'test-sft-overrides-default-ctl.sna'
+        ctlfile = '{}.ctl'.format(snafile[:-4])
         sftfile = self.write_text_file(suffix='.sft')
         sna2skool.main(('-T', sftfile, snafile))
         options = run_args[1]
-        self.assertIsNone(options.ctlfile)
+        self.assertEqual([], options.ctlfiles)
         self.assertEqual(options.sftfile, sftfile)
 
     @patch.object(sna2skool, 'run', mock_run)
@@ -575,4 +609,4 @@ class Sna2SkoolTest(SkoolKitTestCase):
         ctlfile = self.write_text_file(path='{}.ctl'.format(binfile))
         sna2skool.main((binfile,))
         options = run_args[1]
-        self.assertEqual(options.ctlfile, ctlfile)
+        self.assertEqual([ctlfile], options.ctlfiles)

@@ -15,6 +15,7 @@
 # SkoolKit. If not, see <http://www.gnu.org/licenses/>.
 
 import argparse
+import glob
 
 from skoolkit import find_file, info, integer, VERSION
 from skoolkit.config import get_config, show_config, update_options
@@ -35,11 +36,15 @@ def run(snafile, options, config):
         writer.write_skool(options.start, options.end)
         return
 
-    if options.ctlfile:
-        # Use a control file
-        info('Using control file: {}'.format(options.ctlfile))
+    if options.ctlfiles:
+        # Use control file(s)
+        if len(options.ctlfiles) > 1:
+            suffix = 's'
+        else:
+            suffix = ''
+        info('Using control file{}: {}'.format(suffix, ', '.join(options.ctlfiles)))
         ctl_parser = CtlParser()
-        ctl_parser.parse_ctl(options.ctlfile, options.start, options.end)
+        ctl_parser.parse_ctls(options.ctlfiles, options.start, options.end)
     else:
         ctl_parser = CtlParser({start: 'c', end: 'i'})
     writer = SkoolWriter(snapshot, ctl_parser, options, config)
@@ -55,8 +60,8 @@ def main(args):
     )
     parser.add_argument('snafile', help=argparse.SUPPRESS, nargs='?')
     group = parser.add_argument_group('Options')
-    group.add_argument('-c', '--ctl', dest='ctlfile', metavar='FILE',
-                       help="Use FILE as the control file (may be '-' for standard input).")
+    group.add_argument('-c', '--ctl', dest='ctlfiles', metavar='FILE', action='append', default=[],
+                       help="Use FILE as a control file (may be '-' for standard input). This option may be used multiple times.")
     group.add_argument('-e', '--end', dest='end', metavar='ADDR', type=integer, default=END,
                        help='Stop disassembling at this address (default={}).'.format(END))
     group.add_argument('-H', '--hex', dest='base', action='store_const', const=16, default=config['Base'],
@@ -90,9 +95,9 @@ def main(args):
         prefix = snafile[:-4]
     else:
         prefix = snafile
-    if not (namespace.ctlfile or namespace.sftfile):
+    if not (namespace.ctlfiles or namespace.sftfile):
         namespace.sftfile = find_file(prefix + '.sft')
-    if not (namespace.ctlfile or namespace.sftfile):
-        namespace.ctlfile = find_file(prefix + '.ctl')
+    if not (namespace.ctlfiles or namespace.sftfile):
+        namespace.ctlfiles.extend(sorted(glob.glob(prefix + '*.ctl')))
     update_options('sna2skool', namespace, namespace.params, config)
     run(snafile, namespace, config)

@@ -221,7 +221,7 @@ CONFIG = {k: v[0] for k, v in COMMANDS['sna2skool'].items()}
 class DisassemblyTest(SkoolKitTestCase):
     def _test_disassembly(self, snapshot, ctl, exp_instructions, **kwargs):
         ctl_parser = CtlParser()
-        ctl_parser.parse_ctl(StringIO(textwrap.dedent(ctl).strip()))
+        ctl_parser.parse_ctls([StringIO(textwrap.dedent(ctl).strip())])
         disassembly = Disassembly(snapshot, ctl_parser, CONFIG, True, **kwargs)
         entries = disassembly.entries
         self.assertEqual(len(entries), 2)
@@ -233,7 +233,7 @@ class DisassemblyTest(SkoolKitTestCase):
 
     def test_disassembly(self):
         ctl_parser = CtlParser()
-        ctl_parser.parse_ctl(StringIO(DISASSEMBLY_CTL))
+        ctl_parser.parse_ctls([StringIO(DISASSEMBLY_CTL)])
         disassembly = Disassembly(DISASSEMBLY_SNAPSHOT, ctl_parser, CONFIG, True)
 
         entries = disassembly.entries
@@ -469,7 +469,7 @@ class DisassemblyTest(SkoolKitTestCase):
         exp_ref_addresses = [1] + list(range(2, 14, 2)) + list(range(14, 68, 3))
         ctls = ['c 00000'] + ['c {:05d}'.format(a) for a in exp_ref_addresses] + ['i 00068']
         ctl_parser = CtlParser()
-        ctl_parser.parse_ctl(StringIO('\n'.join(ctls)))
+        ctl_parser.parse_ctls([StringIO('\n'.join(ctls))])
         disassembly = Disassembly(snapshot, ctl_parser, CONFIG, True)
 
         referrers = disassembly.entries[0].instructions[0].referrers
@@ -1210,7 +1210,7 @@ class DisassemblyTest(SkoolKitTestCase):
             None
         ]
         ctl_parser = CtlParser()
-        ctl_parser.parse_ctl(StringIO(textwrap.dedent(ctl).strip()))
+        ctl_parser.parse_ctls([StringIO(textwrap.dedent(ctl).strip())])
         config = CONFIG.copy()
         config.update(params)
         disassembly = Disassembly(snapshot, ctl_parser, config, True)
@@ -1227,7 +1227,7 @@ class DisassemblyTest(SkoolKitTestCase):
                 i 00002
             """.format(entry_type)
             ctl_parser = CtlParser()
-            ctl_parser.parse_ctl(StringIO(textwrap.dedent(ctl).strip()))
+            ctl_parser.parse_ctls([StringIO(textwrap.dedent(ctl).strip())])
             config = CONFIG.copy()
             config.update(params)
             error = "^Failed to format Title-{} template: Unknown format code 'X' for object of type 'str'$".format(entry_type)
@@ -1243,7 +1243,7 @@ class MockOptions:
 class SkoolWriterTest(SkoolKitTestCase):
     def _get_writer(self, snapshot, ctl, params=None, line_width=79, base=10, case=2):
         ctl_parser = CtlParser()
-        ctl_parser.parse_ctl(StringIO(textwrap.dedent(ctl).strip()))
+        ctl_parser.parse_ctls([StringIO(textwrap.dedent(ctl).strip())])
         options = MockOptions(line_width, base, case)
         config = CONFIG.copy()
         config.update(params or {})

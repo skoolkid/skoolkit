@@ -45,8 +45,9 @@ T 30730,15,10:B5"""
 class CtlParserTest(SkoolKitTestCase):
     def _get_ctl_parser(self, ctl, min_address=0, max_address=65536):
         ctl_parser = CtlParser()
-        ctlfile = self.write_text_file(textwrap.dedent(ctl).strip())
-        ctl_parser.parse_ctl(ctlfile, min_address, max_address)
+        ctls = [ctl] if isinstance(ctl, str) else ctl
+        ctlfiles = [self.write_text_file(textwrap.dedent(s).strip()) for s in ctls]
+        ctl_parser.parse_ctls(ctlfiles, min_address, max_address)
         return ctl_parser
 
     def _check_blocks(self, blocks):
@@ -476,6 +477,25 @@ class CtlParserTest(SkoolKitTestCase):
         }
         self._check_instruction_asm_directives(exp_instruction_asm_directives, blocks)
 
+    def test_two_ctl_files(self):
+        ctl1 = """
+            b 30000
+            c 30010
+        """
+        ctl2 = """
+            g 30020
+            w 30022
+        """
+        blocks = self._get_ctl_parser((ctl1, ctl2)).get_blocks()
+
+        exp_ctls = {
+            30000: 'b',
+            30010: 'c',
+            30020: 'g',
+            30022: 'w'
+        }
+        self._check_ctls(exp_ctls, blocks)
+
     def test_blank_directive_out_of_order(self):
         ctl = """
             c 65534
@@ -497,7 +517,7 @@ class CtlParserTest(SkoolKitTestCase):
         """
         ctl_parser = CtlParser()
         ctlfile = self.write_text_file(textwrap.dedent(ctl))
-        ctl_parser.parse_ctl(ctlfile)
+        ctl_parser.parse_ctls([ctlfile])
 
         warnings = self.err.getvalue().split('\n')[0:-1:2]
         exp_warnings = ['WARNING: Ignoring line 1 in {} (blank directive with no containing block):'.format(ctlfile)]
@@ -807,7 +827,7 @@ class CtlParserTest(SkoolKitTestCase):
         ctls = [spec[0] for spec in ctl_specs]
         ctl_parser = CtlParser()
         ctlfile = self.write_text_file('\n'.join(ctls))
-        ctl_parser.parse_ctl(ctlfile)
+        ctl_parser.parse_ctls([ctlfile])
         exp_warnings = []
         for line_no, (ctl, error_msg) in enumerate(ctl_specs, 1):
             if error_msg:
