@@ -423,6 +423,46 @@ class Sna2CtlTest(SkoolKitTestCase):
         exp_ctl = "b 65532"
         self._test_generation(data, exp_ctl)
 
+    def test_instructions_marked_as_data(self):
+        data = [
+            64, 201,       # 65510 LD B,B; RET
+            73, 201,       # 65512 LD C,C; RET
+            82, 201,       # 65514 LD D,D; RET
+            91, 201,       # 65516 LD E,E; RET
+            100, 201,      # 65518 LD H,H; RET
+            109, 201,      # 65520 LD L,L; RET
+            127, 201,      # 65522 LD A,A; RET
+            221, 100, 201, # 65524 LD IXh,IXh; RET
+            221, 109, 201, # 65527 LD IXl,IXl; RET
+            253, 100, 201, # 65530 LD IYh,IYh; RET
+            253, 109, 201  # 65533 LD IYl,IYl; RET
+        ]
+        exp_ctl = """
+            b 65510
+            c 65511
+            b 65512
+            c 65513
+            b 65514
+            c 65515
+            b 65516
+            c 65517
+            b 65518
+            c 65519
+            b 65520
+            c 65521
+            b 65522
+            c 65523
+            b 65524
+            c 65526
+            b 65527
+            c 65529
+            b 65530
+            c 65532
+            b 65533
+            c 65535
+        """
+        self._test_generation(data, exp_ctl)
+
     def test_config_TextChars(self):
         data = [
             104, 101, 108, 108, 111, # 65526 DEFM "hello"
