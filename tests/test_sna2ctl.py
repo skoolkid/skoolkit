@@ -463,6 +463,81 @@ class Sna2CtlTest(SkoolKitTestCase):
         """
         self._test_generation(data, exp_ctl)
 
+    def test_an_instruction_allowed_once(self):
+        data = [
+            2,   # 65531 LD (BC),A
+            201, # 65532 RET
+            2,   # 65533 LD (BC),A
+            2,   # 65534 LD (BC),A
+            201  # 65535 RET
+        ]
+        exp_ctl = """
+            c 65531
+            b 65533
+            c 65535
+        """
+        self._test_generation(data, exp_ctl)
+
+    def test_two_ld_h_instructions(self):
+        data = [
+            96,  # 65530 LD H,B
+            97,  # 65531 LD H,C    ; Not allowed
+            201, # 65532 RET
+            96,  # 65533 LD H,B
+            102, # 65534 LD H,(HL) ; This is OK
+            201  # 65535 RET
+        ]
+        exp_ctl = """
+            b 65530
+            c 65532
+            c 65533
+        """
+        self._test_generation(data, exp_ctl)
+
+    def test_two_ld_l_instructions(self):
+        data = [
+            104, # 65530 LD L,B
+            105, # 65531 LD L,C    ; Not allowed
+            201, # 65532 RET
+            104, # 65533 LD L,B
+            110, # 65534 LD L,(HL) ; This is OK
+            201  # 65535 RET
+        ]
+        exp_ctl = """
+            b 65530
+            c 65532
+            c 65533
+        """
+        self._test_generation(data, exp_ctl)
+
+    def test_an_instruction_allowed_four_times(self):
+        data = [
+            4, 4, 4, 4,     # 65525 INC B (x4)
+            201,            # 65529 RET
+            4, 4, 4, 4, 4,  # 65530 INC B (x5)
+            201             # 65535 RET
+        ]
+        exp_ctl = """
+            c 65525
+            b 65530
+            c 65535
+        """
+        self._test_generation(data, exp_ctl)
+
+    def test_an_instruction_allowed_seven_times(self):
+        data = [
+            7, 7, 7, 7, 7, 7, 7,    # 65519 RLCA (x7)
+            201,                    # 65526 RET
+            7, 7, 7, 7, 7, 7, 7, 7, # 65527 RLCA (x8)
+            201                     # 65535 RET
+        ]
+        exp_ctl = """
+            c 65519
+            b 65527
+            c 65535
+        """
+        self._test_generation(data, exp_ctl)
+
     def test_config_TextChars(self):
         data = [
             104, 101, 108, 108, 111, # 65526 DEFM "hello"
