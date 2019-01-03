@@ -28,6 +28,11 @@ test_bin2tap() {
   grep -q "Data: 255, 72, 105, 10, 212" <($tapinfo $tap)
 }
 
+test_sna2ctl() {
+  echo -n "Testing sna2ctl.py..."
+  diff -u <(echo -n Hi | ./sna2ctl.py -) <(echo -e "@ 65534 start\n@ 65534 org\nb 65534")
+}
+
 test_sna2skool() {
   echo -n "Testing sna2skool.py..."
   diff -u <(echo -n Hi | ./sna2skool.py -) <(echo -e "@start\n@org\n; Routine at 65534\nc65534 LD C,B        ;\n 65535 LD L,C        ;")
@@ -72,7 +77,7 @@ test_skool2sft() {
 }
 
 cwd=$(pwd)
-for t in test_{bin2{sna,tap},sna2skool{,_ctl,_sft},skool2{asm,bin,ctl,html,sft}}; do
+for t in test_{bin2{sna,tap},sna2{ctl,skool{,_ctl,_sft}},skool2{asm,bin,ctl,html,sft}}; do
   cd $cwd
   $t && echo "OK" || echo "FAILED"
 done
