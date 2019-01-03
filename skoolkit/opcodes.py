@@ -1,4 +1,4 @@
-# Copyright 2018 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2018, 2019 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -874,7 +874,7 @@ def _defb(snapshot, addr, size):
     op_id = 0
     for i in range(addr, addr + size):
         op_id = 256 * op_id + snapshot[i]
-    operation = ' DEFB ' + ','.join(str(v) for v in snapshot[addr:addr + size])
+    operation = 'DEFB ' + ','.join(str(v) for v in snapshot[addr:addr + size])
     return size, 0, op_id, operation
 
 def _after_cb(snapshot, addr):
