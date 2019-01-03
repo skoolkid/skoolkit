@@ -22,6 +22,10 @@ Changelog
   (without first specifying a replacement for it) by using the ``+`` marker
 * :ref:`tapinfo.py` now shows pulse lengths in TZX block type 0x13 (pulse
   sequence) and full info for TZX block type 0x14 (pure data)
+* :ref:`sna2skool.py` handles unprintable characters in a DEFM statement by
+  rendering them as byte values
+* :ref:`sna2skool.py` automatically determines the byte value of an 'S'
+  directive and ignores any supplied value
 * Added the ``CommentWidthMin`` configuration parameter for :ref:`sna2skool.py`
   (to specify the minimum width of the instruction comment field in a skool
   file)
@@ -31,6 +35,8 @@ Changelog
 * Added the ``Semicolons`` configuration parameter for :ref:`sna2skool.py` (to
   specify the block types in which comment semicolons are written for
   instructions that have no comment)
+* Fixed how :ref:`sna2skool.py` interprets the base prefix ``n`` in a 'B'
+  directive
 
 7.0 (2018-10-13)
 ----------------
