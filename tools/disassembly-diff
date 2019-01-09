@@ -51,7 +51,7 @@ banner() {
   while [ ${#banner_text} -lt 80 ]; do
     banner_text="${banner_text}${template:0:1}"
   done
-  echo $banner_text
+  echo -e "\e[0;33m$banner_text\e[0m"
 }
 
 clean_disassembly() {
@@ -63,14 +63,6 @@ clean_disassembly() {
       rm -rf $d_dir/html
     else
       rm -f $d_dir/*.$diff_type
-    fi
-  done
-}
-
-write_files() {
-  for diff_type in $DIFF_TYPES; do
-    if [ $diff_type != "gif" ] && [ $diff_type != "png" ]; then
-      $TOOLS/write-files $GAME $diff_type
     fi
   done
 }
@@ -156,11 +148,11 @@ if [ "$SKOOLKIT_VERSION" = "dev" ]; then
   fi
 fi
 
+OLD_DISASSEMBLY_NAME=${GAME}-disassembly-${OLD_DISASSEMBLY_VERSION}
 OLD_SKOOLKIT_VERSION=${OLD_SKOOLKIT_VERSION:-$SKOOLKIT_VERSION}
 OLD_DIR=disassembly-${OLD_DISASSEMBLY_VERSION}-${OLD_SKOOLKIT_VERSION}
 if [ $WRITE_OLD -eq 1 ] || [ ! -d $OLD_DIR ]; then
   WRITE_OLD=1
-  OLD_DISASSEMBLY_NAME=${GAME}-disassembly-${OLD_DISASSEMBLY_VERSION}
   clean_disassembly $OLD_DIR $DIFF_TYPES
   [ -d $OLD_DISASSEMBLY_NAME ] || tar xf $DISASSEMBLY_ARCHIVE/${OLD_DISASSEMBLY_NAME}.tar.xz
   if [ ! -d $OLD_DIR ]; then
@@ -199,23 +191,31 @@ if [ $WRITE_NEW -eq 1 ] || [ ! -d $NEW_DIR ]; then
   find $DHOME/sources -name '*.py' -exec cp -p {} $NEW_DIR \;
 fi
 
-if [ $WRITE_OLD -eq 1 ]; then
-  cd $OLD_DIR
-  banner "Writing $OLD_DISASSEMBLY_NAME using SkoolKit $OLD_SKOOLKIT_VERSION"
-  write_files
-  cd ..
-else
-  echo "Using existing old disassembly in $OLD_DIR"
-fi
+for diff_type in $DIFF_TYPES; do
+  if [ $diff_type != "gif" ] && [ $diff_type != "png" ]; then
+    if [[ -d $OLD_DIR/$diff_type ]] && [[ $WRITE_OLD -eq 0 ]]; then
+      echo -e "\e[0;36m$diff_type: Using existing old disassembly in $OLD_DIR\e[0m"
+    else
+      banner "$diff_type: Writing $OLD_DISASSEMBLY_NAME using SkoolKit $OLD_SKOOLKIT_VERSION"
+      cd $OLD_DIR
+      $TOOLS/write-files $GAME $diff_type
+      cd ..
+    fi
+  fi
+done
 
-if [ $WRITE_NEW -eq 1 ]; then
-  cd $NEW_DIR
-  banner "Writing current version of ${GAME}-disassembly using SkoolKit $SKOOLKIT_VERSION"
-  write_files
-  cd ..
-else
-  echo "Using disassembly in $NEW_DIR"
-fi
+for diff_type in $DIFF_TYPES; do
+  if [ $diff_type != "gif" ] && [ $diff_type != "png" ]; then
+    if [[ -d $NEW_DIR/$diff_type ]] && [[ $WRITE_NEW -eq 0 ]]; then
+      echo -e "\e[0;36m$diff_type: Using existing disassembly in $NEW_DIR\e[0m"
+    else
+      banner "$diff_type: Writing current version of ${GAME}-disassembly using SkoolKit $OLD_SKOOLKIT_VERSION"
+      cd $NEW_DIR
+      $TOOLS/write-files $GAME $diff_type
+      cd ..
+    fi
+  fi
+done
 
 for diff_type in $DIFF_TYPES; do
   rm -rf diffs-$diff_type
@@ -223,8 +223,6 @@ done
 
 banner "Running diff-files"
 $TOOLS/diff-files -d $DHOME/diffs $OLD_DIR $NEW_DIR $DIFF_TYPES
-
-set +e # No longer abort on errors (the following 'ls' commands can fail)
 
 for diff_type in $DIFF_TYPES; do
   echo
