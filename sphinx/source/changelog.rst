@@ -1,7 +1,7 @@
 Changelog
 =========
 
-7.1b1
+7.1rc
 -----
 * Improved the performance and accuracy of the control file generation
   algorithm used by :ref:`sna2ctl.py` when no code map is provided
