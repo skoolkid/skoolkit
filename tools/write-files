@@ -57,14 +57,14 @@ dump_bin() {
 write_bins() {
   for m in '' '-i' '-s' '-o' '-b'; do
     bin=bin/$GAME$m.bin
-    run_cmd "./skool2bin.py $m src/$skoolfile -" $bin
+    run_cmd "./skool2bin.py $m $skoolfile -" $bin
     [ -f $bin ] && run_cmd "dump_bin $bin" bin/$GAME$m.dump
   done
 }
 
 write_ctls() {
   for b in '' '-h' '-l'; do
-    run_cmd "./skool2ctl.py $b src/$skoolfile" ctl/$GAME$b.ctl
+    run_cmd "./skool2ctl.py $b $skoolfile" ctl/$GAME$b.ctl
   done
 }
 
@@ -87,7 +87,7 @@ write_html() {
         [[ $b == -H ]] && varopt="--var pub=2" && reffile=$DHOME/sources/publish.ref
       fi
       echo -n "Writing $gamedir HTML disassembly..."
-      ./skool2html.py $b $c -q -d html -c Config/GameDir=$gamedir $varopt src/$skoolfile $reffile
+      ./skool2html.py $b $c -q -d html -c Config/GameDir=$gamedir $varopt $skoolfile $reffile
       echo "done"
     done
   done
@@ -95,7 +95,7 @@ write_html() {
 
 write_skools() {
   ctl=/tmp/${GAME}.ctl
-  ./skool2ctl.py src/$skoolfile > $ctl
+  ./skool2ctl.py $skoolfile > $ctl
   for b in '' '-H'; do
     for c in '' '-l'; do
       run_cmd "./sna2skool.py $snapshot_opts -c $ctl $b $c $SNAPSHOT" skool/$GAME$b$c.skool
@@ -106,7 +106,7 @@ write_skools() {
 
 write_sfts() {
   for b in '' '-h' '-l'; do
-    run_cmd "./skool2sft.py $b src/$skoolfile" sft/$GAME$b.sft
+    run_cmd "./skool2sft.py $b $skoolfile" sft/$GAME$b.sft
   done
 }
 
@@ -124,7 +124,7 @@ usage() {
 
 GAME=$1
 read_ddiffsrc $GAME
-skoolfile=$(basename $(ls -1 src/*.skool | grep -Ev '/.*(load|save|start).skool'))
+skoolfile=src/$GAME.skool
 [ "$GAME" = "rom" ] && snapshot_opts="-o 0"
 
 shift
