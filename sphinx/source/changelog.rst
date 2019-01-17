@@ -1,8 +1,8 @@
 Changelog
 =========
 
-7.1rc
------
+7.1rc2
+------
 * Improved the performance and accuracy of the control file generation
   algorithm used by :ref:`sna2ctl.py` when no code map is provided
 * Added support to :ref:`sna2ctl.py <sna2ctl-conf>` for reading configuration
@@ -37,6 +37,8 @@ Changelog
   instructions that have no comment)
 * Fixed how :ref:`sna2skool.py` interprets the base prefix ``n`` in a 'B'
   directive
+* Fixed how :ref:`skool2ctl.py` handles non-entry blocks when a start address
+  or end address is supplied
 
 7.0 (2018-10-13)
 ----------------

@@ -1,4 +1,4 @@
-# Copyright 2010-2018 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2010-2019 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -475,6 +475,7 @@ class SkoolParser:
     def _parse_skool(self, skoolfile, min_address, max_address):
         address_comments = []
         non_entries = []
+        done = False
         for non_entry, block in read_skool(skoolfile, 1):
             if non_entry:
                 non_entries.append(block)
@@ -506,9 +507,12 @@ class SkoolParser:
                 instruction, address_comment = self._parse_instruction(line)
                 address = instruction.address
                 if address < min_address:
-                    continue
+                    non_entries.clear()
+                    break
                 if address >= max_address:
+                    non_entries.clear()
                     map_entry = None
+                    done = True
                     break
                 ctl = instruction.ctl
                 if ctl in DIRECTIVES:
@@ -539,6 +543,9 @@ class SkoolParser:
                     map_entry.ignoreua[END] = len(ignores) > 0
                 map_entry.header = non_entries
                 non_entries = []
+
+            if done:
+                break
 
         if self.memory_map:
             self.memory_map[-1].footer = non_entries

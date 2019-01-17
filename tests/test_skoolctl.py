@@ -1998,6 +1998,48 @@ class CtlWriterTest(SkoolKitTestCase):
         """
         self._test_ctl(skool, exp_ctl)
 
+    def test_header_included_with_min_address(self):
+        skool = """
+            ; This header should be included.
+
+            ; Routine
+            c65535 RET
+        """
+        exp_ctl = """
+            > 65535 ; This header should be included.
+            c 65535 Routine
+        """
+        self._test_ctl(skool, exp_ctl, min_address=65535)
+
+    def test_header_excluded_by_min_address(self):
+        skool = """
+            ; This header should be excluded.
+
+            ; First routine
+            c65534 RET
+
+            ; Second routine
+            c65535 RET
+        """
+        exp_ctl = "c 65535 Second routine"
+        self._test_ctl(skool, exp_ctl, min_address=65535)
+
+    def test_header_excluded_by_max_address(self):
+        skool = """
+            ; First routine
+            c65534 RET
+
+            ; This header should be excluded.
+
+            ; Second routine
+            c65535 RET
+        """
+        exp_ctl = """
+            c 65534 First routine
+            i 65535
+        """
+        self._test_ctl(skool, exp_ctl, max_address=65535)
+
     def test_footer(self):
         skool = """
             ; Routine
@@ -2080,3 +2122,33 @@ class CtlWriterTest(SkoolKitTestCase):
             i 24577
         """
         self._test_ctl(skool, exp_ctl)
+
+    def test_footer_included_with_max_address(self):
+        skool = """
+            ; Routine
+            c60000 RET
+
+            ; This footer should be included.
+        """
+        exp_ctl = """
+            c 60000 Routine
+            > 60000,1 ; This footer should be included.
+            i 60001
+        """
+        self._test_ctl(skool, exp_ctl, max_address=60001)
+
+    def test_footer_excluded_by_max_address(self):
+        skool = """
+            ; First routine
+            c65534 RET
+
+            ; Second routine
+            c65535 RET
+
+            ; This footer should be excluded.
+        """
+        exp_ctl = """
+            c 65534 First routine
+            i 65535
+        """
+        self._test_ctl(skool, exp_ctl, max_address=65535)
