@@ -833,23 +833,6 @@ class SftWriterTest(SkoolKitTestCase):
         """
         self._test_sft(skool, exp_sft, min_address=40001, max_address=40003)
 
-    def test_min_and_max_address_with_entries_in_wrong_order(self):
-        skool = """
-            b40003 DEFB 3
-
-            b40002 DEFB 2
-
-            b40001 DEFB 1
-
-            b40000 DEFB 0
-        """
-        exp_sft = """
-            bB40002,1
-
-            bB40001,1
-        """
-        self._test_sft(skool, exp_sft, min_address=40001, max_address=40003)
-
     def test_min_and_max_address_give_no_content(self):
         skool = """
             b40000 DEFB 0
@@ -957,6 +940,53 @@ class SftWriterTest(SkoolKitTestCase):
         """
         self._test_sft(skool, exp_sft)
 
+    def test_header_included_with_min_address(self):
+        skool = """
+            ; This header should be included.
+
+            ; Routine
+            c65535 RET
+        """
+        exp_sft = """
+            ; This header should be included.
+
+            ; Routine
+            cC65535,1
+        """
+        self._test_sft(skool, exp_sft, min_address=65535)
+
+    def test_header_excluded_by_min_address(self):
+        skool = """
+            ; This header should be excluded.
+
+            ; First routine
+            c65534 RET
+
+            ; Second routine
+            c65535 RET
+        """
+        exp_sft = """
+            ; Second routine
+            cC65535,1
+        """
+        self._test_sft(skool, exp_sft, min_address=65535)
+
+    def test_header_excluded_by_max_address(self):
+        skool = """
+            ; First routine
+            c65534 RET
+
+            ; This header should be excluded.
+
+            ; Second routine
+            c65535 RET
+        """
+        exp_sft = """
+            ; First routine
+            cC65534,1
+        """
+        self._test_sft(skool, exp_sft, max_address=65535)
+
     def test_footer(self):
         skool = """
             ; Data
@@ -977,3 +1007,34 @@ class SftWriterTest(SkoolKitTestCase):
             @bfix+end
         """
         self._test_sft(skool, exp_sft)
+
+    def test_footer_included_with_max_address(self):
+        skool = """
+            ; Routine
+            c60000 RET
+
+            ; This footer should be included.
+        """
+        exp_sft = """
+            ; Routine
+            cC60000,1
+
+            ; This footer should be included.
+        """
+        self._test_sft(skool, exp_sft, max_address=60001)
+
+    def test_footer_excluded_by_max_address(self):
+        skool = """
+            ; First routine
+            c65534 RET
+
+            ; Second routine
+            c65535 RET
+
+            ; This footer should be excluded.
+        """
+        exp_sft = """
+            ; First routine
+            cC65534,1
+        """
+        self._test_sft(skool, exp_sft, max_address=65535)

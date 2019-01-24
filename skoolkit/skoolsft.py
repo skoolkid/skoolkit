@@ -1,4 +1,4 @@
-# Copyright 2011-2015, 2017, 2018 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2011-2015, 2017-2019 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -112,6 +112,8 @@ class SftWriter:
     def _parse_skool(self, min_address, max_address):
         sft = []
         f = open_file(self.skoolfile)
+        non_entry_lines = []
+        done = False
         for non_entry, block in read_skool(f):
             lines = []
             for line in block:
@@ -143,14 +145,26 @@ class SftWriter:
                             lines.pop()
                         if lines:
                             lines.append(VerbatimLine(''))
+                        else:
+                            non_entry_lines.clear()
+                        done = True
                         break
                     if ctl_line.address < min_address:
-                        lines[:] = []
+                        non_entry_lines.clear()
+                        lines.clear()
                         break
                     lines.append(ctl_line)
                 else:
                     lines.append(VerbatimLine(line))
-            sft.extend(lines)
+            if non_entry:
+                non_entry_lines.extend(lines)
+            else:
+                sft.extend(non_entry_lines)
+                non_entry_lines.clear()
+                sft.extend(lines)
+            if done:
+                break
+        sft.extend(non_entry_lines)
         f.close()
 
         while sft and sft[-1].is_blank():
