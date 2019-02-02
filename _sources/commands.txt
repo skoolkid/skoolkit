@@ -641,12 +641,15 @@ skool file split into blocks of code and data.
   Options:
     -e ADDR, --end ADDR   Stop at this address (default=65536).
     -h, --hex             Write upper case hexadecimal addresses.
+    -I p=v, --ini p=v     Set the value of the configuration parameter 'p' to
+                          'v'. This option may be used multiple times.
     -l, --hex-lower       Write lower case hexadecimal addresses.
     -m FILE, --map FILE   Use FILE as a code execution map.
     -o ADDR, --org ADDR   Specify the origin address of a binary file (default:
                           65536 - length).
     -p PAGE, --page PAGE  Specify the page (0-7) of a 128K snapshot to map to
                           49152-65535.
+    --show-config         Show configuration parameter values.
     -s ADDR, --start ADDR
                           Start at this address (default=16384).
     -V, --version         Show SkoolKit version number and exit.
@@ -665,11 +668,44 @@ If the file specified by the ``-m`` option is 8192 bytes long, it is assumed to
 be a Z80 map file; if it is 65536 bytes long, it is assumed to be a SpecEmu map
 file; otherwise it is assumed to be in one of the other supported formats.
 
-+---------+---------+
-| Version | Changes |
-+=========+=========+
-| 7.0     | New     |
-+---------+---------+
+.. _sna2ctl-conf:
+
+Configuration
+^^^^^^^^^^^^^
+`sna2ctl.py` will read configuration from a file named `skoolkit.ini` in the
+current working directory or in `~/.skoolkit`, if present. The recognised
+configuration parameters are:
+
+* ``Hex`` - write addresses in decimal (``0``, the default), lower case
+  hexadecimal (``1``),  or upper case hexadecimal (``2``)
+* ``TextChars`` - characters eligible for being marked as text (default:
+  letters, digits, space, and the following non-alphanumeric characters:
+  ``!"$%&\'()*+,-./:;<=>?[]``)
+* ``TextMinLengthCode`` - the minimum length of a string of characters eligible
+  for being marked as text in a block identified as code (default: ``12``)
+* ``TextMinLengthData`` - the minimum length of a string of characters eligible
+  for being marked as text in a block identified as data (default: ``3``)
+
+Configuration parameters must appear in a ``[sna2ctl]`` section. For example,
+to make `sna2ctl.py` write upper case hexadecimal addresses by default (without
+having to use the ``-h`` option on the command line), add the following section
+to `skoolkit.ini`::
+
+  [sna2ctl]
+  Hex=2
+
+Configuration parameters may also be set on the command line by using the
+``--ini`` option. Parameter values set this way will override any found in
+`skoolkit.ini`.
+
++---------+-------------------------------------------------------------------+
+| Version | Changes                                                           |
++=========+===================================================================+
+| 7.1     | Configuration is read from `skoolkit.ini` if present; added the   |
+|         | ``--ini`` and ``--show-config`` options                           |
++---------+-------------------------------------------------------------------+
+| 7.0     | New                                                               |
++---------+-------------------------------------------------------------------+
 
 .. _sna2img.py:
 
@@ -755,8 +791,8 @@ list::
   file. FILE may be a regular file, or '-' for standard input.
 
   Options:
-    -c FILE, --ctl FILE   Use FILE as the control file (may be '-' for standard
-                          input).
+    -c FILE, --ctl FILE   Use FILE as a control file (may be '-' for standard
+                          input). This option may be used multiple times.
     -e ADDR, --end ADDR   Stop disassembling at this address (default=65536).
     -H, --hex             Write hexadecimal addresses and operands in the
                           disassembly.
@@ -779,10 +815,13 @@ list::
 If the input filename does not end with '.sna', '.szx' or '.z80', it is assumed
 to be a binary file.
 
-By default, any :ref:`control file <controlFiles>` or
-:ref:`skool file template <skoolFileTemplates>` whose name (minus the '.ctl' or
-'.sft' suffix) matches the input filename (minus the '.bin', '.sna', '.szx' or
-'.z80' suffix, if any) will be used, if present.
+By default, any file whose name is equal to the input filename (minus the
+'.bin', '.sna', '.szx' or '.z80' suffix, if any) followed by '.sft' will be
+used as a :ref:`skool file template <skoolFileTemplates>`.
+
+Otherwise, any files whose names start with the input filename (minus the
+'.bin', '.sna', '.szx' or '.z80' suffix, if any) and end with '.ctl' will be
+used as :ref:`control files <controlFiles>`.
 
 .. _sna2skool-conf:
 
@@ -796,6 +835,8 @@ configuration parameters are:
   or decimal (``10``, the default)
 * ``Case`` - write the disassembly in lower case (``1``) or upper case (``2``,
   the default)
+* ``CommentWidthMin`` - minimum width of the instruction comment field in the
+  skool file (default: ``10``)
 * ``DefbMod`` - group DEFB blocks by addresses that are divisible by this
   number (default: ``1``)
 * ``DefbSize`` - maximum number of bytes per DEFB statement (default: ``8``)
@@ -809,6 +850,8 @@ configuration parameters are:
 * ``EntryPointRefs`` - template used to format the comment for an entry point
   with two or more referrers (default: ``This entry point is used by the
   routines at {refs} and {ref}.``)
+* ``InstructionWidth`` - minimum width of the instruction field in the skool
+  file (default: ``13``)
 * ``LineWidth`` - maximum line width of the skool file (default: ``79``)
 * ``ListRefs`` - when to add a comment that lists routine or entry point
   referrers: never (``0``), if no other comment is defined at the entry point
@@ -817,6 +860,9 @@ configuration parameters are:
   referrer (default: ``Used by the routine at {ref}.``)
 * ``Refs`` - template used to format the comment for a routine with two or more
   referrers (default: ``Used by the routines at {refs} and {ref}.``)
+* ``Semicolons`` - block types (``b``, ``c``, ``g``, ``i``, ``s``, ``t``,
+  ``u``, ``w``) in which comment semicolons are written for instructions that
+  have no comment (default: ``c``)
 * ``Text`` - show ASCII text in the comment fields (``1``), or don't (``0``,
   the default)
 * ``Title-b`` - template used to format the title for an untitled 'b' block
@@ -852,6 +898,11 @@ Configuration parameters may also be set on the command line by using the
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 7.1     | Added support for reading multiple default control files, and for |
+|         | using the ``--ctl`` option multiple times; added the              |
+|         | ``CommentWidthMin``, ``InstructionWidth`` and ``Semicolons``      |
+|         | configuration parameters                                          |
++---------+-------------------------------------------------------------------+
 | 7.0     | The short option for ``--lower`` is ``-l``; the long option for   |
 |         | ``-H`` is ``--hex``                                               |
 +---------+-------------------------------------------------------------------+
@@ -1120,6 +1171,9 @@ To list the options supported by `tapinfo.py`, run it with no arguments::
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 7.1     | Shows pulse lengths in TZX block type 0x13 and full info for TZX  |
+|         | block type 0x14                                                   |
++---------+-------------------------------------------------------------------+
 | 6.2     | The ``--basic`` option accepts a hexadecimal address prefixed by  |
 |         | '0x'                                                              |
 +---------+-------------------------------------------------------------------+

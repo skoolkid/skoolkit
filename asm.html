@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>ASM modes and directives &#8212; SkoolKit 7.0 documentation</title>
+    <title>ASM modes and directives &#8212; SkoolKit 7.1 documentation</title>
     
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '7.0',
+        VERSION:     '7.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="top" title="SkoolKit 7.0 documentation" href="index.html" />
+    <link rel="top" title="SkoolKit 7.1 documentation" href="index.html" />
     <link rel="next" title="Extending SkoolKit" href="extending.html" />
     <link rel="prev" title="HTML templates" href="html-templates.html" /> 
   </head>
@@ -42,7 +42,7 @@
         <li class="right" >
           <a href="html-templates.html" title="HTML templates"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 7.0 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 7.1 documentation</a> &#187;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
@@ -330,7 +330,7 @@ arithmetic expressions</td>
 <span id="id2"></span><h3>&#64;bfix<a class="headerlink" href="#bfix" title="Permalink to this headline">¶</a></h3>
 <p>The <code class="docutils literal"><span class="pre">&#64;bfix</span></code> directive replaces, inserts or removes a label, instruction and
 comment in <a class="reference internal" href="#bfixmode"><span class="std std-ref">&#64;bfix mode</span></a>.</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>@bfix=[&gt;][|][/][LABEL:][INSTRUCTION][; comment]
+<div class="highlight-none"><div class="highlight"><pre><span></span>@bfix=[&gt;][|][+][/][LABEL:][INSTRUCTION][; comment]
 </pre></div>
 </div>
 <p>or, when removing instructions:</p>
@@ -342,6 +342,8 @@ comment in <a class="reference internal" href="#bfixmode"><span class="std std-r
 current instruction instead of replacing it</li>
 <li><code class="docutils literal"><span class="pre">|</span></code> - if this marker is present, <code class="docutils literal"><span class="pre">INSTRUCTION</span></code> overwrites any overlapping
 instructions instead of pushing them aside</li>
+<li><code class="docutils literal"><span class="pre">+</span></code> - if this marker is present, <code class="docutils literal"><span class="pre">INSTRUCTION</span></code> is inserted after the
+current instruction instead of replacing it</li>
 <li><code class="docutils literal"><span class="pre">/</span></code> - if this marker is present, any remaining comment lines are removed</li>
 <li><code class="docutils literal"><span class="pre">LABEL</span></code> is the replacement label; if not given, any existing label is left
 unchanged</li>
@@ -425,24 +427,39 @@ of line by line. For example:</p>
 <p>A sequence of instructions can be inserted before the current instruction by
 using the <code class="docutils literal"><span class="pre">&gt;</span></code> marker. For example:</p>
 <div class="highlight-none"><div class="highlight"><pre><span></span> 47191 EX DE,HL
+; A mid-block comment.
 @bfix=&gt;LD (HL),C
 @bfix=&gt;INC HL
  47192 LD (HL),B
 </pre></div>
 </div>
 <p>This will insert <code class="docutils literal"><span class="pre">LD</span> <span class="pre">(HL),C</span></code> and <code class="docutils literal"><span class="pre">INC</span> <span class="pre">HL</span></code> between <code class="docutils literal"><span class="pre">EX</span> <span class="pre">DE,HL</span></code> and
-<code class="docutils literal"><span class="pre">LD</span> <span class="pre">(HL),B</span></code>.</p>
-<p>A sequence of instructions can be inserted after the current instruction by
-chaining <code class="docutils literal"><span class="pre">&#64;bfix</span></code> directives. For example:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>@bfix=LD (HL),C  ; {Save BC here
+<code class="docutils literal"><span class="pre">LD</span> <span class="pre">(HL),B</span></code>. The mid-block comment that was above <code class="docutils literal"><span class="pre">LD</span> <span class="pre">(HL),B</span></code> will now be
+above <code class="docutils literal"><span class="pre">LD</span> <span class="pre">(HL),C</span></code>.</p>
+<p>A sequence of instructions can be inserted after the current instruction
+(without first specifying a replacement for it) by using the <code class="docutils literal"><span class="pre">+</span></code> marker. For
+example:</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>@bfix=+LD (HL),C
+@bfix=INC HL
+ 47191 EX DE,HL
+; A mid-block comment.
+ 47192 LD (HL),B
+</pre></div>
+</div>
+<p>This will insert <code class="docutils literal"><span class="pre">LD</span> <span class="pre">(HL),C</span></code> and <code class="docutils literal"><span class="pre">INC</span> <span class="pre">HL</span></code> between <code class="docutils literal"><span class="pre">EX</span> <span class="pre">DE,HL</span></code> and
+<code class="docutils literal"><span class="pre">LD</span> <span class="pre">(HL),B</span></code>. In this case, the mid-block comment above <code class="docutils literal"><span class="pre">LD</span> <span class="pre">(HL),B</span></code> will
+remain there.</p>
+<p>The current instruction can be replaced and a sequence of instructions inserted
+after it by chaining <code class="docutils literal"><span class="pre">&#64;bfix</span></code> directives. For example:</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>@bfix=LD (HL),B  ; {Save B and C here
 @bfix=INC HL     ;
-@bfix=LD (HL),B  ; }
- 61125 LD (HL),C ; Save C here
+@bfix=LD (HL),C  ; }
+ 61125 LD (HL),A ; Save A here
  61126 RET
 </pre></div>
 </div>
-<p>This will insert <code class="docutils literal"><span class="pre">INC</span> <span class="pre">HL</span></code> and <code class="docutils literal"><span class="pre">LD</span> <span class="pre">(HL),B</span></code> between <code class="docutils literal"><span class="pre">LD</span> <span class="pre">(HL),C</span></code> and
-<code class="docutils literal"><span class="pre">RET</span></code>.</p>
+<p>This will replace <code class="docutils literal"><span class="pre">LD</span> <span class="pre">(HL),A</span></code> with <code class="docutils literal"><span class="pre">LD</span> <span class="pre">(HL),B</span></code> and insert <code class="docutils literal"><span class="pre">INC</span> <span class="pre">HL</span></code> and
+<code class="docutils literal"><span class="pre">LD</span> <span class="pre">(HL),C</span></code> before the <code class="docutils literal"><span class="pre">RET</span></code> instruction.</p>
 <p>An instruction can be removed by using the <code class="docutils literal"><span class="pre">!</span></code> notation. For example:</p>
 <div class="highlight-none"><div class="highlight"><pre><span></span> 51184 XOR A
 @bfix=!51185
@@ -470,12 +487,16 @@ c40000 NOP
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>7.0</td>
+<tr class="row-even"><td>7.1</td>
+<td>Added support for the <code class="docutils literal"><span class="pre">+</span></code> marker (to insert an instruction
+after the current one)</td>
+</tr>
+<tr class="row-odd"><td>7.0</td>
 <td>Added support for specifying the replacement comment over
 multiple lines, replacing the label, and inserting, overwriting
 and removing instructions</td>
 </tr>
-<tr class="row-odd"><td>6.4</td>
+<tr class="row-even"><td>6.4</td>
 <td>Added support for replacing the comment</td>
 </tr>
 </tbody>
@@ -866,12 +887,16 @@ comment in <a class="reference internal" href="#isubmode"><span class="std std-r
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>7.0</td>
+<tr class="row-even"><td>7.1</td>
+<td>Added support for the <code class="docutils literal"><span class="pre">+</span></code> marker (to insert an instruction
+after the current one)</td>
+</tr>
+<tr class="row-odd"><td>7.0</td>
 <td>Added support for specifying the replacement comment over
 multiple lines, replacing the label, and inserting, overwriting
 and removing instructions</td>
 </tr>
-<tr class="row-odd"><td>6.4</td>
+<tr class="row-even"><td>6.4</td>
 <td>Added support for replacing the comment</td>
 </tr>
 </tbody>
@@ -1023,12 +1048,16 @@ comment in <a class="reference internal" href="#ofixmode"><span class="std std-r
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>7.0</td>
+<tr class="row-even"><td>7.1</td>
+<td>Added support for the <code class="docutils literal"><span class="pre">+</span></code> marker (to insert an instruction
+after the current one)</td>
+</tr>
+<tr class="row-odd"><td>7.0</td>
 <td>Added support for specifying the replacement comment over
 multiple lines, replacing the label, and inserting, overwriting
 and removing instructions</td>
 </tr>
-<tr class="row-odd"><td>6.4</td>
+<tr class="row-even"><td>6.4</td>
 <td>Added support for replacing the comment</td>
 </tr>
 </tbody>
@@ -1231,15 +1260,19 @@ comment in <a class="reference internal" href="#rfixmode"><span class="std std-r
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>7.0</td>
+<tr class="row-even"><td>7.1</td>
+<td>Added support for the <code class="docutils literal"><span class="pre">+</span></code> marker (to insert an instruction
+after the current one)</td>
+</tr>
+<tr class="row-odd"><td>7.0</td>
 <td>Added support for specifying the replacement comment over
 multiple lines, replacing the label, and inserting, overwriting
 and removing instructions</td>
 </tr>
-<tr class="row-odd"><td>6.4</td>
+<tr class="row-even"><td>6.4</td>
 <td>Added support for replacing the comment</td>
 </tr>
-<tr class="row-even"><td>5.2</td>
+<tr class="row-odd"><td>5.2</td>
 <td>New</td>
 </tr>
 </tbody>
@@ -1267,12 +1300,16 @@ comment in <a class="reference internal" href="#rsubmode"><span class="std std-r
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>7.0</td>
+<tr class="row-even"><td>7.1</td>
+<td>Added support for the <code class="docutils literal"><span class="pre">+</span></code> marker (to insert an instruction
+after the current one)</td>
+</tr>
+<tr class="row-odd"><td>7.0</td>
 <td>Added support for specifying the replacement comment over
 multiple lines, replacing the label, and inserting, overwriting
 and removing instructions</td>
 </tr>
-<tr class="row-odd"><td>6.4</td>
+<tr class="row-even"><td>6.4</td>
 <td>Added support for replacing the comment</td>
 </tr>
 </tbody>
@@ -1367,12 +1404,16 @@ comment in <a class="reference internal" href="#ssubmode"><span class="std std-r
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>7.0</td>
+<tr class="row-even"><td>7.1</td>
+<td>Added support for the <code class="docutils literal"><span class="pre">+</span></code> marker (to insert an instruction
+after the current one)</td>
+</tr>
+<tr class="row-odd"><td>7.0</td>
 <td>Added support for specifying the replacement comment over
 multiple lines, replacing the label, and inserting, overwriting
 and removing instructions</td>
 </tr>
-<tr class="row-odd"><td>6.4</td>
+<tr class="row-even"><td>6.4</td>
 <td>Added support for replacing the comment</td>
 </tr>
 </tbody>
@@ -1467,11 +1508,11 @@ path</td>
         <li class="right" >
           <a href="html-templates.html" title="HTML templates"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 7.0 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 7.1 documentation</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2018, Richard Dymond.
+        &#169; Copyright 2019, Richard Dymond.
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.9.
     </div>
   </body>

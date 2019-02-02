@@ -84,14 +84,14 @@ DEFB, DEFM, DEFS and DEFW statements may contain numeric values in various
 bases or as characters. For example::
 
   b40000 DEFB %10101010,23,43,$5F
-   40004 DEFB 56
+   40004 DEFB -1
    40005 DEFB %11110000
    40006 DEFB $2B,$80
    40008 DEFS 8,"!"
 
-These statements may be preserved in a skool file template thus::
+These statements are preserved in a skool file template thus::
 
-  bB40000,b1:d2:h1,d1,b1,h2
+  bB40000,b1:d2:h1,m1,b1,h2
    S40008,8:c
 
 Instruction operands may also contain numeric values in various bases or as
@@ -101,7 +101,7 @@ characters. For example::
    50002 LD B,"!"
    50004 LD (IX+$1A),%00001111
 
-These instructions may be preserved in a skool file template by using ``b``
+These instructions are preserved in a skool file template by using ``b``
 (binary), ``c`` (character), ``d`` (decimal) and ``h`` (hexadecimal) prefixes
 on sublength parameters thus::
 
@@ -117,6 +117,10 @@ Revision history
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 7.1     | Added support for specifying that numeric values in instruction   |
+|         | operands and DEFB, DEFM, DEFS and DEFW statements be rendered as  |
+|         | negative decimal numbers                                          |
++---------+-------------------------------------------------------------------+
 | 7.0     | Added support for preserving 'inverted' characters (with bit 7    |
 |         | set); the byte value in an ``S`` directive may be left blank      |
 +---------+-------------------------------------------------------------------+

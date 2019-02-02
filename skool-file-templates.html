@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Skool file templates &#8212; SkoolKit 7.0 documentation</title>
+    <title>Skool file templates &#8212; SkoolKit 7.1 documentation</title>
     
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '7.0',
+        VERSION:     '7.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="top" title="SkoolKit 7.0 documentation" href="index.html" />
+    <link rel="top" title="SkoolKit 7.1 documentation" href="index.html" />
     <link rel="next" title="Skool macros" href="skool-macros.html" />
     <link rel="prev" title="Skool files" href="skool-files.html" /> 
   </head>
@@ -42,7 +42,7 @@
         <li class="right" >
           <a href="skool-files.html" title="Skool files"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 7.0 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 7.1 documentation</a> &#187;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
@@ -165,14 +165,14 @@ statements.</p>
 <p>DEFB, DEFM, DEFS and DEFW statements may contain numeric values in various
 bases or as characters. For example:</p>
 <div class="highlight-none"><div class="highlight"><pre><span></span>b40000 DEFB %10101010,23,43,$5F
- 40004 DEFB 56
+ 40004 DEFB -1
  40005 DEFB %11110000
  40006 DEFB $2B,$80
  40008 DEFS 8,&quot;!&quot;
 </pre></div>
 </div>
-<p>These statements may be preserved in a skool file template thus:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>bB40000,b1:d2:h1,d1,b1,h2
+<p>These statements are preserved in a skool file template thus:</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>bB40000,b1:d2:h1,m1,b1,h2
  S40008,8:c
 </pre></div>
 </div>
@@ -183,7 +183,7 @@ characters. For example:</p>
  50004 LD (IX+$1A),%00001111
 </pre></div>
 </div>
-<p>These instructions may be preserved in a skool file template by using <code class="docutils literal"><span class="pre">b</span></code>
+<p>These instructions are preserved in a skool file template by using <code class="docutils literal"><span class="pre">b</span></code>
 (binary), <code class="docutils literal"><span class="pre">c</span></code> (character), <code class="docutils literal"><span class="pre">d</span></code> (decimal) and <code class="docutils literal"><span class="pre">h</span></code> (hexadecimal) prefixes
 on sublength parameters thus:</p>
 <div class="highlight-none"><div class="highlight"><pre><span></span>cC50000,b2,c2,hb4
@@ -208,33 +208,38 @@ on sublength parameters thus:</p>
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>7.0</td>
+<tr class="row-even"><td>7.1</td>
+<td>Added support for specifying that numeric values in instruction
+operands and DEFB, DEFM, DEFS and DEFW statements be rendered as
+negative decimal numbers</td>
+</tr>
+<tr class="row-odd"><td>7.0</td>
 <td>Added support for preserving &#8216;inverted&#8217; characters (with bit 7
 set); the byte value in an <code class="docutils literal"><span class="pre">S</span></code> directive may be left blank</td>
 </tr>
-<tr class="row-odd"><td>5.1</td>
+<tr class="row-even"><td>5.1</td>
 <td>Added support for preserving <code class="docutils literal"><span class="pre">i</span></code> blocks in the same way as code
 and data blocks (instead of verbatim)</td>
 </tr>
-<tr class="row-even"><td>4.5</td>
+<tr class="row-odd"><td>4.5</td>
 <td>Added support for specifying character values in DEFS statements</td>
 </tr>
-<tr class="row-odd"><td>4.4</td>
+<tr class="row-even"><td>4.4</td>
 <td>Added support for specifying that numeric values in instruction
 operands be rendered as characters or in a specific base; added
 support for specifying character values in DEFW statements</td>
 </tr>
-<tr class="row-even"><td>3.7</td>
+<tr class="row-odd"><td>3.7</td>
 <td>Added support for binary numbers; added support for specifying
 the base of numeric values in DEFB, DEFM, DEFS and DEFW
 statements; added the <code class="docutils literal"><span class="pre">s</span></code> and <code class="docutils literal"><span class="pre">S</span></code> directives and support for
 DEFS statements with non-zero byte values</td>
 </tr>
-<tr class="row-odd"><td>3.1.4</td>
+<tr class="row-even"><td>3.1.4</td>
 <td>Added support for DEFB and DEFM statements that contain both
 strings and bytes</td>
 </tr>
-<tr class="row-even"><td>2.4</td>
+<tr class="row-odd"><td>2.4</td>
 <td>New</td>
 </tr>
 </tbody>
@@ -260,11 +265,11 @@ strings and bytes</td>
         <li class="right" >
           <a href="skool-files.html" title="Skool files"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 7.0 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 7.1 documentation</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2018, Richard Dymond.
+        &#169; Copyright 2019, Richard Dymond.
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.9.
     </div>
   </body>

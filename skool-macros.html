@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Skool macros &#8212; SkoolKit 7.0 documentation</title>
+    <title>Skool macros &#8212; SkoolKit 7.1 documentation</title>
     
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '7.0',
+        VERSION:     '7.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="top" title="SkoolKit 7.0 documentation" href="index.html" />
+    <link rel="top" title="SkoolKit 7.1 documentation" href="index.html" />
     <link rel="next" title="Ref files" href="ref-files.html" />
     <link rel="prev" title="Skool file templates" href="skool-file-templates.html" /> 
   </head>
@@ -42,7 +42,7 @@
         <li class="right" >
           <a href="skool-file-templates.html" title="Skool file templates"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 7.0 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 7.1 documentation</a> &#187;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
@@ -1600,7 +1600,7 @@ added support for keyword arguments</td>
 <span id="id26"></span><h3>#UDGARRAY<a class="headerlink" href="#udgarray" title="Permalink to this headline">¶</a></h3>
 <p>In HTML mode, the <code class="docutils literal"><span class="pre">#UDGARRAY</span></code> macro expands to an <code class="docutils literal"><span class="pre">&lt;img&gt;</span></code> element for the
 image of an array of UDGs (8x8 blocks of pixels).</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>#UDGARRAYwidth[,attr,scale,step,inc,flip,rotate,mask];SPEC1[;SPEC2;...][{CROP}](fname)
+<div class="highlight-none"><div class="highlight"><pre><span></span>#UDGARRAYwidth[,attr,scale,step,inc,flip,rotate,mask];SPEC1[;SPEC2;...][@ATTRS1[;ATTRS2;...]][{CROP}](fname)
 </pre></div>
 </div>
 <ul class="simple">
@@ -1644,16 +1644,19 @@ below)</li>
 <li><code class="docutils literal"><span class="pre">step</span></code> is the interval between successive bytes of each mask UDG in the set
 (defaults to the value of <code class="docutils literal"><span class="pre">step</span></code> for the set of UDGs)</li>
 </ul>
-<p>Address range specifications (<code class="docutils literal"><span class="pre">addr</span></code>) may be given in one of the following
-forms:</p>
+<p><code class="docutils literal"><span class="pre">ATTRS1</span></code>, <code class="docutils literal"><span class="pre">ATTRS2</span></code> etc. are attribute address range specifications (see
+below). If supplied, attribute values are taken from the specified addresses
+instead of the <code class="docutils literal"><span class="pre">attr</span></code> parameter values.</p>
+<p>Address range specifications (for both UDGs and attributes) may be given in one
+of the following forms:</p>
 <ul class="simple">
 <li>a single address (e.g. <code class="docutils literal"><span class="pre">39144</span></code>)</li>
 <li>a simple address range (e.g. <code class="docutils literal"><span class="pre">33008-33015</span></code>)</li>
 <li>an address range with a step (e.g. <code class="docutils literal"><span class="pre">32768-33792-256</span></code>)</li>
 <li>an address range with a horizontal and a vertical step (e.g.
 <code class="docutils literal"><span class="pre">63476-63525-1-16</span></code>; this form specifies the step between the base addresses
-of adjacent UDGs in each row as 1, and the step between the base addresses of
-adjacent UDGs in each column as 16)</li>
+of adjacent items in each row as 1, and the step between the base addresses
+of adjacent items in each column as 16)</li>
 </ul>
 <p>Any of these forms of address ranges can be repeated by appending <code class="docutils literal"><span class="pre">xN</span></code>, where
 <code class="docutils literal"><span class="pre">N</span></code> is the desired number of repetitions. For example:</p>
@@ -1669,14 +1672,10 @@ including the first semicolon), if any of the following parts of the parameter
 string is expressed using arithmetic operations or skool macros, then that part
 must be enclosed in parentheses:</p>
 <ul class="simple">
-<li>any of the 1-5 parts of a UDG address range specification (separated by <code class="docutils literal"><span class="pre">-</span></code>
-and <code class="docutils literal"><span class="pre">x</span></code>)</li>
-<li>the part of a UDG specification after the comma that follows the address
-range</li>
-<li>any of the 1-5 parts of a mask address range specification (separated by
-<code class="docutils literal"><span class="pre">-</span></code> and <code class="docutils literal"><span class="pre">x</span></code>)</li>
-<li>the part of a mask specification after the comma that follows the address
-range</li>
+<li>any of the 1-5 parts of a UDG, mask or attribute address range specification
+(separated by <code class="docutils literal"><span class="pre">-</span></code> and <code class="docutils literal"><span class="pre">x</span></code>)</li>
+<li>the part of a UDG or mask specification after the comma that follows the
+address range</li>
 </ul>
 <p>If <code class="docutils literal"><span class="pre">fname</span></code> contains an image path ID replacement field (e.g.
 <code class="docutils literal"><span class="pre">{ScreenshotImagePath}/udgs</span></code>), the corresponding parameter value from the
@@ -1711,42 +1710,45 @@ named <cite>base_sprite.png</cite>.</p>
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>6.3</td>
+<tr class="row-even"><td>7.1</td>
+<td>Added the ability to specify attribute addresses</td>
+</tr>
+<tr class="row-odd"><td>6.3</td>
 <td>Added support for image path ID replacement fields in the
 <code class="docutils literal"><span class="pre">fname</span></code> parameter</td>
 </tr>
-<tr class="row-odd"><td>5.1</td>
+<tr class="row-even"><td>5.1</td>
 <td>Added support for arithmetic expressions and skool macros in the
 numeric parameters</td>
 </tr>
-<tr class="row-even"><td>4.2</td>
+<tr class="row-odd"><td>4.2</td>
 <td>Added the ability to specify alt text for the <code class="docutils literal"><span class="pre">&lt;img&gt;</span></code> element</td>
 </tr>
-<tr class="row-odd"><td>4.0</td>
+<tr class="row-even"><td>4.0</td>
 <td>Added the <code class="docutils literal"><span class="pre">mask</span></code> parameter and support for AND-OR masking;
 added support for keyword arguments</td>
 </tr>
-<tr class="row-even"><td>3.6</td>
+<tr class="row-odd"><td>3.6</td>
 <td>Added support for creating an animated image from an arbitrary
 sequence of frames</td>
 </tr>
-<tr class="row-odd"><td>3.1.1</td>
+<tr class="row-even"><td>3.1.1</td>
 <td>Added support for UDG address ranges with horizontal and vertical
 steps</td>
 </tr>
-<tr class="row-even"><td>3.0</td>
+<tr class="row-odd"><td>3.0</td>
 <td>Added image-cropping capabilities</td>
 </tr>
-<tr class="row-odd"><td>2.4</td>
+<tr class="row-even"><td>2.4</td>
 <td>Added the <code class="docutils literal"><span class="pre">rotate</span></code> parameter</td>
 </tr>
-<tr class="row-even"><td>2.3.1</td>
+<tr class="row-odd"><td>2.3.1</td>
 <td>Added the <code class="docutils literal"><span class="pre">flip</span></code> parameter</td>
 </tr>
-<tr class="row-odd"><td>2.2.5</td>
+<tr class="row-even"><td>2.2.5</td>
 <td>Added support for masks</td>
 </tr>
-<tr class="row-even"><td>2.0.5</td>
+<tr class="row-odd"><td>2.0.5</td>
 <td>New</td>
 </tr>
 </tbody>
@@ -2131,11 +2133,11 @@ the following output:</p>
         <li class="right" >
           <a href="skool-file-templates.html" title="Skool file templates"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 7.0 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 7.1 documentation</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2018, Richard Dymond.
+        &#169; Copyright 2019, Richard Dymond.
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.9.
     </div>
   </body>

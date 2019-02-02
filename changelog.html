@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Changelog &#8212; SkoolKit 7.0 documentation</title>
+    <title>Changelog &#8212; SkoolKit 7.1 documentation</title>
     
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '7.0',
+        VERSION:     '7.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="top" title="SkoolKit 7.0 documentation" href="index.html" />
+    <link rel="top" title="SkoolKit 7.1 documentation" href="index.html" />
     <link rel="next" title="SkoolKit 5.x changelog" href="changelog5.html" />
     <link rel="prev" title="Migrating from SkoolKit 6" href="migration.html" /> 
   </head>
@@ -42,7 +42,7 @@
         <li class="right" >
           <a href="migration.html" title="Migrating from SkoolKit 6"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 7.0 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 7.1 documentation</a> &#187;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
@@ -50,12 +50,13 @@
   <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">Changelog</a><ul>
-<li><a class="reference internal" href="#id1">7.0 (2018-10-13)</a></li>
-<li><a class="reference internal" href="#id2">6.4 (2018-03-31)</a></li>
-<li><a class="reference internal" href="#id3">6.3 (2018-02-19)</a></li>
-<li><a class="reference internal" href="#id4">6.2 (2018-01-01)</a></li>
-<li><a class="reference internal" href="#id5">6.1 (2017-09-03)</a></li>
-<li><a class="reference internal" href="#id6">6.0 (2017-05-06)</a></li>
+<li><a class="reference internal" href="#id1">7.1 (2019-02-02)</a></li>
+<li><a class="reference internal" href="#id2">7.0 (2018-10-13)</a></li>
+<li><a class="reference internal" href="#id3">6.4 (2018-03-31)</a></li>
+<li><a class="reference internal" href="#id4">6.3 (2018-02-19)</a></li>
+<li><a class="reference internal" href="#id5">6.2 (2018-01-01)</a></li>
+<li><a class="reference internal" href="#id6">6.1 (2017-09-03)</a></li>
+<li><a class="reference internal" href="#id7">6.0 (2017-05-06)</a></li>
 <li><a class="reference internal" href="#older-versions">Older versions</a></li>
 </ul>
 </li>
@@ -95,7 +96,48 @@
   <div class="section" id="changelog">
 <h1>Changelog<a class="headerlink" href="#changelog" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="id1">
-<h2>7.0 (2018-10-13)<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<h2>7.1 (2019-02-02)<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Improved the performance and accuracy of the control file generation
+algorithm used by <a class="reference internal" href="commands.html#sna2ctl-py"><span class="std std-ref">sna2ctl.py</span></a> when no code map is provided</li>
+<li>Added support to <a class="reference internal" href="commands.html#sna2ctl-conf"><span class="std std-ref">sna2ctl.py</span></a> for reading configuration
+from <cite>skoolkit.ini</cite></li>
+<li>Added the <code class="docutils literal"><span class="pre">--ini</span></code> and <code class="docutils literal"><span class="pre">--show-config</span></code> options to <a class="reference internal" href="commands.html#sna2ctl-py"><span class="std std-ref">sna2ctl.py</span></a> (for
+setting the value of a configuration parameter and for showing all
+configuration parameter values)</li>
+<li>Added support to <a class="reference internal" href="commands.html#sna2skool-py"><span class="std std-ref">sna2skool.py</span></a> for reading multiple default control
+files, and for using the <code class="docutils literal"><span class="pre">--ctl</span></code> option multiple times</li>
+<li>The <a class="reference internal" href="skool-macros.html#udgarray"><span class="std std-ref">#UDGARRAY</span></a> macro now has the ability to specify attribute addresses
+(as an alternative to specifying attribute values)</li>
+<li>Added support to control files and skool file templates for specifying that
+numeric values in instruction operands and DEFB, DEFM, DEFS and DEFW
+statements be rendered as negative numbers</li>
+<li>The <a class="reference internal" href="asm.html#isub"><span class="std std-ref">&#64;isub</span></a>, <a class="reference internal" href="asm.html#ssub"><span class="std std-ref">&#64;ssub</span></a>, <a class="reference internal" href="asm.html#rsub"><span class="std std-ref">&#64;rsub</span></a>, <a class="reference internal" href="asm.html#ofix"><span class="std std-ref">&#64;ofix</span></a>, <a class="reference internal" href="asm.html#bfix"><span class="std std-ref">&#64;bfix</span></a> and
+<a class="reference internal" href="asm.html#rfix"><span class="std std-ref">&#64;rfix</span></a> directives can insert an instruction after the current one
+(without first specifying a replacement for it) by using the <code class="docutils literal"><span class="pre">+</span></code> marker</li>
+<li><a class="reference internal" href="commands.html#tapinfo-py"><span class="std std-ref">tapinfo.py</span></a> now shows pulse lengths in TZX block type 0x13 (pulse
+sequence) and full info for TZX block type 0x14 (pure data)</li>
+<li><a class="reference internal" href="commands.html#sna2skool-py"><span class="std std-ref">sna2skool.py</span></a> handles unprintable characters in a DEFM statement by
+rendering them as byte values</li>
+<li><a class="reference internal" href="commands.html#sna2skool-py"><span class="std std-ref">sna2skool.py</span></a> automatically determines the byte value of an &#8216;S&#8217;
+directive and ignores any supplied value</li>
+<li>Added the <code class="docutils literal"><span class="pre">CommentWidthMin</span></code> configuration parameter for <a class="reference internal" href="commands.html#sna2skool-py"><span class="std std-ref">sna2skool.py</span></a>
+(to specify the minimum width of the instruction comment field in a skool
+file)</li>
+<li>Added the <code class="docutils literal"><span class="pre">InstructionWidth</span></code> configuration parameter for
+<a class="reference internal" href="commands.html#sna2skool-py"><span class="std std-ref">sna2skool.py</span></a> (to specify the minimum width of the instruction field in
+a skool file)</li>
+<li>Added the <code class="docutils literal"><span class="pre">Semicolons</span></code> configuration parameter for <a class="reference internal" href="commands.html#sna2skool-py"><span class="std std-ref">sna2skool.py</span></a> (to
+specify the block types in which comment semicolons are written for
+instructions that have no comment)</li>
+<li>Fixed how <a class="reference internal" href="commands.html#sna2skool-py"><span class="std std-ref">sna2skool.py</span></a> interprets the base prefix <code class="docutils literal"><span class="pre">n</span></code> in a &#8216;B&#8217;
+directive</li>
+<li>Fixed how <a class="reference internal" href="commands.html#skool2ctl-py"><span class="std std-ref">skool2ctl.py</span></a> and <a class="reference internal" href="commands.html#skool2sft-py"><span class="std std-ref">skool2sft.py</span></a> handle non-entry blocks
+when a start address or end address is supplied</li>
+</ul>
+</div>
+<div class="section" id="id2">
+<h2>7.0 (2018-10-13)<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li>The <a class="reference internal" href="asm.html#isub"><span class="std std-ref">&#64;isub</span></a>, <a class="reference internal" href="asm.html#ssub"><span class="std std-ref">&#64;ssub</span></a>, <a class="reference internal" href="asm.html#rsub"><span class="std std-ref">&#64;rsub</span></a>, <a class="reference internal" href="asm.html#ofix"><span class="std std-ref">&#64;ofix</span></a>, <a class="reference internal" href="asm.html#bfix"><span class="std std-ref">&#64;bfix</span></a> and
 <a class="reference internal" href="asm.html#rfix"><span class="std std-ref">&#64;rfix</span></a> directives can specify the replacement comment over multiple
@@ -129,8 +171,8 @@ instructions</li>
 handled when generating a control file</li>
 </ul>
 </div>
-<div class="section" id="id2">
-<h2>6.4 (2018-03-31)<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id3">
+<h2>6.4 (2018-03-31)<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li>Added the <a class="reference internal" href="asm.html#asm-if"><span class="std std-ref">&#64;if</span></a> directive (for conditionally processing other ASM
 directives)</li>
@@ -160,8 +202,8 @@ the <code class="docutils literal"><span class="pre">bullet</span></code> parame
 nest macros (e.g. <code class="docutils literal"><span class="pre">#FOR0,9(n,#IF(n%2)(Y,N))</span></code>)</li>
 </ul>
 </div>
-<div class="section" id="id3">
-<h2>6.3 (2018-02-19)<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id4">
+<h2>6.3 (2018-02-19)<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li>Added the <a class="reference internal" href="asm.html#defb"><span class="std std-ref">&#64;defb</span></a>, <a class="reference internal" href="asm.html#defs"><span class="std std-ref">&#64;defs</span></a> and <a class="reference internal" href="asm.html#defw"><span class="std std-ref">&#64;defw</span></a> directives (for inserting
 byte values and word values into the memory snapshot)</li>
@@ -196,8 +238,8 @@ directive on a block end comment from being preserved correctly</li>
 snapshot whose final byte (at 65535) is 24 or 237</li>
 </ul>
 </div>
-<div class="section" id="id4">
-<h2>6.2 (2018-01-01)<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id5">
+<h2>6.2 (2018-01-01)<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li>Added the <code class="docutils literal"><span class="pre">--reg</span></code> option to <a class="reference internal" href="commands.html#bin2sna-py"><span class="std std-ref">bin2sna.py</span></a> (for setting the value of a
 register)</li>
@@ -228,8 +270,8 @@ to instructions that have been replaced by an <a class="reference internal" href
 <li>The <code class="docutils literal"><span class="pre">&#64;nolabel</span></code> directive is now processed in HTML mode</li>
 </ul>
 </div>
-<div class="section" id="id5">
-<h2>6.1 (2017-09-03)<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id6">
+<h2>6.1 (2017-09-03)<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li>Added support for converting the base of every numerical term in an
 instruction operand or DEFB/DEFM/DEFS/DEFW statement that contains two or
@@ -262,8 +304,8 @@ contain a &#8216;&lt;&#8217;, &#8216;&gt;&#8217; or &#8216;&amp;&#8217; characte
 <li>Fixed the styling of entry descriptions for &#8216;t&#8217; blocks on a memory map page</li>
 </ul>
 </div>
-<div class="section" id="id6">
-<h2>6.0 (2017-05-06)<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id7">
+<h2>6.0 (2017-05-06)<a class="headerlink" href="#id7" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li>Dropped support for Python 2.7 and 3.3</li>
 <li>Added the <code class="docutils literal"><span class="pre">--expand</span></code> option to <a class="reference internal" href="commands.html#sna2img-py"><span class="std std-ref">sna2img.py</span></a> (for expanding a
@@ -332,11 +374,11 @@ text on the disassembly home page</li>
         <li class="right" >
           <a href="migration.html" title="Migrating from SkoolKit 6"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 7.0 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 7.1 documentation</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2018, Richard Dymond.
+        &#169; Copyright 2019, Richard Dymond.
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.9.
     </div>
   </body>

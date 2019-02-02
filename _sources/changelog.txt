@@ -1,6 +1,45 @@
 Changelog
 =========
 
+7.1 (2019-02-02)
+----------------
+* Improved the performance and accuracy of the control file generation
+  algorithm used by :ref:`sna2ctl.py` when no code map is provided
+* Added support to :ref:`sna2ctl.py <sna2ctl-conf>` for reading configuration
+  from `skoolkit.ini`
+* Added the ``--ini`` and ``--show-config`` options to :ref:`sna2ctl.py` (for
+  setting the value of a configuration parameter and for showing all
+  configuration parameter values)
+* Added support to :ref:`sna2skool.py` for reading multiple default control
+  files, and for using the ``--ctl`` option multiple times
+* The :ref:`UDGARRAY` macro now has the ability to specify attribute addresses
+  (as an alternative to specifying attribute values)
+* Added support to control files and skool file templates for specifying that
+  numeric values in instruction operands and DEFB, DEFM, DEFS and DEFW
+  statements be rendered as negative numbers
+* The :ref:`isub`, :ref:`ssub`, :ref:`rsub`, :ref:`ofix`, :ref:`bfix` and
+  :ref:`rfix` directives can insert an instruction after the current one
+  (without first specifying a replacement for it) by using the ``+`` marker
+* :ref:`tapinfo.py` now shows pulse lengths in TZX block type 0x13 (pulse
+  sequence) and full info for TZX block type 0x14 (pure data)
+* :ref:`sna2skool.py` handles unprintable characters in a DEFM statement by
+  rendering them as byte values
+* :ref:`sna2skool.py` automatically determines the byte value of an 'S'
+  directive and ignores any supplied value
+* Added the ``CommentWidthMin`` configuration parameter for :ref:`sna2skool.py`
+  (to specify the minimum width of the instruction comment field in a skool
+  file)
+* Added the ``InstructionWidth`` configuration parameter for
+  :ref:`sna2skool.py` (to specify the minimum width of the instruction field in
+  a skool file)
+* Added the ``Semicolons`` configuration parameter for :ref:`sna2skool.py` (to
+  specify the block types in which comment semicolons are written for
+  instructions that have no comment)
+* Fixed how :ref:`sna2skool.py` interprets the base prefix ``n`` in a 'B'
+  directive
+* Fixed how :ref:`skool2ctl.py` and :ref:`skool2sft.py` handle non-entry blocks
+  when a start address or end address is supplied
+
 7.0 (2018-10-13)
 ----------------
 * The :ref:`isub`, :ref:`ssub`, :ref:`rsub`, :ref:`ofix`, :ref:`bfix` and
