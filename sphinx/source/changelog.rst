@@ -1,8 +1,8 @@
 Changelog
 =========
 
-7.1rc3
-------
+7.1 (2019-02-02)
+----------------
 * Improved the performance and accuracy of the control file generation
   algorithm used by :ref:`sna2ctl.py` when no code map is provided
 * Added support to :ref:`sna2ctl.py <sna2ctl-conf>` for reading configuration
