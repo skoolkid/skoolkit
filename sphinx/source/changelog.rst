@@ -1,6 +1,9 @@
 Changelog
 =========
 
+7.2b1
+-----
+
 7.1 (2019-02-02)
 ----------------
 * Improved the performance and accuracy of the control file generation
