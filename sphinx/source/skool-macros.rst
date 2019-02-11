@@ -1096,6 +1096,10 @@ starts at 49152.
 See :ref:`stringParameters` for details on alternative ways to supply the
 ``text`` parameter.
 
+.. note::
+   Support for GIF images is deprecated since version 7.2. Use PNG images
+   instead.
+
 +---------+------------------------------------------------------------------+
 | Version | Changes                                                          |
 +=========+==================================================================+
@@ -1164,6 +1168,10 @@ For example::
   ; #UDGTABLE
   ; { #SCR(loading) | This is the loading screen. }
   ; TABLE#
+
+.. note::
+   Support for GIF images is deprecated since version 7.2. Use PNG images
+   instead.
 
 +---------+------------------------------------------------------------------+
 | Version | Changes                                                          |
@@ -1250,6 +1258,10 @@ For example::
 In HTML mode, this instance of the ``#UDG`` macro expands to an ``<img>``
 element for the image of the UDG at 39144 (which will be named `safe_key.png`
 or `safe_key.gif`), with attribute byte 6 (INK 6: PAPER 0).
+
+.. note::
+   Support for GIF images is deprecated since version 7.2. Use PNG images
+   instead.
 
 +---------+------------------------------------------------------------------+
 | Version | Changes                                                          |
@@ -1389,6 +1401,10 @@ In HTML mode, this instance of the ``#UDGARRAY`` macro expands to an ``<img>``
 element for the image of the 4x4 sprite formed by the 16 UDGs with base
 addresses 32768, 32776, 32784 and so on up to 32888; the image file will be
 named `base_sprite.png`.
+
+.. note::
+   Support for GIF images is deprecated since version 7.2. Use PNG images
+   instead.
 
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |

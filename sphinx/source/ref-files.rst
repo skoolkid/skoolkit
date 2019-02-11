@@ -261,9 +261,9 @@ will create an image file named ``font.png``. To create a GIF instead
 
   #FONT32768,26(font.gif)
 
-For images that contain flashing cells, animated GIFs are recommended over
-animated PNGs in APNG format, because they are more widely supported in web
-browsers.
+.. note::
+   Support for GIF images is deprecated since version 7.2. Use PNG images
+   instead.
 
 +---------+--------------------------------------------------------------+
 | Version | Changes                                                      |
