@@ -122,9 +122,7 @@ class CtlParser:
                     continue
                 if not min_address <= start < max_address:
                     continue
-                comment = []
-                if text:
-                    comment.append(text)
+                comment = [text or '']
                 if ctl == '>':
                     if end:
                         self._footers[start].append(text or '')
@@ -147,7 +145,7 @@ class CtlParser:
                             fields.append('')
                         self._registers[start].append(fields)
                 elif ctl == 'M':
-                    self._multiline_comments[start] = (end, text)
+                    self._multiline_comments[start] = (end, comment)
                     self._subctls.setdefault(start, None)
                 elif ctl == 'L':
                     count = lengths[0][0]
@@ -163,7 +161,7 @@ class CtlParser:
                         self._subctls[loop_end] = None
                 else:
                     self._subctls[start] = ctl.lower()
-                    self._instruction_comments[start] = text
+                    self._instruction_comments[start] = comment
                     if end:
                         self._subctls[end] = None
                 if ctl != 'L' and lengths:
@@ -175,8 +173,8 @@ class CtlParser:
                             self._lengths[address] = sublengths
                             self._subctls[address] = subctl
                             address += length
-                        if text:
-                            self._multiline_comments[start] = (address, text)
+                        if any(comment):
+                            self._multiline_comments[start] = (address, comment)
             elif asm_directive:
                 directive, address = asm_directive
                 self._asm_directives[address].append(directive)
@@ -318,7 +316,7 @@ class CtlParser:
                 del self._asm_directives[address]
             block.ignoreua_directives = tuple(self._ignoreua_directives.get(address, set()).intersection(ENTRY_COMMENT_TYPES))
             block.header = self._headers.get(address, ())
-            block.title = self._titles.get(address)
+            block.title = self._titles.get(address, ())
             block.description = self._descriptions.get(address, ())
             block.registers = self._registers.get(address, ())
             block.end_comment = self._end_comments.get(address, ())
@@ -345,7 +343,7 @@ class CtlParser:
                 sub_address = sub_block.start
                 sub_block.sublengths = self._lengths.get(sub_address, ((None, None),))
                 sub_block.header = self._mid_block_comments.get(sub_address, ())
-                sub_block.comment = self._instruction_comments.get(sub_address) or ''
+                sub_block.comment = self._instruction_comments.get(sub_address) or ()
                 sub_block.multiline_comment = self._multiline_comments.get(sub_address)
                 sub_block.asm_directives = dict([d for d in asm_directives if sub_address <= d[0] < sub_block.end])
                 sub_block.ignoreua_directives = {}

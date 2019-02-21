@@ -260,7 +260,7 @@ class DisassemblyTest(SkoolKitTestCase):
         self.assertEqual(len(blocks), 1)
         block = blocks[0]
         self.assertEqual(block.header, ())
-        self.assertEqual(block.comment, 'This is an instruction-level comment that spans two instructions')
+        self.assertEqual(['This is an instruction-level comment that spans two instructions'], block.comment)
         self.assertEqual(block.instructions, entry.instructions)
         self.assertEqual(block.end, 32770)
 
@@ -303,9 +303,9 @@ class DisassemblyTest(SkoolKitTestCase):
         self.assertEqual(instructions[4].operation, 'DEFB 0,0,0')
         blocks = entry.blocks
         self.assertEqual(len(blocks), 2)
-        self.assertEqual(blocks[0].comment, 'This comment spans three DEFB statements')
+        self.assertEqual(['This comment spans three DEFB statements'], blocks[0].comment)
         self.assertEqual(instructions[:3], blocks[0].instructions)
-        self.assertEqual(blocks[1].comment, 'This comment spans two DEFB statements')
+        self.assertEqual(['This comment spans two DEFB statements'], blocks[1].comment)
         self.assertEqual(instructions[3:], blocks[1].instructions)
 
         # Entry #5 (32788)
@@ -370,12 +370,12 @@ class DisassemblyTest(SkoolKitTestCase):
         self.assertEqual(block1.start, 32809)
         self.assertEqual(block1.end, 32813)
         self.assertEqual(instructions[:2], block1.instructions)
-        self.assertEqual(block1.comment, 'A DEFS and a NOP')
+        self.assertEqual(['A DEFS and a NOP'], block1.comment)
         block2 = blocks[1]
         self.assertEqual(block2.start, block1.end)
         self.assertEqual(block2.end, 32814)
         self.assertEqual(instructions[2:], block2.instructions)
-        self.assertEqual(block2.comment, 'Another NOP')
+        self.assertEqual(['Another NOP'], block2.comment)
 
         # Entry #14 (32814)
         entry = entries[13]
@@ -399,17 +399,17 @@ class DisassemblyTest(SkoolKitTestCase):
         block1 = blocks[0]
         self.assertEqual(block1.start, 32817)
         self.assertEqual(block1.end, 32822)
-        self.assertEqual(block1.comment, '')
+        self.assertEqual([''], block1.comment)
         self.assertEqual(instructions[:1], block1.instructions)
         block2 = blocks[1]
         self.assertEqual(block2.start, block1.end)
         self.assertEqual(block2.end, 32827)
-        self.assertEqual(block2.comment, 'This comment spans two DEFB statements')
+        self.assertEqual(['This comment spans two DEFB statements'], block2.comment)
         self.assertEqual(instructions[1:3], block2.instructions)
         block3 = blocks[2]
         self.assertEqual(block3.start, block2.end)
         self.assertEqual(block3.end, 32837)
-        self.assertEqual(block3.comment, 'This comment spans four DEFM statements')
+        self.assertEqual(['This comment spans four DEFM statements'], block3.comment)
         self.assertEqual(instructions[3:], block3.instructions)
 
         # Entry #16 (32837)
@@ -424,7 +424,7 @@ class DisassemblyTest(SkoolKitTestCase):
         block1 = blocks[0]
         self.assertEqual(block1.start, 32837)
         self.assertEqual(block1.end, 32841)
-        self.assertEqual(block1.comment, 'This comment spans two instructions with different operand bases')
+        self.assertEqual(['This comment spans two instructions with different operand bases'], block1.comment)
         self.assertEqual(instructions, block1.instructions)
 
         # Entry #17 (32841)
@@ -1207,7 +1207,7 @@ class DisassemblyTest(SkoolKitTestCase):
             ['Text at 5'],
             ['Unused bytes at 6'],
             ['Words at 7'],
-            []
+            ['']
         ]
         ctl_parser = CtlParser()
         ctl_parser.parse_ctls([StringIO(textwrap.dedent(ctl).strip())])
@@ -3405,19 +3405,20 @@ class SkoolWriterTest(SkoolKitTestCase):
         self._test_write_skool(snapshot, ctl, exp_skool)
 
     def test_newlines_in_entry_titles(self):
-        snapshot = [0] * 9
+        snapshot = [0] * 13
         ctl = """
             b 00000 The title of this entry
             .       spans two lines
             c 00001 The title of this entry spans only one line even though it would normally be wrapped over two lines
             .
-            g 00002 The title
+            g 00002
+            . The title
             . of this entry
             . spans three lines
             i 00003 Testing the
             . dot directive
-            s 00004 Another long entry title that spans only one line but would normally be wrapped over two lines
-            .
+            s 00004
+            . Another long entry title that spans only one line but would normally be wrapped over two lines
             t 00005 One
             .       two
             u 00006 One
@@ -3425,7 +3426,22 @@ class SkoolWriterTest(SkoolKitTestCase):
             . three
             w 00007 Yet another entry title on one line that is long enough to be wrapped over two lines normally
             .
-            i 00009
+            ; Test a blank title with a blank continuation line
+            b 00008
+            .
+            c 00009
+            . Line 1 here
+            g 00010
+            . Trailing blank line
+            .
+            i 00011
+            .
+            . Leading blank line
+            s 00012
+            . Title
+            .
+            . Description defined by an abuse of the dot directive
+            i 00013
         """
         exp_skool = """
             ; The title of this entry
@@ -3458,5 +3474,84 @@ class SkoolWriterTest(SkoolKitTestCase):
 
             ; Yet another entry title on one line that is long enough to be wrapped over two lines normally
             w00007 DEFW 0
+
+            ; Data block at 8
+            b00008 DEFB 0
+
+            ; Line 1 here
+            c00009 NOP           ;
+
+            ; Trailing blank line
+            g00010 DEFB 0
+
+            ; Leading blank line
+            i00011
+
+            ; Title
+            ;
+            ; Description defined by an abuse of the dot directive
+            s00012 DEFS 1
+        """
+        self._test_write_skool(snapshot, ctl, exp_skool)
+
+    def test_newlines_in_instruction_comments(self):
+        snapshot = [0] * 17
+        ctl = """
+            b 00000 Newline test
+            B 00000,1 This comment
+            .         spans two lines
+            C 00001 This comment spans only one line even though it would normally be wrapped over two lines
+            .
+            S 00002,2,1 Line 1
+            . Line 2
+            T 00004
+            . One
+            . two
+            . three
+            W 00005,4,2 First word
+            .           Second word
+            .           No third word
+            ; Blank comment with a blank continuation line
+            B 00009,1
+            .
+            C 00010,1
+            . Line 1 here
+            S 00011,1
+            . Trailing blank line deleted
+            .
+            T 00012,1
+            .
+            . Leading blank line deleted
+            W 00013,2
+            . Line 1
+            .
+            . Line 3 (with a blank line 2)
+            ; Blank comment with a blank continuation line over two instructions
+            B 00015,2,1
+            .
+            i 00017
+        """
+        exp_skool = """
+            ; Newline test
+            b00000 DEFB 0        ; This comment
+                                 ; spans two lines
+             00001 NOP           ; This comment spans only one line even though it would normally be wrapped over two lines
+             00002 DEFS 1        ; {Line 1
+             00003 DEFS 1        ; Line 2}
+             00004 DEFB 0        ; One
+                                 ; two
+                                 ; three
+             00005 DEFW 0        ; {First word
+             00007 DEFW 0        ; Second word
+                                 ; No third word}
+             00009 DEFB 0
+             00010 NOP           ; Line 1 here
+             00011 DEFS 1        ; Trailing blank line deleted
+             00012 DEFB 0        ; Leading blank line deleted
+             00013 DEFW 0        ; Line 1
+                                 ;
+                                 ; Line 3 (with a blank line 2)
+             00015 DEFB 0
+             00016 DEFB 0
         """
         self._test_write_skool(snapshot, ctl, exp_skool)

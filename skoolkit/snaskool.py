@@ -31,6 +31,7 @@ class Entry:
                  end_comment, footer, asm_directives, ignoreua_directives):
         self.header = header
         self.title = title
+        self.has_title = any(title)
         self.ctl = ctl
         self.blocks = blocks
         self.instructions = []
@@ -97,7 +98,7 @@ class Disassembly:
                     self.instructions[instruction.address] = instruction
                 continue
             title = block.title
-            if not title:
+            if not any(title):
                 ctl = block.ctl
                 if ctl != 'i' or block.description or block.registers or block.blocks[0].header:
                     name = 'Title-' + ctl
@@ -218,7 +219,7 @@ class SkoolWriter:
         if entry.has_ignoreua_directive(TITLE):
             self.write_asm_directives(AD_IGNOREUA)
 
-        if entry.ctl == 'i' and entry.blocks[-1].end >= 65536 and not entry.title and all([b.ctl == 'i' for b in entry.blocks]):
+        if entry.ctl == 'i' and entry.blocks[-1].end >= 65536 and not entry.has_title and all([b.ctl == 'i' for b in entry.blocks]):
             return
 
         for block in entry.bad_blocks:
@@ -226,7 +227,7 @@ class SkoolWriter:
             addr2 = self.address_str(block.end, False)
             warn('Instruction at {} overlaps the following instruction at {}'.format(addr1, addr2))
 
-        if entry.title:
+        if entry.has_title:
             self.write_comment(entry.title)
             wrote_desc = self._write_entry_description(entry, write_refs)
             if entry.registers:
@@ -287,12 +288,24 @@ class SkoolWriter:
             else:
                 write_line('; {}'.format(reg))
 
+    def _wrap_block_comment(self, block_comment_lines, width, opening=''):
+        if len(block_comment_lines) == 1:
+            return wrap(opening + block_comment_lines[0], width)
+        comment_lines = block_comment_lines[:]
+        while comment_lines and not comment_lines[0]:
+            comment_lines.pop(0)
+        while comment_lines and not comment_lines[-1]:
+            comment_lines.pop()
+        if comment_lines:
+            comment_lines[0] = opening + comment_lines[0]
+        return comment_lines
+
     def _format_block_comment(self, block, width):
         rowspan = len(block.instructions)
-        comment = block.comment
+        comment = ''.join(block.comment)
         multi_line = rowspan > 1 and comment
         if multi_line and not comment.replace('.', ''):
-            comment = comment[1:]
+            block.comment[0] = comment = comment[1:]
         if multi_line or comment.startswith('{'):
             balance = comment.count('{') - comment.count('}')
             if multi_line and balance < 0:
@@ -304,7 +317,7 @@ class SkoolWriter:
             closing = '}' * max(1 + balance, 1)
             if comment.endswith('}'):
                 closing = ' ' + closing
-            comment_lines = wrap(opening + comment, width)
+            comment_lines = self._wrap_block_comment(block.comment, width, opening)
             if len(comment_lines) < rowspan:
                 comment_lines.extend([''] * (rowspan - len(comment_lines) - 1))
                 comment_lines.append(closing.lstrip())
@@ -313,7 +326,7 @@ class SkoolWriter:
             else:
                 comment_lines.append(closing.lstrip())
             return comment_lines
-        return wrap(comment, width)
+        return self._wrap_block_comment(block.comment, width)
 
     def _write_body(self, entry, wrote_desc, write_refs, show_text):
         op_width = max((self.config['InstructionWidth'], entry.width()))
@@ -346,7 +359,7 @@ class SkoolWriter:
             self._write_instructions(entry, block, op_width, comment_lines, write_refs, show_text)
             indent = ' ' * line_width
             for j in range(len(block.instructions), len(comment_lines)):
-                write_line('{}; {}'.format(indent, comment_lines[j]))
+                write_line('{}; {}'.format(indent, comment_lines[j]).rstrip())
             first_block = False
 
     def _write_instructions(self, entry, block, op_width, comment_lines, write_refs, show_text):
@@ -355,7 +368,7 @@ class SkoolWriter:
             ctl = instruction.ctl or ' '
             address = instruction.address
             operation = instruction.operation
-            if block.comment:
+            if comment_lines:
                 comment = comment_lines[index]
             elif show_text and entry.ctl != 't':
                 comment = self.to_ascii(instruction.bytes)
@@ -366,7 +379,7 @@ class SkoolWriter:
             self.write_asm_directives(*instruction.asm_directives)
             if block.has_ignoreua_directive(instruction.address, INSTRUCTION):
                 self.write_asm_directives(AD_IGNOREUA)
-            if entry.ctl in self.config['Semicolons'] or comment or block.comment:
+            if entry.ctl in self.config['Semicolons'] or comment or comment_lines:
                 write_line(('{}{} {} ; {}'.format(ctl, self.address_str(address), operation.ljust(op_width), comment)).rstrip())
             else:
                 write_line(('{}{} {}'.format(ctl, self.address_str(address), operation)).rstrip())
@@ -381,7 +394,9 @@ class SkoolWriter:
         elif len(text) == 1:
             lines = self.wrap(text[0])
         else:
-            lines = text
+            lines = text[:]
+            while not lines[0]:
+                lines.pop(0)
             while not lines[-1]:
                 lines.pop()
         for line in lines:

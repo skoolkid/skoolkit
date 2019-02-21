@@ -268,54 +268,54 @@ class CtlParserTest(SkoolKitTestCase):
         self._check_titles(exp_titles, blocks)
 
         exp_instruction_comments = {
-            30000: '',
-            30002: 'Message in the data block',
-            30012: '',
-            30020: '',
-            30027: '',
-            30050: 'Complex DEFB with a blank directive',
-            30055: '',
-            30100: '',
-            30200: "Blank directive in a 'g' block",
-            30210: '',
-            30300: '',
-            30400: '',
-            30450: 'Complex DEFM with a blank directive',
-            30457: '',
-            30500: "Blank directive in a 'u' block",
-            30502: '',
-            30505: '',
-            30510: '',
-            30522: '',
-            30530: '',
-            30532: '',
-            30534: '',
-            30536: '',
-            30538: '',
-            30540: '',
-            30542: '',
-            30544: '',
-            30545: '',
-            30546: '',
-            30547: '',
-            30550: '',
-            30560: '',
-            30566: '',
-            30571: '',
-            30575: '',
-            30578: '',
-            30580: '',
-            30581: '',
-            30600: '',
-            30620: '',
-            30627: '',
-            30700: '',
-            30720: '',
-            30721: '',
-            30726: '',
-            30728: '',
-            30730: '',
-            30745: ''
+            30000: (),
+            30002: ['Message in the data block'],
+            30012: [''],
+            30020: [''],
+            30027: (),
+            30050: ['Complex DEFB with a blank directive'],
+            30055: (),
+            30100: (),
+            30200: ["Blank directive in a 'g' block"],
+            30210: (),
+            30300: (),
+            30400: (),
+            30450: ['Complex DEFM with a blank directive'],
+            30457: (),
+            30500: ["Blank directive in a 'u' block"],
+            30502: [''],
+            30505: (),
+            30510: [''],
+            30522: (),
+            30530: [''],
+            30532: (),
+            30534: (),
+            30536: (),
+            30538: (),
+            30540: (),
+            30542: (),
+            30544: (),
+            30545: (),
+            30546: (),
+            30547: (),
+            30550: (),
+            30560: [''],
+            30566: (),
+            30571: (),
+            30575: (),
+            30578: (),
+            30580: (),
+            30581: (),
+            30600: (),
+            30620: [''],
+            30627: (),
+            30700: (),
+            30720: [''],
+            30721: (),
+            30726: (),
+            30728: (),
+            30730: [''],
+            30745: ()
         }
         self._check_instruction_comments(exp_instruction_comments, blocks)
 
@@ -411,7 +411,7 @@ class CtlParserTest(SkoolKitTestCase):
         exp_multiline_comments = {
             30000: None,
             30002: None,
-            30012: (30027, 'This comment covers the following two sub-blocks'),
+            30012: (30027, ['This comment covers the following two sub-blocks']),
             30020: None,
             30027: None,
             30050: None,
@@ -559,13 +559,13 @@ class CtlParserTest(SkoolKitTestCase):
         self._check_titles(exp_titles, blocks)
 
         exp_instruction_comments = {
-            30700: '',
-            30720: '',
-            30721: '',
-            30726: '',
-            30728: '',
-            30730: '',
-            30745: ''
+            30700: (),
+            30720: [''],
+            30721: (),
+            30726: (),
+            30728: (),
+            30730: [''],
+            30745: ()
         }
         self._check_instruction_comments(exp_instruction_comments, blocks)
 
@@ -647,14 +647,14 @@ class CtlParserTest(SkoolKitTestCase):
         self._check_titles(exp_titles, blocks)
 
         exp_instruction_comments = {
-            30000: '',
-            30002: 'Message in the data block',
-            30012: '',
-            30020: '',
-            30027: '',
-            30050: 'Complex DEFB with a blank directive',
-            30055: '',
-            30100: ''
+            30000: (),
+            30002: ['Message in the data block'],
+            30012: [''],
+            30020: [''],
+            30027: (),
+            30050: ['Complex DEFB with a blank directive'],
+            30055: (),
+            30100: ()
         }
         self._check_instruction_comments(exp_instruction_comments, blocks)
 
@@ -692,7 +692,7 @@ class CtlParserTest(SkoolKitTestCase):
         exp_multiline_comments = {
             30000: None,
             30002: None,
-            30012: (30027, 'This comment covers the following two sub-blocks'),
+            30012: (30027, ['This comment covers the following two sub-blocks']),
             30020: None,
             30027: None,
             30050: None,
@@ -744,9 +744,9 @@ class CtlParserTest(SkoolKitTestCase):
         self._check_titles(exp_titles, blocks)
 
         exp_instruction_comments = {
-            30100: '',
-            30200: "Blank directive in a 'g' block",
-            30210: ''
+            30100: (),
+            30200: ["Blank directive in a 'g' block"],
+            30210: ()
         }
         self._check_instruction_comments(exp_instruction_comments, blocks)
 
@@ -1540,9 +1540,9 @@ class CtlParserTest(SkoolKitTestCase):
         self.assertEqual(len(blocks), 1)
         sub_blocks = blocks[0].blocks
         exp_subctls = {
-            65533: ('c', 'This sub-block is terminated by the following M directive', None),
-            65534: ('c', '', (65536, 'This spans an implicit "C" sub-block and a "B" sub-block')),
-            65535: ('b', '', None)
+            65533: ('c', ['This sub-block is terminated by the following M directive'], None),
+            65534: ('c', (), (65536, ['This spans an implicit "C" sub-block and a "B" sub-block'])),
+            65535: ('b', [''], None)
         }
         subctls = {b.start:(b.ctl, b.comment, b.multiline_comment) for b in sub_blocks}
         self.assertEqual(exp_subctls, subctls)
@@ -1605,7 +1605,7 @@ class CtlParserTest(SkoolKitTestCase):
         # Check multi-line comments
         offset = 10
         for a in range(start + offset, end, length):
-            self.assertEqual((a + offset, 'A multi-line comment'), sub_block_map[a].multiline_comment)
+            self.assertEqual((a + offset, ['A multi-line comment']), sub_block_map[a].multiline_comment)
 
         # Check entry-level directives (c, D, E, R)
         self._check_ctls({start: 'c'}, blocks)
@@ -1679,7 +1679,7 @@ class CtlParserTest(SkoolKitTestCase):
             for b in (0, 5, 6, 10, 16, 20, 25):
                 address = a + b
                 if b == 10:
-                    exp_multiline_comments[address] = (address + 10, 'A multi-line comment')
+                    exp_multiline_comments[address] = (address + 10, ['A multi-line comment'])
                 else:
                     exp_multiline_comments[address] = None
         self._check_multiline_comments(exp_multiline_comments, blocks)
@@ -1774,20 +1774,20 @@ class CtlParserTest(SkoolKitTestCase):
         self._check_mid_block_comments(exp_mid_block_comments, blocks)
 
         exp_instruction_comments = {
-            30000: '',
-            30005: '',
-            30010: 'Some more bytes',
-            30020: '',
-            30025: '',
-            30030: 'Some more bytes'
+            30000: [''],
+            30005: [''],
+            30010: ['Some more bytes'],
+            30020: [''],
+            30025: [''],
+            30030: ['Some more bytes']
         }
         self._check_instruction_comments(exp_instruction_comments, blocks)
 
         exp_multiline_comments = {
-            30000: (30010, 'Some bytes and text'),
+            30000: (30010, ['Some bytes and text']),
             30005: None,
             30010: None,
-            30020: (30030, 'Some bytes and text'),
+            30020: (30030, ['Some bytes and text']),
             30025: None,
             30030: None,
         }
@@ -1891,6 +1891,21 @@ class CtlParserTest(SkoolKitTestCase):
             . used
             w 30700 Some
             .       words
+            ; Test a blank title with a blank continuation line
+            b 30800
+            .
+            c 30900
+            . Line 1 here
+            g 31000
+            . Trailing blank line
+            .
+            i 31100
+            .
+            . Leading blank line
+            s 31200
+            . Title
+            .
+            . Description defined by an abuse of the dot directive
         """
         exp_titles = {
             30000: ['A title split', 'over two lines'],
@@ -1900,8 +1915,85 @@ class CtlParserTest(SkoolKitTestCase):
             30400: ['One', 'Two', 'Three'],
             30500: ['Another one-liner, never wrapped', ''],
             30600: ['Not', 'used'],
-            30700: ['Some', 'words']
+            30700: ['Some', 'words'],
+            30800: ['', ''],
+            30900: ['', 'Line 1 here'],
+            31000: ['', 'Trailing blank line', ''],
+            31100: ['', '', 'Leading blank line'],
+            31200: ['', 'Title', '', 'Description defined by an abuse of the dot directive']
         }
 
         blocks = self._get_ctl_parser(ctl).get_blocks()
         self._check_titles(exp_titles, blocks)
+
+    def test_dot_directive_with_instruction_comments(self):
+        ctl = """
+            b 30000
+            B 30000,1 Single instruction,
+            .         two comment lines
+            C 30001,1 Single instruction, one comment line, never wrapped
+            .
+            S 30002,2,1 Two instructions,
+            . two comment lines
+            T 30004,2,1 Two instructions,
+            . three comment
+            . lines
+            W 30006,2,2 Two instructions, one comment line, never wrapped
+            .
+            M 30010,2 Two instructions of different types,
+            . two comment lines
+            B 30010,1
+            S 30011,1
+            ; Test a blank comment with a blank continuation line
+            B 30012,1
+            .
+            C 30013,1
+            . Line 1 here
+            S 30014,1
+            . Trailing blank line
+            .
+            T 30015,1
+            .
+            . Leading blank line
+            W 30016,2
+            . Line 1
+            .
+            . Line 3 (with a blank line 2)
+        """
+        blocks = self._get_ctl_parser(ctl).get_blocks()
+
+        exp_instruction_comments = {
+            30000: ['Single instruction,', 'two comment lines'],
+            30001: ['Single instruction, one comment line, never wrapped', ''],
+            30002: ['Two instructions,', 'two comment lines'],
+            30004: ['Two instructions,', 'three comment', 'lines'],
+            30006: ['Two instructions, one comment line, never wrapped', ''],
+            30008: (),
+            30010: [''],
+            30011: [''],
+            30012: ['', ''],
+            30013: ['', 'Line 1 here'],
+            30014: ['', 'Trailing blank line', ''],
+            30015: ['', '', 'Leading blank line'],
+            30016: ['', 'Line 1', '', 'Line 3 (with a blank line 2)'],
+            30018: ()
+        }
+        self._check_instruction_comments(exp_instruction_comments, blocks)
+
+        exp_multiline_comments = {
+            30000: None,
+            30001: None,
+            30002: None,
+            30004: None,
+            30006: None,
+            30008: None,
+            30010: (30012, ['Two instructions of different types,', 'two comment lines']),
+            30011: None,
+            30012: None,
+            30013: None,
+            30014: None,
+            30015: None,
+            30016: None,
+            30018: None
+        }
+        self._check_multiline_comments(exp_multiline_comments, blocks)
