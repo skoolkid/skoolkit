@@ -109,6 +109,7 @@ class CtlParser:
 
         entry_addresses = sorted(self._ctls)
 
+        comment = []
         for line_no, s_line in enumerate(ctl_lines, 1):
             try:
                 ctl, start, end, text, lengths, asm_directive = self._parse_ctl_line(s_line, entry_addresses)
@@ -116,15 +117,21 @@ class CtlParser:
                 warn('Ignoring line {} in {} ({}):\n{}'.format(line_no, ctlfile, e.args[0], s_line))
                 continue
             if ctl:
+                if ctl == '.':
+                    comment.append(text)
+                    continue
                 if not min_address <= start < max_address:
                     continue
+                comment = []
+                if text:
+                    comment.append(text)
                 if ctl == '>':
                     if end:
                         self._footers[start].append(text or '')
                     else:
                         self._headers[start].append(text or '')
                 elif ctl.islower():
-                    self._titles[start] = text
+                    self._titles[start] = comment
                 elif ctl == 'D':
                     self._descriptions[start].append(text)
                     self._subctls.setdefault(start, None)
@@ -197,7 +204,10 @@ class CtlParser:
         lengths = ()
         first_char = line[0]
         content = line[1:].lstrip()
-        if content:
+        if first_char == '.':
+            ctl = first_char
+            text = content.rstrip()
+        elif content:
             if first_char in ' >bBcCDEgiLMNRsStTuwW':
                 fields = split_unquoted(content, ' ', 1)
                 params = split_unquoted(fields[0], ',')

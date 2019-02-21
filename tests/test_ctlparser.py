@@ -256,14 +256,14 @@ class CtlParserTest(SkoolKitTestCase):
         self._check_mid_block_comments(exp_mid_block_comments, blocks)
 
         exp_titles = {
-            30000: 'Data at 30000',
-            30100: 'Routine at 30100',
-            30200: 'Game status buffer entry at 30200',
-            30300: 'Ignored block at 30300',
-            30400: 'Message at 30400',
-            30500: 'Unused block at 30500',
-            30600: 'Words at 30600',
-            30700: 'Zeroes at 30700'
+            30000: ['Data at 30000'],
+            30100: ['Routine at 30100'],
+            30200: ['Game status buffer entry at 30200'],
+            30300: ['Ignored block at 30300'],
+            30400: ['Message at 30400'],
+            30500: ['Unused block at 30500'],
+            30600: ['Words at 30600'],
+            30700: ['Zeroes at 30700']
         }
         self._check_titles(exp_titles, blocks)
 
@@ -555,7 +555,7 @@ class CtlParserTest(SkoolKitTestCase):
         }
         self._check_mid_block_comments(exp_mid_block_comments, blocks)
 
-        exp_titles = {30700: 'Zeroes at 30700'}
+        exp_titles = {30700: ['Zeroes at 30700']}
         self._check_titles(exp_titles, blocks)
 
         exp_instruction_comments = {
@@ -641,8 +641,8 @@ class CtlParserTest(SkoolKitTestCase):
         self._check_mid_block_comments(exp_mid_block_comments, blocks)
 
         exp_titles = {
-            30000: 'Data at 30000',
-            30100: 'Routine at 30100'
+            30000: ['Data at 30000'],
+            30100: ['Routine at 30100']
         }
         self._check_titles(exp_titles, blocks)
 
@@ -738,8 +738,8 @@ class CtlParserTest(SkoolKitTestCase):
         self._check_mid_block_comments(exp_mid_block_comments, blocks)
 
         exp_titles = {
-            30100: 'Routine at 30100',
-            30200: 'Game status buffer entry at 30200'
+            30100: ['Routine at 30100'],
+            30200: ['Game status buffer entry at 30200']
         }
         self._check_titles(exp_titles, blocks)
 
@@ -1870,3 +1870,38 @@ class CtlParserTest(SkoolKitTestCase):
             30006: 30007
         }
         self.assertEqual(exp_end_map, m_comment_end_map)
+
+    def test_dot_directive_with_entry_titles(self):
+        ctl = """
+            b 30000 A title split
+            .       over two lines
+            c 30100 A title
+            . split over
+            . three lines
+            g 30200 One line, never wrapped
+            .
+            i 30300 One
+            . Two
+            s 30400 One
+            .       Two
+            .       Three
+            t 30500 Another one-liner, never wrapped
+            .
+            u 30600 Not
+            . used
+            w 30700 Some
+            .       words
+        """
+        exp_titles = {
+            30000: ['A title split', 'over two lines'],
+            30100: ['A title', 'split over', 'three lines'],
+            30200: ['One line, never wrapped', ''],
+            30300: ['One', 'Two'],
+            30400: ['One', 'Two', 'Three'],
+            30500: ['Another one-liner, never wrapped', ''],
+            30600: ['Not', 'used'],
+            30700: ['Some', 'words']
+        }
+
+        blocks = self._get_ctl_parser(ctl).get_blocks()
+        self._check_titles(exp_titles, blocks)

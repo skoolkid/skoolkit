@@ -242,7 +242,7 @@ class DisassemblyTest(SkoolKitTestCase):
         # Entry #1 (32768)
         entry = entries[0]
         self.assertEqual(entry.address, 32768)
-        self.assertEqual(entry.title, 'Routine at 32768')
+        self.assertEqual(['Routine at 32768'], entry.title)
         self.assertEqual(entry.description, ['Routine description paragraph 1.', 'Routine description paragraph 2.'])
         self.assertEqual(entry.ctl, 'c')
         self.assertEqual(entry.registers, [['A', 'Some value'], ['B', 'Some other value']])
@@ -279,7 +279,7 @@ class DisassemblyTest(SkoolKitTestCase):
         # Entry #2 (32770)
         entry = entries[1]
         self.assertEqual(entry.address, 32770)
-        self.assertEqual(entry.title, 'Message at {0}'.format(entry.address))
+        self.assertEqual(['Message at {}'.format(entry.address)], entry.title)
         instructions = entry.instructions
         self.assertEqual(len(instructions), 2)
         self.assertEqual(instructions[0].operation, 'DEFM "Hi"')
@@ -288,12 +288,12 @@ class DisassemblyTest(SkoolKitTestCase):
         # Entry #3 (32774)
         entry = entries[2]
         self.assertEqual(entry.address, 32774)
-        self.assertEqual(entry.title, 'Yo')
+        self.assertEqual(['Yo'], entry.title)
 
         # Entry #4 (32776)
         entry = entries[3]
         self.assertEqual(entry.address, 32776)
-        self.assertEqual(entry.title, 'Data block at {0}'.format(entry.address))
+        self.assertEqual(['Data block at 32776'], entry.title)
         instructions = entry.instructions
         self.assertEqual(len(instructions), 5)
         self.assertEqual(instructions[0].operation, 'DEFB 0,0')
@@ -311,12 +311,12 @@ class DisassemblyTest(SkoolKitTestCase):
         # Entry #5 (32788)
         entry = entries[4]
         self.assertEqual(entry.address, 32788)
-        self.assertEqual(entry.title, 'Important byte')
+        self.assertEqual(['Important byte'], entry.title)
 
         # Entry #6 (32789)
         entry = entries[5]
         self.assertEqual(entry.address, 32789)
-        self.assertEqual(entry.title, 'Data block at {0}'.format(entry.address))
+        self.assertEqual(['Data block at 32789'], entry.title)
         instructions = entry.instructions
         self.assertEqual(len(instructions), 1)
         self.assertEqual(instructions[0].operation, 'DEFW 0,0')
@@ -324,32 +324,32 @@ class DisassemblyTest(SkoolKitTestCase):
         # Entry #7 (32793)
         entry = entries[6]
         self.assertEqual(entry.address, 32793)
-        self.assertEqual(entry.title, 'Important word')
+        self.assertEqual(['Important word'], entry.title)
 
         # Entry #8 (32795)
         entry = entries[7]
         self.assertEqual(entry.address, 32795)
-        self.assertEqual(entry.title, 'Game status buffer entry at {0}'.format(entry.address))
+        self.assertEqual(['Game status buffer entry at 32795'], entry.title)
 
         # Entry #9 (32796)
         entry = entries[8]
         self.assertEqual(entry.address, 32796)
-        self.assertEqual(entry.title, 'Important game status buffer byte')
+        self.assertEqual(['Important game status buffer byte'], entry.title)
 
         # Entry #10 (32797)
         entry = entries[9]
         self.assertEqual(entry.address, 32797)
-        self.assertEqual(entry.title, 'Unused')
+        self.assertEqual(['Unused'], entry.title)
 
         # Entry #11 (32798)
         entry = entries[10]
         self.assertEqual(entry.address, 32798)
-        self.assertEqual(entry.title, 'Unimportant unused byte')
+        self.assertEqual(['Unimportant unused byte'], entry.title)
 
         # Entry #12 (32799)
         entry = entries[11]
         self.assertEqual(entry.address, 32799)
-        self.assertEqual(entry.title, 'Unused')
+        self.assertEqual(['Unused'], entry.title)
         instructions = entry.instructions
         self.assertEqual(len(instructions), 2)
         self.assertEqual(instructions[0].operation, 'DEFS 5')
@@ -358,7 +358,7 @@ class DisassemblyTest(SkoolKitTestCase):
         # Entry #13 (32809)
         entry = entries[12]
         self.assertEqual(entry.address, 32809)
-        self.assertEqual(entry.title, 'Block of zeroes')
+        self.assertEqual(['Block of zeroes'], entry.title)
         instructions = entry.instructions
         self.assertEqual(len(instructions), 3)
         self.assertEqual(instructions[0].operation, 'DEFS 3')
@@ -380,7 +380,7 @@ class DisassemblyTest(SkoolKitTestCase):
         # Entry #14 (32814)
         entry = entries[13]
         self.assertEqual(entry.address, 32814)
-        self.assertEqual(entry.title, 'Refers to the routine at 32768')
+        self.assertEqual(['Refers to the routine at 32768'], entry.title)
 
         # Entry #15 (32817)
         entry = entries[14]
@@ -1199,15 +1199,15 @@ class DisassemblyTest(SkoolKitTestCase):
             i 00009
         """
         exp_titles = [
-            'Bytes at 0',
-            'Code at 1',
-            'Game state at 2',
-            'Ignored RAM at 3',
-            'Unused space at 4',
-            'Text at 5',
-            'Unused bytes at 6',
-            'Words at 7',
-            None
+            ['Bytes at 0'],
+            ['Code at 1'],
+            ['Game state at 2'],
+            ['Ignored RAM at 3'],
+            ['Unused space at 4'],
+            ['Text at 5'],
+            ['Unused bytes at 6'],
+            ['Words at 7'],
+            []
         ]
         ctl_parser = CtlParser()
         ctl_parser.parse_ctls([StringIO(textwrap.dedent(ctl).strip())])
@@ -3401,5 +3401,62 @@ class SkoolWriterTest(SkoolKitTestCase):
              00042 DEFW 0
              00044 DEFW 0
              00046 DEFW 0
+        """
+        self._test_write_skool(snapshot, ctl, exp_skool)
+
+    def test_newlines_in_entry_titles(self):
+        snapshot = [0] * 9
+        ctl = """
+            b 00000 The title of this entry
+            .       spans two lines
+            c 00001 The title of this entry spans only one line even though it would normally be wrapped over two lines
+            .
+            g 00002 The title
+            . of this entry
+            . spans three lines
+            i 00003 Testing the
+            . dot directive
+            s 00004 Another long entry title that spans only one line but would normally be wrapped over two lines
+            .
+            t 00005 One
+            .       two
+            u 00006 One
+            . two
+            . three
+            w 00007 Yet another entry title on one line that is long enough to be wrapped over two lines normally
+            .
+            i 00009
+        """
+        exp_skool = """
+            ; The title of this entry
+            ; spans two lines
+            b00000 DEFB 0
+
+            ; The title of this entry spans only one line even though it would normally be wrapped over two lines
+            c00001 NOP           ;
+
+            ; The title
+            ; of this entry
+            ; spans three lines
+            g00002 DEFB 0
+
+            ; Testing the
+            ; dot directive
+            i00003
+
+            ; Another long entry title that spans only one line but would normally be wrapped over two lines
+            s00004 DEFS 1
+
+            ; One
+            ; two
+            t00005 DEFB 0
+
+            ; One
+            ; two
+            ; three
+            u00006 DEFB 0
+
+            ; Yet another entry title on one line that is long enough to be wrapped over two lines normally
+            w00007 DEFW 0
         """
         self._test_write_skool(snapshot, ctl, exp_skool)

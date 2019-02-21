@@ -101,7 +101,7 @@ class Disassembly:
                 ctl = block.ctl
                 if ctl != 'i' or block.description or block.registers or block.blocks[0].header:
                     name = 'Title-' + ctl
-                    title = format_template(self.config.get(name, ''), name, address=self._address_str(block.start))
+                    title = [format_template(self.config.get(name, ''), name, address=self._address_str(block.start))]
             for sub_block in block.blocks:
                 address = sub_block.start
                 if sub_block.ctl in 'cBT':
@@ -373,11 +373,22 @@ class SkoolWriter:
             index += 1
 
     def write_comment(self, text):
-        if text:
-            for line in self.wrap(text):
-                write_line('; {0}'.format(line))
+        if isinstance(text, str):
+            if text:
+                lines = self.wrap(text)
+            else:
+                lines = ['']
+        elif len(text) == 1:
+            lines = self.wrap(text[0])
         else:
-            write_line(';')
+            lines = text
+            while not lines[-1]:
+                lines.pop()
+        for line in lines:
+            if line:
+                write_line('; ' + line)
+            else:
+                write_line(';')
 
     def _write_empty_paragraph(self):
         self.write_comment('')
