@@ -321,7 +321,7 @@ class CtlParserTest(SkoolKitTestCase):
 
         exp_descriptions = {
             30000: (),
-            30100: ['Description of routine at 30100'],
+            30100: [['Description of routine at 30100']],
             30200: (),
             30300: (),
             30400: (),
@@ -660,7 +660,7 @@ class CtlParserTest(SkoolKitTestCase):
 
         exp_descriptions = {
             30000: (),
-            30100: ['Description of routine at 30100']
+            30100: [['Description of routine at 30100']]
         }
         self._check_descriptions(exp_descriptions, blocks)
 
@@ -751,7 +751,7 @@ class CtlParserTest(SkoolKitTestCase):
         self._check_instruction_comments(exp_instruction_comments, blocks)
 
         exp_descriptions = {
-            30100: ['Description of routine at 30100'],
+            30100: [['Description of routine at 30100']],
             30200: ()
         }
         self._check_descriptions(exp_descriptions, blocks)
@@ -1521,7 +1521,7 @@ class CtlParserTest(SkoolKitTestCase):
         blocks = ctl_parser.get_blocks()
         self.assertEqual(len(blocks), 1)
 
-        self.assertEqual(['Description.'], blocks[0].description)
+        self.assertEqual([['Description.']], blocks[0].description)
         sub_blocks = blocks[0].blocks
         self.assertEqual(len(sub_blocks), 2)
         self.assertEqual(['Paragraph 1.', 'Paragraph 2.'], sub_blocks[0].header)
@@ -1609,7 +1609,7 @@ class CtlParserTest(SkoolKitTestCase):
 
         # Check entry-level directives (c, D, E, R)
         self._check_ctls({start: 'c'}, blocks)
-        self.assertEqual(['This entry description should not be repeated'], block.description)
+        self.assertEqual([['This entry description should not be repeated']], block.description)
         self.assertEqual([['HL', 'This register should not be repeated']], block.registers)
         self.assertEqual(['This end comment should not be repeated'], block.end_comment)
 
@@ -1691,7 +1691,7 @@ class CtlParserTest(SkoolKitTestCase):
         exp_end_comments = {}
         for i, a in enumerate(range(start, end, length)):
             exp_ctls[a] = 'c'
-            exp_descriptions[a] = ['This entry description should be repeated']
+            exp_descriptions[a] = [['This entry description should be repeated']]
             exp_registers[a] = [['HL', 'This register should be repeated']]
             exp_end_comments[a] = ['This end comment should be repeated']
         self._check_ctls(exp_ctls, blocks)
@@ -1830,8 +1830,8 @@ class CtlParserTest(SkoolKitTestCase):
         self._check_subctls(exp_subctls, blocks)
 
         exp_descriptions = {
-            30000: ['This is a block of bytes'],
-            30010: ['This is a block of bytes']
+            30000: [['This is a block of bytes']],
+            30010: [['This is a block of bytes']]
         }
         self._check_descriptions(exp_descriptions, blocks)
 
@@ -1997,3 +1997,46 @@ class CtlParserTest(SkoolKitTestCase):
             30018: None
         }
         self._check_multiline_comments(exp_multiline_comments, blocks)
+
+    def test_dot_directive_with_entry_descriptions(self):
+        ctl = """
+            b 40000
+            D 40000 This description
+            .       spans two lines.
+            D 40000 This description spans only one line even though it would normally be wrapped over two lines.
+            .
+            D 40000
+            . This description
+            . spans three
+            . lines.
+            D 40000
+            . Another long description that spans only one line but would normally be wrapped over two lines.
+            ; Test a blank description with a blank continuation line
+            D 40000
+            .
+            D 40000
+            . Trailing blank line.
+            .
+            D 40000
+            .
+            . Leading blank line.
+            D 40000
+            . Description.
+            .
+            . HL Register defined by an abuse of the dot directive
+        """
+        exp_descriptions = {
+            40000: [
+                ['This description', 'spans two lines.'],
+                ['This description spans only one line even though it would normally be wrapped over two lines.', ''],
+                ['', 'This description', 'spans three', 'lines.'],
+                ['', 'Another long description that spans only one line but would normally be wrapped over two lines.'],
+                ['', ''],
+                ['', 'Trailing blank line.', ''],
+                ['', '', 'Leading blank line.'],
+                ['', 'Description.', '', 'HL Register defined by an abuse of the dot directive']
+            ]
+        }
+
+        blocks = self._get_ctl_parser(ctl).get_blocks()
+        self._check_descriptions(exp_descriptions, blocks)

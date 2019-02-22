@@ -395,9 +395,9 @@ class SkoolWriter:
             lines = self.wrap(text[0])
         else:
             lines = text[:]
-            while not lines[0]:
+            while lines and not lines[0]:
                 lines.pop(0)
-            while not lines[-1]:
+            while lines and not lines[-1]:
                 lines.pop()
         for line in lines:
             if line:
@@ -415,8 +415,9 @@ class SkoolWriter:
     def write_paragraphs(self, paragraphs):
         if paragraphs:
             for p in paragraphs[:-1]:
-                self.write_comment(p)
-                self._write_paragraph_separator()
+                if any(p):
+                    self.write_comment(p)
+                    self._write_paragraph_separator()
             self.write_comment(paragraphs[-1])
 
     def write_referrers(self, referrers, erefs=True):

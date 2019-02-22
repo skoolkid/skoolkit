@@ -131,7 +131,7 @@ class CtlParser:
                 elif ctl.islower():
                     self._titles[start] = comment
                 elif ctl == 'D':
-                    self._descriptions[start].append(text)
+                    self._descriptions[start].append(comment)
                     self._subctls.setdefault(start, None)
                 elif ctl == 'N':
                     self._mid_block_comments[start].append(text)

@@ -243,7 +243,7 @@ class DisassemblyTest(SkoolKitTestCase):
         entry = entries[0]
         self.assertEqual(entry.address, 32768)
         self.assertEqual(['Routine at 32768'], entry.title)
-        self.assertEqual(entry.description, ['Routine description paragraph 1.', 'Routine description paragraph 2.'])
+        self.assertEqual([['Routine description paragraph 1.'], ['Routine description paragraph 2.']], entry.description)
         self.assertEqual(entry.ctl, 'c')
         self.assertEqual(entry.registers, [['A', 'Some value'], ['B', 'Some other value']])
         self.assertEqual(entry.end_comment, ['Routine end comment.'])
@@ -3553,5 +3553,59 @@ class SkoolWriterTest(SkoolKitTestCase):
                                  ; Line 3 (with a blank line 2)
              00015 DEFB 0
              00016 DEFB 0
+        """
+        self._test_write_skool(snapshot, ctl, exp_skool)
+
+    def test_newlines_in_entry_descriptions(self):
+        snapshot = [0]
+        ctl = """
+            b 00000
+            D 00000 This description
+            .       spans two lines.
+            D 00000 This description spans only one line even though it would normally be wrapped over two lines.
+            .
+            D 00000
+            . This description
+            . spans three
+            . lines.
+            D 00000
+            . Another long description that spans only one line but would normally be wrapped over two lines.
+            ; Test a blank description with a blank continuation line (should be ignored)
+            D 00000
+            .
+            D 00000
+            . Trailing blank line.
+            .
+            D 00000
+            .
+            . Leading blank line.
+            D 00000
+            . Description.
+            .
+            . HL Register defined by an abuse of the dot directive
+            i 00001
+        """
+        exp_skool = """
+            ; Data block at 0
+            ;
+            ; This description
+            ; spans two lines.
+            ; .
+            ; This description spans only one line even though it would normally be wrapped over two lines.
+            ; .
+            ; This description
+            ; spans three
+            ; lines.
+            ; .
+            ; Another long description that spans only one line but would normally be wrapped over two lines.
+            ; .
+            ; Trailing blank line.
+            ; .
+            ; Leading blank line.
+            ; .
+            ; Description.
+            ;
+            ; HL Register defined by an abuse of the dot directive
+            b00000 DEFB 0
         """
         self._test_write_skool(snapshot, ctl, exp_skool)
