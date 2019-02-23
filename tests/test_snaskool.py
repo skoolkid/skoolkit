@@ -3609,3 +3609,62 @@ class SkoolWriterTest(SkoolKitTestCase):
             b00000 DEFB 0
         """
         self._test_write_skool(snapshot, ctl, exp_skool)
+
+    def test_newlines_in_block_start_and_mid_block_comments(self):
+        snapshot = [0] * 2
+        ctl = """
+            b 00000
+            N 00000 This comment
+            .       spans two lines.
+            N 00000 This comment spans only one line even though it would normally be wrapped over two lines.
+            .
+            B 00000,1
+            N 00001
+            . This comment
+            . spans three
+            . lines.
+            N 00001
+            . Another long comment that spans only one line but would normally be wrapped over two lines.
+            ; Test a blank comment with a blank continuation line (should be ignored)
+            N 00001
+            .
+            N 00001
+            . Trailing blank line.
+            .
+            N 00001
+            .
+            . Leading blank line.
+            N 00001
+            . Paragraph 1.
+            .
+            . Paragraph 2 (with no separating dot - tsk).
+            i 00002
+        """
+        exp_skool = """
+            ; Data block at 0
+            ;
+            ; .
+            ;
+            ; .
+            ;
+            ; This comment
+            ; spans two lines.
+            ; .
+            ; This comment spans only one line even though it would normally be wrapped over two lines.
+            b00000 DEFB 0
+            ; This comment
+            ; spans three
+            ; lines.
+            ; .
+            ; Another long comment that spans only one line but would normally be wrapped over two lines.
+            ; .
+            ; Trailing blank line.
+            ; .
+            ; Leading blank line.
+            ; .
+            ; Paragraph 1.
+            ;
+            ; Paragraph 2 (with no separating dot - tsk).
+             00001 DEFB 0
+        """
+        self._test_write_skool(snapshot, ctl, exp_skool)

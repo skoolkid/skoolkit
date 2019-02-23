@@ -134,7 +134,7 @@ class CtlParser:
                     self._descriptions[start].append(comment)
                     self._subctls.setdefault(start, None)
                 elif ctl == 'N':
-                    self._mid_block_comments[start].append(text)
+                    self._mid_block_comments[start].append(comment)
                     self._subctls.setdefault(start, None)
                 elif ctl == 'E':
                     self._end_comments[start].append(text)

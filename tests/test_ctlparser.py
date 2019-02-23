@@ -204,9 +204,9 @@ class CtlParserTest(SkoolKitTestCase):
         self._check_subctls(exp_subctls, blocks)
 
         exp_mid_block_comments = {
-            30000: ['Block start comment'],
+            30000: [['Block start comment']],
             30002: (),
-            30012: ['Mid-block comment'],
+            30012: [['Mid-block comment']],
             30020: (),
             30027: (),
             30050: (),
@@ -250,7 +250,7 @@ class CtlParserTest(SkoolKitTestCase):
             30721: (),
             30726: (),
             30728: (),
-            30730: ['Another mid-block comment'],
+            30730: [['Another mid-block comment']],
             30745: ()
         }
         self._check_mid_block_comments(exp_mid_block_comments, blocks)
@@ -550,7 +550,7 @@ class CtlParserTest(SkoolKitTestCase):
             30721: (),
             30726: (),
             30728: (),
-            30730: ['Another mid-block comment'],
+            30730: [['Another mid-block comment']],
             30745: ()
         }
         self._check_mid_block_comments(exp_mid_block_comments, blocks)
@@ -629,9 +629,9 @@ class CtlParserTest(SkoolKitTestCase):
         self._check_subctls(exp_subctls, blocks)
 
         exp_mid_block_comments = {
-            30000: ['Block start comment'],
+            30000: [['Block start comment']],
             30002: (),
-            30012: ['Mid-block comment'],
+            30012: [['Mid-block comment']],
             30020: (),
             30027: (),
             30050: (),
@@ -1524,8 +1524,8 @@ class CtlParserTest(SkoolKitTestCase):
         self.assertEqual([['Description.']], blocks[0].description)
         sub_blocks = blocks[0].blocks
         self.assertEqual(len(sub_blocks), 2)
-        self.assertEqual(['Paragraph 1.', 'Paragraph 2.'], sub_blocks[0].header)
-        self.assertEqual(['Mid-routine comment.'], sub_blocks[1].header)
+        self.assertEqual([['Paragraph 1.'], ['Paragraph 2.']], sub_blocks[0].header)
+        self.assertEqual([['Mid-routine comment.']], sub_blocks[1].header)
 
     def test_M_directive_terminates_previous_sub_block(self):
         ctl = """
@@ -1600,7 +1600,7 @@ class CtlParserTest(SkoolKitTestCase):
         # Check mid-block comments
         offset = 10
         for a in range(start + offset, end, length):
-            self.assertEqual(['A mid-block comment'], sub_block_map[a].header)
+            self.assertEqual([['A mid-block comment']], sub_block_map[a].header)
 
         # Check multi-line comments
         offset = 10
@@ -1671,7 +1671,7 @@ class CtlParserTest(SkoolKitTestCase):
         # Check mid-block comments
         offset = 10
         for a in range(start + offset, end, length):
-            self.assertEqual(['A mid-block comment'], sub_block_map[a].header)
+            self.assertEqual([['A mid-block comment']], sub_block_map[a].header)
 
         # Check multi-line comments
         exp_multiline_comments = {}
@@ -1764,10 +1764,10 @@ class CtlParserTest(SkoolKitTestCase):
         self._check_subctls(exp_subctls, blocks)
 
         exp_mid_block_comments = {
-            30000: ['A comment'],
+            30000: [['A comment']],
             30005: (),
             30010: (),
-            30020: ['A comment'],
+            30020: [['A comment']],
             30025: (),
             30030: ()
         }
@@ -2040,3 +2040,49 @@ class CtlParserTest(SkoolKitTestCase):
 
         blocks = self._get_ctl_parser(ctl).get_blocks()
         self._check_descriptions(exp_descriptions, blocks)
+
+    def test_dot_directive_with_block_start_and_mid_block_comments(self):
+        ctl = """
+            b 50000
+            N 50000 This comment
+            .       spans two lines.
+            N 50000 This comment spans only one line even though it would normally be wrapped over two lines.
+            .
+            B 50000,1
+            N 50001
+            . This comment
+            . spans three
+            . lines.
+            N 50001
+            . Another long comment that spans only one line but would normally be wrapped over two lines.
+            ; Test a blank comment with a blank continuation line
+            N 50001
+            .
+            N 50001
+            . Trailing blank line.
+            .
+            N 50001
+            .
+            . Leading blank line.
+            N 50001
+            . Paragraph 1.
+            .
+            . Paragraph 2 (with no separating dot - tsk).
+        """
+        exp_mid_block_comments = {
+            50000: [
+                ['This comment', 'spans two lines.'],
+                ['This comment spans only one line even though it would normally be wrapped over two lines.', '']
+            ],
+            50001: [
+                ['', 'This comment', 'spans three', 'lines.'],
+                ['', 'Another long comment that spans only one line but would normally be wrapped over two lines.'],
+                ['', ''],
+                ['', 'Trailing blank line.', ''],
+                ['', '', 'Leading blank line.'],
+                ['', 'Paragraph 1.', '', 'Paragraph 2 (with no separating dot - tsk).']
+            ]
+        }
+
+        blocks = self._get_ctl_parser(ctl).get_blocks()
+        self._check_mid_block_comments(exp_mid_block_comments, blocks)
