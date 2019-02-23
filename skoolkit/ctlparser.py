@@ -137,7 +137,7 @@ class CtlParser:
                     self._mid_block_comments[start].append(comment)
                     self._subctls.setdefault(start, None)
                 elif ctl == 'E':
-                    self._end_comments[start].append(text)
+                    self._end_comments[start].append(comment)
                 elif ctl == 'R':
                     if text:
                         fields = text.split(' ', 1)

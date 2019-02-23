@@ -246,7 +246,7 @@ class DisassemblyTest(SkoolKitTestCase):
         self.assertEqual([['Routine description paragraph 1.'], ['Routine description paragraph 2.']], entry.description)
         self.assertEqual(entry.ctl, 'c')
         self.assertEqual(entry.registers, [['A', 'Some value'], ['B', 'Some other value']])
-        self.assertEqual(entry.end_comment, ['Routine end comment.'])
+        self.assertEqual([['Routine end comment.']], entry.end_comment)
         exp_asm_directives = [
             'start',
             'writer=skoolkit.game.GameAsmWriter',
@@ -3666,5 +3666,59 @@ class SkoolWriterTest(SkoolKitTestCase):
             ;
             ; Paragraph 2 (with no separating dot - tsk).
              00001 DEFB 0
+        """
+        self._test_write_skool(snapshot, ctl, exp_skool)
+
+    def test_newlines_in_block_end_comments(self):
+        snapshot = [0]
+        ctl = """
+            b 00000
+            B 00000,1
+            E 00000 This comment
+            .       spans two lines.
+            E 00000 This comment spans only one line even though it would normally be wrapped over two lines.
+            .
+            E 00000
+            . This comment
+            . spans three
+            . lines.
+            E 00000
+            . Another long comment that spans only one line but would normally be wrapped over two lines.
+            ; Test a blank comment with a blank continuation line (should be ignored)
+            E 00000
+            .
+            E 00000
+            . Trailing blank line.
+            .
+            E 00000
+            .
+            . Leading blank line.
+            E 00000
+            . Paragraph 1.
+            .
+            . Paragraph 2 (with no separating dot - tsk).
+            i 00001
+        """
+        exp_skool = """
+            ; Data block at 0
+            b00000 DEFB 0
+            ; This comment
+            ; spans two lines.
+            ; .
+            ; This comment spans only one line even though it would normally be wrapped over two lines.
+            ; .
+            ; This comment
+            ; spans three
+            ; lines.
+            ; .
+            ; Another long comment that spans only one line but would normally be wrapped over two lines.
+            ; .
+            ; Trailing blank line.
+            ; .
+            ; Leading blank line.
+            ; .
+            ; Paragraph 1.
+            ;
+            ; Paragraph 2 (with no separating dot - tsk).
         """
         self._test_write_skool(snapshot, ctl, exp_skool)

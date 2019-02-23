@@ -345,8 +345,10 @@ class CtlParserTest(SkoolKitTestCase):
 
         exp_end_comments = {
             30000: (),
-            30100: ['First paragraph of the end comment for the routine at 30100',
-                    'Second paragraph of the end comment for the routine at 30100'],
+            30100: [
+                ['First paragraph of the end comment for the routine at 30100'],
+                ['Second paragraph of the end comment for the routine at 30100']
+            ],
             30200: (),
             30300: (),
             30400: (),
@@ -672,8 +674,10 @@ class CtlParserTest(SkoolKitTestCase):
 
         exp_end_comments = {
             30000: (),
-            30100: ['First paragraph of the end comment for the routine at 30100',
-                    'Second paragraph of the end comment for the routine at 30100']
+            30100: [
+                ['First paragraph of the end comment for the routine at 30100'],
+                ['Second paragraph of the end comment for the routine at 30100']
+            ]
         }
         self._check_end_comments(exp_end_comments, blocks)
 
@@ -763,8 +767,10 @@ class CtlParserTest(SkoolKitTestCase):
         self._check_registers(exp_registers, blocks)
 
         exp_end_comments = {
-            30100: ['First paragraph of the end comment for the routine at 30100',
-                    'Second paragraph of the end comment for the routine at 30100'],
+            30100: [
+                ['First paragraph of the end comment for the routine at 30100'],
+                ['Second paragraph of the end comment for the routine at 30100']
+            ],
             30200: ()
         }
         self._check_end_comments(exp_end_comments, blocks)
@@ -1611,7 +1617,7 @@ class CtlParserTest(SkoolKitTestCase):
         self._check_ctls({start: 'c'}, blocks)
         self.assertEqual([['This entry description should not be repeated']], block.description)
         self.assertEqual([['HL', 'This register should not be repeated']], block.registers)
-        self.assertEqual(['This end comment should not be repeated'], block.end_comment)
+        self.assertEqual([['This end comment should not be repeated']], block.end_comment)
 
         # Check entry-level ASM directives
         self.assertEqual(['start', 'org=30000'], block.asm_directives)
@@ -1693,7 +1699,7 @@ class CtlParserTest(SkoolKitTestCase):
             exp_ctls[a] = 'c'
             exp_descriptions[a] = [['This entry description should be repeated']]
             exp_registers[a] = [['HL', 'This register should be repeated']]
-            exp_end_comments[a] = ['This end comment should be repeated']
+            exp_end_comments[a] = [['This end comment should be repeated']]
         self._check_ctls(exp_ctls, blocks)
         self._check_descriptions(exp_descriptions, blocks)
         self._check_registers(exp_registers, blocks)
@@ -1842,8 +1848,8 @@ class CtlParserTest(SkoolKitTestCase):
         self._check_registers(exp_registers, blocks)
 
         exp_end_comments = {
-            30000: ['The end'],
-            30010: ['The end']
+            30000: [['The end']],
+            30010: [['The end']]
         }
         self._check_end_comments(exp_end_comments, blocks)
 
@@ -2086,3 +2092,46 @@ class CtlParserTest(SkoolKitTestCase):
 
         blocks = self._get_ctl_parser(ctl).get_blocks()
         self._check_mid_block_comments(exp_mid_block_comments, blocks)
+
+    def test_dot_directive_with_block_end_comments(self):
+        ctl = """
+            b 50000
+            E 50000 This comment
+            .       spans two lines.
+            E 50000 This comment spans only one line even though it would normally be wrapped over two lines.
+            .
+            E 50000
+            . This comment
+            . spans three
+            . lines.
+            E 50000
+            . Another long comment that spans only one line but would normally be wrapped over two lines.
+            ; Test a blank comment with a blank continuation line
+            E 50000
+            .
+            E 50000
+            . Trailing blank line.
+            .
+            E 50000
+            .
+            . Leading blank line.
+            E 50000
+            . Paragraph 1.
+            .
+            . Paragraph 2 (with no separating dot - tsk).
+        """
+        exp_end_comments = {
+            50000: [
+                ['This comment', 'spans two lines.'],
+                ['This comment spans only one line even though it would normally be wrapped over two lines.', ''],
+                ['', 'This comment', 'spans three', 'lines.'],
+                ['', 'Another long comment that spans only one line but would normally be wrapped over two lines.'],
+                ['', ''],
+                ['', 'Trailing blank line.', ''],
+                ['', '', 'Leading blank line.'],
+                ['', 'Paragraph 1.', '', 'Paragraph 2 (with no separating dot - tsk).']
+            ]
+        }
+
+        blocks = self._get_ctl_parser(ctl).get_blocks()
+        self._check_end_comments(exp_end_comments, blocks)
