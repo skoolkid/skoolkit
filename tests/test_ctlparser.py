@@ -1912,7 +1912,11 @@ class CtlParserTest(SkoolKitTestCase):
             s 31200
             . Title
             .
-            . Description defined by an abuse of the dot directive
+            . Description.
+            .
+            . A The accumulator
+            .
+            . Start comment.
         """
         exp_titles = {
             30000: ['A title split', 'over two lines'],
@@ -1927,7 +1931,7 @@ class CtlParserTest(SkoolKitTestCase):
             30900: ['', 'Line 1 here'],
             31000: ['', 'Trailing blank line', ''],
             31100: ['', '', 'Leading blank line'],
-            31200: ['', 'Title', '', 'Description defined by an abuse of the dot directive']
+            31200: ['', 'Title', '', 'Description.', '', 'A The accumulator', '', 'Start comment.']
         }
 
         blocks = self._get_ctl_parser(ctl).get_blocks()
@@ -2028,9 +2032,9 @@ class CtlParserTest(SkoolKitTestCase):
             .
             . Leading blank line.
             D 40000
-            . Description.
+            . Paragraph 1.
             .
-            . HL Register defined by an abuse of the dot directive
+            . Paragraph 2.
         """
         exp_descriptions = {
             40000: [
@@ -2041,7 +2045,7 @@ class CtlParserTest(SkoolKitTestCase):
                 ['', ''],
                 ['', 'Trailing blank line.', ''],
                 ['', '', 'Leading blank line.'],
-                ['', 'Description.', '', 'HL Register defined by an abuse of the dot directive']
+                ['', 'Paragraph 1.', '', 'Paragraph 2.']
             ]
         }
 
@@ -2074,7 +2078,7 @@ class CtlParserTest(SkoolKitTestCase):
             N 50001
             . Paragraph 1.
             .
-            . Paragraph 2 (with no separating dot - tsk).
+            . Paragraph 2.
         """
         exp_mid_block_comments = {
             50000: [
@@ -2087,7 +2091,7 @@ class CtlParserTest(SkoolKitTestCase):
                 ['', ''],
                 ['', 'Trailing blank line.', ''],
                 ['', '', 'Leading blank line.'],
-                ['', 'Paragraph 1.', '', 'Paragraph 2 (with no separating dot - tsk).']
+                ['', 'Paragraph 1.', '', 'Paragraph 2.']
             ]
         }
 
@@ -2119,7 +2123,7 @@ class CtlParserTest(SkoolKitTestCase):
             E 50000
             . Paragraph 1.
             .
-            . Paragraph 2 (with no separating dot - tsk).
+            . Paragraph 2.
         """
         exp_end_comments = {
             50000: [
@@ -2130,7 +2134,7 @@ class CtlParserTest(SkoolKitTestCase):
                 ['', ''],
                 ['', 'Trailing blank line.', ''],
                 ['', '', 'Leading blank line.'],
-                ['', 'Paragraph 1.', '', 'Paragraph 2 (with no separating dot - tsk).']
+                ['', 'Paragraph 1.', '', 'Paragraph 2.']
             ]
         }
 

@@ -3440,7 +3440,15 @@ class SkoolWriterTest(SkoolKitTestCase):
             s 00012
             . Title
             .
-            . Description defined by an abuse of the dot directive
+            . Description paragraph 1.
+            . .
+            . Description paragraph 2.
+            .
+            . A The accumulator
+            .
+            . Start comment paragraph 1.
+            . .
+            . Start comment paragraph 2.
             i 00013
         """
         exp_skool = """
@@ -3489,7 +3497,15 @@ class SkoolWriterTest(SkoolKitTestCase):
 
             ; Title
             ;
-            ; Description defined by an abuse of the dot directive
+            ; Description paragraph 1.
+            ; .
+            ; Description paragraph 2.
+            ;
+            ; A The accumulator
+            ;
+            ; Start comment paragraph 1.
+            ; .
+            ; Start comment paragraph 2.
             s00012 DEFS 1
         """
         self._test_write_skool(snapshot, ctl, exp_skool)
@@ -3580,9 +3596,9 @@ class SkoolWriterTest(SkoolKitTestCase):
             .
             . Leading blank line.
             D 00000
-            . Description.
+            . Paragraph 1.
             .
-            . HL Register defined by an abuse of the dot directive
+            . Paragraph 2.
             i 00001
         """
         exp_skool = """
@@ -3603,9 +3619,9 @@ class SkoolWriterTest(SkoolKitTestCase):
             ; .
             ; Leading blank line.
             ; .
-            ; Description.
-            ;
-            ; HL Register defined by an abuse of the dot directive
+            ; Paragraph 1.
+            ; .
+            ; Paragraph 2.
             b00000 DEFB 0
         """
         self._test_write_skool(snapshot, ctl, exp_skool)
@@ -3637,7 +3653,7 @@ class SkoolWriterTest(SkoolKitTestCase):
             N 00001
             . Paragraph 1.
             .
-            . Paragraph 2 (with no separating dot - tsk).
+            . Paragraph 2.
             i 00002
         """
         exp_skool = """
@@ -3663,8 +3679,8 @@ class SkoolWriterTest(SkoolKitTestCase):
             ; Leading blank line.
             ; .
             ; Paragraph 1.
-            ;
-            ; Paragraph 2 (with no separating dot - tsk).
+            ; .
+            ; Paragraph 2.
              00001 DEFB 0
         """
         self._test_write_skool(snapshot, ctl, exp_skool)
@@ -3696,7 +3712,7 @@ class SkoolWriterTest(SkoolKitTestCase):
             E 00000
             . Paragraph 1.
             .
-            . Paragraph 2 (with no separating dot - tsk).
+            . Paragraph 2.
             i 00001
         """
         exp_skool = """
@@ -3718,8 +3734,8 @@ class SkoolWriterTest(SkoolKitTestCase):
             ; Leading blank line.
             ; .
             ; Paragraph 1.
-            ;
-            ; Paragraph 2 (with no separating dot - tsk).
+            ; .
+            ; Paragraph 2.
         """
         self._test_write_skool(snapshot, ctl, exp_skool)
 

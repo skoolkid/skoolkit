@@ -1,4 +1,4 @@
-# Copyright 2009-2018 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2009-2019 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -398,7 +398,7 @@ class SkoolWriter:
                 write_line(('{}{} {}'.format(ctl, self.address_str(address), operation)).rstrip())
             index += 1
 
-    def write_comment(self, text):
+    def write_comment(self, text, paragraphs=False):
         if isinstance(text, str):
             lines = [text]
         elif len(text) == 1:
@@ -406,7 +406,12 @@ class SkoolWriter:
         else:
             lines = self._trim_lines(text[:])
         for line in lines:
-            write_line(('; ' + line).rstrip())
+            if line:
+                write_line('; ' + line)
+            elif paragraphs:
+                self._write_paragraph_separator()
+            else:
+                write_line(';')
 
     def _write_empty_paragraph(self):
         self.write_comment('')
@@ -416,12 +421,10 @@ class SkoolWriter:
         self.write_comment('.')
 
     def write_paragraphs(self, paragraphs):
-        if paragraphs:
-            for p in paragraphs[:-1]:
-                if any(p):
-                    self.write_comment(p)
-                    self._write_paragraph_separator()
-            self.write_comment(paragraphs[-1])
+        for i, paragraph in enumerate(p for p in paragraphs if any(p)):
+            if i:
+                self._write_paragraph_separator()
+            self.write_comment(paragraph, True)
 
     def write_referrers(self, referrers, erefs=True):
         if referrers:
