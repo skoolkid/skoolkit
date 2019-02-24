@@ -139,11 +139,7 @@ class CtlParser:
                 elif ctl == 'E':
                     self._end_comments[start].append(comment)
                 elif ctl == 'R':
-                    if text:
-                        fields = text.split(' ', 1)
-                        if len(fields) == 1:
-                            fields.append('')
-                        self._registers[start].append(fields)
+                    self._registers[start].append(comment)
                 elif ctl == 'M':
                     self._multiline_comments[start] = (end, comment)
                     self._subctls.setdefault(start, None)

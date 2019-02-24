@@ -333,7 +333,7 @@ class CtlParserTest(SkoolKitTestCase):
 
         exp_registers = {
             30000: (),
-            30100: [['A', 'Some value'], ['BC', 'Some other value']],
+            30100: [['A Some value'], ['BC Some other value']],
             30200: (),
             30300: (),
             30400: (),
@@ -668,7 +668,7 @@ class CtlParserTest(SkoolKitTestCase):
 
         exp_registers = {
             30000: (),
-            30100: [['A', 'Some value'], ['BC', 'Some other value']]
+            30100: [['A Some value'], ['BC Some other value']]
         }
         self._check_registers(exp_registers, blocks)
 
@@ -761,7 +761,7 @@ class CtlParserTest(SkoolKitTestCase):
         self._check_descriptions(exp_descriptions, blocks)
 
         exp_registers = {
-            30100: [['A', 'Some value'], ['BC', 'Some other value']],
+            30100: [['A Some value'], ['BC Some other value']],
             30200: ()
         }
         self._check_registers(exp_registers, blocks)
@@ -1509,9 +1509,10 @@ class CtlParserTest(SkoolKitTestCase):
         self.assertEqual(len(blocks), 1)
 
         exp_registers = [
-            ['BC', 'Important value'],
-            ['DE', ''],
-            ['HL', 'Another important value']
+            ['BC Important value'],
+            ['DE'],
+            [''],
+            ['HL Another important value']
         ]
         self.assertEqual(exp_registers, blocks[0].registers)
 
@@ -1616,7 +1617,7 @@ class CtlParserTest(SkoolKitTestCase):
         # Check entry-level directives (c, D, E, R)
         self._check_ctls({start: 'c'}, blocks)
         self.assertEqual([['This entry description should not be repeated']], block.description)
-        self.assertEqual([['HL', 'This register should not be repeated']], block.registers)
+        self.assertEqual([['HL This register should not be repeated']], block.registers)
         self.assertEqual([['This end comment should not be repeated']], block.end_comment)
 
         # Check entry-level ASM directives
@@ -1698,7 +1699,7 @@ class CtlParserTest(SkoolKitTestCase):
         for i, a in enumerate(range(start, end, length)):
             exp_ctls[a] = 'c'
             exp_descriptions[a] = [['This entry description should be repeated']]
-            exp_registers[a] = [['HL', 'This register should be repeated']]
+            exp_registers[a] = [['HL This register should be repeated']]
             exp_end_comments[a] = [['This end comment should be repeated']]
         self._check_ctls(exp_ctls, blocks)
         self._check_descriptions(exp_descriptions, blocks)
@@ -1842,8 +1843,8 @@ class CtlParserTest(SkoolKitTestCase):
         self._check_descriptions(exp_descriptions, blocks)
 
         exp_registers = {
-            30000: [['A', '0']],
-            30010: [['A', '0']]
+            30000: [['A 0']],
+            30010: [['A 0']]
         }
         self._check_registers(exp_registers, blocks)
 
@@ -2135,3 +2136,47 @@ class CtlParserTest(SkoolKitTestCase):
 
         blocks = self._get_ctl_parser(ctl).get_blocks()
         self._check_end_comments(exp_end_comments, blocks)
+
+    def test_dot_directive_with_registers(self):
+        snapshot = [201]
+        ctl = """
+            c 60000
+            R 60000 BC This description
+            .       spans two lines
+            R 60000 DE This description spans only one line even though it would normally be wrapped over two lines
+            .
+            R 60000
+            . HL This description
+            . spans three
+            . lines
+            R 60000
+            . A Another long description that spans only one line but would normally be wrapped over two lines
+            ; Test a blank register description with a blank continuation line
+            R 60000
+            .
+            R 60000
+            . IX Trailing blank line
+            .
+            R 60000
+            .
+            . IY Leading blank line
+            R 60000
+            . SP
+            .
+            . Stack pointer
+        """
+        exp_registers = {
+            60000: [
+                ['BC This description', 'spans two lines'],
+                ['DE This description spans only one line even though it would normally be wrapped over two lines', ''],
+                ['', 'HL This description', 'spans three', 'lines'],
+                ['', 'A Another long description that spans only one line but would normally be wrapped over two lines'],
+                ['', ''],
+                ['', 'IX Trailing blank line', ''],
+                ['', '', 'IY Leading blank line'],
+                ['', 'SP', '', 'Stack pointer']
+            ]
+        }
+
+        blocks = self._get_ctl_parser(ctl).get_blocks()
+        self._check_registers(exp_registers, blocks)

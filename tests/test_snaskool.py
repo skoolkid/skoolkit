@@ -245,7 +245,7 @@ class DisassemblyTest(SkoolKitTestCase):
         self.assertEqual(['Routine at 32768'], entry.title)
         self.assertEqual([['Routine description paragraph 1.'], ['Routine description paragraph 2.']], entry.description)
         self.assertEqual(entry.ctl, 'c')
-        self.assertEqual(entry.registers, [['A', 'Some value'], ['B', 'Some other value']])
+        self.assertEqual([['A Some value'], ['B Some other value']], entry.registers)
         self.assertEqual([['Routine end comment.']], entry.end_comment)
         exp_asm_directives = [
             'start',
@@ -3720,5 +3720,56 @@ class SkoolWriterTest(SkoolKitTestCase):
             ; Paragraph 1.
             ;
             ; Paragraph 2 (with no separating dot - tsk).
+        """
+        self._test_write_skool(snapshot, ctl, exp_skool)
+
+    def test_newlines_in_register_blocks(self):
+        snapshot = [201]
+        ctl = """
+            c 00000
+            R 00000 BC This description
+            .       spans two lines
+            R 00000 DE This description spans only one line even though it would normally be wrapped over two lines
+            .
+            R 00000
+            . HL This description
+            . spans three
+            . lines
+            R 00000
+            . A Another long description that spans only one line but would normally be wrapped over two lines
+            ; Test a blank description with a blank continuation line (should be ignored)
+            R 00000
+            .
+            R 00000
+            . IX Trailing blank line
+            .
+            R 00000
+            .
+            . IY Leading blank line
+            R 00000
+            . SP
+            .
+            . Stack pointer
+            C 00000,1
+            i 00001
+        """
+        exp_skool = """
+            ; Routine at 0
+            ;
+            ; .
+            ;
+            ; BC This description
+            ; .  spans two lines
+            ; DE This description spans only one line even though it would normally be wrapped over two lines
+            ; HL This description
+            ; .  spans three
+            ; .  lines
+            ; A Another long description that spans only one line but would normally be wrapped over two lines
+            ; IX Trailing blank line
+            ; IY Leading blank line
+            ; SP
+            ; .
+            ; .  Stack pointer
+            c00000 RET           ;
         """
         self._test_write_skool(snapshot, ctl, exp_skool)
