@@ -37,6 +37,10 @@ AD_ORG = 'org'
 AD_IGNOREUA = 'ignoreua'
 AD_LABEL = 'label'
 
+# KeepLines flags
+KL_ALWAYS = 'a'
+KL_NEVER = 'n'
+
 # An entry ASM directive is one that should be placed before the entry title
 # when it is associated with the first instruction in the entry
 RE_ENTRY_ASM_DIRECTIVE = re.compile("assemble=|def[bsw]=|end$|equ=|if\(|org$|org=|remote=|replace=|set-[-a-z]+=|start$|writer=")
@@ -228,11 +232,12 @@ def extract_entry_asm_directives(asm_directives):
 
 class CtlWriter:
     def __init__(self, skoolfile, elements='abtdrmscn', write_hex=0,
-                 preserve_base=False, min_address=0, max_address=65536):
-        self.parser = SkoolParser(skoolfile, preserve_base, min_address, max_address)
+                 preserve_base=False, min_address=0, max_address=65536, keep_lines=KL_NEVER):
+        self.parser = SkoolParser(skoolfile, preserve_base, min_address, max_address, keep_lines)
         self.elements = elements
         self.write_asm_dirs = ASM_DIRECTIVES in elements
         self.address_fmt = get_address_format(write_hex, write_hex < 0)
+        self.keep_lines = keep_lines
 
     def write(self):
         for entry in self.parser.memory_map:
@@ -270,6 +275,10 @@ class CtlWriter:
                 for line in block:
                     write_line('{} {}'.format(prefix, line))
 
+    def _write_lines(self, lines):
+        for line in lines:
+            write_line(('. ' + line).rstrip())
+
     def write_entry(self, entry):
         address = self.addr_str(entry.address)
 
@@ -280,14 +289,16 @@ class CtlWriter:
 
         self._write_entry_ignoreua_directive(entry, TITLE)
         if BLOCKS in self.elements:
-            if BLOCK_TITLES in self.elements:
-                write_line('{0} {1} {2}'.format(entry.ctl, address, entry.description).rstrip())
+            if BLOCK_TITLES in self.elements and KL_NEVER in self.keep_lines:
+                write_line('{} {} {}'.format(entry.ctl, address, entry.title).rstrip())
             else:
                 write_line('{0} {1}'.format(entry.ctl, address))
+                if KL_ALWAYS in self.keep_lines:
+                    self._write_lines(entry.title)
 
         self._write_entry_ignoreua_directive(entry, DESCRIPTION)
         if BLOCK_DESC in self.elements:
-            for p in entry.details:
+            for p in entry.description:
                 write_line('D {0} {1}'.format(address, p))
 
         self._write_entry_ignoreua_directive(entry, REGISTERS)
@@ -462,12 +473,13 @@ class CtlWriter:
         write_line('{} {}{} {}'.format(sub_block_ctl, addr_str, lengths, comment).rstrip())
 
 class SkoolParser:
-    def __init__(self, skoolfile, preserve_base, min_address, max_address):
+    def __init__(self, skoolfile, preserve_base, min_address, max_address, keep_lines):
         self.skoolfile = skoolfile
         self.preserve_base = preserve_base
         self.mode = Mode()
         self.memory_map = []
         self.end_address = 65536
+        self.keep_lines = keep_lines
 
         with open_file(skoolfile) as f:
             self._parse_skool(f, min_address, max_address)
@@ -516,8 +528,13 @@ class SkoolParser:
                     break
                 ctl = instruction.ctl
                 if ctl in DIRECTIVES:
-                    start_comment, desc, details, registers = parse_comment_block(comments, ignores, self.mode)
-                    map_entry = Entry(ctl, desc, details, registers, self.mode.entry_ignoreua)
+                    start_comment, title, description, registers = parse_comment_block(comments, ignores, self.mode, True)
+                    start_comment = [' '.join(p) for p in start_comment]
+                    if KL_NEVER in self.keep_lines:
+                        title = ' '.join(title)
+                    description = [' '.join(p) for p in description]
+                    registers = [(p, r, ' '.join(d)) for p, r, d in registers]
+                    map_entry = Entry(ctl, title, description, registers, self.mode.entry_ignoreua)
                     instruction.mid_block_comment = start_comment
                     map_entry.asm_directives = extract_entry_asm_directives(instruction.asm_directives)
                     self.memory_map.append(map_entry)
@@ -632,12 +649,12 @@ class Instruction:
         self.comment = Comment(rowspan, text)
 
 class Entry:
-    def __init__(self, ctl, description, details, registers, ignoreua):
+    def __init__(self, ctl, title, description, registers, ignoreua):
         self.header = ()
         self.footer = ()
         self.ctl = ctl
+        self.title = title
         self.description = description
-        self.details = details
         self.registers = [Register(prefix, name, desc) for prefix, name, desc in registers]
         self.ignoreua = {
             TITLE: ignoreua['t'],

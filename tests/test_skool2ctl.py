@@ -7,7 +7,7 @@ from skoolkit import skool2ctl, VERSION
 ELEMENTS = 'abtdrmscn'
 
 class MockCtlWriter:
-    def __init__(self, skoolfile, elements, write_hex, preserve_base, min_address, max_address):
+    def __init__(self, skoolfile, elements, write_hex, preserve_base, min_address, max_address, keep_lines):
         global mock_ctl_writer
         self.skoolfile = skoolfile
         self.elements = elements
@@ -15,6 +15,7 @@ class MockCtlWriter:
         self.preserve_base = preserve_base
         self.min_address = min_address
         self.max_address = max_address
+        self.keep_lines = keep_lines
         self.write_called = False
         mock_ctl_writer = self
 
@@ -23,13 +24,14 @@ class MockCtlWriter:
 
 class Skool2CtlTest(SkoolKitTestCase):
     def _check_ctl_writer(self, skoolfile, elements=ELEMENTS, write_hex=0, preserve_base=False,
-                          min_address=0, max_address=65536):
+                          min_address=0, max_address=65536, keep_lines='n'):
         self.assertEqual(mock_ctl_writer.skoolfile, skoolfile)
         self.assertEqual(mock_ctl_writer.elements, elements)
         self.assertEqual(mock_ctl_writer.write_hex, write_hex)
         self.assertIs(mock_ctl_writer.preserve_base, preserve_base)
         self.assertEqual(mock_ctl_writer.min_address, min_address)
         self.assertEqual(mock_ctl_writer.max_address, max_address)
+        self.assertEqual(mock_ctl_writer.keep_lines, keep_lines)
         self.assertTrue(mock_ctl_writer.write_called)
 
     def test_no_arguments(self):
@@ -61,6 +63,14 @@ class Skool2CtlTest(SkoolKitTestCase):
             for option in ('-w', '--write'):
                 skool2ctl.main((option, w, skoolfile))
                 self._check_ctl_writer(skoolfile, elements=w)
+
+    @patch.object(skool2ctl, 'CtlWriter', MockCtlWriter)
+    def test_option_k(self):
+        skoolfile = 'test.skool'
+        for flags in ('a', 'n'):
+            for option in ('-k', '--keep-lines'):
+                skool2ctl.main((option, flags, skoolfile))
+                self._check_ctl_writer(skoolfile, keep_lines=flags)
 
     @patch.object(skool2ctl, 'CtlWriter', MockCtlWriter)
     def test_option_h(self):

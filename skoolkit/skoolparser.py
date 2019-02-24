@@ -1,4 +1,4 @@
-# Copyright 2008-2018 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2008-2019 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -125,7 +125,7 @@ def parse_address_range(value):
 def _html_escape(text):
     return html.escape(text, False)
 
-def join_comments(comments, split=False):
+def join_comments(comments, split=False, keep_lines=False):
     sections = [[]]
     for line in comments:
         s_line = line.strip()
@@ -133,7 +133,10 @@ def join_comments(comments, split=False):
             sections.append([])
         elif s_line:
             sections[-1].append(s_line)
-    paragraphs = [" ".join(section) for section in sections if section]
+    if keep_lines:
+        paragraphs = [s for s in sections if s]
+    else:
+        paragraphs = [' '.join(s) for s in sections if s]
     if split:
         return paragraphs
     if paragraphs:
@@ -147,7 +150,7 @@ def _apply_ignores(ignores, section_ignores, index, line_no):
             section_ignores[index] = True
             return
 
-def _parse_registers(lines, mode):
+def _parse_registers(lines, mode, keep_lines):
     registers = []
     desc_lines = []
     for line in lines:
@@ -158,9 +161,11 @@ def _parse_registers(lines, mode):
             desc_lines.append(s_line[1:].lstrip())
             continue
         if desc_lines:
-            desc = ' '.join(desc_lines).lstrip()
-            registers.append((prefix, reg, desc))
-            desc_lines[:] = []
+            if keep_lines:
+                registers.append((prefix, reg, desc_lines))
+            else:
+                registers.append((prefix, reg, ' '.join(desc_lines).lstrip()))
+            desc_lines = []
         prefix = ''
         elements = s_line.split(None, 1)
         reg = elements[0]
@@ -175,11 +180,13 @@ def _parse_registers(lines, mode):
         elif mode.upper:
             reg = reg.upper()
     if desc_lines:
-        desc = ' '.join(desc_lines).lstrip()
-        registers.append((prefix, reg, desc))
+        if keep_lines:
+            registers.append((prefix, reg, desc_lines))
+        else:
+            registers.append((prefix, reg, ' '.join(desc_lines).lstrip()))
     return registers
 
-def parse_comment_block(comments, ignores, mode):
+def parse_comment_block(comments, ignores, mode, keep_lines=False):
     sections = [[], [], [], []]
     section_ignores = [False] * len(sections)
     line_no = 0
@@ -199,10 +206,10 @@ def parse_comment_block(comments, ignores, mode):
     mode.entry_ignoreua['d'] = section_ignores[1]
     mode.entry_ignoreua['r'] = section_ignores[2]
     mode.ignoremrcua = section_ignores[3]
-    title = join_comments(sections[0])
-    description = join_comments(sections[1], split=True)
-    registers = _parse_registers(sections[2], mode)
-    start_comment = join_comments(sections[3], split=True)
+    title = join_comments(sections[0], False, keep_lines)
+    description = join_comments(sections[1], True, keep_lines)
+    registers = _parse_registers(sections[2], mode, keep_lines)
+    start_comment = join_comments(sections[3], True, keep_lines)
     return start_comment, title, description, registers
 
 def parse_instruction(line):

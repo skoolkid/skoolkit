@@ -639,15 +639,16 @@ c62000 LD A,","
 
 class CtlWriterTest(SkoolKitTestCase):
     def _get_ctl(self, elements='abtdrmscn', write_hex=0, skool=TEST_SKOOL,
-                 preserve_base=False, min_address=0, max_address=65536):
+                 preserve_base=False, min_address=0, max_address=65536, keep_lines='n'):
         skoolfile = StringIO(textwrap.dedent(skool).strip())
-        writer = CtlWriter(skoolfile, elements, write_hex, preserve_base, min_address, max_address)
+        writer = CtlWriter(skoolfile, elements, write_hex, preserve_base, min_address, max_address, keep_lines)
         writer.write()
         return self.out.getvalue().rstrip()
 
-    def _test_ctl(self, skool, exp_ctl, write_hex=0, preserve_base=False, min_address=0, max_address=65536):
+    def _test_ctl(self, skool, exp_ctl, write_hex=0, preserve_base=False,
+                  min_address=0, max_address=65536, keep_lines='n'):
         ctl = self._get_ctl(skool=skool, write_hex=write_hex, preserve_base=preserve_base,
-                            min_address=min_address, max_address=max_address)
+                            min_address=min_address, max_address=max_address, keep_lines=keep_lines)
         self.assertEqual(textwrap.dedent(exp_ctl).strip(), ctl)
 
     def test_invalid_address(self):
@@ -2152,3 +2153,69 @@ class CtlWriterTest(SkoolKitTestCase):
             i 65535
         """
         self._test_ctl(skool, exp_ctl, max_address=65535)
+
+    def test_keep_lines_in_entry_titles(self):
+        skool = """
+            ; Entry title on one line
+            b65527 DEFB 0
+
+            ; Entry title split
+            ; over two lines
+            c65528 RET
+
+            ; Entry title
+            ; split over
+            ; three lines
+            g65529 DEFB 0
+
+            ; Another entry title on one line
+            i65530
+
+            ; Another entry title
+            ; split over two lines
+            s65531 DEFS 1
+
+            ; Another entry title
+            ; split over
+            ; three lines
+            t65532 DEFM "a"
+
+            ; Yet another entry title on one line
+            u65533 DEFB 0
+
+            ; Yet another entry title
+            ; split over two lines
+            w65534 DEFW 0
+        """
+        exp_ctl = """
+            b 65527
+            . Entry title on one line
+              65527,1,1
+            c 65528
+            . Entry title split
+            . over two lines
+            g 65529
+            . Entry title
+            . split over
+            . three lines
+              65529,1,1
+            i 65530
+            . Another entry title on one line
+            s 65531
+            . Another entry title
+            . split over two lines
+              65531,1,1
+            t 65532
+            . Another entry title
+            . split over
+            . three lines
+              65532,1,1
+            u 65533
+            . Yet another entry title on one line
+              65533,1,1
+            w 65534
+            . Yet another entry title
+            . split over two lines
+              65534,2,2
+        """
+        self._test_ctl(skool, exp_ctl, keep_lines='a')
