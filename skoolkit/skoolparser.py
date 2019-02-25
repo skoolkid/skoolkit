@@ -126,6 +126,8 @@ def _html_escape(text):
     return html.escape(text, False)
 
 def join_comments(comments, split=False, keep_lines=False):
+    if keep_lines:
+        return comments
     sections = [[]]
     for line in comments:
         s_line = line.strip()
@@ -133,10 +135,7 @@ def join_comments(comments, split=False, keep_lines=False):
             sections.append([])
         elif s_line:
             sections[-1].append(s_line)
-    if keep_lines:
-        paragraphs = [s for s in sections if s]
-    else:
-        paragraphs = [' '.join(s) for s in sections if s]
+    paragraphs = [' '.join(s) for s in sections if s]
     if split:
         return paragraphs
     if paragraphs:

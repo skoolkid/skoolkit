@@ -232,12 +232,12 @@ def extract_entry_asm_directives(asm_directives):
 
 class CtlWriter:
     def __init__(self, skoolfile, elements='abtdrmscn', write_hex=0,
-                 preserve_base=False, min_address=0, max_address=65536, keep_lines=KL_NEVER):
-        self.parser = SkoolParser(skoolfile, preserve_base, min_address, max_address, keep_lines)
+                 preserve_base=False, min_address=0, max_address=65536, kl_flags=''):
+        self.keep_lines = KL_ALWAYS in kl_flags
+        self.parser = SkoolParser(skoolfile, preserve_base, min_address, max_address, self.keep_lines)
         self.elements = elements
         self.write_asm_dirs = ASM_DIRECTIVES in elements
         self.address_fmt = get_address_format(write_hex, write_hex < 0)
-        self.keep_lines = keep_lines
 
     def write(self):
         for entry in self.parser.memory_map:
@@ -289,17 +289,21 @@ class CtlWriter:
 
         self._write_entry_ignoreua_directive(entry, TITLE)
         if BLOCKS in self.elements:
-            if BLOCK_TITLES in self.elements and KL_NEVER in self.keep_lines:
+            if BLOCK_TITLES in self.elements and not self.keep_lines:
                 write_line('{} {} {}'.format(entry.ctl, address, entry.title).rstrip())
             else:
                 write_line('{0} {1}'.format(entry.ctl, address))
-                if KL_ALWAYS in self.keep_lines:
+                if self.keep_lines:
                     self._write_lines(entry.title)
 
         self._write_entry_ignoreua_directive(entry, DESCRIPTION)
-        if BLOCK_DESC in self.elements:
-            for p in entry.description:
-                write_line('D {0} {1}'.format(address, p))
+        if entry.description and BLOCK_DESC in self.elements:
+            if self.keep_lines:
+                write_line('D {}'.format(address))
+                self._write_lines(entry.description)
+            else:
+                for p in entry.description:
+                    write_line('D {} {}'.format(address, p))
 
         self._write_entry_ignoreua_directive(entry, REGISTERS)
         if REGISTERS in self.elements:
@@ -528,12 +532,10 @@ class SkoolParser:
                     break
                 ctl = instruction.ctl
                 if ctl in DIRECTIVES:
-                    start_comment, title, description, registers = parse_comment_block(comments, ignores, self.mode, True)
-                    start_comment = [' '.join(p) for p in start_comment]
-                    if KL_NEVER in self.keep_lines:
-                        title = ' '.join(title)
-                    description = [' '.join(p) for p in description]
-                    registers = [(p, r, ' '.join(d)) for p, r, d in registers]
+                    start_comment, title, description, registers = parse_comment_block(comments, ignores, self.mode, self.keep_lines)
+                    if self.keep_lines:
+                        start_comment = [' '.join(p) for p in start_comment]
+                        registers = [(p, r, ' '.join(d)) for p, r, d in registers]
                     map_entry = Entry(ctl, title, description, registers, self.mode.entry_ignoreua)
                     instruction.mid_block_comment = start_comment
                     map_entry.asm_directives = extract_entry_asm_directives(instruction.asm_directives)

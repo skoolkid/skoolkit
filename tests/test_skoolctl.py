@@ -639,16 +639,16 @@ c62000 LD A,","
 
 class CtlWriterTest(SkoolKitTestCase):
     def _get_ctl(self, elements='abtdrmscn', write_hex=0, skool=TEST_SKOOL,
-                 preserve_base=False, min_address=0, max_address=65536, keep_lines='n'):
+                 preserve_base=False, min_address=0, max_address=65536, kl_flags=''):
         skoolfile = StringIO(textwrap.dedent(skool).strip())
-        writer = CtlWriter(skoolfile, elements, write_hex, preserve_base, min_address, max_address, keep_lines)
+        writer = CtlWriter(skoolfile, elements, write_hex, preserve_base, min_address, max_address, kl_flags)
         writer.write()
         return self.out.getvalue().rstrip()
 
     def _test_ctl(self, skool, exp_ctl, write_hex=0, preserve_base=False,
-                  min_address=0, max_address=65536, keep_lines='n'):
+                  min_address=0, max_address=65536, kl_flags=''):
         ctl = self._get_ctl(skool=skool, write_hex=write_hex, preserve_base=preserve_base,
-                            min_address=min_address, max_address=max_address, keep_lines=keep_lines)
+                            min_address=min_address, max_address=max_address, kl_flags=kl_flags)
         self.assertEqual(textwrap.dedent(exp_ctl).strip(), ctl)
 
     def test_invalid_address(self):
@@ -2218,4 +2218,49 @@ class CtlWriterTest(SkoolKitTestCase):
             . split over two lines
               65534,2,2
         """
-        self._test_ctl(skool, exp_ctl, keep_lines='a')
+        self._test_ctl(skool, exp_ctl, kl_flags='a')
+
+    def test_keep_lines_in_entry_descriptions(self):
+        skool = """
+            ; Routine
+            ;
+            ; Description on one line.
+            c65533 RET
+
+            ; Routine
+            ;
+            ; Description on
+            ; two lines.
+            c65534 RET
+
+            ; Routine
+            ;
+            ; Paragraph 1 is
+            ; two lines.
+            ; .
+            ; Paragraph 2
+            ; is three
+            ; lines.
+            c65535 RET
+        """
+        exp_ctl = """
+            c 65533
+            . Routine
+            D 65533
+            . Description on one line.
+            c 65534
+            . Routine
+            D 65534
+            . Description on
+            . two lines.
+            c 65535
+            . Routine
+            D 65535
+            . Paragraph 1 is
+            . two lines.
+            . .
+            . Paragraph 2
+            . is three
+            . lines.
+        """
+        self._test_ctl(skool, exp_ctl, kl_flags='a')
