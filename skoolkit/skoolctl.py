@@ -352,8 +352,11 @@ class CtlWriter:
                 if first_instruction.ignoremrcua and self.write_asm_dirs:
                     self._write_asm_directive('{}:{}'.format(AD_IGNOREUA, MID_BLOCK), first_instruction.address)
                 address_str = self.addr_str(first_instruction.address)
-                for paragraph in mbc:
-                    write_line('N {} {}'.format(address_str, paragraph))
+                if self.keep_lines:
+                    self._write_lines(mbc, 'N', address_str)
+                else:
+                    for paragraph in mbc:
+                        write_line('N {} {}'.format(address_str, paragraph))
 
             if SUBBLOCKS in self.elements:
                 sub_blocks = self.get_sub_blocks(instructions)
@@ -507,7 +510,7 @@ class SkoolParser:
             address_comments.append((None, None, None))
             for line in block:
                 if line.startswith(';'):
-                    comments.append(line[1:])
+                    comments.append(line[1:].strip())
                     instruction = None
                     address_comments.append((None, None, None))
                     continue
@@ -548,8 +551,8 @@ class SkoolParser:
                     address_comments.append((instruction, [address_comment], []))
                     map_entry.add_instruction(instruction)
                     if comments:
-                        instruction.mid_block_comment = join_comments(comments, True)
-                        comments[:] = []
+                        instruction.mid_block_comment = join_comments(comments, True, self.keep_lines)
+                        comments = []
                         instruction.ignoremrcua = 0 in ignores
                         instruction.ignoreua = any(ignores)
                     elif ignores:

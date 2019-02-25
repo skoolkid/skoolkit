@@ -208,7 +208,7 @@ def parse_comment_block(comments, ignores, mode, keep_lines=False):
     title = join_comments(sections[0], False, keep_lines)
     description = join_comments(sections[1], True, keep_lines)
     registers = _parse_registers(sections[2], mode, keep_lines)
-    start_comment = join_comments(sections[3], True, False)
+    start_comment = join_comments(sections[3], True, keep_lines)
     return start_comment, title, description, registers
 
 def parse_instruction(line):

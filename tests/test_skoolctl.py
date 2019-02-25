@@ -2315,6 +2315,53 @@ class CtlWriterTest(SkoolKitTestCase):
             . .   answer
             c 65535
             . Routine with no registers
-            N 65535 Start comment.
+            N 65535
+            . Start comment.
+        """
+        self._test_ctl(skool, exp_ctl, kl_flags='a')
+
+    def test_keep_lines_in_block_start_and_mid_block_comments(self):
+        skool = """
+            ; Routine with no start comment
+            c65532 XOR A
+            ; Paragraph spanning
+            ; two lines.
+             65533 RET
+
+            ; Routine
+            ;
+            ; .
+            ;
+            ; .
+            ;
+            ; One line paragraph.
+            ; .
+            ; Two-line
+            ; paragraph.
+            c65534 XOR A
+            ; Paragraph one.
+            ; .
+            ; Paragraph
+            ; two.
+             65535 RET
+        """
+        exp_ctl = """
+            c 65532
+            . Routine with no start comment
+            N 65533
+            . Paragraph spanning
+            . two lines.
+            c 65534
+            . Routine
+            N 65534
+            . One line paragraph.
+            . .
+            . Two-line
+            . paragraph.
+            N 65535
+            . Paragraph one.
+            . .
+            . Paragraph
+            . two.
         """
         self._test_ctl(skool, exp_ctl, kl_flags='a')
