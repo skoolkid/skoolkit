@@ -127,7 +127,9 @@ def _html_escape(text):
 
 def join_comments(comments, split=False, keep_lines=False):
     if keep_lines:
-        return comments
+        if any(c for c in comments if c.strip() != '.'):
+            return comments
+        return ()
     sections = [[]]
     for line in comments:
         s_line = line.strip()
@@ -150,6 +152,10 @@ def _apply_ignores(ignores, section_ignores, index, line_no):
             return
 
 def _parse_registers(lines, mode, keep_lines):
+    if keep_lines:
+        if any(c for c in lines if c.strip() != '.'):
+            return [('', '', lines)]
+        return ()
     registers = []
     desc_lines = []
     for line in lines:
@@ -160,11 +166,8 @@ def _parse_registers(lines, mode, keep_lines):
             desc_lines.append(s_line[1:].lstrip())
             continue
         if desc_lines:
-            if keep_lines:
-                registers.append((prefix, reg, desc_lines))
-            else:
-                registers.append((prefix, reg, ' '.join(desc_lines).lstrip()))
-            desc_lines = []
+            registers.append((prefix, reg, ' '.join(desc_lines).lstrip()))
+            desc_lines.clear()
         prefix = ''
         elements = s_line.split(None, 1)
         reg = elements[0]
@@ -179,10 +182,7 @@ def _parse_registers(lines, mode, keep_lines):
         elif mode.upper:
             reg = reg.upper()
     if desc_lines:
-        if keep_lines:
-            registers.append((prefix, reg, desc_lines))
-        else:
-            registers.append((prefix, reg, ' '.join(desc_lines).lstrip()))
+        registers.append((prefix, reg, ' '.join(desc_lines).lstrip()))
     return registers
 
 def parse_comment_block(comments, ignores, mode, keep_lines=False):
@@ -208,7 +208,7 @@ def parse_comment_block(comments, ignores, mode, keep_lines=False):
     title = join_comments(sections[0], False, keep_lines)
     description = join_comments(sections[1], True, keep_lines)
     registers = _parse_registers(sections[2], mode, keep_lines)
-    start_comment = join_comments(sections[3], True, keep_lines)
+    start_comment = join_comments(sections[3], True, False)
     return start_comment, title, description, registers
 
 def parse_instruction(line):

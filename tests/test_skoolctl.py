@@ -2222,6 +2222,13 @@ class CtlWriterTest(SkoolKitTestCase):
 
     def test_keep_lines_in_entry_descriptions(self):
         skool = """
+            ; Routine with no description
+            ;
+            ; .
+            ;
+            ; BC Counter
+            c65532 RET
+
             ; Routine
             ;
             ; Description on one line.
@@ -2244,6 +2251,10 @@ class CtlWriterTest(SkoolKitTestCase):
             c65535 RET
         """
         exp_ctl = """
+            c 65532
+            . Routine with no description
+            R 65532
+            . BC Counter
             c 65533
             . Routine
             D 65533
@@ -2262,5 +2273,48 @@ class CtlWriterTest(SkoolKitTestCase):
             . Paragraph 2
             . is three
             . lines.
+        """
+        self._test_ctl(skool, exp_ctl, kl_flags='a')
+
+    def test_keep_lines_in_register_descriptions(self):
+        skool = """
+            ; Routine
+            ;
+            ; .
+            ;
+            ; BC Counter
+            ; DE Register
+            ; .  pair
+            ; HL Another
+            ; . register
+            ; . pair
+            ; O:A The
+            ; .   answer
+            c65534 RET
+
+            ; Routine with no registers
+            ;
+            ; .
+            ;
+            ; .
+            ;
+            ; Start comment.
+            c65535 RET
+        """
+        exp_ctl = """
+            c 65534
+            . Routine
+            R 65534
+            . BC Counter
+            . DE Register
+            . .  pair
+            . HL Another
+            . . register
+            . . pair
+            . O:A The
+            . .   answer
+            c 65535
+            . Routine with no registers
+            N 65535 Start comment.
         """
         self._test_ctl(skool, exp_ctl, kl_flags='a')

@@ -275,7 +275,9 @@ class CtlWriter:
                 for line in block:
                     write_line('{} {}'.format(prefix, line))
 
-    def _write_lines(self, lines):
+    def _write_lines(self, lines, ctl=None, address=None):
+        if ctl:
+            write_line('{} {}'.format(ctl, address))
         for line in lines:
             write_line(('. ' + line).rstrip())
 
@@ -299,20 +301,22 @@ class CtlWriter:
         self._write_entry_ignoreua_directive(entry, DESCRIPTION)
         if entry.description and BLOCK_DESC in self.elements:
             if self.keep_lines:
-                write_line('D {}'.format(address))
-                self._write_lines(entry.description)
+                self._write_lines(entry.description, 'D', address)
             else:
                 for p in entry.description:
                     write_line('D {} {}'.format(address, p))
 
         self._write_entry_ignoreua_directive(entry, REGISTERS)
-        if REGISTERS in self.elements:
-            for reg in entry.registers:
-                if reg.prefix:
-                    name = '{}:{}'.format(reg.prefix, reg.name)
-                else:
-                    name = reg.name
-                write_line('R {} {} {}'.format(address, name, reg.contents).rstrip())
+        if entry.registers and REGISTERS in self.elements:
+            if self.keep_lines:
+                self._write_lines(entry.registers[0].contents, 'R', address)
+            else:
+                for reg in entry.registers:
+                    if reg.prefix:
+                        name = '{}:{}'.format(reg.prefix, reg.name)
+                    else:
+                        name = reg.name
+                    write_line('R {} {} {}'.format(address, name, reg.contents).rstrip())
 
         self.write_body(entry)
 
@@ -533,9 +537,6 @@ class SkoolParser:
                 ctl = instruction.ctl
                 if ctl in DIRECTIVES:
                     start_comment, title, description, registers = parse_comment_block(comments, ignores, self.mode, self.keep_lines)
-                    if self.keep_lines:
-                        start_comment = [' '.join(p) for p in start_comment]
-                        registers = [(p, r, ' '.join(d)) for p, r, d in registers]
                     map_entry = Entry(ctl, title, description, registers, self.mode.entry_ignoreua)
                     instruction.mid_block_comment = start_comment
                     map_entry.asm_directives = extract_entry_asm_directives(instruction.asm_directives)
