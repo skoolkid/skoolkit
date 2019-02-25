@@ -281,6 +281,13 @@ class CtlWriter:
         for line in lines:
             write_line(('. ' + line).rstrip())
 
+    def _write_block_comments(self, comments, ctl, address):
+        if self.keep_lines:
+            self._write_lines(comments, ctl, address)
+        else:
+            for p in comments:
+                write_line('{} {} {}'.format(ctl, address, p))
+
     def write_entry(self, entry):
         address = self.addr_str(entry.address)
 
@@ -300,11 +307,7 @@ class CtlWriter:
 
         self._write_entry_ignoreua_directive(entry, DESCRIPTION)
         if entry.description and BLOCK_DESC in self.elements:
-            if self.keep_lines:
-                self._write_lines(entry.description, 'D', address)
-            else:
-                for p in entry.description:
-                    write_line('D {} {}'.format(address, p))
+            self._write_block_comments(entry.description, 'D', address)
 
         self._write_entry_ignoreua_directive(entry, REGISTERS)
         if entry.registers and REGISTERS in self.elements:
@@ -321,9 +324,8 @@ class CtlWriter:
         self.write_body(entry)
 
         self._write_entry_ignoreua_directive(entry, END)
-        if BLOCK_COMMENTS in self.elements:
-            for p in entry.end_comment:
-                write_line('E {0} {1}'.format(address, p))
+        if entry.end_comment and BLOCK_COMMENTS in self.elements:
+            self._write_block_comments(entry.end_comment, 'E', address)
 
         self._write_blocks(entry.footer, address, True)
 
@@ -351,12 +353,7 @@ class CtlWriter:
                 first_instruction = instructions[0]
                 if first_instruction.ignoremrcua and self.write_asm_dirs:
                     self._write_asm_directive('{}:{}'.format(AD_IGNOREUA, MID_BLOCK), first_instruction.address)
-                address_str = self.addr_str(first_instruction.address)
-                if self.keep_lines:
-                    self._write_lines(mbc, 'N', address_str)
-                else:
-                    for paragraph in mbc:
-                        write_line('N {} {}'.format(address_str, paragraph))
+                self._write_block_comments(mbc, 'N', self.addr_str(first_instruction.address))
 
             if SUBBLOCKS in self.elements:
                 sub_blocks = self.get_sub_blocks(instructions)
@@ -562,7 +559,7 @@ class SkoolParser:
 
             if map_entry:
                 if comments:
-                    map_entry.end_comment = join_comments(comments, True)
+                    map_entry.end_comment = join_comments(comments, True, self.keep_lines)
                     map_entry.ignoreua[END] = len(ignores) > 0
                 map_entry.header = non_entries
                 non_entries = []

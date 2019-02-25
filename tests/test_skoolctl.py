@@ -2365,3 +2365,38 @@ class CtlWriterTest(SkoolKitTestCase):
             . two.
         """
         self._test_ctl(skool, exp_ctl, kl_flags='a')
+
+    def test_keep_lines_in_block_end_comments(self):
+        skool = """
+            ; Routine with no end comment
+            c65533 RET
+
+            ; Routine
+            c65534 RET
+            ; End comment
+            ; over two lines.
+
+            ; Routine
+            c65535 RET
+            ; Paragraph one.
+            ; .
+            ; Paragraph
+            ; two.
+        """
+        exp_ctl = """
+            c 65533
+            . Routine with no end comment
+            c 65534
+            . Routine
+            E 65534
+            . End comment
+            . over two lines.
+            c 65535
+            . Routine
+            E 65535
+            . Paragraph one.
+            . .
+            . Paragraph
+            . two.
+        """
+        self._test_ctl(skool, exp_ctl, kl_flags='a')
