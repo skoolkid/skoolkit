@@ -2400,3 +2400,86 @@ class CtlWriterTest(SkoolKitTestCase):
             . two.
         """
         self._test_ctl(skool, exp_ctl, kl_flags='a')
+
+    def test_keep_lines_in_instruction_comments(self):
+        skool = """
+            ; Data
+            b60000 DEFB 0    ; This byte
+                             ; is zero.
+
+            ; Routine
+            c60001 XOR A     ; {Clear the accumulator
+             60002 RET       ; before returning.}
+
+            ; Various
+            b60003 DEFS 10   ; 10 bytes
+                             ; of padding.
+             60013 DEFM "Hi" ; {Hi.
+             60015 DEFM "Lo" ; Lo.}
+             60017 DEFW 0    ; {More comment
+             60019 DEFW 0    ; lines than
+                             ; instructions.}
+             60021 DEFB 0    ; {Fewer comment lines than instructions.
+             60022 DEFB 0    ; }
+             60023 DEFB 0    ; {A mixture
+             60024 DEFM "a"  ; of instruction
+             60025 DEFW 0    ; types.}
+            @rem=Test comments consisting of zero or more dots only
+             60027 DEFB 0    ; {
+             60028 DEFB 0    ; }
+             60029 DEFB 0    ; {.
+             60030 DEFB 0    ; }
+             60031 DEFB 0    ; {
+             60032 DEFB 0    ; ..}
+
+            ; Test a commentless sequence of mixed-base instructions
+            c60033 LD A,0
+             60035 LD A,%00000001
+             60037 LD A,$00
+            ; Test a blank comment with a semicolon.
+             60039 RET       ;
+        """
+        exp_ctl = """
+            b 60000
+            . Data
+              60000,1,1
+            . This byte
+            . is zero.
+            c 60001
+            . Routine
+              60001,2
+            . Clear the accumulator
+            . before returning.
+            b 60003
+            . Various
+            S 60003,10,10
+            . 10 bytes
+            . of padding.
+            T 60013,4,2
+            . Hi.
+            . Lo.
+            W 60017,4,2
+            . More comment
+            . lines than
+            . instructions.
+              60021,2,1
+            . Fewer comment lines than instructions.
+            M 60023,4
+            . A mixture
+            . of instruction
+            . types.
+              60023,1,1
+            T 60024,1,1
+            W 60025,2,2
+            @ 60027 rem=Test comments consisting of zero or more dots only
+              60027,2,1 .
+              60029,2,1 ..
+              60031,2,1 ...
+            c 60033
+            . Test a commentless sequence of mixed-base instructions
+              60035,b2
+            N 60039
+            . Test a blank comment with a semicolon.
+            i 60040
+        """
+        self._test_ctl(skool, exp_ctl, kl_flags='a')

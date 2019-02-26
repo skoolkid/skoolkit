@@ -217,34 +217,37 @@ def parse_instruction(line):
     operation, sep, comment = partition_unquoted(line[6:], ';')
     return ctl, addr_str, operation.strip(), comment.strip()
 
-def _join_address_comments(lines, sub_lines):
+def _apply_comment_subs(lines, sub_lines):
     if len(lines) <= len(sub_lines) or (sub_lines and sub_lines[-1] is None):
-        return ' '.join([line for line in sub_lines if line is not None]).strip()
-    return ' '.join(sub_lines + lines[len(sub_lines):]).strip()
+        comment_lines = [line for line in sub_lines if line is not None]
+    else:
+        comment_lines = sub_lines + lines[len(sub_lines):]
+    return ' '.join(comment_lines), comment_lines
 
-def parse_address_comments(comments):
+def parse_address_comments(comments, keep_lines=False):
     i = 0
     while i < len(comments):
         instruction = comments[i][0]
         if instruction:
-            comment = _join_address_comments(*comments[i][1:3])
-            comment_lines = []
+            comment, comment_lines = _apply_comment_subs(*comments[i][1:3])
+            rowspan = 1
             if comment.startswith('{'):
-                comment_lines.append(comment.lstrip('{'))
+                comment_lines[0] = comment_lines[0].lstrip('{')
                 nesting = comment.count('{') - comment.count('}')
                 while nesting > 0:
                     i += 1
                     if i >= len(comments) or comments[i][0] is None:
                         break
-                    comment = _join_address_comments(*comments[i][1:3])
-                    comment_lines.append(comment)
+                    comment, lines = _apply_comment_subs(*comments[i][1:3])
+                    comment_lines.extend(lines)
+                    rowspan += 1
                     nesting += comment.count('{') - comment.count('}')
                 comment_lines[-1] = comment_lines[-1].rstrip('}')
+            if keep_lines:
+                instruction.set_comment(rowspan, comment_lines)
             else:
-                comment_lines.append(comment)
-            rowspan = len(comment_lines)
-            address_comment = join_comments(comment_lines).strip()
-            instruction.set_comment(rowspan, address_comment)
+                address_comment = ' '.join(c for c in comment_lines if c).strip()
+                instruction.set_comment(rowspan, address_comment)
         i += 1
 
 def read_skool(skoolfile, asm=0, sub_mode=0, fix_mode=0):

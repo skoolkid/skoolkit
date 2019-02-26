@@ -278,8 +278,11 @@ class CtlWriter:
     def _write_lines(self, lines, ctl=None, address=None):
         if ctl:
             write_line('{} {}'.format(ctl, address))
-        for line in lines:
-            write_line(('. ' + line).rstrip())
+        while lines and not lines[-1]:
+            lines.pop()
+        if any(lines):
+            for line in lines:
+                write_line(('. ' + line).rstrip())
 
     def _write_block_comments(self, comments, ctl, address):
         if self.keep_lines:
@@ -382,10 +385,15 @@ class CtlWriter:
                         comment_text = ''
                         comment = first_instruction.comment
                         if comment and COMMENTS in self.elements:
-                            comment_text = comment.text
+                            if self.keep_lines:
+                                comment_text = ' '.join(comment.text).strip()
+                            else:
+                                comment_text = comment.text
                             if comment.rowspan > 1 and not comment_text.replace('.', ''):
                                 comment_text = '.' + comment_text
-                        if comment_text or ctl != entry_ctl or ctl != 'c' or has_bases:
+                            elif self.keep_lines:
+                                comment_text = comment.text
+                        if any(comment_text) or ctl != entry_ctl or ctl != 'c' or has_bases:
                             self.write_sub_block(ctl, entry_ctl, comment_text, instructions, length)
 
     def addr_str(self, address):
@@ -401,7 +409,7 @@ class CtlWriter:
             instruction = instructions[i]
             comment = instruction.comment
             ctl = instruction.inst_ctl
-            if comment and (comment.rowspan > 1 or comment.text):
+            if comment and (comment.rowspan > 1 or any(comment.text)):
                 inst_ctls = set()
                 for inst in instructions[i:i + comment.rowspan]:
                     inst_ctls.add(inst.inst_ctl)
@@ -452,7 +460,7 @@ class CtlWriter:
                         sublengths[-1][1] += sublength
                     else:
                         sublengths.append([bases, sublength])
-            if not comment and len(sublengths) > 1 and entry_ctl == 'c':
+            if not any(comment) and len(sublengths) > 1 and entry_ctl == 'c':
                 if not sublengths[-1][0]:
                     length -= sublengths.pop()[1]
                 if not sublengths[0][0]:
@@ -478,7 +486,10 @@ class CtlWriter:
         addr_str = self.addr_str(address)
         if lengths:
             lengths = ',{}'.format(lengths)
-        write_line('{} {}{} {}'.format(sub_block_ctl, addr_str, lengths, comment).rstrip())
+        if isinstance(comment, str):
+            write_line('{} {}{} {}'.format(sub_block_ctl, addr_str, lengths, comment).rstrip())
+        else:
+            self._write_lines(comment, sub_block_ctl, addr_str + lengths)
 
 class SkoolParser:
     def __init__(self, skoolfile, preserve_base, min_address, max_address, keep_lines):
@@ -583,7 +594,7 @@ class SkoolParser:
             address = last_instruction.address
             self.end_address = address + (get_size(last_instruction.operation, address) or 1)
 
-        parse_address_comments(address_comments)
+        parse_address_comments(address_comments, self.keep_lines)
 
     def _parse_asm_directive(self, directive, ignores, line_no):
         if directive == AD_IGNOREUA:
