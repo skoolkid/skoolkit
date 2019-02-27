@@ -192,7 +192,10 @@ def parse_comment_block(comments, ignores, mode, keep_lines=False):
     index = 0
     last_line = ""
     for line in comments:
-        s_line = line.strip()
+        if keep_lines:
+            s_line = line.rstrip()
+        else:
+            s_line = line.strip()
         if s_line:
             sections[index].append(s_line)
             last_line = s_line
@@ -233,6 +236,8 @@ def parse_address_comments(comments, keep_lines=False):
             rowspan = 1
             if comment.startswith('{'):
                 comment_lines[0] = comment_lines[0].lstrip('{')
+                if comment_lines[0].startswith(' {'):
+                    comment_lines[0] = comment_lines[0][1:]
                 nesting = comment.count('{') - comment.count('}')
                 while nesting > 0:
                     i += 1
@@ -243,6 +248,8 @@ def parse_address_comments(comments, keep_lines=False):
                     rowspan += 1
                     nesting += comment.count('{') - comment.count('}')
                 comment_lines[-1] = comment_lines[-1].rstrip('}')
+                if comment_lines[-1].endswith('} '):
+                    comment_lines[-1] = comment_lines[-1][:-1]
             if keep_lines:
                 instruction.set_comment(rowspan, comment_lines)
             else:

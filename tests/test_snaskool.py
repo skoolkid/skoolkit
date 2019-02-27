@@ -3408,7 +3408,7 @@ class SkoolWriterTest(SkoolKitTestCase):
         snapshot = [0] * 13
         ctl = """
             b 00000 The title of this entry
-            .       spans two lines
+            . spans two lines
             c 00001 The title of this entry spans only one line even though it would normally be wrapped over two lines
             .
             g 00002
@@ -3420,7 +3420,7 @@ class SkoolWriterTest(SkoolKitTestCase):
             s 00004
             . Another long entry title that spans only one line but would normally be wrapped over two lines
             t 00005 One
-            .       two
+            . two
             u 00006 One
             . two
             . three
@@ -3511,11 +3511,11 @@ class SkoolWriterTest(SkoolKitTestCase):
         self._test_write_skool(snapshot, ctl, exp_skool)
 
     def test_newlines_in_instruction_comments(self):
-        snapshot = [0] * 17
+        snapshot = [0] * 23
         ctl = """
             b 00000 Newline test
             B 00000,1 This comment
-            .         spans two lines
+            . spans two lines
             C 00001 This comment spans only one line even though it would normally be wrapped over two lines
             .
             S 00002,2,1 Line 1
@@ -3525,8 +3525,8 @@ class SkoolWriterTest(SkoolKitTestCase):
             . two
             . three
             W 00005,4,2 First word
-            .           Second word
-            .           No third word
+            . Second word
+            . No third word
             ; Blank comment with a blank continuation line
             B 00009,1
             .
@@ -3545,7 +3545,17 @@ class SkoolWriterTest(SkoolKitTestCase):
             ; Blank comment with a blank continuation line over two instructions
             B 00015,2,1
             .
-            i 00017
+            ; Comments consisting of a single dot
+            B 00017,1
+            . .
+            B 00018,2,1
+            . .
+            ; Comments consisting of two dots
+            B 00020,1
+            . ..
+            B 00021,2,1
+            . ..
+            i 00023
         """
         exp_skool = """
             ; Newline test
@@ -3569,6 +3579,12 @@ class SkoolWriterTest(SkoolKitTestCase):
                                  ; Line 3 (with a blank line 2)
              00015 DEFB 0
              00016 DEFB 0
+             00017 DEFB 0        ; .
+             00018 DEFB 0        ; {.
+             00019 DEFB 0        ; }
+             00020 DEFB 0        ; ..
+             00021 DEFB 0        ; {..
+             00022 DEFB 0        ; }
         """
         self._test_write_skool(snapshot, ctl, exp_skool)
 
@@ -3577,7 +3593,7 @@ class SkoolWriterTest(SkoolKitTestCase):
         ctl = """
             b 00000
             D 00000 This description
-            .       spans two lines.
+            . spans two lines.
             D 00000 This description spans only one line even though it would normally be wrapped over two lines.
             .
             D 00000
@@ -3631,7 +3647,7 @@ class SkoolWriterTest(SkoolKitTestCase):
         ctl = """
             b 00000
             N 00000 This comment
-            .       spans two lines.
+            . spans two lines.
             N 00000 This comment spans only one line even though it would normally be wrapped over two lines.
             .
             B 00000,1
@@ -3691,7 +3707,7 @@ class SkoolWriterTest(SkoolKitTestCase):
             b 00000
             B 00000,1
             E 00000 This comment
-            .       spans two lines.
+            . spans two lines.
             E 00000 This comment spans only one line even though it would normally be wrapped over two lines.
             .
             E 00000
@@ -3740,34 +3756,47 @@ class SkoolWriterTest(SkoolKitTestCase):
         self._test_write_skool(snapshot, ctl, exp_skool)
 
     def test_newlines_in_register_blocks(self):
-        snapshot = [201]
+        snapshot = [201] * 8
         ctl = """
             c 00000
             R 00000 BC This description
-            .       spans two lines
-            R 00000 DE This description spans only one line even though it would normally be wrapped over two lines
+            . .     spans two lines
+            c 00001
+            R 00001 DE This description spans only one line even though it would normally be wrapped over two lines
             .
-            R 00000
+            c 00002
+            R 00002
             . HL This description
-            . spans three
-            . lines
-            R 00000
+            . .  spans three
+            . .  lines
+            c 00003
+            R 00003
             . A Another long description that spans only one line but would normally be wrapped over two lines
-            ; Test a blank description with a blank continuation line (should be ignored)
-            R 00000
+            c 00004 Test a blank register description with a blank continuation line (should be ignored)
+            R 00004
             .
-            R 00000
+            N 00004 Start comment.
+            c 00005 Two 'R' directives
+            R 00005
             . IX Trailing blank line
             .
-            R 00000
+            R 00005
             .
             . IY Leading blank line
-            R 00000
-            . SP
-            .
-            . Stack pointer
-            C 00000,1
-            i 00001
+            c 00006 One 'R' directive, two registers
+            R 00006
+            . BC Counts
+            . .  the bytes
+            . DE Destination
+            c 00007 Registers with prefixes
+            R 00007
+            .   A First
+            . .   input
+            . B Input 2
+            . O:C Output 1
+            . O:D Second
+            . .   output
+            i 00008
         """
         exp_skool = """
             ; Routine at 0
@@ -3775,17 +3804,69 @@ class SkoolWriterTest(SkoolKitTestCase):
             ; .
             ;
             ; BC This description
-            ; .  spans two lines
+            ; .     spans two lines
+            c00000 RET           ;
+
+            ; Routine at 1
+            ;
+            ; .
+            ;
             ; DE This description spans only one line even though it would normally be wrapped over two lines
+            c00001 RET           ;
+
+            ; Routine at 2
+            ;
+            ; .
+            ;
             ; HL This description
             ; .  spans three
             ; .  lines
+            c00002 RET           ;
+
+            ; Routine at 3
+            ;
+            ; .
+            ;
             ; A Another long description that spans only one line but would normally be wrapped over two lines
+            c00003 RET           ;
+
+            ; Test a blank register description with a blank continuation line (should be
+            ; ignored)
+            ;
+            ; .
+            ;
+            ; .
+            ;
+            ; Start comment.
+            c00004 RET           ;
+
+            ; Two 'R' directives
+            ;
+            ; .
+            ;
             ; IX Trailing blank line
             ; IY Leading blank line
-            ; SP
+            c00005 RET           ;
+
+            ; One 'R' directive, two registers
+            ;
             ; .
-            ; .  Stack pointer
-            c00000 RET           ;
+            ;
+            ; BC Counts
+            ; .  the bytes
+            ; DE Destination
+            c00006 RET           ;
+
+            ; Registers with prefixes
+            ;
+            ; .
+            ;
+            ;   A First
+            ; .   input
+            ; B Input 2
+            ; O:C Output 1
+            ; O:D Second
+            ; .   output
+            c00007 RET           ;
         """
         self._test_write_skool(snapshot, ctl, exp_skool)

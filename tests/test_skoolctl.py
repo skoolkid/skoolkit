@@ -2156,6 +2156,10 @@ class CtlWriterTest(SkoolKitTestCase):
 
     def test_keep_lines_in_entry_titles(self):
         skool = """
+            ; Entry title with
+            ;       an indented second line
+            c65526 RET
+
             ; Entry title on one line
             b65527 DEFB 0
 
@@ -2188,6 +2192,9 @@ class CtlWriterTest(SkoolKitTestCase):
             w65534 DEFW 0
         """
         exp_ctl = """
+            c 65526
+            . Entry title with
+            .       an indented second line
             b 65527
             . Entry title on one line
               65527,1,1
@@ -2222,6 +2229,12 @@ class CtlWriterTest(SkoolKitTestCase):
 
     def test_keep_lines_in_entry_descriptions(self):
         skool = """
+            ; Routine
+            ;
+            ; Description with an
+            ;             indented second line.
+            c65531 RET
+
             ; Routine with no description
             ;
             ; .
@@ -2251,6 +2264,11 @@ class CtlWriterTest(SkoolKitTestCase):
             c65535 RET
         """
         exp_ctl = """
+            c 65531
+            . Routine
+            D 65531
+            . Description with an
+            .             indented second line.
             c 65532
             . Routine with no description
             R 65532
@@ -2288,6 +2306,7 @@ class CtlWriterTest(SkoolKitTestCase):
             ; HL Another
             ; . register
             ; . pair
+            ;   IX Index
             ; O:A The
             ; .   answer
             c65534 RET
@@ -2311,6 +2330,7 @@ class CtlWriterTest(SkoolKitTestCase):
             . HL Another
             . . register
             . . pair
+            .   IX Index
             . O:A The
             . .   answer
             c 65535
@@ -2341,8 +2361,8 @@ class CtlWriterTest(SkoolKitTestCase):
             c65534 XOR A
             ; Paragraph one.
             ; .
-            ; Paragraph
-            ; two.
+            ; Paragraph two
+            ;    with an indented second line.
              65535 RET
         """
         exp_ctl = """
@@ -2361,8 +2381,8 @@ class CtlWriterTest(SkoolKitTestCase):
             N 65535
             . Paragraph one.
             . .
-            . Paragraph
-            . two.
+            . Paragraph two
+            .    with an indented second line.
         """
         self._test_ctl(skool, exp_ctl, kl_flags='a')
 
@@ -2380,8 +2400,8 @@ class CtlWriterTest(SkoolKitTestCase):
             c65535 RET
             ; Paragraph one.
             ; .
-            ; Paragraph
-            ; two.
+            ; Paragraph two
+            ;    with an indented second line.
         """
         exp_ctl = """
             c 65533
@@ -2396,8 +2416,8 @@ class CtlWriterTest(SkoolKitTestCase):
             E 65535
             . Paragraph one.
             . .
-            . Paragraph
-            . two.
+            . Paragraph two
+            .    with an indented second line.
         """
         self._test_ctl(skool, exp_ctl, kl_flags='a')
 
@@ -2436,8 +2456,14 @@ class CtlWriterTest(SkoolKitTestCase):
             c60033 LD A,0
              60035 LD A,%00000001
              60037 LD A,$00
-            ; Test a blank comment with a semicolon.
-             60039 RET       ;
+            @rem=Test a comment with an indent
+             60039 XOR A    ; This comment has
+                            ;      an indented second line.
+            @rem=Test a blank comment with a semicolon
+             60040 RET      ;
+            @rem=Test comments starting or ending with a brace
+             60041 XOR B    ; { {}}
+             60042 XOR C    ; {{} }
         """
         exp_ctl = """
             b 60000
@@ -2478,8 +2504,16 @@ class CtlWriterTest(SkoolKitTestCase):
             c 60033
             . Test a commentless sequence of mixed-base instructions
               60035,b2
-            N 60039
-            . Test a blank comment with a semicolon.
-            i 60040
+            @ 60039 rem=Test a comment with an indent
+              60039,1
+            . This comment has
+            .      an indented second line.
+            @ 60040 rem=Test a blank comment with a semicolon
+            @ 60041 rem=Test comments starting or ending with a brace
+              60041,1
+            . {
+              60042,1
+            . }
+            i 60043
         """
         self._test_ctl(skool, exp_ctl, kl_flags='a')

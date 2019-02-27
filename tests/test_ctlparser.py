@@ -430,7 +430,7 @@ class CtlParserTest(SkoolKitTestCase):
             30505: None,
             30510: None,
             30522: None,
-            30530: None,
+            30530: (30550, ['']),
             30532: None,
             30534: None,
             30536: None,
@@ -442,7 +442,7 @@ class CtlParserTest(SkoolKitTestCase):
             30546: None,
             30547: None,
             30550: None,
-            30560: None,
+            30560: (30581, ['']),
             30566: None,
             30571: None,
             30575: None,
@@ -453,7 +453,7 @@ class CtlParserTest(SkoolKitTestCase):
             30620: None,
             30627: None,
             30700: None,
-            30720: None,
+            30720: (30730, ['']),
             30721: None,
             30726: None,
             30728: None,
@@ -593,7 +593,7 @@ class CtlParserTest(SkoolKitTestCase):
 
         exp_multiline_comments = {
             30700: None,
-            30720: None,
+            30720: (30730, ['']),
             30721: None,
             30726: None,
             30728: None,
@@ -1685,7 +1685,9 @@ class CtlParserTest(SkoolKitTestCase):
         for a in range(start, end, length):
             for b in (0, 5, 6, 10, 16, 20, 25):
                 address = a + b
-                if b == 10:
+                if b == 5:
+                    exp_multiline_comments[address] = (address + 3, [''])
+                elif b == 10:
                     exp_multiline_comments[address] = (address + 10, ['A multi-line comment'])
                 else:
                     exp_multiline_comments[address] = None
@@ -1881,7 +1883,7 @@ class CtlParserTest(SkoolKitTestCase):
     def test_dot_directive_with_entry_titles(self):
         ctl = """
             b 30000 A title split
-            .       over two lines
+            . over two lines
             c 30100 A title
             . split over
             . three lines
@@ -1890,14 +1892,14 @@ class CtlParserTest(SkoolKitTestCase):
             i 30300 One
             . Two
             s 30400 One
-            .       Two
-            .       Three
+            . Two
+            . Three
             t 30500 Another one-liner, never wrapped
             .
             u 30600 Not
             . used
             w 30700 Some
-            .       words
+            . words
             ; Test a blank title with a blank continuation line
             b 30800
             .
@@ -1917,6 +1919,9 @@ class CtlParserTest(SkoolKitTestCase):
             . A The accumulator
             .
             . Start comment.
+            t 31300
+            . This title has
+            .   an indent on the second line
         """
         exp_titles = {
             30000: ['A title split', 'over two lines'],
@@ -1931,7 +1936,8 @@ class CtlParserTest(SkoolKitTestCase):
             30900: ['', 'Line 1 here'],
             31000: ['', 'Trailing blank line', ''],
             31100: ['', '', 'Leading blank line'],
-            31200: ['', 'Title', '', 'Description.', '', 'A The accumulator', '', 'Start comment.']
+            31200: ['', 'Title', '', 'Description.', '', 'A The accumulator', '', 'Start comment.'],
+            31300: ['', 'This title has', '  an indent on the second line']
         }
 
         blocks = self._get_ctl_parser(ctl).get_blocks()
@@ -1941,7 +1947,7 @@ class CtlParserTest(SkoolKitTestCase):
         ctl = """
             b 30000
             B 30000,1 Single instruction,
-            .         two comment lines
+            . two comment lines
             C 30001,1 Single instruction, one comment line, never wrapped
             .
             S 30002,2,1 Two instructions,
@@ -1970,6 +1976,9 @@ class CtlParserTest(SkoolKitTestCase):
             . Line 1
             .
             . Line 3 (with a blank line 2)
+            B 30018,1
+            . This comment has
+            .      an indent on the second line
         """
         blocks = self._get_ctl_parser(ctl).get_blocks()
 
@@ -1987,7 +1996,8 @@ class CtlParserTest(SkoolKitTestCase):
             30014: ['', 'Trailing blank line', ''],
             30015: ['', '', 'Leading blank line'],
             30016: ['', 'Line 1', '', 'Line 3 (with a blank line 2)'],
-            30018: ()
+            30018: ['', 'This comment has', '     an indent on the second line'],
+            30019: ()
         }
         self._check_instruction_comments(exp_instruction_comments, blocks)
 
@@ -2005,7 +2015,8 @@ class CtlParserTest(SkoolKitTestCase):
             30014: None,
             30015: None,
             30016: None,
-            30018: None
+            30018: None,
+            30019: None
         }
         self._check_multiline_comments(exp_multiline_comments, blocks)
 
@@ -2013,40 +2024,50 @@ class CtlParserTest(SkoolKitTestCase):
         ctl = """
             b 40000
             D 40000 This description
-            .       spans two lines.
-            D 40000 This description spans only one line even though it would normally be wrapped over two lines.
+            . spans two lines.
+            b 40001 Two 'D' directives
+            D 40001 This description spans only one line even though it would normally be wrapped over two lines.
             .
-            D 40000
+            D 40001
             . This description
             . spans three
             . lines.
-            D 40000
+            b 40002
+            D 40002
             . Another long description that spans only one line but would normally be wrapped over two lines.
-            ; Test a blank description with a blank continuation line
-            D 40000
+            b 40003 Test a blank description with a blank continuation line
+            D 40003
             .
-            D 40000
+            b 40004
+            D 40004
             . Trailing blank line.
             .
-            D 40000
+            b 40005
+            D 40005
             .
             . Leading blank line.
-            D 40000
+            b 40006
+            D 40006
             . Paragraph 1.
             .
             . Paragraph 2.
+            b 40007
+            D 40007
+            . This description has
+            .      an indented second line.
         """
         exp_descriptions = {
-            40000: [
-                ['This description', 'spans two lines.'],
+            40000: [['This description', 'spans two lines.']],
+            40001: [
                 ['This description spans only one line even though it would normally be wrapped over two lines.', ''],
-                ['', 'This description', 'spans three', 'lines.'],
-                ['', 'Another long description that spans only one line but would normally be wrapped over two lines.'],
-                ['', ''],
-                ['', 'Trailing blank line.', ''],
-                ['', '', 'Leading blank line.'],
-                ['', 'Paragraph 1.', '', 'Paragraph 2.']
-            ]
+                ['', 'This description', 'spans three', 'lines.']
+            ],
+            40002: [['', 'Another long description that spans only one line but would normally be wrapped over two lines.']],
+            40003: [['', '']],
+            40004: [['', 'Trailing blank line.', '']],
+            40005: [['', '', 'Leading blank line.']],
+            40006: [['', 'Paragraph 1.', '', 'Paragraph 2.']],
+            40007: [['', 'This description has', '     an indented second line.']]
         }
 
         blocks = self._get_ctl_parser(ctl).get_blocks()
@@ -2056,43 +2077,44 @@ class CtlParserTest(SkoolKitTestCase):
         ctl = """
             b 50000
             N 50000 This comment
-            .       spans two lines.
+            . spans two lines.
             N 50000 This comment spans only one line even though it would normally be wrapped over two lines.
             .
-            B 50000,1
             N 50001
             . This comment
             . spans three
             . lines.
-            N 50001
+            N 50002
             . Another long comment that spans only one line but would normally be wrapped over two lines.
             ; Test a blank comment with a blank continuation line
-            N 50001
+            N 50003
             .
-            N 50001
+            N 50004
             . Trailing blank line.
             .
-            N 50001
+            N 50005
             .
             . Leading blank line.
-            N 50001
+            N 50006
             . Paragraph 1.
             .
             . Paragraph 2.
+            N 50007
+            . This comment has
+            .      an indented second line.
         """
         exp_mid_block_comments = {
             50000: [
                 ['This comment', 'spans two lines.'],
                 ['This comment spans only one line even though it would normally be wrapped over two lines.', '']
             ],
-            50001: [
-                ['', 'This comment', 'spans three', 'lines.'],
-                ['', 'Another long comment that spans only one line but would normally be wrapped over two lines.'],
-                ['', ''],
-                ['', 'Trailing blank line.', ''],
-                ['', '', 'Leading blank line.'],
-                ['', 'Paragraph 1.', '', 'Paragraph 2.']
-            ]
+            50001: [['', 'This comment', 'spans three', 'lines.']],
+            50002: [['', 'Another long comment that spans only one line but would normally be wrapped over two lines.']],
+            50003: [['', '']],
+            50004: [['', 'Trailing blank line.', '']],
+            50005: [['', '', 'Leading blank line.']],
+            50006: [['', 'Paragraph 1.', '', 'Paragraph 2.']],
+            50007: [['', 'This comment has', '     an indented second line.']]
         }
 
         blocks = self._get_ctl_parser(ctl).get_blocks()
@@ -2102,40 +2124,50 @@ class CtlParserTest(SkoolKitTestCase):
         ctl = """
             b 50000
             E 50000 This comment
-            .       spans two lines.
+            . spans two lines.
             E 50000 This comment spans only one line even though it would normally be wrapped over two lines.
             .
-            E 50000
+            b 50001
+            E 50001
             . This comment
             . spans three
             . lines.
-            E 50000
+            b 50002
+            E 50002
             . Another long comment that spans only one line but would normally be wrapped over two lines.
-            ; Test a blank comment with a blank continuation line
-            E 50000
+            b 50003 Test a blank comment with a blank continuation line
+            E 50003
             .
-            E 50000
+            b 50004
+            E 50004
             . Trailing blank line.
             .
-            E 50000
+            b 50005
+            E 50005
             .
             . Leading blank line.
-            E 50000
+            b 50006
+            E 50006
             . Paragraph 1.
             .
             . Paragraph 2.
+            b 50007
+            E 50007
+            . This comment has
+            .      an indented second line.
         """
         exp_end_comments = {
             50000: [
                 ['This comment', 'spans two lines.'],
-                ['This comment spans only one line even though it would normally be wrapped over two lines.', ''],
-                ['', 'This comment', 'spans three', 'lines.'],
-                ['', 'Another long comment that spans only one line but would normally be wrapped over two lines.'],
-                ['', ''],
-                ['', 'Trailing blank line.', ''],
-                ['', '', 'Leading blank line.'],
-                ['', 'Paragraph 1.', '', 'Paragraph 2.']
-            ]
+                ['This comment spans only one line even though it would normally be wrapped over two lines.', '']
+            ],
+            50001: [['', 'This comment', 'spans three', 'lines.']],
+            50002: [['', 'Another long comment that spans only one line but would normally be wrapped over two lines.']],
+            50003: [['', '']],
+            50004: [['', 'Trailing blank line.', '']],
+            50005: [['', '', 'Leading blank line.']],
+            50006: [['', 'Paragraph 1.', '', 'Paragraph 2.']],
+            50007: [['', 'This comment has', '     an indented second line.']]
         }
 
         blocks = self._get_ctl_parser(ctl).get_blocks()
@@ -2146,40 +2178,50 @@ class CtlParserTest(SkoolKitTestCase):
         ctl = """
             c 60000
             R 60000 BC This description
-            .       spans two lines
+            . spans two lines
             R 60000 DE This description spans only one line even though it would normally be wrapped over two lines
             .
-            R 60000
+            c 60001
+            R 60001
             . HL This description
             . spans three
             . lines
-            R 60000
+            c 60002
+            R 60002
             . A Another long description that spans only one line but would normally be wrapped over two lines
-            ; Test a blank register description with a blank continuation line
-            R 60000
+            c 60003 Test a blank register description with a blank continuation line
+            R 60003
             .
-            R 60000
+            c 60004
+            R 60004
             . IX Trailing blank line
             .
-            R 60000
+            c 60005
+            R 60005
             .
             . IY Leading blank line
-            R 60000
+            c 60006
+            R 60006
             . SP
             .
             . Stack pointer
+            c 60007
+            R 60007
+            .   A Input
+            . O:B Output
         """
         exp_registers = {
             60000: [
                 ['BC This description', 'spans two lines'],
-                ['DE This description spans only one line even though it would normally be wrapped over two lines', ''],
-                ['', 'HL This description', 'spans three', 'lines'],
-                ['', 'A Another long description that spans only one line but would normally be wrapped over two lines'],
-                ['', ''],
-                ['', 'IX Trailing blank line', ''],
-                ['', '', 'IY Leading blank line'],
-                ['', 'SP', '', 'Stack pointer']
-            ]
+                ['DE This description spans only one line even though it would normally be wrapped over two lines', '']
+            ],
+            60001: [['', 'HL This description', 'spans three', 'lines']],
+            60002: [['', 'A Another long description that spans only one line but would normally be wrapped over two lines']],
+            60003: [['', '']],
+            60004: [['', 'IX Trailing blank line', '']],
+            60005: [['', '', 'IY Leading blank line']],
+            60006: [['', 'SP', '', 'Stack pointer']],
+            60007: [['', '  A Input', 'O:B Output']]
         }
 
         blocks = self._get_ctl_parser(ctl).get_blocks()

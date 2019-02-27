@@ -518,7 +518,7 @@ class SkoolParser:
             address_comments.append((None, None, None))
             for line in block:
                 if line.startswith(';'):
-                    comments.append(line[1:].strip())
+                    self._parse_comment_line(comments, line)
                     instruction = None
                     address_comments.append((None, None, None))
                     continue
@@ -531,7 +531,7 @@ class SkoolParser:
                 if s_line.startswith(';'):
                     if map_entry and instruction:
                         # This is an instruction comment continuation line
-                        address_comments[-1][1].append(s_line[1:].lstrip())
+                        self._parse_comment_line(address_comments[-1][1], s_line)
                     continue
 
                 # This line contains an instruction
@@ -595,6 +595,12 @@ class SkoolParser:
             self.end_address = address + (get_size(last_instruction.operation, address) or 1)
 
         parse_address_comments(address_comments, self.keep_lines)
+
+    def _parse_comment_line(self, comments, line):
+        if line.startswith('; '):
+            comments.append(line[2:].rstrip())
+        else:
+            comments.append(line[1:].rstrip())
 
     def _parse_asm_directive(self, directive, ignores, line_no):
         if directive == AD_IGNOREUA:

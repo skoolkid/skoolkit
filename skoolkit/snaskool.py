@@ -237,11 +237,7 @@ class SkoolWriter:
         if entry.has_title:
             self.write_comment(entry.title)
             wrote_desc = self._write_entry_description(entry, write_refs)
-            if entry.registers:
-                if not wrote_desc:
-                    self._write_empty_paragraph()
-                    wrote_desc = True
-                self._write_registers(entry)
+            wrote_desc = self._write_registers(entry, wrote_desc)
         else:
             wrote_desc = False
 
@@ -278,32 +274,39 @@ class SkoolWriter:
             wrote_desc = True
         return wrote_desc
 
-    def _write_registers(self, entry):
-        self.write_comment('')
-        if entry.has_ignoreua_directive(REGISTERS):
-            self.write_asm_directives(AD_IGNOREUA)
-
+    def _write_registers(self, entry, wrote_desc):
         registers = []
         for spec in entry.registers:
-            wrap_lines = len(spec) == 1
-            if self._trim_lines(spec):
-                fields = spec[0].split(' ', 1)
-                if len(fields) == 1:
-                    fields.append('')
-                registers.append((fields[0], wrap_lines, [fields[1]] + spec[1:]))
+            if len(spec) == 1:
+                reg, desc = spec[0].partition(' ')[::2]
+                if reg:
+                    registers.append((reg, desc))
+            elif self._trim_lines(spec):
+                registers.append(('', spec))
 
-        max_indent = max([reg.find(':') for reg, wrap_lines, desc in registers])
-        for reg, wrap_lines, desc in registers:
-            reg = reg.rjust(max_indent + len(reg) - reg.find(':'))
-            desc_indent = len(reg) + 1
-            if wrap_lines:
-                desc_lines = wrap(desc[0], max(self.comment_width - desc_indent, MIN_COMMENT_WIDTH)) or ['']
-            else:
-                desc_lines = desc
-            write_line('; {} {}'.format(reg, desc_lines[0]).rstrip())
-            desc_prefix = '.'.ljust(desc_indent)
-            for line in desc_lines[1:]:
-                write_line('; {}{}'.format(desc_prefix, line).rstrip())
+        entry.registers = registers
+        if registers:
+            max_indent = max(r[0].find(':') for r in registers)
+            if not wrote_desc:
+                self._write_empty_paragraph()
+                wrote_desc = True
+            self.write_comment('')
+            if entry.has_ignoreua_directive(REGISTERS):
+                self.write_asm_directives(AD_IGNOREUA)
+            for reg, desc in registers:
+                if reg:
+                    reg = reg.rjust(max_indent + len(reg) - reg.find(':'))
+                    desc_indent = len(reg) + 1
+                    desc_lines = wrap(desc, max(self.comment_width - desc_indent, MIN_COMMENT_WIDTH)) or ['']
+                    desc_prefix = '.'.ljust(desc_indent)
+                    write_line('; {} {}'.format(reg, desc_lines[0]).rstrip())
+                    for line in desc_lines[1:]:
+                        write_line('; {}{}'.format(desc_prefix, line).rstrip())
+                else:
+                    for line in desc:
+                        write_line('; {}'.format(line).rstrip())
+
+        return wrote_desc
 
     def _wrap_block_comment(self, block_comment_lines, width, opening=''):
         if len(block_comment_lines) == 1:
@@ -317,7 +320,7 @@ class SkoolWriter:
         rowspan = len(block.instructions)
         comment = ''.join(block.comment)
         multi_line = rowspan > 1 and comment
-        if multi_line and not comment.replace('.', ''):
+        if multi_line and len(block.comment) == 1 and not comment.replace('.', ''):
             block.comment[0] = comment = comment[1:]
         if multi_line or comment.startswith('{'):
             balance = comment.count('{') - comment.count('}')

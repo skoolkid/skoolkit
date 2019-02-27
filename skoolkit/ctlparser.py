@@ -1,4 +1,4 @@
-# Copyright 2009-2018 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2009-2019 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -169,8 +169,7 @@ class CtlParser:
                             self._lengths[address] = sublengths
                             self._subctls[address] = subctl
                             address += length
-                        if any(comment):
-                            self._multiline_comments[start] = (address, comment)
+                        self._multiline_comments[start] = (address, comment)
             elif asm_directive:
                 directive, address = asm_directive
                 self._asm_directives[address].append(directive)
@@ -200,7 +199,7 @@ class CtlParser:
         content = line[1:].lstrip()
         if first_char == '.':
             ctl = first_char
-            text = content.rstrip()
+            text = line[2:].rstrip()
         elif content:
             if first_char in ' >bBcCDEgiLMNRsStTuwW':
                 fields = split_unquoted(content, ' ', 1)
