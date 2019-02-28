@@ -187,7 +187,7 @@ R 32768 A Some value
 R 32768 B Another value
 N 32768 Start comment
 @ 32768 label=START
-  32768,1 Do nothing
+C 32768,1 Do nothing
 @ 32769 bfix=DEFB 2,3
 B 32769,2,2 1-line B sub-block
 @ 32771 nowarn
@@ -207,54 +207,54 @@ W 32786,4,4
 T 32790,2,1:B1
 @ 32792 rfix=DEFB 0
 S 32792,3,3
-  32795,1 Instruction with a comment continuation line
+C 32795,1 Instruction with a comment continuation line
 E 32768 End comment paragraph 1.
 E 32768 End comment paragraph 2.
 i 32796 Ignore block
 b 49152 Data block
 @ 49152 rem=Hello!
-  49152,1,1
+B 49152,1,1
 g 49153 Game status buffer entry
 W 49153,2,2
 t 49155 Message
-  49155,2,2
+T 49155,2,2
 u 49157 Unused block
-  49157,1,1
+B 49157,1,1
 w 49158 Word block
-  49158,4,2
+W 49158,4,2
 b 49162 Data block beginning with a 1-byte sub-block
-  49162,1,1
+B 49162,1,1
 C 49163,1
 t 49164 Text block beginning with a 1-byte sub-block
-  49164,1,1
+T 49164,1,1
 C 49165,1
 w 49166 Word block beginning with a 2-byte sub-block
-  49166,2,2
+W 49166,2,2
 C 49168,1
 s 49169 Zero block
-  49169,9,9
+S 49169,9,9
 C 49178,1
 b 49179 Data block with sub-block lengths amenable to abbreviation (2*3,3*2,1)
-  49179,14,2*3,3*2,1
+B 49179,14,2*3,3*2,1
 b 49193 ASM block directives
-  49193,1,1
+B 49193,1,1
 s 49194 Zero block
-  49194,384,128
+S 49194,384,128
 @ 49578 end
 b 49578 Complex DEFB statements
-  49578,20,3:T5:2,T7:3
+B 49578,20,3:T5:2,T7:3
 t 49598 Complex DEFM statements
-  49598,20,5:B5,B1:7:B2
+T 49598,20,5:B5,B1:7:B2
 b 49618 Data block with sequences of complex DEFB statements amenable to abbreviation
-  49618,16,1:T2*2,1,2:T1
+B 49618,16,1:T2*2,1,2:T1
 c 49634 Routine with an empty block description and a register section
 R 49634 BC 0
 c 49635 Routine with an empty multi-instruction comment and instruction comments that start with a '.'
-  49635,2 .
-  49637,2 ...and so on
-  49639,2 ....
-  49641,1 ...
-  49642,1 ...until the end
+C 49635,2 .
+C 49637,2 ...and so on
+C 49639,2 ....
+C 49641,1 ...
+C 49642,1 ...until the end
 i 49643 Another ignore block
 E 49643 End comment on the final block.""".split('\n')
 
@@ -279,7 +279,7 @@ R $8000 A Some value
 R $8000 B Another value
 N $8000 Start comment
 @ $8000 label=START
-  $8000,1 Do nothing
+C $8000,1 Do nothing
 @ $8001 bfix=DEFB 2,3
 B $8001,2,2 1-line B sub-block
 @ $8003 nowarn
@@ -299,54 +299,54 @@ W $8012,4,4
 T $8016,2,1:B1
 @ $8018 rfix=DEFB 0
 S $8018,3,3
-  $801B,1 Instruction with a comment continuation line
+C $801B,1 Instruction with a comment continuation line
 E $8000 End comment paragraph 1.
 E $8000 End comment paragraph 2.
 i $801C Ignore block
 b $C000 Data block
 @ $C000 rem=Hello!
-  $C000,1,1
+B $C000,1,1
 g $C001 Game status buffer entry
 W $C001,2,2
 t $C003 Message
-  $C003,2,2
+T $C003,2,2
 u $C005 Unused block
-  $C005,1,1
+B $C005,1,1
 w $C006 Word block
-  $C006,4,2
+W $C006,4,2
 b $C00A Data block beginning with a 1-byte sub-block
-  $C00A,1,1
+B $C00A,1,1
 C $C00B,1
 t $C00C Text block beginning with a 1-byte sub-block
-  $C00C,1,1
+T $C00C,1,1
 C $C00D,1
 w $C00E Word block beginning with a 2-byte sub-block
-  $C00E,2,2
+W $C00E,2,2
 C $C010,1
 s $C011 Zero block
-  $C011,9,9
+S $C011,9,9
 C $C01A,1
 b $C01B Data block with sub-block lengths amenable to abbreviation (2*3,3*2,1)
-  $C01B,14,2*3,3*2,1
+B $C01B,14,2*3,3*2,1
 b $C029 ASM block directives
-  $C029,1,1
+B $C029,1,1
 s $C02A Zero block
-  $C02A,384,128
+S $C02A,384,128
 @ $C1AA end
 b $C1AA Complex DEFB statements
-  $C1AA,20,3:T5:2,T7:3
+B $C1AA,20,3:T5:2,T7:3
 t $C1BE Complex DEFM statements
-  $C1BE,20,5:B5,B1:7:B2
+T $C1BE,20,5:B5,B1:7:B2
 b $C1D2 Data block with sequences of complex DEFB statements amenable to abbreviation
-  $C1D2,16,1:T2*2,1,2:T1
+B $C1D2,16,1:T2*2,1,2:T1
 c $C1E2 Routine with an empty block description and a register section
 R $C1E2 BC 0
 c $C1E3 Routine with an empty multi-instruction comment and instruction comments that start with a '.'
-  $C1E3,2 .
-  $C1E5,2 ...and so on
-  $C1E7,2 ....
-  $C1E9,1 ...
-  $C1EA,1 ...until the end
+C $C1E3,2 .
+C $C1E5,2 ...and so on
+C $C1E7,2 ....
+C $C1E9,1 ...
+C $C1EA,1 ...until the end
 i $C1EB Another ignore block
 E $C1EB End comment on the final block."""
 
@@ -386,40 +386,40 @@ S 32792,3,3
 i 32796
 b 49152
 @ 49152 rem=Hello!
-  49152,1,1
+B 49152,1,1
 g 49153
 W 49153,2,2
 t 49155
-  49155,2,2
+T 49155,2,2
 u 49157
-  49157,1,1
+B 49157,1,1
 w 49158
-  49158,4,2
+W 49158,4,2
 b 49162
-  49162,1,1
+B 49162,1,1
 C 49163,1
 t 49164
-  49164,1,1
+T 49164,1,1
 C 49165,1
 w 49166
-  49166,2,2
+W 49166,2,2
 C 49168,1
 s 49169
-  49169,9,9
+S 49169,9,9
 C 49178,1
 b 49179
-  49179,14,2*3,3*2,1
+B 49179,14,2*3,3*2,1
 b 49193
-  49193,1,1
+B 49193,1,1
 s 49194
-  49194,384,128
+S 49194,384,128
 @ 49578 end
 b 49578
-  49578,20,3:T5:2,T7:3
+B 49578,20,3:T5:2,T7:3
 t 49598
-  49598,20,5:B5,B1:7:B2
+T 49598,20,5:B5,B1:7:B2
 b 49618
-  49618,16,1:T2*2,1,2:T1
+B 49618,16,1:T2*2,1,2:T1
 c 49634
 c 49635
 i 49643""".split('\n')
@@ -430,7 +430,7 @@ c 00033
 c 00555
 c 07890
 c 32768
-  32768,1 Do nothing
+C 32768,1 Do nothing
 B 32769,2,2 1-line B sub-block
 B 32771,3,1,2 2-line B sub-block
 T 32774,5,5 T sub-block
@@ -441,49 +441,49 @@ B 32785,1,1
 W 32786,4,4
 T 32790,2,1:B1
 S 32792,3,3
-  32795,1 Instruction with a comment continuation line
+C 32795,1 Instruction with a comment continuation line
 i 32796
 b 49152
-  49152,1,1
+B 49152,1,1
 g 49153
 W 49153,2,2
 t 49155
-  49155,2,2
+T 49155,2,2
 u 49157
-  49157,1,1
+B 49157,1,1
 w 49158
-  49158,4,2
+W 49158,4,2
 b 49162
-  49162,1,1
+B 49162,1,1
 C 49163,1
 t 49164
-  49164,1,1
+T 49164,1,1
 C 49165,1
 w 49166
-  49166,2,2
+W 49166,2,2
 C 49168,1
 s 49169
-  49169,9,9
+S 49169,9,9
 C 49178,1
 b 49179
-  49179,14,2*3,3*2,1
+B 49179,14,2*3,3*2,1
 b 49193
-  49193,1,1
+B 49193,1,1
 s 49194
-  49194,384,128
+S 49194,384,128
 b 49578
-  49578,20,3:T5:2,T7:3
+B 49578,20,3:T5:2,T7:3
 t 49598
-  49598,20,5:B5,B1:7:B2
+T 49598,20,5:B5,B1:7:B2
 b 49618
-  49618,16,1:T2*2,1,2:T1
+B 49618,16,1:T2*2,1,2:T1
 c 49634
 c 49635
-  49635,2 .
-  49637,2 ...and so on
-  49639,2 ....
-  49641,1 ...
-  49642,1 ...until the end
+C 49635,2 .
+C 49637,2 ...and so on
+C 49639,2 ....
+C 49641,1 ...
+C 49642,1 ...until the end
 i 49643"""
 
 TEST_BYTE_FORMATS_SKOOL = """; Binary and mixed-base DEFB/DEFM statements
@@ -731,7 +731,7 @@ class CtlWriterTest(SkoolKitTestCase):
     def test_byte_formats_no_base(self):
         exp_ctl = """
             b 30000 Binary and mixed-base DEFB/DEFM statements
-              30000,30,b1:2,2:b2:3,b2,3,5,T5,b1:T2:2
+            B 30000,30,b1:2,2:b2:3,b2,3,5,T5,b1:T2:2
             T 30030,30,b1:B2,B2:b2:B3,b2,B3,B5,5,b1:2:B2
             i 30060
         """
@@ -740,7 +740,7 @@ class CtlWriterTest(SkoolKitTestCase):
     def test_byte_formats_preserve_base(self):
         exp_ctl = """
             b 30000 Binary and mixed-base DEFB/DEFM statements
-              30000,30,b1:h1:d1,h2:b2:d3,b2,d3,h5,T5,b1:T2:d1:h1
+            B 30000,30,b1:h1:d1,h2:b2:d3,b2,d3,h5,T5,b1:T2:d1:h1
             T 30030,30,b1:h1:d1,h2:b2:d3,b2,d3,h5,5,b1:2:d1:h1
             i 30060
         """
@@ -749,7 +749,7 @@ class CtlWriterTest(SkoolKitTestCase):
     def test_word_formats_no_base(self):
         exp_ctl = """
             w 40000 Binary and mixed-base DEFW statements
-              40000,68,b4,2:c2:2,8,2:b2:2,4:b2:4*2,4*4,b4
+            W 40000,68,b4,2:c2:2,8,2:b2:2,4:b2:4*2,4*4,b4
             i 40068
         """
         self._test_ctl(TEST_WORD_FORMATS_SKOOL, exp_ctl, preserve_base=False)
@@ -757,7 +757,7 @@ class CtlWriterTest(SkoolKitTestCase):
     def test_word_formats_preserve_base(self):
         exp_ctl = """
             w 40000 Binary and mixed-base DEFW statements
-              40000,68,b4,d2:c2:d2,h8,d2:b2:h2,h4:b2:d4*2,d4*2,h4*2,b4
+            W 40000,68,b4,d2:c2:d2,h8,d2:b2:h2,h4:b2:d4*2,d4*2,h4*2,b4
             i 40068
         """
         self._test_ctl(TEST_WORD_FORMATS_SKOOL, exp_ctl, preserve_base=True)
@@ -765,8 +765,8 @@ class CtlWriterTest(SkoolKitTestCase):
     def test_s_directives_no_base(self):
         exp_ctl = """
             s 50000 DEFS statements in various bases
-              50000,4256,b%0000000111110100,1000,$07D0,500:b,$0100:n
-              54256,444,256:c,88:c,60:c,40:c Tricky characters
+            S 50000,4256,b%0000000111110100,1000,$07D0,500:b,$0100:n
+            S 54256,444,256:c,88:c,60:c,40:c Tricky characters
             i 54700
         """
         self._test_ctl(TEST_S_DIRECTIVES_SKOOL, exp_ctl, preserve_base=False)
@@ -774,8 +774,8 @@ class CtlWriterTest(SkoolKitTestCase):
     def test_s_directives_preserve_base(self):
         exp_ctl = """
             s 50000 DEFS statements in various bases
-              50000,4256,b%0000000111110100,d1000,h$07D0,d500:b,h$0100:d
-              54256,444,d256:c,d88:c,d60:c,d40:c Tricky characters
+            S 50000,4256,b%0000000111110100,d1000,h$07D0,d500:b,h$0100:d
+            S 54256,444,d256:c,d88:c,d60:c,d40:c Tricky characters
             i 54700
         """
         self._test_ctl(TEST_S_DIRECTIVES_SKOOL, exp_ctl, preserve_base=True)
@@ -788,7 +788,7 @@ class CtlWriterTest(SkoolKitTestCase):
         skool = 's30000 DEFS 10,y$'
         exp_ctl = """
             s 30000
-              30000,10,10:n
+            S 30000,10,10:n
             i 30010
         """
         self._test_ctl(skool, exp_ctl)
@@ -796,20 +796,20 @@ class CtlWriterTest(SkoolKitTestCase):
     def test_operand_bases_no_base(self):
         exp_ctl = """
             c 60000 Operations in various bases
-              60000,2 Decimal
-              60002,4,b2,2 Binary, hexadecimal
-              60006,b2 Space
-              60008,2 Tab
-              60010,2 Another tab
-              60012,2 Tab, space
-              60014,3 Two spaces
-              60017,b3 Two spaces, two spaces
-              60020,3 Tab, tab
-              60023,9,b3,3,b3
-              60032,6 Hexadecimal, decimal
-              60044,170,b3,3,nb4,4,bn4,4,b2,3,b3,6,b4,7,b4,7,b4,8,b3,8,b3,8,b4,4,b2,3,b3,5,b2,4,b2,3,b3,6,b3,6,b4,8,b4,8,b4
-              60218,6 No operands
-              60228,b4
+            C 60000,2 Decimal
+            C 60002,4,b2,2 Binary, hexadecimal
+            C 60006,b2 Space
+            C 60008,2 Tab
+            C 60010,2 Another tab
+            C 60012,2 Tab, space
+            C 60014,3 Two spaces
+            C 60017,b3 Two spaces, two spaces
+            C 60020,3 Tab, tab
+            C 60023,9,b3,3,b3
+            C 60032,6 Hexadecimal, decimal
+            C 60044,170,b3,3,nb4,4,bn4,4,b2,3,b3,6,b4,7,b4,7,b4,8,b3,8,b3,8,b4,4,b2,3,b3,5,b2,4,b2,3,b3,6,b3,6,b4,8,b4,8,b4
+            C 60218,6 No operands
+            C 60228,b4
             i 60258
         """
         self._test_ctl(TEST_OPERAND_BASES_SKOOL, exp_ctl, preserve_base=False)
@@ -817,20 +817,20 @@ class CtlWriterTest(SkoolKitTestCase):
     def test_operand_bases_preserve_base(self):
         exp_ctl = """
             c 60000 Operations in various bases
-              60000,d2 Decimal
-              60002,4,b2,h2 Binary, hexadecimal
-              60006,b2 Space
-              60008,h2 Tab
-              60010,d2 Another tab
-              60012,h2 Tab, space
-              60014,d3 Two spaces
-              60017,b3 Two spaces, two spaces
-              60020,h3 Tab, tab
-              60023,9,b3,d3,b3
-              60032,6,h3,d3 Hexadecimal, decimal
-              60038,180,d3,h3,b3,h3,hb4,dh4,bd4,hh4,b2,h3,b3,d3,h3,b4,d4,h3,b4,d4,h3,b4,d4,h4,b3,d4,h4,b3,d4,h4,b4,d2,h2,b2,h3,b3,d3,h2,b2,d2,h2,b2,h3,b3,d3,h3,b3,d3,h3,b4,d4,h4,b4,d4,h4,b4,d4
-              60218,6 No operands
-              60224,34,h4,b4,d7,h5,d2,h3,d3,h4,d2
+            C 60000,d2 Decimal
+            C 60002,4,b2,h2 Binary, hexadecimal
+            C 60006,b2 Space
+            C 60008,h2 Tab
+            C 60010,d2 Another tab
+            C 60012,h2 Tab, space
+            C 60014,d3 Two spaces
+            C 60017,b3 Two spaces, two spaces
+            C 60020,h3 Tab, tab
+            C 60023,9,b3,d3,b3
+            C 60032,6,h3,d3 Hexadecimal, decimal
+            C 60038,180,d3,h3,b3,h3,hb4,dh4,bd4,hh4,b2,h3,b3,d3,h3,b4,d4,h3,b4,d4,h3,b4,d4,h4,b3,d4,h4,b3,d4,h4,b4,d2,h2,b2,h3,b3,d3,h2,b2,d2,h2,b2,h3,b3,d3,h3,b3,d3,h3,b4,d4,h4,b4,d4,h4,b4,d4
+            C 60218,6 No operands
+            C 60224,34,h4,b4,d7,h5,d2,h3,d3,h4,d2
             i 60258
         """
         self._test_ctl(TEST_OPERAND_BASES_SKOOL, exp_ctl, preserve_base=True)
@@ -838,7 +838,7 @@ class CtlWriterTest(SkoolKitTestCase):
     def test_character_operands_no_base(self):
         exp_ctl = """
             c 61000 Instruction operands as characters
-              61000,17,c6,2,c5,nc4
+            C 61000,17,c6,2,c5,nc4
             i 61017
         """
         self._test_ctl(TEST_CHARACTER_OPERANDS_SKOOL, exp_ctl, preserve_base=False)
@@ -846,7 +846,7 @@ class CtlWriterTest(SkoolKitTestCase):
     def test_character_operands_preserve_base(self):
         exp_ctl = """
             c 61000 Instruction operands as characters
-              61000,17,c6,d2,c5,hc4
+            C 61000,17,c6,d2,c5,hc4
             i 61017
         """
         self._test_ctl(TEST_CHARACTER_OPERANDS_SKOOL, exp_ctl, preserve_base=True)
@@ -854,7 +854,7 @@ class CtlWriterTest(SkoolKitTestCase):
     def test_operands_with_commas_no_base(self):
         exp_ctl = """
             c 62000 Instruction operands that contain commas
-              62000,20,c8,nc4,cn4,cc4
+            C 62000,20,c8,nc4,cn4,cc4
             i 62020
         """
         self._test_ctl(TEST_OPERANDS_WITH_COMMAS_SKOOL, exp_ctl, preserve_base=False)
@@ -862,7 +862,7 @@ class CtlWriterTest(SkoolKitTestCase):
     def test_operands_with_commas_preserve_base(self):
         exp_ctl = """
             c 62000 Instruction operands that contain commas
-              62000,20,c8,dc4,ch4,cc4
+            C 62000,20,c8,dc4,ch4,cc4
             i 62020
         """
         self._test_ctl(TEST_OPERANDS_WITH_COMMAS_SKOOL, exp_ctl, preserve_base=True)
@@ -881,13 +881,13 @@ class CtlWriterTest(SkoolKitTestCase):
         """
         exp_ctl = """
             c 60000
-              60000,c2 First comment
-              60002,c2 Comment 2
-              60004,c3 Comment 3
-              60007,c3 Comment 4
-              60010,cc4 Comment 5
-              60014,cc4 Comment 6
-              60018,cc4 Comment 7
+            C 60000,c2 First comment
+            C 60002,c2 Comment 2
+            C 60004,c3 Comment 3
+            C 60007,c3 Comment 4
+            C 60010,cc4 Comment 5
+            C 60014,cc4 Comment 6
+            C 60018,cc4 Comment 7
             B 60022,5,1:T3:1 Comment 8
             T 60027,4,3:B1 Last comment
             i 60031
@@ -903,7 +903,7 @@ class CtlWriterTest(SkoolKitTestCase):
         """
         exp_ctl = """
             b 40000
-              40000,5,5
+            B 40000,5,5
             T 40005,5,B5
             S 40010,772,512:n,c260:c
             i 40782
@@ -919,7 +919,7 @@ class CtlWriterTest(SkoolKitTestCase):
         """
         exp_ctl = """
             b 30000
-              30000,5,2:T1,T1:1
+            B 30000,5,2:T1,T1:1
             T 30005,5,B2:1,1:B1
             i 30010
         """
@@ -938,7 +938,7 @@ class CtlWriterTest(SkoolKitTestCase):
         """
         exp_ctl = """
             b 40000
-              40000,3,T1,T1:T1
+            B 40000,3,T1,T1:T1
             T 40003,3,1,1:1
             W 40006,6,c2,c4
             C 40012,c2
@@ -961,7 +961,7 @@ class CtlWriterTest(SkoolKitTestCase):
         """
         exp_ctl = """
             b 50000
-              50000,4,m1,1:m2
+            B 50000,4,m1,1:m2
             T 50004,4,m1,m2:1
             W 50008,6,m2,2:m2
             C 50014,m5
@@ -1014,15 +1014,15 @@ class CtlWriterTest(SkoolKitTestCase):
             @ 30001 ignoreua:r
             R 30001 HL 30001
             @ 30001 ignoreua:i
-              30001,1 Instruction-level comment at 30001
+            C 30001,1 Instruction-level comment at 30001
             c 30002 Routine
             @ 30003 ignoreua:m
             N 30003 Mid-block comment above 30003.
             @ 30003 ignoreua:i
-              30003,1 Instruction-level comment at 30003
+            C 30003,1 Instruction-level comment at 30003
             c 30004 Routine
             @ 30004 ignoreua:i
-              30004,1 Instruction-level comment at 30004
+            C 30004,1 Instruction-level comment at 30004
             @ 30005 ignoreua:m
             N 30005 Mid-block comment above 30005.
             @ 30004 ignoreua:e
@@ -1078,7 +1078,7 @@ class CtlWriterTest(SkoolKitTestCase):
             @ $9C40 ignoreua:r
             R $9C40 HL 40000
             @ $9C40 ignoreua:i
-              $9C40,1 Instruction-level comment at 40000
+            C $9C40,1 Instruction-level comment at 40000
             @ $9C41 ignoreua:m
             N $9C41 Mid-block comment above 40001.
             @ $9C40 ignoreua:e
@@ -1341,7 +1341,7 @@ class CtlWriterTest(SkoolKitTestCase):
         """
         exp_ctl = """
             b 40000
-              40000,1,1
+            B 40000,1,1
             W 40001,2,2
             T 40003,1,1
             i 40004
@@ -1360,7 +1360,7 @@ class CtlWriterTest(SkoolKitTestCase):
         """
         exp_ctl = """
             b 40000
-              40000,1,1
+            B 40000,1,1
             S 40001,2,2
             T 40003,1,1
             i 40004
@@ -1379,7 +1379,7 @@ class CtlWriterTest(SkoolKitTestCase):
         """
         exp_ctl = """
             b 40000
-              40000,1,1
+            B 40000,1,1
             W 40001,2,2
             T 40003,1,1
             i 40004
@@ -1398,7 +1398,7 @@ class CtlWriterTest(SkoolKitTestCase):
         """
         exp_ctl = """
             b 40000
-              40000,1,1
+            B 40000,1,1
             S 40001,2,2
             T 40003,1,1
             i 40004
@@ -1417,7 +1417,7 @@ class CtlWriterTest(SkoolKitTestCase):
         """
         exp_ctl = """
             b 40000
-              40000,1,1
+            B 40000,1,1
             W 40001,2,2
             T 40003,1,1
             i 40004
@@ -1532,7 +1532,7 @@ class CtlWriterTest(SkoolKitTestCase):
             R 32768 A Value
             N 32768 Start comment.
             N 32769 Mid-block comment.
-              32769,1 Done.
+            C 32769,1 Done.
             i 32770
         """
         self._test_ctl(skool, exp_ctl)
@@ -1613,16 +1613,16 @@ class CtlWriterTest(SkoolKitTestCase):
             b 30006
             M 30006,5 M directive covering a multi-instruction sub-block (3 DEFBs)
             W 30006,2,2
-              30008,3,1
+            B 30008,3,1
             M 30011 A word and a byte to end
             W 30011,2,2
-              30013,1,1
+            B 30013,1,1
             b 30014
             M 30014,4 Another M directive covering a multi-instruction sub-block (2 DEFBs)
             W 30014,2,2
-              30016,2,1
+            B 30016,2,1
             W 30018,2,2
-              30020,1,1
+            B 30020,1,1
             i 30021
         """
         self._test_ctl(skool, exp_ctl)
@@ -1635,7 +1635,7 @@ class CtlWriterTest(SkoolKitTestCase):
         """
         exp_ctl = """
             c 30000
-              30000,4,c2,b2
+            C 30000,4,c2,b2
             i 30006
         """
         self._test_ctl(skool, exp_ctl)
@@ -1647,7 +1647,7 @@ class CtlWriterTest(SkoolKitTestCase):
         """
         exp_ctl = """
             c 40000
-              40000,b2
+            C 40000,b2
             i 40003
         """
         self._test_ctl(skool, exp_ctl)
@@ -1663,8 +1663,8 @@ class CtlWriterTest(SkoolKitTestCase):
         """
         exp_ctl = """
             c 50000
-              50000,6,2,c2,2 Do stuff
-              50008,c2
+            C 50000,6,2,c2,2 Do stuff
+            C 50008,c2
             i 50012
         """
         self._test_ctl(skool, exp_ctl)
@@ -1680,9 +1680,9 @@ class CtlWriterTest(SkoolKitTestCase):
         """
         exp_ctl = """
             b 40001 Data at 40001
-              40001,1,1
+            B 40001,1,1
             b 40002
-              40002,1,1
+            B 40002,1,1
             i 40003
         """
         self._test_ctl(skool, exp_ctl, min_address=40001)
@@ -1726,9 +1726,9 @@ class CtlWriterTest(SkoolKitTestCase):
         """
         exp_ctl = """
             b 40000
-              40000,1,1
+            B 40000,1,1
             b 40001
-              40001,1,1
+            B 40001,1,1
             E 40001 End comment.
             i 40002
         """
@@ -1771,9 +1771,9 @@ class CtlWriterTest(SkoolKitTestCase):
         """
         exp_ctl = """
             b 40001
-              40001,1,1
+            B 40001,1,1
             b 40002
-              40002,1,1
+            B 40002,1,1
             i 40003
         """
         self._test_ctl(skool, exp_ctl, min_address=40001, max_address=40003)
@@ -1808,14 +1808,14 @@ class CtlWriterTest(SkoolKitTestCase):
         """
         exp_ctl = """
             b 30000 Test comments that start or end with a brace
-              30000,2,1 Unmatched closing brace}
-              30002,2,1 {Matched braces}
-              30004,2,1 {Unmatched opening brace
-              30006,1,1 Unmatched closing braces}}
-              30007,1,1 {{Matched braces (2)}}
-              30008,1,1 {{Unmatched opening braces
-              30009,2,1 Opening brace { at the end of a line
-              30011,2,1 Closing brace } at the beginning of a line
+            B 30000,2,1 Unmatched closing brace}
+            B 30002,2,1 {Matched braces}
+            B 30004,2,1 {Unmatched opening brace
+            B 30006,1,1 Unmatched closing braces}}
+            B 30007,1,1 {{Matched braces (2)}}
+            B 30008,1,1 {{Unmatched opening braces
+            B 30009,2,1 Opening brace { at the end of a line
+            B 30011,2,1 Closing brace } at the beginning of a line
             i 30013
         """
         self._test_ctl(skool, exp_ctl)
@@ -1832,11 +1832,11 @@ class CtlWriterTest(SkoolKitTestCase):
         """
         exp_ctl = """
             b 50000
-              50000,2,1 The unmatched {opening brace} in this comment should be implicitly closed by the end of this entry
+            B 50000,2,1 The unmatched {opening brace} in this comment should be implicitly closed by the end of this entry
             b 50002
-              50002,2,1 The unmatched {opening brace} in this comment should be implicitly closed by the following mid-block comment
+            B 50002,2,1 The unmatched {opening brace} in this comment should be implicitly closed by the following mid-block comment
             N 50004 Here is the mid-block comment.
-              50004,1,1 The closing brace in this comment is unmatched}
+            B 50004,1,1 The closing brace in this comment is unmatched}
             i 50005
         """
         self._test_ctl(skool, exp_ctl)
@@ -1857,9 +1857,9 @@ class CtlWriterTest(SkoolKitTestCase):
         """
         exp_ctl = """
             b 32768 Data
-              32768,2,1
+            B 32768,2,1
             u 32770 Unused
-              32770,1,1
+            B 32770,1,1
             i 32771
         """
         self._test_ctl(skool, exp_ctl)
@@ -2197,7 +2197,7 @@ class CtlWriterTest(SkoolKitTestCase):
             .       an indented second line
             b 65527
             . Entry title on one line
-              65527,1,1
+            B 65527,1,1
             c 65528
             . Entry title split
             . over two lines
@@ -2205,25 +2205,25 @@ class CtlWriterTest(SkoolKitTestCase):
             . Entry title
             . split over
             . three lines
-              65529,1,1
+            B 65529,1,1
             i 65530
             . Another entry title on one line
             s 65531
             . Another entry title
             . split over two lines
-              65531,1,1
+            S 65531,1,1
             t 65532
             . Another entry title
             . split over
             . three lines
-              65532,1,1
+            T 65532,1,1
             u 65533
             . Yet another entry title on one line
-              65533,1,1
+            B 65533,1,1
             w 65534
             . Yet another entry title
             . split over two lines
-              65534,2,2
+            W 65534,2,2
         """
         self._test_ctl(skool, exp_ctl, kl_flags='a')
 
@@ -2468,12 +2468,12 @@ class CtlWriterTest(SkoolKitTestCase):
         exp_ctl = """
             b 60000
             . Data
-              60000,1,1
+            B 60000,1,1
             . This byte
             . is zero.
             c 60001
             . Routine
-              60001,2
+            C 60001,2
             . Clear the accumulator
             . before returning.
             b 60003
@@ -2488,31 +2488,31 @@ class CtlWriterTest(SkoolKitTestCase):
             . More comment
             . lines than
             . instructions.
-              60021,2,1
+            B 60021,2,1
             . Fewer comment lines than instructions.
             M 60023,4
             . A mixture
             . of instruction
             . types.
-              60023,1,1
+            B 60023,1,1
             T 60024,1,1
             W 60025,2,2
             @ 60027 rem=Test comments consisting of zero or more dots only
-              60027,2,1 .
-              60029,2,1 ..
-              60031,2,1 ...
+            B 60027,2,1 .
+            B 60029,2,1 ..
+            B 60031,2,1 ...
             c 60033
             . Test a commentless sequence of mixed-base instructions
-              60035,b2
+            C 60035,b2
             @ 60039 rem=Test a comment with an indent
-              60039,1
+            C 60039,1
             . This comment has
             .      an indented second line.
             @ 60040 rem=Test a blank comment with a semicolon
             @ 60041 rem=Test comments starting or ending with a brace
-              60041,1
+            C 60041,1
             . {
-              60042,1
+            C 60042,1
             . }
             i 60043
         """

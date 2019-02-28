@@ -393,7 +393,7 @@ class CtlWriter:
                                 comment_text = '.' + comment_text
                             elif self.keep_lines:
                                 comment_text = comment.text
-                        if any(comment_text) or ctl != entry_ctl or ctl != 'c' or has_bases:
+                        if any(comment_text) or ctl.lower() != entry_ctl or ctl != 'C' or has_bases:
                             self.write_sub_block(ctl, entry_ctl, comment_text, instructions, length)
 
     def addr_str(self, address):
@@ -445,7 +445,7 @@ class CtlWriter:
         length = 0
         sublengths = []
         address = instructions[0].address
-        if ctl == 'c':
+        if ctl == 'C':
             # Compute the sublengths for a 'C' sub-block
             for i, instruction in enumerate(instructions):
                 addr = instruction.address
@@ -470,7 +470,7 @@ class CtlWriter:
             lengths = ','.join(['{}{}'.format(*s) for s in sublengths])
             if len(sublengths) > 1:
                 lengths = '{},{}'.format(length, lengths)
-        elif ctl in 'bstw':
+        elif ctl in 'BSTW':
             # Compute the sublengths for a 'B', 'S', 'T' or 'W' sub-block
             for statement in instructions:
                 length += statement.size
@@ -479,17 +479,13 @@ class CtlWriter:
                 sublengths.pop()
             lengths = '{},{}'.format(length, get_lengths(sublengths))
 
-        if ctl == entry_ctl:
-            sub_block_ctl = ' '
-        else:
-            sub_block_ctl = ctl.upper()
         addr_str = self.addr_str(address)
         if lengths:
             lengths = ',{}'.format(lengths)
         if isinstance(comment, str):
-            write_line('{} {}{} {}'.format(sub_block_ctl, addr_str, lengths, comment).rstrip())
+            write_line('{} {}{} {}'.format(ctl, addr_str, lengths, comment).rstrip())
         else:
-            self._write_lines(comment, sub_block_ctl, addr_str + lengths)
+            self._write_lines(comment, ctl, addr_str + lengths)
 
 class SkoolParser:
     def __init__(self, skoolfile, preserve_base, min_address, max_address, keep_lines):
@@ -650,17 +646,17 @@ class Instruction:
         self.asm_directives = None
         self.ignoreua = False
         self.ignoremrcua = False
-        self.inst_ctl = get_instruction_ctl(operation).lower()
+        self.inst_ctl = get_instruction_ctl(operation)
         self.bases = ''
         self.size = None
         self.length = None
-        if self.inst_ctl == 'b':
+        if self.inst_ctl == 'B':
             self.size, self.length = get_defb_length(operation, preserve_base)
-        elif self.inst_ctl == 't':
+        elif self.inst_ctl == 'T':
             self.size, self.length = get_defb_length(operation, preserve_base)
-        elif self.inst_ctl == 'w':
+        elif self.inst_ctl == 'W':
             self.size, self.length = get_defw_length(operation, preserve_base)
-        elif self.inst_ctl == 's':
+        elif self.inst_ctl == 'S':
             self.size, self.length = get_defs_length(operation, preserve_base)
         else:
             self.bases = get_operand_bases(operation, preserve_base)
