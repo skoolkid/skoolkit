@@ -24,7 +24,7 @@ class MockCtlWriter:
 
 class Skool2CtlTest(SkoolKitTestCase):
     def _check_ctl_writer(self, skoolfile, elements=ELEMENTS, write_hex=0, preserve_base=False,
-                          min_address=0, max_address=65536, keep_lines='n'):
+                          min_address=0, max_address=65536, keep_lines=0):
         self.assertEqual(mock_ctl_writer.skoolfile, skoolfile)
         self.assertEqual(mock_ctl_writer.elements, elements)
         self.assertEqual(mock_ctl_writer.write_hex, write_hex)
@@ -67,10 +67,9 @@ class Skool2CtlTest(SkoolKitTestCase):
     @patch.object(skool2ctl, 'CtlWriter', MockCtlWriter)
     def test_option_k(self):
         skoolfile = 'test.skool'
-        for flags in ('a', 'n'):
-            for option in ('-k', '--keep-lines'):
-                skool2ctl.main((option, flags, skoolfile))
-                self._check_ctl_writer(skoolfile, keep_lines=flags)
+        for option in ('-k', '--keep-lines'):
+            skool2ctl.main((option, skoolfile))
+            self._check_ctl_writer(skoolfile, keep_lines=1)
 
     @patch.object(skool2ctl, 'CtlWriter', MockCtlWriter)
     def test_option_h(self):

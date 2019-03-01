@@ -37,10 +37,6 @@ AD_ORG = 'org'
 AD_IGNOREUA = 'ignoreua'
 AD_LABEL = 'label'
 
-# KeepLines flags
-KL_ALWAYS = 'a'
-KL_NEVER = 'n'
-
 # An entry ASM directive is one that should be placed before the entry title
 # when it is associated with the first instruction in the entry
 RE_ENTRY_ASM_DIRECTIVE = re.compile("assemble=|def[bsw]=|end$|equ=|if\(|org$|org=|remote=|replace=|set-[-a-z]+=|start$|writer=")
@@ -232,8 +228,8 @@ def extract_entry_asm_directives(asm_directives):
 
 class CtlWriter:
     def __init__(self, skoolfile, elements='abtdrmscn', write_hex=0,
-                 preserve_base=False, min_address=0, max_address=65536, kl_flags=''):
-        self.keep_lines = KL_ALWAYS in kl_flags
+                 preserve_base=False, min_address=0, max_address=65536, keep_lines=0):
+        self.keep_lines = keep_lines > 0
         self.parser = SkoolParser(skoolfile, preserve_base, min_address, max_address, self.keep_lines)
         self.elements = elements
         self.write_asm_dirs = ASM_DIRECTIVES in elements

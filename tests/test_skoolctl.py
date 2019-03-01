@@ -639,16 +639,16 @@ c62000 LD A,","
 
 class CtlWriterTest(SkoolKitTestCase):
     def _get_ctl(self, elements='abtdrmscn', write_hex=0, skool=TEST_SKOOL,
-                 preserve_base=False, min_address=0, max_address=65536, kl_flags=''):
+                 preserve_base=False, min_address=0, max_address=65536, keep_lines=0):
         skoolfile = StringIO(textwrap.dedent(skool).strip())
-        writer = CtlWriter(skoolfile, elements, write_hex, preserve_base, min_address, max_address, kl_flags)
+        writer = CtlWriter(skoolfile, elements, write_hex, preserve_base, min_address, max_address, keep_lines)
         writer.write()
         return self.out.getvalue().rstrip()
 
     def _test_ctl(self, skool, exp_ctl, write_hex=0, preserve_base=False,
-                  min_address=0, max_address=65536, kl_flags=''):
+                  min_address=0, max_address=65536, keep_lines=0):
         ctl = self._get_ctl(skool=skool, write_hex=write_hex, preserve_base=preserve_base,
-                            min_address=min_address, max_address=max_address, kl_flags=kl_flags)
+                            min_address=min_address, max_address=max_address, keep_lines=keep_lines)
         self.assertEqual(textwrap.dedent(exp_ctl).strip(), ctl)
 
     def test_invalid_address(self):
@@ -2225,7 +2225,7 @@ class CtlWriterTest(SkoolKitTestCase):
             . split over two lines
             W 65534,2,2
         """
-        self._test_ctl(skool, exp_ctl, kl_flags='a')
+        self._test_ctl(skool, exp_ctl, keep_lines=1)
 
     def test_keep_lines_in_entry_descriptions(self):
         skool = """
@@ -2292,7 +2292,7 @@ class CtlWriterTest(SkoolKitTestCase):
             . is three
             . lines.
         """
-        self._test_ctl(skool, exp_ctl, kl_flags='a')
+        self._test_ctl(skool, exp_ctl, keep_lines=1)
 
     def test_keep_lines_in_register_descriptions(self):
         skool = """
@@ -2338,7 +2338,7 @@ class CtlWriterTest(SkoolKitTestCase):
             N 65535
             . Start comment.
         """
-        self._test_ctl(skool, exp_ctl, kl_flags='a')
+        self._test_ctl(skool, exp_ctl, keep_lines=1)
 
     def test_keep_lines_in_block_start_and_mid_block_comments(self):
         skool = """
@@ -2384,7 +2384,7 @@ class CtlWriterTest(SkoolKitTestCase):
             . Paragraph two
             .    with an indented second line.
         """
-        self._test_ctl(skool, exp_ctl, kl_flags='a')
+        self._test_ctl(skool, exp_ctl, keep_lines=1)
 
     def test_keep_lines_in_block_end_comments(self):
         skool = """
@@ -2419,7 +2419,7 @@ class CtlWriterTest(SkoolKitTestCase):
             . Paragraph two
             .    with an indented second line.
         """
-        self._test_ctl(skool, exp_ctl, kl_flags='a')
+        self._test_ctl(skool, exp_ctl, keep_lines=1)
 
     def test_keep_lines_in_instruction_comments(self):
         skool = """
@@ -2516,4 +2516,4 @@ class CtlWriterTest(SkoolKitTestCase):
             . }
             i 60043
         """
-        self._test_ctl(skool, exp_ctl, kl_flags='a')
+        self._test_ctl(skool, exp_ctl, keep_lines=1)

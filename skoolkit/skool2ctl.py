@@ -18,8 +18,7 @@ import argparse
 
 from skoolkit import integer, VERSION
 from skoolkit.skoolctl import (CtlWriter, ASM_DIRECTIVES, BLOCKS, BLOCK_TITLES, BLOCK_DESC,
-                               REGISTERS, BLOCK_COMMENTS, SUBBLOCKS, COMMENTS, NON_ENTRY_BLOCKS,
-                               KL_ALWAYS, KL_NEVER)
+                               REGISTERS, BLOCK_COMMENTS, SUBBLOCKS, COMMENTS, NON_ENTRY_BLOCKS)
 
 def run(skoolfile, options):
     writer = CtlWriter(skoolfile, options.elements, options.write_hex,
@@ -44,10 +43,8 @@ def main(args):
                        help="Stop converting at this address.")
     group.add_argument('-h', '--hex', action='store_const', dest='write_hex', const=1, default=0,
                        help='Write addresses in upper case hexadecimal format.')
-    group.add_argument('-k', '--keep-lines', dest='keep_lines', metavar='L', default=KL_NEVER,
-                       help="Preserve newlines in comments as specified by L, which\nis one or more of:\n"
-                            "  {} - always\n"
-                            "  {} - never (the default)".format(KL_ALWAYS, KL_NEVER))
+    group.add_argument('-k', '--keep-lines', action='store_const', dest='keep_lines', const=1, default=0,
+                       help="Preserve line breaks in comments.")
     group.add_argument('-l', '--hex-lower', action='store_const', dest='write_hex', const=-1, default=0,
                        help='Write addresses in lower case hexadecimal format.')
     group.add_argument('-S', '--start', dest='start', metavar='ADDR', type=integer, default=0,
