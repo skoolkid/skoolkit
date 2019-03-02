@@ -1464,6 +1464,24 @@ class CtlParserTest(SkoolKitTestCase):
         self._check_headers(exp_headers, blocks)
         self._check_footers(exp_footers, blocks)
 
+    def test_header_block_unaffected_by_dot_directives(self):
+        ctl = """
+            > 40000 ; This is the start of the header.
+            . This is an intervening dot directive.
+            > 40000 ; This is the end of the header.
+            . Another dot directive to ignore.
+            c 40000 Routine
+        """
+        exp_headers = {
+            40000: [
+                '; This is the start of the header.',
+                '; This is the end of the header.'
+            ]
+        }
+
+        blocks = self._get_ctl_parser(ctl).get_blocks()
+        self._check_headers(exp_headers, blocks)
+
     def test_footer_block(self):
         ctl = """
             c 50000 Routine
@@ -1494,6 +1512,24 @@ class CtlParserTest(SkoolKitTestCase):
 
         blocks = self._get_ctl_parser(ctl).get_blocks()
         self._check_headers(exp_headers, blocks)
+        self._check_footers(exp_footers, blocks)
+
+    def test_footer_block_unaffected_by_dot_directives(self):
+        ctl = """
+            c 40000 Routine
+            > 40000,1 ; This is the start of the footer.
+            . This is an intervening dot directive.
+            > 40000,1 ; This is the end of the footer.
+            . Another dot directive to ignore.
+        """
+        exp_footers = {
+            40000: [
+                '; This is the start of the footer.',
+                '; This is the end of the footer.'
+            ]
+        }
+
+        blocks = self._get_ctl_parser(ctl).get_blocks()
         self._check_footers(exp_footers, blocks)
 
     def test_registers(self):

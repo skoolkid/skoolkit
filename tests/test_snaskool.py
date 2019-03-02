@@ -2385,6 +2385,25 @@ class SkoolWriterTest(SkoolKitTestCase):
         snapshot = [201, 201]
         self._test_write_skool(snapshot, ctl, exp_skool)
 
+    def test_header_unaffected_by_dot_directives(self):
+        ctl = """
+            > 00000 ; This is the start of the header.
+            . This is an intervening dot directive.
+            > 00000 ; This is the end of the header.
+            . Another dot directive to ignore.
+            c 00000 Routine
+            i 00001
+        """
+        exp_skool = """
+            ; This is the start of the header.
+            ; This is the end of the header.
+
+            ; Routine
+            c00000 RET           ;
+        """
+        snapshot = [201]
+        self._test_write_skool(snapshot, ctl, exp_skool)
+
     def test_footer(self):
         ctl = """
             c 00000 Routine
@@ -2415,6 +2434,25 @@ class SkoolWriterTest(SkoolKitTestCase):
             ; This is a footer.
 
             ; This is another footer.
+        """
+        snapshot = [201]
+        self._test_write_skool(snapshot, ctl, exp_skool)
+
+    def test_footer_unaffected_by_dot_directives(self):
+        ctl = """
+            c 00000 Routine
+            > 00000,1 ; This is the start of the footer.
+            . This is an intervening dot directive.
+            > 00000,1 ; This is the end of the footer.
+            . Another dot directive to ignore.
+            i 00001
+        """
+        exp_skool = """
+            ; Routine
+            c00000 RET           ;
+
+            ; This is the start of the footer.
+            ; This is the end of the footer.
         """
         snapshot = [201]
         self._test_write_skool(snapshot, ctl, exp_skool)
