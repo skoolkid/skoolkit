@@ -3,6 +3,8 @@ Changelog
 
 7.2b1
 -----
+* Added support to control files for specifying comments over multiple lines
+  (by using the :ref:`dot directive <dotDirective>`)
 
 7.1 (2019-02-02)
 ----------------

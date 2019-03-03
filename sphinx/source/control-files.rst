@@ -271,6 +271,61 @@ This can be encoded thus::
 
 and the terminal character will be restored in the same format.
 
+.. _dotDirective:
+
+The dot directive
+-----------------
+The dot (``.``) directive provides an alternative method of specifying a
+comment for a top-level or sub-block directive. For example, instead of::
+
+  c 30000 This is the title of the entry
+
+you could write::
+
+  c 30000
+  . This is the title of the entry
+
+At first glance this does not appear to be an improvement. But one advantage of
+the dot directive is that a comment can be split over multiple lines, and the
+line breaks are preserved when restored. This makes it much easier to read and
+write a long comment, especially if it contains a ``#LIST`` or ``#TABLE``
+macro. For example::
+
+  D 30000 #TABLE(default) { =h Header 1 | =h Header 2 } { Cell 1      | Cell 2 } TABLE#
+
+can be recast like this::
+
+  D 30000
+  . #TABLE(default)
+  . { =h Header 1 | =h Header 2 }
+  . { Cell 1      | Cell 2 }
+  . TABLE#
+
+In addition, a sequence of ``D``, ``N``, ``E`` or ``R`` directives at the same
+address (one for each paragraph or register description) can be reduced to just
+one of those directives followed by a sequence of dot directives::
+
+  N 30000
+  . Paragraph 1.
+  . .
+  . Paragraph 2.
+
+In fact, the dot directive can be used instead of ``D``, ``R`` and ``N``
+directives when specifying an entry header. For example::
+
+  c 30000
+  . This is the title of the entry.
+  .
+  . This is the description.
+  .
+  .   A Input
+  . O:B Output
+  .
+  . This is the start comment.
+
+Note, however, that this works only if the entry header contains no ASM
+directives.
+
 .. _ctlLoops:
 
 Loops
@@ -539,6 +594,9 @@ Revision history
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 7.2     | Added the dot (``.``) directive for specifying comments over      |
+|         | multiple lines                                                    |
++---------+-------------------------------------------------------------------+
 | 7.1     | Added support for specifying that numeric values in instruction   |
 |         | operands and DEFB, DEFM, DEFS and DEFW statements be rendered as  |
 |         | negative decimal numbers                                          |
