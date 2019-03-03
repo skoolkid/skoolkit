@@ -323,6 +323,7 @@ To list the options supported by `skool2ctl.py`, run it with no arguments::
                           instruction operands and DEFB/DEFM/DEFS/DEFW statements.
     -E ADDR, --end ADDR   Stop converting at this address.
     -h, --hex             Write addresses in upper case hexadecimal format.
+    -k, --keep-lines      Preserve line breaks in comments.
     -l, --hex-lower       Write addresses in lower case hexadecimal format.
     -S ADDR, --start ADDR
                           Start converting at this address.
@@ -345,6 +346,8 @@ file template instead.
 +---------+----------------------------------------------------------------+
 | Version | Changes                                                        |
 +=========+================================================================+
+| 7.2     | Added the ``--keep-lines`` option                              |
++---------+----------------------------------------------------------------+
 | 7.0     | Added support for the 'n' identifier in the ``--write`` option |
 +---------+----------------------------------------------------------------+
 | 6.2     | The ``--end`` and ``--start`` options accept a hexadecimal     |

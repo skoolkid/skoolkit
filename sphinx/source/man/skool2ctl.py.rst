@@ -28,6 +28,9 @@ OPTIONS
 -h, --hex
   Write addresses in upper case hexadecimal format.
 
+-k, --keep-lines
+  Preserve line breaks in comments.
+
 -l, --hex-lower
   Write addresses in lower case hexadecimal format.
 

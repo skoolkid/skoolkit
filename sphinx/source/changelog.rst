@@ -5,6 +5,8 @@ Changelog
 -----
 * Added support to control files for specifying comments over multiple lines
   (by using the :ref:`dot directive <dotDirective>`)
+* Added the ``--keep-lines`` option to :ref:`skool2ctl.py` (for preserving line
+  breaks in comments)
 
 7.1 (2019-02-02)
 ----------------
