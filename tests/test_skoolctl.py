@@ -639,13 +639,13 @@ c62000 LD A,","
 
 class CtlWriterTest(SkoolKitTestCase):
     def _get_ctl(self, elements='abtdrmscn', write_hex=0, skool=TEST_SKOOL,
-                 preserve_base=False, min_address=0, max_address=65536, keep_lines=0):
+                 preserve_base=0, min_address=0, max_address=65536, keep_lines=0):
         skoolfile = StringIO(textwrap.dedent(skool).strip())
         writer = CtlWriter(skoolfile, elements, write_hex, preserve_base, min_address, max_address, keep_lines)
         writer.write()
         return self.out.getvalue().rstrip()
 
-    def _test_ctl(self, skool, exp_ctl, write_hex=0, preserve_base=False,
+    def _test_ctl(self, skool, exp_ctl, write_hex=0, preserve_base=0,
                   min_address=0, max_address=65536, keep_lines=0):
         ctl = self._get_ctl(skool=skool, write_hex=write_hex, preserve_base=preserve_base,
                             min_address=min_address, max_address=max_address, keep_lines=keep_lines)
@@ -660,7 +660,7 @@ class CtlWriterTest(SkoolKitTestCase):
         self.assertEqual('\n'.join(TEST_CTL), self._get_ctl())
 
     def test_default_elements_hex(self):
-        self.assertEqual(TEST_CTL_HEX, self._get_ctl(write_hex=1))
+        self.assertEqual(TEST_CTL_HEX, self._get_ctl(write_hex=2))
 
     def test_default_elements_no_asm_dirs(self):
         ctl = self._get_ctl('btdrmscn')
@@ -726,7 +726,7 @@ class CtlWriterTest(SkoolKitTestCase):
             c $9cf1
             i $9cf2
         """
-        self._test_ctl(skool, exp_ctl, write_hex=-1)
+        self._test_ctl(skool, exp_ctl, write_hex=1)
 
     def test_byte_formats_no_base(self):
         exp_ctl = """
@@ -735,7 +735,7 @@ class CtlWriterTest(SkoolKitTestCase):
             T 30030,30,b1:B2,B2:b2:B3,b2,B3,B5,5,b1:2:B2
             i 30060
         """
-        self._test_ctl(TEST_BYTE_FORMATS_SKOOL, exp_ctl, preserve_base=False)
+        self._test_ctl(TEST_BYTE_FORMATS_SKOOL, exp_ctl, preserve_base=0)
 
     def test_byte_formats_preserve_base(self):
         exp_ctl = """
@@ -744,7 +744,7 @@ class CtlWriterTest(SkoolKitTestCase):
             T 30030,30,b1:h1:d1,h2:b2:d3,b2,d3,h5,5,b1:2:d1:h1
             i 30060
         """
-        self._test_ctl(TEST_BYTE_FORMATS_SKOOL, exp_ctl, preserve_base=True)
+        self._test_ctl(TEST_BYTE_FORMATS_SKOOL, exp_ctl, preserve_base=1)
 
     def test_word_formats_no_base(self):
         exp_ctl = """
@@ -752,7 +752,7 @@ class CtlWriterTest(SkoolKitTestCase):
             W 40000,68,b4,2:c2:2,8,2:b2:2,4:b2:4*2,4*4,b4
             i 40068
         """
-        self._test_ctl(TEST_WORD_FORMATS_SKOOL, exp_ctl, preserve_base=False)
+        self._test_ctl(TEST_WORD_FORMATS_SKOOL, exp_ctl, preserve_base=0)
 
     def test_word_formats_preserve_base(self):
         exp_ctl = """
@@ -760,7 +760,7 @@ class CtlWriterTest(SkoolKitTestCase):
             W 40000,68,b4,d2:c2:d2,h8,d2:b2:h2,h4:b2:d4*2,d4*2,h4*2,b4
             i 40068
         """
-        self._test_ctl(TEST_WORD_FORMATS_SKOOL, exp_ctl, preserve_base=True)
+        self._test_ctl(TEST_WORD_FORMATS_SKOOL, exp_ctl, preserve_base=1)
 
     def test_s_directives_no_base(self):
         exp_ctl = """
@@ -769,7 +769,7 @@ class CtlWriterTest(SkoolKitTestCase):
             S 54256,444,256:c,88:c,60:c,40:c Tricky characters
             i 54700
         """
-        self._test_ctl(TEST_S_DIRECTIVES_SKOOL, exp_ctl, preserve_base=False)
+        self._test_ctl(TEST_S_DIRECTIVES_SKOOL, exp_ctl, preserve_base=0)
 
     def test_s_directives_preserve_base(self):
         exp_ctl = """
@@ -778,7 +778,7 @@ class CtlWriterTest(SkoolKitTestCase):
             S 54256,444,d256:c,d88:c,d60:c,d40:c Tricky characters
             i 54700
         """
-        self._test_ctl(TEST_S_DIRECTIVES_SKOOL, exp_ctl, preserve_base=True)
+        self._test_ctl(TEST_S_DIRECTIVES_SKOOL, exp_ctl, preserve_base=1)
 
     def test_s_directive_invalid_size(self):
         with self.assertRaisesRegex(SkoolParsingError, "^Invalid integer 'x': DEFS x,1$"):
@@ -812,7 +812,7 @@ class CtlWriterTest(SkoolKitTestCase):
             C 60228,b4
             i 60258
         """
-        self._test_ctl(TEST_OPERAND_BASES_SKOOL, exp_ctl, preserve_base=False)
+        self._test_ctl(TEST_OPERAND_BASES_SKOOL, exp_ctl, preserve_base=0)
 
     def test_operand_bases_preserve_base(self):
         exp_ctl = """
@@ -833,7 +833,7 @@ class CtlWriterTest(SkoolKitTestCase):
             C 60224,34,h4,b4,d7,h5,d2,h3,d3,h4,d2
             i 60258
         """
-        self._test_ctl(TEST_OPERAND_BASES_SKOOL, exp_ctl, preserve_base=True)
+        self._test_ctl(TEST_OPERAND_BASES_SKOOL, exp_ctl, preserve_base=1)
 
     def test_character_operands_no_base(self):
         exp_ctl = """
@@ -841,7 +841,7 @@ class CtlWriterTest(SkoolKitTestCase):
             C 61000,17,c6,2,c5,nc4
             i 61017
         """
-        self._test_ctl(TEST_CHARACTER_OPERANDS_SKOOL, exp_ctl, preserve_base=False)
+        self._test_ctl(TEST_CHARACTER_OPERANDS_SKOOL, exp_ctl, preserve_base=0)
 
     def test_character_operands_preserve_base(self):
         exp_ctl = """
@@ -849,7 +849,7 @@ class CtlWriterTest(SkoolKitTestCase):
             C 61000,17,c6,d2,c5,hc4
             i 61017
         """
-        self._test_ctl(TEST_CHARACTER_OPERANDS_SKOOL, exp_ctl, preserve_base=True)
+        self._test_ctl(TEST_CHARACTER_OPERANDS_SKOOL, exp_ctl, preserve_base=1)
 
     def test_operands_with_commas_no_base(self):
         exp_ctl = """
@@ -857,7 +857,7 @@ class CtlWriterTest(SkoolKitTestCase):
             C 62000,20,c8,nc4,cn4,cc4
             i 62020
         """
-        self._test_ctl(TEST_OPERANDS_WITH_COMMAS_SKOOL, exp_ctl, preserve_base=False)
+        self._test_ctl(TEST_OPERANDS_WITH_COMMAS_SKOOL, exp_ctl, preserve_base=0)
 
     def test_operands_with_commas_preserve_base(self):
         exp_ctl = """
@@ -865,7 +865,7 @@ class CtlWriterTest(SkoolKitTestCase):
             C 62000,20,c8,dc4,ch4,cc4
             i 62020
         """
-        self._test_ctl(TEST_OPERANDS_WITH_COMMAS_SKOOL, exp_ctl, preserve_base=True)
+        self._test_ctl(TEST_OPERANDS_WITH_COMMAS_SKOOL, exp_ctl, preserve_base=1)
 
     def test_semicolons_in_instructions(self):
         skool = """
@@ -1085,7 +1085,7 @@ class CtlWriterTest(SkoolKitTestCase):
             E $9C40 End comment for the routine at 40000.
             i $9C42
         """
-        self._test_ctl(skool, exp_ctl, write_hex=1)
+        self._test_ctl(skool, exp_ctl, write_hex=2)
 
     def test_assemble_directives(self):
         skool = """

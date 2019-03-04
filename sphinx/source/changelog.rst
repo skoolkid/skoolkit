@@ -5,6 +5,11 @@ Changelog
 -----
 * Added support to control files for specifying comments over multiple lines
   (by using the :ref:`dot directive <dotDirective>`)
+* Added support to :ref:`skool2ctl.py <skool2ctl-conf>` for reading
+  configuration from `skoolkit.ini`
+* Added the ``--ini`` and ``--show-config`` options to :ref:`skool2ctl.py` (for
+  setting the value of a configuration parameter and for showing all
+  configuration parameter values)
 * Added the ``--keep-lines`` option to :ref:`skool2ctl.py` (for preserving line
   breaks in comments)
 

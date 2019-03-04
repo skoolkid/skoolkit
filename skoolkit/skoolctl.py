@@ -233,7 +233,7 @@ class CtlWriter:
         self.parser = SkoolParser(skoolfile, preserve_base, min_address, max_address, self.keep_lines)
         self.elements = elements
         self.write_asm_dirs = ASM_DIRECTIVES in elements
-        self.address_fmt = get_address_format(write_hex, write_hex < 0)
+        self.address_fmt = get_address_format(write_hex, write_hex == 1)
 
     def write(self):
         for entry in self.parser.memory_map:

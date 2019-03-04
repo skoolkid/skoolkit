@@ -1,4 +1,4 @@
-# Copyright 2017, 2018 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2017-2019 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -52,6 +52,11 @@ COMMANDS = {
         'Title-t': ('Message at {address}', ''),
         'Title-u': ('Unused', ''),
         'Title-w': ('Data block at {address}', '')
+    },
+    'skool2ctl': {
+        'Hex': (0, 'write_hex'),
+        'KeepLines': (0, 'keep_lines'),
+        'PreserveBase': (0, 'preserve_base')
     },
     'skool2html': {
         'AsmLabels': (0, 'asm_labels'),

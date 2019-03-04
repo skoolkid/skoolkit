@@ -323,8 +323,11 @@ To list the options supported by `skool2ctl.py`, run it with no arguments::
                           instruction operands and DEFB/DEFM/DEFS/DEFW statements.
     -E ADDR, --end ADDR   Stop converting at this address.
     -h, --hex             Write addresses in upper case hexadecimal format.
+    -I p=v, --ini p=v     Set the value of the configuration parameter 'p' to
+                          'v'. This option may be used multiple times.
     -k, --keep-lines      Preserve line breaks in comments.
     -l, --hex-lower       Write addresses in lower case hexadecimal format.
+    --show-config         Show configuration parameter values.
     -S ADDR, --start ADDR
                           Start converting at this address.
     -V, --version         Show SkoolKit version number and exit.
@@ -343,37 +346,66 @@ If you need to preserve any elements that control files do not support (such as
 ASM block directives), consider using :ref:`skool2sft.py` to create a skool
 file template instead.
 
-+---------+----------------------------------------------------------------+
-| Version | Changes                                                        |
-+=========+================================================================+
-| 7.2     | Added the ``--keep-lines`` option                              |
-+---------+----------------------------------------------------------------+
-| 7.0     | Added support for the 'n' identifier in the ``--write`` option |
-+---------+----------------------------------------------------------------+
-| 6.2     | The ``--end`` and ``--start`` options accept a hexadecimal     |
-|         | integer prefixed by '0x'                                       |
-+---------+----------------------------------------------------------------+
-| 6.0     | Added support for the 'a' identifier in the ``--write`` option |
-+---------+----------------------------------------------------------------+
-| 5.1     | A terminal ``i`` directive is appended if the skool file ends  |
-|         | before 65536                                                   |
-+---------+----------------------------------------------------------------+
-| 4.5     | Added the ``--start`` and ``--end`` options                    |
-+---------+----------------------------------------------------------------+
-| 4.4     | Added the ``--hex-lower`` option                               |
-+---------+----------------------------------------------------------------+
-| 3.7     | Added the ``--preserve-base`` option                           |
-+---------+----------------------------------------------------------------+
-| 3.4     | Added the ``-V`` option and the long options                   |
-+---------+----------------------------------------------------------------+
-| 2.4     | Added the ability to preserve some ASM directives              |
-+---------+----------------------------------------------------------------+
-| 2.2.2   | Added the ability to read a skool file from standard input     |
-+---------+----------------------------------------------------------------+
-| 2.0.6   | Added the ``-h`` option                                        |
-+---------+----------------------------------------------------------------+
-| 1.1     | New                                                            |
-+---------+----------------------------------------------------------------+
+.. _skool2ctl-conf:
+
+Configuration
+^^^^^^^^^^^^^
+`skool2ctl.py` will read configuration from a file named `skoolkit.ini` in the
+current working directory or in `~/.skoolkit`, if present. The recognised
+configuration parameters are:
+
+* ``Hex`` - write addresses in decimal (``0``, the default), lower case
+  hexadecimal (``1``),  or upper case hexadecimal (``2``)
+* ``KeepLines`` - preserve line breaks in comments (``1``), or don't (``0``,
+  the default)
+* ``PreserveBase`` - preserve the base of decimal and hexadecimal values in
+  instruction operands and DEFB/DEFM/DEFS/DEFW statements (``1``), or don't
+  (``0``, the default)
+
+Configuration parameters must appear in a ``[skool2ctl]`` section. For
+example, to make `skool2ctl.py` write upper case hexadecimal addresses by
+default (without having to use the ``-h`` option on the command line), add the
+following section to `skoolkit.ini`::
+
+  [skool2ctl]
+  Hex=2
+
+Configuration parameters may also be set on the command line by using the
+``--ini`` option. Parameter values set this way will override any found in
+`skoolkit.ini`.
+
++---------+-------------------------------------------------------------------+
+| Version | Changes                                                           |
++=========+===================================================================+
+| 7.2     | Configuration is read from `skoolkit.ini` if present; added the   |
+|         | ``--ini``, ``--show-config`` and ``--keep-lines`` options         |
++---------+-------------------------------------------------------------------+
+| 7.0     | Added support for the 'n' identifier in the ``--write`` option    |
++---------+-------------------------------------------------------------------+
+| 6.2     | The ``--end`` and ``--start`` options accept a hexadecimal        |
+|         | integer prefixed by '0x'                                          |
++---------+-------------------------------------------------------------------+
+| 6.0     | Added support for the 'a' identifier in the ``--write`` option    |
++---------+-------------------------------------------------------------------+
+| 5.1     | A terminal ``i`` directive is appended if the skool file ends     |
+|         | before 65536                                                      |
++---------+-------------------------------------------------------------------+
+| 4.5     | Added the ``--start`` and ``--end`` options                       |
++---------+-------------------------------------------------------------------+
+| 4.4     | Added the ``--hex-lower`` option                                  |
++---------+-------------------------------------------------------------------+
+| 3.7     | Added the ``--preserve-base`` option                              |
++---------+-------------------------------------------------------------------+
+| 3.4     | Added the ``-V`` option and the long options                      |
++---------+-------------------------------------------------------------------+
+| 2.4     | Added the ability to preserve some ASM directives                 |
++---------+-------------------------------------------------------------------+
+| 2.2.2   | Added the ability to read a skool file from standard input        |
++---------+-------------------------------------------------------------------+
+| 2.0.6   | Added the ``-h`` option                                           |
++---------+-------------------------------------------------------------------+
+| 1.1     | New                                                               |
++---------+-------------------------------------------------------------------+
 
 .. _skool2html.py:
 
