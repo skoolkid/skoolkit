@@ -12,6 +12,9 @@ Changelog
   configuration parameter values)
 * Added the ``--keep-lines`` option to :ref:`skool2ctl.py` (for preserving line
   breaks in comments)
+* Added the ``Dictionary`` configuration parameter for
+  :ref:`sna2ctl.py <sna2ctl-conf>` (to specify a file containing a list of
+  words allowed in a text string)
 
 7.1 (2019-02-02)
 ----------------
@@ -38,15 +41,15 @@ Changelog
   rendering them as byte values
 * :ref:`sna2skool.py` automatically determines the byte value of an 'S'
   directive and ignores any supplied value
-* Added the ``CommentWidthMin`` configuration parameter for :ref:`sna2skool.py`
-  (to specify the minimum width of the instruction comment field in a skool
-  file)
+* Added the ``CommentWidthMin`` configuration parameter for
+  :ref:`sna2skool.py <sna2skool-conf>` (to specify the minimum width of the
+  instruction comment field in a skool file)
 * Added the ``InstructionWidth`` configuration parameter for
-  :ref:`sna2skool.py` (to specify the minimum width of the instruction field in
-  a skool file)
-* Added the ``Semicolons`` configuration parameter for :ref:`sna2skool.py` (to
-  specify the block types in which comment semicolons are written for
-  instructions that have no comment)
+  :ref:`sna2skool.py <sna2skool-conf>` (to specify the minimum width of the
+  instruction field in a skool file)
+* Added the ``Semicolons`` configuration parameter for
+  :ref:`sna2skool.py <sna2skool-conf>` (to specify the block types in which
+  comment semicolons are written for instructions that have no comment)
 * Fixed how :ref:`sna2skool.py` interprets the base prefix ``n`` in a 'B'
   directive
 * Fixed how :ref:`skool2ctl.py` and :ref:`skool2sft.py` handle non-entry blocks

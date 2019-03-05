@@ -711,6 +711,9 @@ Configuration
 current working directory or in `~/.skoolkit`, if present. The recognised
 configuration parameters are:
 
+* ``Dictionary`` - the name of a file containing a list of allowed words, one
+  per line; if specified, a string of characters will be marked as text only if
+  it contains at least one of the words in this file
 * ``Hex`` - write addresses in decimal (``0``, the default), lower case
   hexadecimal (``1``),  or upper case hexadecimal (``2``)
 * ``TextChars`` - characters eligible for being marked as text (default:
@@ -736,6 +739,8 @@ Configuration parameters may also be set on the command line by using the
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 7.2     | Added the ``Dictionary`` configuration parameter                  |
++---------+-------------------------------------------------------------------+
 | 7.1     | Configuration is read from `skoolkit.ini` if present; added the   |
 |         | ``--ini`` and ``--show-config`` options                           |
 +---------+-------------------------------------------------------------------+

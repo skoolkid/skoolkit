@@ -1,4 +1,4 @@
-# Copyright 2009-2018 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2009-2019 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -279,8 +279,16 @@ def _generate_ctls_with_code_map(snapshot, start, end, config, code_map):
 
     return ctls
 
-def _check_text(t_blocks, t_start, t_end, text, min_length):
+def _check_text(t_blocks, t_start, t_end, text, min_length, config):
     if len(text) >= min_length:
+        words = config.get('words')
+        if words:
+            t_lower = text.lower()
+            for word in words:
+                if word in t_lower:
+                    break
+            else:
+                return
         t_blocks.append((t_start, t_end))
 
 def _get_text_blocks(snapshot, start, end, config, data=True):
@@ -298,10 +306,10 @@ def _get_text_blocks(snapshot, start, end, config, data=True):
                     t_start = address
                 text += char
             elif text:
-                _check_text(t_blocks, t_start, address, text, min_length)
+                _check_text(t_blocks, t_start, address, text, min_length, config)
                 text = ''
         if text:
-            _check_text(t_blocks, t_start, end, text, min_length)
+            _check_text(t_blocks, t_start, end, text, min_length, config)
     return t_blocks
 
 def _catch_data(ctls, ctl_addr, count, max_count, addr, op, op_bytes):

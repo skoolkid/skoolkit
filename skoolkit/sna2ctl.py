@@ -1,4 +1,4 @@
-# Copyright 2018 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2018, 2019 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -16,7 +16,7 @@
 
 import argparse
 
-from skoolkit import integer, VERSION
+from skoolkit import find_file, info, integer, open_file, VERSION
 from skoolkit.config import get_config, show_config, update_options
 from skoolkit.snactl import generate_ctls, write_ctl
 from skoolkit.snapshot import make_snapshot
@@ -24,6 +24,20 @@ from skoolkit.snapshot import make_snapshot
 END = 65536
 
 def run(snafile, options, config):
+    dict_fname = config['Dictionary']
+    if dict_fname:
+        if find_file(dict_fname):
+            info("Using dictionary file: {}".format(dict_fname))
+            words = set()
+            with open_file(config['Dictionary']) as f:
+                for line in f:
+                    word = line.strip().lower()
+                    if word:
+                        words.add(word)
+            if words:
+                config['words'] = words
+        else:
+            info("Dictionary file '{}' not found".format(dict_fname))
     snapshot, start, end = make_snapshot(snafile, options.org, options.start, options.end, options.page)
     ctls = generate_ctls(snapshot, start, end, config, options.code_map)
     write_ctl(ctls, options.ctl_hex)

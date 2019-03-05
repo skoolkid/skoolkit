@@ -300,7 +300,7 @@ class Sna2CtlTest(SkoolKitTestCase):
         with self.assertRaisesRegex(SkoolKitError, '{} is a directory'.format(nonexistent_map)):
             self.run_sna2ctl('-m {} {}'.format(nonexistent_map, binfile))
 
-    def _test_generation(self, data, exp_ctl, code_map=None, options=''):
+    def _test_generation(self, data, exp_ctl, code_map=None, options='', exp_err=''):
         if isinstance(data, str):
             infile = data
         else:
@@ -313,7 +313,7 @@ class Sna2CtlTest(SkoolKitTestCase):
         if mapfile:
             self.assertEqual(error, 'Reading {}\n'.format(mapfile))
         else:
-            self.assertEqual(error, '')
+            self.assertEqual(error, exp_err)
         ctl = dedent(exp_ctl).strip()
         org = ctl[2:7]
         ctl = '@ {0} start\n@ {0} org\n'.format(org) + ctl + '\n'
@@ -573,6 +573,29 @@ class Sna2CtlTest(SkoolKitTestCase):
             t 65530
         """
         self._test_generation(data, exp_ctl, options='-I TextMinLengthData=6')
+
+    def test_config_Dictionary(self):
+        words = '\n'.join(('lives', 'score'))
+        wordfile = self.write_text_file(words)
+        data = [
+            73, 103, 110, 111, 114, 101, 100, 0,         # 65512 DEFM "Ignored",0
+            108, 105, 118, 101, 115, 0,                  # 65520 DEFM "lives",0
+            72, 105, 103, 104, 32, 83, 99, 111, 114, 101 # 65526 DEFM "High Score"
+        ]
+        exp_ctl = """
+            b 65512
+            t 65520
+            b 65525
+            t 65526
+        """
+        exp_err = 'Using dictionary file: {}\n'.format(wordfile)
+        self._test_generation(data, exp_ctl, options='-I Dictionary={}'.format(wordfile), exp_err=exp_err)
+
+    def test_config_Dictionary_non_existent_file(self):
+        data = [72, 101, 108, 108, 111] # 65531 DEFM "Hello"
+        exp_ctl = "t 65531"
+        exp_err = "Dictionary file 'non-existent.txt' not found\n"
+        self._test_generation(data, exp_ctl, options='--ini Dictionary=non-existent.txt', exp_err=exp_err)
 
     def test_jr_across_64k_boundary(self):
         data = [24]
@@ -968,6 +991,7 @@ class Sna2CtlTest(SkoolKitTestCase):
         self.assertEqual(error, '')
         exp_output = """
             [sna2ctl]
+            Dictionary=
             Hex=0
             TextChars=0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ !"$%&'()*+,-./:;<=>?[]
             TextMinLengthCode=12
@@ -978,6 +1002,7 @@ class Sna2CtlTest(SkoolKitTestCase):
     def test_option_show_config_read_from_file(self):
         ini = """
             [sna2ctl]
+            Dictionary=words.txt
             Hex=1
             TextChars=abcdefghijklmnopqrstuvwxyz
             TextMinLengthCode=12
@@ -988,6 +1013,7 @@ class Sna2CtlTest(SkoolKitTestCase):
         self.assertEqual(error, '')
         exp_output = """
             [sna2ctl]
+            Dictionary=words.txt
             Hex=1
             TextChars=abcdefghijklmnopqrstuvwxyz
             TextMinLengthCode=12

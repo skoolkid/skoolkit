@@ -22,6 +22,7 @@ from skoolkit.refparser import RefParser
 
 COMMANDS = {
     'sna2ctl' : {
+        'Dictionary': ('', ''),
         'Hex': (0, 'ctl_hex'),
         'TextChars': ('0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ !"$%&\'()*+,-./:;<=>?[]', ''),
         'TextMinLengthCode': (12, ''),
