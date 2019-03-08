@@ -15,6 +15,8 @@ Changelog
 * Added the ``Dictionary`` configuration parameter for
   :ref:`sna2ctl.py <sna2ctl-conf>` (to specify a file containing a list of
   words allowed in a text string)
+* Added the ``bytes`` identifier to the :ref:`t_asm_instruction` template (for
+  rendering the byte values of an assembled instruction)
 
 7.1 (2019-02-02)
 ----------------

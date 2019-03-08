@@ -7679,6 +7679,72 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
         writer.write_asm_entries()
         self._assert_content_equal(exp_content, 'asm/32768.html')
 
+    def test_bytes_field_in_asm_instruction_template(self):
+        skool = """
+            @assemble=2
+            ; Routine at 32768
+            c32768 XOR A    ; One byte
+             32769 LD A,0   ; Two bytes
+             32771 LD HL,0  ; Three bytes
+             32774 LD IX,0  ; Four bytes
+             32778 DEFB 0   ; No bytes
+             32779 DEFM "a" ; No bytes
+             32780 DEFS 1   ; No bytes
+             32781 DEFW 0   ; No bytes
+        """
+        ref = """
+            [Template:Asm]
+            {entry[title]}
+            {disassembly}
+
+            [Template:asm_instruction]
+            {address} {bytes:02X}: {operation} ; {comment}
+        """
+        exp_content = """
+            Routine at 32768
+            32768 AF: XOR A ; One byte
+            32769 3E00: LD A,0 ; Two bytes
+            32771 210000: LD HL,0 ; Three bytes
+            32774 DD210000: LD IX,0 ; Four bytes
+            32778 : DEFB 0 ; No bytes
+            32779 : DEFM "a" ; No bytes
+            32780 : DEFS 1 ; No bytes
+            32781 : DEFW 0 ; No bytes
+        """
+
+        writer = self._get_writer(ref=ref, skool=skool)
+        writer.write_asm_entries()
+        self._assert_content_equal(exp_content, 'asm/32768.html')
+
+    def test_bytes_field_with_separator_in_asm_instruction_template(self):
+        skool = """
+            @assemble=2
+            ; Routine at 32768
+            c32768 XOR A   ; One byte
+             32769 LD A,0  ; Two bytes
+             32771 LD HL,0 ; Three bytes
+             32774 LD IX,0 ; Four bytes
+        """
+        ref = """
+            [Template:Asm]
+            {entry[title]}
+            {disassembly}
+
+            [Template:asm_instruction]
+            {address} {bytes:/03/,}: {operation} ; {comment}
+        """
+        exp_content = """
+            Routine at 32768
+            32768 175: XOR A ; One byte
+            32769 062,000: LD A,0 ; Two bytes
+            32771 033,000,000: LD HL,0 ; Three bytes
+            32774 221,033,000,000: LD IX,0 ; Four bytes
+        """
+
+        writer = self._get_writer(ref=ref, skool=skool)
+        writer.write_asm_entries()
+        self._assert_content_equal(exp_content, 'asm/32768.html')
+
     def test_custom_asm_footer_template(self):
         skool = """
             ; Routine at 32768

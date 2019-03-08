@@ -1,4 +1,4 @@
-# Copyright 2008-2018 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2008-2019 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -555,6 +555,7 @@ class HtmlWriter:
         return {
             'exists': 1,
             'labels': int(any([instruction.asm_label for instruction in entry.instructions])),
+            'annotated': int(any([i.comment and i.comment.text for i in entry.instructions])),
             'type': entry.ctl,
             'location': entry.address,
             'address': entry.addr_str,
@@ -721,7 +722,6 @@ class HtmlWriter:
     def _get_asm_entry(self, cwd, index, map_file):
         entry = self.memory_map[index]
         entry_dict = self._get_asm_entry_dict(cwd, index, map_file)
-        entry_dict['annotated'] = int(any([i.comment and i.comment.text for i in entry.instructions]))
 
         input_reg, output_reg = self.format_registers(cwd, entry.registers, entry_dict)
 
@@ -771,6 +771,10 @@ class HtmlWriter:
             instruction_subs['comment_rowspan'] = comment_rowspan
             instruction_subs['annotated'] = annotated
             instruction_subs['t_anchor'] = anchor
+            if operation.upper().startswith(('DEFB', 'DEFM', 'DEFS', 'DEFW')):
+                instruction_subs['bytes'] = Bytes()
+            else:
+                instruction_subs['bytes'] = Bytes(instruction.data)
             lines.append(self.format_template('asm_instruction', instruction_subs))
 
         if entry.end_comment:
@@ -1212,3 +1216,14 @@ class FileInfo:
 
     def file_exists(self, fname):
         return isfile(join(self.odir, fname))
+
+class Bytes:
+    def __init__(self, values=()):
+        self.values = values
+
+    def __format__(self, spec):
+        if spec and spec.count(spec[0]) > 1:
+            bspec, sep = spec[1:].split(spec[0])[:2]
+        else:
+            bspec, sep = spec, ''
+        return sep.join(v.__format__(bspec) for v in self.values)

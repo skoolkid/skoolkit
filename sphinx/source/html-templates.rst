@@ -271,6 +271,7 @@ identifiers):
   hexadecimal format, depending on how it appears in the skool file, and the
   options passed to :ref:`skool2html.py`)
 * ``annotated`` - '1' if the instruction has a comment field, '0' otherwise
+* ``bytes`` - the byte values of the assembled instruction (see below)
 * ``called`` - '2' if the instruction is an entry point, '1' otherwise
 * ``comment`` - the text of the instruction's comment field
 * ``comment_rowspan`` - the number of instructions to which the comment field
@@ -283,9 +284,34 @@ identifiers):
   hyperlinked if appropriate
 * ``t_anchor`` - replaced by a copy of the :ref:`t_anchor` subtemplate
 
+The ``bytes`` identifier can be used to render the byte values of an
+instruction. In its simplest form, it provides a format specification that is
+applied to each byte. For example::
+
+  {bytes:02X}
+
+would produce the string ``3E01`` for the instruction 'LD A,1'.
+
+To render the byte values as 0-padded decimal integers separated by commas, use
+the following syntax::
+
+  {bytes:/03/,}
+
+This would produce the string ``062,001`` for the instruction 'LD A,1'. The
+delimiter used in this example (``/``) is arbitrary; it could be any character
+that doesn't appear in the byte format specification itself.
+
+Note that byte values are available only for regular assembly language
+instructions (not DEFB, DEFM, DEFS or DEFW statements), and only if they have
+actually been assembled by using :ref:`@assemble=2 <assemble>`. When no byte
+values are available, the ``bytes`` identifier produces an empty string.
+
 To see the default ``asm_instruction`` template, run the following command::
 
   $ skool2html.py -r Template:asm_instruction
+
+.. versionchanged:: 7.2
+   Added the ``bytes`` identifier.
 
 .. versionchanged:: 6.3
    Added the ``location`` identifier.

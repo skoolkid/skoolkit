@@ -55,6 +55,7 @@ def get_address(operation):
 def set_bytes(snapshot, address, operation):
     data = assemble(operation, address)
     snapshot[address:address + len(data)] = data
+    return data
 
 def parse_asm_block_directive(directive, stack):
     prefix = directive[:4]
@@ -522,7 +523,7 @@ class SkoolParser:
                 if address is not None:
                     operation = instruction.operation
                     if self.mode.assemble > 1 or (self.mode.assemble and operation.upper().startswith(('DEFB ', 'DEFM ', 'DEFS ', 'DEFW '))):
-                        set_bytes(self.snapshot, address, operation)
+                        instruction.data = set_bytes(self.snapshot, address, operation)
 
             if map_entry and map_entry.instructions:
                 self._entries[map_entry.address] = map_entry
@@ -1043,6 +1044,7 @@ class Instruction:
             self.addr_base = BASE_10
         self.address = parse_int(addr_str)
         self.operation = operation
+        self.data = ()
         self.container = None
         self.reference = None
         self.mid_block_comment = None
