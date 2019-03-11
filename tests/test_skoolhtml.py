@@ -30,6 +30,7 @@ REF_SECTIONS = {
     'Page_Facts': defaults.get_section('Page:Facts'),
     'Page_Pokes': defaults.get_section('Page:Pokes'),
     'PageHeaders': defaults.get_section('PageHeaders'),
+    'Template_asm_instruction': defaults.get_section('Template:asm_instruction'),
     'Template_img': defaults.get_section('Template:img'),
     'Template_link': defaults.get_section('Template:link'),
     'Template_list': defaults.get_section('Template:list'),
@@ -49,10 +50,11 @@ Created=
 LinkInternalOperands=0
 LinkOperands=CALL,DEFW,DJNZ,JP,JR
 [Paths]
-CodePath={}
+CodePath={ASMDIR}
 CodeFiles={{address}}.html
 UDGFilename=udg{{addr}}_{{attr}}x{{scale}}
-""".format(ASMDIR)
+{REF_SECTIONS[Template_asm_instruction]}
+""".format(**locals())
 
 METHOD_MINIMAL_REF_FILE = """
 [Game]
@@ -67,8 +69,8 @@ ScreenshotImagePath={SCRDIR}
 UDGImagePath={UDGDIR}
 UDGFilename=udg{{addr}}_{{attr}}x{{scale}}
 CodeFiles={{address}}.html
-[Template:img]
-<img alt="{{alt}}" src="{{src}}" />
+{REF_SECTIONS[Template_asm_instruction]}
+{REF_SECTIONS[Template_img]}
 """.format(**locals())
 
 SKOOL_MACRO_MINIMAL_REF_FILE = """
@@ -94,6 +96,7 @@ Bugs={REFERENCE_DIR}/bugs.html
 CodeFiles={{address}}.html
 Facts={REFERENCE_DIR}/facts.html
 Pokes={REFERENCE_DIR}/pokes.html
+{REF_SECTIONS[Template_asm_instruction]}
 {REF_SECTIONS[Template_img]}
 {REF_SECTIONS[Template_link]}
 {REF_SECTIONS[Template_list]}
@@ -2745,6 +2748,190 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         name = self.skoolfile[:-6]
         self.assertIn('<title>{}: {}</title>'.format(name, title), html)
         self.assertIn('<td class="page-header">{}</td>'.format(header), html)
+
+    def test_parameter_DisassemblyTableNumCols_default_value(self):
+        ref = """
+            [Template:asm_instruction]
+            <tr>
+            <td class="instruction">{label} {t_anchor}{address} {operation}</td>
+            <td class="comment-{annotated}{entry[annotated]}" rowspan="{comment_rowspan}">{comment}</td>
+            </tr>
+        """
+        skool = """
+            ; Routine at 50000
+            ;
+            ; .
+            ;
+            ; .
+            ;
+            ; It begins here.
+            @label=START
+            c50000 RET
+        """
+        writer = self._get_writer(ref=ref, skool=skool, asm_labels=True)
+        writer.write_asm_entries()
+
+        content = """
+            <div class="description">50000: Routine at 50000</div>
+            <table class="disassembly">
+            <tr>
+            <td class="routine-comment" colspan="2">
+            <div class="details">
+            </div>
+            <table class="input-0">
+            <tr class="asm-input-header">
+            <th colspan="2">Input</th>
+            </tr>
+            </table>
+            <table class="output-0">
+            <tr class="asm-output-header">
+            <th colspan="2">Output</th>
+            </tr>
+            </table>
+            </td>
+            </tr>
+            <tr>
+            <td class="routine-comment" colspan="2">
+            <span id="50000"></span>
+            <div class="comments">
+            <div class="paragraph">
+            It begins here.
+            </div>
+            </div>
+            </td>
+            </tr>
+            <tr>
+            <td class="instruction">START <span id="50000"></span>50000 RET</td>
+            <td class="comment-10" rowspan="1"></td>
+            </tr>
+            </table>
+        """
+        subs = {
+            'header': 'Routines',
+            'title': 'Routine at 50000',
+            'body_class': 'Asm-c',
+            'up': '50000',
+            'content': content
+        }
+        self._assert_files_equal(join(ASMDIR, '50000.html'), subs)
+
+    def test_parameter_DisassemblyTableNumCols_default_value_with_single_page(self):
+        ref = """
+            [Game]
+            AsmSinglePageTemplate=AsmAllInOne
+
+            [Template:asm_instruction]
+            <tr>
+            <td class="asm-label-{entry[labels]}">{label}</td>
+            <td class="instruction">{t_anchor}{address} {operation}</td>
+            <td class="comment-{annotated}{entry[annotated]}" rowspan="{comment_rowspan}">{comment}</td>
+            </tr>
+        """
+        skool = """
+            ; Routine at 32768
+            c32768 RET
+        """
+        writer = self._get_writer(ref=ref, skool=skool)
+        writer.write_asm_entries()
+
+        content = """
+            <div id="32768" class="description">32768: Routine at 32768</div>
+            <table class="disassembly">
+            <tr>
+            <td class="routine-comment" colspan="3">
+            <div class="details">
+            </div>
+            <table class="input-0">
+            <tr class="asm-input-header">
+            <th colspan="2">Input</th>
+            </tr>
+            </table>
+            <table class="output-0">
+            <tr class="asm-output-header">
+            <th colspan="2">Output</th>
+            </tr>
+            </table>
+            </td>
+            </tr>
+            <tr>
+            <td class="asm-label-0"></td>
+            <td class="instruction"><span id="32768"></span>32768 RET</td>
+            <td class="comment-10" rowspan="1"></td>
+            </tr>
+            </table>
+        """
+        subs = {
+            'path': '',
+            'header': 'Disassembly',
+            'title': 'Disassembly',
+            'body_class': 'AsmSinglePage',
+            'content': content
+        }
+        self._assert_files_equal('asm.html', subs)
+
+    def test_parameter_DisassemblyTableNumCols_specified_value(self):
+        ref = """
+            [Game]
+            DisassemblyTableNumCols=100
+        """
+        skool = """
+            ; Routine at 50000
+            ;
+            ; .
+            ;
+            ; .
+            ;
+            ; It begins here.
+            c50000 RET
+        """
+        writer = self._get_writer(ref=ref, skool=skool)
+        writer.write_asm_entries()
+
+        content = """
+            <div class="description">50000: Routine at 50000</div>
+            <table class="disassembly">
+            <tr>
+            <td class="routine-comment" colspan="100">
+            <div class="details">
+            </div>
+            <table class="input-0">
+            <tr class="asm-input-header">
+            <th colspan="2">Input</th>
+            </tr>
+            </table>
+            <table class="output-0">
+            <tr class="asm-output-header">
+            <th colspan="2">Output</th>
+            </tr>
+            </table>
+            </td>
+            </tr>
+            <tr>
+            <td class="routine-comment" colspan="100">
+            <span id="50000"></span>
+            <div class="comments">
+            <div class="paragraph">
+            It begins here.
+            </div>
+            </div>
+            </td>
+            </tr>
+            <tr>
+            <td class="asm-label-0"></td>
+            <td class="address-2"><span id="50000"></span>50000</td>
+            <td class="instruction">RET</td>
+            <td class="comment-10" rowspan="1"></td>
+            </tr>
+            </table>
+        """
+        subs = {
+            'header': 'Routines',
+            'title': 'Routine at 50000',
+            'body_class': 'Asm-c',
+            'up': '50000',
+            'content': content
+        }
+        self._assert_files_equal(join(ASMDIR, '50000.html'), subs)
 
     def test_parameter_LinkInternalOperands_0(self):
         ref = '[Game]\nLinkInternalOperands=0'

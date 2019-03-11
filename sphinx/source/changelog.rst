@@ -17,6 +17,9 @@ Changelog
   words allowed in a text string)
 * Added the ``bytes`` identifier to the :ref:`t_asm_instruction` template (for
   rendering the byte values of an assembled instruction)
+* Added the ``DisassemblyTableNumCols`` parameter to the :ref:`ref-Game`
+  section (for specifying the number of columns in the disassembly table on
+  disassembly pages)
 
 7.1 (2019-02-02)
 ----------------

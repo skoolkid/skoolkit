@@ -1,4 +1,4 @@
-# Copyright 2014-2018 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2014-2019 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -48,6 +48,7 @@ SECTIONS['Game'] = """
 AddressAnchor={address}
 Copyright=
 Created=Created using <a href="http://skoolkit.ca/">SkoolKit</a> #VERSION.
+; DisassemblyTableNumCols=
 ; Font=
 ; Game=
 InputRegisterTableHeader=Input
@@ -280,7 +281,7 @@ SECTIONS['Template:Asm'] = """
 <div class="description">{entry[address]}: {entry[title]}</div>
 <table class="disassembly">
 <tr>
-<td class="routine-comment" colspan="4">
+<td class="routine-comment" colspan="{Game[DisassemblyTableNumCols]}">
 <div class="details">
 {entry[description]}
 </div>
@@ -442,7 +443,7 @@ SECTIONS['Template:anchor'] = """
 
 SECTIONS['Template:asm_comment'] = """
 <tr>
-<td class="routine-comment" colspan="4">
+<td class="routine-comment" colspan="{Game[DisassemblyTableNumCols]}">
 {t_anchor}
 <div class="comments">
 {m_paragraph}
@@ -455,7 +456,7 @@ SECTIONS['Template:asm_entry'] = """
 <div id="{anchor}" class="description">{entry[address]}: {entry[title]}</div>
 <table class="disassembly">
 <tr>
-<td class="routine-comment" colspan="4">
+<td class="routine-comment" colspan="{Game[DisassemblyTableNumCols]}">
 <div class="details">
 {entry[description]}
 </div>

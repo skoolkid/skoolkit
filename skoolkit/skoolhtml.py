@@ -200,7 +200,6 @@ class HtmlWriter:
                 def_game_name = suffix
             self.game_vars['Game'] = def_game_name
         self.game_name = self.game_vars['Game']
-        self.game = self.game_vars.copy()
         link_operands = self.game_vars['LinkOperands']
         self.link_operands = tuple(op.upper() for op in link_operands.split(','))
         self.link_internal_operands = self.game_vars['LinkInternalOperands'] != '0'
@@ -209,9 +208,9 @@ class HtmlWriter:
         if global_js:
             self.js_files = tuple(global_js.split(';'))
 
-        self.templates = {}
-        for name, template in self.get_sections('Template'):
-            self.templates[name] = template
+        self.templates = dict(self.get_sections('Template'))
+        self.game_vars.setdefault('DisassemblyTableNumCols', self.templates['asm_instruction'].count('</td>'))
+        self.game = self.game_vars.copy()
         self.skoolkit = {}
         self.stylesheets = {}
         self.javascript = {}

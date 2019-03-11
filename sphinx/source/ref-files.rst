@@ -136,6 +136,10 @@ Recognised parameters are:
 * ``Created`` - the message indicating the software used to create the
   disassembly that appears in the footer of every page (default: 'Created using
   SkoolKit #VERSION.')
+* ``DisassemblyTableNumCols`` - the number of columns in the disassembly table
+  on disassembly pages (default: the number of occurrences of '</td>' in the
+  :ref:`t_asm_instruction` template); this value is used by the :ref:`t_Asm`,
+  :ref:`t_asm_comment` and :ref:`t_asm_entry` templates
 * ``Font`` - the base name of the font file to use (default: None); multiple
   font files can be declared by separating their names with semicolons
 * ``Game`` - the name of the game, which appears in the title of every page,
@@ -190,6 +194,8 @@ could produce such an anchor should be avoided.
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 7.2     | Added the ``DisassemblyTableNumCols`` parameter                   |
++---------+-------------------------------------------------------------------+
 | 6.0     | Every parameter (not just ``Logo``) may contain                   |
 |         | :ref:`skool macros <skoolMacros>`                                 |
 +---------+-------------------------------------------------------------------+
