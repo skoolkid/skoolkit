@@ -3908,3 +3908,30 @@ class SkoolWriterTest(SkoolKitTestCase):
             c00007 RET           ;
         """
         self._test_write_skool(snapshot, ctl, exp_skool)
+
+    def test_entire_entry_header_preserved_by_dot_directives(self):
+        snapshot = [0]
+        ctl = """
+            b 00000
+            . This is the title of the entry.
+            .
+            . This is the description.
+            .
+            .   A Input
+            . O:B Output
+            .
+            . This is the start comment.
+            i 00001
+        """
+        exp_skool = """
+            ; This is the title of the entry.
+            ;
+            ; This is the description.
+            ;
+            ;   A Input
+            ; O:B Output
+            ;
+            ; This is the start comment.
+            b00000 DEFB 0
+        """
+        self._test_write_skool(snapshot, ctl, exp_skool)
