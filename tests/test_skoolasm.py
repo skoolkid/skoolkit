@@ -708,8 +708,6 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
             ; Routine at 32768
             ;
             ; Used by the routine at 32768.
-            ;
-            ; HL 32768
             c32768 LD A,B  ; This instruction is at 32768
             ; This mid-routine comment is above 32769.
              32769 RET
@@ -720,12 +718,37 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
             ; Routine at 32768
             WARNING: Comment contains address (32768) not converted to a label:
             ; Used by the routine at 32768.
-            WARNING: Register description contains address (32768) not converted to a label:
-            ; HL 32768
             WARNING: Comment at 32768 contains address (32768) not converted to a label:
               LD A,B                  ; This instruction is at 32768
             WARNING: Comment above 32769 contains address (32769) not converted to a label:
             ; This mid-routine comment is above 32769.
+        """
+        self.assertEqual(dedent(exp_warnings).strip(), warnings.rstrip())
+
+    def test_warn_unconverted_addresses_in_register_descriptions(self):
+        skool = """
+            @start
+            ; Routine
+            ;
+            ; .
+            ;
+            ; BC 32768
+            ; DE #LIST { 0 } { 32768 } LIST#
+            ; HL #TABLE { 0 } { 32768 } TABLE#
+            c32768 RET
+        """
+        warnings = self._get_asm(skool, warn=True)[1]
+        exp_warnings = """
+            WARNING: Register description contains address (32768) not converted to a label:
+            ; BC 32768
+            WARNING: Register description contains address (32768) not converted to a label:
+            ; DE * 0
+            ;    * 32768
+            WARNING: Register description contains address (32768) not converted to a label:
+            ; HL +-------+
+            ;    | 0     |
+            ;    | 32768 |
+            ;    +-------+
         """
         self.assertEqual(dedent(exp_warnings).strip(), warnings.rstrip())
 
@@ -2038,6 +2061,10 @@ class TableMacroTest(SkoolKitTestCase):
         output = writer.format(table, 79)
         self.assertEqual(dedent(exp_output).strip('\n'), '\n'.join(output))
 
+    def _test_skool(self, skool, exp_output):
+        self._get_writer(skool).write()
+        self.assertEqual(dedent(exp_output).strip(), self.out.getvalue().strip())
+
     def test_headers_and_colspans_and_rowspans(self):
         # Headers, colspans 1 and 2, rowspans 1 and 2
         src = """
@@ -2477,8 +2504,7 @@ class TableMacroTest(SkoolKitTestCase):
             ; +-------+
               RET
         """
-        self._get_writer(skool).write()
-        self.assertEqual(dedent(exp_output).strip(), self.out.getvalue().strip())
+        self._test_skool(skool, exp_output)
 
     def test_in_instruction_comment(self):
         skool = """
@@ -2493,8 +2519,28 @@ class TableMacroTest(SkoolKitTestCase):
                                       ; | done.  |
                                       ; +--------+
         """
-        self._get_writer(skool).write()
-        self.assertEqual(dedent(exp_output).strip(), self.out.getvalue().strip())
+        self._test_skool(skool, exp_output)
+
+    def test_in_register_description(self):
+        skool = """
+            @start
+            ; Routine
+            ;
+            ; .
+            ;
+            ; A #TABLE { Value 1 } { Value 2 } TABLE#
+            c32768 RET
+        """
+        exp_output = """
+            ; Routine
+            ;
+            ; A +---------+
+            ;   | Value 1 |
+            ;   | Value 2 |
+            ;   +---------+
+              RET
+        """
+        self._test_skool(skool, exp_output)
 
     def test_missing_end_marker(self):
         writer = self._get_writer()
@@ -2573,6 +2619,10 @@ class ListMacroTest(SkoolKitTestCase):
         list_src = '#LIST{}\nLIST#'.format(dedent(src_lines).strip())
         output = writer.format(list_src, 79)
         self.assertEqual(dedent(exp_output).strip(), '\n'.join(output))
+
+    def _test_skool(self, skool, exp_output):
+        self._get_writer(skool).write()
+        self.assertEqual(dedent(exp_output).strip(), self.out.getvalue().strip())
 
     def test_wrapped_item(self):
         src = """
@@ -2680,8 +2730,7 @@ class ListMacroTest(SkoolKitTestCase):
             ; * Item B
               RET
         """
-        self._get_writer(skool).write()
-        self.assertEqual(dedent(exp_output).strip(), self.out.getvalue().strip())
+        self._test_skool(skool, exp_output)
 
     def test_in_instruction_comment(self):
         skool = """
@@ -2694,8 +2743,26 @@ class ListMacroTest(SkoolKitTestCase):
               RET                     ; * We are
                                       ; * done.
         """
-        self._get_writer(skool).write()
-        self.assertEqual(dedent(exp_output).strip(), self.out.getvalue().strip())
+        self._test_skool(skool, exp_output)
+
+    def test_in_register_description(self):
+        skool = """
+            @start
+            ; Routine
+            ;
+            ; .
+            ;
+            ; A #LIST { Value 1 } { Value 2 } LIST#
+            c32768 RET
+        """
+        exp_output = """
+            ; Routine
+            ;
+            ; A * Value 1
+            ;   * Value 2
+              RET
+        """
+        self._test_skool(skool, exp_output)
 
     def test_missing_end_marker(self):
         writer = self._get_writer()

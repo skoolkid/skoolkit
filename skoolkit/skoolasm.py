@@ -1,4 +1,4 @@
-# Copyright 2008-2018 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2008-2019 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -334,19 +334,19 @@ class AsmWriter:
             else:
                 prefix = indent
             reg_label = prefix + reg.name
-            reg_desc = self.expand(reg.contents)
-            if not self.entry.ignoreua['r']:
-                uaddress = self.find_unconverted_address(reg_desc)
-                if uaddress:
-                    line = '; {} {}'.format(reg_label, reg_desc)
-                    self.warn('Register description contains address ({}) not converted to a label:\n{}'.format(uaddress, line))
-            if reg_desc:
-                desc_indent = len(reg_label) + 1
-                desc_lines = wrap(reg_desc, self.desc_width - desc_indent)
-                self.write_line('; {} {}'.format(reg_label, desc_lines[0]))
-                desc_prefix = ''.ljust(desc_indent)
+            desc_indent = ''.ljust(len(reg_label) + 1)
+            desc_lines = self.format(reg.contents, self.desc_width - len(desc_indent))
+            if desc_lines:
+                reg_lines = ['; {} {}'.format(reg_label, desc_lines[0])]
                 for line in desc_lines[1:]:
-                    self.write_line('; {}{}'.format(desc_prefix, line))
+                    reg_lines.append('; {}{}'.format(desc_indent, line))
+                if not self.entry.ignoreua['r']:
+                    reg_desc = '\n'.join(reg_lines)
+                    uaddress = self.find_unconverted_address(reg_desc)
+                    if uaddress:
+                        self.warn('Register description contains address ({}) not converted to a label:\n{}'.format(uaddress, reg_desc))
+                for line in reg_lines:
+                    self.write_line(line)
             else:
                 self.write_line('; {}'.format(reg_label))
 

@@ -20,6 +20,8 @@ Changelog
 * Added the ``DisassemblyTableNumCols`` parameter to the :ref:`ref-Game`
   section (for specifying the number of columns in the disassembly table on
   disassembly pages)
+* In ASM mode, :ref:`list` and :ref:`table` macros can now be used in register
+  descriptions
 
 7.1 (2019-02-02)
 ----------------

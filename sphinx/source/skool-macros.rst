@@ -676,6 +676,8 @@ By default, each list item is wrapped over multiple lines with no indent.
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 7.2     | ``#LIST`` can be used in register descriptions in ASM mode        |
++---------+-------------------------------------------------------------------+
 | 7.0     | Added the ``nowrap`` and ``wrapalign`` flags                      |
 +---------+-------------------------------------------------------------------+
 | 6.4     | In ASM mode: ``#LIST`` can be used in an instruction-level        |
@@ -997,6 +999,8 @@ See also :ref:`UDGTABLE`.
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 7.2     | ``#TABLE`` can be used in register descriptions in ASM mode       |
++---------+-------------------------------------------------------------------+
 | 7.0     | Added the ``nowrap`` and ``wrapalign`` flags                      |
 +---------+-------------------------------------------------------------------+
 | 6.4     | In ASM mode, ``#TABLE`` can be used in an instruction-level       |
