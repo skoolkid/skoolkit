@@ -1348,6 +1348,32 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
         """
         self._test_asm(skool, exp_asm)
 
+    def test_register_description_continuation_lines_with_prefixes(self):
+        skool = """
+            @start
+            ; Routine
+            ;
+            ; .
+            ;
+            ; In:BC This register description is long enough that it needs to be
+            ;      .split over two lines
+            ; DE Short register description
+            ; Out:HL Another register description that is long enough to need
+            ; .      splitting over two lines
+            c40000 RET
+        """
+        exp_asm = """
+            ; Routine
+            ;
+            ;  In:BC This register description is long enough that it needs to be split
+            ;        over two lines
+            ;     DE Short register description
+            ; Out:HL Another register description that is long enough to need splitting
+            ;        over two lines
+              RET
+        """
+        self._test_asm(skool, exp_asm)
+
     def test_registers_in_non_code_blocks(self):
         skool = """
             @start

@@ -16,13 +16,22 @@
 
 import re
 
-from skoolkit import CASE_LOWER, skoolmacro, SkoolKitError, SkoolParsingError, warn, write_text, wrap
+from skoolkit import (CASE_LOWER, skoolmacro, SkoolKitError, SkoolParsingError,
+                      format_template, warn, write_text, wrap)
 from skoolkit.skoolparser import (TableParser, ListParser, TABLE_MARKER, TABLE_END_MARKER,
                                   LIST_MARKER, LIST_END_MARKER)
 
 UDGTABLE_MARKER = '#UDGTABLE'
 
-DEF_INSTRUCTION_WIDTH = 23
+TEMPLATES = {
+    'comment_line': '; {text}',
+    'equ': '{label} {equ} {value}',
+    'instruction': '{indent}{operation:{width}} {sep} {text}',
+    'label': '{label}{suffix}',
+    'org': '{indent}{org} {address}',
+    'paragraph_separator': ';',
+    'register': '; {prefix:>{prefix_len}}{reg:{reg_len}} {text}'
+}
 
 class AsmWriter:
     def __init__(self, parser, properties):
@@ -58,7 +67,7 @@ class AsmWriter:
         else:
             self.indent_width = self._get_int_property(properties, 'indent', 2)
             self.indent = ' ' * self.indent_width
-        self.instr_width = self._get_int_property(properties, 'instruction-width', DEF_INSTRUCTION_WIDTH)
+        self.instr_width = self._get_int_property(properties, 'instruction-width', 23)
         self.min_comment_width = self._get_int_property(properties, 'comment-width-min', 10)
         self.line_width = self._get_int_property(properties, 'line-width', 79)
         self.desc_width = self.line_width - 2
@@ -120,20 +129,23 @@ class AsmWriter:
         if self.show_warnings:
             warn(s)
 
+    def format_template(self, name, fields):
+        return format_template(TEMPLATES.get(name, ''), name, **fields)
+
     def write(self):
         for index, entry in enumerate(self.parser.memory_map):
             self.print_blocks(entry.headers)
             if index == 0:
                 self.print_equs(self.parser.equs)
-            first_instruction = entry.instructions[0]
-            org = first_instruction.org
-            if org:
+            if entry.instructions[0].org:
+                subs = {
+                    'indent': self.indent,
+                    'org': 'ORG',
+                    'address': self.parser.convert_address_operand(entry.instructions[0].org)
+                }
                 if self.lower:
-                    org_dir = 'org'
-                else:
-                    org_dir = 'ORG'
-                org_addr_str = self.parser.convert_address_operand(org)
-                self.write_line('{0}{1} {2}'.format(self.indent, org_dir, org_addr_str))
+                    subs['org'] = 'org'
+                self.write_line(self.format_template('org', subs))
                 self.write_line('')
             self.entry = entry
             self.print_entry()
@@ -154,8 +166,12 @@ class AsmWriter:
             else:
                 equ_dir = 'EQU'
             for label, value in equs:
-                value = self.parser.convert_operand(value)
-                self.write_line('{} {} {}'.format(label, equ_dir, value))
+                subs = {
+                    'label': label,
+                    'equ': equ_dir,
+                    'value': self.parser.convert_operand(value)
+                }
+                self.write_line(self.format_template('equ', subs))
             self.write_line('')
 
     def print_entry(self):
@@ -308,7 +324,7 @@ class AsmWriter:
         for paragraph in paragraphs:
             lines = self.format(paragraph, self.desc_width)
             if started and lines:
-                self.write_line(';')
+                self.write_line(self.format_template('paragraph_separator', {}))
             if lines:
                 started = True
             for line in lines:
@@ -320,43 +336,45 @@ class AsmWriter:
                                 self.warn('Comment above {0} contains address ({1}) not converted to a label:\n; {2}'.format(instruction.address, uaddress, line))
                         else:
                             self.warn('Comment contains address ({0}) not converted to a label:\n; {1}'.format(uaddress, line))
-                self.write_line('; {0}'.format(line).rstrip())
+                self.write_line(self.format_template('comment_line', {'text': line}).rstrip())
 
     def print_registers(self):
-        self.write_line(';')
+        self.write_line(self.format_template('paragraph_separator', {}))
         prefix_len = max([len(reg.prefix) for reg in self.entry.registers])
         if prefix_len:
             prefix_len += 1
-        indent = ''.ljust(prefix_len)
         for reg in self.entry.registers:
             if reg.prefix:
-                prefix = '{}:'.format(reg.prefix).rjust(prefix_len)
-            else:
-                prefix = indent
-            reg_label = prefix + reg.name
-            desc_indent = ''.ljust(len(reg_label) + 1)
-            desc_lines = self.format(reg.contents, self.desc_width - len(desc_indent))
-            if desc_lines:
-                reg_lines = ['; {} {}'.format(reg_label, desc_lines[0])]
-                for line in desc_lines[1:]:
-                    reg_lines.append('; {}{}'.format(desc_indent, line))
-                if not self.entry.ignoreua['r']:
-                    reg_desc = '\n'.join(reg_lines)
-                    uaddress = self.find_unconverted_address(reg_desc)
-                    if uaddress:
-                        self.warn('Register description contains address ({}) not converted to a label:\n{}'.format(uaddress, reg_desc))
-                for line in reg_lines:
-                    self.write_line(line)
-            else:
-                self.write_line('; {}'.format(reg_label))
+                reg.prefix += ':'
+            subs = {
+                'prefix': reg.prefix,
+                'prefix_len': prefix_len,
+                'reg': reg.name,
+                'reg_len': len(reg.name)
+            }
+            reg_lines = []
+            for line in self.format(reg.contents, self.desc_width - prefix_len - len(reg.name) - 1) or ['']:
+                subs['text'] = line
+                reg_lines.append(self.format_template('register', subs).rstrip())
+                subs['prefix'] = subs['reg'] = ''
+            reg_desc = '\n'.join(reg_lines)
+            if not self.entry.ignoreua['r']:
+                uaddress = self.find_unconverted_address(reg_desc)
+                if uaddress:
+                    self.warn('Register description contains address ({}) not converted to a label:\n{}'.format(uaddress, reg_desc))
+            self.write_line(reg_desc)
 
     def print_instruction_prefix(self, instruction, index):
         if instruction.mid_block_comment:
             if index == 0:
-                self.write_line(';')
+                self.write_line(self.format_template('paragraph_separator', {}))
             self.print_comment_lines(instruction.mid_block_comment, instruction)
         if instruction.asm_label:
-            self.write_line("{0}{1}".format(instruction.asm_label, self.label_suffix))
+            subs = {
+                'label': instruction.asm_label,
+                'suffix': self.label_suffix
+            }
+            self.write_line(self.format_template('label', subs))
 
     def find_unconverted_address(self, text):
         for match in re.finditer('(\A|\s|\()((?:0x|\$)[0-9A-Fa-f]{4}|[1-9][0-9]{2,4})(?!([0-9A-Za-z]|[./*+][0-9]))', text):
@@ -390,17 +408,22 @@ class AsmWriter:
                 else:
                     operation = ''
 
+                subs = {
+                    'indent': self.indent,
+                    'operation': operation,
+                    'width': instr_width,
+                    'sep': ';',
+                    'text': ''
+                }
                 if lines:
-                    line_comment = lines.pop(0)
-                    oline = '{0}{1} ; {2}'.format(self.indent, operation.ljust(instr_width), line_comment)
-                    if not ignoreua:
-                        uaddress = self.find_unconverted_address(line_comment)
-                        if uaddress:
-                            self.warn('Comment at {} contains address ({}) not converted to a label:\n{}'.format(iaddress, uaddress, oline))
-                elif rowspan > 1:
-                    oline = '{}{} ;'.format(self.indent, operation.ljust(instr_width))
-                else:
-                    oline = self.indent + operation
+                    subs['text'] = lines.pop(0)
+                elif rowspan == 1:
+                    subs['sep'] = ''
+                oline = self.format_template('instruction', subs).rstrip()
+                if not ignoreua:
+                    uaddress = self.find_unconverted_address(subs['text'])
+                    if uaddress:
+                        self.warn('Comment at {} contains address ({}) not converted to a label:\n{}'.format(iaddress, uaddress, oline))
                 self.write_line(oline)
                 if len(oline) > self.line_width:
                     self.warn('Line is {0} characters long:\n{1}'.format(len(oline), oline))
