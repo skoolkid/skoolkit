@@ -2,6 +2,11 @@
 
 Skool file templates
 ====================
+.. note::
+   Skool file templates and :ref:`skool2sft.py` are deprecated since version
+   7.2. Use :ref:`control files <controlFiles>` and :ref:`skool2ctl.py`
+   instead.
+
 A skool file template defines the basic structure of a skool file, but, unlike
 a skool file, contains directives on how to disassemble a program into Z80
 instructions instead of the Z80 instructions themselves. The directives are

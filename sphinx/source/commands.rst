@@ -634,6 +634,10 @@ To list the options supported by `skool2sft.py`, run it with no arguments::
                           Start converting at this address.
     -V, --version         Show SkoolKit version number and exit.
 
+.. note::
+   Skool file templates and `skool2sft.py` are deprecated since version 7.2.
+   Use :ref:`control files <controlFiles>` and :ref:`skool2ctl.py` instead.
+
 +---------+-------------------------------------------------------------+
 | Version | Changes                                                     |
 +=========+=============================================================+

@@ -581,13 +581,28 @@ the skool file.
 
 Limitations
 -----------
-A control file can be useful in the early stages of developing a skool file for
-reorganising code and data blocks, but it cannot preserve an ASM block
-directive that occurs inside a regular entry.
+Control files cannot preserve ASM block directives that occur inside a regular
+entry. If your skool file contains any such ASM block directives, they should
+be replaced before using :ref:`skool2ctl.py`.
 
-:ref:`skoolFileTemplates`, however, can preserve ASM block directives that
-occur inside regular entries, and so may be a better choice for skool files
-that contain any of them.
+An ASM block directive that adds, removes or modifies a sequence of
+instructions and their associated comments can be replaced by one or more plain
+:ref:`isub`, :ref:`ssub`, :ref:`rsub`, :ref:`ofix`, :ref:`bfix` or :ref:`rfix`
+directives.
+
+An ASM block directive that modifies part of an entry header, mid-block comment
+or block end comment can be replaced by an :ref:`IF` macro that checks the
+relevant substitution mode (``asm``) or fix mode (``fix``). For example::
+
+  @bfix-begin
+  ; This is a bug.
+  @bfix+else
+  ; This bug is fixed.
+  @bfix+end
+
+could be replaced by::
+
+  ; This #IF({fix}<2)(is a bug,bug is fixed).
 
 Revision history
 ----------------
