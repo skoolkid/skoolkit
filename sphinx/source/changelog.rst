@@ -12,6 +12,11 @@ Changelog
   configuration parameter values)
 * Added the ``--keep-lines`` option to :ref:`skool2ctl.py` (for preserving line
   breaks in comments)
+* Added support for :ref:`asmTemplates` (used to format each line of output
+  produced by :ref:`skool2asm.py`)
+* Added the ``Templates`` configuration parameter for
+  :ref:`skool2asm.py <skool2asm-conf>` (for reading custom ASM templates from a
+  file)
 * Added the ``Dictionary`` configuration parameter for
   :ref:`sna2ctl.py <sna2ctl-conf>` (to specify a file containing a list of
   words allowed in a text string)

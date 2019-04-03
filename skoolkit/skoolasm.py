@@ -24,18 +24,19 @@ from skoolkit.skoolparser import (TableParser, ListParser, TABLE_MARKER, TABLE_E
 UDGTABLE_MARKER = '#UDGTABLE'
 
 TEMPLATES = {
-    'comment_line': '; {text}',
+    'comment': '; {text}',
     'equ': '{label} {equ} {value}',
     'instruction': '{indent}{operation:{width}} {sep} {text}',
     'label': '{label}{suffix}',
     'org': '{indent}{org} {address}',
-    'paragraph_separator': ';',
     'register': '; {prefix:>{prefix_len}}{reg:{reg_len}} {text}'
 }
 
 class AsmWriter:
-    def __init__(self, parser, properties):
+    def __init__(self, parser, properties, templates):
         self.parser = parser
+        self.templates = TEMPLATES.copy()
+        self.templates.update(templates)
         self.show_warnings = self._get_int_property(properties, 'warnings', 1)
 
         self.fields = parser.fields
@@ -130,7 +131,7 @@ class AsmWriter:
             warn(s)
 
     def format_template(self, name, fields):
-        return format_template(TEMPLATES.get(name, ''), name, **fields)
+        return format_template(self.templates.get(name, ''), name, **fields)
 
     def write(self):
         for index, entry in enumerate(self.parser.memory_map):
@@ -320,11 +321,14 @@ class AsmWriter:
                 lines.extend(wrap(block, width))
         return lines
 
+    def print_paragraph_separator(self):
+        self.write_line(self.format_template('comment', {'text': ''}).rstrip())
+
     def print_comment_lines(self, paragraphs, instruction=None, ignoreua=False, started=False):
         for paragraph in paragraphs:
             lines = self.format(paragraph, self.desc_width)
             if started and lines:
-                self.write_line(self.format_template('paragraph_separator', {}))
+                self.print_paragraph_separator()
             if lines:
                 started = True
             for line in lines:
@@ -336,10 +340,10 @@ class AsmWriter:
                                 self.warn('Comment above {0} contains address ({1}) not converted to a label:\n; {2}'.format(instruction.address, uaddress, line))
                         else:
                             self.warn('Comment contains address ({0}) not converted to a label:\n; {1}'.format(uaddress, line))
-                self.write_line(self.format_template('comment_line', {'text': line}).rstrip())
+                self.write_line(self.format_template('comment', {'text': line}).rstrip())
 
     def print_registers(self):
-        self.write_line(self.format_template('paragraph_separator', {}))
+        self.print_paragraph_separator()
         prefix_len = max([len(reg.prefix) for reg in self.entry.registers])
         if prefix_len:
             prefix_len += 1
@@ -367,7 +371,7 @@ class AsmWriter:
     def print_instruction_prefix(self, instruction, index):
         if instruction.mid_block_comment:
             if index == 0:
-                self.write_line(self.format_template('paragraph_separator', {}))
+                self.print_paragraph_separator()
             self.print_comment_lines(instruction.mid_block_comment, instruction)
         if instruction.asm_label:
             subs = {

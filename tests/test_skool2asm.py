@@ -36,11 +36,12 @@ class MockSkoolParser:
         self.asm_writer_class = ''
 
 class MockAsmWriter:
-    def __init__(self, parser, properties):
+    def __init__(self, parser, properties, templates):
         global mock_asm_writer
         mock_asm_writer = self
         self.parser = parser
         self.properties = properties
+        self.templates = templates
         self.wrote = False
 
     def write(self):
@@ -77,6 +78,7 @@ class Skool2AsmTest(SkoolKitTestCase):
         self.assertEqual(options.params, [])
         self.assertEqual(options.variables, [])
         self.assertFalse(options.force)
+        self.assertEqual(options.templates, '')
 
     @patch.object(skool2asm, 'SkoolParser', MockSkoolParser)
     @patch.object(skool2asm, 'AsmWriter', MockAsmWriter)
@@ -99,6 +101,7 @@ class Skool2AsmTest(SkoolKitTestCase):
 
         self.assertIs(mock_asm_writer.parser, mock_skool_parser)
         self.assertEqual({}, mock_asm_writer.properties)
+        self.assertEqual({}, mock_asm_writer.templates)
         self.assertTrue(mock_asm_writer.wrote)
 
     @patch.object(skool2asm, 'run', mock_run)
@@ -111,6 +114,7 @@ class Skool2AsmTest(SkoolKitTestCase):
             Quiet=1
             Set-bullet=-
             Set-indent=4
+            Templates=templates.ini
             Warnings=0
         """
         self.write_text_file(dedent(ini).strip(), 'skoolkit.ini')
@@ -124,6 +128,7 @@ class Skool2AsmTest(SkoolKitTestCase):
         self.assertEqual(options.base, 16)
         self.assertEqual(options.asm_mode, 1)
         self.assertFalse(options.warn)
+        self.assertEqual(options.templates, 'templates.ini')
         self.assertEqual(options.fix_mode, 0)
         self.assertTrue(options.create_labels)
         self.assertEqual(options.start, 0)
@@ -156,7 +161,7 @@ class Skool2AsmTest(SkoolKitTestCase):
         self.assertEqual(options.properties, [])
 
     def test_no_arguments(self):
-        output, error = self.run_skool2asm('-x', catch_exit=2)
+        output, error = self.run_skool2asm('', catch_exit=2)
         self.assertEqual(len(output), 0)
         self.assertTrue(error.startswith('usage: skool2asm.py'))
 
@@ -531,6 +536,7 @@ class Skool2AsmTest(SkoolKitTestCase):
             Case=0
             CreateLabels=0
             Quiet=0
+            Templates=
             Warnings=1
         """
         self.assertEqual(dedent(exp_output).strip(), output.rstrip())
@@ -551,6 +557,7 @@ class Skool2AsmTest(SkoolKitTestCase):
             Case=1
             CreateLabels=0
             Quiet=1
+            Templates=
             Warnings=1
         """
         self.assertEqual(dedent(exp_output).strip(), output.rstrip())
@@ -592,6 +599,36 @@ class Skool2AsmTest(SkoolKitTestCase):
         output, error = self.run_skool2asm('-q -F -r test-F-r.skool')
         self.assertEqual(mock_skool_parser.asm_mode, 7)
         self.assertTrue(mock_asm_writer.wrote)
+
+    @patch.object(skool2asm, 'SkoolParser', MockSkoolParser)
+    @patch.object(skool2asm, 'AsmWriter', MockAsmWriter)
+    def test_Templates_config_parameter(self):
+        templates = """
+            [comment]
+            ;; {text}
+            [equ]
+            .{equ} {label}, {value}
+            [org]
+              .ORG {address}
+            [invalid_template_name]
+            !
+        """
+        tfile = self.write_text_file(dedent(templates))
+        exp_templates = {
+            'comment': ';; {text}',
+            'equ': '.{equ} {label}, {value}',
+            'org': '  .ORG {address}'
+        }
+        output, error = self.run_skool2asm('-I Templates={} test-t.skool'.format(tfile))
+        self.assertTrue(mock_asm_writer.wrote)
+        self.assertEqual(exp_templates, mock_asm_writer.templates)
+        mock_skool_parser.asm_mode = None
+        mock_asm_writer.wrote = False
+
+    def test_Templates_config_parameter_with_nonexistent_file(self):
+        t_file = 'nonexistent.ini'
+        with self.assertRaisesRegex(SkoolKitError, '{}: file not found'.format(t_file)):
+            self.run_skool2asm('-I Templates={} test-t.skool'.format(t_file))
 
     @patch.object(skool2asm, 'AsmWriter', MockAsmWriter)
     def test_tab_property(self):

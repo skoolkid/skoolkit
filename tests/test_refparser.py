@@ -4,10 +4,10 @@ from skoolkittest import SkoolKitTestCase
 from skoolkit.refparser import RefParser
 
 class RefParserTest(SkoolKitTestCase):
-    def _get_parser(self, contents):
+    def _get_parser(self, contents, *args):
         reffile = self.write_text_file(textwrap.dedent(contents).strip(), suffix='.ref')
         ref_parser = RefParser()
-        ref_parser.parse(reffile)
+        ref_parser.parse(reffile, *args)
         return ref_parser
 
     def test_has_section(self):
@@ -270,11 +270,28 @@ class RefParserTest(SkoolKitTestCase):
         section = ref_parser.get_section('Foo')
         self.assertEqual(section, 'Bar')
 
+    def test_alternative_comment_character(self):
+        ref = """
+            [Foo]
+            # This is a comment
+            Bar
+            # This is another comment
+        """
+        ref_parser = self._get_parser(ref, '#')
+        section = ref_parser.get_section('Foo')
+        self.assertEqual(section, 'Bar')
+
     def test_escaped_semicolon(self):
         ref = '[Baz]\n;; This is not a comment'
         ref_parser = self._get_parser(ref)
         section = ref_parser.get_section('Baz')
         self.assertEqual(section, '; This is not a comment')
+
+    def test_escaped_alternative_comment_character(self):
+        ref = '[Baz]\n## This is not a comment'
+        ref_parser = self._get_parser(ref, '#')
+        section = ref_parser.get_section('Baz')
+        self.assertEqual(section, '# This is not a comment')
 
     def test_unclosed_section_header(self):
         ref = """

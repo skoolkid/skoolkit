@@ -207,6 +207,7 @@ configuration parameters are:
 * ``Quiet`` - be quiet (``1``) or verbose (``0``, the default)
 * ``Set-property`` - set an ASM writer property value, e.g. ``Set-bullet=+``
   (see the :ref:`set` directive for a list of available properties)
+* ``Templates`` - file from which to read custom :ref:`asmTemplates`
 * ``Warnings`` - show warnings (``1``, the default), or suppress them (``0``)
 
 Configuration parameters must appear in a ``[skool2asm]`` section. For example,
@@ -225,6 +226,9 @@ Configuration parameters may also be set on the command line by using the
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 7.2     | Added the ``Templates`` configuration parameter and support for   |
+|         | :ref:`asmTemplates`                                               |
++---------+-------------------------------------------------------------------+
 | 7.0     | :ref:`nonEntryBlocks` are reproduced verbatim; added the          |
 |         | ``--force`` option                                                |
 +---------+-------------------------------------------------------------------+

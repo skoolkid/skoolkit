@@ -107,6 +107,7 @@ configuration parameters are:
 :Quiet: Be quiet (``1``) or verbose (``0``, the default).
 :Set-property: Set an ASM writer property value (see ``ASM WRITER
   PROPERTIES``), e.g. ``Set-bullet=+``.
+:Templates: File from which to read custom ASM templates.
 :Warnings: Show warnings (``1``, the default), or suppress them (``0``).
 
 Configuration parameters must appear in a ``[skool2asm]`` section. For example,

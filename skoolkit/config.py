@@ -78,6 +78,7 @@ COMMANDS = {
         'Case': (0, 'case'),
         'CreateLabels': (0, 'create_labels'),
         'Quiet': (0, 'quiet'),
+        'Templates': ('', 'templates'),
         'Warnings': (1, 'warn')
     }
 }
@@ -122,6 +123,10 @@ def update_options(name, options, specs, config=None):
                     config[param] = value
             except ValueError:
                 pass
+    if config:
+        for param, (def_value, attr_name) in def_config.items():
+            if attr_name and not hasattr(options, attr_name):
+                setattr(options, attr_name, config[param])
 
 def show_config(section_name, config):
     print('[{}]'.format(section_name))

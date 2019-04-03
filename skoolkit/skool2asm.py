@@ -1,4 +1,4 @@
-# Copyright 2008-2018 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2008-2019 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -21,7 +21,8 @@ import time
 from skoolkit import (info, get_class, integer, show_package_dir, VERSION,
                       BASE_10, BASE_16, CASE_LOWER, CASE_UPPER)
 from skoolkit.config import get_config, show_config, update_options
-from skoolkit.skoolasm import AsmWriter
+from skoolkit.refparser import RefParser
+from skoolkit.skoolasm import AsmWriter, TEMPLATES
 from skoolkit.skoolparser import SkoolParser
 
 def clock(quiet, prefix, operation, *args, **kwargs):
@@ -33,6 +34,12 @@ def clock(quiet, prefix, operation, *args, **kwargs):
     return result
 
 def run(skoolfile, options):
+    # Read custom ASM templates
+    t_parser = RefParser()
+    if options.templates:
+        t_parser.parse(options.templates, '#')
+    templates = {t: t_parser.get_section(t, trim=False) for t in TEMPLATES if t_parser.has_section(t)}
+
     # Create the parser
     if skoolfile == '-':
         fname = 'stdin'
@@ -58,7 +65,7 @@ def run(skoolfile, options):
             properties[name] = value
     if not options.warn:
         properties['warnings'] = '0'
-    asm_writer = asm_writer_class(parser, properties)
+    asm_writer = asm_writer_class(parser, properties, templates)
     clock(options.quiet, 'Wrote ASM to stdout', asm_writer.write)
 
 def main(args):
@@ -126,7 +133,7 @@ def main(args):
         show_package_dir()
     if unknown_args or namespace.skoolfile is None:
         parser.exit(2, parser.format_help())
-    update_options('skool2asm', namespace, namespace.params)
+    update_options('skool2asm', namespace, namespace.params, config)
     namespace.properties += [p[4:] for p in namespace.params if p.startswith('Set-')]
     if namespace.fix_mode == 3:
         namespace.asm_mode = 3

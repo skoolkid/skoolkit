@@ -1,4 +1,4 @@
-# Copyright 2009-2018 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2009-2019 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -32,24 +32,26 @@ class RefParser:
             else:
                 self._sections[section_name] = section_lines
 
-    def parse(self, reffile):
+    def parse(self, reffile, comment=';'):
         """Parse a ref file. This method may be called as many times as
         required to collect sections from multiple ref files.
 
         :param reffile: The name of the ref file to parse.
+        :param comment: Comment character.
         """
         section_name = None
         section_lines = []
         infile = open_file(reffile)
+        esc_comment = comment * 2
         for line in infile:
             s_line = line.rstrip()
-            if s_line.startswith(('[[', ';;')):
+            if s_line.startswith(('[[', esc_comment)):
                 section_lines.append(s_line[1:])
             elif s_line.startswith('[') and s_line.endswith(']'):
                 self._add_section(section_name, section_lines)
                 section_name = s_line[1:-1]
                 section_lines = []
-            elif not s_line.startswith(';'):
+            elif not s_line.startswith(comment):
                 section_lines.append(s_line)
         infile.close()
         self._add_section(section_name, section_lines)

@@ -29,7 +29,7 @@ class MockSkoolParser:
 class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
     def _get_writer(self, skool=None, crlf=False, tab=False, case=0, base=0,
                     instr_width=23, warn=False, asm_mode=1, fix_mode=0,
-                    variables=(), snapshot=()):
+                    variables=(), snapshot=(), templates=None):
         if skool is None:
             skool_parser = MockSkoolParser(snapshot, base, case, asm_mode, fix_mode)
             properties = {}
@@ -42,19 +42,23 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
             properties['tab'] = '1' if tab else '0'
             properties['instruction-width'] = instr_width
             properties['warnings'] = '1' if warn else '0'
-        return AsmWriter(skool_parser, properties)
+        return AsmWriter(skool_parser, properties, templates or {})
 
-    def _get_asm(self, skool, crlf=False, tab=False, case=0, base=0, instr_width=23, warn=False, asm_mode=1, fix_mode=0):
+    def _get_asm(self, skool, crlf=False, tab=False, case=0, base=0,
+                 instr_width=23, warn=False, asm_mode=1, fix_mode=0,
+                 templates=None):
         self.clear_streams()
-        writer = self._get_writer(dedent(skool).strip(), crlf, tab, case, base, instr_width, warn, asm_mode, fix_mode)
+        writer = self._get_writer(dedent(skool).strip(), crlf, tab, case, base, instr_width, warn, asm_mode, fix_mode, templates=templates)
         writer.write()
         asm = self.out.getvalue()
         if warn:
             return asm, self.err.getvalue()
         return asm
 
-    def _test_asm(self, skool, exp_asm, crlf=False, tab=False, case=0, base=0, instr_width=23, warn=False, asm_mode=1, fix_mode=0):
-        asm = self._get_asm(skool, crlf, tab, case, base, instr_width, warn, asm_mode, fix_mode)
+    def _test_asm(self, skool, exp_asm, crlf=False, tab=False, case=0, base=0,
+                  instr_width=23, warn=False, asm_mode=1, fix_mode=0,
+                  templates=None):
+        asm = self._get_asm(skool, crlf, tab, case, base, instr_width, warn, asm_mode, fix_mode, templates)
         self.assertEqual(dedent(exp_asm).strip('\n'), asm.rstrip())
 
     def _assert_error(self, writer, text, error_msg=None, prefix=None):
@@ -2063,6 +2067,124 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
         writer.pop_snapshot()
         self.assertEqual(snapshot[0], 1)
 
+    def test_custom_comment_template(self):
+        templates = {'comment': ';; {text}'}
+        skool = """
+            @start
+            ; Routine
+            ;
+            ; Description.
+            ;
+            ; A Input
+            ;
+            ; Start comment.
+            c40000 LD A,B
+            ; Mid-block comment.
+             40001 RET
+            ; End comment.
+        """
+        exp_asm = """
+            ;; Routine
+            ;;
+            ;; Description.
+            ;;
+            ; A Input
+            ;;
+            ;; Start comment.
+              LD A,B
+            ;; Mid-block comment.
+              RET
+            ;; End comment.
+        """
+        self._test_asm(skool, exp_asm, templates=templates)
+
+    def test_custom_equ_template(self):
+        templates = {'equ': '.{equ} {label}, {value}'}
+        skool = """
+            @start
+            @equ=FOO=12345
+            ; Routine
+            c60000 RET
+        """
+        exp_asm = """
+            .EQU FOO, 12345
+
+            ; Routine
+              RET
+        """
+        self._test_asm(skool, exp_asm, templates=templates)
+
+    def test_custom_instruction_template(self):
+        templates = {'instruction': '{indent}{operation:{width}} ;; {text}'}
+        skool = """
+            @start
+            ; Routine
+            c60000 XOR A ; Clear A
+             60001 RET
+        """
+        exp_asm = """
+            ; Routine
+              XOR A                   ;; Clear A
+              RET                     ;;
+        """
+        self._test_asm(skool, exp_asm, templates=templates)
+
+    def test_custom_label_template(self):
+        templates = {'label': '.{label}:'}
+        skool = """
+            @start
+            ; Start
+            @label=START
+            c60000 JP 32768
+        """
+        exp_asm = """
+            ; Start
+            .START:
+              JP 32768
+        """
+        self._test_asm(skool, exp_asm, templates=templates)
+
+    def test_custom_org_template(self):
+        templates = {'org': '.{org} {address}'}
+        skool = """
+            @start
+            @org
+            ; Start
+            c60000 JP 32768
+        """
+        exp_asm = """
+            .ORG 60000
+
+            ; Start
+              JP 32768
+        """
+        self._test_asm(skool, exp_asm, templates=templates)
+
+    def test_custom_register_template(self):
+        templates = {'register': ';; {prefix}{reg} {text}'}
+        skool = """
+            @start
+            ; Routine
+            ;
+            ; .
+            ;
+            ; In:A Input value 1
+            ;    B Input value 2
+            ; Out:C Output value 1
+            ;     D Output value 2
+            c40000 RET
+        """
+        exp_asm = """
+            ; Routine
+            ;
+            ;; In:A Input value 1
+            ;; B Input value 2
+            ;; Out:C Output value 1
+            ;; D Output value 2
+              RET
+        """
+        self._test_asm(skool, exp_asm, templates=templates)
+
 class TableMacroTest(SkoolKitTestCase):
     def _get_writer(self, skool='', crlf=False, tab=False, instr_width=23, warn=False):
         skoolfile = self.write_text_file(dedent(skool).strip(), suffix='.skool')
@@ -2072,7 +2194,7 @@ class TableMacroTest(SkoolKitTestCase):
         properties['tab'] = '1' if tab else '0'
         properties['instruction-width'] = instr_width
         properties['warnings'] = '1' if warn else '0'
-        return AsmWriter(skool_parser, properties)
+        return AsmWriter(skool_parser, properties, {})
 
     def _assert_error(self, skool, error):
         self.clear_streams()
@@ -2631,7 +2753,7 @@ class ListMacroTest(SkoolKitTestCase):
         properties = dict(skool_parser.properties)
         if bullet is not None:
             properties['bullet'] = bullet
-        return AsmWriter(skool_parser, properties)
+        return AsmWriter(skool_parser, properties, {})
 
     def _assert_error(self, skool, error):
         self.clear_streams()
