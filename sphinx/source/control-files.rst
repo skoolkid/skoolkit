@@ -326,6 +326,52 @@ directives when specifying an entry header. For example::
 Note, however, that this works only if the entry header contains no ASM
 directives.
 
+The dot directive also makes it simpler to preserve ``@*sub`` and ``@*fix``
+directives that replace part of an instruction-level comment. For example,
+consider the following skool file snippet::
+
+   49155 LD A,(HL)     ; {Increase the sprite's x-coordinate by
+  @bfix=ADD A,3        ; three}
+   49156 ADD A,2       ; two (which is a bug)}
+
+When preserved without dot directives, this becomes::
+
+  @ 49156 bfix=ADD A,3        ; three}
+  C 49155,3 Increase the sprite's x-coordinate by two (which is a bug)
+
+which is restored incorrectly by `sna2skool.py` (using the default line width
+of 79 characters) as::
+
+   49155 LD A,(HL)     ; {Increase the sprite's x-coordinate by two (which is a
+  @bfix=ADD A,3        ; three}
+   49156 ADD A,2       ; bug)}
+
+This problem could be addressed by recasting the comment lines in the skool
+file and adding a ``@bfix`` directive for 'LD A,(HL)'::
+
+  @bfix=               ; {Increase the sprite's x-coordinate by three
+   49155 LD A,(HL)     ; {Increase the sprite's x-coordinate by two (which is a
+  @bfix=ADD A,3        ; }
+   49156 ADD A,2       ; bug)}
+
+which would be preserved without dot directives as::
+
+  @ 49155 bfix=               ; {Increase the sprite's x-coordinate by three
+  @ 49156 bfix=ADD A,3        ; }
+  C 49155,3 Increase the sprite's x-coordinate by two (which is a bug)
+
+But this solution requires two ``@bfix`` directives instead of one, repeats the
+part of the comment that doesn't change, and could still be restored
+incorrectly if `sna2skool.py` is used with a line width other than the default.
+
+It is much easier and more robust to use dot directives to preserve the
+original form in a way that will always be restored correctly::
+
+  @ 49156 bfix=ADD A,3        ; three}
+  C 49155,3
+  . Increase the sprite's x-coordinate by
+  . two (which is a bug)
+
 .. _ctlLoops:
 
 Loops
