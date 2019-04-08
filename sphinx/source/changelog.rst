@@ -27,6 +27,9 @@ Changelog
   disassembly pages)
 * In ASM mode, :ref:`list` and :ref:`table` macros can now be used in register
   descriptions
+* The :ref:`LINK` and :ref:`R` macros now work with address anchors that start
+  with an upper case letter (as could happen when ``AddressAnchor`` is
+  ``{address:04X}``)
 
 7.1 (2019-02-02)
 ----------------

@@ -182,14 +182,10 @@ specifies the format of the anchors attached to instructions on disassembly
 pages and entries on memory map pages. The default format string is
 ``{address}``, which produces decimal addresses (e.g. ``#65280``). To produce
 4-digit, lower case hexadecimal addresses instead (e.g. ``#ff00``), change
-``AddressAnchor`` to ``{address:04x}``. Or to produce 4-digit, lower case
+``AddressAnchor`` to ``{address:04x}``. Or to produce 4-digit, upper case
 hexadecimal addresses if the ``--hex`` option is used with
 :ref:`skool2html.py`, and decimal addresses otherwise:
-``{address#IF({base}==16)(:04x)}``.
-
-Note that an address anchor that starts with an upper case letter (e.g.
-``#FF00``) will be interpreted as a skool macro, and so any format string that
-could produce such an anchor should be avoided.
+``{address#IF({base}==16)(:04X)}``.
 
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |

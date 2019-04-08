@@ -1137,6 +1137,17 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
             output = writer.expand('#LINK:{0}#{1}({1})'.format(page_id, anchor), ASMDIR)
             self._assert_link_equals(output, '../maps/{}.html#{}'.format(page_id, anchor), anchor)
 
+    def test_macro_link_to_memory_map_page_with_upper_case_hexadecimal_asm_anchor(self):
+        skool = "c43981 RET"
+        ref = """
+            [Game]
+            AddressAnchor={address:04X}
+            [MemoryMap:MemoryMap]
+        """
+        writer = self._get_writer(skool=skool, ref=ref)
+        output = writer.expand('#LINK:MemoryMap#43981(ABCD)', ASMDIR)
+        self._assert_link_equals(output, '../maps/MemoryMap.html#ABCD', 'ABCD')
+
     def test_macro_link_to_non_memory_map_page_with_entry_address_anchor(self):
         skool = 'c40000 RET'
         ref = """
@@ -1599,6 +1610,21 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
 
         output = writer.expand('#R40000#40000', ASMDIR)
         self._assert_link_equals(output, '40000.html#9c40', '40000')
+
+    def test_macro_r_with_upper_case_hexadecimal_asm_anchors(self):
+        ref = '[Game]\nAddressAnchor={address:04X}'
+        skool = """
+            ; Routine at 43981
+            c43981 LD A,B
+             43982 RET
+        """
+        writer = self._get_writer(ref=ref, skool=skool)
+
+        output = writer.expand('#R43981#43981', ASMDIR)
+        self._assert_link_equals(output, '43981.html#ABCD', '43981')
+
+        output = writer.expand('#R43982', ASMDIR)
+        self._assert_link_equals(output, '43981.html#ABCE', '43982')
 
     def test_macro_r_with_invalid_asm_anchor(self):
         ref = '[Game]\nAddressAnchor={address:j}'
@@ -5108,6 +5134,51 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         }
         self._assert_files_equal(join(MAPS_DIR, 'all.html'), subs)
 
+    def test_write_map_with_upper_case_asm_anchors_and_address_links(self):
+        ref = """
+            [Game]
+            AddressAnchor={address:04X}
+            [MemoryMap:MemoryMap]
+            Intro=First instruction at #LINK:MemoryMap#43981(ABCD), second at #R43982.
+        """
+        skool = """
+            ; Routine at 43981
+            c43981 XOR A
+             43982 RET
+        """
+        writer = self._get_writer(ref=ref, skool=skool)
+
+        content = """
+            <div class="map-intro">First instruction at <a href="all.html#ABCD">ABCD</a>, second at <a href="../asm/43981.html#ABCE">43982</a>.</div>
+            <table class="map">
+            <tr>
+            <th class="map-page-1">Page</th>
+            <th class="map-byte-1">Byte</th>
+            <th>Address</th>
+            <th class="map-length-0">Length</th>
+            <th>Description</th>
+            </tr>
+            <tr>
+            <td class="map-page-1">171</td>
+            <td class="map-byte-1">205</td>
+            <td class="map-c"><span id="ABCD"></span><a href="../asm/43981.html">43981</a></td>
+            <td class="map-length-0">2</td>
+            <td class="map-c-desc">
+            <div class="map-entry-title-10"><a class="map-entry-title" href="../asm/43981.html">Routine at 43981</a></div>
+            <div class="map-entry-desc-0">
+            </div>
+            </td>
+            </tr>
+            </table>
+        """
+        writer.write_map('MemoryMap')
+        subs = {
+            'body_class': 'MemoryMap',
+            'header': 'Memory map',
+            'content': content
+        }
+        self._assert_files_equal(join(MAPS_DIR, 'all.html'), subs)
+
     def test_write_map_with_invalid_asm_anchor(self):
         ref = '[Game]\nAddressAnchor={foo:04X}'
         skool = 'c32768 RET'
@@ -5166,6 +5237,51 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
 
         writer = self._get_writer(ref=ref, skool=skool)
         writer.write_map('MemoryMap')
+        self._assert_files_equal(join(MAPS_DIR, 'all.html'), subs)
+
+    def test_write_map_with_single_page_template_and_upper_case_asm_anchors_and_address_link(self):
+        ref = """
+            [Game]
+            AddressAnchor={address:04X}
+            AsmSinglePageTemplate=AsmAllInOne
+            [MemoryMap:MemoryMap]
+            Intro=First instruction at #R43981.
+        """
+        skool = """
+            ; Routine at 43981
+            c43981 RET
+        """
+        writer = self._get_writer(ref=ref, skool=skool)
+
+        content = """
+            <div class="map-intro">First instruction at <a href="../asm.html#ABCD">43981</a>.</div>
+            <table class="map">
+            <tr>
+            <th class="map-page-1">Page</th>
+            <th class="map-byte-1">Byte</th>
+            <th>Address</th>
+            <th class="map-length-0">Length</th>
+            <th>Description</th>
+            </tr>
+            <tr>
+            <td class="map-page-1">171</td>
+            <td class="map-byte-1">205</td>
+            <td class="map-c"><span id="ABCD"></span><a href="../asm.html#ABCD">43981</a></td>
+            <td class="map-length-0">1</td>
+            <td class="map-c-desc">
+            <div class="map-entry-title-10"><a class="map-entry-title" href="../asm.html#ABCD">Routine at 43981</a></div>
+            <div class="map-entry-desc-0">
+            </div>
+            </td>
+            </tr>
+            </table>
+        """
+        writer.write_map('MemoryMap')
+        subs = {
+            'body_class': 'MemoryMap',
+            'header': 'Memory map',
+            'content': content
+        }
         self._assert_files_equal(join(MAPS_DIR, 'all.html'), subs)
 
     def test_write_map_with_single_page_template_using_custom_path(self):

@@ -461,18 +461,21 @@ class HtmlWriter:
     def asm_fname(self, address, path=''):
         return posixpath.normpath(join(path, format_template(self.asm_fname_template, 'CodeFiles', address=address)))
 
-    def _asm_relpath(self, cwd, address, code_id=None):
+    def _asm_relpath(self, cwd, address, code_id=None, raw=False):
         if not code_id:
             code_id = self.code_id
         if self.asm_single_page_template:
             page_id = self._get_asm_page_id(code_id)
             fname = self.relpath(cwd, self.paths[page_id])
-            return '{}#{}'.format(fname, self.asm_anchor(address))
+            return '{}#{}'.format(fname, self.asm_anchor(address, raw))
         code_path = self.get_code_path(code_id)
         return self.relpath(cwd, join(code_path, self.asm_fname(address)))
 
-    def asm_anchor(self, address):
-        return format_template(self.asm_anchor_template, 'AddressAnchor', address=address)
+    def asm_anchor(self, address, raw=False):
+        anchor = format_template(self.asm_anchor_template, 'AddressAnchor', address=address)
+        if raw:
+            return 'RAW(#{})'.format(anchor)
+        return anchor
 
     def join_paragraphs(self, paragraphs, cwd):
         lines = []
@@ -1098,7 +1101,7 @@ class HtmlWriter:
                 link_text = self.links[page_id][0]
         if page_id in self.main_memory_maps:
             try:
-                anchor = '#' + self.asm_anchor(self.get_entry(int(anchor[1:])).address)
+                anchor = '#' + self.asm_anchor(self.get_entry(int(anchor[1:])).address, True)
             except (ValueError, AttributeError):
                 pass
         href = self.relpath(cwd, self.paths[page_id]) + anchor
@@ -1119,7 +1122,7 @@ class HtmlWriter:
         if (not code_id or code_id == self.code_id) and not container:
             raise skoolmacro.MacroParsingError('Could not find instruction at {}'.format(addr_str))
         if self.asm_single_page_template:
-            href = self._asm_relpath(cwd, address, code_id)
+            href = self._asm_relpath(cwd, address, code_id, True)
         else:
             if container:
                 container_address = container.address
@@ -1128,11 +1131,11 @@ class HtmlWriter:
             if anchor:
                 try:
                     if skoolmacro.evaluate(anchor[1:]) == container_address:
-                        anchor = '#{}'.format(self.asm_anchor(container_address))
+                        anchor = '#{}'.format(self.asm_anchor(container_address, True))
                 except ValueError:
                     pass
             elif address != container_address:
-                anchor = '#{}'.format(self.asm_anchor(address))
+                anchor = '#{}'.format(self.asm_anchor(address, True))
             href = self._asm_relpath(cwd, container_address, code_id) + anchor
         asm_label = self.parser.get_asm_label(address)
         inst_addr_str = self.parser.get_instruction_addr_str(address, addr_str, code_id)
