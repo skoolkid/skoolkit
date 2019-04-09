@@ -647,8 +647,8 @@ is used to mark the end. Between these markers, the list items are defined. ::
 * ``bullet`` is the bullet character to use in ASM mode
 * ``flag`` is the wrap flag (see below)
 
-Each item in a list must start with ``{`` followed by a whitespace character,
-and end with ``}`` preceded by a whitespace character.
+Each item in a list must start with ``{`` followed by a space, and end with
+``}`` preceded by a space.
 
 For example::
 
@@ -923,9 +923,9 @@ the end. Between these markers, the rows of the table are defined. ::
   elements in columns 1, 2 etc.
 * ``flag`` is the wrap flag (see below)
 
-Each row in a table must start with ``{`` followed by a whitespace character,
-and end with ``}`` preceded by a whitespace character. The cells in a row must
-be separated by ``|`` with a whitespace character on each side.
+Each row in a table must start with ``{`` followed by a space, and end with
+``}`` preceded by a space. The cells in a row must be separated by ``|`` with a
+space on each side.
 
 For example::
 
