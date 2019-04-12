@@ -131,7 +131,7 @@ td.register {
   width: 20px;
   text-align: center;
 }
-td.asm-label-1, td.address-1, td.address-2, td.instruction {
+td.asm-label-1, td.address-1, td.address-2, td.bytes-1, td.instruction {
   font-family: monospace;
   vertical-align: top;
   padding-right: 10px;
@@ -141,6 +141,9 @@ td.asm-label-1, td.address-1, td.address-2 {
 }
 td.asm-label-1, td.address-2 {
   font-weight: bold;
+}
+td.bytes-1 {
+  color: #808000;
 }
 td.instruction {
   color: #008000;
@@ -165,7 +168,7 @@ table.map td {
 div.map-intro {
   margin-bottom: 10px;
 }
-table.input-0, table.output-0, th.map-page-0, th.map-byte-0, th.map-length-0, td.map-page-0, td.map-byte-0, td.map-length-0, td.asm-label-0, td.comment-01, div.map-entry-desc-0, span.prev-0, span.next-0 {
+table.input-0, table.output-0, th.map-page-0, th.map-byte-0, th.map-length-0, td.map-page-0, td.map-byte-0, td.map-length-0, td.asm-label-0, td.bytes-0, td.comment-01, div.map-entry-desc-0, span.prev-0, span.next-0 {
   display: none;
 }
 td.map-page-1, td.map-byte-1, td.map-length-1, td.map-b, td.map-c, td.map-g, td.map-s, td.map-t, td.map-u, td.map-w {

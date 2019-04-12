@@ -282,6 +282,9 @@ identifiers):
 * ``location`` - the address of the instruction as a decimal number
 * ``operation`` - the assembly language operation (e.g. 'LD A,B'), with operand
   hyperlinked if appropriate
+* ``show_bytes`` - '1' if the entry contains at least one assembled instruction
+  with byte values and the ``Bytes`` parameter in the :ref:`ref-Game` section
+  is not blank, '0' otherwise
 * ``t_anchor`` - replaced by a copy of the :ref:`t_anchor` subtemplate
 
 The ``bytes`` identifier can be used to render the byte values of an
@@ -304,14 +307,16 @@ that doesn't appear in the byte format specification itself.
 Note that byte values are available only for regular assembly language
 instructions (not DEFB, DEFM, DEFS or DEFW statements), and only if they have
 actually been assembled by using :ref:`@assemble=2 <assemble>`. When no byte
-values are available, the ``bytes`` identifier produces an empty string.
+values are available, or the format specification is blank, the ``bytes``
+identifier produces an empty string.
 
 To see the default ``asm_instruction`` template, run the following command::
 
   $ skool2html.py -r Template:asm_instruction
 
 .. versionchanged:: 7.2
-   Added the ``bytes`` identifier.
+   Added the ``bytes`` and ``show_bytes`` identifiers, and a table cell for
+   displaying assembled instruction byte values.
 
 .. versionchanged:: 6.3
    Added the ``location`` identifier.

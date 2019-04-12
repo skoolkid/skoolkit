@@ -727,8 +727,14 @@ class HtmlWriter:
 
         input_reg, output_reg = self.format_registers(cwd, entry.registers, entry_dict)
 
+        for instruction in entry.instructions:
+            if instruction.operation.upper().startswith(('DEFB', 'DEFM', 'DEFS', 'DEFW')):
+                instruction.byte_values = Bytes()
+            else:
+                instruction.byte_values = Bytes(instruction.data)
+        show_bytes = int(self.game_vars['Bytes'] != '' and any(i.byte_values.values for i in entry.instructions))
+
         lines = []
-        instruction_subs = {'entry': entry_dict}
         for instruction in entry.instructions:
             address = instruction.address
             anchor = self.format_anchor(self.asm_anchor(address))
@@ -764,19 +770,20 @@ class HtmlWriter:
                 comment_rowspan = 1
                 comment_text = ''
                 annotated = 0
-            instruction_subs['address'] = instruction.addr_str
-            instruction_subs['location'] = instruction.address
-            instruction_subs['called'] = 1 + int(instruction.ctl in 'c*')
-            instruction_subs['label'] = instruction.asm_label or ''
-            instruction_subs['operation'] = operation
-            instruction_subs['comment'] = comment_text
-            instruction_subs['comment_rowspan'] = comment_rowspan
-            instruction_subs['annotated'] = annotated
-            instruction_subs['t_anchor'] = anchor
-            if operation.upper().startswith(('DEFB', 'DEFM', 'DEFS', 'DEFW')):
-                instruction_subs['bytes'] = Bytes()
-            else:
-                instruction_subs['bytes'] = Bytes(instruction.data)
+            instruction_subs = {
+                'entry': entry_dict,
+                'address': instruction.addr_str,
+                'location': instruction.address,
+                'called': 1 + int(instruction.ctl in 'c*'),
+                'label': instruction.asm_label or '',
+                'operation': operation,
+                'comment': comment_text,
+                'comment_rowspan': comment_rowspan,
+                'annotated': annotated,
+                't_anchor': anchor,
+                'bytes': instruction.byte_values,
+                'show_bytes': show_bytes
+            }
             lines.append(self.format_template('asm_instruction', instruction_subs))
 
         if entry.end_comment:
@@ -1224,6 +1231,8 @@ class Bytes:
         self.values = values
 
     def __format__(self, spec):
+        if not spec:
+            return ''
         if spec and spec.count(spec[0]) > 1:
             bspec, sep = spec[1:].split(spec[0])[:2]
         else:

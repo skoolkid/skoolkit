@@ -131,6 +131,9 @@ Recognised parameters are:
   disassembly on a single page, as opposed to a separate page for each routine
   and data block (default: None); set this to 'AsmAllInOne' to use the
   :ref:`t_AsmAllInOne` template
+* ``Bytes`` - the format specification for the ``bytes`` replacement field in
+  the :ref:`t_asm_instruction` template (default: ''); if not blank, assembled
+  instruction byte values are displayed on disassembly pages
 * ``Copyright`` - the copyright message that appears in the footer of every
   page (default: '')
 * ``Created`` - the message indicating the software used to create the
@@ -190,7 +193,7 @@ hexadecimal addresses if the ``--hex`` option is used with
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
-| 7.2     | Added the ``DisassemblyTableNumCols`` parameter                   |
+| 7.2     | Added the ``Bytes`` and ``DisassemblyTableNumCols`` parameters    |
 +---------+-------------------------------------------------------------------+
 | 6.0     | Every parameter (not just ``Logo``) may contain                   |
 |         | :ref:`skool macros <skoolMacros>`                                 |

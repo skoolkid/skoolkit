@@ -47,6 +47,7 @@ HtmlWriterClass=skoolkit.skoolhtml.HtmlWriter
 SECTIONS['Game'] = """
 AddressAnchor={address}
 ; AsmSinglePageTemplate=
+Bytes=
 Copyright=
 Created=Created using <a href="http://skoolkit.ca/">SkoolKit</a> #VERSION.
 ; DisassemblyTableNumCols=
@@ -483,6 +484,7 @@ SECTIONS['Template:asm_instruction'] = """
 <tr>
 <td class="asm-label-{entry[labels]}">{label}</td>
 <td class="address-{called}">{t_anchor}{address}</td>
+<td class="bytes-{show_bytes}">{bytes:{Game[Bytes]}}</td>
 <td class="instruction">{operation}</td>
 <td class="comment-{annotated}{entry[annotated]}" rowspan="{comment_rowspan}">{comment}</td>
 </tr>

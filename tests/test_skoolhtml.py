@@ -2775,6 +2775,282 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         self.assertIn('<title>{}: {}</title>'.format(name, title), html)
         self.assertIn('<td class="page-header">{}</td>'.format(header), html)
 
+    def test_parameter_Bytes_blank_with_assembled_code(self):
+        skool = """
+            @assemble=2
+            ; Routine at 32768
+            c32768 RET
+        """
+        writer = self._get_writer(skool=skool)
+        writer.write_asm_entries()
+
+        content = """
+            <div class="description">32768: Routine at 32768</div>
+            <table class="disassembly">
+            <tr>
+            <td class="routine-comment" colspan="5">
+            <div class="details">
+            </div>
+            <table class="input-0">
+            <tr class="asm-input-header">
+            <th colspan="2">Input</th>
+            </tr>
+            </table>
+            <table class="output-0">
+            <tr class="asm-output-header">
+            <th colspan="2">Output</th>
+            </tr>
+            </table>
+            </td>
+            </tr>
+            <tr>
+            <td class="asm-label-0"></td>
+            <td class="address-2"><span id="32768"></span>32768</td>
+            <td class="bytes-0"></td>
+            <td class="instruction">RET</td>
+            <td class="comment-10" rowspan="1"></td>
+            </tr>
+            </table>
+        """
+        subs = {
+            'header': 'Routines',
+            'title': 'Routine at 32768',
+            'body_class': 'Asm-c',
+            'up': '32768',
+            'content': content
+        }
+        self._assert_files_equal(join(ASMDIR, '32768.html'), subs)
+
+    def test_parameter_Bytes_with_assembled_code_and_data(self):
+        ref = """
+            [Game]
+            Bytes=02X
+        """
+        skool = """
+            @assemble=2
+            ; Routine at 32768
+            c32768 LD BC,(0)
+             32772 LD BC,0
+             32775 LD B,0
+             32777 DEFB 0
+             32778 DEFM "0"
+             32779 DEFS 1
+             32780 DEFW 0
+             32782 RET
+        """
+        writer = self._get_writer(ref=ref, skool=skool)
+        writer.write_asm_entries()
+
+        content = """
+            <div class="description">32768: Routine at 32768</div>
+            <table class="disassembly">
+            <tr>
+            <td class="routine-comment" colspan="5">
+            <div class="details">
+            </div>
+            <table class="input-0">
+            <tr class="asm-input-header">
+            <th colspan="2">Input</th>
+            </tr>
+            </table>
+            <table class="output-0">
+            <tr class="asm-output-header">
+            <th colspan="2">Output</th>
+            </tr>
+            </table>
+            </td>
+            </tr>
+            <tr>
+            <td class="asm-label-0"></td>
+            <td class="address-2"><span id="32768"></span>32768</td>
+            <td class="bytes-1">ED4B0000</td>
+            <td class="instruction">LD BC,(0)</td>
+            <td class="comment-10" rowspan="1"></td>
+            </tr>
+            <tr>
+            <td class="asm-label-0"></td>
+            <td class="address-1"><span id="32772"></span>32772</td>
+            <td class="bytes-1">010000</td>
+            <td class="instruction">LD BC,0</td>
+            <td class="comment-10" rowspan="1"></td>
+            </tr>
+            <tr>
+            <td class="asm-label-0"></td>
+            <td class="address-1"><span id="32775"></span>32775</td>
+            <td class="bytes-1">0600</td>
+            <td class="instruction">LD B,0</td>
+            <td class="comment-10" rowspan="1"></td>
+            </tr>
+            <tr>
+            <td class="asm-label-0"></td>
+            <td class="address-1"><span id="32777"></span>32777</td>
+            <td class="bytes-1"></td>
+            <td class="instruction">DEFB 0</td>
+            <td class="comment-10" rowspan="1"></td>
+            </tr>
+            <tr>
+            <td class="asm-label-0"></td>
+            <td class="address-1"><span id="32778"></span>32778</td>
+            <td class="bytes-1"></td>
+            <td class="instruction">DEFM "0"</td>
+            <td class="comment-10" rowspan="1"></td>
+            </tr>
+            <tr>
+            <td class="asm-label-0"></td>
+            <td class="address-1"><span id="32779"></span>32779</td>
+            <td class="bytes-1"></td>
+            <td class="instruction">DEFS 1</td>
+            <td class="comment-10" rowspan="1"></td>
+            </tr>
+            <tr>
+            <td class="asm-label-0"></td>
+            <td class="address-1"><span id="32780"></span>32780</td>
+            <td class="bytes-1"></td>
+            <td class="instruction">DEFW 0</td>
+            <td class="comment-10" rowspan="1"></td>
+            </tr>
+            <tr>
+            <td class="asm-label-0"></td>
+            <td class="address-1"><span id="32782"></span>32782</td>
+            <td class="bytes-1">C9</td>
+            <td class="instruction">RET</td>
+            <td class="comment-10" rowspan="1"></td>
+            </tr>
+            </table>
+        """
+        subs = {
+            'header': 'Routines',
+            'title': 'Routine at 32768',
+            'body_class': 'Asm-c',
+            'up': '32768',
+            'content': content
+        }
+        self._assert_files_equal(join(ASMDIR, '32768.html'), subs)
+
+    def test_parameter_Bytes_with_data(self):
+        ref = """
+            [Game]
+            Bytes=02X
+        """
+        skool = """
+            @assemble=1
+            ; Data at 32768
+            b32768 DEFB 0
+             32769 DEFM "0"
+             32770 DEFS 1
+             32771 DEFW 0
+        """
+        writer = self._get_writer(ref=ref, skool=skool)
+        writer.write_asm_entries()
+
+        content = """
+            <div class="description">32768: Data at 32768</div>
+            <table class="disassembly">
+            <tr>
+            <td class="routine-comment" colspan="5">
+            <div class="details">
+            </div>
+            <table class="input-0">
+            <tr class="asm-input-header">
+            <th colspan="2">Input</th>
+            </tr>
+            </table>
+            <table class="output-0">
+            <tr class="asm-output-header">
+            <th colspan="2">Output</th>
+            </tr>
+            </table>
+            </td>
+            </tr>
+            <tr>
+            <td class="asm-label-0"></td>
+            <td class="address-1"><span id="32768"></span>32768</td>
+            <td class="bytes-0"></td>
+            <td class="instruction">DEFB 0</td>
+            <td class="comment-10" rowspan="1"></td>
+            </tr>
+            <tr>
+            <td class="asm-label-0"></td>
+            <td class="address-1"><span id="32769"></span>32769</td>
+            <td class="bytes-0"></td>
+            <td class="instruction">DEFM "0"</td>
+            <td class="comment-10" rowspan="1"></td>
+            </tr>
+            <tr>
+            <td class="asm-label-0"></td>
+            <td class="address-1"><span id="32770"></span>32770</td>
+            <td class="bytes-0"></td>
+            <td class="instruction">DEFS 1</td>
+            <td class="comment-10" rowspan="1"></td>
+            </tr>
+            <tr>
+            <td class="asm-label-0"></td>
+            <td class="address-1"><span id="32771"></span>32771</td>
+            <td class="bytes-0"></td>
+            <td class="instruction">DEFW 0</td>
+            <td class="comment-10" rowspan="1"></td>
+            </tr>
+            </table>
+        """
+        subs = {
+            'header': 'Data',
+            'title': 'Data at 32768',
+            'body_class': 'Asm-b',
+            'up': '32768',
+            'content': content
+        }
+        self._assert_files_equal(join(ASMDIR, '32768.html'), subs)
+
+    def test_parameter_Bytes_with_unassembled_code(self):
+        ref = """
+            [Game]
+            Bytes=02X
+        """
+        skool = """
+            @assemble=1
+            ; Routine at 32768
+            c32768 RET
+        """
+        writer = self._get_writer(ref=ref, skool=skool)
+        writer.write_asm_entries()
+
+        content = """
+            <div class="description">32768: Routine at 32768</div>
+            <table class="disassembly">
+            <tr>
+            <td class="routine-comment" colspan="5">
+            <div class="details">
+            </div>
+            <table class="input-0">
+            <tr class="asm-input-header">
+            <th colspan="2">Input</th>
+            </tr>
+            </table>
+            <table class="output-0">
+            <tr class="asm-output-header">
+            <th colspan="2">Output</th>
+            </tr>
+            </table>
+            </td>
+            </tr>
+            <tr>
+            <td class="asm-label-0"></td>
+            <td class="address-2"><span id="32768"></span>32768</td>
+            <td class="bytes-0"></td>
+            <td class="instruction">RET</td>
+            <td class="comment-10" rowspan="1"></td>
+            </tr>
+            </table>
+        """
+        subs = {
+            'header': 'Routines',
+            'title': 'Routine at 32768',
+            'body_class': 'Asm-c',
+            'up': '32768',
+            'content': content
+        }
+        self._assert_files_equal(join(ASMDIR, '32768.html'), subs)
+
     def test_parameter_DisassemblyTableNumCols_default_value(self):
         ref = """
             [Template:asm_instruction]
@@ -2945,6 +3221,7 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             <tr>
             <td class="asm-label-0"></td>
             <td class="address-2"><span id="50000"></span>50000</td>
+            <td class="bytes-0"></td>
             <td class="instruction">RET</td>
             <td class="comment-10" rowspan="1"></td>
             </tr>
@@ -2972,7 +3249,7 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         self.assertFalse(writer.link_internal_operands)
         writer.write_asm_entries()
         html = self._read_file(join(ASMDIR, '30000.html'), True)
-        line_no = 46
+        line_no = 47
         for inst, address in (
             ('CALL', 30003),
             ('JP', 30006),
@@ -2981,7 +3258,7 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         ):
             operation = '{} {}'.format(inst, address)
             self.assertEqual(html[line_no], '<td class="instruction">{}</td>'.format(operation))
-            line_no += 6
+            line_no += 7
 
     def test_parameter_LinkInternalOperands_1(self):
         ref = '[Game]\nLinkInternalOperands=1'
@@ -2996,7 +3273,7 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         self.assertTrue(writer.link_internal_operands)
         writer.write_asm_entries()
         html = self._read_file(join(ASMDIR, '40000.html'), True)
-        line_no = 46
+        line_no = 47
         for inst, address in (
             ('CALL', 40003),
             ('JP', 40006),
@@ -3005,7 +3282,7 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         ):
             operation = '{0} <a href="40000.html#{1}">{1}</a>'.format(inst, address)
             self.assertEqual(html[line_no], '<td class="instruction">{}</td>'.format(operation))
-            line_no += 6
+            line_no += 7
 
     def test_parameter_LinkOperands(self):
         ref = '[Game]\nLinkOperands={}'
@@ -3028,12 +3305,12 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             writer.write_asm_entries()
             html = self._read_file(join(ASMDIR, '32769.html'), True)
             link = '<a href="32768.html">32768</a>'
-            line_no = 46
+            line_no = 47
             for prefix in ('CALL ', 'DEFW ', 'DJNZ ', 'JP ', 'JR ', 'LD HL,'):
                 inst_type = prefix.split()[0]
                 exp_html = prefix + (link if inst_type in link_operands else '32768')
                 self.assertEqual(html[line_no], '<td class="instruction">{}</td>'.format(exp_html))
-                line_no += 6
+                line_no += 7
 
     def test_parameter_DefaultAnimationFormat(self):
         ref = '[ImageWriter]\nDefaultAnimationFormat=png'
@@ -3120,7 +3397,7 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             <div class="description">50000: Routine at 50000</div>
             <table class="disassembly">
             <tr>
-            <td class="routine-comment" colspan="4">
+            <td class="routine-comment" colspan="5">
             <div class="details">
             <div class="paragraph">
             {}
@@ -3141,6 +3418,7 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             <tr>
             <td class="asm-label-0"></td>
             <td class="address-2"><span id="50000"></span>50000</td>
+            <td class="bytes-0"></td>
             <td class="instruction">RET</td>
             <td class="comment-10" rowspan="1"></td>
             </tr>
@@ -3502,7 +3780,7 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             <div class="description">24576: Routine at 24576</div>
             <table class="disassembly">
             <tr>
-            <td class="routine-comment" colspan="4">
+            <td class="routine-comment" colspan="5">
             <div class="details">
             <div class="paragraph">
             Description of routine at 24576.
@@ -3531,11 +3809,12 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             <tr>
             <td class="asm-label-0"></td>
             <td class="address-2"><span id="24576"></span>24576</td>
+            <td class="bytes-0"></td>
             <td class="instruction">LD A,B</td>
             <td class="comment-11" rowspan="1">Comment for instruction at 24576</td>
             </tr>
             <tr>
-            <td class="routine-comment" colspan="4">
+            <td class="routine-comment" colspan="5">
             <span id="24577"></span>
             <div class="comments">
             <div class="paragraph">
@@ -3547,11 +3826,12 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             <tr>
             <td class="asm-label-0"></td>
             <td class="address-2"><span id="24577"></span>24577</td>
+            <td class="bytes-0"></td>
             <td class="instruction">RET</td>
             <td class="comment-11" rowspan="1"></td>
             </tr>
             <tr>
-            <td class="routine-comment" colspan="4">
+            <td class="routine-comment" colspan="5">
             <div class="comments">
             <div class="paragraph">
             End comment for routine at 24576.
@@ -3576,7 +3856,7 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             <div class="description">24578: Data block at 24578</div>
             <table class="disassembly">
             <tr>
-            <td class="routine-comment" colspan="4">
+            <td class="routine-comment" colspan="5">
             <div class="details">
             </div>
             <table class="input-0">
@@ -3594,6 +3874,7 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             <tr>
             <td class="asm-label-0"></td>
             <td class="address-1"><span id="24578"></span>24578</td>
+            <td class="bytes-0"></td>
             <td class="instruction">DEFB 0</td>
             <td class="comment-10" rowspan="1"></td>
             </tr>
@@ -3615,7 +3896,7 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             <div class="description">24579: Routine at 24579</div>
             <table class="disassembly">
             <tr>
-            <td class="routine-comment" colspan="4">
+            <td class="routine-comment" colspan="5">
             <div class="details">
             </div>
             <table class="input-0">
@@ -3633,6 +3914,7 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             <tr>
             <td class="asm-label-0"></td>
             <td class="address-2"><span id="24579"></span>24579</td>
+            <td class="bytes-0"></td>
             <td class="instruction">JR <a href="24576.html#24577">24577</a></td>
             <td class="comment-10" rowspan="1"></td>
             </tr>
@@ -3654,7 +3936,7 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             <div class="description">24581: GSB entry at 24581</div>
             <table class="disassembly">
             <tr>
-            <td class="routine-comment" colspan="4">
+            <td class="routine-comment" colspan="5">
             <div class="details">
             </div>
             <table class="input-0">
@@ -3672,6 +3954,7 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             <tr>
             <td class="asm-label-0"></td>
             <td class="address-1"><span id="24581"></span>24581</td>
+            <td class="bytes-0"></td>
             <td class="instruction">DEFW 123</td>
             <td class="comment-10" rowspan="1"></td>
             </tr>
@@ -3693,7 +3976,7 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             <div class="description">24583: Unused</div>
             <table class="disassembly">
             <tr>
-            <td class="routine-comment" colspan="4">
+            <td class="routine-comment" colspan="5">
             <div class="details">
             </div>
             <table class="input-0">
@@ -3711,6 +3994,7 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             <tr>
             <td class="asm-label-0"></td>
             <td class="address-1"><span id="24583"></span>24583</td>
+            <td class="bytes-0"></td>
             <td class="instruction">DEFB 0</td>
             <td class="comment-10" rowspan="1"></td>
             </tr>
@@ -3732,7 +4016,7 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             <div class="description">24584: Routine at 24584 (register section but no description)</div>
             <table class="disassembly">
             <tr>
-            <td class="routine-comment" colspan="4">
+            <td class="routine-comment" colspan="5">
             <div class="details">
             </div>
             <table class="input-1">
@@ -3754,12 +4038,14 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             <tr>
             <td class="asm-label-0"></td>
             <td class="address-2"><span id="24584"></span>24584</td>
+            <td class="bytes-0"></td>
             <td class="instruction">CALL <a href="../start/30000.html">30000</a></td>
             <td class="comment-11" rowspan="2">Comment for the instructions at 24584 and 24587</td>
             </tr>
             <tr>
             <td class="asm-label-0"></td>
             <td class="address-1"><span id="24587"></span>24587</td>
+            <td class="bytes-0"></td>
             <td class="instruction">JP <a href="../start/30000.html#30003">30003</a></td>
             <td class="comment-01" rowspan="1"></td>
             </tr>
@@ -3791,7 +4077,7 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             <div class="description">{address:05d}: </div>
             <table class="disassembly">
             <tr>
-            <td class="routine-comment" colspan="4">
+            <td class="routine-comment" colspan="5">
             <div class="details">
             </div>
             <table class="input-0">
@@ -3809,6 +4095,7 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             <tr>
             <td class="asm-label-0"></td>
             <td class="address-2"><span id="{address}"></span>{address:05d}</td>
+            <td class="bytes-0"></td>
             <td class="instruction">RET</td>
             <td class="comment-10" rowspan="1"></td>
             </tr>
@@ -4005,7 +4292,7 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             <div class="description">50000: Routine at 50000</div>
             <table class="disassembly">
             <tr>
-            <td class="routine-comment" colspan="4">
+            <td class="routine-comment" colspan="5">
             <div class="details">
             </div>
             <table class="input-0">
@@ -4023,11 +4310,12 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             <tr>
             <td class="asm-label-0"></td>
             <td class="address-2"><span id="C350"></span>50000</td>
+            <td class="bytes-0"></td>
             <td class="instruction">LD A,B</td>
             <td class="comment-10" rowspan="1"></td>
             </tr>
             <tr>
-            <td class="routine-comment" colspan="4">
+            <td class="routine-comment" colspan="5">
             <span id="C351"></span>
             <div class="comments">
             <div class="paragraph">
@@ -4039,6 +4327,7 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             <tr>
             <td class="asm-label-0"></td>
             <td class="address-1"><span id="C351"></span>50001</td>
+            <td class="bytes-0"></td>
             <td class="instruction">JR <a href="50000.html#C350">50000</a></td>
             <td class="comment-10" rowspan="1"></td>
             </tr>
@@ -4072,7 +4361,7 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             <div class="description">30000: Routine at 30000</div>
             <table class="disassembly">
             <tr>
-            <td class="routine-comment" colspan="4">
+            <td class="routine-comment" colspan="5">
             <div class="details">
             </div>
             <table class="input-0">
@@ -4090,11 +4379,12 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             <tr>
             <td class="asm-label-0"></td>
             <td class="address-2"><span id="7530"></span>30000</td>
+            <td class="bytes-0"></td>
             <td class="instruction">LD A,B</td>
             <td class="comment-10" rowspan="1"></td>
             </tr>
             <tr>
-            <td class="routine-comment" colspan="4">
+            <td class="routine-comment" colspan="5">
             <span id="7531"></span>
             <div class="comments">
             <div class="paragraph">
@@ -4106,6 +4396,7 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             <tr>
             <td class="asm-label-0"></td>
             <td class="address-1"><span id="7531"></span>30001</td>
+            <td class="bytes-0"></td>
             <td class="instruction">JR <a href="30000.html#7530">30000</a></td>
             <td class="comment-10" rowspan="1"></td>
             </tr>
@@ -4141,7 +4432,7 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             <div id="32768" class="description">32768: Routine at 32768</div>
             <table class="disassembly">
             <tr>
-            <td class="routine-comment" colspan="4">
+            <td class="routine-comment" colspan="5">
             <div class="details">
             </div>
             <table class="input-0">
@@ -4159,18 +4450,21 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             <tr>
             <td class="asm-label-0"></td>
             <td class="address-2"><span id="32768"></span>32768</td>
+            <td class="bytes-0"></td>
             <td class="instruction">CALL <a href="#32775">32775</a></td>
             <td class="comment-10" rowspan="1"></td>
             </tr>
             <tr>
             <td class="asm-label-0"></td>
             <td class="address-1"><span id="32771"></span>32771</td>
+            <td class="bytes-0"></td>
             <td class="instruction">JR Z,<a href="#32776">32776</a></td>
             <td class="comment-10" rowspan="1"></td>
             </tr>
             <tr>
             <td class="asm-label-0"></td>
             <td class="address-1"><span id="32773"></span>32773</td>
+            <td class="bytes-0"></td>
             <td class="instruction">JR 32768</td>
             <td class="comment-10" rowspan="1"></td>
             </tr>
@@ -4178,7 +4472,7 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             <div id="32775" class="description">32775: Routine at 32775</div>
             <table class="disassembly">
             <tr>
-            <td class="routine-comment" colspan="4">
+            <td class="routine-comment" colspan="5">
             <div class="details">
             <div class="paragraph">
             Used by the routine at <a href="asm.html#32768">32768</a>.
@@ -4199,12 +4493,14 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             <tr>
             <td class="asm-label-0"></td>
             <td class="address-2"><span id="32775"></span>32775</td>
+            <td class="bytes-0"></td>
             <td class="instruction">LD A,B</td>
             <td class="comment-10" rowspan="1"></td>
             </tr>
             <tr>
             <td class="asm-label-0"></td>
             <td class="address-2"><span id="32776"></span>32776</td>
+            <td class="bytes-0"></td>
             <td class="instruction">RET</td>
             <td class="comment-10" rowspan="1"></td>
             </tr>
@@ -4238,7 +4534,7 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             <div id="40000" class="description">40000: Routine at 40000</div>
             <table class="disassembly">
             <tr>
-            <td class="routine-comment" colspan="4">
+            <td class="routine-comment" colspan="5">
             <div class="details">
             </div>
             <table class="input-0">
@@ -4256,6 +4552,7 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             <tr>
             <td class="asm-label-0"></td>
             <td class="address-2"><span id="40000"></span>40000</td>
+            <td class="bytes-0"></td>
             <td class="instruction">RET</td>
             <td class="comment-10" rowspan="1"></td>
             </tr>
@@ -4325,7 +4622,7 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             <div class="description">50000: Routine</div>
             <table class="disassembly">
             <tr>
-            <td class="routine-comment" colspan="4">
+            <td class="routine-comment" colspan="5">
             <div class="details">
             <div class="paragraph">
             Paragraph 1.
@@ -4351,7 +4648,7 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             </td>
             </tr>
             <tr>
-            <td class="routine-comment" colspan="4">
+            <td class="routine-comment" colspan="5">
             <span id="50000"></span>
             <div class="comments">
             <div class="paragraph">
@@ -4366,11 +4663,12 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             <tr>
             <td class="asm-label-0"></td>
             <td class="address-2"><span id="50000"></span>50000</td>
+            <td class="bytes-0"></td>
             <td class="instruction">XOR A</td>
             <td class="comment-10" rowspan="1"></td>
             </tr>
             <tr>
-            <td class="routine-comment" colspan="4">
+            <td class="routine-comment" colspan="5">
             <span id="50001"></span>
             <div class="comments">
             <div class="paragraph">
@@ -4382,11 +4680,12 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             <tr>
             <td class="asm-label-0"></td>
             <td class="address-1"><span id="50001"></span>50001</td>
+            <td class="bytes-0"></td>
             <td class="instruction">RET</td>
             <td class="comment-10" rowspan="1"></td>
             </tr>
             <tr>
-            <td class="routine-comment" colspan="4">
+            <td class="routine-comment" colspan="5">
             <div class="comments">
             <div class="paragraph">
             End comment. End comment continued.
@@ -4426,7 +4725,7 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             <div class="description">40000: Routine with a start comment</div>
             <table class="disassembly">
             <tr>
-            <td class="routine-comment" colspan="4">
+            <td class="routine-comment" colspan="5">
             <div class="details">
             </div>
             <table class="input-0">
@@ -4442,7 +4741,7 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             </td>
             </tr>
             <tr>
-            <td class="routine-comment" colspan="4">
+            <td class="routine-comment" colspan="5">
             <span id="40000"></span>
             <div class="comments">
             <div class="paragraph">
@@ -4457,6 +4756,7 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             <tr>
             <td class="asm-label-0"></td>
             <td class="address-2"><span id="40000"></span>40000</td>
+            <td class="bytes-0"></td>
             <td class="instruction">RET</td>
             <td class="comment-10" rowspan="1"></td>
             </tr>
@@ -4494,7 +4794,7 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             <div class="description">50000: Routine with a label</div>
             <table class="disassembly">
             <tr>
-            <td class="routine-comment" colspan="4">
+            <td class="routine-comment" colspan="5">
             <div class="details">
             </div>
             <table class="input-0">
@@ -4512,18 +4812,21 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             <tr>
             <td class="asm-label-1">START</td>
             <td class="address-2"><span id="50000"></span>50000</td>
+            <td class="bytes-0"></td>
             <td class="instruction">LD B,5</td>
             <td class="comment-11" rowspan="1">Loop 5 times</td>
             </tr>
             <tr>
             <td class="asm-label-1">START_0</td>
             <td class="address-2"><span id="50002"></span>50002</td>
+            <td class="bytes-0"></td>
             <td class="instruction">DJNZ <a href="50000.html#50002">START_0</a></td>
             <td class="comment-11" rowspan="1"></td>
             </tr>
             <tr>
             <td class="asm-label-1"></td>
             <td class="address-1"><span id="50004"></span>50004</td>
+            <td class="bytes-0"></td>
             <td class="instruction">RET</td>
             <td class="comment-11" rowspan="1"></td>
             </tr>
@@ -4544,7 +4847,7 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             <div class="description">50005: Routine without a label</div>
             <table class="disassembly">
             <tr>
-            <td class="routine-comment" colspan="4">
+            <td class="routine-comment" colspan="5">
             <div class="details">
             </div>
             <table class="input-0">
@@ -4562,6 +4865,7 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             <tr>
             <td class="asm-label-0"></td>
             <td class="address-2"><span id="50005"></span>50005</td>
+            <td class="bytes-0"></td>
             <td class="instruction">JP <a href="50000.html">START</a></td>
             <td class="comment-10" rowspan="1"></td>
             </tr>
@@ -4583,7 +4887,7 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             <div class="description">50008: DEFW statement with a @keep directive</div>
             <table class="disassembly">
             <tr>
-            <td class="routine-comment" colspan="4">
+            <td class="routine-comment" colspan="5">
             <div class="details">
             </div>
             <table class="input-0">
@@ -4601,6 +4905,7 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             <tr>
             <td class="asm-label-0"></td>
             <td class="address-1"><span id="50008"></span>50008</td>
+            <td class="bytes-0"></td>
             <td class="instruction">DEFW 50000</td>
             <td class="comment-10" rowspan="1"></td>
             </tr>
@@ -4638,7 +4943,7 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             <div class="description">00000: Start</div>
             <table class="disassembly">
             <tr>
-            <td class="routine-comment" colspan="4">
+            <td class="routine-comment" colspan="5">
             <div class="details">
             </div>
             <table class="input-0">
@@ -4656,12 +4961,14 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             <tr>
             <td class="asm-label-0"></td>
             <td class="address-2"><span id="0"></span>00000</td>
+            <td class="bytes-0"></td>
             <td class="instruction">RST <a href="8.html">8</a></td>
             <td class="comment-11" rowspan="1">This operand should not be replaced by a label</td>
             </tr>
             <tr>
             <td class="asm-label-0"></td>
             <td class="address-1"><span id="1"></span>00001</td>
+            <td class="bytes-0"></td>
             <td class="instruction">DEFS 7</td>
             <td class="comment-11" rowspan="1"></td>
             </tr>
@@ -4691,7 +4998,7 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             <div class="description">50000: Start</div>
             <table class="disassembly">
             <tr>
-            <td class="routine-comment" colspan="4">
+            <td class="routine-comment" colspan="5">
             <div class="details">
             </div>
             <table class="input-0">
@@ -4709,12 +5016,14 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             <tr>
             <td class="asm-label-0"></td>
             <td class="address-2"><span id="50000"></span>50000</td>
+            <td class="bytes-0"></td>
             <td class="instruction">XOR A</td>
             <td class="comment-10" rowspan="1"></td>
             </tr>
             <tr>
             <td class="asm-label-0"></td>
             <td class="address-2"><span id="50001"></span>50001</td>
+            <td class="bytes-0"></td>
             <td class="instruction">JR 50001</td>
             <td class="comment-10" rowspan="1"></td>
             </tr>
@@ -4744,7 +5053,7 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             <div class="description">50000: Routine with a blank @label directive</div>
             <table class="disassembly">
             <tr>
-            <td class="routine-comment" colspan="4">
+            <td class="routine-comment" colspan="5">
             <div class="details">
             </div>
             <table class="input-0">
@@ -4762,12 +5071,14 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             <tr>
             <td class="asm-label-1">START</td>
             <td class="address-2"><span id="50000"></span>50000</td>
+            <td class="bytes-0"></td>
             <td class="instruction">XOR A</td>
             <td class="comment-10" rowspan="1"></td>
             </tr>
             <tr>
             <td class="asm-label-1"></td>
             <td class="address-1"><span id="50001"></span>50001</td>
+            <td class="bytes-0"></td>
             <td class="instruction">JR 50001</td>
             <td class="comment-10" rowspan="1"></td>
             </tr>
@@ -5733,7 +6044,7 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             <div class="description">30000: Some data</div>
             <table class="disassembly">
             <tr>
-            <td class="routine-comment" colspan="4">
+            <td class="routine-comment" colspan="5">
             <div class="details">
             </div>
             <table class="input-0">
@@ -5751,6 +6062,7 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             <tr>
             <td class="asm-label-0"></td>
             <td class="address-1"><span id="30000"></span>30000</td>
+            <td class="bytes-0"></td>
             <td class="instruction">DEFB 0</td>
             <td class="comment-10" rowspan="1"></td>
             </tr>
@@ -5771,7 +6083,7 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             <div class="description">30001: A routine</div>
             <table class="disassembly">
             <tr>
-            <td class="routine-comment" colspan="4">
+            <td class="routine-comment" colspan="5">
             <div class="details">
             </div>
             <table class="input-0">
@@ -5789,6 +6101,7 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             <tr>
             <td class="asm-label-0"></td>
             <td class="address-2"><span id="30001"></span>30001</td>
+            <td class="bytes-0"></td>
             <td class="instruction">RET</td>
             <td class="comment-10" rowspan="1"></td>
             </tr>
@@ -5810,7 +6123,7 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             <div class="description">30002: A message</div>
             <table class="disassembly">
             <tr>
-            <td class="routine-comment" colspan="4">
+            <td class="routine-comment" colspan="5">
             <div class="details">
             </div>
             <table class="input-0">
@@ -5828,6 +6141,7 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             <tr>
             <td class="asm-label-0"></td>
             <td class="address-1"><span id="30002"></span>30002</td>
+            <td class="bytes-0"></td>
             <td class="instruction">DEFM "a"</td>
             <td class="comment-10" rowspan="1"></td>
             </tr>
@@ -5964,7 +6278,7 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             <div id="40000" class="description">40000: Routine at 40000</div>
             <table class="disassembly">
             <tr>
-            <td class="routine-comment" colspan="4">
+            <td class="routine-comment" colspan="5">
             <div class="details">
             </div>
             <table class="input-0">
@@ -5982,6 +6296,7 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             <tr>
             <td class="asm-label-0"></td>
             <td class="address-2"><span id="40000"></span>40000</td>
+            <td class="bytes-0"></td>
             <td class="instruction">JR <a href="#40002">40002</a></td>
             <td class="comment-10" rowspan="1"></td>
             </tr>
@@ -5989,7 +6304,7 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             <div id="40002" class="description">40002: Routine at 40002</div>
             <table class="disassembly">
             <tr>
-            <td class="routine-comment" colspan="4">
+            <td class="routine-comment" colspan="5">
             <div class="details">
             </div>
             <table class="input-0">
@@ -6007,6 +6322,7 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             <tr>
             <td class="asm-label-0"></td>
             <td class="address-2"><span id="40002"></span>40002</td>
+            <td class="bytes-0"></td>
             <td class="instruction">JR <a href="#40000">40000</a></td>
             <td class="comment-10" rowspan="1"></td>
             </tr>
@@ -6054,7 +6370,7 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             <div id="40000" class="description">40000: Routine at 40000</div>
             <table class="disassembly">
             <tr>
-            <td class="routine-comment" colspan="4">
+            <td class="routine-comment" colspan="5">
             <div class="details">
             </div>
             <table class="input-0">
@@ -6072,6 +6388,7 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             <tr>
             <td class="asm-label-0"></td>
             <td class="address-2"><span id="40000"></span>40000</td>
+            <td class="bytes-0"></td>
             <td class="instruction">RET</td>
             <td class="comment-10" rowspan="1"></td>
             </tr>
@@ -7128,7 +7445,7 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             <div class="description">24576: Routine at 24576</div>
             <table class="disassembly">
             <tr>
-            <td class="routine-comment" colspan="4">
+            <td class="routine-comment" colspan="5">
             <div class="details">
             </div>
             <table class="input-1">
@@ -7162,6 +7479,7 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             <tr>
             <td class="asm-label-0"></td>
             <td class="address-2"><span id="24576"></span>24576</td>
+            <td class="bytes-0"></td>
             <td class="instruction">RET</td>
             <td class="comment-11" rowspan="1">Done</td>
             </tr>
