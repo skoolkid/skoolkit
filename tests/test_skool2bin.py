@@ -23,19 +23,19 @@ class MockBinWriter:
 class Skool2BinTest(SkoolKitTestCase):
     def test_no_arguments(self):
         output, error = self.run_skool2bin(catch_exit=2)
-        self.assertEqual(len(output), 0)
+        self.assertEqual(output, '')
         self.assertTrue(error.startswith('usage: skool2bin.py'))
 
     def test_invalid_option(self):
         output, error = self.run_skool2bin('-x test.skool', catch_exit=2)
-        self.assertEqual(len(output), 0)
+        self.assertEqual(output, '')
         self.assertTrue(error.startswith('usage: skool2bin.py'))
 
     def test_invalid_option_value(self):
         skoolfile = self.write_text_file(suffix='.skool')
         for option in ('-E ABC', '-S ='):
             output, error = self.run_skool2bin('{} {}'.format(option, skoolfile), catch_exit=2)
-            self.assertEqual(len(output), 0)
+            self.assertEqual(output, '')
             self.assertTrue(error.startswith('usage: skool2bin.py'))
 
     @patch.object(skool2bin, 'BinWriter', MockBinWriter)

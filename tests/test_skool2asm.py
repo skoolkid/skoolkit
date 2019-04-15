@@ -162,18 +162,18 @@ class Skool2AsmTest(SkoolKitTestCase):
 
     def test_no_arguments(self):
         output, error = self.run_skool2asm('', catch_exit=2)
-        self.assertEqual(len(output), 0)
+        self.assertEqual(output, '')
         self.assertTrue(error.startswith('usage: skool2asm.py'))
 
     def test_invalid_option(self):
         output, error = self.run_skool2asm('-x', catch_exit=2)
-        self.assertEqual(len(output), 0)
+        self.assertEqual(output, '')
         self.assertTrue(error.startswith('usage: skool2asm.py'))
 
     def test_invalid_option_value(self):
         for args in ('-i ABC', '-f +'):
             output, error = self.run_skool2asm(args, catch_exit=2)
-            self.assertEqual(len(output), 0)
+            self.assertEqual(output, '')
             self.assertTrue(error.startswith('usage: skool2asm.py'))
 
     @patch.object(skool2asm, 'get_config', mock_config)

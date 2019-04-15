@@ -90,12 +90,12 @@ class SnapmodTest(SkoolKitTestCase):
 
     def test_no_arguments(self):
         output, error = self.run_snapmod(catch_exit=2)
-        self.assertEqual(len(output), 0)
+        self.assertEqual(output, '')
         self.assertTrue(error.startswith('usage: snapmod.py'))
 
     def test_invalid_option(self):
         output, error = self.run_snapmod('-x test.z80', catch_exit=2)
-        self.assertEqual(len(output), 0)
+        self.assertEqual(output, '')
         self.assertTrue(error.startswith('usage: snapmod.py'))
 
     def test_unrecognised_snapshot_type(self):

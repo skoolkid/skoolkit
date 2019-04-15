@@ -231,12 +231,12 @@ class Skool2HtmlTest(SkoolKitTestCase):
 
     def test_no_arguments(self):
         output, error = self.run_skool2html(catch_exit=2)
-        self.assertEqual(len(output), 0)
+        self.assertEqual(output, '')
         self.assertTrue(error.startswith('usage: skool2html.py'))
 
     def test_invalid_option(self):
         output, error = self.run_skool2html('-X', catch_exit=2)
-        self.assertEqual(len(output), 0)
+        self.assertEqual(output, '')
         self.assertTrue(error.startswith('usage: skool2html.py'))
 
     @patch.object(skool2html, 'get_class', Mock(return_value=TestHtmlWriter))
@@ -1055,7 +1055,7 @@ class Skool2HtmlTest(SkoolKitTestCase):
             output, error = self.run_skool2html('{} -d {} -w i {}'.format(option, self.odir, skoolfile))
             self.assertEqual(error, '')
             self.assertIn(index_method, html_writer.call_dict, '{0} was not called'.format(index_method))
-            self.assertEqual(len(output), 0)
+            self.assertEqual(output, '')
 
     @patch.object(skool2html, 'get_class', Mock(return_value=TestHtmlWriter))
     @patch.object(skool2html, 'SkoolParser', MockSkoolParser)

@@ -719,7 +719,7 @@ class Sna2ImgTest(SkoolKitTestCase):
         scrfile = self.write_bin_file(suffix='.scr')
         for dimensions in ('Xx1', '1xY', 'pxq', '1', '1x2x3'):
             output, error = self.run_sna2img('-S {} {}'.format(dimensions, scrfile), catch_exit=2)
-            self.assertEqual(len(output), 0)
+            self.assertEqual(output, '')
             self.assertTrue(error.startswith('usage: sna2img.py'))
             self.assertTrue(error.endswith("error: argument -S/--size: invalid dimensions: '{}'\n".format(dimensions)))
 

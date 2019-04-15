@@ -47,12 +47,12 @@ class TapinfoTest(SkoolKitTestCase):
 
     def test_no_arguments(self):
         output, error = self.run_tapinfo(catch_exit=2)
-        self.assertEqual(len(output), 0)
+        self.assertEqual(output, '')
         self.assertTrue(error.startswith('usage: tapinfo.py'))
 
     def test_invalid_option(self):
         output, error = self.run_tapinfo('-x test.tap', catch_exit=2)
-        self.assertEqual(len(output), 0)
+        self.assertEqual(output, '')
         self.assertTrue(error.startswith('usage: tapinfo.py'))
 
     def test_unrecognised_tape_type(self):
