@@ -2722,6 +2722,9 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
             self._assert_error(writer, macro + params, 'Found unknown macro: {}'.format(macro))
 
 class HtmlWriterOutputTestCase(HtmlWriterTestCase):
+    def _assert_content_equal(self, exp_content, fpath):
+        self.assertEqual(dedent(exp_content).strip(), self.files[fpath])
+
     def setUp(self):
         HtmlWriterTestCase.setUp(self)
         self.files = {}
@@ -3050,6 +3053,23 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             'content': content
         }
         self._assert_files_equal(join(ASMDIR, '32768.html'), subs)
+
+    def test_parameter_Bytes_containing_skool_macro(self):
+        ref = """
+            [Game]
+            Bytes=02#MAP({case})(X,1:x)
+            [Template:Asm]
+            {disassembly}
+            [Template:asm_instruction]
+            {address} {bytes:{Game[Bytes]}} {operation}
+        """
+        skool = """
+            @assemble=2
+            c32768 RET
+        """
+        writer = self._get_writer(ref=ref, skool=skool, case=CASE_LOWER)
+        writer.write_asm_entries()
+        self._assert_content_equal('32768 c9 ret', 'asm/32768.html')
 
     def test_parameter_DisassemblyTableNumCols_default_value(self):
         ref = """
@@ -7743,11 +7763,6 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             writer.write_page(page_id)
 
 class HtmlTemplateTest(HtmlWriterOutputTestCase):
-    def _assert_content_equal(self, exp_content, fpath):
-        exp_lines = [line.lstrip() for line in exp_content.strip().split('\n')]
-        lines = [line.lstrip() for line in self.files[fpath].split('\n')]
-        self.assertEqual(exp_lines, lines)
-
     def test_custom_map_with_custom_page_template(self):
         map_id = 'CustomMap'
         ref = """
