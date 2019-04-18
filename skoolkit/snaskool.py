@@ -203,10 +203,10 @@ class SkoolWriter:
             return self.address_fmt.format(address)
         return str(address)
 
-    def _trim_lines(self, lines):
-        while lines and not lines[0]:
+    def _trim_lines(self, lines, func=lambda x: x):
+        while lines and not func(lines[0]):
             lines.pop(0)
-        while lines and not lines[-1]:
+        while lines and not func(lines[-1]):
             lines.pop()
         return lines
 
@@ -241,7 +241,7 @@ class SkoolWriter:
         else:
             wrote_desc = False
 
-        self._write_body(entry, wrote_desc, write_refs, show_text)
+        self._write_body(entry, wrote_desc, write_refs, show_text and entry.ctl != 't')
 
         if entry.has_ignoreua_directive(END):
             self.write_asm_directives(AD_IGNOREUA)
@@ -308,20 +308,32 @@ class SkoolWriter:
 
         return wrote_desc
 
-    def _wrap_block_comment(self, block_comment_lines, width, opening=''):
-        if len(block_comment_lines) == 1:
-            return wrap(opening + block_comment_lines[0], width)
-        comment_lines = self._trim_lines(block_comment_lines[:])
-        if comment_lines:
-            comment_lines[0] = opening + comment_lines[0]
-        return comment_lines
+    def _set_instruction_comments(self, block, width, closing, show_text):
+        for instruction in block.instructions:
+            instruction.comment = [None]
+            if block.comment:
+                instruction.comment[0] = block.comment.pop(0)[1]
+                while block.comment and block.comment[0][0]:
+                    instruction.comment.append(block.comment.pop(0)[1])
+            elif show_text:
+                instruction.comment[0] = self.to_ascii(instruction.bytes)
+            elif closing:
+                instruction.comment[0] = ''
+        final_comment = block.instructions[-1].comment
+        final_comment.extend(t[1] for t in block.comment)
+        if closing:
+            if len(final_comment[-1]) + len(closing) <= width:
+                final_comment[-1] = (final_comment[-1] + closing).lstrip()
+            else:
+                final_comment.append(closing.lstrip())
 
-    def _format_block_comment(self, block, width):
-        rowspan = len(block.instructions)
-        comment = ''.join(block.comment)
-        multi_line = rowspan > 1 and comment
+    def _format_instruction_comments(self, block, width, show_text):
+        comment = ''.join(t[1] for t in block.comment)
+        multi_line = len(block.instructions) > 1 and comment
+        opening = closing = ''
         if multi_line and len(block.comment) == 1 and not comment.replace('.', ''):
-            block.comment[0] = comment = comment[1:]
+            comment = comment[1:]
+            block.comment[0] = (0, comment)
         if multi_line or comment.startswith('{'):
             balance = comment.count('{') - comment.count('}')
             if multi_line and balance < 0:
@@ -333,25 +345,19 @@ class SkoolWriter:
             closing = '}' * max(1 + balance, 1)
             if comment.endswith('}'):
                 closing = ' ' + closing
-            comment_lines = self._wrap_block_comment(block.comment, width, opening)
-            if len(comment_lines) < rowspan:
-                comment_lines.extend([''] * (rowspan - len(comment_lines) - 1))
-                comment_lines.append(closing.lstrip())
-            elif len(comment_lines[-1]) + len(closing) <= width:
-                comment_lines[-1] += closing
-            else:
-                comment_lines.append(closing.lstrip())
-            return comment_lines
-        return self._wrap_block_comment(block.comment, width)
+        if len(block.comment) == 1:
+            block.comment[:] = [(0, t) for t in wrap(opening + block.comment[0][1], width)]
+        elif self._trim_lines(block.comment, lambda x: x[1]):
+            block.comment[0] = (0, opening + block.comment[0][1])
+        self._set_instruction_comments(block, width, closing, show_text)
 
     def _write_body(self, entry, wrote_desc, write_refs, show_text):
         op_width = max((self.config['InstructionWidth'], entry.width()))
-        line_width = op_width + 8
-        first_block = True
-        for block in entry.blocks:
+        comment_width = max(self.comment_width - op_width - 8, self.config['CommentWidthMin'])
+        for index, block in enumerate(entry.blocks):
             ignoreua_m = block.has_ignoreua_directive(block.start, MID_BLOCK)
             begun_header = False
-            if not first_block and entry.ctl == 'c' and write_refs:
+            if index > 0 and entry.ctl == 'c' and write_refs:
                 referrers = block.instructions[0].referrers
                 if referrers and (write_refs == 2 or not block.header):
                     if ignoreua_m:
@@ -359,7 +365,7 @@ class SkoolWriter:
                     self.write_referrers(referrers)
                     begun_header = True
             if block.header:
-                if first_block:
+                if index == 0:
                     if not wrote_desc:
                         self._write_empty_paragraph()
                     if not entry.registers:
@@ -370,36 +376,26 @@ class SkoolWriter:
                 elif ignoreua_m:
                     self.write_asm_directives(AD_IGNOREUA)
                 self.write_paragraphs(block.header)
-            comment_width = max(self.comment_width - line_width, self.config['CommentWidthMin'])
-            comment_lines = self._format_block_comment(block, comment_width)
-            self._write_instructions(entry, block, op_width, comment_lines, write_refs, show_text)
-            indent = ' ' * line_width
-            for j in range(len(block.instructions), len(comment_lines)):
-                write_line('{}; {}'.format(indent, comment_lines[j]).rstrip())
-            first_block = False
+            self._format_instruction_comments(block, comment_width, show_text)
+            self._write_instructions(entry, block, op_width, write_refs)
 
-    def _write_instructions(self, entry, block, op_width, comment_lines, write_refs, show_text):
-        index = 0
-        for instruction in block.instructions:
+    def _write_instructions(self, entry, block, op_width, write_refs):
+        for index, instruction in enumerate(block.instructions):
             ctl = instruction.ctl or ' '
             address = instruction.address
             operation = instruction.operation
-            if comment_lines:
-                comment = comment_lines[index]
-            elif show_text and entry.ctl != 't':
-                comment = self.to_ascii(instruction.bytes)
-            else:
-                comment = ''
+            comment = instruction.comment.pop(0)
             if index > 0 and entry.ctl == 'c' and ctl == '*' and write_refs:
                 self.write_referrers(instruction.referrers)
             self.write_asm_directives(*instruction.asm_directives)
             if block.has_ignoreua_directive(instruction.address, INSTRUCTION):
                 self.write_asm_directives(AD_IGNOREUA)
-            if entry.ctl in self.config['Semicolons'] or comment or comment_lines:
-                write_line(('{}{} {} ; {}'.format(ctl, self.address_str(address), operation.ljust(op_width), comment)).rstrip())
+            if entry.ctl in self.config['Semicolons'] or comment is not None:
+                write_line(('{}{} {:{}} ; {}'.format(ctl, self.address_str(address), operation, op_width, comment or '')).rstrip())
             else:
                 write_line(('{}{} {}'.format(ctl, self.address_str(address), operation)).rstrip())
-            index += 1
+            for comment in instruction.comment:
+                write_line('       {:{}} ; {}'.format('', op_width, comment).rstrip())
 
     def write_comment(self, text, paragraphs=False):
         if isinstance(text, str):

@@ -4,7 +4,7 @@ Changelog
 7.2b1
 -----
 * Added support to control files for specifying comments over multiple lines
-  (by using the :ref:`dot directive <dotDirective>`)
+  (by using the :ref:`dot and colon directives <dotDirective>`)
 * Added support to :ref:`skool2ctl.py <skool2ctl-conf>` for reading
   configuration from `skoolkit.ini`
 * Added the ``--ini`` and ``--show-config`` options to :ref:`skool2ctl.py` (for

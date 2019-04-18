@@ -260,7 +260,7 @@ class DisassemblyTest(SkoolKitTestCase):
         self.assertEqual(len(blocks), 1)
         block = blocks[0]
         self.assertEqual(block.header, ())
-        self.assertEqual(['This is an instruction-level comment that spans two instructions'], block.comment)
+        self.assertEqual([(0, 'This is an instruction-level comment that spans two instructions')], block.comment)
         self.assertEqual(block.instructions, entry.instructions)
         self.assertEqual(block.end, 32770)
 
@@ -303,9 +303,9 @@ class DisassemblyTest(SkoolKitTestCase):
         self.assertEqual(instructions[4].operation, 'DEFB 0,0,0')
         blocks = entry.blocks
         self.assertEqual(len(blocks), 2)
-        self.assertEqual(['This comment spans three DEFB statements'], blocks[0].comment)
+        self.assertEqual([(0, 'This comment spans three DEFB statements')], blocks[0].comment)
         self.assertEqual(instructions[:3], blocks[0].instructions)
-        self.assertEqual(['This comment spans two DEFB statements'], blocks[1].comment)
+        self.assertEqual([(0, 'This comment spans two DEFB statements')], blocks[1].comment)
         self.assertEqual(instructions[3:], blocks[1].instructions)
 
         # Entry #5 (32788)
@@ -370,12 +370,12 @@ class DisassemblyTest(SkoolKitTestCase):
         self.assertEqual(block1.start, 32809)
         self.assertEqual(block1.end, 32813)
         self.assertEqual(instructions[:2], block1.instructions)
-        self.assertEqual(['A DEFS and a NOP'], block1.comment)
+        self.assertEqual([(0, 'A DEFS and a NOP')], block1.comment)
         block2 = blocks[1]
         self.assertEqual(block2.start, block1.end)
         self.assertEqual(block2.end, 32814)
         self.assertEqual(instructions[2:], block2.instructions)
-        self.assertEqual(['Another NOP'], block2.comment)
+        self.assertEqual([(0, 'Another NOP')], block2.comment)
 
         # Entry #14 (32814)
         entry = entries[13]
@@ -399,17 +399,17 @@ class DisassemblyTest(SkoolKitTestCase):
         block1 = blocks[0]
         self.assertEqual(block1.start, 32817)
         self.assertEqual(block1.end, 32822)
-        self.assertEqual([''], block1.comment)
+        self.assertEqual([(0, '')], block1.comment)
         self.assertEqual(instructions[:1], block1.instructions)
         block2 = blocks[1]
         self.assertEqual(block2.start, block1.end)
         self.assertEqual(block2.end, 32827)
-        self.assertEqual(['This comment spans two DEFB statements'], block2.comment)
+        self.assertEqual([(0, 'This comment spans two DEFB statements')], block2.comment)
         self.assertEqual(instructions[1:3], block2.instructions)
         block3 = blocks[2]
         self.assertEqual(block3.start, block2.end)
         self.assertEqual(block3.end, 32837)
-        self.assertEqual(['This comment spans four DEFM statements'], block3.comment)
+        self.assertEqual([(0, 'This comment spans four DEFM statements')], block3.comment)
         self.assertEqual(instructions[3:], block3.instructions)
 
         # Entry #16 (32837)
@@ -424,7 +424,7 @@ class DisassemblyTest(SkoolKitTestCase):
         block1 = blocks[0]
         self.assertEqual(block1.start, 32837)
         self.assertEqual(block1.end, 32841)
-        self.assertEqual(['This comment spans two instructions with different operand bases'], block1.comment)
+        self.assertEqual([(0, 'This comment spans two instructions with different operand bases')], block1.comment)
         self.assertEqual(instructions, block1.instructions)
 
         # Entry #17 (32841)
@@ -1198,24 +1198,24 @@ class DisassemblyTest(SkoolKitTestCase):
             w 00007
             i 00009
         """
-        exp_titles = [
-            ['Bytes at 0'],
-            ['Code at 1'],
-            ['Game state at 2'],
-            ['Ignored RAM at 3'],
-            ['Unused space at 4'],
-            ['Text at 5'],
-            ['Unused bytes at 6'],
-            ['Words at 7'],
-            ['']
-        ]
+        exp_titles = (
+            'Bytes at 0',
+            'Code at 1',
+            'Game state at 2',
+            'Ignored RAM at 3',
+            'Unused space at 4',
+            'Text at 5',
+            'Unused bytes at 6',
+            'Words at 7',
+            ''
+        )
         ctl_parser = CtlParser()
         ctl_parser.parse_ctls([StringIO(textwrap.dedent(ctl).strip())])
         config = CONFIG.copy()
         config.update(params)
         disassembly = Disassembly(snapshot, ctl_parser, config, True)
 
-        self.assertEqual([e.title for e in disassembly.entries], exp_titles)
+        self.assertEqual([[t] for t in exp_titles], [e.title for e in disassembly.entries])
 
     def test_invalid_title_templates(self):
         snapshot = [0, 0]
@@ -1572,6 +1572,7 @@ class SkoolWriterTest(SkoolKitTestCase):
         self.assertEqual(skool[-1], ' 65535 NOP           ; }')
 
     def test_decimal_addresses_below_10000(self):
+        snapshot = [0] * 1877
         ctl = """
             b 00000
             i 00001
@@ -1584,14 +1585,31 @@ class SkoolWriterTest(SkoolKitTestCase):
             b 01876
             i 01877
         """
-        writer = self._get_writer([0] * 1877, ctl)
-        writer.write_skool(0, False)
-        skool = self.out.getvalue().split('\n')[:-1]
-        self.assertEqual(skool[-22], 'b00000 DEFB 0')
-        self.assertEqual(skool[-17], 'b00003 DEFB 0')
-        self.assertEqual(skool[-12], 'b00023 DEFB 0')
-        self.assertEqual(skool[-7], 'b00573 DEFB 0')
-        self.assertEqual(skool[-2], 'b01876 DEFB 0')
+        exp_skool = """
+            ; Data block at 0
+            b00000 DEFB 0
+
+            i00001
+
+            ; Data block at 3
+            b00003 DEFB 0
+
+            i00004
+
+            ; Data block at 23
+            b00023 DEFB 0
+
+            i00024
+
+            ; Data block at 573
+            b00573 DEFB 0
+
+            i00574
+
+            ; Data block at 1876
+            b01876 DEFB 0
+        """
+        self._test_write_skool(snapshot, ctl, exp_skool)
 
     def test_table_with_nowrap_flag(self):
         snapshot = [0]
@@ -3933,5 +3951,101 @@ class SkoolWriterTest(SkoolKitTestCase):
             ;
             ; This is the start comment.
             b00000 DEFB 0
+        """
+        self._test_write_skool(snapshot, ctl, exp_skool)
+
+    def test_colon_directive_with_instruction_comments(self):
+        snapshot = [0] * 12
+        ctl = """
+            b 00000 Colon directive test
+            B 00000,2,1
+            . The first two comment lines
+            : belong to the first DEFB.
+            . And this comment line belongs to the second DEFB.
+            C 00002,2
+            : A colon directive on the first line
+            : is equivalent to a dot directive.
+            . Comment for the second NOP.
+            S 00004,1
+            . A colon directive works on a single
+            : instruction too (but is not required).
+            T 00005,1
+            : A colon directive on the first line for a single
+            . instruction is still equivalent to a dot directive.
+            W 00006,4,2
+            . The first two comment lines
+            : belong to the first DEFW.
+            . A colon directive on the last line
+            : is not required but still works.
+            B 00010,2,1
+            . These two comment lines belong to the
+            : first DEFB and the second DEFB has none.
+            i 00012
+        """
+        exp_skool = """
+            ; Colon directive test
+            b00000 DEFB 0        ; {The first two comment lines
+                                 ; belong to the first DEFB.
+             00001 DEFB 0        ; And this comment line belongs to the second DEFB.}
+             00002 NOP           ; {A colon directive on the first line
+                                 ; is equivalent to a dot directive.
+             00003 NOP           ; Comment for the second NOP.}
+             00004 DEFS 1        ; A colon directive works on a single
+                                 ; instruction too (but is not required).
+             00005 DEFB 0        ; A colon directive on the first line for a single
+                                 ; instruction is still equivalent to a dot directive.
+             00006 DEFW 0        ; {The first two comment lines
+                                 ; belong to the first DEFW.
+             00008 DEFW 0        ; A colon directive on the last line
+                                 ; is not required but still works.}
+             00010 DEFB 0        ; {These two comment lines belong to the
+                                 ; first DEFB and the second DEFB has none.
+             00011 DEFB 0        ; }
+        """
+        self._test_write_skool(snapshot, ctl, exp_skool)
+
+    def test_colon_directive_with_non_instruction_comments(self):
+        snapshot = [175, 201]
+        ctl = """
+            c 00000
+            . The first
+            : routine
+            D 00000
+            : The description of
+            . the first routine.
+            R 00000
+            . A The accumulator
+            : B One half of the BC register pair
+            N 00000
+            . The start comment of
+            : the first routine.
+            C 00000,1
+            N 00001
+            : A mid-block
+            : comment.
+            C 00001,1
+            E 00000
+            . The end comment of
+            : the first routine.
+            i 00002
+        """
+        exp_skool = """
+            ; The first
+            ; routine
+            ;
+            ; The description of
+            ; the first routine.
+            ;
+            ; A The accumulator
+            ; B One half of the BC register pair
+            ;
+            ; The start comment of
+            ; the first routine.
+            c00000 XOR A         ;
+            ; A mid-block
+            ; comment.
+             00001 RET           ;
+            ; The end comment of
+            ; the first routine.
         """
         self._test_write_skool(snapshot, ctl, exp_skool)

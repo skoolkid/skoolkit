@@ -273,8 +273,8 @@ and the terminal character will be restored in the same format.
 
 .. _dotDirective:
 
-The dot directive
------------------
+The dot and colon directives
+----------------------------
 The dot (``.``) directive provides an alternative method of specifying a
 comment for a top-level or sub-block directive. For example, instead of::
 
@@ -371,6 +371,46 @@ original form in a way that will always be restored correctly::
   C 49155,3
   . Increase the sprite's x-coordinate by
   . two (which is a bug)
+
+Finally, the colon (``:``) directive can be used alongside the dot directive to
+force an instruction comment continuation line where there would not otherwise
+be one. For example::
+
+  B 31995,2,1
+  . The first two comment lines
+  : belong to the first DEFB.
+  . And this comment line belongs to the second DEFB.
+
+would be restored as::
+
+  b31995 DEFB 0        ; {The first two comment lines
+                       ; belong to the first DEFB.
+   31996 DEFB 0        ; And this comment line belongs to the second DEFB.}
+
+The colon directive is rarely needed, but it is useful in cases like the one
+above where an ``@*sub`` or ``@*fix`` directive is used to replace all or part
+of the comment of the second instruction only::
+
+   49155 LD A,(HL)     ; {Having adjusted the sprite's y-coordinate, we now
+                       ; increase its x-coordinate by
+  @bfix=ADD A,3        ; three}
+   49156 ADD A,2       ; two (which is a bug)}
+
+This can be preserved as::
+
+  @ 49156 bfix=ADD A,3        ; three}
+  C 49155,3
+  . Having adjusted the sprite's y-coordinate, we now
+  : increase its x-coordinate by
+  . two (which is a bug)
+
+If a dot directive were used instead of the colon directive here, it would
+restore incorrectly as::
+
+   49155 LD A,(HL)     ; {Having adjusted the sprite's y-coordinate, we now
+  @bfix=ADD A,3        ; three}
+   49156 ADD A,2       ; increase its x-coordinate by
+                       ; two (which is a bug)}
 
 .. _ctlLoops:
 
@@ -655,8 +695,8 @@ Revision history
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
-| 7.2     | Added the dot (``.``) directive for specifying comments over      |
-|         | multiple lines                                                    |
+| 7.2     | Added the dot (``.``) and colon (``:``) directives for specifying |
+|         | comments over multiple lines                                      |
 +---------+-------------------------------------------------------------------+
 | 7.1     | Added support for specifying that numeric values in instruction   |
 |         | operands and DEFB, DEFM, DEFS and DEFW statements be rendered as  |

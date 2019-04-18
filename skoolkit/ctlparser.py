@@ -117,12 +117,12 @@ class CtlParser:
                 warn('Ignoring line {} in {} ({}):\n{}'.format(line_no, ctlfile, e.args[0], s_line))
                 continue
             if ctl:
-                if ctl == '.':
-                    comment.append(text)
+                if ctl in '.:':
+                    comment.append(('.:'.index(ctl), text))
                     continue
                 if not min_address <= start < max_address:
                     continue
-                comment = [text or '']
+                comment = [(0, text or '')]
                 if ctl == '>':
                     if end:
                         self._footers[start].append(text or '')
@@ -197,7 +197,7 @@ class CtlParser:
         lengths = ()
         first_char = line[0]
         content = line[1:].lstrip()
-        if first_char == '.':
+        if first_char in '.:':
             ctl = first_char
             text = line[2:].rstrip()
         elif content:
@@ -299,6 +299,13 @@ class CtlParser:
                 else:
                     break
 
+    def _reduce(self, collection, address, paragraphs=True):
+        if address in collection:
+            if paragraphs:
+                return [[t[1] for t in p] for p in collection[address]]
+            return [t[1] for t in collection[address]]
+        return ()
+
     def get_blocks(self):
         # Create top-level blocks
         blocks = []
@@ -311,10 +318,10 @@ class CtlParser:
                 del self._asm_directives[address]
             block.ignoreua_directives = tuple(self._ignoreua_directives.get(address, set()).intersection(ENTRY_COMMENT_TYPES))
             block.header = self._headers.get(address, ())
-            block.title = self._titles.get(address, ())
-            block.description = self._descriptions.get(address, ())
-            block.registers = self._registers.get(address, ())
-            block.end_comment = self._end_comments.get(address, ())
+            block.title = self._reduce(self._titles, address, False)
+            block.description = self._reduce(self._descriptions, address)
+            block.registers = self._reduce(self._registers, address)
+            block.end_comment = self._reduce(self._end_comments, address)
             block.footer = self._footers.get(address, ())
             blocks.append(block)
 
@@ -337,7 +344,7 @@ class CtlParser:
             for sub_block in block.blocks:
                 sub_address = sub_block.start
                 sub_block.sublengths = self._lengths.get(sub_address, ((None, None),))
-                sub_block.header = self._mid_block_comments.get(sub_address, ())
+                sub_block.header = self._reduce(self._mid_block_comments, sub_address)
                 sub_block.comment = self._instruction_comments.get(sub_address) or ()
                 sub_block.multiline_comment = self._multiline_comments.get(sub_address)
                 sub_block.asm_directives = dict([d for d in asm_directives if sub_address <= d[0] < sub_block.end])
