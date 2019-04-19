@@ -2517,3 +2517,32 @@ class CtlWriterTest(SkoolKitTestCase):
             i 60043
         """
         self._test_ctl(skool, exp_ctl, keep_lines=1)
+
+    def test_keep_continuation_lines_in_instruction_comments(self):
+        skool = """
+            ; Data
+            b50000 DEFB 0    ; {This byte
+                             ; is zero.
+             50001 DEFB 1    ; And this byte
+                             ; is one.}
+             50002 DEFB 2    ; {This byte is two.
+             50003 DEFB 3    ; But this byte
+                             ; is three.
+             50004 DEFB 4    ; And this byte is four.}
+        """
+        exp_ctl = """
+            b 50000
+            . Data
+            B 50000,2,1
+            . This byte
+            : is zero.
+            . And this byte
+            . is one.
+            B 50002,3,1
+            . This byte is two.
+            . But this byte
+            : is three.
+            . And this byte is four.
+            i 50005
+        """
+        self._test_ctl(skool, exp_ctl, keep_lines=1)

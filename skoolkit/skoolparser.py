@@ -234,6 +234,7 @@ def parse_address_comments(comments, keep_lines=False):
         instruction = comments[i][0]
         if instruction:
             comment, comment_lines = _apply_comment_subs(*comments[i][1:3])
+            grouped = [comment_lines]
             rowspan = 1
             if comment.startswith('{'):
                 comment_lines[0] = comment_lines[0].lstrip('{')
@@ -244,6 +245,9 @@ def parse_address_comments(comments, keep_lines=False):
                     i += 1
                     if i >= len(comments) or comments[i][0] is None:
                         break
+                    if comments[i][0]:
+                        comment_lines = []
+                        grouped.append(comment_lines)
                     comment, lines = _apply_comment_subs(*comments[i][1:3])
                     comment_lines.extend(lines)
                     rowspan += 1
@@ -251,11 +255,11 @@ def parse_address_comments(comments, keep_lines=False):
                 comment_lines[-1] = comment_lines[-1].rstrip('}')
                 if comment_lines[-1].endswith('} '):
                     comment_lines[-1] = comment_lines[-1][:-1]
+            comment_str = ' '.join(c for cl in grouped for c in cl if c).strip()
             if keep_lines:
-                instruction.set_comment(rowspan, comment_lines)
+                instruction.set_comment(rowspan, grouped, comment_str)
             else:
-                address_comment = ' '.join(c for c in comment_lines if c).strip()
-                instruction.set_comment(rowspan, address_comment)
+                instruction.set_comment(rowspan, comment_str, comment_str)
         i += 1
 
 def read_skool(skoolfile, asm=0, sub_mode=0, fix_mode=0):
@@ -1064,8 +1068,8 @@ class Instruction:
         self.ignoreua = False
         self.ignoremrcua = False
 
-    def set_comment(self, rowspan, text):
-        self.comment = Comment(rowspan, text)
+    def set_comment(self, rowspan, text, text_str):
+        self.comment = Comment(rowspan, text, text_str)
 
     def set_reference(self, entry, address, addr_str):
         self.reference = Reference(entry, address, addr_str)
@@ -1105,9 +1109,10 @@ class Reference:
         self.addr_str = addr_str
 
 class Comment:
-    def __init__(self, rowspan, text):
+    def __init__(self, rowspan, text, text_str):
         self.rowspan = rowspan
         self.text = text
+        self.text_str = text_str
 
     def apply_replacements(self, repf):
         self.text = repf(self.text)
