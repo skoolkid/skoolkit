@@ -2677,6 +2677,10 @@ class TableMacroTest(SkoolKitTestCase):
             ; .
             ;
             ; A #TABLE { Value 1 } { Value 2 } TABLE#
+            ; B #TABLE
+            ; . { Value 1 | Value 2 }
+            ; . { Value 3 | Value 4 }
+            ; . TABLE#
             c32768 RET
         """
         exp_output = """
@@ -2686,6 +2690,10 @@ class TableMacroTest(SkoolKitTestCase):
             ;   | Value 1 |
             ;   | Value 2 |
             ;   +---------+
+            ; B +---------+---------+
+            ;   | Value 1 | Value 2 |
+            ;   | Value 3 | Value 4 |
+            ;   +---------+---------+
               RET
         """
         self._test_skool(skool, exp_output)
@@ -2901,12 +2909,18 @@ class ListMacroTest(SkoolKitTestCase):
             ; .
             ;
             ; A #LIST { Value 1 } { Value 2 } LIST#
+            ; B #LIST
+            ; . { Value 1 }
+            ; . { Value 2 }
+            ; . LIST#
             c32768 RET
         """
         exp_output = """
             ; Routine
             ;
             ; A * Value 1
+            ;   * Value 2
+            ; B * Value 1
             ;   * Value 2
               RET
         """
