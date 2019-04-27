@@ -33,6 +33,8 @@ Changelog
 * The :ref:`LINK` and :ref:`R` macros now work with address anchors that start
   with an upper case letter (as could happen when ``AddressAnchor`` is
   ``{address:04X}``)
+* Fixed how ``#LIST`` and ``#TABLE`` markers inside a :ref:`RAW` macro are
+  handled in ASM mode
 
 7.1 (2019-02-02)
 ----------------

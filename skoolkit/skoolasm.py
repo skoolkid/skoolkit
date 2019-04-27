@@ -21,6 +21,8 @@ from skoolkit import (CASE_LOWER, skoolmacro, SkoolKitError, SkoolParsingError,
 from skoolkit.skoolparser import (TableParser, ListParser, TABLE_MARKER, TABLE_END_MARKER,
                                   LIST_MARKER, LIST_END_MARKER)
 
+BLOCK_SEP = '\x00'
+
 UDGTABLE_MARKER = '#UDGTABLE'
 
 TEMPLATES = {
@@ -274,30 +276,16 @@ class AsmWriter:
         except ValueError:
             raise SkoolParsingError("Missing end marker: {}...".format(text[index - len(marker):index + 15]))
         if rep is None:
-            rep = text[index - len(marker):end]
+            rep = BLOCK_SEP + text[index - len(marker):end] + BLOCK_SEP
         return -end, rep
-
-    def extract_blocks(self, text):
-        blocks = []
-        index = 0
-        while 1:
-            l_index = text.find(LIST_MARKER, index)
-            t_index = text.find(TABLE_MARKER, index)
-            if l_index < 0 and t_index < 0:
-                blocks.append(text[index:].strip())
-                break
-            if t_index < 0 or 0 <= l_index < t_index:
-                index = text.index(LIST_END_MARKER, l_index) + len(LIST_END_MARKER)
-                blocks.append(text[l_index:index])
-            else:
-                index = text.index(TABLE_END_MARKER, t_index) + len(TABLE_END_MARKER)
-                blocks.append(text[t_index:index])
-        return blocks
 
     def format(self, text, width):
         lines = []
-        for block in self.extract_blocks(self.expand(text)):
-            if block.startswith(TABLE_MARKER):
+        for index, block in enumerate(self.expand(text).split(BLOCK_SEP)):
+            if index % 2 == 0:
+                if block:
+                    lines.extend(wrap(block, width))
+            elif block.startswith(TABLE_MARKER):
                 table_lines = self.table_writer.format_table(block[len(TABLE_MARKER):].lstrip())
                 if table_lines:
                     table_width = max([len(line) for line in table_lines])
@@ -317,8 +305,6 @@ class AsmWriter:
                         item_lines.append(prefix + line)
                         prefix = indent
                     lines.extend(item_lines)
-            elif block:
-                lines.extend(wrap(block, width))
         return lines
 
     def print_paragraph_separator(self):

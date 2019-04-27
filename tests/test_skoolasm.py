@@ -524,6 +524,38 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
         self.assertEqual(output, '53503')
         self.assertEqual(self.err.getvalue(), '')
 
+    def test_macro_raw_with_list(self):
+        skool = """
+            @start
+            ; #RAW(#LIST) with no end marker
+            ;
+            ; Complete #RAW(#LIST {} LIST#)
+            c32768 RET
+        """
+        exp_asm = """
+            ; #LIST with no end marker
+            ;
+            ; Complete #LIST {} LIST#
+              RET
+        """
+        self._test_asm(skool, exp_asm)
+
+    def test_macro_raw_with_table(self):
+        skool = """
+            @start
+            ; #RAW(#TABLE) with no end marker
+            ;
+            ; Complete #RAW(#TABLE {} TABLE#)
+            c32768 RET
+        """
+        exp_asm = """
+            ; #TABLE with no end marker
+            ;
+            ; Complete #TABLE {} TABLE#
+              RET
+        """
+        self._test_asm(skool, exp_asm)
+
     def test_macro_scr(self):
         writer = self._get_writer()
         self._test_unsupported_macro(writer, '#SCR2(fname)')
