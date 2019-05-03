@@ -2130,6 +2130,29 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
         """
         self._test_asm(skool, exp_asm, templates=templates)
 
+    def test_custom_comment_template_preserves_line_width(self):
+        templates = {'comment': ';; *** {text:26} ***'}
+        skool = """
+            @start
+            @set-line-width=37
+            ; Routine
+            ;
+            ; A description that should wrap to the specified line width
+            ; despite the extra characters in the comment template.
+            c40000 RET
+        """
+        exp_asm = """
+            ;; *** Routine                    ***
+            ;; ***                            ***
+            ;; *** A description that should  ***
+            ;; *** wrap to the specified line ***
+            ;; *** width despite the extra    ***
+            ;; *** characters in the comment  ***
+            ;; *** template.                  ***
+              RET
+        """
+        self._test_asm(skool, exp_asm, templates=templates)
+
     def test_custom_equ_template(self):
         templates = {'equ': '.{equ} {label}, {value}'}
         skool = """

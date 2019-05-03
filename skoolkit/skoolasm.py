@@ -72,8 +72,11 @@ class AsmWriter:
             self.indent = ' ' * self.indent_width
         self.instr_width = self._get_int_property(properties, 'instruction-width', 23)
         self.min_comment_width = self._get_int_property(properties, 'comment-width-min', 10)
-        self.line_width = self._get_int_property(properties, 'line-width', 79)
-        self.desc_width = self.line_width - 2
+        self.desc_width = self.line_width = self._get_int_property(properties, 'line-width', 79)
+        comment = self.templates['comment']
+        if '{text' in comment:
+            text_f = skoolmacro.parse_strings(comment, comment.index('{text'), 1)[1]
+            self.desc_width -= len(comment.replace(text_f, 'text').format(text=''))
 
         # Line terminator
         if self._get_int_property(properties, 'crlf', 0):
