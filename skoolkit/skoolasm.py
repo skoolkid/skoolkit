@@ -72,11 +72,8 @@ class AsmWriter:
             self.indent = ' ' * self.indent_width
         self.instr_width = self._get_int_property(properties, 'instruction-width', 23)
         self.min_comment_width = self._get_int_property(properties, 'comment-width-min', 10)
-        self.desc_width = self.line_width = self._get_int_property(properties, 'line-width', 79)
-        comment = self.templates['comment']
-        if '{text' in comment:
-            text_f = skoolmacro.parse_strings(comment, comment.index('{text'), 1)[1]
-            self.desc_width -= len(comment.replace(text_f, 'text').format(text=''))
+        self.line_width = self._get_int_property(properties, 'line-width', 79)
+        self.desc_width = self._get_text_width('comment')
 
         # Line terminator
         if self._get_int_property(properties, 'crlf', 0):
@@ -130,6 +127,13 @@ class AsmWriter:
             return int(properties[name])
         except (KeyError, ValueError):
             return default
+
+    def _get_text_width(self, template_name, **subs):
+        template = self.templates[template_name]
+        text_f = '{text'
+        if text_f in template:
+            text_f = skoolmacro.parse_strings(template, template.index(text_f), 1)[1]
+        return self.line_width - len(template.replace(text_f, 'text').format(text='', **subs))
 
     def warn(self, s):
         if self.show_warnings:
@@ -346,7 +350,7 @@ class AsmWriter:
                 'reg_len': len(reg.name)
             }
             reg_lines = []
-            for line in self.format(reg.contents, self.desc_width - prefix_len - len(reg.name) - 1) or ['']:
+            for line in self.format(reg.contents, self._get_text_width('register', **subs)) or ['']:
                 subs['text'] = line
                 reg_lines.append(self.format_template('register', subs).rstrip())
                 subs['prefix'] = subs['reg'] = ''

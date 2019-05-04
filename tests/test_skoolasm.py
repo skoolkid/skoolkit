@@ -2240,6 +2240,33 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
         """
         self._test_asm(skool, exp_asm, templates=templates)
 
+    def test_custom_register_template_preserves_line_width(self):
+        templates = {'register': '; >>>>> {prefix:>{prefix_len}}{reg:{reg_len}} : {text}'}
+        skool = """
+            @start
+            @set-line-width=36
+            ; Routine
+            ;
+            ; .
+            ;
+            ; Input:A The input value for this routine
+            ; Output:BC The output value of this routine
+            ; DE' Another output value
+            c50000 RET
+        """
+        exp_asm = """
+            ; Routine
+            ;
+            ; >>>>>  Input:A : The input value
+            ; >>>>>          : for this routine
+            ; >>>>> Output:BC : The output value
+            ; >>>>>           : of this routine
+            ; >>>>>        DE' : Another output
+            ; >>>>>            : value
+              RET
+        """
+        self._test_asm(skool, exp_asm, templates=templates)
+
 class TableMacroTest(SkoolKitTestCase):
     def _get_writer(self, skool='', crlf=False, tab=False, instr_width=23, warn=False):
         skoolfile = self.write_text_file(dedent(skool).strip(), suffix='.skool')
