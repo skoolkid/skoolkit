@@ -2444,26 +2444,50 @@ class CtlWriterTest(SkoolKitTestCase):
              60023 DEFB 0    ; {A mixture
              60024 DEFM "a"  ; of instruction
              60025 DEFW 0    ; types.}
-            @rem=Test comments consisting of zero or more dots only
-             60027 DEFB 0    ; {
-             60028 DEFB 0    ; }
-             60029 DEFB 0    ; {.
-             60030 DEFB 0    ; }
-             60031 DEFB 0    ; {
-             60032 DEFB 0    ; ..}
+            @rem=Test single-instruction comments consisting of zero, one or two dots (data)
+             60027 DEFB 0    ;
+             60028 DEFB 0    ; .
+             60029 DEFB 0    ; ..
+            @rem=Test multi-instruction comments consisting of zero, one or two dots (data)
+             60030 DEFB 0    ; {
+             60031 DEFB 0    ; }
+             60032 DEFB 0    ; {.
+             60033 DEFB 0    ; }
+             60034 DEFB 0    ; {
+             60035 DEFB 0    ; ..}
 
             ; Test a commentless sequence of mixed-base instructions
-            c60033 LD A,0
-             60035 LD A,%00000001
-             60037 LD A,$00
+            c60036 LD A,0
+             60038 LD A,%00000001
+             60040 LD A,$00
             @rem=Test a comment with an indent
-             60039 XOR A    ; This comment has
+             60042 XOR A    ; This comment has
                             ;      an indented second line.
-            @rem=Test a blank comment with a semicolon
-             60040 RET      ;
             @rem=Test comments starting or ending with a brace
-             60041 XOR B    ; { {}}
-             60042 XOR C    ; {{} }
+             60043 XOR B    ; { {}}
+             60044 XOR C    ; {{} }
+            @rem=Test single-instruction comments consisting of zero, one or two dots (code)
+             60045 XOR D    ;
+             60046 XOR E    ; .
+             60047 XOR H    ; ..
+            @rem=Test multi-instruction comments consisting of zero, one or two dots (code)
+             60048 XOR L    ; {
+             60049 AND A    ; }
+             60050 AND B    ; {.
+             60051 AND C    ; }
+             60052 AND D    ; {
+             60053 AND E    ; ..}
+            @rem=Test blank comments with continuation lines
+             60054 AND H    ;
+                            ;
+             60055 AND L    ; {
+             60056 OR A     ;
+                            ; }
+            @rem=Test blank leading and trailing comment lines
+             60057 OR B     ;
+                            ; Leading blank line
+             60058 OR C     ; Trailing blank line
+                            ;
         """
         exp_ctl = """
             b 60000
@@ -2497,24 +2521,61 @@ class CtlWriterTest(SkoolKitTestCase):
             B 60023,1,1
             T 60024,1,1
             W 60025,2,2
-            @ 60027 rem=Test comments consisting of zero or more dots only
-            B 60027,2,1 .
-            B 60029,2,1 ..
-            B 60031,2,1 ...
-            c 60033
+            @ 60027 rem=Test single-instruction comments consisting of zero, one or two dots (data)
+            B 60027,1,1
+            B 60028,1,1
+            . .
+            B 60029,1,1
+            . ..
+            @ 60030 rem=Test multi-instruction comments consisting of zero, one or two dots (data)
+            B 60030,2,1
+            .
+            B 60032,2,1
+            . .
+            B 60034,2,1
+            .
+            . ..
+            c 60036
             . Test a commentless sequence of mixed-base instructions
-            C 60035,b2
-            @ 60039 rem=Test a comment with an indent
-            C 60039,1
+            C 60038,b2
+            @ 60042 rem=Test a comment with an indent
+            C 60042,1
             . This comment has
             .      an indented second line.
-            @ 60040 rem=Test a blank comment with a semicolon
-            @ 60041 rem=Test comments starting or ending with a brace
-            C 60041,1
+            @ 60043 rem=Test comments starting or ending with a brace
+            C 60043,1
             . {
-            C 60042,1
+            C 60044,1
             . }
-            i 60043
+            @ 60045 rem=Test single-instruction comments consisting of zero, one or two dots (code)
+            C 60046,1
+            . .
+            C 60047,1
+            . ..
+            @ 60048 rem=Test multi-instruction comments consisting of zero, one or two dots (code)
+            C 60048,2
+            .
+            C 60050,2
+            . .
+            C 60052,2
+            .
+            . ..
+            @ 60054 rem=Test blank comments with continuation lines
+            C 60054,1
+            .
+            .
+            C 60055,2
+            .
+            .
+            .
+            @ 60057 rem=Test blank leading and trailing comment lines
+            C 60057,1
+            .
+            . Leading blank line
+            C 60058,1
+            . Trailing blank line
+            .
+            i 60059
         """
         self._test_ctl(skool, exp_ctl, keep_lines=1)
 

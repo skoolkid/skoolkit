@@ -275,15 +275,12 @@ class CtlWriter:
         if ctl:
             write_line('{} {}'.format(ctl, address))
         if grouped:
-            while lines and not any(lines[-1]):
-                lines.pop()
-            if any(any(g) for g in lines):
-                for index, group in enumerate(lines):
-                    for line_no, line in enumerate(group):
-                        if line_no and index < len(lines) - 1:
-                            write_line((': ' + line).rstrip())
-                        else:
-                            write_line(('. ' + line).rstrip())
+            for index, group in enumerate(lines):
+                for line_no, line in enumerate(group):
+                    if line_no and index < len(lines) - 1:
+                        write_line((': ' + line).rstrip())
+                    else:
+                        write_line(('. ' + line).rstrip())
         else:
             for line in lines:
                 write_line(('. ' + line).rstrip())
@@ -388,13 +385,16 @@ class CtlWriter:
                             length = None
                         comment_text = ''
                         comment = first_instruction.comment
-                        has_comment = False
+                        write_comment = False
                         if comment and COMMENTS in self.elements:
                             comment_text = comment.text
-                            if comment.rowspan > 1 and not comment.text_str.replace('.', ''):
-                                comment_text = comment.text_str = '.' + comment.text_str
-                            has_comment = comment.text_str != ''
-                        if has_comment or ctl.lower() != entry_ctl or ctl != 'C' or has_bases:
+                            if self.keep_lines:
+                                write_comment = comment.rowspan > 1 or comment.text[0] != ['']
+                            else:
+                                if comment.rowspan > 1 and not comment.text.replace('.', ''):
+                                    comment_text = '.' + comment_text
+                                write_comment = comment_text != ''
+                        if write_comment or ctl.lower() != entry_ctl or ctl != 'C' or has_bases:
                             self.write_sub_block(ctl, entry_ctl, comment_text, instructions, length)
 
     def addr_str(self, address):
@@ -486,6 +486,10 @@ class CtlWriter:
         if isinstance(comment, str):
             write_line('{} {}{} {}'.format(ctl, addr_str, lengths, comment).rstrip())
         else:
+            # Remove redundant trailing blank lines
+            min_comments = min(len(instructions) - 1, 1)
+            while len(comment) > min_comments and comment[-1] == ['']:
+                comment.pop()
             self._write_lines(comment, ctl, addr_str + lengths, True)
 
 class SkoolParser:
@@ -662,8 +666,8 @@ class Instruction:
         else:
             self.bases = get_operand_bases(operation, preserve_base)
 
-    def set_comment(self, rowspan, text, text_str):
-        self.comment = Comment(rowspan, text, text_str)
+    def set_comment(self, rowspan, text):
+        self.comment = Comment(rowspan, text)
 
 class Entry:
     def __init__(self, ctl, title, description, registers, ignoreua):

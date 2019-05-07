@@ -255,11 +255,11 @@ def parse_address_comments(comments, keep_lines=False):
                 comment_lines[-1] = comment_lines[-1].rstrip('}')
                 if comment_lines[-1].endswith('} '):
                     comment_lines[-1] = comment_lines[-1][:-1]
-            comment_str = ' '.join(c for cl in grouped for c in cl if c).strip()
             if keep_lines:
-                instruction.set_comment(rowspan, grouped, comment_str)
+                instruction.set_comment(rowspan, grouped)
             else:
-                instruction.set_comment(rowspan, comment_str, comment_str)
+                text = ' '.join(c for cl in grouped for c in cl if c).strip()
+                instruction.set_comment(rowspan, text)
         i += 1
 
 def read_skool(skoolfile, asm=0, sub_mode=0, fix_mode=0):
@@ -1068,8 +1068,8 @@ class Instruction:
         self.ignoreua = False
         self.ignoremrcua = False
 
-    def set_comment(self, rowspan, text, text_str):
-        self.comment = Comment(rowspan, text, text_str)
+    def set_comment(self, rowspan, text):
+        self.comment = Comment(rowspan, text)
 
     def set_reference(self, entry, address, addr_str):
         self.reference = Reference(entry, address, addr_str)
@@ -1109,10 +1109,9 @@ class Reference:
         self.addr_str = addr_str
 
 class Comment:
-    def __init__(self, rowspan, text, text_str):
+    def __init__(self, rowspan, text):
         self.rowspan = rowspan
         self.text = text
-        self.text_str = text_str
 
     def apply_replacements(self, repf):
         self.text = repf(self.text)
