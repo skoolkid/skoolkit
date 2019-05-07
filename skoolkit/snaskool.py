@@ -203,10 +203,10 @@ class SkoolWriter:
             return self.address_fmt.format(address)
         return str(address)
 
-    def _trim_lines(self, lines, func=lambda x: x):
-        while lines and not func(lines[0]):
+    def _trim_lines(self, lines):
+        while lines and not lines[0]:
             lines.pop(0)
-        while lines and not func(lines[-1]):
+        while lines and not lines[-1]:
             lines.pop()
         return lines
 
@@ -329,7 +329,7 @@ class SkoolWriter:
 
     def _format_instruction_comments(self, block, width, show_text):
         comment = ''.join(t[1] for t in block.comment)
-        multi_line = len(block.instructions) > 1 and comment
+        multi_line = len(block.instructions) > 1 and (comment or len(block.comment) > 1)
         opening = closing = ''
         if multi_line and len(block.comment) == 1 and not comment.replace('.', ''):
             comment = comment[1:]
@@ -347,7 +347,9 @@ class SkoolWriter:
                 closing = ' ' + closing
         if len(block.comment) == 1:
             block.comment[:] = [(0, t) for t in wrap(opening + block.comment[0][1], width)]
-        elif self._trim_lines(block.comment, lambda x: x[1]):
+        elif block.comment:
+            if not block.comment[0][1]:
+                block.comment.pop(0)
             block.comment[0] = (0, opening + block.comment[0][1])
         self._set_instruction_comments(block, width, closing, show_text)
 

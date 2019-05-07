@@ -3572,8 +3572,8 @@ class SkoolWriterTest(SkoolKitTestCase):
             b 00000 Newline test
             B 00000,1 This comment
             . spans two lines
-            C 00001 This comment spans only one line even though it would normally be wrapped over two lines
-            .
+            C 00001
+            . This comment spans only one line even though it would normally be wrapped over two lines
             S 00002,2,1 Line 1
             . Line 2
             T 00004
@@ -3583,22 +3583,22 @@ class SkoolWriterTest(SkoolKitTestCase):
             W 00005,4,2 First word
             . Second word
             . No third word
-            ; Blank comment with a blank continuation line
+            ; Blank comment
             B 00009,1
             .
             C 00010,1
             . Line 1 here
             S 00011,1
-            . Trailing blank line deleted
+            . Trailing blank line
             .
             T 00012,1
             .
-            . Leading blank line deleted
+            . Leading blank line
             W 00013,2
             . Line 1
             .
             . Line 3 (with a blank line 2)
-            ; Blank comment with a blank continuation line over two instructions
+            ; Blank comment over two instructions
             B 00015,2,1
             .
             ; Comments consisting of a single dot
@@ -3626,15 +3626,17 @@ class SkoolWriterTest(SkoolKitTestCase):
              00005 DEFW 0        ; {First word
              00007 DEFW 0        ; Second word
                                  ; No third word}
-             00009 DEFB 0
+             00009 DEFB 0        ;
              00010 NOP           ; Line 1 here
-             00011 DEFS 1        ; Trailing blank line deleted
-             00012 DEFB 0        ; Leading blank line deleted
+             00011 DEFS 1        ; Trailing blank line
+                                 ;
+             00012 DEFB 0        ;
+                                 ; Leading blank line
              00013 DEFW 0        ; Line 1
                                  ;
                                  ; Line 3 (with a blank line 2)
-             00015 DEFB 0
-             00016 DEFB 0
+             00015 DEFB 0        ; {
+             00016 DEFB 0        ; }
              00017 DEFB 0        ; .
              00018 DEFB 0        ; {.
              00019 DEFB 0        ; }
