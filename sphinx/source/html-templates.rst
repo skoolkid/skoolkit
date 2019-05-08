@@ -304,6 +304,16 @@ This would produce the string ``062,001`` for the instruction 'LD A,1'. The
 delimiter used in this example (``/``) is arbitrary; it could be any character
 that doesn't appear in the byte format specification itself.
 
+The default ``asm_instruction`` template uses the ``Bytes`` parameter in the
+:ref:`ref-Game` section as the byte format specification::
+
+  <td class="bytes-{show_bytes}">{bytes:{Game[Bytes]}}</td>
+
+If you define a custom template that replaces ``{Game[Bytes]}`` with a
+hard-coded byte format specification, it's a good idea to also replace the
+``{show_bytes}`` field with ``1``, to ensure that the byte values are
+displayed.
+
 Note that byte values are available only for regular assembly language
 instructions (not DEFB, DEFM, DEFS or DEFW statements), and only if they have
 actually been assembled by using :ref:`@assemble=2 <assemble>`. When no byte
