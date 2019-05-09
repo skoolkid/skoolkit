@@ -209,7 +209,7 @@ for diff_type in $DIFF_TYPES; do
     if [[ -d $NEW_DIR/$diff_type ]] && [[ $WRITE_NEW -eq 0 ]]; then
       echo -e "\e[0;36m$diff_type: Using existing disassembly in $NEW_DIR\e[0m"
     else
-      banner "$diff_type: Writing current version of ${GAME}-disassembly using SkoolKit $OLD_SKOOLKIT_VERSION"
+      banner "$diff_type: Writing current version of ${GAME}-disassembly using SkoolKit $SKOOLKIT_VERSION"
       cd $NEW_DIR
       $TOOLS/write-files $GAME $diff_type
       cd ..
