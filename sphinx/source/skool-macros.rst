@@ -747,7 +747,7 @@ within that page. ::
   thereof)
 * ``code`` is the ID of the disassembly that contains the routine or data block
   (if not given, the current disassembly is assumed; otherwise this must be an
-  ID defined in an ``[OtherCode:*]`` section of the ref file)
+  ID defined in an :ref:`otherCode` section of the ref file)
 * ``#name`` is the named anchor of an item on the disassembly page
 * ``link text`` is the link text to use (default: ``addr``)
 

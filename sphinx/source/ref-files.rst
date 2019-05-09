@@ -291,9 +291,9 @@ will create an image file named ``font.png``. To create a GIF instead
 The ``Index`` section contains a list of link group IDs in the order in which
 the link groups will appear on the disassembly index page. The link groups
 themselves - with the exception of ``OtherCode`` - are defined in
-``[Index:*:*]`` sections (see below); ``OtherCode`` is a special built-in link
-group that contains links to the index pages of secondary disassemblies defined
-by :ref:`otherCode` sections.
+:ref:`indexGroup` sections. ``OtherCode`` is a special built-in link group that
+contains links to the index pages of secondary disassemblies defined by
+:ref:`otherCode` sections.
 
 To see the default ``Index`` section, run the following command::
 
@@ -907,7 +907,7 @@ sections that can be used to define their entries are as follows:
   ``[GraphicGlitch:anchor:title]``
 * ``Pokes`` - ``[Poke:title]`` or ``[Poke:anchor:title]``
 
-To see the contents of the default ``[Page:*]`` sections, run the following
+To see the contents of the default :ref:`Page` sections, run the following
 command::
 
   $ skool2html.py -r Page:
@@ -984,7 +984,7 @@ Appending content
 -----------------
 Content may be appended to an existing ref file section defined elsewhere by
 adding a '+' suffix to the section name. For example, to add a line to the
-``[Game]`` section::
+:ref:`ref-Game` section::
 
   [Game+]
   AddressAnchor={address:04x}

@@ -51,7 +51,7 @@ disassembly's ref file::
 
 If you don't have a ref file yet, create one (ideally named `game.ref`,
 assuming the skool file is `game.skool`); if the ref file doesn't have a
-``[Config]`` section yet, add one.
+:ref:`ref-Config` section yet, add one.
 
 Now whenever :ref:`skool2html.py` is run on your skool file (or ref file),
 SkoolKit will use the GameHtmlWriter class instead of the core HtmlWriter
