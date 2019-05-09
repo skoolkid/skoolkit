@@ -1,7 +1,7 @@
 Changelog
 =========
 
-7.2b1
+7.2rc
 -----
 * Added support to control files for specifying comments over multiple lines
   (by using the :ref:`dot and colon directives <dotDirective>`)
