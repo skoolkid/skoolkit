@@ -53,7 +53,7 @@ def check_links(root_dir):
     linked = set()
     for fname in all_files:
         for href in all_files[fname][1]:
-            if not href.startswith('http://'):
+            if not href.startswith(('http://', 'https://')):
                 if href.startswith('#'):
                     link_dest = fname + href
                 else:

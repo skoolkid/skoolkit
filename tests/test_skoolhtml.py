@@ -153,7 +153,7 @@ INDEX_HEADER = """<!DOCTYPE html>
 BARE_FOOTER = """<footer>
 <div class="release"></div>
 <div class="copyright"></div>
-<div class="created">Created using <a href="http://skoolkit.ca/">SkoolKit</a> {}.</div>
+<div class="created">Created using <a href="https://skoolkit.ca">SkoolKit</a> {}.</div>
 </footer>
 </body>
 </html>""".format(VERSION)

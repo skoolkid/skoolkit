@@ -967,7 +967,7 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
             ;   * Header line 2 (indented)
             ;   * Header line #THREE (also indented)
             ;
-            ; See <http://skoolkit.ca/>.
+            ; See <https://skoolkit.ca>.
 
             ; Start
             c32768 JP 49152
@@ -977,7 +977,7 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
             ;   * Header line 2 (indented)
             ;   * Header line #THREE (also indented)
             ;
-            ; See <http://skoolkit.ca/>.
+            ; See <https://skoolkit.ca>.
 
             ; Start
               JP 49152

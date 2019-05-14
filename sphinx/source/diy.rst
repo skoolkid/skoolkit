@@ -40,7 +40,7 @@ Once you have figured out where the code and data blocks are, it would be handy
 if you could supply `sna2skool.py` with this information, so that it can
 disassemble the blocks accordingly. That is where the control file comes in.
 
-.. _Hungry Horace: http://www.worldofspectrum.org/infoseekid.cgi?id=0002390
+.. _Hungry Horace: https://www.worldofspectrum.org/infoseekid.cgi?id=0002390
 
 The control file
 ----------------
@@ -135,7 +135,7 @@ resulting control file will be. To create a good map file, you should ideally
 play the game from start to finish in the emulator, in an attempt to exercise
 as much code as possible. If that sounds like too much work, and your emulator
 supports playing back RZX files, you could grab a recording of your chosen game
-from the `RZX Archive <http://rzxarchive.co.uk/>`_, and set the emulator's
+from the `RZX Archive <https://rzxarchive.co.uk>`_, and set the emulator's
 profiler or tracer going while the recording plays back.
 
 By default, `sna2ctl.py` and `sna2skool.py` generate control files and skool

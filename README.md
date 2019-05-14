@@ -5,7 +5,7 @@ SkoolKit
 ========
 
 SkoolKit is a collection of utilities that can be used to disassemble a
-[Spectrum](http://en.wikipedia.org/wiki/ZX_Spectrum) game (or indeed any piece
+[Spectrum](https://en.wikipedia.org/wiki/ZX_Spectrum) game (or indeed any piece
 of Spectrum software written in machine code) into a format known as a *skool*
 file. Then, from this *skool* file, you can use SkoolKit to create a browsable
 disassembly in HTML format, or a re-assemblable disassembly in ASM format. So
@@ -17,10 +17,10 @@ version of the disassembly.
 Requirements
 ------------
 
-SkoolKit requires [Python](http://www.python.org/) 3.4+. If you're running
+SkoolKit requires [Python](https://www.python.org) 3.4+. If you're running
 Linux or one of the BSDs, you probably already have Python installed. If you're
 running Windows or Mac OS X, you can get Python
-[here](http://www.python.org/download/).
+[here](https://www.python.org/downloads/).
 
 Features
 --------
@@ -42,5 +42,5 @@ SkoolKit can:
   ``@ofix``, ``@bfix`` and other ASM directives)
 * produce TAP files from assembled code (using ``bin2tap.py``)
 
-See the [user manual](http://skoolkid.github.io/skoolkit/) for more details
-(mirror [here](http://skoolkid.gitlab.io/skoolkit/)).
+See the [user manual](https://skoolkid.github.io/skoolkit/) for more details
+(mirror [here](https://skoolkid.gitlab.io/skoolkit/)).

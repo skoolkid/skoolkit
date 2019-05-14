@@ -3,9 +3,9 @@ Installing and using SkoolKit
 
 Requirements
 ------------
-SkoolKit requires `Python <http://www.python.org/>`_ 3.4+. If you're running
+SkoolKit requires `Python <https://www.python.org>`_ 3.4+. If you're running
 Linux or one of the BSDs, you probably already have Python installed. If you're
-running Windows, you can get Python `here <http://www.python.org/download/>`_.
+running Windows, you can get Python `here <https://www.python.org/downloads>`_.
 
 Installation
 ------------
@@ -21,7 +21,7 @@ wherever it is unpacked: it does not need to be installed in any particular
 location. However, if you would like to install SkoolKit as a Python package,
 you can do so by using the supplied ``setup.py`` script.
 
-.. _skoolkit.ca: http://skoolkit.ca/?page_id=177
+.. _skoolkit.ca: https://skoolkit.ca/?page_id=177
 .. _PyPI: https://pypi.org/project/skoolkit/
 .. _pip: https://pip.pypa.io/
 .. _PPA: https://launchpad.net/~rjdymond/+archive/ppa

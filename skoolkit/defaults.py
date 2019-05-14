@@ -49,7 +49,7 @@ AddressAnchor={address}
 ; AsmSinglePageTemplate=
 Bytes=
 Copyright=
-Created=Created using <a href="http://skoolkit.ca/">SkoolKit</a> #VERSION.
+Created=Created using <a href="https://skoolkit.ca">SkoolKit</a> #VERSION.
 ; DisassemblyTableNumCols=
 ; Font=
 ; Game=

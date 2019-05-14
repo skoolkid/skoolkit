@@ -1,8 +1,8 @@
 Changelog
 =========
 
-7.2rc
------
+7.2rc2
+------
 * Added support to control files for specifying comments over multiple lines
   (by using the :ref:`dot and colon directives <dotDirective>`)
 * Added support to :ref:`skool2ctl.py <skool2ctl-conf>` for reading
