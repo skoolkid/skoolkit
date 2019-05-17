@@ -14,7 +14,7 @@ EOF
 }
 
 readme() {
-  [[ -z $DTCONFIG ]] || htmlopts="$DTCONFIG "
+  [[ -z $DECCONFIG ]] || htmlopts="$DECCONFIG "
   cat <<EOF
 The HTML disassembly in this archive was built from the source files in the
 'sources' subdirectory using version $SK_VERSION of SkoolKit.
@@ -135,10 +135,13 @@ ABSDIR=${DISTDIR}/${PKGNAME}
 rm -rf $ABSDIR
 
 # Build the HTML disassembly
-echo -n "Writing disassembly..."
-./skool2html.py $DTCONFIG -q -d ${ABSDIR} --var pub=1 src/$GAME.skool src/publish.ref
-rm -f src/publish.ref
+ARGS="-qj style.css src/$GAME.skool $SKOOLKIT_HOME/tools/publish.ref"
+echo -n "Writing decimal disassembly..."
+./skool2html.py $DECCONFIG -d ${ABSDIR} --var pub=1 $ARGS
+echo "done"
 mv ${ABSDIR}/* ${ABSDIR}/html
+echo -n "Writing hexadecimal disassembly..."
+./skool2html.py ${HEXCONFIG:--H} -d ${ABSDIR}/html -c Config/GameDir=hex -T dark --var pub=3 $ARGS
 echo "done"
 
 # Copy source files
@@ -153,8 +156,10 @@ echo "done"
 cd $DISTDIR
 
 echo "Creating ${DISTDIR}/${PKGNAME}.tar.xz"
+rm -f ${PKGNAME}.tar.xz
 tar cf ${PKGNAME}.tar $PKGNAME
 xz -9 ${PKGNAME}.tar
 
 echo "Creating ${DISTDIR}/${PKGNAME}.zip"
+rm -f ${PKGNAME}.zip
 zip -9qr ${PKGNAME}.zip $PKGNAME
