@@ -100,7 +100,6 @@ class HtmlWriter:
         self.asm_anchor_template = self.game_vars['AddressAnchor']
         self.asm_single_page_template = self.game_vars.get('AsmSinglePageTemplate')
         self.paths = self.get_dictionary('Paths')
-        self.image_paths = {k: v for k, v in self.paths.items() if k.endswith('ImagePath')}
         self.titles = self.get_dictionary('Titles')
         self.page_headers = self.get_dictionary('PageHeaders')
         links = self.get_dictionary('Links')
@@ -183,6 +182,7 @@ class HtmlWriter:
                 self.titles.setdefault(map_name, map_name)
 
         self._expand_values(self.paths)
+        self.image_paths = {k: v for k, v in self.paths.items() if k.endswith('ImagePath')}
 
         self.asm_fname_template = self.paths['CodeFiles']
         self.udg_fname_template = self.paths['UDGFilename']

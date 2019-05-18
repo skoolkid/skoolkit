@@ -867,6 +867,17 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         self._assert_img_equals(output, fname, exp_src)
         self.assertEqual(writer.file_info.fname, exp_image_path)
 
+    def test_macro_font_with_custom_image_path_containing_skool_macro(self):
+        ref = '[Paths]\nImagePath=#MAP({case})(graphics,2:GRAPHICS)'
+        writer = self._get_writer(ref=ref, snapshot=[0] * 16, mock_file_info=True)
+
+        fname = 'text'
+        exp_image_path = 'graphics/font/{}.png'.format(fname)
+        exp_src = '../{}'.format(exp_image_path)
+        output = writer.expand('#FONT:(!!!)0({})'.format(fname), ASMDIR)
+        self._assert_img_equals(output, fname, exp_src)
+        self.assertEqual(writer.file_info.fname, exp_image_path)
+
     def test_macro_font_uses_default_animation_format(self):
         writer = self._get_writer(snapshot=[0] * 8, mock_file_info=True)
 
@@ -1728,6 +1739,17 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         self._assert_img_equals(output, fname, exp_src)
         self.assertEqual(writer.file_info.fname, exp_image_path)
 
+    def test_macro_scr_with_custom_image_path_containing_skool_macro(self):
+        ref = '[Paths]\nImagePath=#MAP({case})(graphics,2:GRAPHICS)'
+        writer = self._get_writer(ref=ref, snapshot=[0] * 23296, mock_file_info=True)
+
+        fname = 'scr'
+        exp_image_path = 'graphics/scr/{}.png'.format(fname)
+        exp_src = '../{}'.format(exp_image_path)
+        output = writer.expand('#SCR', ASMDIR)
+        self._assert_img_equals(output, fname, exp_src)
+        self.assertEqual(writer.file_info.fname, exp_image_path)
+
     def test_macro_scr_uses_default_animation_format(self):
         snapshot = [0] * 2050
         af = 2048
@@ -2057,6 +2079,18 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
 
         fname = 'udg0'
         exp_image_path = '{}/{}.png'.format(udg_path, fname)
+        exp_src = '../{}'.format(exp_image_path)
+        output = writer.expand('#UDG0({})'.format(fname), ASMDIR)
+        self._assert_img_equals(output, fname, exp_src)
+        self.assertEqual(writer.file_info.fname, exp_image_path)
+
+    def test_macro_udg_with_custom_image_path_containing_skool_macro(self):
+        udg_array = [[Udg(56, [0] * 8)]]
+        ref = '[Paths]\nImagePath=#MAP({case})(graphics,2:GRAPHICS)'
+        writer = self._get_writer(ref=ref, snapshot=[0] * 8, mock_file_info=True)
+
+        fname = 'udg0'
+        exp_image_path = 'graphics/udgs/{}.png'.format(fname)
         exp_src = '../{}'.format(exp_image_path)
         output = writer.expand('#UDG0({})'.format(fname), ASMDIR)
         self._assert_img_equals(output, fname, exp_src)

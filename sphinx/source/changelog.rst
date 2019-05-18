@@ -1,7 +1,7 @@
 Changelog
 =========
 
-7.2rc2
+7.2rc3
 ------
 * Added support to control files for specifying comments over multiple lines
   (by using the :ref:`dot and colon directives <dotDirective>`)
@@ -35,6 +35,8 @@ Changelog
   ``{address:04X}``)
 * Fixed how ``#LIST`` and ``#TABLE`` markers inside a :ref:`RAW` macro are
   handled in ASM mode
+* Fixed how skool macros are expanded in ``*ImagePath`` parameters in the
+  :ref:`Paths` section
 
 7.1 (2019-02-02)
 ----------------
