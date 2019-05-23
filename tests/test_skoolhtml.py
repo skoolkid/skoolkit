@@ -2789,9 +2789,15 @@ class HtmlWriterOutputTestCase(HtmlWriterTestCase):
             subs['up_link'] = 'Up: <a href="{map}#{up}">Map</a>'.format(**subs)
             subs['next_link'] = '<span class="next-0">Next: <a href=""></a></span>'
             if 'prev' in subs:
-                subs['prev_link'] = '<span class="prev-1">Prev: <a href="{0}.html">{0:05d}</a></span>'.format(subs['prev'])
+                if 'prev_text' in subs:
+                    subs['prev_link'] = '<span class="prev-1">Prev: <a href="{}.html">{}</a></span>'.format(subs['prev'], subs['prev_text'])
+                else:
+                    subs['prev_link'] = '<span class="prev-1">Prev: <a href="{0}.html">{0:05d}</a></span>'.format(subs['prev'])
             if 'next' in subs:
-                subs['next_link'] = '<span class="next-1">Next: <a href="{0}.html">{0:05d}</a></span>'.format(subs['next'])
+                if 'next_text' in subs:
+                    subs['next_link'] = '<span class="next-1">Next: <a href="{}.html">{}</a></span>'.format(subs['next'], subs['next_text'])
+                else:
+                    subs['next_link'] = '<span class="next-1">Next: <a href="{0}.html">{0:05d}</a></span>'.format(subs['next'])
             prev_up_next = PREV_UP_NEXT.format(**subs)
             prev_up_next_lines = prev_up_next.split('\n')
         header_template = INDEX_HEADER if index else HEADER
@@ -4114,6 +4120,97 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             'content': content
         }
         self._assert_files_equal(join(ASMDIR, '24584.html'), subs)
+
+    def test_write_asm_entries_hex_lower(self):
+        skool = """
+            ; Routine at 8007
+            c$8007 jp $800a
+
+            ; Routine at 800a
+            c$800a jp $8007
+        """
+        writer = self._get_writer(skool=skool)
+        writer.write_asm_entries()
+
+        # Routine at 8007
+        content = """
+            <div class="description">8007: Routine at 8007</div>
+            <table class="disassembly">
+            <tr>
+            <td class="routine-comment" colspan="5">
+            <div class="details">
+            </div>
+            <table class="input-0">
+            <tr class="asm-input-header">
+            <th colspan="2">Input</th>
+            </tr>
+            </table>
+            <table class="output-0">
+            <tr class="asm-output-header">
+            <th colspan="2">Output</th>
+            </tr>
+            </table>
+            </td>
+            </tr>
+            <tr>
+            <td class="asm-label-0"></td>
+            <td class="address-2"><span id="32775"></span>8007</td>
+            <td class="bytes-0"></td>
+            <td class="instruction">jp <a href="32778.html">$800a</a></td>
+            <td class="comment-10" rowspan="1"></td>
+            </tr>
+            </table>
+        """
+        subs = {
+            'title': 'Routine at 8007',
+            'body_class': 'Asm-c',
+            'header': 'Routines',
+            'up': 32775,
+            'next': 32778,
+            'next_text': '800a',
+            'content': content
+        }
+        self._assert_files_equal(join(ASMDIR, '32775.html'), subs)
+
+        # Routine at 800a
+        content = """
+            <div class="description">800a: Routine at 800a</div>
+            <table class="disassembly">
+            <tr>
+            <td class="routine-comment" colspan="5">
+            <div class="details">
+            </div>
+            <table class="input-0">
+            <tr class="asm-input-header">
+            <th colspan="2">Input</th>
+            </tr>
+            </table>
+            <table class="output-0">
+            <tr class="asm-output-header">
+            <th colspan="2">Output</th>
+            </tr>
+            </table>
+            </td>
+            </tr>
+            <tr>
+            <td class="asm-label-0"></td>
+            <td class="address-2"><span id="32778"></span>800a</td>
+            <td class="bytes-0"></td>
+            <td class="instruction">jp <a href="32775.html">$8007</a></td>
+            <td class="comment-10" rowspan="1"></td>
+            </tr>
+            </table>
+        """
+        subs = {
+            'title': 'Routine at 800a',
+            'body_class': 'Asm-c',
+            'header': 'Routines',
+            'prev': 32775,
+            'prev_text': '8007',
+            'up': 32778,
+            'content': content
+        }
+        self._assert_files_equal(join(ASMDIR, '32778.html'), subs)
 
     def test_write_asm_entries_with_decimal_addresses_below_10000(self):
         skool = """

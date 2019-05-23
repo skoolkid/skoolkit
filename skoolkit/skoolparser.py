@@ -714,7 +714,7 @@ class SkoolParser:
                 operation = instruction.operation.upper()
                 if not operation.startswith(('CALL', 'DEFW', 'DJNZ', 'JP', 'JR', 'LD ', 'RST')) or self._is_8_bit_ld_instruction(operation):
                     continue
-                addr_str = get_address(operation)
+                addr_str = get_address(instruction.operation)
                 if not addr_str:
                     continue
                 address = parse_int(addr_str)
