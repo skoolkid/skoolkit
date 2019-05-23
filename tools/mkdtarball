@@ -14,16 +14,16 @@ EOF
 }
 
 readme() {
-  [[ -z $DECCONFIG ]] || htmlopts="$DECCONFIG "
+  [[ -z $DECCONFIG ]] || decopts="$DECCONFIG "
   cat <<EOF
-The HTML disassembly in this archive was built from the source files in the
+The HTML disassemblies in this archive were built from the source files in the
 'sources' subdirectory using version $SK_VERSION of SkoolKit.
 
 SkoolKit can be obtained from the following location:
 
   https://skoolkit.ca
 
-The HTML disassembly can be built from the source files by following these
+An HTML disassembly can be built from the source files by following these
 steps:
 
 1. Download and unpack SkoolKit $SK_VERSION.
@@ -31,9 +31,14 @@ steps:
 2. Copy every file from the 'sources' subdirectory in this archive to the
    directory where SkoolKit was unpacked.
 
-3. Change to the directory where SkoolKit was unpacked and run this command:
+3. Change to the directory where SkoolKit was unpacked and run this command to
+   build the decimal version of the disassembly:
 
-   $ ./skool2html.py $htmlopts$GAME.skool
+   $ ./skool2html.py $decopts$GAME.skool
+
+   To build the hexadecimal version of the disassembly, run this command:
+
+   $ ./skool2html.py ${HEXCONFIG:--H} $GAME.skool
 EOF
 }
 
