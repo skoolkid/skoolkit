@@ -1,0 +1,236 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>ASM templates &#8212; SkoolKit 7.2 documentation</title>
+    
+    <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '7.2',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="top" title="SkoolKit 7.2 documentation" href="index.html" />
+    <link rel="next" title="HTML templates" href="html-templates.html" />
+    <link rel="prev" title="ASM modes and directives" href="asm.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="html-templates.html" title="HTML templates"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="asm.html" title="ASM modes and directives"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 7.2 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">ASM templates</a><ul>
+<li><a class="reference internal" href="#comment">comment</a></li>
+<li><a class="reference internal" href="#equ">equ</a></li>
+<li><a class="reference internal" href="#instruction">instruction</a></li>
+<li><a class="reference internal" href="#label">label</a></li>
+<li><a class="reference internal" href="#org">org</a></li>
+<li><a class="reference internal" href="#register">register</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="asm.html"
+                        title="previous chapter">ASM modes and directives</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="html-templates.html"
+                        title="next chapter">HTML templates</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/asm-templates.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="asm-templates">
+<span id="asmtemplates"></span><h1>ASM templates<a class="headerlink" href="#asm-templates" title="Permalink to this headline">¶</a></h1>
+<p>Each line of output produced by <a class="reference internal" href="commands.html#skool2asm-py"><span class="std std-ref">skool2asm.py</span></a> is built from a template. A
+template contains &#8216;replacement fields&#8217; - identifiers enclosed by braces
+(<code class="docutils literal"><span class="pre">{</span></code> and <code class="docutils literal"><span class="pre">}</span></code>) - that are replaced by appropriate content (such as a label
+or register name) when the template is formatted.</p>
+<p>The default templates can be overridden by custom templates read from a file by
+setting the <code class="docutils literal"><span class="pre">Templates</span></code> configuration parameter of
+<a class="reference internal" href="commands.html#skool2asm-conf"><span class="std std-ref">skool2asm.py</span></a>. To define a custom template, specify its
+name in square brackets on a line of its own, and follow it with the content of
+the template. For example:</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>[org]
+.{org} {address}
+</pre></div>
+</div>
+<div class="section" id="comment">
+<span id="t-comment"></span><h2>comment<a class="headerlink" href="#comment" title="Permalink to this headline">¶</a></h2>
+<p>The <code class="docutils literal"><span class="pre">comment</span></code> template is used to format a line in an entry title, entry
+description, block start comment, mid-block comment, or block end comment.</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>; {text}
+</pre></div>
+</div>
+<p>The following identifier is available:</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">text</span></code> - the text of the comment line</li>
+</ul>
+<p>This template is also used to used to format lines between paragraphs in
+comments, with <code class="docutils literal"><span class="pre">text</span></code> set to an empty string.</p>
+</div>
+<div class="section" id="equ">
+<span id="t-equ"></span><h2>equ<a class="headerlink" href="#equ" title="Permalink to this headline">¶</a></h2>
+<p>The <code class="docutils literal"><span class="pre">equ</span></code> template is used to format an EQU directive produced by <a class="reference internal" href="asm.html#equ"><span class="std std-ref">&#64;equ</span></a>.</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>{label} {equ} {value}
+</pre></div>
+</div>
+<p>The following identifiers are available:</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">equ</span></code> - &#8216;EQU&#8217; or &#8216;equ&#8217; (depending on the case)</li>
+<li><code class="docutils literal"><span class="pre">label</span></code> - the label</li>
+<li><code class="docutils literal"><span class="pre">value</span></code> - the value</li>
+</ul>
+</div>
+<div class="section" id="instruction">
+<span id="t-instruction"></span><h2>instruction<a class="headerlink" href="#instruction" title="Permalink to this headline">¶</a></h2>
+<p>The <code class="docutils literal"><span class="pre">instruction</span></code> template is used to format an instruction line or
+instruction comment continuation line.</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>{indent}{operation:{width}} {sep} {text}
+</pre></div>
+</div>
+<p>The following identifiers are available:</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">indent</span></code> - the instruction indent (as defined by the <code class="docutils literal"><span class="pre">indent</span></code> property)</li>
+<li><code class="docutils literal"><span class="pre">operation</span></code> - either the operation (e.g. &#8216;XOR A&#8217;), or an empty string (if
+formatting a comment continuation line)</li>
+<li><code class="docutils literal"><span class="pre">sep</span></code> - the comment separator (&#8216;;&#8217; if there is a comment, an empty string
+otherwise)</li>
+<li><code class="docutils literal"><span class="pre">text</span></code> - the text of the comment line</li>
+<li><code class="docutils literal"><span class="pre">width</span></code> - the width of the instruction field (as defined by the
+<code class="docutils literal"><span class="pre">instruction-width</span></code> property)</li>
+</ul>
+<p>The <code class="docutils literal"><span class="pre">indent</span></code> and <code class="docutils literal"><span class="pre">instruction-width</span></code> properties can be set by either the
+<a class="reference internal" href="asm.html#set"><span class="std std-ref">&#64;set</span></a> directive, or the <code class="docutils literal"><span class="pre">Set-indent</span></code> and <code class="docutils literal"><span class="pre">Set-instruction-width</span></code>
+configuration parameters of <a class="reference internal" href="commands.html#skool2asm-conf"><span class="std std-ref">skool2asm.py</span></a>.</p>
+</div>
+<div class="section" id="label">
+<span id="t-label"></span><h2>label<a class="headerlink" href="#label" title="Permalink to this headline">¶</a></h2>
+<p>The <code class="docutils literal"><span class="pre">label</span></code> template is used to format an instruction label.</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>{label}{suffix}
+</pre></div>
+</div>
+<p>The following identifiers are available:</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">label</span></code> - the instruction label</li>
+<li><code class="docutils literal"><span class="pre">suffix</span></code> - &#8216;:&#8217; or an empty string (as defined by the <code class="docutils literal"><span class="pre">label-colons</span></code>
+property)</li>
+</ul>
+<p>The <code class="docutils literal"><span class="pre">label-colons</span></code> property can be set by either the <a class="reference internal" href="asm.html#set"><span class="std std-ref">&#64;set</span></a> directive, or
+the <code class="docutils literal"><span class="pre">Set-label-colons</span></code> configuration parameter of
+<a class="reference internal" href="commands.html#skool2asm-conf"><span class="std std-ref">skool2asm.py</span></a>.</p>
+</div>
+<div class="section" id="org">
+<span id="t-org"></span><h2>org<a class="headerlink" href="#org" title="Permalink to this headline">¶</a></h2>
+<p>The <code class="docutils literal"><span class="pre">org</span></code> template is used to format an ORG directive produced by <a class="reference internal" href="asm.html#org"><span class="std std-ref">&#64;org</span></a>.</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>{indent}{org} {address}
+</pre></div>
+</div>
+<p>The following identifiers are available:</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">address</span></code> - the ORG address (as a string)</li>
+<li><code class="docutils literal"><span class="pre">indent</span></code> - the instruction indent (as defined by the <code class="docutils literal"><span class="pre">indent</span></code> property)</li>
+<li><code class="docutils literal"><span class="pre">org</span></code> - &#8216;ORG&#8217; or &#8216;org&#8217; (depending on the case)</li>
+</ul>
+<p>The <code class="docutils literal"><span class="pre">indent</span></code> property can be set by either the <a class="reference internal" href="asm.html#set"><span class="std std-ref">&#64;set</span></a> directive, or the
+<code class="docutils literal"><span class="pre">Set-indent</span></code> configuration parameter of <a class="reference internal" href="commands.html#skool2asm-conf"><span class="std std-ref">skool2asm.py</span></a>.</p>
+</div>
+<div class="section" id="register">
+<span id="t-register"></span><h2>register<a class="headerlink" href="#register" title="Permalink to this headline">¶</a></h2>
+<p>The <code class="docutils literal"><span class="pre">register</span></code> template is used to format lines in the register section of an
+entry header.</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>; {prefix:&gt;{prefix_len}}{reg:{reg_len}} {text}
+</pre></div>
+</div>
+<p>The following identifiers are available:</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">prefix</span></code> - the register prefix (e.g. &#8216;In:&#8217; or &#8216;O:&#8217;), or an empty string (if
+formatting a register description continuation line)</li>
+<li><code class="docutils literal"><span class="pre">prefix_len</span></code> - the maximum length of all register prefixes in the register
+section</li>
+<li><code class="docutils literal"><span class="pre">reg</span></code> - the register name (e.g. &#8216;HL&#8217;), or an empty string (if formatting a
+register description continuation line)</li>
+<li><code class="docutils literal"><span class="pre">reg_len</span></code> - the length of the register name</li>
+<li><code class="docutils literal"><span class="pre">text</span></code> - the text of a line of the register description</li>
+</ul>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="html-templates.html" title="HTML templates"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="asm.html" title="ASM modes and directives"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 7.2 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2019, Richard Dymond.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.9.
+    </div>
+  </body>
+</html>

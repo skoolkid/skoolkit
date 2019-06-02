@@ -131,11 +131,18 @@ Recognised parameters are:
   disassembly on a single page, as opposed to a separate page for each routine
   and data block (default: None); set this to 'AsmAllInOne' to use the
   :ref:`t_AsmAllInOne` template
+* ``Bytes`` - the format specification for the ``bytes`` replacement field in
+  the :ref:`t_asm_instruction` template (default: ''); if not blank, assembled
+  instruction byte values are displayed on disassembly pages
 * ``Copyright`` - the copyright message that appears in the footer of every
   page (default: '')
 * ``Created`` - the message indicating the software used to create the
   disassembly that appears in the footer of every page (default: 'Created using
   SkoolKit #VERSION.')
+* ``DisassemblyTableNumCols`` - the number of columns in the disassembly table
+  on disassembly pages (default: the number of occurrences of '</td>' in the
+  :ref:`t_asm_instruction` template); this value is used by the :ref:`t_Asm`,
+  :ref:`t_asm_comment` and :ref:`t_asm_entry` templates
 * ``Font`` - the base name of the font file to use (default: None); multiple
   font files can be declared by separating their names with semicolons
 * ``Game`` - the name of the game, which appears in the title of every page,
@@ -178,18 +185,16 @@ specifies the format of the anchors attached to instructions on disassembly
 pages and entries on memory map pages. The default format string is
 ``{address}``, which produces decimal addresses (e.g. ``#65280``). To produce
 4-digit, lower case hexadecimal addresses instead (e.g. ``#ff00``), change
-``AddressAnchor`` to ``{address:04x}``. Or to produce 4-digit, lower case
+``AddressAnchor`` to ``{address:04x}``. Or to produce 4-digit, upper case
 hexadecimal addresses if the ``--hex`` option is used with
 :ref:`skool2html.py`, and decimal addresses otherwise:
-``{address#IF({base}==16)(:04x)}``.
-
-Note that an address anchor that starts with an upper case letter (e.g.
-``#FF00``) will be interpreted as a skool macro, and so any format string that
-could produce such an anchor should be avoided.
+``{address#IF({base}==16)(:04X)}``.
 
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 7.2     | Added the ``Bytes`` and ``DisassemblyTableNumCols`` parameters    |
++---------+-------------------------------------------------------------------+
 | 6.0     | Every parameter (not just ``Logo``) may contain                   |
 |         | :ref:`skool macros <skoolMacros>`                                 |
 +---------+-------------------------------------------------------------------+
@@ -261,9 +266,9 @@ will create an image file named ``font.png``. To create a GIF instead
 
   #FONT32768,26(font.gif)
 
-For images that contain flashing cells, animated GIFs are recommended over
-animated PNGs in APNG format, because they are more widely supported in web
-browsers.
+.. note::
+   Support for GIF images is deprecated since version 7.2. Use PNG images
+   instead.
 
 +---------+--------------------------------------------------------------+
 | Version | Changes                                                      |
@@ -286,9 +291,9 @@ browsers.
 The ``Index`` section contains a list of link group IDs in the order in which
 the link groups will appear on the disassembly index page. The link groups
 themselves - with the exception of ``OtherCode`` - are defined in
-``[Index:*:*]`` sections (see below); ``OtherCode`` is a special built-in link
-group that contains links to the index pages of secondary disassemblies defined
-by :ref:`otherCode` sections.
+:ref:`indexGroup` sections. ``OtherCode`` is a special built-in link group that
+contains links to the index pages of secondary disassemblies defined by
+:ref:`otherCode` sections.
 
 To see the default ``Index`` section, run the following command::
 
@@ -902,7 +907,7 @@ sections that can be used to define their entries are as follows:
   ``[GraphicGlitch:anchor:title]``
 * ``Pokes`` - ``[Poke:title]`` or ``[Poke:anchor:title]``
 
-To see the contents of the default ``[Page:*]`` sections, run the following
+To see the contents of the default :ref:`Page` sections, run the following
 command::
 
   $ skool2html.py -r Page:
@@ -979,7 +984,7 @@ Appending content
 -----------------
 Content may be appended to an existing ref file section defined elsewhere by
 adding a '+' suffix to the section name. For example, to add a line to the
-``[Game]`` section::
+:ref:`ref-Game` section::
 
   [Game+]
   AddressAnchor={address:04x}

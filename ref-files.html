@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Ref files &#8212; SkoolKit 7.1 documentation</title>
+    <title>Ref files &#8212; SkoolKit 7.2 documentation</title>
     
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '7.1',
+        VERSION:     '7.2',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,8 +25,8 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="top" title="SkoolKit 7.1 documentation" href="index.html" />
-    <link rel="next" title="HTML templates" href="html-templates.html" />
+    <link rel="top" title="SkoolKit 7.2 documentation" href="index.html" />
+    <link rel="next" title="ASM modes and directives" href="asm.html" />
     <link rel="prev" title="Skool macros" href="skool-macros.html" /> 
   </head>
   <body role="document">
@@ -37,12 +37,12 @@
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
-          <a href="html-templates.html" title="HTML templates"
+          <a href="asm.html" title="ASM modes and directives"
              accesskey="N">next</a> |</li>
         <li class="right" >
           <a href="skool-macros.html" title="Skool macros"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 7.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 7.2 documentation</a> &#187;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
@@ -77,8 +77,8 @@
   <p class="topless"><a href="skool-macros.html"
                         title="previous chapter">Skool macros</a></p>
   <h4>Next topic</h4>
-  <p class="topless"><a href="html-templates.html"
-                        title="next chapter">HTML templates</a></p>
+  <p class="topless"><a href="asm.html"
+                        title="next chapter">ASM modes and directives</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -252,11 +252,18 @@ disassembly pages and entries on memory map pages (default: <code class="docutil
 disassembly on a single page, as opposed to a separate page for each routine
 and data block (default: None); set this to &#8216;AsmAllInOne&#8217; to use the
 <a class="reference internal" href="html-templates.html#t-asmallinone"><span class="std std-ref">AsmAllInOne</span></a> template</li>
+<li><code class="docutils literal"><span class="pre">Bytes</span></code> - the format specification for the <code class="docutils literal"><span class="pre">bytes</span></code> replacement field in
+the <a class="reference internal" href="html-templates.html#t-asm-instruction"><span class="std std-ref">asm_instruction</span></a> template (default: &#8216;&#8217;); if not blank, assembled
+instruction byte values are displayed on disassembly pages</li>
 <li><code class="docutils literal"><span class="pre">Copyright</span></code> - the copyright message that appears in the footer of every
 page (default: &#8216;&#8217;)</li>
 <li><code class="docutils literal"><span class="pre">Created</span></code> - the message indicating the software used to create the
 disassembly that appears in the footer of every page (default: &#8216;Created using
 SkoolKit #VERSION.&#8217;)</li>
+<li><code class="docutils literal"><span class="pre">DisassemblyTableNumCols</span></code> - the number of columns in the disassembly table
+on disassembly pages (default: the number of occurrences of &#8216;&lt;/td&gt;&#8217; in the
+<a class="reference internal" href="html-templates.html#t-asm-instruction"><span class="std std-ref">asm_instruction</span></a> template); this value is used by the <a class="reference internal" href="html-templates.html#t-asm"><span class="std std-ref">Asm</span></a>,
+<a class="reference internal" href="html-templates.html#t-asm-comment"><span class="std std-ref">asm_comment</span></a> and <a class="reference internal" href="html-templates.html#t-asm-entry"><span class="std std-ref">asm_entry</span></a> templates</li>
 <li><code class="docutils literal"><span class="pre">Font</span></code> - the base name of the font file to use (default: None); multiple
 font files can be declared by separating their names with semicolons</li>
 <li><code class="docutils literal"><span class="pre">Game</span></code> - the name of the game, which appears in the title of every page,
@@ -298,13 +305,10 @@ specifies the format of the anchors attached to instructions on disassembly
 pages and entries on memory map pages. The default format string is
 <code class="docutils literal"><span class="pre">{address}</span></code>, which produces decimal addresses (e.g. <code class="docutils literal"><span class="pre">#65280</span></code>). To produce
 4-digit, lower case hexadecimal addresses instead (e.g. <code class="docutils literal"><span class="pre">#ff00</span></code>), change
-<code class="docutils literal"><span class="pre">AddressAnchor</span></code> to <code class="docutils literal"><span class="pre">{address:04x}</span></code>. Or to produce 4-digit, lower case
+<code class="docutils literal"><span class="pre">AddressAnchor</span></code> to <code class="docutils literal"><span class="pre">{address:04x}</span></code>. Or to produce 4-digit, upper case
 hexadecimal addresses if the <code class="docutils literal"><span class="pre">--hex</span></code> option is used with
 <a class="reference internal" href="commands.html#skool2html-py"><span class="std std-ref">skool2html.py</span></a>, and decimal addresses otherwise:
-<code class="docutils literal"><span class="pre">{address#IF({base}==16)(:04x)}</span></code>.</p>
-<p>Note that an address anchor that starts with an upper case letter (e.g.
-<code class="docutils literal"><span class="pre">#FF00</span></code>) will be interpreted as a skool macro, and so any format string that
-could produce such an anchor should be avoided.</p>
+<code class="docutils literal"><span class="pre">{address#IF({base}==16)(:04X)}</span></code>.</p>
 <table border="1" class="docutils">
 <colgroup>
 <col width="12%" />
@@ -316,41 +320,44 @@ could produce such an anchor should be avoided.</p>
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>6.0</td>
+<tr class="row-even"><td>7.2</td>
+<td>Added the <code class="docutils literal"><span class="pre">Bytes</span></code> and <code class="docutils literal"><span class="pre">DisassemblyTableNumCols</span></code> parameters</td>
+</tr>
+<tr class="row-odd"><td>6.0</td>
 <td>Every parameter (not just <code class="docutils literal"><span class="pre">Logo</span></code>) may contain
 <a class="reference internal" href="skool-macros.html#skoolmacros"><span class="std std-ref">skool macros</span></a></td>
 </tr>
-<tr class="row-odd"><td>5.3</td>
+<tr class="row-even"><td>5.3</td>
 <td>Added the <code class="docutils literal"><span class="pre">AsmSinglePageTemplate</span></code> parameter</td>
 </tr>
-<tr class="row-even"><td>4.3</td>
+<tr class="row-odd"><td>4.3</td>
 <td>Added the <code class="docutils literal"><span class="pre">AddressAnchor</span></code> parameter</td>
 </tr>
-<tr class="row-odd"><td>4.1</td>
+<tr class="row-even"><td>4.1</td>
 <td>Added the <code class="docutils literal"><span class="pre">LinkInternalOperands</span></code> parameter</td>
 </tr>
-<tr class="row-even"><td>4.0</td>
+<tr class="row-odd"><td>4.0</td>
 <td>Set default values for the <code class="docutils literal"><span class="pre">InputRegisterTableHeader</span></code> and
 <code class="docutils literal"><span class="pre">OutputRegisterTableHeader</span></code> parameters; added the
 <code class="docutils literal"><span class="pre">Copyright</span></code>, <code class="docutils literal"><span class="pre">Created</span></code> and <code class="docutils literal"><span class="pre">Release</span></code> parameters (which used
 to live in the <code class="docutils literal"><span class="pre">[Info]</span></code> section in SkoolKit 3)</td>
 </tr>
-<tr class="row-odd"><td>3.7</td>
+<tr class="row-even"><td>3.7</td>
 <td>Added the <code class="docutils literal"><span class="pre">JavaScript</span></code> parameter</td>
 </tr>
-<tr class="row-even"><td>3.5</td>
+<tr class="row-odd"><td>3.5</td>
 <td>Added the <code class="docutils literal"><span class="pre">Font</span></code>, <code class="docutils literal"><span class="pre">LogoImage</span></code> and <code class="docutils literal"><span class="pre">StyleSheet</span></code> parameters
 (all of which used to live in the <a class="reference internal" href="#paths"><span class="std std-ref">[Paths]</span></a> section,
 <code class="docutils literal"><span class="pre">LogoImage</span></code> by the name <code class="docutils literal"><span class="pre">Logo</span></code>)</td>
 </tr>
-<tr class="row-odd"><td>3.4</td>
+<tr class="row-even"><td>3.4</td>
 <td>Added the <code class="docutils literal"><span class="pre">LinkOperands</span></code> parameter</td>
 </tr>
-<tr class="row-even"><td>3.1.2</td>
+<tr class="row-odd"><td>3.1.2</td>
 <td>Added the <code class="docutils literal"><span class="pre">InputRegisterTableHeader</span></code> and
 <code class="docutils literal"><span class="pre">OutputRegisterTableHeader</span></code> parameters</td>
 </tr>
-<tr class="row-odd"><td>2.0.5</td>
+<tr class="row-even"><td>2.0.5</td>
 <td>Added the <code class="docutils literal"><span class="pre">Logo</span></code> parameter</td>
 </tr>
 </tbody>
@@ -397,9 +404,11 @@ then:</p>
 <div class="highlight-none"><div class="highlight"><pre><span></span>#FONT32768,26(font.gif)
 </pre></div>
 </div>
-<p>For images that contain flashing cells, animated GIFs are recommended over
-animated PNGs in APNG format, because they are more widely supported in web
-browsers.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Support for GIF images is deprecated since version 7.2. Use PNG images
+instead.</p>
+</div>
 <table border="1" class="docutils">
 <colgroup>
 <col width="13%" />
@@ -433,9 +442,9 @@ parameters</td>
 <p>The <code class="docutils literal"><span class="pre">Index</span></code> section contains a list of link group IDs in the order in which
 the link groups will appear on the disassembly index page. The link groups
 themselves - with the exception of <code class="docutils literal"><span class="pre">OtherCode</span></code> - are defined in
-<code class="docutils literal"><span class="pre">[Index:*:*]</span></code> sections (see below); <code class="docutils literal"><span class="pre">OtherCode</span></code> is a special built-in link
-group that contains links to the index pages of secondary disassemblies defined
-by <a class="reference internal" href="#othercode"><span class="std std-ref">[OtherCode:*]</span></a> sections.</p>
+<a class="reference internal" href="#indexgroup"><span class="std std-ref">[Index:*:*]</span></a> sections. <code class="docutils literal"><span class="pre">OtherCode</span></code> is a special built-in link group that
+contains links to the index pages of secondary disassemblies defined by
+<a class="reference internal" href="#othercode"><span class="std std-ref">[OtherCode:*]</span></a> sections.</p>
 <p>To see the default <code class="docutils literal"><span class="pre">Index</span></code> section, run the following command:</p>
 <div class="highlight-none"><div class="highlight"><pre><span></span>$ skool2html.py -r Index$
 </pre></div>
@@ -1147,7 +1156,7 @@ sections that can be used to define their entries are as follows:</p>
 <code class="docutils literal"><span class="pre">[GraphicGlitch:anchor:title]</span></code></li>
 <li><code class="docutils literal"><span class="pre">Pokes</span></code> - <code class="docutils literal"><span class="pre">[Poke:title]</span></code> or <code class="docutils literal"><span class="pre">[Poke:anchor:title]</span></code></li>
 </ul>
-<p>To see the contents of the default <code class="docutils literal"><span class="pre">[Page:*]</span></code> sections, run the following
+<p>To see the contents of the default <a class="reference internal" href="#page"><span class="std std-ref">[Page:*]</span></a> sections, run the following
 command:</p>
 <div class="highlight-none"><div class="highlight"><pre><span></span>$ skool2html.py -r Page:
 </pre></div>
@@ -1233,7 +1242,7 @@ an entry section name may contain
 <h2>Appending content<a class="headerlink" href="#appending-content" title="Permalink to this headline">¶</a></h2>
 <p>Content may be appended to an existing ref file section defined elsewhere by
 adding a &#8216;+&#8217; suffix to the section name. For example, to add a line to the
-<code class="docutils literal"><span class="pre">[Game]</span></code> section:</p>
+<a class="reference internal" href="#ref-game"><span class="std std-ref">[Game]</span></a> section:</p>
 <div class="highlight-none"><div class="highlight"><pre><span></span>[Game+]
 AddressAnchor={address:04x}
 </pre></div>
@@ -1296,12 +1305,12 @@ with the first one removed.</p>
           <a href="genindex.html" title="General Index"
              >index</a></li>
         <li class="right" >
-          <a href="html-templates.html" title="HTML templates"
+          <a href="asm.html" title="ASM modes and directives"
              >next</a> |</li>
         <li class="right" >
           <a href="skool-macros.html" title="Skool macros"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 7.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 7.2 documentation</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">

@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Commands &#8212; SkoolKit 7.1 documentation</title>
+    <title>Commands &#8212; SkoolKit 7.2 documentation</title>
     
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '7.1',
+        VERSION:     '7.2',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="top" title="SkoolKit 7.1 documentation" href="index.html" />
+    <link rel="top" title="SkoolKit 7.2 documentation" href="index.html" />
     <link rel="next" title="Supported assemblers" href="assemblers.html" />
     <link rel="prev" title="Disassembly DIY" href="diy.html" /> 
   </head>
@@ -42,7 +42,7 @@
         <li class="right" >
           <a href="diy.html" title="Disassembly DIY"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 7.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 7.2 documentation</a> &#187;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
@@ -57,7 +57,10 @@
 </ul>
 </li>
 <li><a class="reference internal" href="#skool2bin-py">skool2bin.py</a></li>
-<li><a class="reference internal" href="#skool2ctl-py">skool2ctl.py</a></li>
+<li><a class="reference internal" href="#skool2ctl-py">skool2ctl.py</a><ul>
+<li><a class="reference internal" href="#skool2ctl-conf">Configuration</a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#skool2html-py">skool2html.py</a><ul>
 <li><a class="reference internal" href="#skool2html-conf">Configuration</a></li>
 </ul>
@@ -335,6 +338,7 @@ or don&#8217;t (<code class="docutils literal"><span class="pre">0</span></code>
 <li><code class="docutils literal"><span class="pre">Quiet</span></code> - be quiet (<code class="docutils literal"><span class="pre">1</span></code>) or verbose (<code class="docutils literal"><span class="pre">0</span></code>, the default)</li>
 <li><code class="docutils literal"><span class="pre">Set-property</span></code> - set an ASM writer property value, e.g. <code class="docutils literal"><span class="pre">Set-bullet=+</span></code>
 (see the <a class="reference internal" href="asm.html#set"><span class="std std-ref">&#64;set</span></a> directive for a list of available properties)</li>
+<li><code class="docutils literal"><span class="pre">Templates</span></code> - file from which to read custom <a class="reference internal" href="asm-templates.html#asmtemplates"><span class="std std-ref">ASM templates</span></a></li>
 <li><code class="docutils literal"><span class="pre">Warnings</span></code> - show warnings (<code class="docutils literal"><span class="pre">1</span></code>, the default), or suppress them (<code class="docutils literal"><span class="pre">0</span></code>)</li>
 </ul>
 <p>Configuration parameters must appear in a <code class="docutils literal"><span class="pre">[skool2asm]</span></code> section. For example,
@@ -360,40 +364,44 @@ Set-line-width=120
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>7.0</td>
+<tr class="row-even"><td>7.2</td>
+<td>Added the <code class="docutils literal"><span class="pre">Templates</span></code> configuration parameter and support for
+<a class="reference internal" href="asm-templates.html#asmtemplates"><span class="std std-ref">ASM templates</span></a></td>
+</tr>
+<tr class="row-odd"><td>7.0</td>
 <td><a class="reference internal" href="skool-files.html#nonentryblocks"><span class="std std-ref">Non-entry blocks</span></a> are reproduced verbatim; added the
 <code class="docutils literal"><span class="pre">--force</span></code> option</td>
 </tr>
-<tr class="row-odd"><td>6.4</td>
+<tr class="row-even"><td>6.4</td>
 <td>Added the <code class="docutils literal"><span class="pre">--var</span></code> option</td>
 </tr>
-<tr class="row-even"><td>6.2</td>
+<tr class="row-odd"><td>6.2</td>
 <td>Added the <code class="docutils literal"><span class="pre">--show-config</span></code> option; the <code class="docutils literal"><span class="pre">--end</span></code> and <code class="docutils literal"><span class="pre">--start</span></code>
 options accept a hexadecimal integer prefixed by &#8216;0x&#8217;</td>
 </tr>
-<tr class="row-odd"><td>6.1</td>
+<tr class="row-even"><td>6.1</td>
 <td>Configuration is read from <cite>skoolkit.ini</cite> if present; added the
 <code class="docutils literal"><span class="pre">--ini</span></code> option</td>
 </tr>
-<tr class="row-even"><td>5.0</td>
+<tr class="row-odd"><td>5.0</td>
 <td>Added the <code class="docutils literal"><span class="pre">--set</span></code> option</td>
 </tr>
-<tr class="row-odd"><td>4.5</td>
+<tr class="row-even"><td>4.5</td>
 <td>Added the <code class="docutils literal"><span class="pre">--start</span></code> and <code class="docutils literal"><span class="pre">--end</span></code> options</td>
 </tr>
-<tr class="row-even"><td>4.1</td>
+<tr class="row-odd"><td>4.1</td>
 <td>Added the <code class="docutils literal"><span class="pre">--writer</span></code> option</td>
 </tr>
-<tr class="row-odd"><td>3.4</td>
+<tr class="row-even"><td>3.4</td>
 <td>Added the <code class="docutils literal"><span class="pre">-V</span></code> and <code class="docutils literal"><span class="pre">-p</span></code> options and the long options</td>
 </tr>
-<tr class="row-even"><td>2.2.2</td>
+<tr class="row-odd"><td>2.2.2</td>
 <td>Added the ability to read a skool file from standard input</td>
 </tr>
-<tr class="row-odd"><td>2.1.1</td>
+<tr class="row-even"><td>2.1.1</td>
 <td>Added the <code class="docutils literal"><span class="pre">-u</span></code>, <code class="docutils literal"><span class="pre">-D</span></code> and <code class="docutils literal"><span class="pre">-H</span></code> options</td>
 </tr>
-<tr class="row-even"><td>1.1</td>
+<tr class="row-odd"><td>1.1</td>
 <td>Added the <code class="docutils literal"><span class="pre">-c</span></code> option</td>
 </tr>
 </tbody>
@@ -482,7 +490,11 @@ Options:
                         instruction operands and DEFB/DEFM/DEFS/DEFW statements.
   -E ADDR, --end ADDR   Stop converting at this address.
   -h, --hex             Write addresses in upper case hexadecimal format.
+  -I p=v, --ini p=v     Set the value of the configuration parameter &#39;p&#39; to
+                        &#39;v&#39;. This option may be used multiple times.
+  -k, --keep-lines      Preserve line breaks in comments.
   -l, --hex-lower       Write addresses in lower case hexadecimal format.
+  --show-config         Show configuration parameter values.
   -S ADDR, --start ADDR
                         Start converting at this address.
   -V, --version         Show SkoolKit version number and exit.
@@ -501,6 +513,31 @@ Options:
 <p>If you need to preserve any elements that control files do not support (such as
 ASM block directives), consider using <a class="reference internal" href="#skool2sft-py"><span class="std std-ref">skool2sft.py</span></a> to create a skool
 file template instead.</p>
+<div class="section" id="skool2ctl-conf">
+<span id="id7"></span><h3>Configuration<a class="headerlink" href="#skool2ctl-conf" title="Permalink to this headline">¶</a></h3>
+<p><cite>skool2ctl.py</cite> will read configuration from a file named <cite>skoolkit.ini</cite> in the
+current working directory or in <cite>~/.skoolkit</cite>, if present. The recognised
+configuration parameters are:</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">Hex</span></code> - write addresses in decimal (<code class="docutils literal"><span class="pre">0</span></code>, the default), lower case
+hexadecimal (<code class="docutils literal"><span class="pre">1</span></code>),  or upper case hexadecimal (<code class="docutils literal"><span class="pre">2</span></code>)</li>
+<li><code class="docutils literal"><span class="pre">KeepLines</span></code> - preserve line breaks in comments (<code class="docutils literal"><span class="pre">1</span></code>), or don&#8217;t (<code class="docutils literal"><span class="pre">0</span></code>,
+the default)</li>
+<li><code class="docutils literal"><span class="pre">PreserveBase</span></code> - preserve the base of decimal and hexadecimal values in
+instruction operands and DEFB/DEFM/DEFS/DEFW statements (<code class="docutils literal"><span class="pre">1</span></code>), or don&#8217;t
+(<code class="docutils literal"><span class="pre">0</span></code>, the default)</li>
+</ul>
+<p>Configuration parameters must appear in a <code class="docutils literal"><span class="pre">[skool2ctl]</span></code> section. For
+example, to make <cite>skool2ctl.py</cite> write upper case hexadecimal addresses by
+default (without having to use the <code class="docutils literal"><span class="pre">-h</span></code> option on the command line), add the
+following section to <cite>skoolkit.ini</cite>:</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>[skool2ctl]
+Hex=2
+</pre></div>
+</div>
+<p>Configuration parameters may also be set on the command line by using the
+<code class="docutils literal"><span class="pre">--ini</span></code> option. Parameter values set this way will override any found in
+<cite>skoolkit.ini</cite>.</p>
 <table border="1" class="docutils">
 <colgroup>
 <col width="12%" />
@@ -512,49 +549,54 @@ file template instead.</p>
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>7.0</td>
+<tr class="row-even"><td>7.2</td>
+<td>Configuration is read from <cite>skoolkit.ini</cite> if present; added the
+<code class="docutils literal"><span class="pre">--ini</span></code>, <code class="docutils literal"><span class="pre">--show-config</span></code> and <code class="docutils literal"><span class="pre">--keep-lines</span></code> options</td>
+</tr>
+<tr class="row-odd"><td>7.0</td>
 <td>Added support for the &#8216;n&#8217; identifier in the <code class="docutils literal"><span class="pre">--write</span></code> option</td>
 </tr>
-<tr class="row-odd"><td>6.2</td>
+<tr class="row-even"><td>6.2</td>
 <td>The <code class="docutils literal"><span class="pre">--end</span></code> and <code class="docutils literal"><span class="pre">--start</span></code> options accept a hexadecimal
 integer prefixed by &#8216;0x&#8217;</td>
 </tr>
-<tr class="row-even"><td>6.0</td>
+<tr class="row-odd"><td>6.0</td>
 <td>Added support for the &#8216;a&#8217; identifier in the <code class="docutils literal"><span class="pre">--write</span></code> option</td>
 </tr>
-<tr class="row-odd"><td>5.1</td>
+<tr class="row-even"><td>5.1</td>
 <td>A terminal <code class="docutils literal"><span class="pre">i</span></code> directive is appended if the skool file ends
 before 65536</td>
 </tr>
-<tr class="row-even"><td>4.5</td>
+<tr class="row-odd"><td>4.5</td>
 <td>Added the <code class="docutils literal"><span class="pre">--start</span></code> and <code class="docutils literal"><span class="pre">--end</span></code> options</td>
 </tr>
-<tr class="row-odd"><td>4.4</td>
+<tr class="row-even"><td>4.4</td>
 <td>Added the <code class="docutils literal"><span class="pre">--hex-lower</span></code> option</td>
 </tr>
-<tr class="row-even"><td>3.7</td>
+<tr class="row-odd"><td>3.7</td>
 <td>Added the <code class="docutils literal"><span class="pre">--preserve-base</span></code> option</td>
 </tr>
-<tr class="row-odd"><td>3.4</td>
+<tr class="row-even"><td>3.4</td>
 <td>Added the <code class="docutils literal"><span class="pre">-V</span></code> option and the long options</td>
 </tr>
-<tr class="row-even"><td>2.4</td>
+<tr class="row-odd"><td>2.4</td>
 <td>Added the ability to preserve some ASM directives</td>
 </tr>
-<tr class="row-odd"><td>2.2.2</td>
+<tr class="row-even"><td>2.2.2</td>
 <td>Added the ability to read a skool file from standard input</td>
 </tr>
-<tr class="row-even"><td>2.0.6</td>
+<tr class="row-odd"><td>2.0.6</td>
 <td>Added the <code class="docutils literal"><span class="pre">-h</span></code> option</td>
 </tr>
-<tr class="row-odd"><td>1.1</td>
+<tr class="row-even"><td>1.1</td>
 <td>New</td>
 </tr>
 </tbody>
 </table>
 </div>
+</div>
 <div class="section" id="skool2html-py">
-<span id="id7"></span><h2>skool2html.py<a class="headerlink" href="#skool2html-py" title="Permalink to this headline">¶</a></h2>
+<span id="id8"></span><h2>skool2html.py<a class="headerlink" href="#skool2html-py" title="Permalink to this headline">¶</a></h2>
 <p><cite>skool2html.py</cite> converts a skool file (and its associated ref files, if any
 exist) into a browsable disassembly in HTML format.</p>
 <p>For example:</p>
@@ -656,7 +698,7 @@ StyleSheet=skoolkit.css;game.css
 <li><cite>wide.css</cite></li>
 </ul>
 <div class="section" id="skool2html-conf">
-<span id="id8"></span><h3>Configuration<a class="headerlink" href="#skool2html-conf" title="Permalink to this headline">¶</a></h3>
+<span id="id9"></span><h3>Configuration<a class="headerlink" href="#skool2html-conf" title="Permalink to this headline">¶</a></h3>
 <p><cite>skool2html.py</cite> will read configuration from a file named <cite>skoolkit.ini</cite> in the
 current working directory or in <cite>~/.skoolkit</cite>, if present. The recognised
 configuration parameters are:</p>
@@ -778,7 +820,7 @@ by default; added the <code class="docutils literal"><span class="pre">-d</span>
 </div>
 </div>
 <div class="section" id="skool2sft-py">
-<span id="id9"></span><h2>skool2sft.py<a class="headerlink" href="#skool2sft-py" title="Permalink to this headline">¶</a></h2>
+<span id="id10"></span><h2>skool2sft.py<a class="headerlink" href="#skool2sft-py" title="Permalink to this headline">¶</a></h2>
 <p><cite>skool2sft.py</cite>  converts a skool file into a
 <a class="reference internal" href="skool-file-templates.html#skoolfiletemplates"><span class="std std-ref">skool file template</span></a>. For example:</p>
 <div class="highlight-none"><div class="highlight"><pre><span></span>$ skool2sft.py game.skool &gt; game.sft
@@ -801,6 +843,11 @@ Options:
                         Start converting at this address.
   -V, --version         Show SkoolKit version number and exit.
 </pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Skool file templates and <cite>skool2sft.py</cite> are deprecated since version 7.2.
+Use <a class="reference internal" href="control-files.html#controlfiles"><span class="std std-ref">control files</span></a> and <a class="reference internal" href="#skool2ctl-py"><span class="std std-ref">skool2ctl.py</span></a> instead.</p>
 </div>
 <table border="1" class="docutils">
 <colgroup>
@@ -840,7 +887,7 @@ blocks (instead of verbatim)</td>
 </table>
 </div>
 <div class="section" id="sna2ctl-py">
-<span id="id10"></span><h2>sna2ctl.py<a class="headerlink" href="#sna2ctl-py" title="Permalink to this headline">¶</a></h2>
+<span id="id11"></span><h2>sna2ctl.py<a class="headerlink" href="#sna2ctl-py" title="Permalink to this headline">¶</a></h2>
 <p><cite>sna2ctl.py</cite> generates a control file for a binary (raw memory) file or a SNA,
 SZX or Z80 snapshot. For example:</p>
 <div class="highlight-none"><div class="highlight"><pre><span></span>$ sna2ctl.py game.z80 &gt; game.ctl
@@ -884,11 +931,14 @@ generating a control file. The supported file formats are:</p>
 be a Z80 map file; if it is 65536 bytes long, it is assumed to be a SpecEmu map
 file; otherwise it is assumed to be in one of the other supported formats.</p>
 <div class="section" id="sna2ctl-conf">
-<span id="id11"></span><h3>Configuration<a class="headerlink" href="#sna2ctl-conf" title="Permalink to this headline">¶</a></h3>
+<span id="id12"></span><h3>Configuration<a class="headerlink" href="#sna2ctl-conf" title="Permalink to this headline">¶</a></h3>
 <p><cite>sna2ctl.py</cite> will read configuration from a file named <cite>skoolkit.ini</cite> in the
 current working directory or in <cite>~/.skoolkit</cite>, if present. The recognised
 configuration parameters are:</p>
 <ul class="simple">
+<li><code class="docutils literal"><span class="pre">Dictionary</span></code> - the name of a file containing a list of allowed words, one
+per line; if specified, a string of characters will be marked as text only if
+it contains at least one of the words in this file</li>
 <li><code class="docutils literal"><span class="pre">Hex</span></code> - write addresses in decimal (<code class="docutils literal"><span class="pre">0</span></code>, the default), lower case
 hexadecimal (<code class="docutils literal"><span class="pre">1</span></code>),  or upper case hexadecimal (<code class="docutils literal"><span class="pre">2</span></code>)</li>
 <li><code class="docutils literal"><span class="pre">TextChars</span></code> - characters eligible for being marked as text (default:
@@ -921,11 +971,14 @@ Hex=2
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>7.1</td>
+<tr class="row-even"><td>7.2</td>
+<td>Added the <code class="docutils literal"><span class="pre">Dictionary</span></code> configuration parameter</td>
+</tr>
+<tr class="row-odd"><td>7.1</td>
 <td>Configuration is read from <cite>skoolkit.ini</cite> if present; added the
 <code class="docutils literal"><span class="pre">--ini</span></code> and <code class="docutils literal"><span class="pre">--show-config</span></code> options</td>
 </tr>
-<tr class="row-odd"><td>7.0</td>
+<tr class="row-even"><td>7.0</td>
 <td>New</td>
 </tr>
 </tbody>
@@ -933,7 +986,7 @@ Hex=2
 </div>
 </div>
 <div class="section" id="sna2img-py">
-<span id="id12"></span><h2>sna2img.py<a class="headerlink" href="#sna2img-py" title="Permalink to this headline">¶</a></h2>
+<span id="id13"></span><h2>sna2img.py<a class="headerlink" href="#sna2img-py" title="Permalink to this headline">¶</a></h2>
 <p><cite>sna2img.py</cite> converts the screenshot or other graphic data in a binary (raw
 memory) file, SCR file, skool file, or SNA/SZX/Z80 snapshot into a PNG or GIF
 file. For example:</p>
@@ -1006,7 +1059,7 @@ options accept hexadecimal integers prefixed by &#8216;0x&#8217;</td>
 </table>
 </div>
 <div class="section" id="sna2skool-py">
-<span id="id13"></span><h2>sna2skool.py<a class="headerlink" href="#sna2skool-py" title="Permalink to this headline">¶</a></h2>
+<span id="id14"></span><h2>sna2skool.py<a class="headerlink" href="#sna2skool-py" title="Permalink to this headline">¶</a></h2>
 <p><cite>sna2skool.py</cite> converts a binary (raw memory) file or a SNA, SZX or Z80
 snapshot into a skool file. For example:</p>
 <div class="highlight-none"><div class="highlight"><pre><span></span>$ sna2skool.py game.z80 &gt; game.skool
@@ -1054,7 +1107,7 @@ used as a <a class="reference internal" href="skool-file-templates.html#skoolfil
 &#8216;.bin&#8217;, &#8216;.sna&#8217;, &#8216;.szx&#8217; or &#8216;.z80&#8217; suffix, if any) and end with &#8216;.ctl&#8217; will be
 used as <a class="reference internal" href="control-files.html#controlfiles"><span class="std std-ref">control files</span></a>.</p>
 <div class="section" id="sna2skool-conf">
-<span id="id14"></span><h3>Configuration<a class="headerlink" href="#sna2skool-conf" title="Permalink to this headline">¶</a></h3>
+<span id="id15"></span><h3>Configuration<a class="headerlink" href="#sna2skool-conf" title="Permalink to this headline">¶</a></h3>
 <p><cite>sna2skool.py</cite> will read configuration from a file named <cite>skoolkit.ini</cite> in the
 current working directory or in <cite>~/.skoolkit</cite>, if present. The recognised
 configuration parameters are:</p>
@@ -1199,7 +1252,7 @@ leading zeroes</td>
 </div>
 </div>
 <div class="section" id="snapinfo-py">
-<span id="id15"></span><h2>snapinfo.py<a class="headerlink" href="#snapinfo-py" title="Permalink to this headline">¶</a></h2>
+<span id="id16"></span><h2>snapinfo.py<a class="headerlink" href="#snapinfo-py" title="Permalink to this headline">¶</a></h2>
 <p><cite>snapinfo.py</cite> shows information on the registers and RAM in a SNA, SZX or Z80
 snapshot. For example:</p>
 <div class="highlight-none"><div class="highlight"><pre><span></span>$ snapinfo.py game.z80
@@ -1266,7 +1319,7 @@ shown as special symbols (e.g. <code class="docutils literal"><span class="pre">
 </table>
 </div>
 <div class="section" id="snapmod-py">
-<span id="id16"></span><h2>snapmod.py<a class="headerlink" href="#snapmod-py" title="Permalink to this headline">¶</a></h2>
+<span id="id17"></span><h2>snapmod.py<a class="headerlink" href="#snapmod-py" title="Permalink to this headline">¶</a></h2>
 <p><cite>snapmod.py</cite> modifies the registers and RAM in a 48K Z80 snapshot. For
 example:</p>
 <div class="highlight-none"><div class="highlight"><pre><span></span>$ snapmod.py --poke 32768,0 game.z80 poked.z80
@@ -1319,7 +1372,7 @@ hexadecimal integers prefixed by &#8216;0x&#8217;</td>
 </table>
 </div>
 <div class="section" id="tap2sna-py">
-<span id="id17"></span><h2>tap2sna.py<a class="headerlink" href="#tap2sna-py" title="Permalink to this headline">¶</a></h2>
+<span id="id18"></span><h2>tap2sna.py<a class="headerlink" href="#tap2sna-py" title="Permalink to this headline">¶</a></h2>
 <p><cite>tap2sna.py</cite> converts a TAP or TZX file (which may be inside a zip archive)
 into a Z80 snapshot. For example:</p>
 <div class="highlight-none"><div class="highlight"><pre><span></span>$ tap2sna.py game.tap game.z80
@@ -1430,7 +1483,7 @@ memory with XOR and ADD operations</td>
 </table>
 </div>
 <div class="section" id="tapinfo-py">
-<span id="id18"></span><h2>tapinfo.py<a class="headerlink" href="#tapinfo-py" title="Permalink to this headline">¶</a></h2>
+<span id="id19"></span><h2>tapinfo.py<a class="headerlink" href="#tapinfo-py" title="Permalink to this headline">¶</a></h2>
 <p><cite>tapinfo.py</cite> shows information on the blocks in a TAP or TZX file. For
 example:</p>
 <div class="highlight-none"><div class="highlight"><pre><span></span>$ tapinfo.py game.tzx
@@ -1500,7 +1553,7 @@ block type 0x14</td>
         <li class="right" >
           <a href="diy.html" title="Disassembly DIY"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 7.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 7.2 documentation</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">

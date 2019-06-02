@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Control files &#8212; SkoolKit 7.1 documentation</title>
+    <title>Control files &#8212; SkoolKit 7.2 documentation</title>
     
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '7.1',
+        VERSION:     '7.2',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="top" title="SkoolKit 7.1 documentation" href="index.html" />
+    <link rel="top" title="SkoolKit 7.2 documentation" href="index.html" />
     <link rel="next" title="Skool files" href="skool-files.html" />
     <link rel="prev" title="Parsing, rendering, and modes" href="parsing.html" /> 
   </head>
@@ -42,7 +42,7 @@
         <li class="right" >
           <a href="parsing.html" title="Parsing, rendering, and modes"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 7.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 7.2 documentation</a> &#187;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
@@ -57,6 +57,7 @@
 <li><a class="reference internal" href="#block-end-comments">Block end comments</a></li>
 <li><a class="reference internal" href="#sub-block-syntax">Sub-block syntax</a></li>
 <li><a class="reference internal" href="#sub-block-lengths">Sub-block lengths</a></li>
+<li><a class="reference internal" href="#the-dot-and-colon-directives">The dot and colon directives</a></li>
 <li><a class="reference internal" href="#loops">Loops</a></li>
 <li><a class="reference internal" href="#number-bases">Number bases</a></li>
 <li><a class="reference internal" href="#asm-directives">ASM directives</a></li>
@@ -370,6 +371,144 @@ the end of a string:</p>
 </div>
 <p>and the terminal character will be restored in the same format.</p>
 </div>
+<div class="section" id="the-dot-and-colon-directives">
+<span id="dotdirective"></span><h2>The dot and colon directives<a class="headerlink" href="#the-dot-and-colon-directives" title="Permalink to this headline">¶</a></h2>
+<p>The dot (<code class="docutils literal"><span class="pre">.</span></code>) directive provides an alternative method of specifying a
+comment for a top-level or sub-block directive. For example, instead of:</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>c 30000 This is the title of the entry
+</pre></div>
+</div>
+<p>you could write:</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>c 30000
+. This is the title of the entry
+</pre></div>
+</div>
+<p>At first glance this does not appear to be an improvement. But one advantage of
+the dot directive is that a comment can be split over multiple lines, and the
+line breaks are preserved when restored. This makes it much easier to read and
+write a long comment, especially if it contains a <code class="docutils literal"><span class="pre">#LIST</span></code> or <code class="docutils literal"><span class="pre">#TABLE</span></code>
+macro. For example:</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>D 30000 #TABLE(default) { =h Header 1 | =h Header 2 } { Cell 1      | Cell 2 } TABLE#
+</pre></div>
+</div>
+<p>can be recast like this:</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>D 30000
+. #TABLE(default)
+. { =h Header 1 | =h Header 2 }
+. { Cell 1      | Cell 2 }
+. TABLE#
+</pre></div>
+</div>
+<p>In addition, a sequence of <code class="docutils literal"><span class="pre">D</span></code>, <code class="docutils literal"><span class="pre">N</span></code>, <code class="docutils literal"><span class="pre">E</span></code> or <code class="docutils literal"><span class="pre">R</span></code> directives at the same
+address (one for each paragraph or register description) can be reduced to just
+one of those directives followed by a sequence of dot directives:</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>N 30000
+. Paragraph 1.
+. .
+. Paragraph 2.
+</pre></div>
+</div>
+<p>In fact, the dot directive can be used instead of <code class="docutils literal"><span class="pre">D</span></code>, <code class="docutils literal"><span class="pre">R</span></code> and <code class="docutils literal"><span class="pre">N</span></code>
+directives when specifying an entry header. For example:</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>c 30000
+. This is the title of the entry.
+.
+. This is the description.
+.
+.   A Input
+. O:B Output
+.
+. This is the start comment.
+</pre></div>
+</div>
+<p>Note, however, that this works only if the entry header contains no ASM
+directives.</p>
+<p>The dot directive also makes it simpler to preserve <code class="docutils literal"><span class="pre">&#64;*sub</span></code> and <code class="docutils literal"><span class="pre">&#64;*fix</span></code>
+directives that replace part of an instruction-level comment. For example,
+consider the following skool file snippet:</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span> 49155 LD A,(HL)     ; {Increase the sprite&#39;s x-coordinate by
+@bfix=ADD A,3        ; three}
+ 49156 ADD A,2       ; two (which is a bug)}
+</pre></div>
+</div>
+<p>When preserved without dot directives, this becomes:</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>@ 49156 bfix=ADD A,3        ; three}
+C 49155,3 Increase the sprite&#39;s x-coordinate by two (which is a bug)
+</pre></div>
+</div>
+<p>which is restored incorrectly by <cite>sna2skool.py</cite> (using the default line width
+of 79 characters) as:</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span> 49155 LD A,(HL)     ; {Increase the sprite&#39;s x-coordinate by two (which is a
+@bfix=ADD A,3        ; three}
+ 49156 ADD A,2       ; bug)}
+</pre></div>
+</div>
+<p>This problem could be addressed by recasting the comment lines in the skool
+file and adding a <code class="docutils literal"><span class="pre">&#64;bfix</span></code> directive for &#8216;LD A,(HL)&#8217;:</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>@bfix=               ; {Increase the sprite&#39;s x-coordinate by three
+ 49155 LD A,(HL)     ; {Increase the sprite&#39;s x-coordinate by two (which is a
+@bfix=ADD A,3        ; }
+ 49156 ADD A,2       ; bug)}
+</pre></div>
+</div>
+<p>which would be preserved without dot directives as:</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>@ 49155 bfix=               ; {Increase the sprite&#39;s x-coordinate by three
+@ 49156 bfix=ADD A,3        ; }
+C 49155,3 Increase the sprite&#39;s x-coordinate by two (which is a bug)
+</pre></div>
+</div>
+<p>But this solution requires two <code class="docutils literal"><span class="pre">&#64;bfix</span></code> directives instead of one, repeats the
+part of the comment that doesn&#8217;t change, and could still be restored
+incorrectly if <cite>sna2skool.py</cite> is used with a line width other than the default.</p>
+<p>It is much easier and more robust to use dot directives to preserve the
+original form in a way that will always be restored correctly:</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>@ 49156 bfix=ADD A,3        ; three}
+C 49155,3
+. Increase the sprite&#39;s x-coordinate by
+. two (which is a bug)
+</pre></div>
+</div>
+<p>Finally, the colon (<code class="docutils literal"><span class="pre">:</span></code>) directive can be used alongside the dot directive to
+force an instruction comment continuation line where there would not otherwise
+be one. For example:</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>B 31995,2,1
+. The first two comment lines
+: belong to the first DEFB.
+. And this comment line belongs to the second DEFB.
+</pre></div>
+</div>
+<p>would be restored as:</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>b31995 DEFB 0        ; {The first two comment lines
+                     ; belong to the first DEFB.
+ 31996 DEFB 0        ; And this comment line belongs to the second DEFB.}
+</pre></div>
+</div>
+<p>The colon directive is rarely needed, but it is useful in cases like the one
+above where an <code class="docutils literal"><span class="pre">&#64;*sub</span></code> or <code class="docutils literal"><span class="pre">&#64;*fix</span></code> directive is used to replace all or part
+of the comment of the second instruction only:</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span> 49155 LD A,(HL)     ; {Having adjusted the sprite&#39;s y-coordinate, we now
+                     ; increase its x-coordinate by
+@bfix=ADD A,3        ; three}
+ 49156 ADD A,2       ; two (which is a bug)}
+</pre></div>
+</div>
+<p>This can be preserved as:</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>@ 49156 bfix=ADD A,3        ; three}
+C 49155,3
+. Having adjusted the sprite&#39;s y-coordinate, we now
+: increase its x-coordinate by
+. two (which is a bug)
+</pre></div>
+</div>
+<p>If a dot directive were used instead of the colon directive here, it would
+restore incorrectly as:</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span> 49155 LD A,(HL)     ; {Having adjusted the sprite&#39;s y-coordinate, we now
+@bfix=ADD A,3        ; three}
+ 49156 ADD A,2       ; increase its x-coordinate by
+                     ; two (which is a bug)}
+</pre></div>
+</div>
+</div>
 <div class="section" id="loops">
 <span id="ctlloops"></span><h2>Loops<a class="headerlink" href="#loops" title="Permalink to this headline">¶</a></h2>
 <p>Sometimes the instructions and statements in a code or data block follow a
@@ -619,12 +758,27 @@ the skool file.</p>
 </div>
 <div class="section" id="limitations">
 <h2>Limitations<a class="headerlink" href="#limitations" title="Permalink to this headline">¶</a></h2>
-<p>A control file can be useful in the early stages of developing a skool file for
-reorganising code and data blocks, but it cannot preserve an ASM block
-directive that occurs inside a regular entry.</p>
-<p><a class="reference internal" href="skool-file-templates.html#skoolfiletemplates"><span class="std std-ref">Skool file templates</span></a>, however, can preserve ASM block directives that
-occur inside regular entries, and so may be a better choice for skool files
-that contain any of them.</p>
+<p>Control files cannot preserve ASM block directives that occur inside a regular
+entry. If your skool file contains any such ASM block directives, they should
+be replaced before using <a class="reference internal" href="commands.html#skool2ctl-py"><span class="std std-ref">skool2ctl.py</span></a>.</p>
+<p>An ASM block directive that adds, removes or modifies a sequence of
+instructions and their associated comments can be replaced by one or more plain
+<a class="reference internal" href="asm.html#isub"><span class="std std-ref">&#64;isub</span></a>, <a class="reference internal" href="asm.html#ssub"><span class="std std-ref">&#64;ssub</span></a>, <a class="reference internal" href="asm.html#rsub"><span class="std std-ref">&#64;rsub</span></a>, <a class="reference internal" href="asm.html#ofix"><span class="std std-ref">&#64;ofix</span></a>, <a class="reference internal" href="asm.html#bfix"><span class="std std-ref">&#64;bfix</span></a> or <a class="reference internal" href="asm.html#rfix"><span class="std std-ref">&#64;rfix</span></a>
+directives.</p>
+<p>An ASM block directive that modifies part of an entry header, mid-block comment
+or block end comment can be replaced by an <a class="reference internal" href="skool-macros.html#if"><span class="std std-ref">#IF</span></a> macro that checks the
+relevant substitution mode (<code class="docutils literal"><span class="pre">asm</span></code>) or fix mode (<code class="docutils literal"><span class="pre">fix</span></code>). For example:</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>@bfix-begin
+; This is a bug.
+@bfix+else
+; This bug is fixed.
+@bfix+end
+</pre></div>
+</div>
+<p>could be replaced by:</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>; This #IF({fix}&lt;2)(is a bug,bug is fixed).
+</pre></div>
+</div>
 </div>
 <div class="section" id="revision-history">
 <h2>Revision history<a class="headerlink" href="#revision-history" title="Permalink to this headline">¶</a></h2>
@@ -639,66 +793,70 @@ that contain any of them.</p>
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>7.1</td>
+<tr class="row-even"><td>7.2</td>
+<td>Added the dot (<code class="docutils literal"><span class="pre">.</span></code>) and colon (<code class="docutils literal"><span class="pre">:</span></code>) directives for specifying
+comments over multiple lines</td>
+</tr>
+<tr class="row-odd"><td>7.1</td>
 <td>Added support for specifying that numeric values in instruction
 operands and DEFB, DEFM, DEFS and DEFW statements be rendered as
 negative decimal numbers</td>
 </tr>
-<tr class="row-odd"><td>7.0</td>
+<tr class="row-even"><td>7.0</td>
 <td>Added the <code class="docutils literal"><span class="pre">&gt;</span></code> directive for preserving non-entry blocks; added
 support for preserving &#8216;inverted&#8217; characters (with bit 7 set);
 the byte value in an <code class="docutils literal"><span class="pre">S</span></code> directive may be left blank</td>
 </tr>
-<tr class="row-even"><td>4.5</td>
+<tr class="row-odd"><td>4.5</td>
 <td>Added support for specifying character values in DEFS statements</td>
 </tr>
-<tr class="row-odd"><td>4.4</td>
+<tr class="row-even"><td>4.4</td>
 <td>Added support for specifying that numeric values in instruction
 operands be rendered as characters or in a specific base; added
 support for specifying character values in DEFW statements</td>
 </tr>
-<tr class="row-even"><td>4.3</td>
+<tr class="row-odd"><td>4.3</td>
 <td>Added the <code class="docutils literal"><span class="pre">&#64;</span></code> directive, the <code class="docutils literal"><span class="pre">N</span></code> directive and support for
 block start comments</td>
 </tr>
-<tr class="row-odd"><td>4.2</td>
+<tr class="row-even"><td>4.2</td>
 <td>Added the <code class="docutils literal"><span class="pre">L</span></code> directive and support for preserving the location
 of <a class="reference internal" href="asm.html#ignoreua"><span class="std std-ref">&#64;ignoreua</span></a> directives</td>
 </tr>
-<tr class="row-even"><td>3.7</td>
+<tr class="row-odd"><td>3.7</td>
 <td>Added support for binary numbers; added support for specifying
 the base of numeric values in DEFB, DEFM, DEFS and DEFW
 statements; added the <code class="docutils literal"><span class="pre">s</span></code> and <code class="docutils literal"><span class="pre">S</span></code> directives and support for
 DEFS statements with non-zero byte values</td>
 </tr>
-<tr class="row-odd"><td>3.6</td>
+<tr class="row-even"><td>3.6</td>
 <td>Added support for preserving blank comments that span two or more
 instructions</td>
 </tr>
-<tr class="row-even"><td>3.1.4</td>
+<tr class="row-odd"><td>3.1.4</td>
 <td>Added support for DEFB and DEFM statements that contain both
 strings and bytes</td>
 </tr>
-<tr class="row-odd"><td>2.4</td>
+<tr class="row-even"><td>2.4</td>
 <td>Added support for non-block ASM directives</td>
 </tr>
-<tr class="row-even"><td>2.2</td>
+<tr class="row-odd"><td>2.2</td>
 <td>Added support for the <code class="docutils literal"><span class="pre">*</span></code> notation in DEFB, DEFM, DEFS and DEFW
 statement length lists</td>
 </tr>
-<tr class="row-odd"><td>2.1.2</td>
+<tr class="row-even"><td>2.1.2</td>
 <td>Added support for DEFM, DEFS and DEFW statement lengths</td>
 </tr>
-<tr class="row-even"><td>2.1.1</td>
+<tr class="row-odd"><td>2.1.1</td>
 <td>Added the <code class="docutils literal"><span class="pre">M</span></code> directive</td>
 </tr>
-<tr class="row-odd"><td>2.1</td>
+<tr class="row-even"><td>2.1</td>
 <td>Added support for DEFB statement lengths</td>
 </tr>
-<tr class="row-even"><td>2.0.6</td>
+<tr class="row-odd"><td>2.0.6</td>
 <td>Added support for hexadecimal numbers</td>
 </tr>
-<tr class="row-odd"><td>1.0.7</td>
+<tr class="row-even"><td>1.0.7</td>
 <td>Added support for block titles, block descriptions, register
 values, mid-block comments, block end comments, sub-block types
 and instruction-level comments</td>
@@ -726,7 +884,7 @@ and instruction-level comments</td>
         <li class="right" >
           <a href="parsing.html" title="Parsing, rendering, and modes"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 7.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 7.2 documentation</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">

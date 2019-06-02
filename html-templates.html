@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>HTML templates &#8212; SkoolKit 7.1 documentation</title>
+    <title>HTML templates &#8212; SkoolKit 7.2 documentation</title>
     
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '7.1',
+        VERSION:     '7.2',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,9 +25,9 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="top" title="SkoolKit 7.1 documentation" href="index.html" />
-    <link rel="next" title="ASM modes and directives" href="asm.html" />
-    <link rel="prev" title="Ref files" href="ref-files.html" /> 
+    <link rel="top" title="SkoolKit 7.2 documentation" href="index.html" />
+    <link rel="next" title="Extending SkoolKit" href="extending.html" />
+    <link rel="prev" title="ASM templates" href="asm-templates.html" /> 
   </head>
   <body role="document">
     <div class="related" role="navigation" aria-label="related navigation">
@@ -37,12 +37,12 @@
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
-          <a href="asm.html" title="ASM modes and directives"
+          <a href="extending.html" title="Extending SkoolKit"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="ref-files.html" title="Ref files"
+          <a href="asm-templates.html" title="ASM templates"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 7.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 7.2 documentation</a> &#187;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
@@ -87,11 +87,11 @@
 </ul>
 
   <h4>Previous topic</h4>
-  <p class="topless"><a href="ref-files.html"
-                        title="previous chapter">Ref files</a></p>
+  <p class="topless"><a href="asm-templates.html"
+                        title="previous chapter">ASM templates</a></p>
   <h4>Next topic</h4>
-  <p class="topless"><a href="asm.html"
-                        title="next chapter">ASM modes and directives</a></p>
+  <p class="topless"><a href="extending.html"
+                        title="next chapter">Extending SkoolKit</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -367,6 +367,7 @@ identifiers):</p>
 hexadecimal format, depending on how it appears in the skool file, and the
 options passed to <a class="reference internal" href="commands.html#skool2html-py"><span class="std std-ref">skool2html.py</span></a>)</li>
 <li><code class="docutils literal"><span class="pre">annotated</span></code> - &#8216;1&#8217; if the instruction has a comment field, &#8216;0&#8217; otherwise</li>
+<li><code class="docutils literal"><span class="pre">bytes</span></code> - the byte values of the assembled instruction (see below)</li>
 <li><code class="docutils literal"><span class="pre">called</span></code> - &#8216;2&#8217; if the instruction is an entry point, &#8216;1&#8217; otherwise</li>
 <li><code class="docutils literal"><span class="pre">comment</span></code> - the text of the instruction&#8217;s comment field</li>
 <li><code class="docutils literal"><span class="pre">comment_rowspan</span></code> - the number of instructions to which the comment field
@@ -377,11 +378,47 @@ that contains the instruction (see <a class="reference internal" href="#t-asm"><
 <li><code class="docutils literal"><span class="pre">location</span></code> - the address of the instruction as a decimal number</li>
 <li><code class="docutils literal"><span class="pre">operation</span></code> - the assembly language operation (e.g. &#8216;LD A,B&#8217;), with operand
 hyperlinked if appropriate</li>
+<li><code class="docutils literal"><span class="pre">show_bytes</span></code> - &#8216;1&#8217; if the entry contains at least one assembled instruction
+with byte values and the <code class="docutils literal"><span class="pre">Bytes</span></code> parameter in the <a class="reference internal" href="ref-files.html#ref-game"><span class="std std-ref">[Game]</span></a> section
+is not blank, &#8216;0&#8217; otherwise</li>
 <li><code class="docutils literal"><span class="pre">t_anchor</span></code> - replaced by a copy of the <a class="reference internal" href="#t-anchor"><span class="std std-ref">anchor</span></a> subtemplate</li>
 </ul>
+<p>The <code class="docutils literal"><span class="pre">bytes</span></code> identifier can be used to render the byte values of an
+instruction. In its simplest form, it provides a format specification that is
+applied to each byte. For example:</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>{bytes:02X}
+</pre></div>
+</div>
+<p>would produce the string <code class="docutils literal"><span class="pre">3E01</span></code> for the instruction &#8216;LD A,1&#8217;.</p>
+<p>To render the byte values as 0-padded decimal integers separated by commas, use
+the following syntax:</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>{bytes:/03/,}
+</pre></div>
+</div>
+<p>This would produce the string <code class="docutils literal"><span class="pre">062,001</span></code> for the instruction &#8216;LD A,1&#8217;. The
+delimiter used in this example (<code class="docutils literal"><span class="pre">/</span></code>) is arbitrary; it could be any character
+that doesn&#8217;t appear in the byte format specification itself.</p>
+<p>The default <code class="docutils literal"><span class="pre">asm_instruction</span></code> template uses the <code class="docutils literal"><span class="pre">Bytes</span></code> parameter in the
+<a class="reference internal" href="ref-files.html#ref-game"><span class="std std-ref">[Game]</span></a> section as the byte format specification:</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>&lt;td class=&quot;bytes-{show_bytes}&quot;&gt;{bytes:{Game[Bytes]}}&lt;/td&gt;
+</pre></div>
+</div>
+<p>If you define a custom template that replaces <code class="docutils literal"><span class="pre">{Game[Bytes]}</span></code> with a
+hard-coded byte format specification, it&#8217;s a good idea to also replace the
+<code class="docutils literal"><span class="pre">{show_bytes}</span></code> field with <code class="docutils literal"><span class="pre">1</span></code>, to ensure that the byte values are
+displayed.</p>
+<p>Note that byte values are available only for regular assembly language
+instructions (not DEFB, DEFM, DEFS or DEFW statements), and only if they have
+actually been assembled by using <a class="reference internal" href="asm.html#assemble"><span class="std std-ref">&#64;assemble=2</span></a>. When no byte
+values are available, or the format specification is blank, the <code class="docutils literal"><span class="pre">bytes</span></code>
+identifier produces an empty string.</p>
 <p>To see the default <code class="docutils literal"><span class="pre">asm_instruction</span></code> template, run the following command:</p>
 <div class="highlight-none"><div class="highlight"><pre><span></span>$ skool2html.py -r Template:asm_instruction
 </pre></div>
+</div>
+<div class="versionchanged">
+<p><span class="versionmodified">Changed in version 7.2: </span>Added the <code class="docutils literal"><span class="pre">bytes</span></code> and <code class="docutils literal"><span class="pre">show_bytes</span></code> identifiers, and a table cell for
+displaying assembled instruction byte values.</p>
 </div>
 <div class="versionchanged">
 <p><span class="versionmodified">Changed in version 6.3: </span>Added the <code class="docutils literal"><span class="pre">location</span></code> identifier.</p>
@@ -992,12 +1029,12 @@ on the type of code or data block.</p>
           <a href="genindex.html" title="General Index"
              >index</a></li>
         <li class="right" >
-          <a href="asm.html" title="ASM modes and directives"
+          <a href="extending.html" title="Extending SkoolKit"
              >next</a> |</li>
         <li class="right" >
-          <a href="ref-files.html" title="Ref files"
+          <a href="asm-templates.html" title="ASM templates"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 7.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 7.2 documentation</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">

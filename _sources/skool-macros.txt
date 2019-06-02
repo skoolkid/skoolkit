@@ -647,8 +647,8 @@ is used to mark the end. Between these markers, the list items are defined. ::
 * ``bullet`` is the bullet character to use in ASM mode
 * ``flag`` is the wrap flag (see below)
 
-Each item in a list must start with ``{`` followed by a whitespace character,
-and end with ``}`` preceded by a whitespace character.
+Each item in a list must start with ``{`` followed by a space, and end with
+``}`` preceded by a space.
 
 For example::
 
@@ -676,6 +676,8 @@ By default, each list item is wrapped over multiple lines with no indent.
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 7.2     | ``#LIST`` can be used in register descriptions in ASM mode        |
++---------+-------------------------------------------------------------------+
 | 7.0     | Added the ``nowrap`` and ``wrapalign`` flags                      |
 +---------+-------------------------------------------------------------------+
 | 6.4     | In ASM mode: ``#LIST`` can be used in an instruction-level        |
@@ -745,7 +747,7 @@ within that page. ::
   thereof)
 * ``code`` is the ID of the disassembly that contains the routine or data block
   (if not given, the current disassembly is assumed; otherwise this must be an
-  ID defined in an ``[OtherCode:*]`` section of the ref file)
+  ID defined in an :ref:`otherCode` section of the ref file)
 * ``#name`` is the named anchor of an item on the disassembly page
 * ``link text`` is the link text to use (default: ``addr``)
 
@@ -921,9 +923,9 @@ the end. Between these markers, the rows of the table are defined. ::
   elements in columns 1, 2 etc.
 * ``flag`` is the wrap flag (see below)
 
-Each row in a table must start with ``{`` followed by a whitespace character,
-and end with ``}`` preceded by a whitespace character. The cells in a row must
-be separated by ``|`` with a whitespace character on each side.
+Each row in a table must start with ``{`` followed by a space, and end with
+``}`` preceded by a space. The cells in a row must be separated by ``|`` with a
+space on each side.
 
 For example::
 
@@ -997,6 +999,8 @@ See also :ref:`UDGTABLE`.
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 7.2     | ``#TABLE`` can be used in register descriptions in ASM mode       |
++---------+-------------------------------------------------------------------+
 | 7.0     | Added the ``nowrap`` and ``wrapalign`` flags                      |
 +---------+-------------------------------------------------------------------+
 | 6.4     | In ASM mode, ``#TABLE`` can be used in an instruction-level       |
@@ -1096,6 +1100,10 @@ starts at 49152.
 See :ref:`stringParameters` for details on alternative ways to supply the
 ``text`` parameter.
 
+.. note::
+   Support for GIF images is deprecated since version 7.2. Use PNG images
+   instead.
+
 +---------+------------------------------------------------------------------+
 | Version | Changes                                                          |
 +=========+==================================================================+
@@ -1164,6 +1172,10 @@ For example::
   ; #UDGTABLE
   ; { #SCR(loading) | This is the loading screen. }
   ; TABLE#
+
+.. note::
+   Support for GIF images is deprecated since version 7.2. Use PNG images
+   instead.
 
 +---------+------------------------------------------------------------------+
 | Version | Changes                                                          |
@@ -1250,6 +1262,10 @@ For example::
 In HTML mode, this instance of the ``#UDG`` macro expands to an ``<img>``
 element for the image of the UDG at 39144 (which will be named `safe_key.png`
 or `safe_key.gif`), with attribute byte 6 (INK 6: PAPER 0).
+
+.. note::
+   Support for GIF images is deprecated since version 7.2. Use PNG images
+   instead.
 
 +---------+------------------------------------------------------------------+
 | Version | Changes                                                          |
@@ -1389,6 +1405,10 @@ In HTML mode, this instance of the ``#UDGARRAY`` macro expands to an ``<img>``
 element for the image of the 4x4 sprite formed by the 16 UDGs with base
 addresses 32768, 32776, 32784 and so on up to 32888; the image file will be
 named `base_sprite.png`.
+
+.. note::
+   Support for GIF images is deprecated since version 7.2. Use PNG images
+   instead.
 
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |

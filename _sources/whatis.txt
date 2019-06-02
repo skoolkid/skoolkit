@@ -9,12 +9,12 @@ finish as you develop it by organising and annotating the code - the common
 'source' for both the reader-friendly HTML version of the disassembly, and the
 developer- and assembler-friendly ASM version of the disassembly.
 
-.. _Spectrum: http://en.wikipedia.org/wiki/ZX_Spectrum
+.. _Spectrum: https://en.wikipedia.org/wiki/ZX_Spectrum
 
 The latest stable release of SkoolKit can always be obtained from
 `skoolkit.ca`_; the latest development version can be found on GitHub_.
 
-.. _skoolkit.ca: http://skoolkit.ca/
+.. _skoolkit.ca: https://skoolkit.ca
 .. _GitHub: https://github.com/skoolkid/
 
 Features
@@ -46,12 +46,12 @@ releases of the source skool files for these disassemblies can always be
 obtained from `skoolkit.ca`_; the latest development versions can be found on
 GitHub_.
 
-.. _Skool Daze: http://skoolkit.ca/disassemblies/skool_daze/
-.. _Back to Skool: http://skoolkit.ca/disassemblies/back_to_skool/
-.. _Contact Sam Cruise: http://skoolkit.ca/disassemblies/contact_sam_cruise/
-.. _Manic Miner: http://skoolkit.ca/disassemblies/manic_miner/
-.. _Jet Set Willy: http://skoolkit.ca/disassemblies/jet_set_willy/
-.. _Hungry Horace: http://skoolkit.ca/disassemblies/hungry_horace/
+.. _Skool Daze: https://skoolkit.ca/disassemblies/skool_daze/
+.. _Back to Skool: https://skoolkit.ca/disassemblies/back_to_skool/
+.. _Contact Sam Cruise: https://skoolkit.ca/disassemblies/contact_sam_cruise/
+.. _Manic Miner: https://skoolkit.ca/disassemblies/manic_miner/
+.. _Jet Set Willy: https://skoolkit.ca/disassemblies/jet_set_willy/
+.. _Hungry Horace: https://skoolkit.ca/disassemblies/hungry_horace/
 
 Authors
 -------

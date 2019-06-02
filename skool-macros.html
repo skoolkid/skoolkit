@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Skool macros &#8212; SkoolKit 7.1 documentation</title>
+    <title>Skool macros &#8212; SkoolKit 7.2 documentation</title>
     
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '7.1',
+        VERSION:     '7.2',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="top" title="SkoolKit 7.1 documentation" href="index.html" />
+    <link rel="top" title="SkoolKit 7.2 documentation" href="index.html" />
     <link rel="next" title="Ref files" href="ref-files.html" />
     <link rel="prev" title="Skool file templates" href="skool-file-templates.html" /> 
   </head>
@@ -42,7 +42,7 @@
         <li class="right" >
           <a href="skool-file-templates.html" title="Skool file templates"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 7.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 7.2 documentation</a> &#187;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
@@ -870,8 +870,8 @@ is used to mark the end. Between these markers, the list items are defined.</p>
 <li><code class="docutils literal"><span class="pre">bullet</span></code> is the bullet character to use in ASM mode</li>
 <li><code class="docutils literal"><span class="pre">flag</span></code> is the wrap flag (see below)</li>
 </ul>
-<p>Each item in a list must start with <code class="docutils literal"><span class="pre">{</span></code> followed by a whitespace character,
-and end with <code class="docutils literal"><span class="pre">}</span></code> preceded by a whitespace character.</p>
+<p>Each item in a list must start with <code class="docutils literal"><span class="pre">{</span></code> followed by a space, and end with
+<code class="docutils literal"><span class="pre">}</span></code> preceded by a space.</p>
 <p>For example:</p>
 <div class="highlight-none"><div class="highlight"><pre><span></span>; #LIST(data)
 ; { Item 1 }
@@ -903,16 +903,19 @@ and subsequent lines to maintain text alignment with the first line</li>
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>7.0</td>
+<tr class="row-even"><td>7.2</td>
+<td><code class="docutils literal"><span class="pre">#LIST</span></code> can be used in register descriptions in ASM mode</td>
+</tr>
+<tr class="row-odd"><td>7.0</td>
 <td>Added the <code class="docutils literal"><span class="pre">nowrap</span></code> and <code class="docutils literal"><span class="pre">wrapalign</span></code> flags</td>
 </tr>
-<tr class="row-odd"><td>6.4</td>
+<tr class="row-even"><td>6.4</td>
 <td>In ASM mode: <code class="docutils literal"><span class="pre">#LIST</span></code> can be used in an instruction-level
 comment and as a parameter of another macro; if the bullet
 character is an empty string, list items are no longer indented
 by one space; added the <code class="docutils literal"><span class="pre">bullet</span></code> parameter</td>
 </tr>
-<tr class="row-even"><td>3.2</td>
+<tr class="row-odd"><td>3.2</td>
 <td>New</td>
 </tr>
 </tbody>
@@ -986,7 +989,7 @@ within that page.</p>
 thereof)</li>
 <li><code class="docutils literal"><span class="pre">code</span></code> is the ID of the disassembly that contains the routine or data block
 (if not given, the current disassembly is assumed; otherwise this must be an
-ID defined in an <code class="docutils literal"><span class="pre">[OtherCode:*]</span></code> section of the ref file)</li>
+ID defined in an <a class="reference internal" href="ref-files.html#othercode"><span class="std std-ref">[OtherCode:*]</span></a> section of the ref file)</li>
 <li><code class="docutils literal"><span class="pre">#name</span></code> is the named anchor of an item on the disassembly page</li>
 <li><code class="docutils literal"><span class="pre">link</span> <span class="pre">text</span></code> is the link text to use (default: <code class="docutils literal"><span class="pre">addr</span></code>)</li>
 </ul>
@@ -1192,9 +1195,9 @@ the end. Between these markers, the rows of the table are defined.</p>
 elements in columns 1, 2 etc.</li>
 <li><code class="docutils literal"><span class="pre">flag</span></code> is the wrap flag (see below)</li>
 </ul>
-<p>Each row in a table must start with <code class="docutils literal"><span class="pre">{</span></code> followed by a whitespace character,
-and end with <code class="docutils literal"><span class="pre">}</span></code> preceded by a whitespace character. The cells in a row must
-be separated by <code class="docutils literal"><span class="pre">|</span></code> with a whitespace character on each side.</p>
+<p>Each row in a table must start with <code class="docutils literal"><span class="pre">{</span></code> followed by a space, and end with
+<code class="docutils literal"><span class="pre">}</span></code> preceded by a space. The cells in a row must be separated by <code class="docutils literal"><span class="pre">|</span></code> with a
+space on each side.</p>
 <p>For example:</p>
 <div class="highlight-none"><div class="highlight"><pre><span></span>; #TABLE(default,centre)
 ; { 0 | Off }
@@ -1270,10 +1273,13 @@ the first line</li>
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>7.0</td>
+<tr class="row-even"><td>7.2</td>
+<td><code class="docutils literal"><span class="pre">#TABLE</span></code> can be used in register descriptions in ASM mode</td>
+</tr>
+<tr class="row-odd"><td>7.0</td>
 <td>Added the <code class="docutils literal"><span class="pre">nowrap</span></code> and <code class="docutils literal"><span class="pre">wrapalign</span></code> flags</td>
 </tr>
-<tr class="row-odd"><td>6.4</td>
+<tr class="row-even"><td>6.4</td>
 <td>In ASM mode, <code class="docutils literal"><span class="pre">#TABLE</span></code> can be used in an instruction-level
 comment and as a parameter of another macro</td>
 </tr>
@@ -1369,6 +1375,11 @@ element for the image of the digits 0-9 in the 8x8 font whose graphic data
 starts at 49152.</p>
 <p>See <a class="reference internal" href="#stringparameters"><span class="std std-ref">String parameters</span></a> for details on alternative ways to supply the
 <code class="docutils literal"><span class="pre">text</span></code> parameter.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Support for GIF images is deprecated since version 7.2. Use PNG images
+instead.</p>
+</div>
 <table border="1" class="docutils">
 <colgroup>
 <col width="12%" />
@@ -1449,6 +1460,11 @@ ref file) will be appended.</p>
 ; { #SCR(loading) | This is the loading screen. }
 ; TABLE#
 </pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Support for GIF images is deprecated since version 7.2. Use PNG images
+instead.</p>
 </div>
 <table border="1" class="docutils">
 <colgroup>
@@ -1546,6 +1562,11 @@ ref file) will be appended.</p>
 <p>In HTML mode, this instance of the <code class="docutils literal"><span class="pre">#UDG</span></code> macro expands to an <code class="docutils literal"><span class="pre">&lt;img&gt;</span></code>
 element for the image of the UDG at 39144 (which will be named <cite>safe_key.png</cite>
 or <cite>safe_key.gif</cite>), with attribute byte 6 (INK 6: PAPER 0).</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Support for GIF images is deprecated since version 7.2. Use PNG images
+instead.</p>
+</div>
 <table border="1" class="docutils">
 <colgroup>
 <col width="12%" />
@@ -1699,6 +1720,11 @@ ref file) will be appended.</p>
 element for the image of the 4x4 sprite formed by the 16 UDGs with base
 addresses 32768, 32776, 32784 and so on up to 32888; the image file will be
 named <cite>base_sprite.png</cite>.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Support for GIF images is deprecated since version 7.2. Use PNG images
+instead.</p>
+</div>
 <table border="1" class="docutils">
 <colgroup>
 <col width="12%" />
@@ -2133,7 +2159,7 @@ the following output:</p>
         <li class="right" >
           <a href="skool-file-templates.html" title="Skool file templates"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 7.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 7.2 documentation</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">

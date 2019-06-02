@@ -271,6 +271,147 @@ This can be encoded thus::
 
 and the terminal character will be restored in the same format.
 
+.. _dotDirective:
+
+The dot and colon directives
+----------------------------
+The dot (``.``) directive provides an alternative method of specifying a
+comment for a top-level or sub-block directive. For example, instead of::
+
+  c 30000 This is the title of the entry
+
+you could write::
+
+  c 30000
+  . This is the title of the entry
+
+At first glance this does not appear to be an improvement. But one advantage of
+the dot directive is that a comment can be split over multiple lines, and the
+line breaks are preserved when restored. This makes it much easier to read and
+write a long comment, especially if it contains a ``#LIST`` or ``#TABLE``
+macro. For example::
+
+  D 30000 #TABLE(default) { =h Header 1 | =h Header 2 } { Cell 1      | Cell 2 } TABLE#
+
+can be recast like this::
+
+  D 30000
+  . #TABLE(default)
+  . { =h Header 1 | =h Header 2 }
+  . { Cell 1      | Cell 2 }
+  . TABLE#
+
+In addition, a sequence of ``D``, ``N``, ``E`` or ``R`` directives at the same
+address (one for each paragraph or register description) can be reduced to just
+one of those directives followed by a sequence of dot directives::
+
+  N 30000
+  . Paragraph 1.
+  . .
+  . Paragraph 2.
+
+In fact, the dot directive can be used instead of ``D``, ``R`` and ``N``
+directives when specifying an entry header. For example::
+
+  c 30000
+  . This is the title of the entry.
+  .
+  . This is the description.
+  .
+  .   A Input
+  . O:B Output
+  .
+  . This is the start comment.
+
+Note, however, that this works only if the entry header contains no ASM
+directives.
+
+The dot directive also makes it simpler to preserve ``@*sub`` and ``@*fix``
+directives that replace part of an instruction-level comment. For example,
+consider the following skool file snippet::
+
+   49155 LD A,(HL)     ; {Increase the sprite's x-coordinate by
+  @bfix=ADD A,3        ; three}
+   49156 ADD A,2       ; two (which is a bug)}
+
+When preserved without dot directives, this becomes::
+
+  @ 49156 bfix=ADD A,3        ; three}
+  C 49155,3 Increase the sprite's x-coordinate by two (which is a bug)
+
+which is restored incorrectly by `sna2skool.py` (using the default line width
+of 79 characters) as::
+
+   49155 LD A,(HL)     ; {Increase the sprite's x-coordinate by two (which is a
+  @bfix=ADD A,3        ; three}
+   49156 ADD A,2       ; bug)}
+
+This problem could be addressed by recasting the comment lines in the skool
+file and adding a ``@bfix`` directive for 'LD A,(HL)'::
+
+  @bfix=               ; {Increase the sprite's x-coordinate by three
+   49155 LD A,(HL)     ; {Increase the sprite's x-coordinate by two (which is a
+  @bfix=ADD A,3        ; }
+   49156 ADD A,2       ; bug)}
+
+which would be preserved without dot directives as::
+
+  @ 49155 bfix=               ; {Increase the sprite's x-coordinate by three
+  @ 49156 bfix=ADD A,3        ; }
+  C 49155,3 Increase the sprite's x-coordinate by two (which is a bug)
+
+But this solution requires two ``@bfix`` directives instead of one, repeats the
+part of the comment that doesn't change, and could still be restored
+incorrectly if `sna2skool.py` is used with a line width other than the default.
+
+It is much easier and more robust to use dot directives to preserve the
+original form in a way that will always be restored correctly::
+
+  @ 49156 bfix=ADD A,3        ; three}
+  C 49155,3
+  . Increase the sprite's x-coordinate by
+  . two (which is a bug)
+
+Finally, the colon (``:``) directive can be used alongside the dot directive to
+force an instruction comment continuation line where there would not otherwise
+be one. For example::
+
+  B 31995,2,1
+  . The first two comment lines
+  : belong to the first DEFB.
+  . And this comment line belongs to the second DEFB.
+
+would be restored as::
+
+  b31995 DEFB 0        ; {The first two comment lines
+                       ; belong to the first DEFB.
+   31996 DEFB 0        ; And this comment line belongs to the second DEFB.}
+
+The colon directive is rarely needed, but it is useful in cases like the one
+above where an ``@*sub`` or ``@*fix`` directive is used to replace all or part
+of the comment of the second instruction only::
+
+   49155 LD A,(HL)     ; {Having adjusted the sprite's y-coordinate, we now
+                       ; increase its x-coordinate by
+  @bfix=ADD A,3        ; three}
+   49156 ADD A,2       ; two (which is a bug)}
+
+This can be preserved as::
+
+  @ 49156 bfix=ADD A,3        ; three}
+  C 49155,3
+  . Having adjusted the sprite's y-coordinate, we now
+  : increase its x-coordinate by
+  . two (which is a bug)
+
+If a dot directive were used instead of the colon directive here, it would
+restore incorrectly as::
+
+   49155 LD A,(HL)     ; {Having adjusted the sprite's y-coordinate, we now
+  @bfix=ADD A,3        ; three}
+   49156 ADD A,2       ; increase its x-coordinate by
+                       ; two (which is a bug)}
+
 .. _ctlLoops:
 
 Loops
@@ -526,19 +667,37 @@ the skool file.
 
 Limitations
 -----------
-A control file can be useful in the early stages of developing a skool file for
-reorganising code and data blocks, but it cannot preserve an ASM block
-directive that occurs inside a regular entry.
+Control files cannot preserve ASM block directives that occur inside a regular
+entry. If your skool file contains any such ASM block directives, they should
+be replaced before using :ref:`skool2ctl.py`.
 
-:ref:`skoolFileTemplates`, however, can preserve ASM block directives that
-occur inside regular entries, and so may be a better choice for skool files
-that contain any of them.
+An ASM block directive that adds, removes or modifies a sequence of
+instructions and their associated comments can be replaced by one or more plain
+:ref:`isub`, :ref:`ssub`, :ref:`rsub`, :ref:`ofix`, :ref:`bfix` or :ref:`rfix`
+directives.
+
+An ASM block directive that modifies part of an entry header, mid-block comment
+or block end comment can be replaced by an :ref:`IF` macro that checks the
+relevant substitution mode (``asm``) or fix mode (``fix``). For example::
+
+  @bfix-begin
+  ; This is a bug.
+  @bfix+else
+  ; This bug is fixed.
+  @bfix+end
+
+could be replaced by::
+
+  ; This #IF({fix}<2)(is a bug,bug is fixed).
 
 Revision history
 ----------------
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 7.2     | Added the dot (``.``) and colon (``:``) directives for specifying |
+|         | comments over multiple lines                                      |
++---------+-------------------------------------------------------------------+
 | 7.1     | Added support for specifying that numeric values in instruction   |
 |         | operands and DEFB, DEFM, DEFS and DEFW statements be rendered as  |
 |         | negative decimal numbers                                          |
