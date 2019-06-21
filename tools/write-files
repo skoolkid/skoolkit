@@ -63,7 +63,7 @@ write_bins() {
 }
 
 write_ctls() {
-  for b in '' '-h' '-l'; do
+  for b in '' '-h' '-l' '-b' '-k'; do
     run_cmd "./skool2ctl.py $b $skoolfile" ctl/$GAME$b.ctl
   done
 }
