@@ -233,7 +233,7 @@ test_disassembly() {
   cp -p $SKOOLKIT_HOME/tests/disassemblytest.py tests
   mkdir tools
   cp -p $SKOOLKIT_TOOLS/{disassembly.mk,testwriter.py} tools
-  for v in 34 35 36 37; do
+  for v in 35 36 37; do
     _exec "Running $GAMENAME disassembly tests (SkoolKit $SKOOLKIT_VERSION, Python ${v:0:1}.${v:1})" "SKOOLKIT_HOME=$(pwd) make -C $DHOME test$v" $logdir/test$v.log
   done
 }

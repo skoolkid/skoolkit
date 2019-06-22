@@ -13,7 +13,7 @@ usage:
 	@echo "  clean         clean the documentation and man pages"
 	@echo "  hh            build the Hungry Horace disassembly"
 	@echo "  test[-all]    run core/all tests with default Python 3 interpreter"
-	@echo "  test3X[-all]  run core/all tests with Python 3.X (4<=X<=7)"
+	@echo "  test3X[-all]  run core/all tests with Python 3.X (5<=X<=7)"
 	@echo "  test-cover    run core tests with coverage info"
 	@echo "  release       build a SkoolKit release tarball and zip archive"
 	@echo "  tarball       build a SkoolKit release tarball"
