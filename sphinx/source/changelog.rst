@@ -1,6 +1,9 @@
 Changelog
 =========
 
+7.3b1
+-----
+
 7.2 (2019-06-02)
 ----------------
 * Added support to control files for specifying comments over multiple lines
