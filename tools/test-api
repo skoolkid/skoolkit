@@ -97,8 +97,10 @@ class GameHtmlWriter(HtmlWriter):
     def expand_inverse(self, text, index, cwd):
         end, address, attr = parse_ints(text, index, 2)
         fname = 'inverse{}_{}'.format(address, attr)
-        udg_data = [b ^ 255 for b in self.snapshot[address:address + 8]]
-        frame = Frame([[Udg(attr, udg_data)]], 2)
+        udg = Udg(attr, self.snapshot[address:address + 8])
+        inv_udg = udg.copy() # Exercise Udg.copy()
+        inv_udg.data = [b ^ 255 for b in inv_udg.data]
+        frame = Frame([[inv_udg]], 2)
         return end, self.handle_image(frame, fname, cwd)
 
     def countdown(self, cwd, fname):

@@ -380,6 +380,10 @@ The Udg class provides two methods for manipulating an 8x8 graphic: `flip` and
 .. automethod:: skoolkit.graphics.Udg.flip
 .. automethod:: skoolkit.graphics.Udg.rotate
 
+The Udg class also provides a method for creating a copy of a UDG.
+
+.. automethod:: skoolkit.graphics.Udg.copy
+
 The Frame class represents a single frame of a still or animated image.
 
 .. autoclass:: skoolkit.graphics.Frame

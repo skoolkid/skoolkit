@@ -1,4 +1,4 @@
-# Copyright 2008-2018 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2008-2019 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -109,7 +109,9 @@ class Udg(object):
         elif rotate & 2:
             self.flip(3)
 
+    # API
     def copy(self):
+        """Return a deep copy of the UDG."""
         if self.mask:
             return Udg(self.attr, self.data[:], self.mask[:])
         return Udg(self.attr, self.data[:])
