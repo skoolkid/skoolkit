@@ -1,4 +1,4 @@
-# Copyright 2008-2018 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2008-2019 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -249,7 +249,7 @@ def write_disassembly(html_writer, files, search_dir, extra_search_dirs, pages, 
     for f, dest_dir in resources.items():
         fnames = []
         for d in search_dirs:
-            fnames.extend(glob.glob(os.path.join(d, f)))
+            fnames.extend(glob.glob(os.path.join(d, f), recursive=True))
         if not fnames:
             raise SkoolKitError('Cannot copy resource "{}": file not found'.format(normpath(f)))
         for fname in fnames:

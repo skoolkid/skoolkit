@@ -4,6 +4,8 @@ Changelog
 7.3b1
 -----
 * Dropped support for Python 3.4
+* Added support for the ``**`` pattern (which matches any files and zero or
+  more directories and subdirectories) in the :ref:`resources` section
 
 7.2 (2019-06-02)
 ----------------

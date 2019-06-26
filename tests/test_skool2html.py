@@ -796,6 +796,30 @@ class Skool2HtmlTest(SkoolKitTestCase):
 
     @patch.object(skool2html, 'get_class', Mock(return_value=TestHtmlWriter))
     @patch.object(skool2html, 'SkoolParser', MockSkoolParser)
+    def test_resources_using_recursive_glob(self):
+        resource_dir = self.make_directory()
+        subdir = os.path.join(resource_dir, 'subdir')
+        self.make_directory(subdir)
+        subsubdir = os.path.join(subdir, 'subsubdir')
+        self.make_directory(subsubdir)
+        self.write_bin_file(path=os.path.join(resource_dir, 'foo.png'))
+        self.write_bin_file(path=os.path.join(subdir, 'bar.png'))
+        self.write_bin_file(path=os.path.join(subsubdir, 'baz.png'))
+        ref = """
+            [Resources]
+            **/*.png=images
+        """
+        reffile = self._write_ref_file(ref)
+        skoolfile = self.write_text_file(path='{}.skool'.format(reffile[:-4]))
+        output, error = self.run_skool2html('-d {} -S {} {}'.format(self.odir, resource_dir, skoolfile))
+        self.assertEqual(error, '')
+        game_dir = os.path.join(self.odir, reffile[:-4])
+        self.assertTrue(os.path.isfile(os.path.join(game_dir, 'images', 'foo.png')))
+        self.assertTrue(os.path.isfile(os.path.join(game_dir, 'images', 'bar.png')))
+        self.assertTrue(os.path.isfile(os.path.join(game_dir, 'images', 'baz.png')))
+
+    @patch.object(skool2html, 'get_class', Mock(return_value=TestHtmlWriter))
+    @patch.object(skool2html, 'SkoolParser', MockSkoolParser)
     def test_resource_not_found(self):
         resource = 'nosuchfile.png'
         reffile = self.write_text_file("[Resources]\n{}=foo".format(resource), suffix='.ref')

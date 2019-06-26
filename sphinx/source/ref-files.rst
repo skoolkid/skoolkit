@@ -781,6 +781,7 @@ order for it to find them. To see the search path, run::
 which are expanded as follows:
 
 * ``*`` - matches any number of characters
+* ``**`` - matches any files and zero or more directories and subdirectories
 * ``?`` - matches any single character
 * ``[seq]`` - matches any character in ``seq``; ``seq`` may be a simple
   sequence of characters (e.g. ``abcde``) or a range (e.g. ``a-e``)
@@ -793,6 +794,8 @@ into place whenever the disassembly is built.
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 7.3     | Added support for the ``**`` pattern                              |
++---------+-------------------------------------------------------------------+
 | 6.3     | Added support for pathname pattern expansion using wildcard       |
 |         | characters                                                        |
 +---------+-------------------------------------------------------------------+
