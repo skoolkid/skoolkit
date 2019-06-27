@@ -152,6 +152,37 @@ class CommonSkoolMacroTest:
         writer = self._get_writer(case=CASE_LOWER)
         self.assertEqual(writer.expand('#EVAL57005,16'), 'dead')
 
+    def test_macro_eval_base_none(self):
+        writer = self._get_writer()
+        self.assertEqual(writer.expand('#EVAL({base})'), '0')
+
+    def test_macro_eval_base_10(self):
+        writer = self._get_writer(base=BASE_10)
+        self.assertEqual(writer.expand('#EVAL({base},16)'), 'A')
+
+    def test_macro_eval_base_16(self):
+        writer = self._get_writer(base=BASE_16)
+        self.assertEqual(writer.expand('#EVAL(255,{base})'), 'FF')
+
+    def test_macro_eval_case_none(self):
+        writer = self._get_writer()
+        self.assertEqual(writer.expand('#EVAL({case})'), '0')
+
+    def test_macro_eval_case_lower(self):
+        writer = self._get_writer(case=CASE_LOWER)
+        self.assertEqual(writer.expand('#EVAL({case})'), '1')
+
+    def test_macro_eval_case_upper(self):
+        writer = self._get_writer(case=CASE_UPPER)
+        self.assertEqual(writer.expand('#EVAL({case},2)'), '10')
+
+    def test_macro_eval_variables(self):
+        writer = self._get_writer(skool='', variables=('foo=1', 'bar=2', 'baz=3'))
+        self.assertEqual(writer.expand('#EVAL(2*{vars[foo]})'), '2')
+        self.assertEqual(writer.expand('#EVAL({vars[bar]})'), '2')
+        self.assertEqual(writer.expand('#EVAL({vars[baz]},{vars[bar]})'), '11')
+        self.assertEqual(writer.expand('#EVAL({vars[qux]},2,8)'), '00000000')
+
     def test_macro_eval_invalid(self):
         writer = self._get_writer()
         prefix = ERROR_PREFIX.format('EVAL')

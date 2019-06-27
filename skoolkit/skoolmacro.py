@@ -1,4 +1,4 @@
-# Copyright 2012-2018 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2012-2019 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -439,7 +439,7 @@ def get_macros(writer):
         '#CALL': partial(parse_call, writer),
         '#CHR': partial(parse_chr, writer.to_chr),
         '#D': partial(parse_d, writer.parser),
-        '#EVAL': partial(parse_eval, writer.case == CASE_LOWER),
+        '#EVAL': partial(parse_eval, writer.fields, writer.case == CASE_LOWER),
         '#FOR': parse_for,
         '#FOREACH': partial(parse_foreach, writer.parser),
         '#IF': partial(parse_if, writer.fields),
@@ -555,9 +555,9 @@ def parse_d(entry_holder, text, index, *cwd):
         raise MacroParsingError('Entry at {} has no description'.format(addr))
     return end, entry.description
 
-def parse_eval(lower, text, index, *cwd):
+def parse_eval(fields, lower, text, index, *cwd):
     # #EVALexpr[,base,width]
-    end, value, base, width = parse_ints(text, index, 3, (10, 1))
+    end, value, base, width = parse_ints(text, index, 3, (10, 1), fields=fields)
     if base == 2:
         fmt = '{:0{}b}'
     elif base == 10:

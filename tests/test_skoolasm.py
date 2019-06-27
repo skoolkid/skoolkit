@@ -125,6 +125,28 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
         self.assertEqual(writer.expand('#CHR($42 + 3 * 2 - (5 + 4) / 3)'), 'E')
         self.assertEqual(writer.expand(nest_macros('#CHR({})', 70)), 'F')
 
+    def test_macro_eval_asm(self):
+        for asm_mode in (0, 1, 2, 3):
+            writer = self._get_writer('', asm_mode=asm_mode)
+            with self.subTest(asm_mode=asm_mode):
+                self.assertEqual(writer.expand('#EVAL({asm})'), str(asm_mode))
+
+    def test_macro_eval_asm_plus_4(self):
+        for asm_mode in (4, 5, 6, 7):
+            writer = self._get_writer('', asm_mode=asm_mode)
+            with self.subTest(asm_mode=asm_mode):
+                self.assertEqual(writer.expand('#EVAL({asm})'), str(asm_mode & 3))
+
+    def test_macro_eval_fix(self):
+        for fix_mode in (0, 1, 2, 3):
+            writer = self._get_writer('', fix_mode=fix_mode)
+            with self.subTest(fix_mode=fix_mode):
+                self.assertEqual(writer.expand('#EVAL({fix})'), str(fix_mode))
+
+    def test_macro_eval_html(self):
+        writer = self._get_writer('')
+        self.assertEqual(writer.expand('#EVAL({html},16,2)'), '00')
+
     def test_macro_font(self):
         writer = self._get_writer()
         self._test_unsupported_macro(writer, '#FONT55584,,,1{1,2}')

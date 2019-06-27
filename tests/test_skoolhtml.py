@@ -760,6 +760,18 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         self.assertEqual(writer.expand('#CHR($42 + 3 * 2 - (2 + 7) / 3)'), '&#69;')
         self.assertEqual(writer.expand(nest_macros('#CHR({})', 70)), '&#70;')
 
+    def test_macro_eval_asm(self):
+        writer = self._get_writer()
+        self.assertEqual(writer.expand('#EVAL({asm})'), '0')
+
+    def test_macro_eval_fix(self):
+        writer = self._get_writer()
+        self.assertEqual(writer.expand('#EVAL({fix})'), '0')
+
+    def test_macro_eval_html(self):
+        writer = self._get_writer()
+        self.assertEqual(writer.expand('#EVAL({html},2,8)'), '00000001')
+
     def test_macro_font(self):
         snapshot = [0] * 65536
         writer = self._get_writer(snapshot=snapshot, mock_file_info=True)

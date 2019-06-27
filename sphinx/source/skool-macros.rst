@@ -67,9 +67,9 @@ Parentheses and spaces are also permitted in an arithmetic expression::
 
   #IF(1 == 2 || (1 <= 2 && 2 < 3))(Yes,No)
 
-The ``expr`` parameter of the :ref:`asm-if` directive and the :ref:`IF` macro,
-and the ``key`` parameter of the :ref:`MAP` macro also recognise some
-replacement fields:
+The parameter strings of the :ref:`asm-if` directive, the :ref:`EVAL` macro,
+the :ref:`IF` macro, and the :ref:`MAP` macro also recognise some replacement
+fields:
 
 * ``asm`` - 1 if in :ref:`isubMode`, 2 if in :ref:`ssubMode`, 3 if in
   :ref:`rsubMode`, or 0 otherwise
@@ -200,14 +200,19 @@ For example::
 
 This instance of the ``#EVAL`` macro expands to '00111110' (62 in binary).
 
-+---------+--------------------------------------------------------+
-| Version | Changes                                                |
-+=========+========================================================+
-| 6.0     | Hexadecimal values are rendered in lower case when the |
-|         | ``--lower`` option is used                             |
-+---------+--------------------------------------------------------+
-| 5.1     | New                                                    |
-+---------+--------------------------------------------------------+
+See :ref:`numericParameters` for details on the replacement fields that may be
+used in the parameter string.
+
++---------+-------------------------------------------------------------------+
+| Version | Changes                                                           |
++=========+===================================================================+
+| 7.3     | Added support for replacement fields in the parameter string      |
++---------+-------------------------------------------------------------------+
+| 6.0     | Hexadecimal values are rendered in lower case when the            |
+|         | ``--lower`` option is used                                        |
++---------+-------------------------------------------------------------------+
+| 5.1     | New                                                               |
++---------+-------------------------------------------------------------------+
 
 .. _FOR:
 

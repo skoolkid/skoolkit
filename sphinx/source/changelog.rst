@@ -6,6 +6,8 @@ Changelog
 * Dropped support for Python 3.4
 * Added support for the ``**`` pattern (which matches any files and zero or
   more directories and subdirectories) in the :ref:`resources` section
+* Added support for replacement fields (such as ``{base}`` and ``{case}``) in
+  the parameter string of the :ref:`EVAL` macro
 
 7.2 (2019-06-02)
 ----------------
