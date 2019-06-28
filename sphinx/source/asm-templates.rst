@@ -118,6 +118,8 @@ entry header. ::
 
 The following identifiers are available:
 
+* ``max_reg_len`` - the maximum length of all register names in the register
+  section
 * ``prefix`` - the register prefix (e.g. 'In:' or 'O:'), or an empty string (if
   formatting a register description continuation line)
 * ``prefix_len`` - the maximum length of all register prefixes in the register
@@ -126,3 +128,6 @@ The following identifiers are available:
   register description continuation line)
 * ``reg_len`` - the length of the register name
 * ``text`` - the text of a line of the register description
+
+.. versionchanged:: 7.3
+   Added the ``max_reg_len`` identifier.

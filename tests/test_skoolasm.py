@@ -2262,6 +2262,33 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
         """
         self._test_asm(skool, exp_asm, templates=templates)
 
+    def test_custom_register_template_with_max_reg_len(self):
+        templates = {'register': '; {prefix:>{prefix_len}}{reg:{max_reg_len}} {text}'}
+        skool = """
+            @start
+            ; Routine
+            ;
+            ; .
+            ;
+            ; In:A The first input value supplied to this routine for the
+            ; .    purpose of calculating the output values
+            ;    BC Another input value
+            ; Out:C Note the alignment of the register descriptions
+            ;     DE' Another output value
+            c40000 RET
+        """
+        exp_asm = """
+            ; Routine
+            ;
+            ;  In:A   The first input value supplied to this routine for the purpose of
+            ;         calculating the output values
+            ;     BC  Another input value
+            ; Out:C   Note the alignment of the register descriptions
+            ;     DE' Another output value
+              RET
+        """
+        self._test_asm(skool, exp_asm, templates=templates)
+
     def test_custom_register_template_preserves_line_width(self):
         templates = {'register': '; >>>>> {prefix:>{prefix_len}}{reg:{reg_len}} : {text}'}
         skool = """

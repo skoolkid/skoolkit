@@ -8,6 +8,7 @@ Changelog
   more directories and subdirectories) in the :ref:`resources` section
 * Added support for replacement fields (such as ``{base}`` and ``{case}``) in
   the parameter string of the :ref:`EVAL` macro
+* Added the ``max_reg_len`` identifier to the :ref:`t_register` template
 
 7.2 (2019-06-02)
 ----------------
