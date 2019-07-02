@@ -380,6 +380,11 @@ class MethodTest(HtmlWriterTestCase):
                 self.assertEqual(udg.data, snapshot[df_addr:df_addr + 2048:256], 'Graphic data for cell at ({0},{1}) is incorrect'.format(x, y))
                 self.assertEqual(udg.attr, snapshot[af_addr], 'Attribute byte for cell at ({0},{1}) is incorrect'.format(x, y))
 
+    def _test_format_template(self, ref, tname, fields, exp_output):
+        writer = self._get_writer(ref=ref)
+        output = writer.format_template(tname, fields)
+        self.assertEqual(dedent(exp_output).strip(), output)
+
     def test_colour_parsing(self):
         # Valid colours
         exp_colours = (
@@ -656,6 +661,223 @@ class MethodTest(HtmlWriterTestCase):
         writer = self._get_writer()
         with self.assertRaisesRegex(SkoolKitError, "^'default' template does not exist$"):
             writer.format_template('non-existent', {}, 'default')
+
+    def test_format_template_foreach(self):
+        ref = """
+            [Template:loop]
+            <# foreach(item,list) #>
+            {item}
+            <# endfor #>
+        """
+        fields = {'list': ('item 1', 'item 2', 'item 3')}
+        exp_output = """
+            item 1
+            item 2
+            item 3
+        """
+        self._test_format_template(ref, 'loop', fields, exp_output)
+
+    def test_format_template_foreach_complex(self):
+        ref = """
+            [Template:loop]
+            <# foreach(item,list) #>
+            {item[id]}: {item[name]}
+            <# endfor #>
+        """
+        fields = {
+            'list': (
+                {'id': 1, 'name': 'item 1'},
+                {'id': 2, 'name': 'item 2'},
+                {'id': 3, 'name': 'item 3'}
+            )
+        }
+        exp_output = """
+            1: item 1
+            2: item 2
+            3: item 3
+        """
+        self._test_format_template(ref, 'loop', fields, exp_output)
+
+    def test_format_template_foreach_nested_simple(self):
+        ref = """
+            [Template:rows]
+            <# foreach(row,table) #>
+            <tr>
+            <# foreach(cell,row) #>
+            <td>{cell}</td>
+            <# endfor #>
+            </tr>
+            <# endfor #>
+        """
+        fields = {
+            'table': (
+                ('row 1, cell 1', 'row 1, cell 2'),
+                ('row 2, cell 1', 'row 2, cell 2')
+            )
+        }
+        exp_output = """
+            <tr>
+            <td>row 1, cell 1</td>
+            <td>row 1, cell 2</td>
+            </tr>
+            <tr>
+            <td>row 2, cell 1</td>
+            <td>row 2, cell 2</td>
+            </tr>
+        """
+        self._test_format_template(ref, 'rows', fields, exp_output)
+
+    def test_format_template_foreach_nested_complex(self):
+        ref = """
+            [Template:table]
+            {table[name]}:
+            <# foreach(row,table[rows]) #>
+            - Row {row[id]}:
+            <# foreach(cell,row[cells]) #>
+            -- Row {row[id]}: {cell}
+            <# endfor #>
+            <# endfor #>
+        """
+        fields = {
+            'table': {
+                'name': 'A table',
+                'rows': (
+                    {'id': 1, 'cells': ('cell 1', 'cell 2')},
+                    {'id': 2, 'cells': ('cell A', 'cell B', 'cell C')}
+                )
+            }
+        }
+        exp_output = """
+            A table:
+            - Row 1:
+            -- Row 1: cell 1
+            -- Row 1: cell 2
+            - Row 2:
+            -- Row 2: cell A
+            -- Row 2: cell B
+            -- Row 2: cell C
+        """
+        self._test_format_template(ref, 'table', fields, exp_output)
+
+    def test_format_template_foreach_doubly_nested(self):
+        ref = """
+            [Template:parents]
+            <# foreach($parent,parents) #>
+            {$parent[name]}:
+            <# foreach($child,$parent[children]) #>
+            - {$parent[name]}: {$child[name]}:
+            <# foreach($grandchild,$child[children]) #>
+            -- {$parent[name]}: {$child[name]}: {$grandchild[name]}
+            <# endfor #>
+            <# endfor #>
+            <# endfor #>
+        """
+        fields = {
+            'parents': ({
+                'name': 'Parent A',
+                'children': ({
+                    'name': 'Child A1',
+                    'children': ({'name': 'Grandchild A1-1'}, {'name': 'Grandchild A1-2'})
+                }, {
+                    'name': 'Child A2',
+                    'children': ({'name': 'Grandchild A2-1'}, {'name': 'Grandchild A2-2'})
+                })
+            }, {
+                'name': 'Parent B',
+                'children': ({
+                    'name': 'Child B1',
+                    'children': ({'name': 'Grandchild B1-1'}, {'name': 'Grandchild B1-2'})
+                }, {
+                    'name': 'Child B2',
+                    'children': ({'name': 'Grandchild B2-1'}, {'name': 'Grandchild B2-2'})
+                })
+            })
+        }
+        exp_output = """
+            Parent A:
+            - Parent A: Child A1:
+            -- Parent A: Child A1: Grandchild A1-1
+            -- Parent A: Child A1: Grandchild A1-2
+            - Parent A: Child A2:
+            -- Parent A: Child A2: Grandchild A2-1
+            -- Parent A: Child A2: Grandchild A2-2
+            Parent B:
+            - Parent B: Child B1:
+            -- Parent B: Child B1: Grandchild B1-1
+            -- Parent B: Child B1: Grandchild B1-2
+            - Parent B: Child B2:
+            -- Parent B: Child B2: Grandchild B2-1
+            -- Parent B: Child B2: Grandchild B2-2
+        """
+        self._test_format_template(ref, 'parents', fields, exp_output)
+
+    def test_format_template_extra_endfor_directives(self):
+        ref = """
+            [Template:loop]
+            <# foreach(item,list) #>
+            {item}
+            <# endfor #>
+            <# endfor #>
+            <# endfor #>
+        """
+        fields = {'list': ('item 1', 'item 2')}
+        exp_output = """
+            item 1
+            item 2
+            <# endfor #>
+            <# endfor #>
+        """
+        self._test_format_template(ref, 'loop', fields, exp_output)
+
+    def test_format_template_foreach_no_parameters(self):
+        ref = """
+            [Template:loop]
+            <# foreach() #>
+            {item}
+            <# endfor #>
+        """
+        with self.assertRaisesRegex(SkoolKitError, "^Invalid foreach directive: Not enough parameters \(expected 2\): ''$"):
+            self._get_writer(ref=ref).format_template('loop', {})
+
+    def test_format_template_foreach_missing_parameter(self):
+        ref = """
+            [Template:loop]
+            <# foreach(item) #>
+            {item}
+            <# endfor #>
+        """
+        with self.assertRaisesRegex(SkoolKitError, "^Invalid foreach directive: Not enough parameters \(expected 2\): 'item'$"):
+            self._get_writer(ref=ref).format_template('loop', {})
+
+    def test_format_template_foreach_extra_parameter(self):
+        ref = """
+            [Template:loop]
+            <# foreach(item,list,surplus) #>
+            {item}
+            <# endfor #>
+        """
+        with self.assertRaisesRegex(SkoolKitError, "^Invalid foreach directive: Too many parameters \(expected 2\): 'item,list,surplus'$"):
+            self._get_writer(ref=ref).format_template('loop', {})
+
+    def test_format_template_foreach_no_closing_bracket(self):
+        ref = """
+            [Template:loop]
+            <# foreach(item,list #>
+            {item}
+            <# endfor #>
+        """
+        with self.assertRaisesRegex(SkoolKitError, "^Invalid foreach directive: No closing bracket: \(item,list$"):
+            self._get_writer(ref=ref).format_template('loop', {})
+
+    def test_format_template_foreach_unknown_variable(self):
+        ref = """
+            [Template:loop]
+            <# foreach(item,nonexistent) #>
+            {item}
+            <# endfor #>
+        """
+        with self.assertRaisesRegex(SkoolKitError, "^Unknown field name in foreach directive: nonexistent$"):
+            self._get_writer(ref=ref).format_template('loop', {})
 
     def test_push_snapshot_keeps_original_in_place(self):
         writer = self._get_writer(snapshot=[0])

@@ -18,6 +18,7 @@
 Defines the :class:`FileInfo` and :class:`HtmlWriter` classes.
 """
 
+from ast import literal_eval
 import html
 import posixpath
 import os.path
@@ -251,6 +252,48 @@ class HtmlWriter:
     def set_style_sheet(self, value):
         self.game_vars['StyleSheet'] = value
 
+    def _sub_loop_var(self, lines, substr, rep):
+        subbed = []
+        for line in lines:
+            if isinstance(line, tuple):
+                varname, seqname, loop = line
+                subbed_loop = self._sub_loop_var(loop, substr, rep)
+                subbed.append((varname, seqname.replace(substr, rep), subbed_loop))
+            else:
+                subbed.append(line.replace(substr, rep))
+        return subbed
+
+    def _unroll_loops(self, lines, fields):
+        unrolled = []
+        for line in lines:
+            if isinstance(line, tuple):
+                varname, seqname, loop = line
+                seq = literal_eval('{{{}}}'.format(seqname).format(**fields))
+                for i in range(len(seq)):
+                    unrolled.extend(self._sub_loop_var(loop, varname, '{}[{}]'.format(seqname, i)))
+            else:
+                unrolled.append(line)
+        return unrolled
+
+    def _process_foreach(self, template, fields):
+        lines = []
+        stack = [lines]
+        for line in template.split('\n'):
+            if line.startswith('<#') and line.endswith('#>'):
+                directive = line[2:-2].strip()
+                if directive.startswith('foreach('):
+                    varname, seqname = skoolmacro.parse_strings(directive, 7, 2)[1]
+                    stack.append([])
+                    stack[-2].append((varname, seqname, stack[-1]))
+                    continue
+                if directive == 'endfor' and len(stack) > 1:
+                    stack.pop()
+                    continue
+            stack[-1].append(line)
+        while any(isinstance(line, tuple) for line in lines):
+            lines = self._unroll_loops(lines, fields)
+        return lines
+
     # API
     def format_template(self, name, fields, default=None):
         """Format a template with a set of replacement fields.
@@ -275,7 +318,13 @@ class HtmlWriter:
         except KeyError as e:
             raise SkoolKitError("'{}' template does not exist".format(e.args[0]))
         fields.update(self.template_subs)
-        return format_template(template, name, **fields)
+        try:
+            lines = self._process_foreach(template, fields)
+        except skoolmacro.MacroParsingError as e:
+            raise SkoolKitError("Invalid foreach directive: {}".format(e.args[0]))
+        except KeyError as e:
+            raise SkoolKitError('Unknown field name in foreach directive: {}'.format(e.args[0]))
+        return format_template('\n'.join(lines), name, **fields)
 
     def _expand_values(self, obj, *exceptions):
         if isinstance(obj, str):
