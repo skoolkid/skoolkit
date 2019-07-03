@@ -834,6 +834,31 @@ class MethodTest(HtmlWriterTestCase):
         """
         self._test_format_template(ref, 'loop', fields, exp_output)
 
+    def test_format_template_foreach_with_include(self):
+        ref = """
+            [Template:loopinclude]
+            <# foreach($item,list) #>
+            <# include(item) #>
+            <# endfor #>
+            [Template:item]
+            <# if({$item[large]}) #>
+            Large {$item[name]}
+            <# else #>
+            Small {$item[name]}
+            <# endif #>
+        """
+        fields = {
+            'list': (
+                {'large': 1, 'name': 'apple'},
+                {'large': 0, 'name': 'orange'}
+            )
+        }
+        exp_output = """
+            Large apple
+            Small orange
+        """
+        self._test_format_template(ref, 'loopinclude', fields, exp_output)
+
     def test_format_template_extra_endfor_directives(self):
         ref = """
             [Template:loop]
@@ -983,6 +1008,23 @@ class MethodTest(HtmlWriterTestCase):
         """
         self._test_format_template(ref, 'ifelsenest', fields, exp_output)
 
+    def test_format_template_if_with_include(self):
+        ref = """
+            [Template:ifinclude]
+            <# if({true}) #>
+            <# include(t1) #>
+            <# else #>
+            <# include(t2) #>
+            <# endif #>
+            [Template:t1]
+            Included
+            [Template:t2]
+            Not included
+        """
+        fields = {'true': 1}
+        exp_output = "Included"
+        self._test_format_template(ref, 'ifinclude', fields, exp_output)
+
     def test_format_template_extra_endif_directives(self):
         ref = """
             [Template:endifs]
@@ -1056,6 +1098,74 @@ class MethodTest(HtmlWriterTestCase):
         """
         with self.assertRaisesRegex(SkoolKitError, "^Invalid if directive: Unrecognised field 'nonexistent': \(\{nonexistent\}\)$"):
             self._get_writer(ref=ref).format_template('if', {})
+
+    def test_format_template_include(self):
+        ref = """
+            [Template:t1]
+            Begin
+            <# include(t2) #>
+            End
+            [Template:t2]
+            Do stuff
+        """
+        exp_output = """
+            Begin
+            Do stuff
+            End
+        """
+        self._test_format_template(ref, 't1', {}, exp_output)
+
+    def test_format_template_include_nested(self):
+        ref = """
+            [Template:t1]
+            Begin
+            <# include(t2) #>
+            End
+            [Template:t2]
+            Do stuff
+            <# include(t3) #>
+            [Template:t3]
+            Do more stuff
+        """
+        exp_output = """
+            Begin
+            Do stuff
+            Do more stuff
+            End
+        """
+        self._test_format_template(ref, 't1', {}, exp_output)
+
+    def test_format_template_include_blank_template_name(self):
+        ref = """
+            [Template:include]
+            <# include() #>
+        """
+        with self.assertRaisesRegex(SkoolKitError, "^Invalid include directive: Template name is blank$"):
+            self._get_writer(ref=ref).format_template('include', {})
+
+    def test_format_template_include_extra_parameter(self):
+        ref = """
+            [Template:include]
+            <# include(t1,t2) #>
+        """
+        with self.assertRaisesRegex(SkoolKitError, "^Invalid include directive: 't1,t2' template does not exist$"):
+            self._get_writer(ref=ref).format_template('include', {})
+
+    def test_format_template_include_no_closing_bracket(self):
+        ref = """
+            [Template:include]
+            <# include(t1 #>
+        """
+        with self.assertRaisesRegex(SkoolKitError, "^Invalid include directive: No closing bracket: \(t1$"):
+            self._get_writer(ref=ref).format_template('include', {})
+
+    def test_format_template_include_unknown_template(self):
+        ref = """
+            [Template:include]
+            <# include(nonexistent) #>
+        """
+        with self.assertRaisesRegex(SkoolKitError, "^Invalid include directive: 'nonexistent' template does not exist$"):
+            self._get_writer(ref=ref).format_template('include', {})
 
     def test_push_snapshot_keeps_original_in_place(self):
         writer = self._get_writer(snapshot=[0])

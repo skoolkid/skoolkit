@@ -257,6 +257,25 @@ class HtmlWriter:
             return line[2:-2].strip()
         return ''
 
+    def _process_include(self, lines):
+        while 1:
+            done = True
+            processed = []
+            for line in lines:
+                directive = self._html_template_directive(line)
+                if directive.startswith('include('):
+                    tname = skoolmacro.parse_strings(directive, 7, 1)[1]
+                    if tname:
+                        processed.extend(self._get_template(tname))
+                    else:
+                        raise SkoolKitError('Template name is blank')
+                    done = False
+                else:
+                    processed.append(line)
+            if done:
+                return processed
+            lines = processed
+
     def _process_if(self, lines, fields):
         processed = []
         stack = [1]
@@ -296,10 +315,10 @@ class HtmlWriter:
                 unrolled.append(line)
         return unrolled
 
-    def _process_foreach(self, template, fields):
-        lines = []
-        stack = [lines]
-        for line in template.split('\n'):
+    def _process_foreach(self, lines, fields):
+        processed = []
+        stack = [processed]
+        for line in lines:
             directive = self._html_template_directive(line)
             if directive.startswith('foreach('):
                 varname, seqname = skoolmacro.parse_strings(directive, 7, 2)[1]
@@ -309,9 +328,22 @@ class HtmlWriter:
                 stack.pop()
             else:
                 stack[-1].append(line)
-        while any(isinstance(line, tuple) for line in lines):
-            lines = self._unroll_loops(lines, fields)
-        return lines
+        while any(isinstance(line, tuple) for line in processed):
+            processed = self._unroll_loops(processed, fields)
+        return processed
+
+    def _get_template(self, name, default=None):
+        if default is None:
+            tname = '{}-{}'.format(self._get_page_id(), name)
+            default = name
+        else:
+            tname = name
+        if tname not in self.templates:
+            tname = re.sub('Asm-[bcgstuw]', 'Asm', tname)
+        try:
+            return self.templates.get(tname, self.templates[default]).split('\n')
+        except KeyError as e:
+            raise SkoolKitError("'{}' template does not exist".format(e.args[0]))
 
     # API
     def format_template(self, name, fields, default=None):
@@ -325,20 +357,14 @@ class HtmlWriter:
                         otherwise.
         :return: The formatted string.
         """
-        if default is None:
-            tname = '{}-{}'.format(self._get_page_id(), name)
-            default = name
-        else:
-            tname = name
-        if tname not in self.templates:
-            tname = re.sub('Asm-[bcgstuw]', 'Asm', tname)
+        lines = self._get_template(name, default)
         try:
-            template = self.templates.get(tname, self.templates[default])
-        except KeyError as e:
-            raise SkoolKitError("'{}' template does not exist".format(e.args[0]))
+            lines = self._process_include(lines)
+        except SkoolKitError as e:
+            raise SkoolKitError("Invalid include directive: {}".format(e.args[0]))
         fields.update(self.template_subs)
         try:
-            lines = self._process_foreach(template, fields)
+            lines = self._process_foreach(lines, fields)
         except skoolmacro.MacroParsingError as e:
             raise SkoolKitError("Invalid foreach directive: {}".format(e.args[0]))
         except KeyError as e:
