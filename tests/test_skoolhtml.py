@@ -811,6 +811,29 @@ class MethodTest(HtmlWriterTestCase):
         """
         self._test_format_template(ref, 'parents', fields, exp_output)
 
+    def test_format_template_foreach_with_if(self):
+        ref = """
+            [Template:loop]
+            <# foreach(item,list) #>
+            <# if({item[large]}) #>
+            Large {item[name]}
+            <# else #>
+            Small {item[name]}
+            <# endif #>
+            <# endfor #>
+        """
+        fields = {
+            'list': (
+                {'large': 1, 'name': 'apple'},
+                {'large': 0, 'name': 'orange'}
+            )
+        }
+        exp_output = """
+            Large apple
+            Small orange
+        """
+        self._test_format_template(ref, 'loop', fields, exp_output)
+
     def test_format_template_extra_endfor_directives(self):
         ref = """
             [Template:loop]
@@ -878,6 +901,161 @@ class MethodTest(HtmlWriterTestCase):
         """
         with self.assertRaisesRegex(SkoolKitError, "^Unknown field name in foreach directive: nonexistent$"):
             self._get_writer(ref=ref).format_template('loop', {})
+
+    def test_format_template_if(self):
+        ref = """
+            [Template:if]
+            <# if({yes}) #>
+            Visible
+            <# endif #>
+            <# if({no}) #>
+            Hidden
+            <# endif #>
+        """
+        fields = {'no': 0, 'yes': 1}
+        exp_output = "Visible"
+        self._test_format_template(ref, 'if', fields, exp_output)
+
+    def test_format_template_if_else(self):
+        ref = """
+            [Template:ifelse]
+            <# if({true}) #>
+            Included
+            <# else #>
+            Omitted
+            <# endif #>
+            <# if({false}) #>
+            Also omitted
+            <# else #>
+            Also included
+            <# endif #>
+        """
+        fields = {'false': 0, 'true': 1}
+        exp_output = """
+            Included
+            Also included
+        """
+        self._test_format_template(ref, 'ifelse', fields, exp_output)
+
+    def test_format_template_if_nested(self):
+        ref = """
+            [Template:ifnest]
+            <# if({yes}) #>
+            Visible
+            <# if({false}) #>
+            Hidden
+            <# endif #>
+            <# endif #>
+            <# if({no}) #>
+            Hidden
+            <# if({true}) #>
+            Also hidden
+            <# endif #>
+            <# endif #>
+        """
+        fields = {'no': 0, 'yes': 1, 'false': 0, 'true': 1}
+        exp_output = "Visible"
+        self._test_format_template(ref, 'ifnest', fields, exp_output)
+
+    def test_format_template_if_else_nested(self):
+        ref = """
+            [Template:ifelsenest]
+            <# if({true}) #>
+            Visible
+            <# if({false}) #>
+            Hidden
+            <# else #>
+            Also visible
+            <# endif #>
+            <# else #>
+            Hidden
+            <# if({true}) #>
+            Also hidden
+            <# else #>
+            Still hidden
+            <# endif #>
+            <# endif #>
+        """
+        fields = {'false': 0, 'true': 1}
+        exp_output = """
+            Visible
+            Also visible
+        """
+        self._test_format_template(ref, 'ifelsenest', fields, exp_output)
+
+    def test_format_template_extra_endif_directives(self):
+        ref = """
+            [Template:endifs]
+            <# if({true}) #>
+            Hi
+            <# endif #>
+            <# endif #>
+            <# endif #>
+        """
+        fields = {'true': 1}
+        exp_output = """
+            Hi
+            <# endif #>
+            <# endif #>
+        """
+        self._test_format_template(ref, 'endifs', fields, exp_output)
+
+    def test_format_template_extra_else_directives(self):
+        ref = """
+            [Template:elses]
+            <# if({true}) #>
+            Hi
+            <# endif #>
+            <# else #>
+            <# else #>
+        """
+        fields = {'true': 1}
+        exp_output = """
+            Hi
+            <# else #>
+            <# else #>
+        """
+        self._test_format_template(ref, 'elses', fields, exp_output)
+
+    def test_format_template_if_missing_parameter(self):
+        ref = """
+            [Template:if]
+            <# if() #>
+            Content
+            <# endif #>
+        """
+        with self.assertRaisesRegex(SkoolKitError, "^Invalid if directive: No parameters \(expected 1\)$"):
+            self._get_writer(ref=ref).format_template('if', {})
+
+    def test_format_template_if_extra_parameter(self):
+        ref = """
+            [Template:if]
+            <# if({true},1) #>
+            Content
+            <# endif #>
+        """
+        with self.assertRaisesRegex(SkoolKitError, "^Invalid if directive: Too many parameters \(expected 1\): '1,1'$"):
+            self._get_writer(ref=ref).format_template('if', {'true': 1})
+
+    def test_format_template_if_no_closing_bracket(self):
+        ref = """
+            [Template:if]
+            <# if({true} #>
+            Content
+            <# endif #>
+        """
+        with self.assertRaisesRegex(SkoolKitError, "^Invalid if directive: No closing bracket: \(\{true\}$"):
+            self._get_writer(ref=ref).format_template('if', {})
+
+    def test_format_template_if_unknown_variable(self):
+        ref = """
+            [Template:if]
+            <# if({nonexistent}) #>
+            Content
+            <# endif #>
+        """
+        with self.assertRaisesRegex(SkoolKitError, "^Invalid if directive: Unrecognised field 'nonexistent': \(\{nonexistent\}\)$"):
+            self._get_writer(ref=ref).format_template('if', {})
 
     def test_push_snapshot_keeps_original_in_place(self):
         writer = self._get_writer(snapshot=[0])

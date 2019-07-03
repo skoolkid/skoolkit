@@ -252,6 +252,27 @@ class HtmlWriter:
     def set_style_sheet(self, value):
         self.game_vars['StyleSheet'] = value
 
+    def _html_template_directive(self, line):
+        if line.startswith('<#') and line.endswith('#>'):
+            return line[2:-2].strip()
+        return ''
+
+    def _process_if(self, lines, fields):
+        processed = []
+        stack = [1]
+        for line in lines:
+            directive = self._html_template_directive(line)
+            if directive.startswith('if('):
+                end, value = skoolmacro.parse_ints(directive, 2, 1, fields=fields)
+                stack.append(value)
+            elif directive == 'else' and len(stack) > 1:
+                stack[-1] = not stack[-1]
+            elif directive == 'endif' and len(stack) > 1:
+                stack.pop()
+            elif all(stack):
+                processed.append(line)
+        return processed
+
     def _sub_loop_var(self, lines, substr, rep):
         subbed = []
         for line in lines:
@@ -279,17 +300,15 @@ class HtmlWriter:
         lines = []
         stack = [lines]
         for line in template.split('\n'):
-            if line.startswith('<#') and line.endswith('#>'):
-                directive = line[2:-2].strip()
-                if directive.startswith('foreach('):
-                    varname, seqname = skoolmacro.parse_strings(directive, 7, 2)[1]
-                    stack.append([])
-                    stack[-2].append((varname, seqname, stack[-1]))
-                    continue
-                if directive == 'endfor' and len(stack) > 1:
-                    stack.pop()
-                    continue
-            stack[-1].append(line)
+            directive = self._html_template_directive(line)
+            if directive.startswith('foreach('):
+                varname, seqname = skoolmacro.parse_strings(directive, 7, 2)[1]
+                stack.append([])
+                stack[-2].append((varname, seqname, stack[-1]))
+            elif directive == 'endfor' and len(stack) > 1:
+                stack.pop()
+            else:
+                stack[-1].append(line)
         while any(isinstance(line, tuple) for line in lines):
             lines = self._unroll_loops(lines, fields)
         return lines
@@ -324,6 +343,10 @@ class HtmlWriter:
             raise SkoolKitError("Invalid foreach directive: {}".format(e.args[0]))
         except KeyError as e:
             raise SkoolKitError('Unknown field name in foreach directive: {}'.format(e.args[0]))
+        try:
+            lines = self._process_if(lines, fields)
+        except skoolmacro.MacroParsingError as e:
+            raise SkoolKitError("Invalid if directive: {}".format(e.args[0]))
         return format_template('\n'.join(lines), name, **fields)
 
     def _expand_values(self, obj, *exceptions):
