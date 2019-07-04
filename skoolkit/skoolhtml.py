@@ -624,27 +624,20 @@ class HtmlWriter:
                 other_code_links.append((link_file, link_text[0], link_text[1]))
         sections['OtherCode'] = ('Other code', other_code_links)
 
-        sections_html = []
-        index = self.get_section('Index', False, True)
-        for section_id in index:
+        section_objs = []
+        for section_id in self.get_section('Index', False, True):
             header, links = sections.get(section_id, ('', ()))
             if links:
                 items = []
                 for href, link_text, other_text in links:
-                    t_index_section_item_subs = {
+                    items.append({
                         'href': href,
                         'link_text': link_text,
                         'other_text': other_text
-                    }
-                    items.append(self.format_template('index_section_item', t_index_section_item_subs))
-                t_index_section_subs = {
-                    'header': header,
-                    'm_index_section_item': '\n'.join(items)
-                }
-                sections_html.append(self.format_template('index_section', t_index_section_subs))
+                    })
+                section_objs.append({'header': header, 'items': items})
 
-        subs = {'m_index_section': '\n'.join(sections_html)}
-        html = self._format_page(cwd, subs, P_GAME_INDEX)
+        html = self._format_page(cwd, {'sections': section_objs}, P_GAME_INDEX)
         self.write_file(index_fname, html)
 
     def _get_entry_dict(self, cwd, entry, desc=True):

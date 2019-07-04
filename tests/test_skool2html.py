@@ -1224,8 +1224,8 @@ class Skool2HtmlTest(SkoolKitTestCase):
         for option in ('-r', '--ref-sections'):
             for prefix, exp_headers in (
                 ('Colours', ['Colours']),
-                ('Template:index_section', ['Template:index_section', 'Template:index_section_item']),
-                ('Template:index_section$', ['Template:index_section'])
+                ('Template:Asm', ['Template:Asm', 'Template:AsmAllInOne']),
+                ('Template:Asm$', ['Template:Asm'])
             ):
                 output, error = self.run_skool2html('{} {}'.format(option, prefix), catch_exit=0)
                 self.assertEqual(error, '')

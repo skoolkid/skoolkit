@@ -127,8 +127,22 @@ disassembly index page.
 The following identifier is available (in addition to the universal and
 page-level identifiers):
 
-* ``m_index_section`` - replaced by any number of copies of the
-  :ref:`t_index_section` subtemplate
+* ``sections`` - a list of section objects
+
+Each section object represents a group of links and has the following
+attributes:
+
+* ``header`` - the header text for the group of links (as defined in the name
+  of the :ref:`indexGroup` section)
+* ``items`` - a list of items in the group
+
+Each item represents a link to a page and has the following attributes:
+
+* ``href`` - the relative path to the page being linked to
+* ``link_text`` - the link text for the page (as defined in the :ref:`links`
+  section)
+* ``other_text`` - the supplementary text displayed alongside the link (as
+  defined in the :ref:`links` section)
 
 To see the default ``GameIndex`` template, run the following command::
 
@@ -408,48 +422,6 @@ identifiers):
 To see the default ``img`` template, run the following command::
 
   $ skool2html.py -r Template:img
-
-.. _t_index_section:
-
-index_section
--------------
-The ``index_section`` template is the subtemplate used by the
-:ref:`t_GameIndex` full-page template to format each group of links on the
-disassembly index page.
-
-The following identifiers are available (in addition to the universal
-identifiers):
-
-* ``header`` - the header text for the group of links (as defined in the name
-  of the :ref:`indexGroup` section)
-* ``m_index_section_item`` - replaced by one or more copies of the
-  :ref:`t_index_section_item` subtemplate
-
-To see the default ``index_section`` template, run the following command::
-
-  $ skool2html.py -r Template:index_section$
-
-.. _t_index_section_item:
-
-index_section_item
-------------------
-The ``index_section_item`` template is the subtemplate used by the
-:ref:`t_index_section` subtemplate to format each link in a link group on the
-disassembly index page.
-
-The following identifiers are available (in addition to the universal
-identifiers):
-
-* ``href`` - the relative path to the page being linked to
-* ``link_text`` - the link text for the page (as defined in the :ref:`links`
-  section)
-* ``other_text`` - the supplementary text displayed alongside the link (as
-  defined in the :ref:`links` section)
-
-To see the default ``index_section_item`` template, run the following
-command::
-
-  $ skool2html.py -r Template:index_section_item
 
 .. _t_javascript:
 

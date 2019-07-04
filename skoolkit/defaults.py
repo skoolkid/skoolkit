@@ -354,7 +354,14 @@ SECTIONS['Template:GameIndex'] = """
 <td class="page-header">{Game[TitleSuffix]}</td>
 </tr>
 </table>
-{m_index_section}
+<# foreach($section,sections) #>
+<div class="section-header">{$section[header]}</div>
+<ul class="index-list">
+<# foreach($item,$section[items]) #>
+<li><a href="{$item[href]}">{$item[link_text]}</a>{$item[other_text]}</li>
+<# endfor #>
+</ul>
+<# endfor #>
 {t_footer}
 </body>
 </html>
@@ -511,17 +518,6 @@ SECTIONS['Template:footer'] = """
 
 SECTIONS['Template:img'] = """
 <img alt="{alt}" src="{src}" />
-"""
-
-SECTIONS['Template:index_section'] = """
-<div class="section-header">{header}</div>
-<ul class="index-list">
-{m_index_section_item}
-</ul>
-"""
-
-SECTIONS['Template:index_section_item'] = """
-<li><a href="{href}">{link_text}</a>{other_text}</li>
 """
 
 SECTIONS['Template:javascript'] = """
