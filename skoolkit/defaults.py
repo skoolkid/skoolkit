@@ -533,8 +533,10 @@ SECTIONS['Template:link'] = """
 """
 
 SECTIONS['Template:list'] = """
-<ul class="{class}">
-{m_list_item}
+<ul class="{list[class]}">
+<# foreach($item,list[items]) #>
+<li>{$item}</li>
+<# endfor #>
 </ul>
 """
 

@@ -1729,7 +1729,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
 
         # Empty list
         output = writer.expand('#LIST LIST#')
-        self.assertEqual(output, '<ul class="">\n\n</ul>')
+        self.assertEqual(output, '<ul class="">\n</ul>')
 
         # Nested macros
         css_class = 'someclass'
@@ -9420,10 +9420,9 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
 
             [Template:{}-Asm-g-list]
             Items:
-            {m_list_item}
-
-            [Template:{}-Asm-g-list_item]
-            + {item}
+            <# foreach($item,list[items]) #>
+            + {$item}
+            <# endfor #>
         """.replace('{}', code_id)
         exp_content = """
             Game status buffer entry at 32768

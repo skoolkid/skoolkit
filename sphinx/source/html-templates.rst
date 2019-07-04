@@ -494,9 +494,8 @@ The ``list`` template is used by the :ref:`LIST` macro to format a list.
 The following identifiers are available (in addition to the universal
 identifiers):
 
-* ``class`` - the CSS class name for the list
-* ``m_list_item`` - replaced by any number of copies of the :ref:`t_list_item`
-  subtemplate
+* ``list[class]`` - the CSS class name for the list
+* ``list[items]`` - the list items
 
 To see the default ``list`` template, run the following command::
 
@@ -535,9 +534,8 @@ To see the default ``list_entry`` template, run the following command::
 
 list_item
 ---------
-The ``list_item`` template is the subtemplate used by the :ref:`t_list`
-template and the :ref:`t_list_items` subtemplate to format each item in the
-list.
+The ``list_item`` template is the subtemplate used by the :ref:`t_list_items`
+subtemplate to format each item in the list.
 
 The following identifier is available (in addition to the universal
 identifiers):
@@ -809,8 +807,7 @@ template if it exists, or the stock :ref:`t_footer` template otherwise.
 | :ref:`REG` macro              |                                      |                              |
 +-------------------------------+--------------------------------------+------------------------------+
 | List created by the           | ``PageID-list``                      | :ref:`t_list`                |
-| :ref:`LIST` macro             +--------------------------------------+------------------------------+
-|                               | ``PageID-list_item``                 | :ref:`t_list_item`           |
+| :ref:`LIST` macro             |                                      |                              |
 +-------------------------------+--------------------------------------+------------------------------+
 | Table created by the          | ``PageID-table``                     | :ref:`t_table`               |
 | :ref:`TABLE` macro            |                                      |                              |

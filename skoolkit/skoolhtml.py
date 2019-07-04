@@ -1126,9 +1126,8 @@ class HtmlWriter:
         return self.format_template('table', {'table': table})
 
     def build_list(self, list_obj):
-        items = [self.format_template('list_item', {'item': i}) for i in list_obj.items]
-        list_subs = {'class': list_obj.css_class, 'm_list_item': '\n'.join(items)}
-        return self.format_template('list', list_subs)
+        list_fields = {'class': list_obj.css_class, 'items': list_obj.items}
+        return self.format_template('list', {'list': list_fields})
 
     def _image_path(self, fname, path_id, frames):
         """Return the full path of an image file relative to the root directory
