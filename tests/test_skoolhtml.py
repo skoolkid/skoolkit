@@ -3825,7 +3825,7 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         self.assertFalse(writer.link_internal_operands)
         writer.write_asm_entries()
         html = self._read_file(join(ASMDIR, '30000.html'), True)
-        line_no = 47
+        line_no = 45
         for inst, address in (
             ('CALL', 30003),
             ('JP', 30006),
@@ -3849,7 +3849,7 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         self.assertTrue(writer.link_internal_operands)
         writer.write_asm_entries()
         html = self._read_file(join(ASMDIR, '40000.html'), True)
-        line_no = 47
+        line_no = 45
         for inst, address in (
             ('CALL', 40003),
             ('JP', 40006),
@@ -3881,7 +3881,7 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             writer.write_asm_entries()
             html = self._read_file(join(ASMDIR, '32769.html'), True)
             link = '<a href="32768.html">32768</a>'
-            line_no = 47
+            line_no = 45
             for prefix in ('CALL ', 'DEFW ', 'DJNZ ', 'JP ', 'JR ', 'LD HL,'):
                 inst_type = prefix.split()[0]
                 exp_html = prefix + (link if inst_type in link_operands else '32768')
@@ -9067,11 +9067,10 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
             [Template:Asm-c]
             {entry[title]}
             {entry[description]}
-            {registers_input}
+            <# foreach($reg,entry[input_registers]) #>
+            {$reg[name]} register: {$reg[description]}
+            <# endfor #>
             {disassembly}
-
-            [Template:Asm-c-asm_register]
-            {name} register: {description}
 
             [Template:Asm-c-asm_comment]
             {m_paragraph}
@@ -9109,11 +9108,10 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
             [Template:Asm]
             {entry[title]}
             {entry[description]}
-            {registers_input}
+            <# foreach($reg,entry[input_registers]) #>
+            {$reg[name]} register: {$reg[description]}
+            <# endfor #>
             {disassembly}
-
-            [Template:Asm-asm_register]
-            {name} register: {description}
 
             [Template:Asm-asm_comment]
             {m_paragraph}
@@ -9154,11 +9152,10 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
             [Template:{}-Asm-c]
             {entry[title]}
             {entry[description]}
-            {registers_input}
+            <# foreach($reg,entry[input_registers]) #>
+            {$reg[name]} register: {$reg[description]}
+            <# endfor #>
             {disassembly}
-
-            [Template:{}-Asm-c-asm_register]
-            {name} register: {description}
 
             [Template:{}-Asm-c-asm_comment]
             {m_paragraph}
@@ -9202,11 +9199,10 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
             [Template:{}-Asm]
             {entry[title]}
             {entry[description]}
-            {registers_input}
+            <# foreach($reg,entry[input_registers]) #>
+            {$reg[name]} register: {$reg[description]}
+            <# endfor #>
             {disassembly}
-
-            [Template:{}-Asm-asm_register]
-            {name} register: {description}
 
             [Template:{}-Asm-asm_comment]
             {m_paragraph}

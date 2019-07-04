@@ -291,13 +291,23 @@ SECTIONS['Template:Asm'] = """
 <tr class="asm-input-header">
 <th colspan="2">{Game[InputRegisterTableHeader]}</th>
 </tr>
-{registers_input}
+<# foreach($reg,entry[input_registers]) #>
+<tr>
+<td class="register">{$reg[name]}</td>
+<td class="register-desc">{$reg[description]}</td>
+</tr>
+<# endfor #>
 </table>
 <table class="output-{entry[output]}">
 <tr class="asm-output-header">
 <th colspan="2">{Game[OutputRegisterTableHeader]}</th>
 </tr>
-{registers_output}
+<# foreach($reg,entry[output_registers]) #>
+<tr>
+<td class="register">{$reg[name]}</td>
+<td class="register-desc">{$reg[description]}</td>
+</tr>
+<# endfor #>
 </table>
 </td>
 </tr>
@@ -473,13 +483,23 @@ SECTIONS['Template:asm_entry'] = """
 <tr class="asm-input-header">
 <th colspan="2">{Game[InputRegisterTableHeader]}</th>
 </tr>
-{registers_input}
+<# foreach($reg,entry[input_registers]) #>
+<tr>
+<td class="register">{$reg[name]}</td>
+<td class="register-desc">{$reg[description]}</td>
+</tr>
+<# endfor #>
 </table>
 <table class="output-{entry[output]}">
 <tr class="asm-output-header">
 <th colspan="2">{Game[OutputRegisterTableHeader]}</th>
 </tr>
-{registers_output}
+<# foreach($reg,entry[output_registers]) #>
+<tr>
+<td class="register">{$reg[name]}</td>
+<td class="register-desc">{$reg[description]}</td>
+</tr>
+<# endfor #>
 </table>
 </td>
 </tr>
@@ -494,13 +514,6 @@ SECTIONS['Template:asm_instruction'] = """
 <td class="bytes-{show_bytes}">{bytes:{Game[Bytes]}}</td>
 <td class="instruction">{operation}</td>
 <td class="comment-{annotated}{entry[annotated]}" rowspan="{comment_rowspan}">{comment}</td>
-</tr>
-"""
-
-SECTIONS['Template:asm_register'] = """
-<tr>
-<td class="register">{name}</td>
-<td class="register-desc">{description}</td>
 </tr>
 """
 

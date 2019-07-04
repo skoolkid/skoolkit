@@ -781,28 +781,22 @@ class HtmlWriter:
         return self.format_template(self._get_page_id() + '-item_list', t_list_items_subs, 'list_items')
 
     def format_registers(self, cwd, registers, entry_dict):
-        input_values = []
-        output_values = []
+        entry_dict['input_registers'] = input_values = []
+        entry_dict['output_registers'] = output_values = []
         mode = 'I'
         for reg in registers:
             if reg.prefix:
                 mode = reg.prefix.upper()[0]
+            reg_obj = {
+                'name': reg.name,
+                'description': self.expand(reg.contents, cwd)
+            }
             if mode == 'O':
-                output_values.append(reg)
+                output_values.append(reg_obj)
             else:
-                input_values.append(reg)
-
-        reg_lists = []
-        subs = {'entry': entry_dict}
-        for reg_type, registers in (('input', input_values), ('output', output_values)):
-            registers_html = []
-            entry_dict[reg_type] = min(len(registers), 1)
-            for reg in registers:
-                subs['name'] = reg.name
-                subs['description'] = self.expand(reg.contents, cwd)
-                registers_html.append(self.format_template('asm_register', subs))
-            reg_lists.append('\n'.join(registers_html))
-        return reg_lists
+                input_values.append(reg_obj)
+        entry_dict['input'] = min(len(input_values), 1)
+        entry_dict['output'] = min(len(output_values), 1)
 
     def format_entry_comment(self, cwd, entry_dict, paragraphs, anchor=''):
         t_asm_comment_subs = {
@@ -816,7 +810,7 @@ class HtmlWriter:
         entry = self.memory_map[index]
         entry_dict = self._get_asm_entry_dict(cwd, index, map_file)
 
-        input_reg, output_reg = self.format_registers(cwd, entry.registers, entry_dict)
+        self.format_registers(cwd, entry.registers, entry_dict)
 
         for instruction in entry.instructions:
             if instruction.operation.upper().startswith(('DEFB', 'DEFM', 'DEFS', 'DEFW')):
@@ -882,8 +876,6 @@ class HtmlWriter:
 
         return {
             'entry': entry_dict,
-            'registers_input': input_reg,
-            'registers_output': output_reg,
             'disassembly': '\n'.join(lines)
         }
 

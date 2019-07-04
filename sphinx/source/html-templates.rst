@@ -60,10 +60,6 @@ page-level identifiers):
   map entry (see below)
 * ``prev_entry`` - a dictionary of parameters corresponding to the previous
   memory map entry (see below)
-* ``registers_input`` - replaced by any number of copies of the
-  :ref:`t_asm_register` subtemplate
-* ``registers_output`` - replaced by any number of copies of the
-  :ref:`t_asm_register` subtemplate
 
 The parameters in the ``prev_entry``, ``entry`` and ``next_entry`` dictionaries
 are:
@@ -91,7 +87,15 @@ are:
 The ``entry`` dictionary also contains the following parameters:
 
 * ``input`` - '1' if there are input register values defined, '0' otherwise
+* ``input_registers`` - a list of input register objects
 * ``output`` - '1' if there are output register values defined, '0' otherwise
+* ``output_registers`` - a list of output register objects
+
+Each input and output register object has the following attributes:
+
+* ``description`` - the register's description (as it appears in the register
+  section for the entry in the skool file)
+* ``name`` - the register's name (e.g. 'HL')
 
 To see the default ``Asm`` template, run the following command::
 
@@ -259,10 +263,6 @@ identifiers):
 * ``entry`` - a dictionary of parameters corresponding to the memory map entry;
   the parameters in this dictionary are the same as those in the ``entry``
   dictionary in the :ref:`t_Asm` template
-* ``registers_input`` - replaced by any number of copies of the
-  :ref:`t_asm_register` subtemplate
-* ``registers_output`` - replaced by any number of copies of the
-  :ref:`t_asm_register` subtemplate
 
 To see the default ``asm_entry`` template, run the following command::
 
@@ -344,27 +344,6 @@ To see the default ``asm_instruction`` template, run the following command::
 
 .. versionchanged:: 6.3
    Added the ``location`` identifier.
-
-.. _t_asm_register:
-
-asm_register
-------------
-The ``asm_register`` template is the subtemplate used by the :ref:`t_Asm`
-full-page template and the :ref:`t_asm_entry` subtemplate to format each row in
-a table of input register values or output register values.
-
-The following identifiers are available (in addition to the universal
-identifiers):
-
-* ``description`` - the register's description (as it appears in the register
-  section for the current entry in the skool file)
-* ``entry`` - a dictionary of parameters corresponding to the current memory
-  map entry (see :ref:`t_Asm`)
-* ``name`` - the register's name (e.g. 'HL')
-
-To see the default ``asm_register`` template, run the following command::
-
-  $ skool2html.py -r Template:asm_register
 
 .. _t_contents_list_item:
 
@@ -728,8 +707,6 @@ template if it exists, or the stock :ref:`t_footer` template otherwise.
 +-------------------------------+--------------------------------------+------------------------------+
 | Element type                  | Preferred template(s)                | Stock subtemplate            |
 +===============================+======================================+==============================+
-| Registers table               | ``[CodeID-]Asm[-*]-asm_register``    | :ref:`t_asm_register`        |
-+-------------------------------+--------------------------------------+------------------------------+
 | Routine/data block comment    | ``[CodeID-]Asm[-*]-asm_comment``     | :ref:`t_asm_comment`         |
 +-------------------------------+--------------------------------------+------------------------------+
 | Instruction                   | ``[CodeID-]Asm[-*]-asm_instruction`` | :ref:`t_asm_instruction`     |
