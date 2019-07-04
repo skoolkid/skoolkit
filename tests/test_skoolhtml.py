@@ -38,9 +38,6 @@ REF_SECTIONS = {
     'Template_paragraph': defaults.get_section('Template:paragraph'),
     'Template_reg': defaults.get_section('Template:reg'),
     'Template_table': defaults.get_section('Template:table'),
-    'Template_table_cell': defaults.get_section('Template:table_cell'),
-    'Template_table_header_cell': defaults.get_section('Template:table_header_cell'),
-    'Template_table_row': defaults.get_section('Template:table_row'),
 }
 
 MINIMAL_REF_FILE = """
@@ -104,9 +101,6 @@ Pokes={REFERENCE_DIR}/pokes.html
 {REF_SECTIONS[Template_paragraph]}
 {REF_SECTIONS[Template_reg]}
 {REF_SECTIONS[Template_table]}
-{REF_SECTIONS[Template_table_cell]}
-{REF_SECTIONS[Template_table_header_cell]}
-{REF_SECTIONS[Template_table_row]}
 [Titles]
 Asm-b=Data at
 Asm-c=Routine at
@@ -2429,7 +2423,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
 
         # Empty table
         output = writer.expand('#TABLE TABLE#')
-        self.assertEqual(output, '<table class="">\n\n</table>')
+        self.assertEqual(output, '<table class="">\n</table>')
 
         # Nested macros
         css_class = 'someclass'
@@ -3244,7 +3238,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
 
         # Empty table
         output = writer.expand('#UDGTABLE UDGTABLE#')
-        self.assertEqual(output, '<table class="">\n\n</table>')
+        self.assertEqual(output, '<table class="">\n</table>')
 
         # Nested macros
         css_class = 'someclass'
@@ -8888,7 +8882,7 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
         }
         self._assert_files_equal('{}.html'.format(page_id), subs)
 
-    def test_page_with_custom_table_templates(self):
+    def test_page_with_custom_table_template(self):
         page_id = 'JustSomePage'
         ref = """
             [Page:{}]
@@ -8903,19 +8897,18 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
 
             [Template:{}-table]
             BEGIN TABLE (
-            {m_table_row}
-            ) END TABLE
-
-            [Template:{}-table_row]
+            <# foreach($row,table[rows]) #>
             <row>
-            {cells}
+            <# foreach($cell,$row[cells]) #>
+            <# if({$cell[header]}) #>
+            <header>{$cell[contents]}</header>
+            <# else #>
+            <cell>{$cell[contents]}</cell>
+            <# endif #>
+            <# endfor #>
             </row>
-
-            [Template:{}-table_header_cell]
-            <header>{contents}</header>
-
-            [Template:{}-table_cell]
-            <cell>{contents}</cell>
+            <# endfor #>
+            ) END TABLE
         """.replace('{}', page_id)
         exp_content = """
             BEGIN TABLE (

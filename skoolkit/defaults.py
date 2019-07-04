@@ -595,23 +595,19 @@ SECTIONS['Template:stylesheet'] = """
 """
 
 SECTIONS['Template:table'] = """
-<table class="{class}">
-{m_table_row}
-</table>
-"""
-
-SECTIONS['Template:table_cell'] = """
-<td class="{class}" colspan="{colspan}" rowspan="{rowspan}">{contents}</td>
-"""
-
-SECTIONS['Template:table_header_cell'] = """
-<th colspan="{colspan}" rowspan="{rowspan}">{contents}</th>
-"""
-
-SECTIONS['Template:table_row'] = """
+<table class="{table[class]}">
+<# foreach($row,table[rows]) #>
 <tr>
-{cells}
+<# foreach($cell,$row[cells]) #>
+<# if({$cell[header]}) #>
+<th colspan="{$cell[colspan]}" rowspan="{$cell[rowspan]}">{$cell[contents]}</th>
+<# else #>
+<td class="{$cell[class]}" colspan="{$cell[colspan]}" rowspan="{$cell[rowspan]}">{$cell[contents]}</td>
+<# endif #>
+<# endfor #>
 </tr>
+<# endfor #>
+</table>
 """
 
 SECTIONS['Titles'] = """

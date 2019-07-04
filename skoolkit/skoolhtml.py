@@ -1110,22 +1110,20 @@ class HtmlWriter:
         for row in table.rows:
             cells = []
             for cell in row:
+                cell_class = cell.cell_class
+                if cell.transparent:
+                    cell_class += " transparent"
                 cell_subs = {
+                    'header': int(cell.header),
+                    'class': cell_class.lstrip(),
                     'colspan': cell.colspan,
                     'rowspan': cell.rowspan,
                     'contents': cell.contents
                 }
-                if cell.header:
-                    cells.append(self.format_template('table_header_cell', cell_subs))
-                else:
-                    cell_class = cell.cell_class
-                    if cell.transparent:
-                        cell_class += " transparent"
-                    cell_subs['class'] = cell_class.lstrip()
-                    cells.append(self.format_template('table_cell', cell_subs))
-            rows.append(self.format_template('table_row', {'cells': '\n'.join(cells)}))
-        table_subs = {'class': table.table_class, 'm_table_row': '\n'.join(rows)}
-        return self.format_template('table', table_subs)
+                cells.append(cell_subs)
+            rows.append({'cells': cells})
+        table = {'class': table.table_class, 'rows': rows}
+        return self.format_template('table', {'table': table})
 
     def build_list(self, list_obj):
         items = [self.format_template('list_item', {'item': i}) for i in list_obj.items]

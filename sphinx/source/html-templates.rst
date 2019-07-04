@@ -701,73 +701,21 @@ The ``table`` template is used by the :ref:`TABLE` macro to format a table.
 The following identifiers are available (in addition to the universal
 identifiers):
 
-* ``class`` - the CSS class name for the table
-* ``m_table_row`` - replaced by any number of copies of the :ref:`t_table_row`
-  subtemplate
+* ``table[class]`` - the CSS class name for the table
+* ``table[rows]`` - a list of row objects
 
-To see the default ``table`` template, run the following command::
-
-  $ skool2html.py -r Template:table$
-
-.. versionadded:: 4.2
-
-.. _t_table_cell:
-
-table_cell
-----------
-The ``table_cell`` template is the subtemplate used by the :ref:`t_table_row`
-template to format each non-header cell in the table row.
-
-The following identifiers are available (in addition to the universal
-identifiers):
+Each row object has a ``cells`` attribute, which is a list of cell objects for
+that row. Each cell object has the following attributes:
 
 * ``class`` - the CSS class name for the cell
 * ``colspan`` - the number of columns spanned by the cell
 * ``contents`` - the contents of the cell
+* ``header`` - 1 if the cell is a header cell, 0 otherwise
 * ``rowspan`` - the number of rows spanned by the cell
 
-To see the default ``table_cell`` template, run the following command::
+To see the default ``table`` template, run the following command::
 
-  $ skool2html.py -r Template:table_cell
-
-.. versionadded:: 4.2
-
-.. _t_table_header_cell:
-
-table_header_cell
------------------
-The ``table_header_cell`` template is the subtemplate used by the
-:ref:`t_table_row` template to format each header cell in the table row.
-
-The following identifiers are available (in addition to the universal
-identifiers):
-
-* ``colspan`` - the number of columns spanned by the cell
-* ``contents`` - the contents of the cell
-* ``rowspan`` - the number of rows spanned by the cell
-
-To see the default ``table_header_cell`` template, run the following command::
-
-  $ skool2html.py -r Template:table_header_cell
-
-.. versionadded:: 4.2
-
-.. _t_table_row:
-
-table_row
----------
-The ``table_row`` template is the subtemplate used by the :ref:`t_table`
-template to format each row in the table.
-
-The following identifier is available (in addition to the universal
-identifiers):
-
-* ``cells`` - replaced by one or more copies of the :ref:`t_table_cell` or
-  :ref:`t_table_header_cell` subtemplate
-
-To see the default ``table_row`` template, run the following command::
-
-  $ skool2html.py -r Template:table_row
+  $ skool2html.py -r Template:table
 
 .. versionadded:: 4.2
 
@@ -865,12 +813,7 @@ template if it exists, or the stock :ref:`t_footer` template otherwise.
 |                               | ``PageID-list_item``                 | :ref:`t_list_item`           |
 +-------------------------------+--------------------------------------+------------------------------+
 | Table created by the          | ``PageID-table``                     | :ref:`t_table`               |
-| :ref:`TABLE` macro            +--------------------------------------+------------------------------+
-|                               | ``PageID-table_row``                 | :ref:`t_table_row`           |
-|                               +--------------------------------------+------------------------------+
-|                               | ``PageID-table_header_cell``         | :ref:`t_table_header_cell`   |
-|                               +--------------------------------------+------------------------------+
-|                               | ``PageID-table_cell``                | :ref:`t_table_cell`          |
+| :ref:`TABLE` macro            |                                      |                              |
 +-------------------------------+--------------------------------------+------------------------------+
 
 Wherever ``Asm-*`` appears in the tables above, it means one of ``Asm-b``,
