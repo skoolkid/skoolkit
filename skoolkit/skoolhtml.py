@@ -641,9 +641,9 @@ class HtmlWriter:
 
     def _get_entry_dict(self, cwd, entry, desc=True):
         if desc:
-            description = self.join_paragraphs(entry.details, cwd)
+            description = [self.expand(p, cwd).strip() for p in entry.details]
         else:
-            description = ''
+            description = ()
         return {
             'exists': 1,
             'labels': int(any([instruction.asm_label for instruction in entry.instructions])),

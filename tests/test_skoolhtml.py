@@ -3701,7 +3701,7 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         self.assertFalse(writer.link_internal_operands)
         writer.write_asm_entries()
         html = self._read_file(join(ASMDIR, '30000.html'), True)
-        line_no = 45
+        line_no = 44
         for inst, address in (
             ('CALL', 30003),
             ('JP', 30006),
@@ -3725,7 +3725,7 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         self.assertTrue(writer.link_internal_operands)
         writer.write_asm_entries()
         html = self._read_file(join(ASMDIR, '40000.html'), True)
-        line_no = 45
+        line_no = 44
         for inst, address in (
             ('CALL', 40003),
             ('JP', 40006),
@@ -3757,7 +3757,7 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             writer.write_asm_entries()
             html = self._read_file(join(ASMDIR, '32769.html'), True)
             link = '<a href="32768.html">32768</a>'
-            line_no = 45
+            line_no = 44
             for prefix in ('CALL ', 'DEFW ', 'DJNZ ', 'JP ', 'JR ', 'LD HL,'):
                 inst_type = prefix.split()[0]
                 exp_html = prefix + (link if inst_type in link_operands else '32768')
@@ -8916,16 +8916,15 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
         ref = """
             [Template:Asm-c]
             {entry[title]}
-            {entry[description]}
+            <# foreach($paragraph,entry[description]) #>
+            {$paragraph}
+            <# endfor #>
             <# foreach($reg,entry[input_registers]) #>
             {$reg[name]} register: {$reg[description]}
             <# endfor #>
             <# foreach($i,entry[instructions]) #>
             {$i[address]}: {$i[operation]} ; {$i[comment]}
             <# endfor #>
-
-            [Template:Asm-c-paragraph]
-            {paragraph}
 
             [Template:Asm-c-reg]
             {reg}
@@ -8953,16 +8952,15 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
         ref = """
             [Template:Asm]
             {entry[title]}
-            {entry[description]}
+            <# foreach($paragraph,entry[description]) #>
+            {$paragraph}
+            <# endfor #>
             <# foreach($reg,entry[input_registers]) #>
             {$reg[name]} register: {$reg[description]}
             <# endfor #>
             <# foreach($i,entry[instructions]) #>
             {$i[address]}: {$i[operation]} ; {$i[comment]}
             <# endfor #>
-
-            [Template:Asm-paragraph]
-            {paragraph}
 
             [Template:Asm-reg]
             {reg}
@@ -8993,16 +8991,15 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
 
             [Template:{}-Asm-c]
             {entry[title]}
-            {entry[description]}
+            <# foreach($paragraph,entry[description]) #>
+            {$paragraph}
+            <# endfor #>
             <# foreach($reg,entry[input_registers]) #>
             {$reg[name]} register: {$reg[description]}
             <# endfor #>
             <# foreach($i,entry[instructions]) #>
             {$i[address]}: {$i[operation]} ; {$i[comment]}
             <# endfor #>
-
-            [Template:{}-Asm-c-paragraph]
-            {paragraph}
 
             [Template:{}-Asm-c-reg]
             {reg}
@@ -9036,16 +9033,15 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
 
             [Template:{}-Asm]
             {entry[title]}
-            {entry[description]}
+            <# foreach($paragraph,entry[description]) #>
+            {$paragraph}
+            <# endfor #>
             <# foreach($reg,entry[input_registers]) #>
             {$reg[name]} register: {$reg[description]}
             <# endfor #>
             <# foreach($i,entry[instructions]) #>
             {$i[address]}: {$i[operation]} ; {$i[comment]}
             <# endfor #>
-
-            [Template:{}-Asm-paragraph]
-            {paragraph}
 
             [Template:{}-Asm-reg]
             {reg}
@@ -9173,13 +9169,12 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
 
             [Template:{}-Asm-b]
             {entry[title]}
-            {entry[description]}
+            <# foreach($paragraph,entry[description]) #>
+            {$paragraph}
+            <# endfor #>
             <# foreach($i,entry[instructions]) #>
             {$i[address]}: {$i[operation]}
             <# endfor #>
-
-            [Template:{}-Asm-b-paragraph]
-            {paragraph}
 
             [Template:{}-Asm-b-link]
             Link: {href} ({link_text})
@@ -9236,13 +9231,12 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
 
             [Template:{}-Asm-g]
             {entry[title]}
-            {entry[description]}
+            <# foreach($paragraph,entry[description]) #>
+            {$paragraph}
+            <# endfor #>
             <# foreach($i,entry[instructions]) #>
             {$i[address]}: {$i[operation]}
             <# endfor #>
-
-            [Template:{}-Asm-g-paragraph]
-            {paragraph}
 
             [Template:{}-Asm-g-list]
             Items:
@@ -9384,13 +9378,12 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
         ref = """
             [Template:Asm-u]
             {entry[title]}
-            {entry[description]}
+            <# foreach($paragraph,entry[description]) #>
+            {$paragraph}
+            <# endfor #>
             <# foreach($i,entry[instructions]) #>
             {$i[address]}: {$i[operation]}
             <# endfor #>
-
-            [Template:Asm-u-paragraph]
-            {paragraph}
 
             [Template:Asm-u-img]
             Image: {src}
@@ -9518,7 +9511,7 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
         writer.write_page(page_id)
         self._assert_content_equal(exp_content, '{}.html'.format(page_id))
 
-    def test_custom_map_page_with_custom_subtemplates(self):
+    def test_custom_map_page_with_custom_subtemplate(self):
         skool = """
             ; Routine at 49152
             ;
@@ -9534,10 +9527,9 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
 
             [Template:MemoryMap-map_entry]
             {entry[address]}: {entry[title]}
-            {entry[description]}
-
-            [Template:MemoryMap-paragraph]
-            {paragraph}
+            <# foreach($paragraph,entry[description]) #>
+            {$paragraph}
+            <# endfor #>
         """
         exp_content = """
             49152: Routine at 49152

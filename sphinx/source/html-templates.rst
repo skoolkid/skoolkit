@@ -67,7 +67,7 @@ are:
 * ``annotated`` - '1' if any instructions in the entry have a non-empty comment
   field, '0' otherwise
 * ``byte`` - the LSB of the entry address
-* ``description`` - the entry description
+* ``description`` - a list of paragraphs comprising the entry description
 * ``exists`` - '1' if the entry exists, '0' otherwise
 * ``href`` - the relative path to the disassembly page for the entry (useful
   only for ``prev_entry`` and ``next_entry``)
@@ -496,26 +496,9 @@ identifiers):
 
 * ``MemoryMap`` - a dictionary of parameters from the corresponding
   :ref:`memoryMap` section
-* ``entry`` - a dictionary of parameters corresponding to the current memory
-  map entry
-
-The parameters in the ``entry`` dictionary are:
-
-* ``address`` - the address of the entry (may be in decimal or hexadecimal
-  format, depending on how it appears in the skool file, and the options passed
-  to :ref:`skool2html.py`)
-* ``byte`` - the LSB of the entry address
-* ``description`` - the entry description
-* ``exists`` - '1'
-* ``href`` - the relative path to the disassembly page for the entry
-* ``label`` - the ASM label of the first instruction in the entry
-* ``labels`` - '1' if any instructions in the entry have an ASM label, '0'
-  otherwise
-* ``location`` - the address of the entry as a decimal number
-* ``page`` - the MSB of the entry address
-* ``size`` - the size of the entry in bytes
-* ``title`` - the title of the entry
-* ``type`` - the block type of the entry ('b', 'c', 'g', 's', 't', 'u' or 'w')
+* ``entry`` - a dictionary of parameters corresponding to the memory map entry;
+  the parameters in this dictionary are the same as those in the ``entry``
+  dictionary in the :ref:`t_Asm` template
 
 To see the default ``map_entry`` template, run the following command::
 
@@ -530,10 +513,8 @@ To see the default ``map_entry`` template, run the following command::
 paragraph
 ---------
 The ``paragraph`` template is the subtemplate used to format each paragraph in
-the following items:
-
-* memory map entry descriptions (on disassembly pages and memory map pages)
-* entries on a :ref:`box page <boxpages>`
+an entry on a :ref:`box page <boxpages>`, and each paragraph in a ref file
+section processed by the :ref:`INCLUDE` macro.
 
 The following identifier is available (in addition to the universal
 identifiers):
@@ -684,10 +665,7 @@ template if it exists, or the stock :ref:`t_footer` template otherwise.
 | contents list item            |                                      |                              |
 +-------------------------------+--------------------------------------+------------------------------+
 | Paragraph on a                | ``PageID-paragraph``                 | :ref:`t_paragraph`           |
-| routine/data block page,      |                                      |                              |
-| :ref:`box page <boxpages>` or |                                      |                              |
-| :ref:`memory map <memoryMap>` |                                      |                              |
-| page                          |                                      |                              |
+| :ref:`box page <boxpages>`    |                                      |                              |
 +-------------------------------+--------------------------------------+------------------------------+
 | Entry on a                    | ``PageID-map_entry``                 | :ref:`t_map_entry`           |
 | :ref:`memory map <memoryMap>` |                                      |                              |

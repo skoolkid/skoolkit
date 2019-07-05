@@ -285,7 +285,11 @@ SECTIONS['Template:Asm'] = """
 <tr>
 <td class="routine-comment" colspan="{Game[DisassemblyTableNumCols]}">
 <div class="details">
-{entry[description]}
+<# foreach($paragraph,entry[description]) #>
+<div class="paragraph">
+{$paragraph}
+</div>
+<# endfor #>
 </div>
 <table class="input-{entry[input]}">
 <tr class="asm-input-header">
@@ -501,7 +505,11 @@ SECTIONS['Template:asm_entry'] = """
 <tr>
 <td class="routine-comment" colspan="{Game[DisassemblyTableNumCols]}">
 <div class="details">
-{entry[description]}
+<# foreach($paragraph,entry[description]) #>
+<div class="paragraph">
+{$paragraph}
+</div>
+<# endfor #>
 </div>
 <table class="input-{entry[input]}">
 <tr class="asm-input-header">
@@ -626,7 +634,11 @@ SECTIONS['Template:map_entry'] = """
 <td class="map-{entry[type]}-desc">
 <div class="map-entry-title-1{MemoryMap[EntryDescriptions]}"><a class="map-entry-title" href="{entry[href]}">{entry[title]}</a></div>
 <div class="map-entry-desc-{MemoryMap[EntryDescriptions]}">
-{entry[description]}
+<# foreach($paragraph,entry[description]) #>
+<div class="paragraph">
+{$paragraph}
+</div>
+<# endfor #>
 </div>
 </td>
 </tr>
