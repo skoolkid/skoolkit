@@ -512,8 +512,7 @@ To see the default ``map_entry`` template, run the following command::
 
 paragraph
 ---------
-The ``paragraph`` template is the subtemplate used to format each paragraph in
-an entry on a :ref:`box page <boxpages>`, and each paragraph in a ref file
+The ``paragraph`` template is used to format each paragraph in a ref file
 section processed by the :ref:`INCLUDE` macro.
 
 The following identifier is available (in addition to the universal
@@ -664,9 +663,6 @@ template if it exists, or the stock :ref:`t_footer` template otherwise.
 | :ref:`Box page <boxpages>`    | ``PageID-contents_list_item``        | :ref:`t_contents_list_item`  |
 | contents list item            |                                      |                              |
 +-------------------------------+--------------------------------------+------------------------------+
-| Paragraph on a                | ``PageID-paragraph``                 | :ref:`t_paragraph`           |
-| :ref:`box page <boxpages>`    |                                      |                              |
-+-------------------------------+--------------------------------------+------------------------------+
 | Entry on a                    | ``PageID-map_entry``                 | :ref:`t_map_entry`           |
 | :ref:`memory map <memoryMap>` |                                      |                              |
 | page                          |                                      |                              |
@@ -683,6 +679,9 @@ template if it exists, or the stock :ref:`t_footer` template otherwise.
 | Page anchor                   | ``PageID-anchor``                    | :ref:`t_anchor`              |
 +-------------------------------+--------------------------------------+------------------------------+
 | Page footer                   | ``PageID-footer``                    | :ref:`t_footer`              |
++-------------------------------+--------------------------------------+------------------------------+
+| Paragraph rendered by the     | ``PageID-paragraph``                 | :ref:`t_paragraph`           |
+| :ref:`INCLUDE` macro          |                                      |                              |
 +-------------------------------+--------------------------------------+------------------------------+
 | Register name rendered by the | ``PageID-reg``                       | :ref:`t_reg`                 |
 | :ref:`REG` macro              |                                      |                              |

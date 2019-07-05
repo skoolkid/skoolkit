@@ -574,12 +574,6 @@ class HtmlWriter:
             return 'RAW(#{})'.format(anchor)
         return anchor
 
-    def join_paragraphs(self, paragraphs, cwd):
-        lines = []
-        for p in paragraphs:
-            lines.append(self.format_template('paragraph', {'paragraph': self.expand(p, cwd).strip()}))
-        return '\n'.join(lines)
-
     # API
     def screenshot(self, x=0, y=0, w=32, h=24, df_addr=16384, af_addr=22528):
         """Return a two-dimensional array of tiles (instances of
@@ -704,7 +698,7 @@ class HtmlWriter:
                 't_anchor': self.format_anchor(anchor),
                 'num': 1 + i % 2,
                 'title': title,
-                'contents': self.join_paragraphs(paragraphs, cwd)
+                'contents': [self.expand(p, cwd).strip() for p in paragraphs]
             }
             entries_html.append(self.format_template(page_id + '-entry', t_reference_entry_subs, 'reference_entry'))
         subs = {
@@ -1158,7 +1152,8 @@ class HtmlWriter:
         end, paragraphs, section = skoolmacro.parse_include(text, index)
         content = self.get_section(section, paragraphs)
         if paragraphs:
-            return end, self.join_paragraphs(content, cwd)
+            lines = [self.format_template('paragraph', {'paragraph': self.expand(p, cwd).strip()}) for p in content]
+            return end, '\n'.join(lines)
         return end, content
 
     def expand_link(self, text, index, cwd):

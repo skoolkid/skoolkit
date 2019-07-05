@@ -9493,11 +9493,8 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
             [Template:{}-contents_list_item]
             * {title}
 
-            [Template:{}-paragraph]
-            {paragraph}
-
             [Template:{}-entry]
-            {title}: {contents}
+            {title}: {contents[0]}
         """.replace('{}', page_id)
         exp_content = """
             * Box 1
