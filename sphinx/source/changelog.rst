@@ -29,11 +29,11 @@ Changelog
 * Added the ``Dictionary`` configuration parameter for
   :ref:`sna2ctl.py <sna2ctl-conf>` (to specify a file containing a list of
   words allowed in a text string)
-* Added the ``bytes`` and ``show_bytes`` identifiers to the
-  :ref:`t_asm_instruction` template, along with a table cell for displaying the
-  byte values of an assembled instruction
+* Added the ``bytes`` and ``show_bytes`` identifiers to the ``asm_instruction``
+  template, along with a table cell for displaying the byte values of an
+  assembled instruction
 * Added the ``Bytes`` parameter to the :ref:`ref-Game` section (for specifying
-  the format of byte values in the :ref:`t_asm_instruction` template)
+  the format of byte values in the ``asm_instruction`` template)
 * Added the ``DisassemblyTableNumCols`` parameter to the :ref:`ref-Game`
   section (for specifying the number of columns in the disassembly table on
   disassembly pages)

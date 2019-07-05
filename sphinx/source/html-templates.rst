@@ -51,9 +51,6 @@ disassembly pages.
 The following identifiers are available (in addition to the universal and
 page-level identifiers):
 
-* ``disassembly`` - replaced by sequences of copies of the
-  :ref:`t_asm_instruction` subtemplate, punctuated by copies of the
-  :ref:`t_asm_comment` subtemplate
 * ``entry`` - a dictionary of parameters corresponding to the current memory
   map entry (see below)
 * ``next_entry`` - a dictionary of parameters corresponding to the next memory
@@ -88,6 +85,7 @@ The ``entry`` dictionary also contains the following parameters:
 
 * ``input`` - '1' if there are input register values defined, '0' otherwise
 * ``input_registers`` - a list of input register objects
+* ``instructions`` - a list of instruction objects
 * ``output`` - '1' if there are output register values defined, '0' otherwise
 * ``output_registers`` - a list of output register objects
 
@@ -96,6 +94,65 @@ Each input and output register object has the following attributes:
 * ``description`` - the register's description (as it appears in the register
   section for the entry in the skool file)
 * ``name`` - the register's name (e.g. 'HL')
+
+Each instruction object has the following attributes:
+
+* ``address`` - the address of the instruction (may be in decimal or
+  hexadecimal format, depending on how it appears in the skool file, and the
+  options passed to :ref:`skool2html.py`)
+* ``annotated`` - '1' if the instruction has a comment field, '0' otherwise
+* ``block_comment`` - a list of paragraphs comprising the instruction's
+  mid-block comment
+* ``bytes`` - the byte values of the assembled instruction (see below)
+* ``called`` - '2' if the instruction is an entry point, '1' otherwise
+* ``comment`` - the text of the instruction's comment field
+* ``comment_rowspan`` - the number of instructions to which the comment field
+  applies
+* ``entry`` - a dictionary of parameters corresponding to the memory map entry
+  that contains the instruction (see :ref:`t_Asm`)
+* ``has_block_comment`` - '1' if the instruction has a mid-block comment, '0'
+  otherwise
+* ``label`` - the instruction's ASM label
+* ``location`` - the address of the instruction as a decimal number
+* ``operation`` - the assembly language operation (e.g. 'LD A,B'), with operand
+  hyperlinked if appropriate
+* ``show_bytes`` - '1' if the entry contains at least one assembled instruction
+  with byte values and the ``Bytes`` parameter in the :ref:`ref-Game` section
+  is not blank, '0' otherwise
+* ``t_anchor`` - replaced by a copy of the :ref:`t_anchor` subtemplate
+
+The ``bytes`` attribute can be used to render the byte values of an
+instruction. In its simplest form, it provides a format specification that is
+applied to each byte. For example::
+
+  {$instruction[bytes]:02X}
+
+would produce the string ``3E01`` for the instruction 'LD A,1'.
+
+To render the byte values as 0-padded decimal integers separated by commas, use
+the following syntax::
+
+  {$instruction[bytes]:/03/,}
+
+This would produce the string ``062,001`` for the instruction 'LD A,1'. The
+delimiter used in this example (``/``) is arbitrary; it could be any character
+that doesn't appear in the byte format specification itself.
+
+By default, the ``Bytes`` parameter in the :ref:`ref-Game` section is used as
+the byte format specification::
+
+  {$instruction[bytes]:{Game[Bytes]}}
+
+If you define a custom template that replaces ``{Game[Bytes]}`` with a
+hard-coded byte format specification, it's a good idea to also replace the
+``{$instruction[show_bytes]}`` field with ``1``, to ensure that the byte values
+are displayed.
+
+Note that byte values are available only for regular assembly language
+instructions (not DEFB, DEFM, DEFS or DEFW statements), and only if they have
+actually been assembled by using :ref:`@assemble=2 <assemble>`. When no byte
+values are available, or the format specification is blank, the ``bytes``
+identifier produces an empty string.
 
 To see the default ``Asm`` template, run the following command::
 
@@ -224,29 +281,6 @@ To see the default ``anchor`` template, run the following command::
 
   $ skool2html.py -r Template:anchor
 
-.. _t_asm_comment:
-
-asm_comment
------------
-The ``asm_comment`` template is the subtemplate used by the :ref:`t_Asm`
-full-page template and the :ref:`t_asm_entry` subtemplate to format block start
-comments, mid-block comments and block end comments.
-
-The following identifiers are available (in addition to the universal
-identifiers):
-
-* ``entry`` - a dictionary of parameters corresponding to the current memory
-  map entry (see :ref:`t_Asm`)
-* ``m_paragraph`` - replaced by one or more copies of the :ref:`t_paragraph`
-  subtemplate
-* ``t_anchor`` - replaced by a copy of the :ref:`t_anchor` subtemplate (when
-  formatting a block start comment or a mid-block comment), or by an empty
-  string (when formatting a block end comment)
-
-To see the default ``asm_comment`` template, run the following command::
-
-  $ skool2html.py -r Template:asm_comment
-
 .. _t_asm_entry:
 
 asm_entry
@@ -254,12 +288,9 @@ asm_entry
 The ``asm_entry`` template is the subtemplate used by the :ref:`t_AsmAllInOne`
 full-page template to format the disassembly of a memory map entry.
 
-The following identifiers are available (in addition to the universal
+The following identifier is available (in addition to the universal
 identifiers):
 
-* ``disassembly`` - replaced by sequences of copies of the
-  :ref:`t_asm_instruction` subtemplate, punctuated by copies of the
-  :ref:`t_asm_comment` subtemplate
 * ``entry`` - a dictionary of parameters corresponding to the memory map entry;
   the parameters in this dictionary are the same as those in the ``entry``
   dictionary in the :ref:`t_Asm` template
@@ -269,81 +300,6 @@ To see the default ``asm_entry`` template, run the following command::
   $ skool2html.py -r Template:asm_entry
 
 .. versionadded:: 5.3
-
-.. _t_asm_instruction:
-
-asm_instruction
----------------
-The ``asm_instruction`` template is the subtemplate used by the :ref:`t_Asm`
-full-page template and the :ref:`t_asm_entry` subtemplate to format an
-instruction (including its label, address, operation and comment).
-
-The following identifiers are available (in addition to the universal
-identifiers):
-
-* ``address`` - the address of the instruction (may be in decimal or
-  hexadecimal format, depending on how it appears in the skool file, and the
-  options passed to :ref:`skool2html.py`)
-* ``annotated`` - '1' if the instruction has a comment field, '0' otherwise
-* ``bytes`` - the byte values of the assembled instruction (see below)
-* ``called`` - '2' if the instruction is an entry point, '1' otherwise
-* ``comment`` - the text of the instruction's comment field
-* ``comment_rowspan`` - the number of instructions to which the comment field
-  applies
-* ``entry`` - a dictionary of parameters corresponding to the memory map entry
-  that contains the instruction (see :ref:`t_Asm`)
-* ``label`` - the instruction's ASM label
-* ``location`` - the address of the instruction as a decimal number
-* ``operation`` - the assembly language operation (e.g. 'LD A,B'), with operand
-  hyperlinked if appropriate
-* ``show_bytes`` - '1' if the entry contains at least one assembled instruction
-  with byte values and the ``Bytes`` parameter in the :ref:`ref-Game` section
-  is not blank, '0' otherwise
-* ``t_anchor`` - replaced by a copy of the :ref:`t_anchor` subtemplate
-
-The ``bytes`` identifier can be used to render the byte values of an
-instruction. In its simplest form, it provides a format specification that is
-applied to each byte. For example::
-
-  {bytes:02X}
-
-would produce the string ``3E01`` for the instruction 'LD A,1'.
-
-To render the byte values as 0-padded decimal integers separated by commas, use
-the following syntax::
-
-  {bytes:/03/,}
-
-This would produce the string ``062,001`` for the instruction 'LD A,1'. The
-delimiter used in this example (``/``) is arbitrary; it could be any character
-that doesn't appear in the byte format specification itself.
-
-The default ``asm_instruction`` template uses the ``Bytes`` parameter in the
-:ref:`ref-Game` section as the byte format specification::
-
-  <td class="bytes-{show_bytes}">{bytes:{Game[Bytes]}}</td>
-
-If you define a custom template that replaces ``{Game[Bytes]}`` with a
-hard-coded byte format specification, it's a good idea to also replace the
-``{show_bytes}`` field with ``1``, to ensure that the byte values are
-displayed.
-
-Note that byte values are available only for regular assembly language
-instructions (not DEFB, DEFM, DEFS or DEFW statements), and only if they have
-actually been assembled by using :ref:`@assemble=2 <assemble>`. When no byte
-values are available, or the format specification is blank, the ``bytes``
-identifier produces an empty string.
-
-To see the default ``asm_instruction`` template, run the following command::
-
-  $ skool2html.py -r Template:asm_instruction
-
-.. versionchanged:: 7.2
-   Added the ``bytes`` and ``show_bytes`` identifiers, and a table cell for
-   displaying assembled instruction byte values.
-
-.. versionchanged:: 6.3
-   Added the ``location`` identifier.
 
 .. _t_contents_list_item:
 
@@ -577,8 +533,6 @@ The ``paragraph`` template is the subtemplate used to format each paragraph in
 the following items:
 
 * memory map entry descriptions (on disassembly pages and memory map pages)
-* block start comments, mid-block comments and block end comments on
-  disassembly pages
 * entries on a :ref:`box page <boxpages>`
 
 The following identifier is available (in addition to the universal
@@ -698,6 +652,10 @@ SkoolKit uses the ``RoutinesMap`` template if it exists, or the stock
 | (non-box)                     |                            |                      |
 +-------------------------------+----------------------------+----------------------+
 
+Where ``Asm-*`` appears in the table above, it means one of ``Asm-b``,
+``Asm-c``, ``Asm-g``, ``Asm-s``, ``Asm-t``, ``Asm-u`` or ``Asm-w``, depending
+on the type of code or data block.
+
 When SkoolKit builds an element of an HTML page whose format is defined by a
 subtemplate, it uses the subtemplate whose name starts with ``PageID-`` if it
 exists, or one of the stock subtemplates otherwise. For example, when building
@@ -707,10 +665,6 @@ template if it exists, or the stock :ref:`t_footer` template otherwise.
 +-------------------------------+--------------------------------------+------------------------------+
 | Element type                  | Preferred template(s)                | Stock subtemplate            |
 +===============================+======================================+==============================+
-| Routine/data block comment    | ``[CodeID-]Asm[-*]-asm_comment``     | :ref:`t_asm_comment`         |
-+-------------------------------+--------------------------------------+------------------------------+
-| Instruction                   | ``[CodeID-]Asm[-*]-asm_instruction`` | :ref:`t_asm_instruction`     |
-+-------------------------------+--------------------------------------+------------------------------+
 | Single-page disassembly       | ``[CodeID-]AsmSinglePage-asm_entry`` | :ref:`t_asm_entry`           |
 | routine/data block            |                                      |                              |
 +-------------------------------+--------------------------------------+------------------------------+
@@ -761,7 +715,3 @@ template if it exists, or the stock :ref:`t_footer` template otherwise.
 | Table created by the          | ``PageID-table``                     | :ref:`t_table`               |
 | :ref:`TABLE` macro            |                                      |                              |
 +-------------------------------+--------------------------------------+------------------------------+
-
-Wherever ``Asm-*`` appears in the tables above, it means one of ``Asm-b``,
-``Asm-c``, ``Asm-g``, ``Asm-s``, ``Asm-t``, ``Asm-u`` or ``Asm-w``, depending
-on the type of code or data block.

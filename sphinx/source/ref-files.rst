@@ -131,18 +131,18 @@ Recognised parameters are:
   disassembly on a single page, as opposed to a separate page for each routine
   and data block (default: None); set this to 'AsmAllInOne' to use the
   :ref:`t_AsmAllInOne` template
-* ``Bytes`` - the format specification for the ``bytes`` replacement field in
-  the :ref:`t_asm_instruction` template (default: ''); if not blank, assembled
-  instruction byte values are displayed on disassembly pages
+* ``Bytes`` - the format specification for the ``bytes`` attribute of
+  instruction objects in the :ref:`t_Asm` and :ref:`t_asm_entry` templates
+  (default: ''); if not blank, assembled instruction byte values are displayed
+  on disassembly pages
 * ``Copyright`` - the copyright message that appears in the footer of every
   page (default: '')
 * ``Created`` - the message indicating the software used to create the
   disassembly that appears in the footer of every page (default: 'Created using
   SkoolKit #VERSION.')
 * ``DisassemblyTableNumCols`` - the number of columns in the disassembly table
-  on disassembly pages (default: the number of occurrences of '</td>' in the
-  :ref:`t_asm_instruction` template); this value is used by the :ref:`t_Asm`,
-  :ref:`t_asm_comment` and :ref:`t_asm_entry` templates
+  on disassembly pages (default: 5); this value is used by the :ref:`t_Asm` and
+  and :ref:`t_asm_entry` templates
 * ``Font`` - the base name of the font file to use (default: None); multiple
   font files can be declared by separating their names with semicolons
 * ``Game`` - the name of the game, which appears in the title of every page,

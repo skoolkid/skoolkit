@@ -50,7 +50,7 @@ AddressAnchor={address}
 Bytes=
 Copyright=
 Created=Created using <a href="https://skoolkit.ca">SkoolKit</a> #VERSION.
-; DisassemblyTableNumCols=
+DisassemblyTableNumCols=5
 ; Font=
 ; Game=
 InputRegisterTableHeader=Input
@@ -311,7 +311,42 @@ SECTIONS['Template:Asm'] = """
 </table>
 </td>
 </tr>
-{disassembly}
+<# foreach($instruction,entry[instructions]) #>
+<# if({$instruction[has_block_comment]}) #>
+<tr>
+<td class="routine-comment" colspan="{Game[DisassemblyTableNumCols]}">
+<span id="{$instruction[anchor]}"></span>
+<div class="comments">
+<# foreach($paragraph,$instruction[block_comment]) #>
+<div class="paragraph">
+{$paragraph}
+</div>
+<# endfor #>
+</div>
+</td>
+</tr>
+<# endif #>
+<tr>
+<td class="asm-label-{entry[labels]}">{$instruction[label]}</td>
+<td class="address-{$instruction[called]}"><span id="{$instruction[anchor]}"></span>{$instruction[address]}</td>
+<td class="bytes-{$instruction[show_bytes]}">{$instruction[bytes]:{Game[Bytes]}}</td>
+<td class="instruction">{$instruction[operation]}</td>
+<td class="comment-{$instruction[annotated]}{entry[annotated]}" rowspan="{$instruction[comment_rowspan]}">{$instruction[comment]}</td>
+</tr>
+<# endfor #>
+<# if({entry[has_end_comment]}) #>
+<tr>
+<td class="routine-comment" colspan="{Game[DisassemblyTableNumCols]}">
+<div class="comments">
+<# foreach($paragraph,entry[end_comment]) #>
+<div class="paragraph">
+{$paragraph}
+</div>
+<# endfor #>
+</div>
+</td>
+</tr>
+<# endif #>
 </table>
 <table class="asm-navigation">
 <tr>
@@ -460,17 +495,6 @@ SECTIONS['Template:anchor'] = """
 <span id="{anchor}"></span>
 """
 
-SECTIONS['Template:asm_comment'] = """
-<tr>
-<td class="routine-comment" colspan="{Game[DisassemblyTableNumCols]}">
-{t_anchor}
-<div class="comments">
-{m_paragraph}
-</div>
-</td>
-</tr>
-"""
-
 SECTIONS['Template:asm_entry'] = """
 <div id="{anchor}" class="description">{entry[address]}: {entry[title]}</div>
 <table class="disassembly">
@@ -503,18 +527,43 @@ SECTIONS['Template:asm_entry'] = """
 </table>
 </td>
 </tr>
-{disassembly}
-</table>
-"""
-
-SECTIONS['Template:asm_instruction'] = """
+<# foreach($instruction,entry[instructions]) #>
+<# if({$instruction[has_block_comment]}) #>
 <tr>
-<td class="asm-label-{entry[labels]}">{label}</td>
-<td class="address-{called}">{t_anchor}{address}</td>
-<td class="bytes-{show_bytes}">{bytes:{Game[Bytes]}}</td>
-<td class="instruction">{operation}</td>
-<td class="comment-{annotated}{entry[annotated]}" rowspan="{comment_rowspan}">{comment}</td>
+<td class="routine-comment" colspan="{Game[DisassemblyTableNumCols]}">
+<span id="{$instruction[anchor]}"></span>
+<div class="comments">
+<# foreach($paragraph,$instruction[block_comment]) #>
+<div class="paragraph">
+{$paragraph}
+</div>
+<# endfor #>
+</div>
+</td>
 </tr>
+<# endif #>
+<tr>
+<td class="asm-label-{entry[labels]}">{$instruction[label]}</td>
+<td class="address-{$instruction[called]}"><span id="{$instruction[anchor]}"></span>{$instruction[address]}</td>
+<td class="bytes-{$instruction[show_bytes]}">{$instruction[bytes]:{Game[Bytes]}}</td>
+<td class="instruction">{$instruction[operation]}</td>
+<td class="comment-{$instruction[annotated]}{entry[annotated]}" rowspan="{$instruction[comment_rowspan]}">{$instruction[comment]}</td>
+</tr>
+<# endfor #>
+<# if({entry[has_end_comment]}) #>
+<tr>
+<td class="routine-comment" colspan="{Game[DisassemblyTableNumCols]}">
+<div class="comments">
+<# foreach($paragraph,entry[end_comment]) #>
+<div class="paragraph">
+{$paragraph}
+</div>
+<# endfor #>
+</div>
+</td>
+</tr>
+<# endif #>
+</table>
 """
 
 SECTIONS['Template:contents_list_item'] = """

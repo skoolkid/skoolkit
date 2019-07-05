@@ -210,7 +210,6 @@ class HtmlWriter:
             self.js_files = tuple(global_js.split(';'))
 
         self.templates = dict(self.get_sections('Template'))
-        self.game_vars.setdefault('DisassemblyTableNumCols', self.templates['asm_instruction'].count('</td>'))
         self.game = self.game_vars.copy()
         self.skoolkit = {}
         self.stylesheets = {}
@@ -798,14 +797,6 @@ class HtmlWriter:
         entry_dict['input'] = min(len(input_values), 1)
         entry_dict['output'] = min(len(output_values), 1)
 
-    def format_entry_comment(self, cwd, entry_dict, paragraphs, anchor=''):
-        t_asm_comment_subs = {
-            'entry': entry_dict,
-            't_anchor': anchor,
-            'm_paragraph': self.join_paragraphs(paragraphs, cwd)
-        }
-        return self.format_template('asm_comment', t_asm_comment_subs)
-
     def _get_asm_entry(self, cwd, index, map_file):
         entry = self.memory_map[index]
         entry_dict = self._get_asm_entry_dict(cwd, index, map_file)
@@ -819,13 +810,8 @@ class HtmlWriter:
                 instruction.byte_values = Bytes(instruction.data)
         show_bytes = int(self.game_vars['Bytes'] != '' and any(i.byte_values.values for i in entry.instructions))
 
-        lines = []
+        entry_dict['instructions'] = instructions = []
         for instruction in entry.instructions:
-            address = instruction.address
-            anchor = self.format_anchor(self.asm_anchor(address))
-            if instruction.mid_block_comment:
-                lines.append(self.format_entry_comment(cwd, entry_dict, instruction.mid_block_comment, anchor))
-
             operation, reference = instruction.operation, instruction.reference
             operation_u = operation.upper()
             if reference and operation_u.startswith(self.link_operands):
@@ -846,6 +832,10 @@ class HtmlWriter:
                     link = self.format_link(href, link_text)
                     operation = operation.replace(reference.addr_str, link)
 
+            if instruction.mid_block_comment:
+                block_comment = [self.expand(p, cwd).strip() for p in instruction.mid_block_comment]
+            else:
+                block_comment = ()
             comment = instruction.comment
             if comment:
                 comment_rowspan = comment.rowspan
@@ -855,8 +845,9 @@ class HtmlWriter:
                 comment_rowspan = 1
                 comment_text = ''
                 annotated = 0
-            instruction_subs = {
-                'entry': entry_dict,
+            instructions.append({
+                'has_block_comment': min(len(block_comment), 1),
+                'block_comment': block_comment,
                 'address': instruction.addr_str,
                 'location': instruction.address,
                 'called': 1 + int(instruction.ctl in 'c*'),
@@ -865,19 +856,15 @@ class HtmlWriter:
                 'comment': comment_text,
                 'comment_rowspan': comment_rowspan,
                 'annotated': annotated,
-                't_anchor': anchor,
+                'anchor': self.asm_anchor(instruction.address),
                 'bytes': instruction.byte_values,
                 'show_bytes': show_bytes
-            }
-            lines.append(self.format_template('asm_instruction', instruction_subs))
+            })
 
-        if entry.end_comment:
-            lines.append(self.format_entry_comment(cwd, entry_dict, entry.end_comment))
+        entry_dict['end_comment'] = [self.expand(p, cwd).strip() for p in entry.end_comment]
+        entry_dict['has_end_comment'] = min(len(entry.end_comment), 1)
 
-        return {
-            'entry': entry_dict,
-            'disassembly': '\n'.join(lines)
-        }
+        return {'entry': entry_dict}
 
     def write_entry(self, cwd, index, map_file):
         entry = self.memory_map[index]
@@ -1318,3 +1305,6 @@ class Bytes:
         else:
             bspec, sep = spec, ''
         return sep.join(v.__format__(bspec) for v in self.values)
+
+    def __repr__(self):
+        return "''"

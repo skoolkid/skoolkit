@@ -30,7 +30,6 @@ REF_SECTIONS = {
     'Page_Facts': defaults.get_section('Page:Facts'),
     'Page_Pokes': defaults.get_section('Page:Pokes'),
     'PageHeaders': defaults.get_section('PageHeaders'),
-    'Template_asm_instruction': defaults.get_section('Template:asm_instruction'),
     'Template_img': defaults.get_section('Template:img'),
     'Template_link': defaults.get_section('Template:link'),
     'Template_list': defaults.get_section('Template:list'),
@@ -50,7 +49,6 @@ LinkOperands=CALL,DEFW,DJNZ,JP,JR
 CodePath={ASMDIR}
 CodeFiles={{address}}.html
 UDGFilename=udg{{addr}}_{{attr}}x{{scale}}
-{REF_SECTIONS[Template_asm_instruction]}
 """.format(**locals())
 
 METHOD_MINIMAL_REF_FILE = """
@@ -66,7 +64,6 @@ ScreenshotImagePath={SCRDIR}
 UDGImagePath={UDGDIR}
 UDGFilename=udg{{addr}}_{{attr}}x{{scale}}
 CodeFiles={{address}}.html
-{REF_SECTIONS[Template_asm_instruction]}
 {REF_SECTIONS[Template_img]}
 """.format(**locals())
 
@@ -93,7 +90,6 @@ Bugs={REFERENCE_DIR}/bugs.html
 CodeFiles={{address}}.html
 Facts={REFERENCE_DIR}/facts.html
 Pokes={REFERENCE_DIR}/pokes.html
-{REF_SECTIONS[Template_asm_instruction]}
 {REF_SECTIONS[Template_img]}
 {REF_SECTIONS[Template_link]}
 {REF_SECTIONS[Template_list]}
@@ -3615,9 +3611,9 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             [Game]
             Bytes=02#MAP({case})(X,1:x)
             [Template:Asm]
-            {disassembly}
-            [Template:asm_instruction]
-            {address} {bytes:{Game[Bytes]}} {operation}
+            <# foreach($i,entry[instructions]) #>
+            {$i[address]} {$i[bytes]:{Game[Bytes]}} {$i[operation]}
+            <# endfor #>
         """
         skool = """
             @assemble=2
@@ -3627,127 +3623,7 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         writer.write_asm_entries()
         self._assert_content_equal('32768 c9 ret', 'asm/32768.html')
 
-    def test_parameter_DisassemblyTableNumCols_default_value(self):
-        ref = """
-            [Template:asm_instruction]
-            <tr>
-            <td class="instruction">{label} {t_anchor}{address} {operation}</td>
-            <td class="comment-{annotated}{entry[annotated]}" rowspan="{comment_rowspan}">{comment}</td>
-            </tr>
-        """
-        skool = """
-            ; Routine at 50000
-            ;
-            ; .
-            ;
-            ; .
-            ;
-            ; It begins here.
-            @label=START
-            c50000 RET
-        """
-        writer = self._get_writer(ref=ref, skool=skool, asm_labels=True)
-        writer.write_asm_entries()
-
-        content = """
-            <div class="description">50000: Routine at 50000</div>
-            <table class="disassembly">
-            <tr>
-            <td class="routine-comment" colspan="2">
-            <div class="details">
-            </div>
-            <table class="input-0">
-            <tr class="asm-input-header">
-            <th colspan="2">Input</th>
-            </tr>
-            </table>
-            <table class="output-0">
-            <tr class="asm-output-header">
-            <th colspan="2">Output</th>
-            </tr>
-            </table>
-            </td>
-            </tr>
-            <tr>
-            <td class="routine-comment" colspan="2">
-            <span id="50000"></span>
-            <div class="comments">
-            <div class="paragraph">
-            It begins here.
-            </div>
-            </div>
-            </td>
-            </tr>
-            <tr>
-            <td class="instruction">START <span id="50000"></span>50000 RET</td>
-            <td class="comment-10" rowspan="1"></td>
-            </tr>
-            </table>
-        """
-        subs = {
-            'header': 'Routines',
-            'title': 'Routine at 50000',
-            'body_class': 'Asm-c',
-            'up': '50000',
-            'content': content
-        }
-        self._assert_files_equal(join(ASMDIR, '50000.html'), subs)
-
-    def test_parameter_DisassemblyTableNumCols_default_value_with_single_page(self):
-        ref = """
-            [Game]
-            AsmSinglePageTemplate=AsmAllInOne
-
-            [Template:asm_instruction]
-            <tr>
-            <td class="asm-label-{entry[labels]}">{label}</td>
-            <td class="instruction">{t_anchor}{address} {operation}</td>
-            <td class="comment-{annotated}{entry[annotated]}" rowspan="{comment_rowspan}">{comment}</td>
-            </tr>
-        """
-        skool = """
-            ; Routine at 32768
-            c32768 RET
-        """
-        writer = self._get_writer(ref=ref, skool=skool)
-        writer.write_asm_entries()
-
-        content = """
-            <div id="32768" class="description">32768: Routine at 32768</div>
-            <table class="disassembly">
-            <tr>
-            <td class="routine-comment" colspan="3">
-            <div class="details">
-            </div>
-            <table class="input-0">
-            <tr class="asm-input-header">
-            <th colspan="2">Input</th>
-            </tr>
-            </table>
-            <table class="output-0">
-            <tr class="asm-output-header">
-            <th colspan="2">Output</th>
-            </tr>
-            </table>
-            </td>
-            </tr>
-            <tr>
-            <td class="asm-label-0"></td>
-            <td class="instruction"><span id="32768"></span>32768 RET</td>
-            <td class="comment-10" rowspan="1"></td>
-            </tr>
-            </table>
-        """
-        subs = {
-            'path': '',
-            'header': 'Disassembly',
-            'title': 'Disassembly',
-            'body_class': 'AsmSinglePage',
-            'content': content
-        }
-        self._assert_files_equal('asm.html', subs)
-
-    def test_parameter_DisassemblyTableNumCols_specified_value(self):
+    def test_parameter_DisassemblyTableNumCols(self):
         ref = """
             [Game]
             DisassemblyTableNumCols=100
@@ -8938,30 +8814,7 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
         }
         self._assert_files_equal('{}.html'.format(page_id), subs)
 
-    def test_custom_asm_instruction_template(self):
-        skool = """
-            ; Routine at 32768
-            @label=START
-            c32768 XOR A  ; Clear A.
-        """
-        ref = """
-            [Template:Asm]
-            {entry[title]}
-            {disassembly}
-
-            [Template:asm_instruction]
-            {label} {address} {location:04X}: {operation} ; {comment}
-        """
-        exp_content = """
-            Routine at 32768
-            START 32768 8000: XOR A ; Clear A.
-        """
-
-        writer = self._get_writer(ref=ref, skool=skool, asm_labels=True)
-        writer.write_asm_entries()
-        self._assert_content_equal(exp_content, 'asm/32768.html')
-
-    def test_bytes_field_in_asm_instruction_template(self):
+    def test_bytes_field_in_Asm_template(self):
         skool = """
             @assemble=2
             ; Routine at 32768
@@ -8977,10 +8830,9 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
         ref = """
             [Template:Asm]
             {entry[title]}
-            {disassembly}
-
-            [Template:asm_instruction]
-            {address} {bytes:02X}: {operation} ; {comment}
+            <# foreach($i,entry[instructions]) #>
+            {$i[address]} {$i[bytes]:02X}: {$i[operation]} ; {$i[comment]}
+            <# endfor #>
         """
         exp_content = """
             Routine at 32768
@@ -8998,7 +8850,7 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
         writer.write_asm_entries()
         self._assert_content_equal(exp_content, 'asm/32768.html')
 
-    def test_bytes_field_with_separator_in_asm_instruction_template(self):
+    def test_bytes_field_with_separator_in_Asm_template(self):
         skool = """
             @assemble=2
             ; Routine at 32768
@@ -9010,10 +8862,9 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
         ref = """
             [Template:Asm]
             {entry[title]}
-            {disassembly}
-
-            [Template:asm_instruction]
-            {address} {bytes:/03/,}: {operation} ; {comment}
+            <# foreach($i,entry[instructions]) #>
+            {$i[address]} {$i[bytes]:/03/,}: {$i[operation]} ; {$i[comment]}
+            <# endfor #>
         """
         exp_content = """
             Routine at 32768
@@ -9035,11 +8886,10 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
         ref = """
             [Template:Asm]
             {entry[title]}
-            {disassembly}
+            <# foreach($i,entry[instructions]) #>
+            {$i[address]}: {$i[operation]} ; {$i[comment]}
+            <# endfor #>
             {t_footer}
-
-            [Template:asm_instruction]
-            {address}: {operation} ; {comment}
 
             [Template:Asm-footer]
             That was the entry at {entry[location]}.
@@ -9070,16 +8920,12 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
             <# foreach($reg,entry[input_registers]) #>
             {$reg[name]} register: {$reg[description]}
             <# endfor #>
-            {disassembly}
-
-            [Template:Asm-c-asm_comment]
-            {m_paragraph}
+            <# foreach($i,entry[instructions]) #>
+            {$i[address]}: {$i[operation]} ; {$i[comment]}
+            <# endfor #>
 
             [Template:Asm-c-paragraph]
             {paragraph}
-
-            [Template:Asm-c-asm_instruction]
-            {address}: {operation} ; {comment}
 
             [Template:Asm-c-reg]
             {reg}
@@ -9111,16 +8957,12 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
             <# foreach($reg,entry[input_registers]) #>
             {$reg[name]} register: {$reg[description]}
             <# endfor #>
-            {disassembly}
-
-            [Template:Asm-asm_comment]
-            {m_paragraph}
+            <# foreach($i,entry[instructions]) #>
+            {$i[address]}: {$i[operation]} ; {$i[comment]}
+            <# endfor #>
 
             [Template:Asm-paragraph]
             {paragraph}
-
-            [Template:Asm-asm_instruction]
-            {address}: {operation} ; {comment}
 
             [Template:Asm-reg]
             {reg}
@@ -9155,16 +8997,12 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
             <# foreach($reg,entry[input_registers]) #>
             {$reg[name]} register: {$reg[description]}
             <# endfor #>
-            {disassembly}
-
-            [Template:{}-Asm-c-asm_comment]
-            {m_paragraph}
+            <# foreach($i,entry[instructions]) #>
+            {$i[address]}: {$i[operation]} ; {$i[comment]}
+            <# endfor #>
 
             [Template:{}-Asm-c-paragraph]
             {paragraph}
-
-            [Template:{}-Asm-c-asm_instruction]
-            {address}: {operation} ; {comment}
 
             [Template:{}-Asm-c-reg]
             {reg}
@@ -9202,16 +9040,12 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
             <# foreach($reg,entry[input_registers]) #>
             {$reg[name]} register: {$reg[description]}
             <# endfor #>
-            {disassembly}
-
-            [Template:{}-Asm-asm_comment]
-            {m_paragraph}
+            <# foreach($i,entry[instructions]) #>
+            {$i[address]}: {$i[operation]} ; {$i[comment]}
+            <# endfor #>
 
             [Template:{}-Asm-paragraph]
             {paragraph}
-
-            [Template:{}-Asm-asm_instruction]
-            {address}: {operation} ; {comment}
 
             [Template:{}-Asm-reg]
             {reg}
@@ -9247,10 +9081,9 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
 
             [Template:AsmSinglePage-asm_entry]
             {entry[title]}
-            {disassembly}
-
-            [Template:AsmSinglePage-asm_instruction]
-            {address}: {operation}
+            <# foreach($i,entry[instructions]) #>
+            {$i[address]}: {$i[operation]}
+            <# endfor #>
         """
         exp_content = """
             Routine at 32768
@@ -9283,10 +9116,9 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
 
             [Template:{}-AsmSinglePage-asm_entry]
             {entry[title]}
-            {disassembly}
-
-            [Template:{}-AsmSinglePage-asm_instruction]
-            {address}: {operation}
+            <# foreach($i,entry[instructions]) #>
+            {$i[address]}: {$i[operation]}
+            <# endfor #>
         """.replace('{}', code_id)
         exp_content = """
             Routine at 49152
@@ -9310,17 +9142,18 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
         ref = """
             [Template:Asm-b]
             {entry[title]}
-            {disassembly}
+            <# foreach($i,entry[instructions]) #>
+            {$i[anchor]}: {$i[operation]}
+            <# endfor #>
+            <# include(footer) #>
 
-            [Template:Asm-b-asm_instruction]
-            {t_anchor}: {operation}
-
-            [Template:Asm-b-anchor]
-            {anchor}
+            [Template:Asm-b-footer]
+            The end.
         """
         exp_content = """
             Data block at 32768
             32768: DEFB 0
+            The end.
         """
 
         writer = self._get_writer(ref=ref, skool=skool)
@@ -9341,10 +9174,9 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
             [Template:{}-Asm-b]
             {entry[title]}
             {entry[description]}
-            {disassembly}
-
-            [Template:{}-Asm-b-asm_instruction]
-            {address}: {operation}
+            <# foreach($i,entry[instructions]) #>
+            {$i[address]}: {$i[operation]}
+            <# endfor #>
 
             [Template:{}-Asm-b-paragraph]
             {paragraph}
@@ -9373,11 +9205,10 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
         ref = """
             [Template:Asm-g]
             {entry[title]}
-            {disassembly}
+            <# foreach($i,entry[instructions]) #>
+            {$i[address]}: {$i[operation]}
+            <# endfor #>
             {t_footer}
-
-            [Template:Asm-g-asm_instruction]
-            {address}: {operation}
 
             [Template:Asm-g-footer]
             (done)
@@ -9406,10 +9237,9 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
             [Template:{}-Asm-g]
             {entry[title]}
             {entry[description]}
-            {disassembly}
-
-            [Template:{}-Asm-g-asm_instruction]
-            {address}: {operation}
+            <# foreach($i,entry[instructions]) #>
+            {$i[address]}: {$i[operation]}
+            <# endfor #>
 
             [Template:{}-Asm-g-paragraph]
             {paragraph}
@@ -9444,10 +9274,9 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
             [Template:Asm-s]
             {m_stylesheet}
             {entry[title]}
-            {disassembly}
-
-            [Template:Asm-s-asm_instruction]
-            {address}: {operation}
+            <# foreach($i,entry[instructions]) #>
+            {$i[address]}: {$i[operation]}
+            <# endfor #>
 
             [Template:Asm-s-stylesheet]
             -- {href} --
@@ -9473,10 +9302,9 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
 
             [Template:{}-Asm-s]
             {entry[title]}
-            {disassembly}
-
-            [Template:{}-Asm-s-asm_instruction]
-            {address}: {operation}
+            <# foreach($i,entry[instructions]) #>
+            {$i[address]}: {$i[operation]}
+            <# endfor #>
         """.replace('{}', code_id)
         exp_content = """
             Space
@@ -9502,10 +9330,9 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
             [Template:Asm-t]
             {m_javascript}
             {entry[title]}
-            {disassembly}
-
-            [Template:Asm-t-asm_instruction]
-            {address}: {operation}
+            <# foreach($i,entry[instructions]) #>
+            {$i[address]}: {$i[operation]}
+            <# endfor #>
 
             [Template:Asm-t-javascript]
             -- {src} --
@@ -9531,10 +9358,9 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
 
             [Template:{}-Asm-t]
             {entry[title]}
-            {disassembly}
-
-            [Template:{}-Asm-t-asm_instruction]
-            {address}: {operation}
+            <# foreach($i,entry[instructions]) #>
+            {$i[address]}: {$i[operation]}
+            <# endfor #>
         """.replace('{}', code_id)
         exp_content = """
             Message at 32768
@@ -9559,10 +9385,9 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
             [Template:Asm-u]
             {entry[title]}
             {entry[description]}
-            {disassembly}
-
-            [Template:Asm-u-asm_instruction]
-            {address}: {operation}
+            <# foreach($i,entry[instructions]) #>
+            {$i[address]}: {$i[operation]}
+            <# endfor #>
 
             [Template:Asm-u-paragraph]
             {paragraph}
@@ -9591,10 +9416,9 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
 
             [Template:{}-Asm-u]
             {entry[title]}
-            {disassembly}
-
-            [Template:{}-Asm-u-asm_instruction]
-            {address}: {operation}
+            <# foreach($i,entry[instructions]) #>
+            {$i[address]}: {$i[operation]}
+            <# endfor #>
         """.replace('{}', code_id)
         exp_content = """
             Unused
@@ -9616,10 +9440,9 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
         ref = """
             [Template:Asm-w]
             {entry[title]}
-            {disassembly}
-
-            [Template:Asm-w-asm_instruction]
-            {address}: {operation}
+            <# foreach($i,entry[instructions]) #>
+            {$i[address]}: {$i[operation]}
+            <# endfor #>
         """
         exp_content = """
             A word
@@ -9641,10 +9464,9 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
 
             [Template:{}-Asm-w]
             {entry[title]}
-            {disassembly}
-
-            [Template:{}-Asm-w-asm_instruction]
-            {address}: {operation}
+            <# foreach($i,entry[instructions]) #>
+            {$i[address]}: {$i[operation]}
+            <# endfor #>
         """.replace('{}', code_id)
         exp_content = """
             A word
