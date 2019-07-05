@@ -380,7 +380,80 @@ SECTIONS['Template:AsmAllInOne'] = """
 <td class="page-header">{SkoolKit[page_header]}</td>
 </tr>
 </table>
-{m_asm_entry}
+<# foreach($entry,entries) #>
+<div id="{$entry[instructions][0][anchor]}" class="description">{$entry[address]}: {$entry[title]}</div>
+<table class="disassembly">
+<tr>
+<td class="routine-comment" colspan="{Game[DisassemblyTableNumCols]}">
+<div class="details">
+<# foreach($paragraph,$entry[description]) #>
+<div class="paragraph">
+{$paragraph}
+</div>
+<# endfor #>
+</div>
+<table class="input-{$entry[input]}">
+<tr class="asm-input-header">
+<th colspan="2">{Game[InputRegisterTableHeader]}</th>
+</tr>
+<# foreach($reg,$entry[input_registers]) #>
+<tr>
+<td class="register">{$reg[name]}</td>
+<td class="register-desc">{$reg[description]}</td>
+</tr>
+<# endfor #>
+</table>
+<table class="output-{$entry[output]}">
+<tr class="asm-output-header">
+<th colspan="2">{Game[OutputRegisterTableHeader]}</th>
+</tr>
+<# foreach($reg,$entry[output_registers]) #>
+<tr>
+<td class="register">{$reg[name]}</td>
+<td class="register-desc">{$reg[description]}</td>
+</tr>
+<# endfor #>
+</table>
+</td>
+</tr>
+<# foreach($instruction,$entry[instructions]) #>
+<# if({$instruction[has_block_comment]}) #>
+<tr>
+<td class="routine-comment" colspan="{Game[DisassemblyTableNumCols]}">
+<span id="{$instruction[anchor]}"></span>
+<div class="comments">
+<# foreach($paragraph,$instruction[block_comment]) #>
+<div class="paragraph">
+{$paragraph}
+</div>
+<# endfor #>
+</div>
+</td>
+</tr>
+<# endif #>
+<tr>
+<td class="asm-label-{$entry[labels]}">{$instruction[label]}</td>
+<td class="address-{$instruction[called]}"><span id="{$instruction[anchor]}"></span>{$instruction[address]}</td>
+<td class="bytes-{$instruction[show_bytes]}">{$instruction[bytes]:{Game[Bytes]}}</td>
+<td class="instruction">{$instruction[operation]}</td>
+<td class="comment-{$instruction[annotated]}{$entry[annotated]}" rowspan="{$instruction[comment_rowspan]}">{$instruction[comment]}</td>
+</tr>
+<# endfor #>
+<# if({$entry[has_end_comment]}) #>
+<tr>
+<td class="routine-comment" colspan="{Game[DisassemblyTableNumCols]}">
+<div class="comments">
+<# foreach($paragraph,$entry[end_comment]) #>
+<div class="paragraph">
+{$paragraph}
+</div>
+<# endfor #>
+</div>
+</td>
+</tr>
+<# endif #>
+</table>
+<# endfor #>
 {t_footer}
 </body>
 </html>
@@ -497,81 +570,6 @@ SECTIONS['Template:Reference'] = """
 
 SECTIONS['Template:anchor'] = """
 <span id="{anchor}"></span>
-"""
-
-SECTIONS['Template:asm_entry'] = """
-<div id="{anchor}" class="description">{entry[address]}: {entry[title]}</div>
-<table class="disassembly">
-<tr>
-<td class="routine-comment" colspan="{Game[DisassemblyTableNumCols]}">
-<div class="details">
-<# foreach($paragraph,entry[description]) #>
-<div class="paragraph">
-{$paragraph}
-</div>
-<# endfor #>
-</div>
-<table class="input-{entry[input]}">
-<tr class="asm-input-header">
-<th colspan="2">{Game[InputRegisterTableHeader]}</th>
-</tr>
-<# foreach($reg,entry[input_registers]) #>
-<tr>
-<td class="register">{$reg[name]}</td>
-<td class="register-desc">{$reg[description]}</td>
-</tr>
-<# endfor #>
-</table>
-<table class="output-{entry[output]}">
-<tr class="asm-output-header">
-<th colspan="2">{Game[OutputRegisterTableHeader]}</th>
-</tr>
-<# foreach($reg,entry[output_registers]) #>
-<tr>
-<td class="register">{$reg[name]}</td>
-<td class="register-desc">{$reg[description]}</td>
-</tr>
-<# endfor #>
-</table>
-</td>
-</tr>
-<# foreach($instruction,entry[instructions]) #>
-<# if({$instruction[has_block_comment]}) #>
-<tr>
-<td class="routine-comment" colspan="{Game[DisassemblyTableNumCols]}">
-<span id="{$instruction[anchor]}"></span>
-<div class="comments">
-<# foreach($paragraph,$instruction[block_comment]) #>
-<div class="paragraph">
-{$paragraph}
-</div>
-<# endfor #>
-</div>
-</td>
-</tr>
-<# endif #>
-<tr>
-<td class="asm-label-{entry[labels]}">{$instruction[label]}</td>
-<td class="address-{$instruction[called]}"><span id="{$instruction[anchor]}"></span>{$instruction[address]}</td>
-<td class="bytes-{$instruction[show_bytes]}">{$instruction[bytes]:{Game[Bytes]}}</td>
-<td class="instruction">{$instruction[operation]}</td>
-<td class="comment-{$instruction[annotated]}{entry[annotated]}" rowspan="{$instruction[comment_rowspan]}">{$instruction[comment]}</td>
-</tr>
-<# endfor #>
-<# if({entry[has_end_comment]}) #>
-<tr>
-<td class="routine-comment" colspan="{Game[DisassemblyTableNumCols]}">
-<div class="comments">
-<# foreach($paragraph,entry[end_comment]) #>
-<div class="paragraph">
-{$paragraph}
-</div>
-<# endfor #>
-</div>
-</td>
-</tr>
-<# endif #>
-</table>
 """
 
 SECTIONS['Template:contents_list_item'] = """

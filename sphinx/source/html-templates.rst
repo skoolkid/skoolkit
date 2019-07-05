@@ -100,6 +100,8 @@ Each instruction object has the following attributes:
 * ``address`` - the address of the instruction (may be in decimal or
   hexadecimal format, depending on how it appears in the skool file, and the
   options passed to :ref:`skool2html.py`)
+* ``anchor`` - the anchor for the instruction, formatted according to the value
+  of the ``AddressAnchor`` parameter in the :ref:`ref-game` section
 * ``annotated`` - '1' if the instruction has a comment field, '0' otherwise
 * ``block_comment`` - a list of paragraphs comprising the instruction's
   mid-block comment
@@ -169,8 +171,10 @@ parameter in the :ref:`ref-Game` section).
 The following identifier is available (in addition to the universal and
 page-level identifiers):
 
-* ``m_asm_entry`` - replaced by one or more copies of the :ref:`t_asm_entry`
-  subtemplate
+* ``entries`` - a list of entry objects
+
+Each entry object corresponds to a memory map entry; its attributes are the
+same as those in the ``entry`` dictionary in the :ref:`t_Asm` template.
 
 To see the default ``AsmAllInOne`` template, run the following command::
 
@@ -280,26 +284,6 @@ identifiers):
 To see the default ``anchor`` template, run the following command::
 
   $ skool2html.py -r Template:anchor
-
-.. _t_asm_entry:
-
-asm_entry
----------
-The ``asm_entry`` template is the subtemplate used by the :ref:`t_AsmAllInOne`
-full-page template to format the disassembly of a memory map entry.
-
-The following identifier is available (in addition to the universal
-identifiers):
-
-* ``entry`` - a dictionary of parameters corresponding to the memory map entry;
-  the parameters in this dictionary are the same as those in the ``entry``
-  dictionary in the :ref:`t_Asm` template
-
-To see the default ``asm_entry`` template, run the following command::
-
-  $ skool2html.py -r Template:asm_entry
-
-.. versionadded:: 5.3
 
 .. _t_contents_list_item:
 
@@ -645,9 +629,6 @@ template if it exists, or the stock :ref:`t_footer` template otherwise.
 +-------------------------------+--------------------------------------+------------------------------+
 | Element type                  | Preferred template(s)                | Stock subtemplate            |
 +===============================+======================================+==============================+
-| Single-page disassembly       | ``[CodeID-]AsmSinglePage-asm_entry`` | :ref:`t_asm_entry`           |
-| routine/data block            |                                      |                              |
-+-------------------------------+--------------------------------------+------------------------------+
 | :ref:`Box page <boxpages>`    | ``PageID-entry``                     | :ref:`t_reference_entry`     |
 | entry (paragraphs)            |                                      |                              |
 +-------------------------------+--------------------------------------+------------------------------+

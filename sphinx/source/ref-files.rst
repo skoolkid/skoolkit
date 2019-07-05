@@ -132,7 +132,7 @@ Recognised parameters are:
   and data block (default: None); set this to 'AsmAllInOne' to use the
   :ref:`t_AsmAllInOne` template
 * ``Bytes`` - the format specification for the ``bytes`` attribute of
-  instruction objects in the :ref:`t_Asm` and :ref:`t_asm_entry` templates
+  instruction objects in the :ref:`t_Asm` and :ref:`t_AsmAllInOne` templates
   (default: ''); if not blank, assembled instruction byte values are displayed
   on disassembly pages
 * ``Copyright`` - the copyright message that appears in the footer of every
@@ -142,7 +142,7 @@ Recognised parameters are:
   SkoolKit #VERSION.')
 * ``DisassemblyTableNumCols`` - the number of columns in the disassembly table
   on disassembly pages (default: 5); this value is used by the :ref:`t_Asm` and
-  and :ref:`t_asm_entry` templates
+  and :ref:`t_AsmAllInOne` templates
 * ``Font`` - the base name of the font file to use (default: None); multiple
   font files can be declared by separating their names with semicolons
 * ``Game`` - the name of the game, which appears in the title of every page,

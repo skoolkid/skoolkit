@@ -9060,7 +9060,7 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
         oc_writer.write_entries(asm_path, map_path)
         self._assert_content_equal(exp_content, '{}/32768.html'.format(asm_path))
 
-    def test_custom_asm_single_page_with_custom_subtemplates(self):
+    def test_custom_asm_single_page_template(self):
         skool = """
             ; Routine at 32768
             c32768 XOR A
@@ -9073,12 +9073,11 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
             AsmSinglePageTemplate=AsmAllInOne
 
             [Template:AsmSinglePage]
-            {m_asm_entry}
-
-            [Template:AsmSinglePage-asm_entry]
-            {entry[title]}
-            <# foreach($i,entry[instructions]) #>
+            <# foreach($entry,entries) #>
+            {$entry[title]}
+            <# foreach($i,$entry[instructions]) #>
             {$i[address]}: {$i[operation]}
+            <# endfor #>
             <# endfor #>
         """
         exp_content = """
@@ -9092,7 +9091,7 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
         writer.write_asm_entries()
         self._assert_content_equal(exp_content, 'asm.html')
 
-    def test_custom_other_code_asm_single_page_with_custom_subtemplates(self):
+    def test_custom_other_code_asm_single_page_template(self):
         code_id = 'Other'
         other_skool = """
             ; Routine at 49152
@@ -9108,12 +9107,11 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
             AsmSinglePageTemplate=AsmAllInOne
 
             [Template:{}-AsmSinglePage]
-            {m_asm_entry}
-
-            [Template:{}-AsmSinglePage-asm_entry]
-            {entry[title]}
-            <# foreach($i,entry[instructions]) #>
+            <# foreach($entry,entries) #>
+            {$entry[title]}
+            <# foreach($i,$entry[instructions]) #>
             {$i[address]}: {$i[operation]}
+            <# endfor #>
             <# endfor #>
         """.replace('{}', code_id)
         exp_content = """

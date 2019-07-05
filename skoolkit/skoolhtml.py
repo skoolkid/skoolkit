@@ -858,7 +858,7 @@ class HtmlWriter:
         entry_dict['end_comment'] = [self.expand(p, cwd).strip() for p in entry.end_comment]
         entry_dict['has_end_comment'] = min(len(entry.end_comment), 1)
 
-        return {'entry': entry_dict}
+        return entry_dict
 
     def write_entry(self, cwd, index, map_file):
         entry = self.memory_map[index]
@@ -866,7 +866,7 @@ class HtmlWriter:
         fname = join(cwd, self.asm_fname(entry.address))
         self._set_cwd(page_id, fname)
 
-        subs = self._get_asm_entry(cwd, index, map_file)
+        subs = {'entry': self._get_asm_entry(cwd, index, map_file)}
 
         if index:
             prev_entry_dict = self._get_asm_entry_dict(cwd, index - 1, map_file)
@@ -885,13 +885,9 @@ class HtmlWriter:
     def _write_asm_single_page(self, map_file):
         page_id = self._get_asm_page_id(self.code_id)
         fname, cwd = self._set_cwd(page_id)
-        asm_entries = []
-        for i, entry in enumerate(self.memory_map):
-            entry_subs = self._get_asm_entry(cwd, i, map_file)
-            entry_subs['anchor'] = self.asm_anchor(entry.address)
-            asm_entries.append(self.format_template('asm_entry', entry_subs))
-        subs = {'m_asm_entry': '\n'.join(asm_entries)}
-        self.write_file(fname, self._format_page(cwd, subs, self.asm_single_page_template))
+        asm_entries = [self._get_asm_entry(cwd, i, map_file) for i in range(len(self.memory_map))]
+        html = self._format_page(cwd, {'entries': asm_entries}, self.asm_single_page_template)
+        self.write_file(fname, html)
 
     def write_entries(self, cwd, map_file):
         if self.asm_single_page_template:
