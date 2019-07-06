@@ -9505,7 +9505,7 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
         writer.write_page(page_id)
         self._assert_content_equal(exp_content, '{}.html'.format(page_id))
 
-    def test_custom_map_page_with_custom_subtemplate(self):
+    def test_custom_map_page(self):
         skool = """
             ; Routine at 49152
             ;
@@ -9517,12 +9517,11 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
             EntryDescriptions=1
 
             [Template:MemoryMap]
-            {m_map_entry}
-
-            [Template:MemoryMap-map_entry]
-            {entry[address]}: {entry[title]}
-            <# foreach($paragraph,entry[description]) #>
+            <# foreach($entry,entries) #>
+            {$entry[address]}: {$entry[title]}
+            <# foreach($paragraph,$entry[description]) #>
             {$paragraph}
+            <# endfor #>
             <# endfor #>
         """
         exp_content = """

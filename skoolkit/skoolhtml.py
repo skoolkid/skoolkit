@@ -645,6 +645,7 @@ class HtmlWriter:
             'type': entry.ctl,
             'location': entry.address,
             'address': entry.addr_str,
+            'anchor': self.asm_anchor(entry.address),
             'page': entry.address // 256,
             'byte': entry.address % 256,
             'label': self.parser.get_asm_label(entry.address),
@@ -918,17 +919,14 @@ class HtmlWriter:
         desc = map_dict['EntryDescriptions'] != '0'
 
         map_entries = []
-        t_map_entry_subs = {'MemoryMap': map_dict}
         includes = map_details.get('Includes', ())
         for entry in self.memory_map:
             if entry.ctl in entry_types or entry.address in includes:
-                t_map_entry_subs['entry'] = self._get_map_entry_dict(cwd, entry, desc)
-                t_map_entry_subs['t_anchor'] = self.format_anchor(self.asm_anchor(entry.address))
-                map_entries.append(self.format_template('map_entry', t_map_entry_subs))
+                map_entries.append(self._get_map_entry_dict(cwd, entry, desc))
 
         subs = {
             'MemoryMap': map_dict,
-            'm_map_entry': '\n'.join(map_entries)
+            'entries': map_entries
         }
         html = self._format_page(cwd, subs, P_MEMORY_MAP)
         self.write_file(fname, html)

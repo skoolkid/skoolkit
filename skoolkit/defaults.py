@@ -381,7 +381,7 @@ SECTIONS['Template:AsmAllInOne'] = """
 </tr>
 </table>
 <# foreach($entry,entries) #>
-<div id="{$entry[instructions][0][anchor]}" class="description">{$entry[address]}: {$entry[title]}</div>
+<div id="{$entry[anchor]}" class="description">{$entry[address]}: {$entry[title]}</div>
 <table class="disassembly">
 <tr>
 <td class="routine-comment" colspan="{Game[DisassemblyTableNumCols]}">
@@ -514,7 +514,24 @@ SECTIONS['Template:MemoryMap'] = """
 <th class="map-length-{MemoryMap[LengthColumn]}">Length</th>
 <th>Description</th>
 </tr>
-{m_map_entry}
+<# foreach($entry,entries) #>
+<tr>
+<td class="map-page-{MemoryMap[PageByteColumns]}">{$entry[page]}</td>
+<td class="map-byte-{MemoryMap[PageByteColumns]}">{$entry[byte]}</td>
+<td class="map-{$entry[type]}"><span id="{$entry[anchor]}"></span><a href="{$entry[href]}">{$entry[address]}</a></td>
+<td class="map-length-{MemoryMap[LengthColumn]}">{$entry[size]}</td>
+<td class="map-{$entry[type]}-desc">
+<div class="map-entry-title-1{MemoryMap[EntryDescriptions]}"><a class="map-entry-title" href="{$entry[href]}">{$entry[title]}</a></div>
+<div class="map-entry-desc-{MemoryMap[EntryDescriptions]}">
+<# foreach($paragraph,$entry[description]) #>
+<div class="paragraph">
+{$paragraph}
+</div>
+<# endfor #>
+</div>
+</td>
+</tr>
+<# endfor #>
 </table>
 {t_footer}
 </body>
@@ -619,25 +636,6 @@ SECTIONS['Template:list_items'] = """
 <ul class="list-entry{indent}">
 {m_list_item}
 </ul>
-"""
-
-SECTIONS['Template:map_entry'] = """
-<tr>
-<td class="map-page-{MemoryMap[PageByteColumns]}">{entry[page]}</td>
-<td class="map-byte-{MemoryMap[PageByteColumns]}">{entry[byte]}</td>
-<td class="map-{entry[type]}">{t_anchor}<a href="{entry[href]}">{entry[address]}</a></td>
-<td class="map-length-{MemoryMap[LengthColumn]}">{entry[size]}</td>
-<td class="map-{entry[type]}-desc">
-<div class="map-entry-title-1{MemoryMap[EntryDescriptions]}"><a class="map-entry-title" href="{entry[href]}">{entry[title]}</a></div>
-<div class="map-entry-desc-{MemoryMap[EntryDescriptions]}">
-<# foreach($paragraph,entry[description]) #>
-<div class="paragraph">
-{$paragraph}
-</div>
-<# endfor #>
-</div>
-</td>
-</tr>
 """
 
 SECTIONS['Template:paragraph'] = """

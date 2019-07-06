@@ -64,6 +64,8 @@ are:
 * ``address`` - the address of the entry (may be in decimal or hexadecimal
   format, depending on how it appears in the skool file, and the options passed
   to :ref:`skool2html.py`)
+* ``anchor`` - the anchor for the entry, formatted according to the value of
+  the ``AddressAnchor`` parameter in the :ref:`ref-game` section
 * ``annotated`` - '1' if any instructions in the entry have a non-empty comment
   field, '0' otherwise
 * ``byte`` - the LSB of the entry address
@@ -225,8 +227,12 @@ page-level identifiers):
 
 * ``MemoryMap`` - a dictionary of the parameters in the corresponding
   :ref:`memoryMap` section
-* ``m_map_entry`` - replaced by one or more copies of the :ref:`t_map_entry`
-  subtemplate
+* ``entries`` - a list of memory map entry objects
+
+The attributes of each memory map entry object are the same as those in the
+``entry`` dictionary in the :ref:`t_Asm` template, except that the
+``end_comment``, ``has_end_comment`` and ``instructions`` attributes are not
+available.
 
 To see the default ``MemoryMap`` template, run the following command::
 
@@ -454,31 +460,6 @@ To see the default ``list_items`` template, run the following command::
    ``list_items``; accordingly, the name of the ``m_changelog_item``
    identifier changed to ``m_list_item``.
 
-.. _t_map_entry:
-
-map_entry
----------
-The ``map_entry`` template is the subtemplate used by the :ref:`t_MemoryMap`
-full-page template to format each entry on the memory map pages and the 'Game
-status buffer' page.
-
-The following identifiers are available (in addition to the universal
-identifiers):
-
-* ``MemoryMap`` - a dictionary of parameters from the corresponding
-  :ref:`memoryMap` section
-* ``entry`` - a dictionary of parameters corresponding to the memory map entry;
-  the parameters in this dictionary are the same as those in the ``entry``
-  dictionary in the :ref:`t_Asm` template
-
-To see the default ``map_entry`` template, run the following command::
-
-  $ skool2html.py -r Template:map_entry
-
-.. versionchanged:: 7.0
-   The entry title is hyperlinked to the disassembly page for the corresponding
-   entry.
-
 .. _t_paragraph:
 
 paragraph
@@ -627,10 +608,6 @@ template if it exists, or the stock :ref:`t_footer` template otherwise.
 +-------------------------------+--------------------------------------+------------------------------+
 | :ref:`Box page <boxpages>`    | ``PageID-list_item``                 | :ref:`t_list_item`           |
 | entry list item               |                                      |                              |
-+-------------------------------+--------------------------------------+------------------------------+
-| Entry on a                    | ``PageID-map_entry``                 | :ref:`t_map_entry`           |
-| :ref:`memory map <memoryMap>` |                                      |                              |
-| page                          |                                      |                              |
 +-------------------------------+--------------------------------------+------------------------------+
 | ``<link>`` element for a CSS  | ``PageID-stylesheet``                | :ref:`t_stylesheet`          |
 | file                          |                                      |                              |
