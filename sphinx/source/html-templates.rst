@@ -260,20 +260,30 @@ To see the default ``Page`` template, run the following command::
 Reference
 ---------
 The ``Reference`` template is the full-page template that is used to build
-:ref:`box pages <boxpages>`.
+:ref:`box pages <boxpages>`. A box page may contain either list entries (when
+the page's ``SectionType`` is ``BulletPoints`` or ``ListItems``) or reference
+entries.
 
 The following identifiers are available (in addition to the universal and
 page-level identifiers):
 
 * ``contents`` - a list of contents list item objects
-* ``entries`` - replaced by one or more copies of the :ref:`t_list_entry`
-  subtemplate (when the page's ``SectionType`` is ``BulletPoints`` or
-  ``ListItems``), or the :ref:`t_reference_entry` subtemplate
+* ``entries`` - a list of reference entry objects (empty if the page contains
+  list entries)
+* ``has_list_entries`` - '1' if the page contains list entries, '0' otherwise
+* ``m_list_entry`` - replaced by one or more copies of the :ref:`t_list_entry`
+  subtemplate (blank if the page contains reference entries)
 
 Each contents list item object corresponds to an entry on the page and has the
 following attributes:
 
 * ``href`` - the URL to the entry on the page
+* ``title`` - the entry title
+
+Each reference entry object has the following attributes:
+
+* ``contents`` - a list of paragraphs comprising the contents of the entry
+* ``num`` - '1' or '2', depending on the order of the entry on the page
 * ``title`` - the entry title
 
 To see the default ``Reference`` template, run the following command::
@@ -476,25 +486,6 @@ To see the default ``paragraph`` template, run the following command::
 
   $ skool2html.py -r Template:paragraph
 
-.. _t_reference_entry:
-
-reference_entry
----------------
-The ``reference_entry`` template is the subtemplate used by the
-:ref:`t_Reference` full-page template to format each entry on a
-:ref:`box page <boxpages>` that has a default ``SectionType``.
-
-The following identifiers are available (in addition to the universal
-identifiers):
-
-* ``contents`` - replaced by the pre-formatted contents of the relevant entry
-* ``num`` - '1' or '2', depending on the order of the entry on the page
-* ``title`` - the entry title
-
-To see the default ``reference_entry`` template, run the following command::
-
-  $ skool2html.py -r Template:reference_entry
-
 .. _t_reg:
 
 reg
@@ -597,9 +588,6 @@ template if it exists, or the stock :ref:`t_footer` template otherwise.
 +-------------------------------+--------------------------------------+------------------------------+
 | Element type                  | Preferred template(s)                | Stock subtemplate            |
 +===============================+======================================+==============================+
-| :ref:`Box page <boxpages>`    | ``PageID-entry``                     | :ref:`t_reference_entry`     |
-| entry (paragraphs)            |                                      |                              |
-+-------------------------------+--------------------------------------+------------------------------+
 | :ref:`Box page <boxpages>`    | ``PageID-entry``                     | :ref:`t_list_entry`          |
 | entry (list items)            |                                      |                              |
 +-------------------------------+--------------------------------------+------------------------------+

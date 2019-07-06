@@ -683,24 +683,24 @@ class HtmlWriter:
         return self._build_paragraphs_html(cwd)
 
     def _build_paragraphs_html(self, cwd):
-        page_id = self._get_page_id()
-        page = self.pages[page_id]
-        entries_html = []
+        page = self.pages[self._get_page_id()]
+        entries = []
         link_list = []
         for i, (anchor, title, paragraphs) in enumerate(page.get('entries')):
             anchor = self.expand(anchor, cwd)
             title = self.expand(title, cwd)
             link_list.append((anchor, title))
-            t_reference_entry_subs = {
-                't_anchor': self.format_anchor(anchor),
+            entries.append({
+                'anchor': anchor,
                 'num': 1 + i % 2,
                 'title': title,
                 'contents': [self.expand(p, cwd).strip() for p in paragraphs]
-            }
-            entries_html.append(self.format_template(page_id + '-entry', t_reference_entry_subs, 'reference_entry'))
+            })
         subs = {
             'contents': self._get_contents_list_items(link_list),
-            'entries': '\n'.join(entries_html),
+            'm_list_entry': '',
+            'has_list_entries': 0,
+            'entries': entries
         }
         return self._format_page(cwd, subs, 'Reference', page.get('JavaScript'))
 
@@ -747,7 +747,9 @@ class HtmlWriter:
             entries.append(self.format_template(page_id + '-entry', t_entry_subs, 'list_entry'))
         subs = {
             'contents': self._get_contents_list_items(contents),
-            'entries': '\n'.join(entries),
+            'entries': (),
+            'has_list_entries': 1,
+            'm_list_entry': '\n'.join(entries),
         }
         return self._format_page(cwd, subs, 'Reference')
 

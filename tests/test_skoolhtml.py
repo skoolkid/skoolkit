@@ -8419,17 +8419,17 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
 
             [Template:{}]
             Just the entries!
-            {entries}
+
+            <# foreach($entry,entries) #>
+            {$entry[title]}:
+            - {$entry[contents][0]}
+            <# endfor #>
         """.replace('{}', page_id)
         exp_content = """
             Just the entries!
-            <div><span id="entry_1"></span></div>
-            <div class="box box-1">
-            <div class="box-title">Entry 1</div>
-            <div class="paragraph">
-            First entry.
-            </div>
-            </div>
+
+            Entry 1:
+            - First entry.
         """
 
         writer = self._get_writer(ref=ref, skool='')
@@ -9470,40 +9470,6 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
         asm_path = map_path = 'other'
         oc_writer.write_entries(asm_path, map_path)
         self._assert_content_equal(exp_content, '{}/32768.html'.format(asm_path))
-
-    def test_custom_box_page_with_custom_subtemplates(self):
-        page_id = 'MyBoxes'
-        ref = """
-            [Page:{}]
-            SectionPrefix=Box
-
-            [Box:Box 1]
-            Stuff.
-
-            [Box:Box 2]
-            More stuff.
-
-            [Template:{}]
-            <# foreach($item,contents) #>
-            * {$item[title]}
-            <# endfor #>
-
-            {entries}
-
-            [Template:{}-entry]
-            {title}: {contents[0]}
-        """.replace('{}', page_id)
-        exp_content = """
-            * Box 1
-            * Box 2
-
-            Box 1: Stuff.
-            Box 2: More stuff.
-        """
-
-        writer = self._get_writer(ref=ref)
-        writer.write_page(page_id)
-        self._assert_content_equal(exp_content, '{}.html'.format(page_id))
 
     def test_custom_map_page(self):
         skool = """
