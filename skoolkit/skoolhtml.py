@@ -738,7 +738,7 @@ class HtmlWriter:
                             subitems = indents[-1][1]
                             subitems.append(subitem)
             t_entry_subs = {
-                't_anchor': self.format_anchor(anchor),
+                'anchor': anchor,
                 'num': 1 + j % 2,
                 'title': title,
                 'description': self.expand(description, cwd),
@@ -1011,9 +1011,6 @@ class HtmlWriter:
                 else:
                     self.logo[cwd] = self.game_name
         return self.logo[cwd]
-
-    def format_anchor(self, anchor):
-        return self.format_template('anchor', {'anchor': anchor})
 
     def format_link(self, href, link_text):
         return self.format_template('link', {'href': href, 'link_text': link_text})

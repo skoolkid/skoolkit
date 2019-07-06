@@ -601,10 +601,6 @@ SECTIONS['Template:Reference'] = """
 </html>
 """
 
-SECTIONS['Template:anchor'] = """
-<span id="{anchor}"></span>
-"""
-
 SECTIONS['Template:footer'] = """
 <footer>
 <div class="release">{Game[Release]}</div>
@@ -634,7 +630,7 @@ SECTIONS['Template:list'] = """
 """
 
 SECTIONS['Template:list_entry'] = """
-<div>{t_anchor}</div>
+<div><span id="{anchor}"></span></div>
 <div class="list-entry list-entry-{num}">
 <div class="list-entry-title">{title}</div>
 <div class="list-entry-desc">{description}</div>

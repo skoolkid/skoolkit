@@ -123,7 +123,6 @@ Each instruction object has the following attributes:
 * ``show_bytes`` - '1' if the entry contains at least one assembled instruction
   with byte values and the ``Bytes`` parameter in the :ref:`ref-Game` section
   is not blank, '0' otherwise
-* ``t_anchor`` - replaced by a copy of the :ref:`t_anchor` subtemplate
 
 The ``bytes`` attribute can be used to render the byte values of an
 instruction. In its simplest form, it provides a format specification that is
@@ -290,22 +289,6 @@ To see the default ``Reference`` template, run the following command::
 
   $ skool2html.py -r Template:Reference
 
-.. _t_anchor:
-
-anchor
-------
-The ``anchor`` template is the subtemplate used to format a page anchor (by
-default, a ``<span>`` element with an ``id`` attribute).
-
-The following identifier is available (in addition to the universal
-identifiers):
-
-* ``anchor`` - the value of the ``id`` attribute
-
-To see the default ``anchor`` template, run the following command::
-
-  $ skool2html.py -r Template:anchor
-
 .. _t_footer:
 
 footer
@@ -408,10 +391,9 @@ template to format each entry on a :ref:`box page <boxpages>` whose
 The following identifiers are available (in addition to the universal
 identifiers):
 
+* ``anchor`` - the anchor for the entry
 * ``description`` - the entry intro text
 * ``num`` - '1' or '2', depending on the order of the entry on the page
-* ``t_anchor`` - replaced by a copy of the :ref:`t_anchor` subtemplate (with
-  the entry title as the anchor name)
 * ``t_list_items`` - replaced by a copy of the :ref:`t_list_items` subtemplate
 * ``title`` - the entry title
 
@@ -605,8 +587,6 @@ template if it exists, or the stock :ref:`t_footer` template otherwise.
 | ``<img>`` element             | ``PageID-img``                       | :ref:`t_img`                 |
 +-------------------------------+--------------------------------------+------------------------------+
 | Hyperlink                     | ``PageID-link``                      | :ref:`t_link`                |
-+-------------------------------+--------------------------------------+------------------------------+
-| Page anchor                   | ``PageID-anchor``                    | :ref:`t_anchor`              |
 +-------------------------------+--------------------------------------+------------------------------+
 | Page footer                   | ``PageID-footer``                    | :ref:`t_footer`              |
 +-------------------------------+--------------------------------------+------------------------------+

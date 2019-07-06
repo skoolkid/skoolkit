@@ -8452,7 +8452,7 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
             Item 2
 
             [Template:{}-entry]
-            <div>{t_anchor}</div>
+            <div><span id="{anchor}"></span></div>
             <div class="entry entry-{num}">
             <div class="entry-title">{title}</div>
             <div class="entry-intro">{description}</div>
