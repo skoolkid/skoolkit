@@ -560,7 +560,9 @@ SECTIONS['Template:Reference'] = """
 </tr>
 </table>
 <ul class="contents">
-{m_contents_list_item}
+<# foreach($item,contents) #>
+<li><a href="{$item[href]}">{$item[title]}</a></li>
+<# endfor #>
 </ul>
 {entries}
 {t_footer}
@@ -570,10 +572,6 @@ SECTIONS['Template:Reference'] = """
 
 SECTIONS['Template:anchor'] = """
 <span id="{anchor}"></span>
-"""
-
-SECTIONS['Template:contents_list_item'] = """
-<li><a href="{href}">{title}</a></li>
 """
 
 SECTIONS['Template:footer'] = """

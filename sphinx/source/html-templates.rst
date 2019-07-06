@@ -259,11 +259,16 @@ The ``Reference`` template is the full-page template that is used to build
 The following identifiers are available (in addition to the universal and
 page-level identifiers):
 
+* ``contents`` - a list of contents list item objects
 * ``entries`` - replaced by one or more copies of the :ref:`t_list_entry`
   subtemplate (when the page's ``SectionType`` is ``BulletPoints`` or
   ``ListItems``), or the :ref:`t_reference_entry` subtemplate
-* ``m_contents_list_item`` - replaced by one or more copies of the
-  :ref:`t_contents_list_item` subtemplate
+
+Each contents list item object corresponds to an entry on the page and has the
+following attributes:
+
+* ``href`` - the URL to the entry on the page
+* ``title`` - the entry title
 
 To see the default ``Reference`` template, run the following command::
 
@@ -284,24 +289,6 @@ identifiers):
 To see the default ``anchor`` template, run the following command::
 
   $ skool2html.py -r Template:anchor
-
-.. _t_contents_list_item:
-
-contents_list_item
-------------------
-The ``contents_list_item`` template is the subtemplate used by the
-:ref:`t_Reference` full-page template to format each item in the contents list
-on a :ref:`box page <boxpages>`.
-
-The following identifiers are available (in addition to the universal
-identifiers):
-
-* ``href`` - the URL to the entry on the page
-* ``title`` - the entry title
-
-To see the default ``contents_list_item`` template, run the following command::
-
-  $ skool2html.py -r Template:contents_list_item
 
 .. _t_footer:
 
@@ -640,9 +627,6 @@ template if it exists, or the stock :ref:`t_footer` template otherwise.
 +-------------------------------+--------------------------------------+------------------------------+
 | :ref:`Box page <boxpages>`    | ``PageID-list_item``                 | :ref:`t_list_item`           |
 | entry list item               |                                      |                              |
-+-------------------------------+--------------------------------------+------------------------------+
-| :ref:`Box page <boxpages>`    | ``PageID-contents_list_item``        | :ref:`t_contents_list_item`  |
-| contents list item            |                                      |                              |
 +-------------------------------+--------------------------------------+------------------------------+
 | Entry on a                    | ``PageID-map_entry``                 | :ref:`t_map_entry`           |
 | :ref:`memory map <memoryMap>` |                                      |                              |

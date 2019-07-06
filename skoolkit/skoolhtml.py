@@ -670,12 +670,8 @@ class HtmlWriter:
             self.asm_entry_dicts[address] = entry_dict
         return self.asm_entry_dicts[address]
 
-    def _format_contents_list_items(self, link_list):
-        items = []
-        for anchor, title in link_list:
-            subs = {'href': '#' + anchor, 'title': title}
-            items.append(self.format_template('contents_list_item', subs))
-        return '\n'.join(items)
+    def _get_contents_list_items(self, contents):
+        return [{'href': '#' + anchor, 'title': title} for anchor, title in contents]
 
     def _format_box_page(self, cwd):
         section_type = self.pages[self._get_page_id()].get('SectionType')
@@ -702,7 +698,7 @@ class HtmlWriter:
             }
             entries_html.append(self.format_template(page_id + '-entry', t_reference_entry_subs, 'reference_entry'))
         subs = {
-            'm_contents_list_item': self._format_contents_list_items(link_list),
+            'contents': self._get_contents_list_items(link_list),
             'entries': '\n'.join(entries_html),
         }
         return self._format_page(cwd, subs, 'Reference', page.get('JavaScript'))
@@ -749,7 +745,7 @@ class HtmlWriter:
             }
             entries.append(self.format_template(page_id + '-entry', t_entry_subs, 'list_entry'))
         subs = {
-            'm_contents_list_item': self._format_contents_list_items(contents),
+            'contents': self._get_contents_list_items(contents),
             'entries': '\n'.join(entries),
         }
         return self._format_page(cwd, subs, 'Reference')

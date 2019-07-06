@@ -9484,12 +9484,11 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
             More stuff.
 
             [Template:{}]
-            {m_contents_list_item}
+            <# foreach($item,contents) #>
+            * {$item[title]}
+            <# endfor #>
 
             {entries}
-
-            [Template:{}-contents_list_item]
-            * {title}
 
             [Template:{}-entry]
             {title}: {contents[0]}
