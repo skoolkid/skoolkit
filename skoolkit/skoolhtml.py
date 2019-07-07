@@ -698,7 +698,7 @@ class HtmlWriter:
             })
         subs = {
             'contents': self._get_contents_list_items(link_list),
-            'm_list_entry': '',
+            'list_entries': (),
             'has_list_entries': 0,
             'entries': entries
         }
@@ -737,19 +737,18 @@ class HtmlWriter:
                                 indents.pop()
                             subitems = indents[-1][1]
                             subitems.append(subitem)
-            t_entry_subs = {
+            entries.append({
                 'anchor': anchor,
                 'num': 1 + j % 2,
                 'title': title,
                 'description': self.expand(description, cwd),
-                't_list_items': self._build_list_items(cwd, list_items)
-            }
-            entries.append(self.format_template(page_id + '-entry', t_entry_subs, 'list_entry'))
+                'list_items': self._build_list_items(cwd, list_items)
+            })
         subs = {
             'contents': self._get_contents_list_items(contents),
             'entries': (),
             'has_list_entries': 1,
-            'm_list_entry': '\n'.join(entries),
+            'list_entries': entries,
         }
         return self._format_page(cwd, subs, 'Reference')
 

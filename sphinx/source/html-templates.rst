@@ -269,8 +269,8 @@ page-level identifiers):
 * ``entries`` - a list of reference entry objects (empty if the page contains
   list entries)
 * ``has_list_entries`` - '1' if the page contains list entries, '0' otherwise
-* ``m_list_entry`` - replaced by one or more copies of the :ref:`t_list_entry`
-  subtemplate (blank if the page contains reference entries)
+* ``list_entries`` - a list of list entry objects (empty if the page contains
+  reference entries)
 
 Each contents list item object corresponds to an entry on the page and has the
 following attributes:
@@ -281,6 +281,14 @@ following attributes:
 Each reference entry object has the following attributes:
 
 * ``contents`` - a list of paragraphs comprising the contents of the entry
+* ``num`` - '1' or '2', depending on the order of the entry on the page
+* ``title`` - the entry title
+
+Each list entry object has the following attributes:
+
+* ``anchor`` - the anchor for the entry
+* ``description`` - the entry intro text
+* ``list_items`` - replaced by a copy of the :ref:`t_list_items` subtemplate
 * ``num`` - '1' or '2', depending on the order of the entry on the page
 * ``title`` - the entry title
 
@@ -365,32 +373,6 @@ To see the default ``list`` template, run the following command::
 
 .. versionadded:: 4.2
 
-.. _t_list_entry:
-
-list_entry
-----------
-The ``list_entry`` is the subtemplate used by the :ref:`t_Reference` full-page
-template to format each entry on a :ref:`box page <boxpages>` whose
-``SectionType`` is ``BulletPoints`` or ``ListItems``.
-
-The following identifiers are available (in addition to the universal
-identifiers):
-
-* ``anchor`` - the anchor for the entry
-* ``description`` - the entry intro text
-* ``num`` - '1' or '2', depending on the order of the entry on the page
-* ``t_list_items`` - replaced by a copy of the :ref:`t_list_items` subtemplate
-* ``title`` - the entry title
-
-To see the default ``list_entry`` template, run the following command::
-
-  $ skool2html.py -r Template:list_entry
-
-.. versionchanged:: 6.0
-   The name of this template changed from ``changelog_entry`` to
-   ``list_entry``; accordingly, the name of the ``t_changelog_item_list``
-   identifier changed to ``t_list_items``.
-
 .. _t_list_item:
 
 list_item
@@ -413,11 +395,10 @@ To see the default ``list_item`` template, run the following command::
 
 list_items
 ----------
-The ``list_items`` template is the subtemplate used by the :ref:`t_list_entry`
-subtemplate to format a list of items in an entry on a
-:ref:`box page <boxpages>` whose ``SectionType`` is ``BulletPoints`` or
-``ListItems``, and also by the :ref:`t_list_item` subtemplate to format a list
-of subitems or subsubitems etc.
+The ``list_items`` template is the subtemplate used by the :ref:`t_Reference`
+template to format a list of items in an entry on a :ref:`box page <boxpages>`
+whose ``SectionType`` is ``BulletPoints`` or ``ListItems``, and also by the
+:ref:`t_list_item` subtemplate to format a list of subitems or subsubitems etc.
 
 The following identifiers are available (in addition to the universal
 identifiers):
@@ -539,9 +520,6 @@ template if it exists, or the stock :ref:`t_footer` template otherwise.
 +-------------------------------+--------------------------------------+------------------------------+
 | Element type                  | Preferred template(s)                | Stock subtemplate            |
 +===============================+======================================+==============================+
-| :ref:`Box page <boxpages>`    | ``PageID-entry``                     | :ref:`t_list_entry`          |
-| entry (list items)            |                                      |                              |
-+-------------------------------+--------------------------------------+------------------------------+
 | :ref:`Box page <boxpages>`    | ``PageID-item_list``                 | :ref:`t_list_items`          |
 | entry list                    |                                      |                              |
 +-------------------------------+--------------------------------------+------------------------------+

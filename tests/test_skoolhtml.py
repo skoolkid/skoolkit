@@ -8465,14 +8465,6 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
               Subitem 1B
             Item 2
 
-            [Template:{}-entry]
-            <div><span id="{anchor}"></span></div>
-            <div class="entry entry-{num}">
-            <div class="entry-title">{title}</div>
-            <div class="entry-intro">{description}</div>
-            {t_list_items}
-            </div>
-
             [Template:{}-item_list]
             <ul class="level{indent}">
             {m_list_item}
@@ -8486,9 +8478,9 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
             <li><a href="#entry1">Entry 1</a></li>
             </ul>
             <div><span id="entry1"></span></div>
-            <div class="entry entry-1">
-            <div class="entry-title">Entry 1</div>
-            <div class="entry-intro">Intro.</div>
+            <div class="list-entry list-entry-1">
+            <div class="list-entry-title">Entry 1</div>
+            <div class="list-entry-desc">Intro.</div>
             <ul class="level">
             <li>* Item 1
             <ul class="level1">

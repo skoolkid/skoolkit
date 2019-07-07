@@ -570,7 +570,14 @@ SECTIONS['Template:Reference'] = """
 <# endfor #>
 </ul>
 <# if({has_list_entries}) #>
-{m_list_entry}
+<# foreach($entry,list_entries) #>
+<div><span id="{$entry[anchor]}"></span></div>
+<div class="list-entry list-entry-{$entry[num]}">
+<div class="list-entry-title">{$entry[title]}</div>
+<div class="list-entry-desc">{$entry[description]}</div>
+{$entry[list_items]}
+</div>
+<# endfor #>
 <# else #>
 <# foreach($entry,entries) #>
 <div><span id="{$entry[anchor]}"></span></div>
@@ -621,15 +628,6 @@ SECTIONS['Template:list'] = """
 <li>{$item}</li>
 <# endfor #>
 </ul>
-"""
-
-SECTIONS['Template:list_entry'] = """
-<div><span id="{anchor}"></span></div>
-<div class="list-entry list-entry-{num}">
-<div class="list-entry-title">{title}</div>
-<div class="list-entry-desc">{description}</div>
-{t_list_items}
-</div>
 """
 
 SECTIONS['Template:list_item'] = """
