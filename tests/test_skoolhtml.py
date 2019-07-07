@@ -33,7 +33,6 @@ REF_SECTIONS = {
     'Template_img': defaults.get_section('Template:img'),
     'Template_link': defaults.get_section('Template:link'),
     'Template_list': defaults.get_section('Template:list'),
-    'Template_list_item': defaults.get_section('Template:list_item'),
     'Template_paragraph': defaults.get_section('Template:paragraph'),
     'Template_reg': defaults.get_section('Template:reg'),
     'Template_table': defaults.get_section('Template:table'),
@@ -93,7 +92,6 @@ Pokes={REFERENCE_DIR}/pokes.html
 {REF_SECTIONS[Template_img]}
 {REF_SECTIONS[Template_link]}
 {REF_SECTIONS[Template_list]}
-{REF_SECTIONS[Template_list_item]}
 {REF_SECTIONS[Template_paragraph]}
 {REF_SECTIONS[Template_reg]}
 {REF_SECTIONS[Template_table]}
@@ -8315,9 +8313,9 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
         path = 'maps/{}.html'.format(map_id)
         self.assertEqual('<foo>Bar</foo>', self.files[path])
 
-    def test_changelog_with_custom_item_template(self):
-        # Test that the 'Changelog-list_item' template is used if defined
-        # instead of the default 'list_item' template)
+    def test_changelog_with_custom_item_list_template(self):
+        # Test that the 'Changelog-item_list' template is used if defined
+        # instead of the default 'item_list' template)
         ref = """
             [Changelog:20141123]
             -
@@ -8325,8 +8323,12 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
             Item 1
             Item 2
 
-            [Template:Changelog-list_item]
-            <li>* {item}</li>
+            [Template:Changelog-item_list]
+            <ul class="list-entry{indent}">
+            <# foreach($item,items) #>
+            <li>* {$item[text]}</li>
+            <# endfor #>
+            </ul>
         """
         content = """
             <ul class="contents">
@@ -8450,7 +8452,7 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
         writer.write_page(page_id)
         self._assert_content_equal(exp_content, '{}.html'.format(page_id))
 
-    def test_box_page_as_list_items_with_custom_subtemplates(self):
+    def test_box_page_as_list_items_with_custom_subtemplate(self):
         page_id = 'MyListItemsPage'
         ref = """
             [Page:{}]
@@ -8467,11 +8469,16 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
 
             [Template:{}-item_list]
             <ul class="level{indent}">
-            {m_list_item}
+            <# foreach($item,items) #>
+            <# if({$item[has_subitems]}) #>
+            <li>* {$item[text]}
+            {$item[subitems]}
+            </li>
+            <# else #>
+            <li>* {$item[text]}</li>
+            <# endif #>
+            <# endfor #>
             </ul>
-
-            [Template:{}-list_item]
-            <li>* {item}</li>
         """.replace('{}', page_id)
         exp_content = """
             <ul class="contents">

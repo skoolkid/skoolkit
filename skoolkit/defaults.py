@@ -575,7 +575,7 @@ SECTIONS['Template:Reference'] = """
 <div class="list-entry list-entry-{$entry[num]}">
 <div class="list-entry-title">{$entry[title]}</div>
 <div class="list-entry-desc">{$entry[description]}</div>
-{$entry[list_items]}
+{$entry[item_list]}
 </div>
 <# endfor #>
 <# else #>
@@ -618,6 +618,20 @@ SECTIONS['Template:img'] = """
 <img alt="{alt}" src="{src}" />
 """
 
+SECTIONS['Template:item_list'] = """
+<ul class="list-entry{indent}">
+<# foreach($item,items) #>
+<# if({$item[has_subitems]}) #>
+<li>{$item[text]}
+{$item[subitems]}
+</li>
+<# else #>
+<li>{$item[text]}</li>
+<# endif #>
+<# endfor #>
+</ul>
+"""
+
 SECTIONS['Template:link'] = """
 <a href="{href}">{link_text}</a>
 """
@@ -627,16 +641,6 @@ SECTIONS['Template:list'] = """
 <# foreach($item,list[items]) #>
 <li>{$item}</li>
 <# endfor #>
-</ul>
-"""
-
-SECTIONS['Template:list_item'] = """
-<li>{item}</li>
-"""
-
-SECTIONS['Template:list_items'] = """
-<ul class="list-entry{indent}">
-{m_list_item}
 </ul>
 """
 

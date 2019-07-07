@@ -288,7 +288,7 @@ Each list entry object has the following attributes:
 
 * ``anchor`` - the anchor for the entry
 * ``description`` - the entry intro text
-* ``list_items`` - replaced by a copy of the :ref:`t_list_items` subtemplate
+* ``item_list`` - replaced by a copy of the :ref:`t_item_list` subtemplate
 * ``num`` - '1' or '2', depending on the order of the entry on the page
 * ``title`` - the entry title
 
@@ -337,6 +337,36 @@ To see the default ``img`` template, run the following command::
 
   $ skool2html.py -r Template:img
 
+.. _t_item_list:
+
+item_list
+---------
+The ``item_list`` template is the subtemplate used by the :ref:`t_Reference`
+template to format a list of items (or subitems, or subsubitems etc.) in an
+entry on a :ref:`box page <boxpages>` whose ``SectionType`` is ``BulletPoints``
+or ``ListItems``.
+
+The following identifiers are available (in addition to the universal
+identifiers):
+
+* ``indent`` - the indentation level of the item list: '' (blank string) for
+  the list of top-level items, '1' for a list of subitems, '2' for a list of
+  subsubitems etc.
+* ``items`` - a list of item objects
+
+Each item object has the following attributes:
+
+* ``has_subitems`` - '1' if the item has a list of subitems, '0' otherwise
+* ``subitems`` - a preformatted list of subitems (may be blank)
+* ``text`` - the text of the item
+
+Note that the ``item_list`` template is used to format the ``subitems``
+attribute of each item (this template is recursive).
+
+To see the default ``item_list`` template, run the following command::
+
+  $ skool2html.py -r Template:item_list
+
 .. _t_link:
 
 link
@@ -372,51 +402,6 @@ To see the default ``list`` template, run the following command::
   $ skool2html.py -r Template:list$
 
 .. versionadded:: 4.2
-
-.. _t_list_item:
-
-list_item
----------
-The ``list_item`` template is the subtemplate used by the :ref:`t_list_items`
-subtemplate to format each item in the list.
-
-The following identifier is available (in addition to the universal
-identifiers):
-
-* ``item`` - replaced by the text of the list item
-
-To see the default ``list_item`` template, run the following command::
-
-  $ skool2html.py -r Template:list_item$
-
-.. versionadded:: 4.2
-
-.. _t_list_items:
-
-list_items
-----------
-The ``list_items`` template is the subtemplate used by the :ref:`t_Reference`
-template to format a list of items in an entry on a :ref:`box page <boxpages>`
-whose ``SectionType`` is ``BulletPoints`` or ``ListItems``, and also by the
-:ref:`t_list_item` subtemplate to format a list of subitems or subsubitems etc.
-
-The following identifiers are available (in addition to the universal
-identifiers):
-
-* ``indent`` - the indentation level of the item list: '' (blank string) for
-  the list of top-level items, '1' for a list of subitems, '2' for a list of
-  subsubitems etc.
-* ``m_list_item`` - replaced by one or more copies of the :ref:`t_list_item`
-  subtemplate
-
-To see the default ``list_items`` template, run the following command::
-
-  $ skool2html.py -r Template:list_items
-
-.. versionchanged:: 6.0
-   The name of this template changed from ``changelog_item_list`` to
-   ``list_items``; accordingly, the name of the ``m_changelog_item``
-   identifier changed to ``m_list_item``.
 
 .. _t_paragraph:
 
@@ -520,11 +505,8 @@ template if it exists, or the stock :ref:`t_footer` template otherwise.
 +-------------------------------+--------------------------------------+------------------------------+
 | Element type                  | Preferred template(s)                | Stock subtemplate            |
 +===============================+======================================+==============================+
-| :ref:`Box page <boxpages>`    | ``PageID-item_list``                 | :ref:`t_list_items`          |
+| :ref:`Box page <boxpages>`    | ``PageID-item_list``                 | :ref:`t_item_list`           |
 | entry list                    |                                      |                              |
-+-------------------------------+--------------------------------------+------------------------------+
-| :ref:`Box page <boxpages>`    | ``PageID-list_item``                 | :ref:`t_list_item`           |
-| entry list item               |                                      |                              |
 +-------------------------------+--------------------------------------+------------------------------+
 | ``<head>`` element (other     | ``PageID-head``                      | :ref:`t_head`                |
 | than the page title)          |                                      |                              |

@@ -725,7 +725,7 @@ class HtmlWriter:
                             continue
                         subitems[-1][0] += ' {}'.format(s_line)
                     else:
-                        subitem = [s_line[len(prefix):].lstrip(), None]
+                        subitem = [s_line[len(prefix):].lstrip(), ()]
                         if new_indent == indents[-1][0]:
                             subitems.append(subitem)
                         elif new_indent > indents[-1][0]:
@@ -742,7 +742,7 @@ class HtmlWriter:
                 'num': 1 + j % 2,
                 'title': title,
                 'description': self.expand(description, cwd),
-                'list_items': self._build_list_items(cwd, list_items)
+                'item_list': self._build_list_items(cwd, list_items)
             })
         subs = {
             'contents': self._get_contents_list_items(contents),
@@ -757,19 +757,20 @@ class HtmlWriter:
             return ''
         list_items = []
         for item, subitems in items:
-            item = self.expand(item, cwd)
-            if subitems:
-                item = '{}\n{}\n'.format(item, self._build_list_items(cwd, subitems, level + 1))
-            list_items.append(self.format_template('list_item', {'item': item}))
+            list_items.append({
+                'text': self.expand(item, cwd),
+                'has_subitems': min(len(subitems), 1),
+                'subitems': self._build_list_items(cwd, subitems, level + 1)
+            })
         if level > 0:
             indent = level
         else:
             indent = ''
         t_list_items_subs = {
             'indent': indent,
-            'm_list_item': '\n'.join(list_items)
+            'items': list_items
         }
-        return self.format_template(self._get_page_id() + '-item_list', t_list_items_subs, 'list_items')
+        return self.format_template(self._get_page_id() + '-item_list', t_list_items_subs, 'item_list')
 
     def format_registers(self, cwd, registers, entry_dict):
         entry_dict['input_registers'] = input_values = []
