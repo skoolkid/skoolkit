@@ -878,7 +878,7 @@ class HtmlWriter:
         subs['prev_entry'] = prev_entry_dict
         subs['next_entry'] = next_entry_dict
 
-        html = self._format_page(cwd, subs, 'Asm', footer_subs={'entry': subs['entry']})
+        html = self._format_page(cwd, subs, 'Asm')
         self.write_file(fname, html)
 
     def _write_asm_single_page(self, map_file):
@@ -973,7 +973,7 @@ class HtmlWriter:
         """
         pass
 
-    def _format_page(self, cwd, subs, default, js=None, footer_subs=None):
+    def _format_page(self, cwd, subs, default, js=None):
         if cwd not in self.stylesheets:
             stylesheets = []
             for css_file in self.game_vars['StyleSheet'].split(';'):
@@ -994,7 +994,6 @@ class HtmlWriter:
 
         subs['stylesheets'] = self.stylesheets[cwd]
         subs['javascripts'] = self.javascript[js_key]
-        subs['t_footer'] = self.format_template('footer', footer_subs or {})
         return self.format_template(self._get_page_id(), subs, default)
 
     def _get_logo(self, cwd):

@@ -36,7 +36,6 @@ are available in every full-page template:
   attribute, ``src``, which holds the relative path to the JavaScript file
 * ``stylesheets`` - a list of stylesheet objects; each one has a single
   attribute, ``href``, which holds the relative path to the CSS file
-* ``t_footer`` - replaced by a copy of the :ref:`t_footer` subtemplate
 
 .. versionchanged:: 6.4
    Added ``path`` to the ``SkoolKit`` dictionary.
@@ -293,22 +292,12 @@ To see the default ``Reference`` template, run the following command::
 
 footer
 ------
-The ``footer`` template is the subtemplate used by the full-page templates to
-format the ``<footer>`` element of a page.
-
-When this template is part of a disassembly page, the following additional
-identifier is available:
-
-* ``entry`` - a dictionary of parameters corresponding to the current memory
-  map entry (see :ref:`t_Asm`)
+The ``footer`` template is the subtemplate included in every full-page
+template to format the ``<footer>`` element of a page.
 
 To see the default ``footer`` template, run the following command::
 
   $ skool2html.py -r Template:footer
-
-.. versionchanged:: 6.4
-   The ``entry`` identifier is available when the template is part of a
-   disassembly page.
 
 .. versionadded:: 5.0
 

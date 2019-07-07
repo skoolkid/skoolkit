@@ -8376,7 +8376,7 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
             PageContent={1}
             [Template:{0}]
             <bar>{{content}}</bar>
-            {{t_footer}}
+            <# include(footer) #>
             [Template:footer]
             {2}
         """.format(page_id, content, footer)
@@ -8903,7 +8903,7 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
             <# foreach($i,entry[instructions]) #>
             {$i[address]}: {$i[operation]} ; {$i[comment]}
             <# endfor #>
-            {t_footer}
+            <# include(footer) #>
 
             [Template:Asm-footer]
             That was the entry at {entry[location]}.
@@ -9204,7 +9204,7 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
         oc_writer.write_entries(asm_path, map_path)
         self._assert_content_equal(exp_content, '{}/32768.html'.format(asm_path))
 
-    def test_custom_asm_g_page_with_custom_subtemplates(self):
+    def test_custom_asm_g_page_with_custom_subtemplate(self):
         skool = """
             ; Game status buffer entry at 32768
             g32768 DEFB 0
@@ -9215,7 +9215,7 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
             <# foreach($i,entry[instructions]) #>
             {$i[address]}: {$i[operation]}
             <# endfor #>
-            {t_footer}
+            <# include(footer) #>
 
             [Template:Asm-g-footer]
             (done)

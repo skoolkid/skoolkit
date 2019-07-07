@@ -357,7 +357,7 @@ SECTIONS['Template:Asm'] = """
 <td class="next"><span class="next-{next_entry[exists]}">Next: <a href="{next_entry[href]}">{next_entry[address]}</a></span></td>
 </tr>
 </table>
-{t_footer}
+<# include(footer) #>
 </body>
 </html>
 """
@@ -450,7 +450,7 @@ SECTIONS['Template:AsmAllInOne'] = """
 <# endif #>
 </table>
 <# endfor #>
-{t_footer}
+<# include(footer) #>
 </body>
 </html>
 """
@@ -478,7 +478,7 @@ SECTIONS['Template:GameIndex'] = """
 <# endfor #>
 </ul>
 <# endfor #>
-{t_footer}
+<# include(footer) #>
 </body>
 </html>
 """
@@ -525,7 +525,7 @@ SECTIONS['Template:MemoryMap'] = """
 </tr>
 <# endfor #>
 </table>
-{t_footer}
+<# include(footer) #>
 </body>
 </html>
 """
@@ -545,7 +545,7 @@ SECTIONS['Template:Page'] = """
 </tr>
 </table>
 {content}
-{t_footer}
+<# include(footer) #>
 </body>
 </html>
 """
@@ -584,7 +584,7 @@ SECTIONS['Template:Reference'] = """
 </div>
 <# endfor #>
 <# endif #>
-{t_footer}
+<# include(footer) #>
 </body>
 </html>
 """
