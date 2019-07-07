@@ -32,10 +32,10 @@ section when the template is formatted.
 In addition to the universal identifiers, the following page-level identifiers
 are available in every full-page template:
 
-* ``m_javascript`` - replaced by any number of copies of the
-  :ref:`t_javascript` subtemplate
-* ``m_stylesheet`` - replaced by one or more copies of the :ref:`t_stylesheet`
-  subtemplate
+* ``javascripts`` - a list of javascript objects; each one has a single
+  attribute, ``src``, which holds the relative path to the JavaScript file
+* ``stylesheets`` - a list of stylesheet objects; each one has a single
+  attribute, ``href``, which holds the relative path to the CSS file
 * ``t_footer`` - replaced by a copy of the :ref:`t_footer` subtemplate
 
 .. versionchanged:: 6.4
@@ -312,6 +312,18 @@ To see the default ``footer`` template, run the following command::
 
 .. versionadded:: 5.0
 
+.. _t_head:
+
+head
+----
+The ``head`` template is the subtemplate included in every full-page template
+to format the content of the ``<head>`` element of a page (other than the page
+title).
+
+To see the default ``head`` template, run the following command::
+
+  $ skool2html.py -r Template:head
+
 .. _t_img:
 
 img
@@ -327,22 +339,6 @@ identifiers):
 To see the default ``img`` template, run the following command::
 
   $ skool2html.py -r Template:img
-
-.. _t_javascript:
-
-javascript
-----------
-The ``javascript`` template is the subtemplate used by the full-page templates
-to format each ``<script>`` element in the head of a page.
-
-The following identifier is available (in addition to the universal
-identifiers):
-
-* ``src`` - the relative path to the JavaScript file
-
-To see the default ``javascript`` template, run the following command::
-
-  $ skool2html.py -r Template:javascript
 
 .. _t_link:
 
@@ -484,22 +480,6 @@ To see the default ``reg`` template, run the following command::
 
   $ skool2html.py -r Template:reg
 
-.. _t_stylesheet:
-
-stylesheet
-----------
-The ``stylesheet`` template is the subtemplate used by the full-page templates
-to format each ``<link>`` element for a CSS file in the head of a page.
-
-The following identifier is available (in addition to the universal
-identifiers):
-
-* ``href`` - the relative path to the CSS file
-
-To see the default ``stylesheet`` template, run the following command::
-
-  $ skool2html.py -r Template:stylesheet
-
 .. _t_table:
 
 table
@@ -579,10 +559,8 @@ template if it exists, or the stock :ref:`t_footer` template otherwise.
 | :ref:`Box page <boxpages>`    | ``PageID-list_item``                 | :ref:`t_list_item`           |
 | entry list item               |                                      |                              |
 +-------------------------------+--------------------------------------+------------------------------+
-| ``<link>`` element for a CSS  | ``PageID-stylesheet``                | :ref:`t_stylesheet`          |
-| file                          |                                      |                              |
-+-------------------------------+--------------------------------------+------------------------------+
-| ``<script>`` element          | ``PageID-javascript``                | :ref:`t_javascript`          |
+| ``<head>`` element (other     | ``PageID-head``                      | :ref:`t_head`                |
+| than the page title)          |                                      |                              |
 +-------------------------------+--------------------------------------+------------------------------+
 | ``<img>`` element             | ``PageID-img``                       | :ref:`t_img`                 |
 +-------------------------------+--------------------------------------+------------------------------+

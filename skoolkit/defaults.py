@@ -262,9 +262,7 @@ SECTIONS['Template:Asm'] = """
 <html>
 <head>
 <title>{Game[Game]}: {SkoolKit[title]} {entry[address]}</title>
-<meta charset="utf-8" />
-{m_stylesheet}
-{m_javascript}
+<# include(head) #>
 </head>
 <body class="{SkoolKit[page_id]}">
 <table class="header">
@@ -369,9 +367,7 @@ SECTIONS['Template:AsmAllInOne'] = """
 <html>
 <head>
 <title>{Game[Game]}: {SkoolKit[title]}</title>
-<meta charset="utf-8" />
-{m_stylesheet}
-{m_javascript}
+<# include(head) #>
 </head>
 <body class="{SkoolKit[page_id]}">
 <table class="header">
@@ -464,9 +460,7 @@ SECTIONS['Template:GameIndex'] = """
 <html>
 <head>
 <title>{Game[Game]}: {SkoolKit[title]}</title>
-<meta charset="utf-8" />
-{m_stylesheet}
-{m_javascript}
+<# include(head) #>
 </head>
 <body class="{SkoolKit[page_id]}">
 <table class="header">
@@ -494,9 +488,7 @@ SECTIONS['Template:MemoryMap'] = """
 <html>
 <head>
 <title>{Game[Game]}: {SkoolKit[title]}</title>
-<meta charset="utf-8" />
-{m_stylesheet}
-{m_javascript}
+<# include(head) #>
 </head>
 <body class="{SkoolKit[page_id]}">
 <table class="header">
@@ -543,9 +535,7 @@ SECTIONS['Template:Page'] = """
 <html>
 <head>
 <title>{Game[Game]}: {SkoolKit[title]}</title>
-<meta charset="utf-8" />
-{m_stylesheet}
-{m_javascript}
+<# include(head) #>
 </head>
 <body class="{SkoolKit[page_id]}">
 <table class="header">
@@ -565,9 +555,7 @@ SECTIONS['Template:Reference'] = """
 <html>
 <head>
 <title>{Game[Game]}: {SkoolKit[title]}</title>
-<meta charset="utf-8" />
-{m_stylesheet}
-{m_javascript}
+<# include(head) #>
 </head>
 <body class="{SkoolKit[page_id]}">
 <table class="header">
@@ -609,12 +597,18 @@ SECTIONS['Template:footer'] = """
 </footer>
 """
 
-SECTIONS['Template:img'] = """
-<img alt="{alt}" src="{src}" />
+SECTIONS['Template:head'] = """
+<meta charset="utf-8" />
+<# foreach($css,stylesheets) #>
+<link rel="stylesheet" type="text/css" href="{$css[href]}" />
+<# endfor #>
+<# foreach($js,javascripts) #>
+<script type="text/javascript" src="{$js[src]}"></script>
+<# endfor #>
 """
 
-SECTIONS['Template:javascript'] = """
-<script type="text/javascript" src="{src}"></script>
+SECTIONS['Template:img'] = """
+<img alt="{alt}" src="{src}" />
 """
 
 SECTIONS['Template:link'] = """
@@ -656,10 +650,6 @@ SECTIONS['Template:paragraph'] = """
 
 SECTIONS['Template:reg'] = """
 <span class="register">{reg}</span>
-"""
-
-SECTIONS['Template:stylesheet'] = """
-<link rel="stylesheet" type="text/css" href="{href}" />
 """
 
 SECTIONS['Template:table'] = """

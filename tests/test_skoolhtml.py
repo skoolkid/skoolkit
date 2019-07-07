@@ -3701,7 +3701,7 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         self.assertFalse(writer.link_internal_operands)
         writer.write_asm_entries()
         html = self._read_file(join(ASMDIR, '30000.html'), True)
-        line_no = 44
+        line_no = 43
         for inst, address in (
             ('CALL', 30003),
             ('JP', 30006),
@@ -3725,7 +3725,7 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         self.assertTrue(writer.link_internal_operands)
         writer.write_asm_entries()
         html = self._read_file(join(ASMDIR, '40000.html'), True)
-        line_no = 44
+        line_no = 43
         for inst, address in (
             ('CALL', 40003),
             ('JP', 40006),
@@ -3757,7 +3757,7 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             writer.write_asm_entries()
             html = self._read_file(join(ASMDIR, '32769.html'), True)
             link = '<a href="32768.html">32768</a>'
-            line_no = 44
+            line_no = 43
             for prefix in ('CALL ', 'DEFW ', 'DJNZ ', 'JP ', 'JR ', 'LD HL,'):
                 inst_type = prefix.split()[0]
                 exp_html = prefix + (link if inst_type in link_operands else '32768')
@@ -8045,7 +8045,9 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             JavaScript={0}
             [Page:{1}]
             [Template:{1}]
-            {{m_javascript}}
+            <# foreach($js,javascripts) #>
+            <script type="text/javascript" src="{{$js[src]}}"></script>
+            <# endfor #>
         """.format(global_js, page_id)
         writer = self._get_writer(ref=ref)
         writer.write_page(page_id)
@@ -8062,7 +8064,9 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             [Page:{1}]
             Path=
             [Template:{1}]
-            {{m_javascript}}
+            <# foreach($js,javascripts) #>
+            <script type="text/javascript" src="{{$js[src]}}"></script>
+            <# endfor #>
         """.format(global_js, page_id)
         writer = self._get_writer(ref=ref)
         writer.write_page(page_id)
@@ -8078,7 +8082,9 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             [Page:{0}]
             JavaScript={1}
             [Template:{0}]
-            {{m_javascript}}
+            <# foreach($js,javascripts) #>
+            <script type="text/javascript" src="{{$js[src]}}"></script>
+            <# endfor #>
         """.format(page_id, js)
         writer = self._get_writer(ref=ref)
         writer.write_page(page_id)
@@ -8093,7 +8099,9 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             [Page:{0}]
             JavaScript={1}
             [Template:{0}]
-            {{m_javascript}}
+            <# foreach($js,javascripts) #>
+            <script type="text/javascript" src="{{$js[src]}}"></script>
+            <# endfor #>
         """.format(page_id, js)
         writer = self._get_writer(ref=ref)
         writer.write_page(page_id)
@@ -8114,7 +8122,9 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             [Page:{1}]
             JavaScript={2}
             [Template:{1}]
-            {{m_javascript}}
+            <# foreach($js,javascripts) #>
+            <script type="text/javascript" src="{{$js[src]}}"></script>
+            <# endfor #>
         """.format(global_js, page_id, local_js)
         writer = self._get_writer(ref=ref)
         writer.write_page(page_id)
@@ -8131,7 +8141,9 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             [Page:{1}]
             Path=
             [Template:{1}]
-            {{m_stylesheet}}
+            <# foreach($css,stylesheets) #>
+            <link rel="stylesheet" type="text/css" href="{{$css[href]}}" />
+            <# endfor #>
         """.format(css, page_id)
         writer = self._get_writer(ref=ref)
         writer.write_page(page_id)
@@ -8147,7 +8159,9 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             [Page:{1}]
             Path=
             [Template:{1}]
-            {{m_stylesheet}}
+            <# foreach($css,stylesheets) #>
+            <link rel="stylesheet" type="text/css" href="{{$css[href]}}" />
+            <# endfor #>
         """.format(';'.join(css_files), page_id)
         writer = self._get_writer(ref=ref)
         writer.write_page(page_id)
@@ -9257,21 +9271,21 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
         oc_writer.write_entries(asm_path, map_path)
         self._assert_content_equal(exp_content, '{}/32768.html'.format(asm_path))
 
-    def test_custom_asm_s_page_with_custom_subtemplates(self):
+    def test_custom_asm_s_page_with_custom_subtemplate(self):
         skool = """
             ; Space
             s32768 DEFS 10
         """
         ref = """
             [Template:Asm-s]
-            {m_stylesheet}
+            <# include(head) #>
             {entry[title]}
             <# foreach($i,entry[instructions]) #>
             {$i[address]}: {$i[operation]}
             <# endfor #>
 
-            [Template:Asm-s-stylesheet]
-            -- {href} --
+            [Template:Asm-s-head]
+            -- {stylesheets[0][href]} --
         """
         exp_content = """
             -- ../skoolkit.css --
@@ -9310,7 +9324,7 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
         oc_writer.write_entries(asm_path, map_path)
         self._assert_content_equal(exp_content, '{}/32768.html'.format(asm_path))
 
-    def test_custom_asm_t_page_with_custom_subtemplates(self):
+    def test_custom_asm_t_page_with_custom_subtemplate(self):
         skool = """
             ; Message at 32768
             t32768 DEFM "Hello"
@@ -9320,14 +9334,14 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
             JavaScript=foo.js
 
             [Template:Asm-t]
-            {m_javascript}
+            <# include(head) #>
             {entry[title]}
             <# foreach($i,entry[instructions]) #>
             {$i[address]}: {$i[operation]}
             <# endfor #>
 
-            [Template:Asm-t-javascript]
-            -- {src} --
+            [Template:Asm-t-head]
+            -- {javascripts[0][src]} --
         """
         exp_content = """
             -- ../foo.js --

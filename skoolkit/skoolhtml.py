@@ -977,25 +977,23 @@ class HtmlWriter:
         if cwd not in self.stylesheets:
             stylesheets = []
             for css_file in self.game_vars['StyleSheet'].split(';'):
-                t_stylesheet_subs = {'href': self.relpath(cwd, join(self.paths['StyleSheetPath'], basename(css_file)))}
-                stylesheets.append(self.format_template('stylesheet', t_stylesheet_subs))
-            self.stylesheets[cwd] = '\n'.join(stylesheets)
+                stylesheets.append({'href': self.relpath(cwd, join(self.paths['StyleSheetPath'], basename(css_file)))})
+            self.stylesheets[cwd] = stylesheets
 
         js_key = (cwd, js)
         if js_key not in self.javascript:
-            javascript = []
+            javascripts = []
             if js:
                 js_files = list(self.js_files)
                 js_files.extend(js.split(';'))
             else:
                 js_files = self.js_files
             for js_file in js_files:
-                t_javascript_subs = {'src': self.relpath(cwd, join(self.paths['JavaScriptPath'], basename(js_file)))}
-                javascript.append(self.format_template('javascript', t_javascript_subs))
-            self.javascript[js_key] = '\n'.join(javascript)
+                javascripts.append({'src': self.relpath(cwd, join(self.paths['JavaScriptPath'], basename(js_file)))})
+            self.javascript[js_key] = javascripts
 
-        subs['m_stylesheet'] = self.stylesheets[cwd]
-        subs['m_javascript'] = self.javascript[js_key]
+        subs['stylesheets'] = self.stylesheets[cwd]
+        subs['javascripts'] = self.javascript[js_key]
         subs['t_footer'] = self.format_template('footer', footer_subs or {})
         return self.format_template(self._get_page_id(), subs, default)
 
