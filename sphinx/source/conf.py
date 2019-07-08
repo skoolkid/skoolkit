@@ -231,7 +231,7 @@ man_pages = [
     ('man/sna2ctl.py', 'sna2ctl.py',
      'generate a control file for a binary file or a snapshot', _authors, 1),
     ('man/sna2img.py', 'sna2img.py',
-     'convert a binary file or a SCR/SKOOL/SNA/SZX/Z80 file into a PNG or GIF file', _authors, 1),
+     'convert a binary file or a SCR/SKOOL/SNA/SZX/Z80 file into a PNG file', _authors, 1),
     ('man/sna2skool.py', 'sna2skool.py',
      'convert a binary file or a snapshot into a skool file', _authors, 1),
     ('man/snapinfo.py', 'snapinfo.py',

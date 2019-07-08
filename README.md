@@ -31,8 +31,8 @@ SkoolKit can:
 * disassemble SNA, Z80 and SZX snapshots as well as raw memory files
 * distinguish code from data by using a code execution map produced by an
   emulator
-* build still and animated PNG/GIF images from graphic data in the game
-  snapshot (using the ``#UDG``, ``#UDGARRAY``, ``#FONT`` and ``#SCR`` macros)
+* build still and animated PNG images from graphic data in the game snapshot
+  (using the ``#UDG``, ``#UDGARRAY``, ``#FONT`` and ``#SCR`` macros)
 * create hyperlinks between routines and data blocks that refer to each other
   (by use of the ``#R`` macro in annotations, and automatically in the
   operands of CALL and JP instructions)

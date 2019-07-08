@@ -705,8 +705,8 @@ Configuration parameters may also be set on the command line by using the
 sna2img.py
 ----------
 `sna2img.py` converts the screenshot or other graphic data in a binary (raw
-memory) file, SCR file, skool file, or SNA/SZX/Z80 snapshot into a PNG or GIF
-file. For example::
+memory) file, SCR file, skool file, or SNA/SZX/Z80 snapshot into a PNG file.
+For example::
 
   $ sna2img.py game.scr
 
@@ -716,9 +716,9 @@ To list the options supported by `sna2img.py`, run it with no arguments::
 
   usage: sna2img.py [options] INPUT [OUTPUT]
 
-  Convert a Spectrum screenshot or other graphic data into a PNG or GIF file.
-  INPUT may be a binary (raw memory) file, a SCR file, a skool file, or a SNA,
-  SZX or Z80 snapshot.
+  Convert a Spectrum screenshot or other graphic data into a PNG file. INPUT may
+  be a binary (raw memory) file, a SCR file, a skool file, or a SNA, SZX or Z80
+  snapshot.
 
   Options:
     -b, --bfix            Parse a skool file in @bfix mode.

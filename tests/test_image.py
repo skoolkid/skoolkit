@@ -3,9 +3,8 @@ from collections import deque
 from io import BytesIO
 
 from skoolkittest import SkoolKitTestCase
-from skoolkit.image import (ImageWriter, DEFAULT_FORMAT,
-                            PNG_COMPRESSION_LEVEL, PNG_ENABLE_ANIMATION,
-                            PNG_ALPHA, GIF_ENABLE_ANIMATION, GIF_TRANSPARENCY)
+from skoolkit.image import (ImageWriter, PNG_COMPRESSION_LEVEL,
+                            PNG_ENABLE_ANIMATION, PNG_ALPHA)
 from skoolkit.graphics import Udg, Frame
 
 TRANSPARENT = [0, 254, 0]
@@ -56,11 +55,6 @@ IEND_CHUNK = [0, 0, 0, 0, 73, 69, 78, 68, 174, 66, 96, 130]
 
 CRC_MASK = 4294967295
 
-GIF_HEADER = [71, 73, 70, 56, 57, 97]
-AEB = [33, 255, 11, 78, 69, 84, 83, 67, 65, 80, 69, 50, 46, 48, 3, 1, 0, 0, 0]
-GIF_FRAME_DELAY = 32
-GIF_TRAILER = 59
-
 def create_crc_table():
     crc_table = []
     for n in range(256):
@@ -94,24 +88,15 @@ ATTR_INDEX = create_attr_index()
 
 class ImageWriterOptionsTest(SkoolKitTestCase):
     def test_change_option_values(self):
-        options = {
-            DEFAULT_FORMAT: 'gif',
-            PNG_COMPRESSION_LEVEL: 3,
-            GIF_TRANSPARENCY: 1
-        }
+        options = {PNG_COMPRESSION_LEVEL: 3}
         image_writer = ImageWriter(options=options)
-        self.assertEqual(image_writer.options[DEFAULT_FORMAT], 'gif')
         self.assertEqual(image_writer.options[PNG_COMPRESSION_LEVEL], 3)
-        self.assertEqual(image_writer.options[GIF_TRANSPARENCY], 1)
 
     def test_default_option_values(self):
         image_writer = ImageWriter()
-        self.assertEqual(image_writer.options[DEFAULT_FORMAT], 'png')
         self.assertEqual(image_writer.options[PNG_COMPRESSION_LEVEL], 9)
         self.assertEqual(image_writer.options[PNG_ENABLE_ANIMATION], 1)
         self.assertEqual(image_writer.options[PNG_ALPHA], 255)
-        self.assertEqual(image_writer.options[GIF_ENABLE_ANIMATION], 1)
-        self.assertEqual(image_writer.options[GIF_TRANSPARENCY], 0)
 
     def test_invalid_option_value(self):
         image_writer = ImageWriter(options={PNG_COMPRESSION_LEVEL: 'NaN'})
@@ -124,17 +109,17 @@ class ImageWriterTest:
     def _get_dword(self, stream, index):
         return index + 4, 16777216 * stream[index] + 65536 * stream[index + 1] + 256 * stream[index + 2] + stream[index + 3]
 
-    def _get_image_data(self, image_writer, udg_array, img_format, scale=1, mask=0, x=0, y=0, width=None, height=None):
+    def _get_image_data(self, image_writer, udg_array, scale=1, mask=0, x=0, y=0, width=None, height=None):
         frame = Frame(udg_array, scale, mask, x, y, width, height)
         img_stream = BytesIO()
-        image_writer.write_image([frame], img_stream, img_format)
+        image_writer.write_image([frame], img_stream)
         img_bytes = [b for b in img_stream.getvalue()]
         img_stream.close()
         return img_bytes
 
-    def _get_animated_image_data(self, image_writer, frames, img_format):
+    def _get_animated_image_data(self, image_writer, frames):
         img_stream = BytesIO()
-        image_writer.write_image(frames, img_stream, img_format)
+        image_writer.write_image(frames, img_stream)
         img_bytes = [b for b in img_stream.getvalue()]
         img_stream.close()
         return img_bytes
@@ -1011,7 +996,7 @@ class PngWriterTest(SkoolKitTestCase, ImageWriterTest):
 
     def _test_image(self, udg_array, scale=1, mask=0, x=0, y=0, width=None, height=None, iw_args=None, exp_pixels=None):
         image_writer = ImageWriter(**(iw_args or {}))
-        img_bytes = self._get_image_data(image_writer, udg_array, 'png', scale, mask, x, y, width, height)
+        img_bytes = self._get_image_data(image_writer, udg_array, scale, mask, x, y, width, height)
 
         exp_pixels2 = None
         if exp_pixels is None:
@@ -1069,7 +1054,7 @@ class PngWriterTest(SkoolKitTestCase, ImageWriterTest):
 
     def _test_animated_image(self, frames, iw_args=None):
         image_writer = ImageWriter(**(iw_args or {}))
-        img_bytes = self._get_animated_image_data(image_writer, frames, 'png')
+        img_bytes = self._get_animated_image_data(image_writer, frames)
 
         exp_palette = []
         frame_data = []
@@ -1122,288 +1107,3 @@ class PngWriterTest(SkoolKitTestCase, ImageWriterTest):
 
         # IEND
         self.assertEqual(img_bytes[i:], IEND_CHUNK)
-
-class GifWriterTest(SkoolKitTestCase, ImageWriterTest):
-    def setUp(self):
-        SkoolKitTestCase.setUp(self)
-        self.animation_flag = GIF_ENABLE_ANIMATION
-        self.alpha_option = {GIF_TRANSPARENCY: 1}
-
-    def _get_word(self, stream, index):
-        return index + 2, 256 * stream[index + 1] + stream[index]
-
-    def _check_header(self, img_bytes):
-        i = len(GIF_HEADER)
-        self.assertEqual(img_bytes[:i], GIF_HEADER)
-        return i
-
-    def _check_lsd(self, img_bytes, index, exp_width, exp_height):
-        i, width = self._get_word(img_bytes, index)
-        self.assertEqual(width, exp_width)
-        i, height = self._get_word(img_bytes, i)
-        self.assertEqual(height, exp_height)
-        return i
-
-    def _check_gct(self, img_bytes, index, exp_palette):
-        i, gct_flags = self._get_num(img_bytes, index)
-        exp_palette_size = len(exp_palette)
-        if exp_palette_size > 8:
-            exp_gct_size = 3
-        elif exp_palette_size > 4:
-            exp_gct_size = 2
-        elif exp_palette_size > 2:
-            exp_gct_size = 1
-        else:
-            exp_gct_size = 0
-        exp_gct_flags = 240 + exp_gct_size
-        self.assertEqual(gct_flags, exp_gct_flags)
-        i, bg_index = self._get_num(img_bytes, i)
-        self.assertEqual(bg_index, 0)
-        i, aspect_ratio = self._get_num(img_bytes, i)
-        self.assertEqual(aspect_ratio, 0)
-        gct = [img_bytes[j:j + 3] for j in range(i, i + 3 * exp_palette_size, 3)]
-        self.assertEqual(sorted(exp_palette), sorted(gct))
-        i += 3 * len(gct)
-        full_gct_len = 1 << (1 + exp_gct_size)
-        for n in range(full_gct_len - len(gct)):
-            self.assertEqual(img_bytes[i:i + 3], [0, 0, 0])
-            i += 3
-        return i, gct
-
-    def _check_gce(self, img_bytes, index, t_flag, delay):
-        self.assertEqual(img_bytes[index:index + 8], [33, 249, 4, t_flag, delay, 0, 0, 0])
-        return index + 8
-
-    def _check_image_descriptor(self, img_bytes, index, exp_width, exp_height, exp_x_offset=0, exp_y_offset=0):
-        i = index
-        self.assertEqual(img_bytes[i], 44)
-        i += 1
-        i, x_offset = self._get_word(img_bytes, i)
-        self.assertEqual(x_offset, exp_x_offset)
-        i, y_offset = self._get_word(img_bytes, i)
-        self.assertEqual(y_offset, exp_y_offset)
-        i, width = self._get_word(img_bytes, i)
-        self.assertEqual(width, exp_width)
-        i, height = self._get_word(img_bytes, i)
-        self.assertEqual(height, exp_height)
-        i, lct = self._get_num(img_bytes, i)
-        self.assertEqual(lct, 0)
-        return i
-
-    def _get_pixels_from_image_data(self, lzw_data, min_code_size, palette, width):
-        num_clear_codes = 0
-        clear_code = 1 << min_code_size
-        stop_code = clear_code + 1
-        init_d = {}
-        for n in range(clear_code):
-            init_d[n] = (n,)
-        init_d[clear_code] = 0
-        init_d[stop_code] = 0
-        d = {}
-
-        lzw_bits = deque()
-        for lzw_byte in lzw_data:
-            for j in range(8):
-                lzw_bits.appendleft(lzw_byte & 1)
-                lzw_byte >>= 1
-
-        code_size = min_code_size + 1
-        output = []
-        prefix = None
-        while 1:
-            if len(lzw_bits) < code_size:
-                self.fail('Unexpected end of LZW stream')
-
-            # Collect a code from the LZW stream
-            code = 0
-            m = 1
-            for k in range(code_size):
-                code += m * lzw_bits.pop()
-                m *= 2
-
-            if code == clear_code:
-                # Found a CLEAR code
-                d = init_d.copy()
-                code_size = min_code_size + 1
-                prefix = None
-                num_clear_codes += 1
-                continue
-            elif code == stop_code:
-                # Found the STOP code
-                break
-
-            # Update the value of the last code added to the dictionary
-            out = d[code]
-            if out is None:
-                out = prefix + prefix[0:1]
-                d[code] = out
-            elif prefix:
-                d[len(d) - 1] = prefix + out[0:1]
-
-            # Increase the code size if necessary
-            if len(d) == 1 << code_size and len(lzw_bits) > code_size and code_size < 12:
-                code_size += 1
-
-            output.extend(out)
-            prefix = out
-            d[len(d)] = None
-
-        pixels = [[]]
-        for pixel in output:
-            if len(pixels[-1]) == width:
-                pixels.append([])
-            pixels[-1].append(palette[pixel])
-        return pixels, num_clear_codes
-
-    def _check_image_data(self, img_bytes, index, width, height, palette, exp_min_code_size, exp_pixels, exp_clear_codes=None):
-        i, min_code_size = self._get_num(img_bytes, index)
-        self.assertEqual(min_code_size, exp_min_code_size)
-
-        lzw_data = []
-        while True:
-            i, length = self._get_num(img_bytes, i)
-            if length == 0:
-                break
-            lzw_data.extend(img_bytes[i:i + length])
-            i += length
-
-        pixels, num_clear_codes = self._get_pixels_from_image_data(lzw_data, min_code_size, palette, width)
-        self.assertEqual(len(pixels[0]), len(exp_pixels[0])) # width
-        self.assertEqual(len(pixels), len(exp_pixels)) # height
-        self.assertEqual(exp_pixels, pixels)
-        if exp_clear_codes is not None:
-            self.assertEqual(num_clear_codes, exp_clear_codes)
-
-        return i
-
-    def _test_image(self, udg_array, scale=1, mask=0, x=0, y=0, width=None, height=None, iw_args=None, exp_pixels=None, exp_clear_codes=None):
-        if iw_args is None:
-            iw_args = {}
-        options = iw_args.setdefault('options', {})
-        image_writer = ImageWriter(**iw_args)
-        img_bytes = self._get_image_data(image_writer, udg_array, 'gif', scale, mask, x, y, width, height)
-
-        exp_pixels2 = None
-        if exp_pixels is None:
-            exp_palette, has_trans, exp_pixels, exp_pixels2, frame2_xy = self._get_pixels_from_udg_array(udg_array, scale, mask, x, y, width, height)
-            if not image_writer.options[GIF_ENABLE_ANIMATION]:
-                exp_pixels2 = None
-        else:
-            exp_palette = []
-            for row in exp_pixels:
-                for pixel in row:
-                    if pixel not in exp_palette:
-                        exp_palette.append(pixel)
-            # Assume that there are transparent bits if mask is True
-            has_trans = mask
-
-        t_flag = 1 if image_writer.options[GIF_TRANSPARENCY] and has_trans else 0
-
-        palette_size = len(exp_palette)
-        if palette_size > 8:
-            exp_min_code_size = 4
-        elif palette_size > 4:
-            exp_min_code_size = 3
-        else:
-            exp_min_code_size = 2
-
-        # GIF header
-        i = self._check_header(img_bytes)
-
-        # Logical screen descriptor
-        exp_width = 8 * scale * len(udg_array[0]) - x if width is None else width
-        exp_height = 8 * scale * len(udg_array) - y if height is None else height
-        i = self._check_lsd(img_bytes, i, exp_width, exp_height)
-
-        # Global Colour Table
-        i, palette = self._check_gct(img_bytes, i, exp_palette)
-
-        # AEB and GCE (frame 1)
-        if exp_pixels2:
-            aeb_len = len(AEB)
-            self.assertEqual(img_bytes[i:i + aeb_len], AEB)
-            i += aeb_len
-            i = self._check_gce(img_bytes, i, t_flag, GIF_FRAME_DELAY)
-        elif t_flag:
-            i = self._check_gce(img_bytes, i, t_flag, 0)
-
-        # Frame 1 image descriptor
-        i = self._check_image_descriptor(img_bytes, i, exp_width, exp_height)
-
-        # Frame 1 image data
-        i = self._check_image_data(img_bytes, i, exp_width, exp_height, palette, exp_min_code_size, exp_pixels, exp_clear_codes)
-
-        # Frame 2
-        if exp_pixels2:
-            i = self._check_gce(img_bytes, i, t_flag, GIF_FRAME_DELAY)
-            exp_width = len(exp_pixels2[0])
-            exp_height = len(exp_pixels2)
-            exp_x_offset, exp_y_offset = frame2_xy
-            i = self._check_image_descriptor(img_bytes, i, exp_width, exp_height, exp_x_offset, exp_y_offset)
-            i = self._check_image_data(img_bytes, i, exp_width, exp_height, palette, exp_min_code_size, exp_pixels2)
-
-        # GIF trailer
-        self.assertEqual(img_bytes[i], GIF_TRAILER)
-
-    def _test_animated_image(self, frames, iw_args=None):
-        if iw_args is None:
-            iw_args = {}
-        options = iw_args.setdefault('options', {})
-        image_writer = ImageWriter(**iw_args)
-        img_bytes = self._get_animated_image_data(image_writer, frames, 'gif')
-
-        exp_palette = []
-        frame_data = []
-        has_trans = 0
-        for frame in frames:
-            x, y, width, height = frame.x, frame.y, frame.width, frame.height
-            frame_palette, f_has_trans, pixels, pixels2, frame2_xy = self._get_pixels_from_udg_array(frame.udgs, frame.scale, frame.mask, x, y, width, height)
-            has_trans = has_trans or f_has_trans
-            frame_data.append((width, height, pixels, frame.delay))
-            for c in frame_palette:
-                if c not in exp_palette:
-                    exp_palette.append(c)
-
-        t_flag = 1 if image_writer.options[GIF_TRANSPARENCY] and has_trans else 0
-
-        palette_size = len(exp_palette)
-        if palette_size > 8:
-            exp_min_code_size = 4
-        elif palette_size > 4:
-            exp_min_code_size = 3
-        else:
-            exp_min_code_size = 2
-
-        # GIF header
-        i = self._check_header(img_bytes)
-
-        # Logical screen descriptor
-        exp_width, exp_height = frame_data[0][:2]
-        i = self._check_lsd(img_bytes, i, exp_width, exp_height)
-
-        # Global Colour Table
-        i, palette = self._check_gct(img_bytes, i, exp_palette)
-
-        # AEB
-        aeb_len = len(AEB)
-        self.assertEqual(img_bytes[i:i + aeb_len], AEB)
-        i += aeb_len
-
-        # Frames
-        for exp_width, exp_height, exp_pixels, exp_delay in frame_data:
-            i = self._check_gce(img_bytes, i, t_flag, exp_delay)
-            i = self._check_image_descriptor(img_bytes, i, exp_width, exp_height)
-            i = self._check_image_data(img_bytes, i, exp_width, exp_height, palette, exp_min_code_size, exp_pixels)
-
-        # GIF trailer
-        self.assertEqual(img_bytes[i], GIF_TRAILER)
-
-    def test_lzw_clear_code(self):
-        pixels = ''.join(['{:b}'.format(n) for n in range(1639)]) + '0' * 17
-        udgs = []
-        index = 0
-        while index < len(pixels):
-            udg_data = [int(pixels[j:j + 8], 2) for j in range(index, index + 64, 8)]
-            udgs.append(Udg((index // 64) & 127, udg_data))
-            index += 64
-        self._test_image([udgs], exp_clear_codes=2)

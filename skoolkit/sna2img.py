@@ -1,4 +1,4 @@
-# Copyright 2013, 2015-2018 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2013, 2015-2019 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -20,7 +20,7 @@ import re
 from builtins import open
 
 from skoolkit import SkoolKitError, integer, VERSION, skoolmacro
-from skoolkit.image import ImageWriter, GIF_ENABLE_ANIMATION, PNG_ENABLE_ANIMATION
+from skoolkit.image import ImageWriter, PNG_ENABLE_ANIMATION
 from skoolkit.snapshot import make_snapshot, move, poke
 from skoolkit.graphics import Frame, flip_udgs, rotate_udgs, adjust_udgs, build_udg, font_udgs, scr_udgs
 from skoolkit.skool2bin import BinWriter
@@ -72,12 +72,10 @@ def _dimensions(arg):
 def _write_image(frame, img_file, animated):
     iw_options = {}
     if not animated:
-        iw_options[GIF_ENABLE_ANIMATION] = 0
         iw_options[PNG_ENABLE_ANIMATION] = 0
     image_writer = ImageWriter(options=iw_options)
-    image_format = 'gif' if img_file.lower()[-4:] == '.gif' else 'png'
     with open(img_file, "wb") as f:
-        image_writer.write_image([frame], f, image_format)
+        image_writer.write_image([frame], f)
 
 def run(infile, outfile, options):
     if options.binary or options.org is not None or infile[-4:].lower() in ('.sna', '.szx', '.z80'):
@@ -126,7 +124,7 @@ def run(infile, outfile, options):
 def main(args):
     parser = argparse.ArgumentParser(
         usage='sna2img.py [options] INPUT [OUTPUT]',
-        description="Convert a Spectrum screenshot or other graphic data into a PNG or GIF file. "
+        description="Convert a Spectrum screenshot or other graphic data into a PNG file. "
                     "INPUT may be a binary (raw memory) file, a SCR file, a skool file, or a SNA, SZX or Z80 snapshot.",
         add_help=False
     )

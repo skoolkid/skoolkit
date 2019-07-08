@@ -25,7 +25,7 @@ def run(root_dir, options):
         for fname in all_files:
             if fname.endswith('.html'):
                 html += 1
-            elif fname.endswith(('.png', '.gif')):
+            elif fname.endswith('.png'):
                 img += 1
             elif fname.endswith('.css'):
                 css += 1

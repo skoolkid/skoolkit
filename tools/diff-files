@@ -62,7 +62,7 @@ diff_html() {
   echo -n "Writing diffs to $out..."
   for d in $(ls -1 $new); do
     diff_file=$out/$d.html.diff
-    do_diff html $old/$d $new/$d $diff_file -x '*.png' -x '*.gif'
+    do_diff html $old/$d $new/$d $diff_file -x '*.png'
     if [ -f $diff_file ]; then
       grep '^+++ ' $diff_file | grep -o "$d/.*.html" > $out/$d.files
     fi
@@ -72,29 +72,28 @@ diff_html() {
 }
 
 diff_images() {
-  img_type=$1
-  old=$2
-  new=$3
+  old=$1
+  new=$2
 
-  out=diffs-$img_type
+  out=diffs-png
   echo -n "Writing diffs to $out..."
-  rm -rf $old/$img_type $new/$img_type
+  rm -rf $old/png $new/png
   game=$(ls -1 $new/html | head -1)
-  find $old/html/$game -name "*.$img_type" | while read old_img; do
+  find $old/html/$game -name "*.png" | while read old_img; do
     img_path=${old_img#$old/}
     if [ -f $new/$img_path ] && ! cmp -s $old_img $new/$img_path; then
       for d in $old $new; do
-        dump_file=$d/$img_type/${img_path#html/$game}.dump
+        dump_file=$d/png/${img_path#html/$game}.dump
         mkdir -p $(dirname $dump_file)
-        $UTILS/analyse-$img_type.py --dump $d/$img_path > $dump_file
+        $UTILS/analyse-png.py --dump $d/$img_path > $dump_file
       done
     fi
   done
   rm -rf $out
   mkdir -p $out
-  diff_file=$out/$img_type.diff
-  do_diff $img_type $old/$img_type $new/$img_type $diff_file
-  $UTILS/unique-diffs.py $out/$USED_EXP_DIFFS-*.$img_type.txt > $out/$USED_EXP_DIFFS.txt
+  diff_file=$out/png.diff
+  do_diff png $old/png $new/png $diff_file
+  $UTILS/unique-diffs.py $out/$USED_EXP_DIFFS-*.png.txt > $out/$USED_EXP_DIFFS.txt
   echo "done"
 }
 
@@ -102,10 +101,10 @@ print_usage() {
   cat >&2 << EOM
 Usage: $(basename $0) [options] DIR1 DIR2 TYPE [TYPE...]
 
-  Runs 'diff' on the ASM, BIN, CTL, GIF, HTML, PNG or SKOOL files in two
-  directories and outputs the results to suitably named files.
+  Runs 'diff' on the ASM, BIN, CTL, HTML, PNG or SKOOL files in two directories
+  and outputs the results to suitably named files.
 
-  TYPE can be one of: asm bin ctl genctl gif html png skool all
+  TYPE can be one of: asm bin ctl genctl html png skool all
 
 Options:
   -d DIR     Filter diff files through check-diffs.py using exp-diffs-TYPE.txt
@@ -155,18 +154,16 @@ while [ "$1" != "" ]; do
     bin) diff_files bin $OLD $NEW dump ;;
     ctl) diff_files ctl $OLD $NEW ;;
     genctl) diff_files genctl $OLD $NEW ctl ;;
-    gif) diff_images gif $OLD $NEW ;;
     html) diff_html $OLD $NEW ;;
-    png) diff_images png $OLD $NEW ;;
+    png) diff_images $OLD $NEW ;;
     skool) diff_files skool $OLD $NEW ;;
     all)
       diff_files asm $OLD $NEW
       diff_bins bin $OLD $NEW
       diff_files ctl $OLD $NEW
       diff_files genctl $OLD $NEW ctl
-      diff_images gif $OLD $NEW
       diff_html $OLD $NEW
-      diff_images png $OLD $NEW
+      diff_images $OLD $NEW
       diff_files skool $OLD $NEW
       ;;
     *) echo "Skipping unknown file type: '$1'" ;;

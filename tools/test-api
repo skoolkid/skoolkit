@@ -19,8 +19,8 @@ write_skool() {
 ; Test the snapshot attribute: the word at 32768 is #WORD32768
 ; .
 ; #UDGTABLE
-; { #SPRITE4(j4*)        | #SPRITE6(*j6)        | #UDGARRAY*j4;j6(anim.gif) }
-; { #CHR(35)SPRITE4(j4*) | #CHR(35)SPRITE6(*j6) | #CHR(35)UDGARRAY*j4;j6(anim.gif) }
+; { #SPRITE4(j4*)        | #SPRITE6(*j6)        | #UDGARRAY*j4;j6(anim) }
+; { #CHR(35)SPRITE4(j4*) | #CHR(35)SPRITE6(*j6) | #CHR(35)UDGARRAY*j4;j6(anim.png) }
 ; TABLE#
 ; .
 ; #UDGTABLE
@@ -34,8 +34,8 @@ write_skool() {
 ; TABLE#
 ; .
 ; #UDGTABLE
-; { #CALL:countdown(countdown.gif) }
-; { #CHR(35)CALL:countdown(countdown.gif) }
+; { #CALL:countdown(countdown) }
+; { #CHR(35)CALL:countdown(countdown.png) }
 ; TABLE#
 ; .
 ; #CALL:copyright() 2015 Me

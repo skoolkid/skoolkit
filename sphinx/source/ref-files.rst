@@ -234,16 +234,6 @@ SkoolKit's image creation library. The parameters are in the format::
 
 Recognised parameters are:
 
-* ``DefaultAnimationFormat`` - the default format for animated images: ``gif``
-  (the default) or ``png``
-* ``DefaultFormat`` - the default image format: ``png`` (the default) or
-  ``gif``
-* ``GIFEnableAnimation`` - ``1`` to create animated GIFs for images that
-  contain flashing cells, or ``0`` to create plain (unanimated) GIFs for such
-  images (default: ``1``)
-* ``GIFTransparency`` - ``1`` to make the ``TRANSPARENT`` colour (see
-  :ref:`ref-Colours`) in GIF images transparent, or ``0`` to make it opaque
-  (default: ``0``)
 * ``PNGAlpha`` - the alpha value to use for the ``TRANSPARENT`` colour (see
   :ref:`ref-Colours`) in PNG images; valid values are in the range 0-255, where
   0 means fully transparent, and 255 means fully opaque (default: ``255``)
@@ -254,32 +244,10 @@ Recognised parameters are:
   images that contain flashing cells, or ``0`` to create plain (unanimated) PNG
   files for such images (default: ``1``)
 
-The image-creating skool macros will create a file in the default image format
-if the filename is unspecified, or its suffix is omitted, or its suffix is
-neither ``.png`` nor ``.gif``. For example, if ``DefaultFormat`` is ``png``,
-then::
-
-  #FONT32768,26
-
-will create an image file named ``font.png``. To create a GIF instead
-(regardless of the default image format)::
-
-  #FONT32768,26(font.gif)
-
-.. note::
-   Support for GIF images is deprecated since version 7.2. Use PNG images
-   instead.
-
 +---------+--------------------------------------------------------------+
 | Version | Changes                                                      |
 +=========+==============================================================+
-| 6.0     | ``DefaultAnimationFormat`` defaults to ``gif``               |
-+---------+--------------------------------------------------------------+
-| 5.1     | Added the ``DefaultAnimationFormat`` parameter               |
-+---------+--------------------------------------------------------------+
-| 3.0.1   | Added the ``DefaultFormat``, ``GIFEnableAnimation``,         |
-|         | ``GIFTransparency``, ``PNGAlpha`` and ``PNGEnableAnimation`` |
-|         | parameters                                                   |
+| 3.0.1   | Added the ``PNGAlpha`` and ``PNGEnableAnimation`` parameters |
 +---------+--------------------------------------------------------------+
 | 3.0     | New                                                          |
 +---------+--------------------------------------------------------------+

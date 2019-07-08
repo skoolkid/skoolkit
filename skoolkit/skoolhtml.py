@@ -80,7 +80,6 @@ class HtmlWriter:
         colours = self._parse_colours(self.get_dictionary('Colours'))
         iw_options = self.get_dictionary('ImageWriter')
         self.image_writer = ImageWriter(colours, iw_options)
-        self.default_image_format = self.image_writer.default_format
         self.frames = {}
 
         self.snapshot = self.parser.snapshot
@@ -1018,10 +1017,9 @@ class HtmlWriter:
     # API
     def handle_image(self, frames, fname='', cwd=None, alt=None, path_id='ImagePath'):
         """Register a named frame for an image, and write an image file if
-        required. If `fname` is blank, no image file will be created.  If
-        `fname` does not end with '.png' or '.gif', an appropriate suffix will
-        be appended (depending on the default image format). If `fname`
-        contains an image path ID replacement field, the corresponding
+        required. If `fname` is blank, no image file will be created. If
+        `fname` does not end with '.png', that suffix will be appended. If
+        `fname` contains an image path ID replacement field, the corresponding
         parameter value from the :ref:`Paths` section will be substituted.
 
         :param frames: A frame (instance of :class:`~skoolkit.graphics.Frame`)
@@ -1051,9 +1049,8 @@ class HtmlWriter:
         return ''
 
     def _write_image(self, image_path, frames):
-        img_format = image_path[-3:].lower()
         f = self.file_info.open_file(image_path, mode='wb')
-        self.image_writer.write_image(frames, f, img_format)
+        self.image_writer.write_image(frames, f)
         f.close()
         self.file_info.add_image(image_path)
 
@@ -1083,12 +1080,11 @@ class HtmlWriter:
 
     def _image_path(self, fname, path_id, frames):
         """Return the full path of an image file relative to the root directory
-        of the disassembly. If `fname` does not end with '.png' or '.gif', an
-        appropriate suffix is appended (depending on the default image format).
-        If `fname` starts with a '/', it is removed and the remainder returned.
-        If `fname` is blank, `None` is returned. If `fname` contains an image
-        path ID replacement field, the corresponding parameter value from the
-        [Paths] section is substituted.
+        of the disassembly. If `fname` does not end with '.png', that suffix
+        will be appended. If `fname` starts with a '/', it is removed and the
+        remainder returned. If `fname` is blank, `None` is returned. If `fname`
+        contains an image path ID replacement field, the corresponding
+        parameter value from the [Paths] section is substituted.
 
         :param fname: The name of the image file.
         :param path_id: The ID of the target directory (as defined in the
@@ -1101,10 +1097,10 @@ class HtmlWriter:
         """
         if fname:
             expanded = self._expand_image_path(fname)
-            if expanded[-4:].lower() in ('.png', '.gif'):
+            if expanded[-4:].lower() == '.png':
                 suffix = ''
             else:
-                suffix = '.' + self.image_writer.select_format(frames)
+                suffix = '.png'
             if expanded != fname or fname.startswith('/'):
                 return expanded.lstrip('/') + suffix
             if path_id in self.paths:

@@ -1086,9 +1086,7 @@ If ``fname`` contains no image path ID replacement fields and does not start
 with a '/', the filename is taken to be relative to the directory defined by
 the ``FontImagePath`` parameter in the :ref:`paths` section.
 
-If ``fname`` does not end with '`.png`' or '`.gif`', that suffix (depending on
-the default image format specified in the :ref:`ref-ImageWriter` section of the
-ref file) will be appended.
+If ``fname`` does not end with '`.png`', that suffix will be appended.
 
 If an image with the given filename doesn't already exist, it will be created.
 
@@ -1104,10 +1102,6 @@ starts at 49152.
 
 See :ref:`stringParameters` for details on alternative ways to supply the
 ``text`` parameter.
-
-.. note::
-   Support for GIF images is deprecated since version 7.2. Use PNG images
-   instead.
 
 +---------+------------------------------------------------------------------+
 | Version | Changes                                                          |
@@ -1166,9 +1160,7 @@ If ``fname`` contains no image path ID replacement fields and does not start
 with a '/', the filename is taken to be relative to the directory defined by
 the ``ScreenshotImagePath`` parameter in the :ref:`paths` section.
 
-If ``fname`` does not end with '`.png`' or '`.gif`', that suffix (depending on
-the default image format specified in the :ref:`ref-ImageWriter` section of the
-ref file) will be appended.
+If ``fname`` does not end with '`.png`', that suffix will be appended.
 
 If an image with the given filename doesn't already exist, it will be created.
 
@@ -1177,10 +1169,6 @@ For example::
   ; #UDGTABLE
   ; { #SCR(loading) | This is the loading screen. }
   ; TABLE#
-
-.. note::
-   Support for GIF images is deprecated since version 7.2. Use PNG images
-   instead.
 
 +---------+------------------------------------------------------------------+
 | Version | Changes                                                          |
@@ -1252,9 +1240,7 @@ If ``fname`` contains no image path ID replacement fields and does not start
 with a '/', the filename is taken to be relative to the directory defined by
 the ``UDGImagePath`` parameter in the :ref:`paths` section.
 
-If ``fname`` does not end with '`.png`' or '`.gif`', that suffix (depending on
-the default image format specified in the :ref:`ref-ImageWriter` section of the
-ref file) will be appended.
+If ``fname`` does not end with '`.png`', that suffix will be appended.
 
 If an image with the given filename doesn't already exist, it will be created.
 
@@ -1265,12 +1251,8 @@ For example::
   ; #HTML[#UDG39144,6(safe_key)]
 
 In HTML mode, this instance of the ``#UDG`` macro expands to an ``<img>``
-element for the image of the UDG at 39144 (which will be named `safe_key.png`
-or `safe_key.gif`), with attribute byte 6 (INK 6: PAPER 0).
-
-.. note::
-   Support for GIF images is deprecated since version 7.2. Use PNG images
-   instead.
+element for the image of the UDG at 39144 (which will be named `safe_key.png`),
+with attribute byte 6 (INK 6: PAPER 0).
 
 +---------+------------------------------------------------------------------+
 | Version | Changes                                                          |
@@ -1394,9 +1376,7 @@ If ``fname`` contains no image path ID replacement fields and does not start
 with a '/', the filename is taken to be relative to the directory defined by
 the ``UDGImagePath`` parameter in the :ref:`paths` section.
 
-If ``fname`` does not end with '`.png`' or '`.gif`', that suffix (depending on
-the default image format specified in the :ref:`ref-ImageWriter` section of the
-ref file) will be appended.
+If ``fname`` does not end with '`.png`', that suffix will be appended.
 
 If an image with the given filename doesn't already exist, it will be created.
 
@@ -1410,10 +1390,6 @@ In HTML mode, this instance of the ``#UDGARRAY`` macro expands to an ``<img>``
 element for the image of the 4x4 sprite formed by the 16 UDGs with base
 addresses 32768, 32776, 32784 and so on up to 32888; the image file will be
 named `base_sprite.png`.
-
-.. note::
-   Support for GIF images is deprecated since version 7.2. Use PNG images
-   instead.
 
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
@@ -1490,7 +1466,7 @@ For example::
   ; #FONT:(hello)$3D00(hello*) |
   ; #FONT:(there)$3D00(there*) |
   ; #FONT:(peeps)$3D00(peeps*) |
-  ; #UDGARRAY*hello,50;there;peeps(hello_there_peeps.gif)
+  ; #UDGARRAY*hello,50;there;peeps(hello_there_peeps)
   ; } TABLE#
 
 The ``#FONT`` macros create the required frames (and write images of them); the
@@ -1568,8 +1544,8 @@ U  M  Result
 By default, transparent bits in masked images are rendered in bright green
 (#00fe00); this colour can be changed by modifying the ``TRANSPARENT``
 parameter in the :ref:`ref-Colours` section. To make the transparent bits in
-masked images actually transparent, set ``GIFTransparency=1`` or ``PNGAlpha=0``
-in the :ref:`ref-ImageWriter` section.
+masked images actually transparent, set ``PNGAlpha=0`` in the
+:ref:`ref-ImageWriter` section.
 
 Snapshot macros
 ^^^^^^^^^^^^^^^

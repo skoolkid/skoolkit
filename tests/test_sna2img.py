@@ -15,9 +15,8 @@ class MockImageWriter:
         image_writer = self
         self.options = options
 
-    def write_image(self, frames, img_file, img_format):
+    def write_image(self, frames, img_file):
         self.frames = frames
-        self.img_format = img_format
 
 class Sna2ImgTest(SkoolKitTestCase):
     def _test_sna2img(self, mock_open, options, data, udgs, scale=1, mask=0, x=0, y=0,
@@ -42,17 +41,14 @@ class Sna2ImgTest(SkoolKitTestCase):
         args = '{} {}'.format(options, infile)
         if outfile:
             exp_outfile = outfile
-            img_format = outfile[-3:]
             args += ' {}'.format(outfile)
         else:
-            img_format = 'png'
             prefix, sep, suffix = infile.rpartition('.')
-            exp_outfile = '{}.{}'.format(prefix or suffix, img_format)
+            exp_outfile = '{}.png'.format(prefix or suffix)
         output, error = self.run_sna2img(args)
         self.assertEqual(output, '')
         self.assertEqual(error, '')
         self.assertEqual(iw_options or {}, image_writer.options)
-        self.assertEqual(image_writer.img_format, img_format)
         mock_open.assert_called_with(exp_outfile, 'wb')
         self.assertEqual(len(image_writer.frames), 1)
         frame = image_writer.frames[0]
@@ -130,13 +126,6 @@ class Sna2ImgTest(SkoolKitTestCase):
         scr = ([170] * 256 + [0] * 256) * 12 + [4] * 768
         exp_udgs = [[Udg(4, [170, 0] * 4)] * 32] * 24
         self._test_sna2img(mock_open, '', scr, exp_udgs)
-
-    @patch.object(sna2img, 'ImageWriter', MockImageWriter)
-    @patch.object(sna2img, 'open')
-    def test_gif_output(self, mock_open):
-        scr = ([85] * 256 + [0] * 256) * 12 + [5] * 768
-        exp_udgs = [[Udg(5, [85, 0] * 4)] * 32] * 24
-        self._test_sna2img(mock_open, '', scr, exp_udgs, outfile='scr.gif')
 
     @patch.object(sna2img, 'ImageWriter', MockImageWriter)
     @patch.object(sna2img, 'open')
@@ -233,7 +222,7 @@ class Sna2ImgTest(SkoolKitTestCase):
         x, y = 1, 2
         width, height = 40, 19
         data = char1.data + char2.data
-        macro = 'FONT{},{},{},{}{{{},{},{},{}}}(ignored.gif)'.format(addr, chars, attr, scale, x, y, width, height)
+        macro = 'FONT{},{},{},{}{{{},{},{},{}}}(ignored.png)'.format(addr, chars, attr, scale, x, y, width, height)
         self._test_sna2img(mock_open, '-e {}'.format(macro), data, exp_udgs, scale, 0, x, y, width, height, addr, ftype='sna')
 
     @patch.object(sna2img, 'ImageWriter', MockImageWriter)
@@ -491,7 +480,7 @@ class Sna2ImgTest(SkoolKitTestCase):
     def test_option_n(self, mock_open):
         scr = [0] * 6144 + [248] * 768
         exp_udgs = [[Udg(248, [0, 0, 0, 0, 0, 0, 0, 0])] * 32] * 24
-        exp_iw_options = {'GIFEnableAnimation': 0, 'PNGEnableAnimation': 0}
+        exp_iw_options = {'PNGEnableAnimation': 0}
         self._test_sna2img(mock_open, '-n', scr, exp_udgs, iw_options=exp_iw_options)
 
     @patch.object(sna2img, 'run', mock_run)

@@ -1,4 +1,4 @@
-# Copyright 2012-2015, 2017 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2012-2015, 2017, 2019 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -18,7 +18,6 @@
 Defines the :class:`ImageWriter` class.
 """
 
-from skoolkit.gifwriter import GifWriter
 from skoolkit.pngwriter import PngWriter
 
 TRANSPARENT = 'TRANSPARENT'
@@ -38,19 +37,12 @@ BRIGHT_CYAN = 'BRIGHT_CYAN'
 BRIGHT_YELLOW = 'BRIGHT_YELLOW'
 BRIGHT_WHITE = 'BRIGHT_WHITE'
 
-DEFAULT_ANIMATION_FORMAT = 'DefaultAnimationFormat'
-DEFAULT_FORMAT = 'DefaultFormat'
-GIF_ENABLE_ANIMATION = 'GIFEnableAnimation'
-GIF_TRANSPARENCY = 'GIFTransparency'
 PNG_ALPHA = 'PNGAlpha'
 PNG_COMPRESSION_LEVEL = 'PNGCompressionLevel'
 PNG_ENABLE_ANIMATION = 'PNGEnableAnimation'
 
-PNG_FORMAT = 'png'
-GIF_FORMAT = 'gif'
-
 class ImageWriter:
-    """Writes PNG and GIF images.
+    """Writes PNG images.
 
     :type palette: dict
     :param palette: Colour palette replacements to use.
@@ -61,36 +53,24 @@ class ImageWriter:
         self.options = self._get_default_options()
         if options:
             for k, v in options.items():
-                if k in (DEFAULT_ANIMATION_FORMAT, DEFAULT_FORMAT):
-                    self.options[k] = v
-                else:
-                    try:
-                        self.options[k] = int(v)
-                    except ValueError:
-                        pass
+                try:
+                    self.options[k] = int(v)
+                except ValueError:
+                    pass
         full_palette = self._get_default_palette()
         if palette:
             full_palette.update(palette)
         self._create_colours(full_palette)
         self._create_attr_index()
-        self.default_format = self.options[DEFAULT_FORMAT]
-        self.default_animation_format = self.options[DEFAULT_ANIMATION_FORMAT]
-        self.animation = {
-            PNG_FORMAT: self.options[PNG_ENABLE_ANIMATION],
-            GIF_FORMAT: self.options[GIF_ENABLE_ANIMATION]
-        }
         self.masks = {
             0: NoMask(),
             1: OrAndMask(),
             2: AndOrMask()
         }
-        self.writers = {
-            PNG_FORMAT: PngWriter(self.options[PNG_ALPHA] & 255, self.options[PNG_COMPRESSION_LEVEL], self.masks),
-            GIF_FORMAT: GifWriter(self.options[GIF_TRANSPARENCY], self.masks)
-        }
+        self.writer = PngWriter(self.options[PNG_ALPHA] & 255, self.options[PNG_COMPRESSION_LEVEL], self.masks)
 
-    def write_image(self, frames, img_file, img_format):
-        use_flash = len(frames) == 1 and self.animation.get(img_format)
+    def write_image(self, frames, img_file):
+        use_flash = len(frames) == 1 and self.options[PNG_ENABLE_ANIMATION]
         attrs = set()
         colours = set()
         has_trans = False
@@ -101,17 +81,7 @@ class ImageWriter:
             attrs.update(frame.attrs)
             has_trans = has_trans or frame.has_trans
         palette, attr_map = self._get_palette(colours, attrs, has_trans)
-        self.writers[img_format].write_image(frames, img_file, palette, attr_map, has_trans, frames[0].flash_rect)
-
-    def select_format(self, frames):
-        if frames and self.default_animation_format != self.default_format:
-            if len(frames) > 1:
-                return self.default_animation_format
-            if self.animation.get(self.default_animation_format):
-                self._get_colours(frames[0], True)
-                if frames[0].flash_rect:
-                    return self.default_animation_format
-        return self.default_format
+        self.writer.write_image(frames, img_file, palette, attr_map, has_trans, frames[0].flash_rect)
 
     def _get_default_palette(self):
         return  {
@@ -135,13 +105,9 @@ class ImageWriter:
 
     def _get_default_options(self):
         return {
-            DEFAULT_FORMAT: PNG_FORMAT,
-            DEFAULT_ANIMATION_FORMAT: GIF_FORMAT,
             PNG_COMPRESSION_LEVEL: 9,
             PNG_ENABLE_ANIMATION: 1,
-            PNG_ALPHA: 255,
-            GIF_ENABLE_ANIMATION: 1,
-            GIF_TRANSPARENCY: 0
+            PNG_ALPHA: 255
         }
 
     def _create_colours(self, palette):

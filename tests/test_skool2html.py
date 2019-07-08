@@ -605,9 +605,6 @@ class Skool2HtmlTest(SkoolKitTestCase):
     @patch.object(skool2html, 'write_disassembly', mock_write_disassembly)
     def test_image_writer_options(self):
         exp_iw_options = (
-            ('DefaultFormat', 'gif'),
-            ('GIFEnableAnimation', 0),
-            ('GIFTransparency', 1),
             ('PNGAlpha', 1),
             ('PNGCompressionLevel', 4),
             ('PNGEnableAnimation', 0)
@@ -1106,7 +1103,7 @@ class Skool2HtmlTest(SkoolKitTestCase):
             for section_name, param_name, value in (
                 ('Colours', 'RED', '255,0,0'),
                 ('Config', 'GameDir', 'test-c'),
-                ('ImageWriter', 'DefaultFormat', 'gif')
+                ('ImageWriter', 'PNGAlpha', '128')
             ):
                 output, error = self.run_skool2html('{} {}/{}={} {}'.format(option, section_name, param_name, value, skoolfile))
                 self.assertEqual(error, '')
@@ -1363,8 +1360,8 @@ class Skool2HtmlTest(SkoolKitTestCase):
         """
         ref1file = self._write_ref_file(ref1)
         ref2 = """
-            [ImageWriter]
-            DefaultFormat=gif
+            [Titles]
+            Bugs=Defects
         """
         ref2file = self._write_ref_file(ref2)
         ref = """
@@ -1379,7 +1376,7 @@ class Skool2HtmlTest(SkoolKitTestCase):
         self.assertIn('Using ref files: {}\n'.format(', '.join(exp_reffiles)), output)
         html_writer = write_disassembly_args[0]
         self.assertEqual(html_writer.game_vars['Game'], 'Foo')
-        self.assertEqual(html_writer.image_writer.default_format, 'gif')
+        self.assertEqual(html_writer.titles['Bugs'], 'Defects')
 
     @patch.object(skool2html, 'get_class', Mock(return_value=TestHtmlWriter))
     @patch.object(skool2html, 'SkoolParser', MockSkoolParser)
