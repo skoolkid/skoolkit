@@ -5,10 +5,10 @@ set -e # Abort on errors
 
 usage() {
   cat <<EOF
-Usage: $(basename $0) [-n|-s] $GAMES
+Usage: $(basename $0) [-k] $GAMES
 
   Compares the original skool file for a game with one generated from a control
-  file (or skool file template if -s is used) and a snapshot.
+  file and a snapshot.
 EOF
   exit 1
 }
@@ -22,10 +22,7 @@ if [ ! -d "$SKOOLKIT_HOME" ]; then
   exit 1
 fi
 
-ctl=1
-SKOOL2CTL_OPTS=-k
-[[ $1 == -n ]] && SKOOL2CTL_OPTS="" && shift
-[[ $1 == -s ]] && ctl=0 && shift
+[[ $1 == -k ]] && SKOOL2CTL_OPTS=-k && shift
 
 GAME=$1
 read_ddiffsrc $GAME
@@ -34,10 +31,6 @@ read_ddiffsrc $GAME
 SKOOL=$DHOME/sources/$GAME.skool
 SKOOL2=$GAME.skool
 
-if ((ctl == 1)); then
-  $SKOOLKIT_HOME/skool2ctl.py $SKOOL2CTL_OPTS $SKOOL | $SKOOLKIT_HOME/sna2skool.py $SNA2SKOOL_OPTS -c - $SNAPSHOT > $SKOOL2
-else
-  $SKOOLKIT_HOME/skool2sft.py $SKOOL | $SKOOLKIT_HOME/sna2skool.py $SNA2SKOOL_OPTS -T - $SNAPSHOT > $SKOOL2
-fi 2>/dev/null
+$SKOOLKIT_HOME/skool2ctl.py $SKOOL2CTL_OPTS $SKOOL | $SKOOLKIT_HOME/sna2skool.py $SNA2SKOOL_OPTS -c - $SNAPSHOT > $SKOOL2 2>/dev/null
 
 colordiff -Bu $SKOOL $SKOOL2 && echo "No differences" 1>&2

@@ -11,8 +11,8 @@ SkoolKit 3.x changelog
 * Added support to control files and skool file templates for specifying the
   base of numeric values in DEFB, DEFM, DEFS and DEFW statements
 * Added the ``--preserve-base`` option to :ref:`skool2ctl.py` and
-  :ref:`skool2sft.py` (to preserve the base of decimal and hexadecimal values
-  in DEFB, DEFM, DEFS and DEFW statements)
+  `skool2sft.py` (to preserve the base of decimal and hexadecimal values in
+  DEFB, DEFM, DEFS and DEFW statements)
 * Added the ``JavaScript`` parameter to the :ref:`ref-Game` section (for
   specifying JavaScript files to include in every page of a disassembly)
 * Fixed the bug that prevents DEFB statements containing only strings and DEFM
@@ -143,13 +143,13 @@ SkoolKit 3.x changelog
 
 3.1.4 (2012-10-11)
 ------------------
-* Added support to :ref:`skool2ctl.py` and :ref:`skool2sft.py` for DEFB and
-  DEFM statements that contain both strings and bytes
+* Added support to :ref:`skool2ctl.py` and `skool2sft.py` for DEFB and DEFM
+  statements that contain both strings and bytes
 * :ref:`skool2ctl.py` now correctly processes lower case DEFB, DEFM, DEFS and
   DEFW statements
 * The length of a string (in a DEFB or DEFM statement) that contains one or
   more backslashes  is now correctly calculated by :ref:`skool2ctl.py` and
-  :ref:`skool2sft.py`
+  `skool2sft.py`
 * DEFB and DEFM statements that contain both strings and bytes are now
   correctly converted to lower case, upper case, decimal or hexadecimal (when
   using the ``-l``, ``-u``, ``-D`` and ``-H`` options of :ref:`skool2asm.py`

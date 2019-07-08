@@ -346,10 +346,6 @@ To list the options supported by `skool2ctl.py`, run it with no arguments::
                             c = instruction-level comments
                             n = non-entry blocks
 
-If you need to preserve any elements that control files do not support (such as
-ASM block directives), consider using :ref:`skool2sft.py` to create a skool
-file template instead.
-
 .. _skool2ctl-conf:
 
 Configuration
@@ -611,57 +607,6 @@ Configuration parameters may also be set on the command line by using the
 | 1.4     | Added the ``-V`` option                                          |
 +---------+------------------------------------------------------------------+
 
-.. _skool2sft.py:
-
-skool2sft.py
-------------
-`skool2sft.py`  converts a skool file into a
-:ref:`skool file template <skoolFileTemplates>`. For example::
-
-  $ skool2sft.py game.skool > game.sft
-
-To list the options supported by `skool2sft.py`, run it with no arguments::
-
-  usage: skool2sft.py [options] FILE
-
-  Convert a skool file into a skool file template and write it to standard
-  output. FILE may be a regular file, or '-' for standard input.
-
-  Options:
-    -b, --preserve-base   Preserve the base of decimal and hexadecimal values in
-                          instruction operands and DEFB/DEFM/DEFS/DEFW
-                          statements.
-    -E ADDR, --end ADDR   Stop converting at this address.
-    -h, --hex             Write addresses in upper case hexadecimal format.
-    -l, --hex-lower       Write addresses in lower case hexadecimal format.
-    -S ADDR, --start ADDR
-                          Start converting at this address.
-    -V, --version         Show SkoolKit version number and exit.
-
-.. note::
-   Skool file templates and `skool2sft.py` are deprecated since version 7.2.
-   Use :ref:`control files <controlFiles>` and :ref:`skool2ctl.py` instead.
-
-+---------+-------------------------------------------------------------+
-| Version | Changes                                                     |
-+=========+=============================================================+
-| 6.2     | The ``--end`` and ``--start`` options accept a hexadecimal  |
-|         | integer prefixed by '0x'                                    |
-+---------+-------------------------------------------------------------+
-| 5.1     | ``i`` blocks are preserved in the same way as code and data |
-|         | blocks (instead of verbatim)                                |
-+---------+-------------------------------------------------------------+
-| 4.5     | Added the ``--start`` and ``--end`` options                 |
-+---------+-------------------------------------------------------------+
-| 4.4     | Added the ``--hex-lower`` option                            |
-+---------+-------------------------------------------------------------+
-| 3.7     | Added the ``--preserve-base`` option                        |
-+---------+-------------------------------------------------------------+
-| 3.4     | Added the ``-V`` option and the long options                |
-+---------+-------------------------------------------------------------+
-| 2.4     | New                                                         |
-+---------+-------------------------------------------------------------+
-
 .. _sna2ctl.py:
 
 sna2ctl.py
@@ -854,8 +799,6 @@ list::
     --show-config         Show configuration parameter values.
     -s ADDR, --start ADDR
                           Start disassembling at this address (default=16384).
-    -T FILE, --sft FILE   Use FILE as the skool file template (may be '-' for
-                          standard input).
     -V, --version         Show SkoolKit version number and exit.
     -w W, --line-width W  Set the maximum line width of the skool file (default:
                           79).
@@ -863,11 +806,7 @@ list::
 If the input filename does not end with '.sna', '.szx' or '.z80', it is assumed
 to be a binary file.
 
-By default, any file whose name is equal to the input filename (minus the
-'.bin', '.sna', '.szx' or '.z80' suffix, if any) followed by '.sft' will be
-used as a :ref:`skool file template <skoolFileTemplates>`.
-
-Otherwise, any files whose names start with the input filename (minus the
+By default, any files whose names start with the input filename (minus the
 '.bin', '.sna', '.szx' or '.z80' suffix, if any) and end with '.ctl' will be
 used as :ref:`control files <controlFiles>`.
 
@@ -971,8 +910,6 @@ Configuration parameters may also be set on the command line by using the
 +---------+-------------------------------------------------------------------+
 | 3.2     | Added the ``-p`` option, and the ability to read SZX snapshots    |
 |         | and 128K Z80 snapshots                                            |
-+---------+-------------------------------------------------------------------+
-| 2.4     | Added the ``-T`` option                                           |
 +---------+-------------------------------------------------------------------+
 | 2.1.2   | Added the ability to write the disassembly in lower case          |
 +---------+-------------------------------------------------------------------+

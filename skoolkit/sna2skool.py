@@ -1,4 +1,4 @@
-# Copyright 2009-2015, 2017, 2018 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2009-2015, 2017-2019 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -20,7 +20,6 @@ import glob
 from skoolkit import find_file, info, integer, VERSION
 from skoolkit.config import get_config, show_config, update_options
 from skoolkit.ctlparser import CtlParser
-from skoolkit.sftparser import SftParser
 from skoolkit.snapshot import make_snapshot
 from skoolkit.snaskool import SkoolWriter
 
@@ -28,13 +27,6 @@ END = 65536
 
 def run(snafile, options, config):
     snapshot, start, end = make_snapshot(snafile, options.org, options.start, options.end, options.page)
-
-    if options.sftfile:
-        # Use a skool file template
-        info('Using skool file template: {}'.format(options.sftfile))
-        writer = SftParser(snapshot, options.sftfile, config['DefbZfill'], options.base == 16, options.case == 1)
-        writer.write_skool(options.start, options.end)
-        return
 
     if options.ctlfiles:
         # Use control file(s)
@@ -78,8 +70,6 @@ def main(args):
                        help="Show configuration parameter values.")
     group.add_argument('-s', '--start', dest='start', metavar='ADDR', type=integer, default=0,
                        help='Start disassembling at this address (default=16384).')
-    group.add_argument('-T', '--sft', dest='sftfile', metavar='FILE',
-                       help="Use FILE as the skool file template (may be '-' for standard input).")
     group.add_argument('-V', '--version', action='version', version='SkoolKit {}'.format(VERSION),
                        help='Show SkoolKit version number and exit.')
     group.add_argument('-w', '--line-width', dest='line_width', metavar='W', type=int, default=config['LineWidth'],
@@ -95,9 +85,7 @@ def main(args):
         prefix = snafile[:-4]
     else:
         prefix = snafile
-    if not (namespace.ctlfiles or namespace.sftfile):
-        namespace.sftfile = find_file(prefix + '.sft')
-    if not (namespace.ctlfiles or namespace.sftfile):
+    if not namespace.ctlfiles:
         namespace.ctlfiles.extend(sorted(glob.glob(prefix + '*.ctl')))
     update_options('sna2skool', namespace, namespace.params, config)
     run(snafile, namespace, config)

@@ -262,16 +262,15 @@ def parse_address_comments(comments, keep_lines=False):
                 instruction.set_comment(rowspan, text)
         i += 1
 
-def read_skool(skoolfile, asm=0, sub_mode=0, fix_mode=0):
+def read_skool(skoolfile, asm=1, sub_mode=0, fix_mode=0):
     """Read a skool file and return each block as it's found.
 
     :param skoolfile: The file-like object to read.
-    :param asm: 0 to read every line, and process no ASM block directives
-                (sft); 1 to read every line, and process ASM block directives
-                except in non-entry blocks (ctl); 2 to read every line, and
-                process all ASM block directives (bin, html); or 3 to read
-                lines only between @start and @end, and process all ASM block
-                directives (asm).
+    :param asm: 1 to read every line, and process ASM block directives except
+                in non-entry blocks (ctl); 2 to read every line, and process
+                all ASM block directives (bin, html); or 3 to read lines only
+                between @start and @end, and process all ASM block directives
+                (asm).
     :param sub_mode: 1 to parse @*sub block directives in @isub mode, 2 to
                      parse them in @ssub mode, 3 to parse them in @rsub mode,
                      or 0 to parse them in none of these modes.
@@ -297,7 +296,7 @@ def read_skool(skoolfile, asm=0, sub_mode=0, fix_mode=0):
     for line in skoolfile:
         s_line = line.rstrip()
 
-        if asm > 0 and line.startswith('@'):
+        if line.startswith('@'):
             directive = s_line[1:]
             if parse_asm_block_directive(directive, stack):
                 include = all(i == modes[p] for p, i in stack)
@@ -315,10 +314,6 @@ def read_skool(skoolfile, asm=0, sub_mode=0, fix_mode=0):
                     entry = True
                 lines.append(s_line)
             continue
-
-        if asm == 0:
-            all_lines.append(s_line)
-            lines.append(s_line)
 
         if asm > 1 and not include:
             continue

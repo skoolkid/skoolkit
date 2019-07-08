@@ -4,7 +4,7 @@ BUILD = build
 HTML_OPTIONS = $(HTML_OPTS)
 HTML_OPTIONS += -d $(BUILD)/html -t
 HTML_OPTIONS += $(foreach theme,$(THEMES),-T $(theme))
-TESTS ?= asm ctl html sft
+TESTS ?= asm ctl html
 
 .PHONY: usage
 usage:

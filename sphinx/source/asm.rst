@@ -460,8 +460,8 @@ This will insert the value 5 followed by the ASCII codes of the characters in
 
 ``@defb`` directives are processed not only when :ref:`skool2asm.py` or
 :ref:`skool2html.py` is run, but also when :ref:`sna2skool.py` is run on a
-control file or skool file template; thus the ``@defb`` directive can be used
-to override the contents of the snapshot that is read by `sna2skool.py`.
+control file; thus the ``@defb`` directive can be used to override the contents
+of the snapshot that is read by `sna2skool.py`.
 
 +---------+---------+
 | Version | Changes |
@@ -494,8 +494,8 @@ This will insert the value 255 into the memory snapshot at addresses
 
 ``@defs`` directives are processed not only when :ref:`skool2asm.py` or
 :ref:`skool2html.py` is run, but also when :ref:`sna2skool.py` is run on a
-control file or skool file template; thus the ``@defs`` directive can be used
-to override the contents of the snapshot that is read by `sna2skool.py`.
+control file; thus the ``@defs`` directive can be used to override the contents
+of the snapshot that is read by `sna2skool.py`.
 
 +---------+---------+
 | Version | Changes |
@@ -528,8 +528,8 @@ addresses 30000 and 30002.
 
 ``@defw`` directives are processed not only when :ref:`skool2asm.py` or
 :ref:`skool2html.py` is run, but also when :ref:`sna2skool.py` is run on a
-control file or skool file template; thus the ``@defw`` directive can be used
-to override the contents of the snapshot that is read by `sna2skool.py`.
+control file; thus the ``@defw`` directive can be used to override the contents
+of the snapshot that is read by `sna2skool.py`.
 
 +---------+---------+
 | Version | Changes |

@@ -1,4 +1,4 @@
-# Copyright 2015-2018 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2015-2019 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -19,10 +19,11 @@ from collections import defaultdict
 
 from skoolkit import SkoolParsingError, get_int_param, info, integer, open_file, VERSION
 from skoolkit.skoolmacro import MacroParsingError, parse_if
-from skoolkit.skoolparser import parse_address_range, parse_asm_sub_fix_directive, read_skool
-from skoolkit.skoolsft import VALID_CTLS
+from skoolkit.skoolparser import DIRECTIVES, parse_address_range, parse_asm_sub_fix_directive, read_skool
 from skoolkit.textutils import partition_unquoted
 from skoolkit.z80 import assemble
+
+VALID_CTLS = DIRECTIVES + ' *'
 
 class BinWriter:
     def __init__(self, skoolfile, asm_mode=0, fix_mode=0):

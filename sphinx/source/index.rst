@@ -21,7 +21,6 @@ Technical reference
    parsing
    control-files
    skool-files
-   skool-file-templates
    skool-macros
    ref-files
    asm

@@ -104,16 +104,10 @@ write_skools() {
   rm -f $ctl
 }
 
-write_sfts() {
-  for b in '' '-h' '-l'; do
-    run_cmd "./skool2sft.py $b $skoolfile" sft/$GAME$b.sft
-  done
-}
-
 usage() {
   echo "Usage: $(basename $0) $GAMES TYPE [TYPE...]"
   echo ""
-  echo "  TYPE can be one of: asm bin ctl genctl html skool sft all"
+  echo "  TYPE can be one of: asm bin ctl genctl html skool all"
   exit 1
 }
 
@@ -136,7 +130,6 @@ while [ "$1" != "" ]; do
     genctl) write_genctls ;;
     html) write_html ;;
     skool) write_skools ;;
-    sft) write_sfts ;;
     all)
       write_asms
       write_bins
@@ -144,7 +137,6 @@ while [ "$1" != "" ]; do
       write_genctls
       write_html
       write_skools
-      write_sfts
       ;;
     *) echo "Skipping unknown file type: '$1'" ;;
   esac

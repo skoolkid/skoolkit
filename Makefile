@@ -44,7 +44,7 @@ hh:
 
 .PHONY: write-disassembly-tests
 write-disassembly-tests:
-	for t in asm ctl html sft; do \
+	for t in asm ctl html; do \
 	    tools/write-hh-tests.py $$t > tests/test_hh_$$t.py; \
 	done
 

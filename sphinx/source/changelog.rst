@@ -84,8 +84,8 @@ Changelog
   comment semicolons are written for instructions that have no comment)
 * Fixed how :ref:`sna2skool.py` interprets the base prefix ``n`` in a 'B'
   directive
-* Fixed how :ref:`skool2ctl.py` and :ref:`skool2sft.py` handle non-entry blocks
-  when a start address or end address is supplied
+* Fixed how :ref:`skool2ctl.py` and `skool2sft.py` handle non-entry blocks when
+  a start address or end address is supplied
 
 7.0 (2018-10-13)
 ----------------

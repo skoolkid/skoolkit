@@ -102,10 +102,10 @@ print_usage() {
   cat >&2 << EOM
 Usage: $(basename $0) [options] DIR1 DIR2 TYPE [TYPE...]
 
-  Runs 'diff' on the ASM, BIN, CTL, GIF, HTML, PNG, SKOOL or SFT files in two
+  Runs 'diff' on the ASM, BIN, CTL, GIF, HTML, PNG or SKOOL files in two
   directories and outputs the results to suitably named files.
 
-  TYPE can be one of: asm bin ctl genctl gif html png skool sft all
+  TYPE can be one of: asm bin ctl genctl gif html png skool all
 
 Options:
   -d DIR     Filter diff files through check-diffs.py using exp-diffs-TYPE.txt
@@ -159,7 +159,6 @@ while [ "$1" != "" ]; do
     html) diff_html $OLD $NEW ;;
     png) diff_images png $OLD $NEW ;;
     skool) diff_files skool $OLD $NEW ;;
-    sft) diff_files sft $OLD $NEW ;;
     all)
       diff_files asm $OLD $NEW
       diff_bins bin $OLD $NEW
@@ -169,7 +168,6 @@ while [ "$1" != "" ]; do
       diff_html $OLD $NEW
       diff_images png $OLD $NEW
       diff_files skool $OLD $NEW
-      diff_files sft $OLD $NEW
       ;;
     *) echo "Skipping unknown file type: '$1'" ;;
   esac

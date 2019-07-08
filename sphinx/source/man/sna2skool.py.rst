@@ -52,18 +52,11 @@ OPTIONS
   Start disassembling at this address; the default start address is 16384.
   `ADDR` must be a decimal number, or a hexadecimal number prefixed by '0x'.
 
--T, --sft `FILE`
-  Specify the skool file template to use (which may be '-' for standard input).
-  By default, any skool file template whose name (minus the .sft suffix)
-  matches the input snapshot name (minus the .bin, .sna, .szx or .z80 suffix,
-  if any) will be used, if present.
-
 -V, --version
   Show the SkoolKit version number and exit.
 
 -w, --line-width `WIDTH`
-  Set the maximum line width of the skool file (79 by default). This option has
-  no effect when creating a skool file from a skool file template.
+  Set the maximum line width of the skool file (79 by default).
 
 CONFIGURATION
 =============
@@ -151,9 +144,3 @@ EXAMPLES
 
    |
    |   ``sna2skool.py -c blocks.ctl game.z80 > game.skool``
-
-4. Convert ``game.szx`` into a skool file, using the skool file template
-   ``blocks.sft``:
-
-   |
-   |   ``sna2skool.py -T blocks.sft game.szx > game.skool``

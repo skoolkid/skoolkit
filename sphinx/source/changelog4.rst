@@ -12,10 +12,10 @@ SkoolKit 4.x changelog
 * Added the ``--end`` option to :ref:`bin2tap.py` and the ability to convert
   SNA, SZX and Z80 snapshots
 * Added ``--start`` and ``--end`` options to :ref:`skool2asm.py`,
-  :ref:`skool2ctl.py` and :ref:`skool2sft.py`
+  :ref:`skool2ctl.py` and `skool2sft.py`
 * The ``--start`` and ``--end`` options of :ref:`sna2skool.py` now take effect
   when reading a control file or a skool file template
-* Added support to :ref:`skool2ctl.py` and :ref:`skool2sft.py` for preserving
+* Added support to :ref:`skool2ctl.py` and `skool2sft.py` for preserving
   characters in DEFW statements (e.g. ``DEFW "!"``)
 * Added support for characters in DEFS statements (e.g. ``DEFS 10,"!"``)
 * Fixed how :ref:`tap2sna.py` compresses a RAM block that contains a single
@@ -37,7 +37,7 @@ SkoolKit 4.x changelog
 * Added the ``--ctl-hex-lower`` option to :ref:`sna2skool.py` (for writing
   addresses in lower case hexadecimal format in the generated control file)
 * Added the ``--hex-lower`` option to :ref:`skool2ctl.py` and
-  :ref:`skool2sft.py` (for writing addresses in lower case hexadecimal format)
+  `skool2sft.py` (for writing addresses in lower case hexadecimal format)
 * Fixed the parsing of DEFB and DEFM statements that contain semicolons
 * Fixed the base conversion of ``LD (HL),n`` instructions that contain
   extraneous whitespace (e.g. ``LD ( HL ),5``)

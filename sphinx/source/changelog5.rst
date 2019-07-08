@@ -91,9 +91,9 @@ SkoolKit 5.x changelog
   link to the first instruction in an entry when using a custom anchor format)
 * :ref:`skool2ctl.py` now appends a terminal ``i`` directive if the skool file
   ends before 65536
-* :ref:`skool2sft.py` now preserves ``i`` blocks in the same way as code and
-  data blocks (instead of verbatim), which enables their conversion to decimal
-  or hexadecimal when restored from a skool file template
+* `skool2sft.py` now preserves ``i`` blocks in the same way as code and data
+  blocks (instead of verbatim), which enables their conversion to decimal or
+  hexadecimal when restored from a skool file template
 * Fixed how the colours in flashing blank tiles are detected when writing an
   uncropped image file
 * Fixed how a 2-colour PNG image is created when it contains an attribute with

@@ -19,22 +19,6 @@ class MockCtlParser:
         self.min_address = min_address
         self.max_address = max_address
 
-class MockSftParser:
-    def __init__(self, snapshot, sftfile, zfill, asm_hex, asm_lower):
-        global mock_sft_parser
-        mock_sft_parser = self
-        self.snapshot = snapshot
-        self.sftfile = sftfile
-        self.zfill = zfill
-        self.asm_hex = asm_hex
-        self.asm_lower = asm_lower
-        self.wrote_skool = False
-
-    def write_skool(self, min_address, max_address):
-        self.min_address = min_address
-        self.max_address = max_address
-        self.wrote_skool = True
-
 class MockSkoolWriter:
     def __init__(self, snapshot, ctl_parser, options, config):
         global mock_skool_writer
@@ -65,7 +49,6 @@ class Sna2SkoolTest(SkoolKitTestCase):
         snafile, options = run_args[:2]
         self.assertEqual(snafile, 'test.sna')
         self.assertEqual([], options.ctlfiles)
-        self.assertIsNone(options.sftfile)
         self.assertEqual(options.base, 10)
         self.assertEqual(options.case, 2)
         self.assertEqual(options.start, 0)
@@ -96,7 +79,6 @@ class Sna2SkoolTest(SkoolKitTestCase):
         snafile, options, config = run_args
         self.assertEqual(snafile, 'test.sna')
         self.assertEqual([], options.ctlfiles)
-        self.assertIsNone(options.sftfile)
         self.assertEqual(options.base, 16)
         self.assertEqual(options.case, 1)
         self.assertEqual(options.start, 0)
@@ -175,10 +157,6 @@ class Sna2SkoolTest(SkoolKitTestCase):
         with self.assertRaisesRegex(SkoolKitError, error_tp.format(nonexistent_ctl)):
             self.run_sna2skool('-c {0} {1}'.format(nonexistent_ctl, binfile))
 
-        nonexistent_sft = 'nonexistent.sft'
-        with self.assertRaisesRegex(SkoolKitError, error_tp.format(nonexistent_sft)):
-            self.run_sna2skool('-T {0} {1}'.format(nonexistent_sft, binfile))
-
     def test_option_V(self):
         for option in ('-V', '--version'):
             output, error = self.run_sna2skool(option, catch_exit=0)
@@ -203,16 +181,6 @@ class Sna2SkoolTest(SkoolKitTestCase):
             self.assertEqual(error, '')
             self.assertEqual(mock_skool_writer.options.case, 1)
             self.assertTrue(mock_skool_writer.wrote_skool)
-
-    @patch.object(sna2skool, 'make_snapshot', mock_make_snapshot)
-    @patch.object(sna2skool, 'SftParser', MockSftParser)
-    def test_option_T(self):
-        sftfile = 'test-T.ctl'
-        for option in ('-T', '--sft'):
-            output, error = self.run_sna2skool('{} {} test.sna'.format(option, sftfile))
-            self.assertEqual(error, 'Using skool file template: {}\n'.format(sftfile))
-            self.assertEqual(mock_sft_parser.sftfile, sftfile)
-            self.assertTrue(mock_sft_parser.wrote_skool)
 
     @patch.object(sna2skool, 'make_snapshot', mock_make_snapshot)
     @patch.object(sna2skool, 'CtlParser', MockCtlParser)
@@ -273,17 +241,6 @@ class Sna2SkoolTest(SkoolKitTestCase):
         self.assertEqual(mock_ctl_parser.min_address, 0)
         self.assertEqual(mock_ctl_parser.max_address, end)
         self.assertTrue(mock_skool_writer.wrote_skool)
-
-    @patch.object(sna2skool, 'make_snapshot', mock_make_snapshot)
-    @patch.object(sna2skool, 'SftParser', MockSftParser)
-    def test_options_e_and_T(self):
-        sftfile = 'test.sft'
-        end = 45678
-        output, error = self.run_sna2skool('-T {} -e {} test.sna'.format(sftfile, end))
-        self.assertEqual(error, 'Using skool file template: {}\n'.format(sftfile))
-        self.assertEqual(mock_sft_parser.sftfile, sftfile)
-        self.assertEqual(mock_sft_parser.min_address, 0)
-        self.assertEqual(mock_sft_parser.max_address, end)
 
     @patch.object(sna2skool, 'run', mock_run)
     @patch.object(sna2skool, 'get_config', mock_config)
@@ -493,29 +450,6 @@ class Sna2SkoolTest(SkoolKitTestCase):
         self.assertEqual(mock_ctl_parser.max_address, end)
         self.assertTrue(mock_skool_writer.wrote_skool)
 
-    @patch.object(sna2skool, 'make_snapshot', mock_make_snapshot)
-    @patch.object(sna2skool, 'SftParser', MockSftParser)
-    def test_options_s_and_T(self):
-        sftfile = 'test.sft'
-        start = 45678
-        output, error = self.run_sna2skool('-T {} -s {} test.sna'.format(sftfile, start))
-        self.assertEqual(error, 'Using skool file template: {}\n'.format(sftfile))
-        self.assertEqual(mock_sft_parser.sftfile, sftfile)
-        self.assertEqual(mock_sft_parser.min_address, start)
-        self.assertEqual(mock_sft_parser.max_address, 65536)
-
-    @patch.object(sna2skool, 'make_snapshot', mock_make_snapshot)
-    @patch.object(sna2skool, 'SftParser', MockSftParser)
-    def test_options_s_and_e_and_T(self):
-        sftfile = 'test.sft'
-        start = 23456
-        end = 34567
-        output, error = self.run_sna2skool('-T {} -s {} -e {} test.sna'.format(sftfile, start, end))
-        self.assertEqual(error, 'Using skool file template: {}\n'.format(sftfile))
-        self.assertEqual(mock_sft_parser.sftfile, sftfile)
-        self.assertEqual(mock_sft_parser.min_address, start)
-        self.assertEqual(mock_sft_parser.max_address, end)
-
     @patch.object(sna2skool, 'CtlParser', MockCtlParser)
     @patch.object(sna2skool, 'SkoolWriter', MockSkoolWriter)
     def test_option_w(self):
@@ -535,36 +469,6 @@ class Sna2SkoolTest(SkoolKitTestCase):
         self.run_sna2skool(binfile)
         self.assertEqual(data, mock_skool_writer.snapshot[65533:65536])
         self.assertTrue(mock_skool_writer.wrote_skool)
-
-    @patch.object(sna2skool, 'run', mock_run)
-    def test_default_sft(self):
-        # Test that the default skool file template is used if present
-        snafile = 'test-default-sft.sna'
-        sftfile = '{}.sft'.format(snafile[:-4])
-        self.write_text_file(path=sftfile)
-        sna2skool.main((snafile,))
-        options = run_args[1]
-        self.assertEqual(options.sftfile, sftfile)
-
-    @patch.object(sna2skool, 'run', mock_run)
-    def test_ctl_overrides_default_sft(self):
-        # Test that a control file specified by the '-c' option takes
-        # precedence over the default skool file template
-        snafile = 'test-ctl-overrides-default-sft.sna'
-        sftfile = '{}.sft'.format(snafile[:-4])
-        ctlfile = self.write_text_file(suffix='.ctl')
-        sna2skool.main(('-c', ctlfile, snafile))
-        options = run_args[1]
-        self.assertIsNone(options.sftfile)
-        self.assertEqual([ctlfile], options.ctlfiles)
-
-    @patch.object(sna2skool, 'run', mock_run)
-    def test_default_sft_for_unrecognised_snapshot_format(self):
-        binfile = 'snapshot.foo'
-        sftfile = self.write_text_file(path='{}.sft'.format(binfile))
-        sna2skool.main((binfile,))
-        options = run_args[1]
-        self.assertEqual(options.sftfile, sftfile)
 
     @patch.object(sna2skool, 'make_snapshot', mock_make_snapshot)
     @patch.object(sna2skool, 'CtlParser', MockCtlParser)
@@ -590,18 +494,6 @@ class Sna2SkoolTest(SkoolKitTestCase):
         self.assertEqual(error, 'Using control files: {}\n'.format(', '.join(ctlfiles)))
         self.assertEqual(ctlfiles, mock_ctl_parser.ctlfiles)
         self.assertTrue(mock_skool_writer.wrote_skool)
-
-    @patch.object(sna2skool, 'run', mock_run)
-    def test_sft_overrides_default_ctl(self):
-        # Test that a skool file template specified by the '-T' option takes
-        # precedence over the default control file
-        snafile = 'test-sft-overrides-default-ctl.sna'
-        ctlfile = '{}.ctl'.format(snafile[:-4])
-        sftfile = self.write_text_file(suffix='.sft')
-        sna2skool.main(('-T', sftfile, snafile))
-        options = run_args[1]
-        self.assertEqual([], options.ctlfiles)
-        self.assertEqual(options.sftfile, sftfile)
 
     @patch.object(sna2skool, 'run', mock_run)
     def test_default_ctl_for_unrecognised_snapshot_format(self):

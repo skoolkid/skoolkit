@@ -16,7 +16,7 @@ sys.path.insert(0, '{}/tests'.format(SKOOLKIT_HOME))
 import disassemblytest
 """.lstrip()
 
-def _write_tests(test_type, sources, snapshot, output, skool, sna2skool_opts, ctl, ref, clean):
+def _write_tests(test_type, sources, snapshot, output, skool, ctl, ref, clean):
     print(PROLOGUE)
     variables = []
     if sources:
@@ -33,10 +33,6 @@ def _write_tests(test_type, sources, snapshot, output, skool, sna2skool_opts, ct
         _add_variable(variables, 'OUTPUT', output, True)
         if ref:
             _add_variable(variables, 'REF', os.path.abspath(ref))
-    elif test_type == 'sft':
-        _add_variable(variables, 'SNAPSHOT', os.path.abspath(snapshot))
-        if sna2skool_opts:
-            _add_variable(variables, 'SNA2SKOOL_OPTS', sna2skool_opts)
     class_name = '{}TestCase'.format(test_type.capitalize())
     print('class {0}(disassemblytest.{0}):'.format(class_name))
     if sources:
@@ -90,14 +86,13 @@ def _get_html_options_list():
 OPTIONS_LISTS = {
     'asm': _get_asm_options_list(),
     'ctl': _get_ctl_options_list(),
-    'html': _get_html_options_list(),
-    'sft': ('', '-h', '-l', '-b', '-h -b', '-l -b')
+    'html': _get_html_options_list()
 }
 
 TEST_TYPES = sorted(OPTIONS_LISTS)
 
-def write_tests(skool=None, snapshot=None, output=None, sna2skool_opts=None, sources=True, ctl=None, ref=None, clean=True):
+def write_tests(skool=None, snapshot=None, output=None, sources=True, ctl=None, ref=None, clean=True):
     if len(sys.argv) != 2 or sys.argv[1] not in TEST_TYPES:
         sys.stderr.write("Usage: {} {}\n".format(os.path.basename(sys.argv[0]), '|'.join(TEST_TYPES)))
         sys.exit(1)
-    _write_tests(sys.argv[1], sources, snapshot, output, skool, sna2skool_opts, ctl, ref, clean)
+    _write_tests(sys.argv[1], sources, snapshot, output, skool, ctl, ref, clean)
