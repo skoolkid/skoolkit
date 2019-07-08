@@ -1,7 +1,7 @@
 Changelog
 =========
 
-7.3b1
+8.0b1
 -----
 * Dropped support for Python 3.4
 * Added support for the ``**`` pattern (which matches any files and zero or

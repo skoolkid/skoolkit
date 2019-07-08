@@ -129,5 +129,5 @@ The following identifiers are available:
 * ``reg_len`` - the length of the register name
 * ``text`` - the text of a line of the register description
 
-.. versionchanged:: 7.3
+.. versionchanged:: 8.0
    Added the ``max_reg_len`` identifier.

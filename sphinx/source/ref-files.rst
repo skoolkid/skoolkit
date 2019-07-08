@@ -794,7 +794,7 @@ into place whenever the disassembly is built.
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
-| 7.3     | Added support for the ``**`` pattern                              |
+| 8.0     | Added support for the ``**`` pattern                              |
 +---------+-------------------------------------------------------------------+
 | 6.3     | Added support for pathname pattern expansion using wildcard       |
 |         | characters                                                        |

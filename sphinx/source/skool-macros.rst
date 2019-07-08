@@ -206,7 +206,7 @@ used in the parameter string.
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
-| 7.3     | Added support for replacement fields in the parameter string      |
+| 8.0     | Added support for replacement fields in the parameter string      |
 +---------+-------------------------------------------------------------------+
 | 6.0     | Hexadecimal values are rendered in lower case when the            |
 |         | ``--lower`` option is used                                        |
