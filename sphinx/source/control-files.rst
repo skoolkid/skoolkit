@@ -665,6 +665,8 @@ example::
 Control file comments are ignored by `sna2skool.py`, and will not show up in
 the skool file.
 
+.. _Limitations:
+
 Limitations
 -----------
 Control files cannot preserve ASM block directives that occur inside a regular
