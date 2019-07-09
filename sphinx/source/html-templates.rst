@@ -462,6 +462,89 @@ To see the default ``table`` template, run the following command::
 
 .. versionadded:: 4.2
 
+.. _template_directives:
+
+Template directives
+-------------------
+HTML templates may contain directives enclosed by ``<#`` and ``#>`` to
+conditionally include or repeat content. To take effect, a directive must
+appear on a line of its own.
+
+.. _td_foreach:
+
+foreach
+^^^^^^^
+The ``foreach`` directive repeats the content between it and the corresponding
+``endfor`` directive, once for each object in a list. ::
+
+  <# foreach(var,list) #>
+  content
+  <# endfor #>
+
+* ``var`` is the loop variable, representing each object in the list
+* ``list`` is the list of objects to iterate over
+
+Wherever the string ``var`` appears in ``content``, it is replaced by
+``list[0]``, ``list[1]``, etc. Care should be taken to name the loop variable
+such that no unwanted replacements are made.
+
+For example, if ``names`` contains the strings 'Alice', 'Bob' and 'Carol',
+then::
+
+  <# foreach(name,names) #>
+  {name}
+  <# endfor #>
+
+would produce the following output::
+
+  Alice
+  Bob
+  Carol
+
+.. _td_if:
+
+if
+^^
+The ``if`` directive includes the content between it and the corresponding
+``endif`` directive if a given condition is true, and excludes it otherwise. ::
+
+  <# if(condition) #>
+  content
+  <# endif #>
+
+* ``condition`` is an arithmetic expression
+
+If ``condition`` evaluates to 0, then it is false; otherwise it is true. For
+example::
+
+  <# if({show_data}) #>
+  Here's the data!
+  <# endif #>
+
+.. _td_include:
+
+include
+^^^^^^^
+The ``include`` directive includes content from another template. ::
+
+  <# include(template) #>
+
+* ``template`` is the name of the template to include
+
+For example, if there is a template named ``title`` that contains
+``<title>{title}</title>``, and the ``title`` field holds the string 'My Page',
+then::
+
+  <head>
+  <# include(title) #>
+  </head>
+
+would produce the following output::
+
+  <head>
+  <title>My Page</title>
+  </head>
+
 .. _ps_templates:
 
 Page-specific templates

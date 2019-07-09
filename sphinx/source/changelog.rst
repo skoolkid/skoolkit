@@ -4,6 +4,8 @@ Changelog
 8.0b1
 -----
 * Dropped support for Python 3.4
+* Added support for the :ref:`td_foreach`, :ref:`td_if` and :ref:`td_include`
+  directives in HTML templates
 * Added support for the ``**`` pattern (which matches any files and zero or
   more directories and subdirectories) in the :ref:`resources` section
 * Added support for replacement fields (such as ``{base}`` and ``{case}``) in
