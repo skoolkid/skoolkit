@@ -18,7 +18,6 @@
 Defines the :class:`FileInfo` and :class:`HtmlWriter` classes.
 """
 
-from ast import literal_eval
 import html
 import posixpath
 import os.path
@@ -306,7 +305,7 @@ class HtmlWriter:
         for line in lines:
             if isinstance(line, tuple):
                 varname, seqname, loop = line
-                seq = literal_eval('{{{}}}'.format(seqname).format(**fields))
+                seq = eval(re.sub('\[([^0-9][^]]*)\]', r"['\1']", seqname), None, fields)
                 for i in range(len(seq)):
                     unrolled.extend(self._sub_loop_var(loop, varname, '{}[{}]'.format(seqname, i)))
             else:
@@ -365,7 +364,7 @@ class HtmlWriter:
             lines = self._process_foreach(lines, fields)
         except skoolmacro.MacroParsingError as e:
             raise SkoolKitError("Invalid foreach directive: {}".format(e.args[0]))
-        except KeyError as e:
+        except NameError as e:
             raise SkoolKitError('Unknown field name in foreach directive: {}'.format(e.args[0]))
         try:
             lines = self._process_if(lines, fields)
@@ -1281,6 +1280,3 @@ class Bytes:
         else:
             bspec, sep = spec, ''
         return sep.join(v.__format__(bspec) for v in self.values)
-
-    def __repr__(self):
-        return "''"

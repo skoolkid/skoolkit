@@ -904,7 +904,7 @@ class MethodTest(HtmlWriterTestCase):
             {item}
             <# endfor #>
         """
-        with self.assertRaisesRegex(SkoolKitError, "^Unknown field name in foreach directive: nonexistent$"):
+        with self.assertRaisesRegex(SkoolKitError, "^Unknown field name in foreach directive: name 'nonexistent' is not defined$"):
             self._get_writer(ref=ref).format_template('loop', {})
 
     def test_format_template_if(self):
