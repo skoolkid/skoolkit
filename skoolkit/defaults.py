@@ -640,14 +640,16 @@ SECTIONS['Template:list'] = """
 </ul>
 """
 
-SECTIONS['Template:paragraph'] = """
-<div class="paragraph">
-{paragraph}
-</div>
-"""
-
 SECTIONS['Template:reg'] = """
 <span class="register">{reg}</span>
+"""
+
+SECTIONS['Template:section'] = """
+<# foreach($paragraph,section) #>
+<div class="paragraph">
+{$paragraph}
+</div>
+<# endfor #>
 """
 
 SECTIONS['Template:table'] = """

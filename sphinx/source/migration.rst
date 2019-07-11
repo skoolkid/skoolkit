@@ -50,6 +50,7 @@ following templates that were available in SkoolKit 7 no longer exist:
 * ``list_item``
 * ``list_items`` (renamed to :ref:`t_item_list`)
 * ``map_entry``
+* ``paragraph``
 * ``reference_entry``
 * ``stylesheet``
 * ``table_cell``

@@ -403,22 +403,6 @@ To see the default ``list`` template, run the following command::
 
 .. versionadded:: 4.2
 
-.. _t_paragraph:
-
-paragraph
----------
-The ``paragraph`` template is used to format each paragraph in a ref file
-section processed by the :ref:`INCLUDE` macro.
-
-The following identifier is available (in addition to the universal
-identifiers):
-
-* ``paragraph`` - the text of the paragraph
-
-To see the default ``paragraph`` template, run the following command::
-
-  $ skool2html.py -r Template:paragraph
-
 .. _t_reg:
 
 reg
@@ -434,6 +418,22 @@ identifiers):
 To see the default ``reg`` template, run the following command::
 
   $ skool2html.py -r Template:reg
+
+.. _t_section:
+
+section
+-------
+The ``section`` template is used to format the paragraphs in a ref file section
+processed by the :ref:`INCLUDE` macro.
+
+The following identifier is available (in addition to the universal
+identifiers):
+
+* ``section`` - a list of paragraphs
+
+To see the default ``section`` template, run the following command::
+
+  $ skool2html.py -r Template:section
 
 .. _t_table:
 
@@ -600,7 +600,7 @@ template if it exists, or the stock :ref:`t_footer` template otherwise.
 +-------------------------------+--------------------------------------+------------------------------+
 | Page footer                   | ``PageID-footer``                    | :ref:`t_footer`              |
 +-------------------------------+--------------------------------------+------------------------------+
-| Paragraph rendered by the     | ``PageID-paragraph``                 | :ref:`t_paragraph`           |
+| Section rendered by the       | ``PageID-section``                   | :ref:`t_section`             |
 | :ref:`INCLUDE` macro          |                                      |                              |
 +-------------------------------+--------------------------------------+------------------------------+
 | Register name rendered by the | ``PageID-reg``                       | :ref:`t_reg`                 |

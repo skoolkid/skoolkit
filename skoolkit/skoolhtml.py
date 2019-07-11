@@ -1134,8 +1134,7 @@ class HtmlWriter:
         end, paragraphs, section = skoolmacro.parse_include(text, index)
         content = self.get_section(section, paragraphs)
         if paragraphs:
-            lines = [self.format_template('paragraph', {'paragraph': self.expand(p, cwd).strip()}) for p in content]
-            return end, '\n'.join(lines)
+            return end, self.format_template('section', {'section': [self.expand(p, cwd).strip() for p in content]})
         return end, content
 
     def expand_link(self, text, index, cwd):
