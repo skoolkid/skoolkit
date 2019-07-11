@@ -59,6 +59,9 @@ td.map-b-desc, td.map-w-desc {
 td.map-g-desc {
   color: #ffbeff;
 }
-div.map-entry-title-11, div.map-entry-desc-1, td.map-s-desc, td.map-t-desc, td.map-u-desc {
+td.map-t-desc {
+  color: #bebebe;
+}
+div.map-entry-title-11, div.map-entry-desc-1, td.map-s-desc, td.map-u-desc {
   color: #ffffff;
 }
