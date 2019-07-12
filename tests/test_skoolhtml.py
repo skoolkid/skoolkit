@@ -148,9 +148,13 @@ BARE_FOOTER = """<footer>
 
 PREV_UP_NEXT = """<table class="asm-navigation">
 <tr>
-<td class="prev">{prev_link}</td>
+<td class="prev">
+{prev_link}
+</td>
 <td class="up">{up_link}</td>
-<td class="next">{next_link}</td>
+<td class="next">
+{next_link}
+</td>
 </tr>
 </table>"""
 
@@ -3170,19 +3174,19 @@ class HtmlWriterOutputTestCase(HtmlWriterTestCase):
         footer = subs.get('footer', BARE_FOOTER)
         prev_up_next_lines = []
         if 'up' in subs:
-            subs['prev_link'] = '<span class="prev-0">Prev: <a href=""></a></span>'
+            subs['prev_link'] = ''
             subs['up_link'] = 'Up: <a href="{map}#{up}">Map</a>'.format(**subs)
-            subs['next_link'] = '<span class="next-0">Next: <a href=""></a></span>'
+            subs['next_link'] = ''
             if 'prev' in subs:
                 if 'prev_text' in subs:
-                    subs['prev_link'] = '<span class="prev-1">Prev: <a href="{}.html">{}</a></span>'.format(subs['prev'], subs['prev_text'])
+                    subs['prev_link'] = 'Prev: <a href="{}.html">{}</a>'.format(subs['prev'], subs['prev_text'])
                 else:
-                    subs['prev_link'] = '<span class="prev-1">Prev: <a href="{0}.html">{0:05d}</a></span>'.format(subs['prev'])
+                    subs['prev_link'] = 'Prev: <a href="{0}.html">{0:05d}</a>'.format(subs['prev'])
             if 'next' in subs:
                 if 'next_text' in subs:
-                    subs['next_link'] = '<span class="next-1">Next: <a href="{}.html">{}</a></span>'.format(subs['next'], subs['next_text'])
+                    subs['next_link'] = 'Next: <a href="{}.html">{}</a>'.format(subs['next'], subs['next_text'])
                 else:
-                    subs['next_link'] = '<span class="next-1">Next: <a href="{0}.html">{0:05d}</a></span>'.format(subs['next'])
+                    subs['next_link'] = 'Next: <a href="{0}.html">{0:05d}</a>'.format(subs['next'])
             prev_up_next = PREV_UP_NEXT.format(**subs)
             prev_up_next_lines = prev_up_next.split('\n')
         header_template = INDEX_HEADER if index else HEADER
@@ -3524,7 +3528,7 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         self.assertFalse(writer.link_internal_operands)
         writer.write_asm_entries()
         html = self._read_file(join(ASMDIR, '30000.html'), True)
-        line_no = 33
+        line_no = 35
         for inst, address in (
             ('CALL', 30003),
             ('JP', 30006),
@@ -3548,7 +3552,7 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         self.assertTrue(writer.link_internal_operands)
         writer.write_asm_entries()
         html = self._read_file(join(ASMDIR, '40000.html'), True)
-        line_no = 33
+        line_no = 35
         for inst, address in (
             ('CALL', 40003),
             ('JP', 40006),
@@ -3580,7 +3584,7 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             writer.write_asm_entries()
             html = self._read_file(join(ASMDIR, '32769.html'), True)
             link = '<a href="32768.html">32768</a>'
-            line_no = 33
+            line_no = 36
             for prefix in ('CALL ', 'DEFW ', 'DJNZ ', 'JP ', 'JR ', 'LD HL,'):
                 inst_type = prefix.split()[0]
                 exp_html = prefix + (link if inst_type in link_operands else '32768')

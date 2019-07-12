@@ -168,7 +168,7 @@ table.map td {
 div.map-intro {
   margin-bottom: 10px;
 }
-td.asm-label-0, td.bytes-0, td.comment-01, div.map-entry-desc-0, span.prev-0, span.next-0 {
+td.asm-label-0, td.bytes-0, td.comment-01, div.map-entry-desc-0 {
   display: none;
 }
 td.map-page, td.map-byte, td.map-length, td.map-b, td.map-c, td.map-g, td.map-s, td.map-t, td.map-u, td.map-w {

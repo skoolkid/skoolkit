@@ -80,6 +80,8 @@ SkoolKit 7, and their replacements (if any) in SkoolKit 8.
 ====================  ==========
 SkoolKit 7            SkoolKit 8
 ====================  ==========
+span.next-0
+span.prev-0
 table.input-0
 table.input-1         table.input
 table.output-0
@@ -102,6 +104,8 @@ in SkoolKit 8.
 ====================  ==========
 SkoolKit 7            SkoolKit 8
 ====================  ==========
+span.next-1
+span.prev-1
 th.map-byte-1         th.map-byte
 th.map-length-1       th.map-length
 th.map-page-1         th.map-page

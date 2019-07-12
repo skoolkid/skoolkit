@@ -269,9 +269,17 @@ SECTIONS['Template:Asm'] = """
 </table>
 <table class="asm-navigation">
 <tr>
-<td class="prev"><span class="prev-{prev_entry[exists]}">Prev: <a href="{prev_entry[href]}">{prev_entry[address]}</a></span></td>
+<td class="prev">
+<# if({prev_entry[exists]}) #>
+Prev: <a href="{prev_entry[href]}">{prev_entry[address]}</a>
+<# endif #>
+</td>
 <td class="up">Up: <a href="{entry[map_href]}">Map</a></td>
-<td class="next"><span class="next-{next_entry[exists]}">Next: <a href="{next_entry[href]}">{next_entry[address]}</a></span></td>
+<td class="next">
+<# if({next_entry[exists]}) #>
+Next: <a href="{next_entry[href]}">{next_entry[address]}</a>
+<# endif #>
+</td>
 </tr>
 </table>
 <div class="description">{entry[address]}: {entry[title]}</div>
@@ -352,9 +360,17 @@ SECTIONS['Template:Asm'] = """
 </table>
 <table class="asm-navigation">
 <tr>
-<td class="prev"><span class="prev-{prev_entry[exists]}">Prev: <a href="{prev_entry[href]}">{prev_entry[address]}</a></span></td>
+<td class="prev">
+<# if({prev_entry[exists]}) #>
+Prev: <a href="{prev_entry[href]}">{prev_entry[address]}</a>
+<# endif #>
+</td>
 <td class="up">Up: <a href="{entry[map_href]}">Map</a></td>
-<td class="next"><span class="next-{next_entry[exists]}">Next: <a href="{next_entry[href]}">{next_entry[address]}</a></span></td>
+<td class="next">
+<# if({next_entry[exists]}) #>
+Next: <a href="{next_entry[href]}">{next_entry[address]}</a>
+<# endif #>
+</td>
 </tr>
 </table>
 <# include(footer) #>
