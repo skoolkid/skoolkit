@@ -5274,17 +5274,15 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             <div class="map-intro"></div>
             <table class="map">
             <tr>
-            <th class="map-page-1">Page</th>
-            <th class="map-byte-1">Byte</th>
+            <th class="map-page">Page</th>
+            <th class="map-byte">Byte</th>
             <th>Address</th>
-            <th class="map-length-0">Length</th>
             <th>Description</th>
             </tr>
             <tr>
-            <td class="map-page-1">117</td>
-            <td class="map-byte-1">48</td>
+            <td class="map-page">117</td>
+            <td class="map-byte">48</td>
             <td class="map-c"><span id="30000"></span><a href="../asm/30000.html">30000</a></td>
-            <td class="map-length-0">1</td>
             <td class="map-c-desc">
             <div class="map-entry-title-10"><a class="map-entry-title" href="../asm/30000.html">Routine</a></div>
             <div class="map-entry-desc-0">
@@ -5292,10 +5290,9 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             </td>
             </tr>
             <tr>
-            <td class="map-page-1">117</td>
-            <td class="map-byte-1">49</td>
+            <td class="map-page">117</td>
+            <td class="map-byte">49</td>
             <td class="map-b"><span id="30001"></span><a href="../asm/30001.html">30001</a></td>
-            <td class="map-length-0">2</td>
             <td class="map-b-desc">
             <div class="map-entry-title-10"><a class="map-entry-title" href="../asm/30001.html">Bytes</a></div>
             <div class="map-entry-desc-0">
@@ -5303,10 +5300,9 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             </td>
             </tr>
             <tr>
-            <td class="map-page-1">117</td>
-            <td class="map-byte-1">51</td>
+            <td class="map-page">117</td>
+            <td class="map-byte">51</td>
             <td class="map-w"><span id="30003"></span><a href="../asm/30003.html">30003</a></td>
-            <td class="map-length-0">4</td>
             <td class="map-w-desc">
             <div class="map-entry-title-10"><a class="map-entry-title" href="../asm/30003.html">Words</a></div>
             <div class="map-entry-desc-0">
@@ -5314,10 +5310,9 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             </td>
             </tr>
             <tr>
-            <td class="map-page-1">117</td>
-            <td class="map-byte-1">55</td>
+            <td class="map-page">117</td>
+            <td class="map-byte">55</td>
             <td class="map-g"><span id="30007"></span><a href="../asm/30007.html">30007</a></td>
-            <td class="map-length-0">1</td>
             <td class="map-g-desc">
             <div class="map-entry-title-10"><a class="map-entry-title" href="../asm/30007.html">GSB entry</a></div>
             <div class="map-entry-desc-0">
@@ -5325,10 +5320,9 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             </td>
             </tr>
             <tr>
-            <td class="map-page-1">117</td>
-            <td class="map-byte-1">56</td>
+            <td class="map-page">117</td>
+            <td class="map-byte">56</td>
             <td class="map-u"><span id="30008"></span><a href="../asm/30008.html">30008</a></td>
-            <td class="map-length-0">1</td>
             <td class="map-u-desc">
             <div class="map-entry-title-10"><a class="map-entry-title" href="../asm/30008.html">Unused</a></div>
             <div class="map-entry-desc-0">
@@ -5336,10 +5330,9 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             </td>
             </tr>
             <tr>
-            <td class="map-page-1">117</td>
-            <td class="map-byte-1">57</td>
+            <td class="map-page">117</td>
+            <td class="map-byte">57</td>
             <td class="map-s"><span id="30009"></span><a href="../asm/30009.html">30009</a></td>
-            <td class="map-length-0">9</td>
             <td class="map-s-desc">
             <div class="map-entry-title-10"><a class="map-entry-title" href="../asm/30009.html">Zeroes</a></div>
             <div class="map-entry-desc-0">
@@ -5347,10 +5340,9 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             </td>
             </tr>
             <tr>
-            <td class="map-page-1">117</td>
-            <td class="map-byte-1">66</td>
+            <td class="map-page">117</td>
+            <td class="map-byte">66</td>
             <td class="map-t"><span id="30018"></span><a href="../asm/30018.html">30018</a></td>
-            <td class="map-length-0">2</td>
             <td class="map-t-desc">
             <div class="map-entry-title-10"><a class="map-entry-title" href="../asm/30018.html">Text</a></div>
             <div class="map-entry-desc-0">
@@ -5372,17 +5364,11 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             <div class="map-intro"></div>
             <table class="map">
             <tr>
-            <th class="map-page-0">Page</th>
-            <th class="map-byte-0">Byte</th>
             <th>Address</th>
-            <th class="map-length-0">Length</th>
             <th>Description</th>
             </tr>
             <tr>
-            <td class="map-page-0">117</td>
-            <td class="map-byte-0">48</td>
             <td class="map-c"><span id="30000"></span><a href="../asm/30000.html">30000</a></td>
-            <td class="map-length-0">1</td>
             <td class="map-c-desc">
             <div class="map-entry-title-10"><a class="map-entry-title" href="../asm/30000.html">Routine</a></div>
             <div class="map-entry-desc-0">
@@ -5404,17 +5390,15 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             <div class="map-intro"></div>
             <table class="map">
             <tr>
-            <th class="map-page-1">Page</th>
-            <th class="map-byte-1">Byte</th>
+            <th class="map-page">Page</th>
+            <th class="map-byte">Byte</th>
             <th>Address</th>
-            <th class="map-length-0">Length</th>
             <th>Description</th>
             </tr>
             <tr>
-            <td class="map-page-1">117</td>
-            <td class="map-byte-1">49</td>
+            <td class="map-page">117</td>
+            <td class="map-byte">49</td>
             <td class="map-b"><span id="30001"></span><a href="../asm/30001.html">30001</a></td>
-            <td class="map-length-0">2</td>
             <td class="map-b-desc">
             <div class="map-entry-title-10"><a class="map-entry-title" href="../asm/30001.html">Bytes</a></div>
             <div class="map-entry-desc-0">
@@ -5422,10 +5406,9 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             </td>
             </tr>
             <tr>
-            <td class="map-page-1">117</td>
-            <td class="map-byte-1">51</td>
+            <td class="map-page">117</td>
+            <td class="map-byte">51</td>
             <td class="map-w"><span id="30003"></span><a href="../asm/30003.html">30003</a></td>
-            <td class="map-length-0">4</td>
             <td class="map-w-desc">
             <div class="map-entry-title-10"><a class="map-entry-title" href="../asm/30003.html">Words</a></div>
             <div class="map-entry-desc-0">
@@ -5447,17 +5430,11 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             <div class="map-intro"></div>
             <table class="map">
             <tr>
-            <th class="map-page-0">Page</th>
-            <th class="map-byte-0">Byte</th>
             <th>Address</th>
-            <th class="map-length-0">Length</th>
             <th>Description</th>
             </tr>
             <tr>
-            <td class="map-page-0">117</td>
-            <td class="map-byte-0">66</td>
             <td class="map-t"><span id="30018"></span><a href="../asm/30018.html">30018</a></td>
-            <td class="map-length-0">2</td>
             <td class="map-t-desc">
             <div class="map-entry-title-10"><a class="map-entry-title" href="../asm/30018.html">Text</a></div>
             <div class="map-entry-desc-0">
@@ -5479,17 +5456,17 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             <div class="map-intro"></div>
             <table class="map">
             <tr>
-            <th class="map-page-1">Page</th>
-            <th class="map-byte-1">Byte</th>
+            <th class="map-page">Page</th>
+            <th class="map-byte">Byte</th>
             <th>Address</th>
-            <th class="map-length-1">Length</th>
+            <th class="map-length">Length</th>
             <th>Description</th>
             </tr>
             <tr>
-            <td class="map-page-1">117</td>
-            <td class="map-byte-1">56</td>
+            <td class="map-page">117</td>
+            <td class="map-byte">56</td>
             <td class="map-u"><span id="30008"></span><a href="../asm/30008.html">30008</a></td>
-            <td class="map-length-1">1</td>
+            <td class="map-length">1</td>
             <td class="map-u-desc">
             <div class="map-entry-title-10"><a class="map-entry-title" href="../asm/30008.html">Unused</a></div>
             <div class="map-entry-desc-0">
@@ -5497,10 +5474,10 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             </td>
             </tr>
             <tr>
-            <td class="map-page-1">117</td>
-            <td class="map-byte-1">57</td>
+            <td class="map-page">117</td>
+            <td class="map-byte">57</td>
             <td class="map-s"><span id="30009"></span><a href="../asm/30009.html">30009</a></td>
-            <td class="map-length-1">9</td>
+            <td class="map-length">9</td>
             <td class="map-s-desc">
             <div class="map-entry-title-10"><a class="map-entry-title" href="../asm/30009.html">Zeroes</a></div>
             <div class="map-entry-desc-0">
@@ -5533,17 +5510,15 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             <div class="map-intro"></div>
             <table class="map">
             <tr>
-            <th class="map-page-1">Page</th>
-            <th class="map-byte-1">Byte</th>
+            <th class="map-page">Page</th>
+            <th class="map-byte">Byte</th>
             <th>Address</th>
-            <th class="map-length-0">Length</th>
             <th>Description</th>
             </tr>
             <tr>
-            <td class="map-page-1">91</td>
-            <td class="map-byte-1">160</td>
+            <td class="map-page">91</td>
+            <td class="map-byte">160</td>
             <td class="map-c"><span id="5ba0"></span><a href="../asm/23456.html">23456</a></td>
-            <td class="map-length-0">1</td>
             <td class="map-c-desc">
             <div class="map-entry-title-10"><a class="map-entry-title" href="../asm/23456.html">Routine at 23456</a></div>
             <div class="map-entry-desc-0">
@@ -5569,17 +5544,15 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             <div class="map-intro"></div>
             <table class="map">
             <tr>
-            <th class="map-page-1">Page</th>
-            <th class="map-byte-1">Byte</th>
+            <th class="map-page">Page</th>
+            <th class="map-byte">Byte</th>
             <th>Address</th>
-            <th class="map-length-0">Length</th>
             <th>Description</th>
             </tr>
             <tr>
-            <td class="map-page-1">135</td>
-            <td class="map-byte-1">7</td>
+            <td class="map-page">135</td>
+            <td class="map-byte">7</td>
             <td class="map-c"><span id="8707"></span><a href="../asm/34567.html">34567</a></td>
-            <td class="map-length-0">1</td>
             <td class="map-c-desc">
             <div class="map-entry-title-10"><a class="map-entry-title" href="../asm/34567.html">Routine at 34567</a></div>
             <div class="map-entry-desc-0">
@@ -5614,17 +5587,15 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             <div class="map-intro">First instruction at <a href="all.html#ABCD">ABCD</a>, second at <a href="../asm/43981.html#ABCE">43982</a>.</div>
             <table class="map">
             <tr>
-            <th class="map-page-1">Page</th>
-            <th class="map-byte-1">Byte</th>
+            <th class="map-page">Page</th>
+            <th class="map-byte">Byte</th>
             <th>Address</th>
-            <th class="map-length-0">Length</th>
             <th>Description</th>
             </tr>
             <tr>
-            <td class="map-page-1">171</td>
-            <td class="map-byte-1">205</td>
+            <td class="map-page">171</td>
+            <td class="map-byte">205</td>
             <td class="map-c"><span id="ABCD"></span><a href="../asm/43981.html">43981</a></td>
-            <td class="map-length-0">2</td>
             <td class="map-c-desc">
             <div class="map-entry-title-10"><a class="map-entry-title" href="../asm/43981.html">Routine at 43981</a></div>
             <div class="map-entry-desc-0">
@@ -5661,17 +5632,15 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             <div class="map-intro"></div>
             <table class="map">
             <tr>
-            <th class="map-page-1">Page</th>
-            <th class="map-byte-1">Byte</th>
+            <th class="map-page">Page</th>
+            <th class="map-byte">Byte</th>
             <th>Address</th>
-            <th class="map-length-0">Length</th>
             <th>Description</th>
             </tr>
             <tr>
-            <td class="map-page-1">128</td>
-            <td class="map-byte-1">0</td>
+            <td class="map-page">128</td>
+            <td class="map-byte">0</td>
             <td class="map-c"><span id="32768"></span><a href="../asm.html#32768">32768</a></td>
-            <td class="map-length-0">1</td>
             <td class="map-c-desc">
             <div class="map-entry-title-10"><a class="map-entry-title" href="../asm.html#32768">A routine here</a></div>
             <div class="map-entry-desc-0">
@@ -5679,10 +5648,9 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             </td>
             </tr>
             <tr>
-            <td class="map-page-1">128</td>
-            <td class="map-byte-1">1</td>
+            <td class="map-page">128</td>
+            <td class="map-byte">1</td>
             <td class="map-b"><span id="32769"></span><a href="../asm.html#32769">32769</a></td>
-            <td class="map-length-0">1</td>
             <td class="map-b-desc">
             <div class="map-entry-title-10"><a class="map-entry-title" href="../asm.html#32769">A data block there</a></div>
             <div class="map-entry-desc-0">
@@ -5719,17 +5687,15 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             <div class="map-intro">First instruction at <a href="../asm.html#ABCD">43981</a>.</div>
             <table class="map">
             <tr>
-            <th class="map-page-1">Page</th>
-            <th class="map-byte-1">Byte</th>
+            <th class="map-page">Page</th>
+            <th class="map-byte">Byte</th>
             <th>Address</th>
-            <th class="map-length-0">Length</th>
             <th>Description</th>
             </tr>
             <tr>
-            <td class="map-page-1">171</td>
-            <td class="map-byte-1">205</td>
+            <td class="map-page">171</td>
+            <td class="map-byte">205</td>
             <td class="map-c"><span id="ABCD"></span><a href="../asm.html#ABCD">43981</a></td>
-            <td class="map-length-0">1</td>
             <td class="map-c-desc">
             <div class="map-entry-title-10"><a class="map-entry-title" href="../asm.html#ABCD">Routine at 43981</a></div>
             <div class="map-entry-desc-0">
@@ -5759,17 +5725,15 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             <div class="map-intro"></div>
             <table class="map">
             <tr>
-            <th class="map-page-1">Page</th>
-            <th class="map-byte-1">Byte</th>
+            <th class="map-page">Page</th>
+            <th class="map-byte">Byte</th>
             <th>Address</th>
-            <th class="map-length-0">Length</th>
             <th>Description</th>
             </tr>
             <tr>
-            <td class="map-page-1">117</td>
-            <td class="map-byte-1">48</td>
+            <td class="map-page">117</td>
+            <td class="map-byte">48</td>
             <td class="map-c"><span id="30000"></span><a href="../{0}#30000">30000</a></td>
-            <td class="map-length-0">1</td>
             <td class="map-c-desc">
             <div class="map-entry-title-10"><a class="map-entry-title" href="../{0}#30000">A routine</a></div>
             <div class="map-entry-desc-0">
@@ -5836,17 +5800,13 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             <div class="map-intro">{}</div>
             <table class="map">
             <tr>
-            <th class="map-page-0">Page</th>
-            <th class="map-byte-0">Byte</th>
             <th>Address</th>
-            <th class="map-length-1">Length</th>
+            <th class="map-length">Length</th>
             <th>Description</th>
             </tr>
             <tr>
-            <td class="map-page-0">117</td>
-            <td class="map-byte-0">48</td>
             <td class="map-c"><span id="30000"></span><a href="../asm/30000.html">30000</a></td>
-            <td class="map-length-1">1</td>
+            <td class="map-length">1</td>
             <td class="map-c-desc">
             <div class="map-entry-title-11"><a class="map-entry-title" href="../asm/30000.html">Routine</a></div>
             <div class="map-entry-desc-1">
@@ -5857,10 +5817,8 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             </td>
             </tr>
             <tr>
-            <td class="map-page-0">117</td>
-            <td class="map-byte-0">51</td>
             <td class="map-g"><span id="30003"></span><a href="../asm/30003.html">30003</a></td>
-            <td class="map-length-1">1</td>
+            <td class="map-length">1</td>
             <td class="map-g-desc">
             <div class="map-entry-title-11"><a class="map-entry-title" href="../asm/30003.html">GSB entry</a></div>
             <div class="map-entry-desc-1">
@@ -5889,17 +5847,11 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             <div class="map-intro"></div>
             <table class="map">
             <tr>
-            <th class="map-page-0">Page</th>
-            <th class="map-byte-0">Byte</th>
             <th>Address</th>
-            <th class="map-length-0">Length</th>
             <th>Description</th>
             </tr>
             <tr>
-            <td class="map-page-0">178</td>
-            <td class="map-byte-0">110</td>
             <td class="map-c"><span id="45678"></span><a href="../asm/45678.html">B26E</a></td>
-            <td class="map-length-0">1</td>
             <td class="map-c-desc">
             <div class="map-entry-title-10"><a class="map-entry-title" href="../asm/45678.html">Routine at 45678</a></div>
             <div class="map-entry-desc-0">
@@ -5924,17 +5876,15 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             <div class="map-intro">{}</div>
             <table class="map">
             <tr>
-            <th class="map-page-1">Page</th>
-            <th class="map-byte-1">Byte</th>
+            <th class="map-page">Page</th>
+            <th class="map-byte">Byte</th>
             <th>Address</th>
-            <th class="map-length-0">Length</th>
             <th>Description</th>
             </tr>
             <tr>
-            <td class="map-page-1">128</td>
-            <td class="map-byte-1">0</td>
+            <td class="map-page">128</td>
+            <td class="map-byte">0</td>
             <td class="map-c"><span id="32768"></span><a href="../asm/32768.html">32768</a></td>
-            <td class="map-length-0">1</td>
             <td class="map-c-desc">
             <div class="map-entry-title-10"><a class="map-entry-title" href="../asm/32768.html">Code</a></div>
             <div class="map-entry-desc-0">
@@ -5968,20 +5918,18 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             <div class="map-intro"></div>
             <table class="map">
             <tr>
-            <th class="map-page-1">Page</th>
-            <th class="map-byte-1">Byte</th>
+            <th class="map-page">Page</th>
+            <th class="map-byte">Byte</th>
             <th>Address</th>
-            <th class="map-length-0">Length</th>
             <th>Description</th>
             </tr>\n
         """
         for address in (0, 2, 44, 666, 8888):
             exp_content += """
                 <tr>
-                <td class="map-page-1">{0}</td>
-                <td class="map-byte-1">{1}</td>
+                <td class="map-page">{0}</td>
+                <td class="map-byte">{1}</td>
                 <td class="map-c"><span id="{2}"></span><a href="../asm/{2}.html">{2:05d}</a></td>
-                <td class="map-length-0">1</td>
                 <td class="map-c-desc">
                 <div class="map-entry-title-10"><a class="map-entry-title" href="../asm/{2}.html"></a></div>
                 <div class="map-entry-desc-0">
@@ -6032,17 +5980,11 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             <div class="map-intro"></div>
             <table class="map">
             <tr>
-            <th class="map-page-0">Page</th>
-            <th class="map-byte-0">Byte</th>
             <th>Address</th>
-            <th class="map-length-0">Length</th>
             <th>Description</th>
             </tr>
             <tr>
-            <td class="map-page-0">117</td>
-            <td class="map-byte-0">49</td>
             <td class="map-w"><span id="30001"></span><a href="../asm/30001.html">30001</a></td>
-            <td class="map-length-0">2</td>
             <td class="map-w-desc">
             <div class="map-entry-title-10"><a class="map-entry-title" href="../asm/30001.html">Data</a></div>
             <div class="map-entry-desc-0">
@@ -6050,10 +5992,7 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             </td>
             </tr>
             <tr>
-            <td class="map-page-0">117</td>
-            <td class="map-byte-0">51</td>
             <td class="map-t"><span id="30003"></span><a href="../asm/30003.html">30003</a></td>
-            <td class="map-length-0">1</td>
             <td class="map-t-desc">
             <div class="map-entry-title-10"><a class="map-entry-title" href="../asm/30003.html">Message ID</a></div>
             <div class="map-entry-desc-0">
@@ -6061,10 +6000,7 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             </td>
             </tr>
             <tr>
-            <td class="map-page-0">117</td>
-            <td class="map-byte-0">52</td>
             <td class="map-t"><span id="30004"></span><a href="../asm/30004.html">30004</a></td>
-            <td class="map-length-0">1</td>
             <td class="map-t-desc">
             <div class="map-entry-title-10"><a class="map-entry-title" href="../asm/30004.html">Another message ID</a></div>
             <div class="map-entry-desc-0">
@@ -6510,17 +6446,11 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             <div class="map-intro"></div>
             <table class="map">
             <tr>
-            <th class="map-page-0">Page</th>
-            <th class="map-byte-0">Byte</th>
             <th>Address</th>
-            <th class="map-length-0">Length</th>
             <th>Description</th>
             </tr>
             <tr>
-            <td class="map-page-0">255</td>
-            <td class="map-byte-0">255</td>
             <td class="map-c"><span id="65535"></span><a href="65535.html">65535</a></td>
-            <td class="map-length-0">1</td>
             <td class="map-c-desc">
             <div class="map-entry-title-10"><a class="map-entry-title" href="65535.html">{}</a></div>
             <div class="map-entry-desc-0">
@@ -6557,17 +6487,11 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             <div class="map-intro"></div>
             <table class="map">
             <tr>
-            <th class="map-page-0">Page</th>
-            <th class="map-byte-0">Byte</th>
             <th>Address</th>
-            <th class="map-length-0">Length</th>
             <th>Description</th>
             </tr>
             <tr>
-            <td class="map-page-0">255</td>
-            <td class="map-byte-0">255</td>
             <td class="map-c"><span id="65535"></span><a href="asm.html#65535">65535</a></td>
-            <td class="map-length-0">1</td>
             <td class="map-c-desc">
             <div class="map-entry-title-10"><a class="map-entry-title" href="asm.html#65535">{}</a></div>
             <div class="map-entry-desc-0">
@@ -6609,17 +6533,11 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             <div class="map-intro"></div>
             <table class="map">
             <tr>
-            <th class="map-page-0">Page</th>
-            <th class="map-byte-0">Byte</th>
             <th>Address</th>
-            <th class="map-length-0">Length</th>
             <th>Description</th>
             </tr>
             <tr>
-            <td class="map-page-0">255</td>
-            <td class="map-byte-0">255</td>
             <td class="map-c"><span id="65535"></span><a href="{0}#65535">65535</a></td>
-            <td class="map-length-0">1</td>
             <td class="map-c-desc">
             <div class="map-entry-title-10"><a class="map-entry-title" href="{0}#65535">{1}</a></div>
             <div class="map-entry-desc-0">
@@ -7339,17 +7257,13 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             <div class="map-intro"></div>
             <table class="map">
             <tr>
-            <th class="map-page-0">Page</th>
-            <th class="map-byte-0">Byte</th>
             <th>Address</th>
-            <th class="map-length-1">Length</th>
+            <th class="map-length">Length</th>
             <th>Description</th>
             </tr>
             <tr>
-            <td class="map-page-0">117</td>
-            <td class="map-byte-0">48</td>
             <td class="map-g"><span id="30000"></span><a href="../asm/30000.html">30000</a></td>
-            <td class="map-length-1">1</td>
+            <td class="map-length">1</td>
             <td class="map-g-desc">
             <div class="map-entry-title-11"><a class="map-entry-title" href="../asm/30000.html">GSB entry 1</a></div>
             <div class="map-entry-desc-1">
@@ -7360,10 +7274,8 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             </td>
             </tr>
             <tr>
-            <td class="map-page-0">117</td>
-            <td class="map-byte-0">49</td>
             <td class="map-g"><span id="30001"></span><a href="../asm/30001.html">30001</a></td>
-            <td class="map-length-1">2</td>
+            <td class="map-length">2</td>
             <td class="map-g-desc">
             <div class="map-entry-title-11"><a class="map-entry-title" href="../asm/30001.html">GSB entry 2</a></div>
             <div class="map-entry-desc-1">
@@ -7411,17 +7323,13 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             <div class="map-intro"></div>
             <table class="map">
             <tr>
-            <th class="map-page-0">Page</th>
-            <th class="map-byte-0">Byte</th>
             <th>Address</th>
-            <th class="map-length-1">Length</th>
+            <th class="map-length">Length</th>
             <th>Description</th>
             </tr>
             <tr>
-            <td class="map-page-0">117</td>
-            <td class="map-byte-0">48</td>
             <td class="map-g"><span id="30000"></span><a href="../asm/30000.html">30000</a></td>
-            <td class="map-length-1">1</td>
+            <td class="map-length">1</td>
             <td class="map-g-desc">
             <div class="map-entry-title-11"><a class="map-entry-title" href="../asm/30000.html">GSB entry 1</a></div>
             <div class="map-entry-desc-1">
@@ -7432,10 +7340,8 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             </td>
             </tr>
             <tr>
-            <td class="map-page-0">117</td>
-            <td class="map-byte-0">49</td>
             <td class="map-g"><span id="30001"></span><a href="../asm/30001.html">30001</a></td>
-            <td class="map-length-1">2</td>
+            <td class="map-length">2</td>
             <td class="map-g-desc">
             <div class="map-entry-title-11"><a class="map-entry-title" href="../asm/30001.html">GSB entry 2</a></div>
             <div class="map-entry-desc-1">
@@ -7443,10 +7349,8 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             </td>
             </tr>
             <tr>
-            <td class="map-page-0">117</td>
-            <td class="map-byte-0">51</td>
             <td class="map-t"><span id="30003"></span><a href="../asm/30003.html">30003</a></td>
-            <td class="map-length-1">1</td>
+            <td class="map-length">1</td>
             <td class="map-t-desc">
             <div class="map-entry-title-11"><a class="map-entry-title" href="../asm/30003.html">Message ID</a></div>
             <div class="map-entry-desc-1">
@@ -7454,10 +7358,8 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             </td>
             </tr>
             <tr>
-            <td class="map-page-0">117</td>
-            <td class="map-byte-0">52</td>
             <td class="map-t"><span id="30004"></span><a href="../asm/30004.html">30004</a></td>
-            <td class="map-length-1">1</td>
+            <td class="map-length">1</td>
             <td class="map-t-desc">
             <div class="map-entry-title-11"><a class="map-entry-title" href="../asm/30004.html">Another message ID</a></div>
             <div class="map-entry-desc-1">

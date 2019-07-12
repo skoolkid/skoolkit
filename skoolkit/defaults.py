@@ -504,18 +504,26 @@ SECTIONS['Template:MemoryMap'] = """
 <div class="map-intro">{MemoryMap[Intro]}</div>
 <table class="map">
 <tr>
-<th class="map-page-{MemoryMap[PageByteColumns]}">Page</th>
-<th class="map-byte-{MemoryMap[PageByteColumns]}">Byte</th>
+<# if({MemoryMap[PageByteColumns]}) #>
+<th class="map-page">Page</th>
+<th class="map-byte">Byte</th>
+<# endif #>
 <th>Address</th>
-<th class="map-length-{MemoryMap[LengthColumn]}">Length</th>
+<# if({MemoryMap[LengthColumn]}) #>
+<th class="map-length">Length</th>
+<# endif #>
 <th>Description</th>
 </tr>
 <# foreach($entry,entries) #>
 <tr>
-<td class="map-page-{MemoryMap[PageByteColumns]}">{$entry[page]}</td>
-<td class="map-byte-{MemoryMap[PageByteColumns]}">{$entry[byte]}</td>
+<# if({MemoryMap[PageByteColumns]}) #>
+<td class="map-page">{$entry[page]}</td>
+<td class="map-byte">{$entry[byte]}</td>
+<# endif #>
 <td class="map-{$entry[type]}"><span id="{$entry[anchor]}"></span><a href="{$entry[href]}">{$entry[address]}</a></td>
-<td class="map-length-{MemoryMap[LengthColumn]}">{$entry[size]}</td>
+<# if({MemoryMap[LengthColumn]}) #>
+<td class="map-length">{$entry[size]}</td>
+<# endif #>
 <td class="map-{$entry[type]}-desc">
 <div class="map-entry-title-1{MemoryMap[EntryDescriptions]}"><a class="map-entry-title" href="{$entry[href]}">{$entry[title]}</a></div>
 <div class="map-entry-desc-{MemoryMap[EntryDescriptions]}">

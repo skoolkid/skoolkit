@@ -84,4 +84,25 @@ table.input-0
 table.input-1         table.input
 table.output-0
 table.output-1        table.output
+td.map-byte-0
+td.map-byte-1         td.map-byte
+td.map-length-0
+td.map-length-1       td.map-length
+td.map-page-0
+td.map-page-1         td.map-page
+th.map-byte-0
+th.map-length-0
+th.map-page-0
+====================  ==========
+
+The following table lists selectors for the classes that were unstyled (i.e.
+did not appear in any CSS files) in SkoolKit 7, and their replacements (if any)
+in SkoolKit 8.
+
+====================  ==========
+SkoolKit 7            SkoolKit 8
+====================  ==========
+th.map-byte-1         th.map-byte
+th.map-length-1       th.map-length
+th.map-page-1         th.map-page
 ====================  ==========
