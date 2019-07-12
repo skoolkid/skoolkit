@@ -3219,16 +3219,6 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             <td class="routine-comment" colspan="5">
             <div class="details">
             </div>
-            <table class="input-0">
-            <tr class="asm-input-header">
-            <th colspan="2">Input</th>
-            </tr>
-            </table>
-            <table class="output-0">
-            <tr class="asm-output-header">
-            <th colspan="2">Output</th>
-            </tr>
-            </table>
             </td>
             </tr>
             <tr>
@@ -3276,16 +3266,6 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             <td class="routine-comment" colspan="5">
             <div class="details">
             </div>
-            <table class="input-0">
-            <tr class="asm-input-header">
-            <th colspan="2">Input</th>
-            </tr>
-            </table>
-            <table class="output-0">
-            <tr class="asm-output-header">
-            <th colspan="2">Output</th>
-            </tr>
-            </table>
             </td>
             </tr>
             <tr>
@@ -3378,16 +3358,6 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             <td class="routine-comment" colspan="5">
             <div class="details">
             </div>
-            <table class="input-0">
-            <tr class="asm-input-header">
-            <th colspan="2">Input</th>
-            </tr>
-            </table>
-            <table class="output-0">
-            <tr class="asm-output-header">
-            <th colspan="2">Output</th>
-            </tr>
-            </table>
             </td>
             </tr>
             <tr>
@@ -3449,16 +3419,6 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             <td class="routine-comment" colspan="5">
             <div class="details">
             </div>
-            <table class="input-0">
-            <tr class="asm-input-header">
-            <th colspan="2">Input</th>
-            </tr>
-            </table>
-            <table class="output-0">
-            <tr class="asm-output-header">
-            <th colspan="2">Output</th>
-            </tr>
-            </table>
             </td>
             </tr>
             <tr>
@@ -3521,16 +3481,6 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             <td class="routine-comment" colspan="100">
             <div class="details">
             </div>
-            <table class="input-0">
-            <tr class="asm-input-header">
-            <th colspan="2">Input</th>
-            </tr>
-            </table>
-            <table class="output-0">
-            <tr class="asm-output-header">
-            <th colspan="2">Output</th>
-            </tr>
-            </table>
             </td>
             </tr>
             <tr>
@@ -3574,7 +3524,7 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         self.assertFalse(writer.link_internal_operands)
         writer.write_asm_entries()
         html = self._read_file(join(ASMDIR, '30000.html'), True)
-        line_no = 43
+        line_no = 33
         for inst, address in (
             ('CALL', 30003),
             ('JP', 30006),
@@ -3598,7 +3548,7 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         self.assertTrue(writer.link_internal_operands)
         writer.write_asm_entries()
         html = self._read_file(join(ASMDIR, '40000.html'), True)
-        line_no = 43
+        line_no = 33
         for inst, address in (
             ('CALL', 40003),
             ('JP', 40006),
@@ -3630,7 +3580,7 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             writer.write_asm_entries()
             html = self._read_file(join(ASMDIR, '32769.html'), True)
             link = '<a href="32768.html">32768</a>'
-            line_no = 43
+            line_no = 33
             for prefix in ('CALL ', 'DEFW ', 'DJNZ ', 'JP ', 'JR ', 'LD HL,'):
                 inst_type = prefix.split()[0]
                 exp_html = prefix + (link if inst_type in link_operands else '32768')
@@ -3728,16 +3678,6 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             {}
             </div>
             </div>
-            <table class="input-0">
-            <tr class="asm-input-header">
-            <th colspan="2">Input</th>
-            </tr>
-            </table>
-            <table class="output-0">
-            <tr class="asm-output-header">
-            <th colspan="2">Output</th>
-            </tr>
-            </table>
             </td>
             </tr>
             <tr>
@@ -4111,7 +4051,7 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             Description of routine at 24576.
             </div>
             </div>
-            <table class="input-1">
+            <table class="input">
             <tr class="asm-input-header">
             <th colspan="2">Input</th>
             </tr>
@@ -4122,11 +4062,6 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             <tr>
             <td class="register">B</td>
             <td class="register-desc">Some other value</td>
-            </tr>
-            </table>
-            <table class="output-0">
-            <tr class="asm-output-header">
-            <th colspan="2">Output</th>
             </tr>
             </table>
             </td>
@@ -4184,16 +4119,6 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             <td class="routine-comment" colspan="5">
             <div class="details">
             </div>
-            <table class="input-0">
-            <tr class="asm-input-header">
-            <th colspan="2">Input</th>
-            </tr>
-            </table>
-            <table class="output-0">
-            <tr class="asm-output-header">
-            <th colspan="2">Output</th>
-            </tr>
-            </table>
             </td>
             </tr>
             <tr>
@@ -4224,16 +4149,6 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             <td class="routine-comment" colspan="5">
             <div class="details">
             </div>
-            <table class="input-0">
-            <tr class="asm-input-header">
-            <th colspan="2">Input</th>
-            </tr>
-            </table>
-            <table class="output-0">
-            <tr class="asm-output-header">
-            <th colspan="2">Output</th>
-            </tr>
-            </table>
             </td>
             </tr>
             <tr>
@@ -4264,16 +4179,6 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             <td class="routine-comment" colspan="5">
             <div class="details">
             </div>
-            <table class="input-0">
-            <tr class="asm-input-header">
-            <th colspan="2">Input</th>
-            </tr>
-            </table>
-            <table class="output-0">
-            <tr class="asm-output-header">
-            <th colspan="2">Output</th>
-            </tr>
-            </table>
             </td>
             </tr>
             <tr>
@@ -4304,16 +4209,6 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             <td class="routine-comment" colspan="5">
             <div class="details">
             </div>
-            <table class="input-0">
-            <tr class="asm-input-header">
-            <th colspan="2">Input</th>
-            </tr>
-            </table>
-            <table class="output-0">
-            <tr class="asm-output-header">
-            <th colspan="2">Output</th>
-            </tr>
-            </table>
             </td>
             </tr>
             <tr>
@@ -4344,18 +4239,13 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             <td class="routine-comment" colspan="5">
             <div class="details">
             </div>
-            <table class="input-1">
+            <table class="input">
             <tr class="asm-input-header">
             <th colspan="2">Input</th>
             </tr>
             <tr>
             <td class="register">A</td>
             <td class="register-desc">0</td>
-            </tr>
-            </table>
-            <table class="output-0">
-            <tr class="asm-output-header">
-            <th colspan="2">Output</th>
             </tr>
             </table>
             </td>
@@ -4405,16 +4295,6 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             <td class="routine-comment" colspan="5">
             <div class="details">
             </div>
-            <table class="input-0">
-            <tr class="asm-input-header">
-            <th colspan="2">Input</th>
-            </tr>
-            </table>
-            <table class="output-0">
-            <tr class="asm-output-header">
-            <th colspan="2">Output</th>
-            </tr>
-            </table>
             </td>
             </tr>
             <tr>
@@ -4445,16 +4325,6 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             <td class="routine-comment" colspan="5">
             <div class="details">
             </div>
-            <table class="input-0">
-            <tr class="asm-input-header">
-            <th colspan="2">Input</th>
-            </tr>
-            </table>
-            <table class="output-0">
-            <tr class="asm-output-header">
-            <th colspan="2">Output</th>
-            </tr>
-            </table>
             </td>
             </tr>
             <tr>
@@ -4496,16 +4366,6 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             <td class="routine-comment" colspan="5">
             <div class="details">
             </div>
-            <table class="input-0">
-            <tr class="asm-input-header">
-            <th colspan="2">Input</th>
-            </tr>
-            </table>
-            <table class="output-0">
-            <tr class="asm-output-header">
-            <th colspan="2">Output</th>
-            </tr>
-            </table>
             </td>
             </tr>
             <tr>
@@ -4711,16 +4571,6 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             <td class="routine-comment" colspan="5">
             <div class="details">
             </div>
-            <table class="input-0">
-            <tr class="asm-input-header">
-            <th colspan="2">Input</th>
-            </tr>
-            </table>
-            <table class="output-0">
-            <tr class="asm-output-header">
-            <th colspan="2">Output</th>
-            </tr>
-            </table>
             </td>
             </tr>
             <tr>
@@ -4780,16 +4630,6 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             <td class="routine-comment" colspan="5">
             <div class="details">
             </div>
-            <table class="input-0">
-            <tr class="asm-input-header">
-            <th colspan="2">Input</th>
-            </tr>
-            </table>
-            <table class="output-0">
-            <tr class="asm-output-header">
-            <th colspan="2">Output</th>
-            </tr>
-            </table>
             </td>
             </tr>
             <tr>
@@ -4851,16 +4691,6 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             <td class="routine-comment" colspan="5">
             <div class="details">
             </div>
-            <table class="input-0">
-            <tr class="asm-input-header">
-            <th colspan="2">Input</th>
-            </tr>
-            </table>
-            <table class="output-0">
-            <tr class="asm-output-header">
-            <th colspan="2">Output</th>
-            </tr>
-            </table>
             </td>
             </tr>
             <tr>
@@ -4894,16 +4724,6 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             Used by the routine at <a href="asm.html#32768">32768</a>.
             </div>
             </div>
-            <table class="input-0">
-            <tr class="asm-input-header">
-            <th colspan="2">Input</th>
-            </tr>
-            </table>
-            <table class="output-0">
-            <tr class="asm-output-header">
-            <th colspan="2">Output</th>
-            </tr>
-            </table>
             </td>
             </tr>
             <tr>
@@ -4953,16 +4773,6 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             <td class="routine-comment" colspan="5">
             <div class="details">
             </div>
-            <table class="input-0">
-            <tr class="asm-input-header">
-            <th colspan="2">Input</th>
-            </tr>
-            </table>
-            <table class="output-0">
-            <tr class="asm-output-header">
-            <th colspan="2">Output</th>
-            </tr>
-            </table>
             </td>
             </tr>
             <tr>
@@ -5047,18 +4857,13 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             Paragraph 2.
             </div>
             </div>
-            <table class="input-1">
+            <table class="input">
             <tr class="asm-input-header">
             <th colspan="2">Input</th>
             </tr>
             <tr>
             <td class="register">HL</td>
             <td class="register-desc">Address</td>
-            </tr>
-            </table>
-            <table class="output-0">
-            <tr class="asm-output-header">
-            <th colspan="2">Output</th>
             </tr>
             </table>
             </td>
@@ -5144,16 +4949,6 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             <td class="routine-comment" colspan="5">
             <div class="details">
             </div>
-            <table class="input-0">
-            <tr class="asm-input-header">
-            <th colspan="2">Input</th>
-            </tr>
-            </table>
-            <table class="output-0">
-            <tr class="asm-output-header">
-            <th colspan="2">Output</th>
-            </tr>
-            </table>
             </td>
             </tr>
             <tr>
@@ -5213,16 +5008,6 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             <td class="routine-comment" colspan="5">
             <div class="details">
             </div>
-            <table class="input-0">
-            <tr class="asm-input-header">
-            <th colspan="2">Input</th>
-            </tr>
-            </table>
-            <table class="output-0">
-            <tr class="asm-output-header">
-            <th colspan="2">Output</th>
-            </tr>
-            </table>
             </td>
             </tr>
             <tr>
@@ -5266,16 +5051,6 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             <td class="routine-comment" colspan="5">
             <div class="details">
             </div>
-            <table class="input-0">
-            <tr class="asm-input-header">
-            <th colspan="2">Input</th>
-            </tr>
-            </table>
-            <table class="output-0">
-            <tr class="asm-output-header">
-            <th colspan="2">Output</th>
-            </tr>
-            </table>
             </td>
             </tr>
             <tr>
@@ -5306,16 +5081,6 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             <td class="routine-comment" colspan="5">
             <div class="details">
             </div>
-            <table class="input-0">
-            <tr class="asm-input-header">
-            <th colspan="2">Input</th>
-            </tr>
-            </table>
-            <table class="output-0">
-            <tr class="asm-output-header">
-            <th colspan="2">Output</th>
-            </tr>
-            </table>
             </td>
             </tr>
             <tr>
@@ -5362,16 +5127,6 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             <td class="routine-comment" colspan="5">
             <div class="details">
             </div>
-            <table class="input-0">
-            <tr class="asm-input-header">
-            <th colspan="2">Input</th>
-            </tr>
-            </table>
-            <table class="output-0">
-            <tr class="asm-output-header">
-            <th colspan="2">Output</th>
-            </tr>
-            </table>
             </td>
             </tr>
             <tr>
@@ -5417,16 +5172,6 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             <td class="routine-comment" colspan="5">
             <div class="details">
             </div>
-            <table class="input-0">
-            <tr class="asm-input-header">
-            <th colspan="2">Input</th>
-            </tr>
-            </table>
-            <table class="output-0">
-            <tr class="asm-output-header">
-            <th colspan="2">Output</th>
-            </tr>
-            </table>
             </td>
             </tr>
             <tr>
@@ -5472,16 +5217,6 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             <td class="routine-comment" colspan="5">
             <div class="details">
             </div>
-            <table class="input-0">
-            <tr class="asm-input-header">
-            <th colspan="2">Input</th>
-            </tr>
-            </table>
-            <table class="output-0">
-            <tr class="asm-output-header">
-            <th colspan="2">Output</th>
-            </tr>
-            </table>
             </td>
             </tr>
             <tr>
@@ -6463,16 +6198,6 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             <td class="routine-comment" colspan="5">
             <div class="details">
             </div>
-            <table class="input-0">
-            <tr class="asm-input-header">
-            <th colspan="2">Input</th>
-            </tr>
-            </table>
-            <table class="output-0">
-            <tr class="asm-output-header">
-            <th colspan="2">Output</th>
-            </tr>
-            </table>
             </td>
             </tr>
             <tr>
@@ -6502,16 +6227,6 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             <td class="routine-comment" colspan="5">
             <div class="details">
             </div>
-            <table class="input-0">
-            <tr class="asm-input-header">
-            <th colspan="2">Input</th>
-            </tr>
-            </table>
-            <table class="output-0">
-            <tr class="asm-output-header">
-            <th colspan="2">Output</th>
-            </tr>
-            </table>
             </td>
             </tr>
             <tr>
@@ -6542,16 +6257,6 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             <td class="routine-comment" colspan="5">
             <div class="details">
             </div>
-            <table class="input-0">
-            <tr class="asm-input-header">
-            <th colspan="2">Input</th>
-            </tr>
-            </table>
-            <table class="output-0">
-            <tr class="asm-output-header">
-            <th colspan="2">Output</th>
-            </tr>
-            </table>
             </td>
             </tr>
             <tr>
@@ -6697,16 +6402,6 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             <td class="routine-comment" colspan="5">
             <div class="details">
             </div>
-            <table class="input-0">
-            <tr class="asm-input-header">
-            <th colspan="2">Input</th>
-            </tr>
-            </table>
-            <table class="output-0">
-            <tr class="asm-output-header">
-            <th colspan="2">Output</th>
-            </tr>
-            </table>
             </td>
             </tr>
             <tr>
@@ -6723,16 +6418,6 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             <td class="routine-comment" colspan="5">
             <div class="details">
             </div>
-            <table class="input-0">
-            <tr class="asm-input-header">
-            <th colspan="2">Input</th>
-            </tr>
-            </table>
-            <table class="output-0">
-            <tr class="asm-output-header">
-            <th colspan="2">Output</th>
-            </tr>
-            </table>
             </td>
             </tr>
             <tr>
@@ -6789,16 +6474,6 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             <td class="routine-comment" colspan="5">
             <div class="details">
             </div>
-            <table class="input-0">
-            <tr class="asm-input-header">
-            <th colspan="2">Input</th>
-            </tr>
-            </table>
-            <table class="output-0">
-            <tr class="asm-output-header">
-            <th colspan="2">Output</th>
-            </tr>
-            </table>
             </td>
             </tr>
             <tr>
@@ -7864,7 +7539,7 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             <td class="routine-comment" colspan="5">
             <div class="details">
             </div>
-            <table class="input-1">
+            <table class="input">
             <tr class="asm-input-header">
             <th colspan="2">Input</th>
             </tr>
@@ -7877,7 +7552,7 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             <td class="register-desc">Some other value</td>
             </tr>
             </table>
-            <table class="output-1">
+            <table class="output">
             <tr class="asm-output-header">
             <th colspan="2">Output</th>
             </tr>

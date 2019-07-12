@@ -285,7 +285,8 @@ SECTIONS['Template:Asm'] = """
 </div>
 <# endfor #>
 </div>
-<table class="input-{entry[input]}">
+<# if({entry[input]}) #>
+<table class="input">
 <tr class="asm-input-header">
 <th colspan="2">{Game[InputRegisterTableHeader]}</th>
 </tr>
@@ -296,7 +297,9 @@ SECTIONS['Template:Asm'] = """
 </tr>
 <# endfor #>
 </table>
-<table class="output-{entry[output]}">
+<# endif #>
+<# if({entry[output]}) #>
+<table class="output">
 <tr class="asm-output-header">
 <th colspan="2">{Game[OutputRegisterTableHeader]}</th>
 </tr>
@@ -307,6 +310,7 @@ SECTIONS['Template:Asm'] = """
 </tr>
 <# endfor #>
 </table>
+<# endif #>
 </td>
 </tr>
 <# foreach($instruction,entry[instructions]) #>
@@ -384,7 +388,8 @@ SECTIONS['Template:AsmAllInOne'] = """
 </div>
 <# endfor #>
 </div>
-<table class="input-{$entry[input]}">
+<# if({$entry[input]}) #>
+<table class="input">
 <tr class="asm-input-header">
 <th colspan="2">{Game[InputRegisterTableHeader]}</th>
 </tr>
@@ -395,7 +400,9 @@ SECTIONS['Template:AsmAllInOne'] = """
 </tr>
 <# endfor #>
 </table>
-<table class="output-{$entry[output]}">
+<# endif #>
+<# if({$entry[output]}) #>
+<table class="output">
 <tr class="asm-output-header">
 <th colspan="2">{Game[OutputRegisterTableHeader]}</th>
 </tr>
@@ -406,6 +413,7 @@ SECTIONS['Template:AsmAllInOne'] = """
 </tr>
 <# endfor #>
 </table>
+<# endif #>
 </td>
 </tr>
 <# foreach($instruction,$entry[instructions]) #>

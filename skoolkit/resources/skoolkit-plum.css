@@ -23,10 +23,10 @@ table table.default td, table.default td {
 table.asm-navigation td {
   background-color: #66334c;
 }
-table.input-1 td, table.output-1 td {
+table.input td, table.output td {
   background-color: #5e5e5e;
 }
-table.input-1 th, table.output-1 th {
+table.input th, table.output th {
   background-color: #8e8e8e;
 }
 span.register, td.register {

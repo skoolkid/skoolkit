@@ -69,3 +69,19 @@ new in SkoolKit 8:
 * :ref:`t_item_list` (previously named ``list_items``)
 * :ref:`t_list`
 * :ref:`t_table`
+
+CSS selectors
+-------------
+The `class` attributes of some HTML elements have changed in SkoolKit 8.
+
+The following table lists the selectors that appeared in the CSS files in
+SkoolKit 7, and their replacements (if any) in SkoolKit 8.
+
+====================  ==========
+SkoolKit 7            SkoolKit 8
+====================  ==========
+table.input-0
+table.input-1         table.input
+table.output-0
+table.output-1        table.output
+====================  ==========
