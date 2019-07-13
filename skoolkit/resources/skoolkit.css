@@ -131,15 +131,15 @@ td.register {
   width: 20px;
   text-align: center;
 }
-td.asm-label-1, td.address-1, td.address-2, td.bytes-1, td.instruction {
+td.asm-label, td.address-1, td.address-2, td.bytes-1, td.instruction {
   font-family: monospace;
   vertical-align: top;
   padding-right: 10px;
 }
-td.asm-label-1, td.address-1, td.address-2 {
+td.asm-label, td.address-1, td.address-2 {
   color: #ff0000;
 }
-td.asm-label-1, td.address-2 {
+td.asm-label, td.address-2 {
   font-weight: bold;
 }
 td.bytes-1 {
@@ -168,7 +168,7 @@ table.map td {
 div.map-intro {
   margin-bottom: 10px;
 }
-td.asm-label-0, td.bytes-0, td.comment-01 {
+td.bytes-0, td.comment-01 {
   display: none;
 }
 td.map-page, td.map-byte, td.map-length, td.map-b, td.map-c, td.map-g, td.map-s, td.map-t, td.map-u, td.map-w {

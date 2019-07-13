@@ -337,7 +337,9 @@ Next: <a href="{next_entry[href]}">{next_entry[address]}</a>
 </tr>
 <# endif #>
 <tr>
-<td class="asm-label-{entry[labels]}">{$instruction[label]}</td>
+<# if({entry[labels]}) #>
+<td class="asm-label">{$instruction[label]}</td>
+<# endif #>
 <td class="address-{$instruction[called]}"><span id="{$instruction[anchor]}"></span>{$instruction[address]}</td>
 <td class="bytes-{entry[show_bytes]}">{$instruction[bytes]:{Game[Bytes]}}</td>
 <td class="instruction">{$instruction[operation]}</td>
@@ -448,7 +450,9 @@ SECTIONS['Template:AsmAllInOne'] = """
 </tr>
 <# endif #>
 <tr>
-<td class="asm-label-{$entry[labels]}">{$instruction[label]}</td>
+<# if({$entry[labels]}) #>
+<td class="asm-label">{$instruction[label]}</td>
+<# endif #>
 <td class="address-{$instruction[called]}"><span id="{$instruction[anchor]}"></span>{$instruction[address]}</td>
 <td class="bytes-{$entry[show_bytes]}">{$instruction[bytes]:{Game[Bytes]}}</td>
 <td class="instruction">{$instruction[operation]}</td>

@@ -32,7 +32,7 @@ table.input th, table.output th {
 span.register, td.register {
   color: #ffffbe;
 }
-td.asm-label-1, td.address-1, td.address-2 {
+td.asm-label, td.address-1, td.address-2 {
   color: #00ffff;
 }
 td.bytes-1 {
