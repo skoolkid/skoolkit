@@ -89,6 +89,9 @@ The ``entry`` dictionary also contains the following parameters:
 * ``instructions`` - a list of instruction objects
 * ``output`` - '1' if there are output register values defined, '0' otherwise
 * ``output_registers`` - a list of output register objects
+* ``show_bytes`` - '1' if the entry contains at least one assembled instruction
+  with byte values and the ``Bytes`` parameter in the :ref:`ref-Game` section
+  is not blank, '0' otherwise
 
 Each input and output register object has the following attributes:
 
@@ -119,9 +122,6 @@ Each instruction object has the following attributes:
 * ``location`` - the address of the instruction as a decimal number
 * ``operation`` - the assembly language operation (e.g. 'LD A,B'), with operand
   hyperlinked if appropriate
-* ``show_bytes`` - '1' if the entry contains at least one assembled instruction
-  with byte values and the ``Bytes`` parameter in the :ref:`ref-Game` section
-  is not blank, '0' otherwise
 
 The ``bytes`` attribute can be used to render the byte values of an
 instruction. In its simplest form, it provides a format specification that is
@@ -147,8 +147,8 @@ the byte format specification::
 
 If you define a custom template that replaces ``{Game[Bytes]}`` with a
 hard-coded byte format specification, it's a good idea to also replace the
-``{$instruction[show_bytes]}`` field with ``1``, to ensure that the byte values
-are displayed.
+``{entry[show_bytes]}`` field with ``1``, to ensure that the byte values are
+displayed.
 
 Note that byte values are available only for regular assembly language
 instructions (not DEFB, DEFM, DEFS or DEFW statements), and only if they have

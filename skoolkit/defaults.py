@@ -339,7 +339,7 @@ Next: <a href="{next_entry[href]}">{next_entry[address]}</a>
 <tr>
 <td class="asm-label-{entry[labels]}">{$instruction[label]}</td>
 <td class="address-{$instruction[called]}"><span id="{$instruction[anchor]}"></span>{$instruction[address]}</td>
-<td class="bytes-{$instruction[show_bytes]}">{$instruction[bytes]:{Game[Bytes]}}</td>
+<td class="bytes-{entry[show_bytes]}">{$instruction[bytes]:{Game[Bytes]}}</td>
 <td class="instruction">{$instruction[operation]}</td>
 <td class="comment-{$instruction[annotated]}{entry[annotated]}" rowspan="{$instruction[comment_rowspan]}">{$instruction[comment]}</td>
 </tr>
@@ -450,7 +450,7 @@ SECTIONS['Template:AsmAllInOne'] = """
 <tr>
 <td class="asm-label-{$entry[labels]}">{$instruction[label]}</td>
 <td class="address-{$instruction[called]}"><span id="{$instruction[anchor]}"></span>{$instruction[address]}</td>
-<td class="bytes-{$instruction[show_bytes]}">{$instruction[bytes]:{Game[Bytes]}}</td>
+<td class="bytes-{$entry[show_bytes]}">{$instruction[bytes]:{Game[Bytes]}}</td>
 <td class="instruction">{$instruction[operation]}</td>
 <td class="comment-{$instruction[annotated]}{$entry[annotated]}" rowspan="{$instruction[comment_rowspan]}">{$instruction[comment]}</td>
 </tr>

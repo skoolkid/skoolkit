@@ -799,7 +799,7 @@ class HtmlWriter:
                 instruction.byte_values = Bytes()
             else:
                 instruction.byte_values = Bytes(instruction.data)
-        show_bytes = int(self.game_vars['Bytes'] != '' and any(i.byte_values.values for i in entry.instructions))
+        entry_dict['show_bytes'] = int(self.game_vars['Bytes'] != '' and any(i.byte_values.values for i in entry.instructions))
 
         entry_dict['instructions'] = instructions = []
         for instruction in entry.instructions:
@@ -848,8 +848,7 @@ class HtmlWriter:
                 'comment_rowspan': comment_rowspan,
                 'annotated': annotated,
                 'anchor': self.asm_anchor(instruction.address),
-                'bytes': instruction.byte_values,
-                'show_bytes': show_bytes
+                'bytes': instruction.byte_values
             })
 
         entry_dict['end_comment'] = [self.expand(p, cwd).strip() for p in entry.end_comment]
