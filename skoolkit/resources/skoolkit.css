@@ -168,7 +168,7 @@ table.map td {
 div.map-intro {
   margin-bottom: 10px;
 }
-td.asm-label-0, td.bytes-0, td.comment-01, div.map-entry-desc-0 {
+td.asm-label-0, td.bytes-0, td.comment-01 {
   display: none;
 }
 td.map-page, td.map-byte, td.map-length, td.map-b, td.map-c, td.map-g, td.map-s, td.map-t, td.map-u, td.map-w {
@@ -188,7 +188,7 @@ td.map-t-desc {
   color: #808080;
   font-family: monospace;
 }
-div.map-entry-title-11, div.map-entry-desc-1, td.map-s-desc, td.map-u-desc {
+div.map-entry-title-11, div.map-entry-desc, td.map-s-desc, td.map-u-desc {
   color: #000000;
   font-family: sans;
 }

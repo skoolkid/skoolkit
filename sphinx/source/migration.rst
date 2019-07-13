@@ -80,6 +80,8 @@ SkoolKit 7, and their replacements (if any) in SkoolKit 8.
 ====================  ==========
 SkoolKit 7            SkoolKit 8
 ====================  ==========
+div.map-entry-desc-0
+div.map-entry-desc-1  div.map-entry-desc
 span.next-0
 span.prev-0
 table.input-0

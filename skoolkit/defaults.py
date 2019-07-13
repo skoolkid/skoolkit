@@ -542,13 +542,15 @@ SECTIONS['Template:MemoryMap'] = """
 <# endif #>
 <td class="map-{$entry[type]}-desc">
 <div class="map-entry-title-1{MemoryMap[EntryDescriptions]}"><a class="map-entry-title" href="{$entry[href]}">{$entry[title]}</a></div>
-<div class="map-entry-desc-{MemoryMap[EntryDescriptions]}">
+<# if({MemoryMap[EntryDescriptions]}) #>
+<div class="map-entry-desc">
 <# foreach($paragraph,$entry[description]) #>
 <div class="paragraph">
 {$paragraph}
 </div>
 <# endfor #>
 </div>
+<# endif #>
 </td>
 </tr>
 <# endfor #>
