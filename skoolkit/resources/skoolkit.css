@@ -149,11 +149,11 @@ td.instruction {
   color: #008000;
   white-space: pre;
 }
-td.comment-11 {
+td.comment-1 {
   background-color: #ccddee;
   vertical-align: top;
 }
-td.comment-10, td.comment-11 {
+td.comment-0, td.comment-1 {
   width: 100%;
 }
 td.routine-comment {
@@ -167,9 +167,6 @@ table.map td {
 }
 div.map-intro {
   margin-bottom: 10px;
-}
-td.comment-01 {
-  display: none;
 }
 td.map-page, td.map-byte, td.map-length, td.map-b, td.map-c, td.map-g, td.map-s, td.map-t, td.map-u, td.map-w {
   text-align: center;

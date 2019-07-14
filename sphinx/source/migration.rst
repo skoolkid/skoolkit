@@ -92,6 +92,9 @@ td.asm-label-0
 td.asm-label-1        td.asm-label
 td.bytes-0
 td.bytes-1            td.bytes
+td.comment-01
+td.comment-10         td.comment-0
+td.comment-11         td.comment-1
 td.map-byte-0
 td.map-byte-1         td.map-byte
 td.map-length-0

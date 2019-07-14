@@ -345,7 +345,9 @@ Next: <a href="{next_entry[href]}">{next_entry[address]}</a>
 <td class="bytes">{$instruction[bytes]:{Game[Bytes]}}</td>
 <# endif #>
 <td class="instruction">{$instruction[operation]}</td>
-<td class="comment-{$instruction[annotated]}{entry[annotated]}" rowspan="{$instruction[comment_rowspan]}">{$instruction[comment]}</td>
+<# if({$instruction[annotated]}) #>
+<td class="comment-{entry[annotated]}" rowspan="{$instruction[comment_rowspan]}">{$instruction[comment]}</td>
+<# endif #>
 </tr>
 <# endfor #>
 <# if({entry[has_end_comment]}) #>
@@ -460,7 +462,9 @@ SECTIONS['Template:AsmAllInOne'] = """
 <td class="bytes">{$instruction[bytes]:{Game[Bytes]}}</td>
 <# endif #>
 <td class="instruction">{$instruction[operation]}</td>
-<td class="comment-{$instruction[annotated]}{$entry[annotated]}" rowspan="{$instruction[comment_rowspan]}">{$instruction[comment]}</td>
+<# if({$instruction[annotated]}) #>
+<td class="comment-{$entry[annotated]}" rowspan="{$instruction[comment_rowspan]}">{$instruction[comment]}</td>
+<# endif #>
 </tr>
 <# endfor #>
 <# if({$entry[has_end_comment]}) #>
