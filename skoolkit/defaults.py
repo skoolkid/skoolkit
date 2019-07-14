@@ -341,7 +341,9 @@ Next: <a href="{next_entry[href]}">{next_entry[address]}</a>
 <td class="asm-label">{$instruction[label]}</td>
 <# endif #>
 <td class="address-{$instruction[called]}"><span id="{$instruction[anchor]}"></span>{$instruction[address]}</td>
-<td class="bytes-{entry[show_bytes]}">{$instruction[bytes]:{Game[Bytes]}}</td>
+<# if({entry[show_bytes]}) #>
+<td class="bytes">{$instruction[bytes]:{Game[Bytes]}}</td>
+<# endif #>
 <td class="instruction">{$instruction[operation]}</td>
 <td class="comment-{$instruction[annotated]}{entry[annotated]}" rowspan="{$instruction[comment_rowspan]}">{$instruction[comment]}</td>
 </tr>
@@ -454,7 +456,9 @@ SECTIONS['Template:AsmAllInOne'] = """
 <td class="asm-label">{$instruction[label]}</td>
 <# endif #>
 <td class="address-{$instruction[called]}"><span id="{$instruction[anchor]}"></span>{$instruction[address]}</td>
-<td class="bytes-{$entry[show_bytes]}">{$instruction[bytes]:{Game[Bytes]}}</td>
+<# if({$entry[show_bytes]}) #>
+<td class="bytes">{$instruction[bytes]:{Game[Bytes]}}</td>
+<# endif #>
 <td class="instruction">{$instruction[operation]}</td>
 <td class="comment-{$instruction[annotated]}{$entry[annotated]}" rowspan="{$instruction[comment_rowspan]}">{$instruction[comment]}</td>
 </tr>

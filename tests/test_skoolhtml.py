@@ -3227,7 +3227,6 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             </tr>
             <tr>
             <td class="address-2"><span id="32768"></span>32768</td>
-            <td class="bytes-0"></td>
             <td class="instruction">RET</td>
             <td class="comment-10" rowspan="1"></td>
             </tr>
@@ -3241,6 +3240,21 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             'content': content
         }
         self._assert_files_equal(join(ASMDIR, '32768.html'), subs)
+
+    def test_parameter_Bytes_blank_with_assembled_code_produces_blank_output(self):
+        skool = """
+            @assemble=2
+            c32768 RET
+        """
+        ref = """
+            [Template:Asm]
+            <# foreach($i,entry[instructions]) #>
+            {$i[address]} [{$i[bytes]:{Game[Bytes]}}] {$i[operation]}
+            <# endfor #>
+        """
+        writer = self._get_writer(ref=ref, skool=skool)
+        writer.write_asm_entries()
+        self._assert_content_equal('32768 [] RET', 'asm/32768.html')
 
     def test_parameter_Bytes_with_assembled_code_and_data(self):
         ref = """
@@ -3273,49 +3287,49 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             </tr>
             <tr>
             <td class="address-2"><span id="32768"></span>32768</td>
-            <td class="bytes-1">ED4B0000</td>
+            <td class="bytes">ED4B0000</td>
             <td class="instruction">LD BC,(0)</td>
             <td class="comment-10" rowspan="1"></td>
             </tr>
             <tr>
             <td class="address-1"><span id="32772"></span>32772</td>
-            <td class="bytes-1">010000</td>
+            <td class="bytes">010000</td>
             <td class="instruction">LD BC,0</td>
             <td class="comment-10" rowspan="1"></td>
             </tr>
             <tr>
             <td class="address-1"><span id="32775"></span>32775</td>
-            <td class="bytes-1">0600</td>
+            <td class="bytes">0600</td>
             <td class="instruction">LD B,0</td>
             <td class="comment-10" rowspan="1"></td>
             </tr>
             <tr>
             <td class="address-1"><span id="32777"></span>32777</td>
-            <td class="bytes-1"></td>
+            <td class="bytes"></td>
             <td class="instruction">DEFB 0</td>
             <td class="comment-10" rowspan="1"></td>
             </tr>
             <tr>
             <td class="address-1"><span id="32778"></span>32778</td>
-            <td class="bytes-1"></td>
+            <td class="bytes"></td>
             <td class="instruction">DEFM "0"</td>
             <td class="comment-10" rowspan="1"></td>
             </tr>
             <tr>
             <td class="address-1"><span id="32779"></span>32779</td>
-            <td class="bytes-1"></td>
+            <td class="bytes"></td>
             <td class="instruction">DEFS 1</td>
             <td class="comment-10" rowspan="1"></td>
             </tr>
             <tr>
             <td class="address-1"><span id="32780"></span>32780</td>
-            <td class="bytes-1"></td>
+            <td class="bytes"></td>
             <td class="instruction">DEFW 0</td>
             <td class="comment-10" rowspan="1"></td>
             </tr>
             <tr>
             <td class="address-1"><span id="32782"></span>32782</td>
-            <td class="bytes-1">C9</td>
+            <td class="bytes">C9</td>
             <td class="instruction">RET</td>
             <td class="comment-10" rowspan="1"></td>
             </tr>
@@ -3357,25 +3371,21 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             </tr>
             <tr>
             <td class="address-1"><span id="32768"></span>32768</td>
-            <td class="bytes-0"></td>
             <td class="instruction">DEFB 0</td>
             <td class="comment-10" rowspan="1"></td>
             </tr>
             <tr>
             <td class="address-1"><span id="32769"></span>32769</td>
-            <td class="bytes-0"></td>
             <td class="instruction">DEFM "0"</td>
             <td class="comment-10" rowspan="1"></td>
             </tr>
             <tr>
             <td class="address-1"><span id="32770"></span>32770</td>
-            <td class="bytes-0"></td>
             <td class="instruction">DEFS 1</td>
             <td class="comment-10" rowspan="1"></td>
             </tr>
             <tr>
             <td class="address-1"><span id="32771"></span>32771</td>
-            <td class="bytes-0"></td>
             <td class="instruction">DEFW 0</td>
             <td class="comment-10" rowspan="1"></td>
             </tr>
@@ -3414,7 +3424,6 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             </tr>
             <tr>
             <td class="address-2"><span id="32768"></span>32768</td>
-            <td class="bytes-0"></td>
             <td class="instruction">RET</td>
             <td class="comment-10" rowspan="1"></td>
             </tr>
@@ -3485,7 +3494,6 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             </tr>
             <tr>
             <td class="address-2"><span id="50000"></span>50000</td>
-            <td class="bytes-0"></td>
             <td class="instruction">RET</td>
             <td class="comment-10" rowspan="1"></td>
             </tr>
@@ -3513,7 +3521,7 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         self.assertFalse(writer.link_internal_operands)
         writer.write_asm_entries()
         html = self._read_file(join(ASMDIR, '30000.html'), True)
-        line_no = 34
+        line_no = 33
         for inst, address in (
             ('CALL', 30003),
             ('JP', 30006),
@@ -3522,7 +3530,7 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         ):
             operation = '{} {}'.format(inst, address)
             self.assertEqual(html[line_no], '<td class="instruction">{}</td>'.format(operation))
-            line_no += 6
+            line_no += 5
 
     def test_parameter_LinkInternalOperands_1(self):
         ref = '[Game]\nLinkInternalOperands=1'
@@ -3537,7 +3545,7 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         self.assertTrue(writer.link_internal_operands)
         writer.write_asm_entries()
         html = self._read_file(join(ASMDIR, '40000.html'), True)
-        line_no = 34
+        line_no = 33
         for inst, address in (
             ('CALL', 40003),
             ('JP', 40006),
@@ -3546,7 +3554,7 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         ):
             operation = '{0} <a href="40000.html#{1}">{1}</a>'.format(inst, address)
             self.assertEqual(html[line_no], '<td class="instruction">{}</td>'.format(operation))
-            line_no += 6
+            line_no += 5
 
     def test_parameter_LinkOperands(self):
         ref = '[Game]\nLinkOperands={}'
@@ -3569,12 +3577,12 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             writer.write_asm_entries()
             html = self._read_file(join(ASMDIR, '32769.html'), True)
             link = '<a href="32768.html">32768</a>'
-            line_no = 35
+            line_no = 34
             for prefix in ('CALL ', 'DEFW ', 'DJNZ ', 'JP ', 'JR ', 'LD HL,'):
                 inst_type = prefix.split()[0]
                 exp_html = prefix + (link if inst_type in link_operands else '32768')
                 self.assertEqual(html[line_no], '<td class="instruction">{}</td>'.format(exp_html))
-                line_no += 6
+                line_no += 5
 
     def test_parameter_DefaultAnimationFormat(self):
         ref = '[ImageWriter]\nDefaultAnimationFormat=png'
@@ -3671,7 +3679,6 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             </tr>
             <tr>
             <td class="address-2"><span id="50000"></span>50000</td>
-            <td class="bytes-0"></td>
             <td class="instruction">RET</td>
             <td class="comment-10" rowspan="1"></td>
             </tr>
@@ -4056,7 +4063,6 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             </tr>
             <tr>
             <td class="address-2"><span id="24576"></span>24576</td>
-            <td class="bytes-0"></td>
             <td class="instruction">LD A,B</td>
             <td class="comment-11" rowspan="1">Comment for instruction at 24576</td>
             </tr>
@@ -4072,7 +4078,6 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             </tr>
             <tr>
             <td class="address-2"><span id="24577"></span>24577</td>
-            <td class="bytes-0"></td>
             <td class="instruction">RET</td>
             <td class="comment-11" rowspan="1"></td>
             </tr>
@@ -4109,7 +4114,6 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             </tr>
             <tr>
             <td class="address-1"><span id="24578"></span>24578</td>
-            <td class="bytes-0"></td>
             <td class="instruction">DEFB 0</td>
             <td class="comment-10" rowspan="1"></td>
             </tr>
@@ -4138,7 +4142,6 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             </tr>
             <tr>
             <td class="address-2"><span id="24579"></span>24579</td>
-            <td class="bytes-0"></td>
             <td class="instruction">JR <a href="24576.html#24577">24577</a></td>
             <td class="comment-10" rowspan="1"></td>
             </tr>
@@ -4167,7 +4170,6 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             </tr>
             <tr>
             <td class="address-1"><span id="24581"></span>24581</td>
-            <td class="bytes-0"></td>
             <td class="instruction">DEFW 123</td>
             <td class="comment-10" rowspan="1"></td>
             </tr>
@@ -4196,7 +4198,6 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             </tr>
             <tr>
             <td class="address-1"><span id="24583"></span>24583</td>
-            <td class="bytes-0"></td>
             <td class="instruction">DEFB 0</td>
             <td class="comment-10" rowspan="1"></td>
             </tr>
@@ -4234,13 +4235,11 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             </tr>
             <tr>
             <td class="address-2"><span id="24584"></span>24584</td>
-            <td class="bytes-0"></td>
             <td class="instruction">CALL <a href="../start/30000.html">30000</a></td>
             <td class="comment-11" rowspan="2">Comment for the instructions at 24584 and 24587</td>
             </tr>
             <tr>
             <td class="address-1"><span id="24587"></span>24587</td>
-            <td class="bytes-0"></td>
             <td class="instruction">JP <a href="../start/30000.html#30003">30003</a></td>
             <td class="comment-01" rowspan="1"></td>
             </tr>
@@ -4279,7 +4278,6 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             </tr>
             <tr>
             <td class="address-2"><span id="32775"></span>8007</td>
-            <td class="bytes-0"></td>
             <td class="instruction">jp <a href="32778.html">$800a</a></td>
             <td class="comment-10" rowspan="1"></td>
             </tr>
@@ -4308,7 +4306,6 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             </tr>
             <tr>
             <td class="address-2"><span id="32778"></span>800a</td>
-            <td class="bytes-0"></td>
             <td class="instruction">jp <a href="32775.html">$8007</a></td>
             <td class="comment-10" rowspan="1"></td>
             </tr>
@@ -4348,7 +4345,6 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             </tr>
             <tr>
             <td class="address-2"><span id="{address}"></span>{address:05d}</td>
-            <td class="bytes-0"></td>
             <td class="instruction">RET</td>
             <td class="comment-10" rowspan="1"></td>
             </tr>
@@ -4552,7 +4548,6 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             </tr>
             <tr>
             <td class="address-2"><span id="C350"></span>50000</td>
-            <td class="bytes-0"></td>
             <td class="instruction">LD A,B</td>
             <td class="comment-10" rowspan="1"></td>
             </tr>
@@ -4568,7 +4563,6 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             </tr>
             <tr>
             <td class="address-1"><span id="C351"></span>50001</td>
-            <td class="bytes-0"></td>
             <td class="instruction">JR <a href="50000.html#C350">50000</a></td>
             <td class="comment-10" rowspan="1"></td>
             </tr>
@@ -4609,7 +4603,6 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             </tr>
             <tr>
             <td class="address-2"><span id="7530"></span>30000</td>
-            <td class="bytes-0"></td>
             <td class="instruction">LD A,B</td>
             <td class="comment-10" rowspan="1"></td>
             </tr>
@@ -4625,7 +4618,6 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             </tr>
             <tr>
             <td class="address-1"><span id="7531"></span>30001</td>
-            <td class="bytes-0"></td>
             <td class="instruction">JR <a href="30000.html#7530">30000</a></td>
             <td class="comment-10" rowspan="1"></td>
             </tr>
@@ -4668,19 +4660,16 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             </tr>
             <tr>
             <td class="address-2"><span id="32768"></span>32768</td>
-            <td class="bytes-0"></td>
             <td class="instruction">CALL <a href="#32775">32775</a></td>
             <td class="comment-10" rowspan="1"></td>
             </tr>
             <tr>
             <td class="address-1"><span id="32771"></span>32771</td>
-            <td class="bytes-0"></td>
             <td class="instruction">JR Z,<a href="#32776">32776</a></td>
             <td class="comment-10" rowspan="1"></td>
             </tr>
             <tr>
             <td class="address-1"><span id="32773"></span>32773</td>
-            <td class="bytes-0"></td>
             <td class="instruction">JR 32768</td>
             <td class="comment-10" rowspan="1"></td>
             </tr>
@@ -4698,13 +4687,11 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             </tr>
             <tr>
             <td class="address-2"><span id="32775"></span>32775</td>
-            <td class="bytes-0"></td>
             <td class="instruction">LD A,B</td>
             <td class="comment-10" rowspan="1"></td>
             </tr>
             <tr>
             <td class="address-2"><span id="32776"></span>32776</td>
-            <td class="bytes-0"></td>
             <td class="instruction">RET</td>
             <td class="comment-10" rowspan="1"></td>
             </tr>
@@ -4745,7 +4732,6 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             </tr>
             <tr>
             <td class="address-2"><span id="40000"></span>40000</td>
-            <td class="bytes-0"></td>
             <td class="instruction">RET</td>
             <td class="comment-10" rowspan="1"></td>
             </tr>
@@ -4850,7 +4836,6 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             </tr>
             <tr>
             <td class="address-2"><span id="50000"></span>50000</td>
-            <td class="bytes-0"></td>
             <td class="instruction">XOR A</td>
             <td class="comment-10" rowspan="1"></td>
             </tr>
@@ -4866,7 +4851,6 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             </tr>
             <tr>
             <td class="address-1"><span id="50001"></span>50001</td>
-            <td class="bytes-0"></td>
             <td class="instruction">RET</td>
             <td class="comment-10" rowspan="1"></td>
             </tr>
@@ -4931,7 +4915,6 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             </tr>
             <tr>
             <td class="address-2"><span id="40000"></span>40000</td>
-            <td class="bytes-0"></td>
             <td class="instruction">RET</td>
             <td class="comment-10" rowspan="1"></td>
             </tr>
@@ -4977,21 +4960,18 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             <tr>
             <td class="asm-label">START</td>
             <td class="address-2"><span id="50000"></span>50000</td>
-            <td class="bytes-0"></td>
             <td class="instruction">LD B,5</td>
             <td class="comment-11" rowspan="1">Loop 5 times</td>
             </tr>
             <tr>
             <td class="asm-label">START_0</td>
             <td class="address-2"><span id="50002"></span>50002</td>
-            <td class="bytes-0"></td>
             <td class="instruction">DJNZ <a href="50000.html#50002">START_0</a></td>
             <td class="comment-11" rowspan="1"></td>
             </tr>
             <tr>
             <td class="asm-label"></td>
             <td class="address-1"><span id="50004"></span>50004</td>
-            <td class="bytes-0"></td>
             <td class="instruction">RET</td>
             <td class="comment-11" rowspan="1"></td>
             </tr>
@@ -5019,7 +4999,6 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             </tr>
             <tr>
             <td class="address-2"><span id="50005"></span>50005</td>
-            <td class="bytes-0"></td>
             <td class="instruction">JP <a href="50000.html">START</a></td>
             <td class="comment-10" rowspan="1"></td>
             </tr>
@@ -5048,7 +5027,6 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             </tr>
             <tr>
             <td class="address-1"><span id="50008"></span>50008</td>
-            <td class="bytes-0"></td>
             <td class="instruction">DEFW 50000</td>
             <td class="comment-10" rowspan="1"></td>
             </tr>
@@ -5093,13 +5071,11 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             </tr>
             <tr>
             <td class="address-2"><span id="0"></span>00000</td>
-            <td class="bytes-0"></td>
             <td class="instruction">RST <a href="8.html">8</a></td>
             <td class="comment-11" rowspan="1">This operand should not be replaced by a label</td>
             </tr>
             <tr>
             <td class="address-1"><span id="1"></span>00001</td>
-            <td class="bytes-0"></td>
             <td class="instruction">DEFS 7</td>
             <td class="comment-11" rowspan="1"></td>
             </tr>
@@ -5136,13 +5112,11 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             </tr>
             <tr>
             <td class="address-2"><span id="50000"></span>50000</td>
-            <td class="bytes-0"></td>
             <td class="instruction">XOR A</td>
             <td class="comment-10" rowspan="1"></td>
             </tr>
             <tr>
             <td class="address-2"><span id="50001"></span>50001</td>
-            <td class="bytes-0"></td>
             <td class="instruction">JR 50001</td>
             <td class="comment-10" rowspan="1"></td>
             </tr>
@@ -5180,14 +5154,12 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             <tr>
             <td class="asm-label">START</td>
             <td class="address-2"><span id="50000"></span>50000</td>
-            <td class="bytes-0"></td>
             <td class="instruction">XOR A</td>
             <td class="comment-10" rowspan="1"></td>
             </tr>
             <tr>
             <td class="asm-label"></td>
             <td class="address-1"><span id="50001"></span>50001</td>
-            <td class="bytes-0"></td>
             <td class="instruction">JR 50001</td>
             <td class="comment-10" rowspan="1"></td>
             </tr>
@@ -6044,7 +6016,6 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             </tr>
             <tr>
             <td class="address-1"><span id="30000"></span>30000</td>
-            <td class="bytes-0"></td>
             <td class="instruction">DEFB 0</td>
             <td class="comment-10" rowspan="1"></td>
             </tr>
@@ -6072,7 +6043,6 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             </tr>
             <tr>
             <td class="address-2"><span id="30001"></span>30001</td>
-            <td class="bytes-0"></td>
             <td class="instruction">RET</td>
             <td class="comment-10" rowspan="1"></td>
             </tr>
@@ -6101,7 +6071,6 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             </tr>
             <tr>
             <td class="address-1"><span id="30002"></span>30002</td>
-            <td class="bytes-0"></td>
             <td class="instruction">DEFM "a"</td>
             <td class="comment-10" rowspan="1"></td>
             </tr>
@@ -6245,7 +6214,6 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             </tr>
             <tr>
             <td class="address-2"><span id="40000"></span>40000</td>
-            <td class="bytes-0"></td>
             <td class="instruction">JR <a href="#40002">40002</a></td>
             <td class="comment-10" rowspan="1"></td>
             </tr>
@@ -6260,7 +6228,6 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             </tr>
             <tr>
             <td class="address-2"><span id="40002"></span>40002</td>
-            <td class="bytes-0"></td>
             <td class="instruction">JR <a href="#40000">40000</a></td>
             <td class="comment-10" rowspan="1"></td>
             </tr>
@@ -6315,7 +6282,6 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             </tr>
             <tr>
             <td class="address-2"><span id="40000"></span>40000</td>
-            <td class="bytes-0"></td>
             <td class="instruction">RET</td>
             <td class="comment-10" rowspan="1"></td>
             </tr>
@@ -7365,7 +7331,6 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             </tr>
             <tr>
             <td class="address-2"><span id="24576"></span>24576</td>
-            <td class="bytes-0"></td>
             <td class="instruction">RET</td>
             <td class="comment-11" rowspan="1">Done</td>
             </tr>

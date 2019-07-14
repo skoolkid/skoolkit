@@ -146,9 +146,9 @@ the byte format specification::
   {$instruction[bytes]:{Game[Bytes]}}
 
 If you define a custom template that replaces ``{Game[Bytes]}`` with a
-hard-coded byte format specification, it's a good idea to also replace the
-``{entry[show_bytes]}`` field with ``1``, to ensure that the byte values are
-displayed.
+hard-coded byte format specification, it's a good idea to also remove the
+``if({entry[show_bytes]})`` directive (and the corresponding ``endif``), to
+ensure that the byte values are displayed.
 
 Note that byte values are available only for regular assembly language
 instructions (not DEFB, DEFM, DEFS or DEFW statements), and only if they have

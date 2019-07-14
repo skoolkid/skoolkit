@@ -90,6 +90,8 @@ table.output-0
 table.output-1        table.output
 td.asm-label-0
 td.asm-label-1        td.asm-label
+td.bytes-0
+td.bytes-1            td.bytes
 td.map-byte-0
 td.map-byte-1         td.map-byte
 td.map-length-0

@@ -35,7 +35,7 @@ span.register, td.register {
 td.asm-label, td.address-1, td.address-2 {
   color: #00ffff;
 }
-td.bytes-1 {
+td.bytes {
   color: #beffbe;
 }
 td.instruction {
