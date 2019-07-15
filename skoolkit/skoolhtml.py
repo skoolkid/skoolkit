@@ -936,8 +936,8 @@ class HtmlWriter:
         if page.get('entries'):
             html = self._format_box_page(cwd)
         else:
-            subs = {'content': self.expand(page.get('PageContent', ''), cwd)}
-            html = self._format_page(cwd, subs, 'Page', page.get('JavaScript'))
+            page['PageContent'] = self.expand(page.get('PageContent', ''), cwd)
+            html = self._format_page(cwd, {'Page': page}, 'Page', page.get('JavaScript'))
         self.write_file(fname, html)
 
     def write_file(self, fname, contents):

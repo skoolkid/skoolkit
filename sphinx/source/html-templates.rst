@@ -246,8 +246,8 @@ non-box pages defined by :ref:`page` sections.
 The following identifier is available (in addition to the universal and
 page-level identifiers):
 
-* ``content`` - replaced by the value of the ``PageContent`` parameter in the
-  corresponding :ref:`page` section
+* ``Page`` - a dictionary of the parameters in the corresponding :ref:`page`
+  section
 
 To see the default ``Page`` template, run the following command::
 

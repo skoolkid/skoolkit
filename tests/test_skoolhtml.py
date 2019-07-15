@@ -7670,7 +7670,7 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
             [Page:{0}]
             PageContent={1}
             [Template:{0}]
-            <foo>{{content}}</foo>
+            <foo>{{Page[PageContent]}}</foo>
         """.format(page_id, content)
 
         writer = self._get_writer(ref=ref, skool='')
@@ -7686,7 +7686,7 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
             [Page:{0}]
             PageContent={1}
             [Template:{0}]
-            <bar>{{content}}</bar>
+            <bar>{{Page[PageContent]}}</bar>
             <# include(footer) #>
             [Template:footer]
             {2}

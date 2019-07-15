@@ -586,7 +586,7 @@ SECTIONS['Template:Page'] = """
 <td class="page-header">{SkoolKit[page_header]}</td>
 </tr>
 </table>
-{content}
+{Page[PageContent]}
 <# include(footer) #>
 </body>
 </html>
