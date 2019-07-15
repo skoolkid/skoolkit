@@ -601,6 +601,9 @@ Every parameter in this section may contain :ref:`skool macros <skoolMacros>`.
 The default header text for a page is the same as the title defined in the
 :ref:`titles` section, except where indicated above.
 
+The ``Asm-*`` parameters are formatted with an ``entry`` dictionary identical
+to the one that is available in the :ref:`t_Asm` template.
+
 The header text for a page defined by a :ref:`memoryMap`, :ref:`otherCode` or
 :ref:`page` section also defaults to the title, but can be overridden in this
 section.
@@ -609,16 +612,19 @@ Note that the header of the disassembly index page (``GameIndex``) is not
 defined in this section; it is composed from the values of the ``TitlePrefix``
 and ``TitleSuffix`` parameters in the :ref:`ref-Game` section.
 
-+---------+------------------------------------------------------------+
-| Version | Changes                                                    |
-+=========+============================================================+
-| 6.0     | The default header for ``Asm-t`` pages is 'Messages'; page |
-|         | headers may contain :ref:`skool macros <skoolMacros>`      |
-+---------+------------------------------------------------------------+
-| 5.3     | Added the ``AsmSinglePage`` page ID                        |
-+---------+------------------------------------------------------------+
-| 4.0     | New                                                        |
-+---------+------------------------------------------------------------+
++---------+-------------------------------------------------------------------+
+| Version | Changes                                                           |
++=========+===================================================================+
+| 8.0     | An ``entry`` dictionary is available when formatting ``Asm-*``    |
+|         | parameters                                                        |
++---------+-------------------------------------------------------------------+
+| 6.0     | The default header for ``Asm-t`` pages is 'Messages'; page        |
+|         | headers may contain :ref:`skool macros <skoolMacros>`             |
++---------+-------------------------------------------------------------------+
+| 5.3     | Added the ``AsmSinglePage`` page ID                               |
++---------+-------------------------------------------------------------------+
+| 4.0     | New                                                               |
++---------+-------------------------------------------------------------------+
 
 .. _paths:
 
@@ -806,14 +812,20 @@ where:
 
 Recognised page IDs and their default titles are:
 
-* ``Asm-b`` - disassembly pages for 'b' blocks (default: 'Data at')
-* ``Asm-c`` - disassembly pages for 'c' blocks (default: 'Routine at')
+* ``Asm-b`` - disassembly pages for 'b' blocks (default: 'Data at
+  {entry[address]}')
+* ``Asm-c`` - disassembly pages for 'c' blocks (default: 'Routine at
+  {entry[address]}')
 * ``Asm-g`` - disassembly pages for 'g' blocks (default: 'Game status buffer
-  entry at')
-* ``Asm-s`` - disassembly pages for 's' blocks (default: 'Unused RAM at')
-* ``Asm-t`` - disassembly pages for 't' blocks (default: 'Text at')
-* ``Asm-u`` - disassembly pages for 'u' blocks (default: 'Unused RAM at')
-* ``Asm-w`` - disassembly pages for 'w' blocks (default: 'Data at')
+  entry at {entry[address]}')
+* ``Asm-s`` - disassembly pages for 's' blocks (default: 'Unused RAM at
+  {entry[address]}')
+* ``Asm-t`` - disassembly pages for 't' blocks (default: 'Text at
+  {entry[address]}')
+* ``Asm-u`` - disassembly pages for 'u' blocks (default: 'Unused RAM at
+  {entry[address]}')
+* ``Asm-w`` - disassembly pages for 'w' blocks (default: 'Data at
+  {entry[address]}')
 * ``AsmSinglePage`` - the disassembly page (when a single-page template is
   specified by the ``AsmSinglePageTemplate`` parameter in the :ref:`ref-Game`
   section; default: 'Disassembly')
@@ -836,26 +848,33 @@ Recognised page IDs and their default titles are:
 
 Every parameter in this section may contain :ref:`skool macros <skoolMacros>`.
 
+The ``Asm-*`` parameters are formatted with an ``entry`` dictionary identical
+to the one that is available in the :ref:`t_Asm` template.
+
 The title of a page defined by a :ref:`memoryMap`, :ref:`otherCode` or
 :ref:`page` section defaults to the page ID, but can be overridden in this
 section.
 
-+---------+----------------------------------------------------------------+
-| Version | Changes                                                        |
-+=========+================================================================+
-| 6.0     | The default title for ``Asm-t`` pages is 'Text at'; titles may |
-|         | contain :ref:`skool macros <skoolMacros>`                      |
-+---------+----------------------------------------------------------------+
-| 5.3     | Added the ``AsmSinglePage`` page ID                            |
-+---------+----------------------------------------------------------------+
-| 4.0     | Added the ``Asm-*`` page IDs                                   |
-+---------+----------------------------------------------------------------+
-| 2.5     | Added the ``UnusedMap`` page ID                                |
-+---------+----------------------------------------------------------------+
-| 2.2.5   | Added the ``Changelog`` page ID                                |
-+---------+----------------------------------------------------------------+
-| 2.0.5   | New                                                            |
-+---------+----------------------------------------------------------------+
++---------+-------------------------------------------------------------------+
+| Version | Changes                                                           |
++=========+===================================================================+
+| 8.0     | An ``entry`` dictionary is available when formatting ``Asm-*``    |
+|         | parameters; the default title for each ``Asm-*`` page includes    |
+|         | the entry address as a replacement field                          |
++---------+-------------------------------------------------------------------+
+| 6.0     | The default title for ``Asm-t`` pages is 'Text at'; titles may    |
+|         | contain :ref:`skool macros <skoolMacros>`                         |
++---------+-------------------------------------------------------------------+
+| 5.3     | Added the ``AsmSinglePage`` page ID                               |
++---------+-------------------------------------------------------------------+
+| 4.0     | Added the ``Asm-*`` page IDs                                      |
++---------+-------------------------------------------------------------------+
+| 2.5     | Added the ``UnusedMap`` page ID                                   |
++---------+-------------------------------------------------------------------+
+| 2.2.5   | Added the ``Changelog`` page ID                                   |
++---------+-------------------------------------------------------------------+
+| 2.0.5   | New                                                               |
++---------+-------------------------------------------------------------------+
 
 .. _boxpages:
 

@@ -863,6 +863,9 @@ class HtmlWriter:
         self._set_cwd(page_id, fname)
 
         subs = {'entry': self._get_asm_entry(cwd, index, map_file)}
+        self.skoolkit['title'] = self.skoolkit['title'].format(**subs)
+        self.skoolkit['page_header'] = self.skoolkit['page_header'].format(**subs)
+        self.init_page(self.skoolkit, self.game)
 
         if index:
             prev_entry_dict = self._get_asm_entry_dict(cwd, index - 1, map_file)
@@ -944,9 +947,11 @@ class HtmlWriter:
         with self.file_info.open_file(fname) as f:
             f.write(contents)
 
-    def _set_cwd(self, page_id, fname=None):
-        if fname is None:
+    def _set_cwd(self, page_id, asm_fname=None):
+        if asm_fname is None:
             fname = self.paths[page_id]
+        else:
+            fname = asm_fname
         cwd = os.path.dirname(fname)
         self.skoolkit['page_id'] = page_id
         self.skoolkit['path'] = fname
@@ -954,7 +959,8 @@ class HtmlWriter:
         self.skoolkit['title'] = self.expand(self.titles[page_id], cwd)
         self.skoolkit['page_header'] = self.expand(self.page_headers[page_id], cwd)
         self.game['Logo'] = self.game['LogoImage'] = self._get_logo(cwd)
-        self.init_page(self.skoolkit, self.game)
+        if asm_fname is None:
+            self.init_page(self.skoolkit, self.game)
         return fname, cwd
 
     # API

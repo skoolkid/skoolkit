@@ -257,7 +257,7 @@ SECTIONS['Template:Asm'] = """
 <!DOCTYPE html>
 <html>
 <head>
-<title>{Game[Game]}: {SkoolKit[title]} {entry[address]}</title>
+<title>{Game[Game]}: {SkoolKit[title]}</title>
 <# include(head) #>
 </head>
 <body class="{SkoolKit[page_id]}">
@@ -715,13 +715,13 @@ SECTIONS['Template:table'] = """
 """
 
 SECTIONS['Titles'] = """
-Asm-b=Data at
-Asm-c=Routine at
-Asm-g=Game status buffer entry at
-Asm-s=Unused RAM at
-Asm-t=Text at
-Asm-u=Unused RAM at
-Asm-w=Data at
+Asm-b=Data at {entry[address]}
+Asm-c=Routine at {entry[address]}
+Asm-g=Game status buffer entry at {entry[address]}
+Asm-s=Unused RAM at {entry[address]}
+Asm-t=Text at {entry[address]}
+Asm-u=Unused RAM at {entry[address]}
+Asm-w=Data at {entry[address]}
 AsmSinglePage=Disassembly
 ; Bugs=
 ; Changelog=

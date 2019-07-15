@@ -357,6 +357,7 @@ class MethodTest(HtmlWriterTestCase):
         HtmlWriterTestCase.setUp(self)
         patch.object(skoolhtml, 'REF_FILE', METHOD_MINIMAL_REF_FILE).start()
         self.addCleanup(patch.stopall)
+        self.files = {}
 
     def _assert_scr_equal(self, game, x0=0, y0=0, w=32, h=24):
         snapshot = game.snapshot[:]
@@ -591,6 +592,33 @@ class MethodTest(HtmlWriterTestCase):
         udgs = [[Udg(0, (0,) * 8)]]
         writer.handle_image([Frame(udgs)] * 2, 'img')
         self.assertEqual(file_info.fname, '{}/img.png'.format(udg_path))
+
+    def test_init_page_for_disassembly_page(self):
+        exp_skoolkit = {
+            'index_href': '../index.html',
+            'page_header': 'Routine at 32768',
+            'page_id': 'Asm-c',
+            'path': 'asm/32768.html',
+            'title': 'Routine at 32768'
+        }
+        def mock_init_page(skoolkit, game):
+            self.assertEqual(exp_skoolkit, skoolkit)
+        ref = """
+            [Game]
+            Bytes=
+            StyleSheet=
+            [Paths]
+            GameIndex=index.html
+            MemoryMap=all.html
+            StyleSheetPath=style.css
+            [Template:Asm]
+            Nothing to see here!
+            [Titles]
+            Asm-c=Routine at {entry[address]}
+        """
+        writer = self._get_writer(skool='c32768 RET', ref=ref, mock_file_info=True)
+        writer.init_page = mock_init_page
+        writer.write_asm_entries()
 
     def test_format_template(self):
         writer = self._get_writer(ref='[Template:foo]\n{bar}')
@@ -4412,42 +4440,24 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             self._assert_files_equal(join(ASMDIR, '8888.html'), subs)
 
     def test_write_asm_entries_with_custom_titles_and_headers(self):
-        titles = {
-            'b': 'Bytes at',
-            'c': 'Code at',
-            'g': 'GSB entry at',
-            's': 'Space at',
-            't': 'Text at',
-            'u': 'Unused bytes at',
-            'w': 'Words at'
-        }
-        headers = {
-            'b': 'Bytes',
-            'c': 'Code',
-            'g': 'GSB',
-            's': 'Unused space',
-            't': 'Text',
-            'u': 'Unused bytes',
-            'w': 'Words'
-        }
         ref = """
             [Titles]
-            Asm-b={titles[b]}
-            Asm-c={titles[c]}
-            Asm-g={titles[g]}
-            Asm-s={titles[s]}
-            Asm-t={titles[t]}
-            Asm-u={titles[u]}
-            Asm-w={titles[w]}
+            Asm-b=Bytes at {entry[address]}
+            Asm-c=Code at {entry[address]}
+            Asm-g=GSB entry at {entry[label]}
+            Asm-s=Space at {entry[address]}
+            Asm-t=Text at {entry[location]:04X}
+            Asm-u=Unused bytes at {entry[address]}
+            Asm-w=Words at {entry[address]}
             [PageHeaders]
-            Asm-b={headers[b]}
-            Asm-c={headers[c]}
-            Asm-g={headers[g]}
-            Asm-s={headers[s]}
-            Asm-t={headers[t]}
-            Asm-u={headers[u]}
-            Asm-w={headers[w]}
-        """.format(titles=titles, headers=headers)
+            Asm-b=Bytes
+            Asm-c=Code at {entry[location]:04X}
+            Asm-g=GSB
+            Asm-s=Unused space
+            Asm-t=Text
+            Asm-u=Unused bytes
+            Asm-w=Words at {entry[label]}
+        """
         skool = """
             ; b
             b30000 DEFB 0
@@ -4456,6 +4466,7 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             c30001 RET
 
             ; g
+            @label=LIVES
             g30002 DEFB 0
 
             ; s
@@ -4468,17 +4479,23 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             u30005 DEFB 0
 
             ; w
+            @label=WORDS
             w30006 DEFW 0
         """
-        writer = self._get_writer(ref=ref, skool=skool)
+        writer = self._get_writer(ref=ref, skool=skool, asm_labels=True)
         writer.write_asm_entries()
 
-        address = 30000
-        for entry_type in 'bcgstuw':
+        for address, exp_title, exp_header in (
+                (30000, 'Bytes at 30000', 'Bytes'),
+                (30001, 'Code at 30001', 'Code at 7531'),
+                (30002, 'GSB entry at LIVES', 'GSB'),
+                (30003, 'Space at 30003', 'Unused space'),
+                (30004, 'Text at 7534', 'Text'),
+                (30005, 'Unused bytes at 30005', 'Unused bytes'),
+                (30006, 'Words at 30006', 'Words at WORDS')
+        ):
             path = '{}/{}.html'.format(ASMDIR, address)
-            title = '{} {}'.format(titles[entry_type], address)
-            self._assert_title_equals(path, title, headers[entry_type])
-            address += 1
+            self._assert_title_equals(path, exp_title, exp_header)
 
     def test_write_asm_entries_with_custom_filenames(self):
         ref = '[Paths]\nCodeFiles=asm-{address:04x}.html'
@@ -6087,50 +6104,30 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         self._assert_files_equal('{}/30002.html'.format(asm_path), subs)
 
     def test_write_other_code_asm_entries_with_custom_path_and_titles_and_headers(self):
-        code_id = 'secondary'
-        code_path = 'other-code'
-        titles = {
-            'b': 'Bytes at',
-            'c': 'Code at',
-            'g': 'GSB entry at',
-            's': 'Space at',
-            't': 'Text at',
-            'u': 'Unused bytes at',
-            'w': 'Words at'
-        }
-        headers = {
-            'b': 'Bytes',
-            'c': 'Code',
-            'g': 'GSB',
-            's': 'Unused space',
-            't': 'Text',
-            'u': 'Unused bytes',
-            'w': 'Words'
-        }
         ref = """
-            [OtherCode:{code_id}]
+            [OtherCode:secondary]
 
             [Paths]
-            {code_id}-CodePath={code_path}
+            secondary-CodePath=other-code
 
             [Titles]
-            {code_id}-Asm-b={titles[b]}
-            {code_id}-Asm-c={titles[c]}
-            {code_id}-Asm-g={titles[g]}
-            {code_id}-Asm-s={titles[s]}
-            {code_id}-Asm-t={titles[t]}
-            {code_id}-Asm-u={titles[u]}
-            {code_id}-Asm-w={titles[w]}
+            secondary-Asm-b=Bytes at {entry[address]}
+            secondary-Asm-c=Code at {entry[address]}
+            secondary-Asm-g=GSB entry at {entry[label]}
+            secondary-Asm-s=Space at {entry[address]}
+            secondary-Asm-t=Text at {entry[location]:04X}
+            secondary-Asm-u=Unused bytes at {entry[address]}
+            secondary-Asm-w=Words at {entry[address]}
 
             [PageHeaders]
-            {code_id}-Asm-b={headers[b]}
-            {code_id}-Asm-c={headers[c]}
-            {code_id}-Asm-g={headers[g]}
-            {code_id}-Asm-s={headers[s]}
-            {code_id}-Asm-t={headers[t]}
-            {code_id}-Asm-u={headers[u]}
-            {code_id}-Asm-w={headers[w]}
-        """.format(code_id=code_id, code_path=code_path, titles=titles, headers=headers)
+            secondary-Asm-b=Bytes
+            secondary-Asm-c=Code at {entry[location]:04X}
+            secondary-Asm-g=GSB
+            secondary-Asm-s=Unused space
+            secondary-Asm-t=Text
+            secondary-Asm-u=Unused bytes
+            secondary-Asm-w=Words at {entry[label]}
+        """
         other_skool = """
             ; b
             b30000 DEFB 0
@@ -6139,6 +6136,7 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             c30001 RET
 
             ; g
+            @label=LIVES
             g30002 DEFB 0
 
             ; s
@@ -6151,30 +6149,36 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             u30005 DEFB 0
 
             ; w
+            @label=WORDS
             w30006 DEFW 0
         """
-        main_writer = self._get_writer(ref=ref, skool=other_skool)
+        main_writer = self._get_writer(ref=ref, skool=other_skool, asm_labels=True)
 
         code = main_writer.other_code[0][1]
         index_page_id = code['IndexPageId']
-        self.assertEqual(index_page_id, '{}-Index'.format(code_id))
+        self.assertEqual(index_page_id, 'secondary-Index')
         map_path = main_writer.paths[index_page_id]
-        self.assertEqual(map_path, '{}/{}.html'.format(code_id, code_id))
+        self.assertEqual(map_path, 'secondary/secondary.html')
         code_path_id = code['CodePathId']
-        self.assertEqual(code_path_id, '{}-CodePath'.format(code_id))
+        self.assertEqual(code_path_id, 'secondary-CodePath')
         asm_path = main_writer.paths[code_path_id]
-        self.assertEqual(asm_path, code_path)
+        self.assertEqual(asm_path, 'other-code')
 
-        writer = main_writer.clone(main_writer.parser, code_id)
+        writer = main_writer.clone(main_writer.parser, 'secondary')
         writer.write_file = self._mock_write_file
         writer.write_entries(asm_path, map_path)
 
-        address = 30000
-        for entry_type in 'bcgstuw':
+        for address, exp_title, exp_header in (
+                (30000, 'Bytes at 30000', 'Bytes'),
+                (30001, 'Code at 30001', 'Code at 7531'),
+                (30002, 'GSB entry at LIVES', 'GSB'),
+                (30003, 'Space at 30003', 'Unused space'),
+                (30004, 'Text at 7534', 'Text'),
+                (30005, 'Unused bytes at 30005', 'Unused bytes'),
+                (30006, 'Words at 30006', 'Words at WORDS')
+        ):
             path = '{}/{}.html'.format(asm_path, address)
-            title = '{} {}'.format(titles[entry_type], address)
-            self._assert_title_equals(path, title, headers[entry_type])
-            address += 1
+            self._assert_title_equals(path, exp_title, exp_header)
 
     def test_write_other_code_using_single_page_template(self):
         code_id = 'other'
