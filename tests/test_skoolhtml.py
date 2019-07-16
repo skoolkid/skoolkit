@@ -6683,21 +6683,6 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         }
         self._assert_files_equal('{}.html'.format(page_id), subs)
 
-    def test_write_page_with_no_page_section(self):
-        page_id = 'page'
-        content = '<b>This is the content of the custom page.</b>'
-        ref = '[Page:{}]\nPageContent={}'.format(page_id, content)
-        writer = self._get_writer(ref=ref, skool='')
-        writer.write_page(page_id)
-        subs = {
-            'title': page_id,
-            'header': page_id,
-            'path': '',
-            'body_class': page_id,
-            'content': content + '\n'
-        }
-        self._assert_files_equal('{}.html'.format(page_id), subs)
-
     def test_write_page_with_section_prefix(self):
         page_id = 'mypage'
         header = 'Welcome to my page'
@@ -6791,6 +6776,28 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         }
         self._assert_files_equal('{}.html'.format(page_id), subs)
 
+    def test_write_page_with_section_prefix_and_custom_parameter(self):
+        ref = """
+            [Page:MyPage]
+            SectionPrefix=Item
+            intro=Welcome to my page!
+
+            [Item:item1:Item 1]
+            An item.
+
+            [Template:Reference]
+            {Page[intro]}
+            - {entries[0][contents][0]}
+        """
+        exp_content = """
+            Welcome to my page!
+            - An item.
+        """
+
+        writer = self._get_writer(ref=ref, skool='')
+        writer.write_page('MyPage')
+        self._assert_content_equal(exp_content, 'MyPage.html')
+
     def test_write_page_with_section_prefix_as_list_items(self):
         page_id = 'MyListItemsPage'
         ref = """
@@ -6835,6 +6842,29 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             'content': exp_content
         }
         self._assert_files_equal('{}.html'.format(page_id), subs)
+
+    def test_write_page_with_section_prefix_as_list_items_and_custom_parameter(self):
+        ref = """
+            [Page:MyPage]
+            SectionPrefix=Item
+            SectionType=ListItems
+            intro=Welcome to my page!
+
+            [Item:item1:Item 1]
+            A list item.
+
+            [Template:Reference]
+            {Page[intro]}
+            - {list_entries[0][description]}
+        """
+        exp_content = """
+            Welcome to my page!
+            - A list item.
+        """
+
+        writer = self._get_writer(ref=ref, skool='')
+        writer.write_page('MyPage')
+        self._assert_content_equal(exp_content, 'MyPage.html')
 
     def test_write_page_with_header_prefix_and_suffix(self):
         page_id = 'page'

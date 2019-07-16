@@ -105,12 +105,13 @@ class HtmlWriter:
 
         self.page_ids = []
         self.pages = {}
+        self.box_pages = {}
         for page_id, details in self.get_dictionaries('Page'):
             self._expand_values(details, 'PageContent')
             page = self.pages.setdefault(page_id, {})
             section_prefix = details.get('SectionPrefix')
             if section_prefix:
-                page['entries'] = entries = []
+                self.box_pages[page_id] = entries = []
                 use_paragraphs = details.get('SectionType') not in ('ListItems', 'BulletPoints')
                 if use_paragraphs:
                     sections = self.get_sections(section_prefix, True)
@@ -681,10 +682,11 @@ class HtmlWriter:
         return self._build_paragraphs_html(cwd)
 
     def _build_paragraphs_html(self, cwd):
-        page = self.pages[self._get_page_id()]
+        page_id = self._get_page_id()
+        page = self.pages[page_id]
         entries = []
         link_list = []
-        for i, (anchor, title, paragraphs) in enumerate(page.get('entries')):
+        for i, (anchor, title, paragraphs) in enumerate(self.box_pages[page_id]):
             anchor = self.expand(anchor, cwd)
             title = self.expand(title, cwd)
             link_list.append((anchor, title))
@@ -698,7 +700,8 @@ class HtmlWriter:
             'contents': self._get_contents_list_items(link_list),
             'list_entries': (),
             'has_list_entries': 0,
-            'entries': entries
+            'entries': entries,
+            'Page': page
         }
         return self._format_page(cwd, subs, 'Reference', page.get('JavaScript'))
 
@@ -707,7 +710,7 @@ class HtmlWriter:
         page = self.pages[page_id]
         contents = []
         entries = []
-        for j, (anchor, title, description, items) in enumerate(page.get('entries')):
+        for j, (anchor, title, description, items) in enumerate(self.box_pages[page_id]):
             anchor = self.expand(anchor, cwd)
             title = self.expand(title, cwd)
             contents.append((anchor, title))
@@ -747,6 +750,7 @@ class HtmlWriter:
             'entries': (),
             'has_list_entries': 1,
             'list_entries': entries,
+            'Page': page
         }
         return self._format_page(cwd, subs, 'Reference')
 
@@ -936,7 +940,7 @@ class HtmlWriter:
     def write_page(self, page_id):
         page = self.pages[page_id]
         fname, cwd = self._set_cwd(page_id)
-        if page.get('entries'):
+        if page_id in self.box_pages:
             html = self._format_box_page(cwd)
         else:
             page['PageContent'] = self.expand(page.get('PageContent', ''), cwd)
@@ -1147,8 +1151,8 @@ class HtmlWriter:
         if page_id not in self.paths:
             raise skoolmacro.MacroParsingError("Unknown page ID: {}".format(page_id))
         if link_text == '':
-            if anchor and page_id in self.page_ids and 'entries' in self.pages[page_id]:
-                for item_anchor, title, paragraphs in self.pages[page_id]['entries']:
+            if anchor and page_id in self.page_ids and page_id in self.box_pages:
+                for item_anchor, title, paragraphs in self.box_pages[page_id]:
                     if anchor[1:] == item_anchor:
                         link_text = title
                         break

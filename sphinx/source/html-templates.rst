@@ -271,6 +271,8 @@ entries.
 The following identifiers are available (in addition to the universal and
 page-level identifiers):
 
+* ``Page`` - a dictionary of the parameters in the corresponding :ref:`page`
+  section
 * ``contents`` - a list of contents list item objects
 * ``entries`` - a list of reference entry objects (empty if the page contains
   list entries)
