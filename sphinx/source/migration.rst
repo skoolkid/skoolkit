@@ -32,6 +32,11 @@ files cannot preserve ASM block directives that occur inside a regular entry,
 and so any such directives should be replaced before using :ref:`skool2ctl.py`.
 See :ref:`Limitations` for more details.
 
+[Game]
+------
+The ``TitlePrefix`` and ``TitleSuffix`` parameters are no longer supported. Use
+the ``GameIndex`` parameter in the :ref:`pageHeaders` section instead.
+
 HTML templates
 --------------
 The :ref:`htmlTemplates` have been overhauled in SkoolKit 8. As a result, the

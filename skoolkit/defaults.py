@@ -62,8 +62,6 @@ LinkOperands=CALL,DEFW,DJNZ,JP,JR
 OutputRegisterTableHeader=Output
 Release=
 StyleSheet=skoolkit.css
-TitlePrefix=The complete
-TitleSuffix=RAM disassembly
 """
 
 SECTIONS['ImageWriter'] = """
@@ -217,6 +215,7 @@ Asm-w=Data
 ; DataMap=
 ; Facts=
 ; GameStatusBuffer=
+GameIndex=The complete<>RAM disassembly
 ; Glossary=
 ; GraphicGlitches=
 ; MemoryMap=
@@ -503,9 +502,11 @@ SECTIONS['Template:GameIndex'] = """
 <body class="{SkoolKit[page_id]}">
 <table class="header">
 <tr>
-<td class="page-header">{Game[TitlePrefix]}</td>
+<# if({SkoolKit[page_header_prefix]}) #>
+<td class="page-header">{SkoolKit[page_header][0]}</td>
+<# endif #>
 <td class="logo">{Game[Logo]}</td>
-<td class="page-header">{Game[TitleSuffix]}</td>
+<td class="page-header">{SkoolKit[page_header][1]}</td>
 </tr>
 </table>
 <# foreach($section,sections) #>

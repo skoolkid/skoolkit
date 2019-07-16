@@ -16,6 +16,7 @@ Changelog
 * An ``entry`` dictionary is available when formatting the title and header of
   a disassembly page (as defined by the ``Asm-*`` parameters in the
   :ref:`titles` and :ref:`pageHeaders` sections)
+* Added the ``GameIndex`` parameter to the :ref:`pageHeaders` section
 
 7.2 (2019-06-02)
 ----------------

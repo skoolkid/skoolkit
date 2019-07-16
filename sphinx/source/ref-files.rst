@@ -173,10 +173,6 @@ Recognised parameters are:
 * ``StyleSheet`` - the base name of the CSS file to use (default:
   `skoolkit.css`); multiple CSS files can be declared by separating their names
   with semicolons
-* ``TitlePrefix`` - the prefix to use before the game name or logo in the
-  header of the main index page (default: 'The complete')
-* ``TitleSuffix`` - the suffix to use after the game name or logo in the header
-  of the main index page (default: 'RAM disassembly')
 
 Every parameter in this section may contain :ref:`skool macros <skoolMacros>`.
 
@@ -590,6 +586,8 @@ Recognised page IDs are:
 * ``Changelog`` - the 'Changelog' page
 * ``DataMap`` - the 'Data' memory map page
 * ``Facts`` - the 'Trivia' page
+* ``GameIndex`` - the disassembly index page (default: 'The complete<>RAM
+  disassembly')
 * ``GameStatusBuffer`` - the 'Game status buffer' page
 * ``Glossary`` - the 'Glossary' page
 * ``GraphicGlitches`` - the 'Graphic glitches' page
@@ -611,15 +609,12 @@ The header text for a page defined by a :ref:`memoryMap`, :ref:`otherCode` or
 :ref:`page` section also defaults to the title, but can be overridden in this
 section.
 
-Note that the header of the disassembly index page (``GameIndex``) is not
-defined in this section; it is composed from the values of the ``TitlePrefix``
-and ``TitleSuffix`` parameters in the :ref:`ref-Game` section.
-
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
 | 8.0     | Added support for specifying a prefix and suffix; an ``entry``    |
-|         | dictionary is available when formatting ``Asm-*`` parameters      |
+|         | dictionary is available when formatting ``Asm-*`` parameters;     |
+|         | added the ``GameIndex`` page ID                                   |
 +---------+-------------------------------------------------------------------+
 | 6.0     | The default header for ``Asm-t`` pages is 'Messages'; page        |
 |         | headers may contain :ref:`skool macros <skoolMacros>`             |

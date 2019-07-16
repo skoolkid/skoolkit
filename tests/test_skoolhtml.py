@@ -3845,14 +3845,9 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         self._test_write_index(files, content, ref)
 
     def test_write_index_custom(self):
-        # Defined by [Game], [Index], [Index:*:*], [Links] and [Paths] sections
         title_prefix = 'The woefully incomplete'
         title_suffix = 'disassembly of the RAM'
         ref = """
-            [Game]
-            TitlePrefix={}
-            TitleSuffix={}
-
             [Index]
             Reference
             MemoryMaps
@@ -3871,6 +3866,9 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
 
             [MemoryMap:WordMap]
             EntryTypes=w
+
+            [PageHeaders]
+            GameIndex={}<>{}
 
             [Paths]
             RoutinesMap=memorymaps/routines.html
