@@ -11,6 +11,8 @@ Changelog
 * Added support for replacement fields (such as ``{base}`` and ``{case}``) in
   the parameter string of the :ref:`EVAL` macro
 * Added the ``max_reg_len`` identifier to the :ref:`t_register` template
+* Added support for specifying page header prefixes and suffixes in the
+  :ref:`pageHeaders` section
 * An ``entry`` dictionary is available when formatting the title and header of
   a disassembly page (as defined by the ``Asm-*`` parameters in the
   :ref:`titles` and :ref:`pageHeaders` sections)

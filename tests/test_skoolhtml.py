@@ -117,7 +117,24 @@ HEADER = """<!DOCTYPE html>
 <table class="header">
 <tr>
 <td class="logo"><a href="{path}index.html">{logo}</a></td>
-<td class="page-header">{header}</td>
+<td class="page-header">{header[1]}</td>
+</tr>
+</table>"""
+
+PREFIX_HEADER = """<!DOCTYPE html>
+<html>
+<head>
+<title>{name}: {title}</title>
+<meta charset="utf-8" />
+<link rel="stylesheet" type="text/css" href="{path}skoolkit.css" />
+{script}
+</head>
+<body class="{body_class}">
+<table class="header">
+<tr>
+<td class="page-header">{header[0]}</td>
+<td class="logo"><a href="{path}index.html">{logo}</a></td>
+<td class="page-header">{header[1]}</td>
 </tr>
 </table>"""
 
@@ -132,9 +149,9 @@ INDEX_HEADER = """<!DOCTYPE html>
 <body class="{body_class}">
 <table class="header">
 <tr>
-<td class="page-header">{header_prefix}</td>
+<td class="page-header">{header[0]}</td>
 <td class="logo">{logo}</td>
-<td class="page-header">{header_suffix}</td>
+<td class="page-header">{header[1]}</td>
 </tr>
 </table>"""
 
@@ -596,7 +613,8 @@ class MethodTest(HtmlWriterTestCase):
     def test_init_page_for_disassembly_page(self):
         exp_skoolkit = {
             'index_href': '../index.html',
-            'page_header': 'Routine at 32768',
+            'page_header': ['', 'Routine at 32768'],
+            'page_header_prefix': 0,
             'page_id': 'Asm-c',
             'path': 'asm/32768.html',
             'title': 'Routine at 32768'
@@ -3193,11 +3211,13 @@ class HtmlWriterOutputTestCase(HtmlWriterTestCase):
             if s_line:
                 body_lines.append(s_line)
         js = subs.get('js')
+        if isinstance(subs['header'], str):
+            subs['header'] = ('', subs['header'])
         subs.setdefault('name', basename(self.skoolfile)[:-6])
         subs.setdefault('path', '../')
         subs.setdefault('map', '{}maps/all.html'.format(subs['path']))
         subs.setdefault('script', '<script type="text/javascript" src="{}"></script>'.format(js) if js else '')
-        subs.setdefault('title', subs['header'])
+        subs.setdefault('title', subs['header'][1])
         subs.setdefault('logo', subs['name'])
         footer = subs.get('footer', BARE_FOOTER)
         prev_up_next_lines = []
@@ -3217,7 +3237,12 @@ class HtmlWriterOutputTestCase(HtmlWriterTestCase):
                     subs['next_link'] = 'Next: <a href="{0}.html">{0:05d}</a>'.format(subs['next'])
             prev_up_next = PREV_UP_NEXT.format(**subs)
             prev_up_next_lines = prev_up_next.split('\n')
-        header_template = INDEX_HEADER if index else HEADER
+        if index:
+            header_template = INDEX_HEADER
+        elif subs['header'][0]:
+            header_template = PREFIX_HEADER
+        else:
+            header_template = HEADER
         t_html_lines = header_template.format(**subs).split('\n')
         t_html_lines.extend(prev_up_next_lines)
         t_html_lines.extend(body_lines)
@@ -3727,9 +3752,8 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             self.write_text_file(path=join(self.odir, GAMEDIR, f))
         writer.write_index()
         subs = {
-            'header': 'Index',
-            'header_prefix': 'The complete',
-            'header_suffix': 'RAM disassembly',
+            'title': 'Index',
+            'header': ('The complete', 'RAM disassembly'),
             'path': '',
             'body_class': 'GameIndex',
             'content': content
@@ -3876,8 +3900,7 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             </ul>
         """
         custom_subs = {
-            'header_prefix': title_prefix,
-            'header_suffix': title_suffix
+            'header': (title_prefix, title_suffix)
         }
         self._test_write_index(files, content, ref, custom_subs)
 
@@ -4015,10 +4038,9 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         game = basename(self.skoolfile)[:-6]
         subs = {
             'name': game,
-            'header': 'Index',
-            'header_prefix': 'The complete',
+            'title': 'Index',
+            'header': ('The complete', 'RAM disassembly'),
             'logo': '<img alt="{}" src="{}" />'.format(game, logo_image_path),
-            'header_suffix': 'RAM disassembly',
             'path': '',
             'body_class': 'GameIndex',
             'content': ''
@@ -6813,6 +6835,25 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             'path': '',
             'body_class': page_id,
             'content': exp_content
+        }
+        self._assert_files_equal('{}.html'.format(page_id), subs)
+
+    def test_write_page_with_header_prefix_and_suffix(self):
+        page_id = 'page'
+        ref = """
+            [Page:{0}]
+            PageContent=Hello
+            [PageHeaders]
+            {0}=Prefix<>Suffix
+        """.format(page_id)
+        writer = self._get_writer(ref=ref, skool='')
+        writer.write_page(page_id)
+        subs = {
+            'title': page_id,
+            'header': ('Prefix', 'Suffix'),
+            'path': '',
+            'body_class': page_id,
+            'content': 'Hello\n'
         }
         self._assert_files_equal('{}.html'.format(page_id), subs)
 

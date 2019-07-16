@@ -17,8 +17,10 @@ following 'universal' identifiers are available in every template:
 The parameters in the ``SkoolKit`` dictionary are:
 
 * ``index_href`` - the relative path to the disassembly index page
-* ``page_header`` - the page header text (as defined in the :ref:`pageHeaders`
-  section)
+* ``page_header`` - a two-element list containing the page header prefix and
+  suffix (as defined in the :ref:`pageHeaders` section)
+* ``page_header_prefix`` - '0' if the page header prefix is blank, '1'
+  otherwise
 * ``page_id`` - the page ID (e.g. ``GameIndex``, ``MemoryMap``)
 * ``path`` - the page's filename, including the full path relative to the root
   of the disassembly
@@ -37,8 +39,12 @@ are available in every full-page template:
 * ``stylesheets`` - a list of stylesheet objects; each one has a single
   attribute, ``href``, which holds the relative path to the CSS file
 
+.. versionchanged:: 8.0
+   ``SkoolKit[page_header]`` is a two-element list containing the page header
+   prefix and suffix. Added ``SkoolKit[page_header_prefix]``.
+
 .. versionchanged:: 6.4
-   Added ``path`` to the ``SkoolKit`` dictionary.
+   Added ``SkoolKit[path]``.
 
 .. _t_Asm:
 

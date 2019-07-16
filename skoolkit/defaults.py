@@ -263,8 +263,11 @@ SECTIONS['Template:Asm'] = """
 <body class="{SkoolKit[page_id]}">
 <table class="header">
 <tr>
+<# if({SkoolKit[page_header_prefix]}) #>
+<td class="page-header">{SkoolKit[page_header][0]}</td>
+<# endif #>
 <td class="logo"><a href="{SkoolKit[index_href]}">{Game[Logo]}</a></td>
-<td class="page-header">{SkoolKit[page_header]}</td>
+<td class="page-header">{SkoolKit[page_header][1]}</td>
 </tr>
 </table>
 <table class="asm-navigation">
@@ -394,8 +397,11 @@ SECTIONS['Template:AsmAllInOne'] = """
 <body class="{SkoolKit[page_id]}">
 <table class="header">
 <tr>
+<# if({SkoolKit[page_header_prefix]}) #>
+<td class="page-header">{SkoolKit[page_header][0]}</td>
+<# endif #>
 <td class="logo"><a href="{SkoolKit[index_href]}">{Game[Logo]}</a></td>
-<td class="page-header">{SkoolKit[page_header]}</td>
+<td class="page-header">{SkoolKit[page_header][1]}</td>
 </tr>
 </table>
 <# foreach($entry,entries) #>
@@ -525,8 +531,11 @@ SECTIONS['Template:MemoryMap'] = """
 <body class="{SkoolKit[page_id]}">
 <table class="header">
 <tr>
+<# if({SkoolKit[page_header_prefix]}) #>
+<td class="page-header">{SkoolKit[page_header][0]}</td>
+<# endif #>
 <td class="logo"><a href="{SkoolKit[index_href]}">{Game[Logo]}</a></td>
-<td class="page-header">{SkoolKit[page_header]}</td>
+<td class="page-header">{SkoolKit[page_header][1]}</td>
 </tr>
 </table>
 <div class="map-intro">{MemoryMap[Intro]}</div>
@@ -582,8 +591,11 @@ SECTIONS['Template:Page'] = """
 <body class="{SkoolKit[page_id]}">
 <table class="header">
 <tr>
+<# if({SkoolKit[page_header_prefix]}) #>
+<td class="page-header">{SkoolKit[page_header][0]}</td>
+<# endif #>
 <td class="logo"><a href="{SkoolKit[index_href]}">{Game[Logo]}</a></td>
-<td class="page-header">{SkoolKit[page_header]}</td>
+<td class="page-header">{SkoolKit[page_header][1]}</td>
 </tr>
 </table>
 {Page[PageContent]}
@@ -602,8 +614,11 @@ SECTIONS['Template:Reference'] = """
 <body class="{SkoolKit[page_id]}">
 <table class="header">
 <tr>
+<# if({SkoolKit[page_header_prefix]}) #>
+<td class="page-header">{SkoolKit[page_header][0]}</td>
+<# endif #>
 <td class="logo"><a href="{SkoolKit[index_href]}">{Game[Logo]}</a></td>
-<td class="page-header">{SkoolKit[page_header]}</td>
+<td class="page-header">{SkoolKit[page_header][1]}</td>
 </tr>
 </table>
 <ul class="contents">

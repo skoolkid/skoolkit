@@ -564,12 +564,15 @@ template is used.
 The ``PageHeaders`` section defines the header text for every page in the HTML
 disassembly. Each line has the form::
 
-  PageID=header
+  PageID=[prefix<>]suffix
 
 where:
 
 * ``PageID`` is the ID of the page
-* ``header`` is the header text
+* ``prefix`` is the page header prefix (displayed to the left of the game
+  logo); if present, this must be separated from the suffix by ``<>``
+* ``suffix`` is the page header suffix (displayed to the right of the game
+  logo)
 
 Recognised page IDs are:
 
@@ -615,8 +618,8 @@ and ``TitleSuffix`` parameters in the :ref:`ref-Game` section.
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
-| 8.0     | An ``entry`` dictionary is available when formatting ``Asm-*``    |
-|         | parameters                                                        |
+| 8.0     | Added support for specifying a prefix and suffix; an ``entry``    |
+|         | dictionary is available when formatting ``Asm-*`` parameters      |
 +---------+-------------------------------------------------------------------+
 | 6.0     | The default header for ``Asm-t`` pages is 'Messages'; page        |
 |         | headers may contain :ref:`skool macros <skoolMacros>`             |

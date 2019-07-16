@@ -864,7 +864,7 @@ class HtmlWriter:
 
         subs = {'entry': self._get_asm_entry(cwd, index, map_file)}
         self.skoolkit['title'] = self.skoolkit['title'].format(**subs)
-        self.skoolkit['page_header'] = self.skoolkit['page_header'].format(**subs)
+        self.skoolkit['page_header'] = [h.format(**subs) for h in self.skoolkit['page_header']]
         self.init_page(self.skoolkit, self.game)
 
         if index:
@@ -957,7 +957,8 @@ class HtmlWriter:
         self.skoolkit['path'] = fname
         self.skoolkit['index_href'] = self.relpath(cwd, self.paths[P_GAME_INDEX])
         self.skoolkit['title'] = self.expand(self.titles[page_id], cwd)
-        self.skoolkit['page_header'] = self.expand(self.page_headers[page_id], cwd)
+        self.skoolkit['page_header'] = self.expand(self.page_headers[page_id], cwd).rpartition('<>')[::2]
+        self.skoolkit['page_header_prefix'] = int(len(self.skoolkit['page_header'][0]) > 0)
         self.game['Logo'] = self.game['LogoImage'] = self._get_logo(cwd)
         if asm_fname is None:
             self.init_page(self.skoolkit, self.game)
