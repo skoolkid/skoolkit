@@ -972,7 +972,6 @@ class HtmlWriter:
         self.skoolkit['index_href'] = self.relpath(cwd, self.paths[P_GAME_INDEX])
         self.skoolkit['title'] = self.expand(self.titles[page_id], cwd)
         self.skoolkit['page_header'] = self.expand(self.page_headers[page_id], cwd).rpartition('<>')[::2]
-        self.skoolkit['page_header_prefix'] = int(len(self.skoolkit['page_header'][0]) > 0)
         self.game['Logo'] = self.game['LogoImage'] = self._get_logo(cwd)
         if asm_fname is None:
             self.init_page(self.skoolkit, self.game)

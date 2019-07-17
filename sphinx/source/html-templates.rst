@@ -19,8 +19,6 @@ The parameters in the ``SkoolKit`` dictionary are:
 * ``index_href`` - the relative path to the disassembly index page
 * ``page_header`` - a two-element list containing the page header prefix and
   suffix (as defined in the :ref:`pageHeaders` section)
-* ``page_header_prefix`` - '0' if the page header prefix is blank, '1'
-  otherwise
 * ``page_id`` - the page ID (e.g. ``GameIndex``, ``MemoryMap``)
 * ``path`` - the page's filename, including the full path relative to the root
   of the disassembly
@@ -41,7 +39,7 @@ are available in every full-page template:
 
 .. versionchanged:: 8.0
    ``SkoolKit[page_header]`` is a two-element list containing the page header
-   prefix and suffix. Added ``SkoolKit[page_header_prefix]``.
+   prefix and suffix.
 
 .. versionchanged:: 6.4
    Added ``SkoolKit[path]``.
@@ -327,7 +325,20 @@ title).
 
 To see the default ``head`` template, run the following command::
 
-  $ skool2html.py -r Template:head
+  $ skool2html.py -r Template:head$
+
+.. _t_header:
+
+header
+------
+The ``header`` template is the subtemplate included in every full-page template
+to format the page header.
+
+To see the default ``header`` template, run the following command::
+
+  $ skool2html.py -r Template:header
+
+.. versionadded:: 8.0
 
 .. _t_img:
 
@@ -606,6 +617,8 @@ template if it exists, or the stock :ref:`t_footer` template otherwise.
 +-------------------------------+--------------------------------------+------------------------------+
 | ``<head>`` element (other     | ``PageID-head``                      | :ref:`t_head`                |
 | than the page title)          |                                      |                              |
++-------------------------------+--------------------------------------+------------------------------+
+| Page header                   | ``PageID-header``                    | :ref:`t_header`              |
 +-------------------------------+--------------------------------------+------------------------------+
 | ``<img>`` element             | ``PageID-img``                       | :ref:`t_img`                 |
 +-------------------------------+--------------------------------------+------------------------------+

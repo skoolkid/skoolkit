@@ -260,15 +260,7 @@ SECTIONS['Template:Asm'] = """
 <# include(head) #>
 </head>
 <body class="{SkoolKit[page_id]}">
-<table class="header">
-<tr>
-<# if({SkoolKit[page_header_prefix]}) #>
-<td class="page-header">{SkoolKit[page_header][0]}</td>
-<# endif #>
-<td class="logo"><a href="{SkoolKit[index_href]}">{Game[Logo]}</a></td>
-<td class="page-header">{SkoolKit[page_header][1]}</td>
-</tr>
-</table>
+<# include(header) #>
 <table class="asm-navigation">
 <tr>
 <td class="prev">
@@ -394,15 +386,7 @@ SECTIONS['Template:AsmAllInOne'] = """
 <# include(head) #>
 </head>
 <body class="{SkoolKit[page_id]}">
-<table class="header">
-<tr>
-<# if({SkoolKit[page_header_prefix]}) #>
-<td class="page-header">{SkoolKit[page_header][0]}</td>
-<# endif #>
-<td class="logo"><a href="{SkoolKit[index_href]}">{Game[Logo]}</a></td>
-<td class="page-header">{SkoolKit[page_header][1]}</td>
-</tr>
-</table>
+<# include(header) #>
 <# foreach($entry,entries) #>
 <div id="{$entry[anchor]}" class="description">{$entry[address]}: {$entry[title]}</div>
 <table class="disassembly">
@@ -500,15 +484,7 @@ SECTIONS['Template:GameIndex'] = """
 <# include(head) #>
 </head>
 <body class="{SkoolKit[page_id]}">
-<table class="header">
-<tr>
-<# if({SkoolKit[page_header_prefix]}) #>
-<td class="page-header">{SkoolKit[page_header][0]}</td>
-<# endif #>
-<td class="logo">{Game[Logo]}</td>
-<td class="page-header">{SkoolKit[page_header][1]}</td>
-</tr>
-</table>
+<# include(header) #>
 <# foreach($section,sections) #>
 <div class="section-header">{$section[header]}</div>
 <ul class="index-list">
@@ -530,15 +506,7 @@ SECTIONS['Template:MemoryMap'] = """
 <# include(head) #>
 </head>
 <body class="{SkoolKit[page_id]}">
-<table class="header">
-<tr>
-<# if({SkoolKit[page_header_prefix]}) #>
-<td class="page-header">{SkoolKit[page_header][0]}</td>
-<# endif #>
-<td class="logo"><a href="{SkoolKit[index_href]}">{Game[Logo]}</a></td>
-<td class="page-header">{SkoolKit[page_header][1]}</td>
-</tr>
-</table>
+<# include(header) #>
 <div class="map-intro">{MemoryMap[Intro]}</div>
 <table class="map">
 <tr>
@@ -590,15 +558,7 @@ SECTIONS['Template:Page'] = """
 <# include(head) #>
 </head>
 <body class="{SkoolKit[page_id]}">
-<table class="header">
-<tr>
-<# if({SkoolKit[page_header_prefix]}) #>
-<td class="page-header">{SkoolKit[page_header][0]}</td>
-<# endif #>
-<td class="logo"><a href="{SkoolKit[index_href]}">{Game[Logo]}</a></td>
-<td class="page-header">{SkoolKit[page_header][1]}</td>
-</tr>
-</table>
+<# include(header) #>
 {Page[PageContent]}
 <# include(footer) #>
 </body>
@@ -613,15 +573,7 @@ SECTIONS['Template:Reference'] = """
 <# include(head) #>
 </head>
 <body class="{SkoolKit[page_id]}">
-<table class="header">
-<tr>
-<# if({SkoolKit[page_header_prefix]}) #>
-<td class="page-header">{SkoolKit[page_header][0]}</td>
-<# endif #>
-<td class="logo"><a href="{SkoolKit[index_href]}">{Game[Logo]}</a></td>
-<td class="page-header">{SkoolKit[page_header][1]}</td>
-</tr>
-</table>
+<# include(header) #>
 <ul class="contents">
 <# foreach($item,contents) #>
 <li><a href="{$item[href]}">{$item[title]}</a></li>
@@ -670,6 +622,22 @@ SECTIONS['Template:head'] = """
 <# foreach($js,javascripts) #>
 <script type="text/javascript" src="{$js[src]}"></script>
 <# endfor #>
+"""
+
+SECTIONS['Template:header'] = """
+<table class="header">
+<tr>
+<# if(SkoolKit[page_header][0]) #>
+<td class="page-header">{SkoolKit[page_header][0]}</td>
+<# endif #>
+<# if(SkoolKit[page_id]=='GameIndex') #>
+<td class="logo">{Game[Logo]}</td>
+<# else #>
+<td class="logo"><a href="{SkoolKit[index_href]}">{Game[Logo]}</a></td>
+<# endif #>
+<td class="page-header">{SkoolKit[page_header][1]}</td>
+</tr>
+</table>
 """
 
 SECTIONS['Template:img'] = """

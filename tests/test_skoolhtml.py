@@ -614,7 +614,6 @@ class MethodTest(HtmlWriterTestCase):
         exp_skoolkit = {
             'index_href': '../index.html',
             'page_header': ['', 'Routine at 32768'],
-            'page_header_prefix': 0,
             'page_id': 'Asm-c',
             'path': 'asm/32768.html',
             'title': 'Routine at 32768'
