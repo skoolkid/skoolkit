@@ -514,20 +514,25 @@ would produce the following output::
 if
 ^^
 The ``if`` directive includes the content between it and the corresponding
-``endif`` directive if a given condition is true, and excludes it otherwise. ::
+``endif`` directive if a given expression is true, and excludes it otherwise.
+::
 
-  <# if(condition) #>
+  <# if(expr) #>
   content
   <# endif #>
 
-* ``condition`` is an arithmetic expression
+``expr`` may be any syntactically valid Python expression, and may contain the
+names of any fields that are available in the template.
 
-If ``condition`` evaluates to 0, then it is false; otherwise it is true. For
-example::
+The ``if`` directive follows the same rules as Python when determining the
+truth of an expression: ``None``, ``False``, zero, and any empty string or
+collection is false; everything else is true.
 
-  <# if({show_data}) #>
-  Here's the data!
-  <# endif #>
+Note that any replacement fields in ``expr`` are replaced with their string
+representations before the expression is evaluated. For example, if the value
+of the field 'val' is the string '0', then ``val`` evaluates to '0' (which is
+true, because it's a non-empty string); but ``{val}`` evaluates to 0 (which is
+false).
 
 .. _td_include:
 

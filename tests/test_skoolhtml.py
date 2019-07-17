@@ -954,10 +954,48 @@ class MethodTest(HtmlWriterTestCase):
             {item}
             <# endfor #>
         """
-        with self.assertRaisesRegex(SkoolKitError, "^Unknown field name in foreach directive: name 'nonexistent' is not defined$"):
+        with self.assertRaisesRegex(SkoolKitError, "^Invalid foreach directive: name 'nonexistent' is not defined$"):
             self._get_writer(ref=ref).format_template('loop', {})
 
-    def test_format_template_if(self):
+    def test_format_template_foreach_noniterable_parameter(self):
+        ref = """
+            [Template:loop]
+            <# foreach(item,0) #>
+            {item}
+            <# endfor #>
+        """
+        with self.assertRaisesRegex(SkoolKitError, "^Invalid foreach directive: '0' is not a list$"):
+            self._get_writer(ref=ref).format_template('loop', {})
+
+    def test_format_template_if_int_values(self):
+        ref = """
+            [Template:if]
+            <# if(yes) #>
+            Visible
+            <# endif #>
+            <# if(no) #>
+            Hidden
+            <# endif #>
+        """
+        fields = {'no': 0, 'yes': 1}
+        exp_output = "Visible"
+        self._test_format_template(ref, 'if', fields, exp_output)
+
+    def test_format_template_if_str_values(self):
+        ref = """
+            [Template:if]
+            <# if(yes) #>
+            Visible
+            <# endif #>
+            <# if(no) #>
+            Hidden
+            <# endif #>
+        """
+        fields = {'no': '', 'yes': '0'}
+        exp_output = "Visible"
+        self._test_format_template(ref, 'if', fields, exp_output)
+
+    def test_format_template_if_str_values_replaced_by_int(self):
         ref = """
             [Template:if]
             <# if({yes}) #>
@@ -967,8 +1005,36 @@ class MethodTest(HtmlWriterTestCase):
             Hidden
             <# endif #>
         """
-        fields = {'no': 0, 'yes': 1}
+        fields = {'no': '0', 'yes': '1'}
         exp_output = "Visible"
+        self._test_format_template(ref, 'if', fields, exp_output)
+
+    def test_format_template_if_list_values(self):
+        ref = """
+            [Template:if]
+            <# if(list1) #>
+            list1 is not empty
+            <# endif #>
+            <# if(list2) #>
+            list2 is not empty
+            <# endif #>
+        """
+        fields = {'list1': [], 'list2': [0]}
+        exp_output = "list2 is not empty"
+        self._test_format_template(ref, 'if', fields, exp_output)
+
+    def test_format_template_if_arithmetic_expressions(self):
+        ref = """
+            [Template:if]
+            <# if(val1>1) #>
+            val1 ({val1}) is greater than 1
+            <# endif #>
+            <# if(val2>1) #>
+            This should not happen
+            <# endif #>
+        """
+        fields = {'val1': 2, 'val2': 0}
+        exp_output = "val1 (2) is greater than 1"
         self._test_format_template(ref, 'if', fields, exp_output)
 
     def test_format_template_if_else(self):
@@ -1096,37 +1162,37 @@ class MethodTest(HtmlWriterTestCase):
             Content
             <# endif #>
         """
-        with self.assertRaisesRegex(SkoolKitError, "^Invalid if directive: No parameters \(expected 1\)$"):
+        with self.assertRaisesRegex(SkoolKitError, "^Invalid if directive: Expression is missing$"):
             self._get_writer(ref=ref).format_template('if', {})
-
-    def test_format_template_if_extra_parameter(self):
-        ref = """
-            [Template:if]
-            <# if({true},1) #>
-            Content
-            <# endif #>
-        """
-        with self.assertRaisesRegex(SkoolKitError, "^Invalid if directive: Too many parameters \(expected 1\): '1,1'$"):
-            self._get_writer(ref=ref).format_template('if', {'true': 1})
 
     def test_format_template_if_no_closing_bracket(self):
         ref = """
             [Template:if]
-            <# if({true} #>
+            <# if(true #>
             Content
             <# endif #>
         """
-        with self.assertRaisesRegex(SkoolKitError, "^Invalid if directive: No closing bracket: \(\{true\}$"):
+        with self.assertRaisesRegex(SkoolKitError, "^Invalid if directive: No closing bracket: \(true$"):
             self._get_writer(ref=ref).format_template('if', {})
 
     def test_format_template_if_unknown_variable(self):
         ref = """
             [Template:if]
-            <# if({nonexistent}) #>
+            <# if(nonexistent) #>
             Content
             <# endif #>
         """
-        with self.assertRaisesRegex(SkoolKitError, "^Invalid if directive: Unrecognised field 'nonexistent': \(\{nonexistent\}\)$"):
+        with self.assertRaisesRegex(SkoolKitError, "^Invalid if directive: name 'nonexistent' is not defined$"):
+            self._get_writer(ref=ref).format_template('if', {})
+
+    def test_format_template_if_syntax_error(self):
+        ref = """
+            [Template:if]
+            <# if((1;)) #>
+            Content
+            <# endif #>
+        """
+        with self.assertRaisesRegex(SkoolKitError, "^Invalid if directive: Syntax error in expression: '\(1;\)'$"):
             self._get_writer(ref=ref).format_template('if', {})
 
     def test_format_template_include(self):

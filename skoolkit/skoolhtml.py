@@ -255,6 +255,14 @@ class HtmlWriter:
             return line[2:-2].strip()
         return ''
 
+    def _eval_template_expr(self, expr, fields):
+        if expr:
+            try:
+                return eval(re.sub('\[([^0-9][^]]*)\]', r"['\1']", expr.format(**fields)), None, fields)
+            except SyntaxError:
+                raise ValueError("Syntax error in expression: '{}'".format(expr))
+        raise ValueError('Expression is missing')
+
     def _process_include(self, lines):
         while 1:
             done = True
@@ -280,7 +288,8 @@ class HtmlWriter:
         for line in lines:
             directive = self._html_template_directive(line)
             if directive.startswith('if('):
-                end, value = skoolmacro.parse_ints(directive, 2, 1, fields=fields)
+                end, expr = skoolmacro.parse_brackets(directive, 2)
+                value = self._eval_template_expr(expr, fields)
                 stack.append(value)
             elif directive == 'else' and len(stack) > 1:
                 stack[-1] = not stack[-1]
@@ -306,9 +315,12 @@ class HtmlWriter:
         for line in lines:
             if isinstance(line, tuple):
                 varname, seqname, loop = line
-                seq = eval(re.sub('\[([^0-9][^]]*)\]', r"['\1']", seqname), None, fields)
-                for i in range(len(seq)):
-                    unrolled.extend(self._sub_loop_var(loop, varname, '{}[{}]'.format(seqname, i)))
+                seq = self._eval_template_expr(seqname, fields)
+                try:
+                    for i in range(len(seq)):
+                        unrolled.extend(self._sub_loop_var(loop, varname, '{}[{}]'.format(seqname, i)))
+                except TypeError:
+                    raise ValueError("'{}' is not a list".format(seqname))
             else:
                 unrolled.append(line)
         return unrolled
@@ -363,13 +375,11 @@ class HtmlWriter:
         fields.update(self.template_subs)
         try:
             lines = self._process_foreach(lines, fields)
-        except skoolmacro.MacroParsingError as e:
+        except (skoolmacro.MacroParsingError, NameError, ValueError) as e:
             raise SkoolKitError("Invalid foreach directive: {}".format(e.args[0]))
-        except NameError as e:
-            raise SkoolKitError('Unknown field name in foreach directive: {}'.format(e.args[0]))
         try:
             lines = self._process_if(lines, fields)
-        except skoolmacro.MacroParsingError as e:
+        except (skoolmacro.MacroParsingError, NameError, ValueError) as e:
             raise SkoolKitError("Invalid if directive: {}".format(e.args[0]))
         return format_template('\n'.join(lines), name, **fields)
 
