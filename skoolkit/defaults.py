@@ -255,10 +255,7 @@ UnusedMap=maps/unused.html
 SECTIONS['Template:Asm'] = """
 <!DOCTYPE html>
 <html>
-<head>
-<title>{Game[Game]}: {SkoolKit[title]}</title>
 <# include(head) #>
-</head>
 <body class="{SkoolKit[page_id]}">
 <# include(header) #>
 <table class="asm-navigation">
@@ -381,10 +378,7 @@ Next: <a href="{next_entry[href]}">{next_entry[address]}</a>
 SECTIONS['Template:AsmAllInOne'] = """
 <!DOCTYPE html>
 <html>
-<head>
-<title>{Game[Game]}: {SkoolKit[title]}</title>
 <# include(head) #>
-</head>
 <body class="{SkoolKit[page_id]}">
 <# include(header) #>
 <# foreach($entry,entries) #>
@@ -479,10 +473,7 @@ SECTIONS['Template:AsmAllInOne'] = """
 SECTIONS['Template:GameIndex'] = """
 <!DOCTYPE html>
 <html>
-<head>
-<title>{Game[Game]}: {SkoolKit[title]}</title>
 <# include(head) #>
-</head>
 <body class="{SkoolKit[page_id]}">
 <# include(header) #>
 <# foreach($section,sections) #>
@@ -501,10 +492,7 @@ SECTIONS['Template:GameIndex'] = """
 SECTIONS['Template:MemoryMap'] = """
 <!DOCTYPE html>
 <html>
-<head>
-<title>{Game[Game]}: {SkoolKit[title]}</title>
 <# include(head) #>
-</head>
 <body class="{SkoolKit[page_id]}">
 <# include(header) #>
 <div class="map-intro">{MemoryMap[Intro]}</div>
@@ -553,10 +541,7 @@ SECTIONS['Template:MemoryMap'] = """
 SECTIONS['Template:Page'] = """
 <!DOCTYPE html>
 <html>
-<head>
-<title>{Game[Game]}: {SkoolKit[title]}</title>
 <# include(head) #>
-</head>
 <body class="{SkoolKit[page_id]}">
 <# include(header) #>
 {Page[PageContent]}
@@ -568,10 +553,7 @@ SECTIONS['Template:Page'] = """
 SECTIONS['Template:Reference'] = """
 <!DOCTYPE html>
 <html>
-<head>
-<title>{Game[Game]}: {SkoolKit[title]}</title>
 <# include(head) #>
-</head>
 <body class="{SkoolKit[page_id]}">
 <# include(header) #>
 <ul class="contents">
@@ -615,6 +597,8 @@ SECTIONS['Template:footer'] = """
 """
 
 SECTIONS['Template:head'] = """
+<head>
+<title>{Game[Game]}: {SkoolKit[title]}</title>
 <meta charset="utf-8" />
 <# foreach($css,stylesheets) #>
 <link rel="stylesheet" type="text/css" href="{$css[href]}" />
@@ -622,6 +606,7 @@ SECTIONS['Template:head'] = """
 <# foreach($js,javascripts) #>
 <script type="text/javascript" src="{$js[src]}"></script>
 <# endfor #>
+</head>
 """
 
 SECTIONS['Template:header'] = """
