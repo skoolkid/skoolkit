@@ -840,11 +840,9 @@ class HtmlWriter:
             if comment:
                 comment_rowspan = comment.rowspan
                 comment_text = self.expand(comment.text, cwd)
-                annotated = 1
             else:
-                comment_rowspan = 1
+                comment_rowspan = 0
                 comment_text = ''
-                annotated = 0
             instructions.append({
                 'block_comment': block_comment,
                 'address': instruction.addr_str,
@@ -854,7 +852,6 @@ class HtmlWriter:
                 'operation': operation,
                 'comment': comment_text,
                 'comment_rowspan': comment_rowspan,
-                'annotated': annotated,
                 'anchor': self.asm_anchor(instruction.address),
                 'bytes': instruction.byte_values
             })

@@ -108,14 +108,13 @@ Each instruction object has the following attributes:
   options passed to :ref:`skool2html.py`)
 * ``anchor`` - the anchor for the instruction, formatted according to the value
   of the ``AddressAnchor`` parameter in the :ref:`ref-game` section
-* ``annotated`` - '1' if the instruction has a comment field, '0' otherwise
 * ``block_comment`` - a list of paragraphs comprising the instruction's
   mid-block comment
 * ``bytes`` - the byte values of the assembled instruction (see below)
 * ``called`` - '2' if the instruction is an entry point, '1' otherwise
 * ``comment`` - the text of the instruction's comment field
 * ``comment_rowspan`` - the number of instructions to which the comment field
-  applies
+  applies; this will be '0' if the instruction has no comment field
 * ``entry`` - a dictionary of parameters corresponding to the memory map entry
   that contains the instruction (see :ref:`t_Asm`)
 * ``label`` - the instruction's ASM label
