@@ -284,7 +284,7 @@ Next: <a href="{next_entry[href]}">{next_entry[address]}</a>
 </div>
 <# endfor #>
 </div>
-<# if({entry[input]}) #>
+<# if(entry[input_registers]) #>
 <table class="input">
 <tr class="asm-input-header">
 <th colspan="2">{Game[InputRegisterTableHeader]}</th>
@@ -297,7 +297,7 @@ Next: <a href="{next_entry[href]}">{next_entry[address]}</a>
 <# endfor #>
 </table>
 <# endif #>
-<# if({entry[output]}) #>
+<# if(entry[output_registers]) #>
 <table class="output">
 <tr class="asm-output-header">
 <th colspan="2">{Game[OutputRegisterTableHeader]}</th>
@@ -313,7 +313,7 @@ Next: <a href="{next_entry[href]}">{next_entry[address]}</a>
 </td>
 </tr>
 <# foreach($instruction,entry[instructions]) #>
-<# if({$instruction[has_block_comment]}) #>
+<# if($instruction[block_comment]) #>
 <tr>
 <td class="routine-comment" colspan="{Game[DisassemblyTableNumCols]}">
 <span id="{$instruction[anchor]}"></span>
@@ -393,7 +393,7 @@ SECTIONS['Template:AsmAllInOne'] = """
 </div>
 <# endfor #>
 </div>
-<# if({$entry[input]}) #>
+<# if($entry[input_registers]) #>
 <table class="input">
 <tr class="asm-input-header">
 <th colspan="2">{Game[InputRegisterTableHeader]}</th>
@@ -406,7 +406,7 @@ SECTIONS['Template:AsmAllInOne'] = """
 <# endfor #>
 </table>
 <# endif #>
-<# if({$entry[output]}) #>
+<# if($entry[output_registers]) #>
 <table class="output">
 <tr class="asm-output-header">
 <th colspan="2">{Game[OutputRegisterTableHeader]}</th>
@@ -422,7 +422,7 @@ SECTIONS['Template:AsmAllInOne'] = """
 </td>
 </tr>
 <# foreach($instruction,$entry[instructions]) #>
-<# if({$instruction[has_block_comment]}) #>
+<# if($instruction[block_comment]) #>
 <tr>
 <td class="routine-comment" colspan="{Game[DisassemblyTableNumCols]}">
 <span id="{$instruction[anchor]}"></span>
@@ -561,7 +561,7 @@ SECTIONS['Template:Reference'] = """
 <li><a href="{$item[href]}">{$item[title]}</a></li>
 <# endfor #>
 </ul>
-<# if({has_list_entries}) #>
+<# if(list_entries) #>
 <# foreach($entry,list_entries) #>
 <div><span id="{$entry[anchor]}"></span></div>
 <div class="list-entry list-entry-{$entry[num]}">
@@ -632,7 +632,7 @@ SECTIONS['Template:img'] = """
 SECTIONS['Template:item_list'] = """
 <ul class="list-entry{indent}">
 <# foreach($item,items) #>
-<# if({$item[has_subitems]}) #>
+<# if($item[subitems]) #>
 <li>{$item[text]}
 {$item[subitems]}
 </li>

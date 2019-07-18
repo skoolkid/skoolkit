@@ -88,10 +88,8 @@ are:
 
 The ``entry`` dictionary also contains the following parameters:
 
-* ``input`` - '1' if there are input register values defined, '0' otherwise
 * ``input_registers`` - a list of input register objects
 * ``instructions`` - a list of instruction objects
-* ``output`` - '1' if there are output register values defined, '0' otherwise
 * ``output_registers`` - a list of output register objects
 * ``show_bytes`` - '1' if the entry contains at least one assembled instruction
   with byte values and the ``Bytes`` parameter in the :ref:`ref-Game` section
@@ -120,8 +118,6 @@ Each instruction object has the following attributes:
   applies
 * ``entry`` - a dictionary of parameters corresponding to the memory map entry
   that contains the instruction (see :ref:`t_Asm`)
-* ``has_block_comment`` - '1' if the instruction has a mid-block comment, '0'
-  otherwise
 * ``label`` - the instruction's ASM label
 * ``location`` - the address of the instruction as a decimal number
 * ``operation`` - the assembly language operation (e.g. 'LD A,B'), with operand
@@ -274,7 +270,6 @@ page-level identifiers):
 * ``contents`` - a list of contents list item objects
 * ``entries`` - a list of reference entry objects (empty if the page contains
   list entries)
-* ``has_list_entries`` - '1' if the page contains list entries, '0' otherwise
 * ``list_entries`` - a list of list entry objects (empty if the page contains
   reference entries)
 
@@ -376,7 +371,6 @@ identifiers):
 
 Each item object has the following attributes:
 
-* ``has_subitems`` - '1' if the item has a list of subitems, '0' otherwise
 * ``subitems`` - a preformatted list of subitems (may be blank)
 * ``text`` - the text of the item
 

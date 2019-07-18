@@ -709,7 +709,6 @@ class HtmlWriter:
         subs = {
             'contents': self._get_contents_list_items(link_list),
             'list_entries': (),
-            'has_list_entries': 0,
             'entries': entries,
             'Page': page
         }
@@ -758,7 +757,6 @@ class HtmlWriter:
         subs = {
             'contents': self._get_contents_list_items(contents),
             'entries': (),
-            'has_list_entries': 1,
             'list_entries': entries,
             'Page': page
         }
@@ -771,7 +769,6 @@ class HtmlWriter:
         for item, subitems in items:
             list_items.append({
                 'text': self.expand(item, cwd),
-                'has_subitems': min(len(subitems), 1),
                 'subitems': self._build_list_items(cwd, subitems, level + 1)
             })
         if level > 0:
@@ -799,8 +796,6 @@ class HtmlWriter:
                 output_values.append(reg_obj)
             else:
                 input_values.append(reg_obj)
-        entry_dict['input'] = min(len(input_values), 1)
-        entry_dict['output'] = min(len(output_values), 1)
 
     def _get_asm_entry(self, cwd, index, map_file):
         entry = self.memory_map[index]
@@ -851,7 +846,6 @@ class HtmlWriter:
                 comment_text = ''
                 annotated = 0
             instructions.append({
-                'has_block_comment': min(len(block_comment), 1),
                 'block_comment': block_comment,
                 'address': instruction.addr_str,
                 'location': instruction.address,

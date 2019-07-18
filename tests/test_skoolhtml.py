@@ -7917,7 +7917,7 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
             [Template:{}-item_list]
             <ul class="level{indent}">
             <# foreach($item,items) #>
-            <# if({$item[has_subitems]}) #>
+            <# if($item[subitems]) #>
             <li>* {$item[text]}
             {$item[subitems]}
             </li>
