@@ -263,14 +263,17 @@ class HtmlWriter:
                 raise ValueError("Syntax error in expression: '{}'".format(expr))
         raise ValueError('Expression is missing')
 
-    def _process_include(self, lines):
+    def _process_include(self, lines, fields):
         while 1:
             done = True
             processed = []
             for line in lines:
                 directive = self._html_template_directive(line)
                 if directive.startswith('include('):
-                    tname = skoolmacro.parse_strings(directive, 7, 1)[1]
+                    try:
+                        tname = skoolmacro.parse_strings(directive, 7, 1)[1].format(**fields)
+                    except KeyError as e:
+                        raise SkoolKitError("Unrecognised field '{}'".format(e.args[0]))
                     if tname:
                         processed.extend(self._get_template(tname))
                     else:
@@ -369,7 +372,7 @@ class HtmlWriter:
         """
         lines = self._get_template(name, default)
         try:
-            lines = self._process_include(lines)
+            lines = self._process_include(lines, fields)
         except SkoolKitError as e:
             raise SkoolKitError("Invalid include directive: {}".format(e.args[0]))
         fields.update(self.template_subs)

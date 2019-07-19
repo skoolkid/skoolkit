@@ -547,7 +547,8 @@ The ``include`` directive includes content from another template. ::
 
   <# include(template) #>
 
-* ``template`` is the name of the template to include
+``template`` is the name of the template to include; it may contain replacement
+fields.
 
 For example, if there is a template named ``title`` that contains
 ``<title>{title}</title>``, and the ``title`` field holds the string 'My Page',

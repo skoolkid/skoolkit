@@ -1210,6 +1210,22 @@ class MethodTest(HtmlWriterTestCase):
         """
         self._test_format_template(ref, 't1', {}, exp_output)
 
+    def test_format_template_include_with_replacement_field(self):
+        ref = """
+            [Template:t1]
+            Begin
+            <# include({template}) #>
+            End
+            [Template:t2]
+            Do stuff
+        """
+        exp_output = """
+            Begin
+            Do stuff
+            End
+        """
+        self._test_format_template(ref, 't1', {'template': 't2'}, exp_output)
+
     def test_format_template_include_nested(self):
         ref = """
             [Template:t1]
@@ -1260,6 +1276,14 @@ class MethodTest(HtmlWriterTestCase):
             <# include(nonexistent) #>
         """
         with self.assertRaisesRegex(SkoolKitError, "^Invalid include directive: 'nonexistent' template does not exist$"):
+            self._get_writer(ref=ref).format_template('include', {})
+
+    def test_format_template_include_invalid_replacement_field(self):
+        ref = """
+            [Template:include]
+            <# include({no}) #>
+        """
+        with self.assertRaisesRegex(SkoolKitError, "^Invalid include directive: Unrecognised field 'no'$"):
             self._get_writer(ref=ref).format_template('include', {})
 
     def test_push_snapshot_keeps_original_in_place(self):
