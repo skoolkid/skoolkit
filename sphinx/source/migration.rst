@@ -42,6 +42,7 @@ HTML templates
 The :ref:`htmlTemplates` have been overhauled in SkoolKit 8. As a result, the
 following templates that were available in SkoolKit 7 no longer exist:
 
+* ``Asm``
 * ``anchor``
 * ``asm_comment``
 * ``asm_entry``
@@ -66,7 +67,6 @@ In addition, the following templates have been rewritten to use the
 :ref:`td_foreach`, :ref:`td_if` and :ref:`td_include` directives, which are
 new in SkoolKit 8:
 
-* :ref:`t_Asm`
 * :ref:`t_AsmAllInOne`
 * :ref:`t_GameIndex`
 * :ref:`t_MemoryMap`

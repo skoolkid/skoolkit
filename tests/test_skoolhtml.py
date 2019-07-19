@@ -612,6 +612,7 @@ class MethodTest(HtmlWriterTestCase):
 
     def test_init_page_for_disassembly_page(self):
         exp_skoolkit = {
+            'include': 'asm',
             'index_href': '../index.html',
             'page_header': ['', 'Routine at 32768'],
             'page_id': 'Asm-c',
@@ -628,7 +629,7 @@ class MethodTest(HtmlWriterTestCase):
             GameIndex=index.html
             MemoryMap=all.html
             StyleSheetPath=style.css
-            [Template:Asm]
+            [Template:Page]
             Nothing to see here!
             [Titles]
             Asm-c=Routine at {entry[address]}
@@ -1245,14 +1246,6 @@ class MethodTest(HtmlWriterTestCase):
             End
         """
         self._test_format_template(ref, 't1', {}, exp_output)
-
-    def test_format_template_include_blank_template_name(self):
-        ref = """
-            [Template:include]
-            <# include() #>
-        """
-        with self.assertRaisesRegex(SkoolKitError, "^Invalid include directive: Template name is blank$"):
-            self._get_writer(ref=ref).format_template('include', {})
 
     def test_format_template_include_extra_parameter(self):
         ref = """

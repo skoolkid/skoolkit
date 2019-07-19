@@ -276,8 +276,6 @@ class HtmlWriter:
                         raise SkoolKitError("Unrecognised field '{}'".format(e.args[0]))
                     if tname:
                         processed.extend(self._get_template(tname))
-                    else:
-                        raise SkoolKitError('Template name is blank')
                     done = False
                 else:
                     processed.append(line)
@@ -370,12 +368,12 @@ class HtmlWriter:
                         otherwise.
         :return: The formatted string.
         """
+        fields.update(self.template_subs)
         lines = self._get_template(name, default)
         try:
             lines = self._process_include(lines, fields)
         except SkoolKitError as e:
             raise SkoolKitError("Invalid include directive: {}".format(e.args[0]))
-        fields.update(self.template_subs)
         try:
             lines = self._process_foreach(lines, fields)
         except (skoolmacro.MacroParsingError, NameError, ValueError) as e:
@@ -868,7 +866,7 @@ class HtmlWriter:
         entry = self.memory_map[index]
         page_id = self._get_asm_page_id(self.code_id, entry.ctl)
         fname = join(cwd, self.asm_fname(entry.address))
-        self._set_cwd(page_id, fname)
+        self._set_cwd(page_id, 'asm', fname)
 
         subs = {'entry': self._get_asm_entry(cwd, index, map_file)}
         self.skoolkit['title'] = self.skoolkit['title'].format(**subs)
@@ -886,7 +884,7 @@ class HtmlWriter:
         subs['prev_entry'] = prev_entry_dict
         subs['next_entry'] = next_entry_dict
 
-        html = self._format_page(cwd, subs, 'Asm')
+        html = self._format_page(cwd, subs, 'Page')
         self.write_file(fname, html)
 
     def _write_asm_single_page(self, map_file):
@@ -955,7 +953,7 @@ class HtmlWriter:
         with self.file_info.open_file(fname) as f:
             f.write(contents)
 
-    def _set_cwd(self, page_id, asm_fname=None):
+    def _set_cwd(self, page_id, include='', asm_fname=None):
         if asm_fname is None:
             fname = self.paths[page_id]
         else:
@@ -966,6 +964,7 @@ class HtmlWriter:
         self.skoolkit['index_href'] = self.relpath(cwd, self.paths[P_GAME_INDEX])
         self.skoolkit['title'] = self.expand(self.titles[page_id], cwd)
         self.skoolkit['page_header'] = self.expand(self.page_headers[page_id], cwd).rpartition('<>')[::2]
+        self.skoolkit['include'] = include
         self.game['Logo'] = self.game['LogoImage'] = self._get_logo(cwd)
         if asm_fname is None:
             self.init_page(self.skoolkit, self.game)

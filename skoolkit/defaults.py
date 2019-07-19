@@ -252,129 +252,6 @@ UDGFilename=udg{addr}_{attr}x{scale}
 UnusedMap=maps/unused.html
 """
 
-SECTIONS['Template:Asm'] = """
-<!DOCTYPE html>
-<html>
-<# include(head) #>
-<body class="{SkoolKit[page_id]}">
-<# include(header) #>
-<table class="asm-navigation">
-<tr>
-<td class="prev">
-<# if({prev_entry[exists]}) #>
-Prev: <a href="{prev_entry[href]}">{prev_entry[address]}</a>
-<# endif #>
-</td>
-<td class="up">Up: <a href="{entry[map_href]}">Map</a></td>
-<td class="next">
-<# if({next_entry[exists]}) #>
-Next: <a href="{next_entry[href]}">{next_entry[address]}</a>
-<# endif #>
-</td>
-</tr>
-</table>
-<div class="description">{entry[address]}: {entry[title]}</div>
-<table class="disassembly">
-<tr>
-<td class="routine-comment" colspan="{Game[DisassemblyTableNumCols]}">
-<div class="details">
-<# foreach($paragraph,entry[description]) #>
-<div class="paragraph">
-{$paragraph}
-</div>
-<# endfor #>
-</div>
-<# if(entry[input_registers]) #>
-<table class="input">
-<tr class="asm-input-header">
-<th colspan="2">{Game[InputRegisterTableHeader]}</th>
-</tr>
-<# foreach($reg,entry[input_registers]) #>
-<tr>
-<td class="register">{$reg[name]}</td>
-<td class="register-desc">{$reg[description]}</td>
-</tr>
-<# endfor #>
-</table>
-<# endif #>
-<# if(entry[output_registers]) #>
-<table class="output">
-<tr class="asm-output-header">
-<th colspan="2">{Game[OutputRegisterTableHeader]}</th>
-</tr>
-<# foreach($reg,entry[output_registers]) #>
-<tr>
-<td class="register">{$reg[name]}</td>
-<td class="register-desc">{$reg[description]}</td>
-</tr>
-<# endfor #>
-</table>
-<# endif #>
-</td>
-</tr>
-<# foreach($instruction,entry[instructions]) #>
-<# if($instruction[block_comment]) #>
-<tr>
-<td class="routine-comment" colspan="{Game[DisassemblyTableNumCols]}">
-<span id="{$instruction[anchor]}"></span>
-<div class="comments">
-<# foreach($paragraph,$instruction[block_comment]) #>
-<div class="paragraph">
-{$paragraph}
-</div>
-<# endfor #>
-</div>
-</td>
-</tr>
-<# endif #>
-<tr>
-<# if({entry[labels]}) #>
-<td class="asm-label">{$instruction[label]}</td>
-<# endif #>
-<td class="address-{$instruction[called]}"><span id="{$instruction[anchor]}"></span>{$instruction[address]}</td>
-<# if({entry[show_bytes]}) #>
-<td class="bytes">{$instruction[bytes]:{Game[Bytes]}}</td>
-<# endif #>
-<td class="instruction">{$instruction[operation]}</td>
-<# if($instruction[comment_rowspan]) #>
-<td class="comment-{entry[annotated]}" rowspan="{$instruction[comment_rowspan]}">{$instruction[comment]}</td>
-<# endif #>
-</tr>
-<# endfor #>
-<# if({entry[has_end_comment]}) #>
-<tr>
-<td class="routine-comment" colspan="{Game[DisassemblyTableNumCols]}">
-<div class="comments">
-<# foreach($paragraph,entry[end_comment]) #>
-<div class="paragraph">
-{$paragraph}
-</div>
-<# endfor #>
-</div>
-</td>
-</tr>
-<# endif #>
-</table>
-<table class="asm-navigation">
-<tr>
-<td class="prev">
-<# if({prev_entry[exists]}) #>
-Prev: <a href="{prev_entry[href]}">{prev_entry[address]}</a>
-<# endif #>
-</td>
-<td class="up">Up: <a href="{entry[map_href]}">Map</a></td>
-<td class="next">
-<# if({next_entry[exists]}) #>
-Next: <a href="{next_entry[href]}">{next_entry[address]}</a>
-<# endif #>
-</td>
-</tr>
-</table>
-<# include(footer) #>
-</body>
-</html>
-"""
-
 SECTIONS['Template:AsmAllInOne'] = """
 <!DOCTYPE html>
 <html>
@@ -544,7 +421,11 @@ SECTIONS['Template:Page'] = """
 <# include(head) #>
 <body class="{SkoolKit[page_id]}">
 <# include(header) #>
+<# if(SkoolKit[include]) #>
+<# include({SkoolKit[include]}) #>
+<# else #>
 {Page[PageContent]}
+<# endif #>
 <# include(footer) #>
 </body>
 </html>
@@ -586,6 +467,121 @@ SECTIONS['Template:Reference'] = """
 <# include(footer) #>
 </body>
 </html>
+"""
+
+SECTIONS['Template:asm'] = """
+<table class="asm-navigation">
+<tr>
+<td class="prev">
+<# if({prev_entry[exists]}) #>
+Prev: <a href="{prev_entry[href]}">{prev_entry[address]}</a>
+<# endif #>
+</td>
+<td class="up">Up: <a href="{entry[map_href]}">Map</a></td>
+<td class="next">
+<# if({next_entry[exists]}) #>
+Next: <a href="{next_entry[href]}">{next_entry[address]}</a>
+<# endif #>
+</td>
+</tr>
+</table>
+<div class="description">{entry[address]}: {entry[title]}</div>
+<table class="disassembly">
+<tr>
+<td class="routine-comment" colspan="{Game[DisassemblyTableNumCols]}">
+<div class="details">
+<# foreach($paragraph,entry[description]) #>
+<div class="paragraph">
+{$paragraph}
+</div>
+<# endfor #>
+</div>
+<# if(entry[input_registers]) #>
+<table class="input">
+<tr class="asm-input-header">
+<th colspan="2">{Game[InputRegisterTableHeader]}</th>
+</tr>
+<# foreach($reg,entry[input_registers]) #>
+<tr>
+<td class="register">{$reg[name]}</td>
+<td class="register-desc">{$reg[description]}</td>
+</tr>
+<# endfor #>
+</table>
+<# endif #>
+<# if(entry[output_registers]) #>
+<table class="output">
+<tr class="asm-output-header">
+<th colspan="2">{Game[OutputRegisterTableHeader]}</th>
+</tr>
+<# foreach($reg,entry[output_registers]) #>
+<tr>
+<td class="register">{$reg[name]}</td>
+<td class="register-desc">{$reg[description]}</td>
+</tr>
+<# endfor #>
+</table>
+<# endif #>
+</td>
+</tr>
+<# foreach($instruction,entry[instructions]) #>
+<# if($instruction[block_comment]) #>
+<tr>
+<td class="routine-comment" colspan="{Game[DisassemblyTableNumCols]}">
+<span id="{$instruction[anchor]}"></span>
+<div class="comments">
+<# foreach($paragraph,$instruction[block_comment]) #>
+<div class="paragraph">
+{$paragraph}
+</div>
+<# endfor #>
+</div>
+</td>
+</tr>
+<# endif #>
+<tr>
+<# if({entry[labels]}) #>
+<td class="asm-label">{$instruction[label]}</td>
+<# endif #>
+<td class="address-{$instruction[called]}"><span id="{$instruction[anchor]}"></span>{$instruction[address]}</td>
+<# if({entry[show_bytes]}) #>
+<td class="bytes">{$instruction[bytes]:{Game[Bytes]}}</td>
+<# endif #>
+<td class="instruction">{$instruction[operation]}</td>
+<# if($instruction[comment_rowspan]) #>
+<td class="comment-{entry[annotated]}" rowspan="{$instruction[comment_rowspan]}">{$instruction[comment]}</td>
+<# endif #>
+</tr>
+<# endfor #>
+<# if({entry[has_end_comment]}) #>
+<tr>
+<td class="routine-comment" colspan="{Game[DisassemblyTableNumCols]}">
+<div class="comments">
+<# foreach($paragraph,entry[end_comment]) #>
+<div class="paragraph">
+{$paragraph}
+</div>
+<# endfor #>
+</div>
+</td>
+</tr>
+<# endif #>
+</table>
+<table class="asm-navigation">
+<tr>
+<td class="prev">
+<# if({prev_entry[exists]}) #>
+Prev: <a href="{prev_entry[href]}">{prev_entry[address]}</a>
+<# endif #>
+</td>
+<td class="up">Up: <a href="{entry[map_href]}">Map</a></td>
+<td class="next">
+<# if({next_entry[exists]}) #>
+Next: <a href="{next_entry[href]}">{next_entry[address]}</a>
+<# endif #>
+</td>
+</tr>
+</table>
 """
 
 SECTIONS['Template:footer'] = """

@@ -132,7 +132,7 @@ Recognised parameters are:
   and data block (default: None); set this to 'AsmAllInOne' to use the
   :ref:`t_AsmAllInOne` template
 * ``Bytes`` - the format specification for the ``bytes`` attribute of
-  instruction objects in the :ref:`t_Asm` and :ref:`t_AsmAllInOne` templates
+  instruction objects in the :ref:`t_asm` and :ref:`t_AsmAllInOne` templates
   (default: ''); if not blank, assembled instruction byte values are displayed
   on disassembly pages
 * ``Copyright`` - the copyright message that appears in the footer of every
@@ -141,7 +141,7 @@ Recognised parameters are:
   disassembly that appears in the footer of every page (default: 'Created using
   SkoolKit #VERSION.')
 * ``DisassemblyTableNumCols`` - the number of columns in the disassembly table
-  on disassembly pages (default: 5); this value is used by the :ref:`t_Asm` and
+  on disassembly pages (default: 5); this value is used by the :ref:`t_asm` and
   and :ref:`t_AsmAllInOne` templates
 * ``Font`` - the base name of the font file to use (default: None); multiple
   font files can be declared by separating their names with semicolons
@@ -603,7 +603,7 @@ The default header text for a page is the same as the title defined in the
 :ref:`titles` section, except where indicated above.
 
 The ``Asm-*`` parameters are formatted with an ``entry`` dictionary identical
-to the one that is available in the :ref:`t_Asm` template.
+to the one that is available in the :ref:`t_asm` template.
 
 The header text for a page defined by a :ref:`memoryMap`, :ref:`otherCode` or
 :ref:`page` section also defaults to the title, but can be overridden in this
@@ -847,7 +847,7 @@ Recognised page IDs and their default titles are:
 Every parameter in this section may contain :ref:`skool macros <skoolMacros>`.
 
 The ``Asm-*`` parameters are formatted with an ``entry`` dictionary identical
-to the one that is available in the :ref:`t_Asm` template.
+to the one that is available in the :ref:`t_asm` template.
 
 The title of a page defined by a :ref:`memoryMap`, :ref:`otherCode` or
 :ref:`page` section defaults to the page ID, but can be overridden in this

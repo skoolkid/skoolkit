@@ -16,6 +16,8 @@ following 'universal' identifiers are available in every template:
 
 The parameters in the ``SkoolKit`` dictionary are:
 
+* ``include`` - the name of the subtemplate used to format the content between
+  the page header and footer
 * ``index_href`` - the relative path to the disassembly index page
 * ``page_header`` - a two-element list containing the page header prefix and
   suffix (as defined in the :ref:`pageHeaders` section)
@@ -39,125 +41,10 @@ are available in every full-page template:
 
 .. versionchanged:: 8.0
    ``SkoolKit[page_header]`` is a two-element list containing the page header
-   prefix and suffix.
+   prefix and suffix. Added ``SkoolKit[include]``.
 
 .. versionchanged:: 6.4
    Added ``SkoolKit[path]``.
-
-.. _t_Asm:
-
-Asm
----
-The ``Asm`` template is the full-page template that is used to build
-disassembly pages.
-
-The following identifiers are available (in addition to the universal and
-page-level identifiers):
-
-* ``entry`` - a dictionary of parameters corresponding to the current memory
-  map entry (see below)
-* ``next_entry`` - a dictionary of parameters corresponding to the next memory
-  map entry (see below)
-* ``prev_entry`` - a dictionary of parameters corresponding to the previous
-  memory map entry (see below)
-
-The parameters in the ``prev_entry``, ``entry`` and ``next_entry`` dictionaries
-are:
-
-* ``address`` - the address of the entry (may be in decimal or hexadecimal
-  format, depending on how it appears in the skool file, and the options passed
-  to :ref:`skool2html.py`)
-* ``anchor`` - the anchor for the entry, formatted according to the value of
-  the ``AddressAnchor`` parameter in the :ref:`ref-game` section
-* ``annotated`` - '1' if any instructions in the entry have a non-empty comment
-  field, '0' otherwise
-* ``byte`` - the LSB of the entry address
-* ``description`` - a list of paragraphs comprising the entry description
-* ``exists`` - '1' if the entry exists, '0' otherwise
-* ``href`` - the relative path to the disassembly page for the entry (useful
-  only for ``prev_entry`` and ``next_entry``)
-* ``label`` - the ASM label of the first instruction in the entry
-* ``labels`` - '1' if any instructions in the entry have an ASM label, '0'
-  otherwise
-* ``location`` - the address of the entry as a decimal number
-* ``map_href`` - the relative path to the entry on the 'Memory Map' page
-* ``page`` - the MSB of the entry address
-* ``size`` - the size of the entry in bytes
-* ``title`` - the title of the entry
-* ``type`` - the block type of the entry ('b', 'c', 'g', 's', 't', 'u' or 'w')
-
-The ``entry`` dictionary also contains the following parameters:
-
-* ``input_registers`` - a list of input register objects
-* ``instructions`` - a list of instruction objects
-* ``output_registers`` - a list of output register objects
-* ``show_bytes`` - '1' if the entry contains at least one assembled instruction
-  with byte values and the ``Bytes`` parameter in the :ref:`ref-Game` section
-  is not blank, '0' otherwise
-
-Each input and output register object has the following attributes:
-
-* ``description`` - the register's description (as it appears in the register
-  section for the entry in the skool file)
-* ``name`` - the register's name (e.g. 'HL')
-
-Each instruction object has the following attributes:
-
-* ``address`` - the address of the instruction (may be in decimal or
-  hexadecimal format, depending on how it appears in the skool file, and the
-  options passed to :ref:`skool2html.py`)
-* ``anchor`` - the anchor for the instruction, formatted according to the value
-  of the ``AddressAnchor`` parameter in the :ref:`ref-game` section
-* ``block_comment`` - a list of paragraphs comprising the instruction's
-  mid-block comment
-* ``bytes`` - the byte values of the assembled instruction (see below)
-* ``called`` - '2' if the instruction is an entry point, '1' otherwise
-* ``comment`` - the text of the instruction's comment field
-* ``comment_rowspan`` - the number of instructions to which the comment field
-  applies; this will be '0' if the instruction has no comment field
-* ``entry`` - a dictionary of parameters corresponding to the memory map entry
-  that contains the instruction (see :ref:`t_Asm`)
-* ``label`` - the instruction's ASM label
-* ``location`` - the address of the instruction as a decimal number
-* ``operation`` - the assembly language operation (e.g. 'LD A,B'), with operand
-  hyperlinked if appropriate
-
-The ``bytes`` attribute can be used to render the byte values of an
-instruction. In its simplest form, it provides a format specification that is
-applied to each byte. For example::
-
-  {$instruction[bytes]:02X}
-
-would produce the string ``3E01`` for the instruction 'LD A,1'.
-
-To render the byte values as 0-padded decimal integers separated by commas, use
-the following syntax::
-
-  {$instruction[bytes]:/03/,}
-
-This would produce the string ``062,001`` for the instruction 'LD A,1'. The
-delimiter used in this example (``/``) is arbitrary; it could be any character
-that doesn't appear in the byte format specification itself.
-
-By default, the ``Bytes`` parameter in the :ref:`ref-Game` section is used as
-the byte format specification::
-
-  {$instruction[bytes]:{Game[Bytes]}}
-
-If you define a custom template that replaces ``{Game[Bytes]}`` with a
-hard-coded byte format specification, it's a good idea to also remove the
-``if({entry[show_bytes]})`` directive (and the corresponding ``endif``), to
-ensure that the byte values are displayed.
-
-Note that byte values are available only for regular assembly language
-instructions (not DEFB, DEFM, DEFS or DEFW statements), and only if they have
-actually been assembled by using :ref:`@assemble=2 <assemble>`. When no byte
-values are available, or the format specification is blank, the ``bytes``
-identifier produces an empty string.
-
-To see the default ``Asm`` template, run the following command::
-
-  $ skool2html.py -r Template:Asm$
 
 .. _t_AsmAllInOne:
 
@@ -173,7 +60,7 @@ page-level identifiers):
 * ``entries`` - a list of entry objects
 
 Each entry object corresponds to a memory map entry; its attributes are the
-same as those in the ``entry`` dictionary in the :ref:`t_Asm` template.
+same as those in the ``entry`` dictionary in the :ref:`t_asm` template.
 
 To see the default ``AsmAllInOne`` template, run the following command::
 
@@ -227,7 +114,7 @@ page-level identifiers):
 * ``entries`` - a list of memory map entry objects
 
 The attributes of each memory map entry object are the same as those in the
-``entry`` dictionary in the :ref:`t_Asm` template, except that the
+``entry`` dictionary in the :ref:`t_asm` template, except that the
 ``end_comment``, ``has_end_comment`` and ``instructions`` attributes are not
 available.
 
@@ -295,6 +182,121 @@ Each list entry object has the following attributes:
 To see the default ``Reference`` template, run the following command::
 
   $ skool2html.py -r Template:Reference
+
+.. _t_asm:
+
+asm
+---
+The ``asm`` template is used to format the content between the header and
+footer of a disassembly page.
+
+The following identifiers are available (in addition to the universal and
+page-level identifiers):
+
+* ``entry`` - a dictionary of parameters corresponding to the current memory
+  map entry (see below)
+* ``next_entry`` - a dictionary of parameters corresponding to the next memory
+  map entry (see below)
+* ``prev_entry`` - a dictionary of parameters corresponding to the previous
+  memory map entry (see below)
+
+The parameters in the ``prev_entry``, ``entry`` and ``next_entry`` dictionaries
+are:
+
+* ``address`` - the address of the entry (may be in decimal or hexadecimal
+  format, depending on how it appears in the skool file, and the options passed
+  to :ref:`skool2html.py`)
+* ``anchor`` - the anchor for the entry, formatted according to the value of
+  the ``AddressAnchor`` parameter in the :ref:`ref-game` section
+* ``annotated`` - '1' if any instructions in the entry have a non-empty comment
+  field, '0' otherwise
+* ``byte`` - the LSB of the entry address
+* ``description`` - a list of paragraphs comprising the entry description
+* ``exists`` - '1' if the entry exists, '0' otherwise
+* ``href`` - the relative path to the disassembly page for the entry (useful
+  only for ``prev_entry`` and ``next_entry``)
+* ``label`` - the ASM label of the first instruction in the entry
+* ``labels`` - '1' if any instructions in the entry have an ASM label, '0'
+  otherwise
+* ``location`` - the address of the entry as a decimal number
+* ``map_href`` - the relative path to the entry on the 'Memory Map' page
+* ``page`` - the MSB of the entry address
+* ``size`` - the size of the entry in bytes
+* ``title`` - the title of the entry
+* ``type`` - the block type of the entry ('b', 'c', 'g', 's', 't', 'u' or 'w')
+
+The ``entry`` dictionary also contains the following parameters:
+
+* ``input_registers`` - a list of input register objects
+* ``instructions`` - a list of instruction objects
+* ``output_registers`` - a list of output register objects
+* ``show_bytes`` - '1' if the entry contains at least one assembled instruction
+  with byte values and the ``Bytes`` parameter in the :ref:`ref-Game` section
+  is not blank, '0' otherwise
+
+Each input and output register object has the following attributes:
+
+* ``description`` - the register's description (as it appears in the register
+  section for the entry in the skool file)
+* ``name`` - the register's name (e.g. 'HL')
+
+Each instruction object has the following attributes:
+
+* ``address`` - the address of the instruction (may be in decimal or
+  hexadecimal format, depending on how it appears in the skool file, and the
+  options passed to :ref:`skool2html.py`)
+* ``anchor`` - the anchor for the instruction, formatted according to the value
+  of the ``AddressAnchor`` parameter in the :ref:`ref-game` section
+* ``block_comment`` - a list of paragraphs comprising the instruction's
+  mid-block comment
+* ``bytes`` - the byte values of the assembled instruction (see below)
+* ``called`` - '2' if the instruction is an entry point, '1' otherwise
+* ``comment`` - the text of the instruction's comment field
+* ``comment_rowspan`` - the number of instructions to which the comment field
+  applies; this will be '0' if the instruction has no comment field
+* ``label`` - the instruction's ASM label
+* ``location`` - the address of the instruction as a decimal number
+* ``operation`` - the assembly language operation (e.g. 'LD A,B'), with operand
+  hyperlinked if appropriate
+
+The ``bytes`` attribute can be used to render the byte values of an
+instruction. In its simplest form, it provides a format specification that is
+applied to each byte. For example::
+
+  {$instruction[bytes]:02X}
+
+would produce the string ``3E01`` for the instruction 'LD A,1'.
+
+To render the byte values as 0-padded decimal integers separated by commas, use
+the following syntax::
+
+  {$instruction[bytes]:/03/,}
+
+This would produce the string ``062,001`` for the instruction 'LD A,1'. The
+delimiter used in this example (``/``) is arbitrary; it could be any character
+that doesn't appear in the byte format specification itself.
+
+By default, the ``Bytes`` parameter in the :ref:`ref-Game` section is used as
+the byte format specification::
+
+  {$instruction[bytes]:{Game[Bytes]}}
+
+If you define a custom template that replaces ``{Game[Bytes]}`` with a
+hard-coded byte format specification, it's a good idea to also remove the
+``if({entry[show_bytes]})`` directive (and the corresponding ``endif``), to
+ensure that the byte values are displayed.
+
+Note that byte values are available only for regular assembly language
+instructions (not DEFB, DEFM, DEFS or DEFW statements), and only if they have
+actually been assembled by using :ref:`@assemble=2 <assemble>`. When no byte
+values are available, or the format specification is blank, the ``bytes``
+identifier produces an empty string.
+
+To see the default ``asm`` template, run the following command::
+
+  $ skool2html.py -r Template:asm
+
+.. versionadded:: 8.0
 
 .. _t_footer:
 
@@ -582,7 +584,7 @@ SkoolKit uses the ``RoutinesMap`` template if it exists, or the stock
 | :ref:`Other code <otherCode>` | ``CodeID-Index``           | :ref:`t_MemoryMap`   |
 | index                         |                            |                      |
 +-------------------------------+----------------------------+----------------------+
-| Routine/data block            | ``[CodeID-]Asm[-*]``       | :ref:`t_Asm`         |
+| Routine/data block            | ``[CodeID-]Asm[-*]``       | :ref:`t_asm`         |
 +-------------------------------+----------------------------+----------------------+
 | Disassembly (single page)     | ``[CodeID-]AsmSinglePage`` | :ref:`t_AsmAllInOne` |
 +-------------------------------+----------------------------+----------------------+
