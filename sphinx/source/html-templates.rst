@@ -117,50 +117,6 @@ To see the default ``Page`` template, run the following command::
 
   $ skool2html.py -r Template:Page
 
-.. _t_Reference:
-
-Reference
----------
-The ``Reference`` template is the full-page template that is used to build
-:ref:`box pages <boxpages>`. A box page may contain either list entries (when
-the page's ``SectionType`` is ``BulletPoints`` or ``ListItems``) or reference
-entries.
-
-The following identifiers are available (in addition to the universal and
-page-level identifiers):
-
-* ``Page`` - a dictionary of the parameters in the corresponding :ref:`page`
-  section
-* ``contents`` - a list of contents list item objects
-* ``entries`` - a list of reference entry objects (empty if the page contains
-  list entries)
-* ``list_entries`` - a list of list entry objects (empty if the page contains
-  reference entries)
-
-Each contents list item object corresponds to an entry on the page and has the
-following attributes:
-
-* ``href`` - the URL to the entry on the page
-* ``title`` - the entry title
-
-Each reference entry object has the following attributes:
-
-* ``contents`` - a list of paragraphs comprising the contents of the entry
-* ``num`` - '1' or '2', depending on the order of the entry on the page
-* ``title`` - the entry title
-
-Each list entry object has the following attributes:
-
-* ``anchor`` - the anchor for the entry
-* ``description`` - the entry intro text
-* ``item_list`` - replaced by a copy of the :ref:`t_item_list` subtemplate
-* ``num`` - '1' or '2', depending on the order of the entry on the page
-* ``title`` - the entry title
-
-To see the default ``Reference`` template, run the following command::
-
-  $ skool2html.py -r Template:Reference
-
 .. _t_asm:
 
 asm
@@ -297,6 +253,52 @@ To see the default ``asm_single_page`` template, run the following command::
 
 .. versionadded:: 8.0
 
+.. _t_boxes:
+
+boxes
+-----
+The ``boxes`` template is used to format the content between the header and
+footer of a :ref:`box page <boxpages>`. A box page may contain either list
+entries (when the page's ``SectionType`` is ``BulletPoints`` or ``ListItems``)
+or regular entries.
+
+The following identifiers are available (in addition to the universal and
+page-level identifiers):
+
+* ``Page`` - a dictionary of the parameters in the corresponding :ref:`page`
+  section
+* ``contents`` - a list of contents list item objects
+* ``entries`` - a list of regular entry objects (empty if the page contains
+  list entries)
+* ``list_entries`` - a list of list entry objects (empty if the page contains
+  regular entries)
+
+Each contents list item object corresponds to an entry on the page and has the
+following attributes:
+
+* ``href`` - the URL to the entry on the page
+* ``title`` - the entry title
+
+Each regular entry object has the following attributes:
+
+* ``contents`` - a list of paragraphs comprising the contents of the entry
+* ``num`` - '1' or '2', depending on the order of the entry on the page
+* ``title`` - the entry title
+
+Each list entry object has the following attributes:
+
+* ``anchor`` - the anchor for the entry
+* ``description`` - the entry intro text
+* ``item_list`` - replaced by a copy of the :ref:`t_item_list` subtemplate
+* ``num`` - '1' or '2', depending on the order of the entry on the page
+* ``title`` - the entry title
+
+To see the default ``boxes`` template, run the following command::
+
+  $ skool2html.py -r Template:boxes
+
+.. versionadded:: 8.0
+
 .. _t_footer:
 
 footer
@@ -356,7 +358,7 @@ To see the default ``img`` template, run the following command::
 
 item_list
 ---------
-The ``item_list`` template is the subtemplate used by the :ref:`t_Reference`
+The ``item_list`` template is the subtemplate used by the :ref:`t_boxes`
 template to format a list of items (or subitems, or subsubitems etc.) in an
 entry on a :ref:`box page <boxpages>` whose ``SectionType`` is ``BulletPoints``
 or ``ListItems``.
@@ -589,7 +591,7 @@ SkoolKit uses the ``RoutinesMap`` template if it exists, or the stock
 +-------------------------------+----------------------------+--------------------------+
 | :ref:`Memory map <memoryMap>` | ``PageID``                 | :ref:`t_MemoryMap`       |
 +-------------------------------+----------------------------+--------------------------+
-| :ref:`Box page <boxpages>`    | ``PageID``                 | :ref:`t_Reference`       |
+| :ref:`Box page <boxpages>`    | ``PageID``                 | :ref:`t_boxes`           |
 +-------------------------------+----------------------------+--------------------------+
 | :ref:`Custom page <Page>`     | ``PageID``                 | :ref:`t_Page`            |
 | (non-box)                     |                            |                          |

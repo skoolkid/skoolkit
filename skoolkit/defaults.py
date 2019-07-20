@@ -336,44 +336,6 @@ SECTIONS['Template:Page'] = """
 </html>
 """
 
-SECTIONS['Template:Reference'] = """
-<!DOCTYPE html>
-<html>
-<# include(head) #>
-<body class="{SkoolKit[page_id]}">
-<# include(header) #>
-<ul class="contents">
-<# foreach($item,contents) #>
-<li><a href="{$item[href]}">{$item[title]}</a></li>
-<# endfor #>
-</ul>
-<# if(list_entries) #>
-<# foreach($entry,list_entries) #>
-<div><span id="{$entry[anchor]}"></span></div>
-<div class="list-entry list-entry-{$entry[num]}">
-<div class="list-entry-title">{$entry[title]}</div>
-<div class="list-entry-desc">{$entry[description]}</div>
-{$entry[item_list]}
-</div>
-<# endfor #>
-<# else #>
-<# foreach($entry,entries) #>
-<div><span id="{$entry[anchor]}"></span></div>
-<div class="box box-{$entry[num]}">
-<div class="box-title">{$entry[title]}</div>
-<# foreach($paragraph,$entry[contents]) #>
-<div class="paragraph">
-{$paragraph}
-</div>
-<# endfor #>
-</div>
-<# endfor #>
-<# endif #>
-<# include(footer) #>
-</body>
-</html>
-"""
-
 SECTIONS['Template:asm'] = """
 <table class="asm-navigation">
 <tr>
@@ -574,6 +536,36 @@ SECTIONS['Template:asm_single_page'] = """
 <# endif #>
 </table>
 <# endfor #>
+"""
+
+SECTIONS['Template:boxes'] = """
+<ul class="contents">
+<# foreach($item,contents) #>
+<li><a href="{$item[href]}">{$item[title]}</a></li>
+<# endfor #>
+</ul>
+<# if(list_entries) #>
+<# foreach($entry,list_entries) #>
+<div><span id="{$entry[anchor]}"></span></div>
+<div class="list-entry list-entry-{$entry[num]}">
+<div class="list-entry-title">{$entry[title]}</div>
+<div class="list-entry-desc">{$entry[description]}</div>
+{$entry[item_list]}
+</div>
+<# endfor #>
+<# else #>
+<# foreach($entry,entries) #>
+<div><span id="{$entry[anchor]}"></span></div>
+<div class="box box-{$entry[num]}">
+<div class="box-title">{$entry[title]}</div>
+<# foreach($paragraph,$entry[contents]) #>
+<div class="paragraph">
+{$paragraph}
+</div>
+<# endfor #>
+</div>
+<# endfor #>
+<# endif #>
 """
 
 SECTIONS['Template:footer'] = """

@@ -6867,7 +6867,7 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             [Item:item1:Item 1]
             An item.
 
-            [Template:Reference]
+            [Template:MyPage]
             {Page[intro]}
             - {entries[0][contents][0]}
         """
@@ -6935,7 +6935,7 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             [Item:item1:Item 1]
             A list item.
 
-            [Template:Reference]
+            [Template:MyPage]
             {Page[intro]}
             - {list_entries[0][description]}
         """

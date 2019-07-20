@@ -533,9 +533,8 @@ default to 'PageID', but can be overridden in the :ref:`titles`,
 :ref:`pageHeaders` and :ref:`links` sections.
 
 Every custom page is built using the :ref:`HTML template <template>` whose name
-matches the page ID, if one exists; otherwise, either the :ref:`t_Reference`
-template is used (when ``SectionPrefix`` is defined), or the :ref:`t_Page`
-template is used.
+matches the page ID, if one exists; otherwise, the :ref:`t_Page` template is
+used.
 
 +---------+------------------------------------------------------------------+
 | Version | Changes                                                          |

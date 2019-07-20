@@ -44,6 +44,7 @@ following templates that were available in SkoolKit 7 no longer exist:
 
 * ``Asm``
 * ``AsmAllInOne``
+* ``Reference``
 * ``anchor``
 * ``asm_comment``
 * ``asm_entry``
@@ -70,7 +71,6 @@ new in SkoolKit 8:
 
 * :ref:`t_GameIndex`
 * :ref:`t_MemoryMap`
-* :ref:`t_Reference`
 * :ref:`t_item_list` (previously named ``list_items``)
 * :ref:`t_list`
 * :ref:`t_table`

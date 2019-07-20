@@ -713,7 +713,7 @@ class HtmlWriter:
             'entries': entries,
             'Page': page
         }
-        return self._format_page(cwd, subs, 'Reference', page.get('JavaScript'))
+        return self._format_page(cwd, subs, 'Page', page.get('JavaScript'))
 
     def _build_list_items_html(self, cwd, prefix=''):
         page_id = self._get_page_id()
@@ -761,7 +761,7 @@ class HtmlWriter:
             'list_entries': entries,
             'Page': page
         }
-        return self._format_page(cwd, subs, 'Reference')
+        return self._format_page(cwd, subs, 'Page')
 
     def _build_list_items(self, cwd, items, level=0):
         if not items:
@@ -941,10 +941,11 @@ class HtmlWriter:
 
     def write_page(self, page_id):
         page = self.pages[page_id]
-        fname, cwd = self._set_cwd(page_id)
         if page_id in self.box_pages:
+            fname, cwd = self._set_cwd(page_id, 'boxes')
             html = self._format_box_page(cwd)
         else:
+            fname, cwd = self._set_cwd(page_id)
             page['PageContent'] = self.expand(page.get('PageContent', ''), cwd)
             html = self._format_page(cwd, {'Page': page}, 'Page', page.get('JavaScript'))
         self.write_file(fname, html)
