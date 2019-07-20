@@ -390,7 +390,7 @@ def main(args):
     update_options('skool2html', namespace, namespace.params)
     verbose, show_timings = not namespace.quiet, namespace.show_timings
     if namespace.asm_one_page:
-        namespace.config_specs.append('Game/AsmSinglePageTemplate=AsmAllInOne')
+        namespace.config_specs.append('Game/AsmSinglePageTemplate=asm_single_page')
     if namespace.writer:
         namespace.config_specs.append('Config/HtmlWriterClass={}'.format(namespace.writer))
     if namespace.pages:

@@ -129,10 +129,11 @@ Recognised parameters are:
   disassembly pages and entries on memory map pages (default: ``{address}``)
 * ``AsmSinglePageTemplate`` - the name of the HTML template used to build the
   disassembly on a single page, as opposed to a separate page for each routine
-  and data block (default: None); set this to 'AsmAllInOne' to use the
-  :ref:`t_AsmAllInOne` template
+  and data block (default: None); set this to 'asm_single_page' to use the
+  :ref:`t_asm_single_page` template
 * ``Bytes`` - the format specification for the ``bytes`` attribute of
-  instruction objects in the :ref:`t_asm` and :ref:`t_AsmAllInOne` templates
+  instruction objects in the :ref:`t_asm` and :ref:`t_asm_single_page`
+  templates
   (default: ''); if not blank, assembled instruction byte values are displayed
   on disassembly pages
 * ``Copyright`` - the copyright message that appears in the footer of every
@@ -142,7 +143,7 @@ Recognised parameters are:
   SkoolKit #VERSION.')
 * ``DisassemblyTableNumCols`` - the number of columns in the disassembly table
   on disassembly pages (default: 5); this value is used by the :ref:`t_asm` and
-  and :ref:`t_AsmAllInOne` templates
+  and :ref:`t_asm_single_page` templates
 * ``Font`` - the base name of the font file to use (default: None); multiple
   font files can be declared by separating their names with semicolons
 * ``Game`` - the name of the game, which appears in the title of every page,

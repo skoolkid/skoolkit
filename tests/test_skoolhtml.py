@@ -1977,7 +1977,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         self._assert_error(writer, '#R$ABCD@main', 'Could not find instruction at $ABCD', prefix)
 
     def test_macro_r_asm_single_page(self):
-        ref = '[Game]\nAsmSinglePageTemplate=AsmAllInOne'
+        ref = '[Game]\nAsmSinglePageTemplate=asm_single_page'
         skool = 'c40000 LD A,B\n 40001 RET'
         writer = self._get_writer(ref=ref, skool=skool)
 
@@ -2047,7 +2047,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
     def test_macro_r_other_code_asm_single_page(self):
         ref = """
             [Game]
-            AsmSinglePageTemplate=AsmAllInOne
+            AsmSinglePageTemplate=asm_single_page
             [OtherCode:other]
         """
         writer = self._get_writer(ref=ref, skool='')
@@ -4751,7 +4751,7 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         self._assert_files_equal(join(ASMDIR, '30000.html'), subs)
 
     def test_write_asm_entries_on_single_page(self):
-        ref = '[Game]\nAsmSinglePageTemplate=AsmAllInOne'
+        ref = '[Game]\nAsmSinglePageTemplate=asm_single_page'
         skool = """
             ; Routine at 32768
             c32768 CALL 32775
@@ -4830,7 +4830,7 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         title = 'The disassembly'
         ref = """
             [Game]
-            AsmSinglePageTemplate=AsmAllInOne
+            AsmSinglePageTemplate=asm_single_page
             [Paths]
             AsmSinglePage={}
             [Titles]
@@ -5636,7 +5636,7 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             writer.write_map('MemoryMap')
 
     def test_write_map_with_single_page_template(self):
-        ref = '[Game]\nAsmSinglePageTemplate=AsmAllInOne'
+        ref = '[Game]\nAsmSinglePageTemplate=asm_single_page'
         skool = """
             ; A routine here
             c32768 RET
@@ -5685,7 +5685,7 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         ref = """
             [Game]
             AddressAnchor={address:04X}
-            AsmSinglePageTemplate=AsmAllInOne
+            AsmSinglePageTemplate=asm_single_page
             [MemoryMap:MemoryMap]
             Intro=First instruction at #R43981.
         """
@@ -5726,7 +5726,7 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         path = 'disassembly.html'
         ref = """
             [Game]
-            AsmSinglePageTemplate=AsmAllInOne
+            AsmSinglePageTemplate=asm_single_page
             [Paths]
             AsmSinglePage={}
         """.format(path)
@@ -6286,7 +6286,7 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         code_id = 'other'
         ref = """
             [Game]
-            AsmSinglePageTemplate=AsmAllInOne
+            AsmSinglePageTemplate=asm_single_page
             [OtherCode:{}]
         """.format(code_id)
         other_skool = """
@@ -6354,7 +6354,7 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         header = 'The disassembly'
         ref = """
             [Game]
-            AsmSinglePageTemplate=AsmAllInOne
+            AsmSinglePageTemplate=asm_single_page
             [Paths]
             {0}-AsmSinglePage={1}
             [Titles]
@@ -6439,7 +6439,7 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         code_id = 'other'
         ref = """
             [Game]
-            AsmSinglePageTemplate=AsmAllInOne
+            AsmSinglePageTemplate=asm_single_page
             [OtherCode:{}]
         """.format(code_id)
         routine_title = 'Other code'
@@ -6481,7 +6481,7 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         asm_single_page = 'disassembly.html'
         ref = """
             [Game]
-            AsmSinglePageTemplate=AsmAllInOne
+            AsmSinglePageTemplate=asm_single_page
             [Paths]
             {0}-AsmSinglePage={0}/{1}
             [OtherCode:{0}]
@@ -8547,7 +8547,7 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
         """
         ref = """
             [Game]
-            AsmSinglePageTemplate=AsmAllInOne
+            AsmSinglePageTemplate=asm_single_page
 
             [Template:AsmSinglePage]
             <# foreach($entry,entries) #>
@@ -8581,7 +8581,7 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
             [OtherCode:{}]
 
             [Game]
-            AsmSinglePageTemplate=AsmAllInOne
+            AsmSinglePageTemplate=asm_single_page
 
             [Template:{}-AsmSinglePage]
             <# foreach($entry,entries) #>

@@ -46,28 +46,6 @@ are available in every full-page template:
 .. versionchanged:: 6.4
    Added ``SkoolKit[path]``.
 
-.. _t_AsmAllInOne:
-
-AsmAllInOne
------------
-The ``AsmAllInOne`` template is a full-page template that may be used to build
-a disassembly on a single page (by setting the ``AsmSinglePageTemplate``
-parameter in the :ref:`ref-Game` section).
-
-The following identifier is available (in addition to the universal and
-page-level identifiers):
-
-* ``entries`` - a list of entry objects
-
-Each entry object corresponds to a memory map entry; its attributes are the
-same as those in the ``entry`` dictionary in the :ref:`t_asm` template.
-
-To see the default ``AsmAllInOne`` template, run the following command::
-
-  $ skool2html.py -r Template:AsmAllInOne
-
-.. versionadded:: 5.3
-
 .. _t_GameIndex:
 
 GameIndex
@@ -294,7 +272,28 @@ identifier produces an empty string.
 
 To see the default ``asm`` template, run the following command::
 
-  $ skool2html.py -r Template:asm
+  $ skool2html.py -r Template:asm$
+
+.. versionadded:: 8.0
+
+.. _t_asm_single_page:
+
+asm_single_page
+---------------
+The ``asm_single_page`` template is used to format the content between the
+header and footer of a single-page disassembly.
+
+The following identifier is available (in addition to the universal and
+page-level identifiers):
+
+* ``entries`` - a list of memory map entry objects
+
+The attributes of each memory map entry object are the same as those in the
+``entry`` dictionary in the :ref:`t_asm` template.
+
+To see the default ``asm_single_page`` template, run the following command::
+
+  $ skool2html.py -r Template:asm_single_page
 
 .. versionadded:: 8.0
 
@@ -576,25 +575,25 @@ otherwise. For example, when building the ``RoutinesMap`` memory map page,
 SkoolKit uses the ``RoutinesMap`` template if it exists, or the stock
 :ref:`t_MemoryMap` template otherwise.
 
-+-------------------------------+----------------------------+----------------------+
-| Page type                     | Preferred template(s)      | Stock template       |
-+===============================+============================+======================+
-| Home (index)                  | ``GameIndex``              | :ref:`t_GameIndex`   |
-+-------------------------------+----------------------------+----------------------+
-| :ref:`Other code <otherCode>` | ``CodeID-Index``           | :ref:`t_MemoryMap`   |
-| index                         |                            |                      |
-+-------------------------------+----------------------------+----------------------+
-| Routine/data block            | ``[CodeID-]Asm[-*]``       | :ref:`t_asm`         |
-+-------------------------------+----------------------------+----------------------+
-| Disassembly (single page)     | ``[CodeID-]AsmSinglePage`` | :ref:`t_AsmAllInOne` |
-+-------------------------------+----------------------------+----------------------+
-| :ref:`Memory map <memoryMap>` | ``PageID``                 | :ref:`t_MemoryMap`   |
-+-------------------------------+----------------------------+----------------------+
-| :ref:`Box page <boxpages>`    | ``PageID``                 | :ref:`t_Reference`   |
-+-------------------------------+----------------------------+----------------------+
-| :ref:`Custom page <Page>`     | ``PageID``                 | :ref:`t_Page`        |
-| (non-box)                     |                            |                      |
-+-------------------------------+----------------------------+----------------------+
++-------------------------------+----------------------------+--------------------------+
+| Page type                     | Preferred template(s)      | Stock template           |
++===============================+============================+==========================+
+| Home (index)                  | ``GameIndex``              | :ref:`t_GameIndex`       |
++-------------------------------+----------------------------+--------------------------+
+| :ref:`Other code <otherCode>` | ``CodeID-Index``           | :ref:`t_MemoryMap`       |
+| index                         |                            |                          |
++-------------------------------+----------------------------+--------------------------+
+| Routine/data block            | ``[CodeID-]Asm[-*]``       | :ref:`t_asm`             |
++-------------------------------+----------------------------+--------------------------+
+| Disassembly (single page)     | ``[CodeID-]AsmSinglePage`` | :ref:`t_asm_single_page` |
++-------------------------------+----------------------------+--------------------------+
+| :ref:`Memory map <memoryMap>` | ``PageID``                 | :ref:`t_MemoryMap`       |
++-------------------------------+----------------------------+--------------------------+
+| :ref:`Box page <boxpages>`    | ``PageID``                 | :ref:`t_Reference`       |
++-------------------------------+----------------------------+--------------------------+
+| :ref:`Custom page <Page>`     | ``PageID``                 | :ref:`t_Page`            |
+| (non-box)                     |                            |                          |
++-------------------------------+----------------------------+--------------------------+
 
 Where ``Asm-*`` appears in the table above, it means one of ``Asm-b``,
 ``Asm-c``, ``Asm-g``, ``Asm-s``, ``Asm-t``, ``Asm-u`` or ``Asm-w``, depending

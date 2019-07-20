@@ -889,9 +889,9 @@ class HtmlWriter:
 
     def _write_asm_single_page(self, map_file):
         page_id = self._get_asm_page_id(self.code_id)
-        fname, cwd = self._set_cwd(page_id)
+        fname, cwd = self._set_cwd(page_id, self.asm_single_page_template)
         asm_entries = [self._get_asm_entry(cwd, i, map_file) for i in range(len(self.memory_map))]
-        html = self._format_page(cwd, {'entries': asm_entries}, self.asm_single_page_template)
+        html = self._format_page(cwd, {'entries': asm_entries}, 'Page')
         self.write_file(fname, html)
 
     def write_entries(self, cwd, map_file):

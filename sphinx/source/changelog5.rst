@@ -37,7 +37,7 @@ SkoolKit 5.x changelog
   section)
 * Added the ability to write the HTML disassembly to a single page (by using
   the ``AsmSinglePageTemplate`` parameter in the :ref:`ref-Game` section and
-  the :ref:`t_AsmAllInOne` and ``t_asm_entry`` templates)
+  the ``t_AsmAllInOne`` and ``t_asm_entry`` templates)
 * Added the ``SectionPrefix`` parameter to the :ref:`page` section (for
   specifying the prefix of the names of ref file sections from which to build
   a :ref:`box page <boxpages>`)
