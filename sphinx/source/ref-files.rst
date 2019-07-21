@@ -418,8 +418,8 @@ text for the custom memory map page can be defined in the :ref:`titles`,
 :ref:`pageHeaders` and :ref:`links` sections.
 
 Every memory map page is built using the :ref:`HTML template <template>` whose
-name matches the page ID, if one exists; otherwise, the stock
-:ref:`t_MemoryMap` template is used.
+name matches the page ID, if one exists; otherwise, the stock :ref:`t_Page`
+template is used.
 
 +---------+------------------------------------------------------------------+
 | Version | Changes                                                          |

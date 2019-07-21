@@ -77,29 +77,6 @@ To see the default ``GameIndex`` template, run the following command::
 
   $ skool2html.py -r Template:GameIndex
 
-.. _t_MemoryMap:
-
-MemoryMap
----------
-The ``MemoryMap`` template is the full-page template that is used to build
-memory map pages and the 'Game status buffer' page.
-
-The following identifiers are available (in addition to the universal and
-page-level identifiers):
-
-* ``MemoryMap`` - a dictionary of the parameters in the corresponding
-  :ref:`memoryMap` section
-* ``entries`` - a list of memory map entry objects
-
-The attributes of each memory map entry object are the same as those in the
-``entry`` dictionary in the :ref:`t_asm` template, except that the
-``end_comment``, ``has_end_comment`` and ``instructions`` attributes are not
-available.
-
-To see the default ``MemoryMap`` template, run the following command::
-
-  $ skool2html.py -r Template:MemoryMap
-
 .. _t_Page:
 
 Page
@@ -419,6 +396,36 @@ To see the default ``list`` template, run the following command::
 
 .. versionadded:: 4.2
 
+.. _t_memory_map:
+
+memory_map
+----------
+The ``memory_map`` template is used to format the content between the header
+and footer of memory map pages and the 'Game status buffer' page.
+
+The following identifiers are available (in addition to the universal and
+page-level identifiers):
+
+* ``MemoryMap`` - a dictionary of the parameters in the corresponding
+  :ref:`memoryMap` section
+* ``entries`` - a list of memory map entry objects
+
+The attributes of each memory map entry object are the same as those in the
+``entry`` dictionary in the :ref:`t_asm` template, except that the following
+attributes are not available:
+
+* ``end_comment``
+* ``input_registers``
+* ``instructions``
+* ``output_registers``
+* ``show_bytes``
+
+To see the default ``memory_map`` template, run the following command::
+
+  $ skool2html.py -r Template:memory_map
+
+.. versionadded:: 8.0
+
 .. _t_reg:
 
 reg
@@ -572,24 +579,23 @@ would produce the following output::
 Page-specific templates
 -----------------------
 When SkoolKit builds an HTML page, it uses the template whose name matches the
-page ID (``PageID``) if it exists, or one of the stock page-level templates
-otherwise. For example, when building the ``RoutinesMap`` memory map page,
-SkoolKit uses the ``RoutinesMap`` template if it exists, or the stock
-:ref:`t_MemoryMap` template otherwise.
+page ID (``PageID``) if it exists, or the :ref:`t_Page` template otherwise. For
+example, when building the ``RoutinesMap`` memory map page, SkoolKit will use
+the ``RoutinesMap`` template if it exists.
 
 +-------------------------------+----------------------------+--------------------------+
 | Page type                     | Preferred template(s)      | Stock template           |
 +===============================+============================+==========================+
 | Home (index)                  | ``GameIndex``              | :ref:`t_GameIndex`       |
 +-------------------------------+----------------------------+--------------------------+
-| :ref:`Other code <otherCode>` | ``CodeID-Index``           | :ref:`t_MemoryMap`       |
+| :ref:`Other code <otherCode>` | ``CodeID-Index``           | :ref:`t_memory_map`      |
 | index                         |                            |                          |
 +-------------------------------+----------------------------+--------------------------+
 | Routine/data block            | ``[CodeID-]Asm[-*]``       | :ref:`t_asm`             |
 +-------------------------------+----------------------------+--------------------------+
 | Disassembly (single page)     | ``[CodeID-]AsmSinglePage`` | :ref:`t_asm_single_page` |
 +-------------------------------+----------------------------+--------------------------+
-| :ref:`Memory map <memoryMap>` | ``PageID``                 | :ref:`t_MemoryMap`       |
+| :ref:`Memory map <memoryMap>` | ``PageID``                 | :ref:`t_memory_map`      |
 +-------------------------------+----------------------------+--------------------------+
 | :ref:`Box page <boxpages>`    | ``PageID``                 | :ref:`t_boxes`           |
 +-------------------------------+----------------------------+--------------------------+

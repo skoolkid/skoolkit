@@ -271,55 +271,6 @@ SECTIONS['Template:GameIndex'] = """
 </html>
 """
 
-SECTIONS['Template:MemoryMap'] = """
-<!DOCTYPE html>
-<html>
-<# include(head) #>
-<body class="{SkoolKit[page_id]}">
-<# include(header) #>
-<div class="map-intro">{MemoryMap[Intro]}</div>
-<table class="map">
-<tr>
-<# if({MemoryMap[PageByteColumns]}) #>
-<th class="map-page">Page</th>
-<th class="map-byte">Byte</th>
-<# endif #>
-<th>Address</th>
-<# if({MemoryMap[LengthColumn]}) #>
-<th class="map-length">Length</th>
-<# endif #>
-<th>Description</th>
-</tr>
-<# foreach($entry,entries) #>
-<tr>
-<# if({MemoryMap[PageByteColumns]}) #>
-<td class="map-page">{$entry[page]}</td>
-<td class="map-byte">{$entry[byte]}</td>
-<# endif #>
-<td class="map-{$entry[type]}"><span id="{$entry[anchor]}"></span><a href="{$entry[href]}">{$entry[address]}</a></td>
-<# if({MemoryMap[LengthColumn]}) #>
-<td class="map-length">{$entry[size]}</td>
-<# endif #>
-<td class="map-{$entry[type]}-desc">
-<div class="map-entry-title-1{MemoryMap[EntryDescriptions]}"><a class="map-entry-title" href="{$entry[href]}">{$entry[title]}</a></div>
-<# if({MemoryMap[EntryDescriptions]}) #>
-<div class="map-entry-desc">
-<# foreach($paragraph,$entry[description]) #>
-<div class="paragraph">
-{$paragraph}
-</div>
-<# endfor #>
-</div>
-<# endif #>
-</td>
-</tr>
-<# endfor #>
-</table>
-<# include(footer) #>
-</body>
-</html>
-"""
-
 SECTIONS['Template:Page'] = """
 <!DOCTYPE html>
 <html>
@@ -633,6 +584,47 @@ SECTIONS['Template:list'] = """
 <li>{$item}</li>
 <# endfor #>
 </ul>
+"""
+
+SECTIONS['Template:memory_map'] = """
+<div class="map-intro">{MemoryMap[Intro]}</div>
+<table class="map">
+<tr>
+<# if({MemoryMap[PageByteColumns]}) #>
+<th class="map-page">Page</th>
+<th class="map-byte">Byte</th>
+<# endif #>
+<th>Address</th>
+<# if({MemoryMap[LengthColumn]}) #>
+<th class="map-length">Length</th>
+<# endif #>
+<th>Description</th>
+</tr>
+<# foreach($entry,entries) #>
+<tr>
+<# if({MemoryMap[PageByteColumns]}) #>
+<td class="map-page">{$entry[page]}</td>
+<td class="map-byte">{$entry[byte]}</td>
+<# endif #>
+<td class="map-{$entry[type]}"><span id="{$entry[anchor]}"></span><a href="{$entry[href]}">{$entry[address]}</a></td>
+<# if({MemoryMap[LengthColumn]}) #>
+<td class="map-length">{$entry[size]}</td>
+<# endif #>
+<td class="map-{$entry[type]}-desc">
+<div class="map-entry-title-1{MemoryMap[EntryDescriptions]}"><a class="map-entry-title" href="{$entry[href]}">{$entry[title]}</a></div>
+<# if({MemoryMap[EntryDescriptions]}) #>
+<div class="map-entry-desc">
+<# foreach($paragraph,$entry[description]) #>
+<div class="paragraph">
+{$paragraph}
+</div>
+<# endfor #>
+</div>
+<# endif #>
+</td>
+</tr>
+<# endfor #>
+</table>
 """
 
 SECTIONS['Template:reg'] = """

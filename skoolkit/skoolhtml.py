@@ -38,7 +38,6 @@ MAIN_CODE_ID = 'main'
 
 # Page IDs (as used in the [Paths], [Titles] and [Links] sections)
 P_GAME_INDEX = 'GameIndex'
-P_MEMORY_MAP = 'MemoryMap'
 P_ROUTINES_MAP = 'RoutinesMap'
 P_DATA_MAP = 'DataMap'
 P_MESSAGES_MAP = 'MessagesMap'
@@ -902,7 +901,7 @@ class HtmlWriter:
                 self.write_entry(cwd, i, map_file)
 
     def write_asm_entries(self):
-        self.write_entries(self.code_path, self.paths[P_MEMORY_MAP])
+        self.write_entries(self.code_path, self.paths['MemoryMap'])
 
     def _should_write_map(self, map_details):
         if map_details.get('Write') == '0':
@@ -913,7 +912,7 @@ class HtmlWriter:
         return any([entry.ctl in entry_types for entry in self.memory_map])
 
     def write_map(self, map_name):
-        fname, cwd = self._set_cwd(map_name)
+        fname, cwd = self._set_cwd(map_name, 'memory_map')
 
         map_details = self.memory_maps.get(map_name, {})
         entry_types = map_details.get('EntryTypes', DEF_MEMORY_MAP_ENTRY_TYPES)
@@ -936,7 +935,7 @@ class HtmlWriter:
             'MemoryMap': map_dict,
             'entries': map_entries
         }
-        html = self._format_page(cwd, subs, P_MEMORY_MAP)
+        html = self._format_page(cwd, subs, 'Page')
         self.write_file(fname, html)
 
     def write_page(self, page_id):
