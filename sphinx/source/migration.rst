@@ -44,6 +44,7 @@ following templates that were available in SkoolKit 7 no longer exist:
 
 * ``Asm``
 * ``AsmAllInOne``
+* ``GameIndex``
 * ``MemoryMap``
 * ``Reference``
 * ``anchor``
@@ -70,7 +71,6 @@ In addition, the following templates have been rewritten to use the
 :ref:`td_foreach`, :ref:`td_if` and :ref:`td_include` directives, which are
 new in SkoolKit 8:
 
-* :ref:`t_GameIndex`
 * :ref:`t_item_list` (previously named ``list_items``)
 * :ref:`t_list`
 * :ref:`t_table`

@@ -252,25 +252,6 @@ UDGFilename=udg{addr}_{attr}x{scale}
 UnusedMap=maps/unused.html
 """
 
-SECTIONS['Template:GameIndex'] = """
-<!DOCTYPE html>
-<html>
-<# include(head) #>
-<body class="{SkoolKit[page_id]}">
-<# include(header) #>
-<# foreach($section,sections) #>
-<div class="section-header">{$section[header]}</div>
-<ul class="index-list">
-<# foreach($item,$section[items]) #>
-<li><a href="{$item[href]}">{$item[link_text]}</a>{$item[other_text]}</li>
-<# endfor #>
-</ul>
-<# endfor #>
-<# include(footer) #>
-</body>
-</html>
-"""
-
 SECTIONS['Template:Page'] = """
 <!DOCTYPE html>
 <html>
@@ -554,6 +535,17 @@ SECTIONS['Template:header'] = """
 <td class="page-header">{SkoolKit[page_header][1]}</td>
 </tr>
 </table>
+"""
+
+SECTIONS['Template:home'] = """
+<# foreach($section,sections) #>
+<div class="section-header">{$section[header]}</div>
+<ul class="index-list">
+<# foreach($item,$section[items]) #>
+<li><a href="{$item[href]}">{$item[link_text]}</a>{$item[other_text]}</li>
+<# endfor #>
+</ul>
+<# endfor #>
 """
 
 SECTIONS['Template:img'] = """

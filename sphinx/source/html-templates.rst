@@ -2,8 +2,8 @@
 
 HTML templates
 ==============
-Every page in an HTML disassembly is built from a single full-page template and
-several subtemplates defined by :ref:`template` sections in the ref file.
+Every page in an HTML disassembly is built from the :ref:`t_Page` template and
+zero or more subtemplates defined by :ref:`template` sections in the ref file.
 
 A template may contain 'replacement fields' - identifiers enclosed by braces
 (``{`` and ``}``) - that are replaced by appropriate content (typically derived
@@ -32,7 +32,7 @@ replaced by the value of the ``Copyright`` parameter in the :ref:`ref-game`
 section when the template is formatted.
 
 In addition to the universal identifiers, the following page-level identifiers
-are available in every full-page template:
+are available in the :ref:`t_Page` template, and any subtemplates it includes:
 
 * ``javascripts`` - a list of javascript objects; each one has a single
   attribute, ``src``, which holds the relative path to the JavaScript file
@@ -46,49 +46,23 @@ are available in every full-page template:
 .. versionchanged:: 6.4
    Added ``SkoolKit[path]``.
 
-.. _t_GameIndex:
-
-GameIndex
----------
-The ``GameIndex`` template is the full-page template that is used to build the
-disassembly index page.
-
-The following identifier is available (in addition to the universal and
-page-level identifiers):
-
-* ``sections`` - a list of section objects
-
-Each section object represents a group of links and has the following
-attributes:
-
-* ``header`` - the header text for the group of links (as defined in the name
-  of the :ref:`indexGroup` section)
-* ``items`` - a list of items in the group
-
-Each item represents a link to a page and has the following attributes:
-
-* ``href`` - the relative path to the page being linked to
-* ``link_text`` - the link text for the page (as defined in the :ref:`links`
-  section)
-* ``other_text`` - the supplementary text displayed alongside the link (as
-  defined in the :ref:`links` section)
-
-To see the default ``GameIndex`` template, run the following command::
-
-  $ skool2html.py -r Template:GameIndex
-
 .. _t_Page:
 
 Page
 ----
-The ``Page`` template is the full-page template that is used to build custom
-non-box pages defined by :ref:`page` sections.
+The ``Page`` template is used to format every HTML page.
 
-The following identifier is available (in addition to the universal and
-page-level identifiers):
+In any page defined by a :ref:`page` section, the following identifier is
+available (in addition to the universal and page-level identifiers):
 
 * ``Page`` - a dictionary of the parameters in the corresponding :ref:`page`
   section
+
+In any page defined by a :ref:`memoryMap` section, the following identifier is
+available (in addition to the universal and page-level identifiers):
+
+* ``MemoryMap`` - a dictionary of the parameters in the corresponding
+  :ref:`memoryMap` section
 
 To see the default ``Page`` template, run the following command::
 
@@ -242,8 +216,6 @@ or regular entries.
 The following identifiers are available (in addition to the universal and
 page-level identifiers):
 
-* ``Page`` - a dictionary of the parameters in the corresponding :ref:`page`
-  section
 * ``contents`` - a list of contents list item objects
 * ``entries`` - a list of regular entry objects (empty if the page contains
   list entries)
@@ -280,7 +252,7 @@ To see the default ``boxes`` template, run the following command::
 
 footer
 ------
-The ``footer`` template is the subtemplate included in every full-page
+The ``footer`` template is the subtemplate included in the :ref:`t_Page`
 template to format the ``<footer>`` element of a page.
 
 To see the default ``footer`` template, run the following command::
@@ -293,7 +265,7 @@ To see the default ``footer`` template, run the following command::
 
 head
 ----
-The ``head`` template is the subtemplate included in every full-page template
+The ``head`` template is the subtemplate included in the :ref:`t_Page` template
 to format the ``<head>`` element of a page.
 
 To see the default ``head`` template, run the following command::
@@ -306,8 +278,8 @@ To see the default ``head`` template, run the following command::
 
 header
 ------
-The ``header`` template is the subtemplate included in every full-page template
-to format the page header.
+The ``header`` template is the subtemplate included in the :ref:`t_Page`
+template to format the page header.
 
 To see the default ``header`` template, run the following command::
 
@@ -330,6 +302,39 @@ identifiers):
 To see the default ``img`` template, run the following command::
 
   $ skool2html.py -r Template:img
+
+.. _t_home:
+
+home
+----
+The ``home`` template is used to format the content between the header and
+footer of the disassembly home page.
+
+The following identifier is available (in addition to the universal and
+page-level identifiers):
+
+* ``sections`` - a list of section objects
+
+Each section object represents a group of links and has the following
+attributes:
+
+* ``header`` - the header text for the group of links (as defined in the name
+  of the :ref:`indexGroup` section)
+* ``items`` - a list of items in the group
+
+Each item represents a link to a page and has the following attributes:
+
+* ``href`` - the relative path to the page being linked to
+* ``link_text`` - the link text for the page (as defined in the :ref:`links`
+  section)
+* ``other_text`` - the supplementary text displayed alongside the link (as
+  defined in the :ref:`links` section)
+
+To see the default ``home`` template, run the following command::
+
+  $ skool2html.py -r Template:home
+
+.. versionadded:: 8.0
 
 .. _t_item_list:
 
@@ -406,8 +411,6 @@ and footer of memory map pages and the 'Game status buffer' page.
 The following identifiers are available (in addition to the universal and
 page-level identifiers):
 
-* ``MemoryMap`` - a dictionary of the parameters in the corresponding
-  :ref:`memoryMap` section
 * ``entries`` - a list of memory map entry objects
 
 The attributes of each memory map entry object are the same as those in the
@@ -586,7 +589,7 @@ the ``RoutinesMap`` template if it exists.
 +-------------------------------+----------------------------+--------------------------+
 | Page type                     | Preferred template(s)      | Stock template           |
 +===============================+============================+==========================+
-| Home (index)                  | ``GameIndex``              | :ref:`t_GameIndex`       |
+| Home (index)                  | ``GameIndex``              | :ref:`t_home`            |
 +-------------------------------+----------------------------+--------------------------+
 | :ref:`Other code <otherCode>` | ``CodeID-Index``           | :ref:`t_memory_map`      |
 | index                         |                            |                          |

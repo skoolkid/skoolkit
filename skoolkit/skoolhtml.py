@@ -602,7 +602,7 @@ class HtmlWriter:
         return self.skoolkit['page_id']
 
     def write_index(self):
-        index_fname, cwd = self._set_cwd(P_GAME_INDEX)
+        index_fname, cwd = self._set_cwd(P_GAME_INDEX, 'home')
 
         link_groups = {}
         for section_id, header_text, page_list in self.get_sections('Index', False, True):
@@ -639,7 +639,7 @@ class HtmlWriter:
                     })
                 section_objs.append({'header': header, 'items': items})
 
-        html = self._format_page(cwd, {'sections': section_objs}, P_GAME_INDEX)
+        html = self._format_page(cwd, {'sections': section_objs})
         self.write_file(index_fname, html)
 
     def _get_entry_dict(self, cwd, entry, desc=True):
@@ -712,7 +712,7 @@ class HtmlWriter:
             'entries': entries,
             'Page': page
         }
-        return self._format_page(cwd, subs, 'Page', page.get('JavaScript'))
+        return self._format_page(cwd, subs, page.get('JavaScript'))
 
     def _build_list_items_html(self, cwd, prefix=''):
         page_id = self._get_page_id()
@@ -760,7 +760,7 @@ class HtmlWriter:
             'list_entries': entries,
             'Page': page
         }
-        return self._format_page(cwd, subs, 'Page')
+        return self._format_page(cwd, subs)
 
     def _build_list_items(self, cwd, items, level=0):
         if not items:
@@ -883,14 +883,14 @@ class HtmlWriter:
         subs['prev_entry'] = prev_entry_dict
         subs['next_entry'] = next_entry_dict
 
-        html = self._format_page(cwd, subs, 'Page')
+        html = self._format_page(cwd, subs)
         self.write_file(fname, html)
 
     def _write_asm_single_page(self, map_file):
         page_id = self._get_asm_page_id(self.code_id)
         fname, cwd = self._set_cwd(page_id, self.asm_single_page_template)
         asm_entries = [self._get_asm_entry(cwd, i, map_file) for i in range(len(self.memory_map))]
-        html = self._format_page(cwd, {'entries': asm_entries}, 'Page')
+        html = self._format_page(cwd, {'entries': asm_entries})
         self.write_file(fname, html)
 
     def write_entries(self, cwd, map_file):
@@ -935,7 +935,7 @@ class HtmlWriter:
             'MemoryMap': map_dict,
             'entries': map_entries
         }
-        html = self._format_page(cwd, subs, 'Page')
+        html = self._format_page(cwd, subs)
         self.write_file(fname, html)
 
     def write_page(self, page_id):
@@ -946,7 +946,7 @@ class HtmlWriter:
         else:
             fname, cwd = self._set_cwd(page_id)
             page['PageContent'] = self.expand(page.get('PageContent', ''), cwd)
-            html = self._format_page(cwd, {'Page': page}, 'Page', page.get('JavaScript'))
+            html = self._format_page(cwd, {'Page': page}, page.get('JavaScript'))
         self.write_file(fname, html)
 
     def write_file(self, fname, contents):
@@ -983,7 +983,7 @@ class HtmlWriter:
         """
         pass
 
-    def _format_page(self, cwd, subs, default, js=None):
+    def _format_page(self, cwd, subs, js=None):
         if cwd not in self.stylesheets:
             stylesheets = []
             for css_file in self.game_vars['StyleSheet'].split(';'):
@@ -1004,7 +1004,7 @@ class HtmlWriter:
 
         subs['stylesheets'] = self.stylesheets[cwd]
         subs['javascripts'] = self.javascript[js_key]
-        return self.format_template(self._get_page_id(), subs, default)
+        return self.format_template(self._get_page_id(), subs, 'Page')
 
     def _get_logo(self, cwd):
         if cwd not in self.logo:
