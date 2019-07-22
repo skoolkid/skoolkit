@@ -255,9 +255,30 @@ UnusedMap=maps/unused.html
 SECTIONS['Template:Page'] = """
 <!DOCTYPE html>
 <html>
-<# include(head) #>
+<head>
+<title>{Game[Game]}: {SkoolKit[title]}</title>
+<meta charset="utf-8" />
+<# foreach($css,stylesheets) #>
+<link rel="stylesheet" type="text/css" href="{$css[href]}" />
+<# endfor #>
+<# foreach($js,javascripts) #>
+<script type="text/javascript" src="{$js[src]}"></script>
+<# endfor #>
+</head>
 <body class="{SkoolKit[page_id]}">
-<# include(header) #>
+<table class="header">
+<tr>
+<# if(SkoolKit[page_header][0]) #>
+<td class="page-header">{SkoolKit[page_header][0]}</td>
+<# endif #>
+<# if(SkoolKit[page_id]=='GameIndex') #>
+<td class="logo">{Game[Logo]}</td>
+<# else #>
+<td class="logo"><a href="{SkoolKit[index_href]}">{Game[Logo]}</a></td>
+<# endif #>
+<td class="page-header">{SkoolKit[page_header][1]}</td>
+</tr>
+</table>
 <# if(SkoolKit[include]) #>
 <# include({SkoolKit[include]}) #>
 <# else #>
@@ -506,35 +527,6 @@ SECTIONS['Template:footer'] = """
 <div class="copyright">{Game[Copyright]}</div>
 <div class="created">{Game[Created]}</div>
 </footer>
-"""
-
-SECTIONS['Template:head'] = """
-<head>
-<title>{Game[Game]}: {SkoolKit[title]}</title>
-<meta charset="utf-8" />
-<# foreach($css,stylesheets) #>
-<link rel="stylesheet" type="text/css" href="{$css[href]}" />
-<# endfor #>
-<# foreach($js,javascripts) #>
-<script type="text/javascript" src="{$js[src]}"></script>
-<# endfor #>
-</head>
-"""
-
-SECTIONS['Template:header'] = """
-<table class="header">
-<tr>
-<# if(SkoolKit[page_header][0]) #>
-<td class="page-header">{SkoolKit[page_header][0]}</td>
-<# endif #>
-<# if(SkoolKit[page_id]=='GameIndex') #>
-<td class="logo">{Game[Logo]}</td>
-<# else #>
-<td class="logo"><a href="{SkoolKit[index_href]}">{Game[Logo]}</a></td>
-<# endif #>
-<td class="page-header">{SkoolKit[page_header][1]}</td>
-</tr>
-</table>
 """
 
 SECTIONS['Template:home'] = """

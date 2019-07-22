@@ -8741,19 +8741,19 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
         """
         ref = """
             [Template:Asm-s]
-            <# include(head) #>
             {entry[title]}
             <# foreach($i,entry[instructions]) #>
             {$i[address]}: {$i[operation]}
             <# endfor #>
+            <# include(footer) #>
 
-            [Template:Asm-s-head]
-            -- {stylesheets[0][href]} --
+            [Template:Asm-s-footer]
+            -- That was the entry at {entry[address]} --
         """
         exp_content = """
-            -- ../skoolkit.css --
             Space
             32768: DEFS 10
+            -- That was the entry at 32768 --
         """
 
         writer = self._get_writer(ref=ref, skool=skool)
@@ -8797,19 +8797,19 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
             JavaScript=foo.js
 
             [Template:Asm-t]
-            <# include(head) #>
             {entry[title]}
             <# foreach($i,entry[instructions]) #>
             {$i[address]}: {$i[operation]}
             <# endfor #>
+            <# include(footer) #>
 
-            [Template:Asm-t-head]
-            -- {javascripts[0][src]} --
+            [Template:Asm-t-footer]
+            -- That was the entry at {entry[address]} --
         """
         exp_content = """
-            -- ../foo.js --
             Message at 32768
             32768: DEFM "Hello"
+            -- That was the entry at 32768 --
         """
 
         writer = self._get_writer(ref=ref, skool=skool)

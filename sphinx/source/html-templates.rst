@@ -262,32 +262,6 @@ To see the default ``footer`` template, run the following command::
 
 .. versionadded:: 5.0
 
-.. _t_head:
-
-head
-----
-The ``head`` template is the subtemplate included in the :ref:`t_Page` template
-to format the ``<head>`` element of a page.
-
-To see the default ``head`` template, run the following command::
-
-  $ skool2html.py -r Template:head$
-
-.. versionadded:: 8.0
-
-.. _t_header:
-
-header
-------
-The ``header`` template is the subtemplate included in the :ref:`t_Page`
-template to format the page header.
-
-To see the default ``header`` template, run the following command::
-
-  $ skool2html.py -r Template:header
-
-.. versionadded:: 8.0
-
 .. _t_img:
 
 img
@@ -622,10 +596,6 @@ template if it exists, or the stock :ref:`t_footer` template otherwise.
 +===============================+======================================+==============================+
 | :ref:`Box page <boxpages>`    | ``PageID-item_list``                 | :ref:`t_item_list`           |
 | entry list                    |                                      |                              |
-+-------------------------------+--------------------------------------+------------------------------+
-| ``<head>`` element            | ``PageID-head``                      | :ref:`t_head`                |
-+-------------------------------+--------------------------------------+------------------------------+
-| Page header                   | ``PageID-header``                    | :ref:`t_header`              |
 +-------------------------------+--------------------------------------+------------------------------+
 | ``<img>`` element             | ``PageID-img``                       | :ref:`t_img`                 |
 +-------------------------------+--------------------------------------+------------------------------+
