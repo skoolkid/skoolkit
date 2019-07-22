@@ -857,7 +857,6 @@ class HtmlWriter:
             })
 
         entry_dict['end_comment'] = [self.expand(p, cwd).strip() for p in entry.end_comment]
-        entry_dict['has_end_comment'] = min(len(entry.end_comment), 1)
 
         return entry_dict
 

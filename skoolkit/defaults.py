@@ -352,7 +352,7 @@ Next: <a href="{next_entry[href]}">{next_entry[address]}</a>
 <# endif #>
 </tr>
 <# endfor #>
-<# if({entry[has_end_comment]}) #>
+<# if(entry[end_comment]) #>
 <tr>
 <td class="routine-comment" colspan="{Game[DisassemblyTableNumCols]}">
 <div class="comments">
@@ -453,7 +453,7 @@ SECTIONS['Template:asm_single_page'] = """
 <# endif #>
 </tr>
 <# endfor #>
-<# if({$entry[has_end_comment]}) #>
+<# if($entry[end_comment]) #>
 <tr>
 <td class="routine-comment" colspan="{Game[DisassemblyTableNumCols]}">
 <div class="comments">

@@ -112,6 +112,7 @@ are:
 
 The ``entry`` dictionary also contains the following parameters:
 
+* ``end_comment`` - a list of paragraphs comprising the entry's end comment
 * ``input_registers`` - a list of input register objects
 * ``instructions`` - a list of instruction objects
 * ``output_registers`` - a list of output register objects
