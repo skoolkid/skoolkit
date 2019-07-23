@@ -649,8 +649,6 @@ class HtmlWriter:
             description = ()
         return {
             'exists': 1,
-            'labels': int(any([instruction.asm_label for instruction in entry.instructions])),
-            'annotated': int(any([i.comment and i.comment.text for i in entry.instructions])),
             'type': entry.ctl,
             'location': entry.address,
             'address': entry.addr_str,
@@ -803,15 +801,13 @@ class HtmlWriter:
 
         self.format_registers(cwd, entry.registers, entry_dict)
 
+        entry_dict['instructions'] = instructions = []
         for instruction in entry.instructions:
             if instruction.operation.upper().startswith(('DEFB', 'DEFM', 'DEFS', 'DEFW')):
                 instruction.byte_values = Bytes()
             else:
                 instruction.byte_values = Bytes(instruction.data)
-        entry_dict['show_bytes'] = int(self.game_vars['Bytes'] != '' and any(i.byte_values.values for i in entry.instructions))
 
-        entry_dict['instructions'] = instructions = []
-        for instruction in entry.instructions:
             operation, reference = instruction.operation, instruction.reference
             operation_u = operation.upper()
             if reference and operation_u.startswith(self.link_operands):
@@ -843,6 +839,7 @@ class HtmlWriter:
             else:
                 comment_rowspan = 0
                 comment_text = ''
+
             instructions.append({
                 'block_comment': block_comment,
                 'address': instruction.addr_str,
@@ -856,7 +853,10 @@ class HtmlWriter:
                 'bytes': instruction.byte_values
             })
 
+        entry_dict['annotated'] = int(any([i.comment and i.comment.text for i in entry.instructions]))
         entry_dict['end_comment'] = [self.expand(p, cwd).strip() for p in entry.end_comment]
+        entry_dict['labels'] = int(any([instruction.asm_label for instruction in entry.instructions]))
+        entry_dict['show_bytes'] = int(self.game_vars['Bytes'] != '' and any(i.byte_values.values for i in entry.instructions))
 
         return entry_dict
 

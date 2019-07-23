@@ -87,24 +87,18 @@ page-level identifiers):
 * ``prev_entry`` - a dictionary of parameters corresponding to the previous
   memory map entry (see below)
 
-The parameters in the ``prev_entry``, ``entry`` and ``next_entry`` dictionaries
-are:
+The parameters in the ``prev_entry`` and ``next_entry`` dictionaries are:
 
 * ``address`` - the address of the entry (may be in decimal or hexadecimal
   format, depending on how it appears in the skool file, and the options passed
   to :ref:`skool2html.py`)
 * ``anchor`` - the anchor for the entry, formatted according to the value of
   the ``AddressAnchor`` parameter in the :ref:`ref-game` section
-* ``annotated`` - '1' if any instructions in the entry have a non-empty comment
-  field, '0' otherwise
 * ``byte`` - the LSB of the entry address
 * ``description`` - a list of paragraphs comprising the entry description
 * ``exists`` - '1' if the entry exists, '0' otherwise
-* ``href`` - the relative path to the disassembly page for the entry (useful
-  only for ``prev_entry`` and ``next_entry``)
+* ``href`` - the relative path to the disassembly page for the entry
 * ``label`` - the ASM label of the first instruction in the entry
-* ``labels`` - '1' if any instructions in the entry have an ASM label, '0'
-  otherwise
 * ``location`` - the address of the entry as a decimal number
 * ``map_href`` - the relative path to the entry on the 'Memory Map' page
 * ``page`` - the MSB of the entry address
@@ -112,11 +106,16 @@ are:
 * ``title`` - the title of the entry
 * ``type`` - the block type of the entry ('b', 'c', 'g', 's', 't', 'u' or 'w')
 
-The ``entry`` dictionary also contains the following parameters:
+The ``entry`` dictionary also contains these parameters, and the following
+additional ones:
 
+* ``annotated`` - '1' if any instructions in the entry have a non-empty comment
+  field, '0' otherwise
 * ``end_comment`` - a list of paragraphs comprising the entry's end comment
 * ``input_registers`` - a list of input register objects
 * ``instructions`` - a list of instruction objects
+* ``labels`` - '1' if any instructions in the entry have an ASM label, '0'
+  otherwise
 * ``output_registers`` - a list of output register objects
 * ``show_bytes`` - '1' if the entry contains at least one assembled instruction
   with byte values and the ``Bytes`` parameter in the :ref:`ref-Game` section
@@ -391,14 +390,7 @@ page-level identifiers):
 * ``entries`` - a list of memory map entry objects
 
 The attributes of each memory map entry object are the same as those in the
-``entry`` dictionary in the :ref:`t_asm` template, except that the following
-attributes are not available:
-
-* ``end_comment``
-* ``input_registers``
-* ``instructions``
-* ``output_registers``
-* ``show_bytes``
+``prev_entry`` and ``next_entry`` dictionaries in the :ref:`t_asm` template.
 
 To see the default ``memory_map`` template, run the following command::
 
