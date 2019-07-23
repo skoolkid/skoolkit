@@ -1003,7 +1003,7 @@ class HtmlWriter:
 
         subs['stylesheets'] = self.stylesheets[cwd]
         subs['javascripts'] = self.javascript[js_key]
-        return self.format_template(self._get_page_id(), subs, 'Page')
+        return self.format_template(self._get_page_id(), subs, 'Layout')
 
     def _get_logo(self, cwd):
         if cwd not in self.logo:

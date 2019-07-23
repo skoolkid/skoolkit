@@ -2,8 +2,9 @@
 
 HTML templates
 ==============
-Every page in an HTML disassembly is built from the :ref:`t_Page` template and
-zero or more subtemplates defined by :ref:`template` sections in the ref file.
+Every page in an HTML disassembly is built from the :ref:`t_Layout` template
+and zero or more subtemplates defined by :ref:`template` sections in the ref
+file.
 
 A template may contain 'replacement fields' - identifiers enclosed by braces
 (``{`` and ``}``) - that are replaced by appropriate content (typically derived
@@ -32,7 +33,8 @@ replaced by the value of the ``Copyright`` parameter in the :ref:`ref-game`
 section when the template is formatted.
 
 In addition to the universal identifiers, the following page-level identifiers
-are available in the :ref:`t_Page` template, and any subtemplates it includes:
+are available in the :ref:`t_Layout` template, and any subtemplates it
+includes:
 
 * ``javascripts`` - a list of javascript objects; each one has a single
   attribute, ``src``, which holds the relative path to the JavaScript file
@@ -46,11 +48,11 @@ are available in the :ref:`t_Page` template, and any subtemplates it includes:
 .. versionchanged:: 6.4
    Added ``SkoolKit[path]``.
 
-.. _t_Page:
+.. _t_Layout:
 
-Page
-----
-The ``Page`` template is used to format every HTML page.
+Layout
+------
+The ``Layout`` template is used to format every HTML page.
 
 In any page defined by a :ref:`page` section, the following identifier is
 available (in addition to the universal and page-level identifiers):
@@ -64,9 +66,9 @@ available (in addition to the universal and page-level identifiers):
 * ``MemoryMap`` - a dictionary of the parameters in the corresponding
   :ref:`memoryMap` section
 
-To see the default ``Page`` template, run the following command::
+To see the default ``Layout`` template, run the following command::
 
-  $ skool2html.py -r Template:Page
+  $ skool2html.py -r Template:Layout
 
 .. _t_asm:
 
@@ -253,7 +255,7 @@ To see the default ``boxes`` template, run the following command::
 
 footer
 ------
-The ``footer`` template is the subtemplate included in the :ref:`t_Page`
+The ``footer`` template is the subtemplate included in the :ref:`t_Layout`
 template to format the ``<footer>`` element of a page.
 
 To see the default ``footer`` template, run the following command::
@@ -557,9 +559,9 @@ would produce the following output::
 Page-specific templates
 -----------------------
 When SkoolKit builds an HTML page, it uses the template whose name matches the
-page ID (``PageID``) if it exists, or the :ref:`t_Page` template otherwise. For
-example, when building the ``RoutinesMap`` memory map page, SkoolKit will use
-the ``RoutinesMap`` template if it exists.
+page ID (``PageID``) if it exists, or the :ref:`t_Layout` template otherwise.
+For example, when building the ``RoutinesMap`` memory map page, SkoolKit will
+use the ``RoutinesMap`` template if it exists.
 
 +-------------------------------+----------------------------+--------------------------+
 | Page type                     | Preferred template(s)      | Stock template           |
@@ -577,7 +579,7 @@ the ``RoutinesMap`` template if it exists.
 +-------------------------------+----------------------------+--------------------------+
 | :ref:`Box page <boxpages>`    | ``PageID``                 | :ref:`t_boxes`           |
 +-------------------------------+----------------------------+--------------------------+
-| :ref:`Custom page <Page>`     | ``PageID``                 | :ref:`t_Page`            |
+| :ref:`Custom page <Page>`     | ``PageID``                 | :ref:`t_Layout`          |
 | (non-box)                     |                            |                          |
 +-------------------------------+----------------------------+--------------------------+
 

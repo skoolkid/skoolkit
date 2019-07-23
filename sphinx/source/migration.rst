@@ -46,6 +46,7 @@ following templates that were available in SkoolKit 7 no longer exist:
 * ``AsmAllInOne``
 * ``GameIndex``
 * ``MemoryMap``
+* ``Page``
 * ``Reference``
 * ``anchor``
 * ``asm_comment``

@@ -252,7 +252,7 @@ UDGFilename=udg{addr}_{attr}x{scale}
 UnusedMap=maps/unused.html
 """
 
-SECTIONS['Template:Page'] = """
+SECTIONS['Template:Layout'] = """
 <!DOCTYPE html>
 <html>
 <head>

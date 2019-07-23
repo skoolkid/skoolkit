@@ -629,7 +629,7 @@ class MethodTest(HtmlWriterTestCase):
             GameIndex=index.html
             MemoryMap=all.html
             StyleSheetPath=style.css
-            [Template:Page]
+            [Template:Layout]
             Nothing to see here!
             [Titles]
             Asm-c=Routine at {entry[address]}
