@@ -563,8 +563,8 @@ SECTIONS['Template:link'] = """
 """
 
 SECTIONS['Template:list'] = """
-<ul class="{list[class]}">
-<# foreach($item,list[items]) #>
+<ul class="{class}">
+<# foreach($item,items) #>
 <li>{$item}</li>
 <# endfor #>
 </ul>
@@ -624,8 +624,8 @@ SECTIONS['Template:section'] = """
 """
 
 SECTIONS['Template:table'] = """
-<table class="{table[class]}">
-<# foreach($row,table[rows]) #>
+<table class="{class}">
+<# foreach($row,rows) #>
 <tr>
 <# foreach($cell,$row[cells]) #>
 <# if({$cell[header]}) #>

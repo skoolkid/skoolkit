@@ -1075,12 +1075,12 @@ class HtmlWriter:
                 }
                 cells.append(cell_subs)
             rows.append({'cells': cells})
-        table = {'class': table.table_class, 'rows': rows}
-        return self.format_template('table', {'table': table})
+        fields = {'class': table.table_class, 'rows': rows}
+        return self.format_template('table', fields)
 
     def build_list(self, list_obj):
-        list_fields = {'class': list_obj.css_class, 'items': list_obj.items}
-        return self.format_template('list', {'list': list_fields})
+        fields = {'class': list_obj.css_class, 'items': list_obj.items}
+        return self.format_template('list', fields)
 
     def _image_path(self, fname, path_id, frames):
         """Return the full path of an image file relative to the root directory

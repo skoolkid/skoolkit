@@ -368,12 +368,12 @@ The ``list`` template is used by the :ref:`LIST` macro to format a list.
 The following identifiers are available (in addition to the universal
 identifiers):
 
-* ``list[class]`` - the CSS class name for the list
-* ``list[items]`` - the list items
+* ``class`` - the CSS class name for the list
+* ``items`` - the list items
 
 To see the default ``list`` template, run the following command::
 
-  $ skool2html.py -r Template:list$
+  $ skool2html.py -r Template:list
 
 .. versionadded:: 4.2
 
@@ -439,8 +439,8 @@ The ``table`` template is used by the :ref:`TABLE` macro to format a table.
 The following identifiers are available (in addition to the universal
 identifiers):
 
-* ``table[class]`` - the CSS class name for the table
-* ``table[rows]`` - a list of row objects
+* ``class`` - the CSS class name for the table
+* ``rows`` - a list of row objects
 
 Each row object has a ``cells`` attribute, which is a list of cell objects for
 that row. Each cell object has the following attributes:

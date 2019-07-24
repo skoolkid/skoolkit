@@ -8229,7 +8229,7 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
 
             [Template:{}-table]
             BEGIN TABLE (
-            <# foreach($row,table[rows]) #>
+            <# foreach($row,rows) #>
             <row>
             <# foreach($cell,$row[cells]) #>
             <# if({$cell[header]}) #>
@@ -8694,7 +8694,7 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
 
             [Template:{}-Asm-g-list]
             Items:
-            <# foreach($item,list[items]) #>
+            <# foreach($item,items) #>
             + {$item}
             <# endfor #>
         """.replace('{}', code_id)
