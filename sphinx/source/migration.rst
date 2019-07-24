@@ -76,6 +76,9 @@ new in SkoolKit 8:
 * :ref:`t_list`
 * :ref:`t_table`
 
+Finally, the signature of the :meth:`format_template` method on HtmlWriter has
+changed in SkoolKit 8.0: the *default* parameter has been removed.
+
 CSS selectors
 -------------
 The `class` attributes of some HTML elements have changed in SkoolKit 8.

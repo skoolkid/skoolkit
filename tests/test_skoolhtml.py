@@ -656,22 +656,6 @@ class MethodTest(HtmlWriterTestCase):
         output = writer.format_template('foo', {'bar': 'baz'})
         self.assertEqual(output, '!!baz!!')
 
-    def test_format_template_unused_default(self):
-        ref = """
-            [Template:foo]
-            {bar}
-            [Template:default-foo]
-            <<{bar}>>
-        """
-        writer = self._get_writer(ref=ref)
-        output = writer.format_template('foo', {'bar': 'baz'}, 'default-foo')
-        self.assertEqual(output, 'baz')
-
-    def test_format_template_uses_default(self):
-        writer = self._get_writer(ref='[Template:default-foo]\n{bar}')
-        output = writer.format_template('foo', {'bar': 'baz'}, 'default-foo')
-        self.assertEqual(output, 'baz')
-
     def test_format_template_unknown_field(self):
         writer = self._get_writer(ref='[Template:foo]\n{bar}')
         with self.assertRaisesRegex(SkoolKitError, "^Unknown field 'bar' in foo template$"):
@@ -686,11 +670,6 @@ class MethodTest(HtmlWriterTestCase):
         writer = self._get_writer()
         with self.assertRaisesRegex(SkoolKitError, "^'non-existent' template does not exist$"):
             writer.format_template('non-existent', {})
-
-    def test_format_template_nonexistent_default(self):
-        writer = self._get_writer()
-        with self.assertRaisesRegex(SkoolKitError, "^'default' template does not exist$"):
-            writer.format_template('non-existent', {}, 'default')
 
     def test_format_template_foreach(self):
         ref = """

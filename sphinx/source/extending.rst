@@ -292,19 +292,18 @@ HtmlWriter provides a method for formatting a template defined by a
 
 .. automethod:: skoolkit.skoolhtml.HtmlWriter.format_template
 
+   .. versionchanged:: 8.0
+      Removed the *default* parameter.
+
    .. versionadded:: 4.0
 
-Note that there is typically no need to specify *default* when formatting a
-user-defined template:
-
-.. code-block:: python
-
-  self.format_template('custom', {'foo': 'bar'})
-
-will format the ``PageID-custom`` template (where ``PageID`` is the ID of the
-current page) if it exists, or the ``custom`` template otherwise, in accordance
-with SkoolKit's rules for preferring :ref:`page-specific templates
-<ps_templates>`.
+Note that if *name* is 'Layout', the template whose name matches the current
+page ID will be used, if it exists; if no such template exists, the
+:ref:`t_Layout` template will be used. If *name* is not 'Layout', the template
+named ``PageID-name`` (where ``PageID`` is the current page ID) will be used,
+if it exists; if no such template exists, the ``name`` template will be used.
+This is in accordance with SkoolKit's rules for preferring :ref:`page-specific
+templates <ps_templates>`.
 
 Base and case
 -------------

@@ -36,14 +36,12 @@ from skoolkit.skoolparser import TableParser, ListParser
 #: The ID of the main disassembly.
 MAIN_CODE_ID = 'main'
 
-# Page IDs (as used in the [Paths], [Titles] and [Links] sections)
+# Page IDs
 P_GAME_INDEX = 'GameIndex'
-P_ROUTINES_MAP = 'RoutinesMap'
-P_DATA_MAP = 'DataMap'
-P_MESSAGES_MAP = 'MessagesMap'
-P_UNUSED_MAP = 'UnusedMap'
-P_GSB = 'GameStatusBuffer'
 P_ASM_SINGLE_PAGE = 'AsmSinglePage'
+
+# Full-page template name
+T_LAYOUT = 'Layout'
 
 # UDG image path ID
 UDG_IMAGE_PATH = 'UDGImagePath'
@@ -274,7 +272,7 @@ class HtmlWriter:
                     except KeyError as e:
                         raise SkoolKitError("Unrecognised field '{}'".format(e.args[0]))
                     if tname:
-                        processed.extend(self._get_template(tname))
+                        processed.extend(self._get_template(tname)[1])
                     done = False
                 else:
                     processed.append(line)
@@ -342,33 +340,29 @@ class HtmlWriter:
             processed = self._unroll_loops(processed, fields)
         return processed
 
-    def _get_template(self, name, default=None):
-        if default is None:
-            tname = '{}-{}'.format(self._get_page_id(), name)
-            default = name
-        else:
-            tname = name
+    def _get_template(self, name):
+        tname = self._get_page_id()
+        if name != T_LAYOUT:
+            tname += '-' + name
         if tname not in self.templates:
             tname = re.sub('Asm-[bcgstuw]', 'Asm', tname)
+        if tname not in self.templates:
+            tname = name
         try:
-            return self.templates.get(tname, self.templates[default]).split('\n')
+            return tname, self.templates[tname].split('\n')
         except KeyError as e:
             raise SkoolKitError("'{}' template does not exist".format(e.args[0]))
 
     # API
-    def format_template(self, name, fields, default=None):
+    def format_template(self, name, fields):
         """Format a template with a set of replacement fields.
 
         :param name: The name of the template.
         :param fields: A dictionary of replacement field names and values.
-        :param default: The default template to use if the named template
-                        cannot be found. If `None`, use the 'PageID-name'
-                        template if that exists, or the named template
-                        otherwise.
         :return: The formatted string.
         """
         fields.update(self.template_subs)
-        lines = self._get_template(name, default)
+        tname, lines = self._get_template(name)
         try:
             lines = self._process_include(lines, fields)
         except SkoolKitError as e:
@@ -381,7 +375,7 @@ class HtmlWriter:
             lines = self._process_if(lines, fields)
         except (skoolmacro.MacroParsingError, NameError, ValueError) as e:
             raise SkoolKitError("Invalid if directive: {}".format(e.args[0]))
-        return format_template('\n'.join(lines), name, **fields)
+        return format_template('\n'.join(lines), tname, **fields)
 
     def _expand_values(self, obj, *exceptions):
         if isinstance(obj, str):
@@ -777,7 +771,7 @@ class HtmlWriter:
             'indent': indent,
             'items': list_items
         }
-        return self.format_template(self._get_page_id() + '-item_list', t_list_items_subs, 'item_list')
+        return self.format_template('item_list', t_list_items_subs)
 
     def format_registers(self, cwd, registers, entry_dict):
         entry_dict['input_registers'] = input_values = []
@@ -1003,7 +997,7 @@ class HtmlWriter:
 
         subs['stylesheets'] = self.stylesheets[cwd]
         subs['javascripts'] = self.javascript[js_key]
-        return self.format_template(self._get_page_id(), subs, 'Layout')
+        return self.format_template(T_LAYOUT, subs)
 
     def _get_logo(self, cwd):
         if cwd not in self.logo:
