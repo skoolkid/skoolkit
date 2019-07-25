@@ -43,7 +43,8 @@ includes:
 
 .. versionchanged:: 8.0
    ``SkoolKit[page_header]`` is a two-element list containing the page header
-   prefix and suffix. Added ``SkoolKit[include]``.
+   prefix and suffix. Added ``SkoolKit[include]``, and the ``javascripts`` and
+   ``stylesheets`` page-level identifiers.
 
 .. versionchanged:: 6.4
    Added ``SkoolKit[path]``.
@@ -69,6 +70,8 @@ available (in addition to the universal and page-level identifiers):
 To see the default ``Layout`` template, run the following command::
 
   $ skool2html.py -r Template:Layout
+
+.. versionadded:: 8.0
 
 .. _t_asm:
 
@@ -232,6 +235,7 @@ following attributes:
 
 Each regular entry object has the following attributes:
 
+* ``anchor`` - the anchor for the entry
 * ``contents`` - a list of paragraphs comprising the contents of the entry
 * ``num`` - '1' or '2', depending on the order of the entry on the page
 * ``title`` - the entry title
@@ -262,22 +266,6 @@ To see the default ``footer`` template, run the following command::
   $ skool2html.py -r Template:footer
 
 .. versionadded:: 5.0
-
-.. _t_img:
-
-img
----
-The ``img`` template is the subtemplate used to format ``<img>`` elements.
-
-The following identifiers are available (in addition to the universal
-identifiers):
-
-* ``alt`` - the 'alt' text for the image
-* ``src`` - the relative path to the image file
-
-To see the default ``img`` template, run the following command::
-
-  $ skool2html.py -r Template:img
 
 .. _t_home:
 
@@ -312,6 +300,24 @@ To see the default ``home`` template, run the following command::
 
 .. versionadded:: 8.0
 
+.. _t_img:
+
+img
+---
+The ``img`` template is used to format ``<img>`` elements for the
+:ref:`image macros <imageMacros>` and for the game logo image (if defined) in
+the header of every page.
+
+The following identifiers are available (in addition to the universal
+identifiers):
+
+* ``alt`` - the 'alt' text for the image
+* ``src`` - the relative path to the image file
+
+To see the default ``img`` template, run the following command::
+
+  $ skool2html.py -r Template:img
+
 .. _t_item_list:
 
 item_list
@@ -340,6 +346,8 @@ attribute of each item (this template is recursive).
 To see the default ``item_list`` template, run the following command::
 
   $ skool2html.py -r Template:item_list
+
+.. versionadded:: 8.0
 
 .. _t_link:
 
@@ -374,6 +382,9 @@ identifiers):
 To see the default ``list`` template, run the following command::
 
   $ skool2html.py -r Template:list
+
+.. versionchanged:: 8.0
+   Replaced the ``m_list_item`` identifier with the ``items`` identifier.
 
 .. versionadded:: 4.2
 
@@ -430,6 +441,8 @@ To see the default ``section`` template, run the following command::
 
   $ skool2html.py -r Template:section
 
+.. versionadded:: 8.0
+
 .. _t_table:
 
 table
@@ -454,6 +467,9 @@ that row. Each cell object has the following attributes:
 To see the default ``table`` template, run the following command::
 
   $ skool2html.py -r Template:table
+
+.. versionchanged:: 8.0
+   Replaced the ``m_table_row`` identifier with the ``rows`` identifier.
 
 .. versionadded:: 4.2
 
@@ -501,11 +517,14 @@ would produce the following output::
 if
 ^^
 The ``if`` directive includes the content between it and the corresponding
-``endif`` directive if a given expression is true, and excludes it otherwise.
+``else`` directive (optional) or ``endif`` directive (required) if a given
+expression is true, and excludes it otherwise.
 ::
 
   <# if(expr) #>
   content
+  <# else #>
+  alternative content
   <# endif #>
 
 ``expr`` may be any syntactically valid Python expression, and may contain the
@@ -551,33 +570,65 @@ would produce the following output::
 Page-specific templates
 -----------------------
 When SkoolKit builds an HTML page, it uses the template whose name matches the
-page ID (``PageID``) if it exists, or the :ref:`t_Layout` template otherwise.
-For example, when building the ``RoutinesMap`` memory map page, SkoolKit will
-use the ``RoutinesMap`` template if it exists.
+page ID (``PageID``) if it exists, or the stock :ref:`t_Layout` template
+otherwise. For example, when building the ``RoutinesMap`` memory map page,
+SkoolKit will use the ``RoutinesMap`` template if it exists.
 
-+-------------------------------+----------------------------+--------------------------+
-| Page type                     | Preferred template(s)      | Stock template           |
-+===============================+============================+==========================+
-| Home (index)                  | ``GameIndex``              | :ref:`t_home`            |
-+-------------------------------+----------------------------+--------------------------+
-| :ref:`Other code <otherCode>` | ``CodeID-Index``           | :ref:`t_memory_map`      |
-| index                         |                            |                          |
-+-------------------------------+----------------------------+--------------------------+
-| Routine/data block            | ``[CodeID-]Asm[-*]``       | :ref:`t_asm`             |
-+-------------------------------+----------------------------+--------------------------+
-| Disassembly (single page)     | ``[CodeID-]AsmSinglePage`` | :ref:`t_asm_single_page` |
-+-------------------------------+----------------------------+--------------------------+
-| :ref:`Memory map <memoryMap>` | ``PageID``                 | :ref:`t_memory_map`      |
-+-------------------------------+----------------------------+--------------------------+
-| :ref:`Box page <boxpages>`    | ``PageID``                 | :ref:`t_boxes`           |
-+-------------------------------+----------------------------+--------------------------+
-| :ref:`Custom page <Page>`     | ``PageID``                 | :ref:`t_Layout`          |
-| (non-box)                     |                            |                          |
-+-------------------------------+----------------------------+--------------------------+
-
-Where ``Asm-*`` appears in the table above, it means one of ``Asm-b``,
+Wherever ``Asm-*`` appears in the tables below, it means one of ``Asm-b``,
 ``Asm-c``, ``Asm-g``, ``Asm-s``, ``Asm-t``, ``Asm-u`` or ``Asm-w``, depending
-on the type of code or data block.
+on the type of memory map entry.
+
++-------------------------------------+----------------------------------+
+| Page type                           | Preferred template(s)            |
++=====================================+==================================+
+| Home (index)                        | ``GameIndex``                    |
++-------------------------------------+----------------------------------+
+| :ref:`Other code <otherCode>` index | ``CodeID-Index``                 |
++-------------------------------------+----------------------------------+
+| Routine/data block                  | ``Asm-*``, ``Asm``               |
++-------------------------------------+----------------------------------+
+| :ref:`Other code <otherCode>`       | ``CodeID-Asm-*``, ``CodeID-Asm`` |
+| routine/data block                  |                                  |
++-------------------------------------+----------------------------------+
+| Disassembly (single page)           | ``AsmSinglePage``                |
++-------------------------------------+----------------------------------+
+| :ref:`Other code <otherCode>`       | ``CodeID-AsmSinglePage``         |
+| disassembly (single page)           |                                  |
++-------------------------------------+----------------------------------+
+| :ref:`Memory map <memoryMap>`       | ``PageID``                       |
++-------------------------------------+----------------------------------+
+| :ref:`Box page <boxpages>`          | ``PageID``                       |
++-------------------------------------+----------------------------------+
+| :ref:`Custom page <Page>` (non-box) | ``PageID``                       |
++-------------------------------------+----------------------------------+
+
+When SkoolKit builds the content of an HTML page between the page header and
+footer, it uses the subtemplate whose name starts with ``PageID-`` if it
+exists, or the appropriate stock subtemplate otherwise. For example, when
+building the entries on the ``Changelog`` page, SkoolKit uses the
+``Changelog-boxes`` template if it exists, or the stock :ref:`t_boxes` template
+otherwise.
+
++-------------------------------+------------------------------------------+--------------------------+
+| Page type                     | Preferred template(s)                    | Stock template           |
++===============================+==========================================+==========================+
+| Routine/data block            | ``Asm-*-asm``, ``Asm-asm``               | :ref:`t_asm`             |
++-------------------------------+------------------------------------------+--------------------------+
+| :ref:`Other code <otherCode>` | ``CodeID-Asm-*-asm``, ``CodeID-Asm-asm`` | :ref:`t_asm`             |
+| routine/data block            |                                          |                          |
++-------------------------------+------------------------------------------+--------------------------+
+| Disassembly (single page)     | ``AsmSinglePage-asm_single_page``        | :ref:`t_asm_single_page` |
++-------------------------------+------------------------------------------+--------------------------+
+| :ref:`Other code <otherCode>` | ``CodeID-AsmSinglePage-asm_single_page`` | :ref:`t_asm_single_page` |
+| disassembly (single page)     |                                          |                          |
++-------------------------------+------------------------------------------+--------------------------+
+| :ref:`Box page <boxpages>`    | ``PageID-boxes``                         | :ref:`t_boxes`           |
++-------------------------------+------------------------------------------+--------------------------+
+| :ref:`Memory map <memoryMap>` | ``PageID-memory_map``                    | :ref:`t_memory_map`      |
++-------------------------------+------------------------------------------+--------------------------+
+| :ref:`Other code <otherCode>` | ``CodeID-Index-memory_map``              | :ref:`t_memory_map`      |
+| index                         |                                          |                          |
++-------------------------------+------------------------------------------+--------------------------+
 
 When SkoolKit builds an element of an HTML page whose format is defined by a
 subtemplate, it uses the subtemplate whose name starts with ``PageID-`` if it
@@ -585,27 +636,27 @@ exists, or one of the stock subtemplates otherwise. For example, when building
 the footer of the ``Changelog`` page, SkoolKit uses the ``Changelog-footer``
 template if it exists, or the stock :ref:`t_footer` template otherwise.
 
-+-------------------------------+--------------------------------------+------------------------------+
-| Element type                  | Preferred template(s)                | Stock subtemplate            |
-+===============================+======================================+==============================+
-| :ref:`Box page <boxpages>`    | ``PageID-item_list``                 | :ref:`t_item_list`           |
-| entry list                    |                                      |                              |
-+-------------------------------+--------------------------------------+------------------------------+
-| ``<img>`` element             | ``PageID-img``                       | :ref:`t_img`                 |
-+-------------------------------+--------------------------------------+------------------------------+
-| Hyperlink                     | ``PageID-link``                      | :ref:`t_link`                |
-+-------------------------------+--------------------------------------+------------------------------+
-| Page footer                   | ``PageID-footer``                    | :ref:`t_footer`              |
-+-------------------------------+--------------------------------------+------------------------------+
-| Section rendered by the       | ``PageID-section``                   | :ref:`t_section`             |
-| :ref:`INCLUDE` macro          |                                      |                              |
-+-------------------------------+--------------------------------------+------------------------------+
-| Register name rendered by the | ``PageID-reg``                       | :ref:`t_reg`                 |
-| :ref:`REG` macro              |                                      |                              |
-+-------------------------------+--------------------------------------+------------------------------+
-| List created by the           | ``PageID-list``                      | :ref:`t_list`                |
-| :ref:`LIST` macro             |                                      |                              |
-+-------------------------------+--------------------------------------+------------------------------+
-| Table created by the          | ``PageID-table``                     | :ref:`t_table`               |
-| :ref:`TABLE` macro            |                                      |                              |
-+-------------------------------+--------------------------------------+------------------------------+
++----------------------------+----------------------+--------------------+
+| Element type               | Preferred template   | Stock template     |
++============================+======================+====================+
+| Page footer                | ``PageID-footer``    | :ref:`t_footer`    |
++----------------------------+----------------------+--------------------+
+| ``<img>`` element          | ``PageID-img``       | :ref:`t_img`       |
++----------------------------+----------------------+--------------------+
+| :ref:`Box page <boxpages>` | ``PageID-item_list`` | :ref:`t_item_list` |
+| list entry                 |                      |                    |
++----------------------------+----------------------+--------------------+
+| Hyperlink                  | ``PageID-link``      | :ref:`t_link`      |
++----------------------------+----------------------+--------------------+
+| List created by the        | ``PageID-list``      | :ref:`t_list`      |
+| :ref:`LIST` macro          |                      |                    |
++----------------------------+----------------------+--------------------+
+| Register name rendered by  | ``PageID-reg``       | :ref:`t_reg`       |
+| the :ref:`REG` macro       |                      |                    |
++----------------------------+----------------------+--------------------+
+| Section rendered by the    | ``PageID-section``   | :ref:`t_section`   |
+| :ref:`INCLUDE` macro       |                      |                    |
++----------------------------+----------------------+--------------------+
+| Table created by the       | ``PageID-table``     | :ref:`t_table`     |
+| :ref:`TABLE` macro         |                      |                    |
++----------------------------+----------------------+--------------------+

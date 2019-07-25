@@ -59,7 +59,7 @@ following templates that were available in SkoolKit 7 no longer exist:
 * ``javascript``
 * ``list_entry``
 * ``list_item``
-* ``list_items`` (renamed to :ref:`t_item_list`)
+* ``list_items``
 * ``map_entry``
 * ``paragraph``
 * ``reference_entry``
@@ -69,10 +69,8 @@ following templates that were available in SkoolKit 7 no longer exist:
 * ``table_row``
 
 In addition, the following templates have been rewritten to use the
-:ref:`td_foreach`, :ref:`td_if` and :ref:`td_include` directives, which are
-new in SkoolKit 8:
+:ref:`td_foreach` and :ref:`td_if` directives, which are new in SkoolKit 8:
 
-* :ref:`t_item_list` (previously named ``list_items``)
 * :ref:`t_list`
 * :ref:`t_table`
 
