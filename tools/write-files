@@ -79,16 +79,18 @@ write_genctls() {
 write_html() {
   for b in '' '-D' '-H'; do
     for c in '' '-u' '-l'; do
-      gamedir=$GAME$b$c
-      varopt=""
-      reffile=""
-      if [[ -z $c ]]; then
-        [[ $b == -D ]] && varopt="--var pub=1" && reffile=$SKOOLKIT_HOME/tools/publish.ref
-        [[ $b == -H ]] && varopt="--var pub=2" && reffile=$SKOOLKIT_HOME/tools/publish.ref
-      fi
-      echo -n "Writing $gamedir HTML disassembly..."
-      ./skool2html.py $b $c -q -d html -c Config/GameDir=$gamedir $varopt $skoolfile $reffile
-      echo "done"
+      for e in '' '-1' '-a'; do
+        gamedir=$GAME$b$c$e
+        varopt=""
+        reffile=""
+        if [[ -z $c ]] && [[ -z $e ]]; then
+          [[ $b == -D ]] && varopt="--var pub=1" && reffile=$SKOOLKIT_HOME/tools/publish.ref
+          [[ $b == -H ]] && varopt="--var pub=2" && reffile=$SKOOLKIT_HOME/tools/publish.ref
+        fi
+        echo -n "Writing $gamedir HTML disassembly..."
+        ./skool2html.py $b $c $e -q -d html -c Config/GameDir=$gamedir $varopt $skoolfile $reffile
+        echo "done"
+      done
     done
   done
 }
