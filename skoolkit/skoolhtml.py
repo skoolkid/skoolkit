@@ -94,7 +94,7 @@ class HtmlWriter:
 
         self.game_vars = self._expand_values('Game', 'Logo')
         self.asm_anchor_template = self.game_vars['AddressAnchor']
-        self.asm_single_page_template = self.game_vars.get('AsmSinglePageTemplate')
+        self.asm_single_page = self.game_vars['AsmSinglePage'] != '0'
         self.paths = self.get_dictionary('Paths')
         self.titles = self.get_dictionary('Titles')
         self.page_headers = self.get_dictionary('PageHeaders')
@@ -155,7 +155,7 @@ class HtmlWriter:
             asm_single_page_id = code['AsmSinglePageId'] = '{}-{}'.format(c_id, P_ASM_SINGLE_PAGE)
             self.paths.setdefault(asm_single_page_id, '{}/asm.html'.format(c_id))
             self.titles.setdefault(asm_single_page_id, c_id)
-            if not self.asm_single_page_template:
+            if not self.asm_single_page:
                 for entry_type in 'bcgstuw':
                     asm_page_id = self._get_asm_page_id(c_id, entry_type)
                     default_asm_page_id = self._get_asm_page_id(MAIN_CODE_ID, entry_type)
@@ -439,7 +439,7 @@ class HtmlWriter:
         raise SkoolKitError("Cannot find code path for '{}' disassembly".format(code_id))
 
     def _get_asm_page_id(self, code_id, entry_type=None):
-        if self.asm_single_page_template:
+        if self.asm_single_page:
             if code_id == MAIN_CODE_ID:
                 return P_ASM_SINGLE_PAGE
             return '{}-{}'.format(code_id, P_ASM_SINGLE_PAGE)
@@ -564,7 +564,7 @@ class HtmlWriter:
     def _asm_relpath(self, cwd, address, code_id=None, raw=False):
         if not code_id:
             code_id = self.code_id
-        if self.asm_single_page_template:
+        if self.asm_single_page:
             page_id = self._get_asm_page_id(code_id)
             fname = self.relpath(cwd, self.paths[page_id])
             return '{}#{}'.format(fname, self.asm_anchor(address, raw))
@@ -808,7 +808,7 @@ class HtmlWriter:
                 asm_label = self.parser.get_asm_label(reference.address)
                 external_ref = entry != reference.entry
                 if external_ref or asm_label or self.link_internal_operands:
-                    if self.asm_single_page_template:
+                    if self.asm_single_page:
                         href = '#{}'.format(self.asm_anchor(reference.address))
                     else:
                         entry_address = reference.entry.address
@@ -881,13 +881,13 @@ class HtmlWriter:
 
     def _write_asm_single_page(self, map_file):
         page_id = self._get_asm_page_id(self.code_id)
-        fname, cwd = self._set_cwd(page_id, self.asm_single_page_template)
+        fname, cwd = self._set_cwd(page_id, 'asm_single_page')
         asm_entries = [self._get_asm_entry(cwd, i, map_file) for i in range(len(self.memory_map))]
         html = self._format_page(cwd, {'entries': asm_entries})
         self.write_file(fname, html)
 
     def write_entries(self, cwd, map_file):
-        if self.asm_single_page_template:
+        if self.asm_single_page:
             self._write_asm_single_page(map_file)
         else:
             for i in range(len(self.memory_map)):
@@ -1175,7 +1175,7 @@ class HtmlWriter:
         container = self.parser.get_container(address, code_id)
         if (not code_id or code_id == self.code_id) and not container:
             raise skoolmacro.MacroParsingError('Could not find instruction at {}'.format(addr_str))
-        if self.asm_single_page_template:
+        if self.asm_single_page:
             href = self._asm_relpath(cwd, address, code_id, True)
         else:
             if container:

@@ -257,7 +257,7 @@ def write_disassembly(html_writer, files, search_dir, extra_search_dirs, pages, 
 
     # Write disassembly files
     if 'd' in files:
-        if html_writer.asm_single_page_template:
+        if html_writer.asm_single_page:
             message = 'Writing ' + normpath(paths['AsmSinglePage'])
         else:
             message = 'Writing disassembly files in ' + normpath(html_writer.code_path)
@@ -287,7 +287,7 @@ def write_disassembly(html_writer, files, search_dir, extra_search_dirs, pages, 
             map_path = paths[map_name]
             asm_path = paths[code['CodePathId']]
             clock(html_writer2.write_map, 'Writing ' + normpath(map_path), map_name)
-            if html_writer.asm_single_page_template:
+            if html_writer.asm_single_page:
                 message = 'Writing ' + normpath(paths[code['AsmSinglePageId']])
             else:
                 message = 'Writing disassembly files in ' + normpath(asm_path)
@@ -390,7 +390,7 @@ def main(args):
     update_options('skool2html', namespace, namespace.params)
     verbose, show_timings = not namespace.quiet, namespace.show_timings
     if namespace.asm_one_page:
-        namespace.config_specs.append('Game/AsmSinglePageTemplate=asm_single_page')
+        namespace.config_specs.append('Game/AsmSinglePage=1')
     if namespace.writer:
         namespace.config_specs.append('Config/HtmlWriterClass={}'.format(namespace.writer))
     if namespace.pages:

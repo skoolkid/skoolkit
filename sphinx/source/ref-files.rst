@@ -127,10 +127,8 @@ Recognised parameters are:
 
 * ``AddressAnchor`` - the format of the anchors attached to instructions on
   disassembly pages and entries on memory map pages (default: ``{address}``)
-* ``AsmSinglePageTemplate`` - the name of the HTML template used to build the
-  disassembly on a single page, as opposed to a separate page for each routine
-  and data block (default: None); set this to 'asm_single_page' to use the
-  :ref:`t_asm_single_page` template
+* ``AsmSinglePage`` - ``1`` to write the disassembly on a single page, or ``0``
+  to write a separate page for each routine and data block (default: ``0``)
 * ``Bytes`` - the format specification for the ``bytes`` attribute of
   instruction objects in the :ref:`t_asm` and :ref:`t_asm_single_page`
   templates
@@ -190,12 +188,12 @@ hexadecimal addresses if the ``--hex`` option is used with
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 8.0     | Added the ``AsmSinglePage`` parameter                             |
++---------+-------------------------------------------------------------------+
 | 7.2     | Added the ``Bytes`` and ``DisassemblyTableNumCols`` parameters    |
 +---------+-------------------------------------------------------------------+
 | 6.0     | Every parameter (not just ``Logo``) may contain                   |
 |         | :ref:`skool macros <skoolMacros>`                                 |
-+---------+-------------------------------------------------------------------+
-| 5.3     | Added the ``AsmSinglePageTemplate`` parameter                     |
 +---------+-------------------------------------------------------------------+
 | 4.3     | Added the ``AddressAnchor`` parameter                             |
 +---------+-------------------------------------------------------------------+
@@ -317,9 +315,8 @@ where:
 
 Recognised page IDs are:
 
-* ``AsmSinglePage`` - the disassembly page (when a single-page template is
-  specified by the ``AsmSinglePageTemplate`` parameter in the :ref:`ref-Game`
-  section)
+* ``AsmSinglePage`` - the disassembly page (when writing a single-page
+  disassembly)
 * ``Bugs`` - the 'Bugs' page
 * ``Changelog`` - the 'Changelog' page
 * ``DataMap`` - the 'Data' memory map page
@@ -467,9 +464,8 @@ and directory IDs become available for use in the :ref:`paths`, :ref:`titles`,
   ``bcgstuw``, depending on the entry type)
 * ``CodeID-CodePath`` - the ID of the directory in which the disassembly pages
   are written
-* ``CodeID-AsmSinglePage`` - the ID of the disassembly page (when a single-page
-  template is specified by the ``AsmSinglePageTemplate`` parameter in the
-  :ref:`ref-Game` section)
+* ``CodeID-AsmSinglePage`` - the ID of the disassembly page (when writing a
+  single-page disassembly)
 
 By default, the index page is written to `CodeID/CodeID.html`, and the
 disassembly pages are written in a directory named `CodeID`; if a single-page
@@ -579,9 +575,8 @@ Recognised page IDs are:
 * ``Asm-t`` - disassembly pages for 't' blocks (default: 'Messages')
 * ``Asm-u`` - disassembly pages for 'u' blocks (default: 'Unused')
 * ``Asm-w`` - disassembly pages for 'w' blocks (default: 'Data')
-* ``AsmSinglePage`` - the disassembly page (when a single-page template is
-  specified by the ``AsmSinglePageTemplate`` parameter in the :ref:`ref-Game`
-  section)
+* ``AsmSinglePage`` - the disassembly page (when writing a single-page
+  disassembly)
 * ``Bugs`` - the 'Bugs' page
 * ``Changelog`` - the 'Changelog' page
 * ``DataMap`` - the 'Data' memory map page
@@ -641,9 +636,8 @@ where:
 
 Recognised file IDs and their default paths are:
 
-* ``AsmSinglePage`` - the disassembly page (when a single-page template is
-  specified by the ``AsmSinglePageTemplate`` parameter in the :ref:`ref-Game`
-  section; default: ``asm.html``)
+* ``AsmSinglePage`` - the disassembly page (when writing a single-page
+  disassembly; default: ``asm.html``)
 * ``Bugs`` - the 'Bugs' page (default: ``reference/bugs.html``)
 * ``Changelog`` - the 'Changelog' page (default: ``reference/changelog.html``)
 * ``CodeFiles`` - the format of the disassembly page filenames (default:
@@ -824,9 +818,8 @@ Recognised page IDs and their default titles are:
   {entry[address]}')
 * ``Asm-w`` - disassembly pages for 'w' blocks (default: 'Data at
   {entry[address]}')
-* ``AsmSinglePage`` - the disassembly page (when a single-page template is
-  specified by the ``AsmSinglePageTemplate`` parameter in the :ref:`ref-Game`
-  section; default: 'Disassembly')
+* ``AsmSinglePage`` - the disassembly page (when writing a single-page
+  disassembly; default: 'Disassembly')
 * ``Bugs`` - the 'Bugs' page (default: 'Bugs')
 * ``Changelog`` - the 'Changelog' page (default: 'Changelog')
 * ``DataMap`` - the 'Data' memory map page (default: 'Data')

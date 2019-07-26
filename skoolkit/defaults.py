@@ -46,7 +46,7 @@ HtmlWriterClass=skoolkit.skoolhtml.HtmlWriter
 
 SECTIONS['Game'] = """
 AddressAnchor={address}
-; AsmSinglePageTemplate=
+AsmSinglePage=0
 Bytes=
 Copyright=
 Created=Created using <a href="https://skoolkit.ca">SkoolKit</a> #VERSION.

@@ -192,7 +192,7 @@ class Skool2HtmlTest(SkoolKitTestCase):
         self.assertEqual(options.themes, ['dark', 'wide'])
         self.assertEqual(options.quiet, 1)
         self.assertTrue(options.show_timings)
-        self.assertEqual(options.config_specs, ['Game/AsmSinglePageTemplate=asm_single_page'])
+        self.assertEqual(options.config_specs, ['Game/AsmSinglePage=1'])
         self.assertTrue(options.new_images)
         self.assertEqual(options.case, -1)
         self.assertEqual(options.base, 16)
@@ -840,7 +840,7 @@ class Skool2HtmlTest(SkoolKitTestCase):
     @patch.object(skool2html, 'SkoolParser', MockSkoolParser)
     @patch.object(skool2html, 'get_config', mock_config)
     def test_single_page_disassembly(self):
-        reffile = self.write_text_file("[Game]\nAsmSinglePageTemplate=asm_single_page", suffix='.ref')
+        reffile = self.write_text_file("[Game]\nAsmSinglePage=1", suffix='.ref')
         prefix = reffile[:-4]
         skoolfile = self.write_text_file(path='{}.skool'.format(prefix))
         output, error = self.run_skool2html('-d {} {}'.format(self.odir, skoolfile))
@@ -853,7 +853,7 @@ class Skool2HtmlTest(SkoolKitTestCase):
     def test_single_page_disassembly_other_code(self):
         ref = """
             [Game]
-            AsmSinglePageTemplate=asm_single_page
+            AsmSinglePage=1
             [OtherCode:start]
             Source={}
         """.format(self.write_text_file(suffix='.skool'))
@@ -889,7 +889,7 @@ class Skool2HtmlTest(SkoolKitTestCase):
         for option in ('-1', '--asm-one-page'):
             output, error = self.run_skool2html('{} {}'.format(option, skoolfile))
             self.assertEqual(error, '')
-            self.assertEqual(html_writer.asm_single_page_template, 'asm_single_page')
+            self.assertTrue(html_writer.asm_single_page)
 
     @patch.object(skool2html, 'get_class', Mock(return_value=TestHtmlWriter))
     @patch.object(skool2html, 'SkoolParser', MockSkoolParser)

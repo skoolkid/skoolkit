@@ -17,7 +17,7 @@ OPTIONS
 =======
 -1, --asm-one-page
   Write all routines and data blocks to a single page. This option is shorthand
-  for ``-c Game/AsmSinglePageTemplate=asm_single_page``.
+  for ``-c Game/AsmSinglePage=1``.
 
 -a, --asm-labels
   Use ASM labels (defined by ``@label`` directives).

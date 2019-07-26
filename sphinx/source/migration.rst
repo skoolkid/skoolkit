@@ -37,6 +37,9 @@ See :ref:`Limitations` for more details.
 The ``TitlePrefix`` and ``TitleSuffix`` parameters are no longer supported. Use
 the ``GameIndex`` parameter in the :ref:`pageHeaders` section instead.
 
+The ``AsmSinglePageTemplate`` parameter is no longer supported. Use the
+``AsmSinglePage`` parameter instead.
+
 HTML templates
 --------------
 The :ref:`htmlTemplates` have been overhauled in SkoolKit 8. As a result, the
