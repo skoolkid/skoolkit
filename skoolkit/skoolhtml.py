@@ -258,6 +258,8 @@ class HtmlWriter:
                 return eval(re.sub('\[([^0-9][^]]*)\]', r"['\1']", expr.format(**fields)), None, fields)
             except SyntaxError:
                 raise ValueError("Syntax error in expression: '{}'".format(expr))
+            except KeyError as e:
+                raise SkoolKitError("Unrecognised field '{}'".format(e.args[0]))
         raise ValueError('Expression is missing')
 
     def _process_include(self, lines, fields):
@@ -373,7 +375,7 @@ class HtmlWriter:
             raise SkoolKitError("Invalid foreach directive: {}".format(e.args[0]))
         try:
             lines = self._process_if(lines, fields)
-        except (skoolmacro.MacroParsingError, NameError, ValueError) as e:
+        except (SkoolKitError, skoolmacro.MacroParsingError, NameError, ValueError) as e:
             raise SkoolKitError("Invalid if directive: {}".format(e.args[0]))
         return format_template('\n'.join(lines), tname, **fields)
 

@@ -1167,6 +1167,16 @@ class MethodTest(HtmlWriterTestCase):
         with self.assertRaisesRegex(SkoolKitError, "^Invalid if directive: name 'nonexistent' is not defined$"):
             self._get_writer(ref=ref).format_template('if', {})
 
+    def test_format_template_if_invalid_replacement_field(self):
+        ref = """
+            [Template:if]
+            <# if({nonexistent}) #>
+            Content
+            <# endif #>
+        """
+        with self.assertRaisesRegex(SkoolKitError, "^Invalid if directive: Unrecognised field 'nonexistent'$"):
+            self._get_writer(ref=ref).format_template('if', {})
+
     def test_format_template_if_syntax_error(self):
         ref = """
             [Template:if]
@@ -1260,6 +1270,33 @@ class MethodTest(HtmlWriterTestCase):
         """
         with self.assertRaisesRegex(SkoolKitError, "^Invalid include directive: Unrecognised field 'no'$"):
             self._get_writer(ref=ref).format_template('include', {})
+
+    def test_format_template_with_indented_directives(self):
+        ref = """
+            [Template:test]
+            <div>
+                <# foreach($i,list) #>
+                    <# if($i[on]) #>
+                        On: {$i[name]}
+                    <# else #>
+                        Off: {$i[name]}
+                    <# endif #>
+                <# endfor #>
+                <# include(extra) #>
+            </div>
+
+            [Template:extra]
+            Done
+        """
+        fields = {'list': [{'on': 1, 'name': 'Yes'}, {'on': 0, 'name': 'No'}]}
+        exp_output = """
+            <div>
+            On: Yes
+            Off: No
+            Done
+            </div>
+        """
+        self._test_format_template(ref, 'test', fields, exp_output)
 
     def test_push_snapshot_keeps_original_in_place(self):
         writer = self._get_writer(snapshot=[0])
