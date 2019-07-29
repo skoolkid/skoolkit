@@ -752,7 +752,7 @@ class HtmlWriter:
             'list_entries': entries,
             'Page': page
         }
-        return self._format_page(cwd, subs)
+        return self._format_page(cwd, subs, page.get('JavaScript'))
 
     def _build_list_items(self, cwd, items, level=0):
         if not items:

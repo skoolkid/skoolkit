@@ -7576,6 +7576,65 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         for i, js in enumerate(global_js_files + local_js_files):
             self.assertEqual(page[i], '<script type="text/javascript" src="{}"></script>'.format(basename(js)))
 
+    def test_write_default_box_page_with_local_js(self):
+        page_id = 'Custom'
+        js = 'js/script.js'
+        ref = """
+            [Page:{0}]
+            JavaScript={1}
+            SectionPrefix=Box
+            [Box:box1]
+            Hi.
+            [Template:{0}]
+            <# foreach($js,javascripts) #>
+            <script type="text/javascript" src="{{$js[src]}}"></script>
+            <# endfor #>
+        """.format(page_id, js)
+        writer = self._get_writer(ref=ref)
+        writer.write_page(page_id)
+        js_path = basename(js)
+        self.assertEqual(self._read_file(page_id + '.html'), '<script type="text/javascript" src="{}"></script>'.format(js_path))
+
+    def test_write_list_items_box_page_with_local_js(self):
+        page_id = 'Custom'
+        js = 'js/script.js'
+        ref = """
+            [Page:{0}]
+            JavaScript={1}
+            SectionPrefix=Box
+            SectionType=ListItems
+            [Box:box1]
+            Hi.
+            [Template:{0}]
+            <# foreach($js,javascripts) #>
+            <script type="text/javascript" src="{{$js[src]}}"></script>
+            <# endfor #>
+        """.format(page_id, js)
+        writer = self._get_writer(ref=ref)
+        writer.write_page(page_id)
+        js_path = basename(js)
+        self.assertEqual(self._read_file(page_id + '.html'), '<script type="text/javascript" src="{}"></script>'.format(js_path))
+
+    def test_write_bullet_points_box_page_with_local_js(self):
+        page_id = 'Custom'
+        js = 'js/script.js'
+        ref = """
+            [Page:{0}]
+            JavaScript={1}
+            SectionPrefix=Box
+            SectionType=BulletPoints
+            [Box:box1]
+            Hi.
+            [Template:{0}]
+            <# foreach($js,javascripts) #>
+            <script type="text/javascript" src="{{$js[src]}}"></script>
+            <# endfor #>
+        """.format(page_id, js)
+        writer = self._get_writer(ref=ref)
+        writer.write_page(page_id)
+        js_path = basename(js)
+        self.assertEqual(self._read_file(page_id + '.html'), '<script type="text/javascript" src="{}"></script>'.format(js_path))
+
     def test_write_page_with_single_css(self):
         css = 'css/game.css'
         page_id = 'Custom'

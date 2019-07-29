@@ -19,6 +19,8 @@ Changelog
 * Added the ``GameIndex`` parameter to the :ref:`pageHeaders` section
 * Replaced the ``AsmSinglePageTemplate`` parameter with the ``AsmSinglePage``
   parameter in the :ref:`ref-Game` section
+* Fixed the bug that prevents the ``JavaScript`` parameter from working for a
+  box page whose ``SectionType`` is ``ListItems`` or ``BulletPoints``
 
 7.2 (2019-06-02)
 ----------------
