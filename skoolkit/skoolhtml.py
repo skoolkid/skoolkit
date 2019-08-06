@@ -939,7 +939,7 @@ class HtmlWriter:
             fname, cwd = self._set_cwd(page_id, 'boxes')
             html = self._format_box_page(cwd)
         else:
-            fname, cwd = self._set_cwd(page_id)
+            fname, cwd = self._set_cwd(page_id, 'page')
             page['PageContent'] = self.expand(page.get('PageContent', ''), cwd)
             html = self._format_page(cwd, {'Page': page}, page.get('JavaScript'))
         self.write_file(fname, html)
@@ -948,7 +948,7 @@ class HtmlWriter:
         with self.file_info.open_file(fname) as f:
             f.write(contents)
 
-    def _set_cwd(self, page_id, include='', asm_fname=None):
+    def _set_cwd(self, page_id, include, asm_fname=None):
         if asm_fname is None:
             fname = self.paths[page_id]
         else:

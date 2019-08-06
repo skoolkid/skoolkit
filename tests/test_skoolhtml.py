@@ -6760,7 +6760,7 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         self._assert_title_equals(path, title, header)
 
     def test_write_page(self):
-        page_id = 'page'
+        page_id = 'CustomPage'
         ref = """
             [Page:{0}]
             JavaScript=test-html.js
@@ -6778,7 +6778,7 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             'title': 'Custom page',
             'header': 'Custom page',
             'path': '',
-            'body_class': 'page',
+            'body_class': page_id,
             'js': 'test-html.js',
             'content': '<b>This is the content of the custom page.</b>\n'
         }
@@ -6968,7 +6968,7 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         self._assert_content_equal(exp_content, 'MyPage.html')
 
     def test_write_page_with_header_prefix_and_suffix(self):
-        page_id = 'page'
+        page_id = 'CustomPage'
         ref = """
             [Page:{0}]
             PageContent=Hello

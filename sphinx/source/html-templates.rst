@@ -409,6 +409,19 @@ To see the default ``memory_map`` template, run the following command::
 
 .. versionadded:: 8.0
 
+.. _t_page:
+
+page
+----
+The ``page`` template is used to format the content between the header and
+footer of a non-box page defined by a :ref:`Page` section.
+
+To see the default ``page`` template, run the following command::
+
+  $ skool2html.py -r Template:page
+
+.. versionadded:: 8.0
+
 .. _t_reg:
 
 reg
@@ -628,6 +641,9 @@ otherwise.
 +-------------------------------+------------------------------------------+--------------------------+
 | :ref:`Other code <otherCode>` | ``CodeID-Index-memory_map``              | :ref:`t_memory_map`      |
 | index                         |                                          |                          |
++-------------------------------+------------------------------------------+--------------------------+
+| :ref:`Custom page <Page>`     | ``PageID-page``                          | :ref:`t_page`            |
+| (non-box)                     |                                          |                          |
 +-------------------------------+------------------------------------------+--------------------------+
 
 When SkoolKit builds an element of an HTML page whose format is defined by a

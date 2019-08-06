@@ -279,11 +279,7 @@ SECTIONS['Template:Layout'] = """
 <td class="page-header">{SkoolKit[page_header][1]}</td>
 </tr>
 </table>
-<# if(SkoolKit[include]) #>
 <# include({SkoolKit[include]}) #>
-<# else #>
-{Page[PageContent]}
-<# endif #>
 <# include(footer) #>
 </body>
 </html>
@@ -609,6 +605,10 @@ SECTIONS['Template:memory_map'] = """
 </tr>
 <# endfor #>
 </table>
+"""
+
+SECTIONS['Template:page'] = """
+{Page[PageContent]}
 """
 
 SECTIONS['Template:reg'] = """
