@@ -79,8 +79,9 @@ OPTIONS
   Write the disassembly in upper case.
 
 --var `name=value`
-  Define a variable that can be used by the ``@if`` directive and the ``#IF``
-  and ``#MAP`` macros. This option may be used multiple times.
+  Define a variable that can be used by the ``@if`` directive and the
+  ``#EVAL``, ``#IF`` and ``#MAP`` macros. This option may be used multiple
+  times.
 
 -V, --version
   Show the SkoolKit version number and exit.
