@@ -1,9 +1,10 @@
 from io import StringIO
 import re
 import textwrap
+from unittest.mock import patch
 
 from skoolkittest import SkoolKitTestCase
-from skoolkit import SkoolKitError
+from skoolkit import SkoolKitError, api
 from skoolkit.config import COMMANDS
 from skoolkit.snaskool import Disassembly, SkoolWriter
 from skoolkit.ctlparser import CtlParser
@@ -4049,5 +4050,42 @@ class SkoolWriterTest(SkoolKitTestCase):
              00001 RET           ;
             ; The end comment of
             ; the first routine.
+        """
+        self._test_write_skool(snapshot, ctl, exp_skool)
+
+class CustomDisassemblerTest(SkoolKitTestCase):
+    def _test_write_skool(self, snapshot, ctl, exp_skool):
+        self.clear_streams()
+        ctl_parser = CtlParser()
+        ctl_parser.parse_ctls([StringIO(textwrap.dedent(ctl).strip())])
+        writer = SkoolWriter(snapshot, ctl_parser, MockOptions(79, 10, 2), CONFIG.copy())
+        writer.write_skool(1, False)
+        skool = self.out.getvalue().rstrip()
+        self.assertEqual(textwrap.dedent(exp_skool).strip(), skool)
+
+    @patch.object(api, 'SK_CONFIG', None)
+    def test_custom_disassembler(self):
+        module_dir = self.make_directory()
+        ini = """
+            [skoolkit]
+            Disassembler={}:z80.CustomDisassembler
+        """.format(module_dir)
+        self.write_text_file(textwrap.dedent(ini).strip(), 'skoolkit.ini')
+        custom_disassembler = """
+            from skoolkit.disassembler import Disassembler, Instruction
+
+            class CustomDisassembler(Disassembler):
+                def disassemble(self, start, end, base):
+                    return [Instruction(start, 'Hi', ())]
+        """
+        self.write_text_file(textwrap.dedent(custom_disassembler), '{}/z80.py'.format(module_dir))
+        snapshot = [0]
+        ctl = """
+            c 00000
+            i 00001
+        """
+        exp_skool = """
+            ; Routine at 0
+            c00000 Hi            ;
         """
         self._test_write_skool(snapshot, ctl, exp_skool)

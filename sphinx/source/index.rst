@@ -34,3 +34,4 @@ Developer reference
    :maxdepth: 1
 
    extending
+   components

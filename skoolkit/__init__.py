@@ -96,7 +96,7 @@ def get_address_format(hexadecimal=False, lower=False):
         return '${:04X}'
     return '{:05d}'
 
-def get_class(name_spec, default_path):
+def get_class(name_spec, default_path=''):
     path, sep, name = name_spec.rpartition(':')
     if sep:
         sys.path.insert(0, os.path.expanduser(path) or default_path)

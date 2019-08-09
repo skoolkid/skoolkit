@@ -16,7 +16,7 @@
 
 from skoolkit import (SkoolKitError, warn, write_line, wrap, parse_int,
                       get_address_format, format_template)
-from skoolkit.disassembler import Disassembler
+from skoolkit.api import get_disassembler
 from skoolkit.skoolasm import UDGTABLE_MARKER
 from skoolkit.skoolctl import (AD_IGNOREUA, AD_LABEL, TITLE, DESCRIPTION,
                                REGISTERS, MID_BLOCK, INSTRUCTION, END)
@@ -65,7 +65,7 @@ class Disassembly:
     def __init__(self, snapshot, ctl_parser, config=None, final=False, defb_size=8, defb_mod=1,
                  zfill=False, defm_width=66, asm_hex=False, asm_lower=False):
         ctl_parser.apply_asm_data_directives(snapshot)
-        self.disassembler = Disassembler(snapshot, defb_size, defb_mod, zfill, defm_width, asm_hex, asm_lower)
+        self.disassembler = get_disassembler(snapshot, defb_size, defb_mod, zfill, defm_width, asm_hex, asm_lower)
         self.ctl_parser = ctl_parser
         if asm_hex:
             if asm_lower:

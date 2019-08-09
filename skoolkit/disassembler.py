@@ -1,4 +1,4 @@
-# Copyright 2010-2015, 2017, 2018 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2010-2015, 2017-2019 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -37,12 +37,22 @@ class Instruction:
         return len(self.bytes)
 
 class Disassembler:
-    def __init__(self, snapshot, defb_size=8, defb_mod=1, zfill=False, defm_width=66, asm_hex=False, asm_lower=False):
+    """Initialise the disassembler.
+
+    :param snapshot: The snapshot (list of 65536 byte values) to disassemble.
+    :param defb_size: The default maximum number of bytes per DEFB statement.
+    :param defb_mod: Group DEFB blocks by addresses that are divisible by this number.
+    :param zfill: If `True`, pad decimal values with leading zeroes.
+    :param defm_size: The default maximum number of characters in a DEFM statement.
+    :param asm_hex: If `True`, produce a hexadecimal disassembly.
+    :param asm_lower: If `True`, produce a lower case disassembly.
+    """
+    def __init__(self, snapshot, defb_size=8, defb_mod=1, zfill=False, defm_size=66, asm_hex=False, asm_lower=False):
         self.snapshot = snapshot
         self.defb_size = defb_size
         self.defb_mod = defb_mod
         self.zfill = zfill
-        self.defm_width = defm_width
+        self.defm_width = defm_size
         self.asm_hex = asm_hex
         self.asm_lower = asm_lower
         self.defw_size = 2
@@ -87,6 +97,13 @@ class Disassembler:
         return sign + self.byte_formats[base].format(value)
 
     def disassemble(self, start, end=65536, base=None):
+        """Disassemble an address range.
+
+        :param start: The start address.
+        :param end: The end address.
+        :param base: Base indicator (`None`, 'b', 'c', 'd', 'h', 'm' or 'n').
+        :return: A list of instruction objects.
+        """
         instructions = []
         address = start
         while address < end:
@@ -106,6 +123,13 @@ class Disassembler:
         return instructions
 
     def defb_range(self, start, end, sublengths):
+        """Produce a sequence of DEFB statements for an address range.
+
+        :param start: The start address.
+        :param end: The end address.
+        :param sublengths: Sequence of sublength identifiers.
+        :return: A list of instruction objects.
+        """
         if sublengths[0][0] or end - start <= self.defb_size:
             return [self.defb_line(start, self.snapshot[start:end], sublengths)]
         instructions = []
@@ -136,6 +160,13 @@ class Disassembler:
         return ','.join(items)
 
     def defw_range(self, start, end, sublengths):
+        """Produce a sequence of DEFW statements for an address range.
+
+        :param start: The start address.
+        :param end: The end address.
+        :param sublengths: Sequence of sublength identifiers.
+        :return: A list of instruction objects.
+        """
         if sublengths[0][0]:
             step = end - start
         else:
@@ -151,6 +182,13 @@ class Disassembler:
         return instructions
 
     def defm_range(self, start, end, sublengths):
+        """Produce a sequence of DEFM statements for an address range.
+
+        :param start: The start address.
+        :param end: The end address.
+        :param sublengths: Sequence of sublength identifiers.
+        :return: A list of instruction objects.
+        """
         if sublengths[0][0]:
             data = self.snapshot[start:end]
             item_str = self.defb_items(data, sublengths, False)
@@ -174,6 +212,14 @@ class Disassembler:
         return instructions
 
     def defs(self, start, end, sublengths):
+        """Produce a sequence of DEFS statements from a start address to an end
+        address.
+
+        :param start: The start address.
+        :param end: The end address.
+        :param sublengths: Sequence of sublength identifiers.
+        :return: A list of instruction objects.
+        """
         data = self.snapshot[start:end]
         values = set(data)
         if len(values) > 1:
@@ -191,6 +237,12 @@ class Disassembler:
         return [Instruction(start, defs_dir, data)]
 
     def ignore(self, start, end):
+        """Produce a blank instruction object for an address range.
+
+        :param start: The start address.
+        :param end: The end address.
+        :return: A list containing a single blank instruction object.
+        """
         return [Instruction(start, '', self.snapshot[start:end])]
 
     def get_message(self, data):

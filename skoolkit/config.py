@@ -21,6 +21,9 @@ from skoolkit import find_file
 from skoolkit.refparser import RefParser
 
 COMMANDS = {
+    'skoolkit': {
+        'Disassembler': 'skoolkit.disassembler.Disassembler'
+    },
     'sna2ctl' : {
         'Dictionary': ('', ''),
         'Hex': (0, 'ctl_hex'),
@@ -86,10 +89,13 @@ COMMANDS = {
 def get_config(name):
     config = {}
     for k, v in COMMANDS.get(name, {}).items():
-        if isinstance(v[0], tuple):
-            config[k] = []
+        if isinstance(v, tuple):
+            if isinstance(v[0], tuple):
+                config[k] = []
+            else:
+                config[k] = v[0]
         else:
-            config[k] = v[0]
+            config[k] = v
     skoolkit_ini = find_file('skoolkit.ini', ('', expanduser('~/.skoolkit')))
     if skoolkit_ini:
         ref_parser = RefParser()
