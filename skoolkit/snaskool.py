@@ -14,6 +14,8 @@
 # You should have received a copy of the GNU General Public License along with
 # SkoolKit. If not, see <http://www.gnu.org/licenses/>.
 
+from collections import defaultdict
+
 from skoolkit import (SkoolKitError, warn, write_line, wrap, parse_int,
                       get_address_format, format_template)
 from skoolkit.api import get_disassembler
@@ -37,11 +39,11 @@ class Instruction:
         self.ctl = None
         self.comment = None
 
-    def add_referrer(self, entry):
+    def add_referrer(self, entry_address):
         if not self.ctl:
             self.ctl = '*'
-        if entry is not self.entry and entry not in self.referrers:
-            self.referrers.append(entry)
+        if entry_address != self.entry.address and entry_address not in self.referrers:
+            self.referrers.append(entry_address)
 
 class Entry:
     def __init__(self, header, title, description, ctl, blocks, registers,
@@ -78,11 +80,28 @@ class Entry:
     def has_ignoreua_directive(self, comment_type):
         return comment_type in self.ignoreua_directives
 
+class SnapshotReferenceCalculator:
+    def calculate_references(self, entries, unused, exclude):
+        containers = {i.address: e[0].address for e in entries for i in e if i.address not in exclude}
+        referrers = defaultdict(list)
+        for entry in entries:
+            entry_addr = entry[0].address
+            for instruction in entry:
+                operation = instruction.operation
+                if operation.upper().startswith(('DJ', 'JR', 'JP', 'CA', 'RS')):
+                    addr_str = get_address(operation)
+                    if addr_str:
+                        ref_addr = parse_int(addr_str)
+                        if ref_addr in containers and (entry_addr not in unused or entry_addr == containers[ref_addr]):
+                            referrers[ref_addr].append(entry_addr)
+        return referrers
+
 class Disassembly:
     def __init__(self, snapshot, ctl_parser, config=None, final=False, defb_size=8, defb_mod=1,
                  zfill=False, defm_width=66, asm_hex=False, asm_lower=False):
         ctl_parser.apply_asm_data_directives(snapshot)
         self.disassembler = get_disassembler(snapshot, defb_size, defb_mod, zfill, defm_width, asm_hex, asm_lower)
+        self.ref_calc = SnapshotReferenceCalculator()
         self.ctl_parser = ctl_parser
         if asm_hex:
             if asm_lower:
@@ -191,18 +210,14 @@ class Disassembly:
                     break
 
     def _calculate_references(self):
+        entries = [e.instructions for e in self.entries]
+        unused = [e.address for e in self.entries if e.ctl == 'u']
+        exclude = [i.address for e in entries for i in e if i.label == '']
+        referrers = self.ref_calc.calculate_references(entries, unused, exclude)
         for entry in self.entries:
             for instruction in entry.instructions:
-                instruction.referrers = []
-        for entry in self.entries:
-            for instruction in entry.instructions:
-                operation = instruction.operation
-                if operation.upper().startswith(('DJ', 'JR', 'JP', 'CA', 'RS')):
-                    addr_str = get_address(operation)
-                    if addr_str:
-                        callee = self.instructions.get(parse_int(addr_str))
-                        if callee and (entry.ctl != 'u' or callee.entry == entry) and callee.label != '':
-                            callee.add_referrer(entry)
+                for entry_address in referrers[instruction.address]:
+                    instruction.add_referrer(entry_address)
 
     def _address_str(self, address):
         return self.address_fmt.format(address)
@@ -451,10 +466,10 @@ class SkoolWriter:
                 key = 'EntryPointRef'
             else:
                 key = 'Ref'
-            fields = {'ref': '#R' + self.address_str(referrers[-1].address, False)}
+            fields = {'ref': '#R' + self.address_str(referrers[-1], False)}
             if len(referrers) > 1:
                 key += 's'
-                fields['refs'] = ', '.join(['#R' + self.address_str(r.address, False) for r in referrers[:-1]])
+                fields['refs'] = ', '.join(['#R' + self.address_str(r, False) for r in referrers[:-1]])
             self.write_comment(format_template(self.config[key], key, **fields))
 
     def write_asm_directives(self, *directives):

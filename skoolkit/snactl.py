@@ -218,7 +218,7 @@ def _generate_ctls_with_code_map(snapshot, start, end, config, code_map):
             if entry.ctl == 'U':
                 for instruction in entry.instructions:
                     for referrer in instruction.referrers:
-                        if ctls[referrer.address] == 'c':
+                        if ctls[referrer] == 'c':
                             ctls[instruction.address] = 'c'
                             if entry.next:
                                 e_end = entry.next.address

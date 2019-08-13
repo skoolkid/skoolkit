@@ -271,7 +271,7 @@ class DisassemblyTest(SkoolKitTestCase):
         self.assertEqual(instruction.address, 32768)
         self.assertEqual(instruction.operation, 'XOR A')
         self.assertEqual(instruction.bytes, [175])
-        self.assertEqual(instruction.referrers, [entries[13]])
+        self.assertEqual(instruction.referrers, [entries[13].address])
         self.assertEqual(instruction.entry, entry)
         self.assertEqual(instruction.ctl, 'c')
         self.assertEqual(instruction.comment, None)
@@ -473,9 +473,8 @@ class DisassemblyTest(SkoolKitTestCase):
         ctl_parser.parse_ctls([StringIO('\n'.join(ctls))])
         disassembly = Disassembly(snapshot, ctl_parser, CONFIG, True)
 
-        referrers = disassembly.entries[0].instructions[0].referrers
-        ref_addresses = set([entry.address for entry in referrers])
-        self.assertEqual(set(exp_ref_addresses), ref_addresses)
+        ref_addresses = disassembly.entries[0].instructions[0].referrers
+        self.assertEqual(set(exp_ref_addresses), set(ref_addresses))
 
     def test_byte_formats(self):
         snapshot = [42] * 75
