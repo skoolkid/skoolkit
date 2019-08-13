@@ -2066,7 +2066,7 @@ class DisassemblerTest(SkoolKitTestCase):
         snapshot = [15] * 10
         disassembler = self._get_disassembler(snapshot, asm_lower=True)
         sublengths = ((None, 'h'), (None, 'h'))
-        instructions = disassembler.defs(0, 10, sublengths)
+        instructions = disassembler.defs_range(0, 10, sublengths)
         self.assertEqual(len(instructions), 1)
         self.assertEqual(instructions[0].operation, 'defs $0a,$0f')
 

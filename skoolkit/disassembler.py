@@ -200,9 +200,8 @@ class Disassembler:
             instructions.extend(self.defm_lines(i - len(msg) + 1, msg))
         return instructions
 
-    def defs(self, start, end, sublengths):
-        """Produce a sequence of DEFS statements from a start address to an end
-        address.
+    def defs_range(self, start, end, sublengths):
+        """Produce a sequence of DEFS statements for an address range.
 
         :param start: The start address.
         :param end: The end address.

@@ -23,12 +23,12 @@ instructions and DEFB/DEFM/DEFS/DEFW statements. It must supply the following
 API methods, in common with skoolkit.disassembler.Disassembler:
 
 .. autoclass:: skoolkit.disassembler.Disassembler
-   :members: disassemble, defb_range, defm_range, defs, defw_range, ignore
+   :members: disassemble, defb_range, defm_range, defs_range, defw_range, ignore
 
 The *sublengths* argument of the :meth:`defb_range`, :meth:`defm_range`,
-:meth:`defs` and :meth:`defw_range` methods is a sequence of 2-element tuples,
-each of which specifies the desired size and number base for an instruction in
-the given address range::
+:meth:`defs_range` and :meth:`defw_range` methods is a sequence of 2-element
+tuples, each of which specifies the desired size and number base for an
+instruction in the given address range::
 
   (size, base)
 
