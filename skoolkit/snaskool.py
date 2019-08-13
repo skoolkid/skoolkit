@@ -26,6 +26,23 @@ from skoolkit.skoolparser import (get_address, TABLE_MARKER, TABLE_END_MARKER,
 
 MIN_COMMENT_WIDTH = 10
 
+class Instruction:
+    def __init__(self, spec):
+        self.address = spec.address
+        self.operation = spec.operation
+        self.bytes = spec.bytes
+        self.label = None
+        self.referrers = []
+        self.entry = None
+        self.ctl = None
+        self.comment = None
+
+    def add_referrer(self, entry):
+        if not self.ctl:
+            self.ctl = '*'
+        if entry is not self.entry and entry not in self.referrers:
+            self.referrers.append(entry)
+
 class Entry:
     def __init__(self, header, title, description, ctl, blocks, registers,
                  end_comment, footer, asm_directives, ignoreua_directives):
@@ -52,7 +69,7 @@ class Entry:
         self.bad_blocks = []
         for block in self.blocks:
             last_instruction = block.instructions[-1]
-            if last_instruction.address + last_instruction.size() > block.end:
+            if last_instruction.address + len(last_instruction.bytes) > block.end:
                 self.bad_blocks.append(block)
 
     def width(self):
@@ -130,7 +147,7 @@ class Disassembly:
                             instructions += self.disassembler.defb_range(address, end, sublengths)
                         address += length
                 else:
-                    instructions = self.disassembler.ignore(sub_block.start, sub_block.end)
+                    instructions = [self.disassembler.ignore(sub_block.start, sub_block.end)]
                 self._add_instructions(sub_block, instructions)
 
             sub_blocks = []
@@ -159,12 +176,13 @@ class Disassembly:
         if address in self.entry_map:
             del self.entry_map[address]
 
-    def _add_instructions(self, sub_block, instructions):
-        sub_block.instructions = instructions
-        for instruction in instructions:
+    def _add_instructions(self, sub_block, specs):
+        sub_block.instructions = []
+        for spec in specs:
+            instruction = Instruction(spec)
+            sub_block.instructions.append(instruction)
             self.instructions[instruction.address] = instruction
             instruction.asm_directives = sub_block.asm_directives.get(instruction.address, ())
-            instruction.label = None
             for asm_dir in instruction.asm_directives:
                 if asm_dir.startswith(AD_LABEL + '='):
                     instruction.label = asm_dir[6:]

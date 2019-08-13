@@ -14,27 +14,12 @@
 # You should have received a copy of the GNU General Public License along with
 # SkoolKit. If not, see <http://www.gnu.org/licenses/>.
 
+from collections import namedtuple
+
 from skoolkit import is_char
 from skoolkit.z80 import convert_case
 
-class Instruction:
-    def __init__(self, address, operation, data):
-        self.address = address
-        self.operation = operation
-        self.bytes = data
-        self.referrers = []
-        self.entry = None
-        self.ctl = None
-        self.comment = None
-
-    def add_referrer(self, entry):
-        if not self.ctl:
-            self.ctl = '*'
-        if entry is not self.entry and entry not in self.referrers:
-            self.referrers.append(entry)
-
-    def size(self):
-        return len(self.bytes)
+Instruction = namedtuple('Instruction', 'address operation bytes')
 
 class Disassembler:
     """Initialise the disassembler.
@@ -102,7 +87,8 @@ class Disassembler:
         :param start: The start address.
         :param end: The end address.
         :param base: Base indicator (`None`, 'b', 'c', 'd', 'h', 'm' or 'n').
-        :return: A list of instruction objects.
+        :return: A list of named tuples with the fields `address`, `operation`,
+                 and `bytes`.
         """
         instructions = []
         address = start
@@ -128,7 +114,8 @@ class Disassembler:
         :param start: The start address.
         :param end: The end address.
         :param sublengths: Sequence of sublength identifiers.
-        :return: A list of instruction objects.
+        :return: A list of named tuples with the fields `address`, `operation`,
+                 and `bytes`.
         """
         if sublengths[0][0] or end - start <= self.defb_size:
             return [self.defb_line(start, self.snapshot[start:end], sublengths)]
@@ -165,7 +152,8 @@ class Disassembler:
         :param start: The start address.
         :param end: The end address.
         :param sublengths: Sequence of sublength identifiers.
-        :return: A list of instruction objects.
+        :return: A list of named tuples with the fields `address`, `operation`,
+                 and `bytes`.
         """
         if sublengths[0][0]:
             step = end - start
@@ -187,7 +175,8 @@ class Disassembler:
         :param start: The start address.
         :param end: The end address.
         :param sublengths: Sequence of sublength identifiers.
-        :return: A list of instruction objects.
+        :return: A list of named tuples with the fields `address`, `operation`,
+                 and `bytes`.
         """
         if sublengths[0][0]:
             data = self.snapshot[start:end]
@@ -218,7 +207,8 @@ class Disassembler:
         :param start: The start address.
         :param end: The end address.
         :param sublengths: Sequence of sublength identifiers.
-        :return: A list of instruction objects.
+        :return: A list of named tuples with the fields `address`, `operation`,
+                 and `bytes`.
         """
         data = self.snapshot[start:end]
         values = set(data)
@@ -237,13 +227,14 @@ class Disassembler:
         return [Instruction(start, defs_dir, data)]
 
     def ignore(self, start, end):
-        """Produce a blank instruction object for an address range.
+        """Produce a blank instruction for an address range.
 
         :param start: The start address.
         :param end: The end address.
-        :return: A list containing a single blank instruction object.
+        :return: A named tuple with the fields `address`, `operation` (empty
+                 string), and `bytes`.
         """
-        return [Instruction(start, '', self.snapshot[start:end])]
+        return Instruction(start, '', self.snapshot[start:end])
 
     def get_message(self, data):
         items = []
