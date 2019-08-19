@@ -47,6 +47,20 @@ def _replace_nums(operation, hex_fmt=None, skip_bit=False, prefix=None):
                 elements[i] = hex_fmt.format(int(p))
     return ''.join(elements)[1:]
 
+def _is_8_bit_ld_instruction(operation):
+    if operation.startswith('LD '):
+        ld_args = [arg.strip() for arg in operation[3:].split(',', 1)]
+        if not set(ld_args) & {'A', 'BC', 'DE', 'HL', 'SP', 'IX', 'IY'}:
+            return True
+        if 'A' in ld_args:
+            other_arg = ld_args[ld_args.index('A') - 1]
+            if not other_arg.startswith('('):
+                return True
+            other_arg = other_arg[1:].lstrip()
+            if other_arg and other_arg[0] not in '$%0123456789':
+                return True
+    return False
+
 def get_address(operation):
     search = re.search('(\A|[\s,(+-])(\$[0-9A-Fa-f]+|%[01]+|\d+)', operation)
     if search:
@@ -377,6 +391,7 @@ class SkoolParser:
         self._instructions = {}                  # address -> [Instructions]
         self._entries = {}                       # address -> SkoolEntry
         self.memory_map = []                     # SkoolEntry instances
+        self._remote_entries = []                # RemoteEntry instances
         self.base_address = 65536
         self.end_address = 0
         self.comments = []
@@ -667,6 +682,7 @@ class SkoolParser:
         address = parse_int(addrs[0])
         if address is not None:
             remote_entry = RemoteEntry(asm_id, address)
+            self._remote_entries.append(remote_entry)
             addr_str = self.mode.apply_base(self.mode.apply_case(addrs[0])[0])[0]
             remote_entry.add_instruction(Instruction('r', addr_str, asm_id))
             for addr_str in addrs[1:]:
@@ -688,42 +704,13 @@ class SkoolParser:
             last_instruction = self.get_instruction(address)
             entry.size = address + (get_size(last_instruction.operation, address) or 1) - entry.address
 
-    def _is_8_bit_ld_instruction(self, operation):
-        if operation.startswith('LD '):
-            ld_args = [arg.strip() for arg in operation[3:].split(',', 1)]
-            if not set(ld_args) & {'A', 'BC', 'DE', 'HL', 'SP', 'IX', 'IY'}:
-                return True
-            if 'A' in ld_args:
-                other_arg = ld_args[ld_args.index('A') - 1]
-                if not other_arg.startswith('('):
-                    return True
-                other_arg = other_arg[1:].lstrip()
-                if other_arg and other_arg[0] not in '$%0123456789':
-                    return True
-        return False
-
     def _calculate_references(self):
-        # Parse operations for routine/data addresses
-        for entry in self.memory_map:
-            for instruction in entry.instructions:
-                operation = instruction.operation.upper()
-                if not operation.startswith(('CALL', 'DEFW', 'DJNZ', 'JP', 'JR', 'LD ', 'RST')) or self._is_8_bit_ld_instruction(operation):
-                    continue
-                addr_str = get_address(instruction.operation)
-                if not addr_str:
-                    continue
-                address = parse_int(addr_str)
-                if instruction.keep_value(address):
-                    continue
-                other_instruction = self._instructions.get(address, (None,))[0]
-                if other_instruction:
-                    other_entry = other_instruction.container
-                    if other_entry.is_ignored():
-                        continue
-                    if other_entry.is_remote() or operation.startswith(('DEFW', 'LD ')) or other_entry.is_routine():
-                        instruction.set_reference(other_entry, address, addr_str)
-                        if operation.startswith(('CALL', 'DJNZ', 'JP', 'JR', 'RST')):
-                            other_instruction.add_referrer(entry)
+        references, referrers = SkoolReferenceCalculator().calculate_references(self.memory_map, self._remote_entries)
+        for instruction, (entry, address, addr_str) in references.items():
+            instruction.set_reference(entry, address, addr_str)
+        for instruction, entries in referrers.items():
+            for entry in entries:
+                instruction.add_referrer(entry)
 
     def _escape_instructions(self):
         for entry in self.memory_map:
@@ -780,7 +767,7 @@ class SkoolParser:
         if instruction.keep_value(address):
             return
         if address < 256 and (not operation_u.startswith(('CALL', 'DEFW', 'DJNZ', 'JP', 'JR', 'LD '))
-                              or self._is_8_bit_ld_instruction(operation_u)):
+                              or _is_8_bit_ld_instruction(operation_u)):
             return
         label_warn = instruction.sub is None and instruction.warn
         reference = self.get_instruction(address)
@@ -799,14 +786,36 @@ class SkoolParser:
                 self.warn('Found no label for operand: {} {}'.format(instruction.addr_str, instruction.operation))
         elif address in self._equ_values:
             return self._equ_values[address]
-        else:
-            references = self._instructions.get(address)
-            is_local = not (references and references[0].container.is_remote())
-            if is_local and label_warn and self.mode.asm_mode > 1 and self.base_address <= address < self.end_address:
-                # Warn if the operand is inside the address range of the
-                # disassembly (where code might be) but doesn't refer to the
-                # address of an instruction (will need @nowarn if this is OK)
-                self.warn('Unreplaced operand: {} {}'.format(instruction.addr_str, instruction.operation))
+        elif address not in self._instructions and label_warn and self.mode.asm_mode > 1 and self.base_address <= address < self.end_address:
+            # Warn if the operand is inside the address range of the
+            # disassembly (where code might be) but doesn't refer to the
+            # address of an instruction (will need @nowarn if this is OK)
+            self.warn('Unreplaced operand: {} {}'.format(instruction.addr_str, instruction.operation))
+
+class SkoolReferenceCalculator:
+    def calculate_references(self, entries, remote_entries):
+        references = {}
+        referrers = defaultdict(list)
+        instructions = {i.address: (i, e) for e in entries for i in e.instructions}
+        remote_instructions = {i.address: (i, e) for e in remote_entries for i in e.instructions}
+        for entry in entries:
+            for instruction in entry.instructions:
+                operation = instruction.operation.upper()
+                if operation.startswith(('CALL', 'DEFW', 'DJNZ', 'JP', 'JR', 'LD ', 'RST')) and not _is_8_bit_ld_instruction(operation):
+                    addr_str = get_address(instruction.operation)
+                    if addr_str:
+                        address = parse_int(addr_str)
+                        if instruction.keep is None or (instruction.keep and address not in instruction.keep):
+                            remote = False
+                            ref_i, ref_e = instructions.get(address, (None, None))
+                            if not ref_i:
+                                ref_i, ref_e = remote_instructions.get(address, (None, None))
+                                remote = True
+                            if ref_i and ref_e.ctl != 'i' and (remote or operation.startswith(('DEFW', 'LD ')) or ref_e.ctl == 'c'):
+                                references[instruction] = (ref_e, address, addr_str)
+                                if operation.startswith(('CALL', 'DJNZ', 'JP', 'JR', 'RST')) and entry not in referrers[ref_i]:
+                                    referrers[ref_i].append(entry)
+        return references, referrers
 
 class Mode:
     def __init__(self, case, base, asm_mode, warnings, fix_mode, html, create_labels, asm_labels):
@@ -1132,13 +1141,6 @@ class SkoolEntry:
         """Return whether the entry is a routine (code block)."""
         return self.ctl == 'c'
 
-    def is_remote(self):
-        """Return whether the entry is a remote entry."""
-        return False
-
-    def is_ignored(self):
-        return self.ctl == 'i'
-
     def add_instruction(self, instruction, insert=False):
         instruction.container = self
         if insert:
@@ -1170,9 +1172,6 @@ class RemoteEntry(SkoolEntry):
     def __init__(self, asm_id, address):
         SkoolEntry.__init__(self, address)
         self.asm_id = asm_id
-
-    def is_remote(self):
-        return True
 
 class Register:
     def __init__(self, prefix, name, contents):

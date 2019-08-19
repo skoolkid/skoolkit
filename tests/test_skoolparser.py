@@ -1878,7 +1878,6 @@ class SkoolParserTest(SkoolKitTestCase):
         self.assertEqual(reference.address, 32768)
         self.assertEqual(reference.addr_str, '$8000')
         entry = reference.entry
-        self.assertTrue(entry.is_remote())
         self.assertEqual(entry.asm_id, 'load')
         self.assertEqual(entry.address, 32768)
 
@@ -1899,7 +1898,6 @@ class SkoolParserTest(SkoolKitTestCase):
         self.assertEqual(reference.address, 33027)
         self.assertEqual(reference.addr_str, '33027')
         entry = reference.entry
-        self.assertTrue(entry.is_remote())
         self.assertEqual(entry.asm_id, 'save')
         self.assertEqual(entry.address, 33024)
 
