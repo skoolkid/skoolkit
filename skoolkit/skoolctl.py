@@ -623,8 +623,7 @@ class Mode:
     def __init__(self):
         self.asm_directives = []
         self.entry_ignoreua = {}
-        self.lower = False
-        self.upper = False
+        self.case = 0
 
     def add_asm_directive(self, directive):
         self.asm_directives.append(directive)

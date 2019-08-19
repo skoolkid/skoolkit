@@ -192,9 +192,9 @@ def _parse_registers(lines, mode, keep_lines):
             desc_lines.append('')
         if ':' in reg:
             prefix, reg = reg.split(':', 1)
-        if mode.lower:
+        if mode.case == CASE_LOWER:
             reg = reg.lower()
-        elif mode.upper:
+        elif mode.case == CASE_UPPER:
             reg = reg.upper()
     if desc_lines:
         registers.append((prefix, reg, ' '.join(desc_lines).lstrip()))
@@ -461,11 +461,10 @@ class SkoolParser:
         return self.mode.get_addr_str(address, default)
 
     def convert_operand(self, operand):
-        operation = self.mode.apply_case('', 'DEFB ' + operand)[1]
-        return self.mode.apply_base('', operation)[1][5:]
+        return self.mode.convert_operation('DEFB ' + operand)[5:]
 
     def convert_address_operand(self, operand):
-        return self.mode.convert_address_operand(operand)
+        return self.mode.convert_addr_str(operand, '{}')
 
     def _parse_skool(self, skoolfile, asm_mode, min_address, max_address):
         address_comments = []
@@ -683,18 +682,18 @@ class SkoolParser:
         if address is not None:
             remote_entry = RemoteEntry(asm_id, address)
             self._remote_entries.append(remote_entry)
-            addr_str = self.mode.apply_base(self.mode.apply_case(addrs[0])[0])[0]
+            addr_str = self.mode.convert_addr_str(addrs[0])
             remote_entry.add_instruction(Instruction('r', addr_str, asm_id))
             for addr_str in addrs[1:]:
-                addr_str = self.mode.apply_base(self.mode.apply_case(addr_str)[0])[0]
+                addr_str = self.mode.convert_addr_str(addr_str)
                 remote_entry.add_instruction(Instruction(' ', addr_str, ''))
             for instruction in remote_entry.instructions:
                 self._instructions.setdefault(instruction.address, []).append(instruction)
 
     def _parse_instruction(self, line):
         ctl, addr_str, operation, comment = parse_instruction(line)
-        addr_str, operation = self.mode.apply_case(addr_str, operation)
-        addr_str, operation = self.mode.apply_base(addr_str, operation)
+        addr_str = self.mode.convert_addr_str(addr_str)
+        operation = self.mode.convert_operation(operation)
         instruction = Instruction(ctl, addr_str, operation)
         return instruction, comment
 
@@ -819,10 +818,9 @@ class SkoolReferenceCalculator:
 
 class Mode:
     def __init__(self, case, base, asm_mode, warnings, fix_mode, html, create_labels, asm_labels):
-        self.lower = case == CASE_LOWER
-        self.upper = case == CASE_UPPER
-        self.decimal = base == BASE_10
-        self.hexadecimal = base == BASE_16
+        self.case = case
+        self.base = base
+        self.converter = InstructionConverter(base, case)
         self.html = html
         self.asm_mode = asm_mode
         self.warn = warnings
@@ -832,13 +830,9 @@ class Mode:
         self.create_labels = create_labels
         self.asm_labels = asm_labels
         self.entry_ignoreua = {}
-        if self.lower:
-            self.hex2fmt = '${0:02x}'
-            self.hex4fmt = '${0:04x}'
+        if case == CASE_LOWER:
             self.addr_fmt = '{0:04x}'
         else:
-            self.hex2fmt = '${0:02X}'
-            self.hex4fmt = '${0:04X}'
             self.addr_fmt = '{0:04X}'
         self.weights = {
             'isub': int(asm_mode > 0),
@@ -874,7 +868,7 @@ class Mode:
         for flags, label, op, comment in subs:
             if flags.append and not instructions:
                 instructions.append((False, None, '', [None]))
-            op = self.apply_base('', self.apply_case('', op)[1])[1]
+            op = self.convert_operation(op)
             if op or (current and not instructions):
                 instructions.append((flags.overwrite, label, op, [comment]))
             elif instructions:
@@ -945,7 +939,7 @@ class Mode:
                 if overwrite:
                     if address is None:
                         raise SkoolParsingError("Cannot determine address of instruction after '{} {}'".format(instruction.addr_str, instruction.operation))
-                    addr_str = self.apply_base(self.apply_case(str(address))[0])[0]
+                    addr_str = self.convert_addr_str(str(address))
                     instruction = Instruction(' ', addr_str, op)
                     if address not in removed:
                         instructions.setdefault(address, []).append(instruction)
@@ -959,53 +953,58 @@ class Mode:
         self.reset()
 
     def get_addr_str(self, address, default):
-        if self.hexadecimal:
+        if self.base == BASE_16:
             return self.addr_fmt.format(address)
-        if self.decimal:
+        if self.base == BASE_10:
             return str(address)
         if default.startswith('$'):
             return default[1:]
         return default
 
-    def convert_address_operand(self, operand):
-        if self.decimal:
-            return str(parse_int(operand))
-        if self.hexadecimal:
-            return self.hex4fmt.format(parse_int(operand))
-        return operand
-
-    def apply_case(self, addr_str, operation=''):
-        if self.lower:
-            addr_str = addr_str.lower()
-        elif self.upper:
-            addr_str = addr_str.upper()
-        if self.lower or self.upper:
-            operation = convert_case(operation, self.lower)
-            if self.upper and not operation.startswith(('DEFB', 'DEFM', 'DEFS', 'DEFW')):
-                operation = re.sub('(I[XY])H', r'\1h', operation)
-                operation = re.sub('(I[XY])L', r'\1l', operation)
-        return addr_str, operation
-
-    def apply_base(self, addr_str, operation=''):
+    def convert_addr_str(self, addr_str, decfmt='{:05d}'):
         address = parse_int(addr_str)
-        if self.decimal:
-            if address is not None:
-                addr_str = '{:05d}'.format(address)
-            if operation:
-                operation = self.convert(operation)
-        elif self.hexadecimal:
-            if address is not None:
-                addr_str = self.hex4fmt.format(address)
-            if operation:
-                operation = self.convert(operation, self.hex2fmt, self.hex4fmt)
-        return addr_str, operation
+        if address is not None:
+            if self.base == BASE_10:
+                return decfmt.format(address)
+            if self.base == BASE_16:
+                addr_str = '${:04X}'.format(address)
+        if self.case == CASE_LOWER:
+            return addr_str.lower()
+        if self.case == CASE_UPPER:
+            return addr_str.upper()
+        return addr_str
 
-    def convert(self, operation, hex2fmt=None, hex4fmt=None):
+    def convert_operation(self, operation):
+        return self.converter.convert(operation)
+
+class InstructionConverter:
+    def __init__(self, base, case):
+        self.lower = case == CASE_LOWER
+        self.upper = case == CASE_UPPER
+        self.base = base
+        if base == BASE_16:
+            if self.lower:
+                self.hex2fmt = '${0:02x}'
+                self.hex4fmt = '${0:04x}'
+            else:
+                self.hex2fmt = '${0:02X}'
+                self.hex4fmt = '${0:04X}'
+        else:
+            self.hex2fmt = None
+            self.hex4fmt = None
+
+    def convert(self, operation):
+        operation = self._convert_case(operation)
+        if self.base and operation:
+            operation = self._convert_base(operation)
+        return operation
+
+    def _convert_base(self, operation):
         if operation.upper().startswith(('DEFB ', 'DEFM ', 'DEFS ', 'DEFW ')):
             if operation.upper().startswith('DEFW'):
-                hex_fmt = hex4fmt
+                hex_fmt = self.hex4fmt
             else:
-                hex_fmt = hex2fmt
+                hex_fmt = self.hex2fmt
             converted = operation[:4]
             prefix = None
             for p in split_quoted(operation[4:]):
@@ -1022,23 +1021,31 @@ class Mode:
 
         # Instructions containing '(I[XY]+d)'
         if re.search('\(I[XY] *[+-].*\)', operation.upper()):
-            return _replace_nums(operation, hex2fmt, op in ('BIT', 'RES', 'SET'))
+            return _replace_nums(operation, self.hex2fmt, op in ('BIT', 'RES', 'SET'))
 
         if op in ('CALL', 'DJNZ', 'JP', 'JR'):
-            return _replace_nums(operation, hex4fmt)
+            return _replace_nums(operation, self.hex4fmt)
 
         if op in ('AND', 'OR', 'XOR', 'SUB', 'CP', 'IN', 'OUT', 'ADD', 'ADC', 'SBC', 'RST'):
-            return _replace_nums(operation, hex2fmt)
+            return _replace_nums(operation, self.hex2fmt)
 
         if op == 'LD' and len(elements) == 3:
             operands = elements[1:]
             if operands[0] in ('A', 'B', 'C', 'D', 'E', 'H', 'L', 'IXL', 'IXH', 'IYL', 'IYH', '(HL)') and not operands[1].startswith('('):
                 # LD r,n; LD (HL),n
-                return _replace_nums(operation, hex2fmt)
+                return _replace_nums(operation, self.hex2fmt)
             if not set(('A', 'BC', 'DE', 'HL', 'IX', 'IY', 'SP')).isdisjoint(operands):
                 # LD A,(nn); LD (nn),A; LD rr,nn; LD rr,(nn); LD (nn),rr
-                return _replace_nums(operation, hex4fmt)
+                return _replace_nums(operation, self.hex4fmt)
 
+        return operation
+
+    def _convert_case(self, operation):
+        if self.lower or self.upper:
+            operation = convert_case(operation, self.lower)
+            if self.upper and not operation.startswith(('DEFB', 'DEFM', 'DEFS', 'DEFW')):
+                operation = re.sub('(I[XY])H', r'\1h', operation)
+                operation = re.sub('(I[XY])L', r'\1l', operation)
         return operation
 
 class Instruction:
