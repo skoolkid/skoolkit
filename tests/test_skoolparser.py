@@ -2214,6 +2214,21 @@ class SkoolParserTest(SkoolKitTestCase):
         """
         self.assertEqual(textwrap.dedent(exp_warnings).strip(), warnings.strip())
 
+    def test_no_warning_for_ld_operand_in_subbed_operation(self):
+        skool = """
+            @start
+            ; Routine
+            @ssub=LD HL,32771
+            c32768 LD HL,9
+
+            ; Next routine
+            @label=DOSTUFF
+            c32771 RET
+        """
+        self._get_parser(skool, asm_mode=2, warnings=True)
+        warnings = self.err.getvalue()
+        self.assertEqual(warnings, '')
+
     def test_instruction_addr_str_no_base(self):
         skool = """
             b00000 DEFB 0
@@ -2582,6 +2597,25 @@ class SkoolParserTest(SkoolKitTestCase):
         warnings = self.err.getvalue()
         self.assertEqual(warnings, 'WARNING: Unreplaced operand: 30000 JR 30001\n')
 
+    def test_no_warning_for_unreplaced_operand_in_isub_mode(self):
+        skool = """
+            @start
+            c30000 JR 30001
+        """
+        self._get_parser(skool, asm_mode=1, warnings=True)
+        warnings = self.err.getvalue()
+        self.assertEqual(warnings, '')
+
+    def test_no_warning_for_unreplaced_operand_in_subbed_operation(self):
+        skool = """
+            @start
+            @ssub=JR 30001
+            c30000 JR 30000
+        """
+        self._get_parser(skool, asm_mode=2, warnings=True)
+        warnings = self.err.getvalue()
+        self.assertEqual(warnings, '')
+
     def test_no_warning_for_operands_outside_disassembly_address_range(self):
         skool = """
             @start
@@ -2629,6 +2663,16 @@ class SkoolParserTest(SkoolKitTestCase):
             WARNING: Unreplaced operand: 8006 CALL $8001
         """
         self.assertEqual(textwrap.dedent(exp_warnings).strip(), warnings.strip())
+
+    def test_warning_when_no_label_found_for_operand_in_subbed_operation(self):
+        skool = """
+            @start
+            @ssub=LD HL,32768
+            c32768 LD HL,0
+        """
+        self._get_parser(skool, asm_mode=2, warnings=True)
+        warnings = self.err.getvalue()
+        self.assertEqual(warnings, 'WARNING: Found no label for operand: 32768 LD HL,32768\n')
 
     def test_suppress_warnings(self):
         skool = """
@@ -4991,7 +5035,6 @@ class SkoolParserTest(SkoolKitTestCase):
         self.assertIsNone(parser.get_entry(30000))
         self.assertIsNotNone(parser.get_entry(30001))
         self.assertIsNotNone(parser.get_entry(30002))
-        self.assertEqual(parser.base_address, 30001)
         self.assertIsNone(parser.get_instruction(30000))
         self.assertIsNotNone(parser.get_instruction(30001))
         self.assertIsNotNone(parser.get_instruction(30002))
@@ -5008,7 +5051,6 @@ class SkoolParserTest(SkoolKitTestCase):
         self.assertEqual([40003], [e.address for e in parser.memory_map])
         self.assertIsNone(parser.get_entry(40000))
         self.assertIsNotNone(parser.get_entry(40003))
-        self.assertEqual(parser.base_address, 40003)
         self.assertIsNone(parser.get_instruction(40000))
         self.assertIsNone(parser.get_instruction(40001))
         self.assertIsNone(parser.get_instruction(40002))
@@ -5042,7 +5084,6 @@ class SkoolParserTest(SkoolKitTestCase):
         self.assertIsNotNone(parser.get_entry(30000))
         self.assertIsNotNone(parser.get_entry(30001))
         self.assertIsNone(parser.get_entry(30002))
-        self.assertEqual(parser.base_address, 30000)
         self.assertIsNotNone(parser.get_instruction(30000))
         self.assertIsNotNone(parser.get_instruction(30001))
         self.assertIsNone(parser.get_instruction(30002))
@@ -5063,7 +5104,6 @@ class SkoolParserTest(SkoolKitTestCase):
         self.assertIsNotNone(parser.get_entry(40001))
         self.assertIsNone(parser.get_entry(40004))
         self.assertEqual(parser.get_entry(40001).instructions[-1].address, 40002)
-        self.assertEqual(parser.base_address, 40000)
         self.assertIsNotNone(parser.get_instruction(40000))
         self.assertIsNotNone(parser.get_instruction(40001))
         self.assertIsNotNone(parser.get_instruction(40002))
@@ -5101,7 +5141,6 @@ class SkoolParserTest(SkoolKitTestCase):
         self.assertIsNotNone(parser.get_entry(40001))
         self.assertIsNotNone(parser.get_entry(40002))
         self.assertIsNone(parser.get_entry(40003))
-        self.assertEqual(parser.base_address, 40001)
         self.assertIsNone(parser.get_instruction(40000))
         self.assertIsNotNone(parser.get_instruction(40001))
         self.assertIsNotNone(parser.get_instruction(40002))

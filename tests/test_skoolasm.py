@@ -354,13 +354,11 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
 
         # Decimal address out of range
         output = writer.expand('#R32768')
-        self.assertTrue(writer.parser.end_address < 32768)
         self.assertEqual(output, '32768')
         self.assertEqual(self.err.getvalue(), '')
 
         # Hexadecimal address out of range
         output = writer.expand('#R$80fF')
-        self.assertTrue(writer.parser.end_address < 0x80ff)
         self.assertEqual(output, '80fF')
         self.assertEqual(self.err.getvalue(), '')
 
@@ -470,13 +468,11 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
 
         # Decimal address out of range
         output = writer.expand('#R16384')
-        self.assertTrue(writer.parser.base_address > 16384)
         self.assertEqual(output, '4000')
         self.assertEqual(self.err.getvalue(), '')
 
         # Hexadecimal address out of range
         output = writer.expand('#R$d0fF')
-        self.assertTrue(writer.parser.end_address < 0xd0ff)
         self.assertEqual(output, 'D0FF')
         self.assertEqual(self.err.getvalue(), '')
 
@@ -503,13 +499,11 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
 
         # Decimal address out of range
         output = writer.expand('#R23296')
-        self.assertTrue(writer.parser.base_address > 23296)
         self.assertEqual(output, '5b00')
         self.assertEqual(self.err.getvalue(), '')
 
         # Hexadecimal address out of range
         output = writer.expand('#R$d0fF')
-        self.assertTrue(writer.parser.end_address < 0xd0ff)
         self.assertEqual(output, 'd0ff')
         self.assertEqual(self.err.getvalue(), '')
 
@@ -536,13 +530,11 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
 
         # Decimal address out of range
         output = writer.expand('#R24576')
-        self.assertTrue(writer.parser.base_address > 24576)
         self.assertEqual(output, '24576')
         self.assertEqual(self.err.getvalue(), '')
 
         # Hexadecimal address out of range
         output = writer.expand('#R$d0fF')
-        self.assertTrue(writer.parser.end_address < 0xd0ff)
         self.assertEqual(output, '53503')
         self.assertEqual(self.err.getvalue(), '')
 

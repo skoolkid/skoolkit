@@ -392,15 +392,13 @@ class SkoolParser:
         self._entries = {}                       # address -> SkoolEntry
         self.memory_map = []                     # SkoolEntry instances
         self._remote_entries = []                # RemoteEntry instances
-        self.base_address = 65536
-        self.end_address = 0
         self.comments = []
         self.ignores = []
         self.asm_writer_class = None
         self.properties = {}
         self._replacements = []
         self.equs = []
-        self._equ_values = {}
+        self._labels = {}
 
         with open_file(skoolfile) as f:
             self._parse_skool(f, asm_mode, min_address, max_address)
@@ -513,7 +511,6 @@ class SkoolParser:
                     map_entry.ignoreua.update(self.mode.entry_ignoreua)
                     self.mode.reset_entry_ignoreua()
                     self.comments[:] = []
-                    self.base_address = min((address, self.base_address))
 
                 if map_entry:
                     address_comment = (instruction, [address_comment], [])
@@ -553,19 +550,16 @@ class SkoolParser:
             self.memory_map = [e for e in self.memory_map if min_address <= e.address < max_address]
             self._entries = {k: v for k, v in self._entries.items() if min_address <= k < max_address}
             if self._entries:
-                self.base_address = min(self._entries)
+                base_address = min(self._entries)
                 last_entry = self._entries[max(self._entries)]
                 last_entry.instructions = [i for i in last_entry.instructions if i.address is None or i.address < max_address]
             else:
-                self.base_address = max_address
-            self._instructions = {k: v for k, v in self._instructions.items() if self.base_address <= k < max_address}
-            address_comments = [c for c in address_comments if c[0] is None or c[0].address is None or self.base_address <= c[0].address < max_address]
+                base_address = max_address
+            self._instructions = {k: v for k, v in self._instructions.items() if base_address <= k < max_address}
+            address_comments = [c for c in address_comments if c[0] is None or c[0].address is None or base_address <= c[0].address < max_address]
 
         if self.memory_map:
             self.memory_map[-1].footers = non_entries
-            end_address = max([i.address for e in self.memory_map for i in e.instructions if i.address is not None])
-            last_instruction = self.get_instruction(end_address)
-            self.end_address = end_address + (get_size(last_instruction.operation, end_address) or 1)
 
         # Do some post-processing
         parse_address_comments([c for c in address_comments if c[0] is None or c[0].container])
@@ -579,8 +573,9 @@ class SkoolParser:
         if self.mode.html:
             self._calculate_entry_sizes()
             self._escape_instructions()
-        else:
-            self._substitute_labels()
+        elif self.memory_map:
+            self._labels.update({i.address: i.asm_label for e in self.memory_map for i in e.instructions if i.asm_label is not None})
+            Labeller().substitute_labels(self.memory_map, self._remote_entries, self._labels, self.warn)
 
     def _parse_non_entry(self, block, removed):
         lines = []
@@ -671,7 +666,7 @@ class SkoolParser:
                 if sep:
                     self.equs.append((name, value))
                     try:
-                        self._equ_values[get_int_param(value)] = name
+                        self._labels[get_int_param(value)] = name
                     except ValueError:
                         pass
 
@@ -716,20 +711,9 @@ class SkoolParser:
             for instruction in entry.instructions:
                 instruction.html_escape()
 
-    def warn(self, s):
-        if self.mode.warn:
-            warn(s)
-
-    def _substitute_labels(self):
-        for entry in self.memory_map:
-            for instruction in entry.instructions:
-                if not instruction.keep_values():
-                    operation = instruction.operation
-                    if operation.upper().startswith(('DEFB', 'DEFM', 'DEFW')):
-                        operands = [self._replace_addresses(instruction, op) for op in split_unquoted(operation[5:], ',')]
-                        instruction.operation = operation[:5] + ','.join(operands)
-                    elif not operation.upper().startswith(('RST', 'DEFS')):
-                        instruction.operation = self._replace_addresses(instruction, operation)
+    def warn(self, s, instruction, subbed=False, min_mode=0):
+        if self.mode.warn and instruction.warn and self.mode.asm_mode >= min_mode and (subbed or instruction.sub is None):
+            warn(s.format(address=instruction.addr_str, operation=instruction.operation))
 
     def _generate_labels(self):
         """Generate labels for mid-routine entry points (based on the label of
@@ -747,49 +731,69 @@ class SkoolParser:
                             instruction.asm_label = '{0}_{1}'.format(main_label, index)
                             index += 1
 
-    def _replace_addresses(self, instruction, operand):
+class Labeller:
+    def substitute_labels(self, entries, remote_entries, labels, warn):
+        self.remote_entries = remote_entries
+        self.labels = labels
+        self.warn = warn
+        self.instructions = {i.address: (i, e, labels.get(i.address)) for e in entries for i in e.instructions if i.address is not None}
+        self.remote_instructions = [i.address for e in remote_entries for i in e.instructions]
+        self.base_address = min(self.instructions)
+        last_i = self.instructions[max(self.instructions)][0]
+        self.end_address = last_i.address + (get_size(last_i.operation, last_i.address) or 1)
+
+        for entry in entries:
+            for instruction in entry.instructions:
+                if instruction.keep is None or instruction.keep:
+                    operation = instruction.operation
+                    if operation.upper().startswith(('DEFB', 'DEFM', 'DEFW')):
+                        operands = [self._replace_addresses(entry, instruction, op) for op in split_unquoted(operation[5:], ',')]
+                        instruction.operation = operation[:5] + ','.join(operands)
+                    elif not operation.upper().startswith(('RST', 'DEFS')):
+                        instruction.operation = self._replace_addresses(entry, instruction, operation)
+
+    def _replace_addresses(self, entry, instruction, operand):
         rep = ''
         for p in split_quoted(operand):
             if not p.startswith('"'):
                 pieces = re.split('(\A|(?<=[\s,(+-]))(\$[0-9A-Fa-f]+|%[01]+|\d+)', p)
                 for i in range(2, len(pieces), 3):
-                    label = self._get_label(instruction, pieces[i])
+                    label = self._get_label(entry, instruction, pieces[i])
                     if label:
                         pieces[i] = label
                 p = ''.join(pieces)
             rep += p
         return rep
 
-    def _get_label(self, instruction, addr_str):
-        operation_u = instruction.operation.upper()
+    def _get_label(self, entry, instruction, addr_str):
         address = get_int_param(addr_str)
-        if instruction.keep_value(address):
+        if instruction.keep and address in instruction.keep:
             return
+        operation_u = instruction.operation.upper()
         if address < 256 and (not operation_u.startswith(('CALL', 'DEFW', 'DJNZ', 'JP', 'JR', 'LD '))
                               or _is_8_bit_ld_instruction(operation_u)):
             return
-        label_warn = instruction.sub is None and instruction.warn
-        reference = self.get_instruction(address)
-        if reference:
-            if reference.asm_label:
-                if reference.is_in_routine() and label_warn and operation_u.startswith('LD '):
+        ref_i, ref_e, ref_l = self.instructions.get(address, (None, None, None))
+        if ref_i:
+            if ref_l:
+                if ref_e.ctl == 'c' and operation_u.startswith('LD '):
                     # Warn if a LD operand is replaced with a routine label in
                     # an unsubbed operation (will need @keep to retain operand,
                     # or @nowarn if the replacement is OK)
-                    rep = instruction.operation.replace(addr_str, reference.asm_label)
-                    self.warn('LD operand replaced with routine label in unsubbed operation:\n  {} {} -> {}'.format(instruction.addr_str, instruction.operation, rep))
-                return reference.asm_label
-            if instruction.warn and instruction.is_in_routine():
+                    rep = instruction.operation.replace(addr_str, ref_l)
+                    self.warn('LD operand replaced with routine label in unsubbed operation:\n  {address} {operation} -> ' + rep, instruction)
+                return ref_l
+            if entry.ctl == 'c':
                 # Warn if we cannot find a label to replace the operand of this
                 # routine instruction (will need @nowarn if this is OK)
-                self.warn('Found no label for operand: {} {}'.format(instruction.addr_str, instruction.operation))
-        elif address in self._equ_values:
-            return self._equ_values[address]
-        elif address not in self._instructions and label_warn and self.mode.asm_mode > 1 and self.base_address <= address < self.end_address:
+                self.warn('Found no label for operand: {address} {operation}', instruction, True)
+        elif address in self.labels:
+            return self.labels[address]
+        elif address not in self.remote_instructions and self.base_address <= address < self.end_address:
             # Warn if the operand is inside the address range of the
             # disassembly (where code might be) but doesn't refer to the
             # address of an instruction (will need @nowarn if this is OK)
-            self.warn('Unreplaced operand: {} {}'.format(instruction.addr_str, instruction.operation))
+            self.warn('Unreplaced operand: {address} {operation}', instruction, min_mode=2)
 
 class SkoolReferenceCalculator:
     def calculate_references(self, entries, remote_entries):
@@ -1090,9 +1094,6 @@ class Instruction:
             self.referrers.append(routine)
         self.container.add_referrer(routine)
 
-    def is_in_routine(self):
-        return self.container.is_routine()
-
     def html_escape(self):
         self.operation = html.escape(self.operation, False)
 
@@ -1143,10 +1144,6 @@ class SkoolEntry:
         self.referrers = []
         self.size = None
         self.ignoreua = {'t': False, 'd': False, 'r': False, 'e': False}
-
-    def is_routine(self):
-        """Return whether the entry is a routine (code block)."""
-        return self.ctl == 'c'
 
     def add_instruction(self, instruction, insert=False):
         instruction.container = self
