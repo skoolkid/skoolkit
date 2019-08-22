@@ -3,7 +3,7 @@ import os
 from importlib import invalidate_caches
 
 from skoolkittest import SkoolKitTestCase
-from skoolkit import error, get_class, open_file, read_bin_file
+from skoolkit import error, get_object, open_file, read_bin_file
 
 ERRNO = 13 if sys.platform == 'win32' else 21
 
@@ -27,22 +27,22 @@ class SkoolKitTest(SkoolKitTestCase):
             read_bin_file(tempdir)
         self.assertEqual(cm.exception.errno, ERRNO)
 
-    def test_get_class(self):
+    def test_get_object(self):
         class_name = 'CustomWriter'
         mod = 'class {}:\n    pass'.format(class_name)
         module = self.write_text_file(mod, '{}/custom.py'.format(self.make_directory()))
         invalidate_caches()
         module_path = os.path.dirname(module)
         module_name = os.path.basename(module)[:-3]
-        writer_class = get_class('{}:{}.{}'.format(module_path, module_name, class_name), '')
+        writer_class = get_object('{}:{}.{}'.format(module_path, module_name, class_name), '')
         self.assertEqual(writer_class.__name__, class_name)
 
-    def test_get_class_with_default_path_and_blank_module_path(self):
+    def test_get_object_with_default_path_and_blank_module_path(self):
         class_name = 'CustomWriter'
         mod = 'class {}:\n    pass'.format(class_name)
         module = self.write_text_file(mod, '{}/custom.py'.format(self.make_directory()))
         invalidate_caches()
         default_path = os.path.dirname(module)
         module_name = os.path.basename(module)[:-3]
-        writer_class = get_class(':{}.{}'.format(module_name, class_name), default_path)
+        writer_class = get_object(':{}.{}'.format(module_name, class_name), default_path)
         self.assertEqual(writer_class.__name__, class_name)

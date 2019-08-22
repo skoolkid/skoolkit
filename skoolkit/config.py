@@ -22,6 +22,7 @@ from skoolkit.refparser import RefParser
 
 COMMANDS = {
     'skoolkit': {
+        'ControlFileGenerator': 'skoolkit.snactl',
         'Disassembler': 'skoolkit.disassembler.Disassembler'
     },
     'sna2ctl' : {

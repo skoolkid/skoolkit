@@ -14,17 +14,16 @@
 # You should have received a copy of the GNU General Public License along with
 # SkoolKit. If not, see <http://www.gnu.org/licenses/>.
 
-from skoolkit import get_class
+from skoolkit import get_object
 from skoolkit.config import get_config
 
 SK_CONFIG = None
 
-def get_component_class(component):
+def get_component(component, *args):
     global SK_CONFIG
     if SK_CONFIG is None:
         SK_CONFIG = get_config('skoolkit')
-    return get_class(SK_CONFIG[component])
-
-def get_disassembler(snapshot, defb_size, defb_mod, zfill, defm_width, asm_hex, asm_lower):
-    cls = get_component_class('Disassembler')
-    return cls(snapshot, defb_size, defb_mod, zfill, defm_width, asm_hex, asm_lower)
+    obj = get_object(SK_CONFIG[component])
+    if args or callable(obj):
+        return obj(*args)
+    return obj

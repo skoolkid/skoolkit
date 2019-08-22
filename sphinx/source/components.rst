@@ -5,14 +5,29 @@ SkoolKit components
 
 SkoolKit relies on several components in order to function:
 
+* :ref:`ctlgenerator`
 * :ref:`disassembler`
 
-The classes that are used for these components can be specified in the
+The objects that are used for these components can be specified in the
 ``[skoolkit]`` section of a file named `skoolkit.ini` either in the current
 working directory or in `~/.skoolkit`. The default contents of the
 ``[skoolkit]`` section are as follows::
 
+  ControlFileGenerator=skoolkit.snactl
   Disassembler=skoolkit.disassembler.Disassembler
+
+.. _ctlgenerator:
+
+Control file generator
+----------------------
+This object is reponsible for generating a dictionary of control directives
+from a snapshot. Each key in the dictionary is an address, and the associated
+value is the control directive (e.g. ``b`` or ``c``) for that address. The
+control file generator object must supply the following API function, in common
+with skoolkit.snactl:
+
+.. automodule:: skoolkit.snactl
+   :members: generate_ctls
 
 .. _disassembler:
 

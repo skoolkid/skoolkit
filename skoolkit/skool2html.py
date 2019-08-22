@@ -24,7 +24,7 @@ import argparse
 from io import StringIO
 
 from skoolkit import (defaults, SkoolKitError, find_file, show_package_dir,
-                      write, write_line, get_class, normpath, PACKAGE_DIR,
+                      write, write_line, get_object, normpath, PACKAGE_DIR,
                       VERSION, BASE_10, BASE_16, CASE_UPPER, CASE_LOWER)
 from skoolkit.config import get_config, show_config, update_options
 from skoolkit.refparser import RefParser
@@ -204,7 +204,7 @@ def run(infiles, options):
     elif skoolfile != '-':
         notify('Found no ref file for ' + normpath(skoolfile))
 
-    html_writer_class = get_class(config['HtmlWriterClass'], module_path)
+    html_writer_class = get_object(config['HtmlWriterClass'], module_path)
     game_dir = config.get('GameDir', prefix)
 
     # Parse the skool file and initialise the writer

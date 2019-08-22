@@ -18,7 +18,7 @@ import argparse
 import os.path
 import time
 
-from skoolkit import (info, get_class, integer, show_package_dir, VERSION,
+from skoolkit import (info, get_object, integer, show_package_dir, VERSION,
                       BASE_10, BASE_16, CASE_LOWER, CASE_UPPER)
 from skoolkit.config import get_config, show_config, update_options
 from skoolkit.refparser import RefParser
@@ -53,7 +53,7 @@ def run(skoolfile, options):
     # Write the ASM file
     cls_name = options.writer or parser.asm_writer_class
     if cls_name:
-        asm_writer_class = get_class(cls_name, os.path.dirname(skoolfile))
+        asm_writer_class = get_object(cls_name, os.path.dirname(skoolfile))
         if not options.quiet:
             info('Using ASM writer {0}'.format(cls_name))
     else:

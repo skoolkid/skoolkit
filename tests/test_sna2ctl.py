@@ -4,7 +4,7 @@ from textwrap import dedent
 from unittest.mock import patch, Mock
 
 from skoolkittest import SkoolKitTestCase
-from skoolkit import sna2ctl, snapshot, SkoolKitError, VERSION
+from skoolkit import api, sna2ctl, snapshot, SkoolKitError, VERSION
 from skoolkit.config import COMMANDS
 
 # Binary data designed to test the static code analysis algorithm that is used
@@ -154,6 +154,10 @@ def mock_run(*args):
 
 def mock_config(name):
     return {k: v[0] for k, v in COMMANDS[name].items()}
+
+class MockControlFileGenerator:
+    def generate_ctls(self, snapshot, start, end, code_map, config):
+        return {0: 'i'}
 
 class Sna2CtlTest(SkoolKitTestCase):
     def _create_z80_map(self, addresses):
@@ -977,7 +981,7 @@ class Sna2CtlTest(SkoolKitTestCase):
             self._test_generation('test.bin', exp_ctl, options='{} {}'.format(option, value))
 
     @patch.object(sna2ctl, 'make_snapshot', mock_make_snapshot)
-    @patch.object(sna2ctl, 'generate_ctls', Mock(return_value={0: 'i'}))
+    @patch.object(sna2ctl, 'get_component', Mock(return_value=MockControlFileGenerator()))
     def test_option_p(self):
         for option, exp_page in (('-p', 3), ('--page', 5)):
             output, error = self.run_sna2ctl('{} {} test_p.sna'.format(option, exp_page))
@@ -1037,3 +1041,20 @@ class Sna2CtlTest(SkoolKitTestCase):
         for option in ('-V', '--version'):
             output, error = self.run_sna2ctl(option, catch_exit=0)
             self.assertEqual(output, 'SkoolKit {}\n'.format(VERSION))
+
+    @patch.object(api, 'SK_CONFIG', None)
+    def test_custom_ctl_generator(self):
+        module_dir = self.make_directory()
+        ini = """
+            [skoolkit]
+            ControlFileGenerator={}:ctlgen
+        """.format(module_dir)
+        self.write_text_file(dedent(ini).strip(), 'skoolkit.ini')
+        custom_ctl_generator = """
+            def generate_ctls(snapshot, start, end, code_map, config):
+                return {65534: 'b'}
+        """
+        self.write_text_file(dedent(custom_ctl_generator), '{}/ctlgen.py'.format(module_dir))
+        data = [0]
+        exp_ctl = "b 65534"
+        self._test_generation(data, exp_ctl)

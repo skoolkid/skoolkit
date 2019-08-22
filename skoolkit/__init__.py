@@ -96,21 +96,21 @@ def get_address_format(hexadecimal=False, lower=False):
         return '${:04X}'
     return '{:05d}'
 
-def get_class(name_spec, default_path=''):
+def get_object(name_spec, default_path=''):
     path, sep, name = name_spec.rpartition(':')
     if sep:
         sys.path.insert(0, os.path.expanduser(path) or default_path)
-    if '.' not in name:
-        raise SkoolKitError("Invalid class name: '{0}'".format(name))
-    mod_name, cls_name = name.rsplit('.', 1)
+    mod_name, sep, attr_name = name.rpartition('.')
     try:
-        m = importlib.import_module(mod_name)
+        m = importlib.import_module(mod_name or attr_name)
     except ImportError as e:
-        raise SkoolKitError("Failed to import class {0}: {1}".format(name, e.args[0]))
-    try:
-        return getattr(m, cls_name)
-    except AttributeError:
-        raise SkoolKitError("No class named '{0}' in module '{1}'".format(cls_name, mod_name))
+        raise SkoolKitError("Failed to import object {}: {}".format(name, e.args[0]))
+    if sep:
+        try:
+            return getattr(m, attr_name)
+        except AttributeError:
+            raise SkoolKitError("No object named '{}' in module '{}'".format(attr_name, mod_name))
+    return m
 
 def find_file(fname, search_dirs=('',)):
     for f in [os.path.join(d, fname) for d in search_dirs]:

@@ -15,31 +15,34 @@
 # SkoolKit. If not, see <http://www.gnu.org/licenses/>.
 
 import argparse
+from collections import namedtuple
 
 from skoolkit import find_file, info, integer, open_file, VERSION
+from skoolkit.api import get_component
 from skoolkit.config import get_config, show_config, update_options
-from skoolkit.snactl import generate_ctls, write_ctl
+from skoolkit.snactl import write_ctl
 from skoolkit.snapshot import make_snapshot
 
 END = 65536
 
+Config = namedtuple('Config', 'text_chars text_min_length_code text_min_length_data words')
+
 def run(snafile, options, config):
+    words = set()
     dict_fname = config['Dictionary']
     if dict_fname:
         if find_file(dict_fname):
             info("Using dictionary file: {}".format(dict_fname))
-            words = set()
             with open_file(config['Dictionary']) as f:
                 for line in f:
                     word = line.strip().lower()
                     if word:
                         words.add(word)
-            if words:
-                config['words'] = words
         else:
             info("Dictionary file '{}' not found".format(dict_fname))
+    ctl_config = Config(config['TextChars'], config['TextMinLengthCode'], config['TextMinLengthData'], words)
     snapshot, start, end = make_snapshot(snafile, options.org, options.start, options.end, options.page)
-    ctls = generate_ctls(snapshot, start, end, config, options.code_map)
+    ctls = get_component('ControlFileGenerator').generate_ctls(snapshot, start, end, options.code_map, ctl_config)
     write_ctl(ctls, options.ctl_hex)
 
 def main(args):

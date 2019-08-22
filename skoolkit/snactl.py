@@ -279,9 +279,8 @@ def _generate_ctls_with_code_map(snapshot, start, end, config, code_map):
 
     return ctls
 
-def _check_text(t_blocks, t_start, t_end, text, min_length, config):
+def _check_text(t_blocks, t_start, t_end, text, min_length, words):
     if len(text) >= min_length:
-        words = config.get('words')
         if words:
             t_lower = text.lower()
             for word in words:
@@ -293,23 +292,23 @@ def _check_text(t_blocks, t_start, t_end, text, min_length, config):
 
 def _get_text_blocks(snapshot, start, end, config, data=True):
     if data:
-        min_length = config['TextMinLengthData']
+        min_length = config.text_min_length_data
     else:
-        min_length = config['TextMinLengthCode']
+        min_length = config.text_min_length_code
     t_blocks = []
     if end - start >= min_length:
         text = ''
         for address in range(start, end):
             char = chr(snapshot[address])
-            if char in config['TextChars']:
+            if char in config.text_chars:
                 if not text:
                     t_start = address
                 text += char
             elif text:
-                _check_text(t_blocks, t_start, address, text, min_length, config)
+                _check_text(t_blocks, t_start, address, text, min_length, config.words)
                 text = ''
         if text:
-            _check_text(t_blocks, t_start, end, text, min_length, config)
+            _check_text(t_blocks, t_start, end, text, min_length, config.words)
     return t_blocks
 
 def _catch_data(ctls, ctl_addr, count, max_count, addr, op, op_bytes):
@@ -403,7 +402,31 @@ def write_ctl(ctls, ctl_hex):
     for address in [a for a in sorted(ctls) if a < 65536]:
         write_line('{} {}'.format(ctls[address], addr_fmt.format(address)))
 
-def generate_ctls(snapshot, start, end, config, code_map):
+def generate_ctls(snapshot, start, end, code_map, config):
+    """Generate control directives from a snapshot.
+
+    :param snapshot: The snapshot.
+    :param start: Start address. No control directives are generated before
+                  this address.
+    :param end: End address. No control directives are generated after this
+                address.
+    :param code_map: Code map filename (may be `None`).
+    :param config: Configuration object with the following attributes:
+
+                   * `text_chars` - string of characters eligible for being
+                     marked as text
+                   * `text_min_length_code` - minimum length of a string of
+                     characters eligible for being marked as text in a block
+                     identified as code
+                   * `text_min_length_data` - minimum length of a string of
+                     characters eligible for being marked as text in a block
+                     identified as data
+                   * `words` - collection of allowed words; if not empty, a
+                     string of characters will be marked as text only if it
+                     contains at least one of the words in this collection
+
+    :return: A dictionary of control directives.
+    """
     if code_map:
         return _generate_ctls_with_code_map(snapshot, start, end, config, code_map)
     return _generate_ctls_without_code_map(snapshot, start, end, config)

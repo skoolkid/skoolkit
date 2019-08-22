@@ -420,22 +420,16 @@ class Skool2AsmTest(SkoolKitTestCase):
             c24576 RET
         """
 
-        # Test a writer with no module or package name
-        writer = 'AbsoluteAsmWriter'
-        skoolfile = self._write_skool_file(skool.format(writer))
-        with self.assertRaisesRegex(SkoolKitError, "Invalid class name: '{}'".format(writer)):
-            self.run_skool2asm(skoolfile)
-
         # Test a writer in a nonexistent module
         writer = 'nonexistentmodule.AsmWriter'
         skoolfile = self._write_skool_file(skool.format(writer))
-        with self.assertRaisesRegex(SkoolKitError, "Failed to import class nonexistentmodule.AsmWriter: No module named '?nonexistentmodule'?"):
+        with self.assertRaisesRegex(SkoolKitError, "Failed to import object nonexistentmodule.AsmWriter: No module named '?nonexistentmodule'?"):
             self.run_skool2asm(skoolfile)
 
         # Test a writer that doesn't exist
         writer = 'test_skool2asm.NonexistentAsmWriter'
         skoolfile = self._write_skool_file(skool.format(writer))
-        with self.assertRaisesRegex(SkoolKitError, "No class named 'NonexistentAsmWriter' in module 'test_skool2asm'"):
+        with self.assertRaisesRegex(SkoolKitError, "No object named 'NonexistentAsmWriter' in module 'test_skool2asm'"):
             self.run_skool2asm(skoolfile)
 
         # Test a writer that exists
@@ -444,7 +438,7 @@ class Skool2AsmTest(SkoolKitTestCase):
         self.assertTrue(re.search('\nUsing ASM writer test_skool2asm.MockAsmWriter\n', error))
         self.assertTrue(mock_asm_writer.wrote)
 
-    @patch.object(skool2asm, 'get_class', Mock(return_value=MockAsmWriter))
+    @patch.object(skool2asm, 'get_object', Mock(return_value=MockAsmWriter))
     @patch.object(skool2asm, 'get_config', mock_config)
     def test_option_W(self):
         skool = """

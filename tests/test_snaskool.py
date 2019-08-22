@@ -4052,16 +4052,6 @@ class SkoolWriterTest(SkoolKitTestCase):
         """
         self._test_write_skool(snapshot, ctl, exp_skool)
 
-class CustomDisassemblerTest(SkoolKitTestCase):
-    def _test_write_skool(self, snapshot, ctl, exp_skool):
-        self.clear_streams()
-        ctl_parser = CtlParser()
-        ctl_parser.parse_ctls([StringIO(textwrap.dedent(ctl).strip())])
-        writer = SkoolWriter(snapshot, ctl_parser, MockOptions(79, 10, 2), CONFIG.copy())
-        writer.write_skool(1, False)
-        skool = self.out.getvalue().rstrip()
-        self.assertEqual(textwrap.dedent(exp_skool).strip(), skool)
-
     @patch.object(api, 'SK_CONFIG', None)
     def test_custom_disassembler(self):
         module_dir = self.make_directory()
