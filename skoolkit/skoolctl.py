@@ -76,6 +76,16 @@ def _get_base(item, preserve_base=True):
         return 'm'
     return 'd'
 
+def inspect(operation, preserve_base):
+    op = operation.upper()
+    if op.startswith(('DEFB', 'DEFM', 'DEFS', 'DEFW')):
+        ctl = op[3].replace('M', 'T')
+        length, sublengths = get_length(ctl, operation, preserve_base)
+    else:
+        ctl = 'C'
+        length, sublengths = get_operand_bases(operation, preserve_base), None
+    return (ctl, length, sublengths)
+
 def get_operand_bases(operation, preserve_base):
     elements = split_operation(operation, True)
     if not elements:
@@ -102,33 +112,25 @@ def get_operand_bases(operation, preserve_base):
         return ''
     return bases
 
-def get_instruction_ctl(op):
-    op = op.upper()
-    if op.startswith('DEFB'):
-        return 'B'
-    if op.startswith('DEFW'):
-        return 'W'
-    if op.startswith('DEFM'):
-        return 'T'
-    if op.startswith('DEFS'):
-        return 'S'
-    return 'C'
-
-def get_defb_length(operation, preserve_base):
-    parts = split_operation(operation)
-    if parts.pop(0).upper() == 'DEFB':
-        byte_fmt = FORMAT_NO_BASE
-        text_fmt = 'T{}'
-    else:
+def get_length(ctl, operation, preserve_base):
+    if ctl == 'B':
+        return get_defb_defm_length(operation, preserve_base, FORMAT_NO_BASE, 'T{}')
+    if ctl == 'T':
         byte_fmt = {'b': 'b{}', 'd': 'B{}', 'h': 'B{}', 'm': 'm{}'}
-        text_fmt = '{}'
+        return get_defb_defm_length(operation, preserve_base, byte_fmt, '{}')
+    if ctl == 'S':
+        return get_defs_length(operation, preserve_base)
+    return get_defw_length(operation, preserve_base)
+
+def get_defb_defm_length(operation, preserve_base, byte_fmt, text_fmt):
+    items = split_operation(operation)[1:]
     if preserve_base:
         byte_fmt = FORMAT_PRESERVE_BASE
     full_length = 0
     lengths = []
     length = 0
     prev_base = None
-    for item in parts + ['""']:
+    for item in items + ['""']:
         c_data = parse_string(item)
         if c_data is not None:
             if length:
@@ -365,7 +367,7 @@ class CtlWriter:
                     has_bases = False
                     for instruction in instructions:
                         self._write_instruction_asm_directives(instruction)
-                        if instruction.bases:
+                        if instruction.inst_ctl == 'C' and instruction.length:
                             has_bases = True
                     first_instruction = instructions[0]
                     if ctl != 'M' or COMMENTS in self.elements:
@@ -456,7 +458,7 @@ class CtlWriter:
                     sublength = get_size(instruction.operation, addr)
                 if sublength > 0:
                     length += sublength
-                    bases = instruction.bases
+                    bases = instruction.length
                     if sublengths and bases == sublengths[-1][0]:
                         sublengths[-1][1] += sublength
                     else:
@@ -474,8 +476,8 @@ class CtlWriter:
         elif ctl in 'BSTW':
             # Compute the sublengths for a 'B', 'S', 'T' or 'W' sub-block
             for statement in instructions:
-                length += statement.size
-                sublengths.append(statement.length)
+                length += statement.length
+                sublengths.append(statement.sublengths)
             while len(sublengths) > 1 and sublengths[-1] == sublengths[-2]:
                 sublengths.pop()
             lengths = '{},{}'.format(length, get_lengths(sublengths))
@@ -638,7 +640,7 @@ class FakeInstruction:
         self.comment = comment
         self.asm_directives = ()
         self.ignoreua = False
-        self.bases = ''
+        self.inst_ctl = ''
 
 class Instruction:
     def __init__(self, ctl, address, operation, preserve_base):
@@ -650,20 +652,7 @@ class Instruction:
         self.asm_directives = None
         self.ignoreua = False
         self.ignoremrcua = False
-        self.inst_ctl = get_instruction_ctl(operation)
-        self.bases = ''
-        self.size = None
-        self.length = None
-        if self.inst_ctl == 'B':
-            self.size, self.length = get_defb_length(operation, preserve_base)
-        elif self.inst_ctl == 'T':
-            self.size, self.length = get_defb_length(operation, preserve_base)
-        elif self.inst_ctl == 'W':
-            self.size, self.length = get_defw_length(operation, preserve_base)
-        elif self.inst_ctl == 'S':
-            self.size, self.length = get_defs_length(operation, preserve_base)
-        else:
-            self.bases = get_operand_bases(operation, preserve_base)
+        self.inst_ctl, self.length, self.sublengths = inspect(operation, preserve_base)
 
     def set_comment(self, rowspan, text):
         self.comment = Comment(rowspan, text)
