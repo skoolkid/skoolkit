@@ -1,4 +1,4 @@
-# Copyright 2015, 2017, 2018 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2015, 2017-2019 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -513,9 +513,24 @@ def split_operation(operation, tidy=False):
     return [e.strip() for e in elements]
 
 def get_size(operation, address):
+    """Compute the size (in bytes) of an assembly language instruction or
+    DEFB/DEFM/DEFS/DEFW statement.
+
+    :param operation: The operation (e.g. 'XOR A').
+    :param address: The instruction address.
+    :return: The instruction size, or 0 if the instruction cannot be assembled.
+    """
     return len(assemble(operation, address))
 
-def assemble(operation, address=None):
+def assemble(operation, address):
+    """Convert an assembly language instruction or DEFB/DEFM/DEFS/DEFW
+    statement into a sequence of byte values.
+
+    :param operation: The operation to convert (e.g. 'XOR A').
+    :param address: The instruction address.
+    :return: A sequence of byte values (empty if the instruction cannot be
+             assembled).
+    """
     try:
         return _assemble(operation, address) or ()
     except:

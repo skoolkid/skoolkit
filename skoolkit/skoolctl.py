@@ -17,9 +17,10 @@
 import re
 
 from skoolkit import SkoolParsingError, write_line, get_int_param, get_address_format, open_file
+from skoolkit.api import get_assembler
 from skoolkit.skoolparser import (Comment, Register, parse_comment_block, parse_instruction,
                                   parse_address_comments, join_comments, read_skool, DIRECTIVES)
-from skoolkit.z80 import get_size, parse_string, parse_word, split_operation
+from skoolkit.z80 import parse_string, parse_word, split_operation
 
 ASM_DIRECTIVES = 'a'
 BLOCKS = 'b'
@@ -232,7 +233,8 @@ class CtlWriter:
     def __init__(self, skoolfile, elements='abtdrmscn', write_hex=0,
                  preserve_base=False, min_address=0, max_address=65536, keep_lines=0):
         self.keep_lines = keep_lines > 0
-        self.parser = SkoolParser(skoolfile, preserve_base, min_address, max_address, self.keep_lines)
+        self.assembler = get_assembler()
+        self.parser = SkoolParser(skoolfile, preserve_base, self.assembler, min_address, max_address, self.keep_lines)
         self.elements = elements
         self.write_asm_dirs = ASM_DIRECTIVES in elements
         self.address_fmt = get_address_format(write_hex, write_hex == 1)
@@ -455,7 +457,7 @@ class CtlWriter:
                 if i < len(instructions) - 1:
                     sublength = instructions[i + 1].address - addr
                 else:
-                    sublength = get_size(instruction.operation, addr)
+                    sublength = self.assembler.get_size(instruction.operation, addr)
                 if sublength > 0:
                     length += sublength
                     bases = instruction.length
@@ -495,13 +497,14 @@ class CtlWriter:
             self._write_lines(comment, ctl, addr_str + lengths, True)
 
 class SkoolParser:
-    def __init__(self, skoolfile, preserve_base, min_address, max_address, keep_lines):
+    def __init__(self, skoolfile, preserve_base, assembler, min_address, max_address, keep_lines):
         self.skoolfile = skoolfile
         self.preserve_base = preserve_base
         self.mode = Mode()
         self.memory_map = []
         self.end_address = 65536
         self.keep_lines = keep_lines
+        self.assembler = assembler
 
         with open_file(skoolfile) as f:
             self._parse_skool(f, min_address, max_address)
@@ -595,7 +598,7 @@ class SkoolParser:
                 last_instruction = end_instruction
         if last_entry is not None and last_entry.ctl != 'i':
             address = last_instruction.address
-            self.end_address = address + (get_size(last_instruction.operation, address) or 1)
+            self.end_address = address + (self.assembler.get_size(last_instruction.operation, address) or 1)
 
         parse_address_comments(address_comments, self.keep_lines)
 

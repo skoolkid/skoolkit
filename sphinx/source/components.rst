@@ -5,6 +5,7 @@ SkoolKit components
 
 SkoolKit relies on several components in order to function:
 
+* :ref:`assembler`
 * :ref:`ctlgenerator`
 * :ref:`disassembler`
 
@@ -13,8 +14,20 @@ The objects that are used for these components can be specified in the
 working directory or in `~/.skoolkit`. The default contents of the
 ``[skoolkit]`` section are as follows::
 
+  Assembler=skoolkit.z80
   ControlFileGenerator=skoolkit.snactl
   Disassembler=skoolkit.disassembler.Disassembler
+
+.. _assembler:
+
+Assembler
+---------
+This object is responsible for converting assembly language instructions and
+DEFB/DEFM/DEFS/DEFW statements into byte values, or computing their size. It
+must supply the following API functions, in common with skoolkit.z80:
+
+.. automodule:: skoolkit.z80
+   :members: assemble, get_size
 
 .. _ctlgenerator:
 

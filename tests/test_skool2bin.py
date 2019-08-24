@@ -1,8 +1,8 @@
-import textwrap
+from textwrap import dedent
 from unittest.mock import patch
 
 from skoolkittest import SkoolKitTestCase
-from skoolkit import SkoolKitError, VERSION, skool2bin
+from skoolkit import SkoolKitError, VERSION, api, skool2bin
 
 class MockBinWriter:
     def __init__(self, skoolfile, asm_mode, fix_mode):
@@ -198,7 +198,7 @@ class BinWriterTest(SkoolKitTestCase):
             skoolfile = '-'
             binfile = self.write_bin_file(suffix='.bin')
         else:
-            skoolfile = self.write_text_file(textwrap.dedent(skool).strip(), suffix='.skool')
+            skoolfile = self.write_text_file(dedent(skool).strip(), suffix='.skool')
             binfile = skoolfile[:-6] + '.bin'
             self.tempfiles.append(binfile)
         bin_writer = skool2bin.BinWriter(skoolfile, asm_mode, fix_mode)
@@ -270,7 +270,7 @@ class BinWriterTest(SkoolKitTestCase):
                 ('-b', 'bfix')
         ):
             with self.subTest(option=option, asm_dir=asm_dir):
-                skoolfile = self.write_text_file(textwrap.dedent(skool.format(asm_dir)).strip(), suffix='.skool')
+                skoolfile = self.write_text_file(dedent(skool.format(asm_dir)).strip(), suffix='.skool')
                 with self.assertRaises(SkoolKitError) as cm:
                     self.run_skool2bin('{} {}'.format(option, skoolfile))
                 self.assertEqual(cm.exception.args[0], 'Failed to assemble:\n 40001 XOR HL')
@@ -684,3 +684,14 @@ class BinWriterTest(SkoolKitTestCase):
         """
         exp_data = [1, 2]
         self._test_write(skool, 32768, exp_data)
+
+    @patch.object(api, 'SK_CONFIG', None)
+    def test_custom_assembler(self):
+        custom_assembler = """
+            def assemble(operation, address):
+                return (1, 1)
+        """
+        self.write_component_config('Assembler', '*', custom_assembler)
+        skool = "b60000 RET"
+        exp_data = [1, 1]
+        self._test_write(skool, 60000, exp_data)

@@ -4054,12 +4054,6 @@ class SkoolWriterTest(SkoolKitTestCase):
 
     @patch.object(api, 'SK_CONFIG', None)
     def test_custom_disassembler(self):
-        module_dir = self.make_directory()
-        ini = """
-            [skoolkit]
-            Disassembler={}:z80.CustomDisassembler
-        """.format(module_dir)
-        self.write_text_file(textwrap.dedent(ini).strip(), 'skoolkit.ini')
         custom_disassembler = """
             from skoolkit.disassembler import Disassembler, Instruction
 
@@ -4067,7 +4061,7 @@ class SkoolWriterTest(SkoolKitTestCase):
                 def disassemble(self, start, end, base):
                     return [Instruction(start, 'Hi', ())]
         """
-        self.write_text_file(textwrap.dedent(custom_disassembler), '{}/z80.py'.format(module_dir))
+        self.write_component_config('Disassembler', '*.CustomDisassembler', custom_disassembler)
         snapshot = [0]
         ctl = """
             c 00000

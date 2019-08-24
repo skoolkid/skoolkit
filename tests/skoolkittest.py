@@ -1,10 +1,12 @@
 import sys
+from importlib import invalidate_caches
 from io import BytesIO, StringIO
 import os
 from os.path import abspath, dirname
 from shutil import rmtree
 import glob
 import tempfile
+from textwrap import dedent
 import zlib
 from unittest import TestCase
 
@@ -188,6 +190,12 @@ class SkoolKitTestCase(TestCase):
 
     def write_bin_file(self, data=(), path=None, suffix=''):
         return self._write_file(bytearray(data), path, suffix, False)
+
+    def write_component_config(self, key, value, contents):
+        module_name = self.write_text_file(dedent(contents), suffix='.py')[:-3]
+        ini = "[skoolkit]\n{}=:{}".format(key, value.replace('*', module_name))
+        self.write_text_file(ini, 'skoolkit.ini')
+        invalidate_caches()
 
     def write_stdin(self, contents):
         sys.stdin = StdIn(contents)

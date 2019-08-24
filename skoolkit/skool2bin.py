@@ -18,10 +18,10 @@ import argparse
 from collections import defaultdict
 
 from skoolkit import SkoolParsingError, get_int_param, info, integer, open_file, VERSION
+from skoolkit.api import get_assembler
 from skoolkit.skoolmacro import MacroParsingError, parse_if
 from skoolkit.skoolparser import DIRECTIVES, parse_address_range, parse_asm_sub_fix_directive, read_skool
 from skoolkit.textutils import partition_unquoted
-from skoolkit.z80 import assemble
 
 VALID_CTLS = DIRECTIVES + ' *'
 
@@ -43,6 +43,7 @@ class BinWriter:
         self.base_address = len(self.snapshot)
         self.end_address = 0
         self.subs = defaultdict(list, {0: []})
+        self.assembler = get_assembler()
         self._parse_skool(skoolfile)
 
     def _parse_skool(self, skoolfile):
@@ -90,7 +91,7 @@ class BinWriter:
         return address
 
     def _assemble(self, operation, address, overwrite=False, removed=None):
-        data = assemble(operation, address)
+        data = self.assembler.assemble(operation, address)
         if data:
             end_address = address + len(data)
             if removed is None or address not in removed:

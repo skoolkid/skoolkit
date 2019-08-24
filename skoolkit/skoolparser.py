@@ -19,10 +19,10 @@ import html
 import re
 
 from skoolkit import (BASE_10, BASE_16, CASE_LOWER, CASE_UPPER, SkoolParsingError,
-                      warn, wrap, get_int_param, parse_int, open_file)
+                      warn, wrap, get_int_param, parse_int, open_file, z80)
+from skoolkit.api import get_assembler
 from skoolkit.skoolmacro import INTEGER, ClosingBracketError, MacroParsingError, parse_brackets, parse_if, parse_strings
 from skoolkit.textutils import partition_unquoted, split_quoted, split_unquoted
-from skoolkit.z80 import assemble, convert_case, get_size, split_operation
 
 DIRECTIVES = 'bcgistuw'
 
@@ -66,8 +66,8 @@ def get_address(operation):
     if search:
         return search.group(2)
 
-def set_bytes(snapshot, address, operation):
-    data = assemble(operation, address)
+def set_bytes(snapshot, assembler, address, operation):
+    data = assembler.assemble(operation, address)
     snapshot[address:address + len(data)] = data
     return data
 
@@ -105,7 +105,7 @@ def parse_asm_data_directive(snapshot, directive):
         addr = parse_int(address)
         if addr is not None:
             operation = '{} {}'.format(directive[:4], partition_unquoted(values, ';')[0])
-            set_bytes(snapshot, addr, operation)
+            set_bytes(snapshot, z80, addr, operation)
 
 def parse_asm_sub_fix_directive(directive):
     match = re.match('[>/|+]+', directive)
@@ -375,7 +375,8 @@ class SkoolParser:
                  create_labels=False, asm_labels=True, min_address=0, max_address=65536, variables=(),
                  snapshot=None):
         self.skoolfile = skoolfile
-        self.mode = Mode(case, base, asm_mode & 3, warnings, fix_mode, html, create_labels, asm_labels)
+        self._assembler = get_assembler()
+        self.mode = Mode(case, base, asm_mode & 3, warnings, fix_mode, html, create_labels, asm_labels, self._assembler)
         self.case = case
         self.base = base
         self.variables = variables
@@ -533,7 +534,7 @@ class SkoolParser:
                 if address is not None:
                     operation = instruction.operation
                     if self.mode.assemble > 1 or (self.mode.assemble and operation.upper().startswith(('DEFB ', 'DEFM ', 'DEFS ', 'DEFW '))):
-                        instruction.data = set_bytes(self.snapshot, address, operation)
+                        instruction.data = set_bytes(self.snapshot, self._assembler, address, operation)
 
             if map_entry and map_entry.instructions:
                 self._entries[map_entry.address] = map_entry
@@ -696,7 +697,7 @@ class SkoolParser:
         for entry in self.memory_map:
             address = max([i.address for i in entry.instructions if i.address is not None])
             last_instruction = self.get_instruction(address)
-            entry.size = address + (get_size(last_instruction.operation, address) or 1) - entry.address
+            entry.size = address + (self._assembler.get_size(last_instruction.operation, address) or 1) - entry.address
 
     def _calculate_references(self):
         references, referrers = SkoolReferenceCalculator().calculate_references(self.memory_map, self._remote_entries)
@@ -740,7 +741,7 @@ class Labeller:
         self.remote_instructions = [i.address for e in remote_entries for i in e.instructions]
         self.base_address = min(self.instructions)
         last_i = self.instructions[max(self.instructions)][0]
-        self.end_address = last_i.address + (get_size(last_i.operation, last_i.address) or 1)
+        self.end_address = last_i.address + (z80.get_size(last_i.operation, last_i.address) or 1)
 
         for entry in entries:
             for instruction in entry.instructions:
@@ -821,7 +822,7 @@ class SkoolReferenceCalculator:
         return references, referrers
 
 class Mode:
-    def __init__(self, case, base, asm_mode, warnings, fix_mode, html, create_labels, asm_labels):
+    def __init__(self, case, base, asm_mode, warnings, fix_mode, html, create_labels, asm_labels, assembler):
         self.case = case
         self.base = base
         self.converter = InstructionConverter(base, case)
@@ -833,6 +834,7 @@ class Mode:
         self.labels = []
         self.create_labels = create_labels
         self.asm_labels = asm_labels
+        self.assembler = assembler
         self.entry_ignoreua = {}
         if case == CASE_LOWER:
             self.addr_fmt = '{0:04x}'
@@ -902,7 +904,7 @@ class Mode:
         if label is not None:
             self.process_label(instruction, label)
         if overwrite:
-            size = get_size(instruction.operation, instruction.address)
+            size = self.assembler.get_size(instruction.operation, instruction.address)
             if size:
                 removed.update(range(instruction.address, instruction.address + size))
                 return instruction.address + size
@@ -1020,7 +1022,7 @@ class InstructionConverter:
                     prefix = None
             return converted
 
-        elements = split_operation(operation, tidy=True)
+        elements = z80.split_operation(operation, tidy=True)
         op = elements[0]
 
         # Instructions containing '(I[XY]+d)'
@@ -1046,7 +1048,7 @@ class InstructionConverter:
 
     def _convert_case(self, operation):
         if self.lower or self.upper:
-            operation = convert_case(operation, self.lower)
+            operation = z80.convert_case(operation, self.lower)
             if self.upper and not operation.startswith(('DEFB', 'DEFM', 'DEFS', 'DEFW')):
                 operation = re.sub('(I[XY])H', r'\1h', operation)
                 operation = re.sub('(I[XY])L', r'\1l', operation)

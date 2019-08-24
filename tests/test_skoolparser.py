@@ -1,8 +1,9 @@
-import textwrap
+from textwrap import dedent
 import re
+from unittest.mock import patch
 
 from skoolkittest import SkoolKitTestCase
-from skoolkit import SkoolParsingError, BASE_10, BASE_16
+from skoolkit import SkoolParsingError, BASE_10, BASE_16, api, z80
 from skoolkit.skoolparser import SkoolParser, TableParser, set_bytes, CASE_LOWER, CASE_UPPER
 
 TEST_BASE_CONVERSION_SKOOL = r"""
@@ -1204,7 +1205,7 @@ TEST_BASE_CONVERSION_HEX = r"""
 
 class SkoolParserTest(SkoolKitTestCase):
     def _get_parser(self, contents, *args, **kwargs):
-        skoolfile = self.write_text_file(textwrap.dedent(contents), suffix='.skool')
+        skoolfile = self.write_text_file(dedent(contents), suffix='.skool')
         return SkoolParser(skoolfile, *args, **kwargs)
 
     def _test_sub_directives(self, skool, exp_instructions, exp_subs, **kwargs):
@@ -2006,7 +2007,7 @@ class SkoolParserTest(SkoolKitTestCase):
         parser = self._get_parser(skool, asm_mode=1)
         self.assertEqual(len(parser.get_entry(0).instructions[0].referrers), 1)
         index = 20
-        lines = textwrap.dedent(skool).strip().split('\n')
+        lines = dedent(skool).strip().split('\n')
         ref_address = 0
         for instruction in parser.get_entry(57).instructions:
             self.assertEqual(instruction.operation, lines[index][7:])
@@ -2167,30 +2168,30 @@ class SkoolParserTest(SkoolKitTestCase):
     def test_set_bytes(self):
         # DEFB
         snapshot = [0] * 10
-        set_bytes(snapshot, 0, 'DEFB 1,2,3')
+        set_bytes(snapshot, z80, 0, 'DEFB 1,2,3')
         self.assertEqual(snapshot[:3], [1, 2, 3])
-        set_bytes(snapshot, 2, 'DEFB 5, "AB"')
+        set_bytes(snapshot, z80, 2, 'DEFB 5, "AB"')
         self.assertEqual(snapshot[2:5], [5, 65, 66])
 
         # DEFM
         snapshot = [0] * 10
-        set_bytes(snapshot, 7, 'DEFM "ABC"')
+        set_bytes(snapshot, z80, 7, 'DEFM "ABC"')
         self.assertEqual(snapshot[7:], [65, 66, 67])
-        set_bytes(snapshot, 0, 'DEFM "\\"A\\""')
+        set_bytes(snapshot, z80, 0, 'DEFM "\\"A\\""')
         self.assertEqual(snapshot[:3], [34, 65, 34])
-        set_bytes(snapshot, 5, 'DEFM "C:\\\\",12')
+        set_bytes(snapshot, z80, 5, 'DEFM "C:\\\\",12')
         self.assertEqual(snapshot[5:9], [67, 58, 92, 12])
 
         # DEFW
         snapshot = [0] * 10
-        set_bytes(snapshot, 3, 'DEFW 1,258')
+        set_bytes(snapshot, z80, 3, 'DEFW 1,258')
         self.assertEqual(snapshot[3:7], [1, 0, 2, 1])
 
         # DEFS
         snapshot = [8] * 10
-        set_bytes(snapshot, 0, 'DEFS 10')
+        set_bytes(snapshot, z80, 0, 'DEFS 10')
         self.assertEqual(snapshot, [0] * 10)
-        set_bytes(snapshot, 0, 'DEFS 10,3')
+        set_bytes(snapshot, z80, 0, 'DEFS 10,3')
         self.assertEqual(snapshot, [3] * 10)
 
     def test_warn_ld_operand(self):
@@ -2212,7 +2213,7 @@ class SkoolParserTest(SkoolKitTestCase):
             WARNING: LD operand replaced with routine label in unsubbed operation:
               32771 ld de,32774 -> ld de,DOSTUFF
         """
-        self.assertEqual(textwrap.dedent(exp_warnings).strip(), warnings.strip())
+        self.assertEqual(dedent(exp_warnings).strip(), warnings.strip())
 
     def test_no_warning_for_ld_operand_in_subbed_operation(self):
         skool = """
@@ -2662,7 +2663,7 @@ class SkoolParserTest(SkoolKitTestCase):
               8003 LD DE,$8000 -> LD DE,START
             WARNING: Unreplaced operand: 8006 CALL $8001
         """
-        self.assertEqual(textwrap.dedent(exp_warnings).strip(), warnings.strip())
+        self.assertEqual(dedent(exp_warnings).strip(), warnings.strip())
 
     def test_warning_when_no_label_found_for_operand_in_subbed_operation(self):
         skool = """
@@ -2731,7 +2732,7 @@ class SkoolParserTest(SkoolKitTestCase):
         instructions = parser.get_entry(12445).instructions
         self.assertEqual(len(instructions[0].referrers), 1)
         index = 2
-        lines = textwrap.dedent(skool).strip().split('\n')
+        lines = dedent(skool).strip().split('\n')
         for instruction in instructions:
             exp_operation = re.sub('(12445|\$309[Dd]|%0011000010011101)', 'START', lines[index][7:])
             self.assertEqual(instruction.operation, exp_operation)
@@ -2763,7 +2764,7 @@ class SkoolParserTest(SkoolKitTestCase):
         instructions = parser.memory_map[0].instructions
         self.assertEqual(len(instructions[0].referrers), 0)
         index = 2
-        lines = textwrap.dedent(skool).strip().split('\n')
+        lines = dedent(skool).strip().split('\n')
         for instruction in instructions:
             exp_operation = re.sub('(0|\$0000|%0000000000000000)', 'START', lines[index][7:])
             self.assertEqual(instruction.operation, exp_operation)
@@ -2848,7 +2849,7 @@ class SkoolParserTest(SkoolKitTestCase):
              00260 OUT (132),A
         """
         parser = self._get_parser(skool, asm_mode=1, asm_labels=True)
-        lines = textwrap.dedent(skool).strip().split('\n')
+        lines = dedent(skool).strip().split('\n')
 
         instruction = parser.get_entry(124).instructions[0]
         self.assertEqual(len(instruction.referrers), 0)
@@ -2880,7 +2881,7 @@ class SkoolParserTest(SkoolKitTestCase):
             s10000 DEFS 10000,255
         """
         parser = self._get_parser(skool, asm_mode=1, asm_labels=True)
-        lines = textwrap.dedent(skool).strip().split('\n')
+        lines = dedent(skool).strip().split('\n')
 
         instruction = parser.get_instruction(10)
         self.assertEqual(len(instruction.referrers), 0)
@@ -5217,6 +5218,27 @@ class SkoolParserTest(SkoolKitTestCase):
         self.assertEqual([1, 2, 3, 4, 5, 6, 7, 8], parser.snapshot[40000:40008])
         self.assertEqual([1, 2, 9, 10, 11, 12, 7, 8], clone.snapshot[40000:40008])
         self.assertEqual(parser.fields, clone.fields)
+
+    @patch.object(api, 'SK_CONFIG', None)
+    def test_custom_assembler(self):
+        custom_assembler = """
+            class Assembler:
+                def assemble(self, operation, address):
+                    return {'FOO': (1, 2, 3), 'BAR': (4, 5, 6, 7)}[operation]
+                def get_size(self, operation, address):
+                    return len(self.assemble(operation, address))
+        """
+        self.write_component_config('Assembler', '*.Assembler', custom_assembler)
+
+        skool = """
+            @assemble=2
+            c30000 FOO
+
+            b30003 BAR
+        """
+        parser = self._get_parser(skool, html=True)
+        self.assertEqual(parser.memory_map[1].size, 4)
+        self.assertEqual([1, 2, 3, 4, 5, 6, 7], parser.snapshot[30000:30007])
 
 class TableParserTest(SkoolKitTestCase):
     class MockWriter:

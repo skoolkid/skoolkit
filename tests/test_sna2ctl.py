@@ -1044,17 +1044,11 @@ class Sna2CtlTest(SkoolKitTestCase):
 
     @patch.object(api, 'SK_CONFIG', None)
     def test_custom_ctl_generator(self):
-        module_dir = self.make_directory()
-        ini = """
-            [skoolkit]
-            ControlFileGenerator={}:ctlgen
-        """.format(module_dir)
-        self.write_text_file(dedent(ini).strip(), 'skoolkit.ini')
         custom_ctl_generator = """
             def generate_ctls(snapshot, start, end, code_map, config):
                 return {65534: 'b'}
         """
-        self.write_text_file(dedent(custom_ctl_generator), '{}/ctlgen.py'.format(module_dir))
+        self.write_component_config('ControlFileGenerator', '*', custom_ctl_generator)
         data = [0]
         exp_ctl = "b 65534"
         self._test_generation(data, exp_ctl)

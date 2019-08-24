@@ -1,8 +1,9 @@
 from io import StringIO
-import textwrap
+from textwrap import dedent
+from unittest.mock import patch
 
 from skoolkittest import SkoolKitTestCase
-from skoolkit import SkoolParsingError
+from skoolkit import SkoolParsingError, api
 from skoolkit.skoolctl import CtlWriter
 
 DIRECTIVES = 'bcgistuw'
@@ -640,7 +641,7 @@ c62000 LD A,","
 class CtlWriterTest(SkoolKitTestCase):
     def _get_ctl(self, elements='abtdrmscn', write_hex=0, skool=TEST_SKOOL,
                  preserve_base=0, min_address=0, max_address=65536, keep_lines=0):
-        skoolfile = StringIO(textwrap.dedent(skool).strip())
+        skoolfile = StringIO(dedent(skool).strip())
         writer = CtlWriter(skoolfile, elements, write_hex, preserve_base, min_address, max_address, keep_lines)
         writer.write()
         return self.out.getvalue().rstrip()
@@ -649,7 +650,7 @@ class CtlWriterTest(SkoolKitTestCase):
                   min_address=0, max_address=65536, keep_lines=0):
         ctl = self._get_ctl(skool=skool, write_hex=write_hex, preserve_base=preserve_base,
                             min_address=min_address, max_address=max_address, keep_lines=keep_lines)
-        self.assertEqual(textwrap.dedent(exp_ctl).strip(), ctl)
+        self.assertEqual(dedent(exp_ctl).strip(), ctl)
 
     def test_invalid_address(self):
         with self.assertRaises(SkoolParsingError) as cm:
@@ -2607,3 +2608,25 @@ class CtlWriterTest(SkoolKitTestCase):
             i 50005
         """
         self._test_ctl(skool, exp_ctl, keep_lines=1)
+
+    @patch.object(api, 'SK_CONFIG', None)
+    def test_custom_assembler(self):
+        custom_assembler = """
+            def get_size(operation, address):
+                if operation == 'BAR':
+                    return 5
+                return 10
+        """
+        self.write_component_config('Assembler', '*', custom_assembler)
+
+        skool = """
+            c50000 FOO A ; First instruction
+             50010 BAR   ; Last instruction
+        """
+        exp_ctl = """
+            c 50000
+            C 50000,10 First instruction
+            C 50010,5 Last instruction
+            i 50015
+        """
+        self._test_ctl(skool, exp_ctl)

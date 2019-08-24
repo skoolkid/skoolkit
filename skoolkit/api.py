@@ -27,3 +27,6 @@ def get_component(component, *args):
     if args or callable(obj):
         return obj(*args)
     return obj
+
+def get_assembler():
+    return get_component('Assembler')
