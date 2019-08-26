@@ -1,4 +1,4 @@
-# Copyright 2009-2013, 2015-2018 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2009-2013, 2015-2019 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -18,6 +18,7 @@ import textwrap
 import zlib
 
 from skoolkit import SkoolKitError, get_int_param, read_bin_file
+from skoolkit.api import get_snapshot_reader
 
 # http://www.worldofspectrum.org/faq/reference/z80format.htm
 Z80_REGISTERS = {
@@ -52,6 +53,14 @@ Z80_REGISTERS = {
 }
 
 def get_snapshot(fname, page=None):
+    """
+    Read a snapshot file and produce a 65536-element list of byte values.
+
+    :param fname: The snapshot filename.
+    :param page: The page number to map to addresses 49152-65535 (C000-FFFF).
+                 This is relevant only when reading a 128K snapshot file.
+    :return: A 65536-element list of byte values.
+    """
     ext = fname[-4:].lower()
     if ext not in ('.sna', '.z80', '.szx'):
         raise SnapshotError("{0}: Unknown file type '{1}'".format(fname, ext[1:]))
@@ -70,7 +79,7 @@ def get_snapshot(fname, page=None):
 
 def make_snapshot(fname, org=None, start=16384, end=65536, page=None):
     if fname[-4:].lower() in ('.sna', '.szx', '.z80'):
-        return get_snapshot(fname, page), max(16384, start), end
+        return get_snapshot_reader().get_snapshot(fname, page), max(16384, start), end
     ram = read_bin_file(fname, 65536)
     if org is None:
         org = 65536 - len(ram)

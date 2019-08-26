@@ -2,7 +2,7 @@ import os
 from unittest.mock import patch
 
 from skoolkittest import SkoolKitTestCase
-from skoolkit import bin2tap, SkoolKitError, VERSION
+from skoolkit import api, bin2tap, SkoolKitError, VERSION
 
 def mock_run(*args):
     global run_args
@@ -437,3 +437,28 @@ class Bin2TapTest(SkoolKitTestCase):
         clear = 32768
         tap_data = self._run('-S {} -c {} {}'.format(scrfile, clear, binfile))
         self._check_tap_with_clear_command(tap_data, data, binfile, clear, scr=scr)
+
+    @patch.object(api, 'SK_CONFIG', None)
+    def test_custom_snapshot_reader(self):
+        custom_snapshot_reader = """
+            def get_snapshot(fname, page=None):
+                return [128] * 65536
+        """
+        self.write_component_config('SnapshotReader', '*', custom_snapshot_reader)
+        snafile = self.write_bin_file(suffix='.sna')
+        tap_data = self._run('-o 65535 {}'.format(snafile))
+        self._check_tap(tap_data, [128], snafile)
+
+    @patch.object(api, 'SK_CONFIG', None)
+    def test_option_S_with_custom_snapshot_reader(self):
+        custom_snapshot_reader = """
+            def get_snapshot(fname, page=None):
+                return [192] * 23296
+        """
+        self.write_component_config('SnapshotReader', '*', custom_snapshot_reader)
+        scrfile = self.write_bin_file(suffix='.sna')
+        data = [64]
+        binfile = self.write_bin_file(data, suffix='.bin')
+        tap_data = self._run('-S {} {}'.format(scrfile, binfile))
+        exp_scr = [192] * 6912
+        self._check_tap(tap_data, data, binfile, scr=exp_scr)

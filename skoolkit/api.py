@@ -30,3 +30,6 @@ def get_component(component, *args):
 
 def get_assembler():
     return get_component('Assembler')
+
+def get_snapshot_reader():
+    return get_component('SnapshotReader')

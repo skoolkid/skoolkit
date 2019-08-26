@@ -1,4 +1,4 @@
-# Copyright 2010-2013, 2015-2017 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2010-2013, 2015-2017, 2019 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -18,7 +18,7 @@ import os.path
 import argparse
 
 from skoolkit import SkoolKitError, integer, read_bin_file, VERSION
-from skoolkit.snapshot import get_snapshot
+from skoolkit.api import get_snapshot_reader
 
 def _get_str(chars):
     return [ord(c) for c in chars]
@@ -167,11 +167,12 @@ def main(args):
     infile = namespace.infile
     if unknown_args or infile is None:
         parser.exit(2, parser.format_help())
+    snapshot_reader = get_snapshot_reader()
     if infile.lower().endswith(('.sna', '.szx', '.z80')):
         org = namespace.org or 16384
         if org >= namespace.end:
             raise SkoolKitError('End address must be greater than {}'.format(org))
-        ram = get_snapshot(infile)[org:namespace.end]
+        ram = snapshot_reader.get_snapshot(infile)[org:namespace.end]
     else:
         ram = read_bin_file(infile, 49152)
         if len(ram) == 0:
@@ -192,7 +193,7 @@ def main(args):
     scr = namespace.screen
     if scr is not None:
         if scr.lower().endswith(('.sna', '.szx', '.z80')):
-            scr = get_snapshot(scr)[16384:23296]
+            scr = snapshot_reader.get_snapshot(scr)[16384:23296]
         else:
             scr = read_bin_file(scr, 6912)
     run(ram, clear, org, start, stack, tapfile, scr)

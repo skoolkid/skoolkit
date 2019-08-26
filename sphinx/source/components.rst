@@ -8,6 +8,7 @@ SkoolKit relies on several components in order to function:
 * :ref:`assembler`
 * :ref:`ctlgenerator`
 * :ref:`disassembler`
+* :ref:`snapshotReader`
 
 The objects that are used for these components can be specified in the
 ``[skoolkit]`` section of a file named `skoolkit.ini` either in the current
@@ -17,6 +18,7 @@ working directory or in `~/.skoolkit`. The default contents of the
   Assembler=skoolkit.z80
   ControlFileGenerator=skoolkit.snactl
   Disassembler=skoolkit.disassembler.Disassembler
+  SnapshotReader=skoolkit.snapshot
 
 .. _assembler:
 
@@ -80,3 +82,14 @@ If *sublengths* contains a single element whose ``size`` value is `None`, then
 the method should produce a list of instructions with default sizes (as
 determined by `defb_size`, `defb_mod` and `defm_size`), using the default
 number base.
+
+.. _snapshotReader:
+
+Snapshot reader
+---------------
+This object is responsible for producing a 65536-element list of byte values
+from a snapshot file. It must supply the following API function, in common with
+skoolkit.snapshot:
+
+.. automodule:: skoolkit.snapshot
+   :members: get_snapshot
