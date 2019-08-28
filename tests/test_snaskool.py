@@ -4072,3 +4072,54 @@ class SkoolWriterTest(SkoolKitTestCase):
             c00000 Hi            ;
         """
         self._test_write_skool(snapshot, ctl, exp_skool)
+
+    @patch.object(api, 'SK_CONFIG', None)
+    def test_custom_snapshot_reference_calculator(self):
+        custom_ref_calc = """
+            def calculate_references(entries):
+                return {1: [0]}
+        """
+        self.write_component_config('SnapshotReferenceCalculator', '*', custom_ref_calc)
+        snapshot = [201, 201]
+        ctl = """
+            c 00000
+            c 00001
+            i 00002
+        """
+        exp_skool = """
+            ; Routine at 0
+            c00000 RET           ;
+
+            ; Routine at 1
+            ;
+            ; Used by the routine at #R0.
+            c00001 RET           ;
+        """
+        self._test_write_skool(snapshot, ctl, exp_skool)
+
+    @patch.object(api, 'SK_CONFIG', None)
+    def test_snapshot_reference_calculator_api(self):
+        custom_ref_calc = """
+            def calculate_references(entries):
+                entry = entries[0]
+                assert entry.ctl == 'c'
+                instruction = entry.instructions[0]
+                assert instruction.address == 0
+                assert instruction.bytes == [201]
+                assert instruction.label == 'START'
+                assert instruction.operation == 'RET'
+                return {}
+        """
+        self.write_component_config('SnapshotReferenceCalculator', '*', custom_ref_calc)
+        snapshot = [201]
+        ctl = """
+            c 00000
+            @ 00000 label=START
+            i 00001
+        """
+        exp_skool = """
+            ; Routine at 0
+            @label=START
+            c00000 RET           ;
+        """
+        self._test_write_skool(snapshot, ctl, exp_skool)

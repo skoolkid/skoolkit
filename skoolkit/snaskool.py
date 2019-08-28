@@ -28,12 +28,34 @@ from skoolkit.skoolparser import (get_address, TABLE_MARKER, TABLE_END_MARKER,
 
 MIN_COMMENT_WIDTH = 10
 
+def calculate_references(entries):
+    """
+    For each entry point in each routine, calculate a list of addresses of the
+    entries containing instructions that jump to or call that entry point.
+
+    :param entries: A collection of memory map entries.
+    :return: A dictionary of entry point addresses.
+    """
+    containers = {i.address: e.instructions[0].address for e in entries for i in e.instructions if i.label != ''}
+    referrers = defaultdict(list)
+    for entry in entries:
+        entry_addr = entry.instructions[0].address
+        for instruction in entry.instructions:
+            operation = instruction.operation
+            if operation.upper().startswith(('DJ', 'JR', 'JP', 'CA', 'RS')):
+                addr_str = get_address(operation)
+                if addr_str:
+                    ref_addr = parse_int(addr_str)
+                    if ref_addr in containers and (entry.ctl != 'u' or entry_addr == containers[ref_addr]):
+                        referrers[ref_addr].append(entry_addr)
+    return referrers
+
 class Instruction:
     def __init__(self, spec):
-        self.address = spec.address
-        self.operation = spec.operation
-        self.bytes = spec.bytes
-        self.label = None
+        self.address = spec.address     # API (SnapshotReferenceCalculator)
+        self.operation = spec.operation # API (SnapshotReferenceCalculator)
+        self.bytes = spec.bytes         # API (SnapshotReferenceCalculator)
+        self.label = None               # API (SnapshotReferenceCalculator)
         self.referrers = []
         self.entry = None
         self.ctl = None
@@ -48,12 +70,12 @@ class Instruction:
 class Entry:
     def __init__(self, header, title, description, ctl, blocks, registers,
                  end_comment, footer, asm_directives, ignoreua_directives):
+        self.ctl = ctl         # API (SnapshotReferenceCalculator)
+        self.instructions = [] # API (SnapshotReferenceCalculator)
         self.header = header
         self.title = title
         self.has_title = any(title)
-        self.ctl = ctl
         self.blocks = blocks
-        self.instructions = []
         for block in blocks:
             for instruction in block.instructions:
                 instruction.entry = self
@@ -80,28 +102,12 @@ class Entry:
     def has_ignoreua_directive(self, comment_type):
         return comment_type in self.ignoreua_directives
 
-class SnapshotReferenceCalculator:
-    def calculate_references(self, entries, unused, exclude):
-        containers = {i.address: e[0].address for e in entries for i in e if i.address not in exclude}
-        referrers = defaultdict(list)
-        for entry in entries:
-            entry_addr = entry[0].address
-            for instruction in entry:
-                operation = instruction.operation
-                if operation.upper().startswith(('DJ', 'JR', 'JP', 'CA', 'RS')):
-                    addr_str = get_address(operation)
-                    if addr_str:
-                        ref_addr = parse_int(addr_str)
-                        if ref_addr in containers and (entry_addr not in unused or entry_addr == containers[ref_addr]):
-                            referrers[ref_addr].append(entry_addr)
-        return referrers
-
 class Disassembly:
     def __init__(self, snapshot, ctl_parser, config=None, final=False, defb_size=8, defb_mod=1,
                  zfill=False, defm_width=66, asm_hex=False, asm_lower=False):
         ctl_parser.apply_asm_data_directives(snapshot)
         self.disassembler = get_component('Disassembler', snapshot, defb_size, defb_mod, zfill, defm_width, asm_hex, asm_lower)
-        self.ref_calc = SnapshotReferenceCalculator()
+        self.ref_calc = get_component('SnapshotReferenceCalculator')
         self.ctl_parser = ctl_parser
         if asm_hex:
             if asm_lower:
@@ -210,13 +216,10 @@ class Disassembly:
                     break
 
     def _calculate_references(self):
-        entries = [e.instructions for e in self.entries]
-        unused = [e.address for e in self.entries if e.ctl == 'u']
-        exclude = [i.address for e in entries for i in e if i.label == '']
-        referrers = self.ref_calc.calculate_references(entries, unused, exclude)
+        referrers = self.ref_calc.calculate_references(self.entries)
         for entry in self.entries:
             for instruction in entry.instructions:
-                for entry_address in referrers[instruction.address]:
+                for entry_address in referrers.get(instruction.address, ()):
                     instruction.add_referrer(entry_address)
 
     def _address_str(self, address):
