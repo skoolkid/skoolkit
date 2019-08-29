@@ -8,6 +8,7 @@ SkoolKit relies on several components in order to function:
 * :ref:`assembler`
 * :ref:`ctlgenerator`
 * :ref:`disassembler`
+* :ref:`skoolRefCalc`
 * :ref:`snapshotReader`
 * :ref:`snapshotRefCalc`
 
@@ -19,6 +20,7 @@ working directory or in `~/.skoolkit`. The default contents of the
   Assembler=skoolkit.z80
   ControlFileGenerator=skoolkit.snactl
   Disassembler=skoolkit.disassembler.Disassembler
+  SkoolReferenceCalculator=skoolkit.skoolparser
   SnapshotReader=skoolkit.snapshot
   SnapshotReferenceCalculator=skoolkit.snaskool
 
@@ -84,6 +86,45 @@ If *sublengths* contains a single element whose ``size`` value is `None`, then
 the method should produce a list of instructions with default sizes (as
 determined by `defb_size`, `defb_mod` and `defm_size`), using the default
 number base.
+
+.. _skoolRefCalc:
+
+Skool reference calculator
+--------------------------
+This object is responsible for generating a dictionary of references (for
+each instruction that refers to another instruction) and a dictionary of
+referrers (for each instruction that is referred to by other instructions) from
+the instructions in a skool file.
+
+Each key in the references dictionary is an instruction object, and the
+corresponding value is a 3-element tuple, ``(entry, address, address_s)``,
+where ``entry`` is the entry containing the instruction referred to,
+``address`` is the address of the instruction referred to, and ``address_s`` is
+the corresponding address string in the operand of the referring instruction.
+
+Each key in the referrers dictionary is an instruction object, and the
+corresponding value is a list of the entries that refer to that instruction.
+
+The skool reference calculator must supply the following API function, in
+common with skoolkit.skoolparser:
+
+.. automodule:: skoolkit.skoolparser
+   :members: calculate_references
+
+Memory map entries and remote entries have the following attributes:
+
+* *ctl* - the entry's control directive ('b', 'c', 'g', 'i', 's', 't', 'u' or
+  'w' for a memory map entry; `None` for a remote entry)
+* *instructions* - a collection of instruction objects
+
+Each instruction object has the following attributes:
+
+* *address* - the address of the instruction
+* *keep* - `None` if the instruction has no :ref:`keep` directive; an empty
+  collection if it has a bare :ref:`keep` directive; or a collection of
+  addresses if it has a :ref:`keep` directive with one or more values
+* *operation* - the operation (e.g. 'XOR A'), or an empty string if the
+  instruction is in a remote entry
 
 .. _snapshotReader:
 

@@ -1902,6 +1902,24 @@ class SkoolParserTest(SkoolKitTestCase):
         self.assertEqual(entry.asm_id, 'save')
         self.assertEqual(entry.address, 33024)
 
+    def test_remote_entry_does_not_hide_memory_map_entry(self):
+        skool = """
+            @start
+            @remote=load:30003
+            c30000 JP 30003
+
+            c30003 RET
+        """
+        parser = self._get_parser(skool)
+        self.assertEqual(len(parser.memory_map), 2)
+        entry1, entry2 = parser.memory_map
+        self.assertEqual(len(entry1.instructions), 1)
+        reference = entry1.instructions[0].reference
+        self.assertIsNotNone(reference)
+        self.assertEqual(reference.entry, entry2)
+        self.assertEqual(reference.address, 30003)
+        self.assertEqual(reference.addr_str, '30003')
+
     def test_references(self):
         skool = """
             ; Routine
@@ -5239,6 +5257,51 @@ class SkoolParserTest(SkoolKitTestCase):
         parser = self._get_parser(skool, html=True)
         self.assertEqual(parser.memory_map[1].size, 4)
         self.assertEqual([1, 2, 3, 4, 5, 6, 7], parser.snapshot[30000:30007])
+
+    @patch.object(api, 'SK_CONFIG', None)
+    def test_custom_skool_reference_calculator(self):
+        custom_ref_calc = """
+            def calculate_references(entries, remote_entries):
+                references = {entries[0].instructions[0]: (entries[0], 0, '0')}
+                return references, {}
+        """
+        self.write_component_config('SkoolReferenceCalculator', '*', custom_ref_calc)
+
+        parser = self._get_parser('c40000 JP 40000')
+        reference = parser.get_instruction(40000).reference
+        self.assertEqual(reference.address, 0)
+        self.assertEqual(reference.addr_str, '0')
+
+    @patch.object(api, 'SK_CONFIG', None)
+    def test_custom_skool_reference_calculator_api(self):
+        custom_ref_calc = """
+            def calculate_references(entries, remote_entries):
+                entry = entries[0]
+                assert entry.ctl == 'c'
+                instruction = entry.instructions[0]
+                assert instruction.address == 40000
+                assert instruction.keep == []
+                assert instruction.operation == 'JP 40000'
+                remote_entry = remote_entries[0]
+                assert remote_entry.ctl is None
+                remote_instruction = remote_entry.instructions[1]
+                assert remote_instruction.address == 30001
+                assert remote_instruction.keep is None
+                assert remote_instruction.operation == ''
+                references = {entries[0].instructions[0]: (entries[0], 0, '0')}
+                return references, {}
+        """
+        self.write_component_config('SkoolReferenceCalculator', '*', custom_ref_calc)
+
+        skool = """
+            @remote=foo:30000,30001
+            @keep
+            c40000 JP 40000
+        """
+        parser = self._get_parser(skool)
+        reference = parser.get_instruction(40000).reference
+        self.assertEqual(reference.address, 0)
+        self.assertEqual(reference.addr_str, '0')
 
 class TableParserTest(SkoolKitTestCase):
     class MockWriter:

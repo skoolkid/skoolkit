@@ -20,7 +20,7 @@ import re
 
 from skoolkit import (BASE_10, BASE_16, CASE_LOWER, CASE_UPPER, SkoolParsingError,
                       warn, wrap, get_int_param, parse_int, open_file, z80)
-from skoolkit.api import get_assembler
+from skoolkit.api import get_assembler, get_component
 from skoolkit.skoolmacro import INTEGER, ClosingBracketError, MacroParsingError, parse_brackets, parse_if, parse_strings
 from skoolkit.textutils import partition_unquoted, split_quoted, split_unquoted
 
@@ -34,6 +34,36 @@ LIST_MARKER = '#LIST'
 LIST_END_MARKER = 'LIST#'
 
 Flags = namedtuple('Flags', 'prepend final overwrite append')
+
+def calculate_references(entries, remote_entries):
+    """
+    Generate a dictionary of references (for each instruction that refers to
+    another instruction) and a dictionary of referrers (for each instruction
+    that is referred to by other instructions) from the instructions in a skool
+    file.
+
+    :param entries: A collection of memory map entries.
+    :param remote_entries: A collection of remote entries (as defined by
+                           :ref:`remote` directives).
+    :return: A tuple containing the two dictionaries.
+    """
+    references = {}
+    referrers = defaultdict(list)
+    instructions = {i.address: (i, e) for e in remote_entries + entries for i in e.instructions}
+    for entry in entries:
+        for instruction in entry.instructions:
+            operation = instruction.operation.upper()
+            if operation.startswith(('CALL', 'DEFW', 'DJNZ', 'JP', 'JR', 'LD ', 'RST')) and not _is_8_bit_ld_instruction(operation):
+                addr_str = get_address(instruction.operation)
+                if addr_str:
+                    address = parse_int(addr_str)
+                    if instruction.keep is None or (instruction.keep and address not in instruction.keep):
+                        ref_i, ref_e = instructions.get(address, (None, None))
+                        if ref_i and ref_e.ctl != 'i' and (ref_e.ctl == 'c' or operation.startswith(('DEFW', 'LD ')) or ref_e.ctl is None):
+                            references[instruction] = (ref_e, address, addr_str)
+                            if operation.startswith(('CALL', 'DJNZ', 'JP', 'JR', 'RST')) and entry not in referrers[ref_i]:
+                                referrers[ref_i].append(entry)
+    return references, referrers
 
 def _replace_nums(operation, hex_fmt=None, skip_bit=False, prefix=None):
     elements = re.split('(?<=[\s,(%*/+-])(\$[0-9A-Fa-f]+|\d+)', (prefix or '(') + operation)
@@ -700,7 +730,7 @@ class SkoolParser:
             entry.size = address + (self._assembler.get_size(last_instruction.operation, address) or 1) - entry.address
 
     def _calculate_references(self):
-        references, referrers = SkoolReferenceCalculator().calculate_references(self.memory_map, self._remote_entries)
+        references, referrers = get_component('SkoolReferenceCalculator').calculate_references(self.memory_map, self._remote_entries)
         for instruction, (entry, address, addr_str) in references.items():
             instruction.set_reference(entry, address, addr_str)
         for instruction, entries in referrers.items():
@@ -795,31 +825,6 @@ class Labeller:
             # disassembly (where code might be) but doesn't refer to the
             # address of an instruction (will need @nowarn if this is OK)
             self.warn('Unreplaced operand: {address} {operation}', instruction, min_mode=2)
-
-class SkoolReferenceCalculator:
-    def calculate_references(self, entries, remote_entries):
-        references = {}
-        referrers = defaultdict(list)
-        instructions = {i.address: (i, e) for e in entries for i in e.instructions}
-        remote_instructions = {i.address: (i, e) for e in remote_entries for i in e.instructions}
-        for entry in entries:
-            for instruction in entry.instructions:
-                operation = instruction.operation.upper()
-                if operation.startswith(('CALL', 'DEFW', 'DJNZ', 'JP', 'JR', 'LD ', 'RST')) and not _is_8_bit_ld_instruction(operation):
-                    addr_str = get_address(instruction.operation)
-                    if addr_str:
-                        address = parse_int(addr_str)
-                        if instruction.keep is None or (instruction.keep and address not in instruction.keep):
-                            remote = False
-                            ref_i, ref_e = instructions.get(address, (None, None))
-                            if not ref_i:
-                                ref_i, ref_e = remote_instructions.get(address, (None, None))
-                                remote = True
-                            if ref_i and ref_e.ctl != 'i' and (remote or operation.startswith(('DEFW', 'LD ')) or ref_e.ctl == 'c'):
-                                references[instruction] = (ref_e, address, addr_str)
-                                if operation.startswith(('CALL', 'DJNZ', 'JP', 'JR', 'RST')) and entry not in referrers[ref_i]:
-                                    referrers[ref_i].append(entry)
-        return references, referrers
 
 class Mode:
     def __init__(self, case, base, asm_mode, warnings, fix_mode, html, create_labels, asm_labels, assembler):
@@ -1063,8 +1068,9 @@ class Instruction:
         else:
             self.addr_str = addr_str
             self.addr_base = BASE_10
-        self.address = parse_int(addr_str)
-        self.operation = operation
+        self.address = parse_int(addr_str) # API (SkoolReferenceCalculator)
+        self.keep = None                   # API (SkoolReferenceCalculator)
+        self.operation = operation         # API (SkoolReferenceCalculator)
         self.data = ()
         self.container = None
         self.reference = None
@@ -1080,7 +1086,6 @@ class Instruction:
             self.sub = operation
         else:
             self.sub = None
-        self.keep = None
         self.warn = True
         self.ignoreua = False
         self.ignoremrcua = False
@@ -1132,16 +1137,16 @@ class Comment:
 
 class SkoolEntry:
     def __init__(self, address, addr_str=None, ctl=None, description=None, details=(), registers=()):
+        self.ctl = ctl         # API (SkoolReferenceCalculator)
+        self.instructions = [] # API (SkoolReferenceCalculator)
         self.headers = ()
         self.footers = ()
         self.asm_id = ''
         self.address = address
         self.addr_str = addr_str
-        self.ctl = ctl
         self.description = description
         self.details = details
         self.registers = [Register(prefix, name, contents) for prefix, name, contents in registers]
-        self.instructions = []
         self.end_comment = ()
         self.referrers = []
         self.size = None

@@ -25,6 +25,7 @@ COMMANDS = {
         'Assembler': 'skoolkit.z80',
         'ControlFileGenerator': 'skoolkit.snactl',
         'Disassembler': 'skoolkit.disassembler.Disassembler',
+        'SkoolReferenceCalculator': 'skoolkit.skoolparser',
         'SnapshotReader': 'skoolkit.snapshot',
         'SnapshotReferenceCalculator': 'skoolkit.snaskool'
     },
