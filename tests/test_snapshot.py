@@ -22,7 +22,7 @@ class ErrorTest(SnapshotTest):
     def test_unknown_file_type(self):
         file_type = 'tzx'
         snapshot_file = self.write_bin_file(suffix='.{0}'.format(file_type))
-        with self.assertRaisesRegex(SnapshotError, "{}: Unknown file type '{}'".format(snapshot_file, file_type)):
+        with self.assertRaisesRegex(SnapshotError, "{}: Unknown file type".format(snapshot_file)):
             get_snapshot(snapshot_file)
 
     def test_bad_ram_size(self):

@@ -131,11 +131,11 @@ Each instruction object has the following attributes:
 Snapshot reader
 ---------------
 This object is responsible for producing a 65536-element list of byte values
-from a snapshot file. It must supply the following API function, in common with
-skoolkit.snapshot:
+from a snapshot file. It must supply the following API functions, in common
+with skoolkit.snapshot:
 
 .. automodule:: skoolkit.snapshot
-   :members: get_snapshot
+   :members: can_read, get_snapshot
 
 .. _snapshotRefCalc:
 

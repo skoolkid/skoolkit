@@ -168,7 +168,7 @@ def main(args):
     if unknown_args or infile is None:
         parser.exit(2, parser.format_help())
     snapshot_reader = get_snapshot_reader()
-    if infile.lower().endswith(('.sna', '.szx', '.z80')):
+    if snapshot_reader.can_read(infile):
         org = namespace.org or 16384
         if org >= namespace.end:
             raise SkoolKitError('End address must be greater than {}'.format(org))
@@ -192,7 +192,7 @@ def main(args):
         tapfile = prefix + ".tap"
     scr = namespace.screen
     if scr is not None:
-        if scr.lower().endswith(('.sna', '.szx', '.z80')):
+        if snapshot_reader.can_read(scr):
             scr = snapshot_reader.get_snapshot(scr)[16384:23296]
         else:
             scr = read_bin_file(scr, 6912)

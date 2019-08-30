@@ -20,6 +20,7 @@ import re
 from builtins import open
 
 from skoolkit import SkoolKitError, integer, VERSION, skoolmacro
+from skoolkit.api import get_snapshot_reader
 from skoolkit.image import ImageWriter, PNG_ENABLE_ANIMATION
 from skoolkit.snapshot import make_snapshot, move, poke
 from skoolkit.graphics import Frame, flip_udgs, rotate_udgs, adjust_udgs, build_udg, font_udgs, scr_udgs
@@ -78,7 +79,8 @@ def _write_image(frame, img_file, animated):
         image_writer.write_image([frame], f)
 
 def run(infile, outfile, options):
-    if options.binary or options.org is not None or infile[-4:].lower() in ('.sna', '.szx', '.z80'):
+    snapshot_reader = get_snapshot_reader()
+    if options.binary or options.org is not None or snapshot_reader.can_read(infile):
         snapshot = make_snapshot(infile, options.org)[0]
     elif infile[-4:].lower() == '.scr':
         snapshot = make_snapshot(infile, 16384)[0]

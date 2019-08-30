@@ -508,11 +508,13 @@ class Sna2SkoolTest(SkoolKitTestCase):
     @patch.object(sna2skool, 'SkoolWriter', MockSkoolWriter)
     def test_custom_snapshot_reader(self):
         custom_snapshot_reader = """
+            def can_read(fname):
+                return fname.endswith('.snap')
             def get_snapshot(fname, page=None):
                 return [128]
         """
         self.write_component_config('SnapshotReader', '*', custom_snapshot_reader)
-        binfile = self.write_bin_file(suffix='.sna')
+        binfile = self.write_bin_file(suffix='.snap')
         output, error = self.run_sna2skool(binfile)
         self.assertEqual(error, '')
         self.assertEqual([128], mock_skool_writer.snapshot)

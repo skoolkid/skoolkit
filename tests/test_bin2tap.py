@@ -441,6 +441,8 @@ class Bin2TapTest(SkoolKitTestCase):
     @patch.object(api, 'SK_CONFIG', None)
     def test_custom_snapshot_reader(self):
         custom_snapshot_reader = """
+            def can_read(fname):
+                return fname.endswith('.sna')
             def get_snapshot(fname, page=None):
                 return [128] * 65536
         """
@@ -452,11 +454,13 @@ class Bin2TapTest(SkoolKitTestCase):
     @patch.object(api, 'SK_CONFIG', None)
     def test_option_S_with_custom_snapshot_reader(self):
         custom_snapshot_reader = """
+            def can_read(fname):
+                return fname.endswith('.snap')
             def get_snapshot(fname, page=None):
                 return [192] * 23296
         """
         self.write_component_config('SnapshotReader', '*', custom_snapshot_reader)
-        scrfile = self.write_bin_file(suffix='.sna')
+        scrfile = self.write_bin_file(suffix='.snap')
         data = [64]
         binfile = self.write_bin_file(data, suffix='.bin')
         tap_data = self._run('-S {} {}'.format(scrfile, binfile))

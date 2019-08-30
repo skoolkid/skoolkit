@@ -52,6 +52,12 @@ Z80_REGISTERS = {
     'pc': 32
 }
 
+def can_read(fname):
+    """
+    Return whether this snapshot reader can read the file `fname`.
+    """
+    return fname[-4:].lower() in ('.sna', '.z80', '.szx')
+
 def get_snapshot(fname, page=None):
     """
     Read a snapshot file and produce a 65536-element list of byte values.
@@ -61,10 +67,10 @@ def get_snapshot(fname, page=None):
                  This is relevant only when reading a 128K snapshot file.
     :return: A 65536-element list of byte values.
     """
-    ext = fname[-4:].lower()
-    if ext not in ('.sna', '.z80', '.szx'):
-        raise SnapshotError("{0}: Unknown file type '{1}'".format(fname, ext[1:]))
+    if not can_read(fname):
+        raise SnapshotError("{}: Unknown file type".format(fname))
     data = read_bin_file(fname)
+    ext = fname[-4:].lower()
     if ext == '.sna':
         ram = _read_sna(data, page)
     elif ext == '.z80':
@@ -78,8 +84,9 @@ def get_snapshot(fname, page=None):
     return mem
 
 def make_snapshot(fname, org=None, start=16384, end=65536, page=None):
-    if fname[-4:].lower() in ('.sna', '.szx', '.z80'):
-        return get_snapshot_reader().get_snapshot(fname, page), max(16384, start), end
+    snapshot_reader = get_snapshot_reader()
+    if snapshot_reader.can_read(fname):
+        return snapshot_reader.get_snapshot(fname, page), max(16384, start), end
     ram = read_bin_file(fname, 65536)
     if org is None:
         org = 65536 - len(ram)
