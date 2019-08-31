@@ -24,7 +24,7 @@ def get_component(component, *args):
     if SK_CONFIG is None:
         SK_CONFIG = get_config('skoolkit')
     obj = get_object(SK_CONFIG[component])
-    if args or callable(obj):
+    if callable(obj):
         return obj(*args)
     return obj
 

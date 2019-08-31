@@ -830,7 +830,7 @@ class Mode:
     def __init__(self, case, base, asm_mode, warnings, fix_mode, html, create_labels, asm_labels, assembler):
         self.case = case
         self.base = base
-        self.converter = InstructionConverter(base, case)
+        self.converter = get_component('InstructionConverter', base, case)
         self.html = html
         self.asm_mode = asm_mode
         self.warn = warnings
@@ -989,6 +989,13 @@ class Mode:
         return self.converter.convert(operation)
 
 class InstructionConverter:
+    """Initialise the instruction converter.
+
+    :param base: The base to convert to: 0 for no conversion, 10 for decimal,
+                 or 16 for hexadecimal.
+    :param case: The case to convert to: 0 for no conversion, 1 for lower case,
+                 or 2 for upper case.
+    """
     def __init__(self, base, case):
         self.lower = case == CASE_LOWER
         self.upper = case == CASE_UPPER
@@ -1005,6 +1012,11 @@ class InstructionConverter:
             self.hex4fmt = None
 
     def convert(self, operation):
+        """Convert the base and case of an instruction.
+
+        :param operation: The operation (e.g. 'ld a,0').
+        :return: The converted operation (e.g. 'LD A,$00').
+        """
         operation = self._convert_case(operation)
         if self.base and operation:
             operation = self._convert_base(operation)

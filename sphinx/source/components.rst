@@ -8,6 +8,7 @@ SkoolKit relies on several components in order to function:
 * :ref:`assembler`
 * :ref:`ctlgenerator`
 * :ref:`disassembler`
+* :ref:`instructionConverter`
 * :ref:`skoolRefCalc`
 * :ref:`snapshotReader`
 * :ref:`snapshotRefCalc`
@@ -20,6 +21,7 @@ working directory or in `~/.skoolkit`. The default contents of the
   Assembler=skoolkit.z80
   ControlFileGenerator=skoolkit.snactl
   Disassembler=skoolkit.disassembler.Disassembler
+  InstructionConverter=skoolkit.skoolparser.InstructionConverter
   SkoolReferenceCalculator=skoolkit.skoolparser
   SnapshotReader=skoolkit.snapshot
   SnapshotReferenceCalculator=skoolkit.snaskool
@@ -86,6 +88,17 @@ If *sublengths* contains a single element whose ``size`` value is `None`, then
 the method should produce a list of instructions with default sizes (as
 determined by `defb_size`, `defb_mod` and `defm_size`), using the default
 number base.
+
+.. _instructionConverter:
+
+Instruction converter
+---------------------
+This class is responsible for converting the base and case of instructions in a
+skool file. It must supply the following API methods, in common with
+skoolkit.skoolparser.InstructionConverter:
+
+.. autoclass:: skoolkit.skoolparser.InstructionConverter
+   :members: convert
 
 .. _skoolRefCalc:
 

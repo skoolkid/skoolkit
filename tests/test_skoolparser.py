@@ -5303,6 +5303,17 @@ class SkoolParserTest(SkoolKitTestCase):
         self.assertEqual(reference.address, 0)
         self.assertEqual(reference.addr_str, '0')
 
+    @patch.object(api, 'SK_CONFIG', None)
+    def test_custom_instruction_converter(self):
+        custom_converter = """
+            def convert(operation):
+                return operation.replace('40000', '0x9C40')
+        """
+        self.write_component_config('InstructionConverter', '*', custom_converter)
+
+        parser = self._get_parser('c40000 JP 40000')
+        self.assertEqual(parser.get_instruction(40000).operation, 'JP 0x9C40')
+
 class TableParserTest(SkoolKitTestCase):
     class MockWriter:
         def expand(self, text):
