@@ -606,7 +606,7 @@ class SkoolParser:
             self._escape_instructions()
         elif self.memory_map:
             self._labels.update({i.address: i.asm_label for e in self.memory_map for i in e.instructions if i.asm_label is not None})
-            Labeller().substitute_labels(self.memory_map, self._remote_entries, self._labels, self.warn)
+            get_component('Labeller').substitute_labels(self.memory_map, self._remote_entries, self._labels, self.warn)
 
     def _parse_non_entry(self, block, removed):
         lines = []
@@ -742,9 +742,9 @@ class SkoolParser:
             for instruction in entry.instructions:
                 instruction.html_escape()
 
-    def warn(self, s, instruction, subbed=False, min_mode=0):
+    def warn(self, fmt, instruction, subbed=False, min_mode=0):
         if self.mode.warn and instruction.warn and self.mode.asm_mode >= min_mode and (subbed or instruction.sub is None):
-            warn(s.format(address=instruction.addr_str, operation=instruction.operation))
+            warn(fmt.format(address=instruction.addr_str, operation=instruction.operation))
 
     def _generate_labels(self):
         """Generate labels for mid-routine entry points (based on the label of
@@ -764,6 +764,24 @@ class SkoolParser:
 
 class Labeller:
     def substitute_labels(self, entries, remote_entries, labels, warn):
+        """Replace addresses with labels in instruction operands.
+
+        :param entries: A collection of memory map entries.
+        :param remote_entries: A collection of remote entries (as defined by
+                               :ref:`remote` directives).
+        :param labels: A dictionary mapping addresses to labels.
+        :param warn: A function that emits a warning. It takes four arguments:
+
+                     * `fmt` - a format string for the warning message; it may
+                       contain '{address}' and '{operation}' replacement
+                       fields.
+                     * `instruction` - the relevant instruction object.
+                     * `subbed` - whether to show the warning for an operation
+                       that has been replaced by a ``@*sub`` or ``@*fix``
+                       directive (optional, defaults to `False`).
+                     * `min_mode` - the minimum ASM mode in which the warning
+                       should be displayed (optional, defaults to 0).
+        """
         self.remote_entries = remote_entries
         self.labels = labels
         self.warn = warn

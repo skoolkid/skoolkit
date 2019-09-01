@@ -9,6 +9,7 @@ SkoolKit relies on several components in order to function:
 * :ref:`ctlgenerator`
 * :ref:`disassembler`
 * :ref:`instructionConverter`
+* :ref:`labeller`
 * :ref:`skoolRefCalc`
 * :ref:`snapshotReader`
 * :ref:`snapshotRefCalc`
@@ -22,6 +23,7 @@ working directory or in `~/.skoolkit`. The default contents of the
   ControlFileGenerator=skoolkit.snactl
   Disassembler=skoolkit.disassembler.Disassembler
   InstructionConverter=skoolkit.skoolparser.InstructionConverter
+  Labeller=skoolkit.skoolparser.Labeller
   SkoolReferenceCalculator=skoolkit.skoolparser
   SnapshotReader=skoolkit.snapshot
   SnapshotReferenceCalculator=skoolkit.snaskool
@@ -99,6 +101,31 @@ skoolkit.skoolparser.InstructionConverter:
 
 .. autoclass:: skoolkit.skoolparser.InstructionConverter
    :members: convert
+
+.. _labeller:
+
+Labeller
+--------
+This object is responsible for replacing addresses with labels in instruction
+operands. It must supply the following API function, in common with
+skoolkit.skoolparser.Labeller:
+
+.. automethod:: skoolkit.skoolparser.Labeller.substitute_labels
+
+Memory map entries and remote entries have the following attributes:
+
+* *ctl* - the entry's control directive ('b', 'c', 'g', 'i', 's', 't', 'u' or
+  'w' for a memory map entry; `None` for a remote entry)
+* *instructions* - a collection of instruction objects
+
+Each instruction object has the following attributes:
+
+* *address* - the address of the instruction
+* *keep* - `None` if the instruction has no :ref:`keep` directive; an empty
+  collection if it has a bare :ref:`keep` directive; or a collection of
+  addresses if it has a :ref:`keep` directive with one or more values
+* *operation* - the operation (e.g. 'XOR A'), or an empty string if the
+  instruction is in a remote entry
 
 .. _skoolRefCalc:
 
