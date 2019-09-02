@@ -17,7 +17,7 @@
 import re
 
 from skoolkit import SkoolParsingError, write_line, get_int_param, get_address_format, open_file
-from skoolkit.api import get_assembler
+from skoolkit.api import get_assembler, get_component
 from skoolkit.skoolparser import (Comment, Register, parse_comment_block, parse_instruction,
                                   parse_address_comments, join_comments, read_skool, DIRECTIVES)
 from skoolkit.z80 import parse_string, parse_word, split_operation
@@ -77,7 +77,24 @@ def _get_base(item, preserve_base=True):
         return 'm'
     return 'd'
 
-def inspect(operation, preserve_base):
+def compose(operation, preserve_base):
+    """Compute the type, length and sublengths of a DEFB/DEFM/DEFS/DEFW
+    statement, or the operand bases of a regular instruction.
+
+    :param operation: The operation (e.g. 'LD A,0' or 'DEFB 0').
+    :param preserve_base: Whether to preserve the base of decimal and
+                          hexadecimal values with explicit 'd' and 'h' base
+                          indicators.
+    :return: A 3-element tuple, ``(ctl, length, sublengths)``, where:
+
+             * ``ctl`` is 'B' (DEFB), 'C' (regular instruction), 'S' (DEFS),
+               'T' (DEFM) or 'W' (DEFW)
+             * ``length`` is the number of bytes in the DEFB/DEFM/DEFS/DEFW
+               statement, or the operand base indicator for a regular
+               instruction (e.g. 'b' for 'LD A,%00000001')
+             * ``sublengths`` is a colon-separated sequence of sublengths (e.g.
+               '1:T1' for 'DEFB 0,"a"'), or `None` for a regular instruction
+    """
     op = operation.upper()
     if op.startswith(('DEFB', 'DEFM', 'DEFS', 'DEFW')):
         ctl = op[3].replace('M', 'T')
@@ -505,6 +522,7 @@ class SkoolParser:
         self.end_address = 65536
         self.keep_lines = keep_lines
         self.assembler = assembler
+        self.composer = get_component('ControlDirectiveComposer')
 
         with open_file(skoolfile) as f:
             self._parse_skool(f, min_address, max_address)
@@ -620,7 +638,8 @@ class SkoolParser:
             address = get_int_param(addr_str)
         except ValueError:
             raise SkoolParsingError("Invalid address ({}):\n{}".format(addr_str, line.rstrip()))
-        instruction = Instruction(ctl, address, operation, self.preserve_base)
+        inst_ctl, length, sublengths = self.composer.compose(operation, self.preserve_base)
+        instruction = Instruction(ctl, address, operation, inst_ctl, length, sublengths)
         self.mode.apply_asm_directives(instruction)
         return instruction, comment
 
@@ -646,16 +665,18 @@ class FakeInstruction:
         self.inst_ctl = ''
 
 class Instruction:
-    def __init__(self, ctl, address, operation, preserve_base):
+    def __init__(self, ctl, address, operation, inst_ctl, length, sublengths):
         self.ctl = ctl
         self.address = address
         self.operation = operation
+        self.inst_ctl = inst_ctl
+        self.length = length
+        self.sublengths = sublengths
         self.mid_block_comment = None
         self.comment = None
         self.asm_directives = None
         self.ignoreua = False
         self.ignoremrcua = False
-        self.inst_ctl, self.length, self.sublengths = inspect(operation, preserve_base)
 
     def set_comment(self, rowspan, text):
         self.comment = Comment(rowspan, text)

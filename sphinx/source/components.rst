@@ -6,6 +6,7 @@ SkoolKit components
 SkoolKit relies on several components in order to function:
 
 * :ref:`assembler`
+* :ref:`ctlcomposer`
 * :ref:`ctlgenerator`
 * :ref:`disassembler`
 * :ref:`instructionConverter`
@@ -20,6 +21,7 @@ working directory or in `~/.skoolkit`. The default contents of the
 ``[skoolkit]`` section are as follows::
 
   Assembler=skoolkit.z80
+  ControlDirectiveComposer=skoolkit.skoolctl
   ControlFileGenerator=skoolkit.snactl
   Disassembler=skoolkit.disassembler.Disassembler
   InstructionConverter=skoolkit.skoolparser.InstructionConverter
@@ -38,6 +40,18 @@ must supply the following API functions, in common with skoolkit.z80:
 
 .. automodule:: skoolkit.z80
    :members: assemble, get_size
+
+.. _ctlComposer:
+
+Control directive composer
+--------------------------
+This object is responsible for computing the type, length and sublengths of a
+DEFB/DEFM/DEFS/DEFW statement, or the operand bases of a regular instruction,
+for the purpose of composing a control directive. It must supply the following
+API function, in common with skoolkit.skoolctl:
+
+.. automodule:: skoolkit.skoolctl
+   :members: compose
 
 .. _ctlgenerator:
 

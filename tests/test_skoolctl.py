@@ -2630,3 +2630,23 @@ class CtlWriterTest(SkoolKitTestCase):
             i 50015
         """
         self._test_ctl(skool, exp_ctl)
+
+    @patch.object(api, 'SK_CONFIG', None)
+    def test_custom_control_directive_composer(self):
+        custom_composer = """
+            def compose(operation, preserve_base):
+                return {'XOR A': ('C', 'd', None), 'DEFB 0': ('B', 1, 'h')}[operation]
+        """
+        self.write_component_config('ControlDirectiveComposer', '*', custom_composer)
+
+        skool = """
+            c60000 XOR A
+             60001 DEFB 0
+        """
+        exp_ctl = """
+            c 60000
+            C 60000,d1
+            B 60001,1,h
+            i 60002
+        """
+        self._test_ctl(skool, exp_ctl)
