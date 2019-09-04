@@ -179,7 +179,7 @@ class AsmWriter:
                 subs = {
                     'label': label,
                     'equ': equ_dir,
-                    'value': self.parser.convert_operand(value)
+                    'value': self.parser.convert_equ_value(value)
                 }
                 self.write_line(self.format_template('equ', subs))
             self.write_line('')

@@ -5261,11 +5261,13 @@ class SkoolParserTest(SkoolKitTestCase):
     @patch.object(api, 'SK_CONFIG', None)
     def test_custom_skool_reference_calculator(self):
         custom_ref_calc = """
-            def calculate_references(entries, remote_entries):
-                references = {entries[0].instructions[0]: (entries[0], 0, '0')}
-                return references, {}
+            from skoolkit.skoolparser import InstructionUtility
+            class CustomUtility(InstructionUtility):
+                def calculate_references(self, entries, remote_entries):
+                    references = {entries[0].instructions[0]: (entries[0], 0, '0')}
+                    return references, {}
         """
-        self.write_component_config('SkoolReferenceCalculator', '*', custom_ref_calc)
+        self.write_component_config('InstructionUtility', '*.CustomUtility', custom_ref_calc)
 
         parser = self._get_parser('c40000 JP 40000')
         reference = parser.get_instruction(40000).reference
@@ -5275,23 +5277,25 @@ class SkoolParserTest(SkoolKitTestCase):
     @patch.object(api, 'SK_CONFIG', None)
     def test_custom_skool_reference_calculator_api(self):
         custom_ref_calc = """
-            def calculate_references(entries, remote_entries):
-                entry = entries[0]
-                assert entry.ctl == 'c'
-                instruction = entry.instructions[0]
-                assert instruction.address == 40000
-                assert instruction.keep == []
-                assert instruction.operation == 'JP 40000'
-                remote_entry = remote_entries[0]
-                assert remote_entry.ctl is None
-                remote_instruction = remote_entry.instructions[1]
-                assert remote_instruction.address == 30001
-                assert remote_instruction.keep is None
-                assert remote_instruction.operation == ''
-                references = {entries[0].instructions[0]: (entries[0], 0, '0')}
-                return references, {}
+            from skoolkit.skoolparser import InstructionUtility
+            class CustomUtility(InstructionUtility):
+                def calculate_references(self, entries, remote_entries):
+                    entry = entries[0]
+                    assert entry.ctl == 'c'
+                    instruction = entry.instructions[0]
+                    assert instruction.address == 40000
+                    assert instruction.keep == []
+                    assert instruction.operation == 'JP 40000'
+                    remote_entry = remote_entries[0]
+                    assert remote_entry.ctl is None
+                    remote_instruction = remote_entry.instructions[1]
+                    assert remote_instruction.address == 30001
+                    assert remote_instruction.keep is None
+                    assert remote_instruction.operation == ''
+                    references = {entries[0].instructions[0]: (entries[0], 0, '0')}
+                    return references, {}
         """
-        self.write_component_config('SkoolReferenceCalculator', '*', custom_ref_calc)
+        self.write_component_config('InstructionUtility', '*.CustomUtility', custom_ref_calc)
 
         skool = """
             @remote=foo:30000,30001
@@ -5306,10 +5310,13 @@ class SkoolParserTest(SkoolKitTestCase):
     @patch.object(api, 'SK_CONFIG', None)
     def test_custom_instruction_converter(self):
         custom_converter = """
-            def convert(operation):
-                return operation.replace('40000', '0x9C40')
+            from skoolkit.skoolparser import InstructionUtility
+            class CustomUtility(InstructionUtility):
+                def convert(self, entries, base, case):
+                    instruction = entries[0].instructions[0]
+                    instruction.operation = instruction.operation.replace('40000', '0x9C40')
         """
-        self.write_component_config('InstructionConverter', '*', custom_converter)
+        self.write_component_config('InstructionUtility', '*.CustomUtility', custom_converter)
 
         parser = self._get_parser('c40000 JP 40000')
         self.assertEqual(parser.get_instruction(40000).operation, 'JP 0x9C40')
@@ -5317,10 +5324,12 @@ class SkoolParserTest(SkoolKitTestCase):
     @patch.object(api, 'SK_CONFIG', None)
     def test_custom_labeller(self):
         custom_labeller = """
-            def substitute_labels(entries, remote_entries, labels, warn):
-                entries[0].instructions[0].operation = 'JP WHERE'
+            from skoolkit.skoolparser import InstructionUtility
+            class CustomUtility(InstructionUtility):
+                def substitute_labels(self, entries, remote_entries, labels, warn):
+                    entries[0].instructions[0].operation = 'JP WHERE'
         """
-        self.write_component_config('Labeller', '*', custom_labeller)
+        self.write_component_config('InstructionUtility', '*.CustomUtility', custom_labeller)
 
         parser = self._get_parser('c50000 JP 50000')
         self.assertEqual(parser.get_instruction(50000).operation, 'JP WHERE')
@@ -5328,23 +5337,25 @@ class SkoolParserTest(SkoolKitTestCase):
     @patch.object(api, 'SK_CONFIG', None)
     def test_custom_labeller_api(self):
         custom_labeller = """
-            def substitute_labels(entries, remote_entries, labels, warn):
-                entry = entries[0]
-                assert entry.ctl == 'c'
-                instruction = entry.instructions[0]
-                assert instruction.address == 40000
-                assert instruction.keep == []
-                assert instruction.operation == 'JP 40000'
-                remote_entry = remote_entries[0]
-                assert remote_entry.ctl is None
-                remote_instruction = remote_entry.instructions[1]
-                assert remote_instruction.address == 30001
-                assert remote_instruction.keep is None
-                assert remote_instruction.operation == ''
-                references = {entries[0].instructions[0]: (entries[0], 0, '0')}
-                instruction.operation = 'JP UP'
+            from skoolkit.skoolparser import InstructionUtility
+            class CustomUtility(InstructionUtility):
+                def substitute_labels(self, entries, remote_entries, labels, warn):
+                    entry = entries[0]
+                    assert entry.ctl == 'c'
+                    instruction = entry.instructions[0]
+                    assert instruction.address == 40000
+                    assert instruction.keep == []
+                    assert instruction.operation == 'JP 40000'
+                    remote_entry = remote_entries[0]
+                    assert remote_entry.ctl is None
+                    remote_instruction = remote_entry.instructions[1]
+                    assert remote_instruction.address == 30001
+                    assert remote_instruction.keep is None
+                    assert remote_instruction.operation == ''
+                    references = {entries[0].instructions[0]: (entries[0], 0, '0')}
+                    instruction.operation = 'JP UP'
         """
-        self.write_component_config('Labeller', '*', custom_labeller)
+        self.write_component_config('InstructionUtility', '*.CustomUtility', custom_labeller)
 
         skool = """
             @remote=foo:30000,30001

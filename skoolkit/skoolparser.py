@@ -35,36 +35,6 @@ LIST_END_MARKER = 'LIST#'
 
 Flags = namedtuple('Flags', 'prepend final overwrite append')
 
-def calculate_references(entries, remote_entries):
-    """
-    Generate a dictionary of references (for each instruction that refers to
-    another instruction) and a dictionary of referrers (for each instruction
-    that is referred to by other instructions) from the instructions in a skool
-    file.
-
-    :param entries: A collection of memory map entries.
-    :param remote_entries: A collection of remote entries (as defined by
-                           :ref:`remote` directives).
-    :return: A tuple containing the two dictionaries.
-    """
-    references = {}
-    referrers = defaultdict(list)
-    instructions = {i.address: (i, e) for e in remote_entries + entries for i in e.instructions}
-    for entry in entries:
-        for instruction in entry.instructions:
-            operation = instruction.operation.upper()
-            if operation.startswith(('CALL', 'DEFW', 'DJNZ', 'JP', 'JR', 'LD ', 'RST')) and not _is_8_bit_ld_instruction(operation):
-                addr_str = get_address(instruction.operation)
-                if addr_str:
-                    address = parse_int(addr_str)
-                    if instruction.keep is None or (instruction.keep and address not in instruction.keep):
-                        ref_i, ref_e = instructions.get(address, (None, None))
-                        if ref_i and ref_e.ctl != 'i' and (ref_e.ctl == 'c' or operation.startswith(('DEFW', 'LD ')) or ref_e.ctl is None):
-                            references[instruction] = (ref_e, address, addr_str)
-                            if operation.startswith(('CALL', 'DJNZ', 'JP', 'JR', 'RST')) and entry not in referrers[ref_i]:
-                                referrers[ref_i].append(entry)
-    return references, referrers
-
 def _replace_nums(operation, hex_fmt=None, skip_bit=False, prefix=None):
     elements = re.split('(?<=[\s,(%*/+-])(\$[0-9A-Fa-f]+|\d+)', (prefix or '(') + operation)
     for i in range(2 * int(skip_bit) + 1, len(elements), 2):
@@ -406,6 +376,7 @@ class SkoolParser:
                  snapshot=None):
         self.skoolfile = skoolfile
         self._assembler = get_assembler()
+        self.utility = get_component('InstructionUtility')
         self.mode = Mode(case, base, asm_mode & 3, warnings, fix_mode, html, create_labels, asm_labels, self._assembler)
         self.case = case
         self.base = base
@@ -489,11 +460,11 @@ class SkoolParser:
             return instruction.get_addr_str()
         return self.mode.get_addr_str(address, default)
 
-    def convert_operand(self, operand):
-        return self.mode.convert_operation('DEFB ' + operand)[5:]
+    def convert_equ_value(self, value):
+        return self.mode.convert_int_str(value, '{}', '${0:02X}')
 
     def convert_address_operand(self, operand):
-        return self.mode.convert_addr_str(operand, '{}')
+        return self.mode.convert_int_str(operand, '{}')
 
     def _parse_skool(self, skoolfile, asm_mode, min_address, max_address):
         address_comments = []
@@ -598,6 +569,7 @@ class SkoolParser:
         if self.mode.html:
             for entry in self.memory_map:
                 entry.apply_replacements(_html_escape)
+        self.utility.convert(self.memory_map, self.base, self.case)
         self._calculate_references()
         if self.mode.asm_labels:
             self._generate_labels()
@@ -606,7 +578,7 @@ class SkoolParser:
             self._escape_instructions()
         elif self.memory_map:
             self._labels.update({i.address: i.asm_label for e in self.memory_map for i in e.instructions if i.asm_label is not None})
-            get_component('Labeller').substitute_labels(self.memory_map, self._remote_entries, self._labels, self.warn)
+            self.utility.substitute_labels(self.memory_map, self._remote_entries, self._labels, self.warn)
 
     def _parse_non_entry(self, block, removed):
         lines = []
@@ -708,18 +680,17 @@ class SkoolParser:
         if address is not None:
             remote_entry = RemoteEntry(asm_id, address)
             self._remote_entries.append(remote_entry)
-            addr_str = self.mode.convert_addr_str(addrs[0])
+            addr_str = self.mode.convert_int_str(addrs[0])
             remote_entry.add_instruction(Instruction('r', addr_str, asm_id))
             for addr_str in addrs[1:]:
-                addr_str = self.mode.convert_addr_str(addr_str)
+                addr_str = self.mode.convert_int_str(addr_str)
                 remote_entry.add_instruction(Instruction(' ', addr_str, ''))
             for instruction in remote_entry.instructions:
                 self._instructions.setdefault(instruction.address, []).append(instruction)
 
     def _parse_instruction(self, line):
         ctl, addr_str, operation, comment = parse_instruction(line)
-        addr_str = self.mode.convert_addr_str(addr_str)
-        operation = self.mode.convert_operation(operation)
+        addr_str = self.mode.convert_int_str(addr_str)
         instruction = Instruction(ctl, addr_str, operation)
         return instruction, comment
 
@@ -730,7 +701,7 @@ class SkoolParser:
             entry.size = address + (self._assembler.get_size(last_instruction.operation, address) or 1) - entry.address
 
     def _calculate_references(self):
-        references, referrers = get_component('SkoolReferenceCalculator').calculate_references(self.memory_map, self._remote_entries)
+        references, referrers = self.utility.calculate_references(self.memory_map, self._remote_entries)
         for instruction, (entry, address, addr_str) in references.items():
             instruction.set_reference(entry, address, addr_str)
         for instruction, entries in referrers.items():
@@ -762,9 +733,244 @@ class SkoolParser:
                             instruction.asm_label = '{0}_{1}'.format(main_label, index)
                             index += 1
 
-class Labeller:
+class Mode:
+    def __init__(self, case, base, asm_mode, warnings, fix_mode, html, create_labels, asm_labels, assembler):
+        self.case = case
+        self.base = base
+        self.html = html
+        self.asm_mode = asm_mode
+        self.warn = warnings
+        self.assemble = int(html)
+        self.fix_mode = fix_mode
+        self.labels = []
+        self.create_labels = create_labels
+        self.asm_labels = asm_labels
+        self.assembler = assembler
+        self.entry_ignoreua = {}
+        if case == CASE_LOWER:
+            self.addr_fmt = '{0:04x}'
+        else:
+            self.addr_fmt = '{0:04X}'
+        self.weights = {
+            'isub': int(asm_mode > 0),
+            'ssub': 2 * int(asm_mode > 1),
+            'rsub': 3 * int(asm_mode > 2),
+            'ofix': 4 * int(fix_mode > 0),
+            'bfix': 5 * int(fix_mode > 1),
+            'rfix': 6 * int(fix_mode > 2)
+        }
+        self.reset()
+        self.reset_entry_ignoreua()
+
+    def reset(self):
+        self.label = None
+        self.subs = defaultdict(list, {0: ()})
+        self.keep = None
+        self.nowarn = False
+        self.ignoreua = False
+        self.ignoremrcua = False
+        self.org = None
+
+    def reset_entry_ignoreua(self):
+        for section in 'tdr':
+            self.entry_ignoreua[section] = False
+
+    def add_sub(self, directive, value):
+        weight = self.weights[directive]
+        if weight:
+            self.subs[weight].append(value)
+
+    def compose_instructions(self, subs, current=False):
+        instructions = []
+        for flags, label, op, comment in subs:
+            if flags.append and not instructions:
+                instructions.append((False, None, '', [None]))
+            if op or (current and not instructions):
+                instructions.append((flags.overwrite, label, op, [comment]))
+            elif instructions:
+                instructions[-1][-1].append(comment)
+            if flags.final and instructions:
+                instructions[-1][-1].append(None)
+        return instructions
+
+    def process_label(self, instruction, label, removed=None):
+        if label and label.startswith('*'):
+            if len(label) > 1:
+                label = label[1:]
+            elif not self.create_labels:
+                label = None
+            instruction.ctl = '*'
+        elif label == '':
+            instruction.ctl = ' '
+        if self.asm_labels:
+            if label and label != '*':
+                if label in self.labels:
+                    raise SkoolParsingError('Duplicate label {} at {}'.format(label, instruction.address))
+                if removed is None or instruction.address not in removed:
+                    self.labels.append(label)
+            instruction.asm_label = label
+
+    def process_instruction(self, instruction, label, overwrite=False, removed=None):
+        if label is not None:
+            self.process_label(instruction, label)
+        if overwrite:
+            size = self.assembler.get_size(instruction.operation, instruction.address)
+            if size:
+                removed.update(range(instruction.address, instruction.address + size))
+                return instruction.address + size
+
+    def apply_asm_attributes(self, instruction, map_entry, instructions, address_comments, removed):
+        instruction.keep = self.keep
+
+        self.process_label(instruction, self.label, removed)
+
+        if self.asm_mode:
+            if self.org != '':
+                instruction.org = self.org
+            instruction.warn = not self.nowarn
+            instruction.ignoreua = self.ignoreua
+            instruction.ignoremrcua = self.ignoremrcua
+
+            parsed = [parse_asm_sub_fix_directive(d) for d in self.subs[max(self.subs)]]
+            before = self.compose_instructions(s for s in parsed if s[0].prepend)
+            after = self.compose_instructions((s for s in parsed if not s[0].prepend), True)
+
+            for overwrite, label, op, comments in before:
+                inst = Instruction(' ', '     ', op)
+                map_entry.add_instruction(inst, True)
+                address_comments.insert(len(address_comments) - 1, (inst, [], comments))
+                self.process_instruction(inst, label)
+
+            address = instruction.address
+            if after:
+                overwrite, label, op, comments = after.pop(0)
+                if op:
+                    instruction.sub = instruction.operation = op
+                if comments[0] is None:
+                    comments[0] = address_comments[-1][1][0]
+                address_comments[-1][2].extend(comments)
+                address = self.process_instruction(instruction, label, overwrite, removed)
+
+            for overwrite, label, op, comments in after:
+                if overwrite:
+                    if address is None:
+                        raise SkoolParsingError("Cannot determine address of instruction after '{} {}'".format(instruction.addr_str, instruction.operation))
+                    addr_str = self.convert_int_str(str(address))
+                    instruction = Instruction(' ', addr_str, op)
+                    if address not in removed:
+                        instructions.setdefault(address, []).append(instruction)
+                        map_entry.add_instruction(instruction)
+                else:
+                    instruction = Instruction(' ', '     ', op)
+                    map_entry.add_instruction(instruction)
+                address_comments.append((instruction, [], comments))
+                address = self.process_instruction(instruction, label, overwrite, removed)
+
+        self.reset()
+
+    def get_addr_str(self, address, default):
+        if self.base == BASE_16:
+            return self.addr_fmt.format(address)
+        if self.base == BASE_10:
+            return str(address)
+        if default.startswith('$'):
+            return default[1:]
+        return default
+
+    def convert_int_str(self, int_str, decfmt='{:05d}', hexfmt='${:04X}'):
+        if self.base or self.case:
+            address = parse_int(int_str)
+            if address is not None:
+                if self.base == BASE_10:
+                    return decfmt.format(address)
+                if self.base == BASE_16:
+                    int_str = hexfmt.format(address)
+            if self.case == CASE_LOWER:
+                return int_str.lower()
+            if self.case == CASE_UPPER:
+                return int_str.upper()
+        return int_str
+
+class InstructionUtility:
+    def convert(self, entries, base, case):
+        """Convert the base and case of every instruction in a skool file.
+
+        :param entries: A collection of memory map entries.
+        :param base: The base to convert to: 0 for no conversion, 10 for
+                     decimal, or 16 for hexadecimal.
+        :param case: The case to convert to: 0 for no conversion, 1 for lower
+                     case, or 2 for upper case.
+        """
+        if base or case:
+            if base == BASE_16:
+                if case == CASE_LOWER:
+                    hex2fmt = '${0:02x}'
+                    hex4fmt = '${0:04x}'
+                else:
+                    hex2fmt = '${0:02X}'
+                    hex4fmt = '${0:04X}'
+            else:
+                hex2fmt = None
+                hex4fmt = None
+            for entry in entries:
+                for instruction in entry.instructions:
+                    operation = self._convert_case(instruction.operation, case)
+                    if base and operation:
+                        operation = self._convert_base(operation, hex2fmt, hex4fmt)
+                    instruction.operation = operation
+
+    def _convert_base(self, operation, hex2fmt, hex4fmt):
+        if operation.upper().startswith(('DEFB ', 'DEFM ', 'DEFS ', 'DEFW ')):
+            if operation.upper().startswith('DEFW'):
+                hex_fmt = hex4fmt
+            else:
+                hex_fmt = hex2fmt
+            converted = operation[:4]
+            prefix = None
+            for p in split_quoted(operation[4:]):
+                if p.startswith('"'):
+                    converted += p
+                    prefix = '"'
+                else:
+                    converted += _replace_nums(p, hex_fmt, prefix=prefix)
+                    prefix = None
+            return converted
+
+        elements = z80.split_operation(operation, tidy=True)
+        op = elements[0]
+
+        # Instructions containing '(I[XY]+d)'
+        if re.search('\(I[XY] *[+-].*\)', operation.upper()):
+            return _replace_nums(operation, hex2fmt, op in ('BIT', 'RES', 'SET'))
+
+        if op in ('CALL', 'DJNZ', 'JP', 'JR'):
+            return _replace_nums(operation, hex4fmt)
+
+        if op in ('AND', 'OR', 'XOR', 'SUB', 'CP', 'IN', 'OUT', 'ADD', 'ADC', 'SBC', 'RST'):
+            return _replace_nums(operation, hex2fmt)
+
+        if op == 'LD' and len(elements) == 3:
+            operands = elements[1:]
+            if operands[0] in ('A', 'B', 'C', 'D', 'E', 'H', 'L', 'IXL', 'IXH', 'IYL', 'IYH', '(HL)') and not operands[1].startswith('('):
+                # LD r,n; LD (HL),n
+                return _replace_nums(operation, hex2fmt)
+            if not set(('A', 'BC', 'DE', 'HL', 'IX', 'IY', 'SP')).isdisjoint(operands):
+                # LD A,(nn); LD (nn),A; LD rr,nn; LD rr,(nn); LD (nn),rr
+                return _replace_nums(operation, hex4fmt)
+
+        return operation
+
+    def _convert_case(self, operation, case):
+        if case:
+            operation = z80.convert_case(operation, case == CASE_LOWER)
+            if case == CASE_UPPER and not operation.startswith(('DEFB', 'DEFM', 'DEFS', 'DEFW')):
+                operation = re.sub('(I[XY])H', r'\1h', operation)
+                operation = re.sub('(I[XY])L', r'\1l', operation)
+        return operation
+
     def substitute_labels(self, entries, remote_entries, labels, warn):
-        """Replace addresses with labels in instruction operands.
+        """Replace addresses with labels in the operands of every instruction
+        in a skool file.
 
         :param entries: A collection of memory map entries.
         :param remote_entries: A collection of remote entries (as defined by
@@ -844,250 +1050,35 @@ class Labeller:
             # address of an instruction (will need @nowarn if this is OK)
             self.warn('Unreplaced operand: {address} {operation}', instruction, min_mode=2)
 
-class Mode:
-    def __init__(self, case, base, asm_mode, warnings, fix_mode, html, create_labels, asm_labels, assembler):
-        self.case = case
-        self.base = base
-        self.converter = get_component('InstructionConverter', base, case)
-        self.html = html
-        self.asm_mode = asm_mode
-        self.warn = warnings
-        self.assemble = int(html)
-        self.fix_mode = fix_mode
-        self.labels = []
-        self.create_labels = create_labels
-        self.asm_labels = asm_labels
-        self.assembler = assembler
-        self.entry_ignoreua = {}
-        if case == CASE_LOWER:
-            self.addr_fmt = '{0:04x}'
-        else:
-            self.addr_fmt = '{0:04X}'
-        self.weights = {
-            'isub': int(asm_mode > 0),
-            'ssub': 2 * int(asm_mode > 1),
-            'rsub': 3 * int(asm_mode > 2),
-            'ofix': 4 * int(fix_mode > 0),
-            'bfix': 5 * int(fix_mode > 1),
-            'rfix': 6 * int(fix_mode > 2)
-        }
-        self.reset()
-        self.reset_entry_ignoreua()
-
-    def reset(self):
-        self.label = None
-        self.subs = defaultdict(list, {0: ()})
-        self.keep = None
-        self.nowarn = False
-        self.ignoreua = False
-        self.ignoremrcua = False
-        self.org = None
-
-    def reset_entry_ignoreua(self):
-        for section in 'tdr':
-            self.entry_ignoreua[section] = False
-
-    def add_sub(self, directive, value):
-        weight = self.weights[directive]
-        if weight:
-            self.subs[weight].append(value)
-
-    def compose_instructions(self, subs, current=False):
-        instructions = []
-        for flags, label, op, comment in subs:
-            if flags.append and not instructions:
-                instructions.append((False, None, '', [None]))
-            op = self.convert_operation(op)
-            if op or (current and not instructions):
-                instructions.append((flags.overwrite, label, op, [comment]))
-            elif instructions:
-                instructions[-1][-1].append(comment)
-            if flags.final and instructions:
-                instructions[-1][-1].append(None)
-        return instructions
-
-    def process_label(self, instruction, label, removed=None):
-        if label and label.startswith('*'):
-            if len(label) > 1:
-                label = label[1:]
-            elif not self.create_labels:
-                label = None
-            instruction.ctl = '*'
-        elif label == '':
-            instruction.ctl = ' '
-        if self.asm_labels:
-            if label and label != '*':
-                if label in self.labels:
-                    raise SkoolParsingError('Duplicate label {} at {}'.format(label, instruction.address))
-                if removed is None or instruction.address not in removed:
-                    self.labels.append(label)
-            instruction.asm_label = label
-
-    def process_instruction(self, instruction, label, overwrite=False, removed=None):
-        if label is not None:
-            self.process_label(instruction, label)
-        if overwrite:
-            size = self.assembler.get_size(instruction.operation, instruction.address)
-            if size:
-                removed.update(range(instruction.address, instruction.address + size))
-                return instruction.address + size
-
-    def apply_asm_attributes(self, instruction, map_entry, instructions, address_comments, removed):
-        instruction.keep = self.keep
-
-        self.process_label(instruction, self.label, removed)
-
-        if self.asm_mode:
-            if self.org != '':
-                instruction.org = self.org
-            instruction.warn = not self.nowarn
-            instruction.ignoreua = self.ignoreua
-            instruction.ignoremrcua = self.ignoremrcua
-
-            parsed = [parse_asm_sub_fix_directive(d) for d in self.subs[max(self.subs)]]
-            before = self.compose_instructions(s for s in parsed if s[0].prepend)
-            after = self.compose_instructions((s for s in parsed if not s[0].prepend), True)
-
-            for overwrite, label, op, comments in before:
-                inst = Instruction(' ', '     ', op)
-                map_entry.add_instruction(inst, True)
-                address_comments.insert(len(address_comments) - 1, (inst, [], comments))
-                self.process_instruction(inst, label)
-
-            address = instruction.address
-            if after:
-                overwrite, label, op, comments = after.pop(0)
-                if op:
-                    instruction.sub = instruction.operation = op
-                if comments[0] is None:
-                    comments[0] = address_comments[-1][1][0]
-                address_comments[-1][2].extend(comments)
-                address = self.process_instruction(instruction, label, overwrite, removed)
-
-            for overwrite, label, op, comments in after:
-                if overwrite:
-                    if address is None:
-                        raise SkoolParsingError("Cannot determine address of instruction after '{} {}'".format(instruction.addr_str, instruction.operation))
-                    addr_str = self.convert_addr_str(str(address))
-                    instruction = Instruction(' ', addr_str, op)
-                    if address not in removed:
-                        instructions.setdefault(address, []).append(instruction)
-                        map_entry.add_instruction(instruction)
-                else:
-                    instruction = Instruction(' ', '     ', op)
-                    map_entry.add_instruction(instruction)
-                address_comments.append((instruction, [], comments))
-                address = self.process_instruction(instruction, label, overwrite, removed)
-
-        self.reset()
-
-    def get_addr_str(self, address, default):
-        if self.base == BASE_16:
-            return self.addr_fmt.format(address)
-        if self.base == BASE_10:
-            return str(address)
-        if default.startswith('$'):
-            return default[1:]
-        return default
-
-    def convert_addr_str(self, addr_str, decfmt='{:05d}'):
-        address = parse_int(addr_str)
-        if address is not None:
-            if self.base == BASE_10:
-                return decfmt.format(address)
-            if self.base == BASE_16:
-                addr_str = '${:04X}'.format(address)
-        if self.case == CASE_LOWER:
-            return addr_str.lower()
-        if self.case == CASE_UPPER:
-            return addr_str.upper()
-        return addr_str
-
-    def convert_operation(self, operation):
-        return self.converter.convert(operation)
-
-class InstructionConverter:
-    """Initialise the instruction converter.
-
-    :param base: The base to convert to: 0 for no conversion, 10 for decimal,
-                 or 16 for hexadecimal.
-    :param case: The case to convert to: 0 for no conversion, 1 for lower case,
-                 or 2 for upper case.
-    """
-    def __init__(self, base, case):
-        self.lower = case == CASE_LOWER
-        self.upper = case == CASE_UPPER
-        self.base = base
-        if base == BASE_16:
-            if self.lower:
-                self.hex2fmt = '${0:02x}'
-                self.hex4fmt = '${0:04x}'
-            else:
-                self.hex2fmt = '${0:02X}'
-                self.hex4fmt = '${0:04X}'
-        else:
-            self.hex2fmt = None
-            self.hex4fmt = None
-
-    def convert(self, operation):
-        """Convert the base and case of an instruction.
-
-        :param operation: The operation (e.g. 'ld a,0').
-        :return: The converted operation (e.g. 'LD A,$00').
+    def calculate_references(self, entries, remote_entries):
         """
-        operation = self._convert_case(operation)
-        if self.base and operation:
-            operation = self._convert_base(operation)
-        return operation
+        Generate a dictionary of references (for each instruction that refers
+        to another instruction) and a dictionary of referrers (for each
+        instruction that is referred to by other instructions) from the
+        instructions in a skool file.
 
-    def _convert_base(self, operation):
-        if operation.upper().startswith(('DEFB ', 'DEFM ', 'DEFS ', 'DEFW ')):
-            if operation.upper().startswith('DEFW'):
-                hex_fmt = self.hex4fmt
-            else:
-                hex_fmt = self.hex2fmt
-            converted = operation[:4]
-            prefix = None
-            for p in split_quoted(operation[4:]):
-                if p.startswith('"'):
-                    converted += p
-                    prefix = '"'
-                else:
-                    converted += _replace_nums(p, hex_fmt, prefix=prefix)
-                    prefix = None
-            return converted
-
-        elements = z80.split_operation(operation, tidy=True)
-        op = elements[0]
-
-        # Instructions containing '(I[XY]+d)'
-        if re.search('\(I[XY] *[+-].*\)', operation.upper()):
-            return _replace_nums(operation, self.hex2fmt, op in ('BIT', 'RES', 'SET'))
-
-        if op in ('CALL', 'DJNZ', 'JP', 'JR'):
-            return _replace_nums(operation, self.hex4fmt)
-
-        if op in ('AND', 'OR', 'XOR', 'SUB', 'CP', 'IN', 'OUT', 'ADD', 'ADC', 'SBC', 'RST'):
-            return _replace_nums(operation, self.hex2fmt)
-
-        if op == 'LD' and len(elements) == 3:
-            operands = elements[1:]
-            if operands[0] in ('A', 'B', 'C', 'D', 'E', 'H', 'L', 'IXL', 'IXH', 'IYL', 'IYH', '(HL)') and not operands[1].startswith('('):
-                # LD r,n; LD (HL),n
-                return _replace_nums(operation, self.hex2fmt)
-            if not set(('A', 'BC', 'DE', 'HL', 'IX', 'IY', 'SP')).isdisjoint(operands):
-                # LD A,(nn); LD (nn),A; LD rr,nn; LD rr,(nn); LD (nn),rr
-                return _replace_nums(operation, self.hex4fmt)
-
-        return operation
-
-    def _convert_case(self, operation):
-        if self.lower or self.upper:
-            operation = z80.convert_case(operation, self.lower)
-            if self.upper and not operation.startswith(('DEFB', 'DEFM', 'DEFS', 'DEFW')):
-                operation = re.sub('(I[XY])H', r'\1h', operation)
-                operation = re.sub('(I[XY])L', r'\1l', operation)
-        return operation
+        :param entries: A collection of memory map entries.
+        :param remote_entries: A collection of remote entries (as defined by
+                               :ref:`remote` directives).
+        :return: A tuple containing the two dictionaries.
+        """
+        references = {}
+        referrers = defaultdict(list)
+        instructions = {i.address: (i, e) for e in remote_entries + entries for i in e.instructions}
+        for entry in entries:
+            for instruction in entry.instructions:
+                operation = instruction.operation.upper()
+                if operation.startswith(('CALL', 'DEFW', 'DJNZ', 'JP', 'JR', 'LD ', 'RST')) and not _is_8_bit_ld_instruction(operation):
+                    addr_str = get_address(instruction.operation)
+                    if addr_str:
+                        address = parse_int(addr_str)
+                        if instruction.keep is None or (instruction.keep and address not in instruction.keep):
+                            ref_i, ref_e = instructions.get(address, (None, None))
+                            if ref_i and ref_e.ctl != 'i' and (ref_e.ctl == 'c' or operation.startswith(('DEFW', 'LD ')) or ref_e.ctl is None):
+                                references[instruction] = (ref_e, address, addr_str)
+                                if operation.startswith(('CALL', 'DJNZ', 'JP', 'JR', 'RST')) and entry not in referrers[ref_i]:
+                                    referrers[ref_i].append(entry)
+        return references, referrers
 
 class Instruction:
     def __init__(self, ctl, addr_str, operation):
@@ -1098,9 +1089,9 @@ class Instruction:
         else:
             self.addr_str = addr_str
             self.addr_base = BASE_10
-        self.address = parse_int(addr_str) # API (SkoolReferenceCalculator)
-        self.keep = None                   # API (SkoolReferenceCalculator)
-        self.operation = operation         # API (SkoolReferenceCalculator)
+        self.address = parse_int(addr_str) # API (InstructionUtility)
+        self.keep = None                   # API (InstructionUtility)
+        self.operation = operation         # API (InstructionUtility)
         self.data = ()
         self.container = None
         self.reference = None
@@ -1167,8 +1158,8 @@ class Comment:
 
 class SkoolEntry:
     def __init__(self, address, addr_str=None, ctl=None, description=None, details=(), registers=()):
-        self.ctl = ctl         # API (SkoolReferenceCalculator)
-        self.instructions = [] # API (SkoolReferenceCalculator)
+        self.ctl = ctl         # API (InstructionUtility)
+        self.instructions = [] # API (InstructionUtility)
         self.headers = ()
         self.footers = ()
         self.asm_id = ''
