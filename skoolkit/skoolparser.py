@@ -533,9 +533,11 @@ class SkoolParser:
 
                 # Set bytes in the snapshot if the instruction is DEF{B,M,S,W}
                 if address is not None:
-                    operation = instruction.operation
-                    if self.mode.assemble > 1 or (self.mode.assemble and operation.upper().startswith(('DEFB ', 'DEFM ', 'DEFS ', 'DEFW '))):
-                        instruction.data = set_bytes(self.snapshot, self._assembler, address, operation)
+                    assemble = self.utility.set_byte_values(instruction, self.mode.assemble)
+                    if assemble:
+                        data = set_bytes(self.snapshot, self._assembler, address, instruction.operation)
+                        if assemble > 1:
+                            instruction.bytes = data
 
             if map_entry and map_entry.instructions:
                 self._entries[map_entry.address] = map_entry
@@ -1080,6 +1082,26 @@ class InstructionUtility:
                                     referrers[ref_i].append(entry)
         return references, referrers
 
+    def set_byte_values(self, instruction, assemble):
+        """Decide whether to set byte values in the memory snapshot and for an
+        instruction.
+
+        If byte values are set in the memory snapshot, then they are available
+        to the :ref:`PEEK` macro and the :ref:`image macros <imageMacros>`. If
+        byte values are set for an instruction, then they are available for
+        display in HTML output via the ``instruction[bytes]`` replacement field
+        in the :ref:`t_asm` template.
+
+        :param instruction: The instruction.
+        :param assemble: The current value of the *assemble* property (as set
+                         by the :ref:`assemble` directive).
+        :return: 2 if both the snapshot and the instruction should have byte
+                 values defined, 1 if only the snapshot should, or 0 if neither
+                 should.
+        """
+        is_def = instruction.operation.upper().startswith(('DEFB ', 'DEFM ', 'DEFS ', 'DEFW '))
+        return int(assemble > 1 or (assemble and is_def)) + int(assemble > 1 and not is_def)
+
 class Instruction:
     def __init__(self, ctl, addr_str, operation):
         self.ctl = ctl
@@ -1092,7 +1114,7 @@ class Instruction:
         self.address = parse_int(addr_str) # API (InstructionUtility)
         self.keep = None                   # API (InstructionUtility)
         self.operation = operation         # API (InstructionUtility)
-        self.data = ()
+        self.bytes = ()
         self.container = None
         self.reference = None
         self.mid_block_comment = None

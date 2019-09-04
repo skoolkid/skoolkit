@@ -5365,6 +5365,42 @@ class SkoolParserTest(SkoolKitTestCase):
         parser = self._get_parser(skool)
         self.assertEqual(parser.get_instruction(40000).operation, 'JP UP')
 
+    @patch.object(api, 'SK_CONFIG', None)
+    def test_custom_set_byte_values(self):
+        custom_sbv = """
+            from skoolkit.skoolparser import InstructionUtility
+            class CustomUtility(InstructionUtility):
+                def set_byte_values(self, instruction, assemble):
+                    return 1 - assemble
+        """
+        self.write_component_config('InstructionUtility', '*.CustomUtility', custom_sbv)
+
+        skool = """
+            @assemble=0
+            b30000 DEFB 1
+            @assemble=1
+             30001 DEFB 2
+        """
+        parser = self._get_parser(skool, html=True)
+        self.assertEqual([1, 0], parser.snapshot[30000:30002])
+
+    @patch.object(api, 'SK_CONFIG', None)
+    def test_custom_set_byte_values_api(self):
+        custom_sbv = """
+            from skoolkit.skoolparser import InstructionUtility
+            class CustomUtility(InstructionUtility):
+                def set_byte_values(self, instruction, assemble):
+                    assert instruction.address == 40000
+                    assert instruction.keep is None
+                    assert instruction.operation == 'DEFB 1,2'
+                    return 2
+        """
+        self.write_component_config('InstructionUtility', '*.CustomUtility', custom_sbv)
+
+        parser = self._get_parser('b40000 DEFB 1,2')
+        self.assertEqual([1, 2], parser.snapshot[40000:40002])
+        self.assertEqual((1, 2), parser.get_instruction(40000).bytes)
+
 class TableParserTest(SkoolKitTestCase):
     class MockWriter:
         def expand(self, text):

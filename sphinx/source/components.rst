@@ -109,17 +109,23 @@ This object is responsible for performing various operations on the
 instructions in a skool file:
 
 * converting base and case
-* replacing addresses with labels in instruction operands
+* replacing addresses with labels in instruction operands; this is required for
+  ASM output
 * generating a dictionary of references (for each instruction that refers to
-  another instruction)
+  another instruction); this is required for hyperlinking instruction operands
+  in HTML output
 * generating a dictionary of referrers (for each instruction that is referred
-  to by other instructions)
+  to by other instructions); this is required by the special ``EREF`` and
+  ``REF`` variables of the :ref:`FOREACH` macro
+* deciding whether to set byte values; this affects the :ref:`PEEK` macro and
+  the :ref:`image macros <imageMacros>`, and instruction byte values in HTML
+  output
 
 The object must supply the following API functions, in common with
 skoolkit.skoolparser.InstructionUtility:
 
 .. autoclass:: skoolkit.skoolparser.InstructionUtility
-   :members: calculate_references, convert, substitute_labels
+   :members: calculate_references, convert, set_byte_values, substitute_labels
 
 Memory map entries and remote entries have the following attributes:
 

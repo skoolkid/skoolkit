@@ -799,10 +799,7 @@ class HtmlWriter:
 
         entry_dict['instructions'] = instructions = []
         for instruction in entry.instructions:
-            if instruction.operation.upper().startswith(('DEFB', 'DEFM', 'DEFS', 'DEFW')):
-                instruction.byte_values = Bytes()
-            else:
-                instruction.byte_values = Bytes(instruction.data)
+            instruction.byte_values = Bytes(instruction.bytes)
 
             operation, reference = instruction.operation, instruction.reference
             operation_u = operation.upper()
