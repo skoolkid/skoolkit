@@ -35,6 +35,8 @@ LIST_END_MARKER = 'LIST#'
 
 Flags = namedtuple('Flags', 'prepend final overwrite append')
 
+Reference = namedtuple('Reference', 'entry address addr_str use_label')
+
 def _replace_nums(operation, hex_fmt=None, skip_bit=False, prefix=None):
     elements = re.split('(?<=[\s,(%*/+-])(\$[0-9A-Fa-f]+|\d+)', (prefix or '(') + operation)
     for i in range(2 * int(skip_bit) + 1, len(elements), 2):
@@ -704,8 +706,8 @@ class SkoolParser:
 
     def _calculate_references(self):
         references, referrers = self.utility.calculate_references(self.memory_map, self._remote_entries)
-        for instruction, (entry, address, addr_str) in references.items():
-            instruction.set_reference(entry, address, addr_str)
+        for instruction, (entry, address, addr_str, use_label) in references.items():
+            instruction.reference = Reference(entry, address, addr_str, use_label)
         for instruction, entries in referrers.items():
             for entry in entries:
                 instruction.add_referrer(entry)
@@ -1077,7 +1079,7 @@ class InstructionUtility:
                         if instruction.keep is None or (instruction.keep and address not in instruction.keep):
                             ref_i, ref_e = instructions.get(address, (None, None))
                             if ref_i and ref_e.ctl != 'i' and (ref_e.ctl == 'c' or operation.startswith(('DEFW', 'LD ')) or ref_e.ctl is None):
-                                references[instruction] = (ref_e, address, addr_str)
+                                references[instruction] = (ref_e, address, addr_str, not operation.startswith('RST'))
                                 if operation.startswith(('CALL', 'DJNZ', 'JP', 'JR', 'RST')) and entry not in referrers[ref_i]:
                                     referrers[ref_i].append(entry)
         return references, referrers
@@ -1136,9 +1138,6 @@ class Instruction:
     def set_comment(self, rowspan, text):
         self.comment = Comment(rowspan, text)
 
-    def set_reference(self, entry, address, addr_str):
-        self.reference = Reference(entry, address, addr_str)
-
     def add_referrer(self, routine):
         if routine not in self.referrers:
             self.referrers.append(routine)
@@ -1163,12 +1162,6 @@ class Instruction:
 
     def keep_value(self, value):
         return self.keep_values() or (self.keep and value in self.keep)
-
-class Reference:
-    def __init__(self, entry, address, addr_str):
-        self.entry = entry
-        self.address = address
-        self.addr_str = addr_str
 
 class Comment:
     def __init__(self, rowspan, text):

@@ -142,14 +142,22 @@ Each instruction object has the following attributes:
 * *operation* - the operation (e.g. 'XOR A'), or an empty string if the
   instruction is in a remote entry
 
-Each key in the references dictionary is an instruction object, and the
-corresponding value is a 3-element tuple, ``(entry, address, address_s)``,
-where ``entry`` is the entry containing the instruction referred to,
-``address`` is the address of the instruction referred to, and ``address_s`` is
-the corresponding address string in the operand of the referring instruction.
+Each key in the references dictionary should be an instruction object, and the
+corresponding value should be a 4-element tuple::
 
-Each key in the referrers dictionary is an instruction object, and the
-corresponding value is a list of the entries that refer to that instruction.
+  (entry, address, address_s, use_label)
+
+* ``entry`` - the entry containing the instruction referred to
+* ``address`` - the address of the instruction referred to
+* ``address_s`` - the corresponding address string in the operand of the
+  referring instruction
+* ``use_label`` - whether to use a label as the link text for the hyperlink in
+  HTML output; if no label for ``address`` is defined, or ``use_label`` is
+  `False`, the address string (``address_s``) will be used as the link text
+
+Each key in the referrers dictionary should be an instruction object, and the
+corresponding value should be a list of the entries that refer to that
+instruction.
 
 .. _snapshotReader:
 

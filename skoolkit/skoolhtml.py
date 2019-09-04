@@ -814,7 +814,7 @@ class HtmlWriter:
                         href = self._asm_relpath(cwd, entry_address, reference.entry.asm_id)
                         if not (external_ref and reference.address == entry_address):
                             href += '#{}'.format(self.asm_anchor(reference.address))
-                    if asm_label and not operation_u.startswith('RST'):
+                    if asm_label and reference.use_label:
                         link_text = asm_label
                     else:
                         link_text = reference.addr_str
