@@ -25,28 +25,33 @@ class Disassembler:
     """Initialise the disassembler.
 
     :param snapshot: The snapshot (list of 65536 byte values) to disassemble.
-    :param defb_size: The default maximum number of bytes per DEFB statement.
-    :param defb_mod: Group DEFB blocks by addresses that are divisible by this number.
-    :param zfill: If `True`, pad decimal values with leading zeroes.
-    :param defm_size: The default maximum number of characters in a DEFM statement.
-    :param asm_hex: If `True`, produce a hexadecimal disassembly.
-    :param asm_lower: If `True`, produce a lower case disassembly.
+    :param config: Configuration object with the following attributes:
+
+                   * `asm_hex` - if `True`, produce a hexadecimal disassembly
+                   * `asm_lower` - if `True`, produce a lower case disassembly
+                   * `defb_mod` - group DEFB blocks by addresses that are
+                     divisible by this number
+                   * `defb_size` - default maximum number of bytes in a DEFB
+                     statement
+                   * `defm_size` - default maximum number of characters in a
+                     DEFM statement
+                   * `zfill` - if `True`, pad decimal values with leading
+                     zeroes
     """
-    def __init__(self, snapshot, defb_size=8, defb_mod=1, zfill=False, defm_size=66, asm_hex=False, asm_lower=False):
+    def __init__(self, snapshot, config):
         self.snapshot = snapshot
-        self.defb_size = defb_size
-        self.defb_mod = defb_mod
-        self.zfill = zfill
-        self.defm_width = defm_size
-        self.asm_hex = asm_hex
-        self.asm_lower = asm_lower
+        self.asm_hex = config.asm_hex
+        self.asm_lower = config.asm_lower
+        self.defb_mod = config.defb_mod
+        self.defb_size = config.defb_size
+        self.defm_size = config.defm_size
         self.defw_size = 2
         self.byte_formats = {
             'b': '%{:08b}',
             'h': '${:02X}',
             'd': '{}'
         }
-        if self.zfill:
+        if config.zfill:
             self.byte_formats['d'] = '{:03d}'
         self.word_formats = {
             'b': '%{:016b}',
@@ -375,8 +380,8 @@ class Disassembler:
 
     def defm_lines(self, address, data):
         lines = []
-        for i in range(0, len(data), self.defm_width):
-            lines.append(self.defm_line(address + i, data[i:i + self.defm_width]))
+        for i in range(0, len(data), self.defm_size):
+            lines.append(self.defm_line(address + i, data[i:i + self.defm_size]))
         return lines
 
     ops = {

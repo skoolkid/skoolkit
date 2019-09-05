@@ -1,5 +1,9 @@
+from collections import namedtuple
+
 from skoolkittest import SkoolKitTestCase
 from skoolkit.disassembler import Disassembler
+
+Config = namedtuple('Config', 'asm_hex asm_lower defb_mod defb_size defm_size zfill')
 
 ASM = {
     '000000': ('NOP', 'NOP', 'NOP'),
@@ -1797,8 +1801,9 @@ ASM = {
 }
 
 class DisassemblerTest(SkoolKitTestCase):
-    def _get_disassembler(self, snapshot=(), defb_size=8, defb_mod=8, zfill=False, defm_width=66, asm_hex=False, asm_lower=False):
-        return Disassembler(snapshot, defb_size, defb_mod, zfill, defm_width, asm_hex, asm_lower)
+    def _get_disassembler(self, snapshot=(), defb_size=8, defb_mod=8, zfill=False, defm_size=66, asm_hex=False, asm_lower=False):
+        config = Config(asm_hex, asm_lower, defb_mod, defb_size, defm_size, zfill)
+        return Disassembler(snapshot, config)
 
     def _get_snapshot(self, start, data):
         snapshot = [0] * 65536

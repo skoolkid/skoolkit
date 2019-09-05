@@ -14,7 +14,7 @@
 # You should have received a copy of the GNU General Public License along with
 # SkoolKit. If not, see <http://www.gnu.org/licenses/>.
 
-from collections import defaultdict
+from collections import defaultdict, namedtuple
 
 from skoolkit import (SkoolKitError, warn, write_line, wrap, parse_int,
                       get_address_format, format_template)
@@ -27,6 +27,8 @@ from skoolkit.skoolparser import (get_address, TABLE_MARKER, TABLE_END_MARKER,
                                   LIST_MARKER, LIST_END_MARKER)
 
 MIN_COMMENT_WIDTH = 10
+
+DisassemblerConfig = namedtuple('DisassemblerConfig', 'asm_hex asm_lower defb_mod defb_size defm_size zfill')
 
 def calculate_references(entries):
     """
@@ -106,7 +108,8 @@ class Disassembly:
     def __init__(self, snapshot, ctl_parser, config=None, final=False, defb_size=8, defb_mod=1,
                  zfill=False, defm_width=66, asm_hex=False, asm_lower=False):
         ctl_parser.apply_asm_data_directives(snapshot)
-        self.disassembler = get_component('Disassembler', snapshot, defb_size, defb_mod, zfill, defm_width, asm_hex, asm_lower)
+        dconfig = DisassemblerConfig(asm_hex, asm_lower, defb_mod, defb_size, defm_width, zfill)
+        self.disassembler = get_component('Disassembler', snapshot, dconfig)
         self.ref_calc = get_component('SnapshotReferenceCalculator')
         self.ctl_parser = ctl_parser
         if asm_hex:
