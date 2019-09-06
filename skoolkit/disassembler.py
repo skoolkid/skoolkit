@@ -84,7 +84,7 @@ class Disassembler:
             return sign + self.word_formats[base].format(value)
         return sign + self.byte_formats[base].format(value)
 
-    def disassemble(self, start, end=65536, base=None):
+    def disassemble(self, start, end, base):
         """Disassemble an address range.
 
         :param start: The start address.

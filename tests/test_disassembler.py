@@ -1814,7 +1814,7 @@ class DisassemblerTest(SkoolKitTestCase):
         start = 65536 - len(data)
         snapshot = self._get_snapshot(start, data)
         disassembler = self._get_disassembler(snapshot)
-        return disassembler.disassemble(start)
+        return disassembler.disassemble(start, 65536, None)
 
     def defbs_equal(self, *data):
         instructions = self._get_instructions(*data)
@@ -1826,7 +1826,7 @@ class DisassemblerTest(SkoolKitTestCase):
         for hex_bytes, ops in ASM.items():
             snapshot = sna_prefix + [int(hex_bytes[i:i + 2], 16) for i in range(0, len(hex_bytes), 2)]
             disassembler = self._get_disassembler(snapshot)
-            instructions = disassembler.disassemble(len(sna_prefix), len(snapshot))
+            instructions = disassembler.disassemble(len(sna_prefix), len(snapshot), None)
             operations = tuple([inst[1] for inst in instructions])
             self.assertEqual(operations, ops)
 
