@@ -226,15 +226,6 @@ class Disassembler:
             defs_dir = convert_case(defs_dir)
         return [(start, defs_dir, data)]
 
-    def ignore(self, start, end):
-        """Produce a blank instruction for an address range.
-
-        :param start: The start address.
-        :param end: The end address.
-        :return: A tuple of the form ``(address, '', bytes)``.
-        """
-        return (start, '', self.snapshot[start:end])
-
     def get_message(self, data):
         items = []
         for b in data:

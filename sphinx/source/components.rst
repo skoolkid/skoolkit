@@ -71,17 +71,17 @@ instructions and DEFB/DEFM/DEFS/DEFW statements. It must supply the following
 API methods, in common with skoolkit.disassembler.Disassembler:
 
 .. autoclass:: skoolkit.disassembler.Disassembler
-   :members: disassemble, defb_range, defm_range, defs_range, defw_range, ignore
+   :members: disassemble, defb_range, defm_range, defs_range, defw_range
 
 The *sublengths* argument of the :meth:`defb_range`, :meth:`defm_range`,
 :meth:`defs_range` and :meth:`defw_range` methods is a sequence of 2-element
-tuples, each of which specifies the desired size and number base for an
-instruction in the given address range::
+tuples, each of which specifies the desired size and number base for a
+DEFB/DEFM/DEFS/DEFW statement in the given address range::
 
   (size, base)
 
-``size`` is the number of bytes in the instruction or DEFB/DEFM/DEFS/DEFW
-statement. ``base`` is the number base indicator for any numeric operand:
+``size`` is the number of bytes in the DEFB/DEFM/DEFS/DEFW statement. ``base``
+is the number base indicator for any numeric operand:
 
 * `None` - default base
 * 'B' - byte (in a DEFB/DEFM statement)
@@ -94,7 +94,7 @@ statement. ``base`` is the number base indicator for any numeric operand:
 * 'n' - default base
 
 If *sublengths* contains a single element whose ``size`` value is `None`, then
-the method should produce a list of instructions with default sizes (as
+the method should produce a list of statements with default sizes (as
 determined by `defb_size`, `defb_mod` and `defm_size`), using the default
 number base.
 

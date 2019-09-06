@@ -175,7 +175,7 @@ class Disassembly:
                             instructions += self.disassembler.defb_range(address, end, sublengths)
                         address += length
                 else:
-                    instructions = [self.disassembler.ignore(sub_block.start, sub_block.end)]
+                    instructions = [(sub_block.start, '', ())]
                 self._add_instructions(sub_block, instructions)
 
             sub_blocks = []
