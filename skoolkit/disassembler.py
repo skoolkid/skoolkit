@@ -19,8 +19,6 @@ from collections import namedtuple
 from skoolkit import is_char
 from skoolkit.z80 import convert_case
 
-Instruction = namedtuple('Instruction', 'address operation bytes')
-
 class Disassembler:
     """Initialise the disassembler.
 
@@ -92,8 +90,10 @@ class Disassembler:
         :param start: The start address.
         :param end: The end address.
         :param base: Base indicator (`None`, 'b', 'c', 'd', 'h', 'm' or 'n').
-        :return: A list of named tuples with the fields `address`, `operation`,
-                 and `bytes`.
+                     For instructions with two numeric operands (e.g.
+                     'LD (IX+d),n'), the indicator may consist of two letters,
+                     one for each operand (e.g. 'dh').
+        :return: A list of tuples of the form ``(address, operation, bytes)``.
         """
         instructions = []
         address = start
@@ -107,7 +107,7 @@ class Disassembler:
             if address + length <= 65536:
                 if self.asm_lower:
                     operation = convert_case(operation)
-                instructions.append(Instruction(address, operation, self.snapshot[address:address + length]))
+                instructions.append((address, operation, self.snapshot[address:address + length]))
             else:
                 instructions.append(self.defb_line(address, self.snapshot[address:65536]))
             address += length
@@ -119,8 +119,7 @@ class Disassembler:
         :param start: The start address.
         :param end: The end address.
         :param sublengths: Sequence of sublength identifiers.
-        :return: A list of named tuples with the fields `address`, `operation`,
-                 and `bytes`.
+        :return: A list of tuples of the form ``(address, operation, bytes)``.
         """
         if sublengths[0][0] or end - start <= self.defb_size:
             return [self.defb_line(start, self.snapshot[start:end], sublengths)]
@@ -157,8 +156,7 @@ class Disassembler:
         :param start: The start address.
         :param end: The end address.
         :param sublengths: Sequence of sublength identifiers.
-        :return: A list of named tuples with the fields `address`, `operation`,
-                 and `bytes`.
+        :return: A list of tuples of the form ``(address, operation, bytes)``.
         """
         if sublengths[0][0]:
             step = end - start
@@ -171,7 +169,7 @@ class Disassembler:
             defw_dir = 'DEFW {}'.format(self._defw_items(data, sublengths))
             if self.asm_lower:
                 defw_dir = convert_case(defw_dir)
-            instructions.append(Instruction(address, defw_dir, data))
+            instructions.append((address, defw_dir, data))
         return instructions
 
     def defm_range(self, start, end, sublengths):
@@ -180,8 +178,7 @@ class Disassembler:
         :param start: The start address.
         :param end: The end address.
         :param sublengths: Sequence of sublength identifiers.
-        :return: A list of named tuples with the fields `address`, `operation`,
-                 and `bytes`.
+        :return: A list of tuples of the form ``(address, operation, bytes)``.
         """
         if sublengths[0][0]:
             data = self.snapshot[start:end]
@@ -189,7 +186,7 @@ class Disassembler:
             defm_dir = 'DEFM {}'.format(item_str)
             if self.asm_lower:
                 defm_dir = convert_case(defm_dir)
-            return [Instruction(start, defm_dir, data)]
+            return [(start, defm_dir, data)]
         instructions = []
         msg = []
         for i in range(start, end):
@@ -211,8 +208,7 @@ class Disassembler:
         :param start: The start address.
         :param end: The end address.
         :param sublengths: Sequence of sublength identifiers.
-        :return: A list of named tuples with the fields `address`, `operation`,
-                 and `bytes`.
+        :return: A list of tuples of the form ``(address, operation, bytes)``.
         """
         data = self.snapshot[start:end]
         values = set(data)
@@ -228,17 +224,16 @@ class Disassembler:
         defs_dir = 'DEFS {}'.format(','.join(items))
         if self.asm_lower:
             defs_dir = convert_case(defs_dir)
-        return [Instruction(start, defs_dir, data)]
+        return [(start, defs_dir, data)]
 
     def ignore(self, start, end):
         """Produce a blank instruction for an address range.
 
         :param start: The start address.
         :param end: The end address.
-        :return: A named tuple with the fields `address`, `operation` (empty
-                 string), and `bytes`.
+        :return: A tuple of the form ``(address, '', bytes)``.
         """
-        return Instruction(start, '', self.snapshot[start:end])
+        return (start, '', self.snapshot[start:end])
 
     def get_message(self, data):
         items = []
@@ -370,13 +365,13 @@ class Disassembler:
         return self.defb(a, 4)
 
     def defb_line(self, address, data, sublengths=((None, None),)):
-        return Instruction(address, self.defb_dir(data, sublengths), data)
+        return (address, self.defb_dir(data, sublengths), data)
 
     def defm_line(self, address, data):
         defm_dir = 'DEFM {}'.format(self.get_message(data))
         if self.asm_lower:
             defm_dir = convert_case(defm_dir)
-        return Instruction(address, defm_dir, data)
+        return (address, defm_dir, data)
 
     def defm_lines(self, address, data):
         lines = []

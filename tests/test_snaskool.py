@@ -4055,11 +4055,11 @@ class SkoolWriterTest(SkoolKitTestCase):
     @patch.object(api, 'SK_CONFIG', None)
     def test_custom_disassembler(self):
         custom_disassembler = """
-            from skoolkit.disassembler import Disassembler, Instruction
+            from skoolkit.disassembler import Disassembler
 
             class CustomDisassembler(Disassembler):
                 def disassemble(self, start, end, base):
-                    return [Instruction(start, 'Hi', ())]
+                    return [(start, 'Hi', ())]
         """
         self.write_component_config('Disassembler', '*.CustomDisassembler', custom_disassembler)
         snapshot = [0]

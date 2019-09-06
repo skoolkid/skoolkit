@@ -53,11 +53,11 @@ def calculate_references(entries):
     return referrers
 
 class Instruction:
-    def __init__(self, spec):
-        self.address = spec.address     # API (SnapshotReferenceCalculator)
-        self.operation = spec.operation # API (SnapshotReferenceCalculator)
-        self.bytes = spec.bytes         # API (SnapshotReferenceCalculator)
-        self.label = None               # API (SnapshotReferenceCalculator)
+    def __init__(self, address, operation, data):
+        self.address = address     # API (SnapshotReferenceCalculator)
+        self.operation = operation # API (SnapshotReferenceCalculator)
+        self.bytes = data          # API (SnapshotReferenceCalculator)
+        self.label = None          # API (SnapshotReferenceCalculator)
         self.referrers = []
         self.entry = None
         self.ctl = None
@@ -207,7 +207,7 @@ class Disassembly:
     def _add_instructions(self, sub_block, specs):
         sub_block.instructions = []
         for spec in specs:
-            instruction = Instruction(spec)
+            instruction = Instruction(*spec)
             sub_block.instructions.append(instruction)
             self.instructions[instruction.address] = instruction
             instruction.asm_directives = sub_block.asm_directives.get(instruction.address, ())

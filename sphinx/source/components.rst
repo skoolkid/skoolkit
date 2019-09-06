@@ -93,9 +93,6 @@ statement. ``base`` is the number base indicator for any numeric operand:
 * 'm' - negative
 * 'n' - default base
 
-For instructions with two numeric operands (e.g. 'LD (IX+d),n'), ``base`` may
-consist of two letters, one for each operand (e.g. 'dh').
-
 If *sublengths* contains a single element whose ``size`` value is `None`, then
 the method should produce a list of instructions with default sizes (as
 determined by `defb_size`, `defb_mod` and `defm_size`), using the default
