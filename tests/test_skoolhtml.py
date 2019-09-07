@@ -193,6 +193,9 @@ class MockSkoolParser:
     def get_entry(self, address):
         return self.entries.get(address)
 
+    def get_instruction(self, address):
+        return None
+
     def make_replacements(self, item):
         pass
 

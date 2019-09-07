@@ -523,6 +523,7 @@ class CommonSkoolMacroTest:
         self._assert_error(writer, '#FOREACH()()', 'No variable name: ()()', prefix)
         self._assert_error(writer, '#FOREACH(a,b[$s,$s]', 'No closing bracket: (a,b[$s,$s]', prefix)
         self._assert_error(writer, '#FOREACH(a,b)($s,$s', 'No closing bracket: ($s,$s', prefix)
+        self._assert_error(writer, '#FOREACH(EREF$81A4)(n,n)', 'No instruction at 33188: EREF$81A4', prefix)
         self._assert_error(writer, '#FOREACH(REF$81A4)(n,n)', 'No entry at 33188: REF$81A4', prefix)
 
     def test_macro_html_invalid(self):

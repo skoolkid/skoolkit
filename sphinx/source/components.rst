@@ -153,7 +153,7 @@ corresponding value should be a 4-element tuple::
   `False`, the address string (``address_s``) will be used as the link text
 
 Each key in the referrers dictionary should be an instruction object, and the
-corresponding value should be a list of the entries that refer to that
+corresponding value should be a collection of the entries that refer to that
 instruction.
 
 .. _snapshotReader:

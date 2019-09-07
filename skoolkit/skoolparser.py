@@ -445,12 +445,6 @@ class SkoolParser:
         if instruction:
             return instruction.container
 
-    def get_entry_point_refs(self, address):
-        """Return the addresses of the routines and data blocks that contain
-        instructions that refer to `address`.
-        """
-        return [referrer.address for referrer in self.get_instruction(address).referrers]
-
     def get_asm_label(self, address):
         instruction = self.get_instruction(address)
         if instruction:
@@ -1067,7 +1061,7 @@ class InstructionUtility:
         :return: A tuple containing the two dictionaries.
         """
         references = {}
-        referrers = defaultdict(list)
+        referrers = defaultdict(set)
         instructions = {i.address: (i, e) for e in remote_entries + entries for i in e.instructions}
         for entry in entries:
             for instruction in entry.instructions:
@@ -1080,8 +1074,8 @@ class InstructionUtility:
                             ref_i, ref_e = instructions.get(address, (None, None))
                             if ref_i and ref_e.ctl != 'i' and (ref_e.ctl == 'c' or operation.startswith(('DEFW', 'LD ')) or ref_e.ctl is None):
                                 references[instruction] = (ref_e, address, addr_str, not operation.startswith('RST'))
-                                if operation.startswith(('CALL', 'DJNZ', 'JP', 'JR', 'RST')) and entry not in referrers[ref_i]:
-                                    referrers[ref_i].append(entry)
+                                if operation.startswith(('CALL', 'DJNZ', 'JP', 'JR', 'RST')):
+                                    referrers[ref_i].add(entry)
         return references, referrers
 
     def set_byte_values(self, instruction, assemble):

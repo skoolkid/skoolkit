@@ -26,6 +26,9 @@ class MockSkoolParser:
     def get_entry(self, address):
         return None
 
+    def get_instruction(self, address):
+        return None
+
 class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
     def _get_writer(self, skool=None, crlf=False, tab=False, case=0, base=0,
                     instr_width=23, warn=False, asm_mode=1, fix_mode=0,

@@ -610,18 +610,17 @@ def parse_foreach(entry_holder, text, index, *cwd):
         raise MacroParsingError("No variable name: {}".format(text[index:e.args[1]]))
     if len(values) == 1:
         value = values[0]
-        if value.startswith('EREF'):
+        if value.startswith(('EREF', 'REF')):
+            addr_str, getter, desc = {
+                'E': (value[4:], entry_holder.get_instruction, 'instruction'),
+                'R': (value[3:], entry_holder.get_entry, 'entry')
+            }[value[0]]
             try:
-                values = [str(a) for a in entry_holder.get_entry_point_refs(evaluate(value[4:]))]
-            except ValueError:
-                pass
-        elif value.startswith('REF'):
-            try:
-                address = evaluate(value[3:])
-                entry = entry_holder.get_entry(address)
-                if not entry:
-                    raise MacroParsingError('No entry at {}: {}'.format(address, value))
-                values = [str(addr) for addr in sorted([ref.address for ref in entry.referrers])]
+                address = evaluate(addr_str)
+                entity = getter(address)
+                if not entity:
+                    raise MacroParsingError('No {} at {}: {}'.format(desc, address, value))
+                values = [str(r.address) for r in sorted(entity.referrers, key=lambda e: e.address)]
             except ValueError:
                 pass
         elif value.startswith('ENTRY'):
