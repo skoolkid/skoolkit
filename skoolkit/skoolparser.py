@@ -700,8 +700,8 @@ class SkoolParser:
 
     def _calculate_references(self):
         references, referrers = self.utility.calculate_references(self.memory_map, self._remote_entries)
-        for instruction, (entry, address, addr_str, use_label) in references.items():
-            instruction.reference = Reference(entry, address, addr_str, use_label)
+        for instruction, (ref_i, addr_str, use_label) in references.items():
+            instruction.reference = Reference(ref_i.container, ref_i.address, addr_str, use_label)
         for instruction, entries in referrers.items():
             for entry in entries:
                 instruction.add_referrer(entry)
@@ -1073,7 +1073,7 @@ class InstructionUtility:
                         if instruction.keep is None or (instruction.keep and address not in instruction.keep):
                             ref_i, ref_e = instructions.get(address, (None, None))
                             if ref_i and ref_e.ctl != 'i' and (ref_e.ctl == 'c' or operation.startswith(('DEFW', 'LD ')) or ref_e.ctl is None):
-                                references[instruction] = (ref_e, address, addr_str, not operation.startswith('RST'))
+                                references[instruction] = (ref_i, addr_str, not operation.startswith('RST'))
                                 if operation.startswith(('CALL', 'DJNZ', 'JP', 'JR', 'RST')):
                                     referrers[ref_i].add(entry)
         return references, referrers

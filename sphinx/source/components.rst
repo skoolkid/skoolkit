@@ -140,17 +140,16 @@ Each instruction object has the following attributes:
   instruction is in a remote entry
 
 Each key in the references dictionary should be an instruction object, and the
-corresponding value should be a 4-element tuple::
+corresponding value should be a 3-element tuple::
 
-  (entry, address, address_s, use_label)
+  (ref_instruction, address_s, use_label)
 
-* ``entry`` - the entry containing the instruction referred to
-* ``address`` - the address of the instruction referred to
-* ``address_s`` - the corresponding address string in the operand of the
-  referring instruction
+* ``ref_instruction`` - the instruction referred to
+* ``address_s`` - the address string in the operand of the referring
+  instruction (to be replaced by a hyperlink in HTML output)
 * ``use_label`` - whether to use a label as the link text for the hyperlink in
-  HTML output; if no label for ``address`` is defined, or ``use_label`` is
-  `False`, the address string (``address_s``) will be used as the link text
+  HTML output; if no label for ``ref_instruction`` is defined, or ``use_label``
+  is `False`, the address string (``address_s``) will be used as the link text
 
 Each key in the referrers dictionary should be an instruction object, and the
 corresponding value should be a collection of the entries that refer to that

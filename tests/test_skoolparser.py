@@ -5264,14 +5264,15 @@ class SkoolParserTest(SkoolKitTestCase):
             from skoolkit.skoolparser import InstructionUtility
             class CustomUtility(InstructionUtility):
                 def calculate_references(self, entries, remote_entries):
-                    references = {entries[0].instructions[0]: (entries[0], 0, '0', False)}
+                    ref_i = entries[0].instructions[0]
+                    references = {ref_i: (ref_i, '0', False)}
                     return references, {}
         """
         self.write_component_config('InstructionUtility', '*.CustomUtility', custom_ref_calc)
 
         parser = self._get_parser('c40000 JP 40000')
         reference = parser.get_instruction(40000).reference
-        self.assertEqual(reference.address, 0)
+        self.assertEqual(reference.address, 40000)
         self.assertEqual(reference.addr_str, '0')
         self.assertFalse(reference.use_label)
 
@@ -5293,7 +5294,7 @@ class SkoolParserTest(SkoolKitTestCase):
                     assert remote_instruction.address == 30001
                     assert remote_instruction.keep is None
                     assert remote_instruction.operation == ''
-                    references = {entries[0].instructions[0]: (entries[0], 0, '0', False)}
+                    references = {instruction: (instruction, '0', False)}
                     return references, {}
         """
         self.write_component_config('InstructionUtility', '*.CustomUtility', custom_ref_calc)
@@ -5305,7 +5306,7 @@ class SkoolParserTest(SkoolKitTestCase):
         """
         parser = self._get_parser(skool)
         reference = parser.get_instruction(40000).reference
-        self.assertEqual(reference.address, 0)
+        self.assertEqual(reference.address, 40000)
         self.assertEqual(reference.addr_str, '0')
         self.assertFalse(reference.use_label)
 
