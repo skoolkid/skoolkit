@@ -166,6 +166,11 @@ with skoolkit.snapshot:
 .. automodule:: skoolkit.snapshot
    :members: can_read, get_snapshot
 
+If **get_snapshot()** encounters an error while reading a snapshot file, it
+should raise a SnapshotError:
+
+.. autoclass:: skoolkit.snapshot.SnapshotError
+
 .. _snapshotRefCalc:
 
 Snapshot reference calculator
