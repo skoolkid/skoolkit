@@ -40,6 +40,12 @@ the ``GameIndex`` parameter in the :ref:`pageHeaders` section instead.
 The ``AsmSinglePageTemplate`` parameter is no longer supported. Use the
 ``AsmSinglePage`` parameter instead.
 
+sna2skool.py
+------------
+The ``DefbMod`` configuration parameter is no longer supported. It could be
+used to group DEFB blocks by addresses that are divisible by a certain number,
+but the same effect can be achieved with appropriate control directives.
+
 HTML templates
 --------------
 The :ref:`htmlTemplates` have been overhauled in SkoolKit 8. As a result, the

@@ -27,8 +27,6 @@ class Disassembler:
 
                    * `asm_hex` - if `True`, produce a hexadecimal disassembly
                    * `asm_lower` - if `True`, produce a lower case disassembly
-                   * `defb_mod` - group DEFB blocks by addresses that are
-                     divisible by this number
                    * `defb_size` - default maximum number of bytes in a DEFB
                      statement
                    * `defm_size` - default maximum number of characters in a
@@ -40,7 +38,6 @@ class Disassembler:
         self.snapshot = snapshot
         self.asm_hex = config.asm_hex
         self.asm_lower = config.asm_lower
-        self.defb_mod = config.defb_mod
         self.defb_size = config.defb_size
         self.defm_size = config.defm_size
         self.defw_size = 2
@@ -125,17 +122,11 @@ class Disassembler:
             return [self.defb_line(start, self.snapshot[start:end], sublengths)]
         instructions = []
         data = []
-        aligned = start % self.defb_mod == 0
-        ready = False
         for i in range(start, end):
             data.append(self.snapshot[i])
-            if not aligned and (i + 1) % self.defb_mod == 0:
-                aligned = True
-                ready = True
-            if len(data) == self.defb_size or ready:
+            if len(data) == self.defb_size:
                 instructions.append(self.defb_line(i - len(data) + 1, data, sublengths))
                 data = []
-                ready = False
         if data:
             instructions.append(self.defb_line(i - len(data) + 1, data, sublengths))
         return instructions

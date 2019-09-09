@@ -70,8 +70,6 @@ configuration parameters are:
   default).
 :CommentWidthMin: Minimum width of the instruction comment field in the skool
   file (default: ``10``).
-:DefbMod: Group DEFB blocks by addresses that are divisible by this number
-  (default: ``1``).
 :DefbSize: Maximum number of bytes per DEFB statement (default: ``8``).
 :DefbZfill: Pad decimal values in DEFB statements with leading zeroes (``1``),
   or leave them unpadded (``0``, the default).

@@ -2681,20 +2681,6 @@ class SkoolWriterTest(SkoolKitTestCase):
         """
         self._test_write_skool(snapshot, ctl, exp_skool, params={'DefmSize': 2})
 
-    def test_defb_mod(self):
-        snapshot = [0] * 14
-        ctl = """
-            b 00002
-            i 00014
-        """
-        exp_skool = """
-            ; Data block at 2
-            b00002 DEFB 0,0
-             00004 DEFB 0,0,0,0,0,0,0,0
-             00012 DEFB 0,0
-        """
-        self._test_write_skool(snapshot, ctl, exp_skool, params={'DefbMod': 4})
-
     def test_defb_size(self):
         snapshot = [0] * 5
         ctl = """

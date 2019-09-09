@@ -64,7 +64,6 @@ class Sna2SkoolTest(SkoolKitTestCase):
             [sna2skool]
             Base=16
             Case=1
-            DefbMod=8
             DefbSize=12
             DefbZfill=1
             DefmSize=92
@@ -88,7 +87,6 @@ class Sna2SkoolTest(SkoolKitTestCase):
         self.assertEqual(config.get('Text'), 1)
         self.assertEqual(config.get('ListRefs'), 2)
         self.assertEqual(config.get('DefbSize'), 12)
-        self.assertEqual(config.get('DefbMod'), 8)
         self.assertEqual(options.line_width, 119)
         self.assertEqual(config.get('DefbZfill'), 1)
         self.assertEqual(config.get('DefmSize'), 92)
@@ -100,7 +98,7 @@ class Sna2SkoolTest(SkoolKitTestCase):
         ini = """
             [sna2skool]
             Base=?
-            DefbMod=16
+            Case=2
             DefbSize=x
         """
         self.write_text_file(dedent(ini).strip(), 'skoolkit.ini')
@@ -108,7 +106,7 @@ class Sna2SkoolTest(SkoolKitTestCase):
         snafile, options, config = run_args
         self.assertEqual(snafile, 'test.sna')
         self.assertEqual(options.base, 10)
-        self.assertEqual(config.get('DefbMod'), 16)
+        self.assertEqual(config.get('Case'), 2)
         self.assertEqual(config.get('DefbSize'), 8)
 
     @patch.object(sna2skool, 'make_snapshot', mock_make_snapshot)
@@ -255,10 +253,10 @@ class Sna2SkoolTest(SkoolKitTestCase):
     @patch.object(sna2skool, 'run', mock_run)
     @patch.object(sna2skool, 'get_config', mock_config)
     def test_option_I_multiple(self):
-        self.run_sna2skool('-I DefbMod=8 --ini LineWidth=99 test-I-multiple.skool')
+        self.run_sna2skool('-I DefbSize=12 --ini LineWidth=99 test-I-multiple.skool')
         options, config = run_args[1:]
-        self.assertEqual(options.params, ['DefbMod=8', 'LineWidth=99'])
-        self.assertEqual(config.get('DefbMod'), 8)
+        self.assertEqual(options.params, ['DefbSize=12', 'LineWidth=99'])
+        self.assertEqual(config.get('DefbSize'), 12)
         self.assertEqual(options.line_width, 99)
         self.assertEqual(config.get('LineWidth'), 99)
 
@@ -336,7 +334,6 @@ class Sna2SkoolTest(SkoolKitTestCase):
             Base=10
             Case=2
             CommentWidthMin=10
-            DefbMod=1
             DefbSize=8
             DefbZfill=0
             DefmSize=66
@@ -375,7 +372,6 @@ class Sna2SkoolTest(SkoolKitTestCase):
             Base=10
             Case=1
             CommentWidthMin=10
-            DefbMod=1
             DefbSize=8
             DefbZfill=0
             DefmSize=66

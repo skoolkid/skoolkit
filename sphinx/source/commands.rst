@@ -824,8 +824,6 @@ configuration parameters are:
   the default)
 * ``CommentWidthMin`` - minimum width of the instruction comment field in the
   skool file (default: ``10``)
-* ``DefbMod`` - group DEFB blocks by addresses that are divisible by this
-  number (default: ``1``)
 * ``DefbSize`` - maximum number of bytes per DEFB statement (default: ``8``)
 * ``DefbZfill`` - pad decimal values in DEFB statements with leading zeroes
   (``1``), or leave them unpadded (``0``, the default)
@@ -919,8 +917,7 @@ Configuration parameters may also be set on the command line by using the
 |         | set the maximum number of characters in a DEFM statement, and to  |
 |         | suppress comments that list routine entry point referrers         |
 +---------+-------------------------------------------------------------------+
-| 2.0     | Added the ability to group DEFB blocks by addresses divisible by  |
-|         | a given number, to set the maximum number of bytes in a DEFB      |
+| 2.0     | Added the ability to set the maximum number of bytes in a DEFB    |
 |         | statement, and to pad decimal values in DEFB statements with      |
 |         | leading zeroes                                                    |
 +---------+-------------------------------------------------------------------+

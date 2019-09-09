@@ -41,7 +41,6 @@ COMMANDS = {
         'Base': (10, 'base'),
         'Case': (2, 'case'),
         'CommentWidthMin': (10, ''),
-        'DefbMod': (1, ''),
         'DefbSize': (8, ''),
         'DefbZfill': (0, ''),
         'DefmSize': (66, ''),
