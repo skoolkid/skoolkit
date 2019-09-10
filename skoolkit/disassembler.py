@@ -31,8 +31,6 @@ class Disassembler:
                      statement
                    * `defm_size` - default maximum number of characters in a
                      DEFM statement
-                   * `zfill` - if `True`, pad decimal values with leading
-                     zeroes
     """
     def __init__(self, snapshot, config):
         self.snapshot = snapshot
@@ -46,8 +44,6 @@ class Disassembler:
             'h': '${:02X}',
             'd': '{}'
         }
-        if config.zfill:
-            self.byte_formats['d'] = '{:03d}'
         self.word_formats = {
             'b': '%{:016b}',
             'h': '${:04X}',

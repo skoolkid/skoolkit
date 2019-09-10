@@ -71,8 +71,6 @@ configuration parameters are:
 :CommentWidthMin: Minimum width of the instruction comment field in the skool
   file (default: ``10``).
 :DefbSize: Maximum number of bytes per DEFB statement (default: ``8``).
-:DefbZfill: Pad decimal values in DEFB statements with leading zeroes (``1``),
-  or leave them unpadded (``0``, the default).
 :DefmSize: Maximum number of characters in a DEFM statement (default: ``66``).
 :EntryPointRef: Template used to format the comment for an entry point with
   exactly one referrer (default: ``This entry point is used by the routine at

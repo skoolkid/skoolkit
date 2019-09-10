@@ -65,7 +65,6 @@ class Sna2SkoolTest(SkoolKitTestCase):
             Base=16
             Case=1
             DefbSize=12
-            DefbZfill=1
             DefmSize=92
             LineWidth=119
             ListRefs=2
@@ -88,7 +87,6 @@ class Sna2SkoolTest(SkoolKitTestCase):
         self.assertEqual(config.get('ListRefs'), 2)
         self.assertEqual(config.get('DefbSize'), 12)
         self.assertEqual(options.line_width, 119)
-        self.assertEqual(config.get('DefbZfill'), 1)
         self.assertEqual(config.get('DefmSize'), 92)
         self.assertEqual(config.get('Title-b'), 'Data at {address}')
         self.assertEqual(config.get('Title-c'), 'Code at {address}')
@@ -335,7 +333,6 @@ class Sna2SkoolTest(SkoolKitTestCase):
             Case=2
             CommentWidthMin=10
             DefbSize=8
-            DefbZfill=0
             DefmSize=66
             EntryPointRef=This entry point is used by the routine at {ref}.
             EntryPointRefs=This entry point is used by the routines at {refs} and {ref}.
@@ -373,7 +370,6 @@ class Sna2SkoolTest(SkoolKitTestCase):
             Case=1
             CommentWidthMin=10
             DefbSize=8
-            DefbZfill=0
             DefmSize=66
             EntryPointRef=This entry point is used by the routine at {ref}.
             EntryPointRefs=This entry point is used by the routines at {refs} and {ref}.

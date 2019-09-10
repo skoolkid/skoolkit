@@ -2819,18 +2819,6 @@ class SkoolWriterTest(SkoolKitTestCase):
         """
         self._test_write_skool(snapshot, ctl, exp_skool, params={'Semicolons': 'stuw'})
 
-    def test_zfill(self):
-        snapshot = [0] * 5
-        ctl = """
-            b 00000
-            i 00005
-        """
-        exp_skool = """
-            ; Data block at 0
-            b00000 DEFB 000,000,000,000,000
-        """
-        self._test_write_skool(snapshot, ctl, exp_skool, params={'DefbZfill': 1})
-
     def test_show_text(self):
         snapshot = [49, 127, 50]
         ctl = """
