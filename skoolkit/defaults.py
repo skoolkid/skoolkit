@@ -488,12 +488,12 @@ SECTIONS['Template:asm_single_page'] = """
 """
 
 SECTIONS['Template:boxes'] = """
+<# if(list_entries) #>
 <ul class="contents">
-<# foreach($item,contents) #>
-<li><a href="{$item[href]}">{$item[title]}</a></li>
+<# foreach($entry,list_entries) #>
+<li><a href="#{$entry[anchor]}">{$entry[title]}</a></li>
 <# endfor #>
 </ul>
-<# if(list_entries) #>
 <# foreach($entry,list_entries) #>
 <div><span id="{$entry[anchor]}"></span></div>
 <div class="list-entry list-entry-{$entry[num]}">
@@ -503,6 +503,11 @@ SECTIONS['Template:boxes'] = """
 </div>
 <# endfor #>
 <# else #>
+<ul class="contents">
+<# foreach($entry,entries) #>
+<li><a href="#{$entry[anchor]}">{$entry[title]}</a></li>
+<# endfor #>
+</ul>
 <# foreach($entry,entries) #>
 <div><span id="{$entry[anchor]}"></span></div>
 <div class="box box-{$entry[num]}">

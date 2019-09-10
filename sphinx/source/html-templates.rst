@@ -221,17 +221,10 @@ or regular entries.
 The following identifiers are available (in addition to the universal and
 page-level identifiers):
 
-* ``contents`` - a list of contents list item objects
 * ``entries`` - a list of regular entry objects (empty if the page contains
   list entries)
 * ``list_entries`` - a list of list entry objects (empty if the page contains
   regular entries)
-
-Each contents list item object corresponds to an entry on the page and has the
-following attributes:
-
-* ``href`` - the URL to the entry on the page
-* ``title`` - the entry title
 
 Each regular entry object has the following attributes:
 

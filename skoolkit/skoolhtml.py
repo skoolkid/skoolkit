@@ -674,9 +674,6 @@ class HtmlWriter:
             self.asm_entry_dicts[address] = entry_dict
         return self.asm_entry_dicts[address]
 
-    def _get_contents_list_items(self, contents):
-        return [{'href': '#' + anchor, 'title': title} for anchor, title in contents]
-
     def _format_box_page(self, cwd):
         section_type = self.pages[self._get_page_id()].get('SectionType')
         if section_type == 'ListItems':
@@ -689,11 +686,9 @@ class HtmlWriter:
         page_id = self._get_page_id()
         page = self.pages[page_id]
         entries = []
-        link_list = []
         for i, (anchor, title, paragraphs) in enumerate(self.box_pages[page_id]):
             anchor = self.expand(anchor, cwd)
             title = self.expand(title, cwd)
-            link_list.append((anchor, title))
             entries.append({
                 'anchor': anchor,
                 'num': 1 + i % 2,
@@ -701,7 +696,6 @@ class HtmlWriter:
                 'contents': [self.expand(p, cwd).strip() for p in paragraphs]
             })
         subs = {
-            'contents': self._get_contents_list_items(link_list),
             'list_entries': (),
             'entries': entries,
             'Page': page
@@ -711,12 +705,10 @@ class HtmlWriter:
     def _build_list_items_html(self, cwd, prefix=''):
         page_id = self._get_page_id()
         page = self.pages[page_id]
-        contents = []
         entries = []
         for j, (anchor, title, description, items) in enumerate(self.box_pages[page_id]):
             anchor = self.expand(anchor, cwd)
             title = self.expand(title, cwd)
-            contents.append((anchor, title))
             list_items = []
             for item in items:
                 indents = [(0, list_items)]
@@ -749,7 +741,6 @@ class HtmlWriter:
                 'item_list': self._build_list_items(cwd, list_items)
             })
         subs = {
-            'contents': self._get_contents_list_items(contents),
             'entries': (),
             'list_entries': entries,
             'Page': page
