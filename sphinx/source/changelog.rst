@@ -7,7 +7,7 @@ Changelog
 * Added support for the :ref:`td_foreach`, :ref:`td_if` and :ref:`td_include`
   directives in HTML templates
 * Added support to the :ref:`set` directive for the `table-border-horizontal`
-  property
+  and `table-border-vertical` properties
 * Added support for the ``**`` pattern (which matches any files and zero or
   more directories and subdirectories) in the :ref:`resources` section
 * Added support for replacement fields (such as ``{base}`` and ``{case}``) in

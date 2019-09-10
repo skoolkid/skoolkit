@@ -145,6 +145,8 @@ Recognised ASM writer property names and their default values are:
   spaces (default: ``0``).
 :table-border-horizontal: The character to use for the external horizontal
   borders of a table defined by a ``#TABLE`` macro (default: ``-``).
+:table-border-vertical: The character to use for the vertical borders of a
+  table defined by a ``#TABLE`` macro (default: ``|``).
 :warnings: ``1`` to print any warnings that are produced while writing ASM
   output (after parsing the skool file), or ``0`` to suppress them (default:
   ``1``).

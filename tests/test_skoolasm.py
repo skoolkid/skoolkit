@@ -2885,6 +2885,69 @@ class TableMacroTest(SkoolKitTestCase):
         """
         self._test_skool(skool, exp_output)
 
+    def test_table_border_vertical(self):
+        skool = """
+            @start
+            @set-table-border-vertical=!
+            ; Routine
+            ;
+            ; #TABLE { =h Header 1 | =h Header 2 } { Cell 1 | Cell 2 } TABLE#
+            c32768 RET
+        """
+        exp_output = """
+            ; Routine
+            ;
+            ; +----------+----------+
+            ; ! Header 1 ! Header 2 !
+            ; +----------+----------+
+            ; ! Cell 1   ! Cell 2   !
+            ; +----------+----------+
+              RET
+        """
+        self._test_skool(skool, exp_output)
+
+    def test_table_border_vertical_blank_defaults_to_pipe(self):
+        skool = """
+            @start
+            @set-table-border-vertical=
+            ; Routine
+            ;
+            ; #TABLE { =h Header 1 | =h Header 2 } { Cell 1 | Cell 2 } TABLE#
+            c32768 RET
+        """
+        exp_output = """
+            ; Routine
+            ;
+            ; +----------+----------+
+            ; | Header 1 | Header 2 |
+            ; +----------+----------+
+            ; | Cell 1   | Cell 2   |
+            ; +----------+----------+
+              RET
+        """
+        self._test_skool(skool, exp_output)
+
+    def test_table_border_vertical_first_character_only(self):
+        skool = """
+            @start
+            @set-table-border-vertical=: // Vertical borders
+            ; Routine
+            ;
+            ; #TABLE { =h Header 1 | =h Header 2 } { Cell 1 | Cell 2 } TABLE#
+            c32768 RET
+        """
+        exp_output = """
+            ; Routine
+            ;
+            ; +----------+----------+
+            ; : Header 1 : Header 2 :
+            ; +----------+----------+
+            ; : Cell 1   : Cell 2   :
+            ; +----------+----------+
+              RET
+        """
+        self._test_skool(skool, exp_output)
+
     def test_missing_end_marker(self):
         writer = self._get_writer()
         with self.assertRaisesRegex(SkoolParsingError, re.escape("Missing end marker: #TABLE { A1 }...")):

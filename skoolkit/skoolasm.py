@@ -442,6 +442,7 @@ class TableWriter:
         self.max_width = max_width
         self.min_col_width = min_col_width
         self.border_h_ext = properties.get('table-border-horizontal', '-')[:1]
+        self.border_v = properties.get('table-border-vertical', '')[:1] or '|'
         self.table = None
         self.table_parser = TableParser()
         self.cell_matrix = None
@@ -478,7 +479,7 @@ class TableWriter:
             if cell.transparent and cell_left_transparent:
                 border = ' '
             else:
-                border = '|'
+                border = self.border_v
             text = ''
             if cell.contents and (first_line or row_index == cell.row_index + cell.rowspan - 1):
                 text = cell.contents.pop(0)
@@ -489,7 +490,7 @@ class TableWriter:
             cell = self._get_cell(col_index, row_index)
         if rendered:
             if (cell and not cell.transparent) or (cell is None and not cell_left_transparent):
-                line += '|'
+                line += self.border_v
             lines.append(line.rstrip())
         return rendered
 
@@ -536,7 +537,7 @@ class TableWriter:
             if cell.transparent and cell_above_transparent and cell_above_left_transparent and cell_left_transparent:
                 line += ' '
             elif cell_contents and cell_left_contents:
-                line += '|'
+                line += self.border_v
             else:
                 line += '+'
             if cell_contents:
@@ -556,7 +557,7 @@ class TableWriter:
             col_index += cell.colspan
 
         if cell_contents:
-            return line + '|'
+            return line + self.border_v
         if line.endswith(' '):
             return line.rstrip()
         return line + '+'

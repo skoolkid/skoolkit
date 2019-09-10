@@ -1126,6 +1126,8 @@ Recognised property names and their default values are:
 * ``table-border-horizontal`` - the character to use for the external
   horizontal borders of a table defined by a :ref:`TABLE` macro (default:
   ``-``)
+* ``table-border-vertical`` - the character to use for the vertical borders of
+  a table defined by a :ref:`TABLE` macro (default: ``|``)
 * ``warnings`` - ``1`` to print any warnings that are produced while writing
   ASM output (after parsing the skool file), or ``0`` to suppress them
   (default: ``1``)
@@ -1138,20 +1140,21 @@ For example::
 
 This ``@set`` directive sets the bullet character to '+'.
 
-+---------+-------------------------------------------------------------+
-| Version | Changes                                                     |
-+=========+=============================================================+
-| 8.0     | Added the ``table-border-horizontal`` property              |
-+---------+-------------------------------------------------------------+
-| 3.4     | Added the ``handle-unsupported-macros`` and                 |
-|         | ``wrap-column-width-min`` properties                        |
-+---------+-------------------------------------------------------------+
-| 3.3.1   | Added the ``comment-width-min``, ``indent``,                |
-|         | ``instruction-width``, ``label-colons``, ``line-width`` and |
-|         | ``warnings`` properties                                     |
-+---------+-------------------------------------------------------------+
-| 3.2     | New                                                         |
-+---------+-------------------------------------------------------------+
++---------+-------------------------------------------------------------------+
+| Version | Changes                                                           |
++=========+===================================================================+
+| 8.0     | Added the ``table-border-horizontal`` and                         |
+|         | ``table-border-vertical`` properties                              |
++---------+-------------------------------------------------------------------+
+| 3.4     | Added the ``handle-unsupported-macros`` and                       |
+|         | ``wrap-column-width-min`` properties                              |
++---------+-------------------------------------------------------------------+
+| 3.3.1   | Added the ``comment-width-min``, ``indent``,                      |
+|         | ``instruction-width``, ``label-colons``, ``line-width`` and       |
+|         | ``warnings`` properties                                           |
++---------+-------------------------------------------------------------------+
+| 3.2     | New                                                               |
++---------+-------------------------------------------------------------------+
 
 .. _ssub:
 
