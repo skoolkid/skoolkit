@@ -88,7 +88,7 @@ class AsmWriter:
             self.label_suffix = ''
 
         min_col_width = self._get_int_property(properties, 'wrap-column-width-min', 10)
-        self.table_writer = TableWriter(self, self.desc_width, min_col_width)
+        self.table_writer = TableWriter(self, self.desc_width, min_col_width, properties)
 
         self.handle_unsupported_macros = self._get_int_property(properties, 'handle-unsupported-macros', 0)
 
@@ -437,10 +437,11 @@ class AsmWriter:
             lines = self.format(instruction.comment.text, max(comment_width, self.min_comment_width))
 
 class TableWriter:
-    def __init__(self, asm_writer, max_width, min_col_width):
+    def __init__(self, asm_writer, max_width, min_col_width, properties):
         self.asm_writer = asm_writer
         self.max_width = max_width
         self.min_col_width = min_col_width
+        self.border_h_ext = properties.get('table-border-horizontal', '-')[:1]
         self.table = None
         self.table_parser = TableParser()
         self.cell_matrix = None
@@ -497,18 +498,22 @@ class TableWriter:
         max_row_index = len(self.table.rows)
         if max_row_index == 0:
             return lines
-        separator_row_indexes = set((0, max_row_index))
+        separator_row_indexes = {0}
         separator_row_indexes.update([i + 1 for i in self.table.get_header_rows()])
         for row_index in range(max_row_index):
             if row_index in separator_row_indexes:
-                lines.append(self._create_row_separator(row_index))
+                row_sep = self._create_row_separator(row_index)
+                if row_sep:
+                    lines.append(row_sep)
             self._render_row(lines, row_index)
             while self._render_row(lines, row_index, False):
                 pass
-        lines.append(self._create_row_separator(max_row_index))
+        row_sep = self._create_row_separator(max_row_index, True)
+        if row_sep:
+            lines.append(row_sep)
         return lines
 
-    def _create_row_separator(self, row_index):
+    def _create_row_separator(self, row_index, last=False):
         # Return a separator between rows `row_index - 1` and `row_index`
         line = ''
         col_index = 0
@@ -540,8 +545,12 @@ class TableWriter:
             else:
                 if cell.transparent and cell_above_transparent:
                     spacer = ' '
+                elif row_index == 0 or last:
+                    spacer = self.border_h_ext
                 else:
                     spacer = '-'
+                if not spacer:
+                    return None
                 line += spacer * (2 + self.table.get_cell_width(col_index, cell.colspan))
             cell_left_contents = cell_contents
             col_index += cell.colspan

@@ -1123,6 +1123,9 @@ Recognised property names and their default values are:
 * ``line-width`` - the maximum width of each line (default: ``79``)
 * ``tab`` - ``1`` to use a tab character to indent instructions, or ``0`` to
   use spaces (default: ``0``)
+* ``table-border-horizontal`` - the character to use for the external
+  horizontal borders of a table defined by a :ref:`TABLE` macro (default:
+  ``-``)
 * ``warnings`` - ``1`` to print any warnings that are produced while writing
   ASM output (after parsing the skool file), or ``0`` to suppress them
   (default: ``1``)
@@ -1138,6 +1141,8 @@ This ``@set`` directive sets the bullet character to '+'.
 +---------+-------------------------------------------------------------+
 | Version | Changes                                                     |
 +=========+=============================================================+
+| 8.0     | Added the ``table-border-horizontal`` property              |
++---------+-------------------------------------------------------------+
 | 3.4     | Added the ``handle-unsupported-macros`` and                 |
 |         | ``wrap-column-width-min`` properties                        |
 +---------+-------------------------------------------------------------+

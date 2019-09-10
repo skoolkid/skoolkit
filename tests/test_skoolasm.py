@@ -2824,6 +2824,67 @@ class TableMacroTest(SkoolKitTestCase):
         """
         self._test_skool(skool, exp_output)
 
+    def test_table_border_horizontal(self):
+        skool = """
+            @start
+            @set-table-border-horizontal=@
+            ; Routine
+            ;
+            ; #TABLE { =h Header } { Cell } TABLE#
+            c32768 RET
+        """
+        exp_output = """
+            ; Routine
+            ;
+            ; +@@@@@@@@+
+            ; | Header |
+            ; +--------+
+            ; | Cell   |
+            ; +@@@@@@@@+
+              RET
+        """
+        self._test_skool(skool, exp_output)
+
+    def test_table_border_horizontal_blank(self):
+        skool = """
+            @start
+            @set-table-border-horizontal=
+            ; Routine
+            ;
+            ; #TABLE { =h Header } { Cell } TABLE#
+            c32768 RET
+        """
+        exp_output = """
+            ; Routine
+            ;
+            ; | Header |
+            ; +--------+
+            ; | Cell   |
+              RET
+        """
+        self._test_skool(skool, exp_output)
+
+    def test_table_border_horizontal_first_character_only(self):
+        skool = """
+            @start
+            @set-table-border-horizontal=~ // External horiz. border
+            ; Routine
+            ;
+            ; #TABLE { =h Header } { Cell } TABLE#
+            c32768 RET
+        """
+        exp_output = """
+            ; Routine
+            ;
+            ; +~~~~~~~~+
+            ; | Header |
+            ; +--------+
+            ; | Cell   |
+            ; +~~~~~~~~+
+              RET
+        """
+        self._test_skool(skool, exp_output)
+
     def test_missing_end_marker(self):
         writer = self._get_writer()
         with self.assertRaisesRegex(SkoolParsingError, re.escape("Missing end marker: #TABLE { A1 }...")):

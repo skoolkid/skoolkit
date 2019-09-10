@@ -128,30 +128,33 @@ ASM WRITER PROPERTIES
 =====================
 Recognised ASM writer property names and their default values are:
 
-:bullet: the bullet character(s) to use for list items specified in a
-  :ref:`LIST` macro (default: ``*``).
-:comment-width-min: the minimum width of the instruction comment field
+:bullet: The bullet character(s) to use for list items specified in a ``#LIST``
+  macro (default: ``*``).
+:comment-width-min: The minimum width of the instruction comment field
   (default: ``10``).
 :crlf: ``1`` to use CR+LF to terminate lines, or ``0`` to use the system
   default (default: ``0``).
-:handle-unsupported-macros: how to handle an unsupported macro: ``1`` to expand
+:handle-unsupported-macros: How to handle an unsupported macro: ``1`` to expand
   it to an empty string, or ``0`` to exit with an error (default: ``0``).
-:indent: the number of spaces by which to indent instructions (default: ``2``).
-:instruction-width: the width of the instruction field (default: ``23``).
+:indent: The number of spaces by which to indent instructions (default: ``2``).
+:instruction-width: The width of the instruction field (default: ``23``).
 :label-colons: ``1`` to append a colon to labels, or ``0`` to leave labels
   unadorned (default: ``1``).
-:line-width: the maximum width of each line (default: ``79``).
+:line-width: The maximum width of each line (default: ``79``).
 :tab: ``1`` to use a tab character to indent instructions, or ``0`` to use
   spaces (default: ``0``).
+:table-border-horizontal: The character to use for the external horizontal
+  borders of a table defined by a ``#TABLE`` macro (default: ``-``).
 :warnings: ``1`` to print any warnings that are produced while writing ASM
   output (after parsing the skool file), or ``0`` to suppress them (default:
   ``1``).
-:wrap-column-width-min: the minimum width of a wrappable table column (default:
+:wrap-column-width-min: The minimum width of a wrappable table column (default:
   ``10``).
 
 Property values may be set in ``skoolkit.ini`` by using the ``Set-property``
 configuration parameter (see ``CONFIGURATION``), or on the command line by
-using the ``--set`` option.
+using the ``--set`` option, or in the skool file by using the ``@set``
+directive.
 
 EXAMPLES
 ========
