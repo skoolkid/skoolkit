@@ -445,6 +445,7 @@ class TableWriter:
         self.border_h_ext = border_h[:1].strip()
         self.border_h_int = (border_h[1:2] or self.border_h_ext).strip()
         self.border_v = properties.get('table-border-vertical', '')[:1] or '|'
+        self.border_join = properties.get('table-border-join', '')[:1] or '+'
         self.table = None
         self.table_parser = TableParser()
         self.cell_matrix = None
@@ -541,7 +542,7 @@ class TableWriter:
             elif cell_contents and cell_left_contents:
                 line += self.border_v
             else:
-                line += '+'
+                line += self.border_join
             if cell_contents:
                 text = cell.contents.pop(0)
                 line += ' {} '.format(text.ljust(self.table.get_cell_width(col_index, cell_above.colspan)))
@@ -562,4 +563,4 @@ class TableWriter:
             return line + self.border_v
         if line.endswith(' '):
             return line.rstrip()
-        return line + '+'
+        return line + self.border_join

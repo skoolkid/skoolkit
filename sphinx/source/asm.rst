@@ -1127,6 +1127,8 @@ Recognised property names and their default values are:
   of a table defined by a :ref:`TABLE` macro (default: ``-``); if two
   characters are specified, the first is used for the external borders and the
   second is used for the internal borders
+* ``table-border-join`` - the character to use for the horizontal and vertical
+  border joins of a table defined by a :ref:`TABLE` macro (default: ``+``)
 * ``table-border-vertical`` - the character to use for the vertical borders of
   a table defined by a :ref:`TABLE` macro (default: ``|``)
 * ``warnings`` - ``1`` to print any warnings that are produced while writing
@@ -1144,8 +1146,8 @@ This ``@set`` directive sets the bullet character to '+'.
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
-| 8.0     | Added the ``table-border-horizontal`` and                         |
-|         | ``table-border-vertical`` properties                              |
+| 8.0     | Added the ``table-border-horizontal``, ``table-border-join``      |
+|         | and ``table-border-vertical`` properties                          |
 +---------+-------------------------------------------------------------------+
 | 3.4     | Added the ``handle-unsupported-macros`` and                       |
 |         | ``wrap-column-width-min`` properties                              |

@@ -147,6 +147,8 @@ Recognised ASM writer property names and their default values are:
   table defined by a ``#TABLE`` macro (default: ``-``). If two characters are
   specified, the first is used for the external borders and the second is used
   for the internal borders.
+:table-border-join: The character to use for the horizontal and vertical border
+  joins of a table defined by a ``#TABLE`` macro (default: ``+``).
 :table-border-vertical: The character to use for the vertical borders of a
   table defined by a ``#TABLE`` macro (default: ``|``).
 :warnings: ``1`` to print any warnings that are produced while writing ASM
