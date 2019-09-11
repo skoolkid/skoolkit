@@ -441,7 +441,9 @@ class TableWriter:
         self.asm_writer = asm_writer
         self.max_width = max_width
         self.min_col_width = min_col_width
-        self.border_h_ext = properties.get('table-border-horizontal', '-')[:1]
+        border_h = properties.get('table-border-horizontal', '-')
+        self.border_h_ext = border_h[:1].strip()
+        self.border_h_int = (border_h[1:2] or self.border_h_ext).strip()
         self.border_v = properties.get('table-border-vertical', '')[:1] or '|'
         self.table = None
         self.table_parser = TableParser()
@@ -549,7 +551,7 @@ class TableWriter:
                 elif row_index == 0 or last:
                     spacer = self.border_h_ext
                 else:
-                    spacer = '-'
+                    spacer = self.border_h_int
                 if not spacer:
                     return None
                 line += spacer * (2 + self.table.get_cell_width(col_index, cell.colspan))

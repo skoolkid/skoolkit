@@ -143,8 +143,10 @@ Recognised ASM writer property names and their default values are:
 :line-width: The maximum width of each line (default: ``79``).
 :tab: ``1`` to use a tab character to indent instructions, or ``0`` to use
   spaces (default: ``0``).
-:table-border-horizontal: The character to use for the external horizontal
-  borders of a table defined by a ``#TABLE`` macro (default: ``-``).
+:table-border-horizontal: The character to use for the horizontal borders of a
+  table defined by a ``#TABLE`` macro (default: ``-``). If two characters are
+  specified, the first is used for the external borders and the second is used
+  for the internal borders.
 :table-border-vertical: The character to use for the vertical borders of a
   table defined by a ``#TABLE`` macro (default: ``|``).
 :warnings: ``1`` to print any warnings that are produced while writing ASM

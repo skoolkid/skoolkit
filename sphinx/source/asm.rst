@@ -1123,9 +1123,10 @@ Recognised property names and their default values are:
 * ``line-width`` - the maximum width of each line (default: ``79``)
 * ``tab`` - ``1`` to use a tab character to indent instructions, or ``0`` to
   use spaces (default: ``0``)
-* ``table-border-horizontal`` - the character to use for the external
-  horizontal borders of a table defined by a :ref:`TABLE` macro (default:
-  ``-``)
+* ``table-border-horizontal`` - the character to use for the horizontal borders
+  of a table defined by a :ref:`TABLE` macro (default: ``-``); if two
+  characters are specified, the first is used for the external borders and the
+  second is used for the internal borders
 * ``table-border-vertical`` - the character to use for the vertical borders of
   a table defined by a :ref:`TABLE` macro (default: ``|``)
 * ``warnings`` - ``1`` to print any warnings that are produced while writing

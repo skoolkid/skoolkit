@@ -2824,7 +2824,7 @@ class TableMacroTest(SkoolKitTestCase):
         """
         self._test_skool(skool, exp_output)
 
-    def test_table_border_horizontal(self):
+    def test_table_border_horizontal_one_character(self):
         skool = """
             @start
             @set-table-border-horizontal=@
@@ -2838,9 +2838,30 @@ class TableMacroTest(SkoolKitTestCase):
             ;
             ; +@@@@@@@@+
             ; | Header |
-            ; +--------+
+            ; +@@@@@@@@+
             ; | Cell   |
             ; +@@@@@@@@+
+              RET
+        """
+        self._test_skool(skool, exp_output)
+
+    def test_table_border_horizontal_two_characters(self):
+        skool = """
+            @start
+            @set-table-border-horizontal=*=
+            ; Routine
+            ;
+            ; #TABLE { =h Header } { Cell } TABLE#
+            c32768 RET
+        """
+        exp_output = """
+            ; Routine
+            ;
+            ; +********+
+            ; | Header |
+            ; +========+
+            ; | Cell   |
+            ; +********+
               RET
         """
         self._test_skool(skool, exp_output)
@@ -2858,16 +2879,54 @@ class TableMacroTest(SkoolKitTestCase):
             ; Routine
             ;
             ; | Header |
-            ; +--------+
             ; | Cell   |
               RET
         """
         self._test_skool(skool, exp_output)
 
-    def test_table_border_horizontal_first_character_only(self):
+    def test_table_border_horizontal_first_character_space(self):
         skool = """
             @start
-            @set-table-border-horizontal=~ // External horiz. border
+            @set-table-border-horizontal= #
+            ; Routine
+            ;
+            ; #TABLE { =h Header } { Cell } TABLE#
+            c32768 RET
+        """
+        exp_output = """
+            ; Routine
+            ;
+            ; | Header |
+            ; +########+
+            ; | Cell   |
+              RET
+        """
+        self._test_skool(skool, exp_output)
+
+    def test_table_border_horizontal_second_character_space(self):
+        skool = """
+            @start
+            @set-table-border-horizontal=-  // No internal horizontal borders
+            ; Routine
+            ;
+            ; #TABLE { =h Header } { Cell } TABLE#
+            c32768 RET
+        """
+        exp_output = """
+            ; Routine
+            ;
+            ; +--------+
+            ; | Header |
+            ; | Cell   |
+            ; +--------+
+              RET
+        """
+        self._test_skool(skool, exp_output)
+
+    def test_table_border_horizontal_first_two_characters_only(self):
+        skool = """
+            @start
+            @set-table-border-horizontal=~. // Horizontal borders
             ; Routine
             ;
             ; #TABLE { =h Header } { Cell } TABLE#
@@ -2878,7 +2937,7 @@ class TableMacroTest(SkoolKitTestCase):
             ;
             ; +~~~~~~~~+
             ; | Header |
-            ; +--------+
+            ; +........+
             ; | Cell   |
             ; +~~~~~~~~+
               RET
