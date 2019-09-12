@@ -95,7 +95,8 @@ is the number base indicator for any numeric operand:
 
 If *sublengths* contains a single element whose ``size`` value is `None`, then
 the method should produce a list of statements with default sizes (as
-determined by `defb_size` and `defm_size`), using the default number base.
+determined by `defb_size`, `defm_size` and `defw_size`), using the default
+number base.
 
 .. _instructionUtility:
 

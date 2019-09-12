@@ -8,6 +8,9 @@ Changelog
   directives in HTML templates
 * Added support to the :ref:`set` directive for the `table-border-horizontal`,
   `table-border-join` and `table-border-vertical` properties
+* Added the ``DefwSize`` configuration parameter for
+  :ref:`sna2skool.py <sna2skool-conf>` (for setting the maximum number of words
+  in a DEFW statement)
 * Added support for the ``**`` pattern (which matches any files and zero or
   more directories and subdirectories) in the :ref:`resources` section
 * Added support for replacement fields (such as ``{base}`` and ``{case}``) in

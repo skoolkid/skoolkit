@@ -334,6 +334,7 @@ class Sna2SkoolTest(SkoolKitTestCase):
             CommentWidthMin=10
             DefbSize=8
             DefmSize=66
+            DefwSize=1
             EntryPointRef=This entry point is used by the routine at {ref}.
             EntryPointRefs=This entry point is used by the routines at {refs} and {ref}.
             InstructionWidth=13
@@ -371,6 +372,7 @@ class Sna2SkoolTest(SkoolKitTestCase):
             CommentWidthMin=10
             DefbSize=8
             DefmSize=66
+            DefwSize=1
             EntryPointRef=This entry point is used by the routine at {ref}.
             EntryPointRefs=This entry point is used by the routines at {refs} and {ref}.
             InstructionWidth=13

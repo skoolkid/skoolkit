@@ -31,6 +31,8 @@ class Disassembler:
                      statement
                    * `defm_size` - default maximum number of characters in a
                      DEFM statement
+                   * `defw_size` - default maximum number of words in a DEFW
+                     statement
     """
     def __init__(self, snapshot, config):
         self.snapshot = snapshot
@@ -38,7 +40,7 @@ class Disassembler:
         self.asm_lower = config.asm_lower
         self.defb_size = config.defb_size
         self.defm_size = config.defm_size
-        self.defw_size = 2
+        self.defw_size = config.defw_size
         self.byte_formats = {
             'b': '%{:08b}',
             'h': '${:02X}',
@@ -148,10 +150,12 @@ class Disassembler:
         if sublengths[0][0]:
             step = end - start
         else:
-            step = self.defw_size
+            step = self.defw_size * 2
             sublengths = ((step, sublengths[0][1]),)
         instructions = []
         for address in range(start, end, step):
+            if address + step > end:
+                sublengths = ((end - address, sublengths[0][1]),)
             data = self.snapshot[address:address + step]
             defw_dir = 'DEFW {}'.format(self._defw_items(data, sublengths))
             if self.asm_lower:

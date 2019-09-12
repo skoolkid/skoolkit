@@ -3,7 +3,7 @@ from collections import namedtuple
 from skoolkittest import SkoolKitTestCase
 from skoolkit.disassembler import Disassembler
 
-Config = namedtuple('Config', 'asm_hex asm_lower defb_size defm_size')
+Config = namedtuple('Config', 'asm_hex asm_lower defb_size defm_size defw_size')
 
 ASM = {
     '000000': ('NOP', 'NOP', 'NOP'),
@@ -1801,8 +1801,8 @@ ASM = {
 }
 
 class DisassemblerTest(SkoolKitTestCase):
-    def _get_disassembler(self, snapshot=(), defb_size=8, defm_size=66, asm_hex=False, asm_lower=False):
-        config = Config(asm_hex, asm_lower, defb_size, defm_size)
+    def _get_disassembler(self, snapshot=(), asm_hex=False, asm_lower=False):
+        config = Config(asm_hex, asm_lower, 8, 66, 1)
         return Disassembler(snapshot, config)
 
     def _get_snapshot(self, start, data):

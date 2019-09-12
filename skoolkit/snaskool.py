@@ -28,7 +28,7 @@ from skoolkit.skoolparser import (get_address, TABLE_MARKER, TABLE_END_MARKER,
 
 MIN_COMMENT_WIDTH = 10
 
-DisassemblerConfig = namedtuple('DisassemblerConfig', 'asm_hex asm_lower defb_size defm_size')
+DisassemblerConfig = namedtuple('DisassemblerConfig', 'asm_hex asm_lower defb_size defm_size defw_size')
 
 def calculate_references(entries):
     """
@@ -105,10 +105,16 @@ class Entry:
         return comment_type in self.ignoreua_directives
 
 class Disassembly:
-    def __init__(self, snapshot, ctl_parser, config=None, final=False, defb_size=8,
-                 defm_width=66, asm_hex=False, asm_lower=False):
+    def __init__(self, snapshot, ctl_parser, config=None, final=False, asm_hex=False, asm_lower=False):
         ctl_parser.apply_asm_data_directives(snapshot)
-        dconfig = DisassemblerConfig(asm_hex, asm_lower, defb_size, defm_width)
+        self.config = config or {}
+        dconfig = DisassemblerConfig(
+            asm_hex,
+            asm_lower,
+            self.config.get('DefbSize', 8),
+            self.config.get('DefmSize', 66),
+            self.config.get('DefwSize', 1)
+        )
         self.disassembler = get_component('Disassembler', snapshot, dconfig)
         self.ref_calc = get_component('SnapshotReferenceCalculator')
         self.ctl_parser = ctl_parser
@@ -120,7 +126,6 @@ class Disassembly:
         else:
             self.address_fmt = '{0}'
         self.entry_map = {}
-        self.config = config or {}
         self.build(final)
 
     def build(self, final=False):
@@ -232,8 +237,7 @@ class SkoolWriter:
     def __init__(self, snapshot, ctl_parser, options, config):
         self.comment_width = max(options.line_width - 2, MIN_COMMENT_WIDTH)
         self.asm_hex = options.base == 16
-        self.disassembly = Disassembly(snapshot, ctl_parser, config, True, config['DefbSize'],
-                                       config['DefmSize'], self.asm_hex, options.case == 1)
+        self.disassembly = Disassembly(snapshot, ctl_parser, config, True, self.asm_hex, options.case == 1)
         self.address_fmt = get_address_format(self.asm_hex, options.case == 1)
         self.config = config
 

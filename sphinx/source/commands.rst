@@ -824,9 +824,10 @@ configuration parameters are:
   the default)
 * ``CommentWidthMin`` - minimum width of the instruction comment field in the
   skool file (default: ``10``)
-* ``DefbSize`` - maximum number of bytes per DEFB statement (default: ``8``)
+* ``DefbSize`` - maximum number of bytes in a DEFB statement (default: ``8``)
 * ``DefmSize`` - maximum number of characters in a DEFM statement (default:
   ``66``)
+* ``DefwSize`` - maximum number of words in a DEFW statement (default: ``1``)
 * ``EntryPointRef`` - template used to format the comment for an entry point
   with exactly one referrer (default: ``This entry point is used by the routine
   at {ref}.``)
@@ -881,6 +882,8 @@ Configuration parameters may also be set on the command line by using the
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 8.0     | Added the ``DefwSize`` configuration parameter                    |
++---------+-------------------------------------------------------------------+
 | 7.1     | Added support for reading multiple default control files, and for |
 |         | using the ``--ctl`` option multiple times; added the              |
 |         | ``CommentWidthMin``, ``InstructionWidth`` and ``Semicolons``      |

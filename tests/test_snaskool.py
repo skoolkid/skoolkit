@@ -434,7 +434,7 @@ class DisassemblyTest(SkoolKitTestCase):
 
     def test_empty_disassembly(self):
         ctl_parser = CtlParser({0: 'i'})
-        disassembly = Disassembly([], ctl_parser, True)
+        disassembly = Disassembly([], ctl_parser, CONFIG, True)
         self.assertEqual(len(disassembly.entries), 0)
         self.assertIsNone(disassembly.org)
 
@@ -2694,6 +2694,19 @@ class SkoolWriterTest(SkoolKitTestCase):
         """
         self._test_write_skool(snapshot, ctl, exp_skool, params={'DefbSize': 3})
 
+    def test_defw_size(self):
+        snapshot = [0] * 6
+        ctl = """
+            w 00000
+            i 00006
+        """
+        exp_skool = """
+            ; Data block at 0
+            w00000 DEFW 0,0
+             00004 DEFW 0
+        """
+        self._test_write_skool(snapshot, ctl, exp_skool, params={'DefwSize': 2})
+
     def test_instruction_width_very_small(self):
         snapshot = [175, 201]
         ctl = """
@@ -3435,7 +3448,7 @@ class SkoolWriterTest(SkoolKitTestCase):
         self._test_write_skool(snapshot, ctl, exp_skool)
 
     def test_newlines_in_entry_titles(self):
-        snapshot = [0] * 13
+        snapshot = [0] * 14
         ctl = """
             b 00000 The title of this entry
             . spans two lines
@@ -3457,17 +3470,17 @@ class SkoolWriterTest(SkoolKitTestCase):
             w 00007 Yet another entry title on one line that is long enough to be wrapped over two lines normally
             .
             ; Test a blank title with a blank continuation line
-            b 00008
+            b 00009
             .
-            c 00009
+            c 00010
             . Line 1 here
-            g 00010
+            g 00011
             . Trailing blank line
             .
-            i 00011
+            i 00012
             .
             . Leading blank line
-            s 00012
+            s 00013
             . Title
             .
             . Description paragraph 1.
@@ -3479,7 +3492,7 @@ class SkoolWriterTest(SkoolKitTestCase):
             . Start comment paragraph 1.
             . .
             . Start comment paragraph 2.
-            i 00013
+            i 00014
         """
         exp_skool = """
             ; The title of this entry
@@ -3513,17 +3526,17 @@ class SkoolWriterTest(SkoolKitTestCase):
             ; Yet another entry title on one line that is long enough to be wrapped over two lines normally
             w00007 DEFW 0
 
-            ; Data block at 8
-            b00008 DEFB 0
+            ; Data block at 9
+            b00009 DEFB 0
 
             ; Line 1 here
-            c00009 NOP           ;
+            c00010 NOP           ;
 
             ; Trailing blank line
-            g00010 DEFB 0
+            g00011 DEFB 0
 
             ; Leading blank line
-            i00011
+            i00012
 
             ; Title
             ;
@@ -3536,7 +3549,7 @@ class SkoolWriterTest(SkoolKitTestCase):
             ; Start comment paragraph 1.
             ; .
             ; Start comment paragraph 2.
-            s00012 DEFS 1
+            s00013 DEFS 1
         """
         self._test_write_skool(snapshot, ctl, exp_skool)
 
