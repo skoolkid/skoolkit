@@ -4064,7 +4064,7 @@ class SkoolWriterTest(SkoolKitTestCase):
     def test_custom_snapshot_reference_calculator(self):
         custom_ref_calc = """
             def calculate_references(entries):
-                return {1: [0]}
+                return {1: [entries[0]]}
         """
         self.write_component_config('SnapshotReferenceCalculator', '*', custom_ref_calc)
         snapshot = [201, 201]

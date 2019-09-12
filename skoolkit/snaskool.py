@@ -32,24 +32,23 @@ DisassemblerConfig = namedtuple('DisassemblerConfig', 'asm_hex asm_lower defb_si
 
 def calculate_references(entries):
     """
-    For each entry point in each routine, calculate a list of addresses of the
-    entries containing instructions that jump to or call that entry point.
+    For each entry point in each routine, calculate a list of the entries
+    containing instructions that jump to or call that entry point.
 
     :param entries: A collection of memory map entries.
     :return: A dictionary of entry point addresses.
     """
-    containers = {i.address: e.instructions[0].address for e in entries for i in e.instructions if i.label != ''}
+    containers = {i.address: e for e in entries for i in e.instructions if i.label != ''}
     referrers = defaultdict(list)
     for entry in entries:
-        entry_addr = entry.instructions[0].address
         for instruction in entry.instructions:
             operation = instruction.operation
             if operation.upper().startswith(('DJ', 'JR', 'JP', 'CA', 'RS')):
                 addr_str = get_address(operation)
                 if addr_str:
                     ref_addr = parse_int(addr_str)
-                    if ref_addr in containers and (entry.ctl != 'u' or entry_addr == containers[ref_addr]):
-                        referrers[ref_addr].append(entry_addr)
+                    if ref_addr in containers and (entry.ctl != 'u' or entry is containers[ref_addr]):
+                        referrers[ref_addr].append(entry)
     return referrers
 
 class Instruction:
@@ -227,8 +226,8 @@ class Disassembly:
         referrers = self.ref_calc.calculate_references(self.entries)
         for entry in self.entries:
             for instruction in entry.instructions:
-                for entry_address in referrers.get(instruction.address, ()):
-                    instruction.add_referrer(entry_address)
+                for entry in referrers.get(instruction.address, ()):
+                    instruction.add_referrer(entry.address)
 
     def _address_str(self, address):
         return self.address_fmt.format(address)

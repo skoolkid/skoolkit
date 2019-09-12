@@ -181,9 +181,9 @@ Snapshot reference calculator
 -----------------------------
 This object is responsible for generating a dictionary of entry point addresses
 from a snapshot. Each key in the dictionary is an entry point address, and the
-associated value is a collection of addresses of routines that jump to or call
-that entry point. This dictionary is needed for listing entry point referrers
-in a skool file (when the ``ListRefs`` configuration parameter of
+associated value is a collection of entries that jump to or call that entry
+point. This dictionary is needed for listing entry point referrers in a skool
+file (when the ``ListRefs`` configuration parameter of
 :ref:`sna2skool.py <sna2skool-conf>` is 1 or 2).
 
 The snapshot reference calculator must supply the following API function, in
