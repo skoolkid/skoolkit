@@ -4,6 +4,7 @@ Changelog
 8.0b1
 -----
 * Dropped support for Python 3.4
+* Made several :ref:`components` pluggable
 * Added support for the :ref:`td_foreach`, :ref:`td_if` and :ref:`td_include`
   directives in HTML templates
 * Added support to the :ref:`set` directive for the `table-border-horizontal`,

@@ -406,10 +406,10 @@ def generate_ctls(snapshot, start, end, code_map, config):
     """Generate control directives from a snapshot.
 
     :param snapshot: The snapshot.
-    :param start: Start address. No control directives are generated before
-                  this address.
-    :param end: End address. No control directives are generated after this
-                address.
+    :param start: Start address. No control directives should be generated
+                  before this address.
+    :param end: End address. No control directives should be generated after
+                this address.
     :param code_map: Code map filename (may be `None`).
     :param config: Configuration object with the following attributes:
 
@@ -422,7 +422,7 @@ def generate_ctls(snapshot, start, end, code_map, config):
                      characters eligible for being marked as text in a block
                      identified as data
                    * `words` - collection of allowed words; if not empty, a
-                     string of characters will be marked as text only if it
+                     string of characters should be marked as text only if it
                      contains at least one of the words in this collection
 
     :return: A dictionary of control directives.

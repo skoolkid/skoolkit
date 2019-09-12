@@ -73,15 +73,19 @@ API methods, in common with skoolkit.disassembler.Disassembler:
 .. autoclass:: skoolkit.disassembler.Disassembler
    :members: disassemble, defb_range, defm_range, defs_range, defw_range
 
+The 3-element tuples returned by these methods should have the form
+``(address, operation, bytes)``, where:
+
+* ``address`` is the address of the instruction
+* ``operation`` is the operation (e.g. 'XOR A', 'DEFB 1')
+* ``bytes`` is a sequence of byte values for the instruction (e.g. ``(62, 0)``
+  for 'LD A,0')
+
 The *sublengths* argument of the :meth:`defb_range`, :meth:`defm_range`,
 :meth:`defs_range` and :meth:`defw_range` methods is a sequence of 2-element
-tuples, each of which specifies the desired size and number base for a
-DEFB/DEFM/DEFS/DEFW statement in the given address range::
-
-  (size, base)
-
-``size`` is the number of bytes in the DEFB/DEFM/DEFS/DEFW statement. ``base``
-is the number base indicator for any numeric operand:
+tuples of the form ``(size, base)``, each of which specifies the desired size
+(in bytes) and number base for an item in the DEFB/DEFM/DEFS/DEFW statement.
+``base`` may have one of the following values:
 
 * `None` - default base
 * 'B' - byte (in a DEFB/DEFM statement)
@@ -93,10 +97,10 @@ is the number base indicator for any numeric operand:
 * 'm' - negative
 * 'n' - default base
 
-If *sublengths* contains a single element whose ``size`` value is `None`, then
+If the first element of *sublengths* has a ``size`` value of `None`, then
 the method should produce a list of statements with default sizes (as
-determined by `defb_size`, `defm_size` and `defw_size`), using the default
-number base.
+determined by `defb_size`, `defm_size` and `defw_size`), using the specified
+base.
 
 .. _instructionUtility:
 
@@ -178,8 +182,12 @@ Snapshot reference calculator
 This object is responsible for generating a dictionary of entry point addresses
 from a snapshot. Each key in the dictionary is an entry point address, and the
 associated value is a collection of addresses of routines that jump to or call
-that entry point. The snapshot reference calculator must supply the following
-API function, in common with skoolkit.snaskool:
+that entry point. This dictionary is needed for listing entry point referrers
+in a skool file (when the ``ListRefs`` configuration parameter of
+:ref:`sna2skool.py <sna2skool-conf>` is 1 or 2).
+
+The snapshot reference calculator must supply the following API function, in
+common with skoolkit.snaskool:
 
 .. automodule:: skoolkit.snaskool
    :members: calculate_references
