@@ -87,9 +87,6 @@ tuples of the form ``(size, base)``, each of which specifies the desired size
 (in bytes) and number base for an item in the DEFB/DEFM/DEFS/DEFW statement.
 ``base`` may have one of the following values:
 
-* `None` - default base
-* 'B' - byte (in a DEFB/DEFM statement)
-* 'T' - character (in a DEFB/DEFM statement)
 * 'b' - binary
 * 'c' - character
 * 'd' - decimal

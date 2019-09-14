@@ -824,7 +824,7 @@ class DisassemblyTest(SkoolKitTestCase):
               00000,b14,6,m2,h2,4
               00014,,h12,d2
               00028,d
-              00032,bd4
+              00032,b4
               00036,h4
               00040,d4
               00044,n4
@@ -890,10 +890,10 @@ class DisassemblyTest(SkoolKitTestCase):
               00027,h6
               00033,b7
               00040,d12
-              00052,bn
-              00060,nb
-              00068,dn8
-              00076,nb4
+              00052,b
+              00060,n
+              00068,d8
+              00076,n4
             i 00080
         """
         exp_instructions = [
@@ -1008,12 +1008,12 @@ class DisassemblyTest(SkoolKitTestCase):
               00049,d8
               00057,b7
               00064,n8
-              00072,dn
-              00084,nb
-              00096,dn9
-              00105,nd9
-              00114,bh
-              00120,dh
+              00072,d
+              00084,n
+              00096,d9
+              00105,n9
+              00114,b
+              00120,d
             i 00126
         """
         exp_instructions = [
@@ -1081,7 +1081,7 @@ class DisassemblyTest(SkoolKitTestCase):
               00010,b2
               00012,h2
               00014,n2
-              00016,,dn2,nd2
+              00016,,d2,n2
             i 00020
         """
         exp_instructions = [
@@ -1118,8 +1118,8 @@ class DisassemblyTest(SkoolKitTestCase):
               00002,h
               00003,d
               00004,4,b1,n1,h1,d1
-              00008,dn1
-              00009,nd1
+              00008,d1
+              00009,n1
             i 00010
         """
         exp_instructions = [

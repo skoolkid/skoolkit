@@ -359,54 +359,54 @@ class CtlParserTest(SkoolKitTestCase):
         self._check_end_comments(exp_end_comments, blocks)
 
         exp_sublengths = {
-            30000: ((None, None),),
-            30002: ((None, None),),
-            30012: ((None, None),),
-            30020: ((None, None),),
-            30027: ((None, None),),
-            30050: ((3, None), (2, 'T')),
-            30055: ((None, None),),
-            30100: ((None, None),),
-            30200: ((1, None),),
-            30210: ((None, None),),
-            30300: ((None, None),),
-            30400: ((None, None),),
-            30450: ((4, None), (3, 'B')),
-            30457: ((None, None),),
-            30500: ((None, None),),
-            30502: ((None, None),),
-            30505: ((None, None),),
-            30510: ((3, None),),
-            30522: ((None, None),),
-            30530: ((2, None),),
-            30532: ((2, None),),
-            30534: ((2, None),),
-            30536: ((2, None),),
-            30538: ((2, None),),
-            30540: ((2, None),),
-            30542: ((2, None),),
-            30544: ((1, None),),
-            30545: ((1, None),),
-            30546: ((1, None),),
-            30547: ((3, None),),
-            30550: ((None, None),),
-            30560: ((6, None),),
-            30566: ((5, None),),
-            30571: ((4, None),),
-            30575: ((3, None),),
-            30578: ((2, None),),
-            30580: ((1, None),),
-            30581: ((None, None),),
-            30600: ((None, None),),
-            30620: ((None, None),),
-            30627: ((None, None),),
-            30700: ((None, None),),
-            30720: ((1, None),),
-            30721: ((3, 'T'), (2, None)),
-            30726: ((1, None), (1, 'T')),
-            30728: ((1, None), (1, 'T')),
-            30730: ((10, None), (5, 'B')),
-            30745: ((None, None),)
+            30000: ((None, 'n'),),
+            30002: ((None, 'c'),),
+            30012: ((None, 'n'),),
+            30020: ((None, 'n'),),
+            30027: ((None, 'n'),),
+            30050: ((3, 'n'), (2, 'c')),
+            30055: ((None, 'n'),),
+            30100: ((None, 'n'),),
+            30200: ((1, 'n'),),
+            30210: ((None, 'n'),),
+            30300: ((None, 'n'),),
+            30400: ((None, 'n'),),
+            30450: ((4, 'c'), (3, 'n')),
+            30457: ((None, 'n'),),
+            30500: ((None, 'n'),),
+            30502: ((None, 'n'),),
+            30505: ((None, 'n'),),
+            30510: ((3, 'n'),),
+            30522: ((None, 'n'),),
+            30530: ((2, 'n'),),
+            30532: ((2, 'n'),),
+            30534: ((2, 'n'),),
+            30536: ((2, 'n'),),
+            30538: ((2, 'n'),),
+            30540: ((2, 'n'),),
+            30542: ((2, 'n'),),
+            30544: ((1, 'n'),),
+            30545: ((1, 'n'),),
+            30546: ((1, 'n'),),
+            30547: ((3, 'n'),),
+            30550: ((None,'n'),),
+            30560: ((6, 'n'),),
+            30566: ((5, 'n'),),
+            30571: ((4, 'n'),),
+            30575: ((3, 'n'),),
+            30578: ((2, 'n'),),
+            30580: ((1, 'n'),),
+            30581: ((None, 'n'),),
+            30600: ((None, 'n'),),
+            30620: ((None, 'n'),),
+            30627: ((None, 'n'),),
+            30700: ((None, 'n'),),
+            30720: ((1, 'n'),),
+            30721: ((3, 'c'), (2, 'n')),
+            30726: ((1, 'n'), (1, 'c')),
+            30728: ((1, 'n'), (1, 'c')),
+            30730: ((10, 'c'), (5, 'n')),
+            30745: ((None, 'n'),)
         }
         self._check_sublengths(exp_sublengths, blocks)
 
@@ -581,13 +581,13 @@ class CtlParserTest(SkoolKitTestCase):
         self._check_end_comments(exp_end_comments, blocks)
 
         exp_sublengths = {
-            30700: ((None, None),),
-            30720: ((1, None),),
-            30721: ((3, 'T'), (2, None)),
-            30726: ((1, None), (1, 'T')),
-            30728: ((1, None), (1, 'T')),
-            30730: ((10, None), (5, 'B')),
-            30745: ((None, None),)
+            30700: ((None, 'n'),),
+            30720: ((1, 'n'),),
+            30721: ((3, 'c'), (2, 'n')),
+            30726: ((1, 'n'), (1, 'c')),
+            30728: ((1, 'n'), (1, 'c')),
+            30730: ((10, 'c'), (5, 'n')),
+            30745: ((None, 'n'),)
         }
         self._check_sublengths(exp_sublengths, blocks)
 
@@ -682,14 +682,14 @@ class CtlParserTest(SkoolKitTestCase):
         self._check_end_comments(exp_end_comments, blocks)
 
         exp_sublengths = {
-            30000: ((None, None),),
-            30002: ((None, None),),
-            30012: ((None, None),),
-            30020: ((None, None),),
-            30027: ((None, None),),
-            30050: ((3, None), (2, 'T')),
-            30055: ((None, None),),
-            30100: ((None, None),)
+            30000: ((None, 'n'),),
+            30002: ((None, 'c'),),
+            30012: ((None, 'n'),),
+            30020: ((None, 'n'),),
+            30027: ((None, 'n'),),
+            30050: ((3, 'n'), (2, 'c')),
+            30055: ((None, 'n'),),
+            30100: ((None, 'n'),)
         }
         self._check_sublengths(exp_sublengths, blocks)
 
@@ -776,9 +776,9 @@ class CtlParserTest(SkoolKitTestCase):
         self._check_end_comments(exp_end_comments, blocks)
 
         exp_sublengths = {
-            30100: ((None, None),),
-            30200: ((1, None),),
-            30210: ((None, None),)
+            30100: ((None, 'n'),),
+            30200: ((1, 'n'),),
+            30210: ((None, 'n'),)
         }
         self._check_sublengths(exp_sublengths, blocks)
 
@@ -872,7 +872,7 @@ class CtlParserTest(SkoolKitTestCase):
         exp_sublengths = {
             50000: ((None, 'b'),),
             50002: ((None, 'h'),),
-            50004: ((None, None),),
+            50004: ((None, 'n'),),
             50006: ((None, 'hb'),),
             50010: ((2, 'd'),),
             50012: ((4, 'nb'),),
@@ -882,7 +882,7 @@ class CtlParserTest(SkoolKitTestCase):
             50028: ((2, 'n'),),
             50030: ((2, 'b'),),
             50032: ((2, 'h'),),
-            50034: ((None, None),)
+            50034: ((None, 'n'),)
         }
         self._check_sublengths(exp_sublengths, ctl_parser.get_blocks())
 
@@ -911,18 +911,18 @@ class CtlParserTest(SkoolKitTestCase):
             40018: ((2, 'h'),),
             40020: ((2, 'b'), (3, 'd'), (5, 'h')),
             40030: ((6, 'b'),),
-            40036: ((3, None),),
+            40036: ((3, 'n'),),
             40039: ((1, 'h'),),
-            40040: ((5, 'b'), (2, None), (3, 'h')),
-            40050: ((1, None),),
-            40051: ((9, 'T'),),
-            40060: ((4, 'h'), (6, 'T')),
-            40070: ((3, None),),
+            40040: ((5, 'b'), (2, 'n'), (3, 'h')),
+            40050: ((1, 'n'),),
+            40051: ((9, 'c'),),
+            40060: ((4, 'h'), (6, 'c')),
+            40070: ((3, 'c'),),
             40073: ((7, 'b'),),
-            40080: ((2, None), (8, 'h')),
-            40090: ((5, None),),
-            40095: ((5, 'B'),),
-            40100: ((None, None),)
+            40080: ((2, 'c'), (8, 'h')),
+            40090: ((5, 'c'),),
+            40095: ((5, 'n'),),
+            40100: ((None, 'n'),)
         }
         self._check_sublengths(exp_sublengths, ctl_parser.get_blocks())
 
@@ -939,17 +939,17 @@ class CtlParserTest(SkoolKitTestCase):
         ctl_parser = self._get_ctl_parser(ctl)
 
         exp_sublengths = {
-            40000: ((None, None),),
+            40000: ((None, 'n'),),
             40010: ((None, 'b'),),
             40020: ((6, 'b'),),
             40026: ((2, 'd'),),
             40028: ((2, 'h'),),
             40030: ((4, 'b'), (4, 'd'), (2, 'h')),
             40040: ((2, 'b'),),
-            40042: ((4, None),),
+            40042: ((4, 'n'),),
             40046: ((4, 'h'),),
-            40050: ((2, 'b'), (6, None), (2, 'h')),
-            40060: ((None, None),)
+            40050: ((2, 'b'), (6, 'n'), (2, 'h')),
+            40060: ((None, 'n'),)
         }
         self._check_sublengths(exp_sublengths, ctl_parser.get_blocks())
 
@@ -968,7 +968,7 @@ class CtlParserTest(SkoolKitTestCase):
         ctl_parser = self._get_ctl_parser(ctl)
 
         exp_sublengths = {
-            50000: ((None, None),),
+            50000: ((None, 'n'),),
             50010: ((None, 'b'),),
             50020: ((None, 'd'),),
             50030: ((None, 'h'),),
@@ -983,8 +983,8 @@ class CtlParserTest(SkoolKitTestCase):
             50090: ((5, 'h'),),
             50100: ((5, 'b'),),
             50105: ((5, 'd'),),
-            50110: ((5, None),),
-            50120: ((None, None),)
+            50110: ((5, 'n'),),
+            50120: ((None, 'n'),)
         }
         self._check_sublengths(exp_sublengths, ctl_parser.get_blocks())
 
@@ -1002,19 +1002,19 @@ class CtlParserTest(SkoolKitTestCase):
 
         exp_sublengths = {
             50120: ((20, 'd'), (136, 'b')),
-            50140: ((20, None), (68, 'h')),
-            50160: ((10, None), (10, 'h')),
-            50170: ((2, 'h'), (2, None)),
-            50172: ((2, None), (44, 'c')),
-            50174: ((2, None), (59, 'c')),
-            50176: ((4, None), (33, 'c')),
-            50180: ((5, None), (42, 'c')),
-            50185: ((5, None), (42, 'c')),
-            50190: ((58, None), (58, 'c')),
-            50248: ((2, None), (32, 'c')),
-            50250: ((4, None), (34, 'c')),
-            50254: ((6, None), (92, 'c')),
-            50260: ((None, None),)
+            50140: ((20, 'n'), (68, 'h')),
+            50160: ((10, 'n'), (10, 'h')),
+            50170: ((2, 'h'), (2, 'n')),
+            50172: ((2, 'n'), (44, 'c')),
+            50174: ((2, 'n'), (59, 'c')),
+            50176: ((4, 'n'), (33, 'c')),
+            50180: ((5, 'n'), (42, 'c')),
+            50185: ((5, 'n'), (42, 'c')),
+            50190: ((58, 'n'), (58, 'c')),
+            50248: ((2, 'n'), (32, 'c')),
+            50250: ((4, 'n'), (34, 'c')),
+            50254: ((6, 'n'), (92, 'c')),
+            50260: ((None, 'n'),)
         }
         self._check_sublengths(exp_sublengths, ctl_parser.get_blocks())
 
@@ -1031,14 +1031,14 @@ class CtlParserTest(SkoolKitTestCase):
         ctl_parser = self._get_ctl_parser(ctl)
 
         exp_sublengths = {
-            60000: ((20, None), (None, 'c')),
+            60000: ((20, 'n'), (None, 'c')),
             60020: ((40, 'c'), (None, 'b')),
             60060: ((10, 'h'), (None, 'd')),
-            60070: ((10, None), (None, 'h')),
+            60070: ((10, 'n'), (None, 'h')),
             60080: ((10, 'b'), (None, 'n')),
-            60090: ((5, None), (None, 'c')),
-            60095: ((5, None), (None, 'c')),
-            60100: ((None, None),)
+            60090: ((5, 'n'), (None, 'c')),
+            60095: ((5, 'n'), (None, 'c')),
+            60100: ((None, 'n'),)
         }
         self._check_sublengths(exp_sublengths, ctl_parser.get_blocks())
 
@@ -1625,13 +1625,13 @@ class CtlParserTest(SkoolKitTestCase):
         exp_sublengths = {}
         for a in range(start, end, length):
             for offset, subctl, sublengths in (
-                (0, 'c', ((None, None),)),
-                (5, 'b', ((1, None),)),
-                (6, 'b', ((2, None),)),
-                (10, 's', ((None, None),)),
-                (16, 'w', ((4, None),)),
-                (20, 't', ((4, None), (1, 'B')),),
-                (25, 'c', ((None, None),))
+                (0, 'c', ((None, 'n'),)),
+                (5, 'b', ((1, 'n'),)),
+                (6, 'b', ((2, 'n'),)),
+                (10, 's', ((None, 'n'),)),
+                (16, 'w', ((4, 'n'),)),
+                (20, 't', ((4, 'c'), (1, 'n')),),
+                (25, 'c', ((None, 'n'),))
             ):
                 address = a + offset
                 exp_subctls[address] = subctl
@@ -1696,13 +1696,13 @@ class CtlParserTest(SkoolKitTestCase):
         for a in range(start, end, length):
             sub_blocks = blocks[i].blocks
             for offset, subctl, sublengths in (
-                (0, 'c', ((None, None),)),
-                (5, 'b', ((1, None),)),
-                (6, 'b', ((2, None),)),
-                (10, 's', ((None, None),)),
-                (16, 'w', ((4, None),)),
-                (20, 't', ((4, None), (1, 'B')),),
-                (25, 'c', ((None, None),))
+                (0, 'c', ((None, 'n'),)),
+                (5, 'b', ((1, 'n'),)),
+                (6, 'b', ((2, 'n'),)),
+                (10, 's', ((None, 'n'),)),
+                (16, 'w', ((4, 'n'),)),
+                (20, 't', ((4, 'c'), (1, 'n')),),
+                (25, 'c', ((None, 'n'),))
             ):
                 address = a + offset
                 exp_subctls[address] = subctl
@@ -1839,12 +1839,12 @@ class CtlParserTest(SkoolKitTestCase):
         self._check_multiline_comments(exp_multiline_comments, blocks)
 
         exp_sublengths = {
-            30000: ((None, None),),
-            30005: ((4, None), (1, 'B')),
-            30010: ((None, None),),
-            30020: ((None, None),),
-            30025: ((4, None), (1, 'B')),
-            30030: ((None, None),)
+            30000: ((None,'n'),),
+            30005: ((4, 'c'), (1, 'n')),
+            30010: ((None, 'n'),),
+            30020: ((None, 'n'),),
+            30025: ((4, 'c'), (1, 'n')),
+            30030: ((None, 'n'),)
         }
         self._check_sublengths(exp_sublengths, blocks)
 

@@ -154,7 +154,7 @@ class Disassembly:
                     title = [format_template(self.config.get(name, ''), name, address=self._address_str(block.start))]
             for sub_block in block.blocks:
                 address = sub_block.start
-                if sub_block.ctl in 'cBT':
+                if sub_block.ctl == 'c':
                     base = sub_block.sublengths[0][1]
                     instructions = self.disassembler.disassemble(sub_block.start, sub_block.end, base)
                 elif sub_block.ctl in 'bgstuw':

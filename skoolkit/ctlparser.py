@@ -27,26 +27,29 @@ COMMENT_TYPES = (TITLE, DESCRIPTION, REGISTERS, MID_BLOCK, INSTRUCTION, END)
 
 ENTRY_COMMENT_TYPES = (TITLE, DESCRIPTION, REGISTERS, END)
 
-BASES = ('b', 'c', 'd', 'h', 'm', 'n')
+DEFAULT_BASE = 'n'
+
+BASES = ('b', 'c', 'd', 'h', 'm', DEFAULT_BASE)
+
+BASE_MAP = defaultdict(lambda: DEFAULT_BASE, {'T': 'c'})
 
 class CtlParserError(Exception):
     pass
 
-def parse_params(ctl, params, lengths_index=1):
+def parse_params(ctl, params):
     int_params = []
-    prefix = None
     for i, param in enumerate(params):
-        if i < lengths_index:
-            length, prefix = _parse_length(param, required=False)
+        if i == 0:
+            length, base = _parse_length(param, ctl, BASE_MAP[ctl], False)
             int_params.append(length)
         else:
             n, sep, m = partition_unquoted(param, '*', '1')
-            int_params += (_parse_sublengths(n, ctl, prefix),) * get_int_param(m)
-    if prefix and len(int_params) == lengths_index:
-        int_params.append((None, ((None, prefix),)))
+            int_params += (_parse_sublengths(n, ctl, base),) * get_int_param(m)
+    if len(int_params) == 1:
+        int_params.append((None, ((None, base),)))
     return tuple(int_params)
 
-def _parse_sublengths(spec, subctl, default_prefix):
+def _parse_sublengths(spec, subctl, default_base):
     length = 0
     lengths = []
     if subctl == 'C':
@@ -55,30 +58,28 @@ def _parse_sublengths(spec, subctl, default_prefix):
         sublengths = split_unquoted(spec, ':')
     required = True
     for num in sublengths:
-        sublength, prefix = _parse_length(num, subctl, default_prefix, required)
-        lengths.append((sublength, prefix))
+        sublength, base = _parse_length(num, subctl, default_base, required)
+        lengths.append((sublength, base))
         if required or sublength is not None:
             length += sublength
         required = subctl != 'S'
-    if len(lengths) == 1 and prefix is None:
-        return (length, ((length, None),))
     if subctl == 'S':
         length = lengths[0][0]
     return (length, tuple(lengths))
 
-def _parse_length(length, subctl=None, default_prefix=None, required=True):
+def _parse_length(length, subctl, default_base, required):
     if length.startswith(BASES):
-        prefix = length[0]
+        base = length[0]
         if length[1:].startswith(BASES):
-            prefix += length[1]
-        if required or len(length) > len(prefix):
-            return (get_int_param(length[len(prefix):]), prefix)
-        return (None, prefix)
+            base += length[1]
+        if required or len(length) > len(base):
+            return (get_int_param(length[len(base):]), base)
+        return (None, base)
     if subctl in ('B', 'T') and length.startswith(('B', 'T')):
-        return (get_int_param(length[1:]), length[0])
+        return (get_int_param(length[1:]), BASE_MAP[length[0]])
     if required or length:
-        return (get_int_param(length), default_prefix)
-    return (None, default_prefix)
+        return (get_int_param(length), default_base)
+    return (None, default_base)
 
 class CtlParser:
     def __init__(self, ctls=None):
@@ -232,7 +233,7 @@ class CtlParser:
                 if ctl == 'L':
                     if end is None:
                         raise CtlParserError("loop length not specified")
-                    if not lengths:
+                    if not lengths[0][0]:
                         raise CtlParserError("loop count not specified")
                 if len(fields) > 1:
                     text = fields[1]
@@ -329,7 +330,7 @@ class CtlParser:
         for sub_address in sorted(self._subctls):
             for block in blocks:
                 if block.start <= sub_address < block.end:
-                    block.add_block(self._subctls[sub_address], sub_address)
+                    block.add_block(self._subctls[sub_address] or block.ctl, sub_address)
                     break
 
         # Set sub-block end addresses
@@ -343,7 +344,7 @@ class CtlParser:
         for block in blocks:
             for sub_block in block.blocks:
                 sub_address = sub_block.start
-                sub_block.sublengths = self._lengths.get(sub_address, ((None, None),))
+                sub_block.sublengths = self._lengths.get(sub_address, ((None, DEFAULT_BASE),))
                 sub_block.header = self._reduce(self._mid_block_comments, sub_address)
                 sub_block.comment = self._instruction_comments.get(sub_address) or ()
                 sub_block.multiline_comment = self._multiline_comments.get(sub_address)
@@ -369,11 +370,10 @@ class Block:
             self.blocks = [Block(ctl, start, False)]
 
     def add_block(self, ctl, start):
-        real_ctl = ctl or self.ctl
         if start == self.start:
-            self.blocks[0].ctl = real_ctl
+            self.blocks[0].ctl = ctl
         else:
-            self.blocks.append(Block(real_ctl, start, False))
+            self.blocks.append(Block(ctl, start, False))
 
     def has_ignoreua_directive(self, address, comment_type):
         return comment_type in self.ignoreua_directives.get(address, ())

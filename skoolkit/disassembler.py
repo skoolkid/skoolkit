@@ -17,6 +17,7 @@
 from collections import namedtuple
 
 from skoolkit import is_char
+from skoolkit.ctlparser import DEFAULT_BASE
 from skoolkit.z80 import convert_case
 
 class Disassembler:
@@ -52,9 +53,7 @@ class Disassembler:
             'd': '{}'
         }
 
-    def num_str(self, value, num_bytes=1, base=None):
-        if base:
-            base = base[0]
+    def num_str(self, value, num_bytes=1, base=DEFAULT_BASE):
         if base == 'c' and is_char(value & 127):
             if value & 128:
                 suffix = '+' + self.num_str(128)
@@ -84,8 +83,8 @@ class Disassembler:
 
         :param start: The start address.
         :param end: The end address.
-        :param base: Base indicator (`None`, 'b', 'c', 'd', 'h', 'm' or 'n').
-                     For instructions with two numeric operands (e.g.
+        :param base: Base indicator ('b', 'c', 'd', 'h', 'm' or 'n'). For
+                     instructions with two numeric operands (e.g.
                      'LD (IX+d),n'), the indicator may consist of two letters,
                      one for each operand (e.g. 'dh').
         :return: A list of tuples of the form ``(address, operation, bytes)``.
@@ -173,7 +172,7 @@ class Disassembler:
         """
         if sublengths[0][0]:
             data = self.snapshot[start:end]
-            item_str = self.defb_items(data, sublengths, False)
+            item_str = self.defb_items(data, sublengths)
             defm_dir = 'DEFM {}'.format(item_str)
             if self.asm_lower:
                 defm_dir = convert_case(defm_dir)
@@ -204,7 +203,7 @@ class Disassembler:
         data = self.snapshot[start:end]
         values = set(data)
         if len(values) > 1:
-            return self.defb_range(start, end, ((end - start, None),))
+            return self.defb_range(start, end, ((end - start, DEFAULT_BASE),))
         value = values.pop()
         size, base = sublengths[0]
         items = [self.num_str(size or end - start, base=base)]
@@ -258,34 +257,20 @@ class Disassembler:
     def rst_arg(self, rst_address, a, base):
         return 'RST {}'.format(self.num_str(rst_address, 1, base)), 1
 
-    def defb_items(self, data, sublengths, defb=True):
-        if sublengths[0][0]:
-            items = []
-            i = 0
-            for length, ctl in sublengths:
-                if ctl and ctl in 'Bbdhmn':
-                    text = False
-                elif ctl == 'T':
-                    text = True
-                elif ctl:
-                    text = defb
-                else:
-                    text = not defb
-                chunk = data[i:i + length]
-                if text:
-                    if length == 1:
-                        items.append(self.num_str(chunk[0], base='c'))
-                    else:
-                        items.append(self.get_message(chunk))
-                else:
-                    items.append(','.join(self.num_str(b, 1, ctl) for b in chunk))
-                i += length
-        else:
-            base = sublengths[0][1]
-            items = [self.num_str(b, 1, base) for b in data]
+    def defb_items(self, data, sublengths):
+        items = []
+        i = 0
+        for size, base in sublengths:
+            if not size:
+                size = len(data)
+            if base == 'c' and size > 1:
+                items.append(self.get_message(data[i:i + size]))
+            else:
+                items.append(','.join(self.num_str(b, 1, base) for b in data[i:i + size]))
+            i += size
         return ','.join(items)
 
-    def defb_dir(self, data, sublengths=((None, None),)):
+    def defb_dir(self, data, sublengths=((None, DEFAULT_BASE),)):
         defb_dir = 'DEFB {}'.format(self.defb_items(data, sublengths))
         if self.asm_lower:
             defb_dir = convert_case(defb_dir)
@@ -301,11 +286,7 @@ class Disassembler:
         return template.format(self.index_offset(a, base)), 2
 
     def index_arg(self, template, a, base):
-        if base:
-            arg_base = base[-1]
-        else:
-            arg_base = None
-        return template.format(self.index_offset(a, base), self.num_str(self.snapshot[(a + 2) & 65535], 1, arg_base)), 3
+        return template.format(self.index_offset(a, base[0]), self.num_str(self.snapshot[(a + 2) & 65535], 1, base[-1])), 3
 
     def index_offset(self, a, base):
         i = self.snapshot[(a + 1) & 65535]
@@ -346,7 +327,7 @@ class Disassembler:
             return operation, 4
         return self.defb(a, 4)
 
-    def defb_line(self, address, data, sublengths=((None, None),)):
+    def defb_line(self, address, data, sublengths=((None, DEFAULT_BASE),)):
         return (address, self.defb_dir(data, sublengths), data)
 
     def defm_line(self, address, data):
