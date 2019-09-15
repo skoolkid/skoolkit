@@ -46,7 +46,7 @@ def parse_params(ctl, params):
             n, sep, m = partition_unquoted(param, '*', '1')
             int_params += (_parse_sublengths(n, ctl, base),) * get_int_param(m)
     if len(int_params) == 1:
-        int_params.append((None, ((None, base),)))
+        int_params.append((0, ((0, base),)))
     return tuple(int_params)
 
 def _parse_sublengths(spec, subctl, default_base):
@@ -60,7 +60,7 @@ def _parse_sublengths(spec, subctl, default_base):
     for num in sublengths:
         sublength, base = _parse_length(num, subctl, default_base, required)
         lengths.append((sublength, base))
-        if required or sublength is not None:
+        if required or sublength:
             length += sublength
         required = subctl != 'S'
     if subctl == 'S':
@@ -74,12 +74,12 @@ def _parse_length(length, subctl, default_base, required):
             base += length[1]
         if required or len(length) > len(base):
             return (get_int_param(length[len(base):]), base)
-        return (None, base)
+        return (0, base)
     if subctl in ('B', 'T') and length.startswith(('B', 'T')):
         return (get_int_param(length[1:]), BASE_MAP[length[0]])
     if required or length:
         return (get_int_param(length), default_base)
-    return (None, default_base)
+    return (0, default_base)
 
 class CtlParser:
     def __init__(self, ctls=None):
@@ -227,7 +227,7 @@ class CtlParser:
                     if ctl not in '>BCLMSTW':
                         raise CtlParserError("extra parameters after address")
                     length = int_params[0]
-                    if length is not None:
+                    if length:
                         end = start + length
                 lengths = int_params[1:]
                 if ctl == 'L':
@@ -344,7 +344,7 @@ class CtlParser:
         for block in blocks:
             for sub_block in block.blocks:
                 sub_address = sub_block.start
-                sub_block.sublengths = self._lengths.get(sub_address, ((None, DEFAULT_BASE),))
+                sub_block.sublengths = self._lengths.get(sub_address, ((0, DEFAULT_BASE),))
                 sub_block.header = self._reduce(self._mid_block_comments, sub_address)
                 sub_block.comment = self._instruction_comments.get(sub_address) or ()
                 sub_block.multiline_comment = self._multiline_comments.get(sub_address)

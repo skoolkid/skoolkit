@@ -270,7 +270,7 @@ class Disassembler:
             i += size
         return ','.join(items)
 
-    def defb_dir(self, data, sublengths=((None, DEFAULT_BASE),)):
+    def defb_dir(self, data, sublengths=((0, DEFAULT_BASE),)):
         defb_dir = 'DEFB {}'.format(self.defb_items(data, sublengths))
         if self.asm_lower:
             defb_dir = convert_case(defb_dir)
@@ -327,7 +327,7 @@ class Disassembler:
             return operation, 4
         return self.defb(a, 4)
 
-    def defb_line(self, address, data, sublengths=((None, DEFAULT_BASE),)):
+    def defb_line(self, address, data, sublengths=((0, DEFAULT_BASE),)):
         return (address, self.defb_dir(data, sublengths), data)
 
     def defm_line(self, address, data):

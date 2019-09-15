@@ -1934,7 +1934,7 @@ class DisassemblerTest(SkoolKitTestCase):
         snapshot = self._get_snapshot(32768, (97, 98, 99, 94, 96, 65, 66, 67, 127))
         disassembler = self._get_disassembler(snapshot)
 
-        sublengths = ((None, 'n'),)
+        sublengths = ((0, 'n'),)
         instructions = disassembler.defb_range(32768, 32777, sublengths)
         self.assertEqual(len(instructions), 2)
         operations = [i[1] for i in instructions]
@@ -1954,7 +1954,7 @@ class DisassemblerTest(SkoolKitTestCase):
         snapshot = self._get_snapshot(32768, (97, 98, 99, 94, 96, 65, 66, 67, 127))
         disassembler = self._get_disassembler(snapshot)
 
-        sublengths = ((None, 'c'),)
+        sublengths = ((0, 'c'),)
         instructions = disassembler.defm_range(32768, 32771, sublengths)
         self.assertEqual(len(instructions), 1)
         self.assertEqual(instructions[0][1], 'DEFM "abc"')
@@ -1989,7 +1989,7 @@ class DisassemblerTest(SkoolKitTestCase):
         snapshot = self._get_snapshot(start, data)
         disassembler = self._get_disassembler(snapshot)
 
-        sublengths = ((None, 'n'),)
+        sublengths = ((0, 'n'),)
         instructions = disassembler.defw_range(start, start + len(data), sublengths)
         self.assertEqual(len(instructions), 4)
         i = 0
@@ -2062,7 +2062,7 @@ class DisassemblerTest(SkoolKitTestCase):
     def test_lower_case_conversion_of_defm_statement_no_sublengths(self):
         snapshot = [65, 66]
         disassembler = self._get_disassembler(snapshot, asm_lower=True)
-        sublengths = ((None, 'c'),)
+        sublengths = ((0, 'c'),)
         instructions = disassembler.defm_range(0, 2, sublengths)
         self.assertEqual(len(instructions), 1)
         self.assertEqual(instructions[0][1], 'defm "AB"')
@@ -2070,7 +2070,7 @@ class DisassemblerTest(SkoolKitTestCase):
     def test_lower_case_conversion_of_defs_statement(self):
         snapshot = [15] * 10
         disassembler = self._get_disassembler(snapshot, asm_lower=True)
-        sublengths = ((None, 'h'), (None, 'h'))
+        sublengths = ((0, 'h'), (0, 'h'))
         instructions = disassembler.defs_range(0, 10, sublengths)
         self.assertEqual(len(instructions), 1)
         self.assertEqual(instructions[0][1], 'defs $0a,$0f')
@@ -2078,7 +2078,7 @@ class DisassemblerTest(SkoolKitTestCase):
     def test_lower_case_conversion_of_defw_statement(self):
         snapshot = [255, 255]
         disassembler = self._get_disassembler(snapshot, asm_lower=True)
-        sublengths = ((None, 'h'),)
+        sublengths = ((0, 'h'),)
         instructions = disassembler.defw_range(0, 2, sublengths)
         self.assertEqual(len(instructions), 1)
         self.assertEqual(instructions[0][1], 'defw $ffff')

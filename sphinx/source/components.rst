@@ -94,10 +94,9 @@ tuples of the form ``(size, base)``, each of which specifies the desired size
 * 'm' - negative
 * 'n' - default base
 
-If the first element of *sublengths* has a ``size`` value of `None`, then
-the method should produce a list of statements with default sizes (as
-determined by `defb_size`, `defm_size` and `defw_size`), using the specified
-base.
+If the first element of *sublengths* has a ``size`` value of 0, then the method
+should produce a list of statements with default sizes (as determined by
+`defb_size`, `defm_size` and `defw_size`), using the specified base.
 
 .. _instructionUtility:
 
