@@ -477,7 +477,7 @@ class DisassemblyTest(SkoolKitTestCase):
         self.assertEqual(set(exp_ref_addresses), set(ref_addresses))
 
     def test_byte_formats(self):
-        snapshot = [42] * 75
+        snapshot = [42] * 85
         ctl = """
             b 00000
               00000,b5
@@ -492,7 +492,9 @@ class DisassemblyTest(SkoolKitTestCase):
             T 00060,5,2:d2:n1
             T 00065,5,3,B1,m1
             T 00070,5,B2:h3
-            i 00075
+            T 00075,b5
+            T 00080,h5
+            i 00085
         """
         exp_instructions = [
             ( 0, 'DEFB %00101010,%00101010,%00101010,%00101010,%00101010'),
@@ -515,7 +517,9 @@ class DisassemblyTest(SkoolKitTestCase):
             (65, 'DEFM "***"'),
             (68, 'DEFM 42'),
             (69, 'DEFM -214'),
-            (70, 'DEFM 42,42,$2A,$2A,$2A')
+            (70, 'DEFM 42,42,$2A,$2A,$2A'),
+            (75, 'DEFM %00101010,%00101010,%00101010,%00101010,%00101010'),
+            (80, 'DEFM $2A,$2A,$2A,$2A,$2A')
         ]
         self._test_disassembly(snapshot, ctl, exp_instructions)
 
@@ -3516,7 +3520,7 @@ class SkoolWriterTest(SkoolKitTestCase):
 
             ; One
             ; two
-            t00005 DEFB 0
+            t00005 DEFM 0
 
             ; One
             ; two
@@ -3607,7 +3611,7 @@ class SkoolWriterTest(SkoolKitTestCase):
              00001 NOP           ; This comment spans only one line even though it would normally be wrapped over two lines
              00002 DEFS 1        ; {Line 1
              00003 DEFS 1        ; Line 2}
-             00004 DEFB 0        ; One
+             00004 DEFM 0        ; One
                                  ; two
                                  ; three
              00005 DEFW 0        ; {First word
@@ -3617,7 +3621,7 @@ class SkoolWriterTest(SkoolKitTestCase):
              00010 NOP           ; Line 1 here
              00011 DEFS 1        ; Trailing blank line
                                  ;
-             00012 DEFB 0        ;
+             00012 DEFM 0        ;
                                  ; Leading blank line
              00013 DEFW 0        ; Line 1
                                  ;
@@ -3981,7 +3985,7 @@ class SkoolWriterTest(SkoolKitTestCase):
              00003 NOP           ; Comment for the second NOP.}
              00004 DEFS 1        ; A colon directive works on a single
                                  ; instruction too (but is not required).
-             00005 DEFB 0        ; A colon directive on the first line for a single
+             00005 DEFM 0        ; A colon directive on the first line for a single
                                  ; instruction is still equivalent to a dot directive.
              00006 DEFW 0        ; {The first two comment lines
                                  ; belong to the first DEFW.

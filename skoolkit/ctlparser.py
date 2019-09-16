@@ -344,7 +344,7 @@ class CtlParser:
         for block in blocks:
             for sub_block in block.blocks:
                 sub_address = sub_block.start
-                sub_block.sublengths = self._lengths.get(sub_address, ((0, DEFAULT_BASE),))
+                sub_block.sublengths = self._lengths.get(sub_address, ((0, BASE_MAP[sub_block.ctl.upper()]),))
                 sub_block.header = self._reduce(self._mid_block_comments, sub_address)
                 sub_block.comment = self._instruction_comments.get(sub_address) or ()
                 sub_block.multiline_comment = self._multiline_comments.get(sub_address)

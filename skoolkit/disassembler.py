@@ -103,8 +103,29 @@ class Disassembler:
                     operation = convert_case(operation)
                 instructions.append((address, operation, self.snapshot[address:address + length]))
             else:
-                instructions.append(self.defb_line(address, self.snapshot[address:65536]))
+                instructions.append(self._defb_line(address, self.snapshot[address:65536]))
             address += length
+        return instructions
+
+    def _defb_line(self, address, data, sublengths=((0, DEFAULT_BASE),), defm=False):
+        return (address, self.defb_dir(data, sublengths, defm), data)
+
+    def _defb_lines(self, start, end, sublengths, defm=False):
+        if defm:
+            max_size = self.defm_size
+        else:
+            max_size = self.defb_size
+        if sublengths[0][0] or end - start <= max_size:
+            return [self._defb_line(start, self.snapshot[start:end], sublengths, defm)]
+        instructions = []
+        data = []
+        for i in range(start, end):
+            data.append(self.snapshot[i])
+            if len(data) == max_size:
+                instructions.append(self._defb_line(i - len(data) + 1, data, sublengths, defm))
+                data = []
+        if data:
+            instructions.append(self._defb_line(i - len(data) + 1, data, sublengths, defm))
         return instructions
 
     def defb_range(self, start, end, sublengths):
@@ -115,18 +136,17 @@ class Disassembler:
         :param sublengths: Sequence of sublength identifiers.
         :return: A list of tuples of the form ``(address, operation, bytes)``.
         """
-        if sublengths[0][0] or end - start <= self.defb_size:
-            return [self.defb_line(start, self.snapshot[start:end], sublengths)]
-        instructions = []
-        data = []
-        for i in range(start, end):
-            data.append(self.snapshot[i])
-            if len(data) == self.defb_size:
-                instructions.append(self.defb_line(i - len(data) + 1, data, sublengths))
-                data = []
-        if data:
-            instructions.append(self.defb_line(i - len(data) + 1, data, sublengths))
-        return instructions
+        return self._defb_lines(start, end, sublengths)
+
+    def defm_range(self, start, end, sublengths):
+        """Produce a sequence of DEFM statements for an address range.
+
+        :param start: The start address.
+        :param end: The end address.
+        :param sublengths: Sequence of sublength identifiers.
+        :return: A list of tuples of the form ``(address, operation, bytes)``.
+        """
+        return self._defb_lines(start, end, sublengths, True)
 
     def _defw_items(self, data, sublengths):
         items = []
@@ -160,36 +180,6 @@ class Disassembler:
             if self.asm_lower:
                 defw_dir = convert_case(defw_dir)
             instructions.append((address, defw_dir, data))
-        return instructions
-
-    def defm_range(self, start, end, sublengths):
-        """Produce a sequence of DEFM statements for an address range.
-
-        :param start: The start address.
-        :param end: The end address.
-        :param sublengths: Sequence of sublength identifiers.
-        :return: A list of tuples of the form ``(address, operation, bytes)``.
-        """
-        if sublengths[0][0]:
-            data = self.snapshot[start:end]
-            item_str = self.defb_items(data, sublengths)
-            defm_dir = 'DEFM {}'.format(item_str)
-            if self.asm_lower:
-                defm_dir = convert_case(defm_dir)
-            return [(start, defm_dir, data)]
-        instructions = []
-        msg = []
-        for i in range(start, end):
-            byte = self.snapshot[i]
-            if is_char(byte):
-                msg.append(byte)
-            else:
-                if msg:
-                    instructions.extend(self.defm_lines(i - len(msg), msg))
-                    msg[:] = []
-                instructions.append(self.defb_line(i, [byte]))
-        if msg:
-            instructions.extend(self.defm_lines(i - len(msg) + 1, msg))
         return instructions
 
     def defs_range(self, start, end, sublengths):
@@ -270,8 +260,12 @@ class Disassembler:
             i += size
         return ','.join(items)
 
-    def defb_dir(self, data, sublengths=((0, DEFAULT_BASE),)):
-        defb_dir = 'DEFB {}'.format(self.defb_items(data, sublengths))
+    def defb_dir(self, data, sublengths=((0, DEFAULT_BASE),), defm=False):
+        if defm:
+            directive = 'DEFM'
+        else:
+            directive = 'DEFB'
+        defb_dir = '{} {}'.format(directive, self.defb_items(data, sublengths))
         if self.asm_lower:
             defb_dir = convert_case(defb_dir)
         return defb_dir
@@ -326,21 +320,6 @@ class Disassembler:
             operation = decoder(self, template, a + 1, base)[0]
             return operation, 4
         return self.defb(a, 4)
-
-    def defb_line(self, address, data, sublengths=((0, DEFAULT_BASE),)):
-        return (address, self.defb_dir(data, sublengths), data)
-
-    def defm_line(self, address, data):
-        defm_dir = 'DEFM {}'.format(self.get_message(data))
-        if self.asm_lower:
-            defm_dir = convert_case(defm_dir)
-        return (address, defm_dir, data)
-
-    def defm_lines(self, address, data):
-        lines = []
-        for i in range(0, len(data), self.defm_size):
-            lines.append(self.defm_line(address + i, data[i:i + self.defm_size]))
-        return lines
 
     ops = {
         0x00: (no_arg, 'NOP'),

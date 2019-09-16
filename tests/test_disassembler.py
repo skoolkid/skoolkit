@@ -1960,9 +1960,8 @@ class DisassemblerTest(SkoolKitTestCase):
         self.assertEqual(instructions[0][1], 'DEFM "abc"')
 
         instructions = disassembler.defm_range(32768, 32777, sublengths)
-        self.assertEqual(len(instructions), 5)
-        operations = [i[1] for i in instructions]
-        self.assertEqual(operations, ['DEFM "abc"', 'DEFB 94', 'DEFB 96', 'DEFM "ABC"', 'DEFB 127'])
+        self.assertEqual(len(instructions), 1)
+        self.assertEqual(instructions[0][1], 'DEFM "abc",94,96,"ABC",127')
 
         sublengths = [(3, 'c'), (2, 'n'), (3, 'c'), (1, 'n')]
         instructions = disassembler.defm_range(32768, 32777, sublengths)
@@ -1974,13 +1973,14 @@ class DisassemblerTest(SkoolKitTestCase):
         self.assertEqual(len(instructions), 1)
         self.assertEqual(instructions[0][1], 'DEFM "abc",94,96,"ABC",127')
 
-    def test_defm_line(self):
-        disassembler = self._get_disassembler()
+    def test_defm_with_escaped_characters(self):
+        snapshot = self._get_snapshot(30000, (34, 72, 101, 108, 108, 111, 34, 67, 58, 92, 84, 69, 77, 80))
+        disassembler = self._get_disassembler(snapshot)
 
-        instruction = disassembler.defm_line(0, [34, 72, 101, 108, 108, 111, 34])
+        instruction = disassembler.defm_range(30000, 30007, ((0, 'c'),))[0]
         self.assertEqual(instruction[1], r'DEFM "\"Hello\""')
 
-        instruction = disassembler.defm_line(0, [67, 58, 92, 84, 69, 77, 80])
+        instruction = disassembler.defm_range(30007, 30014, ((0, 'c'),))[0]
         self.assertEqual(instruction[1], r'DEFM "C:\\TEMP"')
 
     def test_defw_range(self):
