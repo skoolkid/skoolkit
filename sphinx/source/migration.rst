@@ -40,6 +40,20 @@ the ``GameIndex`` parameter in the :ref:`pageHeaders` section instead.
 The ``AsmSinglePageTemplate`` parameter is no longer supported. Use the
 ``AsmSinglePage`` parameter instead.
 
+Control directives
+------------------
+The ``B`` and ``T`` control directives no longer recognise the ``B`` (byte) and
+``T`` (text) indicators. Use the ``n`` and ``c`` base indicators instead. For
+example::
+
+  B 30000,5,2:T3
+  T 30005,5,B3:2
+
+should be replaced by::
+
+  B 30000,5,2:c3
+  T 30005,5,n3:2
+
 sna2skool.py
 ------------
 The ``DefbMod`` configuration parameter is no longer supported. It could be

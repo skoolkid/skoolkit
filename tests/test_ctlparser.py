@@ -13,7 +13,7 @@ N 30012 Mid-block comment
 M 30012,15 This comment covers the following two sub-blocks
 W 30012,8
 C 30020,7
-  30050,5,3:T2 Complex DEFB with a blank directive
+  30050,5,3:c2 Complex DEFB with a blank directive
 # This is a control file comment
 c 30100 Routine at 30100
 D 30100 Description of routine at 30100
@@ -27,7 +27,7 @@ g 30200 Game status buffer entry at 30200
   30200,10,1 Blank directive in a 'g' block
 i 30300 Ignored block at 30300
 t 30400 Message at 30400
-  30450,7,4:B3 Complex DEFM with a blank directive
+  30450,7,4:n3 Complex DEFM with a blank directive
 u 30500 Unused block at 30500
   30500,2 Blank directive in a 'u' block
 B 30502,3
@@ -38,9 +38,9 @@ B 30560,21,6,5,4,3,2,1
 w 30600 Words at 30600
 S 30620,7
 s 30700 Zeroes at 30700
-B 30720,10,1,T3:2,1:T1*2
+B 30720,10,1,c3:2,1:c1*2
 N 30730 Another mid-block comment
-T 30730,15,10:B5"""
+T 30730,15,10:n5"""
 
 class CtlParserTest(SkoolKitTestCase):
     def _get_ctl_parser(self, ctl, min_address=0, max_address=65536):
@@ -895,11 +895,11 @@ class CtlParserTest(SkoolKitTestCase):
             B 40020,b,2:d3:h5 2 binary, 3 decimal, 5 hex, one line
               40030,,b6,3,h1 6 binary, 3 default, 1 hex
               40040,10,b5:2:h3 5 binary, 2 default, 3 hex, one line
-              40050,10,1,T9 1 default, 9 text
-              40060,10,h4:T6 4 hex, 6 text, one line
+              40050,10,1,c9 1 default, 9 text
+              40060,10,h4:c6 4 hex, 6 text, one line
             T 40070,10,3,b7 3 text, 7 binary
             T 40080,10,2:h8 2 text, 8 hex, one line
-            T 40090,10,5,B5 5 text, 5 default
+            T 40090,10,5,n5 5 text, 5 default
         """
         ctl_parser = self._get_ctl_parser(ctl)
 
@@ -1608,7 +1608,7 @@ class CtlParserTest(SkoolKitTestCase):
             S 30010,6
             W 30016,4,4
             @ 30020 label=END
-            T 30020,5,4:B1 End
+            T 30020,5,4:n1 End
             E 30000 This end comment should not be repeated
             L {},{},{}
         """.format(start, length, count)
@@ -1681,7 +1681,7 @@ class CtlParserTest(SkoolKitTestCase):
             S 40010,6
             W 40016,4,4
             @ 40020 label=END
-            T 40020,5,4:B1 End
+            T 40020,5,4:n1 End
             E 40000 This end comment should be repeated
             L {},{},{},1
         """.format(start, length, count)
@@ -1792,7 +1792,7 @@ class CtlParserTest(SkoolKitTestCase):
             N 30000 A comment
             M 30000,10 Some bytes and text
             B 30000,5
-            T 30005,5,4:B1
+            T 30005,5,4:n1
             B 30010,10 Some more bytes
             L 30000,20,3
         """

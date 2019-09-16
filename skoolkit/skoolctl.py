@@ -93,7 +93,7 @@ def compose(operation, preserve_base):
                statement, or the operand base indicator for a regular
                instruction (e.g. 'b' for 'LD A,%00000001')
              * ``sublengths`` is a colon-separated sequence of sublengths (e.g.
-               '1:T1' for 'DEFB 0,"a"'), or `None` for a regular instruction
+               '1:c1' for 'DEFB 0,"a"'), or `None` for a regular instruction
     """
     op = operation.upper()
     if op.startswith(('DEFB', 'DEFM', 'DEFS', 'DEFW')):
@@ -132,9 +132,9 @@ def get_operand_bases(operation, preserve_base):
 
 def get_length(ctl, operation, preserve_base):
     if ctl == 'B':
-        return get_defb_defm_length(operation, preserve_base, FORMAT_NO_BASE, 'T{}')
+        return get_defb_defm_length(operation, preserve_base, FORMAT_NO_BASE, 'c{}')
     if ctl == 'T':
-        byte_fmt = {'b': 'b{}', 'd': 'B{}', 'h': 'B{}', 'm': 'm{}'}
+        byte_fmt = {'b': 'b{}', 'd': 'n{}', 'h': 'n{}', 'm': 'm{}'}
         return get_defb_defm_length(operation, preserve_base, byte_fmt, '{}')
     if ctl == 'S':
         return get_defs_length(operation, preserve_base)

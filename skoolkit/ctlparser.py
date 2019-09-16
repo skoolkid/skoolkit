@@ -75,8 +75,6 @@ def _parse_length(length, subctl, default_base, required):
         if required or len(length) > len(base):
             return (get_int_param(length[len(base):]), base)
         return (0, base)
-    if subctl in ('B', 'T') and length.startswith(('B', 'T')):
-        return (get_int_param(length[1:]), BASE_MAP[length[0]])
     if required or length:
         return (get_int_param(length), default_base)
     return (0, default_base)

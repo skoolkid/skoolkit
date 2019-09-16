@@ -205,7 +205,7 @@ B 32785,1,1
 @ 32786 rsub=DEFW 0,1,2
 W 32786,4,4
 @ 32790 ssub=DEFM "Lo"
-T 32790,2,1:B1
+T 32790,2,1:n1
 @ 32792 rfix=DEFB 0
 S 32792,3,3
 C 32795,1 Instruction with a comment continuation line
@@ -243,11 +243,11 @@ s 49194 Zero block
 S 49194,384,128
 @ 49578 end
 b 49578 Complex DEFB statements
-B 49578,20,3:T5:2,T7:3
+B 49578,20,3:c5:2,c7:3
 t 49598 Complex DEFM statements
-T 49598,20,5:B5,B1:7:B2
+T 49598,20,5:n5,n1:7:n2
 b 49618 Data block with sequences of complex DEFB statements amenable to abbreviation
-B 49618,16,1:T2*2,1,2:T1
+B 49618,16,1:c2*2,1,2:c1
 c 49634 Routine with an empty block description and a register section
 R 49634 BC 0
 c 49635 Routine with an empty multi-instruction comment and instruction comments that start with a '.'
@@ -297,7 +297,7 @@ B $8011,1,1
 @ $8012 rsub=DEFW 0,1,2
 W $8012,4,4
 @ $8016 ssub=DEFM "Lo"
-T $8016,2,1:B1
+T $8016,2,1:n1
 @ $8018 rfix=DEFB 0
 S $8018,3,3
 C $801B,1 Instruction with a comment continuation line
@@ -335,11 +335,11 @@ s $C02A Zero block
 S $C02A,384,128
 @ $C1AA end
 b $C1AA Complex DEFB statements
-B $C1AA,20,3:T5:2,T7:3
+B $C1AA,20,3:c5:2,c7:3
 t $C1BE Complex DEFM statements
-T $C1BE,20,5:B5,B1:7:B2
+T $C1BE,20,5:n5,n1:7:n2
 b $C1D2 Data block with sequences of complex DEFB statements amenable to abbreviation
-B $C1D2,16,1:T2*2,1,2:T1
+B $C1D2,16,1:c2*2,1,2:c1
 c $C1E2 Routine with an empty block description and a register section
 R $C1E2 BC 0
 c $C1E3 Routine with an empty multi-instruction comment and instruction comments that start with a '.'
@@ -381,7 +381,7 @@ B 32785,1,1
 @ 32786 rsub=DEFW 0,1,2
 W 32786,4,4
 @ 32790 ssub=DEFM "Lo"
-T 32790,2,1:B1
+T 32790,2,1:n1
 @ 32792 rfix=DEFB 0
 S 32792,3,3
 i 32796
@@ -416,11 +416,11 @@ s 49194
 S 49194,384,128
 @ 49578 end
 b 49578
-B 49578,20,3:T5:2,T7:3
+B 49578,20,3:c5:2,c7:3
 t 49598
-T 49598,20,5:B5,B1:7:B2
+T 49598,20,5:n5,n1:7:n2
 b 49618
-B 49618,16,1:T2*2,1,2:T1
+B 49618,16,1:c2*2,1,2:c1
 c 49634
 c 49635
 i 49643""".split('\n')
@@ -440,7 +440,7 @@ S 32781,2,2 S sub-block
 M 32783,12 Sub-block with instructions of various types and blank lines in the comment
 B 32785,1,1
 W 32786,4,4
-T 32790,2,1:B1
+T 32790,2,1:n1
 S 32792,3,3
 C 32795,1 Instruction with a comment continuation line
 i 32796
@@ -473,11 +473,11 @@ B 49193,1,1
 s 49194
 S 49194,384,128
 b 49578
-B 49578,20,3:T5:2,T7:3
+B 49578,20,3:c5:2,c7:3
 t 49598
-T 49598,20,5:B5,B1:7:B2
+T 49598,20,5:n5,n1:7:n2
 b 49618
-B 49618,16,1:T2*2,1,2:T1
+B 49618,16,1:c2*2,1,2:c1
 c 49634
 c 49635
 C 49635,2 .
@@ -732,8 +732,8 @@ class CtlWriterTest(SkoolKitTestCase):
     def test_byte_formats_no_base(self):
         exp_ctl = """
             b 30000 Binary and mixed-base DEFB/DEFM statements
-            B 30000,30,b1:2,2:b2:3,b2,3,5,T5,b1:T2:2
-            T 30030,30,b1:B2,B2:b2:B3,b2,B3,B5,5,b1:2:B2
+            B 30000,30,b1:2,2:b2:3,b2,3,5,c5,b1:c2:2
+            T 30030,30,b1:n2,n2:b2:n3,b2,n3,n5,5,b1:2:n2
             i 30060
         """
         self._test_ctl(TEST_BYTE_FORMATS_SKOOL, exp_ctl, preserve_base=0)
@@ -741,7 +741,7 @@ class CtlWriterTest(SkoolKitTestCase):
     def test_byte_formats_preserve_base(self):
         exp_ctl = """
             b 30000 Binary and mixed-base DEFB/DEFM statements
-            B 30000,30,b1:h1:d1,h2:b2:d3,b2,d3,h5,T5,b1:T2:d1:h1
+            B 30000,30,b1:h1:d1,h2:b2:d3,b2,d3,h5,c5,b1:c2:d1:h1
             T 30030,30,b1:h1:d1,h2:b2:d3,b2,d3,h5,5,b1:2:d1:h1
             i 30060
         """
@@ -889,8 +889,8 @@ class CtlWriterTest(SkoolKitTestCase):
             C 60010,cc4 Comment 5
             C 60014,cc4 Comment 6
             C 60018,cc4 Comment 7
-            B 60022,5,1:T3:1 Comment 8
-            T 60027,4,3:B1 Last comment
+            B 60022,5,1:c3:1 Comment 8
+            T 60027,4,3:n1 Last comment
             i 60031
         """
         self._test_ctl(skool, exp_ctl)
@@ -905,7 +905,7 @@ class CtlWriterTest(SkoolKitTestCase):
         exp_ctl = """
             b 40000
             B 40000,5,5
-            T 40005,5,B5
+            T 40005,5,n5
             S 40010,772,512:n,c260:c
             i 40782
         """
@@ -920,8 +920,8 @@ class CtlWriterTest(SkoolKitTestCase):
         """
         exp_ctl = """
             b 30000
-            B 30000,5,2:T1,T1:1
-            T 30005,5,B2:1,1:B1
+            B 30000,5,2:c1,c1:1
+            T 30005,5,n2:1,1:n1
             i 30010
         """
         self._test_ctl(skool, exp_ctl)
@@ -939,7 +939,7 @@ class CtlWriterTest(SkoolKitTestCase):
         """
         exp_ctl = """
             b 40000
-            B 40000,3,T1,T1:T1
+            B 40000,3,c1,c1:c1
             T 40003,3,1,1:1
             W 40006,6,c2,c4
             C 40012,c2

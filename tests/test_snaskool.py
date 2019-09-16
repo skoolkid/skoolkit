@@ -79,9 +79,9 @@ C 32813,1 Another NOP
 c 32814 Refers to the routine at 32768
 ; Entry #15
 b 32817
-T 32817,5,2:B3
-B 32822,5,2:T2,1 This comment spans two DEFB statements
-T 32827,,2:B1*2,1:B1 This comment spans four DEFM statements
+T 32817,5,2:n3
+B 32822,5,2:c2,1 This comment spans two DEFB statements
+T 32827,,2:n1*2,1:n1 This comment spans four DEFM statements
 ; Entry 16
 c 32837
   32837,,c2,b2 This comment spans two instructions with different operand bases
@@ -486,12 +486,12 @@ class DisassemblyTest(SkoolKitTestCase):
             B 00025,b5,2:d1:m1:h1
               00030,h10,5:d3:b2
             B 00040,5,b1,h2
-              00045,5,h1,T4
-              00050,5,b2:T3
+              00045,5,h1,c4
+              00050,5,b2:c3
             T 00055,5,h2,3
             T 00060,5,2:d2:n1
-            T 00065,5,3,B1,m1
-            T 00070,5,B2:h3
+            T 00065,5,3,n1,m1
+            T 00070,5,n2:h3
             T 00075,b5
             T 00080,h5
             i 00085
@@ -571,14 +571,14 @@ class DisassemblyTest(SkoolKitTestCase):
         snapshot = [225, 226, 72, 233, 76, 239, 225, 0, 62, 225, 225, 225, 128, 222]
         ctl = """
             b 00000
-              00000,1,T1
+              00000,1,c1
             T 00001,1,1
-              00002,2,T1:T1
+              00002,2,c1:c1
             T 00004,2,1:1
             W 00006,2,c2
             C 00008,c2
             S 00010,2,2:c225
-              00012,1,T1
+              00012,1,c1
             T 00013,1,1
             i 00014
         """
@@ -599,14 +599,14 @@ class DisassemblyTest(SkoolKitTestCase):
         snapshot = [225, 226, 72, 233, 76, 239, 225, 0, 62, 225, 225, 225, 128, 224]
         ctl = """
             b 00000
-              00000,1,T1
+              00000,1,c1
             T 00001,1,1
-              00002,2,T1:T1
+              00002,2,c1:c1
             T 00004,2,1:1
             W 00006,2,c2
             C 00008,c2
             S 00010,2,2:c225
-              00012,1,T1
+              00012,1,c1
             T 00013,1,1
             i 00014
         """

@@ -239,38 +239,6 @@ would give::
   32818 DEFS 25
   32843 DEFS 25 ; }
 
-DEFB and DEFM statements may contain both bytes and strings; for example::
-
-  40000 DEFM "Hi ",5
-  40004 DEFB 4,"go"
-
-Such statements can be encoded in a control file thus::
-
-  T 40000,,3:B1
-  B 40004,3,1:T2
-
-That is, the length of a string in a DEFB statement is prefixed by ``T``, the
-length of a sequence of bytes in a DEFM statement is prefixed by ``B``, and the
-lengths of all strings and byte sequences are separated by colons. This
-notation can also be combined with the '*' notation; for example::
-
-  T 50000,8,2:B2*2
-
-which is equivalent to::
-
-  T 50000,8,2:B2,2:B2
-
-A character code may be 'inverted' (i.e. have bit 7 set), typically to indicate
-the end of a string::
-
-  49152 DEFM "Hell","o"+128
-
-This can be encoded thus::
-
-  T 49152,5,4:1
-
-and the terminal character will be restored in the same format.
-
 .. _dotDirective:
 
 The dot and colon directives
@@ -537,6 +505,38 @@ will result in something like this::
 
   30000 LD (IX+10),%10000001
   30004 LD (IX+$0B),130
+
+DEFB and DEFM statements may contain both bytes and strings; for example::
+
+  40000 DEFM "Hi ",5
+  40004 DEFB 4,"go"
+
+Such statements can be encoded in a control file thus::
+
+  T 40000,,3:n1
+  B 40004,3,1:c2
+
+That is, the length of a string in a DEFB statement is prefixed by ``c``, the
+length of a sequence of bytes in a DEFM statement is prefixed by ``n``, and the
+lengths of all strings and byte sequences are separated by colons. This
+notation can also be combined with the '*' notation; for example::
+
+  T 50000,8,2:n2*2
+
+which is equivalent to::
+
+  T 50000,8,2:n2,2:n2
+
+A character code may be 'inverted' (i.e. have bit 7 set), typically to indicate
+the end of a string::
+
+  49152 DEFM "Hell","o"+128
+
+This can be encoded thus::
+
+  T 49152,5,4:1
+
+and the terminal character will be restored in the same format.
 
 ASM directives
 --------------
