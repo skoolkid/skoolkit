@@ -8436,6 +8436,46 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
         writer.write_asm_entries()
         self._assert_content_equal(exp_content, 'asm/32768.html')
 
+    def test_custom_index_page_with_custom_subtemplate(self):
+        ref = """
+            [Template:GameIndex]
+            Not much to see here.
+            <# include({SkoolKit[include]}) #>
+
+            [Template:GameIndex-home]
+            Told you so.
+        """
+        exp_content = """
+            Not much to see here.
+            Told you so.
+        """
+        writer = self._get_writer(ref=ref)
+        writer.write_index()
+        self._assert_content_equal(exp_content, 'index.html')
+
+    def test_custom_other_code_index_page_with_custom_subtemplate(self):
+        code_id = 'Stuff'
+        ref = """
+            [OtherCode:{}]
+
+            [Template:{}-Index]
+            Not much to see here either.
+            <# include({SkoolKit[include]}) #>
+
+            [Template:{}-Index-memory_map]
+            See?
+        """.replace('{}', code_id)
+        exp_content = """
+            Not much to see here either.
+            See?
+        """
+
+        main_writer = self._get_writer(ref=ref)
+        oc_writer = main_writer.clone(main_writer.parser, code_id)
+        oc_writer.write_file = self._mock_write_file
+        oc_writer.write_map(code_id + '-Index')
+        self._assert_content_equal(exp_content, '{0}/{0}.html'.format(code_id))
+
     def test_custom_asm_footer_template(self):
         skool = """
             ; Routine at 32768
