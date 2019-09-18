@@ -8520,6 +8520,9 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
             <# foreach($reg,entry[input_registers]) #>
             {$reg[name]} register: {$reg[description]}
             <# endfor #>
+            <# include({SkoolKit[include]}) #>
+
+            [Template:Asm-c-asm]
             <# foreach($i,entry[instructions]) #>
             {$i[address]}: {$i[operation]} ; {$i[comment]}
             <# endfor #>
@@ -8556,6 +8559,9 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
             <# foreach($reg,entry[input_registers]) #>
             {$reg[name]} register: {$reg[description]}
             <# endfor #>
+            <# include({SkoolKit[include]}) #>
+
+            [Template:Asm-asm]
             <# foreach($i,entry[instructions]) #>
             {$i[address]}: {$i[operation]} ; {$i[comment]}
             <# endfor #>
@@ -8595,6 +8601,9 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
             <# foreach($reg,entry[input_registers]) #>
             {$reg[name]} register: {$reg[description]}
             <# endfor #>
+            <# include({SkoolKit[include]}) #>
+
+            [Template:{}-Asm-c-asm]
             <# foreach($i,entry[instructions]) #>
             {$i[address]}: {$i[operation]} ; {$i[comment]}
             <# endfor #>
@@ -8634,6 +8643,9 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
             <# foreach($paragraph,entry[description]) #>
             {$paragraph}
             <# endfor #>
+            <# include({SkoolKit[include]}) #>
+
+            [Template:{}-Asm-asm]
             <# foreach($reg,entry[input_registers]) #>
             {$reg[name]} register: {$reg[description]}
             <# endfor #>
@@ -8658,7 +8670,7 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
         oc_writer.write_entries(asm_path, map_path)
         self._assert_content_equal(exp_content, '{}/32768.html'.format(asm_path))
 
-    def test_custom_asm_single_page_template(self):
+    def test_custom_asm_single_page_template_with_custom_subtemplate(self):
         skool = """
             ; Routine at 32768
             c32768 XOR A
@@ -8671,6 +8683,10 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
             AsmSinglePage=1
 
             [Template:AsmSinglePage]
+            The entire disassembly.
+            <# include({SkoolKit[include]}) #>
+
+            [Template:AsmSinglePage-asm_single_page]
             <# foreach($entry,entries) #>
             {$entry[title]}
             <# foreach($i,$entry[instructions]) #>
@@ -8679,6 +8695,7 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
             <# endfor #>
         """
         exp_content = """
+            The entire disassembly.
             Routine at 32768
             32768: XOR A
             Data block at 32769
@@ -8689,7 +8706,7 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
         writer.write_asm_entries()
         self._assert_content_equal(exp_content, 'asm.html')
 
-    def test_custom_other_code_asm_single_page_template(self):
+    def test_custom_other_code_asm_single_page_template_with_custom_subtemplate(self):
         code_id = 'Other'
         other_skool = """
             ; Routine at 49152
@@ -8705,6 +8722,10 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
             AsmSinglePage=1
 
             [Template:{}-AsmSinglePage]
+            All the entries on one page.
+            <# include({SkoolKit[include]}) #>
+
+            [Template:{}-AsmSinglePage-asm_single_page]
             <# foreach($entry,entries) #>
             {$entry[title]}
             <# foreach($i,$entry[instructions]) #>
@@ -8713,6 +8734,7 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
             <# endfor #>
         """.replace('{}', code_id)
         exp_content = """
+            All the entries on one page.
             Routine at 49152
             49152: XOR B
             Data block at 49153
@@ -8734,10 +8756,13 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
         ref = """
             [Template:Asm-b]
             {entry[title]}
+            <# include({SkoolKit[include]}) #>
+            <# include(footer) #>
+
+            [Template:Asm-b-asm]
             <# foreach($i,entry[instructions]) #>
             {$i[anchor]}: {$i[operation]}
             <# endfor #>
-            <# include(footer) #>
 
             [Template:Asm-b-footer]
             The end.
@@ -8768,6 +8793,9 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
             <# foreach($paragraph,entry[description]) #>
             {$paragraph}
             <# endfor #>
+            <# include({SkoolKit[include]}) #>
+
+            [Template:{}-Asm-b-asm]
             <# foreach($i,entry[instructions]) #>
             {$i[address]}: {$i[operation]}
             <# endfor #>
@@ -8788,7 +8816,7 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
         oc_writer.write_entries(asm_path, map_path)
         self._assert_content_equal(exp_content, '{}/32768.html'.format(asm_path))
 
-    def test_custom_asm_g_page_with_custom_subtemplate(self):
+    def test_custom_asm_g_page_with_custom_subtemplates(self):
         skool = """
             ; Game status buffer entry at 32768
             g32768 DEFB 0
@@ -8796,10 +8824,13 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
         ref = """
             [Template:Asm-g]
             {entry[title]}
+            <# include({SkoolKit[include]}) #>
+            <# include(footer) #>
+
+            [Template:Asm-g-asm]
             <# foreach($i,entry[instructions]) #>
             {$i[address]}: {$i[operation]}
             <# endfor #>
-            <# include(footer) #>
 
             [Template:Asm-g-footer]
             (done)
@@ -8827,11 +8858,14 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
 
             [Template:{}-Asm-g]
             {entry[title]}
-            <# foreach($paragraph,entry[description]) #>
-            {$paragraph}
-            <# endfor #>
+            <# include({SkoolKit[include]}) #>
             <# foreach($i,entry[instructions]) #>
             {$i[address]}: {$i[operation]}
+            <# endfor #>
+
+            [Template:{}-Asm-g-asm]
+            <# foreach($paragraph,entry[description]) #>
+            {$paragraph}
             <# endfor #>
 
             [Template:{}-Asm-g-list]
@@ -8855,7 +8889,7 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
         oc_writer.write_entries(asm_path, map_path)
         self._assert_content_equal(exp_content, '{}/32768.html'.format(asm_path))
 
-    def test_custom_asm_s_page_with_custom_subtemplate(self):
+    def test_custom_asm_s_page_with_custom_subtemplates(self):
         skool = """
             ; Space
             s32768 DEFS 10
@@ -8863,10 +8897,13 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
         ref = """
             [Template:Asm-s]
             {entry[title]}
+            <# include({SkoolKit[include]}) #>
+            <# include(footer) #>
+
+            [Template:Asm-s-asm]
             <# foreach($i,entry[instructions]) #>
             {$i[address]}: {$i[operation]}
             <# endfor #>
-            <# include(footer) #>
 
             [Template:Asm-s-footer]
             -- That was the entry at {entry[address]} --
@@ -8881,7 +8918,7 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
         writer.write_asm_entries()
         self._assert_content_equal(exp_content, 'asm/32768.html')
 
-    def test_custom_other_code_asm_s_page_with_custom_subtemplate(self):
+    def test_custom_other_code_asm_s_page_with_custom_subtemplates(self):
         code_id = 'Stuff'
         other_skool = """
             ; Space
@@ -8892,13 +8929,21 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
 
             [Template:{}-Asm-s]
             {entry[title]}
+            <# include({SkoolKit[include]}) #>
+            <# include(footer) #>
+
+            [Template:{}-Asm-s-asm]
             <# foreach($i,entry[instructions]) #>
             {$i[address]}: {$i[operation]}
             <# endfor #>
+
+            [Template:{}-Asm-s-footer]
+            Over and out.
         """.replace('{}', code_id)
         exp_content = """
             Space
             32768: DEFS 10
+            Over and out.
         """
 
         main_writer = self._get_writer(ref=ref, skool=other_skool)
@@ -8908,7 +8953,7 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
         oc_writer.write_entries(asm_path, map_path)
         self._assert_content_equal(exp_content, '{}/32768.html'.format(asm_path))
 
-    def test_custom_asm_t_page_with_custom_subtemplate(self):
+    def test_custom_asm_t_page_with_custom_subtemplates(self):
         skool = """
             ; Message at 32768
             t32768 DEFM "Hello"
@@ -8919,10 +8964,13 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
 
             [Template:Asm-t]
             {entry[title]}
+            <# include({SkoolKit[include]}) #>
+            <# include(footer) #>
+
+            [Template:Asm-t-asm]
             <# foreach($i,entry[instructions]) #>
             {$i[address]}: {$i[operation]}
             <# endfor #>
-            <# include(footer) #>
 
             [Template:Asm-t-footer]
             -- That was the entry at {entry[address]} --
@@ -8937,7 +8985,7 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
         writer.write_asm_entries()
         self._assert_content_equal(exp_content, 'asm/32768.html')
 
-    def test_custom_other_code_asm_t_page_with_custom_subtemplate(self):
+    def test_custom_other_code_asm_t_page_with_custom_subtemplates(self):
         code_id = 'Stuff'
         other_skool = """
             ; Message at 32768
@@ -8948,13 +8996,21 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
 
             [Template:{}-Asm-t]
             {entry[title]}
+            <# include({SkoolKit[include]}) #>
+            <# include(footer) #>
+
+            [Template:{}-Asm-t-asm]
             <# foreach($i,entry[instructions]) #>
             {$i[address]}: {$i[operation]}
             <# endfor #>
+
+            [Template:{}-Asm-t-footer]
+            Done.
         """.replace('{}', code_id)
         exp_content = """
             Message at 32768
             32768: DEFM "Hello"
+            Done.
         """
 
         main_writer = self._get_writer(ref=ref, skool=other_skool)
@@ -8977,6 +9033,9 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
             <# foreach($paragraph,entry[description]) #>
             {$paragraph}
             <# endfor #>
+            <# include({SkoolKit[include]}) #>
+
+            [Template:Asm-u-asm]
             <# foreach($i,entry[instructions]) #>
             {$i[address]}: {$i[operation]}
             <# endfor #>
@@ -8994,7 +9053,7 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
         writer.write_asm_entries()
         self._assert_content_equal(exp_content, 'asm/32768.html')
 
-    def test_custom_other_code_asm_u_page_with_custom_subtemplate(self):
+    def test_custom_other_code_asm_u_page_with_custom_subtemplates(self):
         code_id = 'Stuff'
         other_skool = """
             ; Unused
@@ -9005,13 +9064,21 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
 
             [Template:{}-Asm-u]
             {entry[title]}
+            <# include({SkoolKit[include]}) #>
+            <# include(footer) #>
+
+            [Template:{}-Asm-u-asm]
             <# foreach($i,entry[instructions]) #>
             {$i[address]}: {$i[operation]}
             <# endfor #>
+
+            [Template:{}-Asm-u-footer]
+            Bye.
         """.replace('{}', code_id)
         exp_content = """
             Unused
             32768: DEFS 100
+            Bye.
         """
 
         main_writer = self._get_writer(ref=ref, skool=other_skool)
@@ -9021,7 +9088,7 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
         oc_writer.write_entries(asm_path, map_path)
         self._assert_content_equal(exp_content, '{}/32768.html'.format(asm_path))
 
-    def test_custom_asm_w_page_with_custom_subtemplate(self):
+    def test_custom_asm_w_page_with_custom_subtemplates(self):
         skool = """
             ; A word
             w32768 DEFW 1759
@@ -9029,20 +9096,28 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
         ref = """
             [Template:Asm-w]
             {entry[title]}
+            <# include({SkoolKit[include]}) #>
+            <# include(footer) #>
+
+            [Template:Asm-w-asm]
             <# foreach($i,entry[instructions]) #>
             {$i[address]}: {$i[operation]}
             <# endfor #>
+
+            [Template:Asm-w-footer]
+            The end.
         """
         exp_content = """
             A word
             32768: DEFW 1759
+            The end.
         """
 
         writer = self._get_writer(ref=ref, skool=skool)
         writer.write_asm_entries()
         self._assert_content_equal(exp_content, 'asm/32768.html')
 
-    def test_custom_other_code_asm_w_page_with_custom_subtemplate(self):
+    def test_custom_other_code_asm_w_page_with_custom_subtemplates(self):
         code_id = 'Stuff'
         other_skool = """
             ; A word
@@ -9053,13 +9128,21 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
 
             [Template:{}-Asm-w]
             {entry[title]}
+            <# include({SkoolKit[include]}) #>
+            <# include(footer) #>
+
+            [Template:{}-Asm-w-asm]
             <# foreach($i,entry[instructions]) #>
             {$i[address]}: {$i[operation]}
             <# endfor #>
+
+            [Template:{}-Asm-w-footer]
+            End.
         """.replace('{}', code_id)
         exp_content = """
             A word
             32768: DEFW 1759
+            End.
         """
 
         main_writer = self._get_writer(ref=ref, skool=other_skool)
