@@ -9152,7 +9152,7 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
         oc_writer.write_entries(asm_path, map_path)
         self._assert_content_equal(exp_content, '{}/32768.html'.format(asm_path))
 
-    def test_custom_map_page(self):
+    def test_custom_map_page_with_custom_subtemplate(self):
         skool = """
             ; Routine at 49152
             ;
@@ -9166,9 +9166,12 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
             [Template:MemoryMap]
             <# foreach($entry,entries) #>
             {$entry[address]}: {$entry[title]}
+            <# include({SkoolKit[include]}) #>
+            <# endfor #>
+
+            [Template:MemoryMap-memory_map]
             <# foreach($paragraph,$entry[description]) #>
             {$paragraph}
-            <# endfor #>
             <# endfor #>
         """
         exp_content = """
@@ -9179,3 +9182,56 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
         writer = self._get_writer(ref=ref, skool=skool)
         writer.write_map('MemoryMap')
         self._assert_content_equal(exp_content, 'maps/all.html')
+
+    def test_custom_page_template_with_custom_subtemplate(self):
+        page_id = 'Stuff'
+        ref = """
+            [Page:{}]
+            PageContent=Here's some stuff.
+
+            [Template:{}]
+            Welcome to the Stuff page.
+            <# include({SkoolKit[include]}) #>
+
+            [Template:{}-page]
+            The content follows.
+            - {Page[PageContent]}
+        """.replace('{}', page_id)
+        exp_content = """
+            Welcome to the Stuff page.
+            The content follows.
+            - Here's some stuff.
+        """
+
+        writer = self._get_writer(ref=ref)
+        writer.write_page(page_id)
+        self._assert_content_equal(exp_content, '{}.html'.format(page_id))
+
+    def test_custom_box_page_template_with_custom_subtemplate(self):
+        page_id = 'Things'
+        ref = """
+            [Page:{}]
+            SectionPrefix=Thing
+
+            [Thing:Thing1]
+            First thing.
+
+            [Thing:Thing2]
+            Second thing.
+
+            [Template:{}]
+            <# foreach($entry,entries) #>
+            <# include({SkoolKit[include]}) #>
+            <# endfor #>
+
+            [Template:{}-boxes]
+            * {$entry[contents][0]}
+        """.replace('{}', page_id)
+        exp_content = """
+            * First thing.
+            * Second thing.
+        """
+
+        writer = self._get_writer(ref=ref)
+        writer.write_page(page_id)
+        self._assert_content_equal(exp_content, '{}.html'.format(page_id))
