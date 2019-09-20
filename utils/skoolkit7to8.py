@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import sys
+import re
 import argparse
 
 DESCRIPTION = """
@@ -68,7 +69,14 @@ def convert_ref(reffile_f):
         print('\n'.join(lines).rstrip() + '\n')
 
 def convert_ctl(ctlfile_f):
-    raise NotImplementedError()
+    for line in ctlfile_f:
+        if line.startswith((' ', 'B ', 'T')):
+            fields = [line[0]] + [t for t in line[1:].lstrip().split(' ', 1) if t]
+            if len(fields) > 1:
+                fields[1] = re.sub('([,:])B([1-9$%])', r'\1n\2', fields[1])
+                fields[1] = re.sub('([,:])T([1-9$%])', r'\1c\2', fields[1])
+                line = ' '.join(fields)
+        sys.stdout.write(line)
 
 def main(args):
     parser = argparse.ArgumentParser(
