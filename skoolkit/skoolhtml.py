@@ -101,11 +101,11 @@ class HtmlWriter:
         links = self.get_dictionary('Links')
 
         self.page_ids = []
-        self.pages = {}
+        self.pages = defaultdict(dict)
         self.box_pages = {}
         for page_id, details in self.get_dictionaries('Page'):
             self._expand_values(details, 'PageContent')
-            page = self.pages.setdefault(page_id, {})
+            page = self.pages[page_id]
             section_prefix = details.get('SectionPrefix')
             if section_prefix:
                 self.box_pages[page_id] = entries = []

@@ -392,7 +392,7 @@ class SkoolParser:
             'vars': self._get_vars()
         }
         self.snapshot = snapshot or [0] * 65536  # 64K of Spectrum memory
-        self._instructions = {}                  # address -> [Instructions]
+        self._instructions = defaultdict(list)   # address -> [Instructions]
         self._entries = {}                       # address -> SkoolEntry
         self.memory_map = []                     # SkoolEntry instances
         self._remote_entries = []                # RemoteEntry instances
@@ -521,7 +521,7 @@ class SkoolParser:
                         instruction.mid_block_comment = mid_block_comment
                         mid_block_comment = None
                         if address is not None:
-                            self._instructions.setdefault(address, []).append(instruction)
+                            self._instructions[address].append(instruction)
                         map_entry.add_instruction(instruction)
 
                 self.mode.apply_asm_attributes(instruction, map_entry, self._instructions, address_comments, removed)
@@ -684,7 +684,7 @@ class SkoolParser:
                 addr_str = self.mode.convert_int_str(addr_str)
                 remote_entry.add_instruction(Instruction(' ', addr_str, ''))
             for instruction in remote_entry.instructions:
-                self._instructions.setdefault(instruction.address, []).append(instruction)
+                self._instructions[instruction.address].append(instruction)
 
     def _parse_instruction(self, line):
         ctl, addr_str, operation, comment = parse_instruction(line)
@@ -856,7 +856,7 @@ class Mode:
                     addr_str = self.convert_int_str(str(address))
                     instruction = Instruction(' ', addr_str, op)
                     if address not in removed:
-                        instructions.setdefault(address, []).append(instruction)
+                        instructions[address].append(instruction)
                         map_entry.add_instruction(instruction)
                 else:
                     instruction = Instruction(' ', '     ', op)
