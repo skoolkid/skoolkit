@@ -39,19 +39,21 @@ def _get_section(sections, name):
 def convert_ref(reffile_f):
     preamble, sections = _parse_ref(reffile_f)
 
-    # TitlePrefix, TitleSuffix
+    # AsmSinglePageTemplate, TitlePrefix, TitleSuffix
     index, game_section = _get_section(sections, 'Game')
     prefixes = ('TitlePrefix=', 'TitleSuffix=')
     values = ['The complete', 'RAM disassembly']
     title_set = False
     if game_section:
-        for line in game_section:
+        for i, line in enumerate(game_section):
             if line.startswith(prefixes[0]):
                 values[0] = line[len(prefixes[0]):]
                 title_set = True
             elif line.startswith(prefixes[1]):
                 values[1] = line[len(prefixes[1]):]
                 title_set = True
+            elif line.startswith('AsmSinglePageTemplate='):
+                game_section[i] = 'AsmSinglePage=1'
     if title_set:
         sections[index][1] = [line for line in game_section if not line.startswith(prefixes)]
         param = 'GameIndex=' + '<>'.join(values)

@@ -151,3 +151,13 @@ th.map-byte-1         th.map-byte
 th.map-length-1       th.map-length
 th.map-page-1         th.map-page
 ====================  ==========
+
+skoolkit7to8.py
+---------------
+The `skoolkit7to8.py`_ script may be used to convert a control file or ref file
+that is compatible with SkoolKit 7 into a file that will work with SkoolKit 8.
+For example, to convert `game.ref`::
+
+  $ skoolkit7to8.py game.ref > game8.ref
+
+.. _skoolkit7to8.py: https://github.com/skoolkid/skoolkit/raw/master/utils/skoolkit7to8.py
