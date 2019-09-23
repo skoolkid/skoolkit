@@ -388,7 +388,7 @@ memory_map
 The ``memory_map`` template is used to format the content between the header
 and footer of memory map pages and the 'Game status buffer' page.
 
-The following identifiers are available (in addition to the universal and
+The following identifier is available (in addition to the universal and
 page-level identifiers):
 
 * ``entries`` - a list of memory map entry objects
@@ -664,9 +664,6 @@ template if it exists, or the stock :ref:`t_footer` template otherwise.
 +----------------------------+----------------------+--------------------+
 | Register name rendered by  | ``PageID-reg``       | :ref:`t_reg`       |
 | the :ref:`REG` macro       |                      |                    |
-+----------------------------+----------------------+--------------------+
-| Section rendered by the    | ``PageID-section``   | :ref:`t_section`   |
-| :ref:`INCLUDE` macro       |                      |                    |
 +----------------------------+----------------------+--------------------+
 | Table created by the       | ``PageID-table``     | :ref:`t_table`     |
 | :ref:`TABLE` macro         |                      |                    |
