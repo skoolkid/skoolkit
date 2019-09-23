@@ -1,4 +1,4 @@
-# Copyright 2012-2014, 2016-2017 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2012-2014, 2016-2017, 2019 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -18,15 +18,15 @@ import zlib
 
 # http://www.libpng.org/pub/png/spec/iso/index-object.html
 # https://wiki.mozilla.org/APNG_Specification
-PNG_SIGNATURE = (137, 80, 78, 71, 13, 10, 26, 10)
+PNG_SIGNATURE = bytes((137, 80, 78, 71, 13, 10, 26, 10))
 IHDR = (73, 72, 68, 82)
 PLTE = (80, 76, 84, 69)
-TRNS = (116, 82, 78, 83)
-ACTL_CHUNK = (0, 0, 0, 8, 97, 99, 84, 76, 0, 0, 0, 2, 0, 0, 0, 0, 243, 141, 147, 112)
+ACTL_CHUNK = bytes((0, 0, 0, 8, 97, 99, 84, 76, 0, 0, 0, 2, 0, 0, 0, 0, 243, 141, 147, 112))
 FCTL = (102, 99, 84, 76)
-IDAT = (73, 68, 65, 84)
-FDAT = (102, 100, 65, 84)
-IEND_CHUNK = (0, 0, 0, 0, 73, 69, 78, 68, 174, 66, 96, 130)
+IDAT = bytes((73, 68, 65, 84))
+FDAT = bytes((102, 100, 65, 84))
+FDAT2 = bytes((102, 100, 65, 84, 0, 0, 0, 2))
+IEND_CHUNK = bytes((0, 0, 0, 0, 73, 69, 78, 68, 174, 66, 96, 130))
 CRC_MASK = 4294967295
 
 BITS4 = [[int(d) for d in '{:04b}'.format(n)] for n in range(16)]
@@ -53,15 +53,9 @@ class PngWriter:
         self.alpha = alpha
         self.compression_level = compression_level
         self.masks = masks
+        self.trns = (116, 82, 78, 83, self.alpha)
         self._create_crc_table()
         self._create_png_method_dict()
-        self.trns = list(TRNS)
-        self.png_signature = bytearray(PNG_SIGNATURE)
-        self.actl_chunk = bytearray(ACTL_CHUNK)
-        self.idat = bytearray(IDAT)
-        self.fdat = bytearray(FDAT)
-        self.fdat2 = bytearray(FDAT + (0, 0, 0, 2))
-        self.iend_chunk = bytearray(IEND_CHUNK)
 
     def write_image(self, frames, img_file, palette, attr_map, has_trans, flash_rect):
         bit_depth, palette_size = self._get_bit_depth(palette)
@@ -70,7 +64,7 @@ class PngWriter:
         frame1_data, frame2_data = self._build_image_data(frame1, palette_size, bit_depth, attr_map, flash_rect)
 
         # PNG signature
-        img_file.write(self.png_signature)
+        img_file.write(PNG_SIGNATURE)
 
         # IHDR
         self._write_ihdr_chunk(img_file, width, height, bit_depth)
@@ -80,11 +74,11 @@ class PngWriter:
 
         # tRNS
         if has_trans and self.alpha != 255:
-            self._write_chunk(img_file, self.trns + [self.alpha])
+            self._write_chunk(img_file, self.trns)
 
         # acTL
         if len(frames) == 1 and flash_rect:
-            img_file.write(self.actl_chunk)
+            img_file.write(ACTL_CHUNK)
         elif len(frames) > 1:
             actl_chunk = (97, 99, 84, 76, 0, 0, 0, len(frames), 0, 0, 0, 0)
             self._write_chunk(img_file, actl_chunk)
@@ -95,23 +89,23 @@ class PngWriter:
             self._write_fctl_chunk(img_file, seq_num, frame1.delay, width, height)
 
         # IDAT
-        self._write_img_data_chunk(img_file, self.idat + frame1_data)
+        self._write_img_data_chunk(img_file, IDAT + frame1_data)
 
         # fcTL and fdAT
         if len(frames) == 1 and flash_rect:
             f2_x_offset, f2_y_offset, f2_width, f2_height = flash_rect
             self._write_fctl_chunk(img_file, 1, frame1.delay, f2_width, f2_height, f2_x_offset, f2_y_offset)
-            self._write_img_data_chunk(img_file, self.fdat2 + frame2_data)
+            self._write_img_data_chunk(img_file, FDAT2 + frame2_data)
         for frame in frames[1:]:
             frame_data = self._build_image_data(frame, palette_size, bit_depth, attr_map)[0]
             seq_num += 1
             self._write_fctl_chunk(img_file, seq_num, frame.delay, frame.width, frame.height)
             seq_num += 1
-            fdat = self.fdat + bytearray(self._to_bytes(seq_num))
+            fdat = FDAT + bytes(self._to_bytes(seq_num))
             self._write_img_data_chunk(img_file, fdat + frame_data)
 
         # IEND
-        img_file.write(self.iend_chunk)
+        img_file.write(IEND_CHUNK)
 
     def _create_crc_table(self):
         self.crc_table = []
@@ -236,14 +230,14 @@ class PngWriter:
         return self._to_bytes(crc ^ CRC_MASK)
 
     def _write_chunk(self, img_file, chunk_data):
-        img_file.write(bytearray(self._to_bytes(len(chunk_data) - 4))) # length
-        img_file.write(bytearray(chunk_data))
-        img_file.write(bytearray(self._get_crc(chunk_data))) # CRC
+        img_file.write(bytes(self._to_bytes(len(chunk_data) - 4))) # length
+        img_file.write(bytes(chunk_data))
+        img_file.write(bytes(self._get_crc(chunk_data))) # CRC
 
     def _write_img_data_chunk(self, img_file, img_data):
-        img_file.write(bytearray(self._to_bytes(len(img_data) - 4))) # length
+        img_file.write(bytes(self._to_bytes(len(img_data) - 4))) # length
         img_file.write(img_data)
-        img_file.write(bytearray(self._get_crc(img_data))) # CRC
+        img_file.write(bytes(self._get_crc(img_data))) # CRC
 
     def _scan_frame(self, frame, scan_udg_f, *args):
         compressor = zlib.compressobj(self.compression_level)
