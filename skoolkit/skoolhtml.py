@@ -208,7 +208,7 @@ class HtmlWriter:
         self.templates = dict(self.get_sections('Template'))
         self.game = self.game_vars.copy()
         self.skoolkit = {}
-        self.stylesheets = {}
+        self.stylesheets = defaultdict(list)
         self.javascript = {}
         self.logo = {}
         self.template_subs = {
@@ -635,7 +635,7 @@ class HtmlWriter:
                     })
                 section_objs.append({'header': header, 'items': items})
 
-        html = self._format_page(cwd, {'sections': section_objs})
+        html = self.format_template(T_LAYOUT, {'sections': section_objs})
         self.write_file(index_fname, html)
 
     def _get_entry_dict(self, cwd, entry, desc=True):
@@ -700,7 +700,7 @@ class HtmlWriter:
             'entries': entries,
             'Page': page
         }
-        return self._format_page(cwd, subs, page.get('JavaScript'))
+        return self.format_template(T_LAYOUT, subs)
 
     def _build_list_items_html(self, cwd, prefix=''):
         page_id = self._get_page_id()
@@ -745,7 +745,7 @@ class HtmlWriter:
             'list_entries': entries,
             'Page': page
         }
-        return self._format_page(cwd, subs, page.get('JavaScript'))
+        return self.format_template(T_LAYOUT, subs)
 
     def _build_list_items(self, cwd, items, level=0):
         if not items:
@@ -866,14 +866,14 @@ class HtmlWriter:
         subs['prev_entry'] = prev_entry_dict
         subs['next_entry'] = next_entry_dict
 
-        html = self._format_page(cwd, subs)
+        html = self.format_template(T_LAYOUT, subs)
         self.write_file(fname, html)
 
     def _write_asm_single_page(self, map_file):
         page_id = self._get_asm_page_id(self.code_id)
         fname, cwd = self._set_cwd(page_id, 'asm_single_page')
         asm_entries = [self._get_asm_entry(cwd, i, map_file) for i in range(len(self.memory_map))]
-        html = self._format_page(cwd, {'entries': asm_entries})
+        html = self.format_template(T_LAYOUT, {'entries': asm_entries})
         self.write_file(fname, html)
 
     def write_entries(self, cwd, map_file):
@@ -918,36 +918,50 @@ class HtmlWriter:
             'MemoryMap': map_dict,
             'entries': map_entries
         }
-        html = self._format_page(cwd, subs)
+        html = self.format_template(T_LAYOUT, subs)
         self.write_file(fname, html)
 
     def write_page(self, page_id):
         page = self.pages[page_id]
         if page_id in self.box_pages:
-            fname, cwd = self._set_cwd(page_id, 'boxes')
+            fname, cwd = self._set_cwd(page_id, 'boxes', js=page.get('JavaScript'))
             html = self._format_box_page(cwd)
         else:
-            fname, cwd = self._set_cwd(page_id, 'page')
+            fname, cwd = self._set_cwd(page_id, 'page', js=page.get('JavaScript'))
             page['PageContent'] = self.expand(page.get('PageContent', ''), cwd)
-            html = self._format_page(cwd, {'Page': page}, page.get('JavaScript'))
+            html = self.format_template(T_LAYOUT, {'Page': page})
         self.write_file(fname, html)
 
     def write_file(self, fname, contents):
         with self.file_info.open_file(fname) as f:
             f.write(contents)
 
-    def _set_cwd(self, page_id, include, asm_fname=None):
+    def _set_cwd(self, page_id, include, asm_fname=None, js=None):
         if asm_fname is None:
             fname = self.paths[page_id]
         else:
             fname = asm_fname
         cwd = os.path.dirname(fname)
+
+        if cwd not in self.stylesheets:
+            for css_file in self.game_vars['StyleSheet'].split(';'):
+                self.stylesheets[cwd].append({'href': self.relpath(cwd, join(self.paths['StyleSheetPath'], basename(css_file)))})
+
+        js_key = (cwd, js)
+        if js_key not in self.javascript:
+            js_files = self.js_files
+            if js:
+                js_files += tuple(js.split(';'))
+            self.javascript[js_key] = [{'src': self.relpath(cwd, join(self.paths['JavaScriptPath'], basename(j)))} for j in js_files]
+
         self.skoolkit['page_id'] = page_id
         self.skoolkit['path'] = fname
         self.skoolkit['index_href'] = self.relpath(cwd, self.paths[P_GAME_INDEX])
         self.skoolkit['title'] = self.expand(self.titles[page_id], cwd)
         self.skoolkit['page_header'] = self.expand(self.page_headers[page_id], cwd).rpartition('<>')[::2]
         self.skoolkit['include'] = include
+        self.skoolkit['javascripts'] = self.javascript[js_key]
+        self.skoolkit['stylesheets'] = self.stylesheets[cwd]
         self.game['Logo'] = self.game['LogoImage'] = self._get_logo(cwd)
         if asm_fname is None:
             self.init_page(self.skoolkit, self.game)
@@ -965,29 +979,6 @@ class HtmlWriter:
         :param game: The ``Game`` parameter dictionary.
         """
         pass
-
-    def _format_page(self, cwd, subs, js=None):
-        if cwd not in self.stylesheets:
-            stylesheets = []
-            for css_file in self.game_vars['StyleSheet'].split(';'):
-                stylesheets.append({'href': self.relpath(cwd, join(self.paths['StyleSheetPath'], basename(css_file)))})
-            self.stylesheets[cwd] = stylesheets
-
-        js_key = (cwd, js)
-        if js_key not in self.javascript:
-            javascripts = []
-            if js:
-                js_files = list(self.js_files)
-                js_files.extend(js.split(';'))
-            else:
-                js_files = self.js_files
-            for js_file in js_files:
-                javascripts.append({'src': self.relpath(cwd, join(self.paths['JavaScriptPath'], basename(js_file)))})
-            self.javascript[js_key] = javascripts
-
-        subs['stylesheets'] = self.stylesheets[cwd]
-        subs['javascripts'] = self.javascript[js_key]
-        return self.format_template(T_LAYOUT, subs)
 
     def _get_logo(self, cwd):
         if cwd not in self.logo:

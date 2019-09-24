@@ -20,11 +20,15 @@ The parameters in the ``SkoolKit`` dictionary are:
 * ``include`` - the name of the subtemplate used to format the content between
   the page header and footer
 * ``index_href`` - the relative path to the disassembly index page
+* ``javascripts`` - a list of javascript objects; each one has a single
+  attribute, ``src``, which holds the relative path to the JavaScript file
 * ``page_header`` - a two-element list containing the page header prefix and
   suffix (as defined in the :ref:`pageHeaders` section)
 * ``page_id`` - the page ID (e.g. ``GameIndex``, ``MemoryMap``)
 * ``path`` - the page's filename, including the full path relative to the root
   of the disassembly
+* ``stylesheets`` - a list of stylesheet objects; each one has a single
+  attribute, ``href``, which holds the relative path to the CSS file
 * ``title`` - the title of the page (as defined in the :ref:`titles` section)
 
 The parameters in a dictionary are accessed using the ``[param]`` notation;
@@ -32,19 +36,10 @@ for example, wherever ``{Game[Copyright]}`` appears in a template, it is
 replaced by the value of the ``Copyright`` parameter in the :ref:`ref-game`
 section when the template is formatted.
 
-In addition to the universal identifiers, the following page-level identifiers
-are available in the :ref:`t_Layout` template, and any subtemplates it
-includes:
-
-* ``javascripts`` - a list of javascript objects; each one has a single
-  attribute, ``src``, which holds the relative path to the JavaScript file
-* ``stylesheets`` - a list of stylesheet objects; each one has a single
-  attribute, ``href``, which holds the relative path to the CSS file
-
 .. versionchanged:: 8.0
    ``SkoolKit[page_header]`` is a two-element list containing the page header
-   prefix and suffix. Added ``SkoolKit[include]``, and the ``javascripts`` and
-   ``stylesheets`` page-level identifiers.
+   prefix and suffix. Added ``SkoolKit[include]``, ``SkoolKit[javascripts]``
+   and ``SkoolKit[stylesheets]``.
 
 .. versionchanged:: 6.4
    Added ``SkoolKit[path]``.
@@ -56,13 +51,13 @@ Layout
 The ``Layout`` template is used to format every HTML page.
 
 In any page defined by a :ref:`page` section, the following identifier is
-available (in addition to the universal and page-level identifiers):
+available (in addition to the universal identifiers):
 
 * ``Page`` - a dictionary of the parameters in the corresponding :ref:`page`
   section
 
 In any page defined by a :ref:`memoryMap` section, the following identifier is
-available (in addition to the universal and page-level identifiers):
+available (in addition to the universal identifiers):
 
 * ``MemoryMap`` - a dictionary of the parameters in the corresponding
   :ref:`memoryMap` section
@@ -80,8 +75,8 @@ asm
 The ``asm`` template is used to format the content between the header and
 footer of a disassembly page.
 
-The following identifiers are available (in addition to the universal and
-page-level identifiers):
+The following identifiers are available (in addition to the universal
+identifiers):
 
 * ``entry`` - a dictionary of parameters corresponding to the current memory
   map entry (see below)
@@ -195,8 +190,8 @@ asm_single_page
 The ``asm_single_page`` template is used to format the content between the
 header and footer of a single-page disassembly.
 
-The following identifier is available (in addition to the universal and
-page-level identifiers):
+The following identifier is available (in addition to the universal
+identifiers):
 
 * ``entries`` - a list of memory map entry objects
 
@@ -218,8 +213,8 @@ footer of a :ref:`box page <boxpages>`. A box page may contain either list
 entries (when the page's ``SectionType`` is ``BulletPoints`` or ``ListItems``)
 or regular entries.
 
-The following identifiers are available (in addition to the universal and
-page-level identifiers):
+The following identifiers are available (in addition to the universal
+identifiers):
 
 * ``entries`` - a list of regular entry objects (empty if the page contains
   list entries)
@@ -267,8 +262,8 @@ home
 The ``home`` template is used to format the content between the header and
 footer of the disassembly home page.
 
-The following identifier is available (in addition to the universal and
-page-level identifiers):
+The following identifier is available (in addition to the universal
+identifiers):
 
 * ``sections`` - a list of section objects
 
@@ -388,8 +383,8 @@ memory_map
 The ``memory_map`` template is used to format the content between the header
 and footer of memory map pages and the 'Game status buffer' page.
 
-The following identifier is available (in addition to the universal and
-page-level identifiers):
+The following identifier is available (in addition to the universal
+identifiers):
 
 * ``entries`` - a list of memory map entry objects
 

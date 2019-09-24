@@ -620,9 +620,11 @@ class MethodTest(HtmlWriterTestCase):
         exp_skoolkit = {
             'include': 'asm',
             'index_href': '../index.html',
+            'javascripts': [],
             'page_header': ['', 'Routine at 32768'],
             'page_id': 'Asm-c',
             'path': 'asm/32768.html',
+            'stylesheets': [{'href': '../style.css'}],
             'title': 'Routine at 32768'
         }
         def mock_init_page(skoolkit, game):
@@ -7529,7 +7531,7 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             JavaScript={0}
             [Page:{1}]
             [Template:{1}]
-            <# foreach($js,javascripts) #>
+            <# foreach($js,SkoolKit[javascripts]) #>
             <script type="text/javascript" src="{{$js[src]}}"></script>
             <# endfor #>
         """.format(global_js, page_id)
@@ -7548,7 +7550,7 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             [Page:{1}]
             Path=
             [Template:{1}]
-            <# foreach($js,javascripts) #>
+            <# foreach($js,SkoolKit[javascripts]) #>
             <script type="text/javascript" src="{{$js[src]}}"></script>
             <# endfor #>
         """.format(global_js, page_id)
@@ -7566,7 +7568,7 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             [Page:{0}]
             JavaScript={1}
             [Template:{0}]
-            <# foreach($js,javascripts) #>
+            <# foreach($js,SkoolKit[javascripts]) #>
             <script type="text/javascript" src="{{$js[src]}}"></script>
             <# endfor #>
         """.format(page_id, js)
@@ -7583,7 +7585,7 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             [Page:{0}]
             JavaScript={1}
             [Template:{0}]
-            <# foreach($js,javascripts) #>
+            <# foreach($js,SkoolKit[javascripts]) #>
             <script type="text/javascript" src="{{$js[src]}}"></script>
             <# endfor #>
         """.format(page_id, js)
@@ -7606,7 +7608,7 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             [Page:{1}]
             JavaScript={2}
             [Template:{1}]
-            <# foreach($js,javascripts) #>
+            <# foreach($js,SkoolKit[javascripts]) #>
             <script type="text/javascript" src="{{$js[src]}}"></script>
             <# endfor #>
         """.format(global_js, page_id, local_js)
@@ -7626,7 +7628,7 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             [Box:box1]
             Hi.
             [Template:{0}]
-            <# foreach($js,javascripts) #>
+            <# foreach($js,SkoolKit[javascripts]) #>
             <script type="text/javascript" src="{{$js[src]}}"></script>
             <# endfor #>
         """.format(page_id, js)
@@ -7646,7 +7648,7 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             [Box:box1]
             Hi.
             [Template:{0}]
-            <# foreach($js,javascripts) #>
+            <# foreach($js,SkoolKit[javascripts]) #>
             <script type="text/javascript" src="{{$js[src]}}"></script>
             <# endfor #>
         """.format(page_id, js)
@@ -7666,7 +7668,7 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             [Box:box1]
             Hi.
             [Template:{0}]
-            <# foreach($js,javascripts) #>
+            <# foreach($js,SkoolKit[javascripts]) #>
             <script type="text/javascript" src="{{$js[src]}}"></script>
             <# endfor #>
         """.format(page_id, js)
@@ -7684,7 +7686,7 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             [Page:{1}]
             Path=
             [Template:{1}]
-            <# foreach($css,stylesheets) #>
+            <# foreach($css,SkoolKit[stylesheets]) #>
             <link rel="stylesheet" type="text/css" href="{{$css[href]}}" />
             <# endfor #>
         """.format(css, page_id)
@@ -7702,7 +7704,7 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             [Page:{1}]
             Path=
             [Template:{1}]
-            <# foreach($css,stylesheets) #>
+            <# foreach($css,SkoolKit[stylesheets]) #>
             <link rel="stylesheet" type="text/css" href="{{$css[href]}}" />
             <# endfor #>
         """.format(';'.join(css_files), page_id)

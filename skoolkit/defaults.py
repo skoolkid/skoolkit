@@ -258,10 +258,10 @@ SECTIONS['Template:Layout'] = """
 <head>
 <title>{Game[Game]}: {SkoolKit[title]}</title>
 <meta charset="utf-8" />
-<# foreach($css,stylesheets) #>
+<# foreach($css,SkoolKit[stylesheets]) #>
 <link rel="stylesheet" type="text/css" href="{$css[href]}" />
 <# endfor #>
-<# foreach($js,javascripts) #>
+<# foreach($js,SkoolKit[javascripts]) #>
 <script type="text/javascript" src="{$js[src]}"></script>
 <# endfor #>
 </head>
