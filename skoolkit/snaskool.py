@@ -18,7 +18,7 @@ from collections import defaultdict, namedtuple
 
 from skoolkit import (SkoolKitError, warn, write_line, wrap, parse_int,
                       get_address_format, format_template)
-from skoolkit.api import get_component
+from skoolkit.api import get_component, get_value
 from skoolkit.skoolasm import UDGTABLE_MARKER
 from skoolkit.skoolctl import (AD_IGNOREUA, AD_LABEL, TITLE, DESCRIPTION,
                                REGISTERS, MID_BLOCK, INSTRUCTION, END)
@@ -30,12 +30,16 @@ MIN_COMMENT_WIDTH = 10
 
 DisassemblerConfig = namedtuple('DisassemblerConfig', 'asm_hex asm_lower defb_size defm_size defw_size')
 
-def calculate_references(entries):
+def calculate_references(entries, operations):
     """
     For each entry point in each routine, calculate a list of the entries
     containing instructions that jump to or call that entry point.
 
     :param entries: A collection of memory map entries.
+    :param operations: A tuple of operation prefixes. Any instruction whose
+                       operation starts with one of these prefixes is regarded
+                       as a jump or call operation, and therefore identifies an
+                       entry point.
     :return: A dictionary of entry point addresses.
     """
     containers = {i.address: e for e in entries for i in e.instructions if i.label != ''}
@@ -43,7 +47,7 @@ def calculate_references(entries):
     for entry in entries:
         for instruction in entry.instructions:
             operation = instruction.operation
-            if operation.upper().startswith(('DJ', 'JR', 'JP', 'CA', 'RS')):
+            if operation.upper().startswith(operations):
                 addr_str = get_address(operation)
                 if addr_str:
                     ref_addr = parse_int(addr_str)
@@ -223,7 +227,8 @@ class Disassembly:
                     break
 
     def _calculate_references(self):
-        referrers = self.ref_calc.calculate_references(self.entries)
+        operations = get_value('SnapshotReferenceOperations').upper()
+        referrers = self.ref_calc.calculate_references(self.entries, tuple(operations.split(',')))
         for entry in self.entries:
             for instruction in entry.instructions:
                 for entry in referrers.get(instruction.address, ()):

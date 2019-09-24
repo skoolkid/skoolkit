@@ -4067,7 +4067,7 @@ class SkoolWriterTest(SkoolKitTestCase):
     @patch.object(api, 'SK_CONFIG', None)
     def test_custom_snapshot_reference_calculator(self):
         custom_ref_calc = """
-            def calculate_references(entries):
+            def calculate_references(entries, operations):
                 return {1: [entries[0]]}
         """
         self.write_component_config('SnapshotReferenceCalculator', '*', custom_ref_calc)
@@ -4091,7 +4091,7 @@ class SkoolWriterTest(SkoolKitTestCase):
     @patch.object(api, 'SK_CONFIG', None)
     def test_snapshot_reference_calculator_api(self):
         custom_ref_calc = """
-            def calculate_references(entries):
+            def calculate_references(entries, operations):
                 entry = entries[0]
                 assert entry.ctl == 'c'
                 instruction = entry.instructions[0]
@@ -4099,6 +4099,7 @@ class SkoolWriterTest(SkoolKitTestCase):
                 assert instruction.bytes == [201]
                 assert instruction.label == 'START'
                 assert instruction.operation == 'RET'
+                assert operations == ('DJ', 'JR', 'JP', 'CA', 'RS')
                 return {}
         """
         self.write_component_config('SnapshotReferenceCalculator', '*', custom_ref_calc)
@@ -4112,5 +4113,34 @@ class SkoolWriterTest(SkoolKitTestCase):
             ; Routine at 0
             @label=START
             c00000 RET           ;
+        """
+        self._test_write_skool(snapshot, ctl, exp_skool)
+
+    @patch.object(api, 'SK_CONFIG', None)
+    def test_custom_snapshot_reference_operations(self):
+        ini = "[skoolkit]\nSnapshotReferenceOperations=CA,JR"
+        self.write_text_file(ini, 'skoolkit.ini')
+        snapshot = [205, 8, 0, 24, 4, 195, 10, 0, 175, 168, 201]
+        ctl = """
+            c 00000
+              00000 Will create an entry point at 8
+              00003 Will create an entry point at 9
+              00005 Won't create an entry point at 10
+            c 00008
+            i 00011
+        """
+        exp_skool = """
+            ; Routine at 0
+            c00000 CALL 8        ; Will create an entry point at 8
+             00003 JR 9          ; Will create an entry point at 9
+             00005 JP 10         ; Won't create an entry point at 10
+
+            ; Routine at 8
+            ;
+            ; Used by the routine at #R0.
+            c00008 XOR A         ;
+            ; This entry point is used by the routine at #R0.
+            *00009 XOR B         ;
+             00010 RET           ;
         """
         self._test_write_skool(snapshot, ctl, exp_skool)

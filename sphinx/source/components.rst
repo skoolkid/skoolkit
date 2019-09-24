@@ -25,6 +25,7 @@ working directory or in `~/.skoolkit`. The default contents of the
   InstructionUtility=skoolkit.skoolparser.InstructionUtility
   SnapshotReader=skoolkit.snapshot
   SnapshotReferenceCalculator=skoolkit.snaskool
+  SnapshotReferenceOperations=DJ,JR,JP,CA,RS
 
 .. _assembler:
 
@@ -187,6 +188,10 @@ common with skoolkit.snaskool:
 
 .. automodule:: skoolkit.snaskool
    :members: calculate_references
+
+The value of the *operations* argument is derived from the
+``SnapshotReferenceOperations`` parameter in the ``[skoolkit]`` section of
+`skoolkit.ini`.
 
 Each memory map entry has the following attributes:
 

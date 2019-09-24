@@ -28,7 +28,8 @@ COMMANDS = {
         'Disassembler': 'skoolkit.disassembler.Disassembler',
         'InstructionUtility': 'skoolkit.skoolparser.InstructionUtility',
         'SnapshotReader': 'skoolkit.snapshot',
-        'SnapshotReferenceCalculator': 'skoolkit.snaskool'
+        'SnapshotReferenceCalculator': 'skoolkit.snaskool',
+        'SnapshotReferenceOperations': 'DJ,JR,JP,CA,RS'
     },
     'sna2ctl' : {
         'Dictionary': ('', ''),

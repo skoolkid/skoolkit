@@ -19,11 +19,14 @@ from skoolkit.config import get_config
 
 SK_CONFIG = None
 
-def get_component(component, *args):
+def get_value(name):
     global SK_CONFIG
     if SK_CONFIG is None:
         SK_CONFIG = get_config('skoolkit')
-    obj = get_object(SK_CONFIG[component])
+    return SK_CONFIG[name]
+
+def get_component(component, *args):
+    obj = get_object(get_value(component))
     if callable(obj):
         return obj(*args)
     return obj
