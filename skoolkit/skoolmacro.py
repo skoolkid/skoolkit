@@ -145,8 +145,9 @@ def parse_strings(text, index=0, num=0, defaults=()):
 
     :param text: The text to parse.
     :param index: The index at which to start parsing.
-    :param num: The maximum number of parameters to parse; if 0, all parameters
-                are parsed.
+    :param num: The maximum number of parameters to parse. If 0, all parameters
+                are parsed; if 1, the entire parameter string is parsed as a
+                single parameter, regardless of commas.
     :param defaults: The default values of the optional parameters.
     :return: A tuple of the form ``(end, result)``, where:
 

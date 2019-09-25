@@ -151,6 +151,13 @@ class SkoolMacroTest(SkoolKitTestCase):
         self.assertEqual((5, 'qux'), parse_strings('/qux/', num=1))
         self.assertEqual((7, 'xyzzy'), parse_strings('|xyzzy|', num=1))
 
+        # One string, containing commas
+        self.assertEqual((9, 'foo,bar'), parse_strings('(foo,bar)', num=1))
+        self.assertEqual((13, 'bar,baz,qux'), parse_strings('{bar,baz,qux}', num=1))
+        self.assertEqual((13, 'baz,qux,y,z'), parse_strings('[baz,qux,y,z]', num=1))
+        self.assertEqual((9, 'qux,yyy'), parse_strings('/qux,yyy/', num=1))
+        self.assertEqual((9, 'yyy,zzz'), parse_strings('|yyy,zzz|', num=1))
+
         # Two strings
         self.assertEqual((9, ['foo', 'bar']), parse_strings('(foo,bar)', num=2))
         self.assertEqual((9, ['foo', 'bar']), parse_strings('{foo,bar}', num=2))
