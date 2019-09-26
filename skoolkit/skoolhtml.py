@@ -205,7 +205,7 @@ class HtmlWriter:
         if global_js:
             self.js_files = tuple(global_js.split(';'))
 
-        self.templates = dict(self.get_sections('Template'))
+        self.formatter = TemplateFormatter(dict(self.get_sections('Template')))
         self.game = self.game_vars.copy()
         self.skoolkit = {}
         self.stylesheets = defaultdict(list)
@@ -247,114 +247,6 @@ class HtmlWriter:
     def set_style_sheet(self, value):
         self.game_vars['StyleSheet'] = value
 
-    def _html_template_directive(self, line):
-        if line.startswith('<#') and line.endswith('#>'):
-            return line[2:-2].strip()
-        return ''
-
-    def _eval_template_expr(self, expr, fields):
-        if expr:
-            try:
-                return eval(re.sub('\[([^0-9][^]]*)\]', r"['\1']", expr.format(**fields)), None, fields)
-            except SyntaxError:
-                raise ValueError("Syntax error in expression: '{}'".format(expr))
-            except KeyError as e:
-                raise SkoolKitError("Unrecognised field '{}'".format(e.args[0]))
-        raise ValueError('Expression is missing')
-
-    def _process_include(self, lines, fields):
-        while 1:
-            done = True
-            processed = []
-            for line in lines:
-                directive = self._html_template_directive(line)
-                if directive.startswith('include('):
-                    try:
-                        tname = skoolmacro.parse_strings(directive, 7, 1)[1].format(**fields)
-                    except KeyError as e:
-                        raise SkoolKitError("Unrecognised field '{}'".format(e.args[0]))
-                    if tname:
-                        processed.extend(self._get_template(tname)[1])
-                    done = False
-                else:
-                    processed.append(line)
-            if done:
-                return processed
-            lines = processed
-
-    def _process_if(self, lines, fields):
-        processed = []
-        stack = [1]
-        for line in lines:
-            directive = self._html_template_directive(line)
-            if directive.startswith('if('):
-                end, expr = skoolmacro.parse_brackets(directive, 2)
-                value = self._eval_template_expr(expr, fields)
-                stack.append(value)
-            elif directive == 'else' and len(stack) > 1:
-                stack[-1] = not stack[-1]
-            elif directive == 'endif' and len(stack) > 1:
-                stack.pop()
-            elif all(stack):
-                processed.append(line)
-        return processed
-
-    def _sub_loop_var(self, lines, substr, rep):
-        subbed = []
-        for line in lines:
-            if isinstance(line, tuple):
-                varname, seqname, loop = line
-                subbed_loop = self._sub_loop_var(loop, substr, rep)
-                subbed.append((varname, seqname.replace(substr, rep), subbed_loop))
-            else:
-                subbed.append(line.replace(substr, rep))
-        return subbed
-
-    def _unroll_loops(self, lines, fields):
-        unrolled = []
-        for line in lines:
-            if isinstance(line, tuple):
-                varname, seqname, loop = line
-                seq = self._eval_template_expr(seqname, fields)
-                try:
-                    for i in range(len(seq)):
-                        unrolled.extend(self._sub_loop_var(loop, varname, '{}[{}]'.format(seqname, i)))
-                except TypeError:
-                    raise ValueError("'{}' is not a list".format(seqname))
-            else:
-                unrolled.append(line)
-        return unrolled
-
-    def _process_foreach(self, lines, fields):
-        processed = []
-        stack = [processed]
-        for line in lines:
-            directive = self._html_template_directive(line)
-            if directive.startswith('foreach('):
-                varname, seqname = skoolmacro.parse_strings(directive, 7, 2)[1]
-                stack.append([])
-                stack[-2].append((varname, seqname, stack[-1]))
-            elif directive == 'endfor' and len(stack) > 1:
-                stack.pop()
-            else:
-                stack[-1].append(line)
-        while any(isinstance(line, tuple) for line in processed):
-            processed = self._unroll_loops(processed, fields)
-        return processed
-
-    def _get_template(self, name):
-        tname = self._get_page_id()
-        if name != T_LAYOUT:
-            tname += '-' + name
-        if tname not in self.templates:
-            tname = re.sub('Asm-[bcgstuw]', 'Asm', tname)
-        if tname not in self.templates:
-            tname = name
-        try:
-            return tname, self.templates[tname].split('\n')
-        except KeyError as e:
-            raise SkoolKitError("'{}' template does not exist".format(e.args[0]))
-
     # API
     def format_template(self, name, fields):
         """Format a template with a set of replacement fields.
@@ -364,20 +256,7 @@ class HtmlWriter:
         :return: The formatted string.
         """
         fields.update(self.template_subs)
-        tname, lines = self._get_template(name)
-        try:
-            lines = self._process_include(lines, fields)
-        except SkoolKitError as e:
-            raise SkoolKitError("Invalid include directive: {}".format(e.args[0]))
-        try:
-            lines = self._process_foreach(lines, fields)
-        except (skoolmacro.MacroParsingError, NameError, ValueError) as e:
-            raise SkoolKitError("Invalid foreach directive: {}".format(e.args[0]))
-        try:
-            lines = self._process_if(lines, fields)
-        except (SkoolKitError, skoolmacro.MacroParsingError, NameError, ValueError) as e:
-            raise SkoolKitError("Invalid if directive: {}".format(e.args[0]))
-        return format_template('\n'.join(lines), tname, **fields)
+        return self.formatter.format_template(self._get_page_id(), name, fields)
 
     def _expand_values(self, obj, *exceptions):
         if isinstance(obj, str):
@@ -1266,3 +1145,131 @@ class Bytes:
         else:
             bspec, sep = spec, ''
         return sep.join(v.__format__(bspec) for v in self.values)
+
+class TemplateFormatter:
+    def __init__(self, templates):
+        self.templates = templates
+
+    def format_template(self, page_id, name, fields):
+        tname, lines = self._get_template(page_id, name)
+        try:
+            lines = self._process_include(page_id, lines, fields)
+        except SkoolKitError as e:
+            raise SkoolKitError("Invalid include directive: {}".format(e.args[0]))
+        try:
+            lines = self._process_foreach(lines, fields)
+        except (skoolmacro.MacroParsingError, NameError, ValueError) as e:
+            raise SkoolKitError("Invalid foreach directive: {}".format(e.args[0]))
+        try:
+            lines = self._process_if(lines, fields)
+        except (SkoolKitError, skoolmacro.MacroParsingError, NameError, ValueError) as e:
+            raise SkoolKitError("Invalid if directive: {}".format(e.args[0]))
+        return format_template('\n'.join(lines), tname, **fields)
+
+    def _get_template(self, page_id, name):
+        tname = page_id
+        if name != T_LAYOUT:
+            tname += '-' + name
+        if tname not in self.templates:
+            tname = re.sub('Asm-[bcgstuw]', 'Asm', tname)
+        if tname not in self.templates:
+            tname = name
+        try:
+            return tname, self.templates[tname].split('\n')
+        except KeyError as e:
+            raise SkoolKitError("'{}' template does not exist".format(e.args[0]))
+
+    def _process_include(self, page_id, lines, fields):
+        while 1:
+            done = True
+            processed = []
+            for line in lines:
+                directive = self._html_template_directive(line)
+                if directive.startswith('include('):
+                    try:
+                        tname = skoolmacro.parse_strings(directive, 7, 1)[1].format(**fields)
+                    except KeyError as e:
+                        raise SkoolKitError("Unrecognised field '{}'".format(e.args[0]))
+                    if tname:
+                        processed.extend(self._get_template(page_id, tname)[1])
+                    done = False
+                else:
+                    processed.append(line)
+            if done:
+                return processed
+            lines = processed
+
+    def _process_foreach(self, lines, fields):
+        processed = []
+        stack = [processed]
+        for line in lines:
+            directive = self._html_template_directive(line)
+            if directive.startswith('foreach('):
+                varname, seqname = skoolmacro.parse_strings(directive, 7, 2)[1]
+                stack.append([])
+                stack[-2].append((varname, seqname, stack[-1]))
+            elif directive == 'endfor' and len(stack) > 1:
+                stack.pop()
+            else:
+                stack[-1].append(line)
+        while any(isinstance(line, tuple) for line in processed):
+            processed = self._unroll_loops(processed, fields)
+        return processed
+
+    def _process_if(self, lines, fields):
+        processed = []
+        stack = [1]
+        for line in lines:
+            directive = self._html_template_directive(line)
+            if directive.startswith('if('):
+                end, expr = skoolmacro.parse_brackets(directive, 2)
+                value = self._eval_template_expr(expr, fields)
+                stack.append(value)
+            elif directive == 'else' and len(stack) > 1:
+                stack[-1] = not stack[-1]
+            elif directive == 'endif' and len(stack) > 1:
+                stack.pop()
+            elif all(stack):
+                processed.append(line)
+        return processed
+
+    def _html_template_directive(self, line):
+        if line.startswith('<#') and line.endswith('#>'):
+            return line[2:-2].strip()
+        return ''
+
+    def _unroll_loops(self, lines, fields):
+        unrolled = []
+        for line in lines:
+            if isinstance(line, tuple):
+                varname, seqname, loop = line
+                seq = self._eval_template_expr(seqname, fields)
+                try:
+                    for i in range(len(seq)):
+                        unrolled.extend(self._sub_loop_var(loop, varname, '{}[{}]'.format(seqname, i)))
+                except TypeError:
+                    raise ValueError("'{}' is not a list".format(seqname))
+            else:
+                unrolled.append(line)
+        return unrolled
+
+    def _eval_template_expr(self, expr, fields):
+        if expr:
+            try:
+                return eval(re.sub('\[([^0-9][^]]*)\]', r"['\1']", expr.format(**fields)), None, fields)
+            except SyntaxError:
+                raise ValueError("Syntax error in expression: '{}'".format(expr))
+            except KeyError as e:
+                raise SkoolKitError("Unrecognised field '{}'".format(e.args[0]))
+        raise ValueError('Expression is missing')
+
+    def _sub_loop_var(self, lines, substr, rep):
+        subbed = []
+        for line in lines:
+            if isinstance(line, tuple):
+                varname, seqname, loop = line
+                subbed_loop = self._sub_loop_var(loop, substr, rep)
+                subbed.append((varname, seqname.replace(substr, rep), subbed_loop))
+            else:
+                subbed.append(line.replace(substr, rep))
+        return subbed
