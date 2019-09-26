@@ -286,6 +286,16 @@ class BinWriterTest(SkoolKitTestCase):
         self.assertEqual(self.out.getvalue(), b'abc')
         self.assertEqual(self.err.getvalue(), "Wrote stdout: start=30000, end=30003, size=3\n")
 
+    def test_blank_i_block(self):
+        skool = """
+            b30000 DEFB 1
+
+            i30001
+
+            b30002 DEFB 2
+        """
+        self._test_write(skool, 30000, [1, 0, 2])
+
     def test_start_address(self):
         skool = """
             c50000 LD A,C

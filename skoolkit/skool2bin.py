@@ -83,7 +83,7 @@ class BinWriter:
             after.insert(0, (False, original_op, False))
         overwrite, operation = after.pop(0)[:2]
         operation = operation or original_op
-        if skool_address not in removed:
+        if operation and skool_address not in removed:
             address = self._assemble(operation, address, overwrite, removed)
         for overwrite, operation, append in after:
             if operation:
