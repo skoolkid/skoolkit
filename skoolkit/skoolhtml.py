@@ -27,6 +27,7 @@ import re
 from io import StringIO
 
 from skoolkit import skoolmacro, SkoolKitError, warn, parse_int, format_template
+from skoolkit.api import get_component
 from skoolkit.defaults import REF_FILE
 from skoolkit.graphics import Frame, adjust_udgs, build_udg, font_udgs, scr_udgs
 from skoolkit.image import ImageWriter
@@ -205,7 +206,7 @@ class HtmlWriter:
         if global_js:
             self.js_files = tuple(global_js.split(';'))
 
-        self.formatter = TemplateFormatter(dict(self.get_sections('Template')))
+        self.formatter = get_component('HtmlTemplateFormatter', dict(self.get_sections('Template')))
         self.game = self.game_vars.copy()
         self.skoolkit = {}
         self.stylesheets = defaultdict(list)
@@ -1147,10 +1148,21 @@ class Bytes:
         return sep.join(v.__format__(bspec) for v in self.values)
 
 class TemplateFormatter:
+    """Initialise the template formatter.
+
+    :param templates: A dictionary of templates keyed by template name.
+    """
     def __init__(self, templates):
         self.templates = templates
 
     def format_template(self, page_id, name, fields):
+        """Format a template.
+
+        :param page_id: The ID of the current page.
+        :param name: The template name.
+        :param fields: A dictionary of replacement field values.
+        :return: The text of the formatted template.
+        """
         tname, lines = self._get_template(page_id, name)
         try:
             lines = self._process_include(page_id, lines, fields)

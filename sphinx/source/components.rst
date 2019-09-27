@@ -9,6 +9,7 @@ SkoolKit relies on several components in order to function:
 * :ref:`ctlcomposer`
 * :ref:`ctlgenerator`
 * :ref:`disassembler`
+* :ref:`htmlTemplateFormatter`
 * :ref:`instructionUtility`
 * :ref:`snapshotReader`
 * :ref:`snapshotRefCalc`
@@ -22,6 +23,7 @@ working directory or in `~/.skoolkit`. The default contents of the
   ControlDirectiveComposer=skoolkit.skoolctl
   ControlFileGenerator=skoolkit.snactl
   Disassembler=skoolkit.disassembler.Disassembler
+  HtmlTemplateFormatter=skoolkit.skoolhtml.TemplateFormatter
   InstructionUtility=skoolkit.skoolparser.InstructionUtility
   SnapshotReader=skoolkit.snapshot
   SnapshotReferenceCalculator=skoolkit.snaskool
@@ -98,6 +100,16 @@ tuples of the form ``(size, base)``, each of which specifies the desired size
 If the first element of *sublengths* has a ``size`` value of 0, then the method
 should produce a list of statements with default sizes (as determined by
 `defb_size`, `defm_size` and `defw_size`), using the specified base.
+
+.. _htmlTemplateFormatter:
+
+HTML template formatter
+-----------------------
+This class is responsible for formatting HTML templates. It must supply the
+following API methods, in common with skoolkit.skoolhtml.TemplateFormatter:
+
+.. autoclass:: skoolkit.skoolhtml.TemplateFormatter
+   :members: format_template
 
 .. _instructionUtility:
 

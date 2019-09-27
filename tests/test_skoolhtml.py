@@ -6,7 +6,7 @@ from unittest.mock import patch
 
 from skoolkittest import SkoolKitTestCase, StringIO
 from macrotest import CommonSkoolMacroTest, nest_macros
-from skoolkit import BASE_10, BASE_16, VERSION, SkoolKitError, SkoolParsingError, defaults, skoolhtml
+from skoolkit import BASE_10, BASE_16, VERSION, SkoolKitError, SkoolParsingError, api, defaults, skoolhtml
 from skoolkit.graphics import Udg, Frame
 from skoolkit.image import ImageWriter
 from skoolkit.skoolmacro import UnsupportedMacroError
@@ -9233,6 +9233,55 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
             * First thing.
             * Second thing.
         """
+
+        writer = self._get_writer(ref=ref)
+        writer.write_page(page_id)
+        self._assert_content_equal(exp_content, '{}.html'.format(page_id))
+
+    @patch.object(api, 'SK_CONFIG', None)
+    def test_custom_html_template_formatter(self):
+        custom_formatter = """
+            from skoolkit.skoolhtml import TemplateFormatter
+
+            class CustomFormatter(TemplateFormatter):
+                def format_template(self, page_id, name, fields):
+                    return 'Hello {Page[PageContent]}'.format(**fields)
+        """
+        self.write_component_config('HtmlTemplateFormatter', '*.CustomFormatter', custom_formatter)
+        page_id = 'Things'
+        ref = """
+            [Page:{}]
+            PageContent=there
+        """.format(page_id)
+        exp_content = "Hello there"
+
+        writer = self._get_writer(ref=ref)
+        writer.write_page(page_id)
+        self._assert_content_equal(exp_content, '{}.html'.format(page_id))
+
+    @patch.object(api, 'SK_CONFIG', None)
+    def test_html_template_formatter_api(self):
+        custom_formatter = """
+            class CustomFormatter:
+                def __init__(self, templates):
+                    assert templates['Stuff'] == 'bar'
+
+                def format_template(self, page_id, name, fields):
+                    assert page_id == 'Stuff'
+                    assert name == 'Layout'
+                    assert fields['Page'] == {'PageContent': 'foo'}
+                    return "baz"
+        """
+        self.write_component_config('HtmlTemplateFormatter', '*.CustomFormatter', custom_formatter)
+        page_id = 'Stuff'
+        ref = """
+            [Page:{0}]
+            PageContent=foo
+
+            [Template:{0}]
+            bar
+        """.format(page_id)
+        exp_content = "baz"
 
         writer = self._get_writer(ref=ref)
         writer.write_page(page_id)

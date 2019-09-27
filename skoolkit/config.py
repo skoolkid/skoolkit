@@ -26,6 +26,7 @@ COMMANDS = {
         'ControlDirectiveComposer': 'skoolkit.skoolctl',
         'ControlFileGenerator': 'skoolkit.snactl',
         'Disassembler': 'skoolkit.disassembler.Disassembler',
+        'HtmlTemplateFormatter': 'skoolkit.skoolhtml.TemplateFormatter',
         'InstructionUtility': 'skoolkit.skoolparser.InstructionUtility',
         'SnapshotReader': 'skoolkit.snapshot',
         'SnapshotReferenceCalculator': 'skoolkit.snaskool',
