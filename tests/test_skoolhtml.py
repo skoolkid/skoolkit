@@ -6961,7 +6961,7 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
 
             [Template:MyPage]
             {Page[intro]}
-            - {list_entries[0][description]}
+            - {entries[0][intro]}
         """
         exp_content = """
             Welcome to my page!
@@ -9209,7 +9209,7 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
         writer.write_page(page_id)
         self._assert_content_equal(exp_content, '{}.html'.format(page_id))
 
-    def test_custom_box_page_template_with_custom_subtemplate(self):
+    def test_custom_box_page_template_with_custom_box_entries_subtemplate(self):
         page_id = 'Things'
         ref = """
             [Page:{}]
@@ -9226,12 +9226,42 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
             <# include({SkoolKit[include]}) #>
             <# endfor #>
 
-            [Template:{}-boxes]
+            [Template:{}-box_entries]
             * {$entry[contents][0]}
         """.replace('{}', page_id)
         exp_content = """
             * First thing.
             * Second thing.
+        """
+
+        writer = self._get_writer(ref=ref)
+        writer.write_page(page_id)
+        self._assert_content_equal(exp_content, '{}.html'.format(page_id))
+
+    def test_custom_box_page_template_with_custom_box_list_entries_subtemplate(self):
+        page_id = 'Things'
+        ref = """
+            [Page:{}]
+            SectionPrefix=Thing
+            SectionType=ListItems
+
+            [Thing:Thing1]
+            First intro.
+
+            [Thing:Thing2]
+            Second intro.
+
+            [Template:{}]
+            <# foreach($entry,entries) #>
+            <# include({SkoolKit[include]}) #>
+            <# endfor #>
+
+            [Template:{}-box_list_entries]
+            * {$entry[intro]}
+        """.replace('{}', page_id)
+        exp_content = """
+            * First intro.
+            * Second intro.
         """
 
         writer = self._get_writer(ref=ref)

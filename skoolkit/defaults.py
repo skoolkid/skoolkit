@@ -487,22 +487,7 @@ SECTIONS['Template:asm_single_page'] = """
 <# endfor #>
 """
 
-SECTIONS['Template:boxes'] = """
-<# if(list_entries) #>
-<ul class="contents">
-<# foreach($entry,list_entries) #>
-<li><a href="#{$entry[anchor]}">{$entry[title]}</a></li>
-<# endfor #>
-</ul>
-<# foreach($entry,list_entries) #>
-<div><span id="{$entry[anchor]}"></span></div>
-<div class="list-entry list-entry-{$entry[num]}">
-<div class="list-entry-title">{$entry[title]}</div>
-<div class="list-entry-desc">{$entry[description]}</div>
-{$entry[item_list]}
-</div>
-<# endfor #>
-<# else #>
+SECTIONS['Template:box_entries'] = """
 <ul class="contents">
 <# foreach($entry,entries) #>
 <li><a href="#{$entry[anchor]}">{$entry[title]}</a></li>
@@ -510,7 +495,7 @@ SECTIONS['Template:boxes'] = """
 </ul>
 <# foreach($entry,entries) #>
 <div><span id="{$entry[anchor]}"></span></div>
-<div class="box box-{$entry[num]}">
+<div class="box box-{$entry[order]}">
 <div class="box-title">{$entry[title]}</div>
 <# foreach($paragraph,$entry[contents]) #>
 <div class="paragraph">
@@ -519,7 +504,22 @@ SECTIONS['Template:boxes'] = """
 <# endfor #>
 </div>
 <# endfor #>
-<# endif #>
+"""
+
+SECTIONS['Template:box_list_entries'] = """
+<ul class="contents">
+<# foreach($entry,entries) #>
+<li><a href="#{$entry[anchor]}">{$entry[title]}</a></li>
+<# endfor #>
+</ul>
+<# foreach($entry,entries) #>
+<div><span id="{$entry[anchor]}"></span></div>
+<div class="list-entry list-entry-{$entry[order]}">
+<div class="list-entry-title">{$entry[title]}</div>
+<div class="list-entry-desc">{$entry[intro]}</div>
+{$entry[item_list]}
+</div>
+<# endfor #>
 """
 
 SECTIONS['Template:footer'] = """

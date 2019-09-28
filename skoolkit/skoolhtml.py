@@ -554,15 +554,7 @@ class HtmlWriter:
             self.asm_entry_dicts[address] = entry_dict
         return self.asm_entry_dicts[address]
 
-    def _format_box_page(self, cwd):
-        section_type = self.pages[self._get_page_id()].get('SectionType')
-        if section_type == 'ListItems':
-            return self._build_list_items_html(cwd)
-        if section_type == 'BulletPoints':
-            return self._build_list_items_html(cwd, '-')
-        return self._build_paragraphs_html(cwd)
-
-    def _build_paragraphs_html(self, cwd):
+    def _build_box_page_entries(self, cwd):
         page_id = self._get_page_id()
         page = self.pages[page_id]
         entries = []
@@ -571,22 +563,21 @@ class HtmlWriter:
             title = self.expand(title, cwd)
             entries.append({
                 'anchor': anchor,
-                'num': 1 + i % 2,
+                'order': 1 + i % 2,
                 'title': title,
                 'contents': [self.expand(p, cwd).strip() for p in paragraphs]
             })
-        subs = {
-            'list_entries': (),
-            'entries': entries,
-            'Page': page
-        }
-        return self.format_template(T_LAYOUT, subs)
+        return entries
 
-    def _build_list_items_html(self, cwd, prefix=''):
+    def _build_box_page_list_entries(self, cwd, bullets):
         page_id = self._get_page_id()
         page = self.pages[page_id]
+        if bullets:
+            prefix = '-'
+        else:
+            prefix = ''
         entries = []
-        for j, (anchor, title, description, items) in enumerate(self.box_pages[page_id]):
+        for j, (anchor, title, intro, items) in enumerate(self.box_pages[page_id]):
             anchor = self.expand(anchor, cwd)
             title = self.expand(title, cwd)
             list_items = []
@@ -615,17 +606,12 @@ class HtmlWriter:
                             subitems.append(subitem)
             entries.append({
                 'anchor': anchor,
-                'num': 1 + j % 2,
+                'order': 1 + j % 2,
                 'title': title,
-                'description': self.expand(description, cwd),
+                'intro': self.expand(intro, cwd),
                 'item_list': self._build_list_items(cwd, list_items)
             })
-        subs = {
-            'entries': (),
-            'list_entries': entries,
-            'Page': page
-        }
-        return self.format_template(T_LAYOUT, subs)
+        return entries
 
     def _build_list_items(self, cwd, items, level=0):
         if not items:
@@ -803,13 +789,19 @@ class HtmlWriter:
 
     def write_page(self, page_id):
         page = self.pages[page_id]
+        subs = {'Page': page}
         if page_id in self.box_pages:
-            fname, cwd = self._set_cwd(page_id, 'boxes', js=page.get('JavaScript'))
-            html = self._format_box_page(cwd)
+            section_type = page.get('SectionType')
+            if section_type in ('ListItems', 'BulletPoints'):
+                fname, cwd = self._set_cwd(page_id, 'box_list_entries', js=page.get('JavaScript'))
+                subs['entries'] = self._build_box_page_list_entries(cwd, section_type == 'BulletPoints')
+            else:
+                fname, cwd = self._set_cwd(page_id, 'box_entries', js=page.get('JavaScript'))
+                subs['entries'] = self._build_box_page_entries(cwd)
         else:
             fname, cwd = self._set_cwd(page_id, 'page', js=page.get('JavaScript'))
             page['PageContent'] = self.expand(page.get('PageContent', ''), cwd)
-            html = self.format_template(T_LAYOUT, {'Page': page})
+        html = self.format_template(T_LAYOUT, subs)
         self.write_file(fname, html)
 
     def write_file(self, fname, contents):

@@ -204,41 +204,55 @@ To see the default ``asm_single_page`` template, run the following command::
 
 .. versionadded:: 8.0
 
-.. _t_boxes:
+.. _t_box_entries:
 
-boxes
------
-The ``boxes`` template is used to format the content between the header and
-footer of a :ref:`box page <boxpages>`. A box page may contain either list
-entries (when the page's ``SectionType`` is ``BulletPoints`` or ``ListItems``)
-or regular entries.
+box_entries
+-----------
+The ``box_entries`` template is used to format the content between the header
+and footer of a :ref:`box page <boxpages>` with a default ``SectionType``.
 
-The following identifiers are available (in addition to the universal
+The following identifier is available (in addition to the universal
 identifiers):
 
-* ``entries`` - a list of regular entry objects (empty if the page contains
-  list entries)
-* ``list_entries`` - a list of list entry objects (empty if the page contains
-  regular entries)
+* ``entries`` - a list of entry objects
 
-Each regular entry object has the following attributes:
+Each entry object has the following attributes:
 
 * ``anchor`` - the anchor for the entry
 * ``contents`` - a list of paragraphs comprising the contents of the entry
-* ``num`` - '1' or '2', depending on the order of the entry on the page
+* ``order`` - '1' or '2', depending on the order of the entry on the page
 * ``title`` - the entry title
 
-Each list entry object has the following attributes:
+To see the default ``box_entries`` template, run the following command::
+
+  $ skool2html.py -r Template:box_entries
+
+.. versionadded:: 8.0
+
+.. _t_box_list_entries:
+
+box_list_entries
+----------------
+The ``box_list_entries`` template is used to format the content between the
+header and footer of a :ref:`box page <boxpages>` whose ``SectionType`` is
+``BulletPoints`` or ``ListItems``.
+
+The following identifier is available (in addition to the universal
+identifiers):
+
+* ``entries`` - a list of entry objects
+
+Each entry object has the following attributes:
 
 * ``anchor`` - the anchor for the entry
-* ``description`` - the entry intro text
+* ``intro`` - the entry intro text
 * ``item_list`` - replaced by a copy of the :ref:`t_item_list` subtemplate
-* ``num`` - '1' or '2', depending on the order of the entry on the page
+* ``order`` - '1' or '2', depending on the order of the entry on the page
 * ``title`` - the entry title
 
-To see the default ``boxes`` template, run the following command::
+To see the default ``box_list_entries`` template, run the following command::
 
-  $ skool2html.py -r Template:boxes
+  $ skool2html.py -r Template:box_list_entries
 
 .. versionadded:: 8.0
 
@@ -310,10 +324,10 @@ To see the default ``img`` template, run the following command::
 
 item_list
 ---------
-The ``item_list`` template is the subtemplate used by the :ref:`t_boxes`
-template to format a list of items (or subitems, or subsubitems etc.) in an
-entry on a :ref:`box page <boxpages>` whose ``SectionType`` is ``BulletPoints``
-or ``ListItems``.
+The ``item_list`` template is the subtemplate used by the
+:ref:`t_box_list_entries` template to format a list of items (or subitems, or
+subsubitems etc.) in an entry on a :ref:`box page <boxpages>` whose
+``SectionType`` is ``BulletPoints`` or ``ListItems``.
 
 The following identifiers are available (in addition to the universal
 identifiers):
@@ -607,34 +621,38 @@ When SkoolKit builds the content of an HTML page between the page header and
 footer, it uses the subtemplate whose name starts with ``PageID-`` if it
 exists, or the appropriate stock subtemplate otherwise. For example, when
 building the entries on the ``Changelog`` page, SkoolKit uses the
-``Changelog-boxes`` template if it exists, or the stock :ref:`t_boxes` template
-otherwise.
+``Changelog-box_list_entries`` template if it exists, or the stock
+:ref:`t_box_list_entries` template otherwise.
 
-+-------------------------------+------------------------------------------+--------------------------+
-| Page type                     | Preferred template(s)                    | Stock template           |
-+===============================+==========================================+==========================+
-| Routine/data block            | ``Asm-*-asm``, ``Asm-asm``               | :ref:`t_asm`             |
-+-------------------------------+------------------------------------------+--------------------------+
-| :ref:`Other code <otherCode>` | ``CodeID-Asm-*-asm``, ``CodeID-Asm-asm`` | :ref:`t_asm`             |
-| routine/data block            |                                          |                          |
-+-------------------------------+------------------------------------------+--------------------------+
-| Disassembly (single page)     | ``AsmSinglePage-asm_single_page``        | :ref:`t_asm_single_page` |
-+-------------------------------+------------------------------------------+--------------------------+
-| :ref:`Other code <otherCode>` | ``CodeID-AsmSinglePage-asm_single_page`` | :ref:`t_asm_single_page` |
-| disassembly (single page)     |                                          |                          |
-+-------------------------------+------------------------------------------+--------------------------+
-| :ref:`Box page <boxpages>`    | ``PageID-boxes``                         | :ref:`t_boxes`           |
-+-------------------------------+------------------------------------------+--------------------------+
-| Home (index)                  | ``GameIndex-home``                       | :ref:`t_home`            |
-+-------------------------------+------------------------------------------+--------------------------+
-| :ref:`Memory map <memoryMap>` | ``PageID-memory_map``                    | :ref:`t_memory_map`      |
-+-------------------------------+------------------------------------------+--------------------------+
-| :ref:`Other code <otherCode>` | ``CodeID-Index-memory_map``              | :ref:`t_memory_map`      |
-| index                         |                                          |                          |
-+-------------------------------+------------------------------------------+--------------------------+
-| :ref:`Custom page <Page>`     | ``PageID-page``                          | :ref:`t_page`            |
-| (non-box)                     |                                          |                          |
-+-------------------------------+------------------------------------------+--------------------------+
++-------------------------------+------------------------------------------+---------------------------+
+| Page type                     | Preferred template(s)                    | Stock template            |
++===============================+==========================================+===========================+
+| Routine/data block            | ``Asm-*-asm``, ``Asm-asm``               | :ref:`t_asm`              |
++-------------------------------+------------------------------------------+---------------------------+
+| :ref:`Other code <otherCode>` | ``CodeID-Asm-*-asm``, ``CodeID-Asm-asm`` | :ref:`t_asm`              |
+| routine/data block            |                                          |                           |
++-------------------------------+------------------------------------------+---------------------------+
+| Disassembly (single page)     | ``AsmSinglePage-asm_single_page``        | :ref:`t_asm_single_page`  |
++-------------------------------+------------------------------------------+---------------------------+
+| :ref:`Other code <otherCode>` | ``CodeID-AsmSinglePage-asm_single_page`` | :ref:`t_asm_single_page`  |
+| disassembly (single page)     |                                          |                           |
++-------------------------------+------------------------------------------+---------------------------+
+| :ref:`Box page <boxpages>`    | ``PageID-box_entries``                   | :ref:`t_box_entries`      |
+| with regular entries          |                                          |                           |
++-------------------------------+------------------------------------------+---------------------------+
+| :ref:`Box page <boxpages>`    | ``PageID-box_list_entries``              | :ref:`t_box_list_entries` |
+| with list entries             |                                          |                           |
++-------------------------------+------------------------------------------+---------------------------+
+| Home (index)                  | ``GameIndex-home``                       | :ref:`t_home`             |
++-------------------------------+------------------------------------------+---------------------------+
+| :ref:`Memory map <memoryMap>` | ``PageID-memory_map``                    | :ref:`t_memory_map`       |
++-------------------------------+------------------------------------------+---------------------------+
+| :ref:`Other code <otherCode>` | ``CodeID-Index-memory_map``              | :ref:`t_memory_map`       |
+| index                         |                                          |                           |
++-------------------------------+------------------------------------------+---------------------------+
+| :ref:`Custom page <Page>`     | ``PageID-page``                          | :ref:`t_page`             |
+| (non-box)                     |                                          |                           |
++-------------------------------+------------------------------------------+---------------------------+
 
 When SkoolKit builds an element of an HTML page whose format is defined by a
 subtemplate, it uses the subtemplate whose name starts with ``PageID-`` if it
