@@ -785,16 +785,19 @@ class DisassemblyTest(SkoolKitTestCase):
         self._test_disassembly(snapshot, ctl, exp_instructions, asm_hex=True)
 
     def test_s_directives_with_mixed_values(self):
-        snapshot = [0, 1, 2, 3, 4, 5]
+        snapshot = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
         ctl = """
             s 00000
               00000,6,2,2:h,2:n
-            i 00006
+              00006,10
+            i 00016
         """
         exp_instructions = [
             (0, 'DEFB 0,1'),
             (2, 'DEFB 2,3'),
-            (4, 'DEFB 4,5')
+            (4, 'DEFB 4,5'),
+            (6, 'DEFB 6,7,8,9,10,11,12,13'),
+            (14, 'DEFB 14,15')
         ]
         self._test_disassembly(snapshot, ctl, exp_instructions)
 

@@ -193,7 +193,7 @@ class Disassembler:
         data = self.snapshot[start:end]
         values = set(data)
         if len(values) > 1:
-            return self.defb_range(start, end, ((end - start, DEFAULT_BASE),))
+            return self.defb_range(start, end, ((0, DEFAULT_BASE),))
         value = values.pop()
         size, base = sublengths[0]
         items = [self.num_str(size or end - start, base=base)]
