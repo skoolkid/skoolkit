@@ -135,6 +135,7 @@ td.asm-label, td.address-1, td.address-2, td.bytes, td.instruction {
   font-family: monospace;
   vertical-align: top;
   padding-right: 10px;
+  white-space: pre;
 }
 td.asm-label, td.address-1, td.address-2 {
   color: #ff0000;
@@ -147,7 +148,6 @@ td.bytes {
 }
 td.instruction {
   color: #008000;
-  white-space: pre;
 }
 td.comment-1 {
   background-color: #ccddee;
