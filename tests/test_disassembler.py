@@ -1968,10 +1968,10 @@ class DisassemblerTest(SkoolKitTestCase):
         self.assertEqual(len(instructions), 1)
         self.assertEqual(instructions[0][1], 'DEFM "abc",94,96,"ABC",127')
 
-        sublengths = [(3, 'c'), (2, 'X'), (3, 'c'), (1, 'n')]
+        sublengths = [(3, 'c'), (2, 'n'), (3, 'c'), (1, 'h')]
         instructions = disassembler.defm_range(32768, 32777, sublengths)
         self.assertEqual(len(instructions), 1)
-        self.assertEqual(instructions[0][1], 'DEFM "abc",94,96,"ABC",127')
+        self.assertEqual(instructions[0][1], 'DEFM "abc",94,96,"ABC",$7F')
 
     def test_defm_with_escaped_characters(self):
         snapshot = self._get_snapshot(30000, (34, 72, 101, 108, 108, 111, 34, 67, 58, 92, 84, 69, 77, 80))
@@ -2009,19 +2009,33 @@ class DisassemblerTest(SkoolKitTestCase):
         self.assertEqual(defw[1], 'DEFW 1,257,514,65283')
         self.assertEqual(defw[2], data)
 
-    def test_num_str(self):
-        disassembler = self._get_disassembler(asm_hex=False)
-        self.assertEqual(disassembler.num_str(123), '123')
-
-        disassembler = self._get_disassembler(asm_hex=True)
-        self.assertEqual(disassembler.num_str(5), '$05')
-        self.assertEqual(disassembler.num_str(10), '$0A')
-        self.assertEqual(disassembler.num_str(256), '$0100')
-        self.assertEqual(disassembler.num_str(5, 1), '$05')
-        self.assertEqual(disassembler.num_str(10, 1), '$0A')
-        self.assertEqual(disassembler.num_str(5, 2), '$0005')
-        self.assertEqual(disassembler.num_str(10, 2), '$000A')
-        self.assertEqual(disassembler.num_str(256, 2), '$0100')
+    def test_lower_case_conversion(self):
+        snapshot = [
+            0,              # 00000 NOP
+            199,            # 00001 RST 0
+            203, 0,         # 00002 RLC B
+            221, 9,         # 00004 ADD IX,BC
+            253, 9,         # 00006 ADD IY,BC
+            237, 64,        # 00008 IN B,(C)
+            221, 203, 0, 6, # 00010 RLC (IX+0)
+            253, 203, 0, 6  # 00014 RLC (IY+0)
+        ]
+        exp_instructions = (
+            (0, 'nop'),
+            (1, 'rst 0'),
+            (2, 'rlc b'),
+            (4, 'add ix,bc'),
+            (6, 'add iy,bc'),
+            (8, 'in b,(c)'),
+            (10, 'rlc (ix+0)'),
+            (14, 'rlc (iy+0)'),
+        )
+        disassembler = self._get_disassembler(snapshot, asm_lower=True)
+        instructions = disassembler.disassemble(0, 18, 'n')
+        self.assertEqual(len(instructions), len(exp_instructions))
+        for instruction, (address, operation) in zip(instructions, exp_instructions):
+            self.assertEqual(instruction[0], address)
+            self.assertEqual(instruction[1], operation)
 
     def test_lower_case_conversion_with_character_operands(self):
         snapshot = [

@@ -18,7 +18,60 @@ from collections import namedtuple
 
 from skoolkit import is_char
 from skoolkit.ctlparser import DEFAULT_BASE
-from skoolkit.z80 import convert_case
+
+OperandFormatterConfig = namedtuple('OperandFormatterConfig', 'asm_hex asm_lower is_char')
+
+class OperandFormatter:
+    def __init__(self, config):
+        self.byte_formats = {
+            'b': '%{:08b}',
+            'd': '{}',
+            'h': '${:02X}',
+            'm': '-{}',
+            DEFAULT_BASE: '{}'
+        }
+        self.word_formats = {
+            'b': '%{:016b}',
+            'd': '{}',
+            'h': '${:04X}',
+            'm': '-{}',
+            DEFAULT_BASE: '{}'
+        }
+        if config.asm_lower:
+            self.byte_formats['h'] = '${:02x}'
+            self.word_formats['h'] = '${:04x}'
+        if config.asm_hex:
+            self.byte_formats['m'] = '-' + self.byte_formats['h']
+            self.word_formats['m'] = '-' + self.word_formats['h']
+            self.byte_formats[DEFAULT_BASE] = self.byte_formats['h']
+            self.word_formats[DEFAULT_BASE] = self.word_formats['h']
+        self.is_char = config.is_char
+
+    def format_byte(self, value, base):
+        return self._num_str(value, 1, base)
+
+    def format_word(self, value, base):
+        return self._num_str(value, 2, base)
+
+    def _num_str(self, value, num_bytes, base):
+        if base == 'c':
+            if self.is_char(value & 127):
+                if value & 128:
+                    suffix = '+' + self._num_str(128, 1, DEFAULT_BASE)
+                else:
+                    suffix = ''
+                if value & 127 in (34, 92):
+                    return r'"\{}"'.format(chr(value & 127)) + suffix
+                return '"{}"'.format(chr(value & 127)) + suffix
+            base = DEFAULT_BASE
+        if base == 'm':
+            if num_bytes == 1:
+                value = 256 - value
+            else:
+                value = 65536 - value
+        if value > 255 or num_bytes > 1:
+            return self.word_formats[base].format(value)
+        return self.byte_formats[base].format(value)
 
 class Disassembler:
     """Initialise the disassembler.
@@ -37,46 +90,25 @@ class Disassembler:
     """
     def __init__(self, snapshot, config):
         self.snapshot = snapshot
-        self.asm_hex = config.asm_hex
-        self.asm_lower = config.asm_lower
         self.defb_size = config.defb_size
         self.defm_size = config.defm_size
         self.defw_size = config.defw_size
-        self.byte_formats = {
-            'b': '%{:08b}',
-            'h': '${:02X}',
-            'd': '{}'
-        }
-        self.word_formats = {
-            'b': '%{:016b}',
-            'h': '${:04X}',
-            'd': '{}'
-        }
-
-    def num_str(self, value, num_bytes=1, base=DEFAULT_BASE):
-        if base == 'c' and is_char(value & 127):
-            if value & 128:
-                suffix = '+' + self.num_str(128)
-            else:
-                suffix = ''
-            if value & 127 in (34, 92):
-                return r'"\{}"'.format(chr(value & 127)) + suffix
-            return '"{}"'.format(chr(value & 127)) + suffix
-        sign = ''
-        if base == 'm':
-            sign = '-'
-            if num_bytes == 1:
-                value = 256 - value
-            else:
-                value = 65536 - value
-        if base not in self.byte_formats:
-            if self.asm_hex:
-                base = 'h'
-            else:
-                base = 'd'
-        if value > 255 or num_bytes > 1:
-            return sign + self.word_formats[base].format(value)
-        return sign + self.byte_formats[base].format(value)
+        of_config = OperandFormatterConfig(config.asm_hex, config.asm_lower, is_char)
+        self.op_formatter = OperandFormatter(of_config)
+        self.defb = 'DEFB '
+        self.defm = 'DEFM '
+        self.defs = 'DEFS '
+        self.defw = 'DEFW '
+        if config.asm_lower:
+            self.defb = self.defb.lower()
+            self.defm = self.defm.lower()
+            self.defs = self.defs.lower()
+            self.defw = self.defw.lower()
+            self.ops = {k: (v[0], v[1].lower()) for k, v in self.ops.items()}
+            self.after_CB = {k: v.lower() for k, v in self.after_CB.items()}
+            self.after_DD = {k: (v[0], v[1].lower()) for k, v in self.after_DD.items()}
+            self.after_ED = {k: (v[0], v[1].lower()) for k, v in self.after_ED.items()}
+            self.after_DDCB = {k: (v[0], v[1].lower()) for k, v in self.after_DDCB.items()}
 
     def disassemble(self, start, end, base):
         """Disassemble an address range.
@@ -94,13 +126,11 @@ class Disassembler:
         while address < end:
             byte = self.snapshot[address]
             decoder, template = self.ops[byte]
-            if template is None:
+            if template == '':
                 operation, length = decoder(self, address, base)
             else:
                 operation, length = decoder(self, template, address, base)
             if address + length <= 65536:
-                if self.asm_lower:
-                    operation = convert_case(operation)
                 instructions.append((address, operation, self.snapshot[address:address + length]))
             else:
                 instructions.append(self._defb_line(address, self.snapshot[address:65536]))
@@ -154,7 +184,7 @@ class Disassembler:
         for length, base in sublengths:
             for j in range(i, i + length, 2):
                 word = data[j] + 256 * data[j + 1]
-                items.append(self.num_str(word, 2, base))
+                items.append(self.op_formatter.format_word(word, base))
             i += length
         return ','.join(items)
 
@@ -176,9 +206,7 @@ class Disassembler:
             if address + step > end:
                 sublengths = ((end - address, sublengths[0][1]),)
             data = self.snapshot[address:address + step]
-            defw_dir = 'DEFW {}'.format(self._defw_items(data, sublengths))
-            if self.asm_lower:
-                defw_dir = convert_case(defw_dir)
+            defw_dir = self.defw + self._defw_items(data, sublengths)
             instructions.append((address, defw_dir, data))
         return instructions
 
@@ -196,14 +224,12 @@ class Disassembler:
             return self.defb_range(start, end, ((0, DEFAULT_BASE),))
         value = values.pop()
         size, base = sublengths[0]
-        items = [self.num_str(size or end - start, base=base)]
+        items = [self.op_formatter.format_byte(size or end - start, base)]
         if len(sublengths) > 1:
-            items.append(self.num_str(value, base=sublengths[1][1]))
+            items.append(self.op_formatter.format_byte(value, sublengths[1][1]))
         elif value:
-            items.append(self.num_str(value))
-        defs_dir = 'DEFS {}'.format(','.join(items))
-        if self.asm_lower:
-            defs_dir = convert_case(defs_dir)
+            items.append(self.op_formatter.format_byte(value, DEFAULT_BASE))
+        defs_dir = self.defs + ','.join(items)
         return [(start, defs_dir, data)]
 
     def get_message(self, data):
@@ -220,7 +246,7 @@ class Disassembler:
             else:
                 if items and items[-1].startswith('"'):
                     items[-1] += '"'
-                items.append(self.num_str(b))
+                items.append(self.op_formatter.format_byte(b, DEFAULT_BASE))
         if items[-1].startswith('"'):
             items[-1] += '"'
         return ','.join(items)
@@ -229,10 +255,10 @@ class Disassembler:
         return template, 1
 
     def byte_arg(self, template, a, base):
-        return template.format(self.num_str(self.snapshot[(a + 1) & 65535], 1, base)), 2
+        return template.format(self.op_formatter.format_byte(self.snapshot[(a + 1) & 65535], base)), 2
 
     def word_arg(self, template, a, base):
-        return template.format(self.num_str(self.snapshot[(a + 1) & 65535] + 256 * self.snapshot[(a + 2) & 65535], 2, base)), 3
+        return template.format(self.op_formatter.format_word(self.snapshot[(a + 1) & 65535] + 256 * self.snapshot[(a + 2) & 65535], base)), 3
 
     def jr_arg(self, template, a, base):
         offset = self.snapshot[(a + 1) & 65535]
@@ -241,11 +267,11 @@ class Disassembler:
         else:
             address = a + offset - 254
         if 0 <= address < 65536:
-            return template.format(self.num_str(address, 2, base)), 2
-        return self.defb(a, 2)
+            return template.format(self.op_formatter.format_word(address, base)), 2
+        return self._defb(a, 2)
 
-    def rst_arg(self, rst_address, a, base):
-        return 'RST {}'.format(self.num_str(rst_address, 1, base)), 1
+    def rst_arg(self, template, a, base):
+        return template[:4] + self.op_formatter.format_byte(int(template[4:]), base), 1
 
     def defb_items(self, data, sublengths):
         items = []
@@ -256,37 +282,34 @@ class Disassembler:
             if base == 'c' and size > 1:
                 items.append(self.get_message(data[i:i + size]))
             else:
-                items.append(','.join(self.num_str(b, 1, base) for b in data[i:i + size]))
+                items.append(','.join(self.op_formatter.format_byte(b, base) for b in data[i:i + size]))
             i += size
         return ','.join(items)
 
     def defb_dir(self, data, sublengths=((0, DEFAULT_BASE),), defm=False):
         if defm:
-            directive = 'DEFM'
+            directive = self.defm
         else:
-            directive = 'DEFB'
-        defb_dir = '{} {}'.format(directive, self.defb_items(data, sublengths))
-        if self.asm_lower:
-            defb_dir = convert_case(defb_dir)
-        return defb_dir
+            directive = self.defb
+        return directive + self.defb_items(data, sublengths)
 
-    def defb(self, a, length):
+    def _defb(self, a, length):
         return self.defb_dir(self.snapshot[a:a + length]), length
 
     def defb4(self, a, base):
-        return self.defb(a, 4)
+        return self._defb(a, 4)
 
     def index(self, template, a, base):
         return template.format(self.index_offset(a, base)), 2
 
     def index_arg(self, template, a, base):
-        return template.format(self.index_offset(a, base[0]), self.num_str(self.snapshot[(a + 2) & 65535], 1, base[-1])), 3
+        return template.format(self.index_offset(a, base[0]), self.op_formatter.format_byte(self.snapshot[(a + 2) & 65535], base[-1])), 3
 
     def index_offset(self, a, base):
         i = self.snapshot[(a + 1) & 65535]
         if i < 128:
-            return '+{}'.format(self.num_str(i, 1, base))
-        return '-{}'.format(self.num_str(abs(i - 256), 1, base))
+            return '+{}'.format(self.op_formatter.format_byte(i, base))
+        return '-{}'.format(self.op_formatter.format_byte(abs(i - 256), base))
 
     def cb_arg(self, a, base):
         return self.after_CB[self.snapshot[(a + 1) & 65535]], 2
@@ -298,7 +321,7 @@ class Disassembler:
             return operation, length + 1
         if decoder:
             return decoder(self, a, base)
-        return self.defb(a, 2)
+        return self._defb(a, 2)
 
     def dd_arg(self, a, base):
         decoder, template = self.after_DD.get(self.snapshot[(a + 1) & 65535], (None, None))
@@ -308,18 +331,18 @@ class Disassembler:
         if decoder:
             return decoder(self, a, base)
         # The instruction is unchanged by the DD prefix
-        return self.defb(a, 1)
+        return self._defb(a, 1)
 
     def fd_arg(self, a, base):
         operation, length = self.dd_arg(a, base)
-        return operation.replace('IX', 'IY'), length
+        return operation.replace('IX', 'IY').replace('ix', 'iy'), length
 
     def ddcb_arg(self, a, base):
         decoder, template = self.after_DDCB.get(self.snapshot[(a + 3) & 65535], (None, None))
         if template:
             operation = decoder(self, template, a + 1, base)[0]
             return operation, 4
-        return self.defb(a, 4)
+        return self._defb(a, 4)
 
     ops = {
         0x00: (no_arg, 'NOP'),
@@ -521,15 +544,15 @@ class Disassembler:
         0xC4: (word_arg, 'CALL NZ,{}'),
         0xC5: (no_arg, 'PUSH BC'),
         0xC6: (byte_arg, 'ADD A,{}'),
-        0xC7: (rst_arg, 0),
+        0xC7: (rst_arg, 'RST 0'),
         0xC8: (no_arg, 'RET Z'),
         0xC9: (no_arg, 'RET'),
         0xCA: (word_arg, 'JP Z,{}'),
-        0xCB: (cb_arg, None),
+        0xCB: (cb_arg, ''),
         0xCC: (word_arg, 'CALL Z,{}'),
         0xCD: (word_arg, 'CALL {}'),
         0xCE: (byte_arg, 'ADC A,{}'),
-        0xCF: (rst_arg, 8),
+        0xCF: (rst_arg, 'RST 8'),
         0xD0: (no_arg, 'RET NC'),
         0xD1: (no_arg, 'POP DE'),
         0xD2: (word_arg, 'JP NC,{}'),
@@ -537,15 +560,15 @@ class Disassembler:
         0xD4: (word_arg, 'CALL NC,{}'),
         0xD5: (no_arg, 'PUSH DE'),
         0xD6: (byte_arg, 'SUB {}'),
-        0xD7: (rst_arg, 16),
+        0xD7: (rst_arg, 'RST 16'),
         0xD8: (no_arg, 'RET C'),
         0xD9: (no_arg, 'EXX'),
         0xDA: (word_arg, 'JP C,{}'),
         0xDB: (byte_arg, 'IN A,({})'),
         0xDC: (word_arg, 'CALL C,{}'),
-        0xDD: (dd_arg, None),
+        0xDD: (dd_arg, ''),
         0xDE: (byte_arg, 'SBC A,{}'),
-        0xDF: (rst_arg, 24),
+        0xDF: (rst_arg, 'RST 24'),
         0xE0: (no_arg, 'RET PO'),
         0xE1: (no_arg, 'POP HL'),
         0xE2: (word_arg, 'JP PO,{}'),
@@ -553,15 +576,15 @@ class Disassembler:
         0xE4: (word_arg, 'CALL PO,{}'),
         0xE5: (no_arg, 'PUSH HL'),
         0xE6: (byte_arg, 'AND {}'),
-        0xE7: (rst_arg, 32),
+        0xE7: (rst_arg, 'RST 32'),
         0xE8: (no_arg, 'RET PE'),
         0xE9: (no_arg, 'JP (HL)'),
         0xEA: (word_arg, 'JP PE,{}'),
         0xEB: (no_arg, 'EX DE,HL'),
         0xEC: (word_arg, 'CALL PE,{}'),
-        0xED: (ed_arg, None),
+        0xED: (ed_arg, ''),
         0xEE: (byte_arg, 'XOR {}'),
-        0xEF: (rst_arg, 40),
+        0xEF: (rst_arg, 'RST 40'),
         0xF0: (no_arg, 'RET P'),
         0xF1: (no_arg, 'POP AF'),
         0xF2: (word_arg, 'JP P,{}'),
@@ -569,15 +592,15 @@ class Disassembler:
         0xF4: (word_arg, 'CALL P,{}'),
         0xF5: (no_arg, 'PUSH AF'),
         0xF6: (byte_arg, 'OR {}'),
-        0xF7: (rst_arg, 48),
+        0xF7: (rst_arg, 'RST 48'),
         0xF8: (no_arg, 'RET M'),
         0xF9: (no_arg, 'LD SP,HL'),
         0xFA: (word_arg, 'JP M,{}'),
         0xFB: (no_arg, 'EI'),
         0xFC: (word_arg, 'CALL M,{}'),
-        0xFD: (fd_arg, None),
+        0xFD: (fd_arg, ''),
         0xFE: (byte_arg, 'CP {}'),
-        0xFF: (rst_arg, 56)
+        0xFF: (rst_arg, 'RST 56')
     }
 
     after_CB = {
@@ -920,7 +943,7 @@ class Disassembler:
         0xBC: (no_arg, 'CP IXh'),
         0xBD: (no_arg, 'CP IXl'),
         0xBE: (index, 'CP (IX{})'),
-        0xCB: (ddcb_arg, None),
+        0xCB: (ddcb_arg, ''),
         0xE1: (no_arg, 'POP IX'),
         0xE3: (no_arg, 'EX (SP),IX'),
         0xE5: (no_arg, 'PUSH IX'),
@@ -960,14 +983,14 @@ class Disassembler:
         0x62: (no_arg, 'SBC HL,HL'),
         # ED63 is 'LD (nn),HL', but if we disassemble to that, it won't
         # assemble back to the same bytes
-        0x63: (defb4, None),
+        0x63: (defb4, ''),
         0x67: (no_arg, 'RRD'),
         0x68: (no_arg, 'IN L,(C)'),
         0x69: (no_arg, 'OUT (C),L'),
         0x6A: (no_arg, 'ADC HL,HL'),
         # ED6B is 'LD HL,(nn)', but if we disassemble to that, it won't
         # assemble back to the same bytes
-        0x6B: (defb4, None),
+        0x6B: (defb4, ''),
         0x6F: (no_arg, 'RLD'),
         0x72: (no_arg, 'SBC HL,SP'),
         0x73: (word_arg, 'LD ({}),SP'),
