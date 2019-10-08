@@ -14,12 +14,7 @@
 # You should have received a copy of the GNU General Public License along with
 # SkoolKit. If not, see <http://www.gnu.org/licenses/>.
 
-from collections import namedtuple
-
-from skoolkit import is_char
 from skoolkit.ctlparser import DEFAULT_BASE
-
-OperandFormatterConfig = namedtuple('OperandFormatterConfig', 'asm_hex asm_lower is_char')
 
 class OperandFormatter:
     def __init__(self, config):
@@ -45,13 +40,15 @@ class OperandFormatter:
             self.word_formats['m'] = '-' + self.word_formats['h']
             self.byte_formats[DEFAULT_BASE] = self.byte_formats['h']
             self.word_formats[DEFAULT_BASE] = self.word_formats['h']
-        self.is_char = config.is_char
 
     def format_byte(self, value, base):
         return self._num_str(value, 1, base)
 
     def format_word(self, value, base):
         return self._num_str(value, 2, base)
+
+    def is_char(self, value):
+        return 32 <= value < 127 and value not in (94, 96)
 
     def _num_str(self, value, num_bytes, base):
         if base == 'c':
@@ -93,8 +90,7 @@ class Disassembler:
         self.defb_size = config.defb_size
         self.defm_size = config.defm_size
         self.defw_size = config.defw_size
-        of_config = OperandFormatterConfig(config.asm_hex, config.asm_lower, is_char)
-        self.op_formatter = OperandFormatter(of_config)
+        self.op_formatter = OperandFormatter(config)
         self.defb = 'DEFB '
         self.defm = 'DEFM '
         self.defs = 'DEFS '
@@ -124,8 +120,7 @@ class Disassembler:
         instructions = []
         address = start
         while address < end:
-            byte = self.snapshot[address]
-            decoder, template = self.ops[byte]
+            decoder, template = self.ops[self.snapshot[address]]
             if template == '':
                 operation, length = decoder(self, address, base)
             else:
@@ -240,7 +235,7 @@ class Disassembler:
     def get_message(self, data):
         items = []
         for b in data:
-            if is_char(b):
+            if self.op_formatter.is_char(b):
                 char = chr(b)
                 if char in '\\"':
                     char = '\\' + char

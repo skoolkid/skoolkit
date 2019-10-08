@@ -60,9 +60,6 @@ def wrap(text, width):
     WRAPPER.width = width
     return WRAPPER.wrap(text)
 
-def is_char(value):
-    return 32 <= value < 127 and value not in (94, 96)
-
 def get_int_param(num_str, accept0x=False):
     try:
         return int(num_str)
