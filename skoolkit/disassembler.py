@@ -178,15 +178,22 @@ class Disassembler:
         """
         return self._defb_lines(start, end, sublengths, True)
 
-    def _defw_items(self, data, sublengths):
+    def _defw_lines(self, start, end, sublengths):
+        data = self.snapshot[start:end]
         items = []
         i = 0
+        instructions = []
         for length, base in sublengths:
-            for j in range(i, i + length, 2):
-                word = data[j] + 256 * data[j + 1]
-                items.append(self.op_formatter.format_word(word, base))
+            for j in range(i, min(i + length, len(data)), 2):
+                if j == len(data) - 1:
+                    instructions.append(self._defb_line(start + j, data[j:], ((1, base),)))
+                    data = data[:j]
+                else:
+                    items.append(self.op_formatter.format_word(data[j] + 256 * data[j + 1], base))
             i += length
-        return ','.join(items)
+        if items:
+            instructions.insert(0, (start, self.defw + ','.join(items), data))
+        return instructions
 
     def defw_range(self, start, end, sublengths):
         """Produce a sequence of DEFW statements for an address range.
@@ -197,17 +204,15 @@ class Disassembler:
         :return: A list of tuples of the form ``(address, operation, bytes)``.
         """
         if sublengths[0][0]:
-            step = end - start
-        else:
-            step = self.defw_size * 2
-            sublengths = ((step, sublengths[0][1]),)
+            return self._defw_lines(start, end, sublengths)
         instructions = []
-        for address in range(start, end, step):
-            if address + step > end:
-                sublengths = ((end - address, sublengths[0][1]),)
-            data = self.snapshot[address:address + step]
-            defw_dir = self.defw + self._defw_items(data, sublengths)
-            instructions.append((address, defw_dir, data))
+        size, base = self.defw_size * 2, sublengths[0][1]
+        for address in range(start, end, size):
+            if address + size > end:
+                size = end - address
+                if size % 2:
+                    size += 1
+            instructions.extend(self._defw_lines(address, address + size, ((size, base),)))
         return instructions
 
     def defs_range(self, start, end, sublengths):

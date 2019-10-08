@@ -1801,8 +1801,8 @@ ASM = {
 }
 
 class DisassemblerTest(SkoolKitTestCase):
-    def _get_disassembler(self, snapshot=(), asm_hex=False, asm_lower=False):
-        config = Config(asm_hex, asm_lower, 8, 66, 1)
+    def _get_disassembler(self, snapshot=(), asm_hex=False, asm_lower=False, defw_size=1):
+        config = Config(asm_hex, asm_lower, 8, 66, defw_size)
         return Disassembler(snapshot, config)
 
     def _get_snapshot(self, start, data):
@@ -2008,6 +2008,33 @@ class DisassemblerTest(SkoolKitTestCase):
         self.assertEqual(defw[0], start)
         self.assertEqual(defw[1], 'DEFW 1,257,514,65283')
         self.assertEqual(defw[2], data)
+
+    def test_defw_range_with_custom_defw_size(self):
+        snapshot = self._get_snapshot(30000, [1, 0, 1, 1, 2, 2])
+        disassembler = self._get_disassembler(snapshot, defw_size=2)
+        exp_instructions = [
+            (30000, 'DEFW 1,257', [1, 0, 1, 1]),
+            (30004, 'DEFW 514', [2, 2])
+        ]
+        instructions = disassembler.defw_range(30000, 30006, ((0, 'n'),))
+        self.assertEqual(exp_instructions, instructions)
+
+    def test_defw_range_at_64k_boundary(self):
+        snapshot = self._get_snapshot(65535, [1])
+        disassembler = self._get_disassembler(snapshot)
+        instructions = disassembler.defw_range(65535, 65536, ((0, 'n'),))
+        self.assertEqual([(65535, 'DEFB 1', [1])], instructions)
+
+    def test_defw_range_with_custom_defw_size_at_64k_boundary(self):
+        snapshot = self._get_snapshot(65529, [1, 0, 1, 1, 2, 2, 3])
+        disassembler = self._get_disassembler(snapshot, defw_size=2)
+        exp_instructions = [
+            (65529, 'DEFW 1,257', [1, 0, 1, 1]),
+            (65533, 'DEFW 514', [2, 2]),
+            (65535, 'DEFB 3', [3])
+        ]
+        instructions = disassembler.defw_range(65529, 65536, ((0, 'n'),))
+        self.assertEqual(exp_instructions, instructions)
 
     def test_lower_case_conversion(self):
         snapshot = [
