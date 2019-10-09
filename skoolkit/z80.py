@@ -52,22 +52,43 @@ def _convert_nums(text):
             elements[i] = str(int(q))
     return ''.join(elements)
 
+def eval_int(text):
+    try:
+        return get_int_param(text)
+    except ValueError:
+        s = _convert_nums(_convert_chars(text))
+        if set(s) <= OPERAND_AE_CHARS:
+            return int(eval(s.replace('/', '//')))
+    raise ValueError
+
+def eval_string(text):
+    if text.startswith('"') and text.endswith('"'):
+        data = []
+        i = 1
+        while i < len(text) - 1:
+            if text[i] == '"':
+                raise ValueError
+            if text[i] == '\\':
+                i += 1
+            data.append(ord(text[i]))
+            i += 1
+        return data
+    raise ValueError
+
+def split_operands(text):
+    return [e.strip() for e in split_unquoted(text, ',')]
+
 def _parse_expr(text, limit, brackets, non_neg, default):
     try:
         in_brackets = text.startswith("(") and text.endswith(")")
         if not brackets or in_brackets:
             if in_brackets:
                 text = text[1:-1]
-            try:
-                value = get_int_param(text)
-            except ValueError:
-                s = _convert_nums(_convert_chars(text))
-                if set(s) <= OPERAND_AE_CHARS:
-                    value = int(eval(s.replace('/', '//')))
+            value = eval_int(text)
             if not (abs(value) >= limit or (non_neg and value < 0)):
                 return value % limit
         raise ValueError
-    except (ValueError, TypeError, UnboundLocalError):
+    except (ValueError, TypeError):
         if default is None:
             raise ValueError
         return default
@@ -414,31 +435,12 @@ MNEMONICS = {
     'XOR': partial(_arithmetic_a, 168)
 }
 
-def parse_string(item):
-    if item.startswith('"'):
-        if item.endswith('"'):
-            data = []
-            i = 1
-            while i < len(item) - 1:
-                if item[i] == '"':
-                    return
-                if item[i] == '\\':
-                    i += 1
-                data.append(ord(item[i]))
-                i += 1
-            return data
-        try:
-            return [parse_byte(item)]
-        except ValueError:
-            return
-
 def _assemble_defb(items):
     data = []
     for item in items:
-        values = parse_string(item)
-        if values is not None:
-            data.extend(values)
-        else:
+        try:
+            data.extend(eval_string(item))
+        except ValueError:
             data.append(parse_byte(item, default=0))
     return tuple(data)
 
@@ -486,8 +488,8 @@ def convert_case(operation, lower=True, trim=False):
 
 def _assemble(operation, address):
     if operation.upper().startswith(('DEFB ', 'DEFM ', 'DEFS ', 'DEFW ')):
-        parts = split_operation(operation)
-        directive, items = parts[0].upper(), parts[1:]
+        directive = operation.upper()[:4]
+        items = split_operands(operation[5:].strip())
         if directive in ('DEFB', 'DEFM'):
             return _assemble_defb(items)
         if directive == 'DEFS':

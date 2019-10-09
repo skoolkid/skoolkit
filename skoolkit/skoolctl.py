@@ -20,7 +20,7 @@ from skoolkit import SkoolParsingError, write_line, get_int_param, get_address_f
 from skoolkit.api import get_assembler, get_component
 from skoolkit.skoolparser import (Comment, Register, parse_comment_block, parse_instruction,
                                   parse_address_comments, join_comments, read_skool, DIRECTIVES)
-from skoolkit.z80 import parse_string, parse_word, split_operation
+from skoolkit.z80 import eval_string, parse_byte, parse_word, split_operation
 
 ASM_DIRECTIVES = 'a'
 BLOCKS = 'b'
@@ -76,6 +76,18 @@ def _get_base(item, preserve_base=True):
     if item.startswith('-'):
         return 'm'
     return 'd'
+
+def _parse_string(item):
+    if item.startswith('"'):
+        if item.endswith('"'):
+            try:
+                return eval_string(item)
+            except ValueError:
+                return
+        try:
+            return [parse_byte(item)]
+        except ValueError:
+            return
 
 def compose(operation, preserve_base):
     """Compute the type, length and sublengths of a DEFB/DEFM/DEFS/DEFW
@@ -149,7 +161,7 @@ def get_defb_defm_length(operation, preserve_base, byte_fmt, text_fmt):
     length = 0
     prev_base = None
     for item in items + ['""']:
-        c_data = parse_string(item)
+        c_data = _parse_string(item)
         if c_data is not None:
             if length:
                 lengths.append(byte_fmt[prev_base].format(length))
