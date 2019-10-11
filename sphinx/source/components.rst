@@ -11,6 +11,7 @@ SkoolKit relies on several components in order to function:
 * :ref:`disassembler`
 * :ref:`htmlTemplateFormatter`
 * :ref:`instructionUtility`
+* :ref:`operandFormatter`
 * :ref:`snapshotReader`
 * :ref:`snapshotRefCalc`
 
@@ -25,6 +26,7 @@ working directory or in `~/.skoolkit`. The default contents of the
   Disassembler=skoolkit.disassembler.Disassembler
   HtmlTemplateFormatter=skoolkit.skoolhtml.TemplateFormatter
   InstructionUtility=skoolkit.skoolparser.InstructionUtility
+  OperandFormatter=skoolkit.disassembler.OperandFormatter
   SnapshotReader=skoolkit.snapshot
   SnapshotReferenceCalculator=skoolkit.snaskool
   SnapshotReferenceOperations=DJ,JR,JP,CA,RS
@@ -167,6 +169,17 @@ corresponding value should be a 3-element tuple::
 Each key in the referrers dictionary should be an instruction object, and the
 corresponding value should be a collection of the entries that refer to that
 instruction.
+
+.. _operandFormatter:
+
+Operand formatter
+-----------------
+This class is used by the :ref:`disassembler <disassembler>` to format numeric
+instruction operands. It must supply the following API methods, in common with
+skoolkit.disassembler.OperandFormatter:
+
+.. autoclass:: skoolkit.disassembler.OperandFormatter
+   :members: format_byte, format_word, is_char
 
 .. _snapshotReader:
 

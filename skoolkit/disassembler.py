@@ -14,9 +14,17 @@
 # You should have received a copy of the GNU General Public License along with
 # SkoolKit. If not, see <http://www.gnu.org/licenses/>.
 
+from skoolkit.api import get_component
 from skoolkit.ctlparser import DEFAULT_BASE
 
 class OperandFormatter:
+    """Initialise the operand formatter.
+
+    :param config: Configuration object with the following attributes:
+
+                   * `asm_hex` - if `True`, default base is hexadecimal
+                   * `asm_lower` - if `True`, format operands in lower case
+    """
     def __init__(self, config):
         self.byte_formats = {
             'b': '%{:08b}',
@@ -42,12 +50,28 @@ class OperandFormatter:
             self.word_formats[DEFAULT_BASE] = self.word_formats['h']
 
     def format_byte(self, value, base):
+        """Format a byte value.
+
+        :param value: The byte value.
+        :param base: The desired base ('b', 'c', 'd', 'h', 'm' or 'n').
+        :return: The formatted byte value.
+        """
         return self._num_str(value, 1, base)
 
     def format_word(self, value, base):
+        """Format a word (2-byte) value.
+
+        :param value: The word value.
+        :param base: The desired base ('b', 'c', 'd', 'h', 'm' or 'n').
+        :return: The formatted word value.
+        """
         return self._num_str(value, 2, base)
 
     def is_char(self, value):
+        """Return whether a byte value can be formatted as a character.
+
+        :param value: The byte value.
+        """
         return 32 <= value < 127 and value not in (94, 96)
 
     def _num_str(self, value, num_bytes, base):
@@ -90,7 +114,7 @@ class Disassembler:
         self.defb_size = config.defb_size
         self.defm_size = config.defm_size
         self.defw_size = config.defw_size
-        self.op_formatter = OperandFormatter(config)
+        self.op_formatter = get_component('OperandFormatter', config)
         self.defb = 'DEFB '
         self.defm = 'DEFM '
         self.defs = 'DEFS '

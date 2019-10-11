@@ -1,6 +1,8 @@
 from collections import namedtuple
+from unittest.mock import patch
 
 from skoolkittest import SkoolKitTestCase
+from skoolkit import api
 from skoolkit.disassembler import Disassembler
 
 Config = namedtuple('Config', 'asm_hex asm_lower defb_size defm_size defw_size')
@@ -2123,3 +2125,58 @@ class DisassemblerTest(SkoolKitTestCase):
         instructions = disassembler.defw_range(0, 2, sublengths)
         self.assertEqual(len(instructions), 1)
         self.assertEqual(instructions[0][1], 'defw $ffff')
+
+    @patch.object(api, 'SK_CONFIG', None)
+    def test_custom_operand_formatter(self):
+        custom_formatter = """
+            class CustomFormatter:
+                def __init__(self, config):
+                    pass
+                def format_byte(self, value, base):
+                    return '@{:o}'.format(value)
+                def format_word(self, value, base):
+                    return '{:04X}h'.format(value)
+                def is_char(self, value):
+                    return value == ord('A')
+        """
+        self.write_component_config('OperandFormatter', '*.CustomFormatter', custom_formatter)
+        snapshot = [65, 66]
+        disassembler = self._get_disassembler(snapshot)
+
+        instructions = disassembler.defb_range(0, 2, ((0, 'n'),))
+        self.assertEqual([(0, 'DEFB @101,@102', [65, 66])], instructions)
+
+        instructions = disassembler.defw_range(0, 2, ((0, 'n'),))
+        self.assertEqual([(0, 'DEFW 4241h', [65, 66])], instructions)
+
+        instructions = disassembler.defm_range(0, 2, ((0, 'c'),))
+        self.assertEqual([(0, 'DEFM "A",@102', [65, 66])], instructions)
+
+    @patch.object(api, 'SK_CONFIG', None)
+    def test_custom_operand_formatter_api(self):
+        custom_formatter = """
+            class CustomFormatter:
+                def __init__(self, config):
+                    assert config.asm_hex
+                    assert config.asm_lower is False
+                def format_byte(self, value, base):
+                    assert value == 65
+                    assert base == 'c'
+                    return "'A'"
+                def format_word(self, value, base):
+                    assert value == 16961
+                    assert base == 'h'
+                    return '0'
+                def is_char(self, value):
+                    assert value == 65
+                    return True
+        """
+        self.write_component_config('OperandFormatter', '*.CustomFormatter', custom_formatter)
+        snapshot = [65, 66]
+        disassembler = self._get_disassembler(snapshot, asm_hex=True)
+
+        instructions = disassembler.defw_range(0, 2, ((0, 'h'),))
+        self.assertEqual([(0, 'DEFW 0', [65, 66])], instructions)
+
+        instructions = disassembler.defm_range(0, 1, ((0, 'c'),))
+        self.assertEqual([(0, "DEFM 'A'", [65])], instructions)

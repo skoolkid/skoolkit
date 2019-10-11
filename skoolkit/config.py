@@ -28,6 +28,7 @@ COMMANDS = {
         'Disassembler': 'skoolkit.disassembler.Disassembler',
         'HtmlTemplateFormatter': 'skoolkit.skoolhtml.TemplateFormatter',
         'InstructionUtility': 'skoolkit.skoolparser.InstructionUtility',
+        'OperandFormatter': 'skoolkit.disassembler.OperandFormatter',
         'SnapshotReader': 'skoolkit.snapshot',
         'SnapshotReferenceCalculator': 'skoolkit.snaskool',
         'SnapshotReferenceOperations': 'DJ,JR,JP,CA,RS'
