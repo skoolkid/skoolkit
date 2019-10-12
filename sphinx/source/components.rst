@@ -245,3 +245,11 @@ Each instruction object has the following attributes:
 * *bytes* - the byte values of the instruction
 * *label* - the instruction's label, as defined by a :ref:`label` directive
 * *operation* - the operation (e.g. 'XOR A')
+
+Component API
+-------------
+The following functions are provided to facilitate access to the components and
+other values declared in the ``[skoolkit]`` section of `skoolkit.ini`.
+
+.. automodule:: skoolkit.api
+   :members: get_component, get_value

@@ -19,14 +19,27 @@ from skoolkit.config import get_config
 
 SK_CONFIG = None
 
+# API
 def get_value(name):
+    """Return a parameter value from the ``[skoolkit]`` section of
+    `skoolkit.ini`.
+
+    :param name: The parameter name.
+    """
     global SK_CONFIG
     if SK_CONFIG is None:
         SK_CONFIG = get_config('skoolkit')
     return SK_CONFIG[name]
 
-def get_component(component, *args):
-    obj = get_object(get_value(component))
+# API
+def get_component(name, *args):
+    """Return a component declared in the ``[skoolkit]`` section of
+    `skoolkit.ini`.
+
+    :param name: The component name.
+    :param args: Arguments passed to the component's constructor.
+    """
+    obj = get_object(get_value(name))
     if callable(obj):
         return obj(*args)
     return obj
