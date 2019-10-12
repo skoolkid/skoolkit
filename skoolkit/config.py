@@ -22,12 +22,13 @@ from skoolkit.refparser import RefParser
 
 COMMANDS = {
     'skoolkit': {
-        'Assembler': 'skoolkit.z80',
-        'ControlDirectiveComposer': 'skoolkit.skoolctl',
+        'Assembler': 'skoolkit.z80.Assembler',
+        'ControlDirectiveComposer': 'skoolkit.skoolctl.ControlDirectiveComposer',
         'ControlFileGenerator': 'skoolkit.snactl',
         'Disassembler': 'skoolkit.disassembler.Disassembler',
         'HtmlTemplateFormatter': 'skoolkit.skoolhtml.TemplateFormatter',
         'InstructionUtility': 'skoolkit.skoolparser.InstructionUtility',
+        'OperandEvaluator': 'skoolkit.z80',
         'OperandFormatter': 'skoolkit.disassembler.OperandFormatter',
         'SnapshotReader': 'skoolkit.snapshot',
         'SnapshotReferenceCalculator': 'skoolkit.snaskool',

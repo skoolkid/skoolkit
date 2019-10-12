@@ -17,10 +17,9 @@
 import re
 
 from skoolkit import SkoolParsingError, write_line, get_int_param, get_address_format, open_file
-from skoolkit.api import get_assembler, get_component
+from skoolkit.api import get_assembler, get_component, get_operand_evaluator
 from skoolkit.skoolparser import (Comment, Register, parse_comment_block, parse_instruction,
                                   parse_address_comments, join_comments, read_skool, DIRECTIVES)
-from skoolkit.z80 import eval_string, parse_byte, parse_word, split_operation
 
 ASM_DIRECTIVES = 'a'
 BLOCKS = 'b'
@@ -66,6 +65,168 @@ FORMAT_PRESERVE_BASE = {
     'm': 'm{}'
 }
 
+class ControlDirectiveComposer:
+    """Initialise the control directive composer.
+
+    :param preserve_base: Whether to preserve the base of decimal and
+                          hexadecimal values with explicit 'd' and 'h' base
+                          indicators.
+    """
+    def __init__(self, preserve_base):
+        self.preserve_base = preserve_base
+        self.op_evaluator = get_operand_evaluator()
+
+    def compose(self, operation):
+        """Compute the type, length and sublengths of a DEFB/DEFM/DEFS/DEFW
+        statement, or the operand bases of a regular instruction.
+
+        :param operation: The operation (e.g. 'LD A,0' or 'DEFB 0').
+        :return: A 3-element tuple, ``(ctl, length, sublengths)``, where:
+
+                 * ``ctl`` is 'B' (DEFB), 'C' (regular instruction), 'S' (DEFS),
+                   'T' (DEFM) or 'W' (DEFW)
+                 * ``length`` is the number of bytes in the DEFB/DEFM/DEFS/DEFW
+                   statement, or the operand base indicator for a regular
+                   instruction (e.g. 'b' for 'LD A,%00000001')
+                 * ``sublengths`` is a colon-separated sequence of sublengths (e.g.
+                   '1:c1' for 'DEFB 0,"a"'), or `None` for a regular instruction
+        """
+        op = operation.upper()
+        if op.startswith(('DEFB', 'DEFM', 'DEFS', 'DEFW')):
+            ctl = op[3].replace('M', 'T')
+            length, sublengths = self._get_length(ctl, operation)
+        else:
+            ctl = 'C'
+            length, sublengths = self._get_operand_bases(operation), None
+        return (ctl, length, sublengths)
+
+    def _parse_string(self, item):
+        try:
+            return self.op_evaluator.eval_string(item)
+        except ValueError:
+            if item.startswith('"') and not item.endswith('"'):
+                try:
+                    return [self.op_evaluator.eval_int(item)]
+                except ValueError:
+                    return
+
+    def _get_operand_bases(self, operation):
+        elements = operation.split(None, 1)
+        if len(elements) > 1:
+            elements[1:] = [e.strip() for e in self.op_evaluator.split_operands(elements[1])]
+        if not elements:
+            return ''
+        if self.preserve_base:
+            base_fmt = {'b': 'b', 'c': 'c', 'd': 'd', 'h': 'h', 'm': 'm'}
+        else:
+            base_fmt = {'b': 'b', 'c': 'c', 'd': 'n', 'h': 'n', 'm': 'm'}
+        if elements[0].upper() in ('BIT', 'RES', 'SET'):
+            operands = elements[2:]
+        else:
+            operands = elements[1:]
+        bases = ''
+        for operand in operands:
+            if operand.upper().startswith(('(IX+', '(IX-', '(IY+', '(IY-')):
+                num = operand[4:]
+            elif operand.startswith('('):
+                num = operand[1:]
+            else:
+                num = operand
+            if num.startswith(('"', '%', '$', '-', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9')):
+                bases += base_fmt[_get_base(num)]
+        if bases in ('n', 'nn'):
+            return ''
+        return bases
+
+    def _get_length(self, ctl, operation):
+        if ctl == 'B':
+            return self._get_defb_defm_length(operation, FORMAT_NO_BASE, 'c{}')
+        if ctl == 'T':
+            byte_fmt = {'b': 'b{}', 'd': 'n{}', 'h': 'n{}', 'm': 'm{}'}
+            return self._get_defb_defm_length(operation, byte_fmt, '{}')
+        if ctl == 'S':
+            return self._get_defs_length(operation)
+        return self._get_defw_length(operation)
+
+    def _get_defb_defm_length(self, operation, byte_fmt, text_fmt):
+        items = self.op_evaluator.split_operands(operation[5:])
+        if self.preserve_base:
+            byte_fmt = FORMAT_PRESERVE_BASE
+        full_length = 0
+        lengths = []
+        length = 0
+        prev_base = None
+        for item in items + ['""']:
+            c_data = self._parse_string(item)
+            if c_data is not None:
+                if length:
+                    lengths.append(byte_fmt[prev_base].format(length))
+                    full_length += length
+                    prev_base = None
+                length = len(c_data)
+                if length:
+                    lengths.append(text_fmt.format(length))
+                    full_length += length
+                    length = 0
+            else:
+                cur_base = _get_base(item, self.preserve_base)
+                if cur_base == 'c':
+                    cur_base = 'd'
+                if prev_base != cur_base and length:
+                    lengths.append(byte_fmt[prev_base].format(length))
+                    full_length += length
+                    length = 0
+                length += 1
+                prev_base = cur_base
+        return full_length, ':'.join(lengths)
+
+    def _get_defw_length(self, operation):
+        if self.preserve_base:
+            word_fmt = FORMAT_PRESERVE_BASE
+        else:
+            word_fmt = FORMAT_NO_BASE
+        full_length = 0
+        lengths = []
+        length = 0
+        prev_base = None
+        for item in self.op_evaluator.split_operands(operation[5:]):
+            cur_base = _get_base(item, self.preserve_base)
+            if prev_base != cur_base and length:
+                lengths.append(word_fmt[prev_base].format(length))
+                full_length += length
+                length = 0
+            length += 2
+            prev_base = cur_base
+        lengths.append(word_fmt[prev_base].format(length))
+        full_length += length
+        return full_length, ':'.join(lengths)
+
+    def _get_defs_length(self, operation):
+        if self.preserve_base:
+            fmt = FORMAT_PRESERVE_BASE
+        else:
+            fmt = FORMAT_NO_BASE
+        items = self.op_evaluator.split_operands(operation[5:])[:2]
+
+        try:
+            size = self.op_evaluator.eval_int(items[0])
+        except ValueError:
+            raise SkoolParsingError("Invalid integer '{}': {}".format(items[0], operation))
+        size_base = _get_base(items[0], self.preserve_base)
+        try:
+            get_int_param(items[0])
+            size_fmt = fmt[size_base].format(items[0])
+        except ValueError:
+            size_fmt = fmt[size_base].format(size)
+
+        if len(items) == 1:
+            return size, size_fmt
+
+        value_base = _get_base(items[1], self.preserve_base)
+        if value_base in 'dh' and not self.preserve_base:
+            value_base = 'n'
+        return size, '{}:{}'.format(size_fmt, value_base)
+
 def _get_base(item, preserve_base=True):
     if item.startswith('%'):
         return 'b'
@@ -76,160 +237,6 @@ def _get_base(item, preserve_base=True):
     if item.startswith('-'):
         return 'm'
     return 'd'
-
-def _parse_string(item):
-    if item.startswith('"'):
-        if item.endswith('"'):
-            try:
-                return eval_string(item)
-            except ValueError:
-                return
-        try:
-            return [parse_byte(item)]
-        except ValueError:
-            return
-
-def compose(operation, preserve_base):
-    """Compute the type, length and sublengths of a DEFB/DEFM/DEFS/DEFW
-    statement, or the operand bases of a regular instruction.
-
-    :param operation: The operation (e.g. 'LD A,0' or 'DEFB 0').
-    :param preserve_base: Whether to preserve the base of decimal and
-                          hexadecimal values with explicit 'd' and 'h' base
-                          indicators.
-    :return: A 3-element tuple, ``(ctl, length, sublengths)``, where:
-
-             * ``ctl`` is 'B' (DEFB), 'C' (regular instruction), 'S' (DEFS),
-               'T' (DEFM) or 'W' (DEFW)
-             * ``length`` is the number of bytes in the DEFB/DEFM/DEFS/DEFW
-               statement, or the operand base indicator for a regular
-               instruction (e.g. 'b' for 'LD A,%00000001')
-             * ``sublengths`` is a colon-separated sequence of sublengths (e.g.
-               '1:c1' for 'DEFB 0,"a"'), or `None` for a regular instruction
-    """
-    op = operation.upper()
-    if op.startswith(('DEFB', 'DEFM', 'DEFS', 'DEFW')):
-        ctl = op[3].replace('M', 'T')
-        length, sublengths = get_length(ctl, operation, preserve_base)
-    else:
-        ctl = 'C'
-        length, sublengths = get_operand_bases(operation, preserve_base), None
-    return (ctl, length, sublengths)
-
-def get_operand_bases(operation, preserve_base):
-    elements = split_operation(operation, True)
-    if not elements:
-        return ''
-    if preserve_base:
-        base_fmt = {'b': 'b', 'c': 'c', 'd': 'd', 'h': 'h', 'm': 'm'}
-    else:
-        base_fmt = {'b': 'b', 'c': 'c', 'd': 'n', 'h': 'n', 'm': 'm'}
-    if elements[0] in ('BIT', 'RES', 'SET'):
-        operands = elements[2:]
-    else:
-        operands = elements[1:]
-    bases = ''
-    for operand in operands:
-        if operand.startswith(('(IX+', '(IX-', '(IY+', '(IY-')):
-            num = operand[4:]
-        elif operand.startswith('('):
-            num = operand[1:]
-        else:
-            num = operand
-        if num.startswith(('"', '%', '$', '-', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9')):
-            bases += base_fmt[_get_base(num)]
-    if bases in ('n', 'nn'):
-        return ''
-    return bases
-
-def get_length(ctl, operation, preserve_base):
-    if ctl == 'B':
-        return get_defb_defm_length(operation, preserve_base, FORMAT_NO_BASE, 'c{}')
-    if ctl == 'T':
-        byte_fmt = {'b': 'b{}', 'd': 'n{}', 'h': 'n{}', 'm': 'm{}'}
-        return get_defb_defm_length(operation, preserve_base, byte_fmt, '{}')
-    if ctl == 'S':
-        return get_defs_length(operation, preserve_base)
-    return get_defw_length(operation, preserve_base)
-
-def get_defb_defm_length(operation, preserve_base, byte_fmt, text_fmt):
-    items = split_operation(operation)[1:]
-    if preserve_base:
-        byte_fmt = FORMAT_PRESERVE_BASE
-    full_length = 0
-    lengths = []
-    length = 0
-    prev_base = None
-    for item in items + ['""']:
-        c_data = _parse_string(item)
-        if c_data is not None:
-            if length:
-                lengths.append(byte_fmt[prev_base].format(length))
-                full_length += length
-                prev_base = None
-            length = len(c_data)
-            if length:
-                lengths.append(text_fmt.format(length))
-                full_length += length
-                length = 0
-        else:
-            cur_base = _get_base(item, preserve_base)
-            if cur_base == 'c':
-                cur_base = 'd'
-            if prev_base != cur_base and length:
-                lengths.append(byte_fmt[prev_base].format(length))
-                full_length += length
-                length = 0
-            length += 1
-            prev_base = cur_base
-    return full_length, ':'.join(lengths)
-
-def get_defw_length(operation, preserve_base):
-    if preserve_base:
-        word_fmt = FORMAT_PRESERVE_BASE
-    else:
-        word_fmt = FORMAT_NO_BASE
-    full_length = 0
-    lengths = []
-    length = 0
-    prev_base = None
-    for item in split_operation(operation)[1:]:
-        cur_base = _get_base(item, preserve_base)
-        if prev_base != cur_base and length:
-            lengths.append(word_fmt[prev_base].format(length))
-            full_length += length
-            length = 0
-        length += 2
-        prev_base = cur_base
-    lengths.append(word_fmt[prev_base].format(length))
-    full_length += length
-    return full_length, ':'.join(lengths)
-
-def get_defs_length(operation, preserve_base):
-    if preserve_base:
-        fmt = FORMAT_PRESERVE_BASE
-    else:
-        fmt = FORMAT_NO_BASE
-    items = split_operation(operation)[1:3]
-
-    try:
-        size = parse_word(items[0])
-    except ValueError:
-        raise SkoolParsingError("Invalid integer '{}': {}".format(items[0], operation))
-    size_base = _get_base(items[0], preserve_base)
-    try:
-        get_int_param(items[0])
-        size_fmt = fmt[size_base].format(items[0])
-    except ValueError:
-        size_fmt = fmt[size_base].format(size)
-
-    if len(items) == 1:
-        return size, size_fmt
-
-    value_base = _get_base(items[1], preserve_base)
-    if value_base in 'dh' and not preserve_base:
-        value_base = 'n'
-    return size, '{}:{}'.format(size_fmt, value_base)
 
 def get_lengths(stmt_lengths):
     # Find subsequences of identical statement lengths and abbreviate them,
@@ -528,13 +535,12 @@ class CtlWriter:
 class SkoolParser:
     def __init__(self, skoolfile, preserve_base, assembler, min_address, max_address, keep_lines):
         self.skoolfile = skoolfile
-        self.preserve_base = preserve_base
         self.mode = Mode()
         self.memory_map = []
         self.end_address = 65536
         self.keep_lines = keep_lines
         self.assembler = assembler
-        self.composer = get_component('ControlDirectiveComposer')
+        self.composer = get_component('ControlDirectiveComposer', preserve_base)
 
         with open_file(skoolfile) as f:
             self._parse_skool(f, min_address, max_address)
@@ -650,7 +656,7 @@ class SkoolParser:
             address = get_int_param(addr_str)
         except ValueError:
             raise SkoolParsingError("Invalid address ({}):\n{}".format(addr_str, line.rstrip()))
-        inst_ctl, length, sublengths = self.composer.compose(operation, self.preserve_base)
+        inst_ctl, length, sublengths = self.composer.compose(operation)
         instruction = Instruction(ctl, address, operation, inst_ctl, length, sublengths)
         self.mode.apply_asm_directives(instruction)
         return instruction, comment

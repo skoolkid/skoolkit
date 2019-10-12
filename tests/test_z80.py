@@ -1,5 +1,8 @@
+from unittest.mock import patch
+
 from skoolkittest import SkoolKitTestCase
-from skoolkit.z80 import assemble, get_size
+from skoolkit import api
+from skoolkit.z80 import Assembler
 
 OPERATIONS = (
     ('ADC A,244', (206, 244)),
@@ -1405,10 +1408,11 @@ class Z80Test(SkoolKitTestCase):
         self.longMessage = True
 
     def _test_operation(self, operation, exp_data, address):
-        data = assemble(operation, address)
+        assembler = Assembler()
+        data = assembler.assemble(operation, address)
         self.assertEqual(data, exp_data, "assemble('{}', {}) failed".format(operation, address))
         exp_length = len(data)
-        length = get_size(operation, address)
+        length = assembler.get_size(operation, address)
         self.assertEqual(length, exp_length, "get_size('{}', {}) failed".format(operation, address))
 
     def _test_assembly(self, operation, exp_data=(), address=0, test_lower=False):
@@ -1496,3 +1500,28 @@ class Z80Test(SkoolKitTestCase):
         )
         for operation in invalid_operations:
             self._test_assembly(operation)
+
+    @patch.object(api, 'SK_CONFIG', None)
+    def test_custom_operand_evaluator(self):
+        custom_evaluator = """
+            def eval_int(text):
+                try:
+                    return eval_string(text)[0]
+                except ValueError:
+                    return int(text[1:], 8)
+            def eval_string(text):
+                if text.startswith("'") and text.endswith("'"):
+                    return [ord(c) for c in text[1:-1]]
+                raise ValueError
+            def split_operands(text):
+                return text.split(',')
+        """
+        self.write_component_config('OperandEvaluator', '*', custom_evaluator)
+
+        exp_values = (
+            ('LD A,@10', (62, 8)),
+            ("LD B,'B'", (6, 66)),
+            ("DEFB @10,'AB'", (8, 65, 66))
+        )
+        for operation, exp_bytes in exp_values:
+            self._test_assembly(operation, exp_bytes)

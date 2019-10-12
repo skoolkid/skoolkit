@@ -6,11 +6,12 @@ SkoolKit components
 SkoolKit relies on several components in order to function:
 
 * :ref:`assembler`
-* :ref:`ctlcomposer`
-* :ref:`ctlgenerator`
+* :ref:`ctlComposer`
+* :ref:`ctlGenerator`
 * :ref:`disassembler`
 * :ref:`htmlTemplateFormatter`
 * :ref:`instructionUtility`
+* :ref:`operandEvaluator`
 * :ref:`operandFormatter`
 * :ref:`snapshotReader`
 * :ref:`snapshotRefCalc`
@@ -20,12 +21,13 @@ The objects that are used for these components can be specified in the
 working directory or in `~/.skoolkit`. The default contents of the
 ``[skoolkit]`` section are as follows::
 
-  Assembler=skoolkit.z80
-  ControlDirectiveComposer=skoolkit.skoolctl
+  Assembler=skoolkit.z80.Assembler
+  ControlDirectiveComposer=skoolkit.skoolctl.ControlDirectiveComposer
   ControlFileGenerator=skoolkit.snactl
   Disassembler=skoolkit.disassembler.Disassembler
   HtmlTemplateFormatter=skoolkit.skoolhtml.TemplateFormatter
   InstructionUtility=skoolkit.skoolparser.InstructionUtility
+  OperandEvaluator=skoolkit.z80
   OperandFormatter=skoolkit.disassembler.OperandFormatter
   SnapshotReader=skoolkit.snapshot
   SnapshotReferenceCalculator=skoolkit.snaskool
@@ -37,24 +39,24 @@ Assembler
 ---------
 This object is responsible for converting assembly language instructions and
 DEFB/DEFM/DEFS/DEFW statements into byte values, or computing their size. It
-must supply the following API functions, in common with skoolkit.z80:
+must supply the following API functions, in common with skoolkit.z80.Assembler:
 
-.. automodule:: skoolkit.z80
+.. autoclass:: skoolkit.z80.Assembler
    :members: assemble, get_size
 
 .. _ctlComposer:
 
 Control directive composer
 --------------------------
-This object is responsible for computing the type, length and sublengths of a
+This class is responsible for computing the type, length and sublengths of a
 DEFB/DEFM/DEFS/DEFW statement, or the operand bases of a regular instruction,
 for the purpose of composing a control directive. It must supply the following
-API function, in common with skoolkit.skoolctl:
+API methods, in common with skoolkit.skoolctl.ControlDirectiveComposer:
 
-.. automodule:: skoolkit.skoolctl
+.. autoclass:: skoolkit.skoolctl.ControlDirectiveComposer
    :members: compose
 
-.. _ctlgenerator:
+.. _ctlGenerator:
 
 Control file generator
 ----------------------
@@ -169,6 +171,19 @@ corresponding value should be a 3-element tuple::
 Each key in the referrers dictionary should be an instruction object, and the
 corresponding value should be a collection of the entries that refer to that
 instruction.
+
+.. _operandEvaluator:
+
+Operand evaluator
+-----------------
+This object is used by the :ref:`assembler <assembler>` to evaluate instruction
+operands, and by the :ref:`control directive composer <ctlcomposer>` to
+determine the length and sublengths of DEFB, DEFM and DEFS statements. It must
+supply the following API functions, in common with skoolkit.z80:
+
+.. automodule:: skoolkit.z80
+   :members: eval_int, eval_string, split_operands
+   :noindex:
 
 .. _operandFormatter:
 

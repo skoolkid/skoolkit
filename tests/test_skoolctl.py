@@ -2634,10 +2634,13 @@ class CtlWriterTest(SkoolKitTestCase):
     @patch.object(api, 'SK_CONFIG', None)
     def test_custom_control_directive_composer(self):
         custom_composer = """
-            def compose(operation, preserve_base):
-                return {'XOR A': ('C', 'd', None), 'DEFB 0': ('B', 1, 'h')}[operation]
+            class CustomComposer:
+                def __init__(self, preserve_base):
+                    pass
+                def compose(self, operation):
+                    return {'XOR A': ('C', 'd', None), 'DEFB 0': ('B', 1, 'h')}[operation]
         """
-        self.write_component_config('ControlDirectiveComposer', '*', custom_composer)
+        self.write_component_config('ControlDirectiveComposer', '*.CustomComposer', custom_composer)
 
         skool = """
             c60000 XOR A
@@ -2648,5 +2651,34 @@ class CtlWriterTest(SkoolKitTestCase):
             C 60000,d1
             B 60001,1,h
             i 60002
+        """
+        self._test_ctl(skool, exp_ctl)
+
+    @patch.object(api, 'SK_CONFIG', None)
+    def test_custom_operand_evaluator(self):
+        custom_evaluator = """
+            def eval_int(text):
+                try:
+                    return eval_string(text)[0]
+                except ValueError:
+                    return int(text[1:], 8)
+            def eval_string(text):
+                if text.startswith('"') and text.endswith('"'):
+                    return [ord(c) for c in text[1:-1]]
+                raise ValueError
+            def split_operands(text):
+                return text.split(':')
+        """
+        self.write_component_config('OperandEvaluator', '*', custom_evaluator)
+
+        skool = """
+            b50000 DEFB @20:"ABC"
+             50004 DEFS @12
+        """
+        exp_ctl = """
+            b 50000
+            B 50000,4,1:c3
+            S 50004,10,10
+            i 50014
         """
         self._test_ctl(skool, exp_ctl)

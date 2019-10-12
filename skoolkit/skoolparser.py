@@ -24,6 +24,8 @@ from skoolkit.api import get_assembler, get_component
 from skoolkit.skoolmacro import INTEGER, ClosingBracketError, MacroParsingError, parse_brackets, parse_if, parse_strings
 from skoolkit.textutils import partition_unquoted, split_quoted, split_unquoted
 
+Z80_ASSEMBLER = z80.Assembler()
+
 DIRECTIVES = 'bcgistuw'
 
 TABLE_MARKER = '#TABLE'
@@ -107,7 +109,7 @@ def parse_asm_data_directive(snapshot, directive):
         addr = parse_int(address)
         if addr is not None:
             operation = '{} {}'.format(directive[:4], partition_unquoted(values, ';')[0])
-            set_bytes(snapshot, z80, addr, operation)
+            set_bytes(snapshot, Z80_ASSEMBLER, addr, operation)
 
 def parse_asm_sub_fix_directive(directive):
     match = re.match('[>/|+]+', directive)
@@ -934,7 +936,7 @@ class InstructionUtility:
                     prefix = None
             return converted
 
-        elements = z80.split_operation(operation, tidy=True)
+        elements = Z80_ASSEMBLER.split_operation(operation, tidy=True)
         op = elements[0]
 
         # Instructions containing '(I[XY]+d)'
@@ -960,7 +962,7 @@ class InstructionUtility:
 
     def _convert_case(self, operation, case):
         if case:
-            operation = z80.convert_case(operation, case == CASE_LOWER)
+            operation = Z80_ASSEMBLER.convert_case(operation, case == CASE_LOWER)
             if case == CASE_UPPER and not operation.startswith(('DEFB', 'DEFM', 'DEFS', 'DEFW')):
                 operation = re.sub('(I[XY])H', r'\1h', operation)
                 operation = re.sub('(I[XY])L', r'\1l', operation)
@@ -993,7 +995,7 @@ class InstructionUtility:
         self.remote_instructions = [i.address for e in remote_entries for i in e.instructions]
         self.base_address = min(self.instructions)
         last_i = self.instructions[max(self.instructions)][0]
-        self.end_address = last_i.address + (z80.get_size(last_i.operation, last_i.address) or 1)
+        self.end_address = last_i.address + (Z80_ASSEMBLER.get_size(last_i.operation, last_i.address) or 1)
 
         for entry in entries:
             for instruction in entry.instructions:

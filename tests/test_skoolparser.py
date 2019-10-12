@@ -2186,30 +2186,31 @@ class SkoolParserTest(SkoolKitTestCase):
     def test_set_bytes(self):
         # DEFB
         snapshot = [0] * 10
-        set_bytes(snapshot, z80, 0, 'DEFB 1,2,3')
+        assembler = z80.Assembler()
+        set_bytes(snapshot, assembler, 0, 'DEFB 1,2,3')
         self.assertEqual(snapshot[:3], [1, 2, 3])
-        set_bytes(snapshot, z80, 2, 'DEFB 5, "AB"')
+        set_bytes(snapshot, assembler, 2, 'DEFB 5, "AB"')
         self.assertEqual(snapshot[2:5], [5, 65, 66])
 
         # DEFM
         snapshot = [0] * 10
-        set_bytes(snapshot, z80, 7, 'DEFM "ABC"')
+        set_bytes(snapshot, assembler, 7, 'DEFM "ABC"')
         self.assertEqual(snapshot[7:], [65, 66, 67])
-        set_bytes(snapshot, z80, 0, 'DEFM "\\"A\\""')
+        set_bytes(snapshot, assembler, 0, 'DEFM "\\"A\\""')
         self.assertEqual(snapshot[:3], [34, 65, 34])
-        set_bytes(snapshot, z80, 5, 'DEFM "C:\\\\",12')
+        set_bytes(snapshot, assembler, 5, 'DEFM "C:\\\\",12')
         self.assertEqual(snapshot[5:9], [67, 58, 92, 12])
 
         # DEFW
         snapshot = [0] * 10
-        set_bytes(snapshot, z80, 3, 'DEFW 1,258')
+        set_bytes(snapshot, assembler, 3, 'DEFW 1,258')
         self.assertEqual(snapshot[3:7], [1, 0, 2, 1])
 
         # DEFS
         snapshot = [8] * 10
-        set_bytes(snapshot, z80, 0, 'DEFS 10')
+        set_bytes(snapshot, assembler, 0, 'DEFS 10')
         self.assertEqual(snapshot, [0] * 10)
-        set_bytes(snapshot, z80, 0, 'DEFS 10,3')
+        set_bytes(snapshot, assembler, 0, 'DEFS 10,3')
         self.assertEqual(snapshot, [3] * 10)
 
     def test_warn_ld_operand(self):
