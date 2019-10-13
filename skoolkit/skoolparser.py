@@ -20,7 +20,7 @@ import re
 
 from skoolkit import (BASE_10, BASE_16, CASE_LOWER, CASE_UPPER, SkoolParsingError,
                       warn, wrap, get_int_param, parse_int, open_file, z80)
-from skoolkit.api import get_assembler, get_component
+from skoolkit.components import get_assembler, get_component
 from skoolkit.skoolmacro import INTEGER, ClosingBracketError, MacroParsingError, parse_brackets, parse_if, parse_strings
 from skoolkit.textutils import partition_unquoted, split_quoted, split_unquoted
 

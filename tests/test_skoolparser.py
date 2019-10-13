@@ -3,7 +3,7 @@ import re
 from unittest.mock import patch
 
 from skoolkittest import SkoolKitTestCase
-from skoolkit import SkoolParsingError, BASE_10, BASE_16, api, z80
+from skoolkit import SkoolParsingError, BASE_10, BASE_16, components, z80
 from skoolkit.skoolparser import SkoolParser, TableParser, set_bytes, CASE_LOWER, CASE_UPPER
 
 TEST_BASE_CONVERSION_SKOOL = r"""
@@ -5238,7 +5238,7 @@ class SkoolParserTest(SkoolKitTestCase):
         self.assertEqual([1, 2, 9, 10, 11, 12, 7, 8], clone.snapshot[40000:40008])
         self.assertEqual(parser.fields, clone.fields)
 
-    @patch.object(api, 'SK_CONFIG', None)
+    @patch.object(components, 'SK_CONFIG', None)
     def test_custom_assembler(self):
         custom_assembler = """
             class Assembler:
@@ -5259,7 +5259,7 @@ class SkoolParserTest(SkoolKitTestCase):
         self.assertEqual(parser.memory_map[1].size, 4)
         self.assertEqual([1, 2, 3, 4, 5, 6, 7], parser.snapshot[30000:30007])
 
-    @patch.object(api, 'SK_CONFIG', None)
+    @patch.object(components, 'SK_CONFIG', None)
     def test_custom_skool_reference_calculator(self):
         custom_ref_calc = """
             from skoolkit.skoolparser import InstructionUtility
@@ -5277,7 +5277,7 @@ class SkoolParserTest(SkoolKitTestCase):
         self.assertEqual(reference.addr_str, '0')
         self.assertFalse(reference.use_label)
 
-    @patch.object(api, 'SK_CONFIG', None)
+    @patch.object(components, 'SK_CONFIG', None)
     def test_custom_skool_reference_calculator_api(self):
         custom_ref_calc = """
             from skoolkit.skoolparser import InstructionUtility
@@ -5311,7 +5311,7 @@ class SkoolParserTest(SkoolKitTestCase):
         self.assertEqual(reference.addr_str, '0')
         self.assertFalse(reference.use_label)
 
-    @patch.object(api, 'SK_CONFIG', None)
+    @patch.object(components, 'SK_CONFIG', None)
     def test_custom_instruction_converter(self):
         custom_converter = """
             from skoolkit.skoolparser import InstructionUtility
@@ -5325,7 +5325,7 @@ class SkoolParserTest(SkoolKitTestCase):
         parser = self._get_parser('c40000 JP 40000')
         self.assertEqual(parser.get_instruction(40000).operation, 'JP 0x9C40')
 
-    @patch.object(api, 'SK_CONFIG', None)
+    @patch.object(components, 'SK_CONFIG', None)
     def test_custom_labeller(self):
         custom_labeller = """
             from skoolkit.skoolparser import InstructionUtility
@@ -5338,7 +5338,7 @@ class SkoolParserTest(SkoolKitTestCase):
         parser = self._get_parser('c50000 JP 50000')
         self.assertEqual(parser.get_instruction(50000).operation, 'JP WHERE')
 
-    @patch.object(api, 'SK_CONFIG', None)
+    @patch.object(components, 'SK_CONFIG', None)
     def test_custom_labeller_api(self):
         custom_labeller = """
             from skoolkit.skoolparser import InstructionUtility
@@ -5369,7 +5369,7 @@ class SkoolParserTest(SkoolKitTestCase):
         parser = self._get_parser(skool)
         self.assertEqual(parser.get_instruction(40000).operation, 'JP UP')
 
-    @patch.object(api, 'SK_CONFIG', None)
+    @patch.object(components, 'SK_CONFIG', None)
     def test_custom_set_byte_values(self):
         custom_sbv = """
             from skoolkit.skoolparser import InstructionUtility
@@ -5388,7 +5388,7 @@ class SkoolParserTest(SkoolKitTestCase):
         parser = self._get_parser(skool, html=True)
         self.assertEqual([1, 0], parser.snapshot[30000:30002])
 
-    @patch.object(api, 'SK_CONFIG', None)
+    @patch.object(components, 'SK_CONFIG', None)
     def test_custom_set_byte_values_api(self):
         custom_sbv = """
             from skoolkit.skoolparser import InstructionUtility

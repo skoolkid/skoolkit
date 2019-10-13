@@ -18,7 +18,7 @@ import os.path
 import argparse
 
 from skoolkit import SkoolKitError, integer, read_bin_file, VERSION
-from skoolkit.api import get_snapshot_reader
+from skoolkit.components import get_snapshot_reader
 
 def _get_str(chars):
     return [ord(c) for c in chars]

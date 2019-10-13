@@ -27,7 +27,7 @@ import re
 from io import StringIO
 
 from skoolkit import skoolmacro, SkoolKitError, warn, parse_int, format_template
-from skoolkit.api import get_component
+from skoolkit.components import get_component
 from skoolkit.defaults import REF_FILE
 from skoolkit.graphics import Frame, adjust_udgs, build_udg, font_udgs, scr_udgs
 from skoolkit.image import ImageWriter

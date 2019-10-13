@@ -251,5 +251,5 @@ Component API
 The following functions are provided to facilitate access to the components and
 other values declared in the ``[skoolkit]`` section of `skoolkit.ini`.
 
-.. automodule:: skoolkit.api
+.. automodule:: skoolkit.components
    :members: get_component, get_value

@@ -1,7 +1,7 @@
 from unittest.mock import patch
 
 from skoolkittest import SkoolKitTestCase
-from skoolkit import api
+from skoolkit import components
 from skoolkit.z80 import Assembler
 
 OPERATIONS = (
@@ -1501,7 +1501,7 @@ class Z80Test(SkoolKitTestCase):
         for operation in invalid_operations:
             self._test_assembly(operation)
 
-    @patch.object(api, 'SK_CONFIG', None)
+    @patch.object(components, 'SK_CONFIG', None)
     def test_custom_operand_evaluator(self):
         custom_evaluator = """
             def eval_int(text):

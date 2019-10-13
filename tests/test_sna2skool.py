@@ -2,7 +2,7 @@ from textwrap import dedent
 from unittest.mock import patch, Mock
 
 from skoolkittest import SkoolKitTestCase
-from skoolkit import api, sna2skool, snapshot, SkoolKitError, VERSION
+from skoolkit import components, sna2skool, snapshot, SkoolKitError, VERSION
 from skoolkit.config import COMMANDS
 
 def mock_make_snapshot(fname, org, start, end, page):
@@ -497,7 +497,7 @@ class Sna2SkoolTest(SkoolKitTestCase):
         options = run_args[1]
         self.assertEqual([ctlfile], options.ctlfiles)
 
-    @patch.object(api, 'SK_CONFIG', None)
+    @patch.object(components, 'SK_CONFIG', None)
     @patch.object(sna2skool, 'CtlParser', MockCtlParser)
     @patch.object(sna2skool, 'SkoolWriter', MockSkoolWriter)
     def test_custom_snapshot_reader(self):

@@ -2,7 +2,7 @@ from textwrap import dedent
 from unittest.mock import patch
 
 from skoolkittest import SkoolKitTestCase
-from skoolkit import SkoolKitError, VERSION, api, skool2bin
+from skoolkit import SkoolKitError, VERSION, components, skool2bin
 
 class MockBinWriter:
     def __init__(self, skoolfile, asm_mode, fix_mode):
@@ -695,7 +695,7 @@ class BinWriterTest(SkoolKitTestCase):
         exp_data = [1, 2]
         self._test_write(skool, 32768, exp_data)
 
-    @patch.object(api, 'SK_CONFIG', None)
+    @patch.object(components, 'SK_CONFIG', None)
     def test_custom_assembler(self):
         custom_assembler = """
             def assemble(operation, address):

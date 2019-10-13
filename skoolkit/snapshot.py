@@ -18,7 +18,7 @@ import textwrap
 import zlib
 
 from skoolkit import SkoolKitError, get_int_param, read_bin_file
-from skoolkit.api import get_snapshot_reader
+from skoolkit.components import get_snapshot_reader
 
 # http://www.worldofspectrum.org/faq/reference/z80format.htm
 Z80_REGISTERS = {

@@ -2,7 +2,7 @@ from collections import namedtuple
 from unittest.mock import patch
 
 from skoolkittest import SkoolKitTestCase
-from skoolkit import api
+from skoolkit import components
 from skoolkit.disassembler import Disassembler
 
 Config = namedtuple('Config', 'asm_hex asm_lower defb_size defm_size defw_size')
@@ -2126,7 +2126,7 @@ class DisassemblerTest(SkoolKitTestCase):
         self.assertEqual(len(instructions), 1)
         self.assertEqual(instructions[0][1], 'defw $ffff')
 
-    @patch.object(api, 'SK_CONFIG', None)
+    @patch.object(components, 'SK_CONFIG', None)
     def test_custom_operand_formatter(self):
         custom_formatter = """
             class CustomFormatter:
@@ -2152,7 +2152,7 @@ class DisassemblerTest(SkoolKitTestCase):
         instructions = disassembler.defm_range(0, 2, ((0, 'c'),))
         self.assertEqual([(0, 'DEFM "A",@102', [65, 66])], instructions)
 
-    @patch.object(api, 'SK_CONFIG', None)
+    @patch.object(components, 'SK_CONFIG', None)
     def test_custom_operand_formatter_api(self):
         custom_formatter = """
             class CustomFormatter:

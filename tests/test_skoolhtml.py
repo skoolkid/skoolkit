@@ -6,7 +6,7 @@ from unittest.mock import patch
 
 from skoolkittest import SkoolKitTestCase, StringIO
 from macrotest import CommonSkoolMacroTest, nest_macros
-from skoolkit import BASE_10, BASE_16, VERSION, SkoolKitError, SkoolParsingError, api, defaults, skoolhtml
+from skoolkit import BASE_10, BASE_16, VERSION, SkoolKitError, SkoolParsingError, components, defaults, skoolhtml
 from skoolkit.graphics import Udg, Frame
 from skoolkit.image import ImageWriter
 from skoolkit.skoolmacro import UnsupportedMacroError
@@ -9268,7 +9268,7 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
         writer.write_page(page_id)
         self._assert_content_equal(exp_content, '{}.html'.format(page_id))
 
-    @patch.object(api, 'SK_CONFIG', None)
+    @patch.object(components, 'SK_CONFIG', None)
     def test_custom_html_template_formatter(self):
         custom_formatter = """
             from skoolkit.skoolhtml import TemplateFormatter
@@ -9289,7 +9289,7 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
         writer.write_page(page_id)
         self._assert_content_equal(exp_content, '{}.html'.format(page_id))
 
-    @patch.object(api, 'SK_CONFIG', None)
+    @patch.object(components, 'SK_CONFIG', None)
     def test_html_template_formatter_api(self):
         custom_formatter = """
             class CustomFormatter:

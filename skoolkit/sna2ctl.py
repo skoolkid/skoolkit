@@ -18,7 +18,7 @@ import argparse
 from collections import namedtuple
 
 from skoolkit import find_file, info, integer, open_file, VERSION
-from skoolkit.api import get_component
+from skoolkit.components import get_component
 from skoolkit.config import get_config, show_config, update_options
 from skoolkit.snactl import write_ctl
 from skoolkit.snapshot import make_snapshot

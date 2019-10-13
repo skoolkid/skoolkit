@@ -20,7 +20,7 @@ import re
 from builtins import open
 
 from skoolkit import SkoolKitError, integer, VERSION, skoolmacro
-from skoolkit.api import get_snapshot_reader
+from skoolkit.components import get_snapshot_reader
 from skoolkit.image import ImageWriter, PNG_ENABLE_ANIMATION
 from skoolkit.snapshot import make_snapshot, move, poke
 from skoolkit.graphics import Frame, flip_udgs, rotate_udgs, adjust_udgs, build_udg, font_udgs, scr_udgs

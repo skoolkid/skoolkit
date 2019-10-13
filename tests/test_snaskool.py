@@ -4,7 +4,7 @@ import textwrap
 from unittest.mock import patch
 
 from skoolkittest import SkoolKitTestCase
-from skoolkit import SkoolKitError, api
+from skoolkit import SkoolKitError, components
 from skoolkit.config import COMMANDS
 from skoolkit.snaskool import Disassembly, SkoolWriter
 from skoolkit.ctlparser import CtlParser
@@ -4046,7 +4046,7 @@ class SkoolWriterTest(SkoolKitTestCase):
         """
         self._test_write_skool(snapshot, ctl, exp_skool)
 
-    @patch.object(api, 'SK_CONFIG', None)
+    @patch.object(components, 'SK_CONFIG', None)
     def test_custom_disassembler(self):
         custom_disassembler = """
             from skoolkit.disassembler import Disassembler
@@ -4067,7 +4067,7 @@ class SkoolWriterTest(SkoolKitTestCase):
         """
         self._test_write_skool(snapshot, ctl, exp_skool)
 
-    @patch.object(api, 'SK_CONFIG', None)
+    @patch.object(components, 'SK_CONFIG', None)
     def test_custom_snapshot_reference_calculator(self):
         custom_ref_calc = """
             def calculate_references(entries, operations):
@@ -4091,7 +4091,7 @@ class SkoolWriterTest(SkoolKitTestCase):
         """
         self._test_write_skool(snapshot, ctl, exp_skool)
 
-    @patch.object(api, 'SK_CONFIG', None)
+    @patch.object(components, 'SK_CONFIG', None)
     def test_snapshot_reference_calculator_api(self):
         custom_ref_calc = """
             def calculate_references(entries, operations):
@@ -4119,7 +4119,7 @@ class SkoolWriterTest(SkoolKitTestCase):
         """
         self._test_write_skool(snapshot, ctl, exp_skool)
 
-    @patch.object(api, 'SK_CONFIG', None)
+    @patch.object(components, 'SK_CONFIG', None)
     def test_custom_snapshot_reference_operations(self):
         ini = "[skoolkit]\nSnapshotReferenceOperations=CA,JR"
         self.write_text_file(ini, 'skoolkit.ini')

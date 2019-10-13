@@ -2,7 +2,7 @@ import os
 from unittest.mock import patch
 
 from skoolkittest import SkoolKitTestCase
-from skoolkit import api, bin2tap, SkoolKitError, VERSION
+from skoolkit import components, bin2tap, SkoolKitError, VERSION
 
 def mock_run(*args):
     global run_args
@@ -438,7 +438,7 @@ class Bin2TapTest(SkoolKitTestCase):
         tap_data = self._run('-S {} -c {} {}'.format(scrfile, clear, binfile))
         self._check_tap_with_clear_command(tap_data, data, binfile, clear, scr=scr)
 
-    @patch.object(api, 'SK_CONFIG', None)
+    @patch.object(components, 'SK_CONFIG', None)
     def test_custom_snapshot_reader(self):
         custom_snapshot_reader = """
             def can_read(fname):
@@ -451,7 +451,7 @@ class Bin2TapTest(SkoolKitTestCase):
         tap_data = self._run('-o 65535 {}'.format(snafile))
         self._check_tap(tap_data, [128], snafile)
 
-    @patch.object(api, 'SK_CONFIG', None)
+    @patch.object(components, 'SK_CONFIG', None)
     def test_option_S_with_custom_snapshot_reader(self):
         custom_snapshot_reader = """
             def can_read(fname):

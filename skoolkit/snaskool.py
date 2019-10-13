@@ -18,7 +18,7 @@ from collections import defaultdict, namedtuple
 
 from skoolkit import (SkoolKitError, warn, write_line, wrap, parse_int,
                       get_address_format, format_template)
-from skoolkit.api import get_component, get_value
+from skoolkit.components import get_component, get_value
 from skoolkit.skoolasm import UDGTABLE_MARKER
 from skoolkit.skoolctl import (AD_IGNOREUA, AD_LABEL, TITLE, DESCRIPTION,
                                REGISTERS, MID_BLOCK, INSTRUCTION, END)

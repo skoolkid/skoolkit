@@ -3,7 +3,7 @@ from textwrap import dedent
 from unittest.mock import patch
 
 from skoolkittest import SkoolKitTestCase
-from skoolkit import SkoolParsingError, api
+from skoolkit import SkoolParsingError, components
 from skoolkit.skoolctl import CtlWriter
 
 DIRECTIVES = 'bcgistuw'
@@ -2609,7 +2609,7 @@ class CtlWriterTest(SkoolKitTestCase):
         """
         self._test_ctl(skool, exp_ctl, keep_lines=1)
 
-    @patch.object(api, 'SK_CONFIG', None)
+    @patch.object(components, 'SK_CONFIG', None)
     def test_custom_assembler(self):
         custom_assembler = """
             def get_size(operation, address):
@@ -2631,7 +2631,7 @@ class CtlWriterTest(SkoolKitTestCase):
         """
         self._test_ctl(skool, exp_ctl)
 
-    @patch.object(api, 'SK_CONFIG', None)
+    @patch.object(components, 'SK_CONFIG', None)
     def test_custom_control_directive_composer(self):
         custom_composer = """
             class CustomComposer:
@@ -2654,7 +2654,7 @@ class CtlWriterTest(SkoolKitTestCase):
         """
         self._test_ctl(skool, exp_ctl)
 
-    @patch.object(api, 'SK_CONFIG', None)
+    @patch.object(components, 'SK_CONFIG', None)
     def test_custom_operand_evaluator(self):
         custom_evaluator = """
             def eval_int(text):

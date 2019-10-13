@@ -4,7 +4,7 @@ from textwrap import dedent
 from unittest.mock import patch, Mock
 
 from skoolkittest import SkoolKitTestCase
-from skoolkit import api, sna2ctl, snapshot, SkoolKitError, VERSION
+from skoolkit import components, sna2ctl, snapshot, SkoolKitError, VERSION
 from skoolkit.config import COMMANDS
 
 # Binary data designed to test the static code analysis algorithm that is used
@@ -1042,7 +1042,7 @@ class Sna2CtlTest(SkoolKitTestCase):
             output, error = self.run_sna2ctl(option, catch_exit=0)
             self.assertEqual(output, 'SkoolKit {}\n'.format(VERSION))
 
-    @patch.object(api, 'SK_CONFIG', None)
+    @patch.object(components, 'SK_CONFIG', None)
     def test_custom_ctl_generator(self):
         custom_ctl_generator = """
             def generate_ctls(snapshot, start, end, code_map, config):

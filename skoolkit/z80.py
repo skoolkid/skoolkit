@@ -18,7 +18,7 @@ import re
 from functools import partial
 
 from skoolkit import get_int_param
-from skoolkit.api import get_operand_evaluator
+from skoolkit.components import get_operand_evaluator
 from skoolkit.textutils import split_unquoted, split_quoted
 
 REG = ('B', 'C', 'D', 'E', 'H', 'L', '(HL)', 'A')

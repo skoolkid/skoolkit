@@ -17,7 +17,7 @@
 import re
 
 from skoolkit import SkoolParsingError, write_line, get_int_param, get_address_format, open_file
-from skoolkit.api import get_assembler, get_component, get_operand_evaluator
+from skoolkit.components import get_assembler, get_component, get_operand_evaluator
 from skoolkit.skoolparser import (Comment, Register, parse_comment_block, parse_instruction,
                                   parse_address_comments, join_comments, read_skool, DIRECTIVES)
 
