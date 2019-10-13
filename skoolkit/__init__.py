@@ -97,17 +97,19 @@ def get_object(name_spec, default_path=''):
     path, sep, name = name_spec.rpartition(':')
     if sep:
         sys.path.insert(0, os.path.expanduser(path) or default_path)
+    try:
+        return importlib.import_module(name)
+    except ImportError:
+        pass
     mod_name, sep, attr_name = name.rpartition('.')
     try:
         m = importlib.import_module(mod_name or attr_name)
     except ImportError as e:
         raise SkoolKitError("Failed to import object {}: {}".format(name, e.args[0]))
-    if sep:
-        try:
-            return getattr(m, attr_name)
-        except AttributeError:
-            raise SkoolKitError("No object named '{}' in module '{}'".format(attr_name, mod_name))
-    return m
+    try:
+        return getattr(m, attr_name)
+    except AttributeError:
+        raise SkoolKitError("No object named '{}' in module '{}'".format(attr_name, mod_name))
 
 def find_file(fname, search_dirs=('',)):
     for f in [os.path.join(d, fname) for d in search_dirs]:

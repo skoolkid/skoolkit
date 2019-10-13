@@ -27,7 +27,7 @@ class SkoolKitTest(SkoolKitTestCase):
             read_bin_file(tempdir)
         self.assertEqual(cm.exception.errno, ERRNO)
 
-    def test_get_object(self):
+    def test_get_object_with_class_name(self):
         class_name = 'CustomWriter'
         mod = 'class {}:\n    pass'.format(class_name)
         module = self.write_text_file(mod, '{}/custom.py'.format(self.make_directory()))
@@ -36,6 +36,16 @@ class SkoolKitTest(SkoolKitTestCase):
         module_name = os.path.basename(module)[:-3]
         writer_class = get_object('{}:{}.{}'.format(module_path, module_name, class_name), '')
         self.assertEqual(writer_class.__name__, class_name)
+
+    def test_get_object_with_module_name(self):
+        module_path = self.make_directory()
+        module_name = 'custom'
+        mod = 'def foo():\n    pass'
+        module = self.write_text_file(mod, '{}/{}.py'.format(module_path, module_name))
+        invalidate_caches()
+        full_module_name = '{}.{}'.format(module_path, module_name)
+        module_obj = get_object(':' + full_module_name)
+        self.assertEqual(module_obj.__name__, full_module_name)
 
     def test_get_object_with_default_path_and_blank_module_path(self):
         class_name = 'CustomWriter'
