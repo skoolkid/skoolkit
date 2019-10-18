@@ -91,6 +91,7 @@ class HtmlWriter:
         self.to_chr = lambda n: '&#{};'.format(n)
         self.get_reg = lambda r: self.format_template('reg', {'reg': r})
         self.space = '&#160;'
+        self.pc = 0
         self.macros = skoolmacro.get_macros(self)
 
         self.game_vars = self._expand_values('Game', 'Logo')
@@ -519,6 +520,7 @@ class HtmlWriter:
         self.write_file(index_fname, html)
 
     def _get_entry_dict(self, cwd, entry, desc=True):
+        self.pc = entry.address
         if desc:
             description = [self.expand(p, cwd).strip() for p in entry.details]
         else:
@@ -656,6 +658,7 @@ class HtmlWriter:
 
         entry_dict['instructions'] = instructions = []
         for instruction in entry.instructions:
+            self.pc = instruction.address
             instruction.byte_values = Bytes(instruction.bytes)
 
             operation, reference = instruction.operation, instruction.reference

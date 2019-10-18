@@ -100,6 +100,7 @@ class AsmWriter:
         self.to_chr = lambda n: chr(n)
         self.get_reg = lambda r: r
         self.space = ' '
+        self.pc = 0
         self.macros = skoolmacro.get_macros(self)
 
         self.init()
@@ -144,6 +145,7 @@ class AsmWriter:
 
     def write(self):
         for index, entry in enumerate(self.parser.memory_map):
+            self.pc = entry.address
             self.print_blocks(entry.headers)
             if index == 0:
                 self.print_equs(self.parser.equs)
@@ -422,14 +424,14 @@ class AsmWriter:
                 if not ignoreua:
                     uaddress = self.find_unconverted_address(subs['text'])
                     if uaddress:
-                        self.warn('Comment at {} contains address ({}) not converted to a label:\n{}'.format(iaddress, uaddress, oline))
+                        self.warn('Comment at {} contains address ({}) not converted to a label:\n{}'.format(self.pc, uaddress, oline))
                 self.write_line(oline)
                 if len(oline) > self.line_width:
                     self.warn('Line is {0} characters long:\n{1}'.format(len(oline), oline))
                 continue
 
             ignoreua = instruction.ignoreua
-            iaddress = instruction.address
+            self.pc = instruction.address
 
             rowspan = rows = instruction.comment.rowspan
             instr_width = max([len(i.operation) for i in instructions[i:i + rowspan]] + [self.instr_width])

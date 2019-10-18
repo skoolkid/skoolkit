@@ -393,6 +393,34 @@ used in the ``key`` parameter.
 | 5.1     | New                                                           |
 +---------+---------------------------------------------------------------+
 
+.. _PC:
+
+#PC
+---
+The ``#PC`` macro expands to the address of the closest instruction in the
+current entry. ::
+
+  #PC
+
+For example::
+
+  c32768 XOR A ; This instruction is at #PC.
+
+This instance of the ``#PC`` macro expands to '32768'.
+
+In an entry header (i.e. title, description, register description or start
+comment), the ``#PC`` macro expands to the address of the first instruction in
+the entry. In a mid-block comment, the ``#PC`` macro expands to the address of
+the following instruction. In an instruction-level comment, the ``#PC`` macro
+expands to the address of the instruction. In a block end comment, the ``#PC``
+macro expands to the address of the last instruction in the entry.
+
++---------+---------+
+| Version | Changes |
++=========+=========+
+| 8.0     | New     |
++---------+---------+
+
 .. _PEEK:
 
 #PEEK

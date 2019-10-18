@@ -3366,6 +3366,171 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         self.assertIn('<title>{}: {}</title>'.format(name, title), html)
         self.assertIn('<td class="page-header">{}</td>'.format(header), html)
 
+    def test_macro_pc(self):
+        skool = """
+            ; Code at #PC
+            ;
+            ; Description of the routine at #PC.
+            ;
+            ; A Input to the routine at #PC
+            ;
+            ; And so the routine at #PC begins.
+            c30000 XOR A ; First instruction at #PC.
+            ; The next instruction is at #PC.
+             30001 SUB B ; Second instruction at #PC.
+             30002 RET   ; Final instruction at #PC.
+            ; End comment after the instruction at #PC.
+
+            ; Data at #PC
+            b30003 DEFB 0 ; A byte (#PEEK(#PC)) at #PC.
+             30004 DEFB 1 ; Another byte (#PEEK(#PC)) at #PC.
+        """
+        writer = self._get_writer(skool=skool)
+        writer.write_asm_entries()
+
+        content = """
+            <div class="description">30000: Code at 30000</div>
+            <table class="disassembly">
+            <tr>
+            <td class="routine-comment" colspan="5">
+            <div class="details">
+            <div class="paragraph">
+            Description of the routine at 30000.
+            </div>
+            </div>
+            <table class="input">
+            <tr class="asm-input-header">
+            <th colspan="2">Input</th>
+            </tr>
+            <tr>
+            <td class="register">A</td>
+            <td class="register-desc">Input to the routine at 30000</td>
+            </tr>
+            </table>
+            </td>
+            </tr>
+            <tr>
+            <td class="routine-comment" colspan="5">
+            <span id="30000"></span>
+            <div class="comments">
+            <div class="paragraph">
+            And so the routine at 30000 begins.
+            </div>
+            </div>
+            </td>
+            </tr>
+            <tr>
+            <td class="address-2"><span id="30000"></span>30000</td>
+            <td class="instruction">XOR A</td>
+            <td class="comment-1" rowspan="1">First instruction at 30000.</td>
+            </tr>
+            <tr>
+            <td class="routine-comment" colspan="5">
+            <span id="30001"></span>
+            <div class="comments">
+            <div class="paragraph">
+            The next instruction is at 30001.
+            </div>
+            </div>
+            </td>
+            </tr>
+            <tr>
+            <td class="address-1"><span id="30001"></span>30001</td>
+            <td class="instruction">SUB B</td>
+            <td class="comment-1" rowspan="1">Second instruction at 30001.</td>
+            </tr>
+            <tr>
+            <td class="address-1"><span id="30002"></span>30002</td>
+            <td class="instruction">RET</td>
+            <td class="comment-1" rowspan="1">Final instruction at 30002.</td>
+            </tr>
+            <tr>
+            <td class="routine-comment" colspan="5">
+            <div class="comments">
+            <div class="paragraph">
+            End comment after the instruction at 30002.
+            </div>
+            </div>
+            </td>
+            </tr>
+            </table>
+        """
+        subs = {
+            'header': 'Routines',
+            'title': 'Routine at 30000',
+            'body_class': 'Asm-c',
+            'up': '30000',
+            'next': 30003,
+            'content': content
+        }
+        self._assert_files_equal(join(ASMDIR, '30000.html'), subs)
+
+        content = """
+            <div class="description">30003: Data at 30003</div>
+            <table class="disassembly">
+            <tr>
+            <td class="routine-comment" colspan="5">
+            <div class="details">
+            </div>
+            </td>
+            </tr>
+            <tr>
+            <td class="address-1"><span id="30003"></span>30003</td>
+            <td class="instruction">DEFB 0</td>
+            <td class="comment-1" rowspan="1">A byte (0) at 30003.</td>
+            </tr>
+            <tr>
+            <td class="address-1"><span id="30004"></span>30004</td>
+            <td class="instruction">DEFB 1</td>
+            <td class="comment-1" rowspan="1">Another byte (1) at 30004.</td>
+            </tr>
+            </table>
+        """
+        subs = {
+            'header': 'Data',
+            'title': 'Data at 30003',
+            'body_class': 'Asm-b',
+            'prev': 30000,
+            'up': '30003',
+            'content': content
+        }
+        self._assert_files_equal(join(ASMDIR, '30003.html'), subs)
+
+        content = """
+            <div class="map-intro"></div>
+            <table class="map">
+            <tr>
+            <th class="map-page">Page</th>
+            <th class="map-byte">Byte</th>
+            <th>Address</th>
+            <th>Description</th>
+            </tr>
+            <tr>
+            <td class="map-page">117</td>
+            <td class="map-byte">48</td>
+            <td class="map-c"><span id="30000"></span><a href="../asm/30000.html">30000</a></td>
+            <td class="map-c-desc">
+            <div class="map-entry-title-10"><a class="map-entry-title" href="../asm/30000.html">Code at 30000</a></div>
+            </td>
+            </tr>
+            <tr>
+            <td class="map-page">117</td>
+            <td class="map-byte">51</td>
+            <td class="map-b"><span id="30003"></span><a href="../asm/30003.html">30003</a></td>
+            <td class="map-b-desc">
+            <div class="map-entry-title-10"><a class="map-entry-title" href="../asm/30003.html">Data at 30003</a></div>
+            </td>
+            </tr>
+            </table>
+        """
+        writer.write_map('MemoryMap')
+        subs = {
+            'body_class': 'MemoryMap',
+            'header': 'Memory map',
+            'content': content
+        }
+        self._assert_files_equal(join(MAPS_DIR, 'all.html'), subs)
+
     def test_parameter_Bytes_blank_with_assembled_code(self):
         skool = """
             @assemble=2

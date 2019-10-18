@@ -446,6 +446,7 @@ def get_macros(writer):
         '#IF': partial(parse_if, writer.fields),
         '#MAP': partial(parse_map, writer.fields),
         '#N': partial(parse_n, writer.base, writer.case == CASE_LOWER),
+        '#PC': partial(parse_pc, writer),
         '#PEEK': partial(parse_peek, writer),
         '#POKES': partial(parse_pokes, writer),
         '#POPS': partial(parse_pops, writer),
@@ -731,6 +732,10 @@ def parse_n(base, lower, text, index, *cwd):
             return end, '{}{:0{}x}{}'.format(prefix, value, hwidth, suffix)
         return end, '{}{:0{}X}{}'.format(prefix, value, hwidth, suffix)
     return end, '{:0{}}'.format(value, dwidth)
+
+def parse_pc(writer, text, index, *cwd):
+    # #PC
+    return index, str(writer.pc)
 
 def parse_peek(writer, text, index, *cwd):
     # #PEEKaddr

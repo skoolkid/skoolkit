@@ -7,6 +7,8 @@ Changelog
 * Made several :ref:`components` pluggable
 * Added support for the :ref:`td_foreach`, :ref:`td_if` and :ref:`td_include`
   directives in HTML templates
+* Added the :ref:`PC` macro (which expands to the address of the closest
+  instruction in the current entry)
 * Added support to the :ref:`set` directive for the `table-border-horizontal`,
   `table-border-join` and `table-border-vertical` properties
 * Added the ``DefwSize`` configuration parameter for

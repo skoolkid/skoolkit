@@ -256,6 +256,47 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
         writer = self._get_writer('')
         self.assertEqual(writer.expand('#MAP({html})(FAIL,0:PASS)'), 'PASS')
 
+    def test_macro_pc(self):
+        skool = """
+            @start
+            ; Code at #PC
+            ;
+            ; Description of the routine at #PC.
+            ;
+            ; A Input to the routine at #PC
+            ;
+            ; And so the routine at #PC begins.
+            c30000 XOR A ; First instruction at #PC.
+            ; The next instruction is at #PC.
+             30001 SUB B ; Second instruction at #PC.
+             30002 RET   ; Final instruction at #PC.
+            ; End comment after the instruction at #PC.
+
+            @assemble=,1
+            ; Data at #PC
+            b30003 DEFB 0 ; A byte (#PEEK(#PC)) at #PC.
+             30004 DEFB 1 ; Another byte (#PEEK(#PC)) at #PC.
+        """
+        exp_asm = """
+            ; Code at 30000
+            ;
+            ; Description of the routine at 30000.
+            ;
+            ; A Input to the routine at 30000
+            ;
+            ; And so the routine at 30000 begins.
+              XOR A                   ; First instruction at 30000.
+            ; The next instruction is at 30001.
+              SUB B                   ; Second instruction at 30001.
+              RET                     ; Final instruction at 30002.
+            ; End comment after the instruction at 30002.
+
+            ; Data at 30003
+              DEFB 0                  ; A byte (0) at 30003.
+              DEFB 1                  ; Another byte (1) at 30004.
+        """
+        self._test_asm(skool, exp_asm)
+
     def test_macro_r(self):
         skool = """
             @start
