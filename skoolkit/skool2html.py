@@ -253,7 +253,8 @@ def write_disassembly(html_writer, files, search_dir, extra_search_dirs, pages, 
         if not fnames:
             raise SkoolKitError('Cannot copy resource "{}": file not found'.format(normpath(f)))
         for fname in fnames:
-            copy_resource(fname, odir, dest_dir)
+            if os.path.isfile(fname):
+                copy_resource(fname, odir, dest_dir)
 
     # Write disassembly files
     if 'd' in files:

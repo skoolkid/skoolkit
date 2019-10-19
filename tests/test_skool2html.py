@@ -793,6 +793,24 @@ class Skool2HtmlTest(SkoolKitTestCase):
 
     @patch.object(skool2html, 'get_object', Mock(return_value=TestHtmlWriter))
     @patch.object(skool2html, 'SkoolParser', MockSkoolParser)
+    def test_resources_using_pathname_expansion_ignores_directories(self):
+        resource_dir = self.make_directory()
+        self.write_bin_file(path=os.path.join(resource_dir, 'bar.png'))
+        self.make_directory(os.path.join(resource_dir, 'subdir1'))
+        self.make_directory(os.path.join(resource_dir, 'subdir2'))
+        ref = """
+            [Resources]
+            {}/*=images
+        """.format(resource_dir)
+        reffile = self._write_ref_file(ref)
+        skoolfile = self.write_text_file(path='{}.skool'.format(reffile[:-4]))
+        output, error = self.run_skool2html('-d {} {}'.format(self.odir, skoolfile))
+        self.assertEqual(error, '')
+        game_dir = os.path.join(self.odir, reffile[:-4])
+        self.assertTrue(os.path.isfile(os.path.join(game_dir, 'images', 'bar.png')))
+
+    @patch.object(skool2html, 'get_object', Mock(return_value=TestHtmlWriter))
+    @patch.object(skool2html, 'SkoolParser', MockSkoolParser)
     def test_resources_using_recursive_glob(self):
         resource_dir = self.make_directory()
         subdir = os.path.join(resource_dir, 'subdir')
@@ -814,6 +832,30 @@ class Skool2HtmlTest(SkoolKitTestCase):
         self.assertTrue(os.path.isfile(os.path.join(game_dir, 'images', 'foo.png')))
         self.assertTrue(os.path.isfile(os.path.join(game_dir, 'images', 'bar.png')))
         self.assertTrue(os.path.isfile(os.path.join(game_dir, 'images', 'baz.png')))
+
+    @patch.object(skool2html, 'get_object', Mock(return_value=TestHtmlWriter))
+    @patch.object(skool2html, 'SkoolParser', MockSkoolParser)
+    def test_resources_using_recursive_glob_ignores_directories(self):
+        resource_dir = self.make_directory()
+        subdir = os.path.join(resource_dir, 'subdir')
+        self.make_directory(subdir)
+        subsubdir = os.path.join(subdir, 'subsubdir')
+        self.make_directory(subsubdir)
+        self.write_bin_file(path=os.path.join(resource_dir, 'foo.css'))
+        self.write_bin_file(path=os.path.join(subdir, 'bar.css'))
+        self.write_bin_file(path=os.path.join(subsubdir, 'baz.css'))
+        ref = """
+            [Resources]
+            {}/**=css
+        """.format(resource_dir)
+        reffile = self._write_ref_file(ref)
+        skoolfile = self.write_text_file(path='{}.skool'.format(reffile[:-4]))
+        output, error = self.run_skool2html('-d {} {}'.format(self.odir, skoolfile))
+        self.assertEqual(error, '')
+        game_dir = os.path.join(self.odir, reffile[:-4])
+        self.assertTrue(os.path.isfile(os.path.join(game_dir, 'css', 'foo.css')))
+        self.assertTrue(os.path.isfile(os.path.join(game_dir, 'css', 'bar.css')))
+        self.assertTrue(os.path.isfile(os.path.join(game_dir, 'css', 'baz.css')))
 
     @patch.object(skool2html, 'get_object', Mock(return_value=TestHtmlWriter))
     @patch.object(skool2html, 'SkoolParser', MockSkoolParser)
