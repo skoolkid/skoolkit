@@ -196,6 +196,9 @@ class MockSkoolParser:
     def get_instruction(self, address):
         return None
 
+    def get_container(self, address, code_id):
+        return None
+
     def make_replacements(self, item):
         pass
 

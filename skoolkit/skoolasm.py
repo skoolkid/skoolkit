@@ -55,7 +55,7 @@ class AsmWriter:
         self.base_address = 16384
         self.end_address = 65535
         if self.labels:
-            self.base_address = min([address for address in self.labels.keys()])
+            self.base_address = min(self.labels)
         elif self.parser.memory_map:
             self.base_address = self.parser.memory_map[0].instructions[0].address
         if self.parser.memory_map:

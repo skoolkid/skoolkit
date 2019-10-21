@@ -34,7 +34,7 @@ FLIP = (
     15, 143, 79, 207, 47, 175, 111, 239, 31, 159, 95, 223, 63, 191, 127, 255
 )
 
-class Udg(object):
+class Udg:
     """Initialise the UDG.
 
     :param attr: The attribute byte.
@@ -52,7 +52,7 @@ class Udg(object):
         return 'Udg({0}, {1}, {2})'.format(self.attr, self.data, self.mask)
 
     def __eq__(self, other):
-        if type(other) is Udg:
+        if isinstance(other, Udg):
             return self.attr == other.attr and self.data == other.data and self.mask == other.mask
         return False
 
@@ -116,7 +116,7 @@ class Udg(object):
             return Udg(self.attr, self.data[:], self.mask[:])
         return Udg(self.attr, self.data[:])
 
-class Frame(object):
+class Frame:
     """Create a frame of a still or animated image.
 
     :param udgs: The two-dimensional array of tiles (instances of
@@ -289,9 +289,9 @@ def font_udgs(snapshot, address, attr, message):
 def scr_udgs(snapshot, x, y, w, h, df_addr=16384, af_addr=22528):
     width = min((w, 32 - x))
     height = min((h, 24 - y))
-    scr_udgs = []
+    udgs = []
     for r in range(y, y + height):
         attr_addr = af_addr + 32 * r + x
         addr = df_addr + 2048 * (r // 8) + 32 * (r % 8) + x
-        scr_udgs.append([Udg(snapshot[attr_addr + i], snapshot[addr + i:addr + i + 2048:256]) for i in range(width)])
-    return scr_udgs
+        udgs.append([Udg(snapshot[attr_addr + i], snapshot[addr + i:addr + i + 2048:256]) for i in range(width)])
+    return udgs

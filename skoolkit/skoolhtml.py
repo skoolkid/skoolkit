@@ -18,7 +18,7 @@
 Defines the :class:`FileInfo` and :class:`HtmlWriter` classes.
 """
 
-import html
+from html import unescape
 import posixpath
 import os.path
 from os.path import isfile, isdir, basename
@@ -558,7 +558,6 @@ class HtmlWriter:
 
     def _build_box_page_entries(self, cwd):
         page_id = self._get_page_id()
-        page = self.pages[page_id]
         entries = []
         for i, (anchor, title, paragraphs) in enumerate(self.box_pages[page_id]):
             anchor = self.expand(anchor, cwd)
@@ -573,7 +572,6 @@ class HtmlWriter:
 
     def _build_box_page_list_entries(self, cwd, bullets):
         page_id = self._get_page_id()
-        page = self.pages[page_id]
         if bullets:
             prefix = '-'
         else:
@@ -853,7 +851,6 @@ class HtmlWriter:
         :param skoolkit: The ``SkoolKit`` parameter dictionary.
         :param game: The ``Game`` parameter dictionary.
         """
-        pass
 
     def _get_logo(self, cwd):
         if cwd not in self.logo:
@@ -899,7 +896,7 @@ class HtmlWriter:
             frames = [frames]
         if len(frames) == 1:
             self.frames[frames[0].name] = frames[0]
-        image_path = self._image_path(fname, path_id, frames)
+        image_path = self._image_path(fname, path_id)
         if image_path:
             if self.file_info.need_image(image_path):
                 self._write_image(image_path, frames)
@@ -938,7 +935,7 @@ class HtmlWriter:
         fields = {'class': list_obj.css_class, 'items': list_obj.items}
         return self.format_template('list', fields)
 
-    def _image_path(self, fname, path_id, frames):
+    def _image_path(self, fname, path_id):
         """Return the full path of an image file relative to the root directory
         of the disassembly. If `fname` does not end with '.png', that suffix
         will be appended. If `fname` starts with a '/', it is removed and the
@@ -951,9 +948,6 @@ class HtmlWriter:
                         [Paths] section). This is not used if `fname` starts
                         with a '/' or contains an image path ID replacement
                         field.
-        :param frames: The list of Frames that define the image. It is used to
-                       determine whether the image is animated, and select the
-                       appropriate filename suffix accordingly.
         """
         if fname:
             expanded = self._expand_image_path(fname)
@@ -974,7 +968,7 @@ class HtmlWriter:
                 path = path.format(**self.image_paths)
             except KeyError:
                 break
-            if path == prev_path or path == orig_path:
+            if path in (prev_path, orig_path):
                 break
             prev_path = path
         return path
@@ -982,13 +976,13 @@ class HtmlWriter:
     def expand_font(self, text, index, cwd):
         end, crop_rect, fname, frame, alt, params = skoolmacro.parse_font(text, index)
         message, addr, chars, attr, scale = params
-        udgs = lambda: font_udgs(self.snapshot, addr, attr, html.unescape(message)[:chars])
+        udgs = lambda: font_udgs(self.snapshot, addr, attr, unescape(message)[:chars])
         frame = Frame(udgs, scale, 0, *crop_rect, name=frame)
         return end, self.handle_image(frame, fname, cwd, alt, 'FontImagePath')
 
     def expand_html(self, text, index, cwd):
         end, content = skoolmacro.parse_html(text, index)
-        return end, html.unescape(content)
+        return end, unescape(content)
 
     def expand_include(self, text, index, cwd):
         end, paragraphs, section = skoolmacro.parse_include(text, index)
@@ -1024,10 +1018,6 @@ class HtmlWriter:
 
     def expand_r(self, text, index, cwd):
         end, addr_str, address, code_id, anchor, link_text = skoolmacro.parse_r(text, index)
-        if code_id:
-            code_path = self.get_code_path(code_id)
-        else:
-            code_path = self.code_path
         container = self.parser.get_container(address, code_id)
         if (not code_id or code_id == self.code_id) and not container:
             raise skoolmacro.MacroParsingError('Could not find instruction at {}'.format(addr_str))
@@ -1124,7 +1114,7 @@ class FileInfo:
         self.images.add(image_path)
 
     def need_image(self, image_path):
-        return (self.replace_images and image_path not in self.images) or not self.file_exists(image_path)
+        return image_path not in self.images if self.replace_images else not self.file_exists(image_path)
 
     def file_exists(self, fname):
         return isfile(join(self.odir, fname))

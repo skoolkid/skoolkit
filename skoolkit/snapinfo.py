@@ -1,4 +1,4 @@
-# Copyright 2013-2017 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2013-2017, 2019 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -92,7 +92,7 @@ V3_MACHINES = {
     3: ('48K Spectrum + MGT', '16K Spectrum + MGT', True),
     4: ('128K Spectrum', 'Spectrum +2', False),
     5: ('128K Spectrum + IF1', 'Spectrum +2 + IF1', False),
-    6: ('128K Spectrum + MGT' 'Spectrum +2 + MGT', False),
+    6: ('128K Spectrum + MGT', 'Spectrum +2 + MGT', False),
 }
 
 MACHINES = {

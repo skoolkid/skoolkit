@@ -391,4 +391,3 @@ def _decompress_block(ramz):
 # API (SnapshotReader)
 class SnapshotError(SkoolKitError):
     """Raised when an error occurs while reading a snapshot file."""
-    pass

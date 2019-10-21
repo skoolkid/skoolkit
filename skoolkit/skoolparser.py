@@ -15,7 +15,7 @@
 # SkoolKit. If not, see <http://www.gnu.org/licenses/>.
 
 from collections import defaultdict, namedtuple
-import html
+from html import escape
 import re
 
 from skoolkit import (BASE_10, BASE_16, CASE_LOWER, CASE_UPPER, SkoolParsingError,
@@ -142,7 +142,7 @@ def parse_address_range(value):
     return ()
 
 def _html_escape(text):
-    return html.escape(text, False)
+    return escape(text, False)
 
 def join_comments(comments, split=False, keep_lines=False):
     if keep_lines:
@@ -1140,7 +1140,7 @@ class Instruction:
         self.container.add_referrer(routine)
 
     def html_escape(self):
-        self.operation = html.escape(self.operation, False)
+        self.operation = escape(self.operation, False)
 
     def get_addr_str(self):
         if self.addr_base == BASE_10:
@@ -1364,7 +1364,7 @@ class Table:
     def get_header_rows(self):
         headers = []
         for i, row in enumerate(self.rows):
-            if len([c for c in row if not (c.transparent or c.header)]) == 0:
+            if all([c.transparent or c.header for c in row]):
                 headers.append(i)
         return headers
 

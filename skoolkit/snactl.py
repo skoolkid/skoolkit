@@ -311,7 +311,7 @@ def _get_text_blocks(snapshot, start, end, config, data=True):
             _check_text(t_blocks, t_start, end, text, min_length, config.words)
     return t_blocks
 
-def _catch_data(ctls, ctl_addr, count, max_count, addr, op, op_bytes):
+def _catch_data(ctls, ctl_addr, count, max_count, addr, op_bytes):
     if count >= max_count > 0:
         # A 2-instruction sequence ending with 'LD H,(HL)' or 'LD L,(HL)' is OK
         if not (count == 2 and op_bytes[0] in (0x66, 0x6E)):
@@ -329,7 +329,7 @@ def _generate_ctls_without_code_map(snapshot, start, end, config):
         op_bytes = snapshot[addr:addr + size]
         if op_id == END:
             # Catch data-like sequences that precede a terminal instruction
-            ctl_addr = _catch_data(ctls, ctl_addr, count, prev_max_count, addr, prev_op, prev_op_bytes)
+            ctl_addr = _catch_data(ctls, ctl_addr, count, prev_max_count, addr, prev_op_bytes)
             ctls.append((ctl_addr, 'c'))
             ctl_addr = addr + size
             prev_max_count, prev_op_id, prev_op, prev_op_bytes = 0, None, None, ()
@@ -338,7 +338,7 @@ def _generate_ctls_without_code_map(snapshot, start, end, config):
         if op_id == prev_op_id:
             count += 1
         elif prev_op:
-            ctl_addr = _catch_data(ctls, ctl_addr, count, prev_max_count, addr, prev_op, prev_op_bytes)
+            ctl_addr = _catch_data(ctls, ctl_addr, count, prev_max_count, addr, prev_op_bytes)
             count = 1
         prev_max_count, prev_op_id, prev_op, prev_op_bytes = max_count, op_id, operation, op_bytes
 

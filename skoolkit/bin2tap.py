@@ -175,7 +175,7 @@ def main(args):
         ram = snapshot_reader.get_snapshot(infile)[org:namespace.end]
     else:
         ram = read_bin_file(infile, 49152)
-        if len(ram) == 0:
+        if not ram:
             raise SkoolKitError('{} is empty'.format(infile))
         org = namespace.org or 65536 - len(ram)
     clear = namespace.clear

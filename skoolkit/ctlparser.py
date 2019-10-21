@@ -40,7 +40,7 @@ def parse_params(ctl, params):
     int_params = []
     for i, param in enumerate(params):
         if i == 0:
-            length, base = _parse_length(param, ctl, BASE_MAP[ctl], False)
+            length, base = _parse_length(param, BASE_MAP[ctl], False)
             int_params.append(length)
         else:
             n, sep, m = partition_unquoted(param, '*', '1')
@@ -58,7 +58,7 @@ def _parse_sublengths(spec, subctl, default_base):
         sublengths = split_unquoted(spec, ':')
     required = True
     for num in sublengths:
-        sublength, base = _parse_length(num, subctl, default_base, required)
+        sublength, base = _parse_length(num, default_base, required)
         lengths.append((sublength, base))
         if required or sublength:
             length += sublength
@@ -67,7 +67,7 @@ def _parse_sublengths(spec, subctl, default_base):
         length = lengths[0][0]
     return (length, tuple(lengths))
 
-def _parse_length(length, subctl, default_base, required):
+def _parse_length(length, default_base, required):
     if length.startswith(BASES):
         base = length[0]
         if length[1:].startswith(BASES):

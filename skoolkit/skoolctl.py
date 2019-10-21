@@ -401,13 +401,13 @@ class CtlWriter:
 
             if SUBBLOCKS in self.elements:
                 sub_blocks = self.get_sub_blocks(instructions)
-                for j, (ctl, instructions) in enumerate(sub_blocks):
+                for j, (ctl, sb_instructions) in enumerate(sub_blocks):
                     has_bases = False
-                    for instruction in instructions:
+                    for instruction in sb_instructions:
                         self._write_instruction_asm_directives(instruction)
                         if instruction.inst_ctl == 'C' and instruction.length:
                             has_bases = True
-                    first_instruction = instructions[0]
+                    first_instruction = sb_instructions[0]
                     if ctl != 'M' or COMMENTS in self.elements:
                         if ctl == 'M':
                             offset = first_instruction.comment.rowspan
@@ -435,7 +435,7 @@ class CtlWriter:
                                     comment_text = '.' + comment_text
                                 write_comment = comment_text != ''
                         if write_comment or ctl.lower() != entry_ctl or ctl != 'C' or has_bases:
-                            self.write_sub_block(ctl, entry_ctl, comment_text, instructions, length)
+                            self.write_sub_block(ctl, entry_ctl, comment_text, sb_instructions, length)
 
     def addr_str(self, address):
         return self.address_fmt.format(address)

@@ -231,8 +231,8 @@ class Disassembly:
         referrers = self.ref_calc.calculate_references(self.entries, tuple(operations.split(',')))
         for entry in self.entries:
             for instruction in entry.instructions:
-                for entry in referrers.get(instruction.address, ()):
-                    instruction.add_referrer(entry.address)
+                for ref_entry in referrers.get(instruction.address, ()):
+                    instruction.add_referrer(ref_entry.address)
 
     def _address_str(self, address):
         return self.address_fmt.format(address)

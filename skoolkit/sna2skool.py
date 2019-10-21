@@ -17,7 +17,7 @@
 import argparse
 import glob
 
-from skoolkit import find_file, info, integer, VERSION
+from skoolkit import info, integer, VERSION
 from skoolkit.config import get_config, show_config, update_options
 from skoolkit.ctlparser import CtlParser
 from skoolkit.snapshot import make_snapshot
