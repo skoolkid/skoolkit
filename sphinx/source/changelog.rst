@@ -1,7 +1,7 @@
 Changelog
 =========
 
-8.0b1
+8.0rc
 -----
 * Dropped support for Python 3.4
 * Made several :ref:`components` pluggable
