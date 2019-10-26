@@ -1322,16 +1322,15 @@ class Table:
         self.rows = []
         self.cells = []
         self.col_widths = None
-        self.cell_padding = None
-        self.num_cols = None
+        self.num_cols = 0
 
     def add_row(self, cells):
         self.rows.append(cells)
         self.cells.extend(cells)
 
-    def prepare_cells(self):
-        # For each cell, set row_index and col_index, and convert the contents
-        # to a 1-item list. Also calculate num_cols and col_widths.
+    def prepare_cells(self, min_col_width, max_table_width):
+        # For each cell, set its row_index, col_index and wrappable flag, and
+        # convert the contents to a 1-item list
         prev_spans = {}
         for row_index, row in enumerate(self.rows):
             col_index = 0
@@ -1343,6 +1342,8 @@ class Table:
                     prev_spans[col_index] = (prev_rowspan - 1, prev_colspan)
                     col_index += prev_colspan
                 cell.row_index, cell.col_index = row_index, col_index
+                self.num_cols = max(self.num_cols, col_index + 1)
+                cell.wrappable = col_index in self.wrap_columns
                 cell.contents = [cell.contents]
                 prev_spans[col_index] = (cell.rowspan, cell.colspan)
                 col_index += cell.colspan
@@ -1355,59 +1356,68 @@ class Table:
                     prev_spans[col_index] = (prev_rowspan - 1, prev_colspan)
                 col_index += prev_colspan
 
-        if self.rows:
-            self.num_cols = 1 + max([cell.col_index for cell in [row[-1] for row in self.rows]])
-        else:
-            self.num_cols = 0
+        # Calculate initial (minimum) column widths
+        self._calculate_col_widths(min_col_width)
+
+        # Increase the width of the wrappable cells until either none of them
+        # need wrapping or the table is the maximum width
+        self._increase_widths(max_table_width)
+
+        # Wrap the contents of the cells in the wrappable columns
+        for cell in self.cells:
+            if cell.wrappable:
+                width = self.get_cell_width(cell.col_index, cell.colspan)
+                cell.contents = wrap(cell.contents[0], width) or ['']
+
+        # Recalculate column widths to fit the wrapped contents
         self._calculate_col_widths()
 
     def get_cell_width(self, col_index, colspan):
-        return sum(self.col_widths[col_index:col_index + colspan]) + self.cell_padding * (colspan - 1)
+        return sum(self.col_widths[col_index:col_index + colspan]) + 3 * (colspan - 1)
 
-    def _calculate_col_widths(self):
-        # Loop over the cells to collect their widths (considering only those
-        # cells with colspan=1 on this pass)
-        cell_widths = [[0] * self.num_cols for row in self.rows]
-        for cell in [c for c in self.cells if c.colspan == 1]:
-            cell_widths[cell.row_index][cell.col_index] = cell.get_width()
+    def _calculate_col_widths(self, min_col_width=0):
+        # Examine cells with colspan=1; on the first call, any wrappable column
+        # will have its width set to at least min_col_width > 0
+        self.col_widths = [0] * self.num_cols
+        for cell in self.cells:
+            if cell.colspan == 1:
+                if min_col_width and cell.wrappable:
+                    self.col_widths[cell.col_index] = max(self.col_widths[cell.col_index], min_col_width)
+                else:
+                    self.col_widths[cell.col_index] = max(self.col_widths[cell.col_index], cell.get_width())
 
-        # Scan each column to find the widest cell; the width of that cell will
-        # be the width of the column
-        self.col_widths = [max([row[i] for row in cell_widths]) for i in range(self.num_cols)]
+        # Make sure that cells with colspan > 1 have enough space
+        for cell in self.cells:
+            if cell.colspan > 1 and (min_col_width == 0 or not cell.wrappable):
+                space_needed = cell.get_width() - self.get_cell_width(cell.col_index, cell.colspan)
+                if space_needed > 0:
+                    # On the first call, give extra space only to wrappable
+                    # columns if there are any, or all columns otherwise; on
+                    # the second call, give extra space to all columns (because
+                    # the wrappable ones have already been wrapped and had
+                    # their width decided)
+                    subcols = list(range(cell.col_index, cell.col_index + cell.colspan))
+                    if min_col_width:
+                        subcols = [i for i in subcols if i in self.wrap_columns] or subcols
+                    while space_needed > 0:
+                        for col_index in subcols:
+                            if space_needed > 0:
+                                self.col_widths[col_index] += 1
+                                space_needed -= 1
 
-        # Scan the cells again to make sure that those with colspan > 1 have
-        # enough space
-        for cell in [c for c in self.cells if c.colspan > 1]:
-            col_index, colspan = cell.col_index, cell.colspan
-            space_needed = cell.get_width() - self.get_cell_width(col_index, colspan)
-            while space_needed > 0:
-                for j in range(colspan):
-                    if space_needed > 0:
-                        self.col_widths[col_index + j] += 1
-                        space_needed -= 1
-
-    def reduce_width(self, max_table_width, min_col_width):
-        # Reduce the width of the wrappable columns until either the table is
-        # narrow enough or all the wrappable columns are the minimum width
-        done = False
-        while self.get_width() > max_table_width and not done:
+    def _increase_widths(self, max_table_width):
+        width = 3 * (self.num_cols + 1) - 2 + sum(self.col_widths)
+        done = width >= max_table_width
+        while not done:
             done = True
-            for wrap_col in self.wrap_columns:
-                if self.col_widths[wrap_col] > min_col_width:
-                    self.col_widths[wrap_col] -= 1
+            for cell in self.cells:
+                if cell.wrappable and len(cell.contents[0]) > self.col_widths[cell.col_index]:
                     done = False
-
-        # Wrap the contents of the cells in the wrappable columns
-        for cell in [c for c in self.cells if c.col_index in self.wrap_columns]:
-            width = self.get_cell_width(cell.col_index, cell.colspan)
-            cell.contents = wrap(cell.contents[0], width) or ['']
-
-        # The column widths need to be recalculated now
-        self._calculate_col_widths()
-
-    def get_width(self):
-        padding = self.cell_padding * (self.num_cols + 1) - 2
-        return padding + sum(self.col_widths)
+                    for col_index in range(cell.col_index, cell.col_index + cell.colspan):
+                        self.col_widths[col_index] += 1
+                        width += 1
+                        if width == max_table_width:
+                            return
 
 class Cell:
     def __init__(self, contents, transparent, colspan, rowspan, header, cell_class):
@@ -1419,6 +1429,7 @@ class Cell:
         self.cell_class = cell_class
         self.row_index = None
         self.col_index = None
+        self.wrappable = None
 
     def get_width(self):
         return max([len(line) for line in self.contents])

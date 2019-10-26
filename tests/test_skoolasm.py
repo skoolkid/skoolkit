@@ -5,7 +5,7 @@ from skoolkittest import SkoolKitTestCase
 from macrotest import CommonSkoolMacroTest, nest_macros
 from skoolkit import SkoolParsingError, BASE_10, BASE_16
 from skoolkit.skoolasm import AsmWriter
-from skoolkit.skoolparser import SkoolParser, CASE_LOWER, CASE_UPPER
+from skoolkit.skoolparser import SkoolParser, SkoolEntry, CASE_LOWER, CASE_UPPER
 
 ERROR_PREFIX = 'Error while parsing #{0} macro'
 
@@ -2361,7 +2361,9 @@ class TableMacroTest(SkoolKitTestCase):
         properties['tab'] = '1' if tab else '0'
         properties['instruction-width'] = instr_width
         properties['warnings'] = '1' if warn else '0'
-        return AsmWriter(skool_parser, properties, {})
+        writer = AsmWriter(skool_parser, properties, {})
+        writer.entry = SkoolEntry(0)
+        return writer
 
     def _assert_error(self, skool, error):
         self.clear_streams()
@@ -2815,6 +2817,55 @@ class TableMacroTest(SkoolKitTestCase):
             | second row                                                      +--------+
             |                                                                 | 0      |
             +-----------------------------------------------------------------+--------+
+        """
+        self._test_table(src, exp_output)
+
+    def test_cell_with_colspan_2_is_wrapped_to_make_table_fit_max_width(self):
+        src = """
+            (,,:w)
+            { =r2 Unwrappable content here | =c2 Some text that should be wrapped to make the table fit the max width }
+            {                                Wrappable content | This content is not wrappable }
+        """
+        exp_output = """
+            +--------------------------+----------------------------------------------+
+            | Unwrappable content here | Some text that should be wrapped to make the |
+            |                          | table fit the max width                      |
+            |                          | Wrappable   | This content is not wrappable  |
+            |                          | content     |                                |
+            +--------------------------+-------------+--------------------------------+
+        """
+        self._test_table(src, exp_output)
+
+    def test_wrapped_content_is_given_maximum_width_when_under_cell_with_rowspan_2(self):
+        src = """
+            (,,:w)
+            { =r2 0 | Hello }
+            { Goodbye }
+            { 1 | Some wrappable content that should ultimately be given as much width as possible }
+        """
+        exp_output = """
+            +---+----------------------------------------------------------------------+
+            | 0 | Hello                                                                |
+            |   | Goodbye                                                              |
+            | 1 | Some wrappable content that should ultimately be given as much width |
+            |   | as possible                                                          |
+            +---+----------------------------------------------------------------------+
+        """
+        self._test_table(src, exp_output)
+
+    def test_wrapped_content_is_given_maximum_width_when_under_cell_with_colspan_2(self):
+        src = """
+            (,,:w)
+            { =c2,h Unwrappable content determining the table's minimum width }
+            { Hello | Wrappable content that should expand the table to its maximum width }
+        """
+        exp_output = """
+            +-----------------------------------------------------------------------+
+            | Unwrappable content determining the table's minimum width             |
+            +-------+---------------------------------------------------------------+
+            | Hello | Wrappable content that should expand the table to its maximum |
+            |       | width                                                         |
+            +-------+---------------------------------------------------------------+
         """
         self._test_table(src, exp_output)
 

@@ -454,9 +454,7 @@ class TableWriter:
 
     def format_table(self, text):
         self.table = self.table_parser.parse_table(self.asm_writer, text)
-        self.table.cell_padding = 3
-        self.table.prepare_cells()
-        self.table.reduce_width(self.max_width, self.min_col_width)
+        self.table.prepare_cells(self.min_col_width, self.max_width)
         self.cell_matrix = self._build_cell_matrix()
         return self._create_table_text()
 
