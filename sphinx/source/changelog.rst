@@ -29,6 +29,8 @@ Changelog
   parameter in the :ref:`ref-Game` section
 * Fixed the bug that prevents the ``JavaScript`` parameter from working for a
   box page whose ``SectionType`` is ``ListItems`` or ``BulletPoints``
+* Fixed how a table row separator that crosses a cell with rowspan > 1 is
+  rendered in ASM mode
 
 7.2 (2019-06-02)
 ----------------

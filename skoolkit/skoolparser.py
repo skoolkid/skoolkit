@@ -1361,13 +1361,6 @@ class Table:
             self.num_cols = 0
         self._calculate_col_widths()
 
-    def get_header_rows(self):
-        headers = []
-        for i, row in enumerate(self.rows):
-            if all([c.transparent or c.header for c in row]):
-                headers.append(i)
-        return headers
-
     def get_cell_width(self, col_index, colspan):
         return sum(self.col_widths[col_index:col_index + colspan]) + self.cell_padding * (colspan - 1)
 

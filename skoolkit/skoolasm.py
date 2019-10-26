@@ -504,22 +504,20 @@ class TableWriter:
         max_row_index = len(self.table.rows)
         if max_row_index == 0:
             return lines
-        separator_row_indexes = {0}
-        separator_row_indexes.update([i + 1 for i in self.table.get_header_rows()])
-        for row_index in range(max_row_index):
-            if row_index in separator_row_indexes:
+        sep = True
+        for row_index in range(max_row_index + 1):
+            if sep or row_index == max_row_index:
                 row_sep = self._create_row_separator(row_index)
                 if row_sep:
                     lines.append(row_sep)
-            self._render_row(lines, row_index)
-            while self._render_row(lines, row_index, False):
-                pass
-        row_sep = self._create_row_separator(max_row_index, True)
-        if row_sep:
-            lines.append(row_sep)
+            if row_index < max_row_index:
+                self._render_row(lines, row_index)
+                while self._render_row(lines, row_index, False):
+                    pass
+                sep = any(c.header for c in self.table.rows[row_index])
         return lines
 
-    def _create_row_separator(self, row_index, last=False):
+    def _create_row_separator(self, row_index):
         # Return a separator between rows `row_index - 1` and `row_index`
         line = ''
         col_index = 0
@@ -538,7 +536,7 @@ class TableWriter:
             cell_above_left_transparent = cell_above_left is None or cell_above_left.transparent
             cell_left = self._get_cell(col_index - 1, row_index)
             cell_left_transparent = cell_left is None or cell_left.transparent
-            cell_contents = bool(cell_above and cell_above.contents)
+            cell_contents = bool(cell_above and (cell_above.contents or cell_above.row_index + cell_above.rowspan > row_index))
             if cell.transparent and cell_above_transparent and cell_above_left_transparent and cell_left_transparent:
                 line += ' '
             elif cell_contents and cell_left_contents:
@@ -546,22 +544,25 @@ class TableWriter:
             else:
                 line += self.border_join
             if cell_contents:
-                text = cell.contents.pop(0)
+                if cell.contents:
+                    text = cell.contents.pop(0)
+                else:
+                    text = ''
                 line += ' {} '.format(text.ljust(self.table.get_cell_width(col_index, cell_above.colspan)))
             else:
                 if cell.transparent and cell_above_transparent:
                     spacer = ' '
-                elif row_index == 0 or last:
-                    spacer = self.border_h_ext
-                else:
+                elif 0 < row_index < len(self.table.rows):
                     spacer = self.border_h_int
+                else:
+                    spacer = self.border_h_ext
                 if not spacer:
                     return None
                 line += spacer * (2 + self.table.get_cell_width(col_index, cell.colspan))
             cell_left_contents = cell_contents
             col_index += cell.colspan
 
-        if cell_contents:
+        if cell_contents and not cell_above_transparent:
             return line + self.border_v
         if line.endswith(' '):
             return line.rstrip()

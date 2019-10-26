@@ -2742,8 +2742,8 @@ class TableMacroTest(SkoolKitTestCase):
         # Header cell with rowspan > 1 and wrapped contents in the last column
         src = """
             (,,:w)
-            ; { =h A1 | =h,r2 The contents of this cell are wrapped onto two lines because of their excessive length }
-            ; { =h A2 }
+            { =h A1 | =h,r2 The contents of this cell are wrapped onto two lines because of their excessive length }
+            { =h A2 }
         """
         exp_output = """
             +----+-----------------------------------------------------------------+
@@ -2767,6 +2767,54 @@ class TableMacroTest(SkoolKitTestCase):
             +----+ their excessive length                                          +----+
             | A2 |                                                                 | C2 |
             +----+-----------------------------------------------------------------+----+
+        """
+        self._test_table(src, exp_output)
+
+    def test_cell_with_rowspan_2_next_to_header_cell_in_first_row(self):
+        src = """
+            { =r2 2 rows high | =h Header A }
+            {                   0 }
+        """
+        exp_output = """
+            +-------------+----------+
+            | 2 rows high | Header A |
+            |             +----------+
+            |             | 0        |
+            +-------------+----------+
+        """
+        self._test_table(src, exp_output)
+
+    def test_cell_with_rowspan_3_next_to_header_cell_in_second_row(self):
+        src = """
+            { =r3 3 rows high | Hi }
+            {                   =h Header }
+            {                   0 }
+        """
+        exp_output = """
+            +-------------+--------+
+            | 3 rows high | Hi     |
+            |             | Header |
+            |             +--------+
+            |             | 0      |
+            +-------------+--------+
+        """
+        self._test_table(src, exp_output)
+
+    def test_cell_with_rowspan_3_and_wrapped_contents_next_to_header_cell_in_second_row(self):
+        src = """
+            (,:w)
+            { =r3 A cell three rows high with text just long enough that it wraps past
+            the row separator for the adjacent header cell in the second row | Hi }
+            { =h Header }
+            { 0 }
+        """
+        exp_output = """
+            +-----------------------------------------------------------------+--------+
+            | A cell three rows high with text just long enough that it wraps | Hi     |
+            | past the row separator for the adjacent header cell in the      | Header |
+            | second row                                                      +--------+
+            |                                                                 | 0      |
+            +-----------------------------------------------------------------+--------+
         """
         self._test_table(src, exp_output)
 
