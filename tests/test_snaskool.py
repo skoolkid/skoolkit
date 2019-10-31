@@ -1485,6 +1485,59 @@ class SkoolWriterTest(SkoolKitTestCase):
         """
         self._test_write_skool(snapshot, ctl, exp_skool, write_refs=2)
 
+    def test_write_refs_comment_is_wrapped(self):
+        snapshot = [0] * 65536
+        snapshot[50000:50015] = [
+            201,     # 50000 RET
+            24, 253, # 50001 JR 50000
+            24, 251, # 50003 JR 50000
+            24, 249, # 50005 JR 50000
+            24, 247, # 50007 JR 50000
+            24, 245, # 50009 JR 50000
+            24, 243, # 50011 JR 50000
+            24, 241  # 50013 JR 50000
+        ]
+        ctl = """
+            c 50000
+            c 50001
+            c 50003
+            c 50005
+            c 50007
+            c 50009
+            c 50011
+            c 50013
+            i 50015
+        """
+        exp_skool = """
+            ; Routine at 50000
+            ;
+            ; Used by the routines at #R50001, #R50003, #R50005, #R50007, #R50009, #R50011
+            ; and #R50013.
+            c50000 RET           ;
+
+            ; Routine at 50001
+            c50001 JR 50000      ;
+
+            ; Routine at 50003
+            c50003 JR 50000      ;
+
+            ; Routine at 50005
+            c50005 JR 50000      ;
+
+            ; Routine at 50007
+            c50007 JR 50000      ;
+
+            ; Routine at 50009
+            c50009 JR 50000      ;
+
+            ; Routine at 50011
+            c50011 JR 50000      ;
+
+            ; Routine at 50013
+            c50013 JR 50000      ;
+        """
+        self._test_write_skool(snapshot, ctl, exp_skool, write_refs=1)
+
     def test_code_block_overlaps_code_block(self):
         snapshot = [175, 6, 175, 201]
         ctl = """

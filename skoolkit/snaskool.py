@@ -484,7 +484,7 @@ class SkoolWriter:
             if len(referrers) > 1:
                 key += 's'
                 fields['refs'] = ', '.join(['#R' + self.address_str(r, False) for r in referrers[:-1]])
-            self.write_comment(format_template(self.config[key], key, **fields))
+            self.write_comment([format_template(self.config[key], key, **fields)])
 
     def write_asm_directives(self, *directives):
         for directive in directives:

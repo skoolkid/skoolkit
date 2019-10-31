@@ -31,6 +31,8 @@ Changelog
   box page whose ``SectionType`` is ``ListItems`` or ``BulletPoints``
 * Fixed how a table row separator that crosses a cell with rowspan > 1 is
   rendered in ASM mode
+* Fixed the bug that prevents :ref:`sna2skool.py` from wrapping referrer
+  comments
 
 7.2 (2019-06-02)
 ----------------
