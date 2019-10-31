@@ -56,6 +56,11 @@ API methods, in common with skoolkit.skoolctl.ControlDirectiveComposer:
 .. autoclass:: skoolkit.skoolctl.ControlDirectiveComposer
    :members: compose
 
+If **compose()** encounters an error while parsing an operation and cannot
+recover, it should raise a SkoolParsingError:
+
+.. autoclass:: skoolkit.SkoolParsingError
+
 .. _ctlGenerator:
 
 Control file generator

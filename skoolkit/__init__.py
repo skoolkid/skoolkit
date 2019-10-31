@@ -21,7 +21,7 @@ import posixpath
 import textwrap
 import importlib
 
-VERSION = '8.0rc2'
+VERSION = '8.0rc3'
 PACKAGE_DIR = os.path.dirname(__file__)
 
 BASE_10 = 10
@@ -176,5 +176,6 @@ def integer(arg):
 class SkoolKitError(Exception):
     pass
 
+# API (ControlDirectiveComposer)
 class SkoolParsingError(SkoolKitError):
-    pass
+    """Raised when an error occurs while parsing a skool file."""
