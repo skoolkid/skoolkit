@@ -4,6 +4,7 @@ python:
   - 3.5
   - 3.6
   - 3.7
+  - 3.8
 install:
   - pip install nose2
   - if [[ $TRAVIS_PYTHON_VERSION == 3.5* ]]; then pip install codecov; fi
