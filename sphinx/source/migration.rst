@@ -40,6 +40,14 @@ the ``GameIndex`` parameter in the :ref:`pageHeaders` section instead.
 The ``AsmSinglePageTemplate`` parameter is no longer supported. Use the
 ``AsmSinglePage`` parameter instead.
 
+[Titles]
+--------
+In SkoolKit 7, the entry address in a disassembly page title was included in
+the ``Asm`` template. In SkoolKit 8, the ``Asm`` template no longer exists, and
+the entry address appears as a replacement field (``{entry[address]}``) in the
+``Asm-b``, ``Asm-c``, ``Asm-g``, ``Asm-s``, ``Asm-t``, ``Asm-u`` and ``Asm-w``
+parameters in the :ref:`titles` section.
+
 Control directives
 ------------------
 The ``B`` and ``T`` control directives no longer recognise the ``B`` (byte) and
