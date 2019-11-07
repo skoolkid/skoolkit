@@ -63,6 +63,13 @@ def convert_ref(reffile_f):
         else:
             sections.append(('PageHeaders', [param]))
 
+    # Titles:Asm-*
+    titles_section = _get_section(sections, 'Titles')[1]
+    if titles_section:
+        for i, line in enumerate(titles_section):
+            if line.startswith(('Asm-b', 'Asm-c', 'Asm-g', 'Asm-s', 'Asm-t', 'Asm-u', 'Asm-w')):
+                titles_section[i] += ' {entry[address]}'
+
     # Print ref file
     if preamble:
         print('\n'.join(preamble))
