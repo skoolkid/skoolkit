@@ -228,6 +228,10 @@ for diff_type in $DIFF_TYPES; do
   echo
   diff_dir=diffs-$diff_type
   echo -en "\e[0;31m"
-  ls -l $diff_dir/X-*.diff 2> /dev/null || echo -e "\e[0;32mNo $diff_type diffs found in $diff_dir"
+  if ls $diff_dir/X-*.diff &> /dev/null; then
+    ls -Ul $(ls $diff_dir/X-*.diff | sort -k 1,1 -t .)
+  else
+    echo -e "\e[0;32mNo $diff_type diffs found in $diff_dir"
+  fi
   echo -en "\e[0m"
 done
