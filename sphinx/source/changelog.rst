@@ -1,8 +1,8 @@
 Changelog
 =========
 
-8.0rc3
-------
+8.0 (2019-11-09)
+----------------
 * Dropped support for Python 3.4
 * Made several :ref:`components` pluggable
 * Added support for the :ref:`td_foreach`, :ref:`td_if` and :ref:`td_include`
