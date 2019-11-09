@@ -1,36 +1,24 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
-
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>SkoolKit 1.x changelog &#8212; SkoolKit 7.2 documentation</title>
-    
+    <title>SkoolKit 1.x changelog &#8212; SkoolKit 8.0 documentation</title>
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    './',
-        VERSION:     '7.2',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
-      };
-    </script>
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="top" title="SkoolKit 7.2 documentation" href="index.html" />
-    <link rel="up" title="Changelog" href="changelog.html" />
     <link rel="next" title="Parsing, rendering, and modes" href="parsing.html" />
     <link rel="prev" title="SkoolKit 2.x changelog" href="changelog2.html" /> 
-  </head>
-  <body role="document">
+  </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -38,18 +26,21 @@
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
           <a href="parsing.html" title="Parsing, rendering, and modes"
              accesskey="N">next</a> |</li>
         <li class="right" >
           <a href="changelog2.html" title="SkoolKit 2.x changelog"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 7.2 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.0 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="changelog.html" accesskey="U">Changelog</a> &#187;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-  <h3><a href="index.html">Table Of Contents</a></h3>
+  <h3><a href="index.html">Table of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">SkoolKit 1.x changelog</a><ul>
 <li><a class="reference internal" href="#id1">1.4 (2010-11-11)</a></li>
@@ -78,18 +69,20 @@
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="_sources/changelog1.txt"
+      <li><a href="_sources/changelog1.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
+    </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -152,7 +145,7 @@ registers and comments, and sub-block types and comments</li>
 <cite>manic_miner.ctl</cite></li>
 <li>Fixed the bug in <cite>sna2skool.py</cite> that made it list referrers of entry points
 in non-code blocks</li>
-<li>Added support to <cite>sna2skool.py</cite> for the <code class="docutils literal"><span class="pre">LD</span> <span class="pre">IXh,r</span></code> and <code class="docutils literal"><span class="pre">LD</span> <span class="pre">IXl,r</span></code>
+<li>Added support to <cite>sna2skool.py</cite> for the <code class="docutils literal notranslate"><span class="pre">LD</span> <span class="pre">IXh,r</span></code> and <code class="docutils literal notranslate"><span class="pre">LD</span> <span class="pre">IXl,r</span></code>
 instructions</li>
 </ul>
 </div>
@@ -165,9 +158,9 @@ containing a list of the routines that call or jump to that entry point.</p>
 <h2>1.0.5 (2010-02-03)<a class="headerlink" href="#id8" title="Permalink to this headline">¶</a></h2>
 <p>Made the following changes to <cite>sna2skool.py</cite>:</p>
 <ul class="simple">
-<li>Added the <code class="docutils literal"><span class="pre">-t</span></code> option (to show ASCII text in the comment fields)</li>
+<li>Added the <code class="docutils literal notranslate"><span class="pre">-t</span></code> option (to show ASCII text in the comment fields)</li>
 <li>Set block titles according to the apparent contents (code/text/data) when
-using the <code class="docutils literal"><span class="pre">-g</span></code> option</li>
+using the <code class="docutils literal notranslate"><span class="pre">-g</span></code> option</li>
 </ul>
 </div>
 <div class="section" id="id9">
@@ -175,18 +168,18 @@ using the <code class="docutils literal"><span class="pre">-g</span></code> opti
 <p>Made the following changes to <cite>sna2skool.py</cite>:</p>
 <ul class="simple">
 <li>Fixed the bug that caused the last instruction before the 64K boundary to be
-disassembled as a <code class="docutils literal"><span class="pre">DEFB</span></code> statement</li>
-<li>Added the <code class="docutils literal"><span class="pre">-g</span></code> option (to generate a control file using rudimentary static
+disassembled as a <code class="docutils literal notranslate"><span class="pre">DEFB</span></code> statement</li>
+<li>Added the <code class="docutils literal notranslate"><span class="pre">-g</span></code> option (to generate a control file using rudimentary static
 code analysis)</li>
-<li>Added the <code class="docutils literal"><span class="pre">-s</span></code> option (to specify the disassembly start address)</li>
+<li>Added the <code class="docutils literal notranslate"><span class="pre">-s</span></code> option (to specify the disassembly start address)</li>
 </ul>
 </div>
 <div class="section" id="id10">
 <h2>1.0.3 (2010-02-01)<a class="headerlink" href="#id10" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li><cite>sna2skool.py</cite> copes with instructions that cross the 64K boundary</li>
-<li><cite>skool2html.py</cite> writes the &#8216;Game status buffer&#8217;, &#8216;Glossary&#8217;, &#8216;Trivia&#8217;, &#8216;Bugs&#8217;
-and &#8216;Pokes&#8217; pages for a skool file specified by the <code class="docutils literal"><span class="pre">-f</span></code> option (in
+<li><cite>skool2html.py</cite> writes the ‘Game status buffer’, ‘Glossary’, ‘Trivia’, ‘Bugs’
+and ‘Pokes’ pages for a skool file specified by the <code class="docutils literal notranslate"><span class="pre">-f</span></code> option (in
 addition to the disassembly files and memory maps)</li>
 </ul>
 </div>
@@ -196,21 +189,21 @@ addition to the disassembly files and memory maps)</li>
 <ul class="simple">
 <li>recognises instructions that are unchanged by a DD or FD prefix</li>
 <li>recognises instructions with a DDCB or FDCB prefix</li>
-<li>produces a 4-byte <code class="docutils literal"><span class="pre">DEFB</span></code> for the ED-prefixed <code class="docutils literal"><span class="pre">LD</span> <span class="pre">HL,(nn)</span></code> and
-<code class="docutils literal"><span class="pre">LD</span> <span class="pre">(nn),HL</span></code> instructions</li>
-<li>produces a 2-byte <code class="docutils literal"><span class="pre">DEFB</span></code> for a relative jump across the 64K boundary</li>
+<li>produces a 4-byte <code class="docutils literal notranslate"><span class="pre">DEFB</span></code> for the ED-prefixed <code class="docutils literal notranslate"><span class="pre">LD</span> <span class="pre">HL,(nn)</span></code> and
+<code class="docutils literal notranslate"><span class="pre">LD</span> <span class="pre">(nn),HL</span></code> instructions</li>
+<li>produces a 2-byte <code class="docutils literal notranslate"><span class="pre">DEFB</span></code> for a relative jump across the 64K boundary</li>
 </ul>
 </div>
 <div class="section" id="id12">
 <h2>1.0.1 (2010-01-30)<a class="headerlink" href="#id12" title="Permalink to this headline">¶</a></h2>
 <p>Fixed the following bugs in <cite>sna2skool.py</cite>:</p>
 <ul class="simple">
-<li>&#8216;X&#8217; was replaced by &#8216;Y&#8217; instead of &#8216;IX&#8217; by &#8216;IY&#8217; (leading to nonsense
-mnemonics such as <code class="docutils literal"><span class="pre">YOR</span> <span class="pre">IYh</span></code>)</li>
-<li>ED72 was disassembled as <code class="docutils literal"><span class="pre">SBC</span> <span class="pre">HL,BC</span></code> instead of <code class="docutils literal"><span class="pre">SBC</span> <span class="pre">HL,SP</span></code></li>
-<li>ED7A was disassembled as <code class="docutils literal"><span class="pre">ADD</span> <span class="pre">HL,SP</span></code> instead of <code class="docutils literal"><span class="pre">ADC</span> <span class="pre">HL,SP</span></code></li>
-<li>ED63 and ED6B were disassembled as <code class="docutils literal"><span class="pre">LD</span> <span class="pre">(nn),HL</span></code> and <code class="docutils literal"><span class="pre">LD</span> <span class="pre">HL,(nn)</span></code> (which
-is correct, but won&#8217;t assemble back to the same bytes)</li>
+<li>‘X’ was replaced by ‘Y’ instead of ‘IX’ by ‘IY’ (leading to nonsense
+mnemonics such as <code class="docutils literal notranslate"><span class="pre">YOR</span> <span class="pre">IYh</span></code>)</li>
+<li>ED72 was disassembled as <code class="docutils literal notranslate"><span class="pre">SBC</span> <span class="pre">HL,BC</span></code> instead of <code class="docutils literal notranslate"><span class="pre">SBC</span> <span class="pre">HL,SP</span></code></li>
+<li>ED7A was disassembled as <code class="docutils literal notranslate"><span class="pre">ADD</span> <span class="pre">HL,SP</span></code> instead of <code class="docutils literal notranslate"><span class="pre">ADC</span> <span class="pre">HL,SP</span></code></li>
+<li>ED63 and ED6B were disassembled as <code class="docutils literal notranslate"><span class="pre">LD</span> <span class="pre">(nn),HL</span></code> and <code class="docutils literal notranslate"><span class="pre">LD</span> <span class="pre">HL,(nn)</span></code> (which
+is correct, but won’t assemble back to the same bytes)</li>
 </ul>
 </div>
 <div class="section" id="id13">
@@ -232,18 +225,21 @@ is correct, but won&#8217;t assemble back to the same bytes)</li>
           <a href="genindex.html" title="General Index"
              >index</a></li>
         <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
           <a href="parsing.html" title="Parsing, rendering, and modes"
              >next</a> |</li>
         <li class="right" >
           <a href="changelog2.html" title="SkoolKit 2.x changelog"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 7.2 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.0 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="changelog.html" >Changelog</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2019, Richard Dymond.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.9.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
     </div>
   </body>
 </html>

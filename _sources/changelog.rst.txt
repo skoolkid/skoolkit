@@ -1,6 +1,39 @@
 Changelog
 =========
 
+8.0 (2019-11-09)
+----------------
+* Dropped support for Python 3.4
+* Made several :ref:`components` pluggable
+* Added support for the :ref:`td_foreach`, :ref:`td_if` and :ref:`td_include`
+  directives in HTML templates
+* Added the :ref:`PC` macro (which expands to the address of the closest
+  instruction in the current entry)
+* Added support to the :ref:`set` directive for the `table-border-horizontal`,
+  `table-border-join` and `table-border-vertical` properties
+* Added the ``DefwSize`` configuration parameter for
+  :ref:`sna2skool.py <sna2skool-conf>` (for setting the maximum number of words
+  in a DEFW statement)
+* Added support for the ``**`` pattern (which matches any files and zero or
+  more directories and subdirectories) in the :ref:`resources` section
+* Added support for replacement fields (such as ``{base}`` and ``{case}``) in
+  the parameter string of the :ref:`EVAL` macro
+* Added the ``max_reg_len`` identifier to the :ref:`t_register` template
+* Added support for specifying page header prefixes and suffixes in the
+  :ref:`pageHeaders` section
+* An ``entry`` dictionary is available when formatting the title and header of
+  a disassembly page (as defined by the ``Asm-*`` parameters in the
+  :ref:`titles` and :ref:`pageHeaders` sections)
+* Added the ``GameIndex`` parameter to the :ref:`pageHeaders` section
+* Replaced the ``AsmSinglePageTemplate`` parameter with the ``AsmSinglePage``
+  parameter in the :ref:`ref-Game` section
+* Fixed the bug that prevents the ``JavaScript`` parameter from working for a
+  box page whose ``SectionType`` is ``ListItems`` or ``BulletPoints``
+* Fixed how a table row separator that crosses a cell with rowspan > 1 is
+  rendered in ASM mode
+* Fixed the bug that prevents :ref:`sna2skool.py` from wrapping referrer
+  comments
+
 7.2 (2019-06-02)
 ----------------
 * Added support to control files for specifying comments over multiple lines
@@ -20,11 +53,11 @@ Changelog
 * Added the ``Dictionary`` configuration parameter for
   :ref:`sna2ctl.py <sna2ctl-conf>` (to specify a file containing a list of
   words allowed in a text string)
-* Added the ``bytes`` and ``show_bytes`` identifiers to the
-  :ref:`t_asm_instruction` template, along with a table cell for displaying the
-  byte values of an assembled instruction
+* Added the ``bytes`` and ``show_bytes`` identifiers to the ``asm_instruction``
+  template, along with a table cell for displaying the byte values of an
+  assembled instruction
 * Added the ``Bytes`` parameter to the :ref:`ref-Game` section (for specifying
-  the format of byte values in the :ref:`t_asm_instruction` template)
+  the format of byte values in the ``asm_instruction`` template)
 * Added the ``DisassemblyTableNumCols`` parameter to the :ref:`ref-Game`
   section (for specifying the number of columns in the disassembly table on
   disassembly pages)
@@ -75,8 +108,8 @@ Changelog
   comment semicolons are written for instructions that have no comment)
 * Fixed how :ref:`sna2skool.py` interprets the base prefix ``n`` in a 'B'
   directive
-* Fixed how :ref:`skool2ctl.py` and :ref:`skool2sft.py` handle non-entry blocks
-  when a start address or end address is supplied
+* Fixed how :ref:`skool2ctl.py` and `skool2sft.py` handle non-entry blocks when
+  a start address or end address is supplied
 
 7.0 (2018-10-13)
 ----------------

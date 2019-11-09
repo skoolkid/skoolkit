@@ -176,8 +176,8 @@ assembler (see :ref:`supportedAssemblers`). For example::
     -S ADDR, --start ADDR
                           Start converting at this address.
     -u, --upper           Write the disassembly in upper case.
-    --var name=value      Define a variable that can be used by @if, #IF and #MAP.
-                          This option may be used multiple times.
+    --var name=value      Define a variable that can be used by @if, #EVAL, #IF
+                          and #MAP. This option may be used multiple times.
     -V, --version         Show SkoolKit version number and exit.
     -w, --no-warnings     Suppress warnings.
     -W CLASS, --writer CLASS
@@ -346,10 +346,6 @@ To list the options supported by `skool2ctl.py`, run it with no arguments::
                             c = instruction-level comments
                             n = non-entry blocks
 
-If you need to preserve any elements that control files do not support (such as
-ASM block directives), consider using :ref:`skool2sft.py` to create a skool
-file template instead.
-
 .. _skool2ctl-conf:
 
 Configuration
@@ -471,8 +467,8 @@ list::
                           Use this CSS theme. This option may be used multiple
                           times.
     -u, --upper           Write the disassembly in upper case.
-    --var name=value      Define a variable that can be used by @if, #IF and #MAP.
-                          This option may be used multiple times.
+    --var name=value      Define a variable that can be used by @if, #EVAL, #IF
+                          and #MAP. This option may be used multiple times.
     -V, --version         Show SkoolKit version number and exit.
     -w X, --write X       Write only these files, where X is one or more of:
                             d = Disassembly files   o = Other code
@@ -611,57 +607,6 @@ Configuration parameters may also be set on the command line by using the
 | 1.4     | Added the ``-V`` option                                          |
 +---------+------------------------------------------------------------------+
 
-.. _skool2sft.py:
-
-skool2sft.py
-------------
-`skool2sft.py`  converts a skool file into a
-:ref:`skool file template <skoolFileTemplates>`. For example::
-
-  $ skool2sft.py game.skool > game.sft
-
-To list the options supported by `skool2sft.py`, run it with no arguments::
-
-  usage: skool2sft.py [options] FILE
-
-  Convert a skool file into a skool file template and write it to standard
-  output. FILE may be a regular file, or '-' for standard input.
-
-  Options:
-    -b, --preserve-base   Preserve the base of decimal and hexadecimal values in
-                          instruction operands and DEFB/DEFM/DEFS/DEFW
-                          statements.
-    -E ADDR, --end ADDR   Stop converting at this address.
-    -h, --hex             Write addresses in upper case hexadecimal format.
-    -l, --hex-lower       Write addresses in lower case hexadecimal format.
-    -S ADDR, --start ADDR
-                          Start converting at this address.
-    -V, --version         Show SkoolKit version number and exit.
-
-.. note::
-   Skool file templates and `skool2sft.py` are deprecated since version 7.2.
-   Use :ref:`control files <controlFiles>` and :ref:`skool2ctl.py` instead.
-
-+---------+-------------------------------------------------------------+
-| Version | Changes                                                     |
-+=========+=============================================================+
-| 6.2     | The ``--end`` and ``--start`` options accept a hexadecimal  |
-|         | integer prefixed by '0x'                                    |
-+---------+-------------------------------------------------------------+
-| 5.1     | ``i`` blocks are preserved in the same way as code and data |
-|         | blocks (instead of verbatim)                                |
-+---------+-------------------------------------------------------------+
-| 4.5     | Added the ``--start`` and ``--end`` options                 |
-+---------+-------------------------------------------------------------+
-| 4.4     | Added the ``--hex-lower`` option                            |
-+---------+-------------------------------------------------------------+
-| 3.7     | Added the ``--preserve-base`` option                        |
-+---------+-------------------------------------------------------------+
-| 3.4     | Added the ``-V`` option and the long options                |
-+---------+-------------------------------------------------------------+
-| 2.4     | New                                                         |
-+---------+-------------------------------------------------------------+
-
 .. _sna2ctl.py:
 
 sna2ctl.py
@@ -760,8 +705,8 @@ Configuration parameters may also be set on the command line by using the
 sna2img.py
 ----------
 `sna2img.py` converts the screenshot or other graphic data in a binary (raw
-memory) file, SCR file, skool file, or SNA/SZX/Z80 snapshot into a PNG or GIF
-file. For example::
+memory) file, SCR file, skool file, or SNA/SZX/Z80 snapshot into a PNG file.
+For example::
 
   $ sna2img.py game.scr
 
@@ -771,9 +716,9 @@ To list the options supported by `sna2img.py`, run it with no arguments::
 
   usage: sna2img.py [options] INPUT [OUTPUT]
 
-  Convert a Spectrum screenshot or other graphic data into a PNG or GIF file.
-  INPUT may be a binary (raw memory) file, a SCR file, a skool file, or a SNA,
-  SZX or Z80 snapshot.
+  Convert a Spectrum screenshot or other graphic data into a PNG file. INPUT may
+  be a binary (raw memory) file, a SCR file, a skool file, or a SNA, SZX or Z80
+  snapshot.
 
   Options:
     -b, --bfix            Parse a skool file in @bfix mode.
@@ -854,8 +799,6 @@ list::
     --show-config         Show configuration parameter values.
     -s ADDR, --start ADDR
                           Start disassembling at this address (default=16384).
-    -T FILE, --sft FILE   Use FILE as the skool file template (may be '-' for
-                          standard input).
     -V, --version         Show SkoolKit version number and exit.
     -w W, --line-width W  Set the maximum line width of the skool file (default:
                           79).
@@ -863,11 +806,7 @@ list::
 If the input filename does not end with '.sna', '.szx' or '.z80', it is assumed
 to be a binary file.
 
-By default, any file whose name is equal to the input filename (minus the
-'.bin', '.sna', '.szx' or '.z80' suffix, if any) followed by '.sft' will be
-used as a :ref:`skool file template <skoolFileTemplates>`.
-
-Otherwise, any files whose names start with the input filename (minus the
+By default, any files whose names start with the input filename (minus the
 '.bin', '.sna', '.szx' or '.z80' suffix, if any) and end with '.ctl' will be
 used as :ref:`control files <controlFiles>`.
 
@@ -885,13 +824,10 @@ configuration parameters are:
   the default)
 * ``CommentWidthMin`` - minimum width of the instruction comment field in the
   skool file (default: ``10``)
-* ``DefbMod`` - group DEFB blocks by addresses that are divisible by this
-  number (default: ``1``)
-* ``DefbSize`` - maximum number of bytes per DEFB statement (default: ``8``)
-* ``DefbZfill`` - pad decimal values in DEFB statements with leading zeroes
-  (``1``), or leave them unpadded (``0``, the default)
+* ``DefbSize`` - maximum number of bytes in a DEFB statement (default: ``8``)
 * ``DefmSize`` - maximum number of characters in a DEFM statement (default:
   ``66``)
+* ``DefwSize`` - maximum number of words in a DEFW statement (default: ``1``)
 * ``EntryPointRef`` - template used to format the comment for an entry point
   with exactly one referrer (default: ``This entry point is used by the routine
   at {ref}.``)
@@ -946,6 +882,8 @@ Configuration parameters may also be set on the command line by using the
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 8.0     | Added the ``DefwSize`` configuration parameter                    |
++---------+-------------------------------------------------------------------+
 | 7.1     | Added support for reading multiple default control files, and for |
 |         | using the ``--ctl`` option multiple times; added the              |
 |         | ``CommentWidthMin``, ``InstructionWidth`` and ``Semicolons``      |
@@ -972,8 +910,6 @@ Configuration parameters may also be set on the command line by using the
 | 3.2     | Added the ``-p`` option, and the ability to read SZX snapshots    |
 |         | and 128K Z80 snapshots                                            |
 +---------+-------------------------------------------------------------------+
-| 2.4     | Added the ``-T`` option                                           |
-+---------+-------------------------------------------------------------------+
 | 2.1.2   | Added the ability to write the disassembly in lower case          |
 +---------+-------------------------------------------------------------------+
 | 2.1     | Added the ``-H`` option                                           |
@@ -982,10 +918,8 @@ Configuration parameters may also be set on the command line by using the
 |         | set the maximum number of characters in a DEFM statement, and to  |
 |         | suppress comments that list routine entry point referrers         |
 +---------+-------------------------------------------------------------------+
-| 2.0     | Added the ability to group DEFB blocks by addresses divisible by  |
-|         | a given number, to set the maximum number of bytes in a DEFB      |
-|         | statement, and to pad decimal values in DEFB statements with      |
-|         | leading zeroes                                                    |
+| 2.0     | Added the ability to set the maximum number of bytes in a DEFB    |
+|         | statement                                                         |
 +---------+-------------------------------------------------------------------+
 | 1.0.5   | Added the ability to show ASCII text in comment fields            |
 +---------+-------------------------------------------------------------------+

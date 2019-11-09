@@ -25,8 +25,7 @@ SkoolKit 2.x changelog
 
 2.4 (2012-01-10)
 ----------------
-* Added the :ref:`skool2sft.py` command (for creating
-  :ref:`skool file templates <skoolFileTemplates>`)
+* Added the `skool2sft.py` command (for creating skool file templates)
 * Added support to :ref:`skool2ctl.py` for preserving some ASM directives in
   control files
 * Enhanced the :ref:`UDG` and :ref:`UDGARRAY` macros so that images can be

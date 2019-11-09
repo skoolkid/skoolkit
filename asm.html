@@ -1,35 +1,24 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
-
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>ASM modes and directives &#8212; SkoolKit 7.2 documentation</title>
-    
+    <title>ASM modes and directives &#8212; SkoolKit 8.0 documentation</title>
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    './',
-        VERSION:     '7.2',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
-      };
-    </script>
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="top" title="SkoolKit 7.2 documentation" href="index.html" />
     <link rel="next" title="ASM templates" href="asm-templates.html" />
     <link rel="prev" title="Ref files" href="ref-files.html" /> 
-  </head>
-  <body role="document">
+  </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -37,17 +26,20 @@
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
           <a href="asm-templates.html" title="ASM templates"
              accesskey="N">next</a> |</li>
         <li class="right" >
           <a href="ref-files.html" title="Ref files"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 7.2 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.0 documentation</a> &#187;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-  <h3><a href="index.html">Table Of Contents</a></h3>
+  <h3><a href="index.html">Table of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">ASM modes and directives</a><ul>
 <li><a class="reference internal" href="#substitution-modes">Substitution modes</a><ul>
@@ -108,18 +100,20 @@
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="_sources/asm.txt"
+      <li><a href="_sources/asm.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
+    </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -134,57 +128,57 @@
 <span id="asmmodesanddirectives"></span><h1>ASM modes and directives<a class="headerlink" href="#asm-modes-and-directives" title="Permalink to this headline">¶</a></h1>
 <p>A skool file may contain directives that are processed during the parsing
 phase. Exactly how a directive is processed (and whether it is executed)
-depends on the &#8216;substitution mode&#8217; and &#8216;bugfix mode&#8217; in which the skool file is
+depends on the ‘substitution mode’ and ‘bugfix mode’ in which the skool file is
 being parsed.</p>
 <div class="section" id="substitution-modes">
 <span id="substitutionmodes"></span><h2>Substitution modes<a class="headerlink" href="#substitution-modes" title="Permalink to this headline">¶</a></h2>
-<p>There are three substitution modes: <code class="docutils literal"><span class="pre">&#64;isub</span></code>, <code class="docutils literal"><span class="pre">&#64;ssub</span></code>, and <code class="docutils literal"><span class="pre">&#64;rsub</span></code>. These
+<p>There are three substitution modes: <code class="docutils literal notranslate"><span class="pre">&#64;isub</span></code>, <code class="docutils literal notranslate"><span class="pre">&#64;ssub</span></code>, and <code class="docutils literal notranslate"><span class="pre">&#64;rsub</span></code>. These
 modes are described in the following subsections.</p>
 <div class="section" id="isub-mode">
 <span id="isubmode"></span><h3>&#64;isub mode<a class="headerlink" href="#isub-mode" title="Permalink to this headline">¶</a></h3>
-<p>In <code class="docutils literal"><span class="pre">&#64;isub</span></code> mode, <code class="docutils literal"><span class="pre">&#64;isub</span></code> directives are executed, but <code class="docutils literal"><span class="pre">&#64;ssub</span></code>, and
-<code class="docutils literal"><span class="pre">&#64;rsub</span></code> directives are not. The main purpose of <code class="docutils literal"><span class="pre">&#64;isub</span></code> mode is to make the
+<p>In <code class="docutils literal notranslate"><span class="pre">&#64;isub</span></code> mode, <code class="docutils literal notranslate"><span class="pre">&#64;isub</span></code> directives are executed, but <code class="docutils literal notranslate"><span class="pre">&#64;ssub</span></code>, and
+<code class="docutils literal notranslate"><span class="pre">&#64;rsub</span></code> directives are not. The main purpose of <code class="docutils literal notranslate"><span class="pre">&#64;isub</span></code> mode is to make the
 minimum number of instruction substitutions necessary to produce an ASM file
 that assembles.</p>
 <p>For example:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>@isub=LD A,(32512)
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>@isub=LD A,(32512)
  25396 LD A,(m)
 </pre></div>
 </div>
-<p>This <code class="docutils literal"><span class="pre">&#64;isub</span></code> directive ensures that <code class="docutils literal"><span class="pre">LD</span> <span class="pre">A,(m)</span></code> is replaced by the valid
-instruction <code class="docutils literal"><span class="pre">LD</span> <span class="pre">A,(32512)</span></code> when rendering in ASM mode.</p>
-<p><code class="docutils literal"><span class="pre">&#64;isub</span></code> mode is invoked by default when running
+<p>This <code class="docutils literal notranslate"><span class="pre">&#64;isub</span></code> directive ensures that <code class="docutils literal notranslate"><span class="pre">LD</span> <span class="pre">A,(m)</span></code> is replaced by the valid
+instruction <code class="docutils literal notranslate"><span class="pre">LD</span> <span class="pre">A,(32512)</span></code> when rendering in ASM mode.</p>
+<p><code class="docutils literal notranslate"><span class="pre">&#64;isub</span></code> mode is invoked by default when running
 <a class="reference internal" href="commands.html#skool2asm-py"><span class="std std-ref">skool2asm.py</span></a>.</p>
 </div>
 <div class="section" id="ssub-mode">
 <span id="ssubmode"></span><h3>&#64;ssub mode<a class="headerlink" href="#ssub-mode" title="Permalink to this headline">¶</a></h3>
-<p>In <code class="docutils literal"><span class="pre">&#64;ssub</span></code> mode, <code class="docutils literal"><span class="pre">&#64;isub</span></code> and <code class="docutils literal"><span class="pre">&#64;ssub</span></code> directives are executed, but
-<code class="docutils literal"><span class="pre">&#64;rsub</span></code> directives are not. The main purpose of <code class="docutils literal"><span class="pre">&#64;ssub</span></code> mode is to replace
+<p>In <code class="docutils literal notranslate"><span class="pre">&#64;ssub</span></code> mode, <code class="docutils literal notranslate"><span class="pre">&#64;isub</span></code> and <code class="docutils literal notranslate"><span class="pre">&#64;ssub</span></code> directives are executed, but
+<code class="docutils literal notranslate"><span class="pre">&#64;rsub</span></code> directives are not. The main purpose of <code class="docutils literal notranslate"><span class="pre">&#64;ssub</span></code> mode is to replace
 LSBs, MSBs and full addresses in the operands of instructions with labels, to
 make the code amenable to some degree of relocation, but without actually
 removing or inserting any code.</p>
 <p>For example:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>@ssub=LD (27015+1),A
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>@ssub=LD (27015+1),A
 *27012 LD (27016),A  ; Change the instruction below from SET 0,B to RES 0,B
                      ; or vice versa
  27015 SET 0,B
 </pre></div>
 </div>
-<p>This <code class="docutils literal"><span class="pre">&#64;ssub</span></code> directive replaces <code class="docutils literal"><span class="pre">LD</span> <span class="pre">(27016),A</span></code> with <code class="docutils literal"><span class="pre">LD</span> <span class="pre">(27015+1),A</span></code>; the
-<code class="docutils literal"><span class="pre">27015</span></code> will be replaced by the label for that address before rendering.
-(<code class="docutils literal"><span class="pre">27016</span></code> cannot be replaced by a label, since it is not the address of an
+<p>This <code class="docutils literal notranslate"><span class="pre">&#64;ssub</span></code> directive replaces <code class="docutils literal notranslate"><span class="pre">LD</span> <span class="pre">(27016),A</span></code> with <code class="docutils literal notranslate"><span class="pre">LD</span> <span class="pre">(27015+1),A</span></code>; the
+<code class="docutils literal notranslate"><span class="pre">27015</span></code> will be replaced by the label for that address before rendering.
+(<code class="docutils literal notranslate"><span class="pre">27016</span></code> cannot be replaced by a label, since it is not the address of an
 instruction.)</p>
-<p><code class="docutils literal"><span class="pre">&#64;ssub</span></code> mode is invoked by passing the <code class="docutils literal"><span class="pre">-s</span></code> option to
+<p><code class="docutils literal notranslate"><span class="pre">&#64;ssub</span></code> mode is invoked by passing the <code class="docutils literal notranslate"><span class="pre">-s</span></code> option to
 <a class="reference internal" href="commands.html#skool2asm-py"><span class="std std-ref">skool2asm.py</span></a>.</p>
 </div>
 <div class="section" id="rsub-mode">
 <span id="rsubmode"></span><h3>&#64;rsub mode<a class="headerlink" href="#rsub-mode" title="Permalink to this headline">¶</a></h3>
-<p>In <code class="docutils literal"><span class="pre">&#64;rsub</span></code> mode, <code class="docutils literal"><span class="pre">&#64;isub</span></code>, <code class="docutils literal"><span class="pre">&#64;ssub</span></code> and <code class="docutils literal"><span class="pre">&#64;rsub</span></code> directives are executed.
-The main purpose of <code class="docutils literal"><span class="pre">&#64;rsub</span></code> mode is to make code unconditionally relocatable,
+<p>In <code class="docutils literal notranslate"><span class="pre">&#64;rsub</span></code> mode, <code class="docutils literal notranslate"><span class="pre">&#64;isub</span></code>, <code class="docutils literal notranslate"><span class="pre">&#64;ssub</span></code> and <code class="docutils literal notranslate"><span class="pre">&#64;rsub</span></code> directives are executed.
+The main purpose of <code class="docutils literal notranslate"><span class="pre">&#64;rsub</span></code> mode is to make code unconditionally relocatable,
 even if that requires the removal of existing code or the insertion of new
 code.</p>
 <p>For example:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span> 23997 LD HL,32766
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span> 23997 LD HL,32766
 @ssub=LD (HL),24002%256
  24000 LD (HL),194
 @rsub+begin
@@ -194,60 +188,60 @@ code.</p>
  24002 XOR A
 </pre></div>
 </div>
-<p>This <code class="docutils literal"><span class="pre">&#64;rsub</span></code> block directive inserts two instructions that ensure that the
+<p>This <code class="docutils literal notranslate"><span class="pre">&#64;rsub</span></code> block directive inserts two instructions that ensure that the
 address stored at 32766 will have the correct MSB as well as the correct LSB,
 regardless of where the code originally at 24002 now lives.</p>
-<p><code class="docutils literal"><span class="pre">&#64;rsub</span></code> mode is invoked by passing the <code class="docutils literal"><span class="pre">-r</span></code> option to
-<a class="reference internal" href="commands.html#skool2asm-py"><span class="std std-ref">skool2asm.py</span></a>. <code class="docutils literal"><span class="pre">&#64;rsub</span></code> mode also implies
+<p><code class="docutils literal notranslate"><span class="pre">&#64;rsub</span></code> mode is invoked by passing the <code class="docutils literal notranslate"><span class="pre">-r</span></code> option to
+<a class="reference internal" href="commands.html#skool2asm-py"><span class="std std-ref">skool2asm.py</span></a>. <code class="docutils literal notranslate"><span class="pre">&#64;rsub</span></code> mode also implies
 <a class="reference internal" href="#ofixmode"><span class="std std-ref">&#64;ofix mode</span></a>.</p>
 </div>
 </div>
 <div class="section" id="bugfix-modes">
 <span id="bugfixmodes"></span><h2>Bugfix modes<a class="headerlink" href="#bugfix-modes" title="Permalink to this headline">¶</a></h2>
-<p>There are three bugfix modes: <code class="docutils literal"><span class="pre">&#64;ofix</span></code>, <code class="docutils literal"><span class="pre">&#64;bfix</span></code> and <code class="docutils literal"><span class="pre">&#64;rfix</span></code>. These
+<p>There are three bugfix modes: <code class="docutils literal notranslate"><span class="pre">&#64;ofix</span></code>, <code class="docutils literal notranslate"><span class="pre">&#64;bfix</span></code> and <code class="docutils literal notranslate"><span class="pre">&#64;rfix</span></code>. These
 modes are described in the following subsections.</p>
 <div class="section" id="ofix-mode">
 <span id="ofixmode"></span><h3>&#64;ofix mode<a class="headerlink" href="#ofix-mode" title="Permalink to this headline">¶</a></h3>
-<p>In <code class="docutils literal"><span class="pre">&#64;ofix</span></code> mode, <code class="docutils literal"><span class="pre">&#64;ofix</span></code> directives are executed, but <code class="docutils literal"><span class="pre">&#64;bfix</span></code> and
-<code class="docutils literal"><span class="pre">&#64;rfix</span></code> directives are not. The main purpose of <code class="docutils literal"><span class="pre">&#64;ofix</span></code> mode is to fix
+<p>In <code class="docutils literal notranslate"><span class="pre">&#64;ofix</span></code> mode, <code class="docutils literal notranslate"><span class="pre">&#64;ofix</span></code> directives are executed, but <code class="docutils literal notranslate"><span class="pre">&#64;bfix</span></code> and
+<code class="docutils literal notranslate"><span class="pre">&#64;rfix</span></code> directives are not. The main purpose of <code class="docutils literal notranslate"><span class="pre">&#64;ofix</span></code> mode is to fix
 instructions that have faulty operands.</p>
 <p>For example:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>@ofix-begin
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>@ofix-begin
  27872 CALL 27633    ; This should be CALL 27634
 @ofix+else
        CALL 27634
 @ofix+end
 </pre></div>
 </div>
-<p>These <code class="docutils literal"><span class="pre">&#64;ofix</span></code> block directives fix the faulty operand of the CALL
+<p>These <code class="docutils literal notranslate"><span class="pre">&#64;ofix</span></code> block directives fix the faulty operand of the CALL
 instruction.</p>
-<p><code class="docutils literal"><span class="pre">&#64;ofix</span></code> mode is invoked by passing the <code class="docutils literal"><span class="pre">-f</span> <span class="pre">1</span></code> option to
+<p><code class="docutils literal notranslate"><span class="pre">&#64;ofix</span></code> mode is invoked by passing the <code class="docutils literal notranslate"><span class="pre">-f</span> <span class="pre">1</span></code> option to
 <a class="reference internal" href="commands.html#skool2asm-py"><span class="std std-ref">skool2asm.py</span></a>.</p>
 </div>
 <div class="section" id="bfix-mode">
 <span id="bfixmode"></span><h3>&#64;bfix mode<a class="headerlink" href="#bfix-mode" title="Permalink to this headline">¶</a></h3>
-<p>In <code class="docutils literal"><span class="pre">&#64;bfix</span></code> mode, <code class="docutils literal"><span class="pre">&#64;ofix</span></code> and <code class="docutils literal"><span class="pre">&#64;bfix</span></code> directives are executed, but
-<code class="docutils literal"><span class="pre">&#64;rfix</span></code> directives are not. The main purpose of <code class="docutils literal"><span class="pre">&#64;bfix</span></code> mode is to fix bugs
+<p>In <code class="docutils literal notranslate"><span class="pre">&#64;bfix</span></code> mode, <code class="docutils literal notranslate"><span class="pre">&#64;ofix</span></code> and <code class="docutils literal notranslate"><span class="pre">&#64;bfix</span></code> directives are executed, but
+<code class="docutils literal notranslate"><span class="pre">&#64;rfix</span></code> directives are not. The main purpose of <code class="docutils literal notranslate"><span class="pre">&#64;bfix</span></code> mode is to fix bugs
 by replacing instructions, but without changing the start address of any
 routines, routine entry points, or data blocks.</p>
 <p>For example:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>@bfix-begin
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>@bfix-begin
  32205 JR Z,32232    ; This should be JR NZ,32232
 @bfix+else
        JR NZ,32232   ;
 @bfix+end
 </pre></div>
 </div>
-<p><code class="docutils literal"><span class="pre">&#64;bfix</span></code> mode is invoked by passing the <code class="docutils literal"><span class="pre">-f</span> <span class="pre">2</span></code> option to
+<p><code class="docutils literal notranslate"><span class="pre">&#64;bfix</span></code> mode is invoked by passing the <code class="docutils literal notranslate"><span class="pre">-f</span> <span class="pre">2</span></code> option to
 <a class="reference internal" href="commands.html#skool2asm-py"><span class="std std-ref">skool2asm.py</span></a>.</p>
 </div>
 <div class="section" id="rfix-mode">
 <span id="rfixmode"></span><h3>&#64;rfix mode<a class="headerlink" href="#rfix-mode" title="Permalink to this headline">¶</a></h3>
-<p>In <code class="docutils literal"><span class="pre">&#64;rfix</span></code> mode, <code class="docutils literal"><span class="pre">&#64;ofix</span></code>, <code class="docutils literal"><span class="pre">&#64;bfix</span></code> and <code class="docutils literal"><span class="pre">&#64;rfix</span></code> directives are executed.
-The purpose of <code class="docutils literal"><span class="pre">&#64;rfix</span></code> mode is to fix bugs that cannot be fixed without
+<p>In <code class="docutils literal notranslate"><span class="pre">&#64;rfix</span></code> mode, <code class="docutils literal notranslate"><span class="pre">&#64;ofix</span></code>, <code class="docutils literal notranslate"><span class="pre">&#64;bfix</span></code> and <code class="docutils literal notranslate"><span class="pre">&#64;rfix</span></code> directives are executed.
+The purpose of <code class="docutils literal notranslate"><span class="pre">&#64;rfix</span></code> mode is to fix bugs that cannot be fixed without
 moving code around (to make space for the fix).</p>
 <p>For example:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span> 28432 DEC HL
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span> 28432 DEC HL
 @rfix+begin
        LD A,H
        OR L
@@ -255,10 +249,10 @@ moving code around (to make space for the fix).</p>
  28433 JP Z,29712
 </pre></div>
 </div>
-<p>These <code class="docutils literal"><span class="pre">&#64;rfix</span></code> block directives insert some instructions to fix the faulty
+<p>These <code class="docutils literal notranslate"><span class="pre">&#64;rfix</span></code> block directives insert some instructions to fix the faulty
 check on whether HL holds 0.</p>
-<p><code class="docutils literal"><span class="pre">&#64;rfix</span></code> mode is invoked by passing the <code class="docutils literal"><span class="pre">-f</span> <span class="pre">3</span></code> option to
-<a class="reference internal" href="commands.html#skool2asm-py"><span class="std std-ref">skool2asm.py</span></a>. <code class="docutils literal"><span class="pre">&#64;rfix</span></code> mode implies <a class="reference internal" href="#rsubmode"><span class="std std-ref">&#64;rsub mode</span></a>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">&#64;rfix</span></code> mode is invoked by passing the <code class="docutils literal notranslate"><span class="pre">-f</span> <span class="pre">3</span></code> option to
+<a class="reference internal" href="commands.html#skool2asm-py"><span class="std std-ref">skool2asm.py</span></a>. <code class="docutils literal notranslate"><span class="pre">&#64;rfix</span></code> mode implies <a class="reference internal" href="#rsubmode"><span class="std std-ref">&#64;rsub mode</span></a>.</p>
 </div>
 </div>
 <div class="section" id="asm-directives">
@@ -267,25 +261,25 @@ check on whether HL holds 0.</p>
 subsections.</p>
 <div class="section" id="assemble">
 <span id="id1"></span><h3>&#64;assemble<a class="headerlink" href="#assemble" title="Permalink to this headline">¶</a></h3>
-<p>The <code class="docutils literal"><span class="pre">&#64;assemble</span></code> directive controls whether assembly language instructions,
-<code class="docutils literal"><span class="pre">DEFB</span></code>, <code class="docutils literal"><span class="pre">DEFM</span></code>, <code class="docutils literal"><span class="pre">DEFS</span></code> and <code class="docutils literal"><span class="pre">DEFW</span></code> statements, and <a class="reference internal" href="#defb"><span class="std std-ref">&#64;defb</span></a>,
+<p>The <code class="docutils literal notranslate"><span class="pre">&#64;assemble</span></code> directive controls whether assembly language instructions,
+<code class="docutils literal notranslate"><span class="pre">DEFB</span></code>, <code class="docutils literal notranslate"><span class="pre">DEFM</span></code>, <code class="docutils literal notranslate"><span class="pre">DEFS</span></code> and <code class="docutils literal notranslate"><span class="pre">DEFW</span></code> statements, and <a class="reference internal" href="#defb"><span class="std std-ref">&#64;defb</span></a>,
 <a class="reference internal" href="#defs"><span class="std std-ref">&#64;defs</span></a> and <a class="reference internal" href="#defw"><span class="std std-ref">&#64;defw</span></a> directives are converted into byte values for the
 purpose of populating the memory snapshot.</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>@assemble=H,A
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>@assemble=H,A
 </pre></div>
 </div>
-<p><code class="docutils literal"><span class="pre">H</span></code> is an integer value that determines what is converted in HTML mode, and
-<code class="docutils literal"><span class="pre">A</span></code> is an integer value that determines what is converted in ASM mode:</p>
+<p><code class="docutils literal notranslate"><span class="pre">H</span></code> is an integer value that determines what is converted in HTML mode, and
+<code class="docutils literal notranslate"><span class="pre">A</span></code> is an integer value that determines what is converted in ASM mode:</p>
 <ul class="simple">
-<li><code class="docutils literal"><span class="pre">0</span></code> - do not convert anything (this is the default in ASM mode)</li>
-<li><code class="docutils literal"><span class="pre">1</span></code> - convert <code class="docutils literal"><span class="pre">DEFB</span></code>, <code class="docutils literal"><span class="pre">DEFM</span></code>, <code class="docutils literal"><span class="pre">DEFS</span></code> and <code class="docutils literal"><span class="pre">DEFW</span></code> statements and
-<code class="docutils literal"><span class="pre">&#64;defb</span></code>, <code class="docutils literal"><span class="pre">&#64;defs</span></code> and <code class="docutils literal"><span class="pre">&#64;defw</span></code> directives only (this is the default in
+<li><code class="docutils literal notranslate"><span class="pre">0</span></code> - do not convert anything (this is the default in ASM mode)</li>
+<li><code class="docutils literal notranslate"><span class="pre">1</span></code> - convert <code class="docutils literal notranslate"><span class="pre">DEFB</span></code>, <code class="docutils literal notranslate"><span class="pre">DEFM</span></code>, <code class="docutils literal notranslate"><span class="pre">DEFS</span></code> and <code class="docutils literal notranslate"><span class="pre">DEFW</span></code> statements and
+<code class="docutils literal notranslate"><span class="pre">&#64;defb</span></code>, <code class="docutils literal notranslate"><span class="pre">&#64;defs</span></code> and <code class="docutils literal notranslate"><span class="pre">&#64;defw</span></code> directives only (this is the default in
 HTML mode)</li>
-<li><code class="docutils literal"><span class="pre">2</span></code> - convert assembly language instructions as well</li>
+<li><code class="docutils literal notranslate"><span class="pre">2</span></code> - convert assembly language instructions as well</li>
 </ul>
-<p>If <code class="docutils literal"><span class="pre">H</span></code> or <code class="docutils literal"><span class="pre">A</span></code> is blank or omitted, its value is left unchanged.</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">H</span></code> or <code class="docutils literal notranslate"><span class="pre">A</span></code> is blank or omitted, its value is left unchanged.</p>
 <p>For example:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>; The eight bytes of code in this routine are also used as UDG data.
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>; The eight bytes of code in this routine are also used as UDG data.
 ; .
 ; #HTML(#UDG44919)
 @assemble=2
@@ -295,9 +289,9 @@ c44919 LD DE,46572   ;
 @assemble=1
 </pre></div>
 </div>
-<p>The <code class="docutils literal"><span class="pre">&#64;assemble=2</span></code> directive is required to define the bytes for addresses
+<p>The <code class="docutils literal notranslate"><span class="pre">&#64;assemble=2</span></code> directive is required to define the bytes for addresses
 44919-44926. If it were not present, the memory snapshot would contain zeroes
-at those addresses, and the image created by the <code class="docutils literal"><span class="pre">#UDG</span></code> macro would be blank.</p>
+at those addresses, and the image created by the <code class="docutils literal notranslate"><span class="pre">#UDG</span></code> macro would be blank.</p>
 <table border="1" class="docutils">
 <colgroup>
 <col width="12%" />
@@ -313,7 +307,7 @@ at those addresses, and the image created by the <code class="docutils literal">
 <td>The accepted values are 0, 1 and 2 (previously -1, 0 and 1)</td>
 </tr>
 <tr class="row-odd"><td>6.3</td>
-<td>Added support for specifying what&#8217;s converted in HTML mode and
+<td>Added support for specifying what’s converted in HTML mode and
 ASM mode separately, and for switching off conversion entirely</td>
 </tr>
 <tr class="row-even"><td>6.1</td>
@@ -328,140 +322,140 @@ arithmetic expressions</td>
 </div>
 <div class="section" id="bfix">
 <span id="id2"></span><h3>&#64;bfix<a class="headerlink" href="#bfix" title="Permalink to this headline">¶</a></h3>
-<p>The <code class="docutils literal"><span class="pre">&#64;bfix</span></code> directive replaces, inserts or removes a label, instruction and
+<p>The <code class="docutils literal notranslate"><span class="pre">&#64;bfix</span></code> directive replaces, inserts or removes a label, instruction and
 comment in <a class="reference internal" href="#bfixmode"><span class="std std-ref">&#64;bfix mode</span></a>.</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>@bfix=[&gt;][|][+][/][LABEL:][INSTRUCTION][; comment]
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>@bfix=[&gt;][|][+][/][LABEL:][INSTRUCTION][; comment]
 </pre></div>
 </div>
 <p>or, when removing instructions:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>@bfix=!addr1[-addr2]
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>@bfix=!addr1[-addr2]
 </pre></div>
 </div>
 <ul class="simple">
-<li><code class="docutils literal"><span class="pre">&gt;</span></code> - if this marker is present, <code class="docutils literal"><span class="pre">INSTRUCTION</span></code> is inserted before the
+<li><code class="docutils literal notranslate"><span class="pre">&gt;</span></code> - if this marker is present, <code class="docutils literal notranslate"><span class="pre">INSTRUCTION</span></code> is inserted before the
 current instruction instead of replacing it</li>
-<li><code class="docutils literal"><span class="pre">|</span></code> - if this marker is present, <code class="docutils literal"><span class="pre">INSTRUCTION</span></code> overwrites any overlapping
+<li><code class="docutils literal notranslate"><span class="pre">|</span></code> - if this marker is present, <code class="docutils literal notranslate"><span class="pre">INSTRUCTION</span></code> overwrites any overlapping
 instructions instead of pushing them aside</li>
-<li><code class="docutils literal"><span class="pre">+</span></code> - if this marker is present, <code class="docutils literal"><span class="pre">INSTRUCTION</span></code> is inserted after the
+<li><code class="docutils literal notranslate"><span class="pre">+</span></code> - if this marker is present, <code class="docutils literal notranslate"><span class="pre">INSTRUCTION</span></code> is inserted after the
 current instruction instead of replacing it</li>
-<li><code class="docutils literal"><span class="pre">/</span></code> - if this marker is present, any remaining comment lines are removed</li>
-<li><code class="docutils literal"><span class="pre">LABEL</span></code> is the replacement label; if not given, any existing label is left
+<li><code class="docutils literal notranslate"><span class="pre">/</span></code> - if this marker is present, any remaining comment lines are removed</li>
+<li><code class="docutils literal notranslate"><span class="pre">LABEL</span></code> is the replacement label; if not given, any existing label is left
 unchanged</li>
-<li><code class="docutils literal"><span class="pre">INSTRUCTION</span></code> is the replacement instruction; if not given, the existing
+<li><code class="docutils literal notranslate"><span class="pre">INSTRUCTION</span></code> is the replacement instruction; if not given, the existing
 instruction is left unchanged</li>
-<li><code class="docutils literal"><span class="pre">comment</span></code> is the replacement comment; if not given, the existing comment is
+<li><code class="docutils literal notranslate"><span class="pre">comment</span></code> is the replacement comment; if not given, the existing comment is
 left unchanged</li>
-<li><code class="docutils literal"><span class="pre">addr1</span></code> is the address of the first instruction to remove</li>
-<li><code class="docutils literal"><span class="pre">addr2</span></code>, if given, is the address of the last instruction to remove</li>
+<li><code class="docutils literal notranslate"><span class="pre">addr1</span></code> is the address of the first instruction to remove</li>
+<li><code class="docutils literal notranslate"><span class="pre">addr2</span></code>, if given, is the address of the last instruction to remove</li>
 </ul>
 <p>For example:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>@label=CMASK
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>@label=CMASK
 @bfix=BMASK: AND B ; Apply the mask
  29713 AND C       ; This should be &#39;AND B&#39;
 </pre></div>
 </div>
-<p>This <code class="docutils literal"><span class="pre">&#64;bfix</span></code> directive replaces the instruction <code class="docutils literal"><span class="pre">AND</span> <span class="pre">C</span></code> with <code class="docutils literal"><span class="pre">AND</span> <span class="pre">B</span></code>,
-replaces the label <code class="docutils literal"><span class="pre">CMASK</span></code> with <code class="docutils literal"><span class="pre">BMASK</span></code>, and also replaces the comment.</p>
+<p>This <code class="docutils literal notranslate"><span class="pre">&#64;bfix</span></code> directive replaces the instruction <code class="docutils literal notranslate"><span class="pre">AND</span> <span class="pre">C</span></code> with <code class="docutils literal notranslate"><span class="pre">AND</span> <span class="pre">B</span></code>,
+replaces the label <code class="docutils literal notranslate"><span class="pre">CMASK</span></code> with <code class="docutils literal notranslate"><span class="pre">BMASK</span></code>, and also replaces the comment.</p>
 <p>Comment continuation lines can be replaced, removed or added by using
-additional <code class="docutils literal"><span class="pre">&#64;bfix</span></code> directives. For example, to replace both comment lines
+additional <code class="docutils literal notranslate"><span class="pre">&#64;bfix</span></code> directives. For example, to replace both comment lines
 of an instruction that has two:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>@bfix=AND B  ; This directive replaces the first comment line
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>@bfix=AND B  ; This directive replaces the first comment line
 @bfix=       ; and this directive replaces the second comment line
  29713 AND C ; Both of these comment lines
              ; will be replaced
 </pre></div>
 </div>
 <p>To add a second comment line to an instruction that has only one:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>@bfix=AND B  ; This directive replaces the first comment line
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>@bfix=AND B  ; This directive replaces the first comment line
 @bfix=       ; and this directive adds a second comment line
  29713 AND C ; This comment line will be replaced
 </pre></div>
 </div>
 <p>To replace two comment lines with one:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>@bfix=/AND B ; The &#39;/&#39; in this directive effectively terminates the comment
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>@bfix=/AND B ; The &#39;/&#39; in this directive effectively terminates the comment
  29713 AND C ; This comment line will be replaced
              ; and this one will be removed
 </pre></div>
 </div>
-<p>A single instruction can be replaced with two or more by using the <code class="docutils literal"><span class="pre">|</span></code>
-(overwrite) marker. For example, to replace <code class="docutils literal"><span class="pre">LD</span> <span class="pre">HL,0</span></code> with <code class="docutils literal"><span class="pre">LD</span> <span class="pre">L,0</span></code> and
-<code class="docutils literal"><span class="pre">LD</span> <span class="pre">H,L</span></code>:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>@bfix=|LD L,0  ; Clear L
+<p>A single instruction can be replaced with two or more by using the <code class="docutils literal notranslate"><span class="pre">|</span></code>
+(overwrite) marker. For example, to replace <code class="docutils literal notranslate"><span class="pre">LD</span> <span class="pre">HL,0</span></code> with <code class="docutils literal notranslate"><span class="pre">LD</span> <span class="pre">L,0</span></code> and
+<code class="docutils literal notranslate"><span class="pre">LD</span> <span class="pre">H,L</span></code>:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>@bfix=|LD L,0  ; Clear L
 @bfix=|LD H,L  ; Clear H
  36671 LD HL,0 ; Clear HL
 </pre></div>
 </div>
 <p>Two or more instructions can also be replaced with a single instruction. For
-example, to replace <code class="docutils literal"><span class="pre">XOR</span> <span class="pre">A</span></code> and <code class="docutils literal"><span class="pre">INC</span> <span class="pre">A</span></code> with <code class="docutils literal"><span class="pre">LD</span> <span class="pre">A,1</span></code>:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>@bfix=|LD A,1
+example, to replace <code class="docutils literal notranslate"><span class="pre">XOR</span> <span class="pre">A</span></code> and <code class="docutils literal notranslate"><span class="pre">INC</span> <span class="pre">A</span></code> with <code class="docutils literal notranslate"><span class="pre">LD</span> <span class="pre">A,1</span></code>:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>@bfix=|LD A,1
  49912 XOR A
  49913 INC A
 </pre></div>
 </div>
-<p>A sequence of instructions can be replaced by chaining <code class="docutils literal"><span class="pre">&#64;bfix</span></code> directives.
-For example, to swap two <code class="docutils literal"><span class="pre">XOR</span></code> instructions:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>@bfix=|XOR C
+<p>A sequence of instructions can be replaced by chaining <code class="docutils literal notranslate"><span class="pre">&#64;bfix</span></code> directives.
+For example, to swap two <code class="docutils literal notranslate"><span class="pre">XOR</span></code> instructions:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>@bfix=|XOR C
 @bfix=|XOR B
  51121 XOR B
  51122 XOR C
 </pre></div>
 </div>
 <p>This is equivalent to:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>@bfix=XOR C
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>@bfix=XOR C
  51121 XOR B
 @bfix=XOR B
  51122 XOR C
 </pre></div>
 </div>
-<p>Note that when <code class="docutils literal"><span class="pre">&#64;bfix</span></code> directives are chained like this, the second and
+<p>Note that when <code class="docutils literal notranslate"><span class="pre">&#64;bfix</span></code> directives are chained like this, the second and
 subsequent directives replace instruction comments in their entirety, instead
 of line by line. For example:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>@bfix=|LD A,D ; Set A=D
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>@bfix=|LD A,D ; Set A=D
 @bfix=|XOR B  ; Flip the bits
  51121 LD A,B ; Set A=B
  51122 XOR C  ; XOR the contents of the accumulator with the contents of the
               ; C register
 </pre></div>
 </div>
-<p>replaces both comment lines of the instruction at 51122 with &#8216;Flip the bits&#8217;.</p>
+<p>replaces both comment lines of the instruction at 51122 with ‘Flip the bits’.</p>
 <p>A sequence of instructions can be inserted before the current instruction by
-using the <code class="docutils literal"><span class="pre">&gt;</span></code> marker. For example:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span> 47191 EX DE,HL
+using the <code class="docutils literal notranslate"><span class="pre">&gt;</span></code> marker. For example:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span> 47191 EX DE,HL
 ; A mid-block comment.
 @bfix=&gt;LD (HL),C
 @bfix=&gt;INC HL
  47192 LD (HL),B
 </pre></div>
 </div>
-<p>This will insert <code class="docutils literal"><span class="pre">LD</span> <span class="pre">(HL),C</span></code> and <code class="docutils literal"><span class="pre">INC</span> <span class="pre">HL</span></code> between <code class="docutils literal"><span class="pre">EX</span> <span class="pre">DE,HL</span></code> and
-<code class="docutils literal"><span class="pre">LD</span> <span class="pre">(HL),B</span></code>. The mid-block comment that was above <code class="docutils literal"><span class="pre">LD</span> <span class="pre">(HL),B</span></code> will now be
-above <code class="docutils literal"><span class="pre">LD</span> <span class="pre">(HL),C</span></code>.</p>
+<p>This will insert <code class="docutils literal notranslate"><span class="pre">LD</span> <span class="pre">(HL),C</span></code> and <code class="docutils literal notranslate"><span class="pre">INC</span> <span class="pre">HL</span></code> between <code class="docutils literal notranslate"><span class="pre">EX</span> <span class="pre">DE,HL</span></code> and
+<code class="docutils literal notranslate"><span class="pre">LD</span> <span class="pre">(HL),B</span></code>. The mid-block comment that was above <code class="docutils literal notranslate"><span class="pre">LD</span> <span class="pre">(HL),B</span></code> will now be
+above <code class="docutils literal notranslate"><span class="pre">LD</span> <span class="pre">(HL),C</span></code>.</p>
 <p>A sequence of instructions can be inserted after the current instruction
-(without first specifying a replacement for it) by using the <code class="docutils literal"><span class="pre">+</span></code> marker. For
+(without first specifying a replacement for it) by using the <code class="docutils literal notranslate"><span class="pre">+</span></code> marker. For
 example:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>@bfix=+LD (HL),C
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>@bfix=+LD (HL),C
 @bfix=INC HL
  47191 EX DE,HL
 ; A mid-block comment.
  47192 LD (HL),B
 </pre></div>
 </div>
-<p>This will insert <code class="docutils literal"><span class="pre">LD</span> <span class="pre">(HL),C</span></code> and <code class="docutils literal"><span class="pre">INC</span> <span class="pre">HL</span></code> between <code class="docutils literal"><span class="pre">EX</span> <span class="pre">DE,HL</span></code> and
-<code class="docutils literal"><span class="pre">LD</span> <span class="pre">(HL),B</span></code>. In this case, the mid-block comment above <code class="docutils literal"><span class="pre">LD</span> <span class="pre">(HL),B</span></code> will
+<p>This will insert <code class="docutils literal notranslate"><span class="pre">LD</span> <span class="pre">(HL),C</span></code> and <code class="docutils literal notranslate"><span class="pre">INC</span> <span class="pre">HL</span></code> between <code class="docutils literal notranslate"><span class="pre">EX</span> <span class="pre">DE,HL</span></code> and
+<code class="docutils literal notranslate"><span class="pre">LD</span> <span class="pre">(HL),B</span></code>. In this case, the mid-block comment above <code class="docutils literal notranslate"><span class="pre">LD</span> <span class="pre">(HL),B</span></code> will
 remain there.</p>
 <p>The current instruction can be replaced and a sequence of instructions inserted
-after it by chaining <code class="docutils literal"><span class="pre">&#64;bfix</span></code> directives. For example:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>@bfix=LD (HL),B  ; {Save B and C here
+after it by chaining <code class="docutils literal notranslate"><span class="pre">&#64;bfix</span></code> directives. For example:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>@bfix=LD (HL),B  ; {Save B and C here
 @bfix=INC HL     ;
 @bfix=LD (HL),C  ; }
  61125 LD (HL),A ; Save A here
  61126 RET
 </pre></div>
 </div>
-<p>This will replace <code class="docutils literal"><span class="pre">LD</span> <span class="pre">(HL),A</span></code> with <code class="docutils literal"><span class="pre">LD</span> <span class="pre">(HL),B</span></code> and insert <code class="docutils literal"><span class="pre">INC</span> <span class="pre">HL</span></code> and
-<code class="docutils literal"><span class="pre">LD</span> <span class="pre">(HL),C</span></code> before the <code class="docutils literal"><span class="pre">RET</span></code> instruction.</p>
-<p>An instruction can be removed by using the <code class="docutils literal"><span class="pre">!</span></code> notation. For example:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span> 51184 XOR A
+<p>This will replace <code class="docutils literal notranslate"><span class="pre">LD</span> <span class="pre">(HL),A</span></code> with <code class="docutils literal notranslate"><span class="pre">LD</span> <span class="pre">(HL),B</span></code> and insert <code class="docutils literal notranslate"><span class="pre">INC</span> <span class="pre">HL</span></code> and
+<code class="docutils literal notranslate"><span class="pre">LD</span> <span class="pre">(HL),C</span></code> before the <code class="docutils literal notranslate"><span class="pre">RET</span></code> instruction.</p>
+<p>An instruction can be removed by using the <code class="docutils literal notranslate"><span class="pre">!</span></code> notation. For example:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span> 51184 XOR A
 @bfix=!51185
  51185 AND A ; This instruction is redundant
  51186 RET
@@ -470,7 +464,7 @@ after it by chaining <code class="docutils literal"><span class="pre">&#64;bfix<
 <p>This removes the redundant instruction at 51185.</p>
 <p>An entire entry can be removed by specifying an address range that covers every
 instruction in the entry:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>; Unused
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>; Unused
 @bfix=!40000-40001
 c40000 NOP
  40001 RET
@@ -488,7 +482,7 @@ c40000 NOP
 </thead>
 <tbody valign="top">
 <tr class="row-even"><td>7.1</td>
-<td>Added support for the <code class="docutils literal"><span class="pre">+</span></code> marker (to insert an instruction
+<td>Added support for the <code class="docutils literal notranslate"><span class="pre">+</span></code> marker (to insert an instruction
 after the current one)</td>
 </tr>
 <tr class="row-odd"><td>7.0</td>
@@ -504,26 +498,26 @@ and removing instructions</td>
 </div>
 <div class="section" id="bfix-block-directives">
 <span id="bfixblockdirectives"></span><h3>&#64;bfix block directives<a class="headerlink" href="#bfix-block-directives" title="Permalink to this headline">¶</a></h3>
-<p>The <code class="docutils literal"><span class="pre">&#64;bfix</span></code> block directives define a block of lines that will be inserted or
+<p>The <code class="docutils literal notranslate"><span class="pre">&#64;bfix</span></code> block directives define a block of lines that will be inserted or
 removed in <a class="reference internal" href="#bfixmode"><span class="std std-ref">&#64;bfix mode</span></a>.</p>
-<p>The syntax for defining a block that will be inserted in <code class="docutils literal"><span class="pre">&#64;bfix</span></code> mode (but
+<p>The syntax for defining a block that will be inserted in <code class="docutils literal notranslate"><span class="pre">&#64;bfix</span></code> mode (but
 left out otherwise) is:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>@bfix+begin
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>@bfix+begin
 ...                  ; Lines to be inserted
 @bfix+end
 </pre></div>
 </div>
-<p>The syntax for defining a block that will be removed in <code class="docutils literal"><span class="pre">&#64;bfix</span></code> mode (but
+<p>The syntax for defining a block that will be removed in <code class="docutils literal notranslate"><span class="pre">&#64;bfix</span></code> mode (but
 left in otherwise) is:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>@bfix-begin
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>@bfix-begin
 ...                  ; Lines to be removed
 @bfix-end
 </pre></div>
 </div>
 <p>Typically, though, it is desirable to define a block that will be removed in
-<code class="docutils literal"><span class="pre">&#64;bfix</span></code> mode right next to the block that will be inserted in its place. That
+<code class="docutils literal notranslate"><span class="pre">&#64;bfix</span></code> mode right next to the block that will be inserted in its place. That
 may be done thus:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>@bfix-begin
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>@bfix-begin
 ...                  ; Instructions to be removed
 @bfix+else
 ...                  ; Instructions to be inserted
@@ -531,7 +525,7 @@ may be done thus:</p>
 </pre></div>
 </div>
 <p>which is equivalent to:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>@bfix-begin
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>@bfix-begin
 ...                  ; Instructions to be removed
 @bfix-end
 @bfix+begin
@@ -540,7 +534,7 @@ may be done thus:</p>
 </pre></div>
 </div>
 <p>For example:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>@bfix-begin
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>@bfix-begin
  32205 JR Z,32232    ; This should be JR NZ,32232
 @bfix+else
        JR NZ,32232   ;
@@ -550,28 +544,28 @@ may be done thus:</p>
 </div>
 <div class="section" id="defb">
 <span id="id3"></span><h3>&#64;defb<a class="headerlink" href="#defb" title="Permalink to this headline">¶</a></h3>
-<p>The <code class="docutils literal"><span class="pre">&#64;defb</span></code> directive inserts byte values into the memory snapshot at a given
+<p>The <code class="docutils literal notranslate"><span class="pre">&#64;defb</span></code> directive inserts byte values into the memory snapshot at a given
 address.</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>@defb=address:value1[,value2...]
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>@defb=address:value1[,value2...]
 </pre></div>
 </div>
 <ul class="simple">
-<li><code class="docutils literal"><span class="pre">address</span></code> is the address</li>
-<li><code class="docutils literal"><span class="pre">value1</span></code>, <code class="docutils literal"><span class="pre">value2</span></code> etc. are the byte values (as might appear in a
-<code class="docutils literal"><span class="pre">DEFB</span></code> statement)</li>
+<li><code class="docutils literal notranslate"><span class="pre">address</span></code> is the address</li>
+<li><code class="docutils literal notranslate"><span class="pre">value1</span></code>, <code class="docutils literal notranslate"><span class="pre">value2</span></code> etc. are the byte values (as might appear in a
+<code class="docutils literal notranslate"><span class="pre">DEFB</span></code> statement)</li>
 </ul>
-<p>The sequence of comma-separated values may be followed by a semicolon (<code class="docutils literal"><span class="pre">;</span></code>)
+<p>The sequence of comma-separated values may be followed by a semicolon (<code class="docutils literal notranslate"><span class="pre">;</span></code>)
 and arbitrary text, which will be ignored.</p>
 <p>For example:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>@defb=30000:5,&quot;Hello&quot; ; Welcome message
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>@defb=30000:5,&quot;Hello&quot; ; Welcome message
 </pre></div>
 </div>
 <p>This will insert the value 5 followed by the ASCII codes of the characters in
-&#8220;Hello&#8221; into the memory snapshot at address 30000.</p>
-<p><code class="docutils literal"><span class="pre">&#64;defb</span></code> directives are processed not only when <a class="reference internal" href="commands.html#skool2asm-py"><span class="std std-ref">skool2asm.py</span></a> or
+“Hello” into the memory snapshot at address 30000.</p>
+<p><code class="docutils literal notranslate"><span class="pre">&#64;defb</span></code> directives are processed not only when <a class="reference internal" href="commands.html#skool2asm-py"><span class="std std-ref">skool2asm.py</span></a> or
 <a class="reference internal" href="commands.html#skool2html-py"><span class="std std-ref">skool2html.py</span></a> is run, but also when <a class="reference internal" href="commands.html#sna2skool-py"><span class="std std-ref">sna2skool.py</span></a> is run on a
-control file or skool file template; thus the <code class="docutils literal"><span class="pre">&#64;defb</span></code> directive can be used
-to override the contents of the snapshot that is read by <cite>sna2skool.py</cite>.</p>
+control file; thus the <code class="docutils literal notranslate"><span class="pre">&#64;defb</span></code> directive can be used to override the contents
+of the snapshot that is read by <cite>sna2skool.py</cite>.</p>
 <table border="1" class="docutils">
 <colgroup>
 <col width="50%" />
@@ -591,28 +585,28 @@ to override the contents of the snapshot that is read by <cite>sna2skool.py</cit
 </div>
 <div class="section" id="defs">
 <span id="id4"></span><h3>&#64;defs<a class="headerlink" href="#defs" title="Permalink to this headline">¶</a></h3>
-<p>The <code class="docutils literal"><span class="pre">&#64;defs</span></code> directive inserts a sequence of byte values into the memory
+<p>The <code class="docutils literal notranslate"><span class="pre">&#64;defs</span></code> directive inserts a sequence of byte values into the memory
 snapshot at a given address.</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>@defs=address:length[,value]
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>@defs=address:length[,value]
 </pre></div>
 </div>
 <ul class="simple">
-<li><code class="docutils literal"><span class="pre">address</span></code> is the address</li>
-<li><code class="docutils literal"><span class="pre">length</span></code> is the length of the sequence</li>
-<li><code class="docutils literal"><span class="pre">value</span></code> is the byte value (default: 0)</li>
+<li><code class="docutils literal notranslate"><span class="pre">address</span></code> is the address</li>
+<li><code class="docutils literal notranslate"><span class="pre">length</span></code> is the length of the sequence</li>
+<li><code class="docutils literal notranslate"><span class="pre">value</span></code> is the byte value (default: 0)</li>
 </ul>
-<p>The directive may be followed by a semicolon (<code class="docutils literal"><span class="pre">;</span></code>) and arbitrary text, which
+<p>The directive may be followed by a semicolon (<code class="docutils literal notranslate"><span class="pre">;</span></code>) and arbitrary text, which
 will be ignored.</p>
 <p>For example:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>@defs=30000:5,$FF ; Five 255s
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>@defs=30000:5,$FF ; Five 255s
 </pre></div>
 </div>
 <p>This will insert the value 255 into the memory snapshot at addresses
 30000-30004.</p>
-<p><code class="docutils literal"><span class="pre">&#64;defs</span></code> directives are processed not only when <a class="reference internal" href="commands.html#skool2asm-py"><span class="std std-ref">skool2asm.py</span></a> or
+<p><code class="docutils literal notranslate"><span class="pre">&#64;defs</span></code> directives are processed not only when <a class="reference internal" href="commands.html#skool2asm-py"><span class="std std-ref">skool2asm.py</span></a> or
 <a class="reference internal" href="commands.html#skool2html-py"><span class="std std-ref">skool2html.py</span></a> is run, but also when <a class="reference internal" href="commands.html#sna2skool-py"><span class="std std-ref">sna2skool.py</span></a> is run on a
-control file or skool file template; thus the <code class="docutils literal"><span class="pre">&#64;defs</span></code> directive can be used
-to override the contents of the snapshot that is read by <cite>sna2skool.py</cite>.</p>
+control file; thus the <code class="docutils literal notranslate"><span class="pre">&#64;defs</span></code> directive can be used to override the contents
+of the snapshot that is read by <cite>sna2skool.py</cite>.</p>
 <table border="1" class="docutils">
 <colgroup>
 <col width="50%" />
@@ -632,28 +626,28 @@ to override the contents of the snapshot that is read by <cite>sna2skool.py</cit
 </div>
 <div class="section" id="defw">
 <span id="id5"></span><h3>&#64;defw<a class="headerlink" href="#defw" title="Permalink to this headline">¶</a></h3>
-<p>The <code class="docutils literal"><span class="pre">&#64;defw</span></code> directive inserts word values into the memory snapshot at a given
+<p>The <code class="docutils literal notranslate"><span class="pre">&#64;defw</span></code> directive inserts word values into the memory snapshot at a given
 address.</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>@defw=address:value1[,value2...]
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>@defw=address:value1[,value2...]
 </pre></div>
 </div>
 <ul class="simple">
-<li><code class="docutils literal"><span class="pre">address</span></code> is the address</li>
-<li><code class="docutils literal"><span class="pre">value1</span></code>, <code class="docutils literal"><span class="pre">value2</span></code> etc. are the word values (as might appear in a
-<code class="docutils literal"><span class="pre">DEFW</span></code> statement)</li>
+<li><code class="docutils literal notranslate"><span class="pre">address</span></code> is the address</li>
+<li><code class="docutils literal notranslate"><span class="pre">value1</span></code>, <code class="docutils literal notranslate"><span class="pre">value2</span></code> etc. are the word values (as might appear in a
+<code class="docutils literal notranslate"><span class="pre">DEFW</span></code> statement)</li>
 </ul>
-<p>The sequence of comma-separated values may be followed by a semicolon (<code class="docutils literal"><span class="pre">;</span></code>)
+<p>The sequence of comma-separated values may be followed by a semicolon (<code class="docutils literal notranslate"><span class="pre">;</span></code>)
 and arbitrary text, which will be ignored.</p>
 <p>For example:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>@defw=30000:32768,32775 ; Message addresses
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>@defw=30000:32768,32775 ; Message addresses
 </pre></div>
 </div>
 <p>This will insert the word values 32768 and 32775 into the memory snapshot at
 addresses 30000 and 30002.</p>
-<p><code class="docutils literal"><span class="pre">&#64;defw</span></code> directives are processed not only when <a class="reference internal" href="commands.html#skool2asm-py"><span class="std std-ref">skool2asm.py</span></a> or
+<p><code class="docutils literal notranslate"><span class="pre">&#64;defw</span></code> directives are processed not only when <a class="reference internal" href="commands.html#skool2asm-py"><span class="std std-ref">skool2asm.py</span></a> or
 <a class="reference internal" href="commands.html#skool2html-py"><span class="std std-ref">skool2html.py</span></a> is run, but also when <a class="reference internal" href="commands.html#sna2skool-py"><span class="std std-ref">sna2skool.py</span></a> is run on a
-control file or skool file template; thus the <code class="docutils literal"><span class="pre">&#64;defw</span></code> directive can be used
-to override the contents of the snapshot that is read by <cite>sna2skool.py</cite>.</p>
+control file; thus the <code class="docutils literal notranslate"><span class="pre">&#64;defw</span></code> directive can be used to override the contents
+of the snapshot that is read by <cite>sna2skool.py</cite>.</p>
 <table border="1" class="docutils">
 <colgroup>
 <col width="50%" />
@@ -673,8 +667,8 @@ to override the contents of the snapshot that is read by <cite>sna2skool.py</cit
 </div>
 <div class="section" id="end">
 <span id="id6"></span><h3>&#64;end<a class="headerlink" href="#end" title="Permalink to this headline">¶</a></h3>
-<p>The <code class="docutils literal"><span class="pre">&#64;end</span></code> directive may be used to indicate where to stop parsing the skool
-file for the purpose of generating ASM output. Everything after the <code class="docutils literal"><span class="pre">&#64;end</span></code>
+<p>The <code class="docutils literal notranslate"><span class="pre">&#64;end</span></code> directive may be used to indicate where to stop parsing the skool
+file for the purpose of generating ASM output. Everything after the <code class="docutils literal notranslate"><span class="pre">&#64;end</span></code>
 directive is ignored by <a class="reference internal" href="commands.html#skool2asm-py"><span class="std std-ref">skool2asm.py</span></a>.</p>
 <p>See also <a class="reference internal" href="#start"><span class="std std-ref">&#64;start</span></a>.</p>
 <table border="1" class="docutils">
@@ -696,22 +690,22 @@ directive is ignored by <a class="reference internal" href="commands.html#skool2
 </div>
 <div class="section" id="equ">
 <span id="id7"></span><h3>&#64;equ<a class="headerlink" href="#equ" title="Permalink to this headline">¶</a></h3>
-<p>The <code class="docutils literal"><span class="pre">&#64;equ</span></code> directive defines an EQU directive that will appear in the ASM
+<p>The <code class="docutils literal notranslate"><span class="pre">&#64;equ</span></code> directive defines an EQU directive that will appear in the ASM
 output.</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>@equ=label=value
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>@equ=label=value
 </pre></div>
 </div>
 <ul class="simple">
-<li><code class="docutils literal"><span class="pre">label</span></code> is the label</li>
-<li><code class="docutils literal"><span class="pre">value</span></code> is the value assigned to the label</li>
+<li><code class="docutils literal notranslate"><span class="pre">label</span></code> is the label</li>
+<li><code class="docutils literal notranslate"><span class="pre">value</span></code> is the value assigned to the label</li>
 </ul>
 <p>For example:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>@equ=ATTRS=22528
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>@equ=ATTRS=22528
 c32768 LD HL,22528
 </pre></div>
 </div>
-<p>This will produce an EQU directive (<code class="docutils literal"><span class="pre">ATTRS</span> <span class="pre">EQU</span> <span class="pre">22528</span></code>) in the ASM output, and
-replace the operand of the instruction at 32768 with a label: <code class="docutils literal"><span class="pre">LD</span> <span class="pre">HL,ATTRS</span></code>.</p>
+<p>This will produce an EQU directive (<code class="docutils literal notranslate"><span class="pre">ATTRS</span> <span class="pre">EQU</span> <span class="pre">22528</span></code>) in the ASM output, and
+replace the operand of the instruction at 32768 with a label: <code class="docutils literal notranslate"><span class="pre">LD</span> <span class="pre">HL,ATTRS</span></code>.</p>
 <table border="1" class="docutils">
 <colgroup>
 <col width="50%" />
@@ -731,25 +725,25 @@ replace the operand of the instruction at 32768 with a label: <code class="docut
 </div>
 <div class="section" id="if">
 <span id="asm-if"></span><h3>&#64;if<a class="headerlink" href="#if" title="Permalink to this headline">¶</a></h3>
-<p>The <code class="docutils literal"><span class="pre">&#64;if</span></code> directive conditionally processes other ASM directives based on the
+<p>The <code class="docutils literal notranslate"><span class="pre">&#64;if</span></code> directive conditionally processes other ASM directives based on the
 value of an arithmetic expression.</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>@if(expr)(true[,false])
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>@if(expr)(true[,false])
 </pre></div>
 </div>
 <ul class="simple">
-<li><code class="docutils literal"><span class="pre">expr</span></code> is the arithmetic expression</li>
-<li><code class="docutils literal"><span class="pre">true</span></code> is processed when <code class="docutils literal"><span class="pre">expr</span></code> is true</li>
-<li><code class="docutils literal"><span class="pre">false</span></code> (if given) is processed when <code class="docutils literal"><span class="pre">expr</span></code> is false</li>
+<li><code class="docutils literal notranslate"><span class="pre">expr</span></code> is the arithmetic expression</li>
+<li><code class="docutils literal notranslate"><span class="pre">true</span></code> is processed when <code class="docutils literal notranslate"><span class="pre">expr</span></code> is true</li>
+<li><code class="docutils literal notranslate"><span class="pre">false</span></code> (if given) is processed when <code class="docutils literal notranslate"><span class="pre">expr</span></code> is false</li>
 </ul>
 <p>See <a class="reference internal" href="skool-macros.html#numericparameters"><span class="std std-ref">Numeric parameters</span></a> for details on the operators and replacement
-fields that may be used in the <code class="docutils literal"><span class="pre">expr</span></code> parameter.</p>
+fields that may be used in the <code class="docutils literal notranslate"><span class="pre">expr</span></code> parameter.</p>
 <p>For example:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>@if({case}==1))(replace=/#hl/hl,replace=/#hl/HL)
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>@if({case}==1))(replace=/#hl/hl,replace=/#hl/HL)
 </pre></div>
 </div>
-<p>would process <code class="docutils literal"><span class="pre">replace=/#hl/hl</span></code> if in lower case mode, or <code class="docutils literal"><span class="pre">replace=/#hl/HL</span></code>
+<p>would process <code class="docutils literal notranslate"><span class="pre">replace=/#hl/hl</span></code> if in lower case mode, or <code class="docutils literal notranslate"><span class="pre">replace=/#hl/HL</span></code>
 otherwise.</p>
-<p>The <code class="docutils literal"><span class="pre">true</span></code> and <code class="docutils literal"><span class="pre">false</span></code> parameters may be supplied in the same way as they
+<p>The <code class="docutils literal notranslate"><span class="pre">true</span></code> and <code class="docutils literal notranslate"><span class="pre">false</span></code> parameters may be supplied in the same way as they
 are for the <a class="reference internal" href="skool-macros.html#if"><span class="std std-ref">#IF</span></a> macro. See <a class="reference internal" href="skool-macros.html#stringparameters"><span class="std std-ref">String parameters</span></a> for more details.</p>
 <table border="1" class="docutils">
 <colgroup>
@@ -770,33 +764,33 @@ are for the <a class="reference internal" href="skool-macros.html#if"><span clas
 </div>
 <div class="section" id="ignoreua">
 <span id="id8"></span><h3>&#64;ignoreua<a class="headerlink" href="#ignoreua" title="Permalink to this headline">¶</a></h3>
-<p>The <code class="docutils literal"><span class="pre">&#64;ignoreua</span></code> directive suppresses any warnings that would otherwise be
+<p>The <code class="docutils literal notranslate"><span class="pre">&#64;ignoreua</span></code> directive suppresses any warnings that would otherwise be
 reported concerning addresses not converted to labels in the comment that
 follows; the comment may be an entry title, an entry description, a register
 description section, a block start comment, a mid-block comment, a block end
 comment, or an instruction-level comment.</p>
 <p>To apply the directive to an entry title:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>@ignoreua
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>@ignoreua
 ; Prepare data at 32768
 c32768 LD A,(HL)
 </pre></div>
 </div>
-<p>If the <code class="docutils literal"><span class="pre">&#64;ignoreua</span></code> directive were not present, a warning would be printed
+<p>If the <code class="docutils literal notranslate"><span class="pre">&#64;ignoreua</span></code> directive were not present, a warning would be printed
 (during the rendering phase) about the entry title containing an address
 (32768) that has not been converted to a label.</p>
 <p>To apply the directive to an entry description:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>; Prepare data in page 128
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>; Prepare data in page 128
 ;
 @ignoreua
 ; This routine operates on the data at 32768.
 c49152 LD A,(HL)
 </pre></div>
 </div>
-<p>If the <code class="docutils literal"><span class="pre">&#64;ignoreua</span></code> directive were not present, a warning would be printed
+<p>If the <code class="docutils literal notranslate"><span class="pre">&#64;ignoreua</span></code> directive were not present, a warning would be printed
 (during the rendering phase) about the entry description containing an address
 (32768) that has not been converted to a label.</p>
 <p>To apply the directive to a register description section:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>; Prepare data in page 128
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>; Prepare data in page 128
 ;
 ; This routine operates on the data in page 128.
 ;
@@ -805,11 +799,11 @@ c49152 LD A,(HL)
 c49152 LD A,(HL)
 </pre></div>
 </div>
-<p>If the <code class="docutils literal"><span class="pre">&#64;ignoreua</span></code> directive were not present, a warning would be printed
+<p>If the <code class="docutils literal notranslate"><span class="pre">&#64;ignoreua</span></code> directive were not present, a warning would be printed
 (during the rendering phase) about the register description containing an
 address (32768) that has not been converted to a label.</p>
 <p>To apply the directive to a block start comment:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>; Prepare data in page 128
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>; Prepare data in page 128
 ;
 ; This routine operates on the data in page 128.
 ;
@@ -820,34 +814,34 @@ address (32768) that has not been converted to a label.</p>
 c49152 LD A,(HL)
 </pre></div>
 </div>
-<p>If the <code class="docutils literal"><span class="pre">&#64;ignoreua</span></code> directive were not present, a warning would be printed
+<p>If the <code class="docutils literal notranslate"><span class="pre">&#64;ignoreua</span></code> directive were not present, a warning would be printed
 (during the rendering phase) about the start comment containing an address
 (32768) that has not been converted to a label.</p>
 <p>To apply the directive to a mid-block comment:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span> 28913 LD L,A
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span> 28913 LD L,A
 @ignoreua
 ; #REGhl now holds either 32522 or 32600.
  28914 LD B,(HL)
 </pre></div>
 </div>
-<p>If the <code class="docutils literal"><span class="pre">&#64;ignoreua</span></code> directive were not present, warnings would be printed
+<p>If the <code class="docutils literal notranslate"><span class="pre">&#64;ignoreua</span></code> directive were not present, warnings would be printed
 (during the rendering phase) about the comment containing addresses (32522,
 32600) that have not been converted to labels.</p>
 <p>To apply the directive to a block end comment:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span> 44159 JP 63152
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span> 44159 JP 63152
 @ignoreua
 ; This routine continues at 63152.
 </pre></div>
 </div>
-<p>If the <code class="docutils literal"><span class="pre">&#64;ignoreua</span></code> directive were not present, warnings would be printed
+<p>If the <code class="docutils literal notranslate"><span class="pre">&#64;ignoreua</span></code> directive were not present, warnings would be printed
 (during the rendering phase) about the comment containing an address (63152)
 that has not been converted to a label.</p>
 <p>To apply the directive to an instruction-level comment:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>@ignoreua
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>@ignoreua
  60159 LD C,A        ; #REGbc now holds 62818
 </pre></div>
 </div>
-<p>If the <code class="docutils literal"><span class="pre">&#64;ignoreua</span></code> directive were not present, a warning would be printed
+<p>If the <code class="docutils literal notranslate"><span class="pre">&#64;ignoreua</span></code> directive were not present, a warning would be printed
 (during the rendering phase) about the comment containing an address (62818)
 that has not been converted to a label.</p>
 <table border="1" class="docutils">
@@ -873,7 +867,7 @@ comments and block end comments</td>
 </div>
 <div class="section" id="isub">
 <span id="id9"></span><h3>&#64;isub<a class="headerlink" href="#isub" title="Permalink to this headline">¶</a></h3>
-<p>The <code class="docutils literal"><span class="pre">&#64;isub</span></code> directive replaces, inserts or removes a label, instruction and
+<p>The <code class="docutils literal notranslate"><span class="pre">&#64;isub</span></code> directive replaces, inserts or removes a label, instruction and
 comment in <a class="reference internal" href="#isubmode"><span class="std std-ref">&#64;isub mode</span></a>.</p>
 <p>The syntax is equivalent to that for the <a class="reference internal" href="#bfix"><span class="std std-ref">&#64;bfix</span></a> directive.</p>
 <table border="1" class="docutils">
@@ -888,7 +882,7 @@ comment in <a class="reference internal" href="#isubmode"><span class="std std-r
 </thead>
 <tbody valign="top">
 <tr class="row-even"><td>7.1</td>
-<td>Added support for the <code class="docutils literal"><span class="pre">+</span></code> marker (to insert an instruction
+<td>Added support for the <code class="docutils literal notranslate"><span class="pre">+</span></code> marker (to insert an instruction
 after the current one)</td>
 </tr>
 <tr class="row-odd"><td>7.0</td>
@@ -904,30 +898,30 @@ and removing instructions</td>
 </div>
 <div class="section" id="isub-block-directives">
 <span id="isubblockdirectives"></span><h3>&#64;isub block directives<a class="headerlink" href="#isub-block-directives" title="Permalink to this headline">¶</a></h3>
-<p>The <code class="docutils literal"><span class="pre">&#64;isub</span></code> block directives define a block of lines that will be inserted or
+<p>The <code class="docutils literal notranslate"><span class="pre">&#64;isub</span></code> block directives define a block of lines that will be inserted or
 removed in <a class="reference internal" href="#isubmode"><span class="std std-ref">&#64;isub mode</span></a>.</p>
 <p>The syntax is equivalent to that for the <a class="reference internal" href="#bfixblockdirectives"><span class="std std-ref">&#64;bfix block directives</span></a>.</p>
 </div>
 <div class="section" id="keep">
 <span id="id10"></span><h3>&#64;keep<a class="headerlink" href="#keep" title="Permalink to this headline">¶</a></h3>
-<p>The <code class="docutils literal"><span class="pre">&#64;keep</span></code> directive prevents the substitution of labels for numeric values
+<p>The <code class="docutils literal notranslate"><span class="pre">&#64;keep</span></code> directive prevents the substitution of labels for numeric values
 in the operand of the next instruction:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>@keep[=val1[,val2...]]
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>@keep[=val1[,val2...]]
 </pre></div>
 </div>
 <ul class="simple">
-<li><code class="docutils literal"><span class="pre">val1</span></code>, <code class="docutils literal"><span class="pre">val2</span></code> etc. are the values to keep; if none are specified, all
+<li><code class="docutils literal notranslate"><span class="pre">val1</span></code>, <code class="docutils literal notranslate"><span class="pre">val2</span></code> etc. are the values to keep; if none are specified, all
 values are kept</li>
 </ul>
-<p>In HTML mode, the <code class="docutils literal"><span class="pre">&#64;keep</span></code> directive also prevents the operand from being
+<p>In HTML mode, the <code class="docutils literal notranslate"><span class="pre">&#64;keep</span></code> directive also prevents the operand from being
 hyperlinked.</p>
 <p>For example:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>@keep
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>@keep
  28328 LD BC,24576   ; #REGb=96, #REGc=0
 </pre></div>
 </div>
-<p>If the <code class="docutils literal"><span class="pre">&#64;keep</span></code> directive were not present, the operand (24576) of the
-<code class="docutils literal"><span class="pre">LD</span> <span class="pre">BC</span></code> instruction would be replaced with the label of the routine at 24576
+<p>If the <code class="docutils literal notranslate"><span class="pre">&#64;keep</span></code> directive were not present, the operand (24576) of the
+<code class="docutils literal notranslate"><span class="pre">LD</span> <span class="pre">BC</span></code> instruction would be replaced with the label of the routine at 24576
 (if there is a routine at that address); however, the operand is meant to be a
 pure data value, not a variable or routine address.</p>
 <table border="1" class="docutils">
@@ -942,7 +936,7 @@ pure data value, not a variable or routine address.</p>
 </thead>
 <tbody valign="top">
 <tr class="row-even"><td>6.2</td>
-<td>Added the ability to specify the values to keep; the <code class="docutils literal"><span class="pre">&#64;keep</span></code>
+<td>Added the ability to specify the values to keep; the <code class="docutils literal notranslate"><span class="pre">&#64;keep</span></code>
 directive is applied to instructions that have been replaced by
 an <a class="reference internal" href="#isub"><span class="std std-ref">&#64;isub</span></a>, <a class="reference internal" href="#ssub"><span class="std std-ref">&#64;ssub</span></a> or <a class="reference internal" href="#rsub"><span class="std std-ref">&#64;rsub</span></a> directive</td>
 </tr>
@@ -951,32 +945,32 @@ an <a class="reference internal" href="#isub"><span class="std std-ref">&#64;isu
 </div>
 <div class="section" id="label">
 <span id="id11"></span><h3>&#64;label<a class="headerlink" href="#label" title="Permalink to this headline">¶</a></h3>
-<p>The <code class="docutils literal"><span class="pre">&#64;label</span></code> directive sets the label for the next instruction.</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>@label=LABEL
+<p>The <code class="docutils literal notranslate"><span class="pre">&#64;label</span></code> directive sets the label for the next instruction.</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>@label=LABEL
 </pre></div>
 </div>
 <ul class="simple">
-<li><code class="docutils literal"><span class="pre">LABEL</span></code> is the label to apply</li>
+<li><code class="docutils literal notranslate"><span class="pre">LABEL</span></code> is the label to apply</li>
 </ul>
 <p>For example:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>@label=ENDGAME
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>@label=ENDGAME
 c24576 XOR A
 </pre></div>
 </div>
-<p>This sets the label for the routine at 24576 to <code class="docutils literal"><span class="pre">ENDGAME</span></code>.</p>
-<p>If <code class="docutils literal"><span class="pre">LABEL</span></code> is blank (<code class="docutils literal"><span class="pre">&#64;label=</span></code>), the next instruction will have its entry
+<p>This sets the label for the routine at 24576 to <code class="docutils literal notranslate"><span class="pre">ENDGAME</span></code>.</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">LABEL</span></code> is blank (<code class="docutils literal notranslate"><span class="pre">&#64;label=</span></code>), the next instruction will have its entry
 point marker removed (if it has one), and be prevented from having a label
 automatically generated.</p>
-<p>If <code class="docutils literal"><span class="pre">LABEL</span></code> starts with <code class="docutils literal"><span class="pre">*</span></code> (e.g. <code class="docutils literal"><span class="pre">&#64;label=*LOOP</span></code>), the next instruction
+<p>If <code class="docutils literal notranslate"><span class="pre">LABEL</span></code> starts with <code class="docutils literal notranslate"><span class="pre">*</span></code> (e.g. <code class="docutils literal notranslate"><span class="pre">&#64;label=*LOOP</span></code>), the next instruction
 will be marked as an entry point (as if the instruction line in the skool file
-started with <code class="docutils literal"><span class="pre">*</span></code>), in addition to having its label set.</p>
-<p>If <code class="docutils literal"><span class="pre">LABEL</span></code> is just <code class="docutils literal"><span class="pre">*</span></code> (<code class="docutils literal"><span class="pre">&#64;label=*</span></code>), the next instruction will be marked
+started with <code class="docutils literal notranslate"><span class="pre">*</span></code>), in addition to having its label set.</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">LABEL</span></code> is just <code class="docutils literal notranslate"><span class="pre">*</span></code> (<code class="docutils literal notranslate"><span class="pre">&#64;label=*</span></code>), the next instruction will be marked
 as an entry point, and have a label automatically generated.</p>
 <p>In addition to being processed when <a class="reference internal" href="commands.html#skool2asm-py"><span class="std std-ref">skool2asm.py</span></a> or <a class="reference internal" href="commands.html#skool2html-py"><span class="std std-ref">skool2html.py</span></a>
-is run, <code class="docutils literal"><span class="pre">&#64;label</span></code> directive values are checked by <a class="reference internal" href="commands.html#sna2skool-py"><span class="std std-ref">sna2skool.py</span></a> while
+is run, <code class="docutils literal notranslate"><span class="pre">&#64;label</span></code> directive values are checked by <a class="reference internal" href="commands.html#sna2skool-py"><span class="std std-ref">sna2skool.py</span></a> while
 reading a control file. They can be used to prevent an entry point marker from
-being added to an instruction where it otherwise would be (<code class="docutils literal"><span class="pre">&#64;label=</span></code>), or
-force one to be added where it otherwise wouldn&#8217;t (<code class="docutils literal"><span class="pre">&#64;label=*</span></code>).</p>
+being added to an instruction where it otherwise would be (<code class="docutils literal notranslate"><span class="pre">&#64;label=</span></code>), or
+force one to be added where it otherwise wouldn’t (<code class="docutils literal notranslate"><span class="pre">&#64;label=*</span></code>).</p>
 <table border="1" class="docutils">
 <colgroup>
 <col width="12%" />
@@ -989,11 +983,11 @@ force one to be added where it otherwise wouldn&#8217;t (<code class="docutils l
 </thead>
 <tbody valign="top">
 <tr class="row-even"><td>7.0</td>
-<td>An entry point marker (<code class="docutils literal"><span class="pre">*</span></code>) can be added to or removed from the
+<td>An entry point marker (<code class="docutils literal notranslate"><span class="pre">*</span></code>) can be added to or removed from the
 next instruction</td>
 </tr>
 <tr class="row-odd"><td>6.3</td>
-<td><code class="docutils literal"><span class="pre">LABEL</span></code> may be blank (to prevent the next instruction from
+<td><code class="docutils literal notranslate"><span class="pre">LABEL</span></code> may be blank (to prevent the next instruction from
 having a label automatically generated)</td>
 </tr>
 </tbody>
@@ -1001,25 +995,25 @@ having a label automatically generated)</td>
 </div>
 <div class="section" id="nowarn">
 <span id="id12"></span><h3>&#64;nowarn<a class="headerlink" href="#nowarn" title="Permalink to this headline">¶</a></h3>
-<p>The <code class="docutils literal"><span class="pre">&#64;nowarn</span></code> directive suppresses any warnings that would otherwise be
+<p>The <code class="docutils literal notranslate"><span class="pre">&#64;nowarn</span></code> directive suppresses any warnings that would otherwise be
 reported for the next instruction concerning:</p>
 <ul class="simple">
-<li>a <code class="docutils literal"><span class="pre">LD</span></code> operand being replaced with a routine label (if the instruction has
-not been replaced using <code class="docutils literal"><span class="pre">&#64;isub</span></code> or <code class="docutils literal"><span class="pre">&#64;ssub</span></code>)</li>
+<li>a <code class="docutils literal notranslate"><span class="pre">LD</span></code> operand being replaced with a routine label (if the instruction has
+not been replaced using <code class="docutils literal notranslate"><span class="pre">&#64;isub</span></code> or <code class="docutils literal notranslate"><span class="pre">&#64;ssub</span></code>)</li>
 <li>an operand not being replaced with a label (because the operand address has
 no label)</li>
 </ul>
 <p>For example:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>@nowarn
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>@nowarn
  25560 LD BC,25404   ; Point #REGbc at the routine at #R25404
 </pre></div>
 </div>
-<p>If this <code class="docutils literal"><span class="pre">&#64;nowarn</span></code> directive were not present, a warning would be printed
+<p>If this <code class="docutils literal notranslate"><span class="pre">&#64;nowarn</span></code> directive were not present, a warning would be printed
 (during the parsing phase) about the operand (25404) being replaced with a
 routine label (which would be inappropriate if 25404 were intended to be a pure
 data value).</p>
 <p>For another example:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>@ofix-begin
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>@ofix-begin
 @nowarn
  27872 CALL 27633    ; This should be CALL #R27634
 @ofix+else
@@ -1027,14 +1021,14 @@ data value).</p>
 @ofix+end
 </pre></div>
 </div>
-<p>If this <code class="docutils literal"><span class="pre">&#64;nowarn</span></code> directive were not present, a warning would be printed
+<p>If this <code class="docutils literal notranslate"><span class="pre">&#64;nowarn</span></code> directive were not present, a warning would be printed
 (during the parsing phase, if not in <a class="reference internal" href="#ofixmode"><span class="std std-ref">&#64;ofix mode</span></a>) about the operand (27633)
 not being replaced with a label (usually you would want the operand of a CALL
 instruction to be replaced with a label, but not in this case).</p>
 </div>
 <div class="section" id="ofix">
 <span id="id13"></span><h3>&#64;ofix<a class="headerlink" href="#ofix" title="Permalink to this headline">¶</a></h3>
-<p>The <code class="docutils literal"><span class="pre">&#64;ofix</span></code> directive replaces, inserts or removes a label, instruction and
+<p>The <code class="docutils literal notranslate"><span class="pre">&#64;ofix</span></code> directive replaces, inserts or removes a label, instruction and
 comment in <a class="reference internal" href="#ofixmode"><span class="std std-ref">&#64;ofix mode</span></a>.</p>
 <p>The syntax is equivalent to that for the <a class="reference internal" href="#bfix"><span class="std std-ref">&#64;bfix</span></a> directive.</p>
 <table border="1" class="docutils">
@@ -1049,7 +1043,7 @@ comment in <a class="reference internal" href="#ofixmode"><span class="std std-r
 </thead>
 <tbody valign="top">
 <tr class="row-even"><td>7.1</td>
-<td>Added support for the <code class="docutils literal"><span class="pre">+</span></code> marker (to insert an instruction
+<td>Added support for the <code class="docutils literal notranslate"><span class="pre">+</span></code> marker (to insert an instruction
 after the current one)</td>
 </tr>
 <tr class="row-odd"><td>7.0</td>
@@ -1065,21 +1059,21 @@ and removing instructions</td>
 </div>
 <div class="section" id="ofix-block-directives">
 <span id="ofixblockdirectives"></span><h3>&#64;ofix block directives<a class="headerlink" href="#ofix-block-directives" title="Permalink to this headline">¶</a></h3>
-<p>The <code class="docutils literal"><span class="pre">&#64;ofix</span></code> block directives define a block of lines that will be inserted or
+<p>The <code class="docutils literal notranslate"><span class="pre">&#64;ofix</span></code> block directives define a block of lines that will be inserted or
 removed in <a class="reference internal" href="#ofixmode"><span class="std std-ref">&#64;ofix mode</span></a>.</p>
 <p>The syntax is equivalent to that for the <a class="reference internal" href="#bfixblockdirectives"><span class="std std-ref">&#64;bfix block directives</span></a>.</p>
 </div>
 <div class="section" id="org">
 <span id="id14"></span><h3>&#64;org<a class="headerlink" href="#org" title="Permalink to this headline">¶</a></h3>
-<p>The <code class="docutils literal"><span class="pre">&#64;org</span></code> directive inserts an <code class="docutils literal"><span class="pre">ORG</span></code> assembler directive.</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>@org[=address]
+<p>The <code class="docutils literal notranslate"><span class="pre">&#64;org</span></code> directive inserts an <code class="docutils literal notranslate"><span class="pre">ORG</span></code> assembler directive.</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>@org[=address]
 </pre></div>
 </div>
 <ul class="simple">
-<li><code class="docutils literal"><span class="pre">address</span></code> is the <code class="docutils literal"><span class="pre">ORG</span></code> address; if not specified, it defaults to the
+<li><code class="docutils literal notranslate"><span class="pre">address</span></code> is the <code class="docutils literal notranslate"><span class="pre">ORG</span></code> address; if not specified, it defaults to the
 address of the next instruction</li>
 </ul>
-<p>Note that the <code class="docutils literal"><span class="pre">&#64;org</span></code> directive works only on the first instruction in an
+<p>Note that the <code class="docutils literal notranslate"><span class="pre">&#64;org</span></code> directive works only on the first instruction in an
 entry.</p>
 <table border="1" class="docutils">
 <colgroup>
@@ -1093,24 +1087,24 @@ entry.</p>
 </thead>
 <tbody valign="top">
 <tr class="row-even"><td>6.3</td>
-<td>The <code class="docutils literal"><span class="pre">address</span></code> parameter is optional</td>
+<td>The <code class="docutils literal notranslate"><span class="pre">address</span></code> parameter is optional</td>
 </tr>
 </tbody>
 </table>
 </div>
 <div class="section" id="rem">
 <span id="id15"></span><h3>&#64;rem<a class="headerlink" href="#rem" title="Permalink to this headline">¶</a></h3>
-<p>The <code class="docutils literal"><span class="pre">&#64;rem</span></code> directive may be used to make an illuminating comment about a
+<p>The <code class="docutils literal notranslate"><span class="pre">&#64;rem</span></code> directive may be used to make an illuminating comment about a
 nearby section or other ASM directive in a skool file. The directive is ignored
 by the parser.</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>@rem=COMMENT
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>@rem=COMMENT
 </pre></div>
 </div>
 <ul class="simple">
-<li><code class="docutils literal"><span class="pre">COMMENT</span></code> is a suitably illuminating comment</li>
+<li><code class="docutils literal notranslate"><span class="pre">COMMENT</span></code> is a suitably illuminating comment</li>
 </ul>
 <p>For example:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>@rem=The next section of data MUST start at 64000
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>@rem=The next section of data MUST start at 64000
 @org=64000
 </pre></div>
 </div>
@@ -1126,33 +1120,33 @@ by the parser.</p>
 </thead>
 <tbody valign="top">
 <tr class="row-even"><td>2.4</td>
-<td>The <code class="docutils literal"><span class="pre">=</span></code> is required</td>
+<td>The <code class="docutils literal notranslate"><span class="pre">=</span></code> is required</td>
 </tr>
 </tbody>
 </table>
 </div>
 <div class="section" id="remote">
 <span id="id16"></span><h3>&#64;remote<a class="headerlink" href="#remote" title="Permalink to this headline">¶</a></h3>
-<p>The <code class="docutils literal"><span class="pre">&#64;remote</span></code> directive creates a remote entry in a skool file. A remote
-entry enables <code class="docutils literal"><span class="pre">JR</span></code>, <code class="docutils literal"><span class="pre">JP</span></code> and <code class="docutils literal"><span class="pre">CALL</span></code> instructions to be hyperlinked to an
+<p>The <code class="docutils literal notranslate"><span class="pre">&#64;remote</span></code> directive creates a remote entry in a skool file. A remote
+entry enables <code class="docutils literal notranslate"><span class="pre">JR</span></code>, <code class="docutils literal notranslate"><span class="pre">JP</span></code> and <code class="docutils literal notranslate"><span class="pre">CALL</span></code> instructions to be hyperlinked to an
 entry defined in another skool file.</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>@remote=code:address[,address2...]
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>@remote=code:address[,address2...]
 </pre></div>
 </div>
 <ul class="simple">
-<li><code class="docutils literal"><span class="pre">code</span></code> is the ID of the disassembly defined in the other skool file</li>
-<li><code class="docutils literal"><span class="pre">address</span></code> is the address of the remote entry</li>
-<li><code class="docutils literal"><span class="pre">address2</span></code> etc. are addresses of other entry points in the remote entry</li>
+<li><code class="docutils literal notranslate"><span class="pre">code</span></code> is the ID of the disassembly defined in the other skool file</li>
+<li><code class="docutils literal notranslate"><span class="pre">address</span></code> is the address of the remote entry</li>
+<li><code class="docutils literal notranslate"><span class="pre">address2</span></code> etc. are addresses of other entry points in the remote entry</li>
 </ul>
 <p>For example:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>@remote=main:29012,29015
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>@remote=main:29012,29015
 </pre></div>
 </div>
 <p>This directive, if it appeared in a secondary skool file, would enable
 references to the routine at 29012 and its entry point at 29015 in the main
 disassembly. It would also enable the <a class="reference internal" href="skool-macros.html#r"><span class="std std-ref">#R</span></a> macro to create a hyperlink to a
 remote entry point using the form:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>#R29015@main
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>#R29015@main
 </pre></div>
 </div>
 <table border="1" class="docutils">
@@ -1174,55 +1168,55 @@ remote entry point using the form:</p>
 </div>
 <div class="section" id="replace">
 <span id="id17"></span><h3>&#64;replace<a class="headerlink" href="#replace" title="Permalink to this headline">¶</a></h3>
-<p>The <code class="docutils literal"><span class="pre">&#64;replace</span></code> directive replaces strings that match a regular expression in
+<p>The <code class="docutils literal notranslate"><span class="pre">&#64;replace</span></code> directive replaces strings that match a regular expression in
 skool file annotations and ref file section names and contents.</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>@replace=/pattern/repl
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>@replace=/pattern/repl
 </pre></div>
 </div>
 <p>or:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>@replace=/pattern/repl/
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>@replace=/pattern/repl/
 </pre></div>
 </div>
 <ul class="simple">
-<li><code class="docutils literal"><span class="pre">pattern</span></code> is the regular expression</li>
-<li><code class="docutils literal"><span class="pre">repl</span></code> is the replacement string</li>
+<li><code class="docutils literal notranslate"><span class="pre">pattern</span></code> is the regular expression</li>
+<li><code class="docutils literal notranslate"><span class="pre">repl</span></code> is the replacement string</li>
 </ul>
-<p>(If the second form is used, any text appearing after the terminating <code class="docutils literal"><span class="pre">/</span></code> is
+<p>(If the second form is used, any text appearing after the terminating <code class="docutils literal notranslate"><span class="pre">/</span></code> is
 ignored.)</p>
 <p>For example:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>@replace=/#copy/#CHR(169)
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>@replace=/#copy/#CHR(169)
 </pre></div>
 </div>
-<p>This <code class="docutils literal"><span class="pre">&#64;replace</span></code> directive replaces all instances of <code class="docutils literal"><span class="pre">#copy</span></code> with
-<code class="docutils literal"><span class="pre">#CHR(169)</span></code>.</p>
-<p>If <code class="docutils literal"><span class="pre">/</span></code> appears anywhere in <code class="docutils literal"><span class="pre">pattern</span></code> or <code class="docutils literal"><span class="pre">repl</span></code>, then an alternative
+<p>This <code class="docutils literal notranslate"><span class="pre">&#64;replace</span></code> directive replaces all instances of <code class="docutils literal notranslate"><span class="pre">#copy</span></code> with
+<code class="docutils literal notranslate"><span class="pre">#CHR(169)</span></code>.</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">/</span></code> appears anywhere in <code class="docutils literal notranslate"><span class="pre">pattern</span></code> or <code class="docutils literal notranslate"><span class="pre">repl</span></code>, then an alternative
 separator should be used; for example:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>@replace=|n/a|not applicable
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>@replace=|n/a|not applicable
 </pre></div>
 </div>
 <p>As a convenience for dealing with decimal and hexadecimal numbers, wherever
-<code class="docutils literal"><span class="pre">\i</span></code> appears in <code class="docutils literal"><span class="pre">pattern</span></code>, it is replaced by a regular expression group
-that matches a decimal number or a hexadecimal number preceded by <code class="docutils literal"><span class="pre">$</span></code>. For
+<code class="docutils literal notranslate"><span class="pre">\i</span></code> appears in <code class="docutils literal notranslate"><span class="pre">pattern</span></code>, it is replaced by a regular expression group
+that matches a decimal number or a hexadecimal number preceded by <code class="docutils literal notranslate"><span class="pre">$</span></code>. For
 example:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>@replace=/#udg\i,\i/#UDG(\1,#PEEK\2)
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>@replace=/#udg\i,\i/#UDG(\1,#PEEK\2)
 </pre></div>
 </div>
-<p>This <code class="docutils literal"><span class="pre">&#64;replace</span></code> directive would replace <code class="docutils literal"><span class="pre">#udg$a001,40960</span></code> with
-<code class="docutils literal"><span class="pre">#UDG($a001,#PEEK40960)</span></code>.</p>
-<p>Note that string replacements specified by <code class="docutils literal"><span class="pre">&#64;replace</span></code> directives are made
+<p>This <code class="docutils literal notranslate"><span class="pre">&#64;replace</span></code> directive would replace <code class="docutils literal notranslate"><span class="pre">#udg$a001,40960</span></code> with
+<code class="docutils literal notranslate"><span class="pre">#UDG($a001,#PEEK40960)</span></code>.</p>
+<p>Note that string replacements specified by <code class="docutils literal notranslate"><span class="pre">&#64;replace</span></code> directives are made
 before skool macros are expanded, and in the order in which the directives
 appear in the skool file. For example, if we have:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>@replace=/#foo\i/#bar\1
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>@replace=/#foo\i/#bar\1
 @replace=/#bar\i/#EVAL\1,16
 </pre></div>
 </div>
-<p>then <code class="docutils literal"><span class="pre">#foo31</span></code> would be replaced by <code class="docutils literal"><span class="pre">#EVAL31,16</span></code>, but if these directives
+<p>then <code class="docutils literal notranslate"><span class="pre">#foo31</span></code> would be replaced by <code class="docutils literal notranslate"><span class="pre">#EVAL31,16</span></code>, but if these directives
 were reversed:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>@replace=/#bar\i/#EVAL\1,16
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>@replace=/#bar\i/#EVAL\1,16
 @replace=/#foo\i/#bar\1
 </pre></div>
 </div>
-<p>then <code class="docutils literal"><span class="pre">#foo31</span></code> would be replaced by <code class="docutils literal"><span class="pre">#bar31</span></code>.</p>
+<p>then <code class="docutils literal notranslate"><span class="pre">#foo31</span></code> would be replaced by <code class="docutils literal notranslate"><span class="pre">#bar31</span></code>.</p>
 <p>See also <a class="reference internal" href="skool-macros.html#definingmacroswithreplace"><span class="std std-ref">Defining macros with &#64;replace</span></a>.</p>
 <table border="1" class="docutils">
 <colgroup>
@@ -1246,7 +1240,7 @@ were reversed:</p>
 </div>
 <div class="section" id="rfix">
 <span id="id18"></span><h3>&#64;rfix<a class="headerlink" href="#rfix" title="Permalink to this headline">¶</a></h3>
-<p>The <code class="docutils literal"><span class="pre">&#64;rfix</span></code> directive replaces, inserts or removes a label, instruction and
+<p>The <code class="docutils literal notranslate"><span class="pre">&#64;rfix</span></code> directive replaces, inserts or removes a label, instruction and
 comment in <a class="reference internal" href="#rfixmode"><span class="std std-ref">&#64;rfix mode</span></a>.</p>
 <p>The syntax is equivalent to that for the <a class="reference internal" href="#bfix"><span class="std std-ref">&#64;bfix</span></a> directive.</p>
 <table border="1" class="docutils">
@@ -1261,7 +1255,7 @@ comment in <a class="reference internal" href="#rfixmode"><span class="std std-r
 </thead>
 <tbody valign="top">
 <tr class="row-even"><td>7.1</td>
-<td>Added support for the <code class="docutils literal"><span class="pre">+</span></code> marker (to insert an instruction
+<td>Added support for the <code class="docutils literal notranslate"><span class="pre">+</span></code> marker (to insert an instruction
 after the current one)</td>
 </tr>
 <tr class="row-odd"><td>7.0</td>
@@ -1280,13 +1274,13 @@ and removing instructions</td>
 </div>
 <div class="section" id="rfix-block-directives">
 <span id="rfixblockdirectives"></span><h3>&#64;rfix block directives<a class="headerlink" href="#rfix-block-directives" title="Permalink to this headline">¶</a></h3>
-<p>The <code class="docutils literal"><span class="pre">&#64;rfix</span></code> block directives define a block of lines that will be inserted or
+<p>The <code class="docutils literal notranslate"><span class="pre">&#64;rfix</span></code> block directives define a block of lines that will be inserted or
 removed in <a class="reference internal" href="#rfixmode"><span class="std std-ref">&#64;rfix mode</span></a>.</p>
 <p>The syntax is equivalent to that for the <a class="reference internal" href="#bfixblockdirectives"><span class="std std-ref">&#64;bfix block directives</span></a>.</p>
 </div>
 <div class="section" id="rsub">
 <span id="id19"></span><h3>&#64;rsub<a class="headerlink" href="#rsub" title="Permalink to this headline">¶</a></h3>
-<p>The <code class="docutils literal"><span class="pre">&#64;rsub</span></code> directive replaces, inserts or removes a label, instruction and
+<p>The <code class="docutils literal notranslate"><span class="pre">&#64;rsub</span></code> directive replaces, inserts or removes a label, instruction and
 comment in <a class="reference internal" href="#rsubmode"><span class="std std-ref">&#64;rsub mode</span></a>.</p>
 <p>The syntax is equivalent to that for the <a class="reference internal" href="#rfix"><span class="std std-ref">&#64;rfix</span></a> directive.</p>
 <table border="1" class="docutils">
@@ -1301,7 +1295,7 @@ comment in <a class="reference internal" href="#rsubmode"><span class="std std-r
 </thead>
 <tbody valign="top">
 <tr class="row-even"><td>7.1</td>
-<td>Added support for the <code class="docutils literal"><span class="pre">+</span></code> marker (to insert an instruction
+<td>Added support for the <code class="docutils literal notranslate"><span class="pre">+</span></code> marker (to insert an instruction
 after the current one)</td>
 </tr>
 <tr class="row-odd"><td>7.0</td>
@@ -1317,55 +1311,63 @@ and removing instructions</td>
 </div>
 <div class="section" id="rsub-block-directives">
 <span id="rsubblockdirectives"></span><h3>&#64;rsub block directives<a class="headerlink" href="#rsub-block-directives" title="Permalink to this headline">¶</a></h3>
-<p>The <code class="docutils literal"><span class="pre">&#64;rsub</span></code> block directives define a block of lines that will be inserted or
+<p>The <code class="docutils literal notranslate"><span class="pre">&#64;rsub</span></code> block directives define a block of lines that will be inserted or
 removed in <a class="reference internal" href="#rsubmode"><span class="std std-ref">&#64;rsub mode</span></a>.</p>
 <p>The syntax is equivalent to that for the <a class="reference internal" href="#bfixblockdirectives"><span class="std std-ref">&#64;bfix block directives</span></a>.</p>
 </div>
 <div class="section" id="set">
 <span id="id20"></span><h3>&#64;set<a class="headerlink" href="#set" title="Permalink to this headline">¶</a></h3>
-<p>The <code class="docutils literal"><span class="pre">&#64;set</span></code> directive sets a property on the ASM writer.</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>@set-name=value
+<p>The <code class="docutils literal notranslate"><span class="pre">&#64;set</span></code> directive sets a property on the ASM writer.</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>@set-name=value
 </pre></div>
 </div>
 <ul class="simple">
-<li><code class="docutils literal"><span class="pre">name</span></code> is the property name</li>
-<li><code class="docutils literal"><span class="pre">value</span></code> is the property value</li>
+<li><code class="docutils literal notranslate"><span class="pre">name</span></code> is the property name</li>
+<li><code class="docutils literal notranslate"><span class="pre">value</span></code> is the property value</li>
 </ul>
-<p><code class="docutils literal"><span class="pre">&#64;set</span></code> directives must be placed somewhere after the <a class="reference internal" href="#start"><span class="std std-ref">&#64;start</span></a> directive,
+<p><code class="docutils literal notranslate"><span class="pre">&#64;set</span></code> directives must be placed somewhere after the <a class="reference internal" href="#start"><span class="std std-ref">&#64;start</span></a> directive,
 and before the <a class="reference internal" href="#end"><span class="std std-ref">&#64;end</span></a> directive (if there is one).</p>
 <p>Recognised property names and their default values are:</p>
 <ul class="simple">
-<li><code class="docutils literal"><span class="pre">bullet</span></code> - the bullet character(s) to use for list items specified in a
-<a class="reference internal" href="skool-macros.html#list"><span class="std std-ref">#LIST</span></a> macro (default: <code class="docutils literal"><span class="pre">*</span></code>)</li>
-<li><code class="docutils literal"><span class="pre">comment-width-min</span></code> - the minimum width of the instruction comment field
-(default: <code class="docutils literal"><span class="pre">10</span></code>)</li>
-<li><code class="docutils literal"><span class="pre">crlf</span></code> - <code class="docutils literal"><span class="pre">1</span></code> to use CR+LF to terminate lines, or <code class="docutils literal"><span class="pre">0</span></code> to use the system
-default (default: <code class="docutils literal"><span class="pre">0</span></code>)</li>
-<li><code class="docutils literal"><span class="pre">handle-unsupported-macros</span></code> - how to handle an unsupported macro: <code class="docutils literal"><span class="pre">1</span></code> to
-expand it to an empty string, or <code class="docutils literal"><span class="pre">0</span></code> to exit with an error (default: <code class="docutils literal"><span class="pre">0</span></code>)</li>
-<li><code class="docutils literal"><span class="pre">indent</span></code> - the number of spaces by which to indent instructions (default:
-<code class="docutils literal"><span class="pre">2</span></code>)</li>
-<li><code class="docutils literal"><span class="pre">instruction-width</span></code> - the width of the instruction field (default: <code class="docutils literal"><span class="pre">23</span></code>)</li>
-<li><code class="docutils literal"><span class="pre">label-colons</span></code> - <code class="docutils literal"><span class="pre">1</span></code> to append a colon to labels, or <code class="docutils literal"><span class="pre">0</span></code> to leave
-labels unadorned (default: <code class="docutils literal"><span class="pre">1</span></code>)</li>
-<li><code class="docutils literal"><span class="pre">line-width</span></code> - the maximum width of each line (default: <code class="docutils literal"><span class="pre">79</span></code>)</li>
-<li><code class="docutils literal"><span class="pre">tab</span></code> - <code class="docutils literal"><span class="pre">1</span></code> to use a tab character to indent instructions, or <code class="docutils literal"><span class="pre">0</span></code> to
-use spaces (default: <code class="docutils literal"><span class="pre">0</span></code>)</li>
-<li><code class="docutils literal"><span class="pre">warnings</span></code> - <code class="docutils literal"><span class="pre">1</span></code> to print any warnings that are produced while writing
-ASM output (after parsing the skool file), or <code class="docutils literal"><span class="pre">0</span></code> to suppress them
-(default: <code class="docutils literal"><span class="pre">1</span></code>)</li>
-<li><code class="docutils literal"><span class="pre">wrap-column-width-min</span></code> - the minimum width of a wrappable table column
-(default: <code class="docutils literal"><span class="pre">10</span></code>)</li>
+<li><code class="docutils literal notranslate"><span class="pre">bullet</span></code> - the bullet character(s) to use for list items specified in a
+<a class="reference internal" href="skool-macros.html#list"><span class="std std-ref">#LIST</span></a> macro (default: <code class="docutils literal notranslate"><span class="pre">*</span></code>)</li>
+<li><code class="docutils literal notranslate"><span class="pre">comment-width-min</span></code> - the minimum width of the instruction comment field
+(default: <code class="docutils literal notranslate"><span class="pre">10</span></code>)</li>
+<li><code class="docutils literal notranslate"><span class="pre">crlf</span></code> - <code class="docutils literal notranslate"><span class="pre">1</span></code> to use CR+LF to terminate lines, or <code class="docutils literal notranslate"><span class="pre">0</span></code> to use the system
+default (default: <code class="docutils literal notranslate"><span class="pre">0</span></code>)</li>
+<li><code class="docutils literal notranslate"><span class="pre">handle-unsupported-macros</span></code> - how to handle an unsupported macro: <code class="docutils literal notranslate"><span class="pre">1</span></code> to
+expand it to an empty string, or <code class="docutils literal notranslate"><span class="pre">0</span></code> to exit with an error (default: <code class="docutils literal notranslate"><span class="pre">0</span></code>)</li>
+<li><code class="docutils literal notranslate"><span class="pre">indent</span></code> - the number of spaces by which to indent instructions (default:
+<code class="docutils literal notranslate"><span class="pre">2</span></code>)</li>
+<li><code class="docutils literal notranslate"><span class="pre">instruction-width</span></code> - the width of the instruction field (default: <code class="docutils literal notranslate"><span class="pre">23</span></code>)</li>
+<li><code class="docutils literal notranslate"><span class="pre">label-colons</span></code> - <code class="docutils literal notranslate"><span class="pre">1</span></code> to append a colon to labels, or <code class="docutils literal notranslate"><span class="pre">0</span></code> to leave
+labels unadorned (default: <code class="docutils literal notranslate"><span class="pre">1</span></code>)</li>
+<li><code class="docutils literal notranslate"><span class="pre">line-width</span></code> - the maximum width of each line (default: <code class="docutils literal notranslate"><span class="pre">79</span></code>)</li>
+<li><code class="docutils literal notranslate"><span class="pre">tab</span></code> - <code class="docutils literal notranslate"><span class="pre">1</span></code> to use a tab character to indent instructions, or <code class="docutils literal notranslate"><span class="pre">0</span></code> to
+use spaces (default: <code class="docutils literal notranslate"><span class="pre">0</span></code>)</li>
+<li><code class="docutils literal notranslate"><span class="pre">table-border-horizontal</span></code> - the character to use for the horizontal borders
+of a table defined by a <a class="reference internal" href="skool-macros.html#table"><span class="std std-ref">#TABLE</span></a> macro (default: <code class="docutils literal notranslate"><span class="pre">-</span></code>); if two
+characters are specified, the first is used for the external borders and the
+second is used for the internal borders</li>
+<li><code class="docutils literal notranslate"><span class="pre">table-border-join</span></code> - the character to use for the horizontal and vertical
+border joins of a table defined by a <a class="reference internal" href="skool-macros.html#table"><span class="std std-ref">#TABLE</span></a> macro (default: <code class="docutils literal notranslate"><span class="pre">+</span></code>)</li>
+<li><code class="docutils literal notranslate"><span class="pre">table-border-vertical</span></code> - the character to use for the vertical borders of
+a table defined by a <a class="reference internal" href="skool-macros.html#table"><span class="std std-ref">#TABLE</span></a> macro (default: <code class="docutils literal notranslate"><span class="pre">|</span></code>)</li>
+<li><code class="docutils literal notranslate"><span class="pre">warnings</span></code> - <code class="docutils literal notranslate"><span class="pre">1</span></code> to print any warnings that are produced while writing
+ASM output (after parsing the skool file), or <code class="docutils literal notranslate"><span class="pre">0</span></code> to suppress them
+(default: <code class="docutils literal notranslate"><span class="pre">1</span></code>)</li>
+<li><code class="docutils literal notranslate"><span class="pre">wrap-column-width-min</span></code> - the minimum width of a wrappable table column
+(default: <code class="docutils literal notranslate"><span class="pre">10</span></code>)</li>
 </ul>
 <p>For example:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>@set-bullet=+
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>@set-bullet=+
 </pre></div>
 </div>
-<p>This <code class="docutils literal"><span class="pre">&#64;set</span></code> directive sets the bullet character to &#8216;+&#8217;.</p>
+<p>This <code class="docutils literal notranslate"><span class="pre">&#64;set</span></code> directive sets the bullet character to ‘+’.</p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="13%" />
-<col width="87%" />
+<col width="12%" />
+<col width="88%" />
 </colgroup>
 <thead valign="bottom">
 <tr class="row-odd"><th class="head">Version</th>
@@ -1373,16 +1375,20 @@ ASM output (after parsing the skool file), or <code class="docutils literal"><sp
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>3.4</td>
-<td>Added the <code class="docutils literal"><span class="pre">handle-unsupported-macros</span></code> and
-<code class="docutils literal"><span class="pre">wrap-column-width-min</span></code> properties</td>
+<tr class="row-even"><td>8.0</td>
+<td>Added the <code class="docutils literal notranslate"><span class="pre">table-border-horizontal</span></code>, <code class="docutils literal notranslate"><span class="pre">table-border-join</span></code>
+and <code class="docutils literal notranslate"><span class="pre">table-border-vertical</span></code> properties</td>
 </tr>
-<tr class="row-odd"><td>3.3.1</td>
-<td>Added the <code class="docutils literal"><span class="pre">comment-width-min</span></code>, <code class="docutils literal"><span class="pre">indent</span></code>,
-<code class="docutils literal"><span class="pre">instruction-width</span></code>, <code class="docutils literal"><span class="pre">label-colons</span></code>, <code class="docutils literal"><span class="pre">line-width</span></code> and
-<code class="docutils literal"><span class="pre">warnings</span></code> properties</td>
+<tr class="row-odd"><td>3.4</td>
+<td>Added the <code class="docutils literal notranslate"><span class="pre">handle-unsupported-macros</span></code> and
+<code class="docutils literal notranslate"><span class="pre">wrap-column-width-min</span></code> properties</td>
 </tr>
-<tr class="row-even"><td>3.2</td>
+<tr class="row-even"><td>3.3.1</td>
+<td>Added the <code class="docutils literal notranslate"><span class="pre">comment-width-min</span></code>, <code class="docutils literal notranslate"><span class="pre">indent</span></code>,
+<code class="docutils literal notranslate"><span class="pre">instruction-width</span></code>, <code class="docutils literal notranslate"><span class="pre">label-colons</span></code>, <code class="docutils literal notranslate"><span class="pre">line-width</span></code> and
+<code class="docutils literal notranslate"><span class="pre">warnings</span></code> properties</td>
+</tr>
+<tr class="row-odd"><td>3.2</td>
 <td>New</td>
 </tr>
 </tbody>
@@ -1390,7 +1396,7 @@ ASM output (after parsing the skool file), or <code class="docutils literal"><sp
 </div>
 <div class="section" id="ssub">
 <span id="id21"></span><h3>&#64;ssub<a class="headerlink" href="#ssub" title="Permalink to this headline">¶</a></h3>
-<p>The <code class="docutils literal"><span class="pre">&#64;ssub</span></code> directive replaces, inserts or removes a label, instruction and
+<p>The <code class="docutils literal notranslate"><span class="pre">&#64;ssub</span></code> directive replaces, inserts or removes a label, instruction and
 comment in <a class="reference internal" href="#ssubmode"><span class="std std-ref">&#64;ssub mode</span></a>.</p>
 <p>The syntax is equivalent to that for the <a class="reference internal" href="#bfix"><span class="std std-ref">&#64;bfix</span></a> directive.</p>
 <table border="1" class="docutils">
@@ -1405,7 +1411,7 @@ comment in <a class="reference internal" href="#ssubmode"><span class="std std-r
 </thead>
 <tbody valign="top">
 <tr class="row-even"><td>7.1</td>
-<td>Added support for the <code class="docutils literal"><span class="pre">+</span></code> marker (to insert an instruction
+<td>Added support for the <code class="docutils literal notranslate"><span class="pre">+</span></code> marker (to insert an instruction
 after the current one)</td>
 </tr>
 <tr class="row-odd"><td>7.0</td>
@@ -1421,7 +1427,7 @@ and removing instructions</td>
 </div>
 <div class="section" id="ssub-block-directives">
 <span id="ssubblockdirectives"></span><h3>&#64;ssub block directives<a class="headerlink" href="#ssub-block-directives" title="Permalink to this headline">¶</a></h3>
-<p>The <code class="docutils literal"><span class="pre">&#64;ssub</span></code> block directives define a block of lines that will be inserted or
+<p>The <code class="docutils literal notranslate"><span class="pre">&#64;ssub</span></code> block directives define a block of lines that will be inserted or
 removed in <a class="reference internal" href="#ssubmode"><span class="std std-ref">&#64;ssub mode</span></a>.</p>
 <p>The syntax is equivalent to that for the <a class="reference internal" href="#bfixblockdirectives"><span class="std std-ref">&#64;bfix block directives</span></a>.</p>
 <table border="1" class="docutils">
@@ -1443,21 +1449,21 @@ removed in <a class="reference internal" href="#ssubmode"><span class="std std-r
 </div>
 <div class="section" id="start">
 <span id="id22"></span><h3>&#64;start<a class="headerlink" href="#start" title="Permalink to this headline">¶</a></h3>
-<p>The <code class="docutils literal"><span class="pre">&#64;start</span></code> directive indicates where to start parsing the skool file for
-the purpose of generating ASM output. Everything before the <code class="docutils literal"><span class="pre">&#64;start</span></code>
+<p>The <code class="docutils literal notranslate"><span class="pre">&#64;start</span></code> directive indicates where to start parsing the skool file for
+the purpose of generating ASM output. Everything before the <code class="docutils literal notranslate"><span class="pre">&#64;start</span></code>
 directive is ignored by <a class="reference internal" href="commands.html#skool2asm-py"><span class="std std-ref">skool2asm.py</span></a>.</p>
 <p>See also <a class="reference internal" href="#end"><span class="std std-ref">&#64;end</span></a>.</p>
 </div>
 <div class="section" id="writer">
 <span id="id23"></span><h3>&#64;writer<a class="headerlink" href="#writer" title="Permalink to this headline">¶</a></h3>
-<p>The <code class="docutils literal"><span class="pre">&#64;writer</span></code> directive specifies the name of the Python class to use to
+<p>The <code class="docutils literal notranslate"><span class="pre">&#64;writer</span></code> directive specifies the name of the Python class to use to
 generate ASM output. It must be placed somewhere after the <a class="reference internal" href="#start"><span class="std std-ref">&#64;start</span></a>
 directive, and before the <a class="reference internal" href="#end"><span class="std std-ref">&#64;end</span></a> directive (if there is one).</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>@writer=package.module.classname
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>@writer=package.module.classname
 </pre></div>
 </div>
 <p>or:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>@writer=/path/to/moduledir:module.classname
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>@writer=/path/to/moduledir:module.classname
 </pre></div>
 </div>
 <p>The second of these forms may be used to specify a class in a module that is
@@ -1503,17 +1509,20 @@ path</td>
           <a href="genindex.html" title="General Index"
              >index</a></li>
         <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
           <a href="asm-templates.html" title="ASM templates"
              >next</a> |</li>
         <li class="right" >
           <a href="ref-files.html" title="Ref files"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 7.2 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.0 documentation</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2019, Richard Dymond.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.9.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
     </div>
   </body>
 </html>

@@ -1,35 +1,24 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
-
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>Parsing, rendering, and modes &#8212; SkoolKit 7.2 documentation</title>
-    
+    <title>Parsing, rendering, and modes &#8212; SkoolKit 8.0 documentation</title>
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    './',
-        VERSION:     '7.2',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
-      };
-    </script>
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="top" title="SkoolKit 7.2 documentation" href="index.html" />
     <link rel="next" title="Control files" href="control-files.html" />
     <link rel="prev" title="SkoolKit 1.x changelog" href="changelog1.html" /> 
-  </head>
-  <body role="document">
+  </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -37,17 +26,20 @@
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
           <a href="control-files.html" title="Control files"
              accesskey="N">next</a> |</li>
         <li class="right" >
           <a href="changelog1.html" title="SkoolKit 1.x changelog"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 7.2 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.0 documentation</a> &#187;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-  <h3><a href="index.html">Table Of Contents</a></h3>
+  <h3><a href="index.html">Table of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">Parsing, rendering, and modes</a><ul>
 <li><a class="reference internal" href="#parsing">Parsing</a><ul>
@@ -73,18 +65,20 @@
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="_sources/parsing.txt"
+      <li><a href="_sources/parsing.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
+    </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -107,7 +101,7 @@ rendering.</p>
 reading each line of the file, and processing any relevant
 <a class="reference internal" href="asm.html#asmdirectives"><span class="std std-ref">ASM directives</span></a> that are found along the way.</p>
 <p>After an ASM directive has been processed, it is discarded, so that it cannot
-be &#8216;seen&#8217; during the rendering phase. The purpose of the ASM directives is to
+be ‘seen’ during the rendering phase. The purpose of the ASM directives is to
 transform the skool file into something suitable for rendering (in either HTML
 or ASM format) later on.</p>
 <p>Whether a particular ASM directive is processed depends on the mode in which
@@ -144,17 +138,17 @@ the output if the corresponding ASM mode (<a class="reference internal" href="as
 version to include in the output if the corresponding ASM mode is not in
 effect - which will always be the case when parsing in HTML mode.</p>
 <p>For example:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>@bfix-begin
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>@bfix-begin
  32459 CP 26  ; This is a bug; it should be &#39;CP 27&#39;
 @bfix+else
        CP 27  ;
 @bfix+end
 </pre></div>
 </div>
-<p>This instance of a <code class="docutils literal"><span class="pre">&#64;bfix</span></code> block directive defines two versions of a section
-of code. The first version (between <code class="docutils literal"><span class="pre">&#64;bfix-begin</span></code> and <code class="docutils literal"><span class="pre">&#64;bfix+else</span></code>) will be
-included in the HTML output, and the second version (between <code class="docutils literal"><span class="pre">&#64;bfix+else</span></code> and
-<code class="docutils literal"><span class="pre">&#64;bfix+end</span></code>) will be omitted.</p>
+<p>This instance of a <code class="docutils literal notranslate"><span class="pre">&#64;bfix</span></code> block directive defines two versions of a section
+of code. The first version (between <code class="docutils literal notranslate"><span class="pre">&#64;bfix-begin</span></code> and <code class="docutils literal notranslate"><span class="pre">&#64;bfix+else</span></code>) will be
+included in the HTML output, and the second version (between <code class="docutils literal notranslate"><span class="pre">&#64;bfix+else</span></code> and
+<code class="docutils literal notranslate"><span class="pre">&#64;bfix+end</span></code>) will be omitted.</p>
 </div>
 <div class="section" id="asm-mode">
 <h3>ASM mode<a class="headerlink" href="#asm-mode" title="Permalink to this headline">¶</a></h3>
@@ -165,7 +159,7 @@ running <cite>skool2asm.py</cite>. In ASM mode, all ASM directives are processed
 <div class="section" id="rendering">
 <h2>Rendering<a class="headerlink" href="#rendering" title="Permalink to this headline">¶</a></h2>
 <p>In the second phase, the skool file (stripped of all its ASM directives during
-the parsing phase) is &#8216;rendered&#8217; - as either HTML or ASM, depending on the
+the parsing phase) is ‘rendered’ - as either HTML or ASM, depending on the
 mode.</p>
 <div class="section" id="id1">
 <h3>HTML mode<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
@@ -196,17 +190,20 @@ way are expanded to some appropriate plain text.</p>
           <a href="genindex.html" title="General Index"
              >index</a></li>
         <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
           <a href="control-files.html" title="Control files"
              >next</a> |</li>
         <li class="right" >
           <a href="changelog1.html" title="SkoolKit 1.x changelog"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 7.2 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.0 documentation</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2019, Richard Dymond.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.9.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
     </div>
   </body>
 </html>

@@ -1,34 +1,24 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
-
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>Extending SkoolKit &#8212; SkoolKit 7.2 documentation</title>
-    
+    <title>Extending SkoolKit &#8212; SkoolKit 8.0 documentation</title>
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    './',
-        VERSION:     '7.2',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
-      };
-    </script>
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="top" title="SkoolKit 7.2 documentation" href="index.html" />
+    <link rel="next" title="SkoolKit components" href="components.html" />
     <link rel="prev" title="HTML templates" href="html-templates.html" /> 
-  </head>
-  <body role="document">
+  </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -36,14 +26,20 @@
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="components.html" title="SkoolKit components"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
           <a href="html-templates.html" title="HTML templates"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 7.2 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.0 documentation</a> &#187;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-  <h3><a href="index.html">Table Of Contents</a></h3>
+  <h3><a href="index.html">Table of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">Extending SkoolKit</a><ul>
 <li><a class="reference internal" href="#extension-modules">Extension modules</a></li>
@@ -65,21 +61,26 @@
   <h4>Previous topic</h4>
   <p class="topless"><a href="html-templates.html"
                         title="previous chapter">HTML templates</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="components.html"
+                        title="next chapter">SkoolKit components</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="_sources/extending.txt"
+      <li><a href="_sources/extending.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
+    </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -94,23 +95,23 @@
 <span id="extendingskoolkit"></span><h1>Extending SkoolKit<a class="headerlink" href="#extending-skoolkit" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="extension-modules">
 <h2>Extension modules<a class="headerlink" href="#extension-modules" title="Permalink to this headline">¶</a></h2>
-<p>While creating a disassembly of a game, you may find that SkoolKit&#8217;s suite of
+<p>While creating a disassembly of a game, you may find that SkoolKit’s suite of
 <a class="reference internal" href="skool-macros.html#skoolmacros"><span class="std std-ref">skool macros</span></a> is inadequate for certain tasks. For example,
 the game might have large tile-based sprites that you want to create images of
-for the HTML disassembly, and composing long <code class="docutils literal"><span class="pre">#UDGARRAY</span></code> macros for them or
-defining a new sprite-building macro with the <code class="docutils literal"><span class="pre">&#64;replace</span></code> directive (see
+for the HTML disassembly, and composing long <code class="docutils literal notranslate"><span class="pre">#UDGARRAY</span></code> macros for them or
+defining a new sprite-building macro with the <code class="docutils literal notranslate"><span class="pre">&#64;replace</span></code> directive (see
 <a class="reference internal" href="skool-macros.html#definingmacroswithreplace"><span class="std std-ref">Defining macros with &#64;replace</span></a>) would be too tedious or impractical. Or you
 might want to insert a timestamp somewhere in the ASM disassembly so that you
 (or others) can keep track of when your ASM files were written.</p>
 <p>One way to solve these problems is to add custom methods that could be called
-by a <a class="reference internal" href="skool-macros.html#call"><span class="std std-ref">#CALL</span></a> macro. But where to add the methods? SkoolKit&#8217;s core
+by a <a class="reference internal" href="skool-macros.html#call"><span class="std std-ref">#CALL</span></a> macro. But where to add the methods? SkoolKit’s core
 HTML writer and ASM writer classes are skoolkit.skoolhtml.HtmlWriter and
 skoolkit.skoolasm.AsmWriter, so you could add the methods to those classes. But
 a better way is to subclass HtmlWriter and AsmWriter in a separate extension
 module, and add the methods there; then that extension module can be easily
 used with different versions of SkoolKit, and shared with other people.</p>
 <p>A minimal extension module would look like this:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">skoolkit.skoolhtml</span> <span class="kn">import</span> <span class="n">HtmlWriter</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">skoolkit.skoolhtml</span> <span class="kn">import</span> <span class="n">HtmlWriter</span>
 <span class="kn">from</span> <span class="nn">skoolkit.skoolasm</span> <span class="kn">import</span> <span class="n">AsmWriter</span>
 
 <span class="k">class</span> <span class="nc">GameHtmlWriter</span><span class="p">(</span><span class="n">HtmlWriter</span><span class="p">):</span>
@@ -121,54 +122,54 @@ used with different versions of SkoolKit, and shared with other people.</p>
 </pre></div>
 </div>
 <p>The next step is to get SkoolKit to use the extension module for your game.
-First, place the extension module (let&#8217;s call it <cite>game.py</cite>) in the <cite>skoolkit</cite>
+First, place the extension module (let’s call it <cite>game.py</cite>) in the <cite>skoolkit</cite>
 package directory; to locate this directory, run <a class="reference internal" href="commands.html#skool2html-py"><span class="std std-ref">skool2html.py</span></a> with the
-<code class="docutils literal"><span class="pre">-p</span></code> option:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>$ skool2html.py -p
+<code class="docutils literal notranslate"><span class="pre">-p</span></code> option:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ skool2html.py -p
 /usr/lib/python3/dist-packages/skoolkit
 </pre></div>
 </div>
 <p>(The package directory may be different on your system.) With <cite>game.py</cite> in
 place, add the following line to the <a class="reference internal" href="ref-files.html#ref-config"><span class="std std-ref">[Config]</span></a> section of your
-disassembly&#8217;s ref file:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>HtmlWriterClass=skoolkit.game.GameHtmlWriter
+disassembly’s ref file:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>HtmlWriterClass=skoolkit.game.GameHtmlWriter
 </pre></div>
 </div>
-<p>If you don&#8217;t have a ref file yet, create one (ideally named <cite>game.ref</cite>,
-assuming the skool file is <cite>game.skool</cite>); if the ref file doesn&#8217;t have a
+<p>If you don’t have a ref file yet, create one (ideally named <cite>game.ref</cite>,
+assuming the skool file is <cite>game.skool</cite>); if the ref file doesn’t have a
 <a class="reference internal" href="ref-files.html#ref-config"><span class="std std-ref">[Config]</span></a> section yet, add one.</p>
 <p>Now whenever <a class="reference internal" href="commands.html#skool2html-py"><span class="std std-ref">skool2html.py</span></a> is run on your skool file (or ref file),
 SkoolKit will use the GameHtmlWriter class instead of the core HtmlWriter
 class.</p>
 <p>To get <a class="reference internal" href="commands.html#skool2asm-py"><span class="std std-ref">skool2asm.py</span></a> to use GameAsmWriter instead of the core AsmWriter
-class when it&#8217;s run on your skool file, add the following <a class="reference internal" href="asm.html#writer"><span class="std std-ref">&#64;writer</span></a> ASM
-directive somewhere after the <code class="docutils literal"><span class="pre">&#64;start</span></code> directive, and before the <code class="docutils literal"><span class="pre">&#64;end</span></code>
+class when it’s run on your skool file, add the following <a class="reference internal" href="asm.html#writer"><span class="std std-ref">&#64;writer</span></a> ASM
+directive somewhere after the <code class="docutils literal notranslate"><span class="pre">&#64;start</span></code> directive, and before the <code class="docutils literal notranslate"><span class="pre">&#64;end</span></code>
 directive (if there is one):</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>@writer=skoolkit.game.GameAsmWriter
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>@writer=skoolkit.game.GameAsmWriter
 </pre></div>
 </div>
 <p>The <cite>skoolkit</cite> package directory is a reasonable place for an extension module,
 but it could be placed in another package, or somewhere else as a standalone
 module. For example, if you wanted to keep a standalone extension module named
-<cite>game.py</cite> in <cite>~/.skoolkit</cite>, you should set the <code class="docutils literal"><span class="pre">HtmlWriterClass</span></code> parameter
+<cite>game.py</cite> in <cite>~/.skoolkit</cite>, you should set the <code class="docutils literal notranslate"><span class="pre">HtmlWriterClass</span></code> parameter
 thus:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>HtmlWriterClass=~/.skoolkit:game.GameHtmlWriter
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>HtmlWriterClass=~/.skoolkit:game.GameHtmlWriter
 </pre></div>
 </div>
-<p>and the <code class="docutils literal"><span class="pre">&#64;writer</span></code> directive thus:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>@writer=~/.skoolkit:game.GameAsmWriter
+<p>and the <code class="docutils literal notranslate"><span class="pre">&#64;writer</span></code> directive thus:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>@writer=~/.skoolkit:game.GameAsmWriter
 </pre></div>
 </div>
 <p>The HTML writer or ASM writer class can also be specified on the command line
-by using the <code class="docutils literal"><span class="pre">-W</span></code>/<code class="docutils literal"><span class="pre">--writer</span></code> option of <a class="reference internal" href="commands.html#skool2html-py"><span class="std std-ref">skool2html.py</span></a> or
+by using the <code class="docutils literal notranslate"><span class="pre">-W</span></code>/<code class="docutils literal notranslate"><span class="pre">--writer</span></code> option of <a class="reference internal" href="commands.html#skool2html-py"><span class="std std-ref">skool2html.py</span></a> or
 <a class="reference internal" href="commands.html#skool2asm-py"><span class="std std-ref">skool2asm.py</span></a>. For example:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>$ skool2html.py -W ~/.skoolkit:game.GameHtmlWriter game.skool
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ skool2html.py -W ~/.skoolkit:game.GameHtmlWriter game.skool
 </pre></div>
 </div>
-<p>Specifying the writer class this way will override any <code class="docutils literal"><span class="pre">HtmlWriterClass</span></code>
-parameter in the ref file or <code class="docutils literal"><span class="pre">&#64;writer</span></code> directive in the skool file.</p>
+<p>Specifying the writer class this way will override any <code class="docutils literal notranslate"><span class="pre">HtmlWriterClass</span></code>
+parameter in the ref file or <code class="docutils literal notranslate"><span class="pre">&#64;writer</span></code> directive in the skool file.</p>
 <p>Note that if the writer class is specified with a blank module path (e.g.
-<code class="docutils literal"><span class="pre">:game.GameHtmlWriter</span></code>), SkoolKit will search for the module in both the
+<code class="docutils literal notranslate"><span class="pre">:game.GameHtmlWriter</span></code>), SkoolKit will search for the module in both the
 current working directory and the directory containing the skool file named on
 the command line.</p>
 </div>
@@ -177,17 +178,17 @@ the command line.</p>
 <p>Implementing a method that can be called by a <a class="reference internal" href="skool-macros.html#call"><span class="std std-ref">#CALL</span></a> macro is done by
 adding the method to the HtmlWriter or AsmWriter subclass in the extension
 module.</p>
-<p>One thing to be aware of when adding a <code class="docutils literal"><span class="pre">#CALL</span></code> method to a subclass of
+<p>One thing to be aware of when adding a <code class="docutils literal notranslate"><span class="pre">#CALL</span></code> method to a subclass of
 HtmlWriter is that the method must accept an extra parameter in addition to
-those passed from the <code class="docutils literal"><span class="pre">#CALL</span></code> macro itself: <cite>cwd</cite>. This parameter is set to
-the current working directory of the file from which the <code class="docutils literal"><span class="pre">#CALL</span></code> macro is
+those passed from the <code class="docutils literal notranslate"><span class="pre">#CALL</span></code> macro itself: <cite>cwd</cite>. This parameter is set to
+the current working directory of the file from which the <code class="docutils literal notranslate"><span class="pre">#CALL</span></code> macro is
 executed, which may be useful if the method needs to provide a hyperlink to
 some other part of the disassembly (as in the case where an image is being
 created).</p>
-<p>Let&#8217;s say your sprite-image-creating method will accept two parameters (in
+<p>Let’s say your sprite-image-creating method will accept two parameters (in
 addition to <cite>cwd</cite>): <cite>sprite_id</cite> (the sprite identifier) and  <cite>fname</cite> (the image
-filename). The method (let&#8217;s call it <cite>sprite</cite>) would look something like this:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">skoolkit.graphics</span> <span class="kn">import</span> <span class="n">Frame</span>
+filename). The method (let’s call it <cite>sprite</cite>) would look something like this:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">skoolkit.graphics</span> <span class="kn">import</span> <span class="n">Frame</span>
 <span class="kn">from</span> <span class="nn">skoolkit.skoolhtml</span> <span class="kn">import</span> <span class="n">HtmlWriter</span>
 
 <span class="k">class</span> <span class="nc">GameHtmlWriter</span><span class="p">(</span><span class="n">HtmlWriter</span><span class="p">):</span>
@@ -197,17 +198,17 @@ filename). The method (let&#8217;s call it <cite>sprite</cite>) would look somet
 </pre></div>
 </div>
 <p>With this method (and an appropriate implementation of the <cite>build_sprite</cite>
-method) in place, it&#8217;s possible to use a <code class="docutils literal"><span class="pre">#CALL</span></code> macro like this:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>#UDGTABLE
+method) in place, it’s possible to use a <code class="docutils literal notranslate"><span class="pre">#CALL</span></code> macro like this:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>#UDGTABLE
 { #CALL:sprite(3,jumping) }
 { Sprite 3 (jumping) }
 TABLE#
 </pre></div>
 </div>
-<p>Adding a <code class="docutils literal"><span class="pre">#CALL</span></code> method to the AsmWriter subclass is equally simple. The
-timestamp-creating method (let&#8217;s call it <cite>timestamp</cite>) would look something like
+<p>Adding a <code class="docutils literal notranslate"><span class="pre">#CALL</span></code> method to the AsmWriter subclass is equally simple. The
+timestamp-creating method (let’s call it <cite>timestamp</cite>) would look something like
 this:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">time</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">time</span>
 <span class="kn">from</span> <span class="nn">skoolkit.skoolasm</span> <span class="kn">import</span> <span class="n">AsmWriter</span>
 
 <span class="k">class</span> <span class="nc">GameAsmWriter</span><span class="p">(</span><span class="n">AsmWriter</span><span class="p">):</span>
@@ -215,53 +216,53 @@ this:</p>
         <span class="k">return</span> <span class="n">time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%a </span><span class="si">%d</span><span class="s2"> %b %Y %H:%M:%S %Z&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>With this method in place, it&#8217;s possible to use a <code class="docutils literal"><span class="pre">#CALL</span></code> macro like this:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>; This ASM file was generated on #CALL:timestamp()
+<p>With this method in place, it’s possible to use a <code class="docutils literal notranslate"><span class="pre">#CALL</span></code> macro like this:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>; This ASM file was generated on #CALL:timestamp()
 </pre></div>
 </div>
-<p>Note that if the return value of a <code class="docutils literal"><span class="pre">#CALL</span></code> method contains skool macros, then
+<p>Note that if the return value of a <code class="docutils literal notranslate"><span class="pre">#CALL</span></code> method contains skool macros, then
 they will be expanded.</p>
 </div>
 <div class="section" id="skool-macros">
 <h2>Skool macros<a class="headerlink" href="#skool-macros" title="Permalink to this headline">¶</a></h2>
 <p>Another way to add a custom method is to implement it as a skool macro. The
-main differences between a skool macro and a <code class="docutils literal"><span class="pre">#CALL</span></code> method are:</p>
+main differences between a skool macro and a <code class="docutils literal notranslate"><span class="pre">#CALL</span></code> method are:</p>
 <ul class="simple">
-<li>a <code class="docutils literal"><span class="pre">#CALL</span></code> macro&#8217;s parameters are automatically evaluated and passed to the
-<code class="docutils literal"><span class="pre">#CALL</span></code> method; a skool macro&#8217;s parameters must be parsed and evaluated
+<li>a <code class="docutils literal notranslate"><span class="pre">#CALL</span></code> macro’s parameters are automatically evaluated and passed to the
+<code class="docutils literal notranslate"><span class="pre">#CALL</span></code> method; a skool macro’s parameters must be parsed and evaluated
 manually (typically by using one or more of the
 <a class="reference internal" href="#ext-macroparsing"><span class="std std-ref">macro-parsing utility functions</span></a>)</li>
 <li>every optional parameter in a skool macro can be assigned a default value if
-omitted; in a <code class="docutils literal"><span class="pre">#CALL</span></code> method, only the optional arguments at the end can be
+omitted; in a <code class="docutils literal notranslate"><span class="pre">#CALL</span></code> method, only the optional arguments at the end can be
 assigned default values if omitted, whereas any others are set to <cite>None</cite></li>
-<li>numeric parameters in a <code class="docutils literal"><span class="pre">#CALL</span></code> macro are automatically converted to
-numbers before being passed to the <code class="docutils literal"><span class="pre">#CALL</span></code> method; no automatic conversion
+<li>numeric parameters in a <code class="docutils literal notranslate"><span class="pre">#CALL</span></code> macro are automatically converted to
+numbers before being passed to the <code class="docutils literal notranslate"><span class="pre">#CALL</span></code> method; no automatic conversion
 is done on the parameters of a skool macro</li>
 </ul>
-<p>In summary: a <code class="docutils literal"><span class="pre">#CALL</span></code> method is generally simpler to implement than a skool
+<p>In summary: a <code class="docutils literal notranslate"><span class="pre">#CALL</span></code> method is generally simpler to implement than a skool
 macro, but skool macros are more flexible.</p>
 <p>Implementing a skool macro is done by adding a method named <cite>expand_macroname</cite>
 to the HtmlWriter or AsmWriter subclass in the extension module. So, to
-implement a <code class="docutils literal"><span class="pre">#SPRITE</span></code> or <code class="docutils literal"><span class="pre">#TIMESTAMP</span></code> macro, we would add a method named
+implement a <code class="docutils literal notranslate"><span class="pre">#SPRITE</span></code> or <code class="docutils literal notranslate"><span class="pre">#TIMESTAMP</span></code> macro, we would add a method named
 <cite>expand_sprite</cite> or <cite>expand_timestamp</cite>.</p>
 <p>A skool macro method must accept either two or three parameters, depending on
 whether it is implemented on a subclass of AsmWriter or HtmlWriter:</p>
 <ul class="simple">
-<li><code class="docutils literal"><span class="pre">text</span></code> -  the text that contains the skool macro</li>
-<li><code class="docutils literal"><span class="pre">index</span></code> - the index of the character after the last character of the macro
-name (that is, where to start looking for the macro&#8217;s parameters)</li>
-<li><code class="docutils literal"><span class="pre">cwd</span></code> - the current working directory of the file from which the macro is
+<li><code class="docutils literal notranslate"><span class="pre">text</span></code> -  the text that contains the skool macro</li>
+<li><code class="docutils literal notranslate"><span class="pre">index</span></code> - the index of the character after the last character of the macro
+name (that is, where to start looking for the macro’s parameters)</li>
+<li><code class="docutils literal notranslate"><span class="pre">cwd</span></code> - the current working directory of the file from which the macro is
 being executed; this parameter must be supported by skool macro methods on an
 HtmlWriter subclass</li>
 </ul>
-<p>A skool macro method must return a 2-tuple of the form <code class="docutils literal"><span class="pre">(end,</span> <span class="pre">string)</span></code>, where
-<code class="docutils literal"><span class="pre">end</span></code> is the index of the character after the last character of the macro&#8217;s
-parameter string, and <code class="docutils literal"><span class="pre">string</span></code> is the HTML or text to which the macro will be
-expanded. Note that if <code class="docutils literal"><span class="pre">string</span></code> itself contains skool macros, then they will
+<p>A skool macro method must return a 2-tuple of the form <code class="docutils literal notranslate"><span class="pre">(end,</span> <span class="pre">string)</span></code>, where
+<code class="docutils literal notranslate"><span class="pre">end</span></code> is the index of the character after the last character of the macro’s
+parameter string, and <code class="docutils literal notranslate"><span class="pre">string</span></code> is the HTML or text to which the macro will be
+expanded. Note that if <code class="docutils literal notranslate"><span class="pre">string</span></code> itself contains skool macros, then they will
 be expanded.</p>
 <p>The <cite>expand_sprite</cite> method on GameHtmlWriter may therefore look something like
 this:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">skoolkit.graphics</span> <span class="kn">import</span> <span class="n">Frame</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">skoolkit.graphics</span> <span class="kn">import</span> <span class="n">Frame</span>
 <span class="kn">from</span> <span class="nn">skoolkit.skoolhtml</span> <span class="kn">import</span> <span class="n">HtmlWriter</span>
 <span class="kn">from</span> <span class="nn">skoolkit.skoolmacro</span> <span class="kn">import</span> <span class="n">parse_image_macro</span>
 
@@ -275,15 +276,15 @@ this:</p>
 </pre></div>
 </div>
 <p>With this method (and an appropriate implementation of the <cite>build_sprite</cite>
-method) in place, the <code class="docutils literal"><span class="pre">#SPRITE</span></code> macro might be used like this:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>#UDGTABLE
+method) in place, the <code class="docutils literal notranslate"><span class="pre">#SPRITE</span></code> macro might be used like this:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>#UDGTABLE
 { #SPRITE3(jumping) }
 { Sprite 3 (jumping) }
 TABLE#
 </pre></div>
 </div>
 <p>The <cite>expand_timestamp</cite> method on GameAsmWriter would look something like this:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">time</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">time</span>
 <span class="kn">from</span> <span class="nn">skoolkit.skoolasm</span> <span class="kn">import</span> <span class="n">AsmWriter</span>
 
 <span class="k">class</span> <span class="nc">GameAsmWriter</span><span class="p">(</span><span class="n">AsmWriter</span><span class="p">):</span>
@@ -308,24 +309,24 @@ expressed using arithmetic operators and skool macros. See
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>text</strong> &#8211; The text to parse.</li>
-<li><strong>index</strong> &#8211; The index at which to start parsing.</li>
-<li><strong>num</strong> &#8211; The maximum number of parameters to parse; this is set to the
+<li><strong>text</strong> – The text to parse.</li>
+<li><strong>index</strong> – The index at which to start parsing.</li>
+<li><strong>num</strong> – The maximum number of parameters to parse; this is set to the
 number of elements in <cite>names</cite> if that list is not empty.</li>
-<li><strong>defaults</strong> &#8211; The default values of the optional parameters.</li>
-<li><strong>names</strong> &#8211; The names of the parameters; if not empty, keyword arguments
+<li><strong>defaults</strong> – The default values of the optional parameters.</li>
+<li><strong>names</strong> – The names of the parameters; if not empty, keyword arguments
 are parsed. Parameter names are restricted to lower case
 letters (a-z).</li>
-<li><strong>fields</strong> &#8211; A dictionary of replacement field names and values. The
+<li><strong>fields</strong> – A dictionary of replacement field names and values. The
 fields named in this dictionary are replaced by their values
 wherever they appear in the parameter string.</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><p>A list of the form <code class="docutils literal"><span class="pre">[end,</span> <span class="pre">value1,</span> <span class="pre">value2...]</span></code>, where:</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><p>A list of the form <code class="docutils literal notranslate"><span class="pre">[end,</span> <span class="pre">value1,</span> <span class="pre">value2...]</span></code>, where:</p>
 <ul class="simple">
-<li><code class="docutils literal"><span class="pre">end</span></code> is the index at which parsing terminated</li>
-<li><code class="docutils literal"><span class="pre">value1</span></code>, <code class="docutils literal"><span class="pre">value2</span></code> etc. are the parameter values</li>
+<li><code class="docutils literal notranslate"><span class="pre">end</span></code> is the index at which parsing terminated</li>
+<li><code class="docutils literal notranslate"><span class="pre">value1</span></code>, <code class="docutils literal notranslate"><span class="pre">value2</span></code> etc. are the parameter values</li>
 </ul>
 </p>
 </td>
@@ -357,18 +358,19 @@ and separator may be used; see <a class="reference internal" href="skool-macros.
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>text</strong> &#8211; The text to parse.</li>
-<li><strong>index</strong> &#8211; The index at which to start parsing.</li>
-<li><strong>num</strong> &#8211; The maximum number of parameters to parse; if 0, all parameters
-are parsed.</li>
-<li><strong>defaults</strong> &#8211; The default values of the optional parameters.</li>
+<li><strong>text</strong> – The text to parse.</li>
+<li><strong>index</strong> – The index at which to start parsing.</li>
+<li><strong>num</strong> – The maximum number of parameters to parse. If 0, all parameters
+are parsed; if 1, the entire parameter string is parsed as a
+single parameter, regardless of commas.</li>
+<li><strong>defaults</strong> – The default values of the optional parameters.</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><p>A tuple of the form <code class="docutils literal"><span class="pre">(end,</span> <span class="pre">result)</span></code>, where:</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><p>A tuple of the form <code class="docutils literal notranslate"><span class="pre">(end,</span> <span class="pre">result)</span></code>, where:</p>
 <ul class="simple">
-<li><code class="docutils literal"><span class="pre">end</span></code> is the index at which parsing terminated</li>
-<li><code class="docutils literal"><span class="pre">result</span></code> is either the single parameter itself (when <cite>num</cite> is
+<li><code class="docutils literal notranslate"><span class="pre">end</span></code> is the index at which parsing terminated</li>
+<li><code class="docutils literal notranslate"><span class="pre">result</span></code> is either the single parameter itself (when <cite>num</cite> is
 1), or a list of the parameters</li>
 </ul>
 </p>
@@ -391,18 +393,18 @@ arbitrary pair of delimiters.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>text</strong> &#8211; The text to parse.</li>
-<li><strong>index</strong> &#8211; The index at which to start parsing.</li>
-<li><strong>default</strong> &#8211; The default value if no string parameter is found.</li>
-<li><strong>opening</strong> &#8211; The opening delimiter.</li>
-<li><strong>closing</strong> &#8211; The closing delimiter.</li>
+<li><strong>text</strong> – The text to parse.</li>
+<li><strong>index</strong> – The index at which to start parsing.</li>
+<li><strong>default</strong> – The default value if no string parameter is found.</li>
+<li><strong>opening</strong> – The opening delimiter.</li>
+<li><strong>closing</strong> – The closing delimiter.</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><p>A tuple of the form <code class="docutils literal"><span class="pre">(end,</span> <span class="pre">param)</span></code>, where:</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><p>A tuple of the form <code class="docutils literal notranslate"><span class="pre">(end,</span> <span class="pre">param)</span></code>, where:</p>
 <ul class="simple">
-<li><code class="docutils literal"><span class="pre">end</span></code> is the index at which parsing terminated</li>
-<li><code class="docutils literal"><span class="pre">param</span></code> is the string parameter (or <cite>default</cite> if none is
+<li><code class="docutils literal notranslate"><span class="pre">end</span></code> is the index at which parsing terminated</li>
+<li><code class="docutils literal notranslate"><span class="pre">param</span></code> is the string parameter (or <cite>default</cite> if none is
 found)</li>
 </ul>
 </p>
@@ -419,8 +421,8 @@ found)</li>
 <dt id="skoolkit.skoolmacro.parse_image_macro">
 <code class="descclassname">skoolkit.skoolmacro.</code><code class="descname">parse_image_macro</code><span class="sig-paren">(</span><em>text</em>, <em>index=0</em>, <em>defaults=()</em>, <em>names=()</em>, <em>fname=''</em><span class="sig-paren">)</span><a class="headerlink" href="#skoolkit.skoolmacro.parse_image_macro" title="Permalink to this definition">¶</a></dt>
 <dd><p>Parse a string of the form:</p>
-<p><code class="docutils literal"><span class="pre">[params][{x,y,width,height}][(fname[*frame][|alt])]</span></code></p>
-<p>The parameter string <code class="docutils literal"><span class="pre">params</span></code> may contain comma-separated integer values,
+<p><code class="docutils literal notranslate"><span class="pre">[params][{x,y,width,height}][(fname[*frame][|alt])]</span></code></p>
+<p>The parameter string <code class="docutils literal notranslate"><span class="pre">params</span></code> may contain comma-separated integer values,
 and may optionally be enclosed in parentheses. Parentheses are <em>required</em>
 if any parameter is expressed using arithmetic operations or skool macros.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -428,23 +430,23 @@ if any parameter is expressed using arithmetic operations or skool macros.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>text</strong> &#8211; The text to parse.</li>
-<li><strong>index</strong> &#8211; The index at which to start parsing.</li>
-<li><strong>defaults</strong> &#8211; The default values of the optional parameters.</li>
-<li><strong>names</strong> &#8211; The names of the parameters.</li>
-<li><strong>fname</strong> &#8211; The default base name of the image file.</li>
+<li><strong>text</strong> – The text to parse.</li>
+<li><strong>index</strong> – The index at which to start parsing.</li>
+<li><strong>defaults</strong> – The default values of the optional parameters.</li>
+<li><strong>names</strong> – The names of the parameters.</li>
+<li><strong>fname</strong> – The default base name of the image file.</li>
 </ul>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><p>A tuple of the form
-<code class="docutils literal"><span class="pre">(end,</span> <span class="pre">crop_rect,</span> <span class="pre">fname,</span> <span class="pre">frame,</span> <span class="pre">alt,</span> <span class="pre">values)</span></code>, where:</p>
+<code class="docutils literal notranslate"><span class="pre">(end,</span> <span class="pre">crop_rect,</span> <span class="pre">fname,</span> <span class="pre">frame,</span> <span class="pre">alt,</span> <span class="pre">values)</span></code>, where:</p>
 <ul class="simple">
-<li><code class="docutils literal"><span class="pre">end</span></code> is the index at which parsing terminated</li>
-<li><code class="docutils literal"><span class="pre">crop_rect</span></code> is <code class="docutils literal"><span class="pre">(x,</span> <span class="pre">y,</span> <span class="pre">width,</span> <span class="pre">height)</span></code></li>
-<li><code class="docutils literal"><span class="pre">fname</span></code> is the base name of the image file</li>
-<li><code class="docutils literal"><span class="pre">frame</span></code> is the frame name (<cite>None</cite> if no frame is specified)</li>
-<li><code class="docutils literal"><span class="pre">alt</span></code> is the alt text (<cite>None</cite> if no alt text is specified)</li>
-<li><code class="docutils literal"><span class="pre">values</span></code> is a list of the parameter values</li>
+<li><code class="docutils literal notranslate"><span class="pre">end</span></code> is the index at which parsing terminated</li>
+<li><code class="docutils literal notranslate"><span class="pre">crop_rect</span></code> is <code class="docutils literal notranslate"><span class="pre">(x,</span> <span class="pre">y,</span> <span class="pre">width,</span> <span class="pre">height)</span></code></li>
+<li><code class="docutils literal notranslate"><span class="pre">fname</span></code> is the base name of the image file</li>
+<li><code class="docutils literal notranslate"><span class="pre">frame</span></code> is the frame name (<cite>None</cite> if no frame is specified)</li>
+<li><code class="docutils literal notranslate"><span class="pre">alt</span></code> is the alt text (<cite>None</cite> if no alt text is specified)</li>
+<li><code class="docutils literal notranslate"><span class="pre">values</span></code> is a list of the parameter values</li>
 </ul>
 </p>
 </td>
@@ -460,7 +462,7 @@ if any parameter is expressed using arithmetic operations or skool macros.</p>
 <div class="section" id="expanding-skool-macros">
 <h2>Expanding skool macros<a class="headerlink" href="#expanding-skool-macros" title="Permalink to this headline">¶</a></h2>
 <p>Both AsmWriter and HtmlWriter provide methods for expanding skool macros. These
-are useful for immediately expanding macros in a <code class="docutils literal"><span class="pre">#CALL</span></code> method or custom
+are useful for immediately expanding macros in a <code class="docutils literal notranslate"><span class="pre">#CALL</span></code> method or custom
 macro method.</p>
 <dl class="method">
 <dt id="skoolkit.skoolasm.AsmWriter.expand">
@@ -493,13 +495,13 @@ ref files. These methods are described below.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>section_name</strong> &#8211; The section name.</li>
-<li><strong>paragraphs</strong> &#8211; If <cite>True</cite>, return the contents as a list of
+<li><strong>section_name</strong> – The section name.</li>
+<li><strong>paragraphs</strong> – If <cite>True</cite>, return the contents as a list of
 paragraphs.</li>
-<li><strong>lines</strong> &#8211; If <cite>True</cite>, return the contents (or each paragraph) as a
+<li><strong>lines</strong> – If <cite>True</cite>, return the contents (or each paragraph) as a
 list of lines; otherwise return the contents (or each
 paragraph) as a single string.</li>
-<li><strong>trim</strong> &#8211; If <cite>True</cite>, remove leading whitespace from each line.</li>
+<li><strong>trim</strong> – If <cite>True</cite>, remove leading whitespace from each line.</li>
 </ul>
 </td>
 </tr>
@@ -513,25 +515,25 @@ paragraph) as a single string.</li>
 <dl class="method">
 <dt id="skoolkit.skoolhtml.HtmlWriter.get_sections">
 <code class="descclassname">HtmlWriter.</code><code class="descname">get_sections</code><span class="sig-paren">(</span><em>section_type</em>, <em>paragraphs=False</em>, <em>lines=False</em>, <em>trim=True</em><span class="sig-paren">)</span><a class="headerlink" href="#skoolkit.skoolhtml.HtmlWriter.get_sections" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return a list of 2-tuples of the form <code class="docutils literal"><span class="pre">(suffix,</span> <span class="pre">contents)</span></code> or
-3-tuples of the form <code class="docutils literal"><span class="pre">(infix,</span> <span class="pre">suffix,</span> <span class="pre">contents)</span></code> derived from ref
+<dd><p>Return a list of 2-tuples of the form <code class="docutils literal notranslate"><span class="pre">(suffix,</span> <span class="pre">contents)</span></code> or
+3-tuples of the form <code class="docutils literal notranslate"><span class="pre">(infix,</span> <span class="pre">suffix,</span> <span class="pre">contents)</span></code> derived from ref
 file sections whose names start with <cite>section_type</cite> followed by a
-colon. <code class="docutils literal"><span class="pre">suffix</span></code> is the part of the section name that follows either
+colon. <code class="docutils literal notranslate"><span class="pre">suffix</span></code> is the part of the section name that follows either
 the first colon (when there is only one) or the second colon (when
-there is more than one); <code class="docutils literal"><span class="pre">infix</span></code> is the part of the section name
+there is more than one); <code class="docutils literal notranslate"><span class="pre">infix</span></code> is the part of the section name
 between the first and second colons (when there is more than one).</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>section_type</strong> &#8211; The section name prefix.</li>
-<li><strong>paragraphs</strong> &#8211; If <cite>True</cite>, return the contents of each section as a
+<li><strong>section_type</strong> – The section name prefix.</li>
+<li><strong>paragraphs</strong> – If <cite>True</cite>, return the contents of each section as a
 list of paragraphs.</li>
-<li><strong>lines</strong> &#8211; If <cite>True</cite>, return the contents (or each paragraph) of
+<li><strong>lines</strong> – If <cite>True</cite>, return the contents (or each paragraph) of
 each section as a list of lines; otherwise return the
 contents (or each paragraph) as a single string.</li>
-<li><strong>trim</strong> &#8211; If <cite>True</cite>, remove leading whitespace from each line.</li>
+<li><strong>trim</strong> – If <cite>True</cite>, remove leading whitespace from each line.</li>
 </ul>
 </td>
 </tr>
@@ -546,17 +548,17 @@ contents (or each paragraph) as a single string.</li>
 <dt id="skoolkit.skoolhtml.HtmlWriter.get_dictionary">
 <code class="descclassname">HtmlWriter.</code><code class="descname">get_dictionary</code><span class="sig-paren">(</span><em>section_name</em><span class="sig-paren">)</span><a class="headerlink" href="#skoolkit.skoolhtml.HtmlWriter.get_dictionary" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a dictionary built from the contents of a ref file section.
-Each line in the section should be of the form <code class="docutils literal"><span class="pre">X=Y</span></code>.</p>
+Each line in the section should be of the form <code class="docutils literal notranslate"><span class="pre">X=Y</span></code>.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="skoolkit.skoolhtml.HtmlWriter.get_dictionaries">
 <code class="descclassname">HtmlWriter.</code><code class="descname">get_dictionaries</code><span class="sig-paren">(</span><em>section_type</em><span class="sig-paren">)</span><a class="headerlink" href="#skoolkit.skoolhtml.HtmlWriter.get_dictionaries" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return a list of 2-tuples of the form <code class="docutils literal"><span class="pre">(suffix,</span> <span class="pre">dict)</span></code> derived
+<dd><p>Return a list of 2-tuples of the form <code class="docutils literal notranslate"><span class="pre">(suffix,</span> <span class="pre">dict)</span></code> derived
 from ref file sections whose names start with <cite>section_type</cite> followed
-by a colon. <code class="docutils literal"><span class="pre">suffix</span></code> is the part of the section name that follows the
-first colon, and <code class="docutils literal"><span class="pre">dict</span></code> is a dictionary built from the contents of
-that section; each line in the section should be of the form <code class="docutils literal"><span class="pre">X=Y</span></code>.</p>
+by a colon. <code class="docutils literal notranslate"><span class="pre">suffix</span></code> is the part of the section name that follows the
+first colon, and <code class="docutils literal notranslate"><span class="pre">dict</span></code> is a dictionary built from the contents of
+that section; each line in the section should be of the form <code class="docutils literal notranslate"><span class="pre">X=Y</span></code>.</p>
 </dd></dl>
 
 </div>
@@ -566,19 +568,15 @@ that section; each line in the section should be of the form <code class="docuti
 <a class="reference internal" href="ref-files.html#template"><span class="std std-ref">[Template:*]</span></a> section.</p>
 <dl class="method">
 <dt id="skoolkit.skoolhtml.HtmlWriter.format_template">
-<code class="descclassname">HtmlWriter.</code><code class="descname">format_template</code><span class="sig-paren">(</span><em>name</em>, <em>fields</em>, <em>default=None</em><span class="sig-paren">)</span><a class="headerlink" href="#skoolkit.skoolhtml.HtmlWriter.format_template" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">HtmlWriter.</code><code class="descname">format_template</code><span class="sig-paren">(</span><em>name</em>, <em>fields</em><span class="sig-paren">)</span><a class="headerlink" href="#skoolkit.skoolhtml.HtmlWriter.format_template" title="Permalink to this definition">¶</a></dt>
 <dd><p>Format a template with a set of replacement fields.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>name</strong> &#8211; The name of the template.</li>
-<li><strong>fields</strong> &#8211; A dictionary of replacement field names and values.</li>
-<li><strong>default</strong> &#8211; The default template to use if the named template
-cannot be found. If <cite>None</cite>, use the &#8216;PageID-name&#8217;
-template if that exists, or the named template
-otherwise.</li>
+<li><strong>name</strong> – The name of the template.</li>
+<li><strong>fields</strong> – A dictionary of replacement field names and values.</li>
 </ul>
 </td>
 </tr>
@@ -587,19 +585,21 @@ otherwise.</li>
 </tr>
 </tbody>
 </table>
+<div class="versionchanged">
+<p><span class="versionmodified">Changed in version 8.0: </span>Removed the <em>default</em> parameter.</p>
+</div>
 <div class="versionadded">
 <p><span class="versionmodified">New in version 4.0.</span></p>
 </div>
 </dd></dl>
 
-<p>Note that there is typically no need to specify <em>default</em> when formatting a
-user-defined template:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="bp">self</span><span class="o">.</span><span class="n">format_template</span><span class="p">(</span><span class="s1">&#39;custom&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;foo&#39;</span><span class="p">:</span> <span class="s1">&#39;bar&#39;</span><span class="p">})</span>
-</pre></div>
-</div>
-<p>will format the <code class="docutils literal"><span class="pre">PageID-custom</span></code> template (where <code class="docutils literal"><span class="pre">PageID</span></code> is the ID of the
-current page) if it exists, or the <code class="docutils literal"><span class="pre">custom</span></code> template otherwise, in accordance
-with SkoolKit&#8217;s rules for preferring <a class="reference internal" href="html-templates.html#ps-templates"><span class="std std-ref">page-specific templates</span></a>.</p>
+<p>Note that if <em>name</em> is ‘Layout’, the template whose name matches the current
+page ID will be used, if it exists; if no such template exists, the
+<a class="reference internal" href="html-templates.html#t-layout"><span class="std std-ref">Layout</span></a> template will be used. If <em>name</em> is not ‘Layout’, the template
+named <code class="docutils literal notranslate"><span class="pre">PageID-name</span></code> (where <code class="docutils literal notranslate"><span class="pre">PageID</span></code> is the current page ID) will be used,
+if it exists; if no such template exists, the <code class="docutils literal notranslate"><span class="pre">name</span></code> template will be used.
+This is in accordance with SkoolKit’s rules for preferring <a class="reference internal" href="html-templates.html#ps-templates"><span class="std std-ref">page-specific
+templates</span></a>.</p>
 </div>
 <div class="section" id="base-and-case">
 <h2>Base and case<a class="headerlink" href="#base-and-case" title="Permalink to this headline">¶</a></h2>
@@ -608,15 +608,15 @@ to determine the mode in which <a class="reference internal" href="commands.html
 running.</p>
 <p>The <cite>base</cite> attribute has one of the following values:</p>
 <ul class="simple">
-<li>0 - default (neither <code class="docutils literal"><span class="pre">--decimal</span></code> nor <code class="docutils literal"><span class="pre">--hex</span></code>)</li>
-<li>10 - decimal (<code class="docutils literal"><span class="pre">--decimal</span></code>)</li>
-<li>16 - hexadecimal (<code class="docutils literal"><span class="pre">--hex</span></code>)</li>
+<li>0 - default (neither <code class="docutils literal notranslate"><span class="pre">--decimal</span></code> nor <code class="docutils literal notranslate"><span class="pre">--hex</span></code>)</li>
+<li>10 - decimal (<code class="docutils literal notranslate"><span class="pre">--decimal</span></code>)</li>
+<li>16 - hexadecimal (<code class="docutils literal notranslate"><span class="pre">--hex</span></code>)</li>
 </ul>
 <p>The <cite>case</cite> attribute has one of the following values:</p>
 <ul class="simple">
-<li>0 - default (neither <code class="docutils literal"><span class="pre">--lower</span></code> nor <code class="docutils literal"><span class="pre">--upper</span></code>)</li>
-<li>1 - lower case (<code class="docutils literal"><span class="pre">--lower</span></code>)</li>
-<li>2 - upper case (<code class="docutils literal"><span class="pre">--upper</span></code>)</li>
+<li>0 - default (neither <code class="docutils literal notranslate"><span class="pre">--lower</span></code> nor <code class="docutils literal notranslate"><span class="pre">--upper</span></code>)</li>
+<li>1 - lower case (<code class="docutils literal notranslate"><span class="pre">--lower</span></code>)</li>
+<li>2 - upper case (<code class="docutils literal notranslate"><span class="pre">--upper</span></code>)</li>
 </ul>
 <div class="versionadded">
 <p><span class="versionmodified">New in version 6.1.</span></p>
@@ -625,7 +625,7 @@ running.</p>
 <div class="section" id="memory-snapshots">
 <h2>Memory snapshots<a class="headerlink" href="#memory-snapshots" title="Permalink to this headline">¶</a></h2>
 <p>The <cite>snapshot</cite> attribute on HtmlWriter and AsmWriter is a 65536-element list
-that represents the 64K of the Spectrum&#8217;s memory; it is populated when the
+that represents the 64K of the Spectrum’s memory; it is populated when the
 skool file is being parsed.</p>
 <p>HtmlWriter also provides some methods for saving and restoring memory
 snapshots, which can be useful for temporarily changing graphic data or the
@@ -634,12 +634,12 @@ contents of data tables. These methods are described below.</p>
 <dt id="skoolkit.skoolhtml.HtmlWriter.push_snapshot">
 <code class="descclassname">HtmlWriter.</code><code class="descname">push_snapshot</code><span class="sig-paren">(</span><em>name=''</em><span class="sig-paren">)</span><a class="headerlink" href="#skoolkit.skoolhtml.HtmlWriter.push_snapshot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Save a copy of the current memory snapshot for later retrieval (by
-<a class="reference internal" href="#skoolkit.skoolhtml.HtmlWriter.pop_snapshot" title="skoolkit.skoolhtml.HtmlWriter.pop_snapshot"><code class="xref py py-meth docutils literal"><span class="pre">pop_snapshot()</span></code></a>).</p>
+<a class="reference internal" href="#skoolkit.skoolhtml.HtmlWriter.pop_snapshot" title="skoolkit.skoolhtml.HtmlWriter.pop_snapshot"><code class="xref py py-meth docutils literal notranslate"><span class="pre">pop_snapshot()</span></code></a>).</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>name</strong> &#8211; An optional name for the snapshot.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>name</strong> – An optional name for the snapshot.</td>
 </tr>
 </tbody>
 </table>
@@ -649,7 +649,7 @@ contents of data tables. These methods are described below.</p>
 <dt id="skoolkit.skoolhtml.HtmlWriter.pop_snapshot">
 <code class="descclassname">HtmlWriter.</code><code class="descname">pop_snapshot</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#skoolkit.skoolhtml.HtmlWriter.pop_snapshot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Replace the current memory snapshot with the one most recently saved
-by <a class="reference internal" href="#skoolkit.skoolhtml.HtmlWriter.push_snapshot" title="skoolkit.skoolhtml.HtmlWriter.push_snapshot"><code class="xref py py-meth docutils literal"><span class="pre">push_snapshot()</span></code></a>.</p>
+by <a class="reference internal" href="#skoolkit.skoolhtml.HtmlWriter.push_snapshot" title="skoolkit.skoolhtml.HtmlWriter.push_snapshot"><code class="xref py py-meth docutils literal notranslate"><span class="pre">push_snapshot()</span></code></a>.</p>
 </dd></dl>
 
 <dl class="method">
@@ -661,7 +661,7 @@ by <a class="reference internal" href="#skoolkit.skoolhtml.HtmlWriter.push_snaps
 </div>
 <div class="section" id="graphics">
 <span id="ext-graphics"></span><h2>Graphics<a class="headerlink" href="#graphics" title="Permalink to this headline">¶</a></h2>
-<p>If you are going to implement a custom image-creating <code class="docutils literal"><span class="pre">#CALL</span></code> method or skool
+<p>If you are going to implement a custom image-creating <code class="docutils literal notranslate"><span class="pre">#CALL</span></code> method or skool
 macro, you will need to make use of the skoolkit.graphics.Udg and
 skoolkit.graphics.Frame classes.</p>
 <p>The Udg class represents an 8x8 graphic (8 bytes) with a single attribute byte,
@@ -675,9 +675,9 @@ and an optional mask.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>attr</strong> &#8211; The attribute byte.</li>
-<li><strong>data</strong> &#8211; The graphic data (sequence of 8 bytes).</li>
-<li><strong>mask</strong> &#8211; The mask data (sequence of 8 bytes).</li>
+<li><strong>attr</strong> – The attribute byte.</li>
+<li><strong>data</strong> – The graphic data (sequence of 8 bytes).</li>
+<li><strong>mask</strong> – The mask data (sequence of 8 bytes).</li>
 </ul>
 </td>
 </tr>
@@ -688,9 +688,9 @@ and an optional mask.</p>
 </div>
 </dd></dl>
 
-<p>An <code class="docutils literal"><span class="pre">#INVERSE</span></code> macro that creates an inverse image of a UDG with scale 2 might
+<p>An <code class="docutils literal notranslate"><span class="pre">#INVERSE</span></code> macro that creates an inverse image of a UDG with scale 2 might
 be implemented like this:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">skoolkit.graphics</span> <span class="kn">import</span> <span class="n">Frame</span><span class="p">,</span> <span class="n">Udg</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">skoolkit.graphics</span> <span class="kn">import</span> <span class="n">Frame</span><span class="p">,</span> <span class="n">Udg</span>
 <span class="kn">from</span> <span class="nn">skoolkit.skoolhtml</span> <span class="kn">import</span> <span class="n">HtmlWriter</span>
 <span class="kn">from</span> <span class="nn">skoolkit.skoolmacro</span> <span class="kn">import</span> <span class="n">parse_ints</span>
 
@@ -714,7 +714,7 @@ be implemented like this:</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>flip</strong> &#8211; 1 to flip horizontally, 2 to flip vertically, or 3 to flip
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>flip</strong> – 1 to flip horizontally, 2 to flip vertically, or 3 to flip
 horizontally and vertically.</td>
 </tr>
 </tbody>
@@ -729,10 +729,17 @@ horizontally and vertically.</td>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>rotate</strong> &#8211; The number of rotations to perform.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>rotate</strong> – The number of rotations to perform.</td>
 </tr>
 </tbody>
 </table>
+</dd></dl>
+
+<p>The Udg class also provides a method for creating a copy of a UDG.</p>
+<dl class="method">
+<dt id="skoolkit.graphics.Udg.copy">
+<code class="descclassname">Udg.</code><code class="descname">copy</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#skoolkit.graphics.Udg.copy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a deep copy of the UDG.</p>
 </dd></dl>
 
 <p>The Frame class represents a single frame of a still or animated image.</p>
@@ -745,23 +752,23 @@ horizontally and vertically.</td>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>udgs</strong> &#8211; The two-dimensional array of tiles (instances of
-<a class="reference internal" href="#skoolkit.graphics.Udg" title="skoolkit.graphics.Udg"><code class="xref py py-class docutils literal"><span class="pre">Udg</span></code></a>) from which to build the
+<li><strong>udgs</strong> – The two-dimensional array of tiles (instances of
+<a class="reference internal" href="#skoolkit.graphics.Udg" title="skoolkit.graphics.Udg"><code class="xref py py-class docutils literal notranslate"><span class="pre">Udg</span></code></a>) from which to build the
 frame, or a function that returns the array of tiles.</li>
-<li><strong>scale</strong> &#8211; The scale of the frame.</li>
-<li><strong>mask</strong> &#8211; The type of mask to apply to the tiles in the frame: 0 (no
+<li><strong>scale</strong> – The scale of the frame.</li>
+<li><strong>mask</strong> – The type of mask to apply to the tiles in the frame: 0 (no
 mask), 1 (OR-AND mask), or 2 (AND-OR mask).</li>
-<li><strong>x</strong> &#8211; The x-coordinate of the top-left pixel to include in the frame.</li>
-<li><strong>y</strong> &#8211; The y-coordinate of the top-left pixel to include in the frame.</li>
-<li><strong>width</strong> &#8211; The width of the frame; if <cite>None</cite>, the maximum width
+<li><strong>x</strong> – The x-coordinate of the top-left pixel to include in the frame.</li>
+<li><strong>y</strong> – The y-coordinate of the top-left pixel to include in the frame.</li>
+<li><strong>width</strong> – The width of the frame; if <cite>None</cite>, the maximum width
 (derived from <cite>x</cite> and the width of the array of tiles) is
 used.</li>
-<li><strong>height</strong> &#8211; The height of the frame; if <cite>None</cite>, the maximum height
+<li><strong>height</strong> – The height of the frame; if <cite>None</cite>, the maximum height
 (derived from <cite>y</cite> and the height of the array of tiles) is
 used.</li>
-<li><strong>delay</strong> &#8211; The delay between this frame and the next in 1/100ths of a
+<li><strong>delay</strong> – The delay between this frame and the next in 1/100ths of a
 second.</li>
-<li><strong>name</strong> &#8211; The name of this frame.</li>
+<li><strong>name</strong> – The name of this frame.</li>
 </ul>
 </td>
 </tr>
@@ -789,44 +796,43 @@ and functions.</p>
 <dt id="skoolkit.skoolhtml.HtmlWriter.handle_image">
 <code class="descclassname">HtmlWriter.</code><code class="descname">handle_image</code><span class="sig-paren">(</span><em>frames</em>, <em>fname=''</em>, <em>cwd=None</em>, <em>alt=None</em>, <em>path_id='ImagePath'</em><span class="sig-paren">)</span><a class="headerlink" href="#skoolkit.skoolhtml.HtmlWriter.handle_image" title="Permalink to this definition">¶</a></dt>
 <dd><p>Register a named frame for an image, and write an image file if
-required. If <cite>fname</cite> is blank, no image file will be created.  If
-<cite>fname</cite> does not end with &#8216;.png&#8217; or &#8216;.gif&#8217;, an appropriate suffix will
-be appended (depending on the default image format). If <cite>fname</cite>
-contains an image path ID replacement field, the corresponding
+required. If <cite>fname</cite> is blank, no image file will be created. If
+<cite>fname</cite> does not end with ‘.png’, that suffix will be appended. If
+<cite>fname</cite> contains an image path ID replacement field, the corresponding
 parameter value from the <a class="reference internal" href="ref-files.html#paths"><span class="std std-ref">[Paths]</span></a> section will be substituted.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>frames</strong> &#8211; A frame (instance of <a class="reference internal" href="#skoolkit.graphics.Frame" title="skoolkit.graphics.Frame"><code class="xref py py-class docutils literal"><span class="pre">Frame</span></code></a>)
+<li><strong>frames</strong> – A frame (instance of <a class="reference internal" href="#skoolkit.graphics.Frame" title="skoolkit.graphics.Frame"><code class="xref py py-class docutils literal notranslate"><span class="pre">Frame</span></code></a>)
 or list of frames from which to build the image.</li>
-<li><strong>fname</strong> &#8211; The name of the image file.</li>
-<li><strong>cwd</strong> &#8211; The current working directory (from which the relative path
+<li><strong>fname</strong> – The name of the image file.</li>
+<li><strong>cwd</strong> – The current working directory (from which the relative path
 of the image file will be computed).</li>
-<li><strong>alt</strong> &#8211; The alt text to use for the image.</li>
-<li><strong>path_id</strong> &#8211; The ID of the target directory (as defined in the
+<li><strong>alt</strong> – The alt text to use for the image.</li>
+<li><strong>path_id</strong> – The ID of the target directory (as defined in the
 <a class="reference internal" href="ref-files.html#paths"><span class="std std-ref">[Paths]</span></a> section of the ref file). This is not used
-if <cite>fname</cite> starts with a &#8216;/&#8217; or contains an image path
+if <cite>fname</cite> starts with a ‘/’ or contains an image path
 ID replacement field.</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">The <code class="docutils literal"><span class="pre">&lt;img</span> <span class="pre">.../&gt;</span></code> element, or an empty string if no image is
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">The <code class="docutils literal notranslate"><span class="pre">&lt;img</span> <span class="pre">.../&gt;</span></code> element, or an empty string if no image is
 created.</p>
 </td>
 </tr>
 </tbody>
 </table>
 <div class="versionchanged">
-<p><span class="versionmodified">Changed in version 7.0: </span><em>path_id</em> defaults to <code class="docutils literal"><span class="pre">ImagePath</span></code> (previously <code class="docutils literal"><span class="pre">UDGImagePath</span></code>).</p>
+<p><span class="versionmodified">Changed in version 7.0: </span><em>path_id</em> defaults to <code class="docutils literal notranslate"><span class="pre">ImagePath</span></code> (previously <code class="docutils literal notranslate"><span class="pre">UDGImagePath</span></code>).</p>
 </div>
 <div class="versionchanged">
 <p><span class="versionmodified">Changed in version 6.4: </span><em>frames</em> may be a single frame.</p>
 </div>
 <div class="versionchanged">
 <p><span class="versionmodified">Changed in version 6.3: </span><em>fname</em> may contain an image path ID replacement field (e.g.
-<code class="docutils literal"><span class="pre">{UDGImagePath}</span></code>).</p>
+<code class="docutils literal notranslate"><span class="pre">{UDGImagePath}</span></code>).</p>
 </div>
 <div class="versionadded">
 <p><span class="versionmodified">New in version 5.1.</span></p>
@@ -837,19 +843,19 @@ created.</p>
 <dt id="skoolkit.skoolhtml.HtmlWriter.screenshot">
 <code class="descclassname">HtmlWriter.</code><code class="descname">screenshot</code><span class="sig-paren">(</span><em>x=0</em>, <em>y=0</em>, <em>w=32</em>, <em>h=24</em>, <em>df_addr=16384</em>, <em>af_addr=22528</em><span class="sig-paren">)</span><a class="headerlink" href="#skoolkit.skoolhtml.HtmlWriter.screenshot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a two-dimensional array of tiles (instances of
-<a class="reference internal" href="#skoolkit.graphics.Udg" title="skoolkit.graphics.Udg"><code class="xref py py-class docutils literal"><span class="pre">Udg</span></code></a>) built from the display file and
+<a class="reference internal" href="#skoolkit.graphics.Udg" title="skoolkit.graphics.Udg"><code class="xref py py-class docutils literal notranslate"><span class="pre">Udg</span></code></a>) built from the display file and
 attribute file of the current memory snapshot.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>x</strong> &#8211; The x-coordinate of the top-left tile to include (0-31).</li>
-<li><strong>y</strong> &#8211; The y-coordinate of the top-left tile to include (0-23).</li>
-<li><strong>w</strong> &#8211; The width of the array (in tiles).</li>
-<li><strong>h</strong> &#8211; The height of the array (in tiles).</li>
-<li><strong>df_addr</strong> &#8211; The display file address to use.</li>
-<li><strong>af_addr</strong> &#8211; The attribute file address to use.</li>
+<li><strong>x</strong> – The x-coordinate of the top-left tile to include (0-31).</li>
+<li><strong>y</strong> – The y-coordinate of the top-left tile to include (0-23).</li>
+<li><strong>w</strong> – The width of the array (in tiles).</li>
+<li><strong>h</strong> – The height of the array (in tiles).</li>
+<li><strong>df_addr</strong> – The display file address to use.</li>
+<li><strong>af_addr</strong> – The attribute file address to use.</li>
 </ul>
 </td>
 </tr>
@@ -860,14 +866,14 @@ attribute file of the current memory snapshot.</p>
 <dl class="function">
 <dt id="skoolkit.graphics.flip_udgs">
 <code class="descclassname">skoolkit.graphics.</code><code class="descname">flip_udgs</code><span class="sig-paren">(</span><em>udgs</em>, <em>flip=1</em><span class="sig-paren">)</span><a class="headerlink" href="#skoolkit.graphics.flip_udgs" title="Permalink to this definition">¶</a></dt>
-<dd><p>Flip a 2D array of UDGs (instances of <a class="reference internal" href="#skoolkit.graphics.Udg" title="skoolkit.graphics.Udg"><code class="xref py py-class docutils literal"><span class="pre">Udg</span></code></a>).</p>
+<dd><p>Flip a 2D array of UDGs (instances of <a class="reference internal" href="#skoolkit.graphics.Udg" title="skoolkit.graphics.Udg"><code class="xref py py-class docutils literal notranslate"><span class="pre">Udg</span></code></a>).</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>udgs</strong> &#8211; The array of UDGs.</li>
-<li><strong>flip</strong> &#8211; 1 to flip horizontally, 2 to flip vertically, or 3 to flip
+<li><strong>udgs</strong> – The array of UDGs.</li>
+<li><strong>flip</strong> – 1 to flip horizontally, 2 to flip vertically, or 3 to flip
 horizontally and vertically.</li>
 </ul>
 </td>
@@ -879,15 +885,15 @@ horizontally and vertically.</li>
 <dl class="function">
 <dt id="skoolkit.graphics.rotate_udgs">
 <code class="descclassname">skoolkit.graphics.</code><code class="descname">rotate_udgs</code><span class="sig-paren">(</span><em>udgs</em>, <em>rotate=1</em><span class="sig-paren">)</span><a class="headerlink" href="#skoolkit.graphics.rotate_udgs" title="Permalink to this definition">¶</a></dt>
-<dd><p>Rotate a 2D array of UDGs (instances of <a class="reference internal" href="#skoolkit.graphics.Udg" title="skoolkit.graphics.Udg"><code class="xref py py-class docutils literal"><span class="pre">Udg</span></code></a>)
+<dd><p>Rotate a 2D array of UDGs (instances of <a class="reference internal" href="#skoolkit.graphics.Udg" title="skoolkit.graphics.Udg"><code class="xref py py-class docutils literal notranslate"><span class="pre">Udg</span></code></a>)
 90 degrees clockwise.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>udgs</strong> &#8211; The array of UDGs.</li>
-<li><strong>rotate</strong> &#8211; The number of rotations to perform.</li>
+<li><strong>udgs</strong> – The array of UDGs.</li>
+<li><strong>rotate</strong> – The number of rotations to perform.</li>
 </ul>
 </td>
 </tr>
@@ -898,14 +904,14 @@ horizontally and vertically.</li>
 </div>
 <div class="section" id="html-page-initialisation">
 <h2>HTML page initialisation<a class="headerlink" href="#html-page-initialisation" title="Permalink to this headline">¶</a></h2>
-<p>If you need to perform page-specific actions or customise the <code class="docutils literal"><span class="pre">SkoolKit</span></code> and
-<code class="docutils literal"><span class="pre">Game</span></code> parameter dictionaries that are used by the <a class="reference internal" href="html-templates.html#htmltemplates"><span class="std std-ref">HTML templates</span></a>, the
+<p>If you need to perform page-specific actions or customise the <code class="docutils literal notranslate"><span class="pre">SkoolKit</span></code> and
+<code class="docutils literal notranslate"><span class="pre">Game</span></code> parameter dictionaries that are used by the <a class="reference internal" href="html-templates.html#htmltemplates"><span class="std std-ref">HTML templates</span></a>, the
 place to do that is the <cite>init_page()</cite> method.</p>
 <dl class="method">
 <dt id="skoolkit.skoolhtml.HtmlWriter.init_page">
 <code class="descclassname">HtmlWriter.</code><code class="descname">init_page</code><span class="sig-paren">(</span><em>skoolkit</em>, <em>game</em><span class="sig-paren">)</span><a class="headerlink" href="#skoolkit.skoolhtml.HtmlWriter.init_page" title="Permalink to this definition">¶</a></dt>
 <dd><p>Perform page initialisation operations. This method is called after
-the <code class="docutils literal"><span class="pre">SkoolKit</span></code> and <code class="docutils literal"><span class="pre">Game</span></code> parameter dictionaries have been
+the <code class="docutils literal notranslate"><span class="pre">SkoolKit</span></code> and <code class="docutils literal notranslate"><span class="pre">Game</span></code> parameter dictionaries have been
 initialised, and provides those dictionaries as arguments for
 inspection and customisation before a page is formatted. By default the
 method does nothing, but subclasses may override it.</p>
@@ -914,8 +920,8 @@ method does nothing, but subclasses may override it.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>skoolkit</strong> &#8211; The <code class="docutils literal"><span class="pre">SkoolKit</span></code> parameter dictionary.</li>
-<li><strong>game</strong> &#8211; The <code class="docutils literal"><span class="pre">Game</span></code> parameter dictionary.</li>
+<li><strong>skoolkit</strong> – The <code class="docutils literal notranslate"><span class="pre">SkoolKit</span></code> parameter dictionary.</li>
+<li><strong>game</strong> – The <code class="docutils literal notranslate"><span class="pre">Game</span></code> parameter dictionary.</li>
 </ul>
 </td>
 </tr>
@@ -952,7 +958,7 @@ subclasses may override it.</p>
 </dd></dl>
 
 <p>For example:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">skoolkit.skoolhtml</span> <span class="kn">import</span> <span class="n">HtmlWriter</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">skoolkit.skoolhtml</span> <span class="kn">import</span> <span class="n">HtmlWriter</span>
 
 <span class="k">class</span> <span class="nc">GameHtmlWriter</span><span class="p">(</span><span class="n">HtmlWriter</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">init</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -976,14 +982,20 @@ subclasses may override it.</p>
           <a href="genindex.html" title="General Index"
              >index</a></li>
         <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="components.html" title="SkoolKit components"
+             >next</a> |</li>
+        <li class="right" >
           <a href="html-templates.html" title="HTML templates"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 7.2 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.0 documentation</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2019, Richard Dymond.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.9.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
     </div>
   </body>
 </html>

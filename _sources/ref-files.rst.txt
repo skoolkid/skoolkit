@@ -127,22 +127,21 @@ Recognised parameters are:
 
 * ``AddressAnchor`` - the format of the anchors attached to instructions on
   disassembly pages and entries on memory map pages (default: ``{address}``)
-* ``AsmSinglePageTemplate`` - the name of the HTML template used to build the
-  disassembly on a single page, as opposed to a separate page for each routine
-  and data block (default: None); set this to 'AsmAllInOne' to use the
-  :ref:`t_AsmAllInOne` template
-* ``Bytes`` - the format specification for the ``bytes`` replacement field in
-  the :ref:`t_asm_instruction` template (default: ''); if not blank, assembled
-  instruction byte values are displayed on disassembly pages
+* ``AsmSinglePage`` - ``1`` to write the disassembly on a single page, or ``0``
+  to write a separate page for each routine and data block (default: ``0``)
+* ``Bytes`` - the format specification for the ``bytes`` attribute of
+  instruction objects in the :ref:`t_asm` and :ref:`t_asm_single_page`
+  templates
+  (default: ''); if not blank, assembled instruction byte values are displayed
+  on disassembly pages
 * ``Copyright`` - the copyright message that appears in the footer of every
   page (default: '')
 * ``Created`` - the message indicating the software used to create the
   disassembly that appears in the footer of every page (default: 'Created using
   SkoolKit #VERSION.')
 * ``DisassemblyTableNumCols`` - the number of columns in the disassembly table
-  on disassembly pages (default: the number of occurrences of '</td>' in the
-  :ref:`t_asm_instruction` template); this value is used by the :ref:`t_Asm`,
-  :ref:`t_asm_comment` and :ref:`t_asm_entry` templates
+  on disassembly pages (default: 5); this value is used by the :ref:`t_asm` and
+  and :ref:`t_asm_single_page` templates
 * ``Font`` - the base name of the font file to use (default: None); multiple
   font files can be declared by separating their names with semicolons
 * ``Game`` - the name of the game, which appears in the title of every page,
@@ -173,10 +172,6 @@ Recognised parameters are:
 * ``StyleSheet`` - the base name of the CSS file to use (default:
   `skoolkit.css`); multiple CSS files can be declared by separating their names
   with semicolons
-* ``TitlePrefix`` - the prefix to use before the game name or logo in the
-  header of the main index page (default: 'The complete')
-* ``TitleSuffix`` - the suffix to use after the game name or logo in the header
-  of the main index page (default: 'RAM disassembly')
 
 Every parameter in this section may contain :ref:`skool macros <skoolMacros>`.
 
@@ -193,12 +188,12 @@ hexadecimal addresses if the ``--hex`` option is used with
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 8.0     | Added the ``AsmSinglePage`` parameter                             |
++---------+-------------------------------------------------------------------+
 | 7.2     | Added the ``Bytes`` and ``DisassemblyTableNumCols`` parameters    |
 +---------+-------------------------------------------------------------------+
 | 6.0     | Every parameter (not just ``Logo``) may contain                   |
 |         | :ref:`skool macros <skoolMacros>`                                 |
-+---------+-------------------------------------------------------------------+
-| 5.3     | Added the ``AsmSinglePageTemplate`` parameter                     |
 +---------+-------------------------------------------------------------------+
 | 4.3     | Added the ``AddressAnchor`` parameter                             |
 +---------+-------------------------------------------------------------------+
@@ -234,16 +229,6 @@ SkoolKit's image creation library. The parameters are in the format::
 
 Recognised parameters are:
 
-* ``DefaultAnimationFormat`` - the default format for animated images: ``gif``
-  (the default) or ``png``
-* ``DefaultFormat`` - the default image format: ``png`` (the default) or
-  ``gif``
-* ``GIFEnableAnimation`` - ``1`` to create animated GIFs for images that
-  contain flashing cells, or ``0`` to create plain (unanimated) GIFs for such
-  images (default: ``1``)
-* ``GIFTransparency`` - ``1`` to make the ``TRANSPARENT`` colour (see
-  :ref:`ref-Colours`) in GIF images transparent, or ``0`` to make it opaque
-  (default: ``0``)
 * ``PNGAlpha`` - the alpha value to use for the ``TRANSPARENT`` colour (see
   :ref:`ref-Colours`) in PNG images; valid values are in the range 0-255, where
   0 means fully transparent, and 255 means fully opaque (default: ``255``)
@@ -254,32 +239,10 @@ Recognised parameters are:
   images that contain flashing cells, or ``0`` to create plain (unanimated) PNG
   files for such images (default: ``1``)
 
-The image-creating skool macros will create a file in the default image format
-if the filename is unspecified, or its suffix is omitted, or its suffix is
-neither ``.png`` nor ``.gif``. For example, if ``DefaultFormat`` is ``png``,
-then::
-
-  #FONT32768,26
-
-will create an image file named ``font.png``. To create a GIF instead
-(regardless of the default image format)::
-
-  #FONT32768,26(font.gif)
-
-.. note::
-   Support for GIF images is deprecated since version 7.2. Use PNG images
-   instead.
-
 +---------+--------------------------------------------------------------+
 | Version | Changes                                                      |
 +=========+==============================================================+
-| 6.0     | ``DefaultAnimationFormat`` defaults to ``gif``               |
-+---------+--------------------------------------------------------------+
-| 5.1     | Added the ``DefaultAnimationFormat`` parameter               |
-+---------+--------------------------------------------------------------+
-| 3.0.1   | Added the ``DefaultFormat``, ``GIFEnableAnimation``,         |
-|         | ``GIFTransparency``, ``PNGAlpha`` and ``PNGEnableAnimation`` |
-|         | parameters                                                   |
+| 3.0.1   | Added the ``PNGAlpha`` and ``PNGEnableAnimation`` parameters |
 +---------+--------------------------------------------------------------+
 | 3.0     | New                                                          |
 +---------+--------------------------------------------------------------+
@@ -352,9 +315,8 @@ where:
 
 Recognised page IDs are:
 
-* ``AsmSinglePage`` - the disassembly page (when a single-page template is
-  specified by the ``AsmSinglePageTemplate`` parameter in the :ref:`ref-Game`
-  section)
+* ``AsmSinglePage`` - the disassembly page (when writing a single-page
+  disassembly)
 * ``Bugs`` - the 'Bugs' page
 * ``Changelog`` - the 'Changelog' page
 * ``DataMap`` - the 'Data' memory map page
@@ -453,8 +415,8 @@ text for the custom memory map page can be defined in the :ref:`titles`,
 :ref:`pageHeaders` and :ref:`links` sections.
 
 Every memory map page is built using the :ref:`HTML template <template>` whose
-name matches the page ID, if one exists; otherwise, the stock
-:ref:`t_MemoryMap` template is used.
+name matches the page ID, if one exists; otherwise, the stock :ref:`t_Layout`
+template is used.
 
 +---------+------------------------------------------------------------------+
 | Version | Changes                                                          |
@@ -502,9 +464,8 @@ and directory IDs become available for use in the :ref:`paths`, :ref:`titles`,
   ``bcgstuw``, depending on the entry type)
 * ``CodeID-CodePath`` - the ID of the directory in which the disassembly pages
   are written
-* ``CodeID-AsmSinglePage`` - the ID of the disassembly page (when a single-page
-  template is specified by the ``AsmSinglePageTemplate`` parameter in the
-  :ref:`ref-Game` section)
+* ``CodeID-AsmSinglePage`` - the ID of the disassembly page (when writing a
+  single-page disassembly)
 
 By default, the index page is written to `CodeID/CodeID.html`, and the
 disassembly pages are written in a directory named `CodeID`; if a single-page
@@ -568,9 +529,8 @@ default to 'PageID', but can be overridden in the :ref:`titles`,
 :ref:`pageHeaders` and :ref:`links` sections.
 
 Every custom page is built using the :ref:`HTML template <template>` whose name
-matches the page ID, if one exists; otherwise, either the :ref:`t_Reference`
-template is used (when ``SectionPrefix`` is defined), or the :ref:`t_Page`
-template is used.
+matches the page ID, if one exists; otherwise, the :ref:`t_Layout` template is
+used.
 
 +---------+------------------------------------------------------------------+
 | Version | Changes                                                          |
@@ -596,12 +556,15 @@ template is used.
 The ``PageHeaders`` section defines the header text for every page in the HTML
 disassembly. Each line has the form::
 
-  PageID=header
+  PageID=[prefix<>]suffix
 
 where:
 
 * ``PageID`` is the ID of the page
-* ``header`` is the header text
+* ``prefix`` is the page header prefix (displayed to the left of the game
+  logo); if present, this must be separated from the suffix by ``<>``
+* ``suffix`` is the page header suffix (displayed to the right of the game
+  logo)
 
 Recognised page IDs are:
 
@@ -612,13 +575,14 @@ Recognised page IDs are:
 * ``Asm-t`` - disassembly pages for 't' blocks (default: 'Messages')
 * ``Asm-u`` - disassembly pages for 'u' blocks (default: 'Unused')
 * ``Asm-w`` - disassembly pages for 'w' blocks (default: 'Data')
-* ``AsmSinglePage`` - the disassembly page (when a single-page template is
-  specified by the ``AsmSinglePageTemplate`` parameter in the :ref:`ref-Game`
-  section)
+* ``AsmSinglePage`` - the disassembly page (when writing a single-page
+  disassembly)
 * ``Bugs`` - the 'Bugs' page
 * ``Changelog`` - the 'Changelog' page
 * ``DataMap`` - the 'Data' memory map page
 * ``Facts`` - the 'Trivia' page
+* ``GameIndex`` - the disassembly index page (default: 'The complete<>RAM
+  disassembly')
 * ``GameStatusBuffer`` - the 'Game status buffer' page
 * ``Glossary`` - the 'Glossary' page
 * ``GraphicGlitches`` - the 'Graphic glitches' page
@@ -633,24 +597,27 @@ Every parameter in this section may contain :ref:`skool macros <skoolMacros>`.
 The default header text for a page is the same as the title defined in the
 :ref:`titles` section, except where indicated above.
 
+The ``Asm-*`` parameters are formatted with an ``entry`` dictionary identical
+to the one that is available in the :ref:`t_asm` template.
+
 The header text for a page defined by a :ref:`memoryMap`, :ref:`otherCode` or
 :ref:`page` section also defaults to the title, but can be overridden in this
 section.
 
-Note that the header of the disassembly index page (``GameIndex``) is not
-defined in this section; it is composed from the values of the ``TitlePrefix``
-and ``TitleSuffix`` parameters in the :ref:`ref-Game` section.
-
-+---------+------------------------------------------------------------+
-| Version | Changes                                                    |
-+=========+============================================================+
-| 6.0     | The default header for ``Asm-t`` pages is 'Messages'; page |
-|         | headers may contain :ref:`skool macros <skoolMacros>`      |
-+---------+------------------------------------------------------------+
-| 5.3     | Added the ``AsmSinglePage`` page ID                        |
-+---------+------------------------------------------------------------+
-| 4.0     | New                                                        |
-+---------+------------------------------------------------------------+
++---------+-------------------------------------------------------------------+
+| Version | Changes                                                           |
++=========+===================================================================+
+| 8.0     | Added support for specifying a prefix and suffix; an ``entry``    |
+|         | dictionary is available when formatting ``Asm-*`` parameters;     |
+|         | added the ``GameIndex`` page ID                                   |
++---------+-------------------------------------------------------------------+
+| 6.0     | The default header for ``Asm-t`` pages is 'Messages'; page        |
+|         | headers may contain :ref:`skool macros <skoolMacros>`             |
++---------+-------------------------------------------------------------------+
+| 5.3     | Added the ``AsmSinglePage`` page ID                               |
++---------+-------------------------------------------------------------------+
+| 4.0     | New                                                               |
++---------+-------------------------------------------------------------------+
 
 .. _paths:
 
@@ -669,9 +636,8 @@ where:
 
 Recognised file IDs and their default paths are:
 
-* ``AsmSinglePage`` - the disassembly page (when a single-page template is
-  specified by the ``AsmSinglePageTemplate`` parameter in the :ref:`ref-Game`
-  section; default: ``asm.html``)
+* ``AsmSinglePage`` - the disassembly page (when writing a single-page
+  disassembly; default: ``asm.html``)
 * ``Bugs`` - the 'Bugs' page (default: ``reference/bugs.html``)
 * ``Changelog`` - the 'Changelog' page (default: ``reference/changelog.html``)
 * ``CodeFiles`` - the format of the disassembly page filenames (default:
@@ -781,6 +747,7 @@ order for it to find them. To see the search path, run::
 which are expanded as follows:
 
 * ``*`` - matches any number of characters
+* ``**`` - matches any files and zero or more directories and subdirectories
 * ``?`` - matches any single character
 * ``[seq]`` - matches any character in ``seq``; ``seq`` may be a simple
   sequence of characters (e.g. ``abcde``) or a range (e.g. ``a-e``)
@@ -793,6 +760,8 @@ into place whenever the disassembly is built.
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 8.0     | Added support for the ``**`` pattern                              |
++---------+-------------------------------------------------------------------+
 | 6.3     | Added support for pathname pattern expansion using wildcard       |
 |         | characters                                                        |
 +---------+-------------------------------------------------------------------+
@@ -835,17 +804,22 @@ where:
 
 Recognised page IDs and their default titles are:
 
-* ``Asm-b`` - disassembly pages for 'b' blocks (default: 'Data at')
-* ``Asm-c`` - disassembly pages for 'c' blocks (default: 'Routine at')
+* ``Asm-b`` - disassembly pages for 'b' blocks (default: 'Data at
+  {entry[address]}')
+* ``Asm-c`` - disassembly pages for 'c' blocks (default: 'Routine at
+  {entry[address]}')
 * ``Asm-g`` - disassembly pages for 'g' blocks (default: 'Game status buffer
-  entry at')
-* ``Asm-s`` - disassembly pages for 's' blocks (default: 'Unused RAM at')
-* ``Asm-t`` - disassembly pages for 't' blocks (default: 'Text at')
-* ``Asm-u`` - disassembly pages for 'u' blocks (default: 'Unused RAM at')
-* ``Asm-w`` - disassembly pages for 'w' blocks (default: 'Data at')
-* ``AsmSinglePage`` - the disassembly page (when a single-page template is
-  specified by the ``AsmSinglePageTemplate`` parameter in the :ref:`ref-Game`
-  section; default: 'Disassembly')
+  entry at {entry[address]}')
+* ``Asm-s`` - disassembly pages for 's' blocks (default: 'Unused RAM at
+  {entry[address]}')
+* ``Asm-t`` - disassembly pages for 't' blocks (default: 'Text at
+  {entry[address]}')
+* ``Asm-u`` - disassembly pages for 'u' blocks (default: 'Unused RAM at
+  {entry[address]}')
+* ``Asm-w`` - disassembly pages for 'w' blocks (default: 'Data at
+  {entry[address]}')
+* ``AsmSinglePage`` - the disassembly page (when writing a single-page
+  disassembly; default: 'Disassembly')
 * ``Bugs`` - the 'Bugs' page (default: 'Bugs')
 * ``Changelog`` - the 'Changelog' page (default: 'Changelog')
 * ``DataMap`` - the 'Data' memory map page (default: 'Data')
@@ -865,26 +839,33 @@ Recognised page IDs and their default titles are:
 
 Every parameter in this section may contain :ref:`skool macros <skoolMacros>`.
 
+The ``Asm-*`` parameters are formatted with an ``entry`` dictionary identical
+to the one that is available in the :ref:`t_asm` template.
+
 The title of a page defined by a :ref:`memoryMap`, :ref:`otherCode` or
 :ref:`page` section defaults to the page ID, but can be overridden in this
 section.
 
-+---------+----------------------------------------------------------------+
-| Version | Changes                                                        |
-+=========+================================================================+
-| 6.0     | The default title for ``Asm-t`` pages is 'Text at'; titles may |
-|         | contain :ref:`skool macros <skoolMacros>`                      |
-+---------+----------------------------------------------------------------+
-| 5.3     | Added the ``AsmSinglePage`` page ID                            |
-+---------+----------------------------------------------------------------+
-| 4.0     | Added the ``Asm-*`` page IDs                                   |
-+---------+----------------------------------------------------------------+
-| 2.5     | Added the ``UnusedMap`` page ID                                |
-+---------+----------------------------------------------------------------+
-| 2.2.5   | Added the ``Changelog`` page ID                                |
-+---------+----------------------------------------------------------------+
-| 2.0.5   | New                                                            |
-+---------+----------------------------------------------------------------+
++---------+-------------------------------------------------------------------+
+| Version | Changes                                                           |
++=========+===================================================================+
+| 8.0     | An ``entry`` dictionary is available when formatting ``Asm-*``    |
+|         | parameters; the default title for each ``Asm-*`` page includes    |
+|         | the entry address as a replacement field                          |
++---------+-------------------------------------------------------------------+
+| 6.0     | The default title for ``Asm-t`` pages is 'Text at'; titles may    |
+|         | contain :ref:`skool macros <skoolMacros>`                         |
++---------+-------------------------------------------------------------------+
+| 5.3     | Added the ``AsmSinglePage`` page ID                               |
++---------+-------------------------------------------------------------------+
+| 4.0     | Added the ``Asm-*`` page IDs                                      |
++---------+-------------------------------------------------------------------+
+| 2.5     | Added the ``UnusedMap`` page ID                                   |
++---------+-------------------------------------------------------------------+
+| 2.2.5   | Added the ``Changelog`` page ID                                   |
++---------+-------------------------------------------------------------------+
+| 2.0.5   | New                                                               |
++---------+-------------------------------------------------------------------+
 
 .. _boxpages:
 

@@ -54,7 +54,7 @@ SkoolKit 6.x changelog
   defaults to the address of the next instruction
 * The ``LABEL`` parameter of the :ref:`label` directive may be left blank to
   prevent the next instruction from having a label automatically generated
-* Added the ``location`` identifier to the :ref:`t_asm_instruction` template
+* Added the ``location`` identifier to the ``asm_instruction`` template
 * Added support for parsing block-level comments that are not left-padded by a
   space
 * Fixed how an opening brace at the end of a line or a closing brace at the

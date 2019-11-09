@@ -1,0 +1,960 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>SkoolKit components &#8212; SkoolKit 8.0 documentation</title>
+    <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Extending SkoolKit" href="extending.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="extending.html" title="Extending SkoolKit"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.0 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">SkoolKit components</a><ul>
+<li><a class="reference internal" href="#assembler">Assembler</a></li>
+<li><a class="reference internal" href="#control-directive-composer">Control directive composer</a></li>
+<li><a class="reference internal" href="#control-file-generator">Control file generator</a></li>
+<li><a class="reference internal" href="#disassembler">Disassembler</a></li>
+<li><a class="reference internal" href="#html-template-formatter">HTML template formatter</a></li>
+<li><a class="reference internal" href="#instruction-utility">Instruction utility</a></li>
+<li><a class="reference internal" href="#operand-evaluator">Operand evaluator</a></li>
+<li><a class="reference internal" href="#operand-formatter">Operand formatter</a></li>
+<li><a class="reference internal" href="#snapshot-reader">Snapshot reader</a></li>
+<li><a class="reference internal" href="#snapshot-reference-calculator">Snapshot reference calculator</a></li>
+<li><a class="reference internal" href="#component-api">Component API</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="extending.html"
+                        title="previous chapter">Extending SkoolKit</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/components.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="skoolkit-components">
+<span id="components"></span><h1>SkoolKit components<a class="headerlink" href="#skoolkit-components" title="Permalink to this headline">¶</a></h1>
+<p>SkoolKit relies on several components in order to function:</p>
+<ul class="simple">
+<li><a class="reference internal" href="#assembler"><span class="std std-ref">Assembler</span></a></li>
+<li><a class="reference internal" href="#ctlcomposer"><span class="std std-ref">Control directive composer</span></a></li>
+<li><a class="reference internal" href="#ctlgenerator"><span class="std std-ref">Control file generator</span></a></li>
+<li><a class="reference internal" href="#disassembler"><span class="std std-ref">Disassembler</span></a></li>
+<li><a class="reference internal" href="#htmltemplateformatter"><span class="std std-ref">HTML template formatter</span></a></li>
+<li><a class="reference internal" href="#instructionutility"><span class="std std-ref">Instruction utility</span></a></li>
+<li><a class="reference internal" href="#operandevaluator"><span class="std std-ref">Operand evaluator</span></a></li>
+<li><a class="reference internal" href="#operandformatter"><span class="std std-ref">Operand formatter</span></a></li>
+<li><a class="reference internal" href="#snapshotreader"><span class="std std-ref">Snapshot reader</span></a></li>
+<li><a class="reference internal" href="#snapshotrefcalc"><span class="std std-ref">Snapshot reference calculator</span></a></li>
+</ul>
+<p>The objects that are used for these components can be specified in the
+<code class="docutils literal notranslate"><span class="pre">[skoolkit]</span></code> section of a file named <cite>skoolkit.ini</cite> either in the current
+working directory or in <cite>~/.skoolkit</cite>. The default contents of the
+<code class="docutils literal notranslate"><span class="pre">[skoolkit]</span></code> section are as follows:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Assembler=skoolkit.z80.Assembler
+ControlDirectiveComposer=skoolkit.skoolctl.ControlDirectiveComposer
+ControlFileGenerator=skoolkit.snactl
+Disassembler=skoolkit.disassembler.Disassembler
+HtmlTemplateFormatter=skoolkit.skoolhtml.TemplateFormatter
+InstructionUtility=skoolkit.skoolparser.InstructionUtility
+OperandEvaluator=skoolkit.z80
+OperandFormatter=skoolkit.disassembler.OperandFormatter
+SnapshotReader=skoolkit.snapshot
+SnapshotReferenceCalculator=skoolkit.snaskool
+SnapshotReferenceOperations=DJ,JR,JP,CA,RS
+</pre></div>
+</div>
+<div class="section" id="assembler">
+<span id="id1"></span><h2>Assembler<a class="headerlink" href="#assembler" title="Permalink to this headline">¶</a></h2>
+<p>This object is responsible for converting assembly language instructions and
+DEFB/DEFM/DEFS/DEFW statements into byte values, or computing their size. It
+must supply the following API functions, in common with skoolkit.z80.Assembler:</p>
+<dl class="class">
+<dt id="skoolkit.z80.Assembler">
+<em class="property">class </em><code class="descclassname">skoolkit.z80.</code><code class="descname">Assembler</code><a class="headerlink" href="#skoolkit.z80.Assembler" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="skoolkit.z80.Assembler.assemble">
+<code class="descname">assemble</code><span class="sig-paren">(</span><em>operation</em>, <em>address</em><span class="sig-paren">)</span><a class="headerlink" href="#skoolkit.z80.Assembler.assemble" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert an assembly language instruction or DEFB/DEFM/DEFS/DEFW
+statement into a sequence of byte values.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>operation</strong> – The operation to convert (e.g. ‘XOR A’).</li>
+<li><strong>address</strong> – The instruction address.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A sequence of byte values (empty if the instruction cannot be
+assembled).</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="skoolkit.z80.Assembler.get_size">
+<code class="descname">get_size</code><span class="sig-paren">(</span><em>operation</em>, <em>address</em><span class="sig-paren">)</span><a class="headerlink" href="#skoolkit.z80.Assembler.get_size" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the size (in bytes) of an assembly language instruction or
+DEFB/DEFM/DEFS/DEFW statement.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>operation</strong> – The operation (e.g. ‘XOR A’).</li>
+<li><strong>address</strong> – The instruction address.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">The instruction size, or 0 if the instruction cannot be assembled.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="control-directive-composer">
+<span id="ctlcomposer"></span><h2>Control directive composer<a class="headerlink" href="#control-directive-composer" title="Permalink to this headline">¶</a></h2>
+<p>This class is responsible for computing the type, length and sublengths of a
+DEFB/DEFM/DEFS/DEFW statement, or the operand bases of a regular instruction,
+for the purpose of composing a control directive. It must supply the following
+API methods, in common with skoolkit.skoolctl.ControlDirectiveComposer:</p>
+<dl class="class">
+<dt id="skoolkit.skoolctl.ControlDirectiveComposer">
+<em class="property">class </em><code class="descclassname">skoolkit.skoolctl.</code><code class="descname">ControlDirectiveComposer</code><span class="sig-paren">(</span><em>preserve_base</em><span class="sig-paren">)</span><a class="headerlink" href="#skoolkit.skoolctl.ControlDirectiveComposer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialise the control directive composer.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>preserve_base</strong> – Whether to preserve the base of decimal and
+hexadecimal values with explicit ‘d’ and ‘h’ base
+indicators.</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="skoolkit.skoolctl.ControlDirectiveComposer.compose">
+<code class="descname">compose</code><span class="sig-paren">(</span><em>operation</em><span class="sig-paren">)</span><a class="headerlink" href="#skoolkit.skoolctl.ControlDirectiveComposer.compose" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the type, length and sublengths of a DEFB/DEFM/DEFS/DEFW
+statement, or the operand bases of a regular instruction.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>operation</strong> – The operation (e.g. ‘LD A,0’ or ‘DEFB 0’).</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A 3-element tuple, <code class="docutils literal notranslate"><span class="pre">(ctl,</span> <span class="pre">length,</span> <span class="pre">sublengths)</span></code>, where:<ul class="simple">
+<li><code class="docutils literal notranslate"><span class="pre">ctl</span></code> is ‘B’ (DEFB), ‘C’ (regular instruction), ‘S’ (DEFS),
+‘T’ (DEFM) or ‘W’ (DEFW)</li>
+<li><code class="docutils literal notranslate"><span class="pre">length</span></code> is the number of bytes in the DEFB/DEFM/DEFS/DEFW
+statement, or the operand base indicator for a regular
+instruction (e.g. ‘b’ for ‘LD A,%00000001’)</li>
+<li><code class="docutils literal notranslate"><span class="pre">sublengths</span></code> is a colon-separated sequence of sublengths (e.g.
+‘1:c1’ for ‘DEFB 0,”a”’), or <cite>None</cite> for a regular instruction</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<p>If <strong>compose()</strong> encounters an error while parsing an operation and cannot
+recover, it should raise a SkoolParsingError:</p>
+<dl class="class">
+<dt id="skoolkit.SkoolParsingError">
+<em class="property">class </em><code class="descclassname">skoolkit.</code><code class="descname">SkoolParsingError</code><a class="headerlink" href="#skoolkit.SkoolParsingError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Raised when an error occurs while parsing a skool file.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="control-file-generator">
+<span id="ctlgenerator"></span><h2>Control file generator<a class="headerlink" href="#control-file-generator" title="Permalink to this headline">¶</a></h2>
+<p>This object is reponsible for generating a dictionary of control directives
+from a snapshot. Each key in the dictionary is an address, and the associated
+value is the control directive (e.g. ‘b’ or ‘c’) for that address. The control
+file generator object must supply the following API function, in common with
+skoolkit.snactl:</p>
+<span class="target" id="module-skoolkit.snactl"></span><dl class="function">
+<dt id="skoolkit.snactl.generate_ctls">
+<code class="descclassname">skoolkit.snactl.</code><code class="descname">generate_ctls</code><span class="sig-paren">(</span><em>snapshot</em>, <em>start</em>, <em>end</em>, <em>code_map</em>, <em>config</em><span class="sig-paren">)</span><a class="headerlink" href="#skoolkit.snactl.generate_ctls" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate control directives from a snapshot.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>snapshot</strong> – The snapshot.</li>
+<li><strong>start</strong> – Start address. No control directives should be generated
+before this address.</li>
+<li><strong>end</strong> – End address. No control directives should be generated after
+this address.</li>
+<li><strong>code_map</strong> – Code map filename (may be <cite>None</cite>).</li>
+<li><strong>config</strong> – <p>Configuration object with the following attributes:</p>
+<ul>
+<li><cite>text_chars</cite> - string of characters eligible for being
+marked as text</li>
+<li><cite>text_min_length_code</cite> - minimum length of a string of
+characters eligible for being marked as text in a block
+identified as code</li>
+<li><cite>text_min_length_data</cite> - minimum length of a string of
+characters eligible for being marked as text in a block
+identified as data</li>
+<li><cite>words</cite> - collection of allowed words; if not empty, a
+string of characters should be marked as text only if it
+contains at least one of the words in this collection</li>
+</ul>
+</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A dictionary of control directives.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="disassembler">
+<span id="id2"></span><h2>Disassembler<a class="headerlink" href="#disassembler" title="Permalink to this headline">¶</a></h2>
+<p>This class is responsible for converting byte values into assembly language
+instructions and DEFB/DEFM/DEFS/DEFW statements. It must supply the following
+API methods, in common with skoolkit.disassembler.Disassembler:</p>
+<dl class="class">
+<dt id="skoolkit.disassembler.Disassembler">
+<em class="property">class </em><code class="descclassname">skoolkit.disassembler.</code><code class="descname">Disassembler</code><span class="sig-paren">(</span><em>snapshot</em>, <em>config</em><span class="sig-paren">)</span><a class="headerlink" href="#skoolkit.disassembler.Disassembler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialise the disassembler.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>snapshot</strong> – The snapshot (list of 65536 byte values) to disassemble.</li>
+<li><strong>config</strong> – <p>Configuration object with the following attributes:</p>
+<ul>
+<li><cite>asm_hex</cite> - if <cite>True</cite>, produce a hexadecimal disassembly</li>
+<li><cite>asm_lower</cite> - if <cite>True</cite>, produce a lower case disassembly</li>
+<li><cite>defb_size</cite> - default maximum number of bytes in a DEFB
+statement</li>
+<li><cite>defm_size</cite> - default maximum number of characters in a
+DEFM statement</li>
+<li><cite>defw_size</cite> - default maximum number of words in a DEFW
+statement</li>
+</ul>
+</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="skoolkit.disassembler.Disassembler.defb_range">
+<code class="descname">defb_range</code><span class="sig-paren">(</span><em>start</em>, <em>end</em>, <em>sublengths</em><span class="sig-paren">)</span><a class="headerlink" href="#skoolkit.disassembler.Disassembler.defb_range" title="Permalink to this definition">¶</a></dt>
+<dd><p>Produce a sequence of DEFB statements for an address range.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>start</strong> – The start address.</li>
+<li><strong>end</strong> – The end address.</li>
+<li><strong>sublengths</strong> – Sequence of sublength identifiers.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A list of tuples of the form <code class="docutils literal notranslate"><span class="pre">(address,</span> <span class="pre">operation,</span> <span class="pre">bytes)</span></code>.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="skoolkit.disassembler.Disassembler.defm_range">
+<code class="descname">defm_range</code><span class="sig-paren">(</span><em>start</em>, <em>end</em>, <em>sublengths</em><span class="sig-paren">)</span><a class="headerlink" href="#skoolkit.disassembler.Disassembler.defm_range" title="Permalink to this definition">¶</a></dt>
+<dd><p>Produce a sequence of DEFM statements for an address range.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>start</strong> – The start address.</li>
+<li><strong>end</strong> – The end address.</li>
+<li><strong>sublengths</strong> – Sequence of sublength identifiers.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A list of tuples of the form <code class="docutils literal notranslate"><span class="pre">(address,</span> <span class="pre">operation,</span> <span class="pre">bytes)</span></code>.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="skoolkit.disassembler.Disassembler.defs_range">
+<code class="descname">defs_range</code><span class="sig-paren">(</span><em>start</em>, <em>end</em>, <em>sublengths</em><span class="sig-paren">)</span><a class="headerlink" href="#skoolkit.disassembler.Disassembler.defs_range" title="Permalink to this definition">¶</a></dt>
+<dd><p>Produce a sequence of DEFS statements for an address range.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>start</strong> – The start address.</li>
+<li><strong>end</strong> – The end address.</li>
+<li><strong>sublengths</strong> – Sequence of sublength identifiers.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A list of tuples of the form <code class="docutils literal notranslate"><span class="pre">(address,</span> <span class="pre">operation,</span> <span class="pre">bytes)</span></code>.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="skoolkit.disassembler.Disassembler.defw_range">
+<code class="descname">defw_range</code><span class="sig-paren">(</span><em>start</em>, <em>end</em>, <em>sublengths</em><span class="sig-paren">)</span><a class="headerlink" href="#skoolkit.disassembler.Disassembler.defw_range" title="Permalink to this definition">¶</a></dt>
+<dd><p>Produce a sequence of DEFW statements for an address range.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>start</strong> – The start address.</li>
+<li><strong>end</strong> – The end address.</li>
+<li><strong>sublengths</strong> – Sequence of sublength identifiers.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A list of tuples of the form <code class="docutils literal notranslate"><span class="pre">(address,</span> <span class="pre">operation,</span> <span class="pre">bytes)</span></code>.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="skoolkit.disassembler.Disassembler.disassemble">
+<code class="descname">disassemble</code><span class="sig-paren">(</span><em>start</em>, <em>end</em>, <em>base</em><span class="sig-paren">)</span><a class="headerlink" href="#skoolkit.disassembler.Disassembler.disassemble" title="Permalink to this definition">¶</a></dt>
+<dd><p>Disassemble an address range.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>start</strong> – The start address.</li>
+<li><strong>end</strong> – The end address.</li>
+<li><strong>base</strong> – Base indicator (‘b’, ‘c’, ‘d’, ‘h’, ‘m’ or ‘n’). For
+instructions with two numeric operands (e.g.
+‘LD (IX+d),n’), the indicator may consist of two letters,
+one for each operand (e.g. ‘dh’).</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A list of tuples of the form <code class="docutils literal notranslate"><span class="pre">(address,</span> <span class="pre">operation,</span> <span class="pre">bytes)</span></code>.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<p>The 3-element tuples returned by these methods should have the form
+<code class="docutils literal notranslate"><span class="pre">(address,</span> <span class="pre">operation,</span> <span class="pre">bytes)</span></code>, where:</p>
+<ul class="simple">
+<li><code class="docutils literal notranslate"><span class="pre">address</span></code> is the address of the instruction</li>
+<li><code class="docutils literal notranslate"><span class="pre">operation</span></code> is the operation (e.g. ‘XOR A’, ‘DEFB 1’)</li>
+<li><code class="docutils literal notranslate"><span class="pre">bytes</span></code> is a sequence of byte values for the instruction (e.g. <code class="docutils literal notranslate"><span class="pre">(62,</span> <span class="pre">0)</span></code>
+for ‘LD A,0’)</li>
+</ul>
+<p>The <em>sublengths</em> argument of the <code class="xref py py-meth docutils literal notranslate"><span class="pre">defb_range()</span></code>, <code class="xref py py-meth docutils literal notranslate"><span class="pre">defm_range()</span></code>,
+<code class="xref py py-meth docutils literal notranslate"><span class="pre">defs_range()</span></code> and <code class="xref py py-meth docutils literal notranslate"><span class="pre">defw_range()</span></code> methods is a sequence of 2-element
+tuples of the form <code class="docutils literal notranslate"><span class="pre">(size,</span> <span class="pre">base)</span></code>, each of which specifies the desired size
+(in bytes) and number base for an item in the DEFB/DEFM/DEFS/DEFW statement.
+<code class="docutils literal notranslate"><span class="pre">base</span></code> may have one of the following values:</p>
+<ul class="simple">
+<li>‘b’ - binary</li>
+<li>‘c’ - character</li>
+<li>‘d’ - decimal</li>
+<li>‘h’ - hexadecimal</li>
+<li>‘m’ - negative</li>
+<li>‘n’ - default base</li>
+</ul>
+<p>If the first element of <em>sublengths</em> has a <code class="docutils literal notranslate"><span class="pre">size</span></code> value of 0, then the method
+should produce a list of statements with default sizes (as determined by
+<cite>defb_size</cite>, <cite>defm_size</cite> and <cite>defw_size</cite>), using the specified base.</p>
+</div>
+<div class="section" id="html-template-formatter">
+<span id="htmltemplateformatter"></span><h2>HTML template formatter<a class="headerlink" href="#html-template-formatter" title="Permalink to this headline">¶</a></h2>
+<p>This class is responsible for formatting HTML templates. It must supply the
+following API methods, in common with skoolkit.skoolhtml.TemplateFormatter:</p>
+<dl class="class">
+<dt id="skoolkit.skoolhtml.TemplateFormatter">
+<em class="property">class </em><code class="descclassname">skoolkit.skoolhtml.</code><code class="descname">TemplateFormatter</code><span class="sig-paren">(</span><em>templates</em><span class="sig-paren">)</span><a class="headerlink" href="#skoolkit.skoolhtml.TemplateFormatter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialise the template formatter.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>templates</strong> – A dictionary of templates keyed by template name.</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="skoolkit.skoolhtml.TemplateFormatter.format_template">
+<code class="descname">format_template</code><span class="sig-paren">(</span><em>page_id</em>, <em>name</em>, <em>fields</em><span class="sig-paren">)</span><a class="headerlink" href="#skoolkit.skoolhtml.TemplateFormatter.format_template" title="Permalink to this definition">¶</a></dt>
+<dd><p>Format a template.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>page_id</strong> – The ID of the current page.</li>
+<li><strong>name</strong> – The template name.</li>
+<li><strong>fields</strong> – A dictionary of replacement field values.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">The text of the formatted template.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="instruction-utility">
+<span id="instructionutility"></span><h2>Instruction utility<a class="headerlink" href="#instruction-utility" title="Permalink to this headline">¶</a></h2>
+<p>This object is responsible for performing various operations on the
+instructions in a skool file:</p>
+<ul class="simple">
+<li>converting base and case</li>
+<li>replacing addresses with labels in instruction operands; this is required for
+ASM output</li>
+<li>generating a dictionary of references (for each instruction that refers to
+another instruction); this is required for hyperlinking instruction operands
+in HTML output</li>
+<li>generating a dictionary of referrers (for each instruction that is referred
+to by other instructions); this is required by the special <code class="docutils literal notranslate"><span class="pre">EREF</span></code> and
+<code class="docutils literal notranslate"><span class="pre">REF</span></code> variables of the <a class="reference internal" href="skool-macros.html#foreach"><span class="std std-ref">#FOREACH</span></a> macro</li>
+<li>deciding whether to set byte values; this affects the <a class="reference internal" href="skool-macros.html#peek"><span class="std std-ref">#PEEK</span></a> macro and
+the <a class="reference internal" href="skool-macros.html#imagemacros"><span class="std std-ref">image macros</span></a>, and instruction byte values in HTML
+output</li>
+</ul>
+<p>The object must supply the following API functions, in common with
+skoolkit.skoolparser.InstructionUtility:</p>
+<dl class="class">
+<dt id="skoolkit.skoolparser.InstructionUtility">
+<em class="property">class </em><code class="descclassname">skoolkit.skoolparser.</code><code class="descname">InstructionUtility</code><a class="headerlink" href="#skoolkit.skoolparser.InstructionUtility" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="skoolkit.skoolparser.InstructionUtility.calculate_references">
+<code class="descname">calculate_references</code><span class="sig-paren">(</span><em>entries</em>, <em>remote_entries</em><span class="sig-paren">)</span><a class="headerlink" href="#skoolkit.skoolparser.InstructionUtility.calculate_references" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate a dictionary of references (for each instruction that refers
+to another instruction) and a dictionary of referrers (for each
+instruction that is referred to by other instructions) from the
+instructions in a skool file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>entries</strong> – A collection of memory map entries.</li>
+<li><strong>remote_entries</strong> – A collection of remote entries (as defined by
+<a class="reference internal" href="asm.html#remote"><span class="std std-ref">&#64;remote</span></a> directives).</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A tuple containing the two dictionaries.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="skoolkit.skoolparser.InstructionUtility.convert">
+<code class="descname">convert</code><span class="sig-paren">(</span><em>entries</em>, <em>base</em>, <em>case</em><span class="sig-paren">)</span><a class="headerlink" href="#skoolkit.skoolparser.InstructionUtility.convert" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert the base and case of every instruction in a skool file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>entries</strong> – A collection of memory map entries.</li>
+<li><strong>base</strong> – The base to convert to: 0 for no conversion, 10 for
+decimal, or 16 for hexadecimal.</li>
+<li><strong>case</strong> – The case to convert to: 0 for no conversion, 1 for lower
+case, or 2 for upper case.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="skoolkit.skoolparser.InstructionUtility.set_byte_values">
+<code class="descname">set_byte_values</code><span class="sig-paren">(</span><em>instruction</em>, <em>assemble</em><span class="sig-paren">)</span><a class="headerlink" href="#skoolkit.skoolparser.InstructionUtility.set_byte_values" title="Permalink to this definition">¶</a></dt>
+<dd><p>Decide whether to set byte values in the memory snapshot and for an
+instruction.</p>
+<p>If byte values are set in the memory snapshot, then they are available
+to the <a class="reference internal" href="skool-macros.html#peek"><span class="std std-ref">#PEEK</span></a> macro and the <a class="reference internal" href="skool-macros.html#imagemacros"><span class="std std-ref">image macros</span></a>. If
+byte values are set for an instruction, then they are available for
+display in HTML output via the <code class="docutils literal notranslate"><span class="pre">instruction[bytes]</span></code> replacement field
+in the <a class="reference internal" href="html-templates.html#t-asm"><span class="std std-ref">asm</span></a> template.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>instruction</strong> – The instruction.</li>
+<li><strong>assemble</strong> – The current value of the <em>assemble</em> property (as set
+by the <a class="reference internal" href="asm.html#assemble"><span class="std std-ref">&#64;assemble</span></a> directive).</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">2 if both the snapshot and the instruction should have byte
+values defined, 1 if only the snapshot should, or 0 if neither
+should.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="skoolkit.skoolparser.InstructionUtility.substitute_labels">
+<code class="descname">substitute_labels</code><span class="sig-paren">(</span><em>entries</em>, <em>remote_entries</em>, <em>labels</em>, <em>warn</em><span class="sig-paren">)</span><a class="headerlink" href="#skoolkit.skoolparser.InstructionUtility.substitute_labels" title="Permalink to this definition">¶</a></dt>
+<dd><p>Replace addresses with labels in the operands of every instruction
+in a skool file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>entries</strong> – A collection of memory map entries.</li>
+<li><strong>remote_entries</strong> – A collection of remote entries (as defined by
+<a class="reference internal" href="asm.html#remote"><span class="std std-ref">&#64;remote</span></a> directives).</li>
+<li><strong>labels</strong> – A dictionary mapping addresses to labels.</li>
+<li><strong>warn</strong> – <p>A function that emits a warning. It takes four arguments:</p>
+<ul>
+<li><cite>fmt</cite> - a format string for the warning message; it may
+contain ‘{address}’ and ‘{operation}’ replacement
+fields.</li>
+<li><cite>instruction</cite> - the relevant instruction object.</li>
+<li><cite>subbed</cite> - whether to show the warning for an operation
+that has been replaced by a <code class="docutils literal notranslate"><span class="pre">&#64;*sub</span></code> or <code class="docutils literal notranslate"><span class="pre">&#64;*fix</span></code>
+directive (optional, defaults to <cite>False</cite>).</li>
+<li><cite>min_mode</cite> - the minimum ASM mode in which the warning
+should be displayed (optional, defaults to 0).</li>
+</ul>
+</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<p>Memory map entries and remote entries have the following attributes:</p>
+<ul class="simple">
+<li><em>ctl</em> - the entry’s control directive (‘b’, ‘c’, ‘g’, ‘i’, ‘s’, ‘t’, ‘u’ or
+‘w’ for a memory map entry; <cite>None</cite> for a remote entry)</li>
+<li><em>instructions</em> - a collection of instruction objects</li>
+</ul>
+<p>Each instruction object has the following attributes:</p>
+<ul class="simple">
+<li><em>address</em> - the address of the instruction</li>
+<li><em>keep</em> - <cite>None</cite> if the instruction has no <a class="reference internal" href="asm.html#keep"><span class="std std-ref">&#64;keep</span></a> directive; an empty
+collection if it has a bare <a class="reference internal" href="asm.html#keep"><span class="std std-ref">&#64;keep</span></a> directive; or a collection of
+addresses if it has a <a class="reference internal" href="asm.html#keep"><span class="std std-ref">&#64;keep</span></a> directive with one or more values</li>
+<li><em>operation</em> - the operation (e.g. ‘XOR A’), or an empty string if the
+instruction is in a remote entry</li>
+</ul>
+<p>Each key in the references dictionary should be an instruction object, and the
+corresponding value should be a 3-element tuple:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>(ref_instruction, address_s, use_label)
+</pre></div>
+</div>
+<ul class="simple">
+<li><code class="docutils literal notranslate"><span class="pre">ref_instruction</span></code> - the instruction referred to</li>
+<li><code class="docutils literal notranslate"><span class="pre">address_s</span></code> - the address string in the operand of the referring
+instruction (to be replaced by a hyperlink in HTML output)</li>
+<li><code class="docutils literal notranslate"><span class="pre">use_label</span></code> - whether to use a label as the link text for the hyperlink in
+HTML output; if no label for <code class="docutils literal notranslate"><span class="pre">ref_instruction</span></code> is defined, or <code class="docutils literal notranslate"><span class="pre">use_label</span></code>
+is <cite>False</cite>, the address string (<code class="docutils literal notranslate"><span class="pre">address_s</span></code>) will be used as the link text</li>
+</ul>
+<p>Each key in the referrers dictionary should be an instruction object, and the
+corresponding value should be a collection of the entries that refer to that
+instruction.</p>
+</div>
+<div class="section" id="operand-evaluator">
+<span id="operandevaluator"></span><h2>Operand evaluator<a class="headerlink" href="#operand-evaluator" title="Permalink to this headline">¶</a></h2>
+<p>This object is used by the <a class="reference internal" href="#assembler"><span class="std std-ref">assembler</span></a> to evaluate instruction
+operands, and by the <a class="reference internal" href="#ctlcomposer"><span class="std std-ref">control directive composer</span></a> to
+determine the length and sublengths of DEFB, DEFM and DEFS statements. It must
+supply the following API functions, in common with skoolkit.z80:</p>
+<dl class="function">
+<dt>
+<code class="descclassname">skoolkit.z80.</code><code class="descname">eval_int</code><span class="sig-paren">(</span><em>text</em><span class="sig-paren">)</span></dt>
+<dd><p>Evaluate an integer operand.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>text</strong> – The operand.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The integer value.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><cite>ValueError</cite> if the operand is not a valid integer.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descclassname">skoolkit.z80.</code><code class="descname">eval_string</code><span class="sig-paren">(</span><em>text</em><span class="sig-paren">)</span></dt>
+<dd><p>Evaluate a string operand.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>text</strong> – The operand, including enclosing quotes.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A list of byte values.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><cite>ValueError</cite> if the operand is not a valid string.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descclassname">skoolkit.z80.</code><code class="descname">split_operands</code><span class="sig-paren">(</span><em>text</em><span class="sig-paren">)</span></dt>
+<dd><p>Split a comma-separated list of operands.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>text</strong> – The operands.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A list of individual operands.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="operand-formatter">
+<span id="operandformatter"></span><h2>Operand formatter<a class="headerlink" href="#operand-formatter" title="Permalink to this headline">¶</a></h2>
+<p>This class is used by the <a class="reference internal" href="#disassembler"><span class="std std-ref">disassembler</span></a> to format numeric
+instruction operands. It must supply the following API methods, in common with
+skoolkit.disassembler.OperandFormatter:</p>
+<dl class="class">
+<dt id="skoolkit.disassembler.OperandFormatter">
+<em class="property">class </em><code class="descclassname">skoolkit.disassembler.</code><code class="descname">OperandFormatter</code><span class="sig-paren">(</span><em>config</em><span class="sig-paren">)</span><a class="headerlink" href="#skoolkit.disassembler.OperandFormatter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialise the operand formatter.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>config</strong> – <p>Configuration object with the following attributes:</p>
+<ul class="simple">
+<li><cite>asm_hex</cite> - if <cite>True</cite>, default base is hexadecimal</li>
+<li><cite>asm_lower</cite> - if <cite>True</cite>, format operands in lower case</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="skoolkit.disassembler.OperandFormatter.format_byte">
+<code class="descname">format_byte</code><span class="sig-paren">(</span><em>value</em>, <em>base</em><span class="sig-paren">)</span><a class="headerlink" href="#skoolkit.disassembler.OperandFormatter.format_byte" title="Permalink to this definition">¶</a></dt>
+<dd><p>Format a byte value.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>value</strong> – The byte value.</li>
+<li><strong>base</strong> – The desired base (‘b’, ‘c’, ‘d’, ‘h’, ‘m’ or ‘n’).</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">The formatted byte value.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="skoolkit.disassembler.OperandFormatter.format_word">
+<code class="descname">format_word</code><span class="sig-paren">(</span><em>value</em>, <em>base</em><span class="sig-paren">)</span><a class="headerlink" href="#skoolkit.disassembler.OperandFormatter.format_word" title="Permalink to this definition">¶</a></dt>
+<dd><p>Format a word (2-byte) value.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>value</strong> – The word value.</li>
+<li><strong>base</strong> – The desired base (‘b’, ‘c’, ‘d’, ‘h’, ‘m’ or ‘n’).</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">The formatted word value.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="skoolkit.disassembler.OperandFormatter.is_char">
+<code class="descname">is_char</code><span class="sig-paren">(</span><em>value</em><span class="sig-paren">)</span><a class="headerlink" href="#skoolkit.disassembler.OperandFormatter.is_char" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return whether a byte value can be formatted as a character.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>value</strong> – The byte value.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="snapshot-reader">
+<span id="snapshotreader"></span><h2>Snapshot reader<a class="headerlink" href="#snapshot-reader" title="Permalink to this headline">¶</a></h2>
+<p>This object is responsible for producing a 65536-element list of byte values
+from a snapshot file. It must supply the following API functions, in common
+with skoolkit.snapshot:</p>
+<span class="target" id="module-skoolkit.snapshot"></span><dl class="function">
+<dt id="skoolkit.snapshot.can_read">
+<code class="descclassname">skoolkit.snapshot.</code><code class="descname">can_read</code><span class="sig-paren">(</span><em>fname</em><span class="sig-paren">)</span><a class="headerlink" href="#skoolkit.snapshot.can_read" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return whether this snapshot reader can read the file <cite>fname</cite>.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="skoolkit.snapshot.get_snapshot">
+<code class="descclassname">skoolkit.snapshot.</code><code class="descname">get_snapshot</code><span class="sig-paren">(</span><em>fname</em>, <em>page=None</em><span class="sig-paren">)</span><a class="headerlink" href="#skoolkit.snapshot.get_snapshot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read a snapshot file and produce a 65536-element list of byte values.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>fname</strong> – The snapshot filename.</li>
+<li><strong>page</strong> – The page number to map to addresses 49152-65535 (C000-FFFF).
+This is relevant only when reading a 128K snapshot file.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A 65536-element list of byte values.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<p>If <strong>get_snapshot()</strong> encounters an error while reading a snapshot file, it
+should raise a SnapshotError:</p>
+<dl class="class">
+<dt id="skoolkit.snapshot.SnapshotError">
+<em class="property">class </em><code class="descclassname">skoolkit.snapshot.</code><code class="descname">SnapshotError</code><a class="headerlink" href="#skoolkit.snapshot.SnapshotError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Raised when an error occurs while reading a snapshot file.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="snapshot-reference-calculator">
+<span id="snapshotrefcalc"></span><h2>Snapshot reference calculator<a class="headerlink" href="#snapshot-reference-calculator" title="Permalink to this headline">¶</a></h2>
+<p>This object is responsible for generating a dictionary of entry point addresses
+from a snapshot. Each key in the dictionary is an entry point address, and the
+associated value is a collection of entries that jump to or call that entry
+point. This dictionary is needed for listing entry point referrers in a skool
+file (when the <code class="docutils literal notranslate"><span class="pre">ListRefs</span></code> configuration parameter of
+<a class="reference internal" href="commands.html#sna2skool-conf"><span class="std std-ref">sna2skool.py</span></a> is 1 or 2).</p>
+<p>The snapshot reference calculator must supply the following API function, in
+common with skoolkit.snaskool:</p>
+<span class="target" id="module-skoolkit.snaskool"></span><dl class="function">
+<dt id="skoolkit.snaskool.calculate_references">
+<code class="descclassname">skoolkit.snaskool.</code><code class="descname">calculate_references</code><span class="sig-paren">(</span><em>entries</em>, <em>operations</em><span class="sig-paren">)</span><a class="headerlink" href="#skoolkit.snaskool.calculate_references" title="Permalink to this definition">¶</a></dt>
+<dd><p>For each entry point in each routine, calculate a list of the entries
+containing instructions that jump to or call that entry point.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>entries</strong> – A collection of memory map entries.</li>
+<li><strong>operations</strong> – A tuple of operation prefixes. Any instruction whose
+operation starts with one of these prefixes is regarded
+as a jump or call operation, and therefore identifies an
+entry point.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A dictionary of entry point addresses.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<p>The value of the <em>operations</em> argument is derived from the
+<code class="docutils literal notranslate"><span class="pre">SnapshotReferenceOperations</span></code> parameter in the <code class="docutils literal notranslate"><span class="pre">[skoolkit]</span></code> section of
+<cite>skoolkit.ini</cite>.</p>
+<p>Each memory map entry has the following attributes:</p>
+<ul class="simple">
+<li><em>ctl</em> - the entry’s control directive (‘b’, ‘c’, ‘g’, ‘i’, ‘s’, ‘t’, ‘u’ or
+‘w’)</li>
+<li><em>instructions</em> - a collection of instruction objects</li>
+</ul>
+<p>Each instruction object has the following attributes:</p>
+<ul class="simple">
+<li><em>address</em> - the address of the instruction</li>
+<li><em>bytes</em> - the byte values of the instruction</li>
+<li><em>label</em> - the instruction’s label, as defined by a <a class="reference internal" href="asm.html#label"><span class="std std-ref">&#64;label</span></a> directive</li>
+<li><em>operation</em> - the operation (e.g. ‘XOR A’)</li>
+</ul>
+</div>
+<div class="section" id="component-api">
+<h2>Component API<a class="headerlink" href="#component-api" title="Permalink to this headline">¶</a></h2>
+<p>The following functions are provided to facilitate access to the components and
+other values declared in the <code class="docutils literal notranslate"><span class="pre">[skoolkit]</span></code> section of <cite>skoolkit.ini</cite>.</p>
+<span class="target" id="module-skoolkit.components"></span><dl class="function">
+<dt id="skoolkit.components.get_component">
+<code class="descclassname">skoolkit.components.</code><code class="descname">get_component</code><span class="sig-paren">(</span><em>name</em>, <em>*args</em><span class="sig-paren">)</span><a class="headerlink" href="#skoolkit.components.get_component" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a component declared in the <code class="docutils literal notranslate"><span class="pre">[skoolkit]</span></code> section of
+<cite>skoolkit.ini</cite>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>name</strong> – The component name.</li>
+<li><strong>args</strong> – Arguments passed to the component’s constructor.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="skoolkit.components.get_value">
+<code class="descclassname">skoolkit.components.</code><code class="descname">get_value</code><span class="sig-paren">(</span><em>name</em><span class="sig-paren">)</span><a class="headerlink" href="#skoolkit.components.get_value" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a parameter value from the <code class="docutils literal notranslate"><span class="pre">[skoolkit]</span></code> section of
+<cite>skoolkit.ini</cite>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>name</strong> – The parameter name.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="extending.html" title="Extending SkoolKit"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.0 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2019, Richard Dymond.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
+    </div>
+  </body>
+</html>

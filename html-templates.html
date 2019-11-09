@@ -1,35 +1,24 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
-
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>HTML templates &#8212; SkoolKit 7.2 documentation</title>
-    
+    <title>HTML templates &#8212; SkoolKit 8.0 documentation</title>
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    './',
-        VERSION:     '7.2',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
-      };
-    </script>
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="top" title="SkoolKit 7.2 documentation" href="index.html" />
     <link rel="next" title="Extending SkoolKit" href="extending.html" />
     <link rel="prev" title="ASM templates" href="asm-templates.html" /> 
-  </head>
-  <body role="document">
+  </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -37,50 +26,44 @@
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
           <a href="extending.html" title="Extending SkoolKit"
              accesskey="N">next</a> |</li>
         <li class="right" >
           <a href="asm-templates.html" title="ASM templates"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 7.2 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.0 documentation</a> &#187;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-  <h3><a href="index.html">Table Of Contents</a></h3>
+  <h3><a href="index.html">Table of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">HTML templates</a><ul>
-<li><a class="reference internal" href="#asm">Asm</a></li>
-<li><a class="reference internal" href="#asmallinone">AsmAllInOne</a></li>
-<li><a class="reference internal" href="#gameindex">GameIndex</a></li>
-<li><a class="reference internal" href="#memorymap">MemoryMap</a></li>
-<li><a class="reference internal" href="#page">Page</a></li>
-<li><a class="reference internal" href="#reference">Reference</a></li>
-<li><a class="reference internal" href="#anchor">anchor</a></li>
-<li><a class="reference internal" href="#asm-comment">asm_comment</a></li>
-<li><a class="reference internal" href="#asm-entry">asm_entry</a></li>
-<li><a class="reference internal" href="#asm-instruction">asm_instruction</a></li>
-<li><a class="reference internal" href="#asm-register">asm_register</a></li>
-<li><a class="reference internal" href="#contents-list-item">contents_list_item</a></li>
+<li><a class="reference internal" href="#layout">Layout</a></li>
+<li><a class="reference internal" href="#asm">asm</a></li>
+<li><a class="reference internal" href="#asm-single-page">asm_single_page</a></li>
+<li><a class="reference internal" href="#box-entries">box_entries</a></li>
+<li><a class="reference internal" href="#box-list-entries">box_list_entries</a></li>
 <li><a class="reference internal" href="#footer">footer</a></li>
+<li><a class="reference internal" href="#home">home</a></li>
 <li><a class="reference internal" href="#img">img</a></li>
-<li><a class="reference internal" href="#index-section">index_section</a></li>
-<li><a class="reference internal" href="#index-section-item">index_section_item</a></li>
-<li><a class="reference internal" href="#javascript">javascript</a></li>
+<li><a class="reference internal" href="#item-list">item_list</a></li>
 <li><a class="reference internal" href="#link">link</a></li>
 <li><a class="reference internal" href="#list">list</a></li>
-<li><a class="reference internal" href="#list-entry">list_entry</a></li>
-<li><a class="reference internal" href="#list-item">list_item</a></li>
-<li><a class="reference internal" href="#list-items">list_items</a></li>
-<li><a class="reference internal" href="#map-entry">map_entry</a></li>
-<li><a class="reference internal" href="#paragraph">paragraph</a></li>
-<li><a class="reference internal" href="#reference-entry">reference_entry</a></li>
+<li><a class="reference internal" href="#memory-map">memory_map</a></li>
+<li><a class="reference internal" href="#page">page</a></li>
 <li><a class="reference internal" href="#reg">reg</a></li>
-<li><a class="reference internal" href="#stylesheet">stylesheet</a></li>
+<li><a class="reference internal" href="#section">section</a></li>
 <li><a class="reference internal" href="#table">table</a></li>
-<li><a class="reference internal" href="#table-cell">table_cell</a></li>
-<li><a class="reference internal" href="#table-header-cell">table_header_cell</a></li>
-<li><a class="reference internal" href="#table-row">table_row</a></li>
+<li><a class="reference internal" href="#template-directives">Template directives</a><ul>
+<li><a class="reference internal" href="#foreach">foreach</a></li>
+<li><a class="reference internal" href="#if">if</a></li>
+<li><a class="reference internal" href="#include">include</a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#page-specific-templates">Page-specific templates</a></li>
 </ul>
 </li>
@@ -95,18 +78,20 @@
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="_sources/html-templates.txt"
+      <li><a href="_sources/html-templates.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
+    </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -119,728 +104,607 @@
             
   <div class="section" id="html-templates">
 <span id="htmltemplates"></span><h1>HTML templates<a class="headerlink" href="#html-templates" title="Permalink to this headline">¶</a></h1>
-<p>Every page in an HTML disassembly is built from a single full-page template and
-several subtemplates defined by <a class="reference internal" href="ref-files.html#template"><span class="std std-ref">[Template:*]</span></a> sections in the ref file.</p>
-<p>A template may contain &#8216;replacement fields&#8217; - identifiers enclosed by braces
-(<code class="docutils literal"><span class="pre">{</span></code> and <code class="docutils literal"><span class="pre">}</span></code>) - that are replaced by appropriate content (typically derived
+<p>Every page in an HTML disassembly is built from the <a class="reference internal" href="#t-layout"><span class="std std-ref">Layout</span></a> template
+and zero or more subtemplates defined by <a class="reference internal" href="ref-files.html#template"><span class="std std-ref">[Template:*]</span></a> sections in the ref
+file.</p>
+<p>A template may contain ‘replacement fields’ - identifiers enclosed by braces
+(<code class="docutils literal notranslate"><span class="pre">{</span></code> and <code class="docutils literal notranslate"><span class="pre">}</span></code>) - that are replaced by appropriate content (typically derived
 from the skool file or a ref file section) when the template is formatted. The
-following &#8216;universal&#8217; identifiers are available in every template:</p>
+following ‘universal’ identifiers are available in every template:</p>
 <ul class="simple">
-<li><code class="docutils literal"><span class="pre">Game</span></code> - a dictionary of the parameters in the <a class="reference internal" href="ref-files.html#ref-game"><span class="std std-ref">[Game]</span></a> section</li>
-<li><code class="docutils literal"><span class="pre">SkoolKit</span></code> - a dictionary of parameters relevant to the page currently
+<li><code class="docutils literal notranslate"><span class="pre">Game</span></code> - a dictionary of the parameters in the <a class="reference internal" href="ref-files.html#ref-game"><span class="std std-ref">[Game]</span></a> section</li>
+<li><code class="docutils literal notranslate"><span class="pre">SkoolKit</span></code> - a dictionary of parameters relevant to the page currently
 being built</li>
 </ul>
-<p>The parameters in the <code class="docutils literal"><span class="pre">SkoolKit</span></code> dictionary are:</p>
+<p>The parameters in the <code class="docutils literal notranslate"><span class="pre">SkoolKit</span></code> dictionary are:</p>
 <ul class="simple">
-<li><code class="docutils literal"><span class="pre">index_href</span></code> - the relative path to the disassembly index page</li>
-<li><code class="docutils literal"><span class="pre">page_header</span></code> - the page header text (as defined in the <a class="reference internal" href="ref-files.html#pageheaders"><span class="std std-ref">[PageHeaders]</span></a>
-section)</li>
-<li><code class="docutils literal"><span class="pre">page_id</span></code> - the page ID (e.g. <code class="docutils literal"><span class="pre">GameIndex</span></code>, <code class="docutils literal"><span class="pre">MemoryMap</span></code>)</li>
-<li><code class="docutils literal"><span class="pre">path</span></code> - the page&#8217;s filename, including the full path relative to the root
+<li><code class="docutils literal notranslate"><span class="pre">include</span></code> - the name of the subtemplate used to format the content between
+the page header and footer</li>
+<li><code class="docutils literal notranslate"><span class="pre">index_href</span></code> - the relative path to the disassembly index page</li>
+<li><code class="docutils literal notranslate"><span class="pre">javascripts</span></code> - a list of javascript objects; each one has a single
+attribute, <code class="docutils literal notranslate"><span class="pre">src</span></code>, which holds the relative path to the JavaScript file</li>
+<li><code class="docutils literal notranslate"><span class="pre">page_header</span></code> - a two-element list containing the page header prefix and
+suffix (as defined in the <a class="reference internal" href="ref-files.html#pageheaders"><span class="std std-ref">[PageHeaders]</span></a> section)</li>
+<li><code class="docutils literal notranslate"><span class="pre">page_id</span></code> - the page ID (e.g. <code class="docutils literal notranslate"><span class="pre">GameIndex</span></code>, <code class="docutils literal notranslate"><span class="pre">MemoryMap</span></code>)</li>
+<li><code class="docutils literal notranslate"><span class="pre">path</span></code> - the page’s filename, including the full path relative to the root
 of the disassembly</li>
-<li><code class="docutils literal"><span class="pre">title</span></code> - the title of the page (as defined in the <a class="reference internal" href="ref-files.html#titles"><span class="std std-ref">[Titles]</span></a> section)</li>
+<li><code class="docutils literal notranslate"><span class="pre">stylesheets</span></code> - a list of stylesheet objects; each one has a single
+attribute, <code class="docutils literal notranslate"><span class="pre">href</span></code>, which holds the relative path to the CSS file</li>
+<li><code class="docutils literal notranslate"><span class="pre">title</span></code> - the title of the page (as defined in the <a class="reference internal" href="ref-files.html#titles"><span class="std std-ref">[Titles]</span></a> section)</li>
 </ul>
-<p>The parameters in a dictionary are accessed using the <code class="docutils literal"><span class="pre">[param]</span></code> notation;
-for example, wherever <code class="docutils literal"><span class="pre">{Game[Copyright]}</span></code> appears in a template, it is
-replaced by the value of the <code class="docutils literal"><span class="pre">Copyright</span></code> parameter in the <a class="reference internal" href="ref-files.html#ref-game"><span class="std std-ref">[Game]</span></a>
+<p>The parameters in a dictionary are accessed using the <code class="docutils literal notranslate"><span class="pre">[param]</span></code> notation;
+for example, wherever <code class="docutils literal notranslate"><span class="pre">{Game[Copyright]}</span></code> appears in a template, it is
+replaced by the value of the <code class="docutils literal notranslate"><span class="pre">Copyright</span></code> parameter in the <a class="reference internal" href="ref-files.html#ref-game"><span class="std std-ref">[Game]</span></a>
 section when the template is formatted.</p>
-<p>In addition to the universal identifiers, the following page-level identifiers
-are available in every full-page template:</p>
-<ul class="simple">
-<li><code class="docutils literal"><span class="pre">m_javascript</span></code> - replaced by any number of copies of the
-<a class="reference internal" href="#t-javascript"><span class="std std-ref">javascript</span></a> subtemplate</li>
-<li><code class="docutils literal"><span class="pre">m_stylesheet</span></code> - replaced by one or more copies of the <a class="reference internal" href="#t-stylesheet"><span class="std std-ref">stylesheet</span></a>
-subtemplate</li>
-<li><code class="docutils literal"><span class="pre">t_footer</span></code> - replaced by a copy of the <a class="reference internal" href="#t-footer"><span class="std std-ref">footer</span></a> subtemplate</li>
-</ul>
 <div class="versionchanged">
-<p><span class="versionmodified">Changed in version 6.4: </span>Added <code class="docutils literal"><span class="pre">path</span></code> to the <code class="docutils literal"><span class="pre">SkoolKit</span></code> dictionary.</p>
+<p><span class="versionmodified">Changed in version 8.0: </span><code class="docutils literal notranslate"><span class="pre">SkoolKit[page_header]</span></code> is a two-element list containing the page header
+prefix and suffix. Added <code class="docutils literal notranslate"><span class="pre">SkoolKit[include]</span></code>, <code class="docutils literal notranslate"><span class="pre">SkoolKit[javascripts]</span></code>
+and <code class="docutils literal notranslate"><span class="pre">SkoolKit[stylesheets]</span></code>.</p>
+</div>
+<div class="versionchanged">
+<p><span class="versionmodified">Changed in version 6.4: </span>Added <code class="docutils literal notranslate"><span class="pre">SkoolKit[path]</span></code>.</p>
+</div>
+<div class="section" id="layout">
+<span id="t-layout"></span><h2>Layout<a class="headerlink" href="#layout" title="Permalink to this headline">¶</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">Layout</span></code> template is used to format every HTML page.</p>
+<p>In any page defined by a <a class="reference internal" href="ref-files.html#page"><span class="std std-ref">[Page:*]</span></a> section, the following identifier is
+available (in addition to the universal identifiers):</p>
+<ul class="simple">
+<li><code class="docutils literal notranslate"><span class="pre">Page</span></code> - a dictionary of the parameters in the corresponding <a class="reference internal" href="ref-files.html#page"><span class="std std-ref">[Page:*]</span></a>
+section</li>
+</ul>
+<p>In any page defined by a <a class="reference internal" href="ref-files.html#memorymap"><span class="std std-ref">[MemoryMap:*]</span></a> section, the following identifier is
+available (in addition to the universal identifiers):</p>
+<ul class="simple">
+<li><code class="docutils literal notranslate"><span class="pre">MemoryMap</span></code> - a dictionary of the parameters in the corresponding
+<a class="reference internal" href="ref-files.html#memorymap"><span class="std std-ref">[MemoryMap:*]</span></a> section</li>
+</ul>
+<p>To see the default <code class="docutils literal notranslate"><span class="pre">Layout</span></code> template, run the following command:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ skool2html.py -r Template:Layout
+</pre></div>
+</div>
+<div class="versionadded">
+<p><span class="versionmodified">New in version 8.0.</span></p>
+</div>
 </div>
 <div class="section" id="asm">
-<span id="t-asm"></span><h2>Asm<a class="headerlink" href="#asm" title="Permalink to this headline">¶</a></h2>
-<p>The <code class="docutils literal"><span class="pre">Asm</span></code> template is the full-page template that is used to build
-disassembly pages.</p>
-<p>The following identifiers are available (in addition to the universal and
-page-level identifiers):</p>
+<span id="t-asm"></span><h2>asm<a class="headerlink" href="#asm" title="Permalink to this headline">¶</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">asm</span></code> template is used to format the content between the header and
+footer of a disassembly page.</p>
+<p>The following identifiers are available (in addition to the universal
+identifiers):</p>
 <ul class="simple">
-<li><code class="docutils literal"><span class="pre">disassembly</span></code> - replaced by sequences of copies of the
-<a class="reference internal" href="#t-asm-instruction"><span class="std std-ref">asm_instruction</span></a> subtemplate, punctuated by copies of the
-<a class="reference internal" href="#t-asm-comment"><span class="std std-ref">asm_comment</span></a> subtemplate</li>
-<li><code class="docutils literal"><span class="pre">entry</span></code> - a dictionary of parameters corresponding to the current memory
+<li><code class="docutils literal notranslate"><span class="pre">entry</span></code> - a dictionary of parameters corresponding to the current memory
 map entry (see below)</li>
-<li><code class="docutils literal"><span class="pre">next_entry</span></code> - a dictionary of parameters corresponding to the next memory
+<li><code class="docutils literal notranslate"><span class="pre">next_entry</span></code> - a dictionary of parameters corresponding to the next memory
 map entry (see below)</li>
-<li><code class="docutils literal"><span class="pre">prev_entry</span></code> - a dictionary of parameters corresponding to the previous
+<li><code class="docutils literal notranslate"><span class="pre">prev_entry</span></code> - a dictionary of parameters corresponding to the previous
 memory map entry (see below)</li>
-<li><code class="docutils literal"><span class="pre">registers_input</span></code> - replaced by any number of copies of the
-<a class="reference internal" href="#t-asm-register"><span class="std std-ref">asm_register</span></a> subtemplate</li>
-<li><code class="docutils literal"><span class="pre">registers_output</span></code> - replaced by any number of copies of the
-<a class="reference internal" href="#t-asm-register"><span class="std std-ref">asm_register</span></a> subtemplate</li>
 </ul>
-<p>The parameters in the <code class="docutils literal"><span class="pre">prev_entry</span></code>, <code class="docutils literal"><span class="pre">entry</span></code> and <code class="docutils literal"><span class="pre">next_entry</span></code> dictionaries
-are:</p>
+<p>The parameters in the <code class="docutils literal notranslate"><span class="pre">prev_entry</span></code> and <code class="docutils literal notranslate"><span class="pre">next_entry</span></code> dictionaries are:</p>
 <ul class="simple">
-<li><code class="docutils literal"><span class="pre">address</span></code> - the address of the entry (may be in decimal or hexadecimal
+<li><code class="docutils literal notranslate"><span class="pre">address</span></code> - the address of the entry (may be in decimal or hexadecimal
 format, depending on how it appears in the skool file, and the options passed
 to <a class="reference internal" href="commands.html#skool2html-py"><span class="std std-ref">skool2html.py</span></a>)</li>
-<li><code class="docutils literal"><span class="pre">annotated</span></code> - &#8216;1&#8217; if any instructions in the entry have a non-empty comment
-field, &#8216;0&#8217; otherwise</li>
-<li><code class="docutils literal"><span class="pre">byte</span></code> - the LSB of the entry address</li>
-<li><code class="docutils literal"><span class="pre">description</span></code> - the entry description</li>
-<li><code class="docutils literal"><span class="pre">exists</span></code> - &#8216;1&#8217; if the entry exists, &#8216;0&#8217; otherwise</li>
-<li><code class="docutils literal"><span class="pre">href</span></code> - the relative path to the disassembly page for the entry (useful
-only for <code class="docutils literal"><span class="pre">prev_entry</span></code> and <code class="docutils literal"><span class="pre">next_entry</span></code>)</li>
-<li><code class="docutils literal"><span class="pre">label</span></code> - the ASM label of the first instruction in the entry</li>
-<li><code class="docutils literal"><span class="pre">labels</span></code> - &#8216;1&#8217; if any instructions in the entry have an ASM label, &#8216;0&#8217;
+<li><code class="docutils literal notranslate"><span class="pre">anchor</span></code> - the anchor for the entry, formatted according to the value of
+the <code class="docutils literal notranslate"><span class="pre">AddressAnchor</span></code> parameter in the <a class="reference internal" href="ref-files.html#ref-game"><span class="std std-ref">[Game]</span></a> section</li>
+<li><code class="docutils literal notranslate"><span class="pre">byte</span></code> - the LSB of the entry address</li>
+<li><code class="docutils literal notranslate"><span class="pre">description</span></code> - a list of paragraphs comprising the entry description</li>
+<li><code class="docutils literal notranslate"><span class="pre">exists</span></code> - ‘1’ if the entry exists, ‘0’ otherwise</li>
+<li><code class="docutils literal notranslate"><span class="pre">href</span></code> - the relative path to the disassembly page for the entry</li>
+<li><code class="docutils literal notranslate"><span class="pre">label</span></code> - the ASM label of the first instruction in the entry</li>
+<li><code class="docutils literal notranslate"><span class="pre">location</span></code> - the address of the entry as a decimal number</li>
+<li><code class="docutils literal notranslate"><span class="pre">map_href</span></code> - the relative path to the entry on the ‘Memory Map’ page</li>
+<li><code class="docutils literal notranslate"><span class="pre">page</span></code> - the MSB of the entry address</li>
+<li><code class="docutils literal notranslate"><span class="pre">size</span></code> - the size of the entry in bytes</li>
+<li><code class="docutils literal notranslate"><span class="pre">title</span></code> - the title of the entry</li>
+<li><code class="docutils literal notranslate"><span class="pre">type</span></code> - the block type of the entry (‘b’, ‘c’, ‘g’, ‘s’, ‘t’, ‘u’ or ‘w’)</li>
+</ul>
+<p>The <code class="docutils literal notranslate"><span class="pre">entry</span></code> dictionary also contains these parameters, and the following
+additional ones:</p>
+<ul class="simple">
+<li><code class="docutils literal notranslate"><span class="pre">annotated</span></code> - ‘1’ if any instructions in the entry have a non-empty comment
+field, ‘0’ otherwise</li>
+<li><code class="docutils literal notranslate"><span class="pre">end_comment</span></code> - a list of paragraphs comprising the entry’s end comment</li>
+<li><code class="docutils literal notranslate"><span class="pre">input_registers</span></code> - a list of input register objects</li>
+<li><code class="docutils literal notranslate"><span class="pre">instructions</span></code> - a list of instruction objects</li>
+<li><code class="docutils literal notranslate"><span class="pre">labels</span></code> - ‘1’ if any instructions in the entry have an ASM label, ‘0’
 otherwise</li>
-<li><code class="docutils literal"><span class="pre">location</span></code> - the address of the entry as a decimal number</li>
-<li><code class="docutils literal"><span class="pre">map_href</span></code> - the relative path to the entry on the &#8216;Memory Map&#8217; page</li>
-<li><code class="docutils literal"><span class="pre">page</span></code> - the MSB of the entry address</li>
-<li><code class="docutils literal"><span class="pre">size</span></code> - the size of the entry in bytes</li>
-<li><code class="docutils literal"><span class="pre">title</span></code> - the title of the entry</li>
-<li><code class="docutils literal"><span class="pre">type</span></code> - the block type of the entry (&#8216;b&#8217;, &#8216;c&#8217;, &#8216;g&#8217;, &#8216;s&#8217;, &#8216;t&#8217;, &#8216;u&#8217; or &#8216;w&#8217;)</li>
+<li><code class="docutils literal notranslate"><span class="pre">output_registers</span></code> - a list of output register objects</li>
+<li><code class="docutils literal notranslate"><span class="pre">show_bytes</span></code> - ‘1’ if the entry contains at least one assembled instruction
+with byte values and the <code class="docutils literal notranslate"><span class="pre">Bytes</span></code> parameter in the <a class="reference internal" href="ref-files.html#ref-game"><span class="std std-ref">[Game]</span></a> section
+is not blank, ‘0’ otherwise</li>
 </ul>
-<p>The <code class="docutils literal"><span class="pre">entry</span></code> dictionary also contains the following parameters:</p>
+<p>Each input and output register object has the following attributes:</p>
 <ul class="simple">
-<li><code class="docutils literal"><span class="pre">input</span></code> - &#8216;1&#8217; if there are input register values defined, &#8216;0&#8217; otherwise</li>
-<li><code class="docutils literal"><span class="pre">output</span></code> - &#8216;1&#8217; if there are output register values defined, &#8216;0&#8217; otherwise</li>
+<li><code class="docutils literal notranslate"><span class="pre">description</span></code> - the register’s description (as it appears in the register
+section for the entry in the skool file)</li>
+<li><code class="docutils literal notranslate"><span class="pre">name</span></code> - the register’s name (e.g. ‘HL’)</li>
 </ul>
-<p>To see the default <code class="docutils literal"><span class="pre">Asm</span></code> template, run the following command:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>$ skool2html.py -r Template:Asm$
-</pre></div>
-</div>
-</div>
-<div class="section" id="asmallinone">
-<span id="t-asmallinone"></span><h2>AsmAllInOne<a class="headerlink" href="#asmallinone" title="Permalink to this headline">¶</a></h2>
-<p>The <code class="docutils literal"><span class="pre">AsmAllInOne</span></code> template is a full-page template that may be used to build
-a disassembly on a single page (by setting the <code class="docutils literal"><span class="pre">AsmSinglePageTemplate</span></code>
-parameter in the <a class="reference internal" href="ref-files.html#ref-game"><span class="std std-ref">[Game]</span></a> section).</p>
-<p>The following identifier is available (in addition to the universal and
-page-level identifiers):</p>
+<p>Each instruction object has the following attributes:</p>
 <ul class="simple">
-<li><code class="docutils literal"><span class="pre">m_asm_entry</span></code> - replaced by one or more copies of the <a class="reference internal" href="#t-asm-entry"><span class="std std-ref">asm_entry</span></a>
-subtemplate</li>
-</ul>
-<p>To see the default <code class="docutils literal"><span class="pre">AsmAllInOne</span></code> template, run the following command:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>$ skool2html.py -r Template:AsmAllInOne
-</pre></div>
-</div>
-<div class="versionadded">
-<p><span class="versionmodified">New in version 5.3.</span></p>
-</div>
-</div>
-<div class="section" id="gameindex">
-<span id="t-gameindex"></span><h2>GameIndex<a class="headerlink" href="#gameindex" title="Permalink to this headline">¶</a></h2>
-<p>The <code class="docutils literal"><span class="pre">GameIndex</span></code> template is the full-page template that is used to build the
-disassembly index page.</p>
-<p>The following identifier is available (in addition to the universal and
-page-level identifiers):</p>
-<ul class="simple">
-<li><code class="docutils literal"><span class="pre">m_index_section</span></code> - replaced by any number of copies of the
-<a class="reference internal" href="#t-index-section"><span class="std std-ref">index_section</span></a> subtemplate</li>
-</ul>
-<p>To see the default <code class="docutils literal"><span class="pre">GameIndex</span></code> template, run the following command:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>$ skool2html.py -r Template:GameIndex
-</pre></div>
-</div>
-</div>
-<div class="section" id="memorymap">
-<span id="t-memorymap"></span><h2>MemoryMap<a class="headerlink" href="#memorymap" title="Permalink to this headline">¶</a></h2>
-<p>The <code class="docutils literal"><span class="pre">MemoryMap</span></code> template is the full-page template that is used to build
-memory map pages and the &#8216;Game status buffer&#8217; page.</p>
-<p>The following identifiers are available (in addition to the universal and
-page-level identifiers):</p>
-<ul class="simple">
-<li><code class="docutils literal"><span class="pre">MemoryMap</span></code> - a dictionary of the parameters in the corresponding
-<a class="reference internal" href="ref-files.html#memorymap"><span class="std std-ref">[MemoryMap:*]</span></a> section</li>
-<li><code class="docutils literal"><span class="pre">m_map_entry</span></code> - replaced by one or more copies of the <a class="reference internal" href="#t-map-entry"><span class="std std-ref">map_entry</span></a>
-subtemplate</li>
-</ul>
-<p>To see the default <code class="docutils literal"><span class="pre">MemoryMap</span></code> template, run the following command:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>$ skool2html.py -r Template:MemoryMap
-</pre></div>
-</div>
-</div>
-<div class="section" id="page">
-<span id="t-page"></span><h2>Page<a class="headerlink" href="#page" title="Permalink to this headline">¶</a></h2>
-<p>The <code class="docutils literal"><span class="pre">Page</span></code> template is the full-page template that is used to build custom
-non-box pages defined by <a class="reference internal" href="ref-files.html#page"><span class="std std-ref">[Page:*]</span></a> sections.</p>
-<p>The following identifier is available (in addition to the universal and
-page-level identifiers):</p>
-<ul class="simple">
-<li><code class="docutils literal"><span class="pre">content</span></code> - replaced by the value of the <code class="docutils literal"><span class="pre">PageContent</span></code> parameter in the
-corresponding <a class="reference internal" href="ref-files.html#page"><span class="std std-ref">[Page:*]</span></a> section</li>
-</ul>
-<p>To see the default <code class="docutils literal"><span class="pre">Page</span></code> template, run the following command:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>$ skool2html.py -r Template:Page
-</pre></div>
-</div>
-</div>
-<div class="section" id="reference">
-<span id="t-reference"></span><h2>Reference<a class="headerlink" href="#reference" title="Permalink to this headline">¶</a></h2>
-<p>The <code class="docutils literal"><span class="pre">Reference</span></code> template is the full-page template that is used to build
-<a class="reference internal" href="ref-files.html#boxpages"><span class="std std-ref">box pages</span></a>.</p>
-<p>The following identifiers are available (in addition to the universal and
-page-level identifiers):</p>
-<ul class="simple">
-<li><code class="docutils literal"><span class="pre">entries</span></code> - replaced by one or more copies of the <a class="reference internal" href="#t-list-entry"><span class="std std-ref">list_entry</span></a>
-subtemplate (when the page&#8217;s <code class="docutils literal"><span class="pre">SectionType</span></code> is <code class="docutils literal"><span class="pre">BulletPoints</span></code> or
-<code class="docutils literal"><span class="pre">ListItems</span></code>), or the <a class="reference internal" href="#t-reference-entry"><span class="std std-ref">reference_entry</span></a> subtemplate</li>
-<li><code class="docutils literal"><span class="pre">m_contents_list_item</span></code> - replaced by one or more copies of the
-<a class="reference internal" href="#t-contents-list-item"><span class="std std-ref">contents_list_item</span></a> subtemplate</li>
-</ul>
-<p>To see the default <code class="docutils literal"><span class="pre">Reference</span></code> template, run the following command:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>$ skool2html.py -r Template:Reference
-</pre></div>
-</div>
-</div>
-<div class="section" id="anchor">
-<span id="t-anchor"></span><h2>anchor<a class="headerlink" href="#anchor" title="Permalink to this headline">¶</a></h2>
-<p>The <code class="docutils literal"><span class="pre">anchor</span></code> template is the subtemplate used to format a page anchor (by
-default, a <code class="docutils literal"><span class="pre">&lt;span&gt;</span></code> element with an <code class="docutils literal"><span class="pre">id</span></code> attribute).</p>
-<p>The following identifier is available (in addition to the universal
-identifiers):</p>
-<ul class="simple">
-<li><code class="docutils literal"><span class="pre">anchor</span></code> - the value of the <code class="docutils literal"><span class="pre">id</span></code> attribute</li>
-</ul>
-<p>To see the default <code class="docutils literal"><span class="pre">anchor</span></code> template, run the following command:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>$ skool2html.py -r Template:anchor
-</pre></div>
-</div>
-</div>
-<div class="section" id="asm-comment">
-<span id="t-asm-comment"></span><h2>asm_comment<a class="headerlink" href="#asm-comment" title="Permalink to this headline">¶</a></h2>
-<p>The <code class="docutils literal"><span class="pre">asm_comment</span></code> template is the subtemplate used by the <a class="reference internal" href="#t-asm"><span class="std std-ref">Asm</span></a>
-full-page template and the <a class="reference internal" href="#t-asm-entry"><span class="std std-ref">asm_entry</span></a> subtemplate to format block start
-comments, mid-block comments and block end comments.</p>
-<p>The following identifiers are available (in addition to the universal
-identifiers):</p>
-<ul class="simple">
-<li><code class="docutils literal"><span class="pre">entry</span></code> - a dictionary of parameters corresponding to the current memory
-map entry (see <a class="reference internal" href="#t-asm"><span class="std std-ref">Asm</span></a>)</li>
-<li><code class="docutils literal"><span class="pre">m_paragraph</span></code> - replaced by one or more copies of the <a class="reference internal" href="#t-paragraph"><span class="std std-ref">paragraph</span></a>
-subtemplate</li>
-<li><code class="docutils literal"><span class="pre">t_anchor</span></code> - replaced by a copy of the <a class="reference internal" href="#t-anchor"><span class="std std-ref">anchor</span></a> subtemplate (when
-formatting a block start comment or a mid-block comment), or by an empty
-string (when formatting a block end comment)</li>
-</ul>
-<p>To see the default <code class="docutils literal"><span class="pre">asm_comment</span></code> template, run the following command:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>$ skool2html.py -r Template:asm_comment
-</pre></div>
-</div>
-</div>
-<div class="section" id="asm-entry">
-<span id="t-asm-entry"></span><h2>asm_entry<a class="headerlink" href="#asm-entry" title="Permalink to this headline">¶</a></h2>
-<p>The <code class="docutils literal"><span class="pre">asm_entry</span></code> template is the subtemplate used by the <a class="reference internal" href="#t-asmallinone"><span class="std std-ref">AsmAllInOne</span></a>
-full-page template to format the disassembly of a memory map entry.</p>
-<p>The following identifiers are available (in addition to the universal
-identifiers):</p>
-<ul class="simple">
-<li><code class="docutils literal"><span class="pre">disassembly</span></code> - replaced by sequences of copies of the
-<a class="reference internal" href="#t-asm-instruction"><span class="std std-ref">asm_instruction</span></a> subtemplate, punctuated by copies of the
-<a class="reference internal" href="#t-asm-comment"><span class="std std-ref">asm_comment</span></a> subtemplate</li>
-<li><code class="docutils literal"><span class="pre">entry</span></code> - a dictionary of parameters corresponding to the memory map entry;
-the parameters in this dictionary are the same as those in the <code class="docutils literal"><span class="pre">entry</span></code>
-dictionary in the <a class="reference internal" href="#t-asm"><span class="std std-ref">Asm</span></a> template</li>
-<li><code class="docutils literal"><span class="pre">registers_input</span></code> - replaced by any number of copies of the
-<a class="reference internal" href="#t-asm-register"><span class="std std-ref">asm_register</span></a> subtemplate</li>
-<li><code class="docutils literal"><span class="pre">registers_output</span></code> - replaced by any number of copies of the
-<a class="reference internal" href="#t-asm-register"><span class="std std-ref">asm_register</span></a> subtemplate</li>
-</ul>
-<p>To see the default <code class="docutils literal"><span class="pre">asm_entry</span></code> template, run the following command:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>$ skool2html.py -r Template:asm_entry
-</pre></div>
-</div>
-<div class="versionadded">
-<p><span class="versionmodified">New in version 5.3.</span></p>
-</div>
-</div>
-<div class="section" id="asm-instruction">
-<span id="t-asm-instruction"></span><h2>asm_instruction<a class="headerlink" href="#asm-instruction" title="Permalink to this headline">¶</a></h2>
-<p>The <code class="docutils literal"><span class="pre">asm_instruction</span></code> template is the subtemplate used by the <a class="reference internal" href="#t-asm"><span class="std std-ref">Asm</span></a>
-full-page template and the <a class="reference internal" href="#t-asm-entry"><span class="std std-ref">asm_entry</span></a> subtemplate to format an
-instruction (including its label, address, operation and comment).</p>
-<p>The following identifiers are available (in addition to the universal
-identifiers):</p>
-<ul class="simple">
-<li><code class="docutils literal"><span class="pre">address</span></code> - the address of the instruction (may be in decimal or
+<li><code class="docutils literal notranslate"><span class="pre">address</span></code> - the address of the instruction (may be in decimal or
 hexadecimal format, depending on how it appears in the skool file, and the
 options passed to <a class="reference internal" href="commands.html#skool2html-py"><span class="std std-ref">skool2html.py</span></a>)</li>
-<li><code class="docutils literal"><span class="pre">annotated</span></code> - &#8216;1&#8217; if the instruction has a comment field, &#8216;0&#8217; otherwise</li>
-<li><code class="docutils literal"><span class="pre">bytes</span></code> - the byte values of the assembled instruction (see below)</li>
-<li><code class="docutils literal"><span class="pre">called</span></code> - &#8216;2&#8217; if the instruction is an entry point, &#8216;1&#8217; otherwise</li>
-<li><code class="docutils literal"><span class="pre">comment</span></code> - the text of the instruction&#8217;s comment field</li>
-<li><code class="docutils literal"><span class="pre">comment_rowspan</span></code> - the number of instructions to which the comment field
-applies</li>
-<li><code class="docutils literal"><span class="pre">entry</span></code> - a dictionary of parameters corresponding to the memory map entry
-that contains the instruction (see <a class="reference internal" href="#t-asm"><span class="std std-ref">Asm</span></a>)</li>
-<li><code class="docutils literal"><span class="pre">label</span></code> - the instruction&#8217;s ASM label</li>
-<li><code class="docutils literal"><span class="pre">location</span></code> - the address of the instruction as a decimal number</li>
-<li><code class="docutils literal"><span class="pre">operation</span></code> - the assembly language operation (e.g. &#8216;LD A,B&#8217;), with operand
+<li><code class="docutils literal notranslate"><span class="pre">anchor</span></code> - the anchor for the instruction, formatted according to the value
+of the <code class="docutils literal notranslate"><span class="pre">AddressAnchor</span></code> parameter in the <a class="reference internal" href="ref-files.html#ref-game"><span class="std std-ref">[Game]</span></a> section</li>
+<li><code class="docutils literal notranslate"><span class="pre">block_comment</span></code> - a list of paragraphs comprising the instruction’s
+mid-block comment</li>
+<li><code class="docutils literal notranslate"><span class="pre">bytes</span></code> - the byte values of the assembled instruction (see below)</li>
+<li><code class="docutils literal notranslate"><span class="pre">called</span></code> - ‘2’ if the instruction is an entry point, ‘1’ otherwise</li>
+<li><code class="docutils literal notranslate"><span class="pre">comment</span></code> - the text of the instruction’s comment field</li>
+<li><code class="docutils literal notranslate"><span class="pre">comment_rowspan</span></code> - the number of instructions to which the comment field
+applies; this will be ‘0’ if the instruction has no comment field</li>
+<li><code class="docutils literal notranslate"><span class="pre">label</span></code> - the instruction’s ASM label</li>
+<li><code class="docutils literal notranslate"><span class="pre">location</span></code> - the address of the instruction as a decimal number</li>
+<li><code class="docutils literal notranslate"><span class="pre">operation</span></code> - the assembly language operation (e.g. ‘LD A,B’), with operand
 hyperlinked if appropriate</li>
-<li><code class="docutils literal"><span class="pre">show_bytes</span></code> - &#8216;1&#8217; if the entry contains at least one assembled instruction
-with byte values and the <code class="docutils literal"><span class="pre">Bytes</span></code> parameter in the <a class="reference internal" href="ref-files.html#ref-game"><span class="std std-ref">[Game]</span></a> section
-is not blank, &#8216;0&#8217; otherwise</li>
-<li><code class="docutils literal"><span class="pre">t_anchor</span></code> - replaced by a copy of the <a class="reference internal" href="#t-anchor"><span class="std std-ref">anchor</span></a> subtemplate</li>
 </ul>
-<p>The <code class="docutils literal"><span class="pre">bytes</span></code> identifier can be used to render the byte values of an
+<p>The <code class="docutils literal notranslate"><span class="pre">bytes</span></code> attribute can be used to render the byte values of an
 instruction. In its simplest form, it provides a format specification that is
 applied to each byte. For example:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>{bytes:02X}
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>{$instruction[bytes]:02X}
 </pre></div>
 </div>
-<p>would produce the string <code class="docutils literal"><span class="pre">3E01</span></code> for the instruction &#8216;LD A,1&#8217;.</p>
+<p>would produce the string <code class="docutils literal notranslate"><span class="pre">3E01</span></code> for the instruction ‘LD A,1’.</p>
 <p>To render the byte values as 0-padded decimal integers separated by commas, use
 the following syntax:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>{bytes:/03/,}
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>{$instruction[bytes]:/03/,}
 </pre></div>
 </div>
-<p>This would produce the string <code class="docutils literal"><span class="pre">062,001</span></code> for the instruction &#8216;LD A,1&#8217;. The
-delimiter used in this example (<code class="docutils literal"><span class="pre">/</span></code>) is arbitrary; it could be any character
-that doesn&#8217;t appear in the byte format specification itself.</p>
-<p>The default <code class="docutils literal"><span class="pre">asm_instruction</span></code> template uses the <code class="docutils literal"><span class="pre">Bytes</span></code> parameter in the
-<a class="reference internal" href="ref-files.html#ref-game"><span class="std std-ref">[Game]</span></a> section as the byte format specification:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>&lt;td class=&quot;bytes-{show_bytes}&quot;&gt;{bytes:{Game[Bytes]}}&lt;/td&gt;
+<p>This would produce the string <code class="docutils literal notranslate"><span class="pre">062,001</span></code> for the instruction ‘LD A,1’. The
+delimiter used in this example (<code class="docutils literal notranslate"><span class="pre">/</span></code>) is arbitrary; it could be any character
+that doesn’t appear in the byte format specification itself.</p>
+<p>By default, the <code class="docutils literal notranslate"><span class="pre">Bytes</span></code> parameter in the <a class="reference internal" href="ref-files.html#ref-game"><span class="std std-ref">[Game]</span></a> section is used as
+the byte format specification:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>{$instruction[bytes]:{Game[Bytes]}}
 </pre></div>
 </div>
-<p>If you define a custom template that replaces <code class="docutils literal"><span class="pre">{Game[Bytes]}</span></code> with a
-hard-coded byte format specification, it&#8217;s a good idea to also replace the
-<code class="docutils literal"><span class="pre">{show_bytes}</span></code> field with <code class="docutils literal"><span class="pre">1</span></code>, to ensure that the byte values are
-displayed.</p>
+<p>If you define a custom template that replaces <code class="docutils literal notranslate"><span class="pre">{Game[Bytes]}</span></code> with a
+hard-coded byte format specification, it’s a good idea to also remove the
+<code class="docutils literal notranslate"><span class="pre">if({entry[show_bytes]})</span></code> directive (and the corresponding <code class="docutils literal notranslate"><span class="pre">endif</span></code>), to
+ensure that the byte values are displayed.</p>
 <p>Note that byte values are available only for regular assembly language
 instructions (not DEFB, DEFM, DEFS or DEFW statements), and only if they have
 actually been assembled by using <a class="reference internal" href="asm.html#assemble"><span class="std std-ref">&#64;assemble=2</span></a>. When no byte
-values are available, or the format specification is blank, the <code class="docutils literal"><span class="pre">bytes</span></code>
+values are available, or the format specification is blank, the <code class="docutils literal notranslate"><span class="pre">bytes</span></code>
 identifier produces an empty string.</p>
-<p>To see the default <code class="docutils literal"><span class="pre">asm_instruction</span></code> template, run the following command:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>$ skool2html.py -r Template:asm_instruction
+<p>To see the default <code class="docutils literal notranslate"><span class="pre">asm</span></code> template, run the following command:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ skool2html.py -r Template:asm$
 </pre></div>
 </div>
-<div class="versionchanged">
-<p><span class="versionmodified">Changed in version 7.2: </span>Added the <code class="docutils literal"><span class="pre">bytes</span></code> and <code class="docutils literal"><span class="pre">show_bytes</span></code> identifiers, and a table cell for
-displaying assembled instruction byte values.</p>
-</div>
-<div class="versionchanged">
-<p><span class="versionmodified">Changed in version 6.3: </span>Added the <code class="docutils literal"><span class="pre">location</span></code> identifier.</p>
+<div class="versionadded">
+<p><span class="versionmodified">New in version 8.0.</span></p>
 </div>
 </div>
-<div class="section" id="asm-register">
-<span id="t-asm-register"></span><h2>asm_register<a class="headerlink" href="#asm-register" title="Permalink to this headline">¶</a></h2>
-<p>The <code class="docutils literal"><span class="pre">asm_register</span></code> template is the subtemplate used by the <a class="reference internal" href="#t-asm"><span class="std std-ref">Asm</span></a>
-full-page template and the <a class="reference internal" href="#t-asm-entry"><span class="std std-ref">asm_entry</span></a> subtemplate to format each row in
-a table of input register values or output register values.</p>
-<p>The following identifiers are available (in addition to the universal
+<div class="section" id="asm-single-page">
+<span id="t-asm-single-page"></span><h2>asm_single_page<a class="headerlink" href="#asm-single-page" title="Permalink to this headline">¶</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">asm_single_page</span></code> template is used to format the content between the
+header and footer of a single-page disassembly.</p>
+<p>The following identifier is available (in addition to the universal
 identifiers):</p>
 <ul class="simple">
-<li><code class="docutils literal"><span class="pre">description</span></code> - the register&#8217;s description (as it appears in the register
-section for the current entry in the skool file)</li>
-<li><code class="docutils literal"><span class="pre">entry</span></code> - a dictionary of parameters corresponding to the current memory
-map entry (see <a class="reference internal" href="#t-asm"><span class="std std-ref">Asm</span></a>)</li>
-<li><code class="docutils literal"><span class="pre">name</span></code> - the register&#8217;s name (e.g. &#8216;HL&#8217;)</li>
+<li><code class="docutils literal notranslate"><span class="pre">entries</span></code> - a list of memory map entry objects</li>
 </ul>
-<p>To see the default <code class="docutils literal"><span class="pre">asm_register</span></code> template, run the following command:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>$ skool2html.py -r Template:asm_register
+<p>The attributes of each memory map entry object are the same as those in the
+<code class="docutils literal notranslate"><span class="pre">entry</span></code> dictionary in the <a class="reference internal" href="#t-asm"><span class="std std-ref">asm</span></a> template.</p>
+<p>To see the default <code class="docutils literal notranslate"><span class="pre">asm_single_page</span></code> template, run the following command:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ skool2html.py -r Template:asm_single_page
 </pre></div>
 </div>
+<div class="versionadded">
+<p><span class="versionmodified">New in version 8.0.</span></p>
 </div>
-<div class="section" id="contents-list-item">
-<span id="t-contents-list-item"></span><h2>contents_list_item<a class="headerlink" href="#contents-list-item" title="Permalink to this headline">¶</a></h2>
-<p>The <code class="docutils literal"><span class="pre">contents_list_item</span></code> template is the subtemplate used by the
-<a class="reference internal" href="#t-reference"><span class="std std-ref">Reference</span></a> full-page template to format each item in the contents list
-on a <a class="reference internal" href="ref-files.html#boxpages"><span class="std std-ref">box page</span></a>.</p>
-<p>The following identifiers are available (in addition to the universal
+</div>
+<div class="section" id="box-entries">
+<span id="t-box-entries"></span><h2>box_entries<a class="headerlink" href="#box-entries" title="Permalink to this headline">¶</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">box_entries</span></code> template is used to format the content between the header
+and footer of a <a class="reference internal" href="ref-files.html#boxpages"><span class="std std-ref">box page</span></a> with a default <code class="docutils literal notranslate"><span class="pre">SectionType</span></code>.</p>
+<p>The following identifier is available (in addition to the universal
 identifiers):</p>
 <ul class="simple">
-<li><code class="docutils literal"><span class="pre">href</span></code> - the URL to the entry on the page</li>
-<li><code class="docutils literal"><span class="pre">title</span></code> - the entry title</li>
+<li><code class="docutils literal notranslate"><span class="pre">entries</span></code> - a list of entry objects</li>
 </ul>
-<p>To see the default <code class="docutils literal"><span class="pre">contents_list_item</span></code> template, run the following command:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>$ skool2html.py -r Template:contents_list_item
+<p>Each entry object has the following attributes:</p>
+<ul class="simple">
+<li><code class="docutils literal notranslate"><span class="pre">anchor</span></code> - the anchor for the entry</li>
+<li><code class="docutils literal notranslate"><span class="pre">contents</span></code> - a list of paragraphs comprising the contents of the entry</li>
+<li><code class="docutils literal notranslate"><span class="pre">order</span></code> - ‘1’ or ‘2’, depending on the order of the entry on the page</li>
+<li><code class="docutils literal notranslate"><span class="pre">title</span></code> - the entry title</li>
+</ul>
+<p>To see the default <code class="docutils literal notranslate"><span class="pre">box_entries</span></code> template, run the following command:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ skool2html.py -r Template:box_entries
 </pre></div>
+</div>
+<div class="versionadded">
+<p><span class="versionmodified">New in version 8.0.</span></p>
+</div>
+</div>
+<div class="section" id="box-list-entries">
+<span id="t-box-list-entries"></span><h2>box_list_entries<a class="headerlink" href="#box-list-entries" title="Permalink to this headline">¶</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">box_list_entries</span></code> template is used to format the content between the
+header and footer of a <a class="reference internal" href="ref-files.html#boxpages"><span class="std std-ref">box page</span></a> whose <code class="docutils literal notranslate"><span class="pre">SectionType</span></code> is
+<code class="docutils literal notranslate"><span class="pre">BulletPoints</span></code> or <code class="docutils literal notranslate"><span class="pre">ListItems</span></code>.</p>
+<p>The following identifier is available (in addition to the universal
+identifiers):</p>
+<ul class="simple">
+<li><code class="docutils literal notranslate"><span class="pre">entries</span></code> - a list of entry objects</li>
+</ul>
+<p>Each entry object has the following attributes:</p>
+<ul class="simple">
+<li><code class="docutils literal notranslate"><span class="pre">anchor</span></code> - the anchor for the entry</li>
+<li><code class="docutils literal notranslate"><span class="pre">intro</span></code> - the entry intro text</li>
+<li><code class="docutils literal notranslate"><span class="pre">item_list</span></code> - replaced by a copy of the <a class="reference internal" href="#t-item-list"><span class="std std-ref">item_list</span></a> subtemplate</li>
+<li><code class="docutils literal notranslate"><span class="pre">order</span></code> - ‘1’ or ‘2’, depending on the order of the entry on the page</li>
+<li><code class="docutils literal notranslate"><span class="pre">title</span></code> - the entry title</li>
+</ul>
+<p>To see the default <code class="docutils literal notranslate"><span class="pre">box_list_entries</span></code> template, run the following command:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ skool2html.py -r Template:box_list_entries
+</pre></div>
+</div>
+<div class="versionadded">
+<p><span class="versionmodified">New in version 8.0.</span></p>
 </div>
 </div>
 <div class="section" id="footer">
 <span id="t-footer"></span><h2>footer<a class="headerlink" href="#footer" title="Permalink to this headline">¶</a></h2>
-<p>The <code class="docutils literal"><span class="pre">footer</span></code> template is the subtemplate used by the full-page templates to
-format the <code class="docutils literal"><span class="pre">&lt;footer&gt;</span></code> element of a page.</p>
-<p>When this template is part of a disassembly page, the following additional
-identifier is available:</p>
-<ul class="simple">
-<li><code class="docutils literal"><span class="pre">entry</span></code> - a dictionary of parameters corresponding to the current memory
-map entry (see <a class="reference internal" href="#t-asm"><span class="std std-ref">Asm</span></a>)</li>
-</ul>
-<p>To see the default <code class="docutils literal"><span class="pre">footer</span></code> template, run the following command:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>$ skool2html.py -r Template:footer
+<p>The <code class="docutils literal notranslate"><span class="pre">footer</span></code> template is the subtemplate included in the <a class="reference internal" href="#t-layout"><span class="std std-ref">Layout</span></a>
+template to format the <code class="docutils literal notranslate"><span class="pre">&lt;footer&gt;</span></code> element of a page.</p>
+<p>To see the default <code class="docutils literal notranslate"><span class="pre">footer</span></code> template, run the following command:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ skool2html.py -r Template:footer
 </pre></div>
-</div>
-<div class="versionchanged">
-<p><span class="versionmodified">Changed in version 6.4: </span>The <code class="docutils literal"><span class="pre">entry</span></code> identifier is available when the template is part of a
-disassembly page.</p>
 </div>
 <div class="versionadded">
 <p><span class="versionmodified">New in version 5.0.</span></p>
 </div>
 </div>
-<div class="section" id="img">
-<span id="t-img"></span><h2>img<a class="headerlink" href="#img" title="Permalink to this headline">¶</a></h2>
-<p>The <code class="docutils literal"><span class="pre">img</span></code> template is the subtemplate used to format <code class="docutils literal"><span class="pre">&lt;img&gt;</span></code> elements.</p>
-<p>The following identifiers are available (in addition to the universal
-identifiers):</p>
-<ul class="simple">
-<li><code class="docutils literal"><span class="pre">alt</span></code> - the &#8216;alt&#8217; text for the image</li>
-<li><code class="docutils literal"><span class="pre">src</span></code> - the relative path to the image file</li>
-</ul>
-<p>To see the default <code class="docutils literal"><span class="pre">img</span></code> template, run the following command:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>$ skool2html.py -r Template:img
-</pre></div>
-</div>
-</div>
-<div class="section" id="index-section">
-<span id="t-index-section"></span><h2>index_section<a class="headerlink" href="#index-section" title="Permalink to this headline">¶</a></h2>
-<p>The <code class="docutils literal"><span class="pre">index_section</span></code> template is the subtemplate used by the
-<a class="reference internal" href="#t-gameindex"><span class="std std-ref">GameIndex</span></a> full-page template to format each group of links on the
-disassembly index page.</p>
-<p>The following identifiers are available (in addition to the universal
-identifiers):</p>
-<ul class="simple">
-<li><code class="docutils literal"><span class="pre">header</span></code> - the header text for the group of links (as defined in the name
-of the <a class="reference internal" href="ref-files.html#indexgroup"><span class="std std-ref">[Index:*:*]</span></a> section)</li>
-<li><code class="docutils literal"><span class="pre">m_index_section_item</span></code> - replaced by one or more copies of the
-<a class="reference internal" href="#t-index-section-item"><span class="std std-ref">index_section_item</span></a> subtemplate</li>
-</ul>
-<p>To see the default <code class="docutils literal"><span class="pre">index_section</span></code> template, run the following command:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>$ skool2html.py -r Template:index_section$
-</pre></div>
-</div>
-</div>
-<div class="section" id="index-section-item">
-<span id="t-index-section-item"></span><h2>index_section_item<a class="headerlink" href="#index-section-item" title="Permalink to this headline">¶</a></h2>
-<p>The <code class="docutils literal"><span class="pre">index_section_item</span></code> template is the subtemplate used by the
-<a class="reference internal" href="#t-index-section"><span class="std std-ref">index_section</span></a> subtemplate to format each link in a link group on the
-disassembly index page.</p>
-<p>The following identifiers are available (in addition to the universal
-identifiers):</p>
-<ul class="simple">
-<li><code class="docutils literal"><span class="pre">href</span></code> - the relative path to the page being linked to</li>
-<li><code class="docutils literal"><span class="pre">link_text</span></code> - the link text for the page (as defined in the <a class="reference internal" href="ref-files.html#links"><span class="std std-ref">[Links]</span></a>
-section)</li>
-<li><code class="docutils literal"><span class="pre">other_text</span></code> - the supplementary text displayed alongside the link (as
-defined in the <a class="reference internal" href="ref-files.html#links"><span class="std std-ref">[Links]</span></a> section)</li>
-</ul>
-<p>To see the default <code class="docutils literal"><span class="pre">index_section_item</span></code> template, run the following
-command:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>$ skool2html.py -r Template:index_section_item
-</pre></div>
-</div>
-</div>
-<div class="section" id="javascript">
-<span id="t-javascript"></span><h2>javascript<a class="headerlink" href="#javascript" title="Permalink to this headline">¶</a></h2>
-<p>The <code class="docutils literal"><span class="pre">javascript</span></code> template is the subtemplate used by the full-page templates
-to format each <code class="docutils literal"><span class="pre">&lt;script&gt;</span></code> element in the head of a page.</p>
+<div class="section" id="home">
+<span id="t-home"></span><h2>home<a class="headerlink" href="#home" title="Permalink to this headline">¶</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">home</span></code> template is used to format the content between the header and
+footer of the disassembly home page.</p>
 <p>The following identifier is available (in addition to the universal
 identifiers):</p>
 <ul class="simple">
-<li><code class="docutils literal"><span class="pre">src</span></code> - the relative path to the JavaScript file</li>
+<li><code class="docutils literal notranslate"><span class="pre">sections</span></code> - a list of section objects</li>
 </ul>
-<p>To see the default <code class="docutils literal"><span class="pre">javascript</span></code> template, run the following command:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>$ skool2html.py -r Template:javascript
+<p>Each section object represents a group of links and has the following
+attributes:</p>
+<ul class="simple">
+<li><code class="docutils literal notranslate"><span class="pre">header</span></code> - the header text for the group of links (as defined in the name
+of the <a class="reference internal" href="ref-files.html#indexgroup"><span class="std std-ref">[Index:*:*]</span></a> section)</li>
+<li><code class="docutils literal notranslate"><span class="pre">items</span></code> - a list of items in the group</li>
+</ul>
+<p>Each item represents a link to a page and has the following attributes:</p>
+<ul class="simple">
+<li><code class="docutils literal notranslate"><span class="pre">href</span></code> - the relative path to the page being linked to</li>
+<li><code class="docutils literal notranslate"><span class="pre">link_text</span></code> - the link text for the page (as defined in the <a class="reference internal" href="ref-files.html#links"><span class="std std-ref">[Links]</span></a>
+section)</li>
+<li><code class="docutils literal notranslate"><span class="pre">other_text</span></code> - the supplementary text displayed alongside the link (as
+defined in the <a class="reference internal" href="ref-files.html#links"><span class="std std-ref">[Links]</span></a> section)</li>
+</ul>
+<p>To see the default <code class="docutils literal notranslate"><span class="pre">home</span></code> template, run the following command:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ skool2html.py -r Template:home
 </pre></div>
+</div>
+<div class="versionadded">
+<p><span class="versionmodified">New in version 8.0.</span></p>
+</div>
+</div>
+<div class="section" id="img">
+<span id="t-img"></span><h2>img<a class="headerlink" href="#img" title="Permalink to this headline">¶</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">img</span></code> template is used to format <code class="docutils literal notranslate"><span class="pre">&lt;img&gt;</span></code> elements for the
+<a class="reference internal" href="skool-macros.html#imagemacros"><span class="std std-ref">image macros</span></a> and for the game logo image (if defined) in
+the header of every page.</p>
+<p>The following identifiers are available (in addition to the universal
+identifiers):</p>
+<ul class="simple">
+<li><code class="docutils literal notranslate"><span class="pre">alt</span></code> - the ‘alt’ text for the image</li>
+<li><code class="docutils literal notranslate"><span class="pre">src</span></code> - the relative path to the image file</li>
+</ul>
+<p>To see the default <code class="docutils literal notranslate"><span class="pre">img</span></code> template, run the following command:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ skool2html.py -r Template:img
+</pre></div>
+</div>
+</div>
+<div class="section" id="item-list">
+<span id="t-item-list"></span><h2>item_list<a class="headerlink" href="#item-list" title="Permalink to this headline">¶</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">item_list</span></code> template is the subtemplate used by the
+<a class="reference internal" href="#t-box-list-entries"><span class="std std-ref">box_list_entries</span></a> template to format a list of items (or subitems, or
+subsubitems etc.) in an entry on a <a class="reference internal" href="ref-files.html#boxpages"><span class="std std-ref">box page</span></a> whose
+<code class="docutils literal notranslate"><span class="pre">SectionType</span></code> is <code class="docutils literal notranslate"><span class="pre">BulletPoints</span></code> or <code class="docutils literal notranslate"><span class="pre">ListItems</span></code>.</p>
+<p>The following identifiers are available (in addition to the universal
+identifiers):</p>
+<ul class="simple">
+<li><code class="docutils literal notranslate"><span class="pre">indent</span></code> - the indentation level of the item list: ‘’ (blank string) for
+the list of top-level items, ‘1’ for a list of subitems, ‘2’ for a list of
+subsubitems etc.</li>
+<li><code class="docutils literal notranslate"><span class="pre">items</span></code> - a list of item objects</li>
+</ul>
+<p>Each item object has the following attributes:</p>
+<ul class="simple">
+<li><code class="docutils literal notranslate"><span class="pre">subitems</span></code> - a preformatted list of subitems (may be blank)</li>
+<li><code class="docutils literal notranslate"><span class="pre">text</span></code> - the text of the item</li>
+</ul>
+<p>Note that the <code class="docutils literal notranslate"><span class="pre">item_list</span></code> template is used to format the <code class="docutils literal notranslate"><span class="pre">subitems</span></code>
+attribute of each item (this template is recursive).</p>
+<p>To see the default <code class="docutils literal notranslate"><span class="pre">item_list</span></code> template, run the following command:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ skool2html.py -r Template:item_list
+</pre></div>
+</div>
+<div class="versionadded">
+<p><span class="versionmodified">New in version 8.0.</span></p>
 </div>
 </div>
 <div class="section" id="link">
 <span id="t-link"></span><h2>link<a class="headerlink" href="#link" title="Permalink to this headline">¶</a></h2>
-<p>The <code class="docutils literal"><span class="pre">link</span></code> template is the subtemplate used to format the hyperlinks created
+<p>The <code class="docutils literal notranslate"><span class="pre">link</span></code> template is the subtemplate used to format the hyperlinks created
 by the <a class="reference internal" href="skool-macros.html#link"><span class="std std-ref">#LINK</span></a> and <a class="reference internal" href="skool-macros.html#r"><span class="std std-ref">#R</span></a> macros, and the hyperlinks in instruction
 operands on disassembly pages.</p>
 <p>The following identifiers are available (in addition to the universal
 identifiers):</p>
 <ul class="simple">
-<li><code class="docutils literal"><span class="pre">href</span></code> - the relative path to the page being linked to</li>
-<li><code class="docutils literal"><span class="pre">link_text</span></code> - the link text for the page</li>
+<li><code class="docutils literal notranslate"><span class="pre">href</span></code> - the relative path to the page being linked to</li>
+<li><code class="docutils literal notranslate"><span class="pre">link_text</span></code> - the link text for the page</li>
 </ul>
-<p>To see the default <code class="docutils literal"><span class="pre">link</span></code> template, run the following command:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>$ skool2html.py -r Template:link
+<p>To see the default <code class="docutils literal notranslate"><span class="pre">link</span></code> template, run the following command:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ skool2html.py -r Template:link
 </pre></div>
 </div>
 </div>
 <div class="section" id="list">
 <span id="t-list"></span><h2>list<a class="headerlink" href="#list" title="Permalink to this headline">¶</a></h2>
-<p>The <code class="docutils literal"><span class="pre">list</span></code> template is used by the <a class="reference internal" href="skool-macros.html#list"><span class="std std-ref">#LIST</span></a> macro to format a list.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">list</span></code> template is used by the <a class="reference internal" href="skool-macros.html#list"><span class="std std-ref">#LIST</span></a> macro to format a list.</p>
 <p>The following identifiers are available (in addition to the universal
 identifiers):</p>
 <ul class="simple">
-<li><code class="docutils literal"><span class="pre">class</span></code> - the CSS class name for the list</li>
-<li><code class="docutils literal"><span class="pre">m_list_item</span></code> - replaced by any number of copies of the <a class="reference internal" href="#t-list-item"><span class="std std-ref">list_item</span></a>
-subtemplate</li>
+<li><code class="docutils literal notranslate"><span class="pre">class</span></code> - the CSS class name for the list</li>
+<li><code class="docutils literal notranslate"><span class="pre">items</span></code> - the list items</li>
 </ul>
-<p>To see the default <code class="docutils literal"><span class="pre">list</span></code> template, run the following command:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>$ skool2html.py -r Template:list$
+<p>To see the default <code class="docutils literal notranslate"><span class="pre">list</span></code> template, run the following command:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ skool2html.py -r Template:list
 </pre></div>
+</div>
+<div class="versionchanged">
+<p><span class="versionmodified">Changed in version 8.0: </span>Replaced the <code class="docutils literal notranslate"><span class="pre">m_list_item</span></code> identifier with the <code class="docutils literal notranslate"><span class="pre">items</span></code> identifier.</p>
 </div>
 <div class="versionadded">
 <p><span class="versionmodified">New in version 4.2.</span></p>
 </div>
 </div>
-<div class="section" id="list-entry">
-<span id="t-list-entry"></span><h2>list_entry<a class="headerlink" href="#list-entry" title="Permalink to this headline">¶</a></h2>
-<p>The <code class="docutils literal"><span class="pre">list_entry</span></code> is the subtemplate used by the <a class="reference internal" href="#t-reference"><span class="std std-ref">Reference</span></a> full-page
-template to format each entry on a <a class="reference internal" href="ref-files.html#boxpages"><span class="std std-ref">box page</span></a> whose
-<code class="docutils literal"><span class="pre">SectionType</span></code> is <code class="docutils literal"><span class="pre">BulletPoints</span></code> or <code class="docutils literal"><span class="pre">ListItems</span></code>.</p>
-<p>The following identifiers are available (in addition to the universal
-identifiers):</p>
-<ul class="simple">
-<li><code class="docutils literal"><span class="pre">description</span></code> - the entry intro text</li>
-<li><code class="docutils literal"><span class="pre">num</span></code> - &#8216;1&#8217; or &#8216;2&#8217;, depending on the order of the entry on the page</li>
-<li><code class="docutils literal"><span class="pre">t_anchor</span></code> - replaced by a copy of the <a class="reference internal" href="#t-anchor"><span class="std std-ref">anchor</span></a> subtemplate (with
-the entry title as the anchor name)</li>
-<li><code class="docutils literal"><span class="pre">t_list_items</span></code> - replaced by a copy of the <a class="reference internal" href="#t-list-items"><span class="std std-ref">list_items</span></a> subtemplate</li>
-<li><code class="docutils literal"><span class="pre">title</span></code> - the entry title</li>
-</ul>
-<p>To see the default <code class="docutils literal"><span class="pre">list_entry</span></code> template, run the following command:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>$ skool2html.py -r Template:list_entry
-</pre></div>
-</div>
-<div class="versionchanged">
-<p><span class="versionmodified">Changed in version 6.0: </span>The name of this template changed from <code class="docutils literal"><span class="pre">changelog_entry</span></code> to
-<code class="docutils literal"><span class="pre">list_entry</span></code>; accordingly, the name of the <code class="docutils literal"><span class="pre">t_changelog_item_list</span></code>
-identifier changed to <code class="docutils literal"><span class="pre">t_list_items</span></code>.</p>
-</div>
-</div>
-<div class="section" id="list-item">
-<span id="t-list-item"></span><h2>list_item<a class="headerlink" href="#list-item" title="Permalink to this headline">¶</a></h2>
-<p>The <code class="docutils literal"><span class="pre">list_item</span></code> template is the subtemplate used by the <a class="reference internal" href="#t-list"><span class="std std-ref">list</span></a>
-template and the <a class="reference internal" href="#t-list-items"><span class="std std-ref">list_items</span></a> subtemplate to format each item in the
-list.</p>
+<div class="section" id="memory-map">
+<span id="t-memory-map"></span><h2>memory_map<a class="headerlink" href="#memory-map" title="Permalink to this headline">¶</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">memory_map</span></code> template is used to format the content between the header
+and footer of memory map pages and the ‘Game status buffer’ page.</p>
 <p>The following identifier is available (in addition to the universal
 identifiers):</p>
 <ul class="simple">
-<li><code class="docutils literal"><span class="pre">item</span></code> - replaced by the text of the list item</li>
+<li><code class="docutils literal notranslate"><span class="pre">entries</span></code> - a list of memory map entry objects</li>
 </ul>
-<p>To see the default <code class="docutils literal"><span class="pre">list_item</span></code> template, run the following command:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>$ skool2html.py -r Template:list_item$
+<p>The attributes of each memory map entry object are the same as those in the
+<code class="docutils literal notranslate"><span class="pre">prev_entry</span></code> and <code class="docutils literal notranslate"><span class="pre">next_entry</span></code> dictionaries in the <a class="reference internal" href="#t-asm"><span class="std std-ref">asm</span></a> template.</p>
+<p>To see the default <code class="docutils literal notranslate"><span class="pre">memory_map</span></code> template, run the following command:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ skool2html.py -r Template:memory_map
 </pre></div>
 </div>
 <div class="versionadded">
-<p><span class="versionmodified">New in version 4.2.</span></p>
+<p><span class="versionmodified">New in version 8.0.</span></p>
 </div>
 </div>
-<div class="section" id="list-items">
-<span id="t-list-items"></span><h2>list_items<a class="headerlink" href="#list-items" title="Permalink to this headline">¶</a></h2>
-<p>The <code class="docutils literal"><span class="pre">list_items</span></code> template is the subtemplate used by the <a class="reference internal" href="#t-list-entry"><span class="std std-ref">list_entry</span></a>
-subtemplate to format a list of items in an entry on a
-<a class="reference internal" href="ref-files.html#boxpages"><span class="std std-ref">box page</span></a> whose <code class="docutils literal"><span class="pre">SectionType</span></code> is <code class="docutils literal"><span class="pre">BulletPoints</span></code> or
-<code class="docutils literal"><span class="pre">ListItems</span></code>, and also by the <a class="reference internal" href="#t-list-item"><span class="std std-ref">list_item</span></a> subtemplate to format a list
-of subitems or subsubitems etc.</p>
-<p>The following identifiers are available (in addition to the universal
-identifiers):</p>
-<ul class="simple">
-<li><code class="docutils literal"><span class="pre">indent</span></code> - the indentation level of the item list: &#8216;&#8217; (blank string) for
-the list of top-level items, &#8216;1&#8217; for a list of subitems, &#8216;2&#8217; for a list of
-subsubitems etc.</li>
-<li><code class="docutils literal"><span class="pre">m_list_item</span></code> - replaced by one or more copies of the <a class="reference internal" href="#t-list-item"><span class="std std-ref">list_item</span></a>
-subtemplate</li>
-</ul>
-<p>To see the default <code class="docutils literal"><span class="pre">list_items</span></code> template, run the following command:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>$ skool2html.py -r Template:list_items
+<div class="section" id="page">
+<span id="t-page"></span><h2>page<a class="headerlink" href="#page" title="Permalink to this headline">¶</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">page</span></code> template is used to format the content between the header and
+footer of a non-box page defined by a <a class="reference internal" href="ref-files.html#page"><span class="std std-ref">[Page:*]</span></a> section.</p>
+<p>To see the default <code class="docutils literal notranslate"><span class="pre">page</span></code> template, run the following command:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ skool2html.py -r Template:page
 </pre></div>
 </div>
-<div class="versionchanged">
-<p><span class="versionmodified">Changed in version 6.0: </span>The name of this template changed from <code class="docutils literal"><span class="pre">changelog_item_list</span></code> to
-<code class="docutils literal"><span class="pre">list_items</span></code>; accordingly, the name of the <code class="docutils literal"><span class="pre">m_changelog_item</span></code>
-identifier changed to <code class="docutils literal"><span class="pre">m_list_item</span></code>.</p>
-</div>
-</div>
-<div class="section" id="map-entry">
-<span id="t-map-entry"></span><h2>map_entry<a class="headerlink" href="#map-entry" title="Permalink to this headline">¶</a></h2>
-<p>The <code class="docutils literal"><span class="pre">map_entry</span></code> template is the subtemplate used by the <a class="reference internal" href="#t-memorymap"><span class="std std-ref">MemoryMap</span></a>
-full-page template to format each entry on the memory map pages and the &#8216;Game
-status buffer&#8217; page.</p>
-<p>The following identifiers are available (in addition to the universal
-identifiers):</p>
-<ul class="simple">
-<li><code class="docutils literal"><span class="pre">MemoryMap</span></code> - a dictionary of parameters from the corresponding
-<a class="reference internal" href="ref-files.html#memorymap"><span class="std std-ref">[MemoryMap:*]</span></a> section</li>
-<li><code class="docutils literal"><span class="pre">entry</span></code> - a dictionary of parameters corresponding to the current memory
-map entry</li>
-</ul>
-<p>The parameters in the <code class="docutils literal"><span class="pre">entry</span></code> dictionary are:</p>
-<ul class="simple">
-<li><code class="docutils literal"><span class="pre">address</span></code> - the address of the entry (may be in decimal or hexadecimal
-format, depending on how it appears in the skool file, and the options passed
-to <a class="reference internal" href="commands.html#skool2html-py"><span class="std std-ref">skool2html.py</span></a>)</li>
-<li><code class="docutils literal"><span class="pre">byte</span></code> - the LSB of the entry address</li>
-<li><code class="docutils literal"><span class="pre">description</span></code> - the entry description</li>
-<li><code class="docutils literal"><span class="pre">exists</span></code> - &#8216;1&#8217;</li>
-<li><code class="docutils literal"><span class="pre">href</span></code> - the relative path to the disassembly page for the entry</li>
-<li><code class="docutils literal"><span class="pre">label</span></code> - the ASM label of the first instruction in the entry</li>
-<li><code class="docutils literal"><span class="pre">labels</span></code> - &#8216;1&#8217; if any instructions in the entry have an ASM label, &#8216;0&#8217;
-otherwise</li>
-<li><code class="docutils literal"><span class="pre">location</span></code> - the address of the entry as a decimal number</li>
-<li><code class="docutils literal"><span class="pre">page</span></code> - the MSB of the entry address</li>
-<li><code class="docutils literal"><span class="pre">size</span></code> - the size of the entry in bytes</li>
-<li><code class="docutils literal"><span class="pre">title</span></code> - the title of the entry</li>
-<li><code class="docutils literal"><span class="pre">type</span></code> - the block type of the entry (&#8216;b&#8217;, &#8216;c&#8217;, &#8216;g&#8217;, &#8216;s&#8217;, &#8216;t&#8217;, &#8216;u&#8217; or &#8216;w&#8217;)</li>
-</ul>
-<p>To see the default <code class="docutils literal"><span class="pre">map_entry</span></code> template, run the following command:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>$ skool2html.py -r Template:map_entry
-</pre></div>
-</div>
-<div class="versionchanged">
-<p><span class="versionmodified">Changed in version 7.0: </span>The entry title is hyperlinked to the disassembly page for the corresponding
-entry.</p>
-</div>
-</div>
-<div class="section" id="paragraph">
-<span id="t-paragraph"></span><h2>paragraph<a class="headerlink" href="#paragraph" title="Permalink to this headline">¶</a></h2>
-<p>The <code class="docutils literal"><span class="pre">paragraph</span></code> template is the subtemplate used to format each paragraph in
-the following items:</p>
-<ul class="simple">
-<li>memory map entry descriptions (on disassembly pages and memory map pages)</li>
-<li>block start comments, mid-block comments and block end comments on
-disassembly pages</li>
-<li>entries on a <a class="reference internal" href="ref-files.html#boxpages"><span class="std std-ref">box page</span></a></li>
-</ul>
-<p>The following identifier is available (in addition to the universal
-identifiers):</p>
-<ul class="simple">
-<li><code class="docutils literal"><span class="pre">paragraph</span></code> - the text of the paragraph</li>
-</ul>
-<p>To see the default <code class="docutils literal"><span class="pre">paragraph</span></code> template, run the following command:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>$ skool2html.py -r Template:paragraph
-</pre></div>
-</div>
-</div>
-<div class="section" id="reference-entry">
-<span id="t-reference-entry"></span><h2>reference_entry<a class="headerlink" href="#reference-entry" title="Permalink to this headline">¶</a></h2>
-<p>The <code class="docutils literal"><span class="pre">reference_entry</span></code> template is the subtemplate used by the
-<a class="reference internal" href="#t-reference"><span class="std std-ref">Reference</span></a> full-page template to format each entry on a
-<a class="reference internal" href="ref-files.html#boxpages"><span class="std std-ref">box page</span></a> that has a default <code class="docutils literal"><span class="pre">SectionType</span></code>.</p>
-<p>The following identifiers are available (in addition to the universal
-identifiers):</p>
-<ul class="simple">
-<li><code class="docutils literal"><span class="pre">contents</span></code> - replaced by the pre-formatted contents of the relevant entry</li>
-<li><code class="docutils literal"><span class="pre">num</span></code> - &#8216;1&#8217; or &#8216;2&#8217;, depending on the order of the entry on the page</li>
-<li><code class="docutils literal"><span class="pre">title</span></code> - the entry title</li>
-</ul>
-<p>To see the default <code class="docutils literal"><span class="pre">reference_entry</span></code> template, run the following command:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>$ skool2html.py -r Template:reference_entry
-</pre></div>
+<div class="versionadded">
+<p><span class="versionmodified">New in version 8.0.</span></p>
 </div>
 </div>
 <div class="section" id="reg">
 <span id="t-reg"></span><h2>reg<a class="headerlink" href="#reg" title="Permalink to this headline">¶</a></h2>
-<p>The <code class="docutils literal"><span class="pre">reg</span></code> template is the subtemplate used by the <a class="reference internal" href="skool-macros.html#reg"><span class="std std-ref">#REG</span></a> macro to format
+<p>The <code class="docutils literal notranslate"><span class="pre">reg</span></code> template is the subtemplate used by the <a class="reference internal" href="skool-macros.html#reg"><span class="std std-ref">#REG</span></a> macro to format
 a register name.</p>
 <p>The following identifier is available (in addition to the universal
 identifiers):</p>
 <ul class="simple">
-<li><code class="docutils literal"><span class="pre">reg</span></code> - the register name (e.g. &#8216;HL&#8217;)</li>
+<li><code class="docutils literal notranslate"><span class="pre">reg</span></code> - the register name (e.g. ‘HL’)</li>
 </ul>
-<p>To see the default <code class="docutils literal"><span class="pre">reg</span></code> template, run the following command:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>$ skool2html.py -r Template:reg
+<p>To see the default <code class="docutils literal notranslate"><span class="pre">reg</span></code> template, run the following command:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ skool2html.py -r Template:reg
 </pre></div>
 </div>
 </div>
-<div class="section" id="stylesheet">
-<span id="t-stylesheet"></span><h2>stylesheet<a class="headerlink" href="#stylesheet" title="Permalink to this headline">¶</a></h2>
-<p>The <code class="docutils literal"><span class="pre">stylesheet</span></code> template is the subtemplate used by the full-page templates
-to format each <code class="docutils literal"><span class="pre">&lt;link&gt;</span></code> element for a CSS file in the head of a page.</p>
+<div class="section" id="section">
+<span id="t-section"></span><h2>section<a class="headerlink" href="#section" title="Permalink to this headline">¶</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">section</span></code> template is used to format the paragraphs in a ref file section
+processed by the <a class="reference internal" href="skool-macros.html#include"><span class="std std-ref">#INCLUDE</span></a> macro.</p>
 <p>The following identifier is available (in addition to the universal
 identifiers):</p>
 <ul class="simple">
-<li><code class="docutils literal"><span class="pre">href</span></code> - the relative path to the CSS file</li>
+<li><code class="docutils literal notranslate"><span class="pre">section</span></code> - a list of paragraphs</li>
 </ul>
-<p>To see the default <code class="docutils literal"><span class="pre">stylesheet</span></code> template, run the following command:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>$ skool2html.py -r Template:stylesheet
+<p>To see the default <code class="docutils literal notranslate"><span class="pre">section</span></code> template, run the following command:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ skool2html.py -r Template:section
 </pre></div>
+</div>
+<div class="versionadded">
+<p><span class="versionmodified">New in version 8.0.</span></p>
 </div>
 </div>
 <div class="section" id="table">
 <span id="t-table"></span><h2>table<a class="headerlink" href="#table" title="Permalink to this headline">¶</a></h2>
-<p>The <code class="docutils literal"><span class="pre">table</span></code> template is used by the <a class="reference internal" href="skool-macros.html#table"><span class="std std-ref">#TABLE</span></a> macro to format a table.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">table</span></code> template is used by the <a class="reference internal" href="skool-macros.html#table"><span class="std std-ref">#TABLE</span></a> macro to format a table.</p>
 <p>The following identifiers are available (in addition to the universal
 identifiers):</p>
 <ul class="simple">
-<li><code class="docutils literal"><span class="pre">class</span></code> - the CSS class name for the table</li>
-<li><code class="docutils literal"><span class="pre">m_table_row</span></code> - replaced by any number of copies of the <a class="reference internal" href="#t-table-row"><span class="std std-ref">table_row</span></a>
-subtemplate</li>
+<li><code class="docutils literal notranslate"><span class="pre">class</span></code> - the CSS class name for the table</li>
+<li><code class="docutils literal notranslate"><span class="pre">rows</span></code> - a list of row objects</li>
 </ul>
-<p>To see the default <code class="docutils literal"><span class="pre">table</span></code> template, run the following command:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>$ skool2html.py -r Template:table$
-</pre></div>
-</div>
-<div class="versionadded">
-<p><span class="versionmodified">New in version 4.2.</span></p>
-</div>
-</div>
-<div class="section" id="table-cell">
-<span id="t-table-cell"></span><h2>table_cell<a class="headerlink" href="#table-cell" title="Permalink to this headline">¶</a></h2>
-<p>The <code class="docutils literal"><span class="pre">table_cell</span></code> template is the subtemplate used by the <a class="reference internal" href="#t-table-row"><span class="std std-ref">table_row</span></a>
-template to format each non-header cell in the table row.</p>
-<p>The following identifiers are available (in addition to the universal
-identifiers):</p>
+<p>Each row object has a <code class="docutils literal notranslate"><span class="pre">cells</span></code> attribute, which is a list of cell objects for
+that row. Each cell object has the following attributes:</p>
 <ul class="simple">
-<li><code class="docutils literal"><span class="pre">class</span></code> - the CSS class name for the cell</li>
-<li><code class="docutils literal"><span class="pre">colspan</span></code> - the number of columns spanned by the cell</li>
-<li><code class="docutils literal"><span class="pre">contents</span></code> - the contents of the cell</li>
-<li><code class="docutils literal"><span class="pre">rowspan</span></code> - the number of rows spanned by the cell</li>
+<li><code class="docutils literal notranslate"><span class="pre">class</span></code> - the CSS class name for the cell</li>
+<li><code class="docutils literal notranslate"><span class="pre">colspan</span></code> - the number of columns spanned by the cell</li>
+<li><code class="docutils literal notranslate"><span class="pre">contents</span></code> - the contents of the cell</li>
+<li><code class="docutils literal notranslate"><span class="pre">header</span></code> - 1 if the cell is a header cell, 0 otherwise</li>
+<li><code class="docutils literal notranslate"><span class="pre">rowspan</span></code> - the number of rows spanned by the cell</li>
 </ul>
-<p>To see the default <code class="docutils literal"><span class="pre">table_cell</span></code> template, run the following command:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>$ skool2html.py -r Template:table_cell
+<p>To see the default <code class="docutils literal notranslate"><span class="pre">table</span></code> template, run the following command:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ skool2html.py -r Template:table
 </pre></div>
+</div>
+<div class="versionchanged">
+<p><span class="versionmodified">Changed in version 8.0: </span>Replaced the <code class="docutils literal notranslate"><span class="pre">m_table_row</span></code> identifier with the <code class="docutils literal notranslate"><span class="pre">rows</span></code> identifier.</p>
 </div>
 <div class="versionadded">
 <p><span class="versionmodified">New in version 4.2.</span></p>
 </div>
 </div>
-<div class="section" id="table-header-cell">
-<span id="t-table-header-cell"></span><h2>table_header_cell<a class="headerlink" href="#table-header-cell" title="Permalink to this headline">¶</a></h2>
-<p>The <code class="docutils literal"><span class="pre">table_header_cell</span></code> template is the subtemplate used by the
-<a class="reference internal" href="#t-table-row"><span class="std std-ref">table_row</span></a> template to format each header cell in the table row.</p>
-<p>The following identifiers are available (in addition to the universal
-identifiers):</p>
+<div class="section" id="template-directives">
+<span id="id1"></span><h2>Template directives<a class="headerlink" href="#template-directives" title="Permalink to this headline">¶</a></h2>
+<p>HTML templates may contain directives enclosed by <code class="docutils literal notranslate"><span class="pre">&lt;#</span></code> and <code class="docutils literal notranslate"><span class="pre">#&gt;</span></code> to
+conditionally include or repeat content. To take effect, a directive must
+appear on a line of its own.</p>
+<div class="section" id="foreach">
+<span id="td-foreach"></span><h3>foreach<a class="headerlink" href="#foreach" title="Permalink to this headline">¶</a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">foreach</span></code> directive repeats the content between it and the corresponding
+<code class="docutils literal notranslate"><span class="pre">endfor</span></code> directive, once for each object in a list.</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;# foreach(var,list) #&gt;
+content
+&lt;# endfor #&gt;
+</pre></div>
+</div>
 <ul class="simple">
-<li><code class="docutils literal"><span class="pre">colspan</span></code> - the number of columns spanned by the cell</li>
-<li><code class="docutils literal"><span class="pre">contents</span></code> - the contents of the cell</li>
-<li><code class="docutils literal"><span class="pre">rowspan</span></code> - the number of rows spanned by the cell</li>
+<li><code class="docutils literal notranslate"><span class="pre">var</span></code> is the loop variable, representing each object in the list</li>
+<li><code class="docutils literal notranslate"><span class="pre">list</span></code> is the list of objects to iterate over</li>
 </ul>
-<p>To see the default <code class="docutils literal"><span class="pre">table_header_cell</span></code> template, run the following command:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>$ skool2html.py -r Template:table_header_cell
+<p>Wherever the string <code class="docutils literal notranslate"><span class="pre">var</span></code> appears in <code class="docutils literal notranslate"><span class="pre">content</span></code>, it is replaced by
+<code class="docutils literal notranslate"><span class="pre">list[0]</span></code>, <code class="docutils literal notranslate"><span class="pre">list[1]</span></code>, etc. Care should be taken to name the loop variable
+such that no unwanted replacements are made.</p>
+<p>For example, if <code class="docutils literal notranslate"><span class="pre">names</span></code> contains the strings ‘Alice’, ‘Bob’ and ‘Carol’,
+then:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;# foreach(name,names) #&gt;
+{name}
+&lt;# endfor #&gt;
 </pre></div>
 </div>
-<div class="versionadded">
-<p><span class="versionmodified">New in version 4.2.</span></p>
-</div>
-</div>
-<div class="section" id="table-row">
-<span id="t-table-row"></span><h2>table_row<a class="headerlink" href="#table-row" title="Permalink to this headline">¶</a></h2>
-<p>The <code class="docutils literal"><span class="pre">table_row</span></code> template is the subtemplate used by the <a class="reference internal" href="#t-table"><span class="std std-ref">table</span></a>
-template to format each row in the table.</p>
-<p>The following identifier is available (in addition to the universal
-identifiers):</p>
-<ul class="simple">
-<li><code class="docutils literal"><span class="pre">cells</span></code> - replaced by one or more copies of the <a class="reference internal" href="#t-table-cell"><span class="std std-ref">table_cell</span></a> or
-<a class="reference internal" href="#t-table-header-cell"><span class="std std-ref">table_header_cell</span></a> subtemplate</li>
-</ul>
-<p>To see the default <code class="docutils literal"><span class="pre">table_row</span></code> template, run the following command:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>$ skool2html.py -r Template:table_row
+<p>would produce the following output:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Alice
+Bob
+Carol
 </pre></div>
 </div>
-<div class="versionadded">
-<p><span class="versionmodified">New in version 4.2.</span></p>
+</div>
+<div class="section" id="if">
+<span id="td-if"></span><h3>if<a class="headerlink" href="#if" title="Permalink to this headline">¶</a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">if</span></code> directive includes the content between it and the corresponding
+<code class="docutils literal notranslate"><span class="pre">else</span></code> directive (optional) or <code class="docutils literal notranslate"><span class="pre">endif</span></code> directive (required) if a given
+expression is true, and excludes it otherwise.</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;# if(expr) #&gt;
+content
+&lt;# else #&gt;
+alternative content
+&lt;# endif #&gt;
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">expr</span></code> may be any syntactically valid Python expression, and may contain the
+names of any fields that are available in the template.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">if</span></code> directive follows the same rules as Python when determining the
+truth of an expression: <code class="docutils literal notranslate"><span class="pre">None</span></code>, <code class="docutils literal notranslate"><span class="pre">False</span></code>, zero, and any empty string or
+collection is false; everything else is true.</p>
+<p>Note that any replacement fields in <code class="docutils literal notranslate"><span class="pre">expr</span></code> are replaced with their string
+representations before the expression is evaluated. For example, if the value
+of the field ‘val’ is the string ‘0’, then <code class="docutils literal notranslate"><span class="pre">val</span></code> evaluates to ‘0’ (which is
+true, because it’s a non-empty string); but <code class="docutils literal notranslate"><span class="pre">{val}</span></code> evaluates to 0 (which is
+false).</p>
+</div>
+<div class="section" id="include">
+<span id="td-include"></span><h3>include<a class="headerlink" href="#include" title="Permalink to this headline">¶</a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">include</span></code> directive includes content from another template.</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;# include(template) #&gt;
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">template</span></code> is the name of the template to include; it may contain replacement
+fields.</p>
+<p>For example, if there is a template named <code class="docutils literal notranslate"><span class="pre">title</span></code> that contains
+<code class="docutils literal notranslate"><span class="pre">&lt;title&gt;{title}&lt;/title&gt;</span></code>, and the <code class="docutils literal notranslate"><span class="pre">title</span></code> field holds the string ‘My Page’,
+then:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;head&gt;
+&lt;# include(title) #&gt;
+&lt;/head&gt;
+</pre></div>
+</div>
+<p>would produce the following output:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;head&gt;
+&lt;title&gt;My Page&lt;/title&gt;
+&lt;/head&gt;
+</pre></div>
+</div>
 </div>
 </div>
 <div class="section" id="page-specific-templates">
 <span id="ps-templates"></span><h2>Page-specific templates<a class="headerlink" href="#page-specific-templates" title="Permalink to this headline">¶</a></h2>
 <p>When SkoolKit builds an HTML page, it uses the template whose name matches the
-page ID (<code class="docutils literal"><span class="pre">PageID</span></code>) if it exists, or one of the stock page-level templates
-otherwise. For example, when building the <code class="docutils literal"><span class="pre">RoutinesMap</span></code> memory map page,
-SkoolKit uses the <code class="docutils literal"><span class="pre">RoutinesMap</span></code> template if it exists, or the stock
-<a class="reference internal" href="#t-memorymap"><span class="std std-ref">MemoryMap</span></a> template otherwise.</p>
+page ID (<code class="docutils literal notranslate"><span class="pre">PageID</span></code>) if it exists, or the stock <a class="reference internal" href="#t-layout"><span class="std std-ref">Layout</span></a> template
+otherwise. For example, when building the <code class="docutils literal notranslate"><span class="pre">RoutinesMap</span></code> memory map page,
+SkoolKit will use the <code class="docutils literal notranslate"><span class="pre">RoutinesMap</span></code> template if it exists.</p>
+<p>Wherever <code class="docutils literal notranslate"><span class="pre">Asm-*</span></code> appears in the tables below, it means one of <code class="docutils literal notranslate"><span class="pre">Asm-b</span></code>,
+<code class="docutils literal notranslate"><span class="pre">Asm-c</span></code>, <code class="docutils literal notranslate"><span class="pre">Asm-g</span></code>, <code class="docutils literal notranslate"><span class="pre">Asm-s</span></code>, <code class="docutils literal notranslate"><span class="pre">Asm-t</span></code>, <code class="docutils literal notranslate"><span class="pre">Asm-u</span></code> or <code class="docutils literal notranslate"><span class="pre">Asm-w</span></code>, depending
+on the type of memory map entry.</p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="38%" />
-<col width="35%" />
+<col width="52%" />
+<col width="48%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Page type</th>
+<th class="head">Preferred template(s)</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>Home (index)</td>
+<td><code class="docutils literal notranslate"><span class="pre">GameIndex</span></code></td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="ref-files.html#othercode"><span class="std std-ref">Other code</span></a> index</td>
+<td><code class="docutils literal notranslate"><span class="pre">CodeID-Index</span></code></td>
+</tr>
+<tr class="row-even"><td>Routine/data block</td>
+<td><code class="docutils literal notranslate"><span class="pre">Asm-*</span></code>, <code class="docutils literal notranslate"><span class="pre">Asm</span></code></td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="ref-files.html#othercode"><span class="std std-ref">Other code</span></a>
+routine/data block</td>
+<td><code class="docutils literal notranslate"><span class="pre">CodeID-Asm-*</span></code>, <code class="docutils literal notranslate"><span class="pre">CodeID-Asm</span></code></td>
+</tr>
+<tr class="row-even"><td>Disassembly (single page)</td>
+<td><code class="docutils literal notranslate"><span class="pre">AsmSinglePage</span></code></td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="ref-files.html#othercode"><span class="std std-ref">Other code</span></a>
+disassembly (single page)</td>
+<td><code class="docutils literal notranslate"><span class="pre">CodeID-AsmSinglePage</span></code></td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="ref-files.html#memorymap"><span class="std std-ref">Memory map</span></a></td>
+<td><code class="docutils literal notranslate"><span class="pre">PageID</span></code></td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="ref-files.html#boxpages"><span class="std std-ref">Box page</span></a></td>
+<td><code class="docutils literal notranslate"><span class="pre">PageID</span></code></td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="ref-files.html#page"><span class="std std-ref">Custom page</span></a> (non-box)</td>
+<td><code class="docutils literal notranslate"><span class="pre">PageID</span></code></td>
+</tr>
+</tbody>
+</table>
+<p>When SkoolKit builds the content of an HTML page between the page header and
+footer, it uses the subtemplate whose name starts with <code class="docutils literal notranslate"><span class="pre">PageID-</span></code> if it
+exists, or the appropriate stock subtemplate otherwise. For example, when
+building the entries on the <code class="docutils literal notranslate"><span class="pre">Changelog</span></code> page, SkoolKit uses the
+<code class="docutils literal notranslate"><span class="pre">Changelog-box_list_entries</span></code> template if it exists, or the stock
+<a class="reference internal" href="#t-box-list-entries"><span class="std std-ref">box_list_entries</span></a> template otherwise.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="31%" />
+<col width="42%" />
 <col width="27%" />
 </colgroup>
 <thead valign="bottom">
@@ -850,169 +714,106 @@ SkoolKit uses the <code class="docutils literal"><span class="pre">RoutinesMap</
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>Home (index)</td>
-<td><code class="docutils literal"><span class="pre">GameIndex</span></code></td>
-<td><a class="reference internal" href="#t-gameindex"><span class="std std-ref">GameIndex</span></a></td>
+<tr class="row-even"><td>Routine/data block</td>
+<td><code class="docutils literal notranslate"><span class="pre">Asm-*-asm</span></code>, <code class="docutils literal notranslate"><span class="pre">Asm-asm</span></code></td>
+<td><a class="reference internal" href="#t-asm"><span class="std std-ref">asm</span></a></td>
 </tr>
 <tr class="row-odd"><td><a class="reference internal" href="ref-files.html#othercode"><span class="std std-ref">Other code</span></a>
+routine/data block</td>
+<td><code class="docutils literal notranslate"><span class="pre">CodeID-Asm-*-asm</span></code>, <code class="docutils literal notranslate"><span class="pre">CodeID-Asm-asm</span></code></td>
+<td><a class="reference internal" href="#t-asm"><span class="std std-ref">asm</span></a></td>
+</tr>
+<tr class="row-even"><td>Disassembly (single page)</td>
+<td><code class="docutils literal notranslate"><span class="pre">AsmSinglePage-asm_single_page</span></code></td>
+<td><a class="reference internal" href="#t-asm-single-page"><span class="std std-ref">asm_single_page</span></a></td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="ref-files.html#othercode"><span class="std std-ref">Other code</span></a>
+disassembly (single page)</td>
+<td><code class="docutils literal notranslate"><span class="pre">CodeID-AsmSinglePage-asm_single_page</span></code></td>
+<td><a class="reference internal" href="#t-asm-single-page"><span class="std std-ref">asm_single_page</span></a></td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="ref-files.html#boxpages"><span class="std std-ref">Box page</span></a>
+with regular entries</td>
+<td><code class="docutils literal notranslate"><span class="pre">PageID-box_entries</span></code></td>
+<td><a class="reference internal" href="#t-box-entries"><span class="std std-ref">box_entries</span></a></td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="ref-files.html#boxpages"><span class="std std-ref">Box page</span></a>
+with list entries</td>
+<td><code class="docutils literal notranslate"><span class="pre">PageID-box_list_entries</span></code></td>
+<td><a class="reference internal" href="#t-box-list-entries"><span class="std std-ref">box_list_entries</span></a></td>
+</tr>
+<tr class="row-even"><td>Home (index)</td>
+<td><code class="docutils literal notranslate"><span class="pre">GameIndex-home</span></code></td>
+<td><a class="reference internal" href="#t-home"><span class="std std-ref">home</span></a></td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="ref-files.html#memorymap"><span class="std std-ref">Memory map</span></a></td>
+<td><code class="docutils literal notranslate"><span class="pre">PageID-memory_map</span></code></td>
+<td><a class="reference internal" href="#t-memory-map"><span class="std std-ref">memory_map</span></a></td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="ref-files.html#othercode"><span class="std std-ref">Other code</span></a>
 index</td>
-<td><code class="docutils literal"><span class="pre">CodeID-Index</span></code></td>
-<td><a class="reference internal" href="#t-memorymap"><span class="std std-ref">MemoryMap</span></a></td>
+<td><code class="docutils literal notranslate"><span class="pre">CodeID-Index-memory_map</span></code></td>
+<td><a class="reference internal" href="#t-memory-map"><span class="std std-ref">memory_map</span></a></td>
 </tr>
-<tr class="row-even"><td>Routine/data block</td>
-<td><code class="docutils literal"><span class="pre">[CodeID-]Asm[-*]</span></code></td>
-<td><a class="reference internal" href="#t-asm"><span class="std std-ref">Asm</span></a></td>
-</tr>
-<tr class="row-odd"><td>Disassembly (single page)</td>
-<td><code class="docutils literal"><span class="pre">[CodeID-]AsmSinglePage</span></code></td>
-<td><a class="reference internal" href="#t-asmallinone"><span class="std std-ref">AsmAllInOne</span></a></td>
-</tr>
-<tr class="row-even"><td><a class="reference internal" href="ref-files.html#memorymap"><span class="std std-ref">Memory map</span></a></td>
-<td><code class="docutils literal"><span class="pre">PageID</span></code></td>
-<td><a class="reference internal" href="#t-memorymap"><span class="std std-ref">MemoryMap</span></a></td>
-</tr>
-<tr class="row-odd"><td><a class="reference internal" href="ref-files.html#boxpages"><span class="std std-ref">Box page</span></a></td>
-<td><code class="docutils literal"><span class="pre">PageID</span></code></td>
-<td><a class="reference internal" href="#t-reference"><span class="std std-ref">Reference</span></a></td>
-</tr>
-<tr class="row-even"><td><a class="reference internal" href="ref-files.html#page"><span class="std std-ref">Custom page</span></a>
+<tr class="row-odd"><td><a class="reference internal" href="ref-files.html#page"><span class="std std-ref">Custom page</span></a>
 (non-box)</td>
-<td><code class="docutils literal"><span class="pre">PageID</span></code></td>
-<td><a class="reference internal" href="#t-page"><span class="std std-ref">Page</span></a></td>
+<td><code class="docutils literal notranslate"><span class="pre">PageID-page</span></code></td>
+<td><a class="reference internal" href="#t-page"><span class="std std-ref">page</span></a></td>
 </tr>
 </tbody>
 </table>
 <p>When SkoolKit builds an element of an HTML page whose format is defined by a
-subtemplate, it uses the subtemplate whose name starts with <code class="docutils literal"><span class="pre">PageID-</span></code> if it
+subtemplate, it uses the subtemplate whose name starts with <code class="docutils literal notranslate"><span class="pre">PageID-</span></code> if it
 exists, or one of the stock subtemplates otherwise. For example, when building
-the footer of the <code class="docutils literal"><span class="pre">Changelog</span></code> page, SkoolKit uses the <code class="docutils literal"><span class="pre">Changelog-footer</span></code>
+the footer of the <code class="docutils literal notranslate"><span class="pre">Changelog</span></code> page, SkoolKit uses the <code class="docutils literal notranslate"><span class="pre">Changelog-footer</span></code>
 template if it exists, or the stock <a class="reference internal" href="#t-footer"><span class="std std-ref">footer</span></a> template otherwise.</p>
 <table border="1" class="docutils">
 <colgroup>
+<col width="40%" />
 <col width="31%" />
-<col width="38%" />
-<col width="30%" />
+<col width="29%" />
 </colgroup>
 <thead valign="bottom">
 <tr class="row-odd"><th class="head">Element type</th>
-<th class="head">Preferred template(s)</th>
-<th class="head">Stock subtemplate</th>
+<th class="head">Preferred template</th>
+<th class="head">Stock template</th>
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>Registers table</td>
-<td><code class="docutils literal"><span class="pre">[CodeID-]Asm[-*]-asm_register</span></code></td>
-<td><a class="reference internal" href="#t-asm-register"><span class="std std-ref">asm_register</span></a></td>
-</tr>
-<tr class="row-odd"><td>Routine/data block comment</td>
-<td><code class="docutils literal"><span class="pre">[CodeID-]Asm[-*]-asm_comment</span></code></td>
-<td><a class="reference internal" href="#t-asm-comment"><span class="std std-ref">asm_comment</span></a></td>
-</tr>
-<tr class="row-even"><td>Instruction</td>
-<td><code class="docutils literal"><span class="pre">[CodeID-]Asm[-*]-asm_instruction</span></code></td>
-<td><a class="reference internal" href="#t-asm-instruction"><span class="std std-ref">asm_instruction</span></a></td>
-</tr>
-<tr class="row-odd"><td>Single-page disassembly
-routine/data block</td>
-<td><code class="docutils literal"><span class="pre">[CodeID-]AsmSinglePage-asm_entry</span></code></td>
-<td><a class="reference internal" href="#t-asm-entry"><span class="std std-ref">asm_entry</span></a></td>
-</tr>
-<tr class="row-even"><td><a class="reference internal" href="ref-files.html#boxpages"><span class="std std-ref">Box page</span></a>
-entry (paragraphs)</td>
-<td><code class="docutils literal"><span class="pre">PageID-entry</span></code></td>
-<td><a class="reference internal" href="#t-reference-entry"><span class="std std-ref">reference_entry</span></a></td>
-</tr>
-<tr class="row-odd"><td><a class="reference internal" href="ref-files.html#boxpages"><span class="std std-ref">Box page</span></a>
-entry (list items)</td>
-<td><code class="docutils literal"><span class="pre">PageID-entry</span></code></td>
-<td><a class="reference internal" href="#t-list-entry"><span class="std std-ref">list_entry</span></a></td>
-</tr>
-<tr class="row-even"><td><a class="reference internal" href="ref-files.html#boxpages"><span class="std std-ref">Box page</span></a>
-entry list</td>
-<td><code class="docutils literal"><span class="pre">PageID-item_list</span></code></td>
-<td><a class="reference internal" href="#t-list-items"><span class="std std-ref">list_items</span></a></td>
-</tr>
-<tr class="row-odd"><td><a class="reference internal" href="ref-files.html#boxpages"><span class="std std-ref">Box page</span></a>
-entry list item</td>
-<td><code class="docutils literal"><span class="pre">PageID-list_item</span></code></td>
-<td><a class="reference internal" href="#t-list-item"><span class="std std-ref">list_item</span></a></td>
-</tr>
-<tr class="row-even"><td><a class="reference internal" href="ref-files.html#boxpages"><span class="std std-ref">Box page</span></a>
-contents list item</td>
-<td><code class="docutils literal"><span class="pre">PageID-contents_list_item</span></code></td>
-<td><a class="reference internal" href="#t-contents-list-item"><span class="std std-ref">contents_list_item</span></a></td>
-</tr>
-<tr class="row-odd"><td>Paragraph on a
-routine/data block page,
-<a class="reference internal" href="ref-files.html#boxpages"><span class="std std-ref">box page</span></a> or
-<a class="reference internal" href="ref-files.html#memorymap"><span class="std std-ref">memory map</span></a>
-page</td>
-<td><code class="docutils literal"><span class="pre">PageID-paragraph</span></code></td>
-<td><a class="reference internal" href="#t-paragraph"><span class="std std-ref">paragraph</span></a></td>
-</tr>
-<tr class="row-even"><td>Entry on a
-<a class="reference internal" href="ref-files.html#memorymap"><span class="std std-ref">memory map</span></a>
-page</td>
-<td><code class="docutils literal"><span class="pre">PageID-map_entry</span></code></td>
-<td><a class="reference internal" href="#t-map-entry"><span class="std std-ref">map_entry</span></a></td>
-</tr>
-<tr class="row-odd"><td><code class="docutils literal"><span class="pre">&lt;link&gt;</span></code> element for a CSS
-file</td>
-<td><code class="docutils literal"><span class="pre">PageID-stylesheet</span></code></td>
-<td><a class="reference internal" href="#t-stylesheet"><span class="std std-ref">stylesheet</span></a></td>
-</tr>
-<tr class="row-even"><td><code class="docutils literal"><span class="pre">&lt;script&gt;</span></code> element</td>
-<td><code class="docutils literal"><span class="pre">PageID-javascript</span></code></td>
-<td><a class="reference internal" href="#t-javascript"><span class="std std-ref">javascript</span></a></td>
-</tr>
-<tr class="row-odd"><td><code class="docutils literal"><span class="pre">&lt;img&gt;</span></code> element</td>
-<td><code class="docutils literal"><span class="pre">PageID-img</span></code></td>
-<td><a class="reference internal" href="#t-img"><span class="std std-ref">img</span></a></td>
-</tr>
-<tr class="row-even"><td>Hyperlink</td>
-<td><code class="docutils literal"><span class="pre">PageID-link</span></code></td>
-<td><a class="reference internal" href="#t-link"><span class="std std-ref">link</span></a></td>
-</tr>
-<tr class="row-odd"><td>Page anchor</td>
-<td><code class="docutils literal"><span class="pre">PageID-anchor</span></code></td>
-<td><a class="reference internal" href="#t-anchor"><span class="std std-ref">anchor</span></a></td>
-</tr>
 <tr class="row-even"><td>Page footer</td>
-<td><code class="docutils literal"><span class="pre">PageID-footer</span></code></td>
+<td><code class="docutils literal notranslate"><span class="pre">PageID-footer</span></code></td>
 <td><a class="reference internal" href="#t-footer"><span class="std std-ref">footer</span></a></td>
 </tr>
-<tr class="row-odd"><td>Register name rendered by the
-<a class="reference internal" href="skool-macros.html#reg"><span class="std std-ref">#REG</span></a> macro</td>
-<td><code class="docutils literal"><span class="pre">PageID-reg</span></code></td>
-<td><a class="reference internal" href="#t-reg"><span class="std std-ref">reg</span></a></td>
+<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">&lt;img&gt;</span></code> element</td>
+<td><code class="docutils literal notranslate"><span class="pre">PageID-img</span></code></td>
+<td><a class="reference internal" href="#t-img"><span class="std std-ref">img</span></a></td>
 </tr>
-<tr class="row-even"><td rowspan="2">List created by the
+<tr class="row-even"><td><a class="reference internal" href="ref-files.html#boxpages"><span class="std std-ref">Box page</span></a>
+list entry</td>
+<td><code class="docutils literal notranslate"><span class="pre">PageID-item_list</span></code></td>
+<td><a class="reference internal" href="#t-item-list"><span class="std std-ref">item_list</span></a></td>
+</tr>
+<tr class="row-odd"><td>Hyperlink</td>
+<td><code class="docutils literal notranslate"><span class="pre">PageID-link</span></code></td>
+<td><a class="reference internal" href="#t-link"><span class="std std-ref">link</span></a></td>
+</tr>
+<tr class="row-even"><td>List created by the
 <a class="reference internal" href="skool-macros.html#list"><span class="std std-ref">#LIST</span></a> macro</td>
-<td><code class="docutils literal"><span class="pre">PageID-list</span></code></td>
+<td><code class="docutils literal notranslate"><span class="pre">PageID-list</span></code></td>
 <td><a class="reference internal" href="#t-list"><span class="std std-ref">list</span></a></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal"><span class="pre">PageID-list_item</span></code></td>
-<td><a class="reference internal" href="#t-list-item"><span class="std std-ref">list_item</span></a></td>
+<tr class="row-odd"><td>Register name rendered by
+the <a class="reference internal" href="skool-macros.html#reg"><span class="std std-ref">#REG</span></a> macro</td>
+<td><code class="docutils literal notranslate"><span class="pre">PageID-reg</span></code></td>
+<td><a class="reference internal" href="#t-reg"><span class="std std-ref">reg</span></a></td>
 </tr>
-<tr class="row-even"><td rowspan="4">Table created by the
+<tr class="row-even"><td>Table created by the
 <a class="reference internal" href="skool-macros.html#table"><span class="std std-ref">#TABLE</span></a> macro</td>
-<td><code class="docutils literal"><span class="pre">PageID-table</span></code></td>
+<td><code class="docutils literal notranslate"><span class="pre">PageID-table</span></code></td>
 <td><a class="reference internal" href="#t-table"><span class="std std-ref">table</span></a></td>
-</tr>
-<tr class="row-odd"><td><code class="docutils literal"><span class="pre">PageID-table_row</span></code></td>
-<td><a class="reference internal" href="#t-table-row"><span class="std std-ref">table_row</span></a></td>
-</tr>
-<tr class="row-even"><td><code class="docutils literal"><span class="pre">PageID-table_header_cell</span></code></td>
-<td><a class="reference internal" href="#t-table-header-cell"><span class="std std-ref">table_header_cell</span></a></td>
-</tr>
-<tr class="row-odd"><td><code class="docutils literal"><span class="pre">PageID-table_cell</span></code></td>
-<td><a class="reference internal" href="#t-table-cell"><span class="std std-ref">table_cell</span></a></td>
 </tr>
 </tbody>
 </table>
-<p>Wherever <code class="docutils literal"><span class="pre">Asm-*</span></code> appears in the tables above, it means one of <code class="docutils literal"><span class="pre">Asm-b</span></code>,
-<code class="docutils literal"><span class="pre">Asm-c</span></code>, <code class="docutils literal"><span class="pre">Asm-g</span></code>, <code class="docutils literal"><span class="pre">Asm-s</span></code>, <code class="docutils literal"><span class="pre">Asm-t</span></code>, <code class="docutils literal"><span class="pre">Asm-u</span></code> or <code class="docutils literal"><span class="pre">Asm-w</span></code>, depending
-on the type of code or data block.</p>
 </div>
 </div>
 
@@ -1029,17 +830,20 @@ on the type of code or data block.</p>
           <a href="genindex.html" title="General Index"
              >index</a></li>
         <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
           <a href="extending.html" title="Extending SkoolKit"
              >next</a> |</li>
         <li class="right" >
           <a href="asm-templates.html" title="ASM templates"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 7.2 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.0 documentation</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2019, Richard Dymond.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.9.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
     </div>
   </body>
 </html>

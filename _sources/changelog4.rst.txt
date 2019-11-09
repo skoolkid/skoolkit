@@ -12,10 +12,10 @@ SkoolKit 4.x changelog
 * Added the ``--end`` option to :ref:`bin2tap.py` and the ability to convert
   SNA, SZX and Z80 snapshots
 * Added ``--start`` and ``--end`` options to :ref:`skool2asm.py`,
-  :ref:`skool2ctl.py` and :ref:`skool2sft.py`
+  :ref:`skool2ctl.py` and `skool2sft.py`
 * The ``--start`` and ``--end`` options of :ref:`sna2skool.py` now take effect
   when reading a control file or a skool file template
-* Added support to :ref:`skool2ctl.py` and :ref:`skool2sft.py` for preserving
+* Added support to :ref:`skool2ctl.py` and `skool2sft.py` for preserving
   characters in DEFW statements (e.g. ``DEFW "!"``)
 * Added support for characters in DEFS statements (e.g. ``DEFS 10,"!"``)
 * Fixed how :ref:`tap2sna.py` compresses a RAM block that contains a single
@@ -37,7 +37,7 @@ SkoolKit 4.x changelog
 * Added the ``--ctl-hex-lower`` option to :ref:`sna2skool.py` (for writing
   addresses in lower case hexadecimal format in the generated control file)
 * Added the ``--hex-lower`` option to :ref:`skool2ctl.py` and
-  :ref:`skool2sft.py` (for writing addresses in lower case hexadecimal format)
+  `skool2sft.py` (for writing addresses in lower case hexadecimal format)
 * Fixed the parsing of DEFB and DEFM statements that contain semicolons
 * Fixed the base conversion of ``LD (HL),n`` instructions that contain
   extraneous whitespace (e.g. ``LD ( HL ),5``)
@@ -83,11 +83,11 @@ SkoolKit 4.x changelog
 * :ref:`skool2asm.py` now warns about unconverted addresses in register
   descriptions, and the :ref:`ignoreua` directive can be used to suppress such
   warnings
-* Added the :ref:`t_table`, :ref:`t_table_cell`, :ref:`t_table_header_cell` and
-  :ref:`t_table_row` templates (for formatting tables produced by the
+* Added the :ref:`t_table`, ``t_table_cell``, ``t_table_header_cell`` and
+  ``t_table_row`` templates (for formatting tables produced by the
   :ref:`TABLE` macro)
-* Added the :ref:`t_list` and :ref:`t_list_item` templates (for formatting
-  lists produced by the :ref:`LIST` macro)
+* Added the :ref:`t_list` and ``t_list_item`` templates (for formatting lists
+  produced by the :ref:`LIST` macro)
 * Fixed the bug that prevents the expansion of skool macros in the intro text
   of a ``Changelog:*`` section
 

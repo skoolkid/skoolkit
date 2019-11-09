@@ -11,8 +11,8 @@ and data blocks of the program being disassembled, with accompanying comments
 Skool file format
 -----------------
 A skool file must be in a certain format to ensure that it is processed
-correctly by :ref:`skool2html.py`, :ref:`skool2asm.py`, :ref:`skool2ctl.py` and
-:ref:`skool2sft.py`. The rules are as follows:
+correctly by :ref:`skool2html.py`, :ref:`skool2asm.py` and :ref:`skool2ctl.py`.
+The rules are as follows:
 
 * entries (an 'entry' being a routine or data block) must be separated by
   blank lines, and an entry must not contain any blank lines
@@ -245,7 +245,7 @@ information. For example::
 
 Non-entry blocks such as this copyright comment are reproduced by
 `skool2asm.py`, ignored by `skool2html.py`, and preserved verbatim by
-`skool2ctl.py` and `skool2sft.py`.
+`skool2ctl.py`.
 
 Revision history
 ----------------

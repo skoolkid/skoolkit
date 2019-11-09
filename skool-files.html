@@ -1,35 +1,24 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
-
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>Skool files &#8212; SkoolKit 7.2 documentation</title>
-    
+    <title>Skool files &#8212; SkoolKit 8.0 documentation</title>
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    './',
-        VERSION:     '7.2',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
-      };
-    </script>
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="top" title="SkoolKit 7.2 documentation" href="index.html" />
-    <link rel="next" title="Skool file templates" href="skool-file-templates.html" />
+    <link rel="next" title="Skool macros" href="skool-macros.html" />
     <link rel="prev" title="Control files" href="control-files.html" /> 
-  </head>
-  <body role="document">
+  </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -37,17 +26,20 @@
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
-          <a href="skool-file-templates.html" title="Skool file templates"
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="skool-macros.html" title="Skool macros"
              accesskey="N">next</a> |</li>
         <li class="right" >
           <a href="control-files.html" title="Control files"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 7.2 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.0 documentation</a> &#187;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-  <h3><a href="index.html">Table Of Contents</a></h3>
+  <h3><a href="index.html">Table of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">Skool files</a><ul>
 <li><a class="reference internal" href="#skool-file-format">Skool file format</a><ul>
@@ -68,23 +60,25 @@
   <p class="topless"><a href="control-files.html"
                         title="previous chapter">Control files</a></p>
   <h4>Next topic</h4>
-  <p class="topless"><a href="skool-file-templates.html"
-                        title="next chapter">Skool file templates</a></p>
+  <p class="topless"><a href="skool-macros.html"
+                        title="next chapter">Skool macros</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="_sources/skool-files.txt"
+      <li><a href="_sources/skool-files.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
+    </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -103,15 +97,15 @@ and data blocks of the program being disassembled, with accompanying comments
 <div class="section" id="skool-file-format">
 <span id="skoolfileformat"></span><h2>Skool file format<a class="headerlink" href="#skool-file-format" title="Permalink to this headline">¶</a></h2>
 <p>A skool file must be in a certain format to ensure that it is processed
-correctly by <a class="reference internal" href="commands.html#skool2html-py"><span class="std std-ref">skool2html.py</span></a>, <a class="reference internal" href="commands.html#skool2asm-py"><span class="std std-ref">skool2asm.py</span></a>, <a class="reference internal" href="commands.html#skool2ctl-py"><span class="std std-ref">skool2ctl.py</span></a> and
-<a class="reference internal" href="commands.html#skool2sft-py"><span class="std std-ref">skool2sft.py</span></a>. The rules are as follows:</p>
+correctly by <a class="reference internal" href="commands.html#skool2html-py"><span class="std std-ref">skool2html.py</span></a>, <a class="reference internal" href="commands.html#skool2asm-py"><span class="std std-ref">skool2asm.py</span></a> and <a class="reference internal" href="commands.html#skool2ctl-py"><span class="std std-ref">skool2ctl.py</span></a>.
+The rules are as follows:</p>
 <ul class="simple">
-<li>entries (an &#8216;entry&#8217; being a routine or data block) must be separated by
+<li>entries (an ‘entry’ being a routine or data block) must be separated by
 blank lines, and an entry must not contain any blank lines</li>
 <li>an entry header is a sequence of comment lines broken into four sections;
 see <a class="reference internal" href="#entryheaderformat"><span class="std std-ref">Entry header format</span></a></li>
 <li>each line in an entry may start with one of the following characters:
-<code class="docutils literal"><span class="pre">;*</span> <span class="pre">&#64;bcgistuw</span></code>; see <a class="reference internal" href="#entrylineformat"><span class="std std-ref">Entry line format</span></a></li>
+<code class="docutils literal notranslate"><span class="pre">;*</span> <span class="pre">&#64;bcgistuw</span></code>; see <a class="reference internal" href="#entrylineformat"><span class="std std-ref">Entry line format</span></a></li>
 <li>tables (grids) have their own markup syntax; see <a class="reference internal" href="skool-macros.html#table"><span class="std std-ref">#TABLE</span></a> for details</li>
 </ul>
 <div class="section" id="entry-header-format">
@@ -125,8 +119,8 @@ see <a class="reference internal" href="#entryheaderformat"><span class="std std
 </ul>
 <p>The sections are separated by an empty comment line, and paragraphs within
 the entry description and start comment must be separated by a comment line
-containing a dot (<code class="docutils literal"><span class="pre">.</span></code>) on its own. For example:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>; This is the entry title
+containing a dot (<code class="docutils literal notranslate"><span class="pre">.</span></code>) on its own. For example:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>; This is the entry title
 ;
 ; This is the first paragraph of the entry description.
 ; .
@@ -140,8 +134,8 @@ containing a dot (<code class="docutils literal"><span class="pre">.</span></cod
 </div>
 <p>If a start comment is required but a register section is not, either append the
 start comment to the entry description, or specify a blank register section by
-using a dot (<code class="docutils literal"><span class="pre">.</span></code>) thus:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>; This entry has a start comment but no register section
+using a dot (<code class="docutils literal notranslate"><span class="pre">.</span></code>) thus:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>; This entry has a start comment but no register section
 ;
 ; This is the entry description.
 ;
@@ -151,8 +145,8 @@ using a dot (<code class="docutils literal"><span class="pre">.</span></code>) t
 </pre></div>
 </div>
 <p>Likewise, if a register section is required but an entry description is not, a
-blank entry description may be specified by using a dot (<code class="docutils literal"><span class="pre">.</span></code>) thus:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>; This entry has a register section but no description
+blank entry description may be specified by using a dot (<code class="docutils literal notranslate"><span class="pre">.</span></code>) thus:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>; This entry has a register section but no description
 ;
 ; .
 ;
@@ -161,65 +155,65 @@ blank entry description may be specified by using a dot (<code class="docutils l
 </pre></div>
 </div>
 <p>Registers may be listed as shown above, or with colon-terminated prefixes
-(such as &#8216;Input:&#8217; and &#8216;Output:&#8217;, or simply &#8216;I:&#8217; and &#8216;O:&#8217;) to distinguish
+(such as ‘Input:’ and ‘Output:’, or simply ‘I:’ and ‘O:’) to distinguish
 input values from output values:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>;  Input:A An important parameter
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>;  Input:A An important parameter
 ;        B Another important parameter
 ; Output:C The result
 </pre></div>
 </div>
 <p>In the HTML version of the disassembly, input values and output values are
-shown in separate tables. If a register&#8217;s prefix begins with the letter &#8216;O&#8217;,
+shown in separate tables. If a register’s prefix begins with the letter ‘O’,
 it is regarded as an output value; if it begins with any other letter, it is
 regarded as an input value. If a register has no prefix, it will be placed in
 the same table as the previous register; if there is no previous register, it
 will be placed in the table of input values.</p>
 <p>If a register description is very long, it may be split over two or more lines
-by starting the second and subsequent lines with a dot (<code class="docutils literal"><span class="pre">.</span></code>) thus:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>; HL The description for this register is quite long, so it is split over two
+by starting the second and subsequent lines with a dot (<code class="docutils literal notranslate"><span class="pre">.</span></code>) thus:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>; HL The description for this register is quite long, so it is split over two
 ; .  lines for improved readability
 </pre></div>
 </div>
 </div>
 <div class="section" id="entry-line-format">
 <span id="entrylineformat"></span><h3>Entry line format<a class="headerlink" href="#entry-line-format" title="Permalink to this headline">¶</a></h3>
-<p>Each line in an entry may start with one of <code class="docutils literal"><span class="pre">;*</span> <span class="pre">&#64;bcgistuw</span></code>, where:</p>
+<p>Each line in an entry may start with one of <code class="docutils literal notranslate"><span class="pre">;*</span> <span class="pre">&#64;bcgistuw</span></code>, where:</p>
 <ul class="simple">
-<li><code class="docutils literal"><span class="pre">;</span></code> begins a comment line</li>
-<li><code class="docutils literal"><span class="pre">*</span></code> denotes an entry point in a routine</li>
-<li><code class="docutils literal"><span class="pre">&#64;</span></code> begins an <a class="reference internal" href="#asm"><span class="std std-ref">ASM directive</span></a></li>
-<li><code class="docutils literal"><span class="pre">b</span></code> denotes the first instruction in a data block</li>
-<li><code class="docutils literal"><span class="pre">c</span></code> denotes the first instruction in a code block (routine)</li>
-<li><code class="docutils literal"><span class="pre">g</span></code> denotes the first instruction in a game status buffer entry</li>
-<li><code class="docutils literal"><span class="pre">i</span></code> denotes an ignored entry</li>
-<li><code class="docutils literal"><span class="pre">s</span></code> denotes the first instruction in a data block containing bytes that
+<li><code class="docutils literal notranslate"><span class="pre">;</span></code> begins a comment line</li>
+<li><code class="docutils literal notranslate"><span class="pre">*</span></code> denotes an entry point in a routine</li>
+<li><code class="docutils literal notranslate"><span class="pre">&#64;</span></code> begins an <a class="reference internal" href="#asm"><span class="std std-ref">ASM directive</span></a></li>
+<li><code class="docutils literal notranslate"><span class="pre">b</span></code> denotes the first instruction in a data block</li>
+<li><code class="docutils literal notranslate"><span class="pre">c</span></code> denotes the first instruction in a code block (routine)</li>
+<li><code class="docutils literal notranslate"><span class="pre">g</span></code> denotes the first instruction in a game status buffer entry</li>
+<li><code class="docutils literal notranslate"><span class="pre">i</span></code> denotes an ignored entry</li>
+<li><code class="docutils literal notranslate"><span class="pre">s</span></code> denotes the first instruction in a data block containing bytes that
 are all the same value (typically unused zeroes)</li>
-<li><code class="docutils literal"><span class="pre">t</span></code> denotes the first instruction in a data block that contains text</li>
-<li><code class="docutils literal"><span class="pre">u</span></code> denotes the first instruction in an unused code or data block</li>
-<li><code class="docutils literal"><span class="pre">w</span></code> denotes the first instruction in a data block that contains two-byte
+<li><code class="docutils literal notranslate"><span class="pre">t</span></code> denotes the first instruction in a data block that contains text</li>
+<li><code class="docutils literal notranslate"><span class="pre">u</span></code> denotes the first instruction in an unused code or data block</li>
+<li><code class="docutils literal notranslate"><span class="pre">w</span></code> denotes the first instruction in a data block that contains two-byte
 values (words)</li>
 <li>a space begins a line that does not require any of the markers listed above</li>
 </ul>
 <p>The format of a line containing an instruction is:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>C##### INSTRUCTION[ ; comment]
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>C##### INSTRUCTION[ ; comment]
 </pre></div>
 </div>
 <p>where:</p>
 <ul class="simple">
-<li><code class="docutils literal"><span class="pre">C</span></code> is one of the characters listed above: <code class="docutils literal"><span class="pre">*</span> <span class="pre">bcdgirstuw</span></code></li>
-<li><code class="docutils literal"><span class="pre">#####</span></code> is an address (e.g. <code class="docutils literal"><span class="pre">24576</span></code>, or <code class="docutils literal"><span class="pre">$6000</span></code> if you prefer
+<li><code class="docutils literal notranslate"><span class="pre">C</span></code> is one of the characters listed above: <code class="docutils literal notranslate"><span class="pre">*</span> <span class="pre">bcdgirstuw</span></code></li>
+<li><code class="docutils literal notranslate"><span class="pre">#####</span></code> is an address (e.g. <code class="docutils literal notranslate"><span class="pre">24576</span></code>, or <code class="docutils literal notranslate"><span class="pre">$6000</span></code> if you prefer
 hexadecimal notation)</li>
-<li><code class="docutils literal"><span class="pre">INSTRUCTION</span></code> is an instruction (e.g. <code class="docutils literal"><span class="pre">LD</span> <span class="pre">A,(HL)</span></code>)</li>
-<li><code class="docutils literal"><span class="pre">comment</span></code> is a comment (which may be blank)</li>
+<li><code class="docutils literal notranslate"><span class="pre">INSTRUCTION</span></code> is an instruction (e.g. <code class="docutils literal notranslate"><span class="pre">LD</span> <span class="pre">A,(HL)</span></code>)</li>
+<li><code class="docutils literal notranslate"><span class="pre">comment</span></code> is a comment (which may be blank)</li>
 </ul>
 <p>The comment for a single instruction may span multiple lines thus:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>c24296 CALL 57935    ; This comment is too long to fit on a single line, so
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>c24296 CALL 57935    ; This comment is too long to fit on a single line, so
                      ; we use two lines
 </pre></div>
 </div>
 <p>A comment may also be associated with more than one instruction by the use of
-braces (<code class="docutils literal"><span class="pre">{</span></code> and <code class="docutils literal"><span class="pre">}</span></code>) to indicate the start and end points, thus:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>*24372 SUB D         ; {This comment applies to the two instructions at
+braces (<code class="docutils literal notranslate"><span class="pre">{</span></code> and <code class="docutils literal notranslate"><span class="pre">}</span></code>) to indicate the start and end points, thus:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>*24372 SUB D         ; {This comment applies to the two instructions at
  24373 JR NZ,24378   ; 24372 and 24373}
 </pre></div>
 </div>
@@ -227,15 +221,15 @@ braces (<code class="docutils literal"><span class="pre">{</span></code> and <co
 ASM or HTML mode. (See <a class="reference internal" href="#bracesincomments"><span class="std std-ref">Braces in comments</span></a>.)</p>
 <p>Comments may appear between instructions, or after the last instruction in an
 entry; paragraphs in such comments must be separated by a comment line
-containing a dot (<code class="docutils literal"><span class="pre">.</span></code>) on its own. For example:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>*28975 JR 28902
+containing a dot (<code class="docutils literal notranslate"><span class="pre">.</span></code>) on its own. For example:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>*28975 JR 28902
 ; This is a mid-block comment between two instructions.
 ; .
 ; This is the second paragraph of the comment.
  28977 XOR A
 </pre></div>
 </div>
-<p>Lines that start with <code class="docutils literal"><span class="pre">*</span></code> will have their addresses shown in bold in the
+<p>Lines that start with <code class="docutils literal notranslate"><span class="pre">*</span></code> will have their addresses shown in bold in the
 HTML version of the disassembly (generated by <a class="reference internal" href="commands.html#skool2html-py"><span class="std std-ref">skool2html.py</span></a>), and will
 have labels generated for them in the ASM version (generated by
 <a class="reference internal" href="commands.html#skool2asm-py"><span class="std std-ref">skool2asm.py</span></a>).</p>
@@ -243,9 +237,9 @@ have labels generated for them in the ASM version (generated by
 </div>
 <div class="section" id="asm-directives">
 <span id="asm"></span><h2>ASM directives<a class="headerlink" href="#asm-directives" title="Permalink to this headline">¶</a></h2>
-<p>To write an ASM directive in a skool file, start a line with <code class="docutils literal"><span class="pre">&#64;</span></code>; for
+<p>To write an ASM directive in a skool file, start a line with <code class="docutils literal notranslate"><span class="pre">&#64;</span></code>; for
 example:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>; Start the game
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>; Start the game
 @label=START
 c24576 XOR A
 </pre></div>
@@ -254,9 +248,9 @@ c24576 XOR A
 </div>
 <div class="section" id="escaping-characters">
 <h2>Escaping characters<a class="headerlink" href="#escaping-characters" title="Permalink to this headline">¶</a></h2>
-<p>Backslash (<code class="docutils literal"><span class="pre">\</span></code>) and double quote (<code class="docutils literal"><span class="pre">&quot;</span></code>) characters in string and character
+<p>Backslash (<code class="docutils literal notranslate"><span class="pre">\</span></code>) and double quote (<code class="docutils literal notranslate"><span class="pre">&quot;</span></code>) characters in string and character
 operands must be escaped by preceding them with a backslash. For example:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>c32768 LD A,&quot;\&quot;&quot;     ; LD A,34
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>c32768 LD A,&quot;\&quot;&quot;     ; LD A,34
  32770 LD B,&quot;\\&quot;     ; LD B,92
 </pre></div>
 </div>
@@ -264,7 +258,7 @@ operands must be escaped by preceding them with a backslash. For example:</p>
 </div>
 <div class="section" id="braces-in-comments">
 <span id="bracesincomments"></span><h2>Braces in comments<a class="headerlink" href="#braces-in-comments" title="Permalink to this headline">¶</a></h2>
-<p>As noted above, opening and closing braces (<code class="docutils literal"><span class="pre">{</span></code>, <code class="docutils literal"><span class="pre">}</span></code>) are used to mark the
+<p>As noted above, opening and closing braces (<code class="docutils literal notranslate"><span class="pre">{</span></code>, <code class="docutils literal notranslate"><span class="pre">}</span></code>) are used to mark the
 start and end points of an instruction-level comment that is associated with
 more than one instruction, and the braces are removed before the comment is
 rendered. This means that if the comment requires an opening or closing brace
@@ -283,29 +277,29 @@ rendering</li>
 <p>By these rules, it is possible to craft an instruction-level comment that
 contains matched or unmatched opening and closing braces when rendered.</p>
 <p>For example:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>b50000 DEFB 0  ; {{This comment (which spans two instructions) has an
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>b50000 DEFB 0  ; {{This comment (which spans two instructions) has an
  50001 DEFB 0  ; unmatched closing brace} }
 </pre></div>
 </div>
 <p>will render in ASM mode as:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>DEFB 0                  ; This comment (which spans two instructions) has an
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>DEFB 0                  ; This comment (which spans two instructions) has an
 DEFB 0                  ; unmatched closing brace}
 </pre></div>
 </div>
 <p>And:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>b50002 DEFB 0  ; { {{Matched opening and closing braces}} }
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>b50002 DEFB 0  ; { {{Matched opening and closing braces}} }
 </pre></div>
 </div>
 <p>will render as:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>DEFB 0                  ; {{Matched opening and closing braces}}
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>DEFB 0                  ; {{Matched opening and closing braces}}
 </pre></div>
 </div>
 <p>Finally:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>b50003 DEFB 0  ; { {Unmatched opening brace}}
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>b50003 DEFB 0  ; { {Unmatched opening brace}}
 </pre></div>
 </div>
 <p>will render as:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>DEFB 0                  ; {Unmatched opening brace
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>DEFB 0                  ; {Unmatched opening brace
 </pre></div>
 </div>
 </div>
@@ -315,7 +309,7 @@ DEFB 0                  ; unmatched closing brace}
 also contain blocks of lines that do not match the format of an entry, such as
 a header comment that appears before the first entry and contains copyright
 information. For example:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>; Copyright 2018 J Smith
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>; Copyright 2018 J Smith
 
 ; Start
 c24576 JP 32768
@@ -323,7 +317,7 @@ c24576 JP 32768
 </div>
 <p>Non-entry blocks such as this copyright comment are reproduced by
 <cite>skool2asm.py</cite>, ignored by <cite>skool2html.py</cite>, and preserved verbatim by
-<cite>skool2ctl.py</cite> and <cite>skool2sft.py</cite>.</p>
+<cite>skool2ctl.py</cite>.</p>
 </div>
 <div class="section" id="revision-history">
 <h2>Revision history<a class="headerlink" href="#revision-history" title="Permalink to this headline">¶</a></h2>
@@ -340,22 +334,22 @@ c24576 JP 32768
 <tbody valign="top">
 <tr class="row-even"><td>4.3</td>
 <td>Added support for the start comment in entry headers; an ASM
-directive can be declared by starting a line with <code class="docutils literal"><span class="pre">&#64;</span></code></td>
+directive can be declared by starting a line with <code class="docutils literal notranslate"><span class="pre">&#64;</span></code></td>
 </tr>
 <tr class="row-odd"><td>4.2</td>
 <td>Added support for splitting register descriptions over multiple
 lines</td>
 </tr>
 <tr class="row-even"><td>3.7</td>
-<td>Added support for binary numbers; added the <code class="docutils literal"><span class="pre">s</span></code> block type</td>
+<td>Added support for binary numbers; added the <code class="docutils literal notranslate"><span class="pre">s</span></code> block type</td>
 </tr>
 <tr class="row-odd"><td>3.1.2</td>
-<td>Added support for &#8216;Input&#8217; and &#8216;Output&#8217; prefixes in register
+<td>Added support for ‘Input’ and ‘Output’ prefixes in register
 sections</td>
 </tr>
 <tr class="row-even"><td>2.4</td>
 <td>Added the ability to separate paragraphs and specify a blank
-entry description by using a dot (<code class="docutils literal"><span class="pre">.</span></code>) on a line of its own</td>
+entry description by using a dot (<code class="docutils literal notranslate"><span class="pre">.</span></code>) on a line of its own</td>
 </tr>
 <tr class="row-odd"><td>2.1</td>
 <td>Added support for hexadecimal numbers</td>
@@ -378,17 +372,20 @@ entry description by using a dot (<code class="docutils literal"><span class="pr
           <a href="genindex.html" title="General Index"
              >index</a></li>
         <li class="right" >
-          <a href="skool-file-templates.html" title="Skool file templates"
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="skool-macros.html" title="Skool macros"
              >next</a> |</li>
         <li class="right" >
           <a href="control-files.html" title="Control files"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 7.2 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.0 documentation</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2019, Richard Dymond.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.9.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
     </div>
   </body>
 </html>
