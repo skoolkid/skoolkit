@@ -2,7 +2,7 @@
 set -e # Abort on errors
 
 SKTMPDIR=$HOME/tmp
-SKOOLKIT_KEY=938CD04A
+SKOOLKIT_KEY=2CC665CAA1AF3D05913D8FE8C4E10ED0938CD04A
 COMMANDS=$(echo {bin2{sna,tap},skool2{asm,bin,ctl,html},sna2{ctl,img,skool},snap{info,mod},tap{2sna,info}}.py)
 
 ###############################################################################
