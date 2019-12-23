@@ -1,6 +1,9 @@
 Changelog
 =========
 
+8.1b1
+-----
+
 8.0 (2019-11-09)
 ----------------
 * Dropped support for Python 3.4
