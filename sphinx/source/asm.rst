@@ -442,11 +442,16 @@ For example::
 The ``@defb`` directive inserts byte values into the memory snapshot at a given
 address. ::
 
-  @defb=address:value1[,value2...]
+  @defb=[address:]value1[,value2...]
 
 * ``address`` is the address
 * ``value1``, ``value2`` etc. are the byte values (as might appear in a
   ``DEFB`` statement)
+
+If ``address`` is omitted, it defaults to the address immediately after the
+last byte of the previous ``@defb``, :ref:`defs` or :ref:`defw` directive
+preceding the same instruction (if one exists), or to the address of the next
+instruction otherwise.
 
 The sequence of comma-separated values may be followed by a semicolon (``;``)
 and arbitrary text, which will be ignored.
@@ -463,11 +468,13 @@ This will insert the value 5 followed by the ASCII codes of the characters in
 control file; thus the ``@defb`` directive can be used to override the contents
 of the snapshot that is read by `sna2skool.py`.
 
-+---------+---------+
-| Version | Changes |
-+=========+=========+
-| 6.3     | New     |
-+---------+---------+
++---------+---------------------------------------+
+| Version | Changes                               |
++=========+=======================================+
+| 8.1     | The ``address`` parameter is optional |
++---------+---------------------------------------+
+| 6.3     | New                                   |
++---------+---------------------------------------+
 
 .. _defs:
 
@@ -476,11 +483,16 @@ of the snapshot that is read by `sna2skool.py`.
 The ``@defs`` directive inserts a sequence of byte values into the memory
 snapshot at a given address. ::
 
-  @defs=address:length[,value]
+  @defs=[address:]length[,value]
 
 * ``address`` is the address
 * ``length`` is the length of the sequence
 * ``value`` is the byte value (default: 0)
+
+If ``address`` is omitted, it defaults to the address immediately after the
+last byte of the previous :ref:`defb`, ``@defs`` or :ref:`defw` directive
+preceding the same instruction (if one exists), or to the address of the next
+instruction otherwise.
 
 The directive may be followed by a semicolon (``;``) and arbitrary text, which
 will be ignored.
@@ -497,11 +509,13 @@ This will insert the value 255 into the memory snapshot at addresses
 control file; thus the ``@defs`` directive can be used to override the contents
 of the snapshot that is read by `sna2skool.py`.
 
-+---------+---------+
-| Version | Changes |
-+=========+=========+
-| 6.3     | New     |
-+---------+---------+
++---------+---------------------------------------+
+| Version | Changes                               |
++=========+=======================================+
+| 8.1     | The ``address`` parameter is optional |
++---------+---------------------------------------+
+| 6.3     | New                                   |
++---------+---------------------------------------+
 
 .. _defw:
 
@@ -510,11 +524,16 @@ of the snapshot that is read by `sna2skool.py`.
 The ``@defw`` directive inserts word values into the memory snapshot at a given
 address. ::
 
-  @defw=address:value1[,value2...]
+  @defw=[address:]value1[,value2...]
 
 * ``address`` is the address
 * ``value1``, ``value2`` etc. are the word values (as might appear in a
   ``DEFW`` statement)
+
+If ``address`` is omitted, it defaults to the address immediately after the
+last byte of the previous :ref:`defb`, :ref:`defs` or ``@defw`` directive
+preceding the same instruction (if one exists), or to the address of the next
+instruction otherwise.
 
 The sequence of comma-separated values may be followed by a semicolon (``;``)
 and arbitrary text, which will be ignored.
@@ -531,11 +550,13 @@ addresses 30000 and 30002.
 control file; thus the ``@defw`` directive can be used to override the contents
 of the snapshot that is read by `sna2skool.py`.
 
-+---------+---------+
-| Version | Changes |
-+=========+=========+
-| 6.3     | New     |
-+---------+---------+
++---------+---------------------------------------+
+| Version | Changes                               |
++=========+=======================================+
+| 8.1     | The ``address`` parameter is optional |
++---------+---------------------------------------+
+| 6.3     | New                                   |
++---------+---------------------------------------+
 
 .. _end:
 

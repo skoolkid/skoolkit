@@ -1719,33 +1719,151 @@ class SkoolParserTest(SkoolKitTestCase):
             @defb=23296:1,$0A,%10101010,"01",32768/256
             @defb=30000:48,72,136,144,104,4,10,4 ; Key
             ; Start
-            32768 JP 49152
+            c32768 JP 49152
         """
         snapshot = self._get_parser(skool, html=True).snapshot
         self.assertEqual([1, 10, 170, 48, 49, 128], snapshot[23296:23302])
         self.assertEqual([48, 72, 136, 144, 104, 4, 10, 4], snapshot[30000:30008])
+
+    def test_addressless_defb_directives(self):
+        skool = """
+            @defb=1,$0A,%10101010
+            @defb="01",32768/256 ; Done
+            ; Start
+            c40000 JP 49152
+        """
+        snapshot = self._get_parser(skool, html=True).snapshot
+        self.assertEqual([1, 10, 170, 48, 49, 128], snapshot[40000:40006])
+
+    def test_mixed_defb_directives(self):
+        skool = """
+            @defb=1,2
+            @defb=40004:5,6
+            @defb=7,8
+            ; Start
+            c40000 JP 49152
+        """
+        snapshot = self._get_parser(skool, html=True).snapshot
+        self.assertEqual([1, 2, 0, 0, 5, 6, 7, 8], snapshot[40000:40008])
+
+    def test_defb_directives_in_non_entry_block(self):
+        skool = """
+            @defb=1,2
+            @defb=40004:5,6
+
+            ; Start
+            c40000 JP 49152
+        """
+        snapshot = self._get_parser(skool, html=True).snapshot
+        self.assertEqual([1, 2, 0, 0, 5, 6], snapshot[40000:40006])
 
     def test_defs_directives(self):
         skool = """
             @defs=23296:6,$10
             @defs=30000:4,"1" ; "1111"
             ; Start
-            32768 JP 49152
+            c32768 JP 49152
         """
         snapshot = self._get_parser(skool, html=True).snapshot
         self.assertEqual([16] * 6, snapshot[23296:23302])
         self.assertEqual([49] * 4, snapshot[30000:30004])
+
+    def test_addressless_defs_directives(self):
+        skool = """
+            @defs=2,$10
+            @defs=4,"1" ; "1111"
+            ; Start
+            c50000 JP 49152
+        """
+        snapshot = self._get_parser(skool, html=True).snapshot
+        self.assertEqual([16, 16, 49, 49, 49, 49], snapshot[50000:50006])
+
+    def test_mixed_defs_directives(self):
+        skool = """
+            @defs=2,1
+            @defs=50004:2,2
+            @defs=2,3
+            ; Start
+            c50000 JP 49152
+        """
+        snapshot = self._get_parser(skool, html=True).snapshot
+        self.assertEqual([1, 1, 0, 0, 2, 2, 3, 3], snapshot[50000:50008])
+
+    def test_defs_directives_in_non_entry_block(self):
+        skool = """
+            @defs=2,1
+            @defs=50004:2,2
+
+            ; Start
+            c50000 JP 49152
+        """
+        snapshot = self._get_parser(skool, html=True).snapshot
+        self.assertEqual([1, 1, 0, 0, 2, 2], snapshot[50000:50006])
 
     def test_defw_directives(self):
         skool = """
             @defw=23296:32769,$8002,%100000000,"0"
             @defw=30000:32768 ; Start address
             ; Start
-            32768 JP 49152
+            c32768 JP 49152
         """
         snapshot = self._get_parser(skool, html=True).snapshot
         self.assertEqual([1, 128, 2, 128, 0, 1, 48, 0], snapshot[23296:23304])
         self.assertEqual([0, 128], snapshot[30000:30002])
+
+    def test_addressless_defw_directives(self):
+        skool = """
+            @defw=32769,$8002
+            @defw=%100000000,"0" ; Finished
+            ; Start
+            c60000 JP 49152
+        """
+        snapshot = self._get_parser(skool, html=True).snapshot
+        self.assertEqual([1, 128, 2, 128, 0, 1, 48, 0], snapshot[60000:60008])
+
+    def test_mixed_defw_directives(self):
+        skool = """
+            @defw=1
+            @defw=60004:2
+            @defw=3
+            ; Start
+            c60000 JP 49152
+        """
+        snapshot = self._get_parser(skool, html=True).snapshot
+        self.assertEqual([1, 0, 0, 0, 2, 0, 3, 0], snapshot[60000:60008])
+
+    def test_defw_directives_in_non_entry_block(self):
+        skool = """
+            @defw=1
+            @defw=60004:2
+
+            ; Start
+            c60000 JP 49152
+        """
+        snapshot = self._get_parser(skool, html=True).snapshot
+        self.assertEqual([1, 0, 0, 0, 2, 0], snapshot[60000:60006])
+
+    def test_mixture_of_addressless_data_definition_directives(self):
+        skool = """
+            @defb=1,1
+            @defs=2,2
+            @defw=771
+            ; Start
+            c60000 JP 49152
+        """
+        snapshot = self._get_parser(skool, html=True).snapshot
+        self.assertEqual([1, 1, 2, 2, 3, 3], snapshot[60000:60006])
+
+    def test_data_definition_directives_with_invalid_addresses(self):
+        skool = """
+            @defb=x:1,1
+            @defs=?:2,2
+            @defw=:771
+            ; Start
+            c60000 JP 49152
+        """
+        snapshot = self._get_parser(skool, html=True).snapshot
+        self.assertEqual([0] * 6, snapshot[60000:60006])
 
     def test_if_directive_asm(self):
         skool = """

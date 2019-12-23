@@ -355,10 +355,11 @@ class CtlParser:
         return blocks
 
     def apply_asm_data_directives(self, snapshot):
-        for directives in self._asm_directives.values():
-            for directive in directives:
+        for addr in sorted(self._asm_directives):
+            address = addr
+            for directive in self._asm_directives[addr]:
                 if directive.startswith(('defb=', 'defs=', 'defw=')):
-                    parse_asm_data_directive(snapshot, directive)
+                    address = parse_asm_data_directive(snapshot, address, directive)
 
 class Block:
     def __init__(self, ctl, start, top=True):

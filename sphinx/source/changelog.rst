@@ -3,6 +3,8 @@ Changelog
 
 8.1b1
 -----
+* The ``address`` parameter of the :ref:`defb`, :ref:`defs` and :ref:`defw`
+  directives is now optional
 
 8.0 (2019-11-09)
 ----------------

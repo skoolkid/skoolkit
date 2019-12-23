@@ -1924,6 +1924,40 @@ class SkoolWriterTest(SkoolKitTestCase):
         """
         self._test_write_skool(snapshot, ctl, exp_skool)
 
+    def test_addressless_defb_directives(self):
+        snapshot = [0] * 5
+        ctl = """
+            @ 00000 defb=1,$02,%11
+            @ 00000 defb="Hi" ; Hi
+            b 00000 Data defined by @defb directives
+            i 00005
+        """
+        exp_skool = """
+            @defb=1,$02,%11
+            @defb="Hi" ; Hi
+            ; Data defined by @defb directives
+            b00000 DEFB 1,2,3,72,105
+        """
+        self._test_write_skool(snapshot, ctl, exp_skool)
+
+    def test_mixed_defb_directives(self):
+        snapshot = [0] * 5
+        ctl = """
+            @ 00000 defb=1
+            @ 00000 defb=2:3,4
+            @ 00000 defb=5
+            b 00000 Data defined by @defb directives
+            i 00005
+        """
+        exp_skool = """
+            @defb=1
+            @defb=2:3,4
+            @defb=5
+            ; Data defined by @defb directives
+            b00000 DEFB 1,0,3,4,5
+        """
+        self._test_write_skool(snapshot, ctl, exp_skool)
+
     def test_defs_directives(self):
         snapshot = [0] * 5
         ctl = """
@@ -1940,6 +1974,40 @@ class SkoolWriterTest(SkoolKitTestCase):
         """
         self._test_write_skool(snapshot, ctl, exp_skool)
 
+    def test_addressless_defs_directives(self):
+        snapshot = [0] * 5
+        ctl = """
+            @ 00000 defs=3,2
+            @ 00000 defs=2,"!" ; !!
+            b 00000 Data defined by @defs directives
+            i 00005
+        """
+        exp_skool = """
+            @defs=3,2
+            @defs=2,"!" ; !!
+            ; Data defined by @defs directives
+            b00000 DEFB 2,2,2,33,33
+        """
+        self._test_write_skool(snapshot, ctl, exp_skool)
+
+    def test_mixed_defs_directives(self):
+        snapshot = [0] * 7
+        ctl = """
+            @ 00000 defs=2,1
+            @ 00000 defs=3:2,2
+            @ 00000 defs=2,3
+            b 00000 Data defined by @defs directives
+            i 00007
+        """
+        exp_skool = """
+            @defs=2,1
+            @defs=3:2,2
+            @defs=2,3
+            ; Data defined by @defs directives
+            b00000 DEFB 1,1,0,2,2,3,3
+        """
+        self._test_write_skool(snapshot, ctl, exp_skool)
+
     def test_defw_directives(self):
         snapshot = [0] * 6
         ctl = """
@@ -1953,6 +2021,76 @@ class SkoolWriterTest(SkoolKitTestCase):
             @defw=4:$8001 ; 32769
             ; Data defined by @defw directives
             b00000 DEFB 1,1,1,2,1,128
+        """
+        self._test_write_skool(snapshot, ctl, exp_skool)
+
+    def test_addressless_defw_directives(self):
+        snapshot = [0] * 6
+        ctl = """
+            @ 00000 defw=257,513
+            @ 00000 defw=$8001 ; 32769
+            b 00000 Data defined by @defw directives
+            i 00006
+        """
+        exp_skool = """
+            @defw=257,513
+            @defw=$8001 ; 32769
+            ; Data defined by @defw directives
+            b00000 DEFB 1,1,1,2,1,128
+        """
+        self._test_write_skool(snapshot, ctl, exp_skool)
+
+    def test_mixed_defw_directives(self):
+        snapshot = [0] * 7
+        ctl = """
+            @ 00000 defw=257
+            @ 00000 defw=3:514
+            @ 00000 defw=771
+            b 00000 Data defined by @defw directives
+            i 00007
+        """
+        exp_skool = """
+            @defw=257
+            @defw=3:514
+            @defw=771
+            ; Data defined by @defw directives
+            b00000 DEFB 1,1,0,2,2,3,3
+        """
+        self._test_write_skool(snapshot, ctl, exp_skool)
+
+    def test_mixture_of_addressless_data_definition_directives(self):
+        snapshot = [0] * 6
+        ctl = """
+            @ 00000 defb=1,1
+            @ 00000 defs=2,2
+            @ 00000 defw=771
+            b 00000 Data defined by @defb, @defs and @defw directives
+            i 00006
+        """
+        exp_skool = """
+            @defb=1,1
+            @defs=2,2
+            @defw=771
+            ; Data defined by @defb, @defs and @defw directives
+            b00000 DEFB 1,1,2,2,3,3
+        """
+        self._test_write_skool(snapshot, ctl, exp_skool)
+
+    def test_data_definition_directives_with_invalid_addresses(self):
+        snapshot = [0] * 6
+        ctl = """
+            @ 00000 defb=z:1,1
+            @ 00000 defs=!:2,2
+            @ 00000 defw=:771
+            b 00000 Data not defined by @defb, @defs and @defw directives
+            i 00006
+        """
+        exp_skool = """
+            @defb=z:1,1
+            @defs=!:2,2
+            @defw=:771
+            ; Data not defined by @defb, @defs and @defw directives
+            b00000 DEFB 0,0,0,0,0,0
         """
         self._test_write_skool(snapshot, ctl, exp_skool)
 

@@ -103,13 +103,16 @@ def parse_asm_block_directive(directive, stack):
         return True
     return False
 
-def parse_asm_data_directive(snapshot, directive):
-    address, sep, values = directive[5:].partition(':')
+def parse_asm_data_directive(snapshot, address, directive):
+    a, sep, values = directive[5:].rpartition(':')
     if sep:
-        addr = parse_int(address)
-        if addr is not None:
-            operation = '{} {}'.format(directive[:4], partition_unquoted(values, ';')[0])
-            set_bytes(snapshot, Z80_ASSEMBLER, addr, operation)
+        addr = parse_int(a)
+        if addr is None:
+            return address
+    else:
+        addr = address
+    operation = '{} {}'.format(directive[:4], partition_unquoted(values, ';')[0])
+    return addr + len(set_bytes(snapshot, Z80_ASSEMBLER, addr, operation))
 
 def parse_asm_sub_fix_directive(directive):
     match = re.match('[>/|+]+', directive)
@@ -526,7 +529,7 @@ class SkoolParser:
                             self._instructions[address].append(instruction)
                         map_entry.add_instruction(instruction)
 
-                self.mode.apply_asm_attributes(instruction, map_entry, self._instructions, address_comments, removed)
+                self.mode.apply_asm_directives(self.snapshot, instruction, map_entry, self._instructions, address_comments, removed)
                 self.ignores[:] = []
 
                 # Set bytes in the snapshot if the instruction is DEF{B,M,S,W}
@@ -620,7 +623,7 @@ class SkoolParser:
             self.mode.label = directive[6:].rstrip()
         elif directive.startswith(('defb=', 'defs=', 'defw=')):
             if self.mode.assemble:
-                parse_asm_data_directive(self.snapshot, directive)
+                self.mode.data.append(directive)
         elif directive.startswith('keep'):
             self.mode.keep = []
             if directive.startswith('keep='):
@@ -759,6 +762,7 @@ class Mode:
             'bfix': 5 * int(fix_mode > 1),
             'rfix': 6 * int(fix_mode > 2)
         }
+        self.data = []
         self.reset()
         self.reset_entry_ignoreua()
 
@@ -819,7 +823,7 @@ class Mode:
                 removed.update(range(instruction.address, instruction.address + size))
                 return instruction.address + size
 
-    def apply_asm_attributes(self, instruction, map_entry, instructions, address_comments, removed):
+    def apply_asm_directives(self, snapshot, instruction, map_entry, instructions, address_comments, removed):
         instruction.keep = self.keep
 
         self.process_label(instruction, self.label, removed)
@@ -865,6 +869,10 @@ class Mode:
                     map_entry.add_instruction(instruction)
                 address_comments.append((instruction, [], comments))
                 address = self.process_instruction(instruction, label, overwrite, removed)
+
+        address = instruction.address
+        while self.data:
+            address = parse_asm_data_directive(snapshot, address, self.data.pop(0))
 
         self.reset()
 

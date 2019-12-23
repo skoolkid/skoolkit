@@ -1075,13 +1075,13 @@ class CtlParserTest(SkoolKitTestCase):
         ctl = """
             @ 30000 defb=49152:13
             c 30000 Routine at 30000
-            @ 30001 defb=49153:14
+            @ 30001 defb=14
         """
         exp_entry_directives = {
             30000: ['defb=49152:13']
         }
         exp_instruction_directives = {
-            30001: ['defb=49153:14']
+            30001: ['defb=14']
         }
         self._test_asm_directives(ctl, exp_entry_directives, exp_instruction_directives)
 
@@ -1089,13 +1089,13 @@ class CtlParserTest(SkoolKitTestCase):
         ctl = """
             @ 40000 defs=32768:10,2
             c 40000 Routine at 40000
-            @ 40001 defs=32778:11,3
+            @ 40001 defs=11,3
         """
         exp_entry_directives = {
             40000: ['defs=32768:10,2']
         }
         exp_instruction_directives = {
-            40001: ['defs=32778:11,3']
+            40001: ['defs=11,3']
         }
         self._test_asm_directives(ctl, exp_entry_directives, exp_instruction_directives)
 
@@ -1103,13 +1103,13 @@ class CtlParserTest(SkoolKitTestCase):
         ctl = """
             @ 50000 defw=24576:32767
             c 50000 Routine at 50000
-            @ 50001 defw=24577:65535
+            @ 50001 defw=65535
         """
         exp_entry_directives = {
             50000: ['defw=24576:32767']
         }
         exp_instruction_directives = {
-            50001: ['defw=24577:65535']
+            50001: ['defw=65535']
         }
         self._test_asm_directives(ctl, exp_entry_directives, exp_instruction_directives)
 
