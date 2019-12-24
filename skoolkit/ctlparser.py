@@ -91,6 +91,7 @@ class CtlParser:
         self._lengths = {}
         self._multiline_comments = {}
         self._asm_directives = defaultdict(list)
+        self._asm_data_directives = defaultdict(list)
         self._ignoreua_directives = defaultdict(set)
         self._headers = defaultdict(list)
         self._footers = defaultdict(list)
@@ -127,6 +128,8 @@ class CtlParser:
                         self._footers[start].append(text or '')
                     else:
                         self._headers[start].append(text or '')
+                    if text and text.startswith(('@defb=', '@defs=', '@defw=')):
+                        self._asm_data_directives[start].append(text[1:])
                 elif ctl.islower():
                     self._titles[start] = comment
                 elif ctl == 'D':
@@ -315,6 +318,7 @@ class CtlParser:
             block.asm_directives = extract_entry_asm_directives(self._asm_directives.get(address, ()))
             if self._asm_directives.get(address) == []:
                 del self._asm_directives[address]
+            block.asm_data_directives = self._asm_data_directives.get(address, ())
             block.ignoreua_directives = tuple(self._ignoreua_directives.get(address, set()).intersection(ENTRY_COMMENT_TYPES))
             block.header = self._headers.get(address, ())
             block.title = self._reduce(self._titles, address, False)
@@ -355,9 +359,9 @@ class CtlParser:
         return blocks
 
     def apply_asm_data_directives(self, snapshot):
-        for addr in sorted(self._asm_directives):
+        for addr in sorted(tuple(self._asm_directives) + tuple(self._asm_data_directives)):
             address = addr
-            for directive in self._asm_directives[addr]:
+            for directive in self._asm_data_directives[addr] + self._asm_directives[addr]:
                 if directive.startswith(('defb=', 'defs=', 'defw=')):
                     address = parse_asm_data_directive(snapshot, address, directive)
 

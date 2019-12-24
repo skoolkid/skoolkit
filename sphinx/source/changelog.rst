@@ -5,6 +5,8 @@ Changelog
 -----
 * The ``address`` parameter of the :ref:`defb`, :ref:`defs` and :ref:`defw`
   directives is now optional
+* :ref:`defb`, :ref:`defs` and :ref:`defw` directives in non-entry blocks are
+  now processed when reading a control file
 
 8.0 (2019-11-09)
 ----------------

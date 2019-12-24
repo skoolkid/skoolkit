@@ -70,6 +70,10 @@ class CtlParserTest(SkoolKitTestCase):
         entry_asm_directives = {b.start: b.asm_directives for b in blocks}
         self.assertEqual(exp_entry_asm_directives, entry_asm_directives)
 
+    def _check_asm_data_directives(self, exp_asm_data_directives, blocks):
+        asm_data_directives = {b.start: b.asm_data_directives for b in blocks}
+        self.assertEqual(exp_asm_data_directives, asm_data_directives)
+
     def _check_titles(self, exp_titles, blocks):
         titles = {b.start: b.title for b in blocks}
         self.assertEqual(exp_titles, titles)
@@ -1464,6 +1468,22 @@ class CtlParserTest(SkoolKitTestCase):
         self._check_headers(exp_headers, blocks)
         self._check_footers(exp_footers, blocks)
 
+    def test_header_block_containing_asm_data_directives(self):
+        ctl = """
+            > 60000 @defb=1
+            > 60000 @defs=2
+            > 60000 @defw=3
+            c 60000 Routine
+        """
+        exp_headers = {60000: ['@defb=1', '@defs=2', '@defw=3']}
+        exp_footers = {60000: ()}
+        exp_asm_data_directives = {60000: ['defb=1', 'defs=2', 'defw=3']}
+
+        blocks = self._get_ctl_parser(ctl).get_blocks()
+        self._check_headers(exp_headers, blocks)
+        self._check_footers(exp_footers, blocks)
+        self._check_asm_data_directives(exp_asm_data_directives, blocks)
+
     def test_header_block_unaffected_by_dot_directives(self):
         ctl = """
             > 40000 ; This is the start of the header.
@@ -1513,6 +1533,22 @@ class CtlParserTest(SkoolKitTestCase):
         blocks = self._get_ctl_parser(ctl).get_blocks()
         self._check_headers(exp_headers, blocks)
         self._check_footers(exp_footers, blocks)
+
+    def test_footer_block_containing_asm_data_directives(self):
+        ctl = """
+            c 60000 Routine
+            > 60000,1 @defb=1
+            > 60000,1 @defs=2
+            > 60000,1 @defw=3
+        """
+        exp_headers = {60000: ()}
+        exp_footers = {60000: ['@defb=1', '@defs=2', '@defw=3']}
+        exp_asm_data_directives = {60000: ['defb=1', 'defs=2', 'defw=3']}
+
+        blocks = self._get_ctl_parser(ctl).get_blocks()
+        self._check_headers(exp_headers, blocks)
+        self._check_footers(exp_footers, blocks)
+        self._check_asm_data_directives(exp_asm_data_directives, blocks)
 
     def test_footer_block_unaffected_by_dot_directives(self):
         ctl = """

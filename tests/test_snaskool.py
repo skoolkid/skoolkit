@@ -2076,6 +2076,44 @@ class SkoolWriterTest(SkoolKitTestCase):
         """
         self._test_write_skool(snapshot, ctl, exp_skool)
 
+    def test_data_definition_directives_in_a_header_block(self):
+        snapshot = [0] * 6
+        ctl = """
+            > 00000 @defb=1
+            > 00000 @defs=2:2,2
+            > 00000 @defw=771
+            b 00000 Data defined by @defb, @defs and @defw directives in a header block
+            i 00006
+        """
+        exp_skool = """
+            @defb=1
+            @defs=2:2,2
+            @defw=771
+
+            ; Data defined by @defb, @defs and @defw directives in a header block
+            b00000 DEFB 1,0,2,2,3,3
+        """
+        self._test_write_skool(snapshot, ctl, exp_skool)
+
+    def test_data_definition_directives_in_a_footer_block(self):
+        snapshot = [0] * 6
+        ctl = """
+            b 00000 Data defined by @defb, @defs and @defw directives in a footer block
+            > 00000,1 @defb=1
+            > 00000,1 @defs=2:2,2
+            > 00000,1 @defw=771
+            i 00006
+        """
+        exp_skool = """
+            ; Data defined by @defb, @defs and @defw directives in a footer block
+            b00000 DEFB 1,0,2,2,3,3
+
+            @defb=1
+            @defs=2:2,2
+            @defw=771
+        """
+        self._test_write_skool(snapshot, ctl, exp_skool)
+
     def test_data_definition_directives_with_invalid_addresses(self):
         snapshot = [0] * 6
         ctl = """
