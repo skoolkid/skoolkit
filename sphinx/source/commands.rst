@@ -1153,6 +1153,8 @@ To list the options supported by `tapinfo.py`, run it with no arguments::
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 8.1     | Shows contents of TZX block type 0x35 (custom info)               |
++---------+-------------------------------------------------------------------+
 | 7.1     | Shows pulse lengths in TZX block type 0x13 and full info for TZX  |
 |         | block type 0x14                                                   |
 +---------+-------------------------------------------------------------------+

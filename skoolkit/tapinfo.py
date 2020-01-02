@@ -1,4 +1,4 @@
-# Copyright 2013, 2015, 2017 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2013, 2015, 2017, 2020 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -32,20 +32,33 @@ ARCHIVE_INFO = {
     255: "Comment(s)"
 }
 
+CHARS = {9: '\t', 13: '\n'}
+
 def _bytes_to_str(data):
     return ', '.join(str(b) for b in data)
 
-def _get_str(data):
+def _hex_dump(data, row_size=16):
+    lines = []
+    for index in range(0, len(data), row_size):
+        values = data[index:index + row_size]
+        values_hex = ' '.join('{:02X}'.format(b) for b in values).ljust(row_size * 3)
+        values_text = ''.join(get_char(b, '.', '.') for b in values)
+        lines.append('{:04X}  {} {}'.format(index, values_hex, values_text))
+    return '\n'.join(lines)
+
+def _get_str(data, dump=False):
+    if dump and any(b > 127 or (b < 31 and b not in CHARS) for b in data):
+        return _hex_dump(data)
     text = ''
     for b in data:
-        if b == 13:
-            text += '\n'
+        if b in CHARS:
+            text += CHARS[b]
         else:
             text += get_char(b, '?', '?')
     return text
 
-def _format_text(prefix, data, start, length):
-    text = _get_str(data[start:start + length]).split('\n')
+def _format_text(prefix, data, start, length, dump=False):
+    text = _get_str(data[start:start + length], dump).split('\n')
     lines = ['{}: {}'.format(prefix, text[0])]
     if len(text) > 1:
         indent = ' ' * len(prefix)
@@ -175,7 +188,10 @@ def _get_block_info(data, i, block_num):
         i += data[i] * 3 + 1
     elif block_id == 53:
         header = 'Custom info'
-        i += get_dword(data, i + 16) + 20
+        ident = _get_str(data[i:i + 16]).strip()
+        length = get_dword(data, i + 16)
+        info.extend(_format_text(ident, data, i + 20, length, True))
+        i += length + 20
     elif block_id == 90:
         header = '"Glue" block'
         i += 9

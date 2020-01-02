@@ -415,13 +415,34 @@ class TapinfoTest(SkoolKitTestCase):
         exp_output = '1: Hardware type (0x33)'
         self._test_tzx_block(block, exp_output)
 
-    def test_tzx_block_0x35(self):
-        block = [53] # Block ID
-        info_id = 'Custom Info'
+    def test_tzx_block_0x35_pure_text(self):
+        block = [0x35] # Block ID
+        info_id = 'Instructions'
         block.extend([ord(c) for c in info_id[:16].ljust(16)])
-        block.extend((1, 0, 0, 0)) # Length of custom info
-        block.append(0) # Custom info
-        exp_output = '1: Custom info (0x35)'
+        info = [ord(c) for c in 'Try to win \x60\x60\x60s\r*\tUse keys QAOP']
+        block.extend((len(info), 0, 0, 0)) # Length of custom info
+        block.extend(info) # Custom info
+        exp_output = """
+            1: Custom info (0x35)
+              Instructions: Try to win £££s
+                            *\tUse keys QAOP
+        """
+        self._test_tzx_block(block, exp_output)
+
+    def test_tzx_block_0x35_text_and_binary(self):
+        block = [0x35] # Block ID
+        info_id = 'Some POKEs'
+        block.extend([ord(c) for c in info_id[:16].ljust(16)])
+        info = [ord(c) for c in 'Infinite lives'] + [0, 1, 2, 3, 13]
+        info.extend([ord(c) for c in 'Invincibility'] + [0, 14, 15, 16])
+        block.extend((len(info), 0, 0, 0)) # Length of custom info
+        block.extend(info) # Custom info
+        exp_output = """
+            1: Custom info (0x35)
+              Some POKEs: 0000  49 6E 66 69 6E 69 74 65 20 6C 69 76 65 73 00 01  Infinite lives..
+                          0010  02 03 0D 49 6E 76 69 6E 63 69 62 69 6C 69 74 79  ...Invincibility
+                          0020  00 0E 0F 10                                      ....
+        """
         self._test_tzx_block(block, exp_output)
 
     def test_tzx_block_0x5A(self):
