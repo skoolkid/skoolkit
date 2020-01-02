@@ -132,6 +132,9 @@ html_static_path = ['_static']
 # typographically correct entities.
 #html_use_smartypants = True
 
+# Leave double dashes alone in man pages
+smartquotes_excludes = {'builders': ['man']}
+
 # Custom sidebar templates, maps document names to template names.
 #html_sidebars = {}
 
