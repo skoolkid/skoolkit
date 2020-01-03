@@ -409,10 +409,46 @@ class TapinfoTest(SkoolKitTestCase):
         self.assertEqual(cm.exception.args[0], 'Unexpected end of file')
 
     def test_tzx_block_0x33(self):
-        block = [51] # Block ID
-        block.append(2) # Number of machines
-        block.extend([0] * (3 * block[1]))
-        exp_output = '1: Hardware type (0x33)'
+        block = [0x33] # Block ID
+        entries = (
+            0, 3, 2,
+            0, 2, 0,
+            0, 1, 1,
+            0, 0, 3,
+            3, 3, 1,
+            4, 0, 2,
+            6, 1, 0,
+            8, 0, 3
+        )
+        block.append(len(entries) // 3) # Number of entries
+        block.extend(entries)
+        exp_output = """
+            1: Hardware type (0x33)
+              - Type: Computer
+                Name: ZX Spectrum 128K + (Sinclair)
+                Info: Runs on this machine, but does not use its special features
+              - Type: Computer
+                Name: ZX Spectrum 48K Issue 1
+                Info: Runs on this machine, but may not use its special features
+              - Type: Computer
+                Name: ZX Spectrum 48K Plus
+                Info: Uses special features of this machine
+              - Type: Computer
+                Name: ZX Spectrum 16K
+                Info: Does not run on this machine
+              - Type: Sound device
+                Name: SpecDrum
+                Info: Uses this hardware
+              - Type: Joystick
+                Name: Kempston
+                Info: Runs but does not use this hardware
+              - Type: Other controller
+                Name: ZX Light Gun
+                Info: Runs with this hardware, but may not use it
+              - Type: Parallel port
+                Name: Kempston S
+                Info: Does not run with this hardware
+        """
         self._test_tzx_block(block, exp_output)
 
     def test_tzx_block_0x35_pure_text(self):

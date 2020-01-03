@@ -7,7 +7,8 @@ Changelog
   directives is now optional
 * :ref:`defb`, :ref:`defs` and :ref:`defw` directives in non-entry blocks are
   now processed when reading a control file
-* :ref:`tapinfo.py` now shows the contents of TZX block type 0x35 (custom info)
+* :ref:`tapinfo.py` now shows the contents of TZX block types 0x33 (hardware
+  type) and 0x35 (custom info)
 
 8.0 (2019-11-09)
 ----------------
