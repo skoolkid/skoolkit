@@ -468,6 +468,9 @@ defined by the :ref:`writer` ASM directive in the skool file). ::
 * ``methodName`` is the name of the method to call
 * ``args`` is a comma-separated list of arguments to pass to the method
 
+Each argument can be expressed either as a plain value (e.g. ``32768``) or as a
+keyword argument (e.g. ``address=32768``).
+
 For example::
 
   ; The word at address 32768 is #CALL:word(32768).
@@ -482,6 +485,8 @@ the documentation on :ref:`extending SkoolKit <extendingSkoolKit>`.
 +---------+--------------------------------------------------------------+
 | Version | Changes                                                      |
 +=========+==============================================================+
+| 8.1     | Added support for keyword arguments                          |
++---------+--------------------------------------------------------------+
 | 5.1     | Added support for arithmetic expressions and skool macros in |
 |         | numeric method arguments                                     |
 +---------+--------------------------------------------------------------+

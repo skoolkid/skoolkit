@@ -9,13 +9,13 @@ def nest_macros(template, *values):
     return template.format(*nested_macros)
 
 class CommonSkoolMacroTest:
-    def _check_call(self, writer, params, *args):
+    def _check_call(self, writer, params, *args, **kwargs):
         macro = '#CALL:test_call({})'.format(params)
         cwd = ('<cwd>',) if isinstance(writer, HtmlWriter) else ()
-        self.assertEqual(writer.expand(macro, *cwd), writer.test_call(*(cwd + args)))
+        self.assertEqual(writer.expand(macro, *cwd), writer.test_call(*(cwd + args), **kwargs))
 
     def test_macro_call(self):
-        writer = self._get_writer(warn=True)
+        writer = self._get_writer()
         writer.test_call = self._test_call
 
         # All arguments given
@@ -38,21 +38,32 @@ class CommonSkoolMacroTest:
         # Non-arithmetic Python expressions
         self._check_call(writer, '"a"+"b",None,sys.exit()', '"a"+"b"', 'None', 'sys.exit()')
 
-        # No arguments
+    def test_macro_call_with_no_arguments(self):
+        writer = self._get_writer()
         writer.test_call_no_args = self._test_call_no_args
-        output = writer.expand('#CALL:test_call_no_args()')
-        self.assertEqual(output, 'OK')
+        self.assertEqual(writer.expand('#CALL:test_call_no_args()'), 'OK')
 
-        # No return value
+    def test_macro_call_with_no_return_value(self):
+        writer = self._get_writer()
         writer.test_call_no_retval = self._test_call_no_retval
-        output = writer.expand('#CALL:test_call_no_retval(1,2)')
-        self.assertEqual(output, '')
+        self.assertEqual(writer.expand('#CALL:test_call_no_retval(1,2)'), '')
 
-        # Unknown method
+    def test_macro_call_with_keyword_arguments(self):
+        writer = self._get_writer()
+        writer.test_call = self._test_call_with_kwargs
+
+        self._check_call(writer, '10,arg2=', 10, arg2=None)
+        self._check_call(writer, '10,arg2=2', 10, arg2=2)
+        self._check_call(writer, '10,arg3=3', 10, arg3=3)
+        self._check_call(writer, '10,arg2=four,arg3=5', 10, arg2='four', arg3=5)
+        self._check_call(writer, '10,arg3=6,arg2=seven', 10, arg2='seven', arg3=6)
+
+    def test_macro_call_with_nonexistent_method(self):
+        writer = self._get_writer(warn=True)
         method_name = 'nonexistent_method'
-        output = writer.expand('#CALL:{0}(0)'.format(method_name))
+        output = writer.expand('#CALL:{}(0)'.format(method_name))
         self.assertEqual(output, '')
-        self.assertEqual(self.err.getvalue().split('\n')[0], 'WARNING: Unknown method name in #CALL macro: {0}'.format(method_name))
+        self.assertEqual(self.err.getvalue().split('\n')[0], 'WARNING: Unknown method name in #CALL macro: {}'.format(method_name))
 
     def test_macro_call_invalid(self):
         writer = self._get_writer()

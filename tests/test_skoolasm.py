@@ -98,6 +98,10 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
         # Method used to test the #CALL macro
         return str((arg1, arg2, arg3))
 
+    def _test_call_with_kwargs(self, arg1, arg2=None, arg3=None):
+        # Method used to test the #CALL macro with keyword arguments
+        return str((arg1, arg2, arg3))
+
     def _test_call_no_retval(self, *args):
         return
 

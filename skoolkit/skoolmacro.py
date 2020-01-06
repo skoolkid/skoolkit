@@ -1,4 +1,4 @@
-# Copyright 2012-2019 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2012-2020 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -524,18 +524,28 @@ def parse_call(writer, text, index, *cwd):
     if arg_string is None:
         raise MacroParsingError("No argument list specified: {}{}".format(macro, text[index:end]))
     args = list(cwd)
+    kwargs = {}
     if arg_string:
         for arg in writer.expand(arg_string).split(','):
+            a1, sep, a2 = arg.partition('=')
+            if sep:
+                v = a2
+            else:
+                v = a1
             try:
-                args.append(evaluate(arg))
+                value = evaluate(v)
             except ValueError:
-                if arg:
-                    args.append(arg)
+                if v:
+                    value = v
                 else:
-                    args.append(None)
+                    value = None
+            if sep:
+                kwargs[a1] = value
+            else:
+                args.append(value)
 
     try:
-        retval = method(*args)
+        retval = method(*args, **kwargs)
     except Exception as e:
         raise MacroParsingError("Method call {} failed: {}".format(text[index + 1:end], e))
     if retval is None:

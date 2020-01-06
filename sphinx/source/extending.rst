@@ -155,9 +155,6 @@ main differences between a skool macro and a ``#CALL`` method are:
   ``#CALL`` method; a skool macro's parameters must be parsed and evaluated
   manually (typically by using one or more of the
   :ref:`macro-parsing utility functions <ext-MacroParsing>`)
-* every optional parameter in a skool macro can be assigned a default value if
-  omitted; in a ``#CALL`` method, only the optional arguments at the end can be
-  assigned default values if omitted, whereas any others are set to `None`
 * numeric parameters in a ``#CALL`` macro are automatically converted to
   numbers before being passed to the ``#CALL`` method; no automatic conversion
   is done on the parameters of a skool macro
