@@ -394,6 +394,8 @@ Recognised parameters and their default values are:
   parameter
 * ``Intro`` - the text (which may contain HTML markup) displayed at the top of
   the memory map page (default: '')
+* ``LabelColumn`` - ``1`` to display the 'Label' column if any entries have
+  ASM labels defined, or ``0`` not to (default: ``0``)
 * ``LengthColumn`` - ``1`` to display the 'Length' column, or ``0`` not to
   (default: ``0``)
 * ``PageByteColumns`` - ``1`` to display 'Page' and 'Byte' columns, or ``0``
@@ -421,6 +423,8 @@ template is used.
 +---------+------------------------------------------------------------------+
 | Version | Changes                                                          |
 +=========+==================================================================+
+| 8.1     | Added the ``LabelColumn`` parameter                              |
++---------+------------------------------------------------------------------+
 | 6.2     | Added the ``Includes`` parameter                                 |
 +---------+------------------------------------------------------------------+
 | 6.0     | Every parameter (not just ``Intro``) may contain                 |

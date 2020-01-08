@@ -10,6 +10,9 @@ Changelog
 * The :ref:`CALL` macro now accepts keyword arguments
 * :ref:`tapinfo.py` now shows the contents of TZX block types 0x33 (hardware
   type) and 0x35 (custom info)
+* Added the ``LabelColumn`` parameter to the :ref:`memoryMap` section (for
+  specifying whether to display the 'Label' column on a memory map page
+  whenever any entries have ASM labels defined)
 
 8.0 (2019-11-09)
 ----------------

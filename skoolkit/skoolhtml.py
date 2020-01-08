@@ -1,4 +1,4 @@
-# Copyright 2008-2019 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2008-2020 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -533,7 +533,7 @@ class HtmlWriter:
             'anchor': self.asm_anchor(entry.address),
             'page': entry.address // 256,
             'byte': entry.address % 256,
-            'label': self.parser.get_asm_label(entry.address),
+            'label': self.parser.get_asm_label(entry.address) or '',
             'description': description,
             'href': self._asm_relpath(cwd, entry.address),
             'size': entry.size,
@@ -767,6 +767,7 @@ class HtmlWriter:
         map_details = self.memory_maps.get(map_name, {})
         entry_types = map_details.get('EntryTypes', DEF_MEMORY_MAP_ENTRY_TYPES)
         map_dict = {
+            'LabelColumn': map_details.get('LabelColumn', '0'),
             'EntryDescriptions': map_details.get('EntryDescriptions', '0'),
             'EntryTypes': entry_types,
             'Intro': self.expand(map_details.get('Intro', ''), cwd),
@@ -777,9 +778,14 @@ class HtmlWriter:
 
         map_entries = []
         includes = map_details.get('Includes', ())
+        asm_labels = False
         for entry in self.memory_map:
             if entry.ctl in entry_types or entry.address in includes:
+                if entry.instructions[0].asm_label:
+                    asm_labels = True
                 map_entries.append(self._get_map_entry_dict(cwd, entry, desc))
+        if not asm_labels:
+            map_dict['LabelColumn'] = '0'
 
         subs = {
             'MemoryMap': map_dict,

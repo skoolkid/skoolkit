@@ -1,4 +1,4 @@
-# Copyright 2014-2019 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2014-2020 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -122,6 +122,7 @@ SECTIONS['MemoryMap:MemoryMap'] = """
 ; EntryTypes=bcgstuw
 ; Includes=
 ; Intro=
+; LabelColumn=0
 ; LengthColumn=0
 PageByteColumns=1
 ; Write=1
@@ -132,6 +133,7 @@ SECTIONS['MemoryMap:RoutinesMap'] = """
 EntryTypes=c
 ; Includes=
 ; Intro=
+; LabelColumn=0
 ; LengthColumn=0
 ; PageByteColumns=0
 ; Write=1
@@ -142,6 +144,7 @@ SECTIONS['MemoryMap:DataMap'] = """
 EntryTypes=bw
 ; Includes=
 ; Intro=
+; LabelColumn=0
 ; LengthColumn=0
 PageByteColumns=1
 ; Write=1
@@ -152,6 +155,7 @@ SECTIONS['MemoryMap:MessagesMap'] = """
 EntryTypes=t
 ; Includes=
 ; Intro=
+; LabelColumn=0
 ; LengthColumn=0
 ; PageByteColumns=0
 ; Write=1
@@ -162,6 +166,7 @@ SECTIONS['MemoryMap:UnusedMap'] = """
 EntryTypes=su
 ; Includes=
 ; Intro=
+; LabelColumn=0
 LengthColumn=1
 PageByteColumns=1
 ; Write=1
@@ -172,6 +177,7 @@ EntryDescriptions=1
 EntryTypes=g
 ; Includes=
 ; Intro=
+; LabelColumn=0
 LengthColumn=1
 ; PageByteColumns=0
 ; Write=1
@@ -579,6 +585,9 @@ SECTIONS['Template:memory_map'] = """
 <th class="map-page">Page</th>
 <th class="map-byte">Byte</th>
 <# endif #>
+<# if({MemoryMap[LabelColumn]}) #>
+<th>Label</th>
+<# endif #>
 <th>Address</th>
 <# if({MemoryMap[LengthColumn]}) #>
 <th class="map-length">Length</th>
@@ -590,6 +599,9 @@ SECTIONS['Template:memory_map'] = """
 <# if({MemoryMap[PageByteColumns]}) #>
 <td class="map-page">{$entry[page]}</td>
 <td class="map-byte">{$entry[byte]}</td>
+<# endif #>
+<# if({MemoryMap[LabelColumn]}) #>
+<td class="map-label"><a href="{$entry[href]}">{$entry[label]}</a></td>
 <# endif #>
 <td class="map-{$entry[type]}"><span id="{$entry[anchor]}"></span><a href="{$entry[href]}">{$entry[address]}</a></td>
 <# if({MemoryMap[LengthColumn]}) #>

@@ -6039,6 +6039,174 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         }
         self._assert_files_equal(map_path, subs)
 
+    def test_write_map_with_LabelColumn(self):
+        skool = """
+            ; Routine
+            @label=START
+            c30000 JP 30003
+
+            ; Another routine
+            @label=CONTINUE
+            c30003 JP 30006
+
+            ; Yet another routine
+            @label=STOP
+            c30006 RET
+        """
+        ref = """
+            [MemoryMap:RoutinesMap]
+            LabelColumn=1
+        """
+        writer = self._get_writer(ref=ref, skool=skool, asm_labels=True)
+
+        content = """
+            <div class="map-intro"></div>
+            <table class="map">
+            <tr>
+            <th>Label</th>
+            <th>Address</th>
+            <th>Description</th>
+            </tr>
+            <tr>
+            <td class="map-label"><a href="../asm/30000.html">START</a></td>
+            <td class="map-c"><span id="30000"></span><a href="../asm/30000.html">30000</a></td>
+            <td class="map-c-desc">
+            <div class="map-entry-title-10"><a class="map-entry-title" href="../asm/30000.html">Routine</a></div>
+            </td>
+            </tr>
+            <tr>
+            <td class="map-label"><a href="../asm/30003.html">CONTINUE</a></td>
+            <td class="map-c"><span id="30003"></span><a href="../asm/30003.html">30003</a></td>
+            <td class="map-c-desc">
+            <div class="map-entry-title-10"><a class="map-entry-title" href="../asm/30003.html">Another routine</a></div>
+            </td>
+            </tr>
+            <tr>
+            <td class="map-label"><a href="../asm/30006.html">STOP</a></td>
+            <td class="map-c"><span id="30006"></span><a href="../asm/30006.html">30006</a></td>
+            <td class="map-c-desc">
+            <div class="map-entry-title-10"><a class="map-entry-title" href="../asm/30006.html">Yet another routine</a></div>
+            </td>
+            </tr>
+            </table>
+        """
+        writer.write_map('RoutinesMap')
+        subs = {
+            'body_class': 'RoutinesMap',
+            'header': 'Routines',
+            'content': content
+        }
+        self._assert_files_equal('maps/routines.html', subs)
+
+    def test_write_map_with_LabelColumn_but_some_labels_undefined(self):
+        skool = """
+            ; Routine
+            @label=START
+            c30000 JP 30003
+
+            ; Another routine
+            c30003 JP 30006
+
+            ; Yet another routine
+            c30006 RET
+        """
+        ref = """
+            [MemoryMap:RoutinesMap]
+            LabelColumn=1
+        """
+        writer = self._get_writer(ref=ref, skool=skool, asm_labels=True)
+
+        content = """
+            <div class="map-intro"></div>
+            <table class="map">
+            <tr>
+            <th>Label</th>
+            <th>Address</th>
+            <th>Description</th>
+            </tr>
+            <tr>
+            <td class="map-label"><a href="../asm/30000.html">START</a></td>
+            <td class="map-c"><span id="30000"></span><a href="../asm/30000.html">30000</a></td>
+            <td class="map-c-desc">
+            <div class="map-entry-title-10"><a class="map-entry-title" href="../asm/30000.html">Routine</a></div>
+            </td>
+            </tr>
+            <tr>
+            <td class="map-label"><a href="../asm/30003.html"></a></td>
+            <td class="map-c"><span id="30003"></span><a href="../asm/30003.html">30003</a></td>
+            <td class="map-c-desc">
+            <div class="map-entry-title-10"><a class="map-entry-title" href="../asm/30003.html">Another routine</a></div>
+            </td>
+            </tr>
+            <tr>
+            <td class="map-label"><a href="../asm/30006.html"></a></td>
+            <td class="map-c"><span id="30006"></span><a href="../asm/30006.html">30006</a></td>
+            <td class="map-c-desc">
+            <div class="map-entry-title-10"><a class="map-entry-title" href="../asm/30006.html">Yet another routine</a></div>
+            </td>
+            </tr>
+            </table>
+        """
+        writer.write_map('RoutinesMap')
+        subs = {
+            'body_class': 'RoutinesMap',
+            'header': 'Routines',
+            'content': content
+        }
+        self._assert_files_equal('maps/routines.html', subs)
+
+    def test_write_map_with_LabelColumn_but_no_labels_defined(self):
+        skool = """
+            ; Routine
+            c30000 JP 30003
+
+            ; Another routine
+            c30003 JP 30006
+
+            ; Yet another routine
+            c30006 RET
+        """
+        ref = """
+            [MemoryMap:RoutinesMap]
+            LabelColumn=1
+        """
+        writer = self._get_writer(ref=ref, skool=skool, asm_labels=True)
+
+        content = """
+            <div class="map-intro"></div>
+            <table class="map">
+            <tr>
+            <th>Address</th>
+            <th>Description</th>
+            </tr>
+            <tr>
+            <td class="map-c"><span id="30000"></span><a href="../asm/30000.html">30000</a></td>
+            <td class="map-c-desc">
+            <div class="map-entry-title-10"><a class="map-entry-title" href="../asm/30000.html">Routine</a></div>
+            </td>
+            </tr>
+            <tr>
+            <td class="map-c"><span id="30003"></span><a href="../asm/30003.html">30003</a></td>
+            <td class="map-c-desc">
+            <div class="map-entry-title-10"><a class="map-entry-title" href="../asm/30003.html">Another routine</a></div>
+            </td>
+            </tr>
+            <tr>
+            <td class="map-c"><span id="30006"></span><a href="../asm/30006.html">30006</a></td>
+            <td class="map-c-desc">
+            <div class="map-entry-title-10"><a class="map-entry-title" href="../asm/30006.html">Yet another routine</a></div>
+            </td>
+            </tr>
+            </table>
+        """
+        writer.write_map('RoutinesMap')
+        subs = {
+            'body_class': 'RoutinesMap',
+            'header': 'Routines',
+            'content': content
+        }
+        self._assert_files_equal('maps/routines.html', subs)
+
     def test_write_map_with_PageByteColumns_containing_skool_macro(self):
         ref = """
             [MemoryMap:MemoryMap]
