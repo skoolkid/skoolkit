@@ -151,6 +151,9 @@ Recognised ASM writer property names and their default values are:
   joins of a table defined by a ``#TABLE`` macro (default: ``+``).
 :table-border-vertical: The character to use for the vertical borders of a
   table defined by a ``#TABLE`` macro (default: ``|``).
+:table-row-separator: The character used to separate non-header cells in
+  adjacent rows of a table defined by a ``#TABLE`` macro. By default, such
+  cells are not separated.
 :warnings: ``1`` to print any warnings that are produced while writing ASM
   output (after parsing the skool file), or ``0`` to suppress them (default:
   ``1``).

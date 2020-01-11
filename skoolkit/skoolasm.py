@@ -1,4 +1,4 @@
-# Copyright 2008-2019 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2008-2020 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -448,6 +448,7 @@ class TableWriter:
         self.border_h_int = (border_h[1:2] or self.border_h_ext).strip()
         self.border_v = properties.get('table-border-vertical', '')[:1] or '|'
         self.border_join = properties.get('table-border-join', '')[:1] or '+'
+        self.row_sep = properties.get('table-row-separator', '')[:1].strip()
         self.table = None
         self.table_parser = TableParser()
         self.cell_matrix = None
@@ -504,8 +505,8 @@ class TableWriter:
             return lines
         sep = True
         for row_index in range(max_row_index + 1):
-            if sep or row_index == max_row_index:
-                row_sep = self._create_row_separator(row_index)
+            if sep or row_index == max_row_index or self.row_sep:
+                row_sep = self._create_row_separator(row_index, sep or row_index == max_row_index)
                 if row_sep:
                     lines.append(row_sep)
             if row_index < max_row_index:
@@ -515,7 +516,7 @@ class TableWriter:
                 sep = any(c.header for c in self.table.rows[row_index])
         return lines
 
-    def _create_row_separator(self, row_index):
+    def _create_row_separator(self, row_index, header):
         # Return a separator between rows `row_index - 1` and `row_index`
         line = ''
         col_index = 0
@@ -551,7 +552,10 @@ class TableWriter:
                 if cell.transparent and cell_above_transparent:
                     spacer = ' '
                 elif 0 < row_index < len(self.table.rows):
-                    spacer = self.border_h_int
+                    if (cell_above is None and not header) or (cell_above and not cell_above.header and self.row_sep):
+                        spacer = self.row_sep
+                    else:
+                        spacer = self.border_h_int
                 else:
                     spacer = self.border_h_ext
                 if not spacer:

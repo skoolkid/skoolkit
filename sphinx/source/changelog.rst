@@ -13,6 +13,8 @@ Changelog
 * Added the ``LabelColumn`` parameter to the :ref:`memoryMap` section (for
   specifying whether to display the 'Label' column on a memory map page
   whenever any entries have ASM labels defined)
+* Added support to the :ref:`set` directive for the `table-row-separator`
+  property
 
 8.0 (2019-11-09)
 ----------------

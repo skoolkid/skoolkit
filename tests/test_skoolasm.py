@@ -3214,6 +3214,97 @@ class TableMacroTest(SkoolKitTestCase):
         """
         self._test_skool(skool, exp_output)
 
+    def test_table_row_separator(self):
+        skool = """
+            @start
+            @set-table-row-separator=*
+            ; Routine
+            ;
+            ; #TABLE { =h Header 1 | =h Header 2 } { A1 | B1 } { A2 | B2 } { A3 | B3 } TABLE#
+            c32768 RET
+        """
+        exp_output = """
+            ; Routine
+            ;
+            ; +----------+----------+
+            ; | Header 1 | Header 2 |
+            ; +----------+----------+
+            ; | A1       | B1       |
+            ; +**********+**********+
+            ; | A2       | B2       |
+            ; +**********+**********+
+            ; | A3       | B3       |
+            ; +----------+----------+
+              RET
+        """
+        self._test_skool(skool, exp_output)
+
+    def test_table_row_separator_with_partial_header_row(self):
+        skool = """
+            @start
+            @set-table-row-separator=~
+            ; Routine
+            ;
+            ; #TABLE { Non-header | =h Header } { A1 | B1 } { A2 | B2 } TABLE#
+            c32768 RET
+        """
+        exp_output = """
+            ; Routine
+            ;
+            ; +------------+--------+
+            ; | Non-header | Header |
+            ; +~~~~~~~~~~~~+--------+
+            ; | A1         | B1     |
+            ; +~~~~~~~~~~~~+~~~~~~~~+
+            ; | A2         | B2     |
+            ; +------------+--------+
+              RET
+        """
+        self._test_skool(skool, exp_output)
+
+    def test_table_row_separator_first_character_only(self):
+        skool = """
+            @start
+            @set-table-row-separator=* // Separator for every non-header row
+            ; Routine
+            ;
+            ; #TABLE { =h Header 1 | =h Header 2 } { A1 | B1 } { A2 | B2 } TABLE#
+            c32768 RET
+        """
+        exp_output = """
+            ; Routine
+            ;
+            ; +----------+----------+
+            ; | Header 1 | Header 2 |
+            ; +----------+----------+
+            ; | A1       | B1       |
+            ; +**********+**********+
+            ; | A2       | B2       |
+            ; +----------+----------+
+              RET
+        """
+        self._test_skool(skool, exp_output)
+
+    def test_table_row_separator_blank(self):
+        skool = """
+            @start
+            @set-table-row-separator= // Effectively no separator
+            ; Routine
+            ;
+            ; #TABLE { A1 | B1 } { A2 | B2 } TABLE#
+            c32768 RET
+        """
+        exp_output = """
+            ; Routine
+            ;
+            ; +----+----+
+            ; | A1 | B1 |
+            ; | A2 | B2 |
+            ; +----+----+
+              RET
+        """
+        self._test_skool(skool, exp_output)
+
     def test_missing_end_marker(self):
         writer = self._get_writer()
         with self.assertRaisesRegex(SkoolParsingError, re.escape("Missing end marker: #TABLE { A1 }...")):

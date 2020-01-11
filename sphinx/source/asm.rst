@@ -1152,6 +1152,9 @@ Recognised property names and their default values are:
   border joins of a table defined by a :ref:`TABLE` macro (default: ``+``)
 * ``table-border-vertical`` - the character to use for the vertical borders of
   a table defined by a :ref:`TABLE` macro (default: ``|``)
+* ``table-row-separator`` - the character used to separate non-header cells in
+  adjacent rows of a table defined by a :ref:`TABLE` macro; by default, such
+  cells are not separated
 * ``warnings`` - ``1`` to print any warnings that are produced while writing
   ASM output (after parsing the skool file), or ``0`` to suppress them
   (default: ``1``)
@@ -1167,6 +1170,8 @@ This ``@set`` directive sets the bullet character to '+'.
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 8.1     | Added the ``table-row-separator`` property                        |
++---------+-------------------------------------------------------------------+
 | 8.0     | Added the ``table-border-horizontal``, ``table-border-join``      |
 |         | and ``table-border-vertical`` properties                          |
 +---------+-------------------------------------------------------------------+
