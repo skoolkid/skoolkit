@@ -8778,6 +8778,34 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
         writer.write_asm_entries()
         self._assert_content_equal(exp_content, 'asm/32768.html')
 
+    def test_bytes_field_with_specifier_for_entire_string_in_Asm_template(self):
+        skool = """
+            @assemble=2
+            ; Routine at 32768
+            c32768 XOR A   ; One byte
+             32769 LD A,1  ; Two bytes
+             32771 LD HL,2 ; Three bytes
+             32774 LD IX,3 ; Four bytes
+        """
+        ref = """
+            [Template:Asm]
+            {entry[title]}
+            <# foreach($i,entry[instructions]) #>
+            {$i[address]} {$i[bytes]:/02X/ />11}: {$i[operation]:7} ; {$i[comment]}
+            <# endfor #>
+        """
+        exp_content = """
+            Routine at 32768
+            32768          AF: XOR A   ; One byte
+            32769       3E 01: LD A,1  ; Two bytes
+            32771    21 02 00: LD HL,2 ; Three bytes
+            32774 DD 21 03 00: LD IX,3 ; Four bytes
+        """
+
+        writer = self._get_writer(ref=ref, skool=skool)
+        writer.write_asm_entries()
+        self._assert_content_equal(exp_content, 'asm/32768.html')
+
     def test_custom_index_page_with_custom_subtemplate(self):
         ref = """
             [Template:GameIndex]

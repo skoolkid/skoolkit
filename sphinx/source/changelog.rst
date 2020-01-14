@@ -13,6 +13,9 @@ Changelog
 * Added the ``LabelColumn`` parameter to the :ref:`memoryMap` section (for
   specifying whether to display the 'Label' column on a memory map page
   whenever any entries have ASM labels defined)
+* Added the ``fmt`` parameter to the format specifier for the ``bytes``
+  attribute of instruction objects in the :ref:`t_asm` template (for formatting
+  the entire string of byte values)
 * Added support to the :ref:`set` directive for the `table-row-separator`
   property
 

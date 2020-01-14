@@ -1133,10 +1133,10 @@ class Bytes:
         if not spec:
             return ''
         if spec and spec.count(spec[0]) > 1:
-            bspec, sep = spec[1:].split(spec[0])[:2]
+            bspec, sep, fmt = (spec[1:] + spec[0]).split(spec[0])[:3]
         else:
-            bspec, sep = spec, ''
-        return sep.join(v.__format__(bspec) for v in self.values)
+            bspec, sep, fmt = spec, '', ''
+        return '{:{}}'.format(sep.join(v.__format__(bspec) for v in self.values), fmt)
 
 class TemplateFormatter:
     """Initialise the template formatter.

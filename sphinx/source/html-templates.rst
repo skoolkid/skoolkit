@@ -145,21 +145,34 @@ Each instruction object has the following attributes:
   hyperlinked if appropriate
 
 The ``bytes`` attribute can be used to render the byte values of an
-instruction. In its simplest form, it provides a format specification that is
-applied to each byte. For example::
+instruction. The format specifier for this attribute has the following form::
+
+  bfmt
+
+or::
+
+  /bfmt/sep[/fmt]
+
+* ``bfmt`` is the format specifier applied to each byte value
+* ``sep`` is the separator string inserted between byte values; by default it
+  is blank
+* ``fmt`` is the format specifier applied to the entire string of byte values;
+  by default it is blank
+
+The delimiter used here (``/``) to separate the ``bfmt``, ``sep`` and ``fmt``
+parameters is arbitrary; it could be any character that doesn't appear in
+``bfmt`` itself.
+
+For example::
 
   {$instruction[bytes]:02X}
 
-would produce the string ``3E01`` for the instruction 'LD A,1'.
+would produce the string ``3E01`` for the instruction 'LD A,1'. And::
 
-To render the byte values as 0-padded decimal integers separated by commas, use
-the following syntax::
+  {$instruction[bytes]:/02X/ />11}
 
-  {$instruction[bytes]:/03/,}
-
-This would produce the string ``062,001`` for the instruction 'LD A,1'. The
-delimiter used in this example (``/``) is arbitrary; it could be any character
-that doesn't appear in the byte format specification itself.
+would render byte values as 2-digit upper case hexadecimal numbers separated by
+spaces, and right align the entire field to a width of 11 characters.
 
 By default, the ``Bytes`` parameter in the :ref:`ref-Game` section is used as
 the byte format specification::
@@ -174,12 +187,16 @@ ensure that the byte values are displayed.
 Note that byte values are available only for regular assembly language
 instructions (not DEFB, DEFM, DEFS or DEFW statements), and only if they have
 actually been assembled by using :ref:`@assemble=2 <assemble>`. When no byte
-values are available, or the format specification is blank, the ``bytes``
+values are available, or the format specifier is blank, the ``bytes``
 identifier produces an empty string.
 
 To see the default ``asm`` template, run the following command::
 
   $ skool2html.py -r Template:asm$
+
+.. versionchanged:: 8.1
+   Added the ``fmt`` parameter to the format specifier for the ``bytes``
+   attribute of instruction objects.
 
 .. versionadded:: 8.0
 
