@@ -1,4 +1,4 @@
-# Copyright 2015-2019 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2015-2020 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -32,8 +32,9 @@ class BinWriter:
         self.weights = {
             'isub': int(asm_mode > 0),
             'ssub': 2 * int(asm_mode > 1),
-            'ofix': 3 * int(fix_mode > 0),
-            'bfix': 4 * int(fix_mode > 1)
+            'rsub': 3 * int(asm_mode > 2),
+            'ofix': 4 * int(fix_mode > 0),
+            'bfix': 5 * int(fix_mode > 1)
         }
         self.fields = {
             'asm': asm_mode,
@@ -48,14 +49,16 @@ class BinWriter:
 
     def _parse_skool(self, skoolfile):
         f = open_file(skoolfile)
+        address = None
         for non_entry, block in read_skool(f, 2, self.asm_mode, self.fix_mode):
             if non_entry:
                 continue
-            address = None
+            if self.asm_mode < 3:
+                address = None
             removed = set()
             for line in block:
                 if line.startswith('@'):
-                    self._parse_asm_directive(line[1:], removed)
+                    address = self._parse_asm_directive(address, line[1:], removed)
                 elif not line.lstrip().startswith(';') and line[0] in VALID_CTLS:
                     address = self._parse_instruction(address, line, removed)
         f.close()
@@ -103,8 +106,8 @@ class BinWriter:
             return end_address
         raise SkoolParsingError("Failed to assemble:\n {} {}".format(address, operation))
 
-    def _parse_asm_directive(self, directive, removed):
-        if directive.startswith(('isub=', 'ssub=', 'ofix=', 'bfix=')):
+    def _parse_asm_directive(self, address, directive, removed):
+        if directive.startswith(('isub=', 'ssub=', 'rsub=', 'ofix=', 'bfix=')):
             value = directive[5:].rstrip()
             if value.startswith('!'):
                 if self.weights[directive[:4]]:
@@ -113,9 +116,19 @@ class BinWriter:
                 self.subs[self.weights[directive[:4]]].append(value)
         elif directive.startswith('if('):
             try:
-                self._parse_asm_directive(parse_if(self.fields, directive, 2)[1], removed)
+                address = self._parse_asm_directive(address, parse_if(self.fields, directive, 2)[1], removed)
             except MacroParsingError:
                 pass
+        elif self.asm_mode > 2 and directive.startswith('org'):
+            org = directive.rstrip().partition('=')[2]
+            if org:
+                try:
+                    address = get_int_param(org)
+                except ValueError:
+                    raise SkoolParsingError("Invalid org address: {}".format(org))
+            else:
+                address = None
+        return address
 
     def write(self, binfile, start, end):
         if start is None:
@@ -157,6 +170,8 @@ def main(args):
                        help="Apply @isub directives.")
     group.add_argument('-o', '--ofix', dest='fix_mode', action='store_const', const=1, default=0,
                        help="Apply @ofix directives.")
+    group.add_argument('-r', '--rsub', dest='asm_mode', action='store_const', const=3, default=0,
+                       help="Apply @isub, @ssub and @rsub directives.")
     group.add_argument('-s', '--ssub', dest='asm_mode', action='store_const', const=2, default=0,
                        help="Apply @isub and @ssub directives.")
     group.add_argument('-S', '--start', dest='start', metavar='ADDR', type=integer,

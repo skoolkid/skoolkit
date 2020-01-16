@@ -144,6 +144,20 @@ class Skool2BinTest(SkoolKitTestCase):
             self.assertIsNone(mock_bin_writer.end)
 
     @patch.object(skool2bin, 'BinWriter', MockBinWriter)
+    def test_option_r(self):
+        skoolfile = 'test-r.skool'
+        exp_binfile = skoolfile[:-6] + '.bin'
+        for option in ('-r', '--rsub'):
+            output, error = self.run_skool2bin('{} {}'.format(option, skoolfile))
+            self.assertEqual(len(error), 0)
+            self.assertEqual(mock_bin_writer.skoolfile, skoolfile)
+            self.assertEqual(mock_bin_writer.asm_mode, 3)
+            self.assertEqual(mock_bin_writer.fix_mode, 0)
+            self.assertEqual(mock_bin_writer.binfile, exp_binfile)
+            self.assertIsNone(mock_bin_writer.start)
+            self.assertIsNone(mock_bin_writer.end)
+
+    @patch.object(skool2bin, 'BinWriter', MockBinWriter)
     def test_option_s(self):
         skoolfile = 'test-s.skool'
         exp_binfile = skoolfile[:-6] + '.bin'
@@ -248,6 +262,12 @@ class BinWriterTest(SkoolKitTestCase):
             self.run_skool2bin(skoolfile)
         self.assertEqual(cm.exception.args[0], 'Invalid address (4000d):\nc4000d RET')
 
+    def test_invalid_org_address_in_rsub_mode(self):
+        skoolfile = self.write_text_file('@org=?\nc40000 RET', suffix='.skool')
+        with self.assertRaises(SkoolKitError) as cm:
+            self.run_skool2bin('--rsub {}'.format(skoolfile))
+        self.assertEqual(cm.exception.args[0], 'Invalid org address: ?')
+
     def test_invalid_instruction(self):
         skoolfile = self.write_text_file('c40000 XOR HL', suffix='.skool')
         with self.assertRaises(SkoolKitError) as cm:
@@ -266,6 +286,7 @@ class BinWriterTest(SkoolKitTestCase):
         for option, asm_dir in (
                 ('-i', 'isub'),
                 ('-s', 'ssub'),
+                ('-r', 'rsub'),
                 ('-o', 'ofix'),
                 ('-b', 'bfix')
         ):
@@ -463,6 +484,120 @@ class BinWriterTest(SkoolKitTestCase):
         """
         exp_data = [62, 2]
         self._test_write(skool, 30000, exp_data, asm_mode=2)
+
+    def test_rsub_mode(self):
+        skool = """
+            @rsub-begin
+            c50000 INC L
+            @rsub+else
+            c50000 INC HL
+            @rsub+end
+            @rsub=INC DE
+             50001 INC E
+            @rsub=INC BC ; Increment BC
+             50002 INC C
+            @rsub=|XOR A ; Test @rsub replacing one instruction with two.
+            @rsub=|INC A
+             50003 LD A,1
+            @rsub=|LD A,1 ; Test @rsub replacing two instructions with one.
+             50005 XOR A
+             50006 INC A
+            @rsub=       ; Test @ssub replacing the comment only.
+             50007 SUB B
+            @if({asm}>2)(rsub=XOR D)
+             50008 XOR C
+            @rsub=|      ; Test @rsub replacing
+            @rsub=|OR H  ; a later instruction
+             50009 OR D
+             50010 OR E
+            @rsub=BEGIN: ; Test @rsub defining a label
+             50011 OR A
+            @rsub=>LD B,A ; Test rssub inserting an instruction before
+             50012 XOR A
+            @rsub=+XOR C  ; Test @rsub inserting an instruction after
+             50013 XOR B
+             50014 XOR D
+            @rsub=!50015-50017
+             50015 RET NZ ; This should be removed
+
+            @rsub+begin
+            c50017 RET    ; Not removed by @rsub=!50015-50017 in previous entry
+            @rsub+end
+        """
+        exp_data = [
+            35,    # 50000 INC L
+            19,    # 50001 INC DE
+            3,     # 50002 INC BC
+            175,   # 50003 XOR A
+            60,    # 50004 INC A
+            62, 1, # 50005 LD A,1
+            144,   # 50007 SUB B
+            170,   # 50008 XOR D
+            178,   # 50009 OR D
+            180,   # 50010 OR H
+            183,   # 50011 OR A
+            71,    # 50012 LD B,A (inserted)
+            175,   # 50013 XOR A
+            168,   # 50014 XOR B
+            169,   # 50015 XOR C (inserted)
+            170,   # 50016 XOR D
+            201    # 50017 RET
+        ]
+        self._test_write(skool, 50000, exp_data, asm_mode=3)
+
+    def test_rsub_overrides_isub(self):
+        skool = """
+            @rsub=LD A,2
+            @isub=LD A,1
+            c30000 LD A,0
+        """
+        exp_data = [62, 2]
+        self._test_write(skool, 30000, exp_data, asm_mode=3)
+
+    def test_rsub_overrides_ssub(self):
+        skool = """
+            @rsub=LD A,2
+            @ssub=LD A,1
+            c30000 LD A,0
+        """
+        exp_data = [62, 2]
+        self._test_write(skool, 30000, exp_data, asm_mode=3)
+
+    def test_rsub_increasing_address_of_next_entry(self):
+        skool = """
+            @rsub=LD HL,0
+            c50000 LD L,0
+
+            c50002 RET ; This instruction should be at 50003
+        """
+        exp_data = [33, 0, 0, 201]
+        self._test_write(skool, 50000, exp_data, asm_mode=3)
+
+    def test_rsub_decreasing_address_of_next_entry(self):
+        skool = """
+            @rsub=LD L,0
+            c50000 LD HL,0
+
+            c50003 RET ; This instruction should be at 50002
+        """
+        exp_data = [46, 0, 201]
+        self._test_write(skool, 50000, exp_data, asm_mode=3)
+
+    def test_rsub_mode_processes_org_directives(self):
+        skool = """
+            @rsub=LD A,1
+            c50000 LD A,0
+
+            @org
+            @rsub=LD A,2
+            c50005 LD A,1 ; This instruction should be at 50005
+
+            @if({asm}>2)(org=50010)
+            @rsub=LD A,3
+            c50010 LD A,2 ; This instruction should be at 50010
+        """
+        exp_data = [62, 1, 0, 0, 0, 62, 2, 0, 0, 0, 62, 3]
+        self._test_write(skool, 50000, exp_data, asm_mode=3)
 
     def test_ofix_mode(self):
         skool = """
