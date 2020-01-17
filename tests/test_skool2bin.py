@@ -545,6 +545,269 @@ class BinWriterTest(SkoolKitTestCase):
         ]
         self._test_write(skool, 50000, exp_data, asm_mode=3)
 
+    def test_rsub_adjusts_call_operands(self):
+        skool = """
+            c30000 CALL 30016
+             30003 CALL NZ,30016
+             30006 CALL Z,30016
+             30009 CALL NC,30016
+             30012 CALL C,30016
+            @rsub=LD A,0
+             30015 XOR A
+             30016 RET ; This instruction is moved to 30017
+
+            @org
+            c30020 CALL PO,30034
+             30023 CALL PE,30034
+             30026 CALL P,30034
+             30029 CALL M,30034
+            @rsub=XOR A
+             30032 LD A,0
+             30034 RET ; This instruction is moved to 30033
+        """
+        exp_data = [
+            205, 65, 117, # 30000 CALL 30017
+            196, 65, 117, # 30003 CALL NZ,30017
+            204, 65, 117, # 30006 CALL Z,30017
+            212, 65, 117, # 30009 CALL NC,30017
+            220, 65, 117, # 30012 CALL C,30017
+            62, 0,        # 30015 LD A,0
+            201,          # 30017 RET
+            0, 0,
+            228, 81, 117, # 30020 CALL PO,30033
+            236, 81, 117, # 30023 CALL PE,30033
+            244, 81, 117, # 30026 CALL P,30033
+            252, 81, 117, # 30029 CALL M,30033
+            175,          # 30032 XOR A
+            201,          # 30033 RET
+        ]
+        self._test_write(skool, 30000, exp_data, asm_mode=3)
+
+    def test_rsub_adjusts_defb_operands(self):
+        skool = """
+            @rsub=LD A,0
+            c30000 XOR A
+             30001 INC A      ; This instruction is moved to 30002
+            @rsub=LD B,A
+             30002 LD BC,0
+             30005 RET        ; This instruction is moved to 30004
+
+            @org
+            b30006 DEFB 30001%256
+             30007 DEFB 30005%256
+             30008 DEFB "30001"
+        """
+        exp_data = [
+            62, 0,             # 30000 LD A,0
+            60,                # 30002 INC A
+            71,                # 30003 LD B,A
+            201,               # 30004 RET
+            0,
+            50,                # 30006 DEFB 30002%256
+            52,                # 30007 DEFB 30004%256
+            51, 48, 48, 48, 49 # 30008 DEFB "30001"
+        ]
+        self._test_write(skool, 30000, exp_data, asm_mode=3)
+
+    def test_rsub_adjusts_defm_operands(self):
+        skool = """
+            @rsub=LD A,0
+            c30000 XOR A
+             30001 INC A      ; This instruction is moved to 30002
+            @rsub=LD B,A
+             30002 LD BC,0
+             30005 RET        ; This instruction is moved to 30004
+
+            @org
+            b30006 DEFM 30001%256
+             30007 DEFM 30005%256
+             30008 DEFM "30005"
+        """
+        exp_data = [
+            62, 0,             # 30000 LD A,0
+            60,                # 30002 INC A
+            71,                # 30003 LD B,A
+            201,               # 30004 RET
+            0,
+            50,                # 30006 DEFM 30002%256
+            52,                # 30007 DEFM 30004%256
+            51, 48, 48, 48, 53 # 30008 DEFM "30005"
+        ]
+        self._test_write(skool, 30000, exp_data, asm_mode=3)
+
+    def test_rsub_adjusts_defw_operands(self):
+        skool = """
+            @rsub=LD A,0
+            c30000 XOR A
+             30001 INC A      ; This instruction is moved to 30002
+            @rsub=LD B,A
+             30002 LD BC,0
+             30005 RET        ; This instruction is moved to 30004
+
+            @org
+            b30006 DEFW 30001
+             30008 DEFW 30005
+        """
+        exp_data = [
+            62, 0,   # 30000 LD A,0
+            60,      # 30002 INC A
+            71,      # 30003 LD B,A
+            201,     # 30004 RET
+            0,
+            50, 117, # 30006 DEFW 30002
+            52, 117  # 30008 DEFW 30004
+        ]
+        self._test_write(skool, 30000, exp_data, asm_mode=3)
+
+    def test_rsub_adjusts_djnz_operands(self):
+        skool = """
+            @rsub=LD A,0
+            c30000 XOR A
+             30001 INC A      ; This instruction is moved to 30002
+             30002 DJNZ 30001
+             30004 RET
+
+            @org
+            @rsub=XOR A
+            c30006 LD A,0
+             30008 INC A      ; This instruction is moved to 30007
+             30009 DJNZ 30008
+             30011 RET
+        """
+        exp_data = [62, 0, 60, 16, 253, 201, 175, 60, 16, 253, 201]
+        self._test_write(skool, 30000, exp_data, asm_mode=3)
+
+    def test_rsub_adjusts_jp_operands(self):
+        skool = """
+            c30000 JP 30016
+             30003 JP NZ,30016
+             30006 JP Z,30016
+             30009 JP NC,30016
+             30012 JP C,30016
+            @rsub=LD A,0
+             30015 XOR A
+             30016 RET ; This instruction is moved to 30017
+
+            @org
+            c30020 JP PO,30034
+             30023 JP PE,30034
+             30026 JP P,30034
+             30029 JP M,30034
+            @rsub=XOR A
+             30032 LD A,0
+             30034 RET ; This instruction is moved to 30033
+        """
+        exp_data = [
+            195, 65, 117, # 30000 JP 30017
+            194, 65, 117, # 30003 JP NZ,30017
+            202, 65, 117, # 30006 JP Z,30017
+            210, 65, 117, # 30009 JP NC,30017
+            218, 65, 117, # 30012 JP C,30017
+            62, 0,        # 30015 LD A,0
+            201,          # 30017 RET
+            0, 0,
+            226, 81, 117, # 30020 JP PO,30033
+            234, 81, 117, # 30023 JP PE,30033
+            242, 81, 117, # 30026 JP P,30033
+            250, 81, 117, # 30029 JP M,30033
+            175,          # 30032 XOR A
+            201,          # 30033 RET
+        ]
+        self._test_write(skool, 30000, exp_data, asm_mode=3)
+
+    def test_rsub_adjusts_jr_operands(self):
+        skool = """
+            c30000 JR 30007
+             30002 JR Z,30007
+             30004 JR NZ,30007
+            @rsub=LD A,0
+             30006 XOR A
+             30007 RET ; This instruction is moved to 30008
+
+            @org
+            c30010 JR C,30016
+             30012 JR NC,30016
+            @rsub=XOR A
+             30014 LD A,0
+             30016 RET ; This instruction is moved to 30015
+        """
+        exp_data = [
+            24, 6, # 30000 JR 30008
+            40, 4, # 30002 JR Z,30008
+            32, 2, # 30004 JR NZ,30008
+            62, 0, # 30006 LD A,0
+            201,   # 30008 RET
+            0,
+            56, 3, # 30010 JR C,30015
+            48, 1, # 30012 JR NC,30015
+            175,   # 30014 XOR A
+            201    # 30015 RET
+        ]
+        self._test_write(skool, 30000, exp_data, asm_mode=3)
+
+    def test_rsub_adjusts_ld_operands(self):
+        skool = """
+            c30000 LD BC,30021
+             30003 LD DE,30021
+             30006 LD HL,30021
+             30009 LD SP,30021
+             30012 LD IX,30021
+             30016 LD IY,30021
+            @rsub=LD A,0
+             30020 XOR A
+             30021 RET ; This instruction is moved to 30022
+
+            @org
+            c30023 LD BC,(30048)
+             30027 LD DE,(30048)
+             30031 LD HL,(30048)
+             30034 LD SP,(30048)
+             30038 LD IX,(30048)
+             30042 LD IY,(30048)
+            @rsub=XOR A
+             30046 LD A,0
+             30048 RET ; This instruction is moved to 30047
+
+            @org
+            c30049 LD (30073),BC
+             30053 LD (30073),DE
+             30057 LD (30073),HL
+             30060 LD (30073),SP
+             30064 LD (30073),IX
+             30068 LD (30073),IY
+            @rsub=LD A,0
+             30072 XOR A
+             30073 RET ; This instruction is moved to 30074
+        """
+        exp_data = [
+            1, 70, 117,         # 30000 LD BC,30022
+            17, 70, 117,        # 30003 LD DE,30022
+            33, 70, 117,        # 30006 LD HL,30022
+            49, 70, 117,        # 30009 LD SP,30022
+            221, 33, 70, 117,   # 30012 LD IX,30022
+            253, 33, 70, 117,   # 30016 LD IY,30022
+            62, 0,              # 30020 LD A,0
+            201,                # 30022 RET
+            237, 75, 95, 117,   # 30023 LD BC,(30047)
+            237, 91, 95, 117,   # 30027 LD DE,(30047)
+            42, 95, 117,        # 30031 LD HL,(30047)
+            237, 123, 95, 117,  # 30034 LD SP,(30047)
+            221, 42, 95, 117,   # 30038 LD IX,(30047)
+            253, 42, 95, 117,   # 30042 LD IY,(30047)
+            175,                # 30046 XOR A
+            201,                # 30047 RET
+            0,
+            237, 67, 122, 117,  # 30049 LD (30074),BC
+            237, 83, 122, 117,  # 30053 LD (30074),DE
+            34, 122, 117,       # 30057 LD (30074),HL
+            237, 115, 122, 117, # 30060 LD (30074),SP
+            221, 34, 122, 117,  # 30064 LD (30074),IX
+            253, 34, 122, 117,  # 30068 LD (30074),IY
+            62, 0,              # 30072 LD A,0
+            201,                # 30074 RET
+        ]
+        self._test_write(skool, 30000, exp_data, asm_mode=3)
+
     def test_rsub_overrides_isub(self):
         skool = """
             @rsub=LD A,2

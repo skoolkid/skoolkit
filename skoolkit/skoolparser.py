@@ -1,4 +1,4 @@
-# Copyright 2008-2019 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2008-2020 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -20,7 +20,7 @@ import re
 
 from skoolkit import (BASE_10, BASE_16, CASE_LOWER, CASE_UPPER, SkoolParsingError,
                       warn, wrap, get_int_param, parse_int, open_file, z80)
-from skoolkit.components import get_assembler, get_component
+from skoolkit.components import get_assembler, get_instruction_utility
 from skoolkit.skoolmacro import INTEGER, ClosingBracketError, MacroParsingError, parse_brackets, parse_if, parse_strings
 from skoolkit.textutils import partition_unquoted, split_quoted, split_unquoted
 
@@ -383,7 +383,7 @@ class SkoolParser:
                  snapshot=None):
         self.skoolfile = skoolfile
         self._assembler = get_assembler()
-        self.utility = get_component('InstructionUtility')
+        self.utility = get_instruction_utility()
         self.mode = Mode(case, base, asm_mode & 3, warnings, fix_mode, html, create_labels, asm_labels, self._assembler)
         self.case = case
         self.base = base

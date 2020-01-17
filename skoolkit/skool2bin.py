@@ -15,15 +15,23 @@
 # SkoolKit. If not, see <http://www.gnu.org/licenses/>.
 
 import argparse
-from collections import defaultdict
+from collections import defaultdict, namedtuple
 
 from skoolkit import SkoolParsingError, get_int_param, info, integer, open_file, VERSION
-from skoolkit.components import get_assembler
+from skoolkit.components import get_assembler, get_instruction_utility
 from skoolkit.skoolmacro import MacroParsingError, parse_if
 from skoolkit.skoolparser import DIRECTIVES, parse_address_range, parse_asm_sub_fix_directive, read_skool
 from skoolkit.textutils import partition_unquoted
 
 VALID_CTLS = DIRECTIVES + ' *'
+
+Entry = namedtuple('Entry', 'ctl instructions')
+
+class Instruction:
+    def __init__(self, address, operation):
+        self.address = address
+        self.keep = None
+        self.operation = operation
 
 class BinWriter:
     def __init__(self, skoolfile, asm_mode=0, fix_mode=0):
@@ -44,8 +52,12 @@ class BinWriter:
         self.base_address = len(self.snapshot)
         self.end_address = 0
         self.subs = defaultdict(list, {0: []})
+        self.instructions = []
+        self.address_map = {}
         self.assembler = get_assembler()
         self._parse_skool(skoolfile)
+        if asm_mode > 2:
+            self._relocate()
 
     def _parse_skool(self, skoolfile):
         f = open_file(skoolfile)
@@ -81,6 +93,7 @@ class BinWriter:
         before = [i[1] for i in parsed if i[0].prepend and i[1]]
         for operation in before:
             address = self._assemble(operation, address)
+        self.address_map[skool_address] = str(address)
         after = [(i[0].overwrite, i[1], i[0].append) for i in parsed if not i[0].prepend]
         if not after or after[0][2]:
             after.insert(0, (False, original_op, False))
@@ -94,6 +107,7 @@ class BinWriter:
         return address
 
     def _assemble(self, operation, address, overwrite=False, removed=None):
+        self.instructions.append(Instruction(address, operation))
         data = self.assembler.assemble(operation, address)
         if data:
             end_address = address + len(data)
@@ -129,6 +143,14 @@ class BinWriter:
             else:
                 address = None
         return address
+
+    def _relocate(self):
+        iu = get_instruction_utility()
+        iu.substitute_labels([Entry('c', self.instructions)], (), self.address_map, lambda *args, **kwargs: None)
+        self.snapshot = [0] * 65536
+        for i in self.instructions:
+            data = self.assembler.assemble(i.operation, i.address)
+            self.snapshot[i.address:i.address + len(data)] = data
 
     def write(self, binfile, start, end):
         if start is None:

@@ -1,4 +1,4 @@
-# Copyright 2019 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2019, 2020 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -46,6 +46,9 @@ def get_component(name, *args):
 
 def get_assembler():
     return get_component('Assembler')
+
+def get_instruction_utility():
+    return get_component('InstructionUtility')
 
 def get_operand_evaluator():
     return get_component('OperandEvaluator')
