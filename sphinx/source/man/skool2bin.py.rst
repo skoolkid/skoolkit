@@ -30,6 +30,9 @@ OPTIONS
 -o, --ofix
   Apply @ofix directives.
 
+-r, --rsub
+  Apply @isub, @ssub and @rsub directives.
+
 -s, --ssub
   Apply @isub and @ssub directives.
 

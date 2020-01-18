@@ -278,6 +278,7 @@ To list the options supported by `skool2bin.py`, run it with no arguments::
     -E ADDR, --end ADDR   Stop converting at this address.
     -i, --isub            Apply @isub directives.
     -o, --ofix            Apply @ofix directives.
+    -r, --rsub            Apply @isub, @ssub and @rsub directives.
     -s, --ssub            Apply @isub and @ssub directives.
     -S ADDR, --start ADDR
                           Start converting at this address.
@@ -286,6 +287,8 @@ To list the options supported by `skool2bin.py`, run it with no arguments::
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 8.1     | Added the ``--rsub`` option                                       |
++---------+-------------------------------------------------------------------+
 | 7.0     | :ref:`asm-if` directives are processed                            |
 +---------+-------------------------------------------------------------------+
 | 6.2     | The ``--end`` and ``--start`` options accept a hexadecimal        |

@@ -136,6 +136,15 @@ def parse_asm_sub_fix_directive(directive):
         return flags, label.strip(), op.strip(), comment
     return flags, None, label.strip(), comment
 
+def parse_asm_keep_directive(directive):
+    keep = []
+    if directive.startswith('keep='):
+        for n in directive[5:].split(','):
+            addr = parse_int(n)
+            if addr is not None:
+                keep.append(addr)
+    return keep
+
 def parse_address_range(value):
     addresses = [parse_int(n) for n in value.split('-', 1)]
     if len(addresses) == 1 and addresses[0] is not None:
@@ -625,12 +634,7 @@ class SkoolParser:
             if self.mode.assemble:
                 self.mode.data.append(directive)
         elif directive.startswith('keep'):
-            self.mode.keep = []
-            if directive.startswith('keep='):
-                for n in directive[5:].split(','):
-                    addr = parse_int(n)
-                    if addr is not None:
-                        self.mode.keep.append(addr)
+            self.mode.keep = parse_asm_keep_directive(directive)
         elif directive.startswith('remote='):
             self._parse_remote_directive(directive[7:])
         elif directive.startswith('replace='):

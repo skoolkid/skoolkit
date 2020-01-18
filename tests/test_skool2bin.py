@@ -862,6 +862,24 @@ class BinWriterTest(SkoolKitTestCase):
         exp_data = [62, 1, 0, 0, 0, 62, 2, 0, 0, 0, 62, 3]
         self._test_write(skool, 50000, exp_data, asm_mode=3)
 
+    def test_rsub_mode_processes_keep_directives(self):
+        skool = """
+            @rsub=XOR A
+            c50000 LD A,0
+            @keep
+             50002 LD HL,50005           ; This instruction is moved to 50001
+            @keep=50002
+             50005 LD HL,50002%256+50008 ; This instruction is moved to 50004
+             50008 RET                   ; This instruction is moved to 50007
+        """
+        exp_data = [
+            175,          # 50000 XOR A
+            33, 85, 195,  # 50001 LD HL,50005
+            33, 169, 195, # 50004 LD HL,50002%256+50007
+            201           # 50007 RET
+        ]
+        self._test_write(skool, 50000, exp_data, asm_mode=3)
+
     def test_ofix_mode(self):
         skool = """
             @ofix-begin

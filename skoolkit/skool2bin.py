@@ -20,7 +20,8 @@ from collections import defaultdict, namedtuple
 from skoolkit import SkoolParsingError, get_int_param, info, integer, open_file, VERSION
 from skoolkit.components import get_assembler, get_instruction_utility
 from skoolkit.skoolmacro import MacroParsingError, parse_if
-from skoolkit.skoolparser import DIRECTIVES, parse_address_range, parse_asm_sub_fix_directive, read_skool
+from skoolkit.skoolparser import (DIRECTIVES, parse_address_range, parse_asm_keep_directive,
+                                  parse_asm_sub_fix_directive, read_skool)
 from skoolkit.textutils import partition_unquoted
 
 VALID_CTLS = DIRECTIVES + ' *'
@@ -28,9 +29,9 @@ VALID_CTLS = DIRECTIVES + ' *'
 Entry = namedtuple('Entry', 'ctl instructions')
 
 class Instruction:
-    def __init__(self, address, operation):
+    def __init__(self, address, keep, operation):
         self.address = address
-        self.keep = None
+        self.keep = keep
         self.operation = operation
 
 class BinWriter:
@@ -52,6 +53,7 @@ class BinWriter:
         self.base_address = len(self.snapshot)
         self.end_address = 0
         self.subs = defaultdict(list, {0: []})
+        self.keep = None
         self.instructions = []
         self.address_map = {}
         self.assembler = get_assembler()
@@ -107,7 +109,8 @@ class BinWriter:
         return address
 
     def _assemble(self, operation, address, overwrite=False, removed=None):
-        self.instructions.append(Instruction(address, operation))
+        self.instructions.append(Instruction(address, self.keep, operation))
+        self.keep = None
         data = self.assembler.assemble(operation, address)
         if data:
             end_address = address + len(data)
@@ -142,6 +145,8 @@ class BinWriter:
                     raise SkoolParsingError("Invalid org address: {}".format(org))
             else:
                 address = None
+        elif self.asm_mode > 2 and directive.startswith('keep'):
+            self.keep = parse_asm_keep_directive(directive)
         return address
 
     def _relocate(self):
