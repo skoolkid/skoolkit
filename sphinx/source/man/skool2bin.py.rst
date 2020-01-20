@@ -33,6 +33,9 @@ OPTIONS
 -r, --rsub
   Apply @isub, @ssub and @rsub directives.
 
+-R, --rfix
+  Apply @ofix, @bfix and @rfix directives (implies ``--rsub``).
+
 -s, --ssub
   Apply @isub and @ssub directives.
 

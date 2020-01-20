@@ -36,6 +36,8 @@ class Instruction:
 
 class BinWriter:
     def __init__(self, skoolfile, asm_mode=0, fix_mode=0):
+        if fix_mode > 2:
+            asm_mode = 3
         self.asm_mode = asm_mode
         self.fix_mode = fix_mode
         self.weights = {
@@ -43,7 +45,8 @@ class BinWriter:
             'ssub': 2 * int(asm_mode > 1),
             'rsub': 3 * int(asm_mode > 2),
             'ofix': 4 * int(fix_mode > 0),
-            'bfix': 5 * int(fix_mode > 1)
+            'bfix': 5 * int(fix_mode > 1),
+            'rfix': 6 * int(fix_mode > 2)
         }
         self.fields = {
             'asm': asm_mode,
@@ -124,7 +127,7 @@ class BinWriter:
         raise SkoolParsingError("Failed to assemble:\n {} {}".format(address, operation))
 
     def _parse_asm_directive(self, address, directive, removed):
-        if directive.startswith(('isub=', 'ssub=', 'rsub=', 'ofix=', 'bfix=')):
+        if directive.startswith(('isub=', 'ssub=', 'rsub=', 'ofix=', 'bfix=', 'rfix=')):
             value = directive[5:].rstrip()
             if value.startswith('!'):
                 if self.weights[directive[:4]]:
@@ -199,6 +202,8 @@ def main(args):
                        help="Apply @ofix directives.")
     group.add_argument('-r', '--rsub', dest='asm_mode', action='store_const', const=3, default=0,
                        help="Apply @isub, @ssub and @rsub directives.")
+    group.add_argument('-R', '--rfix', dest='fix_mode', action='store_const', const=3, default=0,
+                       help="Apply @ofix, @bfix and @rfix directives (implies --rsub).")
     group.add_argument('-s', '--ssub', dest='asm_mode', action='store_const', const=2, default=0,
                        help="Apply @isub and @ssub directives.")
     group.add_argument('-S', '--start', dest='start', metavar='ADDR', type=integer,

@@ -3,8 +3,8 @@ Changelog
 
 8.1b1
 -----
-* Added the ``--rsub`` option to :ref:`skool2bin.py` (for parsing the skool
-  file in @rsub mode)
+* Added the ``--rsub`` and ``--rfix`` options to :ref:`skool2bin.py` (for
+  parsing the skool file in :ref:`rsubMode` and :ref:`rfixMode`)
 * The ``address`` parameter of the :ref:`defb`, :ref:`defs` and :ref:`defw`
   directives is now optional
 * :ref:`defb`, :ref:`defs` and :ref:`defw` directives in non-entry blocks are

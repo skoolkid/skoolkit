@@ -158,6 +158,20 @@ class Skool2BinTest(SkoolKitTestCase):
             self.assertIsNone(mock_bin_writer.end)
 
     @patch.object(skool2bin, 'BinWriter', MockBinWriter)
+    def test_option_R(self):
+        skoolfile = 'test-R.skool'
+        exp_binfile = skoolfile[:-6] + '.bin'
+        for option in ('-R', '--rfix'):
+            output, error = self.run_skool2bin('{} {}'.format(option, skoolfile))
+            self.assertEqual(len(error), 0)
+            self.assertEqual(mock_bin_writer.skoolfile, skoolfile)
+            self.assertEqual(mock_bin_writer.asm_mode, 0)
+            self.assertEqual(mock_bin_writer.fix_mode, 3)
+            self.assertEqual(mock_bin_writer.binfile, exp_binfile)
+            self.assertIsNone(mock_bin_writer.start)
+            self.assertIsNone(mock_bin_writer.end)
+
+    @patch.object(skool2bin, 'BinWriter', MockBinWriter)
     def test_option_s(self):
         skoolfile = 'test-s.skool'
         exp_binfile = skoolfile[:-6] + '.bin'
@@ -288,7 +302,8 @@ class BinWriterTest(SkoolKitTestCase):
                 ('-s', 'ssub'),
                 ('-r', 'rsub'),
                 ('-o', 'ofix'),
-                ('-b', 'bfix')
+                ('-b', 'bfix'),
+                ('-R', 'rfix')
         ):
             with self.subTest(option=option, asm_dir=asm_dir):
                 skoolfile = self.write_text_file(dedent(skool.format(asm_dir)).strip(), suffix='.skool')
@@ -512,7 +527,7 @@ class BinWriterTest(SkoolKitTestCase):
              50010 OR E
             @rsub=BEGIN: ; Test @rsub defining a label
              50011 OR A
-            @rsub=>LD B,A ; Test rssub inserting an instruction before
+            @rsub=>LD B,A ; Test @rsub inserting an instruction before
              50012 XOR A
             @rsub=+XOR C  ; Test @rsub inserting an instruction after
              50013 XOR B
@@ -1080,6 +1095,86 @@ class BinWriterTest(SkoolKitTestCase):
         """
         exp_data = [1, 4, 8]
         self._test_write(skool, 32768, exp_data, fix_mode=2)
+
+    def test_rfix_mode(self):
+        skool = """
+            @rfix-begin
+            c50000 INC L
+            @rfix+else
+            c50000 INC HL
+            @rfix+end
+            @rfix=INC DE
+             50001 INC E
+            @rfix=INC BC ; Increment BC
+             50002 INC C
+            @rfix=|XOR A ; Test @rfix replacing one instruction with two.
+            @rfix=|INC A
+             50003 LD A,1
+            @rfix=|LD A,1 ; Test @rfix replacing two instructions with one.
+             50005 XOR A
+             50006 INC A
+            @rfix=       ; Test @ssub replacing the comment only.
+             50007 SUB B
+            @if({fix}>2)(rfix=XOR D)
+             50008 XOR C
+            @rfix=|      ; Test @rfix replacing
+            @rfix=|OR H  ; a later instruction
+             50009 OR D
+             50010 OR E
+            @rfix=BEGIN: ; Test @rfix defining a label
+             50011 OR A
+            @rfix=>LD B,A ; Test @rfix inserting an instruction before
+             50012 XOR A
+            @rfix=+XOR C  ; Test @rfix inserting an instruction after
+             50013 XOR B
+             50014 XOR D
+            @rfix=!50015-50017
+             50015 RET NZ ; This should be removed
+
+            @rfix+begin
+            c50017 RET    ; Not removed by @rfix=!50015-50017 in previous entry
+            @rfix+end
+        """
+        exp_data = [
+            35,    # 50000 INC L
+            19,    # 50001 INC DE
+            3,     # 50002 INC BC
+            175,   # 50003 XOR A
+            60,    # 50004 INC A
+            62, 1, # 50005 LD A,1
+            144,   # 50007 SUB B
+            170,   # 50008 XOR D
+            178,   # 50009 OR D
+            180,   # 50010 OR H
+            183,   # 50011 OR A
+            71,    # 50012 LD B,A (inserted)
+            175,   # 50013 XOR A
+            168,   # 50014 XOR B
+            169,   # 50015 XOR C (inserted)
+            170,   # 50016 XOR D
+            201    # 50017 RET
+        ]
+        self._test_write(skool, 50000, exp_data, fix_mode=3)
+
+    def test_rfix_overrides_ofix_and_bfix(self):
+        skool = """
+            @rfix=LD B,2
+            @ofix=LD B,1
+            c30000 LD B,0
+            @rfix=LD B,3
+            @bfix=LD B,2
+             30002 LD B,1
+        """
+        exp_data = [6, 2, 6, 3]
+        self._test_write(skool, 30000, exp_data, fix_mode=3)
+
+    def test_rfix_applies_rsub(self):
+        skool = """
+            @rsub=LD B,2
+            c30000 LD B,0
+        """
+        exp_data = [6, 2]
+        self._test_write(skool, 30000, exp_data, fix_mode=3)
 
     def test_if_directive_ignored_if_invalid(self):
         skool = """
