@@ -146,6 +146,9 @@ skoolkit.skoolparser.InstructionUtility:
 .. autoclass:: skoolkit.skoolparser.InstructionUtility
    :members: calculate_references, convert, set_byte_values, substitute_labels
 
+.. versionchanged:: 8.1
+   The *warn* argument of :meth:`substitute_labels` is optional.
+
 Memory map entries and remote entries have the following attributes:
 
 * *ctl* - the entry's control directive ('b', 'c', 'g', 'i', 's', 't', 'u' or

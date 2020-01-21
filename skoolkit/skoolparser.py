@@ -980,7 +980,7 @@ class InstructionUtility:
                 operation = re.sub('(I[XY])L', r'\1l', operation)
         return operation
 
-    def substitute_labels(self, entries, remote_entries, labels, warn):
+    def substitute_labels(self, entries, remote_entries, labels, warn=None):
         """Replace addresses with labels in the operands of every instruction
         in a skool file.
 
@@ -988,7 +988,8 @@ class InstructionUtility:
         :param remote_entries: A collection of remote entries (as defined by
                                :ref:`remote` directives).
         :param labels: A dictionary mapping addresses to labels.
-        :param warn: A function that emits a warning. It takes four arguments:
+        :param warn: An optional function that emits a warning. It must accept
+                     four arguments:
 
                      * `fmt` - a format string for the warning message; it may
                        contain '{address}' and '{operation}' replacement
@@ -996,13 +997,16 @@ class InstructionUtility:
                      * `instruction` - the relevant instruction object.
                      * `subbed` - whether to show the warning for an operation
                        that has been replaced by a ``@*sub`` or ``@*fix``
-                       directive (optional, defaults to `False`).
+                       directive.
                      * `min_mode` - the minimum ASM mode in which the warning
-                       should be displayed (optional, defaults to 0).
+                       should be displayed.
         """
         self.remote_entries = remote_entries
         self.labels = labels
-        self.warn = warn
+        if warn:
+            self.warn = warn
+        else:
+            self.warn = lambda *args, **kwargs: None
         self.instructions = {i.address: (i, e, labels.get(i.address)) for e in entries for i in e.instructions if i.address is not None}
         self.remote_instructions = [i.address for e in remote_entries for i in e.instructions]
         self.base_address = min(self.instructions)
@@ -1048,19 +1052,20 @@ class InstructionUtility:
                     # an unsubbed operation (will need @keep to retain operand,
                     # or @nowarn if the replacement is OK)
                     rep = instruction.operation.replace(addr_str, ref_l)
-                    self.warn('LD operand replaced with routine label in unsubbed operation:\n  {address} {operation} -> ' + rep, instruction)
+                    self.warn('LD operand replaced with routine label in unsubbed operation:\n'
+                              '  {address} {operation} -> ' + rep, instruction, False, 0)
                 return ref_l
             if entry.ctl == 'c':
                 # Warn if we cannot find a label to replace the operand of this
                 # routine instruction (will need @nowarn if this is OK)
-                self.warn('Found no label for operand: {address} {operation}', instruction, True)
+                self.warn('Found no label for operand: {address} {operation}', instruction, True, 0)
         elif address in self.labels:
             return self.labels[address]
         elif address not in self.remote_instructions and self.base_address <= address < self.end_address:
             # Warn if the operand is inside the address range of the
             # disassembly (where code might be) but doesn't refer to the
             # address of an instruction (will need @nowarn if this is OK)
-            self.warn('Unreplaced operand: {address} {operation}', instruction, min_mode=2)
+            self.warn('Unreplaced operand: {address} {operation}', instruction, False, 2)
 
     def calculate_references(self, entries, remote_entries):
         """

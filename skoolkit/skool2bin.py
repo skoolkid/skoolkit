@@ -156,7 +156,7 @@ class BinWriter:
 
     def _relocate(self):
         iu = get_instruction_utility()
-        iu.substitute_labels([Entry('c', self.instructions)], (), self.address_map, lambda *args, **kwargs: None)
+        iu.substitute_labels([Entry('c', self.instructions)], (), self.address_map)
         self.snapshot = [0] * 65536
         for i in self.instructions:
             data = self.assembler.assemble(i.operation, i.address)

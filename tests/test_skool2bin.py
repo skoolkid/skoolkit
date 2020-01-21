@@ -1224,3 +1224,16 @@ class BinWriterTest(SkoolKitTestCase):
         skool = "b60000 RET"
         exp_data = [1, 1]
         self._test_write(skool, 60000, exp_data)
+
+    @patch.object(components, 'SK_CONFIG', None)
+    def test_custom_address_adjuster(self):
+        custom_adjuster = """
+            from skoolkit.skoolparser import InstructionUtility
+            class CustomUtility(InstructionUtility):
+                def substitute_labels(self, entries, remote_entries, labels):
+                    entries[0].instructions[0].operation = 'JP 50001'
+        """
+        self.write_component_config('InstructionUtility', '*.CustomUtility', custom_adjuster)
+        skool = "c50000 JP 50000"
+        exp_data = [195, 81, 195]
+        self._test_write(skool, 50000, exp_data, asm_mode=3)
