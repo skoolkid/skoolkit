@@ -861,6 +861,14 @@ class BinWriterTest(SkoolKitTestCase):
         exp_data = [46, 0, 201]
         self._test_write(skool, 50000, exp_data, asm_mode=3)
 
+    def test_rsub_mode_applies_ofix(self):
+        skool = """
+            @ofix=XOR A
+            c30000 XOR B
+        """
+        exp_data = [175]
+        self._test_write(skool, 30000, exp_data, asm_mode=3)
+
     def test_rsub_mode_processes_org_directives(self):
         skool = """
             @rsub=LD A,1

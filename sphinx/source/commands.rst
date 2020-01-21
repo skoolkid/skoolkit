@@ -278,7 +278,8 @@ To list the options supported by `skool2bin.py`, run it with no arguments::
     -E ADDR, --end ADDR   Stop converting at this address.
     -i, --isub            Apply @isub directives.
     -o, --ofix            Apply @ofix directives.
-    -r, --rsub            Apply @isub, @ssub and @rsub directives.
+    -r, --rsub            Apply @isub, @ssub and @rsub directives (implies
+                          --ofix).
     -R, --rfix            Apply @ofix, @bfix and @rfix directives (implies
                           --rsub).
     -s, --ssub            Apply @isub and @ssub directives.

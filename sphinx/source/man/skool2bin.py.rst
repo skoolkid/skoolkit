@@ -31,7 +31,7 @@ OPTIONS
   Apply @ofix directives.
 
 -r, --rsub
-  Apply @isub, @ssub and @rsub directives.
+  Apply @isub, @ssub and @rsub directives (implies ``--ofix``).
 
 -R, --rfix
   Apply @ofix, @bfix and @rfix directives (implies ``--rsub``).

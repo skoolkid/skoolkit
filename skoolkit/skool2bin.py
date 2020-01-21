@@ -38,6 +38,8 @@ class BinWriter:
     def __init__(self, skoolfile, asm_mode=0, fix_mode=0):
         if fix_mode > 2:
             asm_mode = 3
+        elif asm_mode > 2:
+            fix_mode = max(fix_mode, 1)
         self.asm_mode = asm_mode
         self.fix_mode = fix_mode
         self.weights = {
@@ -201,7 +203,7 @@ def main(args):
     group.add_argument('-o', '--ofix', dest='fix_mode', action='store_const', const=1, default=0,
                        help="Apply @ofix directives.")
     group.add_argument('-r', '--rsub', dest='asm_mode', action='store_const', const=3, default=0,
-                       help="Apply @isub, @ssub and @rsub directives.")
+                       help="Apply @isub, @ssub and @rsub directives (implies --ofix).")
     group.add_argument('-R', '--rfix', dest='fix_mode', action='store_const', const=3, default=0,
                        help="Apply @ofix, @bfix and @rfix directives (implies --rsub).")
     group.add_argument('-s', '--ssub', dest='asm_mode', action='store_const', const=2, default=0,
