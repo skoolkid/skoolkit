@@ -63,8 +63,7 @@ class BinWriter:
         self.address_map = {}
         self.assembler = get_assembler()
         self._parse_skool(skoolfile)
-        if asm_mode > 2:
-            self._relocate()
+        self._relocate()
 
     def _parse_skool(self, skoolfile):
         f = open_file(skoolfile)
@@ -72,8 +71,6 @@ class BinWriter:
         for non_entry, block in read_skool(f, 2, self.asm_mode, self.fix_mode):
             if non_entry:
                 continue
-            if self.asm_mode < 3:
-                address = None
             removed = set()
             for line in block:
                 if line.startswith('@'):
@@ -120,7 +117,6 @@ class BinWriter:
         if data:
             end_address = address + len(data)
             if removed is None or address not in removed:
-                self.snapshot[address:end_address] = data
                 self.base_address = min(self.base_address, address)
                 self.end_address = max(self.end_address, end_address)
             if overwrite:
@@ -141,7 +137,7 @@ class BinWriter:
                 address = self._parse_asm_directive(address, parse_if(self.fields, directive, 2)[1], removed)
             except MacroParsingError:
                 pass
-        elif self.asm_mode > 2 and directive.startswith('org'):
+        elif directive.startswith('org'):
             org = directive.rstrip().partition('=')[2]
             if org:
                 try:
@@ -150,14 +146,13 @@ class BinWriter:
                     raise SkoolParsingError("Invalid org address: {}".format(org))
             else:
                 address = None
-        elif self.asm_mode > 2 and directive.startswith('keep'):
+        elif directive.startswith('keep'):
             self.keep = parse_asm_keep_directive(directive)
         return address
 
     def _relocate(self):
         iu = get_instruction_utility()
         iu.substitute_labels([Entry('c', self.instructions)], (), self.address_map)
-        self.snapshot = [0] * 65536
         for i in self.instructions:
             data = self.assembler.assemble(i.operation, i.address)
             self.snapshot[i.address:i.address + len(data)] = data
