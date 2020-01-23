@@ -339,13 +339,15 @@ class AsmWriter:
 
     def print_registers(self):
         self.print_paragraph_separator()
-        max_reg_len = max([len(reg.name) for reg in self.entry.registers])
-        prefix_len = max([len(reg.prefix) for reg in self.entry.registers])
-        if prefix_len:
-            prefix_len += 1
+        max_reg_len = prefix_len = 0
         for reg in self.entry.registers:
+            if reg.delimiters[0]:
+                reg.name = self.expand(reg.name)
+            max_reg_len = max(max_reg_len, len(reg.name))
             if reg.prefix:
                 reg.prefix += ':'
+            prefix_len = max(prefix_len, len(reg.prefix))
+        for reg in self.entry.registers:
             subs = {
                 'max_reg_len': max_reg_len,
                 'prefix': reg.prefix,

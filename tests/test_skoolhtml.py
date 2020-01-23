@@ -7797,7 +7797,63 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         self.assertNotIn('MessagesMap', writer.main_memory_maps) # No entries
         self.assertNotIn('UnusedMap', writer.main_memory_maps)   # Write=0
 
-    def test_format_registers_with_prefixes(self):
+    def test_registers(self):
+        skool = """
+            ; Test registers
+            ;
+            ; .
+            ;
+            ; A Some value
+            ; B Some other value
+            ; #CHR(67) No macro expansion
+            c24576 RET ; Done
+        """
+        writer = self._get_writer(skool=skool)
+        writer.write_asm_entries()
+
+        content = """
+            <div class="description">24576: Test registers</div>
+            <table class="disassembly">
+            <tr>
+            <td class="routine-comment" colspan="5">
+            <div class="details">
+            </div>
+            <table class="input">
+            <tr class="asm-input-header">
+            <th colspan="2">Input</th>
+            </tr>
+            <tr>
+            <td class="register">A</td>
+            <td class="register-desc">Some value</td>
+            </tr>
+            <tr>
+            <td class="register">B</td>
+            <td class="register-desc">Some other value</td>
+            </tr>
+            <tr>
+            <td class="register">#CHR(67)</td>
+            <td class="register-desc">No macro expansion</td>
+            </tr>
+            </table>
+            </td>
+            </tr>
+            <tr>
+            <td class="address-2"><span id="24576"></span>24576</td>
+            <td class="instruction">RET</td>
+            <td class="comment-1" rowspan="1">Done</td>
+            </tr>
+            </table>
+        """
+        subs = {
+            'title': 'Routine at 24576',
+            'body_class': 'Asm-c',
+            'header': 'Routines',
+            'up': 24576,
+            'content': content
+        }
+        self._assert_files_equal(join(ASMDIR, '24576.html'), subs)
+
+    def test_registers_with_prefixes(self):
         skool = """
             ; Routine at 24576
             ;
@@ -7863,7 +7919,7 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         }
         self._assert_files_equal(join(ASMDIR, '24576.html'), subs)
 
-    def test_format_registers_with_arbitrary_names(self):
+    def test_registers_with_arbitrary_names(self):
         skool = """
             ; Test registers with arbitrary names
             ;
@@ -7873,7 +7929,11 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             ;        {B and C} Some other values
             ; *Output:HL* The result
             ;         /DE Another result
+            ;         [(#R24796)] Yet another result
             c24795 RET ; Done
+
+            ; Result storage
+            b24796 DEFB 0
         """
         writer = self._get_writer(skool=skool)
         writer.write_asm_entries()
@@ -7910,6 +7970,10 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             <td class="register">/DE</td>
             <td class="register-desc">Another result</td>
             </tr>
+            <tr>
+            <td class="register">(<a href="24796.html">24796</a>)</td>
+            <td class="register-desc">Yet another result</td>
+            </tr>
             </table>
             </td>
             </tr>
@@ -7925,6 +7989,7 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             'body_class': 'Asm-c',
             'header': 'Routines',
             'up': 24795,
+            'next': 24796,
             'content': content
         }
         self._assert_files_equal(join(ASMDIR, '24795.html'), subs)

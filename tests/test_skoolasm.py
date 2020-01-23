@@ -1390,17 +1390,31 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
     def test_registers(self):
         skool = """
             @start
-            ; Test parsing of register blocks (1)
+            ; Test registers
             ;
-            ; Traditional.
+            ; .
             ;
             ; A Some value
             ; B Some other value
+            ; #CHR(67) No macro expansion
             c24604 RET
-
-            ; Test parsing of register blocks (2)
+        """
+        exp_asm = """
+            ; Test registers
             ;
-            ; With prefixes.
+            ; A Some value
+            ; B Some other value
+            ; #CHR(67) No macro expansion
+              RET
+        """
+        self._test_asm(skool, exp_asm)
+
+    def test_registers_with_prefixes(self):
+        skool = """
+            @start
+            ; Test registers with prefixes
+            ;
+            ; .
             ;
             ; Input:a Some value
             ;       b Some other value
@@ -1408,17 +1422,16 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
             ;        d
             c24605 RET
         """
-        asm = self._get_asm(skool).split('\n')
-
-        # Traditional
-        self.assertEqual(asm[4], '; A Some value')
-        self.assertEqual(asm[5], '; B Some other value')
-
-        # With prefixes (right-justified to longest prefix)
-        self.assertEqual(asm[12], ';  Input:a Some value')
-        self.assertEqual(asm[13], ';        b Some other value')
-        self.assertEqual(asm[14], '; Output:c The result')
-        self.assertEqual(asm[15], ';        d')
+        exp_asm = """
+            ; Test registers with prefixes
+            ;
+            ;  Input:a Some value
+            ;        b Some other value
+            ; Output:c The result
+            ;        d
+              RET
+        """
+        self._test_asm(skool, exp_asm)
 
     def test_registers_with_arbitrary_names(self):
         skool = """
@@ -1431,6 +1444,7 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
             ;        (B and C) Some other values
             ; *Output:HL* The result
             ;         /DE Another result
+            ;         [(#R24596)] Yet another result
             c24595 RET
         """
         exp_asm = """
@@ -1440,6 +1454,7 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
             ;        B and C Some other values
             ; Output:HL The result
             ;        /DE Another result
+            ;        (24596) Yet another result
               RET
         """
         self._test_asm(skool, exp_asm)

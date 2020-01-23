@@ -639,6 +639,8 @@ class HtmlWriter:
         for reg in registers:
             if reg.prefix:
                 mode = reg.prefix.upper()[0]
+            if reg.delimiters[0]:
+                reg.name = self.expand(reg.name, cwd)
             reg_obj = {
                 'name': reg.name,
                 'description': self.expand(reg.contents, cwd)

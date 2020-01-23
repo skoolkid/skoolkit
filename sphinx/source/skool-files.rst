@@ -94,15 +94,18 @@ by starting the second and subsequent lines with a dot (``.``) thus::
   ; HL The description for this register is quite long, so it is split over two
   ; .  lines for improved readability
 
-Note that the register name is separated from the description by whitespace. If
-the register name field itself contains whitespace, then it must be delimited
-in the same way as an arbitrary :ref:`string parameter <stringParameters>` of a
-skool macro. For example::
+Note that by default, the register name is separated from the description by
+whitespace and must not contain skool macros. If whitespace or skool macros are
+required in the register name field, then it must be delimited in the same way
+as an arbitrary :ref:`string parameter <stringParameters>` of a skool macro.
+For example::
 
   ; (Output:B, D) The answers are in these two registers
+  ; /(#R32768)/ The result is placed at this address
 
 When a register name is supplied in this format, the delimiter characters must
-be something other than a letter or digit.
+be something other than a letter or digit. In addition, :ref:`LIST` and
+:ref:`TABLE` macros in a register name field are not expanded in ASM mode.
 
 .. _entryLineFormat:
 
@@ -262,7 +265,8 @@ Revision history
 +---------+-----------------------------------------------------------------+
 | Version | Changes                                                         |
 +=========+=================================================================+
-| 8.1     | Register name fields may contain whitespace                     |
+| 8.1     | Register name fields may contain whitespace and                 |
+|         | :ref:`skool macros <skoolMacros>`                               |
 +---------+-----------------------------------------------------------------+
 | 4.3     | Added support for the start comment in entry headers; an ASM    |
 |         | directive can be declared by starting a line with ``@``         |
