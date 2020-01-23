@@ -1469,6 +1469,28 @@ class CtlWriterTest(SkoolKitTestCase):
         """
         self._test_ctl(skool, exp_ctl)
 
+    def test_registers_with_arbitrary_names(self):
+        skool = """
+            ; Test registers with arbitrary names
+            ;
+            ; .
+            ;
+            ; /Input:The accumulator/ Some value
+            ;        [B and C] Some other values
+            ; *Output:HL* The result
+            ;         |DE Another result
+            c32768 RET
+        """
+        exp_ctl = """
+            c 32768 Test registers with arbitrary names
+            R 32768 /Input:The accumulator/ Some value
+            R 32768 [B and C] Some other values
+            R 32768 *Output:HL* The result
+            R 32768 |DE Another result
+            i 32769
+        """
+        self._test_ctl(skool, exp_ctl)
+
     def test_start_comment(self):
         start_comment = 'This is a start comment.'
         skool = """

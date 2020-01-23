@@ -1376,7 +1376,7 @@ class SkoolParserTest(SkoolKitTestCase):
 
     def test_registers(self):
         skool = """
-            ; Test register parsing (1)
+            ; Test register parsing
             ;
             ; Traditional.
             ;
@@ -1384,19 +1384,9 @@ class SkoolParserTest(SkoolKitTestCase):
             ; B Some other value
             ; C
             c24589 RET
-
-            ; Test register parsing (2)
-            ;
-            ; With prefixes.
-            ;
-            ; Input:A Some value
-            ;       B Some other value
-            ; Output:HL The result
-            c24590 RET
         """
         parser = self._get_parser(skool, html=False)
 
-        # Traditional
         registers = parser.get_entry(24589).registers
         self.assertEqual(len(registers), 3)
         reg_a = registers[0]
@@ -1412,7 +1402,19 @@ class SkoolParserTest(SkoolKitTestCase):
         self.assertEqual(reg_c.name, 'C')
         self.assertEqual(reg_c.contents, '')
 
-        # With prefixes
+    def test_registers_with_prefixes(self):
+        skool = """
+            ; Test register parsing
+            ;
+            ; With prefixes.
+            ;
+            ; Input:A Some value
+            ;       B Some other value
+            ; Output:HL The result
+            c24590 RET
+        """
+        parser = self._get_parser(skool, html=False)
+
         registers = parser.get_entry(24590).registers
         self.assertEqual(len(registers), 3)
         reg_a = registers[0]
@@ -1427,6 +1429,43 @@ class SkoolParserTest(SkoolKitTestCase):
         self.assertEqual(reg_hl.prefix, 'Output')
         self.assertEqual(reg_hl.name, 'HL')
         self.assertEqual(reg_hl.contents, 'The result')
+
+    def test_registers_with_arbitrary_names(self):
+        skool = """
+            ; Test register parsing
+            ;
+            ; With arbitrary names.
+            ;
+            ; /Input:The accumulator/ Some value
+            ;        [B and C] Some other values
+            ; *Output:HL* The result
+            ;         |DE Another result
+            c24590 RET
+        """
+        parser = self._get_parser(skool, html=False)
+
+        registers = parser.get_entry(24590).registers
+        self.assertEqual(len(registers), 4)
+        reg_a = registers[0]
+        self.assertEqual(reg_a.prefix, 'Input')
+        self.assertEqual(reg_a.name, 'The accumulator')
+        self.assertEqual(reg_a.contents, 'Some value')
+        self.assertEqual(('/', '/'), reg_a.delimiters)
+        reg_b_and_c = registers[1]
+        self.assertEqual(reg_b_and_c.prefix, '')
+        self.assertEqual(reg_b_and_c.name, 'B and C')
+        self.assertEqual(reg_b_and_c.contents, 'Some other values')
+        self.assertEqual(('[', ']'), reg_b_and_c.delimiters)
+        reg_hl = registers[2]
+        self.assertEqual(reg_hl.prefix, 'Output')
+        self.assertEqual(reg_hl.name, 'HL')
+        self.assertEqual(reg_hl.contents, 'The result')
+        self.assertEqual(('*', '*'), reg_hl.delimiters)
+        reg_de = registers[3]
+        self.assertEqual(reg_de.prefix, '')
+        self.assertEqual(reg_de.name, '|DE')
+        self.assertEqual(reg_de.contents, 'Another result')
+        self.assertEqual(('', ''), reg_de.delimiters)
 
     def test_registers_in_non_code_blocks(self):
         skool = """

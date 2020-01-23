@@ -2759,6 +2759,28 @@ class SkoolWriterTest(SkoolKitTestCase):
         """
         self._test_write_skool([0], ctl, exp_skool)
 
+    def test_registers_with_arbitrary_names(self):
+        ctl = """
+            c 00000 Test registers with arbitrary names
+            R 00000 /Input:The accumulator/ Some value
+            R 00000 [B and C] Some other values
+            R 00000 *Output:HL* The result
+            R 00000 |DE Another result
+            i 00001
+        """
+        exp_skool = """
+            ; Test registers with arbitrary names
+            ;
+            ; .
+            ;
+            ;  /Input:The accumulator/ Some value
+            ;         [B and C] Some other values
+            ; *Output:HL* The result
+            ;         |DE Another result
+            c00000 NOP           ;
+        """
+        self._test_write_skool([0], ctl, exp_skool)
+
     def test_start_comment(self):
         ctl = """
             c 00000

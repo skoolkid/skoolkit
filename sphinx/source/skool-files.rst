@@ -73,9 +73,9 @@ blank entry description may be specified by using a dot (``.``) thus::
   ; A An important parameter
   ; B Another important parameter
 
-Registers may be listed as shown above, or with colon-terminated prefixes
-(such as 'Input:' and 'Output:', or simply 'I:' and 'O:') to distinguish
-input values from output values::
+Register names may be given as shown above, or with colon-terminated prefixes
+(such as 'Input:' and 'Output:', or simply 'I:' and 'O:') to distinguish input
+values from output values::
 
   ;  Input:A An important parameter
   ;        B Another important parameter
@@ -93,6 +93,16 @@ by starting the second and subsequent lines with a dot (``.``) thus::
 
   ; HL The description for this register is quite long, so it is split over two
   ; .  lines for improved readability
+
+Note that the register name is separated from the description by whitespace. If
+the register name field itself contains whitespace, then it must be delimited
+in the same way as an arbitrary :ref:`string parameter <stringParameters>` of a
+skool macro. For example::
+
+  ; (Output:B, D) The answers are in these two registers
+
+When a register name is supplied in this format, the delimiter characters must
+be something other than a letter or digit.
 
 .. _entryLineFormat:
 
@@ -252,6 +262,8 @@ Revision history
 +---------+-----------------------------------------------------------------+
 | Version | Changes                                                         |
 +=========+=================================================================+
+| 8.1     | Register name fields may contain whitespace                     |
++---------+-----------------------------------------------------------------+
 | 4.3     | Added support for the start comment in entry headers; an ASM    |
 |         | directive can be declared by starting a line with ``@``         |
 +---------+-----------------------------------------------------------------+

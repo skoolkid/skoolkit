@@ -182,10 +182,28 @@ def _apply_ignores(ignores, section_ignores, index, line_no):
             section_ignores[index] = True
             return
 
+def parse_register(line):
+    delimiters = ('', '')
+    if not line[0].isalnum():
+        try:
+            end, reg = parse_strings(line, num=1)
+            delimiters = (line[0], line[end - 1])
+            desc = line[end:].lstrip()
+        except MacroParsingError:
+            pass
+    if not delimiters[0]:
+        elements = line.split(None, 1)
+        reg = elements[0]
+        if len(elements) > 1:
+            desc = elements[1]
+        else:
+            desc = ''
+    return delimiters, reg, desc
+
 def _parse_registers(lines, mode, keep_lines):
     if keep_lines:
         if any(c for c in lines if c.strip() != '.'):
-            return [('', '', lines)]
+            return [Register(('', ''), '', '', lines)]
         return ()
     registers = []
     desc_lines = []
@@ -197,15 +215,11 @@ def _parse_registers(lines, mode, keep_lines):
             desc_lines.append(s_line[1:].lstrip())
             continue
         if desc_lines:
-            registers.append((prefix, reg, ' '.join(desc_lines).lstrip()))
+            registers.append(Register(delimiters, prefix, reg, ' '.join(desc_lines).lstrip()))
             desc_lines.clear()
+        delimiters, reg, desc = parse_register(s_line)
+        desc_lines.append(desc)
         prefix = ''
-        elements = s_line.split(None, 1)
-        reg = elements[0]
-        if len(elements) > 1:
-            desc_lines.append(elements[1])
-        else:
-            desc_lines.append('')
         if ':' in reg:
             prefix, reg = reg.split(':', 1)
         if mode.case == CASE_LOWER:
@@ -213,7 +227,7 @@ def _parse_registers(lines, mode, keep_lines):
         elif mode.case == CASE_UPPER:
             reg = reg.upper()
     if desc_lines:
-        registers.append((prefix, reg, ' '.join(desc_lines).lstrip()))
+        registers.append(Register(delimiters, prefix, reg, ' '.join(desc_lines).lstrip()))
     return registers
 
 def parse_comment_block(comments, ignores, mode, keep_lines=False):
@@ -1195,7 +1209,7 @@ class SkoolEntry:
         self.addr_str = addr_str
         self.description = description
         self.details = details
-        self.registers = [Register(prefix, name, contents) for prefix, name, contents in registers]
+        self.registers = registers
         self.end_comment = ()
         self.referrers = []
         self.size = None
@@ -1234,7 +1248,8 @@ class RemoteEntry(SkoolEntry):
         self.asm_id = asm_id
 
 class Register:
-    def __init__(self, prefix, name, contents):
+    def __init__(self, delimiters, prefix, name, contents):
+        self.delimiters = delimiters
         self.prefix = prefix
         self.name = name
         self.contents = contents

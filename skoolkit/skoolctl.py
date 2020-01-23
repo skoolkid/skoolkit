@@ -1,4 +1,4 @@
-# Copyright 2010-2019 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2010-2020 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -18,7 +18,7 @@ import re
 
 from skoolkit import SkoolParsingError, write_line, get_int_param, get_address_format, open_file
 from skoolkit.components import get_assembler, get_component, get_operand_evaluator
-from skoolkit.skoolparser import (Comment, Register, parse_comment_block, parse_instruction,
+from skoolkit.skoolparser import (Comment, parse_comment_block, parse_instruction,
                                   parse_address_comments, join_comments, read_skool, DIRECTIVES)
 
 ASM_DIRECTIVES = 'a'
@@ -363,7 +363,7 @@ class CtlWriter:
                         name = '{}:{}'.format(reg.prefix, reg.name)
                     else:
                         name = reg.name
-                    write_line('R {} {} {}'.format(address, name, reg.contents).rstrip())
+                    write_line('R {} {} {}'.format(address, name.join(reg.delimiters), reg.contents).rstrip())
 
         self.write_body(entry)
 
@@ -706,7 +706,7 @@ class Entry:
         self.ctl = ctl
         self.title = title
         self.description = description
-        self.registers = [Register(prefix, name, desc) for prefix, name, desc in registers]
+        self.registers = registers
         self.ignoreua = {
             TITLE: ignoreua['t'],
             DESCRIPTION: ignoreua['d'],

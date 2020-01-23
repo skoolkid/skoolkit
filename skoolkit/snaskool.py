@@ -1,4 +1,4 @@
-# Copyright 2009-2019 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2009-2020 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -23,8 +23,9 @@ from skoolkit.skoolasm import UDGTABLE_MARKER
 from skoolkit.skoolctl import (AD_IGNOREUA, AD_LABEL, TITLE, DESCRIPTION,
                                REGISTERS, MID_BLOCK, INSTRUCTION, END)
 from skoolkit.skoolmacro import ClosingBracketError, parse_brackets
-from skoolkit.skoolparser import (get_address, TABLE_MARKER, TABLE_END_MARKER,
-                                  LIST_MARKER, LIST_END_MARKER)
+from skoolkit.skoolparser import (get_address, parse_register, TABLE_MARKER,
+                                  TABLE_END_MARKER, LIST_MARKER,
+                                  LIST_END_MARKER)
 
 MIN_COMMENT_WIDTH = 10
 
@@ -325,9 +326,9 @@ class SkoolWriter:
         registers = []
         for spec in entry.registers:
             if len(spec) == 1:
-                reg, desc = spec[0].partition(' ')[::2]
-                if reg:
-                    registers.append((reg, desc))
+                if spec[0]:
+                    delimiters, reg, desc = parse_register(spec[0])
+                    registers.append((reg.join(delimiters), desc))
             elif self._trim_lines(spec):
                 registers.append(('', spec))
 

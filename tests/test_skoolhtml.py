@@ -7863,6 +7863,72 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         }
         self._assert_files_equal(join(ASMDIR, '24576.html'), subs)
 
+    def test_format_registers_with_arbitrary_names(self):
+        skool = """
+            ; Test registers with arbitrary names
+            ;
+            ; .
+            ;
+            ; |Input:The accumulator| Some value
+            ;        {B and C} Some other values
+            ; *Output:HL* The result
+            ;         /DE Another result
+            c24795 RET ; Done
+        """
+        writer = self._get_writer(skool=skool)
+        writer.write_asm_entries()
+
+        content = """
+            <div class="description">24795: Test registers with arbitrary names</div>
+            <table class="disassembly">
+            <tr>
+            <td class="routine-comment" colspan="5">
+            <div class="details">
+            </div>
+            <table class="input">
+            <tr class="asm-input-header">
+            <th colspan="2">Input</th>
+            </tr>
+            <tr>
+            <td class="register">The accumulator</td>
+            <td class="register-desc">Some value</td>
+            </tr>
+            <tr>
+            <td class="register">B and C</td>
+            <td class="register-desc">Some other values</td>
+            </tr>
+            </table>
+            <table class="output">
+            <tr class="asm-output-header">
+            <th colspan="2">Output</th>
+            </tr>
+            <tr>
+            <td class="register">HL</td>
+            <td class="register-desc">The result</td>
+            </tr>
+            <tr>
+            <td class="register">/DE</td>
+            <td class="register-desc">Another result</td>
+            </tr>
+            </table>
+            </td>
+            </tr>
+            <tr>
+            <td class="address-2"><span id="24795"></span>24795</td>
+            <td class="instruction">RET</td>
+            <td class="comment-1" rowspan="1">Done</td>
+            </tr>
+            </table>
+        """
+        subs = {
+            'title': 'Routine at 24795',
+            'body_class': 'Asm-c',
+            'header': 'Routines',
+            'up': 24795,
+            'content': content
+        }
+        self._assert_files_equal(join(ASMDIR, '24795.html'), subs)
+
     def test_write_page_with_single_global_js(self):
         global_js = 'js/global.js'
         page_id = 'Custom'

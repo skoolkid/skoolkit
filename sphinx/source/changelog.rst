@@ -9,6 +9,8 @@ Changelog
   directives is now optional
 * :ref:`defb`, :ref:`defs` and :ref:`defw` directives in non-entry blocks are
   now processed when reading a control file
+* Register name fields in the registers section of an
+  :ref:`entry header <entryHeaderFormat>` may now contain whitespace
 * The :ref:`CALL` macro now accepts keyword arguments
 * :ref:`tapinfo.py` now shows the contents of TZX block types 0x33 (hardware
   type) and 0x35 (custom info)

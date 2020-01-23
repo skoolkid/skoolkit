@@ -5,7 +5,7 @@ from skoolkittest import SkoolKitTestCase
 from macrotest import CommonSkoolMacroTest, nest_macros
 from skoolkit import SkoolParsingError, BASE_10, BASE_16
 from skoolkit.skoolasm import AsmWriter
-from skoolkit.skoolparser import SkoolParser, SkoolEntry, CASE_LOWER, CASE_UPPER
+from skoolkit.skoolparser import SkoolParser, CASE_LOWER, CASE_UPPER
 
 ERROR_PREFIX = 'Error while parsing #{0} macro'
 
@@ -1420,6 +1420,30 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
         self.assertEqual(asm[14], '; Output:c The result')
         self.assertEqual(asm[15], ';        d')
 
+    def test_registers_with_arbitrary_names(self):
+        skool = """
+            @start
+            ; Test registers with arbitrary names
+            ;
+            ; .
+            ;
+            ; |Input:The accumulator| Some value
+            ;        (B and C) Some other values
+            ; *Output:HL* The result
+            ;         /DE Another result
+            c24595 RET
+        """
+        exp_asm = """
+            ; Test registers with arbitrary names
+            ;
+            ;  Input:The accumulator Some value
+            ;        B and C Some other values
+            ; Output:HL The result
+            ;        /DE Another result
+              RET
+        """
+        self._test_asm(skool, exp_asm)
+
     def test_register_description_continuation_lines(self):
         skool = """
             @start
@@ -2366,7 +2390,6 @@ class TableMacroTest(SkoolKitTestCase):
         properties['instruction-width'] = instr_width
         properties['warnings'] = '1' if warn else '0'
         writer = AsmWriter(skool_parser, properties, {})
-        writer.entry = SkoolEntry(0)
         return writer
 
     def _assert_error(self, skool, error):
