@@ -141,7 +141,7 @@ Recognised parameters are:
   SkoolKit #VERSION.')
 * ``DisassemblyTableNumCols`` - the number of columns in the disassembly table
   on disassembly pages (default: 5); this value is used by the :ref:`t_asm` and
-  and :ref:`t_asm_single_page` templates
+  :ref:`t_asm_single_page` templates
 * ``Font`` - the base name of the font file to use (default: None); multiple
   font files can be declared by separating their names with semicolons
 * ``Game`` - the name of the game, which appears in the title of every page,
