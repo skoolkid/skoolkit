@@ -20,6 +20,9 @@ OPTIONS
 -b, --bfix
   Apply @ofix and @bfix directives.
 
+-d, --data
+  Process @defb, @defs and @defw directives.
+
 -E, --end `ADDR`
   Stop converting at this address. `ADDR` must be a decimal number, or a
   hexadecimal number prefixed by '0x'.

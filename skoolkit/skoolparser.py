@@ -103,7 +103,7 @@ def parse_asm_block_directive(directive, stack):
         return True
     return False
 
-def parse_asm_data_directive(snapshot, address, directive):
+def parse_asm_data_directive(snapshot, address, directive, advance=True):
     a, sep, values = directive[5:].rpartition(':')
     if sep:
         addr = parse_int(a)
@@ -112,7 +112,10 @@ def parse_asm_data_directive(snapshot, address, directive):
     else:
         addr = address
     operation = '{} {}'.format(directive[:4], partition_unquoted(values, ';')[0])
-    return addr + len(set_bytes(snapshot, Z80_ASSEMBLER, addr, operation))
+    data = set_bytes(snapshot, Z80_ASSEMBLER, addr, operation)
+    if advance:
+        return addr + len(data)
+    return addr, data
 
 def parse_asm_sub_fix_directive(directive):
     match = re.match('[>/|+]+', directive)

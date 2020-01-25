@@ -5,6 +5,8 @@ Changelog
 -----
 * Added the ``--rsub`` and ``--rfix`` options to :ref:`skool2bin.py` (for
   parsing the skool file in :ref:`rsubMode` and :ref:`rfixMode`)
+* Added the ``--data`` option to :ref:`skool2bin.py` (for processing
+  :ref:`defb`, :ref:`defs` and :ref:`defw` directives)
 * The ``address`` parameter of the :ref:`defb`, :ref:`defs` and :ref:`defw`
   directives is now optional
 * :ref:`defb`, :ref:`defs` and :ref:`defw` directives in non-entry blocks are

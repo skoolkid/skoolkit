@@ -20,8 +20,8 @@ from collections import defaultdict, namedtuple
 from skoolkit import SkoolParsingError, get_int_param, info, integer, open_file, VERSION
 from skoolkit.components import get_assembler, get_instruction_utility
 from skoolkit.skoolmacro import MacroParsingError, parse_if
-from skoolkit.skoolparser import (DIRECTIVES, parse_address_range, parse_asm_keep_directive,
-                                  parse_asm_sub_fix_directive, read_skool)
+from skoolkit.skoolparser import (DIRECTIVES, parse_address_range, parse_asm_data_directive,
+                                  parse_asm_keep_directive, parse_asm_sub_fix_directive, read_skool)
 from skoolkit.textutils import partition_unquoted
 
 VALID_CTLS = DIRECTIVES + ' *'
@@ -29,13 +29,14 @@ VALID_CTLS = DIRECTIVES + ' *'
 Entry = namedtuple('Entry', 'ctl instructions')
 
 class Instruction:
-    def __init__(self, address, keep, operation):
+    def __init__(self, address, keep, operation, data):
         self.address = address
         self.keep = keep
         self.operation = operation
+        self.data = data
 
 class BinWriter:
-    def __init__(self, skoolfile, asm_mode=0, fix_mode=0):
+    def __init__(self, skoolfile, asm_mode=0, fix_mode=0, data=False):
         if fix_mode > 2:
             asm_mode = 3
         elif asm_mode > 2:
@@ -59,6 +60,10 @@ class BinWriter:
         self.end_address = 0
         self.subs = defaultdict(list, {0: []})
         self.keep = None
+        if data:
+            self.data = []
+        else:
+            self.data = None
         self.instructions = []
         self.address_map = {}
         self.assembler = get_assembler()
@@ -111,14 +116,13 @@ class BinWriter:
         return address
 
     def _assemble(self, operation, address, overwrite=False, removed=None):
-        self.instructions.append(Instruction(address, self.keep, operation))
+        self.instructions.append(Instruction(address, self.keep, operation, self.data))
         self.keep = None
+        if self.data is not None:
+            self.data = []
         data = self.assembler.assemble(operation, address)
         if data:
             end_address = address + len(data)
-            if removed is None or address not in removed:
-                self.base_address = min(self.base_address, address)
-                self.end_address = max(self.end_address, end_address)
             if overwrite:
                 removed.update(range(address, end_address))
             return end_address
@@ -148,14 +152,24 @@ class BinWriter:
                 address = None
         elif directive.startswith('keep'):
             self.keep = parse_asm_keep_directive(directive)
+        elif self.data is not None and directive.startswith(('defb=', 'defs=', 'defw=')):
+            self.data.append(directive)
         return address
 
+    def _poke(self, address, data):
+        self.snapshot[address:address + len(data)] = data
+        self.base_address = min(self.base_address, address)
+        self.end_address = max(self.end_address, address + len(data))
+
     def _relocate(self):
-        iu = get_instruction_utility()
-        iu.substitute_labels([Entry('c', self.instructions)], (), self.address_map)
+        get_instruction_utility().substitute_labels([Entry('c', self.instructions)], (), self.address_map)
         for i in self.instructions:
-            data = self.assembler.assemble(i.operation, i.address)
-            self.snapshot[i.address:i.address + len(data)] = data
+            address = i.address
+            while i.data:
+                address, data = parse_asm_data_directive(self.snapshot, address, i.data.pop(0), False)
+                self._poke(address, data)
+                address += len(data)
+            self._poke(i.address, self.assembler.assemble(i.operation, i.address))
 
     def write(self, binfile, start, end):
         if start is None:
@@ -174,7 +188,7 @@ class BinWriter:
         info("Wrote {}: start={}, end={}, size={}".format(binfile, base_address, end_address, len(data)))
 
 def run(skoolfile, binfile, options):
-    binwriter = BinWriter(skoolfile, options.asm_mode, options.fix_mode)
+    binwriter = BinWriter(skoolfile, options.asm_mode, options.fix_mode, options.data)
     binwriter.write(binfile, options.start, options.end)
 
 def main(args):
@@ -191,6 +205,8 @@ def main(args):
     group = parser.add_argument_group('Options')
     group.add_argument('-b', '--bfix', dest='fix_mode', action='store_const', const=2, default=0,
                        help="Apply @ofix and @bfix directives.")
+    group.add_argument('-d', '--data', dest='data', action='store_true',
+                       help="Process @defb, @defs and @defw directives.")
     group.add_argument('-E', '--end', dest='end', metavar='ADDR', type=integer,
                        help='Stop converting at this address.')
     group.add_argument('-i', '--isub', dest='asm_mode', action='store_const', const=1, default=0,

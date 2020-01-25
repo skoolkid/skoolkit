@@ -275,6 +275,7 @@ To list the options supported by `skool2bin.py`, run it with no arguments::
 
   Options:
     -b, --bfix            Apply @ofix and @bfix directives.
+    -d, --data            Process @defb, @defs and @defw directives.
     -E ADDR, --end ADDR   Stop converting at this address.
     -i, --isub            Apply @isub directives.
     -o, --ofix            Apply @ofix directives.
@@ -290,7 +291,7 @@ To list the options supported by `skool2bin.py`, run it with no arguments::
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
-| 8.1     | Added the ``--rsub`` and ``--rfix`` options                       |
+| 8.1     | Added the ``--data``, ``--rsub`` and ``--rfix`` options           |
 +---------+-------------------------------------------------------------------+
 | 7.0     | :ref:`asm-if` directives are processed                            |
 +---------+-------------------------------------------------------------------+

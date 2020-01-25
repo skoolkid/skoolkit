@@ -10,7 +10,7 @@ def _mode(directive):
     return {'fix_mode': ('ofix', 'bfix', 'rfix').index(directive) + 1}
 
 class MockBinWriter:
-    def __init__(self, skoolfile, asm_mode, fix_mode):
+    def __init__(self, skoolfile, asm_mode, fix_mode, data):
         global mock_bin_writer
         mock_bin_writer = self
         self.skoolfile = skoolfile
@@ -19,6 +19,7 @@ class MockBinWriter:
         self.binfile = None
         self.start = None
         self.end = None
+        self.data = None
 
     def write(self, binfile, start, end):
         self.binfile = binfile
@@ -52,6 +53,7 @@ class Skool2BinTest(SkoolKitTestCase):
         self.assertEqual(mock_bin_writer.skoolfile, skoolfile)
         self.assertEqual(mock_bin_writer.asm_mode, 0)
         self.assertEqual(mock_bin_writer.fix_mode, 0)
+        self.assertFalse(mock_bin_writer.data)
         self.assertEqual(mock_bin_writer.binfile, exp_binfile)
         self.assertIsNone(mock_bin_writer.start)
         self.assertIsNone(mock_bin_writer.end)
@@ -226,7 +228,7 @@ class Skool2BinTest(SkoolKitTestCase):
 class BinWriterTest(SkoolKitTestCase):
     stdout_binary = True
 
-    def _test_write(self, skool, base_address, exp_data, asm_mode=0, fix_mode=0, start=None, end=None):
+    def _test_write(self, skool, base_address, exp_data, asm_mode=0, fix_mode=0, data=False, start=None, end=None):
         if skool is None:
             skoolfile = '-'
             binfile = self.write_bin_file(suffix='.bin')
@@ -234,12 +236,12 @@ class BinWriterTest(SkoolKitTestCase):
             skoolfile = self.write_text_file(dedent(skool).strip(), suffix='.skool')
             binfile = skoolfile[:-6] + '.bin'
             self.tempfiles.append(binfile)
-        bin_writer = skool2bin.BinWriter(skoolfile, asm_mode, fix_mode)
+        bin_writer = skool2bin.BinWriter(skoolfile, asm_mode, fix_mode, data)
         bin_writer.write(binfile, start, end)
         with open(binfile, 'rb') as f:
-            data = list(f.read())
-        self.assertEqual(exp_data, data)
-        size = len(data)
+            bdata = list(f.read())
+        self.assertEqual(exp_data, bdata)
+        size = len(bdata)
         status = "Wrote {}: start={}, end={}, size={}\n".format(binfile, base_address, base_address + size, size)
         self.assertEqual(status, self.err.getvalue())
         self.err.clear()
@@ -1420,6 +1422,63 @@ class BinWriterTest(SkoolKitTestCase):
         """
         exp_data = [6, 2]
         self._test_write(skool, 30000, exp_data, fix_mode=3)
+
+    def test_data_directives_ignored(self):
+        skool = """
+            @defb=30001:1
+            @defs=30002:2,2
+            @defw=30004:771
+            b30000 DEFB 0
+        """
+        exp_data = [0]
+        self._test_write(skool, 30000, exp_data, data=False)
+
+    def test_data_directives_processed(self):
+        skool = """
+            @defb=30001:1
+            @defs=30002:2,2
+            @defw=30004:771
+            b30000 DEFB 0
+        """
+        exp_data = [0, 1, 2, 2, 3, 3]
+        self._test_write(skool, 30000, exp_data, data=True)
+
+    def test_data_directive_does_not_overwrite_next_instruction(self):
+        skool = """
+            @defb=0
+            c30000 XOR A
+        """
+        exp_data = [175]
+        self._test_write(skool, 30000, exp_data, data=True)
+
+    def test_data_directive_overwriting_previous_instruction(self):
+        skool = """
+            c30000 XOR A
+            @defb=30000:0
+             30001 XOR B
+        """
+        exp_data = [0, 168]
+        self._test_write(skool, 30000, exp_data, data=True)
+
+    def test_data_directive_overriding_previous_one(self):
+        skool = """
+            @defb=3,3,3
+            b30000 DEFB 1
+            @defb=4,4
+             30001 DEFB 2
+        """
+        exp_data = [1, 2, 4]
+        self._test_write(skool, 30000, exp_data, data=True)
+
+    def test_data_directives_do_not_override_start_and_end_addresses(self):
+        skool = """
+            @defb=29999:1,1
+            @defs=2,2
+            @defw=771
+            b30000 DEFB 0
+        """
+        exp_data = [0, 2]
+        self._test_write(skool, 30000, exp_data, data=True, start=30000, end=30002)
 
     def test_if_directive_ignored_if_invalid(self):
         skool = """
