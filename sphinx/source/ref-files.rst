@@ -953,17 +953,14 @@ sequence of multi-line list items prefixed by '-'. For example::
 An entry section's ``anchor``, ``title`` and contents may contain HTML markup
 and :ref:`skool macros <skoolMacros>`.
 
-+---------+-----------------------------------------------------------------+
-| Version | Changes                                                         |
-+=========+=================================================================+
-| 6.0     | Added support for parsing an entry section as a sequence of     |
-|         | multi-line list items prefixed by '-'                           |
-|         | (``SectionType=BulletPoints``); the ``anchor`` and ``title`` of |
-|         | an entry section name may contain                               |
-|         | :ref:`skool macros <skoolMacros>`                               |
-+---------+-----------------------------------------------------------------+
-| 5.4     | The ``anchor`` part of an entry section name is optional        |
-+---------+-----------------------------------------------------------------+
+.. versionchanged:: 6.0
+   Added support for parsing an entry section as a sequence of multi-line list
+   items prefixed by '-' (``SectionType=BulletPoints``). The ``anchor`` and
+   ``title`` of an entry section name may contain :ref:`skool macros
+   <skoolMacros>`.
+
+.. versionchanged:: 5.4
+   The ``anchor`` part of an entry section name is optional.
 
 Appending content
 -----------------
@@ -973,6 +970,8 @@ adding a '+' suffix to the section name. For example, to add a line to the
 
   [Game+]
   AddressAnchor={address:04x}
+
+.. versionadded:: 7.0
 
 Ref file comments
 -----------------
@@ -1014,3 +1013,5 @@ The content of this section will be rendered thus::
 
 In fact, any line that starts with two opening square brackets will be rendered
 with the first one removed.
+
+.. versionadded:: 4.0
