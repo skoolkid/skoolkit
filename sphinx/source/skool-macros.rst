@@ -1584,8 +1584,7 @@ Snapshot macros
 ^^^^^^^^^^^^^^^
 The :ref:`POKES`, :ref:`POPS` and :ref:`PUSHS` macros (described in the
 following sections) may be used to manipulate the memory snapshot that is built
-from the ``DEFB``, ``DEFM``, ``DEFS`` and ``DEFW`` statements in the skool
-file. Each macro expands to an empty string.
+from the skool file. Each macro expands to an empty string.
 
 .. _POKES:
 
