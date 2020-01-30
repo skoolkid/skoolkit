@@ -328,12 +328,16 @@ The `snapshot` attribute on HtmlWriter and AsmWriter is a 65536-element list
 that represents the 64K of the Spectrum's memory; it is populated when the
 skool file is being parsed.
 
-HtmlWriter also provides some methods for saving and restoring memory
+HtmlWriter and AsmWriter also provide methods for saving and restoring memory
 snapshots, which can be useful for temporarily changing graphic data or the
-contents of data tables. These methods are described below.
+contents of data tables.
 
 .. automethod:: skoolkit.skoolhtml.HtmlWriter.push_snapshot
 .. automethod:: skoolkit.skoolhtml.HtmlWriter.pop_snapshot
+
+In addition, HtmlWriter (but not AsmWriter) provides a method for retrieving
+the snapshot name.
+
 .. automethod:: skoolkit.skoolhtml.HtmlWriter.get_snapshot_name
 
 .. _ext-Graphics:
