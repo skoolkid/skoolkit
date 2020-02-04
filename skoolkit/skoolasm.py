@@ -140,6 +140,12 @@ class AsmWriter:
         if self.show_warnings:
             warn(s)
 
+    def format_warn(self, one, many, items, *args):
+        if len(items) > 1:
+            self.warn(many.format(', '.join(sorted(items)), *args))
+        elif len(items) == 1:
+            self.warn(one.format(items.pop(), *args))
+
     def format_template(self, name, fields):
         return format_template(self.templates.get(name, ''), name, **fields)
 
@@ -319,7 +325,7 @@ class AsmWriter:
     def print_paragraph_separator(self):
         self.write_line(self.format_template('comment', {'text': ''}).rstrip())
 
-    def print_comment_lines(self, paragraphs, instruction=None, ignoreua=False, started=False):
+    def print_comment_lines(self, paragraphs, instruction=None, ignoreua=None, started=False):
         for paragraph in paragraphs:
             lines = self.format(paragraph, self.desc_width)
             if started and lines:
@@ -327,14 +333,14 @@ class AsmWriter:
             if lines:
                 started = True
             for line in lines:
-                if not ignoreua:
-                    uaddress = self.find_unconverted_address(line)
-                    if uaddress:
-                        if instruction:
-                            if not instruction.ignoremrcua:
-                                self.warn('Comment above {0} contains address ({1}) not converted to a label:\n; {2}'.format(instruction.address, uaddress, line))
-                        else:
-                            self.warn('Comment contains address ({0}) not converted to a label:\n; {1}'.format(uaddress, line))
+                if instruction:
+                    self.format_warn('Comment above {1} contains address ({0}) not converted to a label:\n; {2}',
+                                     'Comment above {1} contains addresses ({0}) not converted to labels:\n; {2}',
+                                     self.find_unconverted_addresses(line, ignoreua), instruction.address, line)
+                else:
+                    self.format_warn('Comment contains address ({}) not converted to a label:\n; {}',
+                                     'Comment contains addresses ({}) not converted to labels:\n; {}',
+                                     self.find_unconverted_addresses(line, ignoreua), line)
                 self.write_line(self.format_template('comment', {'text': line}).rstrip())
 
     def print_registers(self):
@@ -361,17 +367,16 @@ class AsmWriter:
                 reg_lines.append(self.format_template('register', subs).rstrip())
                 subs['prefix'] = subs['reg'] = ''
             reg_desc = '\n'.join(reg_lines)
-            if not self.entry.ignoreua['r']:
-                uaddress = self.find_unconverted_address(reg_desc)
-                if uaddress:
-                    self.warn('Register description contains address ({}) not converted to a label:\n{}'.format(uaddress, reg_desc))
+            self.format_warn('Register description contains address ({}) not converted to a label:\n{}',
+                             'Register description contains addresses ({}) not converted to labels:\n{}',
+                             self.find_unconverted_addresses(reg_desc, self.entry.ignoreua['r']), reg_desc)
             self.write_line(reg_desc)
 
     def print_instruction_prefix(self, instruction, index):
         if instruction.mid_block_comment:
             if index == 0:
                 self.print_paragraph_separator()
-            self.print_comment_lines(instruction.mid_block_comment, instruction)
+            self.print_comment_lines(instruction.mid_block_comment, instruction, instruction.ignoreua['m'])
         if instruction.asm_label:
             subs = {
                 'label': instruction.asm_label,
@@ -379,14 +384,21 @@ class AsmWriter:
             }
             self.write_line(self.format_template('label', subs))
 
-    def find_unconverted_address(self, text):
+    def find_unconverted_addresses(self, text, ignores):
+        if ignores == []:
+            return ()
+        addresses = set()
         for match in re.finditer('(\A|\s|\()((?:0x|\$)[0-9A-Fa-f]{4}|[1-9][0-9]{2,4})(?!([0-9A-Za-z]|[./*+][0-9]))', text):
             addr = match.group(2)
             if addr.startswith(('0x', '$')):
-                if self.base_address <= int(addr[-4:], 16) <= self.end_address:
-                    return addr
-            elif max(self.base_address, 257) <= int(addr) <= self.end_address:
-                return addr
+                address = int(addr[-4:], 16)
+                min_address = self.base_address
+            else:
+                address = int(addr)
+                min_address = max(self.base_address, 257)
+            if min_address <= address <= self.end_address and (ignores is None or address not in ignores):
+                addresses.add(addr)
+        return addresses
 
     def print_instructions(self):
         i = 0
@@ -423,16 +435,15 @@ class AsmWriter:
                 elif rowspan == 1:
                     subs['sep'] = ''
                 oline = self.format_template('instruction', subs).rstrip()
-                if not ignoreua:
-                    uaddress = self.find_unconverted_address(subs['text'])
-                    if uaddress:
-                        self.warn('Comment at {} contains address ({}) not converted to a label:\n{}'.format(self.pc, uaddress, oline))
+                self.format_warn('Comment at {1} contains address ({0}) not converted to a label:\n{2}',
+                                 'Comment at {1} contains addresses ({0}) not converted to labels:\n{2}',
+                                 self.find_unconverted_addresses(subs['text'], ignoreua), self.pc, oline)
                 self.write_line(oline)
                 if len(oline) > self.line_width:
                     self.warn('Line is {0} characters long:\n{1}'.format(len(oline), oline))
                 continue
 
-            ignoreua = instruction.ignoreua
+            ignoreua = instruction.ignoreua['i']
             self.pc = instruction.address
 
             rowspan = rows = instruction.comment.rowspan

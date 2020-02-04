@@ -74,39 +74,38 @@ class Instruction:
             self.referrers.append(entry_address)
 
 class Entry:
-    def __init__(self, header, title, description, ctl, blocks, registers,
-                 end_comment, footer, asm_directives, ignoreua_directives):
-        self.ctl = ctl         # API (SnapshotReferenceCalculator)
+    def __init__(self, block, title, sub_blocks):
+        self.ctl = block.ctl   # API (SnapshotReferenceCalculator)
         self.instructions = [] # API (SnapshotReferenceCalculator)
-        self.header = header
+        self.block = block
+        self.header = block.header
         self.title = title
         self.has_title = any(title)
-        self.blocks = blocks
-        for block in blocks:
-            for instruction in block.instructions:
+        self.blocks = sub_blocks
+        for sub_block in sub_blocks:
+            for instruction in sub_block.instructions:
                 instruction.entry = self
                 self.instructions.append(instruction)
         first_instruction = self.instructions[0]
-        first_instruction.ctl = ctl
-        self.registers = registers
-        self.end_comment = end_comment
-        self.footer = footer
-        self.asm_directives = asm_directives
-        self.ignoreua_directives = ignoreua_directives
+        first_instruction.ctl = block.ctl
+        self.registers = block.registers
+        self.end_comment = block.end_comment
+        self.footer = block.footer
+        self.asm_directives = block.asm_directives
         self.address = first_instruction.address
-        self.description = description
+        self.description = block.description
         self.next = None
         self.bad_blocks = []
-        for block in self.blocks:
-            last_instruction = block.instructions[-1]
-            if last_instruction.address + len(last_instruction.bytes) > block.end:
-                self.bad_blocks.append(block)
+        for sub_block in sub_blocks:
+            last_instruction = sub_block.instructions[-1]
+            if last_instruction.address + len(last_instruction.bytes) > sub_block.end:
+                self.bad_blocks.append(sub_block)
 
     def width(self):
         return max([len(i.operation) for i in self.instructions])
 
-    def has_ignoreua_directive(self, comment_type):
-        return comment_type in self.ignoreua_directives
+    def get_ignoreua_directive(self, comment_type):
+        return self.block.get_ignoreua_directive(comment_type)
 
 class Disassembly:
     def __init__(self, snapshot, ctl_parser, config=None, final=False, asm_hex=False, asm_lower=False):
@@ -201,9 +200,7 @@ class Disassembly:
                         sub_block.end = next_sub_block.end
                         i += 1
 
-            entry = Entry(block.header, title, block.description, block.ctl, sub_blocks,
-                          block.registers, block.end_comment, block.footer, block.asm_directives,
-                          block.ignoreua_directives)
+            entry = Entry(block, title, sub_blocks)
             self.entry_map[entry.address] = entry
             self.entries.append(entry)
         for i, entry in enumerate(self.entries[1:]):
@@ -271,8 +268,7 @@ class SkoolWriter:
             write_line('')
 
         self.write_asm_directives(*entry.asm_directives)
-        if entry.has_ignoreua_directive(TITLE):
-            self.write_asm_directives(AD_IGNOREUA)
+        self.write_asm_directives(entry.get_ignoreua_directive(TITLE))
 
         if entry.ctl == 'i' and entry.blocks[-1].end >= 65536 and not entry.has_title and all([b.ctl == 'i' for b in entry.blocks]):
             return
@@ -291,8 +287,7 @@ class SkoolWriter:
 
         self._write_body(entry, wrote_desc, write_refs, show_text and entry.ctl != 't')
 
-        if entry.has_ignoreua_directive(END):
-            self.write_asm_directives(AD_IGNOREUA)
+        self.write_asm_directives(entry.get_ignoreua_directive(END))
         self.write_paragraphs(entry.end_comment)
 
         if entry.footer:
@@ -302,13 +297,12 @@ class SkoolWriter:
 
     def _write_entry_description(self, entry, write_refs):
         wrote_desc = False
-        ignoreua_d = entry.has_ignoreua_directive(DESCRIPTION)
+        ignoreua_d = entry.get_ignoreua_directive(DESCRIPTION)
         if write_refs:
             referrers = entry.instructions[0].referrers
             if referrers and (write_refs == 2 or not entry.description):
                 self.write_comment('')
-                if ignoreua_d:
-                    self.write_asm_directives(AD_IGNOREUA)
+                self.write_asm_directives(ignoreua_d)
                 self.write_referrers(referrers, False)
                 wrote_desc = True
         if entry.description:
@@ -316,8 +310,7 @@ class SkoolWriter:
                 self._write_paragraph_separator()
             else:
                 self.write_comment('')
-                if ignoreua_d:
-                    self.write_asm_directives(AD_IGNOREUA)
+                self.write_asm_directives(ignoreua_d)
             self.write_paragraphs(entry.description)
             wrote_desc = True
         return wrote_desc
@@ -339,8 +332,7 @@ class SkoolWriter:
                 self._write_empty_paragraph()
                 wrote_desc = True
             self.write_comment('')
-            if entry.has_ignoreua_directive(REGISTERS):
-                self.write_asm_directives(AD_IGNOREUA)
+            self.write_asm_directives(entry.get_ignoreua_directive(REGISTERS))
             for reg, desc in registers:
                 if reg:
                     reg = reg.rjust(max_indent + len(reg) - reg.find(':'))
@@ -405,13 +397,12 @@ class SkoolWriter:
         op_width = max((self.config['InstructionWidth'], entry.width()))
         comment_width = max(self.comment_width - op_width - 8, self.config['CommentWidthMin'])
         for index, block in enumerate(entry.blocks):
-            ignoreua_m = block.has_ignoreua_directive(block.start, MID_BLOCK)
+            ignoreua_m = block.get_ignoreua_directive(MID_BLOCK, block.start)
             begun_header = False
             if index > 0 and entry.ctl == 'c' and write_refs:
                 referrers = block.instructions[0].referrers
                 if referrers and (write_refs == 2 or not block.header):
-                    if ignoreua_m:
-                        self.write_asm_directives(AD_IGNOREUA)
+                    self.write_asm_directives(ignoreua_m)
                     self.write_referrers(referrers)
                     begun_header = True
             if block.header:
@@ -423,8 +414,8 @@ class SkoolWriter:
                     self.write_comment('')
                 if begun_header:
                     self._write_paragraph_separator()
-                elif ignoreua_m:
-                    self.write_asm_directives(AD_IGNOREUA)
+                else:
+                    self.write_asm_directives(ignoreua_m)
                 self.write_paragraphs(block.header)
             self._format_instruction_comments(block, comment_width, show_text)
             self._write_instructions(entry, block, op_width, write_refs)
@@ -438,8 +429,7 @@ class SkoolWriter:
             if index > 0 and entry.ctl == 'c' and ctl == '*' and write_refs:
                 self.write_referrers(instruction.referrers)
             self.write_asm_directives(*instruction.asm_directives)
-            if block.has_ignoreua_directive(instruction.address, INSTRUCTION):
-                self.write_asm_directives(AD_IGNOREUA)
+            self.write_asm_directives(block.get_ignoreua_directive(INSTRUCTION, instruction.address))
             if entry.ctl in self.config['Semicolons'] or comment is not None:
                 write_line(('{}{} {:{}} ; {}'.format(ctl, self.address_str(address), operation, op_width, comment or '')).rstrip())
             else:
@@ -489,7 +479,8 @@ class SkoolWriter:
 
     def write_asm_directives(self, *directives):
         for directive in directives:
-            write_line('@' + directive)
+            if directive:
+                write_line('@' + directive)
 
     def to_ascii(self, data):
         chars = ['[']

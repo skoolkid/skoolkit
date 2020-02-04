@@ -121,10 +121,10 @@ class CtlParserTest(SkoolKitTestCase):
         entry_directives = {}
         other_directives = {}
         for b in blocks:
-            entry_directives[b.start] = sorted(b.ignoreua_directives)
+            entry_directives[b.start] = b.ignoreua_directives
             for s in b.blocks:
                 for address, dirs in s.ignoreua_directives.items():
-                    other_directives[address] = sorted(dirs)
+                    other_directives[address] = dirs
         self.assertEqual(exp_entry_directives, entry_directives)
         self.assertEqual(exp_other_directives, other_directives)
 
@@ -1188,17 +1188,58 @@ class CtlParserTest(SkoolKitTestCase):
         blocks = self._get_ctl_parser(ctl).get_blocks()
 
         exp_entry_directives = {
-            30000: ['t'],
-            30001: ['d', 'r'],
-            30002: [],
-            30004: ['e']
+            30000: {'t': ''},
+            30001: {'d': '', 'r': ''},
+            30002: {},
+            30004: {'e': ''}
         }
         exp_other_directives = {
-            30000: [],
-            30001: ['i'],
-            30003: ['i', 'm'],
-            30004: ['i'],
-            30005: ['m']
+            30000: {},
+            30001: {'i': ''},
+            30003: {'i': '', 'm': ''},
+            30004: {'i': ''},
+            30005: {'m': ''}
+        }
+        self._check_ignoreua_directives(exp_entry_directives, exp_other_directives, blocks)
+
+    def test_ignoreua_directives_with_values(self):
+        ctl = """
+            @ 30000 ignoreua:t=30000
+            c 30000 Routine at 30000
+            c 30001 Routine
+            @ 30001 ignoreua:d=30001
+            D 30001 Description of the routine at 30001
+            @ 30001 ignoreua:r=30001
+            R 30001 HL 30001
+            @ 30001 ignoreua=30000,30001
+              30001 Instruction-level comment at 30001
+            c 30002 Routine
+            @ 30003 ignoreua:m=30003
+            N 30003 Mid-block comment above 30003.
+            @ 30003 ignoreua:i=30002,30003
+              30003 Instruction-level comment at 30003
+            c 30004 Routine
+            @ 30004 ignoreua:i=30004
+              30004,1 Instruction-level comment at 30004
+            @ 30005 ignoreua:m=30005
+            N 30005 Mid-block comment above 30005.
+            @ 30004 ignoreua:e=30000,30004
+            E 30004 End comment for the routine at 30004.
+        """
+        blocks = self._get_ctl_parser(ctl).get_blocks()
+
+        exp_entry_directives = {
+            30000: {'t': '=30000'},
+            30001: {'d': '=30001', 'r': '=30001'},
+            30002: {},
+            30004: {'e': '=30000,30004'}
+        }
+        exp_other_directives = {
+            30000: {},
+            30001: {'i': '=30000,30001'},
+            30003: {'i': '=30002,30003', 'm': '=30003'},
+            30004: {'i': '=30004'},
+            30005: {'m': '=30005'}
         }
         self._check_ignoreua_directives(exp_entry_directives, exp_other_directives, blocks)
 

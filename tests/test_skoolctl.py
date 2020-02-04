@@ -1053,6 +1053,50 @@ class CtlWriterTest(SkoolKitTestCase):
         """
         self._test_ctl(skool, exp_ctl)
 
+    def test_ignoreua_directives_with_values(self):
+        skool = """
+            @ignoreua=30000
+            ; Routine at 30000
+            ;
+            @ignoreua=30000
+            ; Description of the routine at 30000
+            ;
+            @ignoreua=30000
+            ; HL 30000
+            ;
+            @ignoreua=30000
+            ; Start comment above 30000
+            c30000 RET
+
+            ; Routine
+            @ignoreua=30001
+            c30001 XOR A ; Instruction-level comment at 30001
+            @ignoreua=30001,30002
+            ; Mid-block comment between 30001 and 30002
+             30002 RET
+            @ignoreua=30002
+            ; End comment after 30002
+        """
+        exp_ctl = """
+            @ 30000 ignoreua:t=30000
+            c 30000 Routine at 30000
+            @ 30000 ignoreua:d=30000
+            D 30000 Description of the routine at 30000
+            @ 30000 ignoreua:r=30000
+            R 30000 HL 30000
+            @ 30000 ignoreua:m=30000
+            N 30000 Start comment above 30000
+            c 30001 Routine
+            @ 30001 ignoreua:i=30001
+            C 30001,1 Instruction-level comment at 30001
+            @ 30002 ignoreua:m=30001,30002
+            N 30002 Mid-block comment between 30001 and 30002
+            @ 30001 ignoreua:e=30002
+            E 30001 End comment after 30002
+            i 30003
+        """
+        self._test_ctl(skool, exp_ctl)
+
     def test_ignoreua_directives_hex(self):
         skool = """
             @ignoreua

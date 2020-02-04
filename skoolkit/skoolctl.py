@@ -18,7 +18,7 @@ import re
 
 from skoolkit import SkoolParsingError, write_line, get_int_param, get_address_format, open_file
 from skoolkit.components import get_assembler, get_component, get_operand_evaluator
-from skoolkit.skoolparser import (Comment, parse_comment_block, parse_instruction,
+from skoolkit.skoolparser import (Comment, parse_entry_header, parse_instruction,
                                   parse_address_comments, join_comments, read_skool, DIRECTIVES)
 
 ASM_DIRECTIVES = 'a'
@@ -282,23 +282,21 @@ class CtlWriter:
             write_line('i {}'.format(self.addr_str(self.parser.end_address)))
 
     def _write_asm_directive(self, directive, address):
-        write_line('@ {} {}'.format(self.addr_str(address), directive))
-
-    def _write_entry_asm_directive(self, entry, directive):
         if self.write_asm_dirs:
-            self._write_asm_directive(directive, entry.address)
+            write_line('@ {} {}'.format(self.addr_str(address), directive))
+
+    def _write_ignoreua_directive(self, address, comment_type, suffix):
+        if suffix is not None:
+            self._write_asm_directive('{}:{}{}'.format(AD_IGNOREUA, comment_type, suffix), address)
 
     def _write_entry_ignoreua_directive(self, entry, comment_type):
-        if entry.ignoreua[comment_type] and self.write_asm_dirs:
-            self._write_asm_directive('{}:{}'.format(AD_IGNOREUA, comment_type), entry.address)
+        self._write_ignoreua_directive(entry.address, comment_type, entry.ignoreua[comment_type])
 
     def _write_instruction_asm_directives(self, instruction):
-        if self.write_asm_dirs:
-            address = instruction.address
-            for directive in instruction.asm_directives:
-                self._write_asm_directive(directive, address)
-            if instruction.ignoreua:
-                self._write_asm_directive('{}:{}'.format(AD_IGNOREUA, INSTRUCTION), address)
+        address = instruction.address
+        for directive in instruction.asm_directives:
+            self._write_asm_directive(directive, address)
+        self._write_ignoreua_directive(address, INSTRUCTION, instruction.ignoreua['i'])
 
     def _write_blocks(self, blocks, address, footer=False):
         if NON_ENTRY_BLOCKS in self.elements:
@@ -338,7 +336,7 @@ class CtlWriter:
         self._write_blocks(entry.header, address)
 
         for directive in entry.asm_directives:
-            self._write_entry_asm_directive(entry, directive)
+            self._write_asm_directive(directive, entry.address)
 
         self._write_entry_ignoreua_directive(entry, TITLE)
         if BLOCKS in self.elements:
@@ -395,8 +393,7 @@ class CtlWriter:
         for k, (mbc, instructions) in enumerate(sections):
             if BLOCK_COMMENTS in self.elements and mbc:
                 first_instruction = instructions[0]
-                if first_instruction.ignoremrcua and self.write_asm_dirs:
-                    self._write_asm_directive('{}:{}'.format(AD_IGNOREUA, MID_BLOCK), first_instruction.address)
+                self._write_ignoreua_directive(first_instruction.address, MID_BLOCK, first_instruction.ignoreua['m'])
                 self._write_block_comments(mbc, 'N', self.addr_str(first_instruction.address))
 
             if SUBBLOCKS in self.elements:
@@ -556,7 +553,7 @@ class SkoolParser:
             map_entry = None
             instruction = None
             comments = []
-            ignores = []
+            ignores = {}
             address_comments.append((None, None, None))
             for line in block:
                 if line.startswith(';'):
@@ -578,24 +575,22 @@ class SkoolParser:
 
                 # This line contains an instruction
                 instruction, address_comment = self._parse_instruction(line)
-                address = instruction.address
-                if address < min_address:
+                if instruction.address < min_address:
                     non_entries.clear()
                     break
-                if address >= max_address:
+                if instruction.address >= max_address:
                     non_entries.clear()
                     map_entry = None
                     done = True
                     break
-                ctl = instruction.ctl
-                if ctl in DIRECTIVES:
-                    start_comment, title, description, registers = parse_comment_block(comments, ignores, self.mode, self.keep_lines)
-                    map_entry = Entry(ctl, title, description, registers, self.mode.entry_ignoreua)
+                if instruction.ctl in DIRECTIVES:
+                    start_comment, title, description, registers = parse_entry_header(comments, ignores, self.mode, self.keep_lines)
+                    map_entry = Entry(instruction.ctl, title, description, registers, self.mode.ignoreua)
                     instruction.mid_block_comment = start_comment
                     map_entry.asm_directives = extract_entry_asm_directives(instruction.asm_directives)
                     self.memory_map.append(map_entry)
-                    comments[:] = []
-                    instruction.ignoremrcua = self.mode.ignoremrcua
+                    comments.clear()
+                    instruction.ignoreua['m'] = self.mode.ignoreua['m']
 
                 if map_entry:
                     address_comments.append((instruction, [address_comment], []))
@@ -603,17 +598,16 @@ class SkoolParser:
                     if comments:
                         instruction.mid_block_comment = join_comments(comments, True, self.keep_lines)
                         comments = []
-                        instruction.ignoremrcua = 0 in ignores
-                        instruction.ignoreua = any(ignores)
-                    elif ignores:
-                        instruction.ignoreua = True
+                        instruction.ignoreua['m'] = ignores.pop(0, None)
+                    if ignores:
+                        instruction.ignoreua['i'] = ignores.get(max(ignores))
 
-                ignores[:] = []
+                ignores.clear()
 
             if map_entry:
                 if comments:
                     map_entry.end_comment = join_comments(comments, True, self.keep_lines)
-                    map_entry.ignoreua[END] = len(ignores) > 0
+                    map_entry.ignoreua[END] = ignores.get(0)
                 map_entry.header = non_entries
                 non_entries = []
 
@@ -645,8 +639,10 @@ class SkoolParser:
             comments.append(line[1:].rstrip())
 
     def _parse_asm_directive(self, directive, ignores, line_no):
-        if directive == AD_IGNOREUA:
-            ignores.append(line_no)
+        if directive.startswith(AD_IGNOREUA + '='):
+            ignores[line_no] = directive[len(AD_IGNOREUA):]
+        elif directive == AD_IGNOREUA:
+            ignores[line_no] = ''
         else:
             self.mode.add_asm_directive(directive)
 
@@ -664,7 +660,7 @@ class SkoolParser:
 class Mode:
     def __init__(self):
         self.asm_directives = []
-        self.entry_ignoreua = {}
+        self.ignoreua = {'i': None, 'm': None}
         self.case = 0
 
     def add_asm_directive(self, directive):
@@ -679,7 +675,7 @@ class FakeInstruction:
         self.address = address
         self.comment = comment
         self.asm_directives = ()
-        self.ignoreua = False
+        self.ignoreua = {'i': None, 'm': None}
         self.inst_ctl = ''
 
 class Instruction:
@@ -693,8 +689,7 @@ class Instruction:
         self.mid_block_comment = None
         self.comment = None
         self.asm_directives = None
-        self.ignoreua = False
-        self.ignoremrcua = False
+        self.ignoreua = {'i': None, 'm': None}
 
     def set_comment(self, rowspan, text):
         self.comment = Comment(rowspan, text)
@@ -707,12 +702,7 @@ class Entry:
         self.title = title
         self.description = description
         self.registers = registers
-        self.ignoreua = {
-            TITLE: ignoreua['t'],
-            DESCRIPTION: ignoreua['d'],
-            REGISTERS: ignoreua['r'],
-            END: False
-        }
+        self.ignoreua = ignoreua.copy()
         self.instructions = []
         self.end_comment = ()
         self.asm_directives = None

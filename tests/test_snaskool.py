@@ -2353,6 +2353,50 @@ class SkoolWriterTest(SkoolKitTestCase):
         snapshot = [0] * 10000 + [120, 201]
         self._test_write_skool(snapshot, ctl, exp_skool)
 
+    def test_ignoreua_directives_with_values(self):
+        ctl = """
+            @ 10000 ignoreua:t=10000
+            c 10000 Routine at 10000
+            @ 10000 ignoreua:d=10000
+            D 10000 Description of the routine at 10000.
+            @ 10000 ignoreua:r=10000,10001
+            R 10000 HL 10000 or 10001
+            @ 10000 ignoreua:m=10000
+            N 10000 Start comment.
+            @ 10000 ignoreua=10000
+              10000 Instruction-level comment at 10000
+            @ 10001 ignoreua:m=10001
+            N 10001 Mid-block comment above 10001.
+            @ 10001 ignoreua:i=10001
+              10001 Instruction-level comment at 10001
+            @ 10000 ignoreua:e=10000,12345
+            E 10000 End comment for the routine at 10000.
+            i 10002
+        """
+        exp_skool = """
+            @ignoreua=10000
+            ; Routine at 10000
+            ;
+            @ignoreua=10000
+            ; Description of the routine at 10000.
+            ;
+            @ignoreua=10000,10001
+            ; HL 10000 or 10001
+            ;
+            @ignoreua=10000
+            ; Start comment.
+            @ignoreua=10000
+            c10000 LD A,B        ; Instruction-level comment at 10000
+            @ignoreua=10001
+            ; Mid-block comment above 10001.
+            @ignoreua=10001
+             10001 RET           ; Instruction-level comment at 10001
+            @ignoreua=10000,12345
+            ; End comment for the routine at 10000.
+        """
+        snapshot = [0] * 10000 + [120, 201]
+        self._test_write_skool(snapshot, ctl, exp_skool)
+
     def test_ignoreua_directives_write_refs(self):
         ctl = """
             c 10000 Routine at 10000

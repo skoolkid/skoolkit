@@ -64,6 +64,10 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
         asm = self._get_asm(skool, crlf, tab, case, base, instr_width, warn, asm_mode, fix_mode, templates)
         self.assertEqual(dedent(exp_asm).strip('\n'), asm.rstrip())
 
+    def _test_warnings(self, skool, exp_warnings, **kwargs):
+        warnings = self._get_asm(skool, warn=True, **kwargs)[1]
+        self.assertEqual(dedent(exp_warnings).strip(), warnings.rstrip())
+
     def _assert_error(self, writer, text, error_msg=None, prefix=None):
         with self.assertRaises(SkoolParsingError) as cm:
             writer.expand(text)
@@ -806,22 +810,56 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
             ; Routine at 32768
             ;
             ; Used by the routine at 32768.
+            ;
+            ; .
+            ;
+            ; This start comment is above 32768.
             c32768 LD A,B  ; This instruction is at 32768
             ; This mid-routine comment is above 32769.
              32769 RET
         """
-        warnings = self._get_asm(skool, warn=True)[1]
         exp_warnings = """
             WARNING: Comment contains address (32768) not converted to a label:
             ; Routine at 32768
             WARNING: Comment contains address (32768) not converted to a label:
             ; Used by the routine at 32768.
+            WARNING: Comment above 32768 contains address (32768) not converted to a label:
+            ; This start comment is above 32768.
             WARNING: Comment at 32768 contains address (32768) not converted to a label:
               LD A,B                  ; This instruction is at 32768
             WARNING: Comment above 32769 contains address (32769) not converted to a label:
             ; This mid-routine comment is above 32769.
         """
-        self.assertEqual(dedent(exp_warnings).strip(), warnings.rstrip())
+        self._test_warnings(skool, exp_warnings)
+
+    def test_warn_multiple_unconverted_addresses(self):
+        skool = """
+            @start
+            ; Routine at 32768, ending at 32770
+            ;
+            ; Used by the routines at 32768, 32769 and 32770.
+            ;
+            ; .
+            ;
+            ; This start comment is above 32768, not 32769.
+            c32768 LD A,B ; This instruction is at 32768, not 32769 or 32770.
+            ; This mid-routine comment is above 32769, not 32768.
+             32769 LD B,C
+             32770 RET
+        """
+        exp_warnings = """
+            WARNING: Comment contains addresses (32768, 32770) not converted to labels:
+            ; Routine at 32768, ending at 32770
+            WARNING: Comment contains addresses (32768, 32769, 32770) not converted to labels:
+            ; Used by the routines at 32768, 32769 and 32770.
+            WARNING: Comment above 32768 contains addresses (32768, 32769) not converted to labels:
+            ; This start comment is above 32768, not 32769.
+            WARNING: Comment at 32768 contains addresses (32768, 32769, 32770) not converted to labels:
+              LD A,B                  ; This instruction is at 32768, not 32769 or 32770.
+            WARNING: Comment above 32769 contains addresses (32768, 32769) not converted to labels:
+            ; This mid-routine comment is above 32769, not 32768.
+        """
+        self._test_warnings(skool, exp_warnings)
 
     def test_warn_unconverted_addresses_in_register_descriptions(self):
         skool = """
@@ -835,7 +873,6 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
             ; HL #TABLE { 0 } { 32768 } TABLE#
             c32768 RET
         """
-        warnings = self._get_asm(skool, warn=True)[1]
         exp_warnings = """
             WARNING: Register description contains address (32768) not converted to a label:
             ; BC 32768
@@ -848,7 +885,33 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
             ;    | 32768 |
             ;    +-------+
         """
-        self.assertEqual(dedent(exp_warnings).strip(), warnings.rstrip())
+        self._test_warnings(skool, exp_warnings)
+
+    def test_warn_multiple_unconverted_addresses_in_register_descriptions(self):
+        skool = """
+            @start
+            ; Routine
+            ;
+            ; .
+            ;
+            ; BC 32768 or 32769
+            ; DE #LIST { 0 } { 32768 } { 32769 } LIST#
+            ; HL 32768, 32769 or 32770
+            c32768 LD A,B
+             32769 XOR C
+             32770 RET
+        """
+        exp_warnings = """
+            WARNING: Register description contains addresses (32768, 32769) not converted to labels:
+            ; BC 32768 or 32769
+            WARNING: Register description contains addresses (32768, 32769) not converted to labels:
+            ; DE * 0
+            ;    * 32768
+            ;    * 32769
+            WARNING: Register description contains addresses (32768, 32769, 32770) not converted to labels:
+            ; HL 32768, 32769 or 32770
+        """
+        self._test_warnings(skool, exp_warnings)
 
     def test_warn_unconverted_addresses_below_10000(self):
         skool = """
@@ -881,8 +944,7 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
             WARNING: Comment contains address (1234) not converted to a label:
             ; 12345 - no match; 1234 - match.
         """
-        warnings = self._get_asm(skool, warn=True)[1]
-        self.assertEqual(dedent(exp_warnings).strip(), warnings.rstrip())
+        self._test_warnings(skool, exp_warnings)
 
     def test_warn_unconverted_hexadecimal_addresses(self):
         skool = """
@@ -917,8 +979,7 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
             WARNING: Comment at 57005 contains address ($DEAD) not converted to a label:
               RET                     ; This is at $DEAD
         """
-        warnings = self._get_asm(skool, warn=True)[1]
-        self.assertEqual(dedent(exp_warnings).strip(), warnings.rstrip())
+        self._test_warnings(skool, exp_warnings)
 
     def test_warn_long_line(self):
         skool = """
@@ -926,12 +987,11 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
             ; Routine
             c30000 BIT 3,(IX+101) ; Pneumonoultramicroscopicsilicovolcanoconiosis
         """
-        warnings = self._get_asm(skool, instr_width=30, warn=True)[1]
         exp_warnings = """
             WARNING: Line is 80 characters long:
               BIT 3,(IX+101)                 ; Pneumonoultramicroscopicsilicovolcanoconiosis
         """
-        self.assertEqual(dedent(exp_warnings).strip(), warnings.rstrip())
+        self._test_warnings(skool, exp_warnings, instr_width=30)
 
     def test_warn_wide_table(self):
         skool = """
@@ -943,8 +1003,8 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
             ; TABLE#
             c50000 RET
         """
-        warnings = self._get_asm(skool, warn=True)[1]
-        self.assertEqual(warnings.rstrip(), 'WARNING: Table in entry at 50000 is 91 characters wide')
+        exp_warnings = 'WARNING: Table in entry at 50000 is 91 characters wide'
+        self._test_warnings(skool, exp_warnings)
 
     def test_suppress_warnings(self):
         skool = """
@@ -1825,8 +1885,22 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
             ; Routine at 32768
             c32768 RET
         """
-        warnings = self._get_asm(skool, warn=True)[1]
-        self.assertEqual(warnings, '')
+        self._test_warnings(skool, '')
+
+    def test_ignoreua_directive_on_entry_title_does_not_apply_to_entry_description(self):
+        skool = """
+            @start
+            @ignoreua
+            ; Routine at 32768
+            ;
+            ; Description of routine at 32768.
+            c32768 RET
+        """
+        exp_warnings = """
+            WARNING: Comment contains address (32768) not converted to a label:
+            ; Description of routine at 32768.
+        """
+        self._test_warnings(skool, exp_warnings)
 
     def test_ignoreua_directive_on_entry_description(self):
         skool = """
@@ -1837,8 +1911,24 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
             ; Description of routine at 32768.
             c32768 RET
         """
-        warnings = self._get_asm(skool, warn=True)[1]
-        self.assertEqual(warnings, '')
+        self._test_warnings(skool, '')
+
+    def test_ignoreua_directive_on_entry_description_does_not_apply_to_registers(self):
+        skool = """
+            @start
+            ; Routine
+            ;
+            @ignoreua
+            ; Description of routine at 32768.
+            ;
+            ; HL 32768
+            c32768 RET
+        """
+        exp_warnings = """
+            WARNING: Register description contains address (32768) not converted to a label:
+            ; HL 32768
+        """
+        self._test_warnings(skool, exp_warnings)
 
     def test_ignoreua_directive_on_register_description(self):
         skool = """
@@ -1851,8 +1941,26 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
             ; HL 32768
             c32768 RET
         """
-        warnings = self._get_asm(skool, warn=True)[1]
-        self.assertEqual(warnings, '')
+        self._test_warnings(skool, '')
+
+    def test_ignoreua_directive_on_register_description_does_not_apply_to_start_comment(self):
+        skool = """
+            @start
+            ; Routine
+            ;
+            ; Description.
+            ;
+            @ignoreua
+            ; HL 32768
+            ;
+            ; Start comment for the routine at 32768.
+            c32768 RET
+        """
+        exp_warnings = """
+            WARNING: Comment above 32768 contains address (32768) not converted to a label:
+            ; Start comment for the routine at 32768.
+        """
+        self._test_warnings(skool, exp_warnings)
 
     def test_ignoreua_directive_on_start_comment(self):
         skool = """
@@ -1867,8 +1975,26 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
             ; Start comment for the routine at 32768.
             c32768 RET
         """
-        warnings = self._get_asm(skool, warn=True)[1]
-        self.assertEqual(warnings, '')
+        self._test_warnings(skool, '')
+
+    def test_ignoreua_directive_on_start_comment_does_not_apply_to_instruction_comment(self):
+        skool = """
+            @start
+            ; Routine
+            ;
+            ; Description.
+            ;
+            ; .
+            ;
+            @ignoreua
+            ; Start comment for the routine at 32768.
+            c32768 RET ; This is the instruction at 32768.
+        """
+        exp_warnings = """
+            WARNING: Comment at 32768 contains address (32768) not converted to a label:
+              RET                     ; This is the instruction at 32768.
+        """
+        self._test_warnings(skool, exp_warnings)
 
     def test_ignoreua_directive_on_instruction_comment(self):
         skool = """
@@ -1877,8 +2003,7 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
             @ignoreua
             c32768 LD A,B ; This is the instruction at 32768
         """
-        warnings = self._get_asm(skool, warn=True)[1]
-        self.assertEqual(warnings, '')
+        self._test_warnings(skool, '')
 
     def test_ignoreua_directive_on_mid_block_comment(self):
         skool = """
@@ -1889,8 +2014,22 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
             ; This is the mid-routine comment above 32769.
              32769 RET
         """
-        warnings = self._get_asm(skool, warn=True)[1]
-        self.assertEqual(warnings, '')
+        self._test_warnings(skool, '')
+
+    def test_ignoreua_directive_on_mid_block_comment_does_not_apply_to_instruction_comment(self):
+        skool = """
+            @start
+            ; Routine
+            c32768 LD A,B
+            @ignoreua
+            ; This is the mid-routine comment above 32769.
+             32769 RET ; This is the instruction at 32769.
+        """
+        exp_warnings = """
+            WARNING: Comment at 32769 contains address (32769) not converted to a label:
+              RET                     ; This is the instruction at 32769.
+        """
+        self._test_warnings(skool, exp_warnings)
 
     def test_ignoreua_directive_on_end_comment(self):
         skool = """
@@ -1904,8 +2043,63 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
             ; The @ignoreua directive above should not spill over
             c32770 RET
         """
-        warnings = self._get_asm(skool, warn=True)[1]
-        self.assertEqual(warnings, '')
+        self._test_warnings(skool, '')
+
+    def test_ignoreua_directive_with_one_value(self):
+        skool = """
+            @start
+            ; Routine
+            ;
+            @ignoreua=32768
+            ; Description of instructions at 32768 and 32769.
+            c32768 XOR A
+             32769 RET
+        """
+        exp_warnings = """
+            WARNING: Comment contains address (32769) not converted to a label:
+            ; Description of instructions at 32768 and 32769.
+        """
+        self._test_warnings(skool, exp_warnings)
+
+    def test_ignoreua_directive_with_two_values(self):
+        skool = """
+            @start
+            ; Routine
+            ;
+            @ignoreua=32768,32769
+            ; Description of instructions at 32768 and 32769.
+            c32768 XOR A
+             32769 RET
+        """
+        self._test_warnings(skool, '')
+
+    def test_ignoreua_directive_with_hex_values(self):
+        skool = """
+            @start
+            ; Routine
+            ;
+            @ignoreua=$8000,$8001
+            ; Description of instructions at $8000 and 0x8001.
+            c32768 XOR A
+             32769 RET
+        """
+        self._test_warnings(skool, '')
+
+    def test_ignoreua_directive_with_unused_values(self):
+        skool = """
+            @start
+            ; Routine
+            ;
+            @ignoreua=32768,40000,$FFFF
+            ; Description of instructions at 32768 and 32769.
+            c32768 XOR A
+             32769 RET
+        """
+        exp_warnings = """
+            WARNING: Comment contains address (32769) not converted to a label:
+            ; Description of instructions at 32768 and 32769.
+        """
+        self._test_warnings(skool, exp_warnings)
 
     def test_nowarn_directive(self):
         skool = """
@@ -1922,8 +2116,7 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
              30006 CALL 30001
         """
         for asm_mode in (1, 2, 3):
-            warnings = self._get_asm(skool, warn=True, asm_mode=asm_mode)[1]
-            self.assertEqual(warnings, '')
+            self._test_warnings(skool, '', asm_mode=asm_mode)
 
     def test_keep_directive(self):
         skool = """

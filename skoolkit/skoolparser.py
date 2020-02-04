@@ -139,14 +139,17 @@ def parse_asm_sub_fix_directive(directive):
         return flags, label.strip(), op.strip(), comment
     return flags, None, label.strip(), comment
 
-def parse_asm_keep_directive(directive):
-    keep = []
-    if directive.startswith('keep='):
-        for n in directive[5:].split(','):
+def _parse_addresses(line):
+    addresses = []
+    if line.startswith('='):
+        for n in line[1:].split(','):
             addr = parse_int(n)
             if addr is not None:
-                keep.append(addr)
-    return keep
+                addresses.append(addr)
+    return addresses
+
+def parse_asm_keep_directive(directive):
+    return _parse_addresses(directive[4:])
 
 def parse_address_range(value):
     addresses = [parse_int(n) for n in value.split('-', 1)]
@@ -179,10 +182,9 @@ def join_comments(comments, split=False, keep_lines=False):
     return ''
 
 def _apply_ignores(ignores, section_ignores, index, line_no):
-    for i in ignores:
+    for i in sorted(ignores):
         if i < line_no:
-            ignores.remove(i)
-            section_ignores[index] = True
+            section_ignores[index] = ignores.pop(i)
             return
 
 def parse_register(line):
@@ -233,9 +235,9 @@ def _parse_registers(lines, mode, keep_lines):
         registers.append(Register(delimiters, prefix, reg, ' '.join(desc_lines).lstrip()))
     return registers
 
-def parse_comment_block(comments, ignores, mode, keep_lines=False):
+def parse_entry_header(comments, ignores, mode, keep_lines=False):
     sections = [[], [], [], []]
-    section_ignores = [False] * len(sections)
+    section_ignores = [None] * len(sections)
     line_no = 0
     index = 0
     last_line = ""
@@ -252,10 +254,13 @@ def parse_comment_block(comments, ignores, mode, keep_lines=False):
             index = min(index + 1, len(sections) - 1)
         line_no += 1
     _apply_ignores(ignores, section_ignores, index, line_no)
-    mode.entry_ignoreua['t'] = section_ignores[0]
-    mode.entry_ignoreua['d'] = section_ignores[1]
-    mode.entry_ignoreua['r'] = section_ignores[2]
-    mode.ignoremrcua = section_ignores[3]
+    mode.ignoreua.update({
+        't': section_ignores[0],
+        'd': section_ignores[1],
+        'r': section_ignores[2],
+        'm': section_ignores[3],
+        'e': None
+    })
     title = join_comments(sections[0], False, keep_lines)
     description = join_comments(sections[1], True, keep_lines)
     registers = _parse_registers(sections[2], mode, keep_lines)
@@ -428,7 +433,7 @@ class SkoolParser:
         self.memory_map = []                     # SkoolEntry instances
         self._remote_entries = []                # RemoteEntry instances
         self.comments = []
-        self.ignores = []
+        self.ignores = {}
         self.asm_writer_class = None
         self.properties = {}
         self._replacements = []
@@ -506,7 +511,7 @@ class SkoolParser:
             instruction = None
             map_entry = None
             address_comments.append((None, None, None))
-            self.ignores[:] = []
+            self.ignores.clear()
             for line in block:
                 if line.startswith('@'):
                     self._parse_asm_directive(line[1:], removed)
@@ -514,7 +519,7 @@ class SkoolParser:
 
                 if line.startswith(';'):
                     self.comments.append(line[1:])
-                    self.mode.ignoreua = False
+                    self.mode.ignoreua['i'] = None
                     instruction = None
                     address_comments.append((None, None, None))
                     continue
@@ -534,20 +539,19 @@ class SkoolParser:
                 if ctl in DIRECTIVES:
                     if address is None:
                         raise SkoolParsingError("Invalid address: '{}'".format(addr_str))
-                    start_comment, desc, details, registers = parse_comment_block(self.comments, self.ignores, self.mode)
+                    start_comment, desc, details, registers = parse_entry_header(self.comments, self.ignores, self.mode)
                     map_entry = SkoolEntry(address, addr_str, ctl, desc, details, registers)
                     mid_block_comment = start_comment
-                    map_entry.ignoreua.update(self.mode.entry_ignoreua)
-                    self.mode.reset_entry_ignoreua()
-                    self.comments[:] = []
+                    map_entry.ignoreua.update(self.mode.ignoreua)
+                    self.comments.clear()
 
                 if map_entry:
                     address_comment = (instruction, [address_comment], [])
                     address_comments.append(address_comment)
                     if self.comments:
                         mid_block_comment = join_comments(self.comments, split=True)
-                        self.comments[:] = []
-                        self.mode.ignoremrcua = 0 in self.ignores
+                        self.comments.clear()
+                        self.mode.ignoreua['m'] = self.ignores.get(0)
                     if address not in removed:
                         instruction.mid_block_comment = mid_block_comment
                         mid_block_comment = None
@@ -556,7 +560,7 @@ class SkoolParser:
                         map_entry.add_instruction(instruction)
 
                 self.mode.apply_asm_directives(self.snapshot, instruction, map_entry, self._instructions, address_comments, removed)
-                self.ignores[:] = []
+                self.ignores.clear()
 
                 # Set bytes in the snapshot if the instruction is DEF{B,M,S,W}
                 if address is not None:
@@ -571,11 +575,11 @@ class SkoolParser:
                 self.memory_map.append(map_entry)
                 if self.comments:
                     map_entry.end_comment = join_comments(self.comments, split=True)
-                    map_entry.ignoreua['e'] = len(self.ignores) > 0
+                    map_entry.ignoreua['e'] = self.ignores.get(0)
                 map_entry.headers = non_entries
                 non_entries = []
 
-            self.comments[:] = []
+            self.comments.clear()
 
         if min_address > 0 or max_address < 65536:
             self.memory_map = [e for e in self.memory_map if min_address <= e.address < max_address]
@@ -678,8 +682,7 @@ class SkoolParser:
             elif directive.startswith('nowarn'):
                 self.mode.nowarn = True
             elif directive.startswith('ignoreua'):
-                self.mode.ignoreua = True
-                self.ignores.append(len(self.comments))
+                self.mode.ignoreua['i'] = self.ignores[len(self.comments)] = _parse_addresses(directive[8:])
             elif directive.startswith('org'):
                 self.mode.org = directive.rstrip().partition('=')[2]
             elif directive.startswith('writer='):
@@ -770,7 +773,6 @@ class Mode:
         self.create_labels = create_labels
         self.asm_labels = asm_labels
         self.assembler = assembler
-        self.entry_ignoreua = {}
         if case == CASE_LOWER:
             self.addr_fmt = '{0:04x}'
         else:
@@ -785,20 +787,14 @@ class Mode:
         }
         self.data = []
         self.reset()
-        self.reset_entry_ignoreua()
 
     def reset(self):
         self.label = None
         self.subs = defaultdict(list, {0: ()})
         self.keep = None
         self.nowarn = False
-        self.ignoreua = False
-        self.ignoremrcua = False
+        self.ignoreua = {'i': None, 'm': None}
         self.org = None
-
-    def reset_entry_ignoreua(self):
-        for section in 'tdr':
-            self.entry_ignoreua[section] = False
 
     def add_sub(self, directive, value):
         weight = self.weights[directive]
@@ -853,8 +849,7 @@ class Mode:
             if self.org != '':
                 instruction.org = self.org
             instruction.warn = not self.nowarn
-            instruction.ignoreua = self.ignoreua
-            instruction.ignoremrcua = self.ignoremrcua
+            instruction.ignoreua = {k: self.ignoreua[k] for k in 'im'}
 
             parsed = [parse_asm_sub_fix_directive(d) for d in self.subs[max(self.subs)]]
             before = self.compose_instructions(s for s in parsed if s[0].prepend)
@@ -1162,8 +1157,7 @@ class Instruction:
         else:
             self.sub = None
         self.warn = True
-        self.ignoreua = False
-        self.ignoremrcua = False
+        self.ignoreua = None
 
     def set_comment(self, rowspan, text):
         self.comment = Comment(rowspan, text)
@@ -1216,7 +1210,7 @@ class SkoolEntry:
         self.end_comment = ()
         self.referrers = []
         self.size = None
-        self.ignoreua = {'t': False, 'd': False, 'r': False, 'e': False}
+        self.ignoreua = {'t': None, 'd': None, 'r': None, 'e': None}
 
     def add_instruction(self, instruction, insert=False):
         instruction.container = self

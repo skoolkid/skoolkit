@@ -563,7 +563,7 @@ When declaring an :ref:`ignoreua` directive for anything other than an
 instruction-level comment, a suffix must be appended to the directive to
 specify the type of comment it applies to::
 
-  @ address ignoreua:X
+  @ address ignoreua:X[=addr1[,addr2...]]
 
 where ``X`` is one of:
 

@@ -636,21 +636,31 @@ are for the :ref:`if` macro. See :ref:`stringParameters` for more details.
 
 @ignoreua
 ^^^^^^^^^
-The ``@ignoreua`` directive suppresses any warnings that would otherwise be
-reported concerning addresses not converted to labels in the comment that
-follows; the comment may be an entry title, an entry description, a register
-description section, a block start comment, a mid-block comment, a block end
-comment, or an instruction-level comment.
+The ``@ignoreua`` directive suppresses warnings that would otherwise be printed
+(during the rendering phase) concerning addresses not converted to labels in
+the comment that follows. The comment may be an entry title, an entry
+description, a register description section, a block start comment, a mid-block
+comment, a block end comment, or an instruction-level comment. ::
+
+  @ignoreua[=addr1[,addr2...]]
+
+* ``addr1``, ``addr2`` etc. are the addresses to suppress warnings for; if none
+  are specified, warnings for all addresses are suppressed
+
+Although specifying a list of addresses is optional, doing so has the advantage
+that if another unconvertible address is added to the comment later on, a
+warning will appear for it, at which point you can decide whether to fix it (in
+case it was added by mistake) or add it to the list.
 
 To apply the directive to an entry title::
 
-  @ignoreua
+  @ignoreua=32768
   ; Prepare data at 32768
   c32768 LD A,(HL)
 
 If the ``@ignoreua`` directive were not present, a warning would be printed
-(during the rendering phase) about the entry title containing an address
-(32768) that has not been converted to a label.
+about the entry title containing an address (32768) that has not been converted
+to a label.
 
 To apply the directive to an entry description::
 
@@ -661,8 +671,8 @@ To apply the directive to an entry description::
   c49152 LD A,(HL)
 
 If the ``@ignoreua`` directive were not present, a warning would be printed
-(during the rendering phase) about the entry description containing an address
-(32768) that has not been converted to a label.
+about the entry description containing an address (32768) that has not been
+converted to a label.
 
 To apply the directive to a register description section::
 
@@ -675,8 +685,8 @@ To apply the directive to a register description section::
   c49152 LD A,(HL)
 
 If the ``@ignoreua`` directive were not present, a warning would be printed
-(during the rendering phase) about the register description containing an
-address (32768) that has not been converted to a label.
+about the register description containing an address (32768) that has not been
+converted to a label.
 
 To apply the directive to a block start comment::
 
@@ -691,8 +701,8 @@ To apply the directive to a block start comment::
   c49152 LD A,(HL)
 
 If the ``@ignoreua`` directive were not present, a warning would be printed
-(during the rendering phase) about the start comment containing an address
-(32768) that has not been converted to a label.
+about the start comment containing an address (32768) that has not been
+converted to a label.
 
 To apply the directive to a mid-block comment::
 
@@ -701,9 +711,9 @@ To apply the directive to a mid-block comment::
   ; #REGhl now holds either 32522 or 32600.
    28914 LD B,(HL)
 
-If the ``@ignoreua`` directive were not present, warnings would be printed
-(during the rendering phase) about the comment containing addresses (32522,
-32600) that have not been converted to labels.
+If the ``@ignoreua`` directive were not present, a warning would be printed
+about the comment containing addresses (32522, 32600) that have not been
+converted to labels.
 
 To apply the directive to a block end comment::
 
@@ -711,9 +721,9 @@ To apply the directive to a block end comment::
   @ignoreua
   ; This routine continues at 63152.
 
-If the ``@ignoreua`` directive were not present, warnings would be printed
-(during the rendering phase) about the comment containing an address (63152)
-that has not been converted to a label.
+If the ``@ignoreua`` directive were not present, a warning would be printed
+about the comment containing an address (63152) that has not been converted to
+a label.
 
 To apply the directive to an instruction-level comment::
 
@@ -721,17 +731,20 @@ To apply the directive to an instruction-level comment::
    60159 LD C,A        ; #REGbc now holds 62818
 
 If the ``@ignoreua`` directive were not present, a warning would be printed
-(during the rendering phase) about the comment containing an address (62818)
-that has not been converted to a label.
+about the comment containing an address (62818) that has not been converted to
+a label.
 
-+---------+---------------------------------------------------------------+
-| Version | Changes                                                       |
-+=========+===============================================================+
-| 4.2     | Added support for register description sections               |
-+---------+---------------------------------------------------------------+
-| 2.4.1   | Added support for entry titles, entry descriptions, mid-block |
-|         | comments and block end comments                               |
-+---------+---------------------------------------------------------------+
++---------+------------------------------------------------------------------+
+| Version | Changes                                                          |
++=========+==================================================================+
+| 8.1     | Added the ability to specify the addresses for which to suppress |
+|         | warnings                                                         |
++---------+------------------------------------------------------------------+
+| 4.2     | Added support for register description sections                  |
++---------+------------------------------------------------------------------+
+| 2.4.1   | Added support for entry titles, entry descriptions, mid-block    |
+|         | comments and block end comments                                  |
++---------+------------------------------------------------------------------+
 
 .. _isub:
 

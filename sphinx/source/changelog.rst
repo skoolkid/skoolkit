@@ -25,6 +25,8 @@ Changelog
   the entire string of byte values)
 * Added support to the :ref:`set` directive for the `table-row-separator`
   property
+* The :ref:`ignoreua` directive can now specify the addresses for which to
+  suppress warnings
 
 8.0 (2019-11-09)
 ----------------

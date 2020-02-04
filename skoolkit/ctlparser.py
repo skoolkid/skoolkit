@@ -1,4 +1,4 @@
-# Copyright 2009-2019 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2009-2020 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -92,7 +92,7 @@ class CtlParser:
         self._multiline_comments = {}
         self._asm_directives = defaultdict(list)
         self._asm_data_directives = defaultdict(list)
-        self._ignoreua_directives = defaultdict(set)
+        self._ignoreua_directives = defaultdict(dict)
         self._headers = defaultdict(list)
         self._footers = defaultdict(list)
         self._loops = []
@@ -254,13 +254,18 @@ class CtlParser:
             raise CtlParserError("invalid ASM directive address")
         directive = fields[1]
         comment_type = 'i'
+        suffix = ''
         if directive.startswith(AD_IGNOREUA + ':'):
             directive, comment_type = directive.split(':', 1)
+            comment_type, sep, suffix = comment_type.partition('=')
+            suffix = sep + suffix
+        if directive.startswith(AD_IGNOREUA + '='):
+            directive, suffix = AD_IGNOREUA, directive[len(AD_IGNOREUA):]
         if directive != AD_IGNOREUA:
             return directive, address
         if comment_type not in COMMENT_TYPES:
             raise CtlParserError("invalid @ignoreua directive suffix: '{}'".format(comment_type))
-        self._ignoreua_directives[address].add(comment_type)
+        self._ignoreua_directives[address][comment_type] = suffix
 
     def _terminate_multiline_comments(self):
         addresses = sorted(set(self._ctls) | set(self._mid_block_comments) | {65536})
@@ -319,7 +324,7 @@ class CtlParser:
             if self._asm_directives.get(address) == []:
                 del self._asm_directives[address]
             block.asm_data_directives = self._asm_data_directives.get(address, ())
-            block.ignoreua_directives = tuple(self._ignoreua_directives.get(address, set()).intersection(ENTRY_COMMENT_TYPES))
+            block.ignoreua_directives = {k: v for k, v in self._ignoreua_directives.get(address, {}).items() if k in ENTRY_COMMENT_TYPES}
             block.header = self._headers.get(address, ())
             block.title = self._reduce(self._titles, address, False)
             block.description = self._reduce(self._descriptions, address)
@@ -354,7 +359,7 @@ class CtlParser:
                 sub_block.ignoreua_directives = {}
                 for addr, dirs in self._ignoreua_directives.items():
                     if sub_address <= addr < sub_block.end:
-                        sub_block.ignoreua_directives[addr] = tuple(dirs.difference(ENTRY_COMMENT_TYPES))
+                        sub_block.ignoreua_directives[addr] = {k: v for k, v in dirs.items() if k not in ENTRY_COMMENT_TYPES}
 
         return blocks
 
@@ -378,5 +383,10 @@ class Block:
         else:
             self.blocks.append(Block(ctl, start, False))
 
-    def has_ignoreua_directive(self, address, comment_type):
-        return comment_type in self.ignoreua_directives.get(address, ())
+    def get_ignoreua_directive(self, comment_type, address=None):
+        if address is None:
+            suffix = self.ignoreua_directives.get(comment_type)
+        else:
+            suffix = self.ignoreua_directives.get(address, {}).get(comment_type)
+        if suffix is not None:
+            return AD_IGNOREUA + suffix
