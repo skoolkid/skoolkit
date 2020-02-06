@@ -4,11 +4,6 @@ from unittest.mock import patch
 from skoolkittest import SkoolKitTestCase
 from skoolkit import SkoolKitError, VERSION, components, skool2bin
 
-def _mode(directive):
-    if directive.endswith('sub'):
-        return {'asm_mode': ('isub', 'ssub', 'rsub').index(directive) + 1}
-    return {'fix_mode': ('ofix', 'bfix', 'rfix').index(directive) + 1}
-
 class MockBinWriter:
     def __init__(self, skoolfile, asm_mode, fix_mode, data):
         global mock_bin_writer
@@ -16,10 +11,10 @@ class MockBinWriter:
         self.skoolfile = skoolfile
         self.asm_mode = asm_mode
         self.fix_mode = fix_mode
+        self.data = data
         self.binfile = None
         self.start = None
         self.end = None
-        self.data = None
 
     def write(self, binfile, start, end):
         self.binfile = binfile
@@ -90,6 +85,22 @@ class Skool2BinTest(SkoolKitTestCase):
             self.assertEqual(mock_bin_writer.skoolfile, skoolfile)
             self.assertEqual(mock_bin_writer.asm_mode, 0)
             self.assertEqual(mock_bin_writer.fix_mode, 2)
+            self.assertFalse(mock_bin_writer.data)
+            self.assertEqual(mock_bin_writer.binfile, exp_binfile)
+            self.assertIsNone(mock_bin_writer.start)
+            self.assertIsNone(mock_bin_writer.end)
+
+    @patch.object(skool2bin, 'BinWriter', MockBinWriter)
+    def test_option_d(self):
+        skoolfile = 'test-d.skool'
+        exp_binfile = skoolfile[:-6] + '.bin'
+        for option in ('-d', '--data'):
+            output, error = self.run_skool2bin('{} {}'.format(option, skoolfile))
+            self.assertEqual(len(error), 0)
+            self.assertEqual(mock_bin_writer.skoolfile, skoolfile)
+            self.assertEqual(mock_bin_writer.asm_mode, 0)
+            self.assertEqual(mock_bin_writer.fix_mode, 0)
+            self.assertTrue(mock_bin_writer.data)
             self.assertEqual(mock_bin_writer.binfile, exp_binfile)
             self.assertIsNone(mock_bin_writer.start)
             self.assertIsNone(mock_bin_writer.end)
@@ -104,6 +115,7 @@ class Skool2BinTest(SkoolKitTestCase):
             self.assertEqual(mock_bin_writer.skoolfile, skoolfile)
             self.assertEqual(mock_bin_writer.asm_mode, 0)
             self.assertEqual(mock_bin_writer.fix_mode, 0)
+            self.assertFalse(mock_bin_writer.data)
             self.assertEqual(mock_bin_writer.binfile, exp_binfile)
             self.assertIsNone(mock_bin_writer.start)
             self.assertEqual(mock_bin_writer.end, value)
@@ -118,6 +130,7 @@ class Skool2BinTest(SkoolKitTestCase):
             self.assertEqual(mock_bin_writer.skoolfile, skoolfile)
             self.assertEqual(mock_bin_writer.asm_mode, 0)
             self.assertEqual(mock_bin_writer.fix_mode, 0)
+            self.assertFalse(mock_bin_writer.data)
             self.assertEqual(mock_bin_writer.binfile, exp_binfile)
             self.assertIsNone(mock_bin_writer.start)
             self.assertEqual(mock_bin_writer.end, int(value[2:], 16))
@@ -132,6 +145,7 @@ class Skool2BinTest(SkoolKitTestCase):
             self.assertEqual(mock_bin_writer.skoolfile, skoolfile)
             self.assertEqual(mock_bin_writer.asm_mode, 1)
             self.assertEqual(mock_bin_writer.fix_mode, 0)
+            self.assertFalse(mock_bin_writer.data)
             self.assertEqual(mock_bin_writer.binfile, exp_binfile)
             self.assertIsNone(mock_bin_writer.start)
             self.assertIsNone(mock_bin_writer.end)
@@ -146,6 +160,7 @@ class Skool2BinTest(SkoolKitTestCase):
             self.assertEqual(mock_bin_writer.skoolfile, skoolfile)
             self.assertEqual(mock_bin_writer.asm_mode, 0)
             self.assertEqual(mock_bin_writer.fix_mode, 1)
+            self.assertFalse(mock_bin_writer.data)
             self.assertEqual(mock_bin_writer.binfile, exp_binfile)
             self.assertIsNone(mock_bin_writer.start)
             self.assertIsNone(mock_bin_writer.end)
@@ -160,6 +175,7 @@ class Skool2BinTest(SkoolKitTestCase):
             self.assertEqual(mock_bin_writer.skoolfile, skoolfile)
             self.assertEqual(mock_bin_writer.asm_mode, 3)
             self.assertEqual(mock_bin_writer.fix_mode, 0)
+            self.assertFalse(mock_bin_writer.data)
             self.assertEqual(mock_bin_writer.binfile, exp_binfile)
             self.assertIsNone(mock_bin_writer.start)
             self.assertIsNone(mock_bin_writer.end)
@@ -174,6 +190,7 @@ class Skool2BinTest(SkoolKitTestCase):
             self.assertEqual(mock_bin_writer.skoolfile, skoolfile)
             self.assertEqual(mock_bin_writer.asm_mode, 0)
             self.assertEqual(mock_bin_writer.fix_mode, 3)
+            self.assertFalse(mock_bin_writer.data)
             self.assertEqual(mock_bin_writer.binfile, exp_binfile)
             self.assertIsNone(mock_bin_writer.start)
             self.assertIsNone(mock_bin_writer.end)
@@ -188,6 +205,7 @@ class Skool2BinTest(SkoolKitTestCase):
             self.assertEqual(mock_bin_writer.skoolfile, skoolfile)
             self.assertEqual(mock_bin_writer.asm_mode, 2)
             self.assertEqual(mock_bin_writer.fix_mode, 0)
+            self.assertFalse(mock_bin_writer.data)
             self.assertEqual(mock_bin_writer.binfile, exp_binfile)
             self.assertIsNone(mock_bin_writer.start)
             self.assertIsNone(mock_bin_writer.end)
@@ -202,6 +220,7 @@ class Skool2BinTest(SkoolKitTestCase):
             self.assertEqual(mock_bin_writer.skoolfile, skoolfile)
             self.assertEqual(mock_bin_writer.asm_mode, 0)
             self.assertEqual(mock_bin_writer.fix_mode, 0)
+            self.assertFalse(mock_bin_writer.data)
             self.assertEqual(mock_bin_writer.binfile, exp_binfile)
             self.assertEqual(mock_bin_writer.start, value)
             self.assertIsNone(mock_bin_writer.end)
@@ -216,6 +235,7 @@ class Skool2BinTest(SkoolKitTestCase):
             self.assertEqual(mock_bin_writer.skoolfile, skoolfile)
             self.assertEqual(mock_bin_writer.asm_mode, 0)
             self.assertEqual(mock_bin_writer.fix_mode, 0)
+            self.assertFalse(mock_bin_writer.data)
             self.assertEqual(mock_bin_writer.binfile, exp_binfile)
             self.assertEqual(mock_bin_writer.start, int(value[2:], 16))
             self.assertIsNone(mock_bin_writer.end)
@@ -225,10 +245,8 @@ class Skool2BinTest(SkoolKitTestCase):
             output, error = self.run_skool2bin(option, catch_exit=0)
             self.assertEqual(output, 'SkoolKit {}\n'.format(VERSION))
 
-class BinWriterTest(SkoolKitTestCase):
-    stdout_binary = True
-
-    def _test_write(self, skool, base_address, exp_data, asm_mode=0, fix_mode=0, data=False, start=None, end=None):
+class BinWriterTestCase(SkoolKitTestCase):
+    def _test_write(self, skool, base_address, exp_data, *modes, data=False, start=None, end=None):
         if skool is None:
             skoolfile = '-'
             binfile = self.write_bin_file(suffix='.bin')
@@ -236,6 +254,12 @@ class BinWriterTest(SkoolKitTestCase):
             skoolfile = self.write_text_file(dedent(skool).strip(), suffix='.skool')
             binfile = skoolfile[:-6] + '.bin'
             self.tempfiles.append(binfile)
+        asm_mode = fix_mode = 0
+        for mode in modes:
+            if mode.endswith('sub'):
+                asm_mode = {'isub': 1, 'ssub': 2, 'rsub': 3}[mode]
+            elif mode.endswith('fix'):
+                fix_mode = {'ofix': 1, 'bfix': 2, 'rfix': 3}[mode]
         bin_writer = skool2bin.BinWriter(skoolfile, asm_mode, fix_mode, data)
         bin_writer.write(binfile, start, end)
         with open(binfile, 'rb') as f:
@@ -246,391 +270,8 @@ class BinWriterTest(SkoolKitTestCase):
         self.assertEqual(status, self.err.getvalue())
         self.err.clear()
 
-    def _test_mode_adjusts_call_operands(self, directive):
-        skool = """
-            c30000 CALL 30016
-             30003 CALL NZ,30016
-             30006 CALL Z,30016
-             30009 CALL NC,30016
-             30012 CALL C,30016
-            @{0}=LD A,0
-             30015 XOR A
-             30016 RET ; This instruction is moved to 30017
-
-            @org
-            c30020 CALL PO,30034
-             30023 CALL PE,30034
-             30026 CALL P,30034
-             30029 CALL M,30034
-            @{0}=XOR A
-             30032 LD A,0
-             30034 RET ; This instruction is moved to 30033
-        """.format(directive)
-        exp_data = [
-            205, 65, 117, # 30000 CALL 30017
-            196, 65, 117, # 30003 CALL NZ,30017
-            204, 65, 117, # 30006 CALL Z,30017
-            212, 65, 117, # 30009 CALL NC,30017
-            220, 65, 117, # 30012 CALL C,30017
-            62, 0,        # 30015 LD A,0
-            201,          # 30017 RET
-            0, 0,
-            228, 81, 117, # 30020 CALL PO,30033
-            236, 81, 117, # 30023 CALL PE,30033
-            244, 81, 117, # 30026 CALL P,30033
-            252, 81, 117, # 30029 CALL M,30033
-            175,          # 30032 XOR A
-            201,          # 30033 RET
-        ]
-        self._test_write(skool, 30000, exp_data, **_mode(directive))
-
-    def _test_mode_adjusts_defb_operands(self, directive):
-        skool = """
-            @{0}=LD A,0
-            c30000 XOR A
-             30001 INC A      ; This instruction is moved to 30002
-            @{0}=LD B,A
-             30002 LD BC,0
-             30005 RET        ; This instruction is moved to 30004
-
-            @org
-            b30006 DEFB 30001%256
-             30007 DEFB 30005%256
-             30008 DEFB "30001"
-        """.format(directive)
-        exp_data = [
-            62, 0,             # 30000 LD A,0
-            60,                # 30002 INC A
-            71,                # 30003 LD B,A
-            201,               # 30004 RET
-            0,
-            50,                # 30006 DEFB 30002%256
-            52,                # 30007 DEFB 30004%256
-            51, 48, 48, 48, 49 # 30008 DEFB "30001"
-        ]
-        self._test_write(skool, 30000, exp_data, **_mode(directive))
-
-    def _test_mode_adjusts_defm_operands(self, directive):
-        skool = """
-            @{0}=LD A,0
-            c30000 XOR A
-             30001 INC A      ; This instruction is moved to 30002
-            @{0}=LD B,A
-             30002 LD BC,0
-             30005 RET        ; This instruction is moved to 30004
-
-            @org
-            b30006 DEFM 30001%256
-             30007 DEFM 30005%256
-             30008 DEFM "30005"
-        """.format(directive)
-        exp_data = [
-            62, 0,             # 30000 LD A,0
-            60,                # 30002 INC A
-            71,                # 30003 LD B,A
-            201,               # 30004 RET
-            0,
-            50,                # 30006 DEFM 30002%256
-            52,                # 30007 DEFM 30004%256
-            51, 48, 48, 48, 53 # 30008 DEFM "30005"
-        ]
-        self._test_write(skool, 30000, exp_data, **_mode(directive))
-
-    def _test_mode_adjusts_defw_operands(self, directive):
-        skool = """
-            @{0}=LD A,0
-            c30000 XOR A
-             30001 INC A      ; This instruction is moved to 30002
-            @{0}=LD B,A
-             30002 LD BC,0
-             30005 RET        ; This instruction is moved to 30004
-
-            @org
-            b30006 DEFW 30001
-             30008 DEFW 30005
-        """.format(directive)
-        exp_data = [
-            62, 0,   # 30000 LD A,0
-            60,      # 30002 INC A
-            71,      # 30003 LD B,A
-            201,     # 30004 RET
-            0,
-            50, 117, # 30006 DEFW 30002
-            52, 117  # 30008 DEFW 30004
-        ]
-        self._test_write(skool, 30000, exp_data, **_mode(directive))
-
-    def _test_mode_adjusts_djnz_operands(self, directive):
-        skool = """
-            @{0}=LD A,0
-            c30000 XOR A
-             30001 INC A      ; This instruction is moved to 30002
-             30002 DJNZ 30001
-             30004 RET
-
-            @org
-            @{0}=XOR A
-            c30006 LD A,0
-             30008 INC A      ; This instruction is moved to 30007
-             30009 DJNZ 30008
-             30011 RET
-        """.format(directive)
-        exp_data = [62, 0, 60, 16, 253, 201, 175, 60, 16, 253, 201]
-        self._test_write(skool, 30000, exp_data, **_mode(directive))
-
-    def _test_mode_adjusts_jp_operands(self, directive):
-        skool = """
-            c30000 JP 30016
-             30003 JP NZ,30016
-             30006 JP Z,30016
-             30009 JP NC,30016
-             30012 JP C,30016
-            @{0}=LD A,0
-             30015 XOR A
-             30016 RET ; This instruction is moved to 30017
-
-            @org
-            c30020 JP PO,30034
-             30023 JP PE,30034
-             30026 JP P,30034
-             30029 JP M,30034
-            @{0}=XOR A
-             30032 LD A,0
-             30034 RET ; This instruction is moved to 30033
-        """.format(directive)
-        exp_data = [
-            195, 65, 117, # 30000 JP 30017
-            194, 65, 117, # 30003 JP NZ,30017
-            202, 65, 117, # 30006 JP Z,30017
-            210, 65, 117, # 30009 JP NC,30017
-            218, 65, 117, # 30012 JP C,30017
-            62, 0,        # 30015 LD A,0
-            201,          # 30017 RET
-            0, 0,
-            226, 81, 117, # 30020 JP PO,30033
-            234, 81, 117, # 30023 JP PE,30033
-            242, 81, 117, # 30026 JP P,30033
-            250, 81, 117, # 30029 JP M,30033
-            175,          # 30032 XOR A
-            201,          # 30033 RET
-        ]
-        self._test_write(skool, 30000, exp_data, **_mode(directive))
-
-    def _test_mode_adjusts_jr_operands(self, directive):
-        skool = """
-            c30000 JR 30007
-             30002 JR Z,30007
-             30004 JR NZ,30007
-            @{0}=LD A,0
-             30006 XOR A
-             30007 RET ; This instruction is moved to 30008
-
-            @org
-            c30010 JR C,30016
-             30012 JR NC,30016
-            @{0}=XOR A
-             30014 LD A,0
-             30016 RET ; This instruction is moved to 30015
-        """.format(directive)
-        exp_data = [
-            24, 6, # 30000 JR 30008
-            40, 4, # 30002 JR Z,30008
-            32, 2, # 30004 JR NZ,30008
-            62, 0, # 30006 LD A,0
-            201,   # 30008 RET
-            0,
-            56, 3, # 30010 JR C,30015
-            48, 1, # 30012 JR NC,30015
-            175,   # 30014 XOR A
-            201    # 30015 RET
-        ]
-        self._test_write(skool, 30000, exp_data, **_mode(directive))
-
-    def _test_mode_adjusts_ld_operands(self, directive):
-        skool = """
-            c30000 LD BC,30021
-             30003 LD DE,30021
-             30006 LD HL,30021
-             30009 LD SP,30021
-             30012 LD IX,30021
-             30016 LD IY,30021
-            @{0}=LD A,0
-             30020 XOR A
-             30021 RET ; This instruction is moved to 30022
-
-            @org
-            c30023 LD BC,(30048)
-             30027 LD DE,(30048)
-             30031 LD HL,(30048)
-             30034 LD SP,(30048)
-             30038 LD IX,(30048)
-             30042 LD IY,(30048)
-            @{0}=XOR A
-             30046 LD A,0
-             30048 RET ; This instruction is moved to 30047
-
-            @org
-            c30049 LD (30073),BC
-             30053 LD (30073),DE
-             30057 LD (30073),HL
-             30060 LD (30073),SP
-             30064 LD (30073),IX
-             30068 LD (30073),IY
-            @{0}=LD A,0
-             30072 XOR A
-             30073 RET ; This instruction is moved to 30074
-        """.format(directive)
-        exp_data = [
-            1, 70, 117,         # 30000 LD BC,30022
-            17, 70, 117,        # 30003 LD DE,30022
-            33, 70, 117,        # 30006 LD HL,30022
-            49, 70, 117,        # 30009 LD SP,30022
-            221, 33, 70, 117,   # 30012 LD IX,30022
-            253, 33, 70, 117,   # 30016 LD IY,30022
-            62, 0,              # 30020 LD A,0
-            201,                # 30022 RET
-            237, 75, 95, 117,   # 30023 LD BC,(30047)
-            237, 91, 95, 117,   # 30027 LD DE,(30047)
-            42, 95, 117,        # 30031 LD HL,(30047)
-            237, 123, 95, 117,  # 30034 LD SP,(30047)
-            221, 42, 95, 117,   # 30038 LD IX,(30047)
-            253, 42, 95, 117,   # 30042 LD IY,(30047)
-            175,                # 30046 XOR A
-            201,                # 30047 RET
-            0,
-            237, 67, 122, 117,  # 30049 LD (30074),BC
-            237, 83, 122, 117,  # 30053 LD (30074),DE
-            34, 122, 117,       # 30057 LD (30074),HL
-            237, 115, 122, 117, # 30060 LD (30074),SP
-            221, 34, 122, 117,  # 30064 LD (30074),IX
-            253, 34, 122, 117,  # 30068 LD (30074),IY
-            62, 0,              # 30072 LD A,0
-            201,                # 30074 RET
-        ]
-        self._test_write(skool, 30000, exp_data, **_mode(directive))
-
-    def _test_mode_processes_org_directives(self, directive):
-        skool = """
-            @{0}=LD A,1
-            c50000 LD A,0
-
-            @org
-            @{0}=LD A,2
-            c50005 LD A,1 ; This instruction should be at 50005
-
-            @if(1>0)(org=50010)
-            @{0}=LD A,3
-            c50010 LD A,2 ; This instruction should be at 50010
-        """.format(directive)
-        exp_data = [62, 1, 0, 0, 0, 62, 2, 0, 0, 0, 62, 3]
-        self._test_write(skool, 50000, exp_data, **_mode(directive))
-
-    def _test_mode_processes_keep_directives(self, directive):
-        skool = """
-            @{}=XOR A
-            c50000 LD A,0
-            @keep
-             50002 LD HL,50005           ; This instruction is moved to 50001
-            @keep=50002
-             50005 LD HL,50002%256+50008 ; This instruction is moved to 50004
-             50008 RET                   ; This instruction is moved to 50007
-        """.format(directive)
-        exp_data = [
-            175,          # 50000 XOR A
-            33, 85, 195,  # 50001 LD HL,50005
-            33, 169, 195, # 50004 LD HL,50002%256+50007
-            201           # 50007 RET
-        ]
-        self._test_write(skool, 50000, exp_data, **_mode(directive))
-
-    def _test_directive_increasing_address_of_next_entry(self, directive):
-        skool = """
-            @{}=LD HL,0
-            c50000 LD L,0
-
-            c50002 RET ; This instruction should be at 50003
-        """.format(directive)
-        exp_data = [33, 0, 0, 201]
-        self._test_write(skool, 50000, exp_data, **_mode(directive))
-
-    def _test_directive_decreasing_address_of_next_entry(self, directive):
-        skool = """
-            @{}=LD L,0
-            c50000 LD HL,0
-
-            c50003 RET ; This instruction should be at 50002
-        """.format(directive)
-        exp_data = [46, 0, 201]
-        self._test_write(skool, 50000, exp_data, **_mode(directive))
-
-    def _test_directive_overrides_other_directive(self, directive, other):
-        skool = """
-            @{}=LD A,2
-            @{}=LD A,1
-            c30000 LD A,0
-        """.format(directive, other)
-        exp_data = [62, 2]
-        self._test_write(skool, 30000, exp_data, **_mode(directive))
-
-    def _test_block_directive_spanning_two_entries_inactive(self, directive):
-        skool = """
-            ; Data
-            b32768 DEFB 1
-            @{0}-begin
-             32769 DEFB 2
-
-            ; Unused
-            u32770 DEFB 3
-            @{0}+else
-             32769 DEFB 4
-             32770 DEFB 8
-            @{0}+end
-        """.format(directive)
-        exp_data = [1, 2, 3]
-        self._test_write(skool, 32768, exp_data)
-
-    def _test_block_directive_spanning_two_entries_active(self, directive):
-        skool = """
-            ; Data
-            b32768 DEFB 1
-            @{0}-begin
-             32769 DEFB 2
-
-            ; Unused
-            u32770 DEFB 3
-            @{0}+else
-             32769 DEFB 4
-             32770 DEFB 8
-            @{0}+end
-        """.format(directive)
-        exp_data = [1, 4, 8]
-        self._test_write(skool, 32768, exp_data, **_mode(directive))
-
-    def test_write(self):
-        skool = """
-            ; Routine at 30000
-            @label=START
-            c30000 RET
-
-            ; Routine at 30001
-            @ssub-begin
-            c30001 LD A,10  ; Load the
-                            ; accumulator with 10
-            @ssub+else
-            c30001 LD A,11  ; Load the
-                            ; accumulator with 11
-            @ssub+end
-             30003 RET
-        """
-        self._test_write(skool, 30000, [201, 62, 10, 201])
-
-    def test_write_i_block(self):
-        skool = """
-            i29999 DEFB 128
-
-            c30000 RET
-        """
-        self._test_write(skool, 29999, [128, 201])
+class BinWriterTest(BinWriterTestCase):
+    stdout_binary = True
 
     def test_nonexistent_skool_file(self):
         with self.assertRaises(SkoolKitError) as cm:
@@ -643,40 +284,11 @@ class BinWriterTest(SkoolKitTestCase):
             self.run_skool2bin(skoolfile)
         self.assertEqual(cm.exception.args[0], 'Invalid address (4000d):\nc4000d RET')
 
-    def test_invalid_org_address_in_rsub_mode(self):
-        skoolfile = self.write_text_file('@org=?\nc40000 RET', suffix='.skool')
-        with self.assertRaises(SkoolKitError) as cm:
-            self.run_skool2bin('--rsub {}'.format(skoolfile))
-        self.assertEqual(cm.exception.args[0], 'Invalid org address: ?')
-
     def test_invalid_instruction(self):
         skoolfile = self.write_text_file('c40000 XOR HL', suffix='.skool')
         with self.assertRaises(SkoolKitError) as cm:
             self.run_skool2bin(skoolfile)
         self.assertEqual(cm.exception.args[0], 'Failed to assemble:\n 40000 XOR HL')
-
-    def test_invalid_sub_instruction(self):
-        skool = """
-            @start
-            c40000 LD A,B
-            @{}=XOR HL
-             40001 XOR L
-             40002 RET
-        """
-        exp_error = 'Failed to assemble:\n 40001 XOR HL'
-        for option, asm_dir in (
-                ('-i', 'isub'),
-                ('-s', 'ssub'),
-                ('-r', 'rsub'),
-                ('-o', 'ofix'),
-                ('-b', 'bfix'),
-                ('-R', 'rfix')
-        ):
-            with self.subTest(option=option, asm_dir=asm_dir):
-                skoolfile = self.write_text_file(dedent(skool.format(asm_dir)).strip(), suffix='.skool')
-                with self.assertRaises(SkoolKitError) as cm:
-                    self.run_skool2bin('{} {}'.format(option, skoolfile))
-                self.assertEqual(cm.exception.args[0], 'Failed to assemble:\n 40001 XOR HL')
 
     def test_skool_file_from_stdin(self):
         self.write_stdin('c49152 RET')
@@ -699,6 +311,14 @@ class BinWriterTest(SkoolKitTestCase):
             b30002 DEFB 2
         """
         self._test_write(skool, 30000, [1, 0, 2])
+
+    def test_i_block(self):
+        skool = """
+            i29999 DEFB 128
+
+            c30000 RET
+        """
+        self._test_write(skool, 29999, [128, 201])
 
     def test_start_address(self):
         skool = """
@@ -731,697 +351,6 @@ class BinWriterTest(SkoolKitTestCase):
         """
         exp_data = [1, 1, 1, 175]
         self._test_write(skool, 30000, exp_data)
-
-    def test_isub_mode(self):
-        skool = """
-            c40000 XOR A
-            @isub=LD B,1
-            @ssub=LD B,2
-             40001 LD B,n
-            @isub=LD C,1 ; Set C=1
-             40003 LD C,n
-            @isub=|XOR A ; Test @isub replacing
-            @isub=       ; one instruction with two.
-            @isub=|INC A
-             40005 LD A,1
-            @isub=|LD A,1 ; Test @isub replacing two instructions with one.
-             40007 XOR A
-             40008 INC A
-            @isub=       ; Test @isub replacing the comment only.
-             40009 SUB B
-            @if({asm})(isub=XOR D)
-             40010 XOR C
-            @isub=|      ; Test @isub replacing
-            @isub=|OR H  ; a later instruction
-             40011 OR D
-             40012 OR E
-            @isub=BEGIN: OR B ; Test @isub defining a label
-             40013 OR A
-            @isub=>LD B,A ; Test @isub inserting an instruction before
-             40014 XOR A
-            @isub=+XOR C  ; Test @isub inserting an instruction after
-             40015 XOR B
-             40016 XOR D
-            @isub=!40017-40019
-             40017 CP 255 ; This should be removed
-
-            @isub+begin
-            @ssub=!40019
-            c40019 CP 1   ; Not removed by @isub=!40017-40019 in previous entry
-            @isub+end
-        """
-        exp_data = [
-            175,   # 40000 XOR A
-            6, 1,  # 40001 LD B,1
-            14, 1, # 40003 LD C,1
-            175,   # 40005 XOR A
-            60,    # 40006 INC A
-            62, 1, # 40007 LD A,1
-            144,   # 40009 SUB B
-            170,   # 40010 XOR D
-            178,   # 40011 OR D
-            180,   # 40012 OR H
-            176,   # 40013 OR B
-            71,    # 40014 LD B,A (inserted)
-            175,   # 40015 XOR A
-            168,   # 40016 XOR B
-            169,   # 40017 XOR C (inserted)
-            170,   # 40018 XOR D
-            254, 1 # 40019 CP 1
-        ]
-        self._test_write(skool, 40000, exp_data, asm_mode=1)
-
-    def test_isub_adjusts_call_operands(self):
-        self._test_mode_adjusts_call_operands('isub')
-
-    def test_isub_adjusts_defb_operands(self):
-        self._test_mode_adjusts_defb_operands('isub')
-
-    def test_isub_adjusts_defm_operands(self):
-        self._test_mode_adjusts_defm_operands('isub')
-
-    def test_isub_adjusts_defw_operands(self):
-        self._test_mode_adjusts_defw_operands('isub')
-
-    def test_isub_adjusts_djnz_operands(self):
-        self._test_mode_adjusts_djnz_operands('isub')
-
-    def test_isub_adjusts_jp_operands(self):
-        self._test_mode_adjusts_jp_operands('isub')
-
-    def test_isub_adjusts_jr_operands(self):
-        self._test_mode_adjusts_jr_operands('isub')
-
-    def test_isub_adjusts_ld_operands(self):
-        self._test_mode_adjusts_ld_operands('isub')
-
-    def test_isub_mode_processes_org_directives(self):
-        self._test_mode_processes_org_directives('isub')
-
-    def test_isub_mode_processes_keep_directives(self):
-        self._test_mode_processes_keep_directives('isub')
-
-    def test_isub_increasing_address_of_next_entry(self):
-        self._test_directive_increasing_address_of_next_entry('isub')
-
-    def test_isub_decreasing_address_of_next_entry(self):
-        self._test_directive_decreasing_address_of_next_entry('isub')
-
-    def test_isub_block_directive_spanning_two_entries_inactive(self):
-        self._test_block_directive_spanning_two_entries_inactive('isub')
-
-    def test_isub_block_directive_spanning_two_entries_active(self):
-        self._test_block_directive_spanning_two_entries_active('isub')
-
-    def test_ssub_mode(self):
-        skool = """
-            @ssub-begin
-            c50000 INC L
-            @ssub+else
-            c50000 INC HL
-            @ssub+end
-            @ssub=INC DE
-             50001 INC E
-            @ssub=INC BC ; Increment BC
-             50002 INC C
-            @rsub-begin
-             50003 RET
-            @rsub+else
-            ; The following @ssub directive should be ignored.
-            @ssub=RET P
-             50003 JP 32768
-            @rsub+end
-            @ssub=|XOR A ; Test @ssub replacing one instruction with two.
-            @ssub=|INC A
-             50004 LD A,1
-            @ssub=|LD A,1 ; Test @ssub replacing two instructions with one.
-             50006 XOR A
-             50007 INC A
-            @ssub=       ; Test @ssub replacing the comment only.
-             50008 SUB B
-            @if({asm}>1)(ssub=XOR D)
-             50009 XOR C
-            @ssub=|      ; Test @ssub replacing
-            @ssub=|OR H  ; a later instruction
-             50010 OR D
-             50011 OR E
-            @ssub=BEGIN: ; Test @ssub defining a label
-             50012 OR A
-            @ssub=>LD B,A ; Test @ssub inserting an instruction before
-             50013 XOR A
-            @ssub=+XOR C  ; Test @ssub inserting an instruction after
-             50014 XOR B
-             50015 XOR D
-            @ssub=!50016-50018
-             50016 RET NZ ; This should be removed
-
-            @ssub+begin
-            c50018 RET    ; Not removed by @ssub=!50016-50018 in previous entry
-            @ssub+end
-        """
-        exp_data = [
-            35,    # 50000 INC L
-            19,    # 50001
-            3,     # 50002
-            201,   # 50003
-            175,   # 50004 XOR A
-            60,    # 50005
-            62, 1, # 50006 LD A,1
-            144,   # 50008 SUB B
-            170,   # 50009 XOR D
-            178,   # 50010 OR D
-            180,   # 50011 OR H
-            183,   # 50012 OR A
-            71,    # 50013 LD B,A (inserted)
-            175,   # 50014 XOR A
-            168,   # 50015 XOR B
-            169,   # 50016 XOR C (inserted)
-            170,   # 50017 XOR D
-            201    # 50018 RET
-        ]
-        self._test_write(skool, 50000, exp_data, asm_mode=2)
-
-    def test_ssub_adjusts_call_operands(self):
-        self._test_mode_adjusts_call_operands('ssub')
-
-    def test_ssub_adjusts_defb_operands(self):
-        self._test_mode_adjusts_defb_operands('ssub')
-
-    def test_ssub_adjusts_defm_operands(self):
-        self._test_mode_adjusts_defm_operands('ssub')
-
-    def test_ssub_adjusts_defw_operands(self):
-        self._test_mode_adjusts_defw_operands('ssub')
-
-    def test_ssub_adjusts_djnz_operands(self):
-        self._test_mode_adjusts_djnz_operands('ssub')
-
-    def test_ssub_adjusts_jp_operands(self):
-        self._test_mode_adjusts_jp_operands('ssub')
-
-    def test_ssub_adjusts_jr_operands(self):
-        self._test_mode_adjusts_jr_operands('ssub')
-
-    def test_ssub_adjusts_ld_operands(self):
-        self._test_mode_adjusts_ld_operands('ssub')
-
-    def test_ssub_mode_processes_org_directives(self):
-        self._test_mode_processes_org_directives('ssub')
-
-    def test_ssub_mode_processes_keep_directives(self):
-        self._test_mode_processes_keep_directives('ssub')
-
-    def test_ssub_increasing_address_of_next_entry(self):
-        self._test_directive_increasing_address_of_next_entry('ssub')
-
-    def test_ssub_decreasing_address_of_next_entry(self):
-        self._test_directive_decreasing_address_of_next_entry('ssub')
-
-    def test_ssub_overrides_isub(self):
-        self._test_directive_overrides_other_directive('ssub', 'isub')
-
-    def test_ssub_block_directive_spanning_two_entries_inactive(self):
-        self._test_block_directive_spanning_two_entries_inactive('ssub')
-
-    def test_ssub_block_directive_spanning_two_entries_active(self):
-        self._test_block_directive_spanning_two_entries_active('ssub')
-
-    def test_rsub_mode(self):
-        skool = """
-            @rsub-begin
-            c50000 INC L
-            @rsub+else
-            c50000 INC HL
-            @rsub+end
-            @rsub=INC DE
-             50001 INC E
-            @rsub=INC BC ; Increment BC
-             50002 INC C
-            @rsub=|XOR A ; Test @rsub replacing one instruction with two.
-            @rsub=|INC A
-             50003 LD A,1
-            @rsub=|LD A,1 ; Test @rsub replacing two instructions with one.
-             50005 XOR A
-             50006 INC A
-            @rsub=       ; Test @ssub replacing the comment only.
-             50007 SUB B
-            @if({asm}>2)(rsub=XOR D)
-             50008 XOR C
-            @rsub=|      ; Test @rsub replacing
-            @rsub=|OR H  ; a later instruction
-             50009 OR D
-             50010 OR E
-            @rsub=BEGIN: ; Test @rsub defining a label
-             50011 OR A
-            @rsub=>LD B,A ; Test @rsub inserting an instruction before
-             50012 XOR A
-            @rsub=+XOR C  ; Test @rsub inserting an instruction after
-             50013 XOR B
-             50014 XOR D
-            @rsub=!50015-50017
-             50015 RET NZ ; This should be removed
-
-            @rsub+begin
-            c50017 RET    ; Not removed by @rsub=!50015-50017 in previous entry
-            @rsub+end
-        """
-        exp_data = [
-            35,    # 50000 INC L
-            19,    # 50001 INC DE
-            3,     # 50002 INC BC
-            175,   # 50003 XOR A
-            60,    # 50004 INC A
-            62, 1, # 50005 LD A,1
-            144,   # 50007 SUB B
-            170,   # 50008 XOR D
-            178,   # 50009 OR D
-            180,   # 50010 OR H
-            183,   # 50011 OR A
-            71,    # 50012 LD B,A (inserted)
-            175,   # 50013 XOR A
-            168,   # 50014 XOR B
-            169,   # 50015 XOR C (inserted)
-            170,   # 50016 XOR D
-            201    # 50017 RET
-        ]
-        self._test_write(skool, 50000, exp_data, asm_mode=3)
-
-    def test_rsub_adjusts_call_operands(self):
-        self._test_mode_adjusts_call_operands('rsub')
-
-    def test_rsub_adjusts_defb_operands(self):
-        self._test_mode_adjusts_defb_operands('rsub')
-
-    def test_rsub_adjusts_defm_operands(self):
-        self._test_mode_adjusts_defm_operands('rsub')
-
-    def test_rsub_adjusts_defw_operands(self):
-        self._test_mode_adjusts_defw_operands('rsub')
-
-    def test_rsub_adjusts_djnz_operands(self):
-        self._test_mode_adjusts_djnz_operands('rsub')
-
-    def test_rsub_adjusts_jp_operands(self):
-        self._test_mode_adjusts_jp_operands('rsub')
-
-    def test_rsub_adjusts_jr_operands(self):
-        self._test_mode_adjusts_jr_operands('rsub')
-
-    def test_rsub_adjusts_ld_operands(self):
-        self._test_mode_adjusts_ld_operands('rsub')
-
-    def test_rsub_mode_processes_org_directives(self):
-        self._test_mode_processes_org_directives('rsub')
-
-    def test_rsub_mode_processes_keep_directives(self):
-        self._test_mode_processes_keep_directives('rsub')
-
-    def test_rsub_increasing_address_of_next_entry(self):
-        self._test_directive_increasing_address_of_next_entry('rsub')
-
-    def test_rsub_decreasing_address_of_next_entry(self):
-        self._test_directive_decreasing_address_of_next_entry('rsub')
-
-    def test_rsub_overrides_isub(self):
-        self._test_directive_overrides_other_directive('rsub', 'isub')
-
-    def test_rsub_overrides_ssub(self):
-        self._test_directive_overrides_other_directive('rsub', 'ssub')
-
-    def test_rsub_block_directive_spanning_two_entries_inactive(self):
-        self._test_block_directive_spanning_two_entries_inactive('rsub')
-
-    def test_rsub_block_directive_spanning_two_entries_active(self):
-        self._test_block_directive_spanning_two_entries_active('rsub')
-
-    def test_rsub_mode_applies_ofix(self):
-        skool = """
-            @ofix=XOR A
-            c30000 XOR B
-        """
-        exp_data = [175]
-        self._test_write(skool, 30000, exp_data, asm_mode=3)
-
-    def test_ofix_mode(self):
-        skool = """
-            @ofix-begin
-            c60000 LD A,1
-            @ofix+else
-            c60000 LD A,2
-            @ofix+end
-            @bfix-begin
-             60002 LD B,1
-            @bfix+else
-             60002 LD B,2
-            @bfix+end
-            @rfix-begin
-             60004 LD C,1
-            @rfix+else
-             60004 LD C,2
-            @rfix+end
-            @bfix=!60006
-            @ofix=LD D,2
-             60006 LD D,1
-            @bfix=LD E,2
-             60008 LD E,1
-            @rfix=LD H,2
-             60010 LD H,1
-            @ofix=LD L,2 ; Set L=2
-             60012 LD L,1
-            @ofix=|XOR A ; Test @ofix replacing
-            @ofix=       ; one instruction with two.
-            @ofix=|INC A
-             60014 LD A,1
-            @ofix=|LD A,1 ; Test @ofix replacing two instructions with one.
-             60016 XOR A
-             60017 INC A
-            @ofix=       ; Test @ofix replacing the comment only.
-             60018 SUB B
-            @if({fix})(ofix=XOR D)
-             60019 XOR C
-            @ofix=|      ; Test @ofix replacing
-            @ofix=|OR H  ; a later instruction
-             60020 OR D
-             60021 OR E
-            @ofix=BEGIN: OR B ; Test @ofix defining a label
-             60022 OR A
-            @ofix=>LD B,A ; Test @ofix inserting an instruction before
-             60023 XOR A
-            @ofix=+XOR C  ; Test @ofix inserting an instruction after
-             60024 XOR B
-             60025 XOR D
-            @ofix=!60026-60028
-             60026 RET NZ ; This should be removed
-
-            @ofix+begin
-            c60028 RET    ; Not removed by @ofix=!60026-60028 in previous entry
-            @ofix+end
-        """
-        exp_data = [
-            62, 2, # 60000
-            6, 1,  # 60002
-            14, 1, # 60004
-            22, 2, # 60006
-            30, 1, # 60008
-            38, 1, # 60010
-            46, 2, # 60012
-            175,   # 60014
-            60,    # 60015
-            62, 1, # 60016
-            144,   # 60018
-            170,   # 60019
-            178,   # 60020
-            180,   # 60021
-            176,   # 60022
-            71,    # 60023
-            175,   # 60024
-            168,   # 60025
-            169,   # 60026
-            170,   # 60027
-            201    # 60028
-        ]
-        self._test_write(skool, 60000, exp_data, fix_mode=1)
-
-    def test_ofix_adjusts_call_operands(self):
-        self._test_mode_adjusts_call_operands('ofix')
-
-    def test_ofix_adjusts_defb_operands(self):
-        self._test_mode_adjusts_defb_operands('ofix')
-
-    def test_ofix_adjusts_defm_operands(self):
-        self._test_mode_adjusts_defm_operands('ofix')
-
-    def test_ofix_adjusts_defw_operands(self):
-        self._test_mode_adjusts_defw_operands('ofix')
-
-    def test_ofix_adjusts_djnz_operands(self):
-        self._test_mode_adjusts_djnz_operands('ofix')
-
-    def test_ofix_adjusts_jp_operands(self):
-        self._test_mode_adjusts_jp_operands('ofix')
-
-    def test_ofix_adjusts_jr_operands(self):
-        self._test_mode_adjusts_jr_operands('ofix')
-
-    def test_ofix_adjusts_ld_operands(self):
-        self._test_mode_adjusts_ld_operands('ofix')
-
-    def test_ofix_mode_processes_org_directives(self):
-        self._test_mode_processes_org_directives('ofix')
-
-    def test_ofix_mode_processes_keep_directives(self):
-        self._test_mode_processes_keep_directives('ofix')
-
-    def test_ofix_increasing_address_of_next_entry(self):
-        self._test_directive_increasing_address_of_next_entry('ofix')
-
-    def test_ofix_decreasing_address_of_next_entry(self):
-        self._test_directive_decreasing_address_of_next_entry('ofix')
-
-    def test_ofix_block_directive_spanning_two_entries_inactive(self):
-        self._test_block_directive_spanning_two_entries_inactive('ofix')
-
-    def test_ofix_block_directive_spanning_two_entries_active(self):
-        self._test_block_directive_spanning_two_entries_active('ofix')
-
-    def test_bfix_mode(self):
-        skool = """
-            @ofix-begin
-            c60000 LD A,1
-            @ofix+else
-            c60000 LD A,2
-            @ofix+end
-            @bfix-begin
-             60002 LD B,1
-            @bfix+else
-             60002 LD B,2
-            @bfix+end
-            @rfix-begin
-             60004 LD C,1
-            @rfix+else
-             60004 LD C,2
-            @rfix+end
-            @ofix=LD D,2
-             60006 LD D,1
-            @bfix=LD E,2
-             60008 LD E,1
-            @rfix=LD H,2
-             60010 LD H,1
-            @bfix=LD L,2 ; Set L=2
-             60012 LD L,1
-            @bfix=|XOR A   ; Test @bfix replacing one instruction with two.
-            @bfix=|JR 60000
-             60014 JP 60000
-            @bfix=|LD A,1 ; Test @bfix replacing two instructions with one.
-             60017 XOR A
-             60018 INC A
-            @bfix=       ; Test @bfix replacing the comment only.
-             60019 SUB B
-            @if({fix}>1)(bfix=XOR D)
-             60020 XOR C
-            @bfix=|      ; Test @bfix replacing
-            @bfix=|OR H  ; a later instruction
-             60021 OR D
-             60022 OR E
-            @bfix=BEGIN: ; Test @bfix defining a label
-             60023 OR A
-            @bfix=>LD B,A ; Test @bfix inserting an instruction before
-             60024 XOR A
-            @bfix=+XOR C  ; Test @bfix inserting an instruction after
-             60025 XOR B
-             60026 XOR D
-            @bfix=!60027-60029
-             60027 RET NZ ; This should be removed
-
-            @bfix+begin
-            c60029 RET    ; Not removed by @bfix=!60027-60029 in previous entry
-            @bfix+end
-        """
-        exp_data = [
-            62, 2,   # 60000 LD A,2
-            6, 2,    # 60002 LD B,2
-            14, 1,   # 60004 LD C,1
-            22, 2,   # 60006 LD D,2
-            30, 2,   # 60008 LD E,2
-            38, 1,   # 60010 LD H,1
-            46, 2,   # 60012 LD L,2
-            175,     # 60014 XOR A
-            24, 239, # 60015 JR 60000
-            62, 1,   # 60017 LD A,1
-            144,     # 60019 SUB B
-            170,     # 60020 XOR D
-            178,     # 60021 OR D
-            180,     # 60022 OR H
-            183,     # 60023 OR A
-            71,      # 60024 LD B,A (inserted)
-            175,     # 60025 XOR A
-            168,     # 60026 XOR B
-            169,     # 60027 XOR C (inserted)
-            170,     # 60028 XOR D
-            201      # 60029 RET
-        ]
-        self._test_write(skool, 60000, exp_data, fix_mode=2)
-
-    def test_bfix_adjusts_call_operands(self):
-        self._test_mode_adjusts_call_operands('bfix')
-
-    def test_bfix_adjusts_defb_operands(self):
-        self._test_mode_adjusts_defb_operands('bfix')
-
-    def test_bfix_adjusts_defm_operands(self):
-        self._test_mode_adjusts_defm_operands('bfix')
-
-    def test_bfix_adjusts_defw_operands(self):
-        self._test_mode_adjusts_defw_operands('bfix')
-
-    def test_bfix_adjusts_djnz_operands(self):
-        self._test_mode_adjusts_djnz_operands('bfix')
-
-    def test_bfix_adjusts_jp_operands(self):
-        self._test_mode_adjusts_jp_operands('bfix')
-
-    def test_bfix_adjusts_jr_operands(self):
-        self._test_mode_adjusts_jr_operands('bfix')
-
-    def test_bfix_adjusts_ld_operands(self):
-        self._test_mode_adjusts_ld_operands('bfix')
-
-    def test_bfix_mode_processes_org_directives(self):
-        self._test_mode_processes_org_directives('bfix')
-
-    def test_bfix_mode_processes_keep_directives(self):
-        self._test_mode_processes_keep_directives('bfix')
-
-    def test_bfix_increasing_address_of_next_entry(self):
-        self._test_directive_increasing_address_of_next_entry('bfix')
-
-    def test_bfix_decreasing_address_of_next_entry(self):
-        self._test_directive_decreasing_address_of_next_entry('bfix')
-
-    def test_bfix_overrides_ofix(self):
-        self._test_directive_overrides_other_directive('bfix', 'ofix')
-
-    def test_bfix_block_directive_spanning_two_entries_inactive(self):
-        self._test_block_directive_spanning_two_entries_inactive('bfix')
-
-    def test_bfix_block_directive_spanning_two_entries_active(self):
-        self._test_block_directive_spanning_two_entries_active('bfix')
-
-    def test_rfix_mode(self):
-        skool = """
-            @rfix-begin
-            c50000 INC L
-            @rfix+else
-            c50000 INC HL
-            @rfix+end
-            @rfix=INC DE
-             50001 INC E
-            @rfix=INC BC ; Increment BC
-             50002 INC C
-            @rfix=|XOR A ; Test @rfix replacing one instruction with two.
-            @rfix=|INC A
-             50003 LD A,1
-            @rfix=|LD A,1 ; Test @rfix replacing two instructions with one.
-             50005 XOR A
-             50006 INC A
-            @rfix=       ; Test @ssub replacing the comment only.
-             50007 SUB B
-            @if({fix}>2)(rfix=XOR D)
-             50008 XOR C
-            @rfix=|      ; Test @rfix replacing
-            @rfix=|OR H  ; a later instruction
-             50009 OR D
-             50010 OR E
-            @rfix=BEGIN: ; Test @rfix defining a label
-             50011 OR A
-            @rfix=>LD B,A ; Test @rfix inserting an instruction before
-             50012 XOR A
-            @rfix=+XOR C  ; Test @rfix inserting an instruction after
-             50013 XOR B
-             50014 XOR D
-            @rfix=!50015-50017
-             50015 RET NZ ; This should be removed
-
-            @rfix+begin
-            c50017 RET    ; Not removed by @rfix=!50015-50017 in previous entry
-            @rfix+end
-        """
-        exp_data = [
-            35,    # 50000 INC L
-            19,    # 50001 INC DE
-            3,     # 50002 INC BC
-            175,   # 50003 XOR A
-            60,    # 50004 INC A
-            62, 1, # 50005 LD A,1
-            144,   # 50007 SUB B
-            170,   # 50008 XOR D
-            178,   # 50009 OR D
-            180,   # 50010 OR H
-            183,   # 50011 OR A
-            71,    # 50012 LD B,A (inserted)
-            175,   # 50013 XOR A
-            168,   # 50014 XOR B
-            169,   # 50015 XOR C (inserted)
-            170,   # 50016 XOR D
-            201    # 50017 RET
-        ]
-        self._test_write(skool, 50000, exp_data, fix_mode=3)
-
-    def test_rfix_adjusts_call_operands(self):
-        self._test_mode_adjusts_call_operands('rfix')
-
-    def test_rfix_adjusts_defb_operands(self):
-        self._test_mode_adjusts_defb_operands('rfix')
-
-    def test_rfix_adjusts_defm_operands(self):
-        self._test_mode_adjusts_defm_operands('rfix')
-
-    def test_rfix_adjusts_defw_operands(self):
-        self._test_mode_adjusts_defw_operands('rfix')
-
-    def test_rfix_adjusts_djnz_operands(self):
-        self._test_mode_adjusts_djnz_operands('rfix')
-
-    def test_rfix_adjusts_jp_operands(self):
-        self._test_mode_adjusts_jp_operands('rfix')
-
-    def test_rfix_adjusts_jr_operands(self):
-        self._test_mode_adjusts_jr_operands('rfix')
-
-    def test_rfix_adjusts_ld_operands(self):
-        self._test_mode_adjusts_ld_operands('rfix')
-
-    def test_rfix_mode_processes_org_directives(self):
-        self._test_mode_processes_org_directives('rfix')
-
-    def test_rfix_mode_processes_keep_directives(self):
-        self._test_mode_processes_keep_directives('rfix')
-
-    def test_rfix_increasing_address_of_next_entry(self):
-        self._test_directive_increasing_address_of_next_entry('rfix')
-
-    def test_rfix_decreasing_address_of_next_entry(self):
-        self._test_directive_decreasing_address_of_next_entry('rfix')
-
-    def test_rfix_overrides_ofix(self):
-        self._test_directive_overrides_other_directive('rfix', 'ofix')
-
-    def test_rfix_overrides_bfix(self):
-        self._test_directive_overrides_other_directive('rfix', 'bfix')
-
-    def test_rfix_block_directive_spanning_two_entries_inactive(self):
-        self._test_block_directive_spanning_two_entries_inactive('rfix')
-
-    def test_rfix_block_directive_spanning_two_entries_active(self):
-        self._test_block_directive_spanning_two_entries_active('rfix')
-
-    def test_rfix_applies_rsub(self):
-        skool = """
-            @rsub=LD B,2
-            c30000 LD B,0
-        """
-        exp_data = [6, 2]
-        self._test_write(skool, 30000, exp_data, fix_mode=3)
 
     def test_data_directives_ignored(self):
         skool = """
@@ -1482,11 +411,11 @@ class BinWriterTest(SkoolKitTestCase):
 
     def test_if_directive_ignored_if_invalid(self):
         skool = """
-            @if(x)(bfix=DEFB 2)
+            @if(x)(defb=2)
             b32768 DEFB 1
         """
         exp_data = [1]
-        self._test_write(skool, 32768, exp_data, fix_mode=2)
+        self._test_write(skool, 32768, exp_data, data=True)
 
     def test_header_is_ignored(self):
         skool = """
@@ -1532,4 +461,630 @@ class BinWriterTest(SkoolKitTestCase):
         self.write_component_config('InstructionUtility', '*.CustomUtility', custom_adjuster)
         skool = "c50000 JP 50000"
         exp_data = [195, 81, 195]
-        self._test_write(skool, 50000, exp_data, asm_mode=3)
+        self._test_write(skool, 50000, exp_data)
+
+class DirectiveTestCase:
+    def test_mode_applies_directives(self):
+        skool = """
+            @{0}=XOR A
+            c30000 XOR B
+            @{0}-begin
+             30001 XOR C
+            @{0}+else
+             30001 XOR D
+            @{0}+end
+        """
+        exp_data = [175, 170]
+        for d in self.applies:
+            with self.subTest(directive=d):
+                self._test_write(skool.format(d), 30000, exp_data, self.mode)
+
+    def test_directive_overrides_other_directives(self):
+        skool = """
+            @{}=LD A,2
+            @{}=LD A,1
+            c30000 LD A,0
+        """
+        exp_data = [62, 2]
+        for d in self.overrides:
+            with self.subTest(directive=d):
+                self._test_write(skool.format(self.mode, d), 30000, exp_data, self.mode)
+
+    def test_mode_ignores_other_directives(self):
+        skool = """
+            @{0}=XOR A
+            c30000 XOR B
+            @{0}-begin
+             30001 XOR C
+            @{0}+else
+             30001 XOR D
+            @{0}+end
+        """
+        exp_data = [168, 169]
+        ignores = {'isub', 'ssub', 'rsub', 'ofix', 'bfix', 'rfix'} - set(self.applies)
+        for d in ignores:
+            with self.subTest(directive=d):
+                self._test_write(skool.format(d), 30000, exp_data, self.mode)
+
+    def test_mode_combined_with_other_modes(self):
+        skool = """
+            @{}=XOR A
+            c30000 XOR B
+            @{}=XOR C
+             30001 XOR D
+        """
+        exp_data = [175, 169]
+        if self.mode.endswith('sub'):
+            other_modes = ('ofix', 'bfix', 'rfix')
+        else:
+            other_modes = ('isub', 'ssub', 'rsub')
+        for m in other_modes:
+            with self.subTest(directive=m):
+                self._test_write(skool.format(self.mode, m), 30000, exp_data, self.mode, m)
+
+    def test_mode_adjusts_call_operands(self):
+        skool = """
+            c30000 CALL 30016
+             30003 CALL NZ,30016
+             30006 CALL Z,30016
+             30009 CALL NC,30016
+             30012 CALL C,30016
+            @{0}=LD A,0
+             30015 XOR A
+             30016 RET ; This instruction is moved to 30017
+
+            @org
+            c30020 CALL PO,30034
+             30023 CALL PE,30034
+             30026 CALL P,30034
+             30029 CALL M,30034
+            @{0}=XOR A
+             30032 LD A,0
+             30034 RET ; This instruction is moved to 30033
+        """.format(self.mode)
+        exp_data = [
+            205, 65, 117, # 30000 CALL 30017
+            196, 65, 117, # 30003 CALL NZ,30017
+            204, 65, 117, # 30006 CALL Z,30017
+            212, 65, 117, # 30009 CALL NC,30017
+            220, 65, 117, # 30012 CALL C,30017
+            62, 0,        # 30015 LD A,0
+            201,          # 30017 RET
+            0, 0,
+            228, 81, 117, # 30020 CALL PO,30033
+            236, 81, 117, # 30023 CALL PE,30033
+            244, 81, 117, # 30026 CALL P,30033
+            252, 81, 117, # 30029 CALL M,30033
+            175,          # 30032 XOR A
+            201,          # 30033 RET
+        ]
+        self._test_write(skool, 30000, exp_data, self.mode)
+
+    def test_mode_adjusts_defb_operands(self):
+        skool = """
+            @{0}=LD A,0
+            c30000 XOR A
+             30001 INC A      ; This instruction is moved to 30002
+            @{0}=LD B,A
+             30002 LD BC,0
+             30005 RET        ; This instruction is moved to 30004
+
+            @org
+            b30006 DEFB 30001%256
+             30007 DEFB 30005%256
+             30008 DEFB "30001"
+        """.format(self.mode)
+        exp_data = [
+            62, 0,             # 30000 LD A,0
+            60,                # 30002 INC A
+            71,                # 30003 LD B,A
+            201,               # 30004 RET
+            0,
+            50,                # 30006 DEFB 30002%256
+            52,                # 30007 DEFB 30004%256
+            51, 48, 48, 48, 49 # 30008 DEFB "30001"
+        ]
+        self._test_write(skool, 30000, exp_data, self.mode)
+
+    def test_mode_adjusts_defm_operands(self):
+        skool = """
+            @{0}=LD A,0
+            c30000 XOR A
+             30001 INC A      ; This instruction is moved to 30002
+            @{0}=LD B,A
+             30002 LD BC,0
+             30005 RET        ; This instruction is moved to 30004
+
+            @org
+            b30006 DEFM 30001%256
+             30007 DEFM 30005%256
+             30008 DEFM "30005"
+        """.format(self.mode)
+        exp_data = [
+            62, 0,             # 30000 LD A,0
+            60,                # 30002 INC A
+            71,                # 30003 LD B,A
+            201,               # 30004 RET
+            0,
+            50,                # 30006 DEFM 30002%256
+            52,                # 30007 DEFM 30004%256
+            51, 48, 48, 48, 53 # 30008 DEFM "30005"
+        ]
+        self._test_write(skool, 30000, exp_data, self.mode)
+
+    def test_mode_adjusts_defw_operands(self):
+        skool = """
+            @{0}=LD A,0
+            c30000 XOR A
+             30001 INC A      ; This instruction is moved to 30002
+            @{0}=LD B,A
+             30002 LD BC,0
+             30005 RET        ; This instruction is moved to 30004
+
+            @org
+            b30006 DEFW 30001
+             30008 DEFW 30005
+        """.format(self.mode)
+        exp_data = [
+            62, 0,   # 30000 LD A,0
+            60,      # 30002 INC A
+            71,      # 30003 LD B,A
+            201,     # 30004 RET
+            0,
+            50, 117, # 30006 DEFW 30002
+            52, 117  # 30008 DEFW 30004
+        ]
+        self._test_write(skool, 30000, exp_data, self.mode)
+
+    def test_mode_adjusts_djnz_operands(self):
+        skool = """
+            @{0}=LD A,0
+            c30000 XOR A
+             30001 INC A      ; This instruction is moved to 30002
+             30002 DJNZ 30001
+             30004 RET
+
+            @org
+            @{0}=XOR A
+            c30006 LD A,0
+             30008 INC A      ; This instruction is moved to 30007
+             30009 DJNZ 30008
+             30011 RET
+        """.format(self.mode)
+        exp_data = [62, 0, 60, 16, 253, 201, 175, 60, 16, 253, 201]
+        self._test_write(skool, 30000, exp_data, self.mode)
+
+    def test_mode_adjusts_jp_operands(self):
+        skool = """
+            c30000 JP 30016
+             30003 JP NZ,30016
+             30006 JP Z,30016
+             30009 JP NC,30016
+             30012 JP C,30016
+            @{0}=LD A,0
+             30015 XOR A
+             30016 RET ; This instruction is moved to 30017
+
+            @org
+            c30020 JP PO,30034
+             30023 JP PE,30034
+             30026 JP P,30034
+             30029 JP M,30034
+            @{0}=XOR A
+             30032 LD A,0
+             30034 RET ; This instruction is moved to 30033
+        """.format(self.mode)
+        exp_data = [
+            195, 65, 117, # 30000 JP 30017
+            194, 65, 117, # 30003 JP NZ,30017
+            202, 65, 117, # 30006 JP Z,30017
+            210, 65, 117, # 30009 JP NC,30017
+            218, 65, 117, # 30012 JP C,30017
+            62, 0,        # 30015 LD A,0
+            201,          # 30017 RET
+            0, 0,
+            226, 81, 117, # 30020 JP PO,30033
+            234, 81, 117, # 30023 JP PE,30033
+            242, 81, 117, # 30026 JP P,30033
+            250, 81, 117, # 30029 JP M,30033
+            175,          # 30032 XOR A
+            201,          # 30033 RET
+        ]
+        self._test_write(skool, 30000, exp_data, self.mode)
+
+    def test_mode_adjusts_jr_operands(self):
+        skool = """
+            c30000 JR 30007
+             30002 JR Z,30007
+             30004 JR NZ,30007
+            @{0}=LD A,0
+             30006 XOR A
+             30007 RET ; This instruction is moved to 30008
+
+            @org
+            c30010 JR C,30016
+             30012 JR NC,30016
+            @{0}=XOR A
+             30014 LD A,0
+             30016 RET ; This instruction is moved to 30015
+        """.format(self.mode)
+        exp_data = [
+            24, 6, # 30000 JR 30008
+            40, 4, # 30002 JR Z,30008
+            32, 2, # 30004 JR NZ,30008
+            62, 0, # 30006 LD A,0
+            201,   # 30008 RET
+            0,
+            56, 3, # 30010 JR C,30015
+            48, 1, # 30012 JR NC,30015
+            175,   # 30014 XOR A
+            201    # 30015 RET
+        ]
+        self._test_write(skool, 30000, exp_data, self.mode)
+
+    def test_mode_adjusts_ld_operands(self):
+        skool = """
+            c30000 LD BC,30021
+             30003 LD DE,30021
+             30006 LD HL,30021
+             30009 LD SP,30021
+             30012 LD IX,30021
+             30016 LD IY,30021
+            @{0}=LD A,0
+             30020 XOR A
+             30021 RET ; This instruction is moved to 30022
+
+            @org
+            c30023 LD BC,(30048)
+             30027 LD DE,(30048)
+             30031 LD HL,(30048)
+             30034 LD SP,(30048)
+             30038 LD IX,(30048)
+             30042 LD IY,(30048)
+            @{0}=XOR A
+             30046 LD A,0
+             30048 RET ; This instruction is moved to 30047
+
+            @org
+            c30049 LD (30073),BC
+             30053 LD (30073),DE
+             30057 LD (30073),HL
+             30060 LD (30073),SP
+             30064 LD (30073),IX
+             30068 LD (30073),IY
+            @{0}=LD A,0
+             30072 XOR A
+             30073 RET ; This instruction is moved to 30074
+        """.format(self.mode)
+        exp_data = [
+            1, 70, 117,         # 30000 LD BC,30022
+            17, 70, 117,        # 30003 LD DE,30022
+            33, 70, 117,        # 30006 LD HL,30022
+            49, 70, 117,        # 30009 LD SP,30022
+            221, 33, 70, 117,   # 30012 LD IX,30022
+            253, 33, 70, 117,   # 30016 LD IY,30022
+            62, 0,              # 30020 LD A,0
+            201,                # 30022 RET
+            237, 75, 95, 117,   # 30023 LD BC,(30047)
+            237, 91, 95, 117,   # 30027 LD DE,(30047)
+            42, 95, 117,        # 30031 LD HL,(30047)
+            237, 123, 95, 117,  # 30034 LD SP,(30047)
+            221, 42, 95, 117,   # 30038 LD IX,(30047)
+            253, 42, 95, 117,   # 30042 LD IY,(30047)
+            175,                # 30046 XOR A
+            201,                # 30047 RET
+            0,
+            237, 67, 122, 117,  # 30049 LD (30074),BC
+            237, 83, 122, 117,  # 30053 LD (30074),DE
+            34, 122, 117,       # 30057 LD (30074),HL
+            237, 115, 122, 117, # 30060 LD (30074),SP
+            221, 34, 122, 117,  # 30064 LD (30074),IX
+            253, 34, 122, 117,  # 30068 LD (30074),IY
+            62, 0,              # 30072 LD A,0
+            201,                # 30074 RET
+        ]
+        self._test_write(skool, 30000, exp_data, self.mode)
+
+    def test_mode_processes_org_directives(self):
+        skool = """
+            @{0}=LD A,1
+            c50000 LD A,0
+
+            @org
+            @{0}=LD A,2
+            c50005 LD A,1 ; This instruction should be at 50005
+
+            @if(1>0)(org=50010)
+            @{0}=LD A,3
+            c50010 LD A,2 ; This instruction should be at 50010
+        """.format(self.mode)
+        exp_data = [62, 1, 0, 0, 0, 62, 2, 0, 0, 0, 62, 3]
+        self._test_write(skool, 50000, exp_data, self.mode)
+
+    def test_mode_processes_keep_directives(self):
+        skool = """
+            @{}=XOR A
+            c50000 LD A,0
+            @keep
+             50002 LD HL,50005           ; This instruction is moved to 50001
+            @keep=50002
+             50005 LD HL,50002%256+50008 ; This instruction is moved to 50004
+             50008 RET                   ; This instruction is moved to 50007
+        """.format(self.mode)
+        exp_data = [
+            175,          # 50000 XOR A
+            33, 85, 195,  # 50001 LD HL,50005
+            33, 169, 195, # 50004 LD HL,50002%256+50007
+            201           # 50007 RET
+        ]
+        self._test_write(skool, 50000, exp_data, self.mode)
+
+    def test_directive_defining_label_only(self):
+        skool = """
+            @{}=DONE:
+            c50000 RET
+        """.format(self.mode)
+        exp_data = [201]
+        self._test_write(skool, 50000, exp_data, self.mode)
+
+    def test_directive_defining_label(self):
+        skool = """
+            @{}=START: INC A
+            c50000 DEC A
+        """.format(self.mode)
+        exp_data = [60]
+        self._test_write(skool, 50000, exp_data, self.mode)
+
+    def test_directive_replacing_comment_only(self):
+        skool = """
+            @{}=       ; Finished
+            c50000 RET ; Done
+        """.format(self.mode)
+        exp_data = [201]
+        self._test_write(skool, 50000, exp_data, self.mode)
+
+    def test_directive_replacing_comment(self):
+        skool = """
+            @{}=DEC A    ; Finished
+            c50000 INC A ; Done
+        """.format(self.mode)
+        exp_data = [61]
+        self._test_write(skool, 50000, exp_data, self.mode)
+
+    def test_directive_increasing_address_of_next_entry(self):
+        skool = """
+            @{}=LD HL,0
+            c50000 LD L,0
+
+            c50002 RET ; This instruction should be at 50003
+        """.format(self.mode)
+        exp_data = [33, 0, 0, 201]
+        self._test_write(skool, 50000, exp_data, self.mode)
+
+    def test_directive_decreasing_address_of_next_entry(self):
+        skool = """
+            @{}=LD L,0
+            c50000 LD HL,0
+
+            c50003 RET ; This instruction should be at 50002
+        """.format(self.mode)
+        exp_data = [46, 0, 201]
+        self._test_write(skool, 50000, exp_data, self.mode)
+
+    def test_directive_replacing_one_instruction_with_two(self):
+        skool = """
+            @{0}=|XOR A
+            @{0}=|INC A
+            c49152 LD A,1
+        """.format(self.mode)
+        exp_data = [175, 60]
+        self._test_write(skool, 49152, exp_data, self.mode)
+
+    def test_directive_replacing_two_instructions_with_one(self):
+        skool = """
+            @{}=|LD A,1
+            c49152 XOR A
+             49153 INC A
+        """.format(self.mode)
+        exp_data = [62, 1]
+        self._test_write(skool, 49152, exp_data, self.mode)
+
+    def test_directive_replacing_later_instruction(self):
+        skool = """
+            @{0}=|
+            @{0}=|DEC A
+            c49152 XOR A
+             49153 INC A
+        """.format(self.mode)
+        exp_data = [175, 61]
+        self._test_write(skool, 49152, exp_data, self.mode)
+
+    def test_directive_inserting_instruction_before(self):
+        skool = """
+            @{}=>XOR A
+            c24576 RET
+        """.format(self.mode)
+        exp_data = [175, 201]
+        self._test_write(skool, 24576, exp_data, self.mode)
+
+    def test_directive_inserting_instruction_after(self):
+        skool = """
+            @{}=+RET
+            c24576 XOR A
+        """.format(self.mode)
+        exp_data = [175, 201]
+        self._test_write(skool, 24576, exp_data, self.mode)
+
+    def test_directive_removing_instruction(self):
+        skool = """
+            @{}=!30001
+            c30000 XOR A
+             30001 RET
+        """.format(self.mode)
+        exp_data = [175]
+        self._test_write(skool, 30000, exp_data, self.mode)
+
+    def test_directive_removes_instructions_in_current_entry_only(self):
+        skool = """
+            @{}=!30001-30002
+            c30000 XOR A
+             30001 RET
+
+            c30002 INC A
+        """.format(self.mode)
+        exp_data = [175, 60]
+        self._test_write(skool, 30000, exp_data, self.mode)
+
+    def test_block_directive_minus_no_else_inactive(self):
+        skool = """
+            ; Data
+            b32768 DEFB 1
+            @{0}-begin
+             32769 DEFB 2
+            @{0}-end
+        """.format(self.mode)
+        exp_data = [1, 2]
+        self._test_write(skool, 32768, exp_data)
+
+    def test_block_directive_plus_no_else_inactive(self):
+        skool = """
+            ; Data
+            b32768 DEFB 1
+            @{0}+begin
+             32769 DEFB 2
+            @{0}+end
+        """.format(self.mode)
+        exp_data = [1]
+        self._test_write(skool, 32768, exp_data)
+
+    def test_block_directive_minus_no_else_active(self):
+        skool = """
+            ; Data
+            b32768 DEFB 1
+            @{0}-begin
+             32769 DEFB 2
+            @{0}-end
+        """.format(self.mode)
+        exp_data = [1]
+        self._test_write(skool, 32768, exp_data, self.mode)
+
+    def test_block_directive_plus_no_else_active(self):
+        skool = """
+            ; Data
+            b32768 DEFB 1
+            @{0}+begin
+             32769 DEFB 2
+            @{0}+end
+        """.format(self.mode)
+        exp_data = [1, 2]
+        self._test_write(skool, 32768, exp_data, self.mode)
+
+    def test_block_directive_with_else_inactive(self):
+        skool = """
+            ; Data
+            b32768 DEFB 1
+            @{0}-begin
+             32769 DEFB 2
+            @{0}+else
+             32769 DEFB 3
+            @{0}+end
+        """.format(self.mode)
+        exp_data = [1, 2]
+        self._test_write(skool, 32768, exp_data)
+
+    def test_block_directive_with_else_active(self):
+        skool = """
+            ; Data
+            b32768 DEFB 1
+            @{0}-begin
+             32769 DEFB 2
+            @{0}+else
+             32769 DEFB 3
+            @{0}+end
+        """.format(self.mode)
+        exp_data = [1, 3]
+        self._test_write(skool, 32768, exp_data, self.mode)
+
+    def test_block_directive_spanning_two_entries_inactive(self):
+        skool = """
+            ; Data
+            b32768 DEFB 1
+            @{0}-begin
+             32769 DEFB 2
+
+            ; Unused
+            u32770 DEFB 3
+            @{0}+else
+             32769 DEFB 4
+             32770 DEFB 8
+            @{0}+end
+        """.format(self.mode)
+        exp_data = [1, 2, 3]
+        self._test_write(skool, 32768, exp_data)
+
+    def test_block_directive_spanning_two_entries_active(self):
+        skool = """
+            ; Data
+            b32768 DEFB 1
+            @{0}-begin
+             32769 DEFB 2
+
+            ; Unused
+            u32770 DEFB 3
+            @{0}+else
+             32769 DEFB 4
+             32770 DEFB 8
+            @{0}+end
+        """.format(self.mode)
+        exp_data = [1, 4, 8]
+        self._test_write(skool, 32768, exp_data, self.mode)
+
+    def test_invalid_sub_instruction(self):
+        skool = """
+            @start
+            c40000 LD A,B
+            @{}=XOR HL
+             40001 XOR L
+             40002 RET
+        """.format(self.mode)
+        exp_error = 'Failed to assemble:\n 40001 XOR HL'
+        skoolfile = self.write_text_file(dedent(skool).strip(), suffix='.skool')
+        with self.assertRaises(SkoolKitError) as cm:
+            self.run_skool2bin('--{} {}'.format(self.mode, skoolfile))
+        self.assertEqual(cm.exception.args[0], 'Failed to assemble:\n 40001 XOR HL')
+
+    def test_invalid_org_address(self):
+        skoolfile = self.write_text_file('@org=?\nc40000 RET', suffix='.skool')
+        with self.assertRaises(SkoolKitError) as cm:
+            self.run_skool2bin('--{} {}'.format(self.mode, skoolfile))
+        self.assertEqual(cm.exception.args[0], 'Invalid org address: ?')
+
+class isubTest(BinWriterTestCase, DirectiveTestCase):
+    mode = 'isub'
+    applies = ('isub',)
+    overrides = ()
+
+class ssubTest(BinWriterTestCase, DirectiveTestCase):
+    mode = 'ssub'
+    applies = ('isub', 'ssub')
+    overrides = ('isub',)
+
+class rsubTest(BinWriterTestCase, DirectiveTestCase):
+    mode = 'rsub'
+    applies = ('isub', 'ssub', 'rsub', 'ofix')
+    overrides = ('isub', 'ssub')
+
+class ofixTest(BinWriterTestCase, DirectiveTestCase):
+    mode = 'ofix'
+    applies = ('ofix',)
+    overrides = ('isub', 'ssub', 'rsub')
+
+class bfixTest(BinWriterTestCase, DirectiveTestCase):
+    mode = 'bfix'
+    applies = ('ofix', 'bfix')
+    overrides = ('ofix', 'isub', 'ssub', 'rsub')
+
+class rfixTest(BinWriterTestCase, DirectiveTestCase):
+    mode = 'rfix'
+    applies = ('isub', 'ssub', 'rsub', 'ofix', 'bfix', 'rfix')
+    overrides = ('ofix', 'bfix', 'isub', 'ssub', 'rsub')
