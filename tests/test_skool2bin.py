@@ -278,11 +278,17 @@ class BinWriterTest(BinWriterTestCase):
             self.run_skool2bin('nonexistent.skool')
         self.assertEqual(cm.exception.args[0], 'nonexistent.skool: file not found')
 
-    def test_invalid_instruction_address(self):
+    def test_first_instruction_address_invalid(self):
         skoolfile = self.write_text_file('c4000d RET', suffix='.skool')
         with self.assertRaises(SkoolKitError) as cm:
             self.run_skool2bin(skoolfile)
         self.assertEqual(cm.exception.args[0], 'Invalid address (4000d):\nc4000d RET')
+
+    def test_second_instruction_address_invalid(self):
+        skoolfile = self.write_text_file('c40000 XOR A\n 4000x RET', suffix='.skool')
+        with self.assertRaises(SkoolKitError) as cm:
+            self.run_skool2bin(skoolfile)
+        self.assertEqual(cm.exception.args[0], 'Invalid address (4000x):\n 4000x RET')
 
     def test_invalid_instruction(self):
         skoolfile = self.write_text_file('c40000 XOR HL', suffix='.skool')
@@ -937,7 +943,6 @@ class DirectiveTestCase:
 
     def test_block_directive_minus_no_else_inactive(self):
         skool = """
-            ; Data
             b32768 DEFB 1
             @{0}-begin
              32769 DEFB 2
@@ -948,7 +953,6 @@ class DirectiveTestCase:
 
     def test_block_directive_plus_no_else_inactive(self):
         skool = """
-            ; Data
             b32768 DEFB 1
             @{0}+begin
              32769 DEFB 2
@@ -959,7 +963,6 @@ class DirectiveTestCase:
 
     def test_block_directive_minus_no_else_active(self):
         skool = """
-            ; Data
             b32768 DEFB 1
             @{0}-begin
              32769 DEFB 2
@@ -970,7 +973,6 @@ class DirectiveTestCase:
 
     def test_block_directive_plus_no_else_active(self):
         skool = """
-            ; Data
             b32768 DEFB 1
             @{0}+begin
              32769 DEFB 2
@@ -981,7 +983,6 @@ class DirectiveTestCase:
 
     def test_block_directive_with_else_inactive(self):
         skool = """
-            ; Data
             b32768 DEFB 1
             @{0}-begin
              32769 DEFB 2
@@ -994,7 +995,6 @@ class DirectiveTestCase:
 
     def test_block_directive_with_else_active(self):
         skool = """
-            ; Data
             b32768 DEFB 1
             @{0}-begin
              32769 DEFB 2
@@ -1007,12 +1007,10 @@ class DirectiveTestCase:
 
     def test_block_directive_spanning_two_entries_inactive(self):
         skool = """
-            ; Data
             b32768 DEFB 1
             @{0}-begin
              32769 DEFB 2
 
-            ; Unused
             u32770 DEFB 3
             @{0}+else
              32769 DEFB 4
@@ -1024,12 +1022,10 @@ class DirectiveTestCase:
 
     def test_block_directive_spanning_two_entries_active(self):
         skool = """
-            ; Data
             b32768 DEFB 1
             @{0}-begin
              32769 DEFB 2
 
-            ; Unused
             u32770 DEFB 3
             @{0}+else
              32769 DEFB 4
@@ -1039,9 +1035,20 @@ class DirectiveTestCase:
         exp_data = [1, 4, 8]
         self._test_write(skool, 32768, exp_data, self.mode)
 
+    def test_addressless_instruction_in_block_directive(self):
+        skool = """
+            b32768 DEFB 1
+            @{0}-begin
+             32769 DEFB 2
+            @{0}+else
+                   DEFB 3
+            @{0}+end
+        """.format(self.mode)
+        exp_data = [1, 3]
+        self._test_write(skool, 32768, exp_data, self.mode)
+
     def test_invalid_sub_instruction(self):
         skool = """
-            @start
             c40000 LD A,B
             @{}=XOR HL
              40001 XOR L

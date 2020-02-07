@@ -88,7 +88,9 @@ class BinWriter:
         try:
             skool_address = get_int_param(line[1:6])
         except ValueError:
-            raise SkoolParsingError("Invalid address ({}):\n{}".format(line[1:6], line.rstrip()))
+            if address is None or line[1:6].strip():
+                raise SkoolParsingError("Invalid address ({}):\n{}".format(line[1:6], line.rstrip()))
+            skool_address = None
         if address is None:
             address = skool_address
         original_op = partition_unquoted(line[6:], ';')[0].strip()
