@@ -232,6 +232,10 @@ class TestImageWriter(ImageWriter):
             self.height = frame1.height
 
 class HtmlWriterTestCase(SkoolKitTestCase):
+    def setUp(self):
+        super().setUp()
+        self.force_odir = None
+
     def _mock_write_file(self, fname, contents):
         self.files[fname] = contents
 
@@ -249,7 +253,7 @@ class HtmlWriterTestCase(SkoolKitTestCase):
             skool_parser = SkoolParser(self.skoolfile, case=case, base=base, html=True,
                                        create_labels=create_labels, asm_labels=asm_labels,
                                        variables=variables)
-        self.odir = self.make_directory()
+        self.odir = self.force_odir or self.make_directory()
         if mock_file_info:
             file_info = MockFileInfo()
         else:
@@ -3373,6 +3377,19 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         self.assertIn('<title>{}: {}</title>'.format(name, title), html)
         self.assertIn('<td class="page-header">{}</td>'.format(header), html)
 
+    def _test_Game_parameter_containing_skool_macro(self, param, value='#IF({html})(PASS,FAIL)', exp_value='PASS', extra=''):
+        ref = """
+            [Game]
+            {0}={1}
+            {2}
+
+            [Template:Asm-c]
+            {{Game[{0}]}}
+        """.format(param, value, extra)
+        writer = self._get_writer(ref=ref, skool='c40000 RET')
+        writer.write_asm_entries()
+        self._assert_content_equal(exp_value, join(ASMDIR, '40000.html'))
+
     def test_macro_pc(self):
         skool = """
             ; Code at #PC
@@ -3537,6 +3554,9 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             'content': content
         }
         self._assert_files_equal(join(MAPS_DIR, 'all.html'), subs)
+
+    def test_parameter_AsmSinglePage_containing_skool_macro(self):
+        self._test_Game_parameter_containing_skool_macro('AsmSinglePage', '#IF({html})(0,1)', '0')
 
     def test_parameter_Bytes_blank_with_assembled_code(self):
         skool = """
@@ -3786,6 +3806,9 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         writer.write_asm_entries()
         self._assert_content_equal('32768 c9 ret', 'asm/32768.html')
 
+    def test_parameter_Copyright_containing_skool_macro(self):
+        self._test_Game_parameter_containing_skool_macro('Copyright')
+
     def test_parameter_DisassemblyTableNumCols(self):
         ref = """
             [Game]
@@ -3839,6 +3862,21 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         }
         self._assert_files_equal(join(ASMDIR, '50000.html'), subs)
 
+    def test_parameter_DisassemblyTableNumCols_containing_skool_macro(self):
+        self._test_Game_parameter_containing_skool_macro('DisassemblyTableNumCols')
+
+    def test_parameter_Font_containing_skool_macro(self):
+        self._test_Game_parameter_containing_skool_macro('Font')
+
+    def test_parameter_Game_containing_skool_macro(self):
+        self._test_Game_parameter_containing_skool_macro('Game')
+
+    def test_parameter_InputRegisterTableHeader_containing_skool_macro(self):
+        self._test_Game_parameter_containing_skool_macro('InputRegisterTableHeader')
+
+    def test_parameter_Game_JavaScript_containing_skool_macro(self):
+        self._test_Game_parameter_containing_skool_macro('JavaScript')
+
     def test_parameter_LinkInternalOperands_0(self):
         ref = '[Game]\nLinkInternalOperands=0'
         skool = """
@@ -3887,6 +3925,9 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             self.assertEqual(html[line_no], '<td class="instruction">{}</td>'.format(operation))
             line_no += 5
 
+    def test_parameter_LinkInternalOperands_containing_skool_macro(self):
+        self._test_Game_parameter_containing_skool_macro('LinkInternalOperands')
+
     def test_parameter_LinkOperands(self):
         ref = '[Game]\nLinkOperands={}'
         skool = """
@@ -3915,18 +3956,26 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
                 self.assertEqual(html[line_no], '<td class="instruction">{}</td>'.format(exp_html))
                 line_no += 5
 
-    def test_parameter_DefaultAnimationFormat(self):
-        ref = '[ImageWriter]\nDefaultAnimationFormat=png'
-        fname = 'test_animation'
-        exp_image_path = '{}/{}.png'.format(UDGDIR, fname)
-        exp_src = '../{}'.format(exp_image_path)
-        udg = Udg(130, [136] * 8) # Flashing
-        macro = '#UDG0,{}({})'.format(udg.attr, fname)
-        writer = self._get_writer(snapshot=udg.data, ref=ref, mock_file_info=True)
-        output = writer.expand(macro, ASMDIR)
-        self.assertEqual(output, '<img alt="{}" src="{}" />'.format(fname, exp_src))
-        self.assertEqual(writer.file_info.fname, exp_image_path)
-        self.assertEqual([[udg]], writer.image_writer.udg_array)
+    def test_parameter_LinkOperands_containing_skool_macro(self):
+        self._test_Game_parameter_containing_skool_macro('LinkOperands')
+
+    def test_parameter_LogoImage_containing_skool_macro(self):
+        self.force_odir = self.make_directory()
+        self.write_bin_file(path='{}/{}/logo.png'.format(self.force_odir, GAMEDIR))
+        self._test_Game_parameter_containing_skool_macro(
+            'LogoImage', '#IF({html})(logo.png,not.png)',
+            '<img alt="LogoImageTest" src="../logo.png" />',
+            'Game=LogoImageTest'
+        )
+
+    def test_parameter_OutputRegisterTableHeader_containing_skool_macro(self):
+        self._test_Game_parameter_containing_skool_macro('OutputRegisterTableHeader')
+
+    def test_parameter_Release_containing_skool_macro(self):
+        self._test_Game_parameter_containing_skool_macro('Release')
+
+    def test_parameter_StyleSheet_containing_skool_macro(self):
+        self._test_Game_parameter_containing_skool_macro('StyleSheet')
 
     def test_html_escape(self):
         # Check that HTML characters from the skool file are escaped
