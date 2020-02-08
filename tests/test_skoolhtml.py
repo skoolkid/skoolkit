@@ -3390,6 +3390,19 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         writer.write_asm_entries()
         self._assert_content_equal(exp_value, join(ASMDIR, '40000.html'))
 
+    def _test_Page_parameter_containing_skool_macro(self, param, value='#IF({html})(PASS,FAIL)', exp_value='PASS', extra=''):
+        ref = """
+            [Page:Custom]
+            {0}={1}
+            {2}
+
+            [Template:Custom]
+            {{Page[{0}]}}
+        """.format(param, value, extra)
+        writer = self._get_writer(ref=ref)
+        writer.write_page('Custom')
+        self._assert_content_equal(exp_value, 'Custom.html')
+
     def test_macro_pc(self):
         skool = """
             ; Code at #PC
@@ -3976,6 +3989,35 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
 
     def test_parameter_StyleSheet_containing_skool_macro(self):
         self._test_Game_parameter_containing_skool_macro('StyleSheet')
+
+    def test_parameter_Content_containing_skool_macro(self):
+        self.force_odir = self.make_directory()
+        self.write_text_file(path='{}/{}/Stuff.html'.format(self.force_odir, GAMEDIR))
+        ref = """
+            [Page:Stuff]
+            Content=#IF({html})(Stuff.html,Wrong.html)
+
+            [Index]
+            Stuff
+
+            [Index:Stuff:Things]
+            Stuff
+
+            [Template:GameIndex]
+            {sections[0][header]}: {sections[0][items][0][href]}
+        """
+        writer = self._get_writer(ref=ref)
+        writer.write_index()
+        self._assert_content_equal('Things: Stuff.html', 'index.html')
+
+    def test_Page_parameter_JavaScript_containing_skool_macro(self):
+        self._test_Page_parameter_containing_skool_macro('JavaScript')
+
+    def test_parameter_SectionPrefix_containing_skool_macro(self):
+        self._test_Page_parameter_containing_skool_macro('SectionPrefix', '#IF({html})(Right,Wrong)', 'Right', '[Right:Item]')
+
+    def test_parameter_SectionType_containing_skool_macro(self):
+        self._test_Page_parameter_containing_skool_macro('SectionType')
 
     def test_html_escape(self):
         # Check that HTML characters from the skool file are escaped
