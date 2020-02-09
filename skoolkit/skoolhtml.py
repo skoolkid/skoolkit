@@ -769,20 +769,21 @@ class HtmlWriter:
         map_details = self.memory_maps.get(map_name, {})
         entry_types = map_details.get('EntryTypes', DEF_MEMORY_MAP_ENTRY_TYPES)
         map_dict = {
-            'LabelColumn': map_details.get('LabelColumn', '0'),
             'EntryDescriptions': map_details.get('EntryDescriptions', '0'),
             'EntryTypes': entry_types,
+            'Includes': map_details.get('Includes', ()),
             'Intro': self.expand(map_details.get('Intro', ''), cwd),
+            'LabelColumn': map_details.get('LabelColumn', '0'),
             'LengthColumn': map_details.get('LengthColumn', '0'),
-            'PageByteColumns': map_details.get('PageByteColumns', '0')
+            'PageByteColumns': map_details.get('PageByteColumns', '0'),
+            'Write': map_details.get('Write', '1')
         }
         desc = map_dict['EntryDescriptions'] != '0'
 
         map_entries = []
-        includes = map_details.get('Includes', ())
         asm_labels = False
         for entry in self.memory_map:
-            if entry.ctl in entry_types or entry.address in includes:
+            if entry.ctl in entry_types or entry.address in map_dict['Includes']:
                 if entry.instructions[0].asm_label:
                     asm_labels = True
                 map_entries.append(self._get_map_entry_dict(cwd, entry, desc))

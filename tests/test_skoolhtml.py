@@ -3403,6 +3403,22 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         writer.write_page('Custom')
         self._assert_content_equal(exp_value, 'Custom.html')
 
+    def _test_MemoryMap_parameter_containing_skool_macro(self, param, value='#IF({html})(PASS,FAIL)', exp_value='PASS'):
+        skool = """
+            @label=START
+            c50000 RET
+        """
+        ref = """
+            [MemoryMap:Custom]
+            {0}={1}
+
+            [Template:Custom]
+            {{MemoryMap[{0}]}}
+        """.format(param, value)
+        writer = self._get_writer(ref=ref, skool=skool, asm_labels=True)
+        writer.write_map('Custom')
+        self._assert_content_equal(exp_value, 'maps/Custom.html')
+
     def test_macro_pc(self):
         skool = """
             ; Code at #PC
@@ -4018,6 +4034,24 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
 
     def test_parameter_SectionType_containing_skool_macro(self):
         self._test_Page_parameter_containing_skool_macro('SectionType')
+
+    def test_parameter_EntryDescriptions_containing_skool_macro(self):
+        self._test_MemoryMap_parameter_containing_skool_macro('EntryDescriptions')
+
+    def test_parameter_EntryTypes_containing_skool_macro(self):
+        self._test_MemoryMap_parameter_containing_skool_macro('EntryTypes', '#IF({html})(c,u)', 'c')
+
+    def test_parameter_Includes_containing_skool_macro(self):
+        self._test_MemoryMap_parameter_containing_skool_macro('Includes', '#IF({html})(50000,0)', '[50000]')
+
+    def test_parameter_LabelColumn_containing_skool_macro(self):
+        self._test_MemoryMap_parameter_containing_skool_macro('LabelColumn')
+
+    def test_parameter_LengthColumn_containing_skool_macro(self):
+        self._test_MemoryMap_parameter_containing_skool_macro('LengthColumn')
+
+    def test_parameter_Write_containing_skool_macro(self):
+        self._test_MemoryMap_parameter_containing_skool_macro('Write')
 
     def test_html_escape(self):
         # Check that HTML characters from the skool file are escaped
