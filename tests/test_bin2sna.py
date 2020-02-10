@@ -52,6 +52,11 @@ class Bin2SnaTest(SkoolKitTestCase):
         snapshot = get_snapshot(z80file)
         self.assertEqual(data, snapshot[org:org + len(data)])
 
+    def _test_poke(self, option, address, exp_values):
+        binfile = self.write_bin_file([0], suffix='.bin')
+        z80file = self._run('{} {}'.format(option, binfile))
+        self._check_z80(z80file, exp_values, address, 65535, 65535)
+
     def _test_bad_spec(self, option, exp_error):
         binfile = self.write_bin_file([0], suffix='.bin')
         z80file = self.write_bin_file(suffix='.z80')
@@ -125,50 +130,80 @@ class Bin2SnaTest(SkoolKitTestCase):
         z80file = self._run('-')
         self._check_z80(z80file, data)
 
+    @patch.object(bin2sna, 'run', mock_run)
+    def test_options_b_border(self):
+        for option, border in (('-b', 2), ('--border', 4)):
+            output, error = self.run_bin2sna("{} {} test.bin".format(option, border))
+            self.assertEqual(output, '')
+            self.assertEqual(error, '')
+            infile, outfile, options = run_args
+            self.assertEqual(options.border, border)
+
     def test_option_b(self):
         data = [0, 2, 4]
         binfile = self.write_bin_file(data, suffix='.bin')
-        for option, border in (('-b', 2), ('--border', 4)):
-            z80file = self._run("{} {} {}".format(option, border, binfile))
-            self._check_z80(z80file, data, border=border)
+        z80file = self._run("-b 2 {}".format(binfile))
+        self._check_z80(z80file, data, border=2)
+
+    @patch.object(bin2sna, 'run', mock_run)
+    def test_options_o_org(self):
+        for option, org in (('-o', 30000), ('--org', 40000)):
+            output, error = self.run_bin2sna("{} {} test.bin".format(option, org))
+            self.assertEqual(output, '')
+            self.assertEqual(error, '')
+            infile, outfile, options = run_args
+            self.assertEqual(options.org, org)
+
+    @patch.object(bin2sna, 'run', mock_run)
+    def test_options_o_org_with_hex_address(self):
+        for option, org in (('-o', '0x800d'), ('--org', '0xABCD')):
+            output, error = self.run_bin2sna("{} {} test.bin".format(option, org))
+            self.assertEqual(output, '')
+            self.assertEqual(error, '')
+            infile, outfile, options = run_args
+            self.assertEqual(options.org, int(org[2:], 16))
 
     def test_option_o(self):
         data = [1, 2, 3]
         binfile = self.write_bin_file(data, suffix='.bin')
-        for option, org in (('-o', 30000), ('--org', 40000)):
-            z80file = self._run("{} {} {}".format(option, org, binfile))
-            self._check_z80(z80file, data, org)
+        z80file = self._run("-o 30000 {}".format(binfile))
+        self._check_z80(z80file, data, 30000)
 
-    def test_option_o_with_hex_address(self):
-        data = [1, 2, 3]
-        binfile = self.write_bin_file(data, suffix='.bin')
-        for option, org in (('-o', '0x800d'), ('--org', '0xABCD')):
-            z80file = self._run("{} {} {}".format(option, org, binfile))
-            self._check_z80(z80file, data, int(org[2:], 16))
+    @patch.object(bin2sna, 'run', mock_run)
+    def test_options_p_stack(self):
+        for option, stack in (('-p', 35000), ('--stack', 45000)):
+            output, error = self.run_bin2sna("{} {} test.bin".format(option, stack))
+            self.assertEqual(output, '')
+            self.assertEqual(error, '')
+            infile, outfile, options = run_args
+            self.assertEqual(options.stack, stack)
+
+    @patch.object(bin2sna, 'run', mock_run)
+    def test_options_p_stack_with_hex_address(self):
+        for option, stack in (('-p', '0x7fff'), ('--stack', '0xC001')):
+            output, error = self.run_bin2sna("{} {} test.bin".format(option, stack))
+            self.assertEqual(output, '')
+            self.assertEqual(error, '')
+            infile, outfile, options = run_args
+            self.assertEqual(options.stack, int(stack[2:], 16))
 
     def test_option_p(self):
         data = [1, 2, 4]
         binfile = self.write_bin_file(data, suffix='.bin')
-        for option, stack in (('-p', 35000), ('--stack', 45000)):
-            z80file = self._run("{} {} {}".format(option, stack, binfile))
-            self._check_z80(z80file, data, sp=stack)
+        z80file = self._run("-p 49152 {}".format(binfile))
+        self._check_z80(z80file, data, sp=49152)
 
-    def test_option_p_with_hex_address(self):
-        data = [1, 2, 4]
-        binfile = self.write_bin_file(data, suffix='.bin')
-        for option, stack in (('-p', '0x7fff'), ('--stack', '0xC001')):
-            z80file = self._run("{} {} {}".format(option, stack, binfile))
-            self._check_z80(z80file, data, sp=int(stack[2:], 16))
-
-    def _test_poke(self, option, address, exp_values):
-        binfile = self.write_bin_file([0], suffix='.bin')
-        z80file = self._run('{} {}'.format(option, binfile))
-        self._check_z80(z80file, exp_values, address, 65535, 65535)
-
+    @patch.object(bin2sna, 'run', mock_run)
     def test_options_P_poke(self):
         for option, spec in (('-P', '32768,1'), ('--poke', '30000,5')):
-            address, exp_value = [int(i) for i in spec.split(',')]
-            self._test_poke('{} {}'.format(option, spec), address, [exp_value])
+            output, error = self.run_bin2sna("{} {} test.bin".format(option, spec))
+            self.assertEqual(output, '')
+            self.assertEqual(error, '')
+            infile, outfile, options = run_args
+            self.assertEqual([spec], options.pokes)
+
+    def test_option_P(self):
+        self._test_poke('-P 32768,1', 32768, [1])
 
     def test_option_P_address_range(self):
         self._test_poke('-P 40000-40002,2', 40000, [2])
@@ -274,26 +309,44 @@ class Bin2SnaTest(SkoolKitTestCase):
         """
         self.assertEqual(textwrap.dedent(exp_output).lstrip(), output)
 
+    @patch.object(bin2sna, 'run', mock_run)
+    def test_options_s_start(self):
+        for option, start in (('-s', 50000), ('--start', 60000)):
+            output, error = self.run_bin2sna("{} {} test.bin".format(option, start))
+            self.assertEqual(output, '')
+            self.assertEqual(error, '')
+            infile, outfile, options = run_args
+            self.assertEqual(options.start, start)
+
+    @patch.object(bin2sna, 'run', mock_run)
+    def test_options_s_start_with_hex_address(self):
+        for option, start in (('-s', '0x6f00'), ('--start', '0xD00A')):
+            output, error = self.run_bin2sna("{} {} test.bin".format(option, start))
+            self.assertEqual(output, '')
+            self.assertEqual(error, '')
+            infile, outfile, options = run_args
+            self.assertEqual(options.start, int(start[2:], 16))
+
     def test_option_s(self):
         data = [2, 3, 4]
         binfile = self.write_bin_file(data, suffix='.bin')
-        for option, start in (('-s', 50000), ('--start', 60000)):
-            z80file = self._run("{} {} {}".format(option, start, binfile))
-            self._check_z80(z80file, data, pc=start)
+        z80file = self._run("-s 50000 {}".format(binfile))
+        self._check_z80(z80file, data, pc=50000)
 
-    def test_option_s_with_hex_address(self):
-        data = [2, 3, 4]
-        binfile = self.write_bin_file(data, suffix='.bin')
-        for option, start in (('-s', '0x6f00'), ('--start', '0xD00A')):
-            z80file = self._run("{} {} {}".format(option, start, binfile))
-            self._check_z80(z80file, data, pc=int(start[2:], 16))
+    @patch.object(bin2sna, 'run', mock_run)
+    def test_options_S_state(self):
+        for option, values in (('-S', ['border=3', 'iff=0', 'im=2']), ('--state', ['border=5', 'iff=1', 'im=0'])):
+            output, error = self.run_bin2sna("{0} {1} {0} {2} {0} {3} test.bin".format(option, *values))
+            self.assertEqual(output, '')
+            self.assertEqual(error, '')
+            infile, outfile, options = run_args
+            self.assertEqual(values, options.state)
 
     def test_option_S(self):
         data = [0]
         binfile = self.write_bin_file(data, suffix='.bin')
-        for option, border, iff, im in (('-S', 3, 0, 2), ('--state', 5, 1, 0)):
-            z80file = self._run("{0} border={1} {0} iff={2} {0} im={3} {4}".format(option, border, iff, im, binfile))
-            self._check_z80(z80file, data, border=border, iff=iff, im=im)
+        z80file = self._run("-S border=3 --state iff=0 -S im=2 {}".format(binfile))
+        self._check_z80(z80file, data, border=3, iff=0, im=2)
 
     def test_option_S_invalid_values(self):
         self._test_bad_spec('-S border=k', 'Cannot parse integer: border=k')
