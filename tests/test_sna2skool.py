@@ -200,6 +200,25 @@ class Sna2SkoolTest(SkoolKitTestCase):
         self.assertEqual(ctlfiles, mock_ctl_parser.ctlfiles)
         self.assertTrue(mock_skool_writer.wrote_skool)
 
+    @patch.object(sna2skool, 'make_snapshot', mock_make_snapshot)
+    @patch.object(sna2skool, 'CtlParser', MockCtlParser)
+    @patch.object(sna2skool, 'SkoolWriter', MockSkoolWriter)
+    def test_option_c_0(self):
+        output, error = self.run_sna2skool('-c 0 test.sna')
+        self.assertEqual(error, '')
+        self.assertEqual(mock_ctl_parser.ctls, {16384: 'c', 65536: 'i'})
+        self.assertTrue(mock_skool_writer.wrote_skool)
+
+    @patch.object(sna2skool, 'CtlParser', MockCtlParser)
+    @patch.object(sna2skool, 'SkoolWriter', MockSkoolWriter)
+    def test_option_ctl_0_ignores_default_control_file(self):
+        binfile = self.write_bin_file([0] * 3, suffix='.bin')
+        self.write_text_file('b 65533', '{}.ctl'.format(binfile[:-4]))
+        output, error = self.run_sna2skool('--ctl 0 {}'.format(binfile))
+        self.assertEqual(error, '')
+        self.assertEqual(mock_ctl_parser.ctls, {65533: 'c', 65536: 'i'})
+        self.assertTrue(mock_skool_writer.wrote_skool)
+
     @patch.object(sna2skool, 'CtlParser', MockCtlParser)
     @patch.object(sna2skool, 'SkoolWriter', MockSkoolWriter)
     def test_option_e(self):

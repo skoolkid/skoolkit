@@ -27,6 +27,8 @@ Changelog
   property
 * The :ref:`ignoreua` directive can now specify the addresses for which to
   suppress warnings
+* Added support to :ref:`sna2skool.py` for ignoring default control files (by
+  specifying ``--ctl 0``)
 
 8.0 (2019-11-09)
 ----------------

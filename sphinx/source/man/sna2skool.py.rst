@@ -20,7 +20,8 @@ OPTIONS
   Specify a control file to use (which may be '-' for standard input). By
   default, any files whose names start with the input snapshot name (minus
   the .bin, .sna, .szx or .z80 suffix, if any) and end with .ctl will be used,
-  if present. This option may be used multiple times.
+  if present. If `FILE` is '0', no control file will be used. This option may
+  be used multiple times.
 
 -e, --end `ADDR`
   Stop disassembling at this address; the default end address is 65536. `ADDR`

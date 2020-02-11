@@ -791,8 +791,9 @@ list::
   file. FILE may be a regular file, or '-' for standard input.
 
   Options:
-    -c FILE, --ctl FILE   Use FILE as a control file (may be '-' for standard
-                          input). This option may be used multiple times.
+    -c FILE, --ctl FILE   Use FILE as a control file. FILE may be '-' for
+                          standard input, or '0' to use no control file. This
+                          option may be used multiple times.
     -e ADDR, --end ADDR   Stop disassembling at this address (default=65536).
     -H, --hex             Write hexadecimal addresses and operands in the
                           disassembly.
@@ -889,6 +890,8 @@ Configuration parameters may also be set on the command line by using the
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 8.1     | Added support for ignoring default control files (``--ctl 0``)    |
++---------+-------------------------------------------------------------------+
 | 8.0     | Added the ``DefwSize`` configuration parameter                    |
 +---------+-------------------------------------------------------------------+
 | 7.1     | Added support for reading multiple default control files, and for |

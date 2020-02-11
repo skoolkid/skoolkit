@@ -1,4 +1,4 @@
-# Copyright 2009-2015, 2017-2019 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2009-2015, 2017-2020 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -28,7 +28,7 @@ END = 65536
 def run(snafile, options, config):
     snapshot, start, end = make_snapshot(snafile, options.org, options.start, options.end, options.page)
 
-    if options.ctlfiles:
+    if options.ctlfiles and '0' not in options.ctlfiles:
         # Use control file(s)
         if len(options.ctlfiles) > 1:
             suffix = 's'
@@ -53,7 +53,8 @@ def main(args):
     parser.add_argument('snafile', help=argparse.SUPPRESS, nargs='?')
     group = parser.add_argument_group('Options')
     group.add_argument('-c', '--ctl', dest='ctlfiles', metavar='FILE', action='append', default=[],
-                       help="Use FILE as a control file (may be '-' for standard input). This option may be used multiple times.")
+                       help="Use FILE as a control file. FILE may be '-' for standard input, or '0' to use no control file. "
+                            "This option may be used multiple times.")
     group.add_argument('-e', '--end', dest='end', metavar='ADDR', type=integer, default=END,
                        help='Stop disassembling at this address (default={}).'.format(END))
     group.add_argument('-H', '--hex', dest='base', action='store_const', const=16, default=config['Base'],
