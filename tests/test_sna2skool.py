@@ -45,9 +45,10 @@ class Sna2SkoolTest(SkoolKitTestCase):
     @patch.object(sna2skool, 'run', mock_run)
     @patch.object(sna2skool, 'get_config', mock_config)
     def test_default_option_values(self):
-        sna2skool.main(('test.sna',))
+        sna = '{}/test.sna'.format(self.make_directory())
+        sna2skool.main((sna,))
         snafile, options = run_args[:2]
-        self.assertEqual(snafile, 'test.sna')
+        self.assertEqual(snafile, sna)
         self.assertEqual([], options.ctlfiles)
         self.assertEqual(options.base, 10)
         self.assertEqual(options.case, 2)
@@ -73,9 +74,10 @@ class Sna2SkoolTest(SkoolKitTestCase):
             Title-c=Code at {address}
         """
         self.write_text_file(dedent(ini).strip(), 'skoolkit.ini')
-        sna2skool.main(('test.sna',))
+        sna = '{}/test.sna'.format(self.make_directory())
+        sna2skool.main((sna,))
         snafile, options, config = run_args
-        self.assertEqual(snafile, 'test.sna')
+        self.assertEqual(snafile, sna)
         self.assertEqual([], options.ctlfiles)
         self.assertEqual(options.base, 16)
         self.assertEqual(options.case, 1)
@@ -117,7 +119,7 @@ class Sna2SkoolTest(SkoolKitTestCase):
             Title-c=Code at {address}
         """
         self.write_text_file(dedent(ini).strip(), 'skoolkit.ini')
-        output, error = self.run_sna2skool('test.sna')
+        output, error = self.run_sna2skool('{}/test.sna'.format(self.make_directory()))
         self.assertEqual(error, '')
         config = mock_skool_writer.config
         self.assertEqual(config.get('Title-b'), 'Data at {address}')
@@ -140,18 +142,15 @@ class Sna2SkoolTest(SkoolKitTestCase):
         self.assertEqual(output, '')
         self.assertTrue(error.startswith('usage: sna2skool.py'))
 
-    def test_nonexistent_files(self):
-        error_tp = '{0}: file not found'
-
-        nonexistent_bin = 'nonexistent.bin'
-        with self.assertRaisesRegex(SkoolKitError, error_tp.format(nonexistent_bin)):
+    def test_nonexistent_input_file(self):
+        nonexistent_bin = '{}/nonexistent.bin'.format(self.make_directory())
+        with self.assertRaisesRegex(SkoolKitError, '{}: file not found'.format(nonexistent_bin)):
             self.run_sna2skool(nonexistent_bin)
 
-        binfile = self.write_bin_file(suffix='.bin')
-
-        nonexistent_ctl = 'nonexistent.ctl'
-        with self.assertRaisesRegex(SkoolKitError, error_tp.format(nonexistent_ctl)):
-            self.run_sna2skool('-c {0} {1}'.format(nonexistent_ctl, binfile))
+    def test_nonexistent_control_file(self):
+        nonexistent_ctl = '{}/nonexistent.ctl'.format(self.make_directory())
+        with self.assertRaisesRegex(SkoolKitError, '{}: file not found'.format(nonexistent_ctl)):
+            self.run_sna2skool('-c {} {}'.format(nonexistent_ctl, self.write_bin_file(suffix='.bin')))
 
     def test_option_V(self):
         for option in ('-V', '--version'):
@@ -163,7 +162,7 @@ class Sna2SkoolTest(SkoolKitTestCase):
     @patch.object(sna2skool, 'SkoolWriter', MockSkoolWriter)
     def test_option_H(self):
         for option in ('-H', '--hex'):
-            output, error = self.run_sna2skool('{} test.sna'.format(option))
+            output, error = self.run_sna2skool('{} {}/test.sna'.format(option, self.make_directory()))
             self.assertEqual(error, '')
             self.assertEqual(mock_skool_writer.options.base, 16)
             self.assertTrue(mock_skool_writer.wrote_skool)
@@ -173,7 +172,7 @@ class Sna2SkoolTest(SkoolKitTestCase):
     @patch.object(sna2skool, 'SkoolWriter', MockSkoolWriter)
     def test_option_L(self):
         for option in ('-l', '--lower'):
-            output, error = self.run_sna2skool('{} test.sna'.format(option))
+            output, error = self.run_sna2skool('{} {}/test.sna'.format(option, self.make_directory()))
             self.assertEqual(error, '')
             self.assertEqual(mock_skool_writer.options.case, 1)
             self.assertTrue(mock_skool_writer.wrote_skool)
@@ -312,7 +311,7 @@ class Sna2SkoolTest(SkoolKitTestCase):
     @patch.object(sna2skool, 'SkoolWriter', MockSkoolWriter)
     def test_option_o(self):
         for option, value in (('-o', 49152), ('--org', 32768)):
-            output, error = self.run_sna2skool('{} {} test.bin'.format(option, value))
+            output, error = self.run_sna2skool('{} {} {}/test.bin'.format(option, value, self.make_directory()))
             self.assertEqual(error, '')
             self.assertEqual({value: 'c', value + 1: 'i'}, mock_ctl_parser.ctls)
             self.assertEqual(mock_skool_writer.snapshot[value], 201)
@@ -323,7 +322,7 @@ class Sna2SkoolTest(SkoolKitTestCase):
     @patch.object(sna2skool, 'SkoolWriter', MockSkoolWriter)
     def test_option_o_with_hex_address(self):
         for option, value in (('-o', '0x7f00'), ('--org', '0xAB0C')):
-            output, error = self.run_sna2skool('{} {} test.bin'.format(option, value))
+            output, error = self.run_sna2skool('{} {} {}/test.bin'.format(option, value, self.make_directory()))
             self.assertEqual(error, '')
             org = int(value[2:], 16)
             self.assertEqual({org: 'c', org + 1: 'i'}, mock_ctl_parser.ctls)
@@ -419,7 +418,7 @@ class Sna2SkoolTest(SkoolKitTestCase):
         start = 65534
         exp_ctls = {start: 'c', 65536: 'i'}
         for option in ('-s', '--start'):
-            output, error = self.run_sna2skool('{} {} test.sna'.format(option, start))
+            output, error = self.run_sna2skool('{} {} {}/test.sna'.format(option, start, self.make_directory()))
             self.assertEqual(error, '')
             self.assertEqual(exp_ctls, mock_ctl_parser.ctls)
             self.assertTrue(mock_skool_writer.wrote_skool)
@@ -431,7 +430,7 @@ class Sna2SkoolTest(SkoolKitTestCase):
         start = 65534
         exp_ctls = {start: 'c', 65536: 'i'}
         for option in ('-s', '--start'):
-            output, error = self.run_sna2skool('{} 0x{:04x} test.sna'.format(option, start))
+            output, error = self.run_sna2skool('{} 0x{:04x} {}/test.sna'.format(option, start, self.make_directory()))
             self.assertEqual(error, '')
             self.assertEqual(exp_ctls, mock_ctl_parser.ctls)
             self.assertTrue(mock_skool_writer.wrote_skool)
@@ -487,7 +486,7 @@ class Sna2SkoolTest(SkoolKitTestCase):
     @patch.object(sna2skool, 'CtlParser', MockCtlParser)
     @patch.object(sna2skool, 'SkoolWriter', MockSkoolWriter)
     def test_default_ctl(self):
-        snafile = 'test-default-ctl.sna'
+        snafile = '{}/test-default-ctl.sna'.format(self.make_directory())
         ctlfile = '{}.ctl'.format(snafile[:-4])
         self.write_text_file(path=ctlfile)
         output, error = self.run_sna2skool(snafile)
@@ -499,7 +498,7 @@ class Sna2SkoolTest(SkoolKitTestCase):
     @patch.object(sna2skool, 'CtlParser', MockCtlParser)
     @patch.object(sna2skool, 'SkoolWriter', MockSkoolWriter)
     def test_multiple_default_ctls(self):
-        snafile = 'test-default-ctls.sna'
+        snafile = '{}/test-default-ctls.sna'.format(self.make_directory())
         prefix = snafile[:-4]
         suffixes = ('-1', '-2', '-last')
         ctlfiles = [self.write_text_file(path='{}{}.ctl'.format(prefix, s)) for s in suffixes]
