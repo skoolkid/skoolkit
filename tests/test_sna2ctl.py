@@ -287,17 +287,16 @@ class Sna2CtlTest(SkoolKitTestCase):
         self.assertEqual(output, '')
         self.assertTrue(error.startswith('usage: sna2ctl.py'))
 
-    def test_nonexistent_files(self):
-        error_tp = '{}: file not found'
-
-        nonexistent_bin = 'nonexistent.bin'
-        with self.assertRaisesRegex(SkoolKitError, error_tp.format(nonexistent_bin)):
+    def test_nonexistent_input_file(self):
+        nonexistent_bin = '{}/nonexistent.bin'.format(self.make_directory())
+        with self.assertRaisesRegex(SkoolKitError, '{}: file not found'.format(nonexistent_bin)):
             self.run_sna2ctl(nonexistent_bin)
 
+    def test_nonexistent_map(self):
         binfile = self.write_bin_file(suffix='.bin')
 
-        nonexistent_map = 'nonexistent.map'
-        with self.assertRaisesRegex(SkoolKitError, error_tp.format(nonexistent_map)):
+        nonexistent_map = '{}/nonexistent.map'.format(self.make_directory())
+        with self.assertRaisesRegex(SkoolKitError, '{}: file not found'.format(nonexistent_map)):
             self.run_sna2ctl('-m {} {}'.format(nonexistent_map, binfile))
 
         nonexistent_map = self.make_directory()
