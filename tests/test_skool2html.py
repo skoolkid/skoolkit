@@ -272,12 +272,12 @@ class Skool2HtmlTest(SkoolKitTestCase):
         self.assertEqual(dedent(exp_output).strip(), output.rstrip())
 
     def test_nonexistent_skool_file(self):
-        skoolfile = 'xyz.skool'
+        skoolfile = '{}/xyz.skool'.format(self.make_directory())
         with self.assertRaisesRegex(SkoolKitError, '{}: file not found'.format(skoolfile)):
             self.run_skool2html('-d {0} {1}'.format(self.odir, skoolfile))
 
     def test_nonexistent_secondary_skool_file(self):
-        other_skoolfile = 'save.skool'
+        other_skoolfile = '{}/save.skool'.format(self.make_directory())
         ref = '[OtherCode:save]\nSource={}'.format(other_skoolfile)
         reffile = self._write_ref_file(ref)
         skoolfile = self.write_text_file(path='{}.skool'.format(reffile[:-4]))
@@ -436,14 +436,14 @@ class Skool2HtmlTest(SkoolKitTestCase):
     @patch.object(skool2html, 'SkoolParser', MockSkoolParser)
     def test_nonexistent_ref_file_on_command_line(self):
         skoolfile = self.write_text_file(suffix='.skool')
-        reffile = 'nonexistent.ref'
+        reffile = '{}/nonexistent.ref'.format(self.make_directory())
         with self.assertRaisesRegex(SkoolKitError, '{}: file not found'.format(reffile)):
             self.run_skool2html('-d {} {} {}'.format(self.odir, skoolfile, reffile))
 
     @patch.object(skool2html, 'get_object', Mock(return_value=TestHtmlWriter))
     @patch.object(skool2html, 'SkoolParser', MockSkoolParser)
     def test_nonexistent_css_file(self):
-        cssfile = 'abc.css'
+        cssfile = '{}/abc.css'.format(self.make_directory())
         skoolfile = self.write_text_file(suffix='.skool')
         with self.assertRaisesRegex(SkoolKitError, '{}: file not found'.format(cssfile)):
             self.run_skool2html('-c Game/StyleSheet={0} -w "" -d {1} {2}'.format(cssfile, self.odir, skoolfile))
@@ -451,7 +451,7 @@ class Skool2HtmlTest(SkoolKitTestCase):
     @patch.object(skool2html, 'get_object', Mock(return_value=TestHtmlWriter))
     @patch.object(skool2html, 'SkoolParser', MockSkoolParser)
     def test_nonexistent_js_file(self):
-        jsfile = 'cba.js'
+        jsfile = '{}/cba.js'.format(self.make_directory())
         skoolfile = self.write_text_file(suffix='.skool')
         ref = """
             [Page:P1]
@@ -1456,7 +1456,7 @@ class Skool2HtmlTest(SkoolKitTestCase):
     @patch.object(skool2html, 'get_config', mock_config)
     def test_Config_RefFiles_parameter_contains_nonexistent_file(self):
         ref1file = self._write_ref_file('')
-        ref2file = 'nonexistent.ref'
+        ref2file = '{}/nonexistent.ref'.format(self.make_directory())
         ref = """
             [Config]
             RefFiles={};{}
