@@ -103,7 +103,7 @@ class SnapmodTest(SkoolKitTestCase):
             self.run_snapmod('unknown.snap')
 
     def test_nonexistent_input_file(self):
-        infile = 'non-existent.z80'
+        infile = '{}/non-existent.z80'.format(self.make_directory())
         with self.assertRaises(SkoolKitError) as cm:
             self.run_snapmod('-r hl=0 {}'.format(infile))
         self.assertEqual(cm.exception.args[0], '{}: file not found'.format(infile))
@@ -150,7 +150,7 @@ class SnapmodTest(SkoolKitTestCase):
     @patch.object(snapmod, 'run', mock_run)
     def test_options_m_move(self):
         for option in ('-m', '--move'):
-            output, error = self.run_snapmod('{0} 30000,10,40000 {0} 50000,20,60000 test.z80'.format(option))
+            output, error = self.run_snapmod('{0} 30000,10,40000 {0} 50000,20,60000 {1}/test.z80'.format(option, self.make_directory()))
             self.assertEqual(output, '')
             self.assertEqual(error, '')
             infile, options, outfile = run_args
@@ -195,7 +195,7 @@ class SnapmodTest(SkoolKitTestCase):
     @patch.object(snapmod, 'run', mock_run)
     def test_options_p_poke(self):
         for option in ('-p', '--poke'):
-            output, error = self.run_snapmod('{0} 32768,1 {0} 40000-40010,2 test.z80'.format(option))
+            output, error = self.run_snapmod('{0} 32768,1 {0} 40000-40010,2 {1}/test.z80'.format(option, self.make_directory()))
             self.assertEqual(output, '')
             self.assertEqual(error, '')
             infile, options, outfile = run_args
@@ -373,7 +373,7 @@ class SnapmodTest(SkoolKitTestCase):
     @patch.object(snapmod, 'run', mock_run)
     def test_options_s_state(self):
         for option in ('-s', '--state'):
-            output, error = self.run_snapmod('{0} im=1 {0} iff=1 test.z80'.format(option))
+            output, error = self.run_snapmod('{0} im=1 {0} iff=1 {1}/test.z80'.format(option, self.make_directory()))
             self.assertEqual(output, '')
             self.assertEqual(error, '')
             infile, options, outfile = run_args

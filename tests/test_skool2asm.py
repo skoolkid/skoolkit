@@ -412,28 +412,38 @@ class Skool2AsmTest(SkoolKitTestCase):
             mock_asm_writer.wrote = False
 
     @patch.object(skool2asm, 'get_config', mock_config)
-    def test_writer(self):
+    def test_writer_in_nonexistent_module(self):
         skool = """
             @start
-            @writer={}
+            @writer=skoolkit.nonexistentmodule.AsmWriter
             ; Begin
             c24576 RET
         """
-
-        # Test a writer in a nonexistent module
-        writer = 'nonexistentmodule.AsmWriter'
-        skoolfile = self._write_skool_file(skool.format(writer))
-        with self.assertRaisesRegex(SkoolKitError, "Failed to import object nonexistentmodule.AsmWriter: No module named '?nonexistentmodule'?"):
+        skoolfile = self._write_skool_file(skool)
+        with self.assertRaisesRegex(SkoolKitError, "Failed to import object skoolkit.nonexistentmodule.AsmWriter: No module named '?skoolkit.nonexistentmodule'?"):
             self.run_skool2asm(skoolfile)
 
-        # Test a writer that doesn't exist
-        writer = 'test_skool2asm.NonexistentAsmWriter'
-        skoolfile = self._write_skool_file(skool.format(writer))
+    @patch.object(skool2asm, 'get_config', mock_config)
+    def test_nonexistent_writer(self):
+        skool = """
+            @start
+            @writer=test_skool2asm.NonexistentAsmWriter
+            ; Begin
+            c24576 RET
+        """
+        skoolfile = self._write_skool_file(skool)
         with self.assertRaisesRegex(SkoolKitError, "No object named 'NonexistentAsmWriter' in module 'test_skool2asm'"):
             self.run_skool2asm(skoolfile)
 
-        # Test a writer that exists
-        skoolfile = self._write_skool_file(skool.format('test_skool2asm.MockAsmWriter'))
+    @patch.object(skool2asm, 'get_config', mock_config)
+    def test_writer(self):
+        skool = """
+            @start
+            @writer=test_skool2asm.MockAsmWriter
+            ; Begin
+            c24576 RET
+        """
+        skoolfile = self._write_skool_file(skool)
         output, error = self.run_skool2asm(skoolfile)
         self.assertTrue(re.search('\nUsing ASM writer test_skool2asm.MockAsmWriter\n', error))
         self.assertTrue(mock_asm_writer.wrote)
@@ -620,7 +630,7 @@ class Skool2AsmTest(SkoolKitTestCase):
         mock_asm_writer.wrote = False
 
     def test_Templates_config_parameter_with_nonexistent_file(self):
-        t_file = 'nonexistent.ini'
+        t_file = '{}/nonexistent.ini'.format(self.make_directory())
         with self.assertRaisesRegex(SkoolKitError, '{}: file not found'.format(t_file)):
             self.run_skool2asm('-I Templates={} test-t.skool'.format(t_file))
 

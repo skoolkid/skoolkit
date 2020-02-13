@@ -70,7 +70,7 @@ class SnapinfoTest(SkoolKitTestCase):
             self.run_snapinfo('unknown.snap')
 
     def test_nonexistent_input_file(self):
-        infile = 'non-existent.z80'
+        infile = '{}/non-existent.z80'.format(self.make_directory())
         with self.assertRaises(SkoolKitError) as cm:
             self.run_snapinfo(infile)
         self.assertEqual(cm.exception.args[0], '{}: file not found'.format(infile))

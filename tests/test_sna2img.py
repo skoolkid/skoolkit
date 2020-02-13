@@ -90,7 +90,8 @@ class Sna2ImgTest(SkoolKitTestCase):
             self.run_sna2img('{} {}'.format(option, scrfile))
         self.assertEqual(cm.exception.args[0], exp_error)
 
-    def _test_nonexistent_input_file(self, infile):
+    def _test_nonexistent_input_file(self, fname):
+        infile = '{}/{}'.format(self.make_directory(), fname)
         with self.assertRaises(SkoolKitError) as cm:
             self.run_sna2img(infile)
         self.assertEqual(cm.exception.args[0], '{}: file not found'.format(infile))

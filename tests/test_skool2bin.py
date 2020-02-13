@@ -274,9 +274,10 @@ class BinWriterTest(BinWriterTestCase):
     stdout_binary = True
 
     def test_nonexistent_skool_file(self):
+        skoolfile = '{}/nonexistent.skool'.format(self.make_directory())
         with self.assertRaises(SkoolKitError) as cm:
-            self.run_skool2bin('nonexistent.skool')
-        self.assertEqual(cm.exception.args[0], 'nonexistent.skool: file not found')
+            self.run_skool2bin(skoolfile)
+        self.assertEqual(cm.exception.args[0], '{}: file not found'.format(skoolfile))
 
     def test_first_instruction_address_invalid(self):
         skoolfile = self.write_text_file('c4000d RET', suffix='.skool')
