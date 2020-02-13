@@ -63,7 +63,7 @@ class Tap2SnaTest(SkoolKitTestCase):
 
     @patch.object(tap2sna, 'make_z80', mock_make_z80)
     def test_default_option_values(self):
-        self.run_tap2sna('in.tap out.z80')
+        self.run_tap2sna('in.tap {}/out.z80'.format(self.make_directory()))
         options = make_z80_args[1]
         self.assertIsNone(options.output_dir)
         self.assertFalse(options.force)
@@ -86,8 +86,7 @@ class Tap2SnaTest(SkoolKitTestCase):
             self.assertTrue(error.startswith('usage:'))
 
     def test_option_d(self):
-        odir = 'tap2sna-{}'.format(os.getpid())
-        self.tempdirs.append(odir)
+        odir = '{}/tap2sna'.format(self.make_directory())
         block = create_tap_data_block([0])
         tapfile = self._write_tap([block])
         z80_fname = 'test.z80'
@@ -99,7 +98,7 @@ class Tap2SnaTest(SkoolKitTestCase):
     @patch.object(tap2sna, 'make_z80', mock_make_z80)
     def test_options_p_stack(self):
         for option, stack in (('-p', 24576), ('--stack', 49152)):
-            output, error = self.run_tap2sna('{} {} in.tap out.z80'.format(option, stack))
+            output, error = self.run_tap2sna('{} {} in.tap {}/out.z80'.format(option, stack, self.make_directory()))
             self.assertEqual(output, '')
             self.assertEqual(error, '')
             url, options, z80 = make_z80_args
@@ -108,7 +107,7 @@ class Tap2SnaTest(SkoolKitTestCase):
     @patch.object(tap2sna, 'make_z80', mock_make_z80)
     def test_options_p_stack_with_hex_address(self):
         for option, stack in (('-p', '0x6ff0'), ('--stack', '0x9ABC')):
-            output, error = self.run_tap2sna('{} {} in.tap out.z80'.format(option, stack))
+            output, error = self.run_tap2sna('{} {} in.tap {}/out.z80'.format(option, stack, self.make_directory()))
             self.assertEqual(output, '')
             self.assertEqual(error, '')
             url, options, z80 = make_z80_args
@@ -131,7 +130,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         start = 30000
         exp_reg = ['pc={}'.format(start)]
         for option in ('-s', '--start'):
-            output, error = self.run_tap2sna('{} {} in.tap out.z80'.format(option, start))
+            output, error = self.run_tap2sna('{} {} in.tap {}/out.z80'.format(option, start, self.make_directory()))
             self.assertEqual(output, '')
             self.assertEqual(error, '')
             url, options, z80 = make_z80_args
@@ -142,7 +141,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         start = 30000
         exp_reg = ['pc={}'.format(start)]
         for option in ('-s', '--start'):
-            output, error = self.run_tap2sna('{} 0x{:04X} in.tap out.z80'.format(option, start))
+            output, error = self.run_tap2sna('{} 0x{:04X} in.tap {}/out.z80'.format(option, start, self.make_directory()))
             self.assertEqual(output, '')
             self.assertEqual(error, '')
             url, options, z80 = make_z80_args
@@ -166,7 +165,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         mock_urlopen.return_value = BytesIO(bytes(create_tap_data_block([1])))
         url = 'http://example.com/test.tap'
         for option, user_agent in (('-u', 'Wget/1.18'), ('--user-agent', 'SkoolKit/6.3')):
-            output, error = self.run_tap2sna('{} {} --ram load=1,23296 {} test.z80'.format(option, user_agent, url))
+            output, error = self.run_tap2sna('{} {} --ram load=1,23296 {} {}/test.z80'.format(option, user_agent, url, self.make_directory()))
             self.assertTrue(output.startswith('Downloading {}\n'.format(url)))
             self.assertEqual(error, '')
             request = mock_urlopen.call_args[0][0]
@@ -180,17 +179,18 @@ class Tap2SnaTest(SkoolKitTestCase):
             self.assertEqual(output, 'SkoolKit {}\n'.format(VERSION))
 
     def test_nonexistent_tap_file(self):
-        tap_fname = 'test.tap'
+        odir = self.make_directory()
+        tap_fname = '{}/test.tap'.format(odir)
         z80_fname = 'test.z80'
         with self.assertRaises(SkoolKitError) as cm:
-            self.run_tap2sna('{} {}'.format(tap_fname, z80_fname))
+            self.run_tap2sna('{} {}/{}'.format(tap_fname, odir, z80_fname))
         self.assertEqual(cm.exception.args[0], 'Error while getting snapshot {}: {}: file not found'.format(z80_fname, tap_fname))
 
     def test_load_nonexistent_block(self):
         tapfile = self._write_tap([create_tap_data_block([1])])
         block_num = 2
         with self.assertRaises(SkoolKitError) as cm:
-            self.run_tap2sna('--ram load={},16384 {} test.z80'.format(block_num, tapfile))
+            self.run_tap2sna('--ram load={},16384 {} {}/test.z80'.format(block_num, tapfile, self.make_directory()))
         self.assertEqual(cm.exception.args[0], 'Error while getting snapshot test.z80: Block {} not found'.format(block_num))
 
     def test_zip_archive_with_no_tape_file(self):
@@ -199,7 +199,7 @@ class Tap2SnaTest(SkoolKitTestCase):
             archive.writestr('game.txt', bytearray((1, 2)))
         z80_fname = 'test.z80'
         with self.assertRaises(SkoolKitError) as cm:
-            self.run_tap2sna('{} {}'.format(archive_fname, z80_fname))
+            self.run_tap2sna('{} {}/{}'.format(archive_fname, self.make_directory(), z80_fname))
         self.assertEqual(cm.exception.args[0], 'Error while getting snapshot {}: No TAP or TZX file found'.format(z80_fname))
 
     def test_standard_load_from_tap_file(self):
@@ -452,7 +452,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         tzxfile = self.write_bin_file([1, 2, 3], suffix='.tzx')
         z80file = 'test.z80'
         with self.assertRaises(SkoolKitError) as cm:
-            self.run_tap2sna('{} {}'.format(tzxfile, z80file))
+            self.run_tap2sna('{} {}/{}'.format(tzxfile, self.make_directory(), z80file))
         self.assertEqual(cm.exception.args[0], 'Error while getting snapshot {}: Not a TZX file'.format(z80file))
 
     def test_tzx_block_type_0x10(self):
@@ -561,7 +561,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         tzxfile = self._write_tzx([block])
         z80file = 'test.z80'
         with self.assertRaises(SkoolKitError) as cm:
-            self.run_tap2sna('{} {}'.format(tzxfile, z80file))
+            self.run_tap2sna('{} {}/{}'.format(tzxfile, self.make_directory(), z80file))
         self.assertEqual(cm.exception.args[0], 'Error while getting snapshot {}: Unknown TZX block ID: 0x{:X}'.format(z80file, block_id))
 
     def test_default_register_values(self):
@@ -729,7 +729,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         data = [2, 3]
         start = 17000
         url = 'http://example.com/test.tap'
-        output, error = self.run_tap2sna('--ram load=1,{} {} test.z80'.format(start, url))
+        output, error = self.run_tap2sna('--ram load=1,{} {} {}/test.z80'.format(start, url, self.make_directory()))
         self.assertTrue(output.startswith('Downloading {}\n'.format(url)))
         self.assertEqual(error, '')
         self.assertEqual(data, snapshot[start:start + len(data)])
@@ -737,7 +737,7 @@ class Tap2SnaTest(SkoolKitTestCase):
     @patch.object(tap2sna, 'urlopen', Mock(side_effect=urllib.error.HTTPError('', 403, 'Forbidden', None, None)))
     def test_http_error_on_remote_download(self):
         with self.assertRaisesRegex(SkoolKitError, '^Error while getting snapshot test.z80: HTTP Error 403: Forbidden$'):
-            self.run_tap2sna('http://example.com/test.zip test.z80')
+            self.run_tap2sna('http://example.com/test.zip {}/test.z80'.format(self.make_directory()))
 
     def test_no_clobber(self):
         block = create_tap_data_block([0])
