@@ -103,7 +103,7 @@ class BinWriter:
         parsed = [parse_asm_sub_fix_directive(v)[::2] for v in operations]
         before = [i[1] for i in parsed if i[0].prepend and i[1]]
         for operation in before:
-            address = self._assemble(operation, address)
+            address = self._next_address(operation, address)
         self.address_map[skool_address] = str(address)
         after = [(i[0].overwrite, i[1], i[0].append) for i in parsed if not i[0].prepend]
         if not after or after[0][2]:
@@ -111,20 +111,23 @@ class BinWriter:
         overwrite, operation = after.pop(0)[:2]
         operation = operation or original_op
         if operation and skool_address not in removed:
-            address = self._assemble(operation, address, overwrite, removed)
+            address = self._next_address(operation, address, overwrite, removed)
         for overwrite, operation, append in after:
             if operation:
-                address = self._assemble(operation, address, overwrite, removed)
+                address = self._next_address(operation, address, overwrite, removed)
         return address
 
-    def _assemble(self, operation, address, overwrite=False, removed=None):
+    def _next_address(self, operation, address, overwrite=False, removed=None):
         self.instructions.append(Instruction(address, self.keep, operation, self.data))
         self.keep = None
         if self.data is not None:
             self.data = []
-        data = self.assembler.assemble(operation, address)
-        if data:
-            end_address = address + len(data)
+        if operation.upper().startswith(('DJNZ ', 'JR ')):
+            size = 2
+        else:
+            size = self.assembler.get_size(operation, address)
+        if size:
+            end_address = address + size
             if overwrite:
                 removed.update(range(address, end_address))
             return end_address

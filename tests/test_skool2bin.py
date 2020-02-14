@@ -451,6 +451,8 @@ class BinWriterTest(BinWriterTestCase):
         custom_assembler = """
             def assemble(operation, address):
                 return (1, 1)
+            def get_size(operation, address):
+                return 2
         """
         self.write_component_config('Assembler', '*', custom_assembler)
         skool = "b60000 RET"
@@ -929,6 +931,17 @@ class DirectiveTestCase:
              30001 RET
         """.format(self.mode)
         exp_data = [175]
+        self._test_write(skool, 30000, exp_data, self.mode)
+
+    def test_directive_removing_instruction_adjusts_relative_jump_operand(self):
+        skool = """
+            @{}=!30000
+            c30000 DEFS 130   ; This is removed
+             30130 DJNZ 30130 ; At 30000, 'DJNZ 30130' would fail to assemble
+             30132 JR 30134   ; At 30002, 'JR 30134' would fail to assemble
+             30134 RET
+        """.format(self.mode)
+        exp_data = [16, 254, 24, 0, 201]
         self._test_write(skool, 30000, exp_data, self.mode)
 
     def test_directive_removes_instructions_in_current_entry_only(self):
