@@ -1157,7 +1157,7 @@ class Instruction:
         else:
             self.sub = None
         self.warn = True
-        self.ignoreua = None
+        self.ignoreua = {'i': None, 'm': None}
 
     def set_comment(self, rowspan, text):
         self.comment = Comment(rowspan, text)

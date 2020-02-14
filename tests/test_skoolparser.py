@@ -3783,7 +3783,7 @@ class SkoolParserTest(SkoolKitTestCase):
             self.assertIsNone(inst1.org)
             self.assertFalse(inst1.warn)
             self.assertIsNone(inst2.keep)
-            self.assertIsNone(inst2.ignoreua)
+            self.assertEqual(inst2.ignoreua, {'i': None, 'm': None})
             self.assertIsNone(inst2.asm_label)
             self.assertEqual(inst2.org, '32770')
             self.assertTrue(inst2.warn)
@@ -4003,12 +4003,12 @@ class SkoolParserTest(SkoolKitTestCase):
             inst1 = instructions[0]
             inst2 = instructions[1]
             self.assertEqual([], inst1.keep)
-            self.assertEqual({'i': [], 'm': None}, inst1.ignoreua)
+            self.assertEqual(inst1.ignoreua, {'i': [], 'm': None})
             self.assertEqual(inst1.asm_label, 'START')
             self.assertIsNone(inst1.org)
             self.assertFalse(inst1.warn)
             self.assertIsNone(inst2.keep)
-            self.assertIsNone(inst2.ignoreua)
+            self.assertEqual(inst2.ignoreua, {'i': None, 'm': None})
             self.assertIsNone(inst2.asm_label)
             self.assertEqual(inst2.org, '     ')
             self.assertTrue(inst2.warn)
@@ -4265,15 +4265,42 @@ class SkoolParserTest(SkoolKitTestCase):
             inst1 = instructions[0]
             inst2 = instructions[1]
             self.assertIsNone(inst1.keep)
-            self.assertIsNone(inst1.ignoreua)
+            self.assertEqual(inst1.ignoreua, {'i': None, 'm': None})
             self.assertIsNone(inst1.asm_label)
             self.assertIsNone(inst1.org)
             self.assertTrue(inst1.warn)
             self.assertEqual([], inst2.keep)
-            self.assertEqual({'i': [], 'm': None}, inst2.ignoreua)
+            self.assertEqual(inst2.ignoreua, {'i': [], 'm': None})
             self.assertEqual(inst2.asm_label, 'START')
             self.assertIsNone(inst2.org)
             self.assertFalse(inst2.warn)
+        self._assert_sub_and_fix_directives(skool, func)
+
+    def test_sub_and_fix_directives_append_instruction_cleanly(self):
+        skool = """
+            @start
+            ; Routine
+            @keep
+            @ignoreua
+            @label=START
+            @nowarn
+            @{}=+LD H,0
+            c32768 LD L,H
+        """
+        def func(parser):
+            instructions = parser.get_entry(32768).instructions
+            inst1 = instructions[0]
+            inst2 = instructions[1]
+            self.assertEqual(inst1.keep, [])
+            self.assertEqual(inst1.ignoreua, {'i': [], 'm': None})
+            self.assertEqual(inst1.asm_label, 'START')
+            self.assertIsNone(inst1.org)
+            self.assertFalse(inst1.warn)
+            self.assertIsNone(inst2.keep)
+            self.assertEqual(inst2.ignoreua, {'i': None, 'm': None})
+            self.assertIsNone(inst2.asm_label)
+            self.assertEqual(inst2.org, '     ')
+            self.assertTrue(inst2.warn)
         self._assert_sub_and_fix_directives(skool, func)
 
     def test_sub_and_fix_directives_replace_label(self):
