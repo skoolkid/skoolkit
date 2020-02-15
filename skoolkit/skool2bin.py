@@ -103,7 +103,7 @@ class BinWriter:
         parsed = [parse_asm_sub_fix_directive(v)[::2] for v in operations]
         before = [i[1] for i in parsed if i[0].prepend and i[1]]
         for operation in before:
-            address = self._next_address(operation, address)
+            address += self._get_size(operation, address)
         self.address_map[skool_address] = str(address)
         after = [(i[0].overwrite, i[1], i[0].append) for i in parsed if not i[0].prepend]
         if not after or after[0][2]:
@@ -111,13 +111,18 @@ class BinWriter:
         overwrite, operation = after.pop(0)[:2]
         operation = operation or original_op
         if operation and skool_address not in removed:
-            address = self._next_address(operation, address, overwrite, removed)
+            size = self._get_size(operation, address, skool_address, overwrite, removed)
+            address += size
+            if skool_address is not None:
+                skool_address += size
         for overwrite, operation, append in after:
             if operation:
-                address = self._next_address(operation, address, overwrite, removed)
+                size = self._get_size(operation, address, skool_address, overwrite, removed)
+                address += size
+                skool_address += size
         return address
 
-    def _next_address(self, operation, address, overwrite=False, removed=None):
+    def _get_size(self, operation, address, skool_address=None, overwrite=False, removed=None):
         self.instructions.append(Instruction(address, self.keep, operation, self.data))
         self.keep = None
         if self.data is not None:
@@ -127,10 +132,9 @@ class BinWriter:
         else:
             size = self.assembler.get_size(operation, address)
         if size:
-            end_address = address + size
             if overwrite:
-                removed.update(range(address, end_address))
-            return end_address
+                removed.update(range(skool_address, skool_address + size))
+            return size
         raise SkoolParsingError("Failed to assemble:\n {} {}".format(address, operation))
 
     def _parse_asm_directive(self, address, directive, removed):

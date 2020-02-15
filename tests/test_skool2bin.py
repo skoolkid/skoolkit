@@ -908,6 +908,33 @@ class DirectiveTestCase:
         exp_data = [175, 61]
         self._test_write(skool, 49152, exp_data, self.mode)
 
+    def test_directive_replacing_two_moved_instructions_with_one(self):
+        skool = """
+            @{0}=+INC A
+            c50000 XOR A
+            @{0}=|LD BC,256
+             50001 LD C,0  ; This is moved to 50002
+             50003 LD B,A  ; This is moved to 50004
+             50004 RET     ; This is moved to 50005
+        """.format(self.mode)
+        exp_data = [175, 60, 1, 0, 1, 201]
+        self._test_write(skool, 50000, exp_data, self.mode)
+
+    def test_directive_replacing_three_moved_instructions(self):
+        skool = """
+            @{0}=+INC A
+            c50000 XOR A
+            @{0}=|LD D,A
+            @{0}=|LD B,A
+            @{0}=|LD C,A
+             50001 LD B,A  ; This is moved to 50002
+             50002 LD C,A  ; This is moved to 50003
+             50003 LD D,A  ; This is moved to 50004
+             50004 RET     ; This is moved to 50005
+        """.format(self.mode)
+        exp_data = [175, 60, 87, 71, 79, 201]
+        self._test_write(skool, 50000, exp_data, self.mode)
+
     def test_directive_inserting_instruction_before(self):
         skool = """
             @{}=>XOR A
