@@ -794,6 +794,25 @@ class DirectiveTestCase:
         ]
         self._test_write(skool, 30000, exp_data, self.mode)
 
+    def test_mode_preserves_original_address_mapping(self):
+        skool = """
+            c30000 JP 30003 ; This address operand should be left alone
+
+            @{0}+begin
+            ; This is the routine at 30003
+            c30003 XOR A    ; Address 30003 maps to 30003 (i.e. no change);
+             30004 RET      ; this mapping should be preserved.
+            @{0}+end
+
+            @{0}=!30003
+            ; The stated address of this routine (30003) should not be mapped
+            ; to the actual address it would have if not removed (30005),
+            ; because a mapping for address 30003 already exists.
+            c30003 RET
+        """.format(self.mode)
+        exp_data = [195, 51, 117, 175, 201]
+        self._test_write(skool, 30000, exp_data, self.mode)
+
     def test_mode_processes_org_directives(self):
         skool = """
             @{0}=LD A,1

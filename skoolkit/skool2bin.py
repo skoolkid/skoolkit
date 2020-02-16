@@ -104,7 +104,7 @@ class BinWriter:
         before = [i[1] for i in parsed if i[0].prepend and i[1]]
         for operation in before:
             address += self._get_size(operation, address)
-        self.address_map[skool_address] = str(address)
+        self.address_map.setdefault(skool_address, str(address))
         after = [(i[0].overwrite, i[1], i[0].append) for i in parsed if not i[0].prepend]
         if not after or after[0][2]:
             after.insert(0, (False, original_op, False))
