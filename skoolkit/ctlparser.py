@@ -109,6 +109,7 @@ class CtlParser:
 
         entry_addresses = sorted(self._ctls)
 
+        ctl_addr = None
         comment = []
         for line_no, s_line in enumerate(ctl_lines, 1):
             try:
@@ -118,8 +119,10 @@ class CtlParser:
                 continue
             if ctl:
                 if ctl in '.:':
-                    comment.append(('.:'.index(ctl), text))
+                    if ctl_addr is not None and min_address <= ctl_addr < max_address:
+                        comment.append(('.:'.index(ctl), text))
                     continue
+                ctl_addr = start
                 if not min_address <= start < max_address:
                     continue
                 comment = [(0, text or '')]

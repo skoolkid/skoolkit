@@ -2287,7 +2287,6 @@ class CtlParserTest(SkoolKitTestCase):
         self._check_end_comments(exp_end_comments, blocks)
 
     def test_dot_directive_with_registers(self):
-        snapshot = [201]
         ctl = """
             c 60000
             R 60000 BC This description
@@ -2340,8 +2339,26 @@ class CtlParserTest(SkoolKitTestCase):
         blocks = self._get_ctl_parser(ctl).get_blocks()
         self._check_registers(exp_registers, blocks)
 
+    def test_dot_directives_with_max_address(self):
+        ctl = """
+            c 40000
+            C 40000,1
+            . Begin
+            C 40001,1
+            . End
+        """
+        exp_instruction_comments = {
+            40000: [
+                (0, ''),
+                (0, 'Begin')
+            ]
+        }
+
+        ctl_parser = self._get_ctl_parser(ctl, max_address=40001)
+        blocks = ctl_parser.get_blocks()
+        self._check_instruction_comments(exp_instruction_comments, blocks)
+
     def test_colon_directive(self):
-        snapshot = [0] * 23
         ctl = """
             b 30000
             B 30000,2,1
@@ -2350,8 +2367,6 @@ class CtlParserTest(SkoolKitTestCase):
             . And these two comment lines
             : belong to the second DEFB.
         """
-        blocks = self._get_ctl_parser(ctl).get_blocks()
-
         exp_instruction_comments = {
             30000: [
                 (0, ''),
@@ -2362,4 +2377,6 @@ class CtlParserTest(SkoolKitTestCase):
             ],
             30002: ()
         }
+
+        blocks = self._get_ctl_parser(ctl).get_blocks()
         self._check_instruction_comments(exp_instruction_comments, blocks)

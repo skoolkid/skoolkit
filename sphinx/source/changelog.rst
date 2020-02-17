@@ -29,6 +29,8 @@ Changelog
   suppress warnings
 * Added support to :ref:`sna2skool.py` for ignoring default control files (by
   specifying ``--ctl 0``)
+* Fixed how :ref:`sna2skool.py` works with dot directives in a control file
+  when an end address is specified
 
 8.0 (2019-11-09)
 ----------------
