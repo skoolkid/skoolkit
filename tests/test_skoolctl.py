@@ -646,10 +646,11 @@ class CtlWriterTest(SkoolKitTestCase):
         writer.write()
         return self.out.getvalue().rstrip()
 
-    def _test_ctl(self, skool, exp_ctl, write_hex=0, preserve_base=0,
-                  min_address=0, max_address=65536, keep_lines=0):
-        ctl = self._get_ctl(skool=skool, write_hex=write_hex, preserve_base=preserve_base,
-                            min_address=min_address, max_address=max_address, keep_lines=keep_lines)
+    def _test_ctl(self, skool, exp_ctl, elements='abtdrmscn', write_hex=0,
+                  preserve_base=0, min_address=0, max_address=65536,
+                  keep_lines=0):
+        ctl = self._get_ctl(elements, write_hex, skool, preserve_base,
+                            min_address, max_address, keep_lines)
         self.assertEqual(dedent(exp_ctl).strip(), ctl)
 
     def test_invalid_address(self):
@@ -720,6 +721,30 @@ class CtlWriterTest(SkoolKitTestCase):
         ctl = self._get_ctl('bt')
         test_ctl = '\n'.join([line for line in TEST_CTL if line[0] in DIRECTIVES])
         self.assertEqual(test_ctl, ctl)
+
+    def test_wabs_with_sub_fix_directives_omits_comments(self):
+        skool = """
+            ; Routine
+            @isub=SUB B
+            @ssub=SUB C   ; Subtract C
+            @rsub=SUB D   ; Subtract D
+            c60000 SUB E  ; Subtract E
+            @ofix=RET C   ; Return if carry
+            @bfix=RET Z   ; Return if zero
+            @rfix=RET NZ  ; Return if not zero
+             60001 RET NC ; Return if no carry
+        """
+        exp_ctl = """
+            c 60000
+            @ 60000 isub=SUB B
+            @ 60000 ssub=SUB C
+            @ 60000 rsub=SUB D
+            @ 60001 ofix=RET C
+            @ 60001 bfix=RET Z
+            @ 60001 rfix=RET NZ
+            i 60002
+        """
+        self._test_ctl(skool, exp_ctl, elements='abs')
 
     def test_hex_lower(self):
         skool = 'c40177 RET'

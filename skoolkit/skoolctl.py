@@ -20,6 +20,7 @@ from skoolkit import SkoolParsingError, write_line, get_int_param, get_address_f
 from skoolkit.components import get_assembler, get_component, get_operand_evaluator
 from skoolkit.skoolparser import (Comment, parse_entry_header, parse_instruction,
                                   parse_address_comments, join_comments, read_skool, DIRECTIVES)
+from skoolkit.textutils import partition_unquoted
 
 ASM_DIRECTIVES = 'a'
 BLOCKS = 'b'
@@ -295,7 +296,9 @@ class CtlWriter:
     def _write_instruction_asm_directives(self, instruction):
         address = instruction.address
         for directive in instruction.asm_directives:
-            self._write_asm_directive(directive, address)
+            if COMMENTS not in self.elements and directive.startswith(('isub', 'ssub', 'rsub', 'ofix', 'bfix', 'rfix')):
+                directive, sep, comment = partition_unquoted(directive, ';')
+            self._write_asm_directive(directive.rstrip(), address)
         self._write_ignoreua_directive(address, INSTRUCTION, instruction.ignoreua['i'])
 
     def _write_blocks(self, blocks, address, footer=False):
