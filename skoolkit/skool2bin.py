@@ -36,13 +36,14 @@ class Instruction:
         self.data = data
 
 class BinWriter:
-    def __init__(self, skoolfile, asm_mode=0, fix_mode=0, data=False):
+    def __init__(self, skoolfile, asm_mode=0, fix_mode=0, data=False, verbose=False):
         if fix_mode > 2:
             asm_mode = 3
         elif asm_mode > 2:
             fix_mode = max(fix_mode, 1)
         self.asm_mode = asm_mode
         self.fix_mode = fix_mode
+        self.verbose = verbose
         self.weights = {
             'isub': int(asm_mode > 0),
             'ssub': 2 * int(asm_mode > 1),
@@ -179,6 +180,8 @@ class BinWriter:
                 self._poke(address, data)
                 address += len(data)
             self._poke(i.address, self.assembler.assemble(i.operation, i.address))
+            if self.verbose:
+                info('{0} {0:04X} {1}'.format(i.address, i.operation))
 
     def write(self, binfile, start, end):
         if start is None:
@@ -197,7 +200,7 @@ class BinWriter:
         info("Wrote {}: start={}, end={}, size={}".format(binfile, base_address, end_address, len(data)))
 
 def run(skoolfile, binfile, options):
-    binwriter = BinWriter(skoolfile, options.asm_mode, options.fix_mode, options.data)
+    binwriter = BinWriter(skoolfile, options.asm_mode, options.fix_mode, options.data, options.verbose)
     binwriter.write(binfile, options.start, options.end)
 
 def main(args):
@@ -230,6 +233,8 @@ def main(args):
                        help="Apply @isub and @ssub directives.")
     group.add_argument('-S', '--start', dest='start', metavar='ADDR', type=integer,
                        help='Start converting at this address.')
+    group.add_argument('-v', '--verbose', action='store_true',
+                       help='Show info on each converted instruction.')
     group.add_argument('-V', '--version', action='version', version='SkoolKit {}'.format(VERSION),
                        help='Show SkoolKit version number and exit.')
     namespace, unknown_args = parser.parse_known_args(args)

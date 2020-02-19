@@ -46,6 +46,9 @@ OPTIONS
   Start converting at this address. `ADDR` must be a decimal number, or a
   hexadecimal number prefixed by '0x'.
 
+-v, --verbose
+  Show info on each converted instruction.
+
 -V, --version
   Show the SkoolKit version number and exit.
 

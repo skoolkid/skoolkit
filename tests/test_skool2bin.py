@@ -5,13 +5,14 @@ from skoolkittest import SkoolKitTestCase
 from skoolkit import SkoolKitError, VERSION, components, skool2bin
 
 class MockBinWriter:
-    def __init__(self, skoolfile, asm_mode, fix_mode, data):
+    def __init__(self, skoolfile, asm_mode, fix_mode, data, verbose):
         global mock_bin_writer
         mock_bin_writer = self
         self.skoolfile = skoolfile
         self.asm_mode = asm_mode
         self.fix_mode = fix_mode
         self.data = data
+        self.verbose = verbose
         self.binfile = None
         self.start = None
         self.end = None
@@ -49,6 +50,7 @@ class Skool2BinTest(SkoolKitTestCase):
         self.assertEqual(mock_bin_writer.asm_mode, 0)
         self.assertEqual(mock_bin_writer.fix_mode, 0)
         self.assertFalse(mock_bin_writer.data)
+        self.assertFalse(mock_bin_writer.verbose)
         self.assertEqual(mock_bin_writer.binfile, exp_binfile)
         self.assertIsNone(mock_bin_writer.start)
         self.assertIsNone(mock_bin_writer.end)
@@ -86,6 +88,7 @@ class Skool2BinTest(SkoolKitTestCase):
             self.assertEqual(mock_bin_writer.asm_mode, 0)
             self.assertEqual(mock_bin_writer.fix_mode, 2)
             self.assertFalse(mock_bin_writer.data)
+            self.assertFalse(mock_bin_writer.verbose)
             self.assertEqual(mock_bin_writer.binfile, exp_binfile)
             self.assertIsNone(mock_bin_writer.start)
             self.assertIsNone(mock_bin_writer.end)
@@ -101,6 +104,7 @@ class Skool2BinTest(SkoolKitTestCase):
             self.assertEqual(mock_bin_writer.asm_mode, 0)
             self.assertEqual(mock_bin_writer.fix_mode, 0)
             self.assertTrue(mock_bin_writer.data)
+            self.assertFalse(mock_bin_writer.verbose)
             self.assertEqual(mock_bin_writer.binfile, exp_binfile)
             self.assertIsNone(mock_bin_writer.start)
             self.assertIsNone(mock_bin_writer.end)
@@ -116,6 +120,7 @@ class Skool2BinTest(SkoolKitTestCase):
             self.assertEqual(mock_bin_writer.asm_mode, 0)
             self.assertEqual(mock_bin_writer.fix_mode, 0)
             self.assertFalse(mock_bin_writer.data)
+            self.assertFalse(mock_bin_writer.verbose)
             self.assertEqual(mock_bin_writer.binfile, exp_binfile)
             self.assertIsNone(mock_bin_writer.start)
             self.assertEqual(mock_bin_writer.end, value)
@@ -131,6 +136,7 @@ class Skool2BinTest(SkoolKitTestCase):
             self.assertEqual(mock_bin_writer.asm_mode, 0)
             self.assertEqual(mock_bin_writer.fix_mode, 0)
             self.assertFalse(mock_bin_writer.data)
+            self.assertFalse(mock_bin_writer.verbose)
             self.assertEqual(mock_bin_writer.binfile, exp_binfile)
             self.assertIsNone(mock_bin_writer.start)
             self.assertEqual(mock_bin_writer.end, int(value[2:], 16))
@@ -146,6 +152,7 @@ class Skool2BinTest(SkoolKitTestCase):
             self.assertEqual(mock_bin_writer.asm_mode, 1)
             self.assertEqual(mock_bin_writer.fix_mode, 0)
             self.assertFalse(mock_bin_writer.data)
+            self.assertFalse(mock_bin_writer.verbose)
             self.assertEqual(mock_bin_writer.binfile, exp_binfile)
             self.assertIsNone(mock_bin_writer.start)
             self.assertIsNone(mock_bin_writer.end)
@@ -161,6 +168,7 @@ class Skool2BinTest(SkoolKitTestCase):
             self.assertEqual(mock_bin_writer.asm_mode, 0)
             self.assertEqual(mock_bin_writer.fix_mode, 1)
             self.assertFalse(mock_bin_writer.data)
+            self.assertFalse(mock_bin_writer.verbose)
             self.assertEqual(mock_bin_writer.binfile, exp_binfile)
             self.assertIsNone(mock_bin_writer.start)
             self.assertIsNone(mock_bin_writer.end)
@@ -176,6 +184,7 @@ class Skool2BinTest(SkoolKitTestCase):
             self.assertEqual(mock_bin_writer.asm_mode, 3)
             self.assertEqual(mock_bin_writer.fix_mode, 0)
             self.assertFalse(mock_bin_writer.data)
+            self.assertFalse(mock_bin_writer.verbose)
             self.assertEqual(mock_bin_writer.binfile, exp_binfile)
             self.assertIsNone(mock_bin_writer.start)
             self.assertIsNone(mock_bin_writer.end)
@@ -191,6 +200,7 @@ class Skool2BinTest(SkoolKitTestCase):
             self.assertEqual(mock_bin_writer.asm_mode, 0)
             self.assertEqual(mock_bin_writer.fix_mode, 3)
             self.assertFalse(mock_bin_writer.data)
+            self.assertFalse(mock_bin_writer.verbose)
             self.assertEqual(mock_bin_writer.binfile, exp_binfile)
             self.assertIsNone(mock_bin_writer.start)
             self.assertIsNone(mock_bin_writer.end)
@@ -206,6 +216,7 @@ class Skool2BinTest(SkoolKitTestCase):
             self.assertEqual(mock_bin_writer.asm_mode, 2)
             self.assertEqual(mock_bin_writer.fix_mode, 0)
             self.assertFalse(mock_bin_writer.data)
+            self.assertFalse(mock_bin_writer.verbose)
             self.assertEqual(mock_bin_writer.binfile, exp_binfile)
             self.assertIsNone(mock_bin_writer.start)
             self.assertIsNone(mock_bin_writer.end)
@@ -221,6 +232,7 @@ class Skool2BinTest(SkoolKitTestCase):
             self.assertEqual(mock_bin_writer.asm_mode, 0)
             self.assertEqual(mock_bin_writer.fix_mode, 0)
             self.assertFalse(mock_bin_writer.data)
+            self.assertFalse(mock_bin_writer.verbose)
             self.assertEqual(mock_bin_writer.binfile, exp_binfile)
             self.assertEqual(mock_bin_writer.start, value)
             self.assertIsNone(mock_bin_writer.end)
@@ -236,8 +248,25 @@ class Skool2BinTest(SkoolKitTestCase):
             self.assertEqual(mock_bin_writer.asm_mode, 0)
             self.assertEqual(mock_bin_writer.fix_mode, 0)
             self.assertFalse(mock_bin_writer.data)
+            self.assertFalse(mock_bin_writer.verbose)
             self.assertEqual(mock_bin_writer.binfile, exp_binfile)
             self.assertEqual(mock_bin_writer.start, int(value[2:], 16))
+            self.assertIsNone(mock_bin_writer.end)
+
+    @patch.object(skool2bin, 'BinWriter', MockBinWriter)
+    def test_option_v(self):
+        skoolfile = 'test-v.skool'
+        exp_binfile = skoolfile[:-6] + '.bin'
+        for option in ('-v', '--verbose'):
+            output, error = self.run_skool2bin('{} {}'.format(option, skoolfile))
+            self.assertEqual(len(error), 0)
+            self.assertEqual(mock_bin_writer.skoolfile, skoolfile)
+            self.assertEqual(mock_bin_writer.asm_mode, 0)
+            self.assertEqual(mock_bin_writer.fix_mode, 0)
+            self.assertFalse(mock_bin_writer.data)
+            self.assertTrue(mock_bin_writer.verbose)
+            self.assertEqual(mock_bin_writer.binfile, exp_binfile)
+            self.assertIsNone(mock_bin_writer.start)
             self.assertIsNone(mock_bin_writer.end)
 
     def test_option_V(self):
@@ -246,7 +275,7 @@ class Skool2BinTest(SkoolKitTestCase):
             self.assertEqual(output, 'SkoolKit {}\n'.format(VERSION))
 
 class BinWriterTestCase(SkoolKitTestCase):
-    def _test_write(self, skool, base_address, exp_data, *modes, data=False, start=None, end=None):
+    def _test_write(self, skool, base_address, exp_data, *modes, data=False, start=None, end=None, exp_output=''):
         if skool is None:
             skoolfile = '-'
             binfile = self.write_bin_file(suffix='.bin')
@@ -260,14 +289,18 @@ class BinWriterTestCase(SkoolKitTestCase):
                 asm_mode = {'isub': 1, 'ssub': 2, 'rsub': 3}[mode]
             elif mode.endswith('fix'):
                 fix_mode = {'ofix': 1, 'bfix': 2, 'rfix': 3}[mode]
-        bin_writer = skool2bin.BinWriter(skoolfile, asm_mode, fix_mode, data)
+        bin_writer = skool2bin.BinWriter(skoolfile, asm_mode, fix_mode, data, bool(exp_output))
         bin_writer.write(binfile, start, end)
         with open(binfile, 'rb') as f:
             bdata = list(f.read())
         self.assertEqual(exp_data, bdata)
         size = len(bdata)
         status = "Wrote {}: start={}, end={}, size={}\n".format(binfile, base_address, base_address + size, size)
-        self.assertEqual(status, self.err.getvalue())
+        if exp_output:
+            exp_output = dedent(exp_output).strip() + '\n' + status
+        else:
+            exp_output = status
+        self.assertEqual(exp_output, self.err.getvalue())
         self.err.clear()
 
 class BinWriterTest(BinWriterTestCase):
@@ -445,6 +478,40 @@ class BinWriterTest(BinWriterTestCase):
         """
         exp_data = [1, 2]
         self._test_write(skool, 32768, exp_data)
+
+    def test_verbose(self):
+        skool = """
+            ; Routine
+            c30000 LD A,B
+             30001 XOR C
+             30002 ADD A,D
+             30003 RET
+        """
+        exp_data = [120, 169, 130, 201]
+        exp_output = """
+            30000 7530 LD A,B
+            30001 7531 XOR C
+            30002 7532 ADD A,D
+            30003 7533 RET
+        """
+        self._test_write(skool, 30000, exp_data, exp_output=exp_output)
+
+    def test_verbose_shows_subbed_instructions_and_actual_addresses(self):
+        skool = """
+            ; Routine
+            @ssub=LD A,C
+            c40000 LD A,B
+            @rsub=XOR 85
+             40001 XOR C
+             40002 RET
+        """
+        exp_data = [121, 238, 85, 201]
+        exp_output = """
+            40000 9C40 LD A,C
+            40001 9C41 XOR 85
+            40003 9C43 RET
+        """
+        self._test_write(skool, 40000, exp_data, 'rsub', exp_output=exp_output)
 
     @patch.object(components, 'SK_CONFIG', None)
     def test_custom_assembler(self):

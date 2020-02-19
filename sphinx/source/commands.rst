@@ -286,12 +286,14 @@ To list the options supported by `skool2bin.py`, run it with no arguments::
     -s, --ssub            Apply @isub and @ssub directives.
     -S ADDR, --start ADDR
                           Start converting at this address.
+    -v, --verbose         Show info on each converted instruction.
     -V, --version         Show SkoolKit version number and exit.
 
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
-| 8.1     | Added the ``--data``, ``--rsub`` and ``--rfix`` options           |
+| 8.1     | Added the ``--data``, ``--rsub``, ``--rfix`` and ``--verbose``    |
+|         | options                                                           |
 +---------+-------------------------------------------------------------------+
 | 7.0     | :ref:`asm-if` directives are processed                            |
 +---------+-------------------------------------------------------------------+
