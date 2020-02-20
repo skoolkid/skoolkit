@@ -496,22 +496,139 @@ class BinWriterTest(BinWriterTestCase):
         """
         self._test_write(skool, 30000, exp_data, exp_output=exp_output)
 
-    def test_verbose_shows_subbed_instructions_and_actual_addresses(self):
+    def test_verbose_with_addresses_below_10(self):
         skool = """
-            ; Routine
+            c00000 LD A,B
+             00001 RET
+        """
+        exp_data = [120, 201]
+        exp_output = """
+            00000 0000 LD A,B
+            00001 0001 RET
+        """
+        self._test_write(skool, 0, exp_data, exp_output=exp_output)
+
+    def test_verbose_shows_subbed_instructions(self):
+        skool = """
             @ssub=LD A,C
             c40000 LD A,B
-            @rsub=XOR 85
+            @ssub=XOR D
              40001 XOR C
              40002 RET
         """
-        exp_data = [121, 238, 85, 201]
+        exp_data = [121, 170, 201]
         exp_output = """
             40000 9C40 LD A,C
-            40001 9C41 XOR 85
-            40003 9C43 RET
+            40001 9C41 XOR D
+            40002 9C42 RET
+        """
+        self._test_write(skool, 40000, exp_data, 'ssub', exp_output=exp_output)
+
+    def test_verbose_shows_inserted_instructions(self):
+        skool = """
+            @rsub=>XOR A
+            @rsub=LD B,A
+            c40000 LD B,0
+            @rsub=+RET
+             40002 XOR C
+        """
+        exp_data = [175, 71, 169, 201]
+        exp_output = """
+            40000 9C40 XOR A         :            XOR A
+            40001 9C41 LD B,A        : 40000 9C40 LD B,A
+            40002 9C42 XOR C
+            40003 9C43 RET           :            RET
         """
         self._test_write(skool, 40000, exp_data, 'rsub', exp_output=exp_output)
+
+    def test_verbose_shows_one_instruction_replacing_two(self):
+        skool = """
+            @ssub=|LD A,1
+            c60000 XOR A
+             60001 INC A
+             60002 RET
+        """
+        exp_data = [62, 1, 201]
+        exp_output = """
+            60000 EA60 LD A,1
+            60002 EA62 RET
+        """
+        self._test_write(skool, 60000, exp_data, 'ssub', exp_output=exp_output)
+
+    def test_verbose_shows_two_instructions_replacing_one(self):
+        skool = """
+            @ssub=|XOR A
+            @ssub=|INC A
+            c60000 LD A,1
+             60002 RET
+        """
+        exp_data = [175, 60, 201]
+        exp_output = """
+            60000 EA60 XOR A
+            60001 EA61 INC A         :            INC A
+            60002 EA62 RET
+        """
+        self._test_write(skool, 60000, exp_data, 'ssub', exp_output=exp_output)
+
+    def test_verbose_omits_removed_instruction(self):
+        skool = """
+            @rsub=!40001
+            c40000 XOR A
+             40001 RET
+        """
+        exp_data = [175]
+        exp_output = """
+            40000 9C40 XOR A
+        """
+        self._test_write(skool, 40000, exp_data, 'rsub', exp_output=exp_output)
+
+    def test_verbose_shows_original_address_of_moved_instructions(self):
+        skool = """
+            @rsub=LD A,0
+            c40000 LD A,B
+            @rsub=XOR 25
+             40001 XOR C
+             40002 RET
+        """
+        exp_data = [62, 0, 238, 25, 201]
+        exp_output = """
+            40000 9C40 LD A,0
+            40002 9C42 XOR 25        : 40001 9C41 XOR 25
+            40004 9C44 RET           : 40002 9C42 RET
+        """
+        self._test_write(skool, 40000, exp_data, 'rsub', exp_output=exp_output)
+
+    def test_verbose_shows_original_value_of_adjusted_operands(self):
+        skool = """
+            c50000 CALL 50005
+            @rsub=LD A,0
+             50003 XOR A
+             50004 RET
+
+            c50005 LD HL,(50004)
+        """
+        exp_data = [205, 86, 195, 62, 0, 201, 42, 85, 195]
+        exp_output = """
+            50000 C350 CALL 50006    : 50000 C350 CALL 50005
+            50003 C353 LD A,0
+            50005 C355 RET           : 50004 C354 RET
+            50006 C356 LD HL,(50005) : 50005 C355 LD HL,(50004)
+        """
+        self._test_write(skool, 50000, exp_data, 'rsub', exp_output=exp_output)
+
+    def test_verbose_shows_original_value_of_adjusted_operand_for_inserted_instruction(self):
+        skool = """
+            @rsub=+JR 50001
+            c50000 XOR A
+             50001 RET
+        """
+        exp_data = [175, 24, 0, 201]
+        exp_output = """
+            50000 C350 XOR A
+            50001 C351 JR 50003      :            JR 50001
+            50003 C353 RET           : 50001 C351 RET
+        """
+        self._test_write(skool, 50000, exp_data, 'rsub', exp_output=exp_output)
 
     @patch.object(components, 'SK_CONFIG', None)
     def test_custom_assembler(self):

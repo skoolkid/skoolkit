@@ -29,10 +29,11 @@ VALID_CTLS = DIRECTIVES + ' *'
 Entry = namedtuple('Entry', 'ctl instructions')
 
 class Instruction:
-    def __init__(self, address, keep, operation, data):
+    def __init__(self, address, skool_address, keep, operation, data):
         self.address = address
+        self.skool_address = skool_address
         self.keep = keep
-        self.operation = operation
+        self.original_op = self.operation = operation
         self.data = data
 
 class BinWriter:
@@ -111,20 +112,19 @@ class BinWriter:
             after.insert(0, (False, original_op, False))
         overwrite, operation = after.pop(0)[:2]
         operation = operation or original_op
+        if skool_address is not None:
+            offset = skool_address - address
+        else:
+            offset = 0
         if operation and skool_address not in removed:
-            size = self._get_size(operation, address, skool_address, overwrite, removed)
-            address += size
-            if skool_address is not None:
-                skool_address += size
+            address += self._get_size(operation, address, overwrite, removed, offset, skool_address)
         for overwrite, operation, append in after:
             if operation:
-                size = self._get_size(operation, address, skool_address, overwrite, removed)
-                address += size
-                skool_address += size
+                address += self._get_size(operation, address, overwrite, removed, offset)
         return address
 
-    def _get_size(self, operation, address, skool_address=None, overwrite=False, removed=None):
-        self.instructions.append(Instruction(address, self.keep, operation, self.data))
+    def _get_size(self, operation, address, overwrite=False, removed=None, offset=0, skool_address=None):
+        self.instructions.append(Instruction(address, skool_address, self.keep, operation, self.data))
         self.keep = None
         if self.data is not None:
             self.data = []
@@ -134,7 +134,7 @@ class BinWriter:
             size = self.assembler.get_size(operation, address)
         if size:
             if overwrite:
-                removed.update(range(skool_address, skool_address + size))
+                removed.update(range(address + offset, address + offset + size))
             return size
         raise SkoolParsingError("Failed to assemble:\n {} {}".format(address, operation))
 
@@ -181,7 +181,15 @@ class BinWriter:
                 address += len(data)
             self._poke(i.address, self.assembler.assemble(i.operation, i.address))
             if self.verbose:
-                info('{0} {0:04X} {1}'.format(i.address, i.operation))
+                if i.skool_address == i.address and i.original_op == i.operation:
+                    suffix = ''
+                else:
+                    if i.skool_address is None:
+                        suffix = ':           '
+                    else:
+                        suffix = ': {0:05} {0:04X}'.format(i.skool_address)
+                    suffix += ' {}'.format(i.original_op)
+                info('{0:05} {0:04X} {1:13} {2}'.format(i.address, i.operation, suffix).rstrip())
 
     def write(self, binfile, start, end):
         if start is None:
