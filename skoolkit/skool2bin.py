@@ -29,12 +29,13 @@ VALID_CTLS = DIRECTIVES + ' *'
 Entry = namedtuple('Entry', 'ctl instructions')
 
 class Instruction:
-    def __init__(self, address, skool_address, keep, operation, data):
+    def __init__(self, address, skool_address, keep, operation, data, marker):
         self.address = address
         self.skool_address = skool_address
         self.keep = keep
         self.original_op = self.operation = operation
         self.data = data
+        self.marker = marker
 
 class BinWriter:
     def __init__(self, skoolfile, asm_mode=0, fix_mode=0, data=False, verbose=False):
@@ -105,29 +106,27 @@ class BinWriter:
         parsed = [parse_asm_sub_fix_directive(v)[::2] for v in operations]
         before = [i[1] for i in parsed if i[0].prepend and i[1]]
         for operation in before:
-            address += self._get_size(operation, address)
+            address += self._get_size(operation, address, '>')
         self.address_map.setdefault(skool_address, str(address))
         after = [(i[0].overwrite, i[1], i[0].append) for i in parsed if not i[0].prepend]
-        if not after or after[0][2]:
-            after.insert(0, (False, original_op, False))
-        overwrite, operation = after.pop(0)[:2]
-        operation = operation or original_op
-        if skool_address is not None:
-            offset = skool_address - address
-        else:
+        if skool_address is None:
             offset = 0
+        else:
+            offset = skool_address - address
+        if not after or after[0][2]:
+            overwrite, operation = False, original_op
+        else:
+            overwrite, operation = after.pop(0)[:2]
+            if not operation:
+                operation = original_op
         if operation and skool_address not in removed:
-            address += self._get_size(operation, address, overwrite, removed, offset, skool_address)
+            address += self._get_size(operation, address, ' ', overwrite, removed, offset, skool_address)
         for overwrite, operation, append in after:
             if operation:
-                address += self._get_size(operation, address, overwrite, removed, offset)
+                address += self._get_size(operation, address, '+', overwrite, removed, offset)
         return address
 
-    def _get_size(self, operation, address, overwrite=False, removed=None, offset=0, skool_address=None):
-        self.instructions.append(Instruction(address, skool_address, self.keep, operation, self.data))
-        self.keep = None
-        if self.data is not None:
-            self.data = []
+    def _get_size(self, operation, address, marker, overwrite=False, removed=None, offset=0, skool_address=None):
         if operation.upper().startswith(('DJNZ ', 'JR ')):
             size = 2
         else:
@@ -135,6 +134,11 @@ class BinWriter:
         if size:
             if overwrite:
                 removed.update(range(address + offset, address + offset + size))
+                marker = '|'
+            self.instructions.append(Instruction(address, skool_address, self.keep, operation, self.data, marker))
+            self.keep = None
+            if self.data is not None:
+                self.data = []
             return size
         raise SkoolParsingError("Failed to assemble:\n {} {}".format(address, operation))
 
@@ -181,15 +185,14 @@ class BinWriter:
                 address += len(data)
             self._poke(i.address, self.assembler.assemble(i.operation, i.address))
             if self.verbose:
-                if i.skool_address == i.address and i.original_op == i.operation:
+                if i.skool_address in (None, i.address) and i.original_op == i.operation:
                     suffix = ''
                 else:
                     if i.skool_address is None:
-                        suffix = ':           '
+                        suffix = ':            {}'.format(i.original_op)
                     else:
-                        suffix = ': {0:05} {0:04X}'.format(i.skool_address)
-                    suffix += ' {}'.format(i.original_op)
-                info('{0:05} {0:04X} {1:13} {2}'.format(i.address, i.operation, suffix).rstrip())
+                        suffix = ': {0:05} {0:04X} {1}'.format(i.skool_address, i.original_op)
+                info('{0:05} {0:04X} {1} {2:13} {3}'.format(i.address, i.marker, i.operation, suffix).rstrip())
 
     def write(self, binfile, start, end):
         if start is None:

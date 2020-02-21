@@ -489,10 +489,10 @@ class BinWriterTest(BinWriterTestCase):
         """
         exp_data = [120, 169, 130, 201]
         exp_output = """
-            30000 7530 LD A,B
-            30001 7531 XOR C
-            30002 7532 ADD A,D
-            30003 7533 RET
+            30000 7530   LD A,B
+            30001 7531   XOR C
+            30002 7532   ADD A,D
+            30003 7533   RET
         """
         self._test_write(skool, 30000, exp_data, exp_output=exp_output)
 
@@ -503,8 +503,8 @@ class BinWriterTest(BinWriterTestCase):
         """
         exp_data = [120, 201]
         exp_output = """
-            00000 0000 LD A,B
-            00001 0001 RET
+            00000 0000   LD A,B
+            00001 0001   RET
         """
         self._test_write(skool, 0, exp_data, exp_output=exp_output)
 
@@ -518,9 +518,9 @@ class BinWriterTest(BinWriterTestCase):
         """
         exp_data = [121, 170, 201]
         exp_output = """
-            40000 9C40 LD A,C
-            40001 9C41 XOR D
-            40002 9C42 RET
+            40000 9C40   LD A,C
+            40001 9C41   XOR D
+            40002 9C42   RET
         """
         self._test_write(skool, 40000, exp_data, 'ssub', exp_output=exp_output)
 
@@ -534,10 +534,10 @@ class BinWriterTest(BinWriterTestCase):
         """
         exp_data = [175, 71, 169, 201]
         exp_output = """
-            40000 9C40 XOR A         :            XOR A
-            40001 9C41 LD B,A        : 40000 9C40 LD B,A
-            40002 9C42 XOR C
-            40003 9C43 RET           :            RET
+            40000 9C40 > XOR A
+            40001 9C41   LD B,A        : 40000 9C40 LD B,A
+            40002 9C42   XOR C
+            40003 9C43 + RET
         """
         self._test_write(skool, 40000, exp_data, 'rsub', exp_output=exp_output)
 
@@ -550,8 +550,8 @@ class BinWriterTest(BinWriterTestCase):
         """
         exp_data = [62, 1, 201]
         exp_output = """
-            60000 EA60 LD A,1
-            60002 EA62 RET
+            60000 EA60 | LD A,1
+            60002 EA62   RET
         """
         self._test_write(skool, 60000, exp_data, 'ssub', exp_output=exp_output)
 
@@ -564,9 +564,9 @@ class BinWriterTest(BinWriterTestCase):
         """
         exp_data = [175, 60, 201]
         exp_output = """
-            60000 EA60 XOR A
-            60001 EA61 INC A         :            INC A
-            60002 EA62 RET
+            60000 EA60 | XOR A
+            60001 EA61 | INC A
+            60002 EA62   RET
         """
         self._test_write(skool, 60000, exp_data, 'ssub', exp_output=exp_output)
 
@@ -578,7 +578,7 @@ class BinWriterTest(BinWriterTestCase):
         """
         exp_data = [175]
         exp_output = """
-            40000 9C40 XOR A
+            40000 9C40   XOR A
         """
         self._test_write(skool, 40000, exp_data, 'rsub', exp_output=exp_output)
 
@@ -592,9 +592,9 @@ class BinWriterTest(BinWriterTestCase):
         """
         exp_data = [62, 0, 238, 25, 201]
         exp_output = """
-            40000 9C40 LD A,0
-            40002 9C42 XOR 25        : 40001 9C41 XOR 25
-            40004 9C44 RET           : 40002 9C42 RET
+            40000 9C40   LD A,0
+            40002 9C42   XOR 25        : 40001 9C41 XOR 25
+            40004 9C44   RET           : 40002 9C42 RET
         """
         self._test_write(skool, 40000, exp_data, 'rsub', exp_output=exp_output)
 
@@ -609,10 +609,10 @@ class BinWriterTest(BinWriterTestCase):
         """
         exp_data = [205, 86, 195, 62, 0, 201, 42, 85, 195]
         exp_output = """
-            50000 C350 CALL 50006    : 50000 C350 CALL 50005
-            50003 C353 LD A,0
-            50005 C355 RET           : 50004 C354 RET
-            50006 C356 LD HL,(50005) : 50005 C355 LD HL,(50004)
+            50000 C350   CALL 50006    : 50000 C350 CALL 50005
+            50003 C353   LD A,0
+            50005 C355   RET           : 50004 C354 RET
+            50006 C356   LD HL,(50005) : 50005 C355 LD HL,(50004)
         """
         self._test_write(skool, 50000, exp_data, 'rsub', exp_output=exp_output)
 
@@ -624,11 +624,29 @@ class BinWriterTest(BinWriterTestCase):
         """
         exp_data = [175, 24, 0, 201]
         exp_output = """
-            50000 C350 XOR A
-            50001 C351 JR 50003      :            JR 50001
-            50003 C353 RET           : 50001 C351 RET
+            50000 C350   XOR A
+            50001 C351 + JR 50003      :            JR 50001
+            50003 C353   RET           : 50001 C351 RET
         """
         self._test_write(skool, 50000, exp_data, 'rsub', exp_output=exp_output)
+
+    def test_verbose_shows_instructions_inserted_by_block_directive(self):
+        skool = """
+            c60000 XOR A
+            @rsub+begin
+                   INC A
+                   SUB B
+            @rsub+end
+             60001 RET
+        """
+        exp_data = [175, 60, 144, 201]
+        exp_output = """
+            60000 EA60   XOR A
+            60001 EA61   INC A
+            60002 EA62   SUB B
+            60003 EA63   RET           : 60001 EA61 RET
+        """
+        self._test_write(skool, 60000, exp_data, 'rsub', exp_output=exp_output)
 
     @patch.object(components, 'SK_CONFIG', None)
     def test_custom_assembler(self):
