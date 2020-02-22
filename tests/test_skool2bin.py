@@ -666,7 +666,7 @@ class BinWriterTest(BinWriterTestCase):
         custom_adjuster = """
             from skoolkit.skoolparser import InstructionUtility
             class CustomUtility(InstructionUtility):
-                def substitute_labels(self, entries, remote_entries, labels):
+                def substitute_labels(self, entries, remote_entries, labels, warn):
                     entries[0].instructions[0].operation = 'JP 50001'
         """
         self.write_component_config('InstructionUtility', '*.CustomUtility', custom_adjuster)

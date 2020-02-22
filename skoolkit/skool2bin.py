@@ -176,7 +176,7 @@ class BinWriter:
         self.end_address = max(self.end_address, address + len(data))
 
     def _relocate(self):
-        get_instruction_utility().substitute_labels([Entry('c', self.instructions)], (), self.address_map)
+        get_instruction_utility().substitute_labels([Entry('c', self.instructions)], (), self.address_map, lambda *args: None)
         for i in self.instructions:
             address = i.address
             while i.data:

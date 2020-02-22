@@ -2384,10 +2384,10 @@ class SkoolParserTest(SkoolKitTestCase):
         self._get_parser(skool, asm_mode=1, warnings=True)
         warnings = self.err.getvalue()
         exp_warnings = """
-            WARNING: LD operand replaced with routine label in unsubbed operation:
-              32768 LD HL,32774 -> LD HL,DOSTUFF
-            WARNING: LD operand replaced with routine label in unsubbed operation:
-              32771 ld de,32774 -> ld de,DOSTUFF
+            WARNING: LD operand replaced with label in unsubbed operation:
+              32768 LD HL,32774 (32774 -> DOSTUFF)
+            WARNING: LD operand replaced with label in unsubbed operation:
+              32771 ld de,32774 (32774 -> DOSTUFF)
         """
         self.assertEqual(dedent(exp_warnings).strip(), warnings.strip())
 
@@ -2772,7 +2772,7 @@ class SkoolParserTest(SkoolKitTestCase):
         """
         self._get_parser(skool, asm_mode=2, warnings=True)
         warnings = self.err.getvalue()
-        self.assertEqual(warnings, 'WARNING: Unreplaced operand: 30000 JR 30001\n')
+        self.assertEqual(warnings, 'WARNING: Unreplaced operand (30001):\n  30000 JR 30001\n')
 
     def test_no_warning_for_unreplaced_operand_in_isub_mode(self):
         skool = """
@@ -2834,10 +2834,12 @@ class SkoolParserTest(SkoolKitTestCase):
         self._get_parser(skool, asm_mode=2, warnings=True)
         warnings = self.err.getvalue()
         exp_warnings = """
-            WARNING: Found no label for operand: 8000 LD HL,$8003
-            WARNING: LD operand replaced with routine label in unsubbed operation:
-              8003 LD DE,$8000 -> LD DE,START
-            WARNING: Unreplaced operand: 8006 CALL $8001
+            WARNING: Found no label for operand ($8003):
+              8000 LD HL,$8003
+            WARNING: LD operand replaced with label in unsubbed operation:
+              8003 LD DE,$8000 ($8000 -> START)
+            WARNING: Unreplaced operand ($8001):
+              8006 CALL $8001
         """
         self.assertEqual(dedent(exp_warnings).strip(), warnings.strip())
 
@@ -2849,7 +2851,7 @@ class SkoolParserTest(SkoolKitTestCase):
         """
         self._get_parser(skool, asm_mode=2, warnings=True)
         warnings = self.err.getvalue()
-        self.assertEqual(warnings, 'WARNING: Found no label for operand: 32768 LD HL,32768\n')
+        self.assertEqual(warnings, 'WARNING: Found no label for operand (32768):\n  32768 LD HL,32768\n')
 
     def test_suppress_warnings(self):
         skool = """

@@ -740,9 +740,28 @@ class SkoolParser:
             for instruction in entry.instructions:
                 instruction.html_escape()
 
-    def warn(self, fmt, instruction, subbed=False, min_mode=0):
-        if self.mode.warn and instruction.warn and self.mode.asm_mode >= min_mode and (subbed or instruction.sub is None):
-            warn(fmt.format(address=instruction.addr_str, operation=instruction.operation))
+    def warn(self, instruction, code, address, label):
+        if self.mode.warn and instruction.warn:
+            if code == 1:
+                if instruction.sub is None:
+                    # Warn if a LD operand is replaced with a label in an
+                    # unsubbed operation (will need @keep to retain operand, or
+                    # @nowarn if the replacement is OK)
+                    warn('LD operand replaced with label in unsubbed operation:\n'
+                         '  {0.addr_str} {0.original_op} ({1} -> {2})'.format(instruction, address, label))
+            elif code == 2:
+                # Warn if we cannot find a label to replace the operand of this
+                # routine instruction (will need @nowarn if this is OK)
+                warn('Found no label for operand ({0}):\n'
+                     '  {1.addr_str} {1.operation}'.format(address, instruction))
+            elif code == 3:
+                if instruction.sub is None and self.mode.asm_mode >= 2:
+                    # Warn if the operand is inside the address range of the
+                    # disassembly (where code might be) but doesn't refer to
+                    # the address of an instruction (will need @nowarn if this
+                    # is OK)
+                    warn('Unreplaced operand ({0}):\n'
+                         '  {1.addr_str} {1.operation}'.format(address, instruction))
 
     def _generate_labels(self):
         """Generate labels for mid-routine entry points (based on the label of
@@ -992,7 +1011,7 @@ class InstructionUtility:
                 operation = re.sub('(I[XY])L', r'\1l', operation)
         return operation
 
-    def substitute_labels(self, entries, remote_entries, labels, warn=None):
+    def substitute_labels(self, entries, remote_entries, labels, warn):
         """Replace addresses with labels in the operands of every instruction
         in a skool file.
 
@@ -1000,25 +1019,18 @@ class InstructionUtility:
         :param remote_entries: A collection of remote entries (as defined by
                                :ref:`remote` directives).
         :param labels: A dictionary mapping addresses to labels.
-        :param warn: An optional function that emits a warning. It must accept
-                     four arguments:
+        :param warn: A function to be called if a warning is generated when
+                     attempting to replace an address in an instruction operand
+                     with a label. The function must accept four arguments:
 
-                     * `fmt` - a format string for the warning message; it may
-                       contain '{address}' and '{operation}' replacement
-                       fields.
-                     * `instruction` - the relevant instruction object.
-                     * `subbed` - whether to show the warning for an operation
-                       that has been replaced by a ``@*sub`` or ``@*fix``
-                       directive.
-                     * `min_mode` - the minimum ASM mode in which the warning
-                       should be displayed.
+                     * `instruction` - the instruction object.
+                     * `code` - the warning code.
+                     * `address` - the address string.
+                     * `label` - the label (or `None` if no label exists).
         """
         self.remote_entries = remote_entries
         self.labels = labels
-        if warn:
-            self.warn = warn
-        else:
-            self.warn = lambda *args, **kwargs: None
+        self.warn = warn
         self.instructions = {i.address: (i, e, labels.get(i.address)) for e in entries for i in e.instructions if i.address is not None}
         self.remote_instructions = [i.address for e in remote_entries for i in e.instructions]
         self.base_address = min(self.instructions)
@@ -1060,24 +1072,20 @@ class InstructionUtility:
         if ref_i:
             if ref_l:
                 if ref_e.ctl == 'c' and operation_u.startswith('LD '):
-                    # Warn if a LD operand is replaced with a routine label in
-                    # an unsubbed operation (will need @keep to retain operand,
-                    # or @nowarn if the replacement is OK)
-                    rep = instruction.operation.replace(addr_str, ref_l)
-                    self.warn('LD operand replaced with routine label in unsubbed operation:\n'
-                              '  {address} {operation} -> ' + rep, instruction, False, 0)
+                    # Warn if a LD operand is replaced with a label
+                    self.warn(instruction, 1, addr_str, ref_l)
                 return ref_l
             if entry.ctl == 'c':
                 # Warn if we cannot find a label to replace the operand of this
-                # routine instruction (will need @nowarn if this is OK)
-                self.warn('Found no label for operand: {address} {operation}', instruction, True, 0)
+                # routine instruction
+                self.warn(instruction, 2, addr_str, None)
         elif address in self.labels:
             return self.labels[address]
         elif address not in self.remote_instructions and self.base_address <= address < self.end_address:
             # Warn if the operand is inside the address range of the
             # disassembly (where code might be) but doesn't refer to the
-            # address of an instruction (will need @nowarn if this is OK)
-            self.warn('Unreplaced operand: {address} {operation}', instruction, False, 2)
+            # address of an instruction
+            self.warn(instruction, 3, addr_str, None)
 
     def calculate_references(self, entries, remote_entries):
         """
@@ -1141,6 +1149,7 @@ class Instruction:
         self.address = parse_int(addr_str) # API (InstructionUtility)
         self.keep = None                   # API (InstructionUtility)
         self.operation = operation         # API (InstructionUtility)
+        self.original_op = operation
         self.bytes = ()
         self.container = None
         self.reference = None

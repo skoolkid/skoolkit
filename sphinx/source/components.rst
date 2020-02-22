@@ -147,7 +147,18 @@ skoolkit.skoolparser.InstructionUtility:
    :members: calculate_references, convert, set_byte_values, substitute_labels
 
 .. versionchanged:: 8.1
-   The *warn* argument of :meth:`substitute_labels` is optional.
+   Changed the required signature of the *warn* function supplied to
+   :meth:`substitute_labels`.
+
+The warning codes produced by :meth:`substitute_labels` are positive integers
+with the following meanings:
+
+* 1 - `address` is in a 'LD' operand and will be replaced with `label`
+* 2 - `address` refers to an instruction, but no label exists for it
+* 3 - `address` does not refer to an instruction (so no label exists)
+
+It is up to the *warn* function to decide whether to act on the warning (e.g.
+by printing a suitable message) or ignore it.
 
 Memory map entries and remote entries have the following attributes:
 
