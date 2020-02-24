@@ -17,7 +17,7 @@
 import argparse
 from collections import defaultdict, namedtuple
 
-from skoolkit import SkoolParsingError, get_int_param, info, integer, open_file, VERSION
+from skoolkit import SkoolParsingError, get_int_param, info, integer, open_file, warn, VERSION
 from skoolkit.components import get_assembler, get_instruction_utility
 from skoolkit.skoolmacro import MacroParsingError, parse_if
 from skoolkit.skoolparser import (DIRECTIVES, parse_address_range, parse_asm_data_directive,
@@ -29,11 +29,12 @@ VALID_CTLS = DIRECTIVES + ' *'
 Entry = namedtuple('Entry', 'ctl instructions')
 
 class Instruction:
-    def __init__(self, address, skool_address, keep, operation, data, marker):
-        self.address = address
-        self.skool_address = skool_address
+    def __init__(self, address, skool_address, operation, keep, nowarn, data, marker):
+        self.real_address = address
+        self.address = skool_address
         self.keep = keep
-        self.original_op = self.operation = operation
+        self.nowarn = nowarn
+        self.original = self.operation = operation
         self.data = data
         self.marker = marker
 
@@ -63,10 +64,13 @@ class BinWriter:
         self.end_address = 0
         self.subs = defaultdict(list, {0: []})
         self.keep = None
+        self.nowarn = False
         if data:
             self.data = []
         else:
             self.data = None
+        self.entry_ctl = None
+        self.entries = []
         self.instructions = []
         self.address_map = {}
         self.assembler = get_assembler()
@@ -85,9 +89,14 @@ class BinWriter:
                     address = self._parse_asm_directive(address, line[1:], removed)
                 elif not line.lstrip().startswith(';') and line[0] in VALID_CTLS:
                     address = self._parse_instruction(address, line, removed)
+            self.entries.append(Entry(self.entry_ctl, self.instructions))
+            self.entry_ctl = None
+            self.instructions = []
         f.close()
 
     def _parse_instruction(self, address, line, removed):
+        if self.entry_ctl is None:
+            self.entry_ctl = line[0]
         try:
             skool_address = get_int_param(line[1:6])
         except ValueError:
@@ -135,8 +144,9 @@ class BinWriter:
             if overwrite:
                 removed.update(range(address + offset, address + offset + size))
                 marker = '|'
-            self.instructions.append(Instruction(address, skool_address, self.keep, operation, self.data, marker))
+            self.instructions.append(Instruction(address, skool_address, operation, self.keep, self.nowarn, self.data, marker))
             self.keep = None
+            self.nowarn = False
             if self.data is not None:
                 self.data = []
             return size
@@ -166,6 +176,8 @@ class BinWriter:
                 address = None
         elif directive.startswith('keep'):
             self.keep = parse_asm_keep_directive(directive)
+        elif directive.startswith('nowarn'):
+            self.nowarn = True
         elif self.data is not None and directive.startswith(('defb=', 'defs=', 'defw=')):
             self.data.append(directive)
         return address
@@ -175,24 +187,27 @@ class BinWriter:
         self.base_address = min(self.base_address, address)
         self.end_address = max(self.end_address, address + len(data))
 
+    def warn(self, message, instruction):
+        warn('{0}:\n  {1:05} {1:04X} {2}'.format(message, instruction.address, instruction.operation))
+
     def _relocate(self):
-        get_instruction_utility().substitute_labels([Entry('c', self.instructions)], (), self.address_map, lambda *args: None)
-        for i in self.instructions:
-            address = i.address
-            while i.data:
-                address, data = parse_asm_data_directive(self.snapshot, address, i.data.pop(0), False)
-                self._poke(address, data)
-                address += len(data)
-            self._poke(i.address, self.assembler.assemble(i.operation, i.address))
-            if self.verbose:
-                if i.skool_address in (None, i.address) and i.original_op == i.operation:
-                    suffix = ''
-                else:
-                    if i.skool_address is None:
-                        suffix = ':            {}'.format(i.original_op)
+        get_instruction_utility().substitute_labels(self.entries, (), self.address_map, self.asm_mode, self.warn)
+        for entry in self.entries:
+            for i in entry.instructions:
+                address = i.real_address
+                while i.data:
+                    address, data = parse_asm_data_directive(self.snapshot, address, i.data.pop(0), False)
+                    self._poke(address, data)
+                    address += len(data)
+                self._poke(i.real_address, self.assembler.assemble(i.operation, i.real_address))
+                if self.verbose:
+                    if i.address in (None, i.real_address) and i.original == i.operation:
+                        suffix = ''
+                    elif i.address is None:
+                        suffix = ':            {}'.format(i.original)
                     else:
-                        suffix = ': {0:05} {0:04X} {1}'.format(i.skool_address, i.original_op)
-                info('{0:05} {0:04X} {1} {2:13} {3}'.format(i.address, i.marker, i.operation, suffix).rstrip())
+                        suffix = ': {0:05} {0:04X} {1}'.format(i.address, i.original)
+                    info('{0:05} {0:04X} {1} {2:13} {3}'.format(i.real_address, i.marker, i.operation, suffix).rstrip())
 
     def write(self, binfile, start, end):
         if start is None:

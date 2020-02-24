@@ -611,7 +611,7 @@ class SkoolParser:
             self._escape_instructions()
         elif self.memory_map:
             self._labels.update({i.address: i.asm_label for e in self.memory_map for i in e.instructions if i.asm_label is not None})
-            self.utility.substitute_labels(self.memory_map, self._remote_entries, self._labels, self.warn)
+            self.utility.substitute_labels(self.memory_map, self._remote_entries, self._labels, self.mode.asm_mode, self.warn)
 
     def _parse_non_entry(self, block, removed):
         lines = []
@@ -740,28 +740,9 @@ class SkoolParser:
             for instruction in entry.instructions:
                 instruction.html_escape()
 
-    def warn(self, instruction, code, address, label):
-        if self.mode.warn and instruction.warn:
-            if code == 1:
-                if instruction.sub is None:
-                    # Warn if a LD operand is replaced with a label in an
-                    # unsubbed operation (will need @keep to retain operand, or
-                    # @nowarn if the replacement is OK)
-                    warn('LD operand replaced with label in unsubbed operation:\n'
-                         '  {0.addr_str} {0.original_op} ({1} -> {2})'.format(instruction, address, label))
-            elif code == 2:
-                # Warn if we cannot find a label to replace the operand of this
-                # routine instruction (will need @nowarn if this is OK)
-                warn('Found no label for operand ({0}):\n'
-                     '  {1.addr_str} {1.operation}'.format(address, instruction))
-            elif code == 3:
-                if instruction.sub is None and self.mode.asm_mode >= 2:
-                    # Warn if the operand is inside the address range of the
-                    # disassembly (where code might be) but doesn't refer to
-                    # the address of an instruction (will need @nowarn if this
-                    # is OK)
-                    warn('Unreplaced operand ({0}):\n'
-                         '  {1.addr_str} {1.operation}'.format(address, instruction))
+    def warn(self, message, instruction):
+        if self.mode.warn:
+            warn('{0}:\n  {1.addr_str} {1.operation}'.format(message, instruction))
 
     def _generate_labels(self):
         """Generate labels for mid-routine entry points (based on the label of
@@ -867,7 +848,7 @@ class Mode:
         if self.asm_mode:
             if self.org != '':
                 instruction.org = self.org
-            instruction.warn = not self.nowarn
+            instruction.nowarn = self.nowarn
             instruction.ignoreua = {k: self.ignoreua[k] for k in 'im'}
 
             parsed = [parse_asm_sub_fix_directive(d) for d in self.subs[max(self.subs)]]
@@ -1011,7 +992,7 @@ class InstructionUtility:
                 operation = re.sub('(I[XY])L', r'\1l', operation)
         return operation
 
-    def substitute_labels(self, entries, remote_entries, labels, warn):
+    def substitute_labels(self, entries, remote_entries, labels, mode, warn):
         """Replace addresses with labels in the operands of every instruction
         in a skool file.
 
@@ -1019,17 +1000,18 @@ class InstructionUtility:
         :param remote_entries: A collection of remote entries (as defined by
                                :ref:`remote` directives).
         :param labels: A dictionary mapping addresses to labels.
+        :param mode: The substitution mode: 1 (``@isub``), 2 (``@ssub``), 3
+                     (``@rsub``), or 0 (none).
         :param warn: A function to be called if a warning is generated when
                      attempting to replace an address in an instruction operand
-                     with a label. The function must accept four arguments:
+                     with a label. The function must accept two arguments:
 
+                     * `message` - the warning message.
                      * `instruction` - the instruction object.
-                     * `code` - the warning code.
-                     * `address` - the address string.
-                     * `label` - the label (or `None` if no label exists).
         """
         self.remote_entries = remote_entries
         self.labels = labels
+        self.asm_mode = mode
         self.warn = warn
         self.instructions = {i.address: (i, e, labels.get(i.address)) for e in entries for i in e.instructions if i.address is not None}
         self.remote_instructions = [i.address for e in remote_entries for i in e.instructions]
@@ -1046,6 +1028,10 @@ class InstructionUtility:
                         instruction.operation = operation[:5] + ','.join(operands)
                     elif not operation.upper().startswith(('RST', 'DEFS')):
                         instruction.operation = self._replace_addresses(entry, instruction, operation)
+
+    def _warn(self, message, instruction):
+        if not instruction.nowarn:
+            self.warn(message, instruction)
 
     def _replace_addresses(self, entry, instruction, operand):
         rep = ''
@@ -1069,23 +1055,27 @@ class InstructionUtility:
                               or _is_8_bit_ld_instruction(operation_u)):
             return
         ref_i, ref_e, ref_l = self.instructions.get(address, (None, None, None))
+        unsubbed = instruction.original == instruction.operation
         if ref_i:
             if ref_l:
-                if ref_e.ctl == 'c' and operation_u.startswith('LD '):
-                    # Warn if a LD operand is replaced with a label
-                    self.warn(instruction, 1, addr_str, ref_l)
+                if ref_e.ctl == 'c' and operation_u.startswith('LD ') and unsubbed and addr_str != ref_l:
+                    # Warn if an address in the operand of an unsubbed LD
+                    # instruction is replaced (use @keep to retain address, or
+                    # @nowarn if replacement is OK)
+                    self._warn('Address {0} replaced with {1} in unsubbed LD operation'.format(addr_str, ref_l), instruction)
                 return ref_l
             if entry.ctl == 'c':
-                # Warn if we cannot find a label to replace the operand of this
-                # routine instruction
-                self.warn(instruction, 2, addr_str, None)
+                # Warn if we cannot find a label to replace an address in the
+                # operand of this routine instruction (use @keep or @nowarn if
+                # this is OK)
+                self._warn('No label for address ({})'.format(addr_str), instruction)
         elif address in self.labels:
             return self.labels[address]
-        elif address not in self.remote_instructions and self.base_address <= address < self.end_address:
-            # Warn if the operand is inside the address range of the
-            # disassembly (where code might be) but doesn't refer to the
-            # address of an instruction
-            self.warn(instruction, 3, addr_str, None)
+        elif address not in self.remote_instructions and self.base_address <= address < self.end_address and unsubbed and self.asm_mode > 1:
+            # Warn if the address is inside the address range of the
+            # disassembly (where code might be) but is not the address of an
+            # instruction (use @keep or @nowarn if this is OK)
+            self._warn('Unreplaced address ({})'.format(addr_str), instruction)
 
     def calculate_references(self, entries, remote_entries):
         """
@@ -1149,7 +1139,7 @@ class Instruction:
         self.address = parse_int(addr_str) # API (InstructionUtility)
         self.keep = None                   # API (InstructionUtility)
         self.operation = operation         # API (InstructionUtility)
-        self.original_op = operation
+        self.original = operation
         self.bytes = ()
         self.container = None
         self.reference = None
@@ -1165,7 +1155,7 @@ class Instruction:
             self.sub = operation
         else:
             self.sub = None
-        self.warn = True
+        self.nowarn = False
         self.ignoreua = {'i': None, 'm': None}
 
     def set_comment(self, rowspan, text):

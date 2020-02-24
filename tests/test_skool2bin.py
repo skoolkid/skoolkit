@@ -275,7 +275,7 @@ class Skool2BinTest(SkoolKitTestCase):
             self.assertEqual(output, 'SkoolKit {}\n'.format(VERSION))
 
 class BinWriterTestCase(SkoolKitTestCase):
-    def _test_write(self, skool, base_address, exp_data, *modes, data=False, start=None, end=None, exp_output=''):
+    def _test_write(self, skool, base_address, exp_data, *modes, data=False, start=None, end=None, exp_output='', exp_warnings=''):
         if skool is None:
             skoolfile = '-'
             binfile = self.write_bin_file(suffix='.bin')
@@ -298,6 +298,8 @@ class BinWriterTestCase(SkoolKitTestCase):
         status = "Wrote {}: start={}, end={}, size={}\n".format(binfile, base_address, base_address + size, size)
         if exp_output:
             exp_output = dedent(exp_output).strip() + '\n' + status
+        elif exp_warnings:
+            exp_output = dedent(exp_warnings).strip() + '\n' + status
         else:
             exp_output = status
         self.assertEqual(exp_output, self.err.getvalue())
@@ -605,6 +607,7 @@ class BinWriterTest(BinWriterTestCase):
              50003 XOR A
              50004 RET
 
+            @nowarn
             c50005 LD HL,(50004)
         """
         exp_data = [205, 86, 195, 62, 0, 201, 42, 85, 195]
@@ -666,7 +669,7 @@ class BinWriterTest(BinWriterTestCase):
         custom_adjuster = """
             from skoolkit.skoolparser import InstructionUtility
             class CustomUtility(InstructionUtility):
-                def substitute_labels(self, entries, remote_entries, labels, warn):
+                def substitute_labels(self, entries, remote_entries, labels, mode, warn):
                     entries[0].instructions[0].operation = 'JP 50001'
         """
         self.write_component_config('InstructionUtility', '*.CustomUtility', custom_adjuster)
@@ -935,33 +938,51 @@ class DirectiveTestCase:
 
     def test_mode_adjusts_ld_operands(self):
         skool = """
+            @nowarn
             c30000 LD BC,30021
+            @nowarn
              30003 LD DE,30021
+            @nowarn
              30006 LD HL,30021
+            @nowarn
              30009 LD SP,30021
+            @nowarn
              30012 LD IX,30021
+            @nowarn
              30016 LD IY,30021
             @{0}=LD A,0
              30020 XOR A
              30021 RET ; This instruction is moved to 30022
 
             @org
+            @nowarn
             c30023 LD BC,(30048)
+            @nowarn
              30027 LD DE,(30048)
+            @nowarn
              30031 LD HL,(30048)
+            @nowarn
              30034 LD SP,(30048)
+            @nowarn
              30038 LD IX,(30048)
+            @nowarn
              30042 LD IY,(30048)
             @{0}=XOR A
              30046 LD A,0
              30048 RET ; This instruction is moved to 30047
 
             @org
+            @nowarn
             c30049 LD (30073),BC
+            @nowarn
              30053 LD (30073),DE
+            @nowarn
              30057 LD (30073),HL
+            @nowarn
              30060 LD (30073),SP
+            @nowarn
              30064 LD (30073),IX
+            @nowarn
              30068 LD (30073),IY
             @{0}=LD A,0
              30072 XOR A
@@ -1038,6 +1059,7 @@ class DirectiveTestCase:
             @keep
              50002 LD HL,50005           ; This instruction is moved to 50001
             @keep=50002
+            @nowarn
              50005 LD HL,50002%256+50008 ; This instruction is moved to 50004
              50008 RET                   ; This instruction is moved to 50007
         """.format(self.mode)
@@ -1048,6 +1070,50 @@ class DirectiveTestCase:
             201           # 50007 RET
         ]
         self._test_write(skool, 50000, exp_data, self.mode)
+
+    def test_mode_processes_nowarn_directives(self):
+        skool = """
+            @nowarn
+            c50000 LD HL,50001 ; Unreplaced address (50001)
+            @nowarn
+             50003 LD DE,50006 ; Address 50006 replaced with 50007
+            @{}=>XOR A
+             50006 RET
+        """.format(self.mode)
+        exp_data = [33, 81, 195, 17, 87, 195, 175, 201]
+        self._test_write(skool, 50000, exp_data, self.mode, exp_warnings='')
+
+    def test_warnings(self):
+        skool = """
+            c50000 LD HL,50001 ; Unreplaced address (50001)
+             50003 LD DE,50006 ; Address 50006 replaced with 50007
+            @{}=>XOR A
+             50006 RET
+        """.format(self.mode)
+        exp_data = [33, 81, 195, 17, 87, 195, 175, 201]
+        if self.mode in ('ssub', 'rsub', 'rfix'):
+            exp_warnings = """
+                WARNING: Unreplaced address (50001):
+                  50000 C350 LD HL,50001
+                WARNING: Address 50006 replaced with 50007 in unsubbed LD operation:
+                  50003 C353 LD DE,50006
+            """
+        else:
+            exp_warnings = """
+                WARNING: Address 50006 replaced with 50007 in unsubbed LD operation:
+                  50003 C353 LD DE,50006
+            """
+        self._test_write(skool, 50000, exp_data, self.mode, exp_warnings=exp_warnings)
+
+    def test_no_warning_for_address_in_data_block(self):
+        skool = """
+            c50000 LD HL,50003 ; Address 50003 replaced with 50004, but no warning
+
+            @{}=>DEFB 1
+            b50003 DEFB 2
+        """.format(self.mode)
+        exp_data = [33, 84, 195, 1, 2]
+        self._test_write(skool, 50000, exp_data, self.mode, exp_warnings='')
 
     def test_directive_defining_label_only(self):
         skool = """

@@ -128,8 +128,8 @@ This object is responsible for performing various operations on the
 instructions in a skool file:
 
 * converting base and case
-* replacing addresses with labels in instruction operands; this is required for
-  ASM output
+* replacing addresses with labels (or other addresses) in instruction operands;
+  this is required both for ASM output and for binary output
 * generating a dictionary of references (for each instruction that refers to
   another instruction); this is required for hyperlinking instruction operands
   in HTML output
@@ -146,20 +146,6 @@ skoolkit.skoolparser.InstructionUtility:
 .. autoclass:: skoolkit.skoolparser.InstructionUtility
    :members: calculate_references, convert, set_byte_values, substitute_labels
 
-.. versionchanged:: 8.1
-   Changed the required signature of the *warn* function supplied to
-   :meth:`substitute_labels`.
-
-The warning codes produced by :meth:`substitute_labels` are positive integers
-with the following meanings:
-
-* 1 - `address` is in a 'LD' operand and will be replaced with `label`
-* 2 - `address` refers to an instruction, but no label exists for it
-* 3 - `address` does not refer to an instruction (so no label exists)
-
-It is up to the *warn* function to decide whether to act on the warning (e.g.
-by printing a suitable message) or ignore it.
-
 Memory map entries and remote entries have the following attributes:
 
 * *ctl* - the entry's control directive ('b', 'c', 'g', 'i', 's', 't', 'u' or
@@ -168,12 +154,20 @@ Memory map entries and remote entries have the following attributes:
 
 Each instruction object has the following attributes:
 
-* *address* - the address of the instruction
+* *address* - the address of the instruction as stated in the skool file; note
+  that this will not be the same as the actual address of the instruction if it
+  has been moved by the insertion, removal or replacement of other instructions
+  by ``@*sub`` or ``@*fix`` directives
 * *keep* - `None` if the instruction has no :ref:`keep` directive; an empty
   collection if it has a bare :ref:`keep` directive; or a collection of
   addresses if it has a :ref:`keep` directive with one or more values
-* *operation* - the operation (e.g. 'XOR A'), or an empty string if the
-  instruction is in a remote entry
+* *nowarn* - `True` if the instruction has a :ref:`nowarn` directive, `False`
+  otherwise
+* *operation* - the operation (e.g. 'XOR A') after any ``@*sub`` or ``@*fix``
+  directives have been applied; for an instruction in a remote entry, this is
+  an empty string
+* *original* - the operation before any ``@*sub`` or ``@*fix`` directives have
+  been applied; for an instruction in a remote entry, this is an empty string
 
 Each key in the references dictionary should be an instruction object, and the
 corresponding value should be a 3-element tuple::
@@ -190,6 +184,11 @@ corresponding value should be a 3-element tuple::
 Each key in the referrers dictionary should be an instruction object, and the
 corresponding value should be a collection of the entries that refer to that
 instruction.
+
+.. versionchanged:: 8.1
+   Added the *mode* parameter to the :meth:`substitute_labels` method, and
+   changed the required signature of the *warn* function. Added the *nowarn*
+   and *original* attributes to instruction objects.
 
 .. _operandEvaluator:
 

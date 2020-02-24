@@ -2384,10 +2384,10 @@ class SkoolParserTest(SkoolKitTestCase):
         self._get_parser(skool, asm_mode=1, warnings=True)
         warnings = self.err.getvalue()
         exp_warnings = """
-            WARNING: LD operand replaced with label in unsubbed operation:
-              32768 LD HL,32774 (32774 -> DOSTUFF)
-            WARNING: LD operand replaced with label in unsubbed operation:
-              32771 ld de,32774 (32774 -> DOSTUFF)
+            WARNING: Address 32774 replaced with DOSTUFF in unsubbed LD operation:
+              32768 LD HL,32774
+            WARNING: Address 32774 replaced with DOSTUFF in unsubbed LD operation:
+              32771 ld de,32774
         """
         self.assertEqual(dedent(exp_warnings).strip(), warnings.strip())
 
@@ -2772,7 +2772,7 @@ class SkoolParserTest(SkoolKitTestCase):
         """
         self._get_parser(skool, asm_mode=2, warnings=True)
         warnings = self.err.getvalue()
-        self.assertEqual(warnings, 'WARNING: Unreplaced operand (30001):\n  30000 JR 30001\n')
+        self.assertEqual(warnings, 'WARNING: Unreplaced address (30001):\n  30000 JR 30001\n')
 
     def test_no_warning_for_unreplaced_operand_in_isub_mode(self):
         skool = """
@@ -2813,6 +2813,30 @@ class SkoolParserTest(SkoolKitTestCase):
         warnings = self.err.getvalue()
         self.assertEqual(warnings, '')
 
+    def test_no_warning_for_address_in_data_block_replaced_with_label(self):
+        skool = """
+            @start
+            c50000 LD HL,50003 ; Address 50003 replaced with DATA, but no warning
+
+            @label=DATA
+            b50003 DEFB 0
+        """
+        parser = self._get_parser(skool, asm_mode=1, warnings=True)
+        self.assertEqual(parser.get_instruction(50000).operation, 'LD HL,DATA')
+        warnings = self.err.getvalue()
+        self.assertEqual(warnings, '')
+
+    def test_no_warning_for_unreplaced_address_in_operand_of_instruction_in_data_block(self):
+        skool = """
+            @start
+            b50000 DEFW 50003 ; 50003 not replaced with a label, but no warning
+
+            c50003 RET
+        """
+        self._get_parser(skool, asm_mode=1, warnings=True)
+        warnings = self.err.getvalue()
+        self.assertEqual(warnings, '')
+
     def test_no_warning_when_end_address_cannot_be_calculated(self):
         skool = """
             @start
@@ -2834,11 +2858,11 @@ class SkoolParserTest(SkoolKitTestCase):
         self._get_parser(skool, asm_mode=2, warnings=True)
         warnings = self.err.getvalue()
         exp_warnings = """
-            WARNING: Found no label for operand ($8003):
+            WARNING: No label for address ($8003):
               8000 LD HL,$8003
-            WARNING: LD operand replaced with label in unsubbed operation:
-              8003 LD DE,$8000 ($8000 -> START)
-            WARNING: Unreplaced operand ($8001):
+            WARNING: Address $8000 replaced with START in unsubbed LD operation:
+              8003 LD DE,$8000
+            WARNING: Unreplaced address ($8001):
               8006 CALL $8001
         """
         self.assertEqual(dedent(exp_warnings).strip(), warnings.strip())
@@ -2851,7 +2875,7 @@ class SkoolParserTest(SkoolKitTestCase):
         """
         self._get_parser(skool, asm_mode=2, warnings=True)
         warnings = self.err.getvalue()
-        self.assertEqual(warnings, 'WARNING: Found no label for operand (32768):\n  32768 LD HL,32768\n')
+        self.assertEqual(warnings, 'WARNING: No label for address (32768):\n  32768 LD HL,32768\n')
 
     def test_suppress_warnings(self):
         skool = """
@@ -3783,12 +3807,12 @@ class SkoolParserTest(SkoolKitTestCase):
             self.assertEqual({'i': [], 'm': None}, inst1.ignoreua)
             self.assertEqual(inst1.asm_label, 'START')
             self.assertIsNone(inst1.org)
-            self.assertFalse(inst1.warn)
+            self.assertTrue(inst1.nowarn)
             self.assertIsNone(inst2.keep)
             self.assertEqual(inst2.ignoreua, {'i': None, 'm': None})
             self.assertIsNone(inst2.asm_label)
             self.assertEqual(inst2.org, '32770')
-            self.assertTrue(inst2.warn)
+            self.assertFalse(inst2.nowarn)
         self._assert_sub_and_fix_directives(skool, func)
 
     def test_sub_and_fix_directives_replace_two_instructions_with_one(self):
@@ -4008,12 +4032,12 @@ class SkoolParserTest(SkoolKitTestCase):
             self.assertEqual(inst1.ignoreua, {'i': [], 'm': None})
             self.assertEqual(inst1.asm_label, 'START')
             self.assertIsNone(inst1.org)
-            self.assertFalse(inst1.warn)
+            self.assertTrue(inst1.nowarn)
             self.assertIsNone(inst2.keep)
             self.assertEqual(inst2.ignoreua, {'i': None, 'm': None})
             self.assertIsNone(inst2.asm_label)
             self.assertEqual(inst2.org, '     ')
-            self.assertTrue(inst2.warn)
+            self.assertFalse(inst2.nowarn)
         self._assert_sub_and_fix_directives(skool, func)
 
     def test_sub_and_fix_directives_prepend_instruction(self):
@@ -4270,12 +4294,12 @@ class SkoolParserTest(SkoolKitTestCase):
             self.assertEqual(inst1.ignoreua, {'i': None, 'm': None})
             self.assertIsNone(inst1.asm_label)
             self.assertIsNone(inst1.org)
-            self.assertTrue(inst1.warn)
+            self.assertFalse(inst1.nowarn)
             self.assertEqual([], inst2.keep)
             self.assertEqual(inst2.ignoreua, {'i': [], 'm': None})
             self.assertEqual(inst2.asm_label, 'START')
             self.assertIsNone(inst2.org)
-            self.assertFalse(inst2.warn)
+            self.assertTrue(inst2.nowarn)
         self._assert_sub_and_fix_directives(skool, func)
 
     def test_sub_and_fix_directives_append_instruction_cleanly(self):
@@ -4297,12 +4321,12 @@ class SkoolParserTest(SkoolKitTestCase):
             self.assertEqual(inst1.ignoreua, {'i': [], 'm': None})
             self.assertEqual(inst1.asm_label, 'START')
             self.assertIsNone(inst1.org)
-            self.assertFalse(inst1.warn)
+            self.assertTrue(inst1.nowarn)
             self.assertIsNone(inst2.keep)
             self.assertEqual(inst2.ignoreua, {'i': None, 'm': None})
             self.assertIsNone(inst2.asm_label)
             self.assertEqual(inst2.org, '     ')
-            self.assertTrue(inst2.warn)
+            self.assertFalse(inst2.nowarn)
         self._assert_sub_and_fix_directives(skool, func)
 
     def test_sub_and_fix_directives_replace_label(self):
@@ -5516,7 +5540,7 @@ class SkoolParserTest(SkoolKitTestCase):
         custom_labeller = """
             from skoolkit.skoolparser import InstructionUtility
             class CustomUtility(InstructionUtility):
-                def substitute_labels(self, entries, remote_entries, labels, warn):
+                def substitute_labels(self, entries, remote_entries, labels, mode, warn):
                     entries[0].instructions[0].operation = 'JP WHERE'
         """
         self.write_component_config('InstructionUtility', '*.CustomUtility', custom_labeller)
@@ -5529,30 +5553,37 @@ class SkoolParserTest(SkoolKitTestCase):
         custom_labeller = """
             from skoolkit.skoolparser import InstructionUtility
             class CustomUtility(InstructionUtility):
-                def substitute_labels(self, entries, remote_entries, labels, warn):
+                def substitute_labels(self, entries, remote_entries, labels, mode, warn):
                     entry = entries[0]
                     assert entry.ctl == 'c'
                     instruction = entry.instructions[0]
                     assert instruction.address == 40000
                     assert instruction.keep == []
+                    assert instruction.nowarn
                     assert instruction.operation == 'JP 40000'
+                    assert instruction.original == 'JP 30000'
                     remote_entry = remote_entries[0]
                     assert remote_entry.ctl is None
                     remote_instruction = remote_entry.instructions[1]
                     assert remote_instruction.address == 30001
                     assert remote_instruction.keep is None
+                    assert remote_instruction.nowarn is False
                     assert remote_instruction.operation == ''
+                    assert remote_instruction.original == ''
                     references = {entries[0].instructions[0]: (entries[0], 0, '0')}
                     instruction.operation = 'JP UP'
         """
         self.write_component_config('InstructionUtility', '*.CustomUtility', custom_labeller)
 
         skool = """
+            @start
             @remote=foo:30000,30001
             @keep
-            c40000 JP 40000
+            @nowarn
+            @isub=JP 40000
+            c40000 JP 30000
         """
-        parser = self._get_parser(skool)
+        parser = self._get_parser(skool, asm_mode=1)
         self.assertEqual(parser.get_instruction(40000).operation, 'JP UP')
 
     @patch.object(components, 'SK_CONFIG', None)

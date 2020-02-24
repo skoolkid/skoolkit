@@ -861,10 +861,10 @@ force one to be added where it otherwise wouldn't (``@label=*``).
 The ``@nowarn`` directive suppresses any warnings that would otherwise be
 reported for the next instruction concerning:
 
-* a ``LD`` operand being replaced with a routine label (if the instruction has
-  not been replaced using ``@isub`` or ``@ssub``)
-* an operand not being replaced with a label (because the operand address has
-  no label)
+* an address in a ``LD`` instruction operand being replaced with a label (if
+  the instruction has not been replaced by a ``@*sub`` or ``@*fix`` directive)
+* an address in an instruction operand not being replaced with a label (because
+  the address has no label defined)
 
 For example::
 
