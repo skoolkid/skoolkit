@@ -5,26 +5,24 @@ from skoolkittest import SkoolKitTestCase
 from skoolkit import SkoolKitError, VERSION, components, skool2bin
 
 class MockBinWriter:
-    def __init__(self, skoolfile, asm_mode, fix_mode, data, verbose, warn):
+    def __init__(self, skoolfile, asm_mode, fix_mode, start, end, data, verbose, warn):
         global mock_bin_writer
         mock_bin_writer = self
         self.skoolfile = skoolfile
         self.asm_mode = asm_mode
         self.fix_mode = fix_mode
+        self.start = start
+        self.end = end
         self.data = data
         self.verbose = verbose
         self.warn = warn
         self.binfile = None
-        self.start = None
-        self.end = None
 
-    def write(self, binfile, start, end):
+    def write(self, binfile):
         self.binfile = binfile
-        self.start = start
-        self.end = end
 
 class Skool2BinTest(SkoolKitTestCase):
-    def _check_values(self, skoolfile, binfile, asm_mode=0, fix_mode=0, data=False, verbose=False, warn=True, start=None, end=None):
+    def _check_values(self, skoolfile, binfile, asm_mode=0, fix_mode=0, data=False, verbose=False, warn=True, start=-1, end=65537):
         self.assertEqual(mock_bin_writer.skoolfile, skoolfile)
         self.assertEqual(mock_bin_writer.binfile, binfile)
         self.assertEqual(mock_bin_writer.asm_mode, asm_mode)
@@ -205,7 +203,7 @@ class Skool2BinTest(SkoolKitTestCase):
             self._check_values(skoolfile, exp_binfile, warn=False)
 
 class BinWriterTestCase(SkoolKitTestCase):
-    def _test_write(self, skool, base_address, exp_data, *modes, data=False, start=None, end=None, warn=True, exp_output='', exp_warnings=''):
+    def _test_write(self, skool, base_address, exp_data, *modes, data=False, start=-1, end=65537, warn=True, exp_output='', exp_warnings=''):
         if skool is None:
             skoolfile = '-'
             binfile = self.write_bin_file(suffix='.bin')
@@ -219,8 +217,8 @@ class BinWriterTestCase(SkoolKitTestCase):
                 asm_mode = {'isub': 1, 'ssub': 2, 'rsub': 3}[mode]
             elif mode.endswith('fix'):
                 fix_mode = {'ofix': 1, 'bfix': 2, 'rfix': 3}[mode]
-        bin_writer = skool2bin.BinWriter(skoolfile, asm_mode, fix_mode, data, bool(exp_output), warn)
-        bin_writer.write(binfile, start, end)
+        bin_writer = skool2bin.BinWriter(skoolfile, asm_mode, fix_mode, start, end, data, bool(exp_output), warn)
+        bin_writer.write(binfile)
         with open(binfile, 'rb') as f:
             bdata = list(f.read())
         self.assertEqual(exp_data, bdata)
@@ -269,7 +267,7 @@ class BinWriterTest(BinWriterTestCase):
     def test_binary_file_to_stdout(self):
         skoolfile = self.write_text_file('t30000 DEFM "abc"', suffix='.skool')
         bin_writer = skool2bin.BinWriter(skoolfile)
-        bin_writer.write('-', None, None)
+        bin_writer.write('-')
         self.assertEqual(self.out.getvalue(), b'abc')
         self.assertEqual(self.err.getvalue(), "Wrote stdout: start=30000, end=30003, size=3\n")
 
@@ -580,6 +578,36 @@ class BinWriterTest(BinWriterTestCase):
             60003 EA63   RET           : 60001 EA61 RET
         """
         self._test_write(skool, 60000, exp_data, 'rsub', exp_output=exp_output)
+
+    def test_verbose_omits_instructions_outside_disassembly_range(self):
+        skool = """
+            c40000 XOR A
+             40001 INC A
+             40002 DEC A
+             40003 RET
+        """
+        exp_data = [60, 61]
+        exp_output = """
+            40001 9C41   INC A
+            40002 9C42   DEC A
+        """
+        self._test_write(skool, 40001, exp_data, start=40001, end=40003, exp_output=exp_output)
+
+    def test_verbose_omits_relocated_instructions_outside_disassembly_range(self):
+        skool = """
+            c40000 XOR A
+            @rsub=!40001
+             40001 XOR B
+             40002 XOR C ; Moved to 40001
+            @rsub=>XOR 1 ; Inserted at 40002
+             40003 RET   ; Moved to 40004
+        """
+        exp_data = [169, 238, 1]
+        exp_output = """
+            40001 9C41   XOR C         : 40002 9C42 XOR C
+            40002 9C42 > XOR 1
+        """
+        self._test_write(skool, 40001, exp_data, 'rsub', start=40001, end=40004, exp_output=exp_output)
 
     @patch.object(components, 'SK_CONFIG', None)
     def test_custom_assembler(self):
@@ -1036,6 +1064,18 @@ class DirectiveTestCase:
         """.format(self.mode)
         exp_data = [33, 84, 195, 1, 2]
         self._test_write(skool, 50000, exp_data, self.mode, exp_warnings='')
+
+    def test_no_warning_for_addresses_outside_disassembly_range(self):
+        skool = """
+            b29998 DEFB 1,1    ; This is outside the disassembly range
+
+            c30000 LD HL,29999 ; Unreplaced address, but no warning
+             30003 LD HL,30007 ; Unreplaced address, but no warning
+
+            b30006 DEFB 2,2    ; This is outside the disassembly range
+        """
+        exp_data = [33, 47, 117, 33, 55, 117]
+        self._test_write(skool, 30000, exp_data, self.mode, start=30000, end=30006, exp_warnings='')
 
     def test_directive_defining_label_only(self):
         skool = """

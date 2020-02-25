@@ -39,13 +39,15 @@ class Instruction:
         self.marker = marker
 
 class BinWriter:
-    def __init__(self, skoolfile, asm_mode=0, fix_mode=0, data=False, verbose=False, warn=True):
+    def __init__(self, skoolfile, asm_mode=0, fix_mode=0, start=-1, end=65537, data=False, verbose=False, warn=True):
         if fix_mode > 2:
             asm_mode = 3
         elif asm_mode > 2:
             fix_mode = max(fix_mode, 1)
         self.asm_mode = asm_mode
         self.fix_mode = fix_mode
+        self.start = start
+        self.end = end
         self.verbose = verbose
         self.warn = warn
         self.weights = {
@@ -145,7 +147,8 @@ class BinWriter:
             if overwrite:
                 removed.update(range(address + offset, address + offset + size))
                 marker = '|'
-            self.instructions.append(Instruction(address, skool_address, operation, self.keep, self.nowarn, self.data, marker))
+            if self.start <= address < self.end:
+                self.instructions.append(Instruction(address, skool_address, operation, self.keep, self.nowarn, self.data, marker))
             self.keep = None
             self.nowarn = False
             if self.data is not None:
@@ -211,15 +214,15 @@ class BinWriter:
                         suffix = ': {0:05} {0:04X} {1}'.format(i.address, i.original)
                     info('{0:05} {0:04X} {1} {2:13} {3}'.format(i.real_address, i.marker, i.operation, suffix).rstrip())
 
-    def write(self, binfile, start, end):
-        if start is None:
+    def write(self, binfile):
+        if self.start < 0:
             base_address = self.base_address
         else:
-            base_address = start
-        if end is None:
+            base_address = self.start
+        if self.end > 65536:
             end_address = self.end_address
         else:
-            end_address = end
+            end_address = self.end
         data = self.snapshot[base_address:end_address]
         with open_file(binfile, 'wb') as f:
             f.write(bytearray(data))
@@ -228,8 +231,9 @@ class BinWriter:
         info("Wrote {}: start={}, end={}, size={}".format(binfile, base_address, end_address, len(data)))
 
 def run(skoolfile, binfile, options):
-    binwriter = BinWriter(skoolfile, options.asm_mode, options.fix_mode, options.data, options.verbose, not options.no_warnings)
-    binwriter.write(binfile, options.start, options.end)
+    binwriter = BinWriter(skoolfile, options.asm_mode, options.fix_mode, options.start, options.end,
+                          options.data, options.verbose, not options.no_warnings)
+    binwriter.write(binfile)
 
 def main(args):
     parser = argparse.ArgumentParser(
@@ -247,7 +251,7 @@ def main(args):
                        help="Apply @ofix and @bfix directives.")
     group.add_argument('-d', '--data', dest='data', action='store_true',
                        help="Process @defb, @defs and @defw directives.")
-    group.add_argument('-E', '--end', dest='end', metavar='ADDR', type=integer,
+    group.add_argument('-E', '--end', dest='end', metavar='ADDR', type=integer, default=65537,
                        help='Stop converting at this address.')
     group.add_argument('-i', '--isub', dest='asm_mode', action='store_const', const=1, default=0,
                        help="Apply @isub directives.")
@@ -259,7 +263,7 @@ def main(args):
                        help="Apply @ofix, @bfix and @rfix directives (implies --rsub).")
     group.add_argument('-s', '--ssub', dest='asm_mode', action='store_const', const=2, default=0,
                        help="Apply @isub and @ssub directives.")
-    group.add_argument('-S', '--start', dest='start', metavar='ADDR', type=integer,
+    group.add_argument('-S', '--start', dest='start', metavar='ADDR', type=integer, default=-1,
                        help='Start converting at this address.')
     group.add_argument('-v', '--verbose', action='store_true',
                        help='Show info on each converted instruction.')
