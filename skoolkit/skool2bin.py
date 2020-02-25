@@ -39,7 +39,7 @@ class Instruction:
         self.marker = marker
 
 class BinWriter:
-    def __init__(self, skoolfile, asm_mode=0, fix_mode=0, data=False, verbose=False):
+    def __init__(self, skoolfile, asm_mode=0, fix_mode=0, data=False, verbose=False, warn=True):
         if fix_mode > 2:
             asm_mode = 3
         elif asm_mode > 2:
@@ -47,6 +47,7 @@ class BinWriter:
         self.asm_mode = asm_mode
         self.fix_mode = fix_mode
         self.verbose = verbose
+        self.warn = warn
         self.weights = {
             'isub': int(asm_mode > 0),
             'ssub': 2 * int(asm_mode > 1),
@@ -187,11 +188,12 @@ class BinWriter:
         self.base_address = min(self.base_address, address)
         self.end_address = max(self.end_address, address + len(data))
 
-    def warn(self, message, instruction):
-        warn('{0}:\n  {1:05} {1:04X} {2}'.format(message, instruction.address, instruction.operation))
+    def _warn(self, message, instruction):
+        if self.warn:
+            warn('{0}:\n  {1:05} {1:04X} {2}'.format(message, instruction.address, instruction.operation))
 
     def _relocate(self):
-        get_instruction_utility().substitute_labels(self.entries, (), self.address_map, self.asm_mode, self.warn)
+        get_instruction_utility().substitute_labels(self.entries, (), self.address_map, self.asm_mode, self._warn)
         for entry in self.entries:
             for i in entry.instructions:
                 address = i.real_address
@@ -226,7 +228,7 @@ class BinWriter:
         info("Wrote {}: start={}, end={}, size={}".format(binfile, base_address, end_address, len(data)))
 
 def run(skoolfile, binfile, options):
-    binwriter = BinWriter(skoolfile, options.asm_mode, options.fix_mode, options.data, options.verbose)
+    binwriter = BinWriter(skoolfile, options.asm_mode, options.fix_mode, options.data, options.verbose, not options.no_warnings)
     binwriter.write(binfile, options.start, options.end)
 
 def main(args):
@@ -263,6 +265,8 @@ def main(args):
                        help='Show info on each converted instruction.')
     group.add_argument('-V', '--version', action='version', version='SkoolKit {}'.format(VERSION),
                        help='Show SkoolKit version number and exit.')
+    group.add_argument('-w', '--no-warnings', action='store_true',
+                       help="Suppress warnings.")
     namespace, unknown_args = parser.parse_known_args(args)
     skoolfile = namespace.skoolfile
     if unknown_args or skoolfile is None:

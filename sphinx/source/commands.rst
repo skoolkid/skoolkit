@@ -288,12 +288,13 @@ To list the options supported by `skool2bin.py`, run it with no arguments::
                           Start converting at this address.
     -v, --verbose         Show info on each converted instruction.
     -V, --version         Show SkoolKit version number and exit.
+    -w, --no-warnings     Suppress warnings.
 
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
-| 8.1     | Added the ``--data``, ``--rsub``, ``--rfix`` and ``--verbose``    |
-|         | options                                                           |
+| 8.1     | Added the ``--data``, ``--rsub``, ``--rfix``, ``--verbose`` and   |
+|         | ``--no-warnings`` options                                         |
 +---------+-------------------------------------------------------------------+
 | 7.0     | :ref:`asm-if` directives are processed                            |
 +---------+-------------------------------------------------------------------+

@@ -5,7 +5,7 @@ from skoolkittest import SkoolKitTestCase
 from skoolkit import SkoolKitError, VERSION, components, skool2bin
 
 class MockBinWriter:
-    def __init__(self, skoolfile, asm_mode, fix_mode, data, verbose):
+    def __init__(self, skoolfile, asm_mode, fix_mode, data, verbose, warn):
         global mock_bin_writer
         mock_bin_writer = self
         self.skoolfile = skoolfile
@@ -13,6 +13,7 @@ class MockBinWriter:
         self.fix_mode = fix_mode
         self.data = data
         self.verbose = verbose
+        self.warn = warn
         self.binfile = None
         self.start = None
         self.end = None
@@ -23,6 +24,17 @@ class MockBinWriter:
         self.end = end
 
 class Skool2BinTest(SkoolKitTestCase):
+    def _check_values(self, skoolfile, binfile, asm_mode=0, fix_mode=0, data=False, verbose=False, warn=True, start=None, end=None):
+        self.assertEqual(mock_bin_writer.skoolfile, skoolfile)
+        self.assertEqual(mock_bin_writer.binfile, binfile)
+        self.assertEqual(mock_bin_writer.asm_mode, asm_mode)
+        self.assertEqual(mock_bin_writer.fix_mode, fix_mode)
+        self.assertIs(mock_bin_writer.data, data)
+        self.assertIs(mock_bin_writer.verbose, verbose)
+        self.assertIs(mock_bin_writer.warn, warn)
+        self.assertEqual(mock_bin_writer.start, start)
+        self.assertEqual(mock_bin_writer.end, end)
+
     def test_no_arguments(self):
         output, error = self.run_skool2bin(catch_exit=2)
         self.assertEqual(output, '')
@@ -46,14 +58,7 @@ class Skool2BinTest(SkoolKitTestCase):
         exp_binfile = skoolfile[:-6] + '.bin'
         output, error = self.run_skool2bin(skoolfile)
         self.assertEqual(len(error), 0)
-        self.assertEqual(mock_bin_writer.skoolfile, skoolfile)
-        self.assertEqual(mock_bin_writer.asm_mode, 0)
-        self.assertEqual(mock_bin_writer.fix_mode, 0)
-        self.assertFalse(mock_bin_writer.data)
-        self.assertFalse(mock_bin_writer.verbose)
-        self.assertEqual(mock_bin_writer.binfile, exp_binfile)
-        self.assertIsNone(mock_bin_writer.start)
-        self.assertIsNone(mock_bin_writer.end)
+        self._check_values(skoolfile, exp_binfile)
 
     @patch.object(skool2bin, 'BinWriter', MockBinWriter)
     def test_nonstandard_skool_name(self):
@@ -84,14 +89,7 @@ class Skool2BinTest(SkoolKitTestCase):
         for option in ('-b', '--bfix'):
             output, error = self.run_skool2bin('{} {}'.format(option, skoolfile))
             self.assertEqual(len(error), 0)
-            self.assertEqual(mock_bin_writer.skoolfile, skoolfile)
-            self.assertEqual(mock_bin_writer.asm_mode, 0)
-            self.assertEqual(mock_bin_writer.fix_mode, 2)
-            self.assertFalse(mock_bin_writer.data)
-            self.assertFalse(mock_bin_writer.verbose)
-            self.assertEqual(mock_bin_writer.binfile, exp_binfile)
-            self.assertIsNone(mock_bin_writer.start)
-            self.assertIsNone(mock_bin_writer.end)
+            self._check_values(skoolfile, exp_binfile, fix_mode=2)
 
     @patch.object(skool2bin, 'BinWriter', MockBinWriter)
     def test_option_d(self):
@@ -100,14 +98,7 @@ class Skool2BinTest(SkoolKitTestCase):
         for option in ('-d', '--data'):
             output, error = self.run_skool2bin('{} {}'.format(option, skoolfile))
             self.assertEqual(len(error), 0)
-            self.assertEqual(mock_bin_writer.skoolfile, skoolfile)
-            self.assertEqual(mock_bin_writer.asm_mode, 0)
-            self.assertEqual(mock_bin_writer.fix_mode, 0)
-            self.assertTrue(mock_bin_writer.data)
-            self.assertFalse(mock_bin_writer.verbose)
-            self.assertEqual(mock_bin_writer.binfile, exp_binfile)
-            self.assertIsNone(mock_bin_writer.start)
-            self.assertIsNone(mock_bin_writer.end)
+            self._check_values(skoolfile, exp_binfile, data=True)
 
     @patch.object(skool2bin, 'BinWriter', MockBinWriter)
     def test_option_E(self):
@@ -116,14 +107,7 @@ class Skool2BinTest(SkoolKitTestCase):
         for option, value in (('-E', 32768), ('--end', 49152)):
             output, error = self.run_skool2bin('{} {} {}'.format(option, value, skoolfile))
             self.assertEqual(len(error), 0)
-            self.assertEqual(mock_bin_writer.skoolfile, skoolfile)
-            self.assertEqual(mock_bin_writer.asm_mode, 0)
-            self.assertEqual(mock_bin_writer.fix_mode, 0)
-            self.assertFalse(mock_bin_writer.data)
-            self.assertFalse(mock_bin_writer.verbose)
-            self.assertEqual(mock_bin_writer.binfile, exp_binfile)
-            self.assertIsNone(mock_bin_writer.start)
-            self.assertEqual(mock_bin_writer.end, value)
+            self._check_values(skoolfile, exp_binfile, end=value)
 
     @patch.object(skool2bin, 'BinWriter', MockBinWriter)
     def test_option_E_with_hex_address(self):
@@ -132,14 +116,7 @@ class Skool2BinTest(SkoolKitTestCase):
         for option, value in (('-E', '0x7ff0'), ('--end', '0xA1B5')):
             output, error = self.run_skool2bin('{} {} {}'.format(option, value, skoolfile))
             self.assertEqual(len(error), 0)
-            self.assertEqual(mock_bin_writer.skoolfile, skoolfile)
-            self.assertEqual(mock_bin_writer.asm_mode, 0)
-            self.assertEqual(mock_bin_writer.fix_mode, 0)
-            self.assertFalse(mock_bin_writer.data)
-            self.assertFalse(mock_bin_writer.verbose)
-            self.assertEqual(mock_bin_writer.binfile, exp_binfile)
-            self.assertIsNone(mock_bin_writer.start)
-            self.assertEqual(mock_bin_writer.end, int(value[2:], 16))
+            self._check_values(skoolfile, exp_binfile, end=int(value[2:], 16))
 
     @patch.object(skool2bin, 'BinWriter', MockBinWriter)
     def test_option_i(self):
@@ -148,14 +125,7 @@ class Skool2BinTest(SkoolKitTestCase):
         for option in ('-i', '--isub'):
             output, error = self.run_skool2bin('{} {}'.format(option, skoolfile))
             self.assertEqual(len(error), 0)
-            self.assertEqual(mock_bin_writer.skoolfile, skoolfile)
-            self.assertEqual(mock_bin_writer.asm_mode, 1)
-            self.assertEqual(mock_bin_writer.fix_mode, 0)
-            self.assertFalse(mock_bin_writer.data)
-            self.assertFalse(mock_bin_writer.verbose)
-            self.assertEqual(mock_bin_writer.binfile, exp_binfile)
-            self.assertIsNone(mock_bin_writer.start)
-            self.assertIsNone(mock_bin_writer.end)
+            self._check_values(skoolfile, exp_binfile, asm_mode=1)
 
     @patch.object(skool2bin, 'BinWriter', MockBinWriter)
     def test_option_o(self):
@@ -164,14 +134,7 @@ class Skool2BinTest(SkoolKitTestCase):
         for option in ('-o', '--ofix'):
             output, error = self.run_skool2bin('{} {}'.format(option, skoolfile))
             self.assertEqual(len(error), 0)
-            self.assertEqual(mock_bin_writer.skoolfile, skoolfile)
-            self.assertEqual(mock_bin_writer.asm_mode, 0)
-            self.assertEqual(mock_bin_writer.fix_mode, 1)
-            self.assertFalse(mock_bin_writer.data)
-            self.assertFalse(mock_bin_writer.verbose)
-            self.assertEqual(mock_bin_writer.binfile, exp_binfile)
-            self.assertIsNone(mock_bin_writer.start)
-            self.assertIsNone(mock_bin_writer.end)
+            self._check_values(skoolfile, exp_binfile, fix_mode=1)
 
     @patch.object(skool2bin, 'BinWriter', MockBinWriter)
     def test_option_r(self):
@@ -180,14 +143,7 @@ class Skool2BinTest(SkoolKitTestCase):
         for option in ('-r', '--rsub'):
             output, error = self.run_skool2bin('{} {}'.format(option, skoolfile))
             self.assertEqual(len(error), 0)
-            self.assertEqual(mock_bin_writer.skoolfile, skoolfile)
-            self.assertEqual(mock_bin_writer.asm_mode, 3)
-            self.assertEqual(mock_bin_writer.fix_mode, 0)
-            self.assertFalse(mock_bin_writer.data)
-            self.assertFalse(mock_bin_writer.verbose)
-            self.assertEqual(mock_bin_writer.binfile, exp_binfile)
-            self.assertIsNone(mock_bin_writer.start)
-            self.assertIsNone(mock_bin_writer.end)
+            self._check_values(skoolfile, exp_binfile, asm_mode=3)
 
     @patch.object(skool2bin, 'BinWriter', MockBinWriter)
     def test_option_R(self):
@@ -196,14 +152,7 @@ class Skool2BinTest(SkoolKitTestCase):
         for option in ('-R', '--rfix'):
             output, error = self.run_skool2bin('{} {}'.format(option, skoolfile))
             self.assertEqual(len(error), 0)
-            self.assertEqual(mock_bin_writer.skoolfile, skoolfile)
-            self.assertEqual(mock_bin_writer.asm_mode, 0)
-            self.assertEqual(mock_bin_writer.fix_mode, 3)
-            self.assertFalse(mock_bin_writer.data)
-            self.assertFalse(mock_bin_writer.verbose)
-            self.assertEqual(mock_bin_writer.binfile, exp_binfile)
-            self.assertIsNone(mock_bin_writer.start)
-            self.assertIsNone(mock_bin_writer.end)
+            self._check_values(skoolfile, exp_binfile, fix_mode=3)
 
     @patch.object(skool2bin, 'BinWriter', MockBinWriter)
     def test_option_s(self):
@@ -212,14 +161,7 @@ class Skool2BinTest(SkoolKitTestCase):
         for option in ('-s', '--ssub'):
             output, error = self.run_skool2bin('{} {}'.format(option, skoolfile))
             self.assertEqual(len(error), 0)
-            self.assertEqual(mock_bin_writer.skoolfile, skoolfile)
-            self.assertEqual(mock_bin_writer.asm_mode, 2)
-            self.assertEqual(mock_bin_writer.fix_mode, 0)
-            self.assertFalse(mock_bin_writer.data)
-            self.assertFalse(mock_bin_writer.verbose)
-            self.assertEqual(mock_bin_writer.binfile, exp_binfile)
-            self.assertIsNone(mock_bin_writer.start)
-            self.assertIsNone(mock_bin_writer.end)
+            self._check_values(skoolfile, exp_binfile, asm_mode=2)
 
     @patch.object(skool2bin, 'BinWriter', MockBinWriter)
     def test_option_S(self):
@@ -228,14 +170,7 @@ class Skool2BinTest(SkoolKitTestCase):
         for option, value in (('-S', 24576), ('--start', 32768)):
             output, error = self.run_skool2bin('{} {} {}'.format(option, value, skoolfile))
             self.assertEqual(len(error), 0)
-            self.assertEqual(mock_bin_writer.skoolfile, skoolfile)
-            self.assertEqual(mock_bin_writer.asm_mode, 0)
-            self.assertEqual(mock_bin_writer.fix_mode, 0)
-            self.assertFalse(mock_bin_writer.data)
-            self.assertFalse(mock_bin_writer.verbose)
-            self.assertEqual(mock_bin_writer.binfile, exp_binfile)
-            self.assertEqual(mock_bin_writer.start, value)
-            self.assertIsNone(mock_bin_writer.end)
+            self._check_values(skoolfile, exp_binfile, start=value)
 
     @patch.object(skool2bin, 'BinWriter', MockBinWriter)
     def test_option_S_with_hex_address(self):
@@ -244,14 +179,7 @@ class Skool2BinTest(SkoolKitTestCase):
         for option, value in (('-S', '0x7abc'), ('--start', '0xFA0A')):
             output, error = self.run_skool2bin('{} {} {}'.format(option, value, skoolfile))
             self.assertEqual(len(error), 0)
-            self.assertEqual(mock_bin_writer.skoolfile, skoolfile)
-            self.assertEqual(mock_bin_writer.asm_mode, 0)
-            self.assertEqual(mock_bin_writer.fix_mode, 0)
-            self.assertFalse(mock_bin_writer.data)
-            self.assertFalse(mock_bin_writer.verbose)
-            self.assertEqual(mock_bin_writer.binfile, exp_binfile)
-            self.assertEqual(mock_bin_writer.start, int(value[2:], 16))
-            self.assertIsNone(mock_bin_writer.end)
+            self._check_values(skoolfile, exp_binfile, start=int(value[2:], 16))
 
     @patch.object(skool2bin, 'BinWriter', MockBinWriter)
     def test_option_v(self):
@@ -260,22 +188,24 @@ class Skool2BinTest(SkoolKitTestCase):
         for option in ('-v', '--verbose'):
             output, error = self.run_skool2bin('{} {}'.format(option, skoolfile))
             self.assertEqual(len(error), 0)
-            self.assertEqual(mock_bin_writer.skoolfile, skoolfile)
-            self.assertEqual(mock_bin_writer.asm_mode, 0)
-            self.assertEqual(mock_bin_writer.fix_mode, 0)
-            self.assertFalse(mock_bin_writer.data)
-            self.assertTrue(mock_bin_writer.verbose)
-            self.assertEqual(mock_bin_writer.binfile, exp_binfile)
-            self.assertIsNone(mock_bin_writer.start)
-            self.assertIsNone(mock_bin_writer.end)
+            self._check_values(skoolfile, exp_binfile, verbose=True)
 
     def test_option_V(self):
         for option in ('-V', '--version'):
             output, error = self.run_skool2bin(option, catch_exit=0)
             self.assertEqual(output, 'SkoolKit {}\n'.format(VERSION))
 
+    @patch.object(skool2bin, 'BinWriter', MockBinWriter)
+    def test_option_w(self):
+        skoolfile = 'test-w.skool'
+        exp_binfile = skoolfile[:-6] + '.bin'
+        for option in ('-w', '--no-warnings'):
+            output, error = self.run_skool2bin('{} {}'.format(option, skoolfile))
+            self.assertEqual(len(error), 0)
+            self._check_values(skoolfile, exp_binfile, warn=False)
+
 class BinWriterTestCase(SkoolKitTestCase):
-    def _test_write(self, skool, base_address, exp_data, *modes, data=False, start=None, end=None, exp_output='', exp_warnings=''):
+    def _test_write(self, skool, base_address, exp_data, *modes, data=False, start=None, end=None, warn=True, exp_output='', exp_warnings=''):
         if skool is None:
             skoolfile = '-'
             binfile = self.write_bin_file(suffix='.bin')
@@ -289,7 +219,7 @@ class BinWriterTestCase(SkoolKitTestCase):
                 asm_mode = {'isub': 1, 'ssub': 2, 'rsub': 3}[mode]
             elif mode.endswith('fix'):
                 fix_mode = {'ofix': 1, 'bfix': 2, 'rfix': 3}[mode]
-        bin_writer = skool2bin.BinWriter(skoolfile, asm_mode, fix_mode, data, bool(exp_output))
+        bin_writer = skool2bin.BinWriter(skoolfile, asm_mode, fix_mode, data, bool(exp_output), warn)
         bin_writer.write(binfile, start, end)
         with open(binfile, 'rb') as f:
             bdata = list(f.read())
@@ -938,51 +868,33 @@ class DirectiveTestCase:
 
     def test_mode_adjusts_ld_operands(self):
         skool = """
-            @nowarn
             c30000 LD BC,30021
-            @nowarn
              30003 LD DE,30021
-            @nowarn
              30006 LD HL,30021
-            @nowarn
              30009 LD SP,30021
-            @nowarn
              30012 LD IX,30021
-            @nowarn
              30016 LD IY,30021
             @{0}=LD A,0
              30020 XOR A
              30021 RET ; This instruction is moved to 30022
 
             @org
-            @nowarn
             c30023 LD BC,(30048)
-            @nowarn
              30027 LD DE,(30048)
-            @nowarn
              30031 LD HL,(30048)
-            @nowarn
              30034 LD SP,(30048)
-            @nowarn
              30038 LD IX,(30048)
-            @nowarn
              30042 LD IY,(30048)
             @{0}=XOR A
              30046 LD A,0
              30048 RET ; This instruction is moved to 30047
 
             @org
-            @nowarn
             c30049 LD (30073),BC
-            @nowarn
              30053 LD (30073),DE
-            @nowarn
              30057 LD (30073),HL
-            @nowarn
              30060 LD (30073),SP
-            @nowarn
              30064 LD (30073),IX
-            @nowarn
              30068 LD (30073),IY
             @{0}=LD A,0
              30072 XOR A
@@ -1015,7 +927,7 @@ class DirectiveTestCase:
             62, 0,              # 30072 LD A,0
             201,                # 30074 RET
         ]
-        self._test_write(skool, 30000, exp_data, self.mode)
+        self._test_write(skool, 30000, exp_data, self.mode, warn=False)
 
     def test_mode_preserves_original_address_mapping(self):
         skool = """
@@ -1104,6 +1016,16 @@ class DirectiveTestCase:
                   50003 C353 LD DE,50006
             """
         self._test_write(skool, 50000, exp_data, self.mode, exp_warnings=exp_warnings)
+
+    def test_no_warnings(self):
+        skool = """
+            c50000 LD HL,50001 ; Unreplaced address (50001)
+             50003 LD DE,50006 ; Address 50006 replaced with 50007
+            @{}=>XOR A
+             50006 RET
+        """.format(self.mode)
+        exp_data = [33, 81, 195, 17, 87, 195, 175, 201]
+        self._test_write(skool, 50000, exp_data, self.mode, warn=False, exp_warnings='')
 
     def test_no_warning_for_address_in_data_block(self):
         skool = """

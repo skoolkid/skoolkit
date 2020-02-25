@@ -52,9 +52,18 @@ OPTIONS
 -V, --version
   Show the SkoolKit version number and exit.
 
-EXAMPLE
-=======
-Convert ``game.skool`` into a binary file named ``game.bin``:
+-w, --no-warnings
+  Suppress warnings.
 
-|
-|   ``skool2bin.py game.skool``
+EXAMPLES
+========
+1. Convert ``game.skool`` into a binary file named ``game.bin``:
+
+   |
+   |   ``skool2bin.py game.skool``
+
+2. Apply @isub and @ofix directives in ``game.skool`` and convert it into a
+   binary file named ``game-io.bin``:
+
+   |
+   |   ``skool2bin.py -io game.skool game-io.bin``

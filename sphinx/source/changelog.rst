@@ -9,6 +9,8 @@ Changelog
   :ref:`defb`, :ref:`defs` and :ref:`defw` directives)
 * Added the ``--verbose`` option to :ref:`skool2bin.py` (for showing
   information on each converted instruction)
+* Added the ``--no-warnings`` option to :ref:`skool2bin.py` (to suppress the
+  warnings that are now shown by default)
 * The ``address`` parameter of the :ref:`defb`, :ref:`defs` and :ref:`defw`
   directives is now optional
 * :ref:`defb`, :ref:`defs` and :ref:`defw` directives in non-entry blocks are
