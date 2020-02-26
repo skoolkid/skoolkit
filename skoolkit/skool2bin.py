@@ -16,6 +16,7 @@
 
 import argparse
 from collections import defaultdict, namedtuple
+from os.path import basename
 
 from skoolkit import SkoolParsingError, get_int_param, info, integer, open_file, parse_int, warn, VERSION
 from skoolkit.components import get_assembler, get_instruction_utility
@@ -284,9 +285,9 @@ def main(args):
     binfile = namespace.binfile
     if binfile is None:
         if skoolfile.lower().endswith('.skool'):
-            binfile = skoolfile[:-6] + '.bin'
+            binfile = basename(skoolfile)[:-6] + '.bin'
         elif skoolfile == '-':
             binfile = 'program.bin'
         else:
-            binfile = skoolfile + '.bin'
+            binfile = basename(skoolfile) + '.bin'
     run(skoolfile, binfile, namespace)

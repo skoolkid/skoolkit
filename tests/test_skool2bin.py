@@ -264,6 +264,15 @@ class BinWriterTest(BinWriterTestCase):
         self.write_stdin('c49152 RET')
         self._test_write(None, 49152, [201])
 
+    def test_output_file_is_written_to_current_directory_by_default(self):
+        binfile = self.write_bin_file(suffix='.bin')
+        skoolfile = self.write_text_file('t30000 DEFM "abc"', '{}/{}.skool'.format(self.make_directory(), binfile[:-4]))
+        output, error = self.run_skool2bin(skoolfile)
+        self.assertEqual(output, b'')
+        self.assertEqual(error, "Wrote {}: start=30000, end=30003, size=3\n".format(binfile))
+        with open(binfile) as f:
+            self.assertEqual(f.read(), 'abc')
+
     def test_binary_file_to_stdout(self):
         skoolfile = self.write_text_file('t30000 DEFM "abc"', suffix='.skool')
         bin_writer = skool2bin.BinWriter(skoolfile)
