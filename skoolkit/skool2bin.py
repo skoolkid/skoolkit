@@ -17,7 +17,7 @@
 import argparse
 from collections import defaultdict, namedtuple
 
-from skoolkit import SkoolParsingError, get_int_param, info, integer, open_file, warn, VERSION
+from skoolkit import SkoolParsingError, get_int_param, info, integer, open_file, parse_int, warn, VERSION
 from skoolkit.components import get_assembler, get_instruction_utility
 from skoolkit.skoolmacro import MacroParsingError, parse_if
 from skoolkit.skoolparser import (DIRECTIVES, parse_address_range, parse_asm_data_directive,
@@ -29,9 +29,9 @@ VALID_CTLS = DIRECTIVES + ' *'
 Entry = namedtuple('Entry', 'ctl instructions')
 
 class Instruction:
-    def __init__(self, address, skool_address, operation, keep, nowarn, data, marker):
-        self.real_address = address
+    def __init__(self, skool_address, address=None, operation=None, keep=None, nowarn=False, data=None, marker=''):
         self.address = skool_address
+        self.real_address = address
         self.keep = keep
         self.nowarn = nowarn
         self.original = self.operation = operation
@@ -74,6 +74,7 @@ class BinWriter:
             self.data = None
         self.entry_ctl = None
         self.entries = []
+        self.remote_entries = []
         self.instructions = []
         self.address_map = {}
         self.assembler = get_assembler()
@@ -148,7 +149,7 @@ class BinWriter:
                 removed.update(range(address + offset, address + offset + size))
                 marker = '|'
             if self.start <= address < self.end:
-                self.instructions.append(Instruction(address, skool_address, operation, self.keep, self.nowarn, self.data, marker))
+                self.instructions.append(Instruction(skool_address, address, operation, self.keep, self.nowarn, self.data, marker))
             self.keep = None
             self.nowarn = False
             if self.data is not None:
@@ -184,6 +185,10 @@ class BinWriter:
             self.nowarn = True
         elif self.data is not None and directive.startswith(('defb=', 'defs=', 'defw=')):
             self.data.append(directive)
+        elif directive.startswith('remote='):
+            addrs = [parse_int(a) for a in directive[7:].partition(':')[-1].split(',')]
+            if addrs[0] is not None:
+                self.remote_entries.append(Entry(None, [Instruction(a) for a in addrs if a is not None]))
         return address
 
     def _poke(self, address, data):
@@ -196,7 +201,7 @@ class BinWriter:
             warn('{0}:\n  {1:05} {1:04X} {2}'.format(message, instruction.address, instruction.operation))
 
     def _relocate(self):
-        get_instruction_utility().substitute_labels(self.entries, (), self.address_map, self.asm_mode, self._warn)
+        get_instruction_utility().substitute_labels(self.entries, self.remote_entries, self.address_map, self.asm_mode, self._warn)
         for entry in self.entries:
             for i in entry.instructions:
                 address = i.real_address

@@ -1077,6 +1077,14 @@ class DirectiveTestCase:
         exp_data = [33, 47, 117, 33, 55, 117]
         self._test_write(skool, 30000, exp_data, self.mode, start=30000, end=30006, exp_warnings='')
 
+    def test_no_warning_for_remote_entry_address_inside_disassembly_address_range(self):
+        skool = """
+            @remote=save:30001
+            c30000 JP 30001
+        """
+        exp_data = [195, 49, 117]
+        self._test_write(skool, 30000, exp_data, self.mode, exp_warnings='')
+
     def test_directive_defining_label_only(self):
         skool = """
             @{}=DONE:
