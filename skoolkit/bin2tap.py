@@ -1,4 +1,4 @@
-# Copyright 2010-2013, 2015-2017, 2019 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2010-2013, 2015-2017, 2019-2020 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -184,11 +184,11 @@ def main(args):
     tapfile = namespace.outfile
     if tapfile is None:
         if infile.lower().endswith(('.bin', '.sna', '.szx', '.z80')):
-            prefix = infile[:-4]
+            prefix = os.path.basename(infile)[:-4]
         elif infile == '-':
             prefix = 'program'
         else:
-            prefix = infile
+            prefix = os.path.basename(infile)
         tapfile = prefix + ".tap"
     scr = namespace.screen
     if scr is not None:

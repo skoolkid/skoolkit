@@ -252,10 +252,25 @@ class Bin2TapTest(SkoolKitTestCase):
         self._check_tap(tap_data, bin_data, binfile)
 
     def test_bin_in_subdirectory(self):
+        tapfile = self.write_bin_file(suffix='.tap')
         bin_data = [1]
-        subdir = self.make_directory()
-        binfile = self.write_bin_file(bin_data, '{}/game.bin'.format(subdir))
-        tap_data = self._run(binfile)
+        binfile = self.write_bin_file(bin_data, '{}/{}.bin'.format(self.make_directory(), tapfile[:-4]))
+        output, error = self.run_bin2tap(binfile)
+        self.assertEqual(output, '')
+        self.assertEqual(error, '')
+        with open(tapfile, 'rb') as f:
+            tap_data = list(f.read())
+        self._check_tap(tap_data, bin_data, binfile)
+
+    def test_nonstandard_bin_name_in_subdirectory(self):
+        tapfile = self.write_bin_file(suffix='.ram.tap')
+        bin_data = [1]
+        binfile = self.write_bin_file(bin_data, '{}/{}'.format(self.make_directory(), tapfile[:-4]))
+        output, error = self.run_bin2tap(binfile)
+        self.assertEqual(output, '')
+        self.assertEqual(error, '')
+        with open(tapfile, 'rb') as f:
+            tap_data = list(f.read())
         self._check_tap(tap_data, bin_data, binfile)
 
     def test_read_from_standard_input(self):
