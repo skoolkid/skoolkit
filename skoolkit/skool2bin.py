@@ -30,12 +30,14 @@ VALID_CTLS = DIRECTIVES + ' *'
 Entry = namedtuple('Entry', 'ctl instructions')
 
 class Instruction:
-    def __init__(self, skool_address, address=None, operation=None, keep=None, nowarn=False, data=None, marker=''):
-        self.address = skool_address
+    def __init__(self, skool_address, address=None, operation=None, sub=False, keep=None, nowarn=False, data=None, marker=''):
+        self.address = skool_address # API (InstructionUtility)
+        self.operation = operation   # API (InstructionUtility)
+        self.sub = sub               # API (InstructionUtility)
+        self.keep = keep             # API (InstructionUtility)
+        self.nowarn = nowarn         # API (InstructionUtility)
+        self.original = operation
         self.real_address = address
-        self.keep = keep
-        self.nowarn = nowarn
-        self.original = self.operation = operation
         self.data = data
         self.marker = marker
 
@@ -115,7 +117,7 @@ class BinWriter:
         if subbed:
             operations = self.subs[subbed]
         else:
-            operations = [original_op]
+            operations = ['']
         self.subs = defaultdict(list, {0: []})
         parsed = [parse_asm_sub_fix_directive(v)[::2] for v in operations]
         before = [i[1] for i in parsed if i[0].prepend and i[1]]
@@ -128,19 +130,21 @@ class BinWriter:
         else:
             offset = skool_address - address
         if not after or after[0][2]:
-            overwrite, operation = False, original_op
+            overwrite, operation, sub = False, original_op, False
         else:
             overwrite, operation = after.pop(0)[:2]
-            if not operation:
-                operation = original_op
+            if operation:
+                sub = True
+            else:
+                operation, sub = original_op, False
         if operation and skool_address not in removed:
-            address += self._get_size(operation, address, ' ', overwrite, removed, offset, skool_address)
+            address += self._get_size(operation, address, ' ', overwrite, removed, offset, sub, skool_address)
         for overwrite, operation, append in after:
             if operation:
                 address += self._get_size(operation, address, '+', overwrite, removed, offset)
         return address
 
-    def _get_size(self, operation, address, marker, overwrite=False, removed=None, offset=0, skool_address=None):
+    def _get_size(self, operation, address, marker, overwrite=False, removed=None, offset=0, sub=True, skool_address=None):
         if operation.upper().startswith(('DJNZ ', 'JR ')):
             size = 2
         else:
@@ -150,7 +154,7 @@ class BinWriter:
                 removed.update(range(address + offset, address + offset + size))
                 marker = '|'
             if self.start <= address < self.end:
-                self.instructions.append(Instruction(skool_address, address, operation, self.keep, self.nowarn, self.data, marker))
+                self.instructions.append(Instruction(skool_address, address, operation, sub, self.keep, self.nowarn, self.data, marker))
             self.keep = None
             self.nowarn = False
             if self.data is not None:

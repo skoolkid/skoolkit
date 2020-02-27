@@ -3241,7 +3241,7 @@ class SkoolParserTest(SkoolKitTestCase):
         entry = parser.get_entry(30000)
         instruction = entry.instructions[1]
         self.assertEqual(instruction.operation, 'LD HL,16384')
-        self.assertEqual(instruction.sub, instruction.operation)
+        self.assertTrue(instruction.sub)
 
     def test_start_and_end_directives(self):
         skool = """
@@ -5559,9 +5559,9 @@ class SkoolParserTest(SkoolKitTestCase):
                     instruction = entry.instructions[0]
                     assert instruction.address == 40000
                     assert instruction.keep == []
-                    assert instruction.nowarn
+                    assert instruction.nowarn is True
                     assert instruction.operation == 'JP 40000'
-                    assert instruction.original == 'JP 30000'
+                    assert instruction.sub is True
                     remote_entry = remote_entries[0]
                     assert remote_entry.ctl is None
                     remote_instruction = remote_entry.instructions[1]
@@ -5569,7 +5569,7 @@ class SkoolParserTest(SkoolKitTestCase):
                     assert remote_instruction.keep is None
                     assert remote_instruction.nowarn is False
                     assert remote_instruction.operation == ''
-                    assert remote_instruction.original == ''
+                    assert remote_instruction.sub is False
                     references = {entries[0].instructions[0]: (entries[0], 0, '0')}
                     instruction.operation = 'JP UP'
         """

@@ -166,8 +166,8 @@ Each instruction object has the following attributes:
 * *operation* - the operation (e.g. 'XOR A') after any ``@*sub`` or ``@*fix``
   directives have been applied; for an instruction in a remote entry, this is
   an empty string
-* *original* - the operation before any ``@*sub`` or ``@*fix`` directives have
-  been applied; for an instruction in a remote entry, this is an empty string
+* *sub* - `True` if the operation was supplied by ``@*sub`` or ``@*fix``
+  directive, `False` otherwise
 
 Each key in the references dictionary should be an instruction object, and the
 corresponding value should be a 3-element tuple::
@@ -188,7 +188,7 @@ instruction.
 .. versionchanged:: 8.1
    Added the *mode* parameter to the :meth:`substitute_labels` method, and
    changed the required signature of the *warn* function. Added the *nowarn*
-   and *original* attributes to instruction objects.
+   and *sub* attributes to instruction objects.
 
 .. _operandEvaluator:
 

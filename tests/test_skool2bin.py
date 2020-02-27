@@ -1064,6 +1064,19 @@ class DirectiveTestCase:
         exp_data = [33, 81, 195, 17, 87, 195, 175, 201]
         self._test_write(skool, 50000, exp_data, self.mode, warn=False, exp_warnings='')
 
+    def test_no_warnings_for_subbed_ld_operations(self):
+        skool = """
+            @{0}=>LD BC,50006 ; Address replaced with 50009, but no warning
+            @{0}=LD DE,50006  ; Address replaced with 50009, but no warning
+            c50000 LD DE,50006
+            @{0}=|LD HL,50006 ; Address replaced with 50009, but no warning
+            @{0}=LD SP,50006  ; Address replaced with 50009, but no warning
+             50003 LD HL,50000
+             50006 RET
+        """.format(self.mode)
+        exp_data = [1, 92, 195, 17, 92, 195, 33, 92, 195, 49, 92, 195, 201]
+        self._test_write(skool, 50000, exp_data, self.mode, exp_warnings='')
+
     def test_no_warning_for_address_in_data_block(self):
         skool = """
             c50000 LD HL,50003 ; Address 50003 replaced with 50004, but no warning

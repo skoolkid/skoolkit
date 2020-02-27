@@ -865,7 +865,8 @@ class Mode:
             if after:
                 overwrite, label, op, comments = after.pop(0)
                 if op:
-                    instruction.sub = instruction.operation = op
+                    instruction.operation = op
+                    instruction.sub = True
                 if comments[0] is None:
                     comments[0] = address_comments[-1][1][0]
                 address_comments[-1][2].extend(comments)
@@ -1055,10 +1056,9 @@ class InstructionUtility:
                               or _is_8_bit_ld_instruction(operation_u)):
             return
         ref_i, ref_e, ref_l = self.instructions.get(address, (None, None, None))
-        unsubbed = instruction.original == instruction.operation
         if ref_i:
             if ref_l:
-                if ref_e.ctl == 'c' and operation_u.startswith('LD ') and unsubbed and addr_str != ref_l:
+                if ref_e.ctl == 'c' and operation_u.startswith('LD ') and not instruction.sub and addr_str != ref_l:
                     # Warn if an address in the operand of an unsubbed LD
                     # instruction is replaced (use @keep to retain address, or
                     # @nowarn if replacement is OK)
@@ -1071,7 +1071,7 @@ class InstructionUtility:
                 self._warn('No label for address ({})'.format(addr_str), instruction)
         elif address in self.labels:
             return self.labels[address]
-        elif address not in self.remote_instructions and self.base_address <= address < self.end_address and unsubbed and self.asm_mode > 1:
+        elif address not in self.remote_instructions and self.base_address <= address < self.end_address and not instruction.sub and self.asm_mode > 1:
             # Warn if the address is inside the address range of the
             # disassembly (where code might be) but is not the address of an
             # instruction (use @keep or @nowarn if this is OK)
@@ -1139,7 +1139,6 @@ class Instruction:
         self.address = parse_int(addr_str) # API (InstructionUtility)
         self.keep = None                   # API (InstructionUtility)
         self.operation = operation         # API (InstructionUtility)
-        self.original = operation
         self.bytes = ()
         self.container = None
         self.reference = None
@@ -1151,11 +1150,8 @@ class Instruction:
         # If this instruction has no address, it was inserted between
         # @rsub+begin and @rsub+end; in that case, mark it as a subbed
         # instruction already
-        if self.address is None:
-            self.sub = operation
-        else:
-            self.sub = None
-        self.nowarn = False
+        self.sub = self.address is None    # API (InstructionUtility)
+        self.nowarn = False                # API (InstructionUtility)
         self.ignoreua = {'i': None, 'm': None}
 
     def set_comment(self, rowspan, text):
