@@ -1,4 +1,4 @@
-# Copyright 2016-2018 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2016-2018, 2020 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -84,9 +84,9 @@ def main(args):
     outfile = namespace.outfile
     if outfile is None:
         if infile.lower().endswith('.bin'):
-            outfile = infile[:-3] + 'z80'
+            outfile = os.path.basename(infile)[:-3] + 'z80'
         elif infile == '-':
             outfile = 'program.z80'
         else:
-            outfile = infile + '.z80'
+            outfile = os.path.basename(infile) + '.z80'
     run(infile, outfile, namespace)

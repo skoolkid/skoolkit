@@ -110,10 +110,21 @@ class Bin2SnaTest(SkoolKitTestCase):
         self._check_z80(z80file, data)
 
     def test_bin_in_subdirectory(self):
+        z80file = self.write_bin_file(suffix='.z80')
         data = [1]
-        subdir = self.make_directory()
-        binfile = self.write_bin_file(data, '{}/game.bin'.format(subdir))
-        z80file = self._run(binfile)
+        binfile = self.write_bin_file(data, '{}/{}.bin'.format(self.make_directory(), z80file[:-4]))
+        output, error = self.run_bin2sna(binfile)
+        self.assertEqual(output, '')
+        self.assertEqual(error, '')
+        self._check_z80(z80file, data)
+
+    def test_nonstandard_bin_name_in_subdirectory(self):
+        z80file = self.write_bin_file(suffix='.ram.z80')
+        data = [1]
+        binfile = self.write_bin_file(data, '{}/{}'.format(self.make_directory(), z80file[:-4]))
+        output, error = self.run_bin2sna(binfile)
+        self.assertEqual(output, '')
+        self.assertEqual(error, '')
         self._check_z80(z80file, data)
 
     def test_z80_in_subdirectory(self):
