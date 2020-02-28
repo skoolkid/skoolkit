@@ -290,6 +290,28 @@ To list the options supported by `skool2bin.py`, run it with no arguments::
     -V, --version         Show SkoolKit version number and exit.
     -w, --no-warnings     Suppress warnings.
 
+The ``--verbose`` option shows information on each converted instruction, such
+as whether it was inserted before or after another instruction (by a ``@*sub``
+or ``@*fix`` directive), and its original address (if it was relocated by the
+insertion, removal or replacement of other instructions). For example::
+
+  40000 9C40 > XOR A
+  40001 9C41 | LD HL,40006   : 40000 9C40 LD HL,40003
+  40004 9C44 + JR 40006      :            JR 40003
+  40006 9C46   RET           : 40003 9C43 RET
+
+This output shows that:
+
+* The instruction at 40000 (XOR A) was inserted before (``>``) another
+  instruction
+* The instruction at 40001 (LD HL,40006) overwrote (``|``) the instruction(s)
+  originally at 40000, and had its operand changed from 40003 (because the
+  instruction originally at that address was relocated to 40006)
+* The instruction at 40004 (JR 40006) was inserted after (``+``) another
+  instruction, and also had its operand changed from 40003
+* The instruction at 40006 (RET) was originally at 40003 (before other
+  instructions were inserted, removed or replaced)
+
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
