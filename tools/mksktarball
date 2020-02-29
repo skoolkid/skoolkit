@@ -64,17 +64,11 @@ rsync -aR \
   $ABSDIR
 
 if [[ $INCLUDE_DOCS == 1 ]]; then
-  # Documentation and man pages
   cd $SKOOLKIT_HOME/sphinx
   rm -rf build/*
-  if ! make html &> /dev/null; then
-    echo "*** Error building documentation; aborting"
-    exit 1
-  fi
-  rm -rf build/html/man
-  DOCSDIR=${ABSDIR}/docs
-  mkdir -p $DOCSDIR
-  rsync -a --exclude=.buildinfo --exclude=objects.inv build/html/ $DOCSDIR
+
+  # Build man pages before HTML documentation, otherwise double dashes in long
+  # options with arguments are erroneously transformed into en-dashes
   if ! make man &> /dev/null; then
     echo "*** Error building man pages; aborting"
     exit 1
@@ -82,6 +76,15 @@ if [[ $INCLUDE_DOCS == 1 ]]; then
   MANDIR=${ABSDIR}/man/man1
   mkdir -p $MANDIR
   rsync -a build/man/*.py.1 $MANDIR
+
+  # Build HTML documentation
+  if ! make html &> /dev/null; then
+    echo "*** Error building documentation; aborting"
+    exit 1
+  fi
+  DOCSDIR=${ABSDIR}/docs
+  mkdir -p $DOCSDIR
+  rsync -a --exclude=.buildinfo --exclude=objects.inv build/html/ $DOCSDIR
 fi
 
 cd $DISTDIR
