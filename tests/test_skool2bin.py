@@ -644,6 +644,26 @@ class BinWriterTest(BinWriterTestCase):
         exp_data = [195, 81, 195]
         self._test_write(skool, 50000, exp_data)
 
+    @patch.object(components, 'SK_CONFIG', None)
+    def test_custom_address_adjuster_with_warning_for_inserted_instruction(self):
+        custom_adjuster = """
+            from skoolkit.skoolparser import InstructionUtility
+            class CustomUtility(InstructionUtility):
+                def substitute_labels(self, entries, remote_entries, labels, mode, warn):
+                    warn('Generic warning', entries[0].instructions[1])
+        """
+        self.write_component_config('InstructionUtility', '*.CustomUtility', custom_adjuster)
+        skool = """
+            @rsub=+RET
+            c50000 XOR A
+        """
+        exp_data = [175, 201]
+        exp_warnings = """
+            WARNING: Generic warning:
+              50001 C351 + RET
+        """
+        self._test_write(skool, 50000, exp_data, 'rsub', exp_warnings=exp_warnings)
+
 class DirectiveTestCase:
     def test_mode_applies_directives(self):
         skool = """
@@ -1043,14 +1063,36 @@ class DirectiveTestCase:
         if self.mode in ('ssub', 'rsub', 'rfix'):
             exp_warnings = """
                 WARNING: Unreplaced address (50001):
-                  50000 C350 LD HL,50001
+                  50000 C350   LD HL,50001
                 WARNING: Address 50006 replaced with 50007 in unsubbed LD operation:
-                  50003 C353 LD DE,50006
+                  50003 C353   LD DE,50006
             """
         else:
             exp_warnings = """
                 WARNING: Address 50006 replaced with 50007 in unsubbed LD operation:
-                  50003 C353 LD DE,50006
+                  50003 C353   LD DE,50006
+            """
+        self._test_write(skool, 50000, exp_data, self.mode, exp_warnings=exp_warnings)
+
+    def test_warnings_for_relocated_instructions(self):
+        skool = """
+            @{}=>XOR A
+            c50000 LD HL,50001 ; Unreplaced address (50001)
+             50003 LD DE,50006 ; Address 50006 replaced with 50007
+             50006 RET
+        """.format(self.mode)
+        exp_data = [175, 33, 81, 195, 17, 87, 195, 201]
+        if self.mode in ('ssub', 'rsub', 'rfix'):
+            exp_warnings = """
+                WARNING: Unreplaced address (50001):
+                  50001 C351   LD HL,50001   : 50000 C350 LD HL,50001
+                WARNING: Address 50006 replaced with 50007 in unsubbed LD operation:
+                  50004 C354   LD DE,50006   : 50003 C353 LD DE,50006
+            """
+        else:
+            exp_warnings = """
+                WARNING: Address 50006 replaced with 50007 in unsubbed LD operation:
+                  50004 C354   LD DE,50006   : 50003 C353 LD DE,50006
             """
         self._test_write(skool, 50000, exp_data, self.mode, exp_warnings=exp_warnings)
 

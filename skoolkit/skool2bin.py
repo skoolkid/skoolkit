@@ -41,6 +41,15 @@ class Instruction:
         self.data = data
         self.marker = marker
 
+    def __str__(self):
+        if self.address in (None, self.real_address) and self.original == self.operation:
+            suffix = ''
+        elif self.address is None:
+            suffix = ':            {}'.format(self.original)
+        else:
+            suffix = ': {0:05} {0:04X} {1}'.format(self.address, self.original)
+        return '{0:05} {0:04X} {1} {2:13} {3}'.format(self.real_address, self.marker, self.operation, suffix).rstrip()
+
 class BinWriter:
     def __init__(self, skoolfile, asm_mode=0, fix_mode=0, start=-1, end=65537, data=False, verbose=False, warn=True):
         if fix_mode > 2:
@@ -203,7 +212,7 @@ class BinWriter:
 
     def _warn(self, message, instruction):
         if self.warn:
-            warn('{0}:\n  {1:05} {1:04X} {2}'.format(message, instruction.address, instruction.operation))
+            warn('{}:\n  {}'.format(message, instruction))
 
     def _relocate(self):
         get_instruction_utility().substitute_labels(self.entries, self.remote_entries, self.address_map, self.asm_mode, self._warn)
@@ -216,13 +225,7 @@ class BinWriter:
                     address += len(data)
                 self._poke(i.real_address, self.assembler.assemble(i.operation, i.real_address))
                 if self.verbose:
-                    if i.address in (None, i.real_address) and i.original == i.operation:
-                        suffix = ''
-                    elif i.address is None:
-                        suffix = ':            {}'.format(i.original)
-                    else:
-                        suffix = ': {0:05} {0:04X} {1}'.format(i.address, i.original)
-                    info('{0:05} {0:04X} {1} {2:13} {3}'.format(i.real_address, i.marker, i.operation, suffix).rstrip())
+                    info(str(i))
 
     def write(self, binfile):
         if self.start < 0:
