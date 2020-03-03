@@ -1,0 +1,106 @@
+#!/usr/bin/env bash
+
+. $(dirname $0)/ddiffs-functions
+
+check() {
+  skoolfile=$1
+  opts=$2
+  binfile=$3
+  pasmobin=$4
+  difffile=$5
+
+  if [[ ! -f $pasmobin ]]; then
+    echo "Skipping comparison with pasmo binary file $pasmobin (file not found)" 1>&2
+    return 1
+  fi
+
+  echo -n "Writing $binfile ($opts)..."
+  if ../skool2bin.py $opts $skoolfile $binfile &> /dev/null; then
+    echo "done"
+  else
+    echo "FAILED"
+    rm -f $binfile
+    return 2
+  fi
+
+  echo -n "Comparing $binfile with $pasmobin..."
+  if cmp -s $binfile $pasmobin; then
+    echo "same"
+  else
+    echo "DIFFERENT"
+    return 3
+  fi
+}
+
+usage() {
+  echo "Usage: $(basename $0) $GAMES"
+  echo ""
+  echo "  Run skool2bin.py on a game's main skool file with various options and compare"
+  echo "  the output with that of pasmo on the corresponding ASM files (created by"
+  echo "  check-asms)."
+  exit 1
+}
+
+###############################################################################
+# Begin...
+###############################################################################
+game=$1
+read_ddiffsrc $game
+skoolfile=../src/$game.skool
+
+OPTIONS=(
+  "-i|"
+  "-io|-f1"
+  "-ib|-f2"
+  "-s|-s"
+  "-so|-f1-s"
+  "-sb|-f2-s"
+  "-r|-f1-r"
+  "-rb|-f2-r"
+  "-R|-f3-r"
+)
+
+skips=""
+fails=""
+diffs=""
+for pair in "${OPTIONS[@]}"; do
+  options=(${pair//|/ })
+  prefix=$game${options[1]}
+  binfile=$prefix.s2b
+  pasmobin=$prefix.bin
+  difffile=$prefix.diff
+  check $skoolfile "${options[0]} -S $SKOOL2BIN_START" $binfile $pasmobin $difffile
+  retval=$?
+  if [[ $retval = 1 ]]; then
+    skips="$skips\n  $pasmobin (skool2bin.py ${options[0]})"
+  elif [[ $retval = 2 ]]; then
+    fails="$fails\n  ${options[0]}"
+  elif [[ $retval = 3 ]]; then
+    ../sna2skool.py -o $SKOOL2BIN_START $pasmobin > $pasmobin.skool
+    ../sna2skool.py -o $SKOOL2BIN_START $binfile > $binfile.skool
+    diff -u $pasmobin.skool $binfile.skool > $difffile
+    diffs="$diffs\n  $pasmobin $binfile (skool2bin.py ${options[0]}): $difffile"
+  fi
+done
+
+echo "------------------------------------ SUMMARY -----------------------------------"
+code=0
+if [[ -n $skips ]]; then
+  let code+=1
+  echo -e "Skipped comparisons:$skips"
+else
+  echo "Skipped: None"
+fi
+if [[ -n $fails ]]; then
+  let code+=2
+  echo -e "Failed to convert using options:$fails"
+else
+  echo "Failed to convert: None"
+fi
+if [[ -n $diffs ]]; then
+  let code+=4
+  echo -e "Differences:$diffs"
+else
+  echo "Differences: None"
+fi
+exit $code
