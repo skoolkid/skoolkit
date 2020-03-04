@@ -1303,6 +1303,86 @@ class DirectiveTestCase:
         exp_data = [175, 60]
         self._test_write(skool, 30000, exp_data, self.mode)
 
+    def test_ignoring_prepend_directive_on_removed_instruction(self):
+        skool = """
+            @{0}=!50000
+            @{0}=>XOR A
+            c50000 INC A
+
+            @{0}+begin
+            c50000 RET
+            @{0}+end
+        """.format(self.mode)
+        exp_data = [201]
+        self._test_write(skool, 50000, exp_data, self.mode)
+
+    def test_ignoring_overwrite_directives_on_removed_instruction(self):
+        skool = """
+            @{0}=!50000
+            @{0}=|XOR A
+            @{0}=|INC A
+            c50000 LD A,1
+
+            @{0}+begin
+            c50000 RET
+            @{0}+end
+        """.format(self.mode)
+        exp_data = [201]
+        self._test_write(skool, 50000, exp_data, self.mode)
+
+    def test_ignoring_append_directive_on_removed_instruction(self):
+        skool = """
+            @{0}=!50000
+            @{0}=+INC A
+            c50000 XOR A
+
+            @{0}+begin
+            c50000 RET
+            @{0}+end
+        """.format(self.mode)
+        exp_data = [201]
+        self._test_write(skool, 50000, exp_data, self.mode)
+
+    def test_ignoring_data_directive_on_removed_instruction(self):
+        skool = """
+            @{0}=!50000
+            @defb=1,2,3
+            c50000 XOR A
+             50001 RET
+        """.format(self.mode)
+        exp_data = [201]
+        self._test_write(skool, 50000, exp_data, self.mode, data=True)
+
+    def test_ignoring_keep_directive_on_removed_instruction(self):
+        skool = """
+            @{0}=!50000
+            @keep=50004
+            c50000 XOR A
+             50001 LD HL,50004
+             50004 RET
+        """.format(self.mode)
+        exp_data = [33, 83, 195, 201]
+        exp_warnings = """
+            WARNING: Address 50004 replaced with 50003 in unsubbed LD operation:
+              50000 C350   LD HL,50004   : 50001 C351 LD HL,50004
+        """
+        self._test_write(skool, 50000, exp_data, self.mode, exp_warnings=exp_warnings)
+
+    def test_ignoring_nowarn_directive_on_removed_instruction(self):
+        skool = """
+            @{0}=!50000
+            @nowarn
+            c50000 XOR A
+             50001 LD HL,50004
+             50004 RET
+        """.format(self.mode)
+        exp_data = [33, 83, 195, 201]
+        exp_warnings = """
+            WARNING: Address 50004 replaced with 50003 in unsubbed LD operation:
+              50000 C350   LD HL,50004   : 50001 C351 LD HL,50004
+        """
+        self._test_write(skool, 50000, exp_data, self.mode, exp_warnings=exp_warnings)
+
     def test_block_directive_minus_no_else_inactive(self):
         skool = """
             b32768 DEFB 1

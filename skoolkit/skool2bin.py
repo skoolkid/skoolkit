@@ -121,13 +121,22 @@ class BinWriter:
             skool_address = None
         if address is None:
             address = skool_address
-        original_op = partition_unquoted(line[6:], ';')[0].strip()
         subbed = max(self.subs)
         if subbed:
             operations = self.subs[subbed]
         else:
             operations = ['']
+        if skool_address not in removed:
+            original_op = partition_unquoted(line[6:], ';')[0].strip()
+            address = self._add_instructions(address, skool_address, operations, original_op, removed)
         self.subs = defaultdict(list, {0: []})
+        self.keep = None
+        self.nowarn = False
+        if self.data is not None:
+            self.data = []
+        return address
+
+    def _add_instructions(self, address, skool_address, operations, original_op, removed):
         parsed = [parse_asm_sub_fix_directive(v)[::2] for v in operations]
         before = [i[1] for i in parsed if i[0].prepend and i[1]]
         for operation in before:
@@ -146,7 +155,7 @@ class BinWriter:
                 sub = True
             else:
                 operation, sub = original_op, False
-        if operation and skool_address not in removed:
+        if operation:
             address += self._get_size(operation, address, ' ', overwrite, removed, offset, sub, skool_address)
         for overwrite, operation, append in after:
             if operation:
@@ -164,10 +173,6 @@ class BinWriter:
                 marker = '|'
             if self.start <= address < self.end:
                 self.instructions.append(Instruction(skool_address, address, operation, sub, self.keep, self.nowarn, self.data, marker))
-            self.keep = None
-            self.nowarn = False
-            if self.data is not None:
-                self.data = []
             return size
         raise SkoolParsingError("Failed to assemble:\n {} {}".format(address, operation))
 
