@@ -69,7 +69,8 @@ for pair in "${OPTIONS[@]}"; do
   binfile=$prefix.s2b
   pasmobin=$prefix.bin
   difffile=$prefix.diff
-  check $skoolfile "${options[0]} -S $SKOOL2BIN_START" $binfile $pasmobin $difffile
+  [[ -n $SKOOL2BIN_END ]] && endopt="-E $SKOOL2BIN_END"
+  check $skoolfile "${options[0]} -S $SKOOL2BIN_START $endopt" $binfile $pasmobin $difffile
   retval=$?
   if [[ $retval = 1 ]]; then
     skips="$skips\n  $pasmobin (skool2bin.py ${options[0]})"
