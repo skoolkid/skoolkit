@@ -323,6 +323,14 @@ class BinWriterTest(BinWriterTestCase):
         """
         self._test_write(skool, 32769, [168], start=32769, end=32770)
 
+    def test_start_address_before_first_instruction(self):
+        skool = "c32768 RET"
+        self._test_write(skool, 32768, [201], start=32767)
+
+    def test_end_address_after_last_instruction(self):
+        skool = "c32768 RET"
+        self._test_write(skool, 32768, [201], end=32770)
+
     def test_overlapping_instructions(self):
         skool = """
             b30000 DEFS 3,1

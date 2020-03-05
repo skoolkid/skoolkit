@@ -236,11 +236,11 @@ class BinWriter:
         if self.start < 0:
             base_address = self.base_address
         else:
-            base_address = self.start
+            base_address = max(self.start, self.base_address)
         if self.end > 65536:
             end_address = self.end_address
         else:
-            end_address = self.end
+            end_address = min(self.end, self.end_address)
         data = self.snapshot[base_address:end_address]
         with open_file(binfile, 'wb') as f:
             f.write(bytearray(data))
