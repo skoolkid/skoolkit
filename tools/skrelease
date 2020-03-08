@@ -329,6 +329,41 @@ check_asms() {
 }
 
 ###############################################################################
+# Run check-bins on the HH/MM/JSW/ROM/SD/BTS/CSC disassemblies
+###############################################################################
+check_bins() {
+  _require_skoolkit
+  _require_disassemblies
+
+  asmsubdir=build/disassembly-diff/disassembly-current-$VERSION/asm
+  hhasmdir=$HUNGRYHORACE_HOME/$asmsubdir
+  mmasmdir=$MANICMINER_HOME/$asmsubdir
+  jswasmdir=$JETSETWILLY_HOME/$asmsubdir
+  romasmdir=$ROM_DISASSEMBLY_HOME/$asmsubdir
+  sdasmdir=$SKOOLDAZE_HOME/$asmsubdir
+  btsasmdir=$BACKTOSKOOL_HOME/$asmsubdir
+  cscasmdir=$CONTACTSAMCRUISE_HOME/$asmsubdir
+  binlog=bin.log
+  CHECK_BINS=$TOOLS/check-bins
+
+  (cd $hhasmdir; $CHECK_BINS hh &> $binlog) & PIDhh=$!
+  (cd $mmasmdir; $CHECK_BINS mm &> $binlog) & PIDmm=$!
+  (cd $jswasmdir; $CHECK_BINS jsw &> $binlog) & PIDjsw=$!
+  (cd $romasmdir; $CHECK_BINS rom &> $binlog) & PIDrom=$!
+  (cd $sdasmdir; $CHECK_BINS sd &> $binlog) & PIDsd=$!
+  (cd $btsasmdir; $CHECK_BINS bts &> $binlog) & PIDbts=$!
+  (cd $cscasmdir; $CHECK_BINS csc &> $binlog) & PIDcsc=$!
+
+  _wait "Hungry Horace check-bins" $PIDhh "(see $hhasmdir/$binlog)" _
+  _wait "Manic Miner check-bins" $PIDmm "(see $mmasmdir/$binlog)" _
+  _wait "Jet Set Willy check-bins" $PIDjsw "(see $jswasmdir/$binlog)" _
+  _wait "Spectrum ROM check-bins" $PIDrom "(see $romasmdir/$binlog)" _
+  _wait "Skool Daze check-bins" $PIDsd "(see $sdasmdir/$binlog)" _
+  _wait "Back to Skool check-bins" $PIDbts "(see $btsasmdir/$binlog)" _
+  _wait "Contact Sam Cruise check-bins" $PIDcsc "(see $cscasmdir/$binlog)" _
+}
+
+###############################################################################
 # Verify that 'setup.py install' works
 ###############################################################################
 _install_skoolkit() {
@@ -507,6 +542,7 @@ Pre-release commands:
   dtests - run the disassemblies (HH/ROM/MM/JSW/SD/BTS/CSC) tests
   ddiffs - run disassembly-diff on the HH/ROM/MM/JSW/SD/BTS/CSC disassemblies
   asmchk - run check-asms on the HH/ROM/MM/JSW/SD/BTS/CSC disassemblies
+  binchk - run check-bins on the HH/ROM/MM/JSW/SD/BTS/CSC disassemblies
   setup1 - verify that 'setup.py install' works from a release tarball
   setup2 - verify that 'setup.py install' works from an sdist tarball
 
@@ -532,6 +568,7 @@ while [[ -n "$1" ]]; do
     dtests) test_disassemblies ;;
     ddiffs) disassembly_diffs ;;
     asmchk) check_asms ;;
+    binchk) check_bins ;;
     setup1) verify_setup 1 ;;
     setup2) verify_setup 2 ;;
     debpkg) build_deb ;;
