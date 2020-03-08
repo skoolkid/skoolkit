@@ -260,6 +260,28 @@ Non-entry blocks such as this copyright comment are reproduced by
 `skool2asm.py`, ignored by `skool2html.py`, and preserved verbatim by
 `skool2ctl.py`.
 
+To qualify as a regular entry, a block must contain at least one line that
+starts with ``b``, ``c``, ``g``, ``i``, ``s``, ``t``, ``u`` or ``w`` when
+parsed in the relevant :ref:`subtitution mode <substitutionModes>` or
+:ref:`bugfix mode <bugfixModes>` (which depends on the command being run).
+
+So, for example::
+
+  @isub-begin
+  c24573 JP 32768
+  @isub-end
+
+is seen as a regular entry (without the ``@isub`` block directives) by
+`skool2ctl.py` and `skool2html.py`, but is invisible to `skool2asm.py`. And::
+
+  @isub+begin
+  c24573 JP 32768
+  @isub+end
+
+is seen as a non-entry block (with the ``@isub`` block directives retained) by
+`skool2ctl.py` and `skool2html.py`, but as a regular entry (without the
+``@isub`` block directives) by `skool2asm.py`.
+
 Revision history
 ----------------
 +---------+-----------------------------------------------------------------+
