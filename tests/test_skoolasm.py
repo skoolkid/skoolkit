@@ -39,7 +39,7 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
         else:
             skoolfile = self.write_text_file(dedent(skool).strip(), suffix='.skool')
             skool_parser = SkoolParser(skoolfile, case=case, base=base, asm_mode=asm_mode,
-                                       fix_mode=fix_mode, variables=variables)
+                                       warnings=warn, fix_mode=fix_mode, variables=variables)
             properties = dict(skool_parser.properties)
             properties['crlf'] = '1' if crlf else '0'
             properties['tab'] = '1' if tab else '0'
@@ -321,7 +321,7 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
             c11118 LD A,L
 
             @label=DOSTUFF
-            c24576 LD HL,0
+            c24576 LD HL,65535
 
             b$6003 DEFB 123
         """
@@ -2106,17 +2106,24 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
             @start
             ; Routine
             @nowarn
-            c30000 LD HL,30003
+            c30000 LD HL,30003 ; Bare @nowarn
 
             ; Routine
             @label=NEXT
+            @nowarn=30000
+            c30003 CALL 30000  ; @nowarn with address
             @nowarn
-            c30003 CALL 30000
-            @nowarn
-             30006 CALL 30001
+             30006 CALL 30001  ; Bare @nowarn
+            @nowarn=30000
+             30009 LD HL,30003 ; @nowarn with irrelevant address
         """
-        for asm_mode in (1, 2, 3):
-            self._test_warnings(skool, '', asm_mode=asm_mode)
+        exp_warnings = """
+            WARNING: Address 30003 replaced with NEXT in unsubbed LD operation:
+              30009 LD HL,30003
+        """
+        self._test_warnings(skool, exp_warnings, asm_mode=1)
+        self._test_warnings(skool, exp_warnings, asm_mode=2)
+        self._test_warnings(skool, exp_warnings, asm_mode=3)
 
     def test_keep_directive(self):
         skool = """

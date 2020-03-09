@@ -151,6 +151,9 @@ def _parse_addresses(line):
 def parse_asm_keep_directive(directive):
     return _parse_addresses(directive[4:])
 
+def parse_asm_nowarn_directive(directive):
+    return _parse_addresses(directive[6:])
+
 def parse_address_range(value):
     addresses = [parse_int(n) for n in value.split('-', 1)]
     if len(addresses) == 1 and addresses[0] is not None:
@@ -680,7 +683,7 @@ class SkoolParser:
                 else:
                     self.mode.add_sub(directive[:4], value)
             elif directive.startswith('nowarn'):
-                self.mode.nowarn = True
+                self.mode.nowarn = parse_asm_nowarn_directive(directive)
             elif directive.startswith('ignoreua'):
                 self.mode.ignoreua['i'] = self.ignores[len(self.comments)] = _parse_addresses(directive[8:])
             elif directive.startswith('org'):
@@ -792,7 +795,7 @@ class Mode:
         self.label = None
         self.subs = defaultdict(list, {0: ()})
         self.keep = None
-        self.nowarn = False
+        self.nowarn = None
         self.ignoreua = {'i': None, 'm': None}
         self.org = None
 
@@ -1030,8 +1033,8 @@ class InstructionUtility:
                     elif not operation.upper().startswith(('RST', 'DEFS')):
                         instruction.operation = self._replace_addresses(entry, instruction, operation)
 
-    def _warn(self, message, instruction):
-        if not instruction.nowarn:
+    def _warn(self, message, instruction, address):
+        if instruction.nowarn is None or (instruction.nowarn and address not in instruction.nowarn):
             self.warn(message, instruction)
 
     def _replace_addresses(self, entry, instruction, operand):
@@ -1062,20 +1065,20 @@ class InstructionUtility:
                     # Warn if an address in the operand of an unsubbed LD
                     # instruction is replaced (use @keep to retain address, or
                     # @nowarn if replacement is OK)
-                    self._warn('Address {0} replaced with {1} in unsubbed LD operation'.format(addr_str, ref_l), instruction)
+                    self._warn('Address {0} replaced with {1} in unsubbed LD operation'.format(addr_str, ref_l), instruction, address)
                 return ref_l
             if entry.ctl == 'c':
                 # Warn if we cannot find a label to replace an address in the
                 # operand of this routine instruction (use @keep or @nowarn if
                 # this is OK)
-                self._warn('No label for address ({})'.format(addr_str), instruction)
+                self._warn('No label for address ({})'.format(addr_str), instruction, address)
         elif address in self.labels:
             return self.labels[address]
         elif address not in self.remote_instructions and self.base_address <= address < self.end_address and not instruction.sub and self.asm_mode > 1:
             # Warn if the address is inside the address range of the
             # disassembly (where code might be) but is not the address of an
             # instruction (use @keep or @nowarn if this is OK)
-            self._warn('Unreplaced address ({})'.format(addr_str), instruction)
+            self._warn('Unreplaced address ({})'.format(addr_str), instruction, address)
 
     def calculate_references(self, entries, remote_entries):
         """
@@ -1151,7 +1154,7 @@ class Instruction:
         # @rsub+begin and @rsub+end; in that case, mark it as a subbed
         # instruction already
         self.sub = self.address is None    # API (InstructionUtility)
-        self.nowarn = False                # API (InstructionUtility)
+        self.nowarn = None                 # API (InstructionUtility)
         self.ignoreua = {'i': None, 'm': None}
 
     def set_comment(self, rowspan, text):
@@ -1175,12 +1178,6 @@ class Instruction:
             self.mid_block_comment = [repf(p) for p in self.mid_block_comment]
         if self.comment:
             self.comment.apply_replacements(repf)
-
-    def keep_values(self):
-        return self.keep == []
-
-    def keep_value(self, value):
-        return self.keep_values() or (self.keep and value in self.keep)
 
 class Comment:
     def __init__(self, rowspan, text):

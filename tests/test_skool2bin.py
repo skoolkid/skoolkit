@@ -1051,14 +1051,23 @@ class DirectiveTestCase:
     def test_mode_processes_nowarn_directives(self):
         skool = """
             @nowarn
-            c50000 LD HL,50001 ; Unreplaced address (50001)
-            @nowarn
-             50003 LD DE,50006 ; Address 50006 replaced with 50007
+            c50000 LD HL,50001 ; Unreplaced address (50001), suppressed
+            @nowarn=50009
+             50003 LD DE,50009 ; Address 50009 replaced with 50010, suppressed
+            @nowarn=50000
+             50006 LD BC,50001 ; Unreplaced address (50001)
             @{}=>XOR A
-             50006 RET
+             50009 RET
         """.format(self.mode)
-        exp_data = [33, 81, 195, 17, 87, 195, 175, 201]
-        self._test_write(skool, 50000, exp_data, self.mode, exp_warnings='')
+        exp_data = [33, 81, 195, 17, 90, 195, 1, 81, 195, 175, 201]
+        if self.mode in ('ssub', 'rsub', 'rfix'):
+            exp_warnings = """
+                WARNING: Unreplaced address (50001):
+                  50006 C356   LD BC,50001
+            """
+        else:
+            exp_warnings = ''
+        self._test_write(skool, 50000, exp_data, self.mode, exp_warnings=exp_warnings)
 
     def test_warnings(self):
         skool = """

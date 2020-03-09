@@ -2406,6 +2406,33 @@ class SkoolParserTest(SkoolKitTestCase):
         warnings = self.err.getvalue()
         self.assertEqual(warnings, '')
 
+    def test_nowarn_directive(self):
+        skool = """
+            @start
+            @label=START
+            @nowarn
+            c30000 LD HL,30000 ; Bare @nowarn
+            @nowarn=30000
+             30003 LD DE,30000 ; @nowarn with address
+            @nowarn=30001
+             30006 LD BC,30000 ; @nowarn with irrelevant address
+            @isub=CALL 30003%256+30006/256
+            @nowarn=30003,30006
+             30009 CALL 30000  ; @nowarn with two addresses
+            @isub=JP 30006%256+30009/256
+            @nowarn=30000,30006
+             30012 JP 30000    ; @nowarn with two addresses, one irrelevant
+        """
+        self._get_parser(skool, asm_mode=1, warnings=True)
+        warnings = self.err.getvalue()
+        exp_warnings = """
+            WARNING: Address 30000 replaced with START in unsubbed LD operation:
+              30006 LD BC,30000
+            WARNING: No label for address (30009):
+              30012 JP 30006%256+30009/256
+        """
+        self.assertEqual(dedent(exp_warnings).strip(), warnings.strip())
+
     def test_instruction_addr_str_no_base(self):
         skool = """
             b00000 DEFB 0
@@ -3807,12 +3834,12 @@ class SkoolParserTest(SkoolKitTestCase):
             self.assertEqual({'i': [], 'm': None}, inst1.ignoreua)
             self.assertEqual(inst1.asm_label, 'START')
             self.assertIsNone(inst1.org)
-            self.assertTrue(inst1.nowarn)
+            self.assertEqual([], inst1.nowarn)
             self.assertIsNone(inst2.keep)
             self.assertEqual(inst2.ignoreua, {'i': None, 'm': None})
             self.assertIsNone(inst2.asm_label)
             self.assertEqual(inst2.org, '32770')
-            self.assertFalse(inst2.nowarn)
+            self.assertIsNone(inst2.nowarn)
         self._assert_sub_and_fix_directives(skool, func)
 
     def test_sub_and_fix_directives_replace_two_instructions_with_one(self):
@@ -4032,12 +4059,12 @@ class SkoolParserTest(SkoolKitTestCase):
             self.assertEqual(inst1.ignoreua, {'i': [], 'm': None})
             self.assertEqual(inst1.asm_label, 'START')
             self.assertIsNone(inst1.org)
-            self.assertTrue(inst1.nowarn)
+            self.assertEqual([], inst1.nowarn)
             self.assertIsNone(inst2.keep)
             self.assertEqual(inst2.ignoreua, {'i': None, 'm': None})
             self.assertIsNone(inst2.asm_label)
             self.assertEqual(inst2.org, '     ')
-            self.assertFalse(inst2.nowarn)
+            self.assertIsNone(inst2.nowarn)
         self._assert_sub_and_fix_directives(skool, func)
 
     def test_sub_and_fix_directives_prepend_instruction(self):
@@ -4294,12 +4321,12 @@ class SkoolParserTest(SkoolKitTestCase):
             self.assertEqual(inst1.ignoreua, {'i': None, 'm': None})
             self.assertIsNone(inst1.asm_label)
             self.assertIsNone(inst1.org)
-            self.assertFalse(inst1.nowarn)
+            self.assertIsNone(inst1.nowarn)
             self.assertEqual([], inst2.keep)
             self.assertEqual(inst2.ignoreua, {'i': [], 'm': None})
             self.assertEqual(inst2.asm_label, 'START')
             self.assertIsNone(inst2.org)
-            self.assertTrue(inst2.nowarn)
+            self.assertEqual([], inst2.nowarn)
         self._assert_sub_and_fix_directives(skool, func)
 
     def test_sub_and_fix_directives_append_instruction_cleanly(self):
@@ -4321,12 +4348,12 @@ class SkoolParserTest(SkoolKitTestCase):
             self.assertEqual(inst1.ignoreua, {'i': [], 'm': None})
             self.assertEqual(inst1.asm_label, 'START')
             self.assertIsNone(inst1.org)
-            self.assertTrue(inst1.nowarn)
+            self.assertEqual(inst1.nowarn, [])
             self.assertIsNone(inst2.keep)
             self.assertEqual(inst2.ignoreua, {'i': None, 'm': None})
             self.assertIsNone(inst2.asm_label)
             self.assertEqual(inst2.org, '     ')
-            self.assertFalse(inst2.nowarn)
+            self.assertIsNone(inst2.nowarn)
         self._assert_sub_and_fix_directives(skool, func)
 
     def test_sub_and_fix_directives_replace_label(self):
@@ -4819,8 +4846,8 @@ class SkoolParserTest(SkoolKitTestCase):
         """
         parser = self._get_parser(skool, html=True)
         entry = parser.get_entry(40000)
-        self.assertFalse(entry.instructions[0].keep_values())
-        self.assertTrue(entry.instructions[1].keep_values())
+        self.assertIsNone(entry.instructions[0].keep)
+        self.assertEqual(entry.instructions[1].keep, [])
         self.assertIsNone(entry.instructions[1].reference)
 
     def test_html_mode_keep_with_one_value(self):
@@ -4834,7 +4861,7 @@ class SkoolParserTest(SkoolKitTestCase):
         """
         parser = self._get_parser(skool, html=True)
         entry = parser.get_entry(40000)
-        self.assertTrue(entry.instructions[0].keep_value(40003))
+        self.assertEqual(entry.instructions[0].keep, [40003])
         self.assertIsNone(entry.instructions[0].reference)
 
     def test_html_mode_keep_with_one_unused_value(self):
@@ -4848,7 +4875,7 @@ class SkoolParserTest(SkoolKitTestCase):
         """
         parser = self._get_parser(skool, html=True)
         entry = parser.get_entry(40000)
-        self.assertFalse(entry.instructions[0].keep_value(40003))
+        self.assertEqual(entry.instructions[0].keep, [40004])
         self.assertIsNotNone(entry.instructions[0].reference)
 
     def test_html_mode_rem(self):
@@ -5559,7 +5586,7 @@ class SkoolParserTest(SkoolKitTestCase):
                     instruction = entry.instructions[0]
                     assert instruction.address == 40000
                     assert instruction.keep == []
-                    assert instruction.nowarn is True
+                    assert instruction.nowarn == []
                     assert instruction.operation == 'JP 40000'
                     assert instruction.sub is True
                     remote_entry = remote_entries[0]
@@ -5567,7 +5594,7 @@ class SkoolParserTest(SkoolKitTestCase):
                     remote_instruction = remote_entry.instructions[1]
                     assert remote_instruction.address == 30001
                     assert remote_instruction.keep is None
-                    assert remote_instruction.nowarn is False
+                    assert remote_instruction.nowarn is None
                     assert remote_instruction.operation == ''
                     assert remote_instruction.sub is False
                     references = {entries[0].instructions[0]: (entries[0], 0, '0')}

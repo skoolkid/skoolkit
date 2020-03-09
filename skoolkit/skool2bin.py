@@ -22,7 +22,8 @@ from skoolkit import SkoolParsingError, get_int_param, info, integer, open_file,
 from skoolkit.components import get_assembler, get_instruction_utility
 from skoolkit.skoolmacro import MacroParsingError, parse_if
 from skoolkit.skoolparser import (DIRECTIVES, parse_address_range, parse_asm_data_directive,
-                                  parse_asm_keep_directive, parse_asm_sub_fix_directive, read_skool)
+                                  parse_asm_keep_directive, parse_asm_nowarn_directive,
+                                  parse_asm_sub_fix_directive, read_skool)
 from skoolkit.textutils import partition_unquoted
 
 VALID_CTLS = DIRECTIVES + ' *'
@@ -30,7 +31,7 @@ VALID_CTLS = DIRECTIVES + ' *'
 Entry = namedtuple('Entry', 'ctl instructions')
 
 class Instruction:
-    def __init__(self, skool_address, address=None, operation=None, sub=False, keep=None, nowarn=False, data=None, marker=''):
+    def __init__(self, skool_address, address=None, operation=None, sub=False, keep=None, nowarn=None, data=None, marker=''):
         self.address = skool_address # API (InstructionUtility)
         self.operation = operation   # API (InstructionUtility)
         self.sub = sub               # API (InstructionUtility)
@@ -77,13 +78,7 @@ class BinWriter:
         self.snapshot = [0] * 65536
         self.base_address = len(self.snapshot)
         self.end_address = 0
-        self.subs = defaultdict(list, {0: []})
-        self.keep = None
-        self.nowarn = False
-        if data:
-            self.data = []
-        else:
-            self.data = None
+        self._reset(data)
         self.entry_ctl = None
         self.entries = []
         self.remote_entries = []
@@ -92,6 +87,15 @@ class BinWriter:
         self.assembler = get_assembler()
         self._parse_skool(skoolfile)
         self._relocate()
+
+    def _reset(self, data):
+        self.subs = defaultdict(list, {0: []})
+        self.keep = None
+        self.nowarn = None
+        if data:
+            self.data = []
+        else:
+            self.data = None
 
     def _parse_skool(self, skoolfile):
         f = open_file(skoolfile)
@@ -129,11 +133,7 @@ class BinWriter:
         if skool_address not in removed:
             original_op = partition_unquoted(line[6:], ';')[0].strip()
             address = self._add_instructions(address, skool_address, operations, original_op, removed)
-        self.subs = defaultdict(list, {0: []})
-        self.keep = None
-        self.nowarn = False
-        if self.data is not None:
-            self.data = []
+        self._reset(self.data is not None)
         return address
 
     def _add_instructions(self, address, skool_address, operations, original_op, removed):
@@ -201,7 +201,7 @@ class BinWriter:
         elif directive.startswith('keep'):
             self.keep = parse_asm_keep_directive(directive)
         elif directive.startswith('nowarn'):
-            self.nowarn = True
+            self.nowarn = parse_asm_nowarn_directive(directive)
         elif self.data is not None and directive.startswith(('defb=', 'defs=', 'defw=')):
             self.data.append(directive)
         elif directive.startswith('remote='):

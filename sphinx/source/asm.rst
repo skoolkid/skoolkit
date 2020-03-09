@@ -859,22 +859,28 @@ force one to be added where it otherwise wouldn't (``@label=*``).
 @nowarn
 ^^^^^^^
 The ``@nowarn`` directive suppresses any warnings that would otherwise be
-reported for the next instruction concerning:
+reported (during the parsing phase) for the next instruction concerning:
 
 * an address in a ``LD`` instruction operand being replaced with a label (if
   the instruction has not been replaced by a ``@*sub`` or ``@*fix`` directive)
 * an address in an instruction operand not being replaced with a label (because
   the address has no label defined)
 
+::
+
+  @nowarn[=addr1[,addr2...]]
+
+* ``addr1``, ``addr2`` etc. are the addresses to suppress warnings for; if none
+  are specified, warnings for all addresses are suppressed
+
 For example::
 
-  @nowarn
+  @nowarn=25404
    25560 LD BC,25404   ; Point #REGbc at the routine at #R25404
 
 If this ``@nowarn`` directive were not present, a warning would be printed
-(during the parsing phase) about the operand (25404) being replaced with a
-routine label (which would be inappropriate if 25404 were intended to be a pure
-data value).
+about the operand (25404) being replaced with a routine label (which would be
+inappropriate if 25404 were intended to be a pure data value).
 
 For another example::
 
@@ -885,10 +891,17 @@ For another example::
          CALL 27634    ;
   @ofix+end
 
-If this ``@nowarn`` directive were not present, a warning would be printed
-(during the parsing phase, if not in :ref:`ofixMode`) about the operand (27633)
-not being replaced with a label (usually you would want the operand of a CALL
-instruction to be replaced with a label, but not in this case).
+If this ``@nowarn`` directive were not present, a warning would be printed (if
+not in :ref:`ofixMode`) about the operand (27633) not being replaced with a
+label (usually you would want the operand of a CALL instruction to be replaced
+with a label, but not in this case).
+
++---------+------------------------------------------------------------------+
+| Version | Changes                                                          |
++=========+==================================================================+
+| 8.1     | Added the ability to specify the addresses for which to suppress |
+|         | warnings                                                         |
++---------+------------------------------------------------------------------+
 
 .. _ofix:
 

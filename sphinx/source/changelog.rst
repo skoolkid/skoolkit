@@ -29,8 +29,8 @@ Changelog
   the entire string of byte values)
 * Added support to the :ref:`set` directive for the `table-row-separator`
   property
-* The :ref:`ignoreua` directive can now specify the addresses for which to
-  suppress warnings
+* The :ref:`ignoreua` and :ref:`nowarn` directives can now specify the
+  addresses for which to suppress warnings
 * Added support to :ref:`sna2skool.py` for ignoring default control files (by
   specifying ``--ctl 0``)
 * Fixed how :ref:`sna2skool.py` works with dot directives in a control file

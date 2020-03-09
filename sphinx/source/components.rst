@@ -161,8 +161,9 @@ Each instruction object has the following attributes:
 * *keep* - `None` if the instruction has no :ref:`keep` directive; an empty
   collection if it has a bare :ref:`keep` directive; or a collection of
   addresses if it has a :ref:`keep` directive with one or more values
-* *nowarn* - `True` if the instruction has a :ref:`nowarn` directive, `False`
-  otherwise
+* *nowarn* - `None` if the instruction has no :ref:`nowarn` directive; an empty
+  collection if it has a bare :ref:`nowarn` directive; or a collection of
+  addresses if it has a :ref:`nowarn` directive with one or more values
 * *operation* - the operation (e.g. 'XOR A') after any ``@*sub`` or ``@*fix``
   directives have been applied; for an instruction in a remote entry, this is
   an empty string
