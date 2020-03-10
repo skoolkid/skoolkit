@@ -626,6 +626,22 @@ class BinWriterTest(BinWriterTestCase):
         """
         self._test_write(skool, 40001, exp_data, 'rsub', start=40001, end=40004, exp_output=exp_output)
 
+    def test_verbose_showing_defb_defs_defw_directives(self):
+        skool = """
+            @defb=50000:1
+            @defs=2,2
+            @defw=3
+            b50005 DEFB 255
+        """
+        exp_data = [1, 2, 2, 3, 0, 255]
+        exp_output = """
+            50000 C350   @defb=50000:1
+            50001 C351   @defs=2,2
+            50003 C353   @defw=3
+            50005 C355   DEFB 255
+        """
+        self._test_write(skool, 50000, exp_data, data=True, exp_output=exp_output)
+
     @patch.object(components, 'SK_CONFIG', None)
     def test_custom_assembler(self):
         custom_assembler = """

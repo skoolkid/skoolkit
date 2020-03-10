@@ -31,7 +31,7 @@ VALID_CTLS = DIRECTIVES + ' *'
 Entry = namedtuple('Entry', 'ctl instructions')
 
 class Instruction:
-    def __init__(self, skool_address, address=None, operation=None, sub=False, keep=None, nowarn=None, data=None, marker=''):
+    def __init__(self, skool_address, address=None, operation=None, sub=False, keep=None, nowarn=None, data=None, marker=' '):
         self.address = skool_address # API (InstructionUtility)
         self.operation = operation   # API (InstructionUtility)
         self.sub = sub               # API (InstructionUtility)
@@ -210,10 +210,13 @@ class BinWriter:
                 self.remote_entries.append(Entry(None, [Instruction(a) for a in addrs if a is not None]))
         return address
 
-    def _poke(self, address, data):
+    def _poke(self, instruction, data):
+        address = instruction.real_address
         self.snapshot[address:address + len(data)] = data
         self.base_address = min(self.base_address, address)
         self.end_address = max(self.end_address, address + len(data))
+        if self.verbose:
+            info(str(instruction))
 
     def _warn(self, message, instruction):
         if self.warn:
@@ -225,12 +228,11 @@ class BinWriter:
             for i in entry.instructions:
                 address = i.real_address
                 while i.data:
-                    address, data = parse_asm_data_directive(self.snapshot, address, i.data.pop(0), False)
-                    self._poke(address, data)
+                    data_dir = i.data.pop(0)
+                    address, data = parse_asm_data_directive(self.snapshot, address, data_dir, False)
+                    self._poke(Instruction(None, address, '@' + data_dir), data)
                     address += len(data)
-                self._poke(i.real_address, self.assembler.assemble(i.operation, i.real_address))
-                if self.verbose:
-                    info(str(i))
+                self._poke(i, self.assembler.assemble(i.operation, i.real_address))
 
     def write(self, binfile):
         if self.start < 0:
