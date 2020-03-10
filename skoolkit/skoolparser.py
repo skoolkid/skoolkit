@@ -1013,25 +1013,26 @@ class InstructionUtility:
                      * `message` - the warning message.
                      * `instruction` - the instruction object.
         """
-        self.remote_entries = remote_entries
-        self.labels = labels
-        self.asm_mode = mode
-        self.warn = warn
         self.instructions = {i.address: (i, e, labels.get(i.address)) for e in entries for i in e.instructions if i.address is not None}
-        self.remote_instructions = [i.address for e in remote_entries for i in e.instructions]
-        self.base_address = min(self.instructions)
-        last_i = self.instructions[max(self.instructions)][0]
-        self.end_address = last_i.address + (Z80_ASSEMBLER.get_size(last_i.operation, last_i.address) or 1)
+        if self.instructions:
+            self.remote_entries = remote_entries
+            self.labels = labels
+            self.asm_mode = mode
+            self.warn = warn
+            self.remote_instructions = [i.address for e in remote_entries for i in e.instructions]
+            self.base_address = min(self.instructions)
+            last_i = self.instructions[max(self.instructions)][0]
+            self.end_address = last_i.address + (Z80_ASSEMBLER.get_size(last_i.operation, last_i.address) or 1)
 
-        for entry in entries:
-            for instruction in entry.instructions:
-                if instruction.keep is None or instruction.keep:
-                    operation = instruction.operation
-                    if operation.upper().startswith(('DEFB', 'DEFM', 'DEFW')):
-                        operands = [self._replace_addresses(entry, instruction, op) for op in split_unquoted(operation[5:], ',')]
-                        instruction.operation = operation[:5] + ','.join(operands)
-                    elif not operation.upper().startswith(('RST', 'DEFS')):
-                        instruction.operation = self._replace_addresses(entry, instruction, operation)
+            for entry in entries:
+                for instruction in entry.instructions:
+                    if instruction.keep is None or instruction.keep:
+                        operation = instruction.operation
+                        if operation.upper().startswith(('DEFB', 'DEFM', 'DEFW')):
+                            operands = [self._replace_addresses(entry, instruction, op) for op in split_unquoted(operation[5:], ',')]
+                            instruction.operation = operation[:5] + ','.join(operands)
+                        elif not operation.upper().startswith(('RST', 'DEFS')):
+                            instruction.operation = self._replace_addresses(entry, instruction, operation)
 
     def _warn(self, message, instruction, address):
         if instruction.nowarn is None or (instruction.nowarn and address not in instruction.nowarn):
