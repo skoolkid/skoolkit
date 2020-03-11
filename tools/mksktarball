@@ -65,11 +65,10 @@ rsync -aR \
 
 if [[ $INCLUDE_DOCS == 1 ]]; then
   cd $SKOOLKIT_HOME/sphinx
-  rm -rf build/*
 
-  # Build man pages before HTML documentation, otherwise double dashes in long
-  # options with arguments are erroneously transformed into en-dashes
-  if ! make man &> /dev/null; then
+  # Build man pages from clean (to prevent double dashes from being converted
+  # into en-dashes)
+  if ! make clean man &> /dev/null; then
     echo "*** Error building man pages; aborting"
     exit 1
   fi
@@ -77,8 +76,9 @@ if [[ $INCLUDE_DOCS == 1 ]]; then
   mkdir -p $MANDIR
   rsync -a build/man/*.py.1 $MANDIR
 
-  # Build HTML documentation
-  if ! make html &> /dev/null; then
+  # Build HTML documentation from clean (to ensure that double dashes are
+  # converted into en-dashes)
+  if ! make clean html &> /dev/null; then
     echo "*** Error building documentation; aborting"
     exit 1
   fi
