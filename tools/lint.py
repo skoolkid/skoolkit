@@ -36,6 +36,7 @@ IGNORE_MSG_IDS = [
     'R0913', # Too many arguments
     'R0914', # Too many local variables
     'R0915', # Too many statements
+    'R1710', # Inconsistent return statements
     'W0142', # Used * or ** magic
     'W0201', # Attribute defined outside __init__
     'W0232', # Class has no __init__ method
@@ -63,6 +64,8 @@ parser = argparse.ArgumentParser(
 group = parser.add_argument_group('Options')
 group.add_argument('-d', dest='message_ids', metavar='LIST',
                    help='Disable the messages in this comma-separated list (in addition to those disabled by default)')
+group.add_argument('-i', dest='ignore_indentation', action='store_true',
+                   help='Ignore messages about hanging indentation (C0330)')
 group.add_argument('-s', dest='ignore_similarities', action='store_true',
                    help='Ignore messages about code similarities (R0801)')
 group.add_argument('-t', dest='test', action='store_true',
@@ -76,6 +79,8 @@ if unknown_args:
 extra_ignores = []
 if namespace.message_ids:
     extra_ignores.extend(namespace.message_ids.split(','))
+if namespace.ignore_indentation:
+    extra_ignores.append('C0330')
 if namespace.ignore_similarities:
     extra_ignores.append('R0801')
 if namespace.ignore_unused:
