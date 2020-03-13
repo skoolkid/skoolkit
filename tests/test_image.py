@@ -1,5 +1,4 @@
 import zlib
-from collections import deque
 from io import BytesIO
 
 from skoolkittest import SkoolKitTestCase
