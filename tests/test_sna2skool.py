@@ -1,3 +1,4 @@
+import os.path
 from textwrap import dedent
 from unittest.mock import patch, Mock
 
@@ -486,7 +487,7 @@ class Sna2SkoolTest(SkoolKitTestCase):
     @patch.object(sna2skool, 'CtlParser', MockCtlParser)
     @patch.object(sna2skool, 'SkoolWriter', MockSkoolWriter)
     def test_default_ctl(self):
-        snafile = '{}/test-default-ctl.sna'.format(self.make_directory())
+        snafile = os.path.join(self.make_directory(), 'test-default-ctl.sna')
         ctlfile = '{}.ctl'.format(snafile[:-4])
         self.write_text_file(path=ctlfile)
         output, error = self.run_sna2skool(snafile)
@@ -498,7 +499,7 @@ class Sna2SkoolTest(SkoolKitTestCase):
     @patch.object(sna2skool, 'CtlParser', MockCtlParser)
     @patch.object(sna2skool, 'SkoolWriter', MockSkoolWriter)
     def test_multiple_default_ctls(self):
-        snafile = '{}/test-default-ctls.sna'.format(self.make_directory())
+        snafile = os.path.join(self.make_directory(), 'test-default-ctls.sna')
         prefix = snafile[:-4]
         suffixes = ('-1', '-2', '-last')
         ctlfiles = [self.write_text_file(path='{}{}.ctl'.format(prefix, s)) for s in suffixes]
