@@ -1,4 +1,4 @@
-# Copyright 2011-2019 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2011-2020 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -21,7 +21,7 @@ import posixpath
 import textwrap
 import importlib
 
-VERSION = '8.1b1'
+VERSION = '8.1rc'
 PACKAGE_DIR = os.path.dirname(__file__)
 
 BASE_10 = 10

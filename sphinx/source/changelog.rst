@@ -1,7 +1,7 @@
 Changelog
 =========
 
-8.1b1
+8.1rc
 -----
 * Added the ``--rsub`` and ``--rfix`` options to :ref:`skool2bin.py` (for
   parsing the skool file in :ref:`rsubMode` and :ref:`rfixMode`)
