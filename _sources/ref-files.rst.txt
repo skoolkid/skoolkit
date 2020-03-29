@@ -141,7 +141,7 @@ Recognised parameters are:
   SkoolKit #VERSION.')
 * ``DisassemblyTableNumCols`` - the number of columns in the disassembly table
   on disassembly pages (default: 5); this value is used by the :ref:`t_asm` and
-  and :ref:`t_asm_single_page` templates
+  :ref:`t_asm_single_page` templates
 * ``Font`` - the base name of the font file to use (default: None); multiple
   font files can be declared by separating their names with semicolons
 * ``Game`` - the name of the game, which appears in the title of every page,
@@ -394,6 +394,8 @@ Recognised parameters and their default values are:
   parameter
 * ``Intro`` - the text (which may contain HTML markup) displayed at the top of
   the memory map page (default: '')
+* ``LabelColumn`` - ``1`` to display the 'Label' column if any entries have
+  ASM labels defined, or ``0`` not to (default: ``0``)
 * ``LengthColumn`` - ``1`` to display the 'Length' column, or ``0`` not to
   (default: ``0``)
 * ``PageByteColumns`` - ``1`` to display 'Page' and 'Byte' columns, or ``0``
@@ -421,6 +423,8 @@ template is used.
 +---------+------------------------------------------------------------------+
 | Version | Changes                                                          |
 +=========+==================================================================+
+| 8.1     | Added the ``LabelColumn`` parameter                              |
++---------+------------------------------------------------------------------+
 | 6.2     | Added the ``Includes`` parameter                                 |
 +---------+------------------------------------------------------------------+
 | 6.0     | Every parameter (not just ``Intro``) may contain                 |
@@ -949,17 +953,14 @@ sequence of multi-line list items prefixed by '-'. For example::
 An entry section's ``anchor``, ``title`` and contents may contain HTML markup
 and :ref:`skool macros <skoolMacros>`.
 
-+---------+-----------------------------------------------------------------+
-| Version | Changes                                                         |
-+=========+=================================================================+
-| 6.0     | Added support for parsing an entry section as a sequence of     |
-|         | multi-line list items prefixed by '-'                           |
-|         | (``SectionType=BulletPoints``); the ``anchor`` and ``title`` of |
-|         | an entry section name may contain                               |
-|         | :ref:`skool macros <skoolMacros>`                               |
-+---------+-----------------------------------------------------------------+
-| 5.4     | The ``anchor`` part of an entry section name is optional        |
-+---------+-----------------------------------------------------------------+
+.. versionchanged:: 6.0
+   Added support for parsing an entry section as a sequence of multi-line list
+   items prefixed by '-' (``SectionType=BulletPoints``). The ``anchor`` and
+   ``title`` of an entry section name may contain :ref:`skool macros
+   <skoolMacros>`.
+
+.. versionchanged:: 5.4
+   The ``anchor`` part of an entry section name is optional.
 
 Appending content
 -----------------
@@ -969,6 +970,8 @@ adding a '+' suffix to the section name. For example, to add a line to the
 
   [Game+]
   AddressAnchor={address:04x}
+
+.. versionadded:: 7.0
 
 Ref file comments
 -----------------
@@ -1010,3 +1013,5 @@ The content of this section will be rendered thus::
 
 In fact, any line that starts with two opening square brackets will be rendered
 with the first one removed.
+
+.. versionadded:: 4.0

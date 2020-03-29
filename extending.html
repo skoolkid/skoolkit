@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Extending SkoolKit &#8212; SkoolKit 8.0 documentation</title>
+    <title>Extending SkoolKit &#8212; SkoolKit 8.1 documentation</title>
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -34,7 +34,7 @@
         <li class="right" >
           <a href="html-templates.html" title="HTML templates"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.0 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.1 documentation</a> &#187;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
@@ -232,9 +232,6 @@ main differences between a skool macro and a <code class="docutils literal notra
 <code class="docutils literal notranslate"><span class="pre">#CALL</span></code> method; a skool macro’s parameters must be parsed and evaluated
 manually (typically by using one or more of the
 <a class="reference internal" href="#ext-macroparsing"><span class="std std-ref">macro-parsing utility functions</span></a>)</li>
-<li>every optional parameter in a skool macro can be assigned a default value if
-omitted; in a <code class="docutils literal notranslate"><span class="pre">#CALL</span></code> method, only the optional arguments at the end can be
-assigned default values if omitted, whereas any others are set to <cite>None</cite></li>
 <li>numeric parameters in a <code class="docutils literal notranslate"><span class="pre">#CALL</span></code> macro are automatically converted to
 numbers before being passed to the <code class="docutils literal notranslate"><span class="pre">#CALL</span></code> method; no automatic conversion
 is done on the parameters of a skool macro</li>
@@ -627,9 +624,9 @@ running.</p>
 <p>The <cite>snapshot</cite> attribute on HtmlWriter and AsmWriter is a 65536-element list
 that represents the 64K of the Spectrum’s memory; it is populated when the
 skool file is being parsed.</p>
-<p>HtmlWriter also provides some methods for saving and restoring memory
+<p>HtmlWriter and AsmWriter also provide methods for saving and restoring memory
 snapshots, which can be useful for temporarily changing graphic data or the
-contents of data tables. These methods are described below.</p>
+contents of data tables.</p>
 <dl class="method">
 <dt id="skoolkit.skoolhtml.HtmlWriter.push_snapshot">
 <code class="descclassname">HtmlWriter.</code><code class="descname">push_snapshot</code><span class="sig-paren">(</span><em>name=''</em><span class="sig-paren">)</span><a class="headerlink" href="#skoolkit.skoolhtml.HtmlWriter.push_snapshot" title="Permalink to this definition">¶</a></dt>
@@ -652,6 +649,8 @@ contents of data tables. These methods are described below.</p>
 by <a class="reference internal" href="#skoolkit.skoolhtml.HtmlWriter.push_snapshot" title="skoolkit.skoolhtml.HtmlWriter.push_snapshot"><code class="xref py py-meth docutils literal notranslate"><span class="pre">push_snapshot()</span></code></a>.</p>
 </dd></dl>
 
+<p>In addition, HtmlWriter (but not AsmWriter) provides a method for retrieving
+the snapshot name.</p>
 <dl class="method">
 <dt id="skoolkit.skoolhtml.HtmlWriter.get_snapshot_name">
 <code class="descclassname">HtmlWriter.</code><code class="descname">get_snapshot_name</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#skoolkit.skoolhtml.HtmlWriter.get_snapshot_name" title="Permalink to this definition">¶</a></dt>
@@ -990,11 +989,11 @@ subclasses may override it.</p>
         <li class="right" >
           <a href="html-templates.html" title="HTML templates"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.0 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.1 documentation</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2019, Richard Dymond.
+        &#169; Copyright 2020, Richard Dymond.
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
     </div>
   </body>

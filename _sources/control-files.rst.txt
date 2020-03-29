@@ -77,11 +77,14 @@ separate ``D`` directive::
 
 Register values
 ---------------
-To declare the values of the registers upon entry to the routine at 24576, add
-one line per register with the ``R`` directive thus::
+To declare the values of the registers upon entry to or exit from the routine
+at 24576, add one line per register with the ``R`` directive::
 
   R 24576 A An important value in the accumulator
-  R 24576 DE Display file address
+  R 24576 O:DE Display file address
+
+See the documentation on :ref:`entry headers <entryHeaderFormat>` for more
+details on how to format a register description line.
 
 Block start comments
 --------------------
@@ -560,7 +563,7 @@ When declaring an :ref:`ignoreua` directive for anything other than an
 instruction-level comment, a suffix must be appended to the directive to
 specify the type of comment it applies to::
 
-  @ address ignoreua:X
+  @ address ignoreua:X[=addr1[,addr2...]]
 
 where ``X`` is one of:
 
@@ -662,8 +665,8 @@ example::
   % This is another comment
   ; This is yet another comment
 
-Control file comments are ignored by `sna2skool.py`, and will not show up in
-the skool file.
+Control file comments are ignored by :ref:`sna2skool.py`, and will not show up
+in the skool file.
 
 .. _Limitations:
 
@@ -702,7 +705,7 @@ Revision history
 +---------+-------------------------------------------------------------------+
 | 7.1     | Added support for specifying that numeric values in instruction   |
 |         | operands and DEFB, DEFM, DEFS and DEFW statements be rendered as  |
-|         | negative decimal numbers                                          |
+|         | negative numbers                                                  |
 +---------+-------------------------------------------------------------------+
 | 7.0     | Added the ``>`` directive for preserving non-entry blocks; added  |
 |         | support for preserving 'inverted' characters (with bit 7 set);    |

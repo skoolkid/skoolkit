@@ -275,17 +275,49 @@ To list the options supported by `skool2bin.py`, run it with no arguments::
 
   Options:
     -b, --bfix            Apply @ofix and @bfix directives.
+    -d, --data            Process @defb, @defs and @defw directives.
     -E ADDR, --end ADDR   Stop converting at this address.
     -i, --isub            Apply @isub directives.
     -o, --ofix            Apply @ofix directives.
+    -r, --rsub            Apply @isub, @ssub and @rsub directives (implies
+                          --ofix).
+    -R, --rfix            Apply @ofix, @bfix and @rfix directives (implies
+                          --rsub).
     -s, --ssub            Apply @isub and @ssub directives.
     -S ADDR, --start ADDR
                           Start converting at this address.
+    -v, --verbose         Show info on each converted instruction.
     -V, --version         Show SkoolKit version number and exit.
+    -w, --no-warnings     Suppress warnings.
+
+The ``--verbose`` option shows information on each converted instruction, such
+as whether it was inserted before or after another instruction (by a ``@*sub``
+or ``@*fix`` directive), and its original address (if it was relocated by the
+insertion, removal or replacement of other instructions). For example::
+
+  40000 9C40 > XOR A
+  40001 9C41 | LD HL,40006   : 40000 9C40 LD HL,40003
+  40004 9C44 + JR 40006      :            JR 40003
+  40006 9C46   RET           : 40003 9C43 RET
+
+This output shows that:
+
+* The instruction at 40000 (XOR A) was inserted before (``>``) another
+  instruction
+* The instruction at 40001 (LD HL,40006) overwrote (``|``) the instruction(s)
+  originally at 40000, and had its operand changed from 40003 (because the
+  instruction originally at that address was relocated to 40006)
+* The instruction at 40004 (JR 40006) was inserted after (``+``) another
+  instruction, and also had its operand changed from 40003
+* The instruction at 40006 (RET) was originally at 40003 (before other
+  instructions were inserted, removed or replaced)
 
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 8.1     | Added the ``--data``, ``--rsub``, ``--rfix``, ``--verbose`` and   |
+|         | ``--no-warnings`` options                                         |
++---------+-------------------------------------------------------------------+
 | 7.0     | :ref:`asm-if` directives are processed                            |
 +---------+-------------------------------------------------------------------+
 | 6.2     | The ``--end`` and ``--start`` options accept a hexadecimal        |
@@ -784,8 +816,9 @@ list::
   file. FILE may be a regular file, or '-' for standard input.
 
   Options:
-    -c FILE, --ctl FILE   Use FILE as a control file (may be '-' for standard
-                          input). This option may be used multiple times.
+    -c FILE, --ctl FILE   Use FILE as a control file. FILE may be '-' for
+                          standard input, or '0' to use no control file. This
+                          option may be used multiple times.
     -e ADDR, --end ADDR   Stop disassembling at this address (default=65536).
     -H, --hex             Write hexadecimal addresses and operands in the
                           disassembly.
@@ -882,6 +915,8 @@ Configuration parameters may also be set on the command line by using the
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 8.1     | Added support for ignoring default control files (``--ctl 0``)    |
++---------+-------------------------------------------------------------------+
 | 8.0     | Added the ``DefwSize`` configuration parameter                    |
 +---------+-------------------------------------------------------------------+
 | 7.1     | Added support for reading multiple default control files, and for |
@@ -1153,6 +1188,9 @@ To list the options supported by `tapinfo.py`, run it with no arguments::
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 8.1     | Shows contents of TZX block types 0x33 (hardware type) and 0x35   |
+|         | (custom info)                                                     |
++---------+-------------------------------------------------------------------+
 | 7.1     | Shows pulse lengths in TZX block type 0x13 and full info for TZX  |
 |         | block type 0x14                                                   |
 +---------+-------------------------------------------------------------------+

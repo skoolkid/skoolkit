@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Skool macros &#8212; SkoolKit 8.0 documentation</title>
+    <title>Skool macros &#8212; SkoolKit 8.1 documentation</title>
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -34,7 +34,7 @@
         <li class="right" >
           <a href="skool-files.html" title="Skool files"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.0 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.1 documentation</a> &#187;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
@@ -645,6 +645,8 @@ defined by the <a class="reference internal" href="asm.html#writer"><span class=
 <li><code class="docutils literal notranslate"><span class="pre">methodName</span></code> is the name of the method to call</li>
 <li><code class="docutils literal notranslate"><span class="pre">args</span></code> is a comma-separated list of arguments to pass to the method</li>
 </ul>
+<p>Each argument can be expressed either as a plain value (e.g. <code class="docutils literal notranslate"><span class="pre">32768</span></code>) or as a
+keyword argument (e.g. <code class="docutils literal notranslate"><span class="pre">address=32768</span></code>).</p>
 <p>For example:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>; The word at address 32768 is #CALL:word(32768).
 </pre></div>
@@ -665,14 +667,17 @@ the documentation on <a class="reference internal" href="extending.html#extendin
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>5.1</td>
+<tr class="row-even"><td>8.1</td>
+<td>Added support for keyword arguments</td>
+</tr>
+<tr class="row-odd"><td>5.1</td>
 <td>Added support for arithmetic expressions and skool macros in
 numeric method arguments</td>
 </tr>
-<tr class="row-odd"><td>3.1</td>
+<tr class="row-even"><td>3.1</td>
 <td>Added support for ASM mode</td>
 </tr>
-<tr class="row-even"><td>2.1</td>
+<tr class="row-odd"><td>2.1</td>
 <td>New</td>
 </tr>
 </tbody>
@@ -1957,8 +1962,7 @@ masked images actually transparent, set <code class="docutils literal notranslat
 <h2>Snapshot macros<a class="headerlink" href="#snapshot-macros" title="Permalink to this headline">¶</a></h2>
 <p>The <a class="reference internal" href="#pokes"><span class="std std-ref">#POKES</span></a>, <a class="reference internal" href="#pops"><span class="std std-ref">#POPS</span></a> and <a class="reference internal" href="#pushs"><span class="std std-ref">#PUSHS</span></a> macros (described in the
 following sections) may be used to manipulate the memory snapshot that is built
-from the <code class="docutils literal notranslate"><span class="pre">DEFB</span></code>, <code class="docutils literal notranslate"><span class="pre">DEFM</span></code>, <code class="docutils literal notranslate"><span class="pre">DEFS</span></code> and <code class="docutils literal notranslate"><span class="pre">DEFW</span></code> statements in the skool
-file. Each macro expands to an empty string.</p>
+from the skool file. Each macro expands to an empty string.</p>
 <div class="section" id="pokes">
 <span id="id30"></span><h3>#POKES<a class="headerlink" href="#pokes" title="Permalink to this headline">¶</a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">#POKES</span></code> macro POKEs values into the current memory snapshot.</p>
@@ -2169,11 +2173,11 @@ the following output:</p>
         <li class="right" >
           <a href="skool-files.html" title="Skool files"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.0 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.1 documentation</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2019, Richard Dymond.
+        &#169; Copyright 2020, Richard Dymond.
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
     </div>
   </body>

@@ -73,9 +73,9 @@ blank entry description may be specified by using a dot (``.``) thus::
   ; A An important parameter
   ; B Another important parameter
 
-Registers may be listed as shown above, or with colon-terminated prefixes
-(such as 'Input:' and 'Output:', or simply 'I:' and 'O:') to distinguish
-input values from output values::
+Register names may be given as shown above, or with colon-terminated prefixes
+(such as 'Input:' and 'Output:', or simply 'I:' and 'O:') to distinguish input
+values from output values::
 
   ;  Input:A An important parameter
   ;        B Another important parameter
@@ -93,6 +93,19 @@ by starting the second and subsequent lines with a dot (``.``) thus::
 
   ; HL The description for this register is quite long, so it is split over two
   ; .  lines for improved readability
+
+Note that by default, the register name is separated from the description by
+whitespace and must not contain skool macros. If whitespace or skool macros are
+required in the register name field, then it must be delimited in the same way
+as an arbitrary :ref:`string parameter <stringParameters>` of a skool macro.
+For example::
+
+  ; (Output:B, D) The answers are in these two registers
+  ; /(#R32768)/ The result is placed at this address
+
+When a register name is supplied in this format, the delimiter characters must
+be something other than a letter or digit. In addition, :ref:`LIST` and
+:ref:`TABLE` macros in a register name field are not expanded in ASM mode.
 
 .. _entryLineFormat:
 
@@ -247,11 +260,36 @@ Non-entry blocks such as this copyright comment are reproduced by
 `skool2asm.py`, ignored by `skool2html.py`, and preserved verbatim by
 `skool2ctl.py`.
 
+To qualify as a regular entry, a block must contain at least one line that
+starts with ``b``, ``c``, ``g``, ``i``, ``s``, ``t``, ``u`` or ``w`` when
+parsed in the relevant :ref:`subtitution mode <substitutionModes>` or
+:ref:`bugfix mode <bugfixModes>` (which depends on the command being run).
+
+So, for example::
+
+  @isub-begin
+  c24573 JP 32768
+  @isub-end
+
+is seen as a regular entry (without the ``@isub`` block directives) by
+`skool2ctl.py` and `skool2html.py`, but is invisible to `skool2asm.py`. And::
+
+  @isub+begin
+  c24573 JP 32768
+  @isub+end
+
+is seen as a non-entry block (with the ``@isub`` block directives retained) by
+`skool2ctl.py` and `skool2html.py`, but as a regular entry (without the
+``@isub`` block directives) by `skool2asm.py`.
+
 Revision history
 ----------------
 +---------+-----------------------------------------------------------------+
 | Version | Changes                                                         |
 +=========+=================================================================+
+| 8.1     | Register name fields may contain whitespace and                 |
+|         | :ref:`skool macros <skoolMacros>`                               |
++---------+-----------------------------------------------------------------+
 | 4.3     | Added support for the start comment in entry headers; an ASM    |
 |         | directive can be declared by starting a line with ``@``         |
 +---------+-----------------------------------------------------------------+

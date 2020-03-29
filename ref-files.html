@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Ref files &#8212; SkoolKit 8.0 documentation</title>
+    <title>Ref files &#8212; SkoolKit 8.1 documentation</title>
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -34,7 +34,7 @@
         <li class="right" >
           <a href="skool-macros.html" title="Skool macros"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.0 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.1 documentation</a> &#187;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
@@ -256,7 +256,7 @@ disassembly that appears in the footer of every page (default: ‘Created using
 SkoolKit #VERSION.’)</li>
 <li><code class="docutils literal notranslate"><span class="pre">DisassemblyTableNumCols</span></code> - the number of columns in the disassembly table
 on disassembly pages (default: 5); this value is used by the <a class="reference internal" href="html-templates.html#t-asm"><span class="std std-ref">asm</span></a> and
-and <a class="reference internal" href="html-templates.html#t-asm-single-page"><span class="std std-ref">asm_single_page</span></a> templates</li>
+<a class="reference internal" href="html-templates.html#t-asm-single-page"><span class="std std-ref">asm_single_page</span></a> templates</li>
 <li><code class="docutils literal notranslate"><span class="pre">Font</span></code> - the base name of the font file to use (default: None); multiple
 font files can be declared by separating their names with semicolons</li>
 <li><code class="docutils literal notranslate"><span class="pre">Game</span></code> - the name of the game, which appears in the title of every page,
@@ -561,6 +561,8 @@ the memory map page in addition to those specified by the <code class="docutils 
 parameter</li>
 <li><code class="docutils literal notranslate"><span class="pre">Intro</span></code> - the text (which may contain HTML markup) displayed at the top of
 the memory map page (default: ‘’)</li>
+<li><code class="docutils literal notranslate"><span class="pre">LabelColumn</span></code> - <code class="docutils literal notranslate"><span class="pre">1</span></code> to display the ‘Label’ column if any entries have
+ASM labels defined, or <code class="docutils literal notranslate"><span class="pre">0</span></code> not to (default: <code class="docutils literal notranslate"><span class="pre">0</span></code>)</li>
 <li><code class="docutils literal notranslate"><span class="pre">LengthColumn</span></code> - <code class="docutils literal notranslate"><span class="pre">1</span></code> to display the ‘Length’ column, or <code class="docutils literal notranslate"><span class="pre">0</span></code> not to
 (default: <code class="docutils literal notranslate"><span class="pre">0</span></code>)</li>
 <li><code class="docutils literal notranslate"><span class="pre">PageByteColumns</span></code> - <code class="docutils literal notranslate"><span class="pre">1</span></code> to display ‘Page’ and ‘Byte’ columns, or <code class="docutils literal notranslate"><span class="pre">0</span></code>
@@ -593,17 +595,20 @@ template is used.</p>
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>6.2</td>
+<tr class="row-even"><td>8.1</td>
+<td>Added the <code class="docutils literal notranslate"><span class="pre">LabelColumn</span></code> parameter</td>
+</tr>
+<tr class="row-odd"><td>6.2</td>
 <td>Added the <code class="docutils literal notranslate"><span class="pre">Includes</span></code> parameter</td>
 </tr>
-<tr class="row-odd"><td>6.0</td>
+<tr class="row-even"><td>6.0</td>
 <td>Every parameter (not just <code class="docutils literal notranslate"><span class="pre">Intro</span></code>) may contain
 <a class="reference internal" href="skool-macros.html#skoolmacros"><span class="std std-ref">skool macros</span></a></td>
 </tr>
-<tr class="row-even"><td>4.0</td>
+<tr class="row-odd"><td>4.0</td>
 <td>Added the <code class="docutils literal notranslate"><span class="pre">EntryDescriptions</span></code> and <code class="docutils literal notranslate"><span class="pre">LengthColumn</span></code> parameters</td>
 </tr>
-<tr class="row-odd"><td>2.5</td>
+<tr class="row-even"><td>2.5</td>
 <td>New</td>
 </tr>
 </tbody>
@@ -1188,29 +1193,14 @@ Intro text.
 </div>
 <p>An entry section’s <code class="docutils literal notranslate"><span class="pre">anchor</span></code>, <code class="docutils literal notranslate"><span class="pre">title</span></code> and contents may contain HTML markup
 and <a class="reference internal" href="skool-macros.html#skoolmacros"><span class="std std-ref">skool macros</span></a>.</p>
-<table border="1" class="docutils">
-<colgroup>
-<col width="12%" />
-<col width="88%" />
-</colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">Version</th>
-<th class="head">Changes</th>
-</tr>
-</thead>
-<tbody valign="top">
-<tr class="row-even"><td>6.0</td>
-<td>Added support for parsing an entry section as a sequence of
-multi-line list items prefixed by ‘-‘
-(<code class="docutils literal notranslate"><span class="pre">SectionType=BulletPoints</span></code>); the <code class="docutils literal notranslate"><span class="pre">anchor</span></code> and <code class="docutils literal notranslate"><span class="pre">title</span></code> of
-an entry section name may contain
-<a class="reference internal" href="skool-macros.html#skoolmacros"><span class="std std-ref">skool macros</span></a></td>
-</tr>
-<tr class="row-odd"><td>5.4</td>
-<td>The <code class="docutils literal notranslate"><span class="pre">anchor</span></code> part of an entry section name is optional</td>
-</tr>
-</tbody>
-</table>
+<div class="versionchanged">
+<p><span class="versionmodified">Changed in version 6.0: </span>Added support for parsing an entry section as a sequence of multi-line list
+items prefixed by ‘-‘ (<code class="docutils literal notranslate"><span class="pre">SectionType=BulletPoints</span></code>). The <code class="docutils literal notranslate"><span class="pre">anchor</span></code> and
+<code class="docutils literal notranslate"><span class="pre">title</span></code> of an entry section name may contain <a class="reference internal" href="skool-macros.html#skoolmacros"><span class="std std-ref">skool macros</span></a>.</p>
+</div>
+<div class="versionchanged">
+<p><span class="versionmodified">Changed in version 5.4: </span>The <code class="docutils literal notranslate"><span class="pre">anchor</span></code> part of an entry section name is optional.</p>
+</div>
 </div>
 <div class="section" id="appending-content">
 <h2>Appending content<a class="headerlink" href="#appending-content" title="Permalink to this headline">¶</a></h2>
@@ -1220,6 +1210,9 @@ adding a ‘+’ suffix to the section name. For example, to add a line to the
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>[Game+]
 AddressAnchor={address:04x}
 </pre></div>
+</div>
+<div class="versionadded">
+<p><span class="versionmodified">New in version 7.0.</span></p>
 </div>
 </div>
 <div class="section" id="ref-file-comments">
@@ -1263,6 +1256,9 @@ section header it can be escaped by doubling the opening square bracket:</p>
 </div>
 <p>In fact, any line that starts with two opening square brackets will be rendered
 with the first one removed.</p>
+<div class="versionadded">
+<p><span class="versionmodified">New in version 4.0.</span></p>
+</div>
 </div>
 </div>
 
@@ -1287,11 +1283,11 @@ with the first one removed.</p>
         <li class="right" >
           <a href="skool-macros.html" title="Skool macros"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.0 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.1 documentation</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2019, Richard Dymond.
+        &#169; Copyright 2020, Richard Dymond.
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
     </div>
   </body>

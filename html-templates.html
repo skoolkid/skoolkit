@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>HTML templates &#8212; SkoolKit 8.0 documentation</title>
+    <title>HTML templates &#8212; SkoolKit 8.1 documentation</title>
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -34,7 +34,7 @@
         <li class="right" >
           <a href="asm-templates.html" title="ASM templates"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.0 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.1 documentation</a> &#187;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
@@ -241,20 +241,34 @@ applies; this will be ‘0’ if the instruction has no comment field</li>
 hyperlinked if appropriate</li>
 </ul>
 <p>The <code class="docutils literal notranslate"><span class="pre">bytes</span></code> attribute can be used to render the byte values of an
-instruction. In its simplest form, it provides a format specification that is
-applied to each byte. For example:</p>
+instruction. The format specifier for this attribute has the following form:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>bfmt
+</pre></div>
+</div>
+<p>or:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>/bfmt/sep[/fmt]
+</pre></div>
+</div>
+<ul class="simple">
+<li><code class="docutils literal notranslate"><span class="pre">bfmt</span></code> is the format specifier applied to each byte value</li>
+<li><code class="docutils literal notranslate"><span class="pre">sep</span></code> is the separator string inserted between byte values; by default it
+is blank</li>
+<li><code class="docutils literal notranslate"><span class="pre">fmt</span></code> is the format specifier applied to the entire string of byte values;
+by default it is blank</li>
+</ul>
+<p>The delimiter used here (<code class="docutils literal notranslate"><span class="pre">/</span></code>) to separate the <code class="docutils literal notranslate"><span class="pre">bfmt</span></code>, <code class="docutils literal notranslate"><span class="pre">sep</span></code> and <code class="docutils literal notranslate"><span class="pre">fmt</span></code>
+parameters is arbitrary; it could be any character that doesn’t appear in
+<code class="docutils literal notranslate"><span class="pre">bfmt</span></code> itself.</p>
+<p>For example:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>{$instruction[bytes]:02X}
 </pre></div>
 </div>
-<p>would produce the string <code class="docutils literal notranslate"><span class="pre">3E01</span></code> for the instruction ‘LD A,1’.</p>
-<p>To render the byte values as 0-padded decimal integers separated by commas, use
-the following syntax:</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>{$instruction[bytes]:/03/,}
+<p>would produce the string <code class="docutils literal notranslate"><span class="pre">3E01</span></code> for the instruction ‘LD A,1’. And:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>{$instruction[bytes]:/02X/ /&gt;11}
 </pre></div>
 </div>
-<p>This would produce the string <code class="docutils literal notranslate"><span class="pre">062,001</span></code> for the instruction ‘LD A,1’. The
-delimiter used in this example (<code class="docutils literal notranslate"><span class="pre">/</span></code>) is arbitrary; it could be any character
-that doesn’t appear in the byte format specification itself.</p>
+<p>would render byte values as 2-digit upper case hexadecimal numbers separated by
+spaces, and right align the entire field to a width of 11 characters.</p>
 <p>By default, the <code class="docutils literal notranslate"><span class="pre">Bytes</span></code> parameter in the <a class="reference internal" href="ref-files.html#ref-game"><span class="std std-ref">[Game]</span></a> section is used as
 the byte format specification:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>{$instruction[bytes]:{Game[Bytes]}}
@@ -267,11 +281,15 @@ ensure that the byte values are displayed.</p>
 <p>Note that byte values are available only for regular assembly language
 instructions (not DEFB, DEFM, DEFS or DEFW statements), and only if they have
 actually been assembled by using <a class="reference internal" href="asm.html#assemble"><span class="std std-ref">&#64;assemble=2</span></a>. When no byte
-values are available, or the format specification is blank, the <code class="docutils literal notranslate"><span class="pre">bytes</span></code>
+values are available, or the format specifier is blank, the <code class="docutils literal notranslate"><span class="pre">bytes</span></code>
 identifier produces an empty string.</p>
 <p>To see the default <code class="docutils literal notranslate"><span class="pre">asm</span></code> template, run the following command:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ skool2html.py -r Template:asm$
 </pre></div>
+</div>
+<div class="versionchanged">
+<p><span class="versionmodified">Changed in version 8.1: </span>Added the <code class="docutils literal notranslate"><span class="pre">fmt</span></code> parameter to the format specifier for the <code class="docutils literal notranslate"><span class="pre">bytes</span></code>
+attribute of instruction objects.</p>
 </div>
 <div class="versionadded">
 <p><span class="versionmodified">New in version 8.0.</span></p>
@@ -838,11 +856,11 @@ the <a class="reference internal" href="skool-macros.html#reg"><span class="std 
         <li class="right" >
           <a href="asm-templates.html" title="ASM templates"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.0 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.1 documentation</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2019, Richard Dymond.
+        &#169; Copyright 2020, Richard Dymond.
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
     </div>
   </body>

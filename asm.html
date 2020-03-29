@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>ASM modes and directives &#8212; SkoolKit 8.0 documentation</title>
+    <title>ASM modes and directives &#8212; SkoolKit 8.1 documentation</title>
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -34,7 +34,7 @@
         <li class="right" >
           <a href="ref-files.html" title="Ref files"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.0 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.1 documentation</a> &#187;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
@@ -546,7 +546,7 @@ may be done thus:</p>
 <span id="id3"></span><h3>&#64;defb<a class="headerlink" href="#defb" title="Permalink to this headline">¶</a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">&#64;defb</span></code> directive inserts byte values into the memory snapshot at a given
 address.</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>@defb=address:value1[,value2...]
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>@defb=[address:]value1[,value2...]
 </pre></div>
 </div>
 <ul class="simple">
@@ -554,6 +554,10 @@ address.</p>
 <li><code class="docutils literal notranslate"><span class="pre">value1</span></code>, <code class="docutils literal notranslate"><span class="pre">value2</span></code> etc. are the byte values (as might appear in a
 <code class="docutils literal notranslate"><span class="pre">DEFB</span></code> statement)</li>
 </ul>
+<p>If <code class="docutils literal notranslate"><span class="pre">address</span></code> is omitted, it defaults to the address immediately after the
+last byte of the previous <code class="docutils literal notranslate"><span class="pre">&#64;defb</span></code>, <a class="reference internal" href="#defs"><span class="std std-ref">&#64;defs</span></a> or <a class="reference internal" href="#defw"><span class="std std-ref">&#64;defw</span></a> directive
+preceding the same instruction (if one exists), or to the address of the next
+instruction otherwise.</p>
 <p>The sequence of comma-separated values may be followed by a semicolon (<code class="docutils literal notranslate"><span class="pre">;</span></code>)
 and arbitrary text, which will be ignored.</p>
 <p>For example:</p>
@@ -568,8 +572,8 @@ control file; thus the <code class="docutils literal notranslate"><span class="p
 of the snapshot that is read by <cite>sna2skool.py</cite>.</p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="50%" />
-<col width="50%" />
+<col width="19%" />
+<col width="81%" />
 </colgroup>
 <thead valign="bottom">
 <tr class="row-odd"><th class="head">Version</th>
@@ -577,7 +581,10 @@ of the snapshot that is read by <cite>sna2skool.py</cite>.</p>
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>6.3</td>
+<tr class="row-even"><td>8.1</td>
+<td>The <code class="docutils literal notranslate"><span class="pre">address</span></code> parameter is optional</td>
+</tr>
+<tr class="row-odd"><td>6.3</td>
 <td>New</td>
 </tr>
 </tbody>
@@ -587,7 +594,7 @@ of the snapshot that is read by <cite>sna2skool.py</cite>.</p>
 <span id="id4"></span><h3>&#64;defs<a class="headerlink" href="#defs" title="Permalink to this headline">¶</a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">&#64;defs</span></code> directive inserts a sequence of byte values into the memory
 snapshot at a given address.</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>@defs=address:length[,value]
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>@defs=[address:]length[,value]
 </pre></div>
 </div>
 <ul class="simple">
@@ -595,6 +602,10 @@ snapshot at a given address.</p>
 <li><code class="docutils literal notranslate"><span class="pre">length</span></code> is the length of the sequence</li>
 <li><code class="docutils literal notranslate"><span class="pre">value</span></code> is the byte value (default: 0)</li>
 </ul>
+<p>If <code class="docutils literal notranslate"><span class="pre">address</span></code> is omitted, it defaults to the address immediately after the
+last byte of the previous <a class="reference internal" href="#defb"><span class="std std-ref">&#64;defb</span></a>, <code class="docutils literal notranslate"><span class="pre">&#64;defs</span></code> or <a class="reference internal" href="#defw"><span class="std std-ref">&#64;defw</span></a> directive
+preceding the same instruction (if one exists), or to the address of the next
+instruction otherwise.</p>
 <p>The directive may be followed by a semicolon (<code class="docutils literal notranslate"><span class="pre">;</span></code>) and arbitrary text, which
 will be ignored.</p>
 <p>For example:</p>
@@ -609,8 +620,8 @@ control file; thus the <code class="docutils literal notranslate"><span class="p
 of the snapshot that is read by <cite>sna2skool.py</cite>.</p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="50%" />
-<col width="50%" />
+<col width="19%" />
+<col width="81%" />
 </colgroup>
 <thead valign="bottom">
 <tr class="row-odd"><th class="head">Version</th>
@@ -618,7 +629,10 @@ of the snapshot that is read by <cite>sna2skool.py</cite>.</p>
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>6.3</td>
+<tr class="row-even"><td>8.1</td>
+<td>The <code class="docutils literal notranslate"><span class="pre">address</span></code> parameter is optional</td>
+</tr>
+<tr class="row-odd"><td>6.3</td>
 <td>New</td>
 </tr>
 </tbody>
@@ -628,7 +642,7 @@ of the snapshot that is read by <cite>sna2skool.py</cite>.</p>
 <span id="id5"></span><h3>&#64;defw<a class="headerlink" href="#defw" title="Permalink to this headline">¶</a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">&#64;defw</span></code> directive inserts word values into the memory snapshot at a given
 address.</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>@defw=address:value1[,value2...]
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>@defw=[address:]value1[,value2...]
 </pre></div>
 </div>
 <ul class="simple">
@@ -636,6 +650,10 @@ address.</p>
 <li><code class="docutils literal notranslate"><span class="pre">value1</span></code>, <code class="docutils literal notranslate"><span class="pre">value2</span></code> etc. are the word values (as might appear in a
 <code class="docutils literal notranslate"><span class="pre">DEFW</span></code> statement)</li>
 </ul>
+<p>If <code class="docutils literal notranslate"><span class="pre">address</span></code> is omitted, it defaults to the address immediately after the
+last byte of the previous <a class="reference internal" href="#defb"><span class="std std-ref">&#64;defb</span></a>, <a class="reference internal" href="#defs"><span class="std std-ref">&#64;defs</span></a> or <code class="docutils literal notranslate"><span class="pre">&#64;defw</span></code> directive
+preceding the same instruction (if one exists), or to the address of the next
+instruction otherwise.</p>
 <p>The sequence of comma-separated values may be followed by a semicolon (<code class="docutils literal notranslate"><span class="pre">;</span></code>)
 and arbitrary text, which will be ignored.</p>
 <p>For example:</p>
@@ -650,8 +668,8 @@ control file; thus the <code class="docutils literal notranslate"><span class="p
 of the snapshot that is read by <cite>sna2skool.py</cite>.</p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="50%" />
-<col width="50%" />
+<col width="19%" />
+<col width="81%" />
 </colgroup>
 <thead valign="bottom">
 <tr class="row-odd"><th class="head">Version</th>
@@ -659,7 +677,10 @@ of the snapshot that is read by <cite>sna2skool.py</cite>.</p>
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>6.3</td>
+<tr class="row-even"><td>8.1</td>
+<td>The <code class="docutils literal notranslate"><span class="pre">address</span></code> parameter is optional</td>
+</tr>
+<tr class="row-odd"><td>6.3</td>
 <td>New</td>
 </tr>
 </tbody>
@@ -764,20 +785,31 @@ are for the <a class="reference internal" href="skool-macros.html#if"><span clas
 </div>
 <div class="section" id="ignoreua">
 <span id="id8"></span><h3>&#64;ignoreua<a class="headerlink" href="#ignoreua" title="Permalink to this headline">¶</a></h3>
-<p>The <code class="docutils literal notranslate"><span class="pre">&#64;ignoreua</span></code> directive suppresses any warnings that would otherwise be
-reported concerning addresses not converted to labels in the comment that
-follows; the comment may be an entry title, an entry description, a register
-description section, a block start comment, a mid-block comment, a block end
-comment, or an instruction-level comment.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">&#64;ignoreua</span></code> directive suppresses warnings that would otherwise be printed
+(during the rendering phase) concerning addresses not converted to labels in
+the comment that follows. The comment may be an entry title, an entry
+description, a register description section, a block start comment, a mid-block
+comment, a block end comment, or an instruction-level comment.</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>@ignoreua[=addr1[,addr2...]]
+</pre></div>
+</div>
+<ul class="simple">
+<li><code class="docutils literal notranslate"><span class="pre">addr1</span></code>, <code class="docutils literal notranslate"><span class="pre">addr2</span></code> etc. are the addresses to suppress warnings for; if none
+are specified, warnings for all addresses are suppressed</li>
+</ul>
+<p>Although specifying a list of addresses is optional, doing so has the advantage
+that if another unconvertible address is added to the comment later on, a
+warning will appear for it, at which point you can decide whether to fix it (in
+case it was added by mistake) or add it to the list.</p>
 <p>To apply the directive to an entry title:</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>@ignoreua
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>@ignoreua=32768
 ; Prepare data at 32768
 c32768 LD A,(HL)
 </pre></div>
 </div>
 <p>If the <code class="docutils literal notranslate"><span class="pre">&#64;ignoreua</span></code> directive were not present, a warning would be printed
-(during the rendering phase) about the entry title containing an address
-(32768) that has not been converted to a label.</p>
+about the entry title containing an address (32768) that has not been converted
+to a label.</p>
 <p>To apply the directive to an entry description:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>; Prepare data in page 128
 ;
@@ -787,8 +819,8 @@ c49152 LD A,(HL)
 </pre></div>
 </div>
 <p>If the <code class="docutils literal notranslate"><span class="pre">&#64;ignoreua</span></code> directive were not present, a warning would be printed
-(during the rendering phase) about the entry description containing an address
-(32768) that has not been converted to a label.</p>
+about the entry description containing an address (32768) that has not been
+converted to a label.</p>
 <p>To apply the directive to a register description section:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>; Prepare data in page 128
 ;
@@ -800,8 +832,8 @@ c49152 LD A,(HL)
 </pre></div>
 </div>
 <p>If the <code class="docutils literal notranslate"><span class="pre">&#64;ignoreua</span></code> directive were not present, a warning would be printed
-(during the rendering phase) about the register description containing an
-address (32768) that has not been converted to a label.</p>
+about the register description containing an address (32768) that has not been
+converted to a label.</p>
 <p>To apply the directive to a block start comment:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>; Prepare data in page 128
 ;
@@ -815,8 +847,8 @@ c49152 LD A,(HL)
 </pre></div>
 </div>
 <p>If the <code class="docutils literal notranslate"><span class="pre">&#64;ignoreua</span></code> directive were not present, a warning would be printed
-(during the rendering phase) about the start comment containing an address
-(32768) that has not been converted to a label.</p>
+about the start comment containing an address (32768) that has not been
+converted to a label.</p>
 <p>To apply the directive to a mid-block comment:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span> 28913 LD L,A
 @ignoreua
@@ -824,29 +856,29 @@ c49152 LD A,(HL)
  28914 LD B,(HL)
 </pre></div>
 </div>
-<p>If the <code class="docutils literal notranslate"><span class="pre">&#64;ignoreua</span></code> directive were not present, warnings would be printed
-(during the rendering phase) about the comment containing addresses (32522,
-32600) that have not been converted to labels.</p>
+<p>If the <code class="docutils literal notranslate"><span class="pre">&#64;ignoreua</span></code> directive were not present, a warning would be printed
+about the comment containing addresses (32522, 32600) that have not been
+converted to labels.</p>
 <p>To apply the directive to a block end comment:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span> 44159 JP 63152
 @ignoreua
 ; This routine continues at 63152.
 </pre></div>
 </div>
-<p>If the <code class="docutils literal notranslate"><span class="pre">&#64;ignoreua</span></code> directive were not present, warnings would be printed
-(during the rendering phase) about the comment containing an address (63152)
-that has not been converted to a label.</p>
+<p>If the <code class="docutils literal notranslate"><span class="pre">&#64;ignoreua</span></code> directive were not present, a warning would be printed
+about the comment containing an address (63152) that has not been converted to
+a label.</p>
 <p>To apply the directive to an instruction-level comment:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>@ignoreua
  60159 LD C,A        ; #REGbc now holds 62818
 </pre></div>
 </div>
 <p>If the <code class="docutils literal notranslate"><span class="pre">&#64;ignoreua</span></code> directive were not present, a warning would be printed
-(during the rendering phase) about the comment containing an address (62818)
-that has not been converted to a label.</p>
+about the comment containing an address (62818) that has not been converted to
+a label.</p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="13%" />
+<col width="12%" />
 <col width="88%" />
 </colgroup>
 <thead valign="bottom">
@@ -855,10 +887,14 @@ that has not been converted to a label.</p>
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>4.2</td>
+<tr class="row-even"><td>8.1</td>
+<td>Added the ability to specify the addresses for which to suppress
+warnings</td>
+</tr>
+<tr class="row-odd"><td>4.2</td>
 <td>Added support for register description sections</td>
 </tr>
-<tr class="row-odd"><td>2.4.1</td>
+<tr class="row-even"><td>2.4.1</td>
 <td>Added support for entry titles, entry descriptions, mid-block
 comments and block end comments</td>
 </tr>
@@ -996,22 +1032,28 @@ having a label automatically generated)</td>
 <div class="section" id="nowarn">
 <span id="id12"></span><h3>&#64;nowarn<a class="headerlink" href="#nowarn" title="Permalink to this headline">¶</a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">&#64;nowarn</span></code> directive suppresses any warnings that would otherwise be
-reported for the next instruction concerning:</p>
+reported (during the parsing phase) for the next instruction concerning:</p>
 <ul class="simple">
-<li>a <code class="docutils literal notranslate"><span class="pre">LD</span></code> operand being replaced with a routine label (if the instruction has
-not been replaced using <code class="docutils literal notranslate"><span class="pre">&#64;isub</span></code> or <code class="docutils literal notranslate"><span class="pre">&#64;ssub</span></code>)</li>
-<li>an operand not being replaced with a label (because the operand address has
-no label)</li>
+<li>an address in a <code class="docutils literal notranslate"><span class="pre">LD</span></code> instruction operand being replaced with a label (if
+the instruction has not been replaced by a <code class="docutils literal notranslate"><span class="pre">&#64;*sub</span></code> or <code class="docutils literal notranslate"><span class="pre">&#64;*fix</span></code> directive)</li>
+<li>an address in an instruction operand not being replaced with a label (because
+the address has no label defined)</li>
+</ul>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>@nowarn[=addr1[,addr2...]]
+</pre></div>
+</div>
+<ul class="simple">
+<li><code class="docutils literal notranslate"><span class="pre">addr1</span></code>, <code class="docutils literal notranslate"><span class="pre">addr2</span></code> etc. are the addresses to suppress warnings for; if none
+are specified, warnings for all addresses are suppressed</li>
 </ul>
 <p>For example:</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>@nowarn
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>@nowarn=25404
  25560 LD BC,25404   ; Point #REGbc at the routine at #R25404
 </pre></div>
 </div>
 <p>If this <code class="docutils literal notranslate"><span class="pre">&#64;nowarn</span></code> directive were not present, a warning would be printed
-(during the parsing phase) about the operand (25404) being replaced with a
-routine label (which would be inappropriate if 25404 were intended to be a pure
-data value).</p>
+about the operand (25404) being replaced with a routine label (which would be
+inappropriate if 25404 were intended to be a pure data value).</p>
 <p>For another example:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>@ofix-begin
 @nowarn
@@ -1021,10 +1063,27 @@ data value).</p>
 @ofix+end
 </pre></div>
 </div>
-<p>If this <code class="docutils literal notranslate"><span class="pre">&#64;nowarn</span></code> directive were not present, a warning would be printed
-(during the parsing phase, if not in <a class="reference internal" href="#ofixmode"><span class="std std-ref">&#64;ofix mode</span></a>) about the operand (27633)
-not being replaced with a label (usually you would want the operand of a CALL
-instruction to be replaced with a label, but not in this case).</p>
+<p>If this <code class="docutils literal notranslate"><span class="pre">&#64;nowarn</span></code> directive were not present, a warning would be printed (if
+not in <a class="reference internal" href="#ofixmode"><span class="std std-ref">&#64;ofix mode</span></a>) about the operand (27633) not being replaced with a
+label (usually you would want the operand of a CALL instruction to be replaced
+with a label, but not in this case).</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="12%" />
+<col width="88%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Version</th>
+<th class="head">Changes</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>8.1</td>
+<td>Added the ability to specify the addresses for which to suppress
+warnings</td>
+</tr>
+</tbody>
+</table>
 </div>
 <div class="section" id="ofix">
 <span id="id13"></span><h3>&#64;ofix<a class="headerlink" href="#ofix" title="Permalink to this headline">¶</a></h3>
@@ -1353,6 +1412,9 @@ second is used for the internal borders</li>
 border joins of a table defined by a <a class="reference internal" href="skool-macros.html#table"><span class="std std-ref">#TABLE</span></a> macro (default: <code class="docutils literal notranslate"><span class="pre">+</span></code>)</li>
 <li><code class="docutils literal notranslate"><span class="pre">table-border-vertical</span></code> - the character to use for the vertical borders of
 a table defined by a <a class="reference internal" href="skool-macros.html#table"><span class="std std-ref">#TABLE</span></a> macro (default: <code class="docutils literal notranslate"><span class="pre">|</span></code>)</li>
+<li><code class="docutils literal notranslate"><span class="pre">table-row-separator</span></code> - the character used to separate non-header cells in
+adjacent rows of a table defined by a <a class="reference internal" href="skool-macros.html#table"><span class="std std-ref">#TABLE</span></a> macro; by default, such
+cells are not separated</li>
 <li><code class="docutils literal notranslate"><span class="pre">warnings</span></code> - <code class="docutils literal notranslate"><span class="pre">1</span></code> to print any warnings that are produced while writing
 ASM output (after parsing the skool file), or <code class="docutils literal notranslate"><span class="pre">0</span></code> to suppress them
 (default: <code class="docutils literal notranslate"><span class="pre">1</span></code>)</li>
@@ -1375,20 +1437,23 @@ ASM output (after parsing the skool file), or <code class="docutils literal notr
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>8.0</td>
+<tr class="row-even"><td>8.1</td>
+<td>Added the <code class="docutils literal notranslate"><span class="pre">table-row-separator</span></code> property</td>
+</tr>
+<tr class="row-odd"><td>8.0</td>
 <td>Added the <code class="docutils literal notranslate"><span class="pre">table-border-horizontal</span></code>, <code class="docutils literal notranslate"><span class="pre">table-border-join</span></code>
 and <code class="docutils literal notranslate"><span class="pre">table-border-vertical</span></code> properties</td>
 </tr>
-<tr class="row-odd"><td>3.4</td>
+<tr class="row-even"><td>3.4</td>
 <td>Added the <code class="docutils literal notranslate"><span class="pre">handle-unsupported-macros</span></code> and
 <code class="docutils literal notranslate"><span class="pre">wrap-column-width-min</span></code> properties</td>
 </tr>
-<tr class="row-even"><td>3.3.1</td>
+<tr class="row-odd"><td>3.3.1</td>
 <td>Added the <code class="docutils literal notranslate"><span class="pre">comment-width-min</span></code>, <code class="docutils literal notranslate"><span class="pre">indent</span></code>,
 <code class="docutils literal notranslate"><span class="pre">instruction-width</span></code>, <code class="docutils literal notranslate"><span class="pre">label-colons</span></code>, <code class="docutils literal notranslate"><span class="pre">line-width</span></code> and
 <code class="docutils literal notranslate"><span class="pre">warnings</span></code> properties</td>
 </tr>
-<tr class="row-odd"><td>3.2</td>
+<tr class="row-even"><td>3.2</td>
 <td>New</td>
 </tr>
 </tbody>
@@ -1517,11 +1582,11 @@ path</td>
         <li class="right" >
           <a href="ref-files.html" title="Ref files"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.0 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.1 documentation</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2019, Richard Dymond.
+        &#169; Copyright 2020, Richard Dymond.
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
     </div>
   </body>
