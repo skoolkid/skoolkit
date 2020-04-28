@@ -1,6 +1,9 @@
 Changelog
 =========
 
+8.2b1
+-----
+
 8.1 (2020-03-29)
 ----------------
 * Added the ``--rsub`` and ``--rfix`` options to :ref:`skool2bin.py` (for
