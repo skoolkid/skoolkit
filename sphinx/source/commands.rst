@@ -981,6 +981,7 @@ To list the options supported by `snapinfo.py`, run it with no arguments::
     -f A[,B...[-M[-N]]], --find A[,B...[-M[-N]]]
                           Search for the byte sequence A,B... with distance
                           ranging from M to N (default=1) between bytes.
+    -g, --call-graph      Generate a call graph in DOT format.
     -p A[-B[-C]], --peek A[-B[-C]]
                           Show the contents of addresses A TO B STEP C. This
                           option may be used multiple times.
@@ -999,11 +1000,14 @@ To list the options supported by `snapinfo.py`, run it with no arguments::
 With no options, `snapinfo.py` displays register values, the interrupt mode,
 and the border colour. By using one of the options shown above, it can list
 the BASIC program and variables (if present), show the contents of a range of
-addresses, or search the RAM for a sequence of byte values or a text string.
+addresses, search the RAM for a sequence of byte values or a text string, or
+generate a call graph.
 
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 8.2     | Added the ``--call-graph`` option                                 |
++---------+-------------------------------------------------------------------+
 | 6.2     | The ``--find``, ``--find-tile``, ``--peek`` and ``--word``        |
 |         | options accept hexadecimal integers prefixed by '0x'              |
 +---------+-------------------------------------------------------------------+

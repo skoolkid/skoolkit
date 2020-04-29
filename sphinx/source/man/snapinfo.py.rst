@@ -23,6 +23,9 @@ OPTIONS
   `N` (default=1) between bytes. `A`, `B`, etc. and `M` and `N` must each be a
   decimal number, or a hexadecimal number prefixed by '0x'.
 
+-c, --call-graph
+  Generate a call graph in DOT format.
+
 -p, --peek `A[-B[-C]]`
   Show the contents of addresses `A` TO `B` STEP `C`. This option may be used
   multiple times. `A`, `B` and `C` must each be a decimal number, or a

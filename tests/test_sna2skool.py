@@ -508,13 +508,16 @@ class Sna2SkoolTest(SkoolKitTestCase):
         self.assertEqual(ctlfiles, mock_ctl_parser.ctlfiles)
         self.assertTrue(mock_skool_writer.wrote_skool)
 
-    @patch.object(sna2skool, 'run', mock_run)
+    @patch.object(sna2skool, 'make_snapshot', mock_make_snapshot)
+    @patch.object(sna2skool, 'CtlParser', MockCtlParser)
+    @patch.object(sna2skool, 'SkoolWriter', MockSkoolWriter)
     def test_default_ctl_for_unrecognised_snapshot_format(self):
-        binfile = 'input.bar'
+        binfile = os.path.join(self.make_directory(), 'input.bar')
         ctlfile = self.write_text_file(path='{}.ctl'.format(binfile))
-        sna2skool.main((binfile,))
-        options = run_args[1]
-        self.assertEqual([ctlfile], options.ctlfiles)
+        output, error = self.run_sna2skool(binfile)
+        self.assertEqual(error, 'Using control file: {}\n'.format(ctlfile))
+        self.assertEqual([ctlfile], mock_ctl_parser.ctlfiles)
+        self.assertTrue(mock_skool_writer.wrote_skool)
 
     @patch.object(components, 'SK_CONFIG', None)
     @patch.object(sna2skool, 'CtlParser', MockCtlParser)

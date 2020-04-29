@@ -23,22 +23,29 @@ from skoolkit.ctlparser import CtlParser
 from skoolkit.snapshot import make_snapshot
 from skoolkit.snaskool import SkoolWriter
 
-END = 65536
-
-def run(snafile, options, config):
-    snapshot, start, end = make_snapshot(snafile, options.org, options.start, options.end, options.page)
-
-    if options.ctlfiles and '0' not in options.ctlfiles:
+def get_ctl_parser(ctlfiles, prefix, start=16384, end=65536, def_start=16384, def_end=65536):
+    if not ctlfiles:
+        ctlfiles.extend(sorted(glob.glob(prefix + '*.ctl')))
+    if ctlfiles and '0' not in ctlfiles:
         # Use control file(s)
-        if len(options.ctlfiles) > 1:
+        if len(ctlfiles) > 1:
             suffix = 's'
         else:
             suffix = ''
-        info('Using control file{}: {}'.format(suffix, ', '.join(options.ctlfiles)))
+        info('Using control file{}: {}'.format(suffix, ', '.join(ctlfiles)))
         ctl_parser = CtlParser()
-        ctl_parser.parse_ctls(options.ctlfiles, options.start, options.end)
+        ctl_parser.parse_ctls(ctlfiles, start, end)
     else:
-        ctl_parser = CtlParser({start: 'c', end: 'i'})
+        ctl_parser = CtlParser({def_start: 'c', def_end: 'i'})
+    return ctl_parser
+
+def run(snafile, options, config):
+    snapshot, start, end = make_snapshot(snafile, options.org, options.start, options.end, options.page)
+    if options.snafile[-4:].lower() in ('.bin', '.sna', '.szx', '.z80'):
+        prefix = options.snafile[:-4]
+    else:
+        prefix = options.snafile
+    ctl_parser = get_ctl_parser(options.ctlfiles, prefix, options.start, options.end, start, end)
     writer = SkoolWriter(snapshot, ctl_parser, options, config)
     writer.write_skool(config['ListRefs'], config['Text'])
 
@@ -55,8 +62,8 @@ def main(args):
     group.add_argument('-c', '--ctl', dest='ctlfiles', metavar='FILE', action='append', default=[],
                        help="Use FILE as a control file. FILE may be '-' for standard input, or '0' to use no control file. "
                             "This option may be used multiple times.")
-    group.add_argument('-e', '--end', dest='end', metavar='ADDR', type=integer, default=END,
-                       help='Stop disassembling at this address (default={}).'.format(END))
+    group.add_argument('-e', '--end', dest='end', metavar='ADDR', type=integer, default=65536,
+                       help='Stop disassembling at this address (default=65536).')
     group.add_argument('-H', '--hex', dest='base', action='store_const', const=16, default=config['Base'],
                        help='Write hexadecimal addresses and operands in the disassembly.')
     group.add_argument('-I', '--ini', dest='params', metavar='p=v', action='append', default=[],
@@ -79,14 +86,7 @@ def main(args):
     namespace, unknown_args = parser.parse_known_args(args)
     if namespace.show_config:
         show_config('sna2skool', config)
-    snafile = namespace.snafile
-    if unknown_args or snafile is None:
+    if unknown_args or namespace.snafile is None:
         parser.exit(2, parser.format_help())
-    if snafile[-4:].lower() in ('.bin', '.sna', '.szx', '.z80'):
-        prefix = snafile[:-4]
-    else:
-        prefix = snafile
-    if not namespace.ctlfiles:
-        namespace.ctlfiles.extend(sorted(glob.glob(prefix + '*.ctl')))
     update_options('sna2skool', namespace, namespace.params, config)
-    run(snafile, namespace, config)
+    run(namespace.snafile, namespace, config)

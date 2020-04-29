@@ -1,4 +1,4 @@
-# Copyright 2013-2017, 2019 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2013-2017, 2019, 2020 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -19,6 +19,8 @@ import argparse
 from skoolkit import SkoolKitError, get_dword, get_int_param, get_word, read_bin_file, VERSION
 from skoolkit.basic import BasicLister, VariableLister, get_char
 from skoolkit.snapshot import get_snapshot
+from skoolkit.sna2skool import get_ctl_parser
+from skoolkit.snaskool import Disassembly
 
 class Registers:
     reg_map = {
@@ -360,6 +362,26 @@ def _get_address_ranges(specs, step=1):
         addr_ranges.append(values + [values[0], step][len(values) - 1:])
     return addr_ranges
 
+def _call_graph(snapshot, prefix):
+    disassembly = Disassembly(snapshot, get_ctl_parser([], prefix), True)
+    entries = {e.address: (e, set()) for e in disassembly.entries if e.ctl == 'c'}
+    for entry, refs in entries.values():
+        for instruction in entry.instructions:
+            for ref_addr in instruction.referrers:
+                if ref_addr in entries:
+                    entries[ref_addr][1].add(entry.address)
+
+    print('digraph {\nnode [shape=record]')
+    for entry, refs in entries.values():
+        label = entry.instructions[0].label
+        if label:
+            print('{0} [label="{0} {0:04X}\\n{1}"]'.format(entry.address, label))
+        else:
+            print('{0} [label="{0} {0:04X}"]'.format(entry.address))
+        if refs:
+            print('{} -> {{{}}}'.format(entry.address, ' '.join(str(a) for a in refs)))
+    print('}')
+
 def _find(snapshot, byte_seq, base_addr=16384):
     steps = '1'
     if '-' in byte_seq:
@@ -430,6 +452,8 @@ def main(args):
                        help='List the BASIC program.')
     group.add_argument('-f', '--find', metavar='A[,B...[-M[-N]]]',
                        help='Search for the byte sequence A,B... with distance ranging from M to N (default=1) between bytes.')
+    group.add_argument('-g', '--call-graph', action='store_true',
+                       help='Generate a call graph in DOT format.')
     group.add_argument('-p', '--peek', metavar='A[-B[-C]]', action='append',
                        help='Show the contents of addresses A TO B STEP C. This option may be used multiple times.')
     group.add_argument('-t', '--find-text', dest='text', metavar='TEXT',
@@ -450,7 +474,8 @@ def main(args):
     if snapshot_type not in ('.sna', '.szx', '.z80'):
         raise SkoolKitError('Unrecognised snapshot type')
 
-    if any((namespace.find, namespace.tile, namespace.text, namespace.peek, namespace.word, namespace.basic, namespace.variables)):
+    if any((namespace.find, namespace.tile, namespace.text, namespace.call_graph, namespace.peek,
+            namespace.word, namespace.basic, namespace.variables)):
         snapshot = get_snapshot(infile)
         if namespace.find:
             _find(snapshot, namespace.find)
@@ -458,6 +483,8 @@ def main(args):
             _find_tile(snapshot, namespace.tile)
         elif namespace.text:
             _find_text(snapshot, namespace.text)
+        elif namespace.call_graph:
+            _call_graph(snapshot, infile[:-4])
         elif namespace.peek:
             _peek(snapshot, namespace.peek)
         elif namespace.word:

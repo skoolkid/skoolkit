@@ -19,12 +19,18 @@ class MockVariableLister:
         return 'VARIABLES DONE!'
 
 class SnapinfoTest(SkoolKitTestCase):
-    def _test_sna(self, ram, exp_output, options='', header=None):
+    def _test_sna(self, ram, exp_output, options='', ctl=None, header=None):
         if header is None:
             header = [0] * 27
         snafile = self.write_bin_file(header + ram, suffix='.sna')
+        if ctl:
+            ctlfile = snafile[:-4] + '.ctl'
+            self.write_text_file(textwrap.dedent(ctl).strip(), ctlfile)
+            exp_error = 'Using control file: {}\n'.format(ctlfile)
+        else:
+            exp_error = ''
         output, error = self.run_snapinfo(' '.join((options, snafile)))
-        self.assertEqual(error, '')
+        self.assertEqual(error, exp_error)
         self.assertEqual(textwrap.dedent(exp_output).strip(), output.rstrip())
 
     def _test_z80(self, exp_output, header=None, ram=None, version=3, compress=False, machine_id=0, pages=None):
@@ -874,6 +880,35 @@ class SnapinfoTest(SkoolKitTestCase):
         self._test_bad_spec('-f', '4,5,6-1-y', exp_error.format('1-y'), False)
         self._test_bad_spec('--find', '7,8,9-z-5', exp_error.format('z-5'), False)
         self._test_bad_spec('-f', '10,11,12-q-?', exp_error.format('q-?'), False)
+
+    def test_option_g_with_no_ctl_file(self):
+        ram = [195, 3, 64, 201] + [0] * 49148
+        exp_output = """
+            digraph {
+            node [shape=record]
+            16384 [label="16384 4000"]
+            }
+        """
+        self._test_sna(ram, exp_output, '-g')
+
+    def test_option_call_graph_with_ctl_file(self):
+        ram = [195, 3, 64, 201] + [0] * 49148
+        ctl = """
+            @ 16384 label=START
+            c 16384
+            @ 16387 label=END
+            c 16387
+            i 16388
+        """
+        exp_output = r"""
+            digraph {
+            node [shape=record]
+            16384 [label="16384 4000\nSTART"]
+            16384 -> {16387}
+            16387 [label="16387 4003\nEND"]
+            }
+        """
+        self._test_sna(ram, exp_output, '--call-graph', ctl)
 
     def test_option_p_with_single_address(self):
         ram = [0] * 49152
