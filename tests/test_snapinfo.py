@@ -1,8 +1,16 @@
-import textwrap
+from textwrap import dedent
 from unittest.mock import patch
 
 from skoolkittest import SkoolKitTestCase
 from skoolkit import SkoolKitError, snapinfo, VERSION
+from skoolkit.config import COMMANDS
+
+def mock_run(*args):
+    global run_args
+    run_args = args
+
+def mock_config(name):
+    return {k: v[0] for k, v in COMMANDS[name].items()}
 
 class MockBasicLister:
     def list_basic(self, snapshot):
@@ -25,13 +33,13 @@ class SnapinfoTest(SkoolKitTestCase):
         snafile = self.write_bin_file(header + ram, suffix='.sna')
         if ctl:
             ctlfile = snafile[:-4] + '.ctl'
-            self.write_text_file(textwrap.dedent(ctl).strip(), ctlfile)
+            self.write_text_file(dedent(ctl).strip(), ctlfile)
             exp_error = 'Using control file: {}\n'.format(ctlfile)
         else:
             exp_error = ''
         output, error = self.run_snapinfo(' '.join((options, snafile)))
         self.assertEqual(error, exp_error)
-        self.assertEqual(textwrap.dedent(exp_output).strip(), output.rstrip())
+        self.assertEqual(dedent(exp_output).strip(), output.rstrip())
 
     def _test_z80(self, exp_output, header=None, ram=None, version=3, compress=False, machine_id=0, pages=None):
         if ram is None:
@@ -39,7 +47,7 @@ class SnapinfoTest(SkoolKitTestCase):
         z80file = self.write_z80_file(header, ram, version, compress, machine_id, pages or {})
         output, error = self.run_snapinfo(z80file)
         self.assertEqual(error, '')
-        self.assertEqual('Z80 file: {}{}'.format(z80file, textwrap.dedent(exp_output)), output)
+        self.assertEqual('Z80 file: {}{}'.format(z80file, dedent(exp_output)), output)
 
     def _test_szx(self, exp_output, registers=None, border=0, ram=None, compress=False, machine_id=1, ch7ffd=0, pages=None):
         if ram is None:
@@ -50,7 +58,7 @@ class SnapinfoTest(SkoolKitTestCase):
         szxfile = self.write_szx(ram, compress, machine_id, ch7ffd, pages, registers, border)
         output, error = self.run_snapinfo(szxfile)
         self.assertEqual(error, '')
-        self.assertEqual(textwrap.dedent(exp_output).lstrip(), output)
+        self.assertEqual(dedent(exp_output).lstrip(), output)
 
     def _test_bad_spec(self, option, bad_spec, exp_error, add_spec=True):
         snafile = self.write_bin_file((0,) * 49179, suffix='.sna')
@@ -65,6 +73,26 @@ class SnapinfoTest(SkoolKitTestCase):
         output, error = self.run_snapinfo(catch_exit=2)
         self.assertEqual(output, '')
         self.assertTrue(error.startswith('usage: snapinfo.py'))
+
+    @patch.object(snapinfo, 'run', mock_run)
+    def test_config_read_from_file(self):
+        ini = """
+            [snapinfo]
+            NodeLabel={label}
+        """
+        self.write_text_file(dedent(ini).strip(), 'skoolkit.ini')
+        snapinfo.main(('test.sna',))
+        snafile, options, config = run_args
+        self.assertEqual(snafile, 'test.sna')
+        self.assertFalse(options.basic)
+        self.assertFalse(options.call_graph)
+        self.assertEqual([], options.params)
+        self.assertIsNone(options.peek)
+        self.assertIsNone(options.text)
+        self.assertIsNone(options.tile)
+        self.assertFalse(options.variables)
+        self.assertIsNone(options.word)
+        self.assertEqual(config['NodeLabel'], '{label}')
 
     def test_invalid_option(self):
         output, error = self.run_snapinfo('-x test.z80', catch_exit=2)
@@ -883,10 +911,10 @@ class SnapinfoTest(SkoolKitTestCase):
 
     def test_option_g_with_no_ctl_file(self):
         ram = [195, 3, 64, 201] + [0] * 49148
-        exp_output = """
+        exp_output = r"""
             digraph {
             node [shape=record]
-            16384 [label="16384 4000"]
+            16384 [label="16384 4000\n"]
             }
         """
         self._test_sna(ram, exp_output, '-g')
@@ -909,6 +937,26 @@ class SnapinfoTest(SkoolKitTestCase):
             }
         """
         self._test_sna(ram, exp_output, '--call-graph', ctl)
+
+    @patch.object(snapinfo, 'run', mock_run)
+    @patch.object(snapinfo, 'get_config', mock_config)
+    def test_option_I(self):
+        self.run_snapinfo('-I NodeLabel={address} test-I.sna')
+        options, config = run_args[1:]
+        self.assertEqual(['NodeLabel={address}'], options.params)
+        self.assertEqual(config['NodeLabel'], '{address}')
+
+    @patch.object(snapinfo, 'run', mock_run)
+    def test_option_I_overrides_config_read_from_file(self):
+        ini = """
+            [snapinfo]
+            NodeLabel={label}
+        """
+        self.write_text_file(dedent(ini).strip(), 'skoolkit.ini')
+        self.run_snapinfo('--ini NodeLabel={address} test.z80')
+        options, config = run_args[1:]
+        self.assertEqual(['NodeLabel={address}'], options.params)
+        self.assertEqual(config['NodeLabel'], '{address}')
 
     def test_option_p_with_single_address(self):
         ram = [0] * 49152
@@ -1132,6 +1180,30 @@ class SnapinfoTest(SkoolKitTestCase):
         self._test_bad_spec('--peek', '32768-32868-q', exp_error)
         self._test_bad_spec('-p', '32768-32868-2-3', exp_error)
 
+    @patch.object(snapinfo, 'get_config', mock_config)
+    def test_option_show_config(self):
+        output, error = self.run_snapinfo('--show-config', catch_exit=0)
+        self.assertEqual(error, '')
+        exp_output = r"""
+            [snapinfo]
+            NodeLabel={address} {address:04X}\n{label}
+        """
+        self.assertEqual(dedent(exp_output).strip(), output.rstrip())
+
+    def test_option_show_config_read_from_file(self):
+        ini = """
+            [snapinfo]
+            NodeLabel={label}
+        """
+        self.write_text_file(dedent(ini).strip(), 'skoolkit.ini')
+        output, error = self.run_snapinfo('--show-config', catch_exit=0)
+        self.assertEqual(error, '')
+        exp_output = """
+            [snapinfo]
+            NodeLabel={label}
+        """
+        self.assertEqual(dedent(exp_output).strip(), output.rstrip())
+
     def test_option_t_with_single_occurrence(self):
         ram = [0] * 49152
         text = 'foo'
@@ -1342,3 +1414,22 @@ class SnapinfoTest(SkoolKitTestCase):
         self._test_bad_spec('-w', '32768-?', exp_error)
         self._test_bad_spec('--word', '32768-32868-q', exp_error)
         self._test_bad_spec('-w', '32768-32868-2-3', exp_error)
+
+    def test_config_NodeLabel(self):
+        ram = [195, 3, 64, 201] + [0] * 49148
+        ctl = """
+            @ 16384 label=START
+            c 16384
+            @ 16387 label=END
+            c 16387
+            i 16388
+        """
+        exp_output = """
+            digraph {
+            node [shape=record]
+            16384 [label="START"]
+            16384 -> {16387}
+            16387 [label="END"]
+            }
+        """
+        self._test_sna(ram, exp_output, '-g -I NodeLabel={label}', ctl)

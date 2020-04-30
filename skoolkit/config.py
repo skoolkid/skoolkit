@@ -1,4 +1,4 @@
-# Copyright 2017-2019 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2017-2020 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -65,6 +65,9 @@ COMMANDS = {
         'Title-t': ('Message at {address}', ''),
         'Title-u': ('Unused', ''),
         'Title-w': ('Data block at {address}', '')
+    },
+    'snapinfo': {
+        'NodeLabel': (r'{address} {address:04X}\n{label}', '')
     },
     'skool2ctl': {
         'Hex': (0, 'write_hex'),

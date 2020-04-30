@@ -5,6 +5,11 @@ Changelog
 -----
 * Added the ``--call-graph`` option to :ref:`snapinfo.py` (for generating a
   call graph in DOT format)
+* Added support to :ref:`snapinfo.py <snapinfo-conf>` for reading configuration
+  from `skoolkit.ini`
+* Added the ``--ini`` and ``--show-config`` options to :ref:`snapinfo.py` (for
+  setting the value of a configuration parameter and for showing all
+  configuration parameter values)
 
 8.1 (2020-03-29)
 ----------------

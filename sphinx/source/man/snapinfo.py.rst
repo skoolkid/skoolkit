@@ -23,13 +23,21 @@ OPTIONS
   `N` (default=1) between bytes. `A`, `B`, etc. and `M` and `N` must each be a
   decimal number, or a hexadecimal number prefixed by '0x'.
 
--c, --call-graph
+-g, --call-graph
   Generate a call graph in DOT format.
+
+-I, --ini `param=value`
+  Set the value of a configuration parameter (see ``CONFIGURATION``),
+  overriding any value found in ``skoolkit.ini``. This option may be used
+  multiple times.
 
 -p, --peek `A[-B[-C]]`
   Show the contents of addresses `A` TO `B` STEP `C`. This option may be used
   multiple times. `A`, `B` and `C` must each be a decimal number, or a
   hexadecimal number prefixed by '0x'.
+
+--show-config
+  Show configuration parameter values.
 
 -t, --find-text `TEXT`
   Search for a text string.
@@ -49,6 +57,28 @@ OPTIONS
   Show the words (2-byte values) at addresses `A` TO `B` STEP `C`. This option
   may be used multiple times. `A`, `B` and `C` must each be a decimal number,
   or a hexadecimal number prefixed by '0x'.
+
+CONFIGURATION
+=============
+``snapinfo.py`` will read configuration from a file named ``skoolkit.ini`` in
+the current working directory or in ``~/.skoolkit``, if present. The recognised
+configuration parameters are:
+
+:NodeLabel: The format of the node labels in a call graph (default:
+  ``{address} {address:04X}\n{label}``). This is a standard Python format
+  string that recognises the replacement fields ``address`` (the entry address)
+  and ``label`` (the label of the first instruction in the entry).
+
+Configuration parameters must appear in a ``[snapinfo]`` section. For example,
+to make ``snapinfo.py`` use upper case hexadecimal addresses for call graph
+node labels by default, add the following section to ``skoolkit.ini``::
+
+  [snapinfo]
+  NodeLabel={address:04X}
+
+Configuration parameters may also be set on the command line by using the
+``--ini`` option. Parameter values set this way will override any found in
+``skoolkit.ini``.
 
 EXAMPLES
 ========

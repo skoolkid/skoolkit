@@ -982,9 +982,12 @@ To list the options supported by `snapinfo.py`, run it with no arguments::
                           Search for the byte sequence A,B... with distance
                           ranging from M to N (default=1) between bytes.
     -g, --call-graph      Generate a call graph in DOT format.
+    -I p=v, --ini p=v     Set the value of the configuration parameter 'p' to
+                          'v'. This option may be used multiple times.
     -p A[-B[-C]], --peek A[-B[-C]]
                           Show the contents of addresses A TO B STEP C. This
                           option may be used multiple times.
+    --show-config         Show configuration parameter values.
     -t TEXT, --find-text TEXT
                           Search for a text string.
     -T X,Y[-M[-N]], --find-tile X,Y[-M[-N]]
@@ -1003,10 +1006,35 @@ the BASIC program and variables (if present), show the contents of a range of
 addresses, search the RAM for a sequence of byte values or a text string, or
 generate a call graph.
 
+.. _snapinfo-conf:
+
+Configuration
+^^^^^^^^^^^^^
+`snapinfo.py` will read configuration from a file named `skoolkit.ini` in the
+current working directory or in `~/.skoolkit`, if present. The recognised
+configuration parameters are:
+
+* ``NodeLabel`` - the format of the node labels in a call graph (default:
+  ``{address} {address:04X}\n{label}``); this is a standard Python format
+  string that recognises the replacement fields ``address`` (the entry address)
+  and ``label`` (the label of the first instruction in the entry)
+
+Configuration parameters must appear in a ``[snapinfo]`` section. For example,
+to make `snapinfo.py` use upper case hexadecimal addresses for call graph node
+labels by default, add the following section to `skoolkit.ini`::
+
+  [snapinfo]
+  NodeLabel={address:04X}
+
+Configuration parameters may also be set on the command line by using the
+``--ini`` option. Parameter values set this way will override any found in
+`skoolkit.ini`.
+
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
-| 8.2     | Added the ``--call-graph`` option                                 |
+| 8.2     | Configuration is read from `skoolkit.ini` if present; added the   |
+|         | ``--call-graph``, ``--ini`` and ``--show-config`` options         |
 +---------+-------------------------------------------------------------------+
 | 6.2     | The ``--find``, ``--find-tile``, ``--peek`` and ``--word``        |
 |         | options accept hexadecimal integers prefixed by '0x'              |

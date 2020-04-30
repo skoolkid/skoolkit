@@ -18,6 +18,7 @@ import argparse
 
 from skoolkit import SkoolKitError, get_dword, get_int_param, get_word, read_bin_file, VERSION
 from skoolkit.basic import BasicLister, VariableLister, get_char
+from skoolkit.config import get_config, show_config, update_options
 from skoolkit.snapshot import get_snapshot
 from skoolkit.sna2skool import get_ctl_parser
 from skoolkit.snaskool import Disassembly
@@ -362,7 +363,7 @@ def _get_address_ranges(specs, step=1):
         addr_ranges.append(values + [values[0], step][len(values) - 1:])
     return addr_ranges
 
-def _call_graph(snapshot, prefix):
+def _call_graph(snapshot, prefix, config):
     disassembly = Disassembly(snapshot, get_ctl_parser([], prefix), True)
     entries = {e.address: (e, set()) for e in disassembly.entries if e.ctl == 'c'}
     for entry, refs in entries.values():
@@ -373,11 +374,8 @@ def _call_graph(snapshot, prefix):
 
     print('digraph {\nnode [shape=record]')
     for entry, refs in entries.values():
-        label = entry.instructions[0].label
-        if label:
-            print('{0} [label="{0} {0:04X}\\n{1}"]'.format(entry.address, label))
-        else:
-            print('{0} [label="{0} {0:04X}"]'.format(entry.address))
+        node_label = config['NodeLabel'].format(address=entry.address, label=entry.instructions[0].label or '')
+        print('{} [label="{}"]'.format(entry.address, node_label))
         if refs:
             print('{} -> {{{}}}'.format(entry.address, ' '.join(str(a) for a in refs)))
     print('}')
@@ -440,7 +438,40 @@ def _word(snapshot, specs):
             value = snapshot[a] + 256 * snapshot[a + 1]
             print('{0:>5} {0:04X}: {1:>5}  {1:04X}'.format(a, value))
 
+def run(infile, options, config):
+    snapshot_type = infile[-4:].lower()
+    if snapshot_type not in ('.sna', '.szx', '.z80'):
+        raise SkoolKitError('Unrecognised snapshot type')
+
+    if any((options.find, options.tile, options.text, options.call_graph, options.peek,
+            options.word, options.basic, options.variables)):
+        snapshot = get_snapshot(infile)
+        if options.find:
+            _find(snapshot, options.find)
+        elif options.tile:
+            _find_tile(snapshot, options.tile)
+        elif options.text:
+            _find_text(snapshot, options.text)
+        elif options.call_graph:
+            _call_graph(snapshot, infile[:-4], config)
+        elif options.peek:
+            _peek(snapshot, options.peek)
+        elif options.word:
+            _word(snapshot, options.word)
+        else:
+            if options.basic:
+                print(BasicLister().list_basic(snapshot))
+            if options.variables:
+                print(VariableLister().list_variables(snapshot))
+    elif snapshot_type == '.sna':
+        _analyse_sna(infile)
+    elif snapshot_type == '.z80':
+        _analyse_z80(infile)
+    else:
+        _analyse_szx(infile)
+
 def main(args):
+    config = get_config('snapinfo')
     parser = argparse.ArgumentParser(
         usage='snapinfo.py [options] file',
         description="Analyse an SNA, SZX or Z80 snapshot.",
@@ -454,8 +485,12 @@ def main(args):
                        help='Search for the byte sequence A,B... with distance ranging from M to N (default=1) between bytes.')
     group.add_argument('-g', '--call-graph', action='store_true',
                        help='Generate a call graph in DOT format.')
+    group.add_argument('-I', '--ini', dest='params', metavar='p=v', action='append', default=[],
+                       help="Set the value of the configuration parameter 'p' to 'v'. This option may be used multiple times.")
     group.add_argument('-p', '--peek', metavar='A[-B[-C]]', action='append',
                        help='Show the contents of addresses A TO B STEP C. This option may be used multiple times.')
+    group.add_argument('--show-config', dest='show_config', action='store_true',
+                       help="Show configuration parameter values.")
     group.add_argument('-t', '--find-text', dest='text', metavar='TEXT',
                        help='Search for a text string.')
     group.add_argument('-T', '--find-tile', dest='tile', metavar='X,Y[-M[-N]]',
@@ -467,36 +502,9 @@ def main(args):
     group.add_argument('-w', '--word', metavar='A[-B[-C]]', action='append',
                        help='Show the words at addresses A TO B STEP C. This option may be used multiple times.')
     namespace, unknown_args = parser.parse_known_args(args)
+    if namespace.show_config:
+        show_config('snapinfo', config)
     if unknown_args or namespace.infile is None:
         parser.exit(2, parser.format_help())
-    infile = namespace.infile
-    snapshot_type = infile[-4:].lower()
-    if snapshot_type not in ('.sna', '.szx', '.z80'):
-        raise SkoolKitError('Unrecognised snapshot type')
-
-    if any((namespace.find, namespace.tile, namespace.text, namespace.call_graph, namespace.peek,
-            namespace.word, namespace.basic, namespace.variables)):
-        snapshot = get_snapshot(infile)
-        if namespace.find:
-            _find(snapshot, namespace.find)
-        elif namespace.tile:
-            _find_tile(snapshot, namespace.tile)
-        elif namespace.text:
-            _find_text(snapshot, namespace.text)
-        elif namespace.call_graph:
-            _call_graph(snapshot, infile[:-4])
-        elif namespace.peek:
-            _peek(snapshot, namespace.peek)
-        elif namespace.word:
-            _word(snapshot, namespace.word)
-        else:
-            if namespace.basic:
-                print(BasicLister().list_basic(snapshot))
-            if namespace.variables:
-                print(VariableLister().list_variables(snapshot))
-    elif snapshot_type == '.sna':
-        _analyse_sna(infile)
-    elif snapshot_type == '.z80':
-        _analyse_z80(infile)
-    else:
-        _analyse_szx(infile)
+    update_options('snapinfo', namespace, namespace.params, config)
+    run(namespace.infile, namespace, config)
