@@ -27,14 +27,17 @@ class MockVariableLister:
         return 'VARIABLES DONE!'
 
 class SnapinfoTest(SkoolKitTestCase):
-    def _test_sna(self, ram, exp_output, options='', ctl=None, header=None):
+    def _test_sna(self, ram, exp_output, options='', ctl=None, ctlfiles=(), header=None):
         if header is None:
             header = [0] * 27
         snafile = self.write_bin_file(header + ram, suffix='.sna')
-        if ctl:
-            ctlfile = snafile[:-4] + '.ctl'
-            self.write_text_file(dedent(ctl).strip(), ctlfile)
-            exp_error = 'Using control file: {}\n'.format(ctlfile)
+        if ctl or ctlfiles:
+            if ctl:
+                ctlfile = self.write_text_file(dedent(ctl).strip(), snafile[:-4] + '.ctl')
+                if not ctlfiles:
+                    ctlfiles = [ctlfile]
+            suffix = 's' if len(ctlfiles) > 1 else ''
+            exp_error = 'Using control file{}: {}\n'.format(suffix, ', '.join(ctlfiles))
         else:
             exp_error = ''
         output, error = self.run_snapinfo(' '.join((options, snafile)))
@@ -828,6 +831,74 @@ class SnapinfoTest(SkoolKitTestCase):
             self.assertEqual(exp_snapshot, mock_variable_lister.snapshot)
             mock_basic_lister.snapshot = None
             mock_variable_lister.snapshot = None
+
+    def test_option_c(self):
+        ram = [201, 195, 0, 64] + [0] * 49148
+        ctl = """
+            @ 16384 label=END
+            c 16384
+            @ 16385 label=START
+            c 16385
+            i 16388
+        """
+        exp_output = r"""
+            digraph {
+            node [shape=record]
+            16384 [label="16384 4000\nEND"]
+            16385 [label="16385 4001\nSTART"]
+            16385 -> {16384}
+            }
+        """
+        ctlfile = self.write_text_file(dedent(ctl).strip(), suffix='.ctl')
+        self._test_sna(ram, exp_output, '-g -c {}'.format(ctlfile), ctlfiles=[ctlfile])
+
+    def test_option_c_overrides_default_ctl_file(self):
+        ram = [24, 0, 24, 252] + [0] * 49148
+        def_ctl = """
+            @ 16384 label=ALL
+            c 16384
+            i 16388
+        """
+        ctl = """
+            @ 16384 label=ONE
+            c 16384
+            @ 16386 label=TWO
+            c 16386
+            i 16388
+        """
+        exp_output = r"""
+            digraph {
+            node [shape=record]
+            16384 [label="16384 4000\nONE"]
+            16384 -> {16386}
+            16386 [label="16386 4002\nTWO"]
+            16386 -> {16384}
+            }
+        """
+        ctlfile = self.write_text_file(dedent(ctl).strip(), suffix='.ctl')
+        self._test_sna(ram, exp_output, '-g --ctl {}'.format(ctlfile), def_ctl, [ctlfile])
+
+    def test_option_c_multiple(self):
+        ram = [201, 195, 0, 64] + [0] * 49148
+        ctl1 = """
+            @ 16384 label=END
+            c 16384
+        """
+        ctl2 = """
+            @ 16385 label=START
+            c 16385
+            i 16388
+        """
+        exp_output = r"""
+            digraph {
+            node [shape=record]
+            16384 [label="16384 4000\nEND"]
+            16385 [label="16385 4001\nSTART"]
+            16385 -> {16384}
+            }
+        """
+        ctlfiles = [self.write_text_file(dedent(c).strip(), suffix='.ctl') for c in (ctl1, ctl2)]
+        self._test_sna(ram, exp_output, '-g -c {} --ctl {}'.format(*ctlfiles), ctlfiles=ctlfiles)
 
     def test_option_f_with_single_byte(self):
         ram = [0] * 49152

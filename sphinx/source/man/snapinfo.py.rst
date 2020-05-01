@@ -18,6 +18,12 @@ OPTIONS
 -b, --basic
   List the BASIC program.
 
+-c, --ctl `FILE`
+  Specify a control file to use when generating a call graph. By default, any
+  files whose names start with the input snapshot name (minus the .sna, .szx
+  or .z80 suffix, if any) and end with .ctl will be used, if present. If `FILE`
+  is '-', standard input is used. This option may be used multiple times.
+
 -f, --find `A[,B...[-M[-N]]]`
   Search for the byte sequence `A`, `B`... with distance ranging from `M` to
   `N` (default=1) between bytes. `A`, `B`, etc. and `M` and `N` must each be a

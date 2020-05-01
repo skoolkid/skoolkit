@@ -978,6 +978,9 @@ To list the options supported by `snapinfo.py`, run it with no arguments::
 
   Options:
     -b, --basic           List the BASIC program.
+    -c FILE, --ctl FILE   Use FILE as a control file when generating a call
+                          graph. FILE may be '-' for standard input. This option
+                          may be used multiple times.
     -f A[,B...[-M[-N]]], --find A[,B...[-M[-N]]]
                           Search for the byte sequence A,B... with distance
                           ranging from M to N (default=1) between bytes.
@@ -1034,7 +1037,8 @@ Configuration parameters may also be set on the command line by using the
 | Version | Changes                                                           |
 +=========+===================================================================+
 | 8.2     | Configuration is read from `skoolkit.ini` if present; added the   |
-|         | ``--call-graph``, ``--ini`` and ``--show-config`` options         |
+|         | ``--call-graph``, ``--ctl``, ``--ini`` and ``--show-config``      |
+|         | options                                                           |
 +---------+-------------------------------------------------------------------+
 | 6.2     | The ``--find``, ``--find-tile``, ``--peek`` and ``--word``        |
 |         | options accept hexadecimal integers prefixed by '0x'              |

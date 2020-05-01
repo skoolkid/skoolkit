@@ -363,8 +363,8 @@ def _get_address_ranges(specs, step=1):
         addr_ranges.append(values + [values[0], step][len(values) - 1:])
     return addr_ranges
 
-def _call_graph(snapshot, prefix, config):
-    disassembly = Disassembly(snapshot, get_ctl_parser([], prefix), True)
+def _call_graph(snapshot, ctlfiles, prefix, config):
+    disassembly = Disassembly(snapshot, get_ctl_parser(ctlfiles, prefix), True)
     entries = {e.address: (e, set()) for e in disassembly.entries if e.ctl == 'c'}
     for entry, refs in entries.values():
         for instruction in entry.instructions:
@@ -453,7 +453,7 @@ def run(infile, options, config):
         elif options.text:
             _find_text(snapshot, options.text)
         elif options.call_graph:
-            _call_graph(snapshot, infile[:-4], config)
+            _call_graph(snapshot, options.ctlfiles, infile[:-4], config)
         elif options.peek:
             _peek(snapshot, options.peek)
         elif options.word:
@@ -481,6 +481,9 @@ def main(args):
     group = parser.add_argument_group('Options')
     group.add_argument('-b', '--basic', action='store_true',
                        help='List the BASIC program.')
+    group.add_argument('-c', '--ctl', dest='ctlfiles', metavar='FILE', action='append', default=[],
+                       help="Use FILE as a control file when generating a call graph. FILE may be '-' for standard input. "
+                            "This option may be used multiple times.")
     group.add_argument('-f', '--find', metavar='A[,B...[-M[-N]]]',
                        help='Search for the byte sequence A,B... with distance ranging from M to N (default=1) between bytes.')
     group.add_argument('-g', '--call-graph', action='store_true',
