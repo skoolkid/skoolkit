@@ -23,7 +23,11 @@ from skoolkit.ctlparser import CtlParser
 from skoolkit.snapshot import make_snapshot
 from skoolkit.snaskool import SkoolWriter
 
-def get_ctl_parser(ctlfiles, prefix, start=16384, end=65536, def_start=16384, def_end=65536):
+def get_ctl_parser(ctlfiles, infile, start, end, def_start, def_end):
+    if infile[-4:].lower() in ('.bin', '.sna', '.szx', '.z80'):
+        prefix = infile[:-4]
+    else:
+        prefix = infile
     if not ctlfiles:
         ctlfiles.extend(sorted(glob.glob(prefix + '*.ctl')))
     if ctlfiles and '0' not in ctlfiles:
@@ -39,13 +43,9 @@ def get_ctl_parser(ctlfiles, prefix, start=16384, end=65536, def_start=16384, de
         ctl_parser = CtlParser({def_start: 'c', def_end: 'i'})
     return ctl_parser
 
-def run(snafile, options, config):
-    snapshot, start, end = make_snapshot(snafile, options.org, options.start, options.end, options.page)
-    if options.snafile[-4:].lower() in ('.bin', '.sna', '.szx', '.z80'):
-        prefix = options.snafile[:-4]
-    else:
-        prefix = options.snafile
-    ctl_parser = get_ctl_parser(options.ctlfiles, prefix, options.start, options.end, start, end)
+def run(infile, options, config):
+    snapshot, start, end = make_snapshot(infile, options.org, options.start, options.end, options.page)
+    ctl_parser = get_ctl_parser(options.ctlfiles, infile, options.start, options.end, start, end)
     writer = SkoolWriter(snapshot, ctl_parser, options, config)
     writer.write_skool(config['ListRefs'], config['Text'])
 

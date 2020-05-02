@@ -965,8 +965,8 @@ Configuration parameters may also be set on the command line by using the
 
 snapinfo.py
 -----------
-`snapinfo.py` shows information on the registers and RAM in a SNA, SZX or Z80
-snapshot. For example::
+`snapinfo.py` shows information on the registers or RAM in a binary (raw
+memory) file or a SNA, SZX or Z80 snapshot. For example::
 
   $ snapinfo.py game.z80
 
@@ -974,7 +974,7 @@ To list the options supported by `snapinfo.py`, run it with no arguments::
 
   usage: snapinfo.py [options] file
 
-  Analyse an SNA, SZX or Z80 snapshot.
+  Analyse a binary (raw memory) file or a SNA, SZX or Z80 snapshot.
 
   Options:
     -b, --basic           List the BASIC program.
@@ -987,6 +987,8 @@ To list the options supported by `snapinfo.py`, run it with no arguments::
     -g, --call-graph      Generate a call graph in DOT format.
     -I p=v, --ini p=v     Set the value of the configuration parameter 'p' to
                           'v'. This option may be used multiple times.
+    -o ADDR, --org ADDR   Specify the origin address of a binary (raw memory)
+                          file (default: 65536 - length).
     -p A[-B[-C]], --peek A[-B[-C]]
                           Show the contents of addresses A TO B STEP C. This
                           option may be used multiple times.
@@ -1037,8 +1039,8 @@ Configuration parameters may also be set on the command line by using the
 | Version | Changes                                                           |
 +=========+===================================================================+
 | 8.2     | Configuration is read from `skoolkit.ini` if present; added the   |
-|         | ``--call-graph``, ``--ctl``, ``--ini`` and ``--show-config``      |
-|         | options                                                           |
+|         | ability to read binary files; added the ``--call-graph``,         |
+|         | ``--ctl``, ``--ini``, ``--org`` and ``--show-config`` options     |
 +---------+-------------------------------------------------------------------+
 | 6.2     | The ``--find``, ``--find-tile``, ``--peek`` and ``--word``        |
 |         | options accept hexadecimal integers prefixed by '0x'              |

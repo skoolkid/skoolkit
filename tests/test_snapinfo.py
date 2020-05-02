@@ -27,13 +27,14 @@ class MockVariableLister:
         return 'VARIABLES DONE!'
 
 class SnapinfoTest(SkoolKitTestCase):
-    def _test_sna(self, ram, exp_output, options='', ctl=None, ctlfiles=(), header=None):
+    def _test_sna(self, ram, exp_output, options='', ctl=None, ctlfiles=(), header=None, suffix='.sna'):
         if header is None:
             header = [0] * 27
-        snafile = self.write_bin_file(header + ram, suffix='.sna')
+        snafile = self.write_bin_file(header + ram, suffix=suffix)
         if ctl or ctlfiles:
             if ctl:
-                ctlfile = self.write_text_file(dedent(ctl).strip(), snafile[:-4] + '.ctl')
+                prefix = snafile[:-4] if suffix in ('.bin', '.sna', '.szx', '.z80') else snafile
+                ctlfile = self.write_text_file(dedent(ctl).strip(), prefix + '.ctl')
                 if not ctlfiles:
                     ctlfiles = [ctlfile]
             suffix = 's' if len(ctlfiles) > 1 else ''
@@ -42,7 +43,7 @@ class SnapinfoTest(SkoolKitTestCase):
             exp_error = ''
         output, error = self.run_snapinfo(' '.join((options, snafile)))
         self.assertEqual(error, exp_error)
-        self.assertEqual(dedent(exp_output).strip(), output.rstrip())
+        self.assertEqual(dedent(exp_output).lstrip('\n').rstrip(), output.rstrip())
 
     def _test_z80(self, exp_output, header=None, ram=None, version=3, compress=False, machine_id=0, pages=None):
         if ram is None:
@@ -62,6 +63,9 @@ class SnapinfoTest(SkoolKitTestCase):
         output, error = self.run_snapinfo(szxfile)
         self.assertEqual(error, '')
         self.assertEqual(dedent(exp_output).lstrip(), output)
+
+    def _test_bin(self, ram, exp_output, options='', ctl=None, suffix='.bin'):
+        self._test_sna(ram, exp_output, options, ctl, header=[], suffix=suffix)
 
     def _test_bad_spec(self, option, bad_spec, exp_error, add_spec=True):
         snafile = self.write_bin_file((0,) * 49179, suffix='.sna')
@@ -101,10 +105,6 @@ class SnapinfoTest(SkoolKitTestCase):
         output, error = self.run_snapinfo('-x test.z80', catch_exit=2)
         self.assertEqual(output, '')
         self.assertTrue(error.startswith('usage: snapinfo.py'))
-
-    def test_unrecognised_snapshot_type(self):
-        with self.assertRaisesRegex(SkoolKitError, 'Unrecognised snapshot type$'):
-            self.run_snapinfo('unknown.snap')
 
     def test_nonexistent_input_file(self):
         infile = '{}/non-existent.z80'.format(self.make_directory())
@@ -793,6 +793,11 @@ class SnapinfoTest(SkoolKitTestCase):
         with self.assertRaisesRegex(SkoolKitError, '{} is not an SZX file$'.format(non_szx)):
             self.run_snapinfo(non_szx)
 
+    def test_raw_memory_file(self):
+        ram = [0]
+        exp_output = ''
+        self._test_bin(ram, exp_output)
+
     @patch.object(snapinfo, 'BasicLister', MockBasicLister)
     def test_option_b(self):
         ram = [127] * 49152
@@ -981,7 +986,7 @@ class SnapinfoTest(SkoolKitTestCase):
         self._test_bad_spec('-f', '10,11,12-q-?', exp_error.format('q-?'), False)
 
     def test_option_g_with_no_ctl_file(self):
-        ram = [195, 3, 64, 201] + [0] * 49148
+        ram = [0] * 49152
         exp_output = r"""
             digraph {
             node [shape=record]
@@ -1009,6 +1014,53 @@ class SnapinfoTest(SkoolKitTestCase):
         """
         self._test_sna(ram, exp_output, '--call-graph', ctl)
 
+    def test_option_g_with_raw_memory_file_and_no_ctl_file(self):
+        ram = [0]
+        exp_output = r"""
+            digraph {
+            node [shape=record]
+            0 [label="0 0000\n"]
+            }
+        """
+        self._test_bin(ram, exp_output, '-g -o 0')
+
+    def test_option_g_with_raw_memory_file_and_ctl_file(self):
+        ram = [195, 3, 0, 201]
+        ctl = """
+            @ 00000 label=START
+            c 00000
+            @ 00003 label=END
+            c 00003
+            i 00004
+        """
+        exp_output = r"""
+            digraph {
+            node [shape=record]
+            0 [label="0 0000\nSTART"]
+            0 -> {3}
+            3 [label="3 0003\nEND"]
+            }
+        """
+        self._test_bin(ram, exp_output, '-g -o 0', ctl)
+
+    def test_option_g_with_ctl_file_for_raw_memory_file_with_nonstandard_suffix(self):
+        ram = [195, 255, 255, 201]
+        ctl = """
+            @ 65532 label=START
+            c 65532
+            @ 65535 label=END
+            c 65535
+        """
+        exp_output = r"""
+            digraph {
+            node [shape=record]
+            65532 [label="65532 FFFC\nSTART"]
+            65532 -> {65535}
+            65535 [label="65535 FFFF\nEND"]
+            }
+        """
+        self._test_bin(ram, exp_output, '-g', ctl, suffix='.ram')
+
     @patch.object(snapinfo, 'run', mock_run)
     @patch.object(snapinfo, 'get_config', mock_config)
     def test_option_I(self):
@@ -1028,6 +1080,12 @@ class SnapinfoTest(SkoolKitTestCase):
         options, config = run_args[1:]
         self.assertEqual(['NodeLabel={address}'], options.params)
         self.assertEqual(config['NodeLabel'], '{address}')
+
+    def test_option_o(self):
+        ram = [0, 47]
+        exp_output = '31759 7C0F:  47  2F  00101111  /'
+        for option in ('-o', '--org'):
+            self._test_bin(ram, exp_output, '{} 31758 -p 31759'.format(option))
 
     def test_option_p_with_single_address(self):
         ram = [0] * 49152
@@ -1101,6 +1159,32 @@ class SnapinfoTest(SkoolKitTestCase):
             '50998 C736:  54  36  00110110  6'
         ))
         self._test_sna(ram, exp_output, ' '.join(options))
+
+    def test_option_p_on_raw_memory_file(self):
+        ram = [64, 65, 66]
+        exp_output = '65534 FFFE:  65  41  01000001  A'
+        self._test_bin(ram, exp_output, '-p 65534')
+
+    def test_option_p_on_raw_memory_file_with_nonstandard_suffix(self):
+        ram = [66, 65, 64]
+        exp_output = '65534 FFFE:  65  41  01000001  A'
+        self._test_bin(ram, exp_output, '-p 65534', suffix='.ram')
+
+    def test_option_p_with_addresses_below_10000(self):
+        ram = [0] * 10001
+        ram[1] = 66
+        ram[11] = 67
+        ram[999] = 68
+        ram[9999] = 69
+        ram[10000] = 70
+        exp_output = """
+                1 0001:  66  42  01000010  B
+               11 000B:  67  43  01000011  C
+              999 03E7:  68  44  01000100  D
+             9999 270F:  69  45  01000101  E
+            10000 2710:  70  46  01000110  F
+        """
+        self._test_bin(ram, exp_output, '-o 0 -p 1 -p 11 -p 999 -p 9999 -p 10000')
 
     def test_option_p_with_udgs(self):
         ram = [0] * 49152
@@ -1478,6 +1562,22 @@ class SnapinfoTest(SkoolKitTestCase):
             56118 DB36: 14043  36DB
         """
         self._test_sna(ram, exp_output, ' '.join(options))
+
+    def test_option_w_with_addresses_below_10000(self):
+        ram = [0] * 10002
+        ram[1:3] = [1, 1]
+        ram[11:13] = [2, 2]
+        ram[999:1001] = [3, 3]
+        ram[9999:10001] = [4, 4]
+        ram[10001:10003] = [5, 5]
+        exp_output = """
+                1 0001:   257  0101
+               11 000B:   514  0202
+              999 03E7:   771  0303
+             9999 270F:  1028  0404
+            10001 2711:  1285  0505
+        """
+        self._test_bin(ram, exp_output, '-o 0 -w 1 -w 11 -w 999 -w 9999 -w 10001')
 
     def test_option_word_with_invalid_address_range(self):
         exp_error = 'Invalid address range'

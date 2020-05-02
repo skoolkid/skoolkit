@@ -16,10 +16,10 @@
 
 import argparse
 
-from skoolkit import SkoolKitError, get_dword, get_int_param, get_word, read_bin_file, VERSION
+from skoolkit import SkoolKitError, get_dword, get_int_param, get_word, integer, read_bin_file, VERSION
 from skoolkit.basic import BasicLister, VariableLister, get_char
 from skoolkit.config import get_config, show_config, update_options
-from skoolkit.snapshot import get_snapshot
+from skoolkit.snapshot import make_snapshot
 from skoolkit.sna2skool import get_ctl_parser
 from skoolkit.snaskool import Disassembly
 
@@ -363,8 +363,8 @@ def _get_address_ranges(specs, step=1):
         addr_ranges.append(values + [values[0], step][len(values) - 1:])
     return addr_ranges
 
-def _call_graph(snapshot, ctlfiles, prefix, config):
-    disassembly = Disassembly(snapshot, get_ctl_parser(ctlfiles, prefix), True)
+def _call_graph(snapshot, ctlfiles, prefix, start, end, config):
+    disassembly = Disassembly(snapshot, get_ctl_parser(ctlfiles, prefix, start, end, start, end), True)
     entries = {e.address: (e, set()) for e in disassembly.entries if e.ctl == 'c'}
     for entry, refs in entries.values():
         for instruction in entry.instructions:
@@ -439,13 +439,9 @@ def _word(snapshot, specs):
             print('{0:>5} {0:04X}: {1:>5}  {1:04X}'.format(a, value))
 
 def run(infile, options, config):
-    snapshot_type = infile[-4:].lower()
-    if snapshot_type not in ('.sna', '.szx', '.z80'):
-        raise SkoolKitError('Unrecognised snapshot type')
-
     if any((options.find, options.tile, options.text, options.call_graph, options.peek,
             options.word, options.basic, options.variables)):
-        snapshot = get_snapshot(infile)
+        snapshot, start, end = make_snapshot(infile, options.org)
         if options.find:
             _find(snapshot, options.find)
         elif options.tile:
@@ -453,7 +449,7 @@ def run(infile, options, config):
         elif options.text:
             _find_text(snapshot, options.text)
         elif options.call_graph:
-            _call_graph(snapshot, options.ctlfiles, infile[:-4], config)
+            _call_graph(snapshot, options.ctlfiles, infile, start, end, config)
         elif options.peek:
             _peek(snapshot, options.peek)
         elif options.word:
@@ -463,18 +459,20 @@ def run(infile, options, config):
                 print(BasicLister().list_basic(snapshot))
             if options.variables:
                 print(VariableLister().list_variables(snapshot))
-    elif snapshot_type == '.sna':
-        _analyse_sna(infile)
-    elif snapshot_type == '.z80':
-        _analyse_z80(infile)
     else:
-        _analyse_szx(infile)
+        snapshot_type = infile[-4:].lower()
+        if snapshot_type == '.sna':
+            _analyse_sna(infile)
+        elif snapshot_type == '.z80':
+            _analyse_z80(infile)
+        elif snapshot_type == '.szx':
+            _analyse_szx(infile)
 
 def main(args):
     config = get_config('snapinfo')
     parser = argparse.ArgumentParser(
         usage='snapinfo.py [options] file',
-        description="Analyse an SNA, SZX or Z80 snapshot.",
+        description="Analyse a binary (raw memory) file or a SNA, SZX or Z80 snapshot.",
         add_help=False
     )
     parser.add_argument('infile', help=argparse.SUPPRESS, nargs='?')
@@ -490,6 +488,8 @@ def main(args):
                        help='Generate a call graph in DOT format.')
     group.add_argument('-I', '--ini', dest='params', metavar='p=v', action='append', default=[],
                        help="Set the value of the configuration parameter 'p' to 'v'. This option may be used multiple times.")
+    group.add_argument('-o', '--org', dest='org', metavar='ADDR', type=integer,
+                       help='Specify the origin address of a binary (raw memory) file (default: 65536 - length).')
     group.add_argument('-p', '--peek', metavar='A[-B[-C]]', action='append',
                        help='Show the contents of addresses A TO B STEP C. This option may be used multiple times.')
     group.add_argument('--show-config', dest='show_config', action='store_true',

@@ -10,8 +10,8 @@ SYNOPSIS
 
 DESCRIPTION
 ===========
-``snapinfo.py`` shows information on the registers and RAM in a SNA, SZX or Z80
-snapshot.
+``snapinfo.py`` shows information on the registers or RAM in a binary (raw
+memory) file or a SNA, SZX or Z80 snapshot.
 
 OPTIONS
 =======
@@ -20,9 +20,10 @@ OPTIONS
 
 -c, --ctl `FILE`
   Specify a control file to use when generating a call graph. By default, any
-  files whose names start with the input snapshot name (minus the .sna, .szx
-  or .z80 suffix, if any) and end with .ctl will be used, if present. If `FILE`
-  is '-', standard input is used. This option may be used multiple times.
+  files whose names start with the input snapshot name (minus
+  the .bin, .sna, .szx or .z80 suffix, if any) and end with .ctl will be used,
+  if present. If `FILE` is '-', standard input is used. This option may be used
+  multiple times.
 
 -f, --find `A[,B...[-M[-N]]]`
   Search for the byte sequence `A`, `B`... with distance ranging from `M` to
@@ -36,6 +37,11 @@ OPTIONS
   Set the value of a configuration parameter (see ``CONFIGURATION``),
   overriding any value found in ``skoolkit.ini``. This option may be used
   multiple times.
+
+-o, --org `ADDR`
+  Specify the origin address of a binary (raw memory) file. The default origin
+  address is 65536 minus the length of the file. `ADDR` must be a decimal
+  number, or a hexadecimal number prefixed by '0x'.
 
 -p, --peek `A[-B[-C]]`
   Show the contents of addresses `A` TO `B` STEP `C`. This option may be used

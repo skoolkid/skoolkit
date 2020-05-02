@@ -7,6 +7,8 @@ Changelog
   call graph in DOT format)
 * Added the ``--ctl`` option to :ref:`snapinfo.py` (for specifying a control
   file to use when generating a call graph)
+* Added the ``--org`` option to :ref:`snapinfo.py` along with the ability to
+  read binary (raw memory) files
 * Added support to :ref:`snapinfo.py <snapinfo-conf>` for reading configuration
   from `skoolkit.ini`
 * Added the ``--ini`` and ``--show-config`` options to :ref:`snapinfo.py` (for
