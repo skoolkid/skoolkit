@@ -68,7 +68,7 @@ COMMANDS = {
     },
     'snapinfo': {
         'NodeAttributes': ('shape=record', ''),
-        'NodeLabel': (r'{address} {address:04X}\n{label}', '')
+        'NodeLabel': (r'"{address} {address:04X}\n{label}"', '')
     },
     'skool2ctl': {
         'Hex': (0, 'write_hex'),

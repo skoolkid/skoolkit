@@ -1044,7 +1044,7 @@ configuration parameters are:
 * ``NodeAttributes`` - the default attributes_ for nodes in a call graph
   (default: ``shape=record``)
 * ``NodeLabel`` - the format of the node labels in a call graph (default:
-  ``{address} {address:04X}\n{label}``); this is a standard Python format
+  ``"{address} {address:04X}\n{label}"``); this is a standard Python format
   string that recognises the replacement fields ``address`` (the entry address)
   and ``label`` (the label of the first instruction in the entry)
 
@@ -1053,7 +1053,7 @@ to make `snapinfo.py` use upper case hexadecimal addresses for call graph node
 labels by default, add the following section to `skoolkit.ini`::
 
   [snapinfo]
-  NodeLabel={address:04X}
+  NodeLabel="{address:04X}"
 
 Configuration parameters may also be set on the command line by using the
 ``--ini`` option. Parameter values set this way will override any found in
