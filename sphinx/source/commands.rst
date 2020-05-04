@@ -1011,6 +1011,28 @@ the BASIC program and variables (if present), show the contents of a range of
 addresses, search the RAM for a sequence of byte values or a text string, or
 generate a call graph.
 
+.. _snapinfo-call-graph:
+
+Call graphs
+^^^^^^^^^^^
+`snapinfo.py` can generate a call graph in `DOT format`_ from a snapshot and a
+corresponding control file. For example, if `game.ctl` is present alongside
+`game.z80`, then::
+
+  $ snapinfo.py -g game.z80 > game.dot
+
+will produce a call graph in `game.dot`, with a node for each routine declared
+in `game.ctl`, and an edge between two nodes whenever the routine represented
+by the first node calls or jumps to the routine represented by the second node.
+
+To create a PNG image file named `game.png` from `game.dot`, the `dot` utility
+(included in Graphviz_) may be used::
+
+  $ dot -Tpng -O game.dot
+
+The appearance of nodes in a call graph image can be configured via the
+``NodeAttributes`` and ``NodeLabel`` configuration parameters (see below).
+
 .. _snapinfo-conf:
 
 Configuration
@@ -1019,6 +1041,8 @@ Configuration
 current working directory or in `~/.skoolkit`, if present. The recognised
 configuration parameters are:
 
+* ``NodeAttributes`` - the default attributes_ for nodes in a call graph
+  (default: ``shape=record``)
 * ``NodeLabel`` - the format of the node labels in a call graph (default:
   ``{address} {address:04X}\n{label}``); this is a standard Python format
   string that recognises the replacement fields ``address`` (the entry address)
@@ -1034,6 +1058,10 @@ labels by default, add the following section to `skoolkit.ini`::
 Configuration parameters may also be set on the command line by using the
 ``--ini`` option. Parameter values set this way will override any found in
 `skoolkit.ini`.
+
+.. _DOT format: https://graphviz.gitlab.io/_pages/doc/info/lang.html
+.. _Graphviz: https://graphviz.gitlab.io/
+.. _attributes: https://graphviz.gitlab.io/_pages/doc/info/attrs.html
 
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |

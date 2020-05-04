@@ -67,6 +67,7 @@ COMMANDS = {
         'Title-w': ('Data block at {address}', '')
     },
     'snapinfo': {
+        'NodeAttributes': ('shape=record', ''),
         'NodeLabel': (r'{address} {address:04X}\n{label}', '')
     },
     'skool2ctl': {

@@ -372,7 +372,9 @@ def _call_graph(snapshot, ctlfiles, prefix, start, end, config):
                 if ref_addr in entries:
                     entries[ref_addr][1].add(entry.address)
 
-    print('digraph {\nnode [shape=record]')
+    print('digraph {')
+    if config['NodeAttributes']:
+        print('node [{}]'.format(config['NodeAttributes']))
     for entry, refs in entries.values():
         node_label = config['NodeLabel'].format(address=entry.address, label=entry.instructions[0].label or '')
         print('{} [label="{}"]'.format(entry.address, node_label))

@@ -85,6 +85,7 @@ class SnapinfoTest(SkoolKitTestCase):
     def test_config_read_from_file(self):
         ini = """
             [snapinfo]
+            NodeAttributes=shape=circle
             NodeLabel={label}
         """
         self.write_text_file(dedent(ini).strip(), 'skoolkit.ini')
@@ -99,6 +100,7 @@ class SnapinfoTest(SkoolKitTestCase):
         self.assertIsNone(options.tile)
         self.assertFalse(options.variables)
         self.assertIsNone(options.word)
+        self.assertEqual(config['NodeAttributes'], 'shape=circle')
         self.assertEqual(config['NodeLabel'], '{label}')
 
     def test_invalid_option(self):
@@ -1081,6 +1083,15 @@ class SnapinfoTest(SkoolKitTestCase):
         self.assertEqual(['NodeLabel={address}'], options.params)
         self.assertEqual(config['NodeLabel'], '{address}')
 
+    @patch.object(snapinfo, 'run', mock_run)
+    @patch.object(snapinfo, 'get_config', mock_config)
+    def test_option_I_multiple(self):
+        self.run_snapinfo('-I NodeLabel={address} -I NodeAttributes=shape=square test-I-multiple.sna')
+        options, config = run_args[1:]
+        self.assertEqual(['NodeLabel={address}', 'NodeAttributes=shape=square'], options.params)
+        self.assertEqual(config['NodeAttributes'], 'shape=square')
+        self.assertEqual(config['NodeLabel'], '{address}')
+
     def test_option_o(self):
         ram = [0, 47]
         exp_output = '31759 7C0F:  47  2F  00101111  /'
@@ -1341,6 +1352,7 @@ class SnapinfoTest(SkoolKitTestCase):
         self.assertEqual(error, '')
         exp_output = r"""
             [snapinfo]
+            NodeAttributes=shape=record
             NodeLabel={address} {address:04X}\n{label}
         """
         self.assertEqual(dedent(exp_output).strip(), output.rstrip())
@@ -1348,6 +1360,7 @@ class SnapinfoTest(SkoolKitTestCase):
     def test_option_show_config_read_from_file(self):
         ini = """
             [snapinfo]
+            NodeAttributes=shape=box
             NodeLabel={label}
         """
         self.write_text_file(dedent(ini).strip(), 'skoolkit.ini')
@@ -1355,6 +1368,7 @@ class SnapinfoTest(SkoolKitTestCase):
         self.assertEqual(error, '')
         exp_output = """
             [snapinfo]
+            NodeAttributes=shape=box
             NodeLabel={label}
         """
         self.assertEqual(dedent(exp_output).strip(), output.rstrip())
@@ -1585,6 +1599,43 @@ class SnapinfoTest(SkoolKitTestCase):
         self._test_bad_spec('-w', '32768-?', exp_error)
         self._test_bad_spec('--word', '32768-32868-q', exp_error)
         self._test_bad_spec('-w', '32768-32868-2-3', exp_error)
+
+    def test_config_NodeAttributes(self):
+        ram = [195, 3, 64, 201] + [0] * 49148
+        ctl = """
+            @ 16384 label=START
+            c 16384
+            @ 16387 label=END
+            c 16387
+            i 16388
+        """
+        exp_output = r"""
+            digraph {
+            node [shape=box]
+            16384 [label="16384 4000\nSTART"]
+            16384 -> {16387}
+            16387 [label="16387 4003\nEND"]
+            }
+        """
+        self._test_sna(ram, exp_output, '-g -I NodeAttributes=shape=box', ctl)
+
+    def test_config_NodeAttributes_blank(self):
+        ram = [195, 3, 64, 201] + [0] * 49148
+        ctl = """
+            @ 16384 label=START
+            c 16384
+            @ 16387 label=END
+            c 16387
+            i 16388
+        """
+        exp_output = r"""
+            digraph {
+            16384 [label="16384 4000\nSTART"]
+            16384 -> {16387}
+            16387 [label="16387 4003\nEND"]
+            }
+        """
+        self._test_sna(ram, exp_output, '-g -I NodeAttributes=', ctl)
 
     def test_config_NodeLabel(self):
         ram = [195, 3, 64, 201] + [0] * 49148

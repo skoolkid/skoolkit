@@ -3,8 +3,8 @@ Changelog
 
 8.2b1
 -----
-* Added the ``--call-graph`` option to :ref:`snapinfo.py` (for generating a
-  call graph in DOT format)
+* Added the ``--call-graph`` option to :ref:`snapinfo.py <snapinfo-call-graph>`
+  (for generating a call graph in DOT format)
 * Added the ``--ctl`` option to :ref:`snapinfo.py` (for specifying a control
   file to use when generating a call graph)
 * Added the ``--org`` option to :ref:`snapinfo.py` along with the ability to
