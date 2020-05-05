@@ -1023,7 +1023,8 @@ corresponding control file. For example, if `game.ctl` is present alongside
 
 will produce a call graph in `game.dot`, with a node for each routine declared
 in `game.ctl`, and an edge between two nodes whenever the routine represented
-by the first node calls or jumps to the routine represented by the second node.
+by the first node calls, jumps to, or continues into the routine represented by
+the second node.
 
 To create a PNG image file named `game.png` from `game.dot`, the `dot` utility
 (included in Graphviz_) may be used::

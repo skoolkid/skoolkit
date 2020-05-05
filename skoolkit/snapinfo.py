@@ -19,6 +19,7 @@ import argparse
 from skoolkit import SkoolKitError, get_dword, get_int_param, get_word, integer, read_bin_file, VERSION
 from skoolkit.basic import BasicLister, VariableLister, get_char
 from skoolkit.config import get_config, show_config, update_options
+from skoolkit.opcodes import END, decode
 from skoolkit.snapshot import make_snapshot
 from skoolkit.sna2skool import get_ctl_parser
 from skoolkit.snaskool import Disassembly
@@ -371,6 +372,11 @@ def _call_graph(snapshot, ctlfiles, prefix, start, end, config):
             for ref_addr in instruction.referrers:
                 if ref_addr in entries:
                     entries[ref_addr][1].add(entry.address)
+        addr, size, mc, op_id, op = next(decode(snapshot, entry.instructions[-1].address, 65536))
+        if op_id != END:
+            next_entry_addr = addr + size
+            if next_entry_addr in entries:
+                refs.add(next_entry_addr)
 
     print('digraph {')
     if config['NodeAttributes']:

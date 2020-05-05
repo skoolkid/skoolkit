@@ -1016,6 +1016,25 @@ class SnapinfoTest(SkoolKitTestCase):
         """
         self._test_sna(ram, exp_output, '--call-graph', ctl)
 
+    def test_option_g_with_one_routine_continuing_into_another(self):
+        ram = [175, 6, 0, 201] + [0] * 49148
+        ctl = """
+            @ 16384 label=START
+            c 16384
+            @ 16387 label=CONTINUE
+            c 16387
+            i 16388
+        """
+        exp_output = r"""
+            digraph {
+            node [shape=record]
+            16384 [label="16384 4000\nSTART"]
+            16384 -> {16387}
+            16387 [label="16387 4003\nCONTINUE"]
+            }
+        """
+        self._test_sna(ram, exp_output, '-g', ctl)
+
     def test_option_g_with_raw_memory_file_and_no_ctl_file(self):
         ram = [0]
         exp_output = r"""
