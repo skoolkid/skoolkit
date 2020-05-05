@@ -1032,8 +1032,8 @@ To create a PNG image file named `game.png` from `game.dot`, the `dot` utility
   $ dot -Tpng -O game.dot
 
 The appearance of nodes and edges in a call graph image can be configured via
-the ``EdgeAttributes``, ``NodeAttributes`` and ``NodeLabel`` configuration
-parameters (see below).
+the ``EdgeAttributes``, ``GraphAttributes``, ``NodeAttributes`` and
+``NodeLabel`` configuration parameters (see below).
 
 .. _snapinfo-conf:
 
@@ -1045,6 +1045,8 @@ configuration parameters are:
 
 * ``EdgeAttributes`` - the default attributes_ for edges in a call graph
   (default: none)
+* ``GraphAttributes`` - the default attributes_ for a call graph (default:
+  none)
 * ``NodeAttributes`` - the default attributes_ for nodes in a call graph
   (default: ``shape=record``)
 * ``NodeLabel`` - the format of the node labels in a call graph (default:
@@ -1053,11 +1055,12 @@ configuration parameters are:
   and ``label`` (the label of the first instruction in the entry)
 
 Configuration parameters must appear in a ``[snapinfo]`` section. For example,
-to make `snapinfo.py` use upper case hexadecimal addresses for call graph node
-labels by default, add the following section to `skoolkit.ini`::
+to make `snapinfo.py` use open arrowheads and a cyan background colour in call
+graphs by default, add the following section to `skoolkit.ini`::
 
   [snapinfo]
-  NodeLabel="{address:04X}"
+  EdgeAttributes=arrowhead=open
+  GraphAttributes=bgcolor=cyan
 
 Configuration parameters may also be set on the command line by using the
 ``--ini`` option. Parameter values set this way will override any found in

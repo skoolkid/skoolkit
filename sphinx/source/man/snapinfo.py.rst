@@ -78,6 +78,7 @@ configuration parameters are:
 
 :EdgeAttributes: The default attributes for edges in a call graph (default:
   none).
+:GraphAttributes: The default attributes for a call graph (default: none).
 :NodeAttributes: The default attributes for nodes in a call graph (default:
   ``shape=record``).
 :NodeLabel: The format of the node labels in a call graph (default:
@@ -86,11 +87,12 @@ configuration parameters are:
   and ``label`` (the label of the first instruction in the entry).
 
 Configuration parameters must appear in a ``[snapinfo]`` section. For example,
-to make ``snapinfo.py`` use upper case hexadecimal addresses for call graph
-node labels by default, add the following section to ``skoolkit.ini``::
+to make ``snapinfo.py`` use open arrowheads and a cyan background colour in
+call graphs by default, add the following section to ``skoolkit.ini``::
 
   [snapinfo]
-  NodeLabel="{address:04X}"
+  EdgeAttributes=arrowhead=open
+  GraphAttributes=bgcolor=cyan
 
 Configuration parameters may also be set on the command line by using the
 ``--ini`` option. Parameter values set this way will override any found in

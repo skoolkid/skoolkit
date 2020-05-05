@@ -379,6 +379,8 @@ def _call_graph(snapshot, ctlfiles, prefix, start, end, config):
                 refs.add(next_entry_addr)
 
     print('digraph {')
+    if config['GraphAttributes']:
+        print('graph [{}]'.format(config['GraphAttributes']))
     if config['NodeAttributes']:
         print('node [{}]'.format(config['NodeAttributes']))
     if config['EdgeAttributes']:

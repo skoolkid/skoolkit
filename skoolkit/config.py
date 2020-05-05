@@ -68,6 +68,7 @@ COMMANDS = {
     },
     'snapinfo': {
         'EdgeAttributes': ('', ''),
+        'GraphAttributes': ('', ''),
         'NodeAttributes': ('shape=record', ''),
         'NodeLabel': (r'"{address} {address:04X}\n{label}"', '')
     },

@@ -1372,6 +1372,7 @@ class SnapinfoTest(SkoolKitTestCase):
         exp_output = r"""
             [snapinfo]
             EdgeAttributes=
+            GraphAttributes=
             NodeAttributes=shape=record
             NodeLabel="{address} {address:04X}\n{label}"
         """
@@ -1389,6 +1390,7 @@ class SnapinfoTest(SkoolKitTestCase):
         exp_output = """
             [snapinfo]
             EdgeAttributes=
+            GraphAttributes=
             NodeAttributes=shape=box
             NodeLabel="{label}"
         """
@@ -1640,6 +1642,26 @@ class SnapinfoTest(SkoolKitTestCase):
             }
         """
         self._test_sna(ram, exp_output, '-g -I EdgeAttributes=arrowhead=open', ctl)
+
+    def test_config_GraphAttributes(self):
+        ram = [24, 0, 201] + [0] * 49149
+        ctl = """
+            @ 16384 label=STARTING
+            c 16384
+            @ 16386 label=DONE
+            c 16386
+            i 16387
+        """
+        exp_output = r"""
+            digraph {
+            graph [bgcolor=bisque]
+            node [shape=record]
+            16384 [label="16384 4000\nSTARTING"]
+            16384 -> {16386}
+            16386 [label="16386 4002\nDONE"]
+            }
+        """
+        self._test_sna(ram, exp_output, '-g -I GraphAttributes=bgcolor=bisque', ctl)
 
     def test_config_NodeAttributes(self):
         ram = [195, 3, 64, 201] + [0] * 49148
