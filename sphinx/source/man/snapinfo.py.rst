@@ -76,6 +76,8 @@ CONFIGURATION
 the current working directory or in ``~/.skoolkit``, if present. The recognised
 configuration parameters are:
 
+:EdgeAttributes: The default attributes for edges in a call graph (default:
+  none).
 :NodeAttributes: The default attributes for nodes in a call graph (default:
   ``shape=record``).
 :NodeLabel: The format of the node labels in a call graph (default:

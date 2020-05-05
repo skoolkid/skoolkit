@@ -1371,6 +1371,7 @@ class SnapinfoTest(SkoolKitTestCase):
         self.assertEqual(error, '')
         exp_output = r"""
             [snapinfo]
+            EdgeAttributes=
             NodeAttributes=shape=record
             NodeLabel="{address} {address:04X}\n{label}"
         """
@@ -1387,6 +1388,7 @@ class SnapinfoTest(SkoolKitTestCase):
         self.assertEqual(error, '')
         exp_output = """
             [snapinfo]
+            EdgeAttributes=
             NodeAttributes=shape=box
             NodeLabel="{label}"
         """
@@ -1618,6 +1620,26 @@ class SnapinfoTest(SkoolKitTestCase):
         self._test_bad_spec('-w', '32768-?', exp_error)
         self._test_bad_spec('--word', '32768-32868-q', exp_error)
         self._test_bad_spec('-w', '32768-32868-2-3', exp_error)
+
+    def test_config_EdgeAttributes(self):
+        ram = [24, 0, 201] + [0] * 49149
+        ctl = """
+            @ 16384 label=STARTING
+            c 16384
+            @ 16386 label=DONE
+            c 16386
+            i 16387
+        """
+        exp_output = r"""
+            digraph {
+            node [shape=record]
+            edge [arrowhead=open]
+            16384 [label="16384 4000\nSTARTING"]
+            16384 -> {16386}
+            16386 [label="16386 4002\nDONE"]
+            }
+        """
+        self._test_sna(ram, exp_output, '-g -I EdgeAttributes=arrowhead=open', ctl)
 
     def test_config_NodeAttributes(self):
         ram = [195, 3, 64, 201] + [0] * 49148

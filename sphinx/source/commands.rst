@@ -1031,8 +1031,9 @@ To create a PNG image file named `game.png` from `game.dot`, the `dot` utility
 
   $ dot -Tpng -O game.dot
 
-The appearance of nodes in a call graph image can be configured via the
-``NodeAttributes`` and ``NodeLabel`` configuration parameters (see below).
+The appearance of nodes and edges in a call graph image can be configured via
+the ``EdgeAttributes``, ``NodeAttributes`` and ``NodeLabel`` configuration
+parameters (see below).
 
 .. _snapinfo-conf:
 
@@ -1042,6 +1043,8 @@ Configuration
 current working directory or in `~/.skoolkit`, if present. The recognised
 configuration parameters are:
 
+* ``EdgeAttributes`` - the default attributes_ for edges in a call graph
+  (default: none)
 * ``NodeAttributes`` - the default attributes_ for nodes in a call graph
   (default: ``shape=record``)
 * ``NodeLabel`` - the format of the node labels in a call graph (default:
