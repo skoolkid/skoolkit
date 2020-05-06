@@ -209,7 +209,30 @@ def analyse_filters(data):
     sorted_filters.sort()
     print(', '.join(str(f) for f in sorted_filters))
 
-def analyse_png(data):
+def _show_data(name, data, width, height, bit_depth, block_len, summary):
+    u_data = decompress(data)
+    if summary:
+        print('\n----- {} data -----'.format(name))
+        print('  Width: {}'.format(width))
+        print('  Height: {}'.format(height))
+        print('  Bit depth: {}'.format(bit_depth))
+        if bit_depth % 8 == 0:
+            colours = set()
+            i = 0
+            while i < len(u_data):
+                value = u_data[i:i + bit_depth // 8]
+                colours.add(tuple(value))
+                i += len(value)
+            print('  Colours: {}'.format(len(colours)))
+    else:
+        print('\n----- {} data (decompressed) -----'.format(name))
+        j = 0
+        while j < len(u_data):
+            blocklet = u_data[j:j + block_len]
+            print('    {}'.format(_byte_str(blocklet)))
+            j += len(blocklet)
+
+def analyse_png(data, summary):
     idat_data = []
     fdat_data = []
     i = 0
@@ -232,8 +255,9 @@ def analyse_png(data):
             width_bytes = chunk_data[:4]
             width = _to_int(width_bytes)
             print('{:5d} {} (width: {})'.format(i, _byte_str(width_bytes), width))
-            height = chunk_data[4:8]
-            print('{:5d} {} (height: {})'.format(i + 4, _byte_str(height), _to_int(height)))
+            height_bytes = chunk_data[4:8]
+            height = _to_int(height_bytes)
+            print('{:5d} {} (height: {})'.format(i + 4, _byte_str(height_bytes), height))
             bit_depth = chunk_data[8]
             print('{:5d} {} (bit depth)'.format(i + 8, bit_depth))
             print('{:5d} {} (colour type)'.format(i + 9, chunk_data[9]))
@@ -262,8 +286,10 @@ def analyse_png(data):
         elif chunk_type == 'fcTL':
             # See https://wiki.mozilla.org/APNG_Specification#.60fcTL.60:_The_Frame_Control_Chunk
             sequence_number = chunk_data[:4]
-            f_width = chunk_data[4:8]
-            f_height = chunk_data[8:12]
+            f_width_bytes = chunk_data[4:8]
+            f_width = _to_int(f_width_bytes)
+            f_height_bytes = chunk_data[8:12]
+            f_height = _to_int(f_height_bytes)
             x_offset = chunk_data[12:16]
             y_offset = chunk_data[16:20]
             delay_num = chunk_data[20:22]
@@ -271,8 +297,8 @@ def analyse_png(data):
             dispose_op = chunk_data[24]
             blend_op = chunk_data[25]
             print('{:5d} {} (sequence_number: {})'.format(i, _byte_str(sequence_number), _to_int(sequence_number)))
-            print('{:5d} {} (width: {})'.format(i + 4, _byte_str(f_width), _to_int(f_width)))
-            print('{:5d} {} (height: {})'.format(i + 8, _byte_str(f_height), _to_int(f_height)))
+            print('{:5d} {} (width: {})'.format(i + 4, _byte_str(f_width_bytes), f_width))
+            print('{:5d} {} (height: {})'.format(i + 8, _byte_str(f_height_bytes), f_height))
             print('{:5d} {} (x_offset: {})'.format(i + 12, _byte_str(x_offset), _to_int(x_offset)))
             print('{:5d} {} (y_offset: {})'.format(i + 16, _byte_str(y_offset), _to_int(y_offset)))
             print('{:5d} {} (delay_num: {})'.format(i + 20, _byte_str(delay_num), _to_int(delay_num)))
@@ -296,11 +322,15 @@ def analyse_png(data):
             i += 2
             compressed_data = chunk_data[2:-4]
             j = 0
-            while j < len(compressed_data):
-                chunklet = compressed_data[j:j + 8]
-                print('{:5d} {} (deflated chunk data)'.format(i, _byte_str(chunklet)))
-                i += len(chunklet)
-                j += len(chunklet)
+            if summary:
+                print('{:5d} (deflated chunk data: {} bytes)'.format(i, len(compressed_data)))
+                i += len(compressed_data)
+            else:
+                while j < len(compressed_data):
+                    chunklet = compressed_data[j:j + 8]
+                    print('{:5d} {} (deflated chunk data)'.format(i, _byte_str(chunklet)))
+                    i += len(chunklet)
+                    j += len(chunklet)
             zlib_crc = chunk_data[-4:]
             print('{:5d} {} (zlib CRC)'.format(i, _byte_str(zlib_crc)))
             i += 4
@@ -323,22 +353,9 @@ def analyse_png(data):
         scanline_len = 2 + width // 8 if width & 7 else 1 + width // 8
     block_len = min(16, scanline_len)
 
-    u_data = decompress(idat_data)
-    print('\n----- IDAT data (decompressed) -----')
-    j = 0
-    while j < len(u_data):
-        blocklet = u_data[j:j + block_len]
-        print('    {}'.format(_byte_str(blocklet)))
-        j += len(blocklet)
-
+    _show_data('IDAT', idat_data, width, height, bit_depth, block_len, summary)
     if fdat_data:
-        u_data = decompress(fdat_data)
-        print('\n----- fdAT data (decompressed) -----')
-        j = 0
-        while j < len(u_data):
-            blocklet = u_data[j:j + block_len]
-            print('    {}'.format(_byte_str(blocklet)))
-            j += len(blocklet)
+        _show_data('fDAT', fdat_data, f_width, f_height, bit_depth, block_len, summary)
 
 def dump_png(data):
     width, height, pixels = _get_png_info(data)
@@ -365,6 +382,8 @@ group.add_argument('--dump', action='store_true',
                    help="Dump image info and pixel values")
 group.add_argument('-f', dest='show_filters', action='store_true',
                    help="Show the filter types used in the image data")
+group.add_argument('-s', dest='summary', action='store_true',
+                   help="Hide IDAT/fDAT data and show a summary instead")
 namespace, unknown_args = parser.parse_known_args()
 if unknown_args or len(namespace.args) != (2 if namespace.show_diff else 1):
     parser.exit(2, parser.format_help())
@@ -382,6 +401,6 @@ try:
     elif namespace.dump:
         dump_png(file_data[0])
     else:
-        analyse_png(file_data[0])
+        analyse_png(file_data[0], namespace.summary)
 except PNGError as e:
     sys.stderr.write('ERROR: {}\n'.format(e.args[0]))
