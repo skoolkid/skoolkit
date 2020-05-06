@@ -70,6 +70,7 @@ COMMANDS = {
         'EdgeAttributes': ('', ''),
         'GraphAttributes': ('', ''),
         'NodeAttributes': ('shape=record', ''),
+        'NodeId': ('{address}', ''),
         'NodeLabel': (r'"{address} {address:04X}\n{label}"', '')
     },
     'skool2ctl': {

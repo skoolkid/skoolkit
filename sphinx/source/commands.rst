@@ -1029,7 +1029,7 @@ the second node.
 To create a PNG image file named `game.png` from `game.dot`, the `dot` utility
 (included in Graphviz_) may be used::
 
-  $ dot -Tpng -O game.dot
+  $ dot -Tpng game.dot > game.png
 
 The appearance of nodes and edges in a call graph image can be configured via
 the ``EdgeAttributes``, ``GraphAttributes``, ``NodeAttributes`` and
@@ -1049,10 +1049,14 @@ configuration parameters are:
   none)
 * ``NodeAttributes`` - the default attributes_ for nodes in a call graph
   (default: ``shape=record``)
+* ``NodeId`` - the format of the node IDs in a call graph (default:
+  ``{address}``)
 * ``NodeLabel`` - the format of the node labels in a call graph (default:
-  ``"{address} {address:04X}\n{label}"``); this is a standard Python format
-  string that recognises the replacement fields ``address`` (the entry address)
-  and ``label`` (the label of the first instruction in the entry)
+  ``"{address} {address:04X}\n{label}"``)
+
+``NodeId`` and ``NodeLabel`` are standard Python format strings that recognise
+the replacement fields ``address`` and ``label`` (the address and label of the
+first instruction in the routine represented by the node).
 
 Configuration parameters must appear in a ``[snapinfo]`` section. For example,
 to make `snapinfo.py` use open arrowheads and a cyan background colour in call

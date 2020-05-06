@@ -1374,6 +1374,7 @@ class SnapinfoTest(SkoolKitTestCase):
             EdgeAttributes=
             GraphAttributes=
             NodeAttributes=shape=record
+            NodeId={address}
             NodeLabel="{address} {address:04X}\n{label}"
         """
         self.assertEqual(dedent(exp_output).strip(), output.rstrip())
@@ -1392,6 +1393,7 @@ class SnapinfoTest(SkoolKitTestCase):
             EdgeAttributes=
             GraphAttributes=
             NodeAttributes=shape=box
+            NodeId={address}
             NodeLabel="{label}"
         """
         self.assertEqual(dedent(exp_output).strip(), output.rstrip())
@@ -1699,6 +1701,25 @@ class SnapinfoTest(SkoolKitTestCase):
             }
         """
         self._test_sna(ram, exp_output, '-g -I NodeAttributes=', ctl)
+
+    def test_config_NodeId(self):
+        ram = [195, 3, 64, 201] + [0] * 49148
+        ctl = """
+            @ 16384 label=START
+            c 16384
+            @ 16387 label=END
+            c 16387
+            i 16388
+        """
+        exp_output = r"""
+            digraph {
+            node [shape=record]
+            START [label="16384 4000\nSTART"]
+            START -> {END}
+            END [label="16387 4003\nEND"]
+            }
+        """
+        self._test_sna(ram, exp_output, '-g -I NodeId={label}', ctl)
 
     def test_config_NodeLabel(self):
         ram = [195, 3, 64, 201] + [0] * 49148

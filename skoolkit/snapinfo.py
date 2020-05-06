@@ -386,10 +386,12 @@ def _call_graph(snapshot, ctlfiles, prefix, start, end, config):
     if config['EdgeAttributes']:
         print('edge [{}]'.format(config['EdgeAttributes']))
     for entry, refs in entries.values():
-        node_label = config['NodeLabel'].format(address=entry.address, label=entry.instructions[0].label or '')
-        print('{} [label={}]'.format(entry.address, node_label))
+        node_props = {'address': entry.address, 'label': entry.instructions[0].label or ''}
+        node_id = config['NodeId'].format(**node_props)
+        print('{} [label={}]'.format(node_id, config['NodeLabel'].format(**node_props)))
         if refs:
-            print('{} -> {{{}}}'.format(entry.address, ' '.join(str(a) for a in refs)))
+            ref_ids = [config['NodeId'].format(address=a, label=entries[a][0].instructions[0].label or '') for a in refs]
+            print('{} -> {{{}}}'.format(node_id, ' '.join(ref_ids)))
     print('}')
 
 def _find(snapshot, byte_seq, base_addr=16384):

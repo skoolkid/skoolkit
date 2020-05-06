@@ -81,10 +81,13 @@ configuration parameters are:
 :GraphAttributes: The default attributes for a call graph (default: none).
 :NodeAttributes: The default attributes for nodes in a call graph (default:
   ``shape=record``).
+:NodeId: The format of the node IDs in a call graph (default: ``{address}``).
 :NodeLabel: The format of the node labels in a call graph (default:
-  ``"{address} {address:04X}\n{label}"``). This is a standard Python format
-  string that recognises the replacement fields ``address`` (the entry address)
-  and ``label`` (the label of the first instruction in the entry).
+  ``"{address} {address:04X}\n{label}"``).
+
+``NodeId`` and ``NodeLabel`` are standard Python format strings that recognise
+the replacement fields ``address`` and ``label`` (the address and label of the
+first instruction in the routine represented by the node).
 
 Configuration parameters must appear in a ``[snapinfo]`` section. For example,
 to make ``snapinfo.py`` use open arrowheads and a cyan background colour in
