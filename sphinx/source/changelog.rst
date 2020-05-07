@@ -14,6 +14,8 @@ Changelog
 * Added the ``--ini`` and ``--show-config`` options to :ref:`snapinfo.py` (for
   setting the value of a configuration parameter and for showing all
   configuration parameter values)
+* Added the ``--page`` option to :ref:`snapinfo.py` (for specifying the page of
+  a 128K snapshot to map to 49152-65535)
 
 8.1 (2020-03-29)
 ----------------

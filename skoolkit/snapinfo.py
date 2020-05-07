@@ -455,7 +455,7 @@ def _word(snapshot, specs):
 def run(infile, options, config):
     if any((options.find, options.tile, options.text, options.call_graph, options.peek,
             options.word, options.basic, options.variables)):
-        snapshot, start, end = make_snapshot(infile, options.org)
+        snapshot, start, end = make_snapshot(infile, options.org, page=options.page)
         if options.find:
             _find(snapshot, options.find)
         elif options.tile:
@@ -506,6 +506,8 @@ def main(args):
                        help='Specify the origin address of a binary (raw memory) file (default: 65536 - length).')
     group.add_argument('-p', '--peek', metavar='A[-B[-C]]', action='append',
                        help='Show the contents of addresses A TO B STEP C. This option may be used multiple times.')
+    group.add_argument('-P', '--page', dest='page', metavar='PAGE', type=int, choices=list(range(8)),
+                       help='Specify the page (0-7) of a 128K snapshot to map to 49152-65535.')
     group.add_argument('--show-config', dest='show_config', action='store_true',
                        help="Show configuration parameter values.")
     group.add_argument('-t', '--find-text', dest='text', metavar='TEXT',

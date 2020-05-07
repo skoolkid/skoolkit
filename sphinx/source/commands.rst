@@ -992,6 +992,8 @@ To list the options supported by `snapinfo.py`, run it with no arguments::
     -p A[-B[-C]], --peek A[-B[-C]]
                           Show the contents of addresses A TO B STEP C. This
                           option may be used multiple times.
+    -P PAGE, --page PAGE  Specify the page (0-7) of a 128K snapshot to map to
+                          49152-65535.
     --show-config         Show configuration parameter values.
     -t TEXT, --find-text TEXT
                           Search for a text string.
@@ -1079,7 +1081,8 @@ Configuration parameters may also be set on the command line by using the
 +=========+===================================================================+
 | 8.2     | Configuration is read from `skoolkit.ini` if present; added the   |
 |         | ability to read binary files; added the ``--call-graph``,         |
-|         | ``--ctl``, ``--ini``, ``--org`` and ``--show-config`` options     |
+|         | ``--ctl``, ``--ini``, ``--org``, ``--page`` and ``--show-config`` |
+|         | options                                                           |
 +---------+-------------------------------------------------------------------+
 | 6.2     | The ``--find``, ``--find-tile``, ``--peek`` and ``--word``        |
 |         | options accept hexadecimal integers prefixed by '0x'              |

@@ -1365,6 +1365,16 @@ class SnapinfoTest(SkoolKitTestCase):
         self._test_bad_spec('--peek', '32768-32868-q', exp_error)
         self._test_bad_spec('-p', '32768-32868-2-3', exp_error)
 
+    def test_option_P(self):
+        ram = [0] * 49152
+        header2 = [0] * 4
+        header2[2] = 1            # Port 0x7ffd (page mapped to 49152-65535)
+        banks = [0] * (5 * 16384) # Banks 0, 3, 4, 6, 7
+        banks[-1] = 255           # Last byte of bank 7
+        exp_output = "65535 FFFF: 255  FF  11111111  COPY"
+        for option in ('-P', '--page'):
+            self._test_sna(ram + header2 + banks, exp_output, '{} 7 -p 65535'.format(option))
+
     @patch.object(snapinfo, 'get_config', mock_config)
     def test_option_show_config(self):
         output, error = self.run_snapinfo('--show-config', catch_exit=0)

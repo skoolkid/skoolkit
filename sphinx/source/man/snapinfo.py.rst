@@ -48,6 +48,9 @@ OPTIONS
   multiple times. `A`, `B` and `C` must each be a decimal number, or a
   hexadecimal number prefixed by '0x'.
 
+-P, --page `PAGE`
+  Specify the page (0-7) of a 128K snapshot to map to 49152-65535.
+
 --show-config
   Show configuration parameter values.
 
