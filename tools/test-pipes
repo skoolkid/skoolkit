@@ -43,6 +43,12 @@ test_sna2skool_ctl() {
   diff -u <(echo "t 65534" | ./sna2skool.py --ctl - <(echo -n Hi) 2> /dev/null) <(echo -e '; Message at 65534\nt65534 DEFM "Hi"')
 }
 
+test_snapinfo_ctl() {
+  echo -n "Testing snapinfo.py --ctl..."
+  dot="digraph {\nnode [shape=record]\n65535 [label=\"65535 FFFF\\\nDONE\"]\n}"
+  diff -u <(echo -e "@ 65535 label=DONE\nc 65535" | ./snapinfo.py --ctl - -g <(echo -n A) 2> /dev/null) <(echo -e "$dot")
+}
+
 test_skool2asm() {
   echo -n "Testing skool2asm.py..."
   diff -u <(skool | ./skool2asm.py - 2>/dev/null) <(echo -e "; Routine\n  SCF\n")
@@ -67,7 +73,7 @@ test_skool2html() {
 }
 
 cwd=$(pwd)
-for t in test_{bin2{sna,tap},sna2{ctl,skool{,_ctl}},skool2{asm,bin,ctl,html}}; do
+for t in test_{bin2{sna,tap},skool2{asm,bin,ctl,html},sna2{ctl,skool{,_ctl}},snapinfo_ctl}; do
   cd $cwd
   $t && echo "OK" || echo "FAILED"
 done
