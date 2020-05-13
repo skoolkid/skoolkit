@@ -984,9 +984,9 @@ class HtmlWriter:
 
     def expand_font(self, text, index, cwd):
         end, crop_rect, fname, frame, alt, params = skoolmacro.parse_font(text, index)
-        message, addr, chars, attr, scale = params
+        message, addr, chars, attr, scale, tindex = params
         udgs = lambda: font_udgs(self.snapshot, addr, attr, unescape(message)[:chars])
-        frame = Frame(udgs, scale, 0, *crop_rect, name=frame)
+        frame = Frame(udgs, scale, 0, *crop_rect, name=frame, tindex=tindex)
         return end, self.handle_image(frame, fname, cwd, alt, 'FontImagePath')
 
     def expand_html(self, text, index, cwd):

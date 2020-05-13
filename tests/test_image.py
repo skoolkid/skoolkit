@@ -108,8 +108,8 @@ class ImageWriterTest:
     def _get_dword(self, stream, index):
         return index + 4, 16777216 * stream[index] + 65536 * stream[index + 1] + 256 * stream[index + 2] + stream[index + 3]
 
-    def _get_image_data(self, image_writer, udg_array, scale=1, mask=0, x=0, y=0, width=None, height=None):
-        frame = Frame(udg_array, scale, mask, x, y, width, height)
+    def _get_image_data(self, image_writer, udg_array, scale=1, mask=0, tindex=0, x=0, y=0, width=None, height=None):
+        frame = Frame(udg_array, scale, mask, x, y, width, height, tindex=tindex)
         img_stream = BytesIO()
         image_writer.write_image([frame], img_stream)
         img_bytes = [b for b in img_stream.getvalue()]
@@ -123,7 +123,7 @@ class ImageWriterTest:
         img_stream.close()
         return img_bytes
 
-    def _get_pixels_from_udg_array(self, udg_array, scale, mask, x0=0, y0=0, width=None, height=None):
+    def _get_pixels_from_udg_array(self, udg_array, scale, mask, tindex, x0=0, y0=0, width=None, height=None):
         full_width = 8 * len(udg_array[0]) * scale
         full_height = 8 * len(udg_array) * scale
         width = min(width or full_width, full_width - x0)
@@ -249,13 +249,20 @@ class ImageWriterTest:
             pixels2 = frame2_xy = None
 
         masks = has_masks + all_masked
-        return palette, masks, pixels, pixels2, frame2_xy
+        has_tindex = PALETTE[tindex] in palette
+        if PALETTE[0] in palette:
+            palette.remove(PALETTE[0])
+            palette.insert(0, PALETTE[0])
+        elif has_tindex:
+            palette.remove(PALETTE[tindex])
+            palette.insert(0, PALETTE[tindex])
+        return palette, masks, has_tindex, pixels, pixels2, frame2_xy
 
-    def _test_scales(self, udg_array, scales=(1, 2, 3, 4), mask=0, x=0, y=0, width=None, height=None, iw_args=None, exp_pixels=None):
+    def _test_scales(self, udg_array, scales=(1, 2, 3, 4), mask=0, tindex=0, x=0, y=0, width=None, height=None, iw_args=None, exp_pixels=None):
         for scale in scales:
             s_w = len(udg_array[0]) * 8 * (scale - 1) + width if width is not None else None
             s_h = len(udg_array) * 8 * (scale - 1) + height if height is not None else None
-            self._test_image(udg_array, scale, mask, x, y, s_w, s_h, iw_args, exp_pixels)
+            self._test_image(udg_array, scale, mask, tindex, x, y, s_w, s_h, iw_args, exp_pixels)
 
     ###########################################################################
 
@@ -761,6 +768,27 @@ class ImageWriterTest:
         udg_array = [[udg]]
         self._test_image(udg_array, iw_args=iw_args)
 
+    def test_alternative_transparent_colour_paper(self):
+        # White (PAPER) as transparent colour
+        iw_args = {'options': self.alpha_option}
+        udg = Udg(56, (15,) * 8)
+        udg_array = [[udg]]
+        self._test_image(udg_array, tindex=8, iw_args=iw_args)
+
+    def test_alternative_transparent_colour_ink(self):
+        # Black (INK) as transparent colour
+        iw_args = {'options': self.alpha_option}
+        udg = Udg(56, (15,) * 8)
+        udg_array = [[udg]]
+        self._test_image(udg_array, tindex=1, iw_args=iw_args)
+
+    def test_alternative_transparent_colour_overridden_by_mask(self):
+        # White (PAPER) as transparent colour, overridden by mask
+        iw_args = {'options': self.alpha_option}
+        udg = Udg(56, (15,) * 8, (207,) * 8)
+        udg_array = [[udg]]
+        self._test_image(udg_array, mask=1, tindex=8, iw_args=iw_args)
+
     def test_custom_colours(self):
         # Two custom colours
         indigo = [75, 0, 130]
@@ -802,6 +830,31 @@ class ImageWriterTest:
         frame3 = Frame([[Udg(1, (0,) * 8)]])
         frames = [frame1, frame2, frame3]
         self._test_animated_image(frames)
+
+    def test_animation_with_alternative_transparent_colour_on_first_frame_only(self):
+        # White (PAPER) as transparent colour on first frame
+        iw_args = {'options': self.alpha_option}
+        frame1 = Frame([[Udg(56, (15,) * 8)]], tindex=8)
+        frame2 = Frame([[Udg(1, (15,) * 8)]])
+        frames = [frame1, frame2]
+        self._test_animated_image(frames, iw_args)
+
+    def test_animation_with_alternative_transparent_colour_on_second_frame_only(self):
+        # Yellow (PAPER) as transparent colour on second frame
+        iw_args = {'options': self.alpha_option}
+        frame1 = Frame([[Udg(56, (15,) * 8)]], tindex=7)
+        frame2 = Frame([[Udg(48, (15,) * 8)]])
+        frames = [frame1, frame2]
+        self._test_animated_image(frames, iw_args)
+
+    def test_animation_with_alternative_transparent_colour_overridden_by_mask(self):
+        # White (PAPER) as transparent colour on first frame, overridden by
+        # mask on second frame
+        iw_args = {'options': self.alpha_option}
+        frame1 = Frame([[Udg(56, (15,) * 8)]], tindex=8)
+        frame2 = Frame([[Udg(56, (15,) * 8, (207,) * 8)]], mask=1)
+        frames = [frame1, frame2]
+        self._test_animated_image(frames, iw_args)
 
 class PngWriterTest(SkoolKitTestCase, ImageWriterTest):
     def setUp(self):
@@ -852,7 +905,7 @@ class PngWriterTest(SkoolKitTestCase, ImageWriterTest):
         self.assertEqual(ihdr_crc, self._get_crc(img_bytes[ihdr_start:ihdr_end]))
         return i
 
-    def _check_plte(self, img_bytes, index, exp_palette):
+    def _check_plte(self, img_bytes, index, exp_palette, has_trans):
         i = index
         i, chunk_length = self._get_dword(img_bytes, i)
         self.assertEqual(chunk_length, len(exp_palette) * 3)
@@ -861,7 +914,11 @@ class PngWriterTest(SkoolKitTestCase, ImageWriterTest):
         self.assertEqual(PLTE, chunk_type)
         palette = [img_bytes[j:j + 3] for j in range(i, i + chunk_length, 3)]
         i += chunk_length
-        self.assertEqual(sorted(exp_palette), sorted(palette))
+        if has_trans:
+            self.assertEqual(exp_palette[0], palette[0])
+            self.assertEqual(sorted(exp_palette[1:]), sorted(palette[1:]))
+        else:
+            self.assertEqual(sorted(exp_palette), sorted(palette))
         plte_end = i
         i, plte_crc = self._get_dword(img_bytes, i)
         self.assertEqual(plte_crc, self._get_crc(img_bytes[plte_start:plte_end]))
@@ -993,17 +1050,18 @@ class PngWriterTest(SkoolKitTestCase, ImageWriterTest):
         self.assertEqual(idat_crc, self._get_crc(img_bytes[idat_start:idat_end]))
         return i
 
-    def _test_image(self, udg_array, scale=1, mask=0, x=0, y=0, width=None, height=None, iw_args=None, exp_pixels=None):
+    def _test_image(self, udg_array, scale=1, mask=0, tindex=0, x=0, y=0, width=None, height=None, iw_args=None, exp_pixels=None):
         image_writer = ImageWriter(**(iw_args or {}))
-        img_bytes = self._get_image_data(image_writer, udg_array, scale, mask, x, y, width, height)
+        img_bytes = self._get_image_data(image_writer, udg_array, scale, mask, tindex, x, y, width, height)
 
         exp_pixels2 = None
         if exp_pixels is None:
-            exp_palette, has_trans, exp_pixels, exp_pixels2, frame2_xy = self._get_pixels_from_udg_array(udg_array, scale, mask, x, y, width, height)
+            exp_palette, has_trans, has_tindex, exp_pixels, exp_pixels2, frame2_xy = self._get_pixels_from_udg_array(udg_array, scale, mask, tindex, x, y, width, height)
             if not image_writer.options[PNG_ENABLE_ANIMATION]:
                 exp_pixels2 = None
         else:
             exp_palette = []
+            has_trans = has_tindex = False
             for row in exp_pixels:
                 for pixel in row:
                     if pixel not in exp_palette:
@@ -1025,11 +1083,11 @@ class PngWriterTest(SkoolKitTestCase, ImageWriterTest):
         i = self._check_ihdr(img_bytes, i, exp_width, exp_height, exp_bit_depth)
 
         # PLTE
-        i, palette = self._check_plte(img_bytes, i, exp_palette)
+        i, palette = self._check_plte(img_bytes, i, exp_palette, has_trans or has_tindex)
 
         # tRNS
         alpha = image_writer.options[PNG_ALPHA]
-        if alpha < 255 and has_trans:
+        if alpha < 255 and (has_trans or has_tindex):
             i = self._check_trns(img_bytes, i, alpha)
 
         # acTL and fcTL
@@ -1058,14 +1116,23 @@ class PngWriterTest(SkoolKitTestCase, ImageWriterTest):
         exp_palette = []
         frame_data = []
         has_trans = 0
+        has_tindex = False
+        exp_tindex = frames[0].tindex
         for frame in frames:
             x, y, width, height = frame.x, frame.y, frame.width, frame.height
-            frame_palette, f_has_trans, pixels, pixels2, frame2_xy = self._get_pixels_from_udg_array(frame.udgs, frame.scale, frame.mask, x, y, width, height)
+            frame_palette, f_has_trans, f_has_tindex, pixels, pixels2, frame2_xy = self._get_pixels_from_udg_array(frame.udgs, frame.scale, frame.mask, exp_tindex, x, y, width, height)
             has_trans = has_trans or f_has_trans
+            has_tindex = has_tindex or f_has_tindex
             frame_data.append((width, height, pixels, frame.delay))
             for c in frame_palette:
                 if c not in exp_palette:
                     exp_palette.append(c)
+        if has_trans:
+            exp_palette.remove(PALETTE[0])
+            exp_palette.insert(0, PALETTE[0])
+        elif exp_tindex:
+            exp_palette.remove(PALETTE[exp_tindex])
+            exp_palette.insert(0, PALETTE[exp_tindex])
 
         palette_size = len(exp_palette)
         if palette_size > 4:
@@ -1083,11 +1150,11 @@ class PngWriterTest(SkoolKitTestCase, ImageWriterTest):
         i = self._check_ihdr(img_bytes, i, exp_width, exp_height, exp_bit_depth)
 
         # PLTE
-        i, palette = self._check_plte(img_bytes, i, exp_palette)
+        i, palette = self._check_plte(img_bytes, i, exp_palette, has_trans or has_tindex)
 
         # tRNS
         alpha = image_writer.options[PNG_ALPHA]
-        if alpha < 255 and has_trans:
+        if alpha < 255 and (has_trans or has_tindex):
             i = self._check_trns(img_bytes, i, alpha)
 
         # acTL

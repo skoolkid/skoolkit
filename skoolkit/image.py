@@ -1,4 +1,4 @@
-# Copyright 2012-2015, 2017, 2019 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2012-2015, 2017, 2019, 2020 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -80,11 +80,11 @@ class ImageWriter:
             colours.update(frame.colours)
             attrs.update(frame.attrs)
             has_trans = has_trans or frame.has_trans
-        palette, attr_map = self._get_palette(colours, attrs, has_trans)
+        palette, attr_map, has_trans = self._get_palette(colours, attrs, has_trans, frames[0].tindex)
         self.writer.write_image(frames, img_file, palette, attr_map, has_trans, frames[0].flash_rect)
 
     def _get_default_palette(self):
-        return  {
+        return {
             TRANSPARENT: (0, 254, 0),
             BLACK: (0, 0, 0),
             BLUE: (0, 0, 197),
@@ -111,24 +111,24 @@ class ImageWriter:
         }
 
     def _create_colours(self, palette):
-        colours = []
-        colours.append(palette[TRANSPARENT])
-        colours.append(palette[BLACK])
-        colours.append(palette[BLUE])
-        colours.append(palette[RED])
-        colours.append(palette[MAGENTA])
-        colours.append(palette[GREEN])
-        colours.append(palette[CYAN])
-        colours.append(palette[YELLOW])
-        colours.append(palette[WHITE])
-        colours.append(palette[BRIGHT_BLUE])
-        colours.append(palette[BRIGHT_RED])
-        colours.append(palette[BRIGHT_MAGENTA])
-        colours.append(palette[BRIGHT_GREEN])
-        colours.append(palette[BRIGHT_CYAN])
-        colours.append(palette[BRIGHT_YELLOW])
-        colours.append(palette[BRIGHT_WHITE])
-        self.colours = colours
+        self.colours = (
+            palette[TRANSPARENT],
+            palette[BLACK],
+            palette[BLUE],
+            palette[RED],
+            palette[MAGENTA],
+            palette[GREEN],
+            palette[CYAN],
+            palette[YELLOW],
+            palette[WHITE],
+            palette[BRIGHT_BLUE],
+            palette[BRIGHT_RED],
+            palette[BRIGHT_MAGENTA],
+            palette[BRIGHT_GREEN],
+            palette[BRIGHT_CYAN],
+            palette[BRIGHT_YELLOW],
+            palette[BRIGHT_WHITE]
+        )
 
     def _create_attr_index(self):
         self.attr_index = {}
@@ -233,12 +233,17 @@ class ImageWriter:
         frame.colours = colours
         frame.attrs = attrs
 
-    def _get_palette(self, colours, attrs, has_trans):
+    def _get_palette(self, colours, attrs, has_trans, tindex):
         colour_map = {}
         palette = []
         i = 0
         if has_trans:
             palette.extend(self.colours[0])
+            i += 1
+        elif tindex in colours:
+            palette.extend(self.colours[tindex])
+            colours.remove(tindex)
+            has_trans = True
             i += 1
         for colour in colours:
             palette.extend(self.colours[colour])
@@ -250,7 +255,7 @@ class ImageWriter:
             paper, ink = self.attr_index[attr]
             attr_map[attr] = (colour_map.get(paper, 0), colour_map.get(ink, 0))
 
-        return palette, attr_map
+        return palette, attr_map, has_trans
 
 class NoMask:
     def apply(self, udg, row, paper, ink, trans):

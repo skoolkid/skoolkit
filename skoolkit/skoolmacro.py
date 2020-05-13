@@ -584,15 +584,15 @@ def parse_eval(fields, lower, text, index, *cwd):
     return end, fmt.format(value, width)
 
 def parse_font(text, index=0):
-    # #FONT[:(text)]addr[,chars,attr,scale][{x,y,width,height}][(fname)]
+    # #FONT[:(text)]addr[,chars,attr,scale,tindex][{x,y,width,height}][(fname)]
     if index < len(text) and text[index] == ':':
         index, message = parse_strings(text, index + 1, 1)
         if not message:
             raise MacroParsingError("Empty message: {}".format(text[index - 2:index]))
     else:
         message = ''.join([chr(n) for n in range(32, 128)])
-    names = ('addr', 'chars', 'attr', 'scale')
-    defaults = (len(message), 56, 2)
+    names = ('addr', 'chars', 'attr', 'scale', 'tindex')
+    defaults = (len(message), 56, 2, 0)
     end, crop_rect, fname, frame, alt, params = parse_image_macro(text, index, defaults, names, 'font')
     params.insert(0, message)
     return end, crop_rect, fname, frame, alt, params

@@ -1,4 +1,4 @@
-# Copyright 2008-2019 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2008-2020 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -136,8 +136,10 @@ class Frame:
     :param delay: The delay between this frame and the next in 1/100ths of a
                   second.
     :param name: The name of this frame.
+    :param tindex: The index of the entry in the :ref:`palette <palette>` to
+                   use as the transparent colour.
     """
-    def __init__(self, udgs, scale=1, mask=0, x=0, y=0, width=None, height=None, delay=32, name=''):
+    def __init__(self, udgs, scale=1, mask=0, x=0, y=0, width=None, height=None, delay=32, name='', tindex=0):
         self._udgs = udgs
         self._scale = scale
         self.mask = int(mask)
@@ -147,6 +149,7 @@ class Frame:
         self._height = height
         self.delay = delay
         self.name = name
+        self.tindex = tindex
 
     def swap_colours(self, x, y, width, height):
         # Swap paper and ink in UDGs that are flashing

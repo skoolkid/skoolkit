@@ -230,6 +230,7 @@ class TestImageWriter(ImageWriter):
             self.y = frame1.y
             self.width = frame1.width
             self.height = frame1.height
+            self.tindex = frame1.tindex
 
 class HtmlWriterTestCase(SkoolKitTestCase):
     def setUp(self):
@@ -266,7 +267,7 @@ class HtmlWriterTestCase(SkoolKitTestCase):
         writer.skoolkit['page_id'] = 'None'
         return writer
 
-    def _check_image(self, writer, udg_array, scale=2, mask=0, x=0, y=0, width=None, height=None, path=None):
+    def _check_image(self, writer, udg_array, scale=2, mask=0, x=0, y=0, width=None, height=None, tindex=0, path=None):
         self.assertEqual(writer.file_info.fname, path)
         if width is None:
             width = 8 * len(udg_array[0]) * scale
@@ -279,6 +280,7 @@ class HtmlWriterTestCase(SkoolKitTestCase):
         self.assertEqual(image_writer.y, y)
         self.assertEqual(image_writer.width, width)
         self.assertEqual(image_writer.height, height)
+        self.assertEqual(image_writer.tindex, tindex)
         self.assertEqual(len(image_writer.udg_array), len(udg_array))
         self._compare_udgs(image_writer.udg_array, udg_array)
 
@@ -1462,26 +1464,27 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
             snapshot[font_addr + i * 8:font_addr + (i + 1) * 8] = char
         attr = 4
         scale = 2
+        tindex = 5
         x, y, w, h = 1, 2, 3, 4
-        values = (font_addr, len(chars), attr, scale, x, y, w, h, fname)
-        macro = '#FONT{0},{1},{2},{3}{{{4},{5},{6},{7}}}({8})'.format(*values)
+        values = (font_addr, len(chars), attr, scale, tindex, x, y, w, h, fname)
+        macro = '#FONT{0},{1},{2},{3},{4}{{{5},{6},{7},{8}}}({9})'.format(*values)
         output = writer.expand(macro, ASMDIR)
         self._assert_img_equals(output, fname, exp_src)
         udg_array = [[Udg(4, char) for char in chars]]
-        self._check_image(writer, udg_array, scale, False, x, y, w, h, exp_image_path)
+        self._check_image(writer, udg_array, scale, False, x, y, w, h, tindex, exp_image_path)
 
         # Keyword arguments
-        macro = '#FONTscale={3},chars={1},addr={0},attr={2}{{x={4},y={5},width={6},height={7}}}({8})'.format(*values)
+        macro = '#FONTscale={3},chars={1},tindex={4},addr={0},attr={2}{{x={5},y={6},width={7},height={8}}}({9})'.format(*values)
         output = writer.expand(macro, ASMDIR)
         self._assert_img_equals(output, fname, exp_src)
-        self._check_image(writer, udg_array, scale, False, x, y, w, h, exp_image_path)
+        self._check_image(writer, udg_array, scale, False, x, y, w, h, tindex, exp_image_path)
 
         # Keyword arguments, arithmetic expressions
-        values = ('128*256', '1+(3+1)/2', '(1 + 1) * 2', '7&2', '2*2-3', '(8 + 8) / 8', '6>>1', '2<<1', fname)
-        macro = '#FONT({0}, scale={3}, chars = {1}, attr={2}){{x={4}, y = {5}, width={6},height ={7}}}({8})'.format(*values)
+        values = ('128*256', '1+(3+1)/2', '(1 + 1) * 2', '7&2', '2+3', '2*2-3', '(8 + 8) / 8', '6>>1', '2<<1', fname)
+        macro = '#FONT({0}, scale={3}, chars = {1}, tindex={4}, attr={2}){{x={5}, y = {6}, width={7},height ={8}}}({9})'.format(*values)
         output = writer.expand(macro, ASMDIR)
         self._assert_img_equals(output, fname, exp_src)
-        self._check_image(writer, udg_array, scale, False, x, y, w, h, exp_image_path)
+        self._check_image(writer, udg_array, scale, False, x, y, w, h, tindex, exp_image_path)
 
         # Nested macros
         fname = 'nested'
@@ -2323,7 +2326,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         output = writer.expand(macro, ASMDIR)
         self._assert_img_equals(output, fname, exp_src)
         udg_array = [[Udg(attr, data)]]
-        self._check_image(writer, udg_array, scale, False, x, y, w, h, exp_image_path)
+        self._check_image(writer, udg_array, scale, False, x, y, w, h, path=exp_image_path)
 
         fname = 'scr4'
         exp_image_path = '{}/{}.png'.format(SCRDIR, fname)
@@ -2574,7 +2577,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         output = writer.expand(macro, ASMDIR)
         self._assert_img_equals(output, fname, exp_src)
         udg_array = [[Udg(attr, udg_data, udg_mask)]]
-        self._check_image(writer, udg_array, scale, 1, x, y, w, h, exp_image_path)
+        self._check_image(writer, udg_array, scale, 1, x, y, w, h, path=exp_image_path)
 
         fname = 'test_udg3'
         exp_image_path = '{}/{}.png'.format(UDGDIR, fname)
@@ -2599,7 +2602,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         output = writer.expand(macro, ASMDIR)
         self._assert_img_equals(output, fname, exp_src)
         udg_array = [[Udg(attr, udg_data, udg_mask)]]
-        self._check_image(writer, udg_array, scale, mask, x, y, width, height, exp_image_path)
+        self._check_image(writer, udg_array, scale, mask, x, y, width, height, path=exp_image_path)
 
         # Arithmetic expressions
         fname = 'test_udg4'
@@ -2619,7 +2622,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         output = writer.expand(macro, ASMDIR)
         self._assert_img_equals(output, fname, exp_src)
         udg_array = [[Udg(2, udg_data, mask_data)]]
-        self._check_image(writer, udg_array, scale, mask, x, y, w, h, exp_image_path)
+        self._check_image(writer, udg_array, scale, mask, x, y, w, h, path=exp_image_path)
 
         # Nested macros
         fname = 'nested'
@@ -2835,7 +2838,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         output = writer.expand(macro, ASMDIR)
         self._assert_img_equals(output, fname, exp_src)
         udg_array = [[Udg(attr, udg_data, udg_mask)] * width] * 2
-        self._check_image(writer, udg_array, scale, True, x, y, w, h, exp_image_path)
+        self._check_image(writer, udg_array, scale, True, x, y, w, h, path=exp_image_path)
 
         # Separately specified attributes
         fname = 'attrs'
@@ -2856,7 +2859,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         output = writer.expand('#UDGARRAY1,,,,,1;{}({})'.format(udg_addr, fname), ASMDIR)
         self._assert_img_equals(output, fname, exp_src)
         udg.flip(1)
-        self._check_image(writer, [[udg]], 2, False, 0, 0, 16, 16, exp_image_path)
+        self._check_image(writer, [[udg]], 2, False, 0, 0, 16, 16, path=exp_image_path)
 
         # Rotate
         fname = 'test_udg_array5'
@@ -2868,7 +2871,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         output = writer.expand('#UDGARRAY1,,,,,,2;{}({})'.format(udg_addr, fname), ASMDIR)
         self._assert_img_equals(output, fname, exp_src)
         udg.rotate(2)
-        self._check_image(writer, [[udg]], 2, False, 0, 0, 16, 16, exp_image_path)
+        self._check_image(writer, [[udg]], 2, False, 0, 0, 16, 16, path=exp_image_path)
 
         # Keyword arguments
         fname = 'test_udg_array6'
@@ -2895,7 +2898,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         output = writer.expand(macro, ASMDIR)
         self._assert_img_equals(output, fname, exp_src)
         udg_array = [[Udg(attr, udg_data, udg_mask)] * width] * 2
-        self._check_image(writer, udg_array, scale, mask, x, y, w, h, exp_image_path)
+        self._check_image(writer, udg_array, scale, mask, x, y, w, h, path=exp_image_path)
 
         # Arithmetic expressions: main params, UDG address range, cropping spec
         fname = 'test_udg_array7'
@@ -2914,7 +2917,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         crop = '{x=1+2,y = (1 + 1) * 2, width = 6 * 7, height=2**3}'
         output = writer.expand('#UDGARRAY(2+1,(4 + 1) * 8);{}{}({})'.format(udg_addr, crop, fname), ASMDIR)
         self._assert_img_equals(output, fname, exp_src)
-        self._check_image(writer, [[udg1, udg2, udg3]], scale, mask, x, y, w, h, exp_image_path)
+        self._check_image(writer, [[udg1, udg2, udg3]], scale, mask, x, y, w, h, path=exp_image_path)
 
         # Arithmetic expressions: UDG spec, mask spec
         fname = 'test_udg_array8'

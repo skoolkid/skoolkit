@@ -230,7 +230,7 @@ class CommonSkoolMacroTest:
         self._test_invalid_image_macro(writer, '#FONT,scale=4', "Missing required argument 'addr': ',scale=4'", prefix)
         self._test_invalid_image_macro(writer, '#FONT(,scale=4)', "Missing required argument 'addr': ',scale=4'", prefix)
 
-        self._test_invalid_image_macro(writer, '#FONT0,1,2,3,4,5', "Too many parameters (expected 4): '0,1,2,3,4,5'", prefix)
+        self._test_invalid_image_macro(writer, '#FONT0,1,2,3,4,5,6', "Too many parameters (expected 5): '0,1,2,3,4,5,6'", prefix)
         self._test_invalid_image_macro(writer, '#FONT0{0,0,23,14,5}(foo)', "Too many parameters in cropping specification (expected 4 at most): {0,0,23,14,5}", prefix)
 
         self._test_invalid_image_macro(writer, '#FONT(foo)', "Cannot parse integer 'foo' in parameter string: 'foo'", prefix)
