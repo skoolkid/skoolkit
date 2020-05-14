@@ -229,12 +229,12 @@ SkoolKit's image creation library. The parameters are in the format::
 
 Recognised parameters are:
 
-* ``PNGAlpha`` - the alpha value to use for the ``TRANSPARENT`` colour (see
-  :ref:`ref-Colours`) in PNG images; valid values are in the range 0-255, where
-  0 means fully transparent, and 255 means fully opaque (default: ``255``)
-* ``PNGCompressionLevel`` - the compression level to use for PNG image data;
-  valid values are in the range 0-9, where 0 means no compression, 1 is the
-  lowest compression level, and 9 is the highest (default: ``9``)
+* ``PNGAlpha`` - the default alpha value (0-255) to use for the transparent
+  colour in a PNG image, where 0 means fully transparent, and 255 means fully
+  opaque (default: ``255``)
+* ``PNGCompressionLevel`` - the compression level (0-9) to use for PNG image
+  data, where 0 means no compression, 1 is the lowest compression level, and 9
+  is the highest (default: ``9``)
 * ``PNGEnableAnimation`` - ``1`` to create animated PNGs (in APNG format) for
   images that contain flashing cells, or ``0`` to create plain (unanimated) PNG
   files for such images (default: ``1``)

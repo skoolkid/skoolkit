@@ -53,7 +53,6 @@ class PngWriter:
         self.alpha = alpha
         self.compression_level = compression_level
         self.masks = masks
-        self.trns = (116, 82, 78, 83, self.alpha)
         self._create_crc_table()
         self._create_png_method_dict()
 
@@ -73,8 +72,13 @@ class PngWriter:
         self._write_plte_chunk(img_file, palette)
 
         # tRNS
-        if has_trans and self.alpha != 255:
-            self._write_chunk(img_file, self.trns)
+        if has_trans:
+            if frame1.alpha < 0:
+                alpha = self.alpha
+            else:
+                alpha = frame1.alpha & 255
+            if alpha != 255:
+                self._write_chunk(img_file, (116, 82, 78, 83, alpha))
 
         # acTL
         if len(frames) == 1 and flash_rect:

@@ -138,8 +138,11 @@ class Frame:
     :param name: The name of this frame.
     :param tindex: The index of the entry in the :ref:`palette <palette>` to
                    use as the transparent colour.
+    :param alpha: The alpha value to use for the transparent colour. If -1, the
+                  value of the ``PNGAlpha`` parameter in the
+                  :ref:`ref-ImageWriter` section is used.
     """
-    def __init__(self, udgs, scale=1, mask=0, x=0, y=0, width=None, height=None, delay=32, name='', tindex=0):
+    def __init__(self, udgs, scale=1, mask=0, x=0, y=0, width=None, height=None, delay=32, name='', tindex=0, alpha=-1):
         self._udgs = udgs
         self._scale = scale
         self.mask = int(mask)
@@ -150,6 +153,7 @@ class Frame:
         self.delay = delay
         self.name = name
         self.tindex = tindex
+        self.alpha = alpha
 
     def swap_colours(self, x, y, width, height):
         # Swap paper and ink in UDGs that are flashing

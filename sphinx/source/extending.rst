@@ -389,7 +389,7 @@ The Frame class represents a single frame of a still or animated image.
 .. autoclass:: skoolkit.graphics.Frame
 
    .. versionchanged:: 8.2
-      Added the *tindex* parameter.
+      Added the *tindex* and *alpha* parameters.
 
    .. versionchanged:: 5.4
       The Frame class moved from skoolkit.skoolhtml to skoolkit.graphics.

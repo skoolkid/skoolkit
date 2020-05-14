@@ -108,8 +108,8 @@ class ImageWriterTest:
     def _get_dword(self, stream, index):
         return index + 4, 16777216 * stream[index] + 65536 * stream[index + 1] + 256 * stream[index + 2] + stream[index + 3]
 
-    def _get_image_data(self, image_writer, udg_array, scale=1, mask=0, tindex=0, x=0, y=0, width=None, height=None):
-        frame = Frame(udg_array, scale, mask, x, y, width, height, tindex=tindex)
+    def _get_image_data(self, image_writer, udg_array, scale=1, mask=0, tindex=0, alpha=-1, x=0, y=0, width=None, height=None):
+        frame = Frame(udg_array, scale, mask, x, y, width, height, tindex=tindex, alpha=alpha)
         img_stream = BytesIO()
         image_writer.write_image([frame], img_stream)
         img_bytes = [b for b in img_stream.getvalue()]
@@ -258,11 +258,11 @@ class ImageWriterTest:
             palette.insert(0, PALETTE[tindex])
         return palette, masks, has_tindex, pixels, pixels2, frame2_xy
 
-    def _test_scales(self, udg_array, scales=(1, 2, 3, 4), mask=0, tindex=0, x=0, y=0, width=None, height=None, iw_args=None, exp_pixels=None):
+    def _test_scales(self, udg_array, scales=(1, 2, 3, 4), mask=0, tindex=0, alpha=-1, x=0, y=0, width=None, height=None, iw_args=None, exp_pixels=None):
         for scale in scales:
             s_w = len(udg_array[0]) * 8 * (scale - 1) + width if width is not None else None
             s_h = len(udg_array) * 8 * (scale - 1) + height if height is not None else None
-            self._test_image(udg_array, scale, mask, tindex, x, y, s_w, s_h, iw_args, exp_pixels)
+            self._test_image(udg_array, scale, mask, tindex, alpha, x, y, s_w, s_h, iw_args, exp_pixels)
 
     ###########################################################################
 
@@ -789,6 +789,24 @@ class ImageWriterTest:
         udg_array = [[udg]]
         self._test_image(udg_array, mask=1, tindex=8, iw_args=iw_args)
 
+    def test_alternative_alpha(self):
+        # White (PAPER) as transparent colour
+        udg = Udg(56, (15,) * 8)
+        udg_array = [[udg]]
+        self._test_image(udg_array, tindex=8, alpha=100)
+
+    def test_alternative_alpha_with_no_transparent_colour(self):
+        # Black INK, white PAPER, cyan as transparent colour
+        udg = Udg(56, (15,) * 8)
+        udg_array = [[udg]]
+        self._test_image(udg_array, tindex=6, alpha=200)
+
+    def test_alternative_alpha_255_with_alternative_transparent_colour(self):
+        # White (PAPER) as transparent colour
+        udg = Udg(56, (15,) * 8)
+        udg_array = [[udg]]
+        self._test_image(udg_array, tindex=8, alpha=255)
+
     def test_custom_colours(self):
         # Two custom colours
         indigo = [75, 0, 130]
@@ -855,6 +873,20 @@ class ImageWriterTest:
         frame2 = Frame([[Udg(56, (15,) * 8, (207,) * 8)]], mask=1)
         frames = [frame1, frame2]
         self._test_animated_image(frames, iw_args)
+
+    def test_animation_with_alternative_alpha(self):
+        # White (PAPER) as transparent colour on first frame
+        frame1 = Frame([[Udg(56, (15,) * 8)]], tindex=8, alpha=128)
+        frame2 = Frame([[Udg(1, (15,) * 8)]])
+        frames = [frame1, frame2]
+        self._test_animated_image(frames)
+
+    def test_animation_with_alternative_transparent_colour_and_alpha_on_second_frame_only(self):
+        # Yellow (PAPER) as transparent colour on second frame
+        frame1 = Frame([[Udg(56, (15,) * 8)]], tindex=7, alpha=20)
+        frame2 = Frame([[Udg(48, (15,) * 8)]])
+        frames = [frame1, frame2]
+        self._test_animated_image(frames)
 
 class PngWriterTest(SkoolKitTestCase, ImageWriterTest):
     def setUp(self):
@@ -1050,9 +1082,9 @@ class PngWriterTest(SkoolKitTestCase, ImageWriterTest):
         self.assertEqual(idat_crc, self._get_crc(img_bytes[idat_start:idat_end]))
         return i
 
-    def _test_image(self, udg_array, scale=1, mask=0, tindex=0, x=0, y=0, width=None, height=None, iw_args=None, exp_pixels=None):
+    def _test_image(self, udg_array, scale=1, mask=0, tindex=0, alpha=-1, x=0, y=0, width=None, height=None, iw_args=None, exp_pixels=None):
         image_writer = ImageWriter(**(iw_args or {}))
-        img_bytes = self._get_image_data(image_writer, udg_array, scale, mask, tindex, x, y, width, height)
+        img_bytes = self._get_image_data(image_writer, udg_array, scale, mask, tindex, alpha, x, y, width, height)
 
         exp_pixels2 = None
         if exp_pixels is None:
@@ -1086,9 +1118,11 @@ class PngWriterTest(SkoolKitTestCase, ImageWriterTest):
         i, palette = self._check_plte(img_bytes, i, exp_palette, has_trans or has_tindex)
 
         # tRNS
-        alpha = image_writer.options[PNG_ALPHA]
-        if alpha < 255 and (has_trans or has_tindex):
-            i = self._check_trns(img_bytes, i, alpha)
+        if has_trans or has_tindex:
+            if alpha < 0:
+                alpha = image_writer.options[PNG_ALPHA]
+            if alpha < 255:
+                i = self._check_trns(img_bytes, i, alpha)
 
         # acTL and fcTL
         if exp_pixels2:
@@ -1153,9 +1187,10 @@ class PngWriterTest(SkoolKitTestCase, ImageWriterTest):
         i, palette = self._check_plte(img_bytes, i, exp_palette, has_trans or has_tindex)
 
         # tRNS
-        alpha = image_writer.options[PNG_ALPHA]
-        if alpha < 255 and (has_trans or has_tindex):
-            i = self._check_trns(img_bytes, i, alpha)
+        if has_trans or has_tindex:
+            alpha = image_writer.options[PNG_ALPHA] if frames[0].alpha < 0 else frames[0].alpha
+            if alpha < 255:
+                i = self._check_trns(img_bytes, i, alpha)
 
         # acTL
         i = self._check_actl(img_bytes, i, len(frames))

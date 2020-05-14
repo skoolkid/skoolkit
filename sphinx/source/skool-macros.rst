@@ -1096,7 +1096,7 @@ as follows::
 In HTML mode, the ``#FONT`` macro expands to an ``<img>`` element for an image
 of text rendered in the game font. ::
 
-  #FONT[:(text)]addr[,chars,attr,scale,tindex][{CROP}][(fname)]
+  #FONT[:(text)]addr[,chars,attr,scale,tindex,alpha][{CROP}][(fname)]
 
 * ``text`` is the text to render (default: the 96 characters from code 32 to
   code 127)
@@ -1109,6 +1109,9 @@ of text rendered in the game font. ::
 * ``fname`` is the name of the image file (default: '`font`')
 * ``tindex`` is the index (0-15) of the entry in the palette to use as the
   transparent colour (default: 0; see :ref:`palette`)
+* ``alpha`` is the alpha value (0-255) to use for the transparent colour
+  (default: the value of the ``PNGAlpha`` parameter in the
+  :ref:`ref-ImageWriter` section)
 
 If ``fname`` contains an image path ID replacement field (e.g.
 ``{ScreenshotImagePath}/font``), the corresponding parameter value from the
@@ -1141,7 +1144,7 @@ See :ref:`stringParameters` for details on alternative ways to supply the
 +---------+------------------------------------------------------------------+
 | Version | Changes                                                          |
 +=========+==================================================================+
-| 8.2     | Added the ``tindex`` parameter                                   |
+| 8.2     | Added the ``tindex`` and ``alpha`` parameters                    |
 +---------+------------------------------------------------------------------+
 | 6.3     | Added support for image path ID replacement fields in the        |
 |         | ``fname`` parameter                                              |
@@ -1614,9 +1617,9 @@ The index values (0-15) may be used by an image macro's ``tindex`` parameter to
 specify a transparent colour to use other than the default (0). The palette
 entry specified by ``tindex``, if not 0, will be used as the transparent colour
 only if the image does not already contain any transparent bits produced by a
-:ref:`mask <masks>`. In an animated image, the ``tindex`` value on the first
-frame takes effect; any ``tindex`` value on the second or subsequent frames is
-ignored.
+:ref:`mask <masks>`. In an animated image, the ``tindex`` and ``alpha`` values
+on the first frame take effect; any ``tindex`` and ``alpha`` values on the
+second or subsequent frames are ignored.
 
 Snapshot macros
 ^^^^^^^^^^^^^^^

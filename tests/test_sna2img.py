@@ -19,7 +19,7 @@ class MockImageWriter:
         self.frames = frames
 
 class Sna2ImgTest(SkoolKitTestCase):
-    def _test_sna2img(self, mock_open, options, data, udgs, scale=1, mask=0, x=0, y=0,
+    def _test_sna2img(self, mock_open, options, data, udgs, scale=1, mask=0, tindex=0, alpha=-1, x=0, y=0,
                       width=None, height=None, address=16384, outfile=None, iw_options=None, ftype='scr'):
         if ftype == 'scr':
             infile = self.write_bin_file(data, suffix='.scr')
@@ -57,6 +57,8 @@ class Sna2ImgTest(SkoolKitTestCase):
             self.assertEqual(udgs[i], frame.udgs[i], "Row {}/{} differs from expected value".format(i + 1, len(udgs)))
         self.assertEqual(frame.scale, scale)
         self.assertEqual(frame.mask, mask)
+        self.assertEqual(frame.tindex, tindex)
+        self.assertEqual(frame.alpha, alpha)
         self.assertEqual(frame.x, x)
         self.assertEqual(frame.y, y)
         if width is None:
@@ -220,11 +222,13 @@ class Sna2ImgTest(SkoolKitTestCase):
         exp_udgs = [[char1, char2]]
         chars = len(exp_udgs[0])
         scale = 3
+        tindex = 6
+        alpha = 100
         x, y = 1, 2
         width, height = 40, 19
         data = char1.data + char2.data
-        macro = 'FONT{},{},{},{}{{{},{},{},{}}}(ignored.png)'.format(addr, chars, attr, scale, x, y, width, height)
-        self._test_sna2img(mock_open, '-e {}'.format(macro), data, exp_udgs, scale, 0, x, y, width, height, addr, ftype='sna')
+        macro = 'FONT{},{},{},{},{},{}{{{},{},{},{}}}(ignored.png)'.format(addr, chars, attr, scale, tindex, alpha, x, y, width, height)
+        self._test_sna2img(mock_open, '-e {}'.format(macro), data, exp_udgs, scale, 0, tindex, alpha, x, y, width, height, addr, ftype='sna')
 
     @patch.object(sna2img, 'ImageWriter', MockImageWriter)
     @patch.object(sna2img, 'open')
@@ -281,7 +285,7 @@ class Sna2ImgTest(SkoolKitTestCase):
         data[-1] = udg.attr
         crop = '{{{},{},{},{}}}'.format(x, y, width, height)
         macro = '#SCR{},{},{},{},{}{}'.format(scale, scr_x, scr_y, scr_w, scr_h, crop)
-        self._test_sna2img(mock_open, '--expand {}'.format(macro), data, exp_udgs, scale, 0, x, y, width, height, tile_addr, ftype='sna')
+        self._test_sna2img(mock_open, '--expand {}'.format(macro), data, exp_udgs, scale, 0, x=x, y=y, width=width, height=height, address=tile_addr, ftype='sna')
 
     def test_option_e_scr_invalid_parameters(self):
         scrfile = self.write_bin_file(suffix='.scr')
@@ -320,7 +324,7 @@ class Sna2ImgTest(SkoolKitTestCase):
         x, y = 3, 2
         width, height = 28, 25
         macro = '#UDG{}{{{},{},{},{}}}'.format(addr, x, y, width, height)
-        self._test_sna2img(mock_open, '-e {}'.format(macro), udg.data, exp_udgs, 4, 0, x, y, width, height, addr, ftype='sna')
+        self._test_sna2img(mock_open, '-e {}'.format(macro), udg.data, exp_udgs, 4, 0, x=x, y=y, width=width, height=height, address=addr, ftype='sna')
 
     def test_option_e_udg_invalid_parameters(self):
         scrfile = self.write_bin_file(suffix='.scr')
@@ -360,7 +364,7 @@ class Sna2ImgTest(SkoolKitTestCase):
         width, height = 12, 13
         data = udg.data * len(exp_udgs)
         macro = '#UDGARRAY2;{}x2{{{},{},{},{}}}'.format(addr, x, y, width, height)
-        self._test_sna2img(mock_open, '-e {}'.format(macro), data, exp_udgs, 2, 0, x, y, width, height, addr, ftype='sna')
+        self._test_sna2img(mock_open, '-e {}'.format(macro), data, exp_udgs, 2, 0, x=x, y=y, width=width, height=height, address=addr, ftype='sna')
 
     def test_option_e_udgarray_invalid_parameters(self):
         scrfile = self.write_bin_file(suffix='.scr')
