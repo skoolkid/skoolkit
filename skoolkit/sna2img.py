@@ -34,9 +34,9 @@ def _parse_font(snapshot, param_str):
 
 def _parse_scr(snapshot, param_str):
     end, crop_rect, fname, frame, alt, params = skoolmacro.parse_scr(param_str)
-    scale, x, y, w, h, df, af = params
+    scale, x, y, w, h, df, af, tindex, alpha = params
     udgs = scr_udgs(snapshot, x, y, w, h, df, af)
-    return Frame(udgs, scale, 0, *crop_rect)
+    return Frame(udgs, scale, 0, *crop_rect, tindex=tindex, alpha=alpha)
 
 def _parse_udg(snapshot, param_str):
     end, crop_rect, fname, frame, alt, params = skoolmacro.parse_udg(param_str)

@@ -1052,9 +1052,9 @@ class HtmlWriter:
 
     def expand_scr(self, text, index, cwd):
         end, crop_rect, fname, frame, alt, params = skoolmacro.parse_scr(text, index)
-        scale, x, y, w, h, df, af = params
+        scale, x, y, w, h, df, af, tindex, alpha = params
         udgs = lambda: self.screenshot(x, y, w, h, df, af)
-        frame = Frame(udgs, scale, 0, *crop_rect, name=frame)
+        frame = Frame(udgs, scale, 0, *crop_rect, name=frame, tindex=tindex, alpha=alpha)
         return end, self.handle_image(frame, fname, cwd, alt, 'ScreenshotImagePath')
 
     def expand_table(self, text, index, cwd):

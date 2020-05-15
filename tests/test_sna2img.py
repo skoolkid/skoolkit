@@ -255,6 +255,8 @@ class Sna2ImgTest(SkoolKitTestCase):
     def test_option_e_scr(self, mock_open):
         df_addr = 24576
         af_addr = 30720
+        tindex = 1
+        alpha = 128
         udg = Udg(2, [170] * 8)
         exp_udgs = [[udg]]
         scale = 2
@@ -265,8 +267,8 @@ class Sna2ImgTest(SkoolKitTestCase):
         data = [0] * (tile_attr_addr - tile_addr + 1)
         data[0:2048:256] = udg.data
         data[-1] = udg.attr
-        macro = 'SCR{},{},{},{},{},{},{}(ignored)'.format(scale, scr_x, scr_y, scr_w, scr_h, df_addr, af_addr)
-        self._test_sna2img(mock_open, '-e {}'.format(macro), data, exp_udgs, scale, address=tile_addr, ftype='sna')
+        macro = 'SCR{},{},{},{},{},{},{},{},{}(ignored)'.format(scale, scr_x, scr_y, scr_w, scr_h, df_addr, af_addr, tindex, alpha)
+        self._test_sna2img(mock_open, '-e {}'.format(macro), data, exp_udgs, scale, 0, tindex, alpha, address=tile_addr, ftype='sna')
 
     @patch.object(sna2img, 'ImageWriter', MockImageWriter)
     @patch.object(sna2img, 'open')

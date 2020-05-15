@@ -2324,45 +2324,51 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         snapshot[16384:18432:256] = data
         snapshot[22528] = attr
         scale = 1
+        tindex = 7
+        alpha = 64
         x, y, w, h = 1, 2, 5, 6
-        macro = '#SCR,0,0,1,1{{{},{},{},{}}}({})'.format(x, y, w, h, fname)
+        macro = '#SCR,0,0,1,1,,,{},{}{{{},{},{},{}}}({})'.format(tindex, alpha, x, y, w, h, fname)
         output = writer.expand(macro, ASMDIR)
         self._assert_img_equals(output, fname, exp_src)
         udg_array = [[Udg(attr, data)]]
-        self._check_image(writer, udg_array, scale, False, 0, -1, x, y, w, h, exp_image_path)
+        self._check_image(writer, udg_array, scale, False, tindex, alpha, x, y, w, h, exp_image_path)
 
         fname = 'scr4'
         exp_image_path = '{}/{}.png'.format(SCRDIR, fname)
         exp_src = '../{}'.format(exp_image_path)
         scale = 3
+        tindex = 8
+        alpha = 128
         x, y, w, h = 0, 0, 1, 1
         df = 0
         af = 32768
         data = snapshot[df:df + 2048:256] = [170] * 8
         attr = snapshot[af] = 56
-        values = {'scale': scale, 'x': x, 'y': y, 'w': w, 'h': h, 'df': df, 'af': af, 'fname': fname}
-        macro = '#SCRx={x},h={h},af={af},scale={scale},y={y},df={df},w={w}({fname})'.format(**values)
+        values = {'scale': scale, 'x': x, 'y': y, 'w': w, 'h': h, 'df': df, 'af': af, 'tindex': tindex, 'alpha': alpha, 'fname': fname}
+        macro = '#SCRx={x},h={h},af={af},tindex={tindex},scale={scale},y={y},alpha={alpha},df={df},w={w}({fname})'.format(**values)
         output = writer.expand(macro, ASMDIR)
         self._assert_img_equals(output, fname, exp_src)
         udg_array = [[Udg(attr, data)]]
-        self._check_image(writer, udg_array, scale, path=exp_image_path)
+        self._check_image(writer, udg_array, scale, 0, tindex, alpha, path=exp_image_path)
 
         # Arithmetic expressions
         fname = 'scr5'
         exp_image_path = '{}/{}.png'.format(SCRDIR, fname)
         exp_src = '../{}'.format(exp_image_path)
         scale = 3
+        tindex = 2
+        alpha = 192
         df = 0
         af = 6144
         data = snapshot[df:df + 2048:256] = [85] * 8
         attr = snapshot[af] = 57
         crop = (1, 2, 17, 14)
         crop_spec = '{5-4, 2 * 1, width=(2+2)*4+1, height = 7*2}'
-        macro = '#SCR(2+1, 0*1, 5-5, (1 + 1) / 2, 1**1, 1^1, 24*256){}({})'.format(crop_spec, fname)
+        macro = '#SCR(2+1, 0*1, 5-5, (1 + 1) / 2, 1**1, 1^1, 24*256, 4/2, 255&192){}({})'.format(crop_spec, fname)
         output = writer.expand(macro, ASMDIR)
         self._assert_img_equals(output, fname, exp_src)
         udg_array = [[Udg(attr, data)]]
-        self._check_image(writer, udg_array, scale, 0, 0, -1, *crop, exp_image_path)
+        self._check_image(writer, udg_array, scale, 0, tindex, alpha, *crop, exp_image_path)
 
         # Nested macros
         fname = 'nested'

@@ -818,9 +818,9 @@ def parse_reg(get_reg, lower, text, index, *cwd):
     return end, get_reg(reg.upper())
 
 def parse_scr(text, index=0):
-    # #SCR[scale,x,y,w,h,df,af][{x,y,width,height}][(fname)]
-    names = ('scale', 'x', 'y', 'w', 'h', 'df', 'af')
-    defaults = (1, 0, 0, 32, 24, 16384, 22528)
+    # #SCR[scale,x,y,w,h,df,af,tindex,alpha][{x,y,width,height}][(fname)]
+    names = ('scale', 'x', 'y', 'w', 'h', 'df', 'af', 'tindex', 'alpha')
+    defaults = (1, 0, 0, 32, 24, 16384, 22528, 0, -1)
     return parse_image_macro(text, index, defaults, names, 'scr')
 
 def parse_space(space, text, index, *cwd):
