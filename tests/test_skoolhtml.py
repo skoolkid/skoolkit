@@ -2843,16 +2843,18 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         scale = 1
         step = 256
         inc = 0
+        tindex = 1
+        alpha = 100
         x, y, w, h = 4, 6, 8, 5
         udg_data = [195] * 8
         udg_mask = [255] * 8
         snapshot[udg_addr:udg_addr + 8 * step:step] = udg_data
         snapshot[mask_addr:mask_addr + 8 * step:step] = udg_mask
-        macro = '#UDGARRAY{},{},{},{},{};{}x4:{}x4{{{},{},{},{}}}({})'.format(width, attr, scale, step, inc, udg_addr, mask_addr, x, y, w, h, fname)
+        macro = '#UDGARRAY{},{},{},{},{},,,,{},{};{}x4:{}x4{{{},{},{},{}}}({})'.format(width, attr, scale, step, inc, tindex, alpha, udg_addr, mask_addr, x, y, w, h, fname)
         output = writer.expand(macro, ASMDIR)
         self._assert_img_equals(output, fname, exp_src)
         udg_array = [[Udg(attr, udg_data, udg_mask)] * width] * 2
-        self._check_image(writer, udg_array, scale, True, 0, -1, x, y, w, h, exp_image_path)
+        self._check_image(writer, udg_array, scale, True, tindex, alpha, x, y, w, h, exp_image_path)
 
         # Separately specified attributes
         fname = 'attrs'
@@ -2899,12 +2901,14 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         step = 256
         inc = 0
         mask = 1
+        tindex = 6
+        alpha = 16
         x, y, w, h = 4, 6, 8, 5
         udg_data = [195] * 8
         udg_mask = [255] * 8
         snapshot[udg_addr:udg_addr + 8 * step:step] = udg_data
         snapshot[mask_addr:mask_addr + 8 * step:step] = udg_mask
-        params = 'attr={attr},step={step},inc={inc},mask={mask},scale={scale}'
+        params = 'attr={attr},alpha={alpha},step={step},inc={inc},tindex={tindex},mask={mask},scale={scale}'
         udg_spec = ';{udg_addr}x4,step={step}'
         mask_spec = ':{mask_addr}x4,step={step}'
         crop = '{{x={x},y={y},width={w},height={h}}}'
@@ -2912,7 +2916,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         output = writer.expand(macro, ASMDIR)
         self._assert_img_equals(output, fname, exp_src)
         udg_array = [[Udg(attr, udg_data, udg_mask)] * width] * 2
-        self._check_image(writer, udg_array, scale, mask, 0, -1, x, y, w, h, exp_image_path)
+        self._check_image(writer, udg_array, scale, mask, tindex, alpha, x, y, w, h, exp_image_path)
 
         # Arithmetic expressions: main params, UDG address range, cropping spec
         fname = 'test_udg_array7'

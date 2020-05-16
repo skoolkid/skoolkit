@@ -46,9 +46,9 @@ def _parse_udg(snapshot, param_str):
 
 def _parse_udgarray(snapshot, param_str):
     end, crop_rect, fname, frame, alt, params = skoolmacro.parse_udgarray(param_str, 0, snapshot, False)
-    udg_array, scale, flip, rotate, mask = params
+    udg_array, scale, flip, rotate, mask, tindex, alpha = params
     udgs = adjust_udgs(udg_array, flip, rotate)
-    return Frame(udgs, scale, mask, *crop_rect)
+    return Frame(udgs, scale, mask, *crop_rect, tindex=tindex, alpha=alpha)
 
 MACROS = {
     'FONT': _parse_font,

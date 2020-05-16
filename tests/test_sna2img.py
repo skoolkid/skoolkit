@@ -347,6 +347,8 @@ class Sna2ImgTest(SkoolKitTestCase):
         flip = 2
         rotate = 1
         mask = 2
+        tindex = 2
+        alpha = 128
         mask_addr = addr + 8 * step
         udg = Udg(attr, [126] * 8, [192] * 8)
         exp_udg = Udg(attr, [b + inc for b in udg.data], udg.mask[:])
@@ -355,8 +357,8 @@ class Sna2ImgTest(SkoolKitTestCase):
         exp_udgs = [[exp_udg]]
         data = [0] * (16 * step)
         data[0:16 * step:step] = udg.data + udg.mask
-        macro = 'UDGARRAY1,{},{},{},{},{},{},{};{}:{}(ignored)'.format(attr, scale, step, inc, flip, rotate, mask, addr, mask_addr)
-        self._test_sna2img(mock_open, '--expand {}'.format(macro), data, exp_udgs, scale, mask, address=addr, ftype='sna')
+        macro = 'UDGARRAY1,{},{},{},{},{},{},{},{},{};{}:{}(ignored)'.format(attr, scale, step, inc, flip, rotate, mask, tindex, alpha, addr, mask_addr)
+        self._test_sna2img(mock_open, '--expand {}'.format(macro), data, exp_udgs, scale, mask, tindex, alpha, address=addr, ftype='sna')
 
     @patch.object(sna2img, 'ImageWriter', MockImageWriter)
     @patch.object(sna2img, 'open')

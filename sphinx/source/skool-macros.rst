@@ -1344,7 +1344,7 @@ with attribute byte 6 (INK 6: PAPER 0).
 In HTML mode, the ``#UDGARRAY`` macro expands to an ``<img>`` element for the
 image of an array of UDGs (8x8 blocks of pixels). ::
 
-  #UDGARRAYwidth[,attr,scale,step,inc,flip,rotate,mask];SPEC1[;SPEC2;...][@ATTRS1[;ATTRS2;...]][{CROP}](fname)
+  #UDGARRAYwidth[,attr,scale,step,inc,flip,rotate,mask,tindex,alpha];SPEC1[;SPEC2;...][@ATTRS1[;ATTRS2;...]][{CROP}](fname)
 
 * ``width`` is the width of the image (in UDGs)
 * ``attr`` is the default attribute byte of each UDG (default: 56)
@@ -1358,6 +1358,11 @@ image of an array of UDGs (8x8 blocks of pixels). ::
   it 180 degrees, 3 to rotate it 90 degrees anticlockwise, or 0 to leave it as
   it is (default: 0)
 * ``mask`` is the type of mask to apply (see :ref:`masks`)
+* ``tindex`` is the index (0-15) of the entry in the palette to use as the
+  transparent colour (default: 0; see :ref:`palette`)
+* ``alpha`` is the alpha value (0-255) to use for the transparent colour
+  (default: the value of the ``PNGAlpha`` parameter in the
+  :ref:`ref-ImageWriter` section)
 * ``CROP`` is the cropping specification (see :ref:`cropping`)
 * ``fname`` is the name of the image file
 
@@ -1448,6 +1453,8 @@ named `base_sprite.png`.
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 8.2     | Added the ``tindex`` and ``alpha`` parameters                     |
++---------+-------------------------------------------------------------------+
 | 7.1     | Added the ability to specify attribute addresses                  |
 +---------+-------------------------------------------------------------------+
 | 6.3     | Added support for image path ID replacement fields in the         |

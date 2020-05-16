@@ -1133,6 +1133,7 @@ class CommonSkoolMacroTest:
         self._test_invalid_image_macro(writer, '#UDGARRAY1;0{0,0}1(foo)', 'Missing filename: #UDGARRAY1;0{0,0}', prefix)
         self._test_invalid_image_macro(writer, '#UDGARRAY1;0(*)', 'Missing filename or frame ID: #UDGARRAY1;0(*)', prefix)
 
+        self._test_invalid_image_macro(writer, '#UDGARRAY1,2,3,4,5,6,7,8,9,10,11;0', "Too many parameters (expected 10): '1,2,3,4,5,6,7,8,9,10,11'", prefix)
         self._test_invalid_image_macro(writer, '#UDGARRAY1;32768,1,2,3,4', "Too many parameters (expected 3): '1,2,3,4'", prefix)
         self._test_invalid_image_macro(writer, '#UDGARRAY1;32768:32769,1,2', "Too many parameters (expected 1): '1,2'", prefix)
         self._test_invalid_image_macro(writer, '#UDGARRAY1;0{0,0,23,14,5}(foo)', "Too many parameters in cropping specification (expected 4 at most): {0,0,23,14,5}", prefix)

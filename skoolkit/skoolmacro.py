@@ -843,10 +843,10 @@ def parse_udg(text, index=0):
     return end, crop_rect, fname, frame, alt, (addr, attr, scale, step, inc, flip, rotate, mask, tindex, alpha, mask_addr, mask_step)
 
 def parse_udgarray(text, index, snapshot=None, req_fname=True):
-    # #UDGARRAYwidth[,attr,scale,step,inc,flip,rotate,mask];addr[,attr,step,inc][:addr[,step]];...[{x,y,width,height}](fname)
-    names = ('width', 'attr', 'scale', 'step', 'inc', 'flip', 'rotate', 'mask')
-    defaults = (56, 2, 1, 0, 0, 0, 1)
-    end, width, attr, scale, step, inc, flip, rotate, mask = parse_ints(text, index, defaults=defaults, names=names)
+    # #UDGARRAYwidth[,attr,scale,step,inc,flip,rotate,mask,tindex,alpha];addr[,attr,step,inc][:addr[,step]];...[{x,y,width,height}](fname)
+    names = ('width', 'attr', 'scale', 'step', 'inc', 'flip', 'rotate', 'mask', 'tindex', 'alpha')
+    defaults = (56, 2, 1, 0, 0, 0, 1, 0, -1)
+    end, width, attr, scale, step, inc, flip, rotate, mask, tindex, alpha = parse_ints(text, index, defaults=defaults, names=names)
     udg_array = [[]]
     has_masks = False
 
@@ -912,7 +912,7 @@ def parse_udgarray(text, index, snapshot=None, req_fname=True):
             raise MacroParsingError('Missing filename: #UDGARRAY{}'.format(text[index:end]))
         if not fname and not frame:
             raise MacroParsingError('Missing filename or frame ID: #UDGARRAY{}'.format(text[index:end]))
-    return end, crop_rect, fname, frame, alt, (udg_array, scale, flip, rotate, mask)
+    return end, crop_rect, fname, frame, alt, (udg_array, scale, flip, rotate, mask, tindex, alpha)
 
 def parse_udgarray_with_frames(text, index, frame_map=None):
     # #UDGARRAY*frame1[,delay];frame2[,delay];...(fname)
