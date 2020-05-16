@@ -829,10 +829,10 @@ def parse_space(space, text, index, *cwd):
     return end, space * num
 
 def parse_udg(text, index=0):
-    # #UDGaddr[,attr,scale,step,inc,flip,rotate,mask][:addr[,step]][{x,y,width,height}][(fname)]
-    names = ('addr', 'attr', 'scale', 'step', 'inc', 'flip', 'rotate', 'mask')
-    defaults = (56, 4, 1, 0, 0, 0, 1)
-    end, addr, attr, scale, step, inc, flip, rotate, mask = parse_ints(text, index, defaults=defaults, names=names)
+    # #UDGaddr[,attr,scale,step,inc,flip,rotate,mask,tindex,alpha][:addr[,step]][{x,y,width,height}][(fname)]
+    names = ('addr', 'attr', 'scale', 'step', 'inc', 'flip', 'rotate', 'mask', 'tindex', 'alpha')
+    defaults = (56, 4, 1, 0, 0, 0, 1, 0, -1)
+    end, addr, attr, scale, step, inc, flip, rotate, mask, tindex, alpha = parse_ints(text, index, defaults=defaults, names=names)
     if end < len(text) and text[end] == ':':
         end, mask_addr, mask_step = parse_ints(text, end + 1, defaults=(step,), names=('addr', 'step'))
     else:
@@ -840,7 +840,7 @@ def parse_udg(text, index=0):
         mask = 0
     end, crop_rect = _parse_crop_spec(text, end)
     end, fname, frame, alt = _parse_image_fname(text, end)
-    return end, crop_rect, fname, frame, alt, (addr, attr, scale, step, inc, flip, rotate, mask, mask_addr, mask_step)
+    return end, crop_rect, fname, frame, alt, (addr, attr, scale, step, inc, flip, rotate, mask, tindex, alpha, mask_addr, mask_step)
 
 def parse_udgarray(text, index, snapshot=None, req_fname=True):
     # #UDGARRAYwidth[,attr,scale,step,inc,flip,rotate,mask];addr[,attr,step,inc][:addr[,step]];...[{x,y,width,height}](fname)

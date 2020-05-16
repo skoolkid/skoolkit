@@ -1246,7 +1246,7 @@ For example::
 In HTML mode, the ``#UDG`` macro expands to an ``<img>`` element for the image
 of a UDG (an 8x8 block of pixels). ::
 
-  #UDGaddr[,attr,scale,step,inc,flip,rotate,mask][:MASK][{CROP}][(fname)]
+  #UDGaddr[,attr,scale,step,inc,flip,rotate,mask,tindex,alpha][:MASK][{CROP}][(fname)]
 
 * ``addr`` is the base address of the UDG bytes
 * ``attr`` is the attribute byte to use (default: 56)
@@ -1259,6 +1259,11 @@ of a UDG (an 8x8 block of pixels). ::
   degrees, 3 to rotate it 90 degrees anticlockwise, or 0 to leave it as it is
   (default: 0)
 * ``mask`` is the type of mask to apply (see :ref:`masks`)
+* ``tindex`` is the index (0-15) of the entry in the palette to use as the
+  transparent colour (default: 0; see :ref:`palette`)
+* ``alpha`` is the alpha value (0-255) to use for the transparent colour
+  (default: the value of the ``PNGAlpha`` parameter in the
+  :ref:`ref-ImageWriter` section)
 * ``MASK`` is the mask specification (see below)
 * ``CROP`` is the cropping specification (see :ref:`cropping`)
 * ``fname`` is the name of the image file (if not given, a name specified by
@@ -1304,6 +1309,8 @@ with attribute byte 6 (INK 6: PAPER 0).
 +---------+------------------------------------------------------------------+
 | Version | Changes                                                          |
 +=========+==================================================================+
+| 8.2     | Added the ``tindex`` and ``alpha`` parameters                    |
++---------+------------------------------------------------------------------+
 | 6.3     | Added support for image path ID replacement fields in the        |
 |         | ``fname`` parameter                                              |
 +---------+------------------------------------------------------------------+
@@ -1627,6 +1634,14 @@ only if the image does not already contain any transparent bits produced by a
 :ref:`mask <masks>`. In an animated image, the ``tindex`` and ``alpha`` values
 on the first frame take effect; any ``tindex`` and ``alpha`` values on the
 second or subsequent frames are ignored.
+
+For example::
+
+  #UDG30000,attr=2,tindex=1,alpha=0
+
+This ``#UDG`` macro creates an image of the UDG at 30000 with red INK and black
+PAPER (``attr=2``), black as the transparent colour (``tindex=1``), and full
+transparency (``alpha=0``).
 
 Snapshot macros
 ^^^^^^^^^^^^^^^

@@ -2576,17 +2576,20 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         scale = 1
         step = 1
         inc = 0
+        mask = 1
+        tindex = 1
+        alpha = 32
         mask_addr = 32776
         x, y, w, h = 2, 1, 3, 4
         udg_data = [136] * 8
         udg_mask = [255] * 8
         snapshot[udg_addr:udg_addr + 8 * step:step] = udg_data
         snapshot[mask_addr:mask_addr + 8 * step:step] = udg_mask
-        macro = '#UDG{0},{1},{2},{3},{4}:{5},{6}{{{7},{8},{9},{10}}}({11})'.format(udg_addr, attr, scale, step, inc, mask_addr, step, x, y, w, h, fname)
+        macro = '#UDG{0},{1},{2},{3},{4},,,{5},{6},{7}:{8},{9}{{{10},{11},{12},{13}}}({14})'.format(udg_addr, attr, scale, step, inc, mask, tindex, alpha, mask_addr, step, x, y, w, h, fname)
         output = writer.expand(macro, ASMDIR)
         self._assert_img_equals(output, fname, exp_src)
         udg_array = [[Udg(attr, udg_data, udg_mask)]]
-        self._check_image(writer, udg_array, scale, 1, 0, -1, x, y, w, h, exp_image_path)
+        self._check_image(writer, udg_array, scale, mask, tindex, alpha, x, y, w, h, exp_image_path)
 
         fname = 'test_udg3'
         exp_image_path = '{}/{}.png'.format(UDGDIR, fname)
@@ -2597,6 +2600,8 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         step = 2
         inc = 0
         mask = 2
+        tindex = 3
+        alpha = 64
         mask_addr = 49153
         mask_step = 2
         x, y, width, height = 1, 2, 4, 3
@@ -2604,14 +2609,14 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         udg_mask = [248] * 8
         snapshot[addr:addr + 8 * step:step] = udg_data
         snapshot[mask_addr:mask_addr + 8 * mask_step:mask_step] = udg_mask
-        params = 'attr={attr},step={step},inc={inc},addr={addr},mask={mask},scale={scale}'
+        params = 'attr={attr},alpha={alpha},step={step},inc={inc},tindex={tindex},addr={addr},mask={mask},scale={scale}'
         mask_spec = ':step={step},addr={mask_addr}'
         crop = '{{x={x},y={y},width={width},height={height}}}'
         macro = ('#UDG' + params + mask_spec + crop + '({fname})').format(**locals())
         output = writer.expand(macro, ASMDIR)
         self._assert_img_equals(output, fname, exp_src)
         udg_array = [[Udg(attr, udg_data, udg_mask)]]
-        self._check_image(writer, udg_array, scale, mask, 0, -1, x, y, width, height, exp_image_path)
+        self._check_image(writer, udg_array, scale, mask, tindex, alpha, x, y, width, height, exp_image_path)
 
         # Arithmetic expressions
         fname = 'test_udg4'

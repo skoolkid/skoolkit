@@ -40,9 +40,9 @@ def _parse_scr(snapshot, param_str):
 
 def _parse_udg(snapshot, param_str):
     end, crop_rect, fname, frame, alt, params = skoolmacro.parse_udg(param_str)
-    addr, attr, scale, step, inc, flip, rotate, mask, mask_addr, mask_step = params
+    addr, attr, scale, step, inc, flip, rotate, mask, tindex, alpha, mask_addr, mask_step = params
     udgs = [[build_udg(snapshot, addr, attr, step, inc, flip, rotate, mask, mask_addr, mask_step)]]
-    return Frame(udgs, scale, mask, *crop_rect)
+    return Frame(udgs, scale, mask, *crop_rect, tindex=tindex, alpha=alpha)
 
 def _parse_udgarray(snapshot, param_str):
     end, crop_rect, fname, frame, alt, params = skoolmacro.parse_udgarray(param_str, 0, snapshot, False)

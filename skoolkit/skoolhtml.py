@@ -1064,13 +1064,13 @@ class HtmlWriter:
 
     def expand_udg(self, text, index, cwd):
         end, crop_rect, fname, frame, alt, params = skoolmacro.parse_udg(text, index)
-        addr, attr, scale, step, inc, flip, rotate, mask, mask_addr, mask_step = params
+        addr, attr, scale, step, inc, flip, rotate, mask, tindex, alpha, mask_addr, mask_step = params
         udgs = lambda: [[build_udg(self.snapshot, addr, attr, step, inc, flip, rotate, mask, mask_addr, mask_step)]]
         if not fname and not frame:
             fname = format_template(self.udg_fname_template, 'UDGFilename', addr=addr, attr=attr, scale=scale)
             if frame == '':
                 frame = fname
-        frame = Frame(udgs, scale, mask, *crop_rect, name=frame)
+        frame = Frame(udgs, scale, mask, *crop_rect, name=frame, tindex=tindex, alpha=alpha)
         return end, self.handle_image(frame, fname, cwd, alt, UDG_IMAGE_PATH)
 
     def _expand_udgarray_with_frames(self, text, index, cwd):

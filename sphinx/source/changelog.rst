@@ -14,10 +14,10 @@ Changelog
 * Added the ``--ini`` and ``--show-config`` options to :ref:`snapinfo.py` (for
   setting the value of a configuration parameter and for showing all
   configuration parameter values)
-* Added the ``tindex`` parameter to the :ref:`FONT` and :ref:`SCR` macros (for
-  specifying a transparent colour to use other than the default)
-* Added the ``alpha`` parameter to the :ref:`FONT` and :ref:`SCR` macros (for
-  specifying the alpha value to use for the transparent colour)
+* Added the ``tindex`` parameter to the :ref:`FONT`, :ref:`SCR` and :ref:`UDG`
+  macros (for specifying a transparent colour to use other than the default)
+* Added the ``alpha`` parameter to the :ref:`FONT`, :ref:`SCR` and :ref:`UDG`
+  macros (for specifying the alpha value to use for the transparent colour)
 * Added the ``--page`` option to :ref:`snapinfo.py` (for specifying the page of
   a 128K snapshot to map to 49152-65535)
 
