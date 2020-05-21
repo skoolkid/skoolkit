@@ -2204,6 +2204,129 @@ class SkoolWriterTest(SkoolKitTestCase):
         snapshot = [175, 201]
         self._test_write_skool(snapshot, ctl, exp_skool)
 
+    def test_refs_directives(self):
+        ctl = """
+            c 00000
+            c 00004
+            c 00008
+            @ 00008 refs=0
+            @ 00009 refs=4
+            i 00010
+        """
+        exp_skool = """
+            ; Routine at 0
+            c00000 LD HL,8       ;
+             00003 JP (HL)       ;
+
+            ; Routine at 4
+            c00004 LD HL,9       ;
+             00007 JP (HL)       ;
+
+            ; Routine at 8
+            ;
+            ; Used by the routine at #R0.
+            @refs=0
+            c00008 XOR A         ;
+            ; This entry point is used by the routine at #R4.
+            @refs=4
+            *00009 RET           ;
+        """
+        snapshot = [
+            33, 8, 0, # 00000 LD HL,8
+            233,      # 00003 JP (HL)
+            33, 9, 0, # 00004 LD HL,9
+            233,      # 00007 JP (HL)
+            175,      # 00008 XOR A
+            201       # 00009 RET
+        ]
+        self._test_write_skool(snapshot, ctl, exp_skool)
+
+    def test_refs_directives_specifying_additional_referrers(self):
+        ctl = """
+            c 00000
+            c 00003
+            c 00006
+            c 00007
+            c 00008
+            @ 00008 refs=6
+            @ 00009 refs=7
+            i 00010
+        """
+        exp_skool = """
+            ; Routine at 0
+            c00000 JP 8          ;
+
+            ; Routine at 3
+            c00003 JP 9          ;
+
+            ; Routine at 6
+            c00006 JP (HL)       ;
+
+            ; Routine at 7
+            c00007 JP (HL)       ;
+
+            ; Routine at 8
+            ;
+            ; Used by the routines at #R0 and #R6.
+            @refs=6
+            c00008 XOR A         ;
+            ; This entry point is used by the routines at #R3 and #R7.
+            @refs=7
+            *00009 RET           ;
+        """
+        snapshot = [
+            195, 8, 0, # 00000 JP 8
+            195, 9, 0, # 00003 JP 9
+            233,       # 00006 JP (HL)
+            233,       # 00007 JP (HL)
+            175,       # 00008 XOR A
+            201        # 00009 RET
+        ]
+        self._test_write_skool(snapshot, ctl, exp_skool)
+
+    def test_refs_directives_with_multiple_addresses(self):
+        ctl = """
+            c 00000
+            c 00001
+            c 00002
+            c 00003
+            c 00004
+            @ 00004 refs=0,1
+            @ 00005 refs=2,3
+            i 00006
+        """
+        exp_skool = """
+            ; Routine at 0
+            c00000 RET           ;
+
+            ; Routine at 1
+            c00001 RET           ;
+
+            ; Routine at 2
+            c00002 RET           ;
+
+            ; Routine at 3
+            c00003 RET           ;
+
+            ; Routine at 4
+            ;
+            ; Used by the routines at #R0 and #R1.
+            @refs=0,1
+            c00004 XOR A         ;
+            ; This entry point is used by the routines at #R2 and #R3.
+            @refs=2,3
+            *00005 RET           ;
+        """
+        snapshot = [
+            201, # 00000 RET
+            201, # 00001 RET
+            201, # 00002 RET
+            201, # 00003 RET
+            175, # 00004 XOR A
+            201  # 00005 RET
+        ]
+        self._test_write_skool(snapshot, ctl, exp_skool)
+
     def test_remote_directives(self):
         ctl = """
             @ 00000 remote=main:24576

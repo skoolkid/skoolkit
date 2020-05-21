@@ -954,6 +954,43 @@ entry.
 | 6.3     | The ``address`` parameter is optional                             |
 +---------+-------------------------------------------------------------------+
 
+.. _refs:
+
+@refs
+^^^^^
+The ``@refs`` directive specifies addresses of routines that jump to the next
+instruction. ::
+
+  @refs=addr1[,addr2...]
+
+* ``addr1``, ``addr2`` etc. are the routine addresses
+
+This directive can be used to declare one or more additional referrers for an
+instruction that would not otherwise be identified by the :ref:`snapshot
+reference calculator <snapshotRefCalc>` (e.g. because the instruction is jumped
+to indirectly via ``JP (HL)`` or ``RET``). As a result:
+
+* :ref:`sna2skool.py` will attach an entry point marker (``*``) to the
+  instruction when reading a control file, and include the additional referrers
+  in any comment generated for the entry point (when the ``ListRefs``
+  :ref:`configuration parameter <sna2skool-conf>` is ``1`` or ``2``)
+* :ref:`snapinfo.py`, when generating a call graph, will add an edge between
+  the node representing the referrer and the node representing the routine that
+  contains the instruction
+
+For example::
+
+  @ 40000 refs=32768
+
+This ``@refs`` directive (in a control file) declares that the routine at 32768
+uses the entry point at 40000.
+
++---------+---------+
+| Version | Changes |
++=========+=========+
+| 8.2     | New     |
++---------+---------+
+
 .. _rem:
 
 @rem

@@ -139,7 +139,7 @@ def parse_asm_sub_fix_directive(directive):
         return flags, label.strip(), op.strip(), comment
     return flags, None, label.strip(), comment
 
-def _parse_addresses(line):
+def parse_addresses(line):
     addresses = []
     if line.startswith('='):
         for n in line[1:].split(','):
@@ -149,10 +149,10 @@ def _parse_addresses(line):
     return addresses
 
 def parse_asm_keep_directive(directive):
-    return _parse_addresses(directive[4:])
+    return parse_addresses(directive[4:])
 
 def parse_asm_nowarn_directive(directive):
-    return _parse_addresses(directive[6:])
+    return parse_addresses(directive[6:])
 
 def parse_address_range(value):
     addresses = [parse_int(n) for n in value.split('-', 1)]
@@ -685,7 +685,7 @@ class SkoolParser:
             elif directive.startswith('nowarn'):
                 self.mode.nowarn = parse_asm_nowarn_directive(directive)
             elif directive.startswith('ignoreua'):
-                self.mode.ignoreua['i'] = self.ignores[len(self.comments)] = _parse_addresses(directive[8:])
+                self.mode.ignoreua['i'] = self.ignores[len(self.comments)] = parse_addresses(directive[8:])
             elif directive.startswith('org'):
                 self.mode.org = directive.rstrip().partition('=')[2]
             elif directive.startswith('writer='):

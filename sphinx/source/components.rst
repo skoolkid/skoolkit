@@ -264,6 +264,11 @@ Each instruction object has the following attributes:
 * *bytes* - the byte values of the instruction
 * *label* - the instruction's label, as defined by a :ref:`label` directive
 * *operation* - the operation (e.g. 'XOR A')
+* *refs* - the addresses of the instruction's indirect referrers, as defined by
+  a :ref:`refs` directive
+
+.. versionchanged:: 8.2
+   Added the *refs* attribute to instruction objects.
 
 Component API
 -------------

@@ -20,6 +20,8 @@ Changelog
 * Added the ``alpha`` parameter to the :ref:`FONT`, :ref:`SCR`, :ref:`UDG` and
   :ref:`UDGARRAY` macros (for specifying the alpha value to use for the
   transparent colour)
+* Added the :ref:`refs` directive (for specifying the addresses of routines
+  that indirectly jump to an entry point)
 * Added the ``--page`` option to :ref:`snapinfo.py` (for specifying the page of
   a 128K snapshot to map to 49152-65535)
 
