@@ -139,7 +139,7 @@ def parse_asm_sub_fix_directive(directive):
         return flags, label.strip(), op.strip(), comment
     return flags, None, label.strip(), comment
 
-def parse_addresses(line):
+def _parse_addresses(line):
     addresses = []
     if line.startswith('='):
         for n in line[1:].split(','):
@@ -149,10 +149,13 @@ def parse_addresses(line):
     return addresses
 
 def parse_asm_keep_directive(directive):
-    return parse_addresses(directive[4:])
+    return _parse_addresses(directive[4:])
 
 def parse_asm_nowarn_directive(directive):
-    return parse_addresses(directive[6:])
+    return _parse_addresses(directive[6:])
+
+def parse_asm_refs_directive(directive):
+    return _parse_addresses(directive[4:])
 
 def parse_address_range(value):
     addresses = [parse_int(n) for n in value.split('-', 1)]
@@ -659,6 +662,8 @@ class SkoolParser:
                 self.mode.data.append(directive)
         elif directive.startswith('keep'):
             self.mode.keep = parse_asm_keep_directive(directive)
+        elif directive.startswith('refs='):
+            self.mode.refs = parse_asm_refs_directive(directive)
         elif directive.startswith('remote='):
             self._parse_remote_directive(directive[7:])
         elif directive.startswith('replace='):
@@ -685,7 +690,7 @@ class SkoolParser:
             elif directive.startswith('nowarn'):
                 self.mode.nowarn = parse_asm_nowarn_directive(directive)
             elif directive.startswith('ignoreua'):
-                self.mode.ignoreua['i'] = self.ignores[len(self.comments)] = parse_addresses(directive[8:])
+                self.mode.ignoreua['i'] = self.ignores[len(self.comments)] = _parse_addresses(directive[8:])
             elif directive.startswith('org'):
                 self.mode.org = directive.rstrip().partition('=')[2]
             elif directive.startswith('writer='):
@@ -796,6 +801,7 @@ class Mode:
         self.subs = defaultdict(list, {0: ()})
         self.keep = None
         self.nowarn = None
+        self.refs = ()
         self.ignoreua = {'i': None, 'm': None}
         self.org = None
 
@@ -845,6 +851,7 @@ class Mode:
 
     def apply_asm_directives(self, snapshot, instruction, map_entry, instructions, address_comments, removed):
         instruction.keep = self.keep
+        instruction.refs = self.refs
 
         self.process_label(instruction, self.label, removed)
 
@@ -1095,6 +1102,7 @@ class InstructionUtility:
         """
         references = {}
         referrers = defaultdict(set)
+        entry_map = {e.address: e for e in entries}
         instructions = {i.address: (i, e) for e in remote_entries + entries for i in e.instructions}
         for entry in entries:
             for instruction in entry.instructions:
@@ -1109,6 +1117,9 @@ class InstructionUtility:
                                 references[instruction] = (ref_i, addr_str, not operation.startswith('RST'))
                                 if operation.startswith(('CALL', 'DJNZ', 'JP', 'JR', 'RST')):
                                     referrers[ref_i].add(entry)
+                for ref_addr in instruction.refs:
+                    if ref_addr in entry_map:
+                        referrers[instruction].add(entry_map[ref_addr])
         return references, referrers
 
     def set_byte_values(self, instruction, assemble):
@@ -1143,6 +1154,7 @@ class Instruction:
         self.address = parse_int(addr_str) # API (InstructionUtility)
         self.keep = None                   # API (InstructionUtility)
         self.operation = operation         # API (InstructionUtility)
+        self.refs = ()                     # API (InstructionUtility)
         self.bytes = ()
         self.container = None
         self.reference = None

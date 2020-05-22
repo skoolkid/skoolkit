@@ -167,6 +167,8 @@ Each instruction object has the following attributes:
 * *operation* - the operation (e.g. 'XOR A') after any ``@*sub`` or ``@*fix``
   directives have been applied; for an instruction in a remote entry, this is
   an empty string
+* *refs* - the addresses of the instruction's indirect referrers, as defined by
+  a :ref:`refs` directive
 * *sub* - `True` if the operation was supplied by ``@*sub`` or ``@*fix``
   directive, `False` otherwise
 
@@ -185,6 +187,9 @@ corresponding value should be a 3-element tuple::
 Each key in the referrers dictionary should be an instruction object, and the
 corresponding value should be a collection of the entries that refer to that
 instruction.
+
+.. versionchanged:: 8.2
+   Added the *refs* attribute to instruction objects.
 
 .. versionchanged:: 8.1
    Added the *mode* parameter to the :meth:`substitute_labels` method, and

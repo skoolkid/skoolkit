@@ -23,9 +23,9 @@ from skoolkit.skoolasm import UDGTABLE_MARKER
 from skoolkit.skoolctl import (AD_LABEL, AD_REFS, TITLE, DESCRIPTION,
                                REGISTERS, MID_BLOCK, INSTRUCTION, END)
 from skoolkit.skoolmacro import ClosingBracketError, parse_brackets
-from skoolkit.skoolparser import (get_address, parse_addresses, parse_register,
-                                  TABLE_MARKER, TABLE_END_MARKER, LIST_MARKER,
-                                  LIST_END_MARKER)
+from skoolkit.skoolparser import (get_address, parse_asm_refs_directive,
+                                  parse_register, LIST_MARKER, TABLE_MARKER,
+                                  LIST_END_MARKER, TABLE_END_MARKER)
 
 MIN_COMMENT_WIDTH = 10
 AD_LABEL_PREFIX = AD_LABEL + '='
@@ -229,7 +229,7 @@ class Disassembly:
                     if instruction.label.startswith('*'):
                         instruction.ctl = '*'
                 elif asm_dir.startswith(AD_REFS):
-                    instruction.refs = parse_addresses(asm_dir[len(AD_REFS):])
+                    instruction.refs = parse_asm_refs_directive(asm_dir)
 
     def _calculate_references(self):
         operations = get_value('SnapshotReferenceOperations').upper()

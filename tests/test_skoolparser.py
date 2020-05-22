@@ -2019,6 +2019,28 @@ class SkoolParserTest(SkoolKitTestCase):
         entry = self._get_parser(skool).get_entry(40000)
         self.assertEqual(['#zero-#one-#two-#three'], entry.details)
 
+    def test_refs_directive(self):
+        skool = """
+            @start
+            ; Routine
+            c40000 JP (HL) ; Jumps to 40003 (say)
+
+            ; Another routine
+            c40001 JP (HL) ; Jumps to 40004 (say)
+
+            ; Yet another routine
+            c40002 JP (HL) ; Also jumps to 40004 (say)
+
+            ; Final routine
+            @refs=40000
+            c40003 XOR A
+            @refs=40001,40002
+             40004 RET
+        """
+        parser = self._get_parser(skool)
+        self.assertEqual([40000], parser.get_instruction(40003).refs)
+        self.assertEqual([40001, 40002], parser.get_instruction(40004).refs)
+
     def test_remote_directive(self):
         skool = """
             @start

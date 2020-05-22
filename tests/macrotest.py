@@ -484,6 +484,32 @@ class CommonSkoolMacroTest:
         output = writer.expand(macro_t.format('30000 + 8 * (7 + 1) - ($79 - 1) / 2'), *cwd)
         self.assertEqual(output, exp_output)
 
+    def test_macro_foreach_with_eref_and_refs_directive(self):
+        skool = """
+            @start
+            ; Routine at 40000
+            c40000 JP 40007 ; Jumps to 40007 (obviously)
+
+            ; Routine at 40003
+            c40003 JP (HL)  ; Also jumps to 40007 (say)
+
+            ; Routine at 40004
+            c40004 JP (HL)  ; Jumps to 40008 (say)
+
+            ; Routine at 40005
+            c40005 JP (HL)  ; Also jumps to 40008 (say)
+
+            ; Routine at 40006
+            c40006 XOR A
+            @refs=40003
+             40007 INC A
+            @refs=40004,40005
+             40008 RET
+        """
+        writer = self._get_writer(skool=skool)
+        self.assertEqual(writer.expand('#FOREACH(EREF40007)(a,a,;)'), '40000;40003')
+        self.assertEqual(writer.expand('#FOREACH(EREF40008)(a,a,;)'), '40004;40005')
+
     def test_macro_foreach_with_eref_invalid(self):
         writer = self._get_writer(skool='')
         self.assertEqual(writer.expand('#FOREACH(EREFx)(n,n)'), 'EREFx')
@@ -519,6 +545,30 @@ class CommonSkoolMacroTest:
         # Arithmetic expression
         output = writer.expand(macro_t.format('(1 + 5 * (2 + 3) - ($63 + 1) / 4)'), *cwd)
         self.assertEqual(output, exp_output)
+
+    def test_macro_foreach_with_ref_and_refs_directive(self):
+        skool = """
+            @start
+            ; Routine at 40000
+            c40000 JP 40006 ; Jumps to 40006 (obviously)
+
+            ; Routine at 40003
+            c40003 JP (HL)  ; Also jumps to 40006 (say)
+
+            ; Routine at 40004
+            c40004 JP (HL)  ; Jumps to 40007 (say)
+
+            ; Routine at 40005
+            c40005 JP (HL)  ; Also jumps to 40007 (say)
+
+            ; Routine at 40006
+            @refs=40003
+            c40006 XOR A
+            @refs=40004,40005
+             40007 RET
+        """
+        writer = self._get_writer(skool=skool)
+        self.assertEqual(writer.expand('#FOREACH(REF40006)(a,a,;)'), '40000;40003;40004;40005')
 
     def test_macro_foreach_with_ref_invalid(self):
         writer = self._get_writer()

@@ -977,6 +977,8 @@ to indirectly via ``JP (HL)`` or ``RET``). As a result:
 * :ref:`snapinfo.py`, when generating a call graph, will add an edge between
   the node representing the referrer and the node representing the routine that
   contains the instruction
+* the addresses of the additional referrers become available to the special
+  ``EREF`` and ``REF`` variables of the :ref:`FOREACH` macro
 
 For example::
 
