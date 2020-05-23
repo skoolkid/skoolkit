@@ -1082,6 +1082,25 @@ class SnapinfoTest(SkoolKitTestCase):
         """
         self._test_bin(ram, exp_output, '-g', ctl, suffix='.ram')
 
+    def test_option_g_with_refs_directive(self):
+        ram = [233, 201]
+        ctl = """
+            @ 65534 label=FIRST
+            c 65534
+            @ 65535 label=SECOND
+            @ 65535 refs=65534
+            c 65535
+        """
+        exp_output = r"""
+            digraph {
+            node [shape=record]
+            65534 [label="65534 FFFE\nFIRST"]
+            65534 -> {65535}
+            65535 [label="65535 FFFF\nSECOND"]
+            }
+        """
+        self._test_bin(ram, exp_output, '-g', ctl)
+
     @patch.object(snapinfo, 'run', mock_run)
     @patch.object(snapinfo, 'get_config', mock_config)
     def test_option_I(self):
