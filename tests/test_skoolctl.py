@@ -1300,6 +1300,22 @@ class CtlWriterTest(SkoolKitTestCase):
         """
         self._test_ctl(skool, exp_ctl)
 
+    def test_refs_directives(self):
+        skool = """
+            ; Routine
+            @refs=24576
+            c32768 LD A,B
+            @refs=30000,30010
+             32769 RET
+        """
+        exp_ctl = """
+            c 32768 Routine
+            @ 32768 refs=24576
+            @ 32769 refs=30000,30010
+            i 32770
+        """
+        self._test_ctl(skool, exp_ctl)
+
     def test_remote_directives(self):
         skool = """
             @remote=main:55213
