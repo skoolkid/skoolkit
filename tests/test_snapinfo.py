@@ -849,6 +849,7 @@ class SnapinfoTest(SkoolKitTestCase):
             i 16388
         """
         exp_output = r"""
+            // Orphans: 16385
             digraph {
             node [shape=record]
             16384 [label="16384 4000\nEND"]
@@ -874,6 +875,7 @@ class SnapinfoTest(SkoolKitTestCase):
             i 16388
         """
         exp_output = r"""
+            // Orphans: None
             digraph {
             node [shape=record]
             16384 [label="16384 4000\nONE"]
@@ -897,6 +899,7 @@ class SnapinfoTest(SkoolKitTestCase):
             i 16388
         """
         exp_output = r"""
+            // Orphans: 16385
             digraph {
             node [shape=record]
             16384 [label="16384 4000\nEND"]
@@ -990,6 +993,7 @@ class SnapinfoTest(SkoolKitTestCase):
     def test_option_g_with_no_ctl_file(self):
         ram = [0] * 49152
         exp_output = r"""
+            // Orphans: 16384
             digraph {
             node [shape=record]
             16384 [label="16384 4000\n"]
@@ -1007,6 +1011,7 @@ class SnapinfoTest(SkoolKitTestCase):
             i 16388
         """
         exp_output = r"""
+            // Orphans: 16384
             digraph {
             node [shape=record]
             16384 [label="16384 4000\nSTART"]
@@ -1026,6 +1031,7 @@ class SnapinfoTest(SkoolKitTestCase):
             i 16388
         """
         exp_output = r"""
+            // Orphans: 16384
             digraph {
             node [shape=record]
             16384 [label="16384 4000\nSTART"]
@@ -1038,6 +1044,7 @@ class SnapinfoTest(SkoolKitTestCase):
     def test_option_g_with_raw_memory_file_and_no_ctl_file(self):
         ram = [0]
         exp_output = r"""
+            // Orphans: 0
             digraph {
             node [shape=record]
             0 [label="0 0000\n"]
@@ -1055,6 +1062,7 @@ class SnapinfoTest(SkoolKitTestCase):
             i 00004
         """
         exp_output = r"""
+            // Orphans: 0
             digraph {
             node [shape=record]
             0 [label="0 0000\nSTART"]
@@ -1073,6 +1081,7 @@ class SnapinfoTest(SkoolKitTestCase):
             c 65535
         """
         exp_output = r"""
+            // Orphans: 65532
             digraph {
             node [shape=record]
             65532 [label="65532 FFFC\nSTART"]
@@ -1092,10 +1101,64 @@ class SnapinfoTest(SkoolKitTestCase):
             c 65535
         """
         exp_output = r"""
+            // Orphans: 65534
             digraph {
             node [shape=record]
             65534 [label="65534 FFFE\nFIRST"]
             65534 -> {65535}
+            65535 [label="65535 FFFF\nSECOND"]
+            }
+        """
+        self._test_bin(ram, exp_output, '-g', ctl)
+
+    def test_option_g_with_no_orphans(self):
+        ram = [24, 0, 24, 252]
+        ctl = """
+            @ 65532 label=FORTH
+            c 65532
+            @ 65534 label=BACK
+            c 65534
+        """
+        exp_output = r"""
+            // Orphans: None
+            digraph {
+            node [shape=record]
+            65532 [label="65532 FFFC\nFORTH"]
+            65532 -> {65534}
+            65534 [label="65534 FFFE\nBACK"]
+            65534 -> {65532}
+            }
+        """
+        self._test_bin(ram, exp_output, '-g', ctl)
+
+    def test_option_g_with_one_orphan(self):
+        ram = [201]
+        ctl = """
+            @ 65535 label=START
+            c 65535
+        """
+        exp_output = r"""
+            // Orphans: 65535
+            digraph {
+            node [shape=record]
+            65535 [label="65535 FFFF\nSTART"]
+            }
+        """
+        self._test_bin(ram, exp_output, '-g', ctl)
+
+    def test_option_g_with_two_orphans(self):
+        ram = [201, 201]
+        ctl = """
+            @ 65534 label=FIRST
+            c 65534
+            @ 65535 label=SECOND
+            c 65535
+        """
+        exp_output = r"""
+            // Orphans: 65534, 65535
+            digraph {
+            node [shape=record]
+            65534 [label="65534 FFFE\nFIRST"]
             65535 [label="65535 FFFF\nSECOND"]
             }
         """
@@ -1664,6 +1727,7 @@ class SnapinfoTest(SkoolKitTestCase):
             i 16387
         """
         exp_output = r"""
+            // Orphans: 16384
             digraph {
             node [shape=record]
             edge [arrowhead=open]
@@ -1684,6 +1748,7 @@ class SnapinfoTest(SkoolKitTestCase):
             i 16387
         """
         exp_output = r"""
+            // Orphans: 16384
             digraph {
             graph [bgcolor=bisque]
             node [shape=record]
@@ -1704,6 +1769,7 @@ class SnapinfoTest(SkoolKitTestCase):
             i 16388
         """
         exp_output = r"""
+            // Orphans: 16384
             digraph {
             node [shape=box]
             16384 [label="16384 4000\nSTART"]
@@ -1723,6 +1789,7 @@ class SnapinfoTest(SkoolKitTestCase):
             i 16388
         """
         exp_output = r"""
+            // Orphans: 16384
             digraph {
             16384 [label="16384 4000\nSTART"]
             16384 -> {16387}
@@ -1741,6 +1808,7 @@ class SnapinfoTest(SkoolKitTestCase):
             i 16388
         """
         exp_output = r"""
+            // Orphans: START
             digraph {
             node [shape=record]
             START [label="16384 4000\nSTART"]
@@ -1760,6 +1828,7 @@ class SnapinfoTest(SkoolKitTestCase):
             i 16388
         """
         exp_output = """
+            // Orphans: 16384
             digraph {
             node [shape=record]
             16384 [label="START"]
@@ -1785,6 +1854,7 @@ class SnapinfoTest(SkoolKitTestCase):
             i 16388
         """
         exp_output = """
+            // Orphans: 16384
             digraph {
             node [shape=none]
             16384 [label=<<TABLE><TR><TD>START</TD></TR></TABLE>>]

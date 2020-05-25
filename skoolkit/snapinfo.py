@@ -366,18 +366,28 @@ def _get_address_ranges(specs, step=1):
 
 def _call_graph(snapshot, ctlfiles, prefix, start, end, config):
     disassembly = Disassembly(snapshot, get_ctl_parser(ctlfiles, prefix, start, end, start, end), True)
-    entries = {e.address: (e, set()) for e in disassembly.entries if e.ctl == 'c'}
-    for entry, refs in entries.values():
+    entries = {e.address: (e, set(), {}) for e in disassembly.entries if e.ctl == 'c'}
+    orphans = list(entries)
+    for entry, refs, props in entries.values():
+        props.update({'address': entry.address, 'label': entry.instructions[0].label or ''})
         for instruction in entry.instructions:
             for ref_addr in instruction.referrers:
                 if ref_addr in entries:
                     entries[ref_addr][1].add(entry.address)
+                    if entry.address in orphans:
+                        orphans.remove(entry.address)
         addr, size, mc, op_id, op = next(decode(snapshot, entry.instructions[-1].address, 65536))
         if op_id != END:
             next_entry_addr = addr + size
             if next_entry_addr in entries:
                 refs.add(next_entry_addr)
+                if next_entry_addr in orphans:
+                    orphans.remove(next_entry_addr)
 
+    orphan_ids = [config['NodeId'].format(**entries[addr][2]) for addr in sorted(orphans)]
+    if not orphan_ids:
+        orphan_ids.append('None')
+    print('// Orphans: {}'.format(', '.join(orphan_ids)))
     print('digraph {')
     if config['GraphAttributes']:
         print('graph [{}]'.format(config['GraphAttributes']))
@@ -385,10 +395,9 @@ def _call_graph(snapshot, ctlfiles, prefix, start, end, config):
         print('node [{}]'.format(config['NodeAttributes']))
     if config['EdgeAttributes']:
         print('edge [{}]'.format(config['EdgeAttributes']))
-    for entry, refs in entries.values():
-        node_props = {'address': entry.address, 'label': entry.instructions[0].label or ''}
-        node_id = config['NodeId'].format(**node_props)
-        print('{} [label={}]'.format(node_id, config['NodeLabel'].format(**node_props)))
+    for entry, refs, props in entries.values():
+        node_id = config['NodeId'].format(**props)
+        print('{} [label={}]'.format(node_id, config['NodeLabel'].format(**props)))
         if refs:
             ref_ids = [config['NodeId'].format(address=a, label=entries[a][0].instructions[0].label or '') for a in refs]
             print('{} -> {{{}}}'.format(node_id, ' '.join(ref_ids)))

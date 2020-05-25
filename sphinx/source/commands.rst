@@ -1033,6 +1033,13 @@ To create a PNG image file named `game.png` from `game.dot`, the `dot` utility
 
   $ dot -Tpng game.dot > game.png
 
+A call graph may contain one or more 'orphans', an orphan being a node that is
+not at the head of any arrow, and thus represents a routine that is (as far as
+`snapinfo.py` can tell) not used by any other routines. To declare the callers
+of such a routine (in case it is not a true orphan), the :ref:`refs` directive
+may be used. To help identify orphan nodes, the DOT file produced by
+`snapinfo.py` contains a list of them in a comment on the first line.
+
 The appearance of nodes and edges in a call graph image can be configured via
 the ``EdgeAttributes``, ``GraphAttributes``, ``NodeAttributes`` and
 ``NodeLabel`` configuration parameters (see below).
