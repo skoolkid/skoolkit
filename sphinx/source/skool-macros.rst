@@ -350,6 +350,41 @@ used in the ``expr`` parameter.
 | 5.1     | New                                                            |
 +---------+----------------------------------------------------------------+
 
+.. _LET:
+
+#LET
+----
+The ``#LET`` macro defines a variable and places it in the ``vars`` dictionary.
+::
+
+  #LET(name=value)
+
+* ``name`` is the variable name
+* ``value`` is the value to assign; this may contain skool macros (which are
+  expanded immediately) and replacement fields (which are replaced after any
+  skool macros have been expanded), and is evaluated as an arithmetic
+  expression
+
+For example::
+
+  #LET(count=2*2)
+
+This instance of the ``#LET`` macro assigns the value '4' to the variable
+``count`` and places it in the ``vars`` dictionary, making it accessible to
+other skool macros via a replacement field: ``{vars[count]}``.
+
+See :ref:`stringParameters` for details on alternative ways to supply the
+``name=value`` parameter string.
+
+See :ref:`numericParameters` for details on the replacement fields that may be
+used in the ``value`` portion of the parameter string.
+
++---------+---------+
+| Version | Changes |
++=========+=========+
+| 8.2     | New     |
++---------+---------+
+
 .. _MAP:
 
 #MAP

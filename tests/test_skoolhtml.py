@@ -188,7 +188,7 @@ class MockSkoolParser:
         self.base = base
         self.case = case
         self.skoolfile = ''
-        self.fields = {'asm': 0, 'base': base, 'case': case, 'fix': 0, 'html': 1}
+        self.fields = {'asm': 0, 'base': base, 'case': case, 'fix': 0, 'html': 1, 'vars': {}}
 
     def get_entry(self, address):
         return self.entries.get(address)

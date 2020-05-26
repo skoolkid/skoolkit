@@ -705,6 +705,49 @@ class CommonSkoolMacroTest:
         self._assert_error(writer, '#INCLUDE0', "No text parameter", prefix)
         self._assert_error(writer, '#INCLUDE(0)', "No text parameter", prefix)
 
+    def test_macro_let(self):
+        writer = self._get_writer()
+
+        # Plain value
+        self.assertEqual(writer.expand('#LET(foo=1)'), '')
+        self.assertEqual(writer.fields['vars']['foo'], 1)
+
+        # Macro
+        self.assertEqual(writer.expand('#LET[foo=#IF(1)(2,1)]'), '')
+        self.assertEqual(writer.fields['vars']['foo'], 2)
+
+        # Replacement field
+        self.assertEqual(writer.expand('#LET{foo=3}'), '')
+        self.assertEqual(writer.expand('#LET(bar={vars[foo]})'), '')
+        self.assertEqual(writer.fields['vars']['bar'], 3)
+
+        # Macro and replacement field
+        self.assertEqual(writer.expand('#LET(foo=4)'), '')
+        self.assertEqual(writer.expand('#LET(bar=5)'), '')
+        self.assertEqual(writer.expand('#LET/baz=#IF(1)({vars[foo]},{vars[bar]})/'), '')
+        self.assertEqual(writer.fields['vars']['baz'], 4)
+
+        # Arithmetic expression
+        self.assertEqual(writer.expand('#LET(foo=5)'), '')
+        self.assertEqual(writer.expand('#LET(bar=6)'), '')
+        self.assertEqual(writer.expand('#LET|baz={vars[foo]}+{vars[bar]}*2|'), '')
+        self.assertEqual(writer.fields['vars']['baz'], 17)
+
+    def test_macro_let_invalid(self):
+        writer = self._get_writer()
+        prefix = ERROR_PREFIX.format('LET')
+
+        self._assert_error(writer, '#LET', 'No text parameter', prefix)
+        self._assert_error(writer, '#LET()', "Missing variable name: ''", prefix)
+        self._assert_error(writer, '#LET(=)', "Missing variable name: '='", prefix)
+        self._assert_error(writer, '#LET(=1)', "Missing variable name: '=1'", prefix)
+        self._assert_error(writer, '#LET(foo)', "Missing variable value: 'foo'", prefix)
+        self._assert_error(writer, '#LET(foo=)', "Missing variable value: 'foo='", prefix)
+        self._assert_error(writer, '#LET(foo', 'No closing bracket: (foo', prefix)
+        self._assert_error(writer, '#LET(foo={wrong})', "Unrecognised field 'wrong': foo={wrong}", prefix)
+        self._assert_error(writer, '#LET(foo=#IF({fix}<1)(a+b))', "Cannot parse integer value 'a+b': foo=#IF({fix}<1)(a+b)", prefix)
+        self._assert_error(writer, '#LET(foo=#IF())', "No valid expression found: '#IF()'", ERROR_PREFIX.format('IF'))
+
     def test_macro_link_invalid(self):
         writer = self._get_writer()
         prefix = ERROR_PREFIX.format('LINK')

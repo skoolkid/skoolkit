@@ -20,7 +20,8 @@ class MockSkoolParser:
             'base': base,
             'case': case,
             'fix': fix_mode,
-            'html': 0
+            'html': 0,
+            'vars': {}
         }
 
     def get_entry(self, address):

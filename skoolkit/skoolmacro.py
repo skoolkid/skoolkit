@@ -444,6 +444,7 @@ def get_macros(writer):
         '#FOR': parse_for,
         '#FOREACH': partial(parse_foreach, writer.parser),
         '#IF': partial(parse_if, writer.fields),
+        '#LET': partial(parse_let, writer),
         '#MAP': partial(parse_map, writer.fields),
         '#N': partial(parse_n, writer.base, writer.case == CASE_LOWER),
         '#PC': partial(parse_pc, writer),
@@ -674,6 +675,25 @@ def parse_include(text, index):
         end, paragraphs = index, 0
     end, section = parse_strings(text, end, 1)
     return end, paragraphs, section
+
+def parse_let(writer, text, index, *cwd):
+    # #LET(name=value)
+    end, stmt = parse_strings(text, index, 1)
+    name, sep, value = stmt.partition('=')
+    if name and sep and value:
+        try:
+            value = writer.expand(value, *cwd).format(**writer.fields)
+        except KeyError as e:
+            raise InvalidParameterError("Unrecognised field '{}': {}".format(e.args[0], stmt))
+        try:
+            writer.fields['vars'][name] = evaluate(value)
+        except ValueError:
+            raise InvalidParameterError("Cannot parse integer value '{}': {}".format(value, stmt))
+    elif name:
+        raise InvalidParameterError("Missing variable value: '{}'".format(stmt))
+    else:
+        raise InvalidParameterError("Missing variable name: '{}'".format(stmt))
+    return end, ''
 
 def parse_link(text, index):
     # #LINK:PageId[#name](link text)
