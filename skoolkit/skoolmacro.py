@@ -119,12 +119,7 @@ def parse_ints(text, index=0, num=0, defaults=(), names=(), fields=None):
         if _writer:
             params = _writer.expand(params, *_cwd)
         if fields:
-            try:
-                params = params.format(**fields)
-            except KeyError as e:
-                raise InvalidParameterError("Unrecognised field '{}': {}".format(e.args[0], text[index:end]))
-            except ValueError:
-                raise InvalidParameterError('Invalid expression: {}'.format(text[index:end]))
+            params = _format_params(params, fields, text[index:end])
         return [end] + get_params(params, num, defaults, names, False)
     if names:
         match = RE_NAMED_PARAMS.match(text, index)
@@ -257,6 +252,14 @@ def parse_image_macro(text, index=0, defaults=(), names=(), fname=''):
     end, crop_rect = _parse_crop_spec(text, result[0])
     end, fname, frame, alt = _parse_image_fname(text, end, fname)
     return end, crop_rect, fname, frame, alt, result[1:]
+
+def _format_params(params, fields, full_params):
+    try:
+        return params.format(**fields)
+    except KeyError as e:
+        raise InvalidParameterError("Unrecognised field '{}': {}".format(e.args[0], full_params))
+    except ValueError:
+        raise InvalidParameterError('Invalid format string: {}'.format(full_params))
 
 def _split_unbracketed(text):
     if '(' not in text:
@@ -443,6 +446,7 @@ def get_macros(writer):
         '#EVAL': partial(parse_eval, writer.fields, writer.case == CASE_LOWER),
         '#FOR': parse_for,
         '#FOREACH': partial(parse_foreach, writer.parser),
+        '#FORMAT': partial(parse_format, writer.fields),
         '#IF': partial(parse_if, writer.fields),
         '#LET': partial(parse_let, writer),
         '#MAP': partial(parse_map, writer.fields),
@@ -647,6 +651,11 @@ def parse_foreach(entry_holder, text, index, *cwd):
         return end, s.replace(var, values[0])
     return end, fsep.join((sep.join([s.replace(var, v) for v in values[:-1]]), s.replace(var, values[-1])))
 
+def parse_format(fields, text, index, *cwd):
+    # #FORMAT(text)
+    end, fmt = parse_strings(text, index, 1)
+    return end, _format_params(fmt, fields, text[index:end])
+
 def parse_html(text, index):
     # #HTML(text)
     return parse_strings(text, index, 1)
@@ -681,10 +690,7 @@ def parse_let(writer, text, index, *cwd):
     end, stmt = parse_strings(text, index, 1)
     name, sep, value = stmt.partition('=')
     if name and sep and value:
-        try:
-            value = writer.expand(value, *cwd).format(**writer.fields)
-        except KeyError as e:
-            raise InvalidParameterError("Unrecognised field '{}': {}".format(e.args[0], stmt))
+        value = _format_params(writer.expand(value, *cwd), writer.fields, text[index:end])
         try:
             writer.fields['vars'][name] = evaluate(value)
         except ValueError:

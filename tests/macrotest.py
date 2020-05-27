@@ -587,6 +587,26 @@ class CommonSkoolMacroTest:
         self._assert_error(writer, '#FOREACH(EREF$81A4)(n,n)', 'No instruction at 33188: EREF$81A4', prefix)
         self._assert_error(writer, '#FOREACH(REF$81A4)(n,n)', 'No entry at 33188: REF$81A4', prefix)
 
+    def test_macro_format(self):
+        writer = self._get_writer(base=BASE_16, case=CASE_LOWER)
+        writer.fields['vars'].update({'foo': 255, 'bar': 'hello'})
+
+        self.assertEqual(writer.expand('#FORMAT({base})'), '16')
+        self.assertEqual(writer.expand('#FORMAT({case})'), '1')
+        self.assertEqual(writer.expand('#FORMAT({html})'), '1' if isinstance(writer, HtmlWriter) else '0')
+        self.assertEqual(writer.expand('#FORMAT({vars[foo]:02x})'), 'ff')
+        self.assertEqual(writer.expand('#FORMAT({vars[bar]:_^9})'), '__hello__')
+
+    def test_macro_format_invalid(self):
+        writer = self._get_writer()
+        prefix = ERROR_PREFIX.format('FORMAT')
+
+        self._assert_error(writer, '#FORMAT', 'No text parameter', prefix)
+        self._assert_error(writer, '#FORMAT({asm}', 'No closing bracket: ({asm}', prefix)
+        self._assert_error(writer, '#FORMAT/{fix}', 'No terminating delimiter: /{fix}', prefix)
+        self._assert_error(writer, '#FORMAT({unknown})', "Unrecognised field 'unknown': ({unknown})", prefix)
+        self._assert_error(writer, '#FORMAT({bad)', 'Invalid format string: ({bad)', prefix)
+
     def test_macro_html_invalid(self):
         writer = self._get_writer()
         prefix = ERROR_PREFIX.format('HTML')
@@ -691,7 +711,7 @@ class CommonSkoolMacroTest:
 
         self._assert_error(writer, '#IF', "No valid expression found: '#IF'", prefix)
         self._assert_error(writer, '#IFx', "No valid expression found: '#IFx'", prefix)
-        self._assert_error(writer, '#IF({asm)(1,0)', "Invalid expression: ({asm)", prefix)
+        self._assert_error(writer, '#IF({asm)(1,0)', "Invalid format string: ({asm)", prefix)
         self._assert_error(writer, '#IF(0)', "No output strings: (0)", prefix)
         self._assert_error(writer, '#IF(0)(true,false,other)', "Too many output strings (expected 2): (0)(true,false,other)", prefix)
         self._assert_error(writer, '#IF1(true,false', "No closing bracket: (true,false", prefix)
@@ -744,7 +764,8 @@ class CommonSkoolMacroTest:
         self._assert_error(writer, '#LET(foo)', "Missing variable value: 'foo'", prefix)
         self._assert_error(writer, '#LET(foo=)', "Missing variable value: 'foo='", prefix)
         self._assert_error(writer, '#LET(foo', 'No closing bracket: (foo', prefix)
-        self._assert_error(writer, '#LET(foo={wrong})', "Unrecognised field 'wrong': foo={wrong}", prefix)
+        self._assert_error(writer, '#LET(foo={wrong})', "Unrecognised field 'wrong': (foo={wrong})", prefix)
+        self._assert_error(writer, '#LET(foo={bad)', 'Invalid format string: (foo={bad)', prefix)
         self._assert_error(writer, '#LET(foo=#IF({fix}<1)(a+b))', "Cannot parse integer value 'a+b': foo=#IF({fix}<1)(a+b)", prefix)
         self._assert_error(writer, '#LET(foo=#IF())', "No valid expression found: '#IF()'", ERROR_PREFIX.format('IF'))
 
@@ -857,7 +878,7 @@ class CommonSkoolMacroTest:
 
         self._assert_error(writer, '#MAP', "No valid expression found: '#MAP'", prefix)
         self._assert_error(writer, '#MAPq', "No valid expression found: '#MAPq'", prefix)
-        self._assert_error(writer, '#MAP({html)(0)', "Invalid expression: ({html)", prefix)
+        self._assert_error(writer, '#MAP({html)(0)', "Invalid format string: ({html)", prefix)
         self._assert_error(writer, '#MAP0', "No mappings provided: 0", prefix)
         self._assert_error(writer, '#MAP0 ()', "No mappings provided: 0", prefix)
         self._assert_error(writer, '#MAP0(1,2:3', "No closing bracket: (1,2:3", prefix)

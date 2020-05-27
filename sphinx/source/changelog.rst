@@ -16,6 +16,8 @@ Changelog
   configuration parameter values)
 * Added the :ref:`LET` macro (for defining variables that can be retrieved by
   other macros from the ``vars`` dictionary via a replacement field)
+* Added the :ref:`FORMAT` macro (for performing a Python-style string
+  formatting operation on an arbitrary piece of text)
 * Added the ``tindex`` parameter to the :ref:`FONT`, :ref:`SCR`, :ref:`UDG` and
   :ref:`UDGARRAY` macros (for specifying a transparent colour to use other than
   the default)

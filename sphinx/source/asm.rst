@@ -609,12 +609,13 @@ value of an arithmetic expression. ::
 
   @if(expr)(true[,false])
 
-* ``expr`` is the arithmetic expression
+* ``expr`` is the arithmetic expression, which may contain
+  :ref:`replacement fields <replacementFields>`
 * ``true`` is processed when ``expr`` is true
 * ``false`` (if given) is processed when ``expr`` is false
 
-See :ref:`numericParameters` for details on the operators and replacement
-fields that may be used in the ``expr`` parameter.
+See :ref:`numericParameters` for details on the operators that may be used in
+the ``expr`` parameter.
 
 For example::
 

@@ -67,38 +67,6 @@ Parentheses and spaces are also permitted in an arithmetic expression::
 
   #IF(1 == 2 || (1 <= 2 && 2 < 3))(Yes,No)
 
-The parameter strings of the :ref:`asm-if` directive, the :ref:`EVAL` macro,
-the :ref:`IF` macro, and the :ref:`MAP` macro also recognise some replacement
-fields:
-
-* ``asm`` - 1 if in :ref:`isubMode`, 2 if in :ref:`ssubMode`, 3 if in
-  :ref:`rsubMode`, or 0 otherwise
-* ``base`` - 10 if the ``--decimal`` option is used with :ref:`skool2asm.py`
-  or :ref:`skool2html.py`, 16 if the ``--hex`` option is used, or 0 if neither
-  option is used
-* ``case`` - 1 if the ``--lower`` option is used with :ref:`skool2asm.py`
-  or :ref:`skool2html.py`, 2 if the ``--upper`` option is used, or 0 if neither
-  option is used
-* ``fix`` - 1 if in :ref:`ofixMode`, 2 if in :ref:`bfixMode`, 3 if in
-  :ref:`rfixMode`, or 0 otherwise
-* ``html`` - 1 if in HTML mode, 0 otherwise
-* ``vars`` - a dictionary of variables defined by the ``--var`` option of
-  :ref:`skool2asm.py` or :ref:`skool2html.py`; accessing an undefined variable
-  in this dictionary yields the value '0'
-
-For example::
-
-  #IF({case}==1)(hl,HL)
-
-expands to ``hl`` if in lower case mode, or ``HL`` otherwise.
-
-Note that if a replacement field is used, the numeric parameter must be
-enclosed in parentheses.
-
-.. versionchanged:: 6.4
-   The ``asm`` replacement field indicates the exact ASM mode; added the
-   ``fix`` and ``vars`` replacement fields.
-
 .. _stringParameters:
 
 String parameters
@@ -148,6 +116,43 @@ Note that if an alternative delimiter or separator is used, it must not be '&',
 .. versionchanged:: 6.4
    When a comma-separated sequence of string parameters is split, any commas
    that appear between parentheses are retained.
+
+.. _replacementFields:
+
+Replacement fields
+^^^^^^^^^^^^^^^^^^
+The parameter strings of the :ref:`asm-if` directive and the :ref:`EVAL`,
+:ref:`FORMAT`, :ref:`IF`, :ref:`LET` and :ref:`MAP` macros accept the following
+replacement fields:
+
+* ``asm`` - 1 if in :ref:`isubMode`, 2 if in :ref:`ssubMode`, 3 if in
+  :ref:`rsubMode`, or 0 otherwise
+* ``base`` - 10 if the ``--decimal`` option is used with :ref:`skool2asm.py`
+  or :ref:`skool2html.py`, 16 if the ``--hex`` option is used, or 0 if neither
+  option is used
+* ``case`` - 1 if the ``--lower`` option is used with :ref:`skool2asm.py`
+  or :ref:`skool2html.py`, 2 if the ``--upper`` option is used, or 0 if neither
+  option is used
+* ``fix`` - 1 if in :ref:`ofixMode`, 2 if in :ref:`bfixMode`, 3 if in
+  :ref:`rfixMode`, or 0 otherwise
+* ``html`` - 1 if in HTML mode, 0 otherwise
+* ``vars`` - a dictionary of variables defined by the :ref:`LET` macro or by
+  the ``--var`` option of :ref:`skool2asm.py` or :ref:`skool2html.py`;
+  accessing an undefined variable in this dictionary yields the integer value
+  '0'
+
+For example::
+
+  #IF({case}==1)(hl,HL)
+
+expands to ``hl`` if in lower case mode, or ``HL`` otherwise.
+
+Note that if a replacement field is used, the parameter string must be
+enclosed in parentheses.
+
+.. versionchanged:: 6.4
+   The ``asm`` replacement field indicates the exact ASM mode; added the
+   ``fix`` and ``vars`` replacement fields.
 
 SMPL macros
 ^^^^^^^^^^^
@@ -200,8 +205,8 @@ For example::
 
 This instance of the ``#EVAL`` macro expands to '00111110' (62 in binary).
 
-See :ref:`numericParameters` for details on the replacement fields that may be
-used in the parameter string.
+The parameter string of the ``#EVAL`` macro may contain
+:ref:`replacement fields <replacementFields>`.
 
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
@@ -312,6 +317,37 @@ See :ref:`stringParameters` for details on alternative ways to supply the
 | 5.1     | New     |
 +---------+---------+
 
+.. _FORMAT:
+
+#FORMAT
+-------
+The ``#FORMAT`` macro performs a Python-style `string formatting operation`_ on
+its sole argument. ::
+
+  #FORMAT(text)
+
+* ``text`` is the string to format, which may contain
+  :ref:`replacement fields <replacementFields>`
+
+For example::
+
+  #FORMAT({vars[count]:04X})
+
+This instance of the ``#FORMAT`` macro formats the value of the ``count``
+variable in the ``vars`` dictionary (assuming it has already been defined, e.g.
+by the :ref:`LET` macro) as a 4-digit upper case hexadecimal number.
+
+See :ref:`stringParameters` for details on alternative ways to supply the
+``text`` parameter.
+
++---------+---------+
+| Version | Changes |
++=========+=========+
+| 8.2     | New     |
++---------+---------+
+
+.. _string formatting operation: https://docs.python.org/3/library/string.html#format-string-syntax
+
 .. _IF:
 
 #IF
@@ -321,7 +357,8 @@ arithmetic expression. ::
 
   #IFexpr(true[,false])
 
-* ``expr`` is the arithmetic expression
+* ``expr`` is the arithmetic expression, which may contain
+  :ref:`replacement fields <replacementFields>`
 * ``true`` is the output string when ``expr`` is true
 * ``false`` is the output string when ``expr`` is false (default: the empty
   string)
@@ -338,9 +375,6 @@ XOXOXOXO.
 
 See :ref:`stringParameters` for details on alternative ways to supply the
 ``true`` and ``false`` output strings.
-
-See :ref:`numericParameters` for details on the replacement fields that may be
-used in the ``expr`` parameter.
 
 +---------+----------------------------------------------------------------+
 | Version | Changes                                                        |
@@ -361,23 +395,20 @@ The ``#LET`` macro defines a variable and places it in the ``vars`` dictionary.
 
 * ``name`` is the variable name
 * ``value`` is the value to assign; this may contain skool macros (which are
-  expanded immediately) and replacement fields (which are replaced after any
-  skool macros have been expanded), and is evaluated as an arithmetic
-  expression
+  expanded immediately) and :ref:`replacement fields <replacementFields>`
+  (which are replaced after any skool macros have been expanded), and is
+  evaluated as an arithmetic expression
 
 For example::
 
   #LET(count=2*2)
 
-This instance of the ``#LET`` macro assigns the value '4' to the variable
-``count`` and places it in the ``vars`` dictionary, making it accessible to
-other skool macros via a replacement field: ``{vars[count]}``.
+This instance of the ``#LET`` macro assigns the integer value '4' to the
+variable ``count`` and places it in the ``vars`` dictionary, making it
+accessible to other skool macros via a replacement field: ``{vars[count]}``.
 
 See :ref:`stringParameters` for details on alternative ways to supply the
 ``name=value`` parameter string.
-
-See :ref:`numericParameters` for details on the replacement fields that may be
-used in the ``value`` portion of the parameter string.
 
 +---------+---------+
 | Version | Changes |
@@ -394,7 +425,8 @@ are integers. ::
 
   #MAPkey(default[,k1:v1,k2:v2...])
 
-* ``key`` is the integer to look up in the map
+* ``key`` is the integer to look up in the map; this parameter may contain
+  :ref:`replacement fields <replacementFields>`
 * ``default`` is the default output string (used when ``key`` is not found in
   the map)
 * ``k1:v1``, ``k2:v2`` etc. are the key-value pairs in the map
@@ -416,9 +448,6 @@ operations. They may also be expressed using skool macros, but in that case the
 
 See :ref:`stringParameters` for details on alternative ways to supply the
 default output string and the key-value pairs.
-
-See :ref:`numericParameters` for details on the replacement fields that may be
-used in the ``key`` parameter.
 
 +---------+---------------------------------------------------------------+
 | Version | Changes                                                       |
