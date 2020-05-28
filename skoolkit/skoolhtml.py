@@ -26,7 +26,7 @@ from collections import defaultdict
 import re
 from io import StringIO
 
-from skoolkit import skoolmacro, SkoolKitError, warn, parse_int, format_template
+from skoolkit import skoolmacro, SkoolKitError, evaluate, format_template, parse_int, warn
 from skoolkit.components import get_component
 from skoolkit.defaults import REF_FILE
 from skoolkit.graphics import Frame, adjust_udgs, build_udg, font_udgs, scr_udgs
@@ -1039,7 +1039,7 @@ class HtmlWriter:
                 container_address = address
             if anchor:
                 try:
-                    if skoolmacro.evaluate(anchor[1:]) == container_address:
+                    if evaluate(anchor[1:]) == container_address:
                         anchor = '#{}'.format(self.asm_anchor(container_address, True))
                 except ValueError:
                     pass

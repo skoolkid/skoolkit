@@ -15,6 +15,7 @@
 # SkoolKit. If not, see <http://www.gnu.org/licenses/>.
 
 import argparse
+import html
 import sys
 import os
 import posixpath
@@ -31,6 +32,8 @@ CASE_LOWER = 1
 CASE_UPPER = 2
 
 WRAPPER = textwrap.TextWrapper(break_long_words=False, break_on_hyphens=False)
+
+AE_CHARS = frozenset(' !=+-*/<>&|^%$ABCDEFabcdef0123456789()')
 
 def error(msg):
     sys.stderr.write('ERROR: {0}\n'.format(msg))
@@ -85,6 +88,25 @@ def parse_int(num_str, default=None):
         return get_int_param(num_str)
     except ValueError:
         return default
+
+def evaluate(param, safe=False):
+    try:
+        return get_int_param(param)
+    except ValueError:
+        pass
+    param = html.unescape(param)
+    if safe or set(param) <= AE_CHARS:
+        try:
+            return int(eval(param.replace('$', '0x').replace('/', '//').replace('&&', ' and ').replace('||', ' or ')))
+        except:
+            pass
+    raise ValueError
+
+def set_variable(variables, name, value):
+    if name.endswith('$'):
+        variables[name] = value
+    else:
+        variables[name] = evaluate(value)
 
 def get_address_format(hexadecimal=False, lower=False):
     if hexadecimal:

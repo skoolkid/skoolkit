@@ -16,12 +16,11 @@
 
 from collections import defaultdict
 from functools import partial
-import html
 import inspect
 import re
 
 from skoolkit import (BASE_10, BASE_16, CASE_LOWER, VERSION, SkoolKitError,
-                      SkoolParsingError, get_int_param)
+                      SkoolParsingError, evaluate, set_variable)
 from skoolkit.graphics import Udg
 
 _map_cache = {}
@@ -39,8 +38,6 @@ DELIMITERS = {
     '[': ']',
     '{': '}'
 }
-
-AE_CHARS = frozenset(' !=+-*/<>&|^%$ABCDEFabcdef0123456789()')
 
 INTEGER = '(\d+|\$[0-9a-fA-F]+)'
 
@@ -352,19 +349,6 @@ def _parse_image_fname(text, index, fname=''):
         if frame == '':
             frame = fname
     return end, fname, frame, alt
-
-def evaluate(param, safe=False):
-    try:
-        return get_int_param(param)
-    except ValueError:
-        pass
-    param = html.unescape(param)
-    if safe or set(param) <= AE_CHARS:
-        try:
-            return int(eval(param.replace('$', '0x').replace('/', '//').replace('&&', ' and ').replace('||', ' or ')))
-        except:
-            pass
-    raise ValueError
 
 def get_params(param_string, num=0, defaults=(), names=(), safe=True):
     params = []
@@ -689,10 +673,10 @@ def parse_let(writer, text, index, *cwd):
     # #LET(name=value)
     end, stmt = parse_strings(text, index, 1)
     name, sep, value = stmt.partition('=')
-    if name and sep and value:
+    if name and sep:
         value = _format_params(writer.expand(value, *cwd), writer.fields, text[index:end])
         try:
-            writer.fields['vars'][name] = evaluate(value)
+            set_variable(writer.fields['vars'], name, value)
         except ValueError:
             raise InvalidParameterError("Cannot parse integer value '{}': {}".format(value, stmt))
     elif name:

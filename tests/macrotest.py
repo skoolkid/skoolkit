@@ -192,7 +192,6 @@ class CommonSkoolMacroTest:
         self.assertEqual(writer.expand('#EVAL(2*{vars[foo]})'), '2')
         self.assertEqual(writer.expand('#EVAL({vars[bar]})'), '2')
         self.assertEqual(writer.expand('#EVAL({vars[baz]},{vars[bar]})'), '11')
-        self.assertEqual(writer.expand('#EVAL({vars[qux]},2,8)'), '00000000')
 
     def test_macro_eval_invalid(self):
         writer = self._get_writer()
@@ -201,18 +200,16 @@ class CommonSkoolMacroTest:
         self._assert_error(writer, '#EVAL', 'No parameters (expected 1)', prefix)
         self._assert_error(writer, '#EVAL()', 'No parameters (expected 1)', prefix)
         self._assert_error(writer, '#EVALx', 'No parameters (expected 1)', prefix)
-
         self._assert_error(writer, '#EVAL,', "Missing required parameter in position 1/1: ','", prefix)
         self._assert_error(writer, '#EVAL(,)', "Missing required parameter in position 1/1: ','", prefix)
         self._assert_error(writer, '#EVAL,16', "Missing required parameter in position 1/1: ',16'", prefix)
         self._assert_error(writer, '#EVAL(,16)', "Missing required parameter in position 1/1: ',16'", prefix)
-
         self._assert_error(writer, '#EVAL(1,10,5,8)', "Too many parameters (expected 3): '1,10,5,8'", prefix)
-
         self._assert_error(writer, '#EVAL(1,x)', "Cannot parse integer 'x' in parameter string: '1,x'", prefix)
         self._assert_error(writer, '#EVAL(1,,x)', "Cannot parse integer 'x' in parameter string: '1,,x'", prefix)
-
         self._assert_error(writer, '#EVAL5,3', 'Invalid base (3): 5,3', prefix)
+        self._assert_error(writer, '#EVAL({nope})', "Unrecognised field 'nope': ({nope})", prefix)
+        self._assert_error(writer, '#EVAL({vars[nay]})', "Unrecognised field 'nay': ({vars[nay]})", prefix)
 
     def test_macro_font_invalid(self):
         writer = self._get_writer()
@@ -589,13 +586,13 @@ class CommonSkoolMacroTest:
 
     def test_macro_format(self):
         writer = self._get_writer(base=BASE_16, case=CASE_LOWER)
-        writer.fields['vars'].update({'foo': 255, 'bar': 'hello'})
+        writer.fields['vars'].update({'foo': 255, 'bar$': 'hello'})
 
         self.assertEqual(writer.expand('#FORMAT({base})'), '16')
         self.assertEqual(writer.expand('#FORMAT({case})'), '1')
         self.assertEqual(writer.expand('#FORMAT({html})'), '1' if isinstance(writer, HtmlWriter) else '0')
         self.assertEqual(writer.expand('#FORMAT({vars[foo]:02x})'), 'ff')
-        self.assertEqual(writer.expand('#FORMAT({vars[bar]:_^9})'), '__hello__')
+        self.assertEqual(writer.expand('#FORMAT({vars[bar$]:_^9})'), '__hello__')
 
     def test_macro_format_invalid(self):
         writer = self._get_writer()
@@ -703,7 +700,6 @@ class CommonSkoolMacroTest:
         writer = self._get_writer(skool='', variables=('foo=1', 'bar=2'))
         self.assertEqual(writer.expand('#IF({vars[foo]}==1)(PASS,FAIL)'), 'PASS')
         self.assertEqual(writer.expand('#IF({vars[bar]}==2)(PASS,FAIL)'), 'PASS')
-        self.assertEqual(writer.expand('#IF({vars[baz]})(FAIL,PASS)'), 'PASS')
 
     def test_macro_if_invalid(self):
         writer = self._get_writer()
@@ -716,6 +712,7 @@ class CommonSkoolMacroTest:
         self._assert_error(writer, '#IF(0)(true,false,other)', "Too many output strings (expected 2): (0)(true,false,other)", prefix)
         self._assert_error(writer, '#IF1(true,false', "No closing bracket: (true,false", prefix)
         self._assert_error(writer, '#IF({vase})(true,false)', "Unrecognised field 'vase': ({vase})", prefix)
+        self._assert_error(writer, '#IF({vars[on]})(true,false)', "Unrecognised field 'on': ({vars[on]})", prefix)
 
     def test_macro_include_invalid(self):
         writer = self._get_writer()
@@ -725,7 +722,7 @@ class CommonSkoolMacroTest:
         self._assert_error(writer, '#INCLUDE0', "No text parameter", prefix)
         self._assert_error(writer, '#INCLUDE(0)', "No text parameter", prefix)
 
-    def test_macro_let(self):
+    def test_macro_let_integers(self):
         writer = self._get_writer()
 
         # Plain value
@@ -753,6 +750,32 @@ class CommonSkoolMacroTest:
         self.assertEqual(writer.expand('#LET|baz={vars[foo]}+{vars[bar]}*2|'), '')
         self.assertEqual(writer.fields['vars']['baz'], 17)
 
+    def test_macro_let_strings(self):
+        writer = self._get_writer()
+
+        # Plain value
+        self.assertEqual(writer.expand('#LET(foo$=hello)'), '')
+        self.assertEqual(writer.fields['vars']['foo$'], 'hello')
+
+        # Empty value
+        self.assertEqual(writer.expand('#LET(foo$=)'), '')
+        self.assertEqual(writer.fields['vars']['foo$'], '')
+
+        # Macro
+        self.assertEqual(writer.expand('#LET[foo$=#IF(1)(a,b)]'), '')
+        self.assertEqual(writer.fields['vars']['foo$'], 'a')
+
+        # Replacement field
+        self.assertEqual(writer.expand('#LET{foo$=h}'), '')
+        self.assertEqual(writer.expand('#LET(bar$={vars[foo$]}i)'), '')
+        self.assertEqual(writer.fields['vars']['bar$'], 'hi')
+
+        # Macro and replacement field
+        self.assertEqual(writer.expand('#LET(foo$=black)'), '')
+        self.assertEqual(writer.expand('#LET(bar$=white)'), '')
+        self.assertEqual(writer.expand('#LET/baz$=#IF(1)({vars[foo$]},{vars[bar$]})/'), '')
+        self.assertEqual(writer.fields['vars']['baz$'], 'black')
+
     def test_macro_let_invalid(self):
         writer = self._get_writer()
         prefix = ERROR_PREFIX.format('LET')
@@ -762,7 +785,7 @@ class CommonSkoolMacroTest:
         self._assert_error(writer, '#LET(=)', "Missing variable name: '='", prefix)
         self._assert_error(writer, '#LET(=1)', "Missing variable name: '=1'", prefix)
         self._assert_error(writer, '#LET(foo)', "Missing variable value: 'foo'", prefix)
-        self._assert_error(writer, '#LET(foo=)', "Missing variable value: 'foo='", prefix)
+        self._assert_error(writer, '#LET(foo=)', "Cannot parse integer value '': foo=", prefix)
         self._assert_error(writer, '#LET(foo', 'No closing bracket: (foo', prefix)
         self._assert_error(writer, '#LET(foo={wrong})', "Unrecognised field 'wrong': (foo={wrong})", prefix)
         self._assert_error(writer, '#LET(foo={bad)', 'Invalid format string: (foo={bad)', prefix)
@@ -870,7 +893,6 @@ class CommonSkoolMacroTest:
         writer = self._get_writer(skool='', variables=('foo=1', 'bar=2'))
         self.assertEqual(writer.expand('#MAP({vars[foo]})(FAIL,1:PASS)'), 'PASS')
         self.assertEqual(writer.expand('#MAP({vars[bar]})(FAIL,2:PASS)'), 'PASS')
-        self.assertEqual(writer.expand('#MAP({vars[baz]})(FAIL,0:PASS)'), 'PASS')
 
     def test_macro_map_invalid(self):
         writer = self._get_writer()
@@ -884,6 +906,7 @@ class CommonSkoolMacroTest:
         self._assert_error(writer, '#MAP0(1,2:3', "No closing bracket: (1,2:3", prefix)
         self._assert_error(writer, '#MAP0(1,x1:3)', "Invalid key (x1): (1,x1:3)", prefix)
         self._assert_error(writer, '#MAP({ease})(0)', "Unrecognised field 'ease': ({ease})", prefix)
+        self._assert_error(writer, '#MAP({vars[no]})(0)', "Unrecognised field 'no': ({vars[no]})", prefix)
 
     def test_macro_n_decimal(self):
         for base in (None, BASE_10):

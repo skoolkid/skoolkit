@@ -1258,6 +1258,15 @@ class SkoolParserTest(SkoolKitTestCase):
     def test_invalid_entry_address(self):
         self.assert_error('c3000f RET', "Invalid address: '3000f'")
 
+    def test_variables(self):
+        parser = self._get_parser('', variables=('foo=1', 'bar=NaN', 'baz$=hello', 'qux$={broken', 'xyzzy$={nonexistent}'))
+        variables = parser.fields['vars']
+        self.assertEqual(variables['foo'], 1)
+        self.assertFalse('bar' in variables)
+        self.assertEqual(variables['baz$'], 'hello')
+        self.assertEqual(variables['qux$'], '{broken')
+        self.assertEqual(variables['xyzzy$'], '{nonexistent}')
+
     def test_entry_sizes(self):
         skool = """
             c65500 LD A,1
@@ -2003,7 +2012,7 @@ class SkoolParserTest(SkoolKitTestCase):
             c40000 RET
         """
         parser = self._get_parser(skool, html=True, variables=('foo=1', 'bar=2', 'baz:1'))
-        self.assertEqual(['#zero-1-2-THREE'], parser.get_entry(40000).details)
+        self.assertEqual(['#zero-1-2-#three'], parser.get_entry(40000).details)
 
     def test_if_directive_ignored_if_invalid(self):
         skool = """

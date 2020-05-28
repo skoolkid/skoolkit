@@ -137,9 +137,7 @@ replacement fields:
   :ref:`rfixMode`, or 0 otherwise
 * ``html`` - 1 if in HTML mode, 0 otherwise
 * ``vars`` - a dictionary of variables defined by the :ref:`LET` macro or by
-  the ``--var`` option of :ref:`skool2asm.py` or :ref:`skool2html.py`;
-  accessing an undefined variable in this dictionary yields the integer value
-  '0'
+  the ``--var`` option of :ref:`skool2asm.py` or :ref:`skool2html.py`
 
 For example::
 
@@ -149,6 +147,10 @@ expands to ``hl`` if in lower case mode, or ``HL`` otherwise.
 
 Note that if a replacement field is used, the parameter string must be
 enclosed in parentheses.
+
+.. versionchanged:: 8.2
+   Accessing an undefined variable in the ``vars`` dictionary no longer yields
+   the integer value '0'.
 
 .. versionchanged:: 6.4
    The ``asm`` replacement field indicates the exact ASM mode; added the
@@ -396,16 +398,20 @@ The ``#LET`` macro defines a variable and places it in the ``vars`` dictionary.
 * ``name`` is the variable name
 * ``value`` is the value to assign; this may contain skool macros (which are
   expanded immediately) and :ref:`replacement fields <replacementFields>`
-  (which are replaced after any skool macros have been expanded), and is
-  evaluated as an arithmetic expression
+  (which are replaced after any skool macros have been expanded)
+
+If ``name`` ends with a dollar sign (``$``), the variable value is left as a
+string; otherwise it is evaluated as an arithmetic expression.
 
 For example::
 
   #LET(count=2*2)
+  #LET(count$=2*2)
 
-This instance of the ``#LET`` macro assigns the integer value '4' to the
-variable ``count`` and places it in the ``vars`` dictionary, making it
-accessible to other skool macros via a replacement field: ``{vars[count]}``.
+These ``#LET`` macros assign the integer value '4' to the variable ``count``
+and the string value '2*2' to the variable ``count$``. The variables are then
+accessible to other skool macros via the replacement fields ``{vars[count]}``
+and ``{vars[count$]}``.
 
 See :ref:`stringParameters` for details on alternative ways to supply the
 ``name=value`` parameter string.

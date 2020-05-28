@@ -18,8 +18,8 @@ from collections import defaultdict, namedtuple
 from html import escape
 import re
 
-from skoolkit import (BASE_10, BASE_16, CASE_LOWER, CASE_UPPER, SkoolParsingError,
-                      warn, wrap, get_int_param, parse_int, open_file, z80)
+from skoolkit import (BASE_10, BASE_16, CASE_LOWER, CASE_UPPER, SkoolParsingError, warn,
+                      wrap, get_int_param, parse_int, open_file, set_variable, z80)
 from skoolkit.components import get_assembler, get_instruction_utility
 from skoolkit.skoolmacro import INTEGER, ClosingBracketError, MacroParsingError, parse_brackets, parse_if, parse_strings
 from skoolkit.textutils import partition_unquoted, split_quoted, split_unquoted
@@ -465,10 +465,13 @@ class SkoolParser:
         )
 
     def _get_vars(self):
-        vars_dict = defaultdict(int)
+        vars_dict = {}
         for name, sep, value in [v.partition('=') for v in self.variables]:
-            if sep:
-                vars_dict[name] = value
+            if name and sep:
+                try:
+                    set_variable(vars_dict, name, value)
+                except ValueError:
+                    pass
         return vars_dict
 
     def get_entry(self, address):
