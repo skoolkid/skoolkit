@@ -188,7 +188,7 @@ class CommonSkoolMacroTest:
         self.assertEqual(writer.expand('#EVAL({case},2)'), '10')
 
     def test_macro_eval_variables(self):
-        writer = self._get_writer(skool='', variables=('foo=1', 'bar=2', 'baz=3'))
+        writer = self._get_writer(skool='', variables=(('foo', 1), ('bar', 2), ('baz', 3)))
         self.assertEqual(writer.expand('#EVAL(2*{vars[foo]})'), '2')
         self.assertEqual(writer.expand('#EVAL({vars[bar]})'), '2')
         self.assertEqual(writer.expand('#EVAL({vars[baz]},{vars[bar]})'), '11')
@@ -697,7 +697,7 @@ class CommonSkoolMacroTest:
         self.assertEqual(writer.expand('#IF({case}==2)(PASS,FAIL)'), 'PASS')
 
     def test_macro_if_variables(self):
-        writer = self._get_writer(skool='', variables=('foo=1', 'bar=2'))
+        writer = self._get_writer(skool='', variables=(('foo', 1), ('bar', 2)))
         self.assertEqual(writer.expand('#IF({vars[foo]}==1)(PASS,FAIL)'), 'PASS')
         self.assertEqual(writer.expand('#IF({vars[bar]}==2)(PASS,FAIL)'), 'PASS')
 
@@ -890,7 +890,7 @@ class CommonSkoolMacroTest:
         self.assertEqual(writer.expand('#MAP({case})(FAIL,2:PASS)'), 'PASS')
 
     def test_macro_map_variables(self):
-        writer = self._get_writer(skool='', variables=('foo=1', 'bar=2'))
+        writer = self._get_writer(skool='', variables=(('foo', 1), ('bar', 2)))
         self.assertEqual(writer.expand('#MAP({vars[foo]})(FAIL,1:PASS)'), 'PASS')
         self.assertEqual(writer.expand('#MAP({vars[bar]})(FAIL,2:PASS)'), 'PASS')
 

@@ -20,7 +20,7 @@ import inspect
 import re
 
 from skoolkit import (BASE_10, BASE_16, CASE_LOWER, VERSION, SkoolKitError,
-                      SkoolParsingError, evaluate, set_variable)
+                      SkoolParsingError, eval_variable, evaluate)
 from skoolkit.graphics import Udg
 
 _map_cache = {}
@@ -676,7 +676,7 @@ def parse_let(writer, text, index, *cwd):
     if name and sep:
         value = _format_params(writer.expand(value, *cwd), writer.fields, text[index:end])
         try:
-            set_variable(writer.fields['vars'], name, value)
+            writer.fields['vars'][name] = eval_variable(name, value)
         except ValueError:
             raise InvalidParameterError("Cannot parse integer value '{}': {}".format(value, stmt))
     elif name:

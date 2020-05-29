@@ -18,8 +18,8 @@ from collections import defaultdict, namedtuple
 from html import escape
 import re
 
-from skoolkit import (BASE_10, BASE_16, CASE_LOWER, CASE_UPPER, SkoolParsingError, warn,
-                      wrap, get_int_param, parse_int, open_file, set_variable, z80)
+from skoolkit import (BASE_10, BASE_16, CASE_LOWER, CASE_UPPER, SkoolParsingError,
+                      warn, wrap, get_int_param, parse_int, open_file, z80)
 from skoolkit.components import get_assembler, get_instruction_utility
 from skoolkit.skoolmacro import INTEGER, ClosingBracketError, MacroParsingError, parse_brackets, parse_if, parse_strings
 from skoolkit.textutils import partition_unquoted, split_quoted, split_unquoted
@@ -431,7 +431,7 @@ class SkoolParser:
             'case': case,
             'fix': fix_mode,
             'html': int(html),
-            'vars': self._get_vars()
+            'vars': dict(variables)
         }
         self.snapshot = snapshot or [0] * 65536  # 64K of Spectrum memory
         self._instructions = defaultdict(list)   # address -> [Instructions]
@@ -463,16 +463,6 @@ class SkoolParser:
             snapshot=self.snapshot[:],
             variables=self.variables
         )
-
-    def _get_vars(self):
-        vars_dict = {}
-        for name, sep, value in [v.partition('=') for v in self.variables]:
-            if name and sep:
-                try:
-                    set_variable(vars_dict, name, value)
-                except ValueError:
-                    pass
-        return vars_dict
 
     def get_entry(self, address):
         """Return the routine or data block that starts at `address`."""

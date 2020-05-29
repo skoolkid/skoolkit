@@ -568,17 +568,42 @@ class Skool2AsmTest(SkoolKitTestCase):
 
     @patch.object(skool2asm, 'run', mock_run)
     @patch.object(skool2asm, 'get_config', mock_config)
-    def test_option_var(self):
+    def test_option_var_integer(self):
         self.run_skool2asm('--var foo=1 test-var.skool')
         options = run_args[1]
-        self.assertEqual(['foo=1'], options.variables)
+        self.assertEqual([('foo', 1)], options.variables)
+
+    @patch.object(skool2asm, 'run', mock_run)
+    @patch.object(skool2asm, 'get_config', mock_config)
+    def test_option_var_string(self):
+        self.run_skool2asm('--var foo$=hi test-var.skool')
+        options = run_args[1]
+        self.assertEqual([('foo$', 'hi')], options.variables)
 
     @patch.object(skool2asm, 'run', mock_run)
     @patch.object(skool2asm, 'get_config', mock_config)
     def test_option_var_multiple(self):
-        self.run_skool2asm('--var bar=2 --var baz=3 test-var-multiple.skool')
+        self.run_skool2asm('--var bar=2+2 --var baz$=yes test-var-multiple.skool')
         options = run_args[1]
-        self.assertEqual(['bar=2', 'baz=3'], options.variables)
+        self.assertEqual([('bar', 4), ('baz$', 'yes')], options.variables)
+
+    def test_option_var_invalid_expression(self):
+        output, error = self.run_skool2asm('--var foo=x', catch_exit=2)
+        self.assertEqual(output, '')
+        self.assertTrue(error.startswith('usage: skool2asm.py'))
+        self.assertTrue(error.endswith("invalid arithmetic expression: 'foo=x'\n"))
+
+    def test_option_var_missing_name(self):
+        output, error = self.run_skool2asm('--var =2', catch_exit=2)
+        self.assertEqual(output, '')
+        self.assertTrue(error.startswith('usage: skool2asm.py'))
+        self.assertTrue(error.endswith("missing variable name: '=2'\n"))
+
+    def test_option_var_missing_value(self):
+        output, error = self.run_skool2asm('--var foo', catch_exit=2)
+        self.assertEqual(output, '')
+        self.assertTrue(error.startswith('usage: skool2asm.py'))
+        self.assertTrue(error.endswith("missing variable value: 'foo'\n"))
 
     @patch.object(skool2asm, 'SkoolParser', MockSkoolParser)
     @patch.object(skool2asm, 'AsmWriter', MockAsmWriter)

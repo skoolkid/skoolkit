@@ -1664,7 +1664,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
 
     def test_macro_if_clone(self):
         ref = '[OtherCode:other]'
-        main_writer = self._get_writer(ref=ref, skool='', variables=('foo=1', 'bar=2'))
+        main_writer = self._get_writer(ref=ref, skool='', variables=(('foo', 1), ('bar', 2)))
         writer = main_writer.clone(main_writer.parser, 'other')
 
         self.assertEqual(writer.expand('#IF({asm})(FAIL,PASS)'), 'PASS')
@@ -1896,7 +1896,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
 
     def test_macro_map_clone(self):
         ref = '[OtherCode:other]'
-        main_writer = self._get_writer(ref=ref, skool='', variables=('foo=1', 'bar=2'))
+        main_writer = self._get_writer(ref=ref, skool='', variables=(('foo', 1), ('bar', 2)))
         writer = main_writer.clone(main_writer.parser, 'other')
 
         self.assertEqual(writer.expand('#MAP({asm})(FAIL,0:PASS)'), 'PASS')

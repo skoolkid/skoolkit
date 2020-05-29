@@ -1,4 +1,4 @@
-# Copyright 2008-2019 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2008-2020 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -24,8 +24,9 @@ import argparse
 from io import StringIO
 
 from skoolkit import (defaults, SkoolKitError, find_file, show_package_dir,
-                      write, write_line, get_object, normpath, PACKAGE_DIR,
-                      VERSION, BASE_10, BASE_16, CASE_UPPER, CASE_LOWER)
+                      variable, write, write_line, get_object, normpath,
+                      PACKAGE_DIR, VERSION, BASE_10, BASE_16, CASE_UPPER,
+                      CASE_LOWER)
 from skoolkit.config import get_config, show_config, update_options
 from skoolkit.refparser import RefParser
 from skoolkit.skoolhtml import FileInfo
@@ -360,8 +361,8 @@ def main(args):
                        help="Use this CSS theme. This option may be used multiple\ntimes.")
     group.add_argument('-u', '--upper', dest='case', action='store_const', const=CASE_UPPER, default=config['Case'],
                        help="Write the disassembly in upper case.")
-    group.add_argument('--var', dest='variables', metavar='name=value', action='append', default=[],
-                       help="Define a variable that can be used by @if, #EVAL, #IF\nand #MAP. This option may be used multiple times.")
+    group.add_argument('--var', dest='variables', metavar='name=value', type=variable, action='append', default=[],
+                       help="Define a variable that can be used by @if and the SMPL\nmacros. This option may be used multiple times.")
     group.add_argument('-V', '--version', action='version',
                        version='SkoolKit {}'.format(VERSION),
                        help='Show SkoolKit version number and exit.')

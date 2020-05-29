@@ -102,12 +102,6 @@ def evaluate(param, safe=False):
             pass
     raise ValueError
 
-def set_variable(variables, name, value):
-    if name.endswith('$'):
-        variables[name] = value
-    else:
-        variables[name] = evaluate(value)
-
 def get_address_format(hexadecimal=False, lower=False):
     if hexadecimal:
         if lower:
@@ -194,6 +188,23 @@ def integer(arg):
         return int(s_arg)
     except ValueError:
         raise argparse.ArgumentTypeError("invalid integer: '{}'".format(arg))
+
+def eval_variable(name, value):
+    if name.endswith('$'):
+        return value
+    return evaluate(value)
+
+def variable(arg):
+    name, sep, value = arg.partition('=')
+    if name and sep:
+        try:
+            return name, eval_variable(name, value)
+        except ValueError:
+            raise argparse.ArgumentTypeError("invalid arithmetic expression: '{}'".format(arg))
+    elif name:
+        raise argparse.ArgumentTypeError("missing variable value: '{}'".format(arg))
+    else:
+        raise argparse.ArgumentTypeError("missing variable name: '{}'".format(arg))
 
 class SkoolKitError(Exception):
     pass

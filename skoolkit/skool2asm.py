@@ -1,4 +1,4 @@
-# Copyright 2008-2019 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2008-2020 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -18,8 +18,8 @@ import argparse
 import os.path
 import time
 
-from skoolkit import (info, get_object, integer, show_package_dir, VERSION,
-                      BASE_10, BASE_16, CASE_LOWER, CASE_UPPER)
+from skoolkit import (info, get_object, integer, show_package_dir, variable,
+                      VERSION, BASE_10, BASE_16, CASE_LOWER, CASE_UPPER)
 from skoolkit.config import get_config, show_config, update_options
 from skoolkit.refparser import RefParser
 from skoolkit.skoolasm import AsmWriter, TEMPLATES
@@ -117,8 +117,8 @@ def main(args):
                        help="Start converting at this address.")
     group.add_argument('-u', '--upper', dest='case', action='store_const', const=CASE_UPPER, default=config['Case'],
                        help="Write the disassembly in upper case.")
-    group.add_argument('--var', dest='variables', metavar='name=value', action='append', default=[],
-                       help="Define a variable that can be used by @if, #EVAL, #IF\nand #MAP. This option may be used multiple times.")
+    group.add_argument('--var', dest='variables', metavar='name=value', type=variable, action='append', default=[],
+                       help="Define a variable that can be used by @if and the SMPL\nmacros. This option may be used multiple times.")
     group.add_argument('-V', '--version', action='version', version='SkoolKit {}'.format(VERSION),
                        help='Show SkoolKit version number and exit.')
     group.add_argument('-w', '--no-warnings', dest='warn', action='store_const', const=0, default=config['Warnings'],
