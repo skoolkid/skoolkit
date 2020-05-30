@@ -1013,14 +1013,24 @@ class CommonSkoolMacroTest:
         # Nested macros
         self.assertEqual(writer.expand(nest_macros('#PEEK({})', 2)), '3')
 
+    def test_macro_peek_replacement_field(self):
+        writer = self._get_writer(snapshot=[1, 2, 3])
+        writer.fields['address'] = 1
+        self.assertEqual(writer.expand('#PEEK({address})'), '2')
+
     def test_macro_peek_invalid(self):
         writer = self._get_writer()
+        writer.fields['x'] = 'x'
         prefix = ERROR_PREFIX.format('PEEK')
 
         self._assert_error(writer, '#PEEK', "No parameters (expected 1)", prefix)
         self._assert_error(writer, '#PEEK()', "No parameters (expected 1)", prefix)
         self._assert_error(writer, '#PEEK(3', "No closing bracket: (3", prefix)
         self._assert_error(writer, '#PEEK(4,5)', "Too many parameters (expected 1): '4,5'", prefix)
+        self._assert_error(writer, '#PEEK(x)', "Cannot parse integer 'x' in parameter string: 'x'", prefix)
+        self._assert_error(writer, '#PEEK({x})', "Cannot parse integer 'x' in parameter string: 'x'", prefix)
+        self._assert_error(writer, '#PEEK({y})', "Unrecognised field 'y': ({y})", prefix)
+        self._assert_error(writer, '#PEEK({y)', "Invalid format string: ({y)", prefix)
 
     def test_macro_pokes(self):
         writer = self._get_writer(snapshot=[0] * 20)

@@ -123,7 +123,7 @@ Replacement fields
 ^^^^^^^^^^^^^^^^^^
 The following replacement fields are available for use in the parameter strings
 of the :ref:`asm-if` directive and the :ref:`EVAL`, :ref:`FOR`, :ref:`FORMAT`,
-:ref:`IF`, :ref:`LET` and :ref:`MAP` macros:
+:ref:`IF`, :ref:`LET`, :ref:`MAP` and :ref:`PEEK` macros:
 
 * ``asm`` - 1 if in :ref:`isubMode`, 2 if in :ref:`ssubMode`, 3 if in
   :ref:`rsubMode`, or 0 otherwise
@@ -507,7 +507,8 @@ snapshot. ::
 
   #PEEKaddr
 
-* ``addr`` is the address
+* ``addr`` is the address, which may contain
+  :ref:`replacement fields <replacementFields>`
 
 For example::
 
@@ -518,11 +519,13 @@ This instance of the ``#PEEK`` macro expands to the contents of the address
 
 See also :ref:`POKES`.
 
-+---------+---------+
-| Version | Changes |
-+=========+=========+
-| 5.1     | New     |
-+---------+---------+
++---------+-------------------------------------------------------------------+
+| Version | Changes                                                           |
++=========+===================================================================+
+| 8.2     | Added support for replacement fields in the ``addr`` parameter    |
++---------+-------------------------------------------------------------------+
+| 5.1     | New                                                               |
++---------+-------------------------------------------------------------------+
 
 General macros
 ^^^^^^^^^^^^^^

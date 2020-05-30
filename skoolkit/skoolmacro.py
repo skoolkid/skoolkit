@@ -759,7 +759,7 @@ def parse_pc(writer, text, index, *cwd):
 
 def parse_peek(writer, text, index, *cwd):
     # #PEEKaddr
-    end, addr = parse_ints(text, index, 1)
+    end, addr = parse_ints(text, index, 1, fields=writer.fields)
     return end, str(writer.snapshot[addr & 65535])
 
 def parse_pokes(writer, text, index, *cwd):

@@ -27,7 +27,7 @@ Changelog
 * Added the :ref:`refs` directive (for specifying the addresses of routines
   that indirectly jump to an entry point)
 * Added support for replacement fields in the integer parameters of the
-  :ref:`FOR` macro
+  :ref:`FOR` and :ref:`PEEK` macros
 * Added the ``--page`` option to :ref:`snapinfo.py` (for specifying the page of
   a 128K snapshot to map to 49152-65535)
 
