@@ -121,9 +121,9 @@ Note that if an alternative delimiter or separator is used, it must not be '&',
 
 Replacement fields
 ^^^^^^^^^^^^^^^^^^
-The parameter strings of the :ref:`asm-if` directive and the :ref:`EVAL`,
-:ref:`FORMAT`, :ref:`IF`, :ref:`LET` and :ref:`MAP` macros accept the following
-replacement fields:
+The following replacement fields are available for use in the parameter strings
+of the :ref:`asm-if` directive and the :ref:`EVAL`, :ref:`FORMAT`, :ref:`IF`,
+:ref:`LET` and :ref:`MAP` macros:
 
 * ``asm`` - 1 if in :ref:`isubMode`, 2 if in :ref:`ssubMode`, 3 if in
   :ref:`rsubMode`, or 0 otherwise
@@ -136,8 +136,11 @@ replacement fields:
 * ``fix`` - 1 if in :ref:`ofixMode`, 2 if in :ref:`bfixMode`, 3 if in
   :ref:`rfixMode`, or 0 otherwise
 * ``html`` - 1 if in HTML mode, 0 otherwise
-* ``vars`` - a dictionary of variables defined by the :ref:`LET` macro or by
-  the ``--var`` option of :ref:`skool2asm.py` or :ref:`skool2html.py`
+* ``vars`` - a dictionary of variables defined by the ``--var`` option of
+  :ref:`skool2asm.py` or :ref:`skool2html.py`
+
+Replacement fields for the variables defined by the :ref:`LET` macro are also
+available.
 
 For example::
 
@@ -333,11 +336,11 @@ its sole argument. ::
 
 For example::
 
-  #FORMAT({vars[count]:04X})
+  #FORMAT({count:04X})
 
 This instance of the ``#FORMAT`` macro formats the value of the ``count``
-variable in the ``vars`` dictionary (assuming it has already been defined, e.g.
-by the :ref:`LET` macro) as a 4-digit upper case hexadecimal number.
+variable (assuming it has already been defined by the :ref:`LET` macro) as a
+4-digit upper case hexadecimal number.
 
 See :ref:`stringParameters` for details on alternative ways to supply the
 ``text`` parameter.
@@ -390,8 +393,7 @@ See :ref:`stringParameters` for details on alternative ways to supply the
 
 #LET
 ----
-The ``#LET`` macro defines a variable and places it in the ``vars`` dictionary.
-::
+The ``#LET`` macro defines a variable. ::
 
   #LET(name=value)
 
@@ -410,8 +412,8 @@ For example::
 
 These ``#LET`` macros assign the integer value '4' to the variable ``count``
 and the string value '2*2' to the variable ``count$``. The variables are then
-accessible to other skool macros via the replacement fields ``{vars[count]}``
-and ``{vars[count$]}``.
+accessible to other SMPL macros via the replacement fields ``{count}`` and
+``{count$}``.
 
 See :ref:`stringParameters` for details on alternative ways to supply the
 ``name=value`` parameter string.

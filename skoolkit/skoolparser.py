@@ -411,21 +411,21 @@ class SkoolParser:
     :param asm_labels: Whether to parse `@label` directives.
     :param min_address: Ignore addresses below this one.
     :param max_address: Ignore addresses above this one.
-    :param variables: List of 'name=value' strings defining variables that can
-                      be used by `@if`, `#IF` and `#MAP`.
+    :param variables: List of (name, value) tuples defining variables that are
+                      made available in the `vars` dictionary.
+    :param fields: Fields to use instead of the initial set.
     :param snapshot: Base snapshot to use instead of an empty one.
     """
     def __init__(self, skoolfile, case=0, base=0, asm_mode=0, warnings=False, fix_mode=0, html=False,
                  create_labels=False, asm_labels=True, min_address=0, max_address=65536, variables=(),
-                 snapshot=None):
+                 fields=None, snapshot=None):
         self.skoolfile = skoolfile
         self._assembler = get_assembler()
         self.utility = get_instruction_utility()
         self.mode = Mode(case, base, asm_mode & 3, warnings, fix_mode, html, create_labels, asm_labels, self._assembler)
         self.case = case
         self.base = base
-        self.variables = variables
-        self.fields = {
+        self.fields = fields or {
             'asm': asm_mode & 3,
             'base': base,
             'case': case,
@@ -460,8 +460,8 @@ class SkoolParser:
             self.mode.html,
             self.mode.create_labels,
             self.mode.asm_labels,
-            snapshot=self.snapshot[:],
-            variables=self.variables
+            fields=self.fields,
+            snapshot=self.snapshot[:]
         )
 
     def get_entry(self, address):

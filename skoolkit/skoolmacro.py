@@ -676,7 +676,7 @@ def parse_let(writer, text, index, *cwd):
     if name and sep:
         value = _format_params(writer.expand(value, *cwd), writer.fields, text[index:end])
         try:
-            writer.fields['vars'][name] = eval_variable(name, value)
+            writer.fields[name] = eval_variable(name, value)
         except ValueError:
             raise InvalidParameterError("Cannot parse integer value '{}': {}".format(value, stmt))
     elif name:

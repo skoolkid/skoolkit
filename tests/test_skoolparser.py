@@ -5482,6 +5482,7 @@ class SkoolParserTest(SkoolKitTestCase):
     def test_clone(self):
         skool = 'b40000 DEFB 1,2,3,4,5,6,7,8'
         parser = self._get_parser(skool, html=True, variables=(('foo', 1), ('bar', 2)))
+        parser.fields.update({'foo': 1, 'bar$': 'hi'}) # Simulate #LET variable definitions
         skool2 = 'b40002 DEFB 9,10,11,12'
         skool2file = self.write_text_file(skool2, suffix='.skool')
         clone = parser.clone(skool2file)

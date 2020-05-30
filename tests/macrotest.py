@@ -727,54 +727,54 @@ class CommonSkoolMacroTest:
 
         # Plain value
         self.assertEqual(writer.expand('#LET(foo=1)'), '')
-        self.assertEqual(writer.fields['vars']['foo'], 1)
+        self.assertEqual(writer.fields['foo'], 1)
 
         # Macro
         self.assertEqual(writer.expand('#LET[foo=#IF(1)(2,1)]'), '')
-        self.assertEqual(writer.fields['vars']['foo'], 2)
+        self.assertEqual(writer.fields['foo'], 2)
 
         # Replacement field
         self.assertEqual(writer.expand('#LET{foo=3}'), '')
-        self.assertEqual(writer.expand('#LET(bar={vars[foo]})'), '')
-        self.assertEqual(writer.fields['vars']['bar'], 3)
+        self.assertEqual(writer.expand('#LET(bar={foo})'), '')
+        self.assertEqual(writer.fields['bar'], 3)
 
         # Macro and replacement field
         self.assertEqual(writer.expand('#LET(foo=4)'), '')
         self.assertEqual(writer.expand('#LET(bar=5)'), '')
-        self.assertEqual(writer.expand('#LET/baz=#IF(1)({vars[foo]},{vars[bar]})/'), '')
-        self.assertEqual(writer.fields['vars']['baz'], 4)
+        self.assertEqual(writer.expand('#LET/baz=#IF(1)({foo},{bar})/'), '')
+        self.assertEqual(writer.fields['baz'], 4)
 
         # Arithmetic expression
         self.assertEqual(writer.expand('#LET(foo=5)'), '')
         self.assertEqual(writer.expand('#LET(bar=6)'), '')
-        self.assertEqual(writer.expand('#LET|baz={vars[foo]}+{vars[bar]}*2|'), '')
-        self.assertEqual(writer.fields['vars']['baz'], 17)
+        self.assertEqual(writer.expand('#LET|baz={foo}+{bar}*2|'), '')
+        self.assertEqual(writer.fields['baz'], 17)
 
     def test_macro_let_strings(self):
         writer = self._get_writer()
 
         # Plain value
         self.assertEqual(writer.expand('#LET(foo$=hello)'), '')
-        self.assertEqual(writer.fields['vars']['foo$'], 'hello')
+        self.assertEqual(writer.fields['foo$'], 'hello')
 
         # Empty value
         self.assertEqual(writer.expand('#LET(foo$=)'), '')
-        self.assertEqual(writer.fields['vars']['foo$'], '')
+        self.assertEqual(writer.fields['foo$'], '')
 
         # Macro
         self.assertEqual(writer.expand('#LET[foo$=#IF(1)(a,b)]'), '')
-        self.assertEqual(writer.fields['vars']['foo$'], 'a')
+        self.assertEqual(writer.fields['foo$'], 'a')
 
         # Replacement field
         self.assertEqual(writer.expand('#LET{foo$=h}'), '')
-        self.assertEqual(writer.expand('#LET(bar$={vars[foo$]}i)'), '')
-        self.assertEqual(writer.fields['vars']['bar$'], 'hi')
+        self.assertEqual(writer.expand('#LET(bar$={foo$}i)'), '')
+        self.assertEqual(writer.fields['bar$'], 'hi')
 
         # Macro and replacement field
         self.assertEqual(writer.expand('#LET(foo$=black)'), '')
         self.assertEqual(writer.expand('#LET(bar$=white)'), '')
-        self.assertEqual(writer.expand('#LET/baz$=#IF(1)({vars[foo$]},{vars[bar$]})/'), '')
-        self.assertEqual(writer.fields['vars']['baz$'], 'black')
+        self.assertEqual(writer.expand('#LET/baz$=#IF(1)({foo$},{bar$})/'), '')
+        self.assertEqual(writer.fields['baz$'], 'black')
 
     def test_macro_let_invalid(self):
         writer = self._get_writer()
