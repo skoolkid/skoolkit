@@ -122,8 +122,8 @@ Note that if an alternative delimiter or separator is used, it must not be '&',
 Replacement fields
 ^^^^^^^^^^^^^^^^^^
 The following replacement fields are available for use in the parameter strings
-of the :ref:`asm-if` directive and the :ref:`EVAL`, :ref:`FORMAT`, :ref:`IF`,
-:ref:`LET` and :ref:`MAP` macros:
+of the :ref:`asm-if` directive and the :ref:`EVAL`, :ref:`FOR`, :ref:`FORMAT`,
+:ref:`IF`, :ref:`LET` and :ref:`MAP` macros:
 
 * ``asm`` - 1 if in :ref:`isubMode`, 2 if in :ref:`ssubMode`, 3 if in
   :ref:`rsubMode`, or 0 otherwise
@@ -253,14 +253,19 @@ For example::
 
 This instance of the ``#FOR`` macro expands to '24, 17 and 156'.
 
+The integer parameters of the ``#FOR`` macro (``start``, ``stop``, ``step``)
+may contain :ref:`replacement fields <replacementFields>`.
+
 See :ref:`stringParameters` for details on alternative ways to supply the
 ``var``, ``string``, ``sep`` and ``fsep`` parameters.
 
-+---------+---------+
-| Version | Changes |
-+=========+=========+
-| 5.1     | New     |
-+---------+---------+
++---------+-------------------------------------------------------------------+
+| Version | Changes                                                           |
++=========+===================================================================+
+| 8.2     | Added support for replacement fields in the integer parameters    |
++---------+-------------------------------------------------------------------+
+| 5.1     | New                                                               |
++---------+-------------------------------------------------------------------+
 
 .. _FOREACH:
 

@@ -428,7 +428,7 @@ def get_macros(writer):
         '#CHR': partial(parse_chr, writer.to_chr),
         '#D': partial(parse_d, writer.parser),
         '#EVAL': partial(parse_eval, writer.fields, writer.case == CASE_LOWER),
-        '#FOR': parse_for,
+        '#FOR': partial(parse_for, writer.fields),
         '#FOREACH': partial(parse_foreach, writer.parser),
         '#FORMAT': partial(parse_format, writer.fields),
         '#IF': partial(parse_if, writer.fields),
@@ -586,9 +586,9 @@ def parse_font(text, index=0):
     params.insert(0, message)
     return end, crop_rect, fname, frame, alt, params
 
-def parse_for(text, index, *cwd):
+def parse_for(fields, text, index, *cwd):
     # #FORstart,stop[,step](var,string[,sep,fsep])
-    end, start, stop, step = parse_ints(text, index, 3, (1,))
+    end, start, stop, step = parse_ints(text, index, 3, (1,), fields=fields)
     try:
         end, (var, s, sep, fsep) = parse_strings(text, end, 4, ('', None))
     except (NoParametersError, MissingParameterError) as e:

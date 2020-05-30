@@ -282,6 +282,11 @@ class CommonSkoolMacroTest:
         self.assertEqual(writer.expand('#FOR0,1(n,(0,n),:)'), '(0,0):(0,1)')
         self.assertEqual(writer.expand('#FOR0,1(n,#FOR(0,1)(m,(n,m),;),;)'), '(0,0);(0,1);(1,0);(1,1)')
 
+    def test_macro_for_replacement_fields(self):
+        writer = self._get_writer(skool='', variables=[('one', 1)])
+        writer.fields.update({'two': 2, 'three': 3})
+        self.assertEqual(writer.expand('#FOR({vars[one]},{three},{two})(n,[n])'), '[1][3]')
+
     def test_macro_for_with_separator(self):
         writer = self._get_writer()
 
@@ -314,23 +319,24 @@ class CommonSkoolMacroTest:
 
     def test_macro_for_invalid(self):
         writer = self._get_writer()
+        writer.fields['x'] = 'x'
         prefix = ERROR_PREFIX.format('FOR')
 
         self._assert_error(writer, '#FOR', 'No parameters (expected 2)', prefix)
         self._assert_error(writer, '#FOR()', 'No parameters (expected 2)', prefix)
-
         self._assert_error(writer, '#FOR0', "Not enough parameters (expected 2): '0'", prefix)
         self._assert_error(writer, '#FOR(0)', "Not enough parameters (expected 2): '0'", prefix)
-
         self._assert_error(writer, '#FOR,1(n,n)', "Missing required parameter in position 1/2: ',1'", prefix)
         self._assert_error(writer, '#FOR(,1)(n,n)', "Missing required parameter in position 1/2: ',1'", prefix)
         self._assert_error(writer, '#FOR0,(n,n)', "Missing required parameter in position 2/2: '0,'", prefix)
         self._assert_error(writer, '#FOR(0,)(n,n)', "Missing required parameter in position 2/2: '0,'", prefix)
-
         self._assert_error(writer, '#FOR0,1', 'No variable name: 0,1', prefix)
         self._assert_error(writer, '#FOR0,1()', "No variable name: 0,1()", prefix)
-
         self._assert_error(writer, '#FOR0,1(n,n', 'No closing bracket: (n,n', prefix)
+        self._assert_error(writer, '#FOR(1,x)(n,n)', "Cannot parse integer 'x' in parameter string: '1,x'", prefix)
+        self._assert_error(writer, '#FOR(1,{x})(n,n)', "Cannot parse integer 'x' in parameter string: '1,x'", prefix)
+        self._assert_error(writer, '#FOR(1,{y})(n,n)', "Unrecognised field 'y': (1,{y})", prefix)
+        self._assert_error(writer, '#FOR(1,{y)(n,n)', "Invalid format string: (1,{y)", prefix)
 
     def test_macro_foreach(self):
         writer = self._get_writer()
