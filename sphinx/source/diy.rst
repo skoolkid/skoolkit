@@ -100,7 +100,7 @@ the disassembly, we need to create a ref file. Again, as it happens, SkoolKit
 includes an example ref file for Hungry Horace: `hungry_horace.ref`. To use it
 with the skool file we've just created::
 
-  $ skool2html.py examples/hungry_horace.ref
+  $ skool2html.py hungry_horace.skool examples/hungry_horace.ref
 
 Now the disassembly will sport a game logo image.
 
@@ -221,7 +221,7 @@ For example, let's add a poke. Add the following lines to `hungry_horace.ref`::
 
 Now run `skool2html.py` again::
 
-  $ skool2html.py examples/hungry_horace.ref
+  $ skool2html.py hungry_horace.skool examples/hungry_horace.ref
 
 Open `hungry_horace/index.html` and you will see a link to the 'Pokes' page in
 the 'Reference' section.
