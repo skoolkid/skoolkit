@@ -864,8 +864,9 @@ within that page. ::
 * ``addr`` is the address of the routine or data block (or entry point
   thereof)
 * ``code`` is the ID of the disassembly that contains the routine or data block
-  (if not given, the current disassembly is assumed; otherwise this must be an
-  ID defined in an :ref:`otherCode` section of the ref file)
+  (if not given, the current disassembly is assumed; otherwise this must be
+  either an ID defined in an :ref:`otherCode` section of the ref file, or
+  ``main`` to identify the main disassembly)
 * ``#name`` is the named anchor of an item on the disassembly page
 * ``link text`` is the link text to use (default: ``addr``)
 
