@@ -319,7 +319,7 @@ This instance of the ``#FOREACH`` macro expands to a list of the addresses of
 the entries of type ``t`` (text).
 
 See :ref:`stringParameters` for details on alternative ways to supply the
-``var``, ``string``, ``sep`` and ``fsep`` parameters.
+``s1,s2,...`` and ``var,string[,sep,fsep]`` parameter strings.
 
 +---------+---------+
 | Version | Changes |
