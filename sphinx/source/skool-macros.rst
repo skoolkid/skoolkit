@@ -137,7 +137,8 @@ of the :ref:`asm-if` directive and the :ref:`EVAL`, :ref:`FOR`, :ref:`FORMAT`,
   :ref:`rfixMode`, or 0 otherwise
 * ``html`` - 1 if in HTML mode, 0 otherwise
 * ``vars`` - a dictionary of variables defined by the ``--var`` option of
-  :ref:`skool2asm.py` or :ref:`skool2html.py`
+  :ref:`skool2asm.py` or :ref:`skool2html.py`; accessing an undefined variable
+  in this dictionary yields the integer value '0'
 
 Replacement fields for the variables defined by the :ref:`LET` macro are also
 available.
@@ -150,10 +151,6 @@ expands to ``hl`` if in lower case mode, or ``HL`` otherwise.
 
 Note that if a replacement field is used, the parameter string must be
 enclosed in parentheses.
-
-.. versionchanged:: 8.2
-   Accessing an undefined variable in the ``vars`` dictionary no longer yields
-   the integer value '0'.
 
 .. versionchanged:: 6.4
    The ``asm`` replacement field indicates the exact ASM mode; added the

@@ -431,7 +431,7 @@ class SkoolParser:
             'case': case,
             'fix': fix_mode,
             'html': int(html),
-            'vars': dict(variables)
+            'vars': defaultdict(int, variables)
         }
         self.snapshot = snapshot or [0] * 65536  # 64K of Spectrum memory
         self._instructions = defaultdict(list)   # address -> [Instructions]

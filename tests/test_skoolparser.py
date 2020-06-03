@@ -2003,7 +2003,7 @@ class SkoolParserTest(SkoolKitTestCase):
             c40000 RET
         """
         parser = self._get_parser(skool, html=True, variables=(('foo', 1), ('bar', 2)))
-        self.assertEqual(['#zero-1-2-#three'], parser.get_entry(40000).details)
+        self.assertEqual(['#zero-1-2-THREE'], parser.get_entry(40000).details)
 
     def test_if_directive_ignored_if_invalid(self):
         skool = """
