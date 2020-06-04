@@ -2327,6 +2327,35 @@ class SkoolWriterTest(SkoolKitTestCase):
         ]
         self._test_write_skool(snapshot, ctl, exp_skool)
 
+    def test_refs_directive_with_address_of_loop_routine(self):
+        ctl = """
+            c 00000
+            D 00000
+            . That this routine jumps to its own main entry point should not
+            . prevent it from being recorded as a referrer by a @refs directive.
+            c 00002
+            @ 00002 refs=0
+            i 00003
+        """
+        exp_skool = """
+            ; Routine at 0
+            ;
+            ; That this routine jumps to its own main entry point should not
+            ; prevent it from being recorded as a referrer by a @refs directive.
+            c00000 JR 0          ;
+
+            ; Routine at 2
+            ;
+            ; Used by the routine at #R0.
+            @refs=0
+            c00002 RET           ;
+        """
+        snapshot = [
+            24, 254, # 00000 JR 0
+            201      # 00002 RET
+        ]
+        self._test_write_skool(snapshot, ctl, exp_skool)
+
     def test_remote_directives(self):
         ctl = """
             @ 00000 remote=main:24576

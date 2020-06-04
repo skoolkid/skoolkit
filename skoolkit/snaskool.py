@@ -57,7 +57,7 @@ def calculate_references(entries, operations):
                         referrers[ref_addr].append(entry)
             for ref_addr in instruction.refs:
                 referrer = containers.get(ref_addr)
-                if referrer and referrer not in referrers[ref_addr]:
+                if referrer and referrer not in referrers[instruction.address]:
                     referrers[instruction.address].append(referrer)
     return referrers
 
