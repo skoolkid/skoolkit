@@ -367,27 +367,33 @@ def _get_address_ranges(specs, step=1):
 def _call_graph(snapshot, ctlfiles, prefix, start, end, config):
     disassembly = Disassembly(snapshot, get_ctl_parser(ctlfiles, prefix, start, end, start, end), True)
     entries = {e.address: (e, set(), {}) for e in disassembly.entries if e.ctl == 'c'}
-    orphans = list(entries)
+    non_orphans = set()
+    main_refs = set()
     for entry, refs, props in entries.values():
         props.update({'address': entry.address, 'label': entry.instructions[0].label or ''})
         for instruction in entry.instructions:
             for ref_addr in instruction.referrers:
                 if ref_addr in entries:
                     entries[ref_addr][1].add(entry.address)
-                    if entry.address in orphans:
-                        orphans.remove(entry.address)
+                    non_orphans.add(entry.address)
+                    if entry.address == instruction.address:
+                        main_refs.add(entry.address)
         addr, size, mc, op_id, op = next(decode(snapshot, entry.instructions[-1].address, 65536))
         if op_id != END:
             next_entry_addr = addr + size
             if next_entry_addr in entries:
                 refs.add(next_entry_addr)
-                if next_entry_addr in orphans:
-                    orphans.remove(next_entry_addr)
+                non_orphans.add(next_entry_addr)
+                main_refs.add(next_entry_addr)
 
-    orphan_ids = [config['NodeId'].format(**entries[addr][2]) for addr in sorted(orphans)]
-    if not orphan_ids:
-        orphan_ids.append('None')
-    print('// Orphans: {}'.format(', '.join(orphan_ids)))
+    for desc, addresses in (
+            ('Orphans', set(entries) - non_orphans),
+            ('Main entry point orphans', non_orphans - main_refs)
+    ):
+        node_ids = [config['NodeId'].format(**entries[addr][2]) for addr in sorted(addresses)]
+        if not node_ids:
+            node_ids.append('None')
+        print('// {}: {}'.format(desc, ', '.join(node_ids)))
     print('digraph {')
     if config['GraphAttributes']:
         print('graph [{}]'.format(config['GraphAttributes']))
