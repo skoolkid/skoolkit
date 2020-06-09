@@ -27,10 +27,9 @@ fi
 GAME=$1
 read_ddiffsrc $GAME
 
-[[ $GAME = rom ]] && SNA2SKOOL_OPTS="-o 0 -H"
 SKOOL=$DHOME/sources/$GAME.skool
 SKOOL2=$GAME.skool
 
-$SKOOLKIT_HOME/skool2ctl.py $SKOOL2CTL_OPTS $SKOOL | $SKOOLKIT_HOME/sna2skool.py $SNA2SKOOL_OPTS -c - $SNAPSHOT > $SKOOL2 2>/dev/null
+$SKOOLKIT_HOME/skool2ctl.py $SKOOL2CTL_OPTS $SKOOL | $SKOOLKIT_HOME/sna2skool.py -I ListRefs=0 $SNA2SKOOL_OPTS -c - $SNAPSHOT > $SKOOL2 2>/dev/null
 
 colordiff -Bu $SKOOL $SKOOL2 && echo "No differences" 1>&2
