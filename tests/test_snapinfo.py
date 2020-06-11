@@ -1224,6 +1224,49 @@ class SnapinfoTest(SkoolKitTestCase):
         """
         self._test_bin(ram, exp_output, '-g', ctl)
 
+    def test_option_g_with_routine_that_refers_to_itself(self):
+        ram = [
+            175,    # 65533 XOR A
+            24, 253 # 65534 JR 65533
+        ]
+        ctl = """
+            @ 65533 label=ONLY
+            c 65533 Should not be joined to itself
+        """
+        exp_output = r"""
+            // Orphans: 65533
+            // Main entry point orphans: None
+            digraph {
+            node [shape=record]
+            65533 [label="65533 FFFD\nONLY"]
+            }
+        """
+        self._test_bin(ram, exp_output, '-g', ctl)
+
+    def test_option_g_with_routine_entered_at_instruction_other_than_first(self):
+        ram = [
+            175,     # 65531 XOR A
+            24, 253, # 65532 JR 65531
+            24, 252  # 65534 JR 65532
+        ]
+        ctl = """
+            @ 65531 label=FIRST
+            c 65531 Not a main entry point orphan because it jumps to its own first instruction
+            @ 65534 label=SECOND
+            c 65534
+        """
+        exp_output = r"""
+            // Orphans: 65534
+            // Main entry point orphans: None
+            digraph {
+            node [shape=record]
+            65531 [label="65531 FFFB\nFIRST"]
+            65534 [label="65534 FFFE\nSECOND"]
+            65534 -> {65531}
+            }
+        """
+        self._test_bin(ram, exp_output, '-g', ctl)
+
     @patch.object(snapinfo, 'run', mock_run)
     @patch.object(snapinfo, 'get_config', mock_config)
     def test_option_I(self):

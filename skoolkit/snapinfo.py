@@ -365,7 +365,7 @@ def _get_address_ranges(specs, step=1):
     return addr_ranges
 
 def _call_graph(snapshot, ctlfiles, prefix, start, end, config):
-    disassembly = Disassembly(snapshot, get_ctl_parser(ctlfiles, prefix, start, end, start, end), True)
+    disassembly = Disassembly(snapshot, get_ctl_parser(ctlfiles, prefix, start, end, start, end), self_refs=True)
     entries = {e.address: (e, set(), {}) for e in disassembly.entries if e.ctl == 'c'}
     non_orphans = set()
     main_refs = set()
@@ -374,8 +374,9 @@ def _call_graph(snapshot, ctlfiles, prefix, start, end, config):
         for instruction in entry.instructions:
             for ref_addr in instruction.referrers:
                 if ref_addr in entries:
-                    entries[ref_addr][1].add(entry.address)
-                    non_orphans.add(entry.address)
+                    if ref_addr != entry.address:
+                        entries[ref_addr][1].add(entry.address)
+                        non_orphans.add(entry.address)
                     if entry.address == instruction.address:
                         main_refs.add(entry.address)
         addr, size, mc, op_id, op = next(decode(snapshot, entry.instructions[-1].address, 65536))

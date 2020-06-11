@@ -223,7 +223,7 @@ class DisassemblyTest(SkoolKitTestCase):
     def _test_disassembly(self, snapshot, ctl, exp_instructions, **kwargs):
         ctl_parser = CtlParser()
         ctl_parser.parse_ctls([StringIO(textwrap.dedent(ctl).strip())])
-        disassembly = Disassembly(snapshot, ctl_parser, True, CONFIG, **kwargs)
+        disassembly = Disassembly(snapshot, ctl_parser, CONFIG, **kwargs)
         entries = disassembly.entries
         self.assertEqual(len(entries), 2)
         entry = entries[0]
@@ -235,7 +235,7 @@ class DisassemblyTest(SkoolKitTestCase):
     def test_disassembly(self):
         ctl_parser = CtlParser()
         ctl_parser.parse_ctls([StringIO(DISASSEMBLY_CTL)])
-        disassembly = Disassembly(DISASSEMBLY_SNAPSHOT, ctl_parser, True, CONFIG)
+        disassembly = Disassembly(DISASSEMBLY_SNAPSHOT, ctl_parser, CONFIG)
 
         entries = disassembly.entries
         self.assertEqual(len(entries), 17)
@@ -434,7 +434,7 @@ class DisassemblyTest(SkoolKitTestCase):
 
     def test_empty_disassembly(self):
         ctl_parser = CtlParser({0: 'i'})
-        disassembly = Disassembly([], ctl_parser, True, CONFIG)
+        disassembly = Disassembly([], ctl_parser, CONFIG)
         self.assertEqual(len(disassembly.entries), 0)
         self.assertIsNone(disassembly.org)
 
@@ -471,7 +471,7 @@ class DisassemblyTest(SkoolKitTestCase):
         ctls = ['c 00000'] + ['c {:05d}'.format(a) for a in exp_ref_addresses] + ['i 00068']
         ctl_parser = CtlParser()
         ctl_parser.parse_ctls([StringIO('\n'.join(ctls))])
-        disassembly = Disassembly(snapshot, ctl_parser, True, CONFIG)
+        disassembly = Disassembly(snapshot, ctl_parser, CONFIG)
 
         ref_addresses = disassembly.entries[0].instructions[0].referrers
         self.assertEqual(set(exp_ref_addresses), set(ref_addresses))
@@ -1220,7 +1220,7 @@ class DisassemblyTest(SkoolKitTestCase):
         ctl_parser.parse_ctls([StringIO(textwrap.dedent(ctl).strip())])
         config = CONFIG.copy()
         config.update(params)
-        disassembly = Disassembly(snapshot, ctl_parser, True, config)
+        disassembly = Disassembly(snapshot, ctl_parser, config)
 
         self.assertEqual([[t] for t in exp_titles], [e.title for e in disassembly.entries])
 
@@ -1239,7 +1239,7 @@ class DisassemblyTest(SkoolKitTestCase):
             config.update(params)
             error = "^Failed to format Title-{} template: Unknown format code 'X' for object of type 'str'$".format(entry_type)
             with self.assertRaisesRegex(SkoolKitError, error):
-                Disassembly(snapshot, ctl_parser, True, config)
+                Disassembly(snapshot, ctl_parser, config)
 
 class MockOptions:
     def __init__(self, line_width, base, case):
@@ -1535,6 +1535,32 @@ class SkoolWriterTest(SkoolKitTestCase):
 
             ; Routine at 50013
             c50013 JR 50000      ;
+        """
+        self._test_write_skool(snapshot, ctl, exp_skool, write_refs=1)
+
+    def test_write_refs_for_routines_that_refer_to_themselves(self):
+        snapshot = [
+            24, 254, # 00000 JR 0
+            24, 254, # 00002 JR 2
+            24, 252  # 00004 JR 2
+        ]
+        ctl = """
+            c 00000 No referrers other than itself
+            c 00002 One referrer other than itself
+            c 00004
+            i 00006
+        """
+        exp_skool = """
+            ; No referrers other than itself
+            c00000 JR 0          ;
+
+            ; One referrer other than itself
+            ;
+            ; Used by the routine at #R4.
+            c00002 JR 2          ;
+
+            ; Routine at 4
+            c00004 JR 2          ;
         """
         self._test_write_skool(snapshot, ctl, exp_skool, write_refs=1)
 

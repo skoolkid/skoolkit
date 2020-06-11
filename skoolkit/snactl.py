@@ -1,4 +1,4 @@
-# Copyright 2009-2019 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2009-2020 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -210,7 +210,7 @@ def _generate_ctls_with_code_map(snapshot, start, end, config, code_map):
     # (3) Mark entry points in 'U' blocks that are CALLed or JPed to from 'c'
     # blocks with 'c'
     ctl_parser = CtlParser(ctls)
-    disassembly = Disassembly(snapshot, ctl_parser)
+    disassembly = Disassembly(snapshot, ctl_parser, final=False)
     while 1:
         disassembly.build(True)
         done = True

@@ -73,10 +73,10 @@ class Instruction:
         self.ctl = None
         self.comment = None
 
-    def add_referrer(self, entry_address):
+    def add_referrer(self, entry_address, self_refs):
         if not self.ctl:
             self.ctl = '*'
-        if entry_address != self.entry.address and entry_address not in self.referrers:
+        if entry_address not in self.referrers and (self_refs or entry_address != self.entry.address):
             self.referrers.append(entry_address)
 
 class Entry:
@@ -114,7 +114,7 @@ class Entry:
         return self.block.get_ignoreua_directive(comment_type)
 
 class Disassembly:
-    def __init__(self, snapshot, ctl_parser, final=False, config=None, asm_hex=False, asm_lower=False):
+    def __init__(self, snapshot, ctl_parser, config=None, asm_hex=False, asm_lower=False, final=True, self_refs=False):
         ctl_parser.apply_asm_data_directives(snapshot)
         self.config = config or {}
         dconfig = DisassemblerConfig(
@@ -135,9 +135,9 @@ class Disassembly:
         else:
             self.address_fmt = '{0}'
         self.entry_map = {}
-        self.build(final)
+        self.build(final, self_refs)
 
-    def build(self, final=False):
+    def build(self, final=False, self_refs=False):
         self.instructions = {}
         self.entries = []
         self._create_entries()
@@ -146,7 +146,7 @@ class Disassembly:
         else:
             self.org = None
         if final:
-            self._calculate_references()
+            self._calculate_references(self_refs)
 
     def _create_entries(self):
         for block in self.ctl_parser.get_blocks():
@@ -231,13 +231,13 @@ class Disassembly:
                 elif asm_dir.startswith(AD_REFS):
                     instruction.refs = parse_asm_refs_directive(asm_dir)
 
-    def _calculate_references(self):
+    def _calculate_references(self, self_refs):
         operations = get_value('SnapshotReferenceOperations').upper()
         referrers = self.ref_calc.calculate_references(self.entries, tuple(operations.split(',')))
         for entry in self.entries:
             for instruction in entry.instructions:
                 for ref_entry in referrers.get(instruction.address, ()):
-                    instruction.add_referrer(ref_entry.address)
+                    instruction.add_referrer(ref_entry.address, self_refs)
 
     def _address_str(self, address):
         return self.address_fmt.format(address)
@@ -246,7 +246,7 @@ class SkoolWriter:
     def __init__(self, snapshot, ctl_parser, options, config):
         self.comment_width = max(options.line_width - 2, MIN_COMMENT_WIDTH)
         self.asm_hex = options.base == 16
-        self.disassembly = Disassembly(snapshot, ctl_parser, True, config, self.asm_hex, options.case == 1)
+        self.disassembly = Disassembly(snapshot, ctl_parser, config, self.asm_hex, options.case == 1)
         self.address_fmt = get_address_format(self.asm_hex, options.case == 1)
         self.config = config
 
