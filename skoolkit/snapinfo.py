@@ -366,32 +366,31 @@ def _get_address_ranges(specs, step=1):
 
 def _call_graph(snapshot, ctlfiles, prefix, start, end, config):
     disassembly = Disassembly(snapshot, get_ctl_parser(ctlfiles, prefix, start, end, start, end), self_refs=True)
-    entries = {e.address: (e, set(), {}) for e in disassembly.entries if e.ctl == 'c'}
-    non_orphans = set()
-    main_refs = set()
-    for entry, refs, props in entries.values():
+    entries = {e.address: (e, set(), set(), set(), {}) for e in disassembly.entries if e.ctl == 'c'}
+    for entry, children, parents, main_refs, props in entries.values():
         props.update({'address': entry.address, 'label': entry.instructions[0].label or ''})
         for instruction in entry.instructions:
             for ref_addr in instruction.referrers:
                 if ref_addr in entries:
                     if ref_addr != entry.address:
+                        parents.add(ref_addr)
                         entries[ref_addr][1].add(entry.address)
-                        non_orphans.add(entry.address)
                     if entry.address == instruction.address:
-                        main_refs.add(entry.address)
+                        main_refs.add(ref_addr)
         addr, size, mc, op_id, op = next(decode(snapshot, entry.instructions[-1].address, 65536))
         if op_id != END:
             next_entry_addr = addr + size
             if next_entry_addr in entries:
-                refs.add(next_entry_addr)
-                non_orphans.add(next_entry_addr)
-                main_refs.add(next_entry_addr)
+                children.add(next_entry_addr)
+                entries[next_entry_addr][2].add(entry.address)
+                entries[next_entry_addr][3].add(entry.address)
 
     for desc, addresses in (
-            ('Orphans', set(entries) - non_orphans),
-            ('Main entry point orphans', non_orphans - main_refs)
+            ('Unconnected', {e.address for e, c, p, m, n in entries.values() if not (c or p)}),
+            ('Orphans', {e.address for e, c, p, m, n in entries.values() if c and not p}),
+            ('First instruction not used', {e.address for e, c, p, m, n in entries.values() if p and not m})
     ):
-        node_ids = [config['NodeId'].format(**entries[addr][2]) for addr in sorted(addresses)]
+        node_ids = [config['NodeId'].format(**entries[addr][4]) for addr in sorted(addresses)]
         if not node_ids:
             node_ids.append('None')
         print('// {}: {}'.format(desc, ', '.join(node_ids)))
@@ -402,11 +401,11 @@ def _call_graph(snapshot, ctlfiles, prefix, start, end, config):
         print('node [{}]'.format(config['NodeAttributes']))
     if config['EdgeAttributes']:
         print('edge [{}]'.format(config['EdgeAttributes']))
-    for entry, refs, props in entries.values():
+    for entry, children, parents, main_refs, props in entries.values():
         node_id = config['NodeId'].format(**props)
         print('{} [label={}]'.format(node_id, config['NodeLabel'].format(**props)))
-        if refs:
-            ref_ids = [config['NodeId'].format(address=a, label=entries[a][0].instructions[0].label or '') for a in refs]
+        if children:
+            ref_ids = [config['NodeId'].format(address=a, label=entries[a][0].instructions[0].label or '') for a in children]
             print('{} -> {{{}}}'.format(node_id, ' '.join(ref_ids)))
     print('}')
 

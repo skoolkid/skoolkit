@@ -849,8 +849,9 @@ class SnapinfoTest(SkoolKitTestCase):
             i 16388
         """
         exp_output = r"""
+            // Unconnected: None
             // Orphans: 16385
-            // Main entry point orphans: None
+            // First instruction not used: None
             digraph {
             node [shape=record]
             16384 [label="16384 4000\nEND"]
@@ -876,8 +877,9 @@ class SnapinfoTest(SkoolKitTestCase):
             i 16388
         """
         exp_output = r"""
+            // Unconnected: None
             // Orphans: None
-            // Main entry point orphans: None
+            // First instruction not used: None
             digraph {
             node [shape=record]
             16384 [label="16384 4000\nONE"]
@@ -901,8 +903,9 @@ class SnapinfoTest(SkoolKitTestCase):
             i 16388
         """
         exp_output = r"""
+            // Unconnected: None
             // Orphans: 16385
-            // Main entry point orphans: None
+            // First instruction not used: None
             digraph {
             node [shape=record]
             16384 [label="16384 4000\nEND"]
@@ -996,8 +999,9 @@ class SnapinfoTest(SkoolKitTestCase):
     def test_option_g_with_no_ctl_file(self):
         ram = [0] * 49152
         exp_output = r"""
-            // Orphans: 16384
-            // Main entry point orphans: None
+            // Unconnected: 16384
+            // Orphans: None
+            // First instruction not used: None
             digraph {
             node [shape=record]
             16384 [label="16384 4000\n"]
@@ -1015,8 +1019,9 @@ class SnapinfoTest(SkoolKitTestCase):
             i 16388
         """
         exp_output = r"""
+            // Unconnected: None
             // Orphans: 16384
-            // Main entry point orphans: None
+            // First instruction not used: None
             digraph {
             node [shape=record]
             16384 [label="16384 4000\nSTART"]
@@ -1036,8 +1041,9 @@ class SnapinfoTest(SkoolKitTestCase):
             i 16388
         """
         exp_output = r"""
+            // Unconnected: None
             // Orphans: 16384
-            // Main entry point orphans: None
+            // First instruction not used: None
             digraph {
             node [shape=record]
             16384 [label="16384 4000\nSTART"]
@@ -1050,8 +1056,9 @@ class SnapinfoTest(SkoolKitTestCase):
     def test_option_g_with_raw_memory_file_and_no_ctl_file(self):
         ram = [0]
         exp_output = r"""
-            // Orphans: 0
-            // Main entry point orphans: None
+            // Unconnected: 0
+            // Orphans: None
+            // First instruction not used: None
             digraph {
             node [shape=record]
             0 [label="0 0000\n"]
@@ -1069,8 +1076,9 @@ class SnapinfoTest(SkoolKitTestCase):
             i 00004
         """
         exp_output = r"""
+            // Unconnected: None
             // Orphans: 0
-            // Main entry point orphans: None
+            // First instruction not used: None
             digraph {
             node [shape=record]
             0 [label="0 0000\nSTART"]
@@ -1089,8 +1097,9 @@ class SnapinfoTest(SkoolKitTestCase):
             c 65535
         """
         exp_output = r"""
+            // Unconnected: None
             // Orphans: 65532
-            // Main entry point orphans: None
+            // First instruction not used: None
             digraph {
             node [shape=record]
             65532 [label="65532 FFFC\nSTART"]
@@ -1110,8 +1119,9 @@ class SnapinfoTest(SkoolKitTestCase):
             c 65535
         """
         exp_output = r"""
+            // Unconnected: None
             // Orphans: 65534
-            // Main entry point orphans: None
+            // First instruction not used: None
             digraph {
             node [shape=record]
             65534 [label="65534 FFFE\nFIRST"]
@@ -1121,7 +1131,7 @@ class SnapinfoTest(SkoolKitTestCase):
         """
         self._test_bin(ram, exp_output, '-g', ctl)
 
-    def test_option_g_with_no_orphans(self):
+    def test_option_g_with_no_orphans_or_unconnected_nodes(self):
         ram = [24, 0, 24, 252]
         ctl = """
             @ 65532 label=FORTH
@@ -1130,8 +1140,9 @@ class SnapinfoTest(SkoolKitTestCase):
             c 65534
         """
         exp_output = r"""
+            // Unconnected: None
             // Orphans: None
-            // Main entry point orphans: None
+            // First instruction not used: None
             digraph {
             node [shape=record]
             65532 [label="65532 FFFC\nFORTH"]
@@ -1143,36 +1154,47 @@ class SnapinfoTest(SkoolKitTestCase):
         self._test_bin(ram, exp_output, '-g', ctl)
 
     def test_option_g_with_one_orphan(self):
-        ram = [201]
+        ram = [24, 0, 201]
         ctl = """
-            @ 65535 label=START
+            @ 65533 label=START
+            c 65533
+            @ 65535 label=END
             c 65535
         """
         exp_output = r"""
-            // Orphans: 65535
-            // Main entry point orphans: None
+            // Unconnected: None
+            // Orphans: 65533
+            // First instruction not used: None
             digraph {
             node [shape=record]
-            65535 [label="65535 FFFF\nSTART"]
+            65533 [label="65533 FFFD\nSTART"]
+            65533 -> {65535}
+            65535 [label="65535 FFFF\nEND"]
             }
         """
         self._test_bin(ram, exp_output, '-g', ctl)
 
     def test_option_g_with_two_orphans(self):
-        ram = [201, 201]
+        ram = [24, 2, 24, 0, 201]
         ctl = """
-            @ 65534 label=FIRST
-            c 65534
-            @ 65535 label=SECOND
+            @ 65531 label=ONE
+            c 65531
+            @ 65533 label=TWO
+            c 65533
+            @ 65535 label=THREE
             c 65535
         """
         exp_output = r"""
-            // Orphans: 65534, 65535
-            // Main entry point orphans: None
+            // Unconnected: None
+            // Orphans: 65531, 65533
+            // First instruction not used: None
             digraph {
             node [shape=record]
-            65534 [label="65534 FFFE\nFIRST"]
-            65535 [label="65535 FFFF\nSECOND"]
+            65531 [label="65531 FFFB\nONE"]
+            65531 -> {65535}
+            65533 [label="65533 FFFD\nTWO"]
+            65533 -> {65535}
+            65535 [label="65535 FFFF\nTHREE"]
             }
         """
         self._test_bin(ram, exp_output, '-g', ctl)
@@ -1186,8 +1208,9 @@ class SnapinfoTest(SkoolKitTestCase):
             c 65534
         """
         exp_output = r"""
+            // Unconnected: None
             // Orphans: 65534
-            // Main entry point orphans: 65532
+            // First instruction not used: 65532
             digraph {
             node [shape=record]
             65532 [label="65532 FFFC\nFIRST"]
@@ -1210,8 +1233,9 @@ class SnapinfoTest(SkoolKitTestCase):
             c 65534
         """
         exp_output = r"""
+            // Unconnected: None
             // Orphans: 65528, 65532
-            // Main entry point orphans: 65530, 65534
+            // First instruction not used: 65530, 65534
             digraph {
             node [shape=record]
             65528 [label="65528 FFF8\nFIRST"]
@@ -1220,6 +1244,43 @@ class SnapinfoTest(SkoolKitTestCase):
             65532 [label="65532 FFFC\nSECOND"]
             65532 -> {65534}
             65534 [label="65534 FFFE\nMEPO2"]
+            }
+        """
+        self._test_bin(ram, exp_output, '-g', ctl)
+
+    def test_option_g_with_one_unconnected_node(self):
+        ram = [201]
+        ctl = """
+            @ 65535 label=START
+            c 65535
+        """
+        exp_output = r"""
+            // Unconnected: 65535
+            // Orphans: None
+            // First instruction not used: None
+            digraph {
+            node [shape=record]
+            65535 [label="65535 FFFF\nSTART"]
+            }
+        """
+        self._test_bin(ram, exp_output, '-g', ctl)
+
+    def test_option_g_with_two_unconnected_nodes(self):
+        ram = [201, 201]
+        ctl = """
+            @ 65534 label=FIRST
+            c 65534
+            @ 65535 label=SECOND
+            c 65535
+        """
+        exp_output = r"""
+            // Unconnected: 65534, 65535
+            // Orphans: None
+            // First instruction not used: None
+            digraph {
+            node [shape=record]
+            65534 [label="65534 FFFE\nFIRST"]
+            65535 [label="65535 FFFF\nSECOND"]
             }
         """
         self._test_bin(ram, exp_output, '-g', ctl)
@@ -1234,8 +1295,9 @@ class SnapinfoTest(SkoolKitTestCase):
             c 65533 Should not be joined to itself
         """
         exp_output = r"""
-            // Orphans: 65533
-            // Main entry point orphans: None
+            // Unconnected: 65533
+            // Orphans: None
+            // First instruction not used: None
             digraph {
             node [shape=record]
             65533 [label="65533 FFFD\nONLY"]
@@ -1256,8 +1318,9 @@ class SnapinfoTest(SkoolKitTestCase):
             c 65534
         """
         exp_output = r"""
+            // Unconnected: None
             // Orphans: 65534
-            // Main entry point orphans: None
+            // First instruction not used: None
             digraph {
             node [shape=record]
             65531 [label="65531 FFFB\nFIRST"]
@@ -1830,8 +1893,9 @@ class SnapinfoTest(SkoolKitTestCase):
             i 16387
         """
         exp_output = r"""
+            // Unconnected: None
             // Orphans: 16384
-            // Main entry point orphans: None
+            // First instruction not used: None
             digraph {
             node [shape=record]
             edge [arrowhead=open]
@@ -1852,8 +1916,9 @@ class SnapinfoTest(SkoolKitTestCase):
             i 16387
         """
         exp_output = r"""
+            // Unconnected: None
             // Orphans: 16384
-            // Main entry point orphans: None
+            // First instruction not used: None
             digraph {
             graph [bgcolor=bisque]
             node [shape=record]
@@ -1874,8 +1939,9 @@ class SnapinfoTest(SkoolKitTestCase):
             i 16388
         """
         exp_output = r"""
+            // Unconnected: None
             // Orphans: 16384
-            // Main entry point orphans: None
+            // First instruction not used: None
             digraph {
             node [shape=box]
             16384 [label="16384 4000\nSTART"]
@@ -1895,8 +1961,9 @@ class SnapinfoTest(SkoolKitTestCase):
             i 16388
         """
         exp_output = r"""
+            // Unconnected: None
             // Orphans: 16384
-            // Main entry point orphans: None
+            // First instruction not used: None
             digraph {
             16384 [label="16384 4000\nSTART"]
             16384 -> {16387}
@@ -1915,8 +1982,9 @@ class SnapinfoTest(SkoolKitTestCase):
             i 16388
         """
         exp_output = r"""
+            // Unconnected: None
             // Orphans: START
-            // Main entry point orphans: None
+            // First instruction not used: None
             digraph {
             node [shape=record]
             START [label="16384 4000\nSTART"]
@@ -1936,8 +2004,9 @@ class SnapinfoTest(SkoolKitTestCase):
             i 16388
         """
         exp_output = """
+            // Unconnected: None
             // Orphans: 16384
-            // Main entry point orphans: None
+            // First instruction not used: None
             digraph {
             node [shape=record]
             16384 [label="START"]
@@ -1963,8 +2032,9 @@ class SnapinfoTest(SkoolKitTestCase):
             i 16388
         """
         exp_output = """
+            // Unconnected: None
             // Orphans: 16384
-            // Main entry point orphans: None
+            // First instruction not used: None
             digraph {
             node [shape=none]
             16384 [label=<<TABLE><TR><TD>START</TD></TR></TABLE>>]
