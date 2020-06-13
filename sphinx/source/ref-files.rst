@@ -183,7 +183,7 @@ pages and entries on memory map pages. The default format string is
 ``AddressAnchor`` to ``{address:04x}``. Or to produce 4-digit, upper case
 hexadecimal addresses if the ``--hex`` option is used with
 :ref:`skool2html.py`, and decimal addresses otherwise:
-``{address#IF({base}==16)(:04X)}``.
+``{address#IF({mode[base]}==16)(:04X)}``.
 
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
@@ -698,7 +698,7 @@ produces decimal addresses (e.g. ``65280.html``). To produce 4-digit, upper
 case hexadecimal addresses instead (e.g. ``FF00.html``), change ``CodeFiles``
 to ``{address:04X}.html``. Or to produce 4-digit, upper case hexadecimal
 addresses if the ``--hex`` option is used with :ref:`skool2html.py`, and
-decimal addresses otherwise: ``{address#IF({base}==16)(:04X)}.html``.
+decimal addresses otherwise: ``{address#IF({mode[base]}==16)(:04X)}.html``.
 
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |

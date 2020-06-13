@@ -693,7 +693,7 @@ relevant substitution mode (``asm``) or fix mode (``fix``). For example::
 
 could be replaced by::
 
-  ; This #IF({fix}<2)(is a bug,bug is fixed).
+  ; This #IF({mode[fix]}<2)(is a bug,bug is fixed).
 
 Revision history
 ----------------

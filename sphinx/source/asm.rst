@@ -619,7 +619,7 @@ the ``expr`` parameter.
 
 For example::
 
-  @if({case}==1))(replace=/#hl/hl,replace=/#hl/HL)
+  @if({mode[case]}==1))(replace=/#hl/hl,replace=/#hl/HL)
 
 would process ``replace=/#hl/hl`` if in lower case mode, or ``replace=/#hl/HL``
 otherwise.

@@ -680,8 +680,9 @@ class CommonSkoolMacroTest:
         self.assertEqual(writer.expand('#IF1(#IF0(0,1),2)'), '1')
 
     def test_macro_if_base_none(self):
-        writer = self._get_writer()
+        writer = self._get_writer(skool='')
         self.assertEqual(writer.expand('#IF({base}==0)(PASS,FAIL)'), 'PASS')
+        self.assertEqual(writer.expand('#IF({mode[base]}==0)(PASS,FAIL)'), 'PASS')
 
     def test_macro_if_base_10(self):
         writer = self._get_writer(base=BASE_10)
@@ -692,8 +693,9 @@ class CommonSkoolMacroTest:
         self.assertEqual(writer.expand('#IF({base}==16)(PASS,FAIL)'), 'PASS')
 
     def test_macro_if_case_none(self):
-        writer = self._get_writer()
+        writer = self._get_writer(skool='')
         self.assertEqual(writer.expand('#IF({case}==0)(PASS,FAIL)'), 'PASS')
+        self.assertEqual(writer.expand('#IF({mode[case]}==0)(PASS,FAIL)'), 'PASS')
 
     def test_macro_if_case_lower(self):
         writer = self._get_writer(case=CASE_LOWER)

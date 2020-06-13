@@ -136,21 +136,28 @@ of the :ref:`asm-if` directive and the :ref:`EVAL`, :ref:`FOR`, :ref:`FORMAT`,
 * ``fix`` - 1 if in :ref:`ofixMode`, 2 if in :ref:`bfixMode`, 3 if in
   :ref:`rfixMode`, or 0 otherwise
 * ``html`` - 1 if in HTML mode, 0 otherwise
+* ``mode`` - a dictionary containing a copy of the ``asm``, ``base``, ``case``,
+  ``fix`` and ``html`` fields
 * ``vars`` - a dictionary of variables defined by the ``--var`` option of
   :ref:`skool2asm.py` or :ref:`skool2html.py`; accessing an undefined variable
   in this dictionary yields the integer value '0'
 
 Replacement fields for the variables defined by the :ref:`LET` macro are also
-available.
+available. Note that the ``#LET`` macro can change the values of the ``asm``,
+``base``, ``case``, ``fix`` and ``html`` fields, but their original values are
+always available in the ``mode`` dictionary.
 
 For example::
 
-  #IF({case}==1)(hl,HL)
+  #IF({mode[case]}==1)(hl,HL)
 
 expands to ``hl`` if in lower case mode, or ``HL`` otherwise.
 
 Note that if a replacement field is used, the parameter string must be
 enclosed in parentheses.
+
+.. versionchanged:: 8.2
+   Added the ``mode`` dictionary.
 
 .. versionchanged:: 6.4
    The ``asm`` replacement field indicates the exact ASM mode; added the
@@ -1827,7 +1834,7 @@ There is the :ref:`HTML` macro for inserting content in HTML mode only, but
 there is no corresponding macro for inserting content in ASM mode only. The
 following ``@replace`` directive defines an ``#asm`` macro to fill that gap::
 
-  @replace=/#asm(\(.*\))/#IF({asm})\1
+  @replace=/#asm(\(.*\))/#IF({mode[asm]})\1
 
 For example::
 
@@ -1870,7 +1877,7 @@ at 32768 like this::
 The :ref:`UDG` macro is not supported in ASM mode, but ``@replace`` can define
 a ``#udg`` macro that is::
 
-  @replace=/#udg\i/#IF({asm})(#LIST(,) #FOR(\1,\1+7)(u,{ |#FOR(7,0,-1)(n,#IF(#PEEKu&2**n)(*, ))| }) LIST#)
+  @replace=/#udg\i/#IF({mode[asm]})(#LIST(,) #FOR(\1,\1+7)(u,{ |#FOR(7,0,-1)(n,#IF(#PEEKu&2**n)(*, ))| }) LIST#)
 
 For example::
 

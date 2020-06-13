@@ -425,14 +425,20 @@ class SkoolParser:
         self.mode = Mode(case, base, asm_mode & 3, warnings, fix_mode, html, create_labels, asm_labels, self._assembler)
         self.case = case
         self.base = base
-        self.fields = fields or {
-            'asm': asm_mode & 3,
-            'base': base,
-            'case': case,
-            'fix': fix_mode,
-            'html': int(html),
-            'vars': defaultdict(int, variables)
-        }
+        if fields:
+            self.fields = fields
+        else:
+            self.fields = {
+                'asm': asm_mode & 3,
+                'base': base,
+                'case': case,
+                'fix': fix_mode,
+                'html': int(html)
+            }
+            self.fields.update({
+                'mode': self.fields.copy(),
+                'vars': defaultdict(int, variables)
+            })
         self.snapshot = snapshot or [0] * 65536  # 64K of Spectrum memory
         self._instructions = defaultdict(list)   # address -> [Instructions]
         self._entries = {}                       # address -> SkoolEntry

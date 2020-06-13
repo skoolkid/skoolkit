@@ -1908,9 +1908,9 @@ class SkoolParserTest(SkoolKitTestCase):
         skool = """
             @start
             @if({asm}==0)(replace=/#zero/0)
-            @if({asm}==1)(replace=/#one/1)
+            @if({mode[asm]}==1)(replace=/#one/1)
             @if({asm}==1)(replace=/#two/2,replace=/#two/TWO)
-            @if({asm}==2)(replace=/#three/3,replace=/#three/THREE)
+            @if({mode[asm]}==2)(replace=/#three/3,replace=/#three/THREE)
             ; Routine at 40000
             ;
             ; #zero-#one-#two-#three
@@ -1922,9 +1922,9 @@ class SkoolParserTest(SkoolKitTestCase):
     def test_if_directive_asm_plus_4(self):
         skool = """
             @start
-            @if({asm}==0)(replace=/#zero/0)
+            @if({mode[asm]}==0)(replace=/#zero/0)
             @if({asm}==1)(replace=/#one/1)
-            @if({asm}==1)(replace=/#two/2,replace=/#two/TWO)
+            @if({mode[asm]}==1)(replace=/#two/2,replace=/#two/TWO)
             @if({asm}==2)(replace=/#three/3,replace=/#three/THREE)
             ; Routine at 40000
             ;
@@ -1937,9 +1937,9 @@ class SkoolParserTest(SkoolKitTestCase):
     def test_if_directive_base(self):
         skool = """
             @if({base}==0)(replace=/#zero/0)
-            @if({base}==10)(replace=/#one/1)
+            @if({mode[base]}==10)(replace=/#one/1)
             @if({base}==10)(replace=/#two/2,replace=/#two/TWO)
-            @if({base}==16)(replace=/#three/3,replace=/#three/THREE)
+            @if({mode[base]}==16)(replace=/#three/3,replace=/#three/THREE)
             ; Routine at 40000
             ;
             ; #zero-#one-#two-#three
@@ -1950,9 +1950,9 @@ class SkoolParserTest(SkoolKitTestCase):
 
     def test_if_directive_case(self):
         skool = """
-            @if({case}==0)(replace=/#zero/0)
+            @if({mode[case]}==0)(replace=/#zero/0)
             @if({case}==1)(replace=/#one/1)
-            @if({case}==1)(replace=/#two/2,replace=/#two/TWO)
+            @if({mode[case]}==1)(replace=/#two/2,replace=/#two/TWO)
             @if({case}==2)(replace=/#three/3,replace=/#three/THREE)
             ; Routine at 40000
             ;
@@ -1966,9 +1966,9 @@ class SkoolParserTest(SkoolKitTestCase):
         skool = """
             @start
             @if({fix}==0)(replace=/#zero/0)
-            @if({fix}==1)(replace=/#one/1)
+            @if({mode[fix]}==1)(replace=/#one/1)
             @if({fix}==1)(replace=/#two/2,replace=/#two/TWO)
-            @if({fix}==2)(replace=/#three/3,replace=/#three/THREE)
+            @if({mode[fix]}==2)(replace=/#three/3,replace=/#three/THREE)
             ; Routine at 40000
             ;
             ; #zero-#one-#two-#three
@@ -1979,9 +1979,9 @@ class SkoolParserTest(SkoolKitTestCase):
 
     def test_if_directive_html(self):
         skool = """
-            @if({html}==0)(replace=/#zero/0)
+            @if({mode[html]}==0)(replace=/#zero/0)
             @if({html}==1)(replace=/#one/1)
-            @if({html}==1)(replace=/#two/2,replace=/#two/TWO)
+            @if({mode[html]}==1)(replace=/#two/2,replace=/#two/TWO)
             @if({html}==0)(replace=/#three/3,replace=/#three/THREE)
             ; Routine at 40000
             ;
