@@ -135,6 +135,57 @@ class CommonSkoolMacroTest:
         self._assert_error(writer, '#D32770', 'Entry at 32770 has no description', prefix)
         self._assert_error(writer, '#D32771', 'Cannot determine description for non-existent entry at 32771', prefix)
 
+    def test_macro_define(self):
+        writer = self._get_writer()
+
+        self.assertEqual(writer.expand('#DEFINE0(AT,@)'), '')
+        self.assertEqual(writer.expand('#AT'), '@')
+
+        self.assertEqual(writer.expand('#DEFINE1(DOUBLE,#EVAL({}*2))'), '')
+        self.assertEqual(writer.expand('#DOUBLE2'), '4')
+
+        self.assertEqual(writer.expand('#DEFINE1,1(IFZERO,#IF({}==0)({}))'), '')
+        self.assertEqual(writer.expand('#IFZERO0(PASS)'), 'PASS')
+
+        self.assertEqual(writer.expand('#DEFINE1,2(IFNEG,#IF({}<0)({},{}))'), '')
+        self.assertEqual(writer.expand('#IFZERO0(PASS,FAIL)'), 'PASS')
+
+    def test_macro_define_invalid(self):
+        writer = self._get_writer()
+        prefix = ERROR_PREFIX.format('DEFINE')
+
+        self._assert_error(writer, '#DEFINE', 'No parameters (expected 1)', prefix)
+        self._assert_error(writer, '#DEFINEx', 'No parameters (expected 1)', prefix)
+        self._assert_error(writer, '#DEFINE(x)', "Cannot parse integer 'x' in parameter string: 'x'", prefix)
+        self._assert_error(writer, '#DEFINE0', 'No text parameter', prefix)
+        self._assert_error(writer, '#DEFINE0(FOO)', "Not enough parameters (expected 2): 'FOO'", prefix)
+        self._assert_error(writer, '#DEFINE0(BAR', "No closing bracket: (BAR", prefix)
+
+    def test_macro_define_invalid_macro_definitions(self):
+        writer = self._get_writer()
+
+        writer.expand('#DEFINE1(FOO,{1})')
+        self._assert_error(writer, '#FOO0', 'Field index out of range: {1}', ERROR_PREFIX.format('FOO'))
+
+        writer.expand('#DEFINE1(BAR,{x})')
+        self._assert_error(writer, '#BAR0', "Unrecognised field 'x': {x}", ERROR_PREFIX.format('BAR'))
+
+        writer.expand('#DEFINE1(BAZ,{0)')
+        self._assert_error(writer, '#BAZ0', "Invalid format string: {0", ERROR_PREFIX.format('BAZ'))
+
+    def test_macro_define_invalid_macros(self):
+        writer = self._get_writer()
+        prefix = ERROR_PREFIX.format('FOO')
+
+        writer.expand('#DEFINE1,2(FOO,{0}{1}{2})')
+        self._assert_error(writer, '#FOO', 'No parameters (expected 1)', prefix)
+        self._assert_error(writer, '#FOO(x)', "Cannot parse integer 'x' in parameter string: 'x'", prefix)
+        self._assert_error(writer, '#FOO(1,2)', "Too many parameters (expected 1): '1,2'", prefix)
+        self._assert_error(writer, '#FOO(1', 'No closing bracket: (1', prefix)
+        self._assert_error(writer, '#FOO1(x', 'No closing bracket: (x', prefix)
+        self._assert_error(writer, '#FOO1(a)', "Not enough parameters (expected 2): 'a'", prefix)
+        self._assert_error(writer, '#FOO1(a,b,c)', "Too many parameters (expected 2): 'a,b,c'", prefix)
+
     def test_macro_eval(self):
         writer = self._get_writer()
 

@@ -116,7 +116,7 @@ def parse_ints(text, index=0, num=0, defaults=(), names=(), fields=None):
         if _writer:
             params = _writer.expand(params, *_cwd)
         if fields:
-            params = _format_params(params, fields, text[index:end])
+            params = _format_params(params, text[index:end], **fields)
         return [end] + get_params(params, num, defaults, names, False)
     if names:
         match = RE_NAMED_PARAMS.match(text, index)
@@ -250,9 +250,11 @@ def parse_image_macro(text, index=0, defaults=(), names=(), fname=''):
     end, fname, frame, alt = _parse_image_fname(text, end, fname)
     return end, crop_rect, fname, frame, alt, result[1:]
 
-def _format_params(params, fields, full_params):
+def _format_params(params, full_params, *args, **kwargs):
     try:
-        return params.format(**fields)
+        return params.format(*args, **kwargs)
+    except IndexError as e:
+        raise InvalidParameterError("Field index out of range: {}".format(full_params))
     except KeyError as e:
         raise InvalidParameterError("Unrecognised field '{}': {}".format(e.args[0], full_params))
     except ValueError:
@@ -427,6 +429,7 @@ def get_macros(writer):
         '#CALL': partial(parse_call, writer),
         '#CHR': partial(parse_chr, writer.to_chr),
         '#D': partial(parse_d, writer.parser),
+        '#DEFINE': partial(parse_define, writer),
         '#EVAL': partial(parse_eval, writer.fields, writer.case == CASE_LOWER),
         '#FOR': partial(parse_for, writer.fields),
         '#FOREACH': partial(parse_foreach, writer.parser),
@@ -556,6 +559,24 @@ def parse_d(entry_holder, text, index, *cwd):
         raise MacroParsingError('Entry at {} has no description'.format(addr))
     return end, entry.description
 
+def _expand(iparams, sparams, value, text, index, *cwd):
+    end, ints, strings = index, [], []
+    if iparams > 0:
+        result = parse_ints(text, index, iparams)
+        end, ints = result[0], result[1:]
+    if sparams > 0:
+        end, strings = parse_strings(text, end, sparams)
+        if sparams == 1:
+            strings = [strings]
+    return end, _format_params(value, value, *ints, *strings)
+
+def parse_define(writer, text, index, *cwd):
+    # #DEFINEiparams[,sparams](name, value)
+    end, iparams, sparams = parse_ints(text, index, 2, (0,))
+    end, (name, value) = parse_strings(text, end, 2)
+    writer.macros['#' + name] = partial(_expand, iparams, sparams, value)
+    return end, ''
+
 def parse_eval(fields, lower, text, index, *cwd):
     # #EVALexpr[,base,width]
     end, value, base, width = parse_ints(text, index, 3, (10, 1), fields=fields)
@@ -638,7 +659,7 @@ def parse_foreach(entry_holder, text, index, *cwd):
 def parse_format(fields, text, index, *cwd):
     # #FORMAT(text)
     end, fmt = parse_strings(text, index, 1)
-    return end, _format_params(fmt, fields, text[index:end])
+    return end, _format_params(fmt, text[index:end], **fields)
 
 def parse_html(text, index):
     # #HTML(text)
@@ -674,7 +695,7 @@ def parse_let(writer, text, index, *cwd):
     end, stmt = parse_strings(text, index, 1)
     name, sep, value = stmt.partition('=')
     if name and sep:
-        value = _format_params(writer.expand(value, *cwd), writer.fields, text[index:end])
+        value = _format_params(writer.expand(value, *cwd), text[index:end], **writer.fields)
         try:
             writer.fields[name] = eval_variable(name, value)
         except ValueError:

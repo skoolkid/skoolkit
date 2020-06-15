@@ -14,8 +14,9 @@ Changelog
 * Added the ``--ini`` and ``--show-config`` options to :ref:`snapinfo.py` (for
   setting the value of a configuration parameter and for showing all
   configuration parameter values)
+* Added the :ref:`DEFINE` macro (for defining new skool macros)
 * Added the :ref:`LET` macro (for defining variables that can be retrieved by
-  other macros from the ``vars`` dictionary via a replacement field)
+  other macros via replacement fields)
 * Added the :ref:`FORMAT` macro (for performing a Python-style string
   formatting operation on an arbitrary piece of text)
 * Added the ``tindex`` parameter to the :ref:`FONT`, :ref:`SCR`, :ref:`UDG` and

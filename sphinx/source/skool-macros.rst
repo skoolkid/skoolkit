@@ -10,13 +10,15 @@ Syntax
 ^^^^^^
 Skool macros have the following general form::
 
-  #MACROrparam1,rparam2,...[,oparam1,oparam2,...]
+  #MACROri1,ri2,...[,oi1,oi2,...](rs1,rs2,...[,os1,os2,...])
 
 where:
 
 * ``MACRO`` is the macro name
-* ``rparam1``, ``rparam2`` etc. are required parameters
-* ``oparam1``, ``oparam2`` etc. are optional parameters
+* ``ri1``, ``ri2`` etc. are required integer parameters
+* ``oi1``, ``oi2`` etc. are optional integer parameters
+* ``rs1``, ``rs2`` etc. are required string parameters
+* ``os1``, ``os2`` etc. are optional string parameters
 
 If an optional parameter is left blank or omitted entirely, it assumes its
 default value. So, for example::
@@ -192,6 +194,48 @@ It then expands the ``#PEEK`` macros, ultimately forming the parameters of the
 See :ref:`stringParameters` for details on alternative ways to supply the
 ``text`` parameter. Note that if an alternative delimiter is used, it must not
 be an alphanumeric character (A-Z, a-z, 0-9).
+
+.. _DEFINE:
+
+#DEFINE
+-------
+The ``#DEFINE`` macro defines a new skool macro. ::
+
+  #DEFINEiparams[,sparams](name,value)
+
+* ``iparams`` is the number of integer parameters the macro expects
+* ``sparams`` is the number of string parameters the macro expects (default:
+  ``0``)
+* ``name`` is the macro name (which must be all upper case letters)
+* ``value`` is the macro's output value (a standard Python format string
+  containing replacement fields for the integer and string parameters)
+
+For example::
+
+  #DEFINE2(XOR,#POKES({0},{1}^#PEEK{0}))
+
+This instance of the ``#DEFINE`` macro defines an ``#XOR`` macro that accepts
+two integer arguments::
+
+  #XORa,b
+
+that expands to::
+
+  #POKES(a,b^#PEEKa)
+
+which POKEs the address ``a`` with the byte value ``b`` XORed with the original
+value at ``a``.
+
+For more examples, see :ref:`definingMacrosWithDEFINE`.
+
+See :ref:`stringParameters` for details on alternative ways to supply the
+``name`` and ``value`` parameters.
+
++---------+---------+
+| Version | Changes |
++=========+=========+
+| 8.2     | New     |
++---------+---------+
 
 .. _EVAL:
 
@@ -1820,73 +1864,48 @@ it must not start with a capital letter. The name can be retrieved by using the
 | 3.1     | Added support for ASM mode |
 +---------+----------------------------+
 
-.. _definingMacrosWithReplace:
+.. _definingMacrosWithDEFINE:
 
-Defining macros with @replace
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-By using the :ref:`replace` directive, it is possible to define new macros
-based on existing ones without writing any Python code. Some examples are given
-below.
+Defining macros with #DEFINE
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+By using the :ref:`DEFINE` macro, it is possible to define new macros based on
+existing ones without writing any Python code. Some examples are given below.
 
-#asm
+#ASM
 ----
 There is the :ref:`HTML` macro for inserting content in HTML mode only, but
 there is no corresponding macro for inserting content in ASM mode only. The
-following ``@replace`` directive defines an ``#asm`` macro to fill that gap::
+following ``#DEFINE`` macro defines an ``#ASM`` macro to fill that gap::
 
-  @replace=/#asm(\(.*\))/#IF({mode[asm]})\1
+  #DEFINE0(ASM,#IF({{mode[asm]}}))
 
-For example::
-
-  #asm(This text appears only in ASM mode.)
-
-#tile
------
-Suppose the game you're disassembling arranges tiles in groups of nine bytes:
-the attribute byte first, followed by the eight graphic bytes. If there is a
-tile at 32768, then::
-
-  #UDG(32769,#PEEK32768)
-
-will create an image of it. If you want to create several tile images, this
-syntax can get cumbersome; it would be easier if you could supply just the
-address of the attribute byte. The following ``@replace`` directive defines a
-``#tile`` macro that creates a tile image given an attribute byte address::
-
-  @replace=/#tile\i/#UDG(\1+1,#PEEK\1)
-
-Now you can create an image of the tile at 32768 like this::
-
-  #tile32768
-
-#tiles
-------
-If you have several nine-byte tiles arranged one after the other, you might
-want to create images of all of them in a single row of a ``#UDGTABLE``. The
-following ``@replace`` directive defines a ``#tiles`` macro for this purpose::
-
-  @replace=/#tiles\i,\i/#FOR(\1,\1+9*(\2-1),9)(n,#UDG(n+1,#PEEKn), | )
-
-Now you can create a ``#UDGTABLE`` of images of a series of 10 tiles starting
-at 32768 like this::
-
-  #UDGTABLE { #tiles32768,10 } TABLE#
-
-#udg
-----
-The :ref:`UDG` macro is not supported in ASM mode, but ``@replace`` can define
-a ``#udg`` macro that is::
-
-  @replace=/#udg\i/#IF({mode[asm]})(#LIST(,) #FOR(\1,\1+7)(u,{ |#FOR(7,0,-1)(n,#IF(#PEEKu&2**n)(*, ))| }) LIST#)
+(Note the extra braces around the parameter of the ``#IF`` macro:
+``{{mode[asm]}}``; these are required to prevent it from being interpreted as
+an ``#ASM`` macro parameter replacement field.)
 
 For example::
 
-  ; #udg30000
+  #ASM(This text appears only in ASM mode.)
+
+#ASMUDG
+-------
+The :ref:`UDG` macro is not supported in ASM mode, but ``#DEFINE`` can define
+a ``#ASMUDG`` macro (based on the ``#ASM`` macro defined above) that is::
+
+  #DEFINE1(ASMUDG,#ASM(#LIST(,) #FOR({0},{0}+7)(u,{{ |#FOR(7,0,-1)(n,#IF(#PEEKu&2**n)(*, ))| }}) LIST#))
+
+(Note the extra braces around the second parameter of the outer ``#FOR`` macro:
+``{{ |...| }}``; these are required to prevent it from being interpreted as an
+``#ASMUDG`` macro parameter replacement field.)
+
+For example::
+
+  ; #ASMUDG30000
    30000 DEFB 48,72,136,144,104,4,10,4
 
 If conversion of DEFB statements has been switched on in ASM mode by the
-:ref:`assemble` directive (e.g. ``@assemble=,1``), this ``#udg`` macro produces
-the following output::
+:ref:`assemble` directive (e.g. ``@assemble=,1``), this ``#ASMUDG`` macro
+produces the following output::
 
   ; |  **    |
   ; | *  *   |
@@ -1896,3 +1915,34 @@ the following output::
   ; |     *  |
   ; |    * * |
   ; |     *  |
+
+#TILE, #TILES
+-------------
+Suppose the game you're disassembling arranges tiles in groups of nine bytes:
+the attribute byte first, followed by the eight graphic bytes. If there is a
+tile at 32768, then::
+
+  #UDG(32769,#PEEK32768)
+
+will create an image of it. If you want to create several tile images, this
+syntax can get cumbersome; it would be easier if you could supply just the
+address of the attribute byte. The following ``#DEFINE`` macro defines a
+``#TILE`` macro that creates a tile image given an attribute byte address::
+
+  #DEFINE1(TILE,#UDG({0}+1,#PEEK{0}))
+
+Now you can create an image of the tile at 32768 like this::
+
+  #TILE32768
+
+If you have several nine-byte tiles arranged one after the other, you might
+want to create images of all of them in a single row of a ``#UDGTABLE``. The
+following ``#DEFINE`` macro defines a ``#TILES`` macro (based on the ``#TILE``
+macro already defined) for this purpose::
+
+  #DEFINE2(TILES,#FOR({0},{0}+9*({1}-1),9)(n,#TILEn, | ))
+
+Now you can create a ``#UDGTABLE`` of images of a series of 10 tiles starting
+at 32768 like this::
+
+  #UDGTABLE { #TILES32768,10 } TABLE#
