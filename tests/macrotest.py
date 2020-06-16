@@ -150,6 +150,9 @@ class CommonSkoolMacroTest:
         self.assertEqual(writer.expand('#DEFINE1,2(IFNEG,#IF({}<0)({},{}))'), '')
         self.assertEqual(writer.expand('#IFZERO0(PASS,FAIL)'), 'PASS')
 
+        self.assertEqual(writer.expand('#DEFINE2(SUM,#EVAL({}+{}))#LET(a=1)#LET(b=2)'), '')
+        self.assertEqual(writer.expand('#SUM({a},{b})'), '3')
+
     def test_macro_define_invalid(self):
         writer = self._get_writer()
         prefix = ERROR_PREFIX.format('DEFINE')
@@ -185,6 +188,8 @@ class CommonSkoolMacroTest:
         self._assert_error(writer, '#FOO1(x', 'No closing bracket: (x', prefix)
         self._assert_error(writer, '#FOO1(a)', "Not enough parameters (expected 2): 'a'", prefix)
         self._assert_error(writer, '#FOO1(a,b,c)', "Too many parameters (expected 2): 'a,b,c'", prefix)
+        self._assert_error(writer, '#FOO({foo})(a,b)', "Unrecognised field 'foo': ({foo})", prefix)
+        self._assert_error(writer, '#FOO({foo)(a,b)', "Invalid format string: ({foo)", prefix)
 
     def test_macro_eval(self):
         writer = self._get_writer()

@@ -124,8 +124,9 @@ Note that if an alternative delimiter or separator is used, it must not be '&',
 Replacement fields
 ^^^^^^^^^^^^^^^^^^
 The following replacement fields are available for use in the parameter strings
-of the :ref:`asm-if` directive and the :ref:`EVAL`, :ref:`FOR`, :ref:`FORMAT`,
-:ref:`IF`, :ref:`LET`, :ref:`MAP` and :ref:`PEEK` macros:
+of the :ref:`asm-if` directive, the :ref:`EVAL`, :ref:`FOR`, :ref:`FORMAT`,
+:ref:`IF`, :ref:`LET`, :ref:`MAP` and :ref:`PEEK` macros, and any macro defined
+by :ref:`DEFINE`:
 
 * ``asm`` - 1 if in :ref:`isubMode`, 2 if in :ref:`ssubMode`, 3 if in
   :ref:`rsubMode`, or 0 otherwise
@@ -208,28 +209,22 @@ The ``#DEFINE`` macro defines a new skool macro. ::
   ``0``)
 * ``name`` is the macro name (which must be all upper case letters)
 * ``value`` is the macro's output value (a standard Python format string
-  containing replacement fields for the integer and string parameters)
+  containing replacement fields for the integer and string arguments)
 
 For example::
 
-  #DEFINE2(XOR,#POKES({0},{1}^#PEEK{0}))
+  #DEFINE2(MIN,#IF({0}<{1})({0},{1}))
 
-This instance of the ``#DEFINE`` macro defines an ``#XOR`` macro that accepts
-two integer arguments::
-
-  #XORa,b
-
-that expands to::
-
-  #POKES(a,b^#PEEKa)
-
-which POKEs the address ``a`` with the byte value ``b`` XORed with the original
-value at ``a``.
+This defines a ``#MIN`` macro that accepts two integer arguments and expands to
+the value of the smaller argument.
 
 For more examples, see :ref:`definingMacrosWithDEFINE`.
 
 To define a macro that will be available for use immediately anywhere in the
 skool file or ref files, consider using the :ref:`expand` directive.
+
+The integer parameters of a macro defined by ``#DEFINE`` may contain
+:ref:`replacement fields <replacementFields>`.
 
 See :ref:`stringParameters` for details on alternative ways to supply the
 ``name`` and ``value`` parameters.
