@@ -31,6 +31,7 @@ following:
 * :ref:`defb`
 * :ref:`defs`
 * :ref:`defw`
+* :ref:`expand`
 * :ref:`asm-if`
 * :ref:`keep`
 * :ref:`label`

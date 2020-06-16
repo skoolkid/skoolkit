@@ -102,6 +102,8 @@ class AsmWriter:
         self.space = ' '
         self.pc = 0
         self.macros = skoolmacro.get_macros(self)
+        for e in self.parser.expands:
+            self.expand(e)
 
         self.init()
 

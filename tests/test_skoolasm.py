@@ -23,6 +23,7 @@ class MockSkoolParser:
             'html': 0,
             'vars': {}
         }
+        self.expands = ()
 
     def get_entry(self, address):
         return None
@@ -1821,6 +1822,24 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
         exp_asm = """
             FOO EQU BadValue
 
+              RET
+        """
+        self._test_asm(skool, exp_asm)
+
+    def test_expand_directives(self):
+        skool = """
+            @start
+            @expand=#DEFINE2(MAX,#IF({0}>{1})({0},{1}))
+            @expand=#LET(foo=1)
+            ; Routine
+            ;
+            ; foo=#EVAL({foo}); max(1,2)=#MAX(1,2)
+            c32768 RET
+        """
+        exp_asm = """
+            ; Routine
+            ;
+            ; foo=1; max(1,2)=2
               RET
         """
         self._test_asm(skool, exp_asm)

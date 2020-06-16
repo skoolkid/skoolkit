@@ -600,6 +600,34 @@ replace the operand of the instruction at 32768 with a label: ``LD HL,ATTRS``.
 | 5.4     | New     |
 +---------+---------+
 
+.. _expand:
+
+@expand
+^^^^^^^
+The ``@expand`` directive specifies an arbitrary piece of text - intended to
+consist of one or more skool macros - that will be expanded by the ASM writer
+or HTML writer during initialisation (before any skool macros that appear in
+skool file annotations or ref file sections are expanded). ::
+
+  @expand=text
+
+* ``text`` is the text to expand
+
+For example::
+
+  @expand=#DEFINE2(MAX,#IF({0}>{1})({0},{1}))
+
+This ``@expand`` directive passes the given :ref:`DEFINE` macro to the ASM
+writer or HTML writer for expansion during initialisation; this has the effect
+of making the user-defined ``#MAX`` macro available for use immediately
+anywhere in the skool file or ref files.
+
++---------+---------+
+| Version | Changes |
++=========+=========+
+| 8.2     | New     |
++---------+---------+
+
 .. _asm-if:
 
 @if

@@ -451,6 +451,7 @@ class SkoolParser:
         self._replacements = []
         self.equs = []
         self._labels = {}
+        self.expands = []
 
         with open_file(skoolfile) as f:
             self._parse_skool(f, asm_mode, min_address, max_address)
@@ -659,6 +660,8 @@ class SkoolParser:
         elif directive.startswith(('defb=', 'defs=', 'defw=')):
             if self.mode.assemble:
                 self.mode.data.append(directive)
+        elif directive.startswith('expand='):
+            self.expands.append(directive[7:])
         elif directive.startswith('keep'):
             self.mode.keep = parse_asm_keep_directive(directive)
         elif directive.startswith('refs='):

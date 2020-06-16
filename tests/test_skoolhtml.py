@@ -189,6 +189,7 @@ class MockSkoolParser:
         self.case = case
         self.skoolfile = ''
         self.fields = {'asm': 0, 'base': base, 'case': case, 'fix': 0, 'html': 1, 'vars': {}}
+        self.expands = ()
 
     def get_entry(self, address):
         return self.entries.get(address)
@@ -3437,6 +3438,47 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         writer = self._get_writer(ref=ref, skool=skool, asm_labels=True)
         writer.write_map('Custom')
         self._assert_content_equal(exp_value, 'maps/Custom.html')
+
+    def test_expand_directives(self):
+        skool = """
+            @start
+            @expand=#DEFINE2(MIN,#IF({0}<{1})({0},{1}))
+            @expand=#LET(foo=1)
+            ; Routine
+            ;
+            ; foo=#EVAL({foo}); min(1,2)=#MIN(1,2)
+            c32768 RET
+        """
+        writer = self._get_writer(skool=skool)
+        writer.write_asm_entries()
+
+        content = """
+            <div class="description">32768: Routine</div>
+            <table class="disassembly">
+            <tr>
+            <td class="routine-comment" colspan="5">
+            <div class="details">
+            <div class="paragraph">
+            foo=1; min(1,2)=1
+            </div>
+            </div>
+            </td>
+            </tr>
+            <tr>
+            <td class="address-2"><span id="32768"></span>32768</td>
+            <td class="instruction">RET</td>
+            <td class="comment-0" rowspan="1"></td>
+            </tr>
+            </table>
+        """
+        subs = {
+            'header': 'Routines',
+            'title': 'Routine at 32768',
+            'body_class': 'Asm-c',
+            'up': '32768',
+            'content': content
+        }
+        self._assert_files_equal(join(ASMDIR, '32768.html'), subs)
 
     def test_macro_pc(self):
         skool = """

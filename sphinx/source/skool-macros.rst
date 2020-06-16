@@ -228,6 +228,9 @@ value at ``a``.
 
 For more examples, see :ref:`definingMacrosWithDEFINE`.
 
+To define a macro that will be available for use immediately anywhere in the
+skool file or ref files, consider using the :ref:`expand` directive.
+
 See :ref:`stringParameters` for details on alternative ways to supply the
 ``name`` and ``value`` parameters.
 
@@ -467,6 +470,9 @@ These ``#LET`` macros assign the integer value '4' to the variable ``count``
 and the string value '2*2' to the variable ``count$``. The variables are then
 accessible to other SMPL macros via the replacement fields ``{count}`` and
 ``{count$}``.
+
+To define a variable that will be available for use immediately anywhere in the
+skool file or ref files, consider using the :ref:`expand` directive.
 
 See :ref:`stringParameters` for details on alternative ways to supply the
 ``name=value`` parameter string.

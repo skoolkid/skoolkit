@@ -19,6 +19,8 @@ Changelog
   other macros via replacement fields)
 * Added the :ref:`FORMAT` macro (for performing a Python-style string
   formatting operation on an arbitrary piece of text)
+* Added the :ref:`expand` directive (for specifying skool macros to be expanded
+  during ASM writer or HTML writer initialisation)
 * Added the ``tindex`` parameter to the :ref:`FONT`, :ref:`SCR`, :ref:`UDG` and
   :ref:`UDGARRAY` macros (for specifying a transparent colour to use other than
   the default)

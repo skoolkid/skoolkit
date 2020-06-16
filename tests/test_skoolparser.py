@@ -1904,6 +1904,20 @@ class SkoolParserTest(SkoolKitTestCase):
         snapshot = self._get_parser(skool, html=True).snapshot
         self.assertEqual([0] * 6, snapshot[60000:60006])
 
+    def test_expand_directive(self):
+        skool = """
+            @expand=#DEFINE2(DIFF,#EVAL({0}-{1}))
+            @expand=#LET(foo$=hello)
+            ; Start
+            c32768 JP 0
+        """
+        exp_expands = [
+            "#DEFINE2(DIFF,#EVAL({0}-{1}))",
+            "#LET(foo$=hello)"
+        ]
+        parser = self._get_parser(skool)
+        self.assertEqual(exp_expands, parser.expands)
+
     def test_if_directive_asm(self):
         skool = """
             @start

@@ -93,6 +93,8 @@ class HtmlWriter:
         self.space = '&#160;'
         self.pc = 0
         self.macros = skoolmacro.get_macros(self)
+        for e in self.parser.expands:
+            self.expand(e)
 
         self.game_vars = self._expand_values('Game', 'Logo')
         self.asm_anchor_template = self.game_vars['AddressAnchor']
