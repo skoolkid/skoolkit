@@ -2196,6 +2196,23 @@ class SkoolWriterTest(SkoolKitTestCase):
         snapshot = [175, 201]
         self._test_write_skool(snapshot, ctl, exp_skool)
 
+    def test_expand_directives(self):
+        ctl = """
+            @ 00000 expand=#LET(a=1)
+            c 00000 Routine at 0
+            @ 00001 expand=#DEFINE2(PROD,#EVAL({}*{}))
+            i 00002
+        """
+        exp_skool = """
+            @expand=#LET(a=1)
+            ; Routine at 0
+            c00000 XOR A         ;
+            @expand=#DEFINE2(PROD,#EVAL({}*{}))
+             00001 RET           ;
+        """
+        snapshot = [175, 201]
+        self._test_write_skool(snapshot, ctl, exp_skool)
+
     def test_if_directives(self):
         ctl = """
             @ 00000 if({asm})(replace=/foo/bar)
