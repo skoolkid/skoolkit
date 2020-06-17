@@ -4049,6 +4049,29 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
     def test_parameter_LinkOperands_containing_skool_macro(self):
         self._test_Game_parameter_containing_skool_macro('LinkOperands')
 
+    def test_parameter_Logo_is_stripped(self):
+        page_id = 'custom'
+        ref = """
+            [Game]
+            Logo=#INCLUDE(Logo)
+
+            [Logo]
+            #PUSHS
+            #POKES30000,1
+            #UDG30000
+            #POPS
+
+            [Page:{0}]
+
+            [Template:{0}]
+            {{Game[Logo]}}
+        """.format(page_id)
+        writer = self._get_writer(ref=ref, skool='')
+        writer.write_page(page_id)
+        exp_contents = writer.expand('#UDG30000', '')
+        page = self._read_file('{}.html'.format(page_id))
+        self.assertEqual(page, exp_contents)
+
     def test_parameter_LogoImage_containing_skool_macro(self):
         self.force_odir = self.make_directory()
         self.write_bin_file(path='{}/{}/logo.png'.format(self.force_odir, GAMEDIR))

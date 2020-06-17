@@ -867,7 +867,7 @@ class HtmlWriter:
         if cwd not in self.logo:
             logo_macro = self.game_vars.get('Logo')
             if logo_macro:
-                self.logo[cwd] = self.expand(logo_macro, cwd)
+                self.logo[cwd] = self.expand(logo_macro, cwd).strip()
             else:
                 logo_image = self.game_vars.get('LogoImage')
                 if logo_image and self.file_exists(logo_image):
