@@ -1147,6 +1147,20 @@ class CtlParserTest(SkoolKitTestCase):
         }
         self._test_asm_directives(ctl, exp_entry_directives, exp_instruction_directives)
 
+    def test_expand_directives(self):
+        ctl = """
+            @ 32768 expand=#LET(a=2)
+            c 32768 Routine at 32768
+            @ 32769 expand=#DEFINE2(MOD,#EVAL({0}%{1}))
+        """
+        exp_entry_directives = {
+            32768: ['expand=#LET(a=2)']
+        }
+        exp_instruction_directives = {
+            32769: ['expand=#DEFINE2(MOD,#EVAL({0}%{1}))']
+        }
+        self._test_asm_directives(ctl, exp_entry_directives, exp_instruction_directives)
+
     def test_if_directives(self):
         ctl = """
             @ 40000 if({asm})(replace=/foo/bar)
