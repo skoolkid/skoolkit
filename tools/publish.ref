@@ -1,4 +1,5 @@
 [Game+]
+Logo=#IF({vars[pub]}&2)//#LOGO1,1(logo-hex)/#LOGO0,1(logo-dec)//
 alt_base=#IF({vars[pub]}&2)(,hexa)decimal
 alt_dir=#MAP({vars[pub]}&3)(..,1:hex,2:dec)/
 
