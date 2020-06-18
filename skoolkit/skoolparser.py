@@ -415,10 +415,11 @@ class SkoolParser:
                       made available in the `vars` dictionary.
     :param fields: Fields to use instead of the initial set.
     :param snapshot: Base snapshot to use instead of an empty one.
+    :param expands: List of @expand directive values.
     """
     def __init__(self, skoolfile, case=0, base=0, asm_mode=0, warnings=False, fix_mode=0, html=False,
                  create_labels=False, asm_labels=True, min_address=0, max_address=65536, variables=(),
-                 fields=None, snapshot=None):
+                 fields=None, snapshot=None, expands=None):
         self.skoolfile = skoolfile
         self._assembler = get_assembler()
         self.utility = get_instruction_utility()
@@ -440,6 +441,7 @@ class SkoolParser:
                 'vars': defaultdict(int, variables)
             })
         self.snapshot = snapshot or [0] * 65536  # 64K of Spectrum memory
+        self.expands = expands or []
         self._instructions = defaultdict(list)   # address -> [Instructions]
         self._entries = {}                       # address -> SkoolEntry
         self.memory_map = []                     # SkoolEntry instances
@@ -451,7 +453,6 @@ class SkoolParser:
         self._replacements = []
         self.equs = []
         self._labels = {}
-        self.expands = []
 
         with open_file(skoolfile) as f:
             self._parse_skool(f, asm_mode, min_address, max_address)
@@ -468,7 +469,8 @@ class SkoolParser:
             self.mode.create_labels,
             self.mode.asm_labels,
             fields=self.fields,
-            snapshot=self.snapshot[:]
+            snapshot=self.snapshot[:],
+            expands=self.expands[:]
         )
 
     def get_entry(self, address):

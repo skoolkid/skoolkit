@@ -620,7 +620,8 @@ For example::
 This ``@expand`` directive passes the given :ref:`DEFINE` macro to the ASM
 writer or HTML writer for expansion during initialisation; this has the effect
 of making the user-defined ``#MAX`` macro available for use immediately
-anywhere in the skool file or ref files.
+anywhere in the skool file (and any secondary skool files if the directive
+appears in the main skool file) or ref files.
 
 +---------+---------+
 | Version | Changes |

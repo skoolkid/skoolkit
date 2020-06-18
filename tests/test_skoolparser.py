@@ -5494,7 +5494,10 @@ class SkoolParserTest(SkoolKitTestCase):
         self.assertEqual(instructions[5].comment.text, '')
 
     def test_clone(self):
-        skool = 'b40000 DEFB 1,2,3,4,5,6,7,8'
+        skool = """
+            @expand=#LET(x=0)
+            b40000 DEFB 1,2,3,4,5,6,7,8
+        """
         parser = self._get_parser(skool, html=True, variables=(('foo', 1), ('bar', 2)))
         parser.fields.update({'foo': 1, 'bar$': 'hi'}) # Simulate #LET variable definitions
         skool2 = 'b40002 DEFB 9,10,11,12'
@@ -5511,6 +5514,8 @@ class SkoolParserTest(SkoolKitTestCase):
         self.assertEqual([1, 2, 3, 4, 5, 6, 7, 8], parser.snapshot[40000:40008])
         self.assertEqual([1, 2, 9, 10, 11, 12, 7, 8], clone.snapshot[40000:40008])
         self.assertEqual(parser.fields, clone.fields)
+        self.assertEqual(parser.expands, clone.expands)
+        self.assertIsNot(parser.expands, clone.expands)
 
     @patch.object(components, 'SK_CONFIG', None)
     def test_custom_assembler(self):
