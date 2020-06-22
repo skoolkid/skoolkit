@@ -144,7 +144,7 @@ class Frame:
     """
     def __init__(self, udgs, scale=1, mask=0, x=0, y=0, width=None, height=None, delay=32, name='', tindex=0, alpha=-1):
         self._udgs = udgs
-        self._scale = scale
+        self._scale = max(1, scale)
         self.mask = int(mask)
         self._x = x
         self._y = y
