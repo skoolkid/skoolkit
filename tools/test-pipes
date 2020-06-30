@@ -46,7 +46,7 @@ test_sna2skool_ctl() {
 test_snapinfo_ctl() {
   echo -n "Testing snapinfo.py --ctl..."
   dot="digraph {\nnode [shape=record]\n65535 [label=\"65535 FFFF\\\nDONE\"]\n}"
-  diff -u <(echo -e "@ 65535 label=DONE\nc 65535" | ./snapinfo.py --ctl - -g <(echo -n A) 2> /dev/null) <(echo -e "$dot")
+  diff -u <(echo -e "@ 65535 label=DONE\nc 65535" | ./snapinfo.py --ctl - -g <(echo -n A) 2> /dev/null | grep -v ^//) <(echo -e "$dot")
 }
 
 test_skool2asm() {
