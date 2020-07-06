@@ -561,10 +561,13 @@ class CommonSkoolMacroTest:
 
             ; Routine at 40006
             c40006 XOR A
-            @refs=40003
+            @refs=40003:40009
              40007 INC A
             @refs=40004,40005
              40008 RET
+
+            ; Routine at 40009
+            c40009 JP 40007 ; Also jumps to 40007 (obviously)
         """
         writer = self._get_writer(skool=skool)
         self.assertEqual(writer.expand('#FOREACH(EREF40007)(a,a,;)'), '40000;40003')
@@ -622,10 +625,13 @@ class CommonSkoolMacroTest:
             c40005 JP (HL)  ; Also jumps to 40007 (say)
 
             ; Routine at 40006
-            @refs=40003
+            @refs=40003:40008
             c40006 XOR A
             @refs=40004,40005
              40007 RET
+
+            ; Routine at 40008
+            c40008 JP 40006 ; Also jumps to 40006 (obviously)
         """
         writer = self._get_writer(skool=skool)
         self.assertEqual(writer.expand('#FOREACH(REF40006)(a,a,;)'), '40000;40003;40004;40005')

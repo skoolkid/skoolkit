@@ -2046,14 +2046,16 @@ class SkoolParserTest(SkoolKitTestCase):
             c40002 JP (HL) ; Also jumps to 40004 (say)
 
             ; Final routine
-            @refs=40000
+            @refs=40000:40001
             c40003 XOR A
-            @refs=40001,40002
+            @refs=40001,40002:40000
              40004 RET
         """
         parser = self._get_parser(skool)
         self.assertEqual([40000], parser.get_instruction(40003).refs)
+        self.assertEqual([40001], parser.get_instruction(40003).rrefs)
         self.assertEqual([40001, 40002], parser.get_instruction(40004).refs)
+        self.assertEqual([40000], parser.get_instruction(40004).rrefs)
 
     def test_remote_directive(self):
         skool = """

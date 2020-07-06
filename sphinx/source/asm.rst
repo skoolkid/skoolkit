@@ -988,34 +988,52 @@ entry.
 
 @refs
 ^^^^^
-The ``@refs`` directive specifies addresses of routines that jump to the next
-instruction. ::
+The ``@refs`` directive manages the addresses of the referrers of (i.e. the
+routines that jump to or call) the next instruction. ::
 
-  @refs=addr1[,addr2...]
+  @refs=[addr1[,addr2...]][:raddr1[,raddr2...]]
 
-* ``addr1``, ``addr2`` etc. are the routine addresses
+* ``addr1``, ``addr2`` etc. are addresses to add to the list of referrers
+* ``raddr1``, ``raddr2`` etc. are addresses to remove from the list of
+  referrers
 
 This directive can be used to declare one or more additional referrers for an
-instruction that would not otherwise be identified by the :ref:`snapshot
-reference calculator <snapshotRefCalc>` (e.g. because the instruction is jumped
-to indirectly via ``JP (HL)`` or ``RET``). As a result:
+instruction that would not otherwise be identified by the
+:ref:`instruction utility <instructionUtility>` or
+:ref:`snapshot reference calculator <snapshotRefCalc>` (e.g. because the
+instruction is jumped to indirectly via ``JP (HL)`` or ``RET``). As a result:
 
 * :ref:`sna2skool.py` will attach an entry point marker (``*``) to the
   instruction when reading a control file, and include the additional referrers
   in any comment generated for the entry point (when the ``ListRefs``
   :ref:`configuration parameter <sna2skool-conf>` is ``1`` or ``2``)
 * `snapinfo.py`, when generating a :ref:`call graph <snapinfo-call-graph>`,
-  will add an edge between the node representing the referrer and the node
-  representing the routine that contains the instruction
+  will add an edge between a node representing an additional referrer and the
+  node representing the routine that contains the instruction
 * the addresses of the additional referrers become available to the special
+  ``EREF`` and ``REF`` variables of the :ref:`FOREACH` macro
+
+``@refs`` can also be used to remove one or more referrer addresses that have
+been added automatically (because the instruction is jumped to or called
+directly). As a result:
+
+* :ref:`sna2skool.py` will remove the referrers from any comment generated for
+  the entry point (when the ``ListRefs``
+  :ref:`configuration parameter <sna2skool-conf>` is ``1`` or ``2``), and
+  remove any entry point marker (``*``) from the instruction if all the
+  referrers have been removed
+* `snapinfo.py`, when generating a :ref:`call graph <snapinfo-call-graph>`,
+  will not place an edge between a node representing a removed referrer and the
+  node representing the routine that contains the instruction
+* the addresses of the removed referrers will not be available to the special
   ``EREF`` and ``REF`` variables of the :ref:`FOREACH` macro
 
 For example::
 
-  @ 40000 refs=32768
+  @ 40000 refs=32768:49152
 
 This ``@refs`` directive (in a control file) declares that the routine at 32768
-uses the entry point at 40000.
+uses the entry point at 40000, and the routine at 49152 does not.
 
 +---------+---------+
 | Version | Changes |

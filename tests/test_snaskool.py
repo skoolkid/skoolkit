@@ -2399,6 +2399,63 @@ class SkoolWriterTest(SkoolKitTestCase):
         ]
         self._test_write_skool(snapshot, ctl, exp_skool)
 
+    def test_refs_directive_removing_referrers(self):
+        ctl = """
+            c 00000
+            @ 00000 refs=4:5
+            c 00001
+            @ 00001 refs=:14
+            c 00002
+            @ 00003 refs=:5,14
+            c 00004
+            c 00005
+            c 00014
+            i 00020
+        """
+        exp_skool = """
+            ; Routine at 0
+            ;
+            ; Used by the routine at #R4.
+            @refs=4:5
+            c00000 RET           ;
+
+            ; Routine at 1
+            ;
+            ; Used by the routine at #R5.
+            @refs=:14
+            c00001 RET           ;
+
+            ; Routine at 2
+            c00002 XOR A         ;
+            @refs=:5,14
+             00003 RET           ;
+
+            ; Routine at 4
+            c00004 JP (HL)       ;
+
+            ; Routine at 5
+            c00005 CALL 0        ;
+             00008 CALL 1        ;
+             00011 JP 3          ;
+
+            ; Routine at 14
+            c00014 CALL 1        ;
+             00017 JP 3          ;
+        """
+        snapshot = [
+            201,       # 00000 RET
+            201,       # 00001 RET
+            175,       # 00002 XOR A
+            201,       # 00003 RET
+            233,       # 00004 JP (HL)
+            205, 0, 0, # 00005 CALL 0
+            205, 1, 0, # 00008 CALL 1
+            195, 3, 0, # 00011 CALL 3
+            205, 1, 0, # 00014 CALL 1
+            195, 3, 0  # 00027 JP 3
+        ]
+        self._test_write_skool(snapshot, ctl, exp_skool)
+
     def test_remote_directives(self):
         ctl = """
             @ 00000 remote=main:24576

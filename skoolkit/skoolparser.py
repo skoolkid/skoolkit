@@ -155,7 +155,8 @@ def parse_asm_nowarn_directive(directive):
     return _parse_addresses(directive[6:])
 
 def parse_asm_refs_directive(directive):
-    return _parse_addresses(directive[4:])
+    refs, sep, rrefs = directive[4:].partition(':')
+    return _parse_addresses(refs), _parse_addresses('=' + rrefs)
 
 def parse_address_range(value):
     addresses = [parse_int(n) for n in value.split('-', 1)]
@@ -805,7 +806,7 @@ class Mode:
         self.subs = defaultdict(list, {0: ()})
         self.keep = None
         self.nowarn = None
-        self.refs = ()
+        self.refs = ((), ())
         self.ignoreua = {'i': None, 'm': None}
         self.org = None
 
@@ -855,7 +856,7 @@ class Mode:
 
     def apply_asm_directives(self, snapshot, instruction, map_entry, instructions, address_comments, removed):
         instruction.keep = self.keep
-        instruction.refs = self.refs
+        instruction.refs, instruction.rrefs = self.refs
 
         self.process_label(instruction, self.label, removed)
 
@@ -1119,7 +1120,7 @@ class InstructionUtility:
                             ref_i, ref_e = instructions.get(address, (None, None))
                             if ref_i and ref_e.ctl != 'i' and (ref_e.ctl == 'c' or operation.startswith(('DEFW', 'LD ')) or ref_e.ctl is None):
                                 references[instruction] = (ref_i, addr_str, not operation.startswith('RST'))
-                                if operation.startswith(('CALL', 'DJNZ', 'JP', 'JR', 'RST')):
+                                if operation.startswith(('CALL', 'DJNZ', 'JP', 'JR', 'RST')) and entry.address not in ref_i.rrefs:
                                     referrers[ref_i].add(entry)
                 for ref_addr in instruction.refs:
                     if ref_addr in entry_map:
@@ -1159,6 +1160,7 @@ class Instruction:
         self.keep = None                   # API (InstructionUtility)
         self.operation = operation         # API (InstructionUtility)
         self.refs = ()                     # API (InstructionUtility)
+        self.rrefs = ()                    # API (InstructionUtility)
         self.bytes = ()
         self.container = None
         self.reference = None

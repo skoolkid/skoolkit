@@ -1110,23 +1110,26 @@ class SnapinfoTest(SkoolKitTestCase):
         self._test_bin(ram, exp_output, '-g', ctl, suffix='.ram')
 
     def test_option_g_with_refs_directive(self):
-        ram = [233, 201]
+        ram = [24, 1, 233, 201]
         ctl = """
-            @ 65534 label=FIRST
+            @ 65532 label=FIRST
+            c 65532
+            @ 65534 label=SECOND
             c 65534
-            @ 65535 label=SECOND
-            @ 65535 refs=65534
+            @ 65535 label=THIRD
+            @ 65535 refs=65534:65532
             c 65535
         """
         exp_output = r"""
-            // Unconnected: None
+            // Unconnected: 65532
             // Orphans: 65534
             // First instruction not used: None
             digraph {
             node [shape=record]
-            65534 [label="65534 FFFE\nFIRST"]
+            65532 [label="65532 FFFC\nFIRST"]
+            65534 [label="65534 FFFE\nSECOND"]
             65534 -> {65535}
-            65535 [label="65535 FFFF\nSECOND"]
+            65535 [label="65535 FFFF\nTHIRD"]
             }
         """
         self._test_bin(ram, exp_output, '-g', ctl)

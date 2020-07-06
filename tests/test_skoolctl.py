@@ -1319,14 +1319,14 @@ class CtlWriterTest(SkoolKitTestCase):
     def test_refs_directives(self):
         skool = """
             ; Routine
-            @refs=24576
+            @refs=24576:49152
             c32768 LD A,B
             @refs=30000,30010
              32769 RET
         """
         exp_ctl = """
             c 32768 Routine
-            @ 32768 refs=24576
+            @ 32768 refs=24576:49152
             @ 32769 refs=30000,30010
             i 32770
         """

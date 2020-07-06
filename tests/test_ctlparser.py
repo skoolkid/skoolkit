@@ -1348,7 +1348,7 @@ class CtlParserTest(SkoolKitTestCase):
 
     def test_refs_directives(self):
         ctl = """
-            @ 30000 refs=40000
+            @ 30000 refs=40000:60000
             c 30000 Routine at 30000
             @ 30001 refs=40000,50000
         """
@@ -1356,7 +1356,7 @@ class CtlParserTest(SkoolKitTestCase):
             30000: []
         }
         exp_instruction_directives = {
-            30000: ['refs=40000'],
+            30000: ['refs=40000:60000'],
             30001: ['refs=40000,50000']
         }
         self._test_asm_directives(ctl, exp_entry_directives, exp_instruction_directives)

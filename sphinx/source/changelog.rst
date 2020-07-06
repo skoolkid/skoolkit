@@ -1,8 +1,8 @@
 Changelog
 =========
 
-8.2rc
------
+8.2rc2
+------
 * Added the ``--call-graph`` option to :ref:`snapinfo.py <snapinfo-call-graph>`
   (for generating a call graph in DOT format)
 * Added the ``--ctl`` option to :ref:`snapinfo.py` (for specifying a control
@@ -27,8 +27,8 @@ Changelog
 * Added the ``alpha`` parameter to the :ref:`FONT`, :ref:`SCR`, :ref:`UDG` and
   :ref:`UDGARRAY` macros (for specifying the alpha value to use for the
   transparent colour)
-* Added the :ref:`refs` directive (for specifying the addresses of routines
-  that indirectly jump to an entry point)
+* Added the :ref:`refs` directive (for managing the addresses of routines that
+  jump to or call an entry point)
 * Added support for replacement fields in the integer parameters of the
   :ref:`FOR` and :ref:`PEEK` macros
 * Added the ``--page`` option to :ref:`snapinfo.py` (for specifying the page of

@@ -29,6 +29,7 @@ from skoolkit.skoolparser import (get_address, parse_asm_refs_directive,
 
 MIN_COMMENT_WIDTH = 10
 AD_LABEL_PREFIX = AD_LABEL + '='
+AD_REFS_PREFIX = AD_REFS + '='
 
 DisassemblerConfig = namedtuple('DisassemblerConfig', 'asm_hex asm_lower defb_size defm_size defw_size')
 
@@ -44,7 +45,7 @@ def calculate_references(entries, operations):
                        entry point.
     :return: A dictionary of entry point addresses.
     """
-    containers = {i.address: e for e in entries for i in e.instructions if i.label != ''}
+    instructions = {i.address: (i, e) for e in entries for i in e.instructions}
     referrers = defaultdict(list)
     for entry in entries:
         for instruction in entry.instructions:
@@ -53,10 +54,11 @@ def calculate_references(entries, operations):
                 addr_str = get_address(operation)
                 if addr_str:
                     ref_addr = parse_int(addr_str)
-                    if ref_addr in containers and (entry.ctl != 'u' or entry is containers[ref_addr]):
+                    ref_i, ref_e = instructions.get(ref_addr, (None, None))
+                    if ref_i and entry.address not in ref_i.rrefs and ref_i.label != '' and (entry.ctl != 'u' or entry is ref_e):
                         referrers[ref_addr].append(entry)
             for ref_addr in instruction.refs:
-                referrer = containers.get(ref_addr)
+                referrer = instructions.get(ref_addr, (None, None))[1]
                 if referrer and referrer not in referrers[instruction.address]:
                     referrers[instruction.address].append(referrer)
     return referrers
@@ -68,6 +70,7 @@ class Instruction:
         self.bytes = data          # API (SnapshotReferenceCalculator)
         self.label = None          # API (SnapshotReferenceCalculator)
         self.refs = ()             # API (SnapshotReferenceCalculator)
+        self.rrefs = ()            # API (SnapshotReferenceCalculator)
         self.referrers = []
         self.entry = None
         self.ctl = None
@@ -228,8 +231,8 @@ class Disassembly:
                     instruction.label = asm_dir[len(AD_LABEL_PREFIX):]
                     if instruction.label.startswith('*'):
                         instruction.ctl = '*'
-                elif asm_dir.startswith(AD_REFS):
-                    instruction.refs = parse_asm_refs_directive(asm_dir)
+                elif asm_dir.startswith(AD_REFS_PREFIX):
+                    instruction.refs, instruction.rrefs = parse_asm_refs_directive(asm_dir)
 
     def _calculate_references(self, self_refs):
         operations = get_value('SnapshotReferenceOperations').upper()
