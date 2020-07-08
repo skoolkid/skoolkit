@@ -19,24 +19,50 @@ The latest stable release of SkoolKit can always be obtained from
 
 Features
 --------
-SkoolKit can:
+With SkoolKit you can:
 
-* convert a TAP or TZX file into a 'pristine' snapshot (using
-  :ref:`tap2sna.py`)
-* disassemble SNA, Z80 and SZX snapshots as well as raw memory files
-* distinguish code from data by using a code execution map produced by an
-  emulator
-* build still and animated PNG images from graphic data in the game snapshot
-  (using the :ref:`UDG`, :ref:`UDGARRAY`, :ref:`FONT` and :ref:`SCR` macros)
-* create hyperlinks between routines and data blocks that refer to each other
-  (by use of the :ref:`R` macro in annotations, and automatically in the
-  operands of ``CALL`` and ``JP`` instructions)
-* neatly render lists of bugs, trivia and POKEs on separate pages (using
-  :ref:`[Bug:*] <boxpages>`, :ref:`[Fact:*] <boxpages>` and
-  :ref:`[Poke:*] <boxpages>` sections in a ref file)
-* produce ASM files that include bugfixes declared in the skool file (with
-  :ref:`ofix`, :ref:`bfix` and other ASM directives)
-* produce TAP files from assembled code (using :ref:`bin2tap.py`)
+* use :ref:`sna2ctl.py` to generate a :ref:`control file <controlFiles>` (an
+  attempt to identify routines and data blocks by static analysis) from a
+  snapshot (SNA, SZX or Z80) or raw memory file
+* enable :ref:`sna2ctl.py` to generate a much better control file that more
+  reliably distinguishes code from data by using a code execution map produced
+  by an emulator
+* use :ref:`sna2skool.py` along with this control file to produce a disassembly
+  of a snapshot or raw memory file
+* add annotations to this disassembly (or the control file) as you discover the
+  purpose of each routine and data block
+* use :ref:`skool2html.py` to convert a disassembly into a bunch of HTML files
+  (with annotations in place, and the operands of CALL and JP instructions
+  converted into hyperlinks)
+* use :ref:`skool2asm.py` to convert a disassembly into an assembler source
+  file (also with annotations in place)
+* use :ref:`skool2ctl.py` to convert a disassembly back into a control file
+  (with annotations retained)
+* use :ref:`skool2bin.py` to convert a disassembly into a raw memory file
+* use :ref:`tap2sna.py` to convert a TAP or TZX file into a 'pristine' Z80
+  snapshot
+* use :ref:`snapinfo.py` to analyse a snapshot or raw memory file and list the
+  BASIC program it contains, show register values, produce a call graph, find
+  tile graphic data, find text, or find sequences of arbitrary byte values
+* use :ref:`tapinfo.py` to analyse the blocks in a TAP or TZX file, and list
+  the BASIC program it contains
+* use :ref:`bin2tap.py` to convert a snapshot or raw memory file into a TAP
+  file
+* use :ref:`bin2sna.py` to convert a raw memory file into a Z80 snapshot
+* use :ref:`snapmod.py` to modify the register values or memory contents in a
+  Z80 snapshot
+* use :ref:`sna2img.py` to convert graphic data in a disassembly, SCR file,
+  snapshot or raw memory file into a PNG image
+
+In an HTML disassembly produced by :ref:`skool2html.py` you can also:
+
+* use the :ref:`UDG`, :ref:`UDGARRAY`, :ref:`FONT` and :ref:`SCR` macros to
+  build still and animated PNG images from graphic data
+* use the :ref:`R` macro in annotations to create hyperlinks between routines
+  and data blocks that refer to each other
+* use :ref:`[Bug:*] <boxpages>`, :ref:`[Fact:*] <boxpages>` and
+  :ref:`[Poke:*] <boxpages>` sections in a ref file to neatly render lists of
+  bugs, trivia and POKEs on separate pages
 
 For a demonstration of SkoolKit's capabilities, take a look at the complete
 disassemblies of `Skool Daze`_, `Back to Skool`_, `Contact Sam Cruise`_,
