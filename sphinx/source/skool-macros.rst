@@ -166,6 +166,8 @@ enclosed in parentheses.
    The ``asm`` replacement field indicates the exact ASM mode; added the
    ``fix`` and ``vars`` replacement fields.
 
+.. _SMPLmacros:
+
 SMPL macros
 ^^^^^^^^^^^
 The macros described in this section constitute the Skool Macro Programming

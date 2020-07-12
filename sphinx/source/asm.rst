@@ -605,9 +605,9 @@ replace the operand of the instruction at 32768 with a label: ``LD HL,ATTRS``.
 @expand
 ^^^^^^^
 The ``@expand`` directive specifies an arbitrary piece of text - intended to
-consist of one or more skool macros - that will be expanded by the ASM writer
-or HTML writer during initialisation (before any skool macros that appear in
-skool file annotations or ref file sections are expanded). ::
+consist of one or more :ref:`SMPLmacros` - that will be expanded by the ASM
+writer or HTML writer during initialisation (before any skool macros that
+appear in skool file annotations or ref file sections are expanded). ::
 
   @expand=text
 
