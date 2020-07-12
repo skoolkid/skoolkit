@@ -101,6 +101,11 @@ For information on how to create your own Python class for writing an HTML
 disassembly, see the documentation on
 :ref:`extending SkoolKit <extendingSkoolKit>`.
 
+Note that the ``Config`` section must appear in a ref file that is read
+automatically by :ref:`skool2html.py` by virtue of having the same filename
+root as the skool file given on the command line (i.e. `game*.ref` if the skool
+file is `game.skool`).
+
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
