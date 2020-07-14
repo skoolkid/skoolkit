@@ -164,6 +164,11 @@ if [ $WRITE_OLD -eq 1 ] || [ ! -d $OLD_DIR ]; then
     find $OLD_DISASSEMBLY_NAME -name '*.ref' -exec cp {} $OLD_DIR/src \;
     find $OLD_DISASSEMBLY_NAME -name '*.js' -exec cp {} $OLD_DIR/src \;
     find $OLD_DISASSEMBLY_NAME -name '*.css' -exec cp {} $OLD_DIR/src \;
+    (( ${OLD_SKOOLKIT_VERSION%%.*} < 8 )) && tag=v${OLD_SKOOLKIT_VERSION} || tag=${OLD_SKOOLKIT_VERSION}
+    if ! wget https://github.com/skoolkid/skoolkit/raw/${tag}/tools/publish.ref -O $OLD_DIR/publish.ref 2>/dev/null; then
+      echo "Error: Failed to download publish.ref for SkoolKit ${OLD_SKOOLKIT_VERSION}"
+      exit 1
+    fi
   fi
 fi
 
@@ -189,6 +194,14 @@ if [ $WRITE_NEW -eq 1 ] || [ ! -d $NEW_DIR ]; then
   cp -p $DHOME/sources/*.skool $DHOME/sources/*.ref $NEW_DIR/src
   find $DHOME/sources \( -name '*.css' -o -name '*.js' \) -exec cp -p {} $NEW_DIR/src \;
   find $DHOME/sources -name '*.py' -exec cp -p {} $NEW_DIR \;
+  if [ $USE_SK_DEV -eq 1 ]; then
+    cp $SKOOLKIT_HOME/tools/publish.ref $NEW_DIR
+  else
+    if ! wget https://github.com/skoolkid/skoolkit/raw/${SKOOLKIT_VERSION}/tools/publish.ref -O $NEW_DIR/publish.ref 2>/dev/null; then
+      echo "Error: Failed to download publish.ref for SkoolKit ${SKOOLKIT_VERSION}"
+      exit 1
+    fi
+  fi
 fi
 
 for diff_type in $DIFF_TYPES; do

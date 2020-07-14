@@ -85,8 +85,8 @@ write_html() {
         varopt=""
         reffile=""
         if [[ -z $c ]] && [[ -z $e ]]; then
-          [[ $b == -D ]] && varopt="--var pub=1" && reffile=$SKOOLKIT_HOME/tools/publish.ref
-          [[ $b == -H ]] && varopt="--var pub=2" && reffile=$SKOOLKIT_HOME/tools/publish.ref
+          [[ $b == -D ]] && varopt="--var pub=1" && reffile=publish.ref
+          [[ $b == -H ]] && varopt="--var pub=2" && reffile=publish.ref
         fi
         echo -n "Writing $gamedir HTML disassembly..."
         ./skool2html.py $b $c $e -q -d html -c Config/GameDir=$gamedir $varopt $skoolfile $reffile
