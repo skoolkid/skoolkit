@@ -1,7 +1,7 @@
 Changelog
 =========
 
-8.2rc2
+8.2rc3
 ------
 * Added the ``--call-graph`` option to :ref:`snapinfo.py <snapinfo-call-graph>`
   (for generating a call graph in DOT format)

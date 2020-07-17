@@ -1119,7 +1119,7 @@ class FileInfo:
             path = join(path, name)
         if not isdir(os.path.dirname(path)):
             os.makedirs(os.path.dirname(path))
-        return open(path, mode)
+        return open(path, mode, encoding=None if 'b' in mode else 'utf8')
 
     def add_image(self, image_path):
         self.images.add(image_path)
