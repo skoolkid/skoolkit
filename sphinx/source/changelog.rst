@@ -1,8 +1,8 @@
 Changelog
 =========
 
-8.2rc3
-------
+8.2 (2020-07-19)
+----------------
 * Added the ``--call-graph`` option to :ref:`snapinfo.py <snapinfo-call-graph>`
   (for generating a call graph in DOT format)
 * Added the ``--ctl`` option to :ref:`snapinfo.py` (for specifying a control

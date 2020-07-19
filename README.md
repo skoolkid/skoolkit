@@ -25,22 +25,67 @@ running Windows or Mac OS X, you can get Python
 Features
 --------
 
-SkoolKit can:
+With SkoolKit you can:
 
-* convert a TAP or TZX file into a 'pristine' snapshot (using ``tap2sna.py``)
-* disassemble SNA, Z80 and SZX snapshots as well as raw memory files
-* distinguish code from data by using a code execution map produced by an
-  emulator
-* build still and animated PNG images from graphic data in the game snapshot
-  (using the ``#UDG``, ``#UDGARRAY``, ``#FONT`` and ``#SCR`` macros)
-* create hyperlinks between routines and data blocks that refer to each other
-  (by use of the ``#R`` macro in annotations, and automatically in the
-  operands of CALL and JP instructions)
-* neatly render lists of bugs, trivia and POKEs on separate pages (using
-  ``Bug``, ``Fact`` and ``Poke`` sections in a *ref* file)
-* produce ASM files that include bugfixes declared in the *skool* file (with
-  ``@ofix``, ``@bfix`` and other ASM directives)
-* produce TAP files from assembled code (using ``bin2tap.py``)
+* use [sna2ctl.py](https://skoolkid.github.io/skoolkit/commands.html#sna2ctl-py)
+  to generate a [control file](https://skoolkid.github.io/skoolkit/control-files.html)
+  (an attempt to identify routines and data blocks by static analysis) from a
+  snapshot (SNA, SZX or Z80) or raw memory file
+* enable [sna2ctl.py](https://skoolkid.github.io/skoolkit/commands.html#sna2ctl-py)
+  to generate a much better control file that more reliably distinguishes code
+  from data by using a code execution map produced by an emulator
+* use [sna2skool.py](https://skoolkid.github.io/skoolkit/commands.html#sna2skool-py)
+  along with this control file to produce a disassembly of a snapshot or raw
+  memory file
+* add annotations to this disassembly (or the control file) as you discover the
+  purpose of each routine and data block
+* use [skool2html.py](https://skoolkid.github.io/skoolkit/commands.html#skool2html-py)
+  to convert a disassembly into a bunch of HTML files (with annotations in
+  place, and the operands of CALL and JP instructions converted into
+  hyperlinks)
+* use [skool2asm.py](https://skoolkid.github.io/skoolkit/commands.html#skool2asm-py)
+  to convert a disassembly into an assembler source file (also with annotations
+  in place)
+* use [skool2ctl.py](https://skoolkid.github.io/skoolkit/commands.html#skool2ctl-py)
+  to convert a disassembly back into a control file (with annotations retained)
+* use [skool2bin.py](https://skoolkid.github.io/skoolkit/commands.html#skool2bin-py)
+  to convert a disassembly into a raw memory file
+* use [tap2sna.py](https://skoolkid.github.io/skoolkit/commands.html#tap2sna-py)
+  to convert a TAP or TZX file into a 'pristine' Z80 snapshot
+* use [snapinfo.py](https://skoolkid.github.io/skoolkit/commands.html#snapinfo-py)
+  to analyse a snapshot or raw memory file and list the BASIC program it
+  contains, show register values, produce a call graph, find tile graphic data,
+  find text, or find sequences of arbitrary byte values
+* use [tapinfo.py](https://skoolkid.github.io/skoolkit/commands.html#tapinfo-py)
+  to analyse the blocks in a TAP or TZX file, and list the BASIC program it
+  contains
+* use [bin2tap.py](https://skoolkid.github.io/skoolkit/commands.html#bin2tap-py)
+  to convert a snapshot or raw memory file into a TAP file
+* use [bin2sna.py](https://skoolkid.github.io/skoolkit/commands.html#bin2sna-py)
+  to convert a raw memory file into a Z80 snapshot
+* use [snapmod.py](https://skoolkid.github.io/skoolkit/commands.html#snapmod-py)
+  to modify the register values or memory contents in a Z80 snapshot
+* use [sna2img.py](https://skoolkid.github.io/skoolkit/commands.html#sna2img-py)
+  to convert graphic data in a disassembly, SCR file, snapshot or raw memory
+  file into a PNG image
+
+In an HTML disassembly produced by
+[skool2html.py](https://skoolkid.github.io/skoolkit/commands.html#skool2html-py)
+you can also:
+
+* use the [#UDG](https://skoolkid.github.io/skoolkit/skool-macros.html#udg),
+  [#UDGARRAY](https://skoolkid.github.io/skoolkit/skool-macros.html#udgarray),
+  [#FONT](https://skoolkid.github.io/skoolkit/skool-macros.html#font) and
+  [#SCR](https://skoolkid.github.io/skoolkit/skool-macros.html#scr) macros to
+  build still and animated PNG images from graphic data
+* use the [#R](https://skoolkid.github.io/skoolkit/skool-macros.html#r) macro
+  in annotations to create hyperlinks between routines and data blocks that
+  refer to each other
+* use [[Bug:\*]](https://skoolkid.github.io/skoolkit/ref-files.html#box-pages),
+  [[Fact:\*]](https://skoolkid.github.io/skoolkit/ref-files.html#box-pages) and
+  [[Poke:\*]](https://skoolkid.github.io/skoolkit/ref-files.html#box-pages)
+  sections in a ref file to neatly render lists of bugs, trivia and POKEs on
+  separate pages
 
 See the [user manual](https://skoolkid.github.io/skoolkit/) for more details
 (mirror [here](https://skoolkid.gitlab.io/skoolkit/)).
