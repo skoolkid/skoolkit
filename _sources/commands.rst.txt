@@ -176,8 +176,8 @@ assembler (see :ref:`supportedAssemblers`). For example::
     -S ADDR, --start ADDR
                           Start converting at this address.
     -u, --upper           Write the disassembly in upper case.
-    --var name=value      Define a variable that can be used by @if, #EVAL, #IF
-                          and #MAP. This option may be used multiple times.
+    --var name=value      Define a variable that can be used by @if and the SMPL
+                          macros. This option may be used multiple times.
     -V, --version         Show SkoolKit version number and exit.
     -w, --no-warnings     Suppress warnings.
     -W CLASS, --writer CLASS
@@ -499,8 +499,8 @@ list::
                           Use this CSS theme. This option may be used multiple
                           times.
     -u, --upper           Write the disassembly in upper case.
-    --var name=value      Define a variable that can be used by @if, #EVAL, #IF
-                          and #MAP. This option may be used multiple times.
+    --var name=value      Define a variable that can be used by @if and the SMPL
+                          macros. This option may be used multiple times.
     -V, --version         Show SkoolKit version number and exit.
     -w X, --write X       Write only these files, where X is one or more of:
                             d = Disassembly files   o = Other code
@@ -965,8 +965,8 @@ Configuration parameters may also be set on the command line by using the
 
 snapinfo.py
 -----------
-`snapinfo.py` shows information on the registers and RAM in a SNA, SZX or Z80
-snapshot. For example::
+`snapinfo.py` shows information on the registers or RAM in a binary (raw
+memory) file or a SNA, SZX or Z80 snapshot. For example::
 
   $ snapinfo.py game.z80
 
@@ -974,16 +974,27 @@ To list the options supported by `snapinfo.py`, run it with no arguments::
 
   usage: snapinfo.py [options] file
 
-  Analyse an SNA, SZX or Z80 snapshot.
+  Analyse a binary (raw memory) file or a SNA, SZX or Z80 snapshot.
 
   Options:
     -b, --basic           List the BASIC program.
+    -c FILE, --ctl FILE   Use FILE as a control file when generating a call
+                          graph. FILE may be '-' for standard input. This option
+                          may be used multiple times.
     -f A[,B...[-M[-N]]], --find A[,B...[-M[-N]]]
                           Search for the byte sequence A,B... with distance
                           ranging from M to N (default=1) between bytes.
+    -g, --call-graph      Generate a call graph in DOT format.
+    -I p=v, --ini p=v     Set the value of the configuration parameter 'p' to
+                          'v'. This option may be used multiple times.
+    -o ADDR, --org ADDR   Specify the origin address of a binary (raw memory)
+                          file (default: 65536 - length).
     -p A[-B[-C]], --peek A[-B[-C]]
                           Show the contents of addresses A TO B STEP C. This
                           option may be used multiple times.
+    -P PAGE, --page PAGE  Specify the page (0-7) of a 128K snapshot to map to
+                          49152-65535.
+    --show-config         Show configuration parameter values.
     -t TEXT, --find-text TEXT
                           Search for a text string.
     -T X,Y[-M[-N]], --find-tile X,Y[-M[-N]]
@@ -999,11 +1010,94 @@ To list the options supported by `snapinfo.py`, run it with no arguments::
 With no options, `snapinfo.py` displays register values, the interrupt mode,
 and the border colour. By using one of the options shown above, it can list
 the BASIC program and variables (if present), show the contents of a range of
-addresses, or search the RAM for a sequence of byte values or a text string.
+addresses, search the RAM for a sequence of byte values or a text string, or
+generate a call graph.
+
+.. _snapinfo-call-graph:
+
+Call graphs
+^^^^^^^^^^^
+`snapinfo.py` can generate a call graph in `DOT format`_ from a snapshot and a
+corresponding control file. For example, if `game.ctl` is present alongside
+`game.z80`, then::
+
+  $ snapinfo.py -g game.z80 > game.dot
+
+will produce a call graph in `game.dot`, with a node for each routine declared
+in `game.ctl`, and an edge between two nodes whenever the routine represented
+by the first node calls, jumps to, or continues into the routine represented by
+the second node.
+
+To create a PNG image file named `game.png` from `game.dot`, the `dot` utility
+(included in Graphviz_) may be used::
+
+  $ dot -Tpng game.dot > game.png
+
+A call graph may contain one or more 'orphans', an orphan being a node that is
+not at the head of any arrow, and thus represents a routine that is (as far as
+`snapinfo.py` can tell) not used by any other routines. To declare the callers
+of such a routine (in case it is not a true orphan), the :ref:`refs` directive
+may be used.
+
+To help identify orphan nodes and missing edges, each of the first three lines
+of the DOT file produced by `snapinfo.py` contains a list of IDs of the
+following types of node:
+
+* unconnected nodes
+* orphan nodes connected to other nodes
+* non-orphan nodes whose first instruction is not used
+
+The appearance of nodes and edges in a call graph image can be configured via
+the ``EdgeAttributes``, ``GraphAttributes``, ``NodeAttributes`` and
+``NodeLabel`` configuration parameters (see below).
+
+.. _snapinfo-conf:
+
+Configuration
+^^^^^^^^^^^^^
+`snapinfo.py` will read configuration from a file named `skoolkit.ini` in the
+current working directory or in `~/.skoolkit`, if present. The recognised
+configuration parameters are:
+
+* ``EdgeAttributes`` - the default attributes_ for edges in a call graph
+  (default: none)
+* ``GraphAttributes`` - the default attributes_ for a call graph (default:
+  none)
+* ``NodeAttributes`` - the default attributes_ for nodes in a call graph
+  (default: ``shape=record``)
+* ``NodeId`` - the format of the node IDs in a call graph (default:
+  ``{address}``)
+* ``NodeLabel`` - the format of the node labels in a call graph (default:
+  ``"{address} {address:04X}\n{label}"``)
+
+``NodeId`` and ``NodeLabel`` are standard Python format strings that recognise
+the replacement fields ``address`` and ``label`` (the address and label of the
+first instruction in the routine represented by the node).
+
+Configuration parameters must appear in a ``[snapinfo]`` section. For example,
+to make `snapinfo.py` use open arrowheads and a cyan background colour in call
+graphs by default, add the following section to `skoolkit.ini`::
+
+  [snapinfo]
+  EdgeAttributes=arrowhead=open
+  GraphAttributes=bgcolor=cyan
+
+Configuration parameters may also be set on the command line by using the
+``--ini`` option. Parameter values set this way will override any found in
+`skoolkit.ini`.
+
+.. _DOT format: https://graphviz.gitlab.io/_pages/doc/info/lang.html
+.. _Graphviz: https://graphviz.gitlab.io/
+.. _attributes: https://graphviz.gitlab.io/_pages/doc/info/attrs.html
 
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 8.2     | Configuration is read from `skoolkit.ini` if present; added the   |
+|         | ability to read binary files; added the ``--call-graph``,         |
+|         | ``--ctl``, ``--ini``, ``--org``, ``--page`` and ``--show-config`` |
+|         | options                                                           |
++---------+-------------------------------------------------------------------+
 | 6.2     | The ``--find``, ``--find-tile``, ``--peek`` and ``--word``        |
 |         | options accept hexadecimal integers prefixed by '0x'              |
 +---------+-------------------------------------------------------------------+

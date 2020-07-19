@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>SkoolKit components &#8212; SkoolKit 8.1 documentation</title>
+    <title>SkoolKit components &#8212; SkoolKit 8.2 documentation</title>
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -30,7 +30,7 @@
         <li class="right" >
           <a href="extending.html" title="Extending SkoolKit"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.2 documentation</a> &#187;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
@@ -642,6 +642,10 @@ addresses if it has a <a class="reference internal" href="asm.html#nowarn"><span
 <li><em>operation</em> - the operation (e.g. ‘XOR A’) after any <code class="docutils literal notranslate"><span class="pre">&#64;*sub</span></code> or <code class="docutils literal notranslate"><span class="pre">&#64;*fix</span></code>
 directives have been applied; for an instruction in a remote entry, this is
 an empty string</li>
+<li><em>refs</em> - the addresses of the instruction’s indirect referrers, as declared
+by a <a class="reference internal" href="asm.html#refs"><span class="std std-ref">&#64;refs</span></a> directive</li>
+<li><em>rrefs</em> - the addresses of the instruction’s direct referrers to be removed,
+as declared by a <a class="reference internal" href="asm.html#refs"><span class="std std-ref">&#64;refs</span></a> directive</li>
 <li><em>sub</em> - <cite>True</cite> if the operation was supplied by <code class="docutils literal notranslate"><span class="pre">&#64;*sub</span></code> or <code class="docutils literal notranslate"><span class="pre">&#64;*fix</span></code>
 directive, <cite>False</cite> otherwise</li>
 </ul>
@@ -661,6 +665,9 @@ is <cite>False</cite>, the address string (<code class="docutils literal notrans
 <p>Each key in the referrers dictionary should be an instruction object, and the
 corresponding value should be a collection of the entries that refer to that
 instruction.</p>
+<div class="versionchanged">
+<p><span class="versionmodified">Changed in version 8.2: </span>Added the <em>refs</em> and <em>rrefs</em> attributes to instruction objects.</p>
+</div>
 <div class="versionchanged">
 <p><span class="versionmodified">Changed in version 8.1: </span>Added the <em>mode</em> parameter to the <code class="xref py py-meth docutils literal notranslate"><span class="pre">substitute_labels()</span></code> method, and
 changed the required signature of the <em>warn</em> function. Added the <em>nowarn</em>
@@ -899,7 +906,14 @@ entry point.</li>
 <li><em>bytes</em> - the byte values of the instruction</li>
 <li><em>label</em> - the instruction’s label, as defined by a <a class="reference internal" href="asm.html#label"><span class="std std-ref">&#64;label</span></a> directive</li>
 <li><em>operation</em> - the operation (e.g. ‘XOR A’)</li>
+<li><em>refs</em> - the addresses of the instruction’s indirect referrers, as declared
+by a <a class="reference internal" href="asm.html#refs"><span class="std std-ref">&#64;refs</span></a> directive</li>
+<li><em>rrefs</em> - the addresses of the instruction’s direct referrers to be removed,
+as declared by a <a class="reference internal" href="asm.html#refs"><span class="std std-ref">&#64;refs</span></a> directive</li>
 </ul>
+<div class="versionchanged">
+<p><span class="versionmodified">Changed in version 8.2: </span>Added the <em>refs</em> and <em>rrefs</em> attributes to instruction objects.</p>
+</div>
 </div>
 <div class="section" id="component-api">
 <h2>Component API<a class="headerlink" href="#component-api" title="Permalink to this headline">¶</a></h2>
@@ -960,7 +974,7 @@ other values declared in the <code class="docutils literal notranslate"><span cl
         <li class="right" >
           <a href="extending.html" title="Extending SkoolKit"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.2 documentation</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">

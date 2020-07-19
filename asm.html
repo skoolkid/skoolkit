@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>ASM modes and directives &#8212; SkoolKit 8.1 documentation</title>
+    <title>ASM modes and directives &#8212; SkoolKit 8.2 documentation</title>
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -34,7 +34,7 @@
         <li class="right" >
           <a href="ref-files.html" title="Ref files"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.2 documentation</a> &#187;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
@@ -63,6 +63,7 @@
 <li><a class="reference internal" href="#defw">&#64;defw</a></li>
 <li><a class="reference internal" href="#end">&#64;end</a></li>
 <li><a class="reference internal" href="#equ">&#64;equ</a></li>
+<li><a class="reference internal" href="#expand">&#64;expand</a></li>
 <li><a class="reference internal" href="#if">&#64;if</a></li>
 <li><a class="reference internal" href="#ignoreua">&#64;ignoreua</a></li>
 <li><a class="reference internal" href="#isub">&#64;isub</a></li>
@@ -73,6 +74,7 @@
 <li><a class="reference internal" href="#ofix">&#64;ofix</a></li>
 <li><a class="reference internal" href="#ofix-block-directives">&#64;ofix block directives</a></li>
 <li><a class="reference internal" href="#org">&#64;org</a></li>
+<li><a class="reference internal" href="#refs">&#64;refs</a></li>
 <li><a class="reference internal" href="#rem">&#64;rem</a></li>
 <li><a class="reference internal" href="#remote">&#64;remote</a></li>
 <li><a class="reference internal" href="#replace">&#64;replace</a></li>
@@ -744,6 +746,44 @@ replace the operand of the instruction at 32768 with a label: <code class="docut
 </tbody>
 </table>
 </div>
+<div class="section" id="expand">
+<span id="id8"></span><h3>&#64;expand<a class="headerlink" href="#expand" title="Permalink to this headline">¶</a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">&#64;expand</span></code> directive specifies an arbitrary piece of text - intended to
+consist of one or more <a class="reference internal" href="skool-macros.html#smplmacros"><span class="std std-ref">SMPL macros</span></a> - that will be expanded by the ASM
+writer or HTML writer during initialisation (before any skool macros that
+appear in skool file annotations or ref file sections are expanded).</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>@expand=text
+</pre></div>
+</div>
+<ul class="simple">
+<li><code class="docutils literal notranslate"><span class="pre">text</span></code> is the text to expand</li>
+</ul>
+<p>For example:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>@expand=#DEFINE2(MAX,#IF({0}&gt;{1})({0},{1}))
+</pre></div>
+</div>
+<p>This <code class="docutils literal notranslate"><span class="pre">&#64;expand</span></code> directive passes the given <a class="reference internal" href="skool-macros.html#define"><span class="std std-ref">#DEFINE</span></a> macro to the ASM
+writer or HTML writer for expansion during initialisation; this has the effect
+of making the user-defined <code class="docutils literal notranslate"><span class="pre">#MAX</span></code> macro available for use immediately
+anywhere in the skool file (and any secondary skool files if the directive
+appears in the main skool file) or ref files.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="50%" />
+<col width="50%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Version</th>
+<th class="head">Changes</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>8.2</td>
+<td>New</td>
+</tr>
+</tbody>
+</table>
+</div>
 <div class="section" id="if">
 <span id="asm-if"></span><h3>&#64;if<a class="headerlink" href="#if" title="Permalink to this headline">¶</a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">&#64;if</span></code> directive conditionally processes other ASM directives based on the
@@ -752,14 +792,15 @@ value of an arithmetic expression.</p>
 </pre></div>
 </div>
 <ul class="simple">
-<li><code class="docutils literal notranslate"><span class="pre">expr</span></code> is the arithmetic expression</li>
+<li><code class="docutils literal notranslate"><span class="pre">expr</span></code> is the arithmetic expression, which may contain
+<a class="reference internal" href="skool-macros.html#replacementfields"><span class="std std-ref">replacement fields</span></a></li>
 <li><code class="docutils literal notranslate"><span class="pre">true</span></code> is processed when <code class="docutils literal notranslate"><span class="pre">expr</span></code> is true</li>
 <li><code class="docutils literal notranslate"><span class="pre">false</span></code> (if given) is processed when <code class="docutils literal notranslate"><span class="pre">expr</span></code> is false</li>
 </ul>
-<p>See <a class="reference internal" href="skool-macros.html#numericparameters"><span class="std std-ref">Numeric parameters</span></a> for details on the operators and replacement
-fields that may be used in the <code class="docutils literal notranslate"><span class="pre">expr</span></code> parameter.</p>
+<p>See <a class="reference internal" href="skool-macros.html#numericparameters"><span class="std std-ref">Numeric parameters</span></a> for details on the operators that may be used in
+the <code class="docutils literal notranslate"><span class="pre">expr</span></code> parameter.</p>
 <p>For example:</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>@if({case}==1))(replace=/#hl/hl,replace=/#hl/HL)
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>@if({mode[case]}==1))(replace=/#hl/hl,replace=/#hl/HL)
 </pre></div>
 </div>
 <p>would process <code class="docutils literal notranslate"><span class="pre">replace=/#hl/hl</span></code> if in lower case mode, or <code class="docutils literal notranslate"><span class="pre">replace=/#hl/HL</span></code>
@@ -784,7 +825,7 @@ are for the <a class="reference internal" href="skool-macros.html#if"><span clas
 </table>
 </div>
 <div class="section" id="ignoreua">
-<span id="id8"></span><h3>&#64;ignoreua<a class="headerlink" href="#ignoreua" title="Permalink to this headline">¶</a></h3>
+<span id="id9"></span><h3>&#64;ignoreua<a class="headerlink" href="#ignoreua" title="Permalink to this headline">¶</a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">&#64;ignoreua</span></code> directive suppresses warnings that would otherwise be printed
 (during the rendering phase) concerning addresses not converted to labels in
 the comment that follows. The comment may be an entry title, an entry
@@ -902,7 +943,7 @@ comments and block end comments</td>
 </table>
 </div>
 <div class="section" id="isub">
-<span id="id9"></span><h3>&#64;isub<a class="headerlink" href="#isub" title="Permalink to this headline">¶</a></h3>
+<span id="id10"></span><h3>&#64;isub<a class="headerlink" href="#isub" title="Permalink to this headline">¶</a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">&#64;isub</span></code> directive replaces, inserts or removes a label, instruction and
 comment in <a class="reference internal" href="#isubmode"><span class="std std-ref">&#64;isub mode</span></a>.</p>
 <p>The syntax is equivalent to that for the <a class="reference internal" href="#bfix"><span class="std std-ref">&#64;bfix</span></a> directive.</p>
@@ -939,7 +980,7 @@ removed in <a class="reference internal" href="#isubmode"><span class="std std-r
 <p>The syntax is equivalent to that for the <a class="reference internal" href="#bfixblockdirectives"><span class="std std-ref">&#64;bfix block directives</span></a>.</p>
 </div>
 <div class="section" id="keep">
-<span id="id10"></span><h3>&#64;keep<a class="headerlink" href="#keep" title="Permalink to this headline">¶</a></h3>
+<span id="id11"></span><h3>&#64;keep<a class="headerlink" href="#keep" title="Permalink to this headline">¶</a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">&#64;keep</span></code> directive prevents the substitution of labels for numeric values
 in the operand of the next instruction:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>@keep[=val1[,val2...]]
@@ -980,7 +1021,7 @@ an <a class="reference internal" href="#isub"><span class="std std-ref">&#64;isu
 </table>
 </div>
 <div class="section" id="label">
-<span id="id11"></span><h3>&#64;label<a class="headerlink" href="#label" title="Permalink to this headline">¶</a></h3>
+<span id="id12"></span><h3>&#64;label<a class="headerlink" href="#label" title="Permalink to this headline">¶</a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">&#64;label</span></code> directive sets the label for the next instruction.</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>@label=LABEL
 </pre></div>
@@ -1030,7 +1071,7 @@ having a label automatically generated)</td>
 </table>
 </div>
 <div class="section" id="nowarn">
-<span id="id12"></span><h3>&#64;nowarn<a class="headerlink" href="#nowarn" title="Permalink to this headline">¶</a></h3>
+<span id="id13"></span><h3>&#64;nowarn<a class="headerlink" href="#nowarn" title="Permalink to this headline">¶</a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">&#64;nowarn</span></code> directive suppresses any warnings that would otherwise be
 reported (during the parsing phase) for the next instruction concerning:</p>
 <ul class="simple">
@@ -1086,7 +1127,7 @@ warnings</td>
 </table>
 </div>
 <div class="section" id="ofix">
-<span id="id13"></span><h3>&#64;ofix<a class="headerlink" href="#ofix" title="Permalink to this headline">¶</a></h3>
+<span id="id14"></span><h3>&#64;ofix<a class="headerlink" href="#ofix" title="Permalink to this headline">¶</a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">&#64;ofix</span></code> directive replaces, inserts or removes a label, instruction and
 comment in <a class="reference internal" href="#ofixmode"><span class="std std-ref">&#64;ofix mode</span></a>.</p>
 <p>The syntax is equivalent to that for the <a class="reference internal" href="#bfix"><span class="std std-ref">&#64;bfix</span></a> directive.</p>
@@ -1123,7 +1164,7 @@ removed in <a class="reference internal" href="#ofixmode"><span class="std std-r
 <p>The syntax is equivalent to that for the <a class="reference internal" href="#bfixblockdirectives"><span class="std std-ref">&#64;bfix block directives</span></a>.</p>
 </div>
 <div class="section" id="org">
-<span id="id14"></span><h3>&#64;org<a class="headerlink" href="#org" title="Permalink to this headline">¶</a></h3>
+<span id="id15"></span><h3>&#64;org<a class="headerlink" href="#org" title="Permalink to this headline">¶</a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">&#64;org</span></code> directive inserts an <code class="docutils literal notranslate"><span class="pre">ORG</span></code> assembler directive.</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>@org[=address]
 </pre></div>
@@ -1151,8 +1192,74 @@ entry.</p>
 </tbody>
 </table>
 </div>
+<div class="section" id="refs">
+<span id="id16"></span><h3>&#64;refs<a class="headerlink" href="#refs" title="Permalink to this headline">¶</a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">&#64;refs</span></code> directive manages the addresses of the referrers of (i.e. the
+routines that jump to or call) the next instruction.</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>@refs=[addr1[,addr2...]][:raddr1[,raddr2...]]
+</pre></div>
+</div>
+<ul class="simple">
+<li><code class="docutils literal notranslate"><span class="pre">addr1</span></code>, <code class="docutils literal notranslate"><span class="pre">addr2</span></code> etc. are addresses to add to the list of referrers</li>
+<li><code class="docutils literal notranslate"><span class="pre">raddr1</span></code>, <code class="docutils literal notranslate"><span class="pre">raddr2</span></code> etc. are addresses to remove from the list of
+referrers</li>
+</ul>
+<p>This directive can be used to declare one or more additional referrers for an
+instruction that would not otherwise be identified by the
+<a class="reference internal" href="components.html#instructionutility"><span class="std std-ref">instruction utility</span></a> or
+<a class="reference internal" href="components.html#snapshotrefcalc"><span class="std std-ref">snapshot reference calculator</span></a> (e.g. because the
+instruction is jumped to indirectly via <code class="docutils literal notranslate"><span class="pre">JP</span> <span class="pre">(HL)</span></code> or <code class="docutils literal notranslate"><span class="pre">RET</span></code>). As a result:</p>
+<ul class="simple">
+<li><a class="reference internal" href="commands.html#sna2skool-py"><span class="std std-ref">sna2skool.py</span></a> will attach an entry point marker (<code class="docutils literal notranslate"><span class="pre">*</span></code>) to the
+instruction when reading a control file, and include the additional referrers
+in any comment generated for the entry point (when the <code class="docutils literal notranslate"><span class="pre">ListRefs</span></code>
+<a class="reference internal" href="commands.html#sna2skool-conf"><span class="std std-ref">configuration parameter</span></a> is <code class="docutils literal notranslate"><span class="pre">1</span></code> or <code class="docutils literal notranslate"><span class="pre">2</span></code>)</li>
+<li><cite>snapinfo.py</cite>, when generating a <a class="reference internal" href="commands.html#snapinfo-call-graph"><span class="std std-ref">call graph</span></a>,
+will add an edge between a node representing an additional referrer and the
+node representing the routine that contains the instruction</li>
+<li>the addresses of the additional referrers become available to the special
+<code class="docutils literal notranslate"><span class="pre">EREF</span></code> and <code class="docutils literal notranslate"><span class="pre">REF</span></code> variables of the <a class="reference internal" href="skool-macros.html#foreach"><span class="std std-ref">#FOREACH</span></a> macro</li>
+</ul>
+<p><code class="docutils literal notranslate"><span class="pre">&#64;refs</span></code> can also be used to remove one or more referrer addresses that have
+been added automatically (because the instruction is jumped to or called
+directly). As a result:</p>
+<ul class="simple">
+<li><a class="reference internal" href="commands.html#sna2skool-py"><span class="std std-ref">sna2skool.py</span></a> will remove the referrers from any comment generated for
+the entry point (when the <code class="docutils literal notranslate"><span class="pre">ListRefs</span></code>
+<a class="reference internal" href="commands.html#sna2skool-conf"><span class="std std-ref">configuration parameter</span></a> is <code class="docutils literal notranslate"><span class="pre">1</span></code> or <code class="docutils literal notranslate"><span class="pre">2</span></code>), and
+remove any entry point marker (<code class="docutils literal notranslate"><span class="pre">*</span></code>) from the instruction if all the
+referrers have been removed</li>
+<li><cite>snapinfo.py</cite>, when generating a <a class="reference internal" href="commands.html#snapinfo-call-graph"><span class="std std-ref">call graph</span></a>,
+will not place an edge between a node representing a removed referrer and the
+node representing the routine that contains the instruction</li>
+<li>the addresses of the removed referrers will not be available to the special
+<code class="docutils literal notranslate"><span class="pre">EREF</span></code> and <code class="docutils literal notranslate"><span class="pre">REF</span></code> variables of the <a class="reference internal" href="skool-macros.html#foreach"><span class="std std-ref">#FOREACH</span></a> macro</li>
+</ul>
+<p>For example:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>@ 40000 refs=32768:49152
+</pre></div>
+</div>
+<p>This <code class="docutils literal notranslate"><span class="pre">&#64;refs</span></code> directive (in a control file) declares that the routine at 32768
+uses the entry point at 40000, and the routine at 49152 does not.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="50%" />
+<col width="50%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Version</th>
+<th class="head">Changes</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>8.2</td>
+<td>New</td>
+</tr>
+</tbody>
+</table>
+</div>
 <div class="section" id="rem">
-<span id="id15"></span><h3>&#64;rem<a class="headerlink" href="#rem" title="Permalink to this headline">¶</a></h3>
+<span id="id17"></span><h3>&#64;rem<a class="headerlink" href="#rem" title="Permalink to this headline">¶</a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">&#64;rem</span></code> directive may be used to make an illuminating comment about a
 nearby section or other ASM directive in a skool file. The directive is ignored
 by the parser.</p>
@@ -1185,7 +1292,7 @@ by the parser.</p>
 </table>
 </div>
 <div class="section" id="remote">
-<span id="id16"></span><h3>&#64;remote<a class="headerlink" href="#remote" title="Permalink to this headline">¶</a></h3>
+<span id="id18"></span><h3>&#64;remote<a class="headerlink" href="#remote" title="Permalink to this headline">¶</a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">&#64;remote</span></code> directive creates a remote entry in a skool file. A remote
 entry enables <code class="docutils literal notranslate"><span class="pre">JR</span></code>, <code class="docutils literal notranslate"><span class="pre">JP</span></code> and <code class="docutils literal notranslate"><span class="pre">CALL</span></code> instructions to be hyperlinked to an
 entry defined in another skool file.</p>
@@ -1226,7 +1333,7 @@ remote entry point using the form:</p>
 </table>
 </div>
 <div class="section" id="replace">
-<span id="id17"></span><h3>&#64;replace<a class="headerlink" href="#replace" title="Permalink to this headline">¶</a></h3>
+<span id="id19"></span><h3>&#64;replace<a class="headerlink" href="#replace" title="Permalink to this headline">¶</a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">&#64;replace</span></code> directive replaces strings that match a regular expression in
 skool file annotations and ref file section names and contents.</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>@replace=/pattern/repl
@@ -1276,7 +1383,8 @@ were reversed:</p>
 </pre></div>
 </div>
 <p>then <code class="docutils literal notranslate"><span class="pre">#foo31</span></code> would be replaced by <code class="docutils literal notranslate"><span class="pre">#bar31</span></code>.</p>
-<p>See also <a class="reference internal" href="skool-macros.html#definingmacroswithreplace"><span class="std std-ref">Defining macros with &#64;replace</span></a>.</p>
+<p>See also the <a class="reference internal" href="skool-macros.html#define"><span class="std std-ref">#DEFINE</span></a> macro, which is more flexible than <code class="docutils literal notranslate"><span class="pre">&#64;replace</span></code> for
+defining new macros.</p>
 <table border="1" class="docutils">
 <colgroup>
 <col width="17%" />
@@ -1298,7 +1406,7 @@ were reversed:</p>
 </table>
 </div>
 <div class="section" id="rfix">
-<span id="id18"></span><h3>&#64;rfix<a class="headerlink" href="#rfix" title="Permalink to this headline">¶</a></h3>
+<span id="id20"></span><h3>&#64;rfix<a class="headerlink" href="#rfix" title="Permalink to this headline">¶</a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">&#64;rfix</span></code> directive replaces, inserts or removes a label, instruction and
 comment in <a class="reference internal" href="#rfixmode"><span class="std std-ref">&#64;rfix mode</span></a>.</p>
 <p>The syntax is equivalent to that for the <a class="reference internal" href="#bfix"><span class="std std-ref">&#64;bfix</span></a> directive.</p>
@@ -1338,7 +1446,7 @@ removed in <a class="reference internal" href="#rfixmode"><span class="std std-r
 <p>The syntax is equivalent to that for the <a class="reference internal" href="#bfixblockdirectives"><span class="std std-ref">&#64;bfix block directives</span></a>.</p>
 </div>
 <div class="section" id="rsub">
-<span id="id19"></span><h3>&#64;rsub<a class="headerlink" href="#rsub" title="Permalink to this headline">¶</a></h3>
+<span id="id21"></span><h3>&#64;rsub<a class="headerlink" href="#rsub" title="Permalink to this headline">¶</a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">&#64;rsub</span></code> directive replaces, inserts or removes a label, instruction and
 comment in <a class="reference internal" href="#rsubmode"><span class="std std-ref">&#64;rsub mode</span></a>.</p>
 <p>The syntax is equivalent to that for the <a class="reference internal" href="#rfix"><span class="std std-ref">&#64;rfix</span></a> directive.</p>
@@ -1375,7 +1483,7 @@ removed in <a class="reference internal" href="#rsubmode"><span class="std std-r
 <p>The syntax is equivalent to that for the <a class="reference internal" href="#bfixblockdirectives"><span class="std std-ref">&#64;bfix block directives</span></a>.</p>
 </div>
 <div class="section" id="set">
-<span id="id20"></span><h3>&#64;set<a class="headerlink" href="#set" title="Permalink to this headline">¶</a></h3>
+<span id="id22"></span><h3>&#64;set<a class="headerlink" href="#set" title="Permalink to this headline">¶</a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">&#64;set</span></code> directive sets a property on the ASM writer.</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>@set-name=value
 </pre></div>
@@ -1460,7 +1568,7 @@ and <code class="docutils literal notranslate"><span class="pre">table-border-ve
 </table>
 </div>
 <div class="section" id="ssub">
-<span id="id21"></span><h3>&#64;ssub<a class="headerlink" href="#ssub" title="Permalink to this headline">¶</a></h3>
+<span id="id23"></span><h3>&#64;ssub<a class="headerlink" href="#ssub" title="Permalink to this headline">¶</a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">&#64;ssub</span></code> directive replaces, inserts or removes a label, instruction and
 comment in <a class="reference internal" href="#ssubmode"><span class="std std-ref">&#64;ssub mode</span></a>.</p>
 <p>The syntax is equivalent to that for the <a class="reference internal" href="#bfix"><span class="std std-ref">&#64;bfix</span></a> directive.</p>
@@ -1513,14 +1621,14 @@ removed in <a class="reference internal" href="#ssubmode"><span class="std std-r
 </table>
 </div>
 <div class="section" id="start">
-<span id="id22"></span><h3>&#64;start<a class="headerlink" href="#start" title="Permalink to this headline">¶</a></h3>
+<span id="id24"></span><h3>&#64;start<a class="headerlink" href="#start" title="Permalink to this headline">¶</a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">&#64;start</span></code> directive indicates where to start parsing the skool file for
 the purpose of generating ASM output. Everything before the <code class="docutils literal notranslate"><span class="pre">&#64;start</span></code>
 directive is ignored by <a class="reference internal" href="commands.html#skool2asm-py"><span class="std std-ref">skool2asm.py</span></a>.</p>
 <p>See also <a class="reference internal" href="#end"><span class="std std-ref">&#64;end</span></a>.</p>
 </div>
 <div class="section" id="writer">
-<span id="id23"></span><h3>&#64;writer<a class="headerlink" href="#writer" title="Permalink to this headline">¶</a></h3>
+<span id="id25"></span><h3>&#64;writer<a class="headerlink" href="#writer" title="Permalink to this headline">¶</a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">&#64;writer</span></code> directive specifies the name of the Python class to use to
 generate ASM output. It must be placed somewhere after the <a class="reference internal" href="#start"><span class="std std-ref">&#64;start</span></a>
 directive, and before the <a class="reference internal" href="#end"><span class="std std-ref">&#64;end</span></a> directive (if there is one).</p>
@@ -1582,7 +1690,7 @@ path</td>
         <li class="right" >
           <a href="ref-files.html" title="Ref files"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.2 documentation</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">

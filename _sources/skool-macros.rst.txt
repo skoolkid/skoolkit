@@ -10,13 +10,15 @@ Syntax
 ^^^^^^
 Skool macros have the following general form::
 
-  #MACROrparam1,rparam2,...[,oparam1,oparam2,...]
+  #MACROri1,ri2,...[,oi1,oi2,...](rs1,rs2,...[,os1,os2,...])
 
 where:
 
 * ``MACRO`` is the macro name
-* ``rparam1``, ``rparam2`` etc. are required parameters
-* ``oparam1``, ``oparam2`` etc. are optional parameters
+* ``ri1``, ``ri2`` etc. are required integer parameters
+* ``oi1``, ``oi2`` etc. are optional integer parameters
+* ``rs1``, ``rs2`` etc. are required string parameters
+* ``os1``, ``os2`` etc. are optional string parameters
 
 If an optional parameter is left blank or omitted entirely, it assumes its
 default value. So, for example::
@@ -66,38 +68,6 @@ The following operators are permitted in an arithmetic expression:
 Parentheses and spaces are also permitted in an arithmetic expression::
 
   #IF(1 == 2 || (1 <= 2 && 2 < 3))(Yes,No)
-
-The parameter strings of the :ref:`asm-if` directive, the :ref:`EVAL` macro,
-the :ref:`IF` macro, and the :ref:`MAP` macro also recognise some replacement
-fields:
-
-* ``asm`` - 1 if in :ref:`isubMode`, 2 if in :ref:`ssubMode`, 3 if in
-  :ref:`rsubMode`, or 0 otherwise
-* ``base`` - 10 if the ``--decimal`` option is used with :ref:`skool2asm.py`
-  or :ref:`skool2html.py`, 16 if the ``--hex`` option is used, or 0 if neither
-  option is used
-* ``case`` - 1 if the ``--lower`` option is used with :ref:`skool2asm.py`
-  or :ref:`skool2html.py`, 2 if the ``--upper`` option is used, or 0 if neither
-  option is used
-* ``fix`` - 1 if in :ref:`ofixMode`, 2 if in :ref:`bfixMode`, 3 if in
-  :ref:`rfixMode`, or 0 otherwise
-* ``html`` - 1 if in HTML mode, 0 otherwise
-* ``vars`` - a dictionary of variables defined by the ``--var`` option of
-  :ref:`skool2asm.py` or :ref:`skool2html.py`; accessing an undefined variable
-  in this dictionary yields the value '0'
-
-For example::
-
-  #IF({case}==1)(hl,HL)
-
-expands to ``hl`` if in lower case mode, or ``HL`` otherwise.
-
-Note that if a replacement field is used, the numeric parameter must be
-enclosed in parentheses.
-
-.. versionchanged:: 6.4
-   The ``asm`` replacement field indicates the exact ASM mode; added the
-   ``fix`` and ``vars`` replacement fields.
 
 .. _stringParameters:
 
@@ -149,6 +119,55 @@ Note that if an alternative delimiter or separator is used, it must not be '&',
    When a comma-separated sequence of string parameters is split, any commas
    that appear between parentheses are retained.
 
+.. _replacementFields:
+
+Replacement fields
+^^^^^^^^^^^^^^^^^^
+The following replacement fields are available for use in the parameter strings
+of the :ref:`asm-if` directive, the :ref:`EVAL`, :ref:`FOR`, :ref:`FORMAT`,
+:ref:`IF`, :ref:`LET`, :ref:`MAP` and :ref:`PEEK` macros, and any macro defined
+by :ref:`DEFINE`:
+
+* ``asm`` - 1 if in :ref:`isubMode`, 2 if in :ref:`ssubMode`, 3 if in
+  :ref:`rsubMode`, or 0 otherwise
+* ``base`` - 10 if the ``--decimal`` option is used with :ref:`skool2asm.py`
+  or :ref:`skool2html.py`, 16 if the ``--hex`` option is used, or 0 if neither
+  option is used
+* ``case`` - 1 if the ``--lower`` option is used with :ref:`skool2asm.py`
+  or :ref:`skool2html.py`, 2 if the ``--upper`` option is used, or 0 if neither
+  option is used
+* ``fix`` - 1 if in :ref:`ofixMode`, 2 if in :ref:`bfixMode`, 3 if in
+  :ref:`rfixMode`, or 0 otherwise
+* ``html`` - 1 if in HTML mode, 0 otherwise
+* ``mode`` - a dictionary containing a copy of the ``asm``, ``base``, ``case``,
+  ``fix`` and ``html`` fields
+* ``vars`` - a dictionary of variables defined by the ``--var`` option of
+  :ref:`skool2asm.py` or :ref:`skool2html.py`; accessing an undefined variable
+  in this dictionary yields the integer value '0'
+
+Replacement fields for the variables defined by the :ref:`LET` macro are also
+available. Note that the ``#LET`` macro can change the values of the ``asm``,
+``base``, ``case``, ``fix`` and ``html`` fields, but their original values are
+always available in the ``mode`` dictionary.
+
+For example::
+
+  #IF({mode[case]}==1)(hl,HL)
+
+expands to ``hl`` if in lower case mode, or ``HL`` otherwise.
+
+Note that if a replacement field is used, the parameter string must be
+enclosed in parentheses.
+
+.. versionchanged:: 8.2
+   Added the ``mode`` dictionary.
+
+.. versionchanged:: 6.4
+   The ``asm`` replacement field indicates the exact ASM mode; added the
+   ``fix`` and ``vars`` replacement fields.
+
+.. _SMPLmacros:
+
 SMPL macros
 ^^^^^^^^^^^
 The macros described in this section constitute the Skool Macro Programming
@@ -179,6 +198,45 @@ See :ref:`stringParameters` for details on alternative ways to supply the
 ``text`` parameter. Note that if an alternative delimiter is used, it must not
 be an alphanumeric character (A-Z, a-z, 0-9).
 
+.. _DEFINE:
+
+#DEFINE
+-------
+The ``#DEFINE`` macro defines a new skool macro. ::
+
+  #DEFINEiparams[,sparams](name,value)
+
+* ``iparams`` is the number of integer parameters the macro expects
+* ``sparams`` is the number of string parameters the macro expects (default:
+  ``0``)
+* ``name`` is the macro name (which must be all upper case letters)
+* ``value`` is the macro's output value (a standard Python format string
+  containing replacement fields for the integer and string arguments)
+
+For example::
+
+  #DEFINE2(MIN,#IF({0}<{1})({0},{1}))
+
+This defines a ``#MIN`` macro that accepts two integer arguments and expands to
+the value of the smaller argument.
+
+For more examples, see :ref:`definingMacrosWithDEFINE`.
+
+To define a macro that will be available for use immediately anywhere in the
+skool file or ref files, consider using the :ref:`expand` directive.
+
+The integer parameters of a macro defined by ``#DEFINE`` may contain
+:ref:`replacement fields <replacementFields>`.
+
+See :ref:`stringParameters` for details on alternative ways to supply the
+``name`` and ``value`` parameters.
+
++---------+---------+
+| Version | Changes |
++=========+=========+
+| 8.2     | New     |
++---------+---------+
+
 .. _EVAL:
 
 #EVAL
@@ -200,8 +258,8 @@ For example::
 
 This instance of the ``#EVAL`` macro expands to '00111110' (62 in binary).
 
-See :ref:`numericParameters` for details on the replacement fields that may be
-used in the parameter string.
+The parameter string of the ``#EVAL`` macro may contain
+:ref:`replacement fields <replacementFields>`.
 
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
@@ -243,14 +301,19 @@ For example::
 
 This instance of the ``#FOR`` macro expands to '24, 17 and 156'.
 
+The integer parameters of the ``#FOR`` macro (``start``, ``stop``, ``step``)
+may contain :ref:`replacement fields <replacementFields>`.
+
 See :ref:`stringParameters` for details on alternative ways to supply the
 ``var``, ``string``, ``sep`` and ``fsep`` parameters.
 
-+---------+---------+
-| Version | Changes |
-+=========+=========+
-| 5.1     | New     |
-+---------+---------+
++---------+-------------------------------------------------------------------+
+| Version | Changes                                                           |
++=========+===================================================================+
+| 8.2     | Added support for replacement fields in the integer parameters    |
++---------+-------------------------------------------------------------------+
+| 5.1     | New                                                               |
++---------+-------------------------------------------------------------------+
 
 .. _FOREACH:
 
@@ -304,13 +367,44 @@ This instance of the ``#FOREACH`` macro expands to a list of the addresses of
 the entries of type ``t`` (text).
 
 See :ref:`stringParameters` for details on alternative ways to supply the
-``var``, ``string``, ``sep`` and ``fsep`` parameters.
+``s1,s2,...`` and ``var,string[,sep,fsep]`` parameter strings.
 
 +---------+---------+
 | Version | Changes |
 +=========+=========+
 | 5.1     | New     |
 +---------+---------+
+
+.. _FORMAT:
+
+#FORMAT
+-------
+The ``#FORMAT`` macro performs a Python-style `string formatting operation`_ on
+its sole argument. ::
+
+  #FORMAT(text)
+
+* ``text`` is the string to format, which may contain
+  :ref:`replacement fields <replacementFields>`
+
+For example::
+
+  #FORMAT({count:04X})
+
+This instance of the ``#FORMAT`` macro formats the value of the ``count``
+variable (assuming it has already been defined by the :ref:`LET` macro) as a
+4-digit upper case hexadecimal number.
+
+See :ref:`stringParameters` for details on alternative ways to supply the
+``text`` parameter.
+
++---------+---------+
+| Version | Changes |
++=========+=========+
+| 8.2     | New     |
++---------+---------+
+
+.. _string formatting operation: https://docs.python.org/3/library/string.html#format-string-syntax
 
 .. _IF:
 
@@ -321,7 +415,8 @@ arithmetic expression. ::
 
   #IFexpr(true[,false])
 
-* ``expr`` is the arithmetic expression
+* ``expr`` is the arithmetic expression, which may contain
+  :ref:`replacement fields <replacementFields>`
 * ``true`` is the output string when ``expr`` is true
 * ``false`` is the output string when ``expr`` is false (default: the empty
   string)
@@ -339,9 +434,6 @@ XOXOXOXO.
 See :ref:`stringParameters` for details on alternative ways to supply the
 ``true`` and ``false`` output strings.
 
-See :ref:`numericParameters` for details on the replacement fields that may be
-used in the ``expr`` parameter.
-
 +---------+----------------------------------------------------------------+
 | Version | Changes                                                        |
 +=========+================================================================+
@@ -349,6 +441,44 @@ used in the ``expr`` parameter.
 +---------+----------------------------------------------------------------+
 | 5.1     | New                                                            |
 +---------+----------------------------------------------------------------+
+
+.. _LET:
+
+#LET
+----
+The ``#LET`` macro defines a variable. ::
+
+  #LET(name=value)
+
+* ``name`` is the variable name
+* ``value`` is the value to assign; this may contain skool macros (which are
+  expanded immediately) and :ref:`replacement fields <replacementFields>`
+  (which are replaced after any skool macros have been expanded)
+
+If ``name`` ends with a dollar sign (``$``), the variable value is left as a
+string; otherwise it is evaluated as an arithmetic expression.
+
+For example::
+
+  #LET(count=2*2)
+  #LET(count$=2*2)
+
+These ``#LET`` macros assign the integer value '4' to the variable ``count``
+and the string value '2*2' to the variable ``count$``. The variables are then
+accessible to other SMPL macros via the replacement fields ``{count}`` and
+``{count$}``.
+
+To define a variable that will be available for use immediately anywhere in the
+skool file or ref files, consider using the :ref:`expand` directive.
+
+See :ref:`stringParameters` for details on alternative ways to supply the
+``name=value`` parameter string.
+
++---------+---------+
+| Version | Changes |
++=========+=========+
+| 8.2     | New     |
++---------+---------+
 
 .. _MAP:
 
@@ -359,7 +489,8 @@ are integers. ::
 
   #MAPkey(default[,k1:v1,k2:v2...])
 
-* ``key`` is the integer to look up in the map
+* ``key`` is the integer to look up in the map; this parameter may contain
+  :ref:`replacement fields <replacementFields>`
 * ``default`` is the default output string (used when ``key`` is not found in
   the map)
 * ``k1:v1``, ``k2:v2`` etc. are the key-value pairs in the map
@@ -381,9 +512,6 @@ operations. They may also be expressed using skool macros, but in that case the
 
 See :ref:`stringParameters` for details on alternative ways to supply the
 default output string and the key-value pairs.
-
-See :ref:`numericParameters` for details on the replacement fields that may be
-used in the ``key`` parameter.
 
 +---------+---------------------------------------------------------------+
 | Version | Changes                                                       |
@@ -430,7 +558,8 @@ snapshot. ::
 
   #PEEKaddr
 
-* ``addr`` is the address
+* ``addr`` is the address, which may contain
+  :ref:`replacement fields <replacementFields>`
 
 For example::
 
@@ -441,11 +570,13 @@ This instance of the ``#PEEK`` macro expands to the contents of the address
 
 See also :ref:`POKES`.
 
-+---------+---------+
-| Version | Changes |
-+=========+=========+
-| 5.1     | New     |
-+---------+---------+
++---------+-------------------------------------------------------------------+
+| Version | Changes                                                           |
++=========+===================================================================+
+| 8.2     | Added support for replacement fields in the ``addr`` parameter    |
++---------+-------------------------------------------------------------------+
+| 5.1     | New                                                               |
++---------+-------------------------------------------------------------------+
 
 General macros
 ^^^^^^^^^^^^^^
@@ -784,8 +915,9 @@ within that page. ::
 * ``addr`` is the address of the routine or data block (or entry point
   thereof)
 * ``code`` is the ID of the disassembly that contains the routine or data block
-  (if not given, the current disassembly is assumed; otherwise this must be an
-  ID defined in an :ref:`otherCode` section of the ref file)
+  (if not given, the current disassembly is assumed; otherwise this must be
+  either an ID defined in an :ref:`otherCode` section of the ref file, or
+  ``main`` to identify the main disassembly)
 * ``#name`` is the named anchor of an item on the disassembly page
 * ``link text`` is the link text to use (default: ``addr``)
 
@@ -1096,7 +1228,7 @@ as follows::
 In HTML mode, the ``#FONT`` macro expands to an ``<img>`` element for an image
 of text rendered in the game font. ::
 
-  #FONT[:(text)]addr[,chars,attr,scale][{CROP}][(fname)]
+  #FONT[:(text)]addr[,chars,attr,scale,tindex,alpha][{CROP}][(fname)]
 
 * ``text`` is the text to render (default: the 96 characters from code 32 to
   code 127)
@@ -1107,6 +1239,11 @@ of text rendered in the game font. ::
 * ``scale`` is the scale of the image (default: 2)
 * ``CROP`` is the cropping specification (see :ref:`cropping`)
 * ``fname`` is the name of the image file (default: '`font`')
+* ``tindex`` is the index (0-15) of the entry in the palette to use as the
+  transparent colour (default: 0; see :ref:`palette`)
+* ``alpha`` is the alpha value (0-255) to use for the transparent colour
+  (default: the value of the ``PNGAlpha`` parameter in the
+  :ref:`ref-ImageWriter` section)
 
 If ``fname`` contains an image path ID replacement field (e.g.
 ``{ScreenshotImagePath}/font``), the corresponding parameter value from the
@@ -1139,6 +1276,8 @@ See :ref:`stringParameters` for details on alternative ways to supply the
 +---------+------------------------------------------------------------------+
 | Version | Changes                                                          |
 +=========+==================================================================+
+| 8.2     | Added the ``tindex`` and ``alpha`` parameters                    |
++---------+------------------------------------------------------------------+
 | 6.3     | Added support for image path ID replacement fields in the        |
 |         | ``fname`` parameter                                              |
 +---------+------------------------------------------------------------------+
@@ -1168,7 +1307,7 @@ constructed from the display file and attribute file (or suitably arranged
 graphic data and attribute bytes elsewhere in memory) of the current memory
 snapshot (in turn constructed from the contents of the skool file). ::
 
-  #SCR[scale,x,y,w,h,df,af][{CROP}][(fname)]
+  #SCR[scale,x,y,w,h,df,af,tindex,alpha][{CROP}][(fname)]
 
 * ``scale`` is the scale of the image (default: 1)
 * ``x`` is the x-coordinate of the top-left tile of the screen to include in
@@ -1181,6 +1320,11 @@ snapshot (in turn constructed from the contents of the skool file). ::
 * ``af`` is the base address of the attribute file (default: 22528)
 * ``CROP`` is the cropping specification (see :ref:`cropping`)
 * ``fname`` is the name of the image file (default: '`scr`')
+* ``tindex`` is the index (0-15) of the entry in the palette to use as the
+  transparent colour (default: 0; see :ref:`palette`)
+* ``alpha`` is the alpha value (0-255) to use for the transparent colour
+  (default: the value of the ``PNGAlpha`` parameter in the
+  :ref:`ref-ImageWriter` section)
 
 If ``fname`` contains an image path ID replacement field (e.g.
 ``{UDGImagePath}/scr``), the corresponding parameter value from the
@@ -1206,6 +1350,8 @@ For example::
 +---------+------------------------------------------------------------------+
 | Version | Changes                                                          |
 +=========+==================================================================+
+| 8.2     | Added the ``tindex`` and ``alpha`` parameters                    |
++---------+------------------------------------------------------------------+
 | 6.3     | Added support for image path ID replacement fields in the        |
 |         | ``fname`` parameter                                              |
 +---------+------------------------------------------------------------------+
@@ -1232,7 +1378,7 @@ For example::
 In HTML mode, the ``#UDG`` macro expands to an ``<img>`` element for the image
 of a UDG (an 8x8 block of pixels). ::
 
-  #UDGaddr[,attr,scale,step,inc,flip,rotate,mask][:MASK][{CROP}][(fname)]
+  #UDGaddr[,attr,scale,step,inc,flip,rotate,mask,tindex,alpha][:MASK][{CROP}][(fname)]
 
 * ``addr`` is the base address of the UDG bytes
 * ``attr`` is the attribute byte to use (default: 56)
@@ -1245,6 +1391,11 @@ of a UDG (an 8x8 block of pixels). ::
   degrees, 3 to rotate it 90 degrees anticlockwise, or 0 to leave it as it is
   (default: 0)
 * ``mask`` is the type of mask to apply (see :ref:`masks`)
+* ``tindex`` is the index (0-15) of the entry in the palette to use as the
+  transparent colour (default: 0; see :ref:`palette`)
+* ``alpha`` is the alpha value (0-255) to use for the transparent colour
+  (default: the value of the ``PNGAlpha`` parameter in the
+  :ref:`ref-ImageWriter` section)
 * ``MASK`` is the mask specification (see below)
 * ``CROP`` is the cropping specification (see :ref:`cropping`)
 * ``fname`` is the name of the image file (if not given, a name specified by
@@ -1290,6 +1441,8 @@ with attribute byte 6 (INK 6: PAPER 0).
 +---------+------------------------------------------------------------------+
 | Version | Changes                                                          |
 +=========+==================================================================+
+| 8.2     | Added the ``tindex`` and ``alpha`` parameters                    |
++---------+------------------------------------------------------------------+
 | 6.3     | Added support for image path ID replacement fields in the        |
 |         | ``fname`` parameter                                              |
 +---------+------------------------------------------------------------------+
@@ -1323,7 +1476,7 @@ with attribute byte 6 (INK 6: PAPER 0).
 In HTML mode, the ``#UDGARRAY`` macro expands to an ``<img>`` element for the
 image of an array of UDGs (8x8 blocks of pixels). ::
 
-  #UDGARRAYwidth[,attr,scale,step,inc,flip,rotate,mask];SPEC1[;SPEC2;...][@ATTRS1[;ATTRS2;...]][{CROP}](fname)
+  #UDGARRAYwidth[,attr,scale,step,inc,flip,rotate,mask,tindex,alpha];SPEC1[;SPEC2;...][@ATTRS1[;ATTRS2;...]][{CROP}](fname)
 
 * ``width`` is the width of the image (in UDGs)
 * ``attr`` is the default attribute byte of each UDG (default: 56)
@@ -1337,6 +1490,11 @@ image of an array of UDGs (8x8 blocks of pixels). ::
   it 180 degrees, 3 to rotate it 90 degrees anticlockwise, or 0 to leave it as
   it is (default: 0)
 * ``mask`` is the type of mask to apply (see :ref:`masks`)
+* ``tindex`` is the index (0-15) of the entry in the palette to use as the
+  transparent colour (default: 0; see :ref:`palette`)
+* ``alpha`` is the alpha value (0-255) to use for the transparent colour
+  (default: the value of the ``PNGAlpha`` parameter in the
+  :ref:`ref-ImageWriter` section)
 * ``CROP`` is the cropping specification (see :ref:`cropping`)
 * ``fname`` is the name of the image file
 
@@ -1427,6 +1585,8 @@ named `base_sprite.png`.
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 8.2     | Added the ``tindex`` and ``alpha`` parameters                     |
++---------+-------------------------------------------------------------------+
 | 7.1     | Added the ability to specify attribute addresses                  |
 +---------+-------------------------------------------------------------------+
 | 6.3     | Added support for image path ID replacement fields in the         |
@@ -1580,6 +1740,48 @@ parameter in the :ref:`ref-Colours` section. To make the transparent bits in
 masked images actually transparent, set ``PNGAlpha=0`` in the
 :ref:`ref-ImageWriter` section.
 
+.. _palette:
+
+Palette
+-------
+Images created by the image macros use colours drawn from a palette of 16
+entries:
+
+* 0 - transparent
+* 1 - black
+* 2 - blue
+* 3 - red
+* 4 - magenta
+* 5 - green
+* 6 - cyan
+* 7 - yellow
+* 8 - white
+* 9 - bright blue
+* 10 - bright red
+* 11 - bright magenta
+* 12 - bright green
+* 13 - bright cyan
+* 14 - bright yellow
+* 15 - bright white
+
+The RGB values for these colours are defined in the :ref:`ref-Colours` section.
+
+The index values (0-15) may be used by an image macro's ``tindex`` parameter to
+specify a transparent colour to use other than the default (0). The palette
+entry specified by ``tindex``, if not 0, will be used as the transparent colour
+only if the image does not already contain any transparent bits produced by a
+:ref:`mask <masks>`. In an animated image, the ``tindex`` and ``alpha`` values
+on the first frame take effect; any ``tindex`` and ``alpha`` values on the
+second or subsequent frames are ignored.
+
+For example::
+
+  #UDG30000,attr=2,tindex=1,alpha=0
+
+This ``#UDG`` macro creates an image of the UDG at 30000 with red INK and black
+PAPER (``attr=2``), black as the transparent colour (``tindex=1``), and full
+transparency (``alpha=0``).
+
 Snapshot macros
 ^^^^^^^^^^^^^^^
 The :ref:`POKES`, :ref:`POPS` and :ref:`PUSHS` macros (described in the
@@ -1665,73 +1867,48 @@ it must not start with a capital letter. The name can be retrieved by using the
 | 3.1     | Added support for ASM mode |
 +---------+----------------------------+
 
-.. _definingMacrosWithReplace:
+.. _definingMacrosWithDEFINE:
 
-Defining macros with @replace
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-By using the :ref:`replace` directive, it is possible to define new macros
-based on existing ones without writing any Python code. Some examples are given
-below.
+Defining macros with #DEFINE
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+By using the :ref:`DEFINE` macro, it is possible to define new macros based on
+existing ones without writing any Python code. Some examples are given below.
 
-#asm
+#ASM
 ----
 There is the :ref:`HTML` macro for inserting content in HTML mode only, but
 there is no corresponding macro for inserting content in ASM mode only. The
-following ``@replace`` directive defines an ``#asm`` macro to fill that gap::
+following ``#DEFINE`` macro defines an ``#ASM`` macro to fill that gap::
 
-  @replace=/#asm(\(.*\))/#IF({asm})\1
+  #DEFINE0(ASM,#IF({{mode[asm]}}))
 
-For example::
-
-  #asm(This text appears only in ASM mode.)
-
-#tile
------
-Suppose the game you're disassembling arranges tiles in groups of nine bytes:
-the attribute byte first, followed by the eight graphic bytes. If there is a
-tile at 32768, then::
-
-  #UDG(32769,#PEEK32768)
-
-will create an image of it. If you want to create several tile images, this
-syntax can get cumbersome; it would be easier if you could supply just the
-address of the attribute byte. The following ``@replace`` directive defines a
-``#tile`` macro that creates a tile image given an attribute byte address::
-
-  @replace=/#tile\i/#UDG(\1+1,#PEEK\1)
-
-Now you can create an image of the tile at 32768 like this::
-
-  #tile32768
-
-#tiles
-------
-If you have several nine-byte tiles arranged one after the other, you might
-want to create images of all of them in a single row of a ``#UDGTABLE``. The
-following ``@replace`` directive defines a ``#tiles`` macro for this purpose::
-
-  @replace=/#tiles\i,\i/#FOR(\1,\1+9*(\2-1),9)(n,#UDG(n+1,#PEEKn), | )
-
-Now you can create a ``#UDGTABLE`` of images of a series of 10 tiles starting
-at 32768 like this::
-
-  #UDGTABLE { #tiles32768,10 } TABLE#
-
-#udg
-----
-The :ref:`UDG` macro is not supported in ASM mode, but ``@replace`` can define
-a ``#udg`` macro that is::
-
-  @replace=/#udg\i/#IF({asm})(#LIST(,) #FOR(\1,\1+7)(u,{ |#FOR(7,0,-1)(n,#IF(#PEEKu&2**n)(*, ))| }) LIST#)
+(Note the extra braces around the parameter of the ``#IF`` macro:
+``{{mode[asm]}}``; these are required to prevent it from being interpreted as
+an ``#ASM`` macro parameter replacement field.)
 
 For example::
 
-  ; #udg30000
+  #ASM(This text appears only in ASM mode.)
+
+#ASMUDG
+-------
+The :ref:`UDG` macro is not supported in ASM mode, but ``#DEFINE`` can define
+a ``#ASMUDG`` macro (based on the ``#ASM`` macro defined above) that is::
+
+  #DEFINE1(ASMUDG,#ASM(#LIST(,) #FOR({0},{0}+7)(u,{{ |#FOR(7,0,-1)(n,#IF(#PEEKu&2**n)(*, ))| }}) LIST#))
+
+(Note the extra braces around the second parameter of the outer ``#FOR`` macro:
+``{{ |...| }}``; these are required to prevent it from being interpreted as an
+``#ASMUDG`` macro parameter replacement field.)
+
+For example::
+
+  ; #ASMUDG30000
    30000 DEFB 48,72,136,144,104,4,10,4
 
 If conversion of DEFB statements has been switched on in ASM mode by the
-:ref:`assemble` directive (e.g. ``@assemble=,1``), this ``#udg`` macro produces
-the following output::
+:ref:`assemble` directive (e.g. ``@assemble=,1``), this ``#ASMUDG`` macro
+produces the following output::
 
   ; |  **    |
   ; | *  *   |
@@ -1741,3 +1918,34 @@ the following output::
   ; |     *  |
   ; |    * * |
   ; |     *  |
+
+#TILE, #TILES
+-------------
+Suppose the game you're disassembling arranges tiles in groups of nine bytes:
+the attribute byte first, followed by the eight graphic bytes. If there is a
+tile at 32768, then::
+
+  #UDG(32769,#PEEK32768)
+
+will create an image of it. If you want to create several tile images, this
+syntax can get cumbersome; it would be easier if you could supply just the
+address of the attribute byte. The following ``#DEFINE`` macro defines a
+``#TILE`` macro that creates a tile image given an attribute byte address::
+
+  #DEFINE1(TILE,#UDG({0}+1,#PEEK{0}))
+
+Now you can create an image of the tile at 32768 like this::
+
+  #TILE32768
+
+If you have several nine-byte tiles arranged one after the other, you might
+want to create images of all of them in a single row of a ``#UDGTABLE``. The
+following ``#DEFINE`` macro defines a ``#TILES`` macro (based on the ``#TILE``
+macro already defined) for this purpose::
+
+  #DEFINE2(TILES,#FOR({0},{0}+9*({1}-1),9)(n,#TILEn, | ))
+
+Now you can create a ``#UDGTABLE`` of images of a series of 10 tiles starting
+at 32768 like this::
+
+  #UDGTABLE { #TILES32768,10 } TABLE#

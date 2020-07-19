@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Commands &#8212; SkoolKit 8.1 documentation</title>
+    <title>Commands &#8212; SkoolKit 8.2 documentation</title>
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -34,7 +34,7 @@
         <li class="right" >
           <a href="diy.html" title="Disassembly DIY"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.2 documentation</a> &#187;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
@@ -66,7 +66,11 @@
 <li><a class="reference internal" href="#sna2skool-conf">Configuration</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#snapinfo-py">snapinfo.py</a></li>
+<li><a class="reference internal" href="#snapinfo-py">snapinfo.py</a><ul>
+<li><a class="reference internal" href="#call-graphs">Call graphs</a></li>
+<li><a class="reference internal" href="#snapinfo-conf">Configuration</a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#snapmod-py">snapmod.py</a></li>
 <li><a class="reference internal" href="#tap2sna-py">tap2sna.py</a></li>
 <li><a class="reference internal" href="#tapinfo-py">tapinfo.py</a></li>
@@ -303,8 +307,8 @@ Options:
   -S ADDR, --start ADDR
                         Start converting at this address.
   -u, --upper           Write the disassembly in upper case.
-  --var name=value      Define a variable that can be used by @if, #EVAL, #IF
-                        and #MAP. This option may be used multiple times.
+  --var name=value      Define a variable that can be used by @if and the SMPL
+                        macros. This option may be used multiple times.
   -V, --version         Show SkoolKit version number and exit.
   -w, --no-warnings     Suppress warnings.
   -W CLASS, --writer CLASS
@@ -673,8 +677,8 @@ Options:
                         Use this CSS theme. This option may be used multiple
                         times.
   -u, --upper           Write the disassembly in upper case.
-  --var name=value      Define a variable that can be used by @if, #EVAL, #IF
-                        and #MAP. This option may be used multiple times.
+  --var name=value      Define a variable that can be used by @if and the SMPL
+                        macros. This option may be used multiple times.
   -V, --version         Show SkoolKit version number and exit.
   -w X, --write X       Write only these files, where X is one or more of:
                           d = Disassembly files   o = Other code
@@ -1203,24 +1207,35 @@ statement</td>
 </div>
 <div class="section" id="snapinfo-py">
 <span id="id15"></span><h2>snapinfo.py<a class="headerlink" href="#snapinfo-py" title="Permalink to this headline">¶</a></h2>
-<p><cite>snapinfo.py</cite> shows information on the registers and RAM in a SNA, SZX or Z80
-snapshot. For example:</p>
+<p><cite>snapinfo.py</cite> shows information on the registers or RAM in a binary (raw
+memory) file or a SNA, SZX or Z80 snapshot. For example:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ snapinfo.py game.z80
 </pre></div>
 </div>
 <p>To list the options supported by <cite>snapinfo.py</cite>, run it with no arguments:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>usage: snapinfo.py [options] file
 
-Analyse an SNA, SZX or Z80 snapshot.
+Analyse a binary (raw memory) file or a SNA, SZX or Z80 snapshot.
 
 Options:
   -b, --basic           List the BASIC program.
+  -c FILE, --ctl FILE   Use FILE as a control file when generating a call
+                        graph. FILE may be &#39;-&#39; for standard input. This option
+                        may be used multiple times.
   -f A[,B...[-M[-N]]], --find A[,B...[-M[-N]]]
                         Search for the byte sequence A,B... with distance
                         ranging from M to N (default=1) between bytes.
+  -g, --call-graph      Generate a call graph in DOT format.
+  -I p=v, --ini p=v     Set the value of the configuration parameter &#39;p&#39; to
+                        &#39;v&#39;. This option may be used multiple times.
+  -o ADDR, --org ADDR   Specify the origin address of a binary (raw memory)
+                        file (default: 65536 - length).
   -p A[-B[-C]], --peek A[-B[-C]]
                         Show the contents of addresses A TO B STEP C. This
                         option may be used multiple times.
+  -P PAGE, --page PAGE  Specify the page (0-7) of a 128K snapshot to map to
+                        49152-65535.
+  --show-config         Show configuration parameter values.
   -t TEXT, --find-text TEXT
                         Search for a text string.
   -T X,Y[-M[-N]], --find-tile X,Y[-M[-N]]
@@ -1237,7 +1252,73 @@ Options:
 <p>With no options, <cite>snapinfo.py</cite> displays register values, the interrupt mode,
 and the border colour. By using one of the options shown above, it can list
 the BASIC program and variables (if present), show the contents of a range of
-addresses, or search the RAM for a sequence of byte values or a text string.</p>
+addresses, search the RAM for a sequence of byte values or a text string, or
+generate a call graph.</p>
+<div class="section" id="call-graphs">
+<span id="snapinfo-call-graph"></span><h3>Call graphs<a class="headerlink" href="#call-graphs" title="Permalink to this headline">¶</a></h3>
+<p><cite>snapinfo.py</cite> can generate a call graph in <a class="reference external" href="https://graphviz.gitlab.io/_pages/doc/info/lang.html">DOT format</a> from a snapshot and a
+corresponding control file. For example, if <cite>game.ctl</cite> is present alongside
+<cite>game.z80</cite>, then:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ snapinfo.py -g game.z80 &gt; game.dot
+</pre></div>
+</div>
+<p>will produce a call graph in <cite>game.dot</cite>, with a node for each routine declared
+in <cite>game.ctl</cite>, and an edge between two nodes whenever the routine represented
+by the first node calls, jumps to, or continues into the routine represented by
+the second node.</p>
+<p>To create a PNG image file named <cite>game.png</cite> from <cite>game.dot</cite>, the <cite>dot</cite> utility
+(included in <a class="reference external" href="https://graphviz.gitlab.io/">Graphviz</a>) may be used:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ dot -Tpng game.dot &gt; game.png
+</pre></div>
+</div>
+<p>A call graph may contain one or more ‘orphans’, an orphan being a node that is
+not at the head of any arrow, and thus represents a routine that is (as far as
+<cite>snapinfo.py</cite> can tell) not used by any other routines. To declare the callers
+of such a routine (in case it is not a true orphan), the <a class="reference internal" href="asm.html#refs"><span class="std std-ref">&#64;refs</span></a> directive
+may be used.</p>
+<p>To help identify orphan nodes and missing edges, each of the first three lines
+of the DOT file produced by <cite>snapinfo.py</cite> contains a list of IDs of the
+following types of node:</p>
+<ul class="simple">
+<li>unconnected nodes</li>
+<li>orphan nodes connected to other nodes</li>
+<li>non-orphan nodes whose first instruction is not used</li>
+</ul>
+<p>The appearance of nodes and edges in a call graph image can be configured via
+the <code class="docutils literal notranslate"><span class="pre">EdgeAttributes</span></code>, <code class="docutils literal notranslate"><span class="pre">GraphAttributes</span></code>, <code class="docutils literal notranslate"><span class="pre">NodeAttributes</span></code> and
+<code class="docutils literal notranslate"><span class="pre">NodeLabel</span></code> configuration parameters (see below).</p>
+</div>
+<div class="section" id="snapinfo-conf">
+<span id="id16"></span><h3>Configuration<a class="headerlink" href="#snapinfo-conf" title="Permalink to this headline">¶</a></h3>
+<p><cite>snapinfo.py</cite> will read configuration from a file named <cite>skoolkit.ini</cite> in the
+current working directory or in <cite>~/.skoolkit</cite>, if present. The recognised
+configuration parameters are:</p>
+<ul class="simple">
+<li><code class="docutils literal notranslate"><span class="pre">EdgeAttributes</span></code> - the default <a class="reference external" href="https://graphviz.gitlab.io/_pages/doc/info/attrs.html">attributes</a> for edges in a call graph
+(default: none)</li>
+<li><code class="docutils literal notranslate"><span class="pre">GraphAttributes</span></code> - the default <a class="reference external" href="https://graphviz.gitlab.io/_pages/doc/info/attrs.html">attributes</a> for a call graph (default:
+none)</li>
+<li><code class="docutils literal notranslate"><span class="pre">NodeAttributes</span></code> - the default <a class="reference external" href="https://graphviz.gitlab.io/_pages/doc/info/attrs.html">attributes</a> for nodes in a call graph
+(default: <code class="docutils literal notranslate"><span class="pre">shape=record</span></code>)</li>
+<li><code class="docutils literal notranslate"><span class="pre">NodeId</span></code> - the format of the node IDs in a call graph (default:
+<code class="docutils literal notranslate"><span class="pre">{address}</span></code>)</li>
+<li><code class="docutils literal notranslate"><span class="pre">NodeLabel</span></code> - the format of the node labels in a call graph (default:
+<code class="docutils literal notranslate"><span class="pre">&quot;{address}</span> <span class="pre">{address:04X}\n{label}&quot;</span></code>)</li>
+</ul>
+<p><code class="docutils literal notranslate"><span class="pre">NodeId</span></code> and <code class="docutils literal notranslate"><span class="pre">NodeLabel</span></code> are standard Python format strings that recognise
+the replacement fields <code class="docutils literal notranslate"><span class="pre">address</span></code> and <code class="docutils literal notranslate"><span class="pre">label</span></code> (the address and label of the
+first instruction in the routine represented by the node).</p>
+<p>Configuration parameters must appear in a <code class="docutils literal notranslate"><span class="pre">[snapinfo]</span></code> section. For example,
+to make <cite>snapinfo.py</cite> use open arrowheads and a cyan background colour in call
+graphs by default, add the following section to <cite>skoolkit.ini</cite>:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>[snapinfo]
+EdgeAttributes=arrowhead=open
+GraphAttributes=bgcolor=cyan
+</pre></div>
+</div>
+<p>Configuration parameters may also be set on the command line by using the
+<code class="docutils literal notranslate"><span class="pre">--ini</span></code> option. Parameter values set this way will override any found in
+<cite>skoolkit.ini</cite>.</p>
 <table border="1" class="docutils">
 <colgroup>
 <col width="12%" />
@@ -1249,27 +1330,34 @@ addresses, or search the RAM for a sequence of byte values or a text string.</p>
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>6.2</td>
+<tr class="row-even"><td>8.2</td>
+<td>Configuration is read from <cite>skoolkit.ini</cite> if present; added the
+ability to read binary files; added the <code class="docutils literal notranslate"><span class="pre">--call-graph</span></code>,
+<code class="docutils literal notranslate"><span class="pre">--ctl</span></code>, <code class="docutils literal notranslate"><span class="pre">--ini</span></code>, <code class="docutils literal notranslate"><span class="pre">--org</span></code>, <code class="docutils literal notranslate"><span class="pre">--page</span></code> and <code class="docutils literal notranslate"><span class="pre">--show-config</span></code>
+options</td>
+</tr>
+<tr class="row-odd"><td>6.2</td>
 <td>The <code class="docutils literal notranslate"><span class="pre">--find</span></code>, <code class="docutils literal notranslate"><span class="pre">--find-tile</span></code>, <code class="docutils literal notranslate"><span class="pre">--peek</span></code> and <code class="docutils literal notranslate"><span class="pre">--word</span></code>
 options accept hexadecimal integers prefixed by ‘0x’</td>
 </tr>
-<tr class="row-odd"><td>6.0</td>
+<tr class="row-even"><td>6.0</td>
 <td>Added support to the <code class="docutils literal notranslate"><span class="pre">--find</span></code> option for distance ranges; added
 the <code class="docutils literal notranslate"><span class="pre">--find-tile</span></code> and <code class="docutils literal notranslate"><span class="pre">--word</span></code> options; the <code class="docutils literal notranslate"><span class="pre">--peek</span></code> option
 shows UDGs and BASIC tokens</td>
 </tr>
-<tr class="row-even"><td>5.4</td>
+<tr class="row-odd"><td>5.4</td>
 <td>Added the <code class="docutils literal notranslate"><span class="pre">--variables</span></code> option; UDGs in a BASIC program are
 shown as special symbols (e.g. <code class="docutils literal notranslate"><span class="pre">{UDG-A}</span></code>)</td>
 </tr>
-<tr class="row-odd"><td>5.3</td>
+<tr class="row-even"><td>5.3</td>
 <td>New</td>
 </tr>
 </tbody>
 </table>
 </div>
+</div>
 <div class="section" id="snapmod-py">
-<span id="id16"></span><h2>snapmod.py<a class="headerlink" href="#snapmod-py" title="Permalink to this headline">¶</a></h2>
+<span id="id17"></span><h2>snapmod.py<a class="headerlink" href="#snapmod-py" title="Permalink to this headline">¶</a></h2>
 <p><cite>snapmod.py</cite> modifies the registers and RAM in a 48K Z80 snapshot. For
 example:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ snapmod.py --poke 32768,0 game.z80 poked.z80
@@ -1322,7 +1410,7 @@ hexadecimal integers prefixed by ‘0x’</td>
 </table>
 </div>
 <div class="section" id="tap2sna-py">
-<span id="id17"></span><h2>tap2sna.py<a class="headerlink" href="#tap2sna-py" title="Permalink to this headline">¶</a></h2>
+<span id="id18"></span><h2>tap2sna.py<a class="headerlink" href="#tap2sna-py" title="Permalink to this headline">¶</a></h2>
 <p><cite>tap2sna.py</cite> converts a TAP or TZX file (which may be inside a zip archive)
 into a Z80 snapshot. For example:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ tap2sna.py game.tap game.z80
@@ -1433,7 +1521,7 @@ memory with XOR and ADD operations</td>
 </table>
 </div>
 <div class="section" id="tapinfo-py">
-<span id="id18"></span><h2>tapinfo.py<a class="headerlink" href="#tapinfo-py" title="Permalink to this headline">¶</a></h2>
+<span id="id19"></span><h2>tapinfo.py<a class="headerlink" href="#tapinfo-py" title="Permalink to this headline">¶</a></h2>
 <p><cite>tapinfo.py</cite> shows information on the blocks in a TAP or TZX file. For
 example:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ tapinfo.py game.tzx
@@ -1510,7 +1598,7 @@ block type 0x14</td>
         <li class="right" >
           <a href="diy.html" title="Disassembly DIY"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.2 documentation</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">

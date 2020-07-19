@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Ref files &#8212; SkoolKit 8.1 documentation</title>
+    <title>Ref files &#8212; SkoolKit 8.2 documentation</title>
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -34,7 +34,7 @@
         <li class="right" >
           <a href="skool-macros.html" title="Skool macros"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.2 documentation</a> &#187;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
@@ -204,6 +204,10 @@ command line)</li>
 <p>For information on how to create your own Python class for writing an HTML
 disassembly, see the documentation on
 <a class="reference internal" href="extending.html#extendingskoolkit"><span class="std std-ref">extending SkoolKit</span></a>.</p>
+<p>Note that the <code class="docutils literal notranslate"><span class="pre">Config</span></code> section must appear in a ref file that is read
+automatically by <a class="reference internal" href="commands.html#skool2html-py"><span class="std std-ref">skool2html.py</span></a> by virtue of having the same filename
+root as the skool file given on the command line (i.e. <cite>game*.ref</cite> if the skool
+file is <cite>game.skool</cite>).</p>
 <table border="1" class="docutils">
 <colgroup>
 <col width="12%" />
@@ -297,7 +301,7 @@ pages and entries on memory map pages. The default format string is
 <code class="docutils literal notranslate"><span class="pre">AddressAnchor</span></code> to <code class="docutils literal notranslate"><span class="pre">{address:04x}</span></code>. Or to produce 4-digit, upper case
 hexadecimal addresses if the <code class="docutils literal notranslate"><span class="pre">--hex</span></code> option is used with
 <a class="reference internal" href="commands.html#skool2html-py"><span class="std std-ref">skool2html.py</span></a>, and decimal addresses otherwise:
-<code class="docutils literal notranslate"><span class="pre">{address#IF({base}==16)(:04X)}</span></code>.</p>
+<code class="docutils literal notranslate"><span class="pre">{address#IF({mode[base]}==16)(:04X)}</span></code>.</p>
 <table border="1" class="docutils">
 <colgroup>
 <col width="12%" />
@@ -361,12 +365,12 @@ SkoolKit’s image creation library. The parameters are in the format:</p>
 </div>
 <p>Recognised parameters are:</p>
 <ul class="simple">
-<li><code class="docutils literal notranslate"><span class="pre">PNGAlpha</span></code> - the alpha value to use for the <code class="docutils literal notranslate"><span class="pre">TRANSPARENT</span></code> colour (see
-<a class="reference internal" href="#ref-colours"><span class="std std-ref">[Colours]</span></a>) in PNG images; valid values are in the range 0-255, where
-0 means fully transparent, and 255 means fully opaque (default: <code class="docutils literal notranslate"><span class="pre">255</span></code>)</li>
-<li><code class="docutils literal notranslate"><span class="pre">PNGCompressionLevel</span></code> - the compression level to use for PNG image data;
-valid values are in the range 0-9, where 0 means no compression, 1 is the
-lowest compression level, and 9 is the highest (default: <code class="docutils literal notranslate"><span class="pre">9</span></code>)</li>
+<li><code class="docutils literal notranslate"><span class="pre">PNGAlpha</span></code> - the default alpha value (0-255) to use for the transparent
+colour in a PNG image, where 0 means fully transparent, and 255 means fully
+opaque (default: <code class="docutils literal notranslate"><span class="pre">255</span></code>)</li>
+<li><code class="docutils literal notranslate"><span class="pre">PNGCompressionLevel</span></code> - the compression level (0-9) to use for PNG image
+data, where 0 means no compression, 1 is the lowest compression level, and 9
+is the highest (default: <code class="docutils literal notranslate"><span class="pre">9</span></code>)</li>
 <li><code class="docutils literal notranslate"><span class="pre">PNGEnableAnimation</span></code> - <code class="docutils literal notranslate"><span class="pre">1</span></code> to create animated PNGs (in APNG format) for
 images that contain flashing cells, or <code class="docutils literal notranslate"><span class="pre">0</span></code> to create plain (unanimated) PNG
 files for such images (default: <code class="docutils literal notranslate"><span class="pre">1</span></code>)</li>
@@ -896,7 +900,7 @@ produces decimal addresses (e.g. <code class="docutils literal notranslate"><spa
 case hexadecimal addresses instead (e.g. <code class="docutils literal notranslate"><span class="pre">FF00.html</span></code>), change <code class="docutils literal notranslate"><span class="pre">CodeFiles</span></code>
 to <code class="docutils literal notranslate"><span class="pre">{address:04X}.html</span></code>. Or to produce 4-digit, upper case hexadecimal
 addresses if the <code class="docutils literal notranslate"><span class="pre">--hex</span></code> option is used with <a class="reference internal" href="commands.html#skool2html-py"><span class="std std-ref">skool2html.py</span></a>, and
-decimal addresses otherwise: <code class="docutils literal notranslate"><span class="pre">{address#IF({base}==16)(:04X)}.html</span></code>.</p>
+decimal addresses otherwise: <code class="docutils literal notranslate"><span class="pre">{address#IF({mode[base]}==16)(:04X)}.html</span></code>.</p>
 <table border="1" class="docutils">
 <colgroup>
 <col width="12%" />
@@ -1283,7 +1287,7 @@ with the first one removed.</p>
         <li class="right" >
           <a href="skool-macros.html" title="Skool macros"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.2 documentation</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">

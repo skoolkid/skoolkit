@@ -21,7 +21,7 @@ wherever it is unpacked: it does not need to be installed in any particular
 location. However, if you would like to install SkoolKit as a Python package,
 you can do so by using the supplied ``setup.py`` script.
 
-.. _skoolkit.ca: https://skoolkit.ca/?page_id=177
+.. _skoolkit.ca: https://skoolkit.ca/skoolkit/
 .. _PyPI: https://pypi.org/project/skoolkit/
 .. _pip: https://pip.pypa.io/
 .. _PPA: https://launchpad.net/~rjdymond/+archive/ppa

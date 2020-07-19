@@ -600,6 +600,35 @@ replace the operand of the instruction at 32768 with a label: ``LD HL,ATTRS``.
 | 5.4     | New     |
 +---------+---------+
 
+.. _expand:
+
+@expand
+^^^^^^^
+The ``@expand`` directive specifies an arbitrary piece of text - intended to
+consist of one or more :ref:`SMPLmacros` - that will be expanded by the ASM
+writer or HTML writer during initialisation (before any skool macros that
+appear in skool file annotations or ref file sections are expanded). ::
+
+  @expand=text
+
+* ``text`` is the text to expand
+
+For example::
+
+  @expand=#DEFINE2(MAX,#IF({0}>{1})({0},{1}))
+
+This ``@expand`` directive passes the given :ref:`DEFINE` macro to the ASM
+writer or HTML writer for expansion during initialisation; this has the effect
+of making the user-defined ``#MAX`` macro available for use immediately
+anywhere in the skool file (and any secondary skool files if the directive
+appears in the main skool file) or ref files.
+
++---------+---------+
+| Version | Changes |
++=========+=========+
+| 8.2     | New     |
++---------+---------+
+
 .. _asm-if:
 
 @if
@@ -609,16 +638,17 @@ value of an arithmetic expression. ::
 
   @if(expr)(true[,false])
 
-* ``expr`` is the arithmetic expression
+* ``expr`` is the arithmetic expression, which may contain
+  :ref:`replacement fields <replacementFields>`
 * ``true`` is processed when ``expr`` is true
 * ``false`` (if given) is processed when ``expr`` is false
 
-See :ref:`numericParameters` for details on the operators and replacement
-fields that may be used in the ``expr`` parameter.
+See :ref:`numericParameters` for details on the operators that may be used in
+the ``expr`` parameter.
 
 For example::
 
-  @if({case}==1))(replace=/#hl/hl,replace=/#hl/HL)
+  @if({mode[case]}==1))(replace=/#hl/hl,replace=/#hl/HL)
 
 would process ``replace=/#hl/hl`` if in lower case mode, or ``replace=/#hl/HL``
 otherwise.
@@ -954,6 +984,63 @@ entry.
 | 6.3     | The ``address`` parameter is optional                             |
 +---------+-------------------------------------------------------------------+
 
+.. _refs:
+
+@refs
+^^^^^
+The ``@refs`` directive manages the addresses of the referrers of (i.e. the
+routines that jump to or call) the next instruction. ::
+
+  @refs=[addr1[,addr2...]][:raddr1[,raddr2...]]
+
+* ``addr1``, ``addr2`` etc. are addresses to add to the list of referrers
+* ``raddr1``, ``raddr2`` etc. are addresses to remove from the list of
+  referrers
+
+This directive can be used to declare one or more additional referrers for an
+instruction that would not otherwise be identified by the
+:ref:`instruction utility <instructionUtility>` or
+:ref:`snapshot reference calculator <snapshotRefCalc>` (e.g. because the
+instruction is jumped to indirectly via ``JP (HL)`` or ``RET``). As a result:
+
+* :ref:`sna2skool.py` will attach an entry point marker (``*``) to the
+  instruction when reading a control file, and include the additional referrers
+  in any comment generated for the entry point (when the ``ListRefs``
+  :ref:`configuration parameter <sna2skool-conf>` is ``1`` or ``2``)
+* `snapinfo.py`, when generating a :ref:`call graph <snapinfo-call-graph>`,
+  will add an edge between a node representing an additional referrer and the
+  node representing the routine that contains the instruction
+* the addresses of the additional referrers become available to the special
+  ``EREF`` and ``REF`` variables of the :ref:`FOREACH` macro
+
+``@refs`` can also be used to remove one or more referrer addresses that have
+been added automatically (because the instruction is jumped to or called
+directly). As a result:
+
+* :ref:`sna2skool.py` will remove the referrers from any comment generated for
+  the entry point (when the ``ListRefs``
+  :ref:`configuration parameter <sna2skool-conf>` is ``1`` or ``2``), and
+  remove any entry point marker (``*``) from the instruction if all the
+  referrers have been removed
+* `snapinfo.py`, when generating a :ref:`call graph <snapinfo-call-graph>`,
+  will not place an edge between a node representing a removed referrer and the
+  node representing the routine that contains the instruction
+* the addresses of the removed referrers will not be available to the special
+  ``EREF`` and ``REF`` variables of the :ref:`FOREACH` macro
+
+For example::
+
+  @ 40000 refs=32768:49152
+
+This ``@refs`` directive (in a control file) declares that the routine at 32768
+uses the entry point at 40000, and the routine at 49152 does not.
+
++---------+---------+
+| Version | Changes |
++=========+=========+
+| 8.2     | New     |
++---------+---------+
+
 .. _rem:
 
 @rem
@@ -1064,7 +1151,8 @@ were reversed::
 
 then ``#foo31`` would be replaced by ``#bar31``.
 
-See also :ref:`definingMacrosWithReplace`.
+See also the :ref:`DEFINE` macro, which is more flexible than ``@replace`` for
+defining new macros.
 
 +---------+--------------------------------------------+
 | Version | Changes                                    |

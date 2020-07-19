@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Extending SkoolKit &#8212; SkoolKit 8.1 documentation</title>
+    <title>Extending SkoolKit &#8212; SkoolKit 8.2 documentation</title>
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -34,7 +34,7 @@
         <li class="right" >
           <a href="html-templates.html" title="HTML templates"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.2 documentation</a> &#187;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
@@ -99,10 +99,10 @@
 <a class="reference internal" href="skool-macros.html#skoolmacros"><span class="std std-ref">skool macros</span></a> is inadequate for certain tasks. For example,
 the game might have large tile-based sprites that you want to create images of
 for the HTML disassembly, and composing long <code class="docutils literal notranslate"><span class="pre">#UDGARRAY</span></code> macros for them or
-defining a new sprite-building macro with the <code class="docutils literal notranslate"><span class="pre">&#64;replace</span></code> directive (see
-<a class="reference internal" href="skool-macros.html#definingmacroswithreplace"><span class="std std-ref">Defining macros with &#64;replace</span></a>) would be too tedious or impractical. Or you
-might want to insert a timestamp somewhere in the ASM disassembly so that you
-(or others) can keep track of when your ASM files were written.</p>
+defining a new sprite-building macro with the <a class="reference internal" href="skool-macros.html#define"><span class="std std-ref">#DEFINE</span></a> macro would be too
+tedious or impractical. Or you might want to insert a timestamp somewhere in
+the ASM disassembly so that you (or others) can keep track of when your ASM
+files were written.</p>
 <p>One way to solve these problems is to add custom methods that could be called
 by a <a class="reference internal" href="skool-macros.html#call"><span class="std std-ref">#CALL</span></a> macro. But where to add the methods? SkoolKit’s core
 HTML writer and ASM writer classes are skoolkit.skoolhtml.HtmlWriter and
@@ -744,7 +744,7 @@ horizontally and vertically.</td>
 <p>The Frame class represents a single frame of a still or animated image.</p>
 <dl class="class">
 <dt id="skoolkit.graphics.Frame">
-<em class="property">class </em><code class="descclassname">skoolkit.graphics.</code><code class="descname">Frame</code><span class="sig-paren">(</span><em>udgs</em>, <em>scale=1</em>, <em>mask=0</em>, <em>x=0</em>, <em>y=0</em>, <em>width=None</em>, <em>height=None</em>, <em>delay=32</em>, <em>name=''</em><span class="sig-paren">)</span><a class="headerlink" href="#skoolkit.graphics.Frame" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">skoolkit.graphics.</code><code class="descname">Frame</code><span class="sig-paren">(</span><em>udgs</em>, <em>scale=1</em>, <em>mask=0</em>, <em>x=0</em>, <em>y=0</em>, <em>width=None</em>, <em>height=None</em>, <em>delay=32</em>, <em>name=''</em>, <em>tindex=0</em>, <em>alpha=-1</em><span class="sig-paren">)</span><a class="headerlink" href="#skoolkit.graphics.Frame" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a frame of a still or animated image.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -768,11 +768,19 @@ used.</li>
 <li><strong>delay</strong> – The delay between this frame and the next in 1/100ths of a
 second.</li>
 <li><strong>name</strong> – The name of this frame.</li>
+<li><strong>tindex</strong> – The index of the entry in the <a class="reference internal" href="skool-macros.html#palette"><span class="std std-ref">palette</span></a> to
+use as the transparent colour.</li>
+<li><strong>alpha</strong> – The alpha value to use for the transparent colour. If -1, the
+value of the <code class="docutils literal notranslate"><span class="pre">PNGAlpha</span></code> parameter in the
+<a class="reference internal" href="ref-files.html#ref-imagewriter"><span class="std std-ref">[ImageWriter]</span></a> section is used.</li>
 </ul>
 </td>
 </tr>
 </tbody>
 </table>
+<div class="versionchanged">
+<p><span class="versionmodified">Changed in version 8.2: </span>Added the <em>tindex</em> and <em>alpha</em> parameters.</p>
+</div>
 <div class="versionchanged">
 <p><span class="versionmodified">Changed in version 5.4: </span>The Frame class moved from skoolkit.skoolhtml to skoolkit.graphics.</p>
 </div>
@@ -989,7 +997,7 @@ subclasses may override it.</p>
         <li class="right" >
           <a href="html-templates.html" title="HTML templates"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.2 documentation</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
