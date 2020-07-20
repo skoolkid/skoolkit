@@ -517,7 +517,7 @@ EOF
 
   [[ -f $TARBALL ]] && echo "Found $TARBALL" || _build_tarball
 
-  for dist in xenial bionic; do
+  for dist in xenial bionic focal; do
     _cd_tmpdir
     cp -p $TARBALL skoolkit_$VERSION.orig.tar.xz
     tar xf skoolkit_$VERSION.orig.tar.xz
