@@ -55,7 +55,7 @@ dump_bin() {
 }
 
 write_bins() {
-  for m in '' '-i' '-s' '-o' '-b'; do
+  for m in '' '-i' '-s' '-r' '-o' '-b' '-R' '-d'; do
     bin=bin/$GAME$m.bin
     [[ -n $SKOOL2BIN_END ]] && endopt="-E $SKOOL2BIN_END"
     run_cmd "./skool2bin.py $m -S $SKOOL2BIN_START $endopt $skoolfile -" $bin
