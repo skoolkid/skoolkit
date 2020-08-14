@@ -10,8 +10,8 @@ Usage: $(basename $0) [options] $GAMES [TYPE [TYPE ...]]
 
   Compares an old version of a disassembly with the current version. TYPE is
   the type of files to build and compare, which may be 'asm', 'bin', 'ctl',
-  'genctl', 'html', 'png' or 'skool'; if TYPE is omitted, every type is built
-  and compared.
+  'dot', 'genctl', 'html', 'png' or 'skool'; if TYPE is omitted, every type is
+  built and compared.
 
   Details on the old disassembly version number and the version of SkoolKit to
   use to build it are read from .ddiffsrc in the disassembly's home directory.
@@ -135,7 +135,7 @@ fi
 
 shift 1
 
-DIFF_TYPES=${*:-asm bin ctl genctl html png skool}
+DIFF_TYPES=${*:-asm bin ctl dot genctl html png skool}
 
 USE_SK_DEV=0
 if [ "$SKOOLKIT_VERSION" = "dev" ]; then
@@ -164,8 +164,7 @@ if [ $WRITE_OLD -eq 1 ] || [ ! -d $OLD_DIR ]; then
     find $OLD_DISASSEMBLY_NAME -name '*.ref' -exec cp {} $OLD_DIR/src \;
     find $OLD_DISASSEMBLY_NAME -name '*.js' -exec cp {} $OLD_DIR/src \;
     find $OLD_DISASSEMBLY_NAME -name '*.css' -exec cp {} $OLD_DIR/src \;
-    (( ${OLD_SKOOLKIT_VERSION%%.*} < 8 )) && tag=v${OLD_SKOOLKIT_VERSION} || tag=${OLD_SKOOLKIT_VERSION}
-    if ! wget https://github.com/skoolkid/skoolkit/raw/${tag}/tools/publish.ref -O $OLD_DIR/publish.ref 2>/dev/null; then
+    if ! wget https://github.com/skoolkid/skoolkit/raw/${OLD_SKOOLKIT_VERSION}/tools/publish.ref -O $OLD_DIR/publish.ref 2>/dev/null; then
       echo "Error: Failed to download publish.ref for SkoolKit ${OLD_SKOOLKIT_VERSION}"
       exit 1
     fi

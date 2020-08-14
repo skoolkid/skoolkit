@@ -8,16 +8,17 @@ run_cmd() {
   error_out=$(mktemp)
   mkdir -p $(dirname $outfile)
   echo -n "Writing $outfile..."
-  if $cmd > $outfile 2> $error_out; then
+  echo "$cmd" > $error_out
+  if $cmd > $outfile 2>> $error_out; then
     if grep -q ^WARNING: $error_out; then
-      echo "done (with warnings)"
+      echo "done (with warnings; see $error_out)"
     else
       echo "done"
+      rm -f $error_out
     fi
   else
-    echo "done (with errors)"
+    echo "done (with errors; see $error_out)"
   fi
-  rm -f $error_out
 }
 
 write_asms() {
@@ -69,6 +70,12 @@ write_ctls() {
   done
 }
 
+write_dot() {
+  ctl=/tmp/${GAME}-abs.ctl
+  ./skool2ctl.py -w abs $skoolfile > $ctl
+  run_cmd "./snapinfo.py -c $ctl -g $snapshot_opts $SNAPSHOT" dot/$GAME.dot
+}
+
 write_genctls() {
   profile="$SNAPSHOT.profile"
   for b in '' '-l' '-h'; do
@@ -110,7 +117,7 @@ write_skools() {
 usage() {
   echo "Usage: $(basename $0) $GAMES TYPE [TYPE...]"
   echo ""
-  echo "  TYPE can be one of: asm bin ctl genctl html skool all"
+  echo "  TYPE can be one of: asm bin ctl dot genctl html skool all"
   exit 1
 }
 
@@ -130,6 +137,7 @@ while [ "$1" != "" ]; do
     asm) write_asms ;;
     bin) write_bins ;;
     ctl) write_ctls ;;
+    dot) write_dot ;;
     genctl) write_genctls ;;
     html) write_html ;;
     skool) write_skools ;;
@@ -137,6 +145,7 @@ while [ "$1" != "" ]; do
       write_asms
       write_bins
       write_ctls
+      write_dot
       write_genctls
       write_html
       write_skools
