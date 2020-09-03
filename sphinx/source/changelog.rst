@@ -3,6 +3,8 @@ Changelog
 
 8.3b1
 -----
+* Fixed the bug that causes 'e+1' to be interpreted as a floating point number
+  when it appears in a BASIC program
 
 8.2 (2020-07-19)
 ----------------

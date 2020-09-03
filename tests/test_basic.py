@@ -84,13 +84,18 @@ class BasicListerTest(SkoolKitTestCase):
             245, 45, 49, 50, 51, 52, 53, 54, # PRINT -123456
             14, 145, 113, 32, 0, 0,          # 123456
             13,                              # ENTER
+            0, 50, 11, 0,                    # Line 50, length
+            245, 101, 43, 49,                # PRINT e+1
+            14, 0, 0, 1, 0, 0,               # 1
+            13,                              # ENTER
             128                              # End of BASIC area
         ]
         exp_output = [
             '  10 PRINT 1234',
             '  20 PRINT -1234',
             '  30 PRINT 123456',
-            '  40 PRINT -123456'
+            '  40 PRINT -123456',
+            '  50 PRINT e+1'
         ]
         self._test_basic(basic, exp_output)
 

@@ -1,5 +1,5 @@
-# Copyright 2016-2017 Richard Dymond (rjdymond@gmail.com), Philip M. Anderson
-# (weyoun47@gmail.com)
+# Copyright 2016-2017, 2020 Richard Dymond (rjdymond@gmail.com),
+# Philip M. Anderson (weyoun47@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -18,6 +18,8 @@
 import re
 
 from skoolkit import get_word
+
+RE_NUMBER = re.compile('[0-9.]+([eE][-+]?[0-9]+)?')
 
 TOKENS = {
     165: 'RND',
@@ -231,7 +233,7 @@ class BasicLister:
         while self.snapshot[j] < 33:
             j -= 1
         num_str = chr(self.snapshot[j])
-        while re.match('[0-9.]+([eE][-+]?[0-9]+)?', num_str):
+        while RE_NUMBER.match(num_str):
             j -= 1
             this_chr = chr(self.snapshot[j])
             signed = this_chr in '+-'
@@ -245,7 +247,10 @@ class BasicLister:
             elif signed:
                 break
             num_str = chr(self.snapshot[j]) + num_str
-        return num_str[1:]
+        num_str = num_str[1:]
+        while num_str and not RE_NUMBER.match(num_str):
+            num_str = num_str[1:]
+        return num_str
 
 class VariableLister:
     def __init__(self):
