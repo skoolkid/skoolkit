@@ -1,6 +1,9 @@
 Changelog
 =========
 
+8.3b1
+-----
+
 8.2 (2020-07-19)
 ----------------
 * Added the ``--call-graph`` option to :ref:`snapinfo.py <snapinfo-call-graph>`
