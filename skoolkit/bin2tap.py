@@ -148,16 +148,18 @@ def main(args):
     parser.add_argument('infile', help=argparse.SUPPRESS, nargs='?')
     parser.add_argument('outfile', help=argparse.SUPPRESS, nargs='?')
     group = parser.add_argument_group('Options')
+    group.add_argument('-b', '--begin', dest='begin', metavar='BEGIN', type=integer,
+                       help="Begin conversion at this address (default: ORG for a binary file, 16384 for a snapshot).")
     group.add_argument('-c', '--clear', dest='clear', metavar='N', type=integer,
                        help="Use a 'CLEAR N' command in the BASIC loader and leave the stack pointer alone.")
     group.add_argument('-e', '--end', dest='end', metavar='ADDR', type=integer, default=65536,
                        help="Set the end address when reading a snapshot.")
     group.add_argument('-o', '--org', dest='org', metavar='ORG', type=integer,
-                       help="Set the origin address (default: 16384 for a snapshot, otherwise 65536 minus the length of FILE).")
+                       help="Set the origin address for a binary file (default: 65536 minus the length of FILE).")
     group.add_argument('-p', '--stack', dest='stack', metavar='STACK', type=integer,
-                       help="Set the stack pointer (default: ORG).")
+                       help="Set the stack pointer (default: BEGIN).")
     group.add_argument('-s', '--start', dest='start', metavar='START', type=integer,
-                       help="Set the start address to JP to (default: ORG).")
+                       help="Set the start address to JP to (default: BEGIN).")
     group.add_argument('-S', '--screen', dest='screen', metavar='FILE',
                        help="Add a loading screen to the TAP file. FILE may be a snapshot or a 6912-byte SCR file.")
     group.add_argument('-V', '--version', action='version', version='SkoolKit {}'.format(VERSION),
@@ -169,18 +171,23 @@ def main(args):
         parser.exit(2, parser.format_help())
     snapshot_reader = get_snapshot_reader()
     if snapshot_reader.can_read(infile):
-        org = namespace.org or 16384
-        if org >= namespace.end:
-            raise SkoolKitError('End address must be greater than {}'.format(org))
-        ram = snapshot_reader.get_snapshot(infile)[org:namespace.end]
+        begin = namespace.begin or 16384
+        if begin >= namespace.end:
+            raise SkoolKitError('Begin address must be less than {}'.format(namespace.end))
+        ram = snapshot_reader.get_snapshot(infile)[begin:namespace.end]
     else:
         ram = read_bin_file(infile, 49152)
         if not ram:
             raise SkoolKitError('{} is empty'.format(infile))
         org = namespace.org or 65536 - len(ram)
+        begin = namespace.begin or org
+        if org < begin:
+            if begin - org >= len(ram):
+                raise SkoolKitError('Begin address must be less than {}'.format(org + len(ram)))
+            ram = ram[begin - org:]
     clear = namespace.clear
-    start = namespace.start or org
-    stack = namespace.stack or org
+    start = namespace.start or begin
+    stack = namespace.stack or begin
     tapfile = namespace.outfile
     if tapfile is None:
         if infile.lower().endswith(('.bin', '.sna', '.szx', '.z80')):
@@ -196,4 +203,4 @@ def main(args):
             scr = snapshot_reader.get_snapshot(scr)[16384:23296]
         else:
             scr = read_bin_file(scr, 6912)
-    run(ram, clear, org, start, stack, tapfile, scr)
+    run(ram, clear, begin, start, stack, tapfile, scr)

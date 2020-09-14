@@ -16,6 +16,11 @@ file from standard input.
 
 OPTIONS
 =======
+-b, --begin `BEGIN`
+  Begin conversion at this address. The default begin address is the origin
+  address (`ORG`) for a binary file, or 16384 for a snapshot. `BEGIN` must be a
+  decimal number, or a hexadecimal number prefixed by '0x'.
+
 -c, --clear `N`
   Use a ``CLEAR N`` command in the BASIC loader, and leave the stack pointer
   alone. This option overrides the ``--stack`` option. `N` must be a decimal
@@ -26,16 +31,16 @@ OPTIONS
   or a hexadecimal number prefixed by '0x'.
 
 -o, --org `ORG`
-  Set the origin address; the default origin address is 16384 for a snapshot,
-  or 65536 minus the length of FILE for a binary file. `ORG` must be a decimal
-  number, or a hexadecimal number prefixed by '0x'.
+  Set the origin address for a binary file. The default origin address is 65536
+  minus the length of FILE. `ORG` must be a decimal number, or a hexadecimal
+  number prefixed by '0x'.
 
 -p, --stack `STACK`
-  Set the stack pointer; the default value is `ORG`. `STACK` must be a decimal
-  number, or a hexadecimal number prefixed by '0x'.
+  Set the stack pointer. The default value is `BEGIN`. `STACK` must be a
+  decimal number, or a hexadecimal number prefixed by '0x'.
 
 -s, --start `START`
-  Set the start address to JP to; the default start address is `ORG`. `START`
+  Set the start address to JP to. The default start address is `BEGIN`. `START`
   must be a decimal number, or a hexadecimal number prefixed by '0x'.
 
 -S, --screen `FILE`
@@ -47,9 +52,9 @@ OPTIONS
 
 STACK POINTER
 =============
-The ROM tape loading routine at 1366 ($0556) and the load routine used by
+The ROM tape loading routine at 1366 (0x0556) and the load routine used by
 ``bin2tap.py`` together require 14 bytes for stack operations, and so `STACK`
-must be at least 16384+14=16398 ($400E). This means that if `ORG` is less than
+must be at least 16384+14=16398 (0x400E). This means that if `ORG` is less than
 16398, you should use the ``--stack`` option to set the stack pointer to
 something appropriate. If the data block overlaps any of the last four bytes of
 the stack, ``bin2tap.py`` will replace those bytes with the values required by
@@ -62,7 +67,7 @@ If the input file contains a program that returns to BASIC, you should use the
 ``--clear`` option to add a CLEAR command to the BASIC loader. This option
 leaves the stack pointer alone, enabling the program to return to BASIC without
 crashing. The lowest usable address with the ``--clear`` option on a bare 48K
-Spectrum is 23952 ($5D90).
+Spectrum is 23952 (0x5D90).
 
 EXAMPLES
 ========

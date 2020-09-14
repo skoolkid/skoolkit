@@ -83,23 +83,26 @@ it with no arguments to see the list of available options::
   input.
 
   Options:
+    -b BEGIN, --begin BEGIN
+                          Begin conversion at this address (default: ORG for a
+                          binary file, 16384 for a snapshot).
     -c N, --clear N       Use a 'CLEAR N' command in the BASIC loader and leave
                           the stack pointer alone.
     -e ADDR, --end ADDR   Set the end address when reading a snapshot.
-    -o ORG, --org ORG     Set the origin address (default: 16384 for a snapshot,
-                          otherwise 65536 minus the length of FILE).
+    -o ORG, --org ORG     Set the origin address for a binary file (default:
+                          65536 minus the length of FILE).
     -p STACK, --stack STACK
-                          Set the stack pointer (default: ORG).
+                          Set the stack pointer (default: BEGIN).
     -s START, --start START
-                          Set the start address to JP to (default: ORG).
+                          Set the start address to JP to (default: BEGIN).
     -S FILE, --screen FILE
                           Add a loading screen to the TAP file. FILE may be a
                           snapshot or a 6912-byte SCR file.
     -V, --version         Show SkoolKit version number and exit.
 
-Note that the ROM tape loading routine at 1366 ($0556) and the load routine
+Note that the ROM tape loading routine at 1366 (0x0556) and the load routine
 used by `bin2tap.py` together require 14 bytes for stack operations, and so
-STACK must be at least 16384+14=16398 ($400E). This means that if ORG is less
+STACK must be at least 16384+14=16398 (0x400E). This means that if ORG is less
 than 16398, you should use the ``-p`` option to set the stack pointer to
 something appropriate. If the main data block (derived from `game.bin`)
 overlaps any of the last four bytes of the stack, `bin2tap.py` will replace
@@ -112,11 +115,13 @@ If the input file contains a program that returns to BASIC, you should use the
 ``--clear`` option to add a CLEAR command to the BASIC loader. This option
 leaves the stack pointer alone, enabling the program to return to BASIC without
 crashing. The lowest usable address with the ``--clear`` option on a bare 48K
-Spectrum is 23952 ($5D90).
+Spectrum is 23952 (0x5D90).
 
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 8.3     | Added the ``--begin`` option                                      |
++---------+-------------------------------------------------------------------+
 | 6.2     | The ``--clear``, ``--end``, ``--org``, ``--stack`` and            |
 |         | ``--start`` options accept a hexadecimal integer prefixed by '0x' |
 +---------+-------------------------------------------------------------------+

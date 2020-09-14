@@ -232,11 +232,14 @@ class Bin2TapTest(SkoolKitTestCase):
         with self.assertRaisesRegex(SkoolKitError, '^{} is empty$'.format(binfile)):
             self.run_bin2tap(binfile)
 
-    def test_invalid_end_address(self):
-        with self.assertRaisesRegex(SkoolKitError, '^End address must be greater than 16384$'):
+    def test_begin_address_greater_than_end_address(self):
+        binfile = self.write_bin_file([0], suffix='.bin')
+        with self.assertRaisesRegex(SkoolKitError, '^Begin address must be less than 32769$'):
+            self.run_bin2tap('-o 32768 -b 65535 {}'.format(binfile))
+        with self.assertRaisesRegex(SkoolKitError, '^Begin address must be less than 16384$'):
             self.run_bin2tap('-e 16384 file.z80')
-        with self.assertRaisesRegex(SkoolKitError, '^End address must be greater than 24576$'):
-            self.run_bin2tap('-o 24576 -e 23296 file.sna')
+        with self.assertRaisesRegex(SkoolKitError, '^Begin address must be less than 23296$'):
+            self.run_bin2tap('-b 24576 -e 23296 file.sna')
 
     def test_no_options(self):
         bin_data = [1, 2, 3, 4, 5]
@@ -291,6 +294,50 @@ class Bin2TapTest(SkoolKitTestCase):
         for option in ('-V', '--version'):
             output, error = self.run_bin2tap(option, catch_exit=0)
             self.assertEqual(output, 'SkoolKit {}\n'.format(VERSION))
+
+    def test_option_b(self):
+        bin_data = list(range(30))
+        binfile = self.write_bin_file(bin_data, suffix='.bin')
+        org = 50000
+        for option, begin in (('-b', 50010), ('--begin', 50020)):
+            tap_data = self._run('-o {} {} {} {}'.format(org, option, begin, binfile))
+            self._check_tap(tap_data, bin_data[begin - org:], binfile, org=begin)
+
+    def test_option_b_with_z80(self):
+        ram = [0] * 49152
+        data = list(range(20))
+        begin = 65536 - len(data)
+        ram[begin - 16384:] = data
+        z80 = self.write_z80(ram)[1]
+        tap_data = self._run('-b {} {}'.format(begin, z80))
+        self._check_tap(tap_data, data, z80, begin)
+
+    def test_option_begin_with_szx(self):
+        ram = [0] * 49152
+        data = list(range(17))
+        begin = 65536 - len(data)
+        ram[begin - 16384:] = data
+        szx = self.write_szx(ram)
+        tap_data = self._run('--begin {} {}'.format(begin, szx))
+        self._check_tap(tap_data, data, szx, begin)
+
+    def test_option_begin_with_sna(self):
+        ram = [0] * 49152
+        data = list(range(15))
+        begin = 65536 - len(data)
+        ram[begin - 16384:] = data
+        sna = self.write_bin_file([0] * 27 + ram, suffix='.sna')
+        tap_data = self._run('--begin {} {}'.format(begin, sna))
+        self._check_tap(tap_data, data, sna, begin)
+
+    def test_option_b_with_hex_address(self):
+        ram = [0] * 49152
+        data = list(range(11))
+        begin = 65536 - len(data)
+        ram[begin - 16384:] = data
+        sna = self.write_bin_file([0] * 27 + ram, suffix='.sna')
+        tap_data = self._run('-b 0x{:04X} {}'.format(begin, sna))
+        self._check_tap(tap_data, data, sna, begin)
 
     def test_option_c(self):
         org = 40000
@@ -375,42 +422,42 @@ class Bin2TapTest(SkoolKitTestCase):
     def test_option_e_with_z80(self):
         ram = [0] * 49152
         data = list(range(20))
-        org = 32768
-        end = org + len(data)
-        ram[org - 16384:end - 16384] = data
+        begin = 32768
+        end = begin + len(data)
+        ram[begin - 16384:end - 16384] = data
         z80 = self.write_z80(ram)[1]
-        tap_data = self._run('-o {} -e {} {}'.format(org, end, z80))
-        self._check_tap(tap_data, data, z80, org)
+        tap_data = self._run('-b {} -e {} {}'.format(begin, end, z80))
+        self._check_tap(tap_data, data, z80, begin)
 
     def test_option_e_with_szx(self):
         ram = [0] * 49152
         data = list(range(17))
-        org = 50000
-        end = org + len(data)
-        ram[org - 16384:end - 16384] = data
+        begin = 50000
+        end = begin + len(data)
+        ram[begin - 16384:end - 16384] = data
         szx = self.write_szx(ram)
-        tap_data = self._run('-o {} -e {} {}'.format(org, end, szx))
-        self._check_tap(tap_data, data, szx, org)
+        tap_data = self._run('-b {} -e {} {}'.format(begin, end, szx))
+        self._check_tap(tap_data, data, szx, begin)
 
     def test_option_end_with_sna(self):
         ram = [0] * 49152
         data = list(range(15))
-        org = 40000
-        end = org + len(data)
-        ram[org - 16384:end - 16384] = data
+        begin = 40000
+        end = begin + len(data)
+        ram[begin - 16384:end - 16384] = data
         sna = self.write_bin_file([0] * 27 + ram, suffix='.sna')
-        tap_data = self._run('-o {} --end {} {}'.format(org, end, sna))
-        self._check_tap(tap_data, data, sna, org)
+        tap_data = self._run('-b {} --end {} {}'.format(begin, end, sna))
+        self._check_tap(tap_data, data, sna, begin)
 
     def test_option_e_with_hex_address(self):
         ram = [0] * 49152
         data = list(range(15))
-        org = 40000
-        end = org + len(data)
-        ram[org - 16384:end - 16384] = data
+        begin = 40000
+        end = begin + len(data)
+        ram[begin - 16384:end - 16384] = data
         sna = self.write_bin_file([0] * 27 + ram, suffix='.sna')
-        tap_data = self._run('-o {} -e 0x{:04X} {}'.format(org, end, sna))
-        self._check_tap(tap_data, data, sna, org)
+        tap_data = self._run('-b {} -e 0x{:04X} {}'.format(begin, end, sna))
+        self._check_tap(tap_data, data, sna, begin)
 
     def test_option_S_with_scr(self):
         scr = [85] * 6912
@@ -463,7 +510,7 @@ class Bin2TapTest(SkoolKitTestCase):
         """
         self.write_component_config('SnapshotReader', '*', custom_snapshot_reader)
         snafile = self.write_bin_file(suffix='.sna')
-        tap_data = self._run('-o 65535 {}'.format(snafile))
+        tap_data = self._run('-b 65535 {}'.format(snafile))
         self._check_tap(tap_data, [128], snafile)
 
     @patch.object(components, 'SK_CONFIG', None)

@@ -3,6 +3,8 @@ Changelog
 
 8.3b1
 -----
+* Added the ``--begin`` option to :ref:`bin2tap.py` (for specifying the address
+  at which to begin conversion)
 * Fixed the bug that causes 'e+1' to be interpreted as a floating point number
   when it appears in a BASIC program
 
