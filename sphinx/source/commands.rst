@@ -88,7 +88,7 @@ it with no arguments to see the list of available options::
                           binary file, 16384 for a snapshot).
     -c N, --clear N       Use a 'CLEAR N' command in the BASIC loader and leave
                           the stack pointer alone.
-    -e ADDR, --end ADDR   Set the end address when reading a snapshot.
+    -e END, --end END     End conversion at this address.
     -o ORG, --org ORG     Set the origin address for a binary file (default:
                           65536 minus the length of FILE).
     -p STACK, --stack STACK
@@ -120,7 +120,8 @@ Spectrum is 23952 (0x5D90).
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
-| 8.3     | Added the ``--begin`` option                                      |
+| 8.3     | Added the ``--begin`` option; the ``--end`` option applies to raw |
+|         | memory files as well as snapshots                                 |
 +---------+-------------------------------------------------------------------+
 | 6.2     | The ``--clear``, ``--end``, ``--org``, ``--stack`` and            |
 |         | ``--start`` options accept a hexadecimal integer prefixed by '0x' |

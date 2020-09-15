@@ -26,9 +26,9 @@ OPTIONS
   alone. This option overrides the ``--stack`` option. `N` must be a decimal
   number, or a hexadecimal number prefixed by '0x'.
 
--e, --end `ADDR`
-  Set the end address when reading a snapshot. `ADDR` must be a decimal number,
-  or a hexadecimal number prefixed by '0x'.
+-e, --end `END`
+  End conversion at this address. `END` must be a decimal number, or a
+  hexadecimal number prefixed by '0x'.
 
 -o, --org `ORG`
   Set the origin address for a binary file. The default origin address is 65536

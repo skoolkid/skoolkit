@@ -5,6 +5,8 @@ Changelog
 -----
 * Added the ``--begin`` option to :ref:`bin2tap.py` (for specifying the address
   at which to begin conversion)
+* The ``--end`` option of :ref:`bin2tap.py` now applies to raw memory files as
+  well as SNA, SZX and Z80 snapshots
 * Fixed the bug that causes 'e+1' to be interpreted as a floating point number
   when it appears in a BASIC program
 

@@ -232,14 +232,27 @@ class Bin2TapTest(SkoolKitTestCase):
         with self.assertRaisesRegex(SkoolKitError, '^{} is empty$'.format(binfile)):
             self.run_bin2tap(binfile)
 
-    def test_begin_address_greater_than_end_address(self):
+    def test_bin_with_invalid_org_and_begin_and_end_addresses(self):
         binfile = self.write_bin_file([0], suffix='.bin')
-        with self.assertRaisesRegex(SkoolKitError, '^Begin address must be less than 32769$'):
+        with self.assertRaisesRegex(SkoolKitError, '^Input is empty \(ORG=32768, BEGIN=65535, END=32769\)$'):
             self.run_bin2tap('-o 32768 -b 65535 {}'.format(binfile))
-        with self.assertRaisesRegex(SkoolKitError, '^Begin address must be less than 16384$'):
-            self.run_bin2tap('-e 16384 file.z80')
-        with self.assertRaisesRegex(SkoolKitError, '^Begin address must be less than 23296$'):
-            self.run_bin2tap('-b 24576 -e 23296 file.sna')
+        with self.assertRaisesRegex(SkoolKitError, '^Input is empty \(ORG=32768, BEGIN=32768, END=24576\)$'):
+            self.run_bin2tap('-o 32768 -e 24576 {}'.format(binfile))
+        with self.assertRaisesRegex(SkoolKitError, '^Input is empty \(ORG=32768, BEGIN=32768, END=32768\)$'):
+            self.run_bin2tap('-o 32768 -b 32768 -e 32768 {}'.format(binfile))
+        with self.assertRaisesRegex(SkoolKitError, '^Input is empty \(ORG=32768, BEGIN=23296, END=23297\)$'):
+            self.run_bin2tap('-o 32768 -b 23296 -e 23297 {}'.format(binfile))
+        with self.assertRaisesRegex(SkoolKitError, '^Input is empty \(ORG=32768, BEGIN=49152, END=49153\)$'):
+            self.run_bin2tap('-o 32768 -b 49152 -e 49153 {}'.format(binfile))
+
+    def test_snapshot_with_invalid_begin_and_end_addresses(self):
+        snafile = self.write_bin_file([0] * 49179, suffix='.sna')
+        with self.assertRaisesRegex(SkoolKitError, '^Input is empty \(ORG=0, BEGIN=65536, END=65536\)$'):
+            self.run_bin2tap('-b 65536 {}'.format(snafile))
+        with self.assertRaisesRegex(SkoolKitError, '^Input is empty \(ORG=0, BEGIN=16384, END=16384\)$'):
+            self.run_bin2tap('-e 16384 {}'.format(snafile))
+        with self.assertRaisesRegex(SkoolKitError, '^Input is empty \(ORG=0, BEGIN=32768, END=24576\)$'):
+            self.run_bin2tap('-b 32768 -e 24576 {}'.format(snafile))
 
     def test_no_options(self):
         bin_data = [1, 2, 3, 4, 5]
@@ -296,7 +309,7 @@ class Bin2TapTest(SkoolKitTestCase):
             self.assertEqual(output, 'SkoolKit {}\n'.format(VERSION))
 
     def test_option_b(self):
-        bin_data = list(range(30))
+        bin_data = range(30)
         binfile = self.write_bin_file(bin_data, suffix='.bin')
         org = 50000
         for option, begin in (('-b', 50010), ('--begin', 50020)):
@@ -305,7 +318,7 @@ class Bin2TapTest(SkoolKitTestCase):
 
     def test_option_b_with_z80(self):
         ram = [0] * 49152
-        data = list(range(20))
+        data = range(20)
         begin = 65536 - len(data)
         ram[begin - 16384:] = data
         z80 = self.write_z80(ram)[1]
@@ -314,7 +327,7 @@ class Bin2TapTest(SkoolKitTestCase):
 
     def test_option_begin_with_szx(self):
         ram = [0] * 49152
-        data = list(range(17))
+        data = range(17)
         begin = 65536 - len(data)
         ram[begin - 16384:] = data
         szx = self.write_szx(ram)
@@ -323,7 +336,7 @@ class Bin2TapTest(SkoolKitTestCase):
 
     def test_option_begin_with_sna(self):
         ram = [0] * 49152
-        data = list(range(15))
+        data = range(15)
         begin = 65536 - len(data)
         ram[begin - 16384:] = data
         sna = self.write_bin_file([0] * 27 + ram, suffix='.sna')
@@ -332,7 +345,7 @@ class Bin2TapTest(SkoolKitTestCase):
 
     def test_option_b_with_hex_address(self):
         ram = [0] * 49152
-        data = list(range(11))
+        data = range(11)
         begin = 65536 - len(data)
         ram[begin - 16384:] = data
         sna = self.write_bin_file([0] * 27 + ram, suffix='.sna')
@@ -341,7 +354,7 @@ class Bin2TapTest(SkoolKitTestCase):
 
     def test_option_c(self):
         org = 40000
-        bin_data = list(range(25))
+        bin_data = range(25)
         binfile = self.write_bin_file(bin_data, suffix='.bin')
         clear = org - 1
         start = org + 10
@@ -351,7 +364,7 @@ class Bin2TapTest(SkoolKitTestCase):
 
     def test_option_c_with_hex_address(self):
         org = 50000
-        bin_data = list(range(25))
+        bin_data = range(25)
         binfile = self.write_bin_file(bin_data, suffix='.bin')
         clear = org - 1
         start = org + 10
@@ -361,21 +374,21 @@ class Bin2TapTest(SkoolKitTestCase):
 
     def test_option_o(self):
         org = 40000
-        bin_data = [i for i in range(50)]
+        bin_data = range(50)
         binfile = self.write_bin_file(bin_data, suffix='.bin')
         for option in ('-o', '--org'):
             tap_data = self._run('{} {} {}'.format(option, org, binfile))
             self._check_tap(tap_data, bin_data, binfile, org=org)
 
     def test_option_o_with_hex_address(self):
-        bin_data = list(range(50))
+        bin_data = range(50)
         binfile = self.write_bin_file(bin_data, suffix='.bin')
         for option, org in (('-o', '0x800f'), ('--org', '0xAB00')):
             tap_data = self._run('{} {} {}'.format(option, org, binfile))
             self._check_tap(tap_data, bin_data, binfile, org=int(org[2:], 16))
 
     def test_option_s(self):
-        bin_data = [i for i in range(100)]
+        bin_data = range(100)
         binfile = self.write_bin_file(bin_data, suffix='.bin')
         start = 65536 - len(bin_data) // 2
         for option in ('-s', '--start'):
@@ -383,7 +396,7 @@ class Bin2TapTest(SkoolKitTestCase):
             self._check_tap(tap_data, bin_data, binfile, start=start)
 
     def test_option_s_with_hex_address(self):
-        bin_data = list(range(75))
+        bin_data = range(75)
         binfile = self.write_bin_file(bin_data, suffix='.bin')
         start = 65536 - len(bin_data) // 2
         for option in ('-s', '--start'):
@@ -392,7 +405,7 @@ class Bin2TapTest(SkoolKitTestCase):
 
     def test_option_p(self):
         stack = 32768
-        bin_data = [i for i in range(64)]
+        bin_data = range(64)
         binfile = self.write_bin_file(bin_data, suffix='.bin')
         for option in ('-p', '--stack'):
             tap_data = self._run('{} {} {}'.format(option, stack, binfile))
@@ -400,7 +413,7 @@ class Bin2TapTest(SkoolKitTestCase):
 
     def test_option_p_with_hex_address(self):
         stack = 32768
-        bin_data = list(range(64))
+        bin_data = range(64)
         binfile = self.write_bin_file(bin_data, suffix='.bin')
         for option in ('-p', '--stack'):
             tap_data = self._run('{} 0x{:04x} {}'.format(option, stack, binfile))
@@ -419,9 +432,16 @@ class Bin2TapTest(SkoolKitTestCase):
         ]
         self._check_tap(tap_data, bin_data, binfile, stack=stack)
 
+    def test_option_end(self):
+        org, end = 49152, 49162
+        data = range(end - org + 2)
+        binfile = self.write_bin_file(data, suffix='.bin')
+        tap_data = self._run('-o {} --end {} {}'.format(org, end, binfile))
+        self._check_tap(tap_data, data[:end - org], binfile, org)
+
     def test_option_e_with_z80(self):
         ram = [0] * 49152
-        data = list(range(20))
+        data = range(20)
         begin = 32768
         end = begin + len(data)
         ram[begin - 16384:end - 16384] = data
@@ -431,7 +451,7 @@ class Bin2TapTest(SkoolKitTestCase):
 
     def test_option_e_with_szx(self):
         ram = [0] * 49152
-        data = list(range(17))
+        data = range(17)
         begin = 50000
         end = begin + len(data)
         ram[begin - 16384:end - 16384] = data
@@ -441,7 +461,7 @@ class Bin2TapTest(SkoolKitTestCase):
 
     def test_option_end_with_sna(self):
         ram = [0] * 49152
-        data = list(range(15))
+        data = range(15)
         begin = 40000
         end = begin + len(data)
         ram[begin - 16384:end - 16384] = data
@@ -451,13 +471,20 @@ class Bin2TapTest(SkoolKitTestCase):
 
     def test_option_e_with_hex_address(self):
         ram = [0] * 49152
-        data = list(range(15))
+        data = range(15)
         begin = 40000
         end = begin + len(data)
         ram[begin - 16384:end - 16384] = data
         sna = self.write_bin_file([0] * 27 + ram, suffix='.sna')
         tap_data = self._run('-b {} -e 0x{:04X} {}'.format(begin, end, sna))
         self._check_tap(tap_data, data, sna, begin)
+
+    def test_options_b_and_e(self):
+        org, begin, end = 60000, 60005, 60010
+        data = range(end - org + 2)
+        binfile = self.write_bin_file(data, suffix='.bin')
+        tap_data = self._run('-o {} -b {} -e {} {}'.format(org, begin, end, binfile))
+        self._check_tap(tap_data, data[begin - org:end - org], binfile, begin)
 
     def test_option_S_with_scr(self):
         scr = [85] * 6912

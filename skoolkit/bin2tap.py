@@ -152,8 +152,8 @@ def main(args):
                        help="Begin conversion at this address (default: ORG for a binary file, 16384 for a snapshot).")
     group.add_argument('-c', '--clear', dest='clear', metavar='N', type=integer,
                        help="Use a 'CLEAR N' command in the BASIC loader and leave the stack pointer alone.")
-    group.add_argument('-e', '--end', dest='end', metavar='ADDR', type=integer, default=65536,
-                       help="Set the end address when reading a snapshot.")
+    group.add_argument('-e', '--end', dest='end', metavar='END', type=integer,
+                       help="End conversion at this address.")
     group.add_argument('-o', '--org', dest='org', metavar='ORG', type=integer,
                        help="Set the origin address for a binary file (default: 65536 minus the length of FILE).")
     group.add_argument('-p', '--stack', dest='stack', metavar='STACK', type=integer,
@@ -171,20 +171,20 @@ def main(args):
         parser.exit(2, parser.format_help())
     snapshot_reader = get_snapshot_reader()
     if snapshot_reader.can_read(infile):
+        org = 0
         begin = namespace.begin or 16384
-        if begin >= namespace.end:
-            raise SkoolKitError('Begin address must be less than {}'.format(namespace.end))
-        ram = snapshot_reader.get_snapshot(infile)[begin:namespace.end]
+        end = namespace.end or 65536
+        ram = snapshot_reader.get_snapshot(infile)[begin:end]
     else:
         ram = read_bin_file(infile, 49152)
         if not ram:
             raise SkoolKitError('{} is empty'.format(infile))
         org = namespace.org or 65536 - len(ram)
         begin = namespace.begin or org
-        if org < begin:
-            if begin - org >= len(ram):
-                raise SkoolKitError('Begin address must be less than {}'.format(org + len(ram)))
-            ram = ram[begin - org:]
+        end = namespace.end or org + len(ram)
+        ram = ram[begin - org:end - org]
+    if not ram:
+        raise SkoolKitError('Input is empty (ORG={}, BEGIN={}, END={})'.format(org, begin, end))
     clear = namespace.clear
     start = namespace.start or begin
     stack = namespace.stack or begin
