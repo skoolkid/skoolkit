@@ -225,18 +225,20 @@ CHARS = {9: '\t', 13: '\n'}
 def _bytes_to_str(data):
     return ', '.join(str(b) for b in data)
 
-def _hex_dump(data, row_size=16):
+def _hex_dump(data, as_lines=True, row_size=16):
     lines = []
     for index in range(0, len(data), row_size):
         values = data[index:index + row_size]
         values_hex = ' '.join('{:02X}'.format(b) for b in values).ljust(row_size * 3)
         values_text = ''.join(get_char(b, '.', '.') for b in values)
         lines.append('{:04X}  {} {}'.format(index, values_hex, values_text))
+    if as_lines:
+        return lines
     return '\n'.join(lines)
 
 def _get_str(data, dump=False):
     if dump and any(b > 127 or (b < 31 and b not in CHARS) for b in data):
-        return _hex_dump(data)
+        return _hex_dump(data, False)
     text = ''
     for b in data:
         if b in CHARS:
@@ -398,7 +400,7 @@ def _get_block_info(data, i, block_num):
 def _print_info(text):
     print('  ' + text)
 
-def _print_block(index, data, info=(), block_id=None, header=None):
+def _print_block(index, data, show_data, info=(), block_id=None, header=None):
     if block_id is None:
         print("{}:".format(index))
     else:
@@ -433,11 +435,15 @@ def _print_block(index, data, info=(), block_id=None, header=None):
             _print_info("CODE: {},{}".format(start, size))
     if data:
         _print_info("Length: {}".format(len(data)))
-        if len(data) > 14:
-            data_summary = "{} ... {}".format(_bytes_to_str(data[:7]), _bytes_to_str(data[-7:]))
+        if show_data:
+            for line in _hex_dump(data):
+                _print_info(line)
         else:
-            data_summary = _bytes_to_str(data)
-        _print_info("Data: {}".format(data_summary))
+            if len(data) > 14:
+                data_summary = "{} ... {}".format(_bytes_to_str(data[:7]), _bytes_to_str(data[-7:]))
+            else:
+                data_summary = _bytes_to_str(data)
+            _print_info("Data: {}".format(data_summary))
 
 def _list_basic(cur_block_num, data, block_num, address):
     if block_num == cur_block_num:
@@ -480,10 +486,10 @@ def _analyse_tzx(tzx, basic_block, options):
         if basic_block:
             _list_basic(block_num, tape_data, *basic_block)
         elif not block_ids or block_id in block_ids:
-            _print_block(block_num, tape_data, info, block_id, header)
+            _print_block(block_num, tape_data, options.data, info, block_id, header)
         block_num += 1
 
-def _analyse_tap(tap, basic_block):
+def _analyse_tap(tap, basic_block, show_data):
     i = 0
     block_num = 1
     while i < len(tap):
@@ -492,7 +498,7 @@ def _analyse_tap(tap, basic_block):
         if basic_block:
             _list_basic(block_num, data, *basic_block)
         else:
-            _print_block(block_num, data)
+            _print_block(block_num, data, show_data)
         i += block_len + 2
         block_num += 1
 
@@ -509,6 +515,8 @@ def main(args):
                             "'IDs' is a comma-separated list of hexadecimal block IDs, e.g. 10,11,2a.")
     group.add_argument('-B', '--basic', metavar='N[,A]',
                        help='List the BASIC program in block N loaded at address A (default 23755).')
+    group.add_argument('-d', '--data', action='store_true',
+                       help='Show the entire contents of header and data blocks.')
     group.add_argument('-V', '--version', action='version', version='SkoolKit {}'.format(VERSION),
                        help='Show SkoolKit version number and exit.')
     namespace, unknown_args = parser.parse_known_args(args)
@@ -525,6 +533,6 @@ def main(args):
         tape = f.read()
 
     if tape_type == '.tap':
-        _analyse_tap(tape, basic_block)
+        _analyse_tap(tape, basic_block, namespace.data)
     else:
         _analyse_tzx(tape, basic_block, namespace)

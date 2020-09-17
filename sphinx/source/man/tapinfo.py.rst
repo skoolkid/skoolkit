@@ -23,6 +23,9 @@ OPTIONS
   23755). `A` must be a decimal number, or a hexadecimal number prefixed by
   '0x'.
 
+-d, --data
+  Show the entire contents of header and data blocks.
+
 -V, --version
   Show the SkoolKit version number and exit.
 

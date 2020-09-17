@@ -7,6 +7,8 @@ Changelog
   at which to begin conversion)
 * The ``--end`` option of :ref:`bin2tap.py` now applies to raw memory files as
   well as SNA, SZX and Z80 snapshots
+* Added the ``--data`` option to :ref:`tapinfo.py` (for showing the entire
+  contents of header and data blocks)
 * Fixed the bug that causes 'e+1' to be interpreted as a floating point number
   when it appears in a BASIC program
 

@@ -1283,11 +1283,14 @@ To list the options supported by `tapinfo.py`, run it with no arguments::
     -B N[,A], --basic N[,A]
                           List the BASIC program in block N loaded at address A
                           (default 23755).
+    -d, --data            Show the entire contents of header and data blocks.
     -V, --version         Show SkoolKit version number and exit.
 
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 8.3     | Added the ``--data`` option                                       |
++---------+-------------------------------------------------------------------+
 | 8.1     | Shows contents of TZX block types 0x33 (hardware type) and 0x35   |
 |         | (custom info)                                                     |
 +---------+-------------------------------------------------------------------+

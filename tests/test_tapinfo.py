@@ -600,6 +600,98 @@ class TapinfoTest(SkoolKitTestCase):
         self._test_bad_spec('-B', '1,2,3', exp_error)
         self._test_bad_spec('--basic', '?,+', exp_error)
 
+    def test_option_d_with_tap_file(self):
+        data = [1, 2, 4, 8]
+        tap_data = create_tap_header_block('test_tap02', 49152, len(data))
+        tap_data.extend(create_tap_data_block(data))
+        tap_data.extend(create_tap_header_block('characters', data_type=2))
+        tap_data.extend(create_tap_data_block(list(range(32, 94))))
+        tapfile = self.write_bin_file(tap_data, suffix='.tap')
+        output, error = self.run_tapinfo('-d {}'.format(tapfile))
+        self.assertEqual(error, '')
+        exp_output = """
+            1:
+              Type: Header block
+              Bytes: test_tap02
+              CODE: 49152,4
+              Length: 19
+              0000  00 03 74 65 73 74 5F 74 61 70 30 32 04 00 00 C0  ..test_tap02....
+              0010  00 00 E9                                         ...
+            2:
+              Type: Data block
+              Length: 6
+              0000  FF 01 02 04 08 0F                                ......
+            3:
+              Type: Header block
+              Character array: characters
+              Length: 19
+              0000  00 02 63 68 61 72 61 63 74 65 72 73 00 00 00 00  ..characters....
+              0010  00 00 08                                         ...
+            4:
+              Type: Data block
+              Length: 64
+              0000  FF 20 21 22 23 24 25 26 27 28 29 2A 2B 2C 2D 2E  . !"#$%&'()*+,-.
+              0010  2F 30 31 32 33 34 35 36 37 38 39 3A 3B 3C 3D 3E  /0123456789:;<=>
+              0020  3F 40 41 42 43 44 45 46 47 48 49 4A 4B 4C 4D 4E  ?@ABCDEFGHIJKLMN
+              0030  4F 50 51 52 53 54 55 56 57 58 59 5A 5B 5C 5D 01  OPQRSTUVWXYZ[\].
+        """
+        self.assertEqual(dedent(exp_output).lstrip(), output)
+
+    def test_option_data_with_tzx_file(self):
+        blocks = []
+        blocks.append(create_tzx_header_block('test_tzx02', data_type=0))
+        blocks.append(create_tzx_data_block([1, 4, 16]))
+
+        # Turbo speed data
+        data = list(range(48, 94))
+        block = [0x11] # Block ID
+        block.extend([0] * 15)
+        data_block = create_data_block(data)
+        block.extend((len(data_block), 0, 0))
+        block.extend(data_block)
+        blocks.append(block)
+
+        # Pure data
+        data = [65, 66, 67, 68]
+        block = [0x14]       # Block ID
+        block.extend((1, 2)) # Length of 0-pulse
+        block.extend((3, 4)) # Length of 1-pulse
+        block.append(4)      # Used bits in last byte
+        block.extend((5, 6)) # Pause length
+        block.extend((len(data), 0, 0))
+        block.extend(data)
+        blocks.append(block)
+
+        tzxfile = self._write_tzx(blocks)
+        output, error = self.run_tapinfo('-d {}'.format(tzxfile))
+        self.assertEqual(error, '')
+        exp_output = """
+            Version: 1.20
+            1: Standard speed data (0x10)
+              Type: Header block
+              Program: test_tzx02
+              Length: 19
+              0000  00 00 74 65 73 74 5F 74 7A 78 30 32 00 00 00 00  ..test_tzx02....
+              0010  00 00 3D                                         ..=
+            2: Standard speed data (0x10)
+              Type: Data block
+              Length: 5
+              0000  FF 01 04 10 15                                   .....
+            3: Turbo speed data (0x11)
+              Length: 48
+              0000  FF 30 31 32 33 34 35 36 37 38 39 3A 3B 3C 3D 3E  .0123456789:;<=>
+              0010  3F 40 41 42 43 44 45 46 47 48 49 4A 4B 4C 4D 4E  ?@ABCDEFGHIJKLMN
+              0020  4F 50 51 52 53 54 55 56 57 58 59 5A 5B 5C 5D 01  OPQRSTUVWXYZ[\].
+            4: Pure data (0x14)
+              0-pulse: 513
+              1-pulse: 1027
+              Used bits in last byte: 4
+              Pause: 1541ms
+              Length: 4
+              0000  41 42 43 44                                      ABCD
+        """
+        self.assertEqual(dedent(exp_output).lstrip(), output)
+
     def test_option_V(self):
         for option in ('-V', '--version'):
             output, error = self.run_tapinfo(option, catch_exit=0)
