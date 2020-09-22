@@ -16,6 +16,7 @@
 
 import argparse
 import glob
+import os.path
 
 from skoolkit import info, integer, VERSION
 from skoolkit.config import get_config, show_config, update_options
@@ -23,15 +24,22 @@ from skoolkit.ctlparser import CtlParser
 from skoolkit.snapshot import make_snapshot
 from skoolkit.snaskool import SkoolWriter
 
-def get_ctl_parser(ctlfiles, infile, start, end, def_start, def_end):
+def get_ctl_parser(ctls, infile, start, end, def_start, def_end):
     if infile[-4:].lower() in ('.bin', '.sna', '.szx', '.z80'):
         prefix = infile[:-4]
     else:
         prefix = infile
-    if not ctlfiles:
-        ctlfiles.extend(sorted(glob.glob(prefix + '*.ctl')))
-    if ctlfiles and '0' not in ctlfiles:
+    if not ctls:
+        ctls.extend(sorted(glob.glob(prefix + '*.ctl')))
+    ctlfiles = []
+    if ctls and '0' not in ctls:
         # Use control file(s)
+        for ctl in ctls:
+            if os.path.isdir(ctl):
+                ctlfiles.extend(sorted(glob.glob(os.path.join(ctl, '*.ctl'))))
+            else:
+                ctlfiles.append(ctl)
+    if ctlfiles:
         if len(ctlfiles) > 1:
             suffix = 's'
         else:
@@ -45,7 +53,7 @@ def get_ctl_parser(ctlfiles, infile, start, end, def_start, def_end):
 
 def run(infile, options, config):
     snapshot, start, end = make_snapshot(infile, options.org, options.start, options.end, options.page)
-    ctl_parser = get_ctl_parser(options.ctlfiles, infile, options.start, options.end, start, end)
+    ctl_parser = get_ctl_parser(options.ctls, infile, options.start, options.end, start, end)
     writer = SkoolWriter(snapshot, ctl_parser, options, config)
     writer.write_skool(config['ListRefs'], config['Text'])
 
@@ -59,8 +67,9 @@ def main(args):
     )
     parser.add_argument('snafile', help=argparse.SUPPRESS, nargs='?')
     group = parser.add_argument_group('Options')
-    group.add_argument('-c', '--ctl', dest='ctlfiles', metavar='FILE', action='append', default=[],
-                       help="Use FILE as a control file. FILE may be '-' for standard input, or '0' to use no control file. "
+    group.add_argument('-c', '--ctl', dest='ctls', metavar='PATH', action='append', default=[],
+                       help="Specify a control file to use, or a directory from which to read control files. "
+                            "PATH may be '-' for standard input, or '0' to use no control file. "
                             "This option may be used multiple times.")
     group.add_argument('-e', '--end', dest='end', metavar='ADDR', type=integer, default=65536,
                        help='Stop disassembling at this address (default=65536).')

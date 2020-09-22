@@ -508,9 +508,9 @@ def main(args):
     group = parser.add_argument_group('Options')
     group.add_argument('-b', '--basic', action='store_true',
                        help='List the BASIC program.')
-    group.add_argument('-c', '--ctl', dest='ctlfiles', metavar='FILE', action='append', default=[],
-                       help="Use FILE as a control file when generating a call graph. FILE may be '-' for standard input. "
-                            "This option may be used multiple times.")
+    group.add_argument('-c', '--ctl', dest='ctlfiles', metavar='PATH', action='append', default=[],
+                       help="When generating a call graph, specify a control file to use, or a directory from which to read control files. "
+                            "PATH may be '-' for standard input. This option may be used multiple times.")
     group.add_argument('-f', '--find', metavar='A[,B...[-M[-N]]]',
                        help='Search for the byte sequence A,B... with distance ranging from M to N (default=1) between bytes.')
     group.add_argument('-g', '--call-graph', action='store_true',

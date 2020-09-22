@@ -1,3 +1,4 @@
+import os.path
 from textwrap import dedent
 from unittest.mock import patch
 
@@ -915,6 +916,33 @@ class SnapinfoTest(SkoolKitTestCase):
         """
         ctlfiles = [self.write_text_file(dedent(c).strip(), suffix='.ctl') for c in (ctl1, ctl2)]
         self._test_sna(ram, exp_output, '-g -c {} --ctl {}'.format(*ctlfiles), ctlfiles=ctlfiles)
+
+    def test_option_c_with_directory(self):
+        ram = [201, 195, 0, 64] + [0] * 49148
+        ctl1 = """
+            @ 16384 label=END
+            c 16384
+        """
+        ctl2 = """
+            @ 16385 label=START
+            c 16385
+            i 16388
+        """
+        exp_output = r"""
+            // Unconnected: None
+            // Orphans: 16385
+            // First instruction not used: None
+            digraph {
+            node [shape=record]
+            16384 [label="16384 4000\nEND"]
+            16385 [label="16385 4001\nSTART"]
+            16385 -> {16384}
+            }
+        """
+        ctldir = self.make_directory()
+        ctl1f = self.write_text_file(dedent(ctl1).strip(), path=os.path.join(ctldir, 'bar.ctl'))
+        ctl2f = self.write_text_file(dedent(ctl2).strip(), path=os.path.join(ctldir, 'foo.ctl'))
+        self._test_sna(ram, exp_output, '-g -c {}'.format(ctldir), ctlfiles=(ctl1f, ctl2f))
 
     def test_option_f_with_single_byte(self):
         ram = [0] * 49152

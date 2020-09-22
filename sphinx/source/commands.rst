@@ -822,7 +822,8 @@ list::
   file. FILE may be a regular file, or '-' for standard input.
 
   Options:
-    -c FILE, --ctl FILE   Use FILE as a control file. FILE may be '-' for
+    -c PATH, --ctl PATH   Specify a control file to use, or a directory from
+                          which to read control files. PATH may be '-' for
                           standard input, or '0' to use no control file. This
                           option may be used multiple times.
     -e ADDR, --end ADDR   Stop disassembling at this address (default=65536).
@@ -921,6 +922,9 @@ Configuration parameters may also be set on the command line by using the
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 8.3     | Added support for reading control files from a directory          |
+|         | (``--ctl DIR``)                                                   |
++---------+-------------------------------------------------------------------+
 | 8.1     | Added support for ignoring default control files (``--ctl 0``)    |
 +---------+-------------------------------------------------------------------+
 | 8.0     | Added the ``DefwSize`` configuration parameter                    |
@@ -984,8 +988,9 @@ To list the options supported by `snapinfo.py`, run it with no arguments::
 
   Options:
     -b, --basic           List the BASIC program.
-    -c FILE, --ctl FILE   Use FILE as a control file when generating a call
-                          graph. FILE may be '-' for standard input. This option
+    -c PATH, --ctl PATH   When generating a call graph, specify a control file
+                          to use, or a directory from which to read control
+                          files. PATH may be '-' for standard input. This option
                           may be used multiple times.
     -f A[,B...[-M[-N]]], --find A[,B...[-M[-N]]]
                           Search for the byte sequence A,B... with distance
@@ -1099,6 +1104,9 @@ Configuration parameters may also be set on the command line by using the
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 8.3     | Added support for reading control files from a directory          |
+|         | (``--ctl DIR``)                                                   |
++---------+-------------------------------------------------------------------+
 | 8.2     | Configuration is read from `skoolkit.ini` if present; added the   |
 |         | ability to read binary files; added the ``--call-graph``,         |
 |         | ``--ctl``, ``--ini``, ``--org``, ``--page`` and ``--show-config`` |

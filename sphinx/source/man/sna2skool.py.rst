@@ -16,12 +16,12 @@ FILE is '-', ``sna2skool.py`` reads from standard input.
 
 OPTIONS
 =======
--c, --ctl `FILE`
-  Specify a control file to use (which may be '-' for standard input). By
-  default, any files whose names start with the input snapshot name (minus
-  the .bin, .sna, .szx or .z80 suffix, if any) and end with .ctl will be used,
-  if present. If `FILE` is '0', no control file will be used. This option may
-  be used multiple times.
+-c, --ctl `PATH`
+  Specify a control file to use, or a directory from which to read control
+  files. By default, any files whose names start with the input snapshot name
+  (minus the .bin, .sna, .szx or .z80 suffix, if any) and end with .ctl are
+  used, if present. If `PATH` is '-', standard input is used. If `PATH` is '0',
+  no control file is used. This option may be used multiple times.
 
 -e, --end `ADDR`
   Stop disassembling at this address; the default end address is 65536. `ADDR`

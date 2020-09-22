@@ -9,6 +9,8 @@ Changelog
   well as SNA, SZX and Z80 snapshots
 * Added the ``--data`` option to :ref:`tapinfo.py` (for showing the entire
   contents of header and data blocks)
+* Added support to the ``--ctl`` option of :ref:`sna2skool.py` and
+  :ref:`snapinfo.py` for reading control files from a directory
 * Fixed the bug that causes 'e+1' to be interpreted as a floating point number
   when it appears in a BASIC program
 

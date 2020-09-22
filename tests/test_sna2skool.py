@@ -50,7 +50,7 @@ class Sna2SkoolTest(SkoolKitTestCase):
         sna2skool.main((sna,))
         snafile, options = run_args[:2]
         self.assertEqual(snafile, sna)
-        self.assertEqual([], options.ctlfiles)
+        self.assertEqual([], options.ctls)
         self.assertEqual(options.base, 10)
         self.assertEqual(options.case, 2)
         self.assertEqual(options.start, 0)
@@ -79,7 +79,7 @@ class Sna2SkoolTest(SkoolKitTestCase):
         sna2skool.main((sna,))
         snafile, options, config = run_args
         self.assertEqual(snafile, sna)
-        self.assertEqual([], options.ctlfiles)
+        self.assertEqual([], options.ctls)
         self.assertEqual(options.base, 16)
         self.assertEqual(options.case, 1)
         self.assertEqual(options.start, 0)
@@ -217,6 +217,65 @@ class Sna2SkoolTest(SkoolKitTestCase):
         output, error = self.run_sna2skool('--ctl 0 {}'.format(binfile))
         self.assertEqual(error, '')
         self.assertEqual(mock_ctl_parser.ctls, {65533: 'c', 65536: 'i'})
+        self.assertTrue(mock_skool_writer.wrote_skool)
+
+    @patch.object(sna2skool, 'make_snapshot', mock_make_snapshot)
+    @patch.object(sna2skool, 'CtlParser', MockCtlParser)
+    @patch.object(sna2skool, 'SkoolWriter', MockSkoolWriter)
+    def test_option_c_with_directory(self):
+        ctldir = self.make_directory()
+        ctlfiles = [self.write_text_file(path=os.path.join(ctldir, c)) for c in ('bar.ctl', 'foo.ctl')]
+        self.write_text_file(path='{}/not-a-ctl.txt'.format(ctldir))
+        output, error = self.run_sna2skool('-c {} test-c-dir.bin'.format(ctldir))
+        self.assertEqual(error, 'Using control files: {}\n'.format(', '.join(ctlfiles)))
+        self.assertEqual(ctlfiles, mock_ctl_parser.ctlfiles)
+        self.assertTrue(mock_skool_writer.wrote_skool)
+
+    @patch.object(sna2skool, 'make_snapshot', mock_make_snapshot)
+    @patch.object(sna2skool, 'CtlParser', MockCtlParser)
+    @patch.object(sna2skool, 'SkoolWriter', MockSkoolWriter)
+    def test_option_ctl_with_two_directories(self):
+        ctldir1 = self.make_directory()
+        ctlfiles = [self.write_text_file(path=os.path.join(ctldir1, c)) for c in ('bar.ctl', 'foo.ctl')]
+        ctldir2 = self.make_directory()
+        ctlfiles.append(self.write_text_file(path=os.path.join(ctldir2, 'baz.ctl')))
+        output, error = self.run_sna2skool('--ctl {} --ctl {} test-c-dirs.bin'.format(ctldir1, ctldir2))
+        self.assertEqual(error, 'Using control files: {}\n'.format(', '.join(ctlfiles)))
+        self.assertEqual(ctlfiles, mock_ctl_parser.ctlfiles)
+        self.assertTrue(mock_skool_writer.wrote_skool)
+
+    @patch.object(sna2skool, 'make_snapshot', mock_make_snapshot)
+    @patch.object(sna2skool, 'CtlParser', MockCtlParser)
+    @patch.object(sna2skool, 'SkoolWriter', MockSkoolWriter)
+    def test_option_c_with_directory_and_file(self):
+        ctldir = self.make_directory()
+        ctlfiles = [self.write_text_file(path=os.path.join(ctldir, c)) for c in ('bar.ctl', 'foo.ctl')]
+        ctl3 = self.write_text_file(suffix='.ctl')
+        ctlfiles.append(ctl3)
+        output, error = self.run_sna2skool('-c {} -c {} test-c-dir-file.bin'.format(ctldir, ctl3))
+        self.assertEqual(error, 'Using control files: {}\n'.format(', '.join(ctlfiles)))
+        self.assertEqual(ctlfiles, mock_ctl_parser.ctlfiles)
+        self.assertTrue(mock_skool_writer.wrote_skool)
+
+    @patch.object(sna2skool, 'CtlParser', MockCtlParser)
+    @patch.object(sna2skool, 'SkoolWriter', MockSkoolWriter)
+    def test_option_ctl_with_empty_directory(self):
+        binfile = self.write_bin_file([0] * 2, suffix='.bin')
+        output, error = self.run_sna2skool('--ctl {} {}'.format(self.make_directory(), binfile))
+        self.assertEqual(error, '')
+        self.assertEqual(mock_ctl_parser.ctls, {65534: 'c', 65536: 'i'})
+        self.assertTrue(mock_skool_writer.wrote_skool)
+
+    @patch.object(sna2skool, 'make_snapshot', mock_make_snapshot)
+    @patch.object(sna2skool, 'CtlParser', MockCtlParser)
+    @patch.object(sna2skool, 'SkoolWriter', MockSkoolWriter)
+    def test_option_c_with_current_directory(self):
+        ctl1 = self.write_text_file(suffix='.ctl')
+        ctl2 = self.write_text_file(suffix='.ctl')
+        ctlfiles = sorted(os.path.join('.', f) for f in (ctl1, ctl2))
+        output, error = self.run_sna2skool('-c . test-c-cwd.bin')
+        self.assertEqual(error, 'Using control files: {}\n'.format(', '.join(ctlfiles)))
+        self.assertEqual(ctlfiles, mock_ctl_parser.ctlfiles)
         self.assertTrue(mock_skool_writer.wrote_skool)
 
     @patch.object(sna2skool, 'CtlParser', MockCtlParser)
