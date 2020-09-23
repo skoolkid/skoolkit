@@ -1410,7 +1410,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         raise UnsupportedMacroError()
 
     def test_macro_chr(self):
-        writer = self._get_writer()
+        writer = self._get_writer(skool='', variables=[('foo', 66)])
 
         self.assertEqual(writer.expand('#CHR169'), '&#169;')
         self.assertEqual(writer.expand('#CHR(163)1984'), '&#163;1984')
@@ -1421,6 +1421,8 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         self.assertEqual(writer.expand('#CHR(65+3*2-9/3)'), '&#68;')
         self.assertEqual(writer.expand('#CHR($42 + 3 * 2 - (2 + 7) / 3)'), '&#69;')
         self.assertEqual(writer.expand(nest_macros('#CHR({})', 70)), '&#70;')
+        self.assertEqual(writer.expand('#CHR({vars[foo]})'), '&#66;')
+        self.assertEqual(writer.expand('#LET(c=67)#CHR({c})'), '&#67;')
 
     def test_macro_eval_asm(self):
         writer = self._get_writer()

@@ -427,7 +427,7 @@ def get_params(param_string, num=0, defaults=(), names=(), safe=True):
 def get_macros(writer):
     macros = {
         '#CALL': partial(parse_call, writer),
-        '#CHR': partial(parse_chr, writer.to_chr),
+        '#CHR': partial(parse_chr, writer),
         '#D': partial(parse_d, writer.parser),
         '#DEFINE': partial(parse_define, writer),
         '#EVAL': partial(parse_eval, writer.fields, writer.case == CASE_LOWER),
@@ -544,10 +544,10 @@ def parse_call(writer, text, index, *cwd):
         retval = ''
     return end, retval
 
-def parse_chr(get_chr, text, index, *cwd):
+def parse_chr(writer, text, index, *cwd):
     # #CHRnum or #CHR(num)
-    end, num = parse_ints(text, index, 1)
-    return end, get_chr(num)
+    end, num = parse_ints(text, index, 1, fields=writer.fields)
+    return end, writer.to_chr(num)
 
 def parse_d(entry_holder, text, index, *cwd):
     # #Daddr

@@ -126,7 +126,7 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
         self.assertEqual(asm[2], "  DEFB $23                ; '#'")
 
     def test_macro_chr(self):
-        writer = self._get_writer()
+        writer = self._get_writer('', variables=[('foo', 66)])
 
         self.assertEqual(writer.expand('#CHR169'), chr(169))
         self.assertEqual(writer.expand('#CHR(163)1985'), '{0}1985'.format(chr(163)))
@@ -137,6 +137,8 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
         self.assertEqual(writer.expand('#CHR(65+3*2-9/3)'), 'D')
         self.assertEqual(writer.expand('#CHR($42 + 3 * 2 - (5 + 4) / 3)'), 'E')
         self.assertEqual(writer.expand(nest_macros('#CHR({})', 70)), 'F')
+        self.assertEqual(writer.expand('#CHR({vars[foo]})'), 'B')
+        self.assertEqual(writer.expand('#LET(c=67) #CHR({c})'), 'C')
 
     def test_macro_eval_asm(self):
         for asm_mode in (0, 1, 2, 3):

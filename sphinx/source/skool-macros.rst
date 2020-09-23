@@ -649,6 +649,8 @@ mode, it expands to the copyright symbol.
 +---------+------------------------------------------------------------------+
 | Version | Changes                                                          |
 +=========+==================================================================+
+| 8.3     | Added support for replacement fields in the parameter string     |
++---------+------------------------------------------------------------------+
 | 5.1     | Added support for arithmetic expressions and skool macros in the |
 |         | ``num`` parameter                                                |
 +---------+------------------------------------------------------------------+

@@ -90,6 +90,8 @@ class CommonSkoolMacroTest:
         self._assert_error(writer, '#CHR(x,y)', "Cannot parse integer 'x' in parameter string: 'x,y'", prefix)
         self._assert_error(writer, '#CHR(1,2)', "Too many parameters (expected 1): '1,2'", prefix)
         self._assert_error(writer, '#CHR(2 ...', 'No closing bracket: (2 ...', prefix)
+        self._assert_error(writer, '#CHR({no})', "Unrecognised field 'no': ({no})", prefix)
+        self._assert_error(writer, '#CHR({vars[no]})', "Unrecognised field 'no': ({vars[no]})", prefix)
 
     def test_macro_d(self):
         skool = """
