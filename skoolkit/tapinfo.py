@@ -257,7 +257,7 @@ def _format_text(prefix, data, start, length, dump=False):
     return lines
 
 def _get_block_info(data, i, block_num):
-    # http://www.worldofspectrum.org/TZXformat.html
+    # https://worldofspectrum.net/features/TZXformat.html
     block_id = data[i]
     info = []
     tape_data = []

@@ -67,8 +67,8 @@ class Registers:
 
 ###############################################################################
 
-# http://www.worldofspectrum.org/faq/reference/z80format.htm
-# http://www.worldofspectrum.org/faq/reference/128kreference.htm
+# https://worldofspectrum.net/features/faq/reference/z80format.htm
+# https://worldofspectrum.net/features/faq/reference/128kreference.htm
 
 BLOCK_ADDRESSES_48K = {
     4: '32768-49151 8000-BFFF',
@@ -204,7 +204,7 @@ def _analyse_z80(z80file):
 
 ###############################################################################
 
-# http://www.spectaculator.com/docs/zx-state/intro.shtml
+# https://www.spectaculator.com/docs/zx-state/intro.shtml
 
 SZX_MACHINES = {
     0: '16K ZX Spectrum',
@@ -303,7 +303,7 @@ def _analyse_szx(szxfile):
 
 ###############################################################################
 
-# http://www.worldofspectrum.org/faq/reference/formats.htm#SNA
+# https://worldofspectrum.net/features/faq/reference/formats.htm#SNA
 
 def _print_ram_banks(sna):
     bank = sna[49181] & 7

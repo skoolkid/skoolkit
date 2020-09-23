@@ -1,4 +1,4 @@
-# Copyright 2013, 2015-2018 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2013, 2015-2018, 2020 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -145,7 +145,7 @@ def _get_ram(blocks, options):
     return snapshot[16384:]
 
 def _get_tzx_block(data, i):
-    # http://www.worldofspectrum.org/TZXformat.html
+    # https://worldofspectrum.net/features/TZXformat.html
     block_id = data[i]
     tape_data = None
     i += 1

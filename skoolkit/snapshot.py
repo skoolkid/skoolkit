@@ -20,7 +20,7 @@ import zlib
 from skoolkit import SkoolKitError, get_int_param, read_bin_file
 from skoolkit.components import get_snapshot_reader
 
-# http://www.worldofspectrum.org/faq/reference/z80format.htm
+# https://worldofspectrum.net/features/faq/reference/z80format.htm
 Z80_REGISTERS = {
     'a': 0,
     'f': 1,
