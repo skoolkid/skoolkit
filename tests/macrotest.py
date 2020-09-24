@@ -91,7 +91,6 @@ class CommonSkoolMacroTest:
         self._assert_error(writer, '#CHR(1,2)', "Too many parameters (expected 1): '1,2'", prefix)
         self._assert_error(writer, '#CHR(2 ...', 'No closing bracket: (2 ...', prefix)
         self._assert_error(writer, '#CHR({no})', "Unrecognised field 'no': ({no})", prefix)
-        self._assert_error(writer, '#CHR({vars[no]})', "Unrecognised field 'no': ({vars[no]})", prefix)
 
     def test_macro_d(self):
         skool = """
@@ -105,7 +104,7 @@ class CommonSkoolMacroTest:
 
             c32770 RET
         """
-        writer = self._get_writer(skool=skool)
+        writer = self._get_writer(skool=skool, variables=[('foo', 32769)])
 
         # Decimal address
         output = writer.expand('#D32768')
@@ -127,6 +126,10 @@ class CommonSkoolMacroTest:
         self.assertEqual(writer.expand('1+#D32768+1'), '1+First routine+1')
         self.assertEqual(writer.expand('+1#D(32768)1+'), '+1First routine1+')
 
+        # Replacement fields
+        self.assertEqual(writer.expand('#LET(a=32768)#D({a})'), 'First routine')
+        self.assertEqual(writer.expand('#D({vars[foo]})'), 'Second routine')
+
     def test_macro_d_invalid(self):
         skool = '@start\nc32770 RET'
         writer = self._get_writer(skool=skool)
@@ -136,6 +139,7 @@ class CommonSkoolMacroTest:
         self._assert_error(writer, '#Dx', 'No parameters (expected 1)', prefix)
         self._assert_error(writer, '#D32770', 'Entry at 32770 has no description', prefix)
         self._assert_error(writer, '#D32771', 'Cannot determine description for non-existent entry at 32771', prefix)
+        self._assert_error(writer, '#D({no})', "Unrecognised field 'no': ({no})", prefix)
 
     def test_macro_define(self):
         writer = self._get_writer()

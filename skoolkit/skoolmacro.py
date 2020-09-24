@@ -428,7 +428,7 @@ def get_macros(writer):
     macros = {
         '#CALL': partial(parse_call, writer),
         '#CHR': partial(parse_chr, writer),
-        '#D': partial(parse_d, writer.parser),
+        '#D': partial(parse_d, writer),
         '#DEFINE': partial(parse_define, writer),
         '#EVAL': partial(parse_eval, writer.fields, writer.case == CASE_LOWER),
         '#FOR': partial(parse_for, writer.fields),
@@ -549,10 +549,10 @@ def parse_chr(writer, text, index, *cwd):
     end, num = parse_ints(text, index, 1, fields=writer.fields)
     return end, writer.to_chr(num)
 
-def parse_d(entry_holder, text, index, *cwd):
+def parse_d(writer, text, index, *cwd):
     # #Daddr
-    end, addr = parse_ints(text, index, 1)
-    entry = entry_holder.get_entry(addr)
+    end, addr = parse_ints(text, index, 1, fields=writer.fields)
+    entry = writer.parser.get_entry(addr)
     if not entry:
         raise MacroParsingError('Cannot determine description for non-existent entry at {}'.format(addr))
     if not entry.description:

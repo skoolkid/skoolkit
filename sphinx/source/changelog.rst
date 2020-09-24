@@ -12,7 +12,7 @@ Changelog
 * Added support to the ``--ctl`` option of :ref:`sna2skool.py` and
   :ref:`snapinfo.py` for reading control files from a directory
 * Added support for replacement fields in the parameter string of the
-  :ref:`CHR` macro
+  :ref:`CHR` and :ref:`D` macros
 * Fixed the bug that causes 'e+1' to be interpreted as a floating point number
   when it appears in a BASIC program
 
