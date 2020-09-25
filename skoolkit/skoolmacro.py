@@ -437,7 +437,7 @@ def get_macros(writer):
         '#IF': partial(parse_if, writer.fields),
         '#LET': partial(parse_let, writer),
         '#MAP': partial(parse_map, writer.fields),
-        '#N': partial(parse_n, writer.base, writer.case == CASE_LOWER),
+        '#N': partial(parse_n, writer),
         '#PC': partial(parse_pc, writer),
         '#PEEK': partial(parse_peek, writer),
         '#POKES': partial(parse_pokes, writer),
@@ -756,20 +756,20 @@ def parse_map(fields, text, index, *cwd):
     _map_cache[map_id] = m
     return end, m[value]
 
-def parse_n(base, lower, text, index, *cwd):
+def parse_n(writer, text, index, *cwd):
     # #Nvalue[,hwidth,dwidth,affix,hex][(prefix[,suffix])]
-    end, value, hwidth, dwidth, affix, tohex = parse_ints(text, index, 5, (None, 1, 0, 0))
+    end, value, hwidth, dwidth, affix, tohex = parse_ints(text, index, 5, (None, 1, 0, 0), fields=writer.fields)
     if affix:
         end, (prefix, suffix) = parse_strings(text, end, 2, ('', ''))
     else:
         prefix = suffix = ''
-    if base == BASE_16 or (tohex and base != BASE_10):
+    if writer.base == BASE_16 or (tohex and writer.base != BASE_10):
         if hwidth is None:
             if 0 <= value < 256:
                 hwidth = 2
             else:
                 hwidth = 4
-        if lower:
+        if writer.case == CASE_LOWER:
             return end, '{}{:0{}x}{}'.format(prefix, value, hwidth, suffix)
         return end, '{}{:0{}X}{}'.format(prefix, value, hwidth, suffix)
     return end, '{:0{}}'.format(value, dwidth)

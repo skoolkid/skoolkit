@@ -1047,6 +1047,10 @@ class CommonSkoolMacroTest:
             writer = self._get_writer(base=base)
             self.assertEqual(writer.expand('#N{},,,,1'.format(value)), exp_output)
 
+    def test_macro_n_with_replacement_fields(self):
+        writer = self._get_writer(skool='', variables=[('w', 2)])
+        self.assertEqual(writer.expand('#LET(v=3)#N({v},{vars[w]},,1,1)($)'), '$03')
+
     def test_macro_n_invalid(self):
         writer = self._get_writer()
         prefix = ERROR_PREFIX.format('N')
@@ -1054,18 +1058,15 @@ class CommonSkoolMacroTest:
         self._assert_error(writer, '#N', "No parameters (expected 1)", prefix)
         self._assert_error(writer, '#N()', "No parameters (expected 1)", prefix)
         self._assert_error(writer, '#N(4,3,2,1)', "No text parameter", prefix)
-
         self._assert_error(writer, '#N,', "Missing required parameter in position 1/1: ','", prefix)
         self._assert_error(writer, '#N(,)', "Missing required parameter in position 1/1: ','", prefix)
         self._assert_error(writer, '#N,4', "Missing required parameter in position 1/1: ',4'", prefix)
         self._assert_error(writer, '#N(,4)', "Missing required parameter in position 1/1: ',4'", prefix)
-
         self._assert_error(writer, '#N(1,2,3,4,5,6)', "Too many parameters (expected 5): '1,2,3,4,5,6'", prefix)
         self._assert_error(writer, '#N(4,3,2,1)(a,b,c)', "Too many parameters (expected 2): 'a,b,c'", prefix)
-
         self._assert_error(writer, '#N(x,4)', "Cannot parse integer 'x' in parameter string: 'x,4'", prefix)
-
         self._assert_error(writer, '#N(2', "No closing bracket: (2", prefix)
+        self._assert_error(writer, '#N({no},1)', "Unrecognised field 'no': ({no},1)", prefix)
 
     def test_macro_peek(self):
         writer = self._get_writer(snapshot=[1, 2, 3])

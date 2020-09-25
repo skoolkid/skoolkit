@@ -636,6 +636,9 @@ encoding. ::
 
   #CHRnum
 
+* ``num`` is the character code, which may contain
+  :ref:`replacement fields <replacementFields>`
+
 For example:
 
 .. parsed-literal::
@@ -649,7 +652,7 @@ mode, it expands to the copyright symbol.
 +---------+------------------------------------------------------------------+
 | Version | Changes                                                          |
 +=========+==================================================================+
-| 8.3     | Added support for replacement fields in the parameter string     |
+| 8.3     | Added support for replacement fields in the ``num`` parameter    |
 +---------+------------------------------------------------------------------+
 | 5.1     | Added support for arithmetic expressions and skool macros in the |
 |         | ``num`` parameter                                                |
@@ -666,7 +669,8 @@ the memory map. ::
 
   #Daddr
 
-* ``addr`` is the address of the entry.
+* ``addr`` is the address of the entry, which may contain
+  :ref:`replacement fields <replacementFields>`
 
 For example::
 
@@ -681,7 +685,7 @@ This instance of the ``#D`` macro expands to the title of the routine at 27126.
 +---------+------------------------------------------------------------------+
 | Version | Changes                                                          |
 +=========+==================================================================+
-| 8.3     | Added support for replacement fields in the parameter string     |
+| 8.3     | Added support for replacement fields in the ``addr`` parameter   |
 +---------+------------------------------------------------------------------+
 | 5.1     | Added support for arithmetic expressions and skool macros in the |
 |         | ``addr`` parameter                                               |
@@ -895,12 +899,17 @@ This instance of the ``#N`` macro expands to one of the following:
 * ``0x000F`` (when ``--hex`` is used without ``--lower``)
 * ``0x000f`` (when both ``--hex`` and ``--lower`` are used)
 
+The integer parameters of the ``#N`` macro may contain
+:ref:`replacement fields <replacementFields>`.
+
 See :ref:`stringParameters` for details on alternative ways to supply the
 ``prefix`` and ``suffix`` parameters.
 
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 8.3     | Added support for replacement fields in the integer parameters    |
++---------+-------------------------------------------------------------------+
 | 6.2     | Added the ``hex`` parameter                                       |
 +---------+-------------------------------------------------------------------+
 | 5.2     | New                                                               |
