@@ -3443,7 +3443,6 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
 
     def test_expand_directives(self):
         skool = """
-            @start
             @expand=#DEFINE2(MIN,#IF({0}<{1})({0},{1}))
             @expand=#LET(foo=1)
             ; Routine
@@ -3481,6 +3480,22 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             'content': content
         }
         self._assert_files_equal(join(ASMDIR, '32768.html'), subs)
+
+    def test_expand_directive_with_invalid_macro(self):
+        skool = """
+            @expand=#N(x)
+            c32768 RET
+        """
+        with self.assertRaisesRegex(SkoolParsingError, "^@expand failed to expand '#N\(x\)': Error while parsing #N macro: Cannot parse integer 'x' in parameter string: 'x'$"):
+            self._get_writer(skool=skool)
+
+    def test_expand_directive_with_unexpandable_macro(self):
+        skool = """
+            @expand=#R32768
+            c32768 RET
+        """
+        with self.assertRaisesRegex(SkoolKitError, "^@expand failed to expand '#R32768'$"):
+            self._get_writer(skool=skool)
 
     def test_macro_pc(self):
         skool = """

@@ -26,7 +26,7 @@ from collections import defaultdict
 import re
 from io import StringIO
 
-from skoolkit import skoolmacro, SkoolKitError, evaluate, format_template, parse_int, warn
+from skoolkit import skoolmacro, SkoolKitError, SkoolParsingError, evaluate, format_template, parse_int, warn
 from skoolkit.components import get_component
 from skoolkit.defaults import REF_FILE
 from skoolkit.graphics import Frame, adjust_udgs, build_udg, font_udgs, scr_udgs
@@ -93,8 +93,13 @@ class HtmlWriter:
         self.space = '&#160;'
         self.pc = 0
         self.macros = skoolmacro.get_macros(self)
-        for e in self.parser.expands:
-            self.expand(e)
+        for m in self.parser.expands:
+            try:
+                self.expand(m)
+            except SkoolParsingError as e:
+                raise SkoolParsingError("@expand failed to expand '{}': {}".format(m, e.args[0]))
+            except:
+                raise SkoolKitError("@expand failed to expand '{}'".format(m))
 
         self.game_vars = self._expand_values('Game', 'Logo')
         self.asm_anchor_template = self.game_vars['AddressAnchor']
