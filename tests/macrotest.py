@@ -1107,7 +1107,7 @@ class CommonSkoolMacroTest:
         self._assert_error(writer, '#PEEK({y)', "Invalid format string: ({y)", prefix)
 
     def test_macro_pokes(self):
-        writer = self._get_writer(snapshot=[0] * 20)
+        writer = self._get_writer(skool='', snapshot=[0] * 20, variables=[('v', 247)])
         snapshot = writer.snapshot
 
         # addr, byte
@@ -1145,18 +1145,21 @@ class CommonSkoolMacroTest:
         self.assertEqual(output, '')
         self.assertEqual(list(range(20)), writer.snapshot[0:20])
 
+        # Replacement fields
+        output = writer.expand('#LET(addr=12)#POKES({addr},{vars[v]})')
+        self.assertEqual(output, '')
+        self.assertEqual(writer.snapshot[12], 247)
+
     def test_macro_pokes_invalid(self):
         writer = self._get_writer(snapshot=[0])
         prefix = ERROR_PREFIX.format('POKES')
 
         self._assert_error(writer, '#POKES', 'No parameters (expected 2)', prefix)
         self._assert_error(writer, '#POKES()', 'No parameters (expected 2)', prefix)
-
         self._assert_error(writer, '#POKES0', "Not enough parameters (expected 2): '0'", prefix)
         self._assert_error(writer, '#POKES(0)', "Not enough parameters (expected 2): '0'", prefix)
         self._assert_error(writer, '#POKES0,1;1', "Not enough parameters (expected 2): '1'", prefix)
         self._assert_error(writer, '#POKES(0,1);(1)', "Not enough parameters (expected 2): '1'", prefix)
-
         self._assert_error(writer, '#POKES,0', "Missing required parameter in position 1/2: ',0'", prefix)
         self._assert_error(writer, '#POKES(,0)', "Missing required parameter in position 1/2: ',0'", prefix)
         self._assert_error(writer, '#POKES0,', "Missing required parameter in position 2/2: '0,'", prefix)
@@ -1164,8 +1167,8 @@ class CommonSkoolMacroTest:
         self._assert_error(writer, '#POKES(0,)', "Missing required parameter in position 2/2: '0,'", prefix)
         self._assert_error(writer, '#POKES0,,1', "Missing required parameter in position 2/2: '0,,1'", prefix)
         self._assert_error(writer, '#POKES(0,,1)', "Missing required parameter in position 2/2: '0,,1'", prefix)
-
         self._assert_error(writer, '#POKES(0,x)', "Cannot parse integer 'x' in parameter string: '0,x'", prefix)
+        self._assert_error(writer, '#POKES(0,{no})', "Unrecognised field 'no': (0,{no})", prefix)
 
     def test_macro_pops(self):
         writer = self._get_writer(snapshot=[0, 0])

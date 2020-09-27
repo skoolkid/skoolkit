@@ -1831,13 +1831,18 @@ For example::
 This instance of the ``#POKES`` macro does ``POKE 32772,254`` and
 ``POKE 32775,136``, which fixes a graphic glitch in the UDG at 32768.
 
+The parameter string of the ``#POKES`` macro may contain
+:ref:`replacement fields <replacementFields>`.
+
 See also :ref:`PEEK`.
 
 +---------+------------------------------------------------------------------+
 | Version | Changes                                                          |
 +=========+==================================================================+
+| 8.3     | Added support for replacement fields in the parameter string     |
++---------+------------------------------------------------------------------+
 | 5.1     | Added support for arithmetic expressions and skool macros in the |
-|         | numeric parameters                                               |
+|         | parameter string                                                 |
 +---------+------------------------------------------------------------------+
 | 3.1     | Added support for ASM mode                                       |
 +---------+------------------------------------------------------------------+
