@@ -445,7 +445,7 @@ def get_macros(writer):
         '#PUSHS': partial(parse_pushs, writer),
         '#RAW': parse_raw,
         '#REG': partial(parse_reg, writer.get_reg, writer.case == CASE_LOWER),
-        '#SPACE': partial(parse_space, writer.space),
+        '#SPACE': partial(parse_space, writer),
         '#VERSION': parse_version
     }
     for name, method in inspect.getmembers(writer, inspect.ismethod):
@@ -854,10 +854,10 @@ def parse_scr(text, index=0):
     defaults = (1, 0, 0, 32, 24, 16384, 22528, 0, -1)
     return parse_image_macro(text, index, defaults, names, 'scr')
 
-def parse_space(space, text, index, *cwd):
+def parse_space(writer, text, index, *cwd):
     # #SPACE[num] or #SPACE([num])
-    end, num = parse_ints(text, index, 1, (1,))
-    return end, space * num
+    end, num = parse_ints(text, index, 1, (1,), fields=writer.fields)
+    return end, writer.space * num
 
 def parse_udg(text, index=0):
     # #UDGaddr[,attr,scale,step,inc,flip,rotate,mask,tindex,alpha][:addr[,step]][{x,y,width,height}][(fname)]

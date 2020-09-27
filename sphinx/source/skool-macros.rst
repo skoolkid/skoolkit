@@ -1063,7 +1063,8 @@ mode) or spaces (in ASM mode). ::
 
   #SPACE[num]
 
-* ``num`` is the number of spaces required (default: 1)
+* ``num`` is the number of spaces required (default: 1), which may contain
+  :ref:`replacement fields <replacementFields>`
 
 For example::
 
@@ -1086,6 +1087,8 @@ text where necessary. For example::
 +---------+------------------------------------------------------------------+
 | Version | Changes                                                          |
 +=========+==================================================================+
+| 8.3     | Added support for replacement fields in the ``num`` parameter    |
++---------+------------------------------------------------------------------+
 | 5.1     | Added support for arithmetic expressions and skool macros in the |
 |         | ``num`` parameter                                                |
 +---------+------------------------------------------------------------------+

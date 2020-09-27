@@ -1285,7 +1285,7 @@ class CommonSkoolMacroTest:
         self._test_invalid_image_macro(writer, '#SCR(foo', 'No closing bracket: (foo', prefix)
 
     def test_macro_space(self):
-        writer = self._get_writer()
+        writer = self._get_writer(skool='', variables=[('n', 2)])
         space = '&#160;' if isinstance(writer, HtmlWriter) else ' '
 
         self.assertEqual(writer.expand('#SPACE'), space.strip())
@@ -1300,6 +1300,7 @@ class CommonSkoolMacroTest:
         self.assertEqual(writer.expand(nest_macros('"#SPACE({})"', 5)), '"{}"'.format(space * 5))
         self.assertEqual(writer.expand('<#SPACE#(#EVAL3)>'), '<{}>'.format(space * 3))
         self.assertEqual(writer.expand('<#SPACE#(#(2))>'), '<{}>'.format(space * 2))
+        self.assertEqual(writer.expand('#LET(m=1)[#SPACE({m}+{vars[n]})]'), '[{}]'.format(space * 3))
 
     def test_macro_space_invalid(self):
         writer = self._get_writer()
@@ -1307,6 +1308,7 @@ class CommonSkoolMacroTest:
 
         self._assert_error(writer, '#SPACE(2', "No closing bracket: (2", prefix)
         self._assert_error(writer, '#SPACE(5$3)', "Cannot parse integer '5$3' in parameter string: '5$3'", prefix)
+        self._assert_error(writer, '#SPACE({no})', "Unrecognised field 'no': ({no})", prefix)
 
     def test_macro_udg_invalid(self):
         writer = self._get_writer(snapshot=[0] * 8)
