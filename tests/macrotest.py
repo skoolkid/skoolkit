@@ -15,7 +15,7 @@ class CommonSkoolMacroTest:
         self.assertEqual(writer.expand(macro, *cwd), writer.test_call(*(cwd + args), **kwargs))
 
     def test_macro_call(self):
-        writer = self._get_writer()
+        writer = self._get_writer(skool='', variables=[('one', 1)])
         writer.test_call = self._test_call
 
         # All arguments given
@@ -37,6 +37,10 @@ class CommonSkoolMacroTest:
 
         # Non-arithmetic Python expressions
         self._check_call(writer, '"a"+"b",None,sys.exit()', '"a"+"b"', 'None', 'sys.exit()')
+
+        # Replacement fields
+        writer.expand('#LET(s$=me)')
+        self._check_call(writer, '{s$},{vars[one]}', 'me', 1)
 
     def test_macro_call_with_no_arguments(self):
         writer = self._get_writer()
@@ -79,6 +83,7 @@ class CommonSkoolMacroTest:
         self._assert_error(writer, '#CALL:test_call(1,2', 'No closing bracket: (1,2', prefix)
         self._assert_error(writer, '#CALL:test_call(1)')
         self._assert_error(writer, '#CALL:test_call(1,2,3,4)')
+        self._assert_error(writer, '#CALL:test_call({no})', "Unrecognised field 'no': {no}", prefix)
 
     def test_macro_chr_invalid(self):
         writer = self._get_writer()

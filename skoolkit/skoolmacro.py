@@ -504,7 +504,7 @@ def parse_call(writer, text, index, *cwd):
         end += len(method_name)
     else:
         raise MacroParsingError("No method name")
-    end, arg_string = parse_brackets(text, end)
+    end, m_args = parse_brackets(text, end)
 
     if not hasattr(writer, method_name):
         writer.warn("Unknown method name in {} macro: {}".format(macro, method_name))
@@ -513,12 +513,12 @@ def parse_call(writer, text, index, *cwd):
     if not inspect.ismethod(method):
         raise MacroParsingError("Uncallable method name: {}".format(method_name))
 
-    if arg_string is None:
+    if m_args is None:
         raise MacroParsingError("No argument list specified: {}{}".format(macro, text[index:end]))
     args = list(cwd)
     kwargs = {}
-    if arg_string:
-        for arg in writer.expand(arg_string).split(','):
+    if m_args:
+        for arg in _format_params(writer.expand(m_args), m_args, **writer.fields).split(','):
             a1, sep, a2 = arg.partition('=')
             if sep:
                 v = a2

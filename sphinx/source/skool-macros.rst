@@ -597,7 +597,8 @@ defined by the :ref:`writer` ASM directive in the skool file). ::
   #CALL:methodName(args)
 
 * ``methodName`` is the name of the method to call
-* ``args`` is a comma-separated list of arguments to pass to the method
+* ``args`` is a comma-separated list of arguments to pass to the method, which
+  may contain :ref:`replacement fields <replacementFields>`
 
 Each argument can be expressed either as a plain value (e.g. ``32768``) or as a
 keyword argument (e.g. ``address=32768``).
@@ -613,18 +614,20 @@ with the argument ``32768``.
 For information on writing methods that may be called by a ``#CALL`` macro, see
 the documentation on :ref:`extending SkoolKit <extendingSkoolKit>`.
 
-+---------+--------------------------------------------------------------+
-| Version | Changes                                                      |
-+=========+==============================================================+
-| 8.1     | Added support for keyword arguments                          |
-+---------+--------------------------------------------------------------+
-| 5.1     | Added support for arithmetic expressions and skool macros in |
-|         | numeric method arguments                                     |
-+---------+--------------------------------------------------------------+
-| 3.1     | Added support for ASM mode                                   |
-+---------+--------------------------------------------------------------+
-| 2.1     | New                                                          |
-+---------+--------------------------------------------------------------+
++---------+-------------------------------------------------------------------+
+| Version | Changes                                                           |
++=========+===================================================================+
+| 8.3     | Added support for replacement fields in the ``args`` parameter    |
++---------+-------------------------------------------------------------------+
+| 8.1     | Added support for keyword arguments                               |
++---------+-------------------------------------------------------------------+
+| 5.1     | Added support for arithmetic expressions and skool macros in the  |
+|         | ``args`` parameter                                                |
++---------+-------------------------------------------------------------------+
+| 3.1     | Added support for ASM mode                                        |
++---------+-------------------------------------------------------------------+
+| 2.1     | New                                                               |
++---------+-------------------------------------------------------------------+
 
 .. _CHR:
 
