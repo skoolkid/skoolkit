@@ -926,7 +926,7 @@ within that page. ::
   #Raddr[@code][#name][(link text)]
 
 * ``addr`` is the address of the routine or data block (or entry point
-  thereof)
+  thereof), which may contain :ref:`replacement fields <replacementFields>`
 * ``code`` is the ID of the disassembly that contains the routine or data block
   (if not given, the current disassembly is assumed; otherwise this must be
   either an ID defined in an :ref:`otherCode` section of the ref file, or
@@ -965,6 +965,8 @@ section.
 +---------+-----------------------------------------------------------------+
 | Version | Changes                                                         |
 +=========+=================================================================+
+| 8.3     | Added support for replacement fields in the ``addr`` parameter  |
++---------+-----------------------------------------------------------------+
 | 6.1     | In ASM mode, ``addr`` is converted to decimal or hexadecimal as |
 |         | appropriate even when it refers to an unavailable instruction   |
 +---------+-----------------------------------------------------------------+

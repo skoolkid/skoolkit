@@ -1033,7 +1033,7 @@ class HtmlWriter:
         return end, self.build_list(list_obj)
 
     def expand_r(self, text, index, cwd):
-        end, addr_str, address, code_id, anchor, link_text = skoolmacro.parse_r(text, index)
+        end, addr_str, address, code_id, anchor, link_text = skoolmacro.parse_r(self.fields, text, index)
         container = self.parser.get_container(address, code_id)
         if (not code_id or code_id == self.code_id) and not container:
             raise skoolmacro.MacroParsingError('Could not find instruction at {}'.format(addr_str))

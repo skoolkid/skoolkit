@@ -1215,6 +1215,7 @@ class CommonSkoolMacroTest:
         self._assert_error(writer, '#R#bar', "No parameters (expected 1)", prefix)
         self._assert_error(writer, '#R(baz)', "Cannot parse integer 'baz' in parameter string: 'baz'", prefix)
         self._assert_error(writer, '#R32768(qux', "No closing bracket: (qux", prefix)
+        self._assert_error(writer, '#R({no})', "Unrecognised field 'no': ({no})", prefix)
 
         return writer, prefix
 

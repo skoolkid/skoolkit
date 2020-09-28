@@ -1943,7 +1943,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
             ; The final routine
             c24592 CALL 24582
         """
-        writer = self._get_writer(skool=skool)
+        writer = self._get_writer(skool=skool, variables=[('one', 1)])
 
         # Reference address is 0
         output = writer.expand('#R0', ASMDIR)
@@ -2010,6 +2010,10 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         # Entry point reference with explicit anchor
         output = writer.expand('#R24580#bar', ASMDIR)
         self._assert_link_equals(output, '24579.html#bar', '6004')
+
+        # Replacement fields
+        output = writer.expand('#LET(a=24591)#R({a}+{vars[one]})', ASMDIR)
+        self._assert_link_equals(output, '24592.html', '24592')
 
         # Non-existent reference
         prefix = ERROR_PREFIX.format('R')

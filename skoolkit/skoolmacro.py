@@ -807,9 +807,9 @@ def parse_pushs(writer, text, index, *cwd):
     writer.push_snapshot(text[index:end])
     return end, ''
 
-def parse_r(text, index):
+def parse_r(fields, text, index):
     # #Raddr[@code][#anchor][(link text)]
-    end, address = parse_ints(text, index, 1)
+    end, address = parse_ints(text, index, 1, fields=fields)
     addr_str = text[index:end]
     match = RE_CODE_ID.match(text, end)
     if match:

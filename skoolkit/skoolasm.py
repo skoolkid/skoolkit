@@ -245,7 +245,7 @@ class AsmWriter:
         return self._ignore_block(text, index, LIST_MARKER, LIST_END_MARKER)
 
     def expand_r(self, text, index):
-        end, addr_str, address, code_id, anchor, link_text = skoolmacro.parse_r(text, index)
+        end, addr_str, address, code_id, anchor, link_text = skoolmacro.parse_r(self.fields, text, index)
         if link_text:
             return end, link_text
         if code_id:

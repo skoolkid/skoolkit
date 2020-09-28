@@ -329,7 +329,7 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
 
             b$6003 DEFB 123
         """
-        writer = self._get_writer(skool, warn=True)
+        writer = self._get_writer(skool, warn=True, variables=[('one', 1)])
 
         # Reference address is 0
         output = writer.expand('#R0')
@@ -416,6 +416,11 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
         # Hexadecimal address out of range
         output = writer.expand('#R$80fF')
         self.assertEqual(output, '80fF')
+        self.assertEqual(self.err.getvalue(), '')
+
+        # Replacement fields
+        output = writer.expand('#LET(a=24575) #R({a}+{vars[one]})')
+        self.assertEqual(output, 'DOSTUFF')
         self.assertEqual(self.err.getvalue(), '')
 
     def test_macro_r_other_code(self):
