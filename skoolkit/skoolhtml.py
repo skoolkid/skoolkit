@@ -990,7 +990,7 @@ class HtmlWriter:
         return path
 
     def expand_font(self, text, index, cwd):
-        end, crop_rect, fname, frame, alt, params = skoolmacro.parse_font(text, index)
+        end, crop_rect, fname, frame, alt, params = skoolmacro.parse_font(text, index, self.fields)
         message, addr, chars, attr, scale, tindex, alpha = params
         udgs = lambda: font_udgs(self.snapshot, addr, attr, unescape(message)[:chars])
         frame = Frame(udgs, scale, 0, *crop_rect, name=frame, tindex=tindex, alpha=alpha)

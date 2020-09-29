@@ -164,10 +164,12 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
 
     def test_macro_font(self):
         writer = self._get_writer()
+        writer.fields = {'a': 0, 'x': 1}
         self._test_unsupported_macro(writer, '#FONT55584,,,1{1,2}')
         self._test_unsupported_macro(writer, '#FONT:[foo]0,,5')
         self._test_unsupported_macro(writer, '#FONT32768,3,scale=4{x=1,width=26}(chars)')
         self._test_unsupported_macro(writer, '#FONT(32768+1, 10-6, (3+4)*8, 4/2){(7+2)**2, width=8*3}(foo)')
+        self._test_unsupported_macro(writer, '#FONT({a}){{x}}')
         self._test_unsupported_macro(writer, nest_macros('#FONT({})(bar)', 0))
         self._test_unsupported_macro(writer, nest_macros('#FONT32768{{x={}}}(bar)', 3))
         self._test_unsupported_macro(writer, nest_macros('#FONT32768({})', 'baz'))

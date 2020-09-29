@@ -1501,6 +1501,14 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         self._assert_img_equals(output, fname, exp_src)
         self._check_image(writer, [[Udg(56, char1)]], 2, x=x, width=11, path=exp_image_path)
 
+    def test_macro_font_with_replacement_fields(self):
+        char1 = [1, 2, 3, 4, 5, 6, 7, 8]
+        exp_image_path = '{}/font.png'.format(FONTDIR)
+        writer = self._get_writer(snapshot=char1, mock_file_info=True)
+        output = writer.expand('#LET(a=0)#LET(y=1)#FONT({a},1){y={y}}', ASMDIR)
+        self._assert_img_equals(output, 'font', '../{}'.format(exp_image_path))
+        self._check_image(writer, [[Udg(56, char1)]], 2, y=1, height=15, path=exp_image_path)
+
     def test_macro_font_text(self):
         snapshot = [1, 2, 3, 4, 5, 6, 7, 8] # ' '
         snapshot.extend((8, 7, 6, 5, 4, 3, 2, 1)) # '!'

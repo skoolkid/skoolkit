@@ -249,6 +249,9 @@ to parse the parameters of a skool macro.
 
 .. autofunction:: skoolkit.skoolmacro.parse_image_macro
 
+   .. versionchanged:: 8.3
+      Added the *fields* parameter.
+
    .. versionadded:: 5.1
 
 Expanding skool macros

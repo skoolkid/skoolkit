@@ -224,7 +224,7 @@ class AsmWriter:
 
     def expand_font(self, text, index):
         if self.handle_unsupported_macros:
-            return skoolmacro.parse_font(text, index)[0], ''
+            return skoolmacro.parse_font(text, index, self.fields)[0], ''
         raise skoolmacro.UnsupportedMacroError()
 
     def expand_html(self, text, index):

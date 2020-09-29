@@ -115,8 +115,8 @@ def parse_ints(text, index=0, num=0, defaults=(), names=(), fields=None):
         end, params = parse_brackets(text, index)
         if _writer:
             params = _writer.expand(params, *_cwd)
-        if fields:
-            params = _format_params(params, text[index:end], **fields)
+        if fields is not None:
+            params = _format_params(params, params, **fields)
         return [end] + get_params(params, num, defaults, names, False)
     if names:
         match = RE_NAMED_PARAMS.match(text, index)
@@ -216,7 +216,7 @@ def parse_brackets(text, index=0, default=None, opening='(', closing=')'):
     return end, text[index + 1:end - 1]
 
 # API
-def parse_image_macro(text, index=0, defaults=(), names=(), fname=''):
+def parse_image_macro(text, index=0, defaults=(), names=(), fname='', fields=None):
     """Parse a string of the form:
 
     ``[params][{x,y,width,height}][(fname[*frame][|alt])]``
@@ -230,6 +230,10 @@ def parse_image_macro(text, index=0, defaults=(), names=(), fname=''):
     :param defaults: The default values of the optional parameters.
     :param names: The names of the parameters.
     :param fname: The default base name of the image file.
+    :param fields: A dictionary of replacement field names and values. The
+                   fields named in this dictionary are replaced by their values
+                   wherever they appear in ``params`` or
+                   ``{x,y,width,height}``.
     :return: A tuple of the form
              ``(end, crop_rect, fname, frame, alt, values)``, where:
 
@@ -241,12 +245,12 @@ def parse_image_macro(text, index=0, defaults=(), names=(), fname=''):
              * ``values`` is a list of the parameter values
     """
     try:
-        result = parse_ints(text, index, defaults=defaults, names=names)
+        result = parse_ints(text, index, defaults=defaults, names=names, fields=fields)
     except InvalidParameterError:
         if len(defaults) != len(names):
             raise
         result = [index] + list(defaults)
-    end, crop_rect = _parse_crop_spec(text, result[0])
+    end, crop_rect = _parse_crop_spec(text, result[0], fields)
     end, fname, frame, alt = _parse_image_fname(text, end, fname)
     return end, crop_rect, fname, frame, alt, result[1:]
 
@@ -318,16 +322,16 @@ def parse_address_range(text, index, width):
 
     return end, addresses * num
 
-def _parse_crop_spec(text, index):
+def _parse_crop_spec(text, index, fields=None):
     defaults = (0, 0, None, None)
     if index < len(text) and text[index] == '{':
-        end = text.find('}', index + 1)
-        if end < 0:
+        try:
+            end, crop_spec = parse_brackets(text, index, opening='{', closing='}')
+        except ClosingBracketError:
             raise MacroParsingError("No closing brace on cropping specification: {}".format(text[index:]))
-        crop_spec = '({})'.format(text[index + 1:end])
         names = ('x', 'y', 'width', 'height')
         try:
-            return end + 1, tuple(parse_ints(crop_spec, defaults=defaults, names=names)[1:])
+            return end, tuple(parse_ints('({})'.format(crop_spec), defaults=defaults, names=names, fields=fields)[1:])
         except TooManyParametersError as e:
             raise TooManyParametersError("Too many parameters in cropping specification (expected 4 at most): {{{}}}".format(e.args[1]))
     return index, defaults
@@ -593,7 +597,7 @@ def parse_eval(fields, lower, text, index, *cwd):
         raise MacroParsingError("Invalid base ({}): {}".format(base, text[index:end]))
     return end, fmt.format(value, width)
 
-def parse_font(text, index=0):
+def parse_font(text, index=0, fields=None):
     # #FONT[:(text)]addr[,chars,attr,scale,tindex,alpha][{x,y,width,height}][(fname)]
     if index < len(text) and text[index] == ':':
         index, message = parse_strings(text, index + 1, 1)
@@ -603,7 +607,7 @@ def parse_font(text, index=0):
         message = ''.join([chr(n) for n in range(32, 128)])
     names = ('addr', 'chars', 'attr', 'scale', 'tindex', 'alpha')
     defaults = (len(message), 56, 2, 0, -1)
-    end, crop_rect, fname, frame, alt, params = parse_image_macro(text, index, defaults, names, 'font')
+    end, crop_rect, fname, frame, alt, params = parse_image_macro(text, index, defaults, names, 'font', fields)
     params.insert(0, message)
     return end, crop_rect, fname, frame, alt, params
 
