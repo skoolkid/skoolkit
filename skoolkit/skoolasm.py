@@ -232,7 +232,7 @@ class AsmWriter:
         return end, ''
 
     def expand_include(self, text, index):
-        end, paragraphs, section = skoolmacro.parse_include(text, index)
+        end, paragraphs, section = skoolmacro.parse_include(text, index, self.fields)
         return end, ''
 
     def expand_link(self, text, index):

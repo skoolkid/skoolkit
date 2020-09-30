@@ -813,6 +813,8 @@ class CommonSkoolMacroTest:
         self._assert_error(writer, '#INCLUDE', "No text parameter", prefix)
         self._assert_error(writer, '#INCLUDE0', "No text parameter", prefix)
         self._assert_error(writer, '#INCLUDE(0)', "No text parameter", prefix)
+        self._assert_error(writer, '#INCLUDE({no})(foo)', "Unrecognised field 'no': {no}", prefix)
+        self._assert_error(writer, '#INCLUDE({foo)(bar)', "Invalid format string: {foo", prefix)
 
     def test_macro_let_integers(self):
         writer = self._get_writer()

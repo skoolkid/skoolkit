@@ -1001,7 +1001,7 @@ class HtmlWriter:
         return end, unescape(content)
 
     def expand_include(self, text, index, cwd):
-        end, paragraphs, section = skoolmacro.parse_include(text, index)
+        end, paragraphs, section = skoolmacro.parse_include(text, index, self.fields)
         content = self.get_section(section, paragraphs)
         if paragraphs:
             return end, self.format_template('section', {'section': [self.expand(p, cwd).strip() for p in content]})

@@ -688,10 +688,10 @@ def parse_if(fields, text, index, *cwd):
         return end, s_true
     return end, s_false
 
-def parse_include(text, index):
+def parse_include(text, index, fields):
     # #INCLUDE[paragraphs](section)
     try:
-        end, paragraphs = parse_ints(text, index, 1, (0,))
+        end, paragraphs = parse_ints(text, index, 1, (0,), fields=fields)
     except InvalidParameterError:
         end, paragraphs = index, 0
     end, section = parse_strings(text, end, 1)
