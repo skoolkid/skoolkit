@@ -1345,13 +1345,13 @@ snapshot (in turn constructed from the contents of the skool file). ::
 * ``h`` is the height of the screenshot in tiles (default: 24)
 * ``df`` is the base address of the display file (default: 16384)
 * ``af`` is the base address of the attribute file (default: 22528)
-* ``CROP`` is the cropping specification (see :ref:`cropping`)
-* ``fname`` is the name of the image file (default: '`scr`')
 * ``tindex`` is the index (0-15) of the entry in the palette to use as the
   transparent colour (default: 0; see :ref:`palette`)
 * ``alpha`` is the alpha value (0-255) to use for the transparent colour
   (default: the value of the ``PNGAlpha`` parameter in the
   :ref:`ref-ImageWriter` section)
+* ``CROP`` is the cropping specification (see :ref:`cropping`)
+* ``fname`` is the name of the image file (default: '`scr`')
 
 If ``fname`` contains an image path ID replacement field (e.g.
 ``{UDGImagePath}/scr``), the corresponding parameter value from the
@@ -1374,9 +1374,15 @@ For example::
   ; { #SCR(loading) | This is the loading screen. }
   ; TABLE#
 
+The integer parameters and the cropping specification of the ``#SCR`` macro
+may contain :ref:`replacement fields <replacementFields>`.
+
 +---------+------------------------------------------------------------------+
 | Version | Changes                                                          |
 +=========+==================================================================+
+| 8.3     | Added support for replacement fields in the integer parameters   |
+|         | and the cropping specification                                   |
++---------+------------------------------------------------------------------+
 | 8.2     | Added the ``tindex`` and ``alpha`` parameters                    |
 +---------+------------------------------------------------------------------+
 | 6.3     | Added support for image path ID replacement fields in the        |

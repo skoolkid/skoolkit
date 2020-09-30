@@ -1299,12 +1299,16 @@ class CommonSkoolMacroTest:
 
     def test_macro_scr_invalid(self):
         writer = self._get_writer(snapshot=[0] * 8)
+        writer.fields = {}
         prefix = ERROR_PREFIX.format('SCR')
 
         self._test_invalid_image_macro(writer, '#SCR0,1,2,3,4,5,6,7,8,9,10', "Too many parameters (expected 9): '0,1,2,3,4,5,6,7,8,9,10'", prefix)
         self._test_invalid_image_macro(writer, '#SCR{0,0,23,14,5}(foo)', "Too many parameters in cropping specification (expected 4 at most): {0,0,23,14,5}", prefix)
         self._test_invalid_image_macro(writer, '#SCR{0,0,23,14(foo)', 'No closing brace on cropping specification: {0,0,23,14(foo)', prefix)
         self._test_invalid_image_macro(writer, '#SCR(foo', 'No closing bracket: (foo', prefix)
+        self._test_invalid_image_macro(writer, '#SCR({no})(scr)', "Unrecognised field 'no': {no}", prefix)
+        self._test_invalid_image_macro(writer, '#SCR{{nope}}', "Unrecognised field 'nope': {nope}", prefix)
+        self._test_invalid_image_macro(writer, '#SCR({foo)', "Invalid format string: {foo", prefix)
 
     def test_macro_space(self):
         writer = self._get_writer(skool='', variables=[('n', 2)])

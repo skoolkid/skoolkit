@@ -1058,7 +1058,7 @@ class HtmlWriter:
         return end, self.format_link(href, link_text or asm_label or inst_addr_str)
 
     def expand_scr(self, text, index, cwd):
-        end, crop_rect, fname, frame, alt, params = skoolmacro.parse_scr(text, index)
+        end, crop_rect, fname, frame, alt, params = skoolmacro.parse_scr(text, index, self.fields)
         scale, x, y, w, h, df, af, tindex, alpha = params
         udgs = lambda: self.screenshot(x, y, w, h, df, af)
         frame = Frame(udgs, scale, 0, *crop_rect, name=frame, tindex=tindex, alpha=alpha)

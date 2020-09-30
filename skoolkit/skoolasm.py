@@ -259,7 +259,7 @@ class AsmWriter:
 
     def expand_scr(self, text, index):
         if self.handle_unsupported_macros:
-            return skoolmacro.parse_scr(text, index)[0], ''
+            return skoolmacro.parse_scr(text, index, self.fields)[0], ''
         raise skoolmacro.UnsupportedMacroError()
 
     def expand_table(self, text, index):

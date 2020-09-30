@@ -2394,6 +2394,16 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         udg_array = [[Udg(snapshot[22528], snapshot[16384:18432:256])]]
         self._check_image(writer, udg_array, scale, x=x, width=30, path=exp_image_path)
 
+    def test_macro_scr_with_replacement_fields(self):
+        char1 = [1, 2, 3, 4, 5, 6, 7, 8]
+        snapshot = [56] * 2048
+        snapshot[::256] = char1
+        exp_image_path = '{}/scr.png'.format(SCRDIR)
+        writer = self._get_writer(snapshot=snapshot, mock_file_info=True)
+        output = writer.expand('#LET(x=0)#LET(w=15)#SCR(2,{x},0,1,1,0,1){width={w}}', ASMDIR)
+        self._assert_img_equals(output, 'scr', '../{}'.format(exp_image_path))
+        self._check_image(writer, [[Udg(56, char1)]], 2, width=15, path=exp_image_path)
+
     def test_macro_scr_with_custom_screenshot_path(self):
         scr_path = 'graphics/screenshots'
         ref = '[Paths]\nScreenshotImagePath={}'.format(scr_path)

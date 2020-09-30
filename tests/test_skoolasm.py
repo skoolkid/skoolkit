@@ -635,10 +635,12 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
 
     def test_macro_scr(self):
         writer = self._get_writer()
+        writer.fields = {'s': 1, 'x': 1}
         self._test_unsupported_macro(writer, '#SCR2(fname)')
         self._test_unsupported_macro(writer, '#SCR,1,1(fname)')
         self._test_unsupported_macro(writer, '#SCR2,w=8,h=8{x=1,width=62}(fname)')
         self._test_unsupported_macro(writer, '#SCR(2+2, 4-1, (2+1)*3, 4/2){1^1, y = 2**2}(foo*bar|baz)')
+        self._test_unsupported_macro(writer, '#SCR({s}){{x}}')
         self._test_unsupported_macro(writer, nest_macros('#SCR({})(fname)', 2))
         self._test_unsupported_macro(writer, nest_macros('#SCR2{{y={}}}(fname)', 2))
         self._test_unsupported_macro(writer, nest_macros('#SCR2({})', 'fname'))

@@ -85,6 +85,9 @@ class TooManyParametersError(MacroParsingError):
 class InvalidParameterError(MacroParsingError):
     pass
 
+class FormattingError(MacroParsingError):
+    pass
+
 class ClosingBracketError(MacroParsingError):
     pass
 
@@ -258,11 +261,11 @@ def _format_params(params, full_params, *args, **kwargs):
     try:
         return params.format(*args, **kwargs)
     except IndexError as e:
-        raise InvalidParameterError("Field index out of range: {}".format(full_params))
+        raise FormattingError("Field index out of range: {}".format(full_params))
     except KeyError as e:
-        raise InvalidParameterError("Unrecognised field '{}': {}".format(e.args[0], full_params))
+        raise FormattingError("Unrecognised field '{}': {}".format(e.args[0], full_params))
     except ValueError:
-        raise InvalidParameterError('Invalid format string: {}'.format(full_params))
+        raise FormattingError('Invalid format string: {}'.format(full_params))
 
 def _split_unbracketed(text):
     if '(' not in text:
@@ -852,11 +855,11 @@ def parse_reg(get_reg, lower, text, index, *cwd):
         return end, get_reg(reg.lower())
     return end, get_reg(reg.upper())
 
-def parse_scr(text, index=0):
+def parse_scr(text, index=0, fields=None):
     # #SCR[scale,x,y,w,h,df,af,tindex,alpha][{x,y,width,height}][(fname)]
     names = ('scale', 'x', 'y', 'w', 'h', 'df', 'af', 'tindex', 'alpha')
     defaults = (1, 0, 0, 32, 24, 16384, 22528, 0, -1)
-    return parse_image_macro(text, index, defaults, names, 'scr')
+    return parse_image_macro(text, index, defaults, names, 'scr', fields)
 
 def parse_space(writer, text, index, *cwd):
     # #SPACE[num] or #SPACE([num])
