@@ -1346,7 +1346,6 @@ class CommonSkoolMacroTest:
 
         self._test_invalid_image_macro(writer, '#UDG', 'No parameters (expected 1)', prefix)
         self._test_invalid_image_macro(writer, '#UDG()', 'No parameters (expected 1)', prefix)
-
         self._test_invalid_image_macro(writer, '#UDG,5', "Missing required argument 'addr': ',5'", prefix)
         self._test_invalid_image_macro(writer, '#UDG(,5)', "Missing required argument 'addr': ',5'", prefix)
         self._test_invalid_image_macro(writer, '#UDGscale=2', "Missing required argument 'addr': 'scale=2'", prefix)
@@ -1359,15 +1358,16 @@ class CommonSkoolMacroTest:
         self._test_invalid_image_macro(writer, '#UDG0:(step=2)', "Missing required argument 'addr': 'step=2'", prefix)
         self._test_invalid_image_macro(writer, '#UDG0:,step=2', "Missing required argument 'addr': ',step=2'", prefix)
         self._test_invalid_image_macro(writer, '#UDG0:(,step=2)', "Missing required argument 'addr': ',step=2'", prefix)
-
         self._test_invalid_image_macro(writer, '#UDG0,1,2,3,4,5,6,7,8,9,10,11', "Too many parameters (expected 10): '0,1,2,3,4,5,6,7,8,9,10,11'", prefix)
         self._test_invalid_image_macro(writer, '#UDG0:1,2,3', "Too many parameters (expected 2): '1,2,3'", prefix)
         self._test_invalid_image_macro(writer, '#UDG0{0,0,23,14,5}(foo)', "Too many parameters in cropping specification (expected 4 at most): {0,0,23,14,5}", prefix)
-
         self._test_invalid_image_macro(writer, '#UDG(foo)', "Cannot parse integer 'foo' in parameter string: 'foo'", prefix)
-
         self._test_invalid_image_macro(writer, '#UDG0{0,0,23,14(foo)', 'No closing brace on cropping specification: {0,0,23,14(foo)', prefix)
         self._test_invalid_image_macro(writer, '#UDG0(foo', 'No closing bracket: (foo', prefix)
+        self._test_invalid_image_macro(writer, '#UDG({no})', "Unrecognised field 'no': {no}", prefix)
+        self._test_invalid_image_macro(writer, '#UDG0:({nay})', "Unrecognised field 'nay': {nay}", prefix)
+        self._test_invalid_image_macro(writer, '#UDG0{{nope}}', "Unrecognised field 'nope': {nope}", prefix)
+        self._test_invalid_image_macro(writer, '#UDG({foo)', "Invalid format string: {foo", prefix)
 
     def test_macro_udgarray_invalid(self):
         writer = self._get_writer(snapshot=[0] * 8)

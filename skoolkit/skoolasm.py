@@ -267,7 +267,7 @@ class AsmWriter:
 
     def expand_udg(self, text, index):
         if self.handle_unsupported_macros:
-            return skoolmacro.parse_udg(text, index)[0], ''
+            return skoolmacro.parse_udg(text, index, self.fields)[0], ''
         raise skoolmacro.UnsupportedMacroError()
 
     def expand_udgarray(self, text, index):

@@ -649,10 +649,12 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
 
     def test_macro_udg(self):
         writer = self._get_writer()
+        writer.fields = {'a': 0, 'm': 8, 'x': 1}
         self._test_unsupported_macro(writer, '#UDG39144,6(safe_key)')
         self._test_unsupported_macro(writer, '#UDG65432,scale=2,mask=2:65440{y=2,height=14}(key)')
         self._test_unsupported_macro(writer, '#UDG(0+1, 3-2, (2+2)*5, step=8/2){(7+1)*10, height=2**4}(key*)')
         self._test_unsupported_macro(writer, '#UDG62197:(62197+256,8*(8+8))(item*|Item)')
+        self._test_unsupported_macro(writer, '#UDG({a}):({m}){{x}}(udg)')
         self._test_unsupported_macro(writer, nest_macros('#UDG({}):({})(item)', 30000, 30008))
         self._test_unsupported_macro(writer, nest_macros('#UDG30000{{width={}}}(item)', 25))
         self._test_unsupported_macro(writer, nest_macros('#UDG30000({})', 'fname'))

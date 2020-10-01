@@ -866,17 +866,17 @@ def parse_space(writer, text, index, *cwd):
     end, num = parse_ints(text, index, 1, (1,), fields=writer.fields)
     return end, writer.space * num
 
-def parse_udg(text, index=0):
+def parse_udg(text, index=0, fields=None):
     # #UDGaddr[,attr,scale,step,inc,flip,rotate,mask,tindex,alpha][:addr[,step]][{x,y,width,height}][(fname)]
     names = ('addr', 'attr', 'scale', 'step', 'inc', 'flip', 'rotate', 'mask', 'tindex', 'alpha')
     defaults = (56, 4, 1, 0, 0, 0, 1, 0, -1)
-    end, addr, attr, scale, step, inc, flip, rotate, mask, tindex, alpha = parse_ints(text, index, defaults=defaults, names=names)
+    end, addr, attr, scale, step, inc, flip, rotate, mask, tindex, alpha = parse_ints(text, index, defaults=defaults, names=names, fields=fields)
     if end < len(text) and text[end] == ':':
-        end, mask_addr, mask_step = parse_ints(text, end + 1, defaults=(step,), names=('addr', 'step'))
+        end, mask_addr, mask_step = parse_ints(text, end + 1, defaults=(step,), names=('addr', 'step'), fields=fields)
     else:
         mask_addr = mask_step = None
         mask = 0
-    end, crop_rect = _parse_crop_spec(text, end)
+    end, crop_rect = _parse_crop_spec(text, end, fields)
     end, fname, frame, alt = _parse_image_fname(text, end)
     return end, crop_rect, fname, frame, alt, (addr, attr, scale, step, inc, flip, rotate, mask, tindex, alpha, mask_addr, mask_step)
 

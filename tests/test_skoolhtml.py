@@ -2686,6 +2686,15 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         self._assert_img_equals(output, fname, exp_src)
         self._check_image(writer, [[udg]], scale, mask, y=y, height=28, path=exp_image_path)
 
+    def test_macro_udg_with_replacement_fields(self):
+        udg = Udg(56, [137] * 8, [241] * 8)
+        snapshot = udg.data + udg.mask
+        exp_image_path = '{}/udg.png'.format(UDGDIR)
+        writer = self._get_writer(snapshot=snapshot, mock_file_info=True)
+        output = writer.expand('#LET(d=0)#LET(m=8)#LET(h=31)#UDG({d}):({m}){height={h}}(udg)', ASMDIR)
+        self._assert_img_equals(output, 'udg', '../{}'.format(exp_image_path))
+        self._check_image(writer, [[udg]], scale=4, mask=1, height=31, path=exp_image_path)
+
     def test_macro_udg_with_custom_default_udg_filename(self):
         udg_filename = 'udg{addr:04X}_{attr:02X}x{scale}'
         ref = '[Paths]\nUDGFilename={}'.format(udg_filename)

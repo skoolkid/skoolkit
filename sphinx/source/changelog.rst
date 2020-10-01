@@ -14,8 +14,8 @@ Changelog
 * Added support for replacement fields in the ``args`` parameter of the
   :ref:`CALL` macro, in the integer parameters of the :ref:`CHR`, :ref:`D`,
   :ref:`INCLUDE`, :ref:`N`, :ref:`POKES`, :ref:`R` and :ref:`SPACE` macros, and
-  in the integer parameters and cropping specification of the :ref:`FONT` and
-  :ref:`SCR` macros
+  in the integer parameters and cropping specification of the :ref:`FONT`,
+  :ref:`SCR` and :ref:`UDG` macros
 * Fixed the bug that causes 'e+1' to be interpreted as a floating point number
   when it appears in a BASIC program
 

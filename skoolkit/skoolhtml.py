@@ -1070,7 +1070,7 @@ class HtmlWriter:
         return end, self.build_table(table)
 
     def expand_udg(self, text, index, cwd):
-        end, crop_rect, fname, frame, alt, params = skoolmacro.parse_udg(text, index)
+        end, crop_rect, fname, frame, alt, params = skoolmacro.parse_udg(text, index, self.fields)
         addr, attr, scale, step, inc, flip, rotate, mask, tindex, alpha, mask_addr, mask_step = params
         udgs = lambda: [[build_udg(self.snapshot, addr, attr, step, inc, flip, rotate, mask, mask_addr, mask_step)]]
         if not fname and not frame:

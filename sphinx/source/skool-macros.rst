@@ -1475,9 +1475,15 @@ In HTML mode, this instance of the ``#UDG`` macro expands to an ``<img>``
 element for the image of the UDG at 39144 (which will be named `safe_key.png`),
 with attribute byte 6 (INK 6: PAPER 0).
 
+The integer parameters, mask specification and cropping specification of the
+``#UDG`` macro may contain :ref:`replacement fields <replacementFields>`.
+
 +---------+------------------------------------------------------------------+
 | Version | Changes                                                          |
 +=========+==================================================================+
+| 8.3     | Added support for replacement fields in the integer parameters,  |
+|         | mask specification and cropping specification                    |
++---------+------------------------------------------------------------------+
 | 8.2     | Added the ``tindex`` and ``alpha`` parameters                    |
 +---------+------------------------------------------------------------------+
 | 6.3     | Added support for image path ID replacement fields in the        |
