@@ -52,9 +52,9 @@ or in hexadecimal notation (prefixed by ``$``)::
 Wherever a sequence of numeric parameters appears in a macro, that sequence
 may optionally be enclosed in parentheses: ``(`` and ``)``. Parentheses are
 `required` if any numeric parameter is written as an expression containing
-arithmetic operations or skool macros::
+arithmetic operations, skool macros or replacement fields::
 
-  #UDG(51672+1,#PEEK51672)
+  #UDG(51672+{offset},#PEEK51672)
 
 The following operators are permitted in an arithmetic expression:
 
@@ -123,10 +123,10 @@ Note that if an alternative delimiter or separator is used, it must not be '&',
 
 Replacement fields
 ^^^^^^^^^^^^^^^^^^
-The following replacement fields are available for use in the parameter strings
-of the :ref:`asm-if` directive, the :ref:`EVAL`, :ref:`FOR`, :ref:`FORMAT`,
-:ref:`IF`, :ref:`LET`, :ref:`MAP` and :ref:`PEEK` macros, and any macro defined
-by :ref:`DEFINE`:
+The following replacement fields are available for use in the integer
+parameters of the :ref:`asm-if` directive and every skool macro (including
+macros defined by :ref:`DEFINE`), and also in the string parameters of the
+:ref:`FORMAT` and :ref:`LET` macros:
 
 * ``asm`` - 1 if in :ref:`isubMode`, 2 if in :ref:`ssubMode`, 3 if in
   :ref:`rsubMode`, or 0 otherwise
@@ -1625,9 +1625,16 @@ element for the image of the 4x4 sprite formed by the 16 UDGs with base
 addresses 32768, 32776, 32784 and so on up to 32888; the image file will be
 named `base_sprite.png`.
 
+The integer parameters, UDG specifications, attribute address range
+specification and cropping specification of the ``#UDGARRAY`` macro may contain
+:ref:`replacement fields <replacementFields>`.
+
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 8.3     | Added support for replacement fields in the integer parameters    |
+|         | and the UDG, attribute address range and cropping specifications  |
++---------+-------------------------------------------------------------------+
 | 8.2     | Added the ``tindex`` and ``alpha`` parameters                     |
 +---------+-------------------------------------------------------------------+
 | 7.1     | Added the ability to specify attribute addresses                  |
@@ -1736,6 +1743,9 @@ For example::
 This ``#UDG`` macro creates an image of the UDG at 40000, at scale 2, with the
 top two rows and bottom two rows of pixels removed, and the leftmost two
 columns and rightmost two columns of pixels removed.
+
+The parameters of the cropping specification may contain
+:ref:`replacement fields <replacementFields>`.
 
 .. _masks:
 

@@ -3091,6 +3091,17 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         self._assert_img_equals(output, fname, exp_src)
         self._check_image(writer, exp_udgs, path=exp_image_path)
 
+    def test_macro_udgarray_with_replacement_fields(self):
+        udg = Udg(48, [137] * 8, [241] * 8)
+        snapshot = udg.data + udg.mask + udg.data + udg.mask + [48]
+        exp_image_path = '{}/img.png'.format(UDGDIR)
+        writer = self._get_writer(snapshot=snapshot, mock_file_info=True)
+        lets = '#LET(w=3)#LET(a=0)#LET(m=8)#LET(s=1)#LET(aa=32)#LET(h=15)'
+        macro = '#UDGARRAY({w});({a}),(,{s}):({m}),({s});({a})-({a}+16)-16x({s}):({m})x2@({aa})x3{height={h}}(img)'
+        output = writer.expand(lets + macro, ASMDIR)
+        self._assert_img_equals(output, 'img', '../{}'.format(exp_image_path))
+        self._check_image(writer, [[udg] * 3], scale=2, mask=1, height=15, path=exp_image_path)
+
     def test_macro_udgarray_with_short_array(self):
         writer = self._get_writer(snapshot=[0] * 24, mock_file_info=True)
 

@@ -1408,6 +1408,23 @@ class CommonSkoolMacroTest:
         self._test_invalid_image_macro(writer, '#UDGARRAY1;0{0,0,23,14(foo)', 'No closing brace on cropping specification: {0,0,23,14(foo)', prefix)
         self._test_invalid_image_macro(writer, '#UDGARRAY1;0(foo', 'No closing bracket: (foo', prefix)
 
+        self._test_invalid_image_macro(writer, '#UDGARRAY({no});0(udg)', "Unrecognised field 'no': {no}", prefix)
+        self._test_invalid_image_macro(writer, '#UDGARRAY1;({nope})(udg)', "Unrecognised field 'nope': {nope}", prefix)
+        self._test_invalid_image_macro(writer, '#UDGARRAY1;0x({nah})(udg)', "Unrecognised field 'nah': {nah}", prefix)
+        self._test_invalid_image_macro(writer, '#UDGARRAY1;0,({nein})(udg)', "Unrecognised field 'nein': {nein}", prefix)
+        self._test_invalid_image_macro(writer, '#UDGARRAY1;0:({nay})(udg)', "Unrecognised field 'nay': {nay}", prefix)
+        self._test_invalid_image_macro(writer, '#UDGARRAY1;0:0x({nae})(udg)', "Unrecognised field 'nae': {nae}", prefix)
+        self._test_invalid_image_macro(writer, '#UDGARRAY1;0:0,({nada})(udg)', "Unrecognised field 'nada': {nada}", prefix)
+        self._test_invalid_image_macro(writer, '#UDGARRAY1;0@({nix})(udg)', "Unrecognised field 'nix': {nix}", prefix)
+        self._test_invalid_image_macro(writer, '#UDGARRAY1;0{{nyet}}(udg)', "Unrecognised field 'nyet': {nyet}", prefix)
+
+        self._test_invalid_image_macro(writer, '#UDGARRAY({foo);0(udg)', "Invalid format string: {foo", prefix)
+        self._test_invalid_image_macro(writer, '#UDGARRAY1;({bar)(udg)', "Invalid format string: {bar", prefix)
+        self._test_invalid_image_macro(writer, '#UDGARRAY1;0,({baz)(udg)', "Invalid format string: {baz", prefix)
+        self._test_invalid_image_macro(writer, '#UDGARRAY1;0:({qux)(udg)', "Invalid format string: {qux", prefix)
+        self._test_invalid_image_macro(writer, '#UDGARRAY1;0:0,({xyzzy)(udg)', "Invalid format string: {xyzzy", prefix)
+        self._test_invalid_image_macro(writer, '#UDGARRAY1;0@({bish)(udg)', "Invalid format string: {bish", prefix)
+
     def test_macro_udgarray_frames_invalid(self):
         writer = self._get_writer(snapshot=[0] * 8)
         prefix = ERROR_PREFIX.format('UDGARRAY')

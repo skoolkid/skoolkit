@@ -287,13 +287,15 @@ def _split_unbracketed(text):
     chunks.extend(pieces[1:])
     return chunks
 
-def parse_address_range(text, index, width):
+def parse_address_range(text, index, width, fields):
     elements = []
     end = index - 1
     while end < index or (len(elements) < 4 and end < len(text) and text[end] == '-'):
         end += 1
         try:
-            end, value = parse_ints(text, end, 1)
+            end, value = parse_ints(text, end, 1, fields=fields)
+        except FormattingError:
+            raise
         except MacroParsingError:
             break
         elements.append(value)
@@ -303,7 +305,9 @@ def parse_address_range(text, index, width):
     num = 1
     if end < len(text) and text[end] == 'x':
         try:
-            end, num = parse_ints(text, end + 1, 1)
+            end, num = parse_ints(text, end + 1, 1, fields=fields)
+        except FormattingError:
+            raise
         except MacroParsingError:
             raise MacroParsingError("Invalid multiplier in address range specification: {}".format(text[index:]))
 
@@ -880,33 +884,33 @@ def parse_udg(text, index=0, fields=None):
     end, fname, frame, alt = _parse_image_fname(text, end)
     return end, crop_rect, fname, frame, alt, (addr, attr, scale, step, inc, flip, rotate, mask, tindex, alpha, mask_addr, mask_step)
 
-def parse_udgarray(text, index, snapshot=None, req_fname=True):
+def parse_udgarray(text, index, snapshot=None, req_fname=True, fields=None):
     # #UDGARRAYwidth[,attr,scale,step,inc,flip,rotate,mask,tindex,alpha];addr[,attr,step,inc][:addr[,step]];...[{x,y,width,height}](fname)
     names = ('width', 'attr', 'scale', 'step', 'inc', 'flip', 'rotate', 'mask', 'tindex', 'alpha')
     defaults = (56, 2, 1, 0, 0, 0, 1, 0, -1)
-    end, width, attr, scale, step, inc, flip, rotate, mask, tindex, alpha = parse_ints(text, index, defaults=defaults, names=names)
+    end, width, attr, scale, step, inc, flip, rotate, mask, tindex, alpha = parse_ints(text, index, defaults=defaults, names=names, fields=fields)
     udg_array = [[]]
     has_masks = False
 
     while end < len(text) and text[end] == ';':
         names = ('attr', 'step', 'inc')
         defaults = (attr, step, inc)
-        end, udg_addresses = parse_address_range(text, end + 1, width)
+        end, udg_addresses = parse_address_range(text, end + 1, width, fields)
         if udg_addresses is None:
             raise MacroParsingError('Expected UDG address range specification: #UDGARRAY{}'.format(text[index:end]))
         if end < len(text) and text[end] == ',':
-            end, udg_attr, udg_step, udg_inc = parse_ints(text, end + 1, defaults=defaults, names=names)
+            end, udg_attr, udg_step, udg_inc = parse_ints(text, end + 1, defaults=defaults, names=names, fields=fields)
         else:
             udg_attr, udg_step, udg_inc = defaults
         mask_addresses = []
         if end < len(text) and text[end] == ':':
-            end, mask_addresses = parse_address_range(text, end + 1, width)
+            end, mask_addresses = parse_address_range(text, end + 1, width, fields)
             if mask_addresses is None:
                 raise MacroParsingError('Expected mask address range specification: #UDGARRAY{}'.format(text[index:end]))
             if not mask:
                 mask_addresses = []
             if end < len(text) and text[end] == ',':
-                end, mask_step = parse_ints(text, end + 1, defaults=(udg_step,), names=('step',))
+                end, mask_step = parse_ints(text, end + 1, defaults=(udg_step,), names=('step',), fields=fields)
             else:
                 mask_step = udg_step
         if snapshot:
@@ -928,11 +932,11 @@ def parse_udgarray(text, index, snapshot=None, req_fname=True):
         mask = 0
 
     if end < len(text) and text[end] == '@':
-        end, attr_addresses = parse_address_range(text, end + 1, width)
+        end, attr_addresses = parse_address_range(text, end + 1, width, fields)
         if attr_addresses is None:
             raise MacroParsingError('Expected attribute address range specification: #UDGARRAY{}'.format(text[index:end]))
         while end < len(text) and text[end] == ';':
-            end, addresses = parse_address_range(text, end + 1, width)
+            end, addresses = parse_address_range(text, end + 1, width, fields)
             if addresses is None:
                 raise MacroParsingError('Expected attribute address range specification: #UDGARRAY{}'.format(text[index:end]))
             attr_addresses.extend(addresses)
@@ -943,7 +947,7 @@ def parse_udgarray(text, index, snapshot=None, req_fname=True):
                     break
                 udg_array[y][i % width].attr = snapshot[attr_addr & 65535]
 
-    end, crop_rect = _parse_crop_spec(text, end)
+    end, crop_rect = _parse_crop_spec(text, end, fields)
     end, fname, frame, alt = _parse_image_fname(text, end)
     if req_fname:
         if not fname and frame is None:

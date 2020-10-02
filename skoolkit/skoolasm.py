@@ -275,7 +275,7 @@ class AsmWriter:
             if index < len(text) and text[index] == '*':
                 end = skoolmacro.parse_udgarray_with_frames(text, index)[0]
             else:
-                end = skoolmacro.parse_udgarray(text, index)[0]
+                end = skoolmacro.parse_udgarray(text, index, fields=self.fields)[0]
             return end, ''
         raise skoolmacro.UnsupportedMacroError()
 
