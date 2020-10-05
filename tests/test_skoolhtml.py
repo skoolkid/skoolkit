@@ -3274,6 +3274,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
     def test_macro_udgarray_frames_invalid(self):
         writer, prefix = CommonSkoolMacroTest.test_macro_udgarray_frames_invalid(self)
         self._assert_error(writer, '#UDGARRAY*foo(bar)', 'No such frame: "foo"', prefix)
+        self._assert_error(writer, '#UDG0,,1(f*) #UDG0,,2(g*) #UDGARRAY*f;g(a)', "Frame 'g' (16x16) is larger than the first frame (8x8)", prefix)
 
     def test_macro_udgarray_alt_text(self):
         writer = self._get_writer(snapshot=[0] * 8, mock_file_info=True)

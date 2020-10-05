@@ -991,6 +991,9 @@ def parse_udgarray_with_frames(text, index, frame_map=None):
                 raise MacroParsingError('No such frame: "{}"'.format(frame_id))
             frame = frame_map[frame_id]
             frame.delay = delay
+            if frames and (frame.width > frames[0].width or frame.height > frames[0].height):
+                raise MacroParsingError("Frame '{}' ({}x{}) is larger than the first frame ({}x{})".format(
+                    frame_id, frame.width, frame.height, frames[0].width, frames[0].height))
             frames.append(frame)
 
     return end, fname, alt, frames

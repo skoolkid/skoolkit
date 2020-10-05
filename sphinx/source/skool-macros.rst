@@ -1716,6 +1716,9 @@ The ``#FONT`` macros create the required frames (and write images of them); the
 ``#UDGARRAY`` macro combines the three frames into a single animated image,
 with a delay of 0.5s between each frame.
 
+Note that the second and subsequent frames of an animated image must not exceed
+the width or height of the first frame.
+
 .. _cropping:
 
 Cropping
