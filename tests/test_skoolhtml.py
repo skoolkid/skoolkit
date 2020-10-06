@@ -1357,6 +1357,8 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
             self.assertEqual(frame.height, exp_frame.height)
             self.assertEqual(frame.mask, exp_frame.mask)
             self.assertEqual(frame.delay, exp_frame.delay)
+            self.assertEqual(frame.x_offset, exp_frame.x_offset)
+            self.assertEqual(frame.y_offset, exp_frame.y_offset)
             self._compare_udgs(frame.udgs, exp_frame.udgs)
 
     def _assert_link_equals(self, html, href, text, suffix=''):
@@ -3236,7 +3238,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         snapshot[udg2_addr:udg2_addr + 8] = udg2.data
         snapshot[udg3_addr:udg3_addr + 8] = udg3.data
         macro1 = '#UDGARRAY1;{},{}(*foo)'.format(udg1_addr, udg1.attr)
-        macro2 = '#UDGARRAY1;{},{}(bar*)'.format(udg2_addr, udg2.attr)
+        macro2 = '#UDGARRAY1,,1;{},{}(bar*)'.format(udg2_addr, udg2.attr)
         macro3 = '#UDGARRAY1;{},{}(baz*qux)'.format(udg3_addr, udg3.attr)
 
         output = writer.expand(macro1, ASMDIR)
@@ -3260,16 +3262,16 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         exp_image_path = '{}/{}.png'.format(UDGDIR, fname)
         exp_src = '../{}'.format(exp_image_path)
         delay1 = 93
-        macro4 = '#UDGARRAY*foo,{};bar;qux,(delay=5+8*2-12/3)({})'.format(delay1, fname)
+        macro4 = '#UDGARRAY*foo,{};bar,,2,3;qux,(delay=5+8*2-12/3)({})'.format(delay1, fname)
         output = writer.expand(macro4, ASMDIR)
         self._assert_img_equals(output, fname, exp_src)
         self.assertEqual(writer.file_info.fname, exp_image_path)
 
         frame1 = Frame([[udg1]], 2, delay=delay1)
-        frame2 = Frame([[udg2]], 2, delay=delay1)
-        frame3 = Frame([[udg3]], 2, delay=17)
-        frames = [frame1, frame2, frame3]
-        self._check_animated_image(writer.image_writer, frames)
+        frame2 = Frame([[udg2]], 1, delay=delay1, x_offset=2, y_offset=3) # Same delay as frame1
+        frame3 = Frame([[udg3]], 2, delay=17)                             # Offsets revert to (0, 0)
+        exp_frames = [frame1, frame2, frame3]
+        self._check_animated_image(writer.image_writer, exp_frames)
 
     def test_macro_udgarray_frames_invalid(self):
         writer, prefix = CommonSkoolMacroTest.test_macro_udgarray_frames_invalid(self)

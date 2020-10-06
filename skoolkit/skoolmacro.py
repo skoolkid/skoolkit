@@ -957,9 +957,9 @@ def parse_udgarray(text, index, snapshot=None, req_fname=True, fields=None):
     return end, crop_rect, fname, frame, alt, (udg_array, scale, flip, rotate, mask, tindex, alpha)
 
 def parse_udgarray_with_frames(text, index, frame_map=None):
-    # #UDGARRAY*frame1[,delay];frame2[,delay];...(fname)
+    # #UDGARRAY*frame1[,delay,x,y];frame2[,delay,x,y];...(fname)
     params = []
-    delay = 32 # 0.32s
+    delay, x, y = 32, 0, 0
     end = index
     while end == index or (end < len(text) and text[end] == ';'):
         end += 1
@@ -968,11 +968,8 @@ def parse_udgarray_with_frames(text, index, frame_map=None):
             frame_id = match.group()
             end += len(frame_id)
             if end < len(text) and text[end] == ',':
-                try:
-                    end, delay = parse_ints(text, end + 1, names=('delay',))
-                except MissingParameterError:
-                    raise MissingParameterError("Missing 'delay' parameter for frame '{}'".format(frame_id))
-            params.append((frame_id, delay))
+                end, delay, x, y = parse_ints(text, end + 1, defaults=(delay, 0, 0), names=('delay', 'x', 'y'))
+            params.append((frame_id, delay, x, y))
 
     end, fname = parse_brackets(text, end)
     if not fname:
@@ -986,11 +983,11 @@ def parse_udgarray_with_frames(text, index, frame_map=None):
 
     frames = []
     if frame_map is not None:
-        for frame_id, delay in params:
+        for frame_id, delay, x_offset, y_offset in params:
             if frame_id not in frame_map:
                 raise MacroParsingError('No such frame: "{}"'.format(frame_id))
             frame = frame_map[frame_id]
-            frame.delay = delay
+            frame.delay, frame.x_offset, frame.y_offset = delay, x_offset, y_offset
             if frames and (frame.width > frames[0].width or frame.height > frames[0].height):
                 raise MacroParsingError("Frame '{}' ({}x{}) is larger than the first frame ({}x{})".format(
                     frame_id, frame.width, frame.height, frames[0].width, frames[0].height))

@@ -1433,7 +1433,7 @@ class CommonSkoolMacroTest:
         self._test_invalid_image_macro(writer, '#UDGARRAY*foo', 'Missing filename: #UDGARRAY*foo', prefix)
         self._test_invalid_image_macro(writer, '#UDGARRAY*foo()', 'Missing filename: #UDGARRAY*foo()', prefix)
         self._test_invalid_image_macro(writer, '#UDGARRAY*foo(bar', 'No closing bracket: (bar', prefix)
-        self._test_invalid_image_macro(writer, '#UDGARRAY*foo,qux(bar)', "Missing 'delay' parameter for frame 'foo'", prefix)
+        self._test_invalid_image_macro(writer, '#UDGARRAY*foo,(d,x)(bar', "Cannot parse integer 'd' in parameter string: 'd,x'", prefix)
 
         return writer, prefix
 

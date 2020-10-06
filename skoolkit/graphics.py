@@ -141,8 +141,10 @@ class Frame:
     :param alpha: The alpha value to use for the transparent colour. If -1, the
                   value of the ``PNGAlpha`` parameter in the
                   :ref:`ref-ImageWriter` section is used.
+    :param x_offset: The x-coordinate at which to render the frame.
+    :param y_offset: The y-coordinate at which to render the frame.
     """
-    def __init__(self, udgs, scale=1, mask=0, x=0, y=0, width=None, height=None, delay=32, name='', tindex=0, alpha=-1):
+    def __init__(self, udgs, scale=1, mask=0, x=0, y=0, width=None, height=None, delay=32, name='', tindex=0, alpha=-1, x_offset=0, y_offset=0):
         self._udgs = udgs
         self._scale = max(1, scale)
         self.mask = int(mask)
@@ -154,6 +156,8 @@ class Frame:
         self.name = name
         self.tindex = tindex
         self.alpha = alpha
+        self.x_offset = x_offset
+        self.y_offset = y_offset
 
     def swap_colours(self, x, y, width, height):
         # Swap paper and ink in UDGs that are flashing

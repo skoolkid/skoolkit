@@ -1678,6 +1678,8 @@ the filename. For example::
 This ``#SCR`` macro creates an image named `screenshot1.png` with alt text
 'Screenshot 1'.
 
+.. _Animation:
+
 Animation
 ---------
 The image macros may be used to create the frames of an animated image. To
@@ -1696,12 +1698,14 @@ a set of frames::
 
 ``FRAME1``, ``FRAME2`` etc. are frame specifications; each one has the form::
 
-  name[,delay]
+  name[,delay,x,y]
 
 * ``name`` is the name of the frame
 * ``delay`` is the delay between this frame and the next in 1/100ths of a
   second; it also sets the default delay for any frames that follow (default:
   32)
+* ``x`` and ``y`` are the coordinates at which to render the frame, relative to
+  the top-left corner of the first frame (default: (0,0))
 
 For example::
 
@@ -1716,8 +1720,17 @@ The ``#FONT`` macros create the required frames (and write images of them); the
 ``#UDGARRAY`` macro combines the three frames into a single animated image,
 with a delay of 0.5s between each frame.
 
-Note that the second and subsequent frames of an animated image must not exceed
-the width or height of the first frame.
+Note that the first frame of an animated image determines the size of the image
+as a whole. Therefore, the region defined by the width, height and coordinates
+of any subsequent frame must fall entirely inside the first frame.
+
++---------+-------------------------------------------------------------------+
+| Version | Changes                                                           |
++=========+===================================================================+
+| 8.3     | Added the ``x`` and ``y`` parameters to the frame specification   |
++---------+-------------------------------------------------------------------+
+| 3.6     | New                                                               |
++---------+-------------------------------------------------------------------+
 
 .. _cropping:
 

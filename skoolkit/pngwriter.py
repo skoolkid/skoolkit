@@ -103,7 +103,7 @@ class PngWriter:
         for frame in frames[1:]:
             frame_data = self._build_image_data(frame, palette_size, bit_depth, attr_map)[0]
             seq_num += 1
-            self._write_fctl_chunk(img_file, seq_num, frame.delay, frame.width, frame.height)
+            self._write_fctl_chunk(img_file, seq_num, frame.delay, frame.width, frame.height, frame.x_offset, frame.y_offset)
             seq_num += 1
             fdat = FDAT + bytes(self._to_bytes(seq_num))
             self._write_img_data_chunk(img_file, fdat + frame_data)

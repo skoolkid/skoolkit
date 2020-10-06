@@ -826,6 +826,14 @@ class ImageWriterTest:
         frames = [frame1, frame2, frame3]
         self._test_animated_image(frames)
 
+    def test_animation_with_offsets(self):
+        # 3 frames: 16x16; 8x8 at (2,3); 8x8 at (5,4)
+        frame1 = Frame([[Udg(56, (128,) * 8)]], 2)
+        frame2 = Frame([[Udg(56, (64,) * 8)]], x_offset=2, y_offset=3)
+        frame3 = Frame([[Udg(56, (32,) * 8)]], x_offset=5, y_offset=4)
+        frames = [frame1, frame2, frame3]
+        self._test_animated_image(frames)
+
     def test_animation_cropped(self):
         # 2 frames, 4 colours, 4x4
         frame1 = Frame([[Udg(56, (128,) * 8)]], x=1, y=1, width=4, height=4)
@@ -1157,7 +1165,7 @@ class PngWriterTest(SkoolKitTestCase, ImageWriterTest):
             frame_palette, f_has_trans, f_has_tindex, pixels, pixels2, frame2_xy = self._get_pixels_from_udg_array(frame.udgs, frame.scale, frame.mask, exp_tindex, x, y, width, height)
             has_trans = has_trans or f_has_trans
             has_tindex = has_tindex or f_has_tindex
-            frame_data.append((width, height, pixels, frame.delay))
+            frame_data.append((width, height, pixels, frame.delay, frame.x_offset, frame.y_offset))
             for c in frame_palette:
                 if c not in exp_palette:
                     exp_palette.append(c)
@@ -1197,8 +1205,8 @@ class PngWriterTest(SkoolKitTestCase, ImageWriterTest):
 
         # Frames
         seq_num = 0
-        for exp_width, exp_height, exp_pixels, exp_delay in frame_data:
-            i = self._check_fctl(img_bytes, i, seq_num, exp_width, exp_height, exp_delay=exp_delay)
+        for exp_width, exp_height, exp_pixels, exp_delay, exp_x_offset, exp_y_offset in frame_data:
+            i = self._check_fctl(img_bytes, i, seq_num, exp_width, exp_height, exp_x_offset, exp_y_offset, exp_delay)
             seq_num += 1
             if seq_num == 1:
                 i = self._check_idat(img_bytes, i, exp_bit_depth, palette, exp_pixels, exp_width)

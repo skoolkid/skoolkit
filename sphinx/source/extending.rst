@@ -391,6 +391,9 @@ The Frame class represents a single frame of a still or animated image.
 
 .. autoclass:: skoolkit.graphics.Frame
 
+   .. versionchanged:: 8.3
+      Added the *x_offset* and *y_offset* parameters.
+
    .. versionchanged:: 8.2
       Added the *tindex* and *alpha* parameters.
 
