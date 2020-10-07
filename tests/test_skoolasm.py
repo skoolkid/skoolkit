@@ -661,7 +661,7 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
 
     def test_macro_udgarray(self):
         writer = self._get_writer()
-        writer.fields = {'w': 3, 'a': 0, 'm': 8, 's': 1, 'aa': 32, 'h': 15}
+        writer.fields = {'w': 3, 'a': 0, 'm': 8, 's': 1, 'aa': 32, 'h': 15, 'd': 5}
         self._test_unsupported_macro(writer, '#UDGARRAY8,,,256;33008-33023(bubble)')
         self._test_unsupported_macro(writer, '#UDGARRAY4,mask=2,step=256;33008-33023:33024-33039{x=1,width=126}(sprite)')
         self._test_unsupported_macro(writer, '#UDGARRAY(3-2, (1+5)*8, 2*2, 16/2);0{x=(1+2)*3, y = (8 - 4) / 2}(baz)')
@@ -670,7 +670,7 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
         self._test_unsupported_macro(writer, '#UDGARRAY2;0;1@2;3(attr_addrs)')
         self._test_unsupported_macro(writer, '#UDGARRAY({w});({a}),(,{s}):({m}),({s});({a})-({a}+16)-16x({s}):({m})x2@({aa})x3{height={h}}(img)')
         self._test_unsupported_macro(writer, '#UDGARRAY*foo,(2*10);bar,(1+19);baz,(25-5);qux,(40/2)(logo|Logo)')
-        self._test_unsupported_macro(writer, '#UDGARRAY*foo,delay=2;bar(baz)')
+        self._test_unsupported_macro(writer, '#UDGARRAY*foo,delay=2;bar,({d})(baz)')
         self._test_unsupported_macro(writer, nest_macros('#UDGARRAY2;({})-({})-({})-({})x({})(thing)', 32768, 32785, 1, 16, 1))
         self._test_unsupported_macro(writer, nest_macros('#UDGARRAY1;32768-32785-1-16:({})-({})-({})-({})x({})(thing)', 32800, 32817, 1, 16, 1))
         self._test_unsupported_macro(writer, nest_macros('#UDGARRAY1;32768,({}):32776,({})(thing)', 5, 2))

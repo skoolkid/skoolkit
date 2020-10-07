@@ -273,7 +273,7 @@ class AsmWriter:
     def expand_udgarray(self, text, index):
         if self.handle_unsupported_macros:
             if index < len(text) and text[index] == '*':
-                end = skoolmacro.parse_udgarray_with_frames(text, index)[0]
+                end = skoolmacro.parse_udgarray_with_frames(text, index, self.fields)[0]
             else:
                 end = skoolmacro.parse_udgarray(text, index, fields=self.fields)[0]
             return end, ''

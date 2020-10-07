@@ -1720,6 +1720,9 @@ The ``#FONT`` macros create the required frames (and write images of them); the
 ``#UDGARRAY`` macro combines the three frames into a single animated image,
 with a delay of 0.5s between each frame.
 
+The integer parameters of a frame specification may contain
+:ref:`replacement fields <replacementFields>`.
+
 Note that the first frame of an animated image determines the size of the image
 as a whole. Therefore, the region defined by the width, height and coordinates
 of any subsequent frame must fall entirely inside the first frame.
@@ -1727,7 +1730,9 @@ of any subsequent frame must fall entirely inside the first frame.
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
-| 8.3     | Added the ``x`` and ``y`` parameters to the frame specification   |
+| 8.3     | Added the ``x`` and ``y`` parameters to the frame specification;  |
+|         | added support for replacement fields in the integer parameters of |
+|         | a frame specification                                             |
 +---------+-------------------------------------------------------------------+
 | 3.6     | New                                                               |
 +---------+-------------------------------------------------------------------+

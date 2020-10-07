@@ -3273,6 +3273,25 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         exp_frames = [frame1, frame2, frame3]
         self._check_animated_image(writer.image_writer, exp_frames)
 
+    def test_macro_udgarray_frames_with_replacement_fields(self):
+        udg1, udg2 = Udg(23, [101] * 8), Udg(47, [35] * 8)
+        snapshot = udg1.data + udg2.data
+        writer = self._get_writer(snapshot=snapshot, mock_file_info=True)
+        writer.expand('#UDGARRAY1;0,23(*foo)', ASMDIR)
+        writer.expand('#UDGARRAY1,,1;8,47(*bar)', ASMDIR)
+        writer.expand('#LET(d=50) #LET(x=1) #LET(y=2)')
+
+        exp_image_path = '{}/img.png'.format(UDGDIR)
+        exp_src = '../{}'.format(exp_image_path)
+        output = writer.expand('#UDGARRAY*foo,({d});bar,(x={x},y={y})(img)', ASMDIR)
+        self._assert_img_equals(output, 'img', exp_src)
+        self.assertEqual(writer.file_info.fname, exp_image_path)
+
+        frame1 = Frame([[udg1]], 2, delay=50)
+        frame2 = Frame([[udg2]], 1, delay=50, x_offset=1, y_offset=2)
+        exp_frames = [frame1, frame2]
+        self._check_animated_image(writer.image_writer, exp_frames)
+
     def test_macro_udgarray_frames_invalid(self):
         writer, prefix = CommonSkoolMacroTest.test_macro_udgarray_frames_invalid(self)
         self._assert_error(writer, '#UDGARRAY*foo(bar)', 'No such frame: "foo"', prefix)

@@ -1081,7 +1081,7 @@ class HtmlWriter:
         return end, self.handle_image(frame, fname, cwd, alt, UDG_IMAGE_PATH)
 
     def _expand_udgarray_with_frames(self, text, index, cwd):
-        end, fname, alt, frames = skoolmacro.parse_udgarray_with_frames(text, index, self.frames)
+        end, fname, alt, frames = skoolmacro.parse_udgarray_with_frames(text, index, self.fields, self.frames)
         return end, self.handle_image(frames, fname, cwd, alt, UDG_IMAGE_PATH)
 
     def expand_udgarray(self, text, index, cwd):

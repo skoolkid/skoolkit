@@ -956,7 +956,7 @@ def parse_udgarray(text, index, snapshot=None, req_fname=True, fields=None):
             raise MacroParsingError('Missing filename or frame ID: #UDGARRAY{}'.format(text[index:end]))
     return end, crop_rect, fname, frame, alt, (udg_array, scale, flip, rotate, mask, tindex, alpha)
 
-def parse_udgarray_with_frames(text, index, frame_map=None):
+def parse_udgarray_with_frames(text, index, fields, frame_map=None):
     # #UDGARRAY*frame1[,delay,x,y];frame2[,delay,x,y];...(fname)
     params = []
     delay, x, y = 32, 0, 0
@@ -968,7 +968,7 @@ def parse_udgarray_with_frames(text, index, frame_map=None):
             frame_id = match.group()
             end += len(frame_id)
             if end < len(text) and text[end] == ',':
-                end, delay, x, y = parse_ints(text, end + 1, defaults=(delay, 0, 0), names=('delay', 'x', 'y'))
+                end, delay, x, y = parse_ints(text, end + 1, defaults=(delay, 0, 0), names=('delay', 'x', 'y'), fields=fields)
             params.append((frame_id, delay, x, y))
 
     end, fname = parse_brackets(text, end)

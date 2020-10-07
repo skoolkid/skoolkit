@@ -1434,6 +1434,8 @@ class CommonSkoolMacroTest:
         self._test_invalid_image_macro(writer, '#UDGARRAY*foo()', 'Missing filename: #UDGARRAY*foo()', prefix)
         self._test_invalid_image_macro(writer, '#UDGARRAY*foo(bar', 'No closing bracket: (bar', prefix)
         self._test_invalid_image_macro(writer, '#UDGARRAY*foo,(d,x)(bar', "Cannot parse integer 'd' in parameter string: 'd,x'", prefix)
+        self._test_invalid_image_macro(writer, '#UDGARRAY*foo,({no})(bar', "Unrecognised field 'no': {no}", prefix)
+        self._test_invalid_image_macro(writer, '#UDGARRAY*foo,({bar)(bar', "Invalid format string: {bar", prefix)
 
         return writer, prefix
 
