@@ -1032,6 +1032,9 @@ class HtmlWriter:
         end, list_obj = self.list_parser.parse_text(self, text, index, cwd)
         return end, self.build_list(list_obj)
 
+    def expand_plot(self, text, index, cwd):
+        return skoolmacro.parse_plot(text, index, self.fields, self.frames)
+
     def expand_r(self, text, index, cwd):
         end, addr_str, address, code_id, anchor, link_text = skoolmacro.parse_r(self.fields, text, index)
         container = self.parser.get_container(address, code_id)

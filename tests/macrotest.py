@@ -1125,6 +1125,24 @@ class CommonSkoolMacroTest:
         self._assert_error(writer, '#PEEK({y})', "Unrecognised field 'y': {y}", prefix)
         self._assert_error(writer, '#PEEK({y)', "Invalid format string: {y", prefix)
 
+    def test_macro_plot_invalid(self):
+        writer = self._get_writer()
+        prefix = ERROR_PREFIX.format('PLOT')
+
+        self._test_invalid_image_macro(writer, '#PLOT', "No parameters (expected 2)", prefix)
+        self._test_invalid_image_macro(writer, '#PLOTx', "No parameters (expected 2)", prefix)
+        self._test_invalid_image_macro(writer, '#PLOT1', "Missing required argument 'y': '1'", prefix)
+        self._test_invalid_image_macro(writer, '#PLOT1,y(f)', "Missing required argument 'y': '1,'", prefix)
+        self._test_invalid_image_macro(writer, '#PLOT1(f)', "Missing required argument 'y': '1'", prefix)
+        self._test_invalid_image_macro(writer, '#PLOT1,1', "Missing frame name: #PLOT1,1", prefix)
+        self._test_invalid_image_macro(writer, '#PLOT1,1,v(f)', "Missing frame name: #PLOT1,1,", prefix)
+        self._test_invalid_image_macro(writer, '#PLOT(f)', "Cannot parse integer 'f' in parameter string: 'f'", prefix)
+        self._test_invalid_image_macro(writer, '#PLOT1,1(f', "No closing bracket: (f", prefix)
+        self._test_invalid_image_macro(writer, '#PLOT({x},1)(f)', "Unrecognised field 'x': {x},1", prefix)
+        self._test_invalid_image_macro(writer, '#PLOT({x,1)(f)', "Invalid format string: {x,1", prefix)
+
+        return writer, prefix
+
     def test_macro_pokes(self):
         writer = self._get_writer(skool='', snapshot=[0] * 20, variables=[('v', 247)])
         snapshot = writer.snapshot

@@ -244,6 +244,11 @@ class AsmWriter:
     def expand_list(self, text, index):
         return self._ignore_block(text, index, LIST_MARKER, LIST_END_MARKER)
 
+    def expand_plot(self, text, index):
+        if self.handle_unsupported_macros:
+            return skoolmacro.parse_plot(text, index, self.fields)
+        raise skoolmacro.UnsupportedMacroError()
+
     def expand_r(self, text, index):
         end, addr_str, address, code_id, anchor, link_text = skoolmacro.parse_r(self.fields, text, index)
         if link_text:

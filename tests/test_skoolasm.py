@@ -313,6 +313,16 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
         """
         self._test_asm(skool, exp_asm)
 
+    def test_macro_plot(self):
+        writer = self._get_writer()
+        writer.fields = {'x': 1, 'y': 2}
+        self._test_unsupported_macro(writer, '#PLOT1,1(frame)')
+        self._test_unsupported_macro(writer, '#PLOTy=1,x=1(frame)')
+        self._test_unsupported_macro(writer, '#PLOT(1+1,2+1)(frame)')
+        self._test_unsupported_macro(writer, '#PLOT({x},{y})(frame)')
+        self._test_unsupported_macro(writer, nest_macros('#PLOT(1,{})(frame)', 2))
+        self._test_unsupported_macro(writer, nest_macros('#PLOT1,1({})', 'frame'))
+
     def test_macro_r(self):
         skool = """
             @start

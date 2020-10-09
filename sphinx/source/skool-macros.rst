@@ -1230,9 +1230,9 @@ The ``#VERSION`` macro expands to the version of SkoolKit. ::
 
 Image macros
 ^^^^^^^^^^^^
-The :ref:`FONT`, :ref:`SCR`, :ref:`UDG` and :ref:`UDGARRAY` macros (described
-in the following sections) may be used to create images based on graphic data
-in the memory snapshot. They are not supported in ASM mode.
+The :ref:`FONT`, :ref:`PLOT`, :ref:`SCR`, :ref:`UDG` and :ref:`UDGARRAY` macros
+(described in the following sections) may be used to create images based on
+graphic data in the memory snapshot. They are not supported in ASM mode.
 
 These macros have several numeric parameters, most of which are optional. This
 can give rise to a long sequence of commas in a macro parameter string, making
@@ -1328,6 +1328,37 @@ See :ref:`stringParameters` for details on alternative ways to supply the
 +---------+------------------------------------------------------------------+
 | 2.0.5   | Added the ``fname`` parameter and support for regular 8x8 fonts  |
 +---------+------------------------------------------------------------------+
+
+.. _PLOT:
+
+#PLOT
+-----
+In HTML mode, the ``#PLOT`` macro sets, resets or flips a pixel in a frame
+already created by one of the other image macros. ::
+
+  #PLOTx,y[,value](frame)
+
+* ``x`` and ``y`` are the coordinates of the pixel, relative to the top-left
+  corner of the frame
+* ``value`` is ``0`` to reset the pixel, ``1`` to set it (the default), or
+  ``2`` to flip it
+* ``frame`` is the name of the frame
+
+For example::
+
+  ; #UDG30000(*tile)
+  ; #PLOT1,2(tile)
+  ; #UDGARRAY*tile(tile)
+
+This instance of the ``#PLOT`` macro sets the second pixel from the left in the
+third row from the top in the frame created by the ``#UDG`` macro. The
+``#UDGARRAY*`` macro then creates an image of the modified frame.
+
++---------+---------+
+| Version | Changes |
++=========+=========+
+| 8.3     | New     |
++---------+---------+
 
 .. _SCR:
 

@@ -177,6 +177,20 @@ class Frame:
                     row[i] = Udg(new_attr, udg.data, udg.mask)
         return Frame(udgs, self.scale, self.mask, x, y, width, height)
 
+    def plot(self, x, y, value):
+        try:
+            udg_data = self.udgs[y // 8][x // 8].data
+        except IndexError:
+            udg_data = None
+        if udg_data:
+            mask = 1 << 7 - x % 8
+            if value == 0:
+                udg_data[y % 8] &= mask ^ 255
+            elif value == 1:
+                udg_data[y % 8] |= mask
+            else:
+                udg_data[y % 8] ^= mask
+
     @property
     def udgs(self):
         if callable(self._udgs):

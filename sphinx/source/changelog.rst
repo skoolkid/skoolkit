@@ -3,6 +3,8 @@ Changelog
 
 8.3b1
 -----
+* Added the :ref:`PLOT` macro (for setting, resetting or flipping a pixel in a
+  frame already created by an image macro)
 * Added the ``--begin`` option to :ref:`bin2tap.py` (for specifying the address
   at which to begin conversion)
 * The ``--end`` option of :ref:`bin2tap.py` now applies to raw memory files as

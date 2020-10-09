@@ -794,6 +794,18 @@ def parse_peek(writer, text, index, *cwd):
     end, addr = parse_ints(text, index, 1, fields=writer.fields)
     return end, str(writer.snapshot[addr & 65535])
 
+def parse_plot(text, index, fields, frame_map=None):
+    #PLOTx,y[,value](frame)
+    end, x, y, value = parse_ints(text, index, 3, (1,), ('x', 'y', 'value'), fields)
+    end, frame_id = parse_brackets(text, end)
+    if frame_id is None:
+        raise MacroParsingError("Missing frame name: #PLOT{}".format(text[index:end]))
+    if frame_map is not None:
+        if frame_id not in frame_map:
+            raise MacroParsingError('No such frame: "{}"'.format(frame_id))
+        frame_map[frame_id].plot(x, y, value)
+    return end, ''
+
 def parse_pokes(writer, text, index, *cwd):
     # #POKESaddr,byte[,length,step][;addr,byte[,length,step];...]
     end = index - 1

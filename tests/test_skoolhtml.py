@@ -1930,6 +1930,59 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         self.assertEqual(writer.expand('#MAP({vars[foo]})(FAIL,1:PASS)'), 'PASS')
         self.assertEqual(writer.expand('#MAP({vars[bar]})(FAIL,2:PASS)'), 'PASS')
 
+    def test_macro_plot(self):
+        exp_image_path = '{}/img.png'.format(UDGDIR)
+        writer = self._get_writer(snapshot=[1] * 8, mock_file_info=True)
+        macros = (
+            '#UDGARRAY2;0x4(*f)',
+            '#PLOT0,0(f)',                # Set bit at (0,0)
+            '#PLOT(value=0,x=15,y=0)(f)', # Reset bit at (15,0)
+            '#PLOT0,15,1(f)',             # Set bit at (0,15)
+            '#PLOT15,15,2(f)',            # Reset bit at (15,15)
+            '#UDGARRAY*f(img)'
+        )
+        output = writer.expand(''.join(macros), ASMDIR)
+        self._assert_img_equals(output, 'img', '../{}'.format(exp_image_path))
+        exp_udgs = [
+            [Udg(56, [129] + [1] * 7), Udg(56, [0] + [1] * 7)],
+            [Udg(56, [1] * 7 + [129]), Udg(56, [1] * 7 + [0])]
+        ]
+        self._check_image(writer, exp_udgs, scale=2, path=exp_image_path)
+
+    def test_macro_plot_with_replacement_fields(self):
+        exp_image_path = '{}/udg.png'.format(UDGDIR)
+        writer = self._get_writer(snapshot=[0] * 8, mock_file_info=True)
+        macros = (
+            '#UDG0(*f)',
+            '#LET(x=7)',
+            '#LET(y=0)',
+            '#LET(v=1)',
+            '#PLOT({x},{y},{v})(f)',
+            '#UDGARRAY*f(udg)'
+        )
+        output = writer.expand(''.join(macros), ASMDIR)
+        self._assert_img_equals(output, 'udg', '../{}'.format(exp_image_path))
+        exp_udgs = [[Udg(56, [1] + [0] * 7)]]
+        self._check_image(writer, exp_udgs, scale=4, path=exp_image_path)
+
+    def test_macro_plot_out_of_range(self):
+        exp_image_path = '{}/udg.png'.format(UDGDIR)
+        writer = self._get_writer(snapshot=[0] * 8, mock_file_info=True)
+        macros = (
+            '#UDG0(*f)',
+            '#PLOT8,0(f)', # No effect
+            '#PLOT0,8(f)', # No effect
+            '#UDGARRAY*f(udg)'
+        )
+        output = writer.expand(''.join(macros), ASMDIR)
+        self._assert_img_equals(output, 'udg', '../{}'.format(exp_image_path))
+        exp_udgs = [[Udg(56, [0] * 8)]]
+        self._check_image(writer, exp_udgs, scale=4, path=exp_image_path)
+
+    def test_macro_plot_invalid(self):
+        writer, prefix = CommonSkoolMacroTest.test_macro_plot_invalid(self)
+        self._assert_error(writer, '#PLOT1,1(foo)', 'No such frame: "foo"', prefix)
+
     def test_macro_r(self):
         skool = """
             c00000 LD A,B
