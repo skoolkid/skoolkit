@@ -20,7 +20,7 @@ class MockImageWriter:
 
 class Sna2ImgTest(SkoolKitTestCase):
     def _test_sna2img(self, mock_open, options, data, udgs, scale=1, mask=0, tindex=0, alpha=-1, x=0, y=0,
-                      width=None, height=None, address=16384, outfile=None, iw_options=None, ftype='scr'):
+                      width=None, height=None, address=16384, iw_options=None, ftype='scr'):
         if ftype == 'scr':
             infile = self.write_bin_file(data, suffix='.scr')
         else:
@@ -39,12 +39,8 @@ class Sna2ImgTest(SkoolKitTestCase):
                 suffix = '.' + ftype if ftype else ''
                 infile = self.write_text_file(skool, suffix=suffix)
         args = '{} {}'.format(options, infile)
-        if outfile:
-            exp_outfile = outfile
-            args += ' {}'.format(outfile)
-        else:
-            prefix, sep, suffix = infile.rpartition('.')
-            exp_outfile = '{}.png'.format(prefix or suffix)
+        prefix, sep, suffix = infile.rpartition('.')
+        exp_outfile = '{}.png'.format(prefix or suffix)
         output, error = self.run_sna2img(args)
         self.assertEqual(output, '')
         self.assertEqual(error, '')
