@@ -157,19 +157,3 @@ class HtmlTestCase(DisassembliesTestCase):
         self.assertEqual(exp_output, stdout)
         self._validate_xhtml()
         self._check_links()
-
-class SftTestCase(DisassembliesTestCase):
-    def _test_sft(self, options, skool=None, snapshot=None, sna2skool_opts=None, ctl=None):
-        if not skool:
-            skool = self._write_skool(snapshot, ctl)
-        with open(skool) as f:
-            orig_skool = f.read().rstrip()
-        args = '{} {}'.format(options, skool)
-        sft, stderr = self.run_skool2sft(args)
-        self.assertEqual(stderr, '')
-        sftfile = self.write_text_file(sft)
-        options = '-T {}'.format(sftfile)
-        if sna2skool_opts:
-            options += ' {}'.format(sna2skool_opts)
-        output, stderr = self.run_sna2skool('{} {}'.format(options, snapshot))
-        self.assertEqual(orig_skool, output.rstrip())
