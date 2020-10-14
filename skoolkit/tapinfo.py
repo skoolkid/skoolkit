@@ -134,7 +134,7 @@ HARDWARE_TYPE = {
         0x0A: 'Zon-X AY',
         0x0B: 'QuickSilva AY',
         0x0C: 'Jupiter ACE'
-       }),
+    }),
     4: ('Joystick', {
         0x00: 'Kempston',
         0x01: 'Cursor, Protek, AGF',
