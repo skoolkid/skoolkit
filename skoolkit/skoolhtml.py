@@ -88,7 +88,7 @@ class HtmlWriter:
 
         self.table_parser = TableParser()
         self.list_parser = ListParser()
-        self.to_chr = lambda n: '&#{};'.format(n)
+        self.to_chr = '&#{};'.format
         self.get_reg = lambda r: self.format_template('reg', {'reg': r})
         self.space = '&#160;'
         self.pc = 0

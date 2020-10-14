@@ -97,7 +97,7 @@ class AsmWriter:
 
         self.list_parser = ListParser(properties.get('bullet', '*'))
 
-        self.to_chr = lambda n: chr(n)
+        self.to_chr = chr
         self.get_reg = lambda r: r
         self.space = ' '
         self.pc = 0
