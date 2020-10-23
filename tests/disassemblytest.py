@@ -1,6 +1,7 @@
 import sys
 import os
 import shutil
+from collections import namedtuple
 from functools import partial
 from lxml import etree
 from xml.dom.minidom import parse
@@ -13,9 +14,11 @@ from skoolkit import CASE_LOWER
 from skoolkit.skoolhtml import HtmlWriter
 from skoolkit.skoolmacro import parse_n
 
+FakeWriter = namedtuple('FakeWriter', 'base case fields')
+
 class MacroExpander(HtmlWriter):
     def __init__(self, base, case):
-        self.macros = {'#N': partial(parse_n, base, case == CASE_LOWER)}
+        self.macros = {'#N': partial(parse_n, FakeWriter(base, case, None))}
 
 def _find_ids_and_hrefs(elements, doc_anchors, doc_hrefs):
     for node in elements:
