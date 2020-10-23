@@ -1,7 +1,7 @@
 Changelog
 =========
 
-8.3b1
+8.3rc
 -----
 * Added the :ref:`PLOT` macro (for setting, resetting or flipping a pixel in a
   frame already created by an image macro)
