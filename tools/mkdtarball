@@ -19,9 +19,10 @@ readme() {
 The HTML disassemblies in this archive were built from the source files in the
 'sources' subdirectory using version $SK_VERSION of SkoolKit.
 
-SkoolKit can be obtained from the following location:
+SkoolKit can be obtained from the following locations:
 
-  https://skoolkit.ca
+  https://skoolkit.ca/skoolkit/
+  https://github.com/skoolkid/skoolkit/releases/
 
 An HTML disassembly can be built from the source files by following these
 steps:
@@ -50,9 +51,10 @@ asm_header() {
 An ASM version of the disassembly in this archive can be built from the source
 files in the 'sources' subdirectory using version $SK_VERSION of SkoolKit.
 
-SkoolKit can be obtained from the following location:
+SkoolKit can be obtained from the following locations:
 
-  https://skoolkit.ca
+  https://skoolkit.ca/skoolkit/
+  https://github.com/skoolkid/skoolkit/releases/
 
 The ASM disassembly can be built by following these steps:
 
