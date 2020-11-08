@@ -249,6 +249,9 @@ to parse the parameters of a skool macro.
 
 .. autofunction:: skoolkit.skoolmacro.parse_image_macro
 
+   .. versionchanged:: 8.3
+      Added the *fields* parameter.
+
    .. versionadded:: 5.1
 
 Expanding skool macros
@@ -387,6 +390,9 @@ The Udg class also provides a method for creating a copy of a UDG.
 The Frame class represents a single frame of a still or animated image.
 
 .. autoclass:: skoolkit.graphics.Frame
+
+   .. versionchanged:: 8.3
+      Added the *x_offset* and *y_offset* parameters.
 
    .. versionchanged:: 8.2
       Added the *tindex* and *alpha* parameters.

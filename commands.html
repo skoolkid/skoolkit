@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Commands &#8212; SkoolKit 8.2 documentation</title>
+    <title>Commands &#8212; SkoolKit 8.3 documentation</title>
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -34,7 +34,7 @@
         <li class="right" >
           <a href="diy.html" title="Disassembly DIY"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.2 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.3 documentation</a> &#187;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
@@ -201,24 +201,27 @@ file. FILE may be a regular file, or &#39;-&#39; to read a binary file from stan
 input.
 
 Options:
+  -b BEGIN, --begin BEGIN
+                        Begin conversion at this address (default: ORG for a
+                        binary file, 16384 for a snapshot).
   -c N, --clear N       Use a &#39;CLEAR N&#39; command in the BASIC loader and leave
                         the stack pointer alone.
-  -e ADDR, --end ADDR   Set the end address when reading a snapshot.
-  -o ORG, --org ORG     Set the origin address (default: 16384 for a snapshot,
-                        otherwise 65536 minus the length of FILE).
+  -e END, --end END     End conversion at this address.
+  -o ORG, --org ORG     Set the origin address for a binary file (default:
+                        65536 minus the length of FILE).
   -p STACK, --stack STACK
-                        Set the stack pointer (default: ORG).
+                        Set the stack pointer (default: BEGIN).
   -s START, --start START
-                        Set the start address to JP to (default: ORG).
+                        Set the start address to JP to (default: BEGIN).
   -S FILE, --screen FILE
                         Add a loading screen to the TAP file. FILE may be a
                         snapshot or a 6912-byte SCR file.
   -V, --version         Show SkoolKit version number and exit.
 </pre></div>
 </div>
-<p>Note that the ROM tape loading routine at 1366 ($0556) and the load routine
+<p>Note that the ROM tape loading routine at 1366 (0x0556) and the load routine
 used by <cite>bin2tap.py</cite> together require 14 bytes for stack operations, and so
-STACK must be at least 16384+14=16398 ($400E). This means that if ORG is less
+STACK must be at least 16384+14=16398 (0x400E). This means that if ORG is less
 than 16398, you should use the <code class="docutils literal notranslate"><span class="pre">-p</span></code> option to set the stack pointer to
 something appropriate. If the main data block (derived from <cite>game.bin</cite>)
 overlaps any of the last four bytes of the stack, <cite>bin2tap.py</cite> will replace
@@ -230,7 +233,7 @@ used to store essential code or data.</p>
 <code class="docutils literal notranslate"><span class="pre">--clear</span></code> option to add a CLEAR command to the BASIC loader. This option
 leaves the stack pointer alone, enabling the program to return to BASIC without
 crashing. The lowest usable address with the <code class="docutils literal notranslate"><span class="pre">--clear</span></code> option on a bare 48K
-Spectrum is 23952 ($5D90).</p>
+Spectrum is 23952 (0x5D90).</p>
 <table border="1" class="docutils">
 <colgroup>
 <col width="12%" />
@@ -242,28 +245,32 @@ Spectrum is 23952 ($5D90).</p>
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>6.2</td>
+<tr class="row-even"><td>8.3</td>
+<td>Added the <code class="docutils literal notranslate"><span class="pre">--begin</span></code> option; the <code class="docutils literal notranslate"><span class="pre">--end</span></code> option applies to raw
+memory files as well as snapshots</td>
+</tr>
+<tr class="row-odd"><td>6.2</td>
 <td>The <code class="docutils literal notranslate"><span class="pre">--clear</span></code>, <code class="docutils literal notranslate"><span class="pre">--end</span></code>, <code class="docutils literal notranslate"><span class="pre">--org</span></code>, <code class="docutils literal notranslate"><span class="pre">--stack</span></code> and
 <code class="docutils literal notranslate"><span class="pre">--start</span></code> options accept a hexadecimal integer prefixed by ‘0x’</td>
 </tr>
-<tr class="row-odd"><td>5.3</td>
+<tr class="row-even"><td>5.3</td>
 <td>Added the <code class="docutils literal notranslate"><span class="pre">--screen</span></code> option</td>
 </tr>
-<tr class="row-even"><td>5.2</td>
+<tr class="row-odd"><td>5.2</td>
 <td>Added the ability to read a binary file from standard input;
 added a second positional argument specifying the TAP filename</td>
 </tr>
-<tr class="row-odd"><td>4.5</td>
+<tr class="row-even"><td>4.5</td>
 <td>Added the <code class="docutils literal notranslate"><span class="pre">--clear</span></code> and <code class="docutils literal notranslate"><span class="pre">--end</span></code> options, and the ability to
 convert SNA, SZX and Z80 snapshots</td>
 </tr>
-<tr class="row-even"><td>3.4</td>
+<tr class="row-odd"><td>3.4</td>
 <td>Added the <code class="docutils literal notranslate"><span class="pre">-V</span></code> option and the long options</td>
 </tr>
-<tr class="row-odd"><td>2.2.5</td>
+<tr class="row-even"><td>2.2.5</td>
 <td>Added the <code class="docutils literal notranslate"><span class="pre">-p</span></code> option</td>
 </tr>
-<tr class="row-even"><td>1.3.1</td>
+<tr class="row-odd"><td>1.3.1</td>
 <td>New</td>
 </tr>
 </tbody>
@@ -1036,7 +1043,8 @@ Convert a binary (raw memory) file or a SNA, SZX or Z80 snapshot into a skool
 file. FILE may be a regular file, or &#39;-&#39; for standard input.
 
 Options:
-  -c FILE, --ctl FILE   Use FILE as a control file. FILE may be &#39;-&#39; for
+  -c PATH, --ctl PATH   Specify a control file to use, or a directory from
+                        which to read control files. PATH may be &#39;-&#39; for
                         standard input, or &#39;0&#39; to use no control file. This
                         option may be used multiple times.
   -e ADDR, --end ADDR   Stop disassembling at this address (default=65536).
@@ -1139,66 +1147,70 @@ LineWidth=120
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>8.1</td>
+<tr class="row-even"><td>8.3</td>
+<td>Added support for reading control files from a directory
+(<code class="docutils literal notranslate"><span class="pre">--ctl</span> <span class="pre">DIR</span></code>)</td>
+</tr>
+<tr class="row-odd"><td>8.1</td>
 <td>Added support for ignoring default control files (<code class="docutils literal notranslate"><span class="pre">--ctl</span> <span class="pre">0</span></code>)</td>
 </tr>
-<tr class="row-odd"><td>8.0</td>
+<tr class="row-even"><td>8.0</td>
 <td>Added the <code class="docutils literal notranslate"><span class="pre">DefwSize</span></code> configuration parameter</td>
 </tr>
-<tr class="row-even"><td>7.1</td>
+<tr class="row-odd"><td>7.1</td>
 <td>Added support for reading multiple default control files, and for
 using the <code class="docutils literal notranslate"><span class="pre">--ctl</span></code> option multiple times; added the
 <code class="docutils literal notranslate"><span class="pre">CommentWidthMin</span></code>, <code class="docutils literal notranslate"><span class="pre">InstructionWidth</span></code> and <code class="docutils literal notranslate"><span class="pre">Semicolons</span></code>
 configuration parameters</td>
 </tr>
-<tr class="row-odd"><td>7.0</td>
+<tr class="row-even"><td>7.0</td>
 <td>The short option for <code class="docutils literal notranslate"><span class="pre">--lower</span></code> is <code class="docutils literal notranslate"><span class="pre">-l</span></code>; the long option for
 <code class="docutils literal notranslate"><span class="pre">-H</span></code> is <code class="docutils literal notranslate"><span class="pre">--hex</span></code></td>
 </tr>
-<tr class="row-even"><td>6.2</td>
+<tr class="row-odd"><td>6.2</td>
 <td>Added the <code class="docutils literal notranslate"><span class="pre">--show-config</span></code> option; the <code class="docutils literal notranslate"><span class="pre">--end</span></code>, <code class="docutils literal notranslate"><span class="pre">--org</span></code> and
 <code class="docutils literal notranslate"><span class="pre">--start</span></code> options accept a hexadecimal integer prefixed by ‘0x’</td>
 </tr>
-<tr class="row-odd"><td>6.1</td>
+<tr class="row-even"><td>6.1</td>
 <td>Configuration is read from <cite>skoolkit.ini</cite> if present; added the
 <code class="docutils literal notranslate"><span class="pre">--ini</span></code> option</td>
 </tr>
-<tr class="row-even"><td>4.4</td>
+<tr class="row-odd"><td>4.4</td>
 <td>Added the <code class="docutils literal notranslate"><span class="pre">--end</span></code> option</td>
 </tr>
-<tr class="row-odd"><td>4.3</td>
+<tr class="row-even"><td>4.3</td>
 <td>Added the <code class="docutils literal notranslate"><span class="pre">--line-width</span></code> option</td>
 </tr>
-<tr class="row-even"><td>3.4</td>
+<tr class="row-odd"><td>3.4</td>
 <td>Added the <code class="docutils literal notranslate"><span class="pre">-V</span></code> option and the long options, and the ability to
 add a comment listing referrers at every routine entry point</td>
 </tr>
-<tr class="row-odd"><td>3.3</td>
+<tr class="row-even"><td>3.3</td>
 <td>Added the ability to read 128K SNA snapshots</td>
 </tr>
-<tr class="row-even"><td>3.2</td>
+<tr class="row-odd"><td>3.2</td>
 <td>Added the <code class="docutils literal notranslate"><span class="pre">-p</span></code> option, and the ability to read SZX snapshots
 and 128K Z80 snapshots</td>
 </tr>
-<tr class="row-odd"><td>2.1.2</td>
+<tr class="row-even"><td>2.1.2</td>
 <td>Added the ability to write the disassembly in lower case</td>
 </tr>
-<tr class="row-even"><td>2.1</td>
+<tr class="row-odd"><td>2.1</td>
 <td>Added the <code class="docutils literal notranslate"><span class="pre">-H</span></code> option</td>
 </tr>
-<tr class="row-odd"><td>2.0.1</td>
+<tr class="row-even"><td>2.0.1</td>
 <td>Added the <code class="docutils literal notranslate"><span class="pre">-o</span></code> option, and the ability to read binary files, to
 set the maximum number of characters in a DEFM statement, and to
 suppress comments that list routine entry point referrers</td>
 </tr>
-<tr class="row-even"><td>2.0</td>
+<tr class="row-odd"><td>2.0</td>
 <td>Added the ability to set the maximum number of bytes in a DEFB
 statement</td>
 </tr>
-<tr class="row-odd"><td>1.0.5</td>
+<tr class="row-even"><td>1.0.5</td>
 <td>Added the ability to show ASCII text in comment fields</td>
 </tr>
-<tr class="row-even"><td>1.0.4</td>
+<tr class="row-odd"><td>1.0.4</td>
 <td>Added the <code class="docutils literal notranslate"><span class="pre">-s</span></code> option</td>
 </tr>
 </tbody>
@@ -1219,8 +1231,9 @@ Analyse a binary (raw memory) file or a SNA, SZX or Z80 snapshot.
 
 Options:
   -b, --basic           List the BASIC program.
-  -c FILE, --ctl FILE   Use FILE as a control file when generating a call
-                        graph. FILE may be &#39;-&#39; for standard input. This option
+  -c PATH, --ctl PATH   When generating a call graph, specify a control file
+                        to use, or a directory from which to read control
+                        files. PATH may be &#39;-&#39; for standard input. This option
                         may be used multiple times.
   -f A[,B...[-M[-N]]], --find A[,B...[-M[-N]]]
                         Search for the byte sequence A,B... with distance
@@ -1330,26 +1343,30 @@ GraphAttributes=bgcolor=cyan
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>8.2</td>
+<tr class="row-even"><td>8.3</td>
+<td>Added support for reading control files from a directory
+(<code class="docutils literal notranslate"><span class="pre">--ctl</span> <span class="pre">DIR</span></code>)</td>
+</tr>
+<tr class="row-odd"><td>8.2</td>
 <td>Configuration is read from <cite>skoolkit.ini</cite> if present; added the
 ability to read binary files; added the <code class="docutils literal notranslate"><span class="pre">--call-graph</span></code>,
 <code class="docutils literal notranslate"><span class="pre">--ctl</span></code>, <code class="docutils literal notranslate"><span class="pre">--ini</span></code>, <code class="docutils literal notranslate"><span class="pre">--org</span></code>, <code class="docutils literal notranslate"><span class="pre">--page</span></code> and <code class="docutils literal notranslate"><span class="pre">--show-config</span></code>
 options</td>
 </tr>
-<tr class="row-odd"><td>6.2</td>
+<tr class="row-even"><td>6.2</td>
 <td>The <code class="docutils literal notranslate"><span class="pre">--find</span></code>, <code class="docutils literal notranslate"><span class="pre">--find-tile</span></code>, <code class="docutils literal notranslate"><span class="pre">--peek</span></code> and <code class="docutils literal notranslate"><span class="pre">--word</span></code>
 options accept hexadecimal integers prefixed by ‘0x’</td>
 </tr>
-<tr class="row-even"><td>6.0</td>
+<tr class="row-odd"><td>6.0</td>
 <td>Added support to the <code class="docutils literal notranslate"><span class="pre">--find</span></code> option for distance ranges; added
 the <code class="docutils literal notranslate"><span class="pre">--find-tile</span></code> and <code class="docutils literal notranslate"><span class="pre">--word</span></code> options; the <code class="docutils literal notranslate"><span class="pre">--peek</span></code> option
 shows UDGs and BASIC tokens</td>
 </tr>
-<tr class="row-odd"><td>5.4</td>
+<tr class="row-even"><td>5.4</td>
 <td>Added the <code class="docutils literal notranslate"><span class="pre">--variables</span></code> option; UDGs in a BASIC program are
 shown as special symbols (e.g. <code class="docutils literal notranslate"><span class="pre">{UDG-A}</span></code>)</td>
 </tr>
-<tr class="row-even"><td>5.3</td>
+<tr class="row-odd"><td>5.3</td>
 <td>New</td>
 </tr>
 </tbody>
@@ -1540,6 +1557,7 @@ Options:
   -B N[,A], --basic N[,A]
                         List the BASIC program in block N loaded at address A
                         (default 23755).
+  -d, --data            Show the entire contents of header and data blocks.
   -V, --version         Show SkoolKit version number and exit.
 </pre></div>
 </div>
@@ -1554,22 +1572,25 @@ Options:
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>8.1</td>
+<tr class="row-even"><td>8.3</td>
+<td>Added the <code class="docutils literal notranslate"><span class="pre">--data</span></code> option</td>
+</tr>
+<tr class="row-odd"><td>8.1</td>
 <td>Shows contents of TZX block types 0x33 (hardware type) and 0x35
 (custom info)</td>
 </tr>
-<tr class="row-odd"><td>7.1</td>
+<tr class="row-even"><td>7.1</td>
 <td>Shows pulse lengths in TZX block type 0x13 and full info for TZX
 block type 0x14</td>
 </tr>
-<tr class="row-even"><td>6.2</td>
+<tr class="row-odd"><td>6.2</td>
 <td>The <code class="docutils literal notranslate"><span class="pre">--basic</span></code> option accepts a hexadecimal address prefixed by
 ‘0x’</td>
 </tr>
-<tr class="row-odd"><td>6.0</td>
+<tr class="row-even"><td>6.0</td>
 <td>Added the <code class="docutils literal notranslate"><span class="pre">--basic</span></code> option</td>
 </tr>
-<tr class="row-even"><td>5.0</td>
+<tr class="row-odd"><td>5.0</td>
 <td>New</td>
 </tr>
 </tbody>
@@ -1598,7 +1619,7 @@ block type 0x14</td>
         <li class="right" >
           <a href="diy.html" title="Disassembly DIY"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.2 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.3 documentation</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">

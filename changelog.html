@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Changelog &#8212; SkoolKit 8.2 documentation</title>
+    <title>Changelog &#8212; SkoolKit 8.3 documentation</title>
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -34,7 +34,7 @@
         <li class="right" >
           <a href="migration.html" title="Migrating from SkoolKit 7"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.2 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.3 documentation</a> &#187;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
@@ -42,9 +42,10 @@
   <h3><a href="index.html">Table of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">Changelog</a><ul>
-<li><a class="reference internal" href="#id1">8.2 (2020-07-19)</a></li>
-<li><a class="reference internal" href="#id2">8.1 (2020-03-29)</a></li>
-<li><a class="reference internal" href="#id3">8.0 (2019-11-09)</a></li>
+<li><a class="reference internal" href="#id1">8.3 (2020-11-08)</a></li>
+<li><a class="reference internal" href="#id2">8.2 (2020-07-19)</a></li>
+<li><a class="reference internal" href="#id3">8.1 (2020-03-29)</a></li>
+<li><a class="reference internal" href="#id4">8.0 (2019-11-09)</a></li>
 <li><a class="reference internal" href="#older-versions">Older versions</a></li>
 </ul>
 </li>
@@ -86,7 +87,32 @@
   <div class="section" id="changelog">
 <h1>Changelog<a class="headerlink" href="#changelog" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="id1">
-<h2>8.2 (2020-07-19)<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<h2>8.3 (2020-11-08)<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Added the <a class="reference internal" href="skool-macros.html#plot"><span class="std std-ref">#PLOT</span></a> macro (for setting, resetting or flipping a pixel in a
+frame already created by an image macro)</li>
+<li>Added the <code class="docutils literal notranslate"><span class="pre">--begin</span></code> option to <a class="reference internal" href="commands.html#bin2tap-py"><span class="std std-ref">bin2tap.py</span></a> (for specifying the address
+at which to begin conversion)</li>
+<li>The <code class="docutils literal notranslate"><span class="pre">--end</span></code> option of <a class="reference internal" href="commands.html#bin2tap-py"><span class="std std-ref">bin2tap.py</span></a> now applies to raw memory files as
+well as SNA, SZX and Z80 snapshots</li>
+<li>Added the <code class="docutils literal notranslate"><span class="pre">--data</span></code> option to <a class="reference internal" href="commands.html#tapinfo-py"><span class="std std-ref">tapinfo.py</span></a> (for showing the entire
+contents of header and data blocks)</li>
+<li>Added support to the <code class="docutils literal notranslate"><span class="pre">--ctl</span></code> option of <a class="reference internal" href="commands.html#sna2skool-py"><span class="std std-ref">sna2skool.py</span></a> and
+<a class="reference internal" href="commands.html#snapinfo-py"><span class="std std-ref">snapinfo.py</span></a> for reading control files from a directory</li>
+<li>Added the <code class="docutils literal notranslate"><span class="pre">x</span></code> and <code class="docutils literal notranslate"><span class="pre">y</span></code> parameters to the frame specification of the
+<a class="reference internal" href="skool-macros.html#animation"><span class="std std-ref">#UDGARRAY*</span></a> macro (for specifying the coordinates at which
+to render a frame of an animated image)</li>
+<li>Added support for replacement fields in the <code class="docutils literal notranslate"><span class="pre">args</span></code> parameter of the
+<a class="reference internal" href="skool-macros.html#call"><span class="std std-ref">#CALL</span></a> macro, in the integer parameters of the <a class="reference internal" href="skool-macros.html#chr"><span class="std std-ref">#CHR</span></a>, <a class="reference internal" href="skool-macros.html#d"><span class="std std-ref">#D</span></a>,
+<a class="reference internal" href="skool-macros.html#include"><span class="std std-ref">#INCLUDE</span></a>, <a class="reference internal" href="skool-macros.html#n"><span class="std std-ref">#N</span></a>, <a class="reference internal" href="skool-macros.html#pokes"><span class="std std-ref">#POKES</span></a>, <a class="reference internal" href="skool-macros.html#r"><span class="std std-ref">#R</span></a> and <a class="reference internal" href="skool-macros.html#space"><span class="std std-ref">#SPACE</span></a> macros, and
+in the integer parameters and cropping specification of the <a class="reference internal" href="skool-macros.html#font"><span class="std std-ref">#FONT</span></a>,
+<a class="reference internal" href="skool-macros.html#scr"><span class="std std-ref">#SCR</span></a>, <a class="reference internal" href="skool-macros.html#udg"><span class="std std-ref">#UDG</span></a> and <a class="reference internal" href="skool-macros.html#udgarray"><span class="std std-ref">#UDGARRAY</span></a> macros</li>
+<li>Fixed the bug that causes ‘e+1’ to be interpreted as a floating point number
+when it appears in a BASIC program</li>
+</ul>
+</div>
+<div class="section" id="id2">
+<h2>8.2 (2020-07-19)<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li>Added the <code class="docutils literal notranslate"><span class="pre">--call-graph</span></code> option to <a class="reference internal" href="commands.html#snapinfo-call-graph"><span class="std std-ref">snapinfo.py</span></a>
 (for generating a call graph in DOT format)</li>
@@ -120,8 +146,8 @@ jump to or call an entry point)</li>
 a 128K snapshot to map to 49152-65535)</li>
 </ul>
 </div>
-<div class="section" id="id2">
-<h2>8.1 (2020-03-29)<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id3">
+<h2>8.1 (2020-03-29)<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li>Added the <code class="docutils literal notranslate"><span class="pre">--rsub</span></code> and <code class="docutils literal notranslate"><span class="pre">--rfix</span></code> options to <a class="reference internal" href="commands.html#skool2bin-py"><span class="std std-ref">skool2bin.py</span></a> (for
 parsing the skool file in <a class="reference internal" href="asm.html#rsubmode"><span class="std std-ref">&#64;rsub mode</span></a> and <a class="reference internal" href="asm.html#rfixmode"><span class="std std-ref">&#64;rfix mode</span></a>)</li>
@@ -157,8 +183,8 @@ specifying <code class="docutils literal notranslate"><span class="pre">--ctl</s
 when an end address is specified</li>
 </ul>
 </div>
-<div class="section" id="id3">
-<h2>8.0 (2019-11-09)<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id4">
+<h2>8.0 (2019-11-09)<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li>Dropped support for Python 3.4</li>
 <li>Made several <a class="reference internal" href="components.html#components"><span class="std std-ref">SkoolKit components</span></a> pluggable</li>
@@ -229,7 +255,7 @@ comments</li>
         <li class="right" >
           <a href="migration.html" title="Migrating from SkoolKit 7"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.2 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.3 documentation</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">

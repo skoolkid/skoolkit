@@ -1,6 +1,29 @@
 Changelog
 =========
 
+8.3 (2020-11-08)
+----------------
+* Added the :ref:`PLOT` macro (for setting, resetting or flipping a pixel in a
+  frame already created by an image macro)
+* Added the ``--begin`` option to :ref:`bin2tap.py` (for specifying the address
+  at which to begin conversion)
+* The ``--end`` option of :ref:`bin2tap.py` now applies to raw memory files as
+  well as SNA, SZX and Z80 snapshots
+* Added the ``--data`` option to :ref:`tapinfo.py` (for showing the entire
+  contents of header and data blocks)
+* Added support to the ``--ctl`` option of :ref:`sna2skool.py` and
+  :ref:`snapinfo.py` for reading control files from a directory
+* Added the ``x`` and ``y`` parameters to the frame specification of the
+  :ref:`#UDGARRAY* <Animation>` macro (for specifying the coordinates at which
+  to render a frame of an animated image)
+* Added support for replacement fields in the ``args`` parameter of the
+  :ref:`CALL` macro, in the integer parameters of the :ref:`CHR`, :ref:`D`,
+  :ref:`INCLUDE`, :ref:`N`, :ref:`POKES`, :ref:`R` and :ref:`SPACE` macros, and
+  in the integer parameters and cropping specification of the :ref:`FONT`,
+  :ref:`SCR`, :ref:`UDG` and :ref:`UDGARRAY` macros
+* Fixed the bug that causes 'e+1' to be interpreted as a floating point number
+  when it appears in a BASIC program
+
 8.2 (2020-07-19)
 ----------------
 * Added the ``--call-graph`` option to :ref:`snapinfo.py <snapinfo-call-graph>`

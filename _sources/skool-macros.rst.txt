@@ -52,9 +52,9 @@ or in hexadecimal notation (prefixed by ``$``)::
 Wherever a sequence of numeric parameters appears in a macro, that sequence
 may optionally be enclosed in parentheses: ``(`` and ``)``. Parentheses are
 `required` if any numeric parameter is written as an expression containing
-arithmetic operations or skool macros::
+arithmetic operations, skool macros or replacement fields::
 
-  #UDG(51672+1,#PEEK51672)
+  #UDG(51672+{offset},#PEEK51672)
 
 The following operators are permitted in an arithmetic expression:
 
@@ -123,10 +123,10 @@ Note that if an alternative delimiter or separator is used, it must not be '&',
 
 Replacement fields
 ^^^^^^^^^^^^^^^^^^
-The following replacement fields are available for use in the parameter strings
-of the :ref:`asm-if` directive, the :ref:`EVAL`, :ref:`FOR`, :ref:`FORMAT`,
-:ref:`IF`, :ref:`LET`, :ref:`MAP` and :ref:`PEEK` macros, and any macro defined
-by :ref:`DEFINE`:
+The following replacement fields are available for use in the integer
+parameters of the :ref:`asm-if` directive and every skool macro (including
+macros defined by :ref:`DEFINE`), and also in the string parameters of the
+:ref:`FORMAT` and :ref:`LET` macros:
 
 * ``asm`` - 1 if in :ref:`isubMode`, 2 if in :ref:`ssubMode`, 3 if in
   :ref:`rsubMode`, or 0 otherwise
@@ -597,7 +597,8 @@ defined by the :ref:`writer` ASM directive in the skool file). ::
   #CALL:methodName(args)
 
 * ``methodName`` is the name of the method to call
-* ``args`` is a comma-separated list of arguments to pass to the method
+* ``args`` is a comma-separated list of arguments to pass to the method, which
+  may contain :ref:`replacement fields <replacementFields>`
 
 Each argument can be expressed either as a plain value (e.g. ``32768``) or as a
 keyword argument (e.g. ``address=32768``).
@@ -613,18 +614,20 @@ with the argument ``32768``.
 For information on writing methods that may be called by a ``#CALL`` macro, see
 the documentation on :ref:`extending SkoolKit <extendingSkoolKit>`.
 
-+---------+--------------------------------------------------------------+
-| Version | Changes                                                      |
-+=========+==============================================================+
-| 8.1     | Added support for keyword arguments                          |
-+---------+--------------------------------------------------------------+
-| 5.1     | Added support for arithmetic expressions and skool macros in |
-|         | numeric method arguments                                     |
-+---------+--------------------------------------------------------------+
-| 3.1     | Added support for ASM mode                                   |
-+---------+--------------------------------------------------------------+
-| 2.1     | New                                                          |
-+---------+--------------------------------------------------------------+
++---------+-------------------------------------------------------------------+
+| Version | Changes                                                           |
++=========+===================================================================+
+| 8.3     | Added support for replacement fields in the ``args`` parameter    |
++---------+-------------------------------------------------------------------+
+| 8.1     | Added support for keyword arguments                               |
++---------+-------------------------------------------------------------------+
+| 5.1     | Added support for arithmetic expressions and skool macros in the  |
+|         | ``args`` parameter                                                |
++---------+-------------------------------------------------------------------+
+| 3.1     | Added support for ASM mode                                        |
++---------+-------------------------------------------------------------------+
+| 2.1     | New                                                               |
++---------+-------------------------------------------------------------------+
 
 .. _CHR:
 
@@ -635,6 +638,9 @@ In HTML mode, the ``#CHR`` macro expands to a numeric character reference
 encoding. ::
 
   #CHRnum
+
+* ``num`` is the character code, which may contain
+  :ref:`replacement fields <replacementFields>`
 
 For example:
 
@@ -649,6 +655,8 @@ mode, it expands to the copyright symbol.
 +---------+------------------------------------------------------------------+
 | Version | Changes                                                          |
 +=========+==================================================================+
+| 8.3     | Added support for replacement fields in the ``num`` parameter    |
++---------+------------------------------------------------------------------+
 | 5.1     | Added support for arithmetic expressions and skool macros in the |
 |         | ``num`` parameter                                                |
 +---------+------------------------------------------------------------------+
@@ -664,7 +672,8 @@ the memory map. ::
 
   #Daddr
 
-* ``addr`` is the address of the entry.
+* ``addr`` is the address of the entry, which may contain
+  :ref:`replacement fields <replacementFields>`
 
 For example::
 
@@ -679,6 +688,8 @@ This instance of the ``#D`` macro expands to the title of the routine at 27126.
 +---------+------------------------------------------------------------------+
 | Version | Changes                                                          |
 +=========+==================================================================+
+| 8.3     | Added support for replacement fields in the ``addr`` parameter   |
++---------+------------------------------------------------------------------+
 | 5.1     | Added support for arithmetic expressions and skool macros in the |
 |         | ``addr`` parameter                                               |
 +---------+------------------------------------------------------------------+
@@ -724,7 +735,8 @@ section; in ASM mode, it expands to an empty string. ::
   #INCLUDE[paragraphs](section)
 
 * ``paragraphs`` specifies how to format the contents of the ref file section:
-  verbatim (``0`` - the default), or into paragraphs (``1``)
+  verbatim (``0`` - the default), or into paragraphs (``1``); this parameter
+  may contain :ref:`replacement fields <replacementFields>`
 * ``section`` is the name of the ref file section
 
 The ``#INCLUDE`` macro can be used to insert the contents of one ref file
@@ -739,11 +751,14 @@ section into another. For example::
 See :ref:`stringParameters` for details on alternative ways to supply the
 ``section`` parameter.
 
-+---------+---------+
-| Version | Changes |
-+=========+=========+
-| 5.3     | New     |
-+---------+---------+
++---------+-------------------------------------------------------------------+
+| Version | Changes                                                           |
++=========+===================================================================+
+| 8.3     | Added support for replacement fields in the ``paragraphs``        |
+|         | parameter                                                         |
++---------+-------------------------------------------------------------------+
+| 5.3     | New                                                               |
++---------+-------------------------------------------------------------------+
 
 .. _LINK:
 
@@ -891,12 +906,17 @@ This instance of the ``#N`` macro expands to one of the following:
 * ``0x000F`` (when ``--hex`` is used without ``--lower``)
 * ``0x000f`` (when both ``--hex`` and ``--lower`` are used)
 
+The integer parameters of the ``#N`` macro may contain
+:ref:`replacement fields <replacementFields>`.
+
 See :ref:`stringParameters` for details on alternative ways to supply the
 ``prefix`` and ``suffix`` parameters.
 
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 8.3     | Added support for replacement fields in the integer parameters    |
++---------+-------------------------------------------------------------------+
 | 6.2     | Added the ``hex`` parameter                                       |
 +---------+-------------------------------------------------------------------+
 | 5.2     | New                                                               |
@@ -913,7 +933,7 @@ within that page. ::
   #Raddr[@code][#name][(link text)]
 
 * ``addr`` is the address of the routine or data block (or entry point
-  thereof)
+  thereof), which may contain :ref:`replacement fields <replacementFields>`
 * ``code`` is the ID of the disassembly that contains the routine or data block
   (if not given, the current disassembly is assumed; otherwise this must be
   either an ID defined in an :ref:`otherCode` section of the ref file, or
@@ -952,6 +972,8 @@ section.
 +---------+-----------------------------------------------------------------+
 | Version | Changes                                                         |
 +=========+=================================================================+
+| 8.3     | Added support for replacement fields in the ``addr`` parameter  |
++---------+-----------------------------------------------------------------+
 | 6.1     | In ASM mode, ``addr`` is converted to decimal or hexadecimal as |
 |         | appropriate even when it refers to an unavailable instruction   |
 +---------+-----------------------------------------------------------------+
@@ -1050,7 +1072,8 @@ mode) or spaces (in ASM mode). ::
 
   #SPACE[num]
 
-* ``num`` is the number of spaces required (default: 1)
+* ``num`` is the number of spaces required (default: 1), which may contain
+  :ref:`replacement fields <replacementFields>`
 
 For example::
 
@@ -1073,6 +1096,8 @@ text where necessary. For example::
 +---------+------------------------------------------------------------------+
 | Version | Changes                                                          |
 +=========+==================================================================+
+| 8.3     | Added support for replacement fields in the ``num`` parameter    |
++---------+------------------------------------------------------------------+
 | 5.1     | Added support for arithmetic expressions and skool macros in the |
 |         | ``num`` parameter                                                |
 +---------+------------------------------------------------------------------+
@@ -1205,9 +1230,9 @@ The ``#VERSION`` macro expands to the version of SkoolKit. ::
 
 Image macros
 ^^^^^^^^^^^^
-The :ref:`FONT`, :ref:`SCR`, :ref:`UDG` and :ref:`UDGARRAY` macros (described
-in the following sections) may be used to create images based on graphic data
-in the memory snapshot. They are not supported in ASM mode.
+The :ref:`FONT`, :ref:`PLOT`, :ref:`SCR`, :ref:`UDG` and :ref:`UDGARRAY` macros
+(described in the following sections) may be used to create images based on
+graphic data in the memory snapshot. They are not supported in ASM mode.
 
 These macros have several numeric parameters, most of which are optional. This
 can give rise to a long sequence of commas in a macro parameter string, making
@@ -1237,13 +1262,13 @@ of text rendered in the game font. ::
   ``text``)
 * ``attr`` is the attribute byte to use (default: 56)
 * ``scale`` is the scale of the image (default: 2)
-* ``CROP`` is the cropping specification (see :ref:`cropping`)
-* ``fname`` is the name of the image file (default: '`font`')
 * ``tindex`` is the index (0-15) of the entry in the palette to use as the
   transparent colour (default: 0; see :ref:`palette`)
 * ``alpha`` is the alpha value (0-255) to use for the transparent colour
   (default: the value of the ``PNGAlpha`` parameter in the
   :ref:`ref-ImageWriter` section)
+* ``CROP`` is the cropping specification (see :ref:`cropping`)
+* ``fname`` is the name of the image file (default: '`font`')
 
 If ``fname`` contains an image path ID replacement field (e.g.
 ``{ScreenshotImagePath}/font``), the corresponding parameter value from the
@@ -1270,12 +1295,18 @@ In HTML mode, this instance of the ``#FONT`` macro expands to an ``<img>``
 element for the image of the digits 0-9 in the 8x8 font whose graphic data
 starts at 49152.
 
+The integer parameters and the cropping specification of the ``#FONT`` macro
+may contain :ref:`replacement fields <replacementFields>`.
+
 See :ref:`stringParameters` for details on alternative ways to supply the
 ``text`` parameter.
 
 +---------+------------------------------------------------------------------+
 | Version | Changes                                                          |
 +=========+==================================================================+
+| 8.3     | Added support for replacement fields in the integer parameters   |
+|         | and the cropping specification                                   |
++---------+------------------------------------------------------------------+
 | 8.2     | Added the ``tindex`` and ``alpha`` parameters                    |
 +---------+------------------------------------------------------------------+
 | 6.3     | Added support for image path ID replacement fields in the        |
@@ -1298,6 +1329,37 @@ See :ref:`stringParameters` for details on alternative ways to supply the
 | 2.0.5   | Added the ``fname`` parameter and support for regular 8x8 fonts  |
 +---------+------------------------------------------------------------------+
 
+.. _PLOT:
+
+#PLOT
+-----
+In HTML mode, the ``#PLOT`` macro sets, resets or flips a pixel in a frame
+already created by one of the other image macros. ::
+
+  #PLOTx,y[,value](frame)
+
+* ``x`` and ``y`` are the coordinates of the pixel, relative to the top-left
+  corner of the frame
+* ``value`` is ``0`` to reset the pixel, ``1`` to set it (the default), or
+  ``2`` to flip it
+* ``frame`` is the name of the frame
+
+For example::
+
+  ; #UDG30000(*tile)
+  ; #PLOT1,2(tile)
+  ; #UDGARRAY*tile(tile)
+
+This instance of the ``#PLOT`` macro sets the second pixel from the left in the
+third row from the top in the frame created by the ``#UDG`` macro. The
+``#UDGARRAY*`` macro then creates an image of the modified frame.
+
++---------+---------+
+| Version | Changes |
++=========+=========+
+| 8.3     | New     |
++---------+---------+
+
 .. _SCR:
 
 #SCR
@@ -1318,13 +1380,13 @@ snapshot (in turn constructed from the contents of the skool file). ::
 * ``h`` is the height of the screenshot in tiles (default: 24)
 * ``df`` is the base address of the display file (default: 16384)
 * ``af`` is the base address of the attribute file (default: 22528)
-* ``CROP`` is the cropping specification (see :ref:`cropping`)
-* ``fname`` is the name of the image file (default: '`scr`')
 * ``tindex`` is the index (0-15) of the entry in the palette to use as the
   transparent colour (default: 0; see :ref:`palette`)
 * ``alpha`` is the alpha value (0-255) to use for the transparent colour
   (default: the value of the ``PNGAlpha`` parameter in the
   :ref:`ref-ImageWriter` section)
+* ``CROP`` is the cropping specification (see :ref:`cropping`)
+* ``fname`` is the name of the image file (default: '`scr`')
 
 If ``fname`` contains an image path ID replacement field (e.g.
 ``{UDGImagePath}/scr``), the corresponding parameter value from the
@@ -1347,9 +1409,15 @@ For example::
   ; { #SCR(loading) | This is the loading screen. }
   ; TABLE#
 
+The integer parameters and the cropping specification of the ``#SCR`` macro
+may contain :ref:`replacement fields <replacementFields>`.
+
 +---------+------------------------------------------------------------------+
 | Version | Changes                                                          |
 +=========+==================================================================+
+| 8.3     | Added support for replacement fields in the integer parameters   |
+|         | and the cropping specification                                   |
++---------+------------------------------------------------------------------+
 | 8.2     | Added the ``tindex`` and ``alpha`` parameters                    |
 +---------+------------------------------------------------------------------+
 | 6.3     | Added support for image path ID replacement fields in the        |
@@ -1438,9 +1506,15 @@ In HTML mode, this instance of the ``#UDG`` macro expands to an ``<img>``
 element for the image of the UDG at 39144 (which will be named `safe_key.png`),
 with attribute byte 6 (INK 6: PAPER 0).
 
+The integer parameters, mask specification and cropping specification of the
+``#UDG`` macro may contain :ref:`replacement fields <replacementFields>`.
+
 +---------+------------------------------------------------------------------+
 | Version | Changes                                                          |
 +=========+==================================================================+
+| 8.3     | Added support for replacement fields in the integer parameters,  |
+|         | mask specification and cropping specification                    |
++---------+------------------------------------------------------------------+
 | 8.2     | Added the ``tindex`` and ``alpha`` parameters                    |
 +---------+------------------------------------------------------------------+
 | 6.3     | Added support for image path ID replacement fields in the        |
@@ -1582,9 +1656,16 @@ element for the image of the 4x4 sprite formed by the 16 UDGs with base
 addresses 32768, 32776, 32784 and so on up to 32888; the image file will be
 named `base_sprite.png`.
 
+The integer parameters, UDG specifications, attribute address range
+specification and cropping specification of the ``#UDGARRAY`` macro may contain
+:ref:`replacement fields <replacementFields>`.
+
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 8.3     | Added support for replacement fields in the integer parameters    |
+|         | and the UDG, attribute address range and cropping specifications  |
++---------+-------------------------------------------------------------------+
 | 8.2     | Added the ``tindex`` and ``alpha`` parameters                     |
 +---------+-------------------------------------------------------------------+
 | 7.1     | Added the ability to specify attribute addresses                  |
@@ -1628,6 +1709,8 @@ the filename. For example::
 This ``#SCR`` macro creates an image named `screenshot1.png` with alt text
 'Screenshot 1'.
 
+.. _Animation:
+
 Animation
 ---------
 The image macros may be used to create the frames of an animated image. To
@@ -1646,12 +1729,14 @@ a set of frames::
 
 ``FRAME1``, ``FRAME2`` etc. are frame specifications; each one has the form::
 
-  name[,delay]
+  name[,delay,x,y]
 
 * ``name`` is the name of the frame
 * ``delay`` is the delay between this frame and the next in 1/100ths of a
   second; it also sets the default delay for any frames that follow (default:
   32)
+* ``x`` and ``y`` are the coordinates at which to render the frame, relative to
+  the top-left corner of the first frame (default: (0,0))
 
 For example::
 
@@ -1665,6 +1750,23 @@ For example::
 The ``#FONT`` macros create the required frames (and write images of them); the
 ``#UDGARRAY`` macro combines the three frames into a single animated image,
 with a delay of 0.5s between each frame.
+
+The integer parameters of a frame specification may contain
+:ref:`replacement fields <replacementFields>`.
+
+Note that the first frame of an animated image determines the size of the image
+as a whole. Therefore, the region defined by the width, height and coordinates
+of any subsequent frame must fall entirely inside the first frame.
+
++---------+-------------------------------------------------------------------+
+| Version | Changes                                                           |
++=========+===================================================================+
+| 8.3     | Added the ``x`` and ``y`` parameters to the frame specification;  |
+|         | added support for replacement fields in the integer parameters of |
+|         | a frame specification                                             |
++---------+-------------------------------------------------------------------+
+| 3.6     | New                                                               |
++---------+-------------------------------------------------------------------+
 
 .. _cropping:
 
@@ -1693,6 +1795,9 @@ For example::
 This ``#UDG`` macro creates an image of the UDG at 40000, at scale 2, with the
 top two rows and bottom two rows of pixels removed, and the leftmost two
 columns and rightmost two columns of pixels removed.
+
+The parameters of the cropping specification may contain
+:ref:`replacement fields <replacementFields>`.
 
 .. _masks:
 
@@ -1818,13 +1923,18 @@ For example::
 This instance of the ``#POKES`` macro does ``POKE 32772,254`` and
 ``POKE 32775,136``, which fixes a graphic glitch in the UDG at 32768.
 
+The parameter string of the ``#POKES`` macro may contain
+:ref:`replacement fields <replacementFields>`.
+
 See also :ref:`PEEK`.
 
 +---------+------------------------------------------------------------------+
 | Version | Changes                                                          |
 +=========+==================================================================+
+| 8.3     | Added support for replacement fields in the parameter string     |
++---------+------------------------------------------------------------------+
 | 5.1     | Added support for arithmetic expressions and skool macros in the |
-|         | numeric parameters                                               |
+|         | parameter string                                                 |
 +---------+------------------------------------------------------------------+
 | 3.1     | Added support for ASM mode                                       |
 +---------+------------------------------------------------------------------+

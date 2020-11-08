@@ -83,10 +83,9 @@ SkoolKit 4.x changelog
 * :ref:`skool2asm.py` now warns about unconverted addresses in register
   descriptions, and the :ref:`ignoreua` directive can be used to suppress such
   warnings
-* Added the :ref:`t_table`, ``t_table_cell``, ``t_table_header_cell`` and
-  ``t_table_row`` templates (for formatting tables produced by the
-  :ref:`TABLE` macro)
-* Added the :ref:`t_list` and ``t_list_item`` templates (for formatting lists
+* Added the :ref:`t_table`, *table_cell*, *table_header_cell* and *table_row*
+  templates (for formatting tables produced by the :ref:`TABLE` macro)
+* Added the :ref:`t_list` and *list_item* templates (for formatting lists
   produced by the :ref:`LIST` macro)
 * Fixed the bug that prevents the expansion of skool macros in the intro text
   of a ``Changelog:*`` section

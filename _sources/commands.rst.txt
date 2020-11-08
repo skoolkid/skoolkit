@@ -83,23 +83,26 @@ it with no arguments to see the list of available options::
   input.
 
   Options:
+    -b BEGIN, --begin BEGIN
+                          Begin conversion at this address (default: ORG for a
+                          binary file, 16384 for a snapshot).
     -c N, --clear N       Use a 'CLEAR N' command in the BASIC loader and leave
                           the stack pointer alone.
-    -e ADDR, --end ADDR   Set the end address when reading a snapshot.
-    -o ORG, --org ORG     Set the origin address (default: 16384 for a snapshot,
-                          otherwise 65536 minus the length of FILE).
+    -e END, --end END     End conversion at this address.
+    -o ORG, --org ORG     Set the origin address for a binary file (default:
+                          65536 minus the length of FILE).
     -p STACK, --stack STACK
-                          Set the stack pointer (default: ORG).
+                          Set the stack pointer (default: BEGIN).
     -s START, --start START
-                          Set the start address to JP to (default: ORG).
+                          Set the start address to JP to (default: BEGIN).
     -S FILE, --screen FILE
                           Add a loading screen to the TAP file. FILE may be a
                           snapshot or a 6912-byte SCR file.
     -V, --version         Show SkoolKit version number and exit.
 
-Note that the ROM tape loading routine at 1366 ($0556) and the load routine
+Note that the ROM tape loading routine at 1366 (0x0556) and the load routine
 used by `bin2tap.py` together require 14 bytes for stack operations, and so
-STACK must be at least 16384+14=16398 ($400E). This means that if ORG is less
+STACK must be at least 16384+14=16398 (0x400E). This means that if ORG is less
 than 16398, you should use the ``-p`` option to set the stack pointer to
 something appropriate. If the main data block (derived from `game.bin`)
 overlaps any of the last four bytes of the stack, `bin2tap.py` will replace
@@ -112,11 +115,14 @@ If the input file contains a program that returns to BASIC, you should use the
 ``--clear`` option to add a CLEAR command to the BASIC loader. This option
 leaves the stack pointer alone, enabling the program to return to BASIC without
 crashing. The lowest usable address with the ``--clear`` option on a bare 48K
-Spectrum is 23952 ($5D90).
+Spectrum is 23952 (0x5D90).
 
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 8.3     | Added the ``--begin`` option; the ``--end`` option applies to raw |
+|         | memory files as well as snapshots                                 |
++---------+-------------------------------------------------------------------+
 | 6.2     | The ``--clear``, ``--end``, ``--org``, ``--stack`` and            |
 |         | ``--start`` options accept a hexadecimal integer prefixed by '0x' |
 +---------+-------------------------------------------------------------------+
@@ -816,7 +822,8 @@ list::
   file. FILE may be a regular file, or '-' for standard input.
 
   Options:
-    -c FILE, --ctl FILE   Use FILE as a control file. FILE may be '-' for
+    -c PATH, --ctl PATH   Specify a control file to use, or a directory from
+                          which to read control files. PATH may be '-' for
                           standard input, or '0' to use no control file. This
                           option may be used multiple times.
     -e ADDR, --end ADDR   Stop disassembling at this address (default=65536).
@@ -915,6 +922,9 @@ Configuration parameters may also be set on the command line by using the
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 8.3     | Added support for reading control files from a directory          |
+|         | (``--ctl DIR``)                                                   |
++---------+-------------------------------------------------------------------+
 | 8.1     | Added support for ignoring default control files (``--ctl 0``)    |
 +---------+-------------------------------------------------------------------+
 | 8.0     | Added the ``DefwSize`` configuration parameter                    |
@@ -978,8 +988,9 @@ To list the options supported by `snapinfo.py`, run it with no arguments::
 
   Options:
     -b, --basic           List the BASIC program.
-    -c FILE, --ctl FILE   Use FILE as a control file when generating a call
-                          graph. FILE may be '-' for standard input. This option
+    -c PATH, --ctl PATH   When generating a call graph, specify a control file
+                          to use, or a directory from which to read control
+                          files. PATH may be '-' for standard input. This option
                           may be used multiple times.
     -f A[,B...[-M[-N]]], --find A[,B...[-M[-N]]]
                           Search for the byte sequence A,B... with distance
@@ -1093,6 +1104,9 @@ Configuration parameters may also be set on the command line by using the
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 8.3     | Added support for reading control files from a directory          |
+|         | (``--ctl DIR``)                                                   |
++---------+-------------------------------------------------------------------+
 | 8.2     | Configuration is read from `skoolkit.ini` if present; added the   |
 |         | ability to read binary files; added the ``--call-graph``,         |
 |         | ``--ctl``, ``--ini``, ``--org``, ``--page`` and ``--show-config`` |
@@ -1277,11 +1291,14 @@ To list the options supported by `tapinfo.py`, run it with no arguments::
     -B N[,A], --basic N[,A]
                           List the BASIC program in block N loaded at address A
                           (default 23755).
+    -d, --data            Show the entire contents of header and data blocks.
     -V, --version         Show SkoolKit version number and exit.
 
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 8.3     | Added the ``--data`` option                                       |
++---------+-------------------------------------------------------------------+
 | 8.1     | Shows contents of TZX block types 0x33 (hardware type) and 0x35   |
 |         | (custom info)                                                     |
 +---------+-------------------------------------------------------------------+
