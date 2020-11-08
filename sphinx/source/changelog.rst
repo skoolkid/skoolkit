@@ -1,8 +1,8 @@
 Changelog
 =========
 
-8.3rc
------
+8.3 (2020-11-08)
+----------------
 * Added the :ref:`PLOT` macro (for setting, resetting or flipping a pixel in a
   frame already created by an image macro)
 * Added the ``--begin`` option to :ref:`bin2tap.py` (for specifying the address
