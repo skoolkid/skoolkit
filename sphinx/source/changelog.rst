@@ -1,6 +1,9 @@
 Changelog
 =========
 
+8.4b1
+-----
+
 8.3 (2020-11-08)
 ----------------
 * Added the :ref:`PLOT` macro (for setting, resetting or flipping a pixel in a
