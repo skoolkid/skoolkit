@@ -1,4 +1,4 @@
-# Copyright 2017-2020 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2017-2021 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -46,7 +46,7 @@ COMMANDS = {
         'Case': (2, 'case'),
         'CommentWidthMin': (10, ''),
         'DefbSize': (8, ''),
-        'DefmSize': (66, ''),
+        'DefmSize': (65, ''),
         'DefwSize': (1, ''),
         'InstructionWidth': (13, ''),
         'LineWidth': (79, 'line_width'),

@@ -866,7 +866,7 @@ configuration parameters are:
   skool file (default: ``10``)
 * ``DefbSize`` - maximum number of bytes in a DEFB statement (default: ``8``)
 * ``DefmSize`` - maximum number of characters in a DEFM statement (default:
-  ``66``)
+  ``65``)
 * ``DefwSize`` - maximum number of words in a DEFW statement (default: ``1``)
 * ``EntryPointRef`` - template used to format the comment for an entry point
   with exactly one referrer (default: ``This entry point is used by the routine
@@ -922,6 +922,9 @@ Configuration parameters may also be set on the command line by using the
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 8.4     | Changed the default value of the ``DefmSize`` configuration       |
+|         | parameter from 66 to 65                                           |
++---------+-------------------------------------------------------------------+
 | 8.3     | Added support for reading control files from a directory          |
 |         | (``--ctl DIR``)                                                   |
 +---------+-------------------------------------------------------------------+

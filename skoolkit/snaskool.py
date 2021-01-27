@@ -1,4 +1,4 @@
-# Copyright 2009-2020 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2009-2021 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -124,7 +124,7 @@ class Disassembly:
             asm_hex,
             asm_lower,
             self.config.get('DefbSize', 8),
-            self.config.get('DefmSize', 66),
+            self.config.get('DefmSize', 65),
             self.config.get('DefwSize', 1)
         )
         self.disassembler = get_component('Disassembler', snapshot, dconfig)
