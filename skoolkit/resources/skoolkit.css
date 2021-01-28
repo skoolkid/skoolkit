@@ -130,6 +130,7 @@ td.register {
   color: #008000;
   width: 20px;
   text-align: center;
+  white-space: nowrap;
 }
 td.asm-label, td.address-1, td.address-2, td.bytes, td.instruction {
   font-family: monospace;
