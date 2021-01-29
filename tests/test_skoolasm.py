@@ -1871,6 +1871,28 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
         """
         self._test_asm(skool, exp_asm)
 
+    def test_expand_directives_over_multiple_lines(self):
+        skool = """
+            @start
+            @expand=#LET(start=1)
+            @expand=#DEFINE2(COUNT,
+            @expand=+#FOR({},{})(n,n,-)
+            @expand=+)
+            @expand=#LET(end=5)
+            ; Routine
+            ;
+            ; start=#EVAL({start}); end=#EVAL({end});
+            ; count(start,end)=#COUNT({start},{end})
+            c32768 RET
+        """
+        exp_asm = """
+            ; Routine
+            ;
+            ; start=1; end=5; count(start,end)=1-2-3-4-5
+              RET
+        """
+        self._test_asm(skool, exp_asm)
+
     def test_org_with_default_address(self):
         skool = """
             @start

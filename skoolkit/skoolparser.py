@@ -1,4 +1,4 @@
-# Copyright 2008-2020 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2008-2021 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -664,7 +664,11 @@ class SkoolParser:
             if self.mode.assemble:
                 self.mode.data.append(directive)
         elif directive.startswith('expand='):
-            self.expands.append(directive[7:])
+            value = directive[7:]
+            if value.startswith('+') and self.expands:
+                self.expands[-1] += value[1:]
+            else:
+                self.expands.append(value)
         elif directive.startswith('keep'):
             self.mode.keep = parse_asm_keep_directive(directive)
         elif directive.startswith('refs='):

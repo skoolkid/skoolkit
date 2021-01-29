@@ -3608,6 +3608,50 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         }
         self._assert_files_equal(join(ASMDIR, '32768.html'), subs)
 
+    def test_expand_directives_over_multiple_lines(self):
+        skool = """
+            @expand=#LET(start=1)
+            @expand=#DEFINE2(COUNT,
+            @expand=+#FOR({},{})(n,n,-)
+            @expand=+)
+            @expand=#LET(end=5)
+            ; Routine
+            ;
+            ; start=#EVAL({start}); end=#EVAL({end});
+            ; count(start,end)=#COUNT({start},{end})
+            c32768 RET
+        """
+        writer = self._get_writer(skool=skool)
+        writer.write_asm_entries()
+
+        content = """
+            <div class="description">32768: Routine</div>
+            <table class="disassembly">
+            <tr>
+            <td class="routine-comment" colspan="5">
+            <div class="details">
+            <div class="paragraph">
+            start=1; end=5; count(start,end)=1-2-3-4-5
+            </div>
+            </div>
+            </td>
+            </tr>
+            <tr>
+            <td class="address-2"><span id="32768"></span>32768</td>
+            <td class="instruction">RET</td>
+            <td class="comment-0" rowspan="1"></td>
+            </tr>
+            </table>
+        """
+        subs = {
+            'header': 'Routines',
+            'title': 'Routine at 32768',
+            'body_class': 'Asm-c',
+            'up': '32768',
+            'content': content
+        }
+        self._assert_files_equal(join(ASMDIR, '32768.html'), subs)
+
     def test_expand_directive_with_invalid_macro(self):
         skool = """
             @expand=#N(x)
