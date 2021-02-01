@@ -9,6 +9,8 @@ Changelog
   :ref:`sna2skool.py <sna2skool-conf>` from 66 to 65; this makes it compliant
   with the default maximum line width of 79 defined by the ``LineWidth``
   configuration parameter
+* Fixed the bug that prevents instruction comments from being repeated in a
+  :ref:`control file loop <ctlLoops>`
 
 8.3 (2020-11-08)
 ----------------

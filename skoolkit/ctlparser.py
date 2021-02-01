@@ -1,4 +1,4 @@
-# Copyright 2009-2020 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2009-2021 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -356,7 +356,7 @@ class CtlParser:
                 sub_address = sub_block.start
                 sub_block.sublengths = self._lengths.get(sub_address, ((0, BASE_MAP[sub_block.ctl.upper()]),))
                 sub_block.header = self._reduce(self._mid_block_comments, sub_address)
-                sub_block.comment = self._instruction_comments.get(sub_address) or ()
+                sub_block.comment = (self._instruction_comments.get(sub_address) or ())[:]
                 sub_block.multiline_comment = self._multiline_comments.get(sub_address)
                 sub_block.asm_directives = dict([d for d in asm_directives if sub_address <= d[0] < sub_block.end])
                 sub_block.ignoreua_directives = {}
