@@ -1,4 +1,4 @@
-# Copyright 2008-2020 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2008-2021 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -103,6 +103,7 @@ class HtmlWriter:
 
         self.game_vars = self._expand_values('Game', 'Logo')
         self.asm_anchor_template = self.game_vars['AddressAnchor']
+        self.asm_address_template = self.game_vars['Address']
         self.asm_single_page = self.game_vars['AsmSinglePage'] != '0'
         self.paths = self.get_dictionary('Paths')
         self.titles = self.get_dictionary('Titles')
@@ -467,6 +468,11 @@ class HtmlWriter:
             return 'RAW(#{})'.format(anchor)
         return anchor
 
+    def asm_address(self, address, default):
+        if self.asm_address_template:
+            return self.asm_address_template.format(address=address)
+        return default
+
     # API
     def screenshot(self, x=0, y=0, w=32, h=24, df_addr=16384, af_addr=22528):
         """Return a two-dimensional array of tiles (instances of
@@ -536,7 +542,7 @@ class HtmlWriter:
             'exists': 1,
             'type': entry.ctl,
             'location': entry.address,
-            'address': entry.addr_str,
+            'address': self.asm_address(entry.address, entry.addr_str),
             'anchor': self.asm_anchor(entry.address),
             'page': entry.address // 256,
             'byte': entry.address % 256,
@@ -702,7 +708,7 @@ class HtmlWriter:
 
             instructions.append({
                 'block_comment': block_comment,
-                'address': instruction.addr_str,
+                'address': self.asm_address(instruction.address, instruction.addr_str),
                 'location': instruction.address,
                 'called': 1 + int(instruction.ctl in 'c*'),
                 'label': instruction.asm_label or '',
@@ -1058,7 +1064,7 @@ class HtmlWriter:
             href = self._asm_relpath(cwd, container_address, code_id) + anchor
         asm_label = self.parser.get_asm_label(address)
         inst_addr_str = self.parser.get_instruction_addr_str(address, addr_str, code_id)
-        return end, self.format_link(href, link_text or asm_label or inst_addr_str)
+        return end, self.format_link(href, link_text or asm_label or self.asm_address(address, inst_addr_str))
 
     def expand_scr(self, text, index, cwd):
         end, crop_rect, fname, frame, alt, params = skoolmacro.parse_scr(text, index, self.fields)

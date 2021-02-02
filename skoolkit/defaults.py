@@ -1,4 +1,4 @@
-# Copyright 2014-2020 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2014-2021 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -45,6 +45,7 @@ HtmlWriterClass=skoolkit.skoolhtml.HtmlWriter
 """
 
 SECTIONS['Game'] = """
+Address=
 AddressAnchor={address}
 AsmSinglePage=0
 Bytes=

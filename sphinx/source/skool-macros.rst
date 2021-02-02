@@ -939,10 +939,14 @@ within that page. ::
   either an ID defined in an :ref:`otherCode` section of the ref file, or
   ``main`` to identify the main disassembly)
 * ``#name`` is the named anchor of an item on the disassembly page
-* ``link text`` is the link text to use (default: ``addr``)
+* ``link text`` is the link text to use
 
 The disassembly ID (``code``) and anchor name (``name``) must be limited to the
 characters '$', '#', 0-9, A-Z and a-z.
+
+If ``link_text`` is not provided, it defaults to the label for ``addr`` if one
+is defined, or to the address formatted according to the ``Address`` parameter
+in the :ref:`ref-Game` section.
 
 In ASM mode, the ``#R`` macro expands to the link text if it is specified, or
 to the label for ``addr``, or to ``addr`` (converted to decimal or hexadecimal
@@ -972,6 +976,9 @@ section.
 +---------+-----------------------------------------------------------------+
 | Version | Changes                                                         |
 +=========+=================================================================+
+| 8.4     | In HTML mode, the link text defaults to the address formatted   |
+|         | according to the ``Address`` parameter                          |
++---------+-----------------------------------------------------------------+
 | 8.3     | Added support for replacement fields in the ``addr`` parameter  |
 +---------+-----------------------------------------------------------------+
 | 6.1     | In ASM mode, ``addr`` is converted to decimal or hexadecimal as |

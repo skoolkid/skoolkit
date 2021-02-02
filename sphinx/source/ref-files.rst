@@ -130,6 +130,12 @@ aspects of the HTML output. The parameters are in the format::
 
 Recognised parameters are:
 
+* ``Address`` - the format of the address fields on disassembly pages and
+  memory map pages, and of the default link text for the :ref:`R` macro when
+  the target address has no label (default: ''); this format string recognises
+  the replacement field ``address``; if the format string is blank, the address
+  is formatted exactly as it appears in the skool file (without any ``$``
+  prefix)
 * ``AddressAnchor`` - the format of the anchors attached to instructions on
   disassembly pages and entries on memory map pages (default: ``{address}``)
 * ``AsmSinglePage`` - ``1`` to write the disassembly on a single page, or ``0``
@@ -193,6 +199,8 @@ hexadecimal addresses if the ``--hex`` option is used with
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 8.4     | Added the ``Address`` parameter                                   |
++---------+-------------------------------------------------------------------+
 | 8.0     | Added the ``AsmSinglePage`` parameter                             |
 +---------+-------------------------------------------------------------------+
 | 7.2     | Added the ``Bytes`` and ``DisassemblyTableNumCols`` parameters    |

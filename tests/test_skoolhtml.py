@@ -40,6 +40,7 @@ REF_SECTIONS = {
 
 MINIMAL_REF_FILE = """
 [Game]
+Address=
 AddressAnchor={{address}}
 AsmSinglePage=0
 Created=
@@ -53,6 +54,7 @@ UDGFilename=udg{{addr}}_{{attr}}x{{scale}}
 
 METHOD_MINIMAL_REF_FILE = """
 [Game]
+Address=
 AddressAnchor={{address}}
 AsmSinglePage=0
 Created=
@@ -70,6 +72,7 @@ CodeFiles={{address}}.html
 
 SKOOL_MACRO_MINIMAL_REF_FILE = """
 [Game]
+Address=
 AddressAnchor={{address}}
 AsmSinglePage=0
 Created=
@@ -2316,6 +2319,22 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         writer = self._get_writer(ref=ref, skool=skool)
         error_msg = "Unknown field 'Address' in CodeFiles template"
         self._assert_error(writer, '#R32768', error_msg, error=SkoolKitError)
+
+    def test_macro_r_with_custom_address_format(self):
+        ref = '[Game]\nAddress=${address:04x}'
+        skool = "c40000 LD A,B"
+        writer = self._get_writer(ref=ref, skool=skool)
+
+        output = writer.expand('#R40000', ASMDIR)
+        self._assert_link_equals(output, '40000.html', '$9c40')
+
+    def test_macro_r_with_custom_address_format_containing_skool_macro(self):
+        ref = '[Game]\nAddress=#IF(1)(${address:04X})'
+        skool = "c40000 LD A,B"
+        writer = self._get_writer(ref=ref, skool=skool)
+
+        output = writer.expand('#R40000', ASMDIR)
+        self._assert_link_equals(output, '40000.html', '$9C40')
 
     def test_macro_r_with_custom_asm_anchor(self):
         ref = '[Game]\nAddressAnchor={address:04x}'
@@ -5233,6 +5252,100 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         with self.assertRaisesRegex(SkoolKitError, "^Unknown field 'Address' in CodeFiles template$"):
             writer.write_asm_entries()
 
+    def test_write_asm_entries_with_custom_address_format(self):
+        skool = """
+            ; Routine at 32768
+            c32768 RET
+
+            ; Routine at 32769
+            c32769 RET
+
+            ; Routine at 32770
+            c32770 RET
+        """
+        ref = """
+            [Game]
+            Address=${address:04X}
+        """
+        writer = self._get_writer(skool=skool, ref=ref)
+        writer.write_asm_entries()
+
+        content = """
+            <div class="description">$8001: Routine at 32769</div>
+            <table class="disassembly">
+            <tr>
+            <td class="routine-comment" colspan="5">
+            <div class="details">
+            </div>
+            </td>
+            </tr>
+            <tr>
+            <td class="address-2"><span id="32769"></span>$8001</td>
+            <td class="instruction">RET</td>
+            <td class="comment-0" rowspan="1"></td>
+            </tr>
+            </table>
+        """
+        subs = {
+            'header': 'Routines',
+            'title': 'Routine at $8001',
+            'body_class': 'Asm-c',
+            'prev': '32768',
+            'prev_text': '$8000',
+            'up': '32769',
+            'next': '32770',
+            'next_text': '$8002',
+            'content': content
+        }
+        self._assert_files_equal(join(ASMDIR, '32769.html'), subs)
+
+    def test_write_asm_entries_with_custom_address_format_containing_skool_macro(self):
+        skool = """
+            ; Routine at 52992
+            c52992 RET
+
+            ; Routine at 52993
+            c52993 RET
+
+            ; Routine at 52994
+            c52994 RET
+        """
+        ref = """
+            [Game]
+            Address=#IF(1)(${address:04x})
+        """
+        writer = self._get_writer(skool=skool, ref=ref)
+        writer.write_asm_entries()
+
+        content = """
+            <div class="description">$cf01: Routine at 52993</div>
+            <table class="disassembly">
+            <tr>
+            <td class="routine-comment" colspan="5">
+            <div class="details">
+            </div>
+            </td>
+            </tr>
+            <tr>
+            <td class="address-2"><span id="52993"></span>$cf01</td>
+            <td class="instruction">RET</td>
+            <td class="comment-0" rowspan="1"></td>
+            </tr>
+            </table>
+        """
+        subs = {
+            'header': 'Routines',
+            'title': 'Routine at $cf01',
+            'body_class': 'Asm-c',
+            'prev': '52992',
+            'prev_text': '$cf00',
+            'up': '52993',
+            'next': '52994',
+            'next_text': '$cf02',
+            'content': content
+        }
+        self._assert_files_equal(join(ASMDIR, '52993.html'), subs)
+
     def test_write_asm_entries_with_custom_anchors(self):
         ref = """
             [Game]
@@ -6115,6 +6228,70 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         writer = self._get_writer(ref=ref, skool=skool)
         with self.assertRaisesRegex(SkoolKitError, "^Failed to format CodeFiles template: Unknown format code 'q' for object of type 'int'$"):
             writer.write_map('MemoryMap')
+
+    def test_write_map_with_custom_address_format(self):
+        ref = '[Game]\nAddress=${address:04X}'
+        skool = '; Routine at 23456\nc23456 RET'
+        writer = self._get_writer(ref=ref, skool=skool)
+
+        content = """
+            <div class="map-intro"></div>
+            <table class="map">
+            <tr>
+            <th class="map-page">Page</th>
+            <th class="map-byte">Byte</th>
+            <th>Address</th>
+            <th>Description</th>
+            </tr>
+            <tr>
+            <td class="map-page">91</td>
+            <td class="map-byte">160</td>
+            <td class="map-c"><span id="23456"></span><a href="../asm/23456.html">$5BA0</a></td>
+            <td class="map-c-desc">
+            <div class="map-entry-title-10"><a class="map-entry-title" href="../asm/23456.html">Routine at 23456</a></div>
+            </td>
+            </tr>
+            </table>
+        """
+        writer.write_map('MemoryMap')
+        subs = {
+            'body_class': 'MemoryMap',
+            'header': 'Memory map',
+            'content': content
+        }
+        self._assert_files_equal(join(MAPS_DIR, 'all.html'), subs)
+
+    def test_write_map_with_custom_address_format_containing_skool_macro(self):
+        ref = '[Game]\nAddress=#IF(1)(${address:04x})'
+        skool = '; Routine at 23456\nc23456 RET'
+        writer = self._get_writer(ref=ref, skool=skool)
+
+        content = """
+            <div class="map-intro"></div>
+            <table class="map">
+            <tr>
+            <th class="map-page">Page</th>
+            <th class="map-byte">Byte</th>
+            <th>Address</th>
+            <th>Description</th>
+            </tr>
+            <tr>
+            <td class="map-page">91</td>
+            <td class="map-byte">160</td>
+            <td class="map-c"><span id="23456"></span><a href="../asm/23456.html">$5ba0</a></td>
+            <td class="map-c-desc">
+            <div class="map-entry-title-10"><a class="map-entry-title" href="../asm/23456.html">Routine at 23456</a></div>
+            </td>
+            </tr>
+            </table>
+        """
+        writer.write_map('MemoryMap')
+        subs = {
+            'body_class': 'MemoryMap',
+            'header': 'Memory map',
+            'content': content
+        }
+        self._assert_files_equal(join(MAPS_DIR, 'all.html'), subs)
 
     def test_write_map_with_custom_asm_anchors(self):
         ref = '[Game]\nAddressAnchor={address:04x}'
