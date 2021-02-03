@@ -3,6 +3,7 @@ Changelog
 
 8.4b1
 -----
+* Made the :ref:`image writer component <imageWriter>` pluggable
 * Added the ``Address`` parameter to the :ref:`ref-Game` section (for
   specifying the format of address fields on disassembly pages and memory map
   pages, and of the default link text for the :ref:`R` macro)

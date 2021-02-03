@@ -27,6 +27,7 @@ COMMANDS = {
         'ControlFileGenerator': 'skoolkit.snactl',
         'Disassembler': 'skoolkit.disassembler.Disassembler',
         'HtmlTemplateFormatter': 'skoolkit.skoolhtml.TemplateFormatter',
+        'ImageWriter': 'skoolkit.image.ImageWriter',
         'InstructionUtility': 'skoolkit.skoolparser.InstructionUtility',
         'OperandEvaluator': 'skoolkit.z80',
         'OperandFormatter': 'skoolkit.disassembler.OperandFormatter',

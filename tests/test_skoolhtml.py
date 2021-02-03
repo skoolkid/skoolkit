@@ -1,10 +1,11 @@
 import html
+from io import StringIO
 from os.path import basename, isfile
 from posixpath import join
 from textwrap import dedent
 from unittest.mock import patch
 
-from skoolkittest import SkoolKitTestCase, StringIO
+from skoolkittest import SkoolKitTestCase, Stream
 from macrotest import CommonSkoolMacroTest, nest_macros
 from skoolkit import BASE_10, BASE_16, VERSION, SkoolKitError, SkoolParsingError, components, defaults, skoolhtml
 from skoolkit.graphics import Udg, Frame
@@ -210,14 +211,16 @@ class MockFileInfo:
     def __init__(self):
         self.fname = None
         self.mode = None
+        self.files = {}
 
     def open_file(self, *names, mode='w'):
         self.fname = join(*names)
         self.mode = mode
-        return StringIO()
+        self.files[self.fname] = Stream('b' in mode)
+        return self.files[self.fname]
 
     def add_image(self, image_path):
-        return
+        self.files[image_path] = self.files[image_path].getvalue()
 
     def need_image(self, image_path):
         return True
@@ -247,7 +250,8 @@ class HtmlWriterTestCase(SkoolKitTestCase):
 
     def _get_writer(self, ref=None, snapshot=(), case=0, base=0, skool=None,
                     create_labels=False, asm_labels=False, variables=(),
-                    mock_file_info=False, mock_write_file=True, warn=False):
+                    mock_file_info=False, mock_write_file=True,
+                    mock_image_writer=True, warn=False):
         self.skoolfile = None
         ref_parser = RefParser()
         if ref is not None:
@@ -264,7 +268,8 @@ class HtmlWriterTestCase(SkoolKitTestCase):
             file_info = MockFileInfo()
         else:
             file_info = FileInfo(self.odir, GAMEDIR, False)
-        patch.object(skoolhtml, 'ImageWriter', TestImageWriter).start()
+        if mock_image_writer:
+            patch.object(skoolhtml, 'get_image_writer', lambda *args: TestImageWriter(*args)).start()
         self.addCleanup(patch.stopall)
         writer = HtmlWriter(skool_parser, ref_parser, file_info)
         if mock_write_file:
@@ -8888,6 +8893,53 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         writer = self._get_writer(ref=ref)
         with self.assertRaisesRegex(SkoolKitError, "^Unknown field 'this_will_not_work' in Custom template$"):
             writer.write_page(page_id)
+
+    @patch.object(components, 'SK_CONFIG', None)
+    def test_custom_image_writer(self):
+        custom_image_writer = """
+            class CustomImageWriter:
+                def __init__(self, options, palette):
+                    pass
+                def image_fname(self, fname):
+                    return fname
+                def write_image(self, frames, img_file):
+                    img_file.write(b'hello')
+        """
+        self.write_component_config('ImageWriter', '*.CustomImageWriter', custom_image_writer)
+        page_id = 'Stuff'
+        img_fname = 'thing.gif'
+        ref = """
+            [Page:{}]
+            PageContent=#UDG0({})
+        """.format(page_id, img_fname)
+        writer = self._get_writer(ref=ref, mock_image_writer=False, mock_file_info=True)
+        writer.write_page(page_id)
+        self.assertEqual(writer.file_info.files['images/udgs/{}'.format(img_fname)], b'hello')
+
+    @patch.object(components, 'SK_CONFIG', None)
+    def test_custom_image_writer_returning_content(self):
+        custom_image_writer = """
+            class CustomImageWriter:
+                def __init__(self, options, palette):
+                    pass
+                def image_fname(self, fname):
+                    return fname
+                def write_image(self, frames, img_file):
+                    return 'goodbye'
+        """
+        self.write_component_config('ImageWriter', '*.CustomImageWriter', custom_image_writer)
+        page_id = 'Stuff'
+        img_fname = 'thing.gif'
+        ref = """
+            [Page:{0}]
+            PageContent=#UDG0({1})
+
+            [Template:{0}]
+            {{Page[PageContent]}}
+        """.format(page_id, img_fname)
+        writer = self._get_writer(ref=ref, mock_image_writer=False)
+        writer.write_page(page_id)
+        self._assert_content_equal('goodbye', '{}.html'.format(page_id))
 
 class HtmlTemplateTest(HtmlWriterOutputTestCase):
     def test_custom_map_with_custom_page_template(self):

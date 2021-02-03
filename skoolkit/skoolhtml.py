@@ -27,10 +27,9 @@ import re
 from io import StringIO
 
 from skoolkit import skoolmacro, SkoolKitError, SkoolParsingError, evaluate, format_template, parse_int, warn
-from skoolkit.components import get_component
+from skoolkit.components import get_component, get_image_writer
 from skoolkit.defaults import REF_FILE
 from skoolkit.graphics import Frame, adjust_udgs, build_udg, font_udgs, scr_udgs
-from skoolkit.image import ImageWriter
 from skoolkit.refparser import RefParser
 from skoolkit.skoolparser import TableParser, ListParser
 
@@ -75,8 +74,8 @@ class HtmlWriter:
         self.fields = skool_parser.fields
 
         colours = self._parse_colours(self.get_dictionary('Colours'))
-        iw_options = self.get_dictionary('ImageWriter')
-        self.image_writer = ImageWriter(colours, iw_options)
+        iw_config = self.get_dictionary('ImageWriter')
+        self.image_writer = get_image_writer(iw_config, colours)
         self.frames = {}
 
         self.snapshot = self.parser.snapshot
@@ -921,17 +920,23 @@ class HtmlWriter:
         image_path = self._image_path(fname, path_id)
         if image_path:
             if self.file_info.need_image(image_path):
-                self._write_image(image_path, frames)
-            if alt is None:
-                alt = basename(image_path)[:-4]
-            return self.format_img(alt, self.relpath(cwd, image_path))
+                content = self._write_image(image_path, frames)
+            else:
+                content = None
+            if content is None:
+                if alt is None:
+                    alt = basename(image_path)[:-4]
+                return self.format_img(alt, self.relpath(cwd, image_path))
+            return content
         return ''
 
     def _write_image(self, image_path, frames):
         f = self.file_info.open_file(image_path, mode='wb')
-        self.image_writer.write_image(frames, f)
+        content = self.image_writer.write_image(frames, f)
         f.close()
-        self.file_info.add_image(image_path)
+        if content is None:
+            self.file_info.add_image(image_path)
+        return content
 
     def build_table(self, table):
         rows = []
@@ -972,15 +977,12 @@ class HtmlWriter:
                         field.
         """
         if fname:
+            fname = self.image_writer.image_fname(fname)
             expanded = self._expand_image_path(fname)
-            if expanded[-4:].lower() == '.png':
-                suffix = ''
-            else:
-                suffix = '.png'
             if expanded != fname or fname.startswith('/'):
-                return expanded.lstrip('/') + suffix
+                return expanded.lstrip('/')
             if path_id in self.paths:
-                return join(self._expand_image_path(self.paths[path_id]), fname + suffix)
+                return join(self._expand_image_path(self.paths[path_id]), fname)
             raise SkoolKitError("Unknown path ID '{0}' for image file '{1}'".format(path_id, fname))
 
     def _expand_image_path(self, path):

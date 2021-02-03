@@ -87,18 +87,18 @@ ATTR_INDEX = create_attr_index()
 
 class ImageWriterOptionsTest(SkoolKitTestCase):
     def test_change_option_values(self):
-        options = {PNG_COMPRESSION_LEVEL: 3}
-        image_writer = ImageWriter(options=options)
+        config = {PNG_COMPRESSION_LEVEL: 3}
+        image_writer = ImageWriter(config)
         self.assertEqual(image_writer.options[PNG_COMPRESSION_LEVEL], 3)
 
     def test_default_option_values(self):
-        image_writer = ImageWriter()
+        image_writer = ImageWriter({})
         self.assertEqual(image_writer.options[PNG_COMPRESSION_LEVEL], 9)
         self.assertEqual(image_writer.options[PNG_ENABLE_ANIMATION], 1)
         self.assertEqual(image_writer.options[PNG_ALPHA], 255)
 
     def test_invalid_option_value(self):
-        image_writer = ImageWriter(options={PNG_COMPRESSION_LEVEL: 'NaN'})
+        image_writer = ImageWriter({PNG_COMPRESSION_LEVEL: 'NaN'})
         self.assertEqual(image_writer.options[PNG_COMPRESSION_LEVEL], 9)
 
 class ImageWriterTest:
@@ -716,7 +716,7 @@ class ImageWriterTest:
 
     def test_mask1_alpha(self):
         # OR-AND mask, alpha < 255
-        iw_args = {'options': self.alpha_option}
+        iw_args = {'config': self.alpha_option}
         udg = Udg(88, (34,) * 8, (163,) * 8)
         udg_array = [[udg]]
         self._test_image(udg_array, mask=1, iw_args=iw_args)
@@ -749,42 +749,42 @@ class ImageWriterTest:
 
     def test_mask1_flashing_no_animation(self):
         # OR-AND mask, flashing, no animation
-        iw_args = {'options': {self.animation_flag: 0}}
+        iw_args = {'config': {self.animation_flag: 0}}
         udg = Udg(184, (240,) * 8, (243,) * 8)
         udg_array = [[udg]]
         self._test_image(udg_array, mask=1, iw_args=iw_args)
 
     def test_alpha_no_mask(self):
         # No mask, alpha < 255
-        iw_args = {'options': self.alpha_option}
+        iw_args = {'config': self.alpha_option}
         udg = Udg(56, (132,) * 8)
         udg_array = [[udg]]
         self._test_image(udg_array, iw_args=iw_args)
 
     def test_flashing_no_animation(self):
         # No mask, flashing, no animation
-        iw_args = {'options': {self.animation_flag: 0}}
+        iw_args = {'config': {self.animation_flag: 0}}
         udg = Udg(184, (240,) * 8)
         udg_array = [[udg]]
         self._test_image(udg_array, iw_args=iw_args)
 
     def test_alternative_transparent_colour_paper(self):
         # White (PAPER) as transparent colour
-        iw_args = {'options': self.alpha_option}
+        iw_args = {'config': self.alpha_option}
         udg = Udg(56, (15,) * 8)
         udg_array = [[udg]]
         self._test_image(udg_array, tindex=8, iw_args=iw_args)
 
     def test_alternative_transparent_colour_ink(self):
         # Black (INK) as transparent colour
-        iw_args = {'options': self.alpha_option}
+        iw_args = {'config': self.alpha_option}
         udg = Udg(56, (15,) * 8)
         udg_array = [[udg]]
         self._test_image(udg_array, tindex=1, iw_args=iw_args)
 
     def test_alternative_transparent_colour_overridden_by_mask(self):
         # White (PAPER) as transparent colour, overridden by mask
-        iw_args = {'options': self.alpha_option}
+        iw_args = {'config': self.alpha_option}
         udg = Udg(56, (15,) * 8, (207,) * 8)
         udg_array = [[udg]]
         self._test_image(udg_array, mask=1, tindex=8, iw_args=iw_args)
@@ -843,7 +843,7 @@ class ImageWriterTest:
 
     def test_animation_mask1(self):
         # 2 frames, transparency on frame 2
-        iw_args = {'options': self.alpha_option}
+        iw_args = {'config': self.alpha_option}
         frame1 = Frame([[Udg(49, (64,) * 8)]])
         frame2 = Frame([[Udg(184, (240,) * 8, (243,) * 8)]], mask=1)
         frames = [frame1, frame2]
@@ -859,7 +859,7 @@ class ImageWriterTest:
 
     def test_animation_with_alternative_transparent_colour_on_first_frame_only(self):
         # White (PAPER) as transparent colour on first frame
-        iw_args = {'options': self.alpha_option}
+        iw_args = {'config': self.alpha_option}
         frame1 = Frame([[Udg(56, (15,) * 8)]], tindex=8)
         frame2 = Frame([[Udg(1, (15,) * 8)]])
         frames = [frame1, frame2]
@@ -867,7 +867,7 @@ class ImageWriterTest:
 
     def test_animation_with_alternative_transparent_colour_on_second_frame_only(self):
         # Yellow (PAPER) as transparent colour on second frame
-        iw_args = {'options': self.alpha_option}
+        iw_args = {'config': self.alpha_option}
         frame1 = Frame([[Udg(56, (15,) * 8)]], tindex=7)
         frame2 = Frame([[Udg(48, (15,) * 8)]])
         frames = [frame1, frame2]
@@ -876,7 +876,7 @@ class ImageWriterTest:
     def test_animation_with_alternative_transparent_colour_overridden_by_mask(self):
         # White (PAPER) as transparent colour on first frame, overridden by
         # mask on second frame
-        iw_args = {'options': self.alpha_option}
+        iw_args = {'config': self.alpha_option}
         frame1 = Frame([[Udg(56, (15,) * 8)]], tindex=8)
         frame2 = Frame([[Udg(56, (15,) * 8, (207,) * 8)]], mask=1)
         frames = [frame1, frame2]
@@ -1091,7 +1091,9 @@ class PngWriterTest(SkoolKitTestCase, ImageWriterTest):
         return i
 
     def _test_image(self, udg_array, scale=1, mask=0, tindex=0, alpha=-1, x=0, y=0, width=None, height=None, iw_args=None, exp_pixels=None):
-        image_writer = ImageWriter(**(iw_args or {}))
+        if iw_args is None:
+            iw_args = {}
+        image_writer = ImageWriter(iw_args.get('config'), iw_args.get('palette'))
         img_bytes = self._get_image_data(image_writer, udg_array, scale, mask, tindex, alpha, x, y, width, height)
 
         exp_pixels2 = None
@@ -1152,7 +1154,9 @@ class PngWriterTest(SkoolKitTestCase, ImageWriterTest):
         self.assertEqual(img_bytes[i:], IEND_CHUNK)
 
     def _test_animated_image(self, frames, iw_args=None):
-        image_writer = ImageWriter(**(iw_args or {}))
+        if iw_args is None:
+            iw_args = {}
+        image_writer = ImageWriter(iw_args.get('config'), iw_args.get('palette'))
         img_bytes = self._get_animated_image_data(image_writer, frames)
 
         exp_palette = []

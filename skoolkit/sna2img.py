@@ -1,4 +1,4 @@
-# Copyright 2013, 2015-2020 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2013, 2015-2021 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -20,8 +20,8 @@ import re
 from builtins import open
 
 from skoolkit import SkoolKitError, integer, VERSION, skoolmacro
-from skoolkit.components import get_snapshot_reader
-from skoolkit.image import ImageWriter, PNG_ENABLE_ANIMATION
+from skoolkit.components import get_image_writer, get_snapshot_reader
+from skoolkit.image import PNG_ENABLE_ANIMATION
 from skoolkit.snapshot import make_snapshot, move, poke
 from skoolkit.graphics import Frame, flip_udgs, rotate_udgs, adjust_udgs, build_udg, font_udgs, scr_udgs
 from skoolkit.skool2bin import BinWriter
@@ -71,10 +71,10 @@ def _dimensions(arg):
     return _int_pair(arg, 'x', 'dimensions')
 
 def _write_image(frame, img_file, animated):
-    iw_options = {}
+    iw_config = {}
     if not animated:
-        iw_options[PNG_ENABLE_ANIMATION] = 0
-    image_writer = ImageWriter(options=iw_options)
+        iw_config[PNG_ENABLE_ANIMATION] = 0
+    image_writer = get_image_writer(iw_config)
     with open(img_file, "wb") as f:
         image_writer.write_image([frame], f)
 

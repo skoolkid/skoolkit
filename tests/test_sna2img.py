@@ -18,6 +18,9 @@ class MockImageWriter:
     def write_image(self, frames, img_file):
         self.frames = frames
 
+def get_mock_image_writer(*args):
+    return MockImageWriter(*args)
+
 class Sna2ImgTest(SkoolKitTestCase):
     def _test_sna2img(self, mock_open, options, data, udgs, scale=1, mask=0, tindex=0, alpha=-1, x=0, y=0,
                       width=None, height=None, address=16384, iw_options=None, ftype='scr'):
@@ -119,35 +122,35 @@ class Sna2ImgTest(SkoolKitTestCase):
     def test_nonexistent_z80_file(self):
         self._test_nonexistent_input_file('non-existent.z80')
 
-    @patch.object(sna2img, 'ImageWriter', MockImageWriter)
+    @patch.object(sna2img, 'get_image_writer', get_mock_image_writer)
     @patch.object(sna2img, 'open')
     def test_no_options(self, mock_open):
         scr = ([170] * 256 + [0] * 256) * 12 + [4] * 768
         exp_udgs = [[Udg(4, [170, 0] * 4)] * 32] * 24
         self._test_sna2img(mock_open, '', scr, exp_udgs)
 
-    @patch.object(sna2img, 'ImageWriter', MockImageWriter)
+    @patch.object(sna2img, 'get_image_writer', get_mock_image_writer)
     @patch.object(sna2img, 'open')
     def test_sna_input(self, mock_open):
         scr = ([84] * 256 + [0] * 256) * 12 + [6] * 768
         exp_udgs = [[Udg(6, [84, 0] * 4)] * 32] * 24
         self._test_sna2img(mock_open, '', scr, exp_udgs, ftype='sna')
 
-    @patch.object(sna2img, 'ImageWriter', MockImageWriter)
+    @patch.object(sna2img, 'get_image_writer', get_mock_image_writer)
     @patch.object(sna2img, 'open')
     def test_szx_input(self, mock_open):
         scr = ([170] * 256 + [0] * 256) * 12 + [7] * 768
         exp_udgs = [[Udg(7, [170, 0] * 4)] * 32] * 24
         self._test_sna2img(mock_open, '', scr, exp_udgs, ftype='szx')
 
-    @patch.object(sna2img, 'ImageWriter', MockImageWriter)
+    @patch.object(sna2img, 'get_image_writer', get_mock_image_writer)
     @patch.object(sna2img, 'open')
     def test_z80_input(self, mock_open):
         scr = ([42] * 256 + [0] * 256) * 12 + [8] * 768
         exp_udgs = [[Udg(8, [42, 0] * 4)] * 32] * 24
         self._test_sna2img(mock_open, '', scr, exp_udgs, ftype='z80')
 
-    @patch.object(sna2img, 'ImageWriter', MockImageWriter)
+    @patch.object(sna2img, 'get_image_writer', get_mock_image_writer)
     @patch.object(sna2img, 'open')
     def test_skool_input(self, mock_open):
         addr = 25000
@@ -155,7 +158,7 @@ class Sna2ImgTest(SkoolKitTestCase):
         exp_udgs = [[Udg(56, data)]]
         self._test_sna2img(mock_open, '-e UDG{}'.format(addr), data, exp_udgs, scale=4, address=addr, ftype='skool')
 
-    @patch.object(sna2img, 'ImageWriter', MockImageWriter)
+    @patch.object(sna2img, 'get_image_writer', get_mock_image_writer)
     @patch.object(sna2img, 'open')
     def test_skool_input_with_alternative_filename_suffix(self, mock_open):
         addr = 52000
@@ -163,7 +166,7 @@ class Sna2ImgTest(SkoolKitTestCase):
         exp_udgs = [[Udg(56, data)]]
         self._test_sna2img(mock_open, '-e UDG{}'.format(addr), data, exp_udgs, scale=4, address=addr, ftype='sks')
 
-    @patch.object(sna2img, 'ImageWriter', MockImageWriter)
+    @patch.object(sna2img, 'get_image_writer', get_mock_image_writer)
     @patch.object(sna2img, 'open')
     def test_skool_input_with_no_filename_suffix(self, mock_open):
         addr = 64000
@@ -176,7 +179,7 @@ class Sna2ImgTest(SkoolKitTestCase):
         with self.assertRaisesRegex(SkoolKitError, '^Unable to parse {} as a skool file$'.format(infile)):
             self.run_sna2img(infile)
 
-    @patch.object(sna2img, 'ImageWriter', MockImageWriter)
+    @patch.object(sna2img, 'get_image_writer', get_mock_image_writer)
     @patch.object(sna2img, 'open')
     def test_option_b(self, mock_open):
         skool = """
@@ -189,7 +192,7 @@ class Sna2ImgTest(SkoolKitTestCase):
             self.assertEqual(error, '')
             self.assertEqual(image_writer.frames[0].udgs, [[Udg(56, [2] * 8)]])
 
-    @patch.object(sna2img, 'ImageWriter', MockImageWriter)
+    @patch.object(sna2img, 'get_image_writer', get_mock_image_writer)
     @patch.object(sna2img, 'open')
     def test_option_B(self, mock_open):
         addr = 65528
@@ -208,7 +211,7 @@ class Sna2ImgTest(SkoolKitTestCase):
             infile, outfile, options = run_args
             self.assertEqual(options.macro, value)
 
-    @patch.object(sna2img, 'ImageWriter', MockImageWriter)
+    @patch.object(sna2img, 'get_image_writer', get_mock_image_writer)
     @patch.object(sna2img, 'open')
     def test_option_e_font(self, mock_open):
         addr = 30000
@@ -226,7 +229,7 @@ class Sna2ImgTest(SkoolKitTestCase):
         macro = 'FONT{},{},{},{},{},{}{{{},{},{},{}}}(ignored.png)'.format(addr, chars, attr, scale, tindex, alpha, x, y, width, height)
         self._test_sna2img(mock_open, '-e {}'.format(macro), data, exp_udgs, scale, 0, tindex, alpha, x, y, width, height, addr, ftype='sna')
 
-    @patch.object(sna2img, 'ImageWriter', MockImageWriter)
+    @patch.object(sna2img, 'get_image_writer', get_mock_image_writer)
     @patch.object(sna2img, 'open')
     def test_option_e_font_with_text(self, mock_open):
         font_addr = 25000
@@ -246,7 +249,7 @@ class Sna2ImgTest(SkoolKitTestCase):
             self.run_sna2img('-e FONTx {}'.format(scrfile))
         self.assertEqual(cm.exception.args[0], 'Invalid #FONT macro: No parameters (expected 1)')
 
-    @patch.object(sna2img, 'ImageWriter', MockImageWriter)
+    @patch.object(sna2img, 'get_image_writer', get_mock_image_writer)
     @patch.object(sna2img, 'open')
     def test_option_e_scr(self, mock_open):
         df_addr = 24576
@@ -266,7 +269,7 @@ class Sna2ImgTest(SkoolKitTestCase):
         macro = 'SCR{},{},{},{},{},{},{},{},{}(ignored)'.format(scale, scr_x, scr_y, scr_w, scr_h, df_addr, af_addr, tindex, alpha)
         self._test_sna2img(mock_open, '-e {}'.format(macro), data, exp_udgs, scale, 0, tindex, alpha, address=tile_addr, ftype='sna')
 
-    @patch.object(sna2img, 'ImageWriter', MockImageWriter)
+    @patch.object(sna2img, 'get_image_writer', get_mock_image_writer)
     @patch.object(sna2img, 'open')
     def test_option_e_scr_cropped(self, mock_open):
         udg = Udg(2, [129] * 8)
@@ -291,7 +294,7 @@ class Sna2ImgTest(SkoolKitTestCase):
             self.run_sna2img('-e SCR{{x}} {}'.format(scrfile))
         self.assertEqual(cm.exception.args[0], "Invalid #SCR macro: Cannot parse integer 'x' in parameter string: 'x'")
 
-    @patch.object(sna2img, 'ImageWriter', MockImageWriter)
+    @patch.object(sna2img, 'get_image_writer', get_mock_image_writer)
     @patch.object(sna2img, 'open')
     def test_option_e_udg(self, mock_open):
         addr = 25000
@@ -315,7 +318,7 @@ class Sna2ImgTest(SkoolKitTestCase):
         macro = 'UDG{},{},{},{},{},{},{},{},{},{}:{}(ignored)'.format(addr, attr, scale, step, inc, flip, rotate, mask, tindex, alpha, mask_addr)
         self._test_sna2img(mock_open, '-e {}'.format(macro), data, exp_udgs, scale, mask, tindex, alpha, address=addr, ftype='sna')
 
-    @patch.object(sna2img, 'ImageWriter', MockImageWriter)
+    @patch.object(sna2img, 'get_image_writer', get_mock_image_writer)
     @patch.object(sna2img, 'open')
     def test_option_e_udg_cropped(self, mock_open):
         addr = 26000
@@ -332,7 +335,7 @@ class Sna2ImgTest(SkoolKitTestCase):
             self.run_sna2img('-e UDG(0,q) {}'.format(scrfile))
         self.assertEqual(cm.exception.args[0], "Invalid #UDG macro: Cannot parse integer 'q' in parameter string: '0,q'")
 
-    @patch.object(sna2img, 'ImageWriter', MockImageWriter)
+    @patch.object(sna2img, 'get_image_writer', get_mock_image_writer)
     @patch.object(sna2img, 'open')
     def test_option_e_udgarray(self, mock_open):
         addr = 24576
@@ -356,7 +359,7 @@ class Sna2ImgTest(SkoolKitTestCase):
         macro = 'UDGARRAY1,{},{},{},{},{},{},{},{},{};{}:{}(ignored)'.format(attr, scale, step, inc, flip, rotate, mask, tindex, alpha, addr, mask_addr)
         self._test_sna2img(mock_open, '--expand {}'.format(macro), data, exp_udgs, scale, mask, tindex, alpha, address=addr, ftype='sna')
 
-    @patch.object(sna2img, 'ImageWriter', MockImageWriter)
+    @patch.object(sna2img, 'get_image_writer', get_mock_image_writer)
     @patch.object(sna2img, 'open')
     def test_option_e_udgarray_cropped(self, mock_open):
         addr = 26000
@@ -389,21 +392,21 @@ class Sna2ImgTest(SkoolKitTestCase):
             infile, outfile, options = run_args
             self.assertEqual(options.flip, value)
 
-    @patch.object(sna2img, 'ImageWriter', MockImageWriter)
+    @patch.object(sna2img, 'get_image_writer', get_mock_image_writer)
     @patch.object(sna2img, 'open')
     def test_option_f_1(self, mock_open):
         scr = [170] * 6144 + [56] * 768
         exp_udgs = [[Udg(56, [85] * 8)] * 32] * 24
         self._test_sna2img(mock_open, '-f 1', scr, exp_udgs)
 
-    @patch.object(sna2img, 'ImageWriter', MockImageWriter)
+    @patch.object(sna2img, 'get_image_writer', get_mock_image_writer)
     @patch.object(sna2img, 'open')
     def test_option_f_2(self, mock_open):
         scr = ([255] * 256 + [0] * 256) * 12 + [1] * 768
         exp_udgs = [[Udg(1, [0, 255] * 4)] * 32] * 24
         self._test_sna2img(mock_open, '-f 2', scr, exp_udgs)
 
-    @patch.object(sna2img, 'ImageWriter', MockImageWriter)
+    @patch.object(sna2img, 'get_image_writer', get_mock_image_writer)
     @patch.object(sna2img, 'open')
     def test_option_f_3(self, mock_open):
         scr = ([170] * 256 + [0] * 256) * 12 + [2] * 768
@@ -426,7 +429,7 @@ class Sna2ImgTest(SkoolKitTestCase):
             infile, outfile, options = run_args
             self.assertTrue(options.invert)
 
-    @patch.object(sna2img, 'ImageWriter', MockImageWriter)
+    @patch.object(sna2img, 'get_image_writer', get_mock_image_writer)
     @patch.object(sna2img, 'open')
     def test_option_i(self, mock_open):
         scr = [85] * 6144 + [135, 7] * 384
@@ -444,7 +447,7 @@ class Sna2ImgTest(SkoolKitTestCase):
             options = run_args[2]
             self.assertEqual(options.moves, [value])
 
-    @patch.object(sna2img, 'ImageWriter', MockImageWriter)
+    @patch.object(sna2img, 'get_image_writer', get_mock_image_writer)
     @patch.object(sna2img, 'open')
     def test_option_m_multiple(self, mock_open):
         scr = [1, 1, 2, 2] + [0] * 6908
@@ -452,14 +455,14 @@ class Sna2ImgTest(SkoolKitTestCase):
         options = '-e UDG16392 -m 16384,2,16392 --move 16386,2,16398'
         self._test_sna2img(mock_open, options, scr, exp_udgs, scale=4)
 
-    @patch.object(sna2img, 'ImageWriter', MockImageWriter)
+    @patch.object(sna2img, 'get_image_writer', get_mock_image_writer)
     @patch.object(sna2img, 'open')
     def test_option_m_hexadecimal_values(self, mock_open):
         scr = [1, 2, 3, 4] + [0] * 6908
         exp_udgs = [[Udg(56, scr[:8])]]
         self._test_sna2img(mock_open, '-e UDG16392 -m $4000,4,$4008', scr, exp_udgs, scale=4)
 
-    @patch.object(sna2img, 'ImageWriter', MockImageWriter)
+    @patch.object(sna2img, 'get_image_writer', get_mock_image_writer)
     @patch.object(sna2img, 'open')
     def test_option_m_0x_hexadecimal_values(self, mock_open):
         scr = [1, 2, 3, 4] + [0] * 6908
@@ -482,7 +485,7 @@ class Sna2ImgTest(SkoolKitTestCase):
             infile, outfile, options = run_args
             self.assertFalse(options.animated)
 
-    @patch.object(sna2img, 'ImageWriter', MockImageWriter)
+    @patch.object(sna2img, 'get_image_writer', get_mock_image_writer)
     @patch.object(sna2img, 'open')
     def test_option_n(self, mock_open):
         scr = [0] * 6144 + [248] * 768
@@ -499,14 +502,14 @@ class Sna2ImgTest(SkoolKitTestCase):
             infile, outfile, options = run_args
             self.assertEqual(options.origin, value)
 
-    @patch.object(sna2img, 'ImageWriter', MockImageWriter)
+    @patch.object(sna2img, 'get_image_writer', get_mock_image_writer)
     @patch.object(sna2img, 'open')
     def test_option_o(self, mock_open):
         scr = [240] * 6144 + [7] * 736 + [4] * 32
         exp_udgs = [[Udg(7, [240] * 8)] * 5] * 5 + [[Udg(4, [240] * 8)] * 5]
         self._test_sna2img(mock_open, '-o 27,18', scr, exp_udgs)
 
-    @patch.object(sna2img, 'ImageWriter', MockImageWriter)
+    @patch.object(sna2img, 'get_image_writer', get_mock_image_writer)
     @patch.object(sna2img, 'open')
     def test_options_o_and_S_together(self, mock_open):
         scr = [7] * 6144
@@ -527,7 +530,7 @@ class Sna2ImgTest(SkoolKitTestCase):
             self.assertTrue(error.startswith('usage: sna2img.py'))
             self.assertTrue(error.endswith("error: argument -o/--origin: invalid coordinates: '{}'\n".format(coords)))
 
-    @patch.object(sna2img, 'ImageWriter', MockImageWriter)
+    @patch.object(sna2img, 'get_image_writer', get_mock_image_writer)
     @patch.object(sna2img, 'open')
     def test_option_O(self, mock_open):
         data = [129] * 8
@@ -536,7 +539,7 @@ class Sna2ImgTest(SkoolKitTestCase):
             options = '{0} {1} -e UDG{1}'.format(option, addr)
             self._test_sna2img(mock_open, options, data, exp_udgs, scale=4, address=addr, ftype='bin')
 
-    @patch.object(sna2img, 'ImageWriter', MockImageWriter)
+    @patch.object(sna2img, 'get_image_writer', get_mock_image_writer)
     @patch.object(sna2img, 'open')
     def test_option_O_with_hex_value(self, mock_open):
         data = [96] * 8
@@ -562,7 +565,7 @@ class Sna2ImgTest(SkoolKitTestCase):
             infile, outfile, options = run_args
             self.assertEqual(options.pokes, [value])
 
-    @patch.object(sna2img, 'ImageWriter', MockImageWriter)
+    @patch.object(sna2img, 'get_image_writer', get_mock_image_writer)
     @patch.object(sna2img, 'open')
     def test_option_p(self, mock_open):
         scr = [0] * 6912
@@ -570,7 +573,7 @@ class Sna2ImgTest(SkoolKitTestCase):
         exp_udgs[0][0] = Udg(0, [255, 0, 0, 0, 0, 0, 0, 0])
         self._test_sna2img(mock_open, '-p 16384,255', scr, exp_udgs)
 
-    @patch.object(sna2img, 'ImageWriter', MockImageWriter)
+    @patch.object(sna2img, 'get_image_writer', get_mock_image_writer)
     @patch.object(sna2img, 'open')
     def test_option_p_address_range(self, mock_open):
         scr = [0] * 6912
@@ -578,7 +581,7 @@ class Sna2ImgTest(SkoolKitTestCase):
         exp_udgs[0][0].data[0] = 255
         self._test_sna2img(mock_open, '-p 16384-16415,255', scr, exp_udgs)
 
-    @patch.object(sna2img, 'ImageWriter', MockImageWriter)
+    @patch.object(sna2img, 'get_image_writer', get_mock_image_writer)
     @patch.object(sna2img, 'open')
     def test_option_p_address_range_with_step(self, mock_open):
         scr = [0] * 6912
@@ -586,7 +589,7 @@ class Sna2ImgTest(SkoolKitTestCase):
         exp_udgs[0][0] = Udg(0, [15] * 8)
         self._test_sna2img(mock_open, '-p 16384-18176-256,15', scr, exp_udgs)
 
-    @patch.object(sna2img, 'ImageWriter', MockImageWriter)
+    @patch.object(sna2img, 'get_image_writer', get_mock_image_writer)
     @patch.object(sna2img, 'open')
     def test_option_p_hexadecimal_values(self, mock_open):
         scr = [0] * 6912
@@ -594,7 +597,7 @@ class Sna2ImgTest(SkoolKitTestCase):
         exp_udgs[0][0] = Udg(0, [15] * 8)
         self._test_sna2img(mock_open, '-p $4000-$4700-$100,$0f', scr, exp_udgs)
 
-    @patch.object(sna2img, 'ImageWriter', MockImageWriter)
+    @patch.object(sna2img, 'get_image_writer', get_mock_image_writer)
     @patch.object(sna2img, 'open')
     def test_option_p_0x_hexadecimal_values(self, mock_open):
         scr = [0] * 6912
@@ -602,7 +605,7 @@ class Sna2ImgTest(SkoolKitTestCase):
         exp_udgs[0][0] = Udg(0, [31] * 8)
         self._test_sna2img(mock_open, '-p 0x4000-0x4700-0x100,0x1f', scr, exp_udgs)
 
-    @patch.object(sna2img, 'ImageWriter', MockImageWriter)
+    @patch.object(sna2img, 'get_image_writer', get_mock_image_writer)
     @patch.object(sna2img, 'open')
     def test_option_p_with_add_operation(self, mock_open):
         scr = [0] * 6912
@@ -610,7 +613,7 @@ class Sna2ImgTest(SkoolKitTestCase):
         exp_udgs[0][0].data[0] = 5
         self._test_sna2img(mock_open, '-p 16384-16415,+5', scr, exp_udgs)
 
-    @patch.object(sna2img, 'ImageWriter', MockImageWriter)
+    @patch.object(sna2img, 'get_image_writer', get_mock_image_writer)
     @patch.object(sna2img, 'open')
     def test_option_p_with_xor_operation(self, mock_open):
         scr = [255] * 6912
@@ -618,7 +621,7 @@ class Sna2ImgTest(SkoolKitTestCase):
         exp_udgs[0][0].data[0] = 240
         self._test_sna2img(mock_open, '-p 16384-16415,^15', scr, exp_udgs)
 
-    @patch.object(sna2img, 'ImageWriter', MockImageWriter)
+    @patch.object(sna2img, 'get_image_writer', get_mock_image_writer)
     @patch.object(sna2img, 'open')
     def test_option_p_multiple(self, mock_open):
         scr = [0] * 6912
@@ -644,21 +647,21 @@ class Sna2ImgTest(SkoolKitTestCase):
             infile, outfile, options = run_args
             self.assertEqual(options.rotate, value)
 
-    @patch.object(sna2img, 'ImageWriter', MockImageWriter)
+    @patch.object(sna2img, 'get_image_writer', get_mock_image_writer)
     @patch.object(sna2img, 'open')
     def test_option_r_1(self, mock_open):
         scr = ([170] * 256 + [0] * 256) * 12 + [56] * 768
         exp_udgs = [[Udg(56, [85, 0] * 4)] * 24] * 32
         self._test_sna2img(mock_open, '-r 1', scr, exp_udgs)
 
-    @patch.object(sna2img, 'ImageWriter', MockImageWriter)
+    @patch.object(sna2img, 'get_image_writer', get_mock_image_writer)
     @patch.object(sna2img, 'open')
     def test_option_r_2(self, mock_open):
         scr = ([170] * 256 + [0] * 256) * 12 + [1] * 768
         exp_udgs = [[Udg(1, [0, 85] * 4)] * 32] * 24
         self._test_sna2img(mock_open, '-r 2', scr, exp_udgs)
 
-    @patch.object(sna2img, 'ImageWriter', MockImageWriter)
+    @patch.object(sna2img, 'get_image_writer', get_mock_image_writer)
     @patch.object(sna2img, 'open')
     def test_option_r_3(self, mock_open):
         scr = ([170] * 256 + [0] * 256) * 12 + [2] * 768
@@ -681,7 +684,7 @@ class Sna2ImgTest(SkoolKitTestCase):
             infile, outfile, options = run_args
             self.assertEqual(options.scale, value)
 
-    @patch.object(sna2img, 'ImageWriter', MockImageWriter)
+    @patch.object(sna2img, 'get_image_writer', get_mock_image_writer)
     @patch.object(sna2img, 'open')
     def test_option_s(self, mock_open):
         scr = [0] * 6144 + [1] * 768
@@ -704,7 +707,7 @@ class Sna2ImgTest(SkoolKitTestCase):
             infile, outfile, options = run_args
             self.assertEqual(options.size, value)
 
-    @patch.object(sna2img, 'ImageWriter', MockImageWriter)
+    @patch.object(sna2img, 'get_image_writer', get_mock_image_writer)
     @patch.object(sna2img, 'open')
     def test_option_S(self, mock_open):
         scr = [15] * 6144 + [4] * 32 + [7] * 736

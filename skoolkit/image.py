@@ -1,4 +1,4 @@
-# Copyright 2012-2015, 2017, 2019, 2020 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2012-2015, 2017, 2019-2021 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -13,10 +13,6 @@
 #
 # You should have received a copy of the GNU General Public License along with
 # SkoolKit. If not, see <http://www.gnu.org/licenses/>.
-
-"""
-Defines the :class:`ImageWriter` class.
-"""
 
 from skoolkit.pngwriter import PngWriter
 
@@ -42,17 +38,19 @@ PNG_COMPRESSION_LEVEL = 'PNGCompressionLevel'
 PNG_ENABLE_ANIMATION = 'PNGEnableAnimation'
 
 class ImageWriter:
-    """Writes PNG images.
+    """Initialise the image writer.
 
-    :type palette: dict
-    :param palette: Colour palette replacements to use.
-    :type options: dict
-    :param options: Options.
+    :param config: A dictionary constructed from the contents of the
+                   :ref:`ref-ImageWriter` section of the ref file.
+    :param palette: A dictionary constructed from the contents of the
+                    :ref:`ref-Colours` section of the ref file. Each key is a
+                    colour name, and each value is a three-element tuple
+                    representing an RGB triplet.
     """
-    def __init__(self, palette=None, options=None):
+    def __init__(self, config, palette=None):
         self.options = self._get_default_options()
-        if options:
-            for k, v in options.items():
+        if config:
+            for k, v in config.items():
                 try:
                     self.options[k] = int(v)
                 except ValueError:
@@ -69,7 +67,28 @@ class ImageWriter:
         }
         self.writer = PngWriter(self.options[PNG_ALPHA] & 255, self.options[PNG_COMPRESSION_LEVEL], self.masks)
 
+    def image_fname(self, fname):
+        """
+        Convert the `fname` parameter of an image macro into an image filename
+        with an appropriate extension.
+
+        :param fname: The `fname` parameter of the image macro.
+        :return: The image filename.
+        """
+        if fname.lower()[-4:] != '.png':
+            return fname + '.png'
+        return fname
+
     def write_image(self, frames, img_file):
+        """
+        Write an image file.
+
+        :param frames: A list of :class:`~skoolkit.graphics.Frame` objects from
+                       which to build the image.
+        :param img_file: The file object to write the image to.
+        :return: The content with which the image macro is replaced; if `None`,
+                 an appropriate ``<img .../>`` element is used.
+        """
         use_flash = len(frames) == 1 and self.options[PNG_ENABLE_ANIMATION]
         attrs = set()
         colours = set()

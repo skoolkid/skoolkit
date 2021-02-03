@@ -95,6 +95,9 @@ class Stream:
         self._buffer.seek(0)
         self._buffer.truncate()
 
+    def close(self):
+        return
+
 class StdIn:
     def __init__(self, data):
         self.data = data

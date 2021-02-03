@@ -10,6 +10,7 @@ SkoolKit relies on several components in order to function:
 * :ref:`ctlGenerator`
 * :ref:`disassembler`
 * :ref:`htmlTemplateFormatter`
+* :ref:`imageWriter`
 * :ref:`instructionUtility`
 * :ref:`operandEvaluator`
 * :ref:`operandFormatter`
@@ -26,6 +27,7 @@ working directory or in `~/.skoolkit`. The default contents of the
   ControlFileGenerator=skoolkit.snactl
   Disassembler=skoolkit.disassembler.Disassembler
   HtmlTemplateFormatter=skoolkit.skoolhtml.TemplateFormatter
+  ImageWriter=skoolkit.image.ImageWriter
   InstructionUtility=skoolkit.skoolparser.InstructionUtility
   OperandEvaluator=skoolkit.z80
   OperandFormatter=skoolkit.disassembler.OperandFormatter
@@ -119,6 +121,17 @@ following API methods, in common with skoolkit.skoolhtml.TemplateFormatter:
 
 .. autoclass:: skoolkit.skoolhtml.TemplateFormatter
    :members: format_template
+
+.. _imageWriter:
+
+Image writer
+------------
+This class is responsible for constructing images and writing them to files. It
+must supply the following API methods, in common with
+skoolkit.image.ImageWriter:
+
+.. autoclass:: skoolkit.image.ImageWriter
+   :members: image_fname, write_image
 
 .. _instructionUtility:
 
