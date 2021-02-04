@@ -7,7 +7,7 @@ from skoolkit import components, sna2skool, snapshot, SkoolKitError, VERSION
 from skoolkit.config import COMMANDS
 
 def mock_make_snapshot(fname, org, start, end, page):
-    return [0] * 65536, max(16384, start), end
+    return [0] * 65536, 16384 if start is None else start, end
 
 class MockCtlParser:
     def __init__(self, ctls=None):
@@ -53,7 +53,7 @@ class Sna2SkoolTest(SkoolKitTestCase):
         self.assertEqual([], options.ctls)
         self.assertEqual(options.base, 10)
         self.assertEqual(options.case, 2)
-        self.assertEqual(options.start, 0)
+        self.assertIsNone(options.start)
         self.assertEqual(options.end, 65536)
         self.assertIsNone(options.org)
         self.assertIsNone(options.page)
@@ -82,7 +82,7 @@ class Sna2SkoolTest(SkoolKitTestCase):
         self.assertEqual([], options.ctls)
         self.assertEqual(options.base, 16)
         self.assertEqual(options.case, 1)
-        self.assertEqual(options.start, 0)
+        self.assertIsNone(options.start)
         self.assertEqual(options.end, 65536)
         self.assertIsNone(options.org)
         self.assertIsNone(options.page)
@@ -471,6 +471,28 @@ class Sna2SkoolTest(SkoolKitTestCase):
         """
         self.assertEqual(dedent(exp_output).strip(), output.rstrip())
 
+    @patch.object(sna2skool, 'CtlParser', MockCtlParser)
+    @patch.object(sna2skool, 'SkoolWriter', MockSkoolWriter)
+    def test_start_address_defaults_to_16384_for_snapshot(self):
+        snafile = self.write_bin_file([0] * 49179, suffix='.sna')
+        output, error = self.run_sna2skool('{}'.format(snafile))
+        self.assertEqual(error, '')
+        exp_ctls = {16384: 'c', 65536: 'i'}
+        self.assertEqual(exp_ctls, mock_ctl_parser.ctls)
+        self.assertTrue(mock_skool_writer.wrote_skool)
+
+    @patch.object(sna2skool, 'CtlParser', MockCtlParser)
+    @patch.object(sna2skool, 'SkoolWriter', MockSkoolWriter)
+    def test_start_address_defaults_to_org_address_for_raw_memory_file(self):
+        data = [0] * 10
+        binfile = self.write_bin_file(data, suffix='.bin')
+        org = 37
+        output, error = self.run_sna2skool('-o {} {}'.format(org, binfile))
+        self.assertEqual(error, '')
+        exp_ctls = {org: 'c', org + len(data): 'i'}
+        self.assertEqual(exp_ctls, mock_ctl_parser.ctls)
+        self.assertTrue(mock_skool_writer.wrote_skool)
+
     @patch.object(sna2skool, 'make_snapshot', mock_make_snapshot)
     @patch.object(sna2skool, 'CtlParser', MockCtlParser)
     @patch.object(sna2skool, 'SkoolWriter', MockSkoolWriter)
@@ -494,6 +516,17 @@ class Sna2SkoolTest(SkoolKitTestCase):
             self.assertEqual(error, '')
             self.assertEqual(exp_ctls, mock_ctl_parser.ctls)
             self.assertTrue(mock_skool_writer.wrote_skool)
+
+    @patch.object(sna2skool, 'CtlParser', MockCtlParser)
+    @patch.object(sna2skool, 'SkoolWriter', MockSkoolWriter)
+    def test_option_s_below_16384_with_snapshot(self):
+        start = 8192
+        exp_ctls = {start: 'c', 65536: 'i'}
+        snafile = self.write_bin_file([0] * 49179, suffix='.sna')
+        output, error = self.run_sna2skool('-s {} {}'.format(start, snafile))
+        self.assertEqual(error, '')
+        self.assertEqual(exp_ctls, mock_ctl_parser.ctls)
+        self.assertTrue(mock_skool_writer.wrote_skool)
 
     @patch.object(sna2skool, 'make_snapshot', mock_make_snapshot)
     @patch.object(sna2skool, 'CtlParser', MockCtlParser)

@@ -838,7 +838,7 @@ list::
                           49152-65535.
     --show-config         Show configuration parameter values.
     -s ADDR, --start ADDR
-                          Start disassembling at this address (default=16384).
+                          Start disassembling at this address.
     -V, --version         Show SkoolKit version number and exit.
     -w W, --line-width W  Set the maximum line width of the skool file (default:
                           79).

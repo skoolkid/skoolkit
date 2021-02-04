@@ -1,4 +1,4 @@
-# Copyright 2009-2013, 2015-2020 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2009-2013, 2015-2021 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -83,10 +83,14 @@ def get_snapshot(fname, page=None):
     mem.extend(ram)
     return mem
 
-def make_snapshot(fname, org, start=0, end=65536, page=None):
+def make_snapshot(fname, org, start=None, end=65536, page=None):
     snapshot_reader = get_snapshot_reader()
     if snapshot_reader.can_read(fname):
-        return snapshot_reader.get_snapshot(fname, page), max(16384, start), end
+        if start is None:
+            start = 16384
+        return snapshot_reader.get_snapshot(fname, page), start, end
+    if start is None:
+        start = 0
     ram = read_bin_file(fname, 65536)
     if org is None:
         org = 65536 - len(ram)

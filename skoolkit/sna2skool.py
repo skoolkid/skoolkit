@@ -1,4 +1,4 @@
-# Copyright 2009-2015, 2017-2020 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2009-2015, 2017-2021 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -53,6 +53,8 @@ def get_ctl_parser(ctls, infile, start, end, def_start, def_end):
 
 def run(infile, options, config):
     snapshot, start, end = make_snapshot(infile, options.org, options.start, options.end, options.page)
+    if options.start is None:
+        options.start = 0
     ctl_parser = get_ctl_parser(options.ctls, infile, options.start, options.end, start, end)
     writer = SkoolWriter(snapshot, ctl_parser, options, config)
     writer.write_skool(config['ListRefs'], config['Text'])
@@ -85,8 +87,8 @@ def main(args):
                        help='Specify the page (0-7) of a 128K snapshot to map to 49152-65535.')
     group.add_argument('--show-config', dest='show_config', action='store_true',
                        help="Show configuration parameter values.")
-    group.add_argument('-s', '--start', dest='start', metavar='ADDR', type=integer, default=0,
-                       help='Start disassembling at this address (default=16384).')
+    group.add_argument('-s', '--start', dest='start', metavar='ADDR', type=integer,
+                       help='Start disassembling at this address.')
     group.add_argument('-V', '--version', action='version', version='SkoolKit {}'.format(VERSION),
                        help='Show SkoolKit version number and exit.')
     group.add_argument('-w', '--line-width', dest='line_width', metavar='W', type=int, default=config['LineWidth'],

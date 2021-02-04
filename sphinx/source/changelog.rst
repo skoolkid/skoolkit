@@ -15,6 +15,8 @@ Changelog
   configuration parameter
 * Fixed the bug that prevents instruction comments from being repeated in a
   :ref:`control file loop <ctlLoops>`
+* Fixed the bug that makes :ref:`sna2skool.py` ignore a given start address
+  below 16384 when converting a snapshot
 
 8.3 (2020-11-08)
 ----------------
