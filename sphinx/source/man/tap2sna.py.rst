@@ -29,10 +29,10 @@ OPTIONS
   `STACK` must be a decimal number, or a hexadecimal number prefixed by '0x'.
 
 --ram OPERATION
-  Perform a load, move or poke operation on the memory snapshot being built. Do
-  ``--ram help`` for more information, or see the sections on ``LOAD``,
-  ``MOVE`` and ``POKE`` operations below. This option may be used multiple
-  times.
+  Perform a load, move or poke operation on the memory snapshot being built, or
+  initialise the system variables. Do ``--ram help`` for more information, or
+  see the sections on the ``LOAD``, ``MOVE``, ``POKE`` and ``SYSVARS``
+  operations below. This option may be used multiple times.
 
 --reg name=value
   Set the value of a register. Do ``--reg help`` for more information, or see
@@ -139,6 +139,14 @@ For example:
 |  ``--ram poke=30000-30002,^85`` # Perform 'XOR 85' on addresses 30000-30002
 |  ``--ram poke=40000-40004-2,1`` # POKE 40000,1: POKE 40002,1: POKE 40004,1
 
+SYSVARS OPERATION
+=================
+The ``--ram`` option can be used to initialise the system variables at
+23552-23754 (5C00-5CCA) with values suitable for a 48K ZX Spectrum.
+
+|
+|  ``--ram sysvars``
+
 REGISTERS
 =========
 The ``--reg`` option sets the value of a register in the snapshot.
@@ -203,9 +211,10 @@ following contents:
 |    game.z80
 |    --ram load=4,32768         # Load the fourth block at 32768
 |    --ram move=40960,512,43520 # Move 40960-41471 to 43520-44031
-|    --reg pc=34816             # Start at 34816
-|    --reg sp=32768             # Stack at 32768
+|    --ram sysvars              # Initialise the system variables
 |    --state iff=0              # Disable interrupts
+|    --stack 32768              # Stack at 32768
+|    --start 34816              # Start at 34816
 
 then:
 

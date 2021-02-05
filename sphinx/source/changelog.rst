@@ -12,6 +12,8 @@ Changelog
   the output produced by the ``--peek`` option)
 * Added support for specifying an :ref:`expand` directive value over multiple
   lines by prefixing the second and subsequent lines with ``+``
+* Added support to the ``--ram`` option of :ref:`tap2sna.py` for the
+  ``sysvars`` operation (for initialising the system variables in a snapshot)
 * Changed the default value of the ``DefmSize`` configuration parameter for
   :ref:`sna2skool.py <sna2skool-conf>` from 66 to 65; this makes it compliant
   with the default maximum line width of 79 defined by the ``LineWidth``

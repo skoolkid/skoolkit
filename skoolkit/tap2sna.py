@@ -1,4 +1,4 @@
-# Copyright 2013, 2015-2018, 2020 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2013, 2015-2018, 2020, 2021 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -25,6 +25,106 @@ from urllib.parse import urlparse
 from skoolkit import (SkoolKitError, get_dword, get_int_param, get_word,
                       get_word3, integer, open_file, write_line, VERSION)
 from skoolkit.snapshot import move, poke, print_reg_help, print_state_help, write_z80v3
+
+SYSVARS = (
+    255, 0, 0, 0,         # 23552 - KSTATE0
+    255, 0, 0, 0,         # 23556 - KSTATE4
+    0,                    # 23560 - LAST-K
+    35,                   # 23561 - REPDEL
+    5,                    # 23562 - REPPER
+    0, 0,                 # 23563 - DEFADD
+    0,                    # 23565 - K-DATA
+    0, 0,                 # 23566 - TVDATA
+    1, 0,                 # 23568 - STRMS - stream 253 (keyboard)
+    6, 0,                 # 23570 - STRMS - stream 254 (screen)
+    11, 0,                # 23572 - STRMS - stream 255 (work space)
+    1, 0,                 # 23574 - STRMS - stream 0 (keyboard)
+    1, 0,                 # 23576 - STRMS - stream 1 (keyboard)
+    6, 0,                 # 23578 - STRMS - stream 2 (screen)
+    16, 0,                # 23580 - STRMS - stream 3 (printer)
+    0, 0,                 # 23582 - STRMS - stream 4
+    0, 0,                 # 23584 - STRMS - stream 5
+    0, 0,                 # 23586 - STRMS - stream 6
+    0, 0,                 # 23588 - STRMS - stream 7
+    0, 0,                 # 23590 - STRMS - stream 8
+    0, 0,                 # 23592 - STRMS - stream 9
+    0, 0,                 # 23594 - STRMS - stream 10
+    0, 0,                 # 23596 - STRMS - stream 11
+    0, 0,                 # 23598 - STRMS - stream 12
+    0, 0,                 # 23600 - STRMS - stream 13
+    0, 0,                 # 23602 - STRMS - stream 14
+    0, 0,                 # 23604 - STRMS - stream 15
+    0, 60,                # 23606 - CHARS
+    64,                   # 23608 - RASP
+    0,                    # 23609 - PIP
+    0,                    # 23610 - ERR-NR
+    0,                    # 23611 - FLAGS
+    33,                   # 23612 - TV-FLAG
+    84, 255,              # 23613 - ERR-SP
+    0, 0,                 # 23615 - LIST-SP
+    0,                    # 23617 - MODE
+    0, 0,                 # 23618 - NEWPPC
+    0,                    # 23620 - NSPPC
+    0, 0,                 # 23621 - PPC
+    0,                    # 23623 - SUBPPC
+    56,                   # 23624 - BORDCR
+    0, 0,                 # 23625 - E-PPC
+    203, 92,              # 23627 - VARS
+    0, 0,                 # 23629 - DEST
+    182, 92,              # 23631 - CHANS
+    182, 92,              # 23633 - CURCHL
+    203, 92,              # 23635 - PROG
+    0, 0,                 # 23637 - NXTLIN
+    202, 92,              # 23639 - DATADD
+    204, 92,              # 23641 - E-LINE
+    0, 0,                 # 23643 - K-CUR
+    0, 0,                 # 23645 - CH-ADD
+    0, 0,                 # 23647 - X-PTR
+    206, 92,              # 23649 - WORKSP
+    206, 92,              # 23651 - STKBOT
+    206, 92,              # 23653 - STKEND
+    0,                    # 23655 - BREG
+    0, 0,                 # 23656 - MEM
+    16,                   # 23658 - FLAGS2
+    2,                    # 23659 - DF-SZ
+    0, 0,                 # 23660 - S-TOP
+    0, 0,                 # 23662 - OLDPPC
+    0,                    # 23664 - OSPCC
+    0,                    # 23665 - FLAGX
+    0, 0,                 # 23666 - STRLEN
+    0, 0,                 # 23668 - T-ADDR
+    0, 0,                 # 23670 - SEED
+    0, 0, 0,              # 23672 - FRAMES
+    88, 255,              # 23675 - UDG
+    0, 0,                 # 23677 - COORDS
+    33,                   # 23679 - P-POSN
+    0, 91,                # 23680 - PR-CC
+    5, 23,                # 23682 - ECHO-E
+    0, 64,                # 23684 - DF-CC
+    252, 80,              # 23686 - DF-CCL
+    33, 24,               # 23688 - S-POSN
+    5, 23,                # 23690 - SPOSN-L
+    1,                    # 23692 - SCR-CT
+    56,                   # 23693 - ATTR-P
+    0,                    # 23694 - MASK-P
+    56,                   # 23695 - ATTR-T
+    0,                    # 23696 - MASK-T
+    0,                    # 23697 - P-FLAG
+    0, 0, 0, 0, 0,        # 23698 - mem-0
+    0, 0, 0, 0, 0,        # 23703 - mem-1
+    0, 0, 0, 0, 0,        # 23708 - mem-2
+    0, 0, 0, 0, 0,        # 23713 - mem-3
+    0, 0, 0, 0, 0,        # 23718 - mem-4
+    0, 0, 0, 0, 0,        # 23723 - mem-5
+    0, 0,                 # 23728 = NMIADD
+    87, 255,              # 23730 - RAMTOP
+    255, 255,             # 23732 - P-RAMT
+    244, 9, 168, 16, 75,  # 23734 - CHINFO - keyboard
+    244, 9, 196, 21, 83,  # 23739 - CHINFO - screen
+    129, 15, 196, 21, 82, # 23744 - CHINFO - work space
+    244, 9, 196, 21, 80,  # 23749 - CHINFO - printer
+    128                   # 23754 - CHINFO - end marker
+)
 
 class SkoolKitArgumentParser(argparse.ArgumentParser):
     def convert_arg_line_to_args(self, arg_line):
@@ -105,8 +205,8 @@ def _get_ram(blocks, options):
     operations = []
     standard_load = True
     for spec in options.ram_ops:
-        op_type, param_str = spec.split('=', 1)
-        if op_type in ('load', 'move', 'poke'):
+        op_type, sep, param_str = spec.partition('=')
+        if op_type in ('load', 'move', 'poke', 'sysvars'):
             operations.append((op_type, param_str))
             if op_type == 'load':
                 standard_load = False
@@ -141,6 +241,8 @@ def _get_ram(blocks, options):
             move(snapshot, param_str)
         elif op_type == 'poke':
             poke(snapshot, param_str)
+        elif op_type == 'sysvars':
+            snapshot[23552:23755] = SYSVARS
 
     return snapshot[16384:]
 
@@ -303,9 +405,11 @@ def _print_ram_help():
 Usage: --ram load=block,start[,length,step,offset,inc]
        --ram move=src,size,dest
        --ram poke=a[-b[-c]],[^+]v
+       --ram sysvars
 
 Load data from a tape block, move a block of bytes from one location to
-another, or POKE a single address or range of addresses with a given value.
+another, POKE a single address or range of addresses with a given value, or
+initialise the system variables.
 
 --ram load=[+]block[+],start[,length,step,offset,inc]
 
@@ -362,6 +466,11 @@ another, or POKE a single address or range of addresses with a given value.
   --ram poke=24576,16        # POKE 24576,16
   --ram poke=30000-30002,^85 # Perform 'XOR 85' on addresses 30000-30002
   --ram poke=40000-40004-2,1 # POKE 40000,1: POKE 40002,1: POKE 40004,1
+
+--ram sysvars
+
+  Intialise the system variables at 23552-23754 (5C00-5CCA) with values
+  suitable for a 48K ZX Spectrum.
 """.lstrip())
 
 def make_z80(url, options, z80):
@@ -388,7 +497,7 @@ def main(args):
     group.add_argument('-p', '--stack', dest='stack', metavar='STACK', type=integer,
                        help="Set the stack pointer.")
     group.add_argument('--ram', dest='ram_ops', metavar='OPERATION', action='append', default=[],
-                       help="Perform a load, move or poke operation on the memory snapshot being built. "
+                       help="Perform a load, move or poke operation or initialise the system variables in the memory snapshot being built. "
                             "Do '--ram help' for more information. This option may be used multiple times.")
     group.add_argument('--reg', dest='reg', metavar='name=value', action='append', default=[],
                        help="Set the value of a register. Do '--reg help' for more information. "

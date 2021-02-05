@@ -427,6 +427,11 @@ class Tap2SnaTest(SkoolKitTestCase):
         self._test_bad_spec('--ram move=1,y,3', 'Invalid integer in move spec: 1,y,3')
         self._test_bad_spec('--ram move=1,2,z', 'Invalid integer in move spec: 1,2,z')
 
+    def test_ram_sysvars(self):
+        snapshot = self._get_snapshot(23552, [0], '--ram sysvars')
+        self.assertEqual(sum(snapshot[23552:23755]), 7911)
+        self.assertEqual(len(snapshot), 65536)
+
     def test_ram_invalid_operation(self):
         self._test_bad_spec('--ram foo=bar', 'Invalid operation: foo=bar')
 
