@@ -7,6 +7,9 @@ Changelog
 * Added the ``Address`` parameter to the :ref:`ref-Game` section (for
   specifying the format of address fields on disassembly pages and memory map
   pages, and of the default link text for the :ref:`R` macro)
+* Added the ``Peek`` configuration parameter for
+  :ref:`snapinfo.py <snapinfo-conf>` (for specifying the format of each line of
+  the output produced by the ``--peek`` option)
 * Added support for specifying an :ref:`expand` directive value over multiple
   lines by prefixing the second and subsequent lines with ``+``
 * Changed the default value of the ``DefmSize`` configuration parameter for

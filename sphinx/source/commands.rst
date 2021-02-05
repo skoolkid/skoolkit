@@ -1083,6 +1083,9 @@ configuration parameters are:
   ``{address}``)
 * ``NodeLabel`` - the format of the node labels in a call graph (default:
   ``"{address} {address:04X}\n{label}"``)
+* ``Peek`` - the format of each line of the output produced by the ``--peek``
+  option (default:
+  ``{address:>5} {address:04X}: {value:>3}  {value:02X}  {value:08b}  {char}``)
 
 ``NodeId`` and ``NodeLabel`` are standard Python format strings that recognise
 the replacement fields ``address`` and ``label`` (the address and label of the
@@ -1107,6 +1110,8 @@ Configuration parameters may also be set on the command line by using the
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 8.4     | Added the ``Peek`` configuration parameter                        |
++---------+-------------------------------------------------------------------+
 | 8.3     | Added support for reading control files from a directory          |
 |         | (``--ctl DIR``)                                                   |
 +---------+-------------------------------------------------------------------+

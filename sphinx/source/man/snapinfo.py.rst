@@ -87,6 +87,9 @@ configuration parameters are:
 :NodeId: The format of the node IDs in a call graph (default: ``{address}``).
 :NodeLabel: The format of the node labels in a call graph (default:
   ``"{address} {address:04X}\n{label}"``).
+:Peek: the format of each line of the output produced by the ``--peek`` option
+  (default:
+  ``{address:>5} {address:04X}: {value:>3}  {value:02X}  {value:08b}  {char}``)
 
 ``NodeId`` and ``NodeLabel`` are standard Python format strings that recognise
 the replacement fields ``address`` and ``label`` (the address and label of the

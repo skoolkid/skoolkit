@@ -1,4 +1,4 @@
-# Copyright 2013-2017, 2019, 2020 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2013-2017, 2019-2021 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -454,12 +454,12 @@ def _find_text(snapshot, text):
         if snapshot[a:a + size] == byte_values:
             print("{0}-{1} {0:04X}-{1:04X}: {2}".format(a, a + size - 1, text))
 
-def _peek(snapshot, specs):
+def _peek(snapshot, specs, fmt):
     for addr1, addr2, step in _get_address_ranges(specs):
         for a in range(addr1, addr2 + 1, step):
             value = snapshot[a]
             char = get_char(value, '', 'UDG-{}', True)
-            print('{0:>5} {0:04X}: {1:>3}  {1:02X}  {1:08b}  {2}'.format(a, value, char))
+            print(fmt.format(address=a, value=value, char=char))
 
 def _word(snapshot, specs):
     for addr1, addr2, step in _get_address_ranges(specs, 2):
@@ -480,7 +480,7 @@ def run(infile, options, config):
         elif options.call_graph:
             _call_graph(snapshot, options.ctlfiles, infile, start, end, config)
         elif options.peek:
-            _peek(snapshot, options.peek)
+            _peek(snapshot, options.peek, config['Peek'])
         elif options.word:
             _word(snapshot, options.word)
         else:

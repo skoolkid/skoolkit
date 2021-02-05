@@ -1665,6 +1665,7 @@ class SnapinfoTest(SkoolKitTestCase):
             NodeAttributes=shape=record
             NodeId={address}
             NodeLabel="{address} {address:04X}\n{label}"
+            Peek={address:>5} {address:04X}: {value:>3}  {value:02X}  {value:08b}  {char}
         """
         self.assertEqual(dedent(exp_output).strip(), output.rstrip())
 
@@ -1673,6 +1674,7 @@ class SnapinfoTest(SkoolKitTestCase):
             [snapinfo]
             NodeAttributes=shape=box
             NodeLabel="{label}"
+            Peek=${address:04X},${value:02X}
         """
         self.write_text_file(dedent(ini).strip(), 'skoolkit.ini')
         output, error = self.run_snapinfo('--show-config', catch_exit=0)
@@ -1684,6 +1686,7 @@ class SnapinfoTest(SkoolKitTestCase):
             NodeAttributes=shape=box
             NodeId={address}
             NodeLabel="{label}"
+            Peek=${address:04X},${value:02X}
         """
         self.assertEqual(dedent(exp_output).strip(), output.rstrip())
 
@@ -2074,3 +2077,14 @@ class SnapinfoTest(SkoolKitTestCase):
             }
         """
         self._test_sna(ram, exp_output, '-g', ctl)
+
+    def test_config_Peek(self):
+        ram = [0] * 49152
+        ram[33616:33620] = [1, 65, 144, 165]
+        exp_output = """
+            $c350:001()
+            $c351:065(A)
+            $c352:144(UDG-A)
+            $c353:165(RND)
+        """
+        self._test_sna(ram, exp_output, '-p 50000-50003 -I Peek=${address:04x}:{value:03d}({char})')
