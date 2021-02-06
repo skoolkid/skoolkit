@@ -73,7 +73,8 @@ COMMANDS = {
         'NodeAttributes': ('shape=record', ''),
         'NodeId': ('{address}', ''),
         'NodeLabel': (r'"{address} {address:04X}\n{label}"', ''),
-        'Peek': ('{address:>5} {address:04X}: {value:>3}  {value:02X}  {value:08b}  {char}', '')
+        'Peek': ('{address:>5} {address:04X}: {value:>3}  {value:02X}  {value:08b}  {char}', ''),
+        'Word': ('{address:>5} {address:04X}: {value:>5}  {value:04X}', '')
     },
     'skool2ctl': {
         'Hex': (0, 'write_hex'),

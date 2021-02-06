@@ -461,11 +461,11 @@ def _peek(snapshot, specs, fmt):
             char = get_char(value, '', 'UDG-{}', True)
             print(fmt.format(address=a, value=value, char=char))
 
-def _word(snapshot, specs):
+def _word(snapshot, specs, fmt):
     for addr1, addr2, step in _get_address_ranges(specs, 2):
         for a in range(addr1, addr2 + 1, step):
             value = snapshot[a] + 256 * snapshot[a + 1]
-            print('{0:>5} {0:04X}: {1:>5}  {1:04X}'.format(a, value))
+            print(fmt.format(address=a, value=value))
 
 def run(infile, options, config):
     if any((options.find, options.tile, options.text, options.call_graph, options.peek,
@@ -482,7 +482,7 @@ def run(infile, options, config):
         elif options.peek:
             _peek(snapshot, options.peek, config['Peek'])
         elif options.word:
-            _word(snapshot, options.word)
+            _word(snapshot, options.word, config['Word'])
         else:
             if options.basic:
                 print(BasicLister().list_basic(snapshot))

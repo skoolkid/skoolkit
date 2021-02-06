@@ -1666,6 +1666,7 @@ class SnapinfoTest(SkoolKitTestCase):
             NodeId={address}
             NodeLabel="{address} {address:04X}\n{label}"
             Peek={address:>5} {address:04X}: {value:>3}  {value:02X}  {value:08b}  {char}
+            Word={address:>5} {address:04X}: {value:>5}  {value:04X}
         """
         self.assertEqual(dedent(exp_output).strip(), output.rstrip())
 
@@ -1687,6 +1688,7 @@ class SnapinfoTest(SkoolKitTestCase):
             NodeId={address}
             NodeLabel="{label}"
             Peek=${address:04X},${value:02X}
+            Word={address:>5} {address:04X}: {value:>5}  {value:04X}
         """
         self.assertEqual(dedent(exp_output).strip(), output.rstrip())
 
@@ -2088,3 +2090,12 @@ class SnapinfoTest(SkoolKitTestCase):
             $c353:165(RND)
         """
         self._test_sna(ram, exp_output, '-p 50000-50003 -I Peek=${address:04x}:{value:03d}({char})')
+
+    def test_config_Word(self):
+        ram = [0] * 49152
+        ram[43616:43620] = [1, 2, 254, 255]
+        exp_output = """
+            $EA60,$0201
+            $EA62,$FFFE
+        """
+        self._test_sna(ram, exp_output, '-w 60000-60003 -I Word=${address:04X},${value:04X}')
