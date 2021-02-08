@@ -5219,6 +5219,77 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             path = '{}/{}.html'.format(ASMDIR, address)
             self._assert_title_equals(path, exp_title, exp_header)
 
+    def test_write_asm_entries_with_entry_group_but_no_custom_title_or_page_header(self):
+        ref = """
+            [EntryGroups]
+            GameState=40000,$9c41
+        """
+        skool = """
+            ; Number of lives
+            b40000 DEFB 0
+
+            ; Score
+            w40001 DEFW 0
+        """
+        writer = self._get_writer(ref=ref, skool=skool)
+        writer.write_asm_entries()
+
+        exp_header = 'Data'
+        for address in (40000, 40001):
+            exp_title = 'Data at {}'.format(address)
+            path = '{}/{}.html'.format(ASMDIR, address)
+            self._assert_title_equals(path, exp_title, exp_header)
+
+    def test_write_asm_entries_with_entry_group_and_custom_title(self):
+        ref = """
+            [EntryGroups]
+            GameState=40000,$9c41
+
+            [Titles]
+            Asm-GameState=Game state variable at {entry[address]}
+        """
+        skool = """
+            ; Number of lives
+            b40000 DEFB 0
+
+            ; Score
+            w40001 DEFW 0
+        """
+        writer = self._get_writer(ref=ref, skool=skool)
+        writer.write_asm_entries()
+
+        for address in (40000, 40001):
+            exp_title = exp_header = 'Game state variable at {}'.format(address)
+            path = '{}/{}.html'.format(ASMDIR, address)
+            self._assert_title_equals(path, exp_title, exp_header)
+
+    def test_write_asm_entries_with_entry_group_and_custom_title_and_page_header(self):
+        ref = """
+            [EntryGroups]
+            GameState=40000,$9c41
+
+            [Titles]
+            Asm-GameState=Game state variable at {entry[address]}
+
+            [PageHeaders]
+            Asm-GameState=Game state variables
+        """
+        skool = """
+            ; Number of lives
+            b40000 DEFB 0
+
+            ; Score
+            w40001 DEFW 0
+        """
+        writer = self._get_writer(ref=ref, skool=skool)
+        writer.write_asm_entries()
+
+        exp_header = 'Game state variables'
+        for address in (40000, 40001):
+            exp_title = 'Game state variable at {}'.format(address)
+            path = '{}/{}.html'.format(ASMDIR, address)
+            self._assert_title_equals(path, exp_title, exp_header)
+
     def test_write_asm_entries_with_custom_filenames(self):
         ref = '[Paths]\nCodeFiles=asm-{address:04x}.html'
         skool = """

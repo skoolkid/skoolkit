@@ -187,6 +187,13 @@ class HtmlWriter:
                 self.paths.setdefault(map_name, 'maps/{}.html'.format(map_name))
                 self.titles.setdefault(map_name, map_name)
 
+        self.entry_groups = {}
+        for group, addresses in self.get_dictionary('EntryGroups').items():
+            for addr_str in addresses.split(','):
+                address = parse_int(addr_str)
+                if self.get_entry(address):
+                    self.entry_groups[address] = 'Asm-' + group
+
         self._expand_values(self.paths)
         self.image_paths = {k: v for k, v in self.paths.items() if k.endswith('ImagePath')}
 
@@ -730,7 +737,8 @@ class HtmlWriter:
         entry = self.memory_map[index]
         page_id = self._get_asm_page_id(self.code_id, entry.ctl)
         fname = join(cwd, self.asm_fname(entry.address))
-        self._set_cwd(page_id, 'asm', fname)
+        group = self.entry_groups.get(entry.address)
+        self._set_cwd(page_id, 'asm', fname, group)
 
         subs = {'entry': self._get_asm_entry(cwd, index, map_file)}
         self.skoolkit['title'] = self.skoolkit['title'].format(**subs)
@@ -831,7 +839,7 @@ class HtmlWriter:
         with self.file_info.open_file(fname) as f:
             f.write(contents)
 
-    def _set_cwd(self, page_id, include, asm_fname=None, js=None):
+    def _set_cwd(self, page_id, include, asm_fname=None, group=None, js=None):
         if asm_fname is None:
             fname = self.paths[page_id]
         else:
@@ -849,11 +857,14 @@ class HtmlWriter:
                 js_files += tuple(js.split(';'))
             self.javascript[js_key] = [{'src': self.relpath(cwd, join(self.paths['JavaScriptPath'], basename(j)))} for j in js_files]
 
+        title = self.titles.get(group, self.titles[page_id])
+        page_header = self.page_headers.get(group, self.page_headers[page_id])
+
         self.skoolkit['page_id'] = page_id
         self.skoolkit['path'] = fname
         self.skoolkit['index_href'] = self.relpath(cwd, self.paths[P_GAME_INDEX])
-        self.skoolkit['title'] = self.expand(self.titles[page_id], cwd)
-        self.skoolkit['page_header'] = self.expand(self.page_headers[page_id], cwd).rpartition('<>')[::2]
+        self.skoolkit['title'] = self.expand(title, cwd)
+        self.skoolkit['page_header'] = self.expand(page_header, cwd).rpartition('<>')[::2]
         self.skoolkit['include'] = include
         self.skoolkit['javascripts'] = self.javascript[js_key]
         self.skoolkit['stylesheets'] = self.stylesheets[cwd]

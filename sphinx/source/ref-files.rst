@@ -119,6 +119,42 @@ file is `game.skool`).
 | 2.0     | New                                                               |
 +---------+-------------------------------------------------------------------+
 
+.. _entryGroups:
+
+[EntryGroups]
+-------------
+The ``EntryGroups`` section defines groups of entries (routines and data
+blocks) whose disassembly pages can then be given custom titles and headers via
+the :ref:`titles` and :ref:`pageHeaders` sections. Each line in this section
+has the form::
+
+  name=addr1[,addr2...]
+
+where:
+
+* ``name`` is the entry group name
+* ``addr1``, ``addr2`` etc. are the addresses of the entries in the group
+
+For example::
+
+  SpriteVariables=32768,32769,32770
+
+This defines an entry group named 'SpriteVariables' that consists of the
+entries at 32768, 32769 and 32770. The titles and headers of the disassembly
+pages for these entries can then be specified like this::
+
+  [Titles]
+  Asm-SpriteVariables=Sprite variable at {entry[address]}
+
+  [PageHeaders]
+  Asm-SpriteVariables=Sprite variables
+
++---------+---------+
+| Version | Changes |
++=========+=========+
+| 8.4     | New     |
++---------+---------+
+
 .. _ref-Game:
 
 [Game]
@@ -624,8 +660,12 @@ The ``Asm-*`` parameters are formatted with an ``entry`` dictionary identical
 to the one that is available in the :ref:`t_asm` template.
 
 The header text for a page defined by a :ref:`memoryMap`, :ref:`otherCode` or
-:ref:`page` section also defaults to the title, but can be overridden in this
+:ref:`page` section defaults to the page's title, but can be overridden in this
 section.
+
+The header text of each disassembly page for the entries belonging to a group
+defined in the :ref:`entryGroups` section also defaults to the page's title,
+but can be overridden in this section.
 
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
@@ -868,6 +908,10 @@ to the one that is available in the :ref:`t_asm` template.
 The title of a page defined by a :ref:`memoryMap`, :ref:`otherCode` or
 :ref:`page` section defaults to the page ID, but can be overridden in this
 section.
+
+The title of each disassembly page for the entries belonging to a group defined
+in the :ref:`entryGroups` section defaults to the title for that page's entry
+type, but can be overridden in this section.
 
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |

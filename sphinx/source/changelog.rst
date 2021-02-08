@@ -4,6 +4,9 @@ Changelog
 8.4b1
 -----
 * Made the :ref:`image writer component <imageWriter>` pluggable
+* Added support for defining groups of entries (via the :ref:`entryGroups`
+  section of the ref file) whose disassembly pages can be given custom titles
+  and headers
 * Added the ``Address`` parameter to the :ref:`ref-Game` section (for
   specifying the format of address fields on disassembly pages and memory map
   pages, and of the default link text for the :ref:`R` macro)
