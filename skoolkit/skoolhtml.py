@@ -549,6 +549,7 @@ class HtmlWriter:
             'description': description,
             'href': self._asm_relpath(cwd, entry.address),
             'size': entry.size,
+            'length': self.game_vars['Length'].format(size=entry.size),
             'title': self.expand(entry.description, cwd)
         }
 

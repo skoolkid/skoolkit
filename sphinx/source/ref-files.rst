@@ -163,6 +163,11 @@ Recognised parameters are:
 * ``JavaScript`` - the base name of the JavaScript file to include in every
   page (default: None); multiple JavaScript files can be declared by separating
   their names with semicolons
+* ``Length`` - the format of the ``length`` attribute of entry objects in
+  :ref:`htmlTemplates`, which is used in the Length column on
+  :ref:`memory map pages <memoryMap>` (default: ``{size}``); this format string
+  recognises the replacement field ``size``, equal to the size of the entry in
+  bytes
 * ``LinkInternalOperands`` - ``1`` to hyperlink instruction operands that refer
   to an address in the same entry as the instruction, or ``0`` to leave them
   unlinked (default: ``0``)
@@ -199,7 +204,7 @@ hexadecimal addresses if the ``--hex`` option is used with
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
-| 8.4     | Added the ``Address`` parameter                                   |
+| 8.4     | Added the ``Address`` and ``Length`` parameters                   |
 +---------+-------------------------------------------------------------------+
 | 8.0     | Added the ``AsmSinglePage`` parameter                             |
 +---------+-------------------------------------------------------------------+
@@ -410,7 +415,8 @@ Recognised parameters and their default values are:
 * ``LabelColumn`` - ``1`` to display the 'Label' column if any entries have
   ASM labels defined, or ``0`` not to (default: ``0``)
 * ``LengthColumn`` - ``1`` to display the 'Length' column, or ``0`` not to
-  (default: ``0``)
+  (default: ``0``); see also the ``Length`` parameter in the :ref:`ref-Game`
+  section
 * ``PageByteColumns`` - ``1`` to display 'Page' and 'Byte' columns, or ``0``
   not to (default: ``0``)
 * ``Write`` - ``1`` to write the memory map page, or ``0`` not to (default:

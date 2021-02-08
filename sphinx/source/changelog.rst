@@ -7,6 +7,10 @@ Changelog
 * Added the ``Address`` parameter to the :ref:`ref-Game` section (for
   specifying the format of address fields on disassembly pages and memory map
   pages, and of the default link text for the :ref:`R` macro)
+* Added the ``Length`` parameter to the :ref:`ref-Game` section (for specifying
+  the format of the new ``length`` attribute of entry objects in
+  :ref:`htmlTemplates`, which is now used instead of ``size`` in the Length
+  column on :ref:`memory map pages <memoryMap>`)
 * Added the ``Peek`` and ``Word`` configuration parameters for
   :ref:`snapinfo.py <snapinfo-conf>` (for specifying the format of each line of
   the output produced by the ``--peek`` and ``--word`` options)

@@ -78,14 +78,12 @@ footer of a disassembly page.
 The following identifiers are available (in addition to the universal
 identifiers):
 
-* ``entry`` - a dictionary of parameters corresponding to the current memory
-  map entry (see below)
-* ``next_entry`` - a dictionary of parameters corresponding to the next memory
-  map entry (see below)
-* ``prev_entry`` - a dictionary of parameters corresponding to the previous
-  memory map entry (see below)
+* ``entry`` - an object representing the current memory map entry (see below)
+* ``next_entry`` - an object representing the next memory map entry (see below)
+* ``prev_entry`` - an object representing the previous memory map entry (see
+  below)
 
-The parameters in the ``prev_entry`` and ``next_entry`` dictionaries are:
+The attributes in the ``prev_entry`` and ``next_entry`` objects are:
 
 * ``address`` - the address of the entry (may be in decimal or hexadecimal
   format, depending on how it appears in the skool file, and the options passed
@@ -97,6 +95,8 @@ The parameters in the ``prev_entry`` and ``next_entry`` dictionaries are:
 * ``exists`` - '1' if the entry exists, '0' otherwise
 * ``href`` - the relative path to the disassembly page for the entry
 * ``label`` - the ASM label of the first instruction in the entry
+* ``length`` - the size of the entry in bytes, as a string formatted according
+  to the value of the ``Length`` parameter in the :ref:`ref-game` section
 * ``location`` - the address of the entry as a decimal number
 * ``map_href`` - the relative path to the entry on the 'Memory Map' page
 * ``page`` - the MSB of the entry address
@@ -104,8 +104,8 @@ The parameters in the ``prev_entry`` and ``next_entry`` dictionaries are:
 * ``title`` - the title of the entry
 * ``type`` - the block type of the entry ('b', 'c', 'g', 's', 't', 'u' or 'w')
 
-The ``entry`` dictionary also contains these parameters, and the following
-additional ones:
+The ``entry`` object also has these attributes, and the following additional
+ones:
 
 * ``annotated`` - '1' if any instructions in the entry have a non-empty comment
   field, '0' otherwise
@@ -194,6 +194,9 @@ To see the default ``asm`` template, run the following command::
 
   $ skool2html.py -r Template:asm$
 
+.. versionchanged:: 8.4
+   Added the ``length`` attribute to entry objects.
+
 .. versionchanged:: 8.1
    Added the ``fmt`` parameter to the format specifier for the ``bytes``
    attribute of instruction objects.
@@ -212,8 +215,8 @@ identifiers):
 
 * ``entries`` - a list of memory map entry objects
 
-The attributes of each memory map entry object are the same as those in the
-``entry`` dictionary in the :ref:`t_asm` template.
+The attributes of each memory map entry object are the same as those of the
+``entry`` object in the :ref:`t_asm` template.
 
 To see the default ``asm_single_page`` template, run the following command::
 
@@ -419,8 +422,8 @@ identifiers):
 
 * ``entries`` - a list of memory map entry objects
 
-The attributes of each memory map entry object are the same as those in the
-``prev_entry`` and ``next_entry`` dictionaries in the :ref:`t_asm` template.
+The attributes of each memory map entry object are the same as those of the
+``prev_entry`` and ``next_entry`` objects in the :ref:`t_asm` template.
 
 To see the default ``memory_map`` template, run the following command::
 

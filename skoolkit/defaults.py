@@ -56,6 +56,7 @@ DisassemblyTableNumCols=5
 ; Game=
 InputRegisterTableHeader=Input
 ; JavaScript=
+Length={size}
 LinkInternalOperands=0
 LinkOperands=CALL,DEFW,DJNZ,JP,JR
 ; Logo=
@@ -606,7 +607,7 @@ SECTIONS['Template:memory_map'] = """
 <# endif #>
 <td class="map-{$entry[type]}"><span id="{$entry[anchor]}"></span><a href="{$entry[href]}">{$entry[address]}</a></td>
 <# if({MemoryMap[LengthColumn]}) #>
-<td class="map-length">{$entry[size]}</td>
+<td class="map-length">{$entry[length]}</td>
 <# endif #>
 <td class="map-{$entry[type]}-desc">
 <div class="map-entry-title-1{MemoryMap[EntryDescriptions]}"><a class="map-entry-title" href="{$entry[href]}">{$entry[title]}</a></div>

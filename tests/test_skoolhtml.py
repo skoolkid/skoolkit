@@ -45,6 +45,7 @@ Address=
 AddressAnchor={{address}}
 AsmSinglePage=0
 Created=
+Length={{size}}
 LinkInternalOperands=0
 LinkOperands=CALL,DEFW,DJNZ,JP,JR
 [Paths]
@@ -59,6 +60,7 @@ Address=
 AddressAnchor={{address}}
 AsmSinglePage=0
 Created=
+Length={{size}}
 LinkInternalOperands=0
 LinkOperands=CALL,DEFW,DJNZ,JP,JR
 [Paths]
@@ -77,6 +79,7 @@ Address=
 AddressAnchor={{address}}
 AsmSinglePage=0
 Created=
+Length={{size}}
 LinkInternalOperands=0
 LinkOperands=CALL,DEFW,DJNZ,JP,JR
 StyleSheet=skoolkit.css
@@ -6785,6 +6788,126 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             'content': content
         }
         self._assert_files_equal('maps/routines.html', subs)
+
+    def test_write_map_with_custom_Length(self):
+        skool = """
+            ; Data block
+            b40000 DEFB 0,0,0
+
+            ; Another data block
+            b40003 DEFS 12
+
+            ; Yet another data block
+            b40015 DEFS 512
+        """
+        ref = """
+            [Game]
+            Length=${size:02X}
+
+            [MemoryMap:DataMap]
+            PageByteColumns=0
+            LengthColumn=1
+        """
+        writer = self._get_writer(ref=ref, skool=skool)
+
+        content = """
+            <div class="map-intro"></div>
+            <table class="map">
+            <tr>
+            <th>Address</th>
+            <th class="map-length">Length</th>
+            <th>Description</th>
+            </tr>
+            <tr>
+            <td class="map-b"><span id="40000"></span><a href="../asm/40000.html">40000</a></td>
+            <td class="map-length">$03</td>
+            <td class="map-b-desc">
+            <div class="map-entry-title-10"><a class="map-entry-title" href="../asm/40000.html">Data block</a></div>
+            </td>
+            </tr>
+            <tr>
+            <td class="map-b"><span id="40003"></span><a href="../asm/40003.html">40003</a></td>
+            <td class="map-length">$0C</td>
+            <td class="map-b-desc">
+            <div class="map-entry-title-10"><a class="map-entry-title" href="../asm/40003.html">Another data block</a></div>
+            </td>
+            </tr>
+            <tr>
+            <td class="map-b"><span id="40015"></span><a href="../asm/40015.html">40015</a></td>
+            <td class="map-length">$200</td>
+            <td class="map-b-desc">
+            <div class="map-entry-title-10"><a class="map-entry-title" href="../asm/40015.html">Yet another data block</a></div>
+            </td>
+            </tr>
+            </table>
+        """
+        writer.write_map('DataMap')
+        subs = {
+            'body_class': 'DataMap',
+            'header': 'Data',
+            'content': content
+        }
+        self._assert_files_equal('maps/data.html', subs)
+
+    def test_write_map_with_custom_Length_containing_skool_macro(self):
+        skool = """
+            ; Data block
+            b40000 DEFB 0,0,0
+
+            ; Another data block
+            b40003 DEFS 12
+
+            ; Yet another data block
+            b40015 DEFS 512
+        """
+        ref = """
+            [Game]
+            Length=#IF(1)(${size:04x})
+
+            [MemoryMap:DataMap]
+            PageByteColumns=0
+            LengthColumn=1
+        """
+        writer = self._get_writer(ref=ref, skool=skool)
+
+        content = """
+            <div class="map-intro"></div>
+            <table class="map">
+            <tr>
+            <th>Address</th>
+            <th class="map-length">Length</th>
+            <th>Description</th>
+            </tr>
+            <tr>
+            <td class="map-b"><span id="40000"></span><a href="../asm/40000.html">40000</a></td>
+            <td class="map-length">$0003</td>
+            <td class="map-b-desc">
+            <div class="map-entry-title-10"><a class="map-entry-title" href="../asm/40000.html">Data block</a></div>
+            </td>
+            </tr>
+            <tr>
+            <td class="map-b"><span id="40003"></span><a href="../asm/40003.html">40003</a></td>
+            <td class="map-length">$000c</td>
+            <td class="map-b-desc">
+            <div class="map-entry-title-10"><a class="map-entry-title" href="../asm/40003.html">Another data block</a></div>
+            </td>
+            </tr>
+            <tr>
+            <td class="map-b"><span id="40015"></span><a href="../asm/40015.html">40015</a></td>
+            <td class="map-length">$0200</td>
+            <td class="map-b-desc">
+            <div class="map-entry-title-10"><a class="map-entry-title" href="../asm/40015.html">Yet another data block</a></div>
+            </td>
+            </tr>
+            </table>
+        """
+        writer.write_map('DataMap')
+        subs = {
+            'body_class': 'DataMap',
+            'header': 'Data',
+            'content': content
+        }
+        self._assert_files_equal('maps/data.html', subs)
 
     def test_write_map_with_PageByteColumns_containing_skool_macro(self):
         ref = """
