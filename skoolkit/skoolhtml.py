@@ -171,6 +171,15 @@ class HtmlWriter:
                     self.titles.setdefault(asm_page_id, self.titles[default_asm_page_id])
                     self.page_headers.setdefault(asm_page_id, self.page_headers[default_asm_page_id])
 
+        self.entry_groups = {}
+        group_entries = defaultdict(set)
+        for group, addresses in self.get_dictionary('EntryGroups').items():
+            for addr_str in addresses.split(','):
+                address = parse_int(addr_str)
+                if self.get_entry(address):
+                    self.entry_groups[address] = 'Asm-' + group
+                    group_entries[group].add(address)
+
         self.main_memory_maps = []
         self.memory_maps = {}
         for map_name, map_details in self.get_dictionaries('MemoryMap'):
@@ -181,18 +190,13 @@ class HtmlWriter:
                 address = parse_int(addr_str)
                 if self.get_entry(address):
                     includes.append(address)
+                else:
+                    includes.extend(group_entries.get(addr_str, ()))
             map_details['Includes'] = includes
             if map_name not in other_code_indexes and self._should_write_map(map_details):
                 self.main_memory_maps.append(map_name)
                 self.paths.setdefault(map_name, 'maps/{}.html'.format(map_name))
                 self.titles.setdefault(map_name, map_name)
-
-        self.entry_groups = {}
-        for group, addresses in self.get_dictionary('EntryGroups').items():
-            for addr_str in addresses.split(','):
-                address = parse_int(addr_str)
-                if self.get_entry(address):
-                    self.entry_groups[address] = 'Asm-' + group
 
         self._expand_values(self.paths)
         self.image_paths = {k: v for k, v in self.paths.items() if k.endswith('ImagePath')}

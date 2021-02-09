@@ -6484,6 +6484,56 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         with self.assertRaisesRegex(SkoolKitError, "^Unknown field 'foo' in AddressAnchor template$"):
             writer.write_map('MemoryMap')
 
+    def test_write_map_with_entry_group(self):
+        ref = """
+            [EntryGroups]
+            GameState=40000,40001
+
+            [MemoryMap:GameState]
+            EntryTypes=
+            Includes=GameState
+        """
+        skool = """
+            ; Number of lives
+            b40000 DEFB 0
+
+            ; Score
+            w40001 DEFW 0
+
+            ; Not game state
+            c40003 RET
+        """
+        content = """
+            <div class="map-intro"></div>
+            <table class="map">
+            <tr>
+            <th>Address</th>
+            <th>Description</th>
+            </tr>
+            <tr>
+            <td class="map-b"><span id="40000"></span><a href="../asm/40000.html">40000</a></td>
+            <td class="map-b-desc">
+            <div class="map-entry-title-10"><a class="map-entry-title" href="../asm/40000.html">Number of lives</a></div>
+            </td>
+            </tr>
+            <tr>
+            <td class="map-w"><span id="40001"></span><a href="../asm/40001.html">40001</a></td>
+            <td class="map-w-desc">
+            <div class="map-entry-title-10"><a class="map-entry-title" href="../asm/40001.html">Score</a></div>
+            </td>
+            </tr>
+            </table>
+        """
+
+        writer = self._get_writer(ref=ref, skool=skool)
+        writer.write_map('GameState')
+        subs = {
+            'body_class': 'GameState',
+            'header': 'GameState',
+            'content': content
+        }
+        self._assert_files_equal(join(MAPS_DIR, 'GameState.html'), subs)
+
     def test_write_map_with_single_page_template(self):
         ref = '[Game]\nAsmSinglePage=1'
         skool = """

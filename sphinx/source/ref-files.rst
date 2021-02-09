@@ -149,6 +149,16 @@ pages for these entries can then be specified like this::
   [PageHeaders]
   Asm-SpriteVariables=Sprite variables
 
+Entry group names may also be used in the ``Includes`` parameter of a
+:ref:`memoryMap` section. For example::
+
+  [MemoryMap:SpriteVariables]
+  EntryTypes=
+  Includes=SpriteVariables
+
+This defines a memory map page named 'SpriteVariables' consisting of only the
+entries that belong to the group of the same name.
+
 +---------+---------+
 | Version | Changes |
 +=========+=========+
@@ -443,9 +453,10 @@ Recognised parameters and their default values are:
   * ``u`` - unused addresses
   * ``w`` - DEFW blocks
 
-* ``Includes`` - a comma-separated list of addresses of entries to include on
-  the memory map page in addition to those specified by the ``EntryTypes``
-  parameter
+* ``Includes`` - a comma-separated list of entries to include on the memory map
+  page in addition to those specified by the ``EntryTypes`` parameter; each
+  item in the list may be either an entry address or the name of an entry group
+  defined in the :ref:`entryGroups` section
 * ``Intro`` - the text (which may contain HTML markup) displayed at the top of
   the memory map page (default: '')
 * ``LabelColumn`` - ``1`` to display the 'Label' column if any entries have
