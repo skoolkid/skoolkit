@@ -153,7 +153,6 @@ Entry group names may also be used in the ``Includes`` parameter of a
 :ref:`memoryMap` section. For example::
 
   [MemoryMap:SpriteVariables]
-  EntryTypes=
   Includes=SpriteVariables
 
 This defines a memory map page named 'SpriteVariables' consisting of only the
@@ -442,8 +441,8 @@ Recognised parameters and their default values are:
 
 * ``EntryDescriptions`` - ``1`` to display entry descriptions, or ``0`` not to
   (default: ``0``)
-* ``EntryTypes`` - the types of entries to show in the map (by default, every
-  type is shown); entry types are identified as follows:
+* ``EntryTypes`` - the types of entries to show in the map (by default, no
+  types are shown); entry types are identified as follows:
 
   * ``b`` - DEFB blocks
   * ``c`` - routines
@@ -489,6 +488,8 @@ template is used.
 +---------+------------------------------------------------------------------+
 | Version | Changes                                                          |
 +=========+==================================================================+
+| 8.4     | The ``EntryTypes`` parameter defaults to an empty string         |
++---------+------------------------------------------------------------------+
 | 8.1     | Added the ``LabelColumn`` parameter                              |
 +---------+------------------------------------------------------------------+
 | 6.2     | Added the ``Includes`` parameter                                 |

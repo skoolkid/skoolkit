@@ -121,7 +121,7 @@ MemoryMap=Everything
 
 SECTIONS['MemoryMap:MemoryMap'] = """
 ; EntryDescriptions=0
-; EntryTypes=bcgstuw
+EntryTypes=bcgstuw
 ; Includes=
 ; Intro=
 ; LabelColumn=0

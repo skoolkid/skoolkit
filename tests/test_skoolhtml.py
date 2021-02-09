@@ -1800,6 +1800,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
             [Game]
             AddressAnchor={}
             [MemoryMap:MemoryMap]
+            EntryTypes=bct
             [MemoryMap:RoutinesMap]
             EntryTypes=c
             [MemoryMap:CustomMap]
@@ -1835,6 +1836,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
             [Game]
             AddressAnchor={address:04X}
             [MemoryMap:MemoryMap]
+            EntryTypes=c
         """
         writer = self._get_writer(skool=skool, ref=ref)
         output = writer.expand('#LINK:MemoryMap#43981(ABCD)', ASMDIR)
@@ -3586,6 +3588,7 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         """
         ref = """
             [MemoryMap:Custom]
+            EntryTypes=c
             {0}={1}
 
             [Template:Custom]
@@ -6490,7 +6493,6 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             GameState=40000,40001
 
             [MemoryMap:GameState]
-            EntryTypes=
             Includes=GameState
         """
         skool = """
@@ -7142,7 +7144,6 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
     def test_write_map_with_includes_but_no_entry_types(self):
         ref = """
             [MemoryMap:Custom]
-            EntryTypes=
             Includes=30001,30003,30004
         """
         skool = """

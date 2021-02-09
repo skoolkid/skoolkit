@@ -46,9 +46,6 @@ T_LAYOUT = 'Layout'
 # UDG image path ID
 UDG_IMAGE_PATH = 'UDGImagePath'
 
-# Default memory map entry types
-DEF_MEMORY_MAP_ENTRY_TYPES = 'bcgstuw'
-
 def join(*path_components):
     return '/'.join([c for c in path_components if c.replace('/', '')])
 
@@ -150,6 +147,7 @@ class HtmlWriter:
             self.paths.setdefault(page_id, path)
             self.titles.setdefault(page_id, page_id)
 
+        self.memory_maps = {}
         self.other_code = []
         other_code_indexes = set()
         for c_id, code in self.get_dictionaries('OtherCode'):
@@ -157,6 +155,7 @@ class HtmlWriter:
             self.other_code.append((c_id, code))
             index_page_id = code['IndexPageId'] = '{}-Index'.format(c_id)
             other_code_indexes.add(index_page_id)
+            self.memory_maps[index_page_id] = {'EntryTypes': 'bcgstuw'}
             self.paths.setdefault(index_page_id, '{0}/{0}.html'.format(c_id))
             self.titles.setdefault(index_page_id, c_id)
             code_path_id = code['CodePathId'] = '{}-CodePath'.format(c_id)
@@ -181,7 +180,6 @@ class HtmlWriter:
                     group_entries[group].add(address)
 
         self.main_memory_maps = []
-        self.memory_maps = {}
         for map_name, map_details in self.get_dictionaries('MemoryMap'):
             self._expand_values(map_details, 'Intro')
             self.memory_maps[map_name] = map_details
@@ -785,14 +783,14 @@ class HtmlWriter:
             return False
         if map_details['Includes']:
             return True
-        entry_types = map_details.get('EntryTypes', DEF_MEMORY_MAP_ENTRY_TYPES)
+        entry_types = map_details.get('EntryTypes', '')
         return any([entry.ctl in entry_types for entry in self.memory_map])
 
     def write_map(self, map_name):
         fname, cwd = self._set_cwd(map_name, 'memory_map')
 
         map_details = self.memory_maps.get(map_name, {})
-        entry_types = map_details.get('EntryTypes', DEF_MEMORY_MAP_ENTRY_TYPES)
+        entry_types = map_details.get('EntryTypes', '')
         map_dict = {
             'EntryDescriptions': map_details.get('EntryDescriptions', '0'),
             'EntryTypes': entry_types,
