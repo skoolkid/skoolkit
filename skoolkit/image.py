@@ -46,8 +46,11 @@ class ImageWriter:
                     :ref:`ref-Colours` section of the ref file. Each key is a
                     colour name, and each value is a three-element tuple
                     representing an RGB triplet.
+
+    If `config` or `palette` is `None`, empty, or missing values, default
+    values are used.
     """
-    def __init__(self, config, palette=None):
+    def __init__(self, config=None, palette=None):
         self.options = self._get_default_options()
         if config:
             for k, v in config.items():
@@ -151,7 +154,7 @@ class ImageWriter:
 
     def _create_attr_index(self):
         self.attr_index = {}
-        for attr in range(128):
+        for attr in range(256):
             if attr & 64:
                 ink = 8 + (attr & 7)
                 paper = 8 + (attr & 56) // 8
@@ -198,8 +201,8 @@ class ImageWriter:
             x = x0_floor
             for udg in row[min_col:max_col + 1]:
                 attr = udg.attr
-                attrs.add(attr & 127)
-                paper, ink = self.attr_index[attr & 127]
+                attrs.add(attr)
+                paper, ink = self.attr_index[attr]
                 if udg.mask:
                     has_masks = 1
                 udg_whole = x0 <= x < x1_floor and y0 <= y < y1_floor

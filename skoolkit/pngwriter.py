@@ -1,4 +1,4 @@
-# Copyright 2012-2014, 2016-2017, 2019-2020 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2012-2014, 2016-2017, 2019-2021 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -305,7 +305,7 @@ class PngWriter:
             )
             pixel_rows = ([], [], [], [], [], [], [], [])
             for udg in row[c0:c1]:
-                paper, ink = attrs[udg.attr & 127]
+                paper, ink = attrs[udg.attr]
                 for k in range(k0, k1):
                     b = mask.apply(udg, k, pixels[paper], pixels[ink], trans)
                     p = pixel_rows[k]
@@ -336,7 +336,7 @@ class PngWriter:
         return img_data
 
     def _scan_udg_bd4_nt(self, udg, scanlines, attrs):
-        pixels = attrs[udg.attr & 127]
+        pixels = attrs[udg.attr]
         udg_bytes = udg.data
         byte = udg_bytes[0]
         scanlines[0].extend(pixels[byte // 16])
@@ -370,7 +370,7 @@ class PngWriter:
         return self._scan_frame(frame, self._scan_udg_bd4_nt, attrs)
 
     def _scan_udg_bd2_nt(self, udg, scanlines, attrs):
-        pixels = attrs[udg.attr & 127]
+        pixels = attrs[udg.attr]
         udg_bytes = udg.data
         byte = udg_bytes[0]
         scanlines[0].extend(pixels[byte // 16])
@@ -404,7 +404,7 @@ class PngWriter:
         return self._scan_frame(frame, self._scan_udg_bd2_nt, attrs)
 
     def _scan_udg_bd2_at(self, udg, scanlines, attrs):
-        pixels = attrs[udg.attr & 127]
+        pixels = attrs[udg.attr]
         udg_bytes = udg.data
         mask_bytes = udg.mask or udg_bytes
         byte = udg_bytes[0]
@@ -450,7 +450,7 @@ class PngWriter:
         return self._scan_frame(frame, self._scan_udg_bd2_at, attrs)
 
     def _scan_udg_bd1_nt(self, udg, scanlines, attrs, bits):
-        paper, ink = attrs[udg.attr & 127]
+        paper, ink = attrs[udg.attr]
         b_mask = paper * 255
         if ink == paper:
             data = bits[b_mask]
@@ -479,7 +479,7 @@ class PngWriter:
         return self._scan_frame(frame, self._scan_udg_bd1_nt, frame.attr_map, bits)
 
     def _scan_udg_bd1_at(self, udg, scanlines, mask, attrs, pixels, bits):
-        p, i = attrs[udg.attr & 127]
+        p, i = attrs[udg.attr]
         paper, ink = pixels[p], pixels[i]
         scanlines[0].extend(bits[int(''.join(mask.apply(udg, 0, paper, ink, '0')), 2)])
         scanlines[1].extend(bits[int(''.join(mask.apply(udg, 1, paper, ink, '0')), 2)])

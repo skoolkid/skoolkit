@@ -92,7 +92,7 @@ class ImageWriterOptionsTest(SkoolKitTestCase):
         self.assertEqual(image_writer.options[PNG_COMPRESSION_LEVEL], 3)
 
     def test_default_option_values(self):
-        image_writer = ImageWriter({})
+        image_writer = ImageWriter()
         self.assertEqual(image_writer.options[PNG_COMPRESSION_LEVEL], 9)
         self.assertEqual(image_writer.options[PNG_ENABLE_ANIMATION], 1)
         self.assertEqual(image_writer.options[PNG_ALPHA], 255)
@@ -1091,9 +1091,7 @@ class PngWriterTest(SkoolKitTestCase, ImageWriterTest):
         return i
 
     def _test_image(self, udg_array, scale=1, mask=0, tindex=0, alpha=-1, x=0, y=0, width=None, height=None, iw_args=None, exp_pixels=None):
-        if iw_args is None:
-            iw_args = {}
-        image_writer = ImageWriter(iw_args.get('config'), iw_args.get('palette'))
+        image_writer = ImageWriter(**(iw_args or {}))
         img_bytes = self._get_image_data(image_writer, udg_array, scale, mask, tindex, alpha, x, y, width, height)
 
         exp_pixels2 = None
@@ -1154,9 +1152,7 @@ class PngWriterTest(SkoolKitTestCase, ImageWriterTest):
         self.assertEqual(img_bytes[i:], IEND_CHUNK)
 
     def _test_animated_image(self, frames, iw_args=None):
-        if iw_args is None:
-            iw_args = {}
-        image_writer = ImageWriter(iw_args.get('config'), iw_args.get('palette'))
+        image_writer = ImageWriter(**(iw_args or {}))
         img_bytes = self._get_animated_image_data(image_writer, frames)
 
         exp_palette = []
