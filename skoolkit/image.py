@@ -58,11 +58,12 @@ class ImageWriter:
                     self.options[k] = int(v)
                 except ValueError:
                     pass
-        full_palette = self._get_default_palette()
+        default_colours = self.get_default_colours()
+        full_palette = dict(default_colours)
         if palette:
             full_palette.update(palette)
-        self._create_colours(full_palette)
-        self._create_attr_index()
+        self.colours = tuple(full_palette[c[0]] for c in default_colours)
+        self.attr_index = self.get_attr_map()
         self.masks = {
             0: NoMask(),
             1: OrAndMask(),
@@ -105,25 +106,25 @@ class ImageWriter:
         palette, attr_map, has_trans = self._get_palette(colours, attrs, has_trans, frames[0].tindex)
         self.writer.write_image(frames, img_file, palette, attr_map, has_trans, frames[0].flash_rect)
 
-    def _get_default_palette(self):
-        return {
-            TRANSPARENT: (0, 254, 0),
-            BLACK: (0, 0, 0),
-            BLUE: (0, 0, 197),
-            RED: (197, 0, 0),
-            MAGENTA: (197, 0, 197),
-            GREEN: (0, 198, 0),
-            CYAN: (0, 198, 197),
-            YELLOW: (197, 198, 0),
-            WHITE: (205, 198, 205),
-            BRIGHT_BLUE: (0, 0, 255),
-            BRIGHT_RED: (255, 0, 0),
-            BRIGHT_MAGENTA: (255, 0, 255),
-            BRIGHT_GREEN: (0, 255, 0),
-            BRIGHT_CYAN: (0, 255, 255),
-            BRIGHT_YELLOW: (255, 255, 0),
-            BRIGHT_WHITE: (255, 255, 255)
-        }
+    def get_default_colours(self):
+        return (
+            (TRANSPARENT, (0, 254, 0)),
+            (BLACK, (0, 0, 0)),
+            (BLUE, (0, 0, 197)),
+            (RED, (197, 0, 0)),
+            (MAGENTA, (197, 0, 197)),
+            (GREEN, (0, 198, 0)),
+            (CYAN, (0, 198, 197)),
+            (YELLOW, (197, 198, 0)),
+            (WHITE, (205, 198, 205)),
+            (BRIGHT_BLUE, (0, 0, 255)),
+            (BRIGHT_RED, (255, 0, 0)),
+            (BRIGHT_MAGENTA, (255, 0, 255)),
+            (BRIGHT_GREEN, (0, 255, 0)),
+            (BRIGHT_CYAN, (0, 255, 255)),
+            (BRIGHT_YELLOW, (255, 255, 0)),
+            (BRIGHT_WHITE, (255, 255, 255))
+        )
 
     def _get_default_options(self):
         return {
@@ -132,28 +133,8 @@ class ImageWriter:
             PNG_ALPHA: 255
         }
 
-    def _create_colours(self, palette):
-        self.colours = (
-            palette[TRANSPARENT],
-            palette[BLACK],
-            palette[BLUE],
-            palette[RED],
-            palette[MAGENTA],
-            palette[GREEN],
-            palette[CYAN],
-            palette[YELLOW],
-            palette[WHITE],
-            palette[BRIGHT_BLUE],
-            palette[BRIGHT_RED],
-            palette[BRIGHT_MAGENTA],
-            palette[BRIGHT_GREEN],
-            palette[BRIGHT_CYAN],
-            palette[BRIGHT_YELLOW],
-            palette[BRIGHT_WHITE]
-        )
-
-    def _create_attr_index(self):
-        self.attr_index = {}
+    def get_attr_map(self):
+        attr_map = {}
         for attr in range(256):
             if attr & 64:
                 ink = 8 + (attr & 7)
@@ -165,7 +146,8 @@ class ImageWriter:
             else:
                 ink = 1 + (attr & 7)
                 paper = 1 + (attr & 56) // 8
-            self.attr_index[attr] = (paper, ink)
+            attr_map[attr] = (paper, ink)
+        return attr_map
 
     def _check_pixels(self, colours, pixels, ink, paper, has_trans, has_non_trans):
         if ink in pixels:
