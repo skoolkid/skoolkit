@@ -75,6 +75,7 @@ class Stream:
     def __init__(self, binary=False):
         self._buffer = BytesIO() if binary else StringIO()
         self.buffer = self
+        self.name = ''
 
     def __enter__(self):
         return self
@@ -90,6 +91,9 @@ class Stream:
 
     def getvalue(self):
         return self._buffer.getvalue()
+
+    def tell(self):
+        return self._buffer.tell()
 
     def clear(self):
         self._buffer.seek(0)

@@ -85,7 +85,8 @@ class ImageWriter:
 
     def write_image(self, frames, img_file):
         """
-        Write an image file.
+        Write an image file. If this method leaves the image file empty, the
+        file will be removed.
 
         :param frames: A list of :class:`~skoolkit.graphics.Frame` objects from
                        which to build the image.

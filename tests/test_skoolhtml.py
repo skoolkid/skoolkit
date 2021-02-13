@@ -1,6 +1,6 @@
 import html
 from io import StringIO
-from os.path import basename, isfile
+from os.path import basename, isdir, isfile
 from posixpath import join
 from textwrap import dedent
 from unittest.mock import patch
@@ -242,6 +242,7 @@ class TestImageWriter(ImageWriter):
             self.height = frame1.height
             self.tindex = frame1.tindex
             self.alpha = frame1.alpha
+        img_file.write(b'a')
 
 class HtmlWriterTestCase(SkoolKitTestCase):
     def setUp(self):
@@ -9185,6 +9186,10 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         writer = self._get_writer(ref=ref, mock_image_writer=False)
         writer.write_page(page_id)
         self._assert_content_equal('goodbye', '{}.html'.format(page_id))
+        img_dir = '{}/{}/{}'.format(self.odir, GAMEDIR, UDGDIR)
+        self.assertTrue(isdir(img_dir))
+        img_path = '{}/{}'.format(img_dir, img_fname)
+        self.assertFalse(isfile(img_path), '{} exists'.format(img_path))
 
 class HtmlTemplateTest(HtmlWriterOutputTestCase):
     def test_custom_map_with_custom_page_template(self):

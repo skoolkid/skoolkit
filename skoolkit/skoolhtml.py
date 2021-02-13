@@ -947,9 +947,12 @@ class HtmlWriter:
     def _write_image(self, image_path, frames):
         f = self.file_info.open_file(image_path, mode='wb')
         content = self.image_writer.write_image(frames, f)
+        fsize = f.tell()
         f.close()
-        if content is None:
+        if fsize:
             self.file_info.add_image(image_path)
+        elif isfile(f.name):
+            os.remove(f.name)
         return content
 
     def build_table(self, table):
