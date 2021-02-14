@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+
+INIT=skoolkit/__init__.py
+CONF=sphinx/source/conf.py
+CHANGELOG=sphinx/source/changelog.rst
+
+version=$(grep ^VERSION ${INIT} | cut -f2 -d\')
+if [[ -z $1 ]]; then
+  short_version=$(echo ${version} | grep -o '[0-9.]*' | head -1)
+  new_version=${short_version}
+  clog_version="${short_version} ($(date +%Y-%m-%d))"
+else
+  new_version=$1
+  short_version=$(echo ${new_version} | grep -o '[0-9.]*' | head -1)
+  clog_version=$1
+  if [[ $new_version == $short_version ]]; then
+    clog_version+=" ($(date +%Y-%m-%d))"
+  fi
+fi
+uline_tpl="------------------------------"
+uline=${uline_tpl:0:${#version}}
+new_uline=${uline_tpl:0:${#clog_version}}
+
+sed -i "s/^VERSION = '.*'\$/VERSION = '${new_version}'/" ${INIT}
+sed -i -e "s/^version = '.*'\$/version = '${short_version}'/" -e "s/^release = '.*'\$/release = '${new_version}'/" ${CONF}
+sed -i -e "s/^${version}\$/${clog_version}/" -e "s/^${uline}\$/${new_uline}/" ${CHANGELOG}
