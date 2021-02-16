@@ -146,7 +146,7 @@ i 65499
 def mock_make_snapshot(fname, org, start, end, page):
     global make_snapshot_args
     make_snapshot_args = fname, org, start, end, page
-    return [0] * 65536, max(16384, start), end
+    return [0] * 65536, 16384 if start is None else start, end
 
 def mock_run(*args):
     global run_args
@@ -227,7 +227,7 @@ class Sna2CtlTest(SkoolKitTestCase):
         snafile, options = run_args[:2]
         self.assertEqual(snafile, 'test.sna')
         self.assertEqual(options.ctl_hex, 0)
-        self.assertEqual(options.start, 0)
+        self.assertIsNone(options.start)
         self.assertEqual(options.end, 65536)
         self.assertIsNone(options.code_map)
         self.assertIsNone(options.org)
@@ -246,7 +246,7 @@ class Sna2CtlTest(SkoolKitTestCase):
         snafile, options, config = run_args
         self.assertEqual(snafile, 'test.sna')
         self.assertEqual(options.ctl_hex, 1)
-        self.assertEqual(options.start, 0)
+        self.assertIsNone(options.start)
         self.assertEqual(options.end, 65536)
         self.assertIsNone(options.code_map)
         self.assertIsNone(options.org)
@@ -1024,6 +1024,21 @@ class Sna2CtlTest(SkoolKitTestCase):
         """
         self.assertEqual(dedent(exp_output).strip(), output.rstrip())
 
+    def test_start_address_defaults_to_16384_for_snapshot(self):
+        snafile = self.write_bin_file([0] * 49179, suffix='.sna')
+        exp_ctl = 's 16384'
+        self._test_generation(snafile, exp_ctl)
+
+    def test_start_address_defaults_to_org_address_for_raw_memory_file(self):
+        data = [0] * 10
+        binfile = self.write_bin_file(data, suffix='.bin')
+        org = 37159
+        exp_ctl = """
+            s {}
+            i {}
+        """.format(org, org + len(data))
+        self._test_generation(binfile, exp_ctl, options='-o {}'.format(org))
+
     @patch.object(sna2ctl, 'make_snapshot', mock_make_snapshot)
     def test_option_s(self):
         exp_ctl = 's 65534'
@@ -1035,6 +1050,12 @@ class Sna2CtlTest(SkoolKitTestCase):
         exp_ctl = 's 65534'
         for option in ('-s', '--start'):
             self._test_generation('test.sna', exp_ctl, options='{} 0xfffe'.format(option))
+
+    def test_option_s_below_16384_with_snapshot(self):
+        start = 8192
+        exp_ctl = 's {:05d}'.format(start)
+        snafile = self.write_bin_file([0] * 49179, suffix='.sna')
+        self._test_generation(snafile, exp_ctl, options='-s {}'.format(start))
 
     def test_option_V(self):
         for option in ('-V', '--version'):

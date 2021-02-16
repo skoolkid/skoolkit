@@ -677,7 +677,7 @@ skool file split into blocks of code and data.
                           49152-65535.
     --show-config         Show configuration parameter values.
     -s ADDR, --start ADDR
-                          Start at this address (default=16384).
+                          Start at this address.
     -V, --version         Show SkoolKit version number and exit.
 
 If the input filename does not end with '.sna', '.szx' or '.z80', it is assumed

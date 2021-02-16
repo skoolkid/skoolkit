@@ -1,4 +1,4 @@
-# Copyright 2018, 2019 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2018, 2019, 2021 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -42,6 +42,8 @@ def run(snafile, options, config):
             info("Dictionary file '{}' not found".format(dict_fname))
     ctl_config = Config(config['TextChars'], config['TextMinLengthCode'], config['TextMinLengthData'], words)
     snapshot, start, end = make_snapshot(snafile, options.org, options.start, options.end, options.page)
+    if options.start is None:
+        options.start = 0
     ctls = get_component('ControlFileGenerator').generate_ctls(snapshot, start, end, options.code_map, ctl_config)
     write_ctl(ctls, options.ctl_hex)
 
@@ -71,8 +73,8 @@ def main(args):
                        help='Specify the page (0-7) of a 128K snapshot to map to 49152-65535.')
     group.add_argument('--show-config', dest='show_config', action='store_true',
                        help="Show configuration parameter values.")
-    group.add_argument('-s', '--start', dest='start', metavar='ADDR', type=integer, default=0,
-                       help='Start at this address (default=16384).')
+    group.add_argument('-s', '--start', dest='start', metavar='ADDR', type=integer,
+                       help='Start at this address.')
     group.add_argument('-V', '--version', action='version', version='SkoolKit {}'.format(VERSION),
                        help='Show SkoolKit version number and exit.')
 
