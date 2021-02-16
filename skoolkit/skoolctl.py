@@ -1,4 +1,4 @@
-# Copyright 2010-2020 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2010-2021 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -74,10 +74,12 @@ class ControlDirectiveComposer:
                           hexadecimal values with explicit 'd' and 'h' base
                           indicators.
     """
+    # Component API
     def __init__(self, preserve_base):
         self.preserve_base = preserve_base
         self.op_evaluator = get_operand_evaluator()
 
+    # Component API
     def compose(self, operation):
         """Compute the type, length and sublengths of a DEFB/DEFM/DEFS/DEFW
         statement, or the operand bases of a regular instruction.

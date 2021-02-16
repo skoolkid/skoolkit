@@ -52,12 +52,14 @@ Z80_REGISTERS = {
     'pc': 32
 }
 
+# Component API
 def can_read(fname):
     """
     Return whether this snapshot reader can read the file `fname`.
     """
     return fname[-4:].lower() in ('.sna', '.z80', '.szx')
 
+# Component API
 def get_snapshot(fname, page=None):
     """
     Read a snapshot file and produce a 65536-element list of byte values.

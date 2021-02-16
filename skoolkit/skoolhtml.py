@@ -1181,9 +1181,11 @@ class TemplateFormatter:
 
     :param templates: A dictionary of templates keyed by template name.
     """
+    # Component API
     def __init__(self, templates):
         self.templates = templates
 
+    # Component API
     def format_template(self, page_id, name, fields):
         """Format a template.
 

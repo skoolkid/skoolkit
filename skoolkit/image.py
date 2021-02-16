@@ -50,6 +50,7 @@ class ImageWriter:
     If `config` or `palette` is `None`, empty, or missing values, default
     values are used.
     """
+    # Component API
     def __init__(self, config=None, palette=None):
         self.options = self._get_default_options()
         if config:
@@ -71,6 +72,7 @@ class ImageWriter:
         }
         self.writer = PngWriter(self.options[PNG_ALPHA] & 255, self.options[PNG_COMPRESSION_LEVEL], self.masks)
 
+    # Component API
     def image_fname(self, fname):
         """
         Convert the `fname` parameter of an image macro into an image filename
@@ -83,6 +85,7 @@ class ImageWriter:
             return fname + '.png'
         return fname
 
+    # Component API
     def write_image(self, frames, img_file):
         """
         Write an image file. If this method leaves the image file empty, the

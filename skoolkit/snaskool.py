@@ -33,6 +33,7 @@ AD_REFS_PREFIX = AD_REFS + '='
 
 DisassemblerConfig = namedtuple('DisassemblerConfig', 'asm_hex asm_lower defb_size defm_size defw_size')
 
+# Component API
 def calculate_references(entries, operations):
     """
     For each entry point in each routine, calculate a list of the entries

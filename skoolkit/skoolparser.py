@@ -936,6 +936,7 @@ class Mode:
         return int_str
 
 class InstructionUtility:
+    # Component API
     def convert(self, entries, base, case):
         """Convert the base and case of every instruction in a skool file.
 
@@ -1012,6 +1013,7 @@ class InstructionUtility:
                 operation = re.sub('(I[XY])L', r'\1l', operation)
         return operation
 
+    # Component API
     def substitute_labels(self, entries, remote_entries, labels, mode, warn):
         """Replace addresses with labels in the operands of every instruction
         in a skool file.
@@ -1097,6 +1099,7 @@ class InstructionUtility:
             # instruction (use @keep or @nowarn if this is OK)
             self._warn('Unreplaced address ({})'.format(addr_str), instruction, address)
 
+    # Component API
     def calculate_references(self, entries, remote_entries):
         """
         Generate a dictionary of references (for each instruction that refers
@@ -1131,6 +1134,7 @@ class InstructionUtility:
                         referrers[instruction].add(entry_map[ref_addr])
         return references, referrers
 
+    # Component API
     def set_byte_values(self, instruction, assemble):
         """Decide whether to set byte values in the memory snapshot and for an
         instruction.

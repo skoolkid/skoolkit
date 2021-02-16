@@ -1,4 +1,4 @@
-# Copyright 2009-2020 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2009-2021 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -402,6 +402,7 @@ def write_ctl(ctls, ctl_hex):
     for address in [a for a in sorted(ctls) if a < 65536]:
         write_line('{} {}'.format(ctls[address], addr_fmt.format(address)))
 
+# Component API
 def generate_ctls(snapshot, start, end, code_map, config):
     """Generate control directives from a snapshot.
 

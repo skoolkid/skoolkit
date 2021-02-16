@@ -1,4 +1,4 @@
-# Copyright 2015, 2017-2019 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2015, 2017-2019, 2021 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -53,6 +53,7 @@ def _convert_nums(text):
             elements[i] = str(int(q))
     return ''.join(elements)
 
+# Component API
 def eval_int(text):
     """Evaluate an integer operand.
 
@@ -72,6 +73,7 @@ def eval_int(text):
         pass
     raise ValueError
 
+# Component API
 def eval_string(text):
     """Evaluate a string operand.
 
@@ -92,6 +94,7 @@ def eval_string(text):
         return data
     raise ValueError
 
+# Component API
 def split_operands(text):
     """Split a comma-separated list of operands.
 
@@ -538,6 +541,7 @@ class Assembler:
             elements[1:] = self.op_evaluator.split_operands(elements[1])
         return elements
 
+    # Component API
     def get_size(self, operation, address):
         """Compute the size (in bytes) of an assembly language instruction or
         DEFB/DEFM/DEFS/DEFW statement.
@@ -548,6 +552,7 @@ class Assembler:
         """
         return len(self.assemble(operation, address))
 
+    # Component API
     def assemble(self, operation, address):
         """Convert an assembly language instruction or DEFB/DEFM/DEFS/DEFW
         statement into a sequence of byte values.

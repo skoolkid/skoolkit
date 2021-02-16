@@ -1,4 +1,4 @@
-# Copyright 2010-2015, 2017-2019 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2010-2015, 2017-2019, 2021 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -25,6 +25,7 @@ class OperandFormatter:
                    * `asm_hex` - if `True`, default base is hexadecimal
                    * `asm_lower` - if `True`, format operands in lower case
     """
+    # Component API
     def __init__(self, config):
         self.byte_formats = {
             'b': '%{:08b}',
@@ -49,6 +50,7 @@ class OperandFormatter:
             self.byte_formats[DEFAULT_BASE] = self.byte_formats['h']
             self.word_formats[DEFAULT_BASE] = self.word_formats['h']
 
+    # Component API
     def format_byte(self, value, base):
         """Format a byte value.
 
@@ -58,6 +60,7 @@ class OperandFormatter:
         """
         return self._num_str(value, 1, base)
 
+    # Component API
     def format_word(self, value, base):
         """Format a word (2-byte) value.
 
@@ -67,6 +70,7 @@ class OperandFormatter:
         """
         return self._num_str(value, 2, base)
 
+    # Component API
     def is_char(self, value):
         """Return whether a byte value can be formatted as a character.
 
@@ -109,6 +113,7 @@ class Disassembler:
                    * `defw_size` - default maximum number of words in a DEFW
                      statement
     """
+    # Component API
     def __init__(self, snapshot, config):
         self.snapshot = snapshot
         self.defb_size = config.defb_size
@@ -130,6 +135,7 @@ class Disassembler:
             self.after_ED = {k: (v[0], v[1].lower()) for k, v in self.after_ED.items()}
             self.after_DDCB = {k: (v[0], v[1].lower()) for k, v in self.after_DDCB.items()}
 
+    # Component API
     def disassemble(self, start, end, base):
         """Disassemble an address range.
 
@@ -177,6 +183,7 @@ class Disassembler:
             instructions.append(self._defb_line(i - len(data) + 1, data, sublengths, defm))
         return instructions
 
+    # Component API
     def defb_range(self, start, end, sublengths):
         """Produce a sequence of DEFB statements for an address range.
 
@@ -187,6 +194,7 @@ class Disassembler:
         """
         return self._defb_lines(start, end, sublengths)
 
+    # Component API
     def defm_range(self, start, end, sublengths):
         """Produce a sequence of DEFM statements for an address range.
 
@@ -214,6 +222,7 @@ class Disassembler:
             instructions.insert(0, (start, self.defw + ','.join(items), data))
         return instructions
 
+    # Component API
     def defw_range(self, start, end, sublengths):
         """Produce a sequence of DEFW statements for an address range.
 
@@ -234,6 +243,7 @@ class Disassembler:
             instructions.extend(self._defw_lines(address, address + size, ((size, base),)))
         return instructions
 
+    # Component API
     def defs_range(self, start, end, sublengths):
         """Produce a sequence of DEFS statements for an address range.
 
