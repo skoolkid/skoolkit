@@ -10,7 +10,6 @@ from xml.dom import Node
 from skoolkittest import SkoolKitTestCase, SKOOLKIT_HOME
 
 sys.path.insert(0, SKOOLKIT_HOME)
-from skoolkit import CASE_LOWER
 from skoolkit.skoolhtml import HtmlWriter
 from skoolkit.skoolmacro import parse_n
 
