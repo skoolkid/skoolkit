@@ -273,7 +273,7 @@ class HtmlWriterTestCase(SkoolKitTestCase):
         else:
             file_info = FileInfo(self.odir, GAMEDIR, False)
         if mock_image_writer:
-            patch.object(skoolhtml, 'get_image_writer', lambda *args: TestImageWriter(*args)).start()
+            patch.object(skoolhtml, 'get_image_writer', TestImageWriter).start()
         self.addCleanup(patch.stopall)
         writer = HtmlWriter(skool_parser, ref_parser, file_info)
         if mock_write_file:
