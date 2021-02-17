@@ -1,7 +1,7 @@
 Changelog
 =========
 
-8.4b1
+8.4rc
 -----
 * Made the :ref:`image writer component <imageWriter>` pluggable
 * Added support for defining groups of entries (via the :ref:`entryGroups`
