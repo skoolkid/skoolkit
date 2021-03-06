@@ -623,11 +623,28 @@ of making the user-defined ``#MAX`` macro available for use immediately
 anywhere in the skool file (and any secondary skool files if the directive
 appears in the main skool file) or ref files.
 
-+---------+---------+
-| Version | Changes |
-+=========+=========+
-| 8.2     | New     |
-+---------+---------+
+If ``text`` begins with ``+``, it is appended to the text of the previous
+``@expand`` directive (with the ``+`` removed); this enables long macro
+definitions to be split over multiple lines. For example::
+
+  @expand=#DEFINE0,1(OLIST,
+  @expand=+#LET(n=1)
+  @expand=+#LIST
+  @expand=+#FOREACH({})($item,{{ #EVAL({{n}}). $item }} #LET(n={{n}}+1))
+  @expand=+LIST#)
+
+These ``@expand`` directives make the ``#OLIST`` macro available, which can
+then be used to create a numbered list of items::
+
+  #OLIST/a,b,c/
+
++---------+--------------------------------------+
+| Version | Changes                              |
++=========+======================================+
+| 8.4     | Added support for the ``+`` notation |
++---------+--------------------------------------+
+| 8.2     | New                                  |
++---------+--------------------------------------+
 
 .. _asm-if:
 

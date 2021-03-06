@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>HTML templates &#8212; SkoolKit 8.3 documentation</title>
+    <title>HTML templates &#8212; SkoolKit 8.4 documentation</title>
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -34,7 +34,7 @@
         <li class="right" >
           <a href="asm-templates.html" title="ASM templates"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.3 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.4 documentation</a> &#187;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
@@ -174,14 +174,12 @@ footer of a disassembly page.</p>
 <p>The following identifiers are available (in addition to the universal
 identifiers):</p>
 <ul class="simple">
-<li><code class="docutils literal notranslate"><span class="pre">entry</span></code> - a dictionary of parameters corresponding to the current memory
-map entry (see below)</li>
-<li><code class="docutils literal notranslate"><span class="pre">next_entry</span></code> - a dictionary of parameters corresponding to the next memory
-map entry (see below)</li>
-<li><code class="docutils literal notranslate"><span class="pre">prev_entry</span></code> - a dictionary of parameters corresponding to the previous
-memory map entry (see below)</li>
+<li><code class="docutils literal notranslate"><span class="pre">entry</span></code> - an object representing the current memory map entry (see below)</li>
+<li><code class="docutils literal notranslate"><span class="pre">next_entry</span></code> - an object representing the next memory map entry (see below)</li>
+<li><code class="docutils literal notranslate"><span class="pre">prev_entry</span></code> - an object representing the previous memory map entry (see
+below)</li>
 </ul>
-<p>The parameters in the <code class="docutils literal notranslate"><span class="pre">prev_entry</span></code> and <code class="docutils literal notranslate"><span class="pre">next_entry</span></code> dictionaries are:</p>
+<p>The attributes in the <code class="docutils literal notranslate"><span class="pre">prev_entry</span></code> and <code class="docutils literal notranslate"><span class="pre">next_entry</span></code> objects are:</p>
 <ul class="simple">
 <li><code class="docutils literal notranslate"><span class="pre">address</span></code> - the address of the entry (may be in decimal or hexadecimal
 format, depending on how it appears in the skool file, and the options passed
@@ -193,6 +191,8 @@ the <code class="docutils literal notranslate"><span class="pre">AddressAnchor</
 <li><code class="docutils literal notranslate"><span class="pre">exists</span></code> - ‘1’ if the entry exists, ‘0’ otherwise</li>
 <li><code class="docutils literal notranslate"><span class="pre">href</span></code> - the relative path to the disassembly page for the entry</li>
 <li><code class="docutils literal notranslate"><span class="pre">label</span></code> - the ASM label of the first instruction in the entry</li>
+<li><code class="docutils literal notranslate"><span class="pre">length</span></code> - the size of the entry in bytes, as a string formatted according
+to the value of the <code class="docutils literal notranslate"><span class="pre">Length</span></code> parameter in the <a class="reference internal" href="ref-files.html#ref-game"><span class="std std-ref">[Game]</span></a> section</li>
 <li><code class="docutils literal notranslate"><span class="pre">location</span></code> - the address of the entry as a decimal number</li>
 <li><code class="docutils literal notranslate"><span class="pre">map_href</span></code> - the relative path to the entry on the ‘Memory Map’ page</li>
 <li><code class="docutils literal notranslate"><span class="pre">page</span></code> - the MSB of the entry address</li>
@@ -200,8 +200,8 @@ the <code class="docutils literal notranslate"><span class="pre">AddressAnchor</
 <li><code class="docutils literal notranslate"><span class="pre">title</span></code> - the title of the entry</li>
 <li><code class="docutils literal notranslate"><span class="pre">type</span></code> - the block type of the entry (‘b’, ‘c’, ‘g’, ‘s’, ‘t’, ‘u’ or ‘w’)</li>
 </ul>
-<p>The <code class="docutils literal notranslate"><span class="pre">entry</span></code> dictionary also contains these parameters, and the following
-additional ones:</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">entry</span></code> object also has these attributes, and the following additional
+ones:</p>
 <ul class="simple">
 <li><code class="docutils literal notranslate"><span class="pre">annotated</span></code> - ‘1’ if any instructions in the entry have a non-empty comment
 field, ‘0’ otherwise</li>
@@ -288,6 +288,9 @@ identifier produces an empty string.</p>
 </pre></div>
 </div>
 <div class="versionchanged">
+<p><span class="versionmodified">Changed in version 8.4: </span>Added the <code class="docutils literal notranslate"><span class="pre">length</span></code> attribute to entry objects.</p>
+</div>
+<div class="versionchanged">
 <p><span class="versionmodified">Changed in version 8.1: </span>Added the <code class="docutils literal notranslate"><span class="pre">fmt</span></code> parameter to the format specifier for the <code class="docutils literal notranslate"><span class="pre">bytes</span></code>
 attribute of instruction objects.</p>
 </div>
@@ -304,8 +307,8 @@ identifiers):</p>
 <ul class="simple">
 <li><code class="docutils literal notranslate"><span class="pre">entries</span></code> - a list of memory map entry objects</li>
 </ul>
-<p>The attributes of each memory map entry object are the same as those in the
-<code class="docutils literal notranslate"><span class="pre">entry</span></code> dictionary in the <a class="reference internal" href="#t-asm"><span class="std std-ref">asm</span></a> template.</p>
+<p>The attributes of each memory map entry object are the same as those of the
+<code class="docutils literal notranslate"><span class="pre">entry</span></code> object in the <a class="reference internal" href="#t-asm"><span class="std std-ref">asm</span></a> template.</p>
 <p>To see the default <code class="docutils literal notranslate"><span class="pre">asm_single_page</span></code> template, run the following command:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ skool2html.py -r Template:asm_single_page
 </pre></div>
@@ -498,8 +501,8 @@ identifiers):</p>
 <ul class="simple">
 <li><code class="docutils literal notranslate"><span class="pre">entries</span></code> - a list of memory map entry objects</li>
 </ul>
-<p>The attributes of each memory map entry object are the same as those in the
-<code class="docutils literal notranslate"><span class="pre">prev_entry</span></code> and <code class="docutils literal notranslate"><span class="pre">next_entry</span></code> dictionaries in the <a class="reference internal" href="#t-asm"><span class="std std-ref">asm</span></a> template.</p>
+<p>The attributes of each memory map entry object are the same as those of the
+<code class="docutils literal notranslate"><span class="pre">prev_entry</span></code> and <code class="docutils literal notranslate"><span class="pre">next_entry</span></code> objects in the <a class="reference internal" href="#t-asm"><span class="std std-ref">asm</span></a> template.</p>
 <p>To see the default <code class="docutils literal notranslate"><span class="pre">memory_map</span></code> template, run the following command:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ skool2html.py -r Template:memory_map
 </pre></div>
@@ -856,11 +859,11 @@ the <a class="reference internal" href="skool-macros.html#reg"><span class="std 
         <li class="right" >
           <a href="asm-templates.html" title="ASM templates"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.3 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.4 documentation</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2020, Richard Dymond.
+        &#169; Copyright 2021, Richard Dymond.
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
     </div>
   </body>

@@ -677,7 +677,7 @@ skool file split into blocks of code and data.
                           49152-65535.
     --show-config         Show configuration parameter values.
     -s ADDR, --start ADDR
-                          Start at this address (default=16384).
+                          Start at this address.
     -V, --version         Show SkoolKit version number and exit.
 
 If the input filename does not end with '.sna', '.szx' or '.z80', it is assumed
@@ -838,7 +838,7 @@ list::
                           49152-65535.
     --show-config         Show configuration parameter values.
     -s ADDR, --start ADDR
-                          Start disassembling at this address (default=16384).
+                          Start disassembling at this address.
     -V, --version         Show SkoolKit version number and exit.
     -w W, --line-width W  Set the maximum line width of the skool file (default:
                           79).
@@ -866,7 +866,7 @@ configuration parameters are:
   skool file (default: ``10``)
 * ``DefbSize`` - maximum number of bytes in a DEFB statement (default: ``8``)
 * ``DefmSize`` - maximum number of characters in a DEFM statement (default:
-  ``66``)
+  ``65``)
 * ``DefwSize`` - maximum number of words in a DEFW statement (default: ``1``)
 * ``EntryPointRef`` - template used to format the comment for an entry point
   with exactly one referrer (default: ``This entry point is used by the routine
@@ -922,6 +922,9 @@ Configuration parameters may also be set on the command line by using the
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 8.4     | Changed the default value of the ``DefmSize`` configuration       |
+|         | parameter from 66 to 65                                           |
++---------+-------------------------------------------------------------------+
 | 8.3     | Added support for reading control files from a directory          |
 |         | (``--ctl DIR``)                                                   |
 +---------+-------------------------------------------------------------------+
@@ -1080,6 +1083,11 @@ configuration parameters are:
   ``{address}``)
 * ``NodeLabel`` - the format of the node labels in a call graph (default:
   ``"{address} {address:04X}\n{label}"``)
+* ``Peek`` - the format of each line of the output produced by the ``--peek``
+  option (default:
+  ``{address:>5} {address:04X}: {value:>3}  {value:02X}  {value:08b}  {char}``)
+* ``Word`` - the format of each line of the output produced by the ``--word``
+  option (default: ``{address:>5} {address:04X}: {value:>5}  {value:04X}``)
 
 ``NodeId`` and ``NodeLabel`` are standard Python format strings that recognise
 the replacement fields ``address`` and ``label`` (the address and label of the
@@ -1104,6 +1112,8 @@ Configuration parameters may also be set on the command line by using the
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 8.4     | Added the ``Peek`` and ``Word`` configuration parameters          |
++---------+-------------------------------------------------------------------+
 | 8.3     | Added support for reading control files from a directory          |
 |         | (``--ctl DIR``)                                                   |
 +---------+-------------------------------------------------------------------+
@@ -1194,9 +1204,10 @@ To list the options supported by `tap2sna.py`, run it with no arguments::
     -f, --force           Overwrite an existing snapshot.
     -p STACK, --stack STACK
                           Set the stack pointer.
-    --ram OPERATION       Perform a load, move or poke operation on the memory
-                          snapshot being built. Do '--ram help' for more
-                          information. This option may be used multiple times.
+    --ram OPERATION       Perform a load, move or poke operation or initialise
+                          the system variables in the memory snapshot being
+                          built. Do '--ram help' for more information. This
+                          option may be used multiple times.
     --reg name=value      Set the value of a register. Do '--reg help' for more
                           information. This option may be used multiple times.
     -s START, --start START
@@ -1223,9 +1234,9 @@ loads the third block on the tape at address 30000, and ignores all other
 blocks. (To see information on the blocks in a TAP or TZX file, use the
 :ref:`tapinfo.py` command.) The ``--ram`` option can also be used to move
 blocks of bytes from one location to another, POKE values into individual
-addresses or address ranges, and modify memory with XOR and ADD operations
-before the snapshot is saved. For more information on the operations that the
-``--ram`` option can perform, run::
+addresses or address ranges, modify memory with XOR and ADD operations, and
+initialise the system variables before the snapshot is saved. For more
+information on the operations that the ``--ram`` option can perform, run::
 
   $ tap2sna.py --ram help
 
@@ -1240,6 +1251,7 @@ the file `game.t2s` has the following contents::
   game.z80
   --ram load=4,32768         # Load the fourth block at 32768
   --ram move=40960,512,43520 # Move 40960-41471 to 43520-44031
+  --ram sysvars              # Initialise the system variables
   --state iff=0              # Disable interrupts
   --stack 32768              # Stack at 32768
   --start 34816              # Start at 34816
@@ -1254,6 +1266,9 @@ given on the command line.
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 8.4     | Added support to the ``--ram`` option for the ``sysvars``         |
+|         | operation                                                         |
++---------+-------------------------------------------------------------------+
 | 6.3     | Added the ``--user-agent`` option                                 |
 +---------+-------------------------------------------------------------------+
 | 6.2     | The ``--ram``, ``--reg``, ``--stack`` and ``--start`` options     |

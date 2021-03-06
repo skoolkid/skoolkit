@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Commands &#8212; SkoolKit 8.3 documentation</title>
+    <title>Commands &#8212; SkoolKit 8.4 documentation</title>
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -34,7 +34,7 @@
         <li class="right" >
           <a href="diy.html" title="Disassembly DIY"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.3 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.4 documentation</a> &#187;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
@@ -881,7 +881,7 @@ Options:
                         49152-65535.
   --show-config         Show configuration parameter values.
   -s ADDR, --start ADDR
-                        Start at this address (default=16384).
+                        Start at this address.
   -V, --version         Show SkoolKit version number and exit.
 </pre></div>
 </div>
@@ -1059,7 +1059,7 @@ Options:
                         49152-65535.
   --show-config         Show configuration parameter values.
   -s ADDR, --start ADDR
-                        Start disassembling at this address (default=16384).
+                        Start disassembling at this address.
   -V, --version         Show SkoolKit version number and exit.
   -w W, --line-width W  Set the maximum line width of the skool file (default:
                         79).
@@ -1084,7 +1084,7 @@ the default)</li>
 skool file (default: <code class="docutils literal notranslate"><span class="pre">10</span></code>)</li>
 <li><code class="docutils literal notranslate"><span class="pre">DefbSize</span></code> - maximum number of bytes in a DEFB statement (default: <code class="docutils literal notranslate"><span class="pre">8</span></code>)</li>
 <li><code class="docutils literal notranslate"><span class="pre">DefmSize</span></code> - maximum number of characters in a DEFM statement (default:
-<code class="docutils literal notranslate"><span class="pre">66</span></code>)</li>
+<code class="docutils literal notranslate"><span class="pre">65</span></code>)</li>
 <li><code class="docutils literal notranslate"><span class="pre">DefwSize</span></code> - maximum number of words in a DEFW statement (default: <code class="docutils literal notranslate"><span class="pre">1</span></code>)</li>
 <li><code class="docutils literal notranslate"><span class="pre">EntryPointRef</span></code> - template used to format the comment for an entry point
 with exactly one referrer (default: <code class="docutils literal notranslate"><span class="pre">This</span> <span class="pre">entry</span> <span class="pre">point</span> <span class="pre">is</span> <span class="pre">used</span> <span class="pre">by</span> <span class="pre">the</span> <span class="pre">routine</span>
@@ -1147,70 +1147,74 @@ LineWidth=120
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>8.3</td>
+<tr class="row-even"><td>8.4</td>
+<td>Changed the default value of the <code class="docutils literal notranslate"><span class="pre">DefmSize</span></code> configuration
+parameter from 66 to 65</td>
+</tr>
+<tr class="row-odd"><td>8.3</td>
 <td>Added support for reading control files from a directory
 (<code class="docutils literal notranslate"><span class="pre">--ctl</span> <span class="pre">DIR</span></code>)</td>
 </tr>
-<tr class="row-odd"><td>8.1</td>
+<tr class="row-even"><td>8.1</td>
 <td>Added support for ignoring default control files (<code class="docutils literal notranslate"><span class="pre">--ctl</span> <span class="pre">0</span></code>)</td>
 </tr>
-<tr class="row-even"><td>8.0</td>
+<tr class="row-odd"><td>8.0</td>
 <td>Added the <code class="docutils literal notranslate"><span class="pre">DefwSize</span></code> configuration parameter</td>
 </tr>
-<tr class="row-odd"><td>7.1</td>
+<tr class="row-even"><td>7.1</td>
 <td>Added support for reading multiple default control files, and for
 using the <code class="docutils literal notranslate"><span class="pre">--ctl</span></code> option multiple times; added the
 <code class="docutils literal notranslate"><span class="pre">CommentWidthMin</span></code>, <code class="docutils literal notranslate"><span class="pre">InstructionWidth</span></code> and <code class="docutils literal notranslate"><span class="pre">Semicolons</span></code>
 configuration parameters</td>
 </tr>
-<tr class="row-even"><td>7.0</td>
+<tr class="row-odd"><td>7.0</td>
 <td>The short option for <code class="docutils literal notranslate"><span class="pre">--lower</span></code> is <code class="docutils literal notranslate"><span class="pre">-l</span></code>; the long option for
 <code class="docutils literal notranslate"><span class="pre">-H</span></code> is <code class="docutils literal notranslate"><span class="pre">--hex</span></code></td>
 </tr>
-<tr class="row-odd"><td>6.2</td>
+<tr class="row-even"><td>6.2</td>
 <td>Added the <code class="docutils literal notranslate"><span class="pre">--show-config</span></code> option; the <code class="docutils literal notranslate"><span class="pre">--end</span></code>, <code class="docutils literal notranslate"><span class="pre">--org</span></code> and
 <code class="docutils literal notranslate"><span class="pre">--start</span></code> options accept a hexadecimal integer prefixed by ‘0x’</td>
 </tr>
-<tr class="row-even"><td>6.1</td>
+<tr class="row-odd"><td>6.1</td>
 <td>Configuration is read from <cite>skoolkit.ini</cite> if present; added the
 <code class="docutils literal notranslate"><span class="pre">--ini</span></code> option</td>
 </tr>
-<tr class="row-odd"><td>4.4</td>
+<tr class="row-even"><td>4.4</td>
 <td>Added the <code class="docutils literal notranslate"><span class="pre">--end</span></code> option</td>
 </tr>
-<tr class="row-even"><td>4.3</td>
+<tr class="row-odd"><td>4.3</td>
 <td>Added the <code class="docutils literal notranslate"><span class="pre">--line-width</span></code> option</td>
 </tr>
-<tr class="row-odd"><td>3.4</td>
+<tr class="row-even"><td>3.4</td>
 <td>Added the <code class="docutils literal notranslate"><span class="pre">-V</span></code> option and the long options, and the ability to
 add a comment listing referrers at every routine entry point</td>
 </tr>
-<tr class="row-even"><td>3.3</td>
+<tr class="row-odd"><td>3.3</td>
 <td>Added the ability to read 128K SNA snapshots</td>
 </tr>
-<tr class="row-odd"><td>3.2</td>
+<tr class="row-even"><td>3.2</td>
 <td>Added the <code class="docutils literal notranslate"><span class="pre">-p</span></code> option, and the ability to read SZX snapshots
 and 128K Z80 snapshots</td>
 </tr>
-<tr class="row-even"><td>2.1.2</td>
+<tr class="row-odd"><td>2.1.2</td>
 <td>Added the ability to write the disassembly in lower case</td>
 </tr>
-<tr class="row-odd"><td>2.1</td>
+<tr class="row-even"><td>2.1</td>
 <td>Added the <code class="docutils literal notranslate"><span class="pre">-H</span></code> option</td>
 </tr>
-<tr class="row-even"><td>2.0.1</td>
+<tr class="row-odd"><td>2.0.1</td>
 <td>Added the <code class="docutils literal notranslate"><span class="pre">-o</span></code> option, and the ability to read binary files, to
 set the maximum number of characters in a DEFM statement, and to
 suppress comments that list routine entry point referrers</td>
 </tr>
-<tr class="row-odd"><td>2.0</td>
+<tr class="row-even"><td>2.0</td>
 <td>Added the ability to set the maximum number of bytes in a DEFB
 statement</td>
 </tr>
-<tr class="row-even"><td>1.0.5</td>
+<tr class="row-odd"><td>1.0.5</td>
 <td>Added the ability to show ASCII text in comment fields</td>
 </tr>
-<tr class="row-odd"><td>1.0.4</td>
+<tr class="row-even"><td>1.0.4</td>
 <td>Added the <code class="docutils literal notranslate"><span class="pre">-s</span></code> option</td>
 </tr>
 </tbody>
@@ -1317,6 +1321,11 @@ none)</li>
 <code class="docutils literal notranslate"><span class="pre">{address}</span></code>)</li>
 <li><code class="docutils literal notranslate"><span class="pre">NodeLabel</span></code> - the format of the node labels in a call graph (default:
 <code class="docutils literal notranslate"><span class="pre">&quot;{address}</span> <span class="pre">{address:04X}\n{label}&quot;</span></code>)</li>
+<li><code class="docutils literal notranslate"><span class="pre">Peek</span></code> - the format of each line of the output produced by the <code class="docutils literal notranslate"><span class="pre">--peek</span></code>
+option (default:
+<code class="docutils literal notranslate"><span class="pre">{address:&gt;5}</span> <span class="pre">{address:04X}:</span> <span class="pre">{value:&gt;3}</span>&#160; <span class="pre">{value:02X}</span>&#160; <span class="pre">{value:08b}</span>&#160; <span class="pre">{char}</span></code>)</li>
+<li><code class="docutils literal notranslate"><span class="pre">Word</span></code> - the format of each line of the output produced by the <code class="docutils literal notranslate"><span class="pre">--word</span></code>
+option (default: <code class="docutils literal notranslate"><span class="pre">{address:&gt;5}</span> <span class="pre">{address:04X}:</span> <span class="pre">{value:&gt;5}</span>&#160; <span class="pre">{value:04X}</span></code>)</li>
 </ul>
 <p><code class="docutils literal notranslate"><span class="pre">NodeId</span></code> and <code class="docutils literal notranslate"><span class="pre">NodeLabel</span></code> are standard Python format strings that recognise
 the replacement fields <code class="docutils literal notranslate"><span class="pre">address</span></code> and <code class="docutils literal notranslate"><span class="pre">label</span></code> (the address and label of the
@@ -1343,30 +1352,33 @@ GraphAttributes=bgcolor=cyan
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>8.3</td>
+<tr class="row-even"><td>8.4</td>
+<td>Added the <code class="docutils literal notranslate"><span class="pre">Peek</span></code> and <code class="docutils literal notranslate"><span class="pre">Word</span></code> configuration parameters</td>
+</tr>
+<tr class="row-odd"><td>8.3</td>
 <td>Added support for reading control files from a directory
 (<code class="docutils literal notranslate"><span class="pre">--ctl</span> <span class="pre">DIR</span></code>)</td>
 </tr>
-<tr class="row-odd"><td>8.2</td>
+<tr class="row-even"><td>8.2</td>
 <td>Configuration is read from <cite>skoolkit.ini</cite> if present; added the
 ability to read binary files; added the <code class="docutils literal notranslate"><span class="pre">--call-graph</span></code>,
 <code class="docutils literal notranslate"><span class="pre">--ctl</span></code>, <code class="docutils literal notranslate"><span class="pre">--ini</span></code>, <code class="docutils literal notranslate"><span class="pre">--org</span></code>, <code class="docutils literal notranslate"><span class="pre">--page</span></code> and <code class="docutils literal notranslate"><span class="pre">--show-config</span></code>
 options</td>
 </tr>
-<tr class="row-even"><td>6.2</td>
+<tr class="row-odd"><td>6.2</td>
 <td>The <code class="docutils literal notranslate"><span class="pre">--find</span></code>, <code class="docutils literal notranslate"><span class="pre">--find-tile</span></code>, <code class="docutils literal notranslate"><span class="pre">--peek</span></code> and <code class="docutils literal notranslate"><span class="pre">--word</span></code>
 options accept hexadecimal integers prefixed by ‘0x’</td>
 </tr>
-<tr class="row-odd"><td>6.0</td>
+<tr class="row-even"><td>6.0</td>
 <td>Added support to the <code class="docutils literal notranslate"><span class="pre">--find</span></code> option for distance ranges; added
 the <code class="docutils literal notranslate"><span class="pre">--find-tile</span></code> and <code class="docutils literal notranslate"><span class="pre">--word</span></code> options; the <code class="docutils literal notranslate"><span class="pre">--peek</span></code> option
 shows UDGs and BASIC tokens</td>
 </tr>
-<tr class="row-even"><td>5.4</td>
+<tr class="row-odd"><td>5.4</td>
 <td>Added the <code class="docutils literal notranslate"><span class="pre">--variables</span></code> option; UDGs in a BASIC program are
 shown as special symbols (e.g. <code class="docutils literal notranslate"><span class="pre">{UDG-A}</span></code>)</td>
 </tr>
-<tr class="row-odd"><td>5.3</td>
+<tr class="row-even"><td>5.3</td>
 <td>New</td>
 </tr>
 </tbody>
@@ -1449,9 +1461,10 @@ Options:
   -f, --force           Overwrite an existing snapshot.
   -p STACK, --stack STACK
                         Set the stack pointer.
-  --ram OPERATION       Perform a load, move or poke operation on the memory
-                        snapshot being built. Do &#39;--ram help&#39; for more
-                        information. This option may be used multiple times.
+  --ram OPERATION       Perform a load, move or poke operation or initialise
+                        the system variables in the memory snapshot being
+                        built. Do &#39;--ram help&#39; for more information. This
+                        option may be used multiple times.
   --reg name=value      Set the value of a register. Do &#39;--reg help&#39; for more
                         information. This option may be used multiple times.
   -s START, --start START
@@ -1478,9 +1491,9 @@ the appropriate addresses. For example:</p>
 blocks. (To see information on the blocks in a TAP or TZX file, use the
 <a class="reference internal" href="#tapinfo-py"><span class="std std-ref">tapinfo.py</span></a> command.) The <code class="docutils literal notranslate"><span class="pre">--ram</span></code> option can also be used to move
 blocks of bytes from one location to another, POKE values into individual
-addresses or address ranges, and modify memory with XOR and ADD operations
-before the snapshot is saved. For more information on the operations that the
-<code class="docutils literal notranslate"><span class="pre">--ram</span></code> option can perform, run:</p>
+addresses or address ranges, modify memory with XOR and ADD operations, and
+initialise the system variables before the snapshot is saved. For more
+information on the operations that the <code class="docutils literal notranslate"><span class="pre">--ram</span></code> option can perform, run:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ tap2sna.py --ram help
 </pre></div>
 </div>
@@ -1494,6 +1507,7 @@ http://example.com/pub/games/GAME.zip
 game.z80
 --ram load=4,32768         # Load the fourth block at 32768
 --ram move=40960,512,43520 # Move 40960-41471 to 43520-44031
+--ram sysvars              # Initialise the system variables
 --state iff=0              # Disable interrupts
 --stack 32768              # Stack at 32768
 --start 34816              # Start at 34816
@@ -1516,22 +1530,26 @@ given on the command line.</p>
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>6.3</td>
+<tr class="row-even"><td>8.4</td>
+<td>Added support to the <code class="docutils literal notranslate"><span class="pre">--ram</span></code> option for the <code class="docutils literal notranslate"><span class="pre">sysvars</span></code>
+operation</td>
+</tr>
+<tr class="row-odd"><td>6.3</td>
 <td>Added the <code class="docutils literal notranslate"><span class="pre">--user-agent</span></code> option</td>
 </tr>
-<tr class="row-odd"><td>6.2</td>
+<tr class="row-even"><td>6.2</td>
 <td>The <code class="docutils literal notranslate"><span class="pre">--ram</span></code>, <code class="docutils literal notranslate"><span class="pre">--reg</span></code>, <code class="docutils literal notranslate"><span class="pre">--stack</span></code> and <code class="docutils literal notranslate"><span class="pre">--start</span></code> options
 accept hexadecimal integers prefixed by ‘0x’</td>
 </tr>
-<tr class="row-even"><td>5.3</td>
+<tr class="row-odd"><td>5.3</td>
 <td>Added the <code class="docutils literal notranslate"><span class="pre">--stack</span></code> and <code class="docutils literal notranslate"><span class="pre">--start</span></code> options</td>
 </tr>
-<tr class="row-odd"><td>4.5</td>
+<tr class="row-even"><td>4.5</td>
 <td>Added support for TZX block type 0x14 (pure data), for loading
 the first and last bytes of a tape block, and for modifying
 memory with XOR and ADD operations</td>
 </tr>
-<tr class="row-even"><td>3.5</td>
+<tr class="row-odd"><td>3.5</td>
 <td>New</td>
 </tr>
 </tbody>
@@ -1619,11 +1637,11 @@ block type 0x14</td>
         <li class="right" >
           <a href="diy.html" title="Disassembly DIY"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.3 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.4 documentation</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2020, Richard Dymond.
+        &#169; Copyright 2021, Richard Dymond.
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
     </div>
   </body>

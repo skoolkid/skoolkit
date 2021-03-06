@@ -119,6 +119,51 @@ file is `game.skool`).
 | 2.0     | New                                                               |
 +---------+-------------------------------------------------------------------+
 
+.. _entryGroups:
+
+[EntryGroups]
+-------------
+The ``EntryGroups`` section defines groups of entries (routines and data
+blocks) whose disassembly pages can then be given custom titles and headers via
+the :ref:`titles` and :ref:`pageHeaders` sections. Each line in this section
+has the form::
+
+  name=addr1[,addr2...]
+
+where:
+
+* ``name`` is the entry group name
+* ``addr1``, ``addr2`` etc. are the addresses of the entries in the group
+
+For example::
+
+  SpriteVariables=32768,32769,32770
+
+This defines an entry group named 'SpriteVariables' that consists of the
+entries at 32768, 32769 and 32770. The titles and headers of the disassembly
+pages for these entries can then be specified like this::
+
+  [Titles]
+  Asm-SpriteVariables=Sprite variable at {entry[address]}
+
+  [PageHeaders]
+  Asm-SpriteVariables=Sprite variables
+
+Entry group names may also be used in the ``Includes`` parameter of a
+:ref:`memoryMap` section. For example::
+
+  [MemoryMap:SpriteVariables]
+  Includes=SpriteVariables
+
+This defines a memory map page named 'SpriteVariables' consisting of only the
+entries that belong to the group of the same name.
+
++---------+---------+
+| Version | Changes |
++=========+=========+
+| 8.4     | New     |
++---------+---------+
+
 .. _ref-Game:
 
 [Game]
@@ -130,6 +175,12 @@ aspects of the HTML output. The parameters are in the format::
 
 Recognised parameters are:
 
+* ``Address`` - the format of the address fields on disassembly pages and
+  memory map pages, and of the default link text for the :ref:`R` macro when
+  the target address has no label (default: ''); this format string recognises
+  the replacement field ``address``; if the format string is blank, the address
+  is formatted exactly as it appears in the skool file (without any ``$``
+  prefix)
 * ``AddressAnchor`` - the format of the anchors attached to instructions on
   disassembly pages and entries on memory map pages (default: ``{address}``)
 * ``AsmSinglePage`` - ``1`` to write the disassembly on a single page, or ``0``
@@ -157,6 +208,11 @@ Recognised parameters are:
 * ``JavaScript`` - the base name of the JavaScript file to include in every
   page (default: None); multiple JavaScript files can be declared by separating
   their names with semicolons
+* ``Length`` - the format of the ``length`` attribute of entry objects in
+  :ref:`htmlTemplates`, which is used in the Length column on
+  :ref:`memory map pages <memoryMap>` (default: ``{size}``); this format string
+  recognises the replacement field ``size``, equal to the size of the entry in
+  bytes
 * ``LinkInternalOperands`` - ``1`` to hyperlink instruction operands that refer
   to an address in the same entry as the instruction, or ``0`` to leave them
   unlinked (default: ``0``)
@@ -193,6 +249,8 @@ hexadecimal addresses if the ``--hex`` option is used with
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 8.4     | Added the ``Address`` and ``Length`` parameters                   |
++---------+-------------------------------------------------------------------+
 | 8.0     | Added the ``AsmSinglePage`` parameter                             |
 +---------+-------------------------------------------------------------------+
 | 7.2     | Added the ``Bytes`` and ``DisassemblyTableNumCols`` parameters    |
@@ -383,8 +441,8 @@ Recognised parameters and their default values are:
 
 * ``EntryDescriptions`` - ``1`` to display entry descriptions, or ``0`` not to
   (default: ``0``)
-* ``EntryTypes`` - the types of entries to show in the map (by default, every
-  type is shown); entry types are identified as follows:
+* ``EntryTypes`` - the types of entries to show in the map (by default, no
+  types are shown); entry types are identified as follows:
 
   * ``b`` - DEFB blocks
   * ``c`` - routines
@@ -394,15 +452,17 @@ Recognised parameters and their default values are:
   * ``u`` - unused addresses
   * ``w`` - DEFW blocks
 
-* ``Includes`` - a comma-separated list of addresses of entries to include on
-  the memory map page in addition to those specified by the ``EntryTypes``
-  parameter
+* ``Includes`` - a comma-separated list of entries to include on the memory map
+  page in addition to those specified by the ``EntryTypes`` parameter; each
+  item in the list may be either an entry address or the name of an entry group
+  defined in the :ref:`entryGroups` section
 * ``Intro`` - the text (which may contain HTML markup) displayed at the top of
   the memory map page (default: '')
 * ``LabelColumn`` - ``1`` to display the 'Label' column if any entries have
   ASM labels defined, or ``0`` not to (default: ``0``)
 * ``LengthColumn`` - ``1`` to display the 'Length' column, or ``0`` not to
-  (default: ``0``)
+  (default: ``0``); see also the ``Length`` parameter in the :ref:`ref-Game`
+  section
 * ``PageByteColumns`` - ``1`` to display 'Page' and 'Byte' columns, or ``0``
   not to (default: ``0``)
 * ``Write`` - ``1`` to write the memory map page, or ``0`` not to (default:
@@ -428,6 +488,8 @@ template is used.
 +---------+------------------------------------------------------------------+
 | Version | Changes                                                          |
 +=========+==================================================================+
+| 8.4     | The ``EntryTypes`` parameter defaults to an empty string         |
++---------+------------------------------------------------------------------+
 | 8.1     | Added the ``LabelColumn`` parameter                              |
 +---------+------------------------------------------------------------------+
 | 6.2     | Added the ``Includes`` parameter                                 |
@@ -610,8 +672,12 @@ The ``Asm-*`` parameters are formatted with an ``entry`` dictionary identical
 to the one that is available in the :ref:`t_asm` template.
 
 The header text for a page defined by a :ref:`memoryMap`, :ref:`otherCode` or
-:ref:`page` section also defaults to the title, but can be overridden in this
+:ref:`page` section defaults to the page's title, but can be overridden in this
 section.
+
+The header text of each disassembly page for the entries belonging to a group
+defined in the :ref:`entryGroups` section also defaults to the page's title,
+but can be overridden in this section.
 
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
@@ -854,6 +920,10 @@ to the one that is available in the :ref:`t_asm` template.
 The title of a page defined by a :ref:`memoryMap`, :ref:`otherCode` or
 :ref:`page` section defaults to the page ID, but can be overridden in this
 section.
+
+The title of each disassembly page for the entries belonging to a group defined
+in the :ref:`entryGroups` section defaults to the title for that page's entry
+type, but can be overridden in this section.
 
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |

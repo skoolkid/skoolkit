@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>SkoolKit components &#8212; SkoolKit 8.3 documentation</title>
+    <title>SkoolKit components &#8212; SkoolKit 8.4 documentation</title>
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -30,7 +30,7 @@
         <li class="right" >
           <a href="extending.html" title="Extending SkoolKit"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.3 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.4 documentation</a> &#187;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
@@ -43,6 +43,7 @@
 <li><a class="reference internal" href="#control-file-generator">Control file generator</a></li>
 <li><a class="reference internal" href="#disassembler">Disassembler</a></li>
 <li><a class="reference internal" href="#html-template-formatter">HTML template formatter</a></li>
+<li><a class="reference internal" href="#image-writer">Image writer</a></li>
 <li><a class="reference internal" href="#instruction-utility">Instruction utility</a></li>
 <li><a class="reference internal" href="#operand-evaluator">Operand evaluator</a></li>
 <li><a class="reference internal" href="#operand-formatter">Operand formatter</a></li>
@@ -92,6 +93,7 @@
 <li><a class="reference internal" href="#ctlgenerator"><span class="std std-ref">Control file generator</span></a></li>
 <li><a class="reference internal" href="#disassembler"><span class="std std-ref">Disassembler</span></a></li>
 <li><a class="reference internal" href="#htmltemplateformatter"><span class="std std-ref">HTML template formatter</span></a></li>
+<li><a class="reference internal" href="#imagewriter"><span class="std std-ref">Image writer</span></a></li>
 <li><a class="reference internal" href="#instructionutility"><span class="std std-ref">Instruction utility</span></a></li>
 <li><a class="reference internal" href="#operandevaluator"><span class="std std-ref">Operand evaluator</span></a></li>
 <li><a class="reference internal" href="#operandformatter"><span class="std std-ref">Operand formatter</span></a></li>
@@ -107,6 +109,7 @@ ControlDirectiveComposer=skoolkit.skoolctl.ControlDirectiveComposer
 ControlFileGenerator=skoolkit.snactl
 Disassembler=skoolkit.disassembler.Disassembler
 HtmlTemplateFormatter=skoolkit.skoolhtml.TemplateFormatter
+ImageWriter=skoolkit.image.ImageWriter
 InstructionUtility=skoolkit.skoolparser.InstructionUtility
 OperandEvaluator=skoolkit.z80
 OperandFormatter=skoolkit.disassembler.OperandFormatter
@@ -480,6 +483,77 @@ following API methods, in common with skoolkit.skoolhtml.TemplateFormatter:</p>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">The text of the formatted template.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="image-writer">
+<span id="imagewriter"></span><h2>Image writer<a class="headerlink" href="#image-writer" title="Permalink to this headline">¶</a></h2>
+<p>This class is responsible for constructing images and writing them to files. It
+must supply the following API methods, in common with
+skoolkit.image.ImageWriter:</p>
+<dl class="class">
+<dt id="skoolkit.image.ImageWriter">
+<em class="property">class </em><code class="descclassname">skoolkit.image.</code><code class="descname">ImageWriter</code><span class="sig-paren">(</span><em>config=None</em>, <em>palette=None</em><span class="sig-paren">)</span><a class="headerlink" href="#skoolkit.image.ImageWriter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialise the image writer.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>config</strong> – A dictionary constructed from the contents of the
+<a class="reference internal" href="ref-files.html#ref-imagewriter"><span class="std std-ref">[ImageWriter]</span></a> section of the ref file.</li>
+<li><strong>palette</strong> – A dictionary constructed from the contents of the
+<a class="reference internal" href="ref-files.html#ref-colours"><span class="std std-ref">[Colours]</span></a> section of the ref file. Each key is a
+colour name, and each value is a three-element tuple
+representing an RGB triplet.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>If <cite>config</cite> or <cite>palette</cite> is <cite>None</cite>, empty, or missing values, default
+values are used.</p>
+<dl class="method">
+<dt id="skoolkit.image.ImageWriter.image_fname">
+<code class="descname">image_fname</code><span class="sig-paren">(</span><em>fname</em><span class="sig-paren">)</span><a class="headerlink" href="#skoolkit.image.ImageWriter.image_fname" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert the <cite>fname</cite> parameter of an image macro into an image filename
+with an appropriate extension.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>fname</strong> – The <cite>fname</cite> parameter of the image macro.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The image filename.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="skoolkit.image.ImageWriter.write_image">
+<code class="descname">write_image</code><span class="sig-paren">(</span><em>frames</em>, <em>img_file</em><span class="sig-paren">)</span><a class="headerlink" href="#skoolkit.image.ImageWriter.write_image" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write an image file. If this method leaves the image file empty, the
+file will be removed.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>frames</strong> – A list of <a class="reference internal" href="extending.html#skoolkit.graphics.Frame" title="skoolkit.graphics.Frame"><code class="xref py py-class docutils literal notranslate"><span class="pre">Frame</span></code></a> objects from
+which to build the image.</li>
+<li><strong>img_file</strong> – The file object to write the image to.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">The content with which the image macro is replaced; if <cite>None</cite>,
+an appropriate <code class="docutils literal notranslate"><span class="pre">&lt;img</span> <span class="pre">.../&gt;</span></code> element is used.</p>
 </td>
 </tr>
 </tbody>
@@ -974,11 +1048,11 @@ other values declared in the <code class="docutils literal notranslate"><span cl
         <li class="right" >
           <a href="extending.html" title="Extending SkoolKit"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.3 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.4 documentation</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2020, Richard Dymond.
+        &#169; Copyright 2021, Richard Dymond.
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
     </div>
   </body>

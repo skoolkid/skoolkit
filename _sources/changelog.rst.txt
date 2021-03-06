@@ -1,6 +1,35 @@
 Changelog
 =========
 
+8.4 (2021-03-06)
+----------------
+* Made the :ref:`image writer component <imageWriter>` pluggable
+* Added support for defining groups of entries (via the :ref:`entryGroups`
+  section of the ref file) whose disassembly pages can be given custom titles
+  and headers
+* Added the ``Address`` parameter to the :ref:`ref-Game` section (for
+  specifying the format of address fields on disassembly pages and memory map
+  pages, and of the default link text for the :ref:`R` macro)
+* Added the ``Length`` parameter to the :ref:`ref-Game` section (for specifying
+  the format of the new ``length`` attribute of entry objects in
+  :ref:`htmlTemplates`, which is now used instead of ``size`` in the Length
+  column on :ref:`memory map pages <memoryMap>`)
+* Added the ``Peek`` and ``Word`` configuration parameters for
+  :ref:`snapinfo.py <snapinfo-conf>` (for specifying the format of each line of
+  the output produced by the ``--peek`` and ``--word`` options)
+* Added support for specifying an :ref:`expand` directive value over multiple
+  lines by prefixing the second and subsequent lines with ``+``
+* Added support to the ``--ram`` option of :ref:`tap2sna.py` for the
+  ``sysvars`` operation (for initialising the system variables in a snapshot)
+* Changed the default value of the ``DefmSize`` configuration parameter for
+  :ref:`sna2skool.py <sna2skool-conf>` from 66 to 65; this makes it compliant
+  with the default maximum line width of 79 defined by the ``LineWidth``
+  configuration parameter
+* Fixed the bug that prevents instruction comments from being repeated in a
+  :ref:`control file loop <ctlLoops>`
+* Fixed the bug that makes :ref:`sna2skool.py` ignore a given start address
+  below 16384 when converting a snapshot
+
 8.3 (2020-11-08)
 ----------------
 * Added the :ref:`PLOT` macro (for setting, resetting or flipping a pixel in a
