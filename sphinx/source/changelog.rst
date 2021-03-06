@@ -1,8 +1,8 @@
 Changelog
 =========
 
-8.4rc
------
+8.4 (2021-03-06)
+----------------
 * Made the :ref:`image writer component <imageWriter>` pluggable
 * Added support for defining groups of entries (via the :ref:`entryGroups`
   section of the ref file) whose disassembly pages can be given custom titles
