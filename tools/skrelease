@@ -451,7 +451,7 @@ prepare_gh_pages() {
   _cd_tmpdir
   logfile=$(pwd)/sphinx.log
   echo -n "Cloning skoolkit repository: "
-  git clone -q https://github.com/skoolkid/skoolkit
+  git clone -q git@github.com:skoolkid/skoolkit.git
   echo "OK"
   cd skoolkit
   sed -i 's/^\(SPHINXOPTS.*=\)$/\1 -D html_theme=sphinxdoc/' sphinx/Makefile
