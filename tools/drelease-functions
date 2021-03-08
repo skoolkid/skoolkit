@@ -197,7 +197,7 @@ update_ghpages() {
   ghrepo=$(grep ^GameDir= $REF | cut -c9- | tr -d _)
   echo -n "Cloning $ghrepo repository: "
   cd $cwd
-  git clone -q https://github.com/skoolkid/$ghrepo
+  git clone -q git@github.com:skoolkid/${ghrepo}.git
   echo "OK"
   cd $ghrepo
   git checkout -q gh-pages
