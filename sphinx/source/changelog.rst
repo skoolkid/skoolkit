@@ -1,6 +1,9 @@
 Changelog
 =========
 
+8.5b1
+-----
+
 8.4 (2021-03-06)
 ----------------
 * Made the :ref:`image writer component <imageWriter>` pluggable
