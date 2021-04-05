@@ -17,7 +17,7 @@ version of the disassembly.
 Requirements
 ------------
 
-SkoolKit requires [Python](https://www.python.org) 3.5+. If you're running
+SkoolKit requires [Python](https://www.python.org) 3.6+. If you're running
 Linux or one of the BSDs, you probably already have Python installed. If you're
 running Windows or Mac OS X, you can get Python
 [here](https://www.python.org/downloads/).

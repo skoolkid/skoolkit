@@ -3,6 +3,7 @@ Changelog
 
 8.5b1
 -----
+* Dropped support for Python 3.5
 
 8.4 (2021-03-06)
 ----------------
