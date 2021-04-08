@@ -15,6 +15,7 @@
 # SkoolKit. If not, see <http://www.gnu.org/licenses/>.
 
 from collections import defaultdict, namedtuple
+import re
 
 from skoolkit import (SkoolKitError, warn, write_line, wrap, parse_int,
                       get_address_format, format_template)
@@ -36,14 +37,15 @@ DisassemblerConfig = namedtuple('DisassemblerConfig', 'asm_hex asm_lower defb_si
 # Component API
 def calculate_references(entries, operations):
     """
-    For each entry point in each routine, calculate a list of the entries
-    containing instructions that jump to or call that entry point.
+    For each instruction address in a memory map entry, calculate a list of the
+    entries containing instructions that jump to, call or otherwise refer to
+    that address.
 
     :param entries: A collection of memory map entries.
-    :param operations: A tuple of operation prefixes. Any instruction whose
-                       operation starts with one of these prefixes is regarded
-                       as a jump or call operation, and therefore identifies an
-                       entry point.
+    :param operations: A tuple of regular expression patterns. The address
+                       operand of any instruction whose operation matches one
+                       of these patterns identifies an entry point that will be
+                       marked with an asterisk in the skool file.
     :return: A dictionary of entry point addresses.
     """
     instructions = {i.address: (i, e) for e in entries for i in e.instructions}
@@ -51,7 +53,7 @@ def calculate_references(entries, operations):
     for entry in entries:
         for instruction in entry.instructions:
             operation = instruction.operation
-            if operation.upper().startswith(operations):
+            if any(re.match(op, operation.upper()) for op in operations):
                 addr_str = get_address(operation)
                 if addr_str:
                     ref_addr = parse_int(addr_str)
@@ -236,8 +238,12 @@ class Disassembly:
                     instruction.refs, instruction.rrefs = parse_asm_refs_directive(asm_dir)
 
     def _calculate_references(self, self_refs):
-        operations = get_value('SnapshotReferenceOperations').upper()
-        referrers = self.ref_calc.calculate_references(self.entries, tuple(operations.split(',')))
+        regexes = get_value('SnapshotReferenceOperations')
+        if regexes and not regexes[0].isalpha():
+            operations = regexes[1:].split(regexes[0])
+        else:
+            operations = regexes.split(',')
+        referrers = self.ref_calc.calculate_references(self.entries, tuple(operations))
         for entry in self.entries:
             for instruction in entry.instructions:
                 for ref_entry in referrers.get(instruction.address, ()):

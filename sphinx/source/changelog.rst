@@ -4,6 +4,11 @@ Changelog
 8.5b1
 -----
 * Dropped support for Python 3.5
+* The ``SnapshotReferenceOperations`` parameter in the ``[skoolkit]`` section
+  of `skoolkit.ini` is now interpreted as a list of regular expression
+  patterns (which enables any type of instruction to be designated by the
+  :ref:`snapshot reference calculator <snapshotRefCalc>` as one whose address
+  operand identifies an entry point in a routine or data block)
 
 8.4 (2021-03-06)
 ----------------

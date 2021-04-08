@@ -4713,3 +4713,37 @@ class SkoolWriterTest(SkoolKitTestCase):
              00010 RET           ;
         """
         self._test_write_skool(snapshot, ctl, exp_skool)
+
+    @patch.object(components, 'SK_CONFIG', None)
+    def test_custom_snapshot_reference_operations_as_regex_with_custom_separator(self):
+        ini = "[skoolkit]\nSnapshotReferenceOperations=;LD A,\\(\\d+\\);LD \\(\\d+\\),A"
+        self.write_text_file(ini, 'skoolkit.ini')
+        snapshot = [
+            58, 8, 0,  # 00000 LD A,(8)
+            50, 9, 0,  # 00003 LD (9),A
+            201,       # 00006 RET
+            0,         # 00007 DEFB 0
+            0,         # 00008 DEFB 0
+            0          # 00009 DEFB 0
+        ]
+        ctl = """
+            c 00000
+              00000 Will create an entry point marker at 8
+              00003,3 Will create an entry point marker at 9
+            b 00007
+            B 00008 Entry point marker created by LD A,(8)
+            B 00009 Entry point marker created by LD (9),A
+            i 00010
+        """
+        exp_skool = """
+            ; Routine at 0
+            c00000 LD A,(8)      ; Will create an entry point marker at 8
+             00003 LD (9),A      ; Will create an entry point marker at 9
+             00006 RET           ;
+
+            ; Data block at 7
+            b00007 DEFB 0
+            *00008 DEFB 0        ; Entry point marker created by LD A,(8)
+            *00009 DEFB 0        ; Entry point marker created by LD (9),A
+        """
+        self._test_write_skool(snapshot, ctl, exp_skool)
