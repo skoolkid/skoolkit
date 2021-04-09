@@ -4747,3 +4747,37 @@ class SkoolWriterTest(SkoolKitTestCase):
             *00009 DEFB 0        ; Entry point marker created by LD (9),A
         """
         self._test_write_skool(snapshot, ctl, exp_skool)
+
+    @patch.object(components, 'SK_CONFIG', None)
+    def test_custom_snapshot_reference_operations_with_special_sequence_i(self):
+        ini = "[skoolkit]\nSnapshotReferenceOperations=:LD HL,\\(\\i\\):LD \\(\\i\\),HL"
+        self.write_text_file(ini, 'skoolkit.ini')
+        snapshot = [
+            42, 8, 0,   # 00000 LD HL,($0008)
+            34, 10, 0,  # 00003 LD (10),HL
+            201,        # 00006 RET
+            0,          # 00007 DEFB 0
+            0, 0,       # 00008 DEFB 0,0
+            0, 0        # 00009 DEFB 0,0
+        ]
+        ctl = """
+            c 00000
+              00000,h Will create an entry point marker at 8
+              00003,3 Will create an entry point marker at 10
+            b 00007
+            B 00008 Entry point marker created by LD HL,($0008)
+            B 00010 Entry point marker created by LD (10),HL
+            i 00012
+        """
+        exp_skool = """
+            ; Routine at 0
+            c00000 LD HL,($0008) ; Will create an entry point marker at 8
+             00003 LD (10),HL    ; Will create an entry point marker at 10
+             00006 RET           ;
+
+            ; Data block at 7
+            b00007 DEFB 0
+            *00008 DEFB 0,0      ; Entry point marker created by LD HL,($0008)
+            *00010 DEFB 0,0      ; Entry point marker created by LD (10),HL
+        """
+        self._test_write_skool(snapshot, ctl, exp_skool)

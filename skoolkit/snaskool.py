@@ -23,7 +23,7 @@ from skoolkit.components import get_component, get_value
 from skoolkit.skoolasm import UDGTABLE_MARKER
 from skoolkit.skoolctl import (AD_LABEL, AD_REFS, TITLE, DESCRIPTION,
                                REGISTERS, MID_BLOCK, INSTRUCTION, END)
-from skoolkit.skoolmacro import ClosingBracketError, parse_brackets
+from skoolkit.skoolmacro import INTEGER, ClosingBracketError, parse_brackets
 from skoolkit.skoolparser import (get_address, parse_asm_refs_directive,
                                   parse_register, LIST_MARKER, TABLE_MARKER,
                                   LIST_END_MARKER, TABLE_END_MARKER)
@@ -243,7 +243,7 @@ class Disassembly:
             operations = regexes[1:].split(regexes[0])
         else:
             operations = regexes.split(',')
-        referrers = self.ref_calc.calculate_references(self.entries, tuple(operations))
+        referrers = self.ref_calc.calculate_references(self.entries, tuple(p.replace('\\i', INTEGER) for p in operations))
         for entry in self.entries:
             for instruction in entry.instructions:
                 for ref_entry in referrers.get(instruction.address, ()):

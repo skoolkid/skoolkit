@@ -258,9 +258,9 @@ Snapshot reference calculator
 This object is responsible for generating a dictionary of entry point addresses
 from a snapshot. Each key in the dictionary is an entry point address, and the
 associated value is a collection of entries that jump to, call or otherwise
-refer to that entry point. This dictionary is needed for listing entry point
-referrers in a skool file (when the ``ListRefs`` configuration parameter of
-:ref:`sna2skool.py <sna2skool-conf>` is 1 or 2).
+refer to that entry point. This dictionary is needed by :ref:`sna2skool.py` for
+marking each entry point in a skool file with an asterisk, and listing its
+referrers.
 
 The snapshot reference calculator must supply the following API function, in
 common with skoolkit.snaskool:
@@ -272,8 +272,8 @@ The value of the *operations* argument is derived from the
 ``SnapshotReferenceOperations`` parameter in the ``[skoolkit]`` section of
 `skoolkit.ini`. In its default form, this parameter is a comma-separated list
 of regular expression patterns that designates 'DJNZ', 'JR', 'JP', 'CALL' and
-'RST' operations as those whose address operands will be used to create entry
-point markers in the skool file::
+'RST' operations as those whose address operands will be used to identify entry
+points in the skool file::
 
   SnapshotReferenceOperations=DJ,JR,JP,CA,RS
 
@@ -281,13 +281,13 @@ To use a pattern that contains a comma, an alternative (non-alphabetic)
 separator can be specified in the first character of the parameter value. For
 example::
 
-  SnapshotReferenceOperations=;DJ;JR;JP;CA;RS;LD A,\(\d+\);LD \(\d+\),A
+  SnapshotReferenceOperations=;DJ;JR;JP;CA;RS;LD A,\(\i\);LD \(\i\),A
 
-This would additionally recognise the 'LD A,(nn)' and 'LD (nn),A' operations
-(where 'nn' is a decimal address) as identifying "entry points" that will be
-marked with an asterisk in the skool file. Each of these entry points can then
-be assigned a default label by the ``--create-labels`` option of
-:ref:`skool2asm.py` and :ref:`skool2html.py`.
+This would additionally designate the 'LD A,(nn)' and 'LD (nn),A' operations
+as identifying entry points. As a convenience for dealing with decimal and
+hexadecimal numbers, wherever ``\i`` appears in a pattern, it is replaced by a
+pattern that matches a decimal number or a hexadecimal number preceded by
+``$``.
 
 Each memory map entry has the following attributes:
 
