@@ -5,7 +5,7 @@ from skoolkittest import SkoolKitTestCase
 from skoolkit import components
 from skoolkit.disassembler import Disassembler
 
-Config = namedtuple('Config', 'asm_hex asm_lower defb_size defm_size defw_size')
+Config = namedtuple('Config', 'asm_hex asm_lower defb_size defm_size defw_size wrap')
 
 ASM = {
     '000000': ('NOP', 'NOP', 'NOP'),
@@ -1802,26 +1802,79 @@ ASM = {
     'FDCB01FF': ('DEFB 253,203,1,255',),
 }
 
+BOUNDARY_ASM = (
+    (65535, [62, 1], 'LD A,1'),
+    (65535, [1, 1, 1], 'LD BC,257'),
+    (65534, [1, 1, 1], 'LD BC,257'),
+
+    (65535, [24, 1], 'DEFB 24'),
+    (65534, [24, 1], 'DEFB 24,1'),
+    (65535, [24, 254], 'JR 65535'),
+
+    (65535, [195, 1, 1], 'JP 257'),
+    (65534, [195, 1, 1], 'JP 257'),
+
+    (65535, [205, 1, 1], 'CALL 257'),
+    (65534, [205, 1, 1], 'CALL 257'),
+
+    (65535, [203, 1], 'RLC C'),
+
+    (65535, [237, 0], 'DEFB 237'),
+    (65535, [237, 64], 'IN B,(C)'),
+    (65535, [237, 67, 1, 1], 'LD (257),BC'),
+    (65534, [237, 67, 2, 2], 'LD (514),BC'),
+    (65533, [237, 67, 3, 3], 'LD (771),BC'),
+
+    (65535, [221, 0], 'DEFB 221'),
+    (65535, [221, 9], 'ADD IX,BC'),
+    (65535, [221, 119, 1], 'LD (IX+1),A'),
+    (65534, [221, 119, 2], 'LD (IX+2),A'),
+    (65535, [221, 54, 1, 4], 'LD (IX+1),4'),
+    (65534, [221, 54, 2, 5], 'LD (IX+2),5'),
+    (65533, [221, 54, 3, 6], 'LD (IX+3),6'),
+    (65535, [221, 203, 0], 'DEFB 221'),
+    (65534, [221, 203, 0], 'DEFB 221,203'),
+    (65533, [221, 203, 6, 0], 'DEFB 221,203,6'),
+    (65535, [221, 203, 1, 6], 'RLC (IX+1)'),
+    (65534, [221, 203, 2, 6], 'RLC (IX+2)'),
+    (65533, [221, 203, 3, 6], 'RLC (IX+3)'),
+
+    (65535, [253, 0], 'DEFB 253'),
+    (65535, [253, 9], 'ADD IY,BC'),
+    (65535, [253, 119, 1], 'LD (IY+1),A'),
+    (65534, [253, 119, 2], 'LD (IY+2),A'),
+    (65535, [253, 54, 1, 4], 'LD (IY+1),4'),
+    (65534, [253, 54, 2, 5], 'LD (IY+2),5'),
+    (65533, [253, 54, 3, 6], 'LD (IY+3),6'),
+    (65535, [253, 203, 0], 'DEFB 253'),
+    (65534, [253, 203, 0], 'DEFB 253,203'),
+    (65533, [253, 203, 6, 0], 'DEFB 253,203,6'),
+    (65535, [253, 203, 1, 6], 'RLC (IY+1)'),
+    (65534, [253, 203, 2, 6], 'RLC (IY+2)'),
+    (65533, [253, 203, 3, 6], 'RLC (IY+3)')
+)
+
 class DisassemblerTest(SkoolKitTestCase):
-    def _get_disassembler(self, snapshot=(), asm_hex=False, asm_lower=False, defw_size=1):
-        config = Config(asm_hex, asm_lower, 8, 66, defw_size)
+    def _get_disassembler(self, snapshot=(), asm_hex=False, asm_lower=False, defw_size=1, wrap=False):
+        config = Config(asm_hex, asm_lower, 8, 66, defw_size, wrap)
         return Disassembler(snapshot, config)
 
     def _get_snapshot(self, start, data):
         snapshot = [0] * 65536
-        snapshot[start:start + len(data)] = list(data)
+        end = start + len(data)
+        if end <= 65536:
+            snapshot[start:start + len(data)] = list(data)
+        else:
+            chunk_len = len(data) - end + 65536
+            snapshot[start:] = list(data[:chunk_len])
+            snapshot[:end - 65536] = list(data[chunk_len:])
+            self.assertEqual(len(snapshot), 65536)
         return snapshot
 
-    def _get_instructions(self, *data):
-        start = 65536 - len(data)
+    def _get_instructions(self, start, data, **kwargs):
         snapshot = self._get_snapshot(start, data)
-        disassembler = self._get_disassembler(snapshot)
+        disassembler = self._get_disassembler(snapshot, **kwargs)
         return disassembler.disassemble(start, 65536, 'n')
-
-    def defbs_equal(self, *data):
-        instructions = self._get_instructions(*data)
-        self.assertEqual(len(instructions), 1)
-        self.assertEqual(instructions[0][1], 'DEFB {0}'.format(','.join([str(b) for b in data])))
 
     def test_all_instructions(self):
         sna_prefix = [0] * 16384
@@ -1832,105 +1885,58 @@ class DisassemblerTest(SkoolKitTestCase):
             operations = tuple([inst[1] for inst in instructions])
             self.assertEqual(operations, ops)
 
-    def test_ld1(self):
-        # 65535 LD A,n
-        self.defbs_equal(62)
+    def test_boundary_asm(self):
+        for start, data, op in BOUNDARY_ASM:
+            instructions = self._get_instructions(start, data)
+            self.assertEqual(len(instructions), 1)
+            exp_data = data[:65536 - start]
+            exp_op = 'DEFB {}'.format(','.join([str(b) for b in exp_data]))
+            self.assertEqual(instructions[0][1], exp_op)
+            self.assertEqual(instructions[0][2], exp_data)
 
-    def test_ld2(self):
-        # 65535 LD BC,nn
-        self.defbs_equal(1)
-
-    def test_ld3(self):
-        # 65534 LD BC,nn
-        self.defbs_equal(1, 0)
-
-    def test_ld4(self):
-        # 65534 LD (IX+d),A
-        self.defbs_equal(221, 119)
-
-    def test_ld5(self):
-        # 65534 LD (IX+d),n
-        self.defbs_equal(221, 54)
-
-    def test_ld6(self):
-        # 65533 LD (IX+d),n
-        self.defbs_equal(221, 54, 0)
-
-    def test_jr1(self):
-        # 65535 JR d
-        self.defbs_equal(24)
-
-    def test_jr2(self):
-        # 65534 JR 65537
-        self.defbs_equal(24, 1)
-
-    def test_jp1(self):
-        # 65535 JP nn
-        self.defbs_equal(195)
-
-    def test_jp2(self):
-        # 65534 JP nn
-        self.defbs_equal(195, 0)
-
-    def test_call1(self):
-        # 65535 CALL nn
-        self.defbs_equal(205)
-
-    def test_call2(self):
-        # 65534 CALL nn
-        self.defbs_equal(205, 0)
-
-    def test_cb(self):
-        # 65535 CB
-        self.defbs_equal(203)
-
-    def test_ed(self):
-        # 65535 ED
-        self.defbs_equal(237)
-
-    def test_dd(self):
-        # 65535 DD
-        self.defbs_equal(221)
-
-    def test_fd(self):
-        # 65535 FD
-        self.defbs_equal(253)
-
-    def test_ddcb1(self):
-        # 65534 DDCB
-        self.defbs_equal(221, 203)
-
-    def test_fdcb1(self):
-        # 65534 FDCB
-        self.defbs_equal(253, 203)
-
-    def test_ddcb2(self):
-        # 65533 DDCB
-        self.defbs_equal(221, 203, 6)
-
-    def test_fdcb2(self):
-        # 65533 FDCB
-        self.defbs_equal(253, 203, 6)
+    def test_boundary_asm_wrap(self):
+        for start, data, exp_op in BOUNDARY_ASM:
+            instructions = self._get_instructions(start, data, wrap=True)
+            self.assertEqual(len(instructions), 1)
+            self.assertEqual(instructions[0][1], exp_op)
+            if exp_op.startswith('DEFB'):
+                self.assertEqual(instructions[0][2], data[:exp_op.count(',') + 1])
+            else:
+                self.assertEqual(instructions[0][2], data)
 
     def test_dded1(self):
         # 65534 DDED
         # This disassembles to two instructions: the disassembler knows that ED
         # is unaffected by a DD prefix, but when it sees DD, it doesn't know
         # that there will be no suffix after ED
-        instructions = self._get_instructions(221, 237)
+        instructions = self._get_instructions(65534, [221, 237])
         self.assertEqual(len(instructions), 2)
         self.assertEqual(instructions[0][1], 'DEFB 221')
         self.assertEqual(instructions[1][1], 'DEFB 237')
 
+    def test_dded1_wrap(self):
+        # 65534 DDED
+        instructions = self._get_instructions(65534, [221, 237, 64], wrap=True)
+        self.assertEqual(len(instructions), 2)
+        self.assertEqual(instructions[0][1], 'DEFB 221')
+        self.assertEqual(instructions[1][1], 'IN B,(C)')
+
     def test_dded2(self):
-        # 65533 DDED4300
+        # 65532 DDED4300
         # This disassembles to two instructions: the disassembler knows that ED
         # is unaffected by a DD prefix, but when it sees DD, it doesn't know
         # that there will be no room for the 2-byte suffix after ED43
-        instructions = self._get_instructions(221, 237, 67, 0)
+        instructions = self._get_instructions(65532, [221, 237, 67, 0, 1])
         self.assertEqual(len(instructions), 2)
         self.assertEqual(instructions[0][1], 'DEFB 221')
         self.assertEqual(instructions[1][1], 'DEFB 237,67,0')
+
+    def test_dded2_wrap(self):
+        # 65532 DDED4300
+        instructions = self._get_instructions(65532, [221, 237, 67, 0, 1], wrap=True)
+        self.assertEqual(len(instructions), 2)
+        self.assertEqual(instructions[0][1], 'DEFB 221')
+        self.assertEqual(instructions[1][1], 'LD (256),BC')
 
     def test_defb_range(self):
         snapshot = self._get_snapshot(32768, (97, 98, 99, 94, 96, 65, 66, 67, 127))

@@ -32,7 +32,7 @@ MIN_COMMENT_WIDTH = 10
 AD_LABEL_PREFIX = AD_LABEL + '='
 AD_REFS_PREFIX = AD_REFS + '='
 
-DisassemblerConfig = namedtuple('DisassemblerConfig', 'asm_hex asm_lower defb_size defm_size defw_size')
+DisassemblerConfig = namedtuple('DisassemblerConfig', 'asm_hex asm_lower defb_size defm_size defw_size wrap')
 
 # Component API
 def calculate_references(entries, operations):
@@ -128,7 +128,8 @@ class Disassembly:
             asm_lower,
             self.config.get('DefbSize', 8),
             self.config.get('DefmSize', 65),
-            self.config.get('DefwSize', 1)
+            self.config.get('DefwSize', 1),
+            False
         )
         self.disassembler = get_component('Disassembler', snapshot, dconfig)
         self.ref_calc = get_component('SnapshotReferenceCalculator')

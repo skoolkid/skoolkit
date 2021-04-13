@@ -112,6 +112,8 @@ class Disassembler:
                      DEFM statement
                    * `defw_size` - default maximum number of words in a DEFW
                      statement
+                   * `wrap` - if `True`, disassemble an instruction that wraps
+                     around the 64K boundary
     """
     # Component API
     def __init__(self, snapshot, config):
@@ -119,6 +121,7 @@ class Disassembler:
         self.defb_size = config.defb_size
         self.defm_size = config.defm_size
         self.defw_size = config.defw_size
+        self.wrap = config.wrap
         self.op_formatter = get_component('OperandFormatter', config)
         self.defb = 'DEFB '
         self.defm = 'DEFM '
@@ -157,6 +160,8 @@ class Disassembler:
                 operation, length = decoder(self, template, address, base)
             if address + length <= 65536:
                 instructions.append((address, operation, self.snapshot[address:address + length]))
+            elif self.wrap:
+                instructions.append((address, operation, self.snapshot[address:65536] + self.snapshot[:(address + length) & 65535]))
             else:
                 instructions.append(self._defb_line(address, self.snapshot[address:65536]))
             address += length
@@ -328,7 +333,8 @@ class Disassembler:
         return directive + self.defb_items(data, sublengths)
 
     def _defb(self, a, length):
-        return self.defb_dir(self.snapshot[a:a + length]), length
+        data = self.snapshot[a:a + length]
+        return self.defb_dir(data), len(data)
 
     def defb4(self, a, base):
         return self._defb(a, 4)

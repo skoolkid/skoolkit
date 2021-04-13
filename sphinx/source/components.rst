@@ -112,6 +112,11 @@ If the first element of *sublengths* has a ``size`` value of 0, then the method
 should produce a list of statements with default sizes (as determined by
 `defb_size`, `defm_size` and `defw_size`), using the specified base.
 
+.. versionchanged:: 8.5
+   Added the ability to disassemble an instruction that wraps around the 64K
+   boundary, along with the *wrap* attribute on the disassembler configuration
+   object to control this behaviour.
+
 .. _htmlTemplateFormatter:
 
 HTML template formatter
