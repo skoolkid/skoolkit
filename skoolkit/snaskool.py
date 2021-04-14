@@ -110,7 +110,7 @@ class Entry:
         self.bad_blocks = []
         for sub_block in sub_blocks:
             last_instruction = sub_block.instructions[-1]
-            if last_instruction.address + len(last_instruction.bytes) > sub_block.end:
+            if last_instruction.address + len(last_instruction.bytes) > sub_block.end < 65536:
                 self.bad_blocks.append(sub_block)
 
     def width(self):
@@ -129,7 +129,7 @@ class Disassembly:
             self.config.get('DefbSize', 8),
             self.config.get('DefmSize', 65),
             self.config.get('DefwSize', 1),
-            False
+            self.config.get('Wrap', 0)
         )
         self.disassembler = get_component('Disassembler', snapshot, dconfig)
         self.ref_calc = get_component('SnapshotReferenceCalculator')

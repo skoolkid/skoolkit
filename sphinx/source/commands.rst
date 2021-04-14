@@ -905,6 +905,8 @@ configuration parameters are:
   (default: ``Unused``)
 * ``Title-w`` - template used to format the title for an untitled 'w' block
   (default: ``Data block at {address}``)
+* ``Wrap`` - disassemble an instruction that wraps around the 64K boundary
+  (``1``), or don't (``0``, the default)
 
 Configuration parameters must appear in a ``[sna2skool]`` section. For example,
 to make `sna2skool.py` generate hexadecimal skool files with a line width of
@@ -922,6 +924,9 @@ Configuration parameters may also be set on the command line by using the
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 8.5     | Added the ``Wrap`` configuration parameter and the ability to     |
+|         | disassemble an instruction that wraps around the 64K boundary     |
++---------+-------------------------------------------------------------------+
 | 8.4     | Changed the default value of the ``DefmSize`` configuration       |
 |         | parameter from 66 to 65                                           |
 +---------+-------------------------------------------------------------------+

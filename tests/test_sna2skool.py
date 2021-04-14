@@ -439,6 +439,7 @@ class Sna2SkoolTest(SkoolKitTestCase):
             Title-t=Message at {address}
             Title-u=Unused
             Title-w=Data block at {address}
+            Wrap=0
         """
         self.assertEqual(dedent(exp_output).strip(), output.rstrip())
 
@@ -477,6 +478,7 @@ class Sna2SkoolTest(SkoolKitTestCase):
             Title-t=Text at {address}
             Title-u=Unused
             Title-w=Data block at {address}
+            Wrap=0
         """
         self.assertEqual(dedent(exp_output).strip(), output.rstrip())
 

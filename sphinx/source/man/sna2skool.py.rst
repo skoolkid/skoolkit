@@ -112,6 +112,8 @@ configuration parameters are:
   ``Unused``).
 :Title-w: Template used to format the title for an untitled 'w' block (default:
   ``Data block at {address}``).
+:Wrap: Disassemble an instruction that wraps around the 64K boundary (``1``),
+  or don't (``0``, the default).
 
 Configuration parameters must appear in a ``[sna2skool]`` section. For example,
 to make ``sna2skool.py`` generate hexadecimal skool files with a line width of

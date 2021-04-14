@@ -1260,6 +1260,7 @@ class SkoolWriterTest(SkoolKitTestCase):
         self.clear_streams()
         writer = self._get_writer(snapshot, ctl, **kwargs)
         writer.write_skool(write_refs, show_text)
+        self.assertEqual(self.err.getvalue(), '')
         skool = self.out.getvalue().rstrip()
         self.assertEqual(textwrap.dedent(exp_skool).strip(), skool)
 
@@ -3416,6 +3417,19 @@ class SkoolWriterTest(SkoolKitTestCase):
             c00000 LD SP,12927   ; [1.2]
         """
         self._test_write_skool(snapshot, ctl, exp_skool, show_text=True)
+
+    def test_wrap(self):
+        snapshot = [0] * 65535 + [24]
+        ctl = """
+            @ 65535 defb=0:254
+            c 65535
+        """
+        exp_skool = """
+            @defb=0:254
+            ; Routine at 65535
+            c65535 JR 65535      ;
+        """
+        self._test_write_skool(snapshot, ctl, exp_skool, params={'Wrap': 1})
 
     def test_braces_in_instruction_comments(self):
         snapshot = [0] * 39

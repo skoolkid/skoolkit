@@ -4,6 +4,9 @@ Changelog
 8.5b1
 -----
 * Dropped support for Python 3.5
+* Added the ``Wrap`` configuration parameter for
+  :ref:`sna2skool.py <sna2skool-conf>` (for controlling whether to disassemble
+  an instruction that wraps around the 64K boundary)
 * The ``SnapshotReferenceOperations`` parameter in the ``[skoolkit]`` section
   of `skoolkit.ini` is now interpreted as a list of regular expression
   patterns (which enables any type of instruction to be designated by the

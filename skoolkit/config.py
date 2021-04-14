@@ -65,7 +65,8 @@ COMMANDS = {
         'Title-s': ('Unused', ''),
         'Title-t': ('Message at {address}', ''),
         'Title-u': ('Unused', ''),
-        'Title-w': ('Data block at {address}', '')
+        'Title-w': ('Data block at {address}', ''),
+        'Wrap': (0, '')
     },
     'snapinfo': {
         'EdgeAttributes': ('', ''),
