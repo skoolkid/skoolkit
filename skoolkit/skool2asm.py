@@ -1,4 +1,4 @@
-# Copyright 2008-2020 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2008-2021 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -47,8 +47,8 @@ def run(skoolfile, options):
         fname = skoolfile
     asm_mode = options.asm_mode + 4 * int(options.force)
     parser = clock(options.quiet, 'Parsed {}'.format(fname), SkoolParser, skoolfile,
-                   options.case, options.base, asm_mode, options.warn, options.fix_mode,
-                   False, options.create_labels, True, options.start, options.end, options.variables)
+                   options.case, options.base, asm_mode, options.warn, options.fix_mode, False,
+                   options.create_labels, True, None, options.start, options.end, options.variables)
 
     # Write the ASM file
     cls_name = options.writer or parser.asm_writer_class

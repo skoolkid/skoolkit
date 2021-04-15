@@ -18,7 +18,7 @@ def mock_config(name):
 
 class MockSkoolParser:
     def __init__(self, skoolfile, case, base, asm_mode, warnings, fix_mode, html,
-                 create_labels, asm_labels, min_address, max_address, variables):
+                 create_labels, asm_labels, label_fmt, min_address, max_address, variables):
         global mock_skool_parser
         mock_skool_parser = self
         self.skoolfile = skoolfile
@@ -30,6 +30,7 @@ class MockSkoolParser:
         self.html = html
         self.create_labels = create_labels
         self.asm_labels = asm_labels
+        self.label_fmt = label_fmt
         self.min_address = min_address
         self.max_address = max_address
         self.properties = {}

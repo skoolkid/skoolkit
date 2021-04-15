@@ -410,6 +410,9 @@ class SkoolParser:
     :param create_labels: Whether to create default labels for unlabelled
                           instructions.
     :param asm_labels: Whether to parse `@label` directives.
+    :param label_fmt: A 2-element tuple containing the format of the default
+                      label for an entry, and the format of the default label
+                      for an entry point.
     :param min_address: Ignore addresses below this one.
     :param max_address: Ignore addresses above this one.
     :param variables: List of (name, value) tuples defining variables that are
@@ -419,12 +422,13 @@ class SkoolParser:
     :param expands: List of @expand directive values.
     """
     def __init__(self, skoolfile, case=0, base=0, asm_mode=0, warnings=False, fix_mode=0, html=False,
-                 create_labels=False, asm_labels=True, min_address=0, max_address=65536, variables=(),
-                 fields=None, snapshot=None, expands=None):
+                 create_labels=False, asm_labels=True, label_fmt=None, min_address=0, max_address=65536,
+                 variables=(), fields=None, snapshot=None, expands=None):
         self.skoolfile = skoolfile
         self._assembler = get_assembler()
         self.utility = get_instruction_utility()
         self.mode = Mode(case, base, asm_mode & 3, warnings, fix_mode, html, create_labels, asm_labels, self._assembler)
+        self.label_fmt = label_fmt or ('L{address}', '{main}_{index}')
         self.case = case
         self.base = base
         if fields:
@@ -469,6 +473,7 @@ class SkoolParser:
             self.mode.html,
             self.mode.create_labels,
             self.mode.asm_labels,
+            self.label_fmt,
             fields=self.fields,
             snapshot=self.snapshot[:],
             expands=self.expands[:]
@@ -769,12 +774,12 @@ class SkoolParser:
             if instructions:
                 main_label = instructions[0].asm_label
                 if self.mode.create_labels and (not main_label or main_label == '*'):
-                    main_label = instructions[0].asm_label = 'L{0}'.format(entry.addr_str)
+                    main_label = instructions[0].asm_label = self.label_fmt[0].format(address=entry.addr_str)
                 if main_label:
                     index = 0
                     for instruction in instructions[1:]:
                         if instruction.ctl == '*' and instruction.asm_label is None or instruction.asm_label == '*':
-                            instruction.asm_label = '{0}_{1}'.format(main_label, index)
+                            instruction.asm_label = self.label_fmt[1].format(main=main_label, index=index)
                             index += 1
 
 class Mode:
