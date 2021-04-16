@@ -210,11 +210,26 @@ configuration parameters are:
   or leave it as it is (``0``, the default)
 * ``CreateLabels`` - create default labels for unlabelled instructions (``1``),
   or don't (``0``, the default)
+* ``EntryLabel`` - the format of the default label for the first instruction in
+  a routine or data block (default: ``L{address}``)
+* ``EntryPointLabel`` - the format of the default label for an instruction
+  other than the first in a routine or data block (default: ``{main}_{index}``)
 * ``Quiet`` - be quiet (``1``) or verbose (``0``, the default)
 * ``Set-property`` - set an ASM writer property value, e.g. ``Set-bullet=+``
   (see the :ref:`set` directive for a list of available properties)
 * ``Templates`` - file from which to read custom :ref:`asmTemplates`
 * ``Warnings`` - show warnings (``1``, the default), or suppress them (``0``)
+
+``EntryLabel`` and ``EntryPointLabel`` are standard Python format strings.
+``EntryLabel`` recognises the following replacement field:
+
+* ``address`` - the address of the routine or data block as it appears in the
+  skool file
+
+``EntryPointLabel`` recognises the following replacement fields:
+
+* ``index`` - 0 for the first unlabelled instruction, 1 for the second, etc.
+* ``main`` - the label of the first instruction in the routine or data block
 
 Configuration parameters must appear in a ``[skool2asm]`` section. For example,
 to make `skool2asm.py` write the disassembly in hexadecimal with a line width
@@ -232,6 +247,9 @@ Configuration parameters may also be set on the command line by using the
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 8.5     | Added the ``EntryLabel`` and ``EntryPointLabel`` configuration    |
+|         | parameters                                                        |
++---------+-------------------------------------------------------------------+
 | 7.2     | Added the ``Templates`` configuration parameter and support for   |
 |         | :ref:`asmTemplates`                                               |
 +---------+-------------------------------------------------------------------+

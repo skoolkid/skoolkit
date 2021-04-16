@@ -100,6 +100,8 @@ COMMANDS = {
         'Base': (0, 'base'),
         'Case': (0, 'case'),
         'CreateLabels': (0, 'create_labels'),
+        'EntryLabel': ('L{address}', ''),
+        'EntryPointLabel': ('{main}_{index}', ''),
         'Quiet': (0, 'quiet'),
         'Templates': ('', 'templates'),
         'Warnings': (1, 'warn')

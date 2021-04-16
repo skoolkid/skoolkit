@@ -33,7 +33,7 @@ def clock(quiet, prefix, operation, *args, **kwargs):
         info('{} ({:0.2f}s)'.format(prefix, stop - go))
     return result
 
-def run(skoolfile, options):
+def run(skoolfile, options, config):
     # Read custom ASM templates
     t_parser = RefParser()
     if options.templates:
@@ -46,9 +46,10 @@ def run(skoolfile, options):
     else:
         fname = skoolfile
     asm_mode = options.asm_mode + 4 * int(options.force)
+    label_fmt = (config['EntryLabel'], config['EntryPointLabel'])
     parser = clock(options.quiet, 'Parsed {}'.format(fname), SkoolParser, skoolfile,
                    options.case, options.base, asm_mode, options.warn, options.fix_mode, False,
-                   options.create_labels, True, None, options.start, options.end, options.variables)
+                   options.create_labels, True, label_fmt, options.start, options.end, options.variables)
 
     # Write the ASM file
     cls_name = options.writer or parser.asm_writer_class
@@ -139,4 +140,4 @@ def main(args):
         namespace.asm_mode = 3
     elif namespace.asm_mode == 3:
         namespace.fix_mode = max(namespace.fix_mode, 1)
-    run(namespace.skoolfile, namespace)
+    run(namespace.skoolfile, namespace, config)

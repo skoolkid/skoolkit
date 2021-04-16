@@ -63,7 +63,7 @@ class Skool2AsmTest(SkoolKitTestCase):
     def test_default_option_values(self):
         skoolfile = 'test.skool'
         skool2asm.main((skoolfile,))
-        fname, options = run_args
+        fname, options, config = run_args
         self.assertEqual(fname, skoolfile)
         self.assertFalse(options.quiet)
         self.assertIsNone(options.writer)
@@ -80,6 +80,8 @@ class Skool2AsmTest(SkoolKitTestCase):
         self.assertEqual(options.variables, [])
         self.assertFalse(options.force)
         self.assertEqual(options.templates, '')
+        self.assertEqual(config['EntryLabel'], 'L{address}')
+        self.assertEqual(config['EntryPointLabel'], '{main}_{index}')
 
     @patch.object(skool2asm, 'SkoolParser', MockSkoolParser)
     @patch.object(skool2asm, 'AsmWriter', MockAsmWriter)
@@ -97,6 +99,7 @@ class Skool2AsmTest(SkoolKitTestCase):
         self.assertFalse(mock_skool_parser.html)
         self.assertFalse(mock_skool_parser.create_labels)
         self.assertTrue(mock_skool_parser.asm_labels)
+        self.assertEqual(mock_skool_parser.label_fmt, ('L{address}', '{main}_{index}'))
         self.assertEqual(mock_skool_parser.min_address, 0)
         self.assertEqual(mock_skool_parser.max_address, 65536)
 
@@ -112,6 +115,8 @@ class Skool2AsmTest(SkoolKitTestCase):
             Base=16
             Case=1
             CreateLabels=1
+            EntryLabel=L_{address}
+            EntryPointLabel={main}__{index}
             Quiet=1
             Set-bullet=-
             Set-indent=4
@@ -121,7 +126,7 @@ class Skool2AsmTest(SkoolKitTestCase):
         self.write_text_file(dedent(ini).strip(), 'skoolkit.ini')
         skoolfile = 'test.skool'
         skool2asm.main((skoolfile,))
-        fname, options = run_args
+        fname, options, config = run_args
         self.assertEqual(fname, skoolfile)
         self.assertTrue(options.quiet)
         self.assertIsNone(options.writer)
@@ -135,6 +140,49 @@ class Skool2AsmTest(SkoolKitTestCase):
         self.assertEqual(options.start, 0)
         self.assertEqual(options.end, 65536)
         self.assertEqual(sorted(options.properties), ['bullet=-', 'indent=4'])
+        self.assertEqual(config['EntryLabel'], 'L_{address}')
+        self.assertEqual(config['EntryPointLabel'], '{main}__{index}')
+
+    @patch.object(skool2asm, 'SkoolParser', MockSkoolParser)
+    @patch.object(skool2asm, 'AsmWriter', MockAsmWriter)
+    def test_config_read_from_file_is_passed(self):
+        templates = """
+            [comment]
+            ;; {text}
+        """
+        ini = """
+            [skool2asm]
+            Base=16
+            Case=1
+            CreateLabels=1
+            EntryLabel=L_{{address}}
+            EntryPointLabel={{main}}__{{index}}
+            Set-bullet=-
+            Set-indent=4
+            Templates={}
+            Warnings=0
+        """.format(self.write_text_file(dedent(templates).strip()))
+        self.write_text_file(dedent(ini).strip(), 'skoolkit.ini')
+        skoolfile = 'test.skool'
+        skool2asm.main((skoolfile,))
+
+        self.assertEqual(mock_skool_parser.skoolfile, skoolfile)
+        self.assertEqual(mock_skool_parser.case, 1)
+        self.assertEqual(mock_skool_parser.base, 16)
+        self.assertEqual(mock_skool_parser.asm_mode, 1)
+        self.assertFalse(mock_skool_parser.warnings)
+        self.assertEqual(mock_skool_parser.fix_mode, 0)
+        self.assertFalse(mock_skool_parser.html)
+        self.assertTrue(mock_skool_parser.create_labels)
+        self.assertTrue(mock_skool_parser.asm_labels)
+        self.assertEqual(mock_skool_parser.label_fmt, ('L_{address}', '{main}__{index}'))
+        self.assertEqual(mock_skool_parser.min_address, 0)
+        self.assertEqual(mock_skool_parser.max_address, 65536)
+
+        self.assertIs(mock_asm_writer.parser, mock_skool_parser)
+        self.assertEqual({'bullet': '-', 'indent': '4', 'warnings': '0'}, mock_asm_writer.properties)
+        self.assertEqual({'comment': ';; {text}'}, mock_asm_writer.templates)
+        self.assertTrue(mock_asm_writer.wrote)
 
     @patch.object(skool2asm, 'run', mock_run)
     def test_invalid_option_values_read_from_file(self):
@@ -147,7 +195,7 @@ class Skool2AsmTest(SkoolKitTestCase):
         self.write_text_file(dedent(ini).strip(), 'skoolkit.ini')
         skoolfile = 'test.skool'
         skool2asm.main((skoolfile,))
-        fname, options = run_args
+        fname, options, config = run_args
         self.assertEqual(fname, skoolfile)
         self.assertFalse(options.quiet)
         self.assertIsNone(options.writer)
@@ -540,6 +588,8 @@ class Skool2AsmTest(SkoolKitTestCase):
             Base=0
             Case=0
             CreateLabels=0
+            EntryLabel=L{address}
+            EntryPointLabel={main}_{index}
             Quiet=0
             Templates=
             Warnings=1
@@ -561,6 +611,8 @@ class Skool2AsmTest(SkoolKitTestCase):
             Base=10
             Case=1
             CreateLabels=0
+            EntryLabel=L{address}
+            EntryPointLabel={main}_{index}
             Quiet=1
             Templates=
             Warnings=1

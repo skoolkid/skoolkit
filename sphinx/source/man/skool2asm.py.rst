@@ -105,11 +105,27 @@ configuration parameters are:
   leave it as it is (``0``, the default).
 :CreateLabels: Create default labels for unlabelled instructions (``1``), or
   don't (``0``, the default).
+:EntryLabel: The format of the default label for the first instruction in a
+  routine or data block (default: ``L{address}``).
+:EntryPointLabel: The format of the default label for an instruction other than
+  the first in a routine or data block (default: ``{main}_{index}``).
 :Quiet: Be quiet (``1``) or verbose (``0``, the default).
 :Set-property: Set an ASM writer property value (see ``ASM WRITER
   PROPERTIES``), e.g. ``Set-bullet=+``.
 :Templates: File from which to read custom ASM templates.
 :Warnings: Show warnings (``1``, the default), or suppress them (``0``).
+
+``EntryLabel`` and ``EntryPointLabel`` are standard Python format strings.
+``EntryLabel`` recognises the following replacement field:
+
+  |
+  | ``address`` - the address of the routine or data block as it appears in the skool file
+
+``EntryPointLabel`` recognises the following replacement fields:
+
+  |
+  | ``index`` - 0 for the first unlabelled instruction, 1 for the second, etc.
+  | ``main`` - the label of the first instruction in the routine or data block
 
 Configuration parameters must appear in a ``[skool2asm]`` section. For example,
 to make ``skool2asm.py`` write the disassembly in hexadecimal with a line width
