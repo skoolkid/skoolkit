@@ -587,6 +587,10 @@ configuration parameters are:
   or leave it as it is (``0``, the default)
 * ``CreateLabels`` - create default labels for unlabelled instructions (``1``),
   or don't (``0``, the default)
+* ``EntryLabel`` - the format of the default label for the first instruction in
+  a routine or data block (default: ``L{address}``)
+* ``EntryPointLabel`` - the format of the default label for an instruction
+  other than the first in a routine or data block (default: ``{main}_{index}``)
 * ``JoinCss`` - if specified, concatenate CSS files into a single file with
   this name
 * ``OutputDir`` - write files in this directory (default: ``.``)
@@ -598,6 +602,17 @@ configuration parameters are:
 * ``Theme`` - CSS theme to use; to specify two or more themes, separate them
   with commas
 * ``Time`` - show timings (``1``), or don't (``0``, the default)
+
+``EntryLabel`` and ``EntryPointLabel`` are standard Python format strings.
+``EntryLabel`` recognises the following replacement field:
+
+* ``address`` - the address of the routine or data block as it appears in the
+  skool file
+
+``EntryPointLabel`` recognises the following replacement fields:
+
+* ``index`` - 0 for the first unlabelled instruction, 1 for the second, etc.
+* ``main`` - the label of the first instruction in the routine or data block
 
 Configuration parameters must appear in a ``[skool2html]`` section. For
 example, to make `skool2html.py` use ASM labels and write the disassembly in
@@ -615,6 +630,9 @@ Configuration parameters may also be set on the command line by using the
 +---------+------------------------------------------------------------------+
 | Version | Changes                                                          |
 +=========+==================================================================+
+| 8.5     | Added the ``EntryLabel`` and ``EntryPointLabel`` configuration   |
+|         | parameters                                                       |
++---------+------------------------------------------------------------------+
 | 7.0     | Writes a single disassembly from the skool file given by the     |
 |         | first positional argument                                        |
 +---------+------------------------------------------------------------------+

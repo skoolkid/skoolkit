@@ -8,7 +8,8 @@ Changelog
   :ref:`sna2skool.py <sna2skool-conf>` (for controlling whether to disassemble
   an instruction that wraps around the 64K boundary)
 * Added the ``EntryLabel`` and ``EntryPointLabel`` configuration parameters for
-  :ref:`skool2asm.py <skool2asm-conf>` (for specifying the format of the
+  :ref:`skool2asm.py <skool2asm-conf>` and
+  :ref:`skool2html.py <skool2html-conf>` (for specifying the format of the
   default labels for routines and data blocks and their entry points)
 * The ``SnapshotReferenceOperations`` parameter in the ``[skoolkit]`` section
   of `skoolkit.ini` is now interpreted as a list of regular expression

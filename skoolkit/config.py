@@ -88,6 +88,8 @@ COMMANDS = {
         'Base': (0, 'base'),
         'Case': (0, 'case'),
         'CreateLabels': (0, 'create_labels'),
+        'EntryLabel': ('L{address}', ''),
+        'EntryPointLabel': ('{main}_{index}', ''),
         'JoinCss': ('', 'single_css'),
         'OutputDir': ('.', 'output_dir'),
         'Quiet': (0, 'quiet'),

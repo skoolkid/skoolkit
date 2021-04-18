@@ -50,6 +50,7 @@ class MockSkoolParser:
         self.case = kwargs.get('case')
         self.create_labels = kwargs.get('create_labels')
         self.asm_labels = kwargs.get('asm_labels')
+        self.label_fmt = kwargs.get('label_fmt')
         self.snapshot = None
         self.entries = {}
         self.memory_map = []
@@ -140,9 +141,9 @@ class Skool2HtmlTest(SkoolKitTestCase):
     @patch.object(skool2html, 'run', mock_run)
     @patch.object(skool2html, 'get_config', mock_config)
     def test_default_option_values(self):
-        infiles = ['game1.ref', 'game2.skool']
+        infiles = ['game.skool', 'data.ref']
         skool2html.main(infiles)
-        files, options = run_args
+        files, options, config = run_args
         self.assertEqual(files, infiles)
         self.assertFalse(options.asm_labels)
         self.assertFalse(options.asm_one_page)
@@ -161,6 +162,8 @@ class Skool2HtmlTest(SkoolKitTestCase):
         self.assertEqual(options.output_dir, '.')
         self.assertEqual(options.params, [])
         self.assertEqual(options.variables, [])
+        self.assertEqual(config['EntryLabel'], 'L{address}')
+        self.assertEqual(config['EntryPointLabel'], '{main}_{index}')
 
     @patch.object(skool2html, 'run', mock_run)
     def test_config_read_from_file(self):
@@ -172,6 +175,8 @@ class Skool2HtmlTest(SkoolKitTestCase):
             Base=16
             Case=-1
             CreateLabels=1
+            EntryLabel=L_{{address}}
+            EntryPointLabel={{main}}__{{index}}
             JoinCss=css.css
             OutputDir={}
             Quiet=1
@@ -181,9 +186,9 @@ class Skool2HtmlTest(SkoolKitTestCase):
             Time=1
         """.format(output_dir)
         self.write_text_file(dedent(ini).strip(), 'skoolkit.ini')
-        infiles = ['game1.ref', 'game2.skool']
+        infiles = ['game.skool', 'data.ref']
         skool2html.main(infiles)
-        files, options = run_args
+        files, options, config = run_args
         self.assertEqual(files, infiles)
         self.assertTrue(options.asm_labels)
         self.assertTrue(options.asm_one_page)
@@ -200,6 +205,32 @@ class Skool2HtmlTest(SkoolKitTestCase):
         self.assertEqual(options.files, 'dimoP')
         self.assertEqual(options.pages, [])
         self.assertEqual(options.output_dir, output_dir)
+        self.assertEqual(config['EntryLabel'], 'L_{address}')
+        self.assertEqual(config['EntryPointLabel'], '{main}__{index}')
+
+    @patch.object(skool2html, 'get_object', Mock(return_value=TestHtmlWriter))
+    @patch.object(skool2html, 'SkoolParser', MockSkoolParser)
+    @patch.object(skool2html, 'write_disassembly', mock_write_disassembly)
+    def test_config_read_from_file_is_passed(self):
+        output_dir = self.make_directory()
+        ini = """
+            [skool2html]
+            AsmLabels=1
+            Base=16
+            Case=1
+            CreateLabels=1
+            EntryLabel=L_{{address}}
+            EntryPointLabel={{main}}__{{index}}
+        """.format(output_dir)
+        self.write_text_file(dedent(ini).strip(), 'skoolkit.ini')
+        skoolfile = self.write_text_file(suffix='.skool')
+        skool2html.main((skoolfile,))
+        self.assertEqual(mock_skool_parser.skoolfile, skoolfile)
+        self.assertEqual(mock_skool_parser.base, 16)
+        self.assertEqual(mock_skool_parser.case, 1)
+        self.assertTrue(mock_skool_parser.create_labels)
+        self.assertTrue(mock_skool_parser.asm_labels)
+        self.assertEqual(('L_{address}', '{main}__{index}'), mock_skool_parser.label_fmt)
 
     @patch.object(skool2html, 'run', mock_run)
     def test_invalid_option_values_read_from_file(self):
@@ -212,7 +243,7 @@ class Skool2HtmlTest(SkoolKitTestCase):
         self.write_text_file(dedent(ini).strip(), 'skoolkit.ini')
         infiles = ['game.skool']
         skool2html.main(infiles)
-        files, options = run_args
+        files, options, config = run_args
         self.assertEqual(files, infiles)
         self.assertFalse(options.asm_labels)
         self.assertFalse(options.asm_one_page)
@@ -229,6 +260,8 @@ class Skool2HtmlTest(SkoolKitTestCase):
         self.assertEqual(options.files, 'dimoP')
         self.assertEqual(options.pages, [])
         self.assertEqual(options.output_dir, '.')
+        self.assertEqual(config['EntryLabel'], 'L{address}')
+        self.assertEqual(config['EntryPointLabel'], '{main}_{index}')
 
     def test_no_arguments(self):
         output, error = self.run_skool2html(catch_exit=2)
@@ -1340,6 +1373,8 @@ class Skool2HtmlTest(SkoolKitTestCase):
             Base=0
             Case=0
             CreateLabels=0
+            EntryLabel=L{address}
+            EntryPointLabel={main}_{index}
             JoinCss=
             OutputDir=.
             Quiet=0
@@ -1368,6 +1403,8 @@ class Skool2HtmlTest(SkoolKitTestCase):
             Base=0
             Case=0
             CreateLabels=0
+            EntryLabel=L{address}
+            EntryPointLabel={main}_{index}
             JoinCss=
             OutputDir=html
             Quiet=1

@@ -1,4 +1,4 @@
-# Copyright 2008-2020 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2008-2021 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -167,7 +167,7 @@ def parse_ref_files(reffiles, ref_parser, fnames, search_dir=''):
                 reffiles.append(ref_f)
                 ref_parser.parse(ref_f)
 
-def run(infiles, options):
+def run(infiles, options, config):
     ref_search_dir = module_path = ''
     skoolfile = infiles[0]
     if skoolfile == '-':
@@ -187,12 +187,12 @@ def run(infiles, options):
         reffiles.insert(0, main_ref)
     ref_parser = RefParser()
     ref_parser.parse(StringIO(defaults.get_section('Config')))
-    config = ref_parser.get_dictionary('Config')
+    ref_config = ref_parser.get_dictionary('Config')
     for oreffile_f in reffiles:
         ref_parser.parse(oreffile_f)
     add_lines(ref_parser, options.config_specs, 'Config')
-    config.update(ref_parser.get_dictionary('Config'))
-    parse_ref_files(reffiles, ref_parser, config.get('RefFiles', '').split(';'), ref_search_dir)
+    ref_config.update(ref_parser.get_dictionary('Config'))
+    parse_ref_files(reffiles, ref_parser, ref_config.get('RefFiles', '').split(';'), ref_search_dir)
     parse_ref_files(reffiles, ref_parser, infiles[1:])
     add_lines(ref_parser, options.config_specs)
 
@@ -205,12 +205,13 @@ def run(infiles, options):
     elif skoolfile != '-':
         notify('Found no ref file for ' + normpath(skoolfile))
 
-    html_writer_class = get_object(config['HtmlWriterClass'], module_path)
-    game_dir = config.get('GameDir', prefix)
+    html_writer_class = get_object(ref_config['HtmlWriterClass'], module_path)
+    game_dir = ref_config.get('GameDir', prefix)
+    label_fmt = (config['EntryLabel'], config['EntryPointLabel'])
 
     # Parse the skool file and initialise the writer
     skool_parser = clock(SkoolParser, 'Parsing {}'.format(fname), skoolfile, case=options.case, base=options.base,
-                         html=True, create_labels=options.create_labels, asm_labels=options.asm_labels,
+                         html=True, create_labels=options.create_labels, asm_labels=options.asm_labels, label_fmt=label_fmt,
                          variables=options.variables)
     if options.output_dir == '.':
         topdir = ''
@@ -399,6 +400,6 @@ def main(args):
         namespace.pages = namespace.pages.split(',')
     else:
         namespace.pages = []
-    run(namespace.infiles, namespace)
+    run(namespace.infiles, namespace, config)
     if show_timings:
         notify('Done ({0:0.2f}s)'.format(time.time() - start))
