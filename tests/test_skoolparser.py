@@ -2293,6 +2293,36 @@ class SkoolParserTest(SkoolKitTestCase):
         self.assertEqual(instructions[2].asm_label, 'L_40000__1')
         self.assertEqual(instructions[2].operation, 'JR L_40000')
 
+    def test_create_labels_with_location_in_entry_label(self):
+        skool = "c40000 JR 40000"
+        label_fmt = ('L{location:04X}h', '')
+        parser = self._get_parser(skool, create_labels=True, asm_labels=True, label_fmt=label_fmt)
+        instruction = parser.get_entry(40000).instructions[0]
+        self.assertEqual(instruction.asm_label, 'L9C40h')
+        self.assertEqual(instruction.operation, 'JR L9C40h')
+
+    def test_create_labels_with_address_in_entry_point_label(self):
+        skool = """
+            c40000 JR 40002
+            *40002 RET
+        """
+        label_fmt = ('L{address}', 'L{address}')
+        parser = self._get_parser(skool, create_labels=True, asm_labels=True, label_fmt=label_fmt)
+        instructions = parser.get_entry(40000).instructions
+        self.assertEqual(instructions[0].operation, 'JR L40002')
+        self.assertEqual(instructions[1].asm_label, 'L40002')
+
+    def test_create_labels_with_location_in_entry_point_label(self):
+        skool = """
+            c40000 JR 40002
+            *40002 RET
+        """
+        label_fmt = ('L{address}', 'L{location:04X}h')
+        parser = self._get_parser(skool, create_labels=True, asm_labels=True, label_fmt=label_fmt)
+        instructions = parser.get_entry(40000).instructions
+        self.assertEqual(instructions[0].operation, 'JR L9C42h')
+        self.assertEqual(instructions[1].asm_label, 'L9C42h')
+
     def test_label_overrides_auto_label(self):
         skool = """
             c32768 JR 32770

@@ -221,14 +221,18 @@ configuration parameters are:
 * ``Warnings`` - show warnings (``1``, the default), or suppress them (``0``)
 
 ``EntryLabel`` and ``EntryPointLabel`` are standard Python format strings.
-``EntryLabel`` recognises the following replacement field:
+``EntryLabel`` recognises the following replacement fields:
 
 * ``address`` - the address of the routine or data block as it appears in the
   skool file
+* ``location`` - the address of the routine or data block as an integer
 
 ``EntryPointLabel`` recognises the following replacement fields:
 
-* ``index`` - 0 for the first unlabelled instruction, 1 for the second, etc.
+* ``address`` - the address of the instruction as it appears in the skool file
+* ``index`` - 0 for the first unlabelled instruction in the routine or data
+  block, 1 for the second, etc.
+* ``location`` - the address of the instruction as an integer
 * ``main`` - the label of the first instruction in the routine or data block
 
 Configuration parameters must appear in a ``[skool2asm]`` section. For example,
@@ -604,14 +608,18 @@ configuration parameters are:
 * ``Time`` - show timings (``1``), or don't (``0``, the default)
 
 ``EntryLabel`` and ``EntryPointLabel`` are standard Python format strings.
-``EntryLabel`` recognises the following replacement field:
+``EntryLabel`` recognises the following replacement fields:
 
 * ``address`` - the address of the routine or data block as it appears in the
   skool file
+* ``location`` - the address of the routine or data block as an integer
 
 ``EntryPointLabel`` recognises the following replacement fields:
 
-* ``index`` - 0 for the first unlabelled instruction, 1 for the second, etc.
+* ``address`` - the address of the instruction as it appears in the skool file
+* ``index`` - 0 for the first unlabelled instruction in the routine or data
+  block, 1 for the second, etc.
+* ``location`` - the address of the instruction as an integer
 * ``main`` - the label of the first instruction in the routine or data block
 
 Configuration parameters must appear in a ``[skool2html]`` section. For

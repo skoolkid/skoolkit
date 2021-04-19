@@ -774,12 +774,14 @@ class SkoolParser:
             if instructions:
                 main_label = instructions[0].asm_label
                 if self.mode.create_labels and (not main_label or main_label == '*'):
-                    main_label = instructions[0].asm_label = self.label_fmt[0].format(address=entry.addr_str)
+                    main_label = instructions[0].asm_label = self.label_fmt[0].format(address=entry.addr_str, location=entry.address)
                 if main_label:
                     index = 0
                     for instruction in instructions[1:]:
                         if instruction.ctl == '*' and instruction.asm_label is None or instruction.asm_label == '*':
-                            instruction.asm_label = self.label_fmt[1].format(main=main_label, index=index)
+                            instruction.asm_label = self.label_fmt[1].format(
+                                address=instruction.addr_str, index=index, location=instruction.address, main=main_label
+                            )
                             index += 1
 
 class Mode:

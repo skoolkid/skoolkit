@@ -116,16 +116,19 @@ configuration parameters are:
 :Warnings: Show warnings (``1``, the default), or suppress them (``0``).
 
 ``EntryLabel`` and ``EntryPointLabel`` are standard Python format strings.
-``EntryLabel`` recognises the following replacement field:
+``EntryLabel`` recognises the following replacement fields:
 
-  |
-  | ``address`` - the address of the routine or data block as it appears in the skool file
+  :address: The address of the routine or data block as it appears in the skool
+    file.
+  :location: The address of the routine or data block as an integer.
 
 ``EntryPointLabel`` recognises the following replacement fields:
 
-  |
-  | ``index`` - 0 for the first unlabelled instruction, 1 for the second, etc.
-  | ``main`` - the label of the first instruction in the routine or data block
+  :address: The address of the instruction as it appears in the skool file.
+  :index: 0 for the first unlabelled instruction in the routine or data block,
+    1 for the second, etc.
+  :location: The address of the instruction as an integer.
+  :main: The label of the first instruction in the routine or data block.
 
 Configuration parameters must appear in a ``[skool2asm]`` section. For example,
 to make ``skool2asm.py`` write the disassembly in hexadecimal with a line width
