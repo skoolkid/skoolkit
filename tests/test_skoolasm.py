@@ -272,6 +272,16 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
         writer = self._get_writer('')
         self.assertEqual(writer.expand('#MAP({html})(FAIL,0:PASS)'), 'PASS')
 
+    def test_macro_over(self):
+        writer = self._get_writer()
+        writer.fields = {'x': 1, 'y': 2}
+        self._test_unsupported_macro(writer, '#OVER1,1(b,f)')
+        self._test_unsupported_macro(writer, '#OVERy=1,x=1(b,f)')
+        self._test_unsupported_macro(writer, '#OVER(1+1,2+1)(b,f)')
+        self._test_unsupported_macro(writer, '#OVER({x},{y})(b,f)')
+        self._test_unsupported_macro(writer, nest_macros('#OVER(1,{})(b,f)', 2))
+        self._test_unsupported_macro(writer, nest_macros('#OVER1,1({},f)', 'b'))
+
     def test_macro_pc(self):
         skool = """
             @start

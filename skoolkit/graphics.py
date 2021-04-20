@@ -1,4 +1,4 @@
-# Copyright 2008-2020 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2008-2021 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -176,6 +176,20 @@ class Frame:
                     new_attr = (attr & 192) + (attr & 7) * 8 + (attr & 56) // 8
                     row[i] = Udg(new_attr, udg.data, udg.mask)
         return Frame(udgs, self.scale, self.mask, x, y, width, height)
+
+    def overlay(self, fg, x, y):
+        for fgy, row in enumerate(self.udgs[y:y + len(fg.udgs)]):
+            for fgx, bg_udg in enumerate(row[x:x + len(fg.udgs[0])]):
+                fg_udg = fg.udgs[fgy][fgx]
+                if fg.mask == 1:
+                    for i in range(8):
+                        bg_udg.data[i] = (bg_udg.data[i] | fg_udg.data[i]) & fg_udg.mask[i]
+                elif fg.mask == 2:
+                    for i in range(8):
+                        bg_udg.data[i] = (bg_udg.data[i] & fg_udg.mask[i]) | fg_udg.data[i]
+                else:
+                    for i in range(8):
+                        bg_udg.data[i] |= fg_udg.data[i]
 
     def plot(self, x, y, value):
         try:

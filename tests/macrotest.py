@@ -1087,6 +1087,26 @@ class CommonSkoolMacroTest:
         self._assert_error(writer, '#N({no},1)', "Unrecognised field 'no': {no},1", prefix)
         self._assert_error(writer, '#N({foo,1)', "Invalid format string: {foo,1", prefix)
 
+    def test_macro_over_invalid(self):
+        writer = self._get_writer()
+        prefix = ERROR_PREFIX.format('OVER')
+
+        self._test_invalid_image_macro(writer, '#OVER', "No parameters (expected 2)", prefix)
+        self._test_invalid_image_macro(writer, '#OVERx', "No parameters (expected 2)", prefix)
+        self._test_invalid_image_macro(writer, '#OVER1', "Missing required argument 'y': '1'", prefix)
+        self._test_invalid_image_macro(writer, '#OVER1,y(f)', "Missing required argument 'y': '1,'", prefix)
+        self._test_invalid_image_macro(writer, '#OVER1(f)', "Missing required argument 'y': '1'", prefix)
+        self._test_invalid_image_macro(writer, '#OVER1,1', "No text parameter", prefix)
+        self._test_invalid_image_macro(writer, '#OVER1,1,2(f)', "Too many parameters (expected 2): '1,1,2'", prefix)
+        self._test_invalid_image_macro(writer, '#OVER(f)', "Cannot parse integer 'f' in parameter string: 'f'", prefix)
+        self._test_invalid_image_macro(writer, '#OVER0,0(f)', "Not enough parameters (expected 2): 'f'", prefix)
+        self._test_invalid_image_macro(writer, '#OVER0,0(f,g,h)', "Too many parameters (expected 2): 'f,g,h'", prefix)
+        self._test_invalid_image_macro(writer, '#OVER1,1(f', "No closing bracket: (f", prefix)
+        self._test_invalid_image_macro(writer, '#OVER({x},1)(f)', "Unrecognised field 'x': {x},1", prefix)
+        self._test_invalid_image_macro(writer, '#OVER({x,1)(f)', "Invalid format string: {x,1", prefix)
+
+        return writer, prefix
+
     def test_macro_peek(self):
         writer = self._get_writer(snapshot=[1, 2, 3])
 

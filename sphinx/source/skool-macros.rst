@@ -1336,6 +1336,42 @@ See :ref:`stringParameters` for details on alternative ways to supply the
 | 2.0.5   | Added the ``fname`` parameter and support for regular 8x8 fonts  |
 +---------+------------------------------------------------------------------+
 
+.. _OVER:
+
+#OVER
+-----
+In HTML mode, the ``#OVER`` macro superimposes one frame (the foreground frame)
+on another (the background frame), applying the foreground frame's mask in the
+process. ::
+
+  #OVERx,y(bg,fg)
+
+* ``x`` and ``y`` are the tile coordinates on the background frame at which to
+  superimpose the foreground frame
+* ``bg`` is the name of the background frame
+* ``fg`` is the name of the foreground frame
+
+If the foreground frame has no mask, its contents are combined with those of
+the background frame by OR operations.
+
+For example::
+
+  ; #UDGARRAY2;30000-30024-8(*background)
+  ; #UDG30032:30040(*object)
+  ; #OVER0,1(background,object)
+  ; #UDGARRAY*background(image)
+
+This instance of the ``#OVER`` macro superimposes the frame created by the
+``#UDG`` macro at tile coordinates (0, 1) on the background frame created by
+the ``#UDGARRAY`` macro. The ``#UDGARRAY*`` macro then creates an image of the
+modified background frame.
+
++---------+---------+
+| Version | Changes |
++=========+=========+
+| 8.5     | New     |
++---------+---------+
+
 .. _PLOT:
 
 #PLOT

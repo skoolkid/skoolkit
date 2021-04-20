@@ -1057,6 +1057,9 @@ class HtmlWriter:
         end, list_obj = self.list_parser.parse_text(self, text, index, cwd)
         return end, self.build_list(list_obj)
 
+    def expand_over(self, text, index, cwd):
+        return skoolmacro.parse_over(text, index, self.fields, self.frames)
+
     def expand_plot(self, text, index, cwd):
         return skoolmacro.parse_plot(text, index, self.fields, self.frames)
 

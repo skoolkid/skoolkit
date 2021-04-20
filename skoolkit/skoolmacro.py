@@ -1,4 +1,4 @@
-# Copyright 2012-2020 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2012-2021 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -784,6 +784,18 @@ def parse_n(writer, text, index, *cwd):
             return end, '{}{:0{}x}{}'.format(prefix, value, hwidth, suffix)
         return end, '{}{:0{}X}{}'.format(prefix, value, hwidth, suffix)
     return end, '{:0{}}'.format(value, dwidth)
+
+def parse_over(text, index, fields, frame_map=None):
+    # #OVERx,y(bg,fg)
+    end, x, y = parse_ints(text, index, 2, names=('x', 'y'), fields=fields)
+    end, (bg, fg) = parse_strings(text, end, 2)
+    if frame_map is not None:
+        if bg not in frame_map:
+            raise MacroParsingError('No such frame: "{}"'.format(bg))
+        if fg not in frame_map:
+            raise MacroParsingError('No such frame: "{}"'.format(fg))
+        frame_map[bg].overlay(frame_map[fg], x, y)
+    return end, ''
 
 def parse_pc(writer, text, index, *cwd):
     # #PC
