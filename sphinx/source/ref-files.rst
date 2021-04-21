@@ -128,20 +128,25 @@ blocks) whose disassembly pages can then be given custom titles and headers via
 the :ref:`titles` and :ref:`pageHeaders` sections. Each line in this section
 has the form::
 
-  name=addr1[,addr2...]
+  name=ADDR1[,ADDR2...]
 
 where:
 
 * ``name`` is the entry group name
-* ``addr1``, ``addr2`` etc. are the addresses of the entries in the group
+* ``ADDR1``, ``ADDR2`` etc. are address specifications that identify the
+  entries in the group
+
+An address specification can be either a single address (e.g. ``30000``), or an
+address range (e.g. ``30000-30010``).
 
 For example::
 
-  SpriteVariables=32768,32769,32770
+  SpriteVariables=32768,32770-32772
 
 This defines an entry group named 'SpriteVariables' that consists of the
-entries at 32768, 32769 and 32770. The titles and headers of the disassembly
-pages for these entries can then be specified like this::
+entries at 32768 and any others between addresses 32770 and 32772 inclusive.
+The titles and headers of the disassembly pages for these entries can then be
+specified like this::
 
   [Titles]
   Asm-SpriteVariables=Sprite variable at {entry[address]}
@@ -158,11 +163,13 @@ Entry group names may also be used in the ``Includes`` parameter of a
 This defines a memory map page named 'SpriteVariables' consisting of only the
 entries that belong to the group of the same name.
 
-+---------+---------+
-| Version | Changes |
-+=========+=========+
-| 8.4     | New     |
-+---------+---------+
++---------+---------------------------------------------------------+
+| Version | Changes                                                 |
++=========+=========================================================+
+| 8.5     | Added support for identifying entries by address ranges |
++---------+---------------------------------------------------------+
+| 8.4     | New                                                     |
++---------+---------------------------------------------------------+
 
 .. _ref-Game:
 

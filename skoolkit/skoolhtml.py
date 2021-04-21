@@ -173,9 +173,8 @@ class HtmlWriter:
         self.entry_groups = {}
         group_entries = defaultdict(set)
         for group, addresses in self.get_dictionary('EntryGroups').items():
-            for addr_str in addresses.split(','):
-                address = parse_int(addr_str)
-                if self.get_entry(address):
+            for spec in addresses.split(','):
+                for address in self._parse_addresses(spec):
                     self.entry_groups[address] = 'Asm-' + group
                     group_entries[group].add(address)
 
@@ -328,6 +327,12 @@ class HtmlWriter:
             if page_id not in new_links:
                 new_links[page_id] = (link_text.strip(), '')
         return new_links
+
+    def _parse_addresses(self, spec):
+        limits = spec.partition('-')[::2]
+        start = max(parse_int(limits[0], 0), self.memory_map[0].address)
+        end = min(parse_int(limits[1], start), self.memory_map[-1].address)
+        return [a for a in range(start, end + 1) if self.get_entry(a)]
 
     def get_code_path(self, code_id):
         if code_id.lower() == MAIN_CODE_ID:

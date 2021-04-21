@@ -17,6 +17,8 @@ Changelog
   patterns (which enables any type of instruction to be designated by the
   :ref:`snapshot reference calculator <snapshotRefCalc>` as one whose address
   operand identifies an entry point in a routine or data block)
+* Added support for identifying entries by address ranges in the
+  :ref:`entryGroups` section
 
 8.4 (2021-03-06)
 ----------------

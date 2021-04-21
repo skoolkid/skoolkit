@@ -5403,6 +5403,42 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             path = '{}/{}.html'.format(ASMDIR, address)
             self._assert_title_equals(path, exp_title, exp_header)
 
+    def test_write_asm_entries_with_entry_group_defined_by_address_range(self):
+        ref = """
+            [EntryGroups]
+            GameState=50000-50003,50005
+
+            [Titles]
+            Asm-GameState=Game state variable at {entry[address]}
+        """
+        skool = """
+            ; Number of lives
+            b50000 DEFB 0
+
+            ; Score
+            w50001 DEFW 0
+
+            ; First aid kits
+            b50003 DEFB 0
+
+            ; Unused
+            u50004 DEFB 0
+
+            ; Timer
+            b50005 DEFB 0
+        """
+        writer = self._get_writer(ref=ref, skool=skool)
+        writer.write_asm_entries()
+
+        for address in (50000, 50001, 50003, 50005):
+            exp_title = exp_header = 'Game state variable at {}'.format(address)
+            path = '{}/{}.html'.format(ASMDIR, address)
+            self._assert_title_equals(path, exp_title, exp_header)
+
+        exp_title = 'Unused RAM at 50004'
+        exp_header = 'Unused'
+        self._assert_title_equals('{}/50004.html'.format(ASMDIR), exp_title, exp_header)
+
     def test_write_asm_entries_with_custom_filenames(self):
         ref = '[Paths]\nCodeFiles=asm-{address:04x}.html'
         skool = """
