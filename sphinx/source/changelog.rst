@@ -18,7 +18,8 @@ Changelog
   :ref:`snapshot reference calculator <snapshotRefCalc>` as one whose address
   operand identifies an entry point in a routine or data block)
 * Added support for identifying entries by address ranges in the
-  :ref:`entryGroups` section
+  :ref:`entryGroups` section and the ``Includes`` parameter in :ref:`memoryMap`
+  sections
 
 8.4 (2021-03-06)
 ----------------

@@ -7348,6 +7348,76 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         }
         self._assert_files_equal(join(MAPS_DIR, 'Custom.html'), subs)
 
+    def test_write_map_with_includes_using_address_range(self):
+        ref = """
+            [MemoryMap:Custom]
+            Includes=30001-30004,30006
+        """
+        skool = """
+            ; GSB entry
+            ;
+            ; Number of lives.
+            g30000 DEFB 4
+
+            ; Data
+            w30001 DEFW 78
+
+            ; Message ID
+            t30003 DEFB 0
+
+            ; Another message ID
+            t30004 DEFB 0
+
+            ; Code
+            c30005 RET
+
+            ; Yet another message ID
+            t30006 DEFB 0
+
+            i30007
+        """
+        content = """
+            <div class="map-intro"></div>
+            <table class="map">
+            <tr>
+            <th>Address</th>
+            <th>Description</th>
+            </tr>
+            <tr>
+            <td class="map-w"><span id="30001"></span><a href="../asm/30001.html">30001</a></td>
+            <td class="map-w-desc">
+            <div class="map-entry-title-10"><a class="map-entry-title" href="../asm/30001.html">Data</a></div>
+            </td>
+            </tr>
+            <tr>
+            <td class="map-t"><span id="30003"></span><a href="../asm/30003.html">30003</a></td>
+            <td class="map-t-desc">
+            <div class="map-entry-title-10"><a class="map-entry-title" href="../asm/30003.html">Message ID</a></div>
+            </td>
+            </tr>
+            <tr>
+            <td class="map-t"><span id="30004"></span><a href="../asm/30004.html">30004</a></td>
+            <td class="map-t-desc">
+            <div class="map-entry-title-10"><a class="map-entry-title" href="../asm/30004.html">Another message ID</a></div>
+            </td>
+            </tr>
+            <tr>
+            <td class="map-t"><span id="30006"></span><a href="../asm/30006.html">30006</a></td>
+            <td class="map-t-desc">
+            <div class="map-entry-title-10"><a class="map-entry-title" href="../asm/30006.html">Yet another message ID</a></div>
+            </td>
+            </tr>
+            </table>
+        """
+        writer = self._get_writer(ref=ref, skool=skool)
+        writer.write_map('Custom')
+        subs = {
+            'header': 'Custom',
+            'body_class': 'Custom',
+            'content': content
+        }
+        self._assert_files_equal(join(MAPS_DIR, 'Custom.html'), subs)
+
     def test_write_data_map_with_custom_title_and_header_and_path(self):
         title = 'Data blocks'
         header = 'Blocks of data'

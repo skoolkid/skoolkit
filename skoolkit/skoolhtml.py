@@ -183,12 +183,8 @@ class HtmlWriter:
             self._expand_values(map_details, 'Intro')
             self.memory_maps[map_name] = map_details
             includes = []
-            for addr_str in map_details.get('Includes', '').split(','):
-                address = parse_int(addr_str)
-                if self.get_entry(address):
-                    includes.append(address)
-                else:
-                    includes.extend(group_entries.get(addr_str, ()))
+            for spec in map_details.get('Includes', '').split(','):
+                includes.extend(self._parse_addresses(spec, group_entries))
             map_details['Includes'] = includes
             if map_name not in other_code_indexes and self._should_write_map(map_details):
                 self.main_memory_maps.append(map_name)
@@ -328,9 +324,12 @@ class HtmlWriter:
                 new_links[page_id] = (link_text.strip(), '')
         return new_links
 
-    def _parse_addresses(self, spec):
+    def _parse_addresses(self, spec, groups=None):
         limits = spec.partition('-')[::2]
-        start = max(parse_int(limits[0], 0), self.memory_map[0].address)
+        start = parse_int(limits[0])
+        if start is None:
+            return (groups or {}).get(limits[0], ())
+        start = max(start, self.memory_map[0].address)
         end = min(parse_int(limits[1], start), self.memory_map[-1].address)
         return [a for a in range(start, end + 1) if self.get_entry(a)]
 

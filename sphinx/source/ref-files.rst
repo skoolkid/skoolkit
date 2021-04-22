@@ -461,8 +461,9 @@ Recognised parameters and their default values are:
 
 * ``Includes`` - a comma-separated list of entries to include on the memory map
   page in addition to those specified by the ``EntryTypes`` parameter; each
-  item in the list may be either an entry address or the name of an entry group
-  defined in the :ref:`entryGroups` section
+  item in the list may be a single address, an address range (e.g.
+  ``30000-30010``), or the name of an entry group defined in the
+  :ref:`entryGroups` section
 * ``Intro`` - the text (which may contain HTML markup) displayed at the top of
   the memory map page (default: '')
 * ``LabelColumn`` - ``1`` to display the 'Label' column if any entries have
@@ -495,6 +496,8 @@ template is used.
 +---------+------------------------------------------------------------------+
 | Version | Changes                                                          |
 +=========+==================================================================+
+| 8.5     | Added support for address ranges in the ``Includes`` parameter   |
++---------+------------------------------------------------------------------+
 | 8.4     | The ``EntryTypes`` parameter defaults to an empty string         |
 +---------+------------------------------------------------------------------+
 | 8.1     | Added the ``LabelColumn`` parameter                              |
