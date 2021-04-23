@@ -570,7 +570,7 @@ def parse_d(writer, text, index, *cwd):
         raise MacroParsingError('Entry at {} has no description'.format(addr))
     return end, entry.description
 
-def _expand(writer, iparams, sparams, value, text, index, *cwd):
+def _expand(writer, iparams, sparams, strip, value, text, index, *cwd):
     end, ints, strings = index, [], []
     if iparams > 0:
         result = parse_ints(text, index, iparams, fields=writer.fields)
@@ -579,13 +579,16 @@ def _expand(writer, iparams, sparams, value, text, index, *cwd):
         end, strings = parse_strings(text, end, sparams)
         if sparams == 1:
             strings = [strings]
-    return end, _format_params(value, value, *ints, *strings)
+    formatted = _format_params(value, value, *ints, *strings)
+    if strip:
+        return end, writer.expand(formatted, *cwd).strip()
+    return end, formatted
 
 def parse_define(writer, text, index, *cwd):
-    # #DEFINEiparams[,sparams](name, value)
-    end, iparams, sparams = parse_ints(text, index, 2, (0,))
+    # #DEFINEiparams[,sparams,strip](name, value)
+    end, iparams, sparams, strip = parse_ints(text, index, 3, (0, 0))
     end, (name, value) = parse_strings(text, end, 2)
-    writer.macros['#' + name] = partial(_expand, writer, iparams, sparams, value)
+    writer.macros['#' + name] = partial(_expand, writer, iparams, sparams, strip, value)
     return end, ''
 
 def parse_eval(fields, lower, text, index, *cwd):

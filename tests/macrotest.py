@@ -169,6 +169,18 @@ class CommonSkoolMacroTest:
         self.assertEqual(writer.expand('#DEFINE2(SUM,#EVAL({}+{}))#LET(a=1)#LET(b=2)'), '')
         self.assertEqual(writer.expand('#SUM({a},{b})'), '3')
 
+    def test_macro_define_with_strip_parameter(self):
+        writer = self._get_writer()
+        macro_def = """
+            #DEFINE1,0,1(SQUARE,
+                #LET(x=0)
+                #FOR(1,{0})(_,#LET(x={{x}}+{0}))
+                #EVAL({{x}})
+            )
+        """.strip()
+        self.assertEqual(writer.expand(macro_def), '')
+        self.assertEqual(writer.expand('(#SQUARE3)'), '(9)')
+
     def test_macro_define_invalid(self):
         writer = self._get_writer()
         prefix = ERROR_PREFIX.format('DEFINE')

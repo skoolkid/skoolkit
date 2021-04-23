@@ -20,6 +20,9 @@ Changelog
 * Added support for identifying entries by address ranges in the
   :ref:`entryGroups` section and the ``Includes`` parameter in :ref:`memoryMap`
   sections
+* Added the ``strip`` parameter to the :ref:`DEFINE` macro (for stripping
+  leading and trailing whitespace from the output of the defined macro whenever
+  it is expanded)
 
 8.4 (2021-03-06)
 ----------------

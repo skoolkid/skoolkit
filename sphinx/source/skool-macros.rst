@@ -204,11 +204,14 @@ be an alphanumeric character (A-Z, a-z, 0-9).
 -------
 The ``#DEFINE`` macro defines a new skool macro. ::
 
-  #DEFINEiparams[,sparams](name,value)
+  #DEFINEiparams[,sparams,strip](name,value)
 
 * ``iparams`` is the number of integer parameters the macro expects
 * ``sparams`` is the number of string parameters the macro expects (default:
   ``0``)
+* ``strip`` - ``1`` to strip leading and trailing whitespace from the output of
+  the defined macro whenever it is expanded, or ``0`` (the default) to leave it
+  in place
 * ``name`` is the macro name (which must be all upper case letters)
 * ``value`` is the macro's output value (a standard Python format string
   containing replacement fields for the integer and string arguments)
@@ -222,6 +225,21 @@ the value of the smaller argument.
 
 For more examples, see :ref:`definingMacrosWithDEFINE`.
 
+Note that if ``strip`` is ``1``, the defined macro will be expanded, in
+isolation from any surrounding content, as soon as it is encountered. For that
+to work, the macro definition must be entirely self-contained, i.e. it must not
+depend on any surrounding content in order to be syntactically correct. For
+example, if the ``#IFZERO`` macro is defined thus::
+
+  #DEFINE1,0,1(IFZERO,#IF({}==0))
+
+then any attempt to expand an ``#IFZERO`` macro will lead to an error message
+about the ``#IF`` macro having no output strings. To fix this, either set
+``strip`` to ``0``, or redefine ``#IFZERO`` with the output strings included in
+the definition::
+
+  #DEFINE1,2,1(IFZERO,#IF({0}==0)({1},{2}))
+
 To define a macro that will be available for use immediately anywhere in the
 skool file or ref files, consider using the :ref:`expand` directive.
 
@@ -231,11 +249,13 @@ The integer parameters of a macro defined by ``#DEFINE`` may contain
 See :ref:`stringParameters` for details on alternative ways to supply the
 ``name`` and ``value`` parameters.
 
-+---------+---------+
-| Version | Changes |
-+=========+=========+
-| 8.2     | New     |
-+---------+---------+
++---------+-------------------------------+
+| Version | Changes                       |
++=========+===============================+
+| 8.5     | Added the ``strip`` parameter |
++---------+-------------------------------+
+| 8.2     | New                           |
++---------+-------------------------------+
 
 .. _EVAL:
 
