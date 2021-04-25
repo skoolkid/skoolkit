@@ -23,6 +23,8 @@ Changelog
 * Added the ``strip`` parameter to the :ref:`DEFINE` macro (for stripping
   leading and trailing whitespace from the output of the defined macro whenever
   it is expanded)
+* Fixed the bug where a frame whose pixels are modified by the :ref:`PLOT`
+  macro may have incorrect colours when converted to an image
 
 8.4 (2021-03-06)
 ----------------

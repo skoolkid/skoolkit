@@ -102,8 +102,7 @@ class ImageWriter:
         colours = set()
         has_trans = False
         for frame in frames:
-            if not hasattr(frame, 'colours'):
-                self._get_colours(frame, use_flash)
+            self._get_colours(frame, use_flash)
             colours.update(frame.colours)
             attrs.update(frame.attrs)
             has_trans = has_trans or frame.has_trans

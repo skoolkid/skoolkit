@@ -108,8 +108,7 @@ class ImageWriterTest:
     def _get_dword(self, stream, index):
         return index + 4, 16777216 * stream[index] + 65536 * stream[index + 1] + 256 * stream[index + 2] + stream[index + 3]
 
-    def _get_image_data(self, image_writer, udg_array, scale=1, mask=0, tindex=0, alpha=-1, x=0, y=0, width=None, height=None):
-        frame = Frame(udg_array, scale, mask, x, y, width, height, tindex=tindex, alpha=alpha)
+    def _get_image_data(self, image_writer, frame):
         img_stream = BytesIO()
         image_writer.write_image([frame], img_stream)
         img_bytes = [b for b in img_stream.getvalue()]
@@ -818,6 +817,13 @@ class ImageWriterTest:
         exp_pixels = [[salmon, salmon, indigo, indigo, indigo, indigo, salmon, salmon]] * 8
         self._test_image(udg_array, iw_args=iw_args, exp_pixels=exp_pixels)
 
+    def test_frame_colour_change_between_writes(self):
+        udg = Udg(56, [0] * 8)
+        frame = Frame([[udg]])  # All white pixels
+        self._test_image(frame)
+        udg.data[0] = 255       # Add black pixels
+        self._test_image(frame)
+
     def test_animation(self):
         # 3 frames, 2 colours, 16x8
         frame1 = Frame([[Udg(6, (128,) * 8), Udg(6, (0,) * 8)]], delay=20)
@@ -1091,8 +1097,13 @@ class PngWriterTest(SkoolKitTestCase, ImageWriterTest):
         return i
 
     def _test_image(self, udg_array, scale=1, mask=0, tindex=0, alpha=-1, x=0, y=0, width=None, height=None, iw_args=None, exp_pixels=None):
+        if isinstance(udg_array, Frame):
+            frame = udg_array
+            udg_array = frame.udgs
+        else:
+            frame = Frame(udg_array, scale, mask, x, y, width, height, tindex=tindex, alpha=alpha)
         image_writer = ImageWriter(**(iw_args or {}))
-        img_bytes = self._get_image_data(image_writer, udg_array, scale, mask, tindex, alpha, x, y, width, height)
+        img_bytes = self._get_image_data(image_writer, frame)
 
         exp_pixels2 = None
         if exp_pixels is None:
