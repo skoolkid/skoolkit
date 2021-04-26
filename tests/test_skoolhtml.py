@@ -2010,6 +2010,69 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         ]
         self._check_image(writer, exp_udgs, scale=2, path=exp_image_path)
 
+    def test_macro_over_with_negative_x_coordinate(self):
+        exp_image_path = '{}/img.png'.format(UDGDIR)
+        bg_udg = Udg(56, [170] * 8)
+        fg_udg_data = [0, 0, 24, 60, 60, 24, 0, 0]
+        snapshot = bg_udg.data + fg_udg_data
+        writer = self._get_writer(snapshot=snapshot, mock_file_info=True)
+        macros = (
+            '#UDGARRAY3;0x6(*bg)',
+            '#UDGARRAY3;8x6(*fg)',
+            '#OVER(-1,0)(bg,fg)',
+            '#UDGARRAY*bg(img)'
+        )
+        output = writer.expand(''.join(macros), ASMDIR)
+        self._assert_img_equals(output, 'img', '../{}'.format(exp_image_path))
+        exp_over_udg = Udg(56, [bg_udg.data[i] | fg_udg_data[i] for i in range(8)])
+        exp_udgs = [
+            [exp_over_udg, exp_over_udg, bg_udg],
+            [exp_over_udg, exp_over_udg, bg_udg]
+        ]
+        self._check_image(writer, exp_udgs, scale=2, path=exp_image_path)
+
+    def test_macro_over_with_negative_y_coordinate(self):
+        exp_image_path = '{}/img.png'.format(UDGDIR)
+        bg_udg = Udg(56, [170] * 8)
+        fg_udg_data = [0, 0, 24, 60, 60, 24, 0, 0]
+        snapshot = bg_udg.data + fg_udg_data
+        writer = self._get_writer(snapshot=snapshot, mock_file_info=True)
+        macros = (
+            '#UDGARRAY3;0x6(*bg)',
+            '#UDGARRAY3;8x6(*fg)',
+            '#OVER(0,-1)(bg,fg)',
+            '#UDGARRAY*bg(img)'
+        )
+        output = writer.expand(''.join(macros), ASMDIR)
+        self._assert_img_equals(output, 'img', '../{}'.format(exp_image_path))
+        exp_over_udg = Udg(56, [bg_udg.data[i] | fg_udg_data[i] for i in range(8)])
+        exp_udgs = [
+            [exp_over_udg, exp_over_udg, exp_over_udg],
+            [bg_udg, bg_udg, bg_udg]
+        ]
+        self._check_image(writer, exp_udgs, scale=2, path=exp_image_path)
+
+    def test_macro_over_with_negative_x_and_y_coordinates(self):
+        exp_image_path = '{}/img.png'.format(UDGDIR)
+        bg_udg = Udg(56, [170] * 8)
+        fg_udg_data = [0, 0, 24, 60, 60, 24, 0, 0]
+        snapshot = bg_udg.data + fg_udg_data
+        writer = self._get_writer(snapshot=snapshot, mock_file_info=True)
+        macros = (
+            '#UDGARRAY3;0x6(*bg)',
+            '#UDGARRAY3;8x6(*fg)',
+            '#OVER(-2,-1)(bg,fg)',
+            '#UDGARRAY*bg(img)'
+        )
+        output = writer.expand(''.join(macros), ASMDIR)
+        self._assert_img_equals(output, 'img', '../{}'.format(exp_image_path))
+        exp_over_udg = Udg(56, [bg_udg.data[i] | fg_udg_data[i] for i in range(8)])
+        exp_udgs = [
+            [exp_over_udg, bg_udg, bg_udg],
+            [bg_udg, bg_udg, bg_udg]
+        ]
+        self._check_image(writer, exp_udgs, scale=2, path=exp_image_path)
+
     def test_macro_over_with_replacement_fields(self):
         exp_image_path = '{}/udg.png'.format(UDGDIR)
         bg_udg = Udg(56, [170] * 8)

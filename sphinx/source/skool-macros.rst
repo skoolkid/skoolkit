@@ -1367,7 +1367,7 @@ process. ::
   #OVERx,y(bg,fg)
 
 * ``x`` and ``y`` are the tile coordinates on the background frame at which to
-  superimpose the foreground frame
+  superimpose the foreground frame; negative coordinates are allowed
 * ``bg`` is the name of the background frame
 * ``fg`` is the name of the foreground frame
 

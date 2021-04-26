@@ -178,8 +178,10 @@ class Frame:
         return Frame(udgs, self.scale, self.mask, x, y, width, height)
 
     def overlay(self, fg, x, y):
-        for fgy, row in enumerate(self.udgs[y:y + len(fg.udgs)]):
-            for fgx, bg_udg in enumerate(row[x:x + len(fg.udgs[0])]):
+        min_x, max_x = max(x, 0), max(x + len(fg.udgs[0]), 0)
+        min_y, max_y = max(y, 0), max(y + len(fg.udgs), 0)
+        for fgy, row in enumerate(self.udgs[min_y:max_y], min(-y, 0)):
+            for fgx, bg_udg in enumerate(row[min_x:max_x], min(-x, 0)):
                 fg_udg = fg.udgs[fgy][fgx]
                 if fg.mask == 1:
                     for i in range(8):
