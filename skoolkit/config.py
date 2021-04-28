@@ -25,6 +25,7 @@ COMMANDS = {
         'Assembler': 'skoolkit.z80.Assembler',
         'ControlDirectiveComposer': 'skoolkit.skoolctl.ControlDirectiveComposer',
         'ControlFileGenerator': 'skoolkit.snactl',
+        'DefaultDisassemblyStartAddress': '16384',
         'Disassembler': 'skoolkit.disassembler.Disassembler',
         'HtmlTemplateFormatter': 'skoolkit.skoolhtml.TemplateFormatter',
         'ImageWriter': 'skoolkit.image.ImageWriter',

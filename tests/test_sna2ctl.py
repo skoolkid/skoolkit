@@ -1072,3 +1072,11 @@ class Sna2CtlTest(SkoolKitTestCase):
         data = [0]
         exp_ctl = "b 65534"
         self._test_generation(data, exp_ctl)
+
+    @patch.object(components, 'SK_CONFIG', None)
+    def test_custom_default_disassembly_start_address(self):
+        ini = "[skoolkit]\nDefaultDisassemblyStartAddress=32768"
+        self.write_text_file(ini, 'skoolkit.ini')
+        snafile = self.write_bin_file([0] * 49179, suffix='.sna')
+        exp_ctl = 's 32768'
+        self._test_generation(snafile, exp_ctl)

@@ -638,3 +638,16 @@ class Sna2SkoolTest(SkoolKitTestCase):
         self.assertEqual(error, '')
         self.assertEqual([128], mock_skool_writer.snapshot)
         self.assertTrue(mock_skool_writer.wrote_skool)
+
+    @patch.object(components, 'SK_CONFIG', None)
+    @patch.object(sna2skool, 'CtlParser', MockCtlParser)
+    @patch.object(sna2skool, 'SkoolWriter', MockSkoolWriter)
+    def test_custom_default_disassembly_start_address(self):
+        ini = "[skoolkit]\nDefaultDisassemblyStartAddress=24576"
+        self.write_text_file(ini, 'skoolkit.ini')
+        snafile = self.write_bin_file([0] * 49179, suffix='.sna')
+        output, error = self.run_sna2skool(snafile)
+        self.assertEqual(error, '')
+        exp_ctls = {24576: 'c', 65536: 'i'}
+        self.assertEqual(exp_ctls, mock_ctl_parser.ctls)
+        self.assertTrue(mock_skool_writer.wrote_skool)

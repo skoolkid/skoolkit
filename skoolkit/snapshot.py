@@ -17,8 +17,8 @@
 import textwrap
 import zlib
 
-from skoolkit import SkoolKitError, get_int_param, read_bin_file
-from skoolkit.components import get_snapshot_reader
+from skoolkit import SkoolKitError, get_int_param, parse_int, read_bin_file
+from skoolkit.components import get_snapshot_reader, get_value
 
 # https://worldofspectrum.net/features/faq/reference/z80format.htm
 Z80_REGISTERS = {
@@ -89,7 +89,7 @@ def make_snapshot(fname, org, start=None, end=65536, page=None):
     snapshot_reader = get_snapshot_reader()
     if snapshot_reader.can_read(fname):
         if start is None:
-            start = 16384
+            start = parse_int(get_value('DefaultDisassemblyStartAddress'), 16384)
         return snapshot_reader.get_snapshot(fname, page), start, end
     if start is None:
         start = 0

@@ -12,7 +12,7 @@ Changelog
   :ref:`skool2asm.py <skool2asm-conf>` and
   :ref:`skool2html.py <skool2html-conf>` (for specifying the format of the
   default labels for routines and data blocks and their entry points)
-* The ``SnapshotReferenceOperations`` parameter in the ``[skoolkit]`` section
+* The ``SnapshotReferenceOperations`` parameter in the :ref:`skoolkit` section
   of `skoolkit.ini` is now interpreted as a list of regular expression
   patterns (which enables any type of instruction to be designated by the
   :ref:`snapshot reference calculator <snapshotRefCalc>` as one whose address
@@ -23,6 +23,9 @@ Changelog
 * Added the ``strip`` parameter to the :ref:`DEFINE` macro (for stripping
   leading and trailing whitespace from the output of the defined macro whenever
   it is expanded)
+* Added the ``DefaultDisassemblyStartAddress`` parameter to the :ref:`skoolkit`
+  section of `skoolkit.ini` (for specifying the address at which to start
+  disassembling a snapshot when no control file is provided)
 * Fixed the bug where a frame whose pixels are modified by the :ref:`PLOT`
   macro may have incorrect colours when converted to an image
 

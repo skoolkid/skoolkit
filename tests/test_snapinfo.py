@@ -3,7 +3,7 @@ from textwrap import dedent
 from unittest.mock import patch
 
 from skoolkittest import SkoolKitTestCase
-from skoolkit import SkoolKitError, snapinfo, VERSION
+from skoolkit import SkoolKitError, components, snapinfo, VERSION
 from skoolkit.config import COMMANDS
 
 def mock_run(*args):
@@ -1033,6 +1033,22 @@ class SnapinfoTest(SkoolKitTestCase):
             digraph {
             node [shape=record]
             16384 [label="16384 4000\n"]
+            }
+        """
+        self._test_sna(ram, exp_output, '-g')
+
+    @patch.object(components, 'SK_CONFIG', None)
+    def test_option_g_with_no_ctl_file_and_custom_default_disassembly_start_address(self):
+        ini = "[skoolkit]\nDefaultDisassemblyStartAddress=64222"
+        self.write_text_file(ini, 'skoolkit.ini')
+        ram = [0] * 49152
+        exp_output = r"""
+            // Unconnected: 64222
+            // Orphans: None
+            // First instruction not used: None
+            digraph {
+            node [shape=record]
+            64222 [label="64222 FADE\n"]
             }
         """
         self._test_sna(ram, exp_output, '-g')

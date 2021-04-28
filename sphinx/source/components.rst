@@ -18,13 +18,21 @@ SkoolKit relies on several components in order to function:
 * :ref:`snapshotRefCalc`
 
 The objects that are used for these components can be specified in the
-``[skoolkit]`` section of a file named `skoolkit.ini` either in the current
-working directory or in `~/.skoolkit`. The default contents of the
-``[skoolkit]`` section are as follows::
+:ref:`skoolkit` section of `skoolkit.ini`.
 
+.. _skoolkit:
+
+[skoolkit]
+----------
+Global configuration for SkoolKit can be specified in the ``[skoolkit]``
+section of a file named `skoolkit.ini` either in the current working directory
+or in `~/.skoolkit`. The default contents of this section are as follows::
+
+  [skoolkit]
   Assembler=skoolkit.z80.Assembler
   ControlDirectiveComposer=skoolkit.skoolctl.ControlDirectiveComposer
   ControlFileGenerator=skoolkit.snactl
+  DefaultDisassemblyStartAddress=16384
   Disassembler=skoolkit.disassembler.Disassembler
   HtmlTemplateFormatter=skoolkit.skoolhtml.TemplateFormatter
   ImageWriter=skoolkit.image.ImageWriter
@@ -34,6 +42,17 @@ working directory or in `~/.skoolkit`. The default contents of the
   SnapshotReader=skoolkit.snapshot
   SnapshotReferenceCalculator=skoolkit.snaskool
   SnapshotReferenceOperations=DJ,JR,JP,CA,RS
+
+Most of the parameters in the ``[skoolkit]`` section specify the objects to use
+for SkoolKit's pluggable components. The other recognised parameters are:
+
+* ``DefaultDisassemblyStartAddress`` - the address at which to start
+  disassembling a snapshot when no control file is provided; this is used by
+  :ref:`sna2ctl.py` and :ref:`sna2skool.py`, and also by :ref:`snapinfo.py`
+  when generating a call graph
+* ``SnapshotReferenceOperations`` - the instructions whose address operands are
+  used by the :ref:`snapshot reference calculator <snapshotRefCalc>` to
+  identify entry points in routines and data blocks
 
 .. _assembler:
 
