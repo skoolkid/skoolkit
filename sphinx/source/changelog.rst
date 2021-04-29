@@ -8,6 +8,9 @@ Changelog
 * Added the ``Wrap`` configuration parameter for
   :ref:`sna2skool.py <sna2skool-conf>` (for controlling whether to disassemble
   an instruction that wraps around the 64K boundary)
+* Added the ``RefFormat`` configuration parameter for
+  :ref:`sna2skool.py <sna2skool-conf>` (for specifying the format of referrers
+  in a comment that lists them for a routine or entry point)
 * Added the ``EntryLabel`` and ``EntryPointLabel`` configuration parameters for
   :ref:`skool2asm.py <skool2asm-conf>` and
   :ref:`skool2html.py <skool2html-conf>` (for specifying the format of the

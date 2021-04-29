@@ -89,6 +89,11 @@ configuration parameters are:
   default), or always (``2``).
 :Ref: Template used to format the comment for a routine with exactly one
   referrer (default: ``Used by the routine at {ref}.``).
+:RefFormat: Template used to format referrers in the ``{ref}`` and ``{refs}``
+  fields of the ``Ref`` and ``Refs`` templates (default: ``#R{address}``). The
+  replacement field ``address`` is the address of the referrer formatted as a
+  decimal or hexadecimal number in accordance with the ``Base`` and ``Case``
+  configuration parameters.
 :Refs: Template used to format the comment for a routine with two or more
   referrers (default: ``Used by the routines at {refs} and {ref}.``).
 :Semicolons: Block types (``b``, ``c``, ``g``, ``i``, ``s``, ``t``, ``u``,

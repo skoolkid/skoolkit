@@ -428,6 +428,7 @@ class Sna2SkoolTest(SkoolKitTestCase):
             LineWidth=79
             ListRefs=1
             Ref=Used by the routine at {ref}.
+            RefFormat=#R{address}
             Refs=Used by the routines at {refs} and {ref}.
             Semicolons=c
             Text=0
@@ -467,6 +468,7 @@ class Sna2SkoolTest(SkoolKitTestCase):
             LineWidth=79
             ListRefs=1
             Ref=Called by the routine at {ref}.
+            RefFormat=#R{address}
             Refs=Used by the routines at {refs} and {ref}.
             Semicolons=c
             Text=0

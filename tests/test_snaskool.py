@@ -3755,6 +3755,48 @@ class SkoolWriterTest(SkoolKitTestCase):
         with self.assertRaisesRegex(SkoolKitError, "^Failed to format Ref template: Unknown format code 'X' for object of type 'str'$"):
             writer.write_skool(1, 0)
 
+    def test_custom_RefFormat(self):
+        params = {'RefFormat': '#A{address}'}
+        snapshot = [201, 24, 253]
+        ctl = """
+            c 00000
+            c 00001
+            i 00003
+        """
+        exp_skool = """
+            ; Routine at 0
+            ;
+            ; Used by the routine at #A1.
+            c00000 RET           ;
+
+            ; Routine at 1
+            c00001 JR 0          ;
+        """
+        self._test_write_skool(snapshot, ctl, exp_skool, params=params)
+
+    def test_custom_RefFormat_with_two_referrers(self):
+        params = {'RefFormat': '#Q{address}'}
+        snapshot = [201, 24, 253, 24, 251]
+        ctl = """
+            c 00000
+            c 00001
+            c 00003
+            i 00005
+        """
+        exp_skool = """
+            ; Routine at 0000
+            ;
+            ; Used by the routines at #Q$0001 and #Q$0003.
+            c$0000 RET           ;
+
+            ; Routine at 0001
+            c$0001 JR $0000      ;
+
+            ; Routine at 0003
+            c$0003 JR $0000      ;
+        """
+        self._test_write_skool(snapshot, ctl, exp_skool, base=16, params=params)
+
     def test_custom_Refs_with_two_referrers(self):
         params = {'Refs': 'Used by the subroutines at {refs} and {ref}.'}
         snapshot = [201, 24, 253, 24, 251]

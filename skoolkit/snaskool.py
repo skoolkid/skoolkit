@@ -485,14 +485,15 @@ class SkoolWriter:
 
     def write_referrers(self, referrers, erefs=True):
         if referrers:
+            ref_fmt = self.config['RefFormat']
             if erefs:
                 key = 'EntryPointRef'
             else:
                 key = 'Ref'
-            fields = {'ref': '#R' + self.address_str(referrers[-1], False)}
+            fields = {'ref': ref_fmt.format(address=self.address_str(referrers[-1], False))}
             if len(referrers) > 1:
                 key += 's'
-                fields['refs'] = ', '.join(['#R' + self.address_str(r, False) for r in referrers[:-1]])
+                fields['refs'] = ', '.join([ref_fmt.format(address=self.address_str(r, False)) for r in referrers[:-1]])
             self.write_comment([format_template(self.config[key], key, **fields)])
 
     def write_asm_directives(self, *directives):

@@ -57,6 +57,7 @@ COMMANDS = {
         'EntryPointRef': ('This entry point is used by the routine at {ref}.', ''),
         'EntryPointRefs': ('This entry point is used by the routines at {refs} and {ref}.', ''),
         'Ref': ('Used by the routine at {ref}.', ''),
+        'RefFormat': ('#R{address}', ''),
         'Refs': ('Used by the routines at {refs} and {ref}.', ''),
         'Semicolons': ('c', ''),
         'Title-b': ('Data block at {address}', ''),

@@ -926,6 +926,11 @@ configuration parameters are:
   (``1``, the default), or always (``2``)
 * ``Ref`` - template used to format the comment for a routine with exactly one
   referrer (default: ``Used by the routine at {ref}.``)
+* ``RefFormat`` - template used to format referrers in the ``{ref}`` and
+  ``{refs}`` fields of the ``Ref`` and ``Refs`` templates (default:
+  ``#R{address}``); the replacement field ``address`` is the address of the
+  referrer formatted as a decimal or hexadecimal number in accordance with the
+  ``Base`` and ``Case`` configuration parameters
 * ``Refs`` - template used to format the comment for a routine with two or more
   referrers (default: ``Used by the routines at {refs} and {ref}.``)
 * ``Semicolons`` - block types (``b``, ``c``, ``g``, ``i``, ``s``, ``t``,
@@ -969,7 +974,8 @@ Configuration parameters may also be set on the command line by using the
 | Version | Changes                                                           |
 +=========+===================================================================+
 | 8.5     | Added the ``Wrap`` configuration parameter and the ability to     |
-|         | disassemble an instruction that wraps around the 64K boundary     |
+|         | disassemble an instruction that wraps around the 64K boundary;    |
+|         | added the ``RefFormat`` configuration parameter                   |
 +---------+-------------------------------------------------------------------+
 | 8.4     | Changed the default value of the ``DefmSize`` configuration       |
 |         | parameter from 66 to 65                                           |
