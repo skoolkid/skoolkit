@@ -66,59 +66,60 @@ CONFIGURATION
 the current working directory or in ``~/.skoolkit``, if present. The recognised
 configuration parameters are:
 
-:Base: Write addresses and instruction operands in hexadecimal (``16``) or
-  decimal (``10``, the default).
-:Case: Write the disassembly in lower case (``1``) or upper case (``2``, the
-  default).
-:CommentWidthMin: Minimum width of the instruction comment field in the skool
-  file (default: ``10``).
-:DefbSize: Maximum number of bytes in a DEFB statement (default: ``8``).
-:DefmSize: Maximum number of characters in a DEFM statement (default: ``65``).
-:DefwSize: Maximum number of words in a DEFW statement (default: ``1``).
-:EntryPointRef: Template used to format the comment for an entry point with
-  exactly one referrer (default: ``This entry point is used by the routine at
-  {ref}.``).
-:EntryPointRefs: Template used to format the comment for an entry point with
-  two or more referrers (default: ``This entry point is used by the routines at
-  {refs} and {ref}.``).
-:InstructionWidth: Minimum width of the instruction field in the skool file
-  (default: ``13``).
-:LineWidth: Maximum line width of the skool file (default: ``79``).
-:ListRefs: When to add a comment that lists routine or entry point referrers:
-  never (``0``), if no other comment is defined at the entry point (``1``, the
-  default), or always (``2``).
-:Ref: Template used to format the comment for a routine with exactly one
-  referrer (default: ``Used by the routine at {ref}.``).
-:RefFormat: Template used to format referrers in the ``{ref}`` and ``{refs}``
-  fields of the ``Ref`` and ``Refs`` templates (default: ``#R{address}``). The
-  replacement field ``address`` is the address of the referrer formatted as a
-  decimal or hexadecimal number in accordance with the ``Base`` and ``Case``
-  configuration parameters.
-:Refs: Template used to format the comment for a routine with two or more
-  referrers (default: ``Used by the routines at {refs} and {ref}.``).
-:Semicolons: Block types (``b``, ``c``, ``g``, ``i``, ``s``, ``t``, ``u``,
-  ``w``) in which comment semicolons are written for instructions that have no
-  comment (default: ``c``).
-:Text: Show ASCII text in the comment fields (``1``), or don't (``0``, the
-  default).
-:Title-b: Template used to format the title for an untitled 'b' block (default:
-  ``Data block at {address}``).
-:Title-c: Template used to format the title for an untitled 'c' block (default:
-  ``Routine at {address}``).
-:Title-g: Template used to format the title for an untitled 'g' block (default:
-  ``Game status buffer entry at {address}``).
-:Title-i: Template used to format the title for an untitled 'i' block (default:
-  ``Ignored``).
-:Title-s: Template used to format the title for an untitled 's' block (default:
-  ``Unused``).
-:Title-t: Template used to format the title for an untitled 't' block (default:
-  ``Message at {address}``).
-:Title-u: Template used to format the title for an untitled 'u' block (default:
-  ``Unused``).
-:Title-w: Template used to format the title for an untitled 'w' block (default:
-  ``Data block at {address}``).
-:Wrap: Disassemble an instruction that wraps around the 64K boundary (``1``),
-  or don't (``0``, the default).
+  :Base: Write addresses and instruction operands in hexadecimal (``16``) or
+    decimal (``10``, the default).
+  :Case: Write the disassembly in lower case (``1``) or upper case (``2``, the
+    default).
+  :CommentWidthMin: Minimum width of the instruction comment field in the skool
+    file (default: ``10``).
+  :DefbSize: Maximum number of bytes in a DEFB statement (default: ``8``).
+  :DefmSize: Maximum number of characters in a DEFM statement (default:
+    ``65``).
+  :DefwSize: Maximum number of words in a DEFW statement (default: ``1``).
+  :EntryPointRef: Template used to format the comment for an entry point with
+    exactly one referrer (default: ``This entry point is used by the routine at
+    {ref}.``).
+  :EntryPointRefs: Template used to format the comment for an entry point with
+    two or more referrers (default: ``This entry point is used by the routines
+    at {refs} and {ref}.``).
+  :InstructionWidth: Minimum width of the instruction field in the skool file
+    (default: ``13``).
+  :LineWidth: Maximum line width of the skool file (default: ``79``).
+  :ListRefs: When to add a comment that lists routine or entry point referrers:
+    never (``0``), if no other comment is defined at the entry point (``1``,
+    the default), or always (``2``).
+  :Ref: Template used to format the comment for a routine with exactly one
+    referrer (default: ``Used by the routine at {ref}.``).
+  :RefFormat: Template used to format referrers in the ``{ref}`` and ``{refs}``
+    fields of the ``Ref`` and ``Refs`` templates (default: ``#R{address}``).
+    The replacement field ``address`` is the address of the referrer formatted
+    as a decimal or hexadecimal number in accordance with the ``Base`` and
+    ``Case`` configuration parameters.
+  :Refs: Template used to format the comment for a routine with two or more
+    referrers (default: ``Used by the routines at {refs} and {ref}.``).
+  :Semicolons: Block types (``b``, ``c``, ``g``, ``i``, ``s``, ``t``, ``u``,
+    ``w``) in which comment semicolons are written for instructions that have
+    no comment (default: ``c``).
+  :Text: Show ASCII text in the comment fields (``1``), or don't (``0``, the
+    default).
+  :Title-b: Template used to format the title for an untitled 'b' block
+    (default: ``Data block at {address}``).
+  :Title-c: Template used to format the title for an untitled 'c' block
+    (default: ``Routine at {address}``).
+  :Title-g: Template used to format the title for an untitled 'g' block
+    (default: ``Game status buffer entry at {address}``).
+  :Title-i: Template used to format the title for an untitled 'i' block
+    (default: ``Ignored``).
+  :Title-s: Template used to format the title for an untitled 's' block
+    (default: ``Unused``).
+  :Title-t: Template used to format the title for an untitled 't' block
+    (default: ``Message at {address}``).
+  :Title-u: Template used to format the title for an untitled 'u' block
+    (default: ``Unused``).
+  :Title-w: Template used to format the title for an untitled 'w' block
+    (default: ``Data block at {address}``).
+  :Wrap: Disassemble an instruction that wraps around the 64K boundary (``1``),
+    or don't (``0``, the default).
 
 Configuration parameters must appear in a ``[sna2skool]`` section. For example,
 to make ``sna2skool.py`` generate hexadecimal skool files with a line width of

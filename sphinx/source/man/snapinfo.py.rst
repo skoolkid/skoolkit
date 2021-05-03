@@ -79,19 +79,18 @@ CONFIGURATION
 the current working directory or in ``~/.skoolkit``, if present. The recognised
 configuration parameters are:
 
-:EdgeAttributes: The default attributes for edges in a call graph (default:
-  none).
-:GraphAttributes: The default attributes for a call graph (default: none).
-:NodeAttributes: The default attributes for nodes in a call graph (default:
-  ``shape=record``).
-:NodeId: The format of the node IDs in a call graph (default: ``{address}``).
-:NodeLabel: The format of the node labels in a call graph (default:
-  ``"{address} {address:04X}\n{label}"``).
-:Peek: the format of each line of the output produced by the ``--peek`` option
-  (default:
-  ``{address:>5} {address:04X}: {value:>3}  {value:02X}  {value:08b}  {char}``)
-:Word: the format of each line of the output produced by the ``--word`` option
-  (default: ``{address:>5} {address:04X}: {value:>5}  {value:04X}``)
+  :EdgeAttributes: The default attributes for edges in a call graph (default:
+    none).
+  :GraphAttributes: The default attributes for a call graph (default: none).
+  :NodeAttributes: The default attributes for nodes in a call graph (default:
+    ``shape=record``).
+  :NodeId: The format of the node IDs in a call graph (default: ``{address}``).
+  :NodeLabel: The format of the node labels in a call graph (default:
+    ``"{address} {address:04X}\n{label}"``).
+  :Peek: the format of each line of the output produced by the ``--peek``
+    option (default: ``{address:>5} {address:04X}: {value:>3}  {value:02X}  {value:08b}  {char}``)
+  :Word: the format of each line of the output produced by the ``--word``
+    option (default: ``{address:>5} {address:04X}: {value:>5}  {value:04X}``)
 
 ``NodeId`` and ``NodeLabel`` are standard Python format strings that recognise
 the replacement fields ``address`` and ``label`` (the address and label of the

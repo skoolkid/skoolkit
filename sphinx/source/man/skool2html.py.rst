@@ -160,30 +160,30 @@ CONFIGURATION
 the current working directory or in ``~/.skoolkit``, if present. The recognised
 configuration parameters are:
 
-:AsmLabels: Use ASM labels (``1``), or don't (``0``, the default).
-:AsmOnePage: Write all routines and data blocks to a single page (``1``), or to
-  multiple pages (``0``, the default).
-:Base: Convert addresses and instruction operands to hexadecimal (``16``) or
-  decimal (``10``), or leave them as they are (``0``, the default).
-:Case: Write the disassembly in lower case (``1``) or upper case (``2``), or
-  leave it as it is (``0``, the default).
-:CreateLabels: Create default labels for unlabelled instructions (``1``), or
-  don't (``0``, the default).
-:EntryLabel: The format of the default label for the first instruction in a
-  routine or data block (default: ``L{address}``).
-:EntryPointLabel: The format of the default label for an instruction other than
-  the first in a routine or data block (default: ``{main}_{index}``).
-:JoinCss: If specified, concatenate CSS files into a single file with this
-  name.
-:OutputDir: Write files in this directory (default: ``.``).
-:Quiet: Be quiet (``1``) or verbose (``0``, the default).
-:RebuildImages: Overwrite existing image files (``1``), or leave them alone
-  (``0``, the default).
-:Search: Directory to add to the resource search path. To specify two or more
-  directories, separate them with commas.
-:Theme: CSS theme to use. To specify two or more themes, separate them with
-  commas.
-:Time: Show timings (``1``), or don't (``0``, the default).
+  :AsmLabels: Use ASM labels (``1``), or don't (``0``, the default).
+  :AsmOnePage: Write all routines and data blocks to a single page (``1``), or
+    to multiple pages (``0``, the default).
+  :Base: Convert addresses and instruction operands to hexadecimal (``16``) or
+    decimal (``10``), or leave them as they are (``0``, the default).
+  :Case: Write the disassembly in lower case (``1``) or upper case (``2``), or
+    leave it as it is (``0``, the default).
+  :CreateLabels: Create default labels for unlabelled instructions (``1``), or
+    don't (``0``, the default).
+  :EntryLabel: The format of the default label for the first instruction in a
+    routine or data block (default: ``L{address}``).
+  :EntryPointLabel: The format of the default label for an instruction other
+    than the first in a routine or data block (default: ``{main}_{index}``).
+  :JoinCss: If specified, concatenate CSS files into a single file with this
+    name.
+  :OutputDir: Write files in this directory (default: ``.``).
+  :Quiet: Be quiet (``1``) or verbose (``0``, the default).
+  :RebuildImages: Overwrite existing image files (``1``), or leave them alone
+    (``0``, the default).
+  :Search: Directory to add to the resource search path. To specify two or more
+    directories, separate them with commas.
+  :Theme: CSS theme to use. To specify two or more themes, separate them with
+    commas.
+  :Time: Show timings (``1``), or don't (``0``, the default).
 
 ``EntryLabel`` and ``EntryPointLabel`` are standard Python format strings.
 ``EntryLabel`` recognises the following replacement fields:

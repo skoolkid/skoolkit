@@ -70,13 +70,13 @@ CONFIGURATION
 the current working directory or in ``~/.skoolkit``, if present. The recognised
 configuration parameters are:
 
-:Hex: Write addresses in decimal (``0``, the default), lower case hexadecimal
-  (``1``),  or upper case hexadecimal (``2``).
-:KeepLines: Preserve line breaks in comments (``1``), or don't (``0``, the
-  default).
-:PreserveBase: Preserve the base of decimal and hexadecimal values in
-  instruction operands and DEFB/DEFM/DEFS/DEFW statements (``1``), or don't
-  (``0``, the default).
+  :Hex: Write addresses in decimal (``0``, the default), lower case hexadecimal
+    (``1``),  or upper case hexadecimal (``2``).
+  :KeepLines: Preserve line breaks in comments (``1``), or don't (``0``, the
+    default).
+  :PreserveBase: Preserve the base of decimal and hexadecimal values in
+    instruction operands and DEFB/DEFM/DEFS/DEFW statements (``1``), or don't
+    (``0``, the default).
 
 Configuration parameters must appear in a ``[skool2ctl]`` section. For example,
 to make ``skool2ctl.py`` write upper case hexadecimal addresses by default

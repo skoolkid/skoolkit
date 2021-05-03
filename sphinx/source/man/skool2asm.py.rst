@@ -99,21 +99,21 @@ CONFIGURATION
 the current working directory or in ``~/.skoolkit``, if present. The recognised
 configuration parameters are:
 
-:Base: Convert addresses and instruction operands to hexadecimal (``16``) or
-  decimal (``10``), or leave them as they are (``0``, the default).
-:Case: Write the disassembly in lower case (``1``) or upper case (``2``), or
-  leave it as it is (``0``, the default).
-:CreateLabels: Create default labels for unlabelled instructions (``1``), or
-  don't (``0``, the default).
-:EntryLabel: The format of the default label for the first instruction in a
-  routine or data block (default: ``L{address}``).
-:EntryPointLabel: The format of the default label for an instruction other than
-  the first in a routine or data block (default: ``{main}_{index}``).
-:Quiet: Be quiet (``1``) or verbose (``0``, the default).
-:Set-property: Set an ASM writer property value (see ``ASM WRITER
-  PROPERTIES``), e.g. ``Set-bullet=+``.
-:Templates: File from which to read custom ASM templates.
-:Warnings: Show warnings (``1``, the default), or suppress them (``0``).
+  :Base: Convert addresses and instruction operands to hexadecimal (``16``) or
+    decimal (``10``), or leave them as they are (``0``, the default).
+  :Case: Write the disassembly in lower case (``1``) or upper case (``2``), or
+    leave it as it is (``0``, the default).
+  :CreateLabels: Create default labels for unlabelled instructions (``1``), or
+    don't (``0``, the default).
+  :EntryLabel: The format of the default label for the first instruction in a
+    routine or data block (default: ``L{address}``).
+  :EntryPointLabel: The format of the default label for an instruction other
+    than the first in a routine or data block (default: ``{main}_{index}``).
+  :Quiet: Be quiet (``1``) or verbose (``0``, the default).
+  :Set-property: Set an ASM writer property value (see ``ASM WRITER
+    PROPERTIES``), e.g. ``Set-bullet=+``.
+  :Templates: File from which to read custom ASM templates.
+  :Warnings: Show warnings (``1``, the default), or suppress them (``0``).
 
 ``EntryLabel`` and ``EntryPointLabel`` are standard Python format strings.
 ``EntryLabel`` recognises the following replacement fields:
@@ -147,37 +147,39 @@ ASM WRITER PROPERTIES
 =====================
 Recognised ASM writer property names and their default values are:
 
-:bullet: The bullet character(s) to use for list items specified in a ``#LIST``
-  macro (default: ``*``).
-:comment-width-min: The minimum width of the instruction comment field
-  (default: ``10``).
-:crlf: ``1`` to use CR+LF to terminate lines, or ``0`` to use the system
-  default (default: ``0``).
-:handle-unsupported-macros: How to handle an unsupported macro: ``1`` to expand
-  it to an empty string, or ``0`` to exit with an error (default: ``0``).
-:indent: The number of spaces by which to indent instructions (default: ``2``).
-:instruction-width: The width of the instruction field (default: ``23``).
-:label-colons: ``1`` to append a colon to labels, or ``0`` to leave labels
-  unadorned (default: ``1``).
-:line-width: The maximum width of each line (default: ``79``).
-:tab: ``1`` to use a tab character to indent instructions, or ``0`` to use
-  spaces (default: ``0``).
-:table-border-horizontal: The character to use for the horizontal borders of a
-  table defined by a ``#TABLE`` macro (default: ``-``). If two characters are
-  specified, the first is used for the external borders and the second is used
-  for the internal borders.
-:table-border-join: The character to use for the horizontal and vertical border
-  joins of a table defined by a ``#TABLE`` macro (default: ``+``).
-:table-border-vertical: The character to use for the vertical borders of a
-  table defined by a ``#TABLE`` macro (default: ``|``).
-:table-row-separator: The character used to separate non-header cells in
-  adjacent rows of a table defined by a ``#TABLE`` macro. By default, such
-  cells are not separated.
-:warnings: ``1`` to print any warnings that are produced while writing ASM
-  output (after parsing the skool file), or ``0`` to suppress them (default:
-  ``1``).
-:wrap-column-width-min: The minimum width of a wrappable table column (default:
-  ``10``).
+  :bullet: The bullet character(s) to use for list items specified in a
+    ``#LIST`` macro (default: ``*``).
+  :comment-width-min: The minimum width of the instruction comment field
+    (default: ``10``).
+  :crlf: ``1`` to use CR+LF to terminate lines, or ``0`` to use the system
+    default (default: ``0``).
+  :handle-unsupported-macros: How to handle an unsupported macro: ``1`` to
+    expand it to an empty string, or ``0`` to exit with an error (default:
+    ``0``).
+  :indent: The number of spaces by which to indent instructions (default:
+    ``2``).
+  :instruction-width: The width of the instruction field (default: ``23``).
+  :label-colons: ``1`` to append a colon to labels, or ``0`` to leave labels
+    unadorned (default: ``1``).
+  :line-width: The maximum width of each line (default: ``79``).
+  :tab: ``1`` to use a tab character to indent instructions, or ``0`` to use
+    spaces (default: ``0``).
+  :table-border-horizontal: The character to use for the horizontal borders of
+    a table defined by a ``#TABLE`` macro (default: ``-``). If two characters
+    are specified, the first is used for the external borders and the second is
+    used for the internal borders.
+  :table-border-join: The character to use for the horizontal and vertical
+    border joins of a table defined by a ``#TABLE`` macro (default: ``+``).
+  :table-border-vertical: The character to use for the vertical borders of a
+    table defined by a ``#TABLE`` macro (default: ``|``).
+  :table-row-separator: The character used to separate non-header cells in
+    adjacent rows of a table defined by a ``#TABLE`` macro. By default, such
+    cells are not separated.
+  :warnings: ``1`` to print any warnings that are produced while writing ASM
+    output (after parsing the skool file), or ``0`` to suppress them (default:
+    ``1``).
+  :wrap-column-width-min: The minimum width of a wrappable table column
+    (default: ``10``).
 
 Property values may be set in ``skoolkit.ini`` by using the ``Set-property``
 configuration parameter (see ``CONFIGURATION``), or on the command line by

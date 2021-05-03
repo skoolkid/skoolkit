@@ -55,18 +55,18 @@ CONFIGURATION
 the current working directory or in ``~/.skoolkit``, if present. The recognised
 configuration parameters are:
 
-:Dictionary: The name of a file containing a list of allowed words, one per
-  line. If specified, a string of characters will be marked as text only if it
-  contains at least one of the words in this file.
-:Hex: Write addresses in decimal (``0``, the default), lower case hexadecimal
-  (``1``),  or upper case hexadecimal (``2``).
-:TextChars: Characters eligible for being marked as text (default: letters,
-  digits, space, and the following non-alphanumeric characters:
-  ``!"$%&\'()*+,-./:;<=>?[]``).
-:TextMinLengthCode: The minimum length of a string of characters eligible for
-  being marked as text in a block identified as code (default: ``12``).
-:TextMinLengthData: The minimum length of a string of characters eligible for
-  being marked as text in a block identified as data (default: ``3``).
+  :Dictionary: The name of a file containing a list of allowed words, one per
+    line. If specified, a string of characters will be marked as text only if
+    it contains at least one of the words in this file.
+  :Hex: Write addresses in decimal (``0``, the default), lower case hexadecimal
+    (``1``),  or upper case hexadecimal (``2``).
+  :TextChars: Characters eligible for being marked as text (default: letters,
+    digits, space, and the following non-alphanumeric characters:
+    ``!"$%&\'()*+,-./:;<=>?[]``).
+  :TextMinLengthCode: The minimum length of a string of characters eligible for
+    being marked as text in a block identified as code (default: ``12``).
+  :TextMinLengthData: The minimum length of a string of characters eligible for
+    being marked as text in a block identified as data (default: ``3``).
 
 Configuration parameters must appear in a ``[sna2ctl]`` section. For example,
 to make ``sna2ctl.py`` write upper case hexadecimal addresses by default
