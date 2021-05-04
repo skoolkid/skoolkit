@@ -31,6 +31,10 @@ OPTIONS
 -l, --hex-lower
   Write lower case hexadecimal addresses.
 
+-m, --map `FILE`
+  Specify a code execution map to use. Code execution maps produced by the
+  Fuse, SpecEmu, Spud, Zero and Z80 Spectrum emulators are supported.
+
 -o, --org `ADDR`
   Specify the origin address of a binary file. The default origin address is
   65536 minus the length of the file. `ADDR` must be a decimal number, or a
