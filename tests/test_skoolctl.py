@@ -996,6 +996,22 @@ class CtlWriterTest(SkoolKitTestCase):
         """
         self._test_ctl(skool, exp_ctl)
 
+    def test_instruction_crossing_64k_boundary(self):
+        skool = "c65535 JR 65524 ; Jump back"
+        exp_ctl = """
+            c 65535
+            C 65535,2 Jump back
+        """
+        self._test_ctl(skool, exp_ctl)
+
+    def test_defw_crossing_64k_boundary(self):
+        skool = "w65535 DEFW 62208 ; Word wrap"
+        exp_ctl = """
+            w 65535
+            W 65535,2,2 Word wrap
+        """
+        self._test_ctl(skool, exp_ctl)
+
     def test_ignoreua_directives(self):
         skool = """
             @ignoreua
