@@ -35,11 +35,12 @@ TEMPLATES = {
 }
 
 class AsmWriter:
-    def __init__(self, parser, properties, templates):
+    def __init__(self, parser, properties, templates, config):
         self.parser = parser
         self.templates = TEMPLATES.copy()
         self.templates.update(templates)
         self.show_warnings = self._get_int_property(properties, 'warnings', 1)
+        self.asm_address_template = config['Address']
 
         self.fields = parser.fields
 
@@ -264,7 +265,10 @@ class AsmWriter:
         if label is None:
             if self.base_address <= address <= self.end_address:
                 self.warn('Could not convert address {} to label'.format(addr_str))
-            label = self.parser.get_instruction_addr_str(address, addr_str)
+            if self.asm_address_template:
+                label = self.asm_address_template.format(address=address)
+            else:
+                label = self.parser.get_instruction_addr_str(address, addr_str)
         return end, label
 
     def expand_scr(self, text, index):

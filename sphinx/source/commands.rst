@@ -204,6 +204,11 @@ Configuration
 current working directory or in `~/.skoolkit`, if present. The recognised
 configuration parameters are:
 
+* ``Address`` - the format of the default link text for the :ref:`R` macro when
+  the target address has no label (default: ''); this format string recognises
+  the replacement field ``address``; if the format string is blank, the address
+  is formatted exactly as it appears in the skool file (without any ``$``
+  prefix)
 * ``Base`` - convert addresses and instruction operands to hexadecimal (``16``)
   or decimal (``10``), or leave them as they are (``0``, the default)
 * ``Case`` - write the disassembly in lower case (``1``) or upper case (``2``),
@@ -251,8 +256,8 @@ Configuration parameters may also be set on the command line by using the
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
-| 8.5     | Added the ``EntryLabel`` and ``EntryPointLabel`` configuration    |
-|         | parameters                                                        |
+| 8.5     | Added the ``Address``, ``EntryLabel`` and ``EntryPointLabel``     |
+|         | configuration parameters                                          |
 +---------+-------------------------------------------------------------------+
 | 7.2     | Added the ``Templates`` configuration parameter and support for   |
 |         | :ref:`asmTemplates`                                               |

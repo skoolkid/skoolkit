@@ -37,12 +37,13 @@ class MockSkoolParser:
         self.asm_writer_class = ''
 
 class MockAsmWriter:
-    def __init__(self, parser, properties, templates):
+    def __init__(self, parser, properties, templates, config):
         global mock_asm_writer
         mock_asm_writer = self
         self.parser = parser
         self.properties = properties
         self.templates = templates
+        self.config = config
         self.wrote = False
 
     def write(self):
@@ -79,7 +80,7 @@ class Skool2AsmTest(SkoolKitTestCase):
         self.assertEqual(options.params, [])
         self.assertEqual(options.variables, [])
         self.assertFalse(options.force)
-        self.assertEqual(options.templates, '')
+        self.assertEqual(config['Templates'], '')
         self.assertEqual(config['EntryLabel'], 'L{address}')
         self.assertEqual(config['EntryPointLabel'], '{main}_{index}')
 
@@ -134,12 +135,12 @@ class Skool2AsmTest(SkoolKitTestCase):
         self.assertEqual(options.base, 16)
         self.assertEqual(options.asm_mode, 1)
         self.assertFalse(options.warn)
-        self.assertEqual(options.templates, 'templates.ini')
         self.assertEqual(options.fix_mode, 0)
         self.assertTrue(options.create_labels)
         self.assertEqual(options.start, 0)
         self.assertEqual(options.end, 65536)
         self.assertEqual(sorted(options.properties), ['bullet=-', 'indent=4'])
+        self.assertEqual(config['Templates'], 'templates.ini')
         self.assertEqual(config['EntryLabel'], 'L_{address}')
         self.assertEqual(config['EntryPointLabel'], '{main}__{index}')
 
@@ -585,6 +586,7 @@ class Skool2AsmTest(SkoolKitTestCase):
         self.assertEqual(error, '')
         exp_output = """
             [skool2asm]
+            Address=
             Base=0
             Case=0
             CreateLabels=0
@@ -608,6 +610,7 @@ class Skool2AsmTest(SkoolKitTestCase):
         self.assertEqual(error, '')
         exp_output = """
             [skool2asm]
+            Address=
             Base=10
             Case=1
             CreateLabels=0

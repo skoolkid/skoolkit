@@ -15,6 +15,9 @@ Changelog
   :ref:`skool2asm.py <skool2asm-conf>` and
   :ref:`skool2html.py <skool2html-conf>` (for specifying the format of the
   default labels for routines and data blocks and their entry points)
+* Added the ``Address`` configuration parameter for
+  :ref:`skool2asm.py <skool2asm-conf>` (for specifying the format of the
+  default link text for the :ref:`R` macro)
 * The ``SnapshotReferenceOperations`` parameter in the :ref:`skoolkit` section
   of `skoolkit.ini` is now interpreted as a list of regular expression
   patterns (which enables any type of instruction to be designated by the

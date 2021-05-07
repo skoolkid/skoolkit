@@ -36,8 +36,8 @@ def clock(quiet, prefix, operation, *args, **kwargs):
 def run(skoolfile, options, config):
     # Read custom ASM templates
     t_parser = RefParser()
-    if options.templates:
-        t_parser.parse(options.templates, '#')
+    if config['Templates']:
+        t_parser.parse(config['Templates'], '#')
     templates = {t: t_parser.get_section(t, trim=False) for t in TEMPLATES if t_parser.has_section(t)}
 
     # Create the parser
@@ -66,7 +66,7 @@ def run(skoolfile, options, config):
             properties[name] = value
     if not options.warn:
         properties['warnings'] = '0'
-    asm_writer = asm_writer_class(parser, properties, templates)
+    asm_writer = asm_writer_class(parser, properties, templates, config)
     clock(options.quiet, 'Wrote ASM to stdout', asm_writer.write)
 
 def main(args):

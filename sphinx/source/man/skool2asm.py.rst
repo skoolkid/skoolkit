@@ -99,6 +99,11 @@ CONFIGURATION
 the current working directory or in ``~/.skoolkit``, if present. The recognised
 configuration parameters are:
 
+  :Address: The format of the default link text for the ``#R`` macro when the
+    target address has no label (default: ''). This format string recognises
+    the replacement field ``address``. If the format string is blank, the
+    address is formatted exactly as it appears in the skool file (without any
+    ``$`` prefix).
   :Base: Convert addresses and instruction operands to hexadecimal (``16``) or
     decimal (``10``), or leave them as they are (``0``, the default).
   :Case: Write the disassembly in lower case (``1``) or upper case (``2``), or

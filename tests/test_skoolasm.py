@@ -4,10 +4,13 @@ from textwrap import dedent, wrap
 from skoolkittest import SkoolKitTestCase
 from macrotest import CommonSkoolMacroTest, nest_macros
 from skoolkit import SkoolParsingError, BASE_10, BASE_16
+from skoolkit.config import COMMANDS
 from skoolkit.skoolasm import AsmWriter
 from skoolkit.skoolparser import SkoolParser, CASE_LOWER, CASE_UPPER
 
 ERROR_PREFIX = 'Error while parsing #{0} macro'
+
+CONFIG = {k: v[0] for k, v in COMMANDS['skool2asm'].items()}
 
 class MockSkoolParser:
     def __init__(self, snapshot, base, case, asm_mode, fix_mode):
@@ -34,7 +37,7 @@ class MockSkoolParser:
 class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
     def _get_writer(self, skool=None, crlf=False, tab=False, case=0, base=0,
                     instr_width=23, warn=False, asm_mode=1, fix_mode=0,
-                    variables=(), snapshot=(), templates=None):
+                    variables=(), snapshot=(), templates=None, params=None):
         if skool is None:
             skool_parser = MockSkoolParser(snapshot, base, case, asm_mode, fix_mode)
             properties = {}
@@ -47,7 +50,9 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
             properties['tab'] = '1' if tab else '0'
             properties['instruction-width'] = instr_width
             properties['warnings'] = '1' if warn else '0'
-        return AsmWriter(skool_parser, properties, templates or {})
+        config = CONFIG.copy()
+        config.update(params or {})
+        return AsmWriter(skool_parser, properties, templates or {}, config)
 
     def _get_asm(self, skool, crlf=False, tab=False, case=0, base=0,
                  instr_width=23, warn=False, asm_mode=1, fix_mode=0,
@@ -622,6 +627,19 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
         output = writer.expand('#R$d0fF')
         self.assertEqual(output, '53503')
         self.assertEqual(self.err.getvalue(), '')
+
+    def test_macro_r_with_custom_address_format(self):
+        writer = self._get_writer('', params={'Address': '${address:04x}'})
+        self.assertEqual(writer.expand('#R40000'), '$9c40')
+
+    def test_macro_r_with_custom_address_format_and_label(self):
+        skool = """
+            @start
+            @label=START
+            c40000 RET
+        """
+        writer = self._get_writer(skool, params={'Address': '${address:04X}'})
+        self.assertEqual(writer.expand('#R40000'), 'START')
 
     def test_macro_raw_with_list(self):
         skool = """
@@ -2683,7 +2701,7 @@ class TableMacroTest(SkoolKitTestCase):
         properties['tab'] = '1' if tab else '0'
         properties['instruction-width'] = instr_width
         properties['warnings'] = '1' if warn else '0'
-        writer = AsmWriter(skool_parser, properties, {})
+        writer = AsmWriter(skool_parser, properties, {}, CONFIG)
         return writer
 
     def _assert_error(self, skool, error):
@@ -3685,7 +3703,7 @@ class ListMacroTest(SkoolKitTestCase):
         properties = dict(skool_parser.properties)
         if bullet is not None:
             properties['bullet'] = bullet
-        return AsmWriter(skool_parser, properties, {})
+        return AsmWriter(skool_parser, properties, {}, CONFIG)
 
     def _assert_error(self, skool, error):
         self.clear_streams()
