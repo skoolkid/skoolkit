@@ -697,7 +697,7 @@ class SkoolParser:
             if directive.startswith(('isub=', 'ssub=', 'rsub=', 'ofix=', 'bfix=', 'rfix=')):
                 value = directive[5:].rstrip()
                 if value.startswith('!'):
-                    if self.mode.weights[directive[:4]]:
+                    if self.mode.weights[directive[:4]] > (0, 0):
                         removed.update(parse_address_range(value[1:]))
                 else:
                     self.mode.add_sub(directive[:4], value)
@@ -802,19 +802,19 @@ class Mode:
         else:
             self.addr_fmt = '{0:04X}'
         self.weights = {
-            'isub': int(asm_mode > 0),
-            'ssub': 2 * int(asm_mode > 1),
-            'rsub': 3 * int(asm_mode > 2),
-            'ofix': 4 * int(fix_mode > 0),
-            'bfix': 5 * int(fix_mode > 1),
-            'rfix': 6 * int(fix_mode > 2)
+            'isub': (0, int(asm_mode > 0)),
+            'ssub': (0, 2 * int(asm_mode > 1)),
+            'rsub': (0, 3 * int(asm_mode > 2)),
+            'ofix': (int(fix_mode > 0), 0),
+            'bfix': (2 * int(fix_mode > 1), 0),
+            'rfix': (3 * int(fix_mode > 2), 0)
         }
         self.data = []
         self.reset()
 
     def reset(self):
         self.label = None
-        self.subs = defaultdict(list, {0: ()})
+        self.subs = defaultdict(list, {(0, 0): ()})
         self.keep = None
         self.nowarn = None
         self.refs = ((), ())
@@ -823,7 +823,7 @@ class Mode:
 
     def add_sub(self, directive, value):
         weight = self.weights[directive]
-        if weight:
+        if weight > (0, 0):
             self.subs[weight].append(value)
 
     def compose_instructions(self, subs, current=False):

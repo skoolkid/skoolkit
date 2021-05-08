@@ -1,4 +1,4 @@
-# Copyright 2015-2020 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2015-2021 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -64,12 +64,12 @@ class BinWriter:
         self.verbose = verbose
         self.warn = warn
         self.weights = {
-            'isub': int(asm_mode > 0),
-            'ssub': 2 * int(asm_mode > 1),
-            'rsub': 3 * int(asm_mode > 2),
-            'ofix': 4 * int(fix_mode > 0),
-            'bfix': 5 * int(fix_mode > 1),
-            'rfix': 6 * int(fix_mode > 2)
+            'isub': (0, int(asm_mode > 0)),
+            'ssub': (0, 2 * int(asm_mode > 1)),
+            'rsub': (0, 3 * int(asm_mode > 2)),
+            'ofix': (int(fix_mode > 0), 0),
+            'bfix': (2 * int(fix_mode > 1), 0),
+            'rfix': (3 * int(fix_mode > 2), 0)
         }
         self.fields = {
             'asm': asm_mode,
@@ -89,7 +89,7 @@ class BinWriter:
         self._relocate()
 
     def _reset(self, data):
-        self.subs = defaultdict(list, {0: []})
+        self.subs = defaultdict(list, {(0, 0): ()})
         self.keep = None
         self.nowarn = None
         if data:
@@ -125,14 +125,9 @@ class BinWriter:
             skool_address = None
         if address is None:
             address = skool_address
-        subbed = max(self.subs)
-        if subbed:
-            operations = self.subs[subbed]
-        else:
-            operations = ['']
         if skool_address not in removed:
             original_op = partition_unquoted(line[6:], ';')[0].strip()
-            address = self._add_instructions(address, skool_address, operations, original_op, removed)
+            address = self._add_instructions(address, skool_address, self.subs[max(self.subs)], original_op, removed)
         self._reset(self.data is not None)
         return address
 
@@ -178,12 +173,13 @@ class BinWriter:
 
     def _parse_asm_directive(self, address, directive, removed):
         if directive.startswith(('isub=', 'ssub=', 'rsub=', 'ofix=', 'bfix=', 'rfix=')):
-            value = directive[5:].rstrip()
-            if value.startswith('!'):
-                if self.weights[directive[:4]]:
+            weight = self.weights[directive[:4]]
+            if weight > (0, 0):
+                value = directive[5:].rstrip()
+                if value.startswith('!'):
                     removed.update(parse_address_range(value[1:]))
-            else:
-                self.subs[self.weights[directive[:4]]].append(value)
+                else:
+                    self.subs[weight].append(value)
         elif directive.startswith('if('):
             try:
                 address = self._parse_asm_directive(address, parse_if(self.fields, directive, 2)[1], removed)
