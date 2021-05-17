@@ -686,13 +686,19 @@ class CommonSkoolMacroTest:
 
     def test_macro_format(self):
         writer = self._get_writer(base=BASE_16, case=CASE_LOWER)
-        writer.fields['vars'].update({'foo': 255, 'bar$': 'hello'})
+        writer.fields['vars'].update({'foo': 255, 'bar$': 'Hello'})
 
-        self.assertEqual(writer.expand('#FORMAT({base})'), '16')
-        self.assertEqual(writer.expand('#FORMAT({case})'), '1')
-        self.assertEqual(writer.expand('#FORMAT({html})'), '1' if isinstance(writer, HtmlWriter) else '0')
+        self.assertEqual(writer.expand('#FORMAT(base={base})'), 'base=16')
+        self.assertEqual(writer.expand('#FORMAT(case={case})'), 'case=1')
+        self.assertEqual(writer.expand('#FORMAT(html={html})'), 'html=1' if isinstance(writer, HtmlWriter) else 'html=0')
         self.assertEqual(writer.expand('#FORMAT({vars[foo]:02x})'), 'ff')
-        self.assertEqual(writer.expand('#FORMAT({vars[bar$]:_^9})'), '__hello__')
+        self.assertEqual(writer.expand('#FORMAT({vars[bar$]:_^9})'), '__Hello__')
+        self.assertEqual(writer.expand('#FORMAT0({vars[bar$]})'), 'Hello')
+        self.assertEqual(writer.expand('#FORMAT1({vars[bar$]})'), 'hello')
+        self.assertEqual(writer.expand('#FORMAT({case})({vars[bar$]})'), 'hello')
+        self.assertEqual(writer.expand('#FORMAT2({vars[bar$]})'), 'HELLO')
+        self.assertEqual(writer.expand('#FORMAT(1+1)({vars[bar$]})'), 'HELLO')
+        self.assertEqual(writer.expand('#FORMAT(#EVAL(1+1))({vars[bar$]})'), 'HELLO')
 
     def test_macro_format_invalid(self):
         writer = self._get_writer()
@@ -702,8 +708,10 @@ class CommonSkoolMacroTest:
         self._assert_error(writer, '#FORMAT', 'No text parameter', prefix)
         self._assert_error(writer, '#FORMAT({asm}', 'No closing bracket: ({asm}', prefix)
         self._assert_error(writer, '#FORMAT/{fix}', 'No terminating delimiter: /{fix}', prefix)
-        self._assert_error(writer, '#FORMAT({unknown})', "Unrecognised field 'unknown': ({unknown})", prefix)
-        self._assert_error(writer, '#FORMAT({bad)', 'Invalid format string: ({bad)', prefix)
+        self._assert_error(writer, '#FORMAT({unknown})(x)', "Unrecognised field 'unknown': {unknown}", prefix)
+        self._assert_error(writer, '#FORMAT0({unknown})', "Unrecognised field 'unknown': ({unknown})", prefix)
+        self._assert_error(writer, '#FORMAT({bad)(x)', 'Invalid format string: {bad', prefix)
+        self._assert_error(writer, '#FORMAT0({bad)', 'Invalid format string: ({bad)', prefix)
 
     def test_macro_html_invalid(self):
         writer = self._get_writer()

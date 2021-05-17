@@ -19,8 +19,8 @@ from functools import partial
 import inspect
 import re
 
-from skoolkit import (BASE_10, BASE_16, CASE_LOWER, VERSION, SkoolKitError,
-                      SkoolParsingError, eval_variable, evaluate)
+from skoolkit import (BASE_10, BASE_16, CASE_LOWER, CASE_UPPER, VERSION,
+                      SkoolKitError, SkoolParsingError, eval_variable, evaluate)
 from skoolkit.graphics import Udg
 
 _map_cache = {}
@@ -671,9 +671,18 @@ def parse_foreach(entry_holder, text, index, *cwd):
     return end, fsep.join((sep.join([s.replace(var, v) for v in values[:-1]]), s.replace(var, values[-1])))
 
 def parse_format(fields, text, index, *cwd):
-    # #FORMAT(text)
+    # #FORMAT[case](text)
+    try:
+        index, case = parse_ints(text, index, 1, defaults=(0,), fields=fields)
+    except InvalidParameterError:
+        case = 0
     end, fmt = parse_strings(text, index, 1)
-    return end, _format_params(fmt, text[index:end], **fields)
+    formatted = _format_params(fmt, text[index:end], **fields)
+    if case == CASE_LOWER:
+        return end, formatted.lower()
+    if case == CASE_UPPER:
+        return end, formatted.upper()
+    return end, formatted
 
 def parse_html(text, index):
     # #HTML(text)

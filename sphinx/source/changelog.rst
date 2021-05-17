@@ -26,6 +26,8 @@ Changelog
 * Added support for identifying entries by address ranges in the
   :ref:`entryGroups` section and the ``Includes`` parameter in :ref:`memoryMap`
   sections
+* Added the ``case`` parameter to the :ref:`FORMAT` macro (for converting
+  formatted text to lower case or upper case)
 * Added the ``strip`` parameter to the :ref:`DEFINE` macro (for stripping
   leading and trailing whitespace from the output of the defined macro whenever
   it is expanded)

@@ -400,29 +400,44 @@ See :ref:`stringParameters` for details on alternative ways to supply the
 #FORMAT
 -------
 The ``#FORMAT`` macro performs a Python-style `string formatting operation`_ on
-its sole argument. ::
+its string argument. ::
 
-  #FORMAT(text)
+  #FORMAT[case](text)
 
-* ``text`` is the string to format, which may contain
-  :ref:`replacement fields <replacementFields>`
+* ``case`` is 1 to convert the formatted string to lower case, 2 to convert it
+  to upper case, or 0 to leave it alone (the default)
+* ``text`` is the string to format
 
 For example::
 
-  #FORMAT({count:04X})
+  #FORMAT(0x{count:04X})
 
 This instance of the ``#FORMAT`` macro formats the value of the ``count``
 variable (assuming it has already been defined by the :ref:`LET` macro) as a
-4-digit upper case hexadecimal number.
+4-digit upper case hexadecimal number prefixed by '0x'.
+
+Note that if ``text`` could be read as an integer parameter, ``case`` should be
+explicitly specified in order to prevent ``text`` from being interpreted as the
+``case`` parameter. For example::
+
+  #FORMAT0({count})
+
+Alternatively, the :ref:`EVAL` macro may be a better option for formatting a
+pure numeric value.
+
+The parameters of the ``#FORMAT`` macro may contain
+:ref:`replacement fields <replacementFields>`.
 
 See :ref:`stringParameters` for details on alternative ways to supply the
 ``text`` parameter.
 
-+---------+---------+
-| Version | Changes |
-+=========+=========+
-| 8.2     | New     |
-+---------+---------+
++---------+-------------------------------------------------------------------+
+| Version | Changes                                                           |
++=========+===================================================================+
+| 8.5     | Added the ``case`` parameter                                      |
++---------+-------------------------------------------------------------------+
+| 8.2     | New                                                               |
++---------+-------------------------------------------------------------------+
 
 .. _string formatting operation: https://docs.python.org/3/library/string.html#format-string-syntax
 
