@@ -1272,13 +1272,14 @@ The ``#VERSION`` macro expands to the version of SkoolKit. ::
 
 Image macros
 ^^^^^^^^^^^^
-The :ref:`FONT`, :ref:`PLOT`, :ref:`SCR`, :ref:`UDG` and :ref:`UDGARRAY` macros
-(described in the following sections) may be used to create images based on
-graphic data in the memory snapshot. They are not supported in ASM mode.
+The :ref:`FONT`, :ref:`OVER`, :ref:`PLOT`, :ref:`SCR`, :ref:`UDG` and
+:ref:`UDGARRAY` macros (described in the following sections) may be used to
+create images based on graphic data in the memory snapshot. They are not
+supported in ASM mode.
 
-These macros have several numeric parameters, most of which are optional. This
-can give rise to a long sequence of commas in a macro parameter string, making
-it hard to read (and write); for example::
+Some of these macros have several numeric parameters, most of which are
+optional. This can give rise to a long sequence of commas in a macro parameter
+string, making it hard to read (and write); for example::
 
   #UDG32768,,,,,,1
 
