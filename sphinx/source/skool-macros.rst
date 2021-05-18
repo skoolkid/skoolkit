@@ -207,11 +207,10 @@ The ``#DEFINE`` macro defines a new skool macro. ::
   #DEFINEiparams[,sparams,strip](name,value)
 
 * ``iparams`` is the number of integer parameters the macro expects
-* ``sparams`` is the number of string parameters the macro expects (default:
-  ``0``)
-* ``strip`` - ``1`` to strip leading and trailing whitespace from the output of
-  the defined macro whenever it is expanded, or ``0`` (the default) to leave it
-  in place
+* ``sparams`` is the number of string parameters the macro expects (default: 0)
+* ``strip`` - 1 to strip leading and trailing whitespace from the output of the
+  defined macro whenever it is expanded, or 0 (the default) to leave it in
+  place
 * ``name`` is the macro name (which must be all upper case letters)
 * ``value`` is the macro's output value (a standard Python format string
   containing replacement fields for the integer and string arguments)
@@ -225,18 +224,18 @@ the value of the smaller argument.
 
 For more examples, see :ref:`definingMacrosWithDEFINE`.
 
-Note that if ``strip`` is ``1``, the defined macro will be expanded, in
-isolation from any surrounding content, as soon as it is encountered. For that
-to work, the macro definition must be entirely self-contained, i.e. it must not
-depend on any surrounding content in order to be syntactically correct. For
-example, if the ``#IFZERO`` macro is defined thus::
+Note that if ``strip`` is 1, the defined macro will be expanded, in isolation
+from any surrounding content, as soon as it is encountered. For that to work,
+the macro definition must be entirely self-contained, i.e. it must not depend
+on any surrounding content in order to be syntactically correct. For example,
+if the ``#IFZERO`` macro is defined thus::
 
   #DEFINE1,0,1(IFZERO,#IF({}==0))
 
 then any attempt to expand an ``#IFZERO`` macro will lead to an error message
 about the ``#IF`` macro having no output strings. To fix this, either set
-``strip`` to ``0``, or redefine ``#IFZERO`` with the output strings included in
-the definition::
+``strip`` to 0, or redefine ``#IFZERO`` with the output strings included in the
+definition::
 
   #DEFINE1,2,1(IFZERO,#IF({0}==0)({1},{2}))
 
@@ -266,10 +265,10 @@ The ``#EVAL`` macro expands to the value of an arithmetic expression. ::
   #EVALexpr[,base,width]
 
 * ``expr`` is the arithmetic expression
-* ``base`` is the number base in which the value is expressed: ``2``, ``10``
-  (the default) or ``16``
-* ``width`` is the minimum number of digits in the output (default: ``1``);
-  the value will be padded with leading zeroes if necessary
+* ``base`` is the number base in which the value is expressed: 2, 10 (the
+  default) or 16
+* ``width`` is the minimum number of digits in the output (default: 1); the
+  value will be padded with leading zeroes if necessary
 
 For example::
 
@@ -303,7 +302,7 @@ integers. ::
 
 * ``start`` is first integer in the range
 * ``stop`` is the final integer in the range
-* ``step`` is the gap between each integer in the range (default: ``1``)
+* ``step`` is the gap between each integer in the range (default: 1)
 * ``var`` is the variable name; for each integer in the range, it evaluates to
   that integer
 * ``string`` is the output string that is evaluated for each integer in the
@@ -770,8 +769,8 @@ section; in ASM mode, it expands to an empty string. ::
   #INCLUDE[paragraphs](section)
 
 * ``paragraphs`` specifies how to format the contents of the ref file section:
-  verbatim (``0`` - the default), or into paragraphs (``1``); this parameter
-  may contain :ref:`replacement fields <replacementFields>`
+  verbatim (0 - the default), or into paragraphs (1); this parameter may
+  contain :ref:`replacement fields <replacementFields>`
 * ``section`` is the name of the ref file section
 
 The ``#INCLUDE`` macro can be used to insert the contents of one ref file
@@ -1419,8 +1418,7 @@ already created by one of the other image macros. ::
 
 * ``x`` and ``y`` are the coordinates of the pixel, relative to the top-left
   corner of the frame
-* ``value`` is ``0`` to reset the pixel, ``1`` to set it (the default), or
-  ``2`` to flip it
+* ``value`` is 0 to reset the pixel, 1 to set it (the default), or 2 to flip it
 * ``frame`` is the name of the frame
 
 For example::
@@ -1885,9 +1883,9 @@ Masks
 The :ref:`UDG` and :ref:`UDGARRAY` macros accept a ``mask`` parameter that
 determines what kind of mask to apply to each UDG. The supported values are:
 
-* ``0`` - no mask
-* ``1`` - OR-AND mask (this is the default)
-* ``2`` - AND-OR mask
+* 0 - no mask
+* 1 - OR-AND mask (this is the default)
+* 2 - AND-OR mask
 
 Given a 'background' bit (B), a UDG bit (U), and a mask bit (M), the OR-AND
 mask works as follows:
