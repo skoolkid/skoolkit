@@ -204,13 +204,17 @@ be an alphanumeric character (A-Z, a-z, 0-9).
 -------
 The ``#DEFINE`` macro defines a new skool macro. ::
 
-  #DEFINEiparams[,sparams,strip](name,value)
+  #DEFINEiparams[,sparams,defaults,strip][(dvalues)](name,value)
 
-* ``iparams`` is the number of integer parameters the macro expects
+* ``iparams`` is the maximum number of integer parameters the macro expects
 * ``sparams`` is the number of string parameters the macro expects (default: 0)
+* ``defaults`` - 1 if default values (``dvalues``) for the optional integer
+  parameters are provided, or 0 (the default) if not
 * ``strip`` - 1 to strip leading and trailing whitespace from the output of the
   defined macro whenever it is expanded, or 0 (the default) to leave it in
   place
+* ``dvalues`` - a comma-separated list of default values for the optional
+  integer parameters (when ``defaults`` is 1)
 * ``name`` is the macro name (which must be all upper case letters)
 * ``value`` is the macro's output value (a standard Python format string
   containing replacement fields for the integer and string arguments)
@@ -222,6 +226,15 @@ For example::
 This defines a ``#MIN`` macro that accepts two integer arguments and expands to
 the value of the smaller argument.
 
+When ``defaults`` is 1, default values for the defined macro's optional integer
+parameters can be specified via ``dvalues``. For example::
+
+  #DEFINE3,0,1(1,1)(PROD,#EVAL({0}*{1}*{2}))
+
+This defines a ``#PROD`` macro that accepts one, two or three integer
+arguments, the second and third of which default to 1, and expands to the
+product of all three arguments.
+
 For more examples, see :ref:`definingMacrosWithDEFINE`.
 
 Note that if ``strip`` is 1, the defined macro will be expanded, in isolation
@@ -230,14 +243,14 @@ the macro definition must be entirely self-contained, i.e. it must not depend
 on any surrounding content in order to be syntactically correct. For example,
 if the ``#IFZERO`` macro is defined thus::
 
-  #DEFINE1,0,1(IFZERO,#IF({}==0))
+  #DEFINE1,,,1(IFZERO,#IF({}==0))
 
 then any attempt to expand an ``#IFZERO`` macro will lead to an error message
 about the ``#IF`` macro having no output strings. To fix this, either set
 ``strip`` to 0, or redefine ``#IFZERO`` with the output strings included in the
 definition::
 
-  #DEFINE1,2,1(IFZERO,#IF({0}==0)({1},{2}))
+  #DEFINE1,2,,1(IFZERO,#IF({0}==0)({1},{2}))
 
 To define a macro that will be available for use immediately anywhere in the
 skool file or ref files, consider using the :ref:`expand` directive.
@@ -248,13 +261,13 @@ The integer parameters of a macro defined by ``#DEFINE`` may contain
 See :ref:`stringParameters` for details on alternative ways to supply the
 ``name`` and ``value`` parameters.
 
-+---------+-------------------------------+
-| Version | Changes                       |
-+=========+===============================+
-| 8.5     | Added the ``strip`` parameter |
-+---------+-------------------------------+
-| 8.2     | New                           |
-+---------+-------------------------------+
++---------+--------------------------------------------------------------+
+| Version | Changes                                                      |
++=========+==============================================================+
+| 8.5     | Added the ``defaults``, ``dvalues`` and ``strip`` parameters |
++---------+--------------------------------------------------------------+
+| 8.2     | New                                                          |
++---------+--------------------------------------------------------------+
 
 .. _EVAL:
 

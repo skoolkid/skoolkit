@@ -169,10 +169,44 @@ class CommonSkoolMacroTest:
         self.assertEqual(writer.expand('#DEFINE2(SUM,#EVAL({}+{}))#LET(a=1)#LET(b=2)'), '')
         self.assertEqual(writer.expand('#SUM({a},{b})'), '3')
 
+    def test_macro_define_with_defaults(self):
+        writer = self._get_writer()
+
+        # 2 integer parameters, 0 optional (redundant but valid)
+        self.assertEqual(writer.expand('#DEFINE2,0,1()(RANGE,{0}-{1})'), '')
+        self.assertEqual(writer.expand('#RANGE1,2'), '1-2')
+
+        # 2 integer parameters, 1 optional
+        self.assertEqual(writer.expand('#DEFINE2,0,1(0)(ARANGE,{0}#IF({1})(-{1}))'), '')
+        self.assertEqual(writer.expand('#ARANGE1'), '1')
+        self.assertEqual(writer.expand('#ARANGE1,2'), '1-2')
+
+        # 2 integer parameters, 1 optional, 3 defaults given (redundant but accepted)
+        self.assertEqual(writer.expand('#DEFINE2,0,1(1,0,2)(DIFF,#EVAL({0}-{1}))'), '')
+        self.assertEqual(writer.expand('#DIFF'), '1')
+        self.assertEqual(writer.expand('#DIFF2'), '2')
+        self.assertEqual(writer.expand('#DIFF5,1'), '4')
+
+        # 2 integer parameters, both optional
+        self.assertEqual(writer.expand('#DEFINE2,0,1(0,0)(SUM,#EVAL({0}+{1}))'), '')
+        self.assertEqual(writer.expand('#SUM'), '0')
+        self.assertEqual(writer.expand('#SUM1'), '1')
+        self.assertEqual(writer.expand('#SUM1,2'), '3')
+
+        # 3 integer parameters, 2 optional
+        self.assertEqual(writer.expand('#DEFINE3,0,1(0,0)(SRANGE,{0}#IF({1})(-{1}#IF({2})(-{2})))'), '')
+        self.assertEqual(writer.expand('#SRANGE1'), '1')
+        self.assertEqual(writer.expand('#SRANGE1,2'), '1-2')
+        self.assertEqual(writer.expand('#SRANGE1,3,2'), '1-3-2')
+
+        # 3 integer parameters, 2 optional, middle parameter left blank
+        self.assertEqual(writer.expand('#DEFINE3,0,1(1,1)(PROD,#EVAL({0}*{1}*{2}))'), '')
+        self.assertEqual(writer.expand('#PROD2,,3'), '6')
+
     def test_macro_define_with_strip_parameter(self):
         writer = self._get_writer()
         macro_def = """
-            #DEFINE1,0,1(SQUARE,
+            #DEFINE1,0,0,1(SQUARE,
                 #LET(x=0)
                 #FOR(1,{0})(_,#LET(x={{x}}+{0}))
                 #EVAL({{x}})
@@ -191,6 +225,8 @@ class CommonSkoolMacroTest:
         self._assert_error(writer, '#DEFINE0', 'No text parameter', prefix)
         self._assert_error(writer, '#DEFINE0(FOO)', "Not enough parameters (expected 2): 'FOO'", prefix)
         self._assert_error(writer, '#DEFINE0(BAR', "No closing bracket: (BAR", prefix)
+        self._assert_error(writer, '#DEFINE2,0,1(y)(BAR,{0}{1})', "Cannot parse integer 'y' in parameter string: 'y'", prefix)
+        self._assert_error(writer, '#DEFINE2,0,1(0,z)(BAZ,{0}{1})', "Cannot parse integer 'z' in parameter string: '0,z'", prefix)
 
     def test_macro_define_invalid_macro_definitions(self):
         writer = self._get_writer()
@@ -220,6 +256,15 @@ class CommonSkoolMacroTest:
         self._assert_error(writer, '#FOO1(a,b,c)', "Too many parameters (expected 2): 'a,b,c'", prefix)
         self._assert_error(writer, '#FOO({foo})(a,b)', "Unrecognised field 'foo': {foo}", prefix)
         self._assert_error(writer, '#FOO({foo)(a,b)', "Invalid format string: {foo", prefix)
+
+    def test_macro_define_invalid_macros_with_defaults(self):
+        writer = self._get_writer()
+        prefix = ERROR_PREFIX.format('BAR')
+
+        self.assertEqual(writer.expand('#DEFINE3,0,1(0)(BAR,{0}{1}{2})'), '')
+        self._assert_error(writer, '#BAR', "No parameters (expected 2)", prefix)
+        self._assert_error(writer, '#BAR0', "Not enough parameters (expected 2): '0'", prefix)
+        self._assert_error(writer, '#BAR(0,1,2,3)', "Too many parameters (expected 3): '0,1,2,3'", prefix)
 
     def test_macro_eval(self):
         writer = self._get_writer()

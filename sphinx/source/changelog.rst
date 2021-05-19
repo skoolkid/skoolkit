@@ -5,6 +5,9 @@ Changelog
 -----
 * Dropped support for Python 3.5
 * Added the :ref:`OVER` macro (for superimposing one frame on another)
+* Added the ``defaults`` and ``dvalues`` parameters to the :ref:`DEFINE` macro
+  (to enable optional integer parameters for the defined macro and to specify
+  their default values)
 * Added the ``Wrap`` configuration parameter for
   :ref:`sna2skool.py <sna2skool-conf>` (for controlling whether to disassemble
   an instruction that wraps around the 64K boundary)
