@@ -1951,18 +1951,18 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         snapshot = bg_udg.data + fg_udg_data
         writer = self._get_writer(snapshot=snapshot, mock_file_info=True)
         macros = (
-            '#UDGARRAY2;0x4(*bg)',
+            '#UDGARRAY3;0x9(*bg)',
             '#UDG8(*fg)',
-            '#OVER0,0(bg,fg)',
-            '#OVER1,1(bg,fg)',
+            '#OVER2,2(bg,fg)',
             '#UDGARRAY*bg(img)'
         )
         output = writer.expand(''.join(macros), ASMDIR)
         self._assert_img_equals(output, 'img', '../{}'.format(exp_image_path))
         exp_over_udg = Udg(56, [bg_udg.data[i] | fg_udg_data[i] for i in range(8)])
         exp_udgs = [
-            [exp_over_udg, bg_udg],
-            [bg_udg, exp_over_udg]
+            [bg_udg, bg_udg, bg_udg],
+            [bg_udg, bg_udg, bg_udg],
+            [bg_udg, bg_udg, exp_over_udg]
         ]
         self._check_image(writer, exp_udgs, scale=2, path=exp_image_path)
 
@@ -1973,18 +1973,19 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         snapshot = bg_udg.data + fg_udg.data + fg_udg.mask
         writer = self._get_writer(snapshot=snapshot, mock_file_info=True)
         macros = (
-            '#UDGARRAY2;0x4(*bg)',
+            '#UDGARRAY3;0x9(*bg)',
             '#UDG8:16(*fg)',
-            '#OVER1,0(bg,fg)',
-            '#OVER0,1(bg,fg)',
+            '#OVER2,0(bg,fg)',
+            '#OVER0,2(bg,fg)',
             '#UDGARRAY*bg(img)'
         )
         output = writer.expand(''.join(macros), ASMDIR)
         self._assert_img_equals(output, 'img', '../{}'.format(exp_image_path))
         exp_over_udg = Udg(56, [(bg_udg.data[i] | fg_udg.data[i]) & fg_udg.mask[i] for i in range(8)])
         exp_udgs = [
-            [bg_udg, exp_over_udg],
-            [exp_over_udg, bg_udg]
+            [bg_udg, bg_udg, exp_over_udg],
+            [bg_udg, bg_udg, bg_udg],
+            [exp_over_udg, bg_udg, bg_udg]
         ]
         self._check_image(writer, exp_udgs, scale=2, path=exp_image_path)
 
@@ -1995,18 +1996,19 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         snapshot = bg_udg.data + fg_udg.data + fg_udg.mask
         writer = self._get_writer(snapshot=snapshot, mock_file_info=True)
         macros = (
-            '#UDGARRAY2;0x4(*bg)',
+            '#UDGARRAY3;0x9(*bg)',
             '#UDG8,mask=2:16(*fg)',
             '#OVER0,0(bg,fg)',
-            '#OVER0,1(bg,fg)',
+            '#OVER2,2(bg,fg)',
             '#UDGARRAY*bg(img)'
         )
         output = writer.expand(''.join(macros), ASMDIR)
         self._assert_img_equals(output, 'img', '../{}'.format(exp_image_path))
         exp_over_udg = Udg(56, [(bg_udg.data[i] & fg_udg.mask[i]) | fg_udg.data[i] for i in range(8)])
         exp_udgs = [
-            [exp_over_udg, bg_udg],
-            [exp_over_udg, bg_udg]
+            [exp_over_udg, bg_udg, bg_udg],
+            [bg_udg, bg_udg, bg_udg],
+            [bg_udg, bg_udg, exp_over_udg]
         ]
         self._check_image(writer, exp_udgs, scale=2, path=exp_image_path)
 
