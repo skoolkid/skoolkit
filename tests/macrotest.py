@@ -1162,7 +1162,7 @@ class CommonSkoolMacroTest:
         self._test_invalid_image_macro(writer, '#OVER1,y(f)', "Missing required argument 'y': '1,'", prefix)
         self._test_invalid_image_macro(writer, '#OVER1(f)', "Missing required argument 'y': '1'", prefix)
         self._test_invalid_image_macro(writer, '#OVER1,1', "No text parameter", prefix)
-        self._test_invalid_image_macro(writer, '#OVER1,1,2(f)', "Too many parameters (expected 2): '1,1,2'", prefix)
+        self._test_invalid_image_macro(writer, '#OVER1,2,3,4,5(f)', "Too many parameters (expected 4): '1,2,3,4,5'", prefix)
         self._test_invalid_image_macro(writer, '#OVER(f)', "Cannot parse integer 'f' in parameter string: 'f'", prefix)
         self._test_invalid_image_macro(writer, '#OVER0,0(f)', "Not enough parameters (expected 2): 'f'", prefix)
         self._test_invalid_image_macro(writer, '#OVER0,0(f,g,h)', "Too many parameters (expected 2): 'f,g,h'", prefix)

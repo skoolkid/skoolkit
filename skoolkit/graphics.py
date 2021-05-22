@@ -178,15 +178,49 @@ class Frame:
         return Frame(udgs, self.scale, self.mask, x, y, width, height)
 
     def overlay(self, fg, x, y):
-        min_x, max_x = max(x, 0), max(x + len(fg.udgs[0]), 0)
-        min_y, max_y = max(y, 0), max(y + len(fg.udgs), 0)
-        for fgy, row in enumerate(self.udgs[min_y:max_y], max(-y, 0)):
-            for fgx, bg_udg in enumerate(row[min_x:max_x], max(-x, 0)):
-                fg_udg = fg.udgs[fgy][fgx]
-                if fg.mask == 1:
+        xshift, yshift = x & 7, y & 7
+        if xshift or yshift:
+            fg_udgs = [[udg.copy() for udg in row] for row in fg.udgs]
+            if xshift:
+                xshift_r = 8 - xshift
+                bit_mask = (255 << xshift_r) & 255
+                for row in fg_udgs:
+                    row.append(Udg(0, [0] * 8, [255] * 8))
+                    bits, mbits = [0] * 8, [bit_mask] * 8
+                    for udg in row:
+                        for i in range(8):
+                            sbits = (udg.data[i] << xshift_r) & bit_mask
+                            udg.data[i] = (udg.data[i] >> xshift) | bits[i]
+                            bits[i] = sbits
+                            if udg.mask:
+                                msbits = (udg.mask[i] << xshift_r) & bit_mask
+                                udg.mask[i] = (udg.mask[i] >> xshift) | mbits[i]
+                                mbits[i] = msbits
+            if yshift:
+                fg_udgs.append([Udg(0, [0] * 8, [255] * 8) for u in fg_udgs[0]])
+                for i in range(len(fg_udgs[0])):
+                    rows, mrows = [0] * yshift, [255] * yshift
+                    for row in fg_udgs:
+                        fg_udg = row[i]
+                        srows = fg_udg.data[-yshift:]
+                        fg_udg.data = rows + fg_udg.data[:-yshift]
+                        rows = srows
+                        if fg_udg.mask:
+                            msrows = fg_udg.mask[-yshift:]
+                            fg_udg.mask = mrows + fg_udg.mask[:-yshift]
+                            mrows = msrows
+        else:
+            fg_udgs = fg.udgs
+        xt, yt = x // 8, y // 8
+        min_x, max_x = max(xt, 0), max(xt + len(fg_udgs[0]), 0)
+        min_y, max_y = max(yt, 0), max(yt + len(fg_udgs), 0)
+        for fgy, row in enumerate(self.udgs[min_y:max_y], max(-yt, 0)):
+            for fgx, bg_udg in enumerate(row[min_x:max_x], max(-xt, 0)):
+                fg_udg = fg_udgs[fgy][fgx]
+                if fg.mask == 1 and fg_udg.mask:
                     for i in range(8):
                         bg_udg.data[i] = (bg_udg.data[i] | fg_udg.data[i]) & fg_udg.mask[i]
-                elif fg.mask == 2:
+                elif fg.mask == 2 and fg_udg.mask:
                     for i in range(8):
                         bg_udg.data[i] = (bg_udg.data[i] & fg_udg.mask[i]) | fg_udg.data[i]
                 else:

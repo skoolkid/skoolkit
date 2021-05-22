@@ -1392,10 +1392,12 @@ In HTML mode, the ``#OVER`` macro superimposes one frame (the foreground frame)
 on another (the background frame), applying the foreground frame's mask in the
 process. ::
 
-  #OVERx,y(bg,fg)
+  #OVERx,y[,xoffset,yoffset](bg,fg)
 
 * ``x`` and ``y`` are the tile coordinates on the background frame at which to
   superimpose the foreground frame; negative coordinates are allowed
+* ``xoffset`` and ``yoffset`` are the pixel offsets by which to shift the
+  foreground frame from the given tile coordinates (default: (0, 0))
 * ``bg`` is the name of the background frame
 * ``fg`` is the name of the foreground frame
 
