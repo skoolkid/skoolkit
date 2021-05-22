@@ -169,7 +169,7 @@ class CommonSkoolMacroTest:
         self.assertEqual(writer.expand('#DEFINE2(SUM,#EVAL({}+{}))#LET(a=1)#LET(b=2)'), '')
         self.assertEqual(writer.expand('#SUM({a},{b})'), '3')
 
-    def test_macro_define_with_defaults(self):
+    def test_macro_define_with_default_integer_parameters(self):
         writer = self._get_writer()
 
         # 2 integer parameters, 0 optional (redundant but valid)
@@ -203,6 +203,22 @@ class CommonSkoolMacroTest:
         self.assertEqual(writer.expand('#DEFINE3,0,1(1,1)(PROD,#EVAL({0}*{1}*{2}))'), '')
         self.assertEqual(writer.expand('#PROD2,,3'), '6')
 
+    def test_macro_define_with_default_string_parameter(self):
+        writer = self._get_writer()
+        self.assertEqual(writer.expand('#DEFINE1,1,2(0x{0:02X})(FOO,{1})'), '')
+        self.assertEqual(writer.expand('#FOO1'), '0x01')
+        self.assertEqual(writer.expand('#FOO1(1)'), '1')
+
+    def test_macro_define_with_default_integer_parameters_and_default_string_parameter(self):
+        writer = self._get_writer()
+        self.assertEqual(writer.expand('#DEFINE3,1,3(0,0)({0}-{1}-{2})(BAR,{3})'), '')
+        self.assertEqual(writer.expand('#BAR1'), '1-0-0')
+        self.assertEqual(writer.expand('#BAR1,2'), '1-2-0')
+        self.assertEqual(writer.expand('#BAR1,2,3'), '1-2-3')
+        self.assertEqual(writer.expand('#BAR1(no)'), 'no')
+        self.assertEqual(writer.expand('#BAR1,2(nope)'), 'nope')
+        self.assertEqual(writer.expand('#BAR1,2,3(nah)'), 'nah')
+
     def test_macro_define_with_strip_parameter(self):
         writer = self._get_writer()
         macro_def = """
@@ -227,6 +243,11 @@ class CommonSkoolMacroTest:
         self._assert_error(writer, '#DEFINE0(BAR', "No closing bracket: (BAR", prefix)
         self._assert_error(writer, '#DEFINE2,0,1(y)(BAR,{0}{1})', "Cannot parse integer 'y' in parameter string: 'y'", prefix)
         self._assert_error(writer, '#DEFINE2,0,1(0,z)(BAZ,{0}{1})', "Cannot parse integer 'z' in parameter string: '0,z'", prefix)
+        self._assert_error(writer, '#DEFINE0,1,2(QUX,{0})', 'No text parameter', prefix)
+        self._assert_error(writer, '#DEFINE1,1,3(0)(QUX,{0})', "No text parameter", prefix)
+        self._assert_error(writer, '#DEFINE1,1,3(QUX,{0})', "Cannot parse integer 'QUX' in parameter string: 'QUX,{0}'", prefix)
+        self._assert_error(writer, '#DEFINE0,2,2(hi)(QUX,{0})', "Not enough parameters (expected 2): 'hi'", prefix)
+        self._assert_error(writer, '#DEFINE1,2,3(0)(hi)(QUX,{0})', "Not enough parameters (expected 2): 'hi'", prefix)
 
     def test_macro_define_invalid_macro_definitions(self):
         writer = self._get_writer()
@@ -235,10 +256,19 @@ class CommonSkoolMacroTest:
         writer.expand('#DEFINE1(FOO,{1})')
         self._assert_error(writer, '#FOO0', 'Field index out of range: {1}', ERROR_PREFIX.format('FOO'))
 
+        writer.expand('#DEFINE0,1,2({1})(FOO,{0})')
+        self._assert_error(writer, '#FOO0', 'Field index out of range: {1}', ERROR_PREFIX.format('FOO'))
+
         writer.expand('#DEFINE1(BAR,{x})')
         self._assert_error(writer, '#BAR0', "Unrecognised field 'x': {x}", ERROR_PREFIX.format('BAR'))
 
+        writer.expand('#DEFINE0,1,2({x})(BAR,{0})')
+        self._assert_error(writer, '#BAR0', "Unrecognised field 'x': {x}", ERROR_PREFIX.format('BAR'))
+
         writer.expand('#DEFINE1(BAZ,{0)')
+        self._assert_error(writer, '#BAZ0', "Invalid format string: {0", ERROR_PREFIX.format('BAZ'))
+
+        writer.expand('#DEFINE0,1,2({0)(BAZ,{0})')
         self._assert_error(writer, '#BAZ0', "Invalid format string: {0", ERROR_PREFIX.format('BAZ'))
 
     def test_macro_define_invalid_macros(self):

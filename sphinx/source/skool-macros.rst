@@ -204,12 +204,15 @@ be an alphanumeric character (A-Z, a-z, 0-9).
 -------
 The ``#DEFINE`` macro defines a new skool macro. ::
 
-  #DEFINEiparams[,sparams,defaults,strip][(dvalues)](name,value)
+  #DEFINEiparams[,sparams,defaults,strip][(dvalues)][(dsvalue)](name,value)
 
 * ``iparams`` is the maximum number of integer parameters the macro expects
 * ``sparams`` is the number of string parameters the macro expects (default: 0)
 * ``defaults`` - 1 if default values (``dvalues``) for the optional integer
-  parameters are provided, or 0 (the default) if not
+  parameters are provided, 2 if a default value (``dsvalue``) for the optional
+  string parameter is provided (when ``sparams`` is 1), 3 if both ``dvalues``
+  and ``dsvalue`` are provided, or 0 (the default) if neither ``dvalues`` nor
+  ``dsvalue`` is provided
 * ``strip`` - 1 to strip leading and trailing whitespace from the output of the
   defined macro whenever it is expanded, or 0 (the default) to leave it in
   place
@@ -234,6 +237,21 @@ parameters can be specified via ``dvalues``. For example::
 This defines a ``#PROD`` macro that accepts one, two or three integer
 arguments, the second and third of which default to 1, and expands to the
 product of all three arguments.
+
+When ``defaults`` is 2 and ``sparams`` is 1, a default value for the defined
+macro's single optional string argument can be specified via ``dsvalue``.
+``dsvalue`` may contain replacement fields referring to the integer arguments.
+For example::
+
+  #DEFINE1,1,2(${0:02X})(HEX,{1})
+
+This defines a ``#HEX`` macro that accepts one integer argument and an optional
+string argument. It expands either to the integer argument in hexadecimal
+format prefixed by '$', or to the string argument if provided. So ``#HEX15``
+expands to '$1F', and ``#HEX15(15)`` expands to '15'.
+
+Note that if a defined macro has an optional string argument, that argument
+must be provided between parentheses.
 
 For more examples, see :ref:`definingMacrosWithDEFINE`.
 
@@ -261,13 +279,14 @@ The integer parameters of a macro defined by ``#DEFINE`` may contain
 See :ref:`stringParameters` for details on alternative ways to supply the
 ``name`` and ``value`` parameters.
 
-+---------+--------------------------------------------------------------+
-| Version | Changes                                                      |
-+=========+==============================================================+
-| 8.5     | Added the ``defaults``, ``dvalues`` and ``strip`` parameters |
-+---------+--------------------------------------------------------------+
-| 8.2     | New                                                          |
-+---------+--------------------------------------------------------------+
++---------+----------------------------------------------------------------+
+| Version | Changes                                                        |
++=========+================================================================+
+| 8.5     | Added the ``defaults``, ``dsvalue``, ``dvalues`` and ``strip`` |
+|         | parameters                                                     |
++---------+----------------------------------------------------------------+
+| 8.2     | New                                                            |
++---------+----------------------------------------------------------------+
 
 .. _EVAL:
 
