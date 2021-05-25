@@ -810,15 +810,15 @@ def parse_n(writer, text, index, *cwd):
     return end, '{:0{}}'.format(value, dwidth)
 
 def parse_over(text, index, fields, frame_map=None):
-    # #OVERx,y[,xoffset,yoffset](bg,fg)
-    end, x, y, xoffset, yoffset = parse_ints(text, index, 2, (0, 0), ('x', 'y', 'xoffset', 'yoffset'), fields)
+    # #OVERx,y[,xoffset,yoffset,rattr](bg,fg)
+    end, x, y, xoffset, yoffset, rattr = parse_ints(text, index, 2, (0, 0, 0), ('x', 'y', 'xoffset', 'yoffset', 'rattr'), fields)
     end, (bg, fg) = parse_strings(text, end, 2)
     if frame_map is not None:
         if bg not in frame_map:
             raise MacroParsingError('No such frame: "{}"'.format(bg))
         if fg not in frame_map:
             raise MacroParsingError('No such frame: "{}"'.format(fg))
-        frame_map[bg].overlay(frame_map[fg], x * 8 + xoffset, y * 8 + yoffset)
+        frame_map[bg].overlay(frame_map[fg], x * 8 + xoffset, y * 8 + yoffset, rattr)
     return end, ''
 
 def parse_pc(writer, text, index, *cwd):

@@ -177,7 +177,7 @@ class Frame:
                     row[i] = Udg(new_attr, udg.data, udg.mask)
         return Frame(udgs, self.scale, self.mask, x, y, width, height)
 
-    def overlay(self, fg, x, y):
+    def overlay(self, fg, x, y, rattr=0):
         xshift, yshift = x & 7, y & 7
         if xshift or yshift:
             fg_udgs = [[udg.copy() for udg in row] for row in fg.udgs]
@@ -185,7 +185,7 @@ class Frame:
                 xshift_r = 8 - xshift
                 bit_mask = (255 << xshift_r) & 255
                 for row in fg_udgs:
-                    row.append(Udg(0, [0] * 8, [255] * 8))
+                    row.append(Udg(row[-1].attr, [0] * 8, [255] * 8))
                     bits, mbits = [0] * 8, [bit_mask] * 8
                     for udg in row:
                         for i in range(8):
@@ -197,7 +197,7 @@ class Frame:
                                 udg.mask[i] = (udg.mask[i] >> xshift) | mbits[i]
                                 mbits[i] = msbits
             if yshift:
-                fg_udgs.append([Udg(0, [0] * 8, [255] * 8) for u in fg_udgs[0]])
+                fg_udgs.append([Udg(u.attr, [0] * 8, [255] * 8) for u in fg_udgs[-1]])
                 for i in range(len(fg_udgs[0])):
                     rows, mrows = [0] * yshift, [255] * yshift
                     for row in fg_udgs:
@@ -211,6 +211,7 @@ class Frame:
                             mrows = msrows
         else:
             fg_udgs = fg.udgs
+        attr_m = sum(m for flag, m in ((1, 7), (2, 56), (4, 64)) if rattr & flag)
         xt, yt = x // 8, y // 8
         min_x, max_x = max(xt, 0), max(xt + len(fg_udgs[0]), 0)
         min_y, max_y = max(yt, 0), max(yt + len(fg_udgs), 0)
@@ -226,6 +227,7 @@ class Frame:
                 else:
                     for i in range(8):
                         bg_udg.data[i] |= fg_udg.data[i]
+                bg_udg.attr = bg_udg.attr & ~attr_m | fg_udg.attr & attr_m
 
     def plot(self, x, y, value):
         try:

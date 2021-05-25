@@ -1411,14 +1411,25 @@ In HTML mode, the ``#OVER`` macro superimposes one frame (the foreground frame)
 on another (the background frame), applying the foreground frame's mask in the
 process. ::
 
-  #OVERx,y[,xoffset,yoffset](bg,fg)
+  #OVERx,y[,xoffset,yoffset,rattr](bg,fg)
 
 * ``x`` and ``y`` are the tile coordinates on the background frame at which to
   superimpose the foreground frame; negative coordinates are allowed
 * ``xoffset`` and ``yoffset`` are the pixel offsets by which to shift the
   foreground frame from the given tile coordinates (default: (0, 0))
+* ``rattr`` specifies whether and how to replace the attribute byte of each UDG
+  in the background frame over which a foreground UDG is superimposed (default:
+  0 - no replacement)
 * ``bg`` is the name of the background frame
 * ``fg`` is the name of the foreground frame
+
+``rattr`` is the sum of the following values, chosen according to the desired
+outcome:
+
+* 1 - replace the background UDG's INK with the foreground UDG's INK
+* 2 - replace the background UDG's PAPER with the foreground UDG's PAPER
+* 4 - replace the background UDG's BRIGHT value with the foreground UDG's
+  BRIGHT value
 
 If the foreground frame has no mask, its contents are combined with those of
 the background frame by OR operations.

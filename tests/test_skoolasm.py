@@ -279,11 +279,11 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
 
     def test_macro_over(self):
         writer = self._get_writer()
-        writer.fields = {'x': 1, 'y': 2}
+        writer.fields = {'x': 1, 'y': 2, 'rattr': 0}
         self._test_unsupported_macro(writer, '#OVER1,1(b,f)')
         self._test_unsupported_macro(writer, '#OVERy=1,x=1(b,f)')
-        self._test_unsupported_macro(writer, '#OVER(1+1,2+1)(b,f)')
-        self._test_unsupported_macro(writer, '#OVER({x},{y})(b,f)')
+        self._test_unsupported_macro(writer, '#OVER(1+1,2+1,3+2,2+1,0)(b,f)')
+        self._test_unsupported_macro(writer, '#OVER({x},{y},rattr={rattr})(b,f)')
         self._test_unsupported_macro(writer, nest_macros('#OVER(1,{})(b,f)', 2))
         self._test_unsupported_macro(writer, nest_macros('#OVER1,1({},f)', 'b'))
 

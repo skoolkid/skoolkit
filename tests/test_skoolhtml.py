@@ -281,18 +281,22 @@ class HtmlWriterTestCase(SkoolKitTestCase):
         writer.skoolkit['page_id'] = 'None'
         return writer
 
-    def _to_udg_array(self, bits):
+    def _to_udg_array(self, bits, attrs=None):
+        if attrs is None:
+            attrs = []
+            for i in range(len(bits) // 8):
+                attrs.append([56] * (len(bits[0]) // 8))
         udgs = []
         for i, p_row in enumerate(bits):
             if i % 8 == 0:
-                udgs.append([Udg(56, []) for b in range(len(p_row) // 8)])
+                udgs.append([Udg(attrs[i // 8].pop(0), []) for b in range(len(p_row) // 8)])
             for j in range(0, len(p_row), 8):
                 udgs[-1][j // 8].data.append(int(p_row[j:j + 8].replace(' ', '0'), 2))
         return udgs
 
     def _check_image(self, writer, udg_array, scale=2, mask=0, tindex=0, alpha=-1, x=0, y=0, width=None, height=None, path=None):
-        if isinstance(udg_array[0], str):
-            udg_array = self._to_udg_array(udg_array)
+        if isinstance(udg_array[0][0], str):
+            udg_array = self._to_udg_array(*udg_array)
         self.assertEqual(writer.file_info.fname, path)
         if width is None:
             width = 8 * len(udg_array[0]) * scale
@@ -2023,6 +2027,160 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         ]
         self._check_image(writer, exp_udgs, scale=2, path=exp_image_path)
 
+    def test_macro_over_with_ink_replacement(self):
+        exp_image_path = '{}/img.png'.format(UDGDIR)
+        bg_udg = Udg(56, [170] * 8)
+        fg_udg_data = [0, 0, 24, 60, 60, 24, 0, 0]
+        snapshot = bg_udg.data + fg_udg_data
+        writer = self._get_writer(snapshot=snapshot, mock_file_info=True)
+        macros = (
+            '#UDGARRAY3;0x9(*bg)',
+            '#UDG8,2(*fg)',
+            '#OVER0,0,,,1(bg,fg)',
+            '#UDGARRAY*bg(img)'
+        )
+        output = writer.expand(''.join(macros), ASMDIR)
+        self._assert_img_equals(output, 'img', '../{}'.format(exp_image_path))
+        exp_over_udg = Udg(58, [bg_udg.data[i] | fg_udg_data[i] for i in range(8)])
+        exp_udgs = [
+            [exp_over_udg, bg_udg, bg_udg],
+            [bg_udg, bg_udg, bg_udg],
+            [bg_udg, bg_udg, bg_udg]
+        ]
+        self._check_image(writer, exp_udgs, scale=2, path=exp_image_path)
+
+    def test_macro_over_with_paper_replacement(self):
+        exp_image_path = '{}/img.png'.format(UDGDIR)
+        bg_udg = Udg(56, [170] * 8)
+        fg_udg_data = [0, 0, 24, 60, 60, 24, 0, 0]
+        snapshot = bg_udg.data + fg_udg_data
+        writer = self._get_writer(snapshot=snapshot, mock_file_info=True)
+        macros = (
+            '#UDGARRAY3;0x9(*bg)',
+            '#UDG8,26(*fg)',
+            '#OVER1,0,,,2(bg,fg)',
+            '#UDGARRAY*bg(img)'
+        )
+        output = writer.expand(''.join(macros), ASMDIR)
+        self._assert_img_equals(output, 'img', '../{}'.format(exp_image_path))
+        exp_over_udg = Udg(24, [bg_udg.data[i] | fg_udg_data[i] for i in range(8)])
+        exp_udgs = [
+            [bg_udg, exp_over_udg, bg_udg],
+            [bg_udg, bg_udg, bg_udg],
+            [bg_udg, bg_udg, bg_udg]
+        ]
+        self._check_image(writer, exp_udgs, scale=2, path=exp_image_path)
+
+    def test_macro_over_with_ink_and_paper_replacement(self):
+        exp_image_path = '{}/img.png'.format(UDGDIR)
+        bg_udg = Udg(120, [170] * 8)
+        fg_udg_data = [0, 0, 24, 60, 60, 24, 0, 0]
+        snapshot = bg_udg.data + fg_udg_data
+        writer = self._get_writer(snapshot=snapshot, mock_file_info=True)
+        macros = (
+            '#UDGARRAY3,120;0x9(*bg)',
+            '#UDG8,26(*fg)',
+            '#OVER2,0,,,3(bg,fg)',
+            '#UDGARRAY*bg(img)'
+        )
+        output = writer.expand(''.join(macros), ASMDIR)
+        self._assert_img_equals(output, 'img', '../{}'.format(exp_image_path))
+        exp_over_udg = Udg(90, [bg_udg.data[i] | fg_udg_data[i] for i in range(8)])
+        exp_udgs = [
+            [bg_udg, bg_udg, exp_over_udg],
+            [bg_udg, bg_udg, bg_udg],
+            [bg_udg, bg_udg, bg_udg]
+        ]
+        self._check_image(writer, exp_udgs, scale=2, path=exp_image_path)
+
+    def test_macro_over_with_bright_replacement(self):
+        exp_image_path = '{}/img.png'.format(UDGDIR)
+        bg_udg = Udg(56, [170] * 8)
+        fg_udg_data = [0, 0, 24, 60, 60, 24, 0, 0]
+        snapshot = bg_udg.data + fg_udg_data
+        writer = self._get_writer(snapshot=snapshot, mock_file_info=True)
+        macros = (
+            '#UDGARRAY3;0x9(*bg)',
+            '#UDG8,66(*fg)',
+            '#OVER0,1,,,4(bg,fg)',
+            '#UDGARRAY*bg(img)'
+        )
+        output = writer.expand(''.join(macros), ASMDIR)
+        self._assert_img_equals(output, 'img', '../{}'.format(exp_image_path))
+        exp_over_udg = Udg(120, [bg_udg.data[i] | fg_udg_data[i] for i in range(8)])
+        exp_udgs = [
+            [bg_udg, bg_udg, bg_udg],
+            [exp_over_udg, bg_udg, bg_udg],
+            [bg_udg, bg_udg, bg_udg]
+        ]
+        self._check_image(writer, exp_udgs, scale=2, path=exp_image_path)
+
+    def test_macro_over_with_bright_ink_replacement(self):
+        exp_image_path = '{}/img.png'.format(UDGDIR)
+        bg_udg = Udg(56, [170] * 8)
+        fg_udg_data = [0, 0, 24, 60, 60, 24, 0, 0]
+        snapshot = bg_udg.data + fg_udg_data
+        writer = self._get_writer(snapshot=snapshot, mock_file_info=True)
+        macros = (
+            '#UDGARRAY3;0x9(*bg)',
+            '#UDG8,66(*fg)',
+            '#OVER1,1,,,5(bg,fg)',
+            '#UDGARRAY*bg(img)'
+        )
+        output = writer.expand(''.join(macros), ASMDIR)
+        self._assert_img_equals(output, 'img', '../{}'.format(exp_image_path))
+        exp_over_udg = Udg(122, [bg_udg.data[i] | fg_udg_data[i] for i in range(8)])
+        exp_udgs = [
+            [bg_udg, bg_udg, bg_udg],
+            [bg_udg, exp_over_udg, bg_udg],
+            [bg_udg, bg_udg, bg_udg]
+        ]
+        self._check_image(writer, exp_udgs, scale=2, path=exp_image_path)
+
+    def test_macro_over_with_bright_paper_replacement(self):
+        exp_image_path = '{}/img.png'.format(UDGDIR)
+        bg_udg = Udg(56, [170] * 8)
+        fg_udg_data = [0, 0, 24, 60, 60, 24, 0, 0]
+        snapshot = bg_udg.data + fg_udg_data
+        writer = self._get_writer(snapshot=snapshot, mock_file_info=True)
+        macros = (
+            '#UDGARRAY3;0x9(*bg)',
+            '#UDG8,90(*fg)',
+            '#OVER2,1,,,6(bg,fg)',
+            '#UDGARRAY*bg(img)'
+        )
+        output = writer.expand(''.join(macros), ASMDIR)
+        self._assert_img_equals(output, 'img', '../{}'.format(exp_image_path))
+        exp_over_udg = Udg(88, [bg_udg.data[i] | fg_udg_data[i] for i in range(8)])
+        exp_udgs = [
+            [bg_udg, bg_udg, bg_udg],
+            [bg_udg, bg_udg, exp_over_udg],
+            [bg_udg, bg_udg, bg_udg]
+        ]
+        self._check_image(writer, exp_udgs, scale=2, path=exp_image_path)
+
+    def test_macro_over_with_bright_ink_and_paper_replacement(self):
+        exp_image_path = '{}/img.png'.format(UDGDIR)
+        bg_udg = Udg(56, [170] * 8)
+        fg_udg_data = [0, 0, 24, 60, 60, 24, 0, 0]
+        snapshot = bg_udg.data + fg_udg_data
+        writer = self._get_writer(snapshot=snapshot, mock_file_info=True)
+        macros = (
+            '#UDGARRAY3;0x9(*bg)',
+            '#UDG8,90(*fg)',
+            '#OVER0,2,,,7(bg,fg)',
+            '#UDGARRAY*bg(img)'
+        )
+        output = writer.expand(''.join(macros), ASMDIR)
+        self._assert_img_equals(output, 'img', '../{}'.format(exp_image_path))
+        exp_over_udg = Udg(90, [bg_udg.data[i] | fg_udg_data[i] for i in range(8)])
+        exp_udgs = [
+            [bg_udg, bg_udg, bg_udg],
+            [bg_udg, bg_udg, bg_udg],
+            [exp_over_udg, bg_udg, bg_udg]
+        ]
+        self._check_image(writer, exp_udgs, scale=2, path=exp_image_path)
+
     def test_macro_over_with_negative_x_coordinate(self):
         exp_image_path = '{}/img.png'.format(UDGDIR)
         bg_udg = Udg(56, [170] * 8)
@@ -2110,30 +2268,32 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         output = writer.expand(''.join(macros), ASMDIR)
         self._assert_img_equals(output, 'img', '../{}'.format(exp_image_path))
         exp_udgs = (
-            '000000000000000000000000',
-            '000000000000000000000000',
-            '000000000000000000000000',
-            '000000000000000000000000',
-            '000000000000000000000000',
-            '000000000000000000000000',
-            '000000000000000000000000',
-            '000001111000011110000000',
-            '000001111000011110000000',
-            '000001111000011110000000',
-            '000001111000011110000000',
-            '000000000000000000000000',
-            '000000000000000000000000',
-            '000000000000000000000000',
-            '000000000000000000000000',
-            '000001111000011110000000',
-            '000001111000011110000000',
-            '000001111000011110000000',
-            '000001111000011110000000',
-            '000000000000000000000000',
-            '000000000000000000000000',
-            '000000000000000000000000',
-            '000000000000000000000000',
-            '000000000000000000000000'
+            (
+                '000000000000000000000000',
+                '000000000000000000000000',
+                '000000000000000000000000',
+                '000000000000000000000000',
+                '000000000000000000000000',
+                '000000000000000000000000',
+                '000000000000000000000000',
+                '000001111000011110000000',
+                '000001111000011110000000',
+                '000001111000011110000000',
+                '000001111000011110000000',
+                '000000000000000000000000',
+                '000000000000000000000000',
+                '000000000000000000000000',
+                '000000000000000000000000',
+                '000001111000011110000000',
+                '000001111000011110000000',
+                '000001111000011110000000',
+                '000001111000011110000000',
+                '000000000000000000000000',
+                '000000000000000000000000',
+                '000000000000000000000000',
+                '000000000000000000000000',
+                '000000000000000000000000'
+            ),
         )
         self._check_image(writer, exp_udgs, scale=2, path=exp_image_path)
 
@@ -2171,30 +2331,32 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         output = writer.expand(''.join(macros), ASMDIR)
         self._assert_img_equals(output, 'img', '../{}'.format(exp_image_path))
         exp_udgs = (
-            '111111111111111111111111',
-            '111111111111111111111111',
-            '111111111111111111111111',
-            '111111111111111111111111',
-            '111111111111      11    ',
-            '111111111111 1111 11 111',
-            '111111111111 1111 11 111',
-            '111111111111 1111 11 111',
-            '111111111111 1111 11 111',
-            '111111111111      11    ',
-            '111111111111111111111111',
-            '111111111111111111111111',
-            '111111111111      11    ',
-            '111111111111 1111 11 111',
-            '111111111111 1111 11 111',
-            '111111111111 1111 11 111',
-            '111111111111 1111 11 111',
-            '111111111111      11    ',
-            '111111111111111111111111',
-            '111111111111111111111111',
-            '111111111111111111111111',
-            '111111111111111111111111',
-            '111111111111111111111111',
-            '111111111111111111111111'
+            (
+                '111111111111111111111111',
+                '111111111111111111111111',
+                '111111111111111111111111',
+                '111111111111111111111111',
+                '111111111111      11    ',
+                '111111111111 1111 11 111',
+                '111111111111 1111 11 111',
+                '111111111111 1111 11 111',
+                '111111111111 1111 11 111',
+                '111111111111      11    ',
+                '111111111111111111111111',
+                '111111111111111111111111',
+                '111111111111      11    ',
+                '111111111111 1111 11 111',
+                '111111111111 1111 11 111',
+                '111111111111 1111 11 111',
+                '111111111111 1111 11 111',
+                '111111111111      11    ',
+                '111111111111111111111111',
+                '111111111111111111111111',
+                '111111111111111111111111',
+                '111111111111111111111111',
+                '111111111111111111111111',
+                '111111111111111111111111'
+            ),
         )
         self._check_image(writer, exp_udgs, scale=2, path=exp_image_path)
 
@@ -2232,31 +2394,122 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         output = writer.expand(''.join(macros), ASMDIR)
         self._assert_img_equals(output, 'img', '../{}'.format(exp_image_path))
         exp_udgs = (
-            '111111111111111111111111',
-            '111111111111111111111111',
-            '111111111111111111111111',
-            '111111111111111111111111',
-            '111111111111111111111111',
-            '111111111111111111111111',
-            '111111111111111111111111',
-            '111111111111111111111111',
-            '111111111111111111111111',
-            '111111111111111111111111',
-            '111111111111111111111111',
-            '111111111111111111111111',
-            '111111      11      1111',
-            '111111 1111 11 1111 1111',
-            '111111 1111 11 1111 1111',
-            '111111 1111 11 1111 1111',
-            '111111 1111 11 1111 1111',
-            '111111      11      1111',
-            '111111111111111111111111',
-            '111111111111111111111111',
-            '111111      11      1111',
-            '111111 1111 11 1111 1111',
-            '111111 1111 11 1111 1111',
-            '111111 1111 11 1111 1111'
+            (
+                '111111111111111111111111',
+                '111111111111111111111111',
+                '111111111111111111111111',
+                '111111111111111111111111',
+                '111111111111111111111111',
+                '111111111111111111111111',
+                '111111111111111111111111',
+                '111111111111111111111111',
+                '111111111111111111111111',
+                '111111111111111111111111',
+                '111111111111111111111111',
+                '111111111111111111111111',
+                '111111      11      1111',
+                '111111 1111 11 1111 1111',
+                '111111 1111 11 1111 1111',
+                '111111 1111 11 1111 1111',
+                '111111 1111 11 1111 1111',
+                '111111      11      1111',
+                '111111111111111111111111',
+                '111111111111111111111111',
+                '111111      11      1111',
+                '111111 1111 11 1111 1111',
+                '111111 1111 11 1111 1111',
+                '111111 1111 11 1111 1111'
+            ),
         )
+        self._check_image(writer, exp_udgs, scale=2, path=exp_image_path)
+
+    def test_macro_over_with_x_and_y_offsets_and_ink_and_paper_replacement(self):
+        exp_image_path = '{}/img.png'.format(UDGDIR)
+        bg_udg_data = [0] * 8
+        fg_udg_data = [
+            0b00000000,
+            0b00000000,
+            0b00000000,
+            0b00011110,
+            0b00011110,
+            0b00011110,
+            0b00011110,
+            0b00000000
+        ]
+        snapshot = bg_udg_data + fg_udg_data
+        writer = self._get_writer(snapshot=snapshot, mock_file_info=True)
+        macros = (
+            '#UDGARRAY4;0x16(*bg)',
+            '#UDGARRAY2;8,14;8,15;8,16;8,17(*fg)',
+            '#OVER0,0,2,4,3(bg,fg)',
+            '#UDGARRAY*bg(img)'
+        )
+        output = writer.expand(''.join(macros), ASMDIR)
+        self._assert_img_equals(output, 'img', '../{}'.format(exp_image_path))
+        exp_udgs = (
+            (
+                '00000000000000000000000000000000',
+                '00000000000000000000000000000000',
+                '00000000000000000000000000000000',
+                '00000000000000000000000000000000',
+                '00000000000000000000000000000000',
+                '00000000000000000000000000000000',
+                '00000000000000000000000000000000',
+                '00000111100001111000000000000000',
+                '00000111100001111000000000000000',
+                '00000111100001111000000000000000',
+                '00000111100001111000000000000000',
+                '00000000000000000000000000000000',
+                '00000000000000000000000000000000',
+                '00000000000000000000000000000000',
+                '00000000000000000000000000000000',
+                '00000111100001111000000000000000',
+                '00000111100001111000000000000000',
+                '00000111100001111000000000000000',
+                '00000111100001111000000000000000',
+                '00000000000000000000000000000000',
+                '00000000000000000000000000000000',
+                '00000000000000000000000000000000',
+                '00000000000000000000000000000000',
+                '00000000000000000000000000000000',
+                '00000000000000000000000000000000',
+                '00000000000000000000000000000000',
+                '00000000000000000000000000000000',
+                '00000000000000000000000000000000',
+                '00000000000000000000000000000000',
+                '00000000000000000000000000000000',
+                '00000000000000000000000000000000',
+                '00000000000000000000000000000000'
+            ),
+            [
+                [14, 15, 15, 56],
+                [16, 17, 17, 56],
+                [16, 17, 17, 56],
+                [56, 56, 56, 56]
+            ]
+        )
+        self._check_image(writer, exp_udgs, scale=2, path=exp_image_path)
+
+    def test_macro_over_with_keyword_arguments(self):
+        exp_image_path = '{}/img.png'.format(UDGDIR)
+        bg_udg = Udg(56, [170] * 8)
+        fg_udg_data = [0, 0, 24, 60, 60, 24, 0, 0]
+        snapshot = bg_udg.data + fg_udg_data
+        writer = self._get_writer(snapshot=snapshot, mock_file_info=True)
+        macros = (
+            '#UDGARRAY3;0x9(*bg)',
+            '#UDG8,2(*fg)',
+            '#OVERy=1,x=2,rattr=1,xoffset=0,yoffset=0(bg,fg)',
+            '#UDGARRAY*bg(img)'
+        )
+        output = writer.expand(''.join(macros), ASMDIR)
+        self._assert_img_equals(output, 'img', '../{}'.format(exp_image_path))
+        exp_over_udg = Udg(58, [bg_udg.data[i] | fg_udg_data[i] for i in range(8)])
+        exp_udgs = [
+            [bg_udg, bg_udg, bg_udg],
+            [bg_udg, bg_udg, exp_over_udg],
+            [bg_udg, bg_udg, bg_udg]
+        ]
         self._check_image(writer, exp_udgs, scale=2, path=exp_image_path)
 
     def test_macro_over_with_replacement_fields(self):
@@ -2272,7 +2525,8 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
             '#LET(y=0)',
             '#LET(xoff=0)',
             '#LET(yoff=0)',
-            '#OVER({x},{y},{xoff},{yoff})(bg,fg)',
+            '#LET(rattr=0)',
+            '#OVER({x},{y},{xoff},{yoff},{rattr})(bg,fg)',
             '#UDGARRAY*bg(udg)'
         )
         output = writer.expand(''.join(macros), ASMDIR)
