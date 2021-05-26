@@ -2181,6 +2181,77 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         ]
         self._check_image(writer, exp_udgs, scale=2, path=exp_image_path)
 
+    def test_macro_over_with_attr_as_integer(self):
+        exp_image_path = '{}/img.png'.format(UDGDIR)
+        bg_udg = Udg(56, [170] * 8)
+        fg_udg_data = [0, 0, 24, 60, 60, 24, 0, 0]
+        snapshot = bg_udg.data + fg_udg_data
+        writer = self._get_writer(snapshot=snapshot, mock_file_info=True)
+        macros = (
+            '#UDGARRAY3;0x9(*bg)',
+            '#UDG8,90(*fg)',
+            '#OVER1,2,,,8(23)(bg,fg)',
+            '#UDGARRAY*bg(img)'
+        )
+        output = writer.expand(''.join(macros), ASMDIR)
+        self._assert_img_equals(output, 'img', '../{}'.format(exp_image_path))
+        exp_over_udg = Udg(23, [bg_udg.data[i] | fg_udg_data[i] for i in range(8)])
+        exp_udgs = [
+            [bg_udg, bg_udg, bg_udg],
+            [bg_udg, bg_udg, bg_udg],
+            [bg_udg, exp_over_udg, bg_udg]
+        ]
+        self._check_image(writer, exp_udgs, scale=2, path=exp_image_path)
+
+    def test_macro_over_with_attr_as_arithmetic_expression(self):
+        exp_image_path = '{}/img.png'.format(UDGDIR)
+        bg_udg = Udg(56, [170] * 8)
+        fg_udg_data = [0, 0, 24, 60, 60, 24, 0, 0]
+        snapshot = bg_udg.data + fg_udg_data
+        writer = self._get_writer(snapshot=snapshot, mock_file_info=True)
+        macros = (
+            '#UDGARRAY3;0x9(*bg)',
+            '#UDGARRAY2;8,1;8,2;8,3;8,4(*fg)',
+            '#OVER1,1,,,8({0}+{1})(bg,fg)',
+            '#UDGARRAY*bg(img)'
+        )
+        output = writer.expand(''.join(macros), ASMDIR)
+        self._assert_img_equals(output, 'img', '../{}'.format(exp_image_path))
+        exp_over_udg1 = Udg(57, [bg_udg.data[i] | fg_udg_data[i] for i in range(8)])
+        exp_over_udg2 = Udg(58, exp_over_udg1.data)
+        exp_over_udg3 = Udg(59, exp_over_udg1.data)
+        exp_over_udg4 = Udg(60, exp_over_udg1.data)
+        exp_udgs = [
+            [bg_udg, bg_udg, bg_udg],
+            [bg_udg, exp_over_udg1, exp_over_udg2],
+            [bg_udg, exp_over_udg3, exp_over_udg4]
+        ]
+        self._check_image(writer, exp_udgs, scale=2, path=exp_image_path)
+
+    def test_macro_over_with_attr_as_skool_macro(self):
+        exp_image_path = '{}/img.png'.format(UDGDIR)
+        bg_udg = Udg(0, [170] * 8)
+        fg_udg_data = [0, 0, 24, 60, 60, 24, 0, 0]
+        snapshot = bg_udg.data + fg_udg_data
+        writer = self._get_writer(snapshot=snapshot, mock_file_info=True)
+        macros = (
+            '#UDGARRAY3,0;0x7;0x2,5(*bg)',
+            '#UDGARRAY2;8,1;8,2;8,3;8,4(*fg)',
+            '#OVER1,1,,,8(#IF({0}==0)({1},{0}))(bg,fg)',
+            '#UDGARRAY*bg(img)'
+        )
+        output = writer.expand(''.join(macros), ASMDIR)
+        self._assert_img_equals(output, 'img', '../{}'.format(exp_image_path))
+        exp_over_udg1 = Udg(1, [bg_udg.data[i] | fg_udg_data[i] for i in range(8)])
+        exp_over_udg2 = Udg(2, exp_over_udg1.data)
+        exp_over_udg3 = Udg(5, exp_over_udg1.data)
+        exp_udgs = [
+            [bg_udg, bg_udg, bg_udg],
+            [bg_udg, exp_over_udg1, exp_over_udg2],
+            [bg_udg, exp_over_udg3, exp_over_udg3]
+        ]
+        self._check_image(writer, exp_udgs, scale=2, path=exp_image_path)
+
     def test_macro_over_with_negative_x_coordinate(self):
         exp_image_path = '{}/img.png'.format(UDGDIR)
         bg_udg = Udg(56, [170] * 8)
@@ -2525,13 +2596,14 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
             '#LET(y=0)',
             '#LET(xoff=0)',
             '#LET(yoff=0)',
-            '#LET(rattr=0)',
-            '#OVER({x},{y},{xoff},{yoff},{rattr})(bg,fg)',
+            '#LET(rattr=8)',
+            '#LET(attr=1)',
+            '#OVER({x},{y},{xoff},{yoff},{rattr})({{attr}})(bg,fg)',
             '#UDGARRAY*bg(udg)'
         )
         output = writer.expand(''.join(macros), ASMDIR)
         self._assert_img_equals(output, 'udg', '../{}'.format(exp_image_path))
-        exp_udgs = [[Udg(56, [bg_udg.data[i] | fg_udg_data[i] for i in range(8)])]]
+        exp_udgs = [[Udg(1, [bg_udg.data[i] | fg_udg_data[i] for i in range(8)])]]
         self._check_image(writer, exp_udgs, scale=4, path=exp_image_path)
 
     def test_macro_over_out_of_range(self):
@@ -2559,6 +2631,19 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         self._assert_error(writer, '#OVER0,0(bg,fg)', 'No such frame: "bg"', prefix)
         writer.frames['bg'] = None
         self._assert_error(writer, '#OVER0,0(bg,fg)', 'No such frame: "fg"', prefix)
+
+    def test_macro_over_invalid_attr(self):
+        writer = self._get_writer(snapshot=[0] * 8, mock_file_info=True)
+        writer.expand('#UDGARRAY1;0(*bg)')
+        writer.expand('#UDGARRAY1;0(*fg)')
+        macro_t = '#OVER0,0,,,8({})(bg,fg) #UDGARRAY*bg(img)'
+        prefix = 'Error while parsing #OVER macro'
+
+        self._assert_error(writer, macro_t.format(''), "No parameters (expected 1)", prefix)
+        self._assert_error(writer, macro_t.format('1,2'), "Too many parameters (expected 1): '1,2'", prefix)
+        self._assert_error(writer, macro_t.format('q'), "Cannot parse integer 'q' in parameter string: 'q'", prefix)
+        self._assert_error(writer, macro_t.format('{no}'), "Unrecognised field 'no': {no}", prefix)
+        self._assert_error(writer, macro_t.format('{u'), "Invalid format string: {u", prefix)
 
     def test_macro_plot(self):
         exp_image_path = '{}/img.png'.format(UDGDIR)
