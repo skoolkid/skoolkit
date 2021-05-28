@@ -258,7 +258,26 @@ def flip_udgs(udgs, flip=1):
         if flip & 2:
             udgs.reverse()
 
+# API
 def overlay_udgs(bg, fg, x, y, mask=0, rattr=None):
+    """Overlay a foreground array of UDGs (instances of
+    :class:`~skoolkit.graphics.Udg`) on a background array of UDGs.
+
+    :param bg: The background array of UDGs.
+    :param fg: The foreground array of UDGs.
+    :param x: Pixel x-coordinate on the background at which to overlay the
+              foreground.
+    :param y: Pixel y-coordinate on the background at which to overlay the
+              foreground.
+    :param mask: The type of mask to apply: 0 (no mask), 1 (OR-AND mask), or 2
+                 (AND-OR mask). If 0, the contents of the foreground and
+                 background are combined by OR operations.
+    :param rattr: A function that returns the replacement attribute byte for a
+                  background UDG over which a foreground UDG is superimposed.
+                  It must accept two arguments: the existing background UDG
+                  attribute, and the foreground UDG attribute. If `None`, the
+                  existing background attributes are left in place.
+    """
     xshift, yshift = x & 7, y & 7
     if xshift or yshift:
         fg_udgs = [[udg.copy() for udg in row] for row in fg]

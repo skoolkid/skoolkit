@@ -428,7 +428,13 @@ and functions.
    .. versionadded:: 5.1
 
 .. automethod:: skoolkit.skoolhtml.HtmlWriter.screenshot
+
 .. autofunction:: skoolkit.graphics.flip_udgs
+
+.. autofunction:: skoolkit.graphics.overlay_udgs
+
+   .. versionadded:: 8.5
+
 .. autofunction:: skoolkit.graphics.rotate_udgs
 
 HTML page initialisation
