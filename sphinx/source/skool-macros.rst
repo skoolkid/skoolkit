@@ -1303,8 +1303,8 @@ The ``#VERSION`` macro expands to the version of SkoolKit. ::
 
 Image macros
 ^^^^^^^^^^^^
-The :ref:`FONT`, :ref:`OVER`, :ref:`PLOT`, :ref:`SCR`, :ref:`UDG` and
-:ref:`UDGARRAY` macros (described in the following sections) may be used to
+The :ref:`COPY`, :ref:`FONT`, :ref:`OVER`, :ref:`PLOT`, :ref:`SCR`, :ref:`UDG`
+and :ref:`UDGARRAY` macros (described in the following sections) may be used to
 create images based on graphic data in the memory snapshot. They are not
 supported in ASM mode.
 
@@ -1319,6 +1319,45 @@ position in the parameter string; the ``#UDG`` macro above could be rewritten
 as follows::
 
   #UDG32768,rotate=1
+
+.. _COPY:
+
+#COPY
+-----
+In HTML mode, the ``#COPY`` macro copies all or part of an existing frame into
+a new frame. ::
+
+  #COPY[x,y,width,height][{CROP}](old,new)
+
+* ``x`` and ``y`` are the coordinates of the top left tile of the existing
+  frame to include in the new frame (default: (0, 0))
+* ``width`` and ``height`` are the width and height (in tiles) of the portion
+  of the existing frame to copy (by default, the portion extends to the right
+  and bottom edges of the existing frame)
+* ``CROP`` is the cropping specification for the new frame (see
+  :ref:`cropping`); if omitted, the cropping specification of the existing
+  frame is used
+* ``old`` is the name of the existing frame
+* ``new`` is the name of the new frame
+
+For example::
+
+  ; UDGARRAY4;30000-30120-8(*original)
+  ; #COPY1,1,2,2(original,centre)
+  ; #UDGARRAY*centre(img)
+
+This instance of the ``#COPY`` macro creates a new frame from a copy of the
+central 2x2 portion of the 4x4 frame created by the ``#UDGARRAY`` macro.  The
+``#UDGARRAY*`` macro then creates an image of the new frame.
+
+The integer parameters and the cropping specification of the ``#COPY`` macro
+may contain :ref:`replacement fields <replacementFields>`.
+
++---------+---------+
+| Version | Changes |
++=========+=========+
+| 8.5     | New     |
++---------+---------+
 
 .. _FONT:
 

@@ -101,6 +101,28 @@ class CommonSkoolMacroTest:
         self._assert_error(writer, '#CHR({no})', "Unrecognised field 'no': {no}", prefix)
         self._assert_error(writer, '#CHR({foo)', "Invalid format string: {foo", prefix)
 
+    def test_macro_copy_invalid(self):
+        writer = self._get_writer()
+        prefix = ERROR_PREFIX.format('COPY')
+        writer.frames = {'f': None}
+
+        self._test_invalid_image_macro(writer, '#COPY', "No text parameter", prefix)
+        self._test_invalid_image_macro(writer, '#COPY1', "No text parameter", prefix)
+        self._test_invalid_image_macro(writer, '#COPYx(f)', "No terminating delimiter: x(f)", prefix)
+        self._test_invalid_image_macro(writer, '#COPY(f)', "Not enough parameters (expected 2): 'f'", prefix)
+        self._test_invalid_image_macro(writer, '#COPY1(f)', "Not enough parameters (expected 2): 'f'", prefix)
+        self._test_invalid_image_macro(writer, '#COPY1,2,3,4,5(f)', "Too many parameters (expected 4): '1,2,3,4,5'", prefix)
+        self._test_invalid_image_macro(writer, '#COPY(1,2,3,4,5)(f)', "Too many parameters (expected 4): '1,2,3,4,5'", prefix)
+        self._test_invalid_image_macro(writer, '#COPY(f', "No closing bracket: (f", prefix)
+        self._test_invalid_image_macro(writer, '#COPY({x},1)(f)', "Unrecognised field 'x': {x},1", prefix)
+        self._test_invalid_image_macro(writer, '#COPY({x,1)(f)', "Invalid format string: {x,1", prefix)
+        self._test_invalid_image_macro(writer, '#COPYa=1(f)', "Unknown keyword argument: 'a=1'", prefix)
+        self._test_invalid_image_macro(writer, '#COPY{0,0,23,14,5}(f)', "Too many parameters in cropping specification (expected 4 at most): {0,0,23,14,5}", prefix)
+        self._test_invalid_image_macro(writer, '#COPY{0,y}(f)', "Cannot parse integer 'y' in parameter string: '0,y'", prefix)
+        self._test_invalid_image_macro(writer, '#COPY0,0{0,0,23,14(f)', 'No closing brace on cropping specification: {0,0,23,14(f)', prefix)
+
+        return writer, prefix
+
     def test_macro_d(self):
         skool = """
             @start

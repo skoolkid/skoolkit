@@ -1018,6 +1018,9 @@ class HtmlWriter:
             prev_path = path
         return path
 
+    def expand_copy(self, text, index, cwd):
+        return skoolmacro.parse_copy(text, index, self.fields, self.frames)
+
     def expand_font(self, text, index, cwd):
         end, crop_rect, fname, frame, alt, params = skoolmacro.parse_font(text, index, self.fields)
         message, addr, chars, attr, scale, tindex, alpha = params

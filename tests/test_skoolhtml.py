@@ -1453,6 +1453,154 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         self.assertEqual(writer.expand('#CHR({vars[foo]})'), '&#66;')
         self.assertEqual(writer.expand('#LET(c=67)#CHR({c})'), '&#67;')
 
+    def test_macro_copy(self):
+        exp_image_path = '{}/img.png'.format(UDGDIR)
+        snapshot = [0] * 8 + [1] * 8 + [2] * 8 + [3] * 8
+        writer = self._get_writer(snapshot=snapshot, mock_file_info=True)
+        macros = (
+            '#UDGARRAY2,,3,mask=1;0,1:0;8,2;16,3;24,4(*f)',
+            '#COPY(f,g)',
+            '#UDGARRAY*g(img)'
+        )
+        output = writer.expand(''.join(macros), ASMDIR)
+        self._assert_img_equals(output, 'img', '../{}'.format(exp_image_path))
+        exp_udgs = [
+            [Udg(1, snapshot[0:8], snapshot[0:8]), Udg(2, snapshot[8:16])],
+            [Udg(3, snapshot[16:24]), Udg(4, snapshot[24:32])],
+        ]
+        self._check_image(writer, exp_udgs, scale=3, mask=1, path=exp_image_path)
+
+    def test_macro_copy_with_x_and_y(self):
+        exp_image_path = '{}/img.png'.format(UDGDIR)
+        snapshot = [0] * 8 + [1] * 8 + [2] * 8
+        writer = self._get_writer(snapshot=snapshot, mock_file_info=True)
+        macros = (
+            '#UDGARRAY3,,4,mask=2;0x3,1:0;8x3,2;16x3,3(*f)',
+            '#COPY1,2(f,g)',
+            '#UDGARRAY*g(img)'
+        )
+        output = writer.expand(''.join(macros), ASMDIR)
+        self._assert_img_equals(output, 'img', '../{}'.format(exp_image_path))
+        exp_udgs = [[Udg(3, snapshot[16:24])] * 2]
+        self._check_image(writer, exp_udgs, scale=4, mask=2, path=exp_image_path)
+
+    def test_macro_copy_with_x_and_y_and_width_and_height(self):
+        exp_image_path = '{}/img.png'.format(UDGDIR)
+        snapshot = [0] * 8 + [1] * 8 + [2] * 8 + [3] * 8
+        writer = self._get_writer(snapshot=snapshot, mock_file_info=True)
+        macros = (
+            '#UDGARRAY4,,5;0x4,1;8x4,2;16x4,3;24x4,4(*f)',
+            '#COPY1,0,2,2(f,g)',
+            '#UDGARRAY*g(img)'
+        )
+        output = writer.expand(''.join(macros), ASMDIR)
+        self._assert_img_equals(output, 'img', '../{}'.format(exp_image_path))
+        exp_udgs = [
+            [Udg(1, snapshot[0:8])] * 2,
+            [Udg(2, snapshot[8:16])] * 2,
+        ]
+        self._check_image(writer, exp_udgs, scale=5, path=exp_image_path)
+
+    def test_macro_copy_cropped_frame(self):
+        exp_image_path = '{}/img.png'.format(UDGDIR)
+        udg = Udg(56, [1] * 8)
+        snapshot = udg.data
+        writer = self._get_writer(snapshot=snapshot, mock_file_info=True)
+        macros = (
+            '#UDGARRAY2;0x4{1,2,27,25}(*f)',
+            '#COPY(f,g)',
+            '#UDGARRAY*g(img)'
+        )
+        output = writer.expand(''.join(macros), ASMDIR)
+        self._assert_img_equals(output, 'img', '../{}'.format(exp_image_path))
+        exp_udgs = [
+            [udg, udg],
+            [udg, udg],
+        ]
+        self._check_image(writer, exp_udgs, scale=2, x=1, y=2, width=27, height=25, path=exp_image_path)
+
+    def test_macro_copy_with_crop_spec(self):
+        exp_image_path = '{}/img.png'.format(UDGDIR)
+        udg = Udg(19, [2] * 8)
+        snapshot = udg.data
+        writer = self._get_writer(snapshot=snapshot, mock_file_info=True)
+        macros = (
+            '#UDGARRAY2,19;0x4(*original)',
+            '#COPY{2,4,28,22}(original,g)',
+            '#UDGARRAY*g(img)'
+        )
+        output = writer.expand(''.join(macros), ASMDIR)
+        self._assert_img_equals(output, 'img', '../{}'.format(exp_image_path))
+        exp_udgs = [
+            [udg, udg],
+            [udg, udg]
+        ]
+        self._check_image(writer, exp_udgs, scale=2, x=2, y=4, width=28, height=22, path=exp_image_path)
+
+    def test_macro_copy_with_keyword_arguments(self):
+        exp_image_path = '{}/img.png'.format(UDGDIR)
+        udg = Udg(56, [3] * 8)
+        snapshot = udg.data
+        writer = self._get_writer(snapshot=snapshot, mock_file_info=True)
+        macros = (
+            '#UDGARRAY5;0x25(*old)',
+            '#COPY(y=1,x=2,height=2,width=3){width=35,x=3,height=29,y=2}(old,g)',
+            '#UDGARRAY*g(img)'
+        )
+        output = writer.expand(''.join(macros), ASMDIR)
+        self._assert_img_equals(output, 'img', '../{}'.format(exp_image_path))
+        exp_udgs = [
+            [udg, udg, udg],
+            [udg, udg, udg],
+        ]
+        self._check_image(writer, exp_udgs, scale=2, x=3, y=2, width=35, height=29, path=exp_image_path)
+
+    def test_macro_copy_with_replacement_fields(self):
+        exp_image_path = '{}/img.png'.format(UDGDIR)
+        udg = Udg(56, [2] * 8)
+        snapshot = udg.data
+        writer = self._get_writer(snapshot=snapshot, mock_file_info=True)
+        macros = (
+            '#LET(x=1)',
+            '#LET(y=2)',
+            '#LET(width=2)',
+            '#LET(height=3)',
+            '#LET(cx=2)',
+            '#LET(cy=1)',
+            '#LET(cwidth=27)',
+            '#LET(cheight=45)',
+            '#UDGARRAY5;0x25(*f)',
+            '#COPY({x},{y},{width},{height}){{cx},{cy},{cwidth},{cheight}}(f,g)',
+            '#UDGARRAY*g(img)'
+        )
+        output = writer.expand(''.join(macros), ASMDIR)
+        self._assert_img_equals(output, 'img', '../{}'.format(exp_image_path))
+        exp_udgs = [
+            [udg, udg],
+            [udg, udg],
+            [udg, udg]
+        ]
+        self._check_image(writer, exp_udgs, scale=2, x=2, y=1, width=27, height=45, path=exp_image_path)
+
+    def test_macro_copy_with_macro_arguments(self):
+        exp_image_path = '{}/img.png'.format(UDGDIR)
+        udg = Udg(56, [3] * 8)
+        snapshot = udg.data
+        writer = self._get_writer(snapshot=snapshot, mock_file_info=True)
+        macros = (
+            '#UDGARRAY5,,1;0x25(*f)',
+            '#COPY(#IF(0)(0,4),#IF(1)(4,0)){#IF(1)(1,2)}(f,g)',
+            '#UDGARRAY*g(img)'
+        )
+        output = writer.expand(''.join(macros), ASMDIR)
+        self._assert_img_equals(output, 'img', '../{}'.format(exp_image_path))
+        exp_udgs = [[udg]]
+        self._check_image(writer, exp_udgs, scale=1, x=1, width=7, path=exp_image_path)
+
+    def test_macro_copy_invalid(self):
+        writer, prefix = CommonSkoolMacroTest.test_macro_copy_invalid(self)
+        self._assert_error(writer, '#COPY(nonexistent,g)', 'No such frame: "nonexistent"', prefix)
+
     def test_macro_eval_asm(self):
         writer = self._get_writer()
         self.assertEqual(writer.expand('#EVAL({asm})'), '0')

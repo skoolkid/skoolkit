@@ -145,6 +145,17 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
         self.assertEqual(writer.expand('#CHR({vars[foo]})'), 'B')
         self.assertEqual(writer.expand('#LET(c=67) #CHR({c})'), 'C')
 
+    def test_macro_copy(self):
+        writer = self._get_writer()
+        writer.fields = {'x': 1, 'y': 2}
+        self._test_unsupported_macro(writer, '#COPY(f,g)')
+        self._test_unsupported_macro(writer, '#COPYy=1,x=1(f,g)')
+        self._test_unsupported_macro(writer, '#COPY(1+1,2+1,3+2,2+1)(f,g)')
+        self._test_unsupported_macro(writer, '#COPY({x},{y},height=7)(f,g)')
+        self._test_unsupported_macro(writer, '#COPY{1,2}(f,g)')
+        self._test_unsupported_macro(writer, nest_macros('#COPY(1,{})(f,g)', 2))
+        self._test_unsupported_macro(writer, nest_macros('#COPY1,1({},g)', 'b'))
+
     def test_macro_eval_asm(self):
         for asm_mode in (0, 1, 2, 3):
             writer = self._get_writer('', asm_mode=asm_mode)

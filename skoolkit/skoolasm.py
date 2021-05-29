@@ -223,6 +223,11 @@ class AsmWriter:
         """
         self._snapshots.append((self.snapshot[:], name))
 
+    def expand_copy(self, text, index):
+        if self.handle_unsupported_macros:
+            return skoolmacro.parse_copy(text, index, self.fields)
+        raise skoolmacro.UnsupportedMacroError()
+
     def expand_font(self, text, index):
         if self.handle_unsupported_macros:
             return skoolmacro.parse_font(text, index, self.fields)[0], ''
