@@ -187,8 +187,8 @@ class Frame:
                     row[i] = Udg(new_attr, udg.data, udg.mask)
         return Frame(udgs, self.scale, self.mask, x, y, width, height)
 
-    def overlay(self, fg, x, y, rattr):
-        overlay_udgs(self.udgs, fg.udgs, x, y, fg.mask, rattr)
+    def overlay(self, fg, x, y, rattr, rbyte):
+        overlay_udgs(self.udgs, fg.udgs, x, y, fg.mask, rattr, rbyte)
 
     def plot(self, x, y, value):
         try:
@@ -266,7 +266,7 @@ def flip_udgs(udgs, flip=1):
             udgs.reverse()
 
 # API
-def overlay_udgs(bg, fg, x, y, mask=0, rattr=None):
+def overlay_udgs(bg, fg, x, y, mask=0, rattr=None, rbyte=None):
     """Overlay a foreground array of UDGs (instances of
     :class:`~skoolkit.graphics.Udg`) on a background array of UDGs.
 
@@ -284,6 +284,12 @@ def overlay_udgs(bg, fg, x, y, mask=0, rattr=None):
                   It must accept two arguments: the existing background UDG
                   attribute, and the foreground UDG attribute. If `None`, the
                   existing background attributes are left in place.
+    :param rbyte: A function that returns the replacement value for each
+                  graphic byte of a background UDG over which a foreground UDG
+                  is superimposed. It must accept three arguments: the existing
+                  background UDG graphic byte, the foreground UDG graphic byte,
+                  and the foreground UDG mask byte. If `None`, the mask
+                  specified by `mask` is used.
     """
     xshift, yshift = x & 7, y & 7
     if xshift or yshift:
@@ -325,7 +331,14 @@ def overlay_udgs(bg, fg, x, y, mask=0, rattr=None):
     for fgy, row in enumerate(bg[min_y:max_y], max(-yt, 0)):
         for fgx, bg_udg in enumerate(row[min_x:max_x], max(-xt, 0)):
             fg_udg = fg_udgs[fgy][fgx]
-            if mask == 1 and fg_udg.mask:
+            if rbyte:
+                if fg_udg.mask:
+                    fmask = fg_udg.mask
+                else:
+                    fmask = (0, 0, 0, 0, 0, 0, 0, 0)
+                for i in range(8):
+                    bg_udg.data[i] = rbyte(bg_udg.data[i], fg_udg.data[i], fmask[i])
+            elif mask == 1 and fg_udg.mask:
                 for i in range(8):
                     bg_udg.data[i] = (bg_udg.data[i] | fg_udg.data[i]) & fg_udg.mask[i]
             elif mask == 2 and fg_udg.mask:

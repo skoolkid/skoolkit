@@ -1447,22 +1447,32 @@ See :ref:`stringParameters` for details on alternative ways to supply the
 #OVER
 -----
 In HTML mode, the ``#OVER`` macro superimposes one frame (the foreground frame)
-on another (the background frame), applying the foreground frame's mask in the
-process. ::
+on another (the background frame). ::
 
-  #OVERx,y[,xoffset,yoffset,rattr][(attr)](bg,fg)
+  #OVERx,y[,xoffset,yoffset,rmode][(attr)][(byte)](bg,fg)
 
 * ``x`` and ``y`` are the tile coordinates on the background frame at which to
   superimpose the foreground frame; negative coordinates are allowed
 * ``xoffset`` and ``yoffset`` are the pixel offsets by which to shift the
   foreground frame from the given tile coordinates (default: (0, 0))
-* ``rattr`` is 1 to replace the attribute byte of each UDG in the background
-  frame over which a foreground UDG is superimposed with the value of ``attr``,
-  or 0 (the default) to leave the attribute byte unchanged
+* ``rmode`` is the attribute and graphic byte replacement mode (see below)
 * ``attr`` is the replacement attribute byte for any background UDG over which
-  a foreground UDG is superimposed (when ``rattr`` is 1)
+  a foreground UDG is superimposed (when ``rmode`` is 1 or 3)
+* ``byte`` is the replacement graphic byte for any background UDG over which
+  a foreground UDG is superimposed (when ``rmode`` is 2 or 3)
 * ``bg`` is the name of the background frame
 * ``fg`` is the name of the foreground frame
+
+``rmode`` specifies whether and how to replace the attribute and graphic bytes
+of each background UDG over which a foreground UDG is superimposed:
+
+* 0 - leave the attribute byte unchanged and apply the foreground frame's mask
+* 1 - replace the attribute byte with the value of ``attr`` and apply the
+  foreground frame's mask
+* 2 - leave the attribute byte unchanged and replace the graphic bytes with the
+  value of ``byte``
+* 3 - replace the attribute byte with the value of ``attr`` and replace the
+  graphic bytes with the value of ``byte``
 
 ``attr`` is an expression that is evaluated once for each background UDG over
 which a foreground UDG is superimposed. ``attr`` may contain skool macros, and
@@ -1470,6 +1480,16 @@ recognises the following positional replacement fields:
 
 * ``{0}`` - the background UDG attribute value
 * ``{1}`` - the foreground UDG attribute value
+
+``byte`` is an expression that is evaluated once for each of the 8 graphic
+bytes in a background UDG over which a foreground UDG is superimposed. ``byte``
+may contain skool macros, and recognises the following positional replacement
+fields:
+
+* ``{0}`` - the background UDG graphic byte value
+* ``{1}`` - the foreground UDG graphic byte value
+* ``{2}`` - the foreground UDG mask byte value (or 0 if the foreground UDG has
+  no mask)
 
 If the foreground frame has no mask, its contents are combined with those of
 the background frame by OR operations.

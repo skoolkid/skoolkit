@@ -828,21 +828,24 @@ def parse_n(writer, text, index, *cwd):
     return end, '{:0{}}'.format(value, dwidth)
 
 def parse_over(text, index, fields, frame_map=None):
-    # #OVERx,y[,xoffset,yoffset,rattr][(attr)](bg,fg)
-    end, x, y, xoffset, yoffset, rattr = parse_ints(text, index, 2, (0, 0, 0), ('x', 'y', 'xoffset', 'yoffset', 'rattr'), fields)
-    if rattr:
+    # #OVERx,y[,xoffset,yoffset,rmode][(attr)][(byte)](bg,fg)
+    end, x, y, xoffset, yoffset, rmode = parse_ints(text, index, 2, (0, 0, 0), ('x', 'y', 'xoffset', 'yoffset', 'rmode'), fields)
+    rattr, rbyte = None, None
+    if rmode & 1:
         end, attr = parse_brackets(text, end)
         if attr is not None:
             rattr = lambda b, f: parse_ints('({})'.format(_format_params(attr, attr, b, f)), 0, 1, fields=fields)[1]
-    if not callable(rattr):
-        rattr = None
+    if rmode & 2:
+        end, byte = parse_brackets(text, end)
+        if byte is not None:
+            rbyte = lambda bb, fb, fm: parse_ints('({})'.format(_format_params(byte, byte, bb, fb, fm)), 0, 1, fields=fields)[1]
     end, (bg, fg) = parse_strings(text, end, 2)
     if frame_map is not None:
         if bg not in frame_map:
             raise MacroParsingError('No such frame: "{}"'.format(bg))
         if fg not in frame_map:
             raise MacroParsingError('No such frame: "{}"'.format(fg))
-        frame_map[bg].overlay(frame_map[fg], x * 8 + xoffset, y * 8 + yoffset, rattr)
+        frame_map[bg].overlay(frame_map[fg], x * 8 + xoffset, y * 8 + yoffset, rattr, rbyte)
     return end, ''
 
 def parse_pc(writer, text, index, *cwd):
