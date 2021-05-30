@@ -1456,22 +1456,13 @@ process. ::
   superimpose the foreground frame; negative coordinates are allowed
 * ``xoffset`` and ``yoffset`` are the pixel offsets by which to shift the
   foreground frame from the given tile coordinates (default: (0, 0))
-* ``rattr`` specifies whether and how to replace the attribute byte of each UDG
-  in the background frame over which a foreground UDG is superimposed (default:
-  0 - no replacement)
+* ``rattr`` is 1 to replace the attribute byte of each UDG in the background
+  frame over which a foreground UDG is superimposed with the value of ``attr``,
+  or 0 (the default) to leave the attribute byte unchanged
 * ``attr`` is the replacement attribute byte for any background UDG over which
-  a foreground UDG is superimposed (when ``rattr`` is 8)
+  a foreground UDG is superimposed (when ``rattr`` is 1)
 * ``bg`` is the name of the background frame
 * ``fg`` is the name of the foreground frame
-
-``rattr`` is the sum of a subset of the following values, chosen according to
-the desired outcome:
-
-* 1 - replace the background UDG's INK with the foreground UDG's INK
-* 2 - replace the background UDG's PAPER with the foreground UDG's PAPER
-* 4 - replace the background UDG's BRIGHT value with the foreground UDG's
-  BRIGHT value
-* 8 - replace the background UDG's attribute with the value of ``attr``
 
 ``attr`` is an expression that is evaluated once for each background UDG over
 which a foreground UDG is superimposed. ``attr`` may contain skool macros, and
@@ -1494,6 +1485,9 @@ This instance of the ``#OVER`` macro superimposes the frame created by the
 ``#UDG`` macro at tile coordinates (0, 1) on the background frame created by
 the ``#UDGARRAY`` macro. The ``#UDGARRAY*`` macro then creates an image of the
 modified background frame.
+
+The integer parameters of the ``#OVER`` macro may contain
+:ref:`replacement fields <replacementFields>`.
 
 +---------+---------+
 | Version | Changes |

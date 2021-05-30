@@ -188,9 +188,6 @@ class Frame:
         return Frame(udgs, self.scale, self.mask, x, y, width, height)
 
     def overlay(self, fg, x, y, rattr):
-        if isinstance(rattr, int):
-            attr_m = sum(m for flag, m in ((1, 7), (2, 56), (4, 64)) if rattr & flag)
-            rattr = lambda bg_attr, fg_attr: bg_attr & ~attr_m | fg_attr & attr_m
         overlay_udgs(self.udgs, fg.udgs, x, y, fg.mask, rattr)
 
     def plot(self, x, y, value):

@@ -830,10 +830,12 @@ def parse_n(writer, text, index, *cwd):
 def parse_over(text, index, fields, frame_map=None):
     # #OVERx,y[,xoffset,yoffset,rattr][(attr)](bg,fg)
     end, x, y, xoffset, yoffset, rattr = parse_ints(text, index, 2, (0, 0, 0), ('x', 'y', 'xoffset', 'yoffset', 'rattr'), fields)
-    if rattr & 8:
+    if rattr:
         end, attr = parse_brackets(text, end)
         if attr is not None:
             rattr = lambda b, f: parse_ints('({})'.format(_format_params(attr, attr, b, f)), 0, 1, fields=fields)[1]
+    if not callable(rattr):
+        rattr = None
     end, (bg, fg) = parse_strings(text, end, 2)
     if frame_map is not None:
         if bg not in frame_map:
