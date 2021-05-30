@@ -1501,6 +1501,21 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         ]
         self._check_image(writer, exp_udgs, scale=5, path=exp_image_path)
 
+    def test_macro_copy_with_scale(self):
+        exp_image_path = '{}/img.png'.format(UDGDIR)
+        udg = Udg(56, [1] * 8)
+        snapshot = udg.data
+        writer = self._get_writer(snapshot=snapshot, mock_file_info=True)
+        macros = (
+            '#UDGARRAY3,scale=4;0x9(*f)',
+            '#COPY0,0,2,1,3(f,g)',
+            '#UDGARRAY*g(img)'
+        )
+        output = writer.expand(''.join(macros), ASMDIR)
+        self._assert_img_equals(output, 'img', '../{}'.format(exp_image_path))
+        exp_udgs = [[udg, udg]]
+        self._check_image(writer, exp_udgs, scale=3, path=exp_image_path)
+
     def test_macro_copy_cropped_frame(self):
         exp_image_path = '{}/img.png'.format(UDGDIR)
         udg = Udg(56, [1] * 8)
@@ -1543,8 +1558,8 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         snapshot = udg.data
         writer = self._get_writer(snapshot=snapshot, mock_file_info=True)
         macros = (
-            '#UDGARRAY5;0x25(*old)',
-            '#COPY(y=1,x=2,height=2,width=3){width=35,x=3,height=29,y=2}(old,g)',
+            '#UDGARRAY5,,1;0x25(*old)',
+            '#COPY(y=1,x=2,height=2,scale=2,width=3){width=35,x=3,height=29,y=2}(old,g)',
             '#UDGARRAY*g(img)'
         )
         output = writer.expand(''.join(macros), ASMDIR)
@@ -1565,12 +1580,13 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
             '#LET(y=2)',
             '#LET(width=2)',
             '#LET(height=3)',
+            '#LET(scale=2)',
             '#LET(cx=2)',
             '#LET(cy=1)',
             '#LET(cwidth=27)',
             '#LET(cheight=45)',
-            '#UDGARRAY5;0x25(*f)',
-            '#COPY({x},{y},{width},{height}){{cx},{cy},{cwidth},{cheight}}(f,g)',
+            '#UDGARRAY5,,1;0x25(*f)',
+            '#COPY({x},{y},{width},{height},{scale}){{cx},{cy},{cwidth},{cheight}}(f,g)',
             '#UDGARRAY*g(img)'
         )
         output = writer.expand(''.join(macros), ASMDIR)

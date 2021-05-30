@@ -150,7 +150,7 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
         writer.fields = {'x': 1, 'y': 2}
         self._test_unsupported_macro(writer, '#COPY(f,g)')
         self._test_unsupported_macro(writer, '#COPYy=1,x=1(f,g)')
-        self._test_unsupported_macro(writer, '#COPY(1+1,2+1,3+2,2+1)(f,g)')
+        self._test_unsupported_macro(writer, '#COPY(1+1,2+1,3+2,2+1,2+2)(f,g)')
         self._test_unsupported_macro(writer, '#COPY({x},{y},height=7)(f,g)')
         self._test_unsupported_macro(writer, '#COPY{1,2}(f,g)')
         self._test_unsupported_macro(writer, nest_macros('#COPY(1,{})(f,g)', 2))

@@ -1327,13 +1327,15 @@ as follows::
 In HTML mode, the ``#COPY`` macro copies all or part of an existing frame into
 a new frame. ::
 
-  #COPY[x,y,width,height][{CROP}](old,new)
+  #COPY[x,y,width,height,scale][{CROP}](old,new)
 
 * ``x`` and ``y`` are the coordinates of the top left tile of the existing
   frame to include in the new frame (default: (0, 0))
 * ``width`` and ``height`` are the width and height (in tiles) of the portion
   of the existing frame to copy (by default, the portion extends to the right
   and bottom edges of the existing frame)
+* ``scale`` is the scale of the new frame; if omitted, the scale of the
+  existing frame is used
 * ``CROP`` is the cropping specification for the new frame (see
   :ref:`cropping`); if omitted, the cropping specification of the existing
   frame is used

@@ -561,12 +561,12 @@ def parse_chr(writer, text, index, *cwd):
     return end, writer.to_chr(num)
 
 def parse_copy(text, index, fields, frame_map=None):
-    # #COPY[x,y,width,height][{CROP}](old,new)
-    defaults = (0, 0, None, None)
+    # #COPY[x,y,width,height,scale][{CROP}](old,new)
+    defaults = (0, 0, None, None, None)
     try:
-        index, x, y, width, height = parse_ints(text, index, 4, defaults, ('x', 'y', 'width', 'height'), fields)
+        index, x, y, width, height, scale = parse_ints(text, index, 4, defaults, ('x', 'y', 'width', 'height', 'scale'), fields)
     except InvalidParameterError:
-        x, y, width, height = defaults
+        x, y, width, height, scale = defaults
     if index < len(text) and text[index] == '{':
         end, crop_rect = _parse_crop_spec(text, index, fields)
     else:
@@ -575,7 +575,7 @@ def parse_copy(text, index, fields, frame_map=None):
     if frame_map is not None:
         if old not in frame_map:
             raise MacroParsingError('No such frame: "{}"'.format(old))
-        frame_map[new] = frame_map[old].copy(new, x, y, width, height, crop_rect)
+        frame_map[new] = frame_map[old].copy(new, x, y, width, height, scale, crop_rect)
     return end, ''
 
 def parse_d(writer, text, index, *cwd):
