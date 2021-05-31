@@ -187,7 +187,7 @@ update_ghpages() {
   tar xf $SKOOLKIT_TARBALL
   cd skoolkit-$SKOOLKIT_VERSION
   htmldir=$cwd/html
-  args="-j style.css $SKOOL $SKOOLKIT_HOME/tools/publish.ref"
+  args="-j style.css -c Config/InitModule=$SKOOLKIT_TOOLS:publish $SKOOL $SKOOLKIT_TOOLS/publish.ref"
   _exec "Building hexadecimal disassembly" \
     "./skool2html.py ${HEXCONFIG:--H} -d $cwd/hex -T dark --var pub=2 $args" $cwd/$GAME-hex-build.log
   mv $cwd/hex/* $htmldir

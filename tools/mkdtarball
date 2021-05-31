@@ -142,7 +142,7 @@ ABSDIR=${DISTDIR}/${PKGNAME}
 rm -rf $ABSDIR
 
 # Build the HTML disassembly
-ARGS="-qj style.css src/$GAME.skool $SKOOLKIT_HOME/tools/publish.ref"
+ARGS="-qj style.css -c Config/InitModule=$SKOOLKIT_HOME/tools:publish src/$GAME.skool $SKOOLKIT_HOME/tools/publish.ref"
 echo -n "Writing decimal disassembly..."
 ./skool2html.py $DECCONFIG -d ${ABSDIR} --var pub=1 $ARGS
 echo "done"

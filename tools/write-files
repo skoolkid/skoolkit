@@ -89,14 +89,14 @@ write_html() {
     for c in '' '-u' '-l'; do
       for e in '' '-1' '-a'; do
         gamedir=$GAME$b$c$e
-        varopt=""
+        options=""
         reffile=""
         if [[ -z $c ]] && [[ -z $e ]]; then
-          [[ $b == -D ]] && varopt="--var pub=1" && reffile=publish.ref
-          [[ $b == -H ]] && varopt="--var pub=2" && reffile=publish.ref
+          [[ $b == -D ]] && options="-c Config/InitModule=:publish --var pub=1" && reffile=publish.ref
+          [[ $b == -H ]] && options="-c Config/InitModule=:publish --var pub=2" && reffile=publish.ref
         fi
         echo -n "Writing $gamedir HTML disassembly..."
-        ./skool2html.py $b $c $e -q -d html -c Config/GameDir=$gamedir $varopt $skoolfile $reffile
+        ./skool2html.py $b $c $e -q -d html -c Config/GameDir=$gamedir $options $skoolfile $reffile
         echo "done"
       done
     done

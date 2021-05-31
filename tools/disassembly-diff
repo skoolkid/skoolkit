@@ -159,6 +159,7 @@ if [ $WRITE_OLD -eq 1 ] || [ ! -d $OLD_DIR ]; then
     tar xf $SKOOLKIT_ARCHIVE/skoolkit-${OLD_SKOOLKIT_VERSION}.tar.xz
     mv skoolkit-${OLD_SKOOLKIT_VERSION} $OLD_DIR
     mkdir $OLD_DIR/src
+    cp $SKOOLKIT_HOME/tools/publish.py $OLD_DIR
     find $OLD_DISASSEMBLY_NAME -name '*.py' -exec cp {} $OLD_DIR \;
     find $OLD_DISASSEMBLY_NAME -name '*.skool' -exec cp {} $OLD_DIR/src \;
     find $OLD_DISASSEMBLY_NAME -name '*.ref' -exec cp {} $OLD_DIR/src \;
@@ -192,6 +193,7 @@ if [ $WRITE_NEW -eq 1 ] || [ ! -d $NEW_DIR ]; then
   mkdir $NEW_DIR/src
   cp -p $DHOME/sources/*.skool $DHOME/sources/*.ref $NEW_DIR/src
   find $DHOME/sources \( -name '*.css' -o -name '*.js' \) -exec cp -p {} $NEW_DIR/src \;
+  cp $SKOOLKIT_HOME/tools/publish.py $NEW_DIR
   find $DHOME/sources -name '*.py' -exec cp -p {} $NEW_DIR \;
   if [ $USE_SK_DEV -eq 1 ]; then
     cp $SKOOLKIT_HOME/tools/publish.ref $NEW_DIR
