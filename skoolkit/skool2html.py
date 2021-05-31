@@ -205,6 +205,8 @@ def run(infiles, options, config):
     elif skoolfile != '-':
         notify('Found no ref file for ' + normpath(skoolfile))
 
+    if 'InitModule' in ref_config:
+        get_object(ref_config['InitModule'], module_path)
     html_writer_class = get_object(ref_config['HtmlWriterClass'], module_path)
     game_dir = ref_config.get('GameDir', prefix)
     label_fmt = (config['EntryLabel'], config['EntryPointLabel'])

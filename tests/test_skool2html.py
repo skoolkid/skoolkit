@@ -1454,6 +1454,25 @@ class Skool2HtmlTest(SkoolKitTestCase):
         self.assertTrue(error.startswith('usage: skool2html.py'))
         self.assertTrue(error.endswith("missing variable value: 'foo'\n"))
 
+    @patch.object(skool2html, 'write_disassembly', mock_write_disassembly)
+    @patch.object(skool2html, 'get_config', mock_config)
+    def test_Config_InitModule_parameter(self):
+        init_module = """
+            from skoolkit.skoolhtml import HtmlWriter
+            HtmlWriter.version = 1
+        """
+        ref = "[Config]\nInitModule={0}:{1}"
+        module_dir = self.make_directory()
+        module_path = os.path.join(module_dir, 'initmod.py')
+        module = self.write_text_file(dedent(init_module).strip(), path=module_path)
+        module_name = os.path.basename(module)[:-3]
+        reffile = self.write_text_file(ref.format(module_dir, module_name), suffix='.ref')
+        skoolfile = self.write_text_file(path='{}.skool'.format(reffile[:-4]))
+        output, error = self.run_skool2html(skoolfile)
+        self.assertEqual(error, '')
+        html_writer = write_disassembly_args[0]
+        self.assertEqual(getattr(html_writer, "version"), 1)
+
     @patch.object(skool2html, 'get_object', Mock(return_value=TestHtmlWriter))
     @patch.object(skool2html, 'SkoolParser', MockSkoolParser)
     @patch.object(skool2html, 'write_disassembly', mock_write_disassembly)

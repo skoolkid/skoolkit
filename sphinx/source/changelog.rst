@@ -39,6 +39,9 @@ Changelog
 * Added the ``DefaultDisassemblyStartAddress`` parameter to the :ref:`skoolkit`
   section of `skoolkit.ini` (for specifying the address at which to start
   disassembling a snapshot when no control file is provided)
+* Added the ``InitModule`` parameter to the :ref:`ref-Config` section (for
+  specifying a Python module to import before the HTML writer class is
+  imported)
 * Fixed the bug where a frame whose pixels are modified by the :ref:`PLOT`
   macro may have incorrect colours when converted to an image
 

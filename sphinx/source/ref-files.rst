@@ -92,6 +92,9 @@ Recognised parameters are:
   the class is in a module that is not in the module search path (e.g. a
   standalone module that is not part of an installed package), the module's
   location may be specified thus: ``/path/to/moduledir:module.classname``
+* ``InitModule`` - the name of a Python module to import before the HTML writer
+  class is imported; the module's location may be specified in the same way as
+  for ``HtmlWriterClass`` (see above)
 * ``RefFiles`` - a semicolon-separated list of extra ref files to use (after
   any that are automatically read by virtue of having the same filename prefix
   as the skool file, and before any others named on the :ref:`skool2html.py`
@@ -109,6 +112,8 @@ file is `game.skool`).
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 8.5     | Added the ``InitModule`` parameter                                |
++---------+-------------------------------------------------------------------+
 | 5.0     | Added the ``RefFiles`` parameter                                  |
 +---------+-------------------------------------------------------------------+
 | 3.3.1   | Added support to the ``HtmlWriterClass`` parameter for specifying |
