@@ -26,7 +26,7 @@ def init_page(self, skoolkit, game):
             else:
                 path = path.replace(addr_str, '{:04X}'.format(int(addr_str)))
         elif page_id.startswith('Lesson') and page_id != 'LessonIndex':
-            lesson = page_id[-3:]
+            lesson = page_id[6:]
             if game['alt_base'] == 'decimal':
                 path = path.replace('{:02X}'.format(int(lesson)), lesson)
             else:
