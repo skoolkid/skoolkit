@@ -1385,22 +1385,8 @@ of text rendered in the game font. ::
   (default: the value of the ``PNGAlpha`` parameter in the
   :ref:`ref-ImageWriter` section)
 * ``CROP`` is the cropping specification (see :ref:`cropping`)
-* ``fname`` is the name of the image file (default: '`font`')
-
-If ``fname`` contains an image path ID replacement field (e.g.
-``{ScreenshotImagePath}/font``), the corresponding parameter value from the
-:ref:`Paths` section will be substituted.
-
-If ``fname`` starts with a '/', the filename is taken to be relative to the
-root of the HTML disassembly.
-
-If ``fname`` contains no image path ID replacement fields and does not start
-with a '/', the filename is taken to be relative to the directory defined by
-the ``FontImagePath`` parameter in the :ref:`paths` section.
-
-If ``fname`` does not end with '`.png`', that suffix will be appended.
-
-If an image with the given filename doesn't already exist, it will be created.
+* ``fname`` is the name of the image file (see :ref:`Filenames`; default:
+  '`font`')
 
 For example::
 
@@ -1575,22 +1561,8 @@ snapshot (in turn constructed from the contents of the skool file). ::
   (default: the value of the ``PNGAlpha`` parameter in the
   :ref:`ref-ImageWriter` section)
 * ``CROP`` is the cropping specification (see :ref:`cropping`)
-* ``fname`` is the name of the image file (default: '`scr`')
-
-If ``fname`` contains an image path ID replacement field (e.g.
-``{UDGImagePath}/scr``), the corresponding parameter value from the
-:ref:`Paths` section will be substituted.
-
-If ``fname`` starts with a '/', the filename is taken to be relative to the
-root of the HTML disassembly.
-
-If ``fname`` contains no image path ID replacement fields and does not start
-with a '/', the filename is taken to be relative to the directory defined by
-the ``ScreenshotImagePath`` parameter in the :ref:`paths` section.
-
-If ``fname`` does not end with '`.png`', that suffix will be appended.
-
-If an image with the given filename doesn't already exist, it will be created.
+* ``fname`` is the name of the image file (see :ref:`Filenames`; default:
+  '`scr`')
 
 For example::
 
@@ -1655,8 +1627,9 @@ of a UDG (an 8x8 block of pixels). ::
   :ref:`ref-ImageWriter` section)
 * ``MASK`` is the mask specification (see below)
 * ``CROP`` is the cropping specification (see :ref:`cropping`)
-* ``fname`` is the name of the image file (if not given, a name specified by
-  the ``UDGFilename`` parameter in the :ref:`Paths` section will be used)
+* ``fname`` is the name of the image file (see :ref:`Filenames`); if not given,
+  a name specified by the ``UDGFilename`` parameter in the :ref:`Paths` section
+  will be used
 
 The mask specification (``MASK``) takes the form::
 
@@ -1669,21 +1642,6 @@ The mask specification (``MASK``) takes the form::
 Note that if any of the parameters in the mask specification is expressed using
 arithmetic operations or skool macros, then the entire specification must be
 enclosed in parentheses.
-
-If ``fname`` contains an image path ID replacement field (e.g.
-``{ScreenshotImagePath}/udg``), the corresponding parameter value from the
-:ref:`Paths` section will be substituted.
-
-If ``fname`` starts with a '/', the filename is taken to be relative to the
-root of the HTML disassembly.
-
-If ``fname`` contains no image path ID replacement fields and does not start
-with a '/', the filename is taken to be relative to the directory defined by
-the ``UDGImagePath`` parameter in the :ref:`paths` section.
-
-If ``fname`` does not end with '`.png`', that suffix will be appended.
-
-If an image with the given filename doesn't already exist, it will be created.
 
 For example::
 
@@ -1759,7 +1717,7 @@ image of an array of UDGs (8x8 blocks of pixels). ::
   (default: the value of the ``PNGAlpha`` parameter in the
   :ref:`ref-ImageWriter` section)
 * ``CROP`` is the cropping specification (see :ref:`cropping`)
-* ``fname`` is the name of the image file
+* ``fname`` is the name of the image file (see :ref:`Filenames`)
 
 ``SPEC1``, ``SPEC2`` etc. are UDG specifications for the sets of UDGs that make
 up the array. Each UDG specification has the form::
@@ -1819,21 +1777,6 @@ must be enclosed in parentheses:
 * the part of a UDG or mask specification after the comma that follows the
   address range
 
-If ``fname`` contains an image path ID replacement field (e.g.
-``{ScreenshotImagePath}/udgs``), the corresponding parameter value from the
-:ref:`Paths` section will be substituted.
-
-If ``fname`` starts with a '/', the filename is taken to be relative to the
-root of the HTML disassembly.
-
-If ``fname`` contains no image path ID replacement fields and does not start
-with a '/', the filename is taken to be relative to the directory defined by
-the ``UDGImagePath`` parameter in the :ref:`paths` section.
-
-If ``fname`` does not end with '`.png`', that suffix will be appended.
-
-If an image with the given filename doesn't already exist, it will be created.
-
 For example::
 
   ; Base sprite
@@ -1887,11 +1830,38 @@ specification and cropping specification of the ``#UDGARRAY`` macro may contain
 | 2.0.5   | New                                                               |
 +---------+-------------------------------------------------------------------+
 
-Alt text
---------
-The value of the ``alt`` attribute in the ``<img>`` element created by an image
-macro can be specified by appending a ``|`` character and the required text to
-the filename. For example::
+.. _Filenames:
+
+Filenames
+---------
+The ``fname`` parameter of the :ref:`FONT`, :ref:`SCR`, :ref:`UDG` and
+:ref:`UDGARRAY` macros can be used to specify not only an image filename, but
+also its exact location, the ``alt`` attribute of the ``<img>`` element, and a
+frame name (see :ref:`Animation`).
+
+If ``fname`` contains an image path ID replacement field (e.g.
+``{ScreenshotImagePath}/udgs``), the corresponding parameter value from the
+:ref:`Paths` section will be substituted.
+
+If ``fname`` starts with a '/', the filename is taken to be relative to the
+root of the HTML disassembly.
+
+If ``fname`` contains no image path ID replacement fields and does not start
+with a '/', the filename is taken to be relative to the directory defined by
+one of the following parameters in the :ref:`paths` section, depending on the
+macro being used:
+
+* ``FontImagePath`` - :ref:`FONT`
+* ``ScreenshotImagePath`` - :ref:`SCR`
+* ``UdgImagePath`` - :ref:`UDG` and :ref:`UDGARRAY`
+
+If ``fname`` does not end with '`.png`', that suffix will be appended.
+
+If an image with the given filename doesn't already exist, it will be created.
+
+The value of the ``alt`` attribute in the ``<img>`` element can be specified by
+appending a ``|`` character and the required text to the filename. For
+example::
 
   #SCR(screenshot1|Screenshot 1)
 
