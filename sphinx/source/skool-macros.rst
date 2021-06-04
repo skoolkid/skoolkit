@@ -1327,7 +1327,7 @@ as follows::
 In HTML mode, the ``#COPY`` macro copies all or part of an existing frame into
 a new frame. ::
 
-  #COPY[x,y,width,height,scale][{CROP}](old,new)
+  #COPY[x,y,width,height,scale,mask][{CROP}](old,new)
 
 * ``x`` and ``y`` are the coordinates of the top left tile of the existing
   frame to include in the new frame (default: (0, 0))
@@ -1336,6 +1336,8 @@ a new frame. ::
   and bottom edges of the existing frame)
 * ``scale`` is the scale of the new frame; if omitted, the scale of the
   existing frame is used
+* ``mask`` is the mask type of the new frame (see :ref:`masks`); if omitted,
+  the mask type of the existing frame is used
 * ``CROP`` is the cropping specification for the new frame (see
   :ref:`cropping`); if omitted, the cropping specification of the existing
   frame is used
@@ -1959,8 +1961,8 @@ of any subsequent frame must fall entirely inside the first frame.
 
 Cropping
 --------
-Each image macro accepts a cropping specification (``CROP``) which takes the
-form::
+The :ref:`COPY`, :ref:`FONT`, :ref:`SCR`, :ref:`UDG` and :ref:`UDGARRAY` macros
+accept a cropping specification (``CROP``) which takes the form::
 
   x,y,width,height
 
@@ -1990,8 +1992,9 @@ The parameters of the cropping specification may contain
 
 Masks
 -----
-The :ref:`UDG` and :ref:`UDGARRAY` macros accept a ``mask`` parameter that
-determines what kind of mask to apply to each UDG. The supported values are:
+The :ref:`COPY`, :ref:`UDG` and :ref:`UDGARRAY` macros accept a ``mask``
+parameter that determines what kind of mask to apply to each UDG. The supported
+values are:
 
 * 0 - no mask
 * 1 - OR-AND mask (this is the default)

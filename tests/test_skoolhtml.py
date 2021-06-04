@@ -1516,6 +1516,21 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         exp_udgs = [[udg, udg]]
         self._check_image(writer, exp_udgs, scale=3, path=exp_image_path)
 
+    def test_macro_copy_with_mask(self):
+        exp_image_path = '{}/img.png'.format(UDGDIR)
+        udg = Udg(56, [1] * 8, [251] * 8)
+        snapshot = udg.data + udg.mask
+        writer = self._get_writer(snapshot=snapshot, mock_file_info=True)
+        macros = (
+            '#UDGARRAY2,mask=2;0x4:8x4(*f)',
+            '#COPY0,0,2,1,,0(f,g)',
+            '#UDGARRAY*g(img)'
+        )
+        output = writer.expand(''.join(macros), ASMDIR)
+        self._assert_img_equals(output, 'img', '../{}'.format(exp_image_path))
+        exp_udgs = [[udg, udg]]
+        self._check_image(writer, exp_udgs, mask=0, path=exp_image_path)
+
     def test_macro_copy_cropped_frame(self):
         exp_image_path = '{}/img.png'.format(UDGDIR)
         udg = Udg(56, [1] * 8)
@@ -1581,12 +1596,13 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
             '#LET(width=2)',
             '#LET(height=3)',
             '#LET(scale=2)',
+            '#LET(mask=2)',
             '#LET(cx=2)',
             '#LET(cy=1)',
             '#LET(cwidth=27)',
             '#LET(cheight=45)',
             '#UDGARRAY5,,1;0x25(*f)',
-            '#COPY({x},{y},{width},{height},{scale}){{cx},{cy},{cwidth},{cheight}}(f,g)',
+            '#COPY({x},{y},{width},{height},{scale},{mask}){{cx},{cy},{cwidth},{cheight}}(f,g)',
             '#UDGARRAY*g(img)'
         )
         output = writer.expand(''.join(macros), ASMDIR)
@@ -1596,7 +1612,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
             [udg, udg],
             [udg, udg]
         ]
-        self._check_image(writer, exp_udgs, scale=2, x=2, y=1, width=27, height=45, path=exp_image_path)
+        self._check_image(writer, exp_udgs, scale=2, mask=2, x=2, y=1, width=27, height=45, path=exp_image_path)
 
     def test_macro_copy_with_macro_arguments(self):
         exp_image_path = '{}/img.png'.format(UDGDIR)
