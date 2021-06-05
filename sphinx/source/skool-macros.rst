@@ -1357,6 +1357,9 @@ central 2x2 portion of the 4x4 frame created by the ``#UDGARRAY`` macro.  The
 The integer parameters and the cropping specification of the ``#COPY`` macro
 may contain :ref:`replacement fields <replacementFields>`.
 
+See :ref:`stringParameters` for details on alternative ways to supply the
+``old`` and ``new`` parameters.
+
 +---------+---------+
 | Version | Changes |
 +=========+=========+
@@ -1498,6 +1501,9 @@ modified background frame.
 
 The integer parameters of the ``#OVER`` macro may contain
 :ref:`replacement fields <replacementFields>`.
+
+See :ref:`stringParameters` for details on alternative ways to supply the
+``bg`` and ``fg`` parameters.
 
 +---------+---------+
 | Version | Changes |

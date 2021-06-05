@@ -149,6 +149,7 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
         writer = self._get_writer()
         writer.fields = {'x': 1, 'y': 2}
         self._test_unsupported_macro(writer, '#COPY(f,g)')
+        self._test_unsupported_macro(writer, '#COPY//f/g//')
         self._test_unsupported_macro(writer, '#COPYy=1,x=1(f,g)')
         self._test_unsupported_macro(writer, '#COPY(1+1,2+1,3+2,2+1,2+2,1-1)(f,g)')
         self._test_unsupported_macro(writer, '#COPY({x},{y},height=7)(f,g)')
@@ -292,6 +293,7 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
         writer = self._get_writer()
         writer.fields = {'x': 1, 'y': 2, 'rmode': 0}
         self._test_unsupported_macro(writer, '#OVER1,1(b,f)')
+        self._test_unsupported_macro(writer, '#OVER1,1//b/f//')
         self._test_unsupported_macro(writer, '#OVERy=1,x=1(b,f)')
         self._test_unsupported_macro(writer, '#OVER(1+1,2+1,3+2,2+1,1)(1+2)(b,f)')
         self._test_unsupported_macro(writer, '#OVER(1,1,1,1,2)(1+2)(b,f)')

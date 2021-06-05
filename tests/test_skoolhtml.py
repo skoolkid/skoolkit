@@ -1567,6 +1567,21 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         ]
         self._check_image(writer, exp_udgs, scale=2, x=2, y=4, width=28, height=22, path=exp_image_path)
 
+    def test_macro_copy_with_alternative_string_delimiters(self):
+        exp_image_path = '{}/img.png'.format(UDGDIR)
+        udg = Udg(56, [1] * 8)
+        snapshot = udg.data
+        writer = self._get_writer(snapshot=snapshot, mock_file_info=True)
+        macros = (
+            '#UDGARRAY2;0x4(*f)',
+            '#COPY0,0,1,1//f/g//',
+            '#UDGARRAY*g(img)'
+        )
+        output = writer.expand(''.join(macros), ASMDIR)
+        self._assert_img_equals(output, 'img', '../{}'.format(exp_image_path))
+        exp_udgs = [[udg]]
+        self._check_image(writer, exp_udgs, path=exp_image_path)
+
     def test_macro_copy_with_keyword_arguments(self):
         exp_image_path = '{}/img.png'.format(UDGDIR)
         udg = Udg(56, [3] * 8)
@@ -2743,6 +2758,24 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
                 [56, 56, 56, 56]
             ]
         )
+        self._check_image(writer, exp_udgs, scale=2, path=exp_image_path)
+
+    def test_macro_over_with_alternative_string_delimiters(self):
+        exp_image_path = '{}/img.png'.format(UDGDIR)
+        bg_udg_data = [170] * 8
+        fg_udg_data = [0, 0, 24, 60, 60, 24, 0, 0]
+        snapshot = bg_udg_data + fg_udg_data
+        writer = self._get_writer(snapshot=snapshot, mock_file_info=True)
+        macros = (
+            '#UDGARRAY1;0(*bg)',
+            '#UDG8(*fg)',
+            '#OVER0,0//bg/fg//',
+            '#UDGARRAY*bg(img)'
+        )
+        output = writer.expand(''.join(macros), ASMDIR)
+        self._assert_img_equals(output, 'img', '../{}'.format(exp_image_path))
+        exp_over_udg = Udg(56, [bg_udg_data[i] | fg_udg_data[i] for i in range(8)])
+        exp_udgs = [[exp_over_udg]]
         self._check_image(writer, exp_udgs, scale=2, path=exp_image_path)
 
     def test_macro_over_with_keyword_arguments(self):
