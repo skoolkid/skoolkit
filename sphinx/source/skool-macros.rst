@@ -1535,6 +1535,9 @@ This instance of the ``#PLOT`` macro sets the second pixel from the left in the
 third row from the top in the frame created by the ``#UDG`` macro. The
 ``#UDGARRAY*`` macro then creates an image of the modified frame.
 
+The integer parameters of the ``#PLOT`` macro may contain
+:ref:`replacement fields <replacementFields>`.
+
 +---------+---------+
 | Version | Changes |
 +=========+=========+
