@@ -439,8 +439,8 @@ For example::
 
 @defb
 ^^^^^
-The ``@defb`` directive inserts byte values into the memory snapshot at a given
-address. ::
+The ``@defb`` directive makes :ref:`skool2asm.py` and :ref:`skool2html.py`
+insert byte values into the memory snapshot at a given address. ::
 
   @defb=[address:]value1[,value2...]
 
@@ -463,10 +463,12 @@ For example::
 This will insert the value 5 followed by the ASCII codes of the characters in
 "Hello" into the memory snapshot at address 30000.
 
-``@defb`` directives are processed not only when :ref:`skool2asm.py` or
-:ref:`skool2html.py` is run, but also when :ref:`sna2skool.py` is run on a
-control file; thus the ``@defb`` directive can be used to override the contents
-of the snapshot that is read by `sna2skool.py`.
+``@defb`` directives are also processed by :ref:`sna2skool.py` when it is run
+on a control file; thus the ``@defb`` directive can be used to override the
+contents of the snapshot that is read by `sna2skool.py`.
+
+``@defb`` directives are also processed by :ref:`skool2bin.py` when the
+``--data`` option is used.
 
 +---------+---------------------------------------+
 | Version | Changes                               |
@@ -480,8 +482,9 @@ of the snapshot that is read by `sna2skool.py`.
 
 @defs
 ^^^^^
-The ``@defs`` directive inserts a sequence of byte values into the memory
-snapshot at a given address. ::
+The ``@defs`` directive makes :ref:`skool2asm.py` and :ref:`skool2html.py`
+insert a sequence of byte values into the memory snapshot at a given address.
+::
 
   @defs=[address:]length[,value]
 
@@ -504,10 +507,12 @@ For example::
 This will insert the value 255 into the memory snapshot at addresses
 30000-30004.
 
-``@defs`` directives are processed not only when :ref:`skool2asm.py` or
-:ref:`skool2html.py` is run, but also when :ref:`sna2skool.py` is run on a
-control file; thus the ``@defs`` directive can be used to override the contents
-of the snapshot that is read by `sna2skool.py`.
+``@defs`` directives are also processed by :ref:`sna2skool.py` when it is run
+on a control file; thus the ``@defs`` directive can be used to override the
+contents of the snapshot that is read by `sna2skool.py`.
+
+``@defs`` directives are also processed by :ref:`skool2bin.py` when the
+``--data`` option is used.
 
 +---------+---------------------------------------+
 | Version | Changes                               |
@@ -521,8 +526,8 @@ of the snapshot that is read by `sna2skool.py`.
 
 @defw
 ^^^^^
-The ``@defw`` directive inserts word values into the memory snapshot at a given
-address. ::
+The ``@defw`` directive makes :ref:`skool2asm.py` and :ref:`skool2html.py`
+insert word values into the memory snapshot at a given address. ::
 
   @defw=[address:]value1[,value2...]
 
@@ -545,10 +550,12 @@ For example::
 This will insert the word values 32768 and 32775 into the memory snapshot at
 addresses 30000 and 30002.
 
-``@defw`` directives are processed not only when :ref:`skool2asm.py` or
-:ref:`skool2html.py` is run, but also when :ref:`sna2skool.py` is run on a
-control file; thus the ``@defw`` directive can be used to override the contents
-of the snapshot that is read by `sna2skool.py`.
+``@defw`` directives are also processed by :ref:`sna2skool.py` when it is run
+on a control file; thus the ``@defw`` directive can be used to override the
+contents of the snapshot that is read by `sna2skool.py`.
+
+``@defw`` directives are also processed by :ref:`skool2bin.py` when the
+``--data`` option is used.
 
 +---------+---------------------------------------+
 | Version | Changes                               |
@@ -985,7 +992,8 @@ The syntax is equivalent to that for the :ref:`bfixBlockDirectives`.
 
 @org
 ^^^^
-The ``@org`` directive inserts an ``ORG`` assembler directive. ::
+The ``@org`` directive makes :ref:`skool2asm.py` insert an ``ORG`` assembler
+directive. ::
 
   @org[=address]
 
@@ -994,6 +1002,9 @@ The ``@org`` directive inserts an ``ORG`` assembler directive. ::
 
 Note that the ``@org`` directive works only on the first instruction in an
 entry.
+
+The ``@org`` directive also forces :ref:`skool2bin.py` to place the next
+instruction at the given address.
 
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
