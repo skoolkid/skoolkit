@@ -622,23 +622,24 @@ appear in skool file annotations or ref file sections are expanded). ::
 
 For example::
 
-  @expand=#DEFINE2(MAX,#IF({0}>{1})({0},{1}))
+  @expand=#DEF(#MAX(a,b) #IF($a>$b)($a,$b))
 
-This ``@expand`` directive passes the given :ref:`DEFINE` macro to the ASM
-writer or HTML writer for expansion during initialisation; this has the effect
-of making the user-defined ``#MAX`` macro available for use immediately
-anywhere in the skool file (and any secondary skool files if the directive
-appears in the main skool file) or ref files.
+This ``@expand`` directive passes the given :ref:`DEF` macro to the ASM writer
+or HTML writer for expansion during initialisation; this has the effect of
+making the user-defined ``#MAX`` macro available for use immediately anywhere
+in the skool file (and any secondary skool files if the directive appears in
+the main skool file) or ref files.
 
 If ``text`` begins with ``+``, it is appended to the text of the previous
 ``@expand`` directive (with the ``+`` removed); this enables long macro
 definitions to be split over multiple lines. For example::
 
-  @expand=#DEFINE0,1(OLIST,
-  @expand=+#LET(n=1)
-  @expand=+#LIST
-  @expand=+#FOREACH({})($item,{{ #EVAL({{n}}). $item }} #LET(n={{n}}+1))
-  @expand=+LIST#)
+  @expand=#DEF(#OLIST()(items)
+  @expand=+  #LET(n=1)
+  @expand=+  #LIST
+  @expand=+  #FOREACH($items)(item,{ #EVAL({n}). item } #LET(n={n}+1))
+  @expand=+  LIST#
+  @expand=+)
 
 These ``@expand`` directives make the ``#OLIST`` macro available, which can
 then be used to create a numbered list of items::

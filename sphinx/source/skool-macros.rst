@@ -198,6 +198,69 @@ See :ref:`stringParameters` for details on alternative ways to supply the
 ``text`` parameter. Note that if an alternative delimiter is used, it must not
 be an alphanumeric character (A-Z, a-z, 0-9).
 
+.. _DEF:
+
+#DEF
+----
+The ``#DEF`` macro defines a new skool macro. ::
+
+  #DEF(#MACRO[(ia[=i0],ib[=i1]...)[(sa[=s0],sb[=s1]...)]] body)
+
+* ``MACRO`` is the macro name (which must be all upper case letters)
+* ``ia[=i0]``, ``ib[=i1]`` etc. are the integer parameter names and optional
+  default values; the parameter names must consist of lower case letters only
+* ``sa[=s0]``, ``sb[=s1]`` etc. are the string parameter names and optional
+  default values
+* ``body`` is the body of the macro definition, which may contain placeholders
+  in the form ``$var`` for the integer and string argument values
+
+For example::
+
+  #DEF(#MIN(a,b) #IF($a<$b)($a,$b))
+
+This defines a ``#MIN`` macro that accepts two integer arguments and expands to
+the value of the smaller argument.
+
+Default values for the defined macro's optional integer parameters can be
+specified in the macro's signature. For example::
+
+  #DEF(#PROD(a,b=1,c=1) #EVAL($a*$b*$c))
+
+This defines a ``#PROD`` macro that accepts one, two or three integer
+arguments, the second and third of which default to 1, and expands to the
+product of all three arguments.
+
+Default values for the defined macro's optional string parameters can also be
+specified in the macro's signature, and their default values may contain
+placeholders for the integer argument values. For example::
+
+  #DEF(#NUM(a)(s=$a) $s)
+
+This defines a ``#NUM`` macro that accepts one integer argument and an optional
+string argument. It expands either to the integer argument, or to the string
+argument if provided. So ``#NUM15`` expands to '15', and ``#NUM15($0F)``
+expands to '$0F'.
+
+For more examples, see :ref:`definingMacrosWithDEF`.
+
+Note that if a defined macro has exactly one optional string argument, that
+argument must be either provided between parentheses or omitted entirely.
+Otherwise the defined macro's string arguments may also be supplied between
+alternative delimiters (see :ref:`stringParameters`).
+
+To define a macro that will be available for use immediately anywhere in the
+skool file or ref files, consider using the :ref:`expand` directive.
+
+The integer parameters of a macro defined by ``#DEF`` may contain
+:ref:`replacement fields <replacementFields>`, and may also be supplied via
+keyword arguments.
+
++---------+---------+
+| Version | Changes |
++=========+=========+
+| 8.5     | New     |
++---------+---------+
+
 .. _DEFINE:
 
 #DEFINE
@@ -248,12 +311,10 @@ For example::
 This defines a ``#HEX`` macro that accepts one integer argument and an optional
 string argument. It expands either to the integer argument in hexadecimal
 format prefixed by '$', or to the string argument if provided. So ``#HEX15``
-expands to '$1F', and ``#HEX15(15)`` expands to '15'.
+expands to '$0F', and ``#HEX15(15)`` expands to '15'.
 
 Note that if a defined macro has an optional string argument, that argument
 must be provided between parentheses.
-
-For more examples, see :ref:`definingMacrosWithDEFINE`.
 
 Note that if ``strip`` is 1, the defined macro will be expanded, in isolation
 from any surrounding content, as soon as it is encountered. For that to work,
@@ -278,6 +339,8 @@ The integer parameters of a macro defined by ``#DEFINE`` may contain
 
 See :ref:`stringParameters` for details on alternative ways to supply the
 ``name`` and ``value`` parameters.
+
+See also :ref:`DEF`.
 
 +---------+----------------------------------------------------------------+
 | Version | Changes                                                        |
@@ -2146,24 +2209,20 @@ it must not start with a capital letter. The name can be retrieved by using the
 | 3.1     | Added support for ASM mode |
 +---------+----------------------------+
 
-.. _definingMacrosWithDEFINE:
+.. _definingMacrosWithDEF:
 
-Defining macros with #DEFINE
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-By using the :ref:`DEFINE` macro, it is possible to define new macros based on
+Defining macros with #DEF
+^^^^^^^^^^^^^^^^^^^^^^^^^
+By using the :ref:`DEF` macro, it is possible to define new macros based on
 existing ones without writing any Python code. Some examples are given below.
 
 #ASM
 ----
 There is the :ref:`HTML` macro for inserting content in HTML mode only, but
 there is no corresponding macro for inserting content in ASM mode only. The
-following ``#DEFINE`` macro defines an ``#ASM`` macro to fill that gap::
+following ``#DEF`` macro defines an ``#ASM`` macro to fill that gap::
 
-  #DEFINE0(ASM,#IF({{mode[asm]}}))
-
-(Note the extra braces around the parameter of the ``#IF`` macro:
-``{{mode[asm]}}``; these are required to prevent it from being interpreted as
-an ``#ASM`` macro parameter replacement field.)
+  #DEF(#ASM #IF({mode[asm]}))
 
 For example::
 
@@ -2171,14 +2230,10 @@ For example::
 
 #ASMUDG
 -------
-The :ref:`UDG` macro is not supported in ASM mode, but ``#DEFINE`` can define
-a ``#ASMUDG`` macro (based on the ``#ASM`` macro defined above) that is::
+The :ref:`UDG` macro is not supported in ASM mode, but ``#DEF`` can define an
+``#ASMUDG`` macro (based on the ``#ASM`` macro defined above) that is::
 
-  #DEFINE1(ASMUDG,#ASM(#LIST(,) #FOR({0},{0}+7)(u,{{ |#FOR(7,0,-1)(n,#IF(#PEEKu&2**n)(*, ))| }}) LIST#))
-
-(Note the extra braces around the second parameter of the outer ``#FOR`` macro:
-``{{ |...| }}``; these are required to prevent it from being interpreted as an
-``#ASMUDG`` macro parameter replacement field.)
+  #DEF(#ASMUDG(a) #ASM(#LIST(,) #FOR($a,$a+7)(u,{ |#FOR(7,0,-1)(n,#IF(#PEEKu&2**n)(*, ))| }) LIST#))
 
 For example::
 
@@ -2208,10 +2263,10 @@ tile at 32768, then::
 
 will create an image of it. If you want to create several tile images, this
 syntax can get cumbersome; it would be easier if you could supply just the
-address of the attribute byte. The following ``#DEFINE`` macro defines a
-``#TILE`` macro that creates a tile image given an attribute byte address::
+address of the attribute byte. The following ``#DEF`` macro defines a ``#TILE``
+macro that creates a tile image given an attribute byte address::
 
-  #DEFINE1(TILE,#UDG({0}+1,#PEEK{0}))
+  #DEF(#TILE(a) #UDG($a+1,#PEEK$a))
 
 Now you can create an image of the tile at 32768 like this::
 
@@ -2219,10 +2274,10 @@ Now you can create an image of the tile at 32768 like this::
 
 If you have several nine-byte tiles arranged one after the other, you might
 want to create images of all of them in a single row of a ``#UDGTABLE``. The
-following ``#DEFINE`` macro defines a ``#TILES`` macro (based on the ``#TILE``
+following ``#DEF`` macro defines a ``#TILES`` macro (based on the ``#TILE``
 macro already defined) for this purpose::
 
-  #DEFINE2(TILES,#FOR({0},{0}+9*({1}-1),9)(n,#TILEn, | ))
+  #DEF(#TILES(a,m) #FOR($a,$a+9*($m-1),9)(n,#TILEn, | ))
 
 Now you can create a ``#UDGTABLE`` of images of a series of 10 tiles starting
 at 32768 like this::

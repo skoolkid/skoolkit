@@ -7,6 +7,8 @@ Changelog
 * Added the :ref:`OVER` macro (for superimposing one frame on another)
 * Added the :ref:`COPY` macro (for copying all or part of an existing frame
   into a new frame)
+* Added the :ref:`DEF` macro (as a more powerful alternative to the
+  :ref:`DEFINE` macro for defining new macros)
 * Added the ``defaults``, ``dsvalue`` and ``dvalues`` parameters to the
   :ref:`DEFINE` macro (to enable an optional string parameter and optional
   integer parameters for the defined macro and to specify their default values)

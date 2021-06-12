@@ -177,6 +177,171 @@ class CommonSkoolMacroTest:
         self._assert_error(writer, '#D({no})', "Unrecognised field 'no': {no}", prefix)
         self._assert_error(writer, '#D({foo)', "Invalid format string: {foo", prefix)
 
+    def test_macro_def(self):
+        writer = self._get_writer()
+
+        self.assertEqual(writer.expand('#DEF(#AT @)'), '')
+        self.assertEqual(writer.expand('#AT'), '@')
+
+        self.assertEqual(writer.expand('#DEF(#DOUBLE(n) #EVAL($n*2))'), '')
+        self.assertEqual(writer.expand('#DOUBLE2'), '4')
+
+        self.assertEqual(writer.expand('#DEF(#IFZERO(n)(s) #IF($n==0)($s))'), '')
+        self.assertEqual(writer.expand('#IFZERO0(PASS)'), 'PASS')
+
+        self.assertEqual(writer.expand('#DEF(#IFNEG(n)(s,t) #IF($n<0)($s,$t))'), '')
+        self.assertEqual(writer.expand('#IFZERO0(PASS,FAIL)'), 'PASS')
+
+        self.assertEqual(writer.expand('#DEF(#SUM(n,m) #EVAL($n+$m))'), '')
+        self.assertEqual(writer.expand('#LET(a=1)#LET(b=2)#SUM({a},{b})'), '3')
+
+        self.assertEqual(writer.expand('#DEF(#CAT()(n,m) $n$m#FORMAT({s$}))'), '')
+        self.assertEqual(writer.expand('#LET(s$=!)#CAT(hel,lo)'), 'hello!')
+
+    def test_macro_def_with_default_integer_parameters(self):
+        writer = self._get_writer()
+
+        # 1 integer parameter, optional
+        self.assertEqual(writer.expand('#DEF(#IT(a=1) $a)'), '')
+        self.assertEqual(writer.expand('#IT'), '1')
+        self.assertEqual(writer.expand('#IT2'), '2')
+
+        # 2 integer parameters, 1 optional
+        self.assertEqual(writer.expand('#DEF(#ARANGE(a,b=0) $a#IF($b)(-$b))'), '')
+        self.assertEqual(writer.expand('#ARANGE1'), '1')
+        self.assertEqual(writer.expand('#ARANGE1,2'), '1-2')
+
+        # 2 integer parameters, both optional
+        self.assertEqual(writer.expand('#DEF(#SUM(a=0,b=0) #EVAL($a+$b))'), '')
+        self.assertEqual(writer.expand('#SUM'), '0')
+        self.assertEqual(writer.expand('#SUM1'), '1')
+        self.assertEqual(writer.expand('#SUM1,2'), '3')
+
+        # 3 integer parameters, 2 optional
+        self.assertEqual(writer.expand('#DEF(#SRANGE(a,b=0,c=0) $a#IF($b)(-$b#IF($c)(-$c)))'), '')
+        self.assertEqual(writer.expand('#SRANGE1'), '1')
+        self.assertEqual(writer.expand('#SRANGE1,2'), '1-2')
+        self.assertEqual(writer.expand('#SRANGE1,3,2'), '1-3-2')
+
+        # 3 integer parameters, 2 optional, middle parameter left blank
+        self.assertEqual(writer.expand('#DEF(#PROD(a,b=1,c=1) #EVAL($a*$b*$c))'), '')
+        self.assertEqual(writer.expand('#PROD2,,3'), '6')
+
+        # 3 integer parameters, 2 optional, third parameter without explicit default
+        self.assertEqual(writer.expand('#DEF(#OR(a,b=0,c) #EVAL($a|$b|$c))'), '')
+        self.assertEqual(writer.expand('#OR1,2'), '3')
+
+    def test_macro_def_with_keyword_arguments(self):
+        writer = self._get_writer()
+        self.assertEqual(writer.expand('#DEF(#PROD(a,b=1,c=1) #EVAL($a*$b*$c))'), '')
+        self.assertEqual(writer.expand('#PROD(c=2,a=4,b=3)'), '24')
+
+    def test_macro_def_with_replacement_fields(self):
+        writer = self._get_writer()
+        self.assertEqual(writer.expand('#DEF(#PROD(a,b=1,c=1) #EVAL($a*$b*$c))'), '')
+        writer.expand('#LET(p=7) #LET(q=4)')
+        self.assertEqual(writer.expand('#PROD({p},c={q})'), '28')
+
+    def test_macro_def_with_macro_arguments(self):
+        writer = self._get_writer()
+        self.assertEqual(writer.expand('#DEF(#PROD(a,b=1,c=1) #EVAL($a*$b*$c))'), '')
+        self.assertEqual(writer.expand('#PROD(#IF(0)(1,2),#IF(1)(3,4))'), '6')
+
+    def test_macro_def_with_default_string_parameters(self):
+        writer = self._get_writer()
+
+        # 1 string parameter, optional
+        self.assertEqual(writer.expand('#DEF(#STR()(s=nothing) $s)'), '')
+        self.assertEqual(writer.expand('#STR'), 'nothing')
+        self.assertEqual(writer.expand('#STR(something)'), 'something')
+
+        # 2 string parameters, 1 optional
+        self.assertEqual(writer.expand('#DEF(#CAT()(p,s=.) $p$s)'), '')
+        self.assertEqual(writer.expand('#CAT(hi)'), 'hi.')
+        self.assertEqual(writer.expand('#CAT(hi,!)'), 'hi!')
+
+        # 2 string parameters, both optional
+        self.assertEqual(writer.expand('#DEF(#BRKT()(p=[,s=]) ${p}hello$s)'), '')
+        self.assertEqual(writer.expand('#BRKT()'), '[hello]')
+        self.assertEqual(writer.expand('#BRKT(<)'), '<hello]')
+        self.assertEqual(writer.expand('#BRKT(,>)'), '[hello>')
+        self.assertEqual(writer.expand('#BRKT(<,>)'), '<hello>')
+
+        # 1 string parameter, defaults to integer parameter value
+        self.assertEqual(writer.expand('#DEF(#FOO(a)(s=$a) $s)'), '')
+        self.assertEqual(writer.expand('#FOO1'), '1')
+        self.assertEqual(writer.expand('#FOO1(one)'), 'one')
+
+        # 3 string parameters, 2 optional, third parameter without explicit default
+        self.assertEqual(writer.expand('#DEF(#BAR()(a,b=?,c) |$a|$b|$c|)'), '')
+        self.assertEqual(writer.expand('#BAR(A,B)'), '|A|B||')
+
+    def test_macro_def_with_default_integer_parameters_and_default_string_parameter(self):
+        writer = self._get_writer()
+        self.assertEqual(writer.expand('#DEFINE3,1,3(0,0)({0}-{1}-{2})(BAR,{3})'), '')
+        self.assertEqual(writer.expand('#DEF(#BAR(a,b=0,c=0)(s=$a-$b-$c) $s)'), '')
+        self.assertEqual(writer.expand('#BAR1'), '1-0-0')
+        self.assertEqual(writer.expand('#BAR1,2'), '1-2-0')
+        self.assertEqual(writer.expand('#BAR1,2,3'), '1-2-3')
+        self.assertEqual(writer.expand('#BAR1(no)'), 'no')
+        self.assertEqual(writer.expand('#BAR1,2(nope)'), 'nope')
+        self.assertEqual(writer.expand('#BAR1,2,3(nah)'), 'nah')
+
+    def test_macro_def_accepts_unescaped_replacement_fields(self):
+        writer = self._get_writer()
+        self.assertEqual(writer.expand("#DEF(#INC(a) #LET(x=$a)#EVAL({x}+1))"), '')
+        self.assertEqual(writer.expand('#INC1'), '2')
+
+    def test_macro_def_allows_invalid_placeholders(self):
+        writer = self._get_writer()
+        self.assertEqual(writer.expand('#DEF(#BAZ()(s=$b) $s:$c)'), '')
+        self.assertEqual(writer.expand('#BAZ'), '$b:$c')
+        self.assertEqual(writer.expand('#BAZ(hey)'), 'hey:$c')
+
+    def test_macro_def_with_alternative_delimiters(self):
+        writer = self._get_writer()
+        self.assertEqual(writer.expand('#DEF/#CAT()(p,q) $p$q/'), '')
+        self.assertEqual(writer.expand('#CAT||A|B||'), 'AB')
+
+    def test_macro_def_invalid(self):
+        writer = self._get_writer()
+        prefix = ERROR_PREFIX.format('DEF')
+
+        self._assert_error(writer, '#DEF', "No text parameter", prefix)
+        self._assert_error(writer, '#DEFx', "No terminating delimiter: x", prefix)
+        self._assert_error(writer, '#DEF(x)', "Invalid macro name: #DEF(x)", prefix)
+        self._assert_error(writer, '#DEF(#x)', "Invalid macro name: #DEF(#x)", prefix)
+        self._assert_error(writer, '#DEF(#M', "No closing bracket: (#M", prefix)
+        self._assert_error(writer, '#DEF(#M(1))', "Invalid macro argument name: 1", prefix)
+        self._assert_error(writer, '#DEF(#M(a1))', "Invalid macro argument name: a1", prefix)
+        self._assert_error(writer, '#DEF(#M(a=b))', "Cannot parse integer argument value: 'a=b'", prefix)
+
+    def test_macro_def_invalid_macros(self):
+        writer = self._get_writer()
+        writer.fields = {}
+        prefix = ERROR_PREFIX.format('FOO')
+
+        writer.expand('#DEF(#FOO(a)(b,c) $a$b$c)')
+        self._assert_error(writer, '#FOO', 'No parameters (expected 1)', prefix)
+        self._assert_error(writer, '#FOO(x)', "Cannot parse integer 'x' in parameter string: 'x'", prefix)
+        self._assert_error(writer, '#FOO(1,2)', "Too many parameters (expected 1): '1,2'", prefix)
+        self._assert_error(writer, '#FOO(1', 'No closing bracket: (1', prefix)
+        self._assert_error(writer, '#FOO1(x', 'No closing bracket: (x', prefix)
+        self._assert_error(writer, '#FOO1(a)', "Not enough parameters (expected 2): 'a'", prefix)
+        self._assert_error(writer, '#FOO1(a,b,c)', "Too many parameters (expected 2): 'a,b,c'", prefix)
+        self._assert_error(writer, '#FOO({foo})(a,b)', "Unrecognised field 'foo': {foo}", prefix)
+        self._assert_error(writer, '#FOO({foo)(a,b)', "Invalid format string: {foo", prefix)
+        self._assert_error(writer, '#FOO(d=1)(a,b)', "Unknown keyword argument: 'd=1'", prefix)
+
+    def test_macro_def_invalid_macros_with_defaults(self):
+        writer = self._get_writer()
+        prefix = ERROR_PREFIX.format('BAR')
+
+        self.assertEqual(writer.expand('#DEF(#BAR(a,b,c=0) $a$b$c)'), '')
+        self._assert_error(writer, '#BAR', "No parameters (expected 2)", prefix)
+        self._assert_error(writer, '#BAR0', "Missing required argument 'b': '0'", prefix)
+        self._assert_error(writer, '#BAR(0,1,2,3)', "Too many parameters (expected 3): '0,1,2,3'", prefix)
+
     def test_macro_define(self):
         writer = self._get_writer()
 

@@ -157,6 +157,106 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
         self._test_unsupported_macro(writer, nest_macros('#COPY(1,{})(f,g)', 2))
         self._test_unsupported_macro(writer, nest_macros('#COPY1,1({},g)', 'b'))
 
+    def test_macro_def_with_list(self):
+        skool = """
+            @start
+            ; Stuff
+            ;
+            ; #DEF(#OLIST()(items)
+            ;   #LET(n=1)
+            ;   #LIST
+            ;   #FOREACH($items)(item,{ #EVAL({n}). item } #LET(n={n}+1))
+            ;   LIST#
+            ; )
+            ; #OLIST/a,b,c/
+            c32768 RET
+        """
+        exp_asm = """
+            ; Stuff
+            ;
+            ; * 1. a
+            ; * 2. b
+            ; * 3. c
+              RET
+        """
+        self._test_asm(skool, exp_asm)
+
+    def test_macro_def_with_table(self):
+        skool = """
+            @start
+            ; Stuff
+            ;
+            ; #DEF(#OTABLE()(cells)
+            ;   #LET(n=1)
+            ;   #TABLE
+            ;   #FOREACH($cells)(cell,{ #EVAL({n}). cell } #LET(n={n}+1))
+            ;   TABLE#
+            ; )
+            ; #OTABLE/a,b,c/
+            c32768 RET
+        """
+        exp_asm = """
+            ; Stuff
+            ;
+            ; +------+
+            ; | 1. a |
+            ; | 2. b |
+            ; | 3. c |
+            ; +------+
+              RET
+        """
+        self._test_asm(skool, exp_asm)
+
+    def test_macro_define_with_list(self):
+        skool = """
+            @start
+            ; Stuff
+            ;
+            ; #DEFINE0,1(OLIST,
+            ;   #LET(n=1)
+            ;   #LIST
+            ;   #FOREACH({})(item,{{ #EVAL({{n}}). item }} #LET(n={{n}}+1))
+            ;   LIST#
+            ; )
+            ; #OLIST/a,b,c/
+            c32768 RET
+        """
+        exp_asm = """
+            ; Stuff
+            ;
+            ; * 1. a
+            ; * 2. b
+            ; * 3. c
+              RET
+        """
+        self._test_asm(skool, exp_asm)
+
+    def test_macro_define_with_table(self):
+        skool = """
+            @start
+            ; Stuff
+            ;
+            ; #DEFINE0,1(OTABLE,
+            ;   #LET(n=1)
+            ;   #TABLE
+            ;   #FOREACH({})(cell,{{ #EVAL({{n}}). cell }} #LET(n={{n}}+1))
+            ;   TABLE#
+            ; )
+            ; #OTABLE/a,b,c/
+            c32768 RET
+        """
+        exp_asm = """
+            ; Stuff
+            ;
+            ; +------+
+            ; | 1. a |
+            ; | 2. b |
+            ; | 3. c |
+            ; +------+
+              RET
+        """
+        self._test_asm(skool, exp_asm)
+
     def test_macro_eval_asm(self):
         for asm_mode in (0, 1, 2, 3):
             writer = self._get_writer('', asm_mode=asm_mode)

@@ -18,6 +18,7 @@ from collections import defaultdict
 from functools import partial
 import inspect
 import re
+from string import Template
 
 from skoolkit import (BASE_10, BASE_16, CASE_LOWER, CASE_UPPER, VERSION,
                       SkoolKitError, SkoolParsingError, eval_variable, evaluate)
@@ -440,6 +441,7 @@ def get_macros(writer):
         '#CALL': partial(parse_call, writer),
         '#CHR': partial(parse_chr, writer),
         '#D': partial(parse_d, writer),
+        '#DEF': partial(parse_def, writer),
         '#DEFINE': partial(parse_define, writer),
         '#EVAL': partial(parse_eval, writer.fields, writer.case == CASE_LOWER),
         '#FOR': partial(parse_for, writer.fields),
@@ -588,6 +590,73 @@ def parse_d(writer, text, index, *cwd):
     if not entry.description:
         raise MacroParsingError('Entry at {} has no description'.format(addr))
     return end, entry.description
+
+def _expand_def_macro(writer, inames, idefaults, snames, sdefaults, body, text, index, *cwd):
+    end, ints, strings = index, [], []
+    if inames:
+        result = parse_ints(text, index, 0, idefaults, inames, writer.fields)
+        end, ints = result[0], result[1:]
+    params = dict(zip(inames, ints))
+    if snames:
+        sdefaults = [t.safe_substitute(**params) for t in sdefaults]
+        if len(snames) == 1 and sdefaults:
+            end, svalue = parse_brackets(text, end, sdefaults[0])
+            strings.append(svalue)
+        else:
+            end, strings = parse_strings(text, end, len(snames), sdefaults)
+            if len(snames) == 1:
+                strings = [strings]
+            if not strings[0] and len(snames) == len(sdefaults):
+                strings[0] = sdefaults[0]
+        params.update(dict(zip(snames, strings)))
+    return end, body.safe_substitute(**params)
+
+def parse_def(writer, text, index, *cwd):
+    # #DEF(#MACRO[(ia[=i0],ib[=i1]...)[(sa[=s0],sb[=s1]...)]] body)
+    end, definition = parse_strings(text, index, 1)
+    definition = definition.strip()
+    match = RE_MACRO.match(definition, 0)
+    if match:
+        name = match.group()
+        dindex = match.end()
+    else:
+        raise MacroParsingError("Invalid macro name: #DEF{}".format(text[index:]))
+    dindex, iparams = parse_brackets(definition, dindex)
+    if iparams is None:
+        sparams = None
+    else:
+        dindex, sparams = parse_brackets(definition, dindex)
+    body = definition[dindex:].strip()
+
+    inames, idefaults = [], []
+    if iparams:
+        for ispec in _format_params(iparams, iparams, **writer.fields).split(','):
+            iname, sep, ival = [s.strip() for s in ispec.partition('=')]
+            match = re.match(PARAM_NAME, iname)
+            if match and iname == match.group():
+                inames.append(iname)
+            else:
+                raise MacroParsingError(f'Invalid macro argument name: {iname}')
+            if sep:
+                try:
+                    idefaults.append(evaluate(ival))
+                except ValueError:
+                    raise InvalidParameterError(f"Cannot parse integer argument value: '{ispec}'")
+            elif idefaults:
+                idefaults.append(0)
+
+    snames, sdefaults = [], []
+    if sparams:
+        for sspec in sparams.split(','):
+            sname, sep, sval = [s.strip() for s in sspec.partition('=')]
+            snames.append(sname)
+            if sep:
+                sdefaults.append(Template(sval))
+            elif sdefaults:
+                sdefaults.append(Template(''))
+
+    writer.macros[name] = partial(_expand_def_macro, writer, inames, idefaults, snames, sdefaults, Template(body))
+    return end, ''
 
 def _expand(writer, iparams, sparams, dvalues, dsvalue, strip, value, text, index, *cwd):
     end, ints, strings = index, [], []
