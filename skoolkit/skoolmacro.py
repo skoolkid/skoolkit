@@ -658,37 +658,22 @@ def parse_def(writer, text, index, *cwd):
     writer.macros[name] = partial(_expand_def_macro, writer, inames, idefaults, snames, sdefaults, Template(body))
     return end, ''
 
-def _expand(writer, iparams, sparams, dvalues, dsvalue, strip, value, text, index, *cwd):
+def _expand(writer, iparams, sparams, value, text, index, *cwd):
     end, ints, strings = index, [], []
     if iparams > 0:
-        result = parse_ints(text, index, iparams, dvalues, fields=writer.fields)
+        result = parse_ints(text, index, iparams, fields=writer.fields)
         end, ints = result[0], result[1:]
-    if sparams == 1 and dsvalue is not None:
-        end, svalue = parse_brackets(text, end, dsvalue)
-        strings.append(_format_params(svalue, svalue, *ints))
-    elif sparams > 0:
+    if sparams > 0:
         end, strings = parse_strings(text, end, sparams)
         if sparams == 1:
             strings = [strings]
-    formatted = _format_params(value, value, *ints, *strings)
-    if strip:
-        return end, writer.expand(formatted, *cwd).strip()
-    return end, formatted
+    return end, _format_params(value, value, *ints, *strings)
 
 def parse_define(writer, text, index, *cwd):
-    # #DEFINEiparams[,sparams,defaults,strip][(dvalues)][(dsvalue)](name, value)
-    end, iparams, sparams, defaults, strip = parse_ints(text, index, 4, (0, 0, 0))
-    if defaults & 1:
-        result = parse_ints(text, end)
-        end, dvalues = result[0], result[1:1 + iparams]
-    else:
-        dvalues = ()
-    if sparams == 1 and defaults & 2:
-        end, dsvalue = parse_brackets(text, end)
-    else:
-        dsvalue = None
+    # #DEFINEiparams[,sparams](name, value)
+    end, iparams, sparams = parse_ints(text, index, 2, (0,))
     end, (name, value) = parse_strings(text, end, 2)
-    writer.macros['#' + name] = partial(_expand, writer, iparams, sparams, dvalues, dsvalue, strip, value)
+    writer.macros['#' + name] = partial(_expand, writer, iparams, sparams, value)
     return end, ''
 
 def parse_eval(fields, lower, text, index, *cwd):

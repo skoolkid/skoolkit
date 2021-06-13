@@ -9,9 +9,6 @@ Changelog
   into a new frame)
 * Added the :ref:`DEF` macro (as a more powerful alternative to the
   :ref:`DEFINE` macro for defining new macros)
-* Added the ``defaults``, ``dsvalue`` and ``dvalues`` parameters to the
-  :ref:`DEFINE` macro (to enable an optional string parameter and optional
-  integer parameters for the defined macro and to specify their default values)
 * Added the ``Wrap`` configuration parameter for
   :ref:`sna2skool.py <sna2skool-conf>` (for controlling whether to disassemble
   an instruction that wraps around the 64K boundary)
@@ -35,9 +32,6 @@ Changelog
   sections
 * Added the ``case`` parameter to the :ref:`FORMAT` macro (for converting
   formatted text to lower case or upper case)
-* Added the ``strip`` parameter to the :ref:`DEFINE` macro (for stripping
-  leading and trailing whitespace from the output of the defined macro whenever
-  it is expanded)
 * Added the ``DefaultDisassemblyStartAddress`` parameter to the :ref:`skoolkit`
   section of `skoolkit.ini` (for specifying the address at which to start
   disassembling a snapshot when no control file is provided)

@@ -267,20 +267,11 @@ keyword arguments.
 -------
 The ``#DEFINE`` macro defines a new skool macro. ::
 
-  #DEFINEiparams[,sparams,defaults,strip][(dvalues)][(dsvalue)](name,value)
+  #DEFINEiparams[,sparams](name,value)
 
-* ``iparams`` is the maximum number of integer parameters the macro expects
-* ``sparams`` is the number of string parameters the macro expects (default: 0)
-* ``defaults`` - 1 if default values (``dvalues``) for the optional integer
-  parameters are provided, 2 if a default value (``dsvalue``) for the optional
-  string parameter is provided (when ``sparams`` is 1), 3 if both ``dvalues``
-  and ``dsvalue`` are provided, or 0 (the default) if neither ``dvalues`` nor
-  ``dsvalue`` is provided
-* ``strip`` - 1 to strip leading and trailing whitespace from the output of the
-  defined macro whenever it is expanded, or 0 (the default) to leave it in
-  place
-* ``dvalues`` - a comma-separated list of default values for the optional
-  integer parameters (when ``defaults`` is 1)
+* ``iparams`` is the number of integer parameters the macro expects
+* ``sparams`` is the number of string parameters the macro expects (default:
+  ``0``)
 * ``name`` is the macro name (which must be all upper case letters)
 * ``value`` is the macro's output value (a standard Python format string
   containing replacement fields for the integer and string arguments)
@@ -292,44 +283,9 @@ For example::
 This defines a ``#MIN`` macro that accepts two integer arguments and expands to
 the value of the smaller argument.
 
-When ``defaults`` is 1, default values for the defined macro's optional integer
-parameters can be specified via ``dvalues``. For example::
-
-  #DEFINE3,0,1(1,1)(PROD,#EVAL({0}*{1}*{2}))
-
-This defines a ``#PROD`` macro that accepts one, two or three integer
-arguments, the second and third of which default to 1, and expands to the
-product of all three arguments.
-
-When ``defaults`` is 2 and ``sparams`` is 1, a default value for the defined
-macro's single optional string argument can be specified via ``dsvalue``.
-``dsvalue`` may contain replacement fields referring to the integer arguments.
-For example::
-
-  #DEFINE1,1,2(${0:02X})(HEX,{1})
-
-This defines a ``#HEX`` macro that accepts one integer argument and an optional
-string argument. It expands either to the integer argument in hexadecimal
-format prefixed by '$', or to the string argument if provided. So ``#HEX15``
-expands to '$0F', and ``#HEX15(15)`` expands to '15'.
-
-Note that if a defined macro has an optional string argument, that argument
-must be provided between parentheses.
-
-Note that if ``strip`` is 1, the defined macro will be expanded, in isolation
-from any surrounding content, as soon as it is encountered. For that to work,
-the macro definition must be entirely self-contained, i.e. it must not depend
-on any surrounding content in order to be syntactically correct. For example,
-if the ``#IFZERO`` macro is defined thus::
-
-  #DEFINE1,,,1(IFZERO,#IF({}==0))
-
-then any attempt to expand an ``#IFZERO`` macro will lead to an error message
-about the ``#IF`` macro having no output strings. To fix this, either set
-``strip`` to 0, or redefine ``#IFZERO`` with the output strings included in the
-definition::
-
-  #DEFINE1,2,,1(IFZERO,#IF({0}==0)({1},{2}))
+The ``#DEFINE`` macro is suitable for defining simple macros. To define more
+complex macros with named parameters or optional parameters, use the more
+powerful :ref:`DEF` macro instead.
 
 To define a macro that will be available for use immediately anywhere in the
 skool file or ref files, consider using the :ref:`expand` directive.
@@ -340,16 +296,11 @@ The integer parameters of a macro defined by ``#DEFINE`` may contain
 See :ref:`stringParameters` for details on alternative ways to supply the
 ``name`` and ``value`` parameters.
 
-See also :ref:`DEF`.
-
-+---------+----------------------------------------------------------------+
-| Version | Changes                                                        |
-+=========+================================================================+
-| 8.5     | Added the ``defaults``, ``dsvalue``, ``dvalues`` and ``strip`` |
-|         | parameters                                                     |
-+---------+----------------------------------------------------------------+
-| 8.2     | New                                                            |
-+---------+----------------------------------------------------------------+
++---------+---------+
+| Version | Changes |
++=========+=========+
+| 8.2     | New     |
++---------+---------+
 
 .. _EVAL:
 
