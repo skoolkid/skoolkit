@@ -646,7 +646,7 @@ def parse_def(writer, text, index, *cwd):
 
     snames, sdefaults = [], []
     if sparams:
-        for sspec in sparams.split(','):
+        for sspec in _split_unbracketed(sparams):
             sname, sep, sval = [s.strip() for s in sspec.partition('=')]
             snames.append(sname)
             if sep:

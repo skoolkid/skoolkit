@@ -276,6 +276,11 @@ class CommonSkoolMacroTest:
         self.assertEqual(writer.expand('#DEF(#BAR()(a,b=?,c) |$a|$b|$c|)'), '')
         self.assertEqual(writer.expand('#BAR(A,B)'), '|A|B||')
 
+        # 1 optional string parameter, default value containing comma between parentheses
+        self.assertEqual(writer.expand('#DEF(#BAZ()(s=f(x,y)) $s)'), '')
+        self.assertEqual(writer.expand('#BAZ'), 'f(x,y)')
+        self.assertEqual(writer.expand('#BAZ(something)'), 'something')
+
     def test_macro_def_with_default_integer_parameters_and_default_string_parameter(self):
         writer = self._get_writer()
         self.assertEqual(writer.expand('#DEF(#BAR(a,b=0,c=0)(s=$a-$b-$c) $s)'), '')
