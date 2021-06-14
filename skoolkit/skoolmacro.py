@@ -44,7 +44,9 @@ INTEGER = '(\d+|\$[0-9a-fA-F]+)'
 
 PARAM_NAME = '[a-z]+'
 
-PARAM = '({}=)?{}'.format(PARAM_NAME, INTEGER)
+NAMED_PARAM = '({}=)?{}'.format(PARAM_NAME, INTEGER)
+
+PARAMS = '{0}?(,({0})?){{,{1}}}'
 
 RE_ANCHOR = re.compile('#[a-zA-Z0-9$#]*')
 
@@ -59,8 +61,6 @@ RE_MACRO = re.compile('#[A-Z]+')
 RE_MACRO_METHOD = re.compile('expand_([a-z]+)$')
 
 RE_METHOD_NAME = re.compile('[a-zA-Z_][a-zA-Z0-9_]*')
-
-RE_NAMED_PARAMS = re.compile('{0}?(,({0})?)*'.format(PARAM))
 
 RE_LINK_PARAMS = re.compile('[^(\s]+')
 
@@ -123,13 +123,12 @@ def parse_ints(text, index=0, num=0, defaults=(), names=(), fields=None):
             params = _format_params(params, params, **fields)
         return [end] + get_params(params, num, defaults, names, False)
     if names:
-        match = RE_NAMED_PARAMS.match(text, index)
+        pattern = PARAMS.format(NAMED_PARAM, len(names) - 1)
     elif num > 0:
-        pattern = '{0}?(,({0})?){{,{1}}}'.format(PARAM, num - 1)
-        match = re.match(pattern, text[index:])
+        pattern = PARAMS.format(INTEGER, num - 1)
     else:
         return [index]
-    params = match.group()
+    params = re.match(pattern, text[index:]).group()
     return [index + len(params)] + get_params(params, num, defaults, names)
 
 # API

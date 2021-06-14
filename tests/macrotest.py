@@ -112,7 +112,7 @@ class CommonSkoolMacroTest:
         self._test_invalid_image_macro(writer, '#COPY(f)', "Not enough parameters (expected 2): 'f'", prefix)
         self._test_invalid_image_macro(writer, '#COPY1(f)', "Not enough parameters (expected 2): 'f'", prefix)
         self._test_invalid_image_macro(writer, '#COPY1//f//', "Not enough parameters (expected 2): 'f'", prefix)
-        self._test_invalid_image_macro(writer, '#COPY1,2,3,4,5,6,7(f)', "Too many parameters (expected 6): '1,2,3,4,5,6,7'", prefix)
+        self._test_invalid_image_macro(writer, '#COPY1,2,3,4,5,6,7(f)', "No terminating delimiter: ,7(f)", prefix)
         self._test_invalid_image_macro(writer, '#COPY(1,2,3,4,5,6,7)(f)', "Too many parameters (expected 6): '1,2,3,4,5,6,7'", prefix)
         self._test_invalid_image_macro(writer, '#COPY1//f/g/h//', "Too many parameters (expected 2): 'f/g/h'", prefix)
         self._test_invalid_image_macro(writer, '#COPY(f', "No closing bracket: (f", prefix)
@@ -492,7 +492,6 @@ class CommonSkoolMacroTest:
         self._test_invalid_image_macro(writer, '#FONT(scale=4)', "Missing required argument 'addr': 'scale=4'", prefix)
         self._test_invalid_image_macro(writer, '#FONT,scale=4', "Missing required argument 'addr': ',scale=4'", prefix)
         self._test_invalid_image_macro(writer, '#FONT(,scale=4)', "Missing required argument 'addr': ',scale=4'", prefix)
-        self._test_invalid_image_macro(writer, '#FONT0,1,2,3,4,5,6,7', "Too many parameters (expected 6): '0,1,2,3,4,5,6,7'", prefix)
         self._test_invalid_image_macro(writer, '#FONT0{0,0,23,14,5}(foo)', "Too many parameters in cropping specification (expected 4 at most): {0,0,23,14,5}", prefix)
         self._test_invalid_image_macro(writer, '#FONT(foo)', "Cannot parse integer 'foo' in parameter string: 'foo'", prefix)
         self._test_invalid_image_macro(writer, '#FONT0{0,0,23,14(foo)', 'No closing brace on cropping specification: {0,0,23,14(foo)', prefix)
@@ -1298,7 +1297,7 @@ class CommonSkoolMacroTest:
         self._test_invalid_image_macro(writer, '#OVER0,0,,,1(f)', "No text parameter", prefix)
         self._test_invalid_image_macro(writer, '#OVER0,0,,,2(f)', "No text parameter", prefix)
         self._test_invalid_image_macro(writer, '#OVER0,0,,,3(a)(b)', "No text parameter", prefix)
-        self._test_invalid_image_macro(writer, '#OVER1,2,3,4,5,6(f)', "Too many parameters (expected 5): '1,2,3,4,5,6'", prefix)
+        self._test_invalid_image_macro(writer, '#OVER1,2,3,4,5,6(f)', "No terminating delimiter: ,6(f)", prefix)
         self._test_invalid_image_macro(writer, '#OVER(f)', "Cannot parse integer 'f' in parameter string: 'f'", prefix)
         self._test_invalid_image_macro(writer, '#OVER0,0(f)', "Not enough parameters (expected 2): 'f'", prefix)
         self._test_invalid_image_macro(writer, '#OVER0,0//f//', "Not enough parameters (expected 2): 'f'", prefix)
@@ -1548,7 +1547,6 @@ class CommonSkoolMacroTest:
         writer.fields = {}
         prefix = ERROR_PREFIX.format('SCR')
 
-        self._test_invalid_image_macro(writer, '#SCR0,1,2,3,4,5,6,7,8,9,10', "Too many parameters (expected 9): '0,1,2,3,4,5,6,7,8,9,10'", prefix)
         self._test_invalid_image_macro(writer, '#SCR{0,0,23,14,5}(foo)', "Too many parameters in cropping specification (expected 4 at most): {0,0,23,14,5}", prefix)
         self._test_invalid_image_macro(writer, '#SCR{0,0,23,14(foo)', 'No closing brace on cropping specification: {0,0,23,14(foo)', prefix)
         self._test_invalid_image_macro(writer, '#SCR(foo', 'No closing bracket: (foo', prefix)
@@ -1602,8 +1600,6 @@ class CommonSkoolMacroTest:
         self._test_invalid_image_macro(writer, '#UDG0:(step=2)', "Missing required argument 'addr': 'step=2'", prefix)
         self._test_invalid_image_macro(writer, '#UDG0:,step=2', "Missing required argument 'addr': ',step=2'", prefix)
         self._test_invalid_image_macro(writer, '#UDG0:(,step=2)', "Missing required argument 'addr': ',step=2'", prefix)
-        self._test_invalid_image_macro(writer, '#UDG0,1,2,3,4,5,6,7,8,9,10,11', "Too many parameters (expected 10): '0,1,2,3,4,5,6,7,8,9,10,11'", prefix)
-        self._test_invalid_image_macro(writer, '#UDG0:1,2,3', "Too many parameters (expected 2): '1,2,3'", prefix)
         self._test_invalid_image_macro(writer, '#UDG0{0,0,23,14,5}(foo)', "Too many parameters in cropping specification (expected 4 at most): {0,0,23,14,5}", prefix)
         self._test_invalid_image_macro(writer, '#UDG(foo)', "Cannot parse integer 'foo' in parameter string: 'foo'", prefix)
         self._test_invalid_image_macro(writer, '#UDG0{0,0,23,14(foo)', 'No closing brace on cropping specification: {0,0,23,14(foo)', prefix)
@@ -1614,7 +1610,7 @@ class CommonSkoolMacroTest:
         self._test_invalid_image_macro(writer, '#UDG({foo)', "Invalid format string: {foo", prefix)
 
     def test_macro_udgarray_invalid(self):
-        writer = self._get_writer(snapshot=[0] * 8)
+        writer = self._get_writer(snapshot=[0] * 16)
         prefix = ERROR_PREFIX.format('UDGARRAY')
 
         self._test_invalid_image_macro(writer, '#UDGARRAY', 'No parameters (expected 1)', prefix)
@@ -1639,9 +1635,9 @@ class CommonSkoolMacroTest:
         self._test_invalid_image_macro(writer, '#UDGARRAY1;0{0,0}1(foo)', 'Missing filename: #UDGARRAY1;0{0,0}', prefix)
         self._test_invalid_image_macro(writer, '#UDGARRAY1;0(*)', 'Missing filename or frame ID: #UDGARRAY1;0(*)', prefix)
 
-        self._test_invalid_image_macro(writer, '#UDGARRAY1,2,3,4,5,6,7,8,9,10,11;0', "Too many parameters (expected 10): '1,2,3,4,5,6,7,8,9,10,11'", prefix)
-        self._test_invalid_image_macro(writer, '#UDGARRAY1;32768,1,2,3,4', "Too many parameters (expected 3): '1,2,3,4'", prefix)
-        self._test_invalid_image_macro(writer, '#UDGARRAY1;32768:32769,1,2', "Too many parameters (expected 1): '1,2'", prefix)
+        self._test_invalid_image_macro(writer, '#UDGARRAY1,2,3,4,5,6,7,8,9,10,11;0', "Missing filename: #UDGARRAY1,2,3,4,5,6,7,8,9,10", prefix)
+        self._test_invalid_image_macro(writer, '#UDGARRAY1;0,1,2,3,4', "Missing filename: #UDGARRAY1;0,1,2,3", prefix)
+        self._test_invalid_image_macro(writer, '#UDGARRAY1;0:0,1,2', "Missing filename: #UDGARRAY1;0:0,1", prefix)
         self._test_invalid_image_macro(writer, '#UDGARRAY1;0{0,0,23,14,5}(foo)', "Too many parameters in cropping specification (expected 4 at most): {0,0,23,14,5}", prefix)
 
         self._test_invalid_image_macro(writer, '#UDGARRAY(foo)', "Cannot parse integer 'foo' in parameter string: 'foo'", prefix)
