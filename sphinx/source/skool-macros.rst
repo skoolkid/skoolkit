@@ -243,10 +243,18 @@ expands to '$0F'.
 
 For more examples, see :ref:`definingMacrosWithDEF`.
 
-Note that if a defined macro has exactly one optional string argument, that
-argument must be either provided between parentheses or omitted entirely.
-Otherwise the defined macro's string arguments may also be supplied between
-alternative delimiters (see :ref:`stringParameters`).
+Note that if a string parameter of a defined macro is optional, that argument
+will take its default value only if it is omitted; if instead it is left blank,
+it takes the value of the empty string.
+
+In general, the string arguments of a defined macro may be supplied between
+alternative delimiters (see :ref:`stringParameters`) if desired. However, if
+every string parameter of the defined macro is optional, the string arguments
+must be either omitted entirely or provided between parentheses (and therefore
+separated by commas). This allows a macro with all of its optional string
+arguments omitted to be immediately followed by some character other than an
+opening parenthesis without that character being interpreted as an alternative
+delimiter.
 
 To define a macro that will be available for use immediately anywhere in the
 skool file or ref files, consider using the :ref:`expand` directive.

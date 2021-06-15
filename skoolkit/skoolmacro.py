@@ -598,15 +598,12 @@ def _expand_def_macro(writer, inames, idefaults, snames, sdefaults, body, text, 
     params = dict(zip(inames, ints))
     if snames:
         sdefaults = [t.safe_substitute(**params) for t in sdefaults]
-        if len(snames) == 1 and sdefaults:
-            end, svalue = parse_brackets(text, end, sdefaults[0])
-            strings.append(svalue)
-        else:
+        if len(snames) != len(sdefaults) or (end < len(text) and text[end] == '('):
             end, strings = parse_strings(text, end, len(snames), sdefaults)
             if len(snames) == 1:
                 strings = [strings]
-            if not strings[0] and len(snames) == len(sdefaults):
-                strings[0] = sdefaults[0]
+        else:
+            strings = sdefaults
         params.update(dict(zip(snames, strings)))
     return end, body.safe_substitute(**params)
 

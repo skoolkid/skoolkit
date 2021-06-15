@@ -253,6 +253,11 @@ class CommonSkoolMacroTest:
         # 1 string parameter, optional
         self.assertEqual(writer.expand('#DEF(#STR()(s=nothing) $s)'), '')
         self.assertEqual(writer.expand('#STR'), 'nothing')
+        self.assertEqual(writer.expand('#STR,'), 'nothing,')
+        self.assertEqual(writer.expand('#STR[]'), 'nothing[]')
+        self.assertEqual(writer.expand('#STR{}'), 'nothing{}')
+        self.assertEqual(writer.expand('#STR//!//'), 'nothing//!//')
+        self.assertEqual(writer.expand('#STR()'), '')
         self.assertEqual(writer.expand('#STR(something)'), 'something')
 
         # 2 string parameters, 1 optional
@@ -262,14 +267,24 @@ class CommonSkoolMacroTest:
 
         # 2 string parameters, both optional
         self.assertEqual(writer.expand('#DEF(#BRKT()(p=[,s=]) ${p}hello$s)'), '')
-        self.assertEqual(writer.expand('#BRKT()'), '[hello]')
+        self.assertEqual(writer.expand('#BRKT'), '[hello]')
+        self.assertEqual(writer.expand('#BRKT,'), '[hello],')
+        self.assertEqual(writer.expand('#BRKT[]'), '[hello][]')
+        self.assertEqual(writer.expand('#BRKT{}'), '[hello]{}')
+        self.assertEqual(writer.expand('#BRKT//!//'), '[hello]//!//')
+        self.assertEqual(writer.expand('#BRKT()'), 'hello]')
+        self.assertEqual(writer.expand('#BRKT(,)'), 'hello')
         self.assertEqual(writer.expand('#BRKT(<)'), '<hello]')
-        self.assertEqual(writer.expand('#BRKT(,>)'), '[hello>')
+        self.assertEqual(writer.expand('#BRKT(,>)'), 'hello>')
         self.assertEqual(writer.expand('#BRKT(<,>)'), '<hello>')
 
         # 1 string parameter, defaults to integer parameter value
         self.assertEqual(writer.expand('#DEF(#FOO(a)(s=$a) $s)'), '')
         self.assertEqual(writer.expand('#FOO1'), '1')
+        self.assertEqual(writer.expand('#FOO1,'), '1,')
+        self.assertEqual(writer.expand('#FOO1[]'), '1[]')
+        self.assertEqual(writer.expand('#FOO1{}'), '1{}')
+        self.assertEqual(writer.expand('#FOO1()'), '')
         self.assertEqual(writer.expand('#FOO1(one)'), 'one')
 
         # 3 string parameters, 2 optional, third parameter without explicit default
@@ -345,6 +360,11 @@ class CommonSkoolMacroTest:
         self._assert_error(writer, '#BAR', "No parameters (expected 2)", prefix)
         self._assert_error(writer, '#BAR0', "Missing required argument 'b': '0'", prefix)
         self._assert_error(writer, '#BAR(0,1,2,3)', "Too many parameters (expected 3): '0,1,2,3'", prefix)
+
+        self.assertEqual(writer.expand('#DEF(#BAR()(a,b,c=!) $a$b$c)'), '')
+        self._assert_error(writer, '#BAR', "No text parameter", prefix)
+        self._assert_error(writer, '#BAR(a)', "Not enough parameters (expected 2): 'a'", prefix)
+        self._assert_error(writer, '#BAR(a,b,c,d)', "Too many parameters (expected 3): 'a,b,c,d'", prefix)
 
     def test_macro_define(self):
         writer = self._get_writer()
