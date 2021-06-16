@@ -231,6 +231,10 @@ class CommonSkoolMacroTest:
         self.assertEqual(writer.expand('#DEF(#OR(a,b=0,c) #EVAL($a|$b|$c))'), '')
         self.assertEqual(writer.expand('#OR1,2'), '3')
 
+        # Whitespace in integer parameter spec
+        self.assertEqual(writer.expand('#DEF(#AND(a, b=255, c = 255) #EVAL($a&$b&$c))'), '')
+        self.assertEqual(writer.expand('#AND15,1'), '1')
+
     def test_macro_def_with_keyword_arguments(self):
         writer = self._get_writer()
         self.assertEqual(writer.expand('#DEF(#PROD(a,b=1,c=1) #EVAL($a*$b*$c))'), '')
@@ -295,6 +299,10 @@ class CommonSkoolMacroTest:
         self.assertEqual(writer.expand('#DEF(#BAZ()(s=f(x,y)) $s)'), '')
         self.assertEqual(writer.expand('#BAZ'), 'f(x,y)')
         self.assertEqual(writer.expand('#BAZ(something)'), 'something')
+
+        # Whitespace in string parameter spec
+        self.assertEqual(writer.expand('#DEF(#META()(a, b=bar, c = baz) $a/$b/$c)'), '')
+        self.assertEqual(writer.expand('#META(foo)'), 'foo/bar/baz')
 
     def test_macro_def_with_default_integer_parameters_and_default_string_parameter(self):
         writer = self._get_writer()
