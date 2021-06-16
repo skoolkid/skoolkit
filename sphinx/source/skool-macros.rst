@@ -1491,19 +1491,18 @@ of each background UDG over which a foreground UDG is superimposed:
 
 ``attr`` is an expression that is evaluated once for each background UDG over
 which a foreground UDG is superimposed. ``attr`` may contain skool macros, and
-recognises the following positional replacement fields:
+recognises the following placeholders:
 
-* ``{0}`` - the background UDG attribute value
-* ``{1}`` - the foreground UDG attribute value
+* ``$b`` - the background UDG attribute value
+* ``$f`` - the foreground UDG attribute value
 
 ``byte`` is an expression that is evaluated once for each of the 8 graphic
 bytes in a background UDG over which a foreground UDG is superimposed. ``byte``
-may contain skool macros, and recognises the following positional replacement
-fields:
+may contain skool macros, and recognises the following placeholders:
 
-* ``{0}`` - the background UDG graphic byte value
-* ``{1}`` - the foreground UDG graphic byte value
-* ``{2}`` - the foreground UDG mask byte value (or 0 if the foreground UDG has
+* ``$b`` - the background UDG graphic byte value
+* ``$f`` - the foreground UDG graphic byte value
+* ``$m`` - the foreground UDG mask byte value (or 0 if the foreground UDG has
   no mask)
 
 If the foreground frame has no mask, its contents are combined with those of

@@ -2208,7 +2208,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         macros = (
             '#UDGARRAY3;0x9(*bg)',
             '#UDG8,2(*fg)',
-            '#OVER0,0,,,1({0}&248|{1}&7)(bg,fg)',
+            '#OVER0,0,,,1($b&248|$f&7)(bg,fg)',
             '#UDGARRAY*bg(img)'
         )
         exp_image_path = '{}/img.png'.format(UDGDIR)
@@ -2227,7 +2227,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         macros = (
             '#UDGARRAY3;0x9(*bg)',
             '#UDG8,26(*fg)',
-            '#OVER1,0,,,1({0}&199|{1}&56)(bg,fg)',
+            '#OVER1,0,,,1($b&199|$f&56)(bg,fg)',
             '#UDGARRAY*bg(img)'
         )
         exp_image_path = '{}/img.png'.format(UDGDIR)
@@ -2246,7 +2246,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         macros = (
             '#UDGARRAY3,120;0x9(*bg)',
             '#UDG8,26(*fg)',
-            '#OVER2,0,,,1({0}&192|{1}&63)(bg,fg)',
+            '#OVER2,0,,,1($b&192|$f&63)(bg,fg)',
             '#UDGARRAY*bg(img)'
         )
         exp_image_path = '{}/img.png'.format(UDGDIR)
@@ -2284,7 +2284,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         macros = (
             '#UDGARRAY3;0x9(*bg)',
             '#UDGARRAY2;8,1;8,2;8,3;8,4(*fg)',
-            '#OVER1,1,,,1({0}+{1})(bg,fg)',
+            '#OVER1,1,,,1($b+$f)(bg,fg)',
             '#UDGARRAY*bg(img)'
         )
         exp_image_path = '{}/img.png'.format(UDGDIR)
@@ -2306,7 +2306,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         macros = (
             '#UDGARRAY3,0;0x7;0x2,5(*bg)',
             '#UDGARRAY2;8,1;8,2;8,3;8,4(*fg)',
-            '#OVER1,1,,,1(#IF({0}==0)({1},{0}))(bg,fg)',
+            '#OVER1,1,,,1(#IF($b==0)($f,$b))(bg,fg)',
             '#UDGARRAY*bg(img)'
         )
         exp_image_path = '{}/img.png'.format(UDGDIR)
@@ -2346,7 +2346,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         macros = (
             '#UDGARRAY3;0x9(*bg)',
             '#UDGARRAY2;8x4:16x4(*fg)',
-            '#OVER1,1,,,2({0}&{2}|{1})(bg,fg)',
+            '#OVER1,1,,,2($b&$m|$f)(bg,fg)',
             '#UDGARRAY*bg(img)'
         )
         exp_image_path = '{}/img.png'.format(UDGDIR)
@@ -2368,7 +2368,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         macros = (
             '#UDGARRAY3,3;0x9(*bg)',
             '#UDGARRAY2;8,1;8,2;8,3;8,4(*fg)',
-            '#OVER1,1,,,2(#IF({0}>{1})({0},{1}))(bg,fg)',
+            '#OVER1,1,,,2(#IF($b>$f)($b,$f))(bg,fg)',
             '#UDGARRAY*bg(img)'
         )
         exp_image_path = '{}/img.png'.format(UDGDIR)
@@ -2389,7 +2389,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         macros = (
             '#UDGARRAY3,3;0x9(*bg)',
             '#UDGARRAY2,5;8x4(*fg)',
-            '#OVER1,1,,,3({1})({1})(bg,fg)',
+            '#OVER1,1,,,3($f)($f)(bg,fg)',
             '#UDGARRAY*bg(img)'
         )
         exp_image_path = '{}/img.png'.format(UDGDIR)
@@ -2640,7 +2640,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         macros = (
             '#UDGARRAY4;0x16(*bg)',
             '#UDGARRAY2;8,14;8,15;8,16;8,17(*fg)',
-            '#OVER0,0,2,4,1({0}&192|{1}&63)(bg,fg)',
+            '#OVER0,0,2,4,1($b&192|$f&63)(bg,fg)',
             '#UDGARRAY*bg(img)'
         )
         exp_image_path = '{}/img.png'.format(UDGDIR)
@@ -2710,7 +2710,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         macros = (
             '#UDGARRAY3;0x9(*bg)',
             '#UDG8,2(*fg)',
-            '#OVERy=1,x=2,rmode=1,xoffset=0,yoffset=0({0}&248|{1}&7)(bg,fg)',
+            '#OVERy=1,x=2,rmode=1,xoffset=0,yoffset=0($b&248|$f&7)(bg,fg)',
             '#UDGARRAY*bg(img)'
         )
         exp_image_path = '{}/img.png'.format(UDGDIR)
@@ -2736,7 +2736,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
             '#LET(rmode=3)',
             '#LET(attr=1)',
             '#LET(byte=255)',
-            '#OVER({x},{y},{xoff},{yoff},{rmode})({{attr}})({{byte}})(bg,fg)',
+            '#OVER({x},{y},{xoff},{yoff},{rmode})({attr})({byte})(bg,fg)',
             '#UDGARRAY*bg(udg)'
         )
         exp_image_path = '{}/udg.png'.format(UDGDIR)
@@ -2777,7 +2777,6 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         self._assert_error(writer, macro_t.format('1,2'), "Too many parameters (expected 1): '1,2'", prefix)
         self._assert_error(writer, macro_t.format('q'), "Cannot parse integer 'q' in parameter string: 'q'", prefix)
         self._assert_error(writer, macro_t.format('{no}'), "Unrecognised field 'no': {no}", prefix)
-        self._assert_error(writer, macro_t.format('{{no}}'), "Unrecognised field 'no': {no}", prefix)
         self._assert_error(writer, macro_t.format('{2}'), "Field index out of range: {2}", prefix)
         self._assert_error(writer, macro_t.format('{u'), "Invalid format string: {u", prefix)
 
@@ -2792,7 +2791,6 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         self._assert_error(writer, macro_t.format('1,2'), "Too many parameters (expected 1): '1,2'", prefix)
         self._assert_error(writer, macro_t.format('q'), "Cannot parse integer 'q' in parameter string: 'q'", prefix)
         self._assert_error(writer, macro_t.format('{no}'), "Unrecognised field 'no': {no}", prefix)
-        self._assert_error(writer, macro_t.format('{{no}}'), "Unrecognised field 'no': {no}", prefix)
         self._assert_error(writer, macro_t.format('{3}'), "Field index out of range: {3}", prefix)
         self._assert_error(writer, macro_t.format('{u'), "Invalid format string: {u", prefix)
 

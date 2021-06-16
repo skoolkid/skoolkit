@@ -878,6 +878,12 @@ def parse_n(writer, text, index, *cwd):
         return end, '{}{:0{}X}{}'.format(prefix, value, hwidth, suffix)
     return end, '{:0{}}'.format(value, dwidth)
 
+def _over_attr(t, fields, b, f):
+    return parse_ints(t.safe_substitute(b=b, f=f), 0, 1, fields=fields)[1]
+
+def _over_byte(t, fields, b, f, m):
+    return parse_ints(t.safe_substitute(b=b, f=f, m=m), 0, 1, fields=fields)[1]
+
 def parse_over(text, index, fields, frame_map=None):
     # #OVERx,y[,xoffset,yoffset,rmode][(attr)][(byte)](bg,fg)
     end, x, y, xoffset, yoffset, rmode = parse_ints(text, index, 2, (0, 0, 0), ('x', 'y', 'xoffset', 'yoffset', 'rmode'), fields)
@@ -885,11 +891,11 @@ def parse_over(text, index, fields, frame_map=None):
     if rmode & 1:
         end, attr = parse_brackets(text, end)
         if attr is not None:
-            rattr = lambda b, f: parse_ints('({})'.format(_format_params(attr, attr, b, f)), 0, 1, fields=fields)[1]
+            rattr = partial(_over_attr, Template(f'({attr})'), fields)
     if rmode & 2:
         end, byte = parse_brackets(text, end)
         if byte is not None:
-            rbyte = lambda bb, fb, fm: parse_ints('({})'.format(_format_params(byte, byte, bb, fb, fm)), 0, 1, fields=fields)[1]
+            rbyte = partial(_over_byte, Template(f'({byte})'), fields)
     end, (bg, fg) = parse_strings(text, end, 2)
     if frame_map is not None:
         if bg not in frame_map:
