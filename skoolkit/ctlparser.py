@@ -174,7 +174,7 @@ class CtlParser:
                             self._lengths[address] = sublengths
                             self._subctls[address] = subctl
                             address += length
-                        self._multiline_comments[start] = (address, comment)
+                        self._multiline_comments.setdefault(start, (address, comment))
             elif asm_directive:
                 directive, address = asm_directive
                 self._asm_directives[address].append(directive)

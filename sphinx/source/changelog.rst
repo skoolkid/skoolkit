@@ -40,6 +40,8 @@ Changelog
   imported)
 * Fixed the bug where a frame whose pixels are modified by the :ref:`PLOT`
   macro may have incorrect colours when converted to an image
+* Fixed the bug where an ``M`` directive in a control file is ignored when it
+  is followed by a sub-block that has sublengths
 
 8.4 (2021-03-06)
 ----------------

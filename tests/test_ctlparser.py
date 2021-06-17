@@ -1696,6 +1696,27 @@ class CtlParserTest(SkoolKitTestCase):
         subctls = {b.start:(b.ctl, b.comment, b.multiline_comment) for b in sub_blocks}
         self.assertEqual(exp_subctls, subctls)
 
+    def test_M_directive_followed_by_sub_block_with_sublengths(self):
+        ctl = """
+            b 40000 Data
+            M 40000 This spans a "B" sub-block with sublengths and a "W" sub-block
+            B 40000,3,2,1
+            W 40003,2
+            i 40005
+        """
+        ctl_parser = self._get_ctl_parser(ctl)
+        blocks = ctl_parser.get_blocks()
+
+        self.assertEqual(len(blocks), 2)
+        sub_blocks = blocks[0].blocks
+        exp_subctls = {
+            40000: ('b', (40005, [(0, 'This spans a "B" sub-block with sublengths and a "W" sub-block')])),
+            40002: ('b', None),
+            40003: ('w', None)
+        }
+        subctls = {b.start:(b.ctl, b.multiline_comment) for b in sub_blocks}
+        self.assertEqual(exp_subctls, subctls)
+
     def test_loop(self):
         start = 30000
         length = 25
