@@ -648,8 +648,8 @@ class CommonSkoolMacroTest:
         self.assertEqual(output, '[a]')
 
         # Two values
-        output = writer.expand('#FOREACH(a,b)($s,<$s>)')
-        self.assertEqual(output, '<a><b>')
+        output = writer.expand('#FOREACH(a,b)($s,[$s])')
+        self.assertEqual(output, '[a][b]')
 
         # Three values
         output = writer.expand('#FOREACH(a,b,c)($s,*$s*)')

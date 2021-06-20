@@ -195,7 +195,9 @@ class MockSkoolParser:
         self.base = base
         self.case = case
         self.skoolfile = ''
-        self.fields = {'asm': 0, 'base': base, 'case': case, 'fix': 0, 'html': 1, 'vars': {}}
+        self.fields = {'asm': 0, 'base': base, 'case': case, 'fix': 0, 'html': 1}
+        self.fields['mode'] = self.fields.copy()
+        self.fields['vars'] = {}
         self.expands = ()
 
     def get_entry(self, address):
@@ -4426,6 +4428,204 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         """
         with self.assertRaisesRegex(SkoolKitError, "^@expand failed to expand '#R32768'$"):
             self._get_writer(skool=skool)
+
+    def test_macro_for_loop_variable_with_escaped_ampersand(self):
+        skool = """
+            ; Don't replace the 'a' in '&amp;' with the loop variable value
+            c32768 RET ; #FOR(0,1)(a,#IF(a&1)(#HTML(<b>#R32768</b>)))
+        """
+        writer = self._get_writer(skool=skool)
+        writer.write_asm_entries()
+
+        content = """
+            <div class="description">32768: Don't replace the 'a' in '&amp;amp;' with the loop variable value</div>
+            <table class="disassembly">
+            <tr>
+            <td class="routine-comment" colspan="5">
+            <div class="details">
+            </div>
+            </td>
+            </tr>
+            <tr>
+            <td class="address-2"><span id="32768"></span>32768</td>
+            <td class="instruction">RET</td>
+            <td class="comment-1" rowspan="1"><b><a href="32768.html">32768</a></b></td>
+            </tr>
+            </table>
+        """
+        subs = {
+            'header': 'Routines',
+            'title': 'Routine at 32768',
+            'body_class': 'Asm-c',
+            'up': '32768',
+            'content': content
+        }
+        self._assert_files_equal(join(ASMDIR, '32768.html'), subs)
+
+    def test_macro_for_loop_variable_with_escaped_less_than_sign(self):
+        skool = """
+            ; Don't replace the 'l' in '&lt;' with the loop variable value
+            c32768 RET ; #FOR(1,0,-1)(l,#IF(l<1)(#HTML(<b>#R32768</b>)))
+        """
+        writer = self._get_writer(skool=skool)
+        writer.write_asm_entries()
+
+        content = """
+            <div class="description">32768: Don't replace the 'l' in '&amp;lt;' with the loop variable value</div>
+            <table class="disassembly">
+            <tr>
+            <td class="routine-comment" colspan="5">
+            <div class="details">
+            </div>
+            </td>
+            </tr>
+            <tr>
+            <td class="address-2"><span id="32768"></span>32768</td>
+            <td class="instruction">RET</td>
+            <td class="comment-1" rowspan="1"><b><a href="32768.html">32768</a></b></td>
+            </tr>
+            </table>
+        """
+        subs = {
+            'header': 'Routines',
+            'title': 'Routine at 32768',
+            'body_class': 'Asm-c',
+            'up': '32768',
+            'content': content
+        }
+        self._assert_files_equal(join(ASMDIR, '32768.html'), subs)
+
+    def test_macro_for_loop_variable_with_escaped_greater_than_sign(self):
+        skool = """
+            ; Don't replace the 'g' in '&gt;' with the loop variable value
+            c32768 RET ; #FOR(0,1)(g,#IF(g>0)(#HTML(<b>#R32768</b>)))
+        """
+        writer = self._get_writer(skool=skool)
+        writer.write_asm_entries()
+
+        content = """
+            <div class="description">32768: Don't replace the 'g' in '&amp;gt;' with the loop variable value</div>
+            <table class="disassembly">
+            <tr>
+            <td class="routine-comment" colspan="5">
+            <div class="details">
+            </div>
+            </td>
+            </tr>
+            <tr>
+            <td class="address-2"><span id="32768"></span>32768</td>
+            <td class="instruction">RET</td>
+            <td class="comment-1" rowspan="1"><b><a href="32768.html">32768</a></b></td>
+            </tr>
+            </table>
+        """
+        subs = {
+            'header': 'Routines',
+            'title': 'Routine at 32768',
+            'body_class': 'Asm-c',
+            'up': '32768',
+            'content': content
+        }
+        self._assert_files_equal(join(ASMDIR, '32768.html'), subs)
+
+    def test_macro_foreach_loop_variable_with_escaped_ampersand(self):
+        skool = """
+            ; Don't replace the 'a' in '&amp;' with the loop variable value
+            c32768 RET ; #FOREACH(0,1)(a,#IF(a&1)(#HTML(<b>#R32768</b>)))
+        """
+        writer = self._get_writer(skool=skool)
+        writer.write_asm_entries()
+
+        content = """
+            <div class="description">32768: Don't replace the 'a' in '&amp;amp;' with the loop variable value</div>
+            <table class="disassembly">
+            <tr>
+            <td class="routine-comment" colspan="5">
+            <div class="details">
+            </div>
+            </td>
+            </tr>
+            <tr>
+            <td class="address-2"><span id="32768"></span>32768</td>
+            <td class="instruction">RET</td>
+            <td class="comment-1" rowspan="1"><b><a href="32768.html">32768</a></b></td>
+            </tr>
+            </table>
+        """
+        subs = {
+            'header': 'Routines',
+            'title': 'Routine at 32768',
+            'body_class': 'Asm-c',
+            'up': '32768',
+            'content': content
+        }
+        self._assert_files_equal(join(ASMDIR, '32768.html'), subs)
+
+    def test_macro_foreach_loop_variable_with_escaped_less_than_sign(self):
+        skool = """
+            ; Don't replace the 'l' in '&lt;' with the loop variable value
+            c32768 RET ; #FOREACH(1,0)(l,#IF(l<1)(#HTML(<b>#R32768</b>)))
+        """
+        writer = self._get_writer(skool=skool)
+        writer.write_asm_entries()
+
+        content = """
+            <div class="description">32768: Don't replace the 'l' in '&amp;lt;' with the loop variable value</div>
+            <table class="disassembly">
+            <tr>
+            <td class="routine-comment" colspan="5">
+            <div class="details">
+            </div>
+            </td>
+            </tr>
+            <tr>
+            <td class="address-2"><span id="32768"></span>32768</td>
+            <td class="instruction">RET</td>
+            <td class="comment-1" rowspan="1"><b><a href="32768.html">32768</a></b></td>
+            </tr>
+            </table>
+        """
+        subs = {
+            'header': 'Routines',
+            'title': 'Routine at 32768',
+            'body_class': 'Asm-c',
+            'up': '32768',
+            'content': content
+        }
+        self._assert_files_equal(join(ASMDIR, '32768.html'), subs)
+
+    def test_macro_foreach_loop_variable_with_escaped_greater_than_sign(self):
+        skool = """
+            ; Don't replace the 'g' in '&gt;' with the loop variable value
+            c32768 RET ; #FOREACH(0,1)(g,#IF(g>0)(#HTML(<b>#R32768</b>)))
+        """
+        writer = self._get_writer(skool=skool)
+        writer.write_asm_entries()
+
+        content = """
+            <div class="description">32768: Don't replace the 'g' in '&amp;gt;' with the loop variable value</div>
+            <table class="disassembly">
+            <tr>
+            <td class="routine-comment" colspan="5">
+            <div class="details">
+            </div>
+            </td>
+            </tr>
+            <tr>
+            <td class="address-2"><span id="32768"></span>32768</td>
+            <td class="instruction">RET</td>
+            <td class="comment-1" rowspan="1"><b><a href="32768.html">32768</a></b></td>
+            </tr>
+            </table>
+        """
+        subs = {
+            'header': 'Routines',
+            'title': 'Routine at 32768',
+            'body_class': 'Asm-c',
+            'up': '32768',
+            'content': content
+        }
+        self._assert_files_equal(join(ASMDIR, '32768.html'), subs)
 
     def test_macro_pc(self):
         skool = """

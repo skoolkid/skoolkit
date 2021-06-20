@@ -16,6 +16,7 @@
 
 from collections import defaultdict
 from functools import partial
+import html
 import inspect
 import re
 from string import Template
@@ -711,9 +712,15 @@ def parse_for(fields, text, index, *cwd):
         raise MacroParsingError("No variable name: {}".format(text[index:e.args[1]]))
     if fsep is None:
         fsep = sep
+    if fields['mode']['html']:
+        s = html.unescape(s)
     if start == stop:
-        return end, s.replace(var, str(start))
-    return end, fsep.join((sep.join([s.replace(var, str(n)) for n in range(start, stop, step)]), s.replace(var, str(stop))))
+        retval = s.replace(var, str(start))
+    else:
+        retval = fsep.join((sep.join([s.replace(var, str(n)) for n in range(start, stop, step)]), s.replace(var, str(stop))))
+    if fields['mode']['html']:
+        return end, html.escape(retval)
+    return end, retval
 
 def parse_foreach(entry_holder, text, index, *cwd):
     # #FOREACH([v1,v2,...])(var,string[,sep,fsep])
@@ -747,9 +754,15 @@ def parse_foreach(entry_holder, text, index, *cwd):
         return end, ''
     if fsep is None:
         fsep = sep
+    if entry_holder.fields['mode']['html']:
+        s = html.unescape(s)
     if len(values) == 1:
-        return end, s.replace(var, values[0])
-    return end, fsep.join((sep.join([s.replace(var, v) for v in values[:-1]]), s.replace(var, values[-1])))
+        retval = s.replace(var, values[0])
+    else:
+        retval = fsep.join((sep.join([s.replace(var, v) for v in values[:-1]]), s.replace(var, values[-1])))
+    if entry_holder.fields['mode']['html']:
+        return end, html.escape(retval)
+    return end, retval
 
 def parse_format(fields, text, index, *cwd):
     # #FORMAT[case](text)

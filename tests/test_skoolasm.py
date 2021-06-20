@@ -23,9 +23,10 @@ class MockSkoolParser:
             'base': base,
             'case': case,
             'fix': fix_mode,
-            'html': 0,
-            'vars': {}
+            'html': 0
         }
+        self.fields['mode'] = self.fields.copy()
+        self.fields['vars'] = {}
         self.expands = ()
 
     def get_entry(self, address):
