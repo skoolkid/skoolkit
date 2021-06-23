@@ -148,7 +148,7 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
 
     def test_macro_copy(self):
         writer = self._get_writer()
-        writer.fields = {'x': 1, 'y': 2}
+        writer.fields.update({'x': 1, 'y': 2})
         self._test_unsupported_macro(writer, '#COPY(f,g)')
         self._test_unsupported_macro(writer, '#COPY//f/g//')
         self._test_unsupported_macro(writer, '#COPYy=1,x=1(f,g)')
@@ -282,7 +282,7 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
 
     def test_macro_font(self):
         writer = self._get_writer()
-        writer.fields = {'a': 0, 'x': 1}
+        writer.fields.update({'a': 0, 'x': 1})
         self._test_unsupported_macro(writer, '#FONT55584,,,1{1,2}')
         self._test_unsupported_macro(writer, '#FONT:[foo]0,,5')
         self._test_unsupported_macro(writer, '#FONT32768,3,scale=4{x=1,width=26}(chars)')
@@ -332,7 +332,7 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
 
     def test_macro_include(self):
         writer = self._get_writer()
-        writer.fields = {'p': 0}
+        writer.fields['p'] = 0
         self.assertEqual(writer.expand('#INCLUDE(foo)'), '')
         self.assertEqual(writer.expand('#INCLUDE[bar]'), '')
         self.assertEqual(writer.expand('#INCLUDE{baz}'), '')
@@ -392,7 +392,7 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
 
     def test_macro_over(self):
         writer = self._get_writer()
-        writer.fields = {'x': 1, 'y': 2, 'rmode': 0}
+        writer.fields.update({'x': 1, 'y': 2, 'rmode': 0})
         self._test_unsupported_macro(writer, '#OVER1,1(b,f)')
         self._test_unsupported_macro(writer, '#OVER1,1//b/f//')
         self._test_unsupported_macro(writer, '#OVERy=1,x=1(b,f)')
@@ -446,7 +446,7 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
 
     def test_macro_plot(self):
         writer = self._get_writer()
-        writer.fields = {'x': 1, 'y': 2}
+        writer.fields.update({'x': 1, 'y': 2})
         self._test_unsupported_macro(writer, '#PLOT1,1(frame)')
         self._test_unsupported_macro(writer, '#PLOTy=1,x=1(frame)')
         self._test_unsupported_macro(writer, '#PLOT(1+1,2+1)(frame)')
@@ -791,7 +791,7 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
 
     def test_macro_scr(self):
         writer = self._get_writer()
-        writer.fields = {'s': 1, 'x': 1}
+        writer.fields.update({'s': 1, 'x': 1})
         self._test_unsupported_macro(writer, '#SCR2(fname)')
         self._test_unsupported_macro(writer, '#SCR,1,1(fname)')
         self._test_unsupported_macro(writer, '#SCR2,w=8,h=8{x=1,width=62}(fname)')
@@ -803,7 +803,7 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
 
     def test_macro_udg(self):
         writer = self._get_writer()
-        writer.fields = {'a': 0, 'm': 8, 'x': 1}
+        writer.fields.update({'a': 0, 'm': 8, 'x': 1})
         self._test_unsupported_macro(writer, '#UDG39144,6(safe_key)')
         self._test_unsupported_macro(writer, '#UDG65432,scale=2,mask=2:65440{y=2,height=14}(key)')
         self._test_unsupported_macro(writer, '#UDG(0+1, 3-2, (2+2)*5, step=8/2){(7+1)*10, height=2**4}(key*)')
@@ -815,7 +815,7 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
 
     def test_macro_udgarray(self):
         writer = self._get_writer()
-        writer.fields = {'w': 3, 'a': 0, 'm': 8, 's': 1, 'aa': 32, 'h': 15, 'd': 5}
+        writer.fields.update({'w': 3, 'a': 0, 'm': 8, 's': 1, 'aa': 32, 'h': 15, 'd': 5})
         self._test_unsupported_macro(writer, '#UDGARRAY8,,,256;33008-33023(bubble)')
         self._test_unsupported_macro(writer, '#UDGARRAY4,mask=2,step=256;33008-33023:33024-33039{x=1,width=126}(sprite)')
         self._test_unsupported_macro(writer, '#UDGARRAY(3-2, (1+5)*8, 2*2, 16/2);0{x=(1+2)*3, y = (8 - 4) / 2}(baz)')

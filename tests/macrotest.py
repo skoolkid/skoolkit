@@ -71,7 +71,6 @@ class CommonSkoolMacroTest:
 
     def test_macro_call_invalid(self):
         writer = self._get_writer()
-        writer.fields = {}
         writer.test_call = self._test_call
         writer.var = 'x'
         prefix = ERROR_PREFIX.format('CALL')
@@ -89,7 +88,6 @@ class CommonSkoolMacroTest:
 
     def test_macro_chr_invalid(self):
         writer = self._get_writer()
-        writer.fields = {}
         prefix = ERROR_PREFIX.format('CHR')
 
         self._assert_error(writer, '#CHR', 'No parameters (expected 1)', prefix)
@@ -345,7 +343,6 @@ class CommonSkoolMacroTest:
 
     def test_macro_def_invalid_macros(self):
         writer = self._get_writer()
-        writer.fields = {}
         prefix = ERROR_PREFIX.format('FOO')
 
         writer.expand('#DEF(#FOO(a)(b,c) $a$b$c)')
@@ -405,7 +402,6 @@ class CommonSkoolMacroTest:
 
     def test_macro_define_invalid_macro_definitions(self):
         writer = self._get_writer()
-        writer.fields = {}
 
         writer.expand('#DEFINE1(FOO,{1})')
         self._assert_error(writer, '#FOO0', 'Field index out of range: {1}', ERROR_PREFIX.format('FOO'))
@@ -418,7 +414,6 @@ class CommonSkoolMacroTest:
 
     def test_macro_define_invalid_macros(self):
         writer = self._get_writer()
-        writer.fields = {}
         prefix = ERROR_PREFIX.format('FOO')
 
         writer.expand('#DEFINE1,2(FOO,{0}{1}{2})')
@@ -493,7 +488,6 @@ class CommonSkoolMacroTest:
 
     def test_macro_eval_invalid(self):
         writer = self._get_writer()
-        writer.fields = {}
         prefix = ERROR_PREFIX.format('EVAL')
 
         self._assert_error(writer, '#EVAL', 'No parameters (expected 1)', prefix)
@@ -512,7 +506,6 @@ class CommonSkoolMacroTest:
 
     def test_macro_font_invalid(self):
         writer = self._get_writer()
-        writer.fields = {}
         prefix = ERROR_PREFIX.format('FONT')
 
         self._test_invalid_image_macro(writer, '#FONT', 'No parameters (expected 1)', prefix)
@@ -912,7 +905,6 @@ class CommonSkoolMacroTest:
 
     def test_macro_format_invalid(self):
         writer = self._get_writer()
-        writer.fields = {}
         prefix = ERROR_PREFIX.format('FORMAT')
 
         self._assert_error(writer, '#FORMAT', 'No text parameter', prefix)
@@ -1025,7 +1017,6 @@ class CommonSkoolMacroTest:
 
     def test_macro_if_invalid(self):
         writer = self._get_writer()
-        writer.fields = {}
         prefix = ERROR_PREFIX.format('IF')
 
         self._assert_error(writer, '#IF', "No valid expression found: '#IF'", prefix)
@@ -1102,7 +1093,6 @@ class CommonSkoolMacroTest:
 
     def test_macro_let_invalid(self):
         writer = self._get_writer()
-        writer.fields = {}
         prefix = ERROR_PREFIX.format('LET')
 
         self._assert_error(writer, '#LET', 'No text parameter', prefix)
@@ -1222,7 +1212,6 @@ class CommonSkoolMacroTest:
 
     def test_macro_map_invalid(self):
         writer = self._get_writer()
-        writer.fields = {}
         prefix = ERROR_PREFIX.format('MAP')
 
         self._assert_error(writer, '#MAP', "No valid expression found: '#MAP'", prefix)
@@ -1300,7 +1289,6 @@ class CommonSkoolMacroTest:
 
     def test_macro_n_invalid(self):
         writer = self._get_writer()
-        writer.fields = {}
         prefix = ERROR_PREFIX.format('N')
 
         self._assert_error(writer, '#N', "No parameters (expected 1)", prefix)
@@ -1447,7 +1435,6 @@ class CommonSkoolMacroTest:
 
     def test_macro_pokes_invalid(self):
         writer = self._get_writer(snapshot=[0])
-        writer.fields = {}
         prefix = ERROR_PREFIX.format('POKES')
 
         self._assert_error(writer, '#POKES', 'No parameters (expected 2)', prefix)
@@ -1505,7 +1492,6 @@ class CommonSkoolMacroTest:
 
     def test_macro_r_invalid(self):
         writer = self._get_writer()
-        writer.fields = {}
         prefix = ERROR_PREFIX.format('R')
 
         self._assert_error(writer, '#R', "No parameters (expected 1)", prefix)
@@ -1577,7 +1563,6 @@ class CommonSkoolMacroTest:
 
     def test_macro_scr_invalid(self):
         writer = self._get_writer(snapshot=[0] * 8)
-        writer.fields = {}
         prefix = ERROR_PREFIX.format('SCR')
 
         self._test_invalid_image_macro(writer, '#SCR{0,0,23,14,5}(foo)', "Too many parameters in cropping specification (expected 4 at most): {0,0,23,14,5}", prefix)
@@ -1607,7 +1592,6 @@ class CommonSkoolMacroTest:
 
     def test_macro_space_invalid(self):
         writer = self._get_writer()
-        writer.fields = {}
         prefix = ERROR_PREFIX.format('SPACE')
 
         self._assert_error(writer, '#SPACE(2', "No closing bracket: (2", prefix)

@@ -68,8 +68,6 @@ class HtmlWriter:
         self.defaults.parse(StringIO(REF_FILE))
         self.file_info = file_info
 
-        self.fields = skool_parser.fields
-
         colours = self._parse_colours(self.get_dictionary('Colours'))
         iw_config = self.get_dictionary('ImageWriter')
         self.image_writer = get_image_writer(iw_config, colours)
@@ -248,6 +246,11 @@ class HtmlWriter:
     @property
     def case(self):
         return self.parser.case
+
+    # API
+    @property
+    def fields(self):
+        return self.parser.fields
 
     def warn(self, s):
         warn(s)

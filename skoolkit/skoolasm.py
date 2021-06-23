@@ -42,8 +42,6 @@ class AsmWriter:
         self.show_warnings = self._get_int_property(properties, 'warnings', 1)
         self.asm_address_template = config['Address']
 
-        self.fields = parser.fields
-
         # Build a label dictionary
         self.labels = {}
         for entry in self.parser.memory_map:
@@ -125,6 +123,11 @@ class AsmWriter:
     @property
     def case(self):
         return self.parser.case
+
+    # API
+    @property
+    def fields(self):
+        return self.parser.fields
 
     def _get_int_property(self, properties, name, default):
         try:
