@@ -57,7 +57,7 @@ def _get_png_info(data):
     palette = []
     pixels = []
 
-    idat_data = []
+    frame_data = [[]]
     i = 0
     while i < len(data):
         if i == 0:
@@ -80,10 +80,15 @@ def _get_png_info(data):
                 j += len(entry)
         elif chunk_type == 'IDAT':
             # See http://www.libpng.org/pub/png/spec/iso/index-object.html#11IDAT
-            idat_data.extend(data[i + 8:i + 8 + chunk_length])
+            frame_data[0].extend(chunk_data)
+        elif chunk_type == 'fdAT':
+            # See https://wiki.mozilla.org/APNG_Specification#.60fdAT.60:_The_Frame_Data_Chunk
+            seq_no = _to_int(chunk_data[:4])
+            if len(frame_data) < seq_no + 2:
+                frame_data.append(chunk_data[4:])
+            else:
+                frame_data[seq_no + 1].extend(chunk_data[4:])
         i += 8 + chunk_length + 4
-
-    u_data = decompress(idat_data)
 
     if bit_depth == 4:
         scanline_len = 2 + width // 2 if width & 1 else 1 + width // 2
@@ -92,59 +97,63 @@ def _get_png_info(data):
     else:
         scanline_len = 2 + width // 8 if width & 7 else 1 + width // 8
 
-    scanline = [0] * scanline_len
-    for i, byte in enumerate(u_data):
-        s_index = i % scanline_len
-        if s_index == 0:
-            if i:
-                pixels.append(pixel_row[:width])
-            filter_type = byte
-            if filter_type > 4:
-                raise PNGError('Invalid filter type {0}'.format(filter_type))
-            pixel_row = []
-            prev_scanline = scanline
-            scanline = [0]
-            continue
+    for d in frame_data:
+        pixels.append([])
+        scanline = [0] * scanline_len
+        for i, byte in enumerate(decompress(d)):
+            s_index = i % scanline_len
+            if s_index == 0:
+                if i:
+                    pixels[-1].append(pixel_row[:width])
+                filter_type = byte
+                if filter_type > 4:
+                    raise PNGError('Invalid filter type {0}'.format(filter_type))
+                pixel_row = []
+                prev_scanline = scanline
+                scanline = [0]
+                continue
 
-        if filter_type == 1:
-            # Sub
-            byte += scanline[s_index - 1]
-        elif filter_type == 2:
-            # Up
-            byte += prev_scanline[s_index]
-        elif filter_type == 3:
-            # Average
-            byte += (scanline[s_index - 1] + prev_scanline[s_index]) // 2
-        elif filter_type == 4:
-            # Paeth
-            byte += _paeth(scanline[s_index - 1], prev_scanline[s_index], prev_scanline[s_index - 1])
-        byte &= 255
-        scanline.append(byte)
+            if filter_type == 1:
+                # Sub
+                byte += scanline[s_index - 1]
+            elif filter_type == 2:
+                # Up
+                byte += prev_scanline[s_index]
+            elif filter_type == 3:
+                # Average
+                byte += (scanline[s_index - 1] + prev_scanline[s_index]) // 2
+            elif filter_type == 4:
+                # Paeth
+                byte += _paeth(scanline[s_index - 1], prev_scanline[s_index], prev_scanline[s_index - 1])
+            byte &= 255
+            scanline.append(byte)
 
-        if bit_depth == 4:
-            pixel_row.append(palette[(byte & 240) // 16])
-            pixel_row.append(palette[byte & 15])
-        elif bit_depth == 2:
-            for b in range(4):
-                pixel_row.append(palette[(byte & 192) // 64])
-                byte *= 4
-        else:
-            for b in range(8):
-                pixel_row.append(palette[(byte & 128) // 128])
-                byte *= 2
-    pixels.append(pixel_row[:width])
+            if bit_depth == 4:
+                pixel_row.append(palette[(byte & 240) // 16])
+                pixel_row.append(palette[byte & 15])
+            elif bit_depth == 2:
+                for b in range(4):
+                    pixel_row.append(palette[(byte & 192) // 64])
+                    byte *= 4
+            else:
+                for b in range(8):
+                    pixel_row.append(palette[(byte & 128) // 128])
+                    byte *= 2
+        pixels[-1].append(pixel_row[:width])
 
     return width, height, pixels
 
 def show_diffs(fname1, data1, fname2, data2):
     diffs = []
     try:
-        w1, h1, p1 = _get_png_info(data1)
+        w1, h1, pixels = _get_png_info(data1)
+        p1 = pixels[0]
     except zlib.error:
         diffs.append('Error while decompressing data: {}'.format(fname1))
         w1, h1, p1 = 0, 0, []
     try:
-        w2, h2, p2 = _get_png_info(data2)
+        w2, h2, pixels = _get_png_info(data2)
+        p2 = pixels[0]
     except zlib.error:
         diffs.append('Error while decompressing data: {}'.format(fname2))
         w2, h2, p2 = 0, 0, []
@@ -355,16 +364,18 @@ def analyse_png(data, summary):
 
     _show_data('IDAT', idat_data, width, height, bit_depth, block_len, summary)
     if fdat_data:
-        _show_data('fDAT', fdat_data, f_width, f_height, bit_depth, block_len, summary)
+        _show_data('fdAT', fdat_data, f_width, f_height, bit_depth, block_len, summary)
 
 def dump_png(data):
-    width, height, pixels = _get_png_info(data)
+    width, height, frames = _get_png_info(data)
     print('Width: {}'.format(width))
     print('Height: {}'.format(height))
-    for y, row in enumerate(pixels):
-        for x, pixel in enumerate(row):
-            colour = PALETTE.get(tuple(pixel), 'UNKNOWN')
-            print('({},{}): {} ({})'.format(x, y, ','.join([str(v) for v in pixel]), colour))
+    print('Frames: {}'.format(len(frames)))
+    for f, pixels in enumerate(frames):
+        for y, row in enumerate(pixels):
+            for x, pixel in enumerate(row):
+                colour = PALETTE.get(tuple(pixel), 'UNKNOWN')
+                print('{}: ({},{}): {} ({})'.format(f, x, y, ','.join([str(v) for v in pixel]), colour))
 
 ###############################################################################
 # Begin
@@ -383,7 +394,7 @@ group.add_argument('--dump', action='store_true',
 group.add_argument('-f', dest='show_filters', action='store_true',
                    help="Show the filter types used in the image data")
 group.add_argument('-s', dest='summary', action='store_true',
-                   help="Hide IDAT/fDAT data and show a summary instead")
+                   help="Hide IDAT/fdAT data and show a summary instead")
 namespace, unknown_args = parser.parse_known_args()
 if unknown_args or len(namespace.args) != (2 if namespace.show_diff else 1):
     parser.exit(2, parser.format_help())
