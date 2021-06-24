@@ -291,10 +291,6 @@ For example::
 This defines a ``#MIN`` macro that accepts two integer arguments and expands to
 the value of the smaller argument.
 
-The ``#DEFINE`` macro is suitable for defining simple macros. To define more
-complex macros with named parameters or optional parameters, use the more
-powerful :ref:`DEF` macro instead.
-
 To define a macro that will be available for use immediately anywhere in the
 skool file or ref files, consider using the :ref:`expand` directive.
 
@@ -303,6 +299,10 @@ The integer parameters of a macro defined by ``#DEFINE`` may contain
 
 See :ref:`stringParameters` for details on alternative ways to supply the
 ``name`` and ``value`` parameters.
+
+.. note::
+   The ``#DEFINE`` macro is deprecated since version 8.5. Use the more powerful
+   :ref:`DEF` macro instead.
 
 +---------+---------+
 | Version | Changes |
