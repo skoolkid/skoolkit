@@ -3431,6 +3431,18 @@ class SkoolWriterTest(SkoolKitTestCase):
         """
         self._test_write_skool(snapshot, ctl, exp_skool, params={'Wrap': 1})
 
+    def test_wrap_with_jr_forward(self):
+        snapshot = [0] * 65535 + [24]
+        ctl = """
+            c 65535 Don't disassemble this JR instruction...
+            C 65535,2 ...because 'JR 1' would not assemble
+        """
+        exp_skool = """
+            ; Don't disassemble this JR instruction...
+            c65535 DEFB 24       ; ...because 'JR 1' would not assemble
+        """
+        self._test_write_skool(snapshot, ctl, exp_skool, params={'Wrap': 1})
+
     def test_braces_in_instruction_comments(self):
         snapshot = [0] * 39
         ctl = """
