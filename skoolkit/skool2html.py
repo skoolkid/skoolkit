@@ -392,7 +392,7 @@ def main(args):
         show_ref_sections(namespace.ref_sections)
     if unknown_args or not namespace.infiles:
         parser.exit(2, parser.format_help())
-    update_options('skool2html', namespace, namespace.params)
+    update_options('skool2html', namespace, namespace.params, config)
     verbose, show_timings = not namespace.quiet, namespace.show_timings
     if namespace.asm_one_page:
         namespace.config_specs.append('Game/AsmSinglePage=1')

@@ -1357,6 +1357,14 @@ class Skool2HtmlTest(SkoolKitTestCase):
 
     @patch.object(skool2html, 'run', mock_run)
     @patch.object(skool2html, 'get_config', mock_config)
+    def test_option_I_updates_config_params(self):
+        self.run_skool2html('-I EntryLabel=M_{address} -I EntryPointLabel=EP_{address} test.skool')
+        config = run_args[2]
+        self.assertEqual(config['EntryLabel'], 'M_{address}')
+        self.assertEqual(config['EntryPointLabel'], 'EP_{address}')
+
+    @patch.object(skool2html, 'run', mock_run)
+    @patch.object(skool2html, 'get_config', mock_config)
     def test_option_I_invalid_value(self):
         self.run_skool2html('-I Quiet=x test-I-invalid.skool')
         options = run_args[1]

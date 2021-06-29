@@ -139,7 +139,7 @@ def get_config(name):
                 config[k] = v
     return config
 
-def update_options(name, options, specs, config=None):
+def update_options(name, options, specs, config):
     def_config = COMMANDS.get(name, {})
     for spec in specs:
         param, sep, value = spec.partition('=')
@@ -152,8 +152,7 @@ def update_options(name, options, specs, config=None):
                     value = [s for s in value.split(',') if s]
                 if attr_name:
                     setattr(options, attr_name, value)
-                if config:
-                    config[param] = value
+                config[param] = value
             except ValueError:
                 pass
 
