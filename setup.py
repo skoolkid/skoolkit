@@ -10,10 +10,10 @@ SkoolKit is a collection of utilities that can be used to disassemble a
 Spectrum_ game (or indeed any piece of Spectrum software written in machine
 code) into a format known as a `skool` file. Then, from this `skool` file, you
 can use SkoolKit to create a browsable disassembly in HTML format, or a
-re-assemblable disassembly in ASM format. So the `skool` file is - from start
-to finish as you develop it by organising and annotating the code - the common
-'source' for both the reader-friendly HTML version of the disassembly, and the
-developer- and assembler-friendly ASM version of the disassembly.
+re-assemblable disassembly in assembly language. So the `skool` file is - from
+start to finish as you develop it by organising and annotating the code - the
+common 'source' for both the reader-friendly HTML version of the disassembly,
+and the developer- and assembler-friendly version of the disassembly.
 
 .. _Spectrum: https://en.wikipedia.org/wiki/ZX_Spectrum
 
@@ -54,8 +54,8 @@ With SkoolKit you can:
 
 In an HTML disassembly produced by skool2html.py_ you can also:
 
-* use the `#UDG`_, `#UDGARRAY`_, `#FONT`_ and `#SCR`_ macros to build still and
-  animated PNG images from graphic data
+* use the `image macros`_ to build still and animated PNG images from graphic
+  data
 * use the `#R`_ macro in annotations to create hyperlinks between routines and
   data blocks that refer to each other
 * use `[Bug:*]`_, `[Fact:*]`_ and `[Poke:*]`_ sections in a ref file to neatly
@@ -78,11 +78,8 @@ disassemblies of `Skool Daze`_, `Back to Skool`_, `Contact Sam Cruise`_,
 .. _snapmod.py: https://skoolkid.github.io/skoolkit/commands.html#snapmod-py
 .. _tap2sna.py: https://skoolkid.github.io/skoolkit/commands.html#tap2sna-py
 .. _tapinfo.py: https://skoolkid.github.io/skoolkit/commands.html#tapinfo-py
-.. _#FONT: https://skoolkid.github.io/skoolkit/skool-macros.html#font
+.. _image macros: https://skoolkid.github.io/skoolkit/skool-macros.html#image-macros
 .. _#R: https://skoolkid.github.io/skoolkit/skool-macros.html#r
-.. _#SCR: https://skoolkid.github.io/skoolkit/skool-macros.html#scr
-.. _#UDG: https://skoolkid.github.io/skoolkit/skool-macros.html#udg
-.. _#UDGARRAY: https://skoolkid.github.io/skoolkit/skool-macros.html#udgarray
 .. _[Bug:*]: https://skoolkid.github.io/skoolkit/ref-files.html#box-pages
 .. _[Fact:*]: https://skoolkid.github.io/skoolkit/ref-files.html#box-pages
 .. _[Poke:*]: https://skoolkid.github.io/skoolkit/ref-files.html#box-pages
@@ -99,7 +96,7 @@ SkoolKit includes fairly detailed documentation_, but if you want to get up and
 running quickly, here goes.
 
 To convert a SNA, Z80 or SZX snapshot of a Spectrum game into a `skool` file
-(so that it can be converted into an HTML or ASM disassembly)::
+(so that it can be converted into HTML or assembly language)::
 
   $ sna2skool.py game.z80 > game.skool
 
@@ -110,7 +107,7 @@ To turn this `skool` file into an HTML disassembly::
 
   $ skool2html.py game.skool
 
-To turn it into an ASM file that can be fed to an assembler::
+To turn it into a file that can be fed to an assembler::
 
   $ skool2asm.py game.skool > game.asm
 

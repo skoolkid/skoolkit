@@ -8,11 +8,11 @@ SkoolKit is a collection of utilities that can be used to disassemble a
 [Spectrum](https://en.wikipedia.org/wiki/ZX_Spectrum) game (or indeed any piece
 of Spectrum software written in machine code) into a format known as a *skool*
 file. Then, from this *skool* file, you can use SkoolKit to create a browsable
-disassembly in HTML format, or a re-assemblable disassembly in ASM format. So
-the *skool* file is - from start to finish as you develop it by organising and
-annotating the code - the common 'source' for both the reader-friendly HTML
-version of the disassembly, and the developer- and assembler-friendly ASM
-version of the disassembly.
+disassembly in HTML format, or a re-assemblable disassembly in assembly
+language. So the *skool* file is - from start to finish as you develop it by
+organising and annotating the code - the common 'source' for both the
+reader-friendly HTML version of the disassembly, and the developer- and
+assembler-friendly version of the disassembly.
 
 Requirements
 ------------
@@ -73,11 +73,8 @@ In an HTML disassembly produced by
 [skool2html.py](https://skoolkid.github.io/skoolkit/commands.html#skool2html-py)
 you can also:
 
-* use the [#UDG](https://skoolkid.github.io/skoolkit/skool-macros.html#udg),
-  [#UDGARRAY](https://skoolkid.github.io/skoolkit/skool-macros.html#udgarray),
-  [#FONT](https://skoolkid.github.io/skoolkit/skool-macros.html#font) and
-  [#SCR](https://skoolkid.github.io/skoolkit/skool-macros.html#scr) macros to
-  build still and animated PNG images from graphic data
+* use the [image macros](https://skoolkid.github.io/skoolkit/skool-macros.html#image-macros)
+  to build still and animated PNG images from graphic data
 * use the [#R](https://skoolkid.github.io/skoolkit/skool-macros.html#r) macro
   in annotations to create hyperlinks between routines and data blocks that
   refer to each other

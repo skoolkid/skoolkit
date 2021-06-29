@@ -4,10 +4,10 @@ SkoolKit is a collection of utilities that can be used to disassemble a
 Spectrum_ game (or indeed any piece of Spectrum software written in machine
 code) into a format known as a skool file. Then, from this skool file, you can
 use SkoolKit to create a browsable disassembly in HTML format, or a
-re-assemblable disassembly in ASM format. So the skool file is - from start to
-finish as you develop it by organising and annotating the code - the common
-'source' for both the reader-friendly HTML version of the disassembly, and the
-developer- and assembler-friendly ASM version of the disassembly.
+re-assemblable disassembly in assembly language. So the skool file is - from
+start to finish as you develop it by organising and annotating the code - the
+common 'source' for both the reader-friendly HTML version of the disassembly,
+and the developer- and assembler-friendly version of the disassembly.
 
 .. _Spectrum: https://en.wikipedia.org/wiki/ZX_Spectrum
 
@@ -56,8 +56,8 @@ With SkoolKit you can:
 
 In an HTML disassembly produced by :ref:`skool2html.py` you can also:
 
-* use the :ref:`UDG`, :ref:`UDGARRAY`, :ref:`FONT` and :ref:`SCR` macros to
-  build still and animated PNG images from graphic data
+* use the :ref:`image macros <imageMacros>` to build still and animated PNG
+  images from graphic data
 * use the :ref:`R` macro in annotations to create hyperlinks between routines
   and data blocks that refer to each other
 * use :ref:`[Bug:*] <boxpages>`, :ref:`[Fact:*] <boxpages>` and
