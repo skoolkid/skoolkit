@@ -1,7 +1,7 @@
 Changelog
 =========
 
-8.5b1
+8.5rc
 -----
 * Dropped support for Python 3.5
 * Added the :ref:`OVER` macro (for superimposing one frame on another)
