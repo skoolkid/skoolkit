@@ -1,8 +1,8 @@
 Changelog
 =========
 
-8.5rc
------
+8.5 (2021-07-03)
+----------------
 * Dropped support for Python 3.5
 * Added the :ref:`OVER` macro (for superimposing one frame on another)
 * Added the :ref:`COPY` macro (for copying all or part of an existing frame
