@@ -305,8 +305,8 @@ if it exists; if no such template exists, the ``name`` template will be used.
 This is in accordance with SkoolKit's rules for preferring :ref:`page-specific
 templates <ps_templates>`.
 
-Base and case
--------------
+Base, case and fields
+---------------------
 The `base` and `case` attributes on AsmWriter and HtmlWriter can be inspected
 to determine the mode in which :ref:`skool2asm.py` or :ref:`skool2html.py` is
 running.
@@ -317,6 +317,8 @@ The `base` attribute has one of the following values:
 * 10 - decimal (``--decimal``)
 * 16 - hexadecimal (``--hex``)
 
+.. versionadded:: 6.1
+
 The `case` attribute has one of the following values:
 
 * 0 - default (neither ``--lower`` nor ``--upper``)
@@ -324,6 +326,13 @@ The `case` attribute has one of the following values:
 * 2 - upper case (``--upper``)
 
 .. versionadded:: 6.1
+
+The `fields` attribute on AsmWriter and HtmlWriter is a dictionary of
+replacement field names and values (see :ref:`replacementFields`).
+It can be used with the :meth:`~skoolkit.skoolmacro.parse_ints` and
+:meth:`~skoolkit.skoolmacro.parse_image_macro` functions.
+
+.. versionadded:: 6.0
 
 Memory snapshots
 ----------------
@@ -428,7 +437,13 @@ and functions.
    .. versionadded:: 5.1
 
 .. automethod:: skoolkit.skoolhtml.HtmlWriter.screenshot
+
 .. autofunction:: skoolkit.graphics.flip_udgs
+
+.. autofunction:: skoolkit.graphics.overlay_udgs
+
+   .. versionadded:: 8.5
+
 .. autofunction:: skoolkit.graphics.rotate_udgs
 
 HTML page initialisation

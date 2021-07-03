@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Extending SkoolKit &#8212; SkoolKit 8.4 documentation</title>
+    <title>Extending SkoolKit &#8212; SkoolKit 8.5 documentation</title>
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -34,7 +34,7 @@
         <li class="right" >
           <a href="html-templates.html" title="HTML templates"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.5 documentation</a> &#187;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
@@ -49,7 +49,7 @@
 <li><a class="reference internal" href="#expanding-skool-macros">Expanding skool macros</a></li>
 <li><a class="reference internal" href="#parsing-ref-files">Parsing ref files</a></li>
 <li><a class="reference internal" href="#formatting-templates">Formatting templates</a></li>
-<li><a class="reference internal" href="#base-and-case">Base and case</a></li>
+<li><a class="reference internal" href="#base-case-and-fields">Base, case and fields</a></li>
 <li><a class="reference internal" href="#memory-snapshots">Memory snapshots</a></li>
 <li><a class="reference internal" href="#graphics">Graphics</a></li>
 <li><a class="reference internal" href="#html-page-initialisation">HTML page initialisation</a></li>
@@ -605,8 +605,8 @@ if it exists; if no such template exists, the <code class="docutils literal notr
 This is in accordance with SkoolKit’s rules for preferring <a class="reference internal" href="html-templates.html#ps-templates"><span class="std std-ref">page-specific
 templates</span></a>.</p>
 </div>
-<div class="section" id="base-and-case">
-<h2>Base and case<a class="headerlink" href="#base-and-case" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="base-case-and-fields">
+<h2>Base, case and fields<a class="headerlink" href="#base-case-and-fields" title="Permalink to this headline">¶</a></h2>
 <p>The <cite>base</cite> and <cite>case</cite> attributes on AsmWriter and HtmlWriter can be inspected
 to determine the mode in which <a class="reference internal" href="commands.html#skool2asm-py"><span class="std std-ref">skool2asm.py</span></a> or <a class="reference internal" href="commands.html#skool2html-py"><span class="std std-ref">skool2html.py</span></a> is
 running.</p>
@@ -616,6 +616,9 @@ running.</p>
 <li>10 - decimal (<code class="docutils literal notranslate"><span class="pre">--decimal</span></code>)</li>
 <li>16 - hexadecimal (<code class="docutils literal notranslate"><span class="pre">--hex</span></code>)</li>
 </ul>
+<div class="versionadded">
+<p><span class="versionmodified">New in version 6.1.</span></p>
+</div>
 <p>The <cite>case</cite> attribute has one of the following values:</p>
 <ul class="simple">
 <li>0 - default (neither <code class="docutils literal notranslate"><span class="pre">--lower</span></code> nor <code class="docutils literal notranslate"><span class="pre">--upper</span></code>)</li>
@@ -624,6 +627,13 @@ running.</p>
 </ul>
 <div class="versionadded">
 <p><span class="versionmodified">New in version 6.1.</span></p>
+</div>
+<p>The <cite>fields</cite> attribute on AsmWriter and HtmlWriter is a dictionary of
+replacement field names and values (see <a class="reference internal" href="skool-macros.html#replacementfields"><span class="std std-ref">Replacement fields</span></a>).
+It can be used with the <a class="reference internal" href="#skoolkit.skoolmacro.parse_ints" title="skoolkit.skoolmacro.parse_ints"><code class="xref py py-meth docutils literal notranslate"><span class="pre">parse_ints()</span></code></a> and
+<a class="reference internal" href="#skoolkit.skoolmacro.parse_image_macro" title="skoolkit.skoolmacro.parse_image_macro"><code class="xref py py-meth docutils literal notranslate"><span class="pre">parse_image_macro()</span></code></a> functions.</p>
+<div class="versionadded">
+<p><span class="versionmodified">New in version 6.0.</span></p>
 </div>
 </div>
 <div class="section" id="memory-snapshots">
@@ -902,6 +912,46 @@ horizontally and vertically.</li>
 </dd></dl>
 
 <dl class="function">
+<dt id="skoolkit.graphics.overlay_udgs">
+<code class="descclassname">skoolkit.graphics.</code><code class="descname">overlay_udgs</code><span class="sig-paren">(</span><em>bg</em>, <em>fg</em>, <em>x</em>, <em>y</em>, <em>mask=0</em>, <em>rattr=None</em>, <em>rbyte=None</em><span class="sig-paren">)</span><a class="headerlink" href="#skoolkit.graphics.overlay_udgs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overlay a foreground array of UDGs (instances of
+<a class="reference internal" href="#skoolkit.graphics.Udg" title="skoolkit.graphics.Udg"><code class="xref py py-class docutils literal notranslate"><span class="pre">Udg</span></code></a>) on a background array of UDGs.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>bg</strong> – The background array of UDGs.</li>
+<li><strong>fg</strong> – The foreground array of UDGs.</li>
+<li><strong>x</strong> – Pixel x-coordinate on the background at which to overlay the
+foreground.</li>
+<li><strong>y</strong> – Pixel y-coordinate on the background at which to overlay the
+foreground.</li>
+<li><strong>mask</strong> – The type of mask to apply: 0 (no mask), 1 (OR-AND mask), or 2
+(AND-OR mask). If 0, the contents of the foreground and
+background are combined by OR operations.</li>
+<li><strong>rattr</strong> – A function that returns the replacement attribute byte for a
+background UDG over which a foreground UDG is superimposed.
+It must accept two arguments: the existing background UDG
+attribute, and the foreground UDG attribute. If <cite>None</cite>, the
+existing background attributes are left in place.</li>
+<li><strong>rbyte</strong> – A function that returns the replacement value for each
+graphic byte of a background UDG over which a foreground UDG
+is superimposed. It must accept three arguments: the existing
+background UDG graphic byte, the foreground UDG graphic byte,
+and the foreground UDG mask byte. If <cite>None</cite>, the mask
+specified by <cite>mask</cite> is used.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="versionadded">
+<p><span class="versionmodified">New in version 8.5.</span></p>
+</div>
+</dd></dl>
+
+<dl class="function">
 <dt id="skoolkit.graphics.rotate_udgs">
 <code class="descclassname">skoolkit.graphics.</code><code class="descname">rotate_udgs</code><span class="sig-paren">(</span><em>udgs</em>, <em>rotate=1</em><span class="sig-paren">)</span><a class="headerlink" href="#skoolkit.graphics.rotate_udgs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Rotate a 2D array of UDGs (instances of <a class="reference internal" href="#skoolkit.graphics.Udg" title="skoolkit.graphics.Udg"><code class="xref py py-class docutils literal notranslate"><span class="pre">Udg</span></code></a>)
@@ -1009,7 +1059,7 @@ subclasses may override it.</p>
         <li class="right" >
           <a href="html-templates.html" title="HTML templates"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.5 documentation</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">

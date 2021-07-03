@@ -92,6 +92,9 @@ Recognised parameters are:
   the class is in a module that is not in the module search path (e.g. a
   standalone module that is not part of an installed package), the module's
   location may be specified thus: ``/path/to/moduledir:module.classname``
+* ``InitModule`` - the name of a Python module to import before the HTML writer
+  class is imported; the module's location may be specified in the same way as
+  for ``HtmlWriterClass`` (see above)
 * ``RefFiles`` - a semicolon-separated list of extra ref files to use (after
   any that are automatically read by virtue of having the same filename prefix
   as the skool file, and before any others named on the :ref:`skool2html.py`
@@ -109,6 +112,8 @@ file is `game.skool`).
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 8.5     | Added the ``InitModule`` parameter                                |
++---------+-------------------------------------------------------------------+
 | 5.0     | Added the ``RefFiles`` parameter                                  |
 +---------+-------------------------------------------------------------------+
 | 3.3.1   | Added support to the ``HtmlWriterClass`` parameter for specifying |
@@ -128,20 +133,25 @@ blocks) whose disassembly pages can then be given custom titles and headers via
 the :ref:`titles` and :ref:`pageHeaders` sections. Each line in this section
 has the form::
 
-  name=addr1[,addr2...]
+  name=ADDR1[,ADDR2...]
 
 where:
 
 * ``name`` is the entry group name
-* ``addr1``, ``addr2`` etc. are the addresses of the entries in the group
+* ``ADDR1``, ``ADDR2`` etc. are address specifications that identify the
+  entries in the group
+
+An address specification can be either a single address (e.g. ``30000``), or an
+address range (e.g. ``30000-30010``).
 
 For example::
 
-  SpriteVariables=32768,32769,32770
+  SpriteVariables=32768,32770-32772
 
 This defines an entry group named 'SpriteVariables' that consists of the
-entries at 32768, 32769 and 32770. The titles and headers of the disassembly
-pages for these entries can then be specified like this::
+entries at 32768 and any others between addresses 32770 and 32772 inclusive.
+The titles and headers of the disassembly pages for these entries can then be
+specified like this::
 
   [Titles]
   Asm-SpriteVariables=Sprite variable at {entry[address]}
@@ -158,11 +168,13 @@ Entry group names may also be used in the ``Includes`` parameter of a
 This defines a memory map page named 'SpriteVariables' consisting of only the
 entries that belong to the group of the same name.
 
-+---------+---------+
-| Version | Changes |
-+=========+=========+
-| 8.4     | New     |
-+---------+---------+
++---------+---------------------------------------------------------+
+| Version | Changes                                                 |
++=========+=========================================================+
+| 8.5     | Added support for identifying entries by address ranges |
++---------+---------------------------------------------------------+
+| 8.4     | New                                                     |
++---------+---------------------------------------------------------+
 
 .. _ref-Game:
 
@@ -454,8 +466,9 @@ Recognised parameters and their default values are:
 
 * ``Includes`` - a comma-separated list of entries to include on the memory map
   page in addition to those specified by the ``EntryTypes`` parameter; each
-  item in the list may be either an entry address or the name of an entry group
-  defined in the :ref:`entryGroups` section
+  item in the list may be a single address, an address range (e.g.
+  ``30000-30010``), or the name of an entry group defined in the
+  :ref:`entryGroups` section
 * ``Intro`` - the text (which may contain HTML markup) displayed at the top of
   the memory map page (default: '')
 * ``LabelColumn`` - ``1`` to display the 'Label' column if any entries have
@@ -488,6 +501,8 @@ template is used.
 +---------+------------------------------------------------------------------+
 | Version | Changes                                                          |
 +=========+==================================================================+
+| 8.5     | Added support for address ranges in the ``Includes`` parameter   |
++---------+------------------------------------------------------------------+
 | 8.4     | The ``EntryTypes`` parameter defaults to an empty string         |
 +---------+------------------------------------------------------------------+
 | 8.1     | Added the ``LabelColumn`` parameter                              |

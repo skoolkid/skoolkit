@@ -18,13 +18,21 @@ SkoolKit relies on several components in order to function:
 * :ref:`snapshotRefCalc`
 
 The objects that are used for these components can be specified in the
-``[skoolkit]`` section of a file named `skoolkit.ini` either in the current
-working directory or in `~/.skoolkit`. The default contents of the
-``[skoolkit]`` section are as follows::
+:ref:`skoolkit` section of `skoolkit.ini`.
 
+.. _skoolkit:
+
+[skoolkit]
+----------
+Global configuration for SkoolKit can be specified in the ``[skoolkit]``
+section of a file named `skoolkit.ini` either in the current working directory
+or in `~/.skoolkit`. The default contents of this section are as follows::
+
+  [skoolkit]
   Assembler=skoolkit.z80.Assembler
   ControlDirectiveComposer=skoolkit.skoolctl.ControlDirectiveComposer
   ControlFileGenerator=skoolkit.snactl
+  DefaultDisassemblyStartAddress=16384
   Disassembler=skoolkit.disassembler.Disassembler
   HtmlTemplateFormatter=skoolkit.skoolhtml.TemplateFormatter
   ImageWriter=skoolkit.image.ImageWriter
@@ -34,6 +42,17 @@ working directory or in `~/.skoolkit`. The default contents of the
   SnapshotReader=skoolkit.snapshot
   SnapshotReferenceCalculator=skoolkit.snaskool
   SnapshotReferenceOperations=DJ,JR,JP,CA,RS
+
+Most of the parameters in the ``[skoolkit]`` section specify the objects to use
+for SkoolKit's pluggable components. The other recognised parameters are:
+
+* ``DefaultDisassemblyStartAddress`` - the address at which to start
+  disassembling a snapshot when no control file is provided; this is used by
+  :ref:`sna2ctl.py` and :ref:`sna2skool.py`, and also by :ref:`snapinfo.py`
+  when generating a call graph
+* ``SnapshotReferenceOperations`` - the instructions whose address operands are
+  used by the :ref:`snapshot reference calculator <snapshotRefCalc>` to
+  identify entry points in routines and data blocks
 
 .. _assembler:
 
@@ -111,6 +130,11 @@ tuples of the form ``(size, base)``, each of which specifies the desired size
 If the first element of *sublengths* has a ``size`` value of 0, then the method
 should produce a list of statements with default sizes (as determined by
 `defb_size`, `defm_size` and `defw_size`), using the specified base.
+
+.. versionchanged:: 8.5
+   Added the ability to disassemble an instruction that wraps around the 64K
+   boundary, along with the *wrap* attribute on the disassembler configuration
+   object to control this behaviour.
 
 .. _htmlTemplateFormatter:
 
@@ -257,10 +281,10 @@ Snapshot reference calculator
 -----------------------------
 This object is responsible for generating a dictionary of entry point addresses
 from a snapshot. Each key in the dictionary is an entry point address, and the
-associated value is a collection of entries that jump to or call that entry
-point. This dictionary is needed for listing entry point referrers in a skool
-file (when the ``ListRefs`` configuration parameter of
-:ref:`sna2skool.py <sna2skool-conf>` is 1 or 2).
+associated value is a collection of entries that jump to, call or otherwise
+refer to that entry point. This dictionary is needed by :ref:`sna2skool.py` for
+marking each entry point in a skool file with an asterisk, and listing its
+referrers.
 
 The snapshot reference calculator must supply the following API function, in
 common with skoolkit.snaskool:
@@ -270,7 +294,24 @@ common with skoolkit.snaskool:
 
 The value of the *operations* argument is derived from the
 ``SnapshotReferenceOperations`` parameter in the ``[skoolkit]`` section of
-`skoolkit.ini`.
+`skoolkit.ini`. In its default form, this parameter is a comma-separated list
+of regular expression patterns that designates 'DJNZ', 'JR', 'JP', 'CALL' and
+'RST' operations as those whose address operands will be used to identify entry
+points in the skool file::
+
+  SnapshotReferenceOperations=DJ,JR,JP,CA,RS
+
+To use a pattern that contains a comma, an alternative (non-alphabetic)
+separator can be specified in the first character of the parameter value. For
+example::
+
+  SnapshotReferenceOperations=;DJ;JR;JP;CA;RS;LD A,\(\i\);LD \(\i\),A
+
+This would additionally designate the 'LD A,(nn)' and 'LD (nn),A' operations
+as identifying entry points. As a convenience for dealing with decimal and
+hexadecimal numbers, wherever ``\i`` appears in a pattern, it is replaced by a
+pattern that matches a decimal number or a hexadecimal number preceded by
+``$``.
 
 Each memory map entry has the following attributes:
 
@@ -288,6 +329,10 @@ Each instruction object has the following attributes:
   by a :ref:`refs` directive
 * *rrefs* - the addresses of the instruction's direct referrers to be removed,
   as declared by a :ref:`refs` directive
+
+.. versionchanged:: 8.5
+   The ``SnapshotReferenceOperations`` parameter defines a list of regular
+   expression patterns.
 
 .. versionchanged:: 8.2
    Added the *refs* and *rrefs* attributes to instruction objects.

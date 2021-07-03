@@ -3,7 +3,7 @@ Installing and using SkoolKit
 
 Requirements
 ------------
-SkoolKit requires `Python <https://www.python.org>`_ 3.5+. If you're running
+SkoolKit requires `Python <https://www.python.org>`_ 3.6+. If you're running
 Linux or one of the BSDs, you probably already have Python installed. If you're
 running Windows, you can get Python `here <https://www.python.org/downloads>`_.
 
@@ -35,9 +35,9 @@ command::
 
   > setup.py install
 
-This will install the SkoolKit command scripts in `C:\\Python36\\Scripts`
-(assuming you have installed Python in `C:\\Python36`), which means you can
-run them from anywhere (assuming you have added `C:\\Python36\\Scripts` to the
+This will install the SkoolKit command scripts in `C:\\Python39\\Scripts`
+(assuming you have installed Python in `C:\\Python39`), which means you can
+run them from anywhere (assuming you have added `C:\\Python39\\Scripts` to the
 ``Path`` environment variable).
 
 Linux/\*BSD

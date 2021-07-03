@@ -1,6 +1,48 @@
 Changelog
 =========
 
+8.5 (2021-07-03)
+----------------
+* Dropped support for Python 3.5
+* Added the :ref:`OVER` macro (for superimposing one frame on another)
+* Added the :ref:`COPY` macro (for copying all or part of an existing frame
+  into a new frame)
+* Added the :ref:`DEF` macro (as a more powerful alternative to the
+  :ref:`DEFINE` macro, which is now deprecated)
+* Added the ``Wrap`` configuration parameter for
+  :ref:`sna2skool.py <sna2skool-conf>` (for controlling whether to disassemble
+  an instruction that wraps around the 64K boundary)
+* Added the ``RefFormat`` configuration parameter for
+  :ref:`sna2skool.py <sna2skool-conf>` (for specifying the format of referrers
+  in a comment that lists them for a routine or entry point)
+* Added the ``EntryLabel`` and ``EntryPointLabel`` configuration parameters for
+  :ref:`skool2asm.py <skool2asm-conf>` and
+  :ref:`skool2html.py <skool2html-conf>` (for specifying the format of the
+  default labels for routines and data blocks and their entry points)
+* Added the ``Address`` configuration parameter for
+  :ref:`skool2asm.py <skool2asm-conf>` (for specifying the format of the
+  default link text for the :ref:`R` macro)
+* The ``SnapshotReferenceOperations`` parameter in the :ref:`skoolkit` section
+  of `skoolkit.ini` is now interpreted as a list of regular expression
+  patterns (which enables any type of instruction to be designated by the
+  :ref:`snapshot reference calculator <snapshotRefCalc>` as one whose address
+  operand identifies an entry point in a routine or data block)
+* Added support for identifying entries by address ranges in the
+  :ref:`entryGroups` section and the ``Includes`` parameter in :ref:`memoryMap`
+  sections
+* Added the ``case`` parameter to the :ref:`FORMAT` macro (for converting
+  formatted text to lower case or upper case)
+* Added the ``DefaultDisassemblyStartAddress`` parameter to the :ref:`skoolkit`
+  section of `skoolkit.ini` (for specifying the address at which to start
+  disassembling a snapshot when no control file is provided)
+* Added the ``InitModule`` parameter to the :ref:`ref-Config` section (for
+  specifying a Python module to import before the HTML writer class is
+  imported)
+* Fixed the bug where a frame whose pixels are modified by the :ref:`PLOT`
+  macro may have incorrect colours when converted to an image
+* Fixed the bug where an ``M`` directive in a control file is ignored when it
+  is followed by a sub-block that has sublengths
+
 8.4 (2021-03-06)
 ----------------
 * Made the :ref:`image writer component <imageWriter>` pluggable

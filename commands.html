@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Commands &#8212; SkoolKit 8.4 documentation</title>
+    <title>Commands &#8212; SkoolKit 8.5 documentation</title>
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -34,7 +34,7 @@
         <li class="right" >
           <a href="diy.html" title="Disassembly DIY"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.5 documentation</a> &#187;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
@@ -333,17 +333,41 @@ can be set by the <code class="docutils literal notranslate"><span class="pre">-
 current working directory or in <cite>~/.skoolkit</cite>, if present. The recognised
 configuration parameters are:</p>
 <ul class="simple">
+<li><code class="docutils literal notranslate"><span class="pre">Address</span></code> - the format of the default link text for the <a class="reference internal" href="skool-macros.html#r"><span class="std std-ref">#R</span></a> macro when
+the target address has no label (default: ‘’); this format string recognises
+the replacement field <code class="docutils literal notranslate"><span class="pre">address</span></code>; if the format string is blank, the address
+is formatted exactly as it appears in the skool file (without any <code class="docutils literal notranslate"><span class="pre">$</span></code>
+prefix)</li>
 <li><code class="docutils literal notranslate"><span class="pre">Base</span></code> - convert addresses and instruction operands to hexadecimal (<code class="docutils literal notranslate"><span class="pre">16</span></code>)
 or decimal (<code class="docutils literal notranslate"><span class="pre">10</span></code>), or leave them as they are (<code class="docutils literal notranslate"><span class="pre">0</span></code>, the default)</li>
 <li><code class="docutils literal notranslate"><span class="pre">Case</span></code> - write the disassembly in lower case (<code class="docutils literal notranslate"><span class="pre">1</span></code>) or upper case (<code class="docutils literal notranslate"><span class="pre">2</span></code>),
 or leave it as it is (<code class="docutils literal notranslate"><span class="pre">0</span></code>, the default)</li>
 <li><code class="docutils literal notranslate"><span class="pre">CreateLabels</span></code> - create default labels for unlabelled instructions (<code class="docutils literal notranslate"><span class="pre">1</span></code>),
 or don’t (<code class="docutils literal notranslate"><span class="pre">0</span></code>, the default)</li>
+<li><code class="docutils literal notranslate"><span class="pre">EntryLabel</span></code> - the format of the default label for the first instruction in
+a routine or data block (default: <code class="docutils literal notranslate"><span class="pre">L{address}</span></code>)</li>
+<li><code class="docutils literal notranslate"><span class="pre">EntryPointLabel</span></code> - the format of the default label for an instruction
+other than the first in a routine or data block (default: <code class="docutils literal notranslate"><span class="pre">{main}_{index}</span></code>)</li>
 <li><code class="docutils literal notranslate"><span class="pre">Quiet</span></code> - be quiet (<code class="docutils literal notranslate"><span class="pre">1</span></code>) or verbose (<code class="docutils literal notranslate"><span class="pre">0</span></code>, the default)</li>
 <li><code class="docutils literal notranslate"><span class="pre">Set-property</span></code> - set an ASM writer property value, e.g. <code class="docutils literal notranslate"><span class="pre">Set-bullet=+</span></code>
 (see the <a class="reference internal" href="asm.html#set"><span class="std std-ref">&#64;set</span></a> directive for a list of available properties)</li>
 <li><code class="docutils literal notranslate"><span class="pre">Templates</span></code> - file from which to read custom <a class="reference internal" href="asm-templates.html#asmtemplates"><span class="std std-ref">ASM templates</span></a></li>
 <li><code class="docutils literal notranslate"><span class="pre">Warnings</span></code> - show warnings (<code class="docutils literal notranslate"><span class="pre">1</span></code>, the default), or suppress them (<code class="docutils literal notranslate"><span class="pre">0</span></code>)</li>
+</ul>
+<p><code class="docutils literal notranslate"><span class="pre">EntryLabel</span></code> and <code class="docutils literal notranslate"><span class="pre">EntryPointLabel</span></code> are standard Python format strings.
+<code class="docutils literal notranslate"><span class="pre">EntryLabel</span></code> recognises the following replacement fields:</p>
+<ul class="simple">
+<li><code class="docutils literal notranslate"><span class="pre">address</span></code> - the address of the routine or data block as it appears in the
+skool file</li>
+<li><code class="docutils literal notranslate"><span class="pre">location</span></code> - the address of the routine or data block as an integer</li>
+</ul>
+<p><code class="docutils literal notranslate"><span class="pre">EntryPointLabel</span></code> recognises the following replacement fields:</p>
+<ul class="simple">
+<li><code class="docutils literal notranslate"><span class="pre">address</span></code> - the address of the instruction as it appears in the skool file</li>
+<li><code class="docutils literal notranslate"><span class="pre">index</span></code> - 0 for the first unlabelled instruction in the routine or data
+block, 1 for the second, etc.</li>
+<li><code class="docutils literal notranslate"><span class="pre">location</span></code> - the address of the instruction as an integer</li>
+<li><code class="docutils literal notranslate"><span class="pre">main</span></code> - the label of the first instruction in the routine or data block</li>
 </ul>
 <p>Configuration parameters must appear in a <code class="docutils literal notranslate"><span class="pre">[skool2asm]</span></code> section. For example,
 to make <cite>skool2asm.py</cite> write the disassembly in hexadecimal with a line width
@@ -368,44 +392,48 @@ Set-line-width=120
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>7.2</td>
+<tr class="row-even"><td>8.5</td>
+<td>Added the <code class="docutils literal notranslate"><span class="pre">Address</span></code>, <code class="docutils literal notranslate"><span class="pre">EntryLabel</span></code> and <code class="docutils literal notranslate"><span class="pre">EntryPointLabel</span></code>
+configuration parameters</td>
+</tr>
+<tr class="row-odd"><td>7.2</td>
 <td>Added the <code class="docutils literal notranslate"><span class="pre">Templates</span></code> configuration parameter and support for
 <a class="reference internal" href="asm-templates.html#asmtemplates"><span class="std std-ref">ASM templates</span></a></td>
 </tr>
-<tr class="row-odd"><td>7.0</td>
+<tr class="row-even"><td>7.0</td>
 <td><a class="reference internal" href="skool-files.html#nonentryblocks"><span class="std std-ref">Non-entry blocks</span></a> are reproduced verbatim; added the
 <code class="docutils literal notranslate"><span class="pre">--force</span></code> option</td>
 </tr>
-<tr class="row-even"><td>6.4</td>
+<tr class="row-odd"><td>6.4</td>
 <td>Added the <code class="docutils literal notranslate"><span class="pre">--var</span></code> option</td>
 </tr>
-<tr class="row-odd"><td>6.2</td>
+<tr class="row-even"><td>6.2</td>
 <td>Added the <code class="docutils literal notranslate"><span class="pre">--show-config</span></code> option; the <code class="docutils literal notranslate"><span class="pre">--end</span></code> and <code class="docutils literal notranslate"><span class="pre">--start</span></code>
 options accept a hexadecimal integer prefixed by ‘0x’</td>
 </tr>
-<tr class="row-even"><td>6.1</td>
+<tr class="row-odd"><td>6.1</td>
 <td>Configuration is read from <cite>skoolkit.ini</cite> if present; added the
 <code class="docutils literal notranslate"><span class="pre">--ini</span></code> option</td>
 </tr>
-<tr class="row-odd"><td>5.0</td>
+<tr class="row-even"><td>5.0</td>
 <td>Added the <code class="docutils literal notranslate"><span class="pre">--set</span></code> option</td>
 </tr>
-<tr class="row-even"><td>4.5</td>
+<tr class="row-odd"><td>4.5</td>
 <td>Added the <code class="docutils literal notranslate"><span class="pre">--start</span></code> and <code class="docutils literal notranslate"><span class="pre">--end</span></code> options</td>
 </tr>
-<tr class="row-odd"><td>4.1</td>
+<tr class="row-even"><td>4.1</td>
 <td>Added the <code class="docutils literal notranslate"><span class="pre">--writer</span></code> option</td>
 </tr>
-<tr class="row-even"><td>3.4</td>
+<tr class="row-odd"><td>3.4</td>
 <td>Added the <code class="docutils literal notranslate"><span class="pre">-V</span></code> and <code class="docutils literal notranslate"><span class="pre">-p</span></code> options and the long options</td>
 </tr>
-<tr class="row-odd"><td>2.2.2</td>
+<tr class="row-even"><td>2.2.2</td>
 <td>Added the ability to read a skool file from standard input</td>
 </tr>
-<tr class="row-even"><td>2.1.1</td>
+<tr class="row-odd"><td>2.1.1</td>
 <td>Added the <code class="docutils literal notranslate"><span class="pre">-u</span></code>, <code class="docutils literal notranslate"><span class="pre">-D</span></code> and <code class="docutils literal notranslate"><span class="pre">-H</span></code> options</td>
 </tr>
-<tr class="row-odd"><td>1.1</td>
+<tr class="row-even"><td>1.1</td>
 <td>Added the <code class="docutils literal notranslate"><span class="pre">-c</span></code> option</td>
 </tr>
 </tbody>
@@ -746,6 +774,10 @@ or decimal (<code class="docutils literal notranslate"><span class="pre">10</spa
 or leave it as it is (<code class="docutils literal notranslate"><span class="pre">0</span></code>, the default)</li>
 <li><code class="docutils literal notranslate"><span class="pre">CreateLabels</span></code> - create default labels for unlabelled instructions (<code class="docutils literal notranslate"><span class="pre">1</span></code>),
 or don’t (<code class="docutils literal notranslate"><span class="pre">0</span></code>, the default)</li>
+<li><code class="docutils literal notranslate"><span class="pre">EntryLabel</span></code> - the format of the default label for the first instruction in
+a routine or data block (default: <code class="docutils literal notranslate"><span class="pre">L{address}</span></code>)</li>
+<li><code class="docutils literal notranslate"><span class="pre">EntryPointLabel</span></code> - the format of the default label for an instruction
+other than the first in a routine or data block (default: <code class="docutils literal notranslate"><span class="pre">{main}_{index}</span></code>)</li>
 <li><code class="docutils literal notranslate"><span class="pre">JoinCss</span></code> - if specified, concatenate CSS files into a single file with
 this name</li>
 <li><code class="docutils literal notranslate"><span class="pre">OutputDir</span></code> - write files in this directory (default: <code class="docutils literal notranslate"><span class="pre">.</span></code>)</li>
@@ -757,6 +789,21 @@ more directories, separate them with commas</li>
 <li><code class="docutils literal notranslate"><span class="pre">Theme</span></code> - CSS theme to use; to specify two or more themes, separate them
 with commas</li>
 <li><code class="docutils literal notranslate"><span class="pre">Time</span></code> - show timings (<code class="docutils literal notranslate"><span class="pre">1</span></code>), or don’t (<code class="docutils literal notranslate"><span class="pre">0</span></code>, the default)</li>
+</ul>
+<p><code class="docutils literal notranslate"><span class="pre">EntryLabel</span></code> and <code class="docutils literal notranslate"><span class="pre">EntryPointLabel</span></code> are standard Python format strings.
+<code class="docutils literal notranslate"><span class="pre">EntryLabel</span></code> recognises the following replacement fields:</p>
+<ul class="simple">
+<li><code class="docutils literal notranslate"><span class="pre">address</span></code> - the address of the routine or data block as it appears in the
+skool file</li>
+<li><code class="docutils literal notranslate"><span class="pre">location</span></code> - the address of the routine or data block as an integer</li>
+</ul>
+<p><code class="docutils literal notranslate"><span class="pre">EntryPointLabel</span></code> recognises the following replacement fields:</p>
+<ul class="simple">
+<li><code class="docutils literal notranslate"><span class="pre">address</span></code> - the address of the instruction as it appears in the skool file</li>
+<li><code class="docutils literal notranslate"><span class="pre">index</span></code> - 0 for the first unlabelled instruction in the routine or data
+block, 1 for the second, etc.</li>
+<li><code class="docutils literal notranslate"><span class="pre">location</span></code> - the address of the instruction as an integer</li>
+<li><code class="docutils literal notranslate"><span class="pre">main</span></code> - the label of the first instruction in the routine or data block</li>
 </ul>
 <p>Configuration parameters must appear in a <code class="docutils literal notranslate"><span class="pre">[skool2html]</span></code> section. For
 example, to make <cite>skool2html.py</cite> use ASM labels and write the disassembly in
@@ -781,72 +828,76 @@ Base=16
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>7.0</td>
+<tr class="row-even"><td>8.5</td>
+<td>Added the <code class="docutils literal notranslate"><span class="pre">EntryLabel</span></code> and <code class="docutils literal notranslate"><span class="pre">EntryPointLabel</span></code> configuration
+parameters</td>
+</tr>
+<tr class="row-odd"><td>7.0</td>
 <td>Writes a single disassembly from the skool file given by the
 first positional argument</td>
 </tr>
-<tr class="row-odd"><td>6.4</td>
+<tr class="row-even"><td>6.4</td>
 <td>Added the <code class="docutils literal notranslate"><span class="pre">--var</span></code> option</td>
 </tr>
-<tr class="row-even"><td>6.2</td>
+<tr class="row-odd"><td>6.2</td>
 <td>Added the <code class="docutils literal notranslate"><span class="pre">--show-config</span></code> option</td>
 </tr>
-<tr class="row-odd"><td>6.1</td>
+<tr class="row-even"><td>6.1</td>
 <td>Configuration is read from <cite>skoolkit.ini</cite> if present; added the
 <code class="docutils literal notranslate"><span class="pre">--ini</span></code> option</td>
 </tr>
-<tr class="row-even"><td>5.4</td>
+<tr class="row-odd"><td>5.4</td>
 <td>Added the <code class="docutils literal notranslate"><span class="pre">--asm-one-page</span></code> option</td>
 </tr>
-<tr class="row-odd"><td>5.0</td>
+<tr class="row-even"><td>5.0</td>
 <td>The <code class="docutils literal notranslate"><span class="pre">--theme</span></code> option also looks for a CSS file whose base name
 matches the theme name</td>
 </tr>
-<tr class="row-even"><td>4.1</td>
+<tr class="row-odd"><td>4.1</td>
 <td>Added the <code class="docutils literal notranslate"><span class="pre">--search</span></code> and <code class="docutils literal notranslate"><span class="pre">--writer</span></code> options</td>
 </tr>
-<tr class="row-odd"><td>4.0</td>
+<tr class="row-even"><td>4.0</td>
 <td>Added the <code class="docutils literal notranslate"><span class="pre">--ref-sections</span></code> and <code class="docutils literal notranslate"><span class="pre">--ref-file</span></code> options</td>
 </tr>
-<tr class="row-even"><td>3.6</td>
+<tr class="row-odd"><td>3.6</td>
 <td>Added the <code class="docutils literal notranslate"><span class="pre">--join-css</span></code> and <code class="docutils literal notranslate"><span class="pre">--search-dirs</span></code> options</td>
 </tr>
-<tr class="row-odd"><td>3.5</td>
+<tr class="row-even"><td>3.5</td>
 <td>Added support for multiple CSS themes</td>
 </tr>
-<tr class="row-even"><td>3.4</td>
+<tr class="row-odd"><td>3.4</td>
 <td>Added the <code class="docutils literal notranslate"><span class="pre">-a</span></code> and <code class="docutils literal notranslate"><span class="pre">-C</span></code> options and the long options</td>
 </tr>
-<tr class="row-odd"><td>3.3.2</td>
+<tr class="row-even"><td>3.3.2</td>
 <td>Added <cite>$PACKAGE_DIR/resources</cite> to the search path; added the
 <code class="docutils literal notranslate"><span class="pre">-p</span></code> and <code class="docutils literal notranslate"><span class="pre">-T</span></code> options</td>
 </tr>
-<tr class="row-even"><td>3.2</td>
+<tr class="row-odd"><td>3.2</td>
 <td>Added <cite>~/.skoolkit</cite> to the search path</td>
 </tr>
-<tr class="row-odd"><td>3.1</td>
+<tr class="row-even"><td>3.1</td>
 <td>Added the <code class="docutils literal notranslate"><span class="pre">-c</span></code> option</td>
 </tr>
-<tr class="row-even"><td>3.0.2</td>
+<tr class="row-odd"><td>3.0.2</td>
 <td>No longer shows timings by default; added the <code class="docutils literal notranslate"><span class="pre">-t</span></code> option</td>
 </tr>
-<tr class="row-odd"><td>2.3.1</td>
+<tr class="row-even"><td>2.3.1</td>
 <td>Added support for reading multiple ref files per disassembly</td>
 </tr>
-<tr class="row-even"><td>2.2.2</td>
+<tr class="row-odd"><td>2.2.2</td>
 <td>Added the ability to read a skool file from standard input</td>
 </tr>
-<tr class="row-odd"><td>2.2</td>
+<tr class="row-even"><td>2.2</td>
 <td>No longer writes the Skool Daze and Back to Skool disassemblies
 by default; added the <code class="docutils literal notranslate"><span class="pre">-d</span></code> option</td>
 </tr>
-<tr class="row-even"><td>2.1.1</td>
+<tr class="row-odd"><td>2.1.1</td>
 <td>Added the <code class="docutils literal notranslate"><span class="pre">-l</span></code>, <code class="docutils literal notranslate"><span class="pre">-u</span></code>, <code class="docutils literal notranslate"><span class="pre">-D</span></code> and <code class="docutils literal notranslate"><span class="pre">-H</span></code> options</td>
 </tr>
-<tr class="row-odd"><td>2.1</td>
+<tr class="row-even"><td>2.1</td>
 <td>Added the <code class="docutils literal notranslate"><span class="pre">-o</span></code> and <code class="docutils literal notranslate"><span class="pre">-P</span></code> options</td>
 </tr>
-<tr class="row-even"><td>1.4</td>
+<tr class="row-odd"><td>1.4</td>
 <td>Added the <code class="docutils literal notranslate"><span class="pre">-V</span></code> option</td>
 </tr>
 </tbody>
@@ -1100,6 +1151,11 @@ referrers: never (<code class="docutils literal notranslate"><span class="pre">0
 (<code class="docutils literal notranslate"><span class="pre">1</span></code>, the default), or always (<code class="docutils literal notranslate"><span class="pre">2</span></code>)</li>
 <li><code class="docutils literal notranslate"><span class="pre">Ref</span></code> - template used to format the comment for a routine with exactly one
 referrer (default: <code class="docutils literal notranslate"><span class="pre">Used</span> <span class="pre">by</span> <span class="pre">the</span> <span class="pre">routine</span> <span class="pre">at</span> <span class="pre">{ref}.</span></code>)</li>
+<li><code class="docutils literal notranslate"><span class="pre">RefFormat</span></code> - template used to format referrers in the <code class="docutils literal notranslate"><span class="pre">{ref}</span></code> and
+<code class="docutils literal notranslate"><span class="pre">{refs}</span></code> fields of the <code class="docutils literal notranslate"><span class="pre">Ref</span></code> and <code class="docutils literal notranslate"><span class="pre">Refs</span></code> templates (default:
+<code class="docutils literal notranslate"><span class="pre">#R{address}</span></code>); the replacement field <code class="docutils literal notranslate"><span class="pre">address</span></code> is the address of the
+referrer formatted as a decimal or hexadecimal number in accordance with the
+<code class="docutils literal notranslate"><span class="pre">Base</span></code> and <code class="docutils literal notranslate"><span class="pre">Case</span></code> configuration parameters</li>
 <li><code class="docutils literal notranslate"><span class="pre">Refs</span></code> - template used to format the comment for a routine with two or more
 referrers (default: <code class="docutils literal notranslate"><span class="pre">Used</span> <span class="pre">by</span> <span class="pre">the</span> <span class="pre">routines</span> <span class="pre">at</span> <span class="pre">{refs}</span> <span class="pre">and</span> <span class="pre">{ref}.</span></code>)</li>
 <li><code class="docutils literal notranslate"><span class="pre">Semicolons</span></code> - block types (<code class="docutils literal notranslate"><span class="pre">b</span></code>, <code class="docutils literal notranslate"><span class="pre">c</span></code>, <code class="docutils literal notranslate"><span class="pre">g</span></code>, <code class="docutils literal notranslate"><span class="pre">i</span></code>, <code class="docutils literal notranslate"><span class="pre">s</span></code>, <code class="docutils literal notranslate"><span class="pre">t</span></code>,
@@ -1123,6 +1179,8 @@ the default)</li>
 (default: <code class="docutils literal notranslate"><span class="pre">Unused</span></code>)</li>
 <li><code class="docutils literal notranslate"><span class="pre">Title-w</span></code> - template used to format the title for an untitled ‘w’ block
 (default: <code class="docutils literal notranslate"><span class="pre">Data</span> <span class="pre">block</span> <span class="pre">at</span> <span class="pre">{address}</span></code>)</li>
+<li><code class="docutils literal notranslate"><span class="pre">Wrap</span></code> - disassemble an instruction that wraps around the 64K boundary
+(<code class="docutils literal notranslate"><span class="pre">1</span></code>), or don’t (<code class="docutils literal notranslate"><span class="pre">0</span></code>, the default)</li>
 </ul>
 <p>Configuration parameters must appear in a <code class="docutils literal notranslate"><span class="pre">[sna2skool]</span></code> section. For example,
 to make <cite>sna2skool.py</cite> generate hexadecimal skool files with a line width of
@@ -1147,74 +1205,79 @@ LineWidth=120
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>8.4</td>
+<tr class="row-even"><td>8.5</td>
+<td>Added the <code class="docutils literal notranslate"><span class="pre">Wrap</span></code> configuration parameter and the ability to
+disassemble an instruction that wraps around the 64K boundary;
+added the <code class="docutils literal notranslate"><span class="pre">RefFormat</span></code> configuration parameter</td>
+</tr>
+<tr class="row-odd"><td>8.4</td>
 <td>Changed the default value of the <code class="docutils literal notranslate"><span class="pre">DefmSize</span></code> configuration
 parameter from 66 to 65</td>
 </tr>
-<tr class="row-odd"><td>8.3</td>
+<tr class="row-even"><td>8.3</td>
 <td>Added support for reading control files from a directory
 (<code class="docutils literal notranslate"><span class="pre">--ctl</span> <span class="pre">DIR</span></code>)</td>
 </tr>
-<tr class="row-even"><td>8.1</td>
+<tr class="row-odd"><td>8.1</td>
 <td>Added support for ignoring default control files (<code class="docutils literal notranslate"><span class="pre">--ctl</span> <span class="pre">0</span></code>)</td>
 </tr>
-<tr class="row-odd"><td>8.0</td>
+<tr class="row-even"><td>8.0</td>
 <td>Added the <code class="docutils literal notranslate"><span class="pre">DefwSize</span></code> configuration parameter</td>
 </tr>
-<tr class="row-even"><td>7.1</td>
+<tr class="row-odd"><td>7.1</td>
 <td>Added support for reading multiple default control files, and for
 using the <code class="docutils literal notranslate"><span class="pre">--ctl</span></code> option multiple times; added the
 <code class="docutils literal notranslate"><span class="pre">CommentWidthMin</span></code>, <code class="docutils literal notranslate"><span class="pre">InstructionWidth</span></code> and <code class="docutils literal notranslate"><span class="pre">Semicolons</span></code>
 configuration parameters</td>
 </tr>
-<tr class="row-odd"><td>7.0</td>
+<tr class="row-even"><td>7.0</td>
 <td>The short option for <code class="docutils literal notranslate"><span class="pre">--lower</span></code> is <code class="docutils literal notranslate"><span class="pre">-l</span></code>; the long option for
 <code class="docutils literal notranslate"><span class="pre">-H</span></code> is <code class="docutils literal notranslate"><span class="pre">--hex</span></code></td>
 </tr>
-<tr class="row-even"><td>6.2</td>
+<tr class="row-odd"><td>6.2</td>
 <td>Added the <code class="docutils literal notranslate"><span class="pre">--show-config</span></code> option; the <code class="docutils literal notranslate"><span class="pre">--end</span></code>, <code class="docutils literal notranslate"><span class="pre">--org</span></code> and
 <code class="docutils literal notranslate"><span class="pre">--start</span></code> options accept a hexadecimal integer prefixed by ‘0x’</td>
 </tr>
-<tr class="row-odd"><td>6.1</td>
+<tr class="row-even"><td>6.1</td>
 <td>Configuration is read from <cite>skoolkit.ini</cite> if present; added the
 <code class="docutils literal notranslate"><span class="pre">--ini</span></code> option</td>
 </tr>
-<tr class="row-even"><td>4.4</td>
+<tr class="row-odd"><td>4.4</td>
 <td>Added the <code class="docutils literal notranslate"><span class="pre">--end</span></code> option</td>
 </tr>
-<tr class="row-odd"><td>4.3</td>
+<tr class="row-even"><td>4.3</td>
 <td>Added the <code class="docutils literal notranslate"><span class="pre">--line-width</span></code> option</td>
 </tr>
-<tr class="row-even"><td>3.4</td>
+<tr class="row-odd"><td>3.4</td>
 <td>Added the <code class="docutils literal notranslate"><span class="pre">-V</span></code> option and the long options, and the ability to
 add a comment listing referrers at every routine entry point</td>
 </tr>
-<tr class="row-odd"><td>3.3</td>
+<tr class="row-even"><td>3.3</td>
 <td>Added the ability to read 128K SNA snapshots</td>
 </tr>
-<tr class="row-even"><td>3.2</td>
+<tr class="row-odd"><td>3.2</td>
 <td>Added the <code class="docutils literal notranslate"><span class="pre">-p</span></code> option, and the ability to read SZX snapshots
 and 128K Z80 snapshots</td>
 </tr>
-<tr class="row-odd"><td>2.1.2</td>
+<tr class="row-even"><td>2.1.2</td>
 <td>Added the ability to write the disassembly in lower case</td>
 </tr>
-<tr class="row-even"><td>2.1</td>
+<tr class="row-odd"><td>2.1</td>
 <td>Added the <code class="docutils literal notranslate"><span class="pre">-H</span></code> option</td>
 </tr>
-<tr class="row-odd"><td>2.0.1</td>
+<tr class="row-even"><td>2.0.1</td>
 <td>Added the <code class="docutils literal notranslate"><span class="pre">-o</span></code> option, and the ability to read binary files, to
 set the maximum number of characters in a DEFM statement, and to
 suppress comments that list routine entry point referrers</td>
 </tr>
-<tr class="row-even"><td>2.0</td>
+<tr class="row-odd"><td>2.0</td>
 <td>Added the ability to set the maximum number of bytes in a DEFB
 statement</td>
 </tr>
-<tr class="row-odd"><td>1.0.5</td>
+<tr class="row-even"><td>1.0.5</td>
 <td>Added the ability to show ASCII text in comment fields</td>
 </tr>
-<tr class="row-even"><td>1.0.4</td>
+<tr class="row-odd"><td>1.0.4</td>
 <td>Added the <code class="docutils literal notranslate"><span class="pre">-s</span></code> option</td>
 </tr>
 </tbody>
@@ -1637,7 +1700,7 @@ block type 0x14</td>
         <li class="right" >
           <a href="diy.html" title="Disassembly DIY"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.5 documentation</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">

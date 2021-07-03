@@ -204,17 +204,41 @@ Configuration
 current working directory or in `~/.skoolkit`, if present. The recognised
 configuration parameters are:
 
+* ``Address`` - the format of the default link text for the :ref:`R` macro when
+  the target address has no label (default: ''); this format string recognises
+  the replacement field ``address``; if the format string is blank, the address
+  is formatted exactly as it appears in the skool file (without any ``$``
+  prefix)
 * ``Base`` - convert addresses and instruction operands to hexadecimal (``16``)
   or decimal (``10``), or leave them as they are (``0``, the default)
 * ``Case`` - write the disassembly in lower case (``1``) or upper case (``2``),
   or leave it as it is (``0``, the default)
 * ``CreateLabels`` - create default labels for unlabelled instructions (``1``),
   or don't (``0``, the default)
+* ``EntryLabel`` - the format of the default label for the first instruction in
+  a routine or data block (default: ``L{address}``)
+* ``EntryPointLabel`` - the format of the default label for an instruction
+  other than the first in a routine or data block (default: ``{main}_{index}``)
 * ``Quiet`` - be quiet (``1``) or verbose (``0``, the default)
 * ``Set-property`` - set an ASM writer property value, e.g. ``Set-bullet=+``
   (see the :ref:`set` directive for a list of available properties)
 * ``Templates`` - file from which to read custom :ref:`asmTemplates`
 * ``Warnings`` - show warnings (``1``, the default), or suppress them (``0``)
+
+``EntryLabel`` and ``EntryPointLabel`` are standard Python format strings.
+``EntryLabel`` recognises the following replacement fields:
+
+* ``address`` - the address of the routine or data block as it appears in the
+  skool file
+* ``location`` - the address of the routine or data block as an integer
+
+``EntryPointLabel`` recognises the following replacement fields:
+
+* ``address`` - the address of the instruction as it appears in the skool file
+* ``index`` - 0 for the first unlabelled instruction in the routine or data
+  block, 1 for the second, etc.
+* ``location`` - the address of the instruction as an integer
+* ``main`` - the label of the first instruction in the routine or data block
 
 Configuration parameters must appear in a ``[skool2asm]`` section. For example,
 to make `skool2asm.py` write the disassembly in hexadecimal with a line width
@@ -232,6 +256,9 @@ Configuration parameters may also be set on the command line by using the
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 8.5     | Added the ``Address``, ``EntryLabel`` and ``EntryPointLabel``     |
+|         | configuration parameters                                          |
++---------+-------------------------------------------------------------------+
 | 7.2     | Added the ``Templates`` configuration parameter and support for   |
 |         | :ref:`asmTemplates`                                               |
 +---------+-------------------------------------------------------------------+
@@ -569,6 +596,10 @@ configuration parameters are:
   or leave it as it is (``0``, the default)
 * ``CreateLabels`` - create default labels for unlabelled instructions (``1``),
   or don't (``0``, the default)
+* ``EntryLabel`` - the format of the default label for the first instruction in
+  a routine or data block (default: ``L{address}``)
+* ``EntryPointLabel`` - the format of the default label for an instruction
+  other than the first in a routine or data block (default: ``{main}_{index}``)
 * ``JoinCss`` - if specified, concatenate CSS files into a single file with
   this name
 * ``OutputDir`` - write files in this directory (default: ``.``)
@@ -580,6 +611,21 @@ configuration parameters are:
 * ``Theme`` - CSS theme to use; to specify two or more themes, separate them
   with commas
 * ``Time`` - show timings (``1``), or don't (``0``, the default)
+
+``EntryLabel`` and ``EntryPointLabel`` are standard Python format strings.
+``EntryLabel`` recognises the following replacement fields:
+
+* ``address`` - the address of the routine or data block as it appears in the
+  skool file
+* ``location`` - the address of the routine or data block as an integer
+
+``EntryPointLabel`` recognises the following replacement fields:
+
+* ``address`` - the address of the instruction as it appears in the skool file
+* ``index`` - 0 for the first unlabelled instruction in the routine or data
+  block, 1 for the second, etc.
+* ``location`` - the address of the instruction as an integer
+* ``main`` - the label of the first instruction in the routine or data block
 
 Configuration parameters must appear in a ``[skool2html]`` section. For
 example, to make `skool2html.py` use ASM labels and write the disassembly in
@@ -597,6 +643,9 @@ Configuration parameters may also be set on the command line by using the
 +---------+------------------------------------------------------------------+
 | Version | Changes                                                          |
 +=========+==================================================================+
+| 8.5     | Added the ``EntryLabel`` and ``EntryPointLabel`` configuration   |
+|         | parameters                                                       |
++---------+------------------------------------------------------------------+
 | 7.0     | Writes a single disassembly from the skool file given by the     |
 |         | first positional argument                                        |
 +---------+------------------------------------------------------------------+
@@ -882,6 +931,11 @@ configuration parameters are:
   (``1``, the default), or always (``2``)
 * ``Ref`` - template used to format the comment for a routine with exactly one
   referrer (default: ``Used by the routine at {ref}.``)
+* ``RefFormat`` - template used to format referrers in the ``{ref}`` and
+  ``{refs}`` fields of the ``Ref`` and ``Refs`` templates (default:
+  ``#R{address}``); the replacement field ``address`` is the address of the
+  referrer formatted as a decimal or hexadecimal number in accordance with the
+  ``Base`` and ``Case`` configuration parameters
 * ``Refs`` - template used to format the comment for a routine with two or more
   referrers (default: ``Used by the routines at {refs} and {ref}.``)
 * ``Semicolons`` - block types (``b``, ``c``, ``g``, ``i``, ``s``, ``t``,
@@ -905,6 +959,8 @@ configuration parameters are:
   (default: ``Unused``)
 * ``Title-w`` - template used to format the title for an untitled 'w' block
   (default: ``Data block at {address}``)
+* ``Wrap`` - disassemble an instruction that wraps around the 64K boundary
+  (``1``), or don't (``0``, the default)
 
 Configuration parameters must appear in a ``[sna2skool]`` section. For example,
 to make `sna2skool.py` generate hexadecimal skool files with a line width of
@@ -922,6 +978,10 @@ Configuration parameters may also be set on the command line by using the
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 8.5     | Added the ``Wrap`` configuration parameter and the ability to     |
+|         | disassemble an instruction that wraps around the 64K boundary;    |
+|         | added the ``RefFormat`` configuration parameter                   |
++---------+-------------------------------------------------------------------+
 | 8.4     | Changed the default value of the ``DefmSize`` configuration       |
 |         | parameter from 66 to 65                                           |
 +---------+-------------------------------------------------------------------+

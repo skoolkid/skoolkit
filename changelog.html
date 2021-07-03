@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Changelog &#8212; SkoolKit 8.4 documentation</title>
+    <title>Changelog &#8212; SkoolKit 8.5 documentation</title>
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -34,7 +34,7 @@
         <li class="right" >
           <a href="migration.html" title="Migrating from SkoolKit 7"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.5 documentation</a> &#187;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
@@ -42,11 +42,12 @@
   <h3><a href="index.html">Table of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">Changelog</a><ul>
-<li><a class="reference internal" href="#id1">8.4 (2021-03-06)</a></li>
-<li><a class="reference internal" href="#id2">8.3 (2020-11-08)</a></li>
-<li><a class="reference internal" href="#id3">8.2 (2020-07-19)</a></li>
-<li><a class="reference internal" href="#id4">8.1 (2020-03-29)</a></li>
-<li><a class="reference internal" href="#id5">8.0 (2019-11-09)</a></li>
+<li><a class="reference internal" href="#id1">8.5 (2021-07-03)</a></li>
+<li><a class="reference internal" href="#id2">8.4 (2021-03-06)</a></li>
+<li><a class="reference internal" href="#id3">8.3 (2020-11-08)</a></li>
+<li><a class="reference internal" href="#id4">8.2 (2020-07-19)</a></li>
+<li><a class="reference internal" href="#id5">8.1 (2020-03-29)</a></li>
+<li><a class="reference internal" href="#id6">8.0 (2019-11-09)</a></li>
 <li><a class="reference internal" href="#older-versions">Older versions</a></li>
 </ul>
 </li>
@@ -88,7 +89,51 @@
   <div class="section" id="changelog">
 <h1>Changelog<a class="headerlink" href="#changelog" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="id1">
-<h2>8.4 (2021-03-06)<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<h2>8.5 (2021-07-03)<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Dropped support for Python 3.5</li>
+<li>Added the <a class="reference internal" href="skool-macros.html#over"><span class="std std-ref">#OVER</span></a> macro (for superimposing one frame on another)</li>
+<li>Added the <a class="reference internal" href="skool-macros.html#copy"><span class="std std-ref">#COPY</span></a> macro (for copying all or part of an existing frame
+into a new frame)</li>
+<li>Added the <a class="reference internal" href="skool-macros.html#def"><span class="std std-ref">#DEF</span></a> macro (as a more powerful alternative to the
+<a class="reference internal" href="skool-macros.html#define"><span class="std std-ref">#DEFINE</span></a> macro, which is now deprecated)</li>
+<li>Added the <code class="docutils literal notranslate"><span class="pre">Wrap</span></code> configuration parameter for
+<a class="reference internal" href="commands.html#sna2skool-conf"><span class="std std-ref">sna2skool.py</span></a> (for controlling whether to disassemble
+an instruction that wraps around the 64K boundary)</li>
+<li>Added the <code class="docutils literal notranslate"><span class="pre">RefFormat</span></code> configuration parameter for
+<a class="reference internal" href="commands.html#sna2skool-conf"><span class="std std-ref">sna2skool.py</span></a> (for specifying the format of referrers
+in a comment that lists them for a routine or entry point)</li>
+<li>Added the <code class="docutils literal notranslate"><span class="pre">EntryLabel</span></code> and <code class="docutils literal notranslate"><span class="pre">EntryPointLabel</span></code> configuration parameters for
+<a class="reference internal" href="commands.html#skool2asm-conf"><span class="std std-ref">skool2asm.py</span></a> and
+<a class="reference internal" href="commands.html#skool2html-conf"><span class="std std-ref">skool2html.py</span></a> (for specifying the format of the
+default labels for routines and data blocks and their entry points)</li>
+<li>Added the <code class="docutils literal notranslate"><span class="pre">Address</span></code> configuration parameter for
+<a class="reference internal" href="commands.html#skool2asm-conf"><span class="std std-ref">skool2asm.py</span></a> (for specifying the format of the
+default link text for the <a class="reference internal" href="skool-macros.html#r"><span class="std std-ref">#R</span></a> macro)</li>
+<li>The <code class="docutils literal notranslate"><span class="pre">SnapshotReferenceOperations</span></code> parameter in the <a class="reference internal" href="components.html#skoolkit"><span class="std std-ref">[skoolkit]</span></a> section
+of <cite>skoolkit.ini</cite> is now interpreted as a list of regular expression
+patterns (which enables any type of instruction to be designated by the
+<a class="reference internal" href="components.html#snapshotrefcalc"><span class="std std-ref">snapshot reference calculator</span></a> as one whose address
+operand identifies an entry point in a routine or data block)</li>
+<li>Added support for identifying entries by address ranges in the
+<a class="reference internal" href="ref-files.html#entrygroups"><span class="std std-ref">[EntryGroups]</span></a> section and the <code class="docutils literal notranslate"><span class="pre">Includes</span></code> parameter in <a class="reference internal" href="ref-files.html#memorymap"><span class="std std-ref">[MemoryMap:*]</span></a>
+sections</li>
+<li>Added the <code class="docutils literal notranslate"><span class="pre">case</span></code> parameter to the <a class="reference internal" href="skool-macros.html#format"><span class="std std-ref">#FORMAT</span></a> macro (for converting
+formatted text to lower case or upper case)</li>
+<li>Added the <code class="docutils literal notranslate"><span class="pre">DefaultDisassemblyStartAddress</span></code> parameter to the <a class="reference internal" href="components.html#skoolkit"><span class="std std-ref">[skoolkit]</span></a>
+section of <cite>skoolkit.ini</cite> (for specifying the address at which to start
+disassembling a snapshot when no control file is provided)</li>
+<li>Added the <code class="docutils literal notranslate"><span class="pre">InitModule</span></code> parameter to the <a class="reference internal" href="ref-files.html#ref-config"><span class="std std-ref">[Config]</span></a> section (for
+specifying a Python module to import before the HTML writer class is
+imported)</li>
+<li>Fixed the bug where a frame whose pixels are modified by the <a class="reference internal" href="skool-macros.html#plot"><span class="std std-ref">#PLOT</span></a>
+macro may have incorrect colours when converted to an image</li>
+<li>Fixed the bug where an <code class="docutils literal notranslate"><span class="pre">M</span></code> directive in a control file is ignored when it
+is followed by a sub-block that has sublengths</li>
+</ul>
+</div>
+<div class="section" id="id2">
+<h2>8.4 (2021-03-06)<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li>Made the <a class="reference internal" href="components.html#imagewriter"><span class="std std-ref">image writer component</span></a> pluggable</li>
 <li>Added support for defining groups of entries (via the <a class="reference internal" href="ref-files.html#entrygroups"><span class="std std-ref">[EntryGroups]</span></a>
@@ -118,8 +163,8 @@ configuration parameter</li>
 below 16384 when converting a snapshot</li>
 </ul>
 </div>
-<div class="section" id="id2">
-<h2>8.3 (2020-11-08)<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id3">
+<h2>8.3 (2020-11-08)<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li>Added the <a class="reference internal" href="skool-macros.html#plot"><span class="std std-ref">#PLOT</span></a> macro (for setting, resetting or flipping a pixel in a
 frame already created by an image macro)</li>
@@ -143,8 +188,8 @@ in the integer parameters and cropping specification of the <a class="reference 
 when it appears in a BASIC program</li>
 </ul>
 </div>
-<div class="section" id="id3">
-<h2>8.2 (2020-07-19)<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id4">
+<h2>8.2 (2020-07-19)<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li>Added the <code class="docutils literal notranslate"><span class="pre">--call-graph</span></code> option to <a class="reference internal" href="commands.html#snapinfo-call-graph"><span class="std std-ref">snapinfo.py</span></a>
 (for generating a call graph in DOT format)</li>
@@ -178,8 +223,8 @@ jump to or call an entry point)</li>
 a 128K snapshot to map to 49152-65535)</li>
 </ul>
 </div>
-<div class="section" id="id4">
-<h2>8.1 (2020-03-29)<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id5">
+<h2>8.1 (2020-03-29)<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li>Added the <code class="docutils literal notranslate"><span class="pre">--rsub</span></code> and <code class="docutils literal notranslate"><span class="pre">--rfix</span></code> options to <a class="reference internal" href="commands.html#skool2bin-py"><span class="std std-ref">skool2bin.py</span></a> (for
 parsing the skool file in <a class="reference internal" href="asm.html#rsubmode"><span class="std std-ref">&#64;rsub mode</span></a> and <a class="reference internal" href="asm.html#rfixmode"><span class="std std-ref">&#64;rfix mode</span></a>)</li>
@@ -215,8 +260,8 @@ specifying <code class="docutils literal notranslate"><span class="pre">--ctl</s
 when an end address is specified</li>
 </ul>
 </div>
-<div class="section" id="id5">
-<h2>8.0 (2019-11-09)<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id6">
+<h2>8.0 (2019-11-09)<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li>Dropped support for Python 3.4</li>
 <li>Made several <a class="reference internal" href="components.html#components"><span class="std std-ref">SkoolKit components</span></a> pluggable</li>
@@ -287,7 +332,7 @@ comments</li>
         <li class="right" >
           <a href="migration.html" title="Migrating from SkoolKit 7"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.5 documentation</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">

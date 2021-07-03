@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Ref files &#8212; SkoolKit 8.4 documentation</title>
+    <title>Ref files &#8212; SkoolKit 8.5 documentation</title>
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -34,7 +34,7 @@
         <li class="right" >
           <a href="skool-macros.html" title="Skool macros"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.5 documentation</a> &#187;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
@@ -197,6 +197,9 @@ HTML disassembly of the game (default: <code class="docutils literal notranslate
 the class is in a module that is not in the module search path (e.g. a
 standalone module that is not part of an installed package), the module’s
 location may be specified thus: <code class="docutils literal notranslate"><span class="pre">/path/to/moduledir:module.classname</span></code></li>
+<li><code class="docutils literal notranslate"><span class="pre">InitModule</span></code> - the name of a Python module to import before the HTML writer
+class is imported; the module’s location may be specified in the same way as
+for <code class="docutils literal notranslate"><span class="pre">HtmlWriterClass</span></code> (see above)</li>
 <li><code class="docutils literal notranslate"><span class="pre">RefFiles</span></code> - a semicolon-separated list of extra ref files to use (after
 any that are automatically read by virtue of having the same filename prefix
 as the skool file, and before any others named on the <a class="reference internal" href="commands.html#skool2html-py"><span class="std std-ref">skool2html.py</span></a>
@@ -220,17 +223,20 @@ file is <cite>game.skool</cite>).</p>
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>5.0</td>
+<tr class="row-even"><td>8.5</td>
+<td>Added the <code class="docutils literal notranslate"><span class="pre">InitModule</span></code> parameter</td>
+</tr>
+<tr class="row-odd"><td>5.0</td>
 <td>Added the <code class="docutils literal notranslate"><span class="pre">RefFiles</span></code> parameter</td>
 </tr>
-<tr class="row-odd"><td>3.3.1</td>
+<tr class="row-even"><td>3.3.1</td>
 <td>Added support to the <code class="docutils literal notranslate"><span class="pre">HtmlWriterClass</span></code> parameter for specifying
 a module outside the module search path</td>
 </tr>
-<tr class="row-even"><td>2.2.3</td>
+<tr class="row-odd"><td>2.2.3</td>
 <td>Added the <code class="docutils literal notranslate"><span class="pre">HtmlWriterClass</span></code> parameter</td>
 </tr>
-<tr class="row-odd"><td>2.0</td>
+<tr class="row-even"><td>2.0</td>
 <td>New</td>
 </tr>
 </tbody>
@@ -242,21 +248,25 @@ a module outside the module search path</td>
 blocks) whose disassembly pages can then be given custom titles and headers via
 the <a class="reference internal" href="#titles"><span class="std std-ref">[Titles]</span></a> and <a class="reference internal" href="#pageheaders"><span class="std std-ref">[PageHeaders]</span></a> sections. Each line in this section
 has the form:</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>name=addr1[,addr2...]
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>name=ADDR1[,ADDR2...]
 </pre></div>
 </div>
 <p>where:</p>
 <ul class="simple">
 <li><code class="docutils literal notranslate"><span class="pre">name</span></code> is the entry group name</li>
-<li><code class="docutils literal notranslate"><span class="pre">addr1</span></code>, <code class="docutils literal notranslate"><span class="pre">addr2</span></code> etc. are the addresses of the entries in the group</li>
+<li><code class="docutils literal notranslate"><span class="pre">ADDR1</span></code>, <code class="docutils literal notranslate"><span class="pre">ADDR2</span></code> etc. are address specifications that identify the
+entries in the group</li>
 </ul>
+<p>An address specification can be either a single address (e.g. <code class="docutils literal notranslate"><span class="pre">30000</span></code>), or an
+address range (e.g. <code class="docutils literal notranslate"><span class="pre">30000-30010</span></code>).</p>
 <p>For example:</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>SpriteVariables=32768,32769,32770
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>SpriteVariables=32768,32770-32772
 </pre></div>
 </div>
 <p>This defines an entry group named ‘SpriteVariables’ that consists of the
-entries at 32768, 32769 and 32770. The titles and headers of the disassembly
-pages for these entries can then be specified like this:</p>
+entries at 32768 and any others between addresses 32770 and 32772 inclusive.
+The titles and headers of the disassembly pages for these entries can then be
+specified like this:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>[Titles]
 Asm-SpriteVariables=Sprite variable at {entry[address]}
 
@@ -274,8 +284,8 @@ Includes=SpriteVariables
 entries that belong to the group of the same name.</p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="50%" />
-<col width="50%" />
+<col width="14%" />
+<col width="86%" />
 </colgroup>
 <thead valign="bottom">
 <tr class="row-odd"><th class="head">Version</th>
@@ -283,7 +293,10 @@ entries that belong to the group of the same name.</p>
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>8.4</td>
+<tr class="row-even"><td>8.5</td>
+<td>Added support for identifying entries by address ranges</td>
+</tr>
+<tr class="row-odd"><td>8.4</td>
 <td>New</td>
 </tr>
 </tbody>
@@ -630,8 +643,9 @@ types are shown); entry types are identified as follows:<ul>
 </li>
 <li><code class="docutils literal notranslate"><span class="pre">Includes</span></code> - a comma-separated list of entries to include on the memory map
 page in addition to those specified by the <code class="docutils literal notranslate"><span class="pre">EntryTypes</span></code> parameter; each
-item in the list may be either an entry address or the name of an entry group
-defined in the <a class="reference internal" href="#entrygroups"><span class="std std-ref">[EntryGroups]</span></a> section</li>
+item in the list may be a single address, an address range (e.g.
+<code class="docutils literal notranslate"><span class="pre">30000-30010</span></code>), or the name of an entry group defined in the
+<a class="reference internal" href="#entrygroups"><span class="std std-ref">[EntryGroups]</span></a> section</li>
 <li><code class="docutils literal notranslate"><span class="pre">Intro</span></code> - the text (which may contain HTML markup) displayed at the top of
 the memory map page (default: ‘’)</li>
 <li><code class="docutils literal notranslate"><span class="pre">LabelColumn</span></code> - <code class="docutils literal notranslate"><span class="pre">1</span></code> to display the ‘Label’ column if any entries have
@@ -669,23 +683,26 @@ template is used.</p>
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>8.4</td>
+<tr class="row-even"><td>8.5</td>
+<td>Added support for address ranges in the <code class="docutils literal notranslate"><span class="pre">Includes</span></code> parameter</td>
+</tr>
+<tr class="row-odd"><td>8.4</td>
 <td>The <code class="docutils literal notranslate"><span class="pre">EntryTypes</span></code> parameter defaults to an empty string</td>
 </tr>
-<tr class="row-odd"><td>8.1</td>
+<tr class="row-even"><td>8.1</td>
 <td>Added the <code class="docutils literal notranslate"><span class="pre">LabelColumn</span></code> parameter</td>
 </tr>
-<tr class="row-even"><td>6.2</td>
+<tr class="row-odd"><td>6.2</td>
 <td>Added the <code class="docutils literal notranslate"><span class="pre">Includes</span></code> parameter</td>
 </tr>
-<tr class="row-odd"><td>6.0</td>
+<tr class="row-even"><td>6.0</td>
 <td>Every parameter (not just <code class="docutils literal notranslate"><span class="pre">Intro</span></code>) may contain
 <a class="reference internal" href="skool-macros.html#skoolmacros"><span class="std std-ref">skool macros</span></a></td>
 </tr>
-<tr class="row-even"><td>4.0</td>
+<tr class="row-odd"><td>4.0</td>
 <td>Added the <code class="docutils literal notranslate"><span class="pre">EntryDescriptions</span></code> and <code class="docutils literal notranslate"><span class="pre">LengthColumn</span></code> parameters</td>
 </tr>
-<tr class="row-odd"><td>2.5</td>
+<tr class="row-even"><td>2.5</td>
 <td>New</td>
 </tr>
 </tbody>
@@ -1366,7 +1383,7 @@ with the first one removed.</p>
         <li class="right" >
           <a href="skool-macros.html" title="Skool macros"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.5 documentation</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
