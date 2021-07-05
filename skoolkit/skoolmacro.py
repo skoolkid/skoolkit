@@ -558,8 +558,10 @@ def parse_call(writer, text, index, *cwd):
     return end, retval
 
 def parse_chr(writer, text, index, *cwd):
-    # #CHRnum or #CHR(num)
-    end, num = parse_ints(text, index, 1, fields=writer.fields)
+    # #CHRnum[,utf8]
+    end, num, utf8 = parse_ints(text, index, 2, (0,), fields=writer.fields)
+    if utf8:
+        return end, chr(num)
     return end, writer.to_chr(num)
 
 def parse_copy(text, index, fields, frame_map=None):

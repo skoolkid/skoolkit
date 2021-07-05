@@ -1455,6 +1455,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         writer = self._get_writer(skool='', variables=[('foo', 66)])
 
         self.assertEqual(writer.expand('#CHR169'), '&#169;')
+        self.assertEqual(writer.expand('#CHR169,0'), '&#169;')
         self.assertEqual(writer.expand('#CHR(163)1984'), '&#163;1984')
         self.assertEqual(writer.expand('#CHR65+3'), '&#65;+3')
         self.assertEqual(writer.expand('#CHR65*2'), '&#65;*2')

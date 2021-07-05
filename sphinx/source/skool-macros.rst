@@ -721,14 +721,15 @@ the documentation on :ref:`extending SkoolKit <extendingSkoolKit>`.
 
 #CHR
 ----
-In HTML mode, the ``#CHR`` macro expands to a numeric character reference
-(``&#num;``). In ASM mode, it expands to a unicode character in the UTF-8
-encoding. ::
+In HTML mode, the ``#CHR`` macro expands either to a numeric character
+reference (``&#num;``), or to a unicode character in the UTF-8 encoding. In ASM
+mode, it always expands to a unicode character in the UTF-8 encoding. ::
 
-  #CHRnum
+  #CHRnum[,utf8]
 
-* ``num`` is the character code, which may contain
-  :ref:`replacement fields <replacementFields>`
+* ``num`` is the character code
+* ``utf8`` is 1 to use UTF-8 encoding, or 0 (the default) to use a numeric
+  character reference in HTML mode
 
 For example:
 
@@ -740,13 +741,18 @@ For example:
 In HTML mode, this instance of the ``#CHR`` macro expands to ``&#169;``. In ASM
 mode, it expands to the copyright symbol.
 
+The parameter string of the ``#CHR`` macro may contain
+:ref:`replacement fields <replacementFields>`.
+
 +---------+------------------------------------------------------------------+
 | Version | Changes                                                          |
 +=========+==================================================================+
-| 8.3     | Added support for replacement fields in the ``num`` parameter    |
+| 8.6     | Added the ``utf8`` parameter                                     |
++---------+------------------------------------------------------------------+
+| 8.3     | Added support for replacement fields in the parameter string     |
 +---------+------------------------------------------------------------------+
 | 5.1     | Added support for arithmetic expressions and skool macros in the |
-|         | ``num`` parameter                                                |
+|         | parameter string                                                 |
 +---------+------------------------------------------------------------------+
 | 3.1     | New                                                              |
 +---------+------------------------------------------------------------------+

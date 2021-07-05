@@ -86,6 +86,14 @@ class CommonSkoolMacroTest:
         self._assert_error(writer, '#CALL:test_call({no})', "Unrecognised field 'no': {no}", prefix)
         self._assert_error(writer, '#CALL:test_call({no)', "Invalid format string: {no", prefix)
 
+    def test_macro_chr_utf8(self):
+        writer = self._get_writer()
+
+        self.assertEqual(writer.expand('#CHR65,1'), 'A')
+        self.assertEqual(writer.expand('#CHR169,1'), chr(169))
+        self.assertEqual(writer.expand('#CHR(66,#IF(1)(1))'), 'B')
+        self.assertEqual(writer.expand('#LET(utf8=1)#CHR(174,{utf8})'), chr(174))
+
     def test_macro_chr_invalid(self):
         writer = self._get_writer()
         prefix = ERROR_PREFIX.format('CHR')
@@ -94,7 +102,7 @@ class CommonSkoolMacroTest:
         self._assert_error(writer, '#CHRx', 'No parameters (expected 1)', prefix)
         self._assert_error(writer, '#CHR()', "No parameters (expected 1)", prefix)
         self._assert_error(writer, '#CHR(x,y)', "Cannot parse integer 'x' in parameter string: 'x,y'", prefix)
-        self._assert_error(writer, '#CHR(1,2)', "Too many parameters (expected 1): '1,2'", prefix)
+        self._assert_error(writer, '#CHR(1,2,3)', "Too many parameters (expected 2): '1,2,3'", prefix)
         self._assert_error(writer, '#CHR(2 ...', 'No closing bracket: (2 ...', prefix)
         self._assert_error(writer, '#CHR({no})', "Unrecognised field 'no': {no}", prefix)
         self._assert_error(writer, '#CHR({foo)', "Invalid format string: {foo", prefix)

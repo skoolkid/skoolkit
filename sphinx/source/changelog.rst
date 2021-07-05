@@ -3,6 +3,8 @@ Changelog
 
 8.6b1
 -----
+* Added the ``utf8`` parameter to the :ref:`CHR` macro (to use UTF-8 encoding
+  instead of a numeric character reference in HTML mode)
 
 8.5 (2021-07-03)
 ----------------

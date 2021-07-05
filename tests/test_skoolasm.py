@@ -135,6 +135,7 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
         writer = self._get_writer('', variables=[('foo', 66)])
 
         self.assertEqual(writer.expand('#CHR169'), chr(169))
+        self.assertEqual(writer.expand('#CHR169,0'), chr(169))
         self.assertEqual(writer.expand('#CHR(163)1985'), '{0}1985'.format(chr(163)))
         self.assertEqual(writer.expand('#CHR65+3'), 'A+3')
         self.assertEqual(writer.expand('#CHR65*2'), 'A*2')
