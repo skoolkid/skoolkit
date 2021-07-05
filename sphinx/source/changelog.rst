@@ -1,6 +1,9 @@
 Changelog
 =========
 
+8.6b1
+-----
+
 8.5 (2021-07-03)
 ----------------
 * Dropped support for Python 3.5
