@@ -459,6 +459,7 @@ def get_macros(writer):
         '#RAW': parse_raw,
         '#REG': partial(parse_reg, writer.get_reg, writer.case == CASE_LOWER),
         '#SPACE': partial(parse_space, writer),
+        '#STR': partial(parse_str, writer),
         '#VERSION': parse_version
     }
     for name, method in inspect.getmembers(writer, inspect.ismethod):
@@ -1016,6 +1017,11 @@ def parse_space(writer, text, index, *cwd):
     # #SPACE[num] or #SPACE([num])
     end, num = parse_ints(text, index, 1, (1,), fields=writer.fields)
     return end, writer.space * num
+
+def parse_str(writer, text, index, *cwd):
+    # #STRaddr,length
+    end, addr, length = parse_ints(text, index, 2, fields=writer.fields)
+    return end, ''.join(chr(b) for b in writer.snapshot[addr:addr + length])
 
 def parse_udg(text, index=0, fields=None):
     # #UDGaddr[,attr,scale,step,inc,flip,rotate,mask,tindex,alpha][:addr[,step]][{x,y,width,height}][(fname)]

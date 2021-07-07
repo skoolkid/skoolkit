@@ -3,6 +3,8 @@ Changelog
 
 8.6b1
 -----
+* Added the :ref:`STR` macro (for retrieving the text string at a given address
+  in the memory snapshot)
 * Added the ``utf8`` parameter to the :ref:`CHR` macro (to use UTF-8 encoding
   instead of a numeric character reference in HTML mode)
 

@@ -666,6 +666,31 @@ See also :ref:`POKES`.
 | 5.1     | New                                                               |
 +---------+-------------------------------------------------------------------+
 
+.. _STR:
+
+#STR
+----
+The ``#STR`` macro expands to the text string at a given address in the memory
+snapshot. ::
+
+  #STRaddr,length
+
+* ``addr`` is the address of the first character in the string
+* ``length`` is the number of characters in the string
+
+For example::
+
+  ; The message at 47154 is '#STR47154,10'.
+
+This instance of the ``#STR`` macro expands to the 10-character text string at
+address 47154 in the memory snapshot.
+
++---------+---------+
+| Version | Changes |
++=========+=========+
+| 8.6     | New     |
++---------+---------+
+
 General macros
 ^^^^^^^^^^^^^^
 
