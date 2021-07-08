@@ -673,14 +673,21 @@ See also :ref:`POKES`.
 The ``#STR`` macro expands to the text string at a given address in the memory
 snapshot. ::
 
-  #STRaddr,length
+  #STRaddr,flags,length
 
 * ``addr`` is the address of the first character in the string
+* ``flags`` indicates operations to be performed on the string
 * ``length`` is the number of characters in the string
+
+``flags`` is the sum of the following values, chosen according to the desired
+outcome:
+
+* 1 - strip trailing whitespace from the string
+* 2 - strip leading whitespace from the string
 
 For example::
 
-  ; The message at 47154 is '#STR47154,10'.
+  ; The message at 47154 is '#STR47154,0,10'.
 
 This instance of the ``#STR`` macro expands to the 10-character text string at
 address 47154 in the memory snapshot.

@@ -1019,9 +1019,14 @@ def parse_space(writer, text, index, *cwd):
     return end, writer.space * num
 
 def parse_str(writer, text, index, *cwd):
-    # #STRaddr,length
-    end, addr, length = parse_ints(text, index, 2, fields=writer.fields)
-    return end, ''.join(chr(b) for b in writer.snapshot[addr:addr + length])
+    # #STRaddr,flags,length
+    end, addr, flags, length = parse_ints(text, index, 3, fields=writer.fields)
+    s = ''.join(chr(b) for b in writer.snapshot[addr:addr + length])
+    if flags & 1:
+        s = s.rstrip()
+    if flags & 2:
+        s = s.lstrip()
+    return end, s
 
 def parse_udg(text, index=0, fields=None):
     # #UDGaddr[,attr,scale,step,inc,flip,rotate,mask,tindex,alpha][:addr[,step]][{x,y,width,height}][(fname)]
