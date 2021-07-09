@@ -1026,6 +1026,10 @@ def parse_str(writer, text, index, *cwd):
         s = s.rstrip()
     if flags & 2:
         s = s.lstrip()
+    if flags & 4:
+        while '  ' in s:
+            i, j = re.search(' {2,}', s).span()
+            s = s[:i] + f'#SPACE({j-i})' + s[j:]
     return end, s
 
 def parse_udg(text, index=0, fields=None):

@@ -1623,6 +1623,15 @@ class CommonSkoolMacroTest:
         self.assertEqual(writer.expand('/#STR0,2,10/'), '/Hello   /')
         self.assertEqual(writer.expand('/#STR0,3,10/'), '/Hello/')
 
+    def test_macro_str_with_spaces(self):
+        writer = self._get_writer(snapshot=[ord(c) for c in '  A B  C   '])
+        space = '&#160;' if isinstance(writer, HtmlWriter) else ' '
+
+        self.assertEqual(writer.expand('/#STR0,4,11/'), '/..A B..C.../'.replace('.', space))
+        self.assertEqual(writer.expand('/#STR0,5,11/'), '/..A B..C/'.replace('.', space))
+        self.assertEqual(writer.expand('/#STR0,6,11/'), '/A B..C.../'.replace('.', space))
+        self.assertEqual(writer.expand('/#STR0,7,11/'), '/A B..C/'.replace('.', space))
+
     def test_macro_str_invalid(self):
         writer = self._get_writer()
         prefix = ERROR_PREFIX.format('STR')

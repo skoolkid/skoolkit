@@ -684,6 +684,8 @@ outcome:
 
 * 1 - strip trailing whitespace from the string
 * 2 - strip leading whitespace from the string
+* 4 - replace each sequence of N>=2 spaces in the string with ``#SPACE(N)``
+  (see :ref:`SPACE`)
 
 For example::
 
