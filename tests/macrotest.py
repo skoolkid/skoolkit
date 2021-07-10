@@ -1608,13 +1608,20 @@ class CommonSkoolMacroTest:
         self._assert_error(writer, '#SPACE({foo)', "Invalid format string: {foo", prefix)
 
     def test_macro_str(self):
-        writer = self._get_writer(snapshot=[ord(c) for c in 'Hello'])
+        snapshot = [0] * 65536
+        snapshot[:5] = [ord(c) for c in 'Hello']
+        snapshot[32768:32771] = [79, 75, 191] # OK?
+        snapshot[-7:] = [ord(c) for c in 'Goodbye']
+        writer = self._get_writer(snapshot=snapshot)
 
+        self.assertEqual(writer.expand('#STR0'), 'Hello')
         self.assertEqual(writer.expand('#STR0,0,2'), 'He')
         self.assertEqual(writer.expand('#STR(0,0,5)'), 'Hello')
-        self.assertEqual(writer.expand('#STR(0+1,0,4)'), 'ello')
-        self.assertEqual(writer.expand('#LET(a=3)#STR({a},0,2)'), 'lo')
-        self.assertEqual(writer.expand('#STR(0,0,#IF(1)(4))'), 'Hell')
+        self.assertEqual(writer.expand('#STR(0+1,,4)'), 'ello')
+        self.assertEqual(writer.expand('#LET(a=3)#STR({a})'), 'lo')
+        self.assertEqual(writer.expand('#STR(0,,#IF(1)(4))'), 'Hell')
+        self.assertEqual(writer.expand('#STR32768'), 'OK?')
+        self.assertEqual(writer.expand('#STR65529'), 'Goodbye')
 
     def test_macro_str_strips_whitespace(self):
         writer = self._get_writer(snapshot=[ord(c) for c in '  Hello   '])
@@ -1636,8 +1643,8 @@ class CommonSkoolMacroTest:
         writer = self._get_writer()
         prefix = ERROR_PREFIX.format('STR')
 
-        self._assert_error(writer, '#STR', "No parameters (expected 3)", prefix)
-        self._assert_error(writer, '#STR2', "Not enough parameters (expected 3): '2'", prefix)
+        self._assert_error(writer, '#STR', "No parameters (expected 1)", prefix)
+        self._assert_error(writer, '#STR()', "No parameters (expected 1)", prefix)
         self._assert_error(writer, '#STR(1,2,3,4)', "Too many parameters (expected 3): '1,2,3,4'", prefix)
         self._assert_error(writer, '#STR(2', "No closing bracket: (2", prefix)
         self._assert_error(writer, '#STR(0,5$3)', "Cannot parse integer '5$3' in parameter string: '0,5$3'", prefix)

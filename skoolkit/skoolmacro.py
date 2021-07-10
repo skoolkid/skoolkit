@@ -1020,8 +1020,22 @@ def parse_space(writer, text, index, *cwd):
 
 def parse_str(writer, text, index, *cwd):
     # #STRaddr,flags,length
-    end, addr, flags, length = parse_ints(text, index, 3, fields=writer.fields)
-    s = ''.join(chr(b) for b in writer.snapshot[addr:addr + length])
+    end, addr, flags, length = parse_ints(text, index, 3, (0, -1), fields=writer.fields)
+    s_data = []
+    if length < 0:
+        a = addr
+        while a < 65536:
+            b = writer.snapshot[a]
+            if b == 0:
+                break
+            if b & 128:
+                s_data.append(b & 127)
+                break
+            s_data.append(b)
+            a += 1
+    else:
+        s_data.extend(writer.snapshot[addr:addr + length])
+    s = ''.join(chr(b) for b in s_data)
     if flags & 1:
         s = s.rstrip()
     if flags & 2:

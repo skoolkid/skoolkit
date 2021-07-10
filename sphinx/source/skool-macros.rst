@@ -673,11 +673,14 @@ See also :ref:`POKES`.
 The ``#STR`` macro expands to the text string at a given address in the memory
 snapshot. ::
 
-  #STRaddr,flags,length
+  #STRaddr[,flags,length]
 
 * ``addr`` is the address of the first character in the string
-* ``flags`` indicates operations to be performed on the string
-* ``length`` is the number of characters in the string
+* ``flags`` indicates operations to be performed on the string (default: 0)
+* ``length`` is the number of characters in the string; if -1 (the default),
+  the string ends either immediately before the first zero byte, or on the
+  first byte that has bit 7 set (bit 7 of that byte will be reset before
+  converting it to a character)
 
 ``flags`` is the sum of the following values, chosen according to the desired
 outcome:
@@ -689,10 +692,11 @@ outcome:
 
 For example::
 
-  ; The message at 47154 is '#STR47154,0,10'.
+  ; The messages at 47154 and 47160 are '#STR47154' and '#STR47160'.
+   47154 DEFM "Hello",0
+   47160 DEFM "Goodby","e"+128
 
-This instance of the ``#STR`` macro expands to the 10-character text string at
-address 47154 in the memory snapshot.
+These instances of the ``#STR`` macro expand to 'Hello' and 'Goodbye'.
 
 +---------+---------+
 | Version | Changes |
