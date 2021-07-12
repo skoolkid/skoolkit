@@ -336,6 +336,26 @@ class CommonSkoolMacroTest:
         self.assertEqual(writer.expand('#DEF/#CAT()(p,q) $p$q/'), '')
         self.assertEqual(writer.expand('#CAT||A|B||'), 'AB')
 
+    def test_macro_def_with_macro_arguments_as_replacement_fields(self):
+        writer = self._get_writer()
+
+        # Integer argument as replacement field
+        self.assertEqual(writer.expand('#DEF1(#HEX(n) ${n:04X})'), '')
+        self.assertEqual(writer.expand('#HEX64206'), '$FACE')
+
+        # Integer argument as replacement field in string argument value
+        self.assertEqual(writer.expand('#DEF1(#HEX(n)(s=${n:04X}) {s})'), '')
+        self.assertEqual(writer.expand('#HEX64206'), '$FACE')
+        self.assertEqual(writer.expand('#HEX64206(what)'), 'what')
+
+        # String argument as replacement field
+        self.assertEqual(writer.expand('#DEF1(#RJUST(n)(s) {s:>{n}})'), '')
+        self.assertEqual(writer.expand('/#RJUST5(hi)/'), '/   hi/')
+
+        # Escaped replacement field for non-argument value
+        self.assertEqual(writer.expand('#DEF1(#ADD(n) #LET(c={{c}}+{n})#EVAL({{c}}))'), '')
+        self.assertEqual(writer.expand('#LET(c=1)#ADD2'), '3')
+
     def test_macro_def_invalid(self):
         writer = self._get_writer()
         prefix = ERROR_PREFIX.format('DEF')

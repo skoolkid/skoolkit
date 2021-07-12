@@ -594,14 +594,17 @@ def parse_d(writer, text, index, *cwd):
         raise MacroParsingError('Entry at {} has no description'.format(addr))
     return end, entry.description
 
-def _expand_def_macro(writer, inames, idefaults, snames, sdefaults, body, text, index, *cwd):
+def _expand_def_macro(writer, inames, idefaults, snames, sdefaults, body, flags, text, index, *cwd):
     end, ints, strings = index, [], []
     if inames:
         result = parse_ints(text, index, 0, idefaults, inames, writer.fields)
         end, ints = result[0], result[1:]
     params = dict(zip(inames, ints))
     if snames:
-        sdefaults = [t.safe_substitute(**params) for t in sdefaults]
+        if flags & 1:
+            sdefaults = [s.format_map(params) for s in sdefaults]
+        else:
+            sdefaults = [t.safe_substitute(params) for t in sdefaults]
         if len(snames) != len(sdefaults) or (end < len(text) and text[end] == '('):
             end, strings = parse_strings(text, end, len(snames), sdefaults)
             if len(snames) == 1:
@@ -609,11 +612,17 @@ def _expand_def_macro(writer, inames, idefaults, snames, sdefaults, body, text, 
         else:
             strings = sdefaults
         params.update(dict(zip(snames, strings)))
-    return end, body.safe_substitute(**params)
+    if flags & 1:
+        return end, body.format_map(params)
+    return end, body.safe_substitute(params)
 
 def parse_def(writer, text, index, *cwd):
-    # #DEF(#MACRO[(ia[=i0],ib[=i1]...)[(sa[=s0],sb[=s1]...)]] body)
-    end, definition = parse_strings(text, index, 1)
+    # #DEF[flags](#MACRO[(ia[=i0],ib[=i1]...)[(sa[=s0],sb[=s1]...)]] body)
+    try:
+        end, flags = parse_ints(text, index, 1, (0,), fields=writer.fields)
+    except SkoolKitError:
+        end, flags = index, 0
+    end, definition = parse_strings(text, end, 1)
     definition = definition.strip()
     match = RE_MACRO.match(definition, 0)
     if match:
@@ -650,12 +659,13 @@ def parse_def(writer, text, index, *cwd):
         for sspec in _split_unbracketed(sparams):
             sname, sep, sval = [s.strip() for s in sspec.partition('=')]
             snames.append(sname)
-            if sep:
-                sdefaults.append(Template(sval))
-            elif sdefaults:
-                sdefaults.append(Template(''))
+            if sep or sdefaults:
+                sdefaults.append(sval)
 
-    writer.macros[name] = partial(_expand_def_macro, writer, inames, idefaults, snames, sdefaults, Template(body))
+    if flags & 1 == 0:
+        sdefaults = [Template(s) for s in sdefaults]
+        body = Template(body)
+    writer.macros[name] = partial(_expand_def_macro, writer, inames, idefaults, snames, sdefaults, body, flags)
     return end, ''
 
 def _expand(writer, iparams, sparams, value, text, index, *cwd):

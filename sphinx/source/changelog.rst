@@ -5,6 +5,8 @@ Changelog
 -----
 * Added the :ref:`STR` macro (for retrieving the text string at a given address
   in the memory snapshot)
+* Added support to the :ref:`DEF` macro for using replacement fields to
+  represent the defined macro's argument values
 * Added the ``utf8`` parameter to the :ref:`CHR` macro (to use UTF-8 encoding
   instead of a numeric character reference in HTML mode)
 

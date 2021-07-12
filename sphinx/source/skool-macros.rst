@@ -125,8 +125,8 @@ Replacement fields
 ^^^^^^^^^^^^^^^^^^
 The following replacement fields are available for use in the integer
 parameters of the :ref:`asm-if` directive and every skool macro (including
-macros defined by :ref:`DEFINE`), and also in the string parameters of the
-:ref:`FORMAT` and :ref:`LET` macros:
+macros defined by :ref:`DEF` or :ref:`DEFINE`), and also in the string
+parameters of the :ref:`FORMAT` and :ref:`LET` macros:
 
 * ``asm`` - 1 if in :ref:`isubMode`, 2 if in :ref:`ssubMode`, 3 if in
   :ref:`rsubMode`, or 0 otherwise
@@ -204,15 +204,20 @@ be an alphanumeric character (A-Z, a-z, 0-9).
 ----
 The ``#DEF`` macro defines a new skool macro. ::
 
-  #DEF(#MACRO[(ia[=i0],ib[=i1]...)[(sa[=s0],sb[=s1]...)]] body)
+  #DEF[flags](#MACRO[(ia[=i0],ib[=i1]...)[(sa[=s0],sb[=s1]...)]] body)
 
+* ``flags`` is 1 to use replacement fields (e.g. ``{var}``) to represent the
+  defined macro's argument values, or 0 (the default) to use $-placeholders
+  (e.g. ``$var``, ``${var}``)
 * ``MACRO`` is the macro name (which must be all upper case letters)
 * ``ia[=i0]``, ``ib[=i1]`` etc. are the integer parameter names and optional
   default values; the parameter names must consist of lower case letters only
 * ``sa[=s0]``, ``sb[=s1]`` etc. are the string parameter names and optional
   default values
 * ``body`` is the body of the macro definition, which may contain placeholders
-  in the form ``$var`` for the integer and string argument values
+  (``$var``, ``${var}`` - when ``flags`` is 0) or replacement fields
+  (``{var}`` - when ``flags`` is 1) representing the integer and string
+  argument values
 
 For example::
 
@@ -231,8 +236,8 @@ arguments, the second and third of which default to 1, and expands to the
 product of all three arguments.
 
 Default values for the defined macro's optional string parameters can also be
-specified in the macro's signature, and their default values may contain
-placeholders for the integer argument values. For example::
+specified in the macro's signature, and their default values may refer to the
+integer argument values. For example::
 
   #DEF(#NUM(a)(s=$a) $s)
 
@@ -240,6 +245,26 @@ This defines a ``#NUM`` macro that accepts one integer argument and an optional
 string argument. It expands either to the integer argument, or to the string
 argument if provided. So ``#NUM15`` expands to '15', and ``#NUM15($0F)``
 expands to '$0F'.
+
+If ``flags`` is 1, replacement fields are used instead of $-placeholders to
+represent the defined macro's argument values. The main advantage of using
+replacement fields is that Python string formatting options can be used on the
+argument values. For example::
+
+  #DEF1(#HEX(n) {n:04X})
+
+This defines a ``#HEX`` macro that formats its sole integer argument as a
+4-digit upper case hexadecimal number.
+
+However, when using replacement fields, care must be taken to escape any field
+that doesn't represent an argument value. For example::
+
+  #LET(count=0)
+  #DEF1(#ADD(amount) #LET(count={{count}}+{amount}))
+
+This defines a variable named ``count``, and an ``#ADD`` macro that increases
+its value by a given amount. Note how the replacement field for the ``count``
+variable in the body of the macro definition is escaped: ``{{count}}``.
 
 For more examples, see :ref:`definingMacrosWithDEF`.
 
@@ -259,15 +284,21 @@ delimiter.
 To define a macro that will be available for use immediately anywhere in the
 skool file or ref files, consider using the :ref:`expand` directive.
 
+The ``flags`` parameter of the ``#DEF`` macro may contain
+:ref:`replacement fields <replacementFields>`.
+
 The integer parameters of a macro defined by ``#DEF`` may contain
 :ref:`replacement fields <replacementFields>`, and may also be supplied via
 keyword arguments.
 
-+---------+---------+
-| Version | Changes |
-+=========+=========+
-| 8.5     | New     |
-+---------+---------+
++---------+------------------------------------------------------------------+
+| Version | Changes                                                          |
++=========+==================================================================+
+| 8.6     | Added the ``flags`` parameter and the ability to use replacement |
+|         | fields to represent the defined macro's argument values          |
++---------+------------------------------------------------------------------+
+| 8.5     | New                                                              |
++---------+------------------------------------------------------------------+
 
 .. _DEFINE:
 
