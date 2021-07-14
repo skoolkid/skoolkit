@@ -84,6 +84,11 @@ The ``Config`` section contains configuration parameters in the format::
 
 Recognised parameters are:
 
+* ``Expand`` - arbitrary text (intended to consist of one or more
+  :ref:`SMPLmacros`) that is expanded before any skool macros are expanded
+  elsewhere in the ref file or in skool file annotations; this is similar to
+  the :ref:`expand` directive, but can be used to expand macros that are
+  required only in HTML mode
 * ``GameDir`` - the root directory of the game's HTML disassembly; if not
   specified, the base name of the skool file given on the :ref:`skool2html.py`
   command line will be used
@@ -112,6 +117,8 @@ file is `game.skool`).
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 8.6     | Added the ``Expand`` parameter                                    |
++---------+-------------------------------------------------------------------+
 | 8.5     | Added the ``InitModule`` parameter                                |
 +---------+-------------------------------------------------------------------+
 | 5.0     | Added the ``RefFiles`` parameter                                  |

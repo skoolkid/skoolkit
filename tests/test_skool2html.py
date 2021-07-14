@@ -55,7 +55,7 @@ class MockSkoolParser:
         self.entries = {}
         self.memory_map = []
         self.fields = {}
-        self.expands = ()
+        self.expands = []
         mock_skool_parser = self
 
     def get_entry(self, address):

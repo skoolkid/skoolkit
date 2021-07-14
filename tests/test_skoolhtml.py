@@ -198,7 +198,7 @@ class MockSkoolParser:
         self.fields = {'asm': 0, 'base': base, 'case': case, 'fix': 0, 'html': 1}
         self.fields['mode'] = self.fields.copy()
         self.fields['vars'] = {}
-        self.expands = ()
+        self.expands = []
 
     def get_entry(self, address):
         return self.entries.get(address)
@@ -4419,7 +4419,7 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             @expand=#N(x)
             c32768 RET
         """
-        with self.assertRaisesRegex(SkoolParsingError, "^@expand failed to expand '#N\(x\)': Error while parsing #N macro: Cannot parse integer 'x' in parameter string: 'x'$"):
+        with self.assertRaisesRegex(SkoolParsingError, "^Failed to expand '#N\(x\)': Error while parsing #N macro: Cannot parse integer 'x' in parameter string: 'x'$"):
             self._get_writer(skool=skool)
 
     def test_expand_directive_with_unexpandable_macro(self):
@@ -4427,7 +4427,7 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             @expand=#R32768
             c32768 RET
         """
-        with self.assertRaisesRegex(SkoolKitError, "^@expand failed to expand '#R32768'$"):
+        with self.assertRaisesRegex(SkoolKitError, "^Failed to expand '#R32768'$"):
             self._get_writer(skool=skool)
 
     def test_macro_for_loop_variable_with_escaped_ampersand(self):
@@ -5102,6 +5102,70 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
 
     def test_parameter_DisassemblyTableNumCols_containing_skool_macro(self):
         self._test_Game_parameter_containing_skool_macro('DisassemblyTableNumCols')
+
+    def test_parameter_Expand(self):
+        skool = """
+            ; Routine
+            ;
+            ; foo=#EVAL({foo}); min(1,2)=#MIN(1,2)
+            c32768 RET
+        """
+        ref = """
+            [Config]
+            Expand=#INCLUDE(Macros)
+
+            [Macros]
+            #DEF(#MIN(a,b) #IF($a<$b)($a,$b))
+            #LET(foo=1)
+        """
+        writer = self._get_writer(ref=ref, skool=skool)
+        writer.write_asm_entries()
+
+        content = """
+            <div class="description">32768: Routine</div>
+            <table class="disassembly">
+            <tr>
+            <td class="routine-comment" colspan="5">
+            <div class="details">
+            <div class="paragraph">
+            foo=1; min(1,2)=1
+            </div>
+            </div>
+            </td>
+            </tr>
+            <tr>
+            <td class="address-2"><span id="32768"></span>32768</td>
+            <td class="instruction">RET</td>
+            <td class="comment-0" rowspan="1"></td>
+            </tr>
+            </table>
+        """
+        subs = {
+            'header': 'Routines',
+            'title': 'Routine at 32768',
+            'body_class': 'Asm-c',
+            'up': '32768',
+            'content': content
+        }
+        self._assert_files_equal(join(ASMDIR, '32768.html'), subs)
+
+    def test_parameter_Expand_with_invalid_macro(self):
+        skool = "c32768 RET"
+        ref = """
+            [Config]
+            Expand=#N(x)
+        """
+        with self.assertRaisesRegex(SkoolParsingError, "^Failed to expand '#N\(x\)': Error while parsing #N macro: Cannot parse integer 'x' in parameter string: 'x'$"):
+            self._get_writer(ref=ref, skool=skool)
+
+    def test_parameter_Expand_with_unexpandable_macro(self):
+        skool = "c32768 RET"
+        ref = """
+            [Config]
+            Expand=#R32768
+        """
+        with self.assertRaisesRegex(SkoolKitError, "^Failed to expand '#R32768'$"):
+            self._get_writer(ref=ref, skool=skool)
 
     def test_parameter_Font_containing_skool_macro(self):
         self._test_Game_parameter_containing_skool_macro('Font')

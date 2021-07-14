@@ -39,6 +39,7 @@ SECTIONS['Colours'] = """
 """
 
 SECTIONS['Config'] = """
+; Expand=
 ; GameDir=
 HtmlWriterClass=skoolkit.skoolhtml.HtmlWriter
 ; InitModule=

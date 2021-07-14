@@ -87,13 +87,13 @@ class HtmlWriter:
         self.space = '&#160;'
         self.pc = 0
         self.macros = skoolmacro.get_macros(self)
-        for m in self.parser.expands:
+        for m in self.parser.expands + [ref_parser.get_dictionary('Config').get('Expand', '')]:
             try:
                 self.expand(m)
             except SkoolParsingError as e:
-                raise SkoolParsingError("@expand failed to expand '{}': {}".format(m, e.args[0]))
+                raise SkoolParsingError("Failed to expand '{}': {}".format(m, e.args[0]))
             except:
-                raise SkoolKitError("@expand failed to expand '{}'".format(m))
+                raise SkoolKitError("Failed to expand '{}'".format(m))
 
         self.game_vars = self._expand_values('Game', 'Logo')
         self.asm_anchor_template = self.game_vars['AddressAnchor']

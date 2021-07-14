@@ -9,6 +9,8 @@ Changelog
   represent the defined macro's argument values
 * Added the ``utf8`` parameter to the :ref:`CHR` macro (to use UTF-8 encoding
   instead of a numeric character reference in HTML mode)
+* Added the ``Expand`` parameter to the :ref:`ref-Config` section (for
+  specifying skool macros to be expanded during HTML writer initialisation)
 
 8.5 (2021-07-03)
 ----------------
