@@ -41,6 +41,7 @@ class AsmWriter:
         self.templates.update(templates)
         self.show_warnings = self._get_int_property(properties, 'warnings', 1)
         self.asm_address_template = config['Address']
+        self.sep_blocks = True
 
         # Build a label dictionary
         self.labels = {}
@@ -315,7 +316,10 @@ class AsmWriter:
         except ValueError:
             raise SkoolParsingError("Missing end marker: {}...".format(text[index - len(marker):index + 15]))
         if rep is None:
-            rep = BLOCK_SEP + text[index - len(marker):end] + BLOCK_SEP
+            if self.sep_blocks:
+                rep = BLOCK_SEP + text[index - len(marker):end] + BLOCK_SEP
+            else:
+                rep = marker + self.expand(text[index:end])
         return -end, rep
 
     def format(self, text, width):

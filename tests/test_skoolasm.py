@@ -858,6 +858,46 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
         with self.assertRaisesRegex(SkoolParsingError, re.escape("Missing end marker: #UDGTABLE { A1 }...")):
             writer.format('#UDGTABLE { A1 }', 79)
 
+    def test_macro_while_with_list(self):
+        skool = """
+            @start
+            ; #RAW(#LIST) inside #RAW(#WHILE)
+            ;
+            ; #LET(a=2)
+            ; #WHILE({a})(#LIST { #EVAL({a}) } LIST# #LET(a={a}-1))
+            c32768 RET
+        """
+        exp_asm = """
+            ; #LIST inside #WHILE
+            ;
+            ; * 2
+            ; * 1
+              RET
+        """
+        self._test_asm(skool, exp_asm)
+
+    def test_macro_while_with_table(self):
+        skool = """
+            @start
+            ; #RAW(#TABLE) inside #RAW(#WHILE)
+            ;
+            ; #LET(a=2)
+            ; #WHILE({a})(#TABLE { #EVAL({a}) } TABLE# #LET(a={a}-1))
+            c32768 RET
+        """
+        exp_asm = """
+            ; #TABLE inside #WHILE
+            ;
+            ; +---+
+            ; | 2 |
+            ; +---+
+            ; +---+
+            ; | 1 |
+            ; +---+
+              RET
+        """
+        self._test_asm(skool, exp_asm)
+
     def test_unknown_macro(self):
         writer = self._get_writer()
         for macro, params in (('#FOO', 'xyz'), ('#BAR', '1,2(baz)'), ('#UDGS', '#r1'), ('#LINKS', '')):

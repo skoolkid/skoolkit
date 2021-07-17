@@ -735,6 +735,41 @@ These instances of the ``#STR`` macro expand to 'Hello' and 'Goodbye'.
 | 8.6     | New     |
 +---------+---------+
 
+.. _WHILE:
+
+#WHILE
+------
+The ``#WHILE`` macro repeatedly expands macros until a conditional expression
+becomes false. ::
+
+  #WHILE(expr)(body)
+
+* ``expr`` is the conditional expression
+* ``body`` is the text to repeatedly expand; leading and trailing whitespace
+  are stripped from the expanded value
+
+For example::
+
+  #LET(a=3)
+  #WHILE({a})(
+    #EVAL({a})
+    #LET(a={a}-1)
+  )
+
+This instance of the ``#WHILE`` macro expands to '321'.
+
+The ``expr`` parameter of the ``#WHILE`` macro may contain
+:ref:`replacement fields <replacementFields>`.
+
+See :ref:`stringParameters` for details on alternative ways to supply the
+``body`` parameter.
+
++---------+---------+
+| Version | Changes |
++=========+=========+
+| 8.6     | New     |
++---------+---------+
+
 General macros
 ^^^^^^^^^^^^^^
 

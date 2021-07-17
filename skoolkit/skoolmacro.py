@@ -460,7 +460,8 @@ def get_macros(writer):
         '#REG': partial(parse_reg, writer.get_reg, writer.case == CASE_LOWER),
         '#SPACE': partial(parse_space, writer),
         '#STR': partial(parse_str, writer),
-        '#VERSION': parse_version
+        '#VERSION': parse_version,
+        '#WHILE': partial(parse_while, writer)
     }
     for name, method in inspect.getmembers(writer, inspect.ismethod):
         match = RE_MACRO_METHOD.match(name)
@@ -1183,3 +1184,19 @@ def parse_udgarray_with_frames(text, index, fields, frame_map=None):
 
 def parse_version(text, index, *cwd):
     return index, VERSION
+
+def parse_while(writer, text, index, *cwd):
+    # #WHILE(expr)(body)
+    end, expr = parse_brackets(text, index)
+    if not expr:
+        raise MissingParameterError('Missing conditional expression')
+    expr = f'({expr})'
+    end, body = parse_strings(text, end, 1)
+    writer.sep_blocks = False
+    output = ''
+    while 1:
+        if not parse_ints(expr, 0, 1, fields=writer.fields)[1]:
+            break
+        output += writer.expand(body).strip()
+    writer.sep_blocks = True
+    return end, output

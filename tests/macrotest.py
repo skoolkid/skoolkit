@@ -1772,3 +1772,51 @@ class CommonSkoolMacroTest:
         writer = self._get_writer()
         output = writer.expand('#VERSION')
         self.assertEqual(output, VERSION)
+
+    def test_macro_while(self):
+        writer = self._get_writer(snapshot=[1, 1, 1, 1, 1, 1, 1, 0])
+
+        # Condition always false
+        self.assertEqual(writer.expand('#WHILE(0)(hello)'), '')
+
+        # Condition true once
+        writer.expand('#LET(c=1)')
+        self.assertEqual(writer.expand('#WHILE({c})(#LET(c={c}-1)hello)'), 'hello')
+
+        # Condition true twice
+        writer.expand('#LET(c=0)')
+        self.assertEqual(writer.expand('#WHILE({c}<2)(#LET(c={c}+1)hello)'), 'hellohello')
+
+        # Condition true several times
+        writer.expand('#LET(a=0)')
+        self.assertEqual(writer.expand('#WHILE(#PEEK({a}))(#EVAL({a})#LET(a={a}+1))'), '0123456')
+
+    def test_macro_while_with_alternative_delimiters(self):
+        writer = self._get_writer()
+        writer.expand('#LET(c=2)')
+        self.assertEqual(writer.expand('#WHILE({c})/#LET(c={c}-1)hello/'), 'hellohello')
+
+    def test_macro_while_strips_whitespace(self):
+        writer = self._get_writer()
+        writer.expand('#LET(c=3)')
+        macro = """
+           #WHILE({c})(
+              #EVAL({c})
+              #LET(c={c}-1)
+           )
+        """.strip()
+        self.assertEqual(writer.expand(f'/{macro}/'), '/321/')
+
+    def test_macro_while_invalid(self):
+        writer = self._get_writer()
+        prefix = ERROR_PREFIX.format('WHILE')
+
+        self._assert_error(writer, '#WHILE', "Missing conditional expression", prefix)
+        self._assert_error(writer, '#WHILE()', "Missing conditional expression", prefix)
+        self._assert_error(writer, '#WHILE/body/', "Missing conditional expression", prefix)
+        self._assert_error(writer, '#WHILE(0)(body', "No closing bracket: (body", prefix)
+        self._assert_error(writer, '#WHILE(0)/body', "No terminating delimiter: /body", prefix)
+        self._assert_error(writer, '#WHILE(1,2)(body)', "Too many parameters (expected 1): '1,2'", prefix)
+        self._assert_error(writer, '#WHILE(x)(body)', "Cannot parse integer 'x' in parameter string: 'x'", prefix)
+        self._assert_error(writer, '#WHILE({no})(body)', "Unrecognised field 'no': {no}", prefix)
+        self._assert_error(writer, '#WHILE({foo)(body)', "Invalid format string: {foo", prefix)
