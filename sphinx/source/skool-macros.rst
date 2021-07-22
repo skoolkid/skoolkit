@@ -927,15 +927,15 @@ See also :ref:`UDGTABLE`.
 
 #INCLUDE
 --------
-In HTML mode, the ``#INCLUDE`` macro expands to the contents of a ref file
-section; in ASM mode, it expands to an empty string. ::
+In HTML mode, the ``#INCLUDE`` macro expands to the contents of one or more ref
+file sections. In ASM mode, it expands to an empty string. ::
 
-  #INCLUDE[paragraphs](section)
+  #INCLUDE[paragraphs](pattern)
 
-* ``paragraphs`` specifies how to format the contents of the ref file section:
-  verbatim (0 - the default), or into paragraphs (1); this parameter may
-  contain :ref:`replacement fields <replacementFields>`
-* ``section`` is the name of the ref file section
+* ``paragraphs`` specifies how to format the contents of the ref file sections:
+  verbatim (0 - the default), or into paragraphs (1)
+* ``pattern`` is a regular expression pattern that identifies the names of the
+  ref file sections to include
 
 The ``#INCLUDE`` macro can be used to insert the contents of one ref file
 section into another. For example::
@@ -946,12 +946,20 @@ section into another. For example::
   [RoutinesMapIntro]
   This is the intro to the 'Routines' map page.
 
+If ``pattern`` identifies multiple ref file sections, they are concatenated in
+the order in which they appear in the ref file.
+
+The ``paragraphs`` parameter of the ``#INCLUDE`` macro may contain
+:ref:`replacement fields <replacementFields>`.
+
 See :ref:`stringParameters` for details on alternative ways to supply the
-``section`` parameter.
+``pattern`` parameter.
 
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 8.6     | Added the ability to combine multiple ref file sections           |
++---------+-------------------------------------------------------------------+
 | 8.3     | Added support for replacement fields in the ``paragraphs``        |
 |         | parameter                                                         |
 +---------+-------------------------------------------------------------------+

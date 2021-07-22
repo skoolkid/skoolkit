@@ -1950,6 +1950,60 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         output = writer.expand('#LET(p=0)#INCLUDE({p})(Foo)', ASMDIR)
         self.assertEqual(exp_html, output)
 
+    def test_macro_include_regex(self):
+        ref = """
+            [Foo:1]
+            Foo1
+
+            [Foo:Two]
+            Foo2
+
+            [Foo:3]
+            Foo3
+
+            [Foo:10]
+            Foo10
+        """
+        writer = self._get_writer(ref=ref)
+
+        for params, exp_html in (
+                ('(Foo:)', ''),
+                (r'(Foo:\d)', 'Foo1\nFoo3'),
+                ('(Foo:.*)', 'Foo1\nFoo2\nFoo3\nFoo10')
+        ):
+            output = writer.expand('#INCLUDE' + params, ASMDIR)
+            self.assertEqual(exp_html, output)
+
+    def test_macro_include_regex_with_paragraphs(self):
+        ref = """
+            [Foo:1]
+            Foo1a
+
+            Foo1b
+
+            [Foo:2]
+            Foo2
+        """
+        exp_html = dedent("""
+            <div class="paragraph">
+            Foo1a
+            </div>
+            <div class="paragraph">
+            Foo1b
+            </div>
+            <div class="paragraph">
+            Foo2
+            </div>
+        """).strip()
+        writer = self._get_writer(ref=ref)
+        output = writer.expand('#INCLUDE1(Foo:.*)', ASMDIR)
+        self.assertEqual(exp_html, output)
+
+    def test_macro_include_invalid_regex(self):
+        writer = self._get_writer(ref='[Stuff:0]\nHi')
+        prefix = ERROR_PREFIX.format('INCLUDE')
+        self._assert_error(writer, '#INCLUDE(Stuff[)', "unterminated character set: 'Stuff['", prefix)
+
     def test_macro_link(self):
         ref = """
             [Page:page]

@@ -813,13 +813,13 @@ def parse_if(fields, text, index, *cwd):
     return end, s_false
 
 def parse_include(text, index, fields):
-    # #INCLUDE[paragraphs](section)
+    # #INCLUDE[paragraphs](pattern)
     try:
         end, paragraphs = parse_ints(text, index, 1, (0,), fields=fields)
     except InvalidParameterError:
         end, paragraphs = index, 0
-    end, section = parse_strings(text, end, 1)
-    return end, paragraphs, section
+    end, pattern = parse_strings(text, end, 1)
+    return end, paragraphs, pattern
 
 def parse_let(writer, text, index, *cwd):
     # #LET(name=value)

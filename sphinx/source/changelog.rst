@@ -13,6 +13,8 @@ Changelog
   instead of a numeric character reference in HTML mode)
 * Added the ``Expand`` parameter to the :ref:`ref-Config` section (for
   specifying skool macros to be expanded during HTML writer initialisation)
+* Added support to the :ref:`INCLUDE` macro for combining the contents of
+  multiple ref file sections
 
 8.5 (2021-07-03)
 ----------------

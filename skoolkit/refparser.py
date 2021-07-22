@@ -1,4 +1,4 @@
-# Copyright 2009-2019 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2009-2019, 2021 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -15,6 +15,7 @@
 # SkoolKit. If not, see <http://www.gnu.org/licenses/>.
 
 from collections import OrderedDict
+import re
 
 from skoolkit import open_file
 
@@ -145,6 +146,16 @@ class RefParser:
                 else:
                     items.append((elements[1], elements[2], contents))
         return items
+
+    def combine_sections(self, pattern, paragraphs=False):
+        content = []
+        for section_name in self._sections:
+            if re.fullmatch(pattern, section_name):
+                if paragraphs:
+                    content.extend(self.get_section(section_name, True))
+                else:
+                    content.append(self.get_section(section_name, False))
+        return content
 
     def _get_dictionary(self, contents):
         dictionary = {}
