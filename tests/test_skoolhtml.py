@@ -1530,6 +1530,18 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         exp_udgs = [[udg, udg]]
         self._test_image_macro(snapshot, macros, exp_image_path, exp_udgs, mask=0)
 
+    def test_macro_copy_with_tindex(self):
+        udg = Udg(3, [1] * 8)
+        snapshot = udg.data
+        macros = (
+            '#UDG0,3,2(*f)',
+            '#COPY0,0,1,1,,,4(f,g)',
+            '#UDGARRAY*g(img)'
+        )
+        exp_image_path = '{}/img.png'.format(UDGDIR)
+        exp_udgs = [[udg]]
+        self._test_image_macro(snapshot, macros, exp_image_path, exp_udgs, tindex=4)
+
     def test_macro_copy_cropped_frame(self):
         udg = Udg(56, [1] * 8)
         snapshot = udg.data
@@ -1577,7 +1589,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         snapshot = udg.data
         macros = (
             '#UDGARRAY5,,1;0x25(*old)',
-            '#COPY(y=1,x=2,height=2,scale=2,width=3){width=35,x=3,height=29,y=2}(old,g)',
+            '#COPY(y=1,x=2,height=2,scale=2,tindex=1,width=3){width=35,x=3,height=29,y=2}(old,g)',
             '#UDGARRAY*g(img)'
         )
         exp_image_path = '{}/img.png'.format(UDGDIR)
@@ -1585,7 +1597,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
             [udg, udg, udg],
             [udg, udg, udg]
         ]
-        self._test_image_macro(snapshot, macros, exp_image_path, exp_udgs, scale=2, x=3, y=2, width=35, height=29)
+        self._test_image_macro(snapshot, macros, exp_image_path, exp_udgs, scale=2, x=3, y=2, width=35, height=29, tindex=1)
 
     def test_macro_copy_with_replacement_fields(self):
         udg = Udg(56, [2] * 8)
@@ -1597,12 +1609,13 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
             '#LET(height=3)',
             '#LET(scale=2)',
             '#LET(mask=2)',
+            '#LET(tindex=1)',
             '#LET(cx=2)',
             '#LET(cy=1)',
             '#LET(cwidth=27)',
             '#LET(cheight=45)',
             '#UDGARRAY5,,1;0x25(*f)',
-            '#COPY({x},{y},{width},{height},{scale},{mask}){{cx},{cy},{cwidth},{cheight}}(f,g)',
+            '#COPY({x},{y},{width},{height},{scale},{mask},{tindex}){{cx},{cy},{cwidth},{cheight}}(f,g)',
             '#UDGARRAY*g(img)'
         )
         exp_image_path = '{}/img.png'.format(UDGDIR)
@@ -1611,7 +1624,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
             [udg, udg],
             [udg, udg]
         ]
-        self._test_image_macro(snapshot, macros, exp_image_path, exp_udgs, scale=2, mask=2, x=2, y=1, width=27, height=45)
+        self._test_image_macro(snapshot, macros, exp_image_path, exp_udgs, scale=2, mask=2, x=2, y=1, width=27, height=45, tindex=1)
 
     def test_macro_copy_with_macro_arguments(self):
         udg = Udg(56, [3] * 8)

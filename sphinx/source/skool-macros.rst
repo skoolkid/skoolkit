@@ -1467,7 +1467,7 @@ as follows::
 In HTML mode, the ``#COPY`` macro copies all or part of an existing frame into
 a new frame. ::
 
-  #COPY[x,y,width,height,scale,mask][{CROP}](old,new)
+  #COPY[x,y,width,height,scale,mask,tindex][{CROP}](old,new)
 
 * ``x`` and ``y`` are the coordinates of the top left tile of the existing
   frame to include in the new frame (default: (0, 0))
@@ -1478,6 +1478,9 @@ a new frame. ::
   existing frame is used
 * ``mask`` is the mask type of the new frame (see :ref:`masks`); if omitted,
   the mask type of the existing frame is used
+* ``tindex`` is the index (0-15) of the entry in the palette to use as the
+  transparent colour for the new frame (see :ref:`palette`); if omitted, the
+  transparency index of the existing frame is used
 * ``CROP`` is the cropping specification for the new frame (see
   :ref:`cropping`); if omitted, the cropping specification of the existing
   frame is used
@@ -1500,11 +1503,13 @@ may contain :ref:`replacement fields <replacementFields>`.
 See :ref:`stringParameters` for details on alternative ways to supply the
 ``old`` and ``new`` parameters.
 
-+---------+---------+
-| Version | Changes |
-+=========+=========+
-| 8.5     | New     |
-+---------+---------+
++---------+--------------------------------+
+| Version | Changes                        |
++=========+================================+
+| 8.6     | Added the ``tindex`` parameter |
++---------+--------------------------------+
+| 8.5     | New                            |
++---------+--------------------------------+
 
 .. _FONT:
 

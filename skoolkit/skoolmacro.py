@@ -567,13 +567,13 @@ def parse_chr(writer, text, index, *cwd):
     return end, writer.to_chr(num)
 
 def parse_copy(text, index, fields, frame_map=None):
-    # #COPY[x,y,width,height,scale,mask][{CROP}](old,new)
-    defaults = (0, 0, None, None, None, None)
-    names = ('x', 'y', 'width', 'height', 'scale', 'mask')
+    # #COPY[x,y,width,height,scale,mask,tindex][{CROP}](old,new)
+    defaults = (0, 0, None, None, None, None, None)
+    names = ('x', 'y', 'width', 'height', 'scale', 'mask', 'tindex')
     try:
-        index, x, y, width, height, scale, mask = parse_ints(text, index, 0, defaults, names, fields)
+        index, x, y, width, height, scale, mask, tindex = parse_ints(text, index, 0, defaults, names, fields)
     except InvalidParameterError:
-        x, y, width, height, scale, mask = defaults
+        x, y, width, height, scale, mask, tindex = defaults
     if index < len(text) and text[index] == '{':
         end, crop_rect = _parse_crop_spec(text, index, fields)
     else:
@@ -582,7 +582,7 @@ def parse_copy(text, index, fields, frame_map=None):
     if frame_map is not None:
         if old not in frame_map:
             raise MacroParsingError('No such frame: "{}"'.format(old))
-        frame_map[new] = frame_map[old].copy(new, x, y, width, height, scale, mask, crop_rect)
+        frame_map[new] = frame_map[old].copy(new, x, y, width, height, scale, mask, crop_rect, tindex)
     return end, ''
 
 def parse_d(writer, text, index, *cwd):
