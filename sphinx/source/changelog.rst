@@ -15,8 +15,8 @@ Changelog
   specifying skool macros to be expanded during HTML writer initialisation)
 * Added support to the :ref:`INCLUDE` macro for combining the contents of
   multiple ref file sections
-* Added the ``tindex`` parameter to the :ref:`COPY` macro (for specifying the
-  transparent colour in the new frame)
+* Added the ``tindex`` and ``alpha`` parameters to the :ref:`COPY` macro (for
+  specifying the transparent colour and its alpha value in the new frame)
 
 8.5 (2021-07-03)
 ----------------

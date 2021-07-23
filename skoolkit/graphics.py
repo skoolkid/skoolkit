@@ -159,7 +159,7 @@ class Frame:
         self.x_offset = x_offset
         self.y_offset = y_offset
 
-    def copy(self, name, x, y, width, height, scale, mask, crop_rect, tindex):
+    def copy(self, name, x, y, width, height, scale, mask, crop_rect, tindex, alpha):
         if width is None:
             width = len(self.udgs[0])
         if height is None:
@@ -172,8 +172,10 @@ class Frame:
             crop_rect = (self._x, self._y, self._width, self._height)
         if tindex is None:
             tindex = self.tindex
+        if alpha is None:
+            alpha = self.alpha
         udgs = [[u.copy() for u in row[x:x + width]] for row in self.udgs[y:y + height]]
-        return Frame(udgs, scale, mask, *crop_rect, name=name, tindex=tindex)
+        return Frame(udgs, scale, mask, *crop_rect, name=name, tindex=tindex, alpha=alpha)
 
     def swap_colours(self, x, y, width, height):
         # Swap paper and ink in UDGs that are flashing
