@@ -183,12 +183,62 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
         """
         self._test_asm(skool, exp_asm)
 
+    def test_macro_def_with_list_and_whitespace_stripped(self):
+        skool = """
+            @start
+            ; Stuff
+            ;
+            ; #DEF2(#OLIST()(items)
+            ;   #LET(n=1)
+            ;   #LIST
+            ;   #FOREACH($items)(item,{ #EVAL({n}). item } #LET(n={n}+1))
+            ;   LIST#
+            ; )
+            ; #OLIST/a,b,c/
+            c32768 RET
+        """
+        exp_asm = """
+            ; Stuff
+            ;
+            ; * 1. a
+            ; * 2. b
+            ; * 3. c
+              RET
+        """
+        self._test_asm(skool, exp_asm)
+
     def test_macro_def_with_table(self):
         skool = """
             @start
             ; Stuff
             ;
             ; #DEF(#OTABLE()(cells)
+            ;   #LET(n=1)
+            ;   #TABLE
+            ;   #FOREACH($cells)(cell,{ #EVAL({n}). cell } #LET(n={n}+1))
+            ;   TABLE#
+            ; )
+            ; #OTABLE/a,b,c/
+            c32768 RET
+        """
+        exp_asm = """
+            ; Stuff
+            ;
+            ; +------+
+            ; | 1. a |
+            ; | 2. b |
+            ; | 3. c |
+            ; +------+
+              RET
+        """
+        self._test_asm(skool, exp_asm)
+
+    def test_macro_def_with_table_and_whitespace_stripped(self):
+        skool = """
+            @start
+            ; Stuff
+            ;
+            ; #DEF2(#OTABLE()(cells)
             ;   #LET(n=1)
             ;   #TABLE
             ;   #FOREACH($cells)(cell,{ #EVAL({n}). cell } #LET(n={n}+1))

@@ -206,9 +206,7 @@ The ``#DEF`` macro defines a new skool macro. ::
 
   #DEF[flags](#MACRO[(ia[=i0],ib[=i1]...)[(sa[=s0],sb[=s1]...)]] body)
 
-* ``flags`` is 1 to use replacement fields (e.g. ``{var}``) to represent the
-  defined macro's argument values, or 0 (the default) to use $-placeholders
-  (e.g. ``$var``, ``${var}``)
+* ``flags`` controls various options (see below)
 * ``MACRO`` is the macro name (which must be all upper case letters)
 * ``ia[=i0]``, ``ib[=i1]`` etc. are the integer parameter names and optional
   default values; the parameter names must consist of lower case letters only
@@ -218,6 +216,14 @@ The ``#DEF`` macro defines a new skool macro. ::
   (``$var``, ``${var}`` - when ``flags`` is 0) or replacement fields
   (``{var}`` - when ``flags`` is 1) representing the integer and string
   argument values
+
+``flags`` is the sum of the following values, chosen according to the desired
+outcome:
+
+* 1 - use replacement fields (e.g. ``{var}``) instead of $-placeholders
+  (``$var``, ``${var}``) to represent the defined macro's argument values
+* 2 - strip leading and trailing whitespace from the output of the defined
+  macro whenever it is expanded
 
 For example::
 
@@ -246,10 +252,10 @@ string argument. It expands either to the integer argument, or to the string
 argument if provided. So ``#NUM15`` expands to '15', and ``#NUM15($0F)``
 expands to '$0F'.
 
-If ``flags`` is 1, replacement fields are used instead of $-placeholders to
-represent the defined macro's argument values. The main advantage of using
-replacement fields is that Python string formatting options can be used on the
-argument values. For example::
+If ``flags`` is odd (bit 0 set), replacement fields are used instead of
+$-placeholders to represent the defined macro's argument values. The main
+advantage of using replacement fields is that Python string formatting options
+can be used on the argument values. For example::
 
   #DEF1(#HEX(n) {n:04X})
 
@@ -265,6 +271,21 @@ that doesn't represent an argument value. For example::
 This defines a variable named ``count``, and an ``#ADD`` macro that increases
 its value by a given amount. Note how the replacement field for the ``count``
 variable in the body of the macro definition is escaped: ``{{count}}``.
+
+If bit 1 of ``flags`` is set, the defined macro will be expanded, in isolation
+from any surrounding content, as soon as it is encountered. For that to work,
+the macro definition must be entirely self-contained, i.e. it must not depend
+on any surrounding content in order to be syntactically correct. For example,
+if the ``#IFZERO`` macro is defined thus::
+
+  #DEF2(#IFZERO(n) #IF($n==0))
+
+then any attempt to expand an ``#IFZERO`` macro will lead to an error message
+about the ``#IF`` macro having no output strings. To fix this, either reset
+bit 1 of ``flags``, or redefine ``#IFZERO`` with the output strings included in
+the definition::
+
+  #DEF2(#IFZERO(n)(a,b) #IF($n==0)($a,$b))
 
 For more examples, see :ref:`definingMacrosWithDEF`.
 
@@ -294,8 +315,9 @@ keyword arguments.
 +---------+------------------------------------------------------------------+
 | Version | Changes                                                          |
 +=========+==================================================================+
-| 8.6     | Added the ``flags`` parameter and the ability to use replacement |
-|         | fields to represent the defined macro's argument values          |
+| 8.6     | Added the ``flags`` parameter, the ability to use replacement    |
+|         | fields to represent the defined macro's argument values, and the |
+|         | ability to strip whitespace from the defined macro's output      |
 +---------+------------------------------------------------------------------+
 | 8.5     | New                                                              |
 +---------+------------------------------------------------------------------+

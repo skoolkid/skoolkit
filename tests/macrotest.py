@@ -204,6 +204,11 @@ class CommonSkoolMacroTest:
         self.assertEqual(writer.expand('#DEF(#CAT()(n,m) $n$m#FORMAT({s$}))'), '')
         self.assertEqual(writer.expand('#LET(s$=!)#CAT(hel,lo)'), 'hello!')
 
+    def test_macro_def_with_incomplete_macro(self):
+        writer = self._get_writer()
+        self.assertEqual(writer.expand('#DEF(#IFZERO(n) #IF($n==0))'), '')
+        self.assertEqual(writer.expand('#IFZERO0(PASS)'), 'PASS')
+
     def test_macro_def_with_default_integer_parameters(self):
         writer = self._get_writer()
 
@@ -355,6 +360,18 @@ class CommonSkoolMacroTest:
         # Escaped replacement field for non-argument value
         self.assertEqual(writer.expand('#DEF1(#ADD(n) #LET(c={{c}}+{n})#EVAL({{c}}))'), '')
         self.assertEqual(writer.expand('#LET(c=1)#ADD2'), '3')
+
+    def test_macro_def_with_whitespace_stripped(self):
+        writer = self._get_writer()
+        macro = """
+            #DEF2(#SQUARE(n)
+                #LET(x=0)
+                #FOR(1,$n)(_,#LET(x={x}+$n))
+                #EVAL({x})
+            )
+        """.strip()
+        self.assertEqual(writer.expand(macro), '')
+        self.assertEqual(writer.expand('(#SQUARE3)'), '(9)')
 
     def test_macro_def_invalid(self):
         writer = self._get_writer()

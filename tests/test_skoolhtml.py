@@ -1655,6 +1655,13 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         writer, prefix = CommonSkoolMacroTest.test_macro_copy_invalid(self)
         self._assert_error(writer, '#COPY(nonexistent,g)', 'No such frame: "nonexistent"', prefix)
 
+    def test_macro_def_with_whitespace_stripped_and_macro_that_requires_cwd(self):
+        skool = "c32768 RET"
+        writer = self._get_writer(skool=skool)
+        writer.expand('#DEF2(#REF(addr) #R$addr)')
+        output = writer.expand('#REF32768', ASMDIR)
+        self._assert_link_equals(output, '32768.html', '32768')
+
     def test_macro_eval_asm(self):
         writer = self._get_writer()
         self.assertEqual(writer.expand('#EVAL({asm})'), '0')

@@ -614,8 +614,14 @@ def _expand_def_macro(writer, inames, idefaults, snames, sdefaults, body, flags,
             strings = sdefaults
         params.update(dict(zip(snames, strings)))
     if flags & 1:
-        return end, body.format_map(params)
-    return end, body.safe_substitute(params)
+        formatted = body.format_map(params)
+    else:
+        formatted = body.safe_substitute(params)
+    if flags & 2:
+        writer.sep_blocks = False
+        formatted = writer.expand(formatted, *cwd).strip()
+        writer.sep_blocks = True
+    return end, formatted
 
 def parse_def(writer, text, index, *cwd):
     # #DEF[flags](#MACRO[(ia[=i0],ib[=i1]...)[(sa[=s0],sb[=s1]...)]] body)

@@ -8,7 +8,8 @@ Changelog
 * Added the :ref:`WHILE` macro (for repeatedly expanding macros until a
   conditional expression becomes false)
 * Added support to the :ref:`DEF` macro for using replacement fields to
-  represent the defined macro's argument values
+  represent the defined macro's argument values, and for stripping leading and
+  trailing whitespace from the defined macro's output
 * Added the ``utf8`` parameter to the :ref:`CHR` macro (to use UTF-8 encoding
   instead of a numeric character reference in HTML mode)
 * Added the ``Expand`` parameter to the :ref:`ref-Config` section (for
