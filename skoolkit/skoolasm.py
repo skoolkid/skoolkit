@@ -302,6 +302,11 @@ class AsmWriter:
             return end, ''
         raise skoolmacro.UnsupportedMacroError()
 
+    def expand_udgs(self, text, index):
+        if self.handle_unsupported_macros:
+            return skoolmacro.parse_udgs(self, text, index)
+        raise skoolmacro.UnsupportedMacroError()
+
     def expand_udgtable(self, text, index):
         return self._ignore_block(text, index, UDGTABLE_MARKER, TABLE_END_MARKER, '')
 

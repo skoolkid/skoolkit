@@ -883,6 +883,16 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
         self._test_unsupported_macro(writer, nest_macros('#UDGARRAY1;0({})', 'fname'))
         self._test_unsupported_macro(writer, '#UDGARRAY#(2#FOR0,8,8||n|;n||)(thing)')
 
+    def test_macro_udgs(self):
+        writer = self._get_writer()
+        writer.fields.update({'width': 2, 'x': 1})
+        self._test_unsupported_macro(writer, '#UDGS2,2(item)(#UDG($x+$y)(*f) f)')
+        self._test_unsupported_macro(writer, '#UDGSheight=2,width=2{x=1,width=58}(item)(#UDG($x+$y)(*f) f)')
+        self._test_unsupported_macro(writer, '#UDGS({width},2){x={x}}(item)(#UDG($x+$y)(*f) f)')
+        self._test_unsupported_macro(writer, '#UDGS(2/1, height=1+1){4/2, height=17*3}(item)(#UDG($x+$y)(*f) f)')
+        self._test_unsupported_macro(writer, nest_macros('#UDGS({},{})(item)(#UDG0(*f)f)', 2, 2))
+        self._test_unsupported_macro(writer, nest_macros('#UDGS2,2{{x={}}}(item)(#UDG0(*f)f)', 3))
+
     def test_macro_udgtable(self):
         writer = self._get_writer()
         udgtable = '#UDGTABLE { #UDG0 } UDGTABLE#'
@@ -950,7 +960,7 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
 
     def test_unknown_macro(self):
         writer = self._get_writer()
-        for macro, params in (('#FOO', 'xyz'), ('#BAR', '1,2(baz)'), ('#UDGS', '#r1'), ('#LINKS', '')):
+        for macro, params in (('#FOO', 'xyz'), ('#BAR', '1,2(baz)'), ('#TILES', '#r1'), ('#LINKS', '')):
             self._assert_error(writer, macro + params, 'Found unknown macro: {}'.format(macro))
 
     def test_property_comment_width_min(self):

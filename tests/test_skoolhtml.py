@@ -1427,7 +1427,9 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
             fname = '{{{}ImagePath}}/foo.png{}'.format(prefix, alt)
             exp_image_path = '{}/foo.png'.format(path)
             exp_src = '../{}'.format(exp_image_path)
-            output = writer.expand('{}({})'.format(macro, fname), ASMDIR)
+            if '{fname}' not in macro:
+                macro += '({fname})'
+            output = writer.expand(macro.format(fname=fname), ASMDIR)
             self._assert_img_equals(output, alt[1:] or 'foo', exp_src)
             self.assertEqual(writer.file_info.fname, exp_image_path)
 
@@ -4239,6 +4241,137 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
     def test_macro_udgarray_with_replacement_field_in_filename(self):
         self._test_image_macro_with_replacement_field_in_filename('#UDGARRAY1;0')
 
+    def test_macro_udgs(self):
+        snapshot = list(range(32))
+        macro = '#UDGS2,2(udgs)(#UDG((2*$y+$x)*8,$x+$y+1)(*f) f)'
+        exp_image_path = f'{UDGDIR}/udgs.png'
+        exp_udgs = [
+            [Udg(1, snapshot[0:8]), Udg(2, snapshot[8:16])],
+            [Udg(2, snapshot[16:24]), Udg(3, snapshot[24:32])]
+        ]
+        self._test_image_macro(snapshot, macro, exp_image_path, exp_udgs, scale=4)
+
+    def test_macro_udgs_uses_last_frame_for_default_values(self):
+        snapshot = list(range(16))
+        macro = '#UDGS2,1(udgs_defaults)(#UDG((2*$y+$x)*8,scale=$x*3,mask=$x+1,tindex=$x,alpha=$x*16):0(*f) f)'
+        exp_image_path = f'{UDGDIR}/udgs_defaults.png'
+        exp_udgs = [[Udg(56, snapshot[0:8], snapshot[0:8]), Udg(56, snapshot[8:16], snapshot[0:8])]]
+        self._test_image_macro(snapshot, macro, exp_image_path, exp_udgs, scale=3, mask=2, tindex=1, alpha=16)
+
+    def test_macro_udgs_with_crop_spec(self):
+        snapshot = list(range(32))
+        macro = '#UDGS2,2{1,2,12,10}(udgs_crop)(#UDG((2*$y+$x)*8,,2)(*f) f)'
+        exp_image_path = f'{UDGDIR}/udgs_crop.png'
+        exp_udgs = [
+            [Udg(56, snapshot[0:8]), Udg(56, snapshot[8:16])],
+            [Udg(56, snapshot[16:24]), Udg(56, snapshot[24:32])]
+        ]
+        self._test_image_macro(snapshot, macro, exp_image_path, exp_udgs, scale=2, x=1, y=2, width=12, height=10)
+
+    def test_macro_udgs_with_alternative_string_delimiters(self):
+        snapshot = list(range(32))
+        macro = '#UDGS2,2(udgs)/#UDG((2*$y+$x)*8,$x+$y+1)(*f) f/'
+        exp_image_path = f'{UDGDIR}/udgs.png'
+        exp_udgs = [
+            [Udg(1, snapshot[0:8]), Udg(2, snapshot[8:16])],
+            [Udg(2, snapshot[16:24]), Udg(3, snapshot[24:32])]
+        ]
+        self._test_image_macro(snapshot, macro, exp_image_path, exp_udgs, scale=4)
+
+    def test_macro_udgs_with_keyword_arguments(self):
+        snapshot = list(range(32))
+        macro = '#UDGSheight=2,width=2{y=4,x=7,height=56,width=41}(udgs_kw)(#UDG((2*$y+$x)*8)(*f) f)'
+        exp_image_path = f'{UDGDIR}/udgs_kw.png'
+        exp_udgs = [
+            [Udg(56, snapshot[0:8]), Udg(56, snapshot[8:16])],
+            [Udg(56, snapshot[16:24]), Udg(56, snapshot[24:32])]
+        ]
+        self._test_image_macro(snapshot, macro, exp_image_path, exp_udgs, scale=4, x=7, y=4, width=41, height=56)
+
+    def test_macro_udgs_with_replacement_fields(self):
+        snapshot = list(range(16))
+        macros = (
+            '#LET(w=2)',
+            '#LET(h=1)',
+            '#LET(x=5)',
+            '#LET(y=2)',
+            '#LET(cw=22)',
+            '#LET(ch=27)',
+            '#UDGS({w},{h}){{x},{y},{cw},{ch}}(udgs_rp)(#UDG((2*$y+$x)*8)(*f) f)'
+        )
+        exp_image_path = f'{UDGDIR}/udgs_rp.png'
+        exp_udgs = [
+            [Udg(56, snapshot[0:8]), Udg(56, snapshot[8:16])]
+        ]
+        self._test_image_macro(snapshot, macros, exp_image_path, exp_udgs, scale=4, x=5, y=2, width=22, height=27)
+
+    def test_macro_udgs_with_macro_arguments(self):
+        snapshot = list(range(32))
+        macro = '#UDGS(2,#IF(1)(2,1)){width=#IF(0)(0,62)}(udgs_kw)(#UDG((2*$y+$x)*8)(*f) f)'
+        exp_image_path = f'{UDGDIR}/udgs_kw.png'
+        exp_udgs = [
+            [Udg(56, snapshot[0:8]), Udg(56, snapshot[8:16])],
+            [Udg(56, snapshot[16:24]), Udg(56, snapshot[24:32])]
+        ]
+        self._test_image_macro(snapshot, macro, exp_image_path, exp_udgs, scale=4, width=62)
+
+    def test_macro_udgs_frames(self):
+        udg1 = Udg(23, [101] * 8)
+        udg2 = Udg(47, [35] * 8)
+        udg3 = Udg(56, [19] * 8)
+        snapshot = udg1.data +  udg2.data + udg3.data
+        writer = self._get_writer(snapshot=snapshot, mock_file_info=True)
+        macro1 = f'#UDGS1,1(*foo)(#UDG0,{udg1.attr},2(*f1) f1)'
+        macro2 = f'#UDGS1,1(bar*)(#UDG8,{udg2.attr},1(*f2) f2)'
+        macro3 = f'#UDGS1,1(baz*qux)(#UDG16,{udg3.attr},2(*f3) f3)'
+
+        output = writer.expand(macro1, ASMDIR)
+        self.assertEqual(output, '')
+
+        fname = 'bar'
+        exp_image_path = f'{UDGDIR}/{fname}.png'
+        exp_src = f'../{exp_image_path}'
+        output = writer.expand(macro2, ASMDIR)
+        self._assert_img_equals(output, fname, exp_src)
+        self.assertEqual(writer.file_info.fname, exp_image_path)
+
+        fname = 'baz'
+        exp_image_path = f'{UDGDIR}/{fname}.png'
+        exp_src = f'../{exp_image_path}'
+        output = writer.expand(macro3, ASMDIR)
+        self._assert_img_equals(output, fname, exp_src)
+        self.assertEqual(writer.file_info.fname, exp_image_path)
+
+        fname = 'test_udg_array_frames'
+        exp_image_path = f'{UDGDIR}/{fname}.png'
+        exp_src = f'../{exp_image_path}'
+        delay1 = 93
+        macro4 = '#UDGARRAY*foo,{};bar,,2,3;qux,(delay=5+8*2-12/3)({})'.format(delay1, fname)
+        output = writer.expand(macro4, ASMDIR)
+        self._assert_img_equals(output, fname, exp_src)
+        self.assertEqual(writer.file_info.fname, exp_image_path)
+
+        frame1 = Frame([[udg1]], 2, delay=delay1)
+        frame2 = Frame([[udg2]], 1, delay=delay1, x_offset=2, y_offset=3) # Same delay as frame1
+        frame3 = Frame([[udg3]], 2, delay=17)                             # Offsets revert to (0, 0)
+        exp_frames = [frame1, frame2, frame3]
+        self._check_animated_image(writer.image_writer, exp_frames)
+
+    def test_macro_udgs_alt_text(self):
+        snapshot = [0] * 8
+        fname = 'foo'
+        alt = 'bar'
+        macro = f'#UDGS1,1({fname}|{alt})(#UDG0(*u) u)'
+        exp_image_path = f'{UDGDIR}/{fname}.png'
+        self._test_image_macro(snapshot, macro, exp_image_path, alt=alt)
+
+    def test_macro_udgs_with_replacement_field_in_filename(self):
+        self._test_image_macro_with_replacement_field_in_filename('#UDGS1,1({fname})(#UDG0(*u) u)')
+
+    def test_macro_udgs_invalid(self):
+        writer, prefix = CommonSkoolMacroTest.test_macro_udgs_invalid(self)
+        self._assert_error(writer, '#UDGS1,1(fname)(nonexistent)', "'nonexistent': frame not found (x=0, y=0)", prefix)
+
     def test_macro_udgtable(self):
         src = """(data)
             { =h Col1 | =h Col2 | =h,c2 Cols3+4 }
@@ -4301,7 +4434,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
 
     def test_unknown_macro(self):
         writer = self._get_writer()
-        for macro, params in (('#FOO', 'xyz'), ('#BAR', '1,2(baz)'), ('#UDGS', '#r1'), ('#LINKS', '')):
+        for macro, params in (('#FOO', 'xyz'), ('#BAR', '1,2(baz)'), ('#TILES', '#r1'), ('#LINKS', '')):
             self._assert_error(writer, macro + params, 'Found unknown macro: {}'.format(macro))
 
 class HtmlWriterOutputTestCase(HtmlWriterTestCase):

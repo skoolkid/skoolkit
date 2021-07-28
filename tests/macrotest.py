@@ -1785,6 +1785,37 @@ class CommonSkoolMacroTest:
 
         return writer, prefix
 
+    def test_macro_udgs_invalid(self):
+        writer = self._get_writer()
+        prefix = ERROR_PREFIX.format('UDGS')
+
+        self._test_invalid_image_macro(writer, '#UDGS', 'No parameters (expected 2)', prefix)
+        self._test_invalid_image_macro(writer, '#UDGS()', 'No parameters (expected 2)', prefix)
+        self._test_invalid_image_macro(writer, '#UDGS2', "Missing required argument 'height': '2'", prefix)
+        self._test_invalid_image_macro(writer, '#UDGS(2)', "Missing required argument 'height': '2'", prefix)
+        self._test_invalid_image_macro(writer, '#UDGS,2', "Missing required argument 'width': ',2'", prefix)
+        self._test_invalid_image_macro(writer, '#UDGS(,2)', "Missing required argument 'width': ',2'", prefix)
+        self._test_invalid_image_macro(writer, '#UDGSheight=2', "Missing required argument 'width': 'height=2'", prefix)
+        self._test_invalid_image_macro(writer, '#UDGS(height=2)', "Missing required argument 'width': 'height=2'", prefix)
+        self._test_invalid_image_macro(writer, '#UDGS1,1', "Missing filename: #UDGS1,1", prefix)
+        self._test_invalid_image_macro(writer, '#UDGS1,1(*)', "Missing filename or frame ID: #UDGS1,1(*)", prefix)
+        self._test_invalid_image_macro(writer, '#UDGS0,1', "Invalid dimensions: #UDGS0,1", prefix)
+        self._test_invalid_image_macro(writer, '#UDGS1,0', "Invalid dimensions: #UDGS1,0", prefix)
+        self._test_invalid_image_macro(writer, '#UDGS(x=2)', "Unknown keyword argument: 'x=2'", prefix)
+        self._test_invalid_image_macro(writer, '#UDGS(1,2,3)', "Too many parameters (expected 2): '1,2,3'", prefix)
+        self._test_invalid_image_macro(writer, '#UDGS1,1{0,0,23,14,5}(foo)(f)', "Too many parameters in cropping specification (expected 4 at most): {0,0,23,14,5}", prefix)
+        self._test_invalid_image_macro(writer, '#UDGS(foo)', "Cannot parse integer 'foo' in parameter string: 'foo'", prefix)
+        self._test_invalid_image_macro(writer, '#UDGS1,1{foo}', "Cannot parse integer 'foo' in parameter string: 'foo'", prefix)
+        self._test_invalid_image_macro(writer, '#UDGS(1,1', 'No closing bracket: (1,1', prefix)
+        self._test_invalid_image_macro(writer, '#UDGS1,1{0,0,23,14(foo)(f)', 'No closing brace on cropping specification: {0,0,23,14(foo)(f)', prefix)
+        self._test_invalid_image_macro(writer, '#UDGS1,1(foo', 'No closing bracket: (foo', prefix)
+        self._test_invalid_image_macro(writer, '#UDGS1,1(foo)(f', 'No closing bracket: (f', prefix)
+        self._test_invalid_image_macro(writer, '#UDGS({no},1)', "Unrecognised field 'no': {no},1", prefix)
+        self._test_invalid_image_macro(writer, '#UDGS1,1{{nope}}', "Unrecognised field 'nope': {nope}", prefix)
+        self._test_invalid_image_macro(writer, '#UDGS({foo,1)', "Invalid format string: {foo,1", prefix)
+
+        return writer, prefix
+
     def test_macro_version(self):
         writer = self._get_writer()
         output = writer.expand('#VERSION')

@@ -1138,6 +1138,12 @@ class HtmlWriter:
         frame = Frame(udgs, scale, mask, *crop_rect, name=frame, tindex=tindex, alpha=alpha)
         return end, self.handle_image(frame, fname, cwd, alt, UDG_IMAGE_PATH)
 
+    def expand_udgs(self, text, index, cwd):
+        end, crop_rect, fname, frame, alt, params = skoolmacro.parse_udgs(self, text, index, cwd)
+        udgs, scale, mask, tindex, alpha = params
+        frame = Frame(udgs, scale, mask, *crop_rect, name=frame, tindex=tindex, alpha=alpha)
+        return end, self.handle_image(frame, fname, cwd, alt, UDG_IMAGE_PATH)
+
     def expand_udgtable(self, text, index, cwd):
         return self.expand_table(text, index, cwd)
 

@@ -1465,10 +1465,10 @@ The ``#VERSION`` macro expands to the version of SkoolKit. ::
 
 Image macros
 ^^^^^^^^^^^^
-The :ref:`COPY`, :ref:`FONT`, :ref:`OVER`, :ref:`PLOT`, :ref:`SCR`, :ref:`UDG`
-and :ref:`UDGARRAY` macros (described in the following sections) may be used to
-create images based on graphic data in the memory snapshot. They are not
-supported in ASM mode.
+The :ref:`COPY`, :ref:`FONT`, :ref:`OVER`, :ref:`PLOT`, :ref:`SCR`, :ref:`UDG`,
+:ref:`UDGARRAY` and :ref:`UDGS` macros (described in the following sections)
+may be used to create images based on graphic data in the memory snapshot. They
+are not supported in ASM mode.
 
 Some of these macros have several numeric parameters, most of which are
 optional. This can give rise to a long sequence of commas in a macro parameter
@@ -1969,6 +1969,8 @@ The integer parameters, UDG specifications, attribute address range
 specification and cropping specification of the ``#UDGARRAY`` macro may contain
 :ref:`replacement fields <replacementFields>`.
 
+See also :ref:`UDGS`.
+
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
@@ -2007,14 +2009,64 @@ specification and cropping specification of the ``#UDGARRAY`` macro may contain
 | 2.0.5   | New                                                               |
 +---------+-------------------------------------------------------------------+
 
+.. _UDGS:
+
+#UDGS
+-----
+In HTML mode, the ``#UDGS`` macro expands to an ``<img>`` element for the image
+of a rectangular array of UDGs (8x8 blocks of pixels). ::
+
+  #UDGSwidth,height[{CROP}](fname)(uframe)
+
+* ``width`` is the width of the array
+* ``height`` is the height of the array
+* ``CROP`` is the cropping specification (see :ref:`cropping`)
+* ``fname`` is the name of the image file (see :ref:`Filenames`)
+* ``uframe`` is expanded once for each slot in the array, and may contain the
+  placeholders ``$x`` and ``$y`` for the coordinates of the slot; the resulting
+  text is interpreted as the name of the frame whose top-left UDG should be
+  placed into the slot
+
+For example::
+
+  #UDGS2,2(sprite)(
+    #LET(a=30000+9*(2*$y+$x))
+    #UDG({a}+1,#PEEK({a}))(*udg)
+    udg
+  )
+
+This instance of the ``#UDGS`` macro expands to an ``<img>`` element for the
+image of the 2x2 sprite formed by the four 9-byte UDG definitions (where the
+first byte is the attribute value, and the next eight bytes are the graphic
+data) with base addresses 30000, 30009, 30018 and 30027. The image file is
+named `sprite.png`.
+
+The scale, mask type, transparency index and alpha value of the image created
+by the ``#UDGS`` macro are copied from the last frame used to populate the
+array (corresponding to the bottom-right UDG).
+
+The integer parameters of the ``#UDGS`` macro may contain
+:ref:`replacement fields <replacementFields>`.
+
+See :ref:`stringParameters` for details on alternative ways to supply the
+``uframe`` parameter.
+
+See also :ref:`UDGARRAY`.
+
++---------+---------+
+| Version | Changes |
++=========+=========+
+| 8.6     | New     |
++---------+---------+
+
 .. _Filenames:
 
 Filenames
 ---------
-The ``fname`` parameter of the :ref:`FONT`, :ref:`SCR`, :ref:`UDG` and
-:ref:`UDGARRAY` macros can be used to specify not only an image filename, but
-also its exact location, the ``alt`` attribute of the ``<img>`` element, and a
-frame name (see :ref:`Animation`).
+The ``fname`` parameter of the :ref:`FONT`, :ref:`SCR`, :ref:`UDG`,
+:ref:`UDGARRAY` and :ref:`UDGS` macros can be used to specify not only an image
+filename, but also its exact location, the ``alt`` attribute of the ``<img>``
+element, and a frame name (see :ref:`Animation`).
 
 If ``fname`` contains an image path ID replacement field (e.g.
 ``{ScreenshotImagePath}/udgs``), the corresponding parameter value from the
@@ -2030,7 +2082,7 @@ macro being used:
 
 * ``FontImagePath`` - :ref:`FONT`
 * ``ScreenshotImagePath`` - :ref:`SCR`
-* ``UdgImagePath`` - :ref:`UDG` and :ref:`UDGARRAY`
+* ``UdgImagePath`` - :ref:`UDG`, :ref:`UDGARRAY` and :ref:`UDGS`
 
 If ``fname`` does not end with '`.png`', that suffix will be appended.
 
@@ -2108,8 +2160,9 @@ of any subsequent frame must fall entirely inside the first frame.
 
 Cropping
 --------
-The :ref:`COPY`, :ref:`FONT`, :ref:`SCR`, :ref:`UDG` and :ref:`UDGARRAY` macros
-accept a cropping specification (``CROP``) which takes the form::
+The :ref:`COPY`, :ref:`FONT`, :ref:`SCR`, :ref:`UDG`, :ref:`UDGARRAY` and
+:ref:`UDGS` macros accept a cropping specification (``CROP``) which takes the
+form::
 
   x,y,width,height
 
