@@ -12,6 +12,7 @@ Changelog
 * Added support to the :ref:`DEF` macro for using replacement fields to
   represent the defined macro's argument values, and for stripping leading and
   trailing whitespace from the defined macro's output
+* Added support to the :ref:`LET` macro for defining dictionary variables
 * Added the ``utf8`` parameter to the :ref:`CHR` macro (to use UTF-8 encoding
   instead of a numeric character reference in HTML mode)
 * Added the ``Expand`` parameter to the :ref:`ref-Config` section (for

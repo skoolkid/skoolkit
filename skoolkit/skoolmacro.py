@@ -827,16 +827,38 @@ def parse_include(text, index, fields):
     end, pattern = parse_strings(text, end, 1)
     return end, paragraphs, pattern
 
+def _eval_map(args, args_str):
+    default = args.pop(0)
+    m = defaultdict(lambda: default)
+    if args:
+        for pair in args:
+            if ':' in pair:
+                k, v = pair.split(':', 1)
+            else:
+                k = v = pair
+            try:
+                m[evaluate(k)] = v
+            except ValueError:
+                raise MacroParsingError("Invalid key ({}): {}".format(k, args_str))
+    return m
+
 def parse_let(writer, text, index, *cwd):
     # #LET(name=value)
     end, stmt = parse_strings(text, index, 1)
     name, sep, value = stmt.partition('=')
     if name and sep:
         value = _format_params(writer.expand(value, *cwd), text[index:end], **writer.fields)
-        try:
-            writer.fields[name] = eval_variable(name, value)
-        except ValueError:
-            raise InvalidParameterError("Cannot parse integer value '{}': {}".format(value, stmt))
+        if name.endswith('[]'):
+            try:
+                args = parse_strings(value, 0)[1]
+            except NoParametersError:
+                raise NoParametersError(f"No values provided: '{name}={value}'")
+            writer.fields[name[:-2]] = _eval_map(args, value)
+        else:
+            try:
+                writer.fields[name] = eval_variable(name, value)
+            except ValueError:
+                raise InvalidParameterError("Cannot parse integer value '{}': {}".format(value, stmt))
     elif name:
         raise InvalidParameterError("Missing variable value: '{}'".format(stmt))
     else:
@@ -876,22 +898,9 @@ def parse_map(fields, text, index, *cwd):
     except NoParametersError:
         raise NoParametersError("No mappings provided: {}".format(text[index:args_index]))
     map_id = text[args_index:end]
-    if map_id in _map_cache:
-        return end, _map_cache[map_id][value]
-    default = args.pop(0)
-    m = defaultdict(lambda: default)
-    if args:
-        for pair in args:
-            if ':' in pair:
-                k, v = pair.split(':', 1)
-            else:
-                k = v = pair
-            try:
-                m[evaluate(k)] = v
-            except ValueError:
-                raise MacroParsingError("Invalid key ({}): {}".format(k, text[args_index:end]))
-    _map_cache[map_id] = m
-    return end, m[value]
+    if map_id not in _map_cache:
+        _map_cache[map_id] = _eval_map(args, map_id)
+    return end, _map_cache[map_id][value]
 
 def parse_n(writer, text, index, *cwd):
     # #Nvalue[,hwidth,dwidth,affix,hex][(prefix[,suffix])]
