@@ -1198,9 +1198,10 @@ def parse_udgarray_with_frames(text, index, fields, frame_map=None):
     return end, fname, alt, frames
 
 def parse_udgs(writer, text, index, *cwd):
-    # #UDGSwidth,height[{CROP}](fname)(uframe)
-    names = ('width', 'height')
-    end, width, height = parse_ints(text, index, names=names, fields=writer.fields)
+    # #UDGSwidth,height[,scale][{CROP}](fname)(uframe)
+    names = ('width', 'height', 'scale')
+    defaults = (None,)
+    end, width, height, scale = parse_ints(text, index, 0, defaults, names, writer.fields)
     if width < 1 or height < 1:
         raise MacroParsingError(f'Invalid dimensions: #UDGS{text[index:end]}')
     end, crop_rect = _parse_crop_spec(text, end, writer.fields)
@@ -1226,7 +1227,8 @@ def parse_udgs(writer, text, index, *cwd):
             except KeyError:
                 raise MacroParsingError(f"'{udg_frame_name}': frame not found (x={x}, y={y})")
     last_frame = frames[udg_frame_name]
-    scale = last_frame.scale
+    if scale is None:
+        scale = last_frame.scale
     mask = last_frame.mask
     tindex = last_frame.tindex
     alpha = last_frame.alpha

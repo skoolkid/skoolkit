@@ -2038,10 +2038,11 @@ See also :ref:`UDGS`.
 In HTML mode, the ``#UDGS`` macro expands to an ``<img>`` element for the image
 of a rectangular array of UDGs (8x8 blocks of pixels). ::
 
-  #UDGSwidth,height[{CROP}](fname)(uframe)
+  #UDGSwidth,height[,scale][{CROP}](fname)(uframe)
 
 * ``width`` is the width of the array
 * ``height`` is the height of the array
+* ``scale`` is the scale of the image
 * ``CROP`` is the cropping specification (see :ref:`cropping`)
 * ``fname`` is the name of the image file (see :ref:`Filenames`)
 * ``uframe`` is expanded once for each slot in the array, and may contain the
@@ -2063,9 +2064,9 @@ first byte is the attribute value, and the next eight bytes are the graphic
 data) with base addresses 30000, 30009, 30018 and 30027. The image file is
 named `sprite.png`.
 
-The scale, mask type, transparency index and alpha value of the image created
-by the ``#UDGS`` macro are copied from the last frame used to populate the
-array (corresponding to the bottom-right UDG).
+Unless specified by macro arguments, the scale, mask type, transparency index
+and alpha value of the image created by the ``#UDGS`` macro are copied from the
+last frame used to populate the array (corresponding to the bottom-right UDG).
 
 The integer parameters of the ``#UDGS`` macro may contain
 :ref:`replacement fields <replacementFields>`.

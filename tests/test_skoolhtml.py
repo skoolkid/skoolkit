@@ -4251,6 +4251,16 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         ]
         self._test_image_macro(snapshot, macro, exp_image_path, exp_udgs, scale=4)
 
+    def test_macro_udgs_with_scale(self):
+        snapshot = list(range(32))
+        macro = '#UDGS2,2,2(udgs)(#UDG((2*$y+$x)*8,$x+$y+1)(*f) f)'
+        exp_image_path = f'{UDGDIR}/udgs.png'
+        exp_udgs = [
+            [Udg(1, snapshot[0:8]), Udg(2, snapshot[8:16])],
+            [Udg(2, snapshot[16:24]), Udg(3, snapshot[24:32])]
+        ]
+        self._test_image_macro(snapshot, macro, exp_image_path, exp_udgs, scale=2)
+
     def test_macro_udgs_uses_last_frame_for_default_values(self):
         snapshot = list(range(16))
         macro = '#UDGS2,1(udgs_defaults)(#UDG((2*$y+$x)*8,scale=$x*3,mask=$x+1,tindex=$x,alpha=$x*16):0(*f) f)'
@@ -4280,13 +4290,13 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
 
     def test_macro_udgs_with_keyword_arguments(self):
         snapshot = list(range(32))
-        macro = '#UDGSheight=2,width=2{y=4,x=7,height=56,width=41}(udgs_kw)(#UDG((2*$y+$x)*8)(*f) f)'
+        macro = '#UDGSheight=2,scale=3,width=2{y=4,x=7,height=36,width=39}(udgs_kw)(#UDG((2*$y+$x)*8)(*f) f)'
         exp_image_path = f'{UDGDIR}/udgs_kw.png'
         exp_udgs = [
             [Udg(56, snapshot[0:8]), Udg(56, snapshot[8:16])],
             [Udg(56, snapshot[16:24]), Udg(56, snapshot[24:32])]
         ]
-        self._test_image_macro(snapshot, macro, exp_image_path, exp_udgs, scale=4, x=7, y=4, width=41, height=56)
+        self._test_image_macro(snapshot, macro, exp_image_path, exp_udgs, scale=3, x=7, y=4, width=39, height=36)
 
     def test_macro_udgs_with_replacement_fields(self):
         snapshot = list(range(16))
