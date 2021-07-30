@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/skoolkid/skoolkit.svg?branch=master)](https://travis-ci.org/skoolkid/skoolkit)
+[![Tests](https://github.com/skoolkid/skoolkit/actions/workflows/tests.yml/badge.svg)](https://github.com/skoolkid/skoolkit/actions/workflows/tests.yml)
 [![Coverage](https://codecov.io/github/skoolkid/skoolkit/coverage.svg?branch=master)](https://codecov.io/github/skoolkid/skoolkit?branch=master)
 
 SkoolKit
