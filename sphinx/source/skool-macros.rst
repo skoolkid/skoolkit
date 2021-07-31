@@ -126,7 +126,7 @@ Replacement fields
 The following replacement fields are available for use in the integer
 parameters of the :ref:`asm-if` directive and every skool macro (including
 macros defined by :ref:`DEF` or :ref:`DEFINE`), and also in the string
-parameters of the :ref:`FORMAT` and :ref:`LET` macros:
+parameters of some macros:
 
 * ``asm`` - 1 if in :ref:`isubMode`, 2 if in :ref:`ssubMode`, 3 if in
   :ref:`rsubMode`, or 0 otherwise
@@ -2068,8 +2068,8 @@ Unless specified by macro arguments, the scale, mask type, transparency index
 and alpha value of the image created by the ``#UDGS`` macro are copied from the
 last frame used to populate the array (corresponding to the bottom-right UDG).
 
-The integer parameters of the ``#UDGS`` macro may contain
-:ref:`replacement fields <replacementFields>`.
+The integer parameters and the ``uframe`` parameter of the ``#UDGS`` macro may
+contain :ref:`replacement fields <replacementFields>`.
 
 See :ref:`stringParameters` for details on alternative ways to supply the
 ``uframe`` parameter.

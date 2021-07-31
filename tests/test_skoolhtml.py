@@ -4315,6 +4315,20 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         ]
         self._test_image_macro(snapshot, macros, exp_image_path, exp_udgs, scale=4, x=5, y=2, width=22, height=27)
 
+    def test_macro_udgs_with_replacement_field_in_uframe_parameter(self):
+        snapshot = list(range(16))
+        macros = (
+            '#UDG0,2(*t0)',
+            '#UDG8,4(*t8)',
+            '#LET(d[]=(t0,1:t8))',
+            '#UDGS2,1(udgs)({d[#EVAL($x&1)]})'
+        )
+        exp_image_path = f'{UDGDIR}/udgs.png'
+        exp_udgs = [
+            [Udg(2, snapshot[0:8]), Udg(4, snapshot[8:16])]
+        ]
+        self._test_image_macro(snapshot, macros, exp_image_path, exp_udgs, scale=4)
+
     def test_macro_udgs_with_macro_arguments(self):
         snapshot = list(range(32))
         macro = '#UDGS(2,#IF(1)(2,1)){width=#IF(0)(0,62)}(udgs_kw)(#UDG((2*$y+$x)*8)(*f) f)'
@@ -4381,6 +4395,8 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
     def test_macro_udgs_invalid(self):
         writer, prefix = CommonSkoolMacroTest.test_macro_udgs_invalid(self)
         self._assert_error(writer, '#UDGS1,1(fname)(nonexistent)', "'nonexistent': frame not found (x=0, y=0)", prefix)
+        self._assert_error(writer, '#UDGS1,1(f)({nah})', "Unrecognised field 'nah': {nah}", prefix)
+        self._assert_error(writer, '#UDGS1,1(f)({bar)', "Invalid format string: {bar", prefix)
 
     def test_macro_udgtable(self):
         src = """(data)
