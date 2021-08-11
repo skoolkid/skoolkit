@@ -1250,6 +1250,6 @@ def parse_while(writer, text, index, *cwd):
     while 1:
         if not parse_ints(expr, 0, 1, fields=writer.fields)[1]:
             break
-        output += writer.expand(body).strip()
+        output += writer.expand(body, *cwd).strip()
     writer.sep_blocks = True
     return end, output

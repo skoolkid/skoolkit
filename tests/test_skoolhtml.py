@@ -4453,6 +4453,13 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         # No end marker
         self._assert_error(writer, '#UDGTABLE { A1 }', 'Missing table end marker: #UDGTABLE { A1 }...')
 
+    def test_macro_while_with_macro_that_requires_cwd(self):
+        skool = "c32768 RET"
+        writer = self._get_writer(skool=skool)
+        writer.expand('#LET(w=1)')
+        output = writer.expand('#WHILE({w})(#R32768 #LET(w=0))', ASMDIR)
+        self._assert_link_equals(output, '32768.html', '32768')
+
     def test_unsupported_macro(self):
         writer = self._get_writer()
         writer.macros['#BUG'] = self._unsupported_macro
