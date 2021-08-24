@@ -2038,13 +2038,16 @@ See also :ref:`UDGS`.
 In HTML mode, the ``#UDGS`` macro expands to an ``<img>`` element for the image
 of a rectangular array of UDGs (8x8 blocks of pixels). ::
 
-  #UDGSwidth,height[,scale,flip][{CROP}](fname)(uframe)
+  #UDGSwidth,height[,scale,flip,rotate][{CROP}](fname)(uframe)
 
 * ``width`` is the width of the array
 * ``height`` is the height of the array
 * ``scale`` is the scale of the image
 * ``flip`` is 1 to flip the array of UDGs horizontally, 2 to flip it
   vertically, 3 to flip it both ways, or 0 to leave it as it is (default: 0)
+* ``rotate`` is 1 to rotate the array of UDGs 90 degrees clockwise, 2 to rotate
+  it 180 degrees, 3 to rotate it 90 degrees anticlockwise, or 0 to leave it as
+  it is (default: 0)
 * ``CROP`` is the cropping specification (see :ref:`cropping`)
 * ``fname`` is the name of the image file (see :ref:`Filenames`)
 * ``uframe`` is expanded once for each slot in the array, and may contain the

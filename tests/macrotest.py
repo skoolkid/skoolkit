@@ -1861,7 +1861,7 @@ class CommonSkoolMacroTest:
         self._test_invalid_image_macro(writer, '#UDGS0,1', "Invalid dimensions: #UDGS0,1", prefix)
         self._test_invalid_image_macro(writer, '#UDGS1,0', "Invalid dimensions: #UDGS1,0", prefix)
         self._test_invalid_image_macro(writer, '#UDGS(x=2)', "Unknown keyword argument: 'x=2'", prefix)
-        self._test_invalid_image_macro(writer, '#UDGS(1,2,3,4,5)', "Too many parameters (expected 4): '1,2,3,4,5'", prefix)
+        self._test_invalid_image_macro(writer, '#UDGS(1,2,3,4,5,6)', "Too many parameters (expected 5): '1,2,3,4,5,6'", prefix)
         self._test_invalid_image_macro(writer, '#UDGS1,1{0,0,23,14,5}(foo)(f)', "Too many parameters in cropping specification (expected 4 at most): {0,0,23,14,5}", prefix)
         self._test_invalid_image_macro(writer, '#UDGS(foo)', "Cannot parse integer 'foo' in parameter string: 'foo'", prefix)
         self._test_invalid_image_macro(writer, '#UDGS1,1{foo}', "Cannot parse integer 'foo' in parameter string: 'foo'", prefix)
