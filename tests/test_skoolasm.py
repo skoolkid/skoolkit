@@ -886,7 +886,7 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
     def test_macro_udgs(self):
         writer = self._get_writer()
         writer.fields.update({'width': 2, 'x': 1})
-        self._test_unsupported_macro(writer, '#UDGS2,2,1,1,1(item)(#UDG($x+$y)(*f) f)')
+        self._test_unsupported_macro(writer, '#UDGS2,2,1,1,1,2(item)(#UDG($x+$y)(*f) f)')
         self._test_unsupported_macro(writer, '#UDGSheight=2,width=2{x=1,width=58}(item)(#UDG($x+$y)(*f) f)')
         self._test_unsupported_macro(writer, '#UDGS({width},2){x={x}}(item)(#UDG($x+$y)(*f) f)')
         self._test_unsupported_macro(writer, '#UDGS(2/1, height=1+1){4/2, height=17*3}(item)(#UDG($x+$y)(*f) f)')

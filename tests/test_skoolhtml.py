@@ -4321,6 +4321,15 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         rotate_udgs(exp_udgs, 3)
         self._test_image_macro(snapshot, macro, exp_image_path, exp_udgs, scale=4)
 
+    def test_macro_udgs_with_mask(self):
+        udg1 = Udg(56, [255] * 8, [129] * 8)
+        udg2 = Udg(56, [255] * 8, [66] * 8)
+        snapshot = udg1.data + udg1.mask + udg2.data + udg2.mask
+        macro = '#UDGS2,1,,,,2(udgs)(#UDG(16*$x,mask=1):(16*$x+8)(*f) f)'
+        exp_image_path = f'{UDGDIR}/udgs.png'
+        exp_udgs = [[udg1, udg2]]
+        self._test_image_macro(snapshot, macro, exp_image_path, exp_udgs, scale=4, mask=2)
+
     def test_macro_udgs_uses_last_frame_for_default_values(self):
         snapshot = list(range(16))
         macro = '#UDGS2,1(udgs_defaults)(#UDG((2*$y+$x)*8,scale=$x*3,mask=$x+1,tindex=$x,alpha=$x*16):0(*f) f)'
@@ -4350,7 +4359,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
 
     def test_macro_udgs_with_keyword_arguments(self):
         snapshot = list(range(32))
-        macro = '#UDGSheight=2,flip=1,scale=3,rotate=1,width=2{y=4,x=7,height=36,width=39}(udgs_kw)(#UDG((2*$y+$x)*8)(*f) f)'
+        macro = '#UDGSheight=2,flip=1,scale=3,mask=2,rotate=1,width=2{y=4,x=7,height=36,width=39}(udgs_kw)(#UDG((2*$y+$x)*8)(*f) f)'
         exp_image_path = f'{UDGDIR}/udgs_kw.png'
         exp_udgs = [
             [Udg(56, snapshot[0:8]), Udg(56, snapshot[8:16])],
@@ -4358,7 +4367,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         ]
         flip_udgs(exp_udgs, 1)
         rotate_udgs(exp_udgs, 1)
-        self._test_image_macro(snapshot, macro, exp_image_path, exp_udgs, scale=3, x=7, y=4, width=39, height=36)
+        self._test_image_macro(snapshot, macro, exp_image_path, exp_udgs, scale=3, mask=2, x=7, y=4, width=39, height=36)
 
     def test_macro_udgs_with_replacement_fields(self):
         snapshot = list(range(16))
