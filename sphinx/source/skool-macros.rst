@@ -2038,7 +2038,7 @@ See also :ref:`UDGS`.
 In HTML mode, the ``#UDGS`` macro expands to an ``<img>`` element for the image
 of a rectangular array of UDGs (8x8 blocks of pixels). ::
 
-  #UDGSwidth,height[,scale,flip,rotate,mask][{CROP}](fname)(uframe)
+  #UDGSwidth,height[,scale,flip,rotate,mask,tindex][{CROP}](fname)(uframe)
 
 * ``width`` is the width of the array
 * ``height`` is the height of the array
@@ -2049,6 +2049,8 @@ of a rectangular array of UDGs (8x8 blocks of pixels). ::
   it 180 degrees, 3 to rotate it 90 degrees anticlockwise, or 0 to leave it as
   it is (default: 0)
 * ``mask`` is the type of mask to apply (see :ref:`masks`)
+* ``tindex`` is the index (0-15) of the entry in the palette to use as the
+  transparent colour (see :ref:`palette`)
 * ``CROP`` is the cropping specification (see :ref:`cropping`)
 * ``fname`` is the name of the image file (see :ref:`Filenames`)
 * ``uframe`` is expanded once for each slot in the array, and may contain the

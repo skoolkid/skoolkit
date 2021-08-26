@@ -4330,6 +4330,14 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         exp_udgs = [[udg1, udg2]]
         self._test_image_macro(snapshot, macro, exp_image_path, exp_udgs, scale=4, mask=2)
 
+    def test_macro_udgs_with_tindex(self):
+        udg = Udg(2, [255] * 8, [66] * 8)
+        snapshot = udg.data + udg.mask
+        macro = '#UDGS1,1,,,,,1(udgs)(#UDG0,2:8(*f) f)'
+        exp_image_path = f'{UDGDIR}/udgs.png'
+        exp_udgs = [[udg]]
+        self._test_image_macro(snapshot, macro, exp_image_path, exp_udgs, scale=4, mask=1, tindex=1)
+
     def test_macro_udgs_uses_last_frame_for_default_values(self):
         snapshot = list(range(16))
         macro = '#UDGS2,1(udgs_defaults)(#UDG((2*$y+$x)*8,scale=$x*3,mask=$x+1,tindex=$x,alpha=$x*16):0(*f) f)'
