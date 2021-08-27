@@ -748,14 +748,16 @@ See also :ref:`POKES`.
 The ``#STR`` macro expands to the text string at a given address in the memory
 snapshot. ::
 
-  #STRaddr[,flags,length]
+  #STRaddr[,flags,length][(end)]
 
 * ``addr`` is the address of the first character in the string
 * ``flags`` indicates operations to be performed on the string (default: 0)
 * ``length`` is the number of characters in the string; if -1 (the default),
-  the string ends either immediately before the first zero byte, or on the
-  first byte that has bit 7 set (bit 7 of that byte will be reset before
-  converting it to a character)
+  the string ends immediately before the first zero byte, or on the first byte
+  that has bit 7 set (bit 7 of that byte will be reset before converting it to
+  a character), or when ``end`` evaluates to true
+* ``end`` is an arithmetic expression that identifies the end marker byte for
+  the string (when bit 3 of ``flags`` is set)
 
 ``flags`` is the sum of the following values, chosen according to the desired
 outcome:
@@ -764,14 +766,23 @@ outcome:
 * 2 - strip leading whitespace from the string
 * 4 - replace each sequence of N>=2 spaces in the string with ``#SPACE(N)``
   (see :ref:`SPACE`)
+* 8 - use the ``end`` parameter to determine where the string ends
+
+When bit 3 of ``flags`` is set, ``end`` is evaluated for each byte encountered,
+and if the result is true, the string is terminated. ``end`` may contain the
+placeholder ``$b`` for the current byte value.
 
 For example::
 
-  ; The messages at 47154 and 47160 are '#STR47154' and '#STR47160'.
-   47154 DEFM "Hello",0
-   47160 DEFM "Goodby","e"+128
+  ; The messages here are '#STR47154', '#STR47158' and '#STR47161,8($b==255)'.
+   47154 DEFM "One",0
+   47158 DEFM "Tw","o"+128
+   47161 DEFM "Three",255
 
-These instances of the ``#STR`` macro expand to 'Hello' and 'Goodbye'.
+These instances of the ``#STR`` macro expand to 'One', 'Two' and 'Three'.
+
+The parameters of the ``#STR`` macro may contain
+:ref:`replacement fields <replacementFields>`.
 
 +---------+---------+
 | Version | Changes |

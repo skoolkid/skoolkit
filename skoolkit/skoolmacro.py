@@ -1045,16 +1045,24 @@ def parse_space(writer, text, index, *cwd):
     return end, writer.space * num
 
 def parse_str(writer, text, index, *cwd):
-    # #STRaddr,flags,length
+    # #STRaddr[,flags,length][(end)]
     end, addr, flags, length = parse_ints(text, index, 3, (0, -1), fields=writer.fields)
     s_data = []
     if length < 0:
+        if flags & 8:
+            end, end_param = parse_brackets(text, end)
+            str_end = Template(f'({end_param})')
+        else:
+            str_end = None
         a = addr
         while a < 65536:
             b = writer.snapshot[a]
-            if b == 0:
+            if str_end:
+                if parse_ints(str_end.safe_substitute(b=b), 0, 1, fields=writer.fields)[1]:
+                    break
+            elif b == 0:
                 break
-            if b & 128:
+            elif b & 128:
                 s_data.append(b & 127)
                 break
             s_data.append(b)

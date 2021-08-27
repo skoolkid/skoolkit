@@ -1735,8 +1735,18 @@ class CommonSkoolMacroTest:
         self.assertEqual(writer.expand('/#STR0,6,11/'), '/A B..C.../'.replace('.', space))
         self.assertEqual(writer.expand('/#STR0,7,11/'), '/A B..C/'.replace('.', space))
 
+    def test_macro_str_with_end(self):
+        writer = self._get_writer(snapshot=[ord(c) for c in 'Hello\x01Bye\x00\x80\xff'])
+
+        self.assertEqual(writer.expand('#STR0,8($b==1)'), 'Hello')
+        self.assertEqual(writer.expand('#LET(min=32)#STR0,8($b<{min})'), 'Hello')
+        self.assertEqual(writer.expand('#STR0,8($b>101)'), 'He')
+        self.assertEqual(writer.expand('#STR6,8($b==0)'), 'Bye')
+        self.assertEqual(writer.expand('#STR6,8($b==$80)'), 'Bye\x00')
+        self.assertEqual(writer.expand('#LET(end=255)#STR6,8($b=={end})'), 'Bye\x00\x80')
+
     def test_macro_str_invalid(self):
-        writer = self._get_writer()
+        writer = self._get_writer(snapshot=[0])
         prefix = ERROR_PREFIX.format('STR')
 
         self._assert_error(writer, '#STR', "No parameters (expected 1)", prefix)
@@ -1746,6 +1756,10 @@ class CommonSkoolMacroTest:
         self._assert_error(writer, '#STR(0,5$3)', "Cannot parse integer '5$3' in parameter string: '0,5$3'", prefix)
         self._assert_error(writer, '#STR({no})', "Unrecognised field 'no': {no}", prefix)
         self._assert_error(writer, '#STR({foo)', "Invalid format string: {foo", prefix)
+        self._assert_error(writer, '#STR0,8(1', "No closing bracket: (1", prefix)
+        self._assert_error(writer, '#STR0,8(x)', "Cannot parse integer 'x' in parameter string: 'x'", prefix)
+        self._assert_error(writer, '#STR0,8({nope})', "Unrecognised field 'nope': {nope}", prefix)
+        self._assert_error(writer, '#STR0,8({bar)', "Invalid format string: {bar", prefix)
 
     def test_macro_udg_invalid(self):
         writer = self._get_writer(snapshot=[0] * 8)
