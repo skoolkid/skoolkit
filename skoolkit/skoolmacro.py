@@ -41,6 +41,8 @@ DELIMITERS = {
     '{': '}'
 }
 
+ZX_CHARS = {94: '↑', 96: '£', 127: '©'}
+
 INTEGER = '(\d+|\$[0-9a-fA-F]+)'
 
 PARAM_NAME = '[a-z]+'
@@ -1069,7 +1071,7 @@ def parse_str(writer, text, index, *cwd):
             a += 1
     else:
         s_data.extend(writer.snapshot[addr:addr + length])
-    s = ''.join(chr(b) for b in s_data)
+    s = ''.join(ZX_CHARS.get(b, chr(b)) for b in s_data)
     if flags & 1:
         s = s.rstrip()
     if flags & 2:

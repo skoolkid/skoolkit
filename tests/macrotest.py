@@ -1707,6 +1707,7 @@ class CommonSkoolMacroTest:
         snapshot = [0] * 65536
         snapshot[:5] = [ord(c) for c in 'Hello']
         snapshot[32768:32771] = [79, 75, 191] # OK?
+        snapshot[49152:49155] = [94, 96, 127] # ↑£©
         snapshot[-7:] = [ord(c) for c in 'Goodbye']
         writer = self._get_writer(snapshot=snapshot)
 
@@ -1717,6 +1718,7 @@ class CommonSkoolMacroTest:
         self.assertEqual(writer.expand('#LET(a=3)#STR({a})'), 'lo')
         self.assertEqual(writer.expand('#STR(0,,#IF(1)(4))'), 'Hell')
         self.assertEqual(writer.expand('#STR32768'), 'OK?')
+        self.assertEqual(writer.expand('#STR49152'), '↑£©')
         self.assertEqual(writer.expand('#STR65529'), 'Goodbye')
 
     def test_macro_str_strips_whitespace(self):
