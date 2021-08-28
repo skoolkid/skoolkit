@@ -147,6 +147,13 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
         self.assertEqual(writer.expand('#CHR({vars[foo]})'), 'B')
         self.assertEqual(writer.expand('#LET(c=67) #CHR({c})'), 'C')
 
+    def test_macro_chr_zx_charset(self):
+        writer = self._get_writer()
+
+        self.assertEqual(writer.expand('#CHR94,2'), '↑')
+        self.assertEqual(writer.expand('#CHR96,2'), '£')
+        self.assertEqual(writer.expand('#CHR127,2'), '©')
+
     def test_macro_copy(self):
         writer = self._get_writer()
         writer.fields.update({'x': 1, 'y': 2})

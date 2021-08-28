@@ -94,6 +94,13 @@ class CommonSkoolMacroTest:
         self.assertEqual(writer.expand('#CHR(66,#IF(1)(1))'), 'B')
         self.assertEqual(writer.expand('#LET(utf8=1)#CHR(174,{utf8})'), chr(174))
 
+    def test_macro_chr_utf8_and_zx_charset(self):
+        writer = self._get_writer()
+
+        self.assertEqual(writer.expand('#CHR94,3'), '↑')
+        self.assertEqual(writer.expand('#CHR96,3'), '£')
+        self.assertEqual(writer.expand('#CHR127,3'), '©')
+
     def test_macro_chr_invalid(self):
         writer = self._get_writer()
         prefix = ERROR_PREFIX.format('CHR')

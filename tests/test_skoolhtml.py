@@ -1469,6 +1469,13 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         self.assertEqual(writer.expand('#CHR({vars[foo]})'), '&#66;')
         self.assertEqual(writer.expand('#LET(c=67)#CHR({c})'), '&#67;')
 
+    def test_macro_chr_zx_charset(self):
+        writer = self._get_writer()
+
+        self.assertEqual(writer.expand('#CHR94,2'), '&#8593;')
+        self.assertEqual(writer.expand('#CHR96,2'), '&#163;')
+        self.assertEqual(writer.expand('#CHR127,2'), '&#169;')
+
     def test_macro_copy(self):
         snapshot = [0] * 8 + [1] * 8 + [2] * 8 + [3] * 8
         macros = (

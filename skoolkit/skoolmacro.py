@@ -41,7 +41,7 @@ DELIMITERS = {
     '{': '}'
 }
 
-ZX_CHARS = {94: '↑', 96: '£', 127: '©'}
+ZX_CHARS = {94: 8593, 96: 163, 127: 169}
 
 INTEGER = '(\d+|\$[0-9a-fA-F]+)'
 
@@ -562,9 +562,11 @@ def parse_call(writer, text, index, *cwd):
     return end, retval
 
 def parse_chr(writer, text, index, *cwd):
-    # #CHRnum[,utf8]
-    end, num, utf8 = parse_ints(text, index, 2, (0,), fields=writer.fields)
-    if utf8:
+    # #CHRnum[,flags]
+    end, num, flags = parse_ints(text, index, 2, (0,), fields=writer.fields)
+    if flags & 2:
+        num = ZX_CHARS.get(num, num)
+    if flags & 1:
         return end, chr(num)
     return end, writer.to_chr(num)
 
@@ -1071,7 +1073,7 @@ def parse_str(writer, text, index, *cwd):
             a += 1
     else:
         s_data.extend(writer.snapshot[addr:addr + length])
-    s = ''.join(ZX_CHARS.get(b, chr(b)) for b in s_data)
+    s = ''.join(chr(ZX_CHARS.get(b, b)) for b in s_data)
     if flags & 1:
         s = s.rstrip()
     if flags & 2:

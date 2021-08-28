@@ -881,14 +881,21 @@ the documentation on :ref:`extending SkoolKit <extendingSkoolKit>`.
 #CHR
 ----
 In HTML mode, the ``#CHR`` macro expands either to a numeric character
-reference (``&#num;``), or to a unicode character in the UTF-8 encoding. In ASM
-mode, it always expands to a unicode character in the UTF-8 encoding. ::
+reference, or to a unicode character in the UTF-8 encoding. In ASM mode, it
+always expands to a unicode character in the UTF-8 encoding. ::
 
-  #CHRnum[,utf8]
+  #CHRnum[,flags]
 
 * ``num`` is the character code
-* ``utf8`` is 1 to use UTF-8 encoding, or 0 (the default) to use a numeric
-  character reference in HTML mode
+* ``flags`` enables options that control the output (default: 0)
+
+``flags`` is the sum of the following values, chosen according to the desired
+outcome:
+
+* 1 - produce a character in the UTF-8 encoding instead of a numeric character
+  reference in HTML mode
+* 2 - map character code 94 to 8593 ('↑'), 96 to 163 ('£'), and 127 to 169
+  ('©'), in accordance with the ZX Spectrum character set
 
 For example:
 
@@ -896,9 +903,10 @@ For example:
    :class: nonexistent
 
     26751 DEFB 127   ; This is the copyright symbol: #CHR169
+    26572 DEFB 127   ; This is also the copyright symbol: #CHR127,2
 
-In HTML mode, this instance of the ``#CHR`` macro expands to ``&#169;``. In ASM
-mode, it expands to the copyright symbol.
+In HTML mode, these instances of the ``#CHR`` macro expand to '&#169;'. In ASM
+mode, they both expand to '©'.
 
 The parameter string of the ``#CHR`` macro may contain
 :ref:`replacement fields <replacementFields>`.
@@ -906,7 +914,9 @@ The parameter string of the ``#CHR`` macro may contain
 +---------+------------------------------------------------------------------+
 | Version | Changes                                                          |
 +=========+==================================================================+
-| 8.6     | Added the ``utf8`` parameter                                     |
+| 8.6     | Added the ``flags`` parameter, the ability to use UTF-8 encoding |
+|         | in HTML mode, and support for mapping character codes 94, 96 and |
+|         | 127 to '↑', '£'  and '©'                                         |
 +---------+------------------------------------------------------------------+
 | 8.3     | Added support for replacement fields in the parameter string     |
 +---------+------------------------------------------------------------------+

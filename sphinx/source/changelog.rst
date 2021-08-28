@@ -13,8 +13,9 @@ Changelog
   represent the defined macro's argument values, and for stripping leading and
   trailing whitespace from the defined macro's output
 * Added support to the :ref:`LET` macro for defining dictionary variables
-* Added the ``utf8`` parameter to the :ref:`CHR` macro (to use UTF-8 encoding
-  instead of a numeric character reference in HTML mode)
+* Added the ``flags`` parameter to the :ref:`CHR` macro (to produce a character
+  in the UTF-8 encoding in HTML mode, and to map character codes 94, 96 and 127
+  to '↑', '£' and '©')
 * Added the ``Expand`` parameter to the :ref:`ref-Config` section (for
   specifying skool macros to be expanded during HTML writer initialisation)
 * Added support to the :ref:`INCLUDE` macro for combining the contents of
