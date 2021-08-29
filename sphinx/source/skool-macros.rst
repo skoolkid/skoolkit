@@ -2166,9 +2166,10 @@ create a frame, the ``fname`` parameter must have one of the following forms:
 Then a special form of the ``#UDGARRAY`` macro creates the animated image from
 a set of frames::
 
-  #UDGARRAY*FRAME1[;FRAME2;...](fname)
+  #UDGARRAY*(FRAME1[;FRAME2;...])(fname)
 
-``FRAME1``, ``FRAME2`` etc. are frame specifications; each one has the form::
+``FRAME1``, ``FRAME2`` etc. are frame specifications. The parentheses around
+them are optional, but recommended. Each frame specification has the form::
 
   name[,delay,x,y]
 
@@ -2185,7 +2186,7 @@ For example::
   ; #FONT:(hello)$3D00(hello*) |
   ; #FONT:(there)$3D00(there*) |
   ; #FONT:(peeps)$3D00(peeps*) |
-  ; #UDGARRAY*hello,50;there;peeps(hello_there_peeps)
+  ; #UDGARRAY*(hello,50;there;peeps)(hello_there_peeps)
   ; } TABLE#
 
 The ``#FONT`` macros create the required frames (and write images of them); the
@@ -2202,6 +2203,8 @@ of any subsequent frame must fall entirely inside the first frame.
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 8.6     | The frame specifications may be enclosed in parentheses           |
++---------+-------------------------------------------------------------------+
 | 8.3     | Added the ``x`` and ``y`` parameters to the frame specification;  |
 |         | added support for replacement fields in the integer parameters of |
 |         | a frame specification                                             |
