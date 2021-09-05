@@ -1170,29 +1170,28 @@ def parse_udgarray(text, index, snapshot=None, req_fname=True, fields=None):
             raise MacroParsingError('Missing filename or frame ID: #UDGARRAY{}'.format(text[index:end]))
     return end, crop_rect, fname, frame, alt, (udg_array, scale, flip, rotate, mask, tindex, alpha)
 
-def _parse_frame_spec(params, text, index, delay, fields):
-    match = RE_FRAME_ID.match(text, index)
-    if match:
-        x, y = 0, 0
-        frame_id = match.group()
-        index += len(frame_id)
-        if index < len(text) and text[index] == ',':
-            index, delay, x, y = parse_ints(text, index + 1, defaults=(delay, 0, 0), names=('delay', 'x', 'y'), fields=fields)
-        params.append((frame_id, delay, x, y))
-    return index, delay
+def _parse_frame_specs(text, index, fields):
+    params = []
+    delay, x, y = 32, 0, 0
+    end = index
+    while end == index or (end < len(text) and text[end] == ';'):
+        end += 1
+        match = RE_FRAME_ID.match(text, end)
+        if match:
+            frame_id = match.group()
+            end += len(frame_id)
+            if end < len(text) and text[end] == ',':
+                end, delay, x, y = parse_ints(text, end + 1, defaults=(delay, 0, 0), names=('delay', 'x', 'y'), fields=fields)
+            params.append((frame_id, delay, x, y))
+    return end, params
 
 def parse_udgarray_with_frames(text, index, fields, frame_map=None):
     # #UDGARRAY*frame1[,delay,x,y];frame2[,delay,x,y];...(fname)
-    params = []
-    delay, x, y = 32, 0, 0
     if text[index:].startswith('*('):
         end, frame_specs = parse_brackets(text, index + 1)
-        for spec in frame_specs.split(';'):
-            delay = _parse_frame_spec(params, spec, 0, delay, fields)[1]
+        params = _parse_frame_specs(frame_specs, -1, fields)[1]
     else:
-        end = index
-        while end == index or (end < len(text) and text[end] == ';'):
-            end, delay = _parse_frame_spec(params, text, end + 1, delay, fields)
+        end, params = _parse_frame_specs(text, index, fields)
 
     end, fname = parse_brackets(text, end)
     if not fname:
