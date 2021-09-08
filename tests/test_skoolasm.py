@@ -106,6 +106,10 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
     def _test_invalid_image_macro(self, writer, macro, error_msg, prefix):
         self._test_unsupported_macro(writer, macro, error_msg)
 
+    def _test_udgarray_macro(self, writer, prefix, udg_specs, suffix):
+        self._test_unsupported_macro(writer, f'{prefix};{udg_specs}{suffix}')
+        self._test_unsupported_macro(writer, f'{prefix}({udg_specs}){suffix}')
+
     def _test_call(self, arg1, arg2, arg3=None):
         # Method used to test the #CALL macro
         return str((arg1, arg2, arg3))
@@ -874,19 +878,20 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
     def test_macro_udgarray(self):
         writer = self._get_writer()
         writer.fields.update({'w': 3, 'a': 0, 'm': 8, 's': 1, 'aa': 32, 'h': 15, 'd': 5})
-        self._test_unsupported_macro(writer, '#UDGARRAY8,,,256;33008-33023(bubble)')
-        self._test_unsupported_macro(writer, '#UDGARRAY4,mask=2,step=256;33008-33023:33024-33039{x=1,width=126}(sprite)')
-        self._test_unsupported_macro(writer, '#UDGARRAY(3-2, (1+5)*8, 2*2, 16/2);0{x=(1+2)*3, y = (8 - 4) / 2}(baz)')
-        self._test_unsupported_macro(writer, '#UDGARRAY2;(256*128)x(3+1),(4*(32+32),2**2,8/8)(baz)')
-        self._test_unsupported_macro(writer, '#UDGARRAY2;0-8-8:(2**(2+2)),((8+8)*8)(baz*qux)')
-        self._test_unsupported_macro(writer, '#UDGARRAY2;0;1@2;3(attr_addrs)')
-        self._test_unsupported_macro(writer, '#UDGARRAY({w});({a}),(,{s}):({m}),({s});({a})-({a}+16)-16x({s}):({m})x2@({aa})x3{height={h}}(img)')
-        self._test_unsupported_macro(writer, nest_macros('#UDGARRAY2;({})-({})-({})-({})x({})(thing)', 32768, 32785, 1, 16, 1))
-        self._test_unsupported_macro(writer, nest_macros('#UDGARRAY1;32768-32785-1-16:({})-({})-({})-({})x({})(thing)', 32800, 32817, 1, 16, 1))
-        self._test_unsupported_macro(writer, nest_macros('#UDGARRAY1;32768,({}):32776,({})(thing)', 5, 2))
-        self._test_unsupported_macro(writer, nest_macros('#UDGARRAY1;0{{x={}}}(thing)', 3))
-        self._test_unsupported_macro(writer, nest_macros('#UDGARRAY1;0({})', 'fname'))
+        self._test_udgarray_macro(writer, '#UDGARRAY8,,,256', '33008-33023', '(bubble)')
+        self._test_udgarray_macro(writer, '#UDGARRAY4,mask=2,step=256', '33008-33023:33024-33039', '{x=1,width=126}(sprite)')
+        self._test_udgarray_macro(writer, '#UDGARRAY(3-2, (1+5)*8, 2*2, 16/2)', '0', '{x=(1+2)*3, y = (8 - 4) / 2}(baz)')
+        self._test_udgarray_macro(writer, '#UDGARRAY2', '(256*128)x(3+1),(4*(32+32),2**2,8/8)', '(baz)')
+        self._test_udgarray_macro(writer, '#UDGARRAY2', '0-8-8:(2**(2+2)),((8+8)*8)', '(baz*qux)')
+        self._test_udgarray_macro(writer, '#UDGARRAY2', '0;1', '@2;3(attr_addrs)')
+        self._test_udgarray_macro(writer, '#UDGARRAY({w})', '({a}),(,{s}):({m}),({s});({a})-({a}+16)-16x({s}):({m})x2', '@({aa})x3{height={h}}(img)')
+        self._test_udgarray_macro(writer, '#UDGARRAY2', nest_macros('({})-({})-({})-({})x({})', 32768, 32785, 1, 16, 1), '(thing)')
+        self._test_udgarray_macro(writer, '#UDGARRAY1', nest_macros('32768-32785-1-16:({})-({})-({})-({})x({})', 32800, 32817, 1, 16, 1), '(thing)')
+        self._test_udgarray_macro(writer, '#UDGARRAY1', nest_macros('32768,({}):32776,({})', 5, 2), '(thing)')
+        self._test_udgarray_macro(writer, '#UDGARRAY1', '0', nest_macros('{{x={}}}(thing)', 3))
+        self._test_udgarray_macro(writer, '#UDGARRAY1', '0', nest_macros('({})', 'fname'))
         self._test_unsupported_macro(writer, '#UDGARRAY#(2#FOR0,8,8||n|;n||)(thing)')
+        self._test_unsupported_macro(writer, '#UDGARRAY#(2(#FOR0,8,8||n|n|;||))(thing)')
 
     def test_macro_udgarray_frames(self):
         writer = self._get_writer()

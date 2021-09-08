@@ -1812,9 +1812,13 @@ class CommonSkoolMacroTest:
         self._test_invalid_image_macro(writer, '#UDGARRAY(,scale=4);0(foo)', "Missing required argument 'width': ',scale=4'", prefix)
 
         self._test_invalid_image_macro(writer, '#UDGARRAY1;(foo)', 'Expected UDG address range specification: #UDGARRAY1;', prefix)
+        self._test_invalid_image_macro(writer, '#UDGARRAY1()(foo)', 'Expected UDG address range specification: #UDGARRAY1(', prefix)
         self._test_invalid_image_macro(writer, '#UDGARRAY1;,2(foo)', 'Expected UDG address range specification: #UDGARRAY1;', prefix)
+        self._test_invalid_image_macro(writer, '#UDGARRAY1(,2)(foo)', 'Expected UDG address range specification: #UDGARRAY1(', prefix)
         self._test_invalid_image_macro(writer, '#UDGARRAY1;0:(foo)', 'Expected mask address range specification: #UDGARRAY1;0:', prefix)
+        self._test_invalid_image_macro(writer, '#UDGARRAY1(0:)(foo)', 'Expected mask address range specification: #UDGARRAY1(0:', prefix)
         self._test_invalid_image_macro(writer, '#UDGARRAY1;0:,2(foo)', 'Expected mask address range specification: #UDGARRAY1;0:', prefix)
+        self._test_invalid_image_macro(writer, '#UDGARRAY1(0:,2)(foo)', 'Expected mask address range specification: #UDGARRAY1(0:', prefix)
         self._test_invalid_image_macro(writer, '#UDGARRAY1;0@(foo)', 'Expected attribute address range specification: #UDGARRAY1;0@', prefix)
         self._test_invalid_image_macro(writer, '#UDGARRAY1;0@1;(foo)', 'Expected attribute address range specification: #UDGARRAY1;0@1;', prefix)
 

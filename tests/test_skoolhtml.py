@@ -1415,6 +1415,11 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         if udgs:
             self._check_image(writer, udgs, scale, mask, tindex, alpha, x, y, width, height, path)
 
+    def _test_udgarray_macro(self, snapshot, prefix, udg_specs, suffix, path, udgs=None, scale=2, mask=0, tindex=0,
+                             alpha=-1, x=0, y=0, width=None, height=None, ref=None, alt=None, base=0):
+        self._test_image_macro(snapshot, f'{prefix};{udg_specs}{suffix}', path, udgs, scale, mask, tindex, alpha, x, y, width, height, ref, alt, base)
+        self._test_image_macro(snapshot, f'{prefix}({udg_specs}){suffix}', path, udgs, scale, mask, tindex, alpha, x, y, width, height, ref, alt, base)
+
     def _test_image_macro_with_replacement_field_in_filename(self, macro, defdir=UDGDIR, snapshot=(0,) * 8):
         writer = self._get_writer(snapshot=snapshot, mock_file_info=True)
         for prefix, path, alt in (
@@ -3842,24 +3847,24 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
     def test_macro_udgarray_with_address_range_with_horizontal_and_vertical_steps(self):
         snapshot = list(range(32))
         fname = 'test_udg_array'
-        macro = '#UDGARRAY2,,,2;0-17-1-16({})'.format(fname)
+        prefix, udg_specs, suffix = '#UDGARRAY2,,,2', '0-17-1-16', f'({fname})'
         exp_image_path = '{}/{}.png'.format(UDGDIR, fname)
         exp_udgs = [
             [Udg(56, snapshot[0:16:2]), Udg(56, snapshot[1:16:2])],
             [Udg(56, snapshot[16:32:2]), Udg(56, snapshot[17:32:2])]
         ]
-        self._test_image_macro(snapshot, macro, exp_image_path, exp_udgs, scale=2)
+        self._test_udgarray_macro(snapshot, prefix, udg_specs, suffix, exp_image_path, exp_udgs, scale=2)
 
     def test_macro_udgarray_with_multiplier(self):
         snapshot = list(range(24))
         fname = 'test_udg_array2'
-        macro = '#UDGARRAY2,56,2;0;8;16x2({})'.format(fname)
+        prefix, udg_specs, suffix = '#UDGARRAY2,56,2', '0;8;16x2', f'({fname})'
         exp_image_path = '{}/{}.png'.format(UDGDIR, fname)
         exp_udgs = [
             [Udg(56, snapshot[0:8]), Udg(56, snapshot[8:16])],
             [Udg(56, snapshot[16:24]), Udg(56, snapshot[16:24])]
         ]
-        self._test_image_macro(snapshot, macro, exp_image_path, exp_udgs, scale=2)
+        self._test_udgarray_macro(snapshot, prefix, udg_specs, suffix, exp_image_path, exp_udgs, scale=2)
 
     def test_macro_udgarray_with_every_parameter_except_flip_rotate_mask(self):
         snapshot = [0] * 16
@@ -3878,19 +3883,20 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         udg_mask = [255] * 8
         snapshot[udg_addr:udg_addr + 8 * step:step] = udg_data
         snapshot[mask_addr:mask_addr + 8 * step:step] = udg_mask
-        values = (width, attr, scale, step, inc, tindex, alpha, udg_addr, mask_addr, x, y, w, h, fname)
-        macro = '#UDGARRAY{},{},{},{},{},,,,{},{};{}x4:{}x4{{{},{},{},{}}}({})'.format(*values)
+        prefix = f'#UDGARRAY{width},{attr},{scale},{step},{inc},,,,{tindex},{alpha}'
+        udg_specs = f'{udg_addr}x4:{mask_addr}x4'
+        suffix = f'{{{x},{y},{w},{h}}}({fname})'
         exp_image_path = '{}/{}.png'.format(UDGDIR, fname)
         exp_udgs = [[Udg(attr, udg_data, udg_mask)] * width] * 2
-        self._test_image_macro(snapshot, macro, exp_image_path, exp_udgs, scale, 1, tindex, alpha, x, y, w, h)
+        self._test_udgarray_macro(snapshot, prefix, udg_specs, suffix, exp_image_path, exp_udgs, scale, 1, tindex, alpha, x, y, w, h)
 
     def test_macro_udgarray_with_separately_specified_attributes(self):
         snapshot = [0] * 8
         fname = 'attrs'
-        macro = '#UDGARRAY2;0,1;0,2;0,3;0,4({})'.format(fname)
+        prefix, udg_specs, suffix = '#UDGARRAY2', '0,1;0,2;0,3;0,4', f'({fname})'
         exp_image_path = '{}/{}.png'.format(UDGDIR, fname)
         exp_udgs = [[Udg(1, [0] * 8), Udg(2, [0] * 8)], [Udg(3, [0] * 8), Udg(4, [0] * 8)]]
-        self._test_image_macro(snapshot, macro, exp_image_path, exp_udgs)
+        self._test_udgarray_macro(snapshot, prefix, udg_specs, suffix, exp_image_path, exp_udgs)
 
     def test_macro_udgarray_flip(self):
         fname = 'test_udg_array4'
@@ -3930,44 +3936,43 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         udg_mask = [255] * 8
         snapshot[udg_addr:udg_addr + 8 * step:step] = udg_data
         snapshot[mask_addr:mask_addr + 8 * step:step] = udg_mask
-        params = 'attr={attr},alpha={alpha},step={step},inc={inc},tindex={tindex},mask={mask},scale={scale}'
-        udg_spec = ';{udg_addr}x4,step={step}'
-        mask_spec = ':{mask_addr}x4,step={step}'
-        crop = '{{x={x},y={y},width={w},height={h}}}'
-        macro = ('#UDGARRAY{width},' + params + udg_spec + mask_spec + crop + '({fname})').format(**locals())
+        prefix = f'#UDGARRAY{width},attr={attr},alpha={alpha},step={step},inc={inc},tindex={tindex},mask={mask},scale={scale}'
+        udg_specs = f'{udg_addr}x4,step={step}:{mask_addr}x4,step={step}'
+        suffix = f'{{x={x},y={y},width={w},height={h}}}({fname})'
         exp_image_path = '{}/{}.png'.format(UDGDIR, fname)
         exp_udgs = [[Udg(attr, udg_data, udg_mask)] * width] * 2
-        self._test_image_macro(snapshot, macro, exp_image_path, exp_udgs, scale, mask, tindex, alpha, x, y, w, h)
+        self._test_udgarray_macro(snapshot, prefix, udg_specs, suffix, exp_image_path, exp_udgs, scale, mask, tindex, alpha, x, y, w, h)
 
     def test_macro_udgarray_with_arithmetic_expressions(self):
         fname = 'test_udg_array7'
         udg1 = Udg(40, [128, 64, 32, 16, 8, 4, 2, 1])
         udg2 = Udg(40, [64, 32, 16, 8, 4, 2, 1, 128])
         udg3 = Udg(40, [32, 16, 8, 4, 2, 1, 128, 64])
-        udg_addr = '0-((4+4)*2)-(10-2)x(2-1)'
         snapshot = udg1.data + udg2.data + udg3.data
         scale = 2
         mask = 0
         x, y, w, h = 3, 4, 42, 8
         crop = '{x=1+2,y = (1 + 1) * 2, width = 6 * 7, height=2**3}'
-        macro = '#UDGARRAY(2+1,(4 + 1) * 8);{}{}({})'.format(udg_addr, crop, fname)
+        prefix = '#UDGARRAY(2+1,(4 + 1) * 8)'
+        udg_specs = '0-((4+4)*2)-(10-2)x(2-1)'
+        suffix = f'{crop}({fname})'
         exp_image_path = '{}/{}.png'.format(UDGDIR, fname)
         exp_udgs = [[udg1, udg2, udg3]]
-        self._test_image_macro(snapshot, macro, exp_image_path, exp_udgs, scale, mask, 0, -1, x, y, w, h)
+        self._test_udgarray_macro(snapshot, prefix, udg_specs, suffix, exp_image_path, exp_udgs, scale, mask, 0, -1, x, y, w, h)
 
     def test_macro_udgarray_with_arithmetic_expressions_in_udg_and_mask_specs(self):
         snapshot = [0] * 16
         fname = 'test_udg_array8'
         udg = Udg(40, [240] * 8, [248] * 8)
         snapshot = udg.data + udg.mask
-        udg_spec = '(0*3),((2+3)*8, inc=5-5)'
-        mask_spec = '(3-1+6),((12-8)/4)'
         scale = 2
         mask = 1
-        macro = '#UDGARRAY1;{}:{}({})'.format(udg_spec, mask_spec, fname)
+        prefix = '#UDGARRAY1'
+        udg_specs = '(0*3),((2+3)*8, inc=5-5):(3-1+6),((12-8)/4)'
+        suffix = f'({fname})'
         exp_image_path = '{}/{}.png'.format(UDGDIR, fname)
         exp_udgs = [[udg]]
-        self._test_image_macro(snapshot, macro, exp_image_path, exp_udgs, scale, mask)
+        self._test_udgarray_macro(snapshot, prefix, udg_specs, suffix, exp_image_path, exp_udgs, scale, mask)
 
     def test_macro_udgarray_with_nested_macros(self):
         fname = 'nested'
@@ -3977,10 +3982,12 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         x = 1
         udg = Udg(56, [45] * 8, [173] * 8)
         snapshot = udg.data + udg.mask
-        macro = nest_macros('#UDGARRAY1;({0})-({0})-({1})-({1})x({1}):({2})-({2})-({1})-({1})x({1}){{x={3}}}({4})', udg_addr, 1, udg_addr + 8, x, fname)
+        prefix = '#UDGARRAY1'
+        udg_specs = nest_macros('({0})-({0})-({1})-({1})x({1}):({2})-({2})-({1})-({1})x({1})', udg_addr, 1, udg_addr + 8)
+        suffix = nest_macros('{{x={0}}}({1})', x, fname)
         exp_image_path = '{}/{}.png'.format(UDGDIR, fname)
         exp_udgs = [[udg]]
-        self._test_image_macro(snapshot, macro, exp_image_path, exp_udgs, scale, mask, x=x, width=15)
+        self._test_udgarray_macro(snapshot, prefix, udg_specs, suffix, exp_image_path, exp_udgs, scale, mask, x=x, width=15)
 
     def test_macro_udgarray_with_hash_macro(self):
         fname = 'thing'
@@ -3988,10 +3995,12 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         udg2 = Udg(5, [178] * 8)
         snapshot = [udg1.attr] + udg1.data + [udg2.attr] + udg2.data
         scale = 2
-        macro = '#UDGARRAY#(2#FOR0,9,9||n|;(n+1),#PEEKn||)({})'.format(fname)
+        macro1 = '#UDGARRAY#(2#FOR0,9,9||n|;(n+1),#PEEKn||)({})'.format(fname)
+        macro2 = '#UDGARRAY#(2(#FOR0,9,9||n|(n+1),#PEEKn|;||))({})'.format(fname)
         exp_image_path = '{}/{}.png'.format(UDGDIR, fname)
         exp_udgs = [[udg1, udg2]]
-        self._test_image_macro(snapshot, macro, exp_image_path, exp_udgs, scale)
+        self._test_image_macro(snapshot, macro1, exp_image_path, exp_udgs, scale)
+        self._test_image_macro(snapshot, macro2, exp_image_path, exp_udgs, scale)
 
     def test_macro_udgarray_with_attribute_addresses(self):
         snapshot = [0] * 38
@@ -4057,18 +4066,20 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
     def test_macro_udgarray_with_replacement_fields(self):
         udg = Udg(48, [137] * 8, [241] * 8)
         snapshot = udg.data + udg.mask + udg.data + udg.mask + [48]
-        macros = (
-            '#LET(w=3)',
-            '#LET(a=0)',
-            '#LET(m=8)',
-            '#LET(s=1)',
-            '#LET(aa=32)',
-            '#LET(h=15)',
-            '#UDGARRAY({w});({a}),(,{s}):({m}),({s});({a})-({a}+16)-16x({s}):({m})x2@({aa})x3{height={h}}(img)'
+        prefix = (
+            '#LET(w=3)'
+            '#LET(a=0)'
+            '#LET(m=8)'
+            '#LET(s=1)'
+            '#LET(aa=32)'
+            '#LET(h=15)'
+            '#UDGARRAY({w})'
         )
+        udg_specs = '({a}),(,{s}):({m}),({s});({a})-({a}+16)-16x({s}):({m})x2'
+        suffix = '@({aa})x3{height={h}}(img)'
         exp_image_path = '{}/img.png'.format(UDGDIR)
         exp_udgs = [[udg] * 3]
-        self._test_image_macro(snapshot, macros, exp_image_path, exp_udgs, scale=2, mask=1, height=15)
+        self._test_udgarray_macro(snapshot, prefix, udg_specs, suffix, exp_image_path, exp_udgs, scale=2, mask=1, height=15)
 
     def test_macro_udgarray_with_short_udg_specs(self):
         snapshot = [0] * 24

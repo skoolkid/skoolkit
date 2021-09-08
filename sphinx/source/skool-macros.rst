@@ -1917,7 +1917,7 @@ The integer parameters, mask specification and cropping specification of the
 In HTML mode, the ``#UDGARRAY`` macro expands to an ``<img>`` element for the
 image of an array of UDGs (8x8 blocks of pixels). ::
 
-  #UDGARRAYwidth[,attr,scale,step,inc,flip,rotate,mask,tindex,alpha];SPEC1[;SPEC2;...][@ATTRS1[;ATTRS2;...]][{CROP}](fname)
+  #UDGARRAYwidth[,attr,scale,step,inc,flip,rotate,mask,tindex,alpha](SPEC1[;SPEC2;...])[@ATTRS1[;ATTRS2;...]][{CROP}](fname)
 
 * ``width`` is the width of the image (in UDGs)
 * ``attr`` is the default attribute byte of each UDG (default: 56)
@@ -1940,7 +1940,9 @@ image of an array of UDGs (8x8 blocks of pixels). ::
 * ``fname`` is the name of the image file (see :ref:`Filenames`)
 
 ``SPEC1``, ``SPEC2`` etc. are UDG specifications for the sets of UDGs that make
-up the array. Each UDG specification has the form::
+up the array. The parentheses around them are optional, but recommended. If the
+parentheses are omitted, ``SPEC1`` must be prefixed by a semicolon to separate
+it from the main parameters. Each UDG specification has the form::
 
   addr[,attr,step,inc][:MASK]
 
@@ -2001,7 +2003,7 @@ For example::
 
   ; Base sprite
   ;
-  ; #HTML[#UDGARRAY4;32768-32888-8(base_sprite.png)]
+  ; #HTML[#UDGARRAY4(32768-32888-8)(base_sprite.png)]
 
 In HTML mode, this instance of the ``#UDGARRAY`` macro expands to an ``<img>``
 element for the image of the 4x4 sprite formed by the 16 UDGs with base
@@ -2017,6 +2019,8 @@ See also :ref:`UDGS`.
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 8.6     | The UDG specifications may be enclosed in parentheses             |
++---------+-------------------------------------------------------------------+
 | 8.3     | Added support for replacement fields in the integer parameters    |
 |         | and the UDG, attribute address range and cropping specifications  |
 +---------+-------------------------------------------------------------------+
