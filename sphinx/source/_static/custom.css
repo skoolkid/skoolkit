@@ -1,0 +1,4 @@
+/* Left-align tables (instead of centring them) by default */
+table.align-default {
+    margin-left: 0;
+}
