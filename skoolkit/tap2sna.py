@@ -371,10 +371,9 @@ def _get_tape(urlstring, user_agent, member=None):
         f = tempfile.NamedTemporaryFile(prefix='tap2sna-')
         while 1:
             data = bytearray(u.read(4096))
-            if data:
-                f.write(data)
-            else:
+            if not data:
                 break
+            f.write(data)
     elif url.path:
         f = open_file(url.path, 'rb')
 
