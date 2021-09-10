@@ -831,8 +831,13 @@ def parse_include(text, index, fields):
     end, pattern = parse_strings(text, end, 1)
     return end, paragraphs, pattern
 
-def _eval_map(args, args_str):
+def _eval_map(args, args_str, strings=True):
     default = args.pop(0)
+    if not strings:
+        try:
+            default = evaluate(default)
+        except ValueError:
+            raise MacroParsingError("Invalid default integer value ({}): {}".format(default, args_str))
     m = defaultdict(lambda: default)
     if args:
         for pair in args:
@@ -841,9 +846,16 @@ def _eval_map(args, args_str):
             else:
                 k = v = pair
             try:
-                m[evaluate(k)] = v
+                key = evaluate(k)
             except ValueError:
                 raise MacroParsingError("Invalid key ({}): {}".format(k, args_str))
+            if strings:
+                m[key] = v
+            else:
+                try:
+                    m[key] = evaluate(v)
+                except ValueError:
+                    raise MacroParsingError("Invalid integer value ({}): {}".format(v, args_str))
     return m
 
 def parse_let(writer, text, index, *cwd):
@@ -857,7 +869,7 @@ def parse_let(writer, text, index, *cwd):
                 args = parse_strings(value, 0)[1]
             except NoParametersError:
                 raise NoParametersError(f"No values provided: '{name}={value}'")
-            writer.fields[name[:-2]] = _eval_map(args, value)
+            writer.fields[name[:-2]] = _eval_map(args, value, name.endswith('$[]'))
         else:
             try:
                 writer.fields[name] = eval_variable(name, value)

@@ -1143,61 +1143,106 @@ class CommonSkoolMacroTest:
         self.assertEqual(writer.expand('#LET/baz$=#IF(1)({foo$},{bar$})/'), '')
         self.assertEqual(writer.fields['baz$'], 'black')
 
-    def test_macro_let_dictionary(self):
+    def test_macro_let_dictionary_of_strings(self):
         writer = self._get_writer()
 
         # Blank default value only
-        self.assertEqual(writer.expand('#LET(a[]=())'), '')
-        self.assertEqual(writer.fields['a'], {})
-        self.assertEqual(writer.fields['a'][0], '')
+        self.assertEqual(writer.expand('#LET(a$[]=())'), '')
+        self.assertEqual(writer.fields['a$'], {})
+        self.assertEqual(writer.fields['a$'][0], '')
 
         # Default value only
-        self.assertEqual(writer.expand('#LET(a[]=(null))'), '')
-        self.assertEqual(writer.fields['a'], {})
-        self.assertEqual(writer.fields['a'][0], 'null')
+        self.assertEqual(writer.expand('#LET(a$[]=(null))'), '')
+        self.assertEqual(writer.fields['a$'], {})
+        self.assertEqual(writer.fields['a$'][0], 'null')
 
         # Default value and one key-value pair
-        self.assertEqual(writer.expand('#LET(b[]=(0,1:2))'), '')
-        self.assertEqual(writer.fields['b'], {1: '2'})
-        self.assertEqual(writer.fields['b'][0], '0')
+        self.assertEqual(writer.expand('#LET(b$[]=(0,1:2))'), '')
+        self.assertEqual(writer.fields['b$'], {1: '2'})
+        self.assertEqual(writer.fields['b$'][0], '0')
 
         # Default value and two key-value pairs
-        self.assertEqual(writer.expand('#LET(c[]=(!,1:3,2:6))'), '')
-        self.assertEqual(writer.fields['c'], {1: '3', 2: '6'})
-        self.assertEqual(writer.fields['c'][0], '!')
+        self.assertEqual(writer.expand('#LET(c$[]=(!,1:3,2:6))'), '')
+        self.assertEqual(writer.fields['c$'], {1: '3', 2: '6'})
+        self.assertEqual(writer.fields['c$'][0], '!')
 
         # Implied values
-        self.assertEqual(writer.expand('#LET(d[]=(0,1,2,3))'), '')
-        self.assertEqual(writer.fields['d'], {1: '1', 2: '2', 3: '3'})
-        self.assertEqual(writer.fields['d'][0], '0')
+        self.assertEqual(writer.expand('#LET(d$[]=(0,1,2,3))'), '')
+        self.assertEqual(writer.fields['d$'], {1: '1', 2: '2', 3: '3'})
+        self.assertEqual(writer.fields['d$'][0], '0')
 
         # Macros
-        self.assertEqual(writer.expand('#LET(e[]=(,#IF(0)(0,1):#IF(1)(2,0)))'), '')
-        self.assertEqual(writer.fields['e'], {1: '2'})
-        self.assertEqual(writer.fields['e'][0], '')
+        self.assertEqual(writer.expand('#LET(e$[]=(,#IF(0)(0,1):#IF(1)(2,0)))'), '')
+        self.assertEqual(writer.fields['e$'], {1: '2'})
+        self.assertEqual(writer.fields['e$'][0], '')
 
         # Replacement field
         self.assertEqual(writer.expand('#LET(x=10)'), '')
-        self.assertEqual(writer.expand('#LET(f[]=(-,1:{x}))'), '')
-        self.assertEqual(writer.fields['f'], {1: '10'})
-        self.assertEqual(writer.fields['f'][0], '-')
+        self.assertEqual(writer.expand('#LET(f$[]=(-,1:{x}))'), '')
+        self.assertEqual(writer.fields['f$'], {1: '10'})
+        self.assertEqual(writer.fields['f$'][0], '-')
 
         # Macro and replacement field
         self.assertEqual(writer.expand('#LET(y=5)'), '')
-        self.assertEqual(writer.expand('#LET(g[]=(:,1:#IF({y}>1)({y},0)))'), '')
-        self.assertEqual(writer.fields['g'], {1: '5'})
-        self.assertEqual(writer.fields['g'][0], ':')
+        self.assertEqual(writer.expand('#LET(g$[]=(:,1:#IF({y}>1)({y},0)))'), '')
+        self.assertEqual(writer.fields['g$'], {1: '5'})
+        self.assertEqual(writer.fields['g$'][0], ':')
+
+    def test_macro_let_dictionary_of_integers(self):
+        writer = self._get_writer()
+
+        # Default value only
+        self.assertEqual(writer.expand('#LET(a[]=(0))'), '')
+        self.assertEqual(writer.fields['a'], {})
+        self.assertEqual(writer.fields['a'][0], 0)
+
+        # Default value and one key-value pair
+        self.assertEqual(writer.expand('#LET(b[]=(0,1:2))'), '')
+        self.assertEqual(writer.fields['b'], {1: 2})
+        self.assertEqual(writer.fields['b'][0], 0)
+
+        # Default value and two key-value pairs
+        self.assertEqual(writer.expand('#LET(c[]=(0,1:3,2:6))'), '')
+        self.assertEqual(writer.fields['c'], {1: 3, 2: 6})
+        self.assertEqual(writer.fields['c'][0], 0)
+
+        # Implied values
+        self.assertEqual(writer.expand('#LET(d[]=(0,1,2,3))'), '')
+        self.assertEqual(writer.fields['d'], {1: 1, 2: 2, 3: 3})
+        self.assertEqual(writer.fields['d'][0], 0)
+
+        # Macros
+        self.assertEqual(writer.expand('#LET(e[]=(-1,#IF(0)(0,1):#IF(1)(2,0)))'), '')
+        self.assertEqual(writer.fields['e'], {1: 2})
+        self.assertEqual(writer.fields['e'][0], -1)
+
+        # Replacement field
+        self.assertEqual(writer.expand('#LET(x=10)'), '')
+        self.assertEqual(writer.expand('#LET(f[]=(-1,1:{x}))'), '')
+        self.assertEqual(writer.fields['f'], {1: 10})
+        self.assertEqual(writer.fields['f'][0], -1)
+
+        # Macro and replacement field
+        self.assertEqual(writer.expand('#LET(y=5)'), '')
+        self.assertEqual(writer.expand('#LET(g[]=(0,1:#IF({y}>1)({y},0)))'), '')
+        self.assertEqual(writer.fields['g'], {1: 5})
+        self.assertEqual(writer.fields['g'][0], 0)
+
+        # Arithmetic expressions
+        self.assertEqual(writer.expand('#LET(e[]=(1<<8,1:1+0,2:3-1,3:9/3,4:2*2))'), '')
+        self.assertEqual(writer.fields['e'], {1: 1, 2: 2, 3: 3, 4: 4})
+        self.assertEqual(writer.fields['e'][0], 256)
 
     def test_macro_let_dictionary_with_alternative_delimiters(self):
         writer = self._get_writer()
 
-        self.assertEqual(writer.expand('#LET(a[]=[?,0:0,1:2])'), '')
-        self.assertEqual(writer.fields['a'], {0: '0', 1: '2'})
-        self.assertEqual(writer.fields['a'][2], '?')
+        self.assertEqual(writer.expand('#LET(a[]=[100,0:0,1:2])'), '')
+        self.assertEqual(writer.fields['a'], {0: 0, 1: 2})
+        self.assertEqual(writer.fields['a'][2], 100)
 
-        self.assertEqual(writer.expand('#LET(b[]=//?/0:0/1:10//)'), '')
-        self.assertEqual(writer.fields['b'], {0: '0', 1: '10'})
-        self.assertEqual(writer.fields['b'][2], '?')
+        self.assertEqual(writer.expand('#LET(b$[]=//?/0:A/1:B//)'), '')
+        self.assertEqual(writer.fields['b$'], {0: 'A', 1: 'B'})
+        self.assertEqual(writer.fields['b$'][2], '?')
 
     def test_macro_let_invalid(self):
         writer = self._get_writer()
@@ -1215,7 +1260,9 @@ class CommonSkoolMacroTest:
         self._assert_error(writer, '#LET(foo=#IF({fix}<1)(a+b))', "Cannot parse integer value 'a+b': foo=#IF({fix}<1)(a+b)", prefix)
         self._assert_error(writer, '#LET(foo=#IF())', "No valid expression found: '#IF()'", ERROR_PREFIX.format('IF'))
         self._assert_error(writer, '#LET(f[]=)', "No values provided: 'f[]='", prefix)
+        self._assert_error(writer, '#LET(f[]=(z,0:0))', "Invalid default integer value (z): (z,0:0)", prefix)
         self._assert_error(writer, '#LET(f[]=(1,x1:3))', "Invalid key (x1): (1,x1:3)", prefix)
+        self._assert_error(writer, '#LET(f[]=(0,1:y))', "Invalid integer value (y): (0,1:y)", prefix)
         self._assert_error(writer, '#LET(f[]=1,2:2)', "No terminating delimiter: 1,2:2", prefix)
 
     def test_macro_link_invalid(self):

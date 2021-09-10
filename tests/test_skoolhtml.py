@@ -4443,8 +4443,8 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         macros = (
             '#UDG0,2(*t0)',
             '#UDG8,4(*t8)',
-            '#LET(d[]=(t0,1:t8))',
-            '#UDGS2,1(udgs)({d[#EVAL($x&1)]})'
+            '#LET(d$[]=(t0,1:t8))',
+            '#UDGS2,1(udgs)({d$[#EVAL($x&1)]})'
         )
         exp_image_path = f'{UDGDIR}/udgs.png'
         exp_udgs = [

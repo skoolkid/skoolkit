@@ -587,7 +587,9 @@ See :ref:`stringParameters` for details on alternative ways to supply the
 
 #LET
 ----
-The ``#LET`` macro defines an integer, string or dictionary variable. ::
+The ``#LET`` macro defines an integer, string or dictionary variable.
+
+The syntax for defining an integer or string variable is::
 
   #LET(name=value)
 
@@ -597,43 +599,52 @@ The ``#LET`` macro defines an integer, string or dictionary variable. ::
   (which are replaced after any skool macros have been expanded)
 
 If ``name`` ends with a dollar sign (``$``), ``value`` is interpreted as a
-string. If ``name`` ends with a pair of square brackets (``[]``), ``value`` is
-interpreted as a dictionary, and must have the form::
-
-  (default[,k1[:v1],k2[:v2]...])
-
-* ``default`` is the default value (used when a key is not found in the
-  dictionary)
-* ``k1:v1``, ``k2:v2`` etc. are the key-value pairs in the dictionary
-
-The keys in a dictionary are integers, and the associated values are strings.
-If the value part of a key-value pair is omitted, it defaults to the key.
-
-If ``name`` does not end with either ``$`` or ``[]``, ``value`` is evaluated as
-an arithmetic expression.
+string. Otherwise ``value`` is evaluated as an arithmetic expression.
 
 For example::
 
   #LET(count=2*2)
   #LET(count$=2*2)
-  #LET(d[]=(?,1:a,2:b))
 
-The first two ``#LET`` macros assign the integer value '4' to the variable
-``count`` and the string value '2*2' to the variable ``count$``. The variables
-are then accessible to other macros via the replacement fields ``{count}`` and
+These ``#LET`` macros assign the integer value '4' to the variable ``count`` and
+the string value '2*2' to the variable ``count$``. The variables are then
+accessible to other macros via the replacement fields ``{count}`` and
 ``{count$}``.
 
-The third ``#LET`` macro defines the dictionary variable ``d`` with default
-value '?', and integer keys '1' and '2' mapping to the string values 'a' and
+The syntax for defining a dictionary variable is::
+
+  #LET(name[]=(default[,k1[:v1],k2[:v2]...]))
+
+* ``name`` is the dictionary variable name
+* ``default`` is the default value (used when a key is not found in the
+  dictionary)
+* ``k1:v1``, ``k2:v2`` etc. are the key-value pairs in the dictionary
+
+The keys in a dictionary are integers, and the associated values are strings if
+``name`` ends with a dollar sign, or integers otherwise. If the value part of a
+key-value pair is omitted, it defaults to the key.
+
+For example::
+
+  #LET(n[]=(0,1:10,2:20))
+  #LET(d$[]=(?,1:a,2:b))
+
+The first ``#LET`` macro defines the dictionary variable ``n`` with default
+integer value 0, and keys '1' and '2' mapping to the integer values 10 and 20.
+The values in this dictionary are accessible to other macros via the replacement
+fields ``{n[1]}`` and ``{n[2]}``.
+
+The second ``#LET`` macro defines the dictionary variable ``d$`` with default
+string value '?', and keys '1' and '2' mapping to the string values 'a' and
 'b'. The values in this dictionary are accessible to other macros via the
-replacement fields ``{d[1]}`` and ``{d[2]}``.
+replacement fields ``{d$[1]}`` and ``{d$[2]}``.
 
 To define a variable that will be available for use immediately anywhere in the
 skool file or ref files, consider using the :ref:`expand` directive.
 
 See :ref:`stringParameters` for details on alternative ways to supply the
-entire ``name=value`` parameter string, or the ``value`` portion when defining
-a dictionary variable.
+entire ``name=value`` parameter string, or the part after the equals sign when
+defining a dictionary variable.
 
 +---------+--------------------------------------------------+
 | Version | Changes                                          |
