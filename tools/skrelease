@@ -454,9 +454,7 @@ prepare_gh_pages() {
   git clone -q git@github.com:skoolkid/skoolkit.git
   echo "OK"
   cd skoolkit
-  sed -i 's/^\(SPHINXOPTS.*=\)$/\1 -D html_theme=sphinxdoc/' sphinx/Makefile
-  _exec "Building documentation" "make -C sphinx html" $logfile
-  git checkout -- sphinx/Makefile
+  _exec "Building documentation" "make -C sphinx html SPHINXOPTS=-Dhtml_theme=sphinxdoc" $logfile
   rm -rf sphinx/build/html/{.buildinfo,_sources/man,man,objects.inv}
   git checkout -q gh-pages
   rsync -ac sphinx/build/html/ . # compare files by checksum - important!
