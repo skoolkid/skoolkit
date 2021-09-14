@@ -1,0 +1,14 @@
+[Game+]
+alt_base=#IF({mode[base]}==10)(hexa)decimal
+alt_dir=#IF({mode[base]}==10)(hex,dec)
+
+[Paths+]
+CodeFiles={address#IF({mode[base]}==16)(:04X)}.html
+
+[Template:footer]
+<footer>
+<div class="release">{Game[Release]}</div>
+<div class="copyright">{Game[Copyright]}</div>
+<div class="created">{Game[Created]}</div>
+<div><a href="{SkoolKit[AltPath]}">Switch to {Game[alt_base]}</a>.</div>
+</footer>
