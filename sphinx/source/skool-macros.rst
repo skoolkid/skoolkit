@@ -185,11 +185,11 @@ The ``#()`` macro expands the skool macros in its sole string parameter. ::
 It takes effect only when it immediately follows the opening token of another
 skool macro, and is expanded `before` that macro. For example::
 
-  #UDGARRAY#(2#FOR37159,37168,9||n|;(n+1),#PEEKn||)(item)
+  #UDGARRAY#(2(#FOR37159,37168,9||n|(n+1),#PEEKn|;||))(item)
 
 This instance of the ``#()`` macro expands the ``#FOR`` macro first, giving::
 
-  2;(37159+1),#PEEK37159;(37168+1),#PEEK37168
+  2((37159+1),#PEEK37159;(37168+1),#PEEK37168)
 
 It then expands the ``#PEEK`` macros, ultimately forming the parameters of the
 ``#UDGARRAY`` macro.
@@ -1567,7 +1567,7 @@ a new frame. ::
 
 For example::
 
-  ; UDGARRAY4;30000-30120-8(*original)
+  ; #UDGARRAY4(30000-30120-8)(*original)
   ; #COPY1,1,2,2(original,centre)
   ; #UDGARRAY*centre(img)
 
@@ -1711,7 +1711,7 @@ the background frame by OR operations.
 
 For example::
 
-  ; #UDGARRAY2;30000-30024-8(*background)
+  ; #UDGARRAY2(30000-30024-8)(*background)
   ; #UDG30032:30040(*object)
   ; #OVER0,1(background,object)
   ; #UDGARRAY*background(image)
