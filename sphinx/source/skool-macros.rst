@@ -51,8 +51,11 @@ or in hexadecimal notation (prefixed by ``$``)::
 
 Wherever a sequence of numeric parameters appears in a macro, that sequence
 may optionally be enclosed in parentheses: ``(`` and ``)``. Parentheses are
-`required` if any numeric parameter is written as an expression containing
-arithmetic operations, skool macros or replacement fields::
+generally recommended - especially when there are two or more parameters - in
+order to unambiguously separate the numeric parameters from any content that
+follows them. Parentheses are `required` if any numeric parameter is written as
+an expression containing arithmetic operations, skool macros or replacement
+fields::
 
   #UDG(51672+{offset},#PEEK51672)
 
