@@ -810,8 +810,8 @@ The parameters of the ``#STR`` macro may contain
 
 #WHILE
 ------
-The ``#WHILE`` macro repeatedly expands macros until a conditional expression
-becomes false. ::
+The ``#WHILE`` macro repeatedly expands macros while a conditional expression
+is true. ::
 
   #WHILE(expr)(body)
 
@@ -822,7 +822,7 @@ becomes false. ::
 For example::
 
   #LET(a=3)
-  #WHILE({a})(
+  #WHILE({a}>0)(
     #EVAL({a})
     #LET(a={a}-1)
   )
