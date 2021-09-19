@@ -306,7 +306,8 @@ opening parenthesis without that character being interpreted as an alternative
 delimiter.
 
 To define a macro that will be available for use immediately anywhere in the
-skool file or ref files, consider using the :ref:`expand` directive.
+skool file or ref files, consider using the :ref:`expand` directive, or the
+``Expand`` parameter in the :ref:`ref-Config` section.
 
 The ``flags`` parameter of the ``#DEF`` macro may contain
 :ref:`replacement fields <replacementFields>`.
@@ -348,7 +349,8 @@ This defines a ``#MIN`` macro that accepts two integer arguments and expands to
 the value of the smaller argument.
 
 To define a macro that will be available for use immediately anywhere in the
-skool file or ref files, consider using the :ref:`expand` directive.
+skool file or ref files, consider using the :ref:`expand` directive, or the
+``Expand`` parameter in the :ref:`ref-Config` section.
 
 The integer parameters of a macro defined by ``#DEFINE`` may contain
 :ref:`replacement fields <replacementFields>`.
