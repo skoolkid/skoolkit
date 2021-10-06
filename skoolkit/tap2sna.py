@@ -468,7 +468,7 @@ initialise the system variables.
 
 --ram sysvars
 
-  Intialise the system variables at 23552-23754 (5C00-5CCA) with values
+  Initialise the system variables at 23552-23754 (5C00-5CCA) with values
   suitable for a 48K ZX Spectrum.
 """.lstrip())
 
