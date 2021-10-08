@@ -286,6 +286,47 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(basic_data, snapshot[23755:23755 + len(basic_data)])
         self.assertEqual(code, snapshot[code_start:code_start + len(code)])
 
+    def test_ram_call(self):
+        ram_module = """
+            def fix(snapshot):
+                snapshot[65280:] = list(range(256))
+        """
+        module_dir = self.make_directory()
+        module_path = os.path.join(module_dir, 'ram.py')
+        module = self.write_text_file(textwrap.dedent(ram_module).strip(), path=module_path)
+        snapshot = self._get_snapshot(data=[0], load_options=f'--ram call={module_dir}:ram.fix')
+        self.assertEqual(list(range(256)), snapshot[65280:])
+
+    def test_ram_call_nonexistent_module(self):
+        self._test_bad_spec('--ram call=no:nope.never', "Failed to import object nope.never: No module named 'nope'")
+
+    def test_ram_call_nonexistent_function(self):
+        module_dir = self.make_directory()
+        module_path = os.path.join(module_dir, 'ram.py')
+        module = self.write_text_file(path=module_path)
+        self._test_bad_spec(f'--ram call={module_dir}:ram.never', "No object named 'never' in module 'ram'")
+
+    def test_ram_call_uncallable(self):
+        ram_module = "fix = None"
+        module_dir = self.make_directory()
+        module_path = os.path.join(module_dir, 'uncallable.py')
+        module = self.write_text_file(ram_module, path=module_path)
+        self._test_bad_spec(f'--ram call={module_dir}:uncallable.fix', "'NoneType' object is not callable")
+
+    def test_ram_call_function_with_no_arguments(self):
+        ram_module = "def fix(): pass"
+        module_dir = self.make_directory()
+        module_path = os.path.join(module_dir, 'noargs.py')
+        module = self.write_text_file(ram_module, path=module_path)
+        self._test_bad_spec(f'--ram call={module_dir}:noargs.fix', "fix() takes 0 positional arguments but 1 was given")
+
+    def test_ram_call_function_with_two_positional_arguments(self):
+        ram_module = "def fix(snapshot, what): pass"
+        module_dir = self.make_directory()
+        module_path = os.path.join(module_dir, 'twoargs.py')
+        module = self.write_text_file(ram_module, path=module_path)
+        self._test_bad_spec(f'--ram call={module_dir}:twoargs.fix', "fix() missing 1 required positional argument: 'what'")
+
     def test_ram_load(self):
         start = 16384
         data = [237, 1, 1, 1, 1, 1]
@@ -437,7 +478,7 @@ class Tap2SnaTest(SkoolKitTestCase):
 
     def test_ram_help(self):
         output, error = self.run_tap2sna('--ram help')
-        self.assertTrue(output.startswith('Usage: --ram load=block,start[,length,step,offset,inc]\n'))
+        self.assertTrue(output.startswith('Usage: --ram call=[/path/to/moduledir:]module.function\n'))
         self.assertEqual(error, '')
 
     def test_tap_file_in_zip_archive(self):

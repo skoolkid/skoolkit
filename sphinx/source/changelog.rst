@@ -13,6 +13,9 @@ Changelog
   represent the defined macro's argument values, and for stripping leading and
   trailing whitespace from the defined macro's output
 * Added support to the :ref:`LET` macro for defining dictionary variables
+* Added support to the ``--ram`` option of :ref:`tap2sna.py` for the
+  ``call`` operation (for calling a Python function to perform arbitrary
+  manipulation of the memory snapshot)
 * Added the ``flags`` parameter to the :ref:`CHR` macro (to produce a character
   in the UTF-8 encoding in HTML mode, and to map character codes 94, 96 and 127
   to '↑', '£' and '©')

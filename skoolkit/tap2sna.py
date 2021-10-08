@@ -22,8 +22,9 @@ import zipfile
 from urllib.request import Request, urlopen
 from urllib.parse import urlparse
 
-from skoolkit import (SkoolKitError, get_dword, get_int_param, get_word,
-                      get_word3, integer, open_file, write_line, VERSION)
+from skoolkit import (SkoolKitError, get_dword, get_int_param, get_object,
+                      get_word, get_word3, integer, open_file, write_line,
+                      VERSION)
 from skoolkit.snapshot import move, poke, print_reg_help, print_state_help, write_z80v3
 
 SYSVARS = (
@@ -175,6 +176,12 @@ def _load_block(snapshot, block, start, length=None, step=None, offset=None, inc
         i &= 65535
     return len(data)
 
+def _call(snapshot, param_str):
+    try:
+        get_object(param_str)(snapshot)
+    except TypeError as e:
+        raise SkoolKitError(e.args[0])
+
 def _load(snapshot, counters, blocks, param_str):
     try:
         block_num, start, length, step, offset, inc = _get_load_params(param_str)
@@ -206,7 +213,7 @@ def _get_ram(blocks, options):
     standard_load = True
     for spec in options.ram_ops:
         op_type, sep, param_str = spec.partition('=')
-        if op_type in ('load', 'move', 'poke', 'sysvars'):
+        if op_type in ('call', 'load', 'move', 'poke', 'sysvars'):
             operations.append((op_type, param_str))
             if op_type == 'load':
                 standard_load = False
@@ -235,7 +242,9 @@ def _get_ram(blocks, options):
 
     counters = {}
     for op_type, param_str in operations:
-        if op_type == 'load':
+        if op_type == 'call':
+            _call(snapshot, param_str)
+        elif op_type == 'load':
             _load(snapshot, counters, blocks, param_str)
         elif op_type == 'move':
             move(snapshot, param_str)
@@ -401,14 +410,28 @@ def _get_tape(urlstring, user_agent, member=None):
 
 def _print_ram_help():
     sys.stdout.write("""
-Usage: --ram load=block,start[,length,step,offset,inc]
+Usage: --ram call=[/path/to/moduledir:]module.function
+       --ram load=[+]block[+],start[,length,step,offset,inc]
        --ram move=src,size,dest
        --ram poke=a[-b[-c]],[^+]v
        --ram sysvars
 
 Load data from a tape block, move a block of bytes from one location to
-another, POKE a single address or range of addresses with a given value, or
-initialise the system variables.
+another, POKE a single address or range of addresses with a given value,
+initialise the system variables, or call a Python function to modify the memory
+snapshot in an arbitrary way.
+
+--ram call=[/path/to/moduledir:]module.function
+
+  Call a Python function to modify the memory snapshot. The function is called
+  with the memory snapshot (a list of 65536 byte values) as the sole positional
+  argument. The function must modify the snapshot in place. The path to the
+  module's location may be omitted if the module is already in the module
+  search path.
+
+  For example:
+
+  --ram call=:ram.modify() # Call modify(snapshot) in ./ram.py
 
 --ram load=[+]block[+],start[,length,step,offset,inc]
 
@@ -496,7 +519,7 @@ def main(args):
     group.add_argument('-p', '--stack', dest='stack', metavar='STACK', type=integer,
                        help="Set the stack pointer.")
     group.add_argument('--ram', dest='ram_ops', metavar='OPERATION', action='append', default=[],
-                       help="Perform a load, move or poke operation or initialise the system variables in the memory snapshot being built. "
+                       help="Perform a load operation or otherwise modify the memory snapshot being built. "
                             "Do '--ram help' for more information. This option may be used multiple times.")
     group.add_argument('--reg', dest='reg', metavar='name=value', action='append', default=[],
                        help="Set the value of a register. Do '--reg help' for more information. "

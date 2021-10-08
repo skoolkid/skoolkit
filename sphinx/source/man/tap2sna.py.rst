@@ -29,10 +29,10 @@ OPTIONS
   `STACK` must be a decimal number, or a hexadecimal number prefixed by '0x'.
 
 --ram OPERATION
-  Perform a load, move or poke operation on the memory snapshot being built, or
-  initialise the system variables. Do ``--ram help`` for more information, or
-  see the sections on the ``LOAD``, ``MOVE``, ``POKE`` and ``SYSVARS``
-  operations below. This option may be used multiple times.
+  Perform a load operation or otherwise modify the memory snapshot being built.
+  Do ``--ram help`` for more information, or see the sections on the ``CALL``,
+  ``LOAD``, ``MOVE``, ``POKE`` and ``SYSVARS`` operations below. This option
+  may be used multiple times.
 
 --reg name=value
   Set the value of a register. Do ``--reg help`` for more information, or see
@@ -53,6 +53,24 @@ OPTIONS
 
 -V, --version
   Show the SkoolKit version number and exit.
+
+CALL OPERATIONS
+===============
+The ``--ram`` option can be used to call a Python function to perform arbitrary
+modification of the memory snapshot.
+
+|
+|  ``--ram call=[/path/to/moduledir:]module.function``
+
+The function is called with the memory snapshot (a list of 65536 byte values)
+as the sole positional argument. The function must modify the snapshot in
+place. The path to the module's location may be omitted if the module is
+already in the module search path.
+
+For example:
+
+|
+|  ``--ram call=:ram.modify()`` # Call modify(snapshot) in ./ram.py
 
 LOAD OPERATIONS
 ===============
@@ -211,6 +229,7 @@ following contents:
 |    game.z80
 |    --ram load=4,32768         # Load the fourth block at 32768
 |    --ram move=40960,512,43520 # Move 40960-41471 to 43520-44031
+|    --ram call=:ram.modify     # Call modify(snapshot) in ./ram.py
 |    --ram sysvars              # Initialise the system variables
 |    --state iff=0              # Disable interrupts
 |    --stack 32768              # Stack at 32768
