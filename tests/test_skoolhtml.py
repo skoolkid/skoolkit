@@ -3354,6 +3354,30 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         # Non-existent other code reference
         self._assert_error(writer, '#R24576@nonexistent', "Cannot find code path for 'nonexistent' disassembly", error=SkoolKitError)
 
+    def test_macro_raw_in_list(self):
+        src = "#LIST { #RAW(#CHR33) } LIST#"
+        exp_html = """
+            <ul class="">
+            <li>#CHR33</li>
+            </ul>
+        """
+        writer = self._get_writer(skool='c32768 RET')
+        output = writer.expand(src)
+        self.assertEqual(dedent(exp_html).strip(), output)
+
+    def test_macro_raw_in_table(self):
+        src = "#TABLE { #RAW(#CHR33) } TABLE#"
+        exp_html = """
+            <table class="">
+            <tr>
+            <td class="" colspan="1" rowspan="1">#CHR33</td>
+            </tr>
+            </table>
+        """
+        writer = self._get_writer(skool='c32768 RET')
+        output = writer.expand(src)
+        self.assertEqual(dedent(exp_html).strip(), output)
+
     def test_macro_scr_without_filename(self):
         snapshot = [0] * 23296
         fname = 'scr'

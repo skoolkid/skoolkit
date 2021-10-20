@@ -819,6 +819,24 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
         writer = self._get_writer(skool, params={'Address': '${address:04X}'})
         self.assertEqual(writer.expand('#R40000'), 'START')
 
+    def test_macro_raw_in_list(self):
+        skool = """
+            @start
+            ; #RAW(#LIST) containing #RAW(#RAW)
+            ;
+            ; #LIST
+            ; { #RAW(#CHR33) }
+            ; LIST#
+            c32768 RET
+        """
+        exp_asm = """
+            ; #LIST containing #RAW
+            ;
+            ; * #CHR33
+              RET
+        """
+        self._test_asm(skool, exp_asm)
+
     def test_macro_raw_with_list(self):
         skool = """
             @start
@@ -831,6 +849,26 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
             ; #LIST with no end marker
             ;
             ; Complete #LIST {} LIST#
+              RET
+        """
+        self._test_asm(skool, exp_asm)
+
+    def test_macro_raw_in_table(self):
+        skool = """
+            @start
+            ; #RAW(#TABLE) containing #RAW(#RAW)
+            ;
+            ; #TABLE
+            ; { #RAW(#CHR33) }
+            ; TABLE#
+            c32768 RET
+        """
+        exp_asm = """
+            ; #TABLE containing #RAW
+            ;
+            ; +--------+
+            ; | #CHR33 |
+            ; +--------+
               RET
         """
         self._test_asm(skool, exp_asm)

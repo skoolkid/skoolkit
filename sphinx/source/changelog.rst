@@ -25,6 +25,8 @@ Changelog
   multiple ref file sections
 * Added the ``tindex`` and ``alpha`` parameters to the :ref:`COPY` macro (for
   specifying the transparent colour and its alpha value in the new frame)
+* Fixed the bug where macros inside a :ref:`LIST` or :ref:`TABLE` macro are
+  expanded twice in HTML mode (which makes :ref:`RAW` ineffective)
 
 8.5 (2021-07-03)
 ----------------

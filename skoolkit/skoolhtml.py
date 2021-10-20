@@ -1068,7 +1068,7 @@ class HtmlWriter:
     def expand_list(self, text, index, cwd):
         # #LIST[(class)]<items>LIST#
         end, list_obj = self.list_parser.parse_text(self, text, index, cwd)
-        return end, self.build_list(list_obj)
+        return -end, self.build_list(list_obj)
 
     def expand_over(self, text, index, cwd):
         return skoolmacro.parse_over(text, index, self.fields, self.frames)
@@ -1111,7 +1111,7 @@ class HtmlWriter:
     def expand_table(self, text, index, cwd):
         # #TABLE[(class[,col1class[,col2class...]])]<rows>TABLE#
         end, table = self.table_parser.parse_text(self, text, index, cwd)
-        return end, self.build_table(table)
+        return -end, self.build_table(table)
 
     def expand_udg(self, text, index, cwd):
         end, crop_rect, fname, frame, alt, params = skoolmacro.parse_udg(text, index, self.fields)
