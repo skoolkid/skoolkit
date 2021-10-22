@@ -1,7 +1,7 @@
 Changelog
 =========
 
-8.6b1
+8.6rc
 -----
 * Added the :ref:`STR` macro (for retrieving the text string at a given address
   in the memory snapshot)
