@@ -1,8 +1,8 @@
 Changelog
 =========
 
-8.6rc
------
+8.6 (2021-11-06)
+----------------
 * Added the :ref:`STR` macro (for retrieving the text string at a given address
   in the memory snapshot)
 * Added the :ref:`WHILE` macro (for repeatedly expanding macros until a
