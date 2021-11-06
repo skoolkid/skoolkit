@@ -1,19 +1,18 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Skool files &#8212; SkoolKit 8.5 documentation</title>
-    <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Skool files &#8212; SkoolKit 8.6 documentation</title>
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-    <script type="text/javascript" src="_static/jquery.js"></script>
-    <script type="text/javascript" src="_static/underscore.js"></script>
-    <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="_static/language_data.js"></script>
+    <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="_static/custom.css" />
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Skool macros" href="skool-macros.html" />
@@ -34,55 +33,10 @@
         <li class="right" >
           <a href="control-files.html" title="Control files"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.5 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.6 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Skool files</a></li> 
       </ul>
-    </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper">
-  <h3><a href="index.html">Table of Contents</a></h3>
-  <ul>
-<li><a class="reference internal" href="#">Skool files</a><ul>
-<li><a class="reference internal" href="#skool-file-format">Skool file format</a><ul>
-<li><a class="reference internal" href="#entry-header-format">Entry header format</a></li>
-<li><a class="reference internal" href="#entry-line-format">Entry line format</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#asm-directives">ASM directives</a></li>
-<li><a class="reference internal" href="#escaping-characters">Escaping characters</a></li>
-<li><a class="reference internal" href="#braces-in-comments">Braces in comments</a></li>
-<li><a class="reference internal" href="#non-entry-blocks">Non-entry blocks</a></li>
-<li><a class="reference internal" href="#revision-history">Revision history</a></li>
-</ul>
-</li>
-</ul>
-
-  <h4>Previous topic</h4>
-  <p class="topless"><a href="control-files.html"
-                        title="previous chapter">Control files</a></p>
-  <h4>Next topic</h4>
-  <p class="topless"><a href="skool-macros.html"
-                        title="next chapter">Skool macros</a></p>
-  <div role="note" aria-label="source link">
-    <h3>This Page</h3>
-    <ul class="this-page-menu">
-      <li><a href="_sources/skool-files.rst.txt"
-            rel="nofollow">Show Source</a></li>
-    </ul>
-   </div>
-<div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
-    <div class="searchformwrapper">
-    <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
-    </form>
-    </div>
-</div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
-        </div>
-      </div>
+    </div>  
 
     <div class="document">
       <div class="documentwrapper">
@@ -100,22 +54,22 @@ and data blocks of the program being disassembled, with accompanying comments
 correctly by <a class="reference internal" href="commands.html#skool2html-py"><span class="std std-ref">skool2html.py</span></a>, <a class="reference internal" href="commands.html#skool2asm-py"><span class="std std-ref">skool2asm.py</span></a> and <a class="reference internal" href="commands.html#skool2ctl-py"><span class="std std-ref">skool2ctl.py</span></a>.
 The rules are as follows:</p>
 <ul class="simple">
-<li>entries (an ‘entry’ being a routine or data block) must be separated by
-blank lines, and an entry must not contain any blank lines</li>
-<li>an entry header is a sequence of comment lines broken into four sections;
-see <a class="reference internal" href="#entryheaderformat"><span class="std std-ref">Entry header format</span></a></li>
-<li>each line in an entry may start with one of the following characters:
-<code class="docutils literal notranslate"><span class="pre">;*</span> <span class="pre">&#64;bcgistuw</span></code>; see <a class="reference internal" href="#entrylineformat"><span class="std std-ref">Entry line format</span></a></li>
-<li>tables (grids) have their own markup syntax; see <a class="reference internal" href="skool-macros.html#table"><span class="std std-ref">#TABLE</span></a> for details</li>
+<li><p>entries (an ‘entry’ being a routine or data block) must be separated by
+blank lines, and an entry must not contain any blank lines</p></li>
+<li><p>an entry header is a sequence of comment lines broken into four sections;
+see <a class="reference internal" href="#entryheaderformat"><span class="std std-ref">Entry header format</span></a></p></li>
+<li><p>each line in an entry may start with one of the following characters:
+<code class="docutils literal notranslate"><span class="pre">;*</span> <span class="pre">&#64;bcgistuw</span></code>; see <a class="reference internal" href="#entrylineformat"><span class="std std-ref">Entry line format</span></a></p></li>
+<li><p>tables (grids) have their own markup syntax; see <a class="reference internal" href="skool-macros.html#table"><span class="std std-ref">#TABLE</span></a> for details</p></li>
 </ul>
 <div class="section" id="entry-header-format">
 <span id="entryheaderformat"></span><h3>Entry header format<a class="headerlink" href="#entry-header-format" title="Permalink to this headline">¶</a></h3>
 <p>An entry header is a sequence of comment lines broken into four sections:</p>
 <ul class="simple">
-<li>entry title</li>
-<li>entry description (optional)</li>
-<li>registers (optional)</li>
-<li>start comment (optional)</li>
+<li><p>entry title</p></li>
+<li><p>entry description (optional)</p></li>
+<li><p>registers (optional)</p></li>
+<li><p>start comment (optional)</p></li>
 </ul>
 <p>The sections are separated by an empty comment line, and paragraphs within
 the entry description and start comment must be separated by a comment line
@@ -191,20 +145,20 @@ be something other than a letter or digit. In addition, <a class="reference inte
 <span id="entrylineformat"></span><h3>Entry line format<a class="headerlink" href="#entry-line-format" title="Permalink to this headline">¶</a></h3>
 <p>Each line in an entry may start with one of <code class="docutils literal notranslate"><span class="pre">;*</span> <span class="pre">&#64;bcgistuw</span></code>, where:</p>
 <ul class="simple">
-<li><code class="docutils literal notranslate"><span class="pre">;</span></code> begins a comment line</li>
-<li><code class="docutils literal notranslate"><span class="pre">*</span></code> denotes an entry point in a routine</li>
-<li><code class="docutils literal notranslate"><span class="pre">&#64;</span></code> begins an <a class="reference internal" href="#asm"><span class="std std-ref">ASM directive</span></a></li>
-<li><code class="docutils literal notranslate"><span class="pre">b</span></code> denotes the first instruction in a data block</li>
-<li><code class="docutils literal notranslate"><span class="pre">c</span></code> denotes the first instruction in a code block (routine)</li>
-<li><code class="docutils literal notranslate"><span class="pre">g</span></code> denotes the first instruction in a game status buffer entry</li>
-<li><code class="docutils literal notranslate"><span class="pre">i</span></code> denotes an ignored entry</li>
-<li><code class="docutils literal notranslate"><span class="pre">s</span></code> denotes the first instruction in a data block containing bytes that
-are all the same value (typically unused zeroes)</li>
-<li><code class="docutils literal notranslate"><span class="pre">t</span></code> denotes the first instruction in a data block that contains text</li>
-<li><code class="docutils literal notranslate"><span class="pre">u</span></code> denotes the first instruction in an unused code or data block</li>
-<li><code class="docutils literal notranslate"><span class="pre">w</span></code> denotes the first instruction in a data block that contains two-byte
-values (words)</li>
-<li>a space begins a line that does not require any of the markers listed above</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">;</span></code> begins a comment line</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">*</span></code> denotes an entry point in a routine</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&#64;</span></code> begins an <a class="reference internal" href="#asm"><span class="std std-ref">ASM directive</span></a></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">b</span></code> denotes the first instruction in a data block</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">c</span></code> denotes the first instruction in a code block (routine)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">g</span></code> denotes the first instruction in a game status buffer entry</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">i</span></code> denotes an ignored entry</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">s</span></code> denotes the first instruction in a data block containing bytes that
+are all the same value (typically unused zeroes)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">t</span></code> denotes the first instruction in a data block that contains text</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">u</span></code> denotes the first instruction in an unused code or data block</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">w</span></code> denotes the first instruction in a data block that contains two-byte
+values (words)</p></li>
+<li><p>a space begins a line that does not require any of the markers listed above</p></li>
 </ul>
 <p>The format of a line containing an instruction is:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>C##### INSTRUCTION[ ; comment]
@@ -212,11 +166,11 @@ values (words)</li>
 </div>
 <p>where:</p>
 <ul class="simple">
-<li><code class="docutils literal notranslate"><span class="pre">C</span></code> is one of the characters listed above: <code class="docutils literal notranslate"><span class="pre">*</span> <span class="pre">bcdgirstuw</span></code></li>
-<li><code class="docutils literal notranslate"><span class="pre">#####</span></code> is an address (e.g. <code class="docutils literal notranslate"><span class="pre">24576</span></code>, or <code class="docutils literal notranslate"><span class="pre">$6000</span></code> if you prefer
-hexadecimal notation)</li>
-<li><code class="docutils literal notranslate"><span class="pre">INSTRUCTION</span></code> is an instruction (e.g. <code class="docutils literal notranslate"><span class="pre">LD</span> <span class="pre">A,(HL)</span></code>)</li>
-<li><code class="docutils literal notranslate"><span class="pre">comment</span></code> is a comment (which may be blank)</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">C</span></code> is one of the characters listed above: <code class="docutils literal notranslate"><span class="pre">*</span> <span class="pre">bcdgirstuw</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">#####</span></code> is an address (e.g. <code class="docutils literal notranslate"><span class="pre">24576</span></code>, or <code class="docutils literal notranslate"><span class="pre">$6000</span></code> if you prefer
+hexadecimal notation)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">INSTRUCTION</span></code> is an instruction (e.g. <code class="docutils literal notranslate"><span class="pre">LD</span> <span class="pre">A,(HL)</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">comment</span></code> is a comment (which may be blank)</p></li>
 </ul>
 <p>The comment for a single instruction may span multiple lines thus:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>c24296 CALL 57935    ; This comment is too long to fit on a single line, so
@@ -278,13 +232,13 @@ rendered. This means that if the comment requires an opening or closing brace
 <p>The rules regarding an instruction-level comment that starts with an opening
 brace are as follows:</p>
 <ul class="simple">
-<li>The comment terminates on the line where the total number of closing braces
+<li><p>The comment terminates on the line where the total number of closing braces
 in the comment becomes equal to or greater than the total number of opening
-braces</li>
-<li>Adjacent opening braces at the start of the comment are removed before
-rendering</li>
-<li>Adjacent closing braces at the end of the comment are removed before
-rendering</li>
+braces</p></li>
+<li><p>Adjacent opening braces at the start of the comment are removed before
+rendering</p></li>
+<li><p>Adjacent closing braces at the end of the comment are removed before
+rendering</p></li>
 </ul>
 <p>By these rules, it is possible to craft an instruction-level comment that
 contains matched or unmatched opening and closing braces when rendered.</p>
@@ -353,42 +307,38 @@ c24573 JP 32768
 </div>
 <div class="section" id="revision-history">
 <h2>Revision history<a class="headerlink" href="#revision-history" title="Permalink to this headline">¶</a></h2>
-<table border="1" class="docutils">
-<colgroup>
-<col width="12%" />
-<col width="88%" />
-</colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">Version</th>
-<th class="head">Changes</th>
+<table class="docutils colwidths-auto align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Version</p></th>
+<th class="head"><p>Changes</p></th>
 </tr>
 </thead>
-<tbody valign="top">
-<tr class="row-even"><td>8.1</td>
-<td>Register name fields may contain whitespace and
-<a class="reference internal" href="skool-macros.html#skoolmacros"><span class="std std-ref">skool macros</span></a></td>
+<tbody>
+<tr class="row-even"><td><p>8.1</p></td>
+<td><p>Register name fields may contain whitespace and
+<a class="reference internal" href="skool-macros.html#skoolmacros"><span class="std std-ref">skool macros</span></a></p></td>
 </tr>
-<tr class="row-odd"><td>4.3</td>
-<td>Added support for the start comment in entry headers; an ASM
-directive can be declared by starting a line with <code class="docutils literal notranslate"><span class="pre">&#64;</span></code></td>
+<tr class="row-odd"><td><p>4.3</p></td>
+<td><p>Added support for the start comment in entry headers; an ASM
+directive can be declared by starting a line with <code class="docutils literal notranslate"><span class="pre">&#64;</span></code></p></td>
 </tr>
-<tr class="row-even"><td>4.2</td>
-<td>Added support for splitting register descriptions over multiple
-lines</td>
+<tr class="row-even"><td><p>4.2</p></td>
+<td><p>Added support for splitting register descriptions over multiple
+lines</p></td>
 </tr>
-<tr class="row-odd"><td>3.7</td>
-<td>Added support for binary numbers; added the <code class="docutils literal notranslate"><span class="pre">s</span></code> block type</td>
+<tr class="row-odd"><td><p>3.7</p></td>
+<td><p>Added support for binary numbers; added the <code class="docutils literal notranslate"><span class="pre">s</span></code> block type</p></td>
 </tr>
-<tr class="row-even"><td>3.1.2</td>
-<td>Added support for ‘Input’ and ‘Output’ prefixes in register
-sections</td>
+<tr class="row-even"><td><p>3.1.2</p></td>
+<td><p>Added support for ‘Input’ and ‘Output’ prefixes in register
+sections</p></td>
 </tr>
-<tr class="row-odd"><td>2.4</td>
-<td>Added the ability to separate paragraphs and specify a blank
-entry description by using a dot (<code class="docutils literal notranslate"><span class="pre">.</span></code>) on a line of its own</td>
+<tr class="row-odd"><td><p>2.4</p></td>
+<td><p>Added the ability to separate paragraphs and specify a blank
+entry description by using a dot (<code class="docutils literal notranslate"><span class="pre">.</span></code>) on a line of its own</p></td>
 </tr>
-<tr class="row-even"><td>2.1</td>
-<td>Added support for hexadecimal numbers</td>
+<tr class="row-even"><td><p>2.1</p></td>
+<td><p>Added support for hexadecimal numbers</p></td>
 </tr>
 </tbody>
 </table>
@@ -396,7 +346,52 @@ entry description by using a dot (<code class="docutils literal notranslate"><sp
 </div>
 
 
+            <div class="clearer"></div>
           </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Skool files</a><ul>
+<li><a class="reference internal" href="#skool-file-format">Skool file format</a><ul>
+<li><a class="reference internal" href="#entry-header-format">Entry header format</a></li>
+<li><a class="reference internal" href="#entry-line-format">Entry line format</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#asm-directives">ASM directives</a></li>
+<li><a class="reference internal" href="#escaping-characters">Escaping characters</a></li>
+<li><a class="reference internal" href="#braces-in-comments">Braces in comments</a></li>
+<li><a class="reference internal" href="#non-entry-blocks">Non-entry blocks</a></li>
+<li><a class="reference internal" href="#revision-history">Revision history</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="control-files.html"
+                        title="previous chapter">Control files</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="skool-macros.html"
+                        title="next chapter">Skool macros</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/skool-files.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
         </div>
       </div>
       <div class="clearer"></div>
@@ -416,12 +411,13 @@ entry description by using a dot (<code class="docutils literal notranslate"><sp
         <li class="right" >
           <a href="control-files.html" title="Control files"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.5 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.6 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Skool files</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2021, Richard Dymond.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.4.3.
     </div>
   </body>
 </html>

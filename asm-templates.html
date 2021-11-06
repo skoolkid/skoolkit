@@ -1,19 +1,18 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>ASM templates &#8212; SkoolKit 8.5 documentation</title>
-    <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ASM templates &#8212; SkoolKit 8.6 documentation</title>
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-    <script type="text/javascript" src="_static/jquery.js"></script>
-    <script type="text/javascript" src="_static/underscore.js"></script>
-    <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="_static/language_data.js"></script>
+    <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="_static/custom.css" />
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="HTML templates" href="html-templates.html" />
@@ -34,51 +33,10 @@
         <li class="right" >
           <a href="asm.html" title="ASM modes and directives"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.5 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.6 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">ASM templates</a></li> 
       </ul>
-    </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper">
-  <h3><a href="index.html">Table of Contents</a></h3>
-  <ul>
-<li><a class="reference internal" href="#">ASM templates</a><ul>
-<li><a class="reference internal" href="#comment">comment</a></li>
-<li><a class="reference internal" href="#equ">equ</a></li>
-<li><a class="reference internal" href="#instruction">instruction</a></li>
-<li><a class="reference internal" href="#label">label</a></li>
-<li><a class="reference internal" href="#org">org</a></li>
-<li><a class="reference internal" href="#register">register</a></li>
-</ul>
-</li>
-</ul>
-
-  <h4>Previous topic</h4>
-  <p class="topless"><a href="asm.html"
-                        title="previous chapter">ASM modes and directives</a></p>
-  <h4>Next topic</h4>
-  <p class="topless"><a href="html-templates.html"
-                        title="next chapter">HTML templates</a></p>
-  <div role="note" aria-label="source link">
-    <h3>This Page</h3>
-    <ul class="this-page-menu">
-      <li><a href="_sources/asm-templates.rst.txt"
-            rel="nofollow">Show Source</a></li>
-    </ul>
-   </div>
-<div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
-    <div class="searchformwrapper">
-    <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
-    </form>
-    </div>
-</div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
-        </div>
-      </div>
+    </div>  
 
     <div class="document">
       <div class="documentwrapper">
@@ -109,7 +67,7 @@ description, block start comment, mid-block comment, or block end comment.</p>
 </div>
 <p>The following identifier is available:</p>
 <ul class="simple">
-<li><code class="docutils literal notranslate"><span class="pre">text</span></code> - the text of the comment line</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">text</span></code> - the text of the comment line</p></li>
 </ul>
 <p>This template is also used to used to format lines between paragraphs in
 comments, with <code class="docutils literal notranslate"><span class="pre">text</span></code> set to an empty string.</p>
@@ -122,9 +80,9 @@ comments, with <code class="docutils literal notranslate"><span class="pre">text
 </div>
 <p>The following identifiers are available:</p>
 <ul class="simple">
-<li><code class="docutils literal notranslate"><span class="pre">equ</span></code> - ‘EQU’ or ‘equ’ (depending on the case)</li>
-<li><code class="docutils literal notranslate"><span class="pre">label</span></code> - the label</li>
-<li><code class="docutils literal notranslate"><span class="pre">value</span></code> - the value</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">equ</span></code> - ‘EQU’ or ‘equ’ (depending on the case)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">label</span></code> - the label</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">value</span></code> - the value</p></li>
 </ul>
 </div>
 <div class="section" id="instruction">
@@ -136,14 +94,14 @@ instruction comment continuation line.</p>
 </div>
 <p>The following identifiers are available:</p>
 <ul class="simple">
-<li><code class="docutils literal notranslate"><span class="pre">indent</span></code> - the instruction indent (as defined by the <code class="docutils literal notranslate"><span class="pre">indent</span></code> property)</li>
-<li><code class="docutils literal notranslate"><span class="pre">operation</span></code> - either the operation (e.g. ‘XOR A’), or an empty string (if
-formatting a comment continuation line)</li>
-<li><code class="docutils literal notranslate"><span class="pre">sep</span></code> - the comment separator (‘;’ if there is a comment, an empty string
-otherwise)</li>
-<li><code class="docutils literal notranslate"><span class="pre">text</span></code> - the text of the comment line</li>
-<li><code class="docutils literal notranslate"><span class="pre">width</span></code> - the width of the instruction field (as defined by the
-<code class="docutils literal notranslate"><span class="pre">instruction-width</span></code> property)</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">indent</span></code> - the instruction indent (as defined by the <code class="docutils literal notranslate"><span class="pre">indent</span></code> property)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">operation</span></code> - either the operation (e.g. ‘XOR A’), or an empty string (if
+formatting a comment continuation line)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">sep</span></code> - the comment separator (‘;’ if there is a comment, an empty string
+otherwise)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">text</span></code> - the text of the comment line</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">width</span></code> - the width of the instruction field (as defined by the
+<code class="docutils literal notranslate"><span class="pre">instruction-width</span></code> property)</p></li>
 </ul>
 <p>The <code class="docutils literal notranslate"><span class="pre">indent</span></code> and <code class="docutils literal notranslate"><span class="pre">instruction-width</span></code> properties can be set by either the
 <a class="reference internal" href="asm.html#set"><span class="std std-ref">&#64;set</span></a> directive, or the <code class="docutils literal notranslate"><span class="pre">Set-indent</span></code> and <code class="docutils literal notranslate"><span class="pre">Set-instruction-width</span></code>
@@ -157,9 +115,9 @@ configuration parameters of <a class="reference internal" href="commands.html#sk
 </div>
 <p>The following identifiers are available:</p>
 <ul class="simple">
-<li><code class="docutils literal notranslate"><span class="pre">label</span></code> - the instruction label</li>
-<li><code class="docutils literal notranslate"><span class="pre">suffix</span></code> - ‘:’ or an empty string (as defined by the <code class="docutils literal notranslate"><span class="pre">label-colons</span></code>
-property)</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">label</span></code> - the instruction label</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">suffix</span></code> - ‘:’ or an empty string (as defined by the <code class="docutils literal notranslate"><span class="pre">label-colons</span></code>
+property)</p></li>
 </ul>
 <p>The <code class="docutils literal notranslate"><span class="pre">label-colons</span></code> property can be set by either the <a class="reference internal" href="asm.html#set"><span class="std std-ref">&#64;set</span></a> directive, or
 the <code class="docutils literal notranslate"><span class="pre">Set-label-colons</span></code> configuration parameter of
@@ -173,9 +131,9 @@ the <code class="docutils literal notranslate"><span class="pre">Set-label-colon
 </div>
 <p>The following identifiers are available:</p>
 <ul class="simple">
-<li><code class="docutils literal notranslate"><span class="pre">address</span></code> - the ORG address (as a string)</li>
-<li><code class="docutils literal notranslate"><span class="pre">indent</span></code> - the instruction indent (as defined by the <code class="docutils literal notranslate"><span class="pre">indent</span></code> property)</li>
-<li><code class="docutils literal notranslate"><span class="pre">org</span></code> - ‘ORG’ or ‘org’ (depending on the case)</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">address</span></code> - the ORG address (as a string)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">indent</span></code> - the instruction indent (as defined by the <code class="docutils literal notranslate"><span class="pre">indent</span></code> property)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">org</span></code> - ‘ORG’ or ‘org’ (depending on the case)</p></li>
 </ul>
 <p>The <code class="docutils literal notranslate"><span class="pre">indent</span></code> property can be set by either the <a class="reference internal" href="asm.html#set"><span class="std std-ref">&#64;set</span></a> directive, or the
 <code class="docutils literal notranslate"><span class="pre">Set-indent</span></code> configuration parameter of <a class="reference internal" href="commands.html#skool2asm-conf"><span class="std std-ref">skool2asm.py</span></a>.</p>
@@ -189,25 +147,66 @@ entry header.</p>
 </div>
 <p>The following identifiers are available:</p>
 <ul class="simple">
-<li><code class="docutils literal notranslate"><span class="pre">max_reg_len</span></code> - the maximum length of all register names in the register
-section</li>
-<li><code class="docutils literal notranslate"><span class="pre">prefix</span></code> - the register prefix (e.g. ‘In:’ or ‘O:’), or an empty string (if
-formatting a register description continuation line)</li>
-<li><code class="docutils literal notranslate"><span class="pre">prefix_len</span></code> - the maximum length of all register prefixes in the register
-section</li>
-<li><code class="docutils literal notranslate"><span class="pre">reg</span></code> - the register name (e.g. ‘HL’), or an empty string (if formatting a
-register description continuation line)</li>
-<li><code class="docutils literal notranslate"><span class="pre">reg_len</span></code> - the length of the register name</li>
-<li><code class="docutils literal notranslate"><span class="pre">text</span></code> - the text of a line of the register description</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">max_reg_len</span></code> - the maximum length of all register names in the register
+section</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">prefix</span></code> - the register prefix (e.g. ‘In:’ or ‘O:’), or an empty string (if
+formatting a register description continuation line)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">prefix_len</span></code> - the maximum length of all register prefixes in the register
+section</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">reg</span></code> - the register name (e.g. ‘HL’), or an empty string (if formatting a
+register description continuation line)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">reg_len</span></code> - the length of the register name</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">text</span></code> - the text of a line of the register description</p></li>
 </ul>
 <div class="versionchanged">
-<p><span class="versionmodified">Changed in version 8.0: </span>Added the <code class="docutils literal notranslate"><span class="pre">max_reg_len</span></code> identifier.</p>
+<p><span class="versionmodified changed">Changed in version 8.0: </span>Added the <code class="docutils literal notranslate"><span class="pre">max_reg_len</span></code> identifier.</p>
 </div>
 </div>
 </div>
 
 
+            <div class="clearer"></div>
           </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">ASM templates</a><ul>
+<li><a class="reference internal" href="#comment">comment</a></li>
+<li><a class="reference internal" href="#equ">equ</a></li>
+<li><a class="reference internal" href="#instruction">instruction</a></li>
+<li><a class="reference internal" href="#label">label</a></li>
+<li><a class="reference internal" href="#org">org</a></li>
+<li><a class="reference internal" href="#register">register</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="asm.html"
+                        title="previous chapter">ASM modes and directives</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="html-templates.html"
+                        title="next chapter">HTML templates</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/asm-templates.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
         </div>
       </div>
       <div class="clearer"></div>
@@ -227,12 +226,13 @@ register description continuation line)</li>
         <li class="right" >
           <a href="asm.html" title="ASM modes and directives"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.5 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.6 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">ASM templates</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2021, Richard Dymond.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.4.3.
     </div>
   </body>
 </html>

@@ -646,6 +646,10 @@ then be used to create a numbered list of items::
 
   #OLIST/a,b,c/
 
+See also the ``Expand`` parameter in the :ref:`ref-Config` section, which may
+be used instead of the ``@expand`` directive if there is no need to expand
+``text`` in ASM mode.
+
 +---------+--------------------------------------+
 | Version | Changes                              |
 +=========+======================================+

@@ -1,19 +1,18 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Control files &#8212; SkoolKit 8.5 documentation</title>
-    <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Control files &#8212; SkoolKit 8.6 documentation</title>
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-    <script type="text/javascript" src="_static/jquery.js"></script>
-    <script type="text/javascript" src="_static/underscore.js"></script>
-    <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="_static/language_data.js"></script>
+    <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="_static/custom.css" />
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Skool files" href="skool-files.html" />
@@ -34,61 +33,10 @@
         <li class="right" >
           <a href="parsing.html" title="Parsing, rendering, and modes"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.5 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.6 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Control files</a></li> 
       </ul>
-    </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper">
-  <h3><a href="index.html">Table of Contents</a></h3>
-  <ul>
-<li><a class="reference internal" href="#">Control files</a><ul>
-<li><a class="reference internal" href="#block-descriptions">Block descriptions</a></li>
-<li><a class="reference internal" href="#register-values">Register values</a></li>
-<li><a class="reference internal" href="#block-start-comments">Block start comments</a></li>
-<li><a class="reference internal" href="#mid-block-comments">Mid-block comments</a></li>
-<li><a class="reference internal" href="#block-end-comments">Block end comments</a></li>
-<li><a class="reference internal" href="#sub-block-syntax">Sub-block syntax</a></li>
-<li><a class="reference internal" href="#sub-block-lengths">Sub-block lengths</a></li>
-<li><a class="reference internal" href="#the-dot-and-colon-directives">The dot and colon directives</a></li>
-<li><a class="reference internal" href="#loops">Loops</a></li>
-<li><a class="reference internal" href="#number-bases">Number bases</a></li>
-<li><a class="reference internal" href="#asm-directives">ASM directives</a></li>
-<li><a class="reference internal" href="#instruction-level-comments">Instruction-level comments</a></li>
-<li><a class="reference internal" href="#non-entry-blocks">Non-entry blocks</a></li>
-<li><a class="reference internal" href="#control-file-comments">Control file comments</a></li>
-<li><a class="reference internal" href="#limitations">Limitations</a></li>
-<li><a class="reference internal" href="#revision-history">Revision history</a></li>
-</ul>
-</li>
-</ul>
-
-  <h4>Previous topic</h4>
-  <p class="topless"><a href="parsing.html"
-                        title="previous chapter">Parsing, rendering, and modes</a></p>
-  <h4>Next topic</h4>
-  <p class="topless"><a href="skool-files.html"
-                        title="next chapter">Skool files</a></p>
-  <div role="note" aria-label="source link">
-    <h3>This Page</h3>
-    <ul class="this-page-menu">
-      <li><a href="_sources/control-files.rst.txt"
-            rel="nofollow">Show Source</a></li>
-    </ul>
-   </div>
-<div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
-    <div class="searchformwrapper">
-    <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
-    </form>
-    </div>
-</div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
-        </div>
-      </div>
+    </div>  
 
     <div class="document">
       <div class="documentwrapper">
@@ -103,15 +51,15 @@ skool file into corresponding code and data blocks.</p>
 <p>Each block address in a control file is marked with a ‘control directive’,
 which is a single letter that indicates what the block contains:</p>
 <ul class="simple">
-<li><code class="docutils literal notranslate"><span class="pre">b</span></code> indicates a data block</li>
-<li><code class="docutils literal notranslate"><span class="pre">c</span></code> indicates a code block</li>
-<li><code class="docutils literal notranslate"><span class="pre">g</span></code> indicates a game status buffer entry</li>
-<li><code class="docutils literal notranslate"><span class="pre">i</span></code> indicates a block that will be ignored</li>
-<li><code class="docutils literal notranslate"><span class="pre">s</span></code> indicates a block containing bytes that are all the same value
-(typically unused zeroes)</li>
-<li><code class="docutils literal notranslate"><span class="pre">t</span></code> indicates a block containing text</li>
-<li><code class="docutils literal notranslate"><span class="pre">u</span></code> indicates an unused block of memory</li>
-<li><code class="docutils literal notranslate"><span class="pre">w</span></code> indicates a block containing words (two-byte values)</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">b</span></code> indicates a data block</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">c</span></code> indicates a code block</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">g</span></code> indicates a game status buffer entry</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">i</span></code> indicates a block that will be ignored</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">s</span></code> indicates a block containing bytes that are all the same value
+(typically unused zeroes)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">t</span></code> indicates a block containing text</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">u</span></code> indicates an unused block of memory</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">w</span></code> indicates a block containing words (two-byte values)</p></li>
 </ul>
 <p>(If these letters remind you of the valid characters that may appear in the
 first column of each line of a <a class="reference internal" href="skool-files.html#skoolfileformat"><span class="std std-ref">skool file</span></a>, that is no
@@ -125,12 +73,12 @@ u 25344 Unused
 </div>
 <p>This control file declares that:</p>
 <ul class="simple">
-<li>Everything before 24576 will be ignored</li>
-<li>There is a routine at 24576-24831 titled ‘Do stuff’</li>
-<li>There is data at 24832-25087</li>
-<li>There is text at 25088-25343</li>
-<li>Everything from 25344 onwards is unused (but will still be disassembled as
-data)</li>
+<li><p>Everything before 24576 will be ignored</p></li>
+<li><p>There is a routine at 24576-24831 titled ‘Do stuff’</p></li>
+<li><p>There is data at 24832-25087</p></li>
+<li><p>There is text at 25088-25343</p></li>
+<li><p>Everything from 25344 onwards is unused (but will still be disassembled as
+data)</p></li>
 </ul>
 <p>Addresses may be written as hexadecimal numbers, too; the equivalent example
 control file using hexadecimal notation would be:</p>
@@ -143,14 +91,14 @@ u $6300 Unused
 <p>Besides the declaration of block types, addresses and titles, the control file
 syntax also supports the declaration of the following things:</p>
 <ul class="simple">
-<li>Block descriptions</li>
-<li>Register values</li>
-<li>Block start comments</li>
-<li>Mid-block comments</li>
-<li>Block end comments</li>
-<li>Sub-block types and comments</li>
-<li>DEFB/DEFM/DEFW/DEFS statement lengths in data, text and unused sub-blocks</li>
-<li>ASM directives (except block directives)</li>
+<li><p>Block descriptions</p></li>
+<li><p>Register values</p></li>
+<li><p>Block start comments</p></li>
+<li><p>Mid-block comments</p></li>
+<li><p>Block end comments</p></li>
+<li><p>Sub-block types and comments</p></li>
+<li><p>DEFB/DEFM/DEFW/DEFS statement lengths in data, text and unused sub-blocks</p></li>
+<li><p>ASM directives (except block directives)</p></li>
 </ul>
 <p>The syntax for declaring these things is described in the following sections.</p>
 <div class="section" id="block-descriptions">
@@ -495,13 +443,13 @@ using the <code class="docutils literal notranslate"><span class="pre">L</span><
 </div>
 <p>where:</p>
 <ul class="simple">
-<li><code class="docutils literal notranslate"><span class="pre">start</span></code> is the loop start address</li>
-<li><code class="docutils literal notranslate"><span class="pre">length</span></code> is the length of the loop (the size of the address range to
-repeat)</li>
-<li><code class="docutils literal notranslate"><span class="pre">count</span></code> is the number of times to repeat the loop (only values of 2 or more
-make sense)</li>
-<li><code class="docutils literal notranslate"><span class="pre">blocks</span></code> is <code class="docutils literal notranslate"><span class="pre">1</span></code> to repeat block-level elements, or <code class="docutils literal notranslate"><span class="pre">0</span></code> to repeat only
-sub-block elements (default: <code class="docutils literal notranslate"><span class="pre">0</span></code>)</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">start</span></code> is the loop start address</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">length</span></code> is the length of the loop (the size of the address range to
+repeat)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">count</span></code> is the number of times to repeat the loop (only values of 2 or more
+make sense)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">blocks</span></code> is <code class="docutils literal notranslate"><span class="pre">1</span></code> to repeat block-level elements, or <code class="docutils literal notranslate"><span class="pre">0</span></code> to repeat only
+sub-block elements (default: <code class="docutils literal notranslate"><span class="pre">0</span></code>)</p></li>
 </ul>
 <p>So using the <code class="docutils literal notranslate"><span class="pre">L</span></code> directive, the body of the data block above can be expressed
 in three lines instead of 20:</p>
@@ -636,10 +584,10 @@ the end of a string:</p>
 </div>
 <p>where:</p>
 <ul class="simple">
-<li><code class="docutils literal notranslate"><span class="pre">directive</span></code> is the directive name</li>
-<li><code class="docutils literal notranslate"><span class="pre">address</span></code> is the address of the block or instruction to which the directive
-applies</li>
-<li><code class="docutils literal notranslate"><span class="pre">value</span></code> is the value of the directive (if it requires one)</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">directive</span></code> is the directive name</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">address</span></code> is the address of the block or instruction to which the directive
+applies</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">value</span></code> is the value of the directive (if it requires one)</p></li>
 </ul>
 <p>For example, to declare a <a class="reference internal" href="asm.html#label"><span class="std std-ref">&#64;label</span></a> directive for the instruction at 32768:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>@ 32768 label=LOOP
@@ -653,12 +601,12 @@ specify the type of comment it applies to:</p>
 </div>
 <p>where <code class="docutils literal notranslate"><span class="pre">X</span></code> is one of:</p>
 <ul class="simple">
-<li><code class="docutils literal notranslate"><span class="pre">d</span></code> - entry description</li>
-<li><code class="docutils literal notranslate"><span class="pre">e</span></code> - block end comment</li>
-<li><code class="docutils literal notranslate"><span class="pre">i</span></code> - instruction-level comment (default)</li>
-<li><code class="docutils literal notranslate"><span class="pre">m</span></code> - block start comment or mid-block comment</li>
-<li><code class="docutils literal notranslate"><span class="pre">r</span></code> - register description section</li>
-<li><code class="docutils literal notranslate"><span class="pre">t</span></code> - entry title</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">d</span></code> - entry description</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">e</span></code> - block end comment</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">i</span></code> - instruction-level comment (default)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">m</span></code> - block start comment or mid-block comment</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">r</span></code> - register description section</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">t</span></code> - entry title</p></li>
 </ul>
 <p>For example, to declare an <a class="reference internal" href="asm.html#ignoreua"><span class="std std-ref">&#64;ignoreua</span></a> directive for the description of the
 routine at 49152:</p>
@@ -778,84 +726,80 @@ relevant substitution mode (<code class="docutils literal notranslate"><span cla
 </div>
 <div class="section" id="revision-history">
 <h2>Revision history<a class="headerlink" href="#revision-history" title="Permalink to this headline">¶</a></h2>
-<table border="1" class="docutils">
-<colgroup>
-<col width="12%" />
-<col width="88%" />
-</colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">Version</th>
-<th class="head">Changes</th>
+<table class="docutils colwidths-auto align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Version</p></th>
+<th class="head"><p>Changes</p></th>
 </tr>
 </thead>
-<tbody valign="top">
-<tr class="row-even"><td>7.2</td>
-<td>Added the dot (<code class="docutils literal notranslate"><span class="pre">.</span></code>) and colon (<code class="docutils literal notranslate"><span class="pre">:</span></code>) directives for specifying
-comments over multiple lines</td>
+<tbody>
+<tr class="row-even"><td><p>7.2</p></td>
+<td><p>Added the dot (<code class="docutils literal notranslate"><span class="pre">.</span></code>) and colon (<code class="docutils literal notranslate"><span class="pre">:</span></code>) directives for specifying
+comments over multiple lines</p></td>
 </tr>
-<tr class="row-odd"><td>7.1</td>
-<td>Added support for specifying that numeric values in instruction
+<tr class="row-odd"><td><p>7.1</p></td>
+<td><p>Added support for specifying that numeric values in instruction
 operands and DEFB, DEFM, DEFS and DEFW statements be rendered as
-negative numbers</td>
+negative numbers</p></td>
 </tr>
-<tr class="row-even"><td>7.0</td>
-<td>Added the <code class="docutils literal notranslate"><span class="pre">&gt;</span></code> directive for preserving non-entry blocks; added
+<tr class="row-even"><td><p>7.0</p></td>
+<td><p>Added the <code class="docutils literal notranslate"><span class="pre">&gt;</span></code> directive for preserving non-entry blocks; added
 support for preserving ‘inverted’ characters (with bit 7 set);
-the byte value in an <code class="docutils literal notranslate"><span class="pre">S</span></code> directive may be left blank</td>
+the byte value in an <code class="docutils literal notranslate"><span class="pre">S</span></code> directive may be left blank</p></td>
 </tr>
-<tr class="row-odd"><td>4.5</td>
-<td>Added support for specifying character values in DEFS statements</td>
+<tr class="row-odd"><td><p>4.5</p></td>
+<td><p>Added support for specifying character values in DEFS statements</p></td>
 </tr>
-<tr class="row-even"><td>4.4</td>
-<td>Added support for specifying that numeric values in instruction
+<tr class="row-even"><td><p>4.4</p></td>
+<td><p>Added support for specifying that numeric values in instruction
 operands be rendered as characters or in a specific base; added
-support for specifying character values in DEFW statements</td>
+support for specifying character values in DEFW statements</p></td>
 </tr>
-<tr class="row-odd"><td>4.3</td>
-<td>Added the <code class="docutils literal notranslate"><span class="pre">&#64;</span></code> directive, the <code class="docutils literal notranslate"><span class="pre">N</span></code> directive and support for
-block start comments</td>
+<tr class="row-odd"><td><p>4.3</p></td>
+<td><p>Added the <code class="docutils literal notranslate"><span class="pre">&#64;</span></code> directive, the <code class="docutils literal notranslate"><span class="pre">N</span></code> directive and support for
+block start comments</p></td>
 </tr>
-<tr class="row-even"><td>4.2</td>
-<td>Added the <code class="docutils literal notranslate"><span class="pre">L</span></code> directive and support for preserving the location
-of <a class="reference internal" href="asm.html#ignoreua"><span class="std std-ref">&#64;ignoreua</span></a> directives</td>
+<tr class="row-even"><td><p>4.2</p></td>
+<td><p>Added the <code class="docutils literal notranslate"><span class="pre">L</span></code> directive and support for preserving the location
+of <a class="reference internal" href="asm.html#ignoreua"><span class="std std-ref">&#64;ignoreua</span></a> directives</p></td>
 </tr>
-<tr class="row-odd"><td>3.7</td>
-<td>Added support for binary numbers; added support for specifying
+<tr class="row-odd"><td><p>3.7</p></td>
+<td><p>Added support for binary numbers; added support for specifying
 the base of numeric values in DEFB, DEFM, DEFS and DEFW
 statements; added the <code class="docutils literal notranslate"><span class="pre">s</span></code> and <code class="docutils literal notranslate"><span class="pre">S</span></code> directives and support for
-DEFS statements with non-zero byte values</td>
+DEFS statements with non-zero byte values</p></td>
 </tr>
-<tr class="row-even"><td>3.6</td>
-<td>Added support for preserving blank comments that span two or more
-instructions</td>
+<tr class="row-even"><td><p>3.6</p></td>
+<td><p>Added support for preserving blank comments that span two or more
+instructions</p></td>
 </tr>
-<tr class="row-odd"><td>3.1.4</td>
-<td>Added support for DEFB and DEFM statements that contain both
-strings and bytes</td>
+<tr class="row-odd"><td><p>3.1.4</p></td>
+<td><p>Added support for DEFB and DEFM statements that contain both
+strings and bytes</p></td>
 </tr>
-<tr class="row-even"><td>2.4</td>
-<td>Added support for non-block ASM directives</td>
+<tr class="row-even"><td><p>2.4</p></td>
+<td><p>Added support for non-block ASM directives</p></td>
 </tr>
-<tr class="row-odd"><td>2.2</td>
-<td>Added support for the <code class="docutils literal notranslate"><span class="pre">*</span></code> notation in DEFB, DEFM, DEFS and DEFW
-statement length lists</td>
+<tr class="row-odd"><td><p>2.2</p></td>
+<td><p>Added support for the <code class="docutils literal notranslate"><span class="pre">*</span></code> notation in DEFB, DEFM, DEFS and DEFW
+statement length lists</p></td>
 </tr>
-<tr class="row-even"><td>2.1.2</td>
-<td>Added support for DEFM, DEFS and DEFW statement lengths</td>
+<tr class="row-even"><td><p>2.1.2</p></td>
+<td><p>Added support for DEFM, DEFS and DEFW statement lengths</p></td>
 </tr>
-<tr class="row-odd"><td>2.1.1</td>
-<td>Added the <code class="docutils literal notranslate"><span class="pre">M</span></code> directive</td>
+<tr class="row-odd"><td><p>2.1.1</p></td>
+<td><p>Added the <code class="docutils literal notranslate"><span class="pre">M</span></code> directive</p></td>
 </tr>
-<tr class="row-even"><td>2.1</td>
-<td>Added support for DEFB statement lengths</td>
+<tr class="row-even"><td><p>2.1</p></td>
+<td><p>Added support for DEFB statement lengths</p></td>
 </tr>
-<tr class="row-odd"><td>2.0.6</td>
-<td>Added support for hexadecimal numbers</td>
+<tr class="row-odd"><td><p>2.0.6</p></td>
+<td><p>Added support for hexadecimal numbers</p></td>
 </tr>
-<tr class="row-even"><td>1.0.7</td>
-<td>Added support for block titles, block descriptions, register
+<tr class="row-even"><td><p>1.0.7</p></td>
+<td><p>Added support for block titles, block descriptions, register
 values, mid-block comments, block end comments, sub-block types
-and instruction-level comments</td>
+and instruction-level comments</p></td>
 </tr>
 </tbody>
 </table>
@@ -863,7 +807,58 @@ and instruction-level comments</td>
 </div>
 
 
+            <div class="clearer"></div>
           </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Control files</a><ul>
+<li><a class="reference internal" href="#block-descriptions">Block descriptions</a></li>
+<li><a class="reference internal" href="#register-values">Register values</a></li>
+<li><a class="reference internal" href="#block-start-comments">Block start comments</a></li>
+<li><a class="reference internal" href="#mid-block-comments">Mid-block comments</a></li>
+<li><a class="reference internal" href="#block-end-comments">Block end comments</a></li>
+<li><a class="reference internal" href="#sub-block-syntax">Sub-block syntax</a></li>
+<li><a class="reference internal" href="#sub-block-lengths">Sub-block lengths</a></li>
+<li><a class="reference internal" href="#the-dot-and-colon-directives">The dot and colon directives</a></li>
+<li><a class="reference internal" href="#loops">Loops</a></li>
+<li><a class="reference internal" href="#number-bases">Number bases</a></li>
+<li><a class="reference internal" href="#asm-directives">ASM directives</a></li>
+<li><a class="reference internal" href="#instruction-level-comments">Instruction-level comments</a></li>
+<li><a class="reference internal" href="#non-entry-blocks">Non-entry blocks</a></li>
+<li><a class="reference internal" href="#control-file-comments">Control file comments</a></li>
+<li><a class="reference internal" href="#limitations">Limitations</a></li>
+<li><a class="reference internal" href="#revision-history">Revision history</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="parsing.html"
+                        title="previous chapter">Parsing, rendering, and modes</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="skool-files.html"
+                        title="next chapter">Skool files</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/control-files.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
         </div>
       </div>
       <div class="clearer"></div>
@@ -883,12 +878,13 @@ and instruction-level comments</td>
         <li class="right" >
           <a href="parsing.html" title="Parsing, rendering, and modes"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.5 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.6 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Control files</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2021, Richard Dymond.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.4.3.
     </div>
   </body>
 </html>

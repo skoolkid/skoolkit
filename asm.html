@@ -1,19 +1,18 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>ASM modes and directives &#8212; SkoolKit 8.5 documentation</title>
-    <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ASM modes and directives &#8212; SkoolKit 8.6 documentation</title>
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-    <script type="text/javascript" src="_static/jquery.js"></script>
-    <script type="text/javascript" src="_static/underscore.js"></script>
-    <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="_static/language_data.js"></script>
+    <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="_static/custom.css" />
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="ASM templates" href="asm-templates.html" />
@@ -34,92 +33,10 @@
         <li class="right" >
           <a href="ref-files.html" title="Ref files"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.5 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.6 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">ASM modes and directives</a></li> 
       </ul>
-    </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper">
-  <h3><a href="index.html">Table of Contents</a></h3>
-  <ul>
-<li><a class="reference internal" href="#">ASM modes and directives</a><ul>
-<li><a class="reference internal" href="#substitution-modes">Substitution modes</a><ul>
-<li><a class="reference internal" href="#isub-mode">&#64;isub mode</a></li>
-<li><a class="reference internal" href="#ssub-mode">&#64;ssub mode</a></li>
-<li><a class="reference internal" href="#rsub-mode">&#64;rsub mode</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#bugfix-modes">Bugfix modes</a><ul>
-<li><a class="reference internal" href="#ofix-mode">&#64;ofix mode</a></li>
-<li><a class="reference internal" href="#bfix-mode">&#64;bfix mode</a></li>
-<li><a class="reference internal" href="#rfix-mode">&#64;rfix mode</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#asm-directives">ASM directives</a><ul>
-<li><a class="reference internal" href="#assemble">&#64;assemble</a></li>
-<li><a class="reference internal" href="#bfix">&#64;bfix</a></li>
-<li><a class="reference internal" href="#bfix-block-directives">&#64;bfix block directives</a></li>
-<li><a class="reference internal" href="#defb">&#64;defb</a></li>
-<li><a class="reference internal" href="#defs">&#64;defs</a></li>
-<li><a class="reference internal" href="#defw">&#64;defw</a></li>
-<li><a class="reference internal" href="#end">&#64;end</a></li>
-<li><a class="reference internal" href="#equ">&#64;equ</a></li>
-<li><a class="reference internal" href="#expand">&#64;expand</a></li>
-<li><a class="reference internal" href="#if">&#64;if</a></li>
-<li><a class="reference internal" href="#ignoreua">&#64;ignoreua</a></li>
-<li><a class="reference internal" href="#isub">&#64;isub</a></li>
-<li><a class="reference internal" href="#isub-block-directives">&#64;isub block directives</a></li>
-<li><a class="reference internal" href="#keep">&#64;keep</a></li>
-<li><a class="reference internal" href="#label">&#64;label</a></li>
-<li><a class="reference internal" href="#nowarn">&#64;nowarn</a></li>
-<li><a class="reference internal" href="#ofix">&#64;ofix</a></li>
-<li><a class="reference internal" href="#ofix-block-directives">&#64;ofix block directives</a></li>
-<li><a class="reference internal" href="#org">&#64;org</a></li>
-<li><a class="reference internal" href="#refs">&#64;refs</a></li>
-<li><a class="reference internal" href="#rem">&#64;rem</a></li>
-<li><a class="reference internal" href="#remote">&#64;remote</a></li>
-<li><a class="reference internal" href="#replace">&#64;replace</a></li>
-<li><a class="reference internal" href="#rfix">&#64;rfix</a></li>
-<li><a class="reference internal" href="#rfix-block-directives">&#64;rfix block directives</a></li>
-<li><a class="reference internal" href="#rsub">&#64;rsub</a></li>
-<li><a class="reference internal" href="#rsub-block-directives">&#64;rsub block directives</a></li>
-<li><a class="reference internal" href="#set">&#64;set</a></li>
-<li><a class="reference internal" href="#ssub">&#64;ssub</a></li>
-<li><a class="reference internal" href="#ssub-block-directives">&#64;ssub block directives</a></li>
-<li><a class="reference internal" href="#start">&#64;start</a></li>
-<li><a class="reference internal" href="#writer">&#64;writer</a></li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-
-  <h4>Previous topic</h4>
-  <p class="topless"><a href="ref-files.html"
-                        title="previous chapter">Ref files</a></p>
-  <h4>Next topic</h4>
-  <p class="topless"><a href="asm-templates.html"
-                        title="next chapter">ASM templates</a></p>
-  <div role="note" aria-label="source link">
-    <h3>This Page</h3>
-    <ul class="this-page-menu">
-      <li><a href="_sources/asm.rst.txt"
-            rel="nofollow">Show Source</a></li>
-    </ul>
-   </div>
-<div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
-    <div class="searchformwrapper">
-    <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
-    </form>
-    </div>
-</div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
-        </div>
-      </div>
+    </div>  
 
     <div class="document">
       <div class="documentwrapper">
@@ -273,11 +190,11 @@ purpose of populating the memory snapshot.</p>
 <p><code class="docutils literal notranslate"><span class="pre">H</span></code> is an integer value that determines what is converted in HTML mode, and
 <code class="docutils literal notranslate"><span class="pre">A</span></code> is an integer value that determines what is converted in ASM mode:</p>
 <ul class="simple">
-<li><code class="docutils literal notranslate"><span class="pre">0</span></code> - do not convert anything (this is the default in ASM mode)</li>
-<li><code class="docutils literal notranslate"><span class="pre">1</span></code> - convert <code class="docutils literal notranslate"><span class="pre">DEFB</span></code>, <code class="docutils literal notranslate"><span class="pre">DEFM</span></code>, <code class="docutils literal notranslate"><span class="pre">DEFS</span></code> and <code class="docutils literal notranslate"><span class="pre">DEFW</span></code> statements and
+<li><p><code class="docutils literal notranslate"><span class="pre">0</span></code> - do not convert anything (this is the default in ASM mode)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">1</span></code> - convert <code class="docutils literal notranslate"><span class="pre">DEFB</span></code>, <code class="docutils literal notranslate"><span class="pre">DEFM</span></code>, <code class="docutils literal notranslate"><span class="pre">DEFS</span></code> and <code class="docutils literal notranslate"><span class="pre">DEFW</span></code> statements and
 <code class="docutils literal notranslate"><span class="pre">&#64;defb</span></code>, <code class="docutils literal notranslate"><span class="pre">&#64;defs</span></code> and <code class="docutils literal notranslate"><span class="pre">&#64;defw</span></code> directives only (this is the default in
-HTML mode)</li>
-<li><code class="docutils literal notranslate"><span class="pre">2</span></code> - convert assembly language instructions as well</li>
+HTML mode)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">2</span></code> - convert assembly language instructions as well</p></li>
 </ul>
 <p>If <code class="docutils literal notranslate"><span class="pre">H</span></code> or <code class="docutils literal notranslate"><span class="pre">A</span></code> is blank or omitted, its value is left unchanged.</p>
 <p>For example:</p>
@@ -294,30 +211,26 @@ c44919 LD DE,46572   ;
 <p>The <code class="docutils literal notranslate"><span class="pre">&#64;assemble=2</span></code> directive is required to define the bytes for addresses
 44919-44926. If it were not present, the memory snapshot would contain zeroes
 at those addresses, and the image created by the <code class="docutils literal notranslate"><span class="pre">#UDG</span></code> macro would be blank.</p>
-<table border="1" class="docutils">
-<colgroup>
-<col width="12%" />
-<col width="88%" />
-</colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">Version</th>
-<th class="head">Changes</th>
+<table class="docutils colwidths-auto align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Version</p></th>
+<th class="head"><p>Changes</p></th>
 </tr>
 </thead>
-<tbody valign="top">
-<tr class="row-even"><td>7.0</td>
-<td>The accepted values are 0, 1 and 2 (previously -1, 0 and 1)</td>
+<tbody>
+<tr class="row-even"><td><p>7.0</p></td>
+<td><p>The accepted values are 0, 1 and 2 (previously -1, 0 and 1)</p></td>
 </tr>
-<tr class="row-odd"><td>6.3</td>
-<td>Added support for specifying what’s converted in HTML mode and
-ASM mode separately, and for switching off conversion entirely</td>
+<tr class="row-odd"><td><p>6.3</p></td>
+<td><p>Added support for specifying what’s converted in HTML mode and
+ASM mode separately, and for switching off conversion entirely</p></td>
 </tr>
-<tr class="row-even"><td>6.1</td>
-<td>Added the ability to assemble instructions whose operands contain
-arithmetic expressions</td>
+<tr class="row-even"><td><p>6.1</p></td>
+<td><p>Added the ability to assemble instructions whose operands contain
+arithmetic expressions</p></td>
 </tr>
-<tr class="row-odd"><td>5.0</td>
-<td>New</td>
+<tr class="row-odd"><td><p>5.0</p></td>
+<td><p>New</p></td>
 </tr>
 </tbody>
 </table>
@@ -334,21 +247,21 @@ comment in <a class="reference internal" href="#bfixmode"><span class="std std-r
 </pre></div>
 </div>
 <ul class="simple">
-<li><code class="docutils literal notranslate"><span class="pre">&gt;</span></code> - if this marker is present, <code class="docutils literal notranslate"><span class="pre">INSTRUCTION</span></code> is inserted before the
-current instruction instead of replacing it</li>
-<li><code class="docutils literal notranslate"><span class="pre">|</span></code> - if this marker is present, <code class="docutils literal notranslate"><span class="pre">INSTRUCTION</span></code> overwrites any overlapping
-instructions instead of pushing them aside</li>
-<li><code class="docutils literal notranslate"><span class="pre">+</span></code> - if this marker is present, <code class="docutils literal notranslate"><span class="pre">INSTRUCTION</span></code> is inserted after the
-current instruction instead of replacing it</li>
-<li><code class="docutils literal notranslate"><span class="pre">/</span></code> - if this marker is present, any remaining comment lines are removed</li>
-<li><code class="docutils literal notranslate"><span class="pre">LABEL</span></code> is the replacement label; if not given, any existing label is left
-unchanged</li>
-<li><code class="docutils literal notranslate"><span class="pre">INSTRUCTION</span></code> is the replacement instruction; if not given, the existing
-instruction is left unchanged</li>
-<li><code class="docutils literal notranslate"><span class="pre">comment</span></code> is the replacement comment; if not given, the existing comment is
-left unchanged</li>
-<li><code class="docutils literal notranslate"><span class="pre">addr1</span></code> is the address of the first instruction to remove</li>
-<li><code class="docutils literal notranslate"><span class="pre">addr2</span></code>, if given, is the address of the last instruction to remove</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&gt;</span></code> - if this marker is present, <code class="docutils literal notranslate"><span class="pre">INSTRUCTION</span></code> is inserted before the
+current instruction instead of replacing it</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">|</span></code> - if this marker is present, <code class="docutils literal notranslate"><span class="pre">INSTRUCTION</span></code> overwrites any overlapping
+instructions instead of pushing them aside</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">+</span></code> - if this marker is present, <code class="docutils literal notranslate"><span class="pre">INSTRUCTION</span></code> is inserted after the
+current instruction instead of replacing it</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">/</span></code> - if this marker is present, any remaining comment lines are removed</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">LABEL</span></code> is the replacement label; if not given, any existing label is left
+unchanged</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">INSTRUCTION</span></code> is the replacement instruction; if not given, the existing
+instruction is left unchanged</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">comment</span></code> is the replacement comment; if not given, the existing comment is
+left unchanged</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">addr1</span></code> is the address of the first instruction to remove</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">addr2</span></code>, if given, is the address of the last instruction to remove</p></li>
 </ul>
 <p>For example:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>@label=CMASK
@@ -472,28 +385,24 @@ c40000 NOP
  40001 RET
 </pre></div>
 </div>
-<table border="1" class="docutils">
-<colgroup>
-<col width="12%" />
-<col width="88%" />
-</colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">Version</th>
-<th class="head">Changes</th>
+<table class="docutils colwidths-auto align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Version</p></th>
+<th class="head"><p>Changes</p></th>
 </tr>
 </thead>
-<tbody valign="top">
-<tr class="row-even"><td>7.1</td>
-<td>Added support for the <code class="docutils literal notranslate"><span class="pre">+</span></code> marker (to insert an instruction
-after the current one)</td>
+<tbody>
+<tr class="row-even"><td><p>7.1</p></td>
+<td><p>Added support for the <code class="docutils literal notranslate"><span class="pre">+</span></code> marker (to insert an instruction
+after the current one)</p></td>
 </tr>
-<tr class="row-odd"><td>7.0</td>
-<td>Added support for specifying the replacement comment over
+<tr class="row-odd"><td><p>7.0</p></td>
+<td><p>Added support for specifying the replacement comment over
 multiple lines, replacing the label, and inserting, overwriting
-and removing instructions</td>
+and removing instructions</p></td>
 </tr>
-<tr class="row-even"><td>6.4</td>
-<td>Added support for replacing the comment</td>
+<tr class="row-even"><td><p>6.4</p></td>
+<td><p>Added support for replacing the comment</p></td>
 </tr>
 </tbody>
 </table>
@@ -552,9 +461,9 @@ insert byte values into the memory snapshot at a given address.</p>
 </pre></div>
 </div>
 <ul class="simple">
-<li><code class="docutils literal notranslate"><span class="pre">address</span></code> is the address</li>
-<li><code class="docutils literal notranslate"><span class="pre">value1</span></code>, <code class="docutils literal notranslate"><span class="pre">value2</span></code> etc. are the byte values (as might appear in a
-<code class="docutils literal notranslate"><span class="pre">DEFB</span></code> statement)</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">address</span></code> is the address</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">value1</span></code>, <code class="docutils literal notranslate"><span class="pre">value2</span></code> etc. are the byte values (as might appear in a
+<code class="docutils literal notranslate"><span class="pre">DEFB</span></code> statement)</p></li>
 </ul>
 <p>If <code class="docutils literal notranslate"><span class="pre">address</span></code> is omitted, it defaults to the address immediately after the
 last byte of the previous <code class="docutils literal notranslate"><span class="pre">&#64;defb</span></code>, <a class="reference internal" href="#defs"><span class="std std-ref">&#64;defs</span></a> or <a class="reference internal" href="#defw"><span class="std std-ref">&#64;defw</span></a> directive
@@ -573,22 +482,18 @@ on a control file; thus the <code class="docutils literal notranslate"><span cla
 contents of the snapshot that is read by <cite>sna2skool.py</cite>.</p>
 <p><code class="docutils literal notranslate"><span class="pre">&#64;defb</span></code> directives are also processed by <a class="reference internal" href="commands.html#skool2bin-py"><span class="std std-ref">skool2bin.py</span></a> when the
 <code class="docutils literal notranslate"><span class="pre">--data</span></code> option is used.</p>
-<table border="1" class="docutils">
-<colgroup>
-<col width="19%" />
-<col width="81%" />
-</colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">Version</th>
-<th class="head">Changes</th>
+<table class="docutils colwidths-auto align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Version</p></th>
+<th class="head"><p>Changes</p></th>
 </tr>
 </thead>
-<tbody valign="top">
-<tr class="row-even"><td>8.1</td>
-<td>The <code class="docutils literal notranslate"><span class="pre">address</span></code> parameter is optional</td>
+<tbody>
+<tr class="row-even"><td><p>8.1</p></td>
+<td><p>The <code class="docutils literal notranslate"><span class="pre">address</span></code> parameter is optional</p></td>
 </tr>
-<tr class="row-odd"><td>6.3</td>
-<td>New</td>
+<tr class="row-odd"><td><p>6.3</p></td>
+<td><p>New</p></td>
 </tr>
 </tbody>
 </table>
@@ -601,9 +506,9 @@ insert a sequence of byte values into the memory snapshot at a given address.</p
 </pre></div>
 </div>
 <ul class="simple">
-<li><code class="docutils literal notranslate"><span class="pre">address</span></code> is the address</li>
-<li><code class="docutils literal notranslate"><span class="pre">length</span></code> is the length of the sequence</li>
-<li><code class="docutils literal notranslate"><span class="pre">value</span></code> is the byte value (default: 0)</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">address</span></code> is the address</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">length</span></code> is the length of the sequence</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">value</span></code> is the byte value (default: 0)</p></li>
 </ul>
 <p>If <code class="docutils literal notranslate"><span class="pre">address</span></code> is omitted, it defaults to the address immediately after the
 last byte of the previous <a class="reference internal" href="#defb"><span class="std std-ref">&#64;defb</span></a>, <code class="docutils literal notranslate"><span class="pre">&#64;defs</span></code> or <a class="reference internal" href="#defw"><span class="std std-ref">&#64;defw</span></a> directive
@@ -622,22 +527,18 @@ on a control file; thus the <code class="docutils literal notranslate"><span cla
 contents of the snapshot that is read by <cite>sna2skool.py</cite>.</p>
 <p><code class="docutils literal notranslate"><span class="pre">&#64;defs</span></code> directives are also processed by <a class="reference internal" href="commands.html#skool2bin-py"><span class="std std-ref">skool2bin.py</span></a> when the
 <code class="docutils literal notranslate"><span class="pre">--data</span></code> option is used.</p>
-<table border="1" class="docutils">
-<colgroup>
-<col width="19%" />
-<col width="81%" />
-</colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">Version</th>
-<th class="head">Changes</th>
+<table class="docutils colwidths-auto align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Version</p></th>
+<th class="head"><p>Changes</p></th>
 </tr>
 </thead>
-<tbody valign="top">
-<tr class="row-even"><td>8.1</td>
-<td>The <code class="docutils literal notranslate"><span class="pre">address</span></code> parameter is optional</td>
+<tbody>
+<tr class="row-even"><td><p>8.1</p></td>
+<td><p>The <code class="docutils literal notranslate"><span class="pre">address</span></code> parameter is optional</p></td>
 </tr>
-<tr class="row-odd"><td>6.3</td>
-<td>New</td>
+<tr class="row-odd"><td><p>6.3</p></td>
+<td><p>New</p></td>
 </tr>
 </tbody>
 </table>
@@ -650,9 +551,9 @@ insert word values into the memory snapshot at a given address.</p>
 </pre></div>
 </div>
 <ul class="simple">
-<li><code class="docutils literal notranslate"><span class="pre">address</span></code> is the address</li>
-<li><code class="docutils literal notranslate"><span class="pre">value1</span></code>, <code class="docutils literal notranslate"><span class="pre">value2</span></code> etc. are the word values (as might appear in a
-<code class="docutils literal notranslate"><span class="pre">DEFW</span></code> statement)</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">address</span></code> is the address</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">value1</span></code>, <code class="docutils literal notranslate"><span class="pre">value2</span></code> etc. are the word values (as might appear in a
+<code class="docutils literal notranslate"><span class="pre">DEFW</span></code> statement)</p></li>
 </ul>
 <p>If <code class="docutils literal notranslate"><span class="pre">address</span></code> is omitted, it defaults to the address immediately after the
 last byte of the previous <a class="reference internal" href="#defb"><span class="std std-ref">&#64;defb</span></a>, <a class="reference internal" href="#defs"><span class="std std-ref">&#64;defs</span></a> or <code class="docutils literal notranslate"><span class="pre">&#64;defw</span></code> directive
@@ -671,22 +572,18 @@ on a control file; thus the <code class="docutils literal notranslate"><span cla
 contents of the snapshot that is read by <cite>sna2skool.py</cite>.</p>
 <p><code class="docutils literal notranslate"><span class="pre">&#64;defw</span></code> directives are also processed by <a class="reference internal" href="commands.html#skool2bin-py"><span class="std std-ref">skool2bin.py</span></a> when the
 <code class="docutils literal notranslate"><span class="pre">--data</span></code> option is used.</p>
-<table border="1" class="docutils">
-<colgroup>
-<col width="19%" />
-<col width="81%" />
-</colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">Version</th>
-<th class="head">Changes</th>
+<table class="docutils colwidths-auto align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Version</p></th>
+<th class="head"><p>Changes</p></th>
 </tr>
 </thead>
-<tbody valign="top">
-<tr class="row-even"><td>8.1</td>
-<td>The <code class="docutils literal notranslate"><span class="pre">address</span></code> parameter is optional</td>
+<tbody>
+<tr class="row-even"><td><p>8.1</p></td>
+<td><p>The <code class="docutils literal notranslate"><span class="pre">address</span></code> parameter is optional</p></td>
 </tr>
-<tr class="row-odd"><td>6.3</td>
-<td>New</td>
+<tr class="row-odd"><td><p>6.3</p></td>
+<td><p>New</p></td>
 </tr>
 </tbody>
 </table>
@@ -697,19 +594,15 @@ contents of the snapshot that is read by <cite>sna2skool.py</cite>.</p>
 file for the purpose of generating ASM output. Everything after the <code class="docutils literal notranslate"><span class="pre">&#64;end</span></code>
 directive is ignored by <a class="reference internal" href="commands.html#skool2asm-py"><span class="std std-ref">skool2asm.py</span></a>.</p>
 <p>See also <a class="reference internal" href="#start"><span class="std std-ref">&#64;start</span></a>.</p>
-<table border="1" class="docutils">
-<colgroup>
-<col width="50%" />
-<col width="50%" />
-</colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">Version</th>
-<th class="head">Changes</th>
+<table class="docutils colwidths-auto align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Version</p></th>
+<th class="head"><p>Changes</p></th>
 </tr>
 </thead>
-<tbody valign="top">
-<tr class="row-even"><td>2.2.2</td>
-<td>New</td>
+<tbody>
+<tr class="row-even"><td><p>2.2.2</p></td>
+<td><p>New</p></td>
 </tr>
 </tbody>
 </table>
@@ -722,8 +615,8 @@ output.</p>
 </pre></div>
 </div>
 <ul class="simple">
-<li><code class="docutils literal notranslate"><span class="pre">label</span></code> is the label</li>
-<li><code class="docutils literal notranslate"><span class="pre">value</span></code> is the value assigned to the label</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">label</span></code> is the label</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">value</span></code> is the value assigned to the label</p></li>
 </ul>
 <p>For example:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>@equ=ATTRS=22528
@@ -732,19 +625,15 @@ c32768 LD HL,22528
 </div>
 <p>This will produce an EQU directive (<code class="docutils literal notranslate"><span class="pre">ATTRS</span> <span class="pre">EQU</span> <span class="pre">22528</span></code>) in the ASM output, and
 replace the operand of the instruction at 32768 with a label: <code class="docutils literal notranslate"><span class="pre">LD</span> <span class="pre">HL,ATTRS</span></code>.</p>
-<table border="1" class="docutils">
-<colgroup>
-<col width="50%" />
-<col width="50%" />
-</colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">Version</th>
-<th class="head">Changes</th>
+<table class="docutils colwidths-auto align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Version</p></th>
+<th class="head"><p>Changes</p></th>
 </tr>
 </thead>
-<tbody valign="top">
-<tr class="row-even"><td>5.4</td>
-<td>New</td>
+<tbody>
+<tr class="row-even"><td><p>5.4</p></td>
+<td><p>New</p></td>
 </tr>
 </tbody>
 </table>
@@ -759,7 +648,7 @@ appear in skool file annotations or ref file sections are expanded).</p>
 </pre></div>
 </div>
 <ul class="simple">
-<li><code class="docutils literal notranslate"><span class="pre">text</span></code> is the text to expand</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">text</span></code> is the text to expand</p></li>
 </ul>
 <p>For example:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>@expand=#DEF(#MAX(a,b) #IF($a&gt;$b)($a,$b))
@@ -786,22 +675,21 @@ then be used to create a numbered list of items:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>#OLIST/a,b,c/
 </pre></div>
 </div>
-<table border="1" class="docutils">
-<colgroup>
-<col width="19%" />
-<col width="81%" />
-</colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">Version</th>
-<th class="head">Changes</th>
+<p>See also the <code class="docutils literal notranslate"><span class="pre">Expand</span></code> parameter in the <a class="reference internal" href="ref-files.html#ref-config"><span class="std std-ref">[Config]</span></a> section, which may
+be used instead of the <code class="docutils literal notranslate"><span class="pre">&#64;expand</span></code> directive if there is no need to expand
+<code class="docutils literal notranslate"><span class="pre">text</span></code> in ASM mode.</p>
+<table class="docutils colwidths-auto align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Version</p></th>
+<th class="head"><p>Changes</p></th>
 </tr>
 </thead>
-<tbody valign="top">
-<tr class="row-even"><td>8.4</td>
-<td>Added support for the <code class="docutils literal notranslate"><span class="pre">+</span></code> notation</td>
+<tbody>
+<tr class="row-even"><td><p>8.4</p></td>
+<td><p>Added support for the <code class="docutils literal notranslate"><span class="pre">+</span></code> notation</p></td>
 </tr>
-<tr class="row-odd"><td>8.2</td>
-<td>New</td>
+<tr class="row-odd"><td><p>8.2</p></td>
+<td><p>New</p></td>
 </tr>
 </tbody>
 </table>
@@ -814,10 +702,10 @@ value of an arithmetic expression.</p>
 </pre></div>
 </div>
 <ul class="simple">
-<li><code class="docutils literal notranslate"><span class="pre">expr</span></code> is the arithmetic expression, which may contain
-<a class="reference internal" href="skool-macros.html#replacementfields"><span class="std std-ref">replacement fields</span></a></li>
-<li><code class="docutils literal notranslate"><span class="pre">true</span></code> is processed when <code class="docutils literal notranslate"><span class="pre">expr</span></code> is true</li>
-<li><code class="docutils literal notranslate"><span class="pre">false</span></code> (if given) is processed when <code class="docutils literal notranslate"><span class="pre">expr</span></code> is false</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">expr</span></code> is the arithmetic expression, which may contain
+<a class="reference internal" href="skool-macros.html#replacementfields"><span class="std std-ref">replacement fields</span></a></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">true</span></code> is processed when <code class="docutils literal notranslate"><span class="pre">expr</span></code> is true</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">false</span></code> (if given) is processed when <code class="docutils literal notranslate"><span class="pre">expr</span></code> is false</p></li>
 </ul>
 <p>See <a class="reference internal" href="skool-macros.html#numericparameters"><span class="std std-ref">Numeric parameters</span></a> for details on the operators that may be used in
 the <code class="docutils literal notranslate"><span class="pre">expr</span></code> parameter.</p>
@@ -829,19 +717,15 @@ the <code class="docutils literal notranslate"><span class="pre">expr</span></co
 otherwise.</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">true</span></code> and <code class="docutils literal notranslate"><span class="pre">false</span></code> parameters may be supplied in the same way as they
 are for the <a class="reference internal" href="skool-macros.html#if"><span class="std std-ref">#IF</span></a> macro. See <a class="reference internal" href="skool-macros.html#stringparameters"><span class="std std-ref">String parameters</span></a> for more details.</p>
-<table border="1" class="docutils">
-<colgroup>
-<col width="50%" />
-<col width="50%" />
-</colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">Version</th>
-<th class="head">Changes</th>
+<table class="docutils colwidths-auto align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Version</p></th>
+<th class="head"><p>Changes</p></th>
 </tr>
 </thead>
-<tbody valign="top">
-<tr class="row-even"><td>6.4</td>
-<td>New</td>
+<tbody>
+<tr class="row-even"><td><p>6.4</p></td>
+<td><p>New</p></td>
 </tr>
 </tbody>
 </table>
@@ -857,8 +741,8 @@ comment, a block end comment, or an instruction-level comment.</p>
 </pre></div>
 </div>
 <ul class="simple">
-<li><code class="docutils literal notranslate"><span class="pre">addr1</span></code>, <code class="docutils literal notranslate"><span class="pre">addr2</span></code> etc. are the addresses to suppress warnings for; if none
-are specified, warnings for all addresses are suppressed</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">addr1</span></code>, <code class="docutils literal notranslate"><span class="pre">addr2</span></code> etc. are the addresses to suppress warnings for; if none
+are specified, warnings for all addresses are suppressed</p></li>
 </ul>
 <p>Although specifying a list of addresses is optional, doing so has the advantage
 that if another unconvertible address is added to the comment later on, a
@@ -939,27 +823,23 @@ a label.</p>
 <p>If the <code class="docutils literal notranslate"><span class="pre">&#64;ignoreua</span></code> directive were not present, a warning would be printed
 about the comment containing an address (62818) that has not been converted to
 a label.</p>
-<table border="1" class="docutils">
-<colgroup>
-<col width="12%" />
-<col width="88%" />
-</colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">Version</th>
-<th class="head">Changes</th>
+<table class="docutils colwidths-auto align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Version</p></th>
+<th class="head"><p>Changes</p></th>
 </tr>
 </thead>
-<tbody valign="top">
-<tr class="row-even"><td>8.1</td>
-<td>Added the ability to specify the addresses for which to suppress
-warnings</td>
+<tbody>
+<tr class="row-even"><td><p>8.1</p></td>
+<td><p>Added the ability to specify the addresses for which to suppress
+warnings</p></td>
 </tr>
-<tr class="row-odd"><td>4.2</td>
-<td>Added support for register description sections</td>
+<tr class="row-odd"><td><p>4.2</p></td>
+<td><p>Added support for register description sections</p></td>
 </tr>
-<tr class="row-even"><td>2.4.1</td>
-<td>Added support for entry titles, entry descriptions, mid-block
-comments and block end comments</td>
+<tr class="row-even"><td><p>2.4.1</p></td>
+<td><p>Added support for entry titles, entry descriptions, mid-block
+comments and block end comments</p></td>
 </tr>
 </tbody>
 </table>
@@ -969,28 +849,24 @@ comments and block end comments</td>
 <p>The <code class="docutils literal notranslate"><span class="pre">&#64;isub</span></code> directive replaces, inserts or removes a label, instruction and
 comment in <a class="reference internal" href="#isubmode"><span class="std std-ref">&#64;isub mode</span></a>.</p>
 <p>The syntax is equivalent to that for the <a class="reference internal" href="#bfix"><span class="std std-ref">&#64;bfix</span></a> directive.</p>
-<table border="1" class="docutils">
-<colgroup>
-<col width="12%" />
-<col width="88%" />
-</colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">Version</th>
-<th class="head">Changes</th>
+<table class="docutils colwidths-auto align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Version</p></th>
+<th class="head"><p>Changes</p></th>
 </tr>
 </thead>
-<tbody valign="top">
-<tr class="row-even"><td>7.1</td>
-<td>Added support for the <code class="docutils literal notranslate"><span class="pre">+</span></code> marker (to insert an instruction
-after the current one)</td>
+<tbody>
+<tr class="row-even"><td><p>7.1</p></td>
+<td><p>Added support for the <code class="docutils literal notranslate"><span class="pre">+</span></code> marker (to insert an instruction
+after the current one)</p></td>
 </tr>
-<tr class="row-odd"><td>7.0</td>
-<td>Added support for specifying the replacement comment over
+<tr class="row-odd"><td><p>7.0</p></td>
+<td><p>Added support for specifying the replacement comment over
 multiple lines, replacing the label, and inserting, overwriting
-and removing instructions</td>
+and removing instructions</p></td>
 </tr>
-<tr class="row-even"><td>6.4</td>
-<td>Added support for replacing the comment</td>
+<tr class="row-even"><td><p>6.4</p></td>
+<td><p>Added support for replacing the comment</p></td>
 </tr>
 </tbody>
 </table>
@@ -1009,8 +885,8 @@ in the operand of the next instruction:</p>
 </pre></div>
 </div>
 <ul class="simple">
-<li><code class="docutils literal notranslate"><span class="pre">val1</span></code>, <code class="docutils literal notranslate"><span class="pre">val2</span></code> etc. are the values to keep; if none are specified, all
-values are kept</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">val1</span></code>, <code class="docutils literal notranslate"><span class="pre">val2</span></code> etc. are the values to keep; if none are specified, all
+values are kept</p></li>
 </ul>
 <p>In HTML mode, the <code class="docutils literal notranslate"><span class="pre">&#64;keep</span></code> directive also prevents the operand from being
 hyperlinked.</p>
@@ -1023,21 +899,17 @@ hyperlinked.</p>
 <code class="docutils literal notranslate"><span class="pre">LD</span> <span class="pre">BC</span></code> instruction would be replaced with the label of the routine at 24576
 (if there is a routine at that address); however, the operand is meant to be a
 pure data value, not a variable or routine address.</p>
-<table border="1" class="docutils">
-<colgroup>
-<col width="12%" />
-<col width="88%" />
-</colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">Version</th>
-<th class="head">Changes</th>
+<table class="docutils colwidths-auto align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Version</p></th>
+<th class="head"><p>Changes</p></th>
 </tr>
 </thead>
-<tbody valign="top">
-<tr class="row-even"><td>6.2</td>
-<td>Added the ability to specify the values to keep; the <code class="docutils literal notranslate"><span class="pre">&#64;keep</span></code>
+<tbody>
+<tr class="row-even"><td><p>6.2</p></td>
+<td><p>Added the ability to specify the values to keep; the <code class="docutils literal notranslate"><span class="pre">&#64;keep</span></code>
 directive is applied to instructions that have been replaced by
-an <a class="reference internal" href="#isub"><span class="std std-ref">&#64;isub</span></a>, <a class="reference internal" href="#ssub"><span class="std std-ref">&#64;ssub</span></a> or <a class="reference internal" href="#rsub"><span class="std std-ref">&#64;rsub</span></a> directive</td>
+an <a class="reference internal" href="#isub"><span class="std std-ref">&#64;isub</span></a>, <a class="reference internal" href="#ssub"><span class="std std-ref">&#64;ssub</span></a> or <a class="reference internal" href="#rsub"><span class="std std-ref">&#64;rsub</span></a> directive</p></td>
 </tr>
 </tbody>
 </table>
@@ -1049,7 +921,7 @@ an <a class="reference internal" href="#isub"><span class="std std-ref">&#64;isu
 </pre></div>
 </div>
 <ul class="simple">
-<li><code class="docutils literal notranslate"><span class="pre">LABEL</span></code> is the label to apply</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">LABEL</span></code> is the label to apply</p></li>
 </ul>
 <p>For example:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>@label=ENDGAME
@@ -1070,24 +942,20 @@ is run, <code class="docutils literal notranslate"><span class="pre">&#64;label<
 reading a control file. They can be used to prevent an entry point marker from
 being added to an instruction where it otherwise would be (<code class="docutils literal notranslate"><span class="pre">&#64;label=</span></code>), or
 force one to be added where it otherwise wouldn’t (<code class="docutils literal notranslate"><span class="pre">&#64;label=*</span></code>).</p>
-<table border="1" class="docutils">
-<colgroup>
-<col width="12%" />
-<col width="88%" />
-</colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">Version</th>
-<th class="head">Changes</th>
+<table class="docutils colwidths-auto align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Version</p></th>
+<th class="head"><p>Changes</p></th>
 </tr>
 </thead>
-<tbody valign="top">
-<tr class="row-even"><td>7.0</td>
-<td>An entry point marker (<code class="docutils literal notranslate"><span class="pre">*</span></code>) can be added to or removed from the
-next instruction</td>
+<tbody>
+<tr class="row-even"><td><p>7.0</p></td>
+<td><p>An entry point marker (<code class="docutils literal notranslate"><span class="pre">*</span></code>) can be added to or removed from the
+next instruction</p></td>
 </tr>
-<tr class="row-odd"><td>6.3</td>
-<td><code class="docutils literal notranslate"><span class="pre">LABEL</span></code> may be blank (to prevent the next instruction from
-having a label automatically generated)</td>
+<tr class="row-odd"><td><p>6.3</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">LABEL</span></code> may be blank (to prevent the next instruction from
+having a label automatically generated)</p></td>
 </tr>
 </tbody>
 </table>
@@ -1097,17 +965,17 @@ having a label automatically generated)</td>
 <p>The <code class="docutils literal notranslate"><span class="pre">&#64;nowarn</span></code> directive suppresses any warnings that would otherwise be
 reported (during the parsing phase) for the next instruction concerning:</p>
 <ul class="simple">
-<li>an address in a <code class="docutils literal notranslate"><span class="pre">LD</span></code> instruction operand being replaced with a label (if
-the instruction has not been replaced by a <code class="docutils literal notranslate"><span class="pre">&#64;*sub</span></code> or <code class="docutils literal notranslate"><span class="pre">&#64;*fix</span></code> directive)</li>
-<li>an address in an instruction operand not being replaced with a label (because
-the address has no label defined)</li>
+<li><p>an address in a <code class="docutils literal notranslate"><span class="pre">LD</span></code> instruction operand being replaced with a label (if
+the instruction has not been replaced by a <code class="docutils literal notranslate"><span class="pre">&#64;*sub</span></code> or <code class="docutils literal notranslate"><span class="pre">&#64;*fix</span></code> directive)</p></li>
+<li><p>an address in an instruction operand not being replaced with a label (because
+the address has no label defined)</p></li>
 </ul>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>@nowarn[=addr1[,addr2...]]
 </pre></div>
 </div>
 <ul class="simple">
-<li><code class="docutils literal notranslate"><span class="pre">addr1</span></code>, <code class="docutils literal notranslate"><span class="pre">addr2</span></code> etc. are the addresses to suppress warnings for; if none
-are specified, warnings for all addresses are suppressed</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">addr1</span></code>, <code class="docutils literal notranslate"><span class="pre">addr2</span></code> etc. are the addresses to suppress warnings for; if none
+are specified, warnings for all addresses are suppressed</p></li>
 </ul>
 <p>For example:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>@nowarn=25404
@@ -1130,20 +998,16 @@ inappropriate if 25404 were intended to be a pure data value).</p>
 not in <a class="reference internal" href="#ofixmode"><span class="std std-ref">&#64;ofix mode</span></a>) about the operand (27633) not being replaced with a
 label (usually you would want the operand of a CALL instruction to be replaced
 with a label, but not in this case).</p>
-<table border="1" class="docutils">
-<colgroup>
-<col width="12%" />
-<col width="88%" />
-</colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">Version</th>
-<th class="head">Changes</th>
+<table class="docutils colwidths-auto align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Version</p></th>
+<th class="head"><p>Changes</p></th>
 </tr>
 </thead>
-<tbody valign="top">
-<tr class="row-even"><td>8.1</td>
-<td>Added the ability to specify the addresses for which to suppress
-warnings</td>
+<tbody>
+<tr class="row-even"><td><p>8.1</p></td>
+<td><p>Added the ability to specify the addresses for which to suppress
+warnings</p></td>
 </tr>
 </tbody>
 </table>
@@ -1153,28 +1017,24 @@ warnings</td>
 <p>The <code class="docutils literal notranslate"><span class="pre">&#64;ofix</span></code> directive replaces, inserts or removes a label, instruction and
 comment in <a class="reference internal" href="#ofixmode"><span class="std std-ref">&#64;ofix mode</span></a>.</p>
 <p>The syntax is equivalent to that for the <a class="reference internal" href="#bfix"><span class="std std-ref">&#64;bfix</span></a> directive.</p>
-<table border="1" class="docutils">
-<colgroup>
-<col width="12%" />
-<col width="88%" />
-</colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">Version</th>
-<th class="head">Changes</th>
+<table class="docutils colwidths-auto align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Version</p></th>
+<th class="head"><p>Changes</p></th>
 </tr>
 </thead>
-<tbody valign="top">
-<tr class="row-even"><td>7.1</td>
-<td>Added support for the <code class="docutils literal notranslate"><span class="pre">+</span></code> marker (to insert an instruction
-after the current one)</td>
+<tbody>
+<tr class="row-even"><td><p>7.1</p></td>
+<td><p>Added support for the <code class="docutils literal notranslate"><span class="pre">+</span></code> marker (to insert an instruction
+after the current one)</p></td>
 </tr>
-<tr class="row-odd"><td>7.0</td>
-<td>Added support for specifying the replacement comment over
+<tr class="row-odd"><td><p>7.0</p></td>
+<td><p>Added support for specifying the replacement comment over
 multiple lines, replacing the label, and inserting, overwriting
-and removing instructions</td>
+and removing instructions</p></td>
 </tr>
-<tr class="row-even"><td>6.4</td>
-<td>Added support for replacing the comment</td>
+<tr class="row-even"><td><p>6.4</p></td>
+<td><p>Added support for replacing the comment</p></td>
 </tr>
 </tbody>
 </table>
@@ -1193,26 +1053,22 @@ directive.</p>
 </pre></div>
 </div>
 <ul class="simple">
-<li><code class="docutils literal notranslate"><span class="pre">address</span></code> is the <code class="docutils literal notranslate"><span class="pre">ORG</span></code> address; if not specified, it defaults to the
-address of the next instruction</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">address</span></code> is the <code class="docutils literal notranslate"><span class="pre">ORG</span></code> address; if not specified, it defaults to the
+address of the next instruction</p></li>
 </ul>
 <p>Note that the <code class="docutils literal notranslate"><span class="pre">&#64;org</span></code> directive works only on the first instruction in an
 entry.</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">&#64;org</span></code> directive also forces <a class="reference internal" href="commands.html#skool2bin-py"><span class="std std-ref">skool2bin.py</span></a> to place the next
 instruction at the given address.</p>
-<table border="1" class="docutils">
-<colgroup>
-<col width="12%" />
-<col width="88%" />
-</colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">Version</th>
-<th class="head">Changes</th>
+<table class="docutils colwidths-auto align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Version</p></th>
+<th class="head"><p>Changes</p></th>
 </tr>
 </thead>
-<tbody valign="top">
-<tr class="row-even"><td>6.3</td>
-<td>The <code class="docutils literal notranslate"><span class="pre">address</span></code> parameter is optional</td>
+<tbody>
+<tr class="row-even"><td><p>6.3</p></td>
+<td><p>The <code class="docutils literal notranslate"><span class="pre">address</span></code> parameter is optional</p></td>
 </tr>
 </tbody>
 </table>
@@ -1225,9 +1081,9 @@ routines that jump to or call) the next instruction.</p>
 </pre></div>
 </div>
 <ul class="simple">
-<li><code class="docutils literal notranslate"><span class="pre">addr1</span></code>, <code class="docutils literal notranslate"><span class="pre">addr2</span></code> etc. are addresses to add to the list of referrers</li>
-<li><code class="docutils literal notranslate"><span class="pre">raddr1</span></code>, <code class="docutils literal notranslate"><span class="pre">raddr2</span></code> etc. are addresses to remove from the list of
-referrers</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">addr1</span></code>, <code class="docutils literal notranslate"><span class="pre">addr2</span></code> etc. are addresses to add to the list of referrers</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">raddr1</span></code>, <code class="docutils literal notranslate"><span class="pre">raddr2</span></code> etc. are addresses to remove from the list of
+referrers</p></li>
 </ul>
 <p>This directive can be used to declare one or more additional referrers for an
 instruction that would not otherwise be identified by the
@@ -1235,30 +1091,30 @@ instruction that would not otherwise be identified by the
 <a class="reference internal" href="components.html#snapshotrefcalc"><span class="std std-ref">snapshot reference calculator</span></a> (e.g. because the
 instruction is jumped to indirectly via <code class="docutils literal notranslate"><span class="pre">JP</span> <span class="pre">(HL)</span></code> or <code class="docutils literal notranslate"><span class="pre">RET</span></code>). As a result:</p>
 <ul class="simple">
-<li><a class="reference internal" href="commands.html#sna2skool-py"><span class="std std-ref">sna2skool.py</span></a> will attach an entry point marker (<code class="docutils literal notranslate"><span class="pre">*</span></code>) to the
+<li><p><a class="reference internal" href="commands.html#sna2skool-py"><span class="std std-ref">sna2skool.py</span></a> will attach an entry point marker (<code class="docutils literal notranslate"><span class="pre">*</span></code>) to the
 instruction when reading a control file, and include the additional referrers
 in any comment generated for the entry point (when the <code class="docutils literal notranslate"><span class="pre">ListRefs</span></code>
-<a class="reference internal" href="commands.html#sna2skool-conf"><span class="std std-ref">configuration parameter</span></a> is <code class="docutils literal notranslate"><span class="pre">1</span></code> or <code class="docutils literal notranslate"><span class="pre">2</span></code>)</li>
-<li><cite>snapinfo.py</cite>, when generating a <a class="reference internal" href="commands.html#snapinfo-call-graph"><span class="std std-ref">call graph</span></a>,
+<a class="reference internal" href="commands.html#sna2skool-conf"><span class="std std-ref">configuration parameter</span></a> is <code class="docutils literal notranslate"><span class="pre">1</span></code> or <code class="docutils literal notranslate"><span class="pre">2</span></code>)</p></li>
+<li><p><cite>snapinfo.py</cite>, when generating a <a class="reference internal" href="commands.html#snapinfo-call-graph"><span class="std std-ref">call graph</span></a>,
 will add an edge between a node representing an additional referrer and the
-node representing the routine that contains the instruction</li>
-<li>the addresses of the additional referrers become available to the special
-<code class="docutils literal notranslate"><span class="pre">EREF</span></code> and <code class="docutils literal notranslate"><span class="pre">REF</span></code> variables of the <a class="reference internal" href="skool-macros.html#foreach"><span class="std std-ref">#FOREACH</span></a> macro</li>
+node representing the routine that contains the instruction</p></li>
+<li><p>the addresses of the additional referrers become available to the special
+<code class="docutils literal notranslate"><span class="pre">EREF</span></code> and <code class="docutils literal notranslate"><span class="pre">REF</span></code> variables of the <a class="reference internal" href="skool-macros.html#foreach"><span class="std std-ref">#FOREACH</span></a> macro</p></li>
 </ul>
 <p><code class="docutils literal notranslate"><span class="pre">&#64;refs</span></code> can also be used to remove one or more referrer addresses that have
 been added automatically (because the instruction is jumped to or called
 directly). As a result:</p>
 <ul class="simple">
-<li><a class="reference internal" href="commands.html#sna2skool-py"><span class="std std-ref">sna2skool.py</span></a> will remove the referrers from any comment generated for
+<li><p><a class="reference internal" href="commands.html#sna2skool-py"><span class="std std-ref">sna2skool.py</span></a> will remove the referrers from any comment generated for
 the entry point (when the <code class="docutils literal notranslate"><span class="pre">ListRefs</span></code>
 <a class="reference internal" href="commands.html#sna2skool-conf"><span class="std std-ref">configuration parameter</span></a> is <code class="docutils literal notranslate"><span class="pre">1</span></code> or <code class="docutils literal notranslate"><span class="pre">2</span></code>), and
 remove any entry point marker (<code class="docutils literal notranslate"><span class="pre">*</span></code>) from the instruction if all the
-referrers have been removed</li>
-<li><cite>snapinfo.py</cite>, when generating a <a class="reference internal" href="commands.html#snapinfo-call-graph"><span class="std std-ref">call graph</span></a>,
+referrers have been removed</p></li>
+<li><p><cite>snapinfo.py</cite>, when generating a <a class="reference internal" href="commands.html#snapinfo-call-graph"><span class="std std-ref">call graph</span></a>,
 will not place an edge between a node representing a removed referrer and the
-node representing the routine that contains the instruction</li>
-<li>the addresses of the removed referrers will not be available to the special
-<code class="docutils literal notranslate"><span class="pre">EREF</span></code> and <code class="docutils literal notranslate"><span class="pre">REF</span></code> variables of the <a class="reference internal" href="skool-macros.html#foreach"><span class="std std-ref">#FOREACH</span></a> macro</li>
+node representing the routine that contains the instruction</p></li>
+<li><p>the addresses of the removed referrers will not be available to the special
+<code class="docutils literal notranslate"><span class="pre">EREF</span></code> and <code class="docutils literal notranslate"><span class="pre">REF</span></code> variables of the <a class="reference internal" href="skool-macros.html#foreach"><span class="std std-ref">#FOREACH</span></a> macro</p></li>
 </ul>
 <p>For example:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>@ 40000 refs=32768:49152
@@ -1266,19 +1122,15 @@ node representing the routine that contains the instruction</li>
 </div>
 <p>This <code class="docutils literal notranslate"><span class="pre">&#64;refs</span></code> directive (in a control file) declares that the routine at 32768
 uses the entry point at 40000, and the routine at 49152 does not.</p>
-<table border="1" class="docutils">
-<colgroup>
-<col width="50%" />
-<col width="50%" />
-</colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">Version</th>
-<th class="head">Changes</th>
+<table class="docutils colwidths-auto align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Version</p></th>
+<th class="head"><p>Changes</p></th>
 </tr>
 </thead>
-<tbody valign="top">
-<tr class="row-even"><td>8.2</td>
-<td>New</td>
+<tbody>
+<tr class="row-even"><td><p>8.2</p></td>
+<td><p>New</p></td>
 </tr>
 </tbody>
 </table>
@@ -1292,26 +1144,22 @@ by the parser.</p>
 </pre></div>
 </div>
 <ul class="simple">
-<li><code class="docutils literal notranslate"><span class="pre">COMMENT</span></code> is a suitably illuminating comment</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">COMMENT</span></code> is a suitably illuminating comment</p></li>
 </ul>
 <p>For example:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>@rem=The next section of data MUST start at 64000
 @org=64000
 </pre></div>
 </div>
-<table border="1" class="docutils">
-<colgroup>
-<col width="28%" />
-<col width="72%" />
-</colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">Version</th>
-<th class="head">Changes</th>
+<table class="docutils colwidths-auto align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Version</p></th>
+<th class="head"><p>Changes</p></th>
 </tr>
 </thead>
-<tbody valign="top">
-<tr class="row-even"><td>2.4</td>
-<td>The <code class="docutils literal notranslate"><span class="pre">=</span></code> is required</td>
+<tbody>
+<tr class="row-even"><td><p>2.4</p></td>
+<td><p>The <code class="docutils literal notranslate"><span class="pre">=</span></code> is required</p></td>
 </tr>
 </tbody>
 </table>
@@ -1325,9 +1173,9 @@ entry defined in another skool file.</p>
 </pre></div>
 </div>
 <ul class="simple">
-<li><code class="docutils literal notranslate"><span class="pre">code</span></code> is the ID of the disassembly defined in the other skool file</li>
-<li><code class="docutils literal notranslate"><span class="pre">address</span></code> is the address of the remote entry</li>
-<li><code class="docutils literal notranslate"><span class="pre">address2</span></code> etc. are addresses of other entry points in the remote entry</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">code</span></code> is the ID of the disassembly defined in the other skool file</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">address</span></code> is the address of the remote entry</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">address2</span></code> etc. are addresses of other entry points in the remote entry</p></li>
 </ul>
 <p>For example:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>@remote=main:29012,29015
@@ -1340,19 +1188,15 @@ remote entry point using the form:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>#R29015@main
 </pre></div>
 </div>
-<table border="1" class="docutils">
-<colgroup>
-<col width="50%" />
-<col width="50%" />
-</colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">Version</th>
-<th class="head">Changes</th>
+<table class="docutils colwidths-auto align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Version</p></th>
+<th class="head"><p>Changes</p></th>
 </tr>
 </thead>
-<tbody valign="top">
-<tr class="row-even"><td>6.3</td>
-<td>New</td>
+<tbody>
+<tr class="row-even"><td><p>6.3</p></td>
+<td><p>New</p></td>
 </tr>
 </tbody>
 </table>
@@ -1369,8 +1213,8 @@ skool file annotations and ref file section names and contents.</p>
 </pre></div>
 </div>
 <ul class="simple">
-<li><code class="docutils literal notranslate"><span class="pre">pattern</span></code> is the regular expression</li>
-<li><code class="docutils literal notranslate"><span class="pre">repl</span></code> is the replacement string</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">pattern</span></code> is the regular expression</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">repl</span></code> is the replacement string</p></li>
 </ul>
 <p>(If the second form is used, any text appearing after the terminating <code class="docutils literal notranslate"><span class="pre">/</span></code> is
 ignored.)</p>
@@ -1410,22 +1254,18 @@ were reversed:</p>
 <p>then <code class="docutils literal notranslate"><span class="pre">#foo31</span></code> would be replaced by <code class="docutils literal notranslate"><span class="pre">#bar31</span></code>.</p>
 <p>See also the <a class="reference internal" href="skool-macros.html#define"><span class="std std-ref">#DEFINE</span></a> macro, which is more flexible than <code class="docutils literal notranslate"><span class="pre">&#64;replace</span></code> for
 defining new macros.</p>
-<table border="1" class="docutils">
-<colgroup>
-<col width="17%" />
-<col width="83%" />
-</colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">Version</th>
-<th class="head">Changes</th>
+<table class="docutils colwidths-auto align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Version</p></th>
+<th class="head"><p>Changes</p></th>
 </tr>
 </thead>
-<tbody valign="top">
-<tr class="row-even"><td>6.0</td>
-<td>Replaces strings in ref file section names</td>
+<tbody>
+<tr class="row-even"><td><p>6.0</p></td>
+<td><p>Replaces strings in ref file section names</p></td>
 </tr>
-<tr class="row-odd"><td>5.1</td>
-<td>New</td>
+<tr class="row-odd"><td><p>5.1</p></td>
+<td><p>New</p></td>
 </tr>
 </tbody>
 </table>
@@ -1435,31 +1275,27 @@ defining new macros.</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">&#64;rfix</span></code> directive replaces, inserts or removes a label, instruction and
 comment in <a class="reference internal" href="#rfixmode"><span class="std std-ref">&#64;rfix mode</span></a>.</p>
 <p>The syntax is equivalent to that for the <a class="reference internal" href="#bfix"><span class="std std-ref">&#64;bfix</span></a> directive.</p>
-<table border="1" class="docutils">
-<colgroup>
-<col width="12%" />
-<col width="88%" />
-</colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">Version</th>
-<th class="head">Changes</th>
+<table class="docutils colwidths-auto align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Version</p></th>
+<th class="head"><p>Changes</p></th>
 </tr>
 </thead>
-<tbody valign="top">
-<tr class="row-even"><td>7.1</td>
-<td>Added support for the <code class="docutils literal notranslate"><span class="pre">+</span></code> marker (to insert an instruction
-after the current one)</td>
+<tbody>
+<tr class="row-even"><td><p>7.1</p></td>
+<td><p>Added support for the <code class="docutils literal notranslate"><span class="pre">+</span></code> marker (to insert an instruction
+after the current one)</p></td>
 </tr>
-<tr class="row-odd"><td>7.0</td>
-<td>Added support for specifying the replacement comment over
+<tr class="row-odd"><td><p>7.0</p></td>
+<td><p>Added support for specifying the replacement comment over
 multiple lines, replacing the label, and inserting, overwriting
-and removing instructions</td>
+and removing instructions</p></td>
 </tr>
-<tr class="row-even"><td>6.4</td>
-<td>Added support for replacing the comment</td>
+<tr class="row-even"><td><p>6.4</p></td>
+<td><p>Added support for replacing the comment</p></td>
 </tr>
-<tr class="row-odd"><td>5.2</td>
-<td>New</td>
+<tr class="row-odd"><td><p>5.2</p></td>
+<td><p>New</p></td>
 </tr>
 </tbody>
 </table>
@@ -1475,28 +1311,24 @@ removed in <a class="reference internal" href="#rfixmode"><span class="std std-r
 <p>The <code class="docutils literal notranslate"><span class="pre">&#64;rsub</span></code> directive replaces, inserts or removes a label, instruction and
 comment in <a class="reference internal" href="#rsubmode"><span class="std std-ref">&#64;rsub mode</span></a>.</p>
 <p>The syntax is equivalent to that for the <a class="reference internal" href="#rfix"><span class="std std-ref">&#64;rfix</span></a> directive.</p>
-<table border="1" class="docutils">
-<colgroup>
-<col width="12%" />
-<col width="88%" />
-</colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">Version</th>
-<th class="head">Changes</th>
+<table class="docutils colwidths-auto align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Version</p></th>
+<th class="head"><p>Changes</p></th>
 </tr>
 </thead>
-<tbody valign="top">
-<tr class="row-even"><td>7.1</td>
-<td>Added support for the <code class="docutils literal notranslate"><span class="pre">+</span></code> marker (to insert an instruction
-after the current one)</td>
+<tbody>
+<tr class="row-even"><td><p>7.1</p></td>
+<td><p>Added support for the <code class="docutils literal notranslate"><span class="pre">+</span></code> marker (to insert an instruction
+after the current one)</p></td>
 </tr>
-<tr class="row-odd"><td>7.0</td>
-<td>Added support for specifying the replacement comment over
+<tr class="row-odd"><td><p>7.0</p></td>
+<td><p>Added support for specifying the replacement comment over
 multiple lines, replacing the label, and inserting, overwriting
-and removing instructions</td>
+and removing instructions</p></td>
 </tr>
-<tr class="row-even"><td>6.4</td>
-<td>Added support for replacing the comment</td>
+<tr class="row-even"><td><p>6.4</p></td>
+<td><p>Added support for replacing the comment</p></td>
 </tr>
 </tbody>
 </table>
@@ -1514,80 +1346,76 @@ removed in <a class="reference internal" href="#rsubmode"><span class="std std-r
 </pre></div>
 </div>
 <ul class="simple">
-<li><code class="docutils literal notranslate"><span class="pre">name</span></code> is the property name</li>
-<li><code class="docutils literal notranslate"><span class="pre">value</span></code> is the property value</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">name</span></code> is the property name</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">value</span></code> is the property value</p></li>
 </ul>
 <p><code class="docutils literal notranslate"><span class="pre">&#64;set</span></code> directives must be placed somewhere after the <a class="reference internal" href="#start"><span class="std std-ref">&#64;start</span></a> directive,
 and before the <a class="reference internal" href="#end"><span class="std std-ref">&#64;end</span></a> directive (if there is one).</p>
 <p>Recognised property names and their default values are:</p>
 <ul class="simple">
-<li><code class="docutils literal notranslate"><span class="pre">bullet</span></code> - the bullet character(s) to use for list items specified in a
-<a class="reference internal" href="skool-macros.html#list"><span class="std std-ref">#LIST</span></a> macro (default: <code class="docutils literal notranslate"><span class="pre">*</span></code>)</li>
-<li><code class="docutils literal notranslate"><span class="pre">comment-width-min</span></code> - the minimum width of the instruction comment field
-(default: <code class="docutils literal notranslate"><span class="pre">10</span></code>)</li>
-<li><code class="docutils literal notranslate"><span class="pre">crlf</span></code> - <code class="docutils literal notranslate"><span class="pre">1</span></code> to use CR+LF to terminate lines, or <code class="docutils literal notranslate"><span class="pre">0</span></code> to use the system
-default (default: <code class="docutils literal notranslate"><span class="pre">0</span></code>)</li>
-<li><code class="docutils literal notranslate"><span class="pre">handle-unsupported-macros</span></code> - how to handle an unsupported macro: <code class="docutils literal notranslate"><span class="pre">1</span></code> to
-expand it to an empty string, or <code class="docutils literal notranslate"><span class="pre">0</span></code> to exit with an error (default: <code class="docutils literal notranslate"><span class="pre">0</span></code>)</li>
-<li><code class="docutils literal notranslate"><span class="pre">indent</span></code> - the number of spaces by which to indent instructions (default:
-<code class="docutils literal notranslate"><span class="pre">2</span></code>)</li>
-<li><code class="docutils literal notranslate"><span class="pre">instruction-width</span></code> - the width of the instruction field (default: <code class="docutils literal notranslate"><span class="pre">23</span></code>)</li>
-<li><code class="docutils literal notranslate"><span class="pre">label-colons</span></code> - <code class="docutils literal notranslate"><span class="pre">1</span></code> to append a colon to labels, or <code class="docutils literal notranslate"><span class="pre">0</span></code> to leave
-labels unadorned (default: <code class="docutils literal notranslate"><span class="pre">1</span></code>)</li>
-<li><code class="docutils literal notranslate"><span class="pre">line-width</span></code> - the maximum width of each line (default: <code class="docutils literal notranslate"><span class="pre">79</span></code>)</li>
-<li><code class="docutils literal notranslate"><span class="pre">tab</span></code> - <code class="docutils literal notranslate"><span class="pre">1</span></code> to use a tab character to indent instructions, or <code class="docutils literal notranslate"><span class="pre">0</span></code> to
-use spaces (default: <code class="docutils literal notranslate"><span class="pre">0</span></code>)</li>
-<li><code class="docutils literal notranslate"><span class="pre">table-border-horizontal</span></code> - the character to use for the horizontal borders
+<li><p><code class="docutils literal notranslate"><span class="pre">bullet</span></code> - the bullet character(s) to use for list items specified in a
+<a class="reference internal" href="skool-macros.html#list"><span class="std std-ref">#LIST</span></a> macro (default: <code class="docutils literal notranslate"><span class="pre">*</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">comment-width-min</span></code> - the minimum width of the instruction comment field
+(default: <code class="docutils literal notranslate"><span class="pre">10</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">crlf</span></code> - <code class="docutils literal notranslate"><span class="pre">1</span></code> to use CR+LF to terminate lines, or <code class="docutils literal notranslate"><span class="pre">0</span></code> to use the system
+default (default: <code class="docutils literal notranslate"><span class="pre">0</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">handle-unsupported-macros</span></code> - how to handle an unsupported macro: <code class="docutils literal notranslate"><span class="pre">1</span></code> to
+expand it to an empty string, or <code class="docutils literal notranslate"><span class="pre">0</span></code> to exit with an error (default: <code class="docutils literal notranslate"><span class="pre">0</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">indent</span></code> - the number of spaces by which to indent instructions (default:
+<code class="docutils literal notranslate"><span class="pre">2</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">instruction-width</span></code> - the width of the instruction field (default: <code class="docutils literal notranslate"><span class="pre">23</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">label-colons</span></code> - <code class="docutils literal notranslate"><span class="pre">1</span></code> to append a colon to labels, or <code class="docutils literal notranslate"><span class="pre">0</span></code> to leave
+labels unadorned (default: <code class="docutils literal notranslate"><span class="pre">1</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">line-width</span></code> - the maximum width of each line (default: <code class="docutils literal notranslate"><span class="pre">79</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">tab</span></code> - <code class="docutils literal notranslate"><span class="pre">1</span></code> to use a tab character to indent instructions, or <code class="docutils literal notranslate"><span class="pre">0</span></code> to
+use spaces (default: <code class="docutils literal notranslate"><span class="pre">0</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">table-border-horizontal</span></code> - the character to use for the horizontal borders
 of a table defined by a <a class="reference internal" href="skool-macros.html#table"><span class="std std-ref">#TABLE</span></a> macro (default: <code class="docutils literal notranslate"><span class="pre">-</span></code>); if two
 characters are specified, the first is used for the external borders and the
-second is used for the internal borders</li>
-<li><code class="docutils literal notranslate"><span class="pre">table-border-join</span></code> - the character to use for the horizontal and vertical
-border joins of a table defined by a <a class="reference internal" href="skool-macros.html#table"><span class="std std-ref">#TABLE</span></a> macro (default: <code class="docutils literal notranslate"><span class="pre">+</span></code>)</li>
-<li><code class="docutils literal notranslate"><span class="pre">table-border-vertical</span></code> - the character to use for the vertical borders of
-a table defined by a <a class="reference internal" href="skool-macros.html#table"><span class="std std-ref">#TABLE</span></a> macro (default: <code class="docutils literal notranslate"><span class="pre">|</span></code>)</li>
-<li><code class="docutils literal notranslate"><span class="pre">table-row-separator</span></code> - the character used to separate non-header cells in
+second is used for the internal borders</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">table-border-join</span></code> - the character to use for the horizontal and vertical
+border joins of a table defined by a <a class="reference internal" href="skool-macros.html#table"><span class="std std-ref">#TABLE</span></a> macro (default: <code class="docutils literal notranslate"><span class="pre">+</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">table-border-vertical</span></code> - the character to use for the vertical borders of
+a table defined by a <a class="reference internal" href="skool-macros.html#table"><span class="std std-ref">#TABLE</span></a> macro (default: <code class="docutils literal notranslate"><span class="pre">|</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">table-row-separator</span></code> - the character used to separate non-header cells in
 adjacent rows of a table defined by a <a class="reference internal" href="skool-macros.html#table"><span class="std std-ref">#TABLE</span></a> macro; by default, such
-cells are not separated</li>
-<li><code class="docutils literal notranslate"><span class="pre">warnings</span></code> - <code class="docutils literal notranslate"><span class="pre">1</span></code> to print any warnings that are produced while writing
+cells are not separated</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">warnings</span></code> - <code class="docutils literal notranslate"><span class="pre">1</span></code> to print any warnings that are produced while writing
 ASM output (after parsing the skool file), or <code class="docutils literal notranslate"><span class="pre">0</span></code> to suppress them
-(default: <code class="docutils literal notranslate"><span class="pre">1</span></code>)</li>
-<li><code class="docutils literal notranslate"><span class="pre">wrap-column-width-min</span></code> - the minimum width of a wrappable table column
-(default: <code class="docutils literal notranslate"><span class="pre">10</span></code>)</li>
+(default: <code class="docutils literal notranslate"><span class="pre">1</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">wrap-column-width-min</span></code> - the minimum width of a wrappable table column
+(default: <code class="docutils literal notranslate"><span class="pre">10</span></code>)</p></li>
 </ul>
 <p>For example:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>@set-bullet=+
 </pre></div>
 </div>
 <p>This <code class="docutils literal notranslate"><span class="pre">&#64;set</span></code> directive sets the bullet character to ‘+’.</p>
-<table border="1" class="docutils">
-<colgroup>
-<col width="12%" />
-<col width="88%" />
-</colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">Version</th>
-<th class="head">Changes</th>
+<table class="docutils colwidths-auto align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Version</p></th>
+<th class="head"><p>Changes</p></th>
 </tr>
 </thead>
-<tbody valign="top">
-<tr class="row-even"><td>8.1</td>
-<td>Added the <code class="docutils literal notranslate"><span class="pre">table-row-separator</span></code> property</td>
+<tbody>
+<tr class="row-even"><td><p>8.1</p></td>
+<td><p>Added the <code class="docutils literal notranslate"><span class="pre">table-row-separator</span></code> property</p></td>
 </tr>
-<tr class="row-odd"><td>8.0</td>
-<td>Added the <code class="docutils literal notranslate"><span class="pre">table-border-horizontal</span></code>, <code class="docutils literal notranslate"><span class="pre">table-border-join</span></code>
-and <code class="docutils literal notranslate"><span class="pre">table-border-vertical</span></code> properties</td>
+<tr class="row-odd"><td><p>8.0</p></td>
+<td><p>Added the <code class="docutils literal notranslate"><span class="pre">table-border-horizontal</span></code>, <code class="docutils literal notranslate"><span class="pre">table-border-join</span></code>
+and <code class="docutils literal notranslate"><span class="pre">table-border-vertical</span></code> properties</p></td>
 </tr>
-<tr class="row-even"><td>3.4</td>
-<td>Added the <code class="docutils literal notranslate"><span class="pre">handle-unsupported-macros</span></code> and
-<code class="docutils literal notranslate"><span class="pre">wrap-column-width-min</span></code> properties</td>
+<tr class="row-even"><td><p>3.4</p></td>
+<td><p>Added the <code class="docutils literal notranslate"><span class="pre">handle-unsupported-macros</span></code> and
+<code class="docutils literal notranslate"><span class="pre">wrap-column-width-min</span></code> properties</p></td>
 </tr>
-<tr class="row-odd"><td>3.3.1</td>
-<td>Added the <code class="docutils literal notranslate"><span class="pre">comment-width-min</span></code>, <code class="docutils literal notranslate"><span class="pre">indent</span></code>,
+<tr class="row-odd"><td><p>3.3.1</p></td>
+<td><p>Added the <code class="docutils literal notranslate"><span class="pre">comment-width-min</span></code>, <code class="docutils literal notranslate"><span class="pre">indent</span></code>,
 <code class="docutils literal notranslate"><span class="pre">instruction-width</span></code>, <code class="docutils literal notranslate"><span class="pre">label-colons</span></code>, <code class="docutils literal notranslate"><span class="pre">line-width</span></code> and
-<code class="docutils literal notranslate"><span class="pre">warnings</span></code> properties</td>
+<code class="docutils literal notranslate"><span class="pre">warnings</span></code> properties</p></td>
 </tr>
-<tr class="row-even"><td>3.2</td>
-<td>New</td>
+<tr class="row-even"><td><p>3.2</p></td>
+<td><p>New</p></td>
 </tr>
 </tbody>
 </table>
@@ -1597,28 +1425,24 @@ and <code class="docutils literal notranslate"><span class="pre">table-border-ve
 <p>The <code class="docutils literal notranslate"><span class="pre">&#64;ssub</span></code> directive replaces, inserts or removes a label, instruction and
 comment in <a class="reference internal" href="#ssubmode"><span class="std std-ref">&#64;ssub mode</span></a>.</p>
 <p>The syntax is equivalent to that for the <a class="reference internal" href="#bfix"><span class="std std-ref">&#64;bfix</span></a> directive.</p>
-<table border="1" class="docutils">
-<colgroup>
-<col width="12%" />
-<col width="88%" />
-</colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">Version</th>
-<th class="head">Changes</th>
+<table class="docutils colwidths-auto align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Version</p></th>
+<th class="head"><p>Changes</p></th>
 </tr>
 </thead>
-<tbody valign="top">
-<tr class="row-even"><td>7.1</td>
-<td>Added support for the <code class="docutils literal notranslate"><span class="pre">+</span></code> marker (to insert an instruction
-after the current one)</td>
+<tbody>
+<tr class="row-even"><td><p>7.1</p></td>
+<td><p>Added support for the <code class="docutils literal notranslate"><span class="pre">+</span></code> marker (to insert an instruction
+after the current one)</p></td>
 </tr>
-<tr class="row-odd"><td>7.0</td>
-<td>Added support for specifying the replacement comment over
+<tr class="row-odd"><td><p>7.0</p></td>
+<td><p>Added support for specifying the replacement comment over
 multiple lines, replacing the label, and inserting, overwriting
-and removing instructions</td>
+and removing instructions</p></td>
 </tr>
-<tr class="row-even"><td>6.4</td>
-<td>Added support for replacing the comment</td>
+<tr class="row-even"><td><p>6.4</p></td>
+<td><p>Added support for replacing the comment</p></td>
 </tr>
 </tbody>
 </table>
@@ -1628,19 +1452,15 @@ and removing instructions</td>
 <p>The <code class="docutils literal notranslate"><span class="pre">&#64;ssub</span></code> block directives define a block of lines that will be inserted or
 removed in <a class="reference internal" href="#ssubmode"><span class="std std-ref">&#64;ssub mode</span></a>.</p>
 <p>The syntax is equivalent to that for the <a class="reference internal" href="#bfixblockdirectives"><span class="std std-ref">&#64;bfix block directives</span></a>.</p>
-<table border="1" class="docutils">
-<colgroup>
-<col width="50%" />
-<col width="50%" />
-</colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">Version</th>
-<th class="head">Changes</th>
+<table class="docutils colwidths-auto align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Version</p></th>
+<th class="head"><p>Changes</p></th>
 </tr>
 </thead>
-<tbody valign="top">
-<tr class="row-even"><td>4.4</td>
-<td>New</td>
+<tbody>
+<tr class="row-even"><td><p>4.4</p></td>
+<td><p>New</p></td>
 </tr>
 </tbody>
 </table>
@@ -1670,23 +1490,19 @@ an installed package).</p>
 <p>The default ASM writer class is skoolkit.skoolasm.AsmWriter. For information on
 how to create your own Python class for generating ASM output, see the
 documentation on <a class="reference internal" href="extending.html#extendingskoolkit"><span class="std std-ref">extending SkoolKit</span></a>.</p>
-<table border="1" class="docutils">
-<colgroup>
-<col width="12%" />
-<col width="88%" />
-</colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">Version</th>
-<th class="head">Changes</th>
+<table class="docutils colwidths-auto align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Version</p></th>
+<th class="head"><p>Changes</p></th>
 </tr>
 </thead>
-<tbody valign="top">
-<tr class="row-even"><td>3.3.1</td>
-<td>Added support for specifying a module outside the module search
-path</td>
+<tbody>
+<tr class="row-even"><td><p>3.3.1</p></td>
+<td><p>Added support for specifying a module outside the module search
+path</p></td>
 </tr>
-<tr class="row-odd"><td>3.1</td>
-<td>New</td>
+<tr class="row-odd"><td><p>3.1</p></td>
+<td><p>New</p></td>
 </tr>
 </tbody>
 </table>
@@ -1695,7 +1511,89 @@ path</td>
 </div>
 
 
+            <div class="clearer"></div>
           </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">ASM modes and directives</a><ul>
+<li><a class="reference internal" href="#substitution-modes">Substitution modes</a><ul>
+<li><a class="reference internal" href="#isub-mode">&#64;isub mode</a></li>
+<li><a class="reference internal" href="#ssub-mode">&#64;ssub mode</a></li>
+<li><a class="reference internal" href="#rsub-mode">&#64;rsub mode</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#bugfix-modes">Bugfix modes</a><ul>
+<li><a class="reference internal" href="#ofix-mode">&#64;ofix mode</a></li>
+<li><a class="reference internal" href="#bfix-mode">&#64;bfix mode</a></li>
+<li><a class="reference internal" href="#rfix-mode">&#64;rfix mode</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#asm-directives">ASM directives</a><ul>
+<li><a class="reference internal" href="#assemble">&#64;assemble</a></li>
+<li><a class="reference internal" href="#bfix">&#64;bfix</a></li>
+<li><a class="reference internal" href="#bfix-block-directives">&#64;bfix block directives</a></li>
+<li><a class="reference internal" href="#defb">&#64;defb</a></li>
+<li><a class="reference internal" href="#defs">&#64;defs</a></li>
+<li><a class="reference internal" href="#defw">&#64;defw</a></li>
+<li><a class="reference internal" href="#end">&#64;end</a></li>
+<li><a class="reference internal" href="#equ">&#64;equ</a></li>
+<li><a class="reference internal" href="#expand">&#64;expand</a></li>
+<li><a class="reference internal" href="#if">&#64;if</a></li>
+<li><a class="reference internal" href="#ignoreua">&#64;ignoreua</a></li>
+<li><a class="reference internal" href="#isub">&#64;isub</a></li>
+<li><a class="reference internal" href="#isub-block-directives">&#64;isub block directives</a></li>
+<li><a class="reference internal" href="#keep">&#64;keep</a></li>
+<li><a class="reference internal" href="#label">&#64;label</a></li>
+<li><a class="reference internal" href="#nowarn">&#64;nowarn</a></li>
+<li><a class="reference internal" href="#ofix">&#64;ofix</a></li>
+<li><a class="reference internal" href="#ofix-block-directives">&#64;ofix block directives</a></li>
+<li><a class="reference internal" href="#org">&#64;org</a></li>
+<li><a class="reference internal" href="#refs">&#64;refs</a></li>
+<li><a class="reference internal" href="#rem">&#64;rem</a></li>
+<li><a class="reference internal" href="#remote">&#64;remote</a></li>
+<li><a class="reference internal" href="#replace">&#64;replace</a></li>
+<li><a class="reference internal" href="#rfix">&#64;rfix</a></li>
+<li><a class="reference internal" href="#rfix-block-directives">&#64;rfix block directives</a></li>
+<li><a class="reference internal" href="#rsub">&#64;rsub</a></li>
+<li><a class="reference internal" href="#rsub-block-directives">&#64;rsub block directives</a></li>
+<li><a class="reference internal" href="#set">&#64;set</a></li>
+<li><a class="reference internal" href="#ssub">&#64;ssub</a></li>
+<li><a class="reference internal" href="#ssub-block-directives">&#64;ssub block directives</a></li>
+<li><a class="reference internal" href="#start">&#64;start</a></li>
+<li><a class="reference internal" href="#writer">&#64;writer</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="ref-files.html"
+                        title="previous chapter">Ref files</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="asm-templates.html"
+                        title="next chapter">ASM templates</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/asm.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
         </div>
       </div>
       <div class="clearer"></div>
@@ -1715,12 +1613,13 @@ path</td>
         <li class="right" >
           <a href="ref-files.html" title="Ref files"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.5 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.6 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">ASM modes and directives</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2021, Richard Dymond.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.4.3.
     </div>
   </body>
 </html>

@@ -1,0 +1,13 @@
+/* Left-align tables (instead of centring them) by default */
+table.align-default {
+    margin-left: 0;
+}
+
+/*
+ * Undo styling of <html> element in 'classic' theme, introduced in 2.2.0.
+ * This removes the ugly white background from any area outside the <body>.
+ * See <https://github.com/sphinx-doc/sphinx/issues/1125>.
+ */
+html {
+    background-color: transparent;
+}

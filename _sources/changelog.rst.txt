@@ -1,6 +1,33 @@
 Changelog
 =========
 
+8.6 (2021-11-06)
+----------------
+* Added the :ref:`STR` macro (for retrieving the text string at a given address
+  in the memory snapshot)
+* Added the :ref:`WHILE` macro (for repeatedly expanding macros until a
+  conditional expression becomes false)
+* Added the :ref:`UDGS` macro (as an alternative to the :ref:`UDGARRAY` macro
+  for creating an image of a rectangular array of UDGs)
+* Added support to the :ref:`DEF` macro for using replacement fields to
+  represent the defined macro's argument values, and for stripping leading and
+  trailing whitespace from the defined macro's output
+* Added support to the :ref:`LET` macro for defining dictionary variables
+* Added support to the ``--ram`` option of :ref:`tap2sna.py` for the
+  ``call`` operation (for calling a Python function to perform arbitrary
+  manipulation of the memory snapshot)
+* Added the ``flags`` parameter to the :ref:`CHR` macro (to produce a character
+  in the UTF-8 encoding in HTML mode, and to map character codes 94, 96 and 127
+  to '↑', '£' and '©')
+* Added the ``Expand`` parameter to the :ref:`ref-Config` section (for
+  specifying skool macros to be expanded during HTML writer initialisation)
+* Added support to the :ref:`INCLUDE` macro for combining the contents of
+  multiple ref file sections
+* Added the ``tindex`` and ``alpha`` parameters to the :ref:`COPY` macro (for
+  specifying the transparent colour and its alpha value in the new frame)
+* Fixed the bug where macros inside a :ref:`LIST` or :ref:`TABLE` macro are
+  expanded twice in HTML mode (which makes :ref:`RAW` ineffective)
+
 8.5 (2021-07-03)
 ----------------
 * Dropped support for Python 3.5

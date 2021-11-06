@@ -1264,10 +1264,9 @@ To list the options supported by `tap2sna.py`, run it with no arguments::
     -f, --force           Overwrite an existing snapshot.
     -p STACK, --stack STACK
                           Set the stack pointer.
-    --ram OPERATION       Perform a load, move or poke operation or initialise
-                          the system variables in the memory snapshot being
-                          built. Do '--ram help' for more information. This
-                          option may be used multiple times.
+    --ram OPERATION       Perform a load operation or otherwise modify the
+                          memory snapshot being built. Do '--ram help' for more
+                          information. This option may be used multiple times.
     --reg name=value      Set the value of a register. Do '--reg help' for more
                           information. This option may be used multiple times.
     -s START, --start START
@@ -1294,9 +1293,10 @@ loads the third block on the tape at address 30000, and ignores all other
 blocks. (To see information on the blocks in a TAP or TZX file, use the
 :ref:`tapinfo.py` command.) The ``--ram`` option can also be used to move
 blocks of bytes from one location to another, POKE values into individual
-addresses or address ranges, modify memory with XOR and ADD operations, and
-initialise the system variables before the snapshot is saved. For more
-information on the operations that the ``--ram`` option can perform, run::
+addresses or address ranges, modify memory with XOR and ADD operations,
+initialise the system variables, or call a Python function to modify the memory
+snapshot in an arbitrary way before it is saved. For more information on these
+operations, run::
 
   $ tap2sna.py --ram help
 
@@ -1311,6 +1311,7 @@ the file `game.t2s` has the following contents::
   game.z80
   --ram load=4,32768         # Load the fourth block at 32768
   --ram move=40960,512,43520 # Move 40960-41471 to 43520-44031
+  --ram call=:ram.modify     # Call modify(snapshot) in ./ram.py
   --ram sysvars              # Initialise the system variables
   --state iff=0              # Disable interrupts
   --stack 32768              # Stack at 32768
@@ -1326,6 +1327,8 @@ given on the command line.
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 8.6     | Added support to the ``--ram`` option for the ``call`` operation  |
++---------+-------------------------------------------------------------------+
 | 8.4     | Added support to the ``--ram`` option for the ``sysvars``         |
 |         | operation                                                         |
 +---------+-------------------------------------------------------------------+

@@ -1,19 +1,18 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Ref files &#8212; SkoolKit 8.5 documentation</title>
-    <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ref files &#8212; SkoolKit 8.6 documentation</title>
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-    <script type="text/javascript" src="_static/jquery.js"></script>
-    <script type="text/javascript" src="_static/underscore.js"></script>
-    <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="_static/language_data.js"></script>
+    <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="_static/custom.css" />
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="ASM modes and directives" href="asm.html" />
@@ -34,65 +33,10 @@
         <li class="right" >
           <a href="skool-macros.html" title="Skool macros"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.5 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.6 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Ref files</a></li> 
       </ul>
-    </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper">
-  <h3><a href="index.html">Table of Contents</a></h3>
-  <ul>
-<li><a class="reference internal" href="#">Ref files</a><ul>
-<li><a class="reference internal" href="#colours">[Colours]</a></li>
-<li><a class="reference internal" href="#config">[Config]</a></li>
-<li><a class="reference internal" href="#entrygroups">[EntryGroups]</a></li>
-<li><a class="reference internal" href="#game">[Game]</a></li>
-<li><a class="reference internal" href="#imagewriter">[ImageWriter]</a></li>
-<li><a class="reference internal" href="#index">[Index]</a></li>
-<li><a class="reference internal" href="#indexgroup">[Index:*:*]</a></li>
-<li><a class="reference internal" href="#links">[Links]</a></li>
-<li><a class="reference internal" href="#memorymap">[MemoryMap:*]</a></li>
-<li><a class="reference internal" href="#othercode">[OtherCode:*]</a></li>
-<li><a class="reference internal" href="#page">[Page:*]</a></li>
-<li><a class="reference internal" href="#pageheaders">[PageHeaders]</a></li>
-<li><a class="reference internal" href="#paths">[Paths]</a></li>
-<li><a class="reference internal" href="#resources">[Resources]</a></li>
-<li><a class="reference internal" href="#template">[Template:*]</a></li>
-<li><a class="reference internal" href="#titles">[Titles]</a></li>
-<li><a class="reference internal" href="#box-pages">Box pages</a></li>
-<li><a class="reference internal" href="#appending-content">Appending content</a></li>
-<li><a class="reference internal" href="#ref-file-comments">Ref file comments</a></li>
-<li><a class="reference internal" href="#square-brackets">Square brackets</a></li>
-</ul>
-</li>
-</ul>
-
-  <h4>Previous topic</h4>
-  <p class="topless"><a href="skool-macros.html"
-                        title="previous chapter">Skool macros</a></p>
-  <h4>Next topic</h4>
-  <p class="topless"><a href="asm.html"
-                        title="next chapter">ASM modes and directives</a></p>
-  <div role="note" aria-label="source link">
-    <h3>This Page</h3>
-    <ul class="this-page-menu">
-      <li><a href="_sources/ref-files.rst.txt"
-            rel="nofollow">Show Source</a></li>
-    </ul>
-   </div>
-<div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
-    <div class="searchformwrapper">
-    <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
-    </form>
-    </div>
-</div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
-        </div>
-      </div>
+    </div>  
 
     <div class="document">
       <div class="documentwrapper">
@@ -104,18 +48,18 @@
 <p>If you want to configure or augment an HTML disassembly, you will need one or
 more ref files. A ref file can be used to (for example):</p>
 <ul class="simple">
-<li>add a ‘Bugs’ page on which bugs are documented</li>
-<li>add a ‘Trivia’ page on which interesting facts are documented</li>
-<li>add a ‘Pokes’ page on which useful POKEs are listed</li>
-<li>add a ‘Changelog’ page</li>
-<li>add a ‘Glossary’ page</li>
-<li>add a ‘Graphic glitches’ page</li>
-<li>add any other kind of custom page</li>
-<li>change the title of the disassembly</li>
-<li>define the layout of the disassembly index page</li>
-<li>define the link text and titles for the various pages in the disassembly</li>
-<li>define the location of the files and directories in the disassembly</li>
-<li>define the colours used when creating images</li>
+<li><p>add a ‘Bugs’ page on which bugs are documented</p></li>
+<li><p>add a ‘Trivia’ page on which interesting facts are documented</p></li>
+<li><p>add a ‘Pokes’ page on which useful POKEs are listed</p></li>
+<li><p>add a ‘Changelog’ page</p></li>
+<li><p>add a ‘Glossary’ page</p></li>
+<li><p>add a ‘Graphic glitches’ page</p></li>
+<li><p>add any other kind of custom page</p></li>
+<li><p>change the title of the disassembly</p></li>
+<li><p>define the layout of the disassembly index page</p></li>
+<li><p>define the link text and titles for the various pages in the disassembly</p></li>
+<li><p>define the location of the files and directories in the disassembly</p></li>
+<li><p>define the colours used when creating images</p></li>
 </ul>
 <p>A ref file must be formatted into sections separated by section names inside
 square brackets, like this:</p>
@@ -137,46 +81,42 @@ creating images. Each line has the form:</p>
 </div>
 <p>where:</p>
 <ul class="simple">
-<li><code class="docutils literal notranslate"><span class="pre">name</span></code> is the colour name</li>
-<li><code class="docutils literal notranslate"><span class="pre">R,G,B</span></code> is a decimal RGB triplet</li>
-<li><code class="docutils literal notranslate"><span class="pre">#RGB</span></code> is a hexadecimal RGB triplet (in the usual 6-digit form, or in the
-short 3-digit form)</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">name</span></code> is the colour name</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">R,G,B</span></code> is a decimal RGB triplet</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">#RGB</span></code> is a hexadecimal RGB triplet (in the usual 6-digit form, or in the
+short 3-digit form)</p></li>
 </ul>
 <p>Recognised colour names and their default RGB values are:</p>
 <ul class="simple">
-<li><code class="docutils literal notranslate"><span class="pre">TRANSPARENT</span></code>: 0,254,0 (#00fe00)</li>
-<li><code class="docutils literal notranslate"><span class="pre">BLACK</span></code>: 0,0,0 (#000000)</li>
-<li><code class="docutils literal notranslate"><span class="pre">BLUE</span></code>: 0,0,197 (#0000c5)</li>
-<li><code class="docutils literal notranslate"><span class="pre">RED</span></code>: 197,0,0 (#c50000)</li>
-<li><code class="docutils literal notranslate"><span class="pre">MAGENTA</span></code>: 197,0,197 (#c500c5)</li>
-<li><code class="docutils literal notranslate"><span class="pre">GREEN</span></code>: 0,198,0 (#00c600)</li>
-<li><code class="docutils literal notranslate"><span class="pre">CYAN</span></code>: 0,198,197 (#00c6c5)</li>
-<li><code class="docutils literal notranslate"><span class="pre">YELLOW</span></code>: 197,198,0 (#c5c600)</li>
-<li><code class="docutils literal notranslate"><span class="pre">WHITE</span></code>: 205,198,205 (#cdc6cd)</li>
-<li><code class="docutils literal notranslate"><span class="pre">BRIGHT_BLUE</span></code>: 0,0,255 (#0000ff)</li>
-<li><code class="docutils literal notranslate"><span class="pre">BRIGHT_RED</span></code>: 255,0,0 (#ff0000)</li>
-<li><code class="docutils literal notranslate"><span class="pre">BRIGHT_MAGENTA</span></code>: 255,0,255 (#ff00ff)</li>
-<li><code class="docutils literal notranslate"><span class="pre">BRIGHT_GREEN</span></code>: 0,255,0 (#00ff00)</li>
-<li><code class="docutils literal notranslate"><span class="pre">BRIGHT_CYAN</span></code>: 0,255,255 (#00ffff)</li>
-<li><code class="docutils literal notranslate"><span class="pre">BRIGHT_YELLOW</span></code>: 255,255,0 (#ffff00)</li>
-<li><code class="docutils literal notranslate"><span class="pre">BRIGHT_WHITE</span></code>: 255,255,255 (#ffffff)</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">TRANSPARENT</span></code>: 0,254,0 (#00fe00)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">BLACK</span></code>: 0,0,0 (#000000)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">BLUE</span></code>: 0,0,197 (#0000c5)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">RED</span></code>: 197,0,0 (#c50000)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">MAGENTA</span></code>: 197,0,197 (#c500c5)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">GREEN</span></code>: 0,198,0 (#00c600)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">CYAN</span></code>: 0,198,197 (#00c6c5)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">YELLOW</span></code>: 197,198,0 (#c5c600)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">WHITE</span></code>: 205,198,205 (#cdc6cd)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">BRIGHT_BLUE</span></code>: 0,0,255 (#0000ff)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">BRIGHT_RED</span></code>: 255,0,0 (#ff0000)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">BRIGHT_MAGENTA</span></code>: 255,0,255 (#ff00ff)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">BRIGHT_GREEN</span></code>: 0,255,0 (#00ff00)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">BRIGHT_CYAN</span></code>: 0,255,255 (#00ffff)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">BRIGHT_YELLOW</span></code>: 255,255,0 (#ffff00)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">BRIGHT_WHITE</span></code>: 255,255,255 (#ffffff)</p></li>
 </ul>
-<table border="1" class="docutils">
-<colgroup>
-<col width="17%" />
-<col width="83%" />
-</colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">Version</th>
-<th class="head">Changes</th>
+<table class="docutils colwidths-auto align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Version</p></th>
+<th class="head"><p>Changes</p></th>
 </tr>
 </thead>
-<tbody valign="top">
-<tr class="row-even"><td>3.4</td>
-<td>Added support for hexadecimal RGB triplets</td>
+<tbody>
+<tr class="row-even"><td><p>3.4</p></td>
+<td><p>Added support for hexadecimal RGB triplets</p></td>
 </tr>
-<tr class="row-odd"><td>2.0.5</td>
-<td>New</td>
+<tr class="row-odd"><td><p>2.0.5</p></td>
+<td><p>New</p></td>
 </tr>
 </tbody>
 </table>
@@ -189,21 +129,26 @@ short 3-digit form)</li>
 </div>
 <p>Recognised parameters are:</p>
 <ul class="simple">
-<li><code class="docutils literal notranslate"><span class="pre">GameDir</span></code> - the root directory of the game’s HTML disassembly; if not
+<li><p><code class="docutils literal notranslate"><span class="pre">Expand</span></code> - arbitrary text (intended to consist of one or more
+<a class="reference internal" href="skool-macros.html#smplmacros"><span class="std std-ref">SMPL macros</span></a>) that is expanded before any skool macros are expanded
+elsewhere in the ref file or in skool file annotations; this is similar to
+the <a class="reference internal" href="asm.html#expand"><span class="std std-ref">&#64;expand</span></a> directive, but can be used to expand macros that are
+required only in HTML mode</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">GameDir</span></code> - the root directory of the game’s HTML disassembly; if not
 specified, the base name of the skool file given on the <a class="reference internal" href="commands.html#skool2html-py"><span class="std std-ref">skool2html.py</span></a>
-command line will be used</li>
-<li><code class="docutils literal notranslate"><span class="pre">HtmlWriterClass</span></code> - the name of the Python class to use for writing the
+command line will be used</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">HtmlWriterClass</span></code> - the name of the Python class to use for writing the
 HTML disassembly of the game (default: <code class="docutils literal notranslate"><span class="pre">skoolkit.skoolhtml.HtmlWriter</span></code>); if
 the class is in a module that is not in the module search path (e.g. a
 standalone module that is not part of an installed package), the module’s
-location may be specified thus: <code class="docutils literal notranslate"><span class="pre">/path/to/moduledir:module.classname</span></code></li>
-<li><code class="docutils literal notranslate"><span class="pre">InitModule</span></code> - the name of a Python module to import before the HTML writer
+location may be specified thus: <code class="docutils literal notranslate"><span class="pre">/path/to/moduledir:module.classname</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">InitModule</span></code> - the name of a Python module to import before the HTML writer
 class is imported; the module’s location may be specified in the same way as
-for <code class="docutils literal notranslate"><span class="pre">HtmlWriterClass</span></code> (see above)</li>
-<li><code class="docutils literal notranslate"><span class="pre">RefFiles</span></code> - a semicolon-separated list of extra ref files to use (after
+for <code class="docutils literal notranslate"><span class="pre">HtmlWriterClass</span></code> (see above)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">RefFiles</span></code> - a semicolon-separated list of extra ref files to use (after
 any that are automatically read by virtue of having the same filename prefix
 as the skool file, and before any others named on the <a class="reference internal" href="commands.html#skool2html-py"><span class="std std-ref">skool2html.py</span></a>
-command line)</li>
+command line)</p></li>
 </ul>
 <p>For information on how to create your own Python class for writing an HTML
 disassembly, see the documentation on
@@ -212,32 +157,31 @@ disassembly, see the documentation on
 automatically by <a class="reference internal" href="commands.html#skool2html-py"><span class="std std-ref">skool2html.py</span></a> by virtue of having the same filename
 root as the skool file given on the command line (i.e. <cite>game*.ref</cite> if the skool
 file is <cite>game.skool</cite>).</p>
-<table border="1" class="docutils">
-<colgroup>
-<col width="12%" />
-<col width="88%" />
-</colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">Version</th>
-<th class="head">Changes</th>
+<table class="docutils colwidths-auto align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Version</p></th>
+<th class="head"><p>Changes</p></th>
 </tr>
 </thead>
-<tbody valign="top">
-<tr class="row-even"><td>8.5</td>
-<td>Added the <code class="docutils literal notranslate"><span class="pre">InitModule</span></code> parameter</td>
+<tbody>
+<tr class="row-even"><td><p>8.6</p></td>
+<td><p>Added the <code class="docutils literal notranslate"><span class="pre">Expand</span></code> parameter</p></td>
 </tr>
-<tr class="row-odd"><td>5.0</td>
-<td>Added the <code class="docutils literal notranslate"><span class="pre">RefFiles</span></code> parameter</td>
+<tr class="row-odd"><td><p>8.5</p></td>
+<td><p>Added the <code class="docutils literal notranslate"><span class="pre">InitModule</span></code> parameter</p></td>
 </tr>
-<tr class="row-even"><td>3.3.1</td>
-<td>Added support to the <code class="docutils literal notranslate"><span class="pre">HtmlWriterClass</span></code> parameter for specifying
-a module outside the module search path</td>
+<tr class="row-even"><td><p>5.0</p></td>
+<td><p>Added the <code class="docutils literal notranslate"><span class="pre">RefFiles</span></code> parameter</p></td>
 </tr>
-<tr class="row-odd"><td>2.2.3</td>
-<td>Added the <code class="docutils literal notranslate"><span class="pre">HtmlWriterClass</span></code> parameter</td>
+<tr class="row-odd"><td><p>3.3.1</p></td>
+<td><p>Added support to the <code class="docutils literal notranslate"><span class="pre">HtmlWriterClass</span></code> parameter for specifying
+a module outside the module search path</p></td>
 </tr>
-<tr class="row-even"><td>2.0</td>
-<td>New</td>
+<tr class="row-even"><td><p>2.2.3</p></td>
+<td><p>Added the <code class="docutils literal notranslate"><span class="pre">HtmlWriterClass</span></code> parameter</p></td>
+</tr>
+<tr class="row-odd"><td><p>2.0</p></td>
+<td><p>New</p></td>
 </tr>
 </tbody>
 </table>
@@ -253,9 +197,9 @@ has the form:</p>
 </div>
 <p>where:</p>
 <ul class="simple">
-<li><code class="docutils literal notranslate"><span class="pre">name</span></code> is the entry group name</li>
-<li><code class="docutils literal notranslate"><span class="pre">ADDR1</span></code>, <code class="docutils literal notranslate"><span class="pre">ADDR2</span></code> etc. are address specifications that identify the
-entries in the group</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">name</span></code> is the entry group name</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ADDR1</span></code>, <code class="docutils literal notranslate"><span class="pre">ADDR2</span></code> etc. are address specifications that identify the
+entries in the group</p></li>
 </ul>
 <p>An address specification can be either a single address (e.g. <code class="docutils literal notranslate"><span class="pre">30000</span></code>), or an
 address range (e.g. <code class="docutils literal notranslate"><span class="pre">30000-30010</span></code>).</p>
@@ -282,22 +226,18 @@ Includes=SpriteVariables
 </div>
 <p>This defines a memory map page named ‘SpriteVariables’ consisting of only the
 entries that belong to the group of the same name.</p>
-<table border="1" class="docutils">
-<colgroup>
-<col width="14%" />
-<col width="86%" />
-</colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">Version</th>
-<th class="head">Changes</th>
+<table class="docutils colwidths-auto align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Version</p></th>
+<th class="head"><p>Changes</p></th>
 </tr>
 </thead>
-<tbody valign="top">
-<tr class="row-even"><td>8.5</td>
-<td>Added support for identifying entries by address ranges</td>
+<tbody>
+<tr class="row-even"><td><p>8.5</p></td>
+<td><p>Added support for identifying entries by address ranges</p></td>
 </tr>
-<tr class="row-odd"><td>8.4</td>
-<td>New</td>
+<tr class="row-odd"><td><p>8.4</p></td>
+<td><p>New</p></td>
 </tr>
 </tbody>
 </table>
@@ -311,64 +251,64 @@ aspects of the HTML output. The parameters are in the format:</p>
 </div>
 <p>Recognised parameters are:</p>
 <ul class="simple">
-<li><code class="docutils literal notranslate"><span class="pre">Address</span></code> - the format of the address fields on disassembly pages and
+<li><p><code class="docutils literal notranslate"><span class="pre">Address</span></code> - the format of the address fields on disassembly pages and
 memory map pages, and of the default link text for the <a class="reference internal" href="skool-macros.html#r"><span class="std std-ref">#R</span></a> macro when
 the target address has no label (default: ‘’); this format string recognises
 the replacement field <code class="docutils literal notranslate"><span class="pre">address</span></code>; if the format string is blank, the address
 is formatted exactly as it appears in the skool file (without any <code class="docutils literal notranslate"><span class="pre">$</span></code>
-prefix)</li>
-<li><code class="docutils literal notranslate"><span class="pre">AddressAnchor</span></code> - the format of the anchors attached to instructions on
-disassembly pages and entries on memory map pages (default: <code class="docutils literal notranslate"><span class="pre">{address}</span></code>)</li>
-<li><code class="docutils literal notranslate"><span class="pre">AsmSinglePage</span></code> - <code class="docutils literal notranslate"><span class="pre">1</span></code> to write the disassembly on a single page, or <code class="docutils literal notranslate"><span class="pre">0</span></code>
-to write a separate page for each routine and data block (default: <code class="docutils literal notranslate"><span class="pre">0</span></code>)</li>
-<li><code class="docutils literal notranslate"><span class="pre">Bytes</span></code> - the format specification for the <code class="docutils literal notranslate"><span class="pre">bytes</span></code> attribute of
+prefix)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">AddressAnchor</span></code> - the format of the anchors attached to instructions on
+disassembly pages and entries on memory map pages (default: <code class="docutils literal notranslate"><span class="pre">{address}</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">AsmSinglePage</span></code> - <code class="docutils literal notranslate"><span class="pre">1</span></code> to write the disassembly on a single page, or <code class="docutils literal notranslate"><span class="pre">0</span></code>
+to write a separate page for each routine and data block (default: <code class="docutils literal notranslate"><span class="pre">0</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Bytes</span></code> - the format specification for the <code class="docutils literal notranslate"><span class="pre">bytes</span></code> attribute of
 instruction objects in the <a class="reference internal" href="html-templates.html#t-asm"><span class="std std-ref">asm</span></a> and <a class="reference internal" href="html-templates.html#t-asm-single-page"><span class="std std-ref">asm_single_page</span></a>
 templates
 (default: ‘’); if not blank, assembled instruction byte values are displayed
-on disassembly pages</li>
-<li><code class="docutils literal notranslate"><span class="pre">Copyright</span></code> - the copyright message that appears in the footer of every
-page (default: ‘’)</li>
-<li><code class="docutils literal notranslate"><span class="pre">Created</span></code> - the message indicating the software used to create the
+on disassembly pages</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Copyright</span></code> - the copyright message that appears in the footer of every
+page (default: ‘’)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Created</span></code> - the message indicating the software used to create the
 disassembly that appears in the footer of every page (default: ‘Created using
-SkoolKit #VERSION.’)</li>
-<li><code class="docutils literal notranslate"><span class="pre">DisassemblyTableNumCols</span></code> - the number of columns in the disassembly table
+SkoolKit #VERSION.’)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">DisassemblyTableNumCols</span></code> - the number of columns in the disassembly table
 on disassembly pages (default: 5); this value is used by the <a class="reference internal" href="html-templates.html#t-asm"><span class="std std-ref">asm</span></a> and
-<a class="reference internal" href="html-templates.html#t-asm-single-page"><span class="std std-ref">asm_single_page</span></a> templates</li>
-<li><code class="docutils literal notranslate"><span class="pre">Font</span></code> - the base name of the font file to use (default: None); multiple
-font files can be declared by separating their names with semicolons</li>
-<li><code class="docutils literal notranslate"><span class="pre">Game</span></code> - the name of the game, which appears in the title of every page,
+<a class="reference internal" href="html-templates.html#t-asm-single-page"><span class="std std-ref">asm_single_page</span></a> templates</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Font</span></code> - the base name of the font file to use (default: None); multiple
+font files can be declared by separating their names with semicolons</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Game</span></code> - the name of the game, which appears in the title of every page,
 and also in the header of every page (if no logo is defined); if not
-specified, the base name of the skool file is used</li>
-<li><code class="docutils literal notranslate"><span class="pre">InputRegisterTableHeader</span></code> - the text displayed in the header of input
-register tables on routine disassembly pages (default: ‘Input’)</li>
-<li><code class="docutils literal notranslate"><span class="pre">JavaScript</span></code> - the base name of the JavaScript file to include in every
+specified, the base name of the skool file is used</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">InputRegisterTableHeader</span></code> - the text displayed in the header of input
+register tables on routine disassembly pages (default: ‘Input’)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">JavaScript</span></code> - the base name of the JavaScript file to include in every
 page (default: None); multiple JavaScript files can be declared by separating
-their names with semicolons</li>
-<li><code class="docutils literal notranslate"><span class="pre">Length</span></code> - the format of the <code class="docutils literal notranslate"><span class="pre">length</span></code> attribute of entry objects in
+their names with semicolons</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Length</span></code> - the format of the <code class="docutils literal notranslate"><span class="pre">length</span></code> attribute of entry objects in
 <a class="reference internal" href="html-templates.html#htmltemplates"><span class="std std-ref">HTML templates</span></a>, which is used in the Length column on
 <a class="reference internal" href="#memorymap"><span class="std std-ref">memory map pages</span></a> (default: <code class="docutils literal notranslate"><span class="pre">{size}</span></code>); this format string
 recognises the replacement field <code class="docutils literal notranslate"><span class="pre">size</span></code>, equal to the size of the entry in
-bytes</li>
-<li><code class="docutils literal notranslate"><span class="pre">LinkInternalOperands</span></code> - <code class="docutils literal notranslate"><span class="pre">1</span></code> to hyperlink instruction operands that refer
+bytes</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">LinkInternalOperands</span></code> - <code class="docutils literal notranslate"><span class="pre">1</span></code> to hyperlink instruction operands that refer
 to an address in the same entry as the instruction, or <code class="docutils literal notranslate"><span class="pre">0</span></code> to leave them
-unlinked (default: <code class="docutils literal notranslate"><span class="pre">0</span></code>)</li>
-<li><code class="docutils literal notranslate"><span class="pre">LinkOperands</span></code> - a comma-separated list of instruction types whose operands
+unlinked (default: <code class="docutils literal notranslate"><span class="pre">0</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">LinkOperands</span></code> - a comma-separated list of instruction types whose operands
 will be hyperlinked when possible (default: <code class="docutils literal notranslate"><span class="pre">CALL,DEFW,DJNZ,JP,JR</span></code>); add
 <code class="docutils literal notranslate"><span class="pre">LD</span></code> to the list to enable the address operands of LD instructions to be
-hyperlinked as well</li>
-<li><code class="docutils literal notranslate"><span class="pre">Logo</span></code> - the text/HTML that will serve as the game logo in the header of
+hyperlinked as well</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Logo</span></code> - the text/HTML that will serve as the game logo in the header of
 every page (typically a skool macro that creates a suitable image); if not
-specified, <code class="docutils literal notranslate"><span class="pre">LogoImage</span></code> is used</li>
-<li><code class="docutils literal notranslate"><span class="pre">LogoImage</span></code> - the path to the game logo image, which appears in the header
+specified, <code class="docutils literal notranslate"><span class="pre">LogoImage</span></code> is used</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">LogoImage</span></code> - the path to the game logo image, which appears in the header
 of every page; if the specified file does not exist, the name of the game is
-used in place of an image</li>
-<li><code class="docutils literal notranslate"><span class="pre">OutputRegisterTableHeader</span></code> - the text displayed in the header of output
-register tables on routine disassembly pages (default: ‘Output’)</li>
-<li><code class="docutils literal notranslate"><span class="pre">Release</span></code> - the message indicating the release name and version number of
-the disassembly that appears in the footer of every page (default: ‘’)</li>
-<li><code class="docutils literal notranslate"><span class="pre">StyleSheet</span></code> - the base name of the CSS file to use (default:
+used in place of an image</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">OutputRegisterTableHeader</span></code> - the text displayed in the header of output
+register tables on routine disassembly pages (default: ‘Output’)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Release</span></code> - the message indicating the release name and version number of
+the disassembly that appears in the footer of every page (default: ‘’)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">StyleSheet</span></code> - the base name of the CSS file to use (default:
 <cite>skoolkit.css</cite>); multiple CSS files can be declared by separating their names
-with semicolons</li>
+with semicolons</p></li>
 </ul>
 <p>Every parameter in this section may contain <a class="reference internal" href="skool-macros.html#skoolmacros"><span class="std std-ref">skool macros</span></a>.</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">AddressAnchor</span></code> parameter contains a standard Python format string that
@@ -380,59 +320,55 @@ pages and entries on memory map pages. The default format string is
 hexadecimal addresses if the <code class="docutils literal notranslate"><span class="pre">--hex</span></code> option is used with
 <a class="reference internal" href="commands.html#skool2html-py"><span class="std std-ref">skool2html.py</span></a>, and decimal addresses otherwise:
 <code class="docutils literal notranslate"><span class="pre">{address#IF({mode[base]}==16)(:04X)}</span></code>.</p>
-<table border="1" class="docutils">
-<colgroup>
-<col width="12%" />
-<col width="88%" />
-</colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">Version</th>
-<th class="head">Changes</th>
+<table class="docutils colwidths-auto align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Version</p></th>
+<th class="head"><p>Changes</p></th>
 </tr>
 </thead>
-<tbody valign="top">
-<tr class="row-even"><td>8.4</td>
-<td>Added the <code class="docutils literal notranslate"><span class="pre">Address</span></code> and <code class="docutils literal notranslate"><span class="pre">Length</span></code> parameters</td>
+<tbody>
+<tr class="row-even"><td><p>8.4</p></td>
+<td><p>Added the <code class="docutils literal notranslate"><span class="pre">Address</span></code> and <code class="docutils literal notranslate"><span class="pre">Length</span></code> parameters</p></td>
 </tr>
-<tr class="row-odd"><td>8.0</td>
-<td>Added the <code class="docutils literal notranslate"><span class="pre">AsmSinglePage</span></code> parameter</td>
+<tr class="row-odd"><td><p>8.0</p></td>
+<td><p>Added the <code class="docutils literal notranslate"><span class="pre">AsmSinglePage</span></code> parameter</p></td>
 </tr>
-<tr class="row-even"><td>7.2</td>
-<td>Added the <code class="docutils literal notranslate"><span class="pre">Bytes</span></code> and <code class="docutils literal notranslate"><span class="pre">DisassemblyTableNumCols</span></code> parameters</td>
+<tr class="row-even"><td><p>7.2</p></td>
+<td><p>Added the <code class="docutils literal notranslate"><span class="pre">Bytes</span></code> and <code class="docutils literal notranslate"><span class="pre">DisassemblyTableNumCols</span></code> parameters</p></td>
 </tr>
-<tr class="row-odd"><td>6.0</td>
-<td>Every parameter (not just <code class="docutils literal notranslate"><span class="pre">Logo</span></code>) may contain
-<a class="reference internal" href="skool-macros.html#skoolmacros"><span class="std std-ref">skool macros</span></a></td>
+<tr class="row-odd"><td><p>6.0</p></td>
+<td><p>Every parameter (not just <code class="docutils literal notranslate"><span class="pre">Logo</span></code>) may contain
+<a class="reference internal" href="skool-macros.html#skoolmacros"><span class="std std-ref">skool macros</span></a></p></td>
 </tr>
-<tr class="row-even"><td>4.3</td>
-<td>Added the <code class="docutils literal notranslate"><span class="pre">AddressAnchor</span></code> parameter</td>
+<tr class="row-even"><td><p>4.3</p></td>
+<td><p>Added the <code class="docutils literal notranslate"><span class="pre">AddressAnchor</span></code> parameter</p></td>
 </tr>
-<tr class="row-odd"><td>4.1</td>
-<td>Added the <code class="docutils literal notranslate"><span class="pre">LinkInternalOperands</span></code> parameter</td>
+<tr class="row-odd"><td><p>4.1</p></td>
+<td><p>Added the <code class="docutils literal notranslate"><span class="pre">LinkInternalOperands</span></code> parameter</p></td>
 </tr>
-<tr class="row-even"><td>4.0</td>
-<td>Set default values for the <code class="docutils literal notranslate"><span class="pre">InputRegisterTableHeader</span></code> and
+<tr class="row-even"><td><p>4.0</p></td>
+<td><p>Set default values for the <code class="docutils literal notranslate"><span class="pre">InputRegisterTableHeader</span></code> and
 <code class="docutils literal notranslate"><span class="pre">OutputRegisterTableHeader</span></code> parameters; added the
 <code class="docutils literal notranslate"><span class="pre">Copyright</span></code>, <code class="docutils literal notranslate"><span class="pre">Created</span></code> and <code class="docutils literal notranslate"><span class="pre">Release</span></code> parameters (which used
-to live in the <code class="docutils literal notranslate"><span class="pre">[Info]</span></code> section in SkoolKit 3)</td>
+to live in the <code class="docutils literal notranslate"><span class="pre">[Info]</span></code> section in SkoolKit 3)</p></td>
 </tr>
-<tr class="row-odd"><td>3.7</td>
-<td>Added the <code class="docutils literal notranslate"><span class="pre">JavaScript</span></code> parameter</td>
+<tr class="row-odd"><td><p>3.7</p></td>
+<td><p>Added the <code class="docutils literal notranslate"><span class="pre">JavaScript</span></code> parameter</p></td>
 </tr>
-<tr class="row-even"><td>3.5</td>
-<td>Added the <code class="docutils literal notranslate"><span class="pre">Font</span></code>, <code class="docutils literal notranslate"><span class="pre">LogoImage</span></code> and <code class="docutils literal notranslate"><span class="pre">StyleSheet</span></code> parameters
+<tr class="row-even"><td><p>3.5</p></td>
+<td><p>Added the <code class="docutils literal notranslate"><span class="pre">Font</span></code>, <code class="docutils literal notranslate"><span class="pre">LogoImage</span></code> and <code class="docutils literal notranslate"><span class="pre">StyleSheet</span></code> parameters
 (all of which used to live in the <a class="reference internal" href="#paths"><span class="std std-ref">[Paths]</span></a> section,
-<code class="docutils literal notranslate"><span class="pre">LogoImage</span></code> by the name <code class="docutils literal notranslate"><span class="pre">Logo</span></code>)</td>
+<code class="docutils literal notranslate"><span class="pre">LogoImage</span></code> by the name <code class="docutils literal notranslate"><span class="pre">Logo</span></code>)</p></td>
 </tr>
-<tr class="row-odd"><td>3.4</td>
-<td>Added the <code class="docutils literal notranslate"><span class="pre">LinkOperands</span></code> parameter</td>
+<tr class="row-odd"><td><p>3.4</p></td>
+<td><p>Added the <code class="docutils literal notranslate"><span class="pre">LinkOperands</span></code> parameter</p></td>
 </tr>
-<tr class="row-even"><td>3.1.2</td>
-<td>Added the <code class="docutils literal notranslate"><span class="pre">InputRegisterTableHeader</span></code> and
-<code class="docutils literal notranslate"><span class="pre">OutputRegisterTableHeader</span></code> parameters</td>
+<tr class="row-even"><td><p>3.1.2</p></td>
+<td><p>Added the <code class="docutils literal notranslate"><span class="pre">InputRegisterTableHeader</span></code> and
+<code class="docutils literal notranslate"><span class="pre">OutputRegisterTableHeader</span></code> parameters</p></td>
 </tr>
-<tr class="row-odd"><td>2.0.5</td>
-<td>Added the <code class="docutils literal notranslate"><span class="pre">Logo</span></code> parameter</td>
+<tr class="row-odd"><td><p>2.0.5</p></td>
+<td><p>Added the <code class="docutils literal notranslate"><span class="pre">Logo</span></code> parameter</p></td>
 </tr>
 </tbody>
 </table>
@@ -446,32 +382,28 @@ SkoolKit’s image creation library. The parameters are in the format:</p>
 </div>
 <p>Recognised parameters are:</p>
 <ul class="simple">
-<li><code class="docutils literal notranslate"><span class="pre">PNGAlpha</span></code> - the default alpha value (0-255) to use for the transparent
+<li><p><code class="docutils literal notranslate"><span class="pre">PNGAlpha</span></code> - the default alpha value (0-255) to use for the transparent
 colour in a PNG image, where 0 means fully transparent, and 255 means fully
-opaque (default: <code class="docutils literal notranslate"><span class="pre">255</span></code>)</li>
-<li><code class="docutils literal notranslate"><span class="pre">PNGCompressionLevel</span></code> - the compression level (0-9) to use for PNG image
+opaque (default: <code class="docutils literal notranslate"><span class="pre">255</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">PNGCompressionLevel</span></code> - the compression level (0-9) to use for PNG image
 data, where 0 means no compression, 1 is the lowest compression level, and 9
-is the highest (default: <code class="docutils literal notranslate"><span class="pre">9</span></code>)</li>
-<li><code class="docutils literal notranslate"><span class="pre">PNGEnableAnimation</span></code> - <code class="docutils literal notranslate"><span class="pre">1</span></code> to create animated PNGs (in APNG format) for
+is the highest (default: <code class="docutils literal notranslate"><span class="pre">9</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">PNGEnableAnimation</span></code> - <code class="docutils literal notranslate"><span class="pre">1</span></code> to create animated PNGs (in APNG format) for
 images that contain flashing cells, or <code class="docutils literal notranslate"><span class="pre">0</span></code> to create plain (unanimated) PNG
-files for such images (default: <code class="docutils literal notranslate"><span class="pre">1</span></code>)</li>
+files for such images (default: <code class="docutils literal notranslate"><span class="pre">1</span></code>)</p></li>
 </ul>
-<table border="1" class="docutils">
-<colgroup>
-<col width="13%" />
-<col width="87%" />
-</colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">Version</th>
-<th class="head">Changes</th>
+<table class="docutils colwidths-auto align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Version</p></th>
+<th class="head"><p>Changes</p></th>
 </tr>
 </thead>
-<tbody valign="top">
-<tr class="row-even"><td>3.0.1</td>
-<td>Added the <code class="docutils literal notranslate"><span class="pre">PNGAlpha</span></code> and <code class="docutils literal notranslate"><span class="pre">PNGEnableAnimation</span></code> parameters</td>
+<tbody>
+<tr class="row-even"><td><p>3.0.1</p></td>
+<td><p>Added the <code class="docutils literal notranslate"><span class="pre">PNGAlpha</span></code> and <code class="docutils literal notranslate"><span class="pre">PNGEnableAnimation</span></code> parameters</p></td>
 </tr>
-<tr class="row-odd"><td>3.0</td>
-<td>New</td>
+<tr class="row-odd"><td><p>3.0</p></td>
+<td><p>New</p></td>
 </tr>
 </tbody>
 </table>
@@ -488,19 +420,15 @@ contains links to the index pages of secondary disassemblies defined by
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ skool2html.py -r Index$
 </pre></div>
 </div>
-<table border="1" class="docutils">
-<colgroup>
-<col width="50%" />
-<col width="50%" />
-</colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">Version</th>
-<th class="head">Changes</th>
+<table class="docutils colwidths-auto align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Version</p></th>
+<th class="head"><p>Changes</p></th>
 </tr>
 </thead>
-<tbody valign="top">
-<tr class="row-even"><td>2.0.5</td>
-<td>New</td>
+<tbody>
+<tr class="row-even"><td><p>2.0.5</p></td>
+<td><p>New</p></td>
 </tr>
 </tbody>
 </table>
@@ -517,29 +445,25 @@ Page2ID
 </div>
 <p>where:</p>
 <ul class="simple">
-<li><code class="docutils literal notranslate"><span class="pre">groupID</span></code> is the link group ID (as may be declared in the <a class="reference internal" href="#index"><span class="std std-ref">[Index]</span></a>
-section)</li>
-<li><code class="docutils literal notranslate"><span class="pre">text</span></code> is the text of the link group header</li>
-<li><code class="docutils literal notranslate"><span class="pre">Page1ID</span></code>, <code class="docutils literal notranslate"><span class="pre">Page2ID</span></code> etc. are the IDs of the pages that will appear in
-the link group</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">groupID</span></code> is the link group ID (as may be declared in the <a class="reference internal" href="#index"><span class="std std-ref">[Index]</span></a>
+section)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">text</span></code> is the text of the link group header</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Page1ID</span></code>, <code class="docutils literal notranslate"><span class="pre">Page2ID</span></code> etc. are the IDs of the pages that will appear in
+the link group</p></li>
 </ul>
 <p>To see the default link groups and their contents, run the following command:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ skool2html.py -r Index:
 </pre></div>
 </div>
-<table border="1" class="docutils">
-<colgroup>
-<col width="50%" />
-<col width="50%" />
-</colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">Version</th>
-<th class="head">Changes</th>
+<table class="docutils colwidths-auto align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Version</p></th>
+<th class="head"><p>Changes</p></th>
 </tr>
 </thead>
-<tbody valign="top">
-<tr class="row-even"><td>2.0.5</td>
-<td>New</td>
+<tbody>
+<tr class="row-even"><td><p>2.0.5</p></td>
+<td><p>New</p></td>
 </tr>
 </tbody>
 </table>
@@ -554,25 +478,25 @@ form:</p>
 </div>
 <p>where:</p>
 <ul class="simple">
-<li><code class="docutils literal notranslate"><span class="pre">PageID</span></code> is the ID of the page</li>
-<li><code class="docutils literal notranslate"><span class="pre">text</span></code> is the link text</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">PageID</span></code> is the ID of the page</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">text</span></code> is the link text</p></li>
 </ul>
 <p>Recognised page IDs are:</p>
 <ul class="simple">
-<li><code class="docutils literal notranslate"><span class="pre">AsmSinglePage</span></code> - the disassembly page (when writing a single-page
-disassembly)</li>
-<li><code class="docutils literal notranslate"><span class="pre">Bugs</span></code> - the ‘Bugs’ page</li>
-<li><code class="docutils literal notranslate"><span class="pre">Changelog</span></code> - the ‘Changelog’ page</li>
-<li><code class="docutils literal notranslate"><span class="pre">DataMap</span></code> - the ‘Data’ memory map page</li>
-<li><code class="docutils literal notranslate"><span class="pre">Facts</span></code> - the ‘Trivia’ page</li>
-<li><code class="docutils literal notranslate"><span class="pre">GameStatusBuffer</span></code> - the ‘Game status buffer’ page</li>
-<li><code class="docutils literal notranslate"><span class="pre">Glossary</span></code> - the ‘Glossary’ page</li>
-<li><code class="docutils literal notranslate"><span class="pre">GraphicGlitches</span></code> - the ‘Graphic glitches’ page</li>
-<li><code class="docutils literal notranslate"><span class="pre">MemoryMap</span></code> - the ‘Everything’ memory map page (default: ‘Everything’)</li>
-<li><code class="docutils literal notranslate"><span class="pre">MessagesMap</span></code> - the ‘Messages’ memory map page</li>
-<li><code class="docutils literal notranslate"><span class="pre">Pokes</span></code> - the ‘Pokes’ page</li>
-<li><code class="docutils literal notranslate"><span class="pre">RoutinesMap</span></code> - the ‘Routines’ memory map page</li>
-<li><code class="docutils literal notranslate"><span class="pre">UnusedMap</span></code> - the ‘Unused addresses’ memory map page</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">AsmSinglePage</span></code> - the disassembly page (when writing a single-page
+disassembly)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Bugs</span></code> - the ‘Bugs’ page</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Changelog</span></code> - the ‘Changelog’ page</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">DataMap</span></code> - the ‘Data’ memory map page</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Facts</span></code> - the ‘Trivia’ page</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">GameStatusBuffer</span></code> - the ‘Game status buffer’ page</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Glossary</span></code> - the ‘Glossary’ page</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">GraphicGlitches</span></code> - the ‘Graphic glitches’ page</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">MemoryMap</span></code> - the ‘Everything’ memory map page (default: ‘Everything’)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">MessagesMap</span></code> - the ‘Messages’ memory map page</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Pokes</span></code> - the ‘Pokes’ page</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">RoutinesMap</span></code> - the ‘Routines’ memory map page</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">UnusedMap</span></code> - the ‘Unused addresses’ memory map page</p></li>
 </ul>
 <p>The default link text for a page is the same as the header defined in the
 <a class="reference internal" href="#pageheaders"><span class="std std-ref">[PageHeaders]</span></a> section, except where indicated above.</p>
@@ -588,28 +512,24 @@ hyperlink. For example:</p>
 <p>This declares that the link text for the ‘Everything’ memory map page will be
 ‘Everything’, and ‘(routines, data, text and unused addresses)’ will be
 displayed alongside it.</p>
-<table border="1" class="docutils">
-<colgroup>
-<col width="20%" />
-<col width="80%" />
-</colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">Version</th>
-<th class="head">Changes</th>
+<table class="docutils colwidths-auto align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Version</p></th>
+<th class="head"><p>Changes</p></th>
 </tr>
 </thead>
-<tbody valign="top">
-<tr class="row-even"><td>5.3</td>
-<td>Added the <code class="docutils literal notranslate"><span class="pre">AsmSinglePage</span></code> page ID</td>
+<tbody>
+<tr class="row-even"><td><p>5.3</p></td>
+<td><p>Added the <code class="docutils literal notranslate"><span class="pre">AsmSinglePage</span></code> page ID</p></td>
 </tr>
-<tr class="row-odd"><td>2.5</td>
-<td>Added the <code class="docutils literal notranslate"><span class="pre">UnusedMap</span></code> page ID</td>
+<tr class="row-odd"><td><p>2.5</p></td>
+<td><p>Added the <code class="docutils literal notranslate"><span class="pre">UnusedMap</span></code> page ID</p></td>
 </tr>
-<tr class="row-even"><td>2.2.5</td>
-<td>Added the <code class="docutils literal notranslate"><span class="pre">Changelog</span></code> page ID</td>
+<tr class="row-even"><td><p>2.2.5</p></td>
+<td><p>Added the <code class="docutils literal notranslate"><span class="pre">Changelog</span></code> page ID</p></td>
 </tr>
-<tr class="row-odd"><td>2.0.5</td>
-<td>New</td>
+<tr class="row-odd"><td><p>2.0.5</p></td>
+<td><p>New</p></td>
 </tr>
 </tbody>
 </table>
@@ -628,35 +548,36 @@ section names take the form:</p>
 </div>
 <p>Recognised parameters and their default values are:</p>
 <ul class="simple">
-<li><code class="docutils literal notranslate"><span class="pre">EntryDescriptions</span></code> - <code class="docutils literal notranslate"><span class="pre">1</span></code> to display entry descriptions, or <code class="docutils literal notranslate"><span class="pre">0</span></code> not to
-(default: <code class="docutils literal notranslate"><span class="pre">0</span></code>)</li>
-<li><code class="docutils literal notranslate"><span class="pre">EntryTypes</span></code> - the types of entries to show in the map (by default, no
-types are shown); entry types are identified as follows:<ul>
-<li><code class="docutils literal notranslate"><span class="pre">b</span></code> - DEFB blocks</li>
-<li><code class="docutils literal notranslate"><span class="pre">c</span></code> - routines</li>
-<li><code class="docutils literal notranslate"><span class="pre">g</span></code> - game status buffer entries</li>
-<li><code class="docutils literal notranslate"><span class="pre">s</span></code> - blocks containing bytes that are all the same value</li>
-<li><code class="docutils literal notranslate"><span class="pre">t</span></code> - messages</li>
-<li><code class="docutils literal notranslate"><span class="pre">u</span></code> - unused addresses</li>
-<li><code class="docutils literal notranslate"><span class="pre">w</span></code> - DEFW blocks</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">EntryDescriptions</span></code> - <code class="docutils literal notranslate"><span class="pre">1</span></code> to display entry descriptions, or <code class="docutils literal notranslate"><span class="pre">0</span></code> not to
+(default: <code class="docutils literal notranslate"><span class="pre">0</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">EntryTypes</span></code> - the types of entries to show in the map (by default, no
+types are shown); entry types are identified as follows:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">b</span></code> - DEFB blocks</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">c</span></code> - routines</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">g</span></code> - game status buffer entries</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">s</span></code> - blocks containing bytes that are all the same value</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">t</span></code> - messages</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">u</span></code> - unused addresses</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">w</span></code> - DEFW blocks</p></li>
 </ul>
 </li>
-<li><code class="docutils literal notranslate"><span class="pre">Includes</span></code> - a comma-separated list of entries to include on the memory map
+<li><p><code class="docutils literal notranslate"><span class="pre">Includes</span></code> - a comma-separated list of entries to include on the memory map
 page in addition to those specified by the <code class="docutils literal notranslate"><span class="pre">EntryTypes</span></code> parameter; each
 item in the list may be a single address, an address range (e.g.
 <code class="docutils literal notranslate"><span class="pre">30000-30010</span></code>), or the name of an entry group defined in the
-<a class="reference internal" href="#entrygroups"><span class="std std-ref">[EntryGroups]</span></a> section</li>
-<li><code class="docutils literal notranslate"><span class="pre">Intro</span></code> - the text (which may contain HTML markup) displayed at the top of
-the memory map page (default: ‘’)</li>
-<li><code class="docutils literal notranslate"><span class="pre">LabelColumn</span></code> - <code class="docutils literal notranslate"><span class="pre">1</span></code> to display the ‘Label’ column if any entries have
-ASM labels defined, or <code class="docutils literal notranslate"><span class="pre">0</span></code> not to (default: <code class="docutils literal notranslate"><span class="pre">0</span></code>)</li>
-<li><code class="docutils literal notranslate"><span class="pre">LengthColumn</span></code> - <code class="docutils literal notranslate"><span class="pre">1</span></code> to display the ‘Length’ column, or <code class="docutils literal notranslate"><span class="pre">0</span></code> not to
+<a class="reference internal" href="#entrygroups"><span class="std std-ref">[EntryGroups]</span></a> section</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Intro</span></code> - the text (which may contain HTML markup) displayed at the top of
+the memory map page (default: ‘’)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">LabelColumn</span></code> - <code class="docutils literal notranslate"><span class="pre">1</span></code> to display the ‘Label’ column if any entries have
+ASM labels defined, or <code class="docutils literal notranslate"><span class="pre">0</span></code> not to (default: <code class="docutils literal notranslate"><span class="pre">0</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">LengthColumn</span></code> - <code class="docutils literal notranslate"><span class="pre">1</span></code> to display the ‘Length’ column, or <code class="docutils literal notranslate"><span class="pre">0</span></code> not to
 (default: <code class="docutils literal notranslate"><span class="pre">0</span></code>); see also the <code class="docutils literal notranslate"><span class="pre">Length</span></code> parameter in the <a class="reference internal" href="#ref-game"><span class="std std-ref">[Game]</span></a>
-section</li>
-<li><code class="docutils literal notranslate"><span class="pre">PageByteColumns</span></code> - <code class="docutils literal notranslate"><span class="pre">1</span></code> to display ‘Page’ and ‘Byte’ columns, or <code class="docutils literal notranslate"><span class="pre">0</span></code>
-not to (default: <code class="docutils literal notranslate"><span class="pre">0</span></code>)</li>
-<li><code class="docutils literal notranslate"><span class="pre">Write</span></code> - <code class="docutils literal notranslate"><span class="pre">1</span></code> to write the memory map page, or <code class="docutils literal notranslate"><span class="pre">0</span></code> not to (default:
-<code class="docutils literal notranslate"><span class="pre">1</span></code>)</li>
+section</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">PageByteColumns</span></code> - <code class="docutils literal notranslate"><span class="pre">1</span></code> to display ‘Page’ and ‘Byte’ columns, or <code class="docutils literal notranslate"><span class="pre">0</span></code>
+not to (default: <code class="docutils literal notranslate"><span class="pre">0</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Write</span></code> - <code class="docutils literal notranslate"><span class="pre">1</span></code> to write the memory map page, or <code class="docutils literal notranslate"><span class="pre">0</span></code> not to (default:
+<code class="docutils literal notranslate"><span class="pre">1</span></code>)</p></li>
 </ul>
 <p>Every parameter in this section may contain <a class="reference internal" href="skool-macros.html#skoolmacros"><span class="std std-ref">skool macros</span></a>.</p>
 <p>To see the default memory map pages and their properties, run the following
@@ -672,38 +593,34 @@ text for the custom memory map page can be defined in the <a class="reference in
 <p>Every memory map page is built using the <a class="reference internal" href="#template"><span class="std std-ref">HTML template</span></a> whose
 name matches the page ID, if one exists; otherwise, the stock <a class="reference internal" href="html-templates.html#t-layout"><span class="std std-ref">Layout</span></a>
 template is used.</p>
-<table border="1" class="docutils">
-<colgroup>
-<col width="12%" />
-<col width="88%" />
-</colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">Version</th>
-<th class="head">Changes</th>
+<table class="docutils colwidths-auto align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Version</p></th>
+<th class="head"><p>Changes</p></th>
 </tr>
 </thead>
-<tbody valign="top">
-<tr class="row-even"><td>8.5</td>
-<td>Added support for address ranges in the <code class="docutils literal notranslate"><span class="pre">Includes</span></code> parameter</td>
+<tbody>
+<tr class="row-even"><td><p>8.5</p></td>
+<td><p>Added support for address ranges in the <code class="docutils literal notranslate"><span class="pre">Includes</span></code> parameter</p></td>
 </tr>
-<tr class="row-odd"><td>8.4</td>
-<td>The <code class="docutils literal notranslate"><span class="pre">EntryTypes</span></code> parameter defaults to an empty string</td>
+<tr class="row-odd"><td><p>8.4</p></td>
+<td><p>The <code class="docutils literal notranslate"><span class="pre">EntryTypes</span></code> parameter defaults to an empty string</p></td>
 </tr>
-<tr class="row-even"><td>8.1</td>
-<td>Added the <code class="docutils literal notranslate"><span class="pre">LabelColumn</span></code> parameter</td>
+<tr class="row-even"><td><p>8.1</p></td>
+<td><p>Added the <code class="docutils literal notranslate"><span class="pre">LabelColumn</span></code> parameter</p></td>
 </tr>
-<tr class="row-odd"><td>6.2</td>
-<td>Added the <code class="docutils literal notranslate"><span class="pre">Includes</span></code> parameter</td>
+<tr class="row-odd"><td><p>6.2</p></td>
+<td><p>Added the <code class="docutils literal notranslate"><span class="pre">Includes</span></code> parameter</p></td>
 </tr>
-<tr class="row-even"><td>6.0</td>
-<td>Every parameter (not just <code class="docutils literal notranslate"><span class="pre">Intro</span></code>) may contain
-<a class="reference internal" href="skool-macros.html#skoolmacros"><span class="std std-ref">skool macros</span></a></td>
+<tr class="row-even"><td><p>6.0</p></td>
+<td><p>Every parameter (not just <code class="docutils literal notranslate"><span class="pre">Intro</span></code>) may contain
+<a class="reference internal" href="skool-macros.html#skoolmacros"><span class="std std-ref">skool macros</span></a></p></td>
 </tr>
-<tr class="row-odd"><td>4.0</td>
-<td>Added the <code class="docutils literal notranslate"><span class="pre">EntryDescriptions</span></code> and <code class="docutils literal notranslate"><span class="pre">LengthColumn</span></code> parameters</td>
+<tr class="row-odd"><td><p>4.0</p></td>
+<td><p>Added the <code class="docutils literal notranslate"><span class="pre">EntryDescriptions</span></code> and <code class="docutils literal notranslate"><span class="pre">LengthColumn</span></code> parameters</p></td>
 </tr>
-<tr class="row-even"><td>2.5</td>
-<td>New</td>
+<tr class="row-even"><td><p>2.5</p></td>
+<td><p>New</p></td>
 </tr>
 </tbody>
 </table>
@@ -732,35 +649,31 @@ defaults to <cite>CodeID.skool</cite>.</p>
 and directory IDs become available for use in the <a class="reference internal" href="#paths"><span class="std std-ref">[Paths]</span></a>, <a class="reference internal" href="#titles"><span class="std std-ref">[Titles]</span></a>,
 <a class="reference internal" href="#pageheaders"><span class="std std-ref">[PageHeaders]</span></a> and <a class="reference internal" href="#links"><span class="std std-ref">[Links]</span></a> sections:</p>
 <ul class="simple">
-<li><code class="docutils literal notranslate"><span class="pre">CodeID-Index</span></code> - the ID of the index page</li>
-<li><code class="docutils literal notranslate"><span class="pre">CodeID-Asm-*</span></code> - the IDs of the disassembly pages (<code class="docutils literal notranslate"><span class="pre">*</span></code> is one of
-<code class="docutils literal notranslate"><span class="pre">bcgstuw</span></code>, depending on the entry type)</li>
-<li><code class="docutils literal notranslate"><span class="pre">CodeID-CodePath</span></code> - the ID of the directory in which the disassembly pages
-are written</li>
-<li><code class="docutils literal notranslate"><span class="pre">CodeID-AsmSinglePage</span></code> - the ID of the disassembly page (when writing a
-single-page disassembly)</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">CodeID-Index</span></code> - the ID of the index page</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">CodeID-Asm-*</span></code> - the IDs of the disassembly pages (<code class="docutils literal notranslate"><span class="pre">*</span></code> is one of
+<code class="docutils literal notranslate"><span class="pre">bcgstuw</span></code>, depending on the entry type)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">CodeID-CodePath</span></code> - the ID of the directory in which the disassembly pages
+are written</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">CodeID-AsmSinglePage</span></code> - the ID of the disassembly page (when writing a
+single-page disassembly)</p></li>
 </ul>
 <p>By default, the index page is written to <cite>CodeID/CodeID.html</cite>, and the
 disassembly pages are written in a directory named <cite>CodeID</cite>; if a single-page
 template is used, the disassembly page is written to <cite>CodeID/asm.html</cite>.</p>
 <p>Note that the index page is a memory map page, and as such can be configured by
 creating a <a class="reference internal" href="#memorymap"><span class="std std-ref">[MemoryMap:*]</span></a> section (<code class="docutils literal notranslate"><span class="pre">MemoryMap:CodeID-Index</span></code>) for it.</p>
-<table border="1" class="docutils">
-<colgroup>
-<col width="18%" />
-<col width="82%" />
-</colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">Version</th>
-<th class="head">Changes</th>
+<table class="docutils colwidths-auto align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Version</p></th>
+<th class="head"><p>Changes</p></th>
 </tr>
 </thead>
-<tbody valign="top">
-<tr class="row-even"><td>5.0</td>
-<td>Made the <code class="docutils literal notranslate"><span class="pre">Source</span></code> parameter optional</td>
+<tbody>
+<tr class="row-even"><td><p>5.0</p></td>
+<td><p>Made the <code class="docutils literal notranslate"><span class="pre">Source</span></code> parameter optional</p></td>
 </tr>
-<tr class="row-odd"><td>2.0</td>
-<td>New</td>
+<tr class="row-odd"><td><p>2.0</p></td>
+<td><p>New</p></td>
 </tr>
 </tbody>
 </table>
@@ -781,20 +694,20 @@ index.</p>
 </div>
 <p>Recognised parameters are:</p>
 <ul class="simple">
-<li><code class="docutils literal notranslate"><span class="pre">Content</span></code> - the path (directory and filename) of a page that already
-exists; when this parameter is supplied, no others are required</li>
-<li><code class="docutils literal notranslate"><span class="pre">JavaScript</span></code> - the base name of the JavaScript file to use in addition to
+<li><p><code class="docutils literal notranslate"><span class="pre">Content</span></code> - the path (directory and filename) of a page that already
+exists; when this parameter is supplied, no others are required</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">JavaScript</span></code> - the base name of the JavaScript file to use in addition to
 any declared by the <code class="docutils literal notranslate"><span class="pre">JavaScript</span></code> parameter in the <a class="reference internal" href="#ref-game"><span class="std std-ref">[Game]</span></a> section
 (default: None); multiple JavaScript files can be declared by separating
-their names with semicolons</li>
-<li><code class="docutils literal notranslate"><span class="pre">PageContent</span></code> - the HTML source of the body of the page; the <a class="reference internal" href="skool-macros.html#include"><span class="std std-ref">#INCLUDE</span></a>
-macro may be used here to include the contents of a separate ref file section</li>
-<li><code class="docutils literal notranslate"><span class="pre">SectionPrefix</span></code> - the prefix of the names of the ref file sections from
-which to build the entries on a <a class="reference internal" href="#boxpages"><span class="std std-ref">box page</span></a></li>
-<li><code class="docutils literal notranslate"><span class="pre">SectionType</span></code> - how to parse and render <a class="reference internal" href="#boxpages"><span class="std std-ref">box page</span></a> entry
+their names with semicolons</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">PageContent</span></code> - the HTML source of the body of the page; the <a class="reference internal" href="skool-macros.html#include"><span class="std std-ref">#INCLUDE</span></a>
+macro may be used here to include the contents of a separate ref file section</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">SectionPrefix</span></code> - the prefix of the names of the ref file sections from
+which to build the entries on a <a class="reference internal" href="#boxpages"><span class="std std-ref">box page</span></a></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">SectionType</span></code> - how to parse and render <a class="reference internal" href="#boxpages"><span class="std std-ref">box page</span></a> entry
 sections (when <code class="docutils literal notranslate"><span class="pre">SectionPrefix</span></code> is defined): as single-line list items with
 indentation (<code class="docutils literal notranslate"><span class="pre">ListItems</span></code>), as multi-line list items prefixed by ‘-‘
-(<code class="docutils literal notranslate"><span class="pre">BulletPoints</span></code>), or as paragraphs (the default)</li>
+(<code class="docutils literal notranslate"><span class="pre">BulletPoints</span></code>), or as paragraphs (the default)</p></li>
 </ul>
 <p>Every parameter in this section may contain <a class="reference internal" href="skool-macros.html#skoolmacros"><span class="std std-ref">skool macros</span></a>.</p>
 <p>Note that the <code class="docutils literal notranslate"><span class="pre">Content</span></code>, <code class="docutils literal notranslate"><span class="pre">SectionPrefix</span></code> and <code class="docutils literal notranslate"><span class="pre">PageContent</span></code> parameters are
@@ -808,34 +721,30 @@ default to ‘PageID’, but can be overridden in the <a class="reference intern
 <p>Every custom page is built using the <a class="reference internal" href="#template"><span class="std std-ref">HTML template</span></a> whose name
 matches the page ID, if one exists; otherwise, the <a class="reference internal" href="html-templates.html#t-layout"><span class="std std-ref">Layout</span></a> template is
 used.</p>
-<table border="1" class="docutils">
-<colgroup>
-<col width="12%" />
-<col width="88%" />
-</colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">Version</th>
-<th class="head">Changes</th>
+<table class="docutils colwidths-auto align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Version</p></th>
+<th class="head"><p>Changes</p></th>
 </tr>
 </thead>
-<tbody valign="top">
-<tr class="row-even"><td>6.0</td>
-<td>Added support for <code class="docutils literal notranslate"><span class="pre">SectionType=BulletPoints</span></code>; every parameter
+<tbody>
+<tr class="row-even"><td><p>6.0</p></td>
+<td><p>Added support for <code class="docutils literal notranslate"><span class="pre">SectionType=BulletPoints</span></code>; every parameter
 (not just <code class="docutils literal notranslate"><span class="pre">PageContent</span></code>) may contain
-<a class="reference internal" href="skool-macros.html#skoolmacros"><span class="std std-ref">skool macros</span></a></td>
+<a class="reference internal" href="skool-macros.html#skoolmacros"><span class="std std-ref">skool macros</span></a></p></td>
 </tr>
-<tr class="row-odd"><td>5.4</td>
-<td>Added the <code class="docutils literal notranslate"><span class="pre">SectionType</span></code> parameter</td>
+<tr class="row-odd"><td><p>5.4</p></td>
+<td><p>Added the <code class="docutils literal notranslate"><span class="pre">SectionType</span></code> parameter</p></td>
 </tr>
-<tr class="row-even"><td>5.3</td>
-<td>Added the <code class="docutils literal notranslate"><span class="pre">SectionPrefix</span></code> parameter</td>
+<tr class="row-even"><td><p>5.3</p></td>
+<td><p>Added the <code class="docutils literal notranslate"><span class="pre">SectionPrefix</span></code> parameter</p></td>
 </tr>
-<tr class="row-odd"><td>3.5</td>
-<td>The <code class="docutils literal notranslate"><span class="pre">JavaScript</span></code> parameter specifies the JavaScript file(s) to
-use</td>
+<tr class="row-odd"><td><p>3.5</p></td>
+<td><p>The <code class="docutils literal notranslate"><span class="pre">JavaScript</span></code> parameter specifies the JavaScript file(s) to
+use</p></td>
 </tr>
-<tr class="row-even"><td>2.1</td>
-<td>New</td>
+<tr class="row-even"><td><p>2.1</p></td>
+<td><p>New</p></td>
 </tr>
 </tbody>
 </table>
@@ -849,37 +758,37 @@ disassembly. Each line has the form:</p>
 </div>
 <p>where:</p>
 <ul class="simple">
-<li><code class="docutils literal notranslate"><span class="pre">PageID</span></code> is the ID of the page</li>
-<li><code class="docutils literal notranslate"><span class="pre">prefix</span></code> is the page header prefix (displayed to the left of the game
-logo); if present, this must be separated from the suffix by <code class="docutils literal notranslate"><span class="pre">&lt;&gt;</span></code></li>
-<li><code class="docutils literal notranslate"><span class="pre">suffix</span></code> is the page header suffix (displayed to the right of the game
-logo)</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">PageID</span></code> is the ID of the page</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">prefix</span></code> is the page header prefix (displayed to the left of the game
+logo); if present, this must be separated from the suffix by <code class="docutils literal notranslate"><span class="pre">&lt;&gt;</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">suffix</span></code> is the page header suffix (displayed to the right of the game
+logo)</p></li>
 </ul>
 <p>Recognised page IDs are:</p>
 <ul class="simple">
-<li><code class="docutils literal notranslate"><span class="pre">Asm-b</span></code> - disassembly pages for ‘b’ blocks (default: ‘Data’)</li>
-<li><code class="docutils literal notranslate"><span class="pre">Asm-c</span></code> - disassembly pages for ‘c’ blocks (default: ‘Routines’)</li>
-<li><code class="docutils literal notranslate"><span class="pre">Asm-g</span></code> - disassembly pages for ‘g’ blocks (default: ‘Game status buffer’)</li>
-<li><code class="docutils literal notranslate"><span class="pre">Asm-s</span></code> - disassembly pages for ‘s’ blocks (default: ‘Unused’)</li>
-<li><code class="docutils literal notranslate"><span class="pre">Asm-t</span></code> - disassembly pages for ‘t’ blocks (default: ‘Messages’)</li>
-<li><code class="docutils literal notranslate"><span class="pre">Asm-u</span></code> - disassembly pages for ‘u’ blocks (default: ‘Unused’)</li>
-<li><code class="docutils literal notranslate"><span class="pre">Asm-w</span></code> - disassembly pages for ‘w’ blocks (default: ‘Data’)</li>
-<li><code class="docutils literal notranslate"><span class="pre">AsmSinglePage</span></code> - the disassembly page (when writing a single-page
-disassembly)</li>
-<li><code class="docutils literal notranslate"><span class="pre">Bugs</span></code> - the ‘Bugs’ page</li>
-<li><code class="docutils literal notranslate"><span class="pre">Changelog</span></code> - the ‘Changelog’ page</li>
-<li><code class="docutils literal notranslate"><span class="pre">DataMap</span></code> - the ‘Data’ memory map page</li>
-<li><code class="docutils literal notranslate"><span class="pre">Facts</span></code> - the ‘Trivia’ page</li>
-<li><code class="docutils literal notranslate"><span class="pre">GameIndex</span></code> - the disassembly index page (default: ‘The complete&lt;&gt;RAM
-disassembly’)</li>
-<li><code class="docutils literal notranslate"><span class="pre">GameStatusBuffer</span></code> - the ‘Game status buffer’ page</li>
-<li><code class="docutils literal notranslate"><span class="pre">Glossary</span></code> - the ‘Glossary’ page</li>
-<li><code class="docutils literal notranslate"><span class="pre">GraphicGlitches</span></code> - the ‘Graphic glitches’ page</li>
-<li><code class="docutils literal notranslate"><span class="pre">MemoryMap</span></code> - the ‘Everything’ memory map page</li>
-<li><code class="docutils literal notranslate"><span class="pre">MessagesMap</span></code> - the ‘Messages’ memory map page</li>
-<li><code class="docutils literal notranslate"><span class="pre">Pokes</span></code> - the ‘Pokes’ page</li>
-<li><code class="docutils literal notranslate"><span class="pre">RoutinesMap</span></code> - the ‘Routines’ memory map page</li>
-<li><code class="docutils literal notranslate"><span class="pre">UnusedMap</span></code> - the ‘Unused addresses’ memory map page</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Asm-b</span></code> - disassembly pages for ‘b’ blocks (default: ‘Data’)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Asm-c</span></code> - disassembly pages for ‘c’ blocks (default: ‘Routines’)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Asm-g</span></code> - disassembly pages for ‘g’ blocks (default: ‘Game status buffer’)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Asm-s</span></code> - disassembly pages for ‘s’ blocks (default: ‘Unused’)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Asm-t</span></code> - disassembly pages for ‘t’ blocks (default: ‘Messages’)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Asm-u</span></code> - disassembly pages for ‘u’ blocks (default: ‘Unused’)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Asm-w</span></code> - disassembly pages for ‘w’ blocks (default: ‘Data’)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">AsmSinglePage</span></code> - the disassembly page (when writing a single-page
+disassembly)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Bugs</span></code> - the ‘Bugs’ page</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Changelog</span></code> - the ‘Changelog’ page</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">DataMap</span></code> - the ‘Data’ memory map page</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Facts</span></code> - the ‘Trivia’ page</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">GameIndex</span></code> - the disassembly index page (default: ‘The complete&lt;&gt;RAM
+disassembly’)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">GameStatusBuffer</span></code> - the ‘Game status buffer’ page</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Glossary</span></code> - the ‘Glossary’ page</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">GraphicGlitches</span></code> - the ‘Graphic glitches’ page</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">MemoryMap</span></code> - the ‘Everything’ memory map page</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">MessagesMap</span></code> - the ‘Messages’ memory map page</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Pokes</span></code> - the ‘Pokes’ page</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">RoutinesMap</span></code> - the ‘Routines’ memory map page</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">UnusedMap</span></code> - the ‘Unused addresses’ memory map page</p></li>
 </ul>
 <p>Every parameter in this section may contain <a class="reference internal" href="skool-macros.html#skoolmacros"><span class="std std-ref">skool macros</span></a>.</p>
 <p>The default header text for a page is the same as the title defined in the
@@ -892,31 +801,27 @@ section.</p>
 <p>The header text of each disassembly page for the entries belonging to a group
 defined in the <a class="reference internal" href="#entrygroups"><span class="std std-ref">[EntryGroups]</span></a> section also defaults to the page’s title,
 but can be overridden in this section.</p>
-<table border="1" class="docutils">
-<colgroup>
-<col width="12%" />
-<col width="88%" />
-</colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">Version</th>
-<th class="head">Changes</th>
+<table class="docutils colwidths-auto align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Version</p></th>
+<th class="head"><p>Changes</p></th>
 </tr>
 </thead>
-<tbody valign="top">
-<tr class="row-even"><td>8.0</td>
-<td>Added support for specifying a prefix and suffix; an <code class="docutils literal notranslate"><span class="pre">entry</span></code>
+<tbody>
+<tr class="row-even"><td><p>8.0</p></td>
+<td><p>Added support for specifying a prefix and suffix; an <code class="docutils literal notranslate"><span class="pre">entry</span></code>
 dictionary is available when formatting <code class="docutils literal notranslate"><span class="pre">Asm-*</span></code> parameters;
-added the <code class="docutils literal notranslate"><span class="pre">GameIndex</span></code> page ID</td>
+added the <code class="docutils literal notranslate"><span class="pre">GameIndex</span></code> page ID</p></td>
 </tr>
-<tr class="row-odd"><td>6.0</td>
-<td>The default header for <code class="docutils literal notranslate"><span class="pre">Asm-t</span></code> pages is ‘Messages’; page
-headers may contain <a class="reference internal" href="skool-macros.html#skoolmacros"><span class="std std-ref">skool macros</span></a></td>
+<tr class="row-odd"><td><p>6.0</p></td>
+<td><p>The default header for <code class="docutils literal notranslate"><span class="pre">Asm-t</span></code> pages is ‘Messages’; page
+headers may contain <a class="reference internal" href="skool-macros.html#skoolmacros"><span class="std std-ref">skool macros</span></a></p></td>
 </tr>
-<tr class="row-even"><td>5.3</td>
-<td>Added the <code class="docutils literal notranslate"><span class="pre">AsmSinglePage</span></code> page ID</td>
+<tr class="row-even"><td><p>5.3</p></td>
+<td><p>Added the <code class="docutils literal notranslate"><span class="pre">AsmSinglePage</span></code> page ID</p></td>
 </tr>
-<tr class="row-odd"><td>4.0</td>
-<td>New</td>
+<tr class="row-odd"><td><p>4.0</p></td>
+<td><p>New</p></td>
 </tr>
 </tbody>
 </table>
@@ -930,60 +835,60 @@ HTML disassembly. Each line has the form:</p>
 </div>
 <p>where:</p>
 <ul class="simple">
-<li><code class="docutils literal notranslate"><span class="pre">ID</span></code> is the ID of the file or directory</li>
-<li><code class="docutils literal notranslate"><span class="pre">path</span></code> is the path of the file or directory relative to the root directory
-of the disassembly</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ID</span></code> is the ID of the file or directory</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">path</span></code> is the path of the file or directory relative to the root directory
+of the disassembly</p></li>
 </ul>
 <p>Recognised file IDs and their default paths are:</p>
 <ul class="simple">
-<li><code class="docutils literal notranslate"><span class="pre">AsmSinglePage</span></code> - the disassembly page (when writing a single-page
-disassembly; default: <code class="docutils literal notranslate"><span class="pre">asm.html</span></code>)</li>
-<li><code class="docutils literal notranslate"><span class="pre">Bugs</span></code> - the ‘Bugs’ page (default: <code class="docutils literal notranslate"><span class="pre">reference/bugs.html</span></code>)</li>
-<li><code class="docutils literal notranslate"><span class="pre">Changelog</span></code> - the ‘Changelog’ page (default: <code class="docutils literal notranslate"><span class="pre">reference/changelog.html</span></code>)</li>
-<li><code class="docutils literal notranslate"><span class="pre">CodeFiles</span></code> - the format of the disassembly page filenames (default:
-<code class="docutils literal notranslate"><span class="pre">{address}.html</span></code>)</li>
-<li><code class="docutils literal notranslate"><span class="pre">DataMap</span></code> - the ‘Data’ memory map page (default: <code class="docutils literal notranslate"><span class="pre">maps/data.html</span></code>)</li>
-<li><code class="docutils literal notranslate"><span class="pre">Facts</span></code> - the ‘Trivia’ page (default: <code class="docutils literal notranslate"><span class="pre">reference/facts.html</span></code>)</li>
-<li><code class="docutils literal notranslate"><span class="pre">GameIndex</span></code> - the home page (default: <code class="docutils literal notranslate"><span class="pre">index.html</span></code>)</li>
-<li><code class="docutils literal notranslate"><span class="pre">GameStatusBuffer</span></code> - the ‘Game status buffer’ page (default:
-<code class="docutils literal notranslate"><span class="pre">buffers/gbuffer.html</span></code>)</li>
-<li><code class="docutils literal notranslate"><span class="pre">Glossary</span></code> - the ‘Glossary’ page (default: <code class="docutils literal notranslate"><span class="pre">reference/glossary.html</span></code>)</li>
-<li><code class="docutils literal notranslate"><span class="pre">GraphicGlitches</span></code> - the ‘Graphic glitches’ page (default:
-<code class="docutils literal notranslate"><span class="pre">graphics/glitches.html</span></code>)</li>
-<li><code class="docutils literal notranslate"><span class="pre">MemoryMap</span></code> - the ‘Everything’ memory map page (default: <code class="docutils literal notranslate"><span class="pre">maps/all.html</span></code>)</li>
-<li><code class="docutils literal notranslate"><span class="pre">MessagesMap</span></code> - the ‘Messages’ memory map page (default:
-<code class="docutils literal notranslate"><span class="pre">maps/messages.html</span></code>)</li>
-<li><code class="docutils literal notranslate"><span class="pre">Pokes</span></code> - the ‘Pokes’ page (default: <code class="docutils literal notranslate"><span class="pre">reference/pokes.html</span></code>)</li>
-<li><code class="docutils literal notranslate"><span class="pre">RoutinesMap</span></code> - the ‘Routines’ memory map page (default:
-<code class="docutils literal notranslate"><span class="pre">maps/routines.html</span></code>)</li>
-<li><code class="docutils literal notranslate"><span class="pre">UDGFilename</span></code> - the format of the default filename for images created by
+<li><p><code class="docutils literal notranslate"><span class="pre">AsmSinglePage</span></code> - the disassembly page (when writing a single-page
+disassembly; default: <code class="docutils literal notranslate"><span class="pre">asm.html</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Bugs</span></code> - the ‘Bugs’ page (default: <code class="docutils literal notranslate"><span class="pre">reference/bugs.html</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Changelog</span></code> - the ‘Changelog’ page (default: <code class="docutils literal notranslate"><span class="pre">reference/changelog.html</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">CodeFiles</span></code> - the format of the disassembly page filenames (default:
+<code class="docutils literal notranslate"><span class="pre">{address}.html</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">DataMap</span></code> - the ‘Data’ memory map page (default: <code class="docutils literal notranslate"><span class="pre">maps/data.html</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Facts</span></code> - the ‘Trivia’ page (default: <code class="docutils literal notranslate"><span class="pre">reference/facts.html</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">GameIndex</span></code> - the home page (default: <code class="docutils literal notranslate"><span class="pre">index.html</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">GameStatusBuffer</span></code> - the ‘Game status buffer’ page (default:
+<code class="docutils literal notranslate"><span class="pre">buffers/gbuffer.html</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Glossary</span></code> - the ‘Glossary’ page (default: <code class="docutils literal notranslate"><span class="pre">reference/glossary.html</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">GraphicGlitches</span></code> - the ‘Graphic glitches’ page (default:
+<code class="docutils literal notranslate"><span class="pre">graphics/glitches.html</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">MemoryMap</span></code> - the ‘Everything’ memory map page (default: <code class="docutils literal notranslate"><span class="pre">maps/all.html</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">MessagesMap</span></code> - the ‘Messages’ memory map page (default:
+<code class="docutils literal notranslate"><span class="pre">maps/messages.html</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Pokes</span></code> - the ‘Pokes’ page (default: <code class="docutils literal notranslate"><span class="pre">reference/pokes.html</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">RoutinesMap</span></code> - the ‘Routines’ memory map page (default:
+<code class="docutils literal notranslate"><span class="pre">maps/routines.html</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">UDGFilename</span></code> - the format of the default filename for images created by
 the <a class="reference internal" href="skool-macros.html#udg"><span class="std std-ref">#UDG</span></a> macro (default: <code class="docutils literal notranslate"><span class="pre">udg{addr}_{attr}x{scale}</span></code>); this is a
 standard Python format string that recognises the macro parameters <code class="docutils literal notranslate"><span class="pre">addr</span></code>,
-<code class="docutils literal notranslate"><span class="pre">attr</span></code> and <code class="docutils literal notranslate"><span class="pre">scale</span></code></li>
-<li><code class="docutils literal notranslate"><span class="pre">UnusedMap</span></code> - the ‘Unused addresses’ memory map page (default:
-<code class="docutils literal notranslate"><span class="pre">maps/unused.html</span></code>)</li>
+<code class="docutils literal notranslate"><span class="pre">attr</span></code> and <code class="docutils literal notranslate"><span class="pre">scale</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">UnusedMap</span></code> - the ‘Unused addresses’ memory map page (default:
+<code class="docutils literal notranslate"><span class="pre">maps/unused.html</span></code>)</p></li>
 </ul>
 <p>Recognised directory IDs and their default paths are:</p>
 <ul class="simple">
-<li><code class="docutils literal notranslate"><span class="pre">CodePath</span></code> - the directory in which the disassembly pages are written
-(default: <code class="docutils literal notranslate"><span class="pre">asm</span></code>)</li>
-<li><code class="docutils literal notranslate"><span class="pre">FontImagePath</span></code> - the directory in which font images (created by the
-<a class="reference internal" href="skool-macros.html#font"><span class="std std-ref">#FONT</span></a> macro) are placed (default: <code class="docutils literal notranslate"><span class="pre">{ImagePath}/font</span></code>)</li>
-<li><code class="docutils literal notranslate"><span class="pre">FontPath</span></code> - the directory in which font files specified by the <code class="docutils literal notranslate"><span class="pre">Font</span></code>
-parameter in the <a class="reference internal" href="#ref-game"><span class="std std-ref">[Game]</span></a> section are placed (default: <code class="docutils literal notranslate"><span class="pre">.</span></code>)</li>
-<li><code class="docutils literal notranslate"><span class="pre">ImagePath</span></code> - the base directory in which images are placed (default:
-<code class="docutils literal notranslate"><span class="pre">images</span></code>)</li>
-<li><code class="docutils literal notranslate"><span class="pre">JavaScriptPath</span></code> - the directory in which JavaScript files specified by the
+<li><p><code class="docutils literal notranslate"><span class="pre">CodePath</span></code> - the directory in which the disassembly pages are written
+(default: <code class="docutils literal notranslate"><span class="pre">asm</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">FontImagePath</span></code> - the directory in which font images (created by the
+<a class="reference internal" href="skool-macros.html#font"><span class="std std-ref">#FONT</span></a> macro) are placed (default: <code class="docutils literal notranslate"><span class="pre">{ImagePath}/font</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">FontPath</span></code> - the directory in which font files specified by the <code class="docutils literal notranslate"><span class="pre">Font</span></code>
+parameter in the <a class="reference internal" href="#ref-game"><span class="std std-ref">[Game]</span></a> section are placed (default: <code class="docutils literal notranslate"><span class="pre">.</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ImagePath</span></code> - the base directory in which images are placed (default:
+<code class="docutils literal notranslate"><span class="pre">images</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">JavaScriptPath</span></code> - the directory in which JavaScript files specified by the
 <code class="docutils literal notranslate"><span class="pre">JavaScript</span></code> parameter in the <a class="reference internal" href="#ref-game"><span class="std std-ref">[Game]</span></a> section and <a class="reference internal" href="#page"><span class="std std-ref">[Page:*]</span></a>
-sections are placed (default: <code class="docutils literal notranslate"><span class="pre">.</span></code>)</li>
-<li><code class="docutils literal notranslate"><span class="pre">ScreenshotImagePath</span></code> - the directory in which screenshot images (created
-by the <a class="reference internal" href="skool-macros.html#scr"><span class="std std-ref">#SCR</span></a> macro) are placed (default: <code class="docutils literal notranslate"><span class="pre">{ImagePath}/scr</span></code>)</li>
-<li><code class="docutils literal notranslate"><span class="pre">StyleSheetPath</span></code> - the directory in which CSS files specified by the
+sections are placed (default: <code class="docutils literal notranslate"><span class="pre">.</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ScreenshotImagePath</span></code> - the directory in which screenshot images (created
+by the <a class="reference internal" href="skool-macros.html#scr"><span class="std std-ref">#SCR</span></a> macro) are placed (default: <code class="docutils literal notranslate"><span class="pre">{ImagePath}/scr</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">StyleSheetPath</span></code> - the directory in which CSS files specified by the
 <code class="docutils literal notranslate"><span class="pre">StyleSheet</span></code> parameter in the <a class="reference internal" href="#ref-game"><span class="std std-ref">[Game]</span></a> section are placed (default:
-<code class="docutils literal notranslate"><span class="pre">.</span></code>)</li>
-<li><code class="docutils literal notranslate"><span class="pre">UDGImagePath</span></code> - the directory in which UDG images (created by the
+<code class="docutils literal notranslate"><span class="pre">.</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">UDGImagePath</span></code> - the directory in which UDG images (created by the
 <a class="reference internal" href="skool-macros.html#udg"><span class="std std-ref">#UDG</span></a> or <a class="reference internal" href="skool-macros.html#udgarray"><span class="std std-ref">#UDGARRAY</span></a> macro) are placed (default:
-<code class="docutils literal notranslate"><span class="pre">{ImagePath}/udgs</span></code>)</li>
+<code class="docutils literal notranslate"><span class="pre">{ImagePath}/udgs</span></code>)</p></li>
 </ul>
 <p>Every parameter in this section may contain <a class="reference internal" href="skool-macros.html#skoolmacros"><span class="std std-ref">skool macros</span></a>.</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">CodeFiles</span></code> parameter contains a standard Python format string that
@@ -994,49 +899,45 @@ case hexadecimal addresses instead (e.g. <code class="docutils literal notransla
 to <code class="docutils literal notranslate"><span class="pre">{address:04X}.html</span></code>. Or to produce 4-digit, upper case hexadecimal
 addresses if the <code class="docutils literal notranslate"><span class="pre">--hex</span></code> option is used with <a class="reference internal" href="commands.html#skool2html-py"><span class="std std-ref">skool2html.py</span></a>, and
 decimal addresses otherwise: <code class="docutils literal notranslate"><span class="pre">{address#IF({mode[base]}==16)(:04X)}.html</span></code>.</p>
-<table border="1" class="docutils">
-<colgroup>
-<col width="12%" />
-<col width="88%" />
-</colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">Version</th>
-<th class="head">Changes</th>
+<table class="docutils colwidths-auto align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Version</p></th>
+<th class="head"><p>Changes</p></th>
 </tr>
 </thead>
-<tbody valign="top">
-<tr class="row-even"><td>6.3</td>
-<td>Added the <code class="docutils literal notranslate"><span class="pre">ImagePath</span></code> directory ID and the ability to define
-one image path ID in terms of another</td>
+<tbody>
+<tr class="row-even"><td><p>6.3</p></td>
+<td><p>Added the <code class="docutils literal notranslate"><span class="pre">ImagePath</span></code> directory ID and the ability to define
+one image path ID in terms of another</p></td>
 </tr>
-<tr class="row-odd"><td>6.0</td>
-<td>Paths may contain <a class="reference internal" href="skool-macros.html#skoolmacros"><span class="std std-ref">skool macros</span></a>; added the
+<tr class="row-odd"><td><p>6.0</p></td>
+<td><p>Paths may contain <a class="reference internal" href="skool-macros.html#skoolmacros"><span class="std std-ref">skool macros</span></a>; added the
 <code class="docutils literal notranslate"><span class="pre">UDGFilename</span></code> parameter (which used to live in the
-<a class="reference internal" href="#ref-game"><span class="std std-ref">[Game]</span></a> section)</td>
+<a class="reference internal" href="#ref-game"><span class="std std-ref">[Game]</span></a> section)</p></td>
 </tr>
-<tr class="row-even"><td>5.3</td>
-<td>Added the <code class="docutils literal notranslate"><span class="pre">AsmSinglePage</span></code> file ID</td>
+<tr class="row-even"><td><p>5.3</p></td>
+<td><p>Added the <code class="docutils literal notranslate"><span class="pre">AsmSinglePage</span></code> file ID</p></td>
 </tr>
-<tr class="row-odd"><td>4.3</td>
-<td>Added the <code class="docutils literal notranslate"><span class="pre">CodeFiles</span></code> file ID</td>
+<tr class="row-odd"><td><p>4.3</p></td>
+<td><p>Added the <code class="docutils literal notranslate"><span class="pre">CodeFiles</span></code> file ID</p></td>
 </tr>
-<tr class="row-even"><td>3.1.1</td>
-<td>Added the <code class="docutils literal notranslate"><span class="pre">FontPath</span></code> directory ID</td>
+<tr class="row-even"><td><p>3.1.1</p></td>
+<td><p>Added the <code class="docutils literal notranslate"><span class="pre">FontPath</span></code> directory ID</p></td>
 </tr>
-<tr class="row-odd"><td>2.5</td>
-<td>Added the <code class="docutils literal notranslate"><span class="pre">UnusedMap</span></code> file ID</td>
+<tr class="row-odd"><td><p>2.5</p></td>
+<td><p>Added the <code class="docutils literal notranslate"><span class="pre">UnusedMap</span></code> file ID</p></td>
 </tr>
-<tr class="row-even"><td>2.2.5</td>
-<td>Added the <code class="docutils literal notranslate"><span class="pre">Changelog</span></code> file ID</td>
+<tr class="row-even"><td><p>2.2.5</p></td>
+<td><p>Added the <code class="docutils literal notranslate"><span class="pre">Changelog</span></code> file ID</p></td>
 </tr>
-<tr class="row-odd"><td>2.1.1</td>
-<td>Added the <code class="docutils literal notranslate"><span class="pre">CodePath</span></code> directory ID</td>
+<tr class="row-odd"><td><p>2.1.1</p></td>
+<td><p>Added the <code class="docutils literal notranslate"><span class="pre">CodePath</span></code> directory ID</p></td>
 </tr>
-<tr class="row-even"><td>2.0.5</td>
-<td>Added the <code class="docutils literal notranslate"><span class="pre">FontImagePath</span></code> directory ID</td>
+<tr class="row-even"><td><p>2.0.5</p></td>
+<td><p>Added the <code class="docutils literal notranslate"><span class="pre">FontImagePath</span></code> directory ID</p></td>
 </tr>
-<tr class="row-odd"><td>2.0</td>
-<td>New</td>
+<tr class="row-odd"><td><p>2.0</p></td>
+<td><p>New</p></td>
 </tr>
 </tbody>
 </table>
@@ -1050,9 +951,9 @@ build directory when <a class="reference internal" href="commands.html#skool2htm
 </div>
 <p>where:</p>
 <ul class="simple">
-<li><code class="docutils literal notranslate"><span class="pre">fname</span></code> is the name of the file to copy</li>
-<li><code class="docutils literal notranslate"><span class="pre">destDir</span></code> is the destination directory, relative to the root directory of
-the disassembly; the directory will be created if it doesn’t already exist</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">fname</span></code> is the name of the file to copy</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">destDir</span></code> is the destination directory, relative to the root directory of
+the disassembly; the directory will be created if it doesn’t already exist</p></li>
 </ul>
 <p>The files to be copied must be present in <cite>skool2html.py</cite>’s search path in
 order for it to find them. To see the search path, run:</p>
@@ -1062,36 +963,32 @@ order for it to find them. To see the search path, run:</p>
 <p><code class="docutils literal notranslate"><span class="pre">fname</span></code> may contain the special wildcard characters <code class="docutils literal notranslate"><span class="pre">*</span></code>, <code class="docutils literal notranslate"><span class="pre">?</span></code> and <code class="docutils literal notranslate"><span class="pre">[]</span></code>,
 which are expanded as follows:</p>
 <ul class="simple">
-<li><code class="docutils literal notranslate"><span class="pre">*</span></code> - matches any number of characters</li>
-<li><code class="docutils literal notranslate"><span class="pre">**</span></code> - matches any files and zero or more directories and subdirectories</li>
-<li><code class="docutils literal notranslate"><span class="pre">?</span></code> - matches any single character</li>
-<li><code class="docutils literal notranslate"><span class="pre">[seq]</span></code> - matches any character in <code class="docutils literal notranslate"><span class="pre">seq</span></code>; <code class="docutils literal notranslate"><span class="pre">seq</span></code> may be a simple
-sequence of characters (e.g. <code class="docutils literal notranslate"><span class="pre">abcde</span></code>) or a range (e.g. <code class="docutils literal notranslate"><span class="pre">a-e</span></code>)</li>
-<li><code class="docutils literal notranslate"><span class="pre">[!seq]</span></code> - matches any character not in <code class="docutils literal notranslate"><span class="pre">seq</span></code></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">*</span></code> - matches any number of characters</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">**</span></code> - matches any files and zero or more directories and subdirectories</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">?</span></code> - matches any single character</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">[seq]</span></code> - matches any character in <code class="docutils literal notranslate"><span class="pre">seq</span></code>; <code class="docutils literal notranslate"><span class="pre">seq</span></code> may be a simple
+sequence of characters (e.g. <code class="docutils literal notranslate"><span class="pre">abcde</span></code>) or a range (e.g. <code class="docutils literal notranslate"><span class="pre">a-e</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">[!seq]</span></code> - matches any character not in <code class="docutils literal notranslate"><span class="pre">seq</span></code></p></li>
 </ul>
 <p>If your disassembly requires pre-built images or other resources that SkoolKit
 does not build, listing them in this section ensures that they will be copied
 into place whenever the disassembly is built.</p>
-<table border="1" class="docutils">
-<colgroup>
-<col width="12%" />
-<col width="88%" />
-</colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">Version</th>
-<th class="head">Changes</th>
+<table class="docutils colwidths-auto align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Version</p></th>
+<th class="head"><p>Changes</p></th>
 </tr>
 </thead>
-<tbody valign="top">
-<tr class="row-even"><td>8.0</td>
-<td>Added support for the <code class="docutils literal notranslate"><span class="pre">**</span></code> pattern</td>
+<tbody>
+<tr class="row-even"><td><p>8.0</p></td>
+<td><p>Added support for the <code class="docutils literal notranslate"><span class="pre">**</span></code> pattern</p></td>
 </tr>
-<tr class="row-odd"><td>6.3</td>
-<td>Added support for pathname pattern expansion using wildcard
-characters</td>
+<tr class="row-odd"><td><p>6.3</p></td>
+<td><p>Added support for pathname pattern expansion using wildcard
+characters</p></td>
 </tr>
-<tr class="row-even"><td>3.6</td>
-<td>New</td>
+<tr class="row-even"><td><p>3.6</p></td>
+<td><p>New</p></td>
 </tr>
 </tbody>
 </table>
@@ -1105,19 +1002,15 @@ part of one).</p>
 </pre></div>
 </div>
 <p>For more information, see <a class="reference internal" href="html-templates.html#htmltemplates"><span class="std std-ref">HTML templates</span></a>.</p>
-<table border="1" class="docutils">
-<colgroup>
-<col width="50%" />
-<col width="50%" />
-</colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">Version</th>
-<th class="head">Changes</th>
+<table class="docutils colwidths-auto align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Version</p></th>
+<th class="head"><p>Changes</p></th>
 </tr>
 </thead>
-<tbody valign="top">
-<tr class="row-even"><td>4.0</td>
-<td>New</td>
+<tbody>
+<tr class="row-even"><td><p>4.0</p></td>
+<td><p>New</p></td>
 </tr>
 </tbody>
 </table>
@@ -1132,43 +1025,43 @@ form:</p>
 </div>
 <p>where:</p>
 <ul class="simple">
-<li><code class="docutils literal notranslate"><span class="pre">PageID</span></code> is the ID of the page</li>
-<li><code class="docutils literal notranslate"><span class="pre">title</span></code> is the page title</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">PageID</span></code> is the ID of the page</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">title</span></code> is the page title</p></li>
 </ul>
 <p>Recognised page IDs and their default titles are:</p>
 <ul class="simple">
-<li><code class="docutils literal notranslate"><span class="pre">Asm-b</span></code> - disassembly pages for ‘b’ blocks (default: ‘Data at
-{entry[address]}’)</li>
-<li><code class="docutils literal notranslate"><span class="pre">Asm-c</span></code> - disassembly pages for ‘c’ blocks (default: ‘Routine at
-{entry[address]}’)</li>
-<li><code class="docutils literal notranslate"><span class="pre">Asm-g</span></code> - disassembly pages for ‘g’ blocks (default: ‘Game status buffer
-entry at {entry[address]}’)</li>
-<li><code class="docutils literal notranslate"><span class="pre">Asm-s</span></code> - disassembly pages for ‘s’ blocks (default: ‘Unused RAM at
-{entry[address]}’)</li>
-<li><code class="docutils literal notranslate"><span class="pre">Asm-t</span></code> - disassembly pages for ‘t’ blocks (default: ‘Text at
-{entry[address]}’)</li>
-<li><code class="docutils literal notranslate"><span class="pre">Asm-u</span></code> - disassembly pages for ‘u’ blocks (default: ‘Unused RAM at
-{entry[address]}’)</li>
-<li><code class="docutils literal notranslate"><span class="pre">Asm-w</span></code> - disassembly pages for ‘w’ blocks (default: ‘Data at
-{entry[address]}’)</li>
-<li><code class="docutils literal notranslate"><span class="pre">AsmSinglePage</span></code> - the disassembly page (when writing a single-page
-disassembly; default: ‘Disassembly’)</li>
-<li><code class="docutils literal notranslate"><span class="pre">Bugs</span></code> - the ‘Bugs’ page (default: ‘Bugs’)</li>
-<li><code class="docutils literal notranslate"><span class="pre">Changelog</span></code> - the ‘Changelog’ page (default: ‘Changelog’)</li>
-<li><code class="docutils literal notranslate"><span class="pre">DataMap</span></code> - the ‘Data’ memory map page (default: ‘Data’)</li>
-<li><code class="docutils literal notranslate"><span class="pre">Facts</span></code> - the ‘Trivia’ page (default: ‘Trivia’)</li>
-<li><code class="docutils literal notranslate"><span class="pre">GameIndex</span></code> - the disassembly index page (default: ‘Index’)</li>
-<li><code class="docutils literal notranslate"><span class="pre">GameStatusBuffer</span></code> - the ‘Game status buffer’ page (default: ‘Game status
-buffer’)</li>
-<li><code class="docutils literal notranslate"><span class="pre">Glossary</span></code> - the ‘Glossary’ page (default: ‘Glossary’)</li>
-<li><code class="docutils literal notranslate"><span class="pre">GraphicGlitches</span></code> - the ‘Graphic glitches’ page (default: ‘Graphic
-glitches’)</li>
-<li><code class="docutils literal notranslate"><span class="pre">MemoryMap</span></code> - the ‘Everything’ memory map page (default: ‘Memory map’)</li>
-<li><code class="docutils literal notranslate"><span class="pre">MessagesMap</span></code> - the ‘Messages’ memory map page (default: ‘Messages’)</li>
-<li><code class="docutils literal notranslate"><span class="pre">Pokes</span></code> - the ‘Pokes’ page (default: ‘Pokes’)</li>
-<li><code class="docutils literal notranslate"><span class="pre">RoutinesMap</span></code> - the ‘Routines’ memory map page (default: ‘Routines’)</li>
-<li><code class="docutils literal notranslate"><span class="pre">UnusedMap</span></code> - the ‘Unused addresses’ memory map page (default: ‘Unused
-addresses’)</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Asm-b</span></code> - disassembly pages for ‘b’ blocks (default: ‘Data at
+{entry[address]}’)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Asm-c</span></code> - disassembly pages for ‘c’ blocks (default: ‘Routine at
+{entry[address]}’)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Asm-g</span></code> - disassembly pages for ‘g’ blocks (default: ‘Game status buffer
+entry at {entry[address]}’)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Asm-s</span></code> - disassembly pages for ‘s’ blocks (default: ‘Unused RAM at
+{entry[address]}’)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Asm-t</span></code> - disassembly pages for ‘t’ blocks (default: ‘Text at
+{entry[address]}’)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Asm-u</span></code> - disassembly pages for ‘u’ blocks (default: ‘Unused RAM at
+{entry[address]}’)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Asm-w</span></code> - disassembly pages for ‘w’ blocks (default: ‘Data at
+{entry[address]}’)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">AsmSinglePage</span></code> - the disassembly page (when writing a single-page
+disassembly; default: ‘Disassembly’)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Bugs</span></code> - the ‘Bugs’ page (default: ‘Bugs’)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Changelog</span></code> - the ‘Changelog’ page (default: ‘Changelog’)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">DataMap</span></code> - the ‘Data’ memory map page (default: ‘Data’)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Facts</span></code> - the ‘Trivia’ page (default: ‘Trivia’)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">GameIndex</span></code> - the disassembly index page (default: ‘Index’)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">GameStatusBuffer</span></code> - the ‘Game status buffer’ page (default: ‘Game status
+buffer’)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Glossary</span></code> - the ‘Glossary’ page (default: ‘Glossary’)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">GraphicGlitches</span></code> - the ‘Graphic glitches’ page (default: ‘Graphic
+glitches’)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">MemoryMap</span></code> - the ‘Everything’ memory map page (default: ‘Memory map’)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">MessagesMap</span></code> - the ‘Messages’ memory map page (default: ‘Messages’)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Pokes</span></code> - the ‘Pokes’ page (default: ‘Pokes’)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">RoutinesMap</span></code> - the ‘Routines’ memory map page (default: ‘Routines’)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">UnusedMap</span></code> - the ‘Unused addresses’ memory map page (default: ‘Unused
+addresses’)</p></li>
 </ul>
 <p>Every parameter in this section may contain <a class="reference internal" href="skool-macros.html#skoolmacros"><span class="std std-ref">skool macros</span></a>.</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">Asm-*</span></code> parameters are formatted with an <code class="docutils literal notranslate"><span class="pre">entry</span></code> dictionary identical
@@ -1179,40 +1072,36 @@ section.</p>
 <p>The title of each disassembly page for the entries belonging to a group defined
 in the <a class="reference internal" href="#entrygroups"><span class="std std-ref">[EntryGroups]</span></a> section defaults to the title for that page’s entry
 type, but can be overridden in this section.</p>
-<table border="1" class="docutils">
-<colgroup>
-<col width="12%" />
-<col width="88%" />
-</colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">Version</th>
-<th class="head">Changes</th>
+<table class="docutils colwidths-auto align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Version</p></th>
+<th class="head"><p>Changes</p></th>
 </tr>
 </thead>
-<tbody valign="top">
-<tr class="row-even"><td>8.0</td>
-<td>An <code class="docutils literal notranslate"><span class="pre">entry</span></code> dictionary is available when formatting <code class="docutils literal notranslate"><span class="pre">Asm-*</span></code>
+<tbody>
+<tr class="row-even"><td><p>8.0</p></td>
+<td><p>An <code class="docutils literal notranslate"><span class="pre">entry</span></code> dictionary is available when formatting <code class="docutils literal notranslate"><span class="pre">Asm-*</span></code>
 parameters; the default title for each <code class="docutils literal notranslate"><span class="pre">Asm-*</span></code> page includes
-the entry address as a replacement field</td>
+the entry address as a replacement field</p></td>
 </tr>
-<tr class="row-odd"><td>6.0</td>
-<td>The default title for <code class="docutils literal notranslate"><span class="pre">Asm-t</span></code> pages is ‘Text at’; titles may
-contain <a class="reference internal" href="skool-macros.html#skoolmacros"><span class="std std-ref">skool macros</span></a></td>
+<tr class="row-odd"><td><p>6.0</p></td>
+<td><p>The default title for <code class="docutils literal notranslate"><span class="pre">Asm-t</span></code> pages is ‘Text at’; titles may
+contain <a class="reference internal" href="skool-macros.html#skoolmacros"><span class="std std-ref">skool macros</span></a></p></td>
 </tr>
-<tr class="row-even"><td>5.3</td>
-<td>Added the <code class="docutils literal notranslate"><span class="pre">AsmSinglePage</span></code> page ID</td>
+<tr class="row-even"><td><p>5.3</p></td>
+<td><p>Added the <code class="docutils literal notranslate"><span class="pre">AsmSinglePage</span></code> page ID</p></td>
 </tr>
-<tr class="row-odd"><td>4.0</td>
-<td>Added the <code class="docutils literal notranslate"><span class="pre">Asm-*</span></code> page IDs</td>
+<tr class="row-odd"><td><p>4.0</p></td>
+<td><p>Added the <code class="docutils literal notranslate"><span class="pre">Asm-*</span></code> page IDs</p></td>
 </tr>
-<tr class="row-even"><td>2.5</td>
-<td>Added the <code class="docutils literal notranslate"><span class="pre">UnusedMap</span></code> page ID</td>
+<tr class="row-even"><td><p>2.5</p></td>
+<td><p>Added the <code class="docutils literal notranslate"><span class="pre">UnusedMap</span></code> page ID</p></td>
 </tr>
-<tr class="row-odd"><td>2.2.5</td>
-<td>Added the <code class="docutils literal notranslate"><span class="pre">Changelog</span></code> page ID</td>
+<tr class="row-odd"><td><p>2.2.5</p></td>
+<td><p>Added the <code class="docutils literal notranslate"><span class="pre">Changelog</span></code> page ID</p></td>
 </tr>
-<tr class="row-even"><td>2.0.5</td>
-<td>New</td>
+<tr class="row-even"><td><p>2.0.5</p></td>
+<td><p>New</p></td>
 </tr>
 </tbody>
 </table>
@@ -1227,13 +1116,13 @@ sections from which the entries are built.</p>
 <p>SkoolKit defines some box pages by default. Their names and the ref file
 sections that can be used to define their entries are as follows:</p>
 <ul class="simple">
-<li><code class="docutils literal notranslate"><span class="pre">Bugs</span></code> - <code class="docutils literal notranslate"><span class="pre">[Bug:title]</span></code> or <code class="docutils literal notranslate"><span class="pre">[Bug:anchor:title]</span></code></li>
-<li><code class="docutils literal notranslate"><span class="pre">Changelog</span></code> - <code class="docutils literal notranslate"><span class="pre">[Changelog:title]</span></code> or <code class="docutils literal notranslate"><span class="pre">[Changelog:anchor:title]</span></code></li>
-<li><code class="docutils literal notranslate"><span class="pre">Facts</span></code> - <code class="docutils literal notranslate"><span class="pre">[Fact:title]</span></code> or <code class="docutils literal notranslate"><span class="pre">[Fact:anchor:title]</span></code></li>
-<li><code class="docutils literal notranslate"><span class="pre">Glossary</span></code> - <code class="docutils literal notranslate"><span class="pre">[Glossary:title]</span></code> or <code class="docutils literal notranslate"><span class="pre">[Glossary:anchor:title]</span></code></li>
-<li><code class="docutils literal notranslate"><span class="pre">GraphicGlitches</span></code> - <code class="docutils literal notranslate"><span class="pre">[GraphicGlitch:title]</span></code> or
-<code class="docutils literal notranslate"><span class="pre">[GraphicGlitch:anchor:title]</span></code></li>
-<li><code class="docutils literal notranslate"><span class="pre">Pokes</span></code> - <code class="docutils literal notranslate"><span class="pre">[Poke:title]</span></code> or <code class="docutils literal notranslate"><span class="pre">[Poke:anchor:title]</span></code></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Bugs</span></code> - <code class="docutils literal notranslate"><span class="pre">[Bug:title]</span></code> or <code class="docutils literal notranslate"><span class="pre">[Bug:anchor:title]</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Changelog</span></code> - <code class="docutils literal notranslate"><span class="pre">[Changelog:title]</span></code> or <code class="docutils literal notranslate"><span class="pre">[Changelog:anchor:title]</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Facts</span></code> - <code class="docutils literal notranslate"><span class="pre">[Fact:title]</span></code> or <code class="docutils literal notranslate"><span class="pre">[Fact:anchor:title]</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Glossary</span></code> - <code class="docutils literal notranslate"><span class="pre">[Glossary:title]</span></code> or <code class="docutils literal notranslate"><span class="pre">[Glossary:anchor:title]</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">GraphicGlitches</span></code> - <code class="docutils literal notranslate"><span class="pre">[GraphicGlitch:title]</span></code> or
+<code class="docutils literal notranslate"><span class="pre">[GraphicGlitch:anchor:title]</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Pokes</span></code> - <code class="docutils literal notranslate"><span class="pre">[Poke:title]</span></code> or <code class="docutils literal notranslate"><span class="pre">[Poke:anchor:title]</span></code></p></li>
 </ul>
 <p>To see the contents of the default <a class="reference internal" href="#page"><span class="std std-ref">[Page:*]</span></a> sections, run the following
 command:</p>
@@ -1294,12 +1183,12 @@ Intro text.
 <p>An entry section’s <code class="docutils literal notranslate"><span class="pre">anchor</span></code>, <code class="docutils literal notranslate"><span class="pre">title</span></code> and contents may contain HTML markup
 and <a class="reference internal" href="skool-macros.html#skoolmacros"><span class="std std-ref">skool macros</span></a>.</p>
 <div class="versionchanged">
-<p><span class="versionmodified">Changed in version 6.0: </span>Added support for parsing an entry section as a sequence of multi-line list
+<p><span class="versionmodified changed">Changed in version 6.0: </span>Added support for parsing an entry section as a sequence of multi-line list
 items prefixed by ‘-‘ (<code class="docutils literal notranslate"><span class="pre">SectionType=BulletPoints</span></code>). The <code class="docutils literal notranslate"><span class="pre">anchor</span></code> and
 <code class="docutils literal notranslate"><span class="pre">title</span></code> of an entry section name may contain <a class="reference internal" href="skool-macros.html#skoolmacros"><span class="std std-ref">skool macros</span></a>.</p>
 </div>
 <div class="versionchanged">
-<p><span class="versionmodified">Changed in version 5.4: </span>The <code class="docutils literal notranslate"><span class="pre">anchor</span></code> part of an entry section name is optional.</p>
+<p><span class="versionmodified changed">Changed in version 5.4: </span>The <code class="docutils literal notranslate"><span class="pre">anchor</span></code> part of an entry section name is optional.</p>
 </div>
 </div>
 <div class="section" id="appending-content">
@@ -1312,7 +1201,7 @@ AddressAnchor={address:04x}
 </pre></div>
 </div>
 <div class="versionadded">
-<p><span class="versionmodified">New in version 7.0.</span></p>
+<p><span class="versionmodified added">New in version 7.0.</span></p>
 </div>
 </div>
 <div class="section" id="ref-file-comments">
@@ -1357,13 +1246,68 @@ section header it can be escaped by doubling the opening square bracket:</p>
 <p>In fact, any line that starts with two opening square brackets will be rendered
 with the first one removed.</p>
 <div class="versionadded">
-<p><span class="versionmodified">New in version 4.0.</span></p>
+<p><span class="versionmodified added">New in version 4.0.</span></p>
 </div>
 </div>
 </div>
 
 
+            <div class="clearer"></div>
           </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Ref files</a><ul>
+<li><a class="reference internal" href="#colours">[Colours]</a></li>
+<li><a class="reference internal" href="#config">[Config]</a></li>
+<li><a class="reference internal" href="#entrygroups">[EntryGroups]</a></li>
+<li><a class="reference internal" href="#game">[Game]</a></li>
+<li><a class="reference internal" href="#imagewriter">[ImageWriter]</a></li>
+<li><a class="reference internal" href="#index">[Index]</a></li>
+<li><a class="reference internal" href="#indexgroup">[Index:*:*]</a></li>
+<li><a class="reference internal" href="#links">[Links]</a></li>
+<li><a class="reference internal" href="#memorymap">[MemoryMap:*]</a></li>
+<li><a class="reference internal" href="#othercode">[OtherCode:*]</a></li>
+<li><a class="reference internal" href="#page">[Page:*]</a></li>
+<li><a class="reference internal" href="#pageheaders">[PageHeaders]</a></li>
+<li><a class="reference internal" href="#paths">[Paths]</a></li>
+<li><a class="reference internal" href="#resources">[Resources]</a></li>
+<li><a class="reference internal" href="#template">[Template:*]</a></li>
+<li><a class="reference internal" href="#titles">[Titles]</a></li>
+<li><a class="reference internal" href="#box-pages">Box pages</a></li>
+<li><a class="reference internal" href="#appending-content">Appending content</a></li>
+<li><a class="reference internal" href="#ref-file-comments">Ref file comments</a></li>
+<li><a class="reference internal" href="#square-brackets">Square brackets</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="skool-macros.html"
+                        title="previous chapter">Skool macros</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="asm.html"
+                        title="next chapter">ASM modes and directives</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/ref-files.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
         </div>
       </div>
       <div class="clearer"></div>
@@ -1383,12 +1327,13 @@ with the first one removed.</p>
         <li class="right" >
           <a href="skool-macros.html" title="Skool macros"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.5 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.6 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Ref files</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2021, Richard Dymond.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.4.3.
     </div>
   </body>
 </html>

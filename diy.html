@@ -1,19 +1,18 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Disassembly DIY &#8212; SkoolKit 8.5 documentation</title>
-    <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Disassembly DIY &#8212; SkoolKit 8.6 documentation</title>
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-    <script type="text/javascript" src="_static/jquery.js"></script>
-    <script type="text/javascript" src="_static/underscore.js"></script>
-    <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="_static/language_data.js"></script>
+    <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="_static/custom.css" />
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Commands" href="commands.html" />
@@ -34,52 +33,10 @@
         <li class="right" >
           <a href="usage.html" title="Installing and using SkoolKit"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.5 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.6 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Disassembly DIY</a></li> 
       </ul>
-    </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper">
-  <h3><a href="index.html">Table of Contents</a></h3>
-  <ul>
-<li><a class="reference internal" href="#">Disassembly DIY</a><ul>
-<li><a class="reference internal" href="#getting-started">Getting started</a></li>
-<li><a class="reference internal" href="#the-control-file">The control file</a></li>
-<li><a class="reference internal" href="#a-skeleton-disassembly">A skeleton disassembly</a></li>
-<li><a class="reference internal" href="#generating-a-control-file">Generating a control file</a></li>
-<li><a class="reference internal" href="#developing-the-skool-file">Developing the skool file</a></li>
-<li><a class="reference internal" href="#adding-pokes-bugs-and-trivia">Adding pokes, bugs and trivia</a></li>
-<li><a class="reference internal" href="#themes">Themes</a></li>
-</ul>
-</li>
-</ul>
-
-  <h4>Previous topic</h4>
-  <p class="topless"><a href="usage.html"
-                        title="previous chapter">Installing and using SkoolKit</a></p>
-  <h4>Next topic</h4>
-  <p class="topless"><a href="commands.html"
-                        title="next chapter">Commands</a></p>
-  <div role="note" aria-label="source link">
-    <h3>This Page</h3>
-    <ul class="this-page-menu">
-      <li><a href="_sources/diy.rst.txt"
-            rel="nofollow">Show Source</a></li>
-    </ul>
-   </div>
-<div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
-    <div class="searchformwrapper">
-    <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
-    </form>
-    </div>
-</div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
-        </div>
-      </div>
+    </div>  
 
     <div class="document">
       <div class="documentwrapper">
@@ -141,10 +98,10 @@ c 25167
 </div>
 <p>This control file declares that there is:</p>
 <ul class="simple">
-<li>a data block at 16384 titled ‘Loading screen’</li>
-<li>a block at 23296 that should be ignored</li>
-<li>a code block (routine) at 24576 titled ‘The game has just loaded’</li>
-<li>another code block at 25167</li>
+<li><p>a data block at 16384 titled ‘Loading screen’</p></li>
+<li><p>a block at 23296 that should be ignored</p></li>
+<li><p>a code block (routine) at 24576 titled ‘The game has just loaded’</p></li>
+<li><p>another code block at 25167</p></li>
 </ul>
 <p>For more information on control file directives and their syntax, see
 <a class="reference internal" href="control-files.html#controlfiles"><span class="std std-ref">Control files</span></a>.</p>
@@ -233,14 +190,14 @@ by one, in order, and move to the next only when it’s fully documented - unles
 you’re looking for a nervous breakdown. Instead it’s better to approach the job
 like this:</p>
 <ol class="arabic simple">
-<li>Skim the code blocks for any code whose purpose is familiar or obvious,
-such as drawing something on the screen, or producing a sound effect.</li>
-<li>Document that code (and any related data) as far as possible.</li>
-<li>Find another code block that calls the code block just documented, and
-figure out when, why and how it uses it.</li>
-<li>Document that code (and any related data) as far as possible.</li>
-<li>If there’s anything left to document, return to step 3.</li>
-<li>Done!</li>
+<li><p>Skim the code blocks for any code whose purpose is familiar or obvious,
+such as drawing something on the screen, or producing a sound effect.</p></li>
+<li><p>Document that code (and any related data) as far as possible.</p></li>
+<li><p>Find another code block that calls the code block just documented, and
+figure out when, why and how it uses it.</p></li>
+<li><p>Document that code (and any related data) as far as possible.</p></li>
+<li><p>If there’s anything left to document, return to step 3.</p></li>
+<li><p>Done!</p></li>
 </ol>
 <p>It also goes without saying that figuring out what a piece of code or data
 might be used for is easier if you’ve played the game to death already.</p>
@@ -306,11 +263,11 @@ page in the same order as the sections appear in the ref file.</p>
 <p>In addition to the default theme (defined in <cite>skoolkit.css</cite>), SkoolKit includes
 some alternative themes:</p>
 <ul class="simple">
-<li>dark (dark colours): <cite>skoolkit-dark.css</cite></li>
-<li>green (mostly green): <cite>skoolkit-green.css</cite></li>
-<li>plum (mostly purple): <cite>skoolkit-plum.css</cite></li>
-<li>wide (wide comment fields on the disassembly pages, and wide boxes on the
-Changelog, Glossary, Trivia, Bugs and Pokes pages): <cite>skoolkit-wide.css</cite></li>
+<li><p>dark (dark colours): <cite>skoolkit-dark.css</cite></p></li>
+<li><p>green (mostly green): <cite>skoolkit-green.css</cite></p></li>
+<li><p>plum (mostly purple): <cite>skoolkit-plum.css</cite></p></li>
+<li><p>wide (wide comment fields on the disassembly pages, and wide boxes on the
+Changelog, Glossary, Trivia, Bugs and Pokes pages): <cite>skoolkit-wide.css</cite></p></li>
 </ul>
 <p>In order to use a theme, run <cite>skool2html.py</cite> with the <code class="docutils literal notranslate"><span class="pre">-T</span></code> option; for
 example, to use the ‘dark’ theme:</p>
@@ -322,10 +279,74 @@ example, to use the ‘dark’ theme:</p>
 </pre></div>
 </div>
 </div>
+<div class="section" id="base-switching">
+<h2>Base switching<a class="headerlink" href="#base-switching" title="Permalink to this headline">¶</a></h2>
+<p>If you would like to build both decimal and hexadecimal versions of your
+disassembly in HTML format and have them link to each other, then one possible
+approach is to define a custom page footer that contains a link to the
+corresponding page in the alternative disassembly.</p>
+<p>An example of such a page footer can be found in <em>examples/bases.ref</em>, and the
+required Python code that generates the appropriate link for each page can be
+found in <em>examples/bases.py</em>. To use <em>bases.ref</em> and <em>bases.py</em> with your
+disassembly, first place copies of them alongside your existing skool and ref
+files. Then:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ skool2html.py -D -c Config/GameDir=html/dec -c Config/InitModule=:bases game.skool bases.ref
+$ skool2html.py -H -c Config/GameDir=html/hex -c Config/InitModule=:bases game.skool bases.ref
+</pre></div>
+</div>
+<p>The first command here builds the decimal version of the disassembly in the
+directory <em>html/dec</em>, and the second command builds the hexadecimal version in
+the directory <em>html/hex</em>. The footer of each page in the decimal version will
+contain a link to the corresponding page in the hexadecimal version, and vice
+versa.</p>
+</div>
 </div>
 
 
+            <div class="clearer"></div>
           </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Disassembly DIY</a><ul>
+<li><a class="reference internal" href="#getting-started">Getting started</a></li>
+<li><a class="reference internal" href="#the-control-file">The control file</a></li>
+<li><a class="reference internal" href="#a-skeleton-disassembly">A skeleton disassembly</a></li>
+<li><a class="reference internal" href="#generating-a-control-file">Generating a control file</a></li>
+<li><a class="reference internal" href="#developing-the-skool-file">Developing the skool file</a></li>
+<li><a class="reference internal" href="#adding-pokes-bugs-and-trivia">Adding pokes, bugs and trivia</a></li>
+<li><a class="reference internal" href="#themes">Themes</a></li>
+<li><a class="reference internal" href="#base-switching">Base switching</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="usage.html"
+                        title="previous chapter">Installing and using SkoolKit</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="commands.html"
+                        title="next chapter">Commands</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/diy.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
         </div>
       </div>
       <div class="clearer"></div>
@@ -345,12 +366,13 @@ example, to use the ‘dark’ theme:</p>
         <li class="right" >
           <a href="usage.html" title="Installing and using SkoolKit"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.5 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.6 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Disassembly DIY</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2021, Richard Dymond.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.4.3.
     </div>
   </body>
 </html>

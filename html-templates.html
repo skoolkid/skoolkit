@@ -1,19 +1,18 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>HTML templates &#8212; SkoolKit 8.5 documentation</title>
-    <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>HTML templates &#8212; SkoolKit 8.6 documentation</title>
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-    <script type="text/javascript" src="_static/jquery.js"></script>
-    <script type="text/javascript" src="_static/underscore.js"></script>
-    <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="_static/language_data.js"></script>
+    <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="_static/custom.css" />
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Extending SkoolKit" href="extending.html" />
@@ -34,68 +33,10 @@
         <li class="right" >
           <a href="asm-templates.html" title="ASM templates"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.5 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.6 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">HTML templates</a></li> 
       </ul>
-    </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper">
-  <h3><a href="index.html">Table of Contents</a></h3>
-  <ul>
-<li><a class="reference internal" href="#">HTML templates</a><ul>
-<li><a class="reference internal" href="#layout">Layout</a></li>
-<li><a class="reference internal" href="#asm">asm</a></li>
-<li><a class="reference internal" href="#asm-single-page">asm_single_page</a></li>
-<li><a class="reference internal" href="#box-entries">box_entries</a></li>
-<li><a class="reference internal" href="#box-list-entries">box_list_entries</a></li>
-<li><a class="reference internal" href="#footer">footer</a></li>
-<li><a class="reference internal" href="#home">home</a></li>
-<li><a class="reference internal" href="#img">img</a></li>
-<li><a class="reference internal" href="#item-list">item_list</a></li>
-<li><a class="reference internal" href="#link">link</a></li>
-<li><a class="reference internal" href="#list">list</a></li>
-<li><a class="reference internal" href="#memory-map">memory_map</a></li>
-<li><a class="reference internal" href="#page">page</a></li>
-<li><a class="reference internal" href="#reg">reg</a></li>
-<li><a class="reference internal" href="#section">section</a></li>
-<li><a class="reference internal" href="#table">table</a></li>
-<li><a class="reference internal" href="#template-directives">Template directives</a><ul>
-<li><a class="reference internal" href="#foreach">foreach</a></li>
-<li><a class="reference internal" href="#if">if</a></li>
-<li><a class="reference internal" href="#include">include</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#page-specific-templates">Page-specific templates</a></li>
-</ul>
-</li>
-</ul>
-
-  <h4>Previous topic</h4>
-  <p class="topless"><a href="asm-templates.html"
-                        title="previous chapter">ASM templates</a></p>
-  <h4>Next topic</h4>
-  <p class="topless"><a href="extending.html"
-                        title="next chapter">Extending SkoolKit</a></p>
-  <div role="note" aria-label="source link">
-    <h3>This Page</h3>
-    <ul class="this-page-menu">
-      <li><a href="_sources/html-templates.rst.txt"
-            rel="nofollow">Show Source</a></li>
-    </ul>
-   </div>
-<div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
-    <div class="searchformwrapper">
-    <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
-    </form>
-    </div>
-</div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
-        </div>
-      </div>
+    </div>  
 
     <div class="document">
       <div class="documentwrapper">
@@ -112,37 +53,37 @@ file.</p>
 from the skool file or a ref file section) when the template is formatted. The
 following ‘universal’ identifiers are available in every template:</p>
 <ul class="simple">
-<li><code class="docutils literal notranslate"><span class="pre">Game</span></code> - a dictionary of the parameters in the <a class="reference internal" href="ref-files.html#ref-game"><span class="std std-ref">[Game]</span></a> section</li>
-<li><code class="docutils literal notranslate"><span class="pre">SkoolKit</span></code> - a dictionary of parameters relevant to the page currently
-being built</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Game</span></code> - a dictionary of the parameters in the <a class="reference internal" href="ref-files.html#ref-game"><span class="std std-ref">[Game]</span></a> section</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">SkoolKit</span></code> - a dictionary of parameters relevant to the page currently
+being built</p></li>
 </ul>
 <p>The parameters in the <code class="docutils literal notranslate"><span class="pre">SkoolKit</span></code> dictionary are:</p>
 <ul class="simple">
-<li><code class="docutils literal notranslate"><span class="pre">include</span></code> - the name of the subtemplate used to format the content between
-the page header and footer</li>
-<li><code class="docutils literal notranslate"><span class="pre">index_href</span></code> - the relative path to the disassembly index page</li>
-<li><code class="docutils literal notranslate"><span class="pre">javascripts</span></code> - a list of javascript objects; each one has a single
-attribute, <code class="docutils literal notranslate"><span class="pre">src</span></code>, which holds the relative path to the JavaScript file</li>
-<li><code class="docutils literal notranslate"><span class="pre">page_header</span></code> - a two-element list containing the page header prefix and
-suffix (as defined in the <a class="reference internal" href="ref-files.html#pageheaders"><span class="std std-ref">[PageHeaders]</span></a> section)</li>
-<li><code class="docutils literal notranslate"><span class="pre">page_id</span></code> - the page ID (e.g. <code class="docutils literal notranslate"><span class="pre">GameIndex</span></code>, <code class="docutils literal notranslate"><span class="pre">MemoryMap</span></code>)</li>
-<li><code class="docutils literal notranslate"><span class="pre">path</span></code> - the page’s filename, including the full path relative to the root
-of the disassembly</li>
-<li><code class="docutils literal notranslate"><span class="pre">stylesheets</span></code> - a list of stylesheet objects; each one has a single
-attribute, <code class="docutils literal notranslate"><span class="pre">href</span></code>, which holds the relative path to the CSS file</li>
-<li><code class="docutils literal notranslate"><span class="pre">title</span></code> - the title of the page (as defined in the <a class="reference internal" href="ref-files.html#titles"><span class="std std-ref">[Titles]</span></a> section)</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">include</span></code> - the name of the subtemplate used to format the content between
+the page header and footer</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">index_href</span></code> - the relative path to the disassembly index page</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">javascripts</span></code> - a list of javascript objects; each one has a single
+attribute, <code class="docutils literal notranslate"><span class="pre">src</span></code>, which holds the relative path to the JavaScript file</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">page_header</span></code> - a two-element list containing the page header prefix and
+suffix (as defined in the <a class="reference internal" href="ref-files.html#pageheaders"><span class="std std-ref">[PageHeaders]</span></a> section)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">page_id</span></code> - the page ID (e.g. <code class="docutils literal notranslate"><span class="pre">GameIndex</span></code>, <code class="docutils literal notranslate"><span class="pre">MemoryMap</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">path</span></code> - the page’s filename, including the full path relative to the root
+of the disassembly</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">stylesheets</span></code> - a list of stylesheet objects; each one has a single
+attribute, <code class="docutils literal notranslate"><span class="pre">href</span></code>, which holds the relative path to the CSS file</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">title</span></code> - the title of the page (as defined in the <a class="reference internal" href="ref-files.html#titles"><span class="std std-ref">[Titles]</span></a> section)</p></li>
 </ul>
 <p>The parameters in a dictionary are accessed using the <code class="docutils literal notranslate"><span class="pre">[param]</span></code> notation;
 for example, wherever <code class="docutils literal notranslate"><span class="pre">{Game[Copyright]}</span></code> appears in a template, it is
 replaced by the value of the <code class="docutils literal notranslate"><span class="pre">Copyright</span></code> parameter in the <a class="reference internal" href="ref-files.html#ref-game"><span class="std std-ref">[Game]</span></a>
 section when the template is formatted.</p>
 <div class="versionchanged">
-<p><span class="versionmodified">Changed in version 8.0: </span><code class="docutils literal notranslate"><span class="pre">SkoolKit[page_header]</span></code> is a two-element list containing the page header
+<p><span class="versionmodified changed">Changed in version 8.0: </span><code class="docutils literal notranslate"><span class="pre">SkoolKit[page_header]</span></code> is a two-element list containing the page header
 prefix and suffix. Added <code class="docutils literal notranslate"><span class="pre">SkoolKit[include]</span></code>, <code class="docutils literal notranslate"><span class="pre">SkoolKit[javascripts]</span></code>
 and <code class="docutils literal notranslate"><span class="pre">SkoolKit[stylesheets]</span></code>.</p>
 </div>
 <div class="versionchanged">
-<p><span class="versionmodified">Changed in version 6.4: </span>Added <code class="docutils literal notranslate"><span class="pre">SkoolKit[path]</span></code>.</p>
+<p><span class="versionmodified changed">Changed in version 6.4: </span>Added <code class="docutils literal notranslate"><span class="pre">SkoolKit[path]</span></code>.</p>
 </div>
 <div class="section" id="layout">
 <span id="t-layout"></span><h2>Layout<a class="headerlink" href="#layout" title="Permalink to this headline">¶</a></h2>
@@ -150,21 +91,21 @@ and <code class="docutils literal notranslate"><span class="pre">SkoolKit[styles
 <p>In any page defined by a <a class="reference internal" href="ref-files.html#page"><span class="std std-ref">[Page:*]</span></a> section, the following identifier is
 available (in addition to the universal identifiers):</p>
 <ul class="simple">
-<li><code class="docutils literal notranslate"><span class="pre">Page</span></code> - a dictionary of the parameters in the corresponding <a class="reference internal" href="ref-files.html#page"><span class="std std-ref">[Page:*]</span></a>
-section</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Page</span></code> - a dictionary of the parameters in the corresponding <a class="reference internal" href="ref-files.html#page"><span class="std std-ref">[Page:*]</span></a>
+section</p></li>
 </ul>
 <p>In any page defined by a <a class="reference internal" href="ref-files.html#memorymap"><span class="std std-ref">[MemoryMap:*]</span></a> section, the following identifier is
 available (in addition to the universal identifiers):</p>
 <ul class="simple">
-<li><code class="docutils literal notranslate"><span class="pre">MemoryMap</span></code> - a dictionary of the parameters in the corresponding
-<a class="reference internal" href="ref-files.html#memorymap"><span class="std std-ref">[MemoryMap:*]</span></a> section</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">MemoryMap</span></code> - a dictionary of the parameters in the corresponding
+<a class="reference internal" href="ref-files.html#memorymap"><span class="std std-ref">[MemoryMap:*]</span></a> section</p></li>
 </ul>
 <p>To see the default <code class="docutils literal notranslate"><span class="pre">Layout</span></code> template, run the following command:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ skool2html.py -r Template:Layout
 </pre></div>
 </div>
 <div class="versionadded">
-<p><span class="versionmodified">New in version 8.0.</span></p>
+<p><span class="versionmodified added">New in version 8.0.</span></p>
 </div>
 </div>
 <div class="section" id="asm">
@@ -174,71 +115,71 @@ footer of a disassembly page.</p>
 <p>The following identifiers are available (in addition to the universal
 identifiers):</p>
 <ul class="simple">
-<li><code class="docutils literal notranslate"><span class="pre">entry</span></code> - an object representing the current memory map entry (see below)</li>
-<li><code class="docutils literal notranslate"><span class="pre">next_entry</span></code> - an object representing the next memory map entry (see below)</li>
-<li><code class="docutils literal notranslate"><span class="pre">prev_entry</span></code> - an object representing the previous memory map entry (see
-below)</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">entry</span></code> - an object representing the current memory map entry (see below)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">next_entry</span></code> - an object representing the next memory map entry (see below)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">prev_entry</span></code> - an object representing the previous memory map entry (see
+below)</p></li>
 </ul>
 <p>The attributes in the <code class="docutils literal notranslate"><span class="pre">prev_entry</span></code> and <code class="docutils literal notranslate"><span class="pre">next_entry</span></code> objects are:</p>
 <ul class="simple">
-<li><code class="docutils literal notranslate"><span class="pre">address</span></code> - the address of the entry (may be in decimal or hexadecimal
+<li><p><code class="docutils literal notranslate"><span class="pre">address</span></code> - the address of the entry (may be in decimal or hexadecimal
 format, depending on how it appears in the skool file, and the options passed
-to <a class="reference internal" href="commands.html#skool2html-py"><span class="std std-ref">skool2html.py</span></a>)</li>
-<li><code class="docutils literal notranslate"><span class="pre">anchor</span></code> - the anchor for the entry, formatted according to the value of
-the <code class="docutils literal notranslate"><span class="pre">AddressAnchor</span></code> parameter in the <a class="reference internal" href="ref-files.html#ref-game"><span class="std std-ref">[Game]</span></a> section</li>
-<li><code class="docutils literal notranslate"><span class="pre">byte</span></code> - the LSB of the entry address</li>
-<li><code class="docutils literal notranslate"><span class="pre">description</span></code> - a list of paragraphs comprising the entry description</li>
-<li><code class="docutils literal notranslate"><span class="pre">exists</span></code> - ‘1’ if the entry exists, ‘0’ otherwise</li>
-<li><code class="docutils literal notranslate"><span class="pre">href</span></code> - the relative path to the disassembly page for the entry</li>
-<li><code class="docutils literal notranslate"><span class="pre">label</span></code> - the ASM label of the first instruction in the entry</li>
-<li><code class="docutils literal notranslate"><span class="pre">length</span></code> - the size of the entry in bytes, as a string formatted according
-to the value of the <code class="docutils literal notranslate"><span class="pre">Length</span></code> parameter in the <a class="reference internal" href="ref-files.html#ref-game"><span class="std std-ref">[Game]</span></a> section</li>
-<li><code class="docutils literal notranslate"><span class="pre">location</span></code> - the address of the entry as a decimal number</li>
-<li><code class="docutils literal notranslate"><span class="pre">map_href</span></code> - the relative path to the entry on the ‘Memory Map’ page</li>
-<li><code class="docutils literal notranslate"><span class="pre">page</span></code> - the MSB of the entry address</li>
-<li><code class="docutils literal notranslate"><span class="pre">size</span></code> - the size of the entry in bytes</li>
-<li><code class="docutils literal notranslate"><span class="pre">title</span></code> - the title of the entry</li>
-<li><code class="docutils literal notranslate"><span class="pre">type</span></code> - the block type of the entry (‘b’, ‘c’, ‘g’, ‘s’, ‘t’, ‘u’ or ‘w’)</li>
+to <a class="reference internal" href="commands.html#skool2html-py"><span class="std std-ref">skool2html.py</span></a>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">anchor</span></code> - the anchor for the entry, formatted according to the value of
+the <code class="docutils literal notranslate"><span class="pre">AddressAnchor</span></code> parameter in the <a class="reference internal" href="ref-files.html#ref-game"><span class="std std-ref">[Game]</span></a> section</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">byte</span></code> - the LSB of the entry address</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">description</span></code> - a list of paragraphs comprising the entry description</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">exists</span></code> - ‘1’ if the entry exists, ‘0’ otherwise</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">href</span></code> - the relative path to the disassembly page for the entry</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">label</span></code> - the ASM label of the first instruction in the entry</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">length</span></code> - the size of the entry in bytes, as a string formatted according
+to the value of the <code class="docutils literal notranslate"><span class="pre">Length</span></code> parameter in the <a class="reference internal" href="ref-files.html#ref-game"><span class="std std-ref">[Game]</span></a> section</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">location</span></code> - the address of the entry as a decimal number</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">map_href</span></code> - the relative path to the entry on the ‘Memory Map’ page</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">page</span></code> - the MSB of the entry address</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">size</span></code> - the size of the entry in bytes</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">title</span></code> - the title of the entry</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">type</span></code> - the block type of the entry (‘b’, ‘c’, ‘g’, ‘s’, ‘t’, ‘u’ or ‘w’)</p></li>
 </ul>
 <p>The <code class="docutils literal notranslate"><span class="pre">entry</span></code> object also has these attributes, and the following additional
 ones:</p>
 <ul class="simple">
-<li><code class="docutils literal notranslate"><span class="pre">annotated</span></code> - ‘1’ if any instructions in the entry have a non-empty comment
-field, ‘0’ otherwise</li>
-<li><code class="docutils literal notranslate"><span class="pre">end_comment</span></code> - a list of paragraphs comprising the entry’s end comment</li>
-<li><code class="docutils literal notranslate"><span class="pre">input_registers</span></code> - a list of input register objects</li>
-<li><code class="docutils literal notranslate"><span class="pre">instructions</span></code> - a list of instruction objects</li>
-<li><code class="docutils literal notranslate"><span class="pre">labels</span></code> - ‘1’ if any instructions in the entry have an ASM label, ‘0’
-otherwise</li>
-<li><code class="docutils literal notranslate"><span class="pre">output_registers</span></code> - a list of output register objects</li>
-<li><code class="docutils literal notranslate"><span class="pre">show_bytes</span></code> - ‘1’ if the entry contains at least one assembled instruction
+<li><p><code class="docutils literal notranslate"><span class="pre">annotated</span></code> - ‘1’ if any instructions in the entry have a non-empty comment
+field, ‘0’ otherwise</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">end_comment</span></code> - a list of paragraphs comprising the entry’s end comment</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">input_registers</span></code> - a list of input register objects</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">instructions</span></code> - a list of instruction objects</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">labels</span></code> - ‘1’ if any instructions in the entry have an ASM label, ‘0’
+otherwise</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">output_registers</span></code> - a list of output register objects</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">show_bytes</span></code> - ‘1’ if the entry contains at least one assembled instruction
 with byte values and the <code class="docutils literal notranslate"><span class="pre">Bytes</span></code> parameter in the <a class="reference internal" href="ref-files.html#ref-game"><span class="std std-ref">[Game]</span></a> section
-is not blank, ‘0’ otherwise</li>
+is not blank, ‘0’ otherwise</p></li>
 </ul>
 <p>Each input and output register object has the following attributes:</p>
 <ul class="simple">
-<li><code class="docutils literal notranslate"><span class="pre">description</span></code> - the register’s description (as it appears in the register
-section for the entry in the skool file)</li>
-<li><code class="docutils literal notranslate"><span class="pre">name</span></code> - the register’s name (e.g. ‘HL’)</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">description</span></code> - the register’s description (as it appears in the register
+section for the entry in the skool file)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">name</span></code> - the register’s name (e.g. ‘HL’)</p></li>
 </ul>
 <p>Each instruction object has the following attributes:</p>
 <ul class="simple">
-<li><code class="docutils literal notranslate"><span class="pre">address</span></code> - the address of the instruction (may be in decimal or
+<li><p><code class="docutils literal notranslate"><span class="pre">address</span></code> - the address of the instruction (may be in decimal or
 hexadecimal format, depending on how it appears in the skool file, and the
-options passed to <a class="reference internal" href="commands.html#skool2html-py"><span class="std std-ref">skool2html.py</span></a>)</li>
-<li><code class="docutils literal notranslate"><span class="pre">anchor</span></code> - the anchor for the instruction, formatted according to the value
-of the <code class="docutils literal notranslate"><span class="pre">AddressAnchor</span></code> parameter in the <a class="reference internal" href="ref-files.html#ref-game"><span class="std std-ref">[Game]</span></a> section</li>
-<li><code class="docutils literal notranslate"><span class="pre">block_comment</span></code> - a list of paragraphs comprising the instruction’s
-mid-block comment</li>
-<li><code class="docutils literal notranslate"><span class="pre">bytes</span></code> - the byte values of the assembled instruction (see below)</li>
-<li><code class="docutils literal notranslate"><span class="pre">called</span></code> - ‘2’ if the instruction is an entry point, ‘1’ otherwise</li>
-<li><code class="docutils literal notranslate"><span class="pre">comment</span></code> - the text of the instruction’s comment field</li>
-<li><code class="docutils literal notranslate"><span class="pre">comment_rowspan</span></code> - the number of instructions to which the comment field
-applies; this will be ‘0’ if the instruction has no comment field</li>
-<li><code class="docutils literal notranslate"><span class="pre">label</span></code> - the instruction’s ASM label</li>
-<li><code class="docutils literal notranslate"><span class="pre">location</span></code> - the address of the instruction as a decimal number</li>
-<li><code class="docutils literal notranslate"><span class="pre">operation</span></code> - the assembly language operation (e.g. ‘LD A,B’), with operand
-hyperlinked if appropriate</li>
+options passed to <a class="reference internal" href="commands.html#skool2html-py"><span class="std std-ref">skool2html.py</span></a>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">anchor</span></code> - the anchor for the instruction, formatted according to the value
+of the <code class="docutils literal notranslate"><span class="pre">AddressAnchor</span></code> parameter in the <a class="reference internal" href="ref-files.html#ref-game"><span class="std std-ref">[Game]</span></a> section</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">block_comment</span></code> - a list of paragraphs comprising the instruction’s
+mid-block comment</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">bytes</span></code> - the byte values of the assembled instruction (see below)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">called</span></code> - ‘2’ if the instruction is an entry point, ‘1’ otherwise</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">comment</span></code> - the text of the instruction’s comment field</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">comment_rowspan</span></code> - the number of instructions to which the comment field
+applies; this will be ‘0’ if the instruction has no comment field</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">label</span></code> - the instruction’s ASM label</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">location</span></code> - the address of the instruction as a decimal number</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">operation</span></code> - the assembly language operation (e.g. ‘LD A,B’), with operand
+hyperlinked if appropriate</p></li>
 </ul>
 <p>The <code class="docutils literal notranslate"><span class="pre">bytes</span></code> attribute can be used to render the byte values of an
 instruction. The format specifier for this attribute has the following form:</p>
@@ -250,11 +191,11 @@ instruction. The format specifier for this attribute has the following form:</p>
 </pre></div>
 </div>
 <ul class="simple">
-<li><code class="docutils literal notranslate"><span class="pre">bfmt</span></code> is the format specifier applied to each byte value</li>
-<li><code class="docutils literal notranslate"><span class="pre">sep</span></code> is the separator string inserted between byte values; by default it
-is blank</li>
-<li><code class="docutils literal notranslate"><span class="pre">fmt</span></code> is the format specifier applied to the entire string of byte values;
-by default it is blank</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">bfmt</span></code> is the format specifier applied to each byte value</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">sep</span></code> is the separator string inserted between byte values; by default it
+is blank</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">fmt</span></code> is the format specifier applied to the entire string of byte values;
+by default it is blank</p></li>
 </ul>
 <p>The delimiter used here (<code class="docutils literal notranslate"><span class="pre">/</span></code>) to separate the <code class="docutils literal notranslate"><span class="pre">bfmt</span></code>, <code class="docutils literal notranslate"><span class="pre">sep</span></code> and <code class="docutils literal notranslate"><span class="pre">fmt</span></code>
 parameters is arbitrary; it could be any character that doesn’t appear in
@@ -288,14 +229,14 @@ identifier produces an empty string.</p>
 </pre></div>
 </div>
 <div class="versionchanged">
-<p><span class="versionmodified">Changed in version 8.4: </span>Added the <code class="docutils literal notranslate"><span class="pre">length</span></code> attribute to entry objects.</p>
+<p><span class="versionmodified changed">Changed in version 8.4: </span>Added the <code class="docutils literal notranslate"><span class="pre">length</span></code> attribute to entry objects.</p>
 </div>
 <div class="versionchanged">
-<p><span class="versionmodified">Changed in version 8.1: </span>Added the <code class="docutils literal notranslate"><span class="pre">fmt</span></code> parameter to the format specifier for the <code class="docutils literal notranslate"><span class="pre">bytes</span></code>
+<p><span class="versionmodified changed">Changed in version 8.1: </span>Added the <code class="docutils literal notranslate"><span class="pre">fmt</span></code> parameter to the format specifier for the <code class="docutils literal notranslate"><span class="pre">bytes</span></code>
 attribute of instruction objects.</p>
 </div>
 <div class="versionadded">
-<p><span class="versionmodified">New in version 8.0.</span></p>
+<p><span class="versionmodified added">New in version 8.0.</span></p>
 </div>
 </div>
 <div class="section" id="asm-single-page">
@@ -305,7 +246,7 @@ header and footer of a single-page disassembly.</p>
 <p>The following identifier is available (in addition to the universal
 identifiers):</p>
 <ul class="simple">
-<li><code class="docutils literal notranslate"><span class="pre">entries</span></code> - a list of memory map entry objects</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">entries</span></code> - a list of memory map entry objects</p></li>
 </ul>
 <p>The attributes of each memory map entry object are the same as those of the
 <code class="docutils literal notranslate"><span class="pre">entry</span></code> object in the <a class="reference internal" href="#t-asm"><span class="std std-ref">asm</span></a> template.</p>
@@ -314,7 +255,7 @@ identifiers):</p>
 </pre></div>
 </div>
 <div class="versionadded">
-<p><span class="versionmodified">New in version 8.0.</span></p>
+<p><span class="versionmodified added">New in version 8.0.</span></p>
 </div>
 </div>
 <div class="section" id="box-entries">
@@ -324,21 +265,21 @@ and footer of a <a class="reference internal" href="ref-files.html#boxpages"><sp
 <p>The following identifier is available (in addition to the universal
 identifiers):</p>
 <ul class="simple">
-<li><code class="docutils literal notranslate"><span class="pre">entries</span></code> - a list of entry objects</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">entries</span></code> - a list of entry objects</p></li>
 </ul>
 <p>Each entry object has the following attributes:</p>
 <ul class="simple">
-<li><code class="docutils literal notranslate"><span class="pre">anchor</span></code> - the anchor for the entry</li>
-<li><code class="docutils literal notranslate"><span class="pre">contents</span></code> - a list of paragraphs comprising the contents of the entry</li>
-<li><code class="docutils literal notranslate"><span class="pre">order</span></code> - ‘1’ or ‘2’, depending on the order of the entry on the page</li>
-<li><code class="docutils literal notranslate"><span class="pre">title</span></code> - the entry title</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">anchor</span></code> - the anchor for the entry</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">contents</span></code> - a list of paragraphs comprising the contents of the entry</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">order</span></code> - ‘1’ or ‘2’, depending on the order of the entry on the page</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">title</span></code> - the entry title</p></li>
 </ul>
 <p>To see the default <code class="docutils literal notranslate"><span class="pre">box_entries</span></code> template, run the following command:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ skool2html.py -r Template:box_entries
 </pre></div>
 </div>
 <div class="versionadded">
-<p><span class="versionmodified">New in version 8.0.</span></p>
+<p><span class="versionmodified added">New in version 8.0.</span></p>
 </div>
 </div>
 <div class="section" id="box-list-entries">
@@ -349,22 +290,22 @@ header and footer of a <a class="reference internal" href="ref-files.html#boxpag
 <p>The following identifier is available (in addition to the universal
 identifiers):</p>
 <ul class="simple">
-<li><code class="docutils literal notranslate"><span class="pre">entries</span></code> - a list of entry objects</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">entries</span></code> - a list of entry objects</p></li>
 </ul>
 <p>Each entry object has the following attributes:</p>
 <ul class="simple">
-<li><code class="docutils literal notranslate"><span class="pre">anchor</span></code> - the anchor for the entry</li>
-<li><code class="docutils literal notranslate"><span class="pre">intro</span></code> - the entry intro text</li>
-<li><code class="docutils literal notranslate"><span class="pre">item_list</span></code> - replaced by a copy of the <a class="reference internal" href="#t-item-list"><span class="std std-ref">item_list</span></a> subtemplate</li>
-<li><code class="docutils literal notranslate"><span class="pre">order</span></code> - ‘1’ or ‘2’, depending on the order of the entry on the page</li>
-<li><code class="docutils literal notranslate"><span class="pre">title</span></code> - the entry title</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">anchor</span></code> - the anchor for the entry</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">intro</span></code> - the entry intro text</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">item_list</span></code> - replaced by a copy of the <a class="reference internal" href="#t-item-list"><span class="std std-ref">item_list</span></a> subtemplate</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">order</span></code> - ‘1’ or ‘2’, depending on the order of the entry on the page</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">title</span></code> - the entry title</p></li>
 </ul>
 <p>To see the default <code class="docutils literal notranslate"><span class="pre">box_list_entries</span></code> template, run the following command:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ skool2html.py -r Template:box_list_entries
 </pre></div>
 </div>
 <div class="versionadded">
-<p><span class="versionmodified">New in version 8.0.</span></p>
+<p><span class="versionmodified added">New in version 8.0.</span></p>
 </div>
 </div>
 <div class="section" id="footer">
@@ -376,7 +317,7 @@ template to format the <code class="docutils literal notranslate"><span class="p
 </pre></div>
 </div>
 <div class="versionadded">
-<p><span class="versionmodified">New in version 5.0.</span></p>
+<p><span class="versionmodified added">New in version 5.0.</span></p>
 </div>
 </div>
 <div class="section" id="home">
@@ -386,29 +327,29 @@ footer of the disassembly home page.</p>
 <p>The following identifier is available (in addition to the universal
 identifiers):</p>
 <ul class="simple">
-<li><code class="docutils literal notranslate"><span class="pre">sections</span></code> - a list of section objects</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">sections</span></code> - a list of section objects</p></li>
 </ul>
 <p>Each section object represents a group of links and has the following
 attributes:</p>
 <ul class="simple">
-<li><code class="docutils literal notranslate"><span class="pre">header</span></code> - the header text for the group of links (as defined in the name
-of the <a class="reference internal" href="ref-files.html#indexgroup"><span class="std std-ref">[Index:*:*]</span></a> section)</li>
-<li><code class="docutils literal notranslate"><span class="pre">items</span></code> - a list of items in the group</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">header</span></code> - the header text for the group of links (as defined in the name
+of the <a class="reference internal" href="ref-files.html#indexgroup"><span class="std std-ref">[Index:*:*]</span></a> section)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">items</span></code> - a list of items in the group</p></li>
 </ul>
 <p>Each item represents a link to a page and has the following attributes:</p>
 <ul class="simple">
-<li><code class="docutils literal notranslate"><span class="pre">href</span></code> - the relative path to the page being linked to</li>
-<li><code class="docutils literal notranslate"><span class="pre">link_text</span></code> - the link text for the page (as defined in the <a class="reference internal" href="ref-files.html#links"><span class="std std-ref">[Links]</span></a>
-section)</li>
-<li><code class="docutils literal notranslate"><span class="pre">other_text</span></code> - the supplementary text displayed alongside the link (as
-defined in the <a class="reference internal" href="ref-files.html#links"><span class="std std-ref">[Links]</span></a> section)</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">href</span></code> - the relative path to the page being linked to</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">link_text</span></code> - the link text for the page (as defined in the <a class="reference internal" href="ref-files.html#links"><span class="std std-ref">[Links]</span></a>
+section)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">other_text</span></code> - the supplementary text displayed alongside the link (as
+defined in the <a class="reference internal" href="ref-files.html#links"><span class="std std-ref">[Links]</span></a> section)</p></li>
 </ul>
 <p>To see the default <code class="docutils literal notranslate"><span class="pre">home</span></code> template, run the following command:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ skool2html.py -r Template:home
 </pre></div>
 </div>
 <div class="versionadded">
-<p><span class="versionmodified">New in version 8.0.</span></p>
+<p><span class="versionmodified added">New in version 8.0.</span></p>
 </div>
 </div>
 <div class="section" id="img">
@@ -419,8 +360,8 @@ the header of every page.</p>
 <p>The following identifiers are available (in addition to the universal
 identifiers):</p>
 <ul class="simple">
-<li><code class="docutils literal notranslate"><span class="pre">alt</span></code> - the ‘alt’ text for the image</li>
-<li><code class="docutils literal notranslate"><span class="pre">src</span></code> - the relative path to the image file</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">alt</span></code> - the ‘alt’ text for the image</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">src</span></code> - the relative path to the image file</p></li>
 </ul>
 <p>To see the default <code class="docutils literal notranslate"><span class="pre">img</span></code> template, run the following command:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ skool2html.py -r Template:img
@@ -436,15 +377,15 @@ subsubitems etc.) in an entry on a <a class="reference internal" href="ref-files
 <p>The following identifiers are available (in addition to the universal
 identifiers):</p>
 <ul class="simple">
-<li><code class="docutils literal notranslate"><span class="pre">indent</span></code> - the indentation level of the item list: ‘’ (blank string) for
+<li><p><code class="docutils literal notranslate"><span class="pre">indent</span></code> - the indentation level of the item list: ‘’ (blank string) for
 the list of top-level items, ‘1’ for a list of subitems, ‘2’ for a list of
-subsubitems etc.</li>
-<li><code class="docutils literal notranslate"><span class="pre">items</span></code> - a list of item objects</li>
+subsubitems etc.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">items</span></code> - a list of item objects</p></li>
 </ul>
 <p>Each item object has the following attributes:</p>
 <ul class="simple">
-<li><code class="docutils literal notranslate"><span class="pre">subitems</span></code> - a preformatted list of subitems (may be blank)</li>
-<li><code class="docutils literal notranslate"><span class="pre">text</span></code> - the text of the item</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">subitems</span></code> - a preformatted list of subitems (may be blank)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">text</span></code> - the text of the item</p></li>
 </ul>
 <p>Note that the <code class="docutils literal notranslate"><span class="pre">item_list</span></code> template is used to format the <code class="docutils literal notranslate"><span class="pre">subitems</span></code>
 attribute of each item (this template is recursive).</p>
@@ -453,7 +394,7 @@ attribute of each item (this template is recursive).</p>
 </pre></div>
 </div>
 <div class="versionadded">
-<p><span class="versionmodified">New in version 8.0.</span></p>
+<p><span class="versionmodified added">New in version 8.0.</span></p>
 </div>
 </div>
 <div class="section" id="link">
@@ -464,8 +405,8 @@ operands on disassembly pages.</p>
 <p>The following identifiers are available (in addition to the universal
 identifiers):</p>
 <ul class="simple">
-<li><code class="docutils literal notranslate"><span class="pre">href</span></code> - the relative path to the page being linked to</li>
-<li><code class="docutils literal notranslate"><span class="pre">link_text</span></code> - the link text for the page</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">href</span></code> - the relative path to the page being linked to</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">link_text</span></code> - the link text for the page</p></li>
 </ul>
 <p>To see the default <code class="docutils literal notranslate"><span class="pre">link</span></code> template, run the following command:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ skool2html.py -r Template:link
@@ -478,18 +419,18 @@ identifiers):</p>
 <p>The following identifiers are available (in addition to the universal
 identifiers):</p>
 <ul class="simple">
-<li><code class="docutils literal notranslate"><span class="pre">class</span></code> - the CSS class name for the list</li>
-<li><code class="docutils literal notranslate"><span class="pre">items</span></code> - the list items</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">class</span></code> - the CSS class name for the list</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">items</span></code> - the list items</p></li>
 </ul>
 <p>To see the default <code class="docutils literal notranslate"><span class="pre">list</span></code> template, run the following command:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ skool2html.py -r Template:list
 </pre></div>
 </div>
 <div class="versionchanged">
-<p><span class="versionmodified">Changed in version 8.0: </span>Replaced the <code class="docutils literal notranslate"><span class="pre">m_list_item</span></code> identifier with the <code class="docutils literal notranslate"><span class="pre">items</span></code> identifier.</p>
+<p><span class="versionmodified changed">Changed in version 8.0: </span>Replaced the <code class="docutils literal notranslate"><span class="pre">m_list_item</span></code> identifier with the <code class="docutils literal notranslate"><span class="pre">items</span></code> identifier.</p>
 </div>
 <div class="versionadded">
-<p><span class="versionmodified">New in version 4.2.</span></p>
+<p><span class="versionmodified added">New in version 4.2.</span></p>
 </div>
 </div>
 <div class="section" id="memory-map">
@@ -499,7 +440,7 @@ and footer of memory map pages and the ‘Game status buffer’ page.</p>
 <p>The following identifier is available (in addition to the universal
 identifiers):</p>
 <ul class="simple">
-<li><code class="docutils literal notranslate"><span class="pre">entries</span></code> - a list of memory map entry objects</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">entries</span></code> - a list of memory map entry objects</p></li>
 </ul>
 <p>The attributes of each memory map entry object are the same as those of the
 <code class="docutils literal notranslate"><span class="pre">prev_entry</span></code> and <code class="docutils literal notranslate"><span class="pre">next_entry</span></code> objects in the <a class="reference internal" href="#t-asm"><span class="std std-ref">asm</span></a> template.</p>
@@ -508,7 +449,7 @@ identifiers):</p>
 </pre></div>
 </div>
 <div class="versionadded">
-<p><span class="versionmodified">New in version 8.0.</span></p>
+<p><span class="versionmodified added">New in version 8.0.</span></p>
 </div>
 </div>
 <div class="section" id="page">
@@ -520,7 +461,7 @@ footer of a non-box page defined by a <a class="reference internal" href="ref-fi
 </pre></div>
 </div>
 <div class="versionadded">
-<p><span class="versionmodified">New in version 8.0.</span></p>
+<p><span class="versionmodified added">New in version 8.0.</span></p>
 </div>
 </div>
 <div class="section" id="reg">
@@ -530,7 +471,7 @@ a register name.</p>
 <p>The following identifier is available (in addition to the universal
 identifiers):</p>
 <ul class="simple">
-<li><code class="docutils literal notranslate"><span class="pre">reg</span></code> - the register name (e.g. ‘HL’)</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">reg</span></code> - the register name (e.g. ‘HL’)</p></li>
 </ul>
 <p>To see the default <code class="docutils literal notranslate"><span class="pre">reg</span></code> template, run the following command:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ skool2html.py -r Template:reg
@@ -544,14 +485,14 @@ processed by the <a class="reference internal" href="skool-macros.html#include">
 <p>The following identifier is available (in addition to the universal
 identifiers):</p>
 <ul class="simple">
-<li><code class="docutils literal notranslate"><span class="pre">section</span></code> - a list of paragraphs</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">section</span></code> - a list of paragraphs</p></li>
 </ul>
 <p>To see the default <code class="docutils literal notranslate"><span class="pre">section</span></code> template, run the following command:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ skool2html.py -r Template:section
 </pre></div>
 </div>
 <div class="versionadded">
-<p><span class="versionmodified">New in version 8.0.</span></p>
+<p><span class="versionmodified added">New in version 8.0.</span></p>
 </div>
 </div>
 <div class="section" id="table">
@@ -560,27 +501,27 @@ identifiers):</p>
 <p>The following identifiers are available (in addition to the universal
 identifiers):</p>
 <ul class="simple">
-<li><code class="docutils literal notranslate"><span class="pre">class</span></code> - the CSS class name for the table</li>
-<li><code class="docutils literal notranslate"><span class="pre">rows</span></code> - a list of row objects</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">class</span></code> - the CSS class name for the table</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">rows</span></code> - a list of row objects</p></li>
 </ul>
 <p>Each row object has a <code class="docutils literal notranslate"><span class="pre">cells</span></code> attribute, which is a list of cell objects for
 that row. Each cell object has the following attributes:</p>
 <ul class="simple">
-<li><code class="docutils literal notranslate"><span class="pre">class</span></code> - the CSS class name for the cell</li>
-<li><code class="docutils literal notranslate"><span class="pre">colspan</span></code> - the number of columns spanned by the cell</li>
-<li><code class="docutils literal notranslate"><span class="pre">contents</span></code> - the contents of the cell</li>
-<li><code class="docutils literal notranslate"><span class="pre">header</span></code> - 1 if the cell is a header cell, 0 otherwise</li>
-<li><code class="docutils literal notranslate"><span class="pre">rowspan</span></code> - the number of rows spanned by the cell</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">class</span></code> - the CSS class name for the cell</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">colspan</span></code> - the number of columns spanned by the cell</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">contents</span></code> - the contents of the cell</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">header</span></code> - 1 if the cell is a header cell, 0 otherwise</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">rowspan</span></code> - the number of rows spanned by the cell</p></li>
 </ul>
 <p>To see the default <code class="docutils literal notranslate"><span class="pre">table</span></code> template, run the following command:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ skool2html.py -r Template:table
 </pre></div>
 </div>
 <div class="versionchanged">
-<p><span class="versionmodified">Changed in version 8.0: </span>Replaced the <code class="docutils literal notranslate"><span class="pre">m_table_row</span></code> identifier with the <code class="docutils literal notranslate"><span class="pre">rows</span></code> identifier.</p>
+<p><span class="versionmodified changed">Changed in version 8.0: </span>Replaced the <code class="docutils literal notranslate"><span class="pre">m_table_row</span></code> identifier with the <code class="docutils literal notranslate"><span class="pre">rows</span></code> identifier.</p>
 </div>
 <div class="versionadded">
-<p><span class="versionmodified">New in version 4.2.</span></p>
+<p><span class="versionmodified added">New in version 4.2.</span></p>
 </div>
 </div>
 <div class="section" id="template-directives">
@@ -598,8 +539,8 @@ content
 </pre></div>
 </div>
 <ul class="simple">
-<li><code class="docutils literal notranslate"><span class="pre">var</span></code> is the loop variable, representing each object in the list</li>
-<li><code class="docutils literal notranslate"><span class="pre">list</span></code> is the list of objects to iterate over</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">var</span></code> is the loop variable, representing each object in the list</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">list</span></code> is the list of objects to iterate over</p></li>
 </ul>
 <p>Wherever the string <code class="docutils literal notranslate"><span class="pre">var</span></code> appears in <code class="docutils literal notranslate"><span class="pre">content</span></code>, it is replaced by
 <code class="docutils literal notranslate"><span class="pre">list[0]</span></code>, <code class="docutils literal notranslate"><span class="pre">list[1]</span></code>, etc. Care should be taken to name the loop variable
@@ -674,45 +615,41 @@ SkoolKit will use the <code class="docutils literal notranslate"><span class="pr
 <p>Wherever <code class="docutils literal notranslate"><span class="pre">Asm-*</span></code> appears in the tables below, it means one of <code class="docutils literal notranslate"><span class="pre">Asm-b</span></code>,
 <code class="docutils literal notranslate"><span class="pre">Asm-c</span></code>, <code class="docutils literal notranslate"><span class="pre">Asm-g</span></code>, <code class="docutils literal notranslate"><span class="pre">Asm-s</span></code>, <code class="docutils literal notranslate"><span class="pre">Asm-t</span></code>, <code class="docutils literal notranslate"><span class="pre">Asm-u</span></code> or <code class="docutils literal notranslate"><span class="pre">Asm-w</span></code>, depending
 on the type of memory map entry.</p>
-<table border="1" class="docutils">
-<colgroup>
-<col width="52%" />
-<col width="48%" />
-</colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">Page type</th>
-<th class="head">Preferred template(s)</th>
+<table class="docutils colwidths-auto align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Page type</p></th>
+<th class="head"><p>Preferred template(s)</p></th>
 </tr>
 </thead>
-<tbody valign="top">
-<tr class="row-even"><td>Home (index)</td>
-<td><code class="docutils literal notranslate"><span class="pre">GameIndex</span></code></td>
+<tbody>
+<tr class="row-even"><td><p>Home (index)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">GameIndex</span></code></p></td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="ref-files.html#othercode"><span class="std std-ref">Other code</span></a> index</td>
-<td><code class="docutils literal notranslate"><span class="pre">CodeID-Index</span></code></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="ref-files.html#othercode"><span class="std std-ref">Other code</span></a> index</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">CodeID-Index</span></code></p></td>
 </tr>
-<tr class="row-even"><td>Routine/data block</td>
-<td><code class="docutils literal notranslate"><span class="pre">Asm-*</span></code>, <code class="docutils literal notranslate"><span class="pre">Asm</span></code></td>
+<tr class="row-even"><td><p>Routine/data block</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">Asm-*</span></code>, <code class="docutils literal notranslate"><span class="pre">Asm</span></code></p></td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="ref-files.html#othercode"><span class="std std-ref">Other code</span></a>
-routine/data block</td>
-<td><code class="docutils literal notranslate"><span class="pre">CodeID-Asm-*</span></code>, <code class="docutils literal notranslate"><span class="pre">CodeID-Asm</span></code></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="ref-files.html#othercode"><span class="std std-ref">Other code</span></a>
+routine/data block</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">CodeID-Asm-*</span></code>, <code class="docutils literal notranslate"><span class="pre">CodeID-Asm</span></code></p></td>
 </tr>
-<tr class="row-even"><td>Disassembly (single page)</td>
-<td><code class="docutils literal notranslate"><span class="pre">AsmSinglePage</span></code></td>
+<tr class="row-even"><td><p>Disassembly (single page)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">AsmSinglePage</span></code></p></td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="ref-files.html#othercode"><span class="std std-ref">Other code</span></a>
-disassembly (single page)</td>
-<td><code class="docutils literal notranslate"><span class="pre">CodeID-AsmSinglePage</span></code></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="ref-files.html#othercode"><span class="std std-ref">Other code</span></a>
+disassembly (single page)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">CodeID-AsmSinglePage</span></code></p></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="ref-files.html#memorymap"><span class="std std-ref">Memory map</span></a></td>
-<td><code class="docutils literal notranslate"><span class="pre">PageID</span></code></td>
+<tr class="row-even"><td><p><a class="reference internal" href="ref-files.html#memorymap"><span class="std std-ref">Memory map</span></a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">PageID</span></code></p></td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="ref-files.html#boxpages"><span class="std std-ref">Box page</span></a></td>
-<td><code class="docutils literal notranslate"><span class="pre">PageID</span></code></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="ref-files.html#boxpages"><span class="std std-ref">Box page</span></a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">PageID</span></code></p></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="ref-files.html#page"><span class="std std-ref">Custom page</span></a> (non-box)</td>
-<td><code class="docutils literal notranslate"><span class="pre">PageID</span></code></td>
+<tr class="row-even"><td><p><a class="reference internal" href="ref-files.html#page"><span class="std std-ref">Custom page</span></a> (non-box)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">PageID</span></code></p></td>
 </tr>
 </tbody>
 </table>
@@ -722,64 +659,59 @@ exists, or the appropriate stock subtemplate otherwise. For example, when
 building the entries on the <code class="docutils literal notranslate"><span class="pre">Changelog</span></code> page, SkoolKit uses the
 <code class="docutils literal notranslate"><span class="pre">Changelog-box_list_entries</span></code> template if it exists, or the stock
 <a class="reference internal" href="#t-box-list-entries"><span class="std std-ref">box_list_entries</span></a> template otherwise.</p>
-<table border="1" class="docutils">
-<colgroup>
-<col width="31%" />
-<col width="42%" />
-<col width="27%" />
-</colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">Page type</th>
-<th class="head">Preferred template(s)</th>
-<th class="head">Stock template</th>
+<table class="docutils colwidths-auto align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Page type</p></th>
+<th class="head"><p>Preferred template(s)</p></th>
+<th class="head"><p>Stock template</p></th>
 </tr>
 </thead>
-<tbody valign="top">
-<tr class="row-even"><td>Routine/data block</td>
-<td><code class="docutils literal notranslate"><span class="pre">Asm-*-asm</span></code>, <code class="docutils literal notranslate"><span class="pre">Asm-asm</span></code></td>
-<td><a class="reference internal" href="#t-asm"><span class="std std-ref">asm</span></a></td>
+<tbody>
+<tr class="row-even"><td><p>Routine/data block</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">Asm-*-asm</span></code>, <code class="docutils literal notranslate"><span class="pre">Asm-asm</span></code></p></td>
+<td><p><a class="reference internal" href="#t-asm"><span class="std std-ref">asm</span></a></p></td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="ref-files.html#othercode"><span class="std std-ref">Other code</span></a>
-routine/data block</td>
-<td><code class="docutils literal notranslate"><span class="pre">CodeID-Asm-*-asm</span></code>, <code class="docutils literal notranslate"><span class="pre">CodeID-Asm-asm</span></code></td>
-<td><a class="reference internal" href="#t-asm"><span class="std std-ref">asm</span></a></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="ref-files.html#othercode"><span class="std std-ref">Other code</span></a>
+routine/data block</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">CodeID-Asm-*-asm</span></code>, <code class="docutils literal notranslate"><span class="pre">CodeID-Asm-asm</span></code></p></td>
+<td><p><a class="reference internal" href="#t-asm"><span class="std std-ref">asm</span></a></p></td>
 </tr>
-<tr class="row-even"><td>Disassembly (single page)</td>
-<td><code class="docutils literal notranslate"><span class="pre">AsmSinglePage-asm_single_page</span></code></td>
-<td><a class="reference internal" href="#t-asm-single-page"><span class="std std-ref">asm_single_page</span></a></td>
+<tr class="row-even"><td><p>Disassembly (single page)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">AsmSinglePage-asm_single_page</span></code></p></td>
+<td><p><a class="reference internal" href="#t-asm-single-page"><span class="std std-ref">asm_single_page</span></a></p></td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="ref-files.html#othercode"><span class="std std-ref">Other code</span></a>
-disassembly (single page)</td>
-<td><code class="docutils literal notranslate"><span class="pre">CodeID-AsmSinglePage-asm_single_page</span></code></td>
-<td><a class="reference internal" href="#t-asm-single-page"><span class="std std-ref">asm_single_page</span></a></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="ref-files.html#othercode"><span class="std std-ref">Other code</span></a>
+disassembly (single page)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">CodeID-AsmSinglePage-asm_single_page</span></code></p></td>
+<td><p><a class="reference internal" href="#t-asm-single-page"><span class="std std-ref">asm_single_page</span></a></p></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="ref-files.html#boxpages"><span class="std std-ref">Box page</span></a>
-with regular entries</td>
-<td><code class="docutils literal notranslate"><span class="pre">PageID-box_entries</span></code></td>
-<td><a class="reference internal" href="#t-box-entries"><span class="std std-ref">box_entries</span></a></td>
+<tr class="row-even"><td><p><a class="reference internal" href="ref-files.html#boxpages"><span class="std std-ref">Box page</span></a>
+with regular entries</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">PageID-box_entries</span></code></p></td>
+<td><p><a class="reference internal" href="#t-box-entries"><span class="std std-ref">box_entries</span></a></p></td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="ref-files.html#boxpages"><span class="std std-ref">Box page</span></a>
-with list entries</td>
-<td><code class="docutils literal notranslate"><span class="pre">PageID-box_list_entries</span></code></td>
-<td><a class="reference internal" href="#t-box-list-entries"><span class="std std-ref">box_list_entries</span></a></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="ref-files.html#boxpages"><span class="std std-ref">Box page</span></a>
+with list entries</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">PageID-box_list_entries</span></code></p></td>
+<td><p><a class="reference internal" href="#t-box-list-entries"><span class="std std-ref">box_list_entries</span></a></p></td>
 </tr>
-<tr class="row-even"><td>Home (index)</td>
-<td><code class="docutils literal notranslate"><span class="pre">GameIndex-home</span></code></td>
-<td><a class="reference internal" href="#t-home"><span class="std std-ref">home</span></a></td>
+<tr class="row-even"><td><p>Home (index)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">GameIndex-home</span></code></p></td>
+<td><p><a class="reference internal" href="#t-home"><span class="std std-ref">home</span></a></p></td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="ref-files.html#memorymap"><span class="std std-ref">Memory map</span></a></td>
-<td><code class="docutils literal notranslate"><span class="pre">PageID-memory_map</span></code></td>
-<td><a class="reference internal" href="#t-memory-map"><span class="std std-ref">memory_map</span></a></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="ref-files.html#memorymap"><span class="std std-ref">Memory map</span></a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">PageID-memory_map</span></code></p></td>
+<td><p><a class="reference internal" href="#t-memory-map"><span class="std std-ref">memory_map</span></a></p></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="ref-files.html#othercode"><span class="std std-ref">Other code</span></a>
-index</td>
-<td><code class="docutils literal notranslate"><span class="pre">CodeID-Index-memory_map</span></code></td>
-<td><a class="reference internal" href="#t-memory-map"><span class="std std-ref">memory_map</span></a></td>
+<tr class="row-even"><td><p><a class="reference internal" href="ref-files.html#othercode"><span class="std std-ref">Other code</span></a>
+index</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">CodeID-Index-memory_map</span></code></p></td>
+<td><p><a class="reference internal" href="#t-memory-map"><span class="std std-ref">memory_map</span></a></p></td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="ref-files.html#page"><span class="std std-ref">Custom page</span></a>
-(non-box)</td>
-<td><code class="docutils literal notranslate"><span class="pre">PageID-page</span></code></td>
-<td><a class="reference internal" href="#t-page"><span class="std std-ref">page</span></a></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="ref-files.html#page"><span class="std std-ref">Custom page</span></a>
+(non-box)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">PageID-page</span></code></p></td>
+<td><p><a class="reference internal" href="#t-page"><span class="std std-ref">page</span></a></p></td>
 </tr>
 </tbody>
 </table>
@@ -788,50 +720,45 @@ subtemplate, it uses the subtemplate whose name starts with <code class="docutil
 exists, or one of the stock subtemplates otherwise. For example, when building
 the footer of the <code class="docutils literal notranslate"><span class="pre">Changelog</span></code> page, SkoolKit uses the <code class="docutils literal notranslate"><span class="pre">Changelog-footer</span></code>
 template if it exists, or the stock <a class="reference internal" href="#t-footer"><span class="std std-ref">footer</span></a> template otherwise.</p>
-<table border="1" class="docutils">
-<colgroup>
-<col width="40%" />
-<col width="31%" />
-<col width="29%" />
-</colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">Element type</th>
-<th class="head">Preferred template</th>
-<th class="head">Stock template</th>
+<table class="docutils colwidths-auto align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Element type</p></th>
+<th class="head"><p>Preferred template</p></th>
+<th class="head"><p>Stock template</p></th>
 </tr>
 </thead>
-<tbody valign="top">
-<tr class="row-even"><td>Page footer</td>
-<td><code class="docutils literal notranslate"><span class="pre">PageID-footer</span></code></td>
-<td><a class="reference internal" href="#t-footer"><span class="std std-ref">footer</span></a></td>
+<tbody>
+<tr class="row-even"><td><p>Page footer</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">PageID-footer</span></code></p></td>
+<td><p><a class="reference internal" href="#t-footer"><span class="std std-ref">footer</span></a></p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">&lt;img&gt;</span></code> element</td>
-<td><code class="docutils literal notranslate"><span class="pre">PageID-img</span></code></td>
-<td><a class="reference internal" href="#t-img"><span class="std std-ref">img</span></a></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">&lt;img&gt;</span></code> element</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">PageID-img</span></code></p></td>
+<td><p><a class="reference internal" href="#t-img"><span class="std std-ref">img</span></a></p></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="ref-files.html#boxpages"><span class="std std-ref">Box page</span></a>
-list entry</td>
-<td><code class="docutils literal notranslate"><span class="pre">PageID-item_list</span></code></td>
-<td><a class="reference internal" href="#t-item-list"><span class="std std-ref">item_list</span></a></td>
+<tr class="row-even"><td><p><a class="reference internal" href="ref-files.html#boxpages"><span class="std std-ref">Box page</span></a>
+list entry</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">PageID-item_list</span></code></p></td>
+<td><p><a class="reference internal" href="#t-item-list"><span class="std std-ref">item_list</span></a></p></td>
 </tr>
-<tr class="row-odd"><td>Hyperlink</td>
-<td><code class="docutils literal notranslate"><span class="pre">PageID-link</span></code></td>
-<td><a class="reference internal" href="#t-link"><span class="std std-ref">link</span></a></td>
+<tr class="row-odd"><td><p>Hyperlink</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">PageID-link</span></code></p></td>
+<td><p><a class="reference internal" href="#t-link"><span class="std std-ref">link</span></a></p></td>
 </tr>
-<tr class="row-even"><td>List created by the
-<a class="reference internal" href="skool-macros.html#list"><span class="std std-ref">#LIST</span></a> macro</td>
-<td><code class="docutils literal notranslate"><span class="pre">PageID-list</span></code></td>
-<td><a class="reference internal" href="#t-list"><span class="std std-ref">list</span></a></td>
+<tr class="row-even"><td><p>List created by the
+<a class="reference internal" href="skool-macros.html#list"><span class="std std-ref">#LIST</span></a> macro</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">PageID-list</span></code></p></td>
+<td><p><a class="reference internal" href="#t-list"><span class="std std-ref">list</span></a></p></td>
 </tr>
-<tr class="row-odd"><td>Register name rendered by
-the <a class="reference internal" href="skool-macros.html#reg"><span class="std std-ref">#REG</span></a> macro</td>
-<td><code class="docutils literal notranslate"><span class="pre">PageID-reg</span></code></td>
-<td><a class="reference internal" href="#t-reg"><span class="std std-ref">reg</span></a></td>
+<tr class="row-odd"><td><p>Register name rendered by
+the <a class="reference internal" href="skool-macros.html#reg"><span class="std std-ref">#REG</span></a> macro</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">PageID-reg</span></code></p></td>
+<td><p><a class="reference internal" href="#t-reg"><span class="std std-ref">reg</span></a></p></td>
 </tr>
-<tr class="row-even"><td>Table created by the
-<a class="reference internal" href="skool-macros.html#table"><span class="std std-ref">#TABLE</span></a> macro</td>
-<td><code class="docutils literal notranslate"><span class="pre">PageID-table</span></code></td>
-<td><a class="reference internal" href="#t-table"><span class="std std-ref">table</span></a></td>
+<tr class="row-even"><td><p>Table created by the
+<a class="reference internal" href="skool-macros.html#table"><span class="std std-ref">#TABLE</span></a> macro</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">PageID-table</span></code></p></td>
+<td><p><a class="reference internal" href="#t-table"><span class="std std-ref">table</span></a></p></td>
 </tr>
 </tbody>
 </table>
@@ -839,7 +766,65 @@ the <a class="reference internal" href="skool-macros.html#reg"><span class="std 
 </div>
 
 
+            <div class="clearer"></div>
           </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">HTML templates</a><ul>
+<li><a class="reference internal" href="#layout">Layout</a></li>
+<li><a class="reference internal" href="#asm">asm</a></li>
+<li><a class="reference internal" href="#asm-single-page">asm_single_page</a></li>
+<li><a class="reference internal" href="#box-entries">box_entries</a></li>
+<li><a class="reference internal" href="#box-list-entries">box_list_entries</a></li>
+<li><a class="reference internal" href="#footer">footer</a></li>
+<li><a class="reference internal" href="#home">home</a></li>
+<li><a class="reference internal" href="#img">img</a></li>
+<li><a class="reference internal" href="#item-list">item_list</a></li>
+<li><a class="reference internal" href="#link">link</a></li>
+<li><a class="reference internal" href="#list">list</a></li>
+<li><a class="reference internal" href="#memory-map">memory_map</a></li>
+<li><a class="reference internal" href="#page">page</a></li>
+<li><a class="reference internal" href="#reg">reg</a></li>
+<li><a class="reference internal" href="#section">section</a></li>
+<li><a class="reference internal" href="#table">table</a></li>
+<li><a class="reference internal" href="#template-directives">Template directives</a><ul>
+<li><a class="reference internal" href="#foreach">foreach</a></li>
+<li><a class="reference internal" href="#if">if</a></li>
+<li><a class="reference internal" href="#include">include</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#page-specific-templates">Page-specific templates</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="asm-templates.html"
+                        title="previous chapter">ASM templates</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="extending.html"
+                        title="next chapter">Extending SkoolKit</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/html-templates.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
         </div>
       </div>
       <div class="clearer"></div>
@@ -859,12 +844,13 @@ the <a class="reference internal" href="skool-macros.html#reg"><span class="std 
         <li class="right" >
           <a href="asm-templates.html" title="ASM templates"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.5 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.6 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">HTML templates</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2021, Richard Dymond.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.4.3.
     </div>
   </body>
 </html>

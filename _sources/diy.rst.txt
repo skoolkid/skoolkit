@@ -256,3 +256,25 @@ example, to use the 'dark' theme::
 Themes may be combined; for example, to use both the 'plum' and 'wide' themes::
 
   $ skool2html.py -T plum -T wide game.skool
+
+Base switching
+--------------
+If you would like to build both decimal and hexadecimal versions of your
+disassembly in HTML format and have them link to each other, then one possible
+approach is to define a custom page footer that contains a link to the
+corresponding page in the alternative disassembly.
+
+An example of such a page footer can be found in *examples/bases.ref*, and the
+required Python code that generates the appropriate link for each page can be
+found in *examples/bases.py*. To use *bases.ref* and *bases.py* with your
+disassembly, first place copies of them alongside your existing skool and ref
+files. Then::
+
+  $ skool2html.py -D -c Config/GameDir=html/dec -c Config/InitModule=:bases game.skool bases.ref
+  $ skool2html.py -H -c Config/GameDir=html/hex -c Config/InitModule=:bases game.skool bases.ref
+
+The first command here builds the decimal version of the disassembly in the
+directory *html/dec*, and the second command builds the hexadecimal version in
+the directory *html/hex*. The footer of each page in the decimal version will
+contain a link to the corresponding page in the hexadecimal version, and vice
+versa.
