@@ -5,7 +5,7 @@ on:
     branches: [ master ]
 
 jobs:
-  build:
+  coverage:
     runs-on: ubuntu-latest
 
     steps:
@@ -17,12 +17,15 @@ jobs:
       with:
         python-version: 3.9
 
-    - name: Install nose2 and codecov
+    - name: Install nose2
       run: |
         python -m pip install --upgrade pip
-        python -m pip install nose2 codecov
+        python -m pip install nose2
 
     - name: Run tests with coverage
-      run: |
-        nose2 -C --coverage skoolkit
-        codecov
+      run: nose2 -C --coverage skoolkit --coverage-report xml
+
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v2
+      with:
+        files: ./coverage.xml
