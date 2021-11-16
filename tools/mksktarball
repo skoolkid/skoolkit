@@ -60,7 +60,7 @@ rsync -aR \
   examples/hungry_horace.{ctl,ref,t2s} \
   skoolkit/resources/skoolkit{,-dark,-green,-plum,-wide}.css \
   tests/{{macro,skoolkit}test,test_{basic,bin2{sna,tap},ctlparser,disassembler,graphics,image,skool{{,2}{asm,ctl,html},2bin,macro,parser},refparser,skoolkit,sna2{ctl,img},sna{2,}skool,snap{info,mod,shot},tap{2sna,info},textutils,z80}}.py \
-  COPYING MANIFEST.in setup.py \
+  COPYING MANIFEST.in long_description.rst pyproject.toml setup.cfg \
   $ABSDIR
 
 if [[ $INCLUDE_DOCS == 1 ]]; then

@@ -364,7 +364,7 @@ check_bins() {
 }
 
 ###############################################################################
-# Verify that 'setup.py install' works
+# Verify that 'pip install .' works
 ###############################################################################
 _install_skoolkit() {
   method=$1
@@ -374,15 +374,16 @@ _install_skoolkit() {
   cd $topdir/skoolkit-$VERSION-release
 
   if [[ "$method" = "2" ]]; then
-    _exec "Building source distribution" "./setup.py sdist" $topdir/sdist.log
+    _exec "Installing 'build' in virtual environment" "$venv/bin/python -m pip install build" $topdir/sdist.log
+    _exec "Building source distribution" "$venv/bin/python -m build --sdist" $topdir/sdist.log
     tar xf dist/skoolkit-$VERSION.tar.gz -C $topdir
     cd $topdir/skoolkit-$VERSION
   fi
 
-  _exec "Installing SkoolKit" "$venv/bin/python setup.py install" $topdir/install.log
+  _exec "Installing SkoolKit" "$venv/bin/python -m pip install ." $topdir/install.log
 }
 
-verify_setup() {
+verify_pip() {
   method=$1
 
   _require_skoolkit
@@ -483,7 +484,8 @@ build_sdist() {
   logfile=$(pwd)/sdist.log
   tar xf $TARBALL
   cd skoolkit-$VERSION
-  _exec "Building and uploading source package" "./setup.py sdist upload" $logfile
+  _exec "Building source package" "python3 -m build --sdist" $logfile
+  _exec "Uploading source package" "twine upload dist/skoolkit-$VERSION.tar.gz" $logfile
 }
 
 ###############################################################################
@@ -541,8 +543,8 @@ Pre-release commands:
   ddiffs - run disassembly-diff on the HH/ROM/MM/JSW/SD/BTS/CSC disassemblies
   asmchk - run check-asms on the HH/ROM/MM/JSW/SD/BTS/CSC disassemblies
   binchk - run check-bins on the HH/ROM/MM/JSW/SD/BTS/CSC disassemblies
-  setup1 - verify that 'setup.py install' works from a release tarball
-  setup2 - verify that 'setup.py install' works from an sdist tarball
+  pipin1 - verify that 'pip install .' works from a release tarball
+  pipin2 - verify that 'pip install .' works from an sdist tarball
 
 Post-release commands:
   debpkg - build, install, verify and uninstall a DEB package
@@ -567,8 +569,8 @@ while [[ -n "$1" ]]; do
     ddiffs) disassembly_diffs ;;
     asmchk) check_asms ;;
     binchk) check_bins ;;
-    setup1) verify_setup 1 ;;
-    setup2) verify_setup 2 ;;
+    pipin1) verify_pip 1 ;;
+    pipin2) verify_pip 2 ;;
     debpkg) build_deb ;;
     rpmpkg) build_rpm ;;
     ghdocs) prepare_gh_pages ;;

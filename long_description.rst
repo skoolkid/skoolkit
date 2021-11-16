@@ -1,9 +1,3 @@
-#!/usr/bin/env python3
-from distutils.core import setup
-
-from skoolkit import VERSION
-
-LONG_DESCRIPTION = """
 SkoolKit
 ========
 SkoolKit is a collection of utilities that can be used to disassemble a
@@ -113,45 +107,3 @@ To turn it into a file that can be fed to an assembler::
 
 .. _documentation: https://skoolkid.github.io/skoolkit/
 .. _control file: https://skoolkid.github.io/skoolkit/control-files.html
-"""
-
-setup(
-    name='skoolkit',
-    version=VERSION,
-    author='Richard Dymond',
-    author_email='rjdymond@gmail.com',
-    license='GPLv3',
-    url='https://skoolkit.ca',
-    description="A suite of tools for creating disassemblies of ZX Spectrum games",
-    long_description=LONG_DESCRIPTION,
-    packages=['skoolkit'],
-    package_data={'skoolkit': ['resources/*.css']},
-    scripts=[
-        'bin2sna.py',
-        'bin2tap.py',
-        'skool2asm.py',
-        'skool2bin.py',
-        'skool2ctl.py',
-        'skool2html.py',
-        'sna2ctl.py',
-        'sna2img.py',
-        'sna2skool.py',
-        'snapinfo.py',
-        'snapmod.py',
-        'tap2sna.py',
-        'tapinfo.py'
-    ],
-    classifiers=[
-        'Development Status :: 5 - Production/Stable',
-        'License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)',
-        'Operating System :: OS Independent',
-        'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.6',
-        'Programming Language :: Python :: 3.7',
-        'Programming Language :: Python :: 3.8',
-        'Programming Language :: Python :: 3.9',
-        'Programming Language :: Python :: 3.10',
-        'Topic :: Software Development :: Disassemblers',
-        'Topic :: Utilities'
-    ]
-)
