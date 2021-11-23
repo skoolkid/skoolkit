@@ -63,6 +63,8 @@ rsync -aR \
   COPYING MANIFEST.in long_description.rst pyproject.toml setup.cfg \
   $ABSDIR
 
+$SKOOLKIT_HOME/tools/cfg2py.py > $ABSDIR/setup.py
+
 if [[ $INCLUDE_DOCS == 1 ]]; then
   cd $SKOOLKIT_HOME/sphinx
 
