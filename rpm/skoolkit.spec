@@ -9,7 +9,7 @@ Source0:        https://skoolkit.ca/downloads/%{name}/%{name}-%{version}.tar.xz
 
 BuildArch:      noarch
 BuildRequires:  python3-devel
-Requires:       python3 >= 3.6
+Requires:       python3 >= 3.7
 
 %description
 SkoolKit is a collection of utilities that can be used to disassemble a

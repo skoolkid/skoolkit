@@ -234,7 +234,7 @@ test_disassemblies() {
   btslog=$BACKTOSKOOL_HOME/build/tests.log
   mkdir -p $CONTACTSAMCRUISE_HOME/build
   csclog=$CONTACTSAMCRUISE_HOME/build/tests.log
-  targets="test36 test37 test38 test39 test310"
+  targets="test37 test38 test39 test310"
 
   make -C $HUNGRYHORACE_HOME $targets &> $hhlog & PIDhh=$!
   make -C $MANICMINER_HOME $targets &> $mmlog & PIDmm=$!
@@ -517,7 +517,7 @@ EOF
 
   [[ -f $TARBALL ]] && echo "Found $TARBALL" || _build_tarball
 
-  for dist in bionic focal; do
+  for dist in focal; do
     _cd_tmpdir
     cp -p $TARBALL skoolkit_$VERSION.orig.tar.xz
     tar xf skoolkit_$VERSION.orig.tar.xz
