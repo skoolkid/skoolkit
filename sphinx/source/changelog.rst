@@ -1,6 +1,9 @@
 Changelog
 =========
 
+8.7b1
+-----
+
 8.6 (2021-11-06)
 ----------------
 * Added the :ref:`STR` macro (for retrieving the text string at a given address
