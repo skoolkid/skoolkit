@@ -106,6 +106,9 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
     def _test_invalid_image_macro(self, writer, macro, error_msg, prefix):
         self._test_unsupported_macro(writer, macro, error_msg)
 
+    def _test_invalid_audio_macro(self, writer, macro, error_msg, prefix):
+        self._test_unsupported_macro(writer, macro, error_msg)
+
     def _test_udgarray_macro(self, writer, prefix, udg_specs, suffix):
         self._test_unsupported_macro(writer, f'{prefix};{udg_specs}{suffix}')
         self._test_unsupported_macro(writer, f'{prefix}({udg_specs}){suffix}')
@@ -134,6 +137,10 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
         asm = self._get_asm(skool).split('\n')
         self.assertEqual(asm[1], '  DEFB 123                ; A=0')
         self.assertEqual(asm[2], "  DEFB $23                ; '#'")
+
+    def test_macro_audio(self):
+        writer = self._get_writer()
+        self._test_unsupported_macro(writer, '#AUDIO(sound.wav)')
 
     def test_macro_chr(self):
         writer = self._get_writer('', variables=[('foo', 66)])

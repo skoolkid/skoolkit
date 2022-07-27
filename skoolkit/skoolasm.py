@@ -1,4 +1,4 @@
-# Copyright 2008-2021 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2008-2022 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -226,6 +226,11 @@ class AsmWriter:
         :param name: An optional name for the snapshot.
         """
         self._snapshots.append((self.snapshot[:], name))
+
+    def expand_audio(self, text, index):
+        if self.handle_unsupported_macros:
+            return skoolmacro.parse_audio(text, index)[0], ''
+        raise skoolmacro.UnsupportedMacroError()
 
     def expand_copy(self, text, index):
         if self.handle_unsupported_macros:

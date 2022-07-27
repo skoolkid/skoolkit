@@ -1,4 +1,4 @@
-# Copyright 2012-2021 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2012-2022 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -505,6 +505,13 @@ def expand_macros(writer, text, *cwd):
             index += len(rep)
 
     return text
+
+def parse_audio(text, index):
+    # #AUDIO(fname)
+    end, fname = parse_brackets(text, index)
+    if not fname:
+        raise MacroParsingError('Missing filename: #AUDIO{}'.format(text[index:end]))
+    return end, fname
 
 def parse_call(writer, text, index, *cwd):
     # #CALL:methodName(args)

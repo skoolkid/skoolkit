@@ -14,6 +14,13 @@ class CommonSkoolMacroTest:
         cwd = ('<cwd>',) if isinstance(writer, HtmlWriter) else ()
         self.assertEqual(writer.expand(macro, *cwd), writer.test_call(*(cwd + args), **kwargs))
 
+    def test_macro_audio_invalid(self):
+        writer = self._get_writer()
+        prefix = ERROR_PREFIX.format('AUDIO')
+
+        self._test_invalid_audio_macro(writer, '#AUDIO', "Missing filename: #AUDIO", prefix)
+        self._test_invalid_audio_macro(writer, '#AUDIO(', "No closing bracket: (", prefix)
+
     def test_macro_call(self):
         writer = self._get_writer(skool='', variables=[('one', 1)])
         writer.test_call = self._test_call

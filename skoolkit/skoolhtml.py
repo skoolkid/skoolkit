@@ -1,4 +1,4 @@
-# Copyright 2008-2021 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2008-2022 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -1020,6 +1020,14 @@ class HtmlWriter:
                 break
             prev_path = path
         return path
+
+    def expand_audio(self, text, index, cwd):
+        end, fname = skoolmacro.parse_audio(text, index)
+        if fname.startswith('/'):
+            fname = fname.lstrip('/')
+        else:
+            fname = join(self.paths['AudioPath'], fname)
+        return end, self.format_template('audio', {'src': self.relpath(cwd, fname)})
 
     def expand_copy(self, text, index, cwd):
         return skoolmacro.parse_copy(text, index, self.fields, self.frames)

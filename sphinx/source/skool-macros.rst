@@ -844,6 +844,34 @@ See :ref:`stringParameters` for details on alternative ways to supply the
 General macros
 ^^^^^^^^^^^^^^
 
+.. _AUDIO:
+
+#AUDIO
+------
+In HTML mode, the ``#AUDIO`` macro expands to an HTML5 ``<audio>`` element. ::
+
+  #AUDIO(fname)
+
+* ``fname`` is the name of the audio file
+
+If ``fname`` starts with a '/', the filename is taken to be relative to the
+root of the HTML disassembly. Otherwise the filename is taken to be relative to
+the audio directory (as defined by the ``AudioPath`` parameter in the
+:ref:`paths` section).
+
+The audio file must already exist in the specified location, otherwise the
+``<audio>`` element controls will not work. To make sure that a pre-built audio
+file is copied into the desired location when :ref:`skool2html.py` is run, it
+can be declared in the :ref:`resources` section.
+
+The :ref:`t_audio` template is used to format the ``<audio>`` element.
+
++---------+---------+
+| Version | Changes |
++=========+=========+
+| 8.7     | New     |
++---------+---------+
+
 .. _CALL:
 
 #CALL

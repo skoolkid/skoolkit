@@ -1,4 +1,4 @@
-# Copyright 2014-2021 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2014-2022 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -236,6 +236,7 @@ GameIndex=The complete<>RAM disassembly
 """
 
 SECTIONS['Paths'] = """
+AudioPath=audio
 CodePath=asm
 FontPath=.
 FontImagePath={ImagePath}/font
@@ -495,6 +496,12 @@ SECTIONS['Template:asm_single_page'] = """
 <# endif #>
 </table>
 <# endfor #>
+"""
+
+SECTIONS['Template:audio'] = """
+<audio controls src="{src}">
+<p>Your browser doesn't support HTML5 audio. Here is a <a href="{src}">link to the audio</a> instead.</p>
+</audio>
 """
 
 SECTIONS['Template:box_entries'] = """

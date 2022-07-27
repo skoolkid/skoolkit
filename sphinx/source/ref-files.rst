@@ -762,6 +762,8 @@ Recognised file IDs and their default paths are:
 
 Recognised directory IDs and their default paths are:
 
+* ``AudioPath`` - the directory in which audio files are assumed to be by the
+  :ref:`AUDIO` macro (default: ``audio``)
 * ``CodePath`` - the directory in which the disassembly pages are written
   (default: ``asm``)
 * ``FontImagePath`` - the directory in which font images (created by the
@@ -796,6 +798,8 @@ decimal addresses otherwise: ``{address#IF({mode[base]}==16)(:04X)}.html``.
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 8.7     | Added the ``AudioPath`` directory ID                              |
++---------+-------------------------------------------------------------------+
 | 6.3     | Added the ``ImagePath`` directory ID and the ability to define    |
 |         | one image path ID in terms of another                             |
 +---------+-------------------------------------------------------------------+

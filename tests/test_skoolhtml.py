@@ -31,6 +31,7 @@ REF_SECTIONS = {
     'Page_Facts': defaults.get_section('Page:Facts'),
     'Page_Pokes': defaults.get_section('Page:Pokes'),
     'PageHeaders': defaults.get_section('PageHeaders'),
+    'Template_audio': defaults.get_section('Template:audio'),
     'Template_img': defaults.get_section('Template:img'),
     'Template_link': defaults.get_section('Template:link'),
     'Template_list': defaults.get_section('Template:list'),
@@ -88,6 +89,7 @@ StyleSheet=skoolkit.css
 {REF_SECTIONS[Page_Pokes]}
 {REF_SECTIONS[PageHeaders]}
 [Paths]
+AudioPath=audio
 CodePath={ASMDIR}
 FontImagePath={{ImagePath}}/font
 ImagePath=images
@@ -99,6 +101,7 @@ Bugs={REFERENCE_DIR}/bugs.html
 CodeFiles={{address}}.html
 Facts={REFERENCE_DIR}/facts.html
 Pokes={REFERENCE_DIR}/pokes.html
+{REF_SECTIONS[Template_audio]}
 {REF_SECTIONS[Template_img]}
 {REF_SECTIONS[Template_link]}
 {REF_SECTIONS[Template_list]}
@@ -1441,6 +1444,9 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
     def _test_invalid_image_macro(self, writer, macro, error_msg, prefix):
         self._assert_error(writer, macro, error_msg, prefix)
 
+    def _test_invalid_audio_macro(self, writer, macro, error_msg, prefix):
+        self._assert_error(writer, macro, error_msg, prefix)
+
     def _test_call(self, cwd, arg1, arg2, arg3=None):
         # Method used to test the #CALL macro
         return str((cwd, arg1, arg2, arg3))
@@ -1457,6 +1463,44 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
 
     def _unsupported_macro(self, *args):
         raise UnsupportedMacroError()
+
+    def test_macro_audio(self):
+        writer = self._get_writer(skool='')
+        fname = 'sound.wav'
+        src = f'../audio/{fname}'
+        exp_html = f"""
+            <audio controls src="{src}">
+            <p>Your browser doesn't support HTML5 audio. Here is a <a href="{src}">link to the audio</a> instead.</p>
+            </audio>
+        """
+        output = writer.expand(f'#AUDIO({fname})', ASMDIR)
+        self.assertEqual(dedent(exp_html).strip(), output)
+
+    def test_macro_audio_with_absolute_path(self):
+        writer = self._get_writer(skool='')
+        fname = '/audio/sound.wav'
+        src = '..' + fname
+        exp_html = f"""
+            <audio controls src="{src}">
+            <p>Your browser doesn't support HTML5 audio. Here is a <a href="{src}">link to the audio</a> instead.</p>
+            </audio>
+        """
+        output = writer.expand(f'#AUDIO({fname})', ASMDIR)
+        self.assertEqual(dedent(exp_html).strip(), output)
+
+    def test_macro_audio_with_custom_audio_path(self):
+        audio_path = 'sounds'
+        ref = f'[Paths]\nAudioPath={audio_path}'
+        writer = self._get_writer(skool='', ref=ref)
+        fname = 'sound.wav'
+        src = f'../{audio_path}/{fname}'
+        exp_html = f"""
+            <audio controls src="{src}">
+            <p>Your browser doesn't support HTML5 audio. Here is a <a href="{src}">link to the audio</a> instead.</p>
+            </audio>
+        """
+        output = writer.expand(f'#AUDIO({fname})', ASMDIR)
+        self.assertEqual(dedent(exp_html).strip(), output)
 
     def test_macro_chr(self):
         writer = self._get_writer(skool='', variables=[('foo', 66)])
