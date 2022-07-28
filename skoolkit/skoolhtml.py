@@ -27,6 +27,7 @@ import re
 from io import StringIO
 
 from skoolkit import skoolmacro, SkoolKitError, SkoolParsingError, evaluate, format_template, parse_int, warn
+from skoolkit.audio import AudioWriter
 from skoolkit.components import get_component, get_image_writer
 from skoolkit.defaults import REF_FILE
 from skoolkit.graphics import Frame, adjust_udgs, build_udg, font_udgs, scr_udgs
@@ -72,6 +73,8 @@ class HtmlWriter:
         iw_config = self.get_dictionary('ImageWriter')
         self.image_writer = get_image_writer(iw_config, colours)
         self.frames = {}
+
+        self.audio_writer = AudioWriter()
 
         self.snapshot = self.parser.snapshot
         self._snapshots = [(self.snapshot, '')]
@@ -1021,12 +1024,19 @@ class HtmlWriter:
             prev_path = path
         return path
 
+    def _write_audio(self, audio_path, delays):
+        f = self.file_info.open_file(audio_path, mode='wb')
+        self.audio_writer.write_audio(f, delays)
+        f.close()
+
     def expand_audio(self, text, index, cwd):
-        end, fname = skoolmacro.parse_audio(text, index)
+        end, fname, delays = skoolmacro.parse_audio(text, index)
         if fname.startswith('/'):
             fname = fname.lstrip('/')
         else:
             fname = join(self.paths['AudioPath'], fname)
+        if delays:
+            self._write_audio(fname, delays)
         return end, self.format_template('audio', {'src': self.relpath(cwd, fname)})
 
     def expand_copy(self, text, index, cwd):

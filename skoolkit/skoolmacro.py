@@ -506,12 +506,30 @@ def expand_macros(writer, text, *cwd):
 
     return text
 
+def _flatten(elements):
+    f = []
+    for e in elements:
+        if isinstance(e, list):
+            f.extend(_flatten(e))
+        else:
+            f.append(e)
+    return f
+
+def _eval_delays(spec):
+    if set(spec) <= frozenset(' 0123456789,*[]'):
+        return _flatten(eval(f'[{spec}]'))
+
 def parse_audio(text, index):
-    # #AUDIO(fname)
+    # #AUDIO(fname)[(delays)]
     end, fname = parse_brackets(text, index)
     if not fname:
         raise MacroParsingError('Missing filename: #AUDIO{}'.format(text[index:end]))
-    return end, fname
+    if len(text) > end and text[end] == '(':
+        end, spec = parse_brackets(text, end)
+        delays = _eval_delays(spec)
+    else:
+        delays = None
+    return end, fname, delays
 
 def parse_call(writer, text, index, *cwd):
     # #CALL:methodName(args)

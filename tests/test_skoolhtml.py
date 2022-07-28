@@ -249,6 +249,12 @@ class TestImageWriter(ImageWriter):
             self.alpha = frame1.alpha
         img_file.write(b'a')
 
+class TestAudioWriter:
+    delays = None
+
+    def write_audio(self, audio_file, delays):
+        self.delays = delays
+
 class HtmlWriterTestCase(SkoolKitTestCase):
     def setUp(self):
         super().setUp()
@@ -260,7 +266,8 @@ class HtmlWriterTestCase(SkoolKitTestCase):
     def _get_writer(self, ref=None, snapshot=(), case=0, base=0, skool=None,
                     create_labels=False, asm_labels=False, variables=(),
                     mock_file_info=False, mock_write_file=True,
-                    mock_image_writer=True, warn=False):
+                    mock_image_writer=True, mock_audio_writer=True,
+                    warn=False):
         self.skoolfile = None
         ref_parser = RefParser()
         if ref is not None:
@@ -279,6 +286,8 @@ class HtmlWriterTestCase(SkoolKitTestCase):
             file_info = FileInfo(self.odir, GAMEDIR, False)
         if mock_image_writer:
             patch.object(skoolhtml, 'get_image_writer', TestImageWriter).start()
+        if mock_audio_writer:
+            patch.object(skoolhtml, 'AudioWriter', TestAudioWriter).start()
         self.addCleanup(patch.stopall)
         writer = HtmlWriter(skool_parser, ref_parser, file_info)
         if mock_write_file:
@@ -1418,6 +1427,18 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         if udgs:
             self._check_image(writer, udgs, scale, mask, tindex, alpha, x, y, width, height, path)
 
+    def _test_audio_macro(self, writer, macro, src, path=None, delays=None):
+        exp_html = f"""
+            <audio controls src="{src}">
+            <p>Your browser doesn't support HTML5 audio. Here is a <a href="{src}">link to the audio</a> instead.</p>
+            </audio>
+        """
+        output = writer.expand(macro, ASMDIR)
+        self.assertEqual(dedent(exp_html).strip(), output)
+        if path:
+            self.assertEqual(writer.file_info.fname, path)
+        self.assertEqual(delays, writer.audio_writer.delays)
+
     def _test_udgarray_macro(self, snapshot, prefix, udg_specs, suffix, path, udgs=None, scale=2, mask=0, tindex=0,
                              alpha=-1, x=0, y=0, width=None, height=None, ref=None, alt=None, base=0):
         self._test_image_macro(snapshot, f'{prefix};{udg_specs}{suffix}', path, udgs, scale, mask, tindex, alpha, x, y, width, height, ref, alt, base)
@@ -1467,40 +1488,35 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
     def test_macro_audio(self):
         writer = self._get_writer(skool='')
         fname = 'sound.wav'
-        src = f'../audio/{fname}'
-        exp_html = f"""
-            <audio controls src="{src}">
-            <p>Your browser doesn't support HTML5 audio. Here is a <a href="{src}">link to the audio</a> instead.</p>
-            </audio>
-        """
-        output = writer.expand(f'#AUDIO({fname})', ASMDIR)
-        self.assertEqual(dedent(exp_html).strip(), output)
+        macro = f'#AUDIO({fname})'
+        exp_src = f'../audio/{fname}'
+        self._test_audio_macro(writer, macro, exp_src)
 
     def test_macro_audio_with_absolute_path(self):
         writer = self._get_writer(skool='')
         fname = '/audio/sound.wav'
-        src = '..' + fname
-        exp_html = f"""
-            <audio controls src="{src}">
-            <p>Your browser doesn't support HTML5 audio. Here is a <a href="{src}">link to the audio</a> instead.</p>
-            </audio>
-        """
-        output = writer.expand(f'#AUDIO({fname})', ASMDIR)
-        self.assertEqual(dedent(exp_html).strip(), output)
+        macro = f'#AUDIO({fname})'
+        exp_src = '..' + fname
+        self._test_audio_macro(writer, macro, exp_src)
 
     def test_macro_audio_with_custom_audio_path(self):
         audio_path = 'sounds'
         ref = f'[Paths]\nAudioPath={audio_path}'
         writer = self._get_writer(skool='', ref=ref)
         fname = 'sound.wav'
-        src = f'../{audio_path}/{fname}'
-        exp_html = f"""
-            <audio controls src="{src}">
-            <p>Your browser doesn't support HTML5 audio. Here is a <a href="{src}">link to the audio</a> instead.</p>
-            </audio>
-        """
-        output = writer.expand(f'#AUDIO({fname})', ASMDIR)
-        self.assertEqual(dedent(exp_html).strip(), output)
+        macro = f'#AUDIO({fname})'
+        exp_src = f'../{audio_path}/{fname}'
+        self._test_audio_macro(writer, macro, exp_src)
+
+    def test_macro_audio_with_delays(self):
+        writer = self._get_writer(skool='', mock_file_info=True)
+        fname = 'sound.wav'
+        delays = '[500]*10'
+        macro = f'#AUDIO({fname})({delays})'
+        exp_src = f'../audio/{fname}'
+        exp_path = f'audio/{fname}'
+        exp_delays = [500] * 10
+        self._test_audio_macro(writer, macro, exp_src, exp_path, exp_delays)
 
     def test_macro_chr(self):
         writer = self._get_writer(skool='', variables=[('foo', 66)])

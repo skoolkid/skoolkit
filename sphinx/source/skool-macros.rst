@@ -850,19 +850,38 @@ General macros
 ------
 In HTML mode, the ``#AUDIO`` macro expands to an HTML5 ``<audio>`` element. ::
 
-  #AUDIO(fname)
+  #AUDIO(fname)[(delays)]
 
 * ``fname`` is the name of the audio file
+* ``delays`` is a comma-separated list of interval lengths (in T-states)
+  between speaker state changes
 
 If ``fname`` starts with a '/', the filename is taken to be relative to the
 root of the HTML disassembly. Otherwise the filename is taken to be relative to
 the audio directory (as defined by the ``AudioPath`` parameter in the
 :ref:`paths` section).
 
-The audio file must already exist in the specified location, otherwise the
-``<audio>`` element controls will not work. To make sure that a pre-built audio
-file is copied into the desired location when :ref:`skool2html.py` is run, it
-can be declared in the :ref:`resources` section.
+If ``delays`` is specified, a corresponding audio file in WAV format is
+created. Each element in ``delays`` can be an integer, a list of integers, or a
+list of lists of integers etc. nested to arbitrary depth, expressed as Python
+literals. For example::
+
+  1000, [1500]*100, [[800, 1200]*2, 900]*200
+
+This would be flattened into a list of integers, as follows:
+
+* a single instance of '1000'
+* 100 instances of '1500'
+* 200 instances of the sequence '800, 1200, 800, 1200, 900'
+
+The sum of this list of integers being 1131000, this would result in an audio
+file of duration 1131000 / 3500000 = 0.323s.
+
+If ``delays`` is not specified, the named audio file must already exist in the
+specified location, otherwise the ``<audio>`` element controls will not work.
+To make sure that a pre-built audio file is copied into the desired location
+when :ref:`skool2html.py` is run, it can be declared in the :ref:`resources`
+section.
 
 The :ref:`t_audio` template is used to format the ``<audio>`` element.
 

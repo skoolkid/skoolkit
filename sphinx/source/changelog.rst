@@ -4,9 +4,11 @@ Changelog
 8.7b1
 -----
 * Dropped support for Python 3.6
-* Added the :ref:`AUDIO` macro (for creating HTML5 ``<audio>`` elements)
+* Added the :ref:`AUDIO` macro (for creating HTML5 ``<audio>`` elements, and
+  optionally creating audio files in WAV format)
 * Added the ``AudioPath`` parameter to the :ref:`paths` section (for specifying
-  where the :ref:`AUDIO` macro should look for audio files by default)
+  where the :ref:`AUDIO` macro should look for or create audio files by
+  default)
 * Added the :ref:`t_audio` template (for formatting the ``<audio>`` element
   produced by the :ref:`AUDIO` macro)
 
