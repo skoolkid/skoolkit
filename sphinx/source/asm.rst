@@ -1184,7 +1184,7 @@ were reversed::
 
 then ``#foo31`` would be replaced by ``#bar31``.
 
-See also the :ref:`DEFINE` macro, which is more flexible than ``@replace`` for
+See also the :ref:`DEF` macro, which is more flexible than ``@replace`` for
 defining new macros.
 
 +---------+--------------------------------------------+
