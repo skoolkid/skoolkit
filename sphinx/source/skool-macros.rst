@@ -850,11 +850,18 @@ General macros
 ------
 In HTML mode, the ``#AUDIO`` macro expands to an HTML5 ``<audio>`` element. ::
 
-  #AUDIO(fname)[(delays)]
+  #AUDIO[flags](fname)[(delays)]
 
+* ``flags`` controls various options (see below)
 * ``fname`` is the name of the audio file
 * ``delays`` is a comma-separated list of interval lengths (in T-states)
   between speaker state changes
+
+``flags`` is the sum of the following values, chosen according to the desired
+outcome:
+
+* 1 - modify ``delays`` by simulating memory contention
+* 2 - modify ``delays`` as if interrupts were enabled
 
 If ``fname`` starts with a '/', the filename is taken to be relative to the
 root of the HTML disassembly. Otherwise the filename is taken to be relative to
@@ -875,13 +882,17 @@ This would be flattened into a list of integers, as follows:
 * 200 instances of the sequence '800, 1200, 800, 1200, 900'
 
 The sum of this list of integers being 1131000, this would result in an audio
-file of duration 1131000 / 3500000 = 0.323s.
+file of duration 1131000 / 3500000 = 0.323s (assuming that no memory contention
+is simulated and interrupts are disabled, i.e. bits 0 and 1 of ``flags`` are
+reset).
 
 If ``delays`` is not specified, the named audio file must already exist in the
 specified location, otherwise the ``<audio>`` element controls will not work.
 To make sure that a pre-built audio file is copied into the desired location
 when :ref:`skool2html.py` is run, it can be declared in the :ref:`resources`
 section.
+
+The ``flags`` parameter of the ``#AUDIO`` macro may contain replacement fields.
 
 The :ref:`t_audio` template is used to format the ``<audio>`` element.
 

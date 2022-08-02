@@ -251,9 +251,13 @@ class TestImageWriter(ImageWriter):
 
 class TestAudioWriter:
     delays = None
+    contention = None
+    interrupts = None
 
-    def write_audio(self, audio_file, delays):
+    def write_audio(self, audio_file, delays, contention=False, interrupts=False):
         self.delays = delays
+        self.contention = bool(contention)
+        self.interrupts = bool(interrupts)
 
 class HtmlWriterTestCase(SkoolKitTestCase):
     def setUp(self):
@@ -1427,7 +1431,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         if udgs:
             self._check_image(writer, udgs, scale, mask, tindex, alpha, x, y, width, height, path)
 
-    def _test_audio_macro(self, writer, macro, src, path=None, delays=None):
+    def _test_audio_macro(self, writer, macro, src, path=None, delays=None, contention=None, interrupts=None):
         exp_html = f"""
             <audio controls src="{src}">
             <p>Your browser doesn't support HTML5 audio. Here is a <a href="{src}">link to the audio</a> instead.</p>
@@ -1438,6 +1442,8 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         if path:
             self.assertEqual(writer.file_info.fname, path)
         self.assertEqual(delays, writer.audio_writer.delays)
+        self.assertEqual(contention, writer.audio_writer.contention)
+        self.assertEqual(interrupts, writer.audio_writer.interrupts)
 
     def _test_udgarray_macro(self, snapshot, prefix, udg_specs, suffix, path, udgs=None, scale=2, mask=0, tindex=0,
                              alpha=-1, x=0, y=0, width=None, height=None, ref=None, alt=None, base=0):
@@ -1516,7 +1522,47 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         exp_src = f'../audio/{fname}'
         exp_path = f'audio/{fname}'
         exp_delays = [500] * 10
-        self._test_audio_macro(writer, macro, exp_src, exp_path, exp_delays)
+        self._test_audio_macro(writer, macro, exp_src, exp_path, exp_delays, False, False)
+
+    def test_macro_audio_with_contention(self):
+        writer = self._get_writer(skool='', mock_file_info=True)
+        fname = 'sound.wav'
+        delays = '[500]*8'
+        macro = f'#AUDIO1({fname})({delays})'
+        exp_src = f'../audio/{fname}'
+        exp_path = f'audio/{fname}'
+        exp_delays = [500] * 8
+        self._test_audio_macro(writer, macro, exp_src, exp_path, exp_delays, True, False)
+
+    def test_macro_audio_with_interrupts(self):
+        writer = self._get_writer(skool='', mock_file_info=True)
+        fname = 'sound.wav'
+        delays = '[500]*6'
+        macro = f'#AUDIO2({fname})({delays})'
+        exp_src = f'../audio/{fname}'
+        exp_path = f'audio/{fname}'
+        exp_delays = [500] * 6
+        self._test_audio_macro(writer, macro, exp_src, exp_path, exp_delays, False, True)
+
+    def test_macro_audio_with_contention_and_interrupts(self):
+        writer = self._get_writer(skool='', mock_file_info=True)
+        fname = 'sound.wav'
+        delays = '[500]*4'
+        macro = f'#AUDIO3({fname})({delays})'
+        exp_src = f'../audio/{fname}'
+        exp_path = f'audio/{fname}'
+        exp_delays = [500] * 4
+        self._test_audio_macro(writer, macro, exp_src, exp_path, exp_delays, True, True)
+
+    def test_macro_audio_with_replacement_fields(self):
+        writer = self._get_writer(skool='', mock_file_info=True)
+        fname = 'sound.wav'
+        delays = '[500]*3'
+        macros = f'#LET(flags=3)#AUDIO({{flags}})({fname})({delays})'
+        exp_src = f'../audio/{fname}'
+        exp_path = f'audio/{fname}'
+        exp_delays = [500] * 3
+        self._test_audio_macro(writer, macros, exp_src, exp_path, exp_delays, True, True)
 
     def test_macro_chr(self):
         writer = self._get_writer(skool='', variables=[('foo', 66)])

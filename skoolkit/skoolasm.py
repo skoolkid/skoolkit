@@ -229,7 +229,7 @@ class AsmWriter:
 
     def expand_audio(self, text, index):
         if self.handle_unsupported_macros:
-            return skoolmacro.parse_audio(text, index)[0], ''
+            return skoolmacro.parse_audio(text, index, self.fields)[0], ''
         raise skoolmacro.UnsupportedMacroError()
 
     def expand_copy(self, text, index):

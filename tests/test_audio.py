@@ -6,6 +6,22 @@ from skoolkit.audio import AudioWriter
 def _int32(num):
     return bytes((num & 255, (num >> 8) & 255, (num >> 16) & 255, num >> 24))
 
+def _flatten(elements):
+    f = []
+    for e in elements:
+        if isinstance(e, list):
+            f.extend(_flatten(e))
+        else:
+            f.append(e)
+    return f
+
+class TestAudioWriter(AudioWriter):
+    def _delays_to_samples(self, delays, sample_rate, max_amplitude=0):
+        self.delays = delays
+
+    def _write_wav(self, audio_file, samples, sample_rate):
+        return
+
 class AudioWriterTest(SkoolKitTestCase):
     def _get_audio_data(self, audio_writer, delays):
         audio_stream = BytesIO()
@@ -36,3 +52,17 @@ class AudioWriterTest(SkoolKitTestCase):
         audio_bytes = self._get_audio_data(audio_writer, [100] * 4)
         samples = self._check_header(audio_bytes)
         self.assertEqual(samples, b'\x00\x00\xff\x7f\x00\x80\xff\x7f\x00\x80\x83\xe6')
+
+    def test_contention(self):
+        audio_writer = TestAudioWriter()
+        delays_in = _flatten([13000, [1000] * 31, 500])
+        audio_writer.write_audio(None, delays_in, True)
+        exp_delays_out = _flatten([13000, 1000, 1337, [1512] * 27, 1369, 1000, 500])
+        self.assertEqual(exp_delays_out, audio_writer.delays)
+
+    def test_interrupts(self):
+        audio_writer = TestAudioWriter()
+        delays_in = [10000] * 8
+        audio_writer.write_audio(None, delays_in, False, True)
+        exp_delays_out = _flatten([[10000] * 6, 10942, 10000])
+        self.assertEqual(exp_delays_out, audio_writer.delays)

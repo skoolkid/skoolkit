@@ -17,13 +17,36 @@
 import math
 
 CLOCK_SPEED = 3500000
+CONTENTION_BEGIN = 14334
+CONTENTION_END = 57248
+CONTENTION_FACTOR = 34
+FRAME_T_STATES = 69888
+INTERRUPT_DELAY = 942
 MAX_AMPLITUDE = 65536
 SAMPLE_RATE = 44100
 
 class AudioWriter:
-    def write_audio(self, audio_file, delays, sample_rate=SAMPLE_RATE):
+    def write_audio(self, audio_file, delays, contention=False, interrupts=False, sample_rate=SAMPLE_RATE):
+        if contention or interrupts:
+            self._add_contention(delays, contention, interrupts)
         samples = self._delays_to_samples(delays, sample_rate)
         self._write_wav(audio_file, samples, sample_rate)
+
+    def _add_contention(self, delays, contention, interrupts, cycle=0):
+        for i, delay in enumerate(delays):
+            d = 0
+            while d < delay:
+                if interrupts and cycle == 0:
+                   cycle = INTERRUPT_DELAY
+                   if i:
+                       delay += INTERRUPT_DELAY
+                end = min(FRAME_T_STATES, cycle + delay - d)
+                if contention and CONTENTION_BEGIN <= end and cycle < CONTENTION_END:
+                    contended_cycles = min(CONTENTION_END, end) - max(cycle, CONTENTION_BEGIN)
+                    delay += int(contended_cycles * CONTENTION_FACTOR / 100)
+                d += end - cycle
+                cycle = end % FRAME_T_STATES
+            delays[i] = delay
 
     def _delays_to_samples(self, delays, sample_rate, max_amplitude=MAX_AMPLITUDE):
         sample_delay = CLOCK_SPEED / sample_rate

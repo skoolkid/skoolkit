@@ -519,9 +519,13 @@ def _eval_delays(spec):
     if set(spec) <= frozenset(' 0123456789,*[]'):
         return _flatten(eval(f'[{spec}]'))
 
-def parse_audio(text, index):
-    # #AUDIO(fname)[(delays)]
-    end, fname = parse_brackets(text, index)
+def parse_audio(text, index, fields):
+    # #AUDIO[flags](fname)[(delays)]
+    try:
+        end, flags = parse_ints(text, index, 1, defaults=(0,), fields=fields)
+    except InvalidParameterError:
+        end, flags = index, 0
+    end, fname = parse_brackets(text, end)
     if not fname:
         raise MacroParsingError('Missing filename: #AUDIO{}'.format(text[index:end]))
     if len(text) > end and text[end] == '(':
@@ -529,7 +533,7 @@ def parse_audio(text, index):
         delays = _eval_delays(spec)
     else:
         delays = None
-    return end, fname, delays
+    return end, flags, fname, delays
 
 def parse_call(writer, text, index, *cwd):
     # #CALL:methodName(args)
