@@ -8,6 +8,7 @@ from unittest.mock import patch
 from skoolkittest import SkoolKitTestCase, Stream
 from macrotest import CommonSkoolMacroTest, nest_macros
 from skoolkit import BASE_10, BASE_16, VERSION, SkoolKitError, SkoolParsingError, components, defaults, skoolhtml
+from skoolkit.audio import AudioWriter
 from skoolkit.graphics import Udg, Frame, flip_udgs, rotate_udgs
 from skoolkit.image import ImageWriter
 from skoolkit.skoolmacro import UnsupportedMacroError
@@ -249,7 +250,7 @@ class TestImageWriter(ImageWriter):
             self.alpha = frame1.alpha
         img_file.write(b'a')
 
-class TestAudioWriter:
+class TestAudioWriter(AudioWriter):
     delays = None
     contention = None
     interrupts = None
@@ -1431,7 +1432,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         if udgs:
             self._check_image(writer, udgs, scale, mask, tindex, alpha, x, y, width, height, path)
 
-    def _test_audio_macro(self, writer, macro, src, path=None, delays=None, contention=None, interrupts=None):
+    def _test_audio_macro(self, writer, macro, src, path=None, delays=None, contention=None, interrupts=None, sample_rate=44100):
         exp_html = f"""
             <audio controls src="{src}">
             <p>Your browser doesn't support HTML5 audio. Here is a <a href="{src}">link to the audio</a> instead.</p>
@@ -1441,9 +1442,11 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         self.assertEqual(dedent(exp_html).strip(), output)
         if path:
             self.assertEqual(writer.file_info.fname, path)
-        self.assertEqual(delays, writer.audio_writer.delays)
-        self.assertEqual(contention, writer.audio_writer.contention)
-        self.assertEqual(interrupts, writer.audio_writer.interrupts)
+        audio_writer = writer.audio_writer
+        self.assertEqual(delays, audio_writer.delays)
+        self.assertEqual(contention, audio_writer.contention)
+        self.assertEqual(interrupts, audio_writer.interrupts)
+        self.assertEqual(sample_rate, int(audio_writer.options['SampleRate']))
 
     def _test_udgarray_macro(self, snapshot, prefix, udg_specs, suffix, path, udgs=None, scale=2, mask=0, tindex=0,
                              alpha=-1, x=0, y=0, width=None, height=None, ref=None, alt=None, base=0):
@@ -1563,6 +1566,20 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         exp_path = f'audio/{fname}'
         exp_delays = [500] * 3
         self._test_audio_macro(writer, macros, exp_src, exp_path, exp_delays, True, True)
+
+    def test_macro_audio_with_custom_config(self):
+        sample_rate = 22050
+        ref = f"""
+            [AudioWriter]
+            SampleRate={sample_rate}
+        """
+        writer = self._get_writer(skool='', ref=ref, mock_file_info=True)
+        fname = 'sound.wav'
+        macro = f'#AUDIO({fname})([500]*2)'
+        exp_src = f'../audio/{fname}'
+        exp_path = f'audio/{fname}'
+        exp_delays = [500] * 2
+        self._test_audio_macro(writer, macro, exp_src, exp_path, exp_delays, False, False, sample_rate)
 
     def test_macro_chr(self):
         writer = self._get_writer(skool='', variables=[('foo', 66)])

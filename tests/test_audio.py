@@ -16,10 +16,10 @@ def _flatten(elements):
     return f
 
 class TestAudioWriter(AudioWriter):
-    def _delays_to_samples(self, delays, sample_rate, max_amplitude=0):
+    def _delays_to_samples(self, delays, max_amplitude=0):
         self.delays = delays
 
-    def _write_wav(self, audio_file, samples, sample_rate):
+    def _write_wav(self, audio_file, samples):
         return
 
 class AudioWriterTest(SkoolKitTestCase):
@@ -30,8 +30,9 @@ class AudioWriterTest(SkoolKitTestCase):
         audio_stream.close()
         return audio_bytes
 
-    def _check_header(self, audio_bytes):
+    def _check_header(self, audio_bytes, sample_rate=44100):
         length = len(audio_bytes)
+        byte_rate = sample_rate * 2
         self.assertEqual(audio_bytes[:4], b'RIFF')
         self.assertEqual(audio_bytes[4:8], _int32(length - 8))
         self.assertEqual(audio_bytes[8:12], b'WAVE')
@@ -39,8 +40,8 @@ class AudioWriterTest(SkoolKitTestCase):
         self.assertEqual(audio_bytes[16:20], _int32(16))     # fmt chunk length
         self.assertEqual(audio_bytes[20:22], bytes((1, 0)))  # format
         self.assertEqual(audio_bytes[22:24], bytes((1, 0)))  # channels
-        self.assertEqual(audio_bytes[24:28], _int32(44100))  # sample rate
-        self.assertEqual(audio_bytes[28:32], _int32(88200))  # byte rate
+        self.assertEqual(audio_bytes[24:28], _int32(sample_rate))
+        self.assertEqual(audio_bytes[28:32], _int32(byte_rate))
         self.assertEqual(audio_bytes[32:34], bytes((2, 0)))  # bytes per sample
         self.assertEqual(audio_bytes[34:36], bytes((16, 0))) # bits per sample
         self.assertEqual(audio_bytes[36:40], b'data')
@@ -66,3 +67,14 @@ class AudioWriterTest(SkoolKitTestCase):
         audio_writer.write_audio(None, delays_in, False, True)
         exp_delays_out = _flatten([[10000] * 6, 10942, 10000])
         self.assertEqual(exp_delays_out, audio_writer.delays)
+
+    def test_invalid_option_values(self):
+        audio_writer = AudioWriter({'SampleRate': 'NaN'})
+        self.assertEqual(audio_writer.options['SampleRate'], 44100)
+
+    def test_custom_sample_rate(self):
+        sample_rate = 22050
+        audio_writer = AudioWriter({'SampleRate': sample_rate})
+        audio_bytes = self._get_audio_data(audio_writer, [100] * 4)
+        samples = self._check_header(audio_bytes, sample_rate)
+        self.assertEqual(samples, b'\x00\x00\x00\x80\x00\x80')

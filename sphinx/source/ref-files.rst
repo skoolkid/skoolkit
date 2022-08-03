@@ -26,6 +26,26 @@ square brackets, like this::
 The contents of each section that may be found in a ref file are described
 below.
 
+.. _ref-AudioWriter:
+
+[AudioWriter]
+-------------
+The ``AudioWriter`` section contains configuration parameters that control
+audio file creation by the :ref:`AUDIO` macro. The parameters are in the
+format::
+
+  name=value
+
+Recognised parameters are:
+
+* ``SampleRate`` - sample rate in Hz (default: 44100)
+
++---------+---------+
+| Version | Changes |
++=========+=========+
+| 8.7     | New     |
++---------+---------+
+
 .. _ref-Colours:
 
 [Colours]

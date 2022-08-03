@@ -23,14 +23,26 @@ CONTENTION_FACTOR = 34
 FRAME_T_STATES = 69888
 INTERRUPT_DELAY = 942
 MAX_AMPLITUDE = 65536
-SAMPLE_RATE = 44100
+
+SAMPLE_RATE = 'SampleRate'
 
 class AudioWriter:
-    def write_audio(self, audio_file, delays, contention=False, interrupts=False, sample_rate=SAMPLE_RATE):
+    def __init__(self, config=None):
+        self.options = {
+            SAMPLE_RATE: 44100
+        }
+        if config:
+            for k, v in config.items():
+                try:
+                    self.options[k] = int(v)
+                except ValueError:
+                    pass
+
+    def write_audio(self, audio_file, delays, contention=False, interrupts=False):
         if contention or interrupts:
             self._add_contention(delays, contention, interrupts)
-        samples = self._delays_to_samples(delays, sample_rate)
-        self._write_wav(audio_file, samples, sample_rate)
+        samples = self._delays_to_samples(delays)
+        self._write_wav(audio_file, samples)
 
     def _add_contention(self, delays, contention, interrupts, cycle=0):
         for i, delay in enumerate(delays):
@@ -48,8 +60,8 @@ class AudioWriter:
                 cycle = end % FRAME_T_STATES
             delays[i] = delay
 
-    def _delays_to_samples(self, delays, sample_rate, max_amplitude=MAX_AMPLITUDE):
-        sample_delay = CLOCK_SPEED / sample_rate
+    def _delays_to_samples(self, delays, max_amplitude=MAX_AMPLITUDE):
+        sample_delay = CLOCK_SPEED / self.options[SAMPLE_RATE]
         samples = []
         direction = 1
         i = 0
@@ -80,7 +92,8 @@ class AudioWriter:
     def _to_int32(self, num):
         return (num & 255, (num >> 8) & 255, (num >> 16) & 255, num >> 24)
 
-    def _write_wav(self, audio_file, samples, sample_rate):
+    def _write_wav(self, audio_file, samples):
+        sample_rate = self.options[SAMPLE_RATE]
         data_length = 2 * len(samples)
         header = bytearray()
         header.extend(b'RIFF')

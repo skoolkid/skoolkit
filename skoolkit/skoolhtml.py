@@ -74,7 +74,7 @@ class HtmlWriter:
         self.image_writer = get_image_writer(iw_config, colours)
         self.frames = {}
 
-        self.audio_writer = AudioWriter()
+        self.audio_writer = AudioWriter(self.get_dictionary('AudioWriter'))
 
         self.snapshot = self.parser.snapshot
         self._snapshots = [(self.snapshot, '')]

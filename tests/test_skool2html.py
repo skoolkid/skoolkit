@@ -1290,7 +1290,7 @@ class Skool2HtmlTest(SkoolKitTestCase):
         for option in ('-R', '--ref-file'):
             output, error = self.run_skool2html(option, catch_exit=0)
             self.assertEqual(error, '')
-            self.assertTrue(output.startswith('[Colours]\n'))
+            self.assertTrue(output.startswith('[AudioWriter]\n'))
             self.assertIn('\n[Titles]\n', output)
 
     def test_option_r(self):

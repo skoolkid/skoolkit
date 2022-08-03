@@ -19,6 +19,10 @@ import re
 
 SECTIONS = OrderedDict()
 
+SECTIONS['AudioWriter'] = """
+; SampleRate=44100
+"""
+
 SECTIONS['Colours'] = """
 ; TRANSPARENT=0,254,0
 ; BLACK=0,0,0

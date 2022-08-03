@@ -11,6 +11,8 @@ Changelog
   default)
 * Added the :ref:`t_audio` template (for formatting the ``<audio>`` element
   produced by the :ref:`AUDIO` macro)
+* Added the :ref:`ref-AudioWriter` section (for configuring audio files created
+  by the :ref:`AUDIO` macro)
 
 8.6 (2021-11-06)
 ----------------
