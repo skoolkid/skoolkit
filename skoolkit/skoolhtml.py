@@ -1030,7 +1030,7 @@ class HtmlWriter:
         f.close()
 
     def expand_audio(self, text, index, cwd):
-        end, flags, fname, delays = skoolmacro.parse_audio(text, index, self.fields)
+        end, flags, fname, delays = skoolmacro.parse_audio(self, text, index)
         if fname.startswith('/'):
             fname = fname.lstrip('/')
         else:
