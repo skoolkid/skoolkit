@@ -1560,8 +1560,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
     def test_macro_audio_with_replacement_fields(self):
         writer = self._get_writer(skool='', mock_file_info=True)
         fname = 'sound.wav'
-        delays = '[500]*3'
-        macros = f'#LET(flags=3)#AUDIO({{flags}})({fname})({delays})'
+        macros = f'#LET(flags=3)#LET(delay=500)#AUDIO({{flags}})({fname})([{{delay}}]*3)'
         exp_src = f'../audio/{fname}'
         exp_path = f'audio/{fname}'
         exp_delays = [500] * 3
@@ -1576,6 +1575,16 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         exp_path = f'audio/{fname}'
         exp_delays = [101, 201, 301, 401, 501]
         self._test_audio_macro(writer, macro, exp_src, exp_path, exp_delays, False, False)
+
+    def test_macro_audio_with_skool_macros_and_replacement_fields_in_delays_parameter(self):
+        writer = self._get_writer(skool='', mock_file_info=True)
+        fname = 'sound.wav'
+        delays = '#LET(d=500){d},#FOR(100,{d},100)||n|n|,||'
+        macros = f'#AUDIO({fname})({delays})'
+        exp_src = f'../audio/{fname}'
+        exp_path = f'audio/{fname}'
+        exp_delays = [500, 100, 200, 300, 400, 500]
+        self._test_audio_macro(writer, macros, exp_src, exp_path, exp_delays, False, False)
 
     def test_macro_audio_with_custom_config(self):
         sample_rate = 22050

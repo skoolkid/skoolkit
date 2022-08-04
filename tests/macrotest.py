@@ -20,9 +20,13 @@ class CommonSkoolMacroTest:
 
         self._test_invalid_audio_macro(writer, '#AUDIO', "Missing filename: #AUDIO", prefix)
         self._test_invalid_audio_macro(writer, '#AUDIO(', "No closing bracket: (", prefix)
+        self._test_invalid_audio_macro(writer, '#AUDIO1(', "No closing bracket: (", prefix)
         self._test_invalid_audio_macro(writer, '#AUDIO(1,2)(f)', "Too many parameters (expected 1): '1,2'", prefix)
         self._test_invalid_audio_macro(writer, '#AUDIO({x})(f)', "Unrecognised field 'x': {x}", prefix)
         self._test_invalid_audio_macro(writer, '#AUDIO({x)(f)', "Invalid format string: {x", prefix)
+        self._test_invalid_audio_macro(writer, '#AUDIO(f)(', "No closing bracket: (", prefix)
+        self._test_invalid_audio_macro(writer, '#AUDIO(f)({d})', "Unrecognised field 'd': {d}", prefix)
+        self._test_invalid_audio_macro(writer, '#AUDIO(f)({d)', "Invalid format string: {d", prefix)
 
     def test_macro_call(self):
         writer = self._get_writer(skool='', variables=[('one', 1)])

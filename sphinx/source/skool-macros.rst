@@ -856,7 +856,9 @@ In HTML mode, the ``#AUDIO`` macro expands to an HTML5 ``<audio>`` element. ::
   :ref:`replacement fields <replacementFields>`
 * ``fname`` is the name of the audio file
 * ``delays`` is a comma-separated list of interval lengths (in T-states)
-  between speaker state changes; this parameter may contain skool macros
+  between speaker state changes; this parameter may contain skool macros (which
+  are expanded first) and :ref:`replacement fields <replacementFields>` (which
+  are replaced after any skool macros have been expanded)
 
 ``flags`` is the sum of the following values, chosen according to the desired
 outcome:
@@ -894,6 +896,8 @@ when :ref:`skool2html.py` is run, it can be declared in the :ref:`resources`
 section.
 
 The :ref:`t_audio` template is used to format the ``<audio>`` element.
+
+Audio file creation can be configured via the :ref:`ref-AudioWriter` section.
 
 +---------+---------+
 | Version | Changes |

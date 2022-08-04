@@ -530,7 +530,8 @@ def parse_audio(writer, text, index):
         raise MacroParsingError('Missing filename: #AUDIO{}'.format(text[index:end]))
     if len(text) > end and text[end] == '(':
         end, spec = parse_brackets(text, end)
-        delays = _eval_delays(writer.expand(spec))
+        expanded = writer.expand(spec)
+        delays = _eval_delays(_format_params(expanded, expanded, **writer.fields))
     else:
         delays = None
     return end, flags, fname, delays
