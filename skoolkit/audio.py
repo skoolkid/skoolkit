@@ -16,7 +16,6 @@
 
 import math
 
-CLOCK_SPEED = 3500000
 CONTENTION_BEGIN = 14334
 CONTENTION_END = 57248
 CONTENTION_FACTOR = 34
@@ -24,11 +23,13 @@ FRAME_T_STATES = 69888
 INTERRUPT_DELAY = 942
 MAX_AMPLITUDE = 65536
 
+CLOCK_SPEED = 'ClockSpeed'
 SAMPLE_RATE = 'SampleRate'
 
 class AudioWriter:
     def __init__(self, config=None):
         self.options = {
+            CLOCK_SPEED: 3500000,
             SAMPLE_RATE: 44100
         }
         if config:
@@ -61,7 +62,7 @@ class AudioWriter:
             delays[i] = delay
 
     def _delays_to_samples(self, delays, max_amplitude=MAX_AMPLITUDE):
-        sample_delay = CLOCK_SPEED / self.options[SAMPLE_RATE]
+        sample_delay = self.options[CLOCK_SPEED] / self.options[SAMPLE_RATE]
         samples = []
         direction = 1
         i = 0

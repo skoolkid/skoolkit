@@ -38,6 +38,7 @@ format::
 
 Recognised parameters are:
 
+* ``ClockSpeed`` - Z80 clock speed in cycles per second (default: 3500000)
 * ``SampleRate`` - sample rate in Hz (default: 44100)
 
 +---------+---------+

@@ -1432,7 +1432,8 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         if udgs:
             self._check_image(writer, udgs, scale, mask, tindex, alpha, x, y, width, height, path)
 
-    def _test_audio_macro(self, writer, macro, src, path=None, delays=None, contention=None, interrupts=None, sample_rate=44100):
+    def _test_audio_macro(self, writer, macro, src, path=None, delays=None, contention=None, interrupts=None,
+                          clock_speed=3500000, sample_rate=44100):
         exp_html = f"""
             <audio controls src="{src}">
             <p>Your browser doesn't support HTML5 audio. Here is a <a href="{src}">link to the audio</a> instead.</p>
@@ -1446,6 +1447,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         self.assertEqual(delays, audio_writer.delays)
         self.assertEqual(contention, audio_writer.contention)
         self.assertEqual(interrupts, audio_writer.interrupts)
+        self.assertEqual(clock_speed, int(audio_writer.options['ClockSpeed']))
         self.assertEqual(sample_rate, int(audio_writer.options['SampleRate']))
 
     def _test_udgarray_macro(self, snapshot, prefix, udg_specs, suffix, path, udgs=None, scale=2, mask=0, tindex=0,
@@ -1587,9 +1589,11 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         self._test_audio_macro(writer, macros, exp_src, exp_path, exp_delays, False, False)
 
     def test_macro_audio_with_custom_config(self):
+        clock_speed = 7000000
         sample_rate = 22050
         ref = f"""
             [AudioWriter]
+            ClockSpeed={clock_speed}
             SampleRate={sample_rate}
         """
         writer = self._get_writer(skool='', ref=ref, mock_file_info=True)
@@ -1598,7 +1602,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         exp_src = f'../audio/{fname}'
         exp_path = f'audio/{fname}'
         exp_delays = [500] * 2
-        self._test_audio_macro(writer, macro, exp_src, exp_path, exp_delays, False, False, sample_rate)
+        self._test_audio_macro(writer, macro, exp_src, exp_path, exp_delays, False, False, clock_speed, sample_rate)
 
     def test_macro_chr(self):
         writer = self._get_writer(skool='', variables=[('foo', 66)])

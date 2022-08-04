@@ -20,6 +20,7 @@ import re
 SECTIONS = OrderedDict()
 
 SECTIONS['AudioWriter'] = """
+; ClockSpeed=3500000
 ; SampleRate=44100
 """
 

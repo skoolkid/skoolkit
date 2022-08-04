@@ -69,8 +69,19 @@ class AudioWriterTest(SkoolKitTestCase):
         self.assertEqual(exp_delays_out, audio_writer.delays)
 
     def test_invalid_option_values(self):
-        audio_writer = AudioWriter({'SampleRate': 'NaN'})
+        audio_writer = AudioWriter({
+            'ClockSpeed': 'x',
+            'SampleRate': 'NaN'
+        })
+        self.assertEqual(audio_writer.options['ClockSpeed'], 3500000)
         self.assertEqual(audio_writer.options['SampleRate'], 44100)
+
+    def test_custom_clock_speed(self):
+        clock_speed = 7000000
+        audio_writer = AudioWriter({'ClockSpeed': clock_speed})
+        audio_bytes = self._get_audio_data(audio_writer, [100] * 4)
+        samples = self._check_header(audio_bytes)
+        self.assertEqual(samples, b'\x00\x00\x00\x80\x00\x80')
 
     def test_custom_sample_rate(self):
         sample_rate = 22050
