@@ -27,6 +27,11 @@ class CommonSkoolMacroTest:
         self._test_invalid_audio_macro(writer, '#AUDIO(f)(', "No closing bracket: (", prefix)
         self._test_invalid_audio_macro(writer, '#AUDIO(f)({d})', "Unrecognised field 'd': {d}", prefix)
         self._test_invalid_audio_macro(writer, '#AUDIO(f)({d)', "Invalid format string: {d", prefix)
+        self._test_invalid_audio_macro(writer, '#AUDIO(f)(z)', "Invalid delays specification: 'z'", prefix)
+        self._test_invalid_audio_macro(writer, '#AUDIO(f)([1]**2)', "Cannot evaluate delays: '[1]**2'", prefix)
+        self._test_invalid_audio_macro(writer, '#AUDIO(f)([1)', "Cannot evaluate delays: '[1'", prefix)
+        self._test_invalid_audio_macro(writer, '#AUDIO(f)(1])', "Cannot evaluate delays: '1]'", prefix)
+        self._test_invalid_audio_macro(writer, '#AUDIO(f)([,])', "Cannot evaluate delays: '[,]'", prefix)
 
     def test_macro_call(self):
         writer = self._get_writer(skool='', variables=[('one', 1)])

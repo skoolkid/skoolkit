@@ -517,7 +517,11 @@ def _flatten(elements):
 
 def _eval_delays(spec):
     if set(spec) <= frozenset(' 0123456789,*[]'):
-        return _flatten(eval(f'[{spec}]'))
+        try:
+            return _flatten(eval(f'[{spec}]'))
+        except:
+            raise InvalidParameterError(f"Cannot evaluate delays: '{spec}'")
+    raise InvalidParameterError(f"Invalid delays specification: '{spec}'")
 
 def parse_audio(writer, text, index):
     # #AUDIO[flags](fname)[(delays)]
