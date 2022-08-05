@@ -1,4 +1,4 @@
-# Copyright 2008-2021 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2008-2022 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -219,7 +219,7 @@ def run(infiles, options, config):
         topdir = ''
     else:
         topdir = normpath(options.output_dir)
-    file_info = FileInfo(topdir, game_dir, options.new_images)
+    file_info = FileInfo(topdir, game_dir, options.new_images, options.new_audio)
     html_writer = html_writer_class(skool_parser, ref_parser, file_info)
 
     # Check that the specified pages exist
@@ -339,6 +339,8 @@ def main(args):
                        help="Write the disassembly in lower case.")
     group.add_argument('-o', '--rebuild-images', dest='new_images', action='store_const', const=1, default=config['RebuildImages'],
                        help="Overwrite existing image files.")
+    group.add_argument('-O', '--rebuild-audio', dest='new_audio', action='store_true',
+                       help="Overwrite existing audio files.")
     group.add_argument('-p', '--package-dir', dest='package_dir', action='store_true',
                        help="Show path to skoolkit package directory and exit.")
     group.add_argument('-P', '--pages', dest='pages', metavar='PAGES',

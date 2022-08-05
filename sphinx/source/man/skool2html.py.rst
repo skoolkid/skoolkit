@@ -54,6 +54,9 @@ OPTIONS
 -o, --rebuild-images
   Overwrite existing image files.
 
+-O, --rebuild-audio
+  Overwrite existing audio files.
+
 -p, --package-dir
   Show the path to the skoolkit package directory and exit.
 

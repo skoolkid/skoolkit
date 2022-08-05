@@ -514,6 +514,7 @@ list::
                           Concatenate CSS files into a single file with this name.
     -l, --lower           Write the disassembly in lower case.
     -o, --rebuild-images  Overwrite existing image files.
+    -O, --rebuild-audio   Overwrite existing audio files.
     -p, --package-dir     Show path to skoolkit package directory and exit.
     -P PAGES, --pages PAGES
                           Write only these pages (when using '--write P').
@@ -643,6 +644,8 @@ Configuration parameters may also be set on the command line by using the
 +---------+------------------------------------------------------------------+
 | Version | Changes                                                          |
 +=========+==================================================================+
+| 8.7     | Added the ``--rebuild-audio`` option                             |
++---------+------------------------------------------------------------------+
 | 8.5     | Added the ``EntryLabel`` and ``EntryPointLabel`` configuration   |
 |         | parameters                                                       |
 +---------+------------------------------------------------------------------+

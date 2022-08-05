@@ -1028,6 +1028,7 @@ class HtmlWriter:
         f = self.file_info.open_file(audio_path, mode='wb')
         self.audio_writer.write_audio(f, delays, flags & 1, flags & 2)
         f.close()
+        self.file_info.add_audio(audio_path)
 
     def _need_audio(self, fname):
         if fname.startswith('/'):
@@ -1183,12 +1184,15 @@ class FileInfo:
     :param topdir: The top-level directory.
     :param game_dir: The subdirectory of `topdir` in which to write all HTML
                      files, image files and audio files.
-    :param replace_images: Whether existing images should be overwritten.
+    :param replace_images: Whether to overwrite existing image files.
+    :param replace_audio: Whether to overwrite existing audio files.
     """
-    def __init__(self, topdir, game_dir, replace_images):
+    def __init__(self, topdir, game_dir, replace_images, replace_audio):
         self.odir = join(topdir, game_dir)
         self.replace_images = replace_images
         self.images = set()
+        self.replace_audio = replace_audio
+        self.audio = set()
 
     def open_file(self, *names, mode='w'):
         path = self.odir
@@ -1204,7 +1208,12 @@ class FileInfo:
     def need_image(self, image_path):
         return image_path not in self.images if self.replace_images else not self.file_exists(image_path)
 
+    def add_audio(self, audio_path):
+        self.audio.add(audio_path)
+
     def need_audio(self, audio_path):
+        if self.replace_audio:
+            return audio_path not in self.audio
         return not self.file_exists(audio_path)
 
     def file_exists(self, fname):

@@ -13,6 +13,8 @@ Changelog
   produced by the :ref:`AUDIO` macro)
 * Added the :ref:`ref-AudioWriter` section (for configuring audio files created
   by the :ref:`AUDIO` macro)
+* Added the ``--rebuild-audio`` option to :ref:`skool2html.py` (to overwrite
+  existing audio files)
 
 8.6 (2021-11-06)
 ----------------

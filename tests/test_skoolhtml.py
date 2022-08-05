@@ -1,3 +1,4 @@
+import hashlib
 import html
 from io import StringIO
 from os.path import basename, isdir, isfile
@@ -234,6 +235,9 @@ class MockFileInfo:
     def need_image(self, image_path):
         return True
 
+    def add_audio(self, audio_path):
+        pass
+
     def need_audio(self, audio_path):
         return True
 
@@ -273,9 +277,9 @@ class HtmlWriterTestCase(SkoolKitTestCase):
 
     def _get_writer(self, ref=None, snapshot=(), case=0, base=0, skool=None,
                     create_labels=False, asm_labels=False, variables=(),
-                    mock_file_info=False, mock_write_file=True,
-                    mock_image_writer=True, mock_audio_writer=True,
-                    warn=False):
+                    mock_file_info=False, rebuild_audio=False,
+                    mock_write_file=True, mock_image_writer=True,
+                    mock_audio_writer=True, warn=False):
         self.skoolfile = None
         ref_parser = RefParser()
         if ref is not None:
@@ -291,7 +295,7 @@ class HtmlWriterTestCase(SkoolKitTestCase):
         if mock_file_info:
             file_info = MockFileInfo()
         else:
-            file_info = FileInfo(self.odir, GAMEDIR, False)
+            file_info = FileInfo(self.odir, GAMEDIR, False, rebuild_audio)
         if mock_image_writer:
             patch.object(skoolhtml, 'get_image_writer', TestImageWriter).start()
         if mock_audio_writer:
@@ -1618,6 +1622,29 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         with open(fpath, 'rb') as f:
             actual_contents = f.read()
         self.assertEqual(actual_contents, contents)
+
+    def test_macro_audio_overwrites_existing_file_when_forced(self):
+        writer = self._get_writer(mock_audio_writer=False, rebuild_audio=True)
+        fname = 'existing.wav'
+        fpath = join(self.odir, GAMEDIR, 'audio', fname)
+        self.write_bin_file(b'ABCD', fpath)
+        writer.expand(f'#AUDIO({fname})(1)', ASMDIR)
+        self.assertTrue(isfile(fpath), f'{fpath} does not exist')
+        with open(fpath, 'rb') as f:
+            contents = f.read()
+        self.assertEqual(b'RIFF', contents[:4])
+
+    def test_macro_audio_does_not_overwrite_file_already_written(self):
+        writer = self._get_writer(mock_audio_writer=False, rebuild_audio=True)
+        fname = 'sound.wav'
+        fpath = join(self.odir, GAMEDIR, 'audio', fname)
+        writer.expand(f'#AUDIO({fname})(100)', ASMDIR)
+        self.assertTrue(isfile(fpath), f'{fpath} does not exist')
+        with open(fpath, 'rb') as f:
+            md5sum = hashlib.md5(f.read()).hexdigest()
+        writer.expand(f'#AUDIO({fname})(200)', ASMDIR)
+        with open(fpath, 'rb') as f:
+            self.assertEqual(md5sum, hashlib.md5(f.read()).hexdigest())
 
     def test_macro_audio_invalid(self):
         writer, prefix = CommonSkoolMacroTest.test_macro_audio_invalid(self)

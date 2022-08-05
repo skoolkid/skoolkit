@@ -155,6 +155,7 @@ class Skool2HtmlTest(SkoolKitTestCase):
         self.assertFalse(options.show_timings)
         self.assertEqual(options.config_specs, [])
         self.assertFalse(options.new_images)
+        self.assertFalse(options.new_audio)
         self.assertEqual(options.case, 0)
         self.assertEqual(options.base, 0)
         self.assertEqual(options.files, 'dimoP')
@@ -1243,6 +1244,16 @@ class Skool2HtmlTest(SkoolKitTestCase):
             output, error = self.run_skool2html('{} {}'.format(option, skoolfile))
             self.assertEqual(error, '')
             self.assertTrue(html_writer.file_info.replace_images)
+
+    @patch.object(skool2html, 'get_object', Mock(return_value=TestHtmlWriter))
+    @patch.object(skool2html, 'SkoolParser', MockSkoolParser)
+    @patch.object(skool2html, 'write_disassembly', mock_write_disassembly)
+    def test_option_O(self):
+        skoolfile = self.write_text_file(suffix='.skool')
+        for option in ('-O', '--rebuild-audio'):
+            output, error = self.run_skool2html('{} {}'.format(option, skoolfile))
+            self.assertEqual(error, '')
+            self.assertTrue(html_writer.file_info.replace_audio)
 
     @patch.object(skool2html, 'get_object', Mock(return_value=TestHtmlWriter))
     @patch.object(skool2html, 'SkoolParser', MockSkoolParser)
