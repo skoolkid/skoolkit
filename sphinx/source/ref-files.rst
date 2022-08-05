@@ -39,6 +39,7 @@ format::
 Recognised parameters are:
 
 * ``ClockSpeed`` - Z80 clock speed in cycles per second (default: 3500000)
+* ``MaxAmplitude`` - maximum amplitude (0-65536; default: 65536)
 * ``SampleRate`` - sample rate in Hz (default: 44100)
 
 +---------+---------+

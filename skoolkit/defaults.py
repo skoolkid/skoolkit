@@ -21,6 +21,7 @@ SECTIONS = OrderedDict()
 
 SECTIONS['AudioWriter'] = """
 ; ClockSpeed=3500000
+; MaxAmplitude=65536
 ; SampleRate=44100
 """
 
