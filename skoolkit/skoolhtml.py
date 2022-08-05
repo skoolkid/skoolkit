@@ -1029,12 +1029,15 @@ class HtmlWriter:
         self.audio_writer.write_audio(f, delays, flags & 1, flags & 2)
         f.close()
 
-    def expand_audio(self, text, index, cwd):
-        end, flags, fname, delays = skoolmacro.parse_audio(self, text, index)
+    def _need_audio(self, fname):
         if fname.startswith('/'):
             fname = fname.lstrip('/')
         else:
             fname = join(self.paths['AudioPath'], fname)
+        return fname, self.file_info.need_audio(fname)
+
+    def expand_audio(self, text, index, cwd):
+        end, flags, fname, delays = skoolmacro.parse_audio(self, text, index, self._need_audio)
         if delays:
             self._write_audio(fname, delays, flags)
         return end, self.format_template('audio', {'src': self.relpath(cwd, fname)})
@@ -1179,7 +1182,7 @@ class FileInfo:
 
     :param topdir: The top-level directory.
     :param game_dir: The subdirectory of `topdir` in which to write all HTML
-                     files and image files.
+                     files, image files and audio files.
     :param replace_images: Whether existing images should be overwritten.
     """
     def __init__(self, topdir, game_dir, replace_images):
@@ -1200,6 +1203,9 @@ class FileInfo:
 
     def need_image(self, image_path):
         return image_path not in self.images if self.replace_images else not self.file_exists(image_path)
+
+    def need_audio(self, audio_path):
+        return not self.file_exists(audio_path)
 
     def file_exists(self, fname):
         return isfile(join(self.odir, fname))

@@ -234,6 +234,9 @@ class MockFileInfo:
     def need_image(self, image_path):
         return True
 
+    def need_audio(self, audio_path):
+        return True
+
 class TestImageWriter(ImageWriter):
     def write_image(self, frames, img_file):
         self.frames = frames
@@ -1603,6 +1606,28 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         exp_path = f'audio/{fname}'
         exp_delays = [500] * 2
         self._test_audio_macro(writer, macro, exp_src, exp_path, exp_delays, False, False, clock_speed, sample_rate)
+
+    def test_macro_audio_does_not_overwrite_existing_file(self):
+        writer = self._get_writer(mock_audio_writer=False)
+        fname = 'existing.wav'
+        contents = b'abc'
+        fpath = join(self.odir, GAMEDIR, 'audio', fname)
+        self.write_bin_file(contents, fpath)
+        writer.expand(f'#AUDIO({fname})([100]*2)', ASMDIR)
+        self.assertTrue(isfile(fpath), f'{fpath} does not exist')
+        with open(fpath, 'rb') as f:
+            actual_contents = f.read()
+        self.assertEqual(actual_contents, contents)
+
+    def test_macro_audio_invalid(self):
+        writer, prefix = CommonSkoolMacroTest.test_macro_audio_invalid(self)
+        self._test_invalid_audio_macro(writer, '#AUDIO(f)({d})', "Unrecognised field 'd': {d}", prefix)
+        self._test_invalid_audio_macro(writer, '#AUDIO(f)({d)', "Invalid format string: {d", prefix)
+        self._test_invalid_audio_macro(writer, '#AUDIO(f)(z)', "Invalid delays specification: 'z'", prefix)
+        self._test_invalid_audio_macro(writer, '#AUDIO(f)([1]**2)', "Cannot evaluate delays: '[1]**2'", prefix)
+        self._test_invalid_audio_macro(writer, '#AUDIO(f)([1)', "Cannot evaluate delays: '[1'", prefix)
+        self._test_invalid_audio_macro(writer, '#AUDIO(f)(1])', "Cannot evaluate delays: '1]'", prefix)
+        self._test_invalid_audio_macro(writer, '#AUDIO(f)([,])', "Cannot evaluate delays: '[,]'", prefix)
 
     def test_macro_chr(self):
         writer = self._get_writer(skool='', variables=[('foo', 66)])

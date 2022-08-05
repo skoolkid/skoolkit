@@ -523,7 +523,7 @@ def _eval_delays(spec):
             raise InvalidParameterError(f"Cannot evaluate delays: '{spec}'")
     raise InvalidParameterError(f"Invalid delays specification: '{spec}'")
 
-def parse_audio(writer, text, index):
+def parse_audio(writer, text, index, need_audio=None):
     # #AUDIO[flags](fname)[(delays)]
     try:
         end, flags = parse_ints(text, index, 1, defaults=(0,), fields=writer.fields)
@@ -532,12 +532,14 @@ def parse_audio(writer, text, index):
     end, fname = parse_brackets(text, end)
     if not fname:
         raise MacroParsingError('Missing filename: #AUDIO{}'.format(text[index:end]))
+    delays, eval_delays = None, False
+    if need_audio:
+        fname, eval_delays = need_audio(fname)
     if len(text) > end and text[end] == '(':
         end, spec = parse_brackets(text, end)
-        expanded = writer.expand(spec)
-        delays = _eval_delays(_format_params(expanded, expanded, **writer.fields))
-    else:
-        delays = None
+        if eval_delays:
+            expanded = writer.expand(spec)
+            delays = _eval_delays(_format_params(expanded, expanded, **writer.fields))
     return end, flags, fname, delays
 
 def parse_call(writer, text, index, *cwd):
