@@ -949,6 +949,8 @@ configuration parameters are:
   have no comment (default: ``c``)
 * ``Text`` - show ASCII text in the comment fields (``1``), or don't (``0``,
   the default)
+* ``Timings`` - show instruction timings in the comment fields (``1``), or
+  don't (``0``, the default)
 * ``Title-b`` - template used to format the title for an untitled 'b' block
   (default: ``Data block at {address}``)
 * ``Title-c`` - template used to format the title for an untitled 'c' block
@@ -984,6 +986,8 @@ Configuration parameters may also be set on the command line by using the
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 8.7     | Added the ``Timings`` configuration parameter                     |
++---------+-------------------------------------------------------------------+
 | 8.5     | Added the ``Wrap`` configuration parameter and the ability to     |
 |         | disassemble an instruction that wraps around the 64K boundary;    |
 |         | added the ``RefFormat`` configuration parameter                   |

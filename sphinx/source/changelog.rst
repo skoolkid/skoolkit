@@ -16,6 +16,9 @@ Changelog
 * Added the ``--rebuild-audio`` option to and the ``RebuildAudio``
   configuration parameter for :ref:`skool2html.py` (to overwrite existing audio
   files)
+* Added the ``Timings`` configuration parameter for
+  :ref:`sna2skool.py <sna2skool-conf>` (for showing instruction timings in the
+  comment fields)
 
 8.6 (2021-11-06)
 ----------------

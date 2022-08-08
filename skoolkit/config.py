@@ -60,6 +60,7 @@ COMMANDS = {
         'RefFormat': ('#R{address}', ''),
         'Refs': ('Used by the routines at {refs} and {ref}.', ''),
         'Semicolons': ('c', ''),
+        'Timings': (0, ''),
         'Title-b': ('Data block at {address}', ''),
         'Title-c': ('Routine at {address}', ''),
         'Title-g': ('Game status buffer entry at {address}', ''),

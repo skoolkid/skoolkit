@@ -1,4 +1,4 @@
-# Copyright 2009-2021 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2009-2022 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -27,6 +27,7 @@ from skoolkit.skoolmacro import INTEGER, ClosingBracketError, parse_brackets
 from skoolkit.skoolparser import (get_address, parse_asm_refs_directive,
                                   parse_register, LIST_MARKER, TABLE_MARKER,
                                   LIST_END_MARKER, TABLE_END_MARKER)
+from skoolkit.z80 import get_timing
 
 MIN_COMMENT_WIDTH = 10
 AD_LABEL_PREFIX = AD_LABEL + '='
@@ -375,6 +376,12 @@ class SkoolWriter:
                     instruction.comment.append(block.comment.pop(0)[1])
             elif show_text:
                 instruction.comment[0] = self.to_ascii(instruction.bytes)
+            elif self.config['Timings']:
+                tstates = get_timing(instruction)
+                if isinstance(tstates, tuple):
+                    instruction.comment[0] = '[{}/{}]'.format(*tstates)
+                elif tstates:
+                    instruction.comment[0] = f'[{tstates}]'
             elif closing:
                 instruction.comment[0] = ''
         final_comment = block.instructions[-1].comment

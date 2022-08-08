@@ -79,6 +79,7 @@ class Sna2SkoolTest(SkoolKitTestCase):
             LineWidth=119
             ListRefs=2
             Text=1
+            Timings=1
             Title-b=Data at {address}
             Title-c=Code at {address}
         """
@@ -99,6 +100,7 @@ class Sna2SkoolTest(SkoolKitTestCase):
         self.assertEqual(config.get('DefbSize'), 12)
         self.assertEqual(options.line_width, 119)
         self.assertEqual(config.get('DefmSize'), 92)
+        self.assertEqual(config.get('Timings'), 1)
         self.assertEqual(config.get('Title-b'), 'Data at {address}')
         self.assertEqual(config.get('Title-c'), 'Code at {address}')
 
@@ -432,6 +434,7 @@ class Sna2SkoolTest(SkoolKitTestCase):
             Refs=Used by the routines at {refs} and {ref}.
             Semicolons=c
             Text=0
+            Timings=0
             Title-b=Data block at {address}
             Title-c=Routine at {address}
             Title-g=Game status buffer entry at {address}
@@ -472,6 +475,7 @@ class Sna2SkoolTest(SkoolKitTestCase):
             Refs=Used by the routines at {refs} and {ref}.
             Semicolons=c
             Text=0
+            Timings=0
             Title-b=Data block at {address}
             Title-c=Routine at {address}
             Title-g=Game status buffer entry at {address}

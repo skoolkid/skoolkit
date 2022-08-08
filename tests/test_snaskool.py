@@ -3418,6 +3418,44 @@ class SkoolWriterTest(SkoolKitTestCase):
         """
         self._test_write_skool(snapshot, ctl, exp_skool, show_text=True)
 
+    def test_show_timings(self):
+        snapshot = [
+            4,              # INC B
+            203, 0,         # RLC B
+            221, 9,         # ADD IX,BC
+            237, 68,        # NEG
+            221, 203, 0, 6, # RLC (IX+0)
+            16, 254,        # DJNZ nn
+            237, 176,       # LDIR
+            0,              # DEFB 0
+            97,             # DEFM "a"
+            0,              # DEFS 1
+            0, 0            # DEFW 0
+        ]
+        ctl = """
+            c 00000
+            B 00015
+            T 00016
+            S 00017
+            W 00018
+            i 00020
+        """
+        exp_skool = """
+            ; Routine at 0
+            c00000 INC B         ; [4]
+             00001 RLC B         ; [8]
+             00003 ADD IX,BC     ; [15]
+             00005 NEG           ; [8]
+             00007 RLC (IX+0)    ; [23]
+            *00011 DJNZ 11       ; [13/8]
+             00013 LDIR          ; [21/16]
+             00015 DEFB 0        ;
+             00016 DEFM "a"      ;
+             00017 DEFS 1        ;
+             00018 DEFW 0        ;
+        """
+        self._test_write_skool(snapshot, ctl, exp_skool, params={'Timings': 1})
+
     def test_wrap(self):
         snapshot = [0] * 65535 + [24]
         ctl = """

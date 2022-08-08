@@ -102,6 +102,8 @@ configuration parameters are:
     no comment (default: ``c``).
   :Text: Show ASCII text in the comment fields (``1``), or don't (``0``, the
     default).
+  :Timings: Show instruction timings in the comment fields (``1``), or don't
+    (``0``, the default).
   :Title-b: Template used to format the title for an untitled 'b' block
     (default: ``Data block at {address}``).
   :Title-c: Template used to format the title for an untitled 'c' block
