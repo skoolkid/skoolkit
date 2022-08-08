@@ -180,6 +180,8 @@ configuration parameters are:
     name.
   :OutputDir: Write files in this directory (default: ``.``).
   :Quiet: Be quiet (``1``) or verbose (``0``, the default).
+  :RebuildAudio: Overwrite existing audio files (``1``), or leave them alone
+    (``0``, the default).
   :RebuildImages: Overwrite existing image files (``1``), or leave them alone
     (``0``, the default).
   :Search: Directory to add to the resource search path. To specify two or more

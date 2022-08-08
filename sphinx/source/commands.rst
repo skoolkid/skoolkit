@@ -605,6 +605,8 @@ configuration parameters are:
   this name
 * ``OutputDir`` - write files in this directory (default: ``.``)
 * ``Quiet`` - be quiet (``1``) or verbose (``0``, the default)
+* ``RebuildAudio`` - overwrite existing audio files (``1``), or leave them
+  alone (``0``, the default)
 * ``RebuildImages`` - overwrite existing image files (``1``), or leave them
   alone (``0``, the default)
 * ``Search`` - directory to add to the resource search path; to specify two or
@@ -644,7 +646,8 @@ Configuration parameters may also be set on the command line by using the
 +---------+------------------------------------------------------------------+
 | Version | Changes                                                          |
 +=========+==================================================================+
-| 8.7     | Added the ``--rebuild-audio`` option                             |
+| 8.7     | Added the ``--rebuild-audio`` option and the ``RebuildAudio``    |
+|         | configuration parameter                                          |
 +---------+------------------------------------------------------------------+
 | 8.5     | Added the ``EntryLabel`` and ``EntryPointLabel`` configuration   |
 |         | parameters                                                       |

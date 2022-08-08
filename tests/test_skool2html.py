@@ -181,6 +181,7 @@ class Skool2HtmlTest(SkoolKitTestCase):
             JoinCss=css.css
             OutputDir={}
             Quiet=1
+            RebuildAudio=1
             RebuildImages=1
             Search=this,that
             Theme=dark,wide
@@ -200,6 +201,7 @@ class Skool2HtmlTest(SkoolKitTestCase):
         self.assertEqual(options.quiet, 1)
         self.assertTrue(options.show_timings)
         self.assertEqual(options.config_specs, ['Game/AsmSinglePage=1'])
+        self.assertTrue(options.new_audio)
         self.assertTrue(options.new_images)
         self.assertEqual(options.case, -1)
         self.assertEqual(options.base, 16)
@@ -1397,6 +1399,7 @@ class Skool2HtmlTest(SkoolKitTestCase):
             JoinCss=
             OutputDir=.
             Quiet=0
+            RebuildAudio=0
             RebuildImages=0
             Search=
             Theme=
@@ -1427,6 +1430,7 @@ class Skool2HtmlTest(SkoolKitTestCase):
             JoinCss=
             OutputDir=html
             Quiet=1
+            RebuildAudio=0
             RebuildImages=0
             Search=
             Theme=dark,wide

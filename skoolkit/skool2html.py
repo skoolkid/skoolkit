@@ -339,7 +339,7 @@ def main(args):
                        help="Write the disassembly in lower case.")
     group.add_argument('-o', '--rebuild-images', dest='new_images', action='store_const', const=1, default=config['RebuildImages'],
                        help="Overwrite existing image files.")
-    group.add_argument('-O', '--rebuild-audio', dest='new_audio', action='store_true',
+    group.add_argument('-O', '--rebuild-audio', dest='new_audio', action='store_const', const=1, default=config['RebuildAudio'],
                        help="Overwrite existing audio files.")
     group.add_argument('-p', '--package-dir', dest='package_dir', action='store_true',
                        help="Show path to skoolkit package directory and exit.")

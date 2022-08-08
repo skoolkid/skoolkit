@@ -1,4 +1,4 @@
-# Copyright 2017-2021 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2017-2022 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -95,6 +95,7 @@ COMMANDS = {
         'JoinCss': ('', 'single_css'),
         'OutputDir': ('.', 'output_dir'),
         'Quiet': (0, 'quiet'),
+        'RebuildAudio': (0, 'new_audio'),
         'RebuildImages': (0, 'new_images'),
         'Search': ((), 'search'),
         'Theme': ((), 'themes'),
