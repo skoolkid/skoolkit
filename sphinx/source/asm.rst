@@ -897,8 +897,11 @@ started with ``*``), in addition to having its label set.
 If ``LABEL`` is just ``*`` (``@label=*``), the next instruction will be marked
 as an entry point, and have a label automatically generated.
 
-In addition to being processed when :ref:`skool2asm.py` or :ref:`skool2html.py`
-is run, ``@label`` directive values are checked by :ref:`sna2skool.py` while
+:ref:`skool2asm.py` automatically uses labels defined by the ``@label``
+directive. :ref:`skool2html.py` includes them in its output if the
+``--asm-labels`` option is used.
+
+``@label`` directive values are also checked by :ref:`sna2skool.py` while
 reading a control file. They can be used to prevent an entry point marker from
 being added to an instruction where it otherwise would be (``@label=``), or
 force one to be added where it otherwise wouldn't (``@label=*``).
