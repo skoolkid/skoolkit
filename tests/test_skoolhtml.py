@@ -1604,6 +1604,8 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
     def test_macro_audio_with_custom_config(self):
         config = {
             'ClockSpeed': 7000000,
+            'ContentionBegin': 12000,
+            'ContentionEnd': 35000,
             'MaxAmplitude': 32768,
             'SampleRate': 22050
         }

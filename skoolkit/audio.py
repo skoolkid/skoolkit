@@ -16,12 +16,12 @@
 
 import math
 
-CONTENTION_BEGIN = 14334
-CONTENTION_END = 57248
 CONTENTION_FACTOR = 34
 FRAME_T_STATES = 69888
 INTERRUPT_DELAY = 942
 
+CONTENTION_BEGIN = 'ContentionBegin'
+CONTENTION_END = 'ContentionEnd'
 CLOCK_SPEED = 'ClockSpeed'
 MAX_AMPLITUDE = 'MaxAmplitude'
 SAMPLE_RATE = 'SampleRate'
@@ -30,6 +30,8 @@ class AudioWriter:
     def __init__(self, config=None):
         self.options = {
             CLOCK_SPEED: 3500000,
+            CONTENTION_BEGIN: 14334,
+            CONTENTION_END: 57248,
             MAX_AMPLITUDE: 65536,
             SAMPLE_RATE: 44100
         }
@@ -47,6 +49,7 @@ class AudioWriter:
         self._write_wav(audio_file, samples)
 
     def _add_contention(self, delays, contention, interrupts, cycle=0):
+        c_begin, c_end = self.options[CONTENTION_BEGIN], self.options[CONTENTION_END]
         for i, delay in enumerate(delays):
             d = 0
             while d < delay:
@@ -55,8 +58,8 @@ class AudioWriter:
                    if i:
                        delay += INTERRUPT_DELAY
                 end = min(FRAME_T_STATES, cycle + delay - d)
-                if contention and CONTENTION_BEGIN <= end and cycle < CONTENTION_END:
-                    contended_cycles = min(CONTENTION_END, end) - max(cycle, CONTENTION_BEGIN)
+                if contention and c_begin <= end and cycle < c_end:
+                    contended_cycles = min(c_end, end) - max(cycle, c_begin)
                     delay += int(contended_cycles * CONTENTION_FACTOR / 100)
                 d += end - cycle
                 cycle = end % FRAME_T_STATES

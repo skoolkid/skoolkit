@@ -16,7 +16,7 @@ def _flatten(elements):
     return f
 
 class TestAudioWriter(AudioWriter):
-    def _delays_to_samples(self, delays, max_amplitude=0):
+    def _delays_to_samples(self, delays):
         self.delays = delays
 
     def _write_wav(self, audio_file, samples):
@@ -71,10 +71,15 @@ class AudioWriterTest(SkoolKitTestCase):
     def test_invalid_option_values(self):
         audio_writer = AudioWriter({
             'ClockSpeed': 'x',
+            'ContentionBegin': '@',
+            'ContentionEnd': '#',
             'MaxAmplitude': '?',
             'SampleRate': 'NaN'
         })
         self.assertEqual(audio_writer.options['ClockSpeed'], 3500000)
+        self.assertEqual(audio_writer.options['ContentionBegin'], 14334)
+        self.assertEqual(audio_writer.options['ContentionEnd'], 57248)
+        self.assertEqual(audio_writer.options['MaxAmplitude'], 65536)
         self.assertEqual(audio_writer.options['SampleRate'], 44100)
 
     def test_custom_clock_speed(self):
@@ -83,6 +88,17 @@ class AudioWriterTest(SkoolKitTestCase):
         audio_bytes = self._get_audio_data(audio_writer, [100] * 4)
         samples = self._check_header(audio_bytes)
         self.assertEqual(samples, b'\x00\x00\x00\x80\x00\x80')
+
+    def test_custom_contention_period(self):
+        contention_begin, contention_end = 10000, 20000
+        audio_writer = TestAudioWriter({
+            'ContentionBegin': contention_begin,
+            'ContentionEnd': contention_end
+        })
+        delays_in = _flatten([8500, [1000] * 10, 500])
+        audio_writer.write_audio(None, delays_in, True)
+        exp_delays_out = _flatten([8500, 1000, 1254, [1512] * 6, 1059, 1000, 500])
+        self.assertEqual(exp_delays_out, audio_writer.delays)
 
     def test_custom_max_amplitude(self):
         max_amplitude = 32768

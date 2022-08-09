@@ -39,6 +39,10 @@ format::
 Recognised parameters are:
 
 * ``ClockSpeed`` - Z80 clock speed in cycles per second (default: 3500000)
+* ``ContentionBegin`` - when memory contention begins, in T-states from the
+  start of a frame (default: 14334)
+* ``ContentionEnd`` - when memory contention ends, in T-states from the start
+  of a frame (default: 57248)
 * ``MaxAmplitude`` - maximum amplitude (0-65536; default: 65536)
 * ``SampleRate`` - sample rate in Hz (default: 44100)
 
