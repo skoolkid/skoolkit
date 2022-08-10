@@ -1606,6 +1606,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
             'ClockSpeed': 7000000,
             'ContentionBegin': 12000,
             'ContentionEnd': 35000,
+            'ContentionFactor': 58,
             'MaxAmplitude': 32768,
             'SampleRate': 22050
         }

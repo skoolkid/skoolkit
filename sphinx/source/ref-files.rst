@@ -43,6 +43,8 @@ Recognised parameters are:
   start of a frame (default: 14334)
 * ``ContentionEnd`` - when memory contention ends, in T-states from the start
   of a frame (default: 57248)
+* ``ContentionFactor`` - percentage slowdown when memory contention is in
+  effect (default: 34)
 * ``MaxAmplitude`` - maximum amplitude (0-65536; default: 65536)
 * ``SampleRate`` - sample rate in Hz (default: 44100)
 

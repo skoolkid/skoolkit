@@ -73,6 +73,7 @@ class AudioWriterTest(SkoolKitTestCase):
             'ClockSpeed': 'x',
             'ContentionBegin': '@',
             'ContentionEnd': '#',
+            'ContentionFactor': '!',
             'MaxAmplitude': '?',
             'SampleRate': 'NaN'
         })
@@ -98,6 +99,14 @@ class AudioWriterTest(SkoolKitTestCase):
         delays_in = _flatten([8500, [1000] * 10, 500])
         audio_writer.write_audio(None, delays_in, True)
         exp_delays_out = _flatten([8500, 1000, 1254, [1512] * 6, 1059, 1000, 500])
+        self.assertEqual(exp_delays_out, audio_writer.delays)
+
+    def test_custom_contention_factor(self):
+        contention_factor = 50
+        audio_writer = TestAudioWriter({'ContentionFactor': contention_factor})
+        delays_in = _flatten([13000, [1000] * 24, 500])
+        audio_writer.write_audio(None, delays_in, True)
+        exp_delays_out = _flatten([13000, 1000, 1661, [1994] * 20, 1853, 1000, 500])
         self.assertEqual(exp_delays_out, audio_writer.delays)
 
     def test_custom_max_amplitude(self):
