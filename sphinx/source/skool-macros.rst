@@ -1557,6 +1557,50 @@ See also :ref:`UDGTABLE`.
 |         | comment and as a parameter of another macro                       |
 +---------+-------------------------------------------------------------------+
 
+.. _TSTATES:
+
+#TSTATES
+--------
+The ``#TSTATES`` macro expands to the time taken, in T-states, to execute one
+or more instructions. ::
+
+  #TSTATESfirst[,last]
+
+* ``first`` is the address of the first instruction to time
+* ``last`` is the address of the last instruction to time (default: ``first``)
+
+For example::
+
+  c30000 LD A,1   ; This instruction takes #TSTATES30000 T-states
+
+This instance of the ``#TSTATES`` macros expands to '7'.
+
+For any instruction in the range ``first`` to ``last`` whose timing is variable
+(e.g. a conditional call, return or relative jump), the smaller timing value is
+used::
+
+  c40000 RET Z    ; This instruction takes at least #TSTATES40000 T-states
+
+This instance of the ``#TSTATES`` macros expands to '5'.
+
+Note that an instruction's timing can be determined only if it is a true
+instruction (i.e. not a ``DEFB``, ``DEFM``, ``DEFS`` or ``DEFW`` statement) and
+it has been assembled. To make sure that it is assembled, use the
+:ref:`assemble` directive.
+
+The integer parameters of the ``#TSTATES`` macro may contain
+:ref:`replacement fields <replacementFields>`.
+
+See also the ``Timings`` configuration parameter for
+:ref:`sna2skool.py <sna2skool-conf>`, which can be used to show instruction
+timings in comment fields when disassembling a snapshot.
+
++---------+---------+
+| Version | Changes |
++=========+=========+
+| 8.7     | New     |
++---------+---------+
+
 .. _UDGTABLE:
 
 #UDGTABLE

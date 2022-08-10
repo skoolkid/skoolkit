@@ -1831,6 +1831,46 @@ class CommonSkoolMacroTest:
         self._assert_error(writer, '#STR0,8({nope})', "Unrecognised field 'nope': {nope}", prefix)
         self._assert_error(writer, '#STR0,8({bar)', "Invalid format string: {bar", prefix)
 
+    def test_macro_tstates(self):
+        skool = """
+            @start
+            @assemble=2,2
+            ; Routine
+            c32768 XOR A       ; 4 T-states
+             32769 ADD A,(HL)  ; 7 T-states
+             32770 JR NC,32772 ; 12/7 T-states
+             32772 RET         ; 10 T-states
+        """
+        writer = self._get_writer(skool=skool)
+
+        self.assertEqual(writer.expand('#TSTATES32768'), '4')
+        self.assertEqual(writer.expand('#TSTATES32768,32769'), '11')
+        self.assertEqual(writer.expand('#TSTATES32770'), '7')
+        self.assertEqual(writer.expand('#TSTATES32770,32772'), '17')
+        self.assertEqual(writer.expand('#LET(a=32768)#TSTATES({a},{a}+1)'), '11')
+
+    def test_macro_tstates_invalid(self):
+        skool = """
+            @start
+            @assemble=2,2
+            ; Stuff
+            c32768 XOR A
+             32769 DEFB 0
+        """
+        writer = self._get_writer(skool=skool)
+        prefix = ERROR_PREFIX.format('TSTATES')
+
+        self._assert_error(writer, '#TSTATES32768,32769', "Failed to get timing for instruction at 32769", prefix)
+        self._assert_error(writer, '#TSTATES32769', "Failed to get timing for instruction at 32769", prefix)
+        self._assert_error(writer, '#TSTATES32770', "Failed to get timing for instruction at 32770", prefix)
+        self._assert_error(writer, '#TSTATES', "No parameters (expected 1)", prefix)
+        self._assert_error(writer, '#TSTATES()', "No parameters (expected 1)", prefix)
+        self._assert_error(writer, '#TSTATES(1,2,3)', "Too many parameters (expected 2): '1,2,3'", prefix)
+        self._assert_error(writer, '#TSTATES(2', "No closing bracket: (2", prefix)
+        self._assert_error(writer, '#TSTATES(0,5$3)', "Cannot parse integer '5$3' in parameter string: '0,5$3'", prefix)
+        self._assert_error(writer, '#TSTATES({no})', "Unrecognised field 'no': {no}", prefix)
+        self._assert_error(writer, '#TSTATES({foo)', "Invalid format string: {foo", prefix)
+
     def test_macro_udg_invalid(self):
         writer = self._get_writer(snapshot=[0] * 8)
         prefix = ERROR_PREFIX.format('UDG')

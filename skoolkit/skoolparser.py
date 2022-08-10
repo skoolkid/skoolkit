@@ -1,4 +1,4 @@
-# Copyright 2008-2021 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2008-2022 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -505,6 +505,19 @@ class SkoolParser:
         if instruction:
             return instruction.get_addr_str()
         return self.mode.get_addr_str(address, default)
+
+    def get_instruction_timings(self, first, last, asm_id=''):
+        timings = []
+        address = first
+        while address <= last:
+            instruction = self.get_instruction(address, asm_id)
+            if instruction and instruction.bytes:
+                timings.append((address, z80.get_timing(instruction)))
+                address += len(instruction.bytes)
+            else:
+                timings.append((address, None))
+                break
+        return timings
 
     def convert_equ_value(self, value):
         return self.mode.convert_int_str(value, '{}', '${0:02X}')

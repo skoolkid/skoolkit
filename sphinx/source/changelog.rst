@@ -6,6 +6,8 @@ Changelog
 * Dropped support for Python 3.6
 * Added the :ref:`AUDIO` macro (for creating HTML5 ``<audio>`` elements, and
   optionally creating audio files in WAV format)
+* Added the :ref:`TSTATES` macro (which expands to the time taken, in T-states,
+  to execute one or more instructions)
 * Added the ``AudioPath`` parameter to the :ref:`paths` section (for specifying
   where the :ref:`AUDIO` macro should look for or create audio files by
   default)
