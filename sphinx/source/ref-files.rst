@@ -45,6 +45,8 @@ Recognised parameters are:
   of a frame (default: 57248)
 * ``ContentionFactor`` - percentage slowdown when memory contention is in
   effect (default: 34)
+* ``InterruptDelay`` - delay in T-states caused by an interrupt routine
+  (default: 942)
 * ``MaxAmplitude`` - maximum amplitude (0-65536; default: 65536)
 * ``SampleRate`` - sample rate in Hz (default: 44100)
 

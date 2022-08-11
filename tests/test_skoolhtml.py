@@ -1467,6 +1467,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
             'ContentionBegin': 14334,
             'ContentionEnd': 57248,
             'ContentionFactor': 34,
+            'InterruptDelay': 942,
             'MaxAmplitude': 65536,
             'SampleRate': 44100
         }
@@ -1630,6 +1631,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
             'ContentionBegin': 12000,
             'ContentionEnd': 35000,
             'ContentionFactor': 58,
+            'InterruptDelay': 1024,
             'MaxAmplitude': 32768,
             'SampleRate': 22050
         }
