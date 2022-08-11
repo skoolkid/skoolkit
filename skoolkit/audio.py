@@ -43,13 +43,13 @@ class AudioWriter:
                 except ValueError:
                     pass
 
-    def write_audio(self, audio_file, delays, contention=False, interrupts=False):
+    def write_audio(self, audio_file, delays, contention=False, interrupts=False, offset=0):
         if contention or interrupts:
-            self._add_contention(delays, contention, interrupts)
+            self._add_contention(delays, contention, interrupts, offset)
         samples = self._delays_to_samples(delays)
         self._write_wav(audio_file, samples)
 
-    def _add_contention(self, delays, contention, interrupts, cycle=0):
+    def _add_contention(self, delays, contention, interrupts, cycle):
         c_begin, c_end = self.options[CONTENTION_BEGIN], self.options[CONTENTION_END]
         c_factor = self.options[CONTENTION_FACTOR] / 100
         for i, delay in enumerate(delays):

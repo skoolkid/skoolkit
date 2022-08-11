@@ -850,10 +850,12 @@ General macros
 ------
 In HTML mode, the ``#AUDIO`` macro expands to an HTML5 ``<audio>`` element. ::
 
-  #AUDIO[flags](fname)[(delays)]
+  #AUDIO[flags,offset](fname)[(delays)]
 
-* ``flags`` controls various options (see below); this parameter may contain
-  :ref:`replacement fields <replacementFields>`
+* ``flags`` controls various options (see below)
+* ``offset`` is the initial offset in T-states from the start of a frame
+  (default: 0); this value affects when contention and interrupt delays (if
+  enabled) first take effect
 * ``fname`` is the name of the audio file
 * ``delays`` is a comma-separated list of interval lengths (in T-states)
   between speaker state changes; this parameter may contain skool macros (which
@@ -894,6 +896,9 @@ specified location, otherwise the ``<audio>`` element controls will not work.
 To make sure that a pre-built audio file is copied into the desired location
 when :ref:`skool2html.py` is run, it can be declared in the :ref:`resources`
 section.
+
+The ``flags`` and ``offset`` parameters of the ``#AUDIO`` macro may contain
+:ref:`replacement fields <replacementFields>`.
 
 The :ref:`t_audio` template is used to format the ``<audio>`` element.
 

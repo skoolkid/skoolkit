@@ -122,3 +122,11 @@ class AudioWriterTest(SkoolKitTestCase):
         audio_bytes = self._get_audio_data(audio_writer, [100] * 4)
         samples = self._check_header(audio_bytes, sample_rate)
         self.assertEqual(samples, b'\x00\x00\x00\x80\x00\x80')
+
+    def test_offset(self):
+        audio_writer = TestAudioWriter()
+        delays_in = [10000] * 3
+        offset = 50000
+        audio_writer.write_audio(None, delays_in, False, True, offset)
+        exp_delays_out = [10000, 10942, 10000]
+        self.assertEqual(exp_delays_out, audio_writer.delays)

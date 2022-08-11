@@ -1024,9 +1024,9 @@ class HtmlWriter:
             prev_path = path
         return path
 
-    def _write_audio(self, audio_path, delays, flags):
+    def _write_audio(self, audio_path, delays, flags, offset):
         f = self.file_info.open_file(audio_path, mode='wb')
-        self.audio_writer.write_audio(f, delays, flags & 1, flags & 2)
+        self.audio_writer.write_audio(f, delays, flags & 1, flags & 2, offset)
         f.close()
         self.file_info.add_audio(audio_path)
 
@@ -1038,9 +1038,9 @@ class HtmlWriter:
         return fname, self.file_info.need_audio(fname)
 
     def expand_audio(self, text, index, cwd):
-        end, flags, fname, delays = skoolmacro.parse_audio(self, text, index, self._need_audio)
+        end, flags, offset, fname, delays = skoolmacro.parse_audio(self, text, index, self._need_audio)
         if delays:
-            self._write_audio(fname, delays, flags)
+            self._write_audio(fname, delays, flags, offset)
         return end, self.format_template('audio', {'src': self.relpath(cwd, fname)})
 
     def expand_copy(self, text, index, cwd):
