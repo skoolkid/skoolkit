@@ -1846,7 +1846,13 @@ class CommonSkoolMacroTest:
         self.assertEqual(writer.expand('#TSTATES32768'), '4')
         self.assertEqual(writer.expand('#TSTATES32768,32769'), '11')
         self.assertEqual(writer.expand('#TSTATES32770'), '7')
+        self.assertEqual(writer.expand('#TSTATES32770,,1'), '12')
         self.assertEqual(writer.expand('#TSTATES32770,32772'), '17')
+        self.assertEqual(writer.expand('#TSTATES32770,32772,1'), '22')
+        self.assertEqual(writer.expand('#TSTATES32769,,2($min or $max)'), '7 or 7')
+        self.assertEqual(writer.expand('#TSTATES32770,,2/${min} or ${max}/'), '7 or 12')
+        self.assertEqual(writer.expand('#TSTATES32770,32772,2[$min or $max]'), '17 or 22')
+        self.assertEqual(writer.expand('#TSTATES32770,32772,2|#EVAL(($min+$max)/2)|'), '19')
         self.assertEqual(writer.expand('#LET(a=32768)#TSTATES({a},{a}+1)'), '11')
 
     def test_macro_tstates_invalid(self):
@@ -1865,11 +1871,13 @@ class CommonSkoolMacroTest:
         self._assert_error(writer, '#TSTATES32770', "Failed to get timing for instruction at 32770", prefix)
         self._assert_error(writer, '#TSTATES', "No parameters (expected 1)", prefix)
         self._assert_error(writer, '#TSTATES()', "No parameters (expected 1)", prefix)
-        self._assert_error(writer, '#TSTATES(1,2,3)', "Too many parameters (expected 2): '1,2,3'", prefix)
+        self._assert_error(writer, '#TSTATES(1,2,3,4)', "Too many parameters (expected 3): '1,2,3,4'", prefix)
         self._assert_error(writer, '#TSTATES(2', "No closing bracket: (2", prefix)
         self._assert_error(writer, '#TSTATES(0,5$3)', "Cannot parse integer '5$3' in parameter string: '0,5$3'", prefix)
         self._assert_error(writer, '#TSTATES({no})', "Unrecognised field 'no': {no}", prefix)
         self._assert_error(writer, '#TSTATES({foo)', "Invalid format string: {foo", prefix)
+        self._assert_error(writer, '#TSTATES32768,,2(hi', "No closing bracket: (hi", prefix)
+        self._assert_error(writer, '#TSTATES32768,,2/hi', "No terminating delimiter: /hi", prefix)
 
     def test_macro_udg_invalid(self):
         writer = self._get_writer(snapshot=[0] * 8)

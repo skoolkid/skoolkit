@@ -1564,10 +1564,20 @@ See also :ref:`UDGTABLE`.
 The ``#TSTATES`` macro expands to the time taken, in T-states, to execute one
 or more instructions. ::
 
-  #TSTATESfirst[,last]
+  #TSTATESfirst[,last,flags(text)]
 
 * ``first`` is the address of the first instruction to time
 * ``last`` is the address of the last instruction to time (default: ``first``)
+* ``flags`` controls various options (see below)
+* ``text`` is the text to expand to (when ``flags`` is 2); this may contain the
+  placeholders ``$min`` and ``$max`` for the sums of the smaller and larger
+  timing values of the instructions in the given range
+
+``flags`` is the sum of the following values, chosen according to the desired
+outcome:
+
+* 1 - use the larger timing value for an instruction whose timing is variable
+* 2 - expand to ``text``
 
 For example::
 
@@ -1577,11 +1587,20 @@ This instance of the ``#TSTATES`` macros expands to '7'.
 
 For any instruction in the range ``first`` to ``last`` whose timing is variable
 (e.g. a conditional call, return or relative jump), the smaller timing value is
-used::
+used by default::
 
   c40000 RET Z    ; This instruction takes at least #TSTATES40000 T-states
 
 This instance of the ``#TSTATES`` macros expands to '5'.
+
+To use the larger timing values, set ``flags`` to 1. If both smaller and larger
+timing values are required, set ``flags`` to 2 and use the ``text`` parameter::
+
+  c50000 LD B,100    ; Set the delay parameter
+   50002 DJNZ 50002  ; Delay for #TSTATES50002,,2(#EVAL(99*$max+$min)) T-states
+
+This instance of the ``#TSTATES`` macro expands to ``#EVAL(99*13+8)``, which in
+turn expands to '1295'.
 
 Note that an instruction's timing can be determined only if it is a true
 instruction (i.e. not a ``DEFB``, ``DEFM``, ``DEFS`` or ``DEFW`` statement) and
@@ -1590,6 +1609,9 @@ it has been assembled. To make sure that it is assembled, use the
 
 The integer parameters of the ``#TSTATES`` macro may contain
 :ref:`replacement fields <replacementFields>`.
+
+See :ref:`stringParameters` for details on alternative ways to supply the
+``text`` parameter.
 
 See also the ``Timings`` configuration parameter for
 :ref:`sna2skool.py <sna2skool-conf>`, which can be used to show instruction

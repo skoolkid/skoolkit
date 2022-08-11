@@ -1134,20 +1134,28 @@ def parse_str(writer, text, index, *cwd):
     return end, s
 
 def parse_tstates(writer, text, index, *cwd):
-    # #TSTATESfirst[,last]
-    end, first, last = parse_ints(text, index, 2, (0,), fields=writer.fields)
+    # #TSTATESfirst[,last,flags(text)]
+    end, first, last, flags = parse_ints(text, index, 3, (0, 0), fields=writer.fields)
     if last < first:
         last = first
+    if flags & 2:
+        end, msg = parse_strings(text, end, 1)
+    else:
+        msg = None
     timings = writer.parser.get_instruction_timings(first, last)
-    result = 0
+    higher, lower = 0, 0
     for address, timing in timings:
         if timing is None:
             raise MacroParsingError(f'Failed to get timing for instruction at {address}')
         if isinstance(timing, int):
-            result += timing
+            higher, lower = higher + timing, lower + timing
         else:
-            result += timing[1]
-    return end, str(result)
+            higher, lower = higher + timing[0], lower + timing[1]
+    if msg is None:
+        if flags & 1:
+            return end, str(higher)
+        return end, str(lower)
+    return end, Template(msg).safe_substitute(min=lower, max=higher)
 
 def parse_udg(text, index=0, fields=None):
     # #UDGaddr[,attr,scale,step,inc,flip,rotate,mask,tindex,alpha][:addr[,step]][{x,y,width,height}][(fname)]
