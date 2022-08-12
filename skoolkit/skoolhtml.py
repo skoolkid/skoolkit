@@ -1035,7 +1035,9 @@ class HtmlWriter:
             fname = fname.lstrip('/')
         else:
             fname = join(self.paths['AudioPath'], fname)
-        return fname, self.file_info.need_audio(fname)
+        if self.audio_writer.can_write(fname):
+            return fname, self.file_info.need_audio(fname)
+        return fname, False
 
     def expand_audio(self, text, index, cwd):
         end, flags, offset, fname, delays = skoolmacro.parse_audio(self, text, index, self._need_audio)

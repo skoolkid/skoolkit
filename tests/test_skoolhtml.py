@@ -1679,15 +1679,34 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         with open(fpath, 'rb') as f:
             self.assertEqual(md5sum, hashlib.md5(f.read()).hexdigest())
 
+    def test_macro_audio_does_not_write_non_wav_file(self):
+        writer = self._get_writer(mock_audio_writer=False)
+        fname = 'sound.ogg'
+        fpath = join(self.odir, GAMEDIR, 'audio', fname)
+        writer.expand(f'#AUDIO({fname})([100]*2)', ASMDIR)
+        self.assertFalse(isfile(fpath), f'{fpath} was written')
+
+    def test_macro_audio_does_not_overwrite_existing_non_wav_file(self):
+        writer = self._get_writer(mock_audio_writer=False, rebuild_audio=True)
+        fname = 'sound.mp3'
+        contents = b'abc'
+        fpath = join(self.odir, GAMEDIR, 'audio', fname)
+        self.write_bin_file(contents, fpath)
+        writer.expand(f'#AUDIO({fname})([100]*2)', ASMDIR)
+        self.assertTrue(isfile(fpath), f'{fpath} does not exist')
+        with open(fpath, 'rb') as f:
+            actual_contents = f.read()
+        self.assertEqual(actual_contents, contents)
+
     def test_macro_audio_invalid(self):
         writer, prefix = CommonSkoolMacroTest.test_macro_audio_invalid(self)
-        self._test_invalid_audio_macro(writer, '#AUDIO(f)({d})', "Unrecognised field 'd': {d}", prefix)
-        self._test_invalid_audio_macro(writer, '#AUDIO(f)({d)', "Invalid format string: {d", prefix)
-        self._test_invalid_audio_macro(writer, '#AUDIO(f)(z)', "Invalid delays specification: 'z'", prefix)
-        self._test_invalid_audio_macro(writer, '#AUDIO(f)([1]**2)', "Cannot evaluate delays: '[1]**2'", prefix)
-        self._test_invalid_audio_macro(writer, '#AUDIO(f)([1)', "Cannot evaluate delays: '[1'", prefix)
-        self._test_invalid_audio_macro(writer, '#AUDIO(f)(1])', "Cannot evaluate delays: '1]'", prefix)
-        self._test_invalid_audio_macro(writer, '#AUDIO(f)([,])', "Cannot evaluate delays: '[,]'", prefix)
+        self._test_invalid_audio_macro(writer, '#AUDIO(f.wav)({d})', "Unrecognised field 'd': {d}", prefix)
+        self._test_invalid_audio_macro(writer, '#AUDIO(f.wav)({d)', "Invalid format string: {d", prefix)
+        self._test_invalid_audio_macro(writer, '#AUDIO(f.wav)(z)', "Invalid delays specification: 'z'", prefix)
+        self._test_invalid_audio_macro(writer, '#AUDIO(f.wav)([1]**2)', "Cannot evaluate delays: '[1]**2'", prefix)
+        self._test_invalid_audio_macro(writer, '#AUDIO(f.wav)([1)', "Cannot evaluate delays: '[1'", prefix)
+        self._test_invalid_audio_macro(writer, '#AUDIO(f.wav)(1])', "Cannot evaluate delays: '1]'", prefix)
+        self._test_invalid_audio_macro(writer, '#AUDIO(f.wav)([,])', "Cannot evaluate delays: '[,]'", prefix)
 
     def test_macro_chr(self):
         writer = self._get_writer(skool='', variables=[('foo', 66)])

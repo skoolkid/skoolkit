@@ -873,10 +873,10 @@ root of the HTML disassembly. Otherwise the filename is taken to be relative to
 the audio directory (as defined by the ``AudioPath`` parameter in the
 :ref:`paths` section).
 
-If ``delays`` is specified, a corresponding audio file in WAV format is
-created. Each element in ``delays`` can be an integer, a list of integers, or a
-list of lists of integers etc. nested to arbitrary depth, expressed as Python
-literals. For example::
+If ``delays`` is specified and ``fname`` ends with '.wav', a corresponding
+audio file in WAV format is created. Each element in ``delays`` can be an
+integer, a list of integers, or a list of lists of integers etc. nested to
+arbitrary depth, expressed as Python literals. For example::
 
   1000, [1500]*100, [[800, 1200]*2, 900]*200
 
@@ -891,11 +891,16 @@ file of duration 1131000 / 3500000 = 0.323s (assuming that no memory contention
 is simulated and interrupts are disabled, i.e. bits 0 and 1 of ``flags`` are
 reset).
 
-If ``delays`` is not specified, the named audio file must already exist in the
-specified location, otherwise the ``<audio>`` element controls will not work.
-To make sure that a pre-built audio file is copied into the desired location
-when :ref:`skool2html.py` is run, it can be declared in the :ref:`resources`
-section.
+If ``delays`` is specified but ``fname`` does not end with '.wav', no audio
+file is written. This enables the ``delays`` parameter to be kept in place as a
+reminder of how an original WAV file was created by the ``#AUDIO`` macro before
+it was converted to another format.
+
+If ``delays`` is not specified or ``fname`` does not end with '.wav', the named
+audio file must already exist in the specified location, otherwise the
+``<audio>`` element controls will not work. To make sure that a pre-built audio
+file is copied into the desired location when :ref:`skool2html.py` is run, it
+can be declared in the :ref:`resources` section.
 
 The ``flags`` and ``offset`` parameters of the ``#AUDIO`` macro may contain
 :ref:`replacement fields <replacementFields>`.
