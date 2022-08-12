@@ -16,12 +16,11 @@
 
 import math
 
-FRAME_T_STATES = 69888
-
-CONTENTION_FACTOR = 'ContentionFactor'
+CLOCK_SPEED = 'ClockSpeed'
 CONTENTION_BEGIN = 'ContentionBegin'
 CONTENTION_END = 'ContentionEnd'
-CLOCK_SPEED = 'ClockSpeed'
+CONTENTION_FACTOR = 'ContentionFactor'
+FRAME_DURATION = 'FrameDuration'
 INTERRUPT_DELAY = 'InterruptDelay'
 MAX_AMPLITUDE = 'MaxAmplitude'
 SAMPLE_RATE = 'SampleRate'
@@ -33,6 +32,7 @@ class AudioWriter:
             CONTENTION_BEGIN: 14334,
             CONTENTION_END: 57248,
             CONTENTION_FACTOR: 34,
+            FRAME_DURATION: 69888,
             INTERRUPT_DELAY: 942,
             MAX_AMPLITUDE: 65536,
             SAMPLE_RATE: 44100
@@ -57,6 +57,7 @@ class AudioWriter:
         c_begin, c_end = self.options[CONTENTION_BEGIN], self.options[CONTENTION_END]
         c_factor = self.options[CONTENTION_FACTOR] / 100
         i_delay = self.options[INTERRUPT_DELAY]
+        f_duration = self.options[FRAME_DURATION]
         for i, delay in enumerate(delays):
             d = 0
             while d < delay:
@@ -64,12 +65,12 @@ class AudioWriter:
                    cycle = i_delay
                    if i:
                        delay += i_delay
-                end = min(FRAME_T_STATES, cycle + delay - d)
+                end = min(f_duration, cycle + delay - d)
                 if contention and c_begin <= end and cycle < c_end:
                     contended_cycles = min(c_end, end) - max(cycle, c_begin)
                     delay += int(contended_cycles * c_factor)
                 d += end - cycle
-                cycle = end % FRAME_T_STATES
+                cycle = end % f_duration
             delays[i] = delay
 
     def _delays_to_samples(self, delays):
