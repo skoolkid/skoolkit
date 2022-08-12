@@ -31,7 +31,7 @@ TEMPLATES = {
     'instruction': '{indent}{operation:{width}} {sep} {text}',
     'label': '{label}{suffix}',
     'org': '{indent}{org} {address}',
-    'register': '; {prefix:>{prefix_len}}{reg:{reg_len}} {text}'
+    'register': '; {prefix:>{prefix_len}}{reg:<{reg_len}} {text}'
 }
 
 class AsmWriter:

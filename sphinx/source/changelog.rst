@@ -21,6 +21,8 @@ Changelog
 * Added the ``Timings`` configuration parameter for
   :ref:`sna2skool.py <sna2skool-conf>` (for showing instruction timings in the
   comment fields)
+* Amended the :ref:`t_register` ASM template so that it can handle empty
+  register names
 
 8.6 (2021-11-06)
 ----------------

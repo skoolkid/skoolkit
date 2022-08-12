@@ -1830,6 +1830,26 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
         """
         self._test_asm(skool, exp_asm)
 
+    def test_registers_with_prefixes_and_blank_names(self):
+        skool = """
+            @start
+            ; Test registers with prefixes and blank names
+            ;
+            ; .
+            ;
+            ; I: Z flag indicates something
+            ; O: C flag indicates something else
+            c24645 RET
+        """
+        exp_asm = """
+            ; Test registers with prefixes and blank names
+            ;
+            ; I: Z flag indicates something
+            ; O: C flag indicates something else
+              RET
+        """
+        self._test_asm(skool, exp_asm)
+
     def test_registers_with_arbitrary_names(self):
         skool = """
             @start
