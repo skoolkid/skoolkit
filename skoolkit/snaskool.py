@@ -371,9 +371,12 @@ class SkoolWriter:
         for instruction in block.instructions:
             instruction.comment = [None]
             if block.comment:
-                instruction.comment[0] = block.comment.pop(0)[1]
-                while block.comment and block.comment[0][0]:
-                    instruction.comment.append(block.comment.pop(0)[1])
+                if block.repeat_comment:
+                    instruction.comment[:] = [c[1] for c in block.comment]
+                else:
+                    instruction.comment[0] = block.comment.pop(0)[1]
+                    while block.comment and block.comment[0][0]:
+                        instruction.comment.append(block.comment.pop(0)[1])
             elif show_text:
                 instruction.comment[0] = self.to_ascii(instruction.bytes)
             elif self.config['Timings']:
@@ -384,17 +387,24 @@ class SkoolWriter:
                     instruction.comment[0] = f'[{tstates}]'
             elif closing:
                 instruction.comment[0] = ''
-        final_comment = block.instructions[-1].comment
-        final_comment.extend(t[1] for t in block.comment)
+
+        if block.comment and block.repeat_comment:
+            instructions = block.instructions
+        else:
+            final_comment = block.instructions[-1].comment
+            final_comment.extend(t[1] for t in block.comment)
+            instructions = block.instructions[-1:]
         if closing:
-            if len(final_comment[-1]) + len(closing) <= width:
-                final_comment[-1] = (final_comment[-1] + closing).lstrip()
-            else:
-                final_comment.append(closing.lstrip())
+            for instruction in instructions:
+                comment = instruction.comment
+                if len(comment[-1]) + len(closing) <= width:
+                    comment[-1] = (comment[-1] + closing).lstrip()
+                else:
+                    comment.append(closing.lstrip())
 
     def _format_instruction_comments(self, block, width, show_text):
         comment = ''.join(t[1] for t in block.comment)
-        multi_line = len(block.instructions) > 1 and (comment or len(block.comment) > 1)
+        multi_line = len(block.instructions) > 1 and (comment or len(block.comment) > 1) and not block.repeat_comment
         opening = closing = ''
         if multi_line and len(block.comment) == 1 and not comment.replace('.', ''):
             comment = comment[1:]

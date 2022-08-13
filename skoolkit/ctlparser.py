@@ -1,4 +1,4 @@
-# Copyright 2009-2021 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2009-2022 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -146,7 +146,11 @@ class CtlParser:
                 elif ctl == 'R':
                     self._registers[start].append(comment)
                 elif ctl == 'M':
-                    self._multiline_comments[start] = (end, comment)
+                    if lengths:
+                        repeat = lengths[0][0]
+                    else:
+                        repeat = 0
+                    self._multiline_comments[start] = (end, comment, repeat)
                     self._subctls.setdefault(start, None)
                 elif ctl == 'L':
                     count = lengths[0][0]
@@ -174,7 +178,7 @@ class CtlParser:
                             self._lengths[address] = sublengths
                             self._subctls[address] = subctl
                             address += length
-                        self._multiline_comments.setdefault(start, (address, comment))
+                        self._multiline_comments.setdefault(start, (address, comment, 0))
             elif asm_directive:
                 directive, address = asm_directive
                 self._asm_directives[address].append(directive)
@@ -272,10 +276,10 @@ class CtlParser:
 
     def _terminate_multiline_comments(self):
         addresses = sorted(set(self._ctls) | set(self._mid_block_comments) | {65536})
-        for address, (end, text) in self._multiline_comments.items():
+        for address, (end, text, repeat) in self._multiline_comments.items():
             max_end = addresses[bisect.bisect_right(addresses, address)]
             if end is None or end > max_end:
-                self._multiline_comments[address] = (max_end, text)
+                self._multiline_comments[address] = (max_end, text, repeat)
 
     def _unroll_loops(self, max_address):
         for start, end, count, repeat_entries in self._loops:
@@ -300,12 +304,12 @@ class CtlParser:
     def _repeat_multiline_comments(self, start, end, count, max_address):
         interval = end - start
         repeated = {k: v for k, v in self._multiline_comments.items() if start <= k < end}
-        for addr, (mlc_end, comment) in repeated.items():
+        for addr, (mlc_end, comment, repeat) in repeated.items():
             for i in range(1, count):
                 offset = i * interval
                 address = addr + offset
                 if address < max_address:
-                    self._multiline_comments[address] = (mlc_end + offset, comment)
+                    self._multiline_comments[address] = (mlc_end + offset, comment, repeat)
                 else:
                     break
 
@@ -357,7 +361,13 @@ class CtlParser:
                 sub_block.sublengths = self._lengths.get(sub_address, ((0, BASE_MAP[sub_block.ctl.upper()]),))
                 sub_block.header = self._reduce(self._mid_block_comments, sub_address)
                 sub_block.comment = (self._instruction_comments.get(sub_address) or ())[:]
-                sub_block.multiline_comment = self._multiline_comments.get(sub_address)
+                m_comment = self._multiline_comments.get(sub_address)
+                if m_comment:
+                    sub_block.multiline_comment = m_comment[:2]
+                    sub_block.repeat_comment = m_comment[2]
+                else:
+                    sub_block.multiline_comment = None
+                    sub_block.repeat_comment = 0
                 sub_block.asm_directives = dict([d for d in asm_directives if sub_address <= d[0] < sub_block.end])
                 sub_block.ignoreua_directives = {}
                 for addr, dirs in self._ignoreua_directives.items():

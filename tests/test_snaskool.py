@@ -3177,6 +3177,40 @@ class SkoolWriterTest(SkoolKitTestCase):
                 index += 1
             index += 2
 
+    def test_M_directive_with_repeat_parameter(self):
+        snapshot = [
+            175, # 00000 XOR A
+            60,  # 00001 INC A
+            4,   # 00002 INC B
+            12,  # 00003 INC C
+            20,  # 00004 INC D
+            28,  # 00005 INC E
+            36,  # 00006 INC H
+            201  # 00007 RET
+        ]
+        ctl = """
+            c 00000
+            M 00000,2,0 No repeat
+            M 00002,2,1 Repeat
+            M 00004,2,1 Repeat, this time with a comment that will have a continuation line
+            M 00006,,1 {Repeat, this time with a comment in braces}
+            i 00008
+        """
+        exp_skool = """
+            ; Routine at 0
+            c00000 XOR A         ; {No repeat
+             00001 INC A         ; }
+             00002 INC B         ; Repeat
+             00003 INC C         ; Repeat
+             00004 INC D         ; Repeat, this time with a comment that will have a
+                                 ; continuation line
+             00005 INC E         ; Repeat, this time with a comment that will have a
+                                 ; continuation line
+             00006 INC H         ; { {Repeat, this time with a comment in braces} }
+             00007 RET           ; { {Repeat, this time with a comment in braces} }
+        """
+        self._test_write_skool(snapshot, ctl, exp_skool)
+
     def test_overlong_multiline_comment_ends_at_mid_block_comment(self):
         snapshot = [
             62,  # 00000 DEFB 62

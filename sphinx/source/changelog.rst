@@ -21,6 +21,8 @@ Changelog
 * Added the ``Timings`` configuration parameter for
   :ref:`sna2skool.py <sna2skool-conf>` (for showing instruction timings in the
   comment fields)
+* Added support to the ``M`` :ref:`control directive <subBlockSyntax>` for
+  applying its comment to each instruction in its range
 * Amended the :ref:`t_register` ASM template so that it can handle empty
   register names
 

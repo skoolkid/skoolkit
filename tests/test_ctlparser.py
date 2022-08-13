@@ -107,7 +107,7 @@ class CtlParserTest(SkoolKitTestCase):
         self.assertEqual(exp_sublengths, sublengths)
 
     def _check_multiline_comments(self, exp_multiline_comments, blocks):
-        multiline_comments = {s.start: s.multiline_comment for b in blocks for s in b.blocks}
+        multiline_comments = {s.start: (s.multiline_comment, s.repeat_comment) for b in blocks for s in b.blocks}
         self.assertEqual(exp_multiline_comments, multiline_comments)
 
     def _check_instruction_asm_directives(self, exp_directives, blocks):
@@ -415,54 +415,54 @@ class CtlParserTest(SkoolKitTestCase):
         self._check_sublengths(exp_sublengths, blocks)
 
         exp_multiline_comments = {
-            30000: None,
-            30002: None,
-            30012: (30027, [(0, 'This comment covers the following two sub-blocks')]),
-            30020: None,
-            30027: None,
-            30050: None,
-            30055: None,
-            30100: None,
-            30200: None,
-            30210: None,
-            30300: None,
-            30400: None,
-            30450: None,
-            30457: None,
-            30500: None,
-            30502: None,
-            30505: None,
-            30510: None,
-            30522: None,
-            30530: (30550, [(0, '')]),
-            30532: None,
-            30534: None,
-            30536: None,
-            30538: None,
-            30540: None,
-            30542: None,
-            30544: None,
-            30545: None,
-            30546: None,
-            30547: None,
-            30550: None,
-            30560: (30581, [(0, '')]),
-            30566: None,
-            30571: None,
-            30575: None,
-            30578: None,
-            30580: None,
-            30581: None,
-            30600: None,
-            30620: None,
-            30627: None,
-            30700: None,
-            30720: (30730, [(0, '')]),
-            30721: None,
-            30726: None,
-            30728: None,
-            30730: None,
-            30745: None
+            30000: (None, 0),
+            30002: (None, 0),
+            30012: ((30027, [(0, 'This comment covers the following two sub-blocks')]), 0),
+            30020: (None, 0),
+            30027: (None, 0),
+            30050: (None, 0),
+            30055: (None, 0),
+            30100: (None, 0),
+            30200: (None, 0),
+            30210: (None, 0),
+            30300: (None, 0),
+            30400: (None, 0),
+            30450: (None, 0),
+            30457: (None, 0),
+            30500: (None, 0),
+            30502: (None, 0),
+            30505: (None, 0),
+            30510: (None, 0),
+            30522: (None, 0),
+            30530: ((30550, [(0, '')]), 0),
+            30532: (None, 0),
+            30534: (None, 0),
+            30536: (None, 0),
+            30538: (None, 0),
+            30540: (None, 0),
+            30542: (None, 0),
+            30544: (None, 0),
+            30545: (None, 0),
+            30546: (None, 0),
+            30547: (None, 0),
+            30550: (None, 0),
+            30560: ((30581, [(0, '')]), 0),
+            30566: (None, 0),
+            30571: (None, 0),
+            30575: (None, 0),
+            30578: (None, 0),
+            30580: (None, 0),
+            30581: (None, 0),
+            30600: (None, 0),
+            30620: (None, 0),
+            30627: (None, 0),
+            30700: (None, 0),
+            30720: ((30730, [(0, '')]), 0),
+            30721: (None, 0),
+            30726: (None, 0),
+            30728: (None, 0),
+            30730: (None, 0),
+            30745: (None, 0)
         }
         self._check_multiline_comments(exp_multiline_comments, blocks)
 
@@ -596,13 +596,13 @@ class CtlParserTest(SkoolKitTestCase):
         self._check_sublengths(exp_sublengths, blocks)
 
         exp_multiline_comments = {
-            30700: None,
-            30720: (30730, [(0, '')]),
-            30721: None,
-            30726: None,
-            30728: None,
-            30730: None,
-            30745: None
+            30700: (None, 0),
+            30720: ((30730, [(0, '')]), 0),
+            30721: (None, 0),
+            30726: (None, 0),
+            30728: (None, 0),
+            30730: (None, 0),
+            30745: (None, 0)
         }
         self._check_multiline_comments(exp_multiline_comments, blocks)
 
@@ -698,14 +698,14 @@ class CtlParserTest(SkoolKitTestCase):
         self._check_sublengths(exp_sublengths, blocks)
 
         exp_multiline_comments = {
-            30000: None,
-            30002: None,
-            30012: (30027, [(0, 'This comment covers the following two sub-blocks')]),
-            30020: None,
-            30027: None,
-            30050: None,
-            30055: None,
-            30100: None
+            30000: (None, 0),
+            30002: (None, 0),
+            30012: ((30027, [(0, 'This comment covers the following two sub-blocks')]), 0),
+            30020: (None, 0),
+            30027: (None, 0),
+            30050: (None, 0),
+            30055: (None, 0),
+            30100: (None, 0)
         }
         self._check_multiline_comments(exp_multiline_comments, blocks)
 
@@ -787,9 +787,9 @@ class CtlParserTest(SkoolKitTestCase):
         self._check_sublengths(exp_sublengths, blocks)
 
         exp_multiline_comments = {
-            30100: None,
-            30200: None,
-            30210: None
+            30100: (None, 0),
+            30200: (None, 0),
+            30210: (None, 0)
         }
         self._check_multiline_comments(exp_multiline_comments, blocks)
 
@@ -1717,6 +1717,26 @@ class CtlParserTest(SkoolKitTestCase):
         subctls = {b.start:(b.ctl, b.multiline_comment) for b in sub_blocks}
         self.assertEqual(exp_subctls, subctls)
 
+    def test_M_directive_with_repeat_parameter(self):
+        ctl = """
+            c 24576
+            M 24576,10,0 Hello
+            M 24586,10,1 Goodbye
+            M 24596,,0 Hi again
+            N 24600 Stop!
+            M 24600,,1 Bye again
+            i 24608
+        """
+        blocks = self._get_ctl_parser(ctl).get_blocks()
+        exp_multiline_comments = {
+            24576: ((24586, [(0, 'Hello')]), 0),
+            24586: ((24596, [(0, 'Goodbye')]), 1),
+            24596: ((24600, [(0, 'Hi again')]), 0),
+            24600: ((24608, [(0, 'Bye again')]), 1),
+            24608: (None, 0)
+        }
+        self._check_multiline_comments(exp_multiline_comments, blocks)
+
     def test_loop(self):
         start = 30000
         length = 25
@@ -1849,11 +1869,11 @@ class CtlParserTest(SkoolKitTestCase):
             for b in (0, 5, 6, 10, 16, 20, 25):
                 address = a + b
                 if b == 5:
-                    exp_multiline_comments[address] = (address + 3, [(0, '')])
+                    exp_multiline_comments[address] = ((address + 3, [(0, '')]), 0)
                 elif b == 10:
-                    exp_multiline_comments[address] = (address + 10, [(0, 'A multi-line comment')])
+                    exp_multiline_comments[address] = ((address + 10, [(0, 'A multi-line comment')]), 0)
                 else:
-                    exp_multiline_comments[address] = None
+                    exp_multiline_comments[address] = (None, 0)
         self._check_multiline_comments(exp_multiline_comments, blocks)
 
         # Check entry-level directives (c, D, E, R)
@@ -1956,12 +1976,12 @@ class CtlParserTest(SkoolKitTestCase):
         self._check_instruction_comments(exp_instruction_comments, blocks)
 
         exp_multiline_comments = {
-            30000: (30010, [(0, 'Some bytes and text')]),
-            30005: None,
-            30010: None,
-            30020: (30030, [(0, 'Some bytes and text')]),
-            30025: None,
-            30030: None,
+            30000: ((30010, [(0, 'Some bytes and text')]), 0),
+            30005: (None, 0),
+            30010: (None, 0),
+            30020: ((30030, [(0, 'Some bytes and text')]), 0),
+            30025: (None, 0),
+            30030: (None, 0),
         }
         self._check_multiline_comments(exp_multiline_comments, blocks)
 
@@ -2165,21 +2185,21 @@ class CtlParserTest(SkoolKitTestCase):
         self._check_instruction_comments(exp_instruction_comments, blocks)
 
         exp_multiline_comments = {
-            30000: None,
-            30001: None,
-            30002: None,
-            30004: None,
-            30006: None,
-            30008: None,
-            30010: (30012, [(0, 'Two instructions of different types,'), (0, 'two comment lines')]),
-            30011: None,
-            30012: None,
-            30013: None,
-            30014: None,
-            30015: None,
-            30016: None,
-            30018: None,
-            30019: None
+            30000: (None, 0),
+            30001: (None, 0),
+            30002: (None, 0),
+            30004: (None, 0),
+            30006: (None, 0),
+            30008: (None, 0),
+            30010: ((30012, [(0, 'Two instructions of different types,'), (0, 'two comment lines')]), 0),
+            30011: (None, 0),
+            30012: (None, 0),
+            30013: (None, 0),
+            30014: (None, 0),
+            30015: (None, 0),
+            30016: (None, 0),
+            30018: (None, 0),
+            30019: (None, 0)
         }
         self._check_multiline_comments(exp_multiline_comments, blocks)
 

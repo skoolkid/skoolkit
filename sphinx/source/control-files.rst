@@ -125,6 +125,8 @@ with a separate ``E`` directive::
   E 24576 This is the first paragraph of the end comment for the routine at 24576.
   E 24576 This is the second paragraph of the end comment for the routine at 24576.
 
+.. _subBlockSyntax:
+
 Sub-block syntax
 ----------------
 Sometimes a block marked as one type (code, data, text, or whatever) may
@@ -156,6 +158,13 @@ must be declared with an ``M`` directive::
 An ``M`` directive with no length parameter covers all sub-blocks from the
 given start address to either the next mid-block comment or the end of the
 containing block (whichever is closer).
+
+To apply the same instruction-level comment to each instruction in a sub-block
+or group of sub-blocks, use the ``M`` directive with a third parameter set to
+1::
+
+  c 32768 A routine with careful timing
+  M 32768,,1 This instruction at #PC takes #TSTATES(#PC) T-states
 
 If a sub-block directive is left blank, then it is assumed to be of the same
 type as the containing block. So in::
@@ -700,6 +709,9 @@ Revision history
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 8.7     | Added support to the ``M`` directive for applying its comment to  |
+|         | each instruction in its range                                     |
++---------+-------------------------------------------------------------------+
 | 7.2     | Added the dot (``.``) and colon (``:``) directives for specifying |
 |         | comments over multiple lines                                      |
 +---------+-------------------------------------------------------------------+
