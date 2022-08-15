@@ -87,8 +87,10 @@ class Tap2SnaTest(SkoolKitTestCase):
 
     def test_option_d(self):
         odir = '{}/tap2sna'.format(self.make_directory())
-        block = create_tap_data_block([0])
-        tapfile = self._write_tap([block])
+        tapfile = self._write_tap((
+            create_tap_header_block(start=16384),
+            create_tap_data_block([0])
+        ))
         z80_fname = 'test.z80'
         for option in ('-d', '--output-dir'):
             output, error = self.run_tap2sna('{} {} {} {}'.format(option, odir, tapfile, z80_fname))
@@ -114,8 +116,10 @@ class Tap2SnaTest(SkoolKitTestCase):
             self.assertEqual(['sp={}'.format(int(stack[2:], 16))], options.reg)
 
     def test_option_p(self):
-        block = create_tap_data_block([0])
-        tapfile = self._write_tap([block])
+        tapfile = self._write_tap((
+            create_tap_header_block(start=16384),
+            create_tap_data_block([0])
+        ))
         z80file = self.write_bin_file(suffix='.z80')
         stack = 32768
 
@@ -148,8 +152,10 @@ class Tap2SnaTest(SkoolKitTestCase):
             self.assertEqual(exp_reg, options.reg)
 
     def test_option_s(self):
-        block = create_tap_data_block([0])
-        tapfile = self._write_tap([block])
+        tapfile = self._write_tap((
+            create_tap_header_block(start=16384),
+            create_tap_data_block([0])
+        ))
         z80file = self.write_bin_file(suffix='.z80')
         start = 40000
 
@@ -227,13 +233,18 @@ class Tap2SnaTest(SkoolKitTestCase):
         blocks = [
             create_tap_header_block(start=code_start),
             create_tap_data_block(code),
-            create_tap_data_block([23])
+            create_tap_data_block([23]),
+            create_tap_data_block([97])
         ]
 
         tapfile = self._write_tap(blocks)
         z80file = self.write_bin_file(suffix='.z80')
         output, error = self.run_tap2sna('--force {} {}'.format(tapfile, z80file))
-        self.assertEqual(error, '')
+        self.assertEqual(
+            error,
+            'WARNING: Ignoring headerless block 3\n'
+            'WARNING: Ignoring headerless block 4\n'
+        )
         snapshot = get_snapshot(z80file)
         self.assertEqual(code, snapshot[code_start:code_start + len(code)])
 
@@ -294,7 +305,11 @@ class Tap2SnaTest(SkoolKitTestCase):
         module_dir = self.make_directory()
         module_path = os.path.join(module_dir, 'ram.py')
         module = self.write_text_file(textwrap.dedent(ram_module).strip(), path=module_path)
-        snapshot = self._get_snapshot(data=[0], load_options=f'--ram call={module_dir}:ram.fix')
+        blocks = [
+            create_tap_header_block(start=16384),
+            create_tap_data_block([0])
+        ]
+        snapshot = self._get_snapshot(load_options=f'--ram call={module_dir}:ram.fix', blocks=blocks)
         self.assertEqual(list(range(256)), snapshot[65280:])
 
     def test_ram_call_nonexistent_module(self):

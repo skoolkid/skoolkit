@@ -1,4 +1,4 @@
-# Copyright 2013, 2015-2018, 2020, 2021 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2013, 2015-2018, 2020-2022 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -23,7 +23,7 @@ from urllib.request import Request, urlopen
 from urllib.parse import urlparse
 
 from skoolkit import (SkoolKitError, get_dword, get_int_param, get_object,
-                      get_word, get_word3, integer, open_file, write_line,
+                      get_word, get_word3, integer, open_file, warn, write_line,
                       VERSION)
 from skoolkit.snapshot import move, poke, print_reg_help, print_state_help, write_z80v3
 
@@ -235,10 +235,13 @@ def _get_ram(blocks, options):
                         start = 23755
                     else:
                         raise TapeError('Unknown block type ({}) in header block {}'.format(block_type, block_num))
-                elif block[0] == 255 and start is not None:
-                    # Data
-                    _load_block(snapshot, block, start)
-                    start = None
+                elif block[0] == 255:
+                    if start is None:
+                        warn(f'Ignoring headerless block {block_num}')
+                    else:
+                        # Data
+                        _load_block(snapshot, block, start)
+                        start = None
 
     counters = {}
     for op_type, param_str in operations:

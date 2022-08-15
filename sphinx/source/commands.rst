@@ -1337,6 +1337,9 @@ given on the command line.
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 8.7     | When a headerless block is ignored because no ``--ram load``      |
+|         | options have been specified, a warning is printed                 |
++---------+-------------------------------------------------------------------+
 | 8.6     | Added support to the ``--ram`` option for the ``call`` operation  |
 +---------+-------------------------------------------------------------------+
 | 8.4     | Added support to the ``--ram`` option for the ``sysvars``         |

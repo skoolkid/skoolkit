@@ -23,6 +23,8 @@ Changelog
   comment fields)
 * Added support to the ``M`` :ref:`control directive <subBlockSyntax>` for
   applying its comment to each instruction in its range
+* When :ref:`tap2sna.py` ignores a headerless block because no ``--ram load``
+  options have been specified, it now prints a warning
 * Amended the :ref:`t_register` ASM template so that it can handle empty
   register names
 
