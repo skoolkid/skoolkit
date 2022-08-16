@@ -732,8 +732,8 @@ macro expands to the address of the last instruction in the entry.
 
 #PEEK
 -----
-The ``#PEEK`` macro expands to the contents of an address in the memory
-snapshot. ::
+The ``#PEEK`` macro expands to the contents of an address in the internal
+memory snapshot constructed from the contents of the skool file. ::
 
   #PEEKaddr
 
@@ -745,7 +745,14 @@ For example::
   ; At the start of the game, the number of lives remaining is #PEEK33879.
 
 This instance of the ``#PEEK`` macro expands to the contents of the address
-33879 in the memory snapshot.
+33879 in the internal memory snapshot.
+
+Note that, by default, the internal memory snapshot constructed by
+:ref:`skool2asm.py` is entirely blank (all zeroes), and the snapshot
+constructed by :ref:`skool2html.py` is populated only by ``DEFB``, ``DEFM``,
+``DEFS`` and ``DEFW`` statements, and by :ref:`defb`, :ref:`defs` and
+:ref:`defw` directives. To change this behaviour, use the :ref:`assemble`
+directive.
 
 See also :ref:`POKES`.
 
