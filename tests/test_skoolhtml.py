@@ -3304,10 +3304,10 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
 
         # Non-existent reference
         prefix = ERROR_PREFIX.format('R')
-        self._assert_error(writer, '#R$ABCD', 'Could not find instruction at $ABCD', prefix)
+        self._assert_error(writer, '#R$ABCD', 'Address not found: $ABCD', prefix)
 
         # Explicit code ID and non-existent reference
-        self._assert_error(writer, '#R$ABCD@main', 'Could not find instruction at $ABCD', prefix)
+        self._assert_error(writer, '#R$ABCD@main', 'Address not found: $ABCD', prefix)
 
     def test_macro_r_asm_single_page(self):
         ref = '[Game]\nAsmSinglePage=1'

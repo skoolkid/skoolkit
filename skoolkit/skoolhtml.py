@@ -1104,7 +1104,7 @@ class HtmlWriter:
         end, addr_str, address, code_id, anchor, link_text = skoolmacro.parse_r(self.fields, text, index)
         container = self.parser.get_container(address, code_id)
         if (not code_id or code_id == self.code_id) and not container:
-            raise skoolmacro.MacroParsingError('Could not find instruction at {}'.format(addr_str))
+            raise skoolmacro.MacroParsingError(f'Address not found: {addr_str}')
         if self.asm_single_page:
             href = self._asm_relpath(cwd, address, code_id, True)
         else:
