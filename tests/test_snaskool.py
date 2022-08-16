@@ -1256,17 +1256,17 @@ class SkoolWriterTest(SkoolKitTestCase):
         config.update(params or {})
         return SkoolWriter(snapshot, ctl_parser, options, config)
 
-    def _test_write_skool(self, snapshot, ctl, exp_skool, show_text=False, **kwargs):
+    def _test_write_skool(self, snapshot, ctl, exp_skool, **kwargs):
         self.clear_streams()
         writer = self._get_writer(snapshot, ctl, **kwargs)
-        writer.write_skool(show_text)
+        writer.write_skool()
         self.assertEqual(self.err.getvalue(), '')
         skool = self.out.getvalue().rstrip()
         self.assertEqual(textwrap.dedent(exp_skool).strip(), skool)
 
     def test_write_skool(self):
         writer = self._get_writer(WRITER_SNAPSHOT, WRITER_CTL)
-        writer.write_skool(False)
+        writer.write_skool()
         skool = self.out.getvalue().split('\n')[:-1]
         self.assertEqual(SKOOL, skool)
 
@@ -1573,7 +1573,7 @@ class SkoolWriterTest(SkoolKitTestCase):
             i 00004
         """
         writer = self._get_writer(snapshot, ctl)
-        writer.write_skool(False)
+        writer.write_skool()
         warnings = self.err.getvalue().split('\n')[:-1]
         self.assertEqual(len(warnings), 1)
         self.assertEqual(warnings[0], 'WARNING: Instruction at 1 overlaps the following instruction at 2')
@@ -1586,7 +1586,7 @@ class SkoolWriterTest(SkoolKitTestCase):
             i 00003
         """
         writer = self._get_writer(snapshot, ctl)
-        writer.write_skool(False)
+        writer.write_skool()
         warnings = self.err.getvalue().split('\n')[:-1]
         self.assertEqual(len(warnings), 1)
         self.assertEqual(warnings[0], 'WARNING: Instruction at 1 overlaps the following instruction at 2')
@@ -1599,7 +1599,7 @@ class SkoolWriterTest(SkoolKitTestCase):
             i 00002
         """
         writer = self._get_writer(snapshot, ctl)
-        writer.write_skool(False)
+        writer.write_skool()
         warnings = self.err.getvalue().split('\n')[:-1]
         self.assertEqual(len(warnings), 1)
         self.assertEqual(warnings[0], 'WARNING: Instruction at 0 overlaps the following instruction at 1')
@@ -1612,7 +1612,7 @@ class SkoolWriterTest(SkoolKitTestCase):
             i 00002
         """
         writer = self._get_writer(snapshot, ctl)
-        writer.write_skool(False)
+        writer.write_skool()
         warnings = self.err.getvalue().split('\n')[:-1]
         self.assertEqual(len(warnings), 1)
         self.assertEqual(warnings[0], 'WARNING: Instruction at 0 overlaps the following instruction at 1')
@@ -1623,7 +1623,7 @@ class SkoolWriterTest(SkoolKitTestCase):
               65534,2 .
         """
         writer = self._get_writer([0] * 65536, ctl)
-        writer.write_skool(False)
+        writer.write_skool()
         skool = self.out.getvalue().split('\n')[:-1]
         self.assertEqual(skool[-2], 'c65534 NOP           ; {')
         self.assertEqual(skool[-1], ' 65535 NOP           ; }')
@@ -1637,7 +1637,7 @@ class SkoolWriterTest(SkoolKitTestCase):
               65535,1 {}
         """.format(comment1, comment2)
         writer = self._get_writer([0] * 65536, ctl)
-        writer.write_skool(False)
+        writer.write_skool()
         skool = self.out.getvalue().split('\n')[:-1]
         self.assertEqual(skool[-2], 'c65534 NOP           ; {}'.format(comment1))
         self.assertEqual(skool[-1], ' 65535 NOP           ; {}'.format(comment2))
@@ -1651,7 +1651,7 @@ class SkoolWriterTest(SkoolKitTestCase):
               65534,2 {}
         """.format(comment1, comment2)
         writer = self._get_writer([0] * 65536, ctl)
-        writer.write_skool(False)
+        writer.write_skool()
         skool = self.out.getvalue().split('\n')[:-1]
         self.assertEqual(skool[-4], 'c65532 NOP           ; {{{}'.format(comment1))
         self.assertEqual(skool[-3], ' 65533 NOP           ; }')
@@ -1791,7 +1791,7 @@ class SkoolWriterTest(SkoolKitTestCase):
             with self.subTest(macro=macro):
                 writer = self._get_writer([0], ctl.replace('*', macro))
                 with self.assertRaisesRegex(SkoolKitError, re.escape("No closing ')' on parameter list: (Oops { No clos...")):
-                    writer.write_skool(False)
+                    writer.write_skool()
 
     def test_table_without_closing_bracket_on_flags(self):
         ctl = """
@@ -1803,7 +1803,7 @@ class SkoolWriterTest(SkoolKitTestCase):
             with self.subTest(macro=macro):
                 writer = self._get_writer([0], ctl.replace('*', macro))
                 with self.assertRaisesRegex(SkoolKitError, re.escape("No closing '>' on flags: <nowrap { No cl...")):
-                    writer.write_skool(False)
+                    writer.write_skool()
 
     def test_table_without_end_marker(self):
         ctl = """
@@ -1815,7 +1815,7 @@ class SkoolWriterTest(SkoolKitTestCase):
             with self.subTest(macro=macro):
                 writer = self._get_writer([0], ctl.replace('*', macro))
                 with self.assertRaisesRegex(SkoolKitError, re.escape("No end marker found: #* { this table h...".replace('*', macro))):
-                    writer.write_skool(False)
+                    writer.write_skool()
 
     def test_table_without_row_end_marker(self):
         ctl = """
@@ -1827,7 +1827,7 @@ class SkoolWriterTest(SkoolKitTestCase):
             with self.subTest(macro=macro):
                 writer = self._get_writer([0], ctl.replace('*', macro))
                 with self.assertRaisesRegex(SkoolKitError, re.escape("No closing ' }' on row/item: { this row has ...")):
-                    writer.write_skool(False)
+                    writer.write_skool()
 
     def test_list_with_nowrap_flag(self):
         snapshot = [0]
@@ -1903,7 +1903,7 @@ class SkoolWriterTest(SkoolKitTestCase):
         """
         writer = self._get_writer([0], ctl)
         with self.assertRaisesRegex(SkoolKitError, re.escape("No closing ')' on parameter list: (Oops { No clos...")):
-            writer.write_skool(False)
+            writer.write_skool()
 
     def test_list_without_closing_bracket_on_flags(self):
         ctl = """
@@ -1913,7 +1913,7 @@ class SkoolWriterTest(SkoolKitTestCase):
         """
         writer = self._get_writer([0], ctl)
         with self.assertRaisesRegex(SkoolKitError, re.escape("No closing '>' on flags: <nowrap { No cl...")):
-            writer.write_skool(False)
+            writer.write_skool()
 
     def test_list_without_end_marker(self):
         ctl = """
@@ -1923,7 +1923,7 @@ class SkoolWriterTest(SkoolKitTestCase):
         """
         writer = self._get_writer([0], ctl)
         with self.assertRaisesRegex(SkoolKitError, re.escape("No end marker found: #LIST { this list ha...")):
-            writer.write_skool(False)
+            writer.write_skool()
 
     def test_list_without_item_end_marker(self):
         ctl = """
@@ -1933,7 +1933,7 @@ class SkoolWriterTest(SkoolKitTestCase):
         """
         writer = self._get_writer([0], ctl)
         with self.assertRaisesRegex(SkoolKitError, re.escape("No closing ' }' on row/item: { this item has...")):
-            writer.write_skool(False)
+            writer.write_skool()
 
     def test_defb_directives(self):
         snapshot = [0] * 5
@@ -3127,7 +3127,7 @@ class SkoolWriterTest(SkoolKitTestCase):
             i 00040
         """
         writer = self._get_writer([0] * 40, ctl)
-        writer.write_skool(False)
+        writer.write_skool()
         skool = self.out.getvalue().split('\n')[:-2]
         address = 0
         ctl = 'b'
@@ -3164,7 +3164,7 @@ class SkoolWriterTest(SkoolKitTestCase):
             i 00030
         """
         writer = self._get_writer([0] * 30, ctl)
-        writer.write_skool(False)
+        writer.write_skool()
         skool = self.out.getvalue().split('\n')[:-2]
         address = 0
         index = 1
@@ -3450,7 +3450,7 @@ class SkoolWriterTest(SkoolKitTestCase):
             ; Routine at 0
             c00000 LD SP,12927   ; [1.2]
         """
-        self._test_write_skool(snapshot, ctl, exp_skool, show_text=True)
+        self._test_write_skool(snapshot, ctl, exp_skool, params={'Text': 1})
 
     def test_show_timings(self):
         snapshot = [
@@ -3837,7 +3837,7 @@ class SkoolWriterTest(SkoolKitTestCase):
         writer = self._get_writer(snapshot, ctl, params=params)
 
         with self.assertRaisesRegex(SkoolKitError, "^Failed to format Ref template: Unknown format code 'X' for object of type 'str'$"):
-            writer.write_skool(0)
+            writer.write_skool()
 
     def test_custom_RefFormat(self):
         params = {'RefFormat': '#A{address}'}
@@ -3943,7 +3943,7 @@ class SkoolWriterTest(SkoolKitTestCase):
         writer = self._get_writer(snapshot, ctl, params=params)
 
         with self.assertRaisesRegex(SkoolKitError, "^Unknown field 'lastref' in Refs template$"):
-            writer.write_skool(0)
+            writer.write_skool()
 
     def test_custom_EntryPointRef(self):
         params = {'EntryPointRef': 'Used by the subroutine at {ref}.'}
@@ -3975,7 +3975,7 @@ class SkoolWriterTest(SkoolKitTestCase):
         writer = self._get_writer(snapshot, ctl, params=params)
 
         with self.assertRaisesRegex(SkoolKitError, "^Failed to format EntryPointRef template: Unknown format code 'x' for object of type 'str'$"):
-            writer.write_skool(0)
+            writer.write_skool()
 
     def test_custom_EntryPointRefs_with_two_referrers(self):
         params = {'EntryPointRefs': 'Used by the subroutines at {refs} and {ref}.'}
@@ -4040,7 +4040,7 @@ class SkoolWriterTest(SkoolKitTestCase):
         writer = self._get_writer(snapshot, ctl, params=params)
 
         with self.assertRaisesRegex(SkoolKitError, "^Unknown field 'finalref' in EntryPointRefs template$"):
-            writer.write_skool(0)
+            writer.write_skool()
 
     def test_custom_config_passed_to_disassembly(self):
         params = {

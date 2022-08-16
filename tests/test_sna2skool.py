@@ -30,8 +30,7 @@ class MockSkoolWriter:
         self.config = config
         self.wrote_skool = False
 
-    def write_skool(self, text):
-        self.text = text
+    def write_skool(self):
         self.wrote_skool = True
 
 def mock_run(*args):

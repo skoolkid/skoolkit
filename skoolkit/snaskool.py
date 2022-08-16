@@ -275,13 +275,13 @@ class SkoolWriter:
             lines.pop()
         return lines
 
-    def write_skool(self, text):
+    def write_skool(self):
         for entry_index, entry in enumerate(self.disassembly.entries):
             if entry_index:
                 write_line('')
-            self._write_entry(entry, text)
+            self._write_entry(entry)
 
-    def _write_entry(self, entry, show_text):
+    def _write_entry(self, entry):
         if entry.header:
             for line in entry.header:
                 write_line(line)
@@ -305,7 +305,7 @@ class SkoolWriter:
         else:
             wrote_desc = False
 
-        self._write_body(entry, wrote_desc, show_text and entry.ctl != 't')
+        self._write_body(entry, wrote_desc)
 
         self.write_asm_directives(entry.get_ignoreua_directive(END))
         self.write_paragraphs(entry.end_comment)
@@ -429,7 +429,8 @@ class SkoolWriter:
             block.comment[0] = (0, opening + block.comment[0][1])
         self._set_instruction_comments(block, width, closing, show_text)
 
-    def _write_body(self, entry, wrote_desc, show_text):
+    def _write_body(self, entry, wrote_desc):
+        show_text = self.config['Text'] and entry.ctl != 't'
         op_width = max((self.config['InstructionWidth'], entry.width()))
         comment_width = max(self.comment_width - op_width - 8, self.config['CommentWidthMin'])
         for index, block in enumerate(entry.blocks):

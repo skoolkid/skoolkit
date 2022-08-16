@@ -57,7 +57,7 @@ def run(infile, options, config):
         options.start = 0
     ctl_parser = get_ctl_parser(options.ctls, infile, options.start, options.end, start, end)
     writer = SkoolWriter(snapshot, ctl_parser, options, config)
-    writer.write_skool(config['Text'])
+    writer.write_skool()
 
 def main(args):
     config = get_config('sna2skool')
