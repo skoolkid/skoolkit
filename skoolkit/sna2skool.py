@@ -1,4 +1,4 @@
-# Copyright 2009-2015, 2017-2021 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2009-2015, 2017-2022 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -57,7 +57,7 @@ def run(infile, options, config):
         options.start = 0
     ctl_parser = get_ctl_parser(options.ctls, infile, options.start, options.end, start, end)
     writer = SkoolWriter(snapshot, ctl_parser, options, config)
-    writer.write_skool(config['ListRefs'], config['Text'])
+    writer.write_skool(config['Text'])
 
 def main(args):
     config = get_config('sna2skool')

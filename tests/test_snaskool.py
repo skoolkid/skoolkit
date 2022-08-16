@@ -1256,17 +1256,17 @@ class SkoolWriterTest(SkoolKitTestCase):
         config.update(params or {})
         return SkoolWriter(snapshot, ctl_parser, options, config)
 
-    def _test_write_skool(self, snapshot, ctl, exp_skool, write_refs=1, show_text=False, **kwargs):
+    def _test_write_skool(self, snapshot, ctl, exp_skool, show_text=False, **kwargs):
         self.clear_streams()
         writer = self._get_writer(snapshot, ctl, **kwargs)
-        writer.write_skool(write_refs, show_text)
+        writer.write_skool(show_text)
         self.assertEqual(self.err.getvalue(), '')
         skool = self.out.getvalue().rstrip()
         self.assertEqual(textwrap.dedent(exp_skool).strip(), skool)
 
     def test_write_skool(self):
         writer = self._get_writer(WRITER_SNAPSHOT, WRITER_CTL)
-        writer.write_skool(1, False)
+        writer.write_skool(False)
         skool = self.out.getvalue().split('\n')[:-1]
         self.assertEqual(SKOOL, skool)
 
@@ -1367,7 +1367,7 @@ class SkoolWriterTest(SkoolKitTestCase):
         """
         self._test_write_skool(snapshot, ctl, exp_skool, line_width=55)
 
-    def test_write_refs_never(self):
+    def test_list_refs_never(self):
         snapshot = [0] * 65536
         snapshot[30000:30007] = [
             175,     # 30000 XOR A
@@ -1394,9 +1394,9 @@ class SkoolWriterTest(SkoolKitTestCase):
             ; Routine at 30005
             c30005 JR 30001      ;
         """
-        self._test_write_skool(snapshot, ctl, exp_skool, write_refs=0)
+        self._test_write_skool(snapshot, ctl, exp_skool, params={'ListRefs': 0})
 
-    def test_write_refs_default(self):
+    def test_list_refs_default(self):
         snapshot = [0] * 65536
         snapshot[40000:40012] = [
             175,     # 40000 XOR A
@@ -1437,9 +1437,9 @@ class SkoolWriterTest(SkoolKitTestCase):
              40008 JR 40002      ;
              40010 JR 40003      ;
         """
-        self._test_write_skool(snapshot, ctl, exp_skool, write_refs=1)
+        self._test_write_skool(snapshot, ctl, exp_skool)
 
-    def test_write_refs_always(self):
+    def test_list_refs_always(self):
         snapshot = [0] * 65536
         snapshot[50000:50012] = [
             175,     # 50000 XOR A
@@ -1484,9 +1484,9 @@ class SkoolWriterTest(SkoolKitTestCase):
              50008 JR 50002      ;
              50010 JR 50003      ;
         """
-        self._test_write_skool(snapshot, ctl, exp_skool, write_refs=2)
+        self._test_write_skool(snapshot, ctl, exp_skool, params={'ListRefs': 2})
 
-    def test_write_refs_comment_is_wrapped(self):
+    def test_list_refs_comment_is_wrapped(self):
         snapshot = [0] * 65536
         snapshot[50000:50015] = [
             201,     # 50000 RET
@@ -1537,9 +1537,9 @@ class SkoolWriterTest(SkoolKitTestCase):
             ; Routine at 50013
             c50013 JR 50000      ;
         """
-        self._test_write_skool(snapshot, ctl, exp_skool, write_refs=1)
+        self._test_write_skool(snapshot, ctl, exp_skool)
 
-    def test_write_refs_for_routines_that_refer_to_themselves(self):
+    def test_list_refs_for_routines_that_refer_to_themselves(self):
         snapshot = [
             24, 254, # 00000 JR 0
             24, 254, # 00002 JR 2
@@ -1563,7 +1563,7 @@ class SkoolWriterTest(SkoolKitTestCase):
             ; Routine at 4
             c00004 JR 2          ;
         """
-        self._test_write_skool(snapshot, ctl, exp_skool, write_refs=1)
+        self._test_write_skool(snapshot, ctl, exp_skool)
 
     def test_code_block_overlaps_code_block(self):
         snapshot = [175, 6, 175, 201]
@@ -1573,7 +1573,7 @@ class SkoolWriterTest(SkoolKitTestCase):
             i 00004
         """
         writer = self._get_writer(snapshot, ctl)
-        writer.write_skool(0, False)
+        writer.write_skool(False)
         warnings = self.err.getvalue().split('\n')[:-1]
         self.assertEqual(len(warnings), 1)
         self.assertEqual(warnings[0], 'WARNING: Instruction at 1 overlaps the following instruction at 2')
@@ -1586,7 +1586,7 @@ class SkoolWriterTest(SkoolKitTestCase):
             i 00003
         """
         writer = self._get_writer(snapshot, ctl)
-        writer.write_skool(0, False)
+        writer.write_skool(False)
         warnings = self.err.getvalue().split('\n')[:-1]
         self.assertEqual(len(warnings), 1)
         self.assertEqual(warnings[0], 'WARNING: Instruction at 1 overlaps the following instruction at 2')
@@ -1599,7 +1599,7 @@ class SkoolWriterTest(SkoolKitTestCase):
             i 00002
         """
         writer = self._get_writer(snapshot, ctl)
-        writer.write_skool(0, False)
+        writer.write_skool(False)
         warnings = self.err.getvalue().split('\n')[:-1]
         self.assertEqual(len(warnings), 1)
         self.assertEqual(warnings[0], 'WARNING: Instruction at 0 overlaps the following instruction at 1')
@@ -1612,7 +1612,7 @@ class SkoolWriterTest(SkoolKitTestCase):
             i 00002
         """
         writer = self._get_writer(snapshot, ctl)
-        writer.write_skool(0, False)
+        writer.write_skool(False)
         warnings = self.err.getvalue().split('\n')[:-1]
         self.assertEqual(len(warnings), 1)
         self.assertEqual(warnings[0], 'WARNING: Instruction at 0 overlaps the following instruction at 1')
@@ -1623,7 +1623,7 @@ class SkoolWriterTest(SkoolKitTestCase):
               65534,2 .
         """
         writer = self._get_writer([0] * 65536, ctl)
-        writer.write_skool(0, False)
+        writer.write_skool(False)
         skool = self.out.getvalue().split('\n')[:-1]
         self.assertEqual(skool[-2], 'c65534 NOP           ; {')
         self.assertEqual(skool[-1], ' 65535 NOP           ; }')
@@ -1637,7 +1637,7 @@ class SkoolWriterTest(SkoolKitTestCase):
               65535,1 {}
         """.format(comment1, comment2)
         writer = self._get_writer([0] * 65536, ctl)
-        writer.write_skool(0, False)
+        writer.write_skool(False)
         skool = self.out.getvalue().split('\n')[:-1]
         self.assertEqual(skool[-2], 'c65534 NOP           ; {}'.format(comment1))
         self.assertEqual(skool[-1], ' 65535 NOP           ; {}'.format(comment2))
@@ -1651,7 +1651,7 @@ class SkoolWriterTest(SkoolKitTestCase):
               65534,2 {}
         """.format(comment1, comment2)
         writer = self._get_writer([0] * 65536, ctl)
-        writer.write_skool(0, False)
+        writer.write_skool(False)
         skool = self.out.getvalue().split('\n')[:-1]
         self.assertEqual(skool[-4], 'c65532 NOP           ; {{{}'.format(comment1))
         self.assertEqual(skool[-3], ' 65533 NOP           ; }')
@@ -1791,7 +1791,7 @@ class SkoolWriterTest(SkoolKitTestCase):
             with self.subTest(macro=macro):
                 writer = self._get_writer([0], ctl.replace('*', macro))
                 with self.assertRaisesRegex(SkoolKitError, re.escape("No closing ')' on parameter list: (Oops { No clos...")):
-                    writer.write_skool(0, False)
+                    writer.write_skool(False)
 
     def test_table_without_closing_bracket_on_flags(self):
         ctl = """
@@ -1803,7 +1803,7 @@ class SkoolWriterTest(SkoolKitTestCase):
             with self.subTest(macro=macro):
                 writer = self._get_writer([0], ctl.replace('*', macro))
                 with self.assertRaisesRegex(SkoolKitError, re.escape("No closing '>' on flags: <nowrap { No cl...")):
-                    writer.write_skool(0, False)
+                    writer.write_skool(False)
 
     def test_table_without_end_marker(self):
         ctl = """
@@ -1815,7 +1815,7 @@ class SkoolWriterTest(SkoolKitTestCase):
             with self.subTest(macro=macro):
                 writer = self._get_writer([0], ctl.replace('*', macro))
                 with self.assertRaisesRegex(SkoolKitError, re.escape("No end marker found: #* { this table h...".replace('*', macro))):
-                    writer.write_skool(0, False)
+                    writer.write_skool(False)
 
     def test_table_without_row_end_marker(self):
         ctl = """
@@ -1827,7 +1827,7 @@ class SkoolWriterTest(SkoolKitTestCase):
             with self.subTest(macro=macro):
                 writer = self._get_writer([0], ctl.replace('*', macro))
                 with self.assertRaisesRegex(SkoolKitError, re.escape("No closing ' }' on row/item: { this row has ...")):
-                    writer.write_skool(0, False)
+                    writer.write_skool(False)
 
     def test_list_with_nowrap_flag(self):
         snapshot = [0]
@@ -1903,7 +1903,7 @@ class SkoolWriterTest(SkoolKitTestCase):
         """
         writer = self._get_writer([0], ctl)
         with self.assertRaisesRegex(SkoolKitError, re.escape("No closing ')' on parameter list: (Oops { No clos...")):
-            writer.write_skool(0, False)
+            writer.write_skool(False)
 
     def test_list_without_closing_bracket_on_flags(self):
         ctl = """
@@ -1913,7 +1913,7 @@ class SkoolWriterTest(SkoolKitTestCase):
         """
         writer = self._get_writer([0], ctl)
         with self.assertRaisesRegex(SkoolKitError, re.escape("No closing '>' on flags: <nowrap { No cl...")):
-            writer.write_skool(0, False)
+            writer.write_skool(False)
 
     def test_list_without_end_marker(self):
         ctl = """
@@ -1923,7 +1923,7 @@ class SkoolWriterTest(SkoolKitTestCase):
         """
         writer = self._get_writer([0], ctl)
         with self.assertRaisesRegex(SkoolKitError, re.escape("No end marker found: #LIST { this list ha...")):
-            writer.write_skool(0, False)
+            writer.write_skool(False)
 
     def test_list_without_item_end_marker(self):
         ctl = """
@@ -1933,7 +1933,7 @@ class SkoolWriterTest(SkoolKitTestCase):
         """
         writer = self._get_writer([0], ctl)
         with self.assertRaisesRegex(SkoolKitError, re.escape("No closing ' }' on row/item: { this item has...")):
-            writer.write_skool(0, False)
+            writer.write_skool(False)
 
     def test_defb_directives(self):
         snapshot = [0] * 5
@@ -2650,7 +2650,7 @@ class SkoolWriterTest(SkoolKitTestCase):
         snapshot = [0] * 10000 + [120, 201]
         self._test_write_skool(snapshot, ctl, exp_skool)
 
-    def test_ignoreua_directives_write_refs(self):
+    def test_ignoreua_directives_list_refs(self):
         ctl = """
             c 10000 Routine at 10000
             @ 10000 ignoreua:d
@@ -2678,7 +2678,7 @@ class SkoolWriterTest(SkoolKitTestCase):
             *10003 JR 10000      ;
         """
         snapshot = [0] * 10000 + [24, 1, 120, 24, 251]
-        self._test_write_skool(snapshot, ctl, exp_skool, write_refs=2)
+        self._test_write_skool(snapshot, ctl, exp_skool, params={'ListRefs': 2})
 
     def test_assemble_directives(self):
         ctl = """
@@ -3127,7 +3127,7 @@ class SkoolWriterTest(SkoolKitTestCase):
             i 00040
         """
         writer = self._get_writer([0] * 40, ctl)
-        writer.write_skool(0, False)
+        writer.write_skool(False)
         skool = self.out.getvalue().split('\n')[:-2]
         address = 0
         ctl = 'b'
@@ -3164,7 +3164,7 @@ class SkoolWriterTest(SkoolKitTestCase):
             i 00030
         """
         writer = self._get_writer([0] * 30, ctl)
-        writer.write_skool(0, False)
+        writer.write_skool(False)
         skool = self.out.getvalue().split('\n')[:-2]
         address = 0
         index = 1
@@ -3767,7 +3767,7 @@ class SkoolWriterTest(SkoolKitTestCase):
             b00002 JR 4          ; This will create a reference
             *00004 JR 0          ; And so will this
         """
-        self._test_write_skool(snapshot, ctl, exp_skool, write_refs=2)
+        self._test_write_skool(snapshot, ctl, exp_skool, params={'ListRefs': 2})
 
     def test_references_to_and_from_an_unused_code_block(self):
         snapshot = [24, 0, 24, 0, 24, 250]
@@ -3788,7 +3788,7 @@ class SkoolWriterTest(SkoolKitTestCase):
             u00002 JR 4          ; This will create a reference
             *00004 JR 0          ; But this won't
         """
-        self._test_write_skool(snapshot, ctl, exp_skool, write_refs=2)
+        self._test_write_skool(snapshot, ctl, exp_skool, params={'ListRefs': 2})
 
     def test_M_directive_terminates_previous_sub_block(self):
         snapshot = [120, 207, 2]
@@ -3837,7 +3837,7 @@ class SkoolWriterTest(SkoolKitTestCase):
         writer = self._get_writer(snapshot, ctl, params=params)
 
         with self.assertRaisesRegex(SkoolKitError, "^Failed to format Ref template: Unknown format code 'X' for object of type 'str'$"):
-            writer.write_skool(1, 0)
+            writer.write_skool(0)
 
     def test_custom_RefFormat(self):
         params = {'RefFormat': '#A{address}'}
@@ -3943,7 +3943,7 @@ class SkoolWriterTest(SkoolKitTestCase):
         writer = self._get_writer(snapshot, ctl, params=params)
 
         with self.assertRaisesRegex(SkoolKitError, "^Unknown field 'lastref' in Refs template$"):
-            writer.write_skool(1, 0)
+            writer.write_skool(0)
 
     def test_custom_EntryPointRef(self):
         params = {'EntryPointRef': 'Used by the subroutine at {ref}.'}
@@ -3975,7 +3975,7 @@ class SkoolWriterTest(SkoolKitTestCase):
         writer = self._get_writer(snapshot, ctl, params=params)
 
         with self.assertRaisesRegex(SkoolKitError, "^Failed to format EntryPointRef template: Unknown format code 'x' for object of type 'str'$"):
-            writer.write_skool(1, 0)
+            writer.write_skool(0)
 
     def test_custom_EntryPointRefs_with_two_referrers(self):
         params = {'EntryPointRefs': 'Used by the subroutines at {refs} and {ref}.'}
@@ -4040,7 +4040,7 @@ class SkoolWriterTest(SkoolKitTestCase):
         writer = self._get_writer(snapshot, ctl, params=params)
 
         with self.assertRaisesRegex(SkoolKitError, "^Unknown field 'finalref' in EntryPointRefs template$"):
-            writer.write_skool(1, 0)
+            writer.write_skool(0)
 
     def test_custom_config_passed_to_disassembly(self):
         params = {

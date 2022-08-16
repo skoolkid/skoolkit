@@ -261,6 +261,7 @@ class SkoolWriter:
         self.disassembly = Disassembly(snapshot, ctl_parser, config, self.asm_hex, options.case == 1)
         self.address_fmt = get_address_format(self.asm_hex, options.case == 1)
         self.config = config
+        self.list_refs = config['ListRefs']
 
     def address_str(self, address, pad=True):
         if self.asm_hex or pad:
@@ -274,13 +275,13 @@ class SkoolWriter:
             lines.pop()
         return lines
 
-    def write_skool(self, write_refs, text):
+    def write_skool(self, text):
         for entry_index, entry in enumerate(self.disassembly.entries):
             if entry_index:
                 write_line('')
-            self._write_entry(entry, write_refs, text)
+            self._write_entry(entry, text)
 
-    def _write_entry(self, entry, write_refs, show_text):
+    def _write_entry(self, entry, show_text):
         if entry.header:
             for line in entry.header:
                 write_line(line)
@@ -299,12 +300,12 @@ class SkoolWriter:
 
         if entry.has_title:
             self.write_comment(entry.title)
-            wrote_desc = self._write_entry_description(entry, write_refs)
+            wrote_desc = self._write_entry_description(entry)
             wrote_desc = self._write_registers(entry, wrote_desc)
         else:
             wrote_desc = False
 
-        self._write_body(entry, wrote_desc, write_refs, show_text and entry.ctl != 't')
+        self._write_body(entry, wrote_desc, show_text and entry.ctl != 't')
 
         self.write_asm_directives(entry.get_ignoreua_directive(END))
         self.write_paragraphs(entry.end_comment)
@@ -314,12 +315,12 @@ class SkoolWriter:
             for line in entry.footer:
                 write_line(line)
 
-    def _write_entry_description(self, entry, write_refs):
+    def _write_entry_description(self, entry):
         wrote_desc = False
         ignoreua_d = entry.get_ignoreua_directive(DESCRIPTION)
-        if write_refs:
+        if self.list_refs:
             referrers = entry.instructions[0].referrers
-            if referrers and (write_refs == 2 or not entry.description):
+            if referrers and (self.list_refs == 2 or not entry.description):
                 self.write_comment('')
                 self.write_asm_directives(ignoreua_d)
                 self.write_referrers(referrers, False)
@@ -428,15 +429,15 @@ class SkoolWriter:
             block.comment[0] = (0, opening + block.comment[0][1])
         self._set_instruction_comments(block, width, closing, show_text)
 
-    def _write_body(self, entry, wrote_desc, write_refs, show_text):
+    def _write_body(self, entry, wrote_desc, show_text):
         op_width = max((self.config['InstructionWidth'], entry.width()))
         comment_width = max(self.comment_width - op_width - 8, self.config['CommentWidthMin'])
         for index, block in enumerate(entry.blocks):
             ignoreua_m = block.get_ignoreua_directive(MID_BLOCK, block.start)
             begun_header = False
-            if index > 0 and entry.ctl == 'c' and write_refs:
+            if index > 0 and entry.ctl == 'c' and self.list_refs:
                 referrers = block.instructions[0].referrers
-                if referrers and (write_refs == 2 or not block.header):
+                if referrers and (self.list_refs == 2 or not block.header):
                     self.write_asm_directives(ignoreua_m)
                     self.write_referrers(referrers)
                     begun_header = True
@@ -453,15 +454,15 @@ class SkoolWriter:
                     self.write_asm_directives(ignoreua_m)
                 self.write_paragraphs(block.header)
             self._format_instruction_comments(block, comment_width, show_text)
-            self._write_instructions(entry, block, op_width, write_refs)
+            self._write_instructions(entry, block, op_width)
 
-    def _write_instructions(self, entry, block, op_width, write_refs):
+    def _write_instructions(self, entry, block, op_width):
         for index, instruction in enumerate(block.instructions):
             ctl = instruction.ctl or ' '
             address = instruction.address
             operation = instruction.operation
             comment = instruction.comment.pop(0)
-            if index > 0 and entry.ctl == 'c' and ctl == '*' and write_refs:
+            if index > 0 and entry.ctl == 'c' and ctl == '*' and self.list_refs:
                 self.write_referrers(instruction.referrers)
             self.write_asm_directives(*instruction.asm_directives)
             self.write_asm_directives(block.get_ignoreua_directive(INSTRUCTION, instruction.address))
