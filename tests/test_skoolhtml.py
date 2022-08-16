@@ -3129,7 +3129,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         macro_t = '#OVER0,0,,,1({})(bg,fg) #UDGARRAY*bg(img)'
         prefix = 'Error while parsing #OVER macro'
 
-        self._assert_error(writer, macro_t.format(''), "No parameters (expected 1)", prefix)
+        self._assert_error(writer, macro_t.format(''), "No parameters (expected 1): '()'", prefix)
         self._assert_error(writer, macro_t.format('1,2'), "Too many parameters (expected 1): '1,2'", prefix)
         self._assert_error(writer, macro_t.format('q'), "Cannot parse integer 'q' in parameter string: 'q'", prefix)
         self._assert_error(writer, macro_t.format('{no}'), "Unrecognised field 'no': {no}", prefix)
@@ -3143,7 +3143,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         macro_t = '#OVER0,0,,,2({})(bg,fg) #UDGARRAY*bg(img)'
         prefix = 'Error while parsing #OVER macro'
 
-        self._assert_error(writer, macro_t.format(''), "No parameters (expected 1)", prefix)
+        self._assert_error(writer, macro_t.format(''), "No parameters (expected 1): '()'", prefix)
         self._assert_error(writer, macro_t.format('1,2'), "Too many parameters (expected 1): '1,2'", prefix)
         self._assert_error(writer, macro_t.format('q'), "Cannot parse integer 'q' in parameter string: 'q'", prefix)
         self._assert_error(writer, macro_t.format('{no}'), "Unrecognised field 'no': {no}", prefix)

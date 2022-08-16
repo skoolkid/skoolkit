@@ -124,7 +124,7 @@ def parse_ints(text, index=0, num=0, defaults=(), names=(), fields=None):
             params = _writer.expand(params, *_cwd)
         if fields is not None:
             params = _format_params(params, params, **fields)
-        return [end] + get_params(params, num, defaults, names, False)
+        return [end] + get_params(params, num, defaults, names, text[index:end], False)
     if names:
         pattern = PARAMS.format(NAMED_PARAM, len(names) - 1)
     elif num > 0:
@@ -132,7 +132,7 @@ def parse_ints(text, index=0, num=0, defaults=(), names=(), fields=None):
     else:
         return [index]
     params = re.match(pattern, text[index:]).group()
-    return [index + len(params)] + get_params(params, num, defaults, names)
+    return [index + len(params)] + get_params(params, num, defaults, names, text[index:])
 
 # API
 def parse_strings(text, index=0, num=0, defaults=()):
@@ -366,7 +366,7 @@ def _parse_image_fname(text, index, fname=''):
             frame = fname
     return end, fname, frame, alt
 
-def get_params(param_string, num=0, defaults=(), names=(), safe=True):
+def get_params(param_string, num, defaults, names, text, safe=True):
     params = []
     named_params = {}
     index = 0
@@ -417,6 +417,10 @@ def get_params(param_string, num=0, defaults=(), names=(), safe=True):
     elif index < req:
         if params:
             raise MissingParameterError("Not enough parameters (expected {}): '{}'".format(req, param_string))
+        if text:
+            if len(text) > 10:
+                text = text[:10] + '...'
+            raise MissingParameterError(f"No parameters (expected {req}): '{text}'")
         raise MissingParameterError("No parameters (expected {})".format(req))
     elif None in params:
         missing_index = params.index(None)

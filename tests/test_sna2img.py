@@ -247,7 +247,7 @@ class Sna2ImgTest(SkoolKitTestCase):
         scrfile = self.write_bin_file(suffix='.scr')
         with self.assertRaises(SkoolKitError) as cm:
             self.run_sna2img('-e FONTx {}'.format(scrfile))
-        self.assertEqual(cm.exception.args[0], 'Invalid #FONT macro: No parameters (expected 1)')
+        self.assertEqual(cm.exception.args[0], "Invalid #FONT macro: No parameters (expected 1): 'x'")
 
     @patch.object(sna2img, 'get_image_writer', get_mock_image_writer)
     @patch.object(sna2img, 'open')

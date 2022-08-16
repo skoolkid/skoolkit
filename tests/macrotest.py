@@ -14,6 +14,15 @@ class CommonSkoolMacroTest:
         cwd = ('<cwd>',) if isinstance(writer, HtmlWriter) else ()
         self.assertEqual(writer.expand(macro, *cwd), writer.test_call(*(cwd + args), **kwargs))
 
+    def _test_no_parameters(self, writer, macro, req, image_macro=False):
+        prefix = ERROR_PREFIX.format(macro)
+        test_m = self._test_invalid_image_macro if image_macro else self._assert_error
+        test_m(writer, f'#{macro}', f'No parameters (expected {req})', prefix)
+        test_m(writer, f'#{macro}x', f"No parameters (expected {req}): 'x'", prefix)
+        test_m(writer, f'#{macro}y irrelevant text', f"No parameters (expected {req}): 'y irreleva...'", prefix)
+        test_m(writer, f'#{macro}()', f"No parameters (expected {req}): '()'", prefix)
+        test_m(writer, f'#{macro}() irrelevant text', f"No parameters (expected {req}): '()'", prefix)
+
     def test_macro_audio_invalid(self):
         writer = self._get_writer()
         prefix = ERROR_PREFIX.format('AUDIO')
@@ -119,9 +128,7 @@ class CommonSkoolMacroTest:
         writer = self._get_writer()
         prefix = ERROR_PREFIX.format('CHR')
 
-        self._assert_error(writer, '#CHR', 'No parameters (expected 1)', prefix)
-        self._assert_error(writer, '#CHRx', 'No parameters (expected 1)', prefix)
-        self._assert_error(writer, '#CHR()', "No parameters (expected 1)", prefix)
+        self._test_no_parameters(writer, 'CHR', 1)
         self._assert_error(writer, '#CHR(x,y)', "Cannot parse integer 'x' in parameter string: 'x,y'", prefix)
         self._assert_error(writer, '#CHR(1,2,3)', "Too many parameters (expected 2): '1,2,3'", prefix)
         self._assert_error(writer, '#CHR(2 ...', 'No closing bracket: (2 ...', prefix)
@@ -197,8 +204,7 @@ class CommonSkoolMacroTest:
         writer = self._get_writer(skool=skool)
         prefix = ERROR_PREFIX.format('D')
 
-        self._assert_error(writer, '#D', 'No parameters (expected 1)', prefix)
-        self._assert_error(writer, '#Dx', 'No parameters (expected 1)', prefix)
+        self._test_no_parameters(writer, 'D', 1)
         self._assert_error(writer, '#D32770', 'Entry at 32770 has no description', prefix)
         self._assert_error(writer, '#D32771', 'Cannot determine description for non-existent entry at 32771', prefix)
         self._assert_error(writer, '#D({no})', "Unrecognised field 'no': {no}", prefix)
@@ -412,7 +418,7 @@ class CommonSkoolMacroTest:
         prefix = ERROR_PREFIX.format('FOO')
 
         writer.expand('#DEF(#FOO(a)(b,c) $a$b$c)')
-        self._assert_error(writer, '#FOO', 'No parameters (expected 1)', prefix)
+        self._test_no_parameters(writer, 'FOO', 1)
         self._assert_error(writer, '#FOO(x)', "Cannot parse integer 'x' in parameter string: 'x'", prefix)
         self._assert_error(writer, '#FOO(1,2)', "Too many parameters (expected 1): '1,2'", prefix)
         self._assert_error(writer, '#FOO(1', 'No closing bracket: (1', prefix)
@@ -428,8 +434,7 @@ class CommonSkoolMacroTest:
         prefix = ERROR_PREFIX.format('BAR')
 
         self.assertEqual(writer.expand('#DEF(#BAR(a,b,c=0) $a$b$c)'), '')
-        self._assert_error(writer, '#BAR', "No parameters (expected 2)", prefix)
-        self._assert_error(writer, '#BAR0', "Missing required argument 'b': '0'", prefix)
+        self._test_no_parameters(writer, 'BAR', 2)
         self._assert_error(writer, '#BAR(0,1,2,3)', "Too many parameters (expected 3): '0,1,2,3'", prefix)
 
         self.assertEqual(writer.expand('#DEF(#BAR()(a,b,c=!) $a$b$c)'), '')
@@ -459,8 +464,7 @@ class CommonSkoolMacroTest:
         writer = self._get_writer()
         prefix = ERROR_PREFIX.format('DEFINE')
 
-        self._assert_error(writer, '#DEFINE', 'No parameters (expected 1)', prefix)
-        self._assert_error(writer, '#DEFINEx', 'No parameters (expected 1)', prefix)
+        self._test_no_parameters(writer, 'DEFINE', 1)
         self._assert_error(writer, '#DEFINE(x)', "Cannot parse integer 'x' in parameter string: 'x'", prefix)
         self._assert_error(writer, '#DEFINE0', 'No text parameter', prefix)
         self._assert_error(writer, '#DEFINE0(FOO)', "Not enough parameters (expected 2): 'FOO'", prefix)
@@ -483,7 +487,7 @@ class CommonSkoolMacroTest:
         prefix = ERROR_PREFIX.format('FOO')
 
         writer.expand('#DEFINE1,2(FOO,{0}{1}{2})')
-        self._assert_error(writer, '#FOO', 'No parameters (expected 1)', prefix)
+        self._test_no_parameters(writer, 'FOO', 1)
         self._assert_error(writer, '#FOO(x)', "Cannot parse integer 'x' in parameter string: 'x'", prefix)
         self._assert_error(writer, '#FOO(1,2)', "Too many parameters (expected 1): '1,2'", prefix)
         self._assert_error(writer, '#FOO(1', 'No closing bracket: (1', prefix)
@@ -556,9 +560,7 @@ class CommonSkoolMacroTest:
         writer = self._get_writer()
         prefix = ERROR_PREFIX.format('EVAL')
 
-        self._assert_error(writer, '#EVAL', 'No parameters (expected 1)', prefix)
-        self._assert_error(writer, '#EVAL()', 'No parameters (expected 1)', prefix)
-        self._assert_error(writer, '#EVALx', 'No parameters (expected 1)', prefix)
+        self._test_no_parameters(writer, 'EVAL', 1)
         self._assert_error(writer, '#EVAL,', "Missing required parameter in position 1/1: ','", prefix)
         self._assert_error(writer, '#EVAL(,)', "Missing required parameter in position 1/1: ','", prefix)
         self._assert_error(writer, '#EVAL,16', "Missing required parameter in position 1/1: ',16'", prefix)
@@ -574,8 +576,7 @@ class CommonSkoolMacroTest:
         writer = self._get_writer()
         prefix = ERROR_PREFIX.format('FONT')
 
-        self._test_invalid_image_macro(writer, '#FONT', 'No parameters (expected 1)', prefix)
-        self._test_invalid_image_macro(writer, '#FONT()', 'No parameters (expected 1)', prefix)
+        self._test_no_parameters(writer, 'FONT', 1, True)
         self._test_invalid_image_macro(writer, '#FONT:', 'No text parameter', prefix)
         self._test_invalid_image_macro(writer, '#FONT:()0', 'Empty message: ()', prefix)
         self._test_invalid_image_macro(writer, '#FONT,10', "Missing required argument 'addr': ',10'", prefix)
@@ -679,8 +680,7 @@ class CommonSkoolMacroTest:
         writer.fields['x'] = 'x'
         prefix = ERROR_PREFIX.format('FOR')
 
-        self._assert_error(writer, '#FOR', 'No parameters (expected 2)', prefix)
-        self._assert_error(writer, '#FOR()', 'No parameters (expected 2)', prefix)
+        self._test_no_parameters(writer, 'FOR', 2)
         self._assert_error(writer, '#FOR0', "Not enough parameters (expected 2): '0'", prefix)
         self._assert_error(writer, '#FOR(0)', "Not enough parameters (expected 2): '0'", prefix)
         self._assert_error(writer, '#FOR,1(n,n)', "Missing required parameter in position 1/2: ',1'", prefix)
@@ -1463,8 +1463,7 @@ class CommonSkoolMacroTest:
         writer = self._get_writer()
         prefix = ERROR_PREFIX.format('N')
 
-        self._assert_error(writer, '#N', "No parameters (expected 1)", prefix)
-        self._assert_error(writer, '#N()', "No parameters (expected 1)", prefix)
+        self._test_no_parameters(writer, 'N', 1)
         self._assert_error(writer, '#N(4,3,2,1)', "No text parameter", prefix)
         self._assert_error(writer, '#N,', "Missing required parameter in position 1/1: ','", prefix)
         self._assert_error(writer, '#N(,)', "Missing required parameter in position 1/1: ','", prefix)
@@ -1481,8 +1480,7 @@ class CommonSkoolMacroTest:
         writer = self._get_writer()
         prefix = ERROR_PREFIX.format('OVER')
 
-        self._test_invalid_image_macro(writer, '#OVER', "No parameters (expected 2)", prefix)
-        self._test_invalid_image_macro(writer, '#OVERx', "No parameters (expected 2)", prefix)
+        self._test_no_parameters(writer, 'OVER', 2, True)
         self._test_invalid_image_macro(writer, '#OVER1', "Missing required argument 'y': '1'", prefix)
         self._test_invalid_image_macro(writer, '#OVER1,y(f)', "Missing required argument 'y': '1,'", prefix)
         self._test_invalid_image_macro(writer, '#OVER1(f)', "Missing required argument 'y': '1'", prefix)
@@ -1534,8 +1532,7 @@ class CommonSkoolMacroTest:
         writer.fields['x'] = 'x'
         prefix = ERROR_PREFIX.format('PEEK')
 
-        self._assert_error(writer, '#PEEK', "No parameters (expected 1)", prefix)
-        self._assert_error(writer, '#PEEK()', "No parameters (expected 1)", prefix)
+        self._test_no_parameters(writer, 'PEEK', 1)
         self._assert_error(writer, '#PEEK(3', "No closing bracket: (3", prefix)
         self._assert_error(writer, '#PEEK(4,5)', "Too many parameters (expected 1): '4,5'", prefix)
         self._assert_error(writer, '#PEEK(x)', "Cannot parse integer 'x' in parameter string: 'x'", prefix)
@@ -1547,8 +1544,7 @@ class CommonSkoolMacroTest:
         writer = self._get_writer()
         prefix = ERROR_PREFIX.format('PLOT')
 
-        self._test_invalid_image_macro(writer, '#PLOT', "No parameters (expected 2)", prefix)
-        self._test_invalid_image_macro(writer, '#PLOTx', "No parameters (expected 2)", prefix)
+        self._test_no_parameters(writer, 'PLOT', 2, True)
         self._test_invalid_image_macro(writer, '#PLOT1', "Missing required argument 'y': '1'", prefix)
         self._test_invalid_image_macro(writer, '#PLOT1,y(f)', "Missing required argument 'y': '1,'", prefix)
         self._test_invalid_image_macro(writer, '#PLOT1(f)', "Missing required argument 'y': '1'", prefix)
@@ -1609,8 +1605,7 @@ class CommonSkoolMacroTest:
         writer = self._get_writer(snapshot=[0])
         prefix = ERROR_PREFIX.format('POKES')
 
-        self._assert_error(writer, '#POKES', 'No parameters (expected 2)', prefix)
-        self._assert_error(writer, '#POKES()', 'No parameters (expected 2)', prefix)
+        self._test_no_parameters(writer, 'POKES', 2)
         self._assert_error(writer, '#POKES0', "Not enough parameters (expected 2): '0'", prefix)
         self._assert_error(writer, '#POKES(0)', "Not enough parameters (expected 2): '0'", prefix)
         self._assert_error(writer, '#POKES0,1;1', "Not enough parameters (expected 2): '1'", prefix)
@@ -1666,9 +1661,9 @@ class CommonSkoolMacroTest:
         writer = self._get_writer()
         prefix = ERROR_PREFIX.format('R')
 
-        self._assert_error(writer, '#R', "No parameters (expected 1)", prefix)
-        self._assert_error(writer, '#R@main', "No parameters (expected 1)", prefix)
-        self._assert_error(writer, '#R#bar', "No parameters (expected 1)", prefix)
+        self._test_no_parameters(writer, 'R', 1)
+        self._assert_error(writer, '#R@main', "No parameters (expected 1): '@main'", prefix)
+        self._assert_error(writer, '#R#bar', "No parameters (expected 1): '#bar'", prefix)
         self._assert_error(writer, '#R(baz)', "Cannot parse integer 'baz' in parameter string: 'baz'", prefix)
         self._assert_error(writer, '#R32768(qux', "No closing bracket: (qux", prefix)
         self._assert_error(writer, '#R({no})', "Unrecognised field 'no': {no}", prefix)
@@ -1819,8 +1814,7 @@ class CommonSkoolMacroTest:
         writer = self._get_writer(snapshot=[0])
         prefix = ERROR_PREFIX.format('STR')
 
-        self._assert_error(writer, '#STR', "No parameters (expected 1)", prefix)
-        self._assert_error(writer, '#STR()', "No parameters (expected 1)", prefix)
+        self._test_no_parameters(writer, 'STR', 1)
         self._assert_error(writer, '#STR(1,2,3,4)', "Too many parameters (expected 3): '1,2,3,4'", prefix)
         self._assert_error(writer, '#STR(2', "No closing bracket: (2", prefix)
         self._assert_error(writer, '#STR(0,5$3)', "Cannot parse integer '5$3' in parameter string: '0,5$3'", prefix)
@@ -1866,11 +1860,10 @@ class CommonSkoolMacroTest:
         writer = self._get_writer(skool=skool)
         prefix = ERROR_PREFIX.format('TSTATES')
 
+        self._test_no_parameters(writer, 'TSTATES', 1)
         self._assert_error(writer, '#TSTATES32768,32769', "Failed to get timing for instruction at 32769", prefix)
         self._assert_error(writer, '#TSTATES32769', "Failed to get timing for instruction at 32769", prefix)
         self._assert_error(writer, '#TSTATES32770', "Failed to get timing for instruction at 32770", prefix)
-        self._assert_error(writer, '#TSTATES', "No parameters (expected 1)", prefix)
-        self._assert_error(writer, '#TSTATES()', "No parameters (expected 1)", prefix)
         self._assert_error(writer, '#TSTATES(1,2,3,4)', "Too many parameters (expected 3): '1,2,3,4'", prefix)
         self._assert_error(writer, '#TSTATES(2', "No closing bracket: (2", prefix)
         self._assert_error(writer, '#TSTATES(0,5$3)', "Cannot parse integer '5$3' in parameter string: '0,5$3'", prefix)
@@ -1883,8 +1876,7 @@ class CommonSkoolMacroTest:
         writer = self._get_writer(snapshot=[0] * 8)
         prefix = ERROR_PREFIX.format('UDG')
 
-        self._test_invalid_image_macro(writer, '#UDG', 'No parameters (expected 1)', prefix)
-        self._test_invalid_image_macro(writer, '#UDG()', 'No parameters (expected 1)', prefix)
+        self._test_no_parameters(writer, 'UDG', 1, True)
         self._test_invalid_image_macro(writer, '#UDG,5', "Missing required argument 'addr': ',5'", prefix)
         self._test_invalid_image_macro(writer, '#UDG(,5)', "Missing required argument 'addr': ',5'", prefix)
         self._test_invalid_image_macro(writer, '#UDGscale=2', "Missing required argument 'addr': 'scale=2'", prefix)
@@ -1910,8 +1902,7 @@ class CommonSkoolMacroTest:
         writer = self._get_writer(snapshot=[0] * 16)
         prefix = ERROR_PREFIX.format('UDGARRAY')
 
-        self._test_invalid_image_macro(writer, '#UDGARRAY', 'No parameters (expected 1)', prefix)
-        self._test_invalid_image_macro(writer, '#UDGARRAY()', 'No parameters (expected 1)', prefix)
+        self._test_no_parameters(writer, 'UDGARRAY', 1, True)
 
         self._test_invalid_image_macro(writer, '#UDGARRAY,5;0(foo)', "Missing required argument 'width': ',5'", prefix)
         self._test_invalid_image_macro(writer, '#UDGARRAY(,5);0(foo)', "Missing required argument 'width': ',5'", prefix)
@@ -1986,8 +1977,7 @@ class CommonSkoolMacroTest:
         writer = self._get_writer()
         prefix = ERROR_PREFIX.format('UDGS')
 
-        self._test_invalid_image_macro(writer, '#UDGS', 'No parameters (expected 2)', prefix)
-        self._test_invalid_image_macro(writer, '#UDGS()', 'No parameters (expected 2)', prefix)
+        self._test_no_parameters(writer, 'UDGS', 2, True)
         self._test_invalid_image_macro(writer, '#UDGS2', "Missing required argument 'height': '2'", prefix)
         self._test_invalid_image_macro(writer, '#UDGS(2)', "Missing required argument 'height': '2'", prefix)
         self._test_invalid_image_macro(writer, '#UDGS,2', "Missing required argument 'width': ',2'", prefix)
