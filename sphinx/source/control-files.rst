@@ -61,6 +61,8 @@ syntax also supports the declaration of the following things:
 
 The syntax for declaring these things is described in the following sections.
 
+.. _blockDescriptions:
+
 Block descriptions
 ------------------
 To provide a description for a code block at 24576 (for example), use the ``D``
@@ -75,6 +77,8 @@ separate ``D`` directive::
   D 24576 This is the first paragraph of the description of the routine at 24576.
   D 24576 This is the second paragraph of the description of the routine at 24576.
 
+.. _registerValues:
+
 Register values
 ---------------
 To declare the values of the registers upon entry to or exit from the routine
@@ -85,6 +89,8 @@ at 24576, add one line per register with the ``R`` directive::
 
 See the documentation on :ref:`entry headers <entryHeaderFormat>` for more
 details on how to format a register description line.
+
+.. _blockStartComments:
 
 Block start comments
 --------------------
@@ -99,6 +105,8 @@ a separate ``N`` directive::
   N 24576 This is the first paragraph of the start comment.
   N 24576 This is the second paragraph of the start comment.
 
+.. _midBlockComments:
+
 Mid-block comments
 ------------------
 To declare a mid-block comment that will appear above the instruction at 24592,
@@ -111,6 +119,8 @@ with a separate ``N`` directive::
 
   N 24592 This is the first paragraph of the mid-block comment.
   N 24592 This is the second paragraph of the mid-block comment.
+
+.. _blockEndComments:
 
 Block end comments
 ------------------
@@ -183,6 +193,8 @@ assumed to end where the next sub-block starts. So in::
 
 the sub-block at 24580 has length 8, because it is implicitly terminated by the
 following sub-block at 24588.
+
+.. _subBlockLengths:
 
 Sub-block lengths
 -----------------
@@ -550,6 +562,8 @@ This can be encoded thus::
 
 and the terminal character will be restored in the same format.
 
+.. _asmDirectives-ctl:
+
 ASM directives
 --------------
 To declare an ASM directive for a block or an individual instruction, use the
@@ -663,6 +677,204 @@ In this case the block is preserved by the ``>`` directive with the parameter
 ``1`` (indicating a 'footer') following the address of the last entry::
 
   > 65535,1 ; And that was the disassembly.
+
+Quick reference
+---------------
+
+.. _blockDirectives:
+
+Block directives
+^^^^^^^^^^^^^^^^
+Every block directive has the format::
+
+  d address[ title]
+
+where ``address`` is the address of the block, and ``title`` (optional) is its
+title. The block directive ``d`` controls how the contents of the block are
+disassembled by default, and must be one of the following:
+
+* ``b`` - data block (DEFB statements)
+* ``c`` - code block (assembly language instructions)
+* ``g`` - game status buffer entry (DEFB statements)
+* ``i`` - block that will be ignored
+* ``s`` - block containing bytes that are all the same value (DEFS statement)
+* ``t`` - block containing text (DEFM statements)
+* ``u`` - unused block of memory (DEFB statements)
+* ``w`` - block containing words (DEFW statements)
+
+B directive
+^^^^^^^^^^^
+The ``B`` sub-block directive disassembles an address range as one or more DEFB
+statements::
+
+  B address[,length[,sublengths]][ comment]
+
+* ``address`` is the start address
+* ``length`` is the length of the address range; if not given, the range ends
+  where the next declared sub-block starts
+* ``sublengths`` controls the DEFB statement lengths and byte value formats;
+  see :ref:`subBlockLengths` and :ref:`numberBases` for more details
+* ``comment`` is the comment applied to the sub-block
+
+C directive
+^^^^^^^^^^^
+The ``C`` sub-block directive disassembles an address range as code (assembly
+language instructions)::
+
+  C address[,length[,sublengths]][ comment]
+
+* ``address`` is the start address
+* ``length`` is the length of the address range; if not given, the range ends
+  where the next declared sub-block starts
+* ``sublengths`` controls the instruction operand value formats; see
+  :ref:`numberBases` for more details
+* ``comment`` is the comment applied to the sub-block
+
+D directive
+^^^^^^^^^^^
+The ``D`` directive declares a description for a code or data block::
+
+  D address description
+
+* ``address`` is the address of the block
+* ``description`` is the description
+
+See :ref:`blockDescriptions` for more details.
+
+E directive
+^^^^^^^^^^^
+The ``E`` directive declares a block end comment::
+
+  E address comment
+
+* ``address`` is the address of the block
+* ``comment`` is the comment
+
+See :ref:`blockEndComments` for more details.
+
+L directive
+^^^^^^^^^^^
+The ``L`` directive defines a control file loop that repeats a sequence of
+other control directives::
+
+  L start,length,count[,blocks]
+
+See :ref:`ctlLoops` for more details.
+
+.. _mDirective:
+
+M directive
+^^^^^^^^^^^
+The ``M`` directive applies a comment to a contiguous group of sub-blocks::
+
+  M address[,length[,repeat]] comment
+
+* ``address`` is the start address of the group of sub-blocks
+* ``length`` is the length of the group; if not given, the directive covers all
+  sub-blocks up to either the next mid-block comment or the end of the
+  containing block (whichever is closer)
+* ``repeat`` is ``1`` to apply the comment to each instruction line in the
+  group, or ``0`` to apply it to the group as a whole (default: ``0``)
+* ``comment`` is the comment
+
+See :ref:`subBlockSyntax` for more details.
+
+N directive
+^^^^^^^^^^^
+The ``N`` directive declares a block start comment or mid-block comment::
+
+  N address comment
+
+* ``address`` is the address of the instruction above which to place the
+  comment
+* ``comment`` is the comment
+
+See :ref:`blockStartComments` and :ref:`midBlockComments` for more details.
+
+R directive
+^^^^^^^^^^^
+The ``R`` directive declares an input or output register value for a code
+block::
+
+  R address register
+
+* ``address`` is the address of the code block
+* ``register`` is a description of the register name and value
+
+See :ref:`registerValues` for more details.
+
+S directive
+^^^^^^^^^^^
+The ``S`` sub-block directive disassembles an address range as one or more DEFS
+statements::
+
+  S address[,length[,sublengths]][ comment]
+
+* ``address`` is the start address
+* ``length`` is the length of the address range; if not given, the range ends
+  where the next declared sub-block starts
+* ``sublengths`` controls the DEFS statement lengths and byte value formats;
+  see :ref:`subBlockLengths` and :ref:`numberBases` for more details
+* ``comment`` is the comment applied to the sub-block
+
+T directive
+^^^^^^^^^^^
+The ``T`` sub-block directive disassembles an address range as one or more DEFM
+statements::
+
+  T address[,length[,sublengths]][ comment]
+
+* ``address`` is the start address
+* ``length`` is the length of the address range; if not given, the range ends
+  where the next declared sub-block starts
+* ``sublengths`` controls the DEFM statement lengths; see
+  :ref:`subBlockLengths` for more details
+* ``comment`` is the comment applied to the sub-block
+
+W directive
+^^^^^^^^^^^
+The ``W`` sub-block directive disassembles an address range as one or more DEFW
+statements::
+
+  W address[,length[,sublengths]][ comment]
+
+* ``address`` is the start address
+* ``length`` is the length of the address range; if not given, the range ends
+  where the next declared sub-block starts
+* ``sublengths`` controls the DEFW statement lengths and word value formats;
+  see :ref:`subBlockLengths` and :ref:`numberBases` for more details
+* ``comment`` is the comment applied to the sub-block
+
+' ' directive
+^^^^^^^^^^^^^
+The ' ' (space) sub-block directive is equivalent to a ``B``, ``C``, ``S``,
+``T`` or ``W`` directive, according to the default disassembly type of the
+containing block.
+
+See :ref:`blockDirectives` for more details.
+
+@ directive
+^^^^^^^^^^^
+The ``@`` directive declares an ASM directive at a given address::
+
+  @ address directive[=value]
+
+See :ref:`asmDirectives-ctl` for more details.
+
+. and : directives
+^^^^^^^^^^^^^^^^^^
+The ``.`` and ``:`` directives provide an alternative method of specifying
+comments for block and sub-block directives that can be used to preserve line
+breaks.
+
+See :ref:`dotDirective` for more details.
+
+> directive
+^^^^^^^^^^^
+The ``>`` directive declares a line of text that lies outside a regular entry
+(code or data block).
+
+See :ref:`nonEntryBlocks-ctl` for more details.
 
 Control file comments
 ---------------------

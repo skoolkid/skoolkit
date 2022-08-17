@@ -21,8 +21,8 @@ Changelog
 * Added the ``Timings`` configuration parameter for
   :ref:`sna2skool.py <sna2skool-conf>` (for showing instruction timings in the
   comment fields)
-* Added support to the ``M`` :ref:`control directive <subBlockSyntax>` for
-  applying its comment to each instruction in its range
+* Added support to the :ref:`mDirective` for applying its comment to each
+  instruction in its range
 * When :ref:`tap2sna.py` ignores a headerless block because no ``--ram load``
   options have been specified, it now prints a warning
 * Amended the :ref:`t_register` ASM template so that it can handle empty
