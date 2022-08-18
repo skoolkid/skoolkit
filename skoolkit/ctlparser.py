@@ -82,6 +82,7 @@ def _parse_length(length, default_base, required):
 class CtlParser:
     def __init__(self, ctls=None):
         self._subctls = {}
+        self._ends = {}
         self._titles = {}
         self._instruction_comments = {}
         self._descriptions = defaultdict(list)
@@ -169,6 +170,7 @@ class CtlParser:
                     self._instruction_comments[start] = comment
                     if end:
                         self._subctls[end] = None
+                        self._ends[start] = end
                 if ctl != 'L' and lengths:
                     self._lengths[start] = lengths[0][1]
                     if len(lengths) > 1:
@@ -349,9 +351,14 @@ class CtlParser:
 
         # Set sub-block end addresses
         for block in blocks:
-            for i, sub_block in enumerate(block.blocks[1:]):
-                block.blocks[i].end = sub_block.start
-            block.blocks[-1].end = block.end
+            for i, s in enumerate(block.blocks, 1):
+                if i < len(block.blocks):
+                    s.end = block.blocks[i].start
+                else:
+                    s.end = block.end
+                end = self._ends.get(s.start, s.end)
+                if s.ctl != 'c' and end > s.end:
+                    warn('Truncated {0} directive at {1}/${1:04X} to length {2}'.format(s.ctl.upper(), s.start, s.end - s.start))
 
         # Set sub-block attributes
         asm_directives = tuple(self._asm_directives.items())

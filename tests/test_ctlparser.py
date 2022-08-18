@@ -2450,3 +2450,25 @@ class CtlParserTest(SkoolKitTestCase):
 
         blocks = self._get_ctl_parser(ctl).get_blocks()
         self._check_instruction_comments(exp_instruction_comments, blocks)
+
+    def test_overlong_sub_blocks_are_truncated(self):
+        ctl = """
+            b 60000
+            B 60000,3 This creates an implicit B directive at 60003...
+            B 60002,4 ...which truncates this B directive to length 1
+            B 60004,3
+            t 60005
+        """
+        ctl_parser = self._get_ctl_parser(ctl)
+        blocks = ctl_parser.get_blocks()
+
+        b = blocks[0].blocks
+        self.assertEqual((b[0].start, b[0].end), (60000, 60002))
+        self.assertEqual((b[1].start, b[1].end), (60002, 60003))
+        self.assertEqual((b[2].start, b[2].end), (60003, 60004)) # Implicit B
+        self.assertEqual((b[3].start, b[3].end), (60004, 60005))
+
+        warnings = self.err.getvalue().split('\n')
+        self.assertEqual(warnings[0], 'WARNING: Truncated B directive at 60000/$EA60 to length 2')
+        self.assertEqual(warnings[1], 'WARNING: Truncated B directive at 60002/$EA62 to length 1')
+        self.assertEqual(warnings[2], 'WARNING: Truncated B directive at 60004/$EA64 to length 1')
