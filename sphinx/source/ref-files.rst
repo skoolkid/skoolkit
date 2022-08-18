@@ -136,9 +136,25 @@ Recognised parameters are:
   as the skool file, and before any others named on the :ref:`skool2html.py`
   command line)
 
-For information on how to create your own Python class for writing an HTML
-disassembly, see the documentation on
+The ``Expand`` parameter can be used along with the :ref:`INCLUDE` macro to
+place all the text to be expanded in its own section. This is particularly
+useful when that text cannot easily be placed on a single line. For example::
+
+  [Config]
+  Expand=#INCLUDE(Expand)
+
+  [Expand]
+  ; Multiple lines of text to be expanded here
+  ...
+
+For information on using the ``HtmlWriterClass`` parameter and creating your
+own Python class for writing an HTML disassembly, see the documentation on
 :ref:`extending SkoolKit <extendingSkoolKit>`.
+
+The ``InitModule`` parameter can be used to modify the built-in ``HtmlWriter``
+class before it is imported by :ref:`skool2html.py`. This is an alternative to
+creating your own ``HtmlWriter`` class that is suitable when the required
+modification is small.
 
 Note that the ``Config`` section must appear in a ref file that is read
 automatically by :ref:`skool2html.py` by virtue of having the same filename
