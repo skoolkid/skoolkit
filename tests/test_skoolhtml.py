@@ -1466,7 +1466,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
             'ClockSpeed': 3500000,
             'ContentionBegin': 14334,
             'ContentionEnd': 57248,
-            'ContentionFactor': 34,
+            'ContentionFactor': 51,
             'FrameDuration': 69888,
             'InterruptDelay': 942,
             'MaxAmplitude': 65536,

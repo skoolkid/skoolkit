@@ -44,7 +44,7 @@ Recognised parameters are:
 * ``ContentionEnd`` - when memory contention ends, in T-states from the start
   of a frame (default: 57248)
 * ``ContentionFactor`` - percentage slowdown when memory contention is in
-  effect (default: 34)
+  effect (default: 51)
 * ``FrameDuration`` - length of a frame in T-states (default: 69888)
 * ``InterruptDelay`` - delay in T-states caused by an interrupt routine
   (default: 942)

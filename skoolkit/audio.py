@@ -31,7 +31,7 @@ class AudioWriter:
             CLOCK_SPEED: 3500000,
             CONTENTION_BEGIN: 14334,
             CONTENTION_END: 57248,
-            CONTENTION_FACTOR: 34,
+            CONTENTION_FACTOR: 51,
             FRAME_DURATION: 69888,
             INTERRUPT_DELAY: 942,
             MAX_AMPLITUDE: 65536,
@@ -55,23 +55,50 @@ class AudioWriter:
 
     def _add_contention(self, delays, contention, interrupts, cycle):
         c_begin, c_end = self.options[CONTENTION_BEGIN], self.options[CONTENTION_END]
-        c_factor = self.options[CONTENTION_FACTOR] / 100
+        c_factor = 1 + self.options[CONTENTION_FACTOR] / 100
         i_delay = self.options[INTERRUPT_DELAY]
         f_duration = self.options[FRAME_DURATION]
-        for i, delay in enumerate(delays):
-            d = 0
-            while d < delay:
+
+        for i in range(len(delays)):
+            d_offset = 0
+            while 1:
                 if interrupts and cycle == 0:
                    cycle = i_delay
                    if i:
-                       delay += i_delay
-                end = min(f_duration, cycle + delay - d)
-                if contention and c_begin <= end and cycle < c_end:
-                    contended_cycles = min(c_end, end) - max(cycle, c_begin)
-                    delay += int(contended_cycles * c_factor)
-                d += end - cycle
-                cycle = end % f_duration
-            delays[i] = delay
+                       delays[i] += i_delay
+                       d_offset += i_delay
+                d_remaining = delays[i] - d_offset
+                if contention and cycle < c_end:
+                    if cycle < c_begin:
+                        gap = c_begin - cycle
+                        if d_offset + gap >= delays[i]:
+                            # Delay ends before next contended interval starts
+                            cycle += d_remaining
+                            break
+                        # Delay crosses into contended interval
+                        d_offset += gap
+                        cycle = c_begin
+                    else:
+                        c_period = c_end - cycle
+                        d_rem_contended = int(d_remaining * c_factor)
+                        if d_rem_contended < c_period:
+                            # Delay ends within contended interval
+                            delays[i] = d_offset + d_rem_contended
+                            cycle += d_rem_contended
+                            break
+                        # Delay crosses into uncontended interval
+                        cd_cycles = int(c_period / c_factor)
+                        delays[i] += c_period - cd_cycles
+                        d_offset += cd_cycles
+                        cycle = c_end
+                else:
+                    if d_remaining < f_duration - cycle:
+                        # Delay ends before frame boundary
+                        cycle += d_remaining
+                        break
+                    # Delay crosses frame boundary
+                    d_offset += f_duration - cycle
+                    cycle = 0
 
     def _delays_to_samples(self, delays):
         max_amplitude = self.options[MAX_AMPLITUDE]
