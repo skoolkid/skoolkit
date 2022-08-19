@@ -1549,11 +1549,11 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
     def test_macro_audio_with_delays(self):
         writer = self._get_writer(skool='', mock_file_info=True)
         fname = 'sound.wav'
-        delays = '[500]*10'
+        delays = '[500,100+1,200-2,50+17*(300%256)]*3'
         macro = f'#AUDIO({fname})({delays})'
         exp_src = f'../audio/{fname}'
         exp_path = f'audio/{fname}'
-        exp_delays = [500] * 10
+        exp_delays = [500, 101, 198, 798] * 3
         self._test_audio_macro(writer, macro, exp_src, exp_path, exp_delays)
 
     def test_macro_audio_with_contention(self):
@@ -1704,7 +1704,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         writer, prefix = CommonSkoolMacroTest.test_macro_audio_invalid(self)
         self._test_invalid_audio_macro(writer, '#AUDIO(f.wav)({d})', "Unrecognised field 'd': {d}", prefix)
         self._test_invalid_audio_macro(writer, '#AUDIO(f.wav)({d)', "Invalid format string: {d", prefix)
-        self._test_invalid_audio_macro(writer, '#AUDIO(f.wav)(z)', "Invalid delays specification: 'z'", prefix)
+        self._test_invalid_audio_macro(writer, '#AUDIO(f.wav)(10&6/2)', "Invalid character(s) [&/] in delays specification: '10&6/2'", prefix)
         self._test_invalid_audio_macro(writer, '#AUDIO(f.wav)([1]**2)', "Cannot evaluate delays: '[1]**2'", prefix)
         self._test_invalid_audio_macro(writer, '#AUDIO(f.wav)([1)', "Cannot evaluate delays: '[1'", prefix)
         self._test_invalid_audio_macro(writer, '#AUDIO(f.wav)(1])', "Cannot evaluate delays: '1]'", prefix)

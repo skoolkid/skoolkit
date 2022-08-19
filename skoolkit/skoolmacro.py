@@ -521,12 +521,14 @@ def _flatten(elements):
     return f
 
 def _eval_delays(spec):
-    if set(spec) <= frozenset(' 0123456789,*[]'):
+    valid_chars = frozenset(' 0123456789,*+-%()[]')
+    if set(spec) <= valid_chars:
         try:
             return _flatten(eval(f'[{spec}]'))
         except:
             raise InvalidParameterError(f"Cannot evaluate delays: '{spec}'")
-    raise InvalidParameterError(f"Invalid delays specification: '{spec}'")
+    invalid_chars = ''.join(sorted(set(spec) - valid_chars))
+    raise InvalidParameterError(f"Invalid character(s) [{invalid_chars}] in delays specification: '{spec}'")
 
 def parse_audio(writer, text, index, need_audio=None):
     # #AUDIO[flags,offset](fname)[(delays)]

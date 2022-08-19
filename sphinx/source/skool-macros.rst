@@ -898,6 +898,9 @@ file of duration 1131000 / 3500000 = 0.323s (assuming that no memory contention
 is simulated and interrupts are disabled, i.e. bits 0 and 1 of ``flags`` are
 reset).
 
+The characters allowed in the ``delays`` parameter are ' ' (space), the digits
+0-9, and any of ``,*+-%()[]``.
+
 If ``delays`` is specified but ``fname`` does not end with '.wav', no audio
 file is written. This enables the ``delays`` parameter to be kept in place as a
 reminder of how an original WAV file was created by the ``#AUDIO`` macro before
