@@ -410,30 +410,32 @@ The parameter string of the ``#EVAL`` macro may contain
 The ``#FOR`` macro expands to a sequence of strings based on a range of
 integers. ::
 
-  #FORstart,stop[,step](var,string[,sep,fsep])
+  #FORstart,stop[,step,commas](var,string[,sep,fsep])
 
 * ``start`` is first integer in the range
 * ``stop`` is the final integer in the range
 * ``step`` is the gap between each integer in the range (default: 1)
+* ``commas`` is 1 to prefix each separator (``sep``) with a comma, or 0 to
+  leave it alone (default: 0)
 * ``var`` is the variable name; for each integer in the range, it evaluates to
   that integer
 * ``string`` is the output string that is evaluated for each integer in the
   range; wherever the variable name (``var``) appears, its value is substituted
 * ``sep`` is the separator placed between each output string (default: the
-  empty string)
+  empty string); this is prefixed by a comma if ``commas`` is 1
 * ``fsep`` is the separator placed between the final two output strings
   (default: ``sep``)
 
 For example::
 
-  ; The next three bytes (#FOR31734,31736||n|#PEEKn|, | and ||) define the
+  ; The next three bytes (#FOR31734,31736,,1(n,#PEEKn, , and )) define the
   ; item locations.
    31734 DEFB 24,17,156
 
 This instance of the ``#FOR`` macro expands to '24, 17 and 156'.
 
-The integer parameters of the ``#FOR`` macro (``start``, ``stop``, ``step``)
-may contain :ref:`replacement fields <replacementFields>`.
+The integer parameters of the ``#FOR`` macro (``start``, ``stop``, ``step``,
+``commas``) may contain :ref:`replacement fields <replacementFields>`.
 
 See :ref:`stringParameters` for details on alternative ways to supply the
 ``var``, ``string``, ``sep`` and ``fsep`` parameters.
@@ -441,6 +443,8 @@ See :ref:`stringParameters` for details on alternative ways to supply the
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 8.7     | Added the ``commas`` parameter                                    |
++---------+-------------------------------------------------------------------+
 | 8.2     | Added support for replacement fields in the integer parameters    |
 +---------+-------------------------------------------------------------------+
 | 5.1     | New                                                               |
@@ -569,7 +573,7 @@ arithmetic expression. ::
 
 For example::
 
-  ; #FOR0,7||n|#IF(#PEEK47134 & 2**(7-n))(X,O)||
+  ; #FOR0,7(n,#IF(#PEEK47134 & 2**(7-n))(X,O))
    47134 DEFB 170
 
 This instance of the ``#IF`` macro is used (in combination with a ``#FOR``
@@ -677,7 +681,7 @@ are integers. ::
 For example::
 
   ; The next three bytes specify the directions that are available from here:
-  ; #FOR56112,56114||q|#MAP(#PEEKq)(?,0:left,1:right,2:up,3:down)|, | and ||.
+  ; #FOR56112,56114,,1(q,#MAP(#PEEKq)(?,0:left,1:right,2:up,3:down), , and ).
    56112 DEFB 0,1,3
 
 This instance of the ``#MAP`` macro is used (in combination with a ``#FOR``

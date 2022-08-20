@@ -771,12 +771,14 @@ def parse_font(text, index=0, fields=None):
     return end, crop_rect, fname, frame, alt, params
 
 def parse_for(fields, text, index, *cwd):
-    # #FORstart,stop[,step](var,string[,sep,fsep])
-    end, start, stop, step = parse_ints(text, index, 3, (1,), fields=fields)
+    # #FORstart,stop[,step,commas](var,string[,sep,fsep])
+    end, start, stop, step, commas = parse_ints(text, index, 4, (1, 0), fields=fields)
     try:
         end, (var, s, sep, fsep) = parse_strings(text, end, 4, ('', None))
     except (NoParametersError, MissingParameterError) as e:
         raise MacroParsingError("No variable name: {}".format(text[index:e.args[1]]))
+    if commas:
+        sep = ',' + sep
     if fsep is None:
         fsep = sep
     if fields['mode']['html']:

@@ -21,6 +21,8 @@ Changelog
 * Added the ``Timings`` configuration parameter for
   :ref:`sna2skool.py <sna2skool-conf>` (for showing instruction timings in the
   comment fields)
+* Added the ``commas`` parameter to the :ref:`FOR` macro (for prefixing each
+  separator with a comma)
 * Added support to the :ref:`mDirective` for applying its comment to each
   instruction in its range
 * When :ref:`tap2sna.py` ignores a headerless block because no ``--ram load``

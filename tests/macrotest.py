@@ -675,6 +675,29 @@ class CommonSkoolMacroTest:
         output = writer.expand('#FOR1,3//$s/$s/, / and //')
         self.assertEqual(output, '1, 2 and 3')
 
+    def test_macro_for_with_commas_parameter(self):
+        writer = self._get_writer()
+
+        # No commas
+        output = writer.expand('#FOR0,1,,0($s,$s)')
+        self.assertEqual(output, '01')
+
+        # Default sep and fsep
+        output = writer.expand('#FOR0,2,,1($s,$s)')
+        self.assertEqual(output, '0,1,2')
+
+        # Default sep, specified fsep
+        output = writer.expand('#FOR0,2,,1($s,$s,,...)')
+        self.assertEqual(output, '0,1...2')
+
+        # Specified sep, default fsep
+        output = writer.expand('#FOR0,2,,1($s,$s, )')
+        self.assertEqual(output, '0, 1, 2')
+
+        # Specified sep and fsep
+        output = writer.expand('#FOR0,3,,1($s,$s, , and )')
+        self.assertEqual(output, '0, 1, 2 and 3')
+
     def test_macro_for_invalid(self):
         writer = self._get_writer()
         writer.fields['x'] = 'x'
@@ -687,6 +710,8 @@ class CommonSkoolMacroTest:
         self._assert_error(writer, '#FOR(,1)(n,n)', "Missing required parameter in position 1/2: ',1'", prefix)
         self._assert_error(writer, '#FOR0,(n,n)', "Missing required parameter in position 2/2: '0,'", prefix)
         self._assert_error(writer, '#FOR(0,)(n,n)', "Missing required parameter in position 2/2: '0,'", prefix)
+        self._assert_error(writer, '#FOR(1,2,3,4,5)', "Too many parameters (expected 4): '1,2,3,4,5'", prefix)
+        self._assert_error(writer, '#FOR(1,2)(1,2,3,4,5)', "Too many parameters (expected 4): '1,2,3,4,5'", prefix)
         self._assert_error(writer, '#FOR0,1', 'No variable name: 0,1', prefix)
         self._assert_error(writer, '#FOR0,1()', "No variable name: 0,1()", prefix)
         self._assert_error(writer, '#FOR0,1(n,n', 'No closing bracket: (n,n', prefix)
