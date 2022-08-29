@@ -415,16 +415,23 @@ integers. ::
 * ``start`` is first integer in the range
 * ``stop`` is the final integer in the range
 * ``step`` is the gap between each integer in the range (default: 1)
-* ``commas`` is 1 to prefix each separator (``sep``) with a comma, or 0 to
-  leave it alone (default: 0)
+* ``commas`` controls whether and how to affix commas to each separator (see
+  below)
 * ``var`` is the variable name; for each integer in the range, it evaluates to
   that integer
 * ``string`` is the output string that is evaluated for each integer in the
   range; wherever the variable name (``var``) appears, its value is substituted
 * ``sep`` is the separator placed between each output string (default: the
-  empty string); this is prefixed by a comma if ``commas`` is 1
+  empty string); this may be prefixed and/or suffixed with a comma depending on
+  the value of ``commas``
 * ``fsep`` is the separator placed between the final two output strings
   (default: ``sep``)
+
+``commas`` is the sum of the following values, chosen according to the desired
+outcome:
+
+* 1 - prefix each separator with a comma
+* 2 - suffix each separator with a comma
 
 For example::
 

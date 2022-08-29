@@ -698,6 +698,14 @@ class CommonSkoolMacroTest:
         output = writer.expand('#FOR0,3,,1($s,$s, , and )')
         self.assertEqual(output, '0, 1, 2 and 3')
 
+        # Comma suffix
+        output = writer.expand('#FOR0,2,,2($s,$s,.0)')
+        self.assertEqual(output, '0.0,1.0,2')
+
+        # Comma prefix and suffix
+        output = writer.expand('#FOR0,2,,3($s,$s,?)')
+        self.assertEqual(output, '0,?,1,?,2')
+
     def test_macro_for_invalid(self):
         writer = self._get_writer()
         writer.fields['x'] = 'x'

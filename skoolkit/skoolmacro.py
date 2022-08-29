@@ -777,8 +777,10 @@ def parse_for(fields, text, index, *cwd):
         end, (var, s, sep, fsep) = parse_strings(text, end, 4, ('', None))
     except (NoParametersError, MissingParameterError) as e:
         raise MacroParsingError("No variable name: {}".format(text[index:e.args[1]]))
-    if commas:
+    if commas & 1:
         sep = ',' + sep
+    if commas & 2:
+        sep += ','
     if fsep is None:
         fsep = sep
     if fields['mode']['html']:
