@@ -701,6 +701,8 @@ template if it exists, or the stock :ref:`t_footer` template otherwise.
 +----------------------------+----------------------+--------------------+
 | Element type               | Preferred template   | Stock template     |
 +============================+======================+====================+
+| ``<audio>`` element        | ``PageID-audio``     | :ref:`t_audio`     |
++----------------------------+----------------------+--------------------+
 | Page footer                | ``PageID-footer``    | :ref:`t_footer`    |
 +----------------------------+----------------------+--------------------+
 | ``<img>`` element          | ``PageID-img``       | :ref:`t_img`       |
