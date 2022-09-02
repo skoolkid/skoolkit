@@ -771,27 +771,31 @@ def parse_font(text, index=0, fields=None):
     return end, crop_rect, fname, frame, alt, params
 
 def parse_for(fields, text, index, *cwd):
-    # #FORstart,stop[,step,commas](var,string[,sep,fsep])
-    end, start, stop, step, commas = parse_ints(text, index, 4, (1, 0), fields=fields)
+    # #FORstart,stop[,step,flags](var,string[,sep,fsep])
+    end, start, stop, step, flags = parse_ints(text, index, 4, (1, 0), fields=fields)
     try:
         end, (var, s, sep, fsep) = parse_strings(text, end, 4, ('', None))
     except (NoParametersError, MissingParameterError) as e:
         raise MacroParsingError("No variable name: {}".format(text[index:e.args[1]]))
-    if commas & 1:
+    if flags & 1:
         sep = ',' + sep
-    if commas & 2:
+    if flags & 2:
         sep += ','
-    if fsep is None:
-        fsep = sep
     if fields['mode']['html']:
         s = html.unescape(s)
-    if start == stop:
-        retval = s.replace(var, str(start))
-    else:
-        retval = fsep.join((sep.join([s.replace(var, str(n)) for n in range(start, stop, step)]), s.replace(var, str(stop))))
+    elements = []
+    for n in range(start, stop + step // abs(step), step):
+        if flags & 4:
+            elements.extend((s.replace(var, str(n)), sep.replace(var, str(n))))
+        else:
+            elements.extend((s.replace(var, str(n)), sep))
+    if elements:
+        elements.pop()
+    if len(elements) > 2 and fsep is not None:
+        elements[-2] = fsep
     if fields['mode']['html']:
-        return end, html.escape(retval)
-    return end, retval
+        return end, html.escape(''.join(elements))
+    return end, ''.join(elements)
 
 def parse_foreach(entry_holder, text, index, *cwd):
     # #FOREACH([v1,v2,...])(var,string[,sep,fsep])

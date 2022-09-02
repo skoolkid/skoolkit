@@ -410,28 +410,29 @@ The parameter string of the ``#EVAL`` macro may contain
 The ``#FOR`` macro expands to a sequence of strings based on a range of
 integers. ::
 
-  #FORstart,stop[,step,commas](var,string[,sep,fsep])
+  #FORstart,stop[,step,flags](var,string[,sep,fsep])
 
 * ``start`` is first integer in the range
 * ``stop`` is the final integer in the range
 * ``step`` is the gap between each integer in the range (default: 1)
-* ``commas`` controls whether and how to affix commas to each separator (see
-  below)
+* ``flags`` controls whether to affix commas to or replace variable names in
+  each separator (see below)
 * ``var`` is the variable name; for each integer in the range, it evaluates to
   that integer
 * ``string`` is the output string that is evaluated for each integer in the
   range; wherever the variable name (``var``) appears, its value is substituted
 * ``sep`` is the separator placed between each output string (default: the
-  empty string); this may be prefixed and/or suffixed with a comma depending on
-  the value of ``commas``
+  empty string); this may be modified depending on the value of ``flags``
 * ``fsep`` is the separator placed between the final two output strings
   (default: ``sep``)
 
-``commas`` is the sum of the following values, chosen according to the desired
+``flags`` is the sum of the following values, chosen according to the desired
 outcome:
 
-* 1 - prefix each separator with a comma
-* 2 - suffix each separator with a comma
+* 1 - prefix each separator (``sep``) with a comma
+* 2 - suffix each separator (``sep``) with a comma
+* 4 - replace any variable name (``var``) in each separator (``sep``) with the
+  variable value
 
 For example::
 
@@ -442,7 +443,7 @@ For example::
 This instance of the ``#FOR`` macro expands to '24, 17 and 156'.
 
 The integer parameters of the ``#FOR`` macro (``start``, ``stop``, ``step``,
-``commas``) may contain :ref:`replacement fields <replacementFields>`.
+``flags``) may contain :ref:`replacement fields <replacementFields>`.
 
 See :ref:`stringParameters` for details on alternative ways to supply the
 ``var``, ``string``, ``sep`` and ``fsep`` parameters.
@@ -450,7 +451,7 @@ See :ref:`stringParameters` for details on alternative ways to supply the
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
-| 8.7     | Added the ``commas`` parameter                                    |
+| 8.7     | Added the ``flags`` parameter                                     |
 +---------+-------------------------------------------------------------------+
 | 8.2     | Added support for replacement fields in the integer parameters    |
 +---------+-------------------------------------------------------------------+

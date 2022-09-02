@@ -605,6 +605,14 @@ class CommonSkoolMacroTest:
         output = writer.expand('#FOR1,5,2(n,n)')
         self.assertEqual(output, '135')
 
+        # Stop value missed because (stop - start) is not divisible by step
+        output = writer.expand('#FOR1,6,2(n,n)')
+        self.assertEqual(output, '135')
+
+        # Empty loop
+        output = writer.expand('#FOR1,0(n,n)')
+        self.assertEqual(output, '')
+
         # Brackets and commas in output
         output = writer.expand('(1)#FOR5,13,4//n/, (n)//')
         self.assertEqual(output, '(1), (5), (9), (13)')
@@ -675,7 +683,7 @@ class CommonSkoolMacroTest:
         output = writer.expand('#FOR1,3//$s/$s/, / and //')
         self.assertEqual(output, '1, 2 and 3')
 
-    def test_macro_for_with_commas_parameter(self):
+    def test_macro_for_with_commas_affixed_to_separator(self):
         writer = self._get_writer()
 
         # No commas
@@ -705,6 +713,25 @@ class CommonSkoolMacroTest:
         # Comma prefix and suffix
         output = writer.expand('#FOR0,2,,3($s,$s,?)')
         self.assertEqual(output, '0,?,1,?,2')
+
+    def test_macro_for_with_variable_name_replaced_in_separator(self):
+        writer = self._get_writer()
+
+        # Default fsep
+        output = writer.expand('#FOR0,6,2,7(n,n,n+1)')
+        self.assertEqual(output, '0,0+1,2,2+1,4,4+1,6')
+
+        # Specified fsep
+        output = writer.expand('#FOR0,6,2,4(n,n, n+1 , +)')
+        self.assertEqual(output, '0 0+1 2 2+1 4 +6')
+
+        # Specified fsep containing variable name (not replaced)
+        output = writer.expand('#FOR0,6,2,4(n,n,;n+1;,n+)')
+        self.assertEqual(output, '0;0+1;2;2+1;4n+6')
+
+        # Stop value missed because (stop - start) is not divisible by step
+        output = writer.expand('#FOR0,7,2,7(n,n,n+1)')
+        self.assertEqual(output, '0,0+1,2,2+1,4,4+1,6')
 
     def test_macro_for_invalid(self):
         writer = self._get_writer()

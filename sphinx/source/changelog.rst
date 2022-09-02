@@ -21,14 +21,16 @@ Changelog
 * Added the ``Timings`` configuration parameter for
   :ref:`sna2skool.py <sna2skool-conf>` (for showing instruction timings in the
   comment fields)
-* Added the ``commas`` parameter to the :ref:`FOR` macro (for prefixing and/or
-  suffixing each separator with a comma)
+* Added the ``flags`` parameter to the :ref:`FOR` macro (for affixing commas to
+  and replacing variable names in each separator)
 * Added support to the :ref:`mDirective` for applying its comment to each
   instruction in its range
 * When :ref:`tap2sna.py` ignores a headerless block because no ``--ram load``
   options have been specified, it now prints a warning
 * Amended the :ref:`t_register` ASM template so that it can handle empty
   register names
+* Fixed the bug where the ``stop`` value of the :ref:`FOR` macro is used even
+  when it does not differ from ``start`` by a multiple of ``step``
 
 8.6 (2021-11-06)
 ----------------
