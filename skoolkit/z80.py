@@ -274,7 +274,7 @@ TIMINGS = {
     0xF6: 7,        # OR n
     0xF7: 11,       # RST 48
     0xF8: (11, 5),  # RET M
-    0xF9: 20,       # LD SP,HL
+    0xF9: 6,        # LD SP,HL
     0xFA: 10,       # JP M,nn
     0xFB: 4,        # EI
     0xFC: (17, 10), # CALL M,nn
