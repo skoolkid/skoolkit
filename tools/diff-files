@@ -62,7 +62,7 @@ diff_html() {
   echo -n "Writing diffs to $out..."
   for d in $(ls -1 $new); do
     diff_file=$out/$d.html.diff
-    do_diff html $old/$d $new/$d $diff_file -x '*.png'
+    do_diff html $old/$d $new/$d $diff_file -x '*.png' -x '*.wav'
     if [ -f $diff_file ]; then
       grep '^+++ ' $diff_file | grep -o "$d/.*.html" > $out/$d.files
     fi
