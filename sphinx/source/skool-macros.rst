@@ -894,10 +894,11 @@ the audio directory (as defined by the ``AudioPath`` parameter in the
 
 If ``delays`` is specified and ``fname`` ends with '.wav', a corresponding
 audio file in WAV format is created. Each element in ``delays`` can be an
-integer, a list of integers, or a list of lists of integers etc. nested to
-arbitrary depth, expressed as Python literals. For example::
+integer, a list or tuple of integers, or a list/tuple of lists/tuples of
+integers etc. nested to arbitrary depth, expressed as Python literals. For
+example::
 
-  1000, [1500]*100, [[800, 1200]*2, 900]*200
+  1000, [1500]*100, [(800, 1200)*2, 900]*200
 
 This would be flattened into a list of integers, as follows:
 

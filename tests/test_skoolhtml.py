@@ -1549,11 +1549,11 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
     def test_macro_audio_with_delays(self):
         writer = self._get_writer(skool='', mock_file_info=True)
         fname = 'sound.wav'
-        delays = '[500,100+1,200-2,50+17*(300%256)]*3'
+        delays = '[500,100+1,200-2,50+17*(300%256),(300,400)*2]*3'
         macro = f'#AUDIO({fname})({delays})'
         exp_src = f'../audio/{fname}'
         exp_path = f'audio/{fname}'
-        exp_delays = [500, 101, 198, 798] * 3
+        exp_delays = [500, 101, 198, 798, 300, 400, 300, 400] * 3
         self._test_audio_macro(writer, macro, exp_src, exp_path, exp_delays)
 
     def test_macro_audio_with_contention(self):

@@ -514,7 +514,7 @@ def expand_macros(writer, text, *cwd):
 def _flatten(elements):
     f = []
     for e in elements:
-        if isinstance(e, list):
+        if isinstance(e, (list, tuple)):
             f.extend(_flatten(e))
         else:
             f.append(e)
