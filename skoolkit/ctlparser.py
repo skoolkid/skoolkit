@@ -136,6 +136,7 @@ class CtlParser:
                         self._asm_data_directives[start].append(text[1:])
                 elif ctl.islower():
                     self._titles[start] = comment
+                    self._ends[start] = (ctl, 0)
                 elif ctl == 'D':
                     self._descriptions[start].append(comment)
                     self._subctls.setdefault(start, None)
@@ -170,7 +171,7 @@ class CtlParser:
                     self._instruction_comments[start] = comment
                     if end:
                         self._subctls[end] = None
-                        self._ends[start] = end
+                        self._ends[start] = (ctl, end)
                 if ctl != 'L' and lengths:
                     self._lengths[start] = lengths[0][1]
                     if len(lengths) > 1:
@@ -185,6 +186,7 @@ class CtlParser:
                 directive, address = asm_directive
                 self._asm_directives[address].append(directive)
 
+        self._check_overlaps()
         self._terminate_multiline_comments()
         self._unroll_loops(max_address)
         self._ctls[max_address] = 'i'
@@ -276,6 +278,13 @@ class CtlParser:
             raise CtlParserError("invalid @ignoreua directive suffix: '{}'".format(comment_type))
         self._ignoreua_directives[address][comment_type] = suffix
 
+    def _check_overlaps(self):
+        subctls = sorted(self._ends.items())
+        for i, (s2, (c2, e2)) in enumerate(subctls[1:]):
+            s1, (c1, e1) = subctls[i]
+            if c1.isupper() and e1 > s2:
+                warn(f"'{c1}' directive at {s1}/${s1:04X} overlaps '{c2}' directive at {s2}/${s2:04X}")
+
     def _terminate_multiline_comments(self):
         addresses = sorted(set(self._ctls) | set(self._mid_block_comments) | {65536})
         for address, (end, text, repeat) in self._multiline_comments.items():
@@ -351,14 +360,9 @@ class CtlParser:
 
         # Set sub-block end addresses
         for block in blocks:
-            for i, s in enumerate(block.blocks, 1):
-                if i < len(block.blocks):
-                    s.end = block.blocks[i].start
-                else:
-                    s.end = block.end
-                end = self._ends.get(s.start, s.end)
-                if s.ctl != 'c' and end > s.end:
-                    warn('Truncated {0} directive at {1}/${1:04X} to length {2}'.format(s.ctl.upper(), s.start, s.end - s.start))
+            for i, sub_block in enumerate(block.blocks[1:]):
+                block.blocks[i].end = sub_block.start
+            block.blocks[-1].end = block.end
 
         # Set sub-block attributes
         asm_directives = tuple(self._asm_directives.items())

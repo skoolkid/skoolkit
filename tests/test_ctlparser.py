@@ -2451,12 +2451,12 @@ class CtlParserTest(SkoolKitTestCase):
         blocks = self._get_ctl_parser(ctl).get_blocks()
         self._check_instruction_comments(exp_instruction_comments, blocks)
 
-    def test_overlong_sub_blocks_are_truncated(self):
+    def test_overlapping_sub_blocks(self):
         ctl = """
             b 60000
             B 60000,3 This creates an implicit B directive at 60003...
             B 60002,4 ...which truncates this B directive to length 1
-            B 60004,3
+            B 60004,3 This is truncated by the following 't' block
             t 60005
         """
         ctl_parser = self._get_ctl_parser(ctl)
@@ -2469,6 +2469,7 @@ class CtlParserTest(SkoolKitTestCase):
         self.assertEqual((b[3].start, b[3].end), (60004, 60005))
 
         warnings = self.err.getvalue().split('\n')
-        self.assertEqual(warnings[0], 'WARNING: Truncated B directive at 60000/$EA60 to length 2')
-        self.assertEqual(warnings[1], 'WARNING: Truncated B directive at 60002/$EA62 to length 1')
-        self.assertEqual(warnings[2], 'WARNING: Truncated B directive at 60004/$EA64 to length 1')
+        self.assertEqual(warnings[0], "WARNING: 'B' directive at 60000/$EA60 overlaps 'B' directive at 60002/$EA62")
+        self.assertEqual(warnings[1], "WARNING: 'B' directive at 60002/$EA62 overlaps 'B' directive at 60004/$EA64")
+        self.assertEqual(warnings[2], "WARNING: 'B' directive at 60004/$EA64 overlaps 't' directive at 60005/$EA65")
+        self.assertEqual(warnings[3], "")
