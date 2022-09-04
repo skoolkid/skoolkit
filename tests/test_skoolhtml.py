@@ -241,6 +241,9 @@ class MockFileInfo:
     def need_audio(self, audio_path):
         return True
 
+    def file_exists(self, fname):
+        return False
+
 class TestImageWriter(ImageWriter):
     def write_image(self, frames, img_file):
         self.frames = frames
@@ -1699,6 +1702,39 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         with open(fpath, 'rb') as f:
             actual_contents = f.read()
         self.assertEqual(actual_contents, contents)
+
+    def test_macro_audio_finds_existing_flac_file(self):
+        writer = self._get_writer(skool='')
+        flacname = 'sound.flac'
+        fpath = join(self.odir, GAMEDIR, 'audio', flacname)
+        self.write_bin_file(path=fpath)
+        macros = '#AUDIO(sound.wav)([100]*2)'
+        exp_src = f'../audio/{flacname}'
+        exp_path = None
+        exp_delays = None
+        self._test_audio_macro(writer, macros, exp_src, exp_path, exp_delays)
+
+    def test_macro_audio_finds_existing_mp3_file(self):
+        writer = self._get_writer(skool='')
+        mp3name = 'sound.mp3'
+        fpath = join(self.odir, GAMEDIR, 'audio', mp3name)
+        self.write_bin_file(path=fpath)
+        macros = '#AUDIO(sound.wav)([100]*2)'
+        exp_src = f'../audio/{mp3name}'
+        exp_path = None
+        exp_delays = None
+        self._test_audio_macro(writer, macros, exp_src, exp_path, exp_delays)
+
+    def test_macro_audio_finds_existing_ogg_file(self):
+        writer = self._get_writer(skool='')
+        oggname = 'sound.ogg'
+        fpath = join(self.odir, GAMEDIR, 'audio', oggname)
+        self.write_bin_file(path=fpath)
+        macros = '#AUDIO(sound.wav)([100]*2)'
+        exp_src = f'../audio/{oggname}'
+        exp_path = None
+        exp_delays = None
+        self._test_audio_macro(writer, macros, exp_src, exp_path, exp_delays)
 
     def test_macro_audio_invalid(self):
         writer, prefix = CommonSkoolMacroTest.test_macro_audio_invalid(self)

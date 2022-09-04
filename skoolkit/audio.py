@@ -50,8 +50,8 @@ class AudioWriter:
         samples = self._delays_to_samples(delays)
         self._write_wav(audio_file, samples)
 
-    def can_write(self, fname):
-        return fname[-4:].lower() == '.wav'
+    def formats(self):
+        return ('.wav',)
 
     def _add_contention(self, delays, contention, interrupts, cycle):
         c_begin, c_end = self.options[CONTENTION_BEGIN], self.options[CONTENTION_END]

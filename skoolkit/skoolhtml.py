@@ -1035,8 +1035,14 @@ class HtmlWriter:
             fname = fname.lstrip('/')
         else:
             fname = join(self.paths['AudioPath'], fname)
-        if self.audio_writer.can_write(fname):
-            return fname, self.file_info.need_audio(fname)
+        for fmt in self.audio_writer.formats():
+            if fname.lower().endswith(fmt.lower()):
+                basename = fname[:-len(fmt)]
+                for alt_fmt in ('.flac', '.mp3', '.ogg'):
+                    alt_fname = basename + alt_fmt
+                    if self.file_info.file_exists(alt_fname):
+                        return alt_fname, False
+                return fname, self.file_info.need_audio(fname)
         return fname, False
 
     def expand_audio(self, text, index, cwd):

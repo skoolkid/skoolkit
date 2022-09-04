@@ -925,6 +925,12 @@ audio file must already exist in the specified location, otherwise the
 file is copied into the desired location when :ref:`skool2html.py` is run, it
 can be declared in the :ref:`resources` section.
 
+If ``fname`` ends with '.wav', but a '.flac', '.mp3' or '.ogg' file with the
+same basename already exists, that file is used and no WAV file is written.
+This enables an original WAV file to be replaced by an alternative (compressed)
+version without having to modify the ``fname`` parameter of the ``#AUDIO``
+macro.
+
 The ``flags`` and ``offset`` parameters of the ``#AUDIO`` macro may contain
 :ref:`replacement fields <replacementFields>`.
 
