@@ -18,6 +18,8 @@ Changelog
 * Added the ``--rebuild-audio`` option to and the ``RebuildAudio``
   configuration parameter for :ref:`skool2html.py` (to overwrite existing audio
   files)
+* Added the ``--defb`` option to :ref:`sna2skool.py` (to disassemble as DEFB
+  statements of a given size when no control file is used)
 * Added the ``Timings`` configuration parameter for
   :ref:`sna2skool.py <sna2skool-conf>` (for showing instruction timings in the
   comment fields)

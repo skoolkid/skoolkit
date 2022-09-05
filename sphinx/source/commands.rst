@@ -881,6 +881,8 @@ list::
                           which to read control files. PATH may be '-' for
                           standard input, or '0' to use no control file. This
                           option may be used multiple times.
+    -d SIZE, --defb SIZE  Disassemble as DEFB statements of this size when no
+                          control file is used.
     -e ADDR, --end ADDR   Stop disassembling at this address (default=65536).
     -H, --hex             Write hexadecimal addresses and operands in the
                           disassembly.
@@ -986,7 +988,8 @@ Configuration parameters may also be set on the command line by using the
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
-| 8.7     | Added the ``Timings`` configuration parameter                     |
+| 8.7     | Added the ``--defb`` option and the ``Timings`` configuration     |
+|         | parameter                                                         |
 +---------+-------------------------------------------------------------------+
 | 8.5     | Added the ``Wrap`` configuration parameter and the ability to     |
 |         | disassemble an instruction that wraps around the 64K boundary;    |

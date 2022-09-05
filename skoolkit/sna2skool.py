@@ -24,7 +24,7 @@ from skoolkit.ctlparser import CtlParser
 from skoolkit.snapshot import make_snapshot
 from skoolkit.snaskool import SkoolWriter
 
-def get_ctl_parser(ctls, infile, start, end, def_start, def_end):
+def get_ctl_parser(ctls, infile, start, end, def_start, def_end, defb=None, config=None):
     if infile[-4:].lower() in ('.bin', '.sna', '.szx', '.z80'):
         prefix = infile[:-4]
     else:
@@ -47,6 +47,9 @@ def get_ctl_parser(ctls, infile, start, end, def_start, def_end):
         info('Using control file{}: {}'.format(suffix, ', '.join(ctlfiles)))
         ctl_parser = CtlParser()
         ctl_parser.parse_ctls(ctlfiles, start, end)
+    elif defb:
+        ctl_parser = CtlParser({def_start: 'b', def_end: 'i'})
+        config['DefbSize'] = defb
     else:
         ctl_parser = CtlParser({def_start: 'c', def_end: 'i'})
     return ctl_parser
@@ -55,7 +58,7 @@ def run(infile, options, config):
     snapshot, start, end = make_snapshot(infile, options.org, options.start, options.end, options.page)
     if options.start is None:
         options.start = 0
-    ctl_parser = get_ctl_parser(options.ctls, infile, options.start, options.end, start, end)
+    ctl_parser = get_ctl_parser(options.ctls, infile, options.start, options.end, start, end, options.defb, config)
     writer = SkoolWriter(snapshot, ctl_parser, options, config)
     writer.write_skool()
 
@@ -73,6 +76,8 @@ def main(args):
                        help="Specify a control file to use, or a directory from which to read control files. "
                             "PATH may be '-' for standard input, or '0' to use no control file. "
                             "This option may be used multiple times.")
+    group.add_argument('-d', '--defb', dest='defb', metavar='SIZE', type=int,
+                       help='Disassemble as DEFB statements of this size when no control file is used.')
     group.add_argument('-e', '--end', dest='end', metavar='ADDR', type=integer, default=65536,
                        help='Stop disassembling at this address (default=65536).')
     group.add_argument('-H', '--hex', dest='base', action='store_const', const=16, default=config['Base'],

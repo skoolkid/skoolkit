@@ -57,6 +57,7 @@ class Sna2SkoolTest(SkoolKitTestCase):
         snafile, options = run_args[:2]
         self.assertEqual(snafile, sna)
         self.assertEqual([], options.ctls)
+        self.assertEqual(None, options.defb)
         self.assertEqual(options.base, 10)
         self.assertEqual(options.case, 2)
         self.assertIsNone(options.start)
@@ -286,6 +287,17 @@ class Sna2SkoolTest(SkoolKitTestCase):
         self.assertEqual(error, 'Using control files: {}\n'.format(', '.join(ctlfiles)))
         self.assertEqual(ctlfiles, mock_ctl_parser.ctlfiles)
         self.assertTrue(mock_skool_writer.wrote_skool)
+
+    @patch.object(sna2skool, 'make_snapshot', mock_make_snapshot)
+    @patch.object(sna2skool, 'CtlParser', MockCtlParser)
+    @patch.object(sna2skool, 'SkoolWriter', MockSkoolWriter)
+    def test_option_d(self):
+        for option, value in (('-d', 4), ('--defb', 16)):
+            output, error = self.run_sna2skool(f'{option} {value} -s 32768 -e 49152 test-defb.bin')
+            self.assertEqual(error, '')
+            self.assertEqual(mock_ctl_parser.ctls, {32768: 'b', 49152: 'i'})
+            self.assertEqual(mock_skool_writer.config['DefbSize'], value)
+            self.assertTrue(mock_skool_writer.wrote_skool)
 
     @patch.object(sna2skool, 'CtlParser', MockCtlParser)
     @patch.object(sna2skool, 'SkoolWriter', MockSkoolWriter)
