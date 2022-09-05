@@ -61,6 +61,7 @@ SECTIONS['Game'] = """
 Address=
 AddressAnchor={address}
 AsmSinglePage=0
+AudioFormats=flac,mp3,ogg
 Bytes=
 Copyright=
 Created=Created using <a href="https://skoolkit.ca">SkoolKit</a> #VERSION.

@@ -47,6 +47,7 @@ MINIMAL_REF_FILE = """
 Address=
 AddressAnchor={{address}}
 AsmSinglePage=0
+AudioFormats=flac,mp3,ogg
 Created=
 Length={{size}}
 LinkInternalOperands=0
@@ -62,6 +63,7 @@ METHOD_MINIMAL_REF_FILE = """
 Address=
 AddressAnchor={{address}}
 AsmSinglePage=0
+AudioFormats=flac,mp3,ogg
 Created=
 Length={{size}}
 LinkInternalOperands=0
@@ -81,6 +83,7 @@ SKOOL_MACRO_MINIMAL_REF_FILE = """
 Address=
 AddressAnchor={{address}}
 AsmSinglePage=0
+AudioFormats=flac,mp3,ogg
 Created=
 Length={{size}}
 LinkInternalOperands=0
@@ -1734,6 +1737,30 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         exp_src = f'../audio/{oggname}'
         exp_path = None
         exp_delays = None
+        self._test_audio_macro(writer, macros, exp_src, exp_path, exp_delays)
+
+    def test_macro_audio_finds_existing_aac_file(self):
+        ref = '[Game]\nAudioFormats=aac,mp3'
+        writer = self._get_writer(skool='', ref=ref)
+        aacname = 'sound.aac'
+        fpath = join(self.odir, GAMEDIR, 'audio', aacname)
+        self.write_bin_file(path=fpath)
+        macros = '#AUDIO(sound.wav)([100]*2)'
+        exp_src = f'../audio/{aacname}'
+        exp_path = None
+        exp_delays = None
+        self._test_audio_macro(writer, macros, exp_src, exp_path, exp_delays)
+
+    def test_macro_audio_does_not_find_existing_mp3_file(self):
+        ref = '[Game]\nAudioFormats=aac,flac,ogg'
+        writer = self._get_writer(skool='', ref=ref, mock_file_info=True)
+        fpath = join(self.odir, GAMEDIR, 'audio', 'sound.mp3')
+        self.write_bin_file(path=fpath)
+        fname = 'sound.wav'
+        macros = f'#AUDIO({fname})([100]*2)'
+        exp_src = f'../audio/{fname}'
+        exp_path = f'audio/{fname}'
+        exp_delays = [100, 100]
         self._test_audio_macro(writer, macros, exp_src, exp_path, exp_delays)
 
     def test_macro_audio_invalid(self):

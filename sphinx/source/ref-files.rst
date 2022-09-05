@@ -251,6 +251,9 @@ Recognised parameters are:
   disassembly pages and entries on memory map pages (default: ``{address}``)
 * ``AsmSinglePage`` - ``1`` to write the disassembly on a single page, or ``0``
   to write a separate page for each routine and data block (default: ``0``)
+* ``AudioFormats`` - a comma separated list of audio file formats that the
+  :ref:`AUDIO` macro looks for before creating a WAV file (default:
+  ``flac,mp3,ogg``)
 * ``Bytes`` - the format specification for the ``bytes`` attribute of
   instruction objects in the :ref:`t_asm` and :ref:`t_asm_single_page`
   templates
@@ -315,6 +318,8 @@ hexadecimal addresses if the ``--hex`` option is used with
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 8.7     | Added the ``AudioFormats`` parameter                              |
++---------+-------------------------------------------------------------------+
 | 8.4     | Added the ``Address`` and ``Length`` parameters                   |
 +---------+-------------------------------------------------------------------+
 | 8.0     | Added the ``AsmSinglePage`` parameter                             |

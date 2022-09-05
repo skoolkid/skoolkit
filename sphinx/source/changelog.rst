@@ -18,6 +18,9 @@ Changelog
 * Added the ``--rebuild-audio`` option to and the ``RebuildAudio``
   configuration parameter for :ref:`skool2html.py` (to overwrite existing audio
   files)
+* Added the ``AudioFormats`` parameter to the :ref:`ref-game` section (for
+  specifying the alternative audio file formats that the :ref:`AUDIO` macro
+  should look for before creating a WAV file)
 * Added the ``--defb`` option to :ref:`sna2skool.py` (to disassemble as DEFB
   statements of a given size when no control file is used)
 * Added the ``Timings`` configuration parameter for

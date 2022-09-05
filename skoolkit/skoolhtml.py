@@ -74,8 +74,6 @@ class HtmlWriter:
         self.image_writer = get_image_writer(iw_config, colours)
         self.frames = {}
 
-        self.audio_writer = AudioWriter(self.get_dictionary('AudioWriter'))
-
         self.snapshot = self.parser.snapshot
         self._snapshots = [(self.snapshot, '')]
         self.asm_entry_dicts = {}
@@ -106,6 +104,9 @@ class HtmlWriter:
         self.titles = self.get_dictionary('Titles')
         self.page_headers = self.get_dictionary('PageHeaders')
         links = self.get_dictionary('Links')
+
+        self.audio_writer = AudioWriter(self.get_dictionary('AudioWriter'))
+        self.audio_formats = ['.' + f for f in self.game_vars['AudioFormats'].split(',')]
 
         self.page_ids = []
         self.pages = defaultdict(dict)
@@ -1038,7 +1039,7 @@ class HtmlWriter:
         for fmt in self.audio_writer.formats():
             if fname.lower().endswith(fmt.lower()):
                 basename = fname[:-len(fmt)]
-                for alt_fmt in ('.flac', '.mp3', '.ogg'):
+                for alt_fmt in self.audio_formats:
                     alt_fname = basename + alt_fmt
                     if self.file_info.file_exists(alt_fname):
                         return alt_fname, False
