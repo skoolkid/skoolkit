@@ -48,8 +48,16 @@ Recognised parameters are:
 * ``FrameDuration`` - length of a frame in T-states (default: 69888)
 * ``InterruptDelay`` - delay in T-states caused by an interrupt routine
   (default: 942)
-* ``MaxAmplitude`` - maximum amplitude (0-65536; default: 65536)
+* ``MaxAmplitude`` - maximum amplitude of the computed waveform before
+  conversion to sample values (default: 65536); see note below
 * ``SampleRate`` - sample rate in Hz (default: 44100)
+
+Note that the WAV files created by SkoolKit's audio writer use 16-bit samples
+with values ranging from -32768 to +32767, i.e. a maximum amplitude of 32768.
+This means that the default value of 65536 for the ``MaxAmplitude`` parameter
+gives rise to a clipped waveform, which more accurately reproduces the
+characteristic piercing quality of the ZX Spectrum speaker than a lower value
+such as 32768 would.
 
 +---------+---------+
 | Version | Changes |
