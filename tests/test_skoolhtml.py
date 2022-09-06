@@ -1449,7 +1449,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
 
     def _test_audio_macro(self, writer, macro, src, path=None, delays=None, contention=False, interrupts=False, offset=0, config=None):
         exp_html = f"""
-            <audio controls src="{src}">
+            <audio controls="" src="{src}">
             <p>Your browser doesn't support HTML5 audio. Here is a <a href="{src}">link to the audio</a> instead.</p>
             </audio>
         """

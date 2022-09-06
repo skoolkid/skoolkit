@@ -511,7 +511,7 @@ SECTIONS['Template:asm_single_page'] = """
 """
 
 SECTIONS['Template:audio'] = """
-<audio controls src="{src}">
+<audio controls="" src="{src}">
 <p>Your browser doesn't support HTML5 audio. Here is a <a href="{src}">link to the audio</a> instead.</p>
 </audio>
 """
