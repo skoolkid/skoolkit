@@ -116,7 +116,7 @@ class HtmlTestCase(DisassembliesTestCase):
                     try:
                         etree.parse(htmlfile)
                     except etree.LxmlError as e:
-                        self.fail('Error while parsing {}: {}'.format(htmlfile, e.message))
+                        self.fail('Error while parsing {}: {}'.format(htmlfile, e.args[0]))
 
     def _check_links(self):
         all_files, orphans, missing_files, missing_anchors = check_links(self.odir)
