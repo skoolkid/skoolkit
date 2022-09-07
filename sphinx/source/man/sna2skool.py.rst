@@ -24,8 +24,7 @@ OPTIONS
   no control file is used. This option may be used multiple times.
 
 -d, --defb `SIZE`
-  Disassemble as DEFB statements of this size (instead of as code) when no
-  control file is used.
+  Disassemble as DEFB statements of this size (instead of as code).
 
 -e, --end `ADDR`
   Stop disassembling at this address; the default end address is 65536. `ADDR`

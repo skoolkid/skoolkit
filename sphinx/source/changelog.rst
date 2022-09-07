@@ -22,7 +22,7 @@ Changelog
   specifying the alternative audio file formats that the :ref:`AUDIO` macro
   should look for before creating a WAV file)
 * Added the ``--defb`` option to :ref:`sna2skool.py` (to disassemble as DEFB
-  statements of a given size when no control file is used)
+  statements instead of as code)
 * Added the ``Timings`` configuration parameter for
   :ref:`sna2skool.py <sna2skool-conf>` (for showing instruction timings in the
   comment fields)

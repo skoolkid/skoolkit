@@ -881,8 +881,7 @@ list::
                           which to read control files. PATH may be '-' for
                           standard input, or '0' to use no control file. This
                           option may be used multiple times.
-    -d SIZE, --defb SIZE  Disassemble as DEFB statements of this size when no
-                          control file is used.
+    -d SIZE, --defb SIZE  Disassemble as DEFB statements of this size.
     -e ADDR, --end ADDR   Stop disassembling at this address (default=65536).
     -H, --hex             Write hexadecimal addresses and operands in the
                           disassembly.

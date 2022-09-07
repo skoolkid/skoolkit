@@ -301,6 +301,28 @@ class Sna2SkoolTest(SkoolKitTestCase):
 
     @patch.object(sna2skool, 'CtlParser', MockCtlParser)
     @patch.object(sna2skool, 'SkoolWriter', MockSkoolWriter)
+    def test_option_d_overrides_default_ctl_file(self):
+        binfile = self.write_bin_file([0], suffix='.bin')
+        self.write_text_file('c 65535', f'{binfile[:-4]}.ctl')
+        output, error = self.run_sna2skool(f'-d 1 {binfile}')
+        self.assertEqual(error, '')
+        self.assertEqual(mock_ctl_parser.ctls, {65535: 'b', 65536: 'i'})
+        self.assertEqual(mock_skool_writer.config['DefbSize'], 1)
+        self.assertTrue(mock_skool_writer.wrote_skool)
+
+    @patch.object(sna2skool, 'CtlParser', MockCtlParser)
+    @patch.object(sna2skool, 'SkoolWriter', MockSkoolWriter)
+    def test_option_defb_overrides_option_ctl(self):
+        binfile = self.write_bin_file([0], suffix='.bin')
+        ctlfile = self.write_text_file('c 65535', suffix='.ctl')
+        output, error = self.run_sna2skool(f'--defb 1 --ctl {ctlfile} {binfile}')
+        self.assertEqual(error, '')
+        self.assertEqual(mock_ctl_parser.ctls, {65535: 'b', 65536: 'i'})
+        self.assertEqual(mock_skool_writer.config['DefbSize'], 1)
+        self.assertTrue(mock_skool_writer.wrote_skool)
+
+    @patch.object(sna2skool, 'CtlParser', MockCtlParser)
+    @patch.object(sna2skool, 'SkoolWriter', MockSkoolWriter)
     def test_option_e(self):
         binfile = self.write_bin_file([0] * 3)
         for option, value in (('-e', 65534), ('--end', 65535)):
