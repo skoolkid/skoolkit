@@ -143,13 +143,28 @@ rm -rf $ABSDIR
 
 # Build the HTML disassembly
 ARGS="-qj style.css -c Config/InitModule=$SKOOLKIT_HOME/tools:publish src/$GAME.skool $SKOOLKIT_HOME/tools/publish.ref"
+DECARGS="$DECCONFIG -d ${ABSDIR} -c Config/GameDir=html --var pub=1 $ARGS"
+HEXARGS="${HEXCONFIG:--H} -d ${ABSDIR}/html -c Config/GameDir=hex -T dark --var pub=3 $ARGS"
 echo -n "Writing decimal disassembly..."
-./skool2html.py $DECCONFIG -d ${ABSDIR} --var pub=1 $ARGS
+./skool2html.py $DECARGS
 echo "done"
-mv ${ABSDIR}/* ${ABSDIR}/html
 echo -n "Writing hexadecimal disassembly..."
-./skool2html.py ${HEXCONFIG:--H} -d ${ABSDIR}/html -c Config/GameDir=hex -T dark --var pub=3 $ARGS
+./skool2html.py $HEXARGS
 echo "done"
+if [[ -n $WAVCONVERT ]]; then
+  echo -n "Converting WAV files..."
+  for wav in $WAVCONVERT; do
+    oggenc -Q "${ABSDIR}/html/audio/$wav"
+    rm "${ABSDIR}/html/audio/$wav"
+  done
+  echo "done"
+  echo -n "Rewriting decimal disassembly..."
+  ./skool2html.py $DECARGS
+  echo "done"
+  echo -n "Rewriting hexadecimal disassembly..."
+  ./skool2html.py $HEXARGS
+  echo "done"
+fi
 
 # Copy source files
 echo -n "Copying source files..."

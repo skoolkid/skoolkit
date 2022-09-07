@@ -4,6 +4,7 @@ alt_base=#IF({vars[pub]}&2)(,hexa)decimal
 alt_dir=#MAP({vars[pub]}&3)(..,1:hex,2:dec)/
 
 [Paths+]
+AudioPath=#IF({vars[pub]}>2)(../)audio
 ImagePath=#IF({vars[pub]}>2)(../)images
 
 [Template:footer]
