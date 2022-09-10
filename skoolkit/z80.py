@@ -600,7 +600,7 @@ AFTER_DD_TIMINGS = {
     0x7E: 19, # LD A,(IX+d)
     0x84: 8,  # ADD A,IXh
     0x85: 8,  # ADD A,IXl
-    0x86: 16, # ADD A,(IX+d)
+    0x86: 19, # ADD A,(IX+d)
     0x8C: 8,  # ADC A,IXh
     0x8D: 8,  # ADC A,IXl
     0x8E: 19, # ADC A,(IX+d)
