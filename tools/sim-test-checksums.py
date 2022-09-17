@@ -15,90 +15,54 @@ if not os.path.isdir(SKOOLKIT_HOME):
 sys.path.insert(0, f'{SKOOLKIT_HOME}')
 
 from skoolkit.simulator import Simulator
+from sim_test_tracers import *
 
-class AFRTracer:
-    def __init__(self, start, reg):
-        self.start = start
-        self.reg = reg
-        self.count = 0x1FFFF
-        self.data = bytearray()
-        self.checksum = None
-
-    def trace(self, simulator, instruction):
-        if instruction.time > 0:
-            self.data.extend((simulator.registers['A'], simulator.registers['F']))
-        if self.count < 0:
-            self.checksum = hashlib.md5(self.data).hexdigest()
-            return True
-        simulator.registers['F'] = self.count >> 16
-        simulator.registers['A'] = (self.count >> 8) & 0xFF
-        simulator.registers[self.reg] = self.count & 0xFF
-        simulator.registers['PC'] = self.start
-        self.count -= 1
-
-class AFTracer:
-    def __init__(self, start):
-        self.start = start
-        self.count = 0x1FF
-        self.data = bytearray()
-        self.checksum = None
-
-    def trace(self, simulator, instruction):
-        if instruction.time > 0:
-            self.data.extend((simulator.registers['A'], simulator.registers['F']))
-        if self.count < 0:
-            self.checksum = hashlib.md5(self.data).hexdigest()
-            return True
-        simulator.registers['F'] = self.count >> 8
-        simulator.registers['A'] = self.count & 0xFF
-        simulator.registers['PC'] = self.start
-        self.count -= 1
-
-def generate(name, reg, *opcodes):
+def generate(name, tclass, args, opcodes):
     start = 32768
     snapshot = [0] * 65536
     snapshot[start:start + len(opcodes)] = opcodes
     simulator = Simulator(snapshot)
-    if reg:
-        tracer = AFRTracer(start, reg)
-    else:
-        tracer = AFTracer(start)
+    tracer = tclass(start, *args)
     simulator.set_tracer(tracer)
     simulator.run(start)
     print(f"{name} = '{tracer.checksum}'")
 
 SUITES = {
     'ALO': (
-        ('ADD_A_r', 'B', (0x80,)),
-        ('ADD_A_A', '', (0x87,)),
-        ('ADC_A_r', 'B', (0x88,)),
-        ('ADC_A_A', '', (0x8F,)),
-        ('SUB_r', 'B', (0x90,)),
-        ('SUB_A', '', (0x97,)),
-        ('SBC_A_r', 'B', (0x98,)),
-        ('SBC_A_A', '', (0x9F,)),
-        ('AND_r', 'B', (0xA0,)),
-        ('AND_A', '', (0xA7,)),
-        ('XOR_r', 'B', (0xA8,)),
-        ('XOR_A', '', (0xAF,)),
-        ('OR_r', 'B', (0xB0,)),
-        ('OR_A', '', (0xB7,)),
-        ('CP_r', 'B', (0xB8,)),
-        ('CP_A', '', (0xBF,)),
-    )
+        ('ADD_A_r', AFRTracer, ('B',), (0x80,)),
+        ('ADD_A_A', AFTracer,  (),     (0x87,)),
+        ('ADC_A_r', AFRTracer, ('B',), (0x88,)),
+        ('ADC_A_A', AFTracer,  (),     (0x8F,)),
+        ('SUB_r',   AFRTracer, ('B',), (0x90,)),
+        ('SUB_A',   AFTracer,  (),     (0x97,)),
+        ('SBC_A_r', AFRTracer, ('B',), (0x98,)),
+        ('SBC_A_A', AFTracer,  (),     (0x9F,)),
+        ('AND_r',   AFRTracer, ('B',), (0xA0,)),
+        ('AND_A',   AFTracer,  (),     (0xA7,)),
+        ('XOR_r',   AFRTracer, ('B',), (0xA8,)),
+        ('XOR_A',   AFTracer,  (),     (0xAF,)),
+        ('OR_r',    AFRTracer, ('B',), (0xB0,)),
+        ('OR_A',    AFTracer,  (),     (0xB7,)),
+        ('CP_r',    AFRTracer, ('B',), (0xB8,)),
+        ('CP_A',    AFTracer,  (),     (0xBF,)),
+    ),
+    'DAA': (
+        ('DAA',     DAATracer, (),     (0x27,)),
+    ),
 }
 
 def run(suites):
     for suite in suites:
-        for name, reg, opcodes in SUITES[suite]:
-            generate(name, reg, *opcodes)
+        for name, tclass, args, opcodes in SUITES[suite]:
+            generate(name, tclass, args, opcodes)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
         usage='{} SUITE [SUITE...]'.format(os.path.basename(sys.argv[0])),
         description="Generate Simulator test checksums. SUITE may be one of the following:\n\n"
                     "  ALL - All test suites\n"
-                    "  ALO - Arithmetic/logic operations on the accumulator\n",
+                    "  ALO - Arithmetic/logic operations on the accumulator\n"
+                    "  DAA - DAA instruction\n",
         formatter_class=argparse.RawTextHelpFormatter,
         add_help=False
     )

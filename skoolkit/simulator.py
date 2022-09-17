@@ -563,6 +563,8 @@ class Simulator:
         self.registers['A'] = a
         self.set_flag('S', a & 0x80)
         self.set_flag('Z', a == 0)
+        self.set_flag('5', a & 0x20)
+        self.set_flag('3', a & 0x08)
         self.set_flag('P', PARITY[a])
 
         return 'DAA', self.pc + 1, timing
