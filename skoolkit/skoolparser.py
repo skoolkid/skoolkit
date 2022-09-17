@@ -506,10 +506,10 @@ class SkoolParser:
             return instruction.get_addr_str()
         return self.mode.get_addr_str(address, default)
 
-    def get_instruction_timings(self, first, last, asm_id=''):
+    def get_instruction_timings(self, start, stop, asm_id=''):
         timings = []
-        address = first
-        while address <= last:
+        address = start
+        while address < stop:
             instruction = self.get_instruction(address, asm_id)
             if instruction and instruction.bytes:
                 timings.append((address, z80.get_timing(instruction)))

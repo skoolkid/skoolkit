@@ -24,6 +24,7 @@ from string import Template
 from skoolkit import (BASE_10, BASE_16, CASE_LOWER, CASE_UPPER, VERSION,
                       SkoolKitError, SkoolParsingError, eval_variable, evaluate)
 from skoolkit.graphics import Udg
+from skoolkit.simulator import Simulator
 
 _map_cache = {}
 
@@ -1148,28 +1149,39 @@ def parse_str(writer, text, index, *cwd):
     return end, s
 
 def parse_tstates(writer, text, index, *cwd):
-    # #TSTATESfirst[,last,flags(text)]
-    end, first, last, flags = parse_ints(text, index, 3, (0, 0), fields=writer.fields)
-    if last < first:
-        last = first
+    # #TSTATESstart[,stop,flags(text)]
+    end, start, stop, flags = parse_ints(text, index, 3, (-1, 0), fields=writer.fields)
     if flags & 2:
         end, msg = parse_strings(text, end, 1)
     else:
         msg = None
-    timings = writer.parser.get_instruction_timings(first, last)
-    higher, lower = 0, 0
-    for address, timing in timings:
-        if timing is None:
-            raise MacroParsingError(f'Failed to get timing for instruction at {address}')
-        if isinstance(timing, int):
-            higher, lower = higher + timing, lower + timing
-        else:
-            higher, lower = higher + timing[0], lower + timing[1]
-    if msg is None:
-        if flags & 1:
-            return end, str(higher)
-        return end, str(lower)
-    return end, Template(msg).safe_substitute(min=lower, max=higher)
+    if flags & 4:
+        if stop < 0:
+            raise MacroParsingError(f"Missing stop address: '{text[index:end]}'")
+        simulator = Simulator(writer.snapshot[:])
+        simulator.run(start)
+        while simulator.pc != stop:
+            simulator.run()
+        if msg is None:
+            return end, str(simulator.tstates)
+        return end, Template(msg).safe_substitute(tstates=simulator.tstates)
+    else:
+        if stop < start:
+            stop = start + 1
+        timings = writer.parser.get_instruction_timings(start, stop)
+        higher, lower = 0, 0
+        for address, timing in timings:
+            if timing is None:
+                raise MacroParsingError(f'Failed to get timing for instruction at {address}')
+            if isinstance(timing, int):
+                higher, lower = higher + timing, lower + timing
+            else:
+                higher, lower = higher + timing[0], lower + timing[1]
+        if msg is None:
+            if flags & 1:
+                return end, str(higher)
+            return end, str(lower)
+        return end, Template(msg).safe_substitute(min=lower, max=higher)
 
 def parse_udg(text, index=0, fields=None):
     # #UDGaddr[,attr,scale,step,inc,flip,rotate,mask,tindex,alpha][:addr[,step]][{x,y,width,height}][(fname)]

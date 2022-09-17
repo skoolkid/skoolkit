@@ -1898,16 +1898,43 @@ class CommonSkoolMacroTest:
         writer = self._get_writer(skool=skool)
 
         self.assertEqual(writer.expand('#TSTATES32768'), '4')
-        self.assertEqual(writer.expand('#TSTATES32768,32769'), '11')
+        self.assertEqual(writer.expand('#TSTATES32768,32770'), '11')
         self.assertEqual(writer.expand('#TSTATES32770'), '7')
         self.assertEqual(writer.expand('#TSTATES32770,,1'), '12')
-        self.assertEqual(writer.expand('#TSTATES32770,32772'), '17')
-        self.assertEqual(writer.expand('#TSTATES32770,32772,1'), '22')
+        self.assertEqual(writer.expand('#TSTATES32770,32773'), '17')
+        self.assertEqual(writer.expand('#TSTATES32770,32773,1'), '22')
         self.assertEqual(writer.expand('#TSTATES32769,,2($min or $max)'), '7 or 7')
         self.assertEqual(writer.expand('#TSTATES32770,,2/${min} or ${max}/'), '7 or 12')
-        self.assertEqual(writer.expand('#TSTATES32770,32772,2[$min or $max]'), '17 or 22')
-        self.assertEqual(writer.expand('#TSTATES32770,32772,2|#EVAL(($min+$max)/2)|'), '19')
-        self.assertEqual(writer.expand('#LET(a=32768)#TSTATES({a},{a}+1)'), '11')
+        self.assertEqual(writer.expand('#TSTATES32770,32773,2[$min or $max]'), '17 or 22')
+        self.assertEqual(writer.expand('#TSTATES32770,32773,2|#EVAL(($min+$max)/2)|'), '19')
+        self.assertEqual(writer.expand('#LET(a=32768)#TSTATES({a},{a}+2)'), '11')
+
+    def test_macro_tstates_with_simulator(self):
+        skool = """
+            @start
+            @assemble=2,2
+            ; Routine
+            c32768 LD B,2     ; 7 T-states
+            *32770 DJNZ 32770 ; 13 + 8 = 21 T-states
+             32772 RET
+        """
+        writer = self._get_writer(skool=skool)
+
+        self.assertEqual(writer.expand('#TSTATES32768,32772,4'), '28')
+        self.assertEqual(writer.expand('#TSTATES32768,32772,6($tstates T-states)'), '28 T-states')
+
+    def test_macro_tstates_with_simulator_does_not_modify_writer_snapshot(self):
+        skool = """
+            @start
+            @assemble=2,2
+            ; Routine
+            c32768 LD A,6
+             32770 LD (32768),A
+             32773 RET
+        """
+        writer = self._get_writer(skool=skool)
+        writer.expand('#TSTATES32768,32773,4')
+        self.assertEqual(writer.snapshot[32768], 62)
 
     def test_macro_tstates_invalid(self):
         skool = """
@@ -1921,9 +1948,10 @@ class CommonSkoolMacroTest:
         prefix = ERROR_PREFIX.format('TSTATES')
 
         self._test_no_parameters(writer, 'TSTATES', 1)
-        self._assert_error(writer, '#TSTATES32768,32769', "Failed to get timing for instruction at 32769", prefix)
+        self._assert_error(writer, '#TSTATES32768,32770', "Failed to get timing for instruction at 32769", prefix)
         self._assert_error(writer, '#TSTATES32769', "Failed to get timing for instruction at 32769", prefix)
         self._assert_error(writer, '#TSTATES32770', "Failed to get timing for instruction at 32770", prefix)
+        self._assert_error(writer, '#TSTATES32768,,4', "Missing stop address: '32768,,4'", prefix)
         self._assert_error(writer, '#TSTATES(1,2,3,4)', "Too many parameters (expected 3): '1,2,3,4'", prefix)
         self._assert_error(writer, '#TSTATES(2', "No closing bracket: (2", prefix)
         self._assert_error(writer, '#TSTATES(0,5$3)', "Cannot parse integer '5$3' in parameter string: '0,5$3'", prefix)

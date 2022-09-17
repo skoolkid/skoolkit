@@ -1605,20 +1605,23 @@ See also :ref:`UDGTABLE`.
 The ``#TSTATES`` macro expands to the time taken, in T-states, to execute one
 or more instructions. ::
 
-  #TSTATESfirst[,last,flags(text)]
+  #TSTATESstart[,stop,flags(text)]
 
-* ``first`` is the address of the first instruction to time
-* ``last`` is the address of the last instruction to time (default: ``first``)
+* ``start`` is the address of the instruction at which to start the clock
+* ``stop`` is the address of the instruction at which to stop the clock
 * ``flags`` controls various options (see below)
-* ``text`` is the text to expand to (when ``flags`` is 2); this may contain the
-  placeholders ``$min`` and ``$max`` for the sums of the smaller and larger
-  timing values of the instructions in the given range
+* ``text`` is the text to expand to (when bit 1 of ``flags`` is set); this may
+  contain the placeholders ``$min`` and ``$max`` for the sums of the smaller
+  and larger timing values of the instructions in the given range, or
+  ``$tstates`` for the actual timing value when bit 2 of ``flags`` is set
 
 ``flags`` is the sum of the following values, chosen according to the desired
 outcome:
 
-* 1 - use the larger timing value for an instruction whose timing is variable
-* 2 - expand to ``text``
+* 1 (bit 0) - use the larger timing value for an instruction whose timing is
+  variable
+* 2 (bit 1) - expand to ``text``
+* 4 (bit 2) - execute instructions in a simulator to get the actual timing
 
 For example::
 
@@ -1626,7 +1629,7 @@ For example::
 
 This instance of the ``#TSTATES`` macros expands to '7'.
 
-For any instruction in the range ``first`` to ``last`` whose timing is variable
+For any instruction in the range ``start`` to ``stop`` whose timing is variable
 (e.g. a conditional call, return or relative jump), the smaller timing value is
 used by default::
 
@@ -1634,8 +1637,9 @@ used by default::
 
 This instance of the ``#TSTATES`` macros expands to '5'.
 
-To use the larger timing values, set ``flags`` to 1. If both smaller and larger
-timing values are required, set ``flags`` to 2 and use the ``text`` parameter::
+To use the larger timing values, set bit 0 of ``flags``. If both smaller and
+larger timing values are required, set bit 1 of ``flags`` and use the ``text``
+parameter::
 
   c50000 LD B,100    ; Set the delay parameter
    50002 DJNZ 50002  ; Delay for #TSTATES50002,,2(#EVAL(99*$max+$min)) T-states
@@ -1643,10 +1647,25 @@ timing values are required, set ``flags`` to 2 and use the ``text`` parameter::
 This instance of the ``#TSTATES`` macro expands to ``#EVAL(99*13+8)``, which in
 turn expands to '1295'.
 
-Note that an instruction's timing can be determined only if it is a true
-instruction (i.e. not a ``DEFB``, ``DEFM``, ``DEFS`` or ``DEFW`` statement) and
-it has been assembled. To make sure that it is assembled, use the
-:ref:`assemble` directive.
+Note that an instruction's timing can be determined only if it has been
+assembled. To make sure that it is assembled, use the :ref:`assemble`
+directive. In addition, unless bit 2 of ``flags`` is set, only true
+instructions (i.e. not ``DEFB``, ``DEFM``, ``DEFS`` and ``DEFW`` statements)
+can be timed.
+
+If bit 2 of ``flags`` is set, the ``stop`` address must be specified, and the
+instructions are executed in a simulator to determine their actual timing. This
+is useful for computing the time taken by conditional operations and operations
+that are repeated in a loop. For example::
+
+  c32768 LD DE,0     ; {This creates a delay of #TSTATES(32768,32776,4)
+  *32771 DEC DE      ; T-states
+   32772 LD A,D      ;
+   32773 OR E        ;
+   32774 JR NZ,32771 ; }
+   32776 RET
+
+This instance of the ``#TSTATES`` macro expands to '1703941'.
 
 The integer parameters of the ``#TSTATES`` macro may contain
 :ref:`replacement fields <replacementFields>`.
