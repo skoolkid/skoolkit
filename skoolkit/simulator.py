@@ -107,6 +107,7 @@ class Simulator:
             self.pc = pc
         while 1:
             opcode = self.snapshot[self.pc]
+            r_inc = 2
             if opcode == 0xCB:
                 timing, f, size, args = self.after_CB[self.snapshot[(self.pc + 1) & 0xFFFF]]
             elif opcode == 0xED:
@@ -118,6 +119,7 @@ class Simulator:
                 else:
                     timing, f, size, args = self.after_DD[opcode2]
             else:
+                r_inc = 1
                 timing, f, size, args = self.opcodes[opcode]
             eidx = self.pc + size
             if eidx <= 65536:
@@ -125,6 +127,8 @@ class Simulator:
             else:
                 data = self.snapshot[self.pc:] + self.snapshot[:eidx & 0xFFFF]
             operation, pc, tstates = f(self, timing, data, *args)
+            r = self.registers['R']
+            self.registers['R'] = (r & 0x80) + ((r + r_inc) & 0x7F)
             if self.tracer:
                 instruction = Instruction(self.tstates, self.pc, operation, data, tstates)
                 self.pc = pc & 0xFFFF
@@ -349,6 +353,9 @@ class Simulator:
                 # Augend and addend signs are different - no overflow
                 self.set_flag('P', 0)
 
+        self.set_flag('5', value & 0x2000)
+        self.set_flag('3', value & 0x0800)
+
         return f'{op} {augend},{reg}', self.pc + len(data), timing
 
     def anda(self, timing, data, reg=None):
@@ -371,15 +378,15 @@ class Simulator:
         self.set_flag('S', bit == 7 and bitval)
         self.set_flag('Z', bitval == 0)
         if reg:
-            self.set_flag('5', bit == 5 and bitval)
-            self.set_flag('3', bit == 3 and bitval)
+            self.set_flag('5', value & 0x20)
+            self.set_flag('3', value & 0x08)
         else:
             if data[0] == 0xDD:
                 v = (self.registers['IXl'] + 256 * self.registers['IXh'] + data[2]) & 0xFFFF
             else:
                 v = (self.registers['IYl'] + 256 * self.registers['IYh'] + data[2]) & 0xFFFF
-            self.set_flag('5', bit == 5 and v & 0x2000)
-            self.set_flag('3', bit == 3 and v & 0x0800)
+            self.set_flag('5', v & 0x2000)
+            self.set_flag('3', v & 0x0800)
         self.set_flag('H', 1)
         self.set_flag('P', bitval == 0)
         self.set_flag('N', 0)
@@ -496,6 +503,9 @@ class Simulator:
             self.set_flag('H', 0)
             self.set_flag('N', 0)
             self.set_flag('C', 1)
+        a = self.registers['A']
+        self.set_flag('5', a & 0x20)
+        self.set_flag('3', a & 0x08)
         return operation, self.pc + 1, timing
 
     def cp(self, timing, data, reg=None):
@@ -519,8 +529,11 @@ class Simulator:
         return f'CP {operand}', self.pc + len(data), timing
 
     def cpl(self, timing, data):
-        self.registers['A'] ^= 255
+        a = self.registers['A'] ^ 255
+        self.registers['A'] = a
         self.set_flag('H', 1)
+        self.set_flag('5', a & 0x20)
+        self.set_flag('3', a & 0x08)
         self.set_flag('N', 1)
         return 'CPL', self.pc + 1, timing
 
@@ -638,7 +651,7 @@ class Simulator:
     def _in(self, port):
         if hasattr(self.tracer, 'read_port'):
             return self.tracer.read_port(self, port)
-        return 255
+        return 191
 
     def in_a(self, timing, data):
         port = data[1] + 256 * self.registers['A']
@@ -743,13 +756,15 @@ class Simulator:
             a = self.registers['A']
             self.set_flag('S', a & 0x80)
             self.set_flag('Z', a == 0)
+            self.set_flag('5', a & 0x20)
             self.set_flag('H', 0)
+            self.set_flag('3', a & 0x08)
             self.set_flag('P', self.iff2)
             self.set_flag('N', 0)
         return f'LD {op1},{op2}', self.pc + len(data), timing
 
     def ld16(self, timing, data, reg):
-        value = data[1] + 256 * data[2]
+        value = data[-2] + 256 * data[-1]
         if reg == 'SP':
             self.registers['SP'] = value
         elif reg == 'IX':
@@ -760,7 +775,6 @@ class Simulator:
                 reg1, reg2 = 'IYl', 'IYh'
             self.registers[reg1] = data[2]
             self.registers[reg2] = data[3]
-            value = data[2] + 256 * data[3]
         else:
             self.registers[reg[1]] = data[1]
             self.registers[reg[0]] = data[2]

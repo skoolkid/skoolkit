@@ -76,8 +76,12 @@ class SimulatorTest(SkoolKitTestCase):
         simulator = Simulator(snapshot, reg_in)
         simulator.set_tracer(TRACER)
         exp_reg = simulator.registers.copy()
-        if reg_out:
-            exp_reg.update(reg_out)
+        if reg_out is None:
+            reg_out = {}
+        if 'R' not in reg_out:
+            r_in, r_inc = exp_reg['R'], 2  if data[0] in (0xCB, 0xDD, 0xED, 0xFD) else 1
+            reg_out['R'] = (r_in & 0x80) + ((r_in + r_inc) & 0x7F)
+        exp_reg.update(reg_out)
         simulator.run(start)
         registers = [f'{r}={v}' for r, v in reg_in.items()] if reg_in else ()
         regvals = ', '.join(registers)
@@ -383,12 +387,12 @@ class SimulatorTest(SkoolKitTestCase):
                 for i, reg in enumerate(REGISTERS):
                     operation = f'BIT {bit},{reg}'
                     data = (203, 64 + 8 * bit + i)
+                    f_out = 0b00010000 | (opval & 0b00101000)
                     if bitval:
-                        f_out = 0b00010000
-                        if bit in (7, 5, 3):
-                            f_out |= 1 << bit
+                        if bit == 7:
+                            f_out |= 0b10000000
                     else:
-                        f_out = 0b01010100
+                        f_out |= 0b01000100
                     reg_out = {'F': f_out}
                     if reg == '(HL)':
                         timing = 12
@@ -789,22 +793,24 @@ class SimulatorTest(SkoolKitTestCase):
 
     def test_add16(self):
         # ADD HL/IX/IY,BC/DE/HL/SP/IX/IY
-        for r1, r2 in ((3, 1056), (32887, 45172)):
+        for r1, r2, f_out, f_out_hl in (
+                #                SZ5H3PNC    SZ5H3PNC
+                (3, 1056,      0b00000000, 0b00000000),
+                (32887, 45172, 0b00100001, 0b00000001)
+        ):
             for i, reg in enumerate(('BC', 'DE', 'HL', 'SP')):
                 operation = f'ADD HL,{reg}'
                 data = [9 + i * 16]
                 reg_in = {'HL': r1, 'F': 0b00000001}
                 if reg == 'HL':
                     s = r1 * 2
+                    reg_out = {'F': f_out_hl}
                 else:
                     s = r1 + r2
                     reg_in[reg] = r2
-                if s > 0xFFFF:
-                    f_out = 0b00000001
-                else:
-                    f_out = 0b00000000
+                    reg_out = {'F': f_out}
                 s &= 0xFFFF
-                reg_out = {'H': s // 256, 'L': s % 256, 'F': f_out}
+                reg_out.update({'H': s // 256, 'L': s % 256})
                 self._test_instruction(operation, data, 11, reg_in, reg_out)
 
             for prefix, reg in ((0xDD, 'IX'), (0xFD, 'IY')):
@@ -816,58 +822,63 @@ class SimulatorTest(SkoolKitTestCase):
                     reg_in = {reg: r1, 'F': 0b00000001}
                     if rr == reg:
                         s = r1 * 2
+                        reg_out = {'F': f_out_hl}
                     else:
                         s = r1 + r2
                         reg_in[rr] = r2
-                    if s > 0xFFFF:
-                        f_out = 0b00000001
-                    else:
-                        f_out = 0b00000000
+                        reg_out = {'F': f_out}
                     s &= 0xFFFF
-                    reg_out = {reg + 'h': s // 256, reg + 'l': s % 256, 'F': f_out}
+                    reg_out.update({reg + 'h': s // 256, reg + 'l': s % 256})
                     self._test_instruction(operation, data, 15, reg_in, reg_out)
 
     def test_adc16(self):
         # ADC HL,BC/DE/HL/SP
-        for r1, r2 in ((3, 1056), (32887, 45172)):
-            for carry in (0, 1):
-                for i, reg in enumerate(('BC', 'DE', 'HL', 'SP')):
-                    operation = f'ADC HL,{reg}'
-                    data = (237, 74 + i * 16)
-                    reg_in = {'HL': r1, 'F': carry}
-                    if reg == 'HL':
-                        s = r1 * 2 + carry
-                    else:
-                        s = r1 + r2 + carry
-                        reg_in[reg] = r2
-                    if s > 0xFFFF:
-                        f_out = 0b00000101
-                    else:
-                        f_out = 0b00000000
-                    s &= 0xFFFF
-                    reg_out = {'H': s // 256, 'L': s % 256, 'F': f_out}
-                    self._test_instruction(operation, data, 15, reg_in, reg_out)
+        for r1, r2, f_in, f_out, f_out_hl in (
+                #                SZ5H3PNC    SZ5H3PNC    SZ5H3PNC
+                (3, 1056,      0b00000000, 0b00000000, 0b00000000),
+                (3, 1056,      0b00000001, 0b00000000, 0b00000000),
+                (32887, 45172, 0b00000000, 0b00100101, 0b00000101),
+                (32887, 45172, 0b00000001, 0b00100101, 0b00000101)
+        ):
+            for i, reg in enumerate(('BC', 'DE', 'HL', 'SP')):
+                operation = f'ADC HL,{reg}'
+                data = (237, 74 + i * 16)
+                reg_in = {'HL': r1, 'F': f_in}
+                carry = f_in & 1
+                if reg == 'HL':
+                    s = r1 * 2 + carry
+                    reg_out = {'F': f_out_hl}
+                else:
+                    s = r1 + r2 + carry
+                    reg_in[reg] = r2
+                    reg_out = {'F': f_out}
+                s &= 0xFFFF
+                reg_out.update({'H': s // 256, 'L': s % 256})
+                self._test_instruction(operation, data, 15, reg_in, reg_out)
 
     def test_sbc16(self):
         # SBC HL,BC/DE/HL/SP
-        for i, reg in enumerate(('BC', 'DE', 'HL', 'SP')):
-            for carry in (0, 1):
-                for r1, r2, f_out in ((1056, 3, 0b00000010), (45172, 32887, 0b00010010)):
-                    operation = f'SBC HL,{reg}'
-                    data = (237, 66 + i * 16)
-                    reg_in = {'HL': r1, 'F': carry}
-                    if reg == 'HL':
-                        d = -carry & 65535
-                        if carry:
-                            f_out |= 0b10010001
-                        else:
-                            f_out |= 0b01000000
-                            f_out &= 0b11101111
-                    else:
-                        reg_in[reg] = r2
-                        d = (r1 - r2 - carry) & 65535
-                    reg_out = {'H': d // 256, 'L': d % 256, 'F': f_out}
-                    self._test_instruction(operation, data, 15, reg_in, reg_out)
+        for r1, r2, f_in, f_out, f_out_hl in (
+                #                SZ5H3PNC    SZ5H3PNC    SZ5H3PNC
+                (1056, 3,      0b00000000, 0b00000010, 0b01000010),
+                (1056, 3,      0b00000001, 0b00000010, 0b10111011),
+                (45172, 32887, 0b00000000, 0b00111010, 0b01000010),
+                (45172, 32887, 0b00000001, 0b00111010, 0b10111011)
+        ):
+            for i, reg in enumerate(('BC', 'DE', 'HL', 'SP')):
+                operation = f'SBC HL,{reg}'
+                data = (237, 66 + i * 16)
+                reg_in = {'HL': r1, 'F': f_in}
+                carry = f_in & 1
+                if reg == 'HL':
+                    d = -carry & 65535
+                    reg_out = {'F': f_out_hl}
+                else:
+                    reg_in[reg] = r2
+                    d = (r1 - r2 - carry) & 65535
+                    reg_out = {'F': f_out}
+                reg_out.update({'H': d // 256, 'L': d % 256})
+                self._test_instruction(operation, data, 15, reg_in, reg_out)
 
     def test_ld_r_n(self):
         # LD r,n (r: A, B, C, D, E, H, L, (HL))
@@ -1058,11 +1069,14 @@ class SimulatorTest(SkoolKitTestCase):
     def test_ld_special_a(self):
         # LD I,A; LD R,A
         r, a = 2, 99
-        for opcode, reg in ((71, 'I'), (79, 'R')):
+        for opcode, reg, r_out in (
+                (71, 'I', a),
+                (79, 'R', a + 2)
+        ):
             operation = f'LD {reg},A'
             data = (237, opcode)
             reg_in = {reg: r, 'A': a}
-            reg_out = {reg: a}
+            reg_out = {reg: r_out}
             self._test_instruction(operation, data, 9, reg_in, reg_out)
 
     def test_ld_rr_nn(self):
@@ -1395,8 +1409,8 @@ class SimulatorTest(SkoolKitTestCase):
         data = [47]
         for a_in, f_in, f_out in (
                 #       SZ5H3PNC    SZ5H3PNC
-                (154, 0b01000000, 0b01010010),
-                (0,   0b00000000, 0b00010010),
+                (154, 0b01000000, 0b01110010),
+                (0,   0b00000000, 0b00111010),
         ):
             reg_in = {'A': a_in, 'F': f_in}
             reg_out = {'A': a_in ^ 255, 'F': f_out}
@@ -1427,11 +1441,10 @@ class SimulatorTest(SkoolKitTestCase):
         self._test_instruction(operation, data, 12)
 
     def test_in_a_n(self):
-        a = 128
         n = 56
         operation = f'IN A,(${n:02X})'
-        data = (219, n)
-        reg_out = {'A': 255}
+        data = (0xDB, n)
+        reg_out = {'A': 191}
         self._test_instruction(operation, data, 11, reg_out=reg_out)
 
     def test_in_r_c(self):
@@ -1442,13 +1455,13 @@ class SimulatorTest(SkoolKitTestCase):
             operation = f'IN {reg},(C)'
             data = (237, 64 + i * 8)
             reg_in = {'C': c}
-            reg_out = {reg: 255, 'F': 172}
+            reg_out = {reg: 191, 'F': 0b10101000}
             self._test_instruction(operation, data, 12, reg_in, reg_out)
 
     def test_in_f_c(self):
         operation = f'IN F,(C)'
         data = (0xED, 0x70)
-        reg_out = {'F': 172}
+        reg_out = {'F': 0b10101000}
         self._test_instruction(operation, data, 12, reg_out=reg_out)
 
     def test_djnz(self):
@@ -1607,23 +1620,23 @@ class SimulatorTest(SkoolKitTestCase):
 
         for b, f_out in (
                 #     SZ5H3PNC
-                (2, 0b00010011),
-                (1, 0b01010111),
-                (0, 0b10111111),
+                (2, 0b00000110),
+                (1, 0b01000010),
+                (0, 0b10101010),
         ):
             end = start + 2
             timing = 16
             if repeat and b != 1:
                 timing = 21
                 end = start
-            reg_in = {'B': b, 'HL': hl}
+            reg_in = {'B': b, 'C': 1, 'HL': hl}
             reg_out = {
                 'B': (b - 1) & 255,
                 'H': (hl + inc) // 256,
                 'L': (hl + inc) % 256,
                 'F': f_out
             }
-            sna_out = {hl: 255}
+            sna_out = {hl: 191}
             self._test_instruction(operation, data, timing, reg_in, reg_out, sna_out=sna_out, start=start, end=end)
 
     def test_ind(self):
@@ -2103,4 +2116,4 @@ class SimulatorTest(SkoolKitTestCase):
         simulator = Simulator(snapshot, state={'iff2': 1})
         simulator.run(start)
         self.assertEqual(simulator.pc, start + 2)
-        self.assertEqual(simulator.registers['F'], 0b00000100)
+        self.assertEqual(simulator.registers['F'], 0b00101100)
