@@ -53,6 +53,13 @@ def run(romfile, snafile, options):
     snapshot[23692] = 255 # Inhibit 'scroll?' prompt
     rom = read_bin_file(romfile, 16384)
     snapshot[:len(rom)] = rom
+    if options.test:
+        addr = 32768
+        while snapshot[addr:addr + 6] != [1, 0, 0, 33, 122, 136]:
+            addr += 1
+        snapshot[addr + 1] = options.test
+        test_addr = 34938 + options.test * 2
+        snapshot[addr + 4:addr + 6] = (test_addr % 256, test_addr // 256)
     simulator = Simulator(snapshot)
     tracer = Tracer(options.verbose, options.max_operations, options.end)
     simulator.set_tracer(tracer)
@@ -81,6 +88,8 @@ if __name__ == '__main__':
                        help='End execution at this address (default: 32912).')
     group.add_argument('-s', '--start', metavar='ADDR', type=integer, default=32768,
                        help='Start execution at this address (default: 32768).')
+    group.add_argument('-t', '--test', metavar='TEST', type=int, default=0,
+                       help='Start at this test (default: 0).')
     group.add_argument('-v', '--verbose', action='count', default=0,
                        help="Show executed instructions.")
     namespace, unknown_args = parser.parse_known_args()
