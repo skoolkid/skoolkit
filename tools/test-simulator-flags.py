@@ -35,6 +35,10 @@ OR_A = 'a64900a4e9443713cfced1cc9e608c44'
 CP_r = '6417db6acd2d6e2bdd0ba27115b4e158'
 CP_A = '1fab032e90e72158e53eb5363ab99f9a'
 DAA = '4312f5a5e95c582dbee61b482eee9d6b'
+SCF = 'ee859b0e9650b7e36cb0ce1b73145a77'
+CCF = '988c43163ba13c67aa6cd315c7018739'
+CPL = 'c57876662ed32c7e9f8585ea0412a53f'
+NEG = 'aadeb04c1a4f01187e4fa8dff6cc461a'
 
 class SimulatorFlagsTest(unittest.TestCase):
     def _test_instruction(self, op, tclass, targs, checksum, opcodes, snapshot=None):
@@ -119,6 +123,19 @@ class SimulatorFlagsTest(unittest.TestCase):
 
     def test_daa(self):
         self._test_instruction('DAA', DAATracer, (), DAA, 0x27)
+
+    def test_scf(self):
+        self._test_instruction('SCF', FTracer, (), SCF, 0x37)
+
+    def test_ccf(self):
+        self._test_instruction('CCF', FTracer, (), CCF, 0x3F)
+
+    def test_cpl(self):
+        self._test_instruction('CPL', AFTracer, (0xFF,), CPL, 0x2F)
+
+    def test_neg(self):
+        for opcode in (0x44, 0x4C, 0x54, 0x5C, 0x64, 0x6C, 0x74, 0x7C):
+            self._test_instruction('NEG', AFTracer, (0xFF,), NEG, (0xED, opcode))
 
 if __name__ == '__main__':
     unittest.main()

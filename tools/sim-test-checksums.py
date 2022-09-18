@@ -29,6 +29,7 @@ def generate(name, tclass, args, opcodes):
 
 SUITES = {
     'ALO': (
+        'Arithmetic/logic operations on the accumulator',
         ('ADD_A_r', AFRTracer, ('B',), (0x80,)),
         ('ADD_A_A', AFTracer,  (),     (0x87,)),
         ('ADC_A_r', AFRTracer, ('B',), (0x88,)),
@@ -47,22 +48,36 @@ SUITES = {
         ('CP_A',    AFTracer,  (),     (0xBF,)),
     ),
     'DAA': (
-        ('DAA',     DAATracer, (),     (0x27,)),
+        'DAA instruction',
+        ('DAA', DAATracer, (), (0x27,)),
+    ),
+    'CF': (
+        'SCF/CCF instructions',
+        ('SCF', FTracer, (), (0x37,)),
+        ('CCF', FTracer, (), (0x3F,)),
+    ),
+    'CPL': (
+        'CPL instruction',
+        ('CPL', AFTracer, (0xFF,), (0x2F,)),
+    ),
+    'NEG': (
+        'NEG instruction',
+        ('NEG', AFTracer, (0xFF,), (0xED, 0x44)),
     ),
 }
 
 def run(suites):
     for suite in suites:
-        for name, tclass, args, opcodes in SUITES[suite]:
+        for name, tclass, args, opcodes in SUITES[suite][1:]:
             generate(name, tclass, args, opcodes)
 
 if __name__ == '__main__':
+    width = max(len(k) for k in SUITES.keys())
+    tests = '\n  '.join(f'{k:<{width}} - {v[0]}' for k, v in SUITES.items())
     parser = argparse.ArgumentParser(
         usage='{} SUITE [SUITE...]'.format(os.path.basename(sys.argv[0])),
         description="Generate Simulator test checksums. SUITE may be one of the following:\n\n"
-                    "  ALL - All test suites\n"
-                    "  ALO - Arithmetic/logic operations on the accumulator\n"
-                    "  DAA - DAA instruction\n",
+                    "  ALL - All test suites\n  " + tests,
         formatter_class=argparse.RawTextHelpFormatter,
         add_help=False
     )

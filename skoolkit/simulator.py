@@ -135,7 +135,6 @@ class Simulator:
                 self.tstates += tstates
                 if self.tracer.trace(self, instruction):
                     break
-                self.pc = self.registers.get('PC', self.pc)
             else:
                 self.pc = pc & 0xFFFF
                 self.tstates += tstates
