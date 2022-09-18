@@ -203,7 +203,7 @@ _check_resources() {
   rootdir=$1
   logdir=$2
 
-  _check_files resources $rootdir $logdir skoolkit{,-dark,-green,-plum,-wide}.css
+  _check_files resources $rootdir $logdir skoolkit{,-dark,-green,-plum,-wide}.css 48.rom
 }
 
 _check_examples() {
@@ -375,6 +375,7 @@ _install_skoolkit() {
 
   if [[ "$method" = "2" ]]; then
     _exec "Installing 'build' in virtual environment" "$venv/bin/python -m pip install build" $topdir/sdist.log
+    _exec "Removing setup.py" "rm -vf setup.py" $topdir/sdist.log
     _exec "Building source distribution" "$venv/bin/python -m build --sdist" $topdir/sdist.log
     tar xf dist/skoolkit-$VERSION.tar.gz -C $topdir
     cd $topdir/skoolkit-$VERSION
@@ -484,6 +485,7 @@ build_sdist() {
   logfile=$(pwd)/sdist.log
   tar xf $TARBALL
   cd skoolkit-$VERSION
+  _exec "Removing setup.py" "rm -vf setup.py" $logfile
   _exec "Building source package" "python3 -m build --sdist" $logfile
   _exec "Uploading source package" "twine upload dist/skoolkit-$VERSION.tar.gz" $logfile
 }
