@@ -1737,6 +1737,22 @@ class CtlParserTest(SkoolKitTestCase):
         }
         self._check_multiline_comments(exp_multiline_comments, blocks)
 
+    def test_M_directive_after_sub_blocks_does_not_override_their_sublengths(self):
+        ctl = """
+            b 32768
+            B 32768,1,b1
+            W 32769,2,h2
+            M 32768,3 Hi
+            i 32771
+        """
+        blocks = self._get_ctl_parser(ctl).get_blocks()
+        exp_sublengths = {
+            32768: ((1, 'b'),),
+            32769: ((2, 'h'),),
+            32771: ((0, 'n'),)
+        }
+        self._check_sublengths(exp_sublengths, blocks)
+
     def test_loop(self):
         start = 30000
         length = 25

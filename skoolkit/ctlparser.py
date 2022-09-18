@@ -172,7 +172,7 @@ class CtlParser:
                     if end:
                         self._subctls[end] = None
                         self._ends[start] = (ctl, end)
-                if ctl != 'L' and lengths:
+                if ctl in 'BCSTW' and lengths:
                     self._lengths[start] = lengths[0][1]
                     if len(lengths) > 1:
                         address = start + lengths[0][0]

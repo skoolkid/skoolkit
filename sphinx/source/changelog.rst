@@ -36,6 +36,8 @@ Changelog
   register names
 * Fixed the bug where the ``stop`` value of the :ref:`FOR` macro is used even
   when it does not differ from ``start`` by a multiple of ``step``
+* Fixed the bug where an :ref:`mDirective` with an explicit length overrides
+  the sublengths of an earlier sub-block directive at the same address
 
 8.6 (2021-11-06)
 ----------------
