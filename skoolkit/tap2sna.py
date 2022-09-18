@@ -23,8 +23,10 @@ from urllib.request import Request, urlopen
 from urllib.parse import urlparse
 
 from skoolkit import (SkoolKitError, get_dword, get_int_param, get_object,
-                      get_word, get_word3, integer, open_file, warn, write_line,
-                      VERSION)
+                      get_word, get_word3, integer, open_file, read_bin_file,
+                      warn, write_line, ROM48, VERSION)
+from skoolkit.basic import get_char
+from skoolkit.simulator import Simulator
 from skoolkit.snapshot import move, poke, print_reg_help, print_state_help, write_z80v3
 
 SYSVARS = (
@@ -127,6 +129,32 @@ SYSVARS = (
     128                   # 23754 - CHINFO - end marker
 )
 
+SIM_LOAD_PATCH = {
+    0x5C04: 0x050D, # KSTATE4 0/1
+    0x5C06: 0x0D23, # KSTATE4 2/3
+    0x5C08: 0x0D,   # LAST-K
+    0x5C3B: 0x0C,   # FLAGS
+    0x5C3C: 0x01,   # TV-FLAG
+    0x5C3D: 0x50,   # ERR-SP
+    0x5C5B: 0x5CCF, # K-CUR
+    0x5C61: 0x5CD1, # WORKSP
+    0x5C63: 0x5CD1, # STKBOT
+    0x5C65: 0x5CD1, # STKEND
+    0x5C68: 0x5C92, # MEM
+    0x5C82: 0x19,   # ECHO-E
+    0x5C86: 0xE0,   # DF-CCL
+    0x5C8A: 0x21,   # S-POSNL
+    0x5CCB: 0x80,   # First byte of program area
+    0x5CCC: 0xEF,   # LOAD
+    0x5CCD: 0x2222, # ""
+    0x5CCF: 0x0D,   # ENTER
+    0x5CD0: 0x80,   # End of program area
+    0xFF50: 0x107F, # Address of ED-ERROR
+    0xFF52: 0xFF54, # Address of next item on the stack
+    0xFF54: 0x12B4, # Address of entry point in 'MAIN EXECUTION' loop at 0x12A2
+    0xFF56: 0x3E00  # RAMTOP marker
+}
+
 class SkoolKitArgumentParser(argparse.ArgumentParser):
     def convert_arg_line_to_args(self, arg_line):
         for arg in arg_line.split():
@@ -137,12 +165,78 @@ class SkoolKitArgumentParser(argparse.ArgumentParser):
 class TapeError(Exception):
     pass
 
+class TAPTracer:
+    def __init__(self, blocks):
+        self.blocks = blocks
+
+    def trace(self, simulator, instruction):
+        if self.blocks:
+            if simulator.pc == 0x0556:
+                registers = simulator.registers
+                block = self.blocks.pop(0)
+                ix = registers['IXl'] + 256 * registers['IXh'] # Start address
+                de = registers['E'] + 256 * registers['D'] # Block length
+                a = registers['A']
+                data_len = len(block) - 2
+                if a == block[0] and de == data_len:
+                    if a == 0:
+                        name = ''.join(get_char(b) for b in block[2:12])
+                        if block[1] == 3:
+                            write_line(f'Bytes: {name}')
+                        elif block[1] == 2:
+                            write_line(f'Character array: {name}')
+                        elif block[1] == 1:
+                            write_line(f'Number array: {name}')
+                        elif block[1] == 0:
+                            write_line(f'Program: {name}')
+                        else:
+                            raise TapeError(f'Failed to load block: unknown type: {block[1]}')
+                    else:
+                        write_line(f'Loading data block: {ix},{data_len}')
+                    simulator.snapshot[ix:ix + de] = block[1:-1]
+                    registers['F'] = 0x01 # Set carry flag: success
+                    registers['A'] = 0 # Parity byte match
+                    registers['D'], registers['E'] = 0, 0 # Counter 0
+                    registers['IXl'] = (ix + de) % 256
+                    registers['IXh'] = (ix + de) // 256
+                else:
+                    if a != block[0]:
+                        raise TapeError(f'Failed to load block: unexpected type')
+                    raise TapeError(f'Failed to load block of length {data_len}: expected length {de}')
+                simulator.pc = 0x05E2
+        elif simulator.pc >= 0x4000:
+            write_line(f'Simulation ended: PC={simulator.pc}')
+            return True
+
 def _write_z80(ram, options, fname):
     parent_dir = os.path.dirname(fname)
     if parent_dir and not os.path.isdir(parent_dir):
         os.makedirs(parent_dir)
     write_line('Writing {0}'.format(fname))
     write_z80v3(fname, ram, options.reg, options.state)
+
+def _sim_load(blocks, options):
+    snapshot = [0] * 65536
+    rom = read_bin_file(ROM48, 16384)
+    snapshot[:len(rom)] = rom
+    snapshot[0x5C00:0x5C00 + len(SYSVARS)] = SYSVARS
+    for a, b in SIM_LOAD_PATCH.items():
+        snapshot[a] = b % 256
+        if b > 0xFF:
+            snapshot[a + 1] = b // 256
+    snapshot[0xFF58:] = snapshot[0x3E08:0x3EB0] # UDGs
+    simulator = Simulator(snapshot, {'A': 0x0D, 'SP': 0xFF50})
+    tracer = TAPTracer(blocks)
+    simulator.set_tracer(tracer)
+    simulator.run(0x0F3B) # Entry point in EDITOR at 0F2C
+    registers = simulator.registers
+    registers['IX'] = registers['IXl'] + 256 * registers['IXh']
+    registers['IY'] = registers['IYl'] + 256 * registers['IYh']
+    registers['PC'] = simulator.pc
+    del registers['IXl'], registers['IXh'], registers['IYl'], registers['IYh']
+    options.reg = [f'{r}={v}' for r, v in registers.items()] + options.reg
+    options.state = [f'iff={simulator.iff2}'] + options.state
+    return simulator.snapshot[0x4000:]
 
 def _get_load_params(param_str):
     params = []
@@ -501,7 +595,10 @@ snapshot in an arbitrary way.
 def make_z80(url, options, z80):
     tape_type, tape = _get_tape(url, options.user_agent)
     tape_blocks = _get_tape_blocks(tape_type, tape)
-    ram = _get_ram(tape_blocks, options)
+    if options.sim_load:
+        ram = _sim_load(tape_blocks, options)
+    else:
+        ram = _get_ram(tape_blocks, options)
     _write_z80(ram, options, z80)
 
 def main(args):
@@ -529,6 +626,8 @@ def main(args):
                             "This option may be used multiple times.")
     group.add_argument('-s', '--start', dest='start', metavar='START', type=integer,
                        help="Set the start address to JP to.")
+    group.add_argument('--sim-load', action='store_true',
+                       help='Simulate a 48K ZX Spectrum running LOAD "".')
     group.add_argument('--state', dest='state', metavar='name=value', action='append', default=[],
                        help="Set a hardware state attribute. Do '--state help' for more information. "
                             "This option may be used multiple times.")

@@ -8,6 +8,8 @@ Changelog
   optionally creating audio files in WAV format)
 * Added the :ref:`TSTATES` macro (which expands to the time taken, in T-states,
   to execute one or more instructions)
+* Added the ``--sim-load`` option to :ref:`tap2sna.py` (to simulate a 48K ZX
+  Spectrum running LOAD "")
 * Added the ``AudioPath`` parameter to the :ref:`paths` section (for specifying
   where the :ref:`AUDIO` macro should look for or create audio files by
   default)

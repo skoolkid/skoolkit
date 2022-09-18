@@ -1283,6 +1283,7 @@ To list the options supported by `tap2sna.py`, run it with no arguments::
                           information. This option may be used multiple times.
     -s START, --start START
                           Set the start address to JP to.
+    --sim-load            Simulate a 48K ZX Spectrum running LOAD "".
     --state name=value    Set a hardware state attribute. Do '--state help' for
                           more information. This option may be used multiple
                           times.
@@ -1303,12 +1304,23 @@ the appropriate addresses. For example::
 
 loads the third block on the tape at address 30000, and ignores all other
 blocks. (To see information on the blocks in a TAP or TZX file, use the
-:ref:`tapinfo.py` command.) The ``--ram`` option can also be used to move
-blocks of bytes from one location to another, POKE values into individual
-addresses or address ranges, modify memory with XOR and ADD operations,
-initialise the system variables, or call a Python function to modify the memory
-snapshot in an arbitrary way before it is saved. For more information on these
-operations, run::
+:ref:`tapinfo.py` command.)
+
+An alternative to the ``--ram load`` approach is the ``--sim-load`` option. It
+simulates a freshly booted 48K ZX Spectrum running LOAD "". This should work so
+long as the tape contains only standard speed blocks, and the Spectrum ROM is
+used to load each one. After the entire tape has been loaded, simulation
+continues until the program counter hits an address outside the ROM (i.e.
+anywhere in the RAM). Then, unless overridden by the ``--reg`` option, the
+values of the registers (including the program counter) in the simulator are
+used to populate the Z80 snapshot.
+
+In addition to loading specific blocks, the ``--ram`` option can also be used
+to move blocks of bytes from one location to another, POKE values into
+individual addresses or address ranges, modify memory with XOR and ADD
+operations, initialise the system variables, or call a Python function to
+modify the memory snapshot in an arbitrary way before it is saved. For more
+information on these operations, run::
 
   $ tap2sna.py --ram help
 
@@ -1339,8 +1351,9 @@ given on the command line.
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
-| 8.7     | When a headerless block is ignored because no ``--ram load``      |
-|         | options have been specified, a warning is printed                 |
+| 8.7     | Added the ``--sim-load`` option; when a headerless block is       |
+|         | ignored because no ``--ram load`` options have been specified, a  |
+|         | warning is printed                                                |
 +---------+-------------------------------------------------------------------+
 | 8.6     | Added support to the ``--ram`` option for the ``call`` operation  |
 +---------+-------------------------------------------------------------------+

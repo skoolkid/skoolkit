@@ -35,6 +35,8 @@ WRAPPER = textwrap.TextWrapper(break_long_words=False, break_on_hyphens=False)
 
 AE_CHARS = frozenset(' !=+-*/<>&|^%$ABCDEFabcdef0123456789()')
 
+ROM48 = os.path.join(PACKAGE_DIR, 'resources', '48.rom')
+
 def error(msg):
     sys.stderr.write('ERROR: {0}\n'.format(msg))
     sys.exit(1)

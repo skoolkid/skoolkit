@@ -43,6 +43,12 @@ OPTIONS
   ``--reg pc=START``. `START` must be a decimal number, or a hexadecimal number
   prefixed by '0x'.
 
+--sim-load
+  Simulate a 48K ZX Spectrum running LOAD "". This is an alternative to using
+  ``--ram load`` that can handle headerless data blocks and automatically
+  determine the start address, so long as the tape contains only standard speed
+  blocks, and the Spectrum ROM is used to load each one.
+
 --state name=value
   Set a hardware state attribute. Do ``--state help`` for more information, or
   see the section on ``HARDWARE STATE`` below. This option may be used multiple

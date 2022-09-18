@@ -35,7 +35,10 @@ def create_header_block(title='', start=0, length=0, data_type=3):
     header.extend([ord(c) for c in title[:10].ljust(10)])
     header.extend((length % 256, length // 256))
     header.extend((start % 256, start // 256))
-    header.extend((0, 0))
+    if data_type == 0:
+        header.extend((length % 256, length // 256))
+    else:
+        header.extend((0, 0))
     header.append(get_parity(header))
     return header
 
