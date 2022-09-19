@@ -51,7 +51,7 @@ class SimulatorFlagsTest(unittest.TestCase):
             snapshot[start:start + len(opcodes)] = opcodes
         tracer = tclass(start, *targs)
         simulator = Simulator(snapshot, {'HL': 16384, 'IX': 16385, 'IY': 16386})
-        simulator.set_tracer(tracer)
+        simulator.add_tracer(tracer)
         simulator.run(start)
         reg = targs[0] if targs else ''
         self.assertEqual(tracer.checksum, checksum, f"Checksum failure for '{op}{reg}'")

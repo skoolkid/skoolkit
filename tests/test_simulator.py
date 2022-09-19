@@ -53,6 +53,14 @@ class MemoryTracer:
     def write_memory(self, simulator, address, values):
         self.written.append((simulator.pc, address, *values))
 
+class TracerOneOfTwo:
+    def read_memory(self, simulator, address, count):
+        self.read = (address, count)
+
+class TracerTwoOfTwo:
+    def write_memory(self, simulator, address, values):
+        self.written = (address, values)
+
 TRACER = Tracer()
 
 class SimulatorTest(SkoolKitTestCase):
@@ -74,7 +82,7 @@ class SimulatorTest(SkoolKitTestCase):
             for a, v in sna_in.items():
                 snapshot[a] = v
         simulator = Simulator(snapshot, reg_in)
-        simulator.set_tracer(TRACER)
+        simulator.add_tracer(TRACER)
         exp_reg = simulator.registers.copy()
         if reg_out is None:
             reg_out = {}
@@ -1485,7 +1493,7 @@ class SimulatorTest(SkoolKitTestCase):
         snapshot[start] = 0x76
         simulator = Simulator(snapshot)
         tracer = Tracer()
-        simulator.set_tracer(tracer)
+        simulator.add_tracer(tracer)
         simulator.run(start)
         self.assertEqual(tracer.operation, 'HALT')
 
@@ -1936,7 +1944,7 @@ class SimulatorTest(SkoolKitTestCase):
         snapshot = [0] * 65536
         simulator = Simulator(snapshot)
         tracer = CountingTracer(2)
-        simulator.set_tracer(tracer)
+        simulator.add_tracer(tracer)
         simulator.run(0)
         self.assertEqual(simulator.pc, 2)
         self.assertEqual(simulator.tstates, 8)
@@ -1959,7 +1967,7 @@ class SimulatorTest(SkoolKitTestCase):
         simulator = Simulator(snapshot, {'A': 170, 'BC': 65311})
         value = 128
         tracer = PortTracer(value, end)
-        simulator.set_tracer(tracer)
+        simulator.add_tracer(tracer)
         simulator.run(start)
         exp_ports = [43774, 65311, 65311, 65055, 510, 510]
         self.assertEqual(tracer.in_ports, exp_ports)
@@ -1986,7 +1994,7 @@ class SimulatorTest(SkoolKitTestCase):
         snapshot[hl:hl + 2] = (1, 2)
         simulator = Simulator(snapshot, {'A': 171, 'BC': 65055, 'HL': hl})
         tracer = PortTracer(end=end)
-        simulator.set_tracer(tracer)
+        simulator.add_tracer(tracer)
         simulator.run(start)
         exp_outs = [
             (44030, 171),
@@ -2012,7 +2020,7 @@ class SimulatorTest(SkoolKitTestCase):
         snapshot[start:end] = code
         simulator = Simulator(snapshot)
         tracer = MemoryTracer(end)
-        simulator.set_tracer(tracer)
+        simulator.add_tracer(tracer)
         simulator.run(start)
         exp_addresses = [
             (49158, 32768, 1),
@@ -2036,7 +2044,7 @@ class SimulatorTest(SkoolKitTestCase):
         snapshot[start:end] = code
         simulator = Simulator(snapshot)
         tracer = MemoryTracer(end)
-        simulator.set_tracer(tracer)
+        simulator.add_tracer(tracer)
         simulator.run(start)
         exp_addresses = [
             (49160, 32768, 255),
@@ -2044,6 +2052,25 @@ class SimulatorTest(SkoolKitTestCase):
             (49162, 32770, 0, 128),
         ]
         self.assertEqual(tracer.written, exp_addresses)
+
+    def test_multiple_tracers(self):
+        snapshot = [0] * 65536
+        snapshot[32768] = 64
+        code = (
+            0x21, 0x00, 0x80, # 40000 LD HL,32768
+            0x34,             # 40003 INC (HL)
+        )
+        snapshot[40000:40000 + len(code)] = code
+        simulator = Simulator(snapshot)
+        tracer1 = TracerOneOfTwo()
+        tracer2 = TracerTwoOfTwo()
+        simulator.add_tracer(tracer1)
+        simulator.add_tracer(tracer2)
+        simulator.run(40000)
+        while simulator.pc != 40004:
+            simulator.run()
+        self.assertEqual(tracer1.read, (32768, 1))
+        self.assertEqual(tracer2.written, (32768, (65,)))
 
     def test_rom_not_writable(self):
         snapshot = [0] * 65536
@@ -2057,7 +2084,7 @@ class SimulatorTest(SkoolKitTestCase):
         snapshot[start:end] = code
         simulator = Simulator(snapshot)
         tracer = MemoryTracer(end)
-        simulator.set_tracer(tracer)
+        simulator.add_tracer(tracer)
         simulator.run(start)
         exp_addresses = [
             (49155, 16383, 1, 2),
@@ -2100,7 +2127,7 @@ class SimulatorTest(SkoolKitTestCase):
         snapshot[start:end] = code
         simulator = Simulator(snapshot, state={'ppcount': 1})
         tracer = PushPopCountTracer()
-        simulator.set_tracer(tracer)
+        simulator.add_tracer(tracer)
         simulator.run(start)
         self.assertEqual(simulator.pc, end)
         self.assertEqual(simulator.ppcount, -1)

@@ -62,7 +62,7 @@ def run(romfile, snafile, options):
         snapshot[addr + 4:addr + 6] = (test_addr % 256, test_addr // 256)
     simulator = Simulator(snapshot)
     tracer = Tracer(options.verbose, options.max_operations, options.end)
-    simulator.set_tracer(tracer)
+    simulator.add_tracer(tracer)
     begin = time.time()
     simulator.run(start)
     rt = time.time() - begin

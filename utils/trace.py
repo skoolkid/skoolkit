@@ -146,7 +146,7 @@ def run(snafile, start, options):
         snapshot[:len(rom)] = rom
     simulator = Simulator(snapshot, get_registers(options.reg))
     tracer = Tracer(options.verbose, options.end, options.max_operations, options.max_tstates)
-    simulator.set_tracer(tracer)
+    simulator.add_tracer(tracer)
     begin = time.time()
     simulator.run(start)
     rt = time.time() - begin

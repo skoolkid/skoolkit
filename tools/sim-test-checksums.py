@@ -23,7 +23,7 @@ def generate(name, tclass, args, opcodes):
     snapshot[start:start + len(opcodes)] = opcodes
     simulator = Simulator(snapshot)
     tracer = tclass(start, *args)
-    simulator.set_tracer(tracer)
+    simulator.add_tracer(tracer)
     simulator.run(start)
     print(f"{name} = '{tracer.checksum}'")
 

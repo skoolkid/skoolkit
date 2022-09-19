@@ -97,15 +97,16 @@ class Simulator:
         self.ppcount = state.get('ppcount', 0)
         self.iff2 = state.get('iff2', 0)
         self.tstates = state.get('tstates', 0)
-        self.tracer = None
+        self.tracers = []
 
-    def set_tracer(self, tracer):
-        self.tracer = tracer
+    def add_tracer(self, tracer):
+        self.tracers.append(tracer)
 
     def run(self, pc=None):
         if pc is not None:
             self.pc = pc
-        while 1:
+        running = True
+        while running:
             opcode = self.snapshot[self.pc]
             r_inc = 2
             if opcode == 0xCB:
@@ -129,16 +130,20 @@ class Simulator:
             operation, pc, tstates = f(self, timing, data, *args)
             r = self.registers['R']
             self.registers['R'] = (r & 0x80) + ((r + r_inc) & 0x7F)
-            if self.tracer:
+            running = False
+            if self.tracers:
                 instruction = Instruction(self.tstates, self.pc, operation, data, tstates)
                 self.pc = pc & 0xFFFF
                 self.tstates += tstates
-                if self.tracer.trace(self, instruction):
-                    break
+                retvals = []
+                for tracer in self.tracers:
+                    if hasattr(tracer, 'trace'):
+                        retvals.append(tracer.trace(self, instruction))
+                if retvals:
+                    running = not any(retvals)
             else:
                 self.pc = pc & 0xFFFF
                 self.tstates += tstates
-                break
 
     def set_registers(self, registers):
         for reg, value in registers.items():
@@ -161,6 +166,13 @@ class Simulator:
             elif len(reg) == 2:
                 self.registers[reg[0]] = value // 256
                 self.registers[reg[1]] = value % 256
+
+    def _trace(self, method_name, *args):
+        retval = None
+        for tracer in self.tracers:
+            if hasattr(tracer, method_name):
+                retval = getattr(tracer, method_name)(self, *args)
+        return retval
 
     def get_condition(self, condition):
         cbit = CONDITIONS[condition]
@@ -223,15 +235,13 @@ class Simulator:
             self.poke(addr, value)
 
     def peek(self, address, count=1):
-        if hasattr(self.tracer, 'read_memory'):
-            self.tracer.read_memory(self, address, count)
+        self._trace('read_memory', address, count)
         if count == 1:
             return self.snapshot[address]
         return self.snapshot[address], self.snapshot[(address + 1) & 0xFFFF]
 
     def poke(self, address, *values):
-        if hasattr(self.tracer, 'write_memory'):
-            self.tracer.write_memory(self, address, values)
+        self._trace('write_memory', address, values)
         if address > 0x3FFF:
             self.snapshot[address] = values[0]
         if len(values) > 1:
@@ -651,9 +661,10 @@ class Simulator:
         return f'IM {mode}', self.pc + 2, timing
 
     def _in(self, port):
-        if hasattr(self.tracer, 'read_port'):
-            return self.tracer.read_port(self, port)
-        return 191
+        reading = self._trace('read_port', port)
+        if reading is None:
+            return 191
+        return reading
 
     def in_a(self, timing, data):
         port = data[1] + 256 * self.registers['A']
@@ -857,8 +868,7 @@ class Simulator:
         return f'OR {operand}', self.pc + len(data), timing
 
     def _out(self, port, value):
-        if hasattr(self.tracer, 'write_port'):
-            self.tracer.write_port(self, port, value)
+        self._trace('write_port', port, value)
 
     def outa(self, timing, data):
         a = self.registers['A']
