@@ -1960,6 +1960,94 @@ class CommonSkoolMacroTest:
         self._assert_error(writer, '#TSTATES32768,,2(hi', "No closing bracket: (hi", prefix)
         self._assert_error(writer, '#TSTATES32768,,2/hi', "No terminating delimiter: /hi", prefix)
 
+    def test_macro_sim(self):
+        skool = """
+            @start
+            @assemble=2,2
+            ; Routine
+            c32768 INC A
+             32769 INC B
+             32770 INC C
+             32771 INC D
+             32772 INC E
+             32773 ADD HL,BC
+             32774 ADD IX,DE
+             32776 ADD IY,BC
+             32778 EXX
+             32779 INC B
+             32780 INC C
+             32781 INC D
+             32782 INC E
+             32783 ADD HL,BC
+             32784 EXX
+             32785 EX AF,AF'
+             32786 INC A
+             32787 EX AF,AF'
+             32788 LD I,A
+             32790 LD R,A
+             32792 RET
+             32793 PUSH HL
+             32794 CALL 32768
+             32797 JP 32768
+        """
+        writer = self._get_writer(skool=skool)
+        macro = (
+            "#FORMAT(A={sim[A]},F={sim[F]},BC={sim[BC]},DE={sim[DE]},HL={sim[HL]},A'={sim[^A]},"
+            "F'={sim[^F]},BC'={sim[^BC]},DE'={sim[^DE]},HL'={sim[^HL]},IX={sim[IX]},IY={sim[IY]},"
+            "I={sim[I]},R={sim[R]},SP={sim[SP]},PC={sim[PC]},tstates={sim[tstates]})"
+        )
+
+        # First run
+        self.assertEqual(writer.expand('#SIM32797,32793,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,23296'), '')
+        self.assertEqual(writer.expand(macro), "A=2,F=0,BC=260,DE=261,HL=265,A'=7,F'=1,BC'=265,DE'=266,HL'=275,IX=272,IY=272,I=2,R=5,SP=23294,PC=32797,tstates=164")
+
+        # Resume
+        self.assertEqual(writer.expand('#SIM32792'), '')
+        self.assertEqual(writer.expand(macro), "A=3,F=0,BC=517,DE=518,HL=782,A'=8,F'=9,BC'=522,DE'=523,HL'=797,IX=790,IY=789,I=3,R=5,SP=23294,PC=32792,tstates=300")
+
+        # Clear
+        self.assertEqual(writer.expand('#SIM32792,32768,1'), '')
+        self.assertEqual(writer.expand(macro), "A=1,F=0,BC=257,DE=257,HL=257,A'=1,F'=0,BC'=257,DE'=257,HL'=257,IX=257,IY=23867,I=1,R=3,SP=23552,PC=32792,tstates=126")
+
+    def test_macro_sim_modifies_internal_memory_snapshot(self):
+        skool = """
+            @start
+            @assemble=2,2
+            ; Routine
+            c49152 LD (HL),A
+             49153 RET
+        """
+        writer = self._get_writer(skool=skool)
+        writer.expand('#SIM(start=49152,stop=49153,a=255,hl=32768)')
+        self.assertEqual(writer.snapshot[32768], 255)
+        writer.expand('#PUSHS #SIM(start=49152,stop=49153,a=77,hl=32768) #POPS')
+        self.assertEqual(writer.snapshot[32768], 255)
+
+    def test_macro_sim_with_keyword_arguments_and_replacement_fields(self):
+        skool = """
+            @start
+            @assemble=2,2
+            ; Routine
+            c49152 INC HL
+             49153 RET
+        """
+        writer = self._get_writer(skool=skool)
+        writer.fields.update({'start': 49152, 'stop': 49153, 'hl': 1})
+        self.assertEqual(writer.expand('#SIM(start={start},stop={stop},hl={hl})'), '')
+        self.assertEqual(writer.expand('#FORMAT(HL={sim[HL]})'), 'HL=2')
+
+    def test_macro_sim_invalid(self):
+        writer = self._get_writer()
+        prefix = ERROR_PREFIX.format('SIM')
+
+        self._test_no_parameters(writer, 'SIM', 1)
+        params = '1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19'
+        self._assert_error(writer, f'#SIM({params})', f"Too many parameters (expected 18): '{params}'", prefix)
+        self._assert_error(writer, '#SIM(30000', "No closing bracket: (30000", prefix)
+        self._assert_error(writer, '#SIM(0,5$3)', "Cannot parse integer '5$3' in parameter string: '0,5$3'", prefix)
+        self._assert_error(writer, '#SIM({no})', "Unrecognised field 'no': {no}", prefix)
+        self._assert_error(writer, '#SIM({foo)', "Invalid format string: {foo", prefix)
+
     def test_macro_udg_invalid(self):
         writer = self._get_writer(snapshot=[0] * 8)
         prefix = ERROR_PREFIX.format('UDG')

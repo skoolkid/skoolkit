@@ -144,6 +144,7 @@ parameters of some macros:
 * ``html`` - 1 if in HTML mode, 0 otherwise
 * ``mode`` - a dictionary containing a copy of the ``asm``, ``base``, ``case``,
   ``fix`` and ``html`` fields
+* ``sim`` - a dictionary of register values populated by the :ref:`SIM` macro
 * ``vars`` - a dictionary of variables defined by the ``--var`` option of
   :ref:`skool2asm.py` or :ref:`skool2html.py`; accessing an undefined variable
   in this dictionary yields the integer value '0'
@@ -161,6 +162,9 @@ expands to ``hl`` if in lower case mode, or ``HL`` otherwise.
 
 Note that if a replacement field is used, the parameter string must be
 enclosed in parentheses.
+
+.. versionchanged:: 8.7
+   Added the ``sim`` dictionary.
 
 .. versionchanged:: 8.2
    Added the ``mode`` dictionary.
@@ -1459,6 +1463,103 @@ For example:
 | 5.1     | The ``reg`` parameter must be a valid register name |
 +---------+-----------------------------------------------------+
 
+.. _SIM:
+
+#SIM
+----
+The ``#SIM`` macro simulates the execution of machine code in the internal
+memory snapshot constructed from the contents of the skool file. ::
+
+  #SIMstop[,start,clear,a,f,bc,de,hl,xa,xf,xbc,xde,xhl,ix,iy,i,r,sp]
+
+* ``stop`` is the address at which to stop execution
+* ``start`` is the address at which to start execution (default: ``stop`` from
+  the previous invocation of the ``#SIM`` macro, or 0 if this is the first run)
+* ``clear`` is 0 to use the register values that resulted from the previous
+  invocation of the ``#SIM`` macro (the default), or 1 to reset them to their
+  default values (shown below)
+* ``a`` sets the value of the A (accumulator) register (default: 0)
+* ``f`` sets the value of the F (flags) register (default: 0)
+* ``bc`` sets the value of the BC register pair (default: 0)
+* ``de`` sets the value of the DE register pair (default: 0)
+* ``hl`` sets the value of the HL register pair (default: 0)
+* ``xa`` sets the value of the A' (shadow accumulator) register (default: 0)
+* ``xf`` sets the value of the F' (shadow flags) register (default: 0)
+* ``xbc`` sets the value of the shadow BC register pair (default: 0)
+* ``xde`` sets the value of the shadow DE register pair (default: 0)
+* ``xhl`` sets the value of the shadow HL register pair (default: 0)
+* ``ix`` sets the value of the IX register (default: 0)
+* ``iy`` sets the value of the IY register (default: 23610)
+* ``i`` sets the value of the I register (default: 63)
+* ``r`` sets the value of the R register (default: 0)
+* ``sp`` sets the value of the stack pointer (default: 23552)
+
+The parameters of the ``#SIM`` macro may contain
+:ref:`replacement fields <replacementFields>` and may also be given as keyword arguments.
+
+When execution stops, the simulator's register and clock values are copied to
+the ``sim`` dictionary, where they are accessible via replacement fields with
+the following names:
+
+* ``sim[A]``
+* ``sim[F]``
+* ``sim[BC]``
+* ``sim[DE]``
+* ``sim[HL]``
+* ``sim[^A]`` - the shadow A register
+* ``sim[^F]`` - the shadow flags register
+* ``sim[^BC]`` - the shadow BC register pair
+* ``sim[^DE]`` - the shadow DE register pair
+* ``sim[^HL]`` - the shadow HL register pair
+* ``sim[IX]``
+* ``sim[IY]``
+* ``sim[I]``
+* ``sim[R]``
+* ``sim[SP]``
+* ``sim[PC]`` - the program counter (equal to ``stop``); this is used as the
+  default value of ``start`` for the next invocation of the ``#SIM`` macro
+* ``sim[tstates]`` - the number of T-states elapsed
+
+For example::
+
+  @assemble=2,2
+  ; #SIM(start=32768,stop=32772,bc=13256,de=672)
+   32768 LD HL,443
+   32771 ADD HL,BC
+  ; At this point HL=#EVAL({sim[HL]}).
+  ; #SIM(32773)
+   32772 ADD HL,DE
+  ; And now HL=#EVAL({sim[HL]}).
+   32773 RET
+
+The first ``#SIM`` macro initialises the BC and DE register pairs to 13256 and
+672 respectively, starts executing code at 32768, and stops when it reaches the
+'ADD HL,DE' instruction at 32772. The second ``#SIM`` macro picks up execution
+where the first left off, and stops when it reaches the 'RET' instruction
+at 32773.
+
+After the ``#EVAL`` macros have been expanded, the second mid-block comment
+here is rendered as 'At this point HL=13699', and the third is rendered as 'And
+now HL=14371'.
+
+Note that, by default, the internal memory snapshot constructed by
+:ref:`skool2asm.py` is entirely blank (all zeroes), and the snapshot
+constructed by :ref:`skool2html.py` is populated only by ``DEFB``, ``DEFM``,
+``DEFS`` and ``DEFW`` statements, and by :ref:`defb`, :ref:`defs` and
+:ref:`defw` directives. To make sure that the internal memory snapshot actually
+contains the code to be executed, use the :ref:`assemble` directive (as shown
+in the example above).
+
+Note also that code executed by the ``#SIM`` macro operates directly on the
+internal memory snapshot, and therefore can modify it. To avoid that, use the
+:ref:`PUSHS` and :ref:`POPS` macros to operate on a copy of the snapshot.
+
++---------+---------+
+| Version | Changes |
++=========+=========+
+| 8.7     | New     |
++---------+---------+
+
 .. _SPACE:
 
 #SPACE
@@ -1672,6 +1773,9 @@ The integer parameters of the ``#TSTATES`` macro may contain
 
 See :ref:`stringParameters` for details on alternative ways to supply the
 ``text`` parameter.
+
+See also the :ref:`SIM` macro, which can not only time instructions, but also
+track changes to register values as code is executed.
 
 See also the ``Timings`` configuration parameter for
 :ref:`sna2skool.py <sna2skool-conf>`, which can be used to show instruction
@@ -2598,8 +2702,8 @@ See also :ref:`PEEK`.
 
 #POPS
 -----
-The ``#POPS`` macro removes the current memory snapshot and replaces it with
-the one that was previously saved by a ``#PUSHS`` macro. ::
+The ``#POPS`` macro removes the current internal memory snapshot and replaces
+it with the one that was previously saved by a ``#PUSHS`` macro. ::
 
   #POPS
 
@@ -2613,8 +2717,8 @@ the one that was previously saved by a ``#PUSHS`` macro. ::
 
 #PUSHS
 ------
-The ``#PUSHS`` macro saves the current memory snapshot, and replaces it with an
-identical copy with a given name. ::
+The ``#PUSHS`` macro saves the current internal memory snapshot, and replaces
+it with an identical copy with a given name. ::
 
   #PUSHS[name]
 

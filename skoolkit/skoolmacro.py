@@ -465,6 +465,7 @@ def get_macros(writer):
         '#PUSHS': partial(parse_pushs, writer),
         '#RAW': parse_raw,
         '#REG': partial(parse_reg, writer.get_reg, writer.case == CASE_LOWER),
+        '#SIM': partial(parse_sim, writer),
         '#SPACE': partial(parse_space, writer),
         '#STR': partial(parse_str, writer),
         '#TSTATES': partial(parse_tstates, writer),
@@ -1106,6 +1107,42 @@ def parse_scr(text, index=0, fields=None):
     names = ('scale', 'x', 'y', 'w', 'h', 'df', 'af', 'tindex', 'alpha')
     defaults = (1, 0, 0, 32, 24, 16384, 22528, 0, -1)
     return parse_image_macro(text, index, defaults, names, 'scr', fields)
+
+def parse_sim(writer, text, index, *cwd):
+    # #SIMstop[,start,clear,a,f,bc,de,hl,xa,xf,xbc,xde,xhl,ix,iy,i,r,sp]
+    names = ('stop', 'start', 'clear', 'a', 'f', 'bc', 'de', 'hl', 'xa', 'xf',
+             'xbc', 'xde', 'xhl', 'ix', 'iy', 'i', 'r', 'sp')
+    defaults = (-1, 0) + (-1,) * (len(names) - 3)
+    reg = {}
+    (end, stop, start, clear, reg['A'], reg['F'], reg['BC'], reg['DE'], reg['HL'],
+     reg['^A'], reg['^F'], reg['^BC'], reg['^DE'], reg['^HL'], reg['IX'], reg['IY'],
+     reg['I'], reg['R'], reg['SP']) = parse_ints(text, index, len(names), defaults, names, writer.fields)
+    registers = {}
+    if clear == 0:
+        registers.update(writer.fields.get('sim', {}))
+    for r, v in reg.items():
+        if v >= 0:
+            registers[r] = v
+    tstates = registers.get('tstates', 0)
+    simulator = Simulator(writer.snapshot, registers, {'tstates': tstates})
+    if start < 0:
+        start = simulator.pc
+    simulator.run(start)
+    while simulator.pc != stop:
+        simulator.run()
+    sim = {r: simulator.registers[r] for r in ('A', 'F', '^A', '^F', 'I', 'R', 'SP')}
+    sim['BC'] = simulator.registers['C'] + 256 * simulator.registers['B']
+    sim['DE'] = simulator.registers['E'] + 256 * simulator.registers['D']
+    sim['HL'] = simulator.registers['L'] + 256 * simulator.registers['H']
+    sim['^BC'] = simulator.registers['^C'] + 256 * simulator.registers['^B']
+    sim['^DE'] = simulator.registers['^E'] + 256 * simulator.registers['^D']
+    sim['^HL'] = simulator.registers['^L'] + 256 * simulator.registers['^H']
+    sim['IX'] = simulator.registers['IXl'] + 256 * simulator.registers['IXh']
+    sim['IY'] = simulator.registers['IYl'] + 256 * simulator.registers['IYh']
+    sim['PC'] = simulator.pc
+    sim['tstates'] = simulator.tstates
+    writer.fields['sim'] = sim
+    return end, ''
 
 def parse_space(writer, text, index, *cwd):
     # #SPACE[num] or #SPACE([num])

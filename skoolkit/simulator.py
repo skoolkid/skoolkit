@@ -146,9 +146,12 @@ class Simulator:
                 self.pc = value
             elif reg == 'SP' or len(reg) == 1:
                 self.registers[reg] = value
-            elif reg in ('IX', 'IY'):
-                self.registers[reg + 'h'] = value // 256
-                self.registers[reg + 'l'] = value % 256
+            elif reg.startswith(('IX', 'IY')):
+                if len(reg) == 3:
+                    self.registers[reg] = value
+                else:
+                    self.registers[reg + 'h'] = value // 256
+                    self.registers[reg + 'l'] = value % 256
             elif reg.startswith('^'):
                 if len(reg) == 2:
                     self.registers[reg] = value

@@ -4,6 +4,8 @@ Changelog
 8.7b1
 -----
 * Dropped support for Python 3.6
+* Added the :ref:`SIM` macro (for simulating the execution of machine code in
+  the internal memory snapshot constructed from the contents of the skool file)
 * Added the :ref:`AUDIO` macro (for creating HTML5 ``<audio>`` elements, and
   optionally creating audio files in WAV format)
 * Added the :ref:`TSTATES` macro (which expands to the time taken, in T-states,

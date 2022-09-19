@@ -141,9 +141,7 @@ class SimulatorTest(SkoolKitTestCase):
                     ireg = f'{reg}{half}'
                     operation = f'{op_a}{ireg}'
                     data = (prefix, opcode)
-                    if half == 'h':
-                        opval *= 256
-                    reg_in = {'A': a_in, 'F': f_in, reg: opval}
+                    reg_in = {'A': a_in, 'F': f_in, ireg: opval}
                     reg_out = {'A': a_out, 'F': f_out}
                     self._test_instruction(operation, data, 8, reg_in, reg_out)
 
@@ -711,9 +709,7 @@ class SimulatorTest(SkoolKitTestCase):
                     ireg = f'{reg}{half}'
                     operation = f'{op} {ireg}'
                     data = (prefix, iopcode)
-                    if half == 'h':
-                        r_in *= 256
-                    reg_in = {'F': f_in, reg: r_in}
+                    reg_in = {'F': f_in, ireg: r_in}
                     reg_out = {'F': f_out, ireg: r_out}
                     self._test_instruction(operation, data, 8, reg_in, reg_out)
 
@@ -938,7 +934,7 @@ class SimulatorTest(SkoolKitTestCase):
                 data = (prefix, opcode, r_out)
                 ireg = f'{reg}{half}'
                 operation = f'LD {ireg},${r_out:02X}'
-                reg_in = {reg: r_in * 256 if half == 'h' else r_in}
+                reg_in = {ireg: r_in}
                 reg_out = {ireg: r_out}
                 self._test_instruction(operation, data, 11, reg_in, reg_out)
 
