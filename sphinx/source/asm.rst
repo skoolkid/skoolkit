@@ -1231,6 +1231,30 @@ removed in :ref:`rfixMode`.
 
 The syntax is equivalent to that for the :ref:`bfixBlockDirectives`.
 
+.. _rom:
+
+@rom
+^^^^
+The ``@rom`` directive inserts a copy of the 48K ZX Spectrum ROM into the
+internal memory snapshot constructed from the contents of the skool file. ::
+
+  @rom
+
+Some reasons why you might want to do this are:
+
+* to simulate the execution of ROM code (whether called by game code or
+  otherwise) with the :ref:`SIM` macro
+* to create a WAV file of the ROM's 'BEEPER' subroutine in action with the
+  :ref:`AUDIO` macro
+* to gain access to the Spectrum character set at 0x3D00 for the purpose of
+  creating images of text
+
++---------+---------+
+| Version | Changes |
++=========+=========+
+| 8.7     | New     |
++---------+---------+
+
 .. _rsub:
 
 @rsub

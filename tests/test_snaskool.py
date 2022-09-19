@@ -2491,6 +2491,23 @@ class SkoolWriterTest(SkoolKitTestCase):
         snapshot = [175, 201]
         self._test_write_skool(snapshot, ctl, exp_skool)
 
+    def test_rom_directives(self):
+        ctl = """
+            @ 00000 rom
+            c 00000 Routine at 0
+            @ 00001 rom
+            i 00002
+        """
+        exp_skool = """
+            @rom
+            ; Routine at 0
+            c00000 XOR A         ;
+            @rom
+             00001 RET           ;
+        """
+        snapshot = [175, 201]
+        self._test_write_skool(snapshot, ctl, exp_skool)
+
     def test_set_directives(self):
         ctl = """
             @ 00000 set-crlf=1

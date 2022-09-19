@@ -37,6 +37,7 @@ following:
 * :ref:`label`
 * :ref:`remote`
 * :ref:`replace`
+* :ref:`rom`
 * :ref:`bfixBlockDirectives`
 * :ref:`isubBlockDirectives`
 * :ref:`ofixBlockDirectives`

@@ -12,6 +12,9 @@ Changelog
   to execute one or more instructions)
 * Added the ``--sim-load`` option to :ref:`tap2sna.py` (to simulate a 48K ZX
   Spectrum running LOAD "")
+* Added the :ref:`rom` directive (for inserting a copy of the 48K ZX Spectrum
+  ROM into the internal memory snapshot constructed from the contents of the
+  skool file)
 * Added the ``AudioPath`` parameter to the :ref:`paths` section (for specifying
   where the :ref:`AUDIO` macro should look for or create audio files by
   default)

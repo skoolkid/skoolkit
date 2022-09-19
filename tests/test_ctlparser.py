@@ -1404,6 +1404,20 @@ class CtlParserTest(SkoolKitTestCase):
         }
         self._test_asm_directives(ctl, exp_entry_directives, exp_instruction_directives)
 
+    def test_rom_directives(self):
+        ctl = """
+            @ 50000 rom
+            c 50000 Routine at 50000
+            @ 50001 rom
+        """
+        exp_entry_directives = {
+            50000: ['rom'],
+        }
+        exp_instruction_directives = {
+            50001: ['rom']
+        }
+        self._test_asm_directives(ctl, exp_entry_directives, exp_instruction_directives)
+
     def test_rfix_directives(self):
         ctl = """
             @ 50000 rfix=LD BC,0

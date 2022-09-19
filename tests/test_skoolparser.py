@@ -1,3 +1,4 @@
+import hashlib
 from textwrap import dedent
 import re
 from unittest.mock import patch
@@ -2114,6 +2115,16 @@ class SkoolParserTest(SkoolKitTestCase):
         self.assertEqual(reference.entry, entry2)
         self.assertEqual(reference.address, 30003)
         self.assertEqual(reference.addr_str, '30003')
+
+    def test_rom_directive(self):
+        skool = """
+            @start
+            @rom
+            c32768 RET
+        """
+        parser = self._get_parser(skool)
+        rom = bytearray(parser.snapshot[:16384])
+        self.assertEqual(hashlib.md5(rom).hexdigest(), '4c42a2f075212361c3117015b107ff68')
 
     def test_references(self):
         skool = """
