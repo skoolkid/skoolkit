@@ -96,6 +96,16 @@ class FormattingError(MacroParsingError):
 class ClosingBracketError(MacroParsingError):
     pass
 
+class AudioTracer:
+    def __init__(self):
+        self.spkr = None
+        self.out_times = []
+
+    def write_port(self, simulator, port, value):
+        if port & 0xFF == 0xFE and self.spkr is None or self.spkr != value & 0x10:
+            self.spkr = value & 0x10
+            self.out_times.append(simulator.tstates)
+
 # API
 def parse_ints(text, index=0, num=0, defaults=(), names=(), fields=None):
     """Parse a sequence of comma-separated integer parameters, optionally
@@ -534,6 +544,7 @@ def _eval_delays(spec):
 
 def parse_audio(writer, text, index, need_audio=None):
     # #AUDIO[flags,offset](fname)[(delays)]
+    # #AUDIO[flags,offset](fname)(start,stop)
     try:
         end, flags, offset = parse_ints(text, index, 2, defaults=(0, 0), fields=writer.fields)
     except InvalidParameterError:
@@ -544,11 +555,22 @@ def parse_audio(writer, text, index, need_audio=None):
     delays, eval_delays = None, False
     if need_audio:
         fname, eval_delays = need_audio(fname)
-    if len(text) > end and text[end] == '(':
-        end, spec = parse_brackets(text, end)
+    if flags & 4:
+        end, start, stop = parse_ints(text, end, 2, fields=writer.fields)
         if eval_delays:
-            expanded = writer.expand(spec)
-            delays = _eval_delays(_format_params(expanded, expanded, **writer.fields))
+            simulator = Simulator(writer.snapshot)
+            tracer = AudioTracer()
+            simulator.add_tracer(tracer)
+            simulator.run(start)
+            while simulator.pc != stop:
+                simulator.run()
+            delays = [t - tracer.out_times[i] for i, t in enumerate(tracer.out_times[1:])]
+    else:
+        if len(text) > end and text[end] == '(':
+            end, spec = parse_brackets(text, end)
+            if eval_delays:
+                expanded = writer.expand(spec)
+                delays = _eval_delays(_format_params(expanded, expanded, **writer.fields))
     return end, flags, offset, fname, delays
 
 def parse_call(writer, text, index, *cwd):

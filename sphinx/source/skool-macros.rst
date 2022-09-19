@@ -875,21 +875,31 @@ In HTML mode, the ``#AUDIO`` macro expands to an HTML5 ``<audio>`` element. ::
 
   #AUDIO[flags,offset](fname)[(delays)]
 
+Or, when bit 2 of ``flags`` is set::
+
+  #AUDIO[flags,offset](fname)(start,stop)
+
 * ``flags`` controls various options (see below)
 * ``offset`` is the initial offset in T-states from the start of a frame
   (default: 0); this value affects when contention and interrupt delays (if
   enabled) first take effect
 * ``fname`` is the name of the audio file
-* ``delays`` is a comma-separated list of interval lengths (in T-states)
-  between speaker state changes; this parameter may contain skool macros (which
-  are expanded first) and :ref:`replacement fields <replacementFields>` (which
-  are replaced after any skool macros have been expanded)
+* ``delays`` is a comma-separated list of delays (in T-states) between speaker
+  state changes; this parameter may contain skool macros (which are expanded
+  first) and :ref:`replacement fields <replacementFields>` (which are replaced
+  after any skool macros have been expanded)
+* ``start`` is the address at which to start executing code in a simulator
+  (when bit 2 of ``flags`` is set)
+* ``stop`` is the address at which to stop executing code in a simulator (when
+  bit 2 of ``flags`` is set)
 
 ``flags`` is the sum of the following values, chosen according to the desired
 outcome:
 
-* 1 - modify ``delays`` by simulating memory contention
-* 2 - modify ``delays`` as if interrupts were enabled
+* 1 (bit 0) - modify delays by simulating memory contention
+* 2 (bit 1) - modify delays as if interrupts were enabled
+* 4 (bit 2) - execute instructions from ``start`` to ``stop`` in a simulator to
+  obtain the delays between speaker state changes
 
 If ``fname`` starts with a '/', the filename is taken to be relative to the
 root of the HTML disassembly. Otherwise the filename is taken to be relative to
@@ -918,16 +928,46 @@ reset).
 The characters allowed in the ``delays`` parameter are ' ' (space), the digits
 0-9, and any of ``,*+-%()[]``.
 
-If ``delays`` is specified but ``fname`` does not end with '.wav', no audio
-file is written. This enables the ``delays`` parameter to be kept in place as a
-reminder of how an original WAV file was created by the ``#AUDIO`` macro before
-it was converted to another format.
+An alternative to supplying the delay values manually is to execute the code
+that produces the sound effect in a simulator, and let the simulator compute
+the delays. This can be done by setting bit 2 of ``flags`` and specifying the
+code to execute via the ``start`` and ``stop`` address parameters. For
+example::
 
-If ``delays`` is not specified or ``fname`` does not end with '.wav', the named
-audio file must already exist in the specified location, otherwise the
-``<audio>`` element controls will not work. To make sure that a pre-built audio
-file is copied into the desired location when :ref:`skool2html.py` is run, it
-can be declared in the :ref:`resources` section.
+  ; #AUDIO4(beep.wav)(32768,32782)
+  @assemble=2
+  c32768 LD L,0
+  *32771 OUT (254),A
+   32773 XOR 16
+   32775 LD B,200
+   32777 DJNZ 32777
+   32779 DEC L
+   32780 JR NZ,32771
+   32782 RET
+
+Note that the simulator does not simulate memory contention effects or
+interrupt delays, so bits 0 and 1 of ``flags`` may still need to be set if
+desired.
+
+Note also that, by default, the internal memory snapshot constructed by
+:ref:`skool2asm.py` is entirely blank (all zeroes), and the snapshot
+constructed by :ref:`skool2html.py` is populated only by ``DEFB``, ``DEFM``,
+``DEFS`` and ``DEFW`` statements, and by :ref:`defb`, :ref:`defs` and
+:ref:`defw` directives. To make sure that the internal memory snapshot actually
+contains the code to be executed, use the :ref:`assemble` directive (as shown
+in the example above).
+
+If ``delays`` or ``start`` and ``stop`` parameters are specified, but ``fname``
+does not end with '.wav', no audio file is written. This enables the parameters
+to be kept in place as a reminder of how an original WAV file was created by
+the ``#AUDIO`` macro before it was converted to another format.
+
+If neither ``delays`` nor ``start`` and ``stop`` parameters are specified, or
+``fname`` does not end with '.wav', the named audio file must already exist in
+the specified location, otherwise the ``<audio>`` element controls will not
+work. To make sure that a pre-built audio file is copied into the desired
+location when :ref:`skool2html.py` is run, it can be declared in the
+:ref:`resources` section.
 
 By default, if ``fname`` ends with '.wav', but a '.flac', '.mp3' or '.ogg' file
 with the same basename already exists, that file is used and no WAV file is
@@ -937,8 +977,8 @@ written. This enables an original WAV file to be replaced by an alternative
 looks for before writing a WAV file are specified by the ``AudioFormats``
 parameter in the :ref:`ref-game` section.
 
-The ``flags`` and ``offset`` parameters of the ``#AUDIO`` macro may contain
-:ref:`replacement fields <replacementFields>`.
+The ``flags``, ``offset``, ``start`` and ``stop`` parameters of the ``#AUDIO``
+macro may contain :ref:`replacement fields <replacementFields>`.
 
 The :ref:`t_audio` template is used to format the ``<audio>`` element.
 
