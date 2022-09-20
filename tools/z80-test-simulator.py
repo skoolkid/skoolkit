@@ -14,9 +14,13 @@ if not os.path.isdir(SKOOLKIT_HOME):
     sys.exit(1)
 sys.path.insert(0, SKOOLKIT_HOME)
 
-from skoolkit import integer, read_bin_file
-from skoolkit.snapshot import make_snapshot
+from skoolkit import ROM48, integer, read_bin_file
 from skoolkit.simulator import Simulator
+from skoolkit.tap2sna import get_tap_blocks, sim_load
+
+class Options:
+    reg = []
+    state = []
 
 class Tracer:
     def __init__(self, verbose, max_operations, end):
@@ -48,11 +52,19 @@ class Tracer:
                     print()
                 self.msg = ''
 
-def run(romfile, snafile, options):
-    snapshot, start = make_snapshot(snafile, None, options.start)[0:2]
-    snapshot[23692] = 255 # Inhibit 'scroll?' prompt
-    rom = read_bin_file(romfile, 16384)
+def load_tap(tapfile):
+    tap_blocks = get_tap_blocks(read_bin_file(tapfile))
+    options = Options()
+    snapshot = [0] * 16384 + sim_load(tap_blocks, options)
+    rom = read_bin_file(ROM48)
     snapshot[:len(rom)] = rom
+    for r in options.reg:
+        if r.startswith('PC='):
+            return int(r[3:]), snapshot
+
+def run(tapfile, options):
+    start, snapshot = load_tap(tapfile)
+    snapshot[23692] = 255 # Inhibit 'scroll?' prompt
     if options.test:
         addr = 32768
         while snapshot[addr:addr + 6] != [1, 0, 0, 33, 122, 136]:
@@ -74,25 +86,22 @@ def run(romfile, snafile, options):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
-        usage='{} [options] rom.bin FILE'.format(os.path.basename(sys.argv[0])),
+        usage='{} [options] FILE'.format(os.path.basename(sys.argv[0])),
         description="Run RAXOFT Z80 tests on a SkoolKit Simulator instance. "
-                    "FILE must be a snapshot that contains the tests.",
+                    "FILE must be a TAP file that loads the tests (e.g. z80full.tap).",
         add_help=False
     )
-    parser.add_argument('romfile', help=argparse.SUPPRESS, nargs='?')
-    parser.add_argument('z80file', help=argparse.SUPPRESS, nargs='?')
+    parser.add_argument('tapfile', help=argparse.SUPPRESS, nargs='?')
     group = parser.add_argument_group('Options')
     group.add_argument('--max-operations', metavar='MAX', type=int, default=0,
                        help='Maximum number of instructions to execute.')
     group.add_argument('-e', '--end', metavar='ADDR', type=integer, default=32912,
                        help='End execution at this address (default: 32912).')
-    group.add_argument('-s', '--start', metavar='ADDR', type=integer, default=32768,
-                       help='Start execution at this address (default: 32768).')
     group.add_argument('-t', '--test', metavar='TEST', type=int, default=0,
                        help='Start at this test (default: 0).')
     group.add_argument('-v', '--verbose', action='count', default=0,
                        help="Show executed instructions.")
     namespace, unknown_args = parser.parse_known_args()
-    if unknown_args or namespace.z80file is None:
+    if unknown_args or namespace.tapfile is None:
         parser.exit(2, parser.format_help())
-    run(namespace.romfile, namespace.z80file, namespace)
+    run(namespace.tapfile, namespace)

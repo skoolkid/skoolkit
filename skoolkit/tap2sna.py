@@ -222,7 +222,7 @@ def _write_z80(ram, options, fname):
     write_line('Writing {0}'.format(fname))
     write_z80v3(fname, ram, options.reg, options.state)
 
-def _sim_load(blocks, options):
+def sim_load(blocks, options):
     snapshot = [0] * 65536
     rom = read_bin_file(ROM48, 16384)
     snapshot[:len(rom)] = rom
@@ -460,7 +460,7 @@ def _get_tzx_blocks(data):
         blocks.append(tape_data)
     return blocks
 
-def _get_tap_blocks(tap):
+def get_tap_blocks(tap):
     blocks = []
     i = 0
     while i < len(tap):
@@ -473,7 +473,7 @@ def _get_tap_blocks(tap):
 def _get_tape_blocks(tape_type, tape):
     if tape_type.lower() == 'tzx':
         return _get_tzx_blocks(tape)
-    return _get_tap_blocks(tape)
+    return get_tap_blocks(tape)
 
 def _get_tape(urlstring, user_agent, member=None):
     url = urlparse(urlstring)
@@ -603,7 +603,7 @@ def make_z80(url, options, z80):
     tape_type, tape = _get_tape(url, options.user_agent)
     tape_blocks = _get_tape_blocks(tape_type, tape)
     if options.sim_load:
-        ram = _sim_load(tape_blocks, options)
+        ram = sim_load(tape_blocks, options)
     else:
         ram = _get_ram(tape_blocks, options)
     _write_z80(ram, options, z80)
