@@ -1284,6 +1284,10 @@ To list the options supported by `tap2sna.py`, run it with no arguments::
     -s START, --start START
                           Set the start address to JP to.
     --sim-load            Simulate a 48K ZX Spectrum running LOAD "".
+    --sim-load-fast       Simulate a 48K ZX Spectrum running LOAD "". This
+                          option intercepts calls to the ROM's load routine at
+                          $0556, and will work only if every block on the tape
+                          is loaded by that routine.
     --state name=value    Set a hardware state attribute. Do '--state help' for
                           more information. This option may be used multiple
                           times.
@@ -1306,14 +1310,22 @@ loads the third block on the tape at address 30000, and ignores all other
 blocks. (To see information on the blocks in a TAP or TZX file, use the
 :ref:`tapinfo.py` command.)
 
-An alternative to the ``--ram load`` approach is the ``--sim-load`` option. It
-simulates a freshly booted 48K ZX Spectrum running LOAD "". This should work so
-long as the tape contains only standard speed blocks, and the Spectrum ROM is
-used to load each one. After the entire tape has been loaded, simulation
-continues until the program counter hits an address outside the ROM (i.e.
-anywhere in the RAM). Then, unless overridden by the ``--reg`` option, the
-values of the registers (including the program counter) in the simulator are
-used to populate the Z80 snapshot.
+An alternative to the ``--ram load`` approach is the ``--sim-load-fast``
+option. It simulates a freshly booted 48K ZX Spectrum running LOAD "", and
+intercepts calls to the Spectrum ROM's load routine at $0556. This should work
+so long as that routine is used to load every block on the tape. After the
+entire tape has been loaded, simulation continues until the program counter
+hits an address outside the ROM (i.e. anywhere in the RAM).
+
+If the tape contains blocks that are loaded by a custom loader, the (much
+slower) ``--sim-load`` option should be used instead. It simulates execution of
+all loading code, and continues until either the tape has finished, or the
+program counter hits the start address given by the ``--start`` option. (The
+``--start`` option is required if the tape contains more data than is actually
+loaded by the game's load routine.)
+
+When a simulated LOAD has completed, the values of the registers (including
+the program counter) in the simulator are used to populate the Z80 snapshot.
 
 In addition to loading specific blocks, the ``--ram`` option can also be used
 to move blocks of bytes from one location to another, POKE values into
@@ -1351,9 +1363,9 @@ given on the command line.
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
-| 8.7     | Added the ``--sim-load`` option; when a headerless block is       |
-|         | ignored because no ``--ram load`` options have been specified, a  |
-|         | warning is printed                                                |
+| 8.7     | Added the ``--sim-load`` and ``--sim-load-fast`` options; when a  |
+|         | headerless block is ignored because no ``--ram load`` options     |
+|         | have been specified, a warning is printed                         |
 +---------+-------------------------------------------------------------------+
 | 8.6     | Added support to the ``--ram`` option for the ``call`` operation  |
 +---------+-------------------------------------------------------------------+

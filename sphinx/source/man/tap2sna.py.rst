@@ -44,10 +44,16 @@ OPTIONS
   prefixed by '0x'.
 
 --sim-load
-  Simulate a 48K ZX Spectrum running LOAD "". This is an alternative to using
-  ``--ram load`` that can handle headerless data blocks and automatically
-  determine the start address, so long as the tape contains only standard speed
-  blocks, and the Spectrum ROM is used to load each one.
+  Simulate a 48K ZX Spectrum running LOAD "". This option can handle headerless
+  data blocks and custom loaders. It should work so long as the tape contains
+  only standard speed blocks.
+
+--sim-load-fast
+  Simulate a 48K ZX Spectrum running LOAD "". This option intercepts calls to
+  the ROM's load routine at $0556, and will work only if every block on the
+  tape is loaded by that routine. It can handle headerless data blocks, and
+  automatically sets the start address to the first address jumped to outside
+  the ROM.
 
 --state name=value
   Set a hardware state attribute. Do ``--state help`` for more information, or
