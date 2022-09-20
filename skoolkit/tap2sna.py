@@ -168,9 +168,12 @@ class TapeError(Exception):
 class TAPTracer:
     def __init__(self, blocks):
         self.blocks = blocks
+        self.in254 = False
 
     def trace(self, simulator, instruction):
         if self.blocks:
+            if self.in254:
+                raise TapeError(f'{instruction.operation} at ${instruction.address:04X} reads port 254; custom loader?')
             if simulator.pc == 0x0556:
                 registers = simulator.registers
                 block = self.blocks.pop(0)
@@ -207,6 +210,10 @@ class TAPTracer:
         elif simulator.pc >= 0x4000:
             write_line(f'Simulation ended: PC={simulator.pc}')
             return True
+
+    def read_port(self, simulator, port):
+        if port & 0xFF == 0xFE and simulator.pc > 0x3FFF:
+            self.in254 = True
 
 def _write_z80(ram, options, fname):
     parent_dir = os.path.dirname(fname)
