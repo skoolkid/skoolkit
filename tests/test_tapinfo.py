@@ -79,7 +79,7 @@ class TapinfoTest(SkoolKitTestCase):
             2:
               Type: Data block
               Length: 5
-              Data: 255, 1, 2, 4, 7
+              Data: 255, 1, 2, 4, 248
             3:
               Type: Header block
               Number array: numbers_01
@@ -88,7 +88,7 @@ class TapinfoTest(SkoolKitTestCase):
             4:
               Type: Data block
               Length: 5
-              Data: 255, 8, 16, 32, 56
+              Data: 255, 8, 16, 32, 199
         """
         self.assertEqual(dedent(exp_output).lstrip(), output)
 
@@ -112,7 +112,7 @@ class TapinfoTest(SkoolKitTestCase):
             2: Standard speed data (0x10)
               Type: Data block
               Length: 5
-              Data: 255, 1, 4, 16, 21
+              Data: 255, 1, 4, 16, 234
             3: Standard speed data (0x10)
               Type: Header block
               Character array: characters
@@ -121,7 +121,7 @@ class TapinfoTest(SkoolKitTestCase):
             4: Standard speed data (0x10)
               Type: Data block
               Length: 4
-              Data: 255, 64, 0, 64
+              Data: 255, 64, 0, 191
         """
         self.assertEqual(dedent(exp_output).lstrip(), output)
 
@@ -155,7 +155,7 @@ class TapinfoTest(SkoolKitTestCase):
         exp_output = """
             1: Turbo speed data (0x11)
               Length: 5
-              Data: 255, 0, 1, 2, 3
+              Data: 255, 0, 1, 2, 252
         """
         self._test_tzx_block(block, exp_output)
 
@@ -510,7 +510,7 @@ class TapinfoTest(SkoolKitTestCase):
             1: Standard speed data (0x10)
               Type: Data block
               Length: 4
-              Data: 255, 0, 1, 1
+              Data: 255, 0, 1, 254
             3: Stop the tape if in 48K mode (0x2A)
         """
 
@@ -534,7 +534,7 @@ class TapinfoTest(SkoolKitTestCase):
             1: Standard speed data (0x10)
               Type: Data block
               Length: 4
-              Data: 255, 0, 1, 1
+              Data: 255, 0, 1, 254
         """
 
         output, error = self.run_tapinfo('-b 10,2z {}'.format(tzxfile))
@@ -620,7 +620,7 @@ class TapinfoTest(SkoolKitTestCase):
             2:
               Type: Data block
               Length: 6
-              0000  FF 01 02 04 08 0F                                ......
+              0000  FF 01 02 04 08 F0                                ......
             3:
               Type: Header block
               Character array: characters
@@ -633,7 +633,7 @@ class TapinfoTest(SkoolKitTestCase):
               0000  FF 20 21 22 23 24 25 26 27 28 29 2A 2B 2C 2D 2E  . !"#$%&'()*+,-.
               0010  2F 30 31 32 33 34 35 36 37 38 39 3A 3B 3C 3D 3E  /0123456789:;<=>
               0020  3F 40 41 42 43 44 45 46 47 48 49 4A 4B 4C 4D 4E  ?@ABCDEFGHIJKLMN
-              0030  4F 50 51 52 53 54 55 56 57 58 59 5A 5B 5C 5D 01  OPQRSTUVWXYZ[\].
+              0030  4F 50 51 52 53 54 55 56 57 58 59 5A 5B 5C 5D FE  OPQRSTUVWXYZ[\].
         """
         self.assertEqual(dedent(exp_output).lstrip(), output)
 
@@ -676,12 +676,12 @@ class TapinfoTest(SkoolKitTestCase):
             2: Standard speed data (0x10)
               Type: Data block
               Length: 5
-              0000  FF 01 04 10 15                                   .....
+              0000  FF 01 04 10 EA                                   .....
             3: Turbo speed data (0x11)
               Length: 48
               0000  FF 30 31 32 33 34 35 36 37 38 39 3A 3B 3C 3D 3E  .0123456789:;<=>
               0010  3F 40 41 42 43 44 45 46 47 48 49 4A 4B 4C 4D 4E  ?@ABCDEFGHIJKLMN
-              0020  4F 50 51 52 53 54 55 56 57 58 59 5A 5B 5C 5D 01  OPQRSTUVWXYZ[\].
+              0020  4F 50 51 52 53 54 55 56 57 58 59 5A 5B 5C 5D FE  OPQRSTUVWXYZ[\].
             4: Pure data (0x14)
               0-pulse: 513
               1-pulse: 1027

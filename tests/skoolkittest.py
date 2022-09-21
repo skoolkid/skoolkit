@@ -43,10 +43,9 @@ def create_header_block(title='', start=0, length=0, data_type=3):
     return header
 
 def create_data_block(data):
-    parity = 0
-    for b in data:
-        parity ^= b
-    return [255] + data + [get_parity(data)]
+    data_block = [255] + data
+    data_block.append(get_parity(data_block))
+    return data_block
 
 def create_tap_data_block(data):
     data_block = create_data_block(data)
@@ -65,10 +64,10 @@ def create_tzx_data_block(data):
     block.extend(data_block)
     return block
 
-def create_tzx_header_block(title='', start=0, data_type=3):
+def create_tzx_header_block(title='', start=0, length=0, data_type=3):
     block = [16] # Block ID
     block.extend((0, 0)) # Pause duration
-    data_block = create_header_block(title, start, data_type=data_type)
+    data_block = create_header_block(title, start, length, data_type)
     length = len(data_block)
     block.extend((length % 256, length // 256))
     block.extend(data_block)

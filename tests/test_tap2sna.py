@@ -715,7 +715,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         code_start = 32768
         code_start_str = [ord(c) for c in str(code_start)]
         basic_data = [
-            10, 0,            # Line 10
+            0, 10,            # Line 10
             16, 0,            # Line length
             239, 34, 34, 175, # LOAD ""CODE
             58,               # :
@@ -748,14 +748,14 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(basic_data, snapshot[23755:23755 + len(basic_data)])
         self.assertEqual(code, snapshot[code_start:code_start + len(code)])
         exp_reg = set(('SP=65344', 'IX=32770', 'IY=23610', 'PC=32768'))
-        self.assertTrue(exp_reg <= set(options.reg))
+        self.assertLessEqual(exp_reg, set(options.reg))
 
     @patch.object(tap2sna, '_write_z80', mock_write_z80)
     def test_sim_load_fast_with_character_array(self):
         code_start = 32768
         code_start_str = [ord(c) for c in str(code_start)]
         basic_data = [
-            10, 0,            # Line 10
+            0, 10,            # Line 10
             25, 0,            # Line length
             239, 34, 34, 228, # LOAD "" DATA
             97, 36, 40, 41,   # a$()
@@ -798,14 +798,14 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(ca_data, snapshot[23787:23787 + len(ca_data)])
         self.assertEqual(code, snapshot[code_start:code_start + len(code)])
         exp_reg = set(('SP=65344', 'IX=32770', 'IY=23610', 'PC=32768'))
-        self.assertTrue(exp_reg <= set(options.reg))
+        self.assertLessEqual(exp_reg, set(options.reg))
 
     @patch.object(tap2sna, '_write_z80', mock_write_z80)
     def test_sim_load_fast_with_number_array(self):
         code_start = 32768
         code_start_str = [ord(c) for c in str(code_start)]
         basic_data = [
-            10, 0,            # Line 10
+            0, 10,            # Line 10
             24, 0,            # Line length
             239, 34, 34, 228, # LOAD "" DATA
             97, 40, 41,       # a()
@@ -848,14 +848,14 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(na_data, snapshot[23786:23786 + len(na_data)])
         self.assertEqual(code, snapshot[code_start:code_start + len(code)])
         exp_reg = set(('SP=65344', 'IX=32770', 'IY=23610', 'PC=32768'))
-        self.assertTrue(exp_reg <= set(options.reg))
+        self.assertLessEqual(exp_reg, set(options.reg))
 
     @patch.object(tap2sna, '_write_z80', mock_write_z80)
     def test_sim_load_fast_with_headerless_block(self):
         code_start = 32768
         code_start_str = [ord(c) for c in str(code_start)]
         basic_data = [
-            10, 0,            # Line 10
+            0, 10,            # Line 10
             16, 0,            # Line length
             239, 34, 34, 175, # LOAD ""CODE
             58,               # :
@@ -899,13 +899,13 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(code, snapshot[code_start:code_start + len(code)])
         self.assertEqual(code2, snapshot[49152:49152 + len(code2)])
         exp_reg = set(('SP=65344', 'IX=49154', 'IY=23610', 'PC=49152'))
-        self.assertTrue(exp_reg <= set(options.reg))
+        self.assertLessEqual(exp_reg, set(options.reg))
 
     def test_sim_load_fast_with_port_254_read(self):
         code_start = 32768
         code_start_str = [ord(c) for c in str(code_start)]
         basic_data = [
-            10, 0,            # Line 10
+            0, 10,            # Line 10
             16, 0,            # Line length
             239, 34, 34, 175, # LOAD ""CODE
             58,               # :
@@ -945,7 +945,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         code_start = 32768
         code_start_str = [ord(c) for c in str(code_start)]
         basic_data = [
-            10, 0,            # Line 10
+            0, 10,            # Line 10
             16, 0,            # Line length
             239, 34, 34, 175, # LOAD ""CODE
             58,               # :
@@ -977,7 +977,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         code_start = 32768
         code_start_str = [ord(c) for c in str(code_start)]
         basic_data = [
-            10, 0,            # Line 10
+            0, 10,            # Line 10
             16,  0,           # Line length
             239, 34, 34, 175, # LOAD ""CODE
             58,               # :

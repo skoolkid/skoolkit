@@ -15,6 +15,7 @@ usage:
 	@echo "  test[-all]    run core/all tests with default Python 3 interpreter"
 	@echo "  test3X[-all]  run core/all tests with Python 3.X (7<=X<=10)"
 	@echo "  test-cover    run core tests with coverage info"
+	@echo "  test-slow     run slow tests with default Python 3 interpreter"
 	@echo "  release       build a SkoolKit release tarball and zip archive"
 	@echo "  tarball       build a SkoolKit release tarball"
 	@echo "  deb           build a SkoolKit Debian package"
@@ -75,6 +76,10 @@ test%-all: write-disassembly-tests
 .PHONY: test-cover
 test-cover: remove-disassembly-tests
 	$(NOSE) -C --coverage skoolkit --coverage-report term-missing
+
+.PHONY: test-slow
+test-slow:
+	$(NOSE) -v -c tests/slow_test.cfg
 
 .PHONY: release
 release:
