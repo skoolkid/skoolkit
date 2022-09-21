@@ -19,22 +19,22 @@ from collections import namedtuple
 Instruction = namedtuple('Instruction', 'time address operation data tstates')
 
 PARITY = (
-    1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1, 0, 0, 1,
-    0, 1, 1, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 1, 1, 0,
-    0, 1, 1, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 1, 1, 0,
-    1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1, 0, 0, 1,
-    0, 1, 1, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 1, 1, 0,
-    1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1, 0, 0, 1,
-    1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1, 0, 0, 1,
-    0, 1, 1, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 1, 1, 0,
-    0, 1, 1, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 1, 1, 0,
-    1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1, 0, 0, 1,
-    1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1, 0, 0, 1,
-    0, 1, 1, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 1, 1, 0,
-    1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1, 0, 0, 1,
-    0, 1, 1, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 1, 1, 0,
-    0, 1, 1, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 1, 1, 0,
-    1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1, 0, 0, 1
+    4, 0, 0, 4, 0, 4, 4, 0, 0, 4, 4, 0, 4, 0, 0, 4,
+    0, 4, 4, 0, 4, 0, 0, 4, 4, 0, 0, 4, 0, 4, 4, 0,
+    0, 4, 4, 0, 4, 0, 0, 4, 4, 0, 0, 4, 0, 4, 4, 0,
+    4, 0, 0, 4, 0, 4, 4, 0, 0, 4, 4, 0, 4, 0, 0, 4,
+    0, 4, 4, 0, 4, 0, 0, 4, 4, 0, 0, 4, 0, 4, 4, 0,
+    4, 0, 0, 4, 0, 4, 4, 0, 0, 4, 4, 0, 4, 0, 0, 4,
+    4, 0, 0, 4, 0, 4, 4, 0, 0, 4, 4, 0, 4, 0, 0, 4,
+    0, 4, 4, 0, 4, 0, 0, 4, 4, 0, 0, 4, 0, 4, 4, 0,
+    0, 4, 4, 0, 4, 0, 0, 4, 4, 0, 0, 4, 0, 4, 4, 0,
+    4, 0, 0, 4, 0, 4, 4, 0, 0, 4, 4, 0, 4, 0, 0, 4,
+    4, 0, 0, 4, 0, 4, 4, 0, 0, 4, 4, 0, 4, 0, 0, 4,
+    0, 4, 4, 0, 4, 0, 0, 4, 4, 0, 0, 4, 0, 4, 4, 0,
+    4, 0, 0, 4, 0, 4, 4, 0, 0, 4, 4, 0, 4, 0, 0, 4,
+    0, 4, 4, 0, 4, 0, 0, 4, 4, 0, 0, 4, 0, 4, 4, 0,
+    0, 4, 4, 0, 4, 0, 0, 4, 4, 0, 0, 4, 0, 4, 4, 0,
+    4, 0, 0, 4, 0, 4, 4, 0, 0, 4, 4, 0, 4, 0, 0, 4
 )
 
 FLAGS = {
@@ -251,50 +251,44 @@ class Simulator:
 
     def add_a(self, timing, data, reg=None, carry=0, mult=1):
         operand, value = self.get_operand_value(data, reg)
-        if mult == 1:
-            if carry:
-                op = f'ADC A,{operand}'
-            else:
-                op = f'ADD A,{operand}'
-        elif carry:
-            op = f'SBC A,{operand}'
-        else:
-            op = f'SUB {operand}'
-
-        old_c = self.get_flag('C')
+        old_c = self.registers['F'] & 0x01
         old_a = self.registers['A']
         addend = value + carry * old_c
         a = old_a + mult * addend
         if a < 0 or a > 255:
             a = a & 255
-            self.set_flag('C', 1)
+            f = (a & 0xA8) | 0x01 # S.5.3..C
         else:
-            self.set_flag('C', 0)
-        self.set_flag('S', a & 0x80)
-        self.set_flag('Z', a == 0)
-        self.set_flag('5', a & 0x20)
+            f = a & 0xA8          # S.5.3..C
+        if a == 0:
+            f |= 0x40 # .Z......
         if mult == 1:
+            if carry:
+                op = f'ADC A,{operand}'
+            else:
+                op = f'ADD A,{operand}'
             s_value = value
-            if op == 'ADC A,A' and old_a & 0x0F == 0x0F:
-                self.set_flag('H', 1)
-            else:
-                self.set_flag('H', ((old_a & 0x0F) + (addend & 0x0F)) & 0x10)
+            # 0x8F: ADC A,A
+            if (data[0] == 0x8F and old_a & 0x0F == 0x0F) or ((old_a & 0x0F) + (addend & 0x0F)) & 0x10:
+                f |= 0x10 # ...H....
         else:
-            s_value = ~value # Flip sign bit when subtracting
-            if op == 'SBC A,A' and old_a & 0x0F == 0x0F:
-                self.set_flag('H', old_c)
+            if carry:
+                op = f'SBC A,{operand}'
             else:
-                self.set_flag('H', ((old_a & 0x0F) - (addend & 0x0F)) & 0x10)
-        self.set_flag('3', a & 0x08)
-        if ((old_a ^ s_value) ^ 0x80) & 0x80:
+                op = f'SUB {operand}'
+            s_value = ~value # Flip sign bit when subtracting
+            # 0x9F: SBC A,A
+            if data[0] == 0x9F and old_a & 0x0F == 0x0F:
+                f |= old_c << 4 # ...H....
+            elif ((old_a & 0x0F) - (addend & 0x0F)) & 0x10:
+                f |= 0x10       # ...H....
+            f |= 0x02 # ......N. set for SBC/SUB, reset otherwise
+        if ((old_a ^ s_value) ^ 0x80) & 0x80 and (a ^ old_a) & 0x80:
             # Augend and addend signs are the same - overflow if their sign
             # differs from the sign of the result
-            self.set_flag('P', (a ^ old_a) & 0x80)
-        else:
-            # Augend and addend signs are different - no overflow
-            self.set_flag('P', 0)
-        self.set_flag('N', mult < 0) # Set for SBC/SUB, reset otherwise
+            f |= 0x04 # .....P..
         self.registers['A'] = a
+        self.registers['F'] = f
 
         return op, self.pc + len(data), timing
 
@@ -374,14 +368,10 @@ class Simulator:
         operand, value = self.get_operand_value(data, reg)
         self.registers['A'] &= value
         a = self.registers['A']
-        self.set_flag('S', a & 0x80)
-        self.set_flag('Z', a == 0)
-        self.set_flag('5', a & 0x20)
-        self.set_flag('H', 1)
-        self.set_flag('3', a & 0x08)
-        self.set_flag('P', PARITY[a])
-        self.set_flag('N', 0)
-        self.set_flag('C', 0)
+        f = (a & 0xA8) | 0x10 | PARITY[a] # S.5H3PNC
+        if a == 0:
+            f |= 0x40 # .Z......
+        self.registers['F'] = f
         return f'AND {operand}', self.pc + len(data), timing
 
     def bit(self, timing, data, bit, reg):
@@ -857,14 +847,10 @@ class Simulator:
         operand, value = self.get_operand_value(data, reg)
         self.registers['A'] |= value
         a = self.registers['A']
-        self.set_flag('S', a & 0x80)
-        self.set_flag('Z', a == 0)
-        self.set_flag('5', a & 0x20)
-        self.set_flag('H', 0)
-        self.set_flag('3', a & 0x08)
-        self.set_flag('P', PARITY[a])
-        self.set_flag('N', 0)
-        self.set_flag('C', 0)
+        f = (a & 0xA8) | PARITY[a] # S.5H3PNC
+        if a == 0:
+            f |= 0x40 # .Z......
+        self.registers['F'] = f
         return f'OR {operand}', self.pc + len(data), timing
 
     def _out(self, port, value):
@@ -1051,14 +1037,10 @@ class Simulator:
         operand, value = self.get_operand_value(data, reg)
         self.registers['A'] ^= value
         a = self.registers['A']
-        self.set_flag('S', a & 0x80)
-        self.set_flag('Z', a == 0)
-        self.set_flag('5', a & 0x20)
-        self.set_flag('H', 0)
-        self.set_flag('3', a & 0x08)
-        self.set_flag('P', PARITY[a])
-        self.set_flag('N', 0)
-        self.set_flag('C', 0)
+        f = (a & 0xA8) | PARITY[a] # S.5H3PNC
+        if a == 0:
+            f |= 0x40 # .Z......
+        self.registers['F'] = f
         return f'XOR {operand}', self.pc + len(data), timing
 
     opcodes = {
