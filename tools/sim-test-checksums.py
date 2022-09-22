@@ -64,6 +64,24 @@ SUITES = {
         'NEG instruction',
         ('NEG', AFTracer, (0xFF,), (0xED, 0x44)),
     ),
+    'RA1': (
+        'RLCA/RRCA/RLA/RRA instructions',
+        ('RLCA', AFTracer, (0xFFFF,), (0x07,)),
+        ('RRCA', AFTracer, (0xFFFF,), (0x0F,)),
+        ('RLA',  AFTracer, (0xFFFF,), (0x17,)),
+        ('RRA',  AFTracer, (0xFFFF,), (0x1F,)),
+    ),
+    'SRO': (
+        'Shift/rotate instructions',
+        ('RLC_r', FRTracer, ('B',), (0xCB, 0x00)),
+        ('RRC_r', FRTracer, ('B',), (0xCB, 0x08)),
+        ('RL_r',  FRTracer, ('B',), (0xCB, 0x10)),
+        ('RR_r',  FRTracer, ('B',), (0xCB, 0x18)),
+        ('SLA_r', FRTracer, ('B',), (0xCB, 0x20)),
+        ('SRA_r', FRTracer, ('B',), (0xCB, 0x28)),
+        ('SLL_r', FRTracer, ('B',), (0xCB, 0x30)),
+        ('SRL_r', FRTracer, ('B',), (0xCB, 0x38)),
+    ),
 }
 
 def run(suites):

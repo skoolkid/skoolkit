@@ -39,6 +39,18 @@ SCF = 'ee859b0e9650b7e36cb0ce1b73145a77'
 CCF = '988c43163ba13c67aa6cd315c7018739'
 CPL = 'c57876662ed32c7e9f8585ea0412a53f'
 NEG = 'aadeb04c1a4f01187e4fa8dff6cc461a'
+RLCA = '98b1e8bef9cba9bc6c28568572114daa'
+RRCA = '1fdcb1064d373e43cb9d3d8dfd6e6d50'
+RLA = '8bbfa478dc913fe70c7298c8b79812df'
+RRA = '03a117d7ffeeb9055192c168c6950168'
+RLC_r = '43ea1882ff46d8f2bb302d2cac821824'
+RRC_r = 'd99e696ebf9ef8cdf7837c1321f489c3'
+RL_r = 'e77a70aaccbee47f14cd7886469063aa'
+RR_r = 'e8f1af0d8d04c67d154cc2c0245ea564'
+SLA_r = 'e77a70aaccbee47f14cd7886469063aa'
+SRA_r = 'fda90b011795145dd96ece00b2a12de8'
+SLL_r = '13e46312e09feab46121e982cabebec4'
+SRL_r = 'e8f1af0d8d04c67d154cc2c0245ea564'
 
 class SimulatorFlagsTest(unittest.TestCase):
     def _test_instruction(self, op, tclass, targs, checksum, opcodes, snapshot=None):
@@ -72,6 +84,15 @@ class SimulatorFlagsTest(unittest.TestCase):
 
         self._test_instruction(op, AFRTracer, ('(IX+d)',), checksum, (0xDD, opcode + 0x06), snapshot)
         self._test_instruction(op, AFRTracer, ('(IY+d)',), checksum, (0xFD, opcode + 0x06), snapshot)
+
+    def _test_sro(self, op, checksum, opcode):
+        snapshot = [0] * 65536
+
+        for i, reg in enumerate(('B', 'C', 'D', 'E', 'H', 'L', '(HL)', 'A')):
+            self._test_instruction(op, FRTracer, (reg,), checksum, (0xCB, opcode + i), snapshot)
+
+        self._test_instruction(op, FRTracer, ('(IX+d)',), checksum, (0xDD, 0xCB, 0, opcode + 0x06), snapshot)
+        self._test_instruction(op, FRTracer, ('(IY+d)',), checksum, (0xFD, 0xCB, 0, opcode + 0x06), snapshot)
 
     def test_add_a_r(self):
         self._test_alo('ADD A,', ADD_A_r, 0x80)
@@ -136,6 +157,42 @@ class SimulatorFlagsTest(unittest.TestCase):
     def test_neg(self):
         for opcode in (0x44, 0x4C, 0x54, 0x5C, 0x64, 0x6C, 0x74, 0x7C):
             self._test_instruction('NEG', AFTracer, (0xFF,), NEG, (0xED, opcode))
+
+    def test_rlca(self):
+        self._test_instruction('RLCA', AFTracer, (0xFFFF,), RLCA, 0x07)
+
+    def test_rrca(self):
+        self._test_instruction('RRCA', AFTracer, (0xFFFF,), RRCA, 0x0F)
+
+    def test_rla(self):
+        self._test_instruction('RLA', AFTracer, (0xFFFF,), RLA, 0x17)
+
+    def test_rra(self):
+        self._test_instruction('RRA', AFTracer, (0xFFFF,), RRA, 0x1F)
+
+    def test_rlc_r(self):
+        self._test_sro('RLC ', RLC_r, 0x00)
+
+    def test_rrc_r(self):
+        self._test_sro('RRC ', RRC_r, 0x08)
+
+    def test_rl_r(self):
+        self._test_sro('RL ', RL_r, 0x10)
+
+    def test_rr_r(self):
+        self._test_sro('RR ', RR_r, 0x18)
+
+    def test_sla_r(self):
+        self._test_sro('SLA ', SLA_r, 0x20)
+
+    def test_sra_r(self):
+        self._test_sro('SRA ', SRA_r, 0x28)
+
+    def test_sll_r(self):
+        self._test_sro('SLL ', SLL_r, 0x30)
+
+    def test_srl_r(self):
+        self._test_sro('SRL ', SRL_r, 0x38)
 
 if __name__ == '__main__':
     unittest.main()

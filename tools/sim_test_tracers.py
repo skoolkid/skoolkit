@@ -10,7 +10,18 @@ class BaseTracer:
     def collect_result(self, simulator, instruction):
         if instruction.time > 0:
             for reg in self.watch:
-                self.data.append(simulator.registers[reg])
+                if reg == '(HL)':
+                    hl = simulator.registers['L'] + 256 * simulator.registers['H']
+                    rval = simulator.snapshot[hl]
+                elif reg == '(IX+d)':
+                    ix = simulator.registers['IXl'] + 256 * simulator.registers['IXh']
+                    rval = simulator.snapshot[ix]
+                elif reg == '(IY+d)':
+                    iy = simulator.registers['IYl'] + 256 * simulator.registers['IYh']
+                    rval = simulator.snapshot[iy]
+                else:
+                    rval = simulator.registers[reg]
+                self.data.append(rval)
         if self.count < 0:
             self.checksum = hashlib.md5(self.data).hexdigest()
             return True
@@ -42,6 +53,30 @@ class AFRTracer(BaseTracer):
             simulator.snapshot[iy] = r
         elif self.reg == 'n':
             simulator.snapshot[self.start + 1] = r
+        else:
+            simulator.registers[self.reg] = r
+        self.repeat(simulator)
+
+class FRTracer(BaseTracer):
+    def __init__(self, start, reg):
+        super().__init__(start, (reg, 'F'))
+        self.reg = reg
+        self.count = 0xFFFF
+
+    def trace(self, simulator, instruction):
+        if self.collect_result(simulator, instruction):
+            return True
+        simulator.registers['F'] = self.count >> 16
+        r = self.count & 0xFF
+        if self.reg == '(HL)':
+            hl = simulator.registers['L'] + 256 * simulator.registers['H']
+            simulator.snapshot[hl] = r
+        elif self.reg == '(IX+d)':
+            ix = simulator.registers['IXl'] + 256 * simulator.registers['IXh']
+            simulator.snapshot[ix] = r
+        elif self.reg == '(IY+d)':
+            iy = simulator.registers['IYl'] + 256 * simulator.registers['IYh']
+            simulator.snapshot[iy] = r
         else:
             simulator.registers[self.reg] = r
         self.repeat(simulator)

@@ -967,7 +967,7 @@ class Simulator:
     def rotate(self, timing, data, op, cbit, reg, carry='', dest=''):
         operand, value = self.get_operand_value(data, reg)
         old_carry = self.get_flag('C')
-        self.set_flag('C', value & cbit)
+        new_carry = value & cbit
         if cbit == 1:
             cvalue = (value << 7) & 128
             value >>= 1
@@ -987,19 +987,16 @@ class Simulator:
         if data[0] in (0x07, 0x0F, 0x17, 0x1F):
             # RLCA, RLA, RRCA, RRA
             op += 'A'
-            self.set_flag('5', value & 0x20)
-            self.set_flag('H', 0)
-            self.set_flag('3', value & 0x08)
-            self.set_flag('N', 0)
+            f = self.registers['F'] & 0xC4 # SZ.H.PN.
+            f |= value & 0x28 # ..5.3...
         else:
             op += f'{operand}{dest}'
-            self.set_flag('S', value & 0x80)
-            self.set_flag('Z', value == 0)
-            self.set_flag('5', value & 0x20)
-            self.set_flag('H', 0)
-            self.set_flag('3', value & 0x08)
-            self.set_flag('P', PARITY[value])
-            self.set_flag('N', 0)
+            f = (value & 0xA8) | PARITY[value] # S.5H3PN.
+            if value == 0:
+                f |= 0x40 # .Z......
+        if new_carry:
+            f |= 0x01 # .......C
+        self.registers['F'] = f
         return f'{op}', self.pc + len(data), timing
 
     def rst(self, timing, data, addr):
