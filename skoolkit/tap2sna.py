@@ -235,6 +235,7 @@ class LoadTracer:
     def __init__(self, blocks, stop):
         self.blocks = [b[1] for b in blocks]
         self.samples = get_ear_samples(blocks)
+        self.index = 0
         self.stop = stop
         self.tape_started = None
         self.end_of_tape = 0
@@ -276,10 +277,10 @@ class LoadTracer:
             if simulator.pc > 0x7FFF:
                 self.custom_loader = True # pragma: no cover
 
-            if len(self.samples) == 1:
+            if self.index == len(self.samples) - 1:
                 self.end_of_tape += 1
 
-            pulse_type = self.samples[0][2]
+            pulse_type = self.samples[self.index][2]
             if pulse_type != self.pulse_type:
                 if pulse_type in (SILENCE, LEADER):
                     if self.loaded: # pragma: no cover
@@ -291,17 +292,17 @@ class LoadTracer:
                     write_line('Sync pulse')
                 self.pulse_type = pulse_type
 
-            return self.samples[0][1]
+            return self.samples[self.index][1]
 
     def advance_tape(self, tstates):
         offset = tstates - self.tape_started
-        while len(self.samples) > 1 and self.samples[1][0] < offset:
-            self.samples.pop(0) # pragma: no cover
+        while self.index + 1 < len(self.samples) and self.samples[self.index + 1][0] < offset:
+            self.index += 1 # pragma: no cover
 
     def fast_load(self, simulator):
         if self.tape_started is None:
             self.tape_started = simulator.tstates
-        block = self.blocks[self.samples[0][3]]
+        block = self.blocks[self.samples[self.index][3]]
         registers = simulator.registers
         ix = registers['IXl'] + 256 * registers['IXh'] # Start address
         de = registers['E'] + 256 * registers['D'] # Block length
@@ -329,13 +330,11 @@ class LoadTracer:
             registers['IXl'] = (ix + de) % 256
             registers['IXh'] = (ix + de) // 256
             simulator.pc = 0x05E2
-            tape_offset, block_num = self.samples[0][0::3]
-            i = 0
-            while i + 1 < len(self.samples) and self.samples[i][3] == block_num:
-                i += 1
-            self.samples = self.samples[i:]
-            self.tape_started -= self.samples[0][0] - tape_offset
-            if len(self.samples) == 1:
+            tape_offset, block_num = self.samples[self.index][0::3]
+            while self.index + 1 < len(self.samples) and self.samples[self.index][3] == block_num:
+                self.index += 1
+            self.tape_started -= self.samples[self.index][0] - tape_offset
+            if self.index == len(self.samples) - 1:
                 self.end_of_tape = 1
             return
         if a != block[0]:
