@@ -10,8 +10,8 @@ Changelog
   optionally creating audio files in WAV format)
 * Added the :ref:`TSTATES` macro (which expands to the time taken, in T-states,
   to execute one or more instructions)
-* Added the ``--sim-load`` and ``--sim-load-fast`` options to :ref:`tap2sna.py`
-  (to simulate a 48K ZX Spectrum running LOAD "")
+* Added the ``--sim-load`` option to :ref:`tap2sna.py` (to simulate a 48K ZX
+  Spectrum running LOAD "")
 * Added the :ref:`rom` directive (for inserting a copy of the 48K ZX Spectrum
   ROM into the internal memory snapshot constructed from the contents of the
   skool file)

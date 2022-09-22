@@ -73,7 +73,6 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual([], options.reg)
         self.assertIsNone(options.start)
         self.assertFalse(options.sim_load)
-        self.assertFalse(options.sim_load_fast)
         self.assertEqual([], options.state)
         self.assertEqual(options.user_agent, '')
 
@@ -711,7 +710,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(error, '')
 
     @patch.object(tap2sna, '_write_z80', mock_write_z80)
-    def test_sim_load_fast(self):
+    def test_sim_load(self):
         code_start = 32768
         code_start_str = [ord(c) for c in str(code_start)]
         basic_data = [
@@ -734,13 +733,16 @@ class Tap2SnaTest(SkoolKitTestCase):
         ]
         tapfile = self._write_tap(blocks)
         z80file = 'out.z80'
-        output, error = self.run_tap2sna(f'--sim-load-fast {tapfile} {z80file}')
+        output, error = self.run_tap2sna(f'--sim-load {tapfile} {z80file}')
         out_lines = output.strip().split('\n')
         exp_out_lines = [
             'Program: simloadbas',
-            'Loading data block: 23755,20',
+            'Fast loading data block: 23755,20',
+            '',
             'Bytes: simloadbyt',
-            'Loading data block: 32768,2',
+            'Fast loading data block: 32768,2',
+            '',
+            'Tape finished',
             'Simulation ended: PC=32768',
         ]
         self.assertEqual(exp_out_lines, out_lines)
@@ -751,7 +753,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertLessEqual(exp_reg, set(options.reg))
 
     @patch.object(tap2sna, '_write_z80', mock_write_z80)
-    def test_sim_load_fast_with_character_array(self):
+    def test_sim_load_with_character_array(self):
         code_start = 32768
         code_start_str = [ord(c) for c in str(code_start)]
         basic_data = [
@@ -781,15 +783,19 @@ class Tap2SnaTest(SkoolKitTestCase):
         ]
         tapfile = self._write_tap(blocks)
         z80file = 'out.z80'
-        output, error = self.run_tap2sna(f'--sim-load-fast {tapfile} {z80file}')
+        output, error = self.run_tap2sna(f'--sim-load {tapfile} {z80file}')
         out_lines = output.strip().split('\n')
         exp_out_lines = [
             'Program: simloadbas',
-            'Loading data block: 23755,29',
+            'Fast loading data block: 23755,29',
+            '',
             'Character array: characters',
-            'Loading data block: 23787,8',
+            'Fast loading data block: 23787,8',
+            '',
             'Bytes: simloadbyt',
-            'Loading data block: 32768,2',
+            'Fast loading data block: 32768,2',
+            '',
+            'Tape finished',
             'Simulation ended: PC=32768',
         ]
         self.assertEqual(exp_out_lines, out_lines)
@@ -801,7 +807,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertLessEqual(exp_reg, set(options.reg))
 
     @patch.object(tap2sna, '_write_z80', mock_write_z80)
-    def test_sim_load_fast_with_number_array(self):
+    def test_sim_load_with_number_array(self):
         code_start = 32768
         code_start_str = [ord(c) for c in str(code_start)]
         basic_data = [
@@ -831,15 +837,19 @@ class Tap2SnaTest(SkoolKitTestCase):
         ]
         tapfile = self._write_tap(blocks)
         z80file = 'out.z80'
-        output, error = self.run_tap2sna(f'--sim-load-fast {tapfile} {z80file}')
+        output, error = self.run_tap2sna(f'--sim-load {tapfile} {z80file}')
         out_lines = output.strip().split('\n')
         exp_out_lines = [
             'Program: simloadbas',
-            'Loading data block: 23755,28',
+            'Fast loading data block: 23755,28',
+            '',
             'Number array: numbers   ',
-            'Loading data block: 23786,16',
+            'Fast loading data block: 23786,16',
+            '',
             'Bytes: simloadbyt',
-            'Loading data block: 32768,2',
+            'Fast loading data block: 32768,2',
+            '',
+            'Tape finished',
             'Simulation ended: PC=32768',
         ]
         self.assertEqual(exp_out_lines, out_lines)
@@ -851,7 +861,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertLessEqual(exp_reg, set(options.reg))
 
     @patch.object(tap2sna, '_write_z80', mock_write_z80)
-    def test_sim_load_fast_with_headerless_block(self):
+    def test_sim_load_with_headerless_block(self):
         code_start = 32768
         code_start_str = [ord(c) for c in str(code_start)]
         basic_data = [
@@ -883,14 +893,18 @@ class Tap2SnaTest(SkoolKitTestCase):
         ]
         tapfile = self._write_tap(blocks)
         z80file = 'out.z80'
-        output, error = self.run_tap2sna(f'--sim-load-fast {tapfile} {z80file}')
+        output, error = self.run_tap2sna(f'--sim-load {tapfile} {z80file}')
         out_lines = output.strip().split('\n')
         exp_out_lines = [
             'Program: simloadbas',
-            'Loading data block: 23755,20',
+            'Fast loading data block: 23755,20',
+            '',
             'Bytes: simloadbyt',
-            'Loading data block: 32768,14',
-            'Loading data block: 49152,2',
+            'Fast loading data block: 32768,14',
+            '',
+            'Fast loading data block: 49152,2',
+            '',
+            'Tape finished',
             'Simulation ended: PC=49152',
         ]
         self.assertEqual(exp_out_lines, out_lines)
@@ -901,47 +915,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         exp_reg = set(('SP=65344', 'IX=49154', 'IY=23610', 'PC=49152'))
         self.assertLessEqual(exp_reg, set(options.reg))
 
-    def test_sim_load_fast_with_port_254_read(self):
-        code_start = 32768
-        code_start_str = [ord(c) for c in str(code_start)]
-        basic_data = [
-            0, 10,            # Line 10
-            16, 0,            # Line length
-            239, 34, 34, 175, # LOAD ""CODE
-            58,               # :
-            249, 192, 176,    # RANDOMIZE USR VAL
-            34,               # "
-            *code_start_str,  # start address
-            34,               # "
-            13                # ENTER
-        ]
-        code = [
-            219, 254,         # IN A,(254)
-            201,              # RET
-        ]
-        code2 = [128, 129]
-        blocks = [
-            create_tap_header_block("simloadbas", 10, len(basic_data), 0),
-            create_tap_data_block(basic_data),
-            create_tap_header_block("simloadbyt", code_start, len(code)),
-            create_tap_data_block(code),
-            create_tap_data_block(code2)
-        ]
-        tapfile = self._write_tap(blocks)
-        z80file = 'out.z80'
-        with self.assertRaises(SkoolKitError) as cm:
-            self.run_tap2sna(f'--sim-load-fast {tapfile} {z80file}')
-        self.assertEqual(cm.exception.args[0], f'Error while getting snapshot {z80file}: IN A,($FE) at $8000 reads port 254; custom loader?')
-        exp_out_lines = [
-            'Program: simloadbas',
-            'Loading data block: 23755,20',
-            'Bytes: simloadbyt',
-            'Loading data block: 32768,3',
-        ]
-        self.assertEqual(exp_out_lines, self.out.getvalue().strip().split('\n'))
-        self.assertEqual(self.err.getvalue(), '')
-
-    def test_sim_load_fast_with_unexpected_block_type(self):
+    def test_sim_load_with_unexpected_block_type(self):
         code_start = 32768
         code_start_str = [ord(c) for c in str(code_start)]
         basic_data = [
@@ -964,16 +938,16 @@ class Tap2SnaTest(SkoolKitTestCase):
         tapfile = self._write_tap(blocks)
         z80file = 'out.z80'
         with self.assertRaises(SkoolKitError) as cm:
-            self.run_tap2sna(f'--sim-load-fast {tapfile} {z80file}')
+            self.run_tap2sna(f'--sim-load {tapfile} {z80file}')
         self.assertEqual(cm.exception.args[0], f'Error while getting snapshot {z80file}: Failed to load block: unexpected type')
         exp_out_lines = [
             'Program: ublocktype',
-            'Loading data block: 23755,20',
+            'Fast loading data block: 23755,20',
         ]
         self.assertEqual(exp_out_lines, self.out.getvalue().strip().split('\n'))
         self.assertEqual(self.err.getvalue(), '')
 
-    def test_sim_load_fast_with_unexpected_data_length(self):
+    def test_sim_load_with_unexpected_data_length(self):
         code_start = 32768
         code_start_str = [ord(c) for c in str(code_start)]
         basic_data = [
@@ -998,22 +972,23 @@ class Tap2SnaTest(SkoolKitTestCase):
         tapfile = self._write_tap(blocks)
         z80file = 'out.z80'
         with self.assertRaises(SkoolKitError) as cm:
-            self.run_tap2sna(f'--sim-load-fast {tapfile} {z80file}')
+            self.run_tap2sna(f'--sim-load {tapfile} {z80file}')
         self.assertEqual(cm.exception.args[0], f'Error while getting snapshot {z80file}: Failed to load block of length {c_len}: expected length {c_len + 1}')
         exp_out_lines = [
             'Program: badlength ',
-            'Loading data block: 23755,20',
+            'Fast loading data block: 23755,20',
+            '',
             'Bytes: badlength',
         ]
         self.assertEqual(exp_out_lines, self.out.getvalue().strip().split('\n'))
         self.assertEqual(self.err.getvalue(), '')
 
-    def test_sim_load_fast_with_unknown_block_type(self):
+    def test_sim_load_with_unknown_block_type(self):
         blocks = [create_tap_header_block("whatisthis", length=10, data_type=4)]
         tapfile = self._write_tap(blocks)
         z80file = 'out.z80'
         with self.assertRaises(SkoolKitError) as cm:
-            self.run_tap2sna(f'--sim-load-fast {tapfile} {z80file}')
+            self.run_tap2sna(f'--sim-load {tapfile} {z80file}')
         self.assertEqual(cm.exception.args[0], f'Error while getting snapshot {z80file}: Failed to load block: unknown type: 4')
 
     def test_default_state(self):

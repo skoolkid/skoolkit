@@ -106,29 +106,14 @@ class SimLoadTest(SkoolKitTestCase):
         out_lines = output.strip().replace('\x08', '.\n').split('\n')
         out_lines = [m for m in out_lines if not m.startswith(('.', 'Loaded byte: '))]
         exp_out_lines = [
-            'Leader tone',
-            'Sync pulse',
-            'Data',
-            'Loaded bytes: 23778,17',
+            'Program: simloadbas',
+            'Fast loading data block: 23755,20',
+            '',
+            'Bytes: simloadbyt',
+            'Fast loading data block: 32759,184',
             '',
             'Leader tone',
             'Sync pulse',
-            'Data',
-            'Loaded bytes: 23755,20',
-            '',
-            'Leader tone',
-            'Sync pulse',
-            'Data',
-            'Loaded bytes: 23798,17',
-            '',
-            'Leader tone',
-            'Sync pulse',
-            'Data',
-            'Loaded bytes: 32759,184',
-            '',
-            'Leader tone',
-            'Sync pulse',
-            'Data',
             'Loaded bytes: 49152,10',
             '',
             'Tape finished',
@@ -172,99 +157,18 @@ class SimLoadTest(SkoolKitTestCase):
         out_lines = output.strip().replace('\x08', '.\n').split('\n')
         out_lines = [m for m in out_lines if not m.startswith(('.', 'Loaded byte: '))]
         exp_out_lines = [
-            'Leader tone',
-            'Sync pulse',
-            'Data',
-            'Loaded bytes: 23778,17',
+            'Program: simloadbas',
+            'Fast loading data block: 23755,20',
+            '',
+            'Bytes: simloadbyt',
+            'Fast loading data block: 32759,184',
             '',
             'Leader tone',
             'Sync pulse',
-            'Data',
-            'Loaded bytes: 23755,20',
-            '',
-            'Leader tone',
-            'Sync pulse',
-            'Data',
-            'Loaded bytes: 23798,17',
-            '',
-            'Leader tone',
-            'Sync pulse',
-            'Data',
-            'Loaded bytes: 32759,184',
-            '',
-            'Leader tone',
-            'Sync pulse',
-            'Data',
             'Loaded bytes: 49152,10',
             '',
             'Tape finished',
             'Simulation ended: PC=32925'
-        ]
-        self.assertEqual(exp_out_lines, out_lines)
-        self.assertEqual(error, '')
-
-    @patch.object(tap2sna, '_write_z80', mock_write_z80)
-    def test_sim_load_with_rom_loader(self):
-        code_start = 23296
-        basic_data = self._get_basic_data(code_start)
-        code = [
-            221, 33, 0, 192,  # LD IX,49152
-            17, 2, 0,         # LD DE,2
-            55,               # SCF
-            159,              # SBC A,A
-            221, 229,         # PUSH IX
-            195, 86, 5        # JP 1366
-        ]
-        code2 = [175, 201]
-        code2_start = 49152
-        code2_end = code2_start + len(code2)
-        blocks = [
-            create_tap_header_block("simloadbas", 10, len(basic_data), 0),
-            create_tap_data_block(basic_data),
-            create_tap_header_block("simloadbyt", code_start, len(code)),
-            create_tap_data_block(code),
-            create_tap_data_block(code2)
-        ]
-        tapfile = self._write_tap(blocks)
-        z80file = 'out.z80'
-        output, error = self.run_tap2sna(f'--sim-load {tapfile} {z80file}')
-
-        self.assertEqual(basic_data, snapshot[23755:23755 + len(basic_data)])
-        self.assertEqual(code, snapshot[code_start:code_start + len(code)])
-        self.assertEqual(code2, snapshot[code2_start:code2_end])
-        exp_reg = set(('SP=65338', f'IX={code2_end}', 'IY=23610', 'PC=1523'))
-        self.assertLessEqual(exp_reg, set(options.reg))
-
-        out_lines = output.strip().replace('\x08', '.\n').split('\n')
-        out_lines = [m for m in out_lines if not m.startswith(('.', 'Loaded byte: '))]
-        exp_out_lines = [
-            'Leader tone',
-            'Sync pulse',
-            'Data',
-            'Loaded bytes: 23778,17',
-            '',
-            'Leader tone',
-            'Sync pulse',
-            'Data',
-            'Loaded bytes: 23755,20',
-            '',
-            'Leader tone',
-            'Sync pulse',
-            'Data',
-            'Loaded bytes: 23798,17',
-            '',
-            'Leader tone',
-            'Sync pulse',
-            'Data',
-            'Loaded bytes: 23296,14',
-            '',
-            'Leader tone',
-            'Sync pulse',
-            'Data',
-            'Loaded bytes: 49152,2',
-            '',
-            'Tape finished',
-            'Simulation ended: PC=1523'
         ]
         self.assertEqual(exp_out_lines, out_lines)
         self.assertEqual(error, '')

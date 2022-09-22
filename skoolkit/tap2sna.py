@@ -184,159 +184,163 @@ TAP_TIMINGS_HEADER = TapeBlockTimings(8063, 2168, 667, 735, 855, 1710, 3500000)
 
 TAP_TIMINGS_DATA = TapeBlockTimings(3223, 2168, 667, 735, 855, 1710, 3500000)
 
-def get_ear_readings(blocks): # pragma: no cover
-    readings = []
+def get_ear_samples(blocks):
+    samples = []
     tstates = -1
-    reading = 0xFF # EAR off (bit 6 set), no keys pressed
+    sample = 0xFF # EAR off (bit 6 set), no keys pressed
     ear = 0x40
 
-    for i, (timings, data) in enumerate(blocks, 1):
+    for i, (timings, data) in enumerate(blocks):
         # Leader tone
         for n in range(timings.pilot_len):
-            reading ^= ear
+            sample ^= ear
             if tstates < 0:
                 tstates = 0
             else:
                 tstates += timings.pilot
-            readings.append((tstates, reading, LEADER))
+            samples.append((tstates, sample, LEADER, i))
 
         # Sync pulse
         if timings.sync1:
-            reading ^= ear
+            sample ^= ear
             tstates += timings.sync1
-            readings.append((tstates, reading, SYNC))
+            samples.append((tstates, sample, SYNC, i))
         if timings.sync2:
-            reading ^= ear
+            sample ^= ear
             tstates += timings.sync2
-            readings.append((tstates, reading, SYNC))
+            samples.append((tstates, sample, SYNC, i))
 
         # Data
         for b in data:
-            for i in range(8):
+            for j in range(8):
                 if b & 0x80:
                     duration = timings.one
                 else:
                     duration = timings.zero
-                for j in range(2):
-                    reading ^= ear
+                for k in range(2):
+                    sample ^= ear
                     tstates += duration
-                    readings.append((tstates, reading, DATA))
+                    samples.append((tstates, sample, DATA, i))
                 b <<= 1
 
         # Pause
-        if i < len(blocks):
-            readings.append((tstates + 2000, reading, SILENCE))
+        if i + 1 < len(blocks) and timings.pause:
+            r = samples.pop()
+            samples.append((r[0], r[1], SILENCE, i + 1))
             tstates += timings.pause
 
-    return readings
+    return samples
 
-class LoadTracer: # pragma: no cover
+class LoadTracer:
     def __init__(self, blocks, stop):
-        self.readings = get_ear_readings(blocks)
+        self.blocks = [b[1] for b in blocks]
+        self.samples = get_ear_samples(blocks)
         self.stop = stop
-        self.started = 0
-        self.end_of_tape = False
+        self.tape_started = None
+        self.end_of_tape = 0
         self.pulse_type = None
         self.loaded = []
+        self.custom_loader = False
 
     def trace(self, simulator, instruction):
-        if simulator.pc == self.stop or self.end_of_tape:
-            if self.loaded:
-                write_line(f'Loaded bytes: {self.loaded[0]},{len(self.loaded)}')
-            if self.end_of_tape:
-                # Not all games load every byte on the tape before starting
-                write_line(f'\nTape finished')
-            write_line(f'Simulation ended: PC={simulator.pc}')
-            return True
+        if self.tape_started is not None:
+            self.advance_tape(simulator.tstates)
 
-        if self.pulse_type == DATA and instruction.data[:2] == [0xDD, 0x75]:
+        if simulator.pc == 0x0556:
+            return self.fast_load(simulator)
+
+        if simulator.pc == self.stop or self.end_of_tape:
+            if self.loaded: # pragma: no cover
+                write_line(f'Loaded bytes: {self.loaded[0]},{len(self.loaded)}\n')
+            if self.end_of_tape == 1:
+                write_line(f'Tape finished')
+                self.end_of_tape += 1
+            if self.custom_loader or simulator.pc > 0x3FFF:
+                write_line(f'Simulation ended: PC={simulator.pc}')
+                return True
+            return
+
+        if self.pulse_type == DATA and instruction.data[:2] == [0xDD, 0x75]: # pragma: no cover
             offset = instruction.data[2]
             if offset > 0x7F:
                 offset -= 256
-            addr = simulator.registers['IXl'] + 256 * simulator.registers['IXh'] + offset
+            addr = (simulator.registers['IXl'] + 256 * simulator.registers['IXh'] + offset) & 0xFFFF
             value = simulator.registers['L']
-            msg = f"Loaded byte: {addr},{value}      "
+            de = simulator.registers['E'] + 256 * simulator.registers['D']
+            msg = f"Loaded byte: ${addr:04X},${value:02X} (DE=${de:04X})"
             write(msg + chr(8) * len(msg))
             self.loaded.append(addr)
 
     def read_port(self, simulator, port):
         if port & 0xFF == 0xFE:
-            if self.started == 0:
-                self.started = simulator.tstates
+            if simulator.pc > 0x7FFF:
+                self.custom_loader = True # pragma: no cover
 
-            offset = simulator.tstates - self.started
-            while len(self.readings) > 1 and self.readings[1][0] < offset:
-                self.readings.pop(0)
-            if len(self.readings) == 1:
-                self.end_of_tape = True
+            if len(self.samples) == 1:
+                self.end_of_tape += 1
 
-            pulse_type = self.readings[0][2]
+            pulse_type = self.samples[0][2]
             if pulse_type != self.pulse_type:
                 if pulse_type in (SILENCE, LEADER):
-                    if self.loaded:
-                        write_line(f'Loaded bytes: {self.loaded[0]},{len(self.loaded)}\n')
+                    if self.loaded: # pragma: no cover
+                        write_line(f'Loaded bytes: {self.loaded[0]},{len(self.loaded)}                \n')
                         self.loaded.clear()
-                    if pulse_type == SILENCE:
-                        write_line('Silence')
-                    else:
+                    if pulse_type == LEADER: # pragma: no cover
                         write_line('Leader tone')
-                elif pulse_type == SYNC:
+                elif pulse_type == SYNC: # pragma: no cover
                     write_line('Sync pulse')
-                elif pulse_type == DATA:
-                    write_line('Data')
                 self.pulse_type = pulse_type
 
-            return self.readings[0][1]
+            return self.samples[0][1]
 
-class ROMLoadTracer:
-    def __init__(self, blocks):
-        self.blocks = blocks
-        self.in254 = False
+    def advance_tape(self, tstates):
+        offset = tstates - self.tape_started
+        while len(self.samples) > 1 and self.samples[1][0] < offset:
+            self.samples.pop(0) # pragma: no cover
 
-    def trace(self, simulator, instruction):
-        if self.blocks:
-            if self.in254:
-                raise TapeError(f'{instruction.operation} at ${instruction.address:04X} reads port 254; custom loader?')
-            if simulator.pc == 0x0556:
-                registers = simulator.registers
-                block = self.blocks.pop(0)
-                ix = registers['IXl'] + 256 * registers['IXh'] # Start address
-                de = registers['E'] + 256 * registers['D'] # Block length
-                a = registers['A']
-                data_len = len(block) - 2
-                if a == block[0] and de == data_len:
-                    if a == 0:
-                        name = ''.join(get_char(b) for b in block[2:12])
-                        if block[1] == 3:
-                            write_line(f'Bytes: {name}')
-                        elif block[1] == 2:
-                            write_line(f'Character array: {name}')
-                        elif block[1] == 1:
-                            write_line(f'Number array: {name}')
-                        elif block[1] == 0:
-                            write_line(f'Program: {name}')
-                        else:
-                            raise TapeError(f'Failed to load block: unknown type: {block[1]}')
-                    else:
-                        write_line(f'Loading data block: {ix},{data_len}')
-                    simulator.snapshot[ix:ix + de] = block[1:-1]
-                    registers['F'] = 0x01 # Set carry flag: success
-                    registers['A'] = 0 # Parity byte match
-                    registers['D'], registers['E'] = 0, 0 # Counter 0
-                    registers['IXl'] = (ix + de) % 256
-                    registers['IXh'] = (ix + de) // 256
+    def fast_load(self, simulator):
+        if self.tape_started is None:
+            self.tape_started = simulator.tstates
+        block = self.blocks[self.samples[0][3]]
+        registers = simulator.registers
+        ix = registers['IXl'] + 256 * registers['IXh'] # Start address
+        de = registers['E'] + 256 * registers['D'] # Block length
+        a = registers['A']
+        data_len = len(block) - 2
+        if a == block[0] and de == data_len:
+            if a == 0:
+                name = ''.join(get_char(b) for b in block[2:12])
+                if block[1] == 3:
+                    write_line(f'Bytes: {name}')
+                elif block[1] == 2:
+                    write_line(f'Character array: {name}')
+                elif block[1] == 1:
+                    write_line(f'Number array: {name}')
+                elif block[1] == 0:
+                    write_line(f'Program: {name}')
                 else:
-                    if a != block[0]:
-                        raise TapeError(f'Failed to load block: unexpected type')
-                    raise TapeError(f'Failed to load block of length {data_len}: expected length {de}')
-                simulator.pc = 0x05E2
-        elif simulator.pc >= 0x4000:
-            write_line(f'Simulation ended: PC={simulator.pc}')
-            return True
-
-    def read_port(self, simulator, port):
-        if port & 0xFF == 0xFE and simulator.pc > 0x3FFF:
-            self.in254 = True
+                    raise TapeError(f'Failed to load block: unknown type: {block[1]}')
+            else:
+                write_line(f'Fast loading data block: {ix},{data_len}\n')
+            simulator.snapshot[ix:ix + de] = block[1:-1]
+            registers['F'] = 0x01 # Set carry flag: success
+            registers['A'] = 0 # Parity byte match
+            registers['D'], registers['E'] = 0, 0 # Counter 0
+            registers['IXl'] = (ix + de) % 256
+            registers['IXh'] = (ix + de) // 256
+            simulator.pc = 0x05E2
+            tape_offset, block_num = self.samples[0][0::3]
+            i = 0
+            while i + 1 < len(self.samples) and self.samples[i][3] == block_num:
+                i += 1
+            self.samples = self.samples[i:]
+            self.tape_started -= self.samples[0][0] - tape_offset
+            if len(self.samples) == 1:
+                self.end_of_tape = 1
+            return
+        if a != block[0]:
+            raise TapeError(f'Failed to load block: unexpected type')
+        raise TapeError(f'Failed to load block of length {data_len}: expected length {de}')
 
 def _write_z80(ram, options, fname):
     parent_dir = os.path.dirname(fname)
@@ -356,10 +360,7 @@ def sim_load(blocks, options):
             snapshot[a + 1] = b // 256
     snapshot[0xFF58:] = snapshot[0x3E08:0x3EB0] # UDGs
     simulator = Simulator(snapshot, {'A': 0x0D, 'SP': 0xFF50})
-    if options.sim_load_fast:
-        tracer = ROMLoadTracer(blocks)
-    else: # pragma: no cover
-        tracer = LoadTracer(blocks, options.start)
+    tracer = LoadTracer(blocks, options.start)
     simulator.add_tracer(tracer)
     simulator.run(0x0F3B) # Entry point in EDITOR at 0F2C
     registers = simulator.registers
@@ -495,25 +496,23 @@ def _get_tzx_block(data, i, sim):
         # Standard speed data block
         length = get_word(data, i + 2)
         tape_data = data[i + 4:i + 4 + length]
-        if sim: # pragma: no cover
-            if data[0] == 0:
-                timings = TAP_TIMINGS_HEADER
-            else:
-                timings = TAP_TIMINGS_DATA
+        if tape_data[0] == 0:
+            timings = TAP_TIMINGS_HEADER
+        else:
+            timings = TAP_TIMINGS_DATA
         i += 4 + length
     elif block_id == 17:
         # Turbo speed data block
         length = get_word3(data, i + 15)
         tape_data = data[i + 18:i + 18 + length]
-        if sim: # pragma: no cover
-            pilot = get_word(data, i)
-            sync1 = get_word(data, i + 2)
-            sync2 = get_word(data, i + 4)
-            zero = get_word(data, i + 6)
-            one = get_word(data, i + 8)
-            pilot_len = get_word(data, i + 10)
-            pause = get_word(data, i + 13) * 3500
-            timings = TapeBlockTimings(pilot_len, pilot, sync1, sync2, zero, one, pause)
+        pilot = get_word(data, i)
+        sync1 = get_word(data, i + 2)
+        sync2 = get_word(data, i + 4)
+        zero = get_word(data, i + 6)
+        one = get_word(data, i + 8)
+        pilot_len = get_word(data, i + 10)
+        pause = get_word(data, i + 13) * 3500
+        timings = TapeBlockTimings(pilot_len, pilot, sync1, sync2, zero, one, pause)
         i += 18 + length
     elif block_id == 18:
         # Pure tone
@@ -612,11 +611,7 @@ def _get_tzx_blocks(data, sim):
     blocks = []
     while i < len(data):
         i, timings, tape_data = _get_tzx_block(data, i, sim)
-        if sim: # pragma: no cover
-            if timings:
-                blocks.append((timings, tape_data))
-        else:
-            blocks.append(tape_data)
+        blocks.append((timings, tape_data))
     return blocks
 
 def get_tap_blocks(tap, sim=False):
@@ -626,14 +621,11 @@ def get_tap_blocks(tap, sim=False):
         block_len = tap[i] + 256 * tap[i + 1]
         i += 2
         data = tap[i:i + block_len]
-        if sim: # pragma: no cover
-            if data[0] == 0:
-                timings = TAP_TIMINGS_HEADER
-            else:
-                timings = TAP_TIMINGS_DATA
-            blocks.append((timings, data))
+        if data[0] == 0:
+            timings = TAP_TIMINGS_HEADER
         else:
-            blocks.append(data)
+            timings = TAP_TIMINGS_DATA
+        blocks.append((timings, data))
         i += block_len
     return blocks
 
@@ -769,10 +761,12 @@ snapshot in an arbitrary way.
 def make_z80(url, options, z80):
     tape_type, tape = _get_tape(url, options.user_agent)
     tape_blocks = _get_tape_blocks(tape_type, tape, options.sim_load)
-    if options.sim_load or options.sim_load_fast:
-        ram = sim_load(tape_blocks, options)
+    if options.sim_load:
+        blocks = [b for b in tape_blocks if b[0]]
+        ram = sim_load(blocks, options)
     else:
-        ram = _get_ram(tape_blocks, options)
+        blocks = [b[1] for b in tape_blocks]
+        ram = _get_ram(blocks, options)
     _write_z80(ram, options, z80)
 
 def main(args):
@@ -802,10 +796,6 @@ def main(args):
                        help="Set the start address to JP to.")
     group.add_argument('--sim-load', action='store_true',
                        help='Simulate a 48K ZX Spectrum running LOAD "".')
-    group.add_argument('--sim-load-fast', action='store_true',
-                       help='Simulate a 48K ZX Spectrum running LOAD "". '
-                            "This option intercepts calls to the ROM's load routine at $0556, "
-                            "and will work only if every block on the tape is loaded by that routine.")
     group.add_argument('--state', dest='state', metavar='name=value', action='append', default=[],
                        help="Set a hardware state attribute. Do '--state help' for more information. "
                             "This option may be used multiple times.")

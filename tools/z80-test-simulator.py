@@ -19,7 +19,7 @@ from skoolkit.simulator import Simulator
 from skoolkit.tap2sna import get_tap_blocks, sim_load
 
 class Options:
-    sim_load_fast = True
+    start = None
     reg = []
     state = []
 
