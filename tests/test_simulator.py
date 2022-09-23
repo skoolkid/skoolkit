@@ -735,17 +735,19 @@ class SimulatorTest(SkoolKitTestCase):
     def test_dec8(self):
         self._test_inc_dec8('DEC', 5, (
             # Operand in, F in, operand out, F out
-            #     SZ5H3PNC         SZ5H3PNC
-            (2, 0b00000000, 1,   0b00000010),
-            (1, 0b00000000, 0,   0b01000010),
-            (0, 0b00000000, 255, 0b10111010),
-            (0, 0b00000001, 255, 0b10111011),
+            #       SZ5H3PNC         SZ5H3PNC
+            (128, 0b00000000, 127, 0b00111110),
+            (2,   0b00000000, 1,   0b00000010),
+            (1,   0b00000000, 0,   0b01000010),
+            (0,   0b00000000, 255, 0b10111010),
+            (0,   0b00000001, 255, 0b10111011),
         ))
 
     def test_inc8(self):
         self._test_inc_dec8('INC', 4, (
             # Operand in, F in, operand out, F out
             #       SZ5H3PNC         SZ5H3PNC
+            (127, 0b00000000, 128, 0b10010100),
             (254, 0b00000000, 255, 0b10101000),
             (255, 0b00000000, 0,   0b01010000),
             (0,   0b00000000, 1,   0b00000000),

@@ -82,6 +82,11 @@ SUITES = {
         ('SLL_r', FRTracer, ('B',), (0xCB, 0x30)),
         ('SRL_r', FRTracer, ('B',), (0xCB, 0x38)),
     ),
+    'INC': (
+        'INC/DEC instructions',
+        ('INC_r', FRTracer, ('B',), (0x04,)),
+        ('DEC_r', FRTracer, ('B',), (0x05,)),
+    ),
 }
 
 def run(suites):

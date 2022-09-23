@@ -51,6 +51,8 @@ SLA_r = 'e77a70aaccbee47f14cd7886469063aa'
 SRA_r = 'fda90b011795145dd96ece00b2a12de8'
 SLL_r = '13e46312e09feab46121e982cabebec4'
 SRL_r = 'e8f1af0d8d04c67d154cc2c0245ea564'
+INC_r = '03d99cd05b4016b7e207de3c454c4a4e'
+DEC_r = 'eef164a88a4a0690653810db93737fc2'
 
 class SimulatorFlagsTest(unittest.TestCase):
     def _test_instruction(self, op, tclass, targs, checksum, opcodes, snapshot=None):
@@ -93,6 +95,21 @@ class SimulatorFlagsTest(unittest.TestCase):
 
         self._test_instruction(op, FRTracer, ('(IX+d)',), checksum, (0xDD, 0xCB, 0, opcode + 0x06), snapshot)
         self._test_instruction(op, FRTracer, ('(IY+d)',), checksum, (0xFD, 0xCB, 0, opcode + 0x06), snapshot)
+
+    def _test_inc_dec(self, op, checksum, opcode):
+        snapshot = [0] * 65536
+
+        for i, reg in enumerate(('B', 'C', 'D', 'E', 'H', 'L', '(HL)')):
+            self._test_instruction(op, FRTracer, (reg,), checksum, opcode + 8 * i, snapshot)
+
+        self._test_instruction(op, FRTracer, ('IXh',), checksum, (0xDD, opcode + 0x20), snapshot)
+        self._test_instruction(op, FRTracer, ('IYh',), checksum, (0xFD, opcode + 0x20), snapshot)
+
+        self._test_instruction(op, FRTracer, ('IXl',), checksum, (0xDD, opcode + 0x28), snapshot)
+        self._test_instruction(op, FRTracer, ('IYl',), checksum, (0xFD, opcode + 0x28), snapshot)
+
+        self._test_instruction(op, FRTracer, ('(IX+d)',), checksum, (0xDD, opcode + 0x30), snapshot)
+        self._test_instruction(op, FRTracer, ('(IY+d)',), checksum, (0xFD, opcode + 0x30), snapshot)
 
     def test_add_a_r(self):
         self._test_alo('ADD A,', ADD_A_r, 0x80)
@@ -193,6 +210,12 @@ class SimulatorFlagsTest(unittest.TestCase):
 
     def test_srl_r(self):
         self._test_sro('SRL ', SRL_r, 0x38)
+
+    def test_inc_r(self):
+        self._test_inc_dec('INC ', INC_r, 0x04)
+
+    def test_dec_r(self):
+        self._test_inc_dec('DEC ', DEC_r, 0x05)
 
 if __name__ == '__main__':
     unittest.main()

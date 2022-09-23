@@ -678,22 +678,23 @@ class Simulator:
         operand, o_value = self.get_operand_value(data, reg)
         if op == 'DEC':
             value = (o_value - 1) & 255
+            f = (self.registers['F'] & 0x01) | (value & 0xA8) # S.5.3..C
+            if o_value & 0x0F == 0x00:
+                f |= 0x10 # ...H....
+            if o_value == 0x80:
+                f |= 0x04 # .....P..
+            f |= 0x02 # ......N.
         else:
             value = (o_value + 1) & 255
+            f = (self.registers['F'] & 0x01) | (value & 0xA8) # S.5.3.NC
+            if o_value & 0x0F == 0x0F:
+                f |= 0x10 # ...H....
+            if o_value == 0x7F:
+                f |= 0x04 # .....P..
+        if value == 0:
+            f |= 0x40 # .Z......
+        self.registers['F'] = f
         self.set_operand_value(data, reg, value)
-
-        self.set_flag('S', value & 0x80)
-        self.set_flag('Z', value == 0)
-        self.set_flag('5', value & 0x20)
-        if op == 'DEC':
-            self.set_flag('H', o_value & 0x0F == 0x00)
-            self.set_flag('P', value == 0x7F)
-            self.set_flag('N', 1)
-        else:
-            self.set_flag('H', o_value & 0x0F == 0x0F)
-            self.set_flag('P', value == 0x80)
-            self.set_flag('N', 0)
-        self.set_flag('3', value & 0x08)
 
         return f'{op} {operand}', self.pc + len(data), timing
 
