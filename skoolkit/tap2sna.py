@@ -305,7 +305,7 @@ class LoadTracer:
         de = registers['E'] + 256 * registers['D'] # Block length
         a = registers['A']
         data_len = len(block) - 2
-        if a == block[0] and de == data_len:
+        if a == block[0] and de <= data_len:
             if a == 0:
                 name = ''.join(get_char(b) for b in block[2:12])
                 if block[1] == 3:
@@ -319,8 +319,8 @@ class LoadTracer:
                 else:
                     raise TapeError(f'Failed to load block: unknown type: {block[1]}')
             else:
-                write_line(f'Fast loading data block: {ix},{data_len}\n')
-            simulator.snapshot[ix:ix + de] = block[1:-1]
+                write_line(f'Fast loading data block: {ix},{de}\n')
+            simulator.snapshot[ix:ix + de] = block[1:1 + de]
             registers['F'] = 0x01 # Set carry flag: success
             registers['A'] = 0 # Parity byte match
             registers['D'], registers['E'] = 0, 0 # Counter 0
