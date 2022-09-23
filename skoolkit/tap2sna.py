@@ -156,7 +156,7 @@ SIM_LOAD_PATCH = {
 }
 
 SILENCE = 0
-LEADER = 1
+PILOT = 1
 SYNC = 2
 DATA = 3
 
@@ -171,18 +171,17 @@ class TapeError(Exception):
     pass
 
 class TapeBlockTimings:
-    def __init__(self, pilot_len, pilot, sync1, sync2, zero, one, pause):
+    def __init__(self, pilot_len=0, pilot=0, sync=(), zero=0, one=0, pause=0):
         self.pilot_len = pilot_len
         self.pilot = pilot
-        self.sync1 = sync1
-        self.sync2 = sync2
+        self.sync = sync
         self.zero = zero
         self.one = one
         self.pause = pause
 
-TAP_TIMINGS_HEADER = TapeBlockTimings(8063, 2168, 667, 735, 855, 1710, 3500000)
+TAP_TIMINGS_HEADER = TapeBlockTimings(8063, 2168, (667, 735), 855, 1710, 3500000)
 
-TAP_TIMINGS_DATA = TapeBlockTimings(3223, 2168, 667, 735, 855, 1710, 3500000)
+TAP_TIMINGS_DATA = TapeBlockTimings(3223, 2168, (667, 735), 855, 1710, 3500000)
 
 def get_ear_samples(blocks):
     samples = []
@@ -191,23 +190,19 @@ def get_ear_samples(blocks):
     ear = 0x40
 
     for i, (timings, data) in enumerate(blocks):
-        # Leader tone
+        # Pilot tone
         for n in range(timings.pilot_len):
             sample ^= ear
             if tstates < 0:
                 tstates = 0
             else:
                 tstates += timings.pilot
-            samples.append((tstates, sample, LEADER, i))
+            samples.append((tstates, sample, PILOT, i))
 
-        # Sync pulse
-        if timings.sync1:
+        # Sync pulses
+        for s in timings.sync:
             sample ^= ear
-            tstates += timings.sync1
-            samples.append((tstates, sample, SYNC, i))
-        if timings.sync2:
-            sample ^= ear
-            tstates += timings.sync2
+            tstates += s
             samples.append((tstates, sample, SYNC, i))
 
         # Data
@@ -236,6 +231,7 @@ class LoadTracer:
         self.blocks = [b[1] for b in blocks]
         self.samples = get_ear_samples(blocks)
         self.index = 0
+        self.max_index = len(self.samples) - 1
         self.stop = stop
         self.tape_started = None
         self.end_of_tape = 0
@@ -245,7 +241,9 @@ class LoadTracer:
 
     def trace(self, simulator, instruction):
         if self.tape_started is not None:
-            self.advance_tape(simulator.tstates)
+            offset = simulator.tstates - self.tape_started
+            while self.index < self.max_index and self.samples[self.index + 1][0] < offset:
+                self.index += 1 # pragma: no cover
 
         if simulator.pc == 0x0556:
             return self.fast_load(simulator)
@@ -261,43 +259,42 @@ class LoadTracer:
                 return True
             return
 
-        if self.pulse_type == DATA and instruction.data[:2] == [0xDD, 0x75]: # pragma: no cover
+        if self.pulse_type == DATA and instruction.data[0] == 0xDD and instruction.data[1] in (0x75, 0x77): # pragma: no cover
+            # Most loaders do 'LD (IX+d),L' (DD75); some do 'LD (IX+d),A' (DD77)
+            ix = simulator.registers['IXl'] + 256 * simulator.registers['IXh']
             offset = instruction.data[2]
             if offset > 0x7F:
                 offset -= 256
-            addr = (simulator.registers['IXl'] + 256 * simulator.registers['IXh'] + offset) & 0xFFFF
-            value = simulator.registers['L']
             de = simulator.registers['E'] + 256 * simulator.registers['D']
-            msg = f"Loaded byte: ${addr:04X},${value:02X} (DE=${de:04X})"
+            msg = f'IX=${ix:04X} DE=${de:04X}'
             write(msg + chr(8) * len(msg))
-            self.loaded.append(addr)
+            self.loaded.append((ix + offset) & 0xFFFF)
 
     def read_port(self, simulator, port):
         if port & 0xFF == 0xFE:
             if simulator.pc > 0x7FFF:
                 self.custom_loader = True # pragma: no cover
 
-            if self.index == len(self.samples) - 1:
+            if self.index == self.max_index:
                 self.end_of_tape += 1
 
             pulse_type = self.samples[self.index][2]
             if pulse_type != self.pulse_type:
-                if pulse_type in (SILENCE, LEADER):
+                if pulse_type in (SILENCE, PILOT):
                     if self.loaded: # pragma: no cover
-                        write_line(f'Loaded bytes: {self.loaded[0]},{len(self.loaded)}                \n')
+                        write_line(f'Loaded bytes: {self.loaded[0]},{len(self.loaded)}\n')
                         self.loaded.clear()
-                    if pulse_type == LEADER: # pragma: no cover
-                        write_line('Leader tone')
+                    if pulse_type == PILOT: # pragma: no cover
+                        write_line('Pilot tone')
                 elif pulse_type == SYNC: # pragma: no cover
-                    write_line('Sync pulse')
+                    # Pad with spaces to obscure any previous 'IX=$#### DE=$####' message
+                    write_line('Sync pulses      ')
+                elif pulse_type == DATA: # pragma: no cover
+                    length = len(self.blocks[self.samples[self.index][3]])
+                    write_line(f'Data ({length} bytes)')
                 self.pulse_type = pulse_type
 
             return self.samples[self.index][1]
-
-    def advance_tape(self, tstates):
-        offset = tstates - self.tape_started
-        while self.index + 1 < len(self.samples) and self.samples[self.index + 1][0] < offset:
-            self.index += 1 # pragma: no cover
 
     def fast_load(self, simulator):
         if self.tape_started is None:
@@ -331,11 +328,12 @@ class LoadTracer:
             registers['IXh'] = (ix + de) // 256
             simulator.pc = 0x05E2
             tape_offset, block_num = self.samples[self.index][0::3]
-            while self.index + 1 < len(self.samples) and self.samples[self.index][3] == block_num:
+            while self.index < self.max_index and self.samples[self.index][3] == block_num:
                 self.index += 1
             self.tape_started -= self.samples[self.index][0] - tape_offset
-            if self.index == len(self.samples) - 1:
+            if self.index == self.max_index:
                 self.end_of_tape = 1
+            self.pulse_type = DATA
             return
         if a != block[0]:
             raise TapeError(f'Failed to load block: unexpected type')
@@ -511,24 +509,33 @@ def _get_tzx_block(data, i, sim):
         one = get_word(data, i + 8)
         pilot_len = get_word(data, i + 10)
         pause = get_word(data, i + 13) * 3500
-        timings = TapeBlockTimings(pilot_len, pilot, sync1, sync2, zero, one, pause)
+        timings = TapeBlockTimings(pilot_len, pilot, (sync1, sync2), zero, one, pause)
         i += 18 + length
     elif block_id == 18:
         # Pure tone
         if sim: # pragma: no cover
-            raise TapeError("TZX Pure Tone (0x12) not supported")
+            tape_data = []
+            pilot = get_word(data, i)
+            pilot_len = get_word(data, i + 2)
+            timings = TapeBlockTimings(pilot_len, pilot)
         i += 4
     elif block_id == 19:
         # Sequence of pulses of various lengths
-        i += 2 * data[i] + 1
+        length = 2 * data[i]
         if sim: # pragma: no cover
-            raise TapeError("TZX Pulse Sequence (0x13) not supported")
+            tape_data = []
+            pulses = [get_word(data, j) for j in range(i + 1, i + 1 + length, 2)]
+            timings = TapeBlockTimings(sync=pulses)
+        i += length + 1
     elif block_id == 20:
         # Pure data block
         length = get_word3(data, i + 7)
         tape_data = data[i + 10:i + 10 + length]
         if sim: # pragma: no cover
-            raise TapeError("TZX Pure Data Block (0x14) not supported")
+            zero = get_word(data, i)
+            one = get_word(data, i + 2)
+            pause = get_word(data, i + 5) * 3500
+            timings = TapeBlockTimings(zero=zero, one=one, pause=pause)
         i += 10 + length
     elif block_id == 21:
         # Direct recording block

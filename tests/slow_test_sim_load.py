@@ -71,8 +71,28 @@ class SimLoadTest(SkoolKitTestCase):
             13                # ENTER
         ]
 
+    def _format_output(self, text):
+        out_lines = []
+        for line in text.strip().split('\n'):
+            if '\x08' in line:
+                shown = []
+                index = 0
+                for c in line:
+                    if c == '\x08':
+                        index -= 1
+                    elif index < len(shown):
+                        shown[index] = c
+                        index += 1
+                    else:
+                        shown.append(c)
+                        index += 1
+                out_lines.append(''.join(shown).rstrip())
+            else:
+                out_lines.append(line.rstrip())
+        return out_lines
+
     @patch.object(tap2sna, '_write_z80', mock_write_z80)
-    def test_sim_load_with_custom_standard_speed_loader(self):
+    def test_custom_standard_speed_loader(self):
         code2 = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
         code2_start = 49152
         code2_end = code2_start + len(code2)
@@ -103,8 +123,7 @@ class SimLoadTest(SkoolKitTestCase):
         exp_reg = set(('SP=65340', f'IX={code2_end}', 'IY=23610', 'PC=32925'))
         self.assertLessEqual(exp_reg, set(options.reg))
 
-        out_lines = output.strip().replace('\x08', '.\n').split('\n')
-        out_lines = [m for m in out_lines if not m.startswith(('.', 'Loaded byte: '))]
+        out_lines = self._format_output(output)
         exp_out_lines = [
             'Program: simloadbas',
             'Fast loading data block: 23755,20',
@@ -112,8 +131,9 @@ class SimLoadTest(SkoolKitTestCase):
             'Bytes: simloadbyt',
             'Fast loading data block: 32759,184',
             '',
-            'Leader tone',
-            'Sync pulse',
+            'Pilot tone',
+            'Sync pulses',
+            'Data (12 bytes)',
             'Loaded bytes: 49152,10',
             '',
             'Tape finished',
@@ -123,7 +143,7 @@ class SimLoadTest(SkoolKitTestCase):
         self.assertEqual(error, '')
 
     @patch.object(tap2sna, '_write_z80', mock_write_z80)
-    def test_sim_load_with_turbo_loader(self):
+    def test_turbo_loader(self):
         code2 = [1, 2, 4, 8, 16, 32, 64, 128, 0, 255]
         code2_start = 49152
         code2_end = code2_start + len(code2)
@@ -154,8 +174,7 @@ class SimLoadTest(SkoolKitTestCase):
         exp_reg = set(('SP=65340', f'IX={code2_end}', 'IY=23610', 'PC=32925'))
         self.assertLessEqual(exp_reg, set(options.reg))
 
-        out_lines = output.strip().replace('\x08', '.\n').split('\n')
-        out_lines = [m for m in out_lines if not m.startswith(('.', 'Loaded byte: '))]
+        out_lines = self._format_output(output)
         exp_out_lines = [
             'Program: simloadbas',
             'Fast loading data block: 23755,20',
@@ -163,8 +182,83 @@ class SimLoadTest(SkoolKitTestCase):
             'Bytes: simloadbyt',
             'Fast loading data block: 32759,184',
             '',
-            'Leader tone',
-            'Sync pulse',
+            'Pilot tone',
+            'Sync pulses',
+            'Data (12 bytes)',
+            'Loaded bytes: 49152,10',
+            '',
+            'Tape finished',
+            'Simulation ended: PC=32925'
+        ]
+        self.assertEqual(exp_out_lines, out_lines)
+        self.assertEqual(error, '')
+
+    @patch.object(tap2sna, '_write_z80', mock_write_z80)
+    def test_tzx_block_types_0x12_0x13_0x14(self):
+        code2 = [1, 2, 4, 8, 16, 32, 64, 128, 0, 255]
+        pdata = create_data_block(code2)
+        code2_start = 49152
+        code2_end = code2_start + len(code2)
+        code = [
+            221, 33, 0, 192,  # LD IX,49152
+            17, 10, 0,        # LD DE,10
+            55,               # SCF
+            159,              # SBC A,A
+        ]
+        loader_start = 32768
+        code_start = loader_start - len(code)
+        code += get_loader(loader_start)
+        basic_data = self._get_basic_data(code_start)
+        pure_tone = [
+            0x12,             # Block ID (Pure Tone)
+            120, 8,           # 2168 (pulse length)
+            151, 12,          # 3223 (number of pulses)
+        ]
+        pulse_sequence = [
+            0x13,             # Block ID (Pulse Sequence)
+            2,                # Number of pulses
+            155, 2,           # Sync 1 (667)
+            223, 2,           # Sync 2 (735)
+        ]
+        pure_data = [
+            0x14,             # Block ID (Pure Data)
+            87, 3,            # 855 (length of 0-bit pulse)
+            174, 6,           # 1710 (length of 1-bit pulse)
+            8,                # Used bits in last byte
+            0, 0,             # 0ms (pause)
+            len(pdata), 0, 0, # Data length
+            *pdata,           # Data
+        ]
+        blocks = [
+            create_tzx_header_block("simloadbas", 10, len(basic_data), 0),
+            create_tzx_data_block(basic_data),
+            create_tzx_header_block("simloadbyt", code_start, len(code), 3),
+            create_tzx_data_block(code),
+            pure_tone,
+            pulse_sequence,
+            pure_data,
+        ]
+        tzxfile = self._write_tzx(blocks)
+        z80file = 'out.z80'
+        output, error = self.run_tap2sna(f'--sim-load {tzxfile} {z80file}')
+
+        self.assertEqual(basic_data, snapshot[23755:23755 + len(basic_data)])
+        self.assertEqual(code, snapshot[code_start:code_start + len(code)])
+        self.assertEqual(code2, snapshot[code2_start:code2_end])
+        exp_reg = set(('SP=65340', f'IX={code2_end}', 'IY=23610', 'PC=32925'))
+        self.assertLessEqual(exp_reg, set(options.reg))
+
+        out_lines = self._format_output(output)
+        exp_out_lines = [
+            'Program: simloadbas',
+            'Fast loading data block: 23755,20',
+            '',
+            'Bytes: simloadbyt',
+            'Fast loading data block: 32759,184',
+            '',
+            'Pilot tone',
+            'Sync pulses',
+            'Data (12 bytes)',
             'Loaded bytes: 49152,10',
             '',
             'Tape finished',
