@@ -1264,6 +1264,29 @@ class SimulatorTest(SkoolKitTestCase):
                 reg_in = {'F': flags}
                 self._test_instruction(operation, data, timing, reg_in, start=start, end=end)
 
+    def test_jr_jumping_across_64K_boundary(self):
+        for start, opcode, condition, flags, offset, end in (
+                #                   SZ5H3PNC
+                (65526, 24, '',   0b00000000,  12, 4),     # $FFF6 JR $0004
+                (65528, 32, 'NZ', 0b00000000,  12, 6),     # $FFF8 JR NZ,$0006
+                (65530, 40, 'Z',  0b01000000,  12, 8),     # $FFFA JR Z,$0008
+                (65532, 48, 'NC', 0b00000000,  12, 10),    # $FFFC JR NC,$000A
+                (65534, 56, 'C',  0b00000001,  12, 12),    # $FFFE JR C,$000C
+                (0,     24, '',   0b00000000, -12, 65526), # $0000 JR $FFF6
+                (2,     32, 'NZ', 0b00000000, -12, 65528), # $0002 JR NZ,$FFF8
+                (4,     40, 'Z',  0b01000000, -12, 65530), # $0004 JR Z,$FFFA
+                (6,     48, 'NC', 0b00000000, -12, 65532), # $0006 JR NC,$FFFC
+                (8,     56, 'C',  0b00000001, -12, 65534), # $0008 JR C,$FFFE
+        ):
+            if condition:
+                operation = f'JR {condition},${end:04X}'
+            else:
+                operation = f'JR ${end:04X}'
+            data = (opcode, offset if offset >= 0 else offset + 256)
+            timing = 12
+            reg_in = {'F': flags}
+            self._test_instruction(operation, data, timing, reg_in, start=start, end=end)
+
     def test_call_nn(self):
         start = 30000
         addr = 51426
@@ -1478,6 +1501,18 @@ class SimulatorTest(SkoolKitTestCase):
             reg_in = {'B': b}
             reg_out = {'B': b - 1}
             self._test_instruction(operation, data, timing, reg_in, reg_out, start=addr, end=end)
+
+    def test_djnz_jumping_across_64K_boundary(self):
+        for start, offset, end in (
+                (65532, 12, 10),     # $FFFC DJNZ $000A
+                (0,     -3, 65535),  # $0000 DJNZ $FFFF
+        ):
+            operation = f'DJNZ ${end:04X}'
+            data = (16, offset if offset >= 0 else offset + 256)
+            timing = 13
+            reg_in = {'B': 2}
+            reg_out = {'B': 1}
+            self._test_instruction(operation, data, timing, reg_in, reg_out, start=start, end=end)
 
     def test_di(self):
         operation = 'DI'

@@ -597,7 +597,7 @@ class Simulator:
         offset = data[1]
         if offset & 128:
             offset -= 256
-        addr = self.pc + 2 + offset
+        addr = (self.pc + 2 + offset) & 0xFFFF
         if self.registers['B']:
             pc = addr
             tstates = timing[0]
@@ -721,7 +721,7 @@ class Simulator:
         offset = data[1]
         if offset & 128:
             offset -= 256
-        addr = self.pc + 2 + offset
+        addr = (self.pc + 2 + offset) & 0xFFFF
         if condition:
             if self.get_condition(condition):
                 pc = addr
