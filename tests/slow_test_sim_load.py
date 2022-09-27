@@ -134,10 +134,9 @@ class SimLoadTest(SkoolKitTestCase):
             'Pilot tone',
             'Sync pulses',
             'Data (12 bytes)',
-            'Loaded bytes: 49152,10',
             '',
             'Tape finished',
-            'Simulation ended: PC=32925'
+            'Simulation stopped (end of tape): PC=32925'
         ]
         self.assertEqual(exp_out_lines, out_lines)
         self.assertEqual(error, '')
@@ -185,10 +184,9 @@ class SimLoadTest(SkoolKitTestCase):
             'Pilot tone',
             'Sync pulses',
             'Data (12 bytes)',
-            'Loaded bytes: 49152,10',
             '',
             'Tape finished',
-            'Simulation ended: PC=32925'
+            'Simulation stopped (end of tape): PC=32925'
         ]
         self.assertEqual(exp_out_lines, out_lines)
         self.assertEqual(error, '')
@@ -259,10 +257,109 @@ class SimLoadTest(SkoolKitTestCase):
             'Pilot tone',
             'Sync pulses',
             'Data (12 bytes)',
-            'Loaded bytes: 49152,10',
             '',
             'Tape finished',
-            'Simulation ended: PC=32925'
+            'Simulation stopped (end of tape): PC=32925'
         ]
         self.assertEqual(exp_out_lines, out_lines)
         self.assertEqual(error, '')
+
+    @patch.object(tap2sna, '_write_z80', mock_write_z80)
+    def test_unread_data_at_end_of_tape(self):
+        code2 = [
+            # This loop runs while the tape continues playing
+            17, 0, 0,         # 49152 LD DE,0      [10]
+            74,               # 49155 LD C,D       [4]
+            19,               # 49156 INC DE       [6]     ; 26 T-states
+            122,              # 49157 LD A,D       [4]     ; per
+            179,              # 49158 OR E         [4]     ; iteration
+            24, 251,          # 49159 JR NZ,49156  [12/7]  ;
+            12,               # 49161 INC C        [4]
+            24, 248,          # 49162 JR 49156     [12]
+        ]
+        code2_start = 49152
+        code2_len = len(code2)
+        code2_end = code2_start + code2_len
+        code = [
+            221, 33, 0, 192,  # LD IX,49152
+            221, 229,         # PUSH IX
+            17, code2_len, 0, # LD DE,code2_len
+            55,               # SCF
+            159,              # SBC A,A
+        ]
+        loader_start = 32768
+        code_start = loader_start - len(code)
+        code += get_loader(loader_start)
+        basic_data = self._get_basic_data(code_start)
+        code2_data_block = create_tap_data_block(code2)
+        code2_data_block[0] += 1
+        code2_data_block.append(0)
+        blocks = [
+            create_tap_header_block("simloadbas", 10, len(basic_data), 0),
+            create_tap_data_block(basic_data),
+            create_tap_header_block("simloadbyt", code_start, len(code)),
+            create_tap_data_block(code),
+            code2_data_block
+        ]
+        tapfile = self._write_tap(blocks)
+        z80file = 'out.z80'
+        output, error = self.run_tap2sna(f'--sim-load {tapfile} {z80file}')
+
+        self.assertEqual(basic_data, snapshot[23755:23755 + len(basic_data)])
+        self.assertEqual(code, snapshot[code_start:code_start + len(code)])
+        self.assertEqual(code2, snapshot[code2_start:code2_end])
+
+        # CDE=648
+        exp_reg = set(('SP=65344', f'IX={code2_end}', 'IY=23610', 'PC=49156', 'E=136', 'D=2', 'C=0'))
+        self.assertLessEqual(exp_reg, set(options.reg))
+
+        out_lines = self._format_output(output)
+        exp_out_lines = [
+            'Program: simloadbas',
+            'Fast loading data block: 23755,20',
+            '',
+            'Bytes: simloadbyt',
+            'Fast loading data block: 32757,186',
+            '',
+            'Pilot tone',
+            'Sync pulses',
+            'Data (15 bytes)',
+            '',
+            'Tape finished',
+            'Simulation stopped (end of tape): PC=49156'
+        ]
+        self.assertEqual(exp_out_lines, out_lines)
+        self.assertEqual(error, '')
+
+    @patch.object(tap2sna, '_write_z80', mock_write_z80)
+    def test_no_ram_execution(self):
+        usr_str = [ord(c) for c in '10355'] # 10355 JR Z,10355
+        basic_data = [
+            0, 10,            # Line 10
+            11, 0,            # Line length
+            249, 192, 176,    # RANDOMIZE USR VAL
+            34,               # "
+            *usr_str,         # 10355
+            34,               # "
+            13                # ENTER
+        ]
+        blocks = [
+            create_tap_header_block("simloadbas", 10, len(basic_data), 0),
+            create_tap_data_block(basic_data),
+        ]
+        tapfile = self._write_tap(blocks)
+        z80file = 'out.z80'
+        output, error = self.run_tap2sna(f'--sim-load {tapfile} {z80file}')
+        out_lines = output.strip().split('\n')
+        exp_out_lines = [
+            'Program: simloadbas',
+            'Fast loading data block: 23755,15',
+            '',
+            'Tape finished',
+            'Simulation stopped (tape ended 1 second ago): PC=10355',
+        ]
+        self.assertEqual(exp_out_lines, out_lines)
+        self.assertEqual(error, '')
+        self.assertEqual(basic_data, snapshot[23755:23755 + len(basic_data)])
+        exp_reg = set(('SP=65344', 'IX=23770', 'IY=23610', 'PC=10355'))
+        self.assertLessEqual(exp_reg, set(options.reg))

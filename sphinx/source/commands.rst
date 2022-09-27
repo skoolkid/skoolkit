@@ -1311,16 +1311,16 @@ option. It simulates a freshly booted 48K ZX Spectrum running LOAD "". Whenever
 the Spectrum ROM's load routine at $0556 is called, a shortcut is taken by fast
 loading the next block on the tape. All other code (including any custom
 loader) is fully simulated. Simulation continues until either the program
-counter hits the start address given by the ``--start`` option, or:
+counter hits the start address given by the ``--start`` option, or the end of
+the tape is reached and one of the following conditions is satisfied:
 
-* the tape has finished and the program counter hits an address outside the ROM
-  (in the case where no custom loader was detected)
-* the tape has finished (in the case where a custom loader was detected)
+* a custom loader was detected
+* the program counter hits an address outside the ROM
+* more than one second of simulated Z80 CPU time has elapsed since the end of
+  the tape was reached
 
-The ``--start`` option is required if the game starts before the tape has
-finished. When a simulated LOAD has completed, the values of the registers
-(including the program counter) in the simulator are used to populate the Z80
-snapshot.
+When a simulated LOAD has completed, the values of the registers (including the
+program counter) in the simulator are used to populate the Z80 snapshot.
 
 In addition to loading specific blocks, the ``--ram`` option can also be used
 to move blocks of bytes from one location to another, POKE values into
