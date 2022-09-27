@@ -1005,6 +1005,24 @@ class SimulatorTest(SkoolKitTestCase):
                 sna_out = {value + offset: r2}
                 self._test_instruction(operation, data, 19, reg_in, reg_out, sna_in, sna_out)
 
+    def test_ld_r_with_ix_iy_offsets_across_64K_boundary(self):
+        # LD r,(i+d); LD (i+d),r (i: IX, IY; r: A, B, C, D, E, H, L)
+        r1, r2 = 14, 207
+        for prefix, reg in ((0xDD, 'IX'), (0xFD, 'IY')):
+            for value, offset in ((65535, 2), (0, -2)):
+                for r in ('B', 'C', 'D', 'E', 'H', 'L', 'A'):
+                    if offset < 0:
+                        operand = offset + 256
+                        operation = f'LD {r},({reg}-${-offset:02X})'
+                    else:
+                        operand = offset
+                        operation = f'LD {r},({reg}+${offset:02X})'
+                    data = (prefix, 0x46 + 8 * REGISTERS.index(r), operand)
+                    reg_in = {r: r1, reg: value}
+                    reg_out = {r: r2}
+                    sna_in = {(value + offset) & 0xFFFF: r2}
+                    self._test_instruction(operation, data, 19, reg_in, reg_out, sna_in)
+
     def test_ld_ix_iy_d_n(self):
         # LD (IX+d),n; LD (IY+d),n
         offset, n = 7, 21

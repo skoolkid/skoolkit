@@ -196,10 +196,10 @@ class Simulator:
         if offset >= 128:
             offset -= 256
         if data[0] == 0xDD:
-            addr = self.registers['IXl'] + 256 * self.registers['IXh'] + offset
+            addr = (self.registers['IXl'] + 256 * self.registers['IXh'] + offset) & 0xFFFF
             ireg = 'IX'
         else:
-            addr = self.registers['IYl'] + 256 * self.registers['IYh'] + offset
+            addr = (self.registers['IYl'] + 256 * self.registers['IYh'] + offset) & 0xFFFF
             ireg = 'IY'
         if offset >= 0:
             return addr, f'({ireg}+${offset:02X})'
