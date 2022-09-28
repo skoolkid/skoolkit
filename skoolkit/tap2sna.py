@@ -322,7 +322,8 @@ class LoadTracer:
         de = registers['E'] + 256 * registers['D'] # Block length
         a = registers['A']
         data_len = len(block) - 2
-        if a == block[0] and de <= data_len:
+
+        if a == block[0]:
             if a == 0 and data_len == 17 and block[1] <= 3:
                 name = ''.join(get_char(b) for b in block[2:12])
                 if block[1] == 3:
@@ -335,13 +336,23 @@ class LoadTracer:
                     write_line(f'Program: {name}')
             else:
                 write_line(f'Fast loading data block: {ix},{de}\n')
-            simulator.snapshot[ix:ix + de] = block[1:1 + de]
-            registers['F'] = 0x01 # Set carry flag: success
-            registers['A'] = 0 # Parity byte match
-            registers['D'], registers['E'] = 0, 0 # Counter 0
-            registers['IXl'] = (ix + de) % 256
-            registers['IXh'] = (ix + de) // 256
+
+            if de <= data_len:
+                simulator.snapshot[ix:ix + de] = block[1:1 + de]
+                registers['F'] = 0x01 # Set carry flag: success
+                ix += de
+                de = 0
+            else:
+                simulator.snapshot[ix:ix + data_len + 1] = block[1:]
+                registers['F'] = 0x00 # Reset carry flag: error
+                ix += data_len + 1
+                de -= data_len + 1
+            registers['IXh'] = (ix >> 8) & 0xFF
+            registers['IXl'] = ix & 0xFF
+            registers['D'] = (de >> 8) & 0xFF
+            registers['E'] = de & 0xFF
             simulator.pc = 0x05E2
+
             block_num = self.samples[self.index][3]
             while self.index < self.max_index and self.samples[self.index][3] == block_num:
                 self.index += 1
@@ -352,9 +363,8 @@ class LoadTracer:
                 self.tape_started = simulator.tstates - self.samples[self.index][0]
             self.pulse_type = DATA
             return
-        if a != block[0]:
-            raise TapeError(f'Flag byte mismatch: expected {a}, got {block[0]}')
-        raise TapeError(f'Failed to load block of length {data_len}: expected length {de}')
+
+        raise TapeError(f'Flag byte mismatch: expected {a}, got {block[0]}')
 
 def _write_z80(ram, options, fname):
     parent_dir = os.path.dirname(fname)
