@@ -248,19 +248,24 @@ class LoadTracer:
     def trace(self, simulator, instruction):
         if self.tape_started is not None:
             offset = simulator.tstates - self.tape_started
+            block_num = self.samples[self.index][3]
             while self.index < self.max_index and self.samples[self.index + 1][0] < offset:
                 self.index += 1 # pragma: no cover
-            if self.index == self.max_index:
-                self.end_of_tape += 1
-                if self.end_of_tape == 1:
-                    write_line('Tape finished')
-                    self.tape_end_time = simulator.tstates
-            if self.custom_loader: # pragma: no cover
-                progress = self.samples[self.index][0] // self.tape_length
-                if progress > self.progress:
-                    msg = f'[{progress/10:0.1f}%]'
-                    write(msg + chr(8) * len(msg))
-                    self.progress = progress
+            if self.samples[self.index][3] > block_num:
+                # Pause tape between blocks
+                self.tape_started = None # pragma: no cover
+            else:
+                if self.index == self.max_index:
+                    self.end_of_tape += 1
+                    if self.end_of_tape == 1:
+                        write_line('Tape finished')
+                        self.tape_end_time = simulator.tstates
+                if self.custom_loader: # pragma: no cover
+                    progress = self.samples[self.index][0] // self.tape_length
+                    if progress > self.progress:
+                        msg = f'[{progress/10:0.1f}%]'
+                        write(msg + chr(8) * len(msg))
+                        self.progress = progress
 
         if simulator.pc == self.stop:
             write_line(f'Simulation stopped (PC at start address): PC={simulator.pc}')
@@ -282,29 +287,35 @@ class LoadTracer:
 
     def read_port(self, simulator, port):
         if port & 0xFF == 0xFE:
-            if simulator.pc > 0x7FFF:
-                self.custom_loader = True # pragma: no cover
+            read_tape = False
+            if simulator.pc > 0x7FFF: # pragma: no cover
+                self.custom_loader = True
+                read_tape = True
+            elif 0x0562 <= simulator.pc <= 0x05F1:
+                read_tape = True # pragma: no cover
 
-            if self.index == self.max_index - 1: # pragma: no cover
-                ts, sample, stype, bnum = self.samples.pop()
-                self.samples.append((self.samples[-1][0], sample, STOP, bnum))
+            if read_tape: # pragma: no cover
+                if self.tape_started is None:
+                    self.tape_started = simulator.tstates - self.samples[self.index][0]
 
-            pulse_type = self.samples[self.index][2]
-            if pulse_type != self.pulse_type:
-                if pulse_type == PILOT: # pragma: no cover
-                    write_line('Pilot tone')
-                elif pulse_type == SYNC: # pragma: no cover
-                    write_line('Sync pulses')
-                elif pulse_type == DATA: # pragma: no cover
-                    length = len(self.blocks[self.samples[self.index][3]])
-                    write_line(f'Data ({length} bytes)\n')
-                self.pulse_type = pulse_type
+                if self.index == self.max_index - 1:
+                    ts, sample, stype, bnum = self.samples.pop()
+                    self.samples.append((self.samples[-1][0], sample, STOP, bnum))
 
-            return self.samples[self.index][1]
+                pulse_type = self.samples[self.index][2]
+                if pulse_type != self.pulse_type:
+                    if pulse_type == PILOT:
+                        write_line('Pilot tone')
+                    elif pulse_type == SYNC:
+                        write_line('Sync pulses')
+                    elif pulse_type == DATA:
+                        length = len(self.blocks[self.samples[self.index][3]])
+                        write_line(f'Data ({length} bytes)\n')
+                    self.pulse_type = pulse_type
+
+                return self.samples[self.index][1]
 
     def fast_load(self, simulator):
-        if self.tape_started is None:
-            self.tape_started = simulator.tstates
         block = self.blocks[self.samples[self.index][3]]
         registers = simulator.registers
         ix = registers['IXl'] + 256 * registers['IXh'] # Start address
@@ -331,10 +342,14 @@ class LoadTracer:
             registers['IXl'] = (ix + de) % 256
             registers['IXh'] = (ix + de) // 256
             simulator.pc = 0x05E2
-            tape_offset, block_num = self.samples[self.index][0::3]
+            block_num = self.samples[self.index][3]
             while self.index < self.max_index and self.samples[self.index][3] == block_num:
                 self.index += 1
-            self.tape_started -= self.samples[self.index][0] - tape_offset
+            if self.samples[self.index][3] > block_num:
+                # Pause tape between blocks
+                self.tape_started = None
+            else:
+                self.tape_started = simulator.tstates - self.samples[self.index][0]
             self.pulse_type = DATA
             return
         if a != block[0]:

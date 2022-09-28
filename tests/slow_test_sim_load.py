@@ -363,3 +363,46 @@ class SimLoadTest(SkoolKitTestCase):
         self.assertEqual(basic_data, snapshot[23755:23755 + len(basic_data)])
         exp_reg = set(('SP=65344', 'IX=23770', 'IY=23610', 'PC=10355'))
         self.assertLessEqual(exp_reg, set(options.reg))
+
+    @patch.object(tap2sna, '_write_z80', mock_write_z80)
+    def test_tape_is_paused_between_blocks(self):
+        code_start = 32768
+        code_start_str = [ord(c) for c in str(code_start)]
+        basic_data = [
+            0, 10,                    # Line 10
+            23, 0,                    # Line length
+            242, 176, 34, 57, 57, 34, # PAUSE VAL "99"
+            58,                       # :
+            239, 34, 34, 175,         # LOAD ""CODE
+            58,                       # :
+            249, 192, 176,            # RANDOMIZE USR VAL
+            34, *code_start_str, 34,  # "start address"
+            13                        # ENTER
+        ]
+        code = [201]
+        blocks = [
+            create_tap_header_block("simloadbas", 10, len(basic_data), 0),
+            create_tap_data_block(basic_data),
+            create_tap_header_block("simloadbyt", code_start, len(code), 3),
+            create_tap_data_block(code),
+        ]
+        tapfile = self._write_tap(blocks)
+        z80file = 'out.z80'
+        output, error = self.run_tap2sna(f'--sim-load {tapfile} {z80file}')
+        out_lines = output.strip().split('\n')
+        exp_out_lines = [
+            'Program: simloadbas',
+            'Fast loading data block: 23755,27',
+            '',
+            'Bytes: simloadbyt',
+            'Fast loading data block: 32768,1',
+            '',
+            'Tape finished',
+            'Simulation stopped (PC in RAM): PC=32768',
+        ]
+        self.assertEqual(exp_out_lines, out_lines)
+        self.assertEqual(error, '')
+        self.assertEqual(basic_data, snapshot[23755:23755 + len(basic_data)])
+        self.assertEqual(code, snapshot[code_start:code_start + len(code)])
+        exp_reg = set(('SP=65344', 'IX=32769', 'IY=23610', 'PC=32768'))
+        self.assertLessEqual(exp_reg, set(options.reg))
