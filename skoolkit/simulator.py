@@ -98,9 +98,11 @@ class Simulator:
         self.iff2 = state.get('iff2', 0)
         self.tstates = state.get('tstates', 0)
         self.tracers = []
+        self.i_tracers = None
 
     def add_tracer(self, tracer):
         self.tracers.append(tracer)
+        self.i_tracers = [t.trace for t in self.tracers if hasattr(t, 'trace')]
 
     def run(self, pc=None):
         if pc is not None:
@@ -130,18 +132,16 @@ class Simulator:
             operation, pc, tstates = f(self, timing, data, *args)
             r = self.registers['R']
             self.registers['R'] = (r & 0x80) + ((r + r_inc) & 0x7F)
-            running = False
-            if self.tracers:
+            if self.i_tracers:
+                running = True
                 instruction = Instruction(self.tstates, self.pc, operation, data, tstates)
                 self.pc = pc & 0xFFFF
                 self.tstates += tstates
-                retvals = []
-                for tracer in self.tracers:
-                    if hasattr(tracer, 'trace'):
-                        retvals.append(tracer.trace(self, instruction))
-                if retvals:
-                    running = not any(retvals)
+                for method in self.i_tracers:
+                    if method(self, instruction):
+                        running = False
             else:
+                running = False
                 self.pc = pc & 0xFFFF
                 self.tstates += tstates
 
