@@ -1310,9 +1310,10 @@ An alternative to the ``--ram load`` approach is the ``--sim-load``
 option. It simulates a freshly booted 48K ZX Spectrum running LOAD "". Whenever
 the Spectrum ROM's load routine at $0556 is called, a shortcut is taken by fast
 loading the next block on the tape. All other code (including any custom
-loader) is fully simulated. Simulation continues until either the program
-counter hits the start address given by the ``--start`` option, or the end of
-the tape is reached and one of the following conditions is satisfied:
+loader) is fully simulated. Simulation continues until the program counter hits
+the start address given by the ``--start`` option, or 10 minutes of simulated
+Z80 CPU time has elapsed, or the end of the tape is reached and one of the
+following conditions is satisfied:
 
 * a custom loader was detected
 * the program counter hits an address outside the ROM

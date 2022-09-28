@@ -161,6 +161,8 @@ SYNC = 2
 DATA = 3
 STOP = 4
 
+SIM_TIMEOUT = 10 * 60 * 3500000 # 10 minutes of Z80 CPU time
+
 class SkoolKitArgumentParser(argparse.ArgumentParser):
     def convert_arg_line_to_args(self, arg_line):
         for arg in arg_line.split():
@@ -284,6 +286,10 @@ class LoadTracer:
             if simulator.tstates - self.tape_end_time > 3500000: # pragma: no cover
                 write_line(f'Simulation stopped (tape ended 1 second ago): PC={simulator.pc}')
                 return True
+
+        if simulator.tstates > SIM_TIMEOUT: # pragma: no cover
+            write_line(f'Simulation stopped (timed out): PC={simulator.pc}')
+            return True
 
     def read_port(self, simulator, port):
         if port & 0xFF == 0xFE:

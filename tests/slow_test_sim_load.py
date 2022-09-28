@@ -406,3 +406,33 @@ class SimLoadTest(SkoolKitTestCase):
         self.assertEqual(code, snapshot[code_start:code_start + len(code)])
         exp_reg = set(('SP=65344', 'IX=32769', 'IY=23610', 'PC=32768'))
         self.assertLessEqual(exp_reg, set(options.reg))
+
+    @patch.object(tap2sna, 'SIM_TIMEOUT', 2 * 3500000)
+    @patch.object(tap2sna, '_write_z80', mock_write_z80)
+    def test_simulation_timed_out(self):
+        basic_data = [
+            0, 10,            # Line 10
+            2, 0,             # Line length
+            247,              # RUN
+            13                # ENTER
+        ]
+        blocks = [
+            create_tap_header_block("simloadbas", 10, len(basic_data), 0),
+            create_tap_data_block(basic_data),
+            create_tap_data_block([0]),
+        ]
+        tapfile = self._write_tap(blocks)
+        z80file = 'out.z80'
+        output, error = self.run_tap2sna(f'--sim-load {tapfile} {z80file}')
+        out_lines = output.strip().split('\n')
+        exp_out_lines = [
+            'Program: simloadbas',
+            'Fast loading data block: 23755,6',
+            '',
+            'Simulation stopped (timed out): PC=3676',
+        ]
+        self.assertEqual(exp_out_lines, out_lines)
+        self.assertEqual(error, '')
+        self.assertEqual(basic_data, snapshot[23755:23755 + len(basic_data)])
+        exp_reg = set(('IX=23761', 'IY=23610', 'PC=3676'))
+        self.assertLessEqual(exp_reg, set(options.reg))
