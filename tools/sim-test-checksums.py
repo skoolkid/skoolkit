@@ -112,6 +112,11 @@ SUITES = {
         ('BIT_n_r', BitTracer, ('B',), (0xCB, 0x40)),
         ('BIT_n_xy', BitTracer, ('(IX+d)',), (0xDD, 0xCB, 0x00, 0x46)),
     ),
+    'RRD': (
+        'RRD/RLD instructions',
+        ('RRD', RRDRLDTracer, (), (0xED, 0x67)),
+        ('RLD', RRDRLDTracer, (), (0xED, 0x6F)),
+    ),
 }
 
 def run(suites):

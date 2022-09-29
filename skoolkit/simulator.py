@@ -943,13 +943,10 @@ class Simulator:
         at_hl = self.peek(hl)
         self.poke(hl, ((at_hl << 4) & 240) + (a & 15))
         a_out = self.registers['A'] = (a & 240) + ((at_hl >> 4) & 15)
-        self.set_flag('S', a_out & 0x80)
-        self.set_flag('Z', a_out == 0)
-        self.set_flag('5', a_out & 0x20)
-        self.set_flag('H', 0)
-        self.set_flag('3', a_out & 0x08)
-        self.set_flag('P', PARITY[a_out])
-        self.set_flag('N', 0)
+        f = (a_out & 0xA8) | PARITY[a_out] | (self.registers['F'] & 0x01) # S.5H3PNC
+        if a_out == 0:
+            f |= 0x40 # .Z......
+        self.registers['F'] = f
         return 'RLD', self.pc + 2, timing
 
     def rrd(self, timing, data):
@@ -958,13 +955,10 @@ class Simulator:
         at_hl = self.peek(hl)
         self.poke(hl, ((a << 4) & 240) + (at_hl >> 4))
         a_out = self.registers['A'] = (a & 240) + (at_hl & 15)
-        self.set_flag('S', a_out & 0x80)
-        self.set_flag('Z', a_out == 0)
-        self.set_flag('5', a_out & 0x20)
-        self.set_flag('H', 0)
-        self.set_flag('3', a_out & 0x08)
-        self.set_flag('P', PARITY[a_out])
-        self.set_flag('N', 0)
+        f = (a_out & 0xA8) | PARITY[a_out] | (self.registers['F'] & 0x01) # S.5H3PNC
+        if a_out == 0:
+            f |= 0x40 # .Z......
+        self.registers['F'] = f
         return 'RRD', self.pc + 2, timing
 
     def rotate(self, timing, data, op, cbit, reg, carry='', dest=''):

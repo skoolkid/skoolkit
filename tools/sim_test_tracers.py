@@ -273,3 +273,19 @@ class BitTracer(BaseTracer):
                 self.count = 0 # Finished
 
         self.repeat(simulator)
+
+class RRDRLDTracer(BaseTracer):
+    def __init__(self, start):
+        super().__init__(start, ('A', 'F', '(HL)'))
+        self.count = 0xFFFF
+
+    def trace(self, simulator, instruction):
+        if self.collect_result(simulator, instruction):
+            return True
+        simulator.registers['A'] = (self.count >> 8) & 0xFF
+        simulator.registers['F'] = 0
+        hl = 0x6000
+        simulator.registers['H'] = hl // 256
+        simulator.registers['L'] = hl % 256
+        simulator.snapshot[hl] = self.count & 0xFF
+        self.repeat(simulator)
