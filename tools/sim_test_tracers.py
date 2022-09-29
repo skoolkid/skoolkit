@@ -214,3 +214,62 @@ class BlockTracer(BaseTracer):
         simulator.snapshot[de] = simulator.snapshot[hl] ^ 0xFF
 
         self.repeat(simulator)
+
+class BitTracer(BaseTracer):
+    def __init__(self, start, reg):
+        super().__init__(start, (reg, 'F'))
+        self.reg = reg
+        self.bit = 7
+        self.rval = 0xFF
+        if reg in ('(IX+d)', '(IY+d)'):
+            self.index = 3
+        else:
+            self.index = -1
+        self.count = 0xFFFFFFFF
+        self.registers = ('B', 'C', 'D', 'E', 'H', 'L', '(HL)', 'A')
+
+    def trace(self, simulator, instruction):
+        if self.collect_result(simulator, instruction):
+            return True
+
+        simulator.registers['F'] = 0
+
+        if self.reg in ('(IX+d)', '(IY+d)'):
+            rr = 0x6000
+            if self.index & 0x02:
+                rr |= 0x2000
+            if self.index & 0x01:
+                rr |= 0x0800
+            simulator.registers[self.reg[1:3] + 'l'] = rr % 256
+            simulator.registers[self.reg[1:3] + 'h'] = rr // 256
+            simulator.snapshot[rr] = self.rval
+        elif self.reg == '(HL)':
+            hl = 0x6000
+            simulator.registers['L'] = hl % 256
+            simulator.registers['H'] = hl // 256
+            simulator.snapshot[hl] = self.rval
+        else:
+            simulator.registers[self.reg] = self.rval
+
+        if self.reg in ('(IX+d)', '(IY+d)'):
+            r = simulator.snapshot[self.start + 3] & 0x07
+            opcode = 0x40 + 8 * self.bit + r
+            simulator.snapshot[self.start + 3] = opcode
+        else:
+            opcode = 0x40 + 8 * self.bit + self.registers.index(self.reg)
+            simulator.snapshot[self.start + 1] = opcode
+
+        if self.rval > 0:
+            self.rval -= 1
+        else:
+            self.rval = 0xFF
+            self.bit -= 1
+
+        if self.bit < 0:
+            if self.index > 0:
+                self.index -= 1
+                self.bit = 7
+            else:
+                self.count = 0 # Finished
+
+        self.repeat(simulator)

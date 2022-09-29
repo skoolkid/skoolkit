@@ -106,7 +106,12 @@ SUITES = {
         ('IND',  BlockTracer, (), (0xED, 0xAA)),
         ('OUTI', BlockTracer, (), (0xED, 0xA3)),
         ('OUTD', BlockTracer, (), (0xED, 0xAB)),
-    )
+    ),
+    'BIT': (
+        'BIT n,[r,xy] instructions',
+        ('BIT_n_r', BitTracer, ('B',), (0xCB, 0x40)),
+        ('BIT_n_xy', BitTracer, ('(IX+d)',), (0xDD, 0xCB, 0x00, 0x46)),
+    ),
 }
 
 def run(suites):

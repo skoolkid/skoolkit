@@ -67,6 +67,8 @@ INI = '7c97d8445ff734960d82a08ec0c82274'
 IND = '5915d4d5a350ca4a1eb5b03666986eee'
 OUTI = 'da88db329b1a92d296a7353cb7747d00'
 OUTD = 'f503707ab393b36f3c97acdb7b1305e0'
+BIT_n_r = 'bf8c2888fa035475cef5128d22f1cb8a'
+BIT_n_xy = 'dd77e318e60ada41ddf7bd0a333a45d9'
 
 class SimulatorTest(unittest.TestCase):
     def _test_instruction(self, op, tclass, targs, checksum, opcodes, snapshot=None):
@@ -313,6 +315,19 @@ class BlockTest(SimulatorTest):
 
     def test_otdr(self):
         self._test_instruction('OTDR', BlockTracer, (), OUTD, (0xED, 0xBB))
+
+class BitTest(SimulatorTest):
+    def test_bit_n_r(self):
+        for reg in ('B', 'C', 'D', 'E', 'H', 'L', '(HL)', 'A'):
+            self._test_instruction('BIT n,', BitTracer, (reg,), BIT_n_r, (0xCB, 0x40))
+
+    def test_bit_n_ix(self):
+        for r in range(8):
+            self._test_instruction('BIT n,', BitTracer, ('(IX+d)',), BIT_n_xy, (0xDD, 0xCB, 0x00, 0x40 + r))
+
+    def test_bit_n_iy(self):
+        for r in range(8):
+            self._test_instruction('BIT n,', BitTracer, ('(IY+d)',), BIT_n_xy, (0xFD, 0xCB, 0x00, 0x40 + r))
 
 if __name__ == '__main__':
     unittest.main()

@@ -378,21 +378,20 @@ class Simulator:
     def bit(self, timing, data, bit, reg):
         operand, value = self.get_operand_value(data, reg)
         bitval = (value >> bit) & 1
-        self.set_flag('S', bit == 7 and bitval)
-        self.set_flag('Z', bitval == 0)
+        f = 0x10 | (self.registers['F'] & 0x01) # ...H..NC
+        if bit == 7 and bitval:
+            f |= 0x80 # S.......
+        if bitval == 0:
+            f |= 0x44 # .Z...P..
         if reg:
-            self.set_flag('5', value & 0x20)
-            self.set_flag('3', value & 0x08)
+            f |= value & 0x28 # ..5.3...
         else:
             if data[0] == 0xDD:
                 v = (self.registers['IXl'] + 256 * self.registers['IXh'] + data[2]) & 0xFFFF
             else:
                 v = (self.registers['IYl'] + 256 * self.registers['IYh'] + data[2]) & 0xFFFF
-            self.set_flag('5', v & 0x2000)
-            self.set_flag('3', v & 0x0800)
-        self.set_flag('H', 1)
-        self.set_flag('P', bitval == 0)
-        self.set_flag('N', 0)
+            f |= (v >> 8) & 0x28 # ..5.3...
+        self.registers['F'] = f
         return f'BIT {bit},{operand}', self.pc + len(data), timing
 
     def block(self, timing, data, op, inc, repeat):
