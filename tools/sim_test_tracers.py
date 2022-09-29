@@ -10,9 +10,9 @@ class BaseTracer:
     def collect_result(self, simulator, instruction):
         if instruction.time > 0:
             for reg in self.watch:
-                if reg == '(HL)':
-                    hl = simulator.registers['L'] + 256 * simulator.registers['H']
-                    rval = simulator.snapshot[hl]
+                if reg in ('(DE)', '(HL)'):
+                    rr = simulator.registers[reg[2]] + 256 * simulator.registers[reg[1]]
+                    rval = simulator.snapshot[rr]
                 elif reg == '(IX+d)':
                     ix = simulator.registers['IXl'] + 256 * simulator.registers['IXh']
                     rval = simulator.snapshot[ix]
@@ -181,4 +181,36 @@ class HLFTracer(BaseTracer):
         else:
             simulator.registers[self.rr + 'h'] = hi
             simulator.registers[self.rr + 'l'] = lo
+        self.repeat(simulator)
+
+class BlockTracer(BaseTracer):
+    def __init__(self, start):
+        super().__init__(start, ('A', 'F', 'B', 'C', 'D', 'E', 'H', 'L', '(DE)', '(HL)'))
+        self.count = 0x3FFFF
+
+    def trace(self, simulator, instruction):
+        if self.collect_result(simulator, instruction):
+            return True
+
+        simulator.registers['A'] = 0x03
+        if self.count & 0x20000:
+            # LDIR should not touch the S, Z and C flags
+            simulator.registers['F'] = 0xC1 # SZ.....C
+        else:
+            simulator.registers['F'] = 0x3E # ..5H3PN.
+        bc = self.count & 0xFFFF
+        simulator.registers['B'] = bc // 256
+        simulator.registers['C'] = bc % 256
+        de = 0xFE00
+        simulator.registers['D'] = de // 256
+        simulator.registers['E'] = de % 256
+        hl = 0xFF00
+        simulator.registers['H'] = hl // 256
+        simulator.registers['L'] = hl % 256
+        if self.count & 0x10000:
+            simulator.snapshot[hl] = simulator.registers['A']
+        else:
+            simulator.snapshot[hl] = simulator.registers['A'] ^ 0xFF
+        simulator.snapshot[de] = simulator.snapshot[hl] ^ 0xFF
+
         self.repeat(simulator)

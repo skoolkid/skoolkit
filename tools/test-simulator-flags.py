@@ -59,8 +59,16 @@ SBC_HL_rr = '2f632f9bb90d783ff508f603795c35d8'
 ADD_HL_HL = '7c210f55e8572baf7faeb66fed851095'
 ADC_HL_HL = 'ccd8b92bd56392081f2a94384b9956e0'
 SBC_HL_HL = 'fde6fa73961772b0016d74574afc9893'
+LDI = '8cace5eb645d7593094970461273a17c'
+LDD = 'acb448edbe5827619b6fc4aaae615013'
+CPI = '276f4bc587f5d360aec77877ccab0a56'
+CPD = '809011c709cc537f68dab36aae8257b1'
+INI = '7c97d8445ff734960d82a08ec0c82274'
+IND = '5915d4d5a350ca4a1eb5b03666986eee'
+OUTI = 'da88db329b1a92d296a7353cb7747d00'
+OUTD = 'f503707ab393b36f3c97acdb7b1305e0'
 
-class SimulatorFlagsTest(unittest.TestCase):
+class SimulatorTest(unittest.TestCase):
     def _test_instruction(self, op, tclass, targs, checksum, opcodes, snapshot=None):
         start = 32768
         if snapshot is None:
@@ -76,62 +84,21 @@ class SimulatorFlagsTest(unittest.TestCase):
         reg = targs[-1] if targs and isinstance(targs[-1], str) else ''
         self.assertEqual(tracer.checksum, checksum, f"Checksum failure for '{op}{reg}'")
 
+class ArithmeticLogicTest(SimulatorTest):
     def _test_alo(self, op, checksum, opcode):
-        snapshot = [0] * 65536
-
         for i, reg in enumerate(('B', 'C', 'D', 'E', 'H', 'L', '(HL)')):
-            self._test_instruction(op, AFRTracer, (reg,), checksum, opcode + i, snapshot)
+            self._test_instruction(op, AFRTracer, (reg,), checksum, opcode + i)
 
-        self._test_instruction(op, AFRTracer, ('n',), checksum, opcode + 0x46, snapshot)
+        self._test_instruction(op, AFRTracer, ('n',), checksum, opcode + 0x46)
 
-        self._test_instruction(op, AFRTracer, ('IXh',), checksum, (0xDD, opcode + 0x04), snapshot)
-        self._test_instruction(op, AFRTracer, ('IYh',), checksum, (0xFD, opcode + 0x04), snapshot)
+        self._test_instruction(op, AFRTracer, ('IXh',), checksum, (0xDD, opcode + 0x04))
+        self._test_instruction(op, AFRTracer, ('IYh',), checksum, (0xFD, opcode + 0x04))
 
-        self._test_instruction(op, AFRTracer, ('IXl',), checksum, (0xDD, opcode + 0x05), snapshot)
-        self._test_instruction(op, AFRTracer, ('IYl',), checksum, (0xFD, opcode + 0x05), snapshot)
+        self._test_instruction(op, AFRTracer, ('IXl',), checksum, (0xDD, opcode + 0x05))
+        self._test_instruction(op, AFRTracer, ('IYl',), checksum, (0xFD, opcode + 0x05))
 
-        self._test_instruction(op, AFRTracer, ('(IX+d)',), checksum, (0xDD, opcode + 0x06), snapshot)
-        self._test_instruction(op, AFRTracer, ('(IY+d)',), checksum, (0xFD, opcode + 0x06), snapshot)
-
-    def _test_sro(self, op, checksum, opcode):
-        snapshot = [0] * 65536
-
-        for i, reg in enumerate(('B', 'C', 'D', 'E', 'H', 'L', '(HL)', 'A')):
-            self._test_instruction(op, FRTracer, (reg,), checksum, (0xCB, opcode + i), snapshot)
-
-        self._test_instruction(op, FRTracer, ('(IX+d)',), checksum, (0xDD, 0xCB, 0, opcode + 0x06), snapshot)
-        self._test_instruction(op, FRTracer, ('(IY+d)',), checksum, (0xFD, 0xCB, 0, opcode + 0x06), snapshot)
-
-    def _test_inc_dec(self, op, checksum, opcode):
-        snapshot = [0] * 65536
-
-        for i, reg in enumerate(('B', 'C', 'D', 'E', 'H', 'L', '(HL)')):
-            self._test_instruction(op, FRTracer, (reg,), checksum, opcode + 8 * i, snapshot)
-
-        self._test_instruction(op, FRTracer, ('IXh',), checksum, (0xDD, opcode + 0x20), snapshot)
-        self._test_instruction(op, FRTracer, ('IYh',), checksum, (0xFD, opcode + 0x20), snapshot)
-
-        self._test_instruction(op, FRTracer, ('IXl',), checksum, (0xDD, opcode + 0x28), snapshot)
-        self._test_instruction(op, FRTracer, ('IYl',), checksum, (0xFD, opcode + 0x28), snapshot)
-
-        self._test_instruction(op, FRTracer, ('(IX+d)',), checksum, (0xDD, opcode + 0x30), snapshot)
-        self._test_instruction(op, FRTracer, ('(IY+d)',), checksum, (0xFD, opcode + 0x30), snapshot)
-
-    def _test_hl_rr_arithmetic(self, op, checksum, opcodes):
-        for i, reg in enumerate(('BC', 'DE', 'HL', 'SP')):
-            if reg != 'HL':
-                codes = list(opcodes)
-                codes[-1] += 16 * i
-                self._test_instruction(op + ' HL,', HLRRFTracer, ('HL', reg), checksum, codes)
-                if op == 'ADD':
-                    self._test_instruction('ADD IX,', HLRRFTracer, (('IXh', 'IXl'), reg), checksum, [0xDD] + codes)
-                    self._test_instruction('ADD IY,', HLRRFTracer, (('IYh', 'IYl'), reg), checksum, [0xFD] + codes)
-
-    def _test_hl_hl_arithmetic(self, op, checksum, opcodes):
-        self._test_instruction(op + ' HL,', HLFTracer, ('HL',), checksum, opcodes)
-        if op == 'ADD':
-            self._test_instruction('ADD IX,IX', HLFTracer, (('IXh', 'IXl'),), checksum, (0xDD,) + opcodes)
-            self._test_instruction('ADD IY,IY', HLFTracer, (('IYh', 'IYl'),), checksum, (0xFD,) + opcodes)
+        self._test_instruction(op, AFRTracer, ('(IX+d)',), checksum, (0xDD, opcode + 0x06))
+        self._test_instruction(op, AFRTracer, ('(IY+d)',), checksum, (0xFD, opcode + 0x06))
 
     def test_add_a_r(self):
         self._test_alo('ADD A,', ADD_A_r, 0x80)
@@ -181,14 +148,9 @@ class SimulatorFlagsTest(unittest.TestCase):
     def test_cp_a(self):
         self._test_instruction('CP A', AFTracer, (), CP_A, 0xBF)
 
+class AccumulatorTest(SimulatorTest):
     def test_daa(self):
         self._test_instruction('DAA', DAATracer, (), DAA, 0x27)
-
-    def test_scf(self):
-        self._test_instruction('SCF', FTracer, (), SCF, 0x37)
-
-    def test_ccf(self):
-        self._test_instruction('CCF', FTracer, (), CCF, 0x3F)
 
     def test_cpl(self):
         self._test_instruction('CPL', AFTracer, (0xFF,), CPL, 0x2F)
@@ -196,6 +158,21 @@ class SimulatorFlagsTest(unittest.TestCase):
     def test_neg(self):
         for opcode in (0x44, 0x4C, 0x54, 0x5C, 0x64, 0x6C, 0x74, 0x7C):
             self._test_instruction('NEG', AFTracer, (0xFF,), NEG, (0xED, opcode))
+
+class CarryFlagTest(SimulatorTest):
+    def test_scf(self):
+        self._test_instruction('SCF', FTracer, (), SCF, 0x37)
+
+    def test_ccf(self):
+        self._test_instruction('CCF', FTracer, (), CCF, 0x3F)
+
+class ShiftRotateTest(SimulatorTest):
+    def _test_sro(self, op, checksum, opcode):
+        for i, reg in enumerate(('B', 'C', 'D', 'E', 'H', 'L', '(HL)', 'A')):
+            self._test_instruction(op, FRTracer, (reg,), checksum, (0xCB, opcode + i))
+
+        self._test_instruction(op, FRTracer, ('(IX+d)',), checksum, (0xDD, 0xCB, 0, opcode + 0x06))
+        self._test_instruction(op, FRTracer, ('(IY+d)',), checksum, (0xFD, 0xCB, 0, opcode + 0x06))
 
     def test_rlca(self):
         self._test_instruction('RLCA', AFTracer, (0xFFFF,), RLCA, 0x07)
@@ -233,11 +210,42 @@ class SimulatorFlagsTest(unittest.TestCase):
     def test_srl_r(self):
         self._test_sro('SRL ', SRL_r, 0x38)
 
+class IncDec8Test(SimulatorTest):
+    def _test_inc_dec(self, op, checksum, opcode):
+        for i, reg in enumerate(('B', 'C', 'D', 'E', 'H', 'L', '(HL)')):
+            self._test_instruction(op, FRTracer, (reg,), checksum, opcode + 8 * i)
+
+        self._test_instruction(op, FRTracer, ('IXh',), checksum, (0xDD, opcode + 0x20))
+        self._test_instruction(op, FRTracer, ('IYh',), checksum, (0xFD, opcode + 0x20))
+
+        self._test_instruction(op, FRTracer, ('IXl',), checksum, (0xDD, opcode + 0x28))
+        self._test_instruction(op, FRTracer, ('IYl',), checksum, (0xFD, opcode + 0x28))
+
+        self._test_instruction(op, FRTracer, ('(IX+d)',), checksum, (0xDD, opcode + 0x30))
+        self._test_instruction(op, FRTracer, ('(IY+d)',), checksum, (0xFD, opcode + 0x30))
+
     def test_inc_r(self):
         self._test_inc_dec('INC ', INC_r, 0x04)
 
     def test_dec_r(self):
         self._test_inc_dec('DEC ', DEC_r, 0x05)
+
+class Arithmetic16Test(SimulatorTest):
+    def _test_hl_rr_arithmetic(self, op, checksum, opcodes):
+        for i, reg in enumerate(('BC', 'DE', 'HL', 'SP')):
+            if reg != 'HL':
+                codes = list(opcodes)
+                codes[-1] += 16 * i
+                self._test_instruction(op + ' HL,', HLRRFTracer, ('HL', reg), checksum, codes)
+                if op == 'ADD':
+                    self._test_instruction('ADD IX,', HLRRFTracer, (('IXh', 'IXl'), reg), checksum, [0xDD] + codes)
+                    self._test_instruction('ADD IY,', HLRRFTracer, (('IYh', 'IYl'), reg), checksum, [0xFD] + codes)
+
+    def _test_hl_hl_arithmetic(self, op, checksum, opcodes):
+        self._test_instruction(op + ' HL,', HLFTracer, ('HL',), checksum, opcodes)
+        if op == 'ADD':
+            self._test_instruction('ADD IX,IX', HLFTracer, (('IXh', 'IXl'),), checksum, (0xDD,) + opcodes)
+            self._test_instruction('ADD IY,IY', HLFTracer, (('IYh', 'IYl'),), checksum, (0xFD,) + opcodes)
 
     def test_add_hl_rr(self):
         self._test_hl_rr_arithmetic('ADD', ADD_HL_rr, (0x09,))
@@ -256,6 +264,55 @@ class SimulatorFlagsTest(unittest.TestCase):
 
     def test_sbc_hl_hl(self):
         self._test_hl_hl_arithmetic('SBC', SBC_HL_HL, (0xED, 0x62))
+
+class BlockTest(SimulatorTest):
+    def test_ldi(self):
+        self._test_instruction('LDI', BlockTracer, (), LDI, (0xED, 0xA0))
+
+    def test_ldd(self):
+        self._test_instruction('LDD', BlockTracer, (), LDD, (0xED, 0xA8))
+
+    def test_ldir(self):
+        self._test_instruction('LDIR', BlockTracer, (), LDI, (0xED, 0xB0))
+
+    def test_lddr(self):
+        self._test_instruction('LDDR', BlockTracer, (), LDD, (0xED, 0xB8))
+
+    def test_cpi(self):
+        self._test_instruction('CPI', BlockTracer, (), CPI, (0xED, 0xA1))
+
+    def test_cpd(self):
+        self._test_instruction('CPD', BlockTracer, (), CPD, (0xED, 0xA9))
+
+    def test_cpir(self):
+        self._test_instruction('CPIR', BlockTracer, (), CPI, (0xED, 0xB1))
+
+    def test_cpdr(self):
+        self._test_instruction('CPDR', BlockTracer, (), CPD, (0xED, 0xB9))
+
+    def test_ini(self):
+        self._test_instruction('INI', BlockTracer, (), INI, (0xED, 0xA2))
+
+    def test_ind(self):
+        self._test_instruction('IND', BlockTracer, (), IND, (0xED, 0xAA))
+
+    def test_inir(self):
+        self._test_instruction('INIR', BlockTracer, (), INI, (0xED, 0xB2))
+
+    def test_indr(self):
+        self._test_instruction('INDR', BlockTracer, (), IND, (0xED, 0xBA))
+
+    def test_outi(self):
+        self._test_instruction('OUTI', BlockTracer, (), OUTI, (0xED, 0xA3))
+
+    def test_outd(self):
+        self._test_instruction('OUTD', BlockTracer, (), OUTD, (0xED, 0xAB))
+
+    def test_otir(self):
+        self._test_instruction('OTIR', BlockTracer, (), OUTI, (0xED, 0xB3))
+
+    def test_otdr(self):
+        self._test_instruction('OTDR', BlockTracer, (), OUTD, (0xED, 0xBB))
 
 if __name__ == '__main__':
     unittest.main()

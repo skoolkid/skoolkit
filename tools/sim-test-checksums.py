@@ -96,6 +96,17 @@ SUITES = {
         ('ADC_HL_HL', HLFTracer, ('HL',), (0xED, 0x6A,)),
         ('SBC_HL_HL', HLFTracer, ('HL',), (0xED, 0x62,)),
     ),
+    'BLK': (
+        'Block LD/CP/IN/OUT instructions',
+        ('LDI',  BlockTracer, (), (0xED, 0xA0)),
+        ('LDD',  BlockTracer, (), (0xED, 0xA8)),
+        ('CPI',  BlockTracer, (), (0xED, 0xA1)),
+        ('CPD',  BlockTracer, (), (0xED, 0xA9)),
+        ('INI',  BlockTracer, (), (0xED, 0xA2)),
+        ('IND',  BlockTracer, (), (0xED, 0xAA)),
+        ('OUTI', BlockTracer, (), (0xED, 0xA3)),
+        ('OUTD', BlockTracer, (), (0xED, 0xAB)),
+    )
 }
 
 def run(suites):

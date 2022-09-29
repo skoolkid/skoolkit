@@ -407,15 +407,17 @@ class Simulator:
         if op.startswith('CP'):
             value = self.peek(hl)
             result = (a - value) & 0xFF
-            self.set_flag('S', result & 0x80)
-            self.set_flag('Z', result == 0)
-            h = (((a & 0x0F) - (value & 0x0F)) & 0x10) >> 4
-            n = a - value - h
-            self.set_flag('5', n & 0x02)
-            self.set_flag('H', h)
-            self.set_flag('3', n & 0x08)
-            self.set_flag('P', bc != 1)
-            self.set_flag('N', 1)
+            hf = ((a & 0x0F) - (value & 0x0F)) & 0x10
+            n = a - value - hf // 16
+            f = (result & 0x80) | hf | 0x02 | (self.registers['F'] & 0x01) # S..H..NC
+            if result == 0:
+                f |= 0x40 # .Z......
+            if n & 0x02:
+                f |= 0x20 # ..5.....
+            if n & 0x08:
+                f |= 0x08 # ....3...
+            if bc != 1:
+                f |= 0x04 # .....P..
             if repeat and a != value and bc > 1:
                 addr = self.pc
         elif op.startswith('IN'):
@@ -425,16 +427,14 @@ class Simulator:
             if repeat and b != 1:
                 addr = self.pc
             b1 = (b - 1) & 0xFF
-            c1 = (self.registers['C'] + inc) & 0xFF
-            j = value + c1
-            self.set_flag('S', b1 & 0x80)
-            self.set_flag('Z', b1 == 0)
-            self.set_flag('5', b1 & 0x20)
-            self.set_flag('H', j > 255)
-            self.set_flag('3', b1 & 0x08)
-            self.set_flag('P', PARITY[(j & 7) ^ b1])
-            self.set_flag('N', value & 0x80)
-            self.set_flag('C', j > 255)
+            j = value + ((self.registers['C'] + inc) & 0xFF)
+            f = (b1 & 0xA8) | PARITY[(j & 7) ^ b1] # S.5.3P..
+            if b1 == 0:
+                f |= 0x40 # .Z......
+            if j > 255:
+                f |= 0x11 # ...H...C
+            if value & 0x80:
+                f |= 0x02 # ......N.
         elif op.startswith('LD'):
             de = self.registers['E'] + 256 * self.registers['D']
             at_hl = self.peek(hl)
@@ -444,11 +444,13 @@ class Simulator:
             if repeat and bc != 1:
                 addr = self.pc
             n = (self.registers['A'] + at_hl) & 0xFF
-            self.set_flag('5', n & 0x02)
-            self.set_flag('H', 0)
-            self.set_flag('3', n & 0x08)
-            self.set_flag('P', bc != 1)
-            self.set_flag('N', 0)
+            f = self.registers['F'] & 0xC1 # SZ.H..NC
+            if n & 0x02:
+                f |= 0x20 # ..5.....
+            if n & 0x08:
+                f |= 0x08 # ....3...
+            if bc != 1:
+                f |= 0x04 # .....P..
         elif op.startswith('O'):
             bc_inc = -256
             if repeat and b != 1:
@@ -457,14 +459,13 @@ class Simulator:
             self._out((bc - 256) & 0xFFFF, outval)
             b1 = (b - 1) & 0xFF
             k = ((hl + inc) & 0xFF) + outval
-            self.set_flag('S', b1 & 0x80)
-            self.set_flag('Z', b1 == 0)
-            self.set_flag('5', b1 & 0x20)
-            self.set_flag('H', k > 255)
-            self.set_flag('3', b1 & 0x08)
-            self.set_flag('P', PARITY[(k & 7) ^ b1])
-            self.set_flag('N', outval & 0x80)
-            self.set_flag('C', k > 255)
+            f = (b1 & 0xA8) | PARITY[(k & 7) ^ b1] # S.5.3P..
+            if b1 == 0:
+                f |= 0x40 # .Z......
+            if k > 255:
+                f |= 0x11 # ...H...C
+            if outval & 0x80:
+                f |= 0x02 # ......N.
 
         if repeat:
             if addr == self.pc:
@@ -476,6 +477,7 @@ class Simulator:
         bc = (bc + bc_inc) & 0xFFFF
         self.registers['L'], self.registers['H'] = hl % 256, hl // 256
         self.registers['C'], self.registers['B'] = bc % 256, bc // 256
+        self.registers['F'] = f
 
         return op, addr, tstates
 

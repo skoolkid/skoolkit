@@ -1760,11 +1760,11 @@ class SimulatorTest(SkoolKitTestCase):
         hl = 45287
         start = 41772
 
-        for b, f_out in (
-                #     SZ5H3PNC
-                (2, 0b00000000),
-                (1, 0b01000100),
-                (0, 0b10101100),
+        for b, outval, f_out in (
+                #          SZ5H3PNC
+                (2, 0,   0b00000000),
+                (1, 128, 0b01010111),
+                (0, 0,   0b10101100),
         ):
             end = start + 2
             timing = 16
@@ -1778,7 +1778,8 @@ class SimulatorTest(SkoolKitTestCase):
                 'L': (hl + inc) % 256,
                 'F': f_out
             }
-            self._test_instruction(operation, data, timing, reg_in, reg_out, start=start, end=end)
+            sna_in = {hl: outval}
+            self._test_instruction(operation, data, timing, reg_in, reg_out, sna_in, start=start, end=end)
 
     def test_outd(self):
         self._test_block_out('OUTD', 171, -1)
