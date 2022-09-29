@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 import argparse
-import hashlib
 import os
 import sys
 
@@ -12,6 +11,7 @@ if not SKOOLKIT_HOME:
 if not os.path.isdir(SKOOLKIT_HOME):
     sys.stderr.write('SKOOLKIT_HOME={}; directory not found\n'.format(SKOOLKIT_HOME))
     sys.exit(1)
+sys.path.insert(0, f'{SKOOLKIT_HOME}/tests')
 sys.path.insert(0, f'{SKOOLKIT_HOME}')
 
 from skoolkit.simulator import Simulator
@@ -116,6 +116,11 @@ SUITES = {
         'RRD/RLD instructions',
         ('RRD', RRDRLDTracer, (), (0xED, 0x67)),
         ('RLD', RRDRLDTracer, (), (0xED, 0x6F)),
+    ),
+    'INR': (
+        'IN r,(C) instructions',
+        ('IN_r_C', InTracer, ('A',), (0xED, 0x78)),
+        ('IN_F_C', InTracer, ('F',), (0xED, 0x70)),
     ),
 }
 

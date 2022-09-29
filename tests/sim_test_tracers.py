@@ -289,3 +289,21 @@ class RRDRLDTracer(BaseTracer):
         simulator.registers['L'] = hl % 256
         simulator.snapshot[hl] = self.count & 0xFF
         self.repeat(simulator)
+
+class InTracer(BaseTracer):
+    def __init__(self, start, reg):
+        super().__init__(start, reg + 'F')
+        self.count = 0xFF
+        self.value = 0
+
+    def trace(self, simulator, instruction):
+        if self.collect_result(simulator, instruction):
+            return True
+        simulator.registers['B'] = 0xAA
+        simulator.registers['C'] = 0xFE
+        simulator.registers['F'] = 0
+        self.value = self.count
+        self.repeat(simulator)
+
+    def read_port(self, simulator, port):
+        return self.value

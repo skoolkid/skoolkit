@@ -1,22 +1,6 @@
-#!/usr/bin/env python3
-
-import sys
-import os
-import unittest
-
-SKOOLKIT_HOME = os.environ.get('SKOOLKIT_HOME')
-if not SKOOLKIT_HOME:
-    sys.stderr.write('SKOOLKIT_HOME is not set; aborting\n')
-    sys.exit(1)
-if not os.path.isdir(SKOOLKIT_HOME):
-    sys.stderr.write('SKOOLKIT_HOME={}; directory not found\n'.format(SKOOLKIT_HOME))
-    sys.exit(1)
-sys.path.insert(0, f'{SKOOLKIT_HOME}')
-
+from skoolkittest import SkoolKitTestCase
 from skoolkit.simulator import Simulator
 from sim_test_tracers import *
-
-REGISTERS = ('B', 'C', 'D', 'E', 'H', 'L', '(HL)', 'A')
 
 ADD_A_r = '94d11617ef16363974532987b3d6435d'
 ADD_A_A = 'b3255524a4f4496f91b72b9487e1c2f2'
@@ -71,8 +55,10 @@ BIT_n_r = 'bf8c2888fa035475cef5128d22f1cb8a'
 BIT_n_xy = 'dd77e318e60ada41ddf7bd0a333a45d9'
 RRD = 'e7d8af319af4290502539c7cd3ecd5a7'
 RLD = '9c0cf9531835d5653f7c598ede23b0fc'
+IN_r_C = '992df729253b765ac34e36c70ae86421'
+IN_F_C = '120add13719329ab958149a62a6389eb'
 
-class SimulatorTest(unittest.TestCase):
+class SimulatorTest(SkoolKitTestCase):
     def _test_instruction(self, op, tclass, targs, checksum, opcodes, snapshot=None):
         start = 32768
         if snapshot is None:
@@ -338,5 +324,11 @@ class RRDRLDTest(SimulatorTest):
     def test_rld(self):
         self._test_instruction('RLD', RRDRLDTracer, (), RLD, (0xED, 0x6F))
 
-if __name__ == '__main__':
-    unittest.main()
+class InTest(SimulatorTest):
+    def test_in_r_c(self):
+        for i, reg in enumerate(('B', 'C', 'D', 'E', 'H', 'L', None, 'A')):
+            if reg:
+                self._test_instruction(f'IN {reg},(C)', InTracer, (reg,), IN_r_C, (0xED, 0x40 + 8 * i))
+
+    def test_in_f_c(self):
+        self._test_instruction(f'IN F,(C)', InTracer, ('F',), IN_F_C, (0xED, 0x70))

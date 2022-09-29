@@ -667,13 +667,10 @@ class Simulator:
         value = self._in(self.registers['C'] + 256 * self.registers['B'])
         if reg != 'F':
             self.registers[reg] = value
-        self.set_flag('S', value & 0x80)
-        self.set_flag('Z', value == 0)
-        self.set_flag('5', value & 0x20)
-        self.set_flag('H', 0)
-        self.set_flag('3', value & 0x08)
-        self.set_flag('P', PARITY[value])
-        self.set_flag('N', 0)
+        f = (value & 0xA8) | PARITY[value] | (self.registers['F'] & 0x01) # S.5H3PNC
+        if value == 0:
+            f |= 0x40 # .Z......
+        self.registers['F'] = f
         return f'IN {reg},(C)', self.pc + 2, timing
 
     def inc_dec8(self, timing, data, op, reg):

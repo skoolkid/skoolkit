@@ -8,6 +8,12 @@ class Tracer:
         self.operation = instruction.operation
         return True
 
+class InTestTracer:
+    value = 0
+
+    def read_port(self, simulator, port):
+        return self.value
+
 class CountingTracer:
     def __init__(self, max_operations=1):
         self.max_operations = max_operations
@@ -64,7 +70,7 @@ class TracerTwoOfTwo:
 TRACER = Tracer()
 
 class SimulatorTest(SkoolKitTestCase):
-    def _test_instruction(self, inst, data, timing, reg_in=None, reg_out=None, sna_in=None, sna_out=None, start=None, end=None):
+    def _test_instruction(self, inst, data, timing, reg_in=None, reg_out=None, sna_in=None, sna_out=None, start=None, end=None, tracer=None):
         if start is None:
             start = 65530
         if end is None:
@@ -83,6 +89,8 @@ class SimulatorTest(SkoolKitTestCase):
                 snapshot[a] = v
         simulator = Simulator(snapshot, reg_in)
         simulator.add_tracer(TRACER)
+        if tracer:
+            simulator.add_tracer(tracer)
         exp_reg = simulator.registers.copy()
         if reg_out is None:
             reg_out = {}
@@ -1495,6 +1503,8 @@ class SimulatorTest(SkoolKitTestCase):
         self._test_instruction(operation, data, 11, reg_out=reg_out)
 
     def test_in_r_c(self):
+        tracer = InTestTracer()
+        in_value = 0
         c = 128
         for i, reg in enumerate(REGISTERS):
             if reg == '(HL)':
@@ -1502,8 +1512,14 @@ class SimulatorTest(SkoolKitTestCase):
             operation = f'IN {reg},(C)'
             data = (237, 64 + i * 8)
             reg_in = {'C': c}
-            reg_out = {reg: 191, 'F': 0b10101000}
-            self._test_instruction(operation, data, 12, reg_in, reg_out)
+            tracer.value = in_value
+            reg_out = {reg: in_value}
+            if in_value == 0:
+                reg_out['F'] = 0b01000100
+            else:
+                reg_out['F'] = 0b10101100
+            in_value ^= 255
+            self._test_instruction(operation, data, 12, reg_in, reg_out, tracer=tracer)
 
     def test_in_f_c(self):
         operation = f'IN F,(C)'
