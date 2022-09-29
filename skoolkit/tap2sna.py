@@ -330,19 +330,27 @@ class LoadTracer:
         data_len = len(block) - 2
 
         if a == block[0]:
-            if a == 0 and data_len == 17 and block[1] <= 3:
-                name = ''.join(get_char(b) for b in block[2:12])
-                if block[1] == 3:
-                    write_line(f'Bytes: {name}')
-                elif block[1] == 2:
-                    write_line(f'Character array: {name}')
-                elif block[1] == 1:
-                    write_line(f'Number array: {name}')
-                elif block[1] == 0:
-                    write_line(f'Program: {name}')
-            else:
-                write_line(f'Fast loading data block: {ix},{de}\n')
+            skipped = ''
+        else:
+            skipped = ' [skipped]\n'
+        if block[0] == 0 and data_len == 17 and block[1] <= 3:
+            name = ''.join(get_char(b, tokens=True) for b in block[2:12])
+            if block[1] == 3:
+                write_line(f'Bytes: {name}{skipped}')
+            elif block[1] == 2:
+                write_line(f'Character array: {name}{skipped}')
+            elif block[1] == 1:
+                write_line(f'Number array: {name}{skipped}')
+            elif block[1] == 0:
+                write_line(f'Program: {name}{skipped}')
+        elif skipped:
+            write_line(f'Data block ({data_len} bytes){skipped}')
+        else:
+            write_line(f'Fast loading data block: {ix},{de}\n')
 
+        if skipped:
+            registers['F'] = 0x00 # Reset carry flag: error
+        else:
             if de <= data_len:
                 simulator.snapshot[ix:ix + de] = block[1:1 + de]
                 registers['F'] = 0x01 # Set carry flag: success
@@ -357,20 +365,17 @@ class LoadTracer:
             registers['IXl'] = ix & 0xFF
             registers['D'] = (de >> 8) & 0xFF
             registers['E'] = de & 0xFF
-            simulator.pc = 0x05E2
+        simulator.pc = 0x05E2
 
-            block_num = self.samples[self.index][3]
-            while self.index < self.max_index and self.samples[self.index][3] == block_num:
-                self.index += 1
-            if self.samples[self.index][3] > block_num:
-                # Pause tape between blocks
-                self.tape_started = None
-            else:
-                self.tape_started = simulator.tstates - self.samples[self.index][0]
-            self.pulse_type = DATA
-            return
-
-        raise TapeError(f'Flag byte mismatch: expected {a}, got {block[0]}')
+        block_num = self.samples[self.index][3]
+        while self.index < self.max_index and self.samples[self.index][3] == block_num:
+            self.index += 1
+        if self.samples[self.index][3] > block_num:
+            # Pause tape between blocks
+            self.tape_started = None
+        else:
+            self.tape_started = simulator.tstates - self.samples[self.index][0]
+        self.pulse_type = DATA
 
 def _write_z80(ram, options, fname):
     parent_dir = os.path.dirname(fname)
