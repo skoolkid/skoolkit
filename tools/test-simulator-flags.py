@@ -53,6 +53,12 @@ SLL_r = '13e46312e09feab46121e982cabebec4'
 SRL_r = 'e8f1af0d8d04c67d154cc2c0245ea564'
 INC_r = '03d99cd05b4016b7e207de3c454c4a4e'
 DEC_r = 'eef164a88a4a0690653810db93737fc2'
+ADD_HL_rr = '27c15637bb3f5b9db0ace1c07926de58'
+ADC_HL_rr = '3dadc7ba1d95089125f02edf938edad3'
+SBC_HL_rr = '2f632f9bb90d783ff508f603795c35d8'
+ADD_HL_HL = '7c210f55e8572baf7faeb66fed851095'
+ADC_HL_HL = 'ccd8b92bd56392081f2a94384b9956e0'
+SBC_HL_HL = 'fde6fa73961772b0016d74574afc9893'
 
 class SimulatorFlagsTest(unittest.TestCase):
     def _test_instruction(self, op, tclass, targs, checksum, opcodes, snapshot=None):
@@ -67,7 +73,7 @@ class SimulatorFlagsTest(unittest.TestCase):
         simulator = Simulator(snapshot, {'HL': 16384, 'IX': 16385, 'IY': 16386})
         simulator.add_tracer(tracer)
         simulator.run(start)
-        reg = targs[0] if targs else ''
+        reg = targs[-1] if targs and isinstance(targs[-1], str) else ''
         self.assertEqual(tracer.checksum, checksum, f"Checksum failure for '{op}{reg}'")
 
     def _test_alo(self, op, checksum, opcode):
@@ -110,6 +116,22 @@ class SimulatorFlagsTest(unittest.TestCase):
 
         self._test_instruction(op, FRTracer, ('(IX+d)',), checksum, (0xDD, opcode + 0x30), snapshot)
         self._test_instruction(op, FRTracer, ('(IY+d)',), checksum, (0xFD, opcode + 0x30), snapshot)
+
+    def _test_hl_rr_arithmetic(self, op, checksum, opcodes):
+        for i, reg in enumerate(('BC', 'DE', 'HL', 'SP')):
+            if reg != 'HL':
+                codes = list(opcodes)
+                codes[-1] += 16 * i
+                self._test_instruction(op + ' HL,', HLRRFTracer, ('HL', reg), checksum, codes)
+                if op == 'ADD':
+                    self._test_instruction('ADD IX,', HLRRFTracer, (('IXh', 'IXl'), reg), checksum, [0xDD] + codes)
+                    self._test_instruction('ADD IY,', HLRRFTracer, (('IYh', 'IYl'), reg), checksum, [0xFD] + codes)
+
+    def _test_hl_hl_arithmetic(self, op, checksum, opcodes):
+        self._test_instruction(op + ' HL,', HLFTracer, ('HL',), checksum, opcodes)
+        if op == 'ADD':
+            self._test_instruction('ADD IX,IX', HLFTracer, (('IXh', 'IXl'),), checksum, (0xDD,) + opcodes)
+            self._test_instruction('ADD IY,IY', HLFTracer, (('IYh', 'IYl'),), checksum, (0xFD,) + opcodes)
 
     def test_add_a_r(self):
         self._test_alo('ADD A,', ADD_A_r, 0x80)
@@ -216,6 +238,24 @@ class SimulatorFlagsTest(unittest.TestCase):
 
     def test_dec_r(self):
         self._test_inc_dec('DEC ', DEC_r, 0x05)
+
+    def test_add_hl_rr(self):
+        self._test_hl_rr_arithmetic('ADD', ADD_HL_rr, (0x09,))
+
+    def test_adc_hl_rr(self):
+        self._test_hl_rr_arithmetic('ADC', ADC_HL_rr, (0xED, 0x4A))
+
+    def test_sbc_hl_rr(self):
+        self._test_hl_rr_arithmetic('SBC', SBC_HL_rr, (0xED, 0x42))
+
+    def test_add_hl_hl(self):
+        self._test_hl_hl_arithmetic('ADD', ADD_HL_HL, (0x29,))
+
+    def test_adc_hl_hl(self):
+        self._test_hl_hl_arithmetic('ADC', ADC_HL_HL, (0xED, 0x6A))
+
+    def test_sbc_hl_hl(self):
+        self._test_hl_hl_arithmetic('SBC', SBC_HL_HL, (0xED, 0x62))
 
 if __name__ == '__main__':
     unittest.main()

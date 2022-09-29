@@ -87,6 +87,15 @@ SUITES = {
         ('INC_r', FRTracer, ('B',), (0x04,)),
         ('DEC_r', FRTracer, ('B',), (0x05,)),
     ),
+    'AHL': (
+        '16-bit ADD/ADC/SBC instructions',
+        ('ADD_HL_rr', HLRRFTracer, ('HL', 'BC'), (0x09,)),
+        ('ADC_HL_rr', HLRRFTracer, ('HL', 'BC'), (0xED, 0x4A,)),
+        ('SBC_HL_rr', HLRRFTracer, ('HL', 'BC'), (0xED, 0x42,)),
+        ('ADD_HL_HL', HLFTracer, ('HL',), (0x29,)),
+        ('ADC_HL_HL', HLFTracer, ('HL',), (0xED, 0x6A,)),
+        ('SBC_HL_HL', HLFTracer, ('HL',), (0xED, 0x62,)),
+    ),
 }
 
 def run(suites):

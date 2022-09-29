@@ -19,9 +19,15 @@ class BaseTracer:
                 elif reg == '(IY+d)':
                     iy = simulator.registers['IYl'] + 256 * simulator.registers['IYh']
                     rval = simulator.snapshot[iy]
+                elif reg == 'SP':
+                    sp = simulator.registers['SP']
+                    rval = (sp // 256, sp % 256)
                 else:
                     rval = simulator.registers[reg]
-                self.data.append(rval)
+                if isinstance(rval, int):
+                    self.data.append(rval)
+                else:
+                    self.data.extend(rval)
         if self.count < 0:
             self.checksum = hashlib.md5(self.data).hexdigest()
             return True
@@ -115,4 +121,64 @@ class DAATracer(BaseTracer):
         hnc = self.count >> 8
         simulator.registers['F'] = (hnc & 0x03) | ((hnc & 0x04) << 2)
         simulator.registers['A'] = self.count & 0xFF
+        self.repeat(simulator)
+
+class HLRRFTracer(BaseTracer):
+    def __init__(self, start, rr1, rr2):
+        if isinstance(rr1, str):
+            if rr2 == 'SP':
+                super().__init__(start, (rr1[0], rr1[1], 'SP', 'F'))
+            else:
+                super().__init__(start, rr1 + rr2 + 'F')
+            self.rr1 = rr1
+        else:
+            if rr2 == 'SP':
+                super().__init__(start, rr1 + ('SP', 'F'))
+            else:
+                super().__init__(start, rr1 + (rr2[0], rr2[1], 'F'))
+            self.rr1 = rr1[0][:2]
+        self.rr2 = rr2
+        self.count = 0x07FFFF
+
+    def trace(self, simulator, instruction):
+        if self.collect_result(simulator, instruction):
+            return True
+        simulator.registers['F'] = self.count >> 18
+        if self.rr2 == 'SP':
+            simulator.registers['SP'] = self.count & 0xFFFF
+        else:
+            simulator.registers[self.rr2[0]] = (self.count >> 8) & 0xFF
+            simulator.registers[self.rr2[1]] = self.count & 0xFF
+        v = (self.count >> 16) & 0xFF
+        b = (v & 0x01) + 16 * (v & 0x02)
+        if self.rr1 == 'HL':
+            simulator.registers['H'] = b
+            simulator.registers['L'] = b
+        else:
+            simulator.registers[self.rr1 + 'h'] = b
+            simulator.registers[self.rr1 + 'l'] = b
+        self.repeat(simulator)
+
+class HLFTracer(BaseTracer):
+    def __init__(self, start, rr):
+        if isinstance(rr, str):
+            super().__init__(start, rr + 'F')
+            self.rr = rr
+        else:
+            super().__init__(start, rr + ('F',))
+            self.rr = rr[0][:2]
+        self.count = 0x1FFFF
+
+    def trace(self, simulator, instruction):
+        if self.collect_result(simulator, instruction):
+            return True
+        simulator.registers['F'] = self.count >> 16
+        hi = (self.count >> 8) & 0xFF
+        lo = self.count & 0xFF
+        if self.rr == 'HL':
+            simulator.registers['H'] = hi
+            simulator.registers['L'] = lo
+        else:
+            simulator.registers[self.rr + 'h'] = hi
+            simulator.registers[self.rr + 'l'] = lo
         self.repeat(simulator)
