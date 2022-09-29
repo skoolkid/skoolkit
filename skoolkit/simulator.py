@@ -317,13 +317,41 @@ class Simulator:
                 addend_v = self.registers[reg[1]] + 256 * self.registers[reg[0]]
 
         s_addend = addend_v
-        addend_v += carry * self.get_flag('C')
+        old_f = self.registers['F']
+        addend_v += carry * (old_f & 0x01)
+
+        if mult == 1:
+            if carry:
+                op = 'ADC'
+                f = 0
+            else:
+                op = 'ADD'
+                f = old_f & 0b11000100 # Keep SZ...P..
+        else:
+            op = 'SBC'
+            f = 0b00000010 # ......N.
+            s_addend = ~s_addend
+
+        if ((augend_v & 0x0FFF) + mult * (addend_v & 0x0FFF)) & 0x1000:
+            f |= 0b00010000 # ...H....
+
         value = augend_v + mult * addend_v
         if value < 0 or value > 0xFFFF:
             value &= 0xFFFF
-            self.set_flag('C', 1)
-        else:
-            self.set_flag('C', 0)
+            f |= 0b00000001 # .......C
+
+        if op != 'ADD':
+            if value & 0x8000:
+                f |= 0b10000000 # S.......
+            if value == 0:
+                f |= 0b01000000 # .Z......
+            if ((augend_v ^ s_addend) ^ 0x8000) & 0x8000 and (value ^ augend_v) & 0x8000:
+                # Augend and addend signs are the same - overflow if their sign
+                # differs from the sign of the result
+                f |= 0b00000100 # .....P..
+
+        f |= (value >> 8) & 0x28 # ..5.3...
+        self.registers['F'] = f
 
         if data[0] == 0xDD:
             self.registers['IXl'] = value % 256
@@ -334,33 +362,6 @@ class Simulator:
         else:
             self.registers['L'] = value % 256
             self.registers['H'] = value // 256
-
-        if mult == 1:
-            self.set_flag('H', ((augend_v & 0x0FFF) + (addend_v & 0x0FFF)) & 0x1000)
-            self.set_flag('N', 0)
-            if carry:
-                op = 'ADC'
-            else:
-                op = 'ADD'
-        else:
-            self.set_flag('N', 1)
-            op = 'SBC'
-            self.set_flag('H', ((augend_v & 0x0FFF) - (addend_v & 0x0FFF)) & 0x1000)
-            s_addend = ~s_addend
-
-        if op != 'ADD':
-            self.set_flag('S', value & 0x8000)
-            self.set_flag('Z', value == 0)
-            if ((augend_v ^ s_addend) ^ 0x8000) & 0x8000:
-                # Augend and addend signs are the same - overflow if their sign
-                # differs from the sign of the result
-                self.set_flag('P', (value ^ augend_v) & 0x8000)
-            else:
-                # Augend and addend signs are different - no overflow
-                self.set_flag('P', 0)
-
-        self.set_flag('5', value & 0x2000)
-        self.set_flag('3', value & 0x0800)
 
         return f'{op} {augend},{reg}', self.pc + len(data), timing
 
