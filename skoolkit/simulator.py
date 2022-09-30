@@ -37,17 +37,6 @@ PARITY = (
     4, 0, 0, 4, 0, 4, 4, 0, 0, 4, 4, 0, 4, 0, 0, 4
 )
 
-CONDITIONS = {
-    'NZ': -64,
-    'Z': 64,
-    'NC': -1,
-    'C': 1,
-    'PO': -4,
-    'PE': 4,
-    'P': -128,
-    'M': 128
-}
-
 FRAME_DURATION = 69888
 
 class Simulator:
@@ -164,13 +153,6 @@ class Simulator:
             if hasattr(tracer, method_name):
                 retval = getattr(tracer, method_name)(self, *args)
         return retval
-
-    def get_condition(self, condition):
-        cbit = CONDITIONS[condition]
-        value = self.registers['F'] & abs(cbit)
-        if cbit < 0:
-            return value == 0
-        return value > 0
 
     def index(self, data):
         offset = data[2]
@@ -461,11 +443,11 @@ class Simulator:
 
         return op, addr, tstates
 
-    def call(self, timing, data, condition=None):
+    def call(self, timing, data, condition, c_and, c_xor):
         addr = data[1] + 256 * data[2]
         ret_addr = (self.pc + 3) & 0xFFFF
         if condition:
-            if self.get_condition(condition):
+            if self.registers['F'] & c_and ^ c_xor:
                 pc = addr
                 self._push(ret_addr % 256, ret_addr // 256)
                 tstates = timing[0]
@@ -689,13 +671,13 @@ class Simulator:
             self.registers[reg[1]] = value % 256
         return f'{op} {reg}', self.pc + len(data), timing
 
-    def jr(self, timing, data, condition):
+    def jr(self, timing, data, condition, c_and, c_xor):
         offset = data[1]
         if offset & 128:
             offset -= 256
         addr = (self.pc + 2 + offset) & 0xFFFF
         if condition:
-            if self.get_condition(condition):
+            if self.registers['F'] & c_and ^ c_xor:
                 pc = addr
                 tstates = timing[0]
             else:
@@ -704,7 +686,7 @@ class Simulator:
             return f'JR {condition},${addr:04X}', pc, tstates
         return f'JR ${addr:04X}', addr, timing
 
-    def jp(self, timing, data, condition=None):
+    def jp(self, timing, data, condition, c_and, c_xor):
         if data[0] == 0xDD:
             addr = self.registers['IXl'] + 256 * self.registers['IXh']
             return 'JP (IX)', addr, timing
@@ -717,7 +699,7 @@ class Simulator:
 
         addr = data[1] + 256 * data[2]
         if condition:
-            if self.get_condition(condition):
+            if self.registers['F'] & c_and ^ c_xor:
                 pc = addr
             else:
                 pc = self.pc + 3
@@ -880,18 +862,18 @@ class Simulator:
             self._push(self.registers[reg[1]], self.registers[reg[0]])
         return f'PUSH {reg}', self.pc + len(data), timing
 
-    def ret(self, timing, data, condition=None):
-        if condition:
-            if self.get_condition(condition):
+    def ret(self, timing, data, op, c_and, c_xor):
+        if c_and:
+            if self.registers['F'] & c_and ^ c_xor:
                 lsb, msb = self._pop()
                 pc = lsb + 256 * msb
                 tstates = timing[0]
             else:
                 pc = self.pc + 1
                 tstates = timing[1]
-            return f'RET {condition}', pc, tstates
+            return op, pc, tstates
         lsb, msb = self._pop()
-        return 'RET', lsb + 256 * msb, timing
+        return op, lsb + 256 * msb, timing
 
     def reti(self, timing, data, op):
         lsb, msb = self._pop()
@@ -1037,7 +1019,7 @@ class Simulator:
         0x15: (4, inc_dec8, 1, ('DEC', 'D')),                 # DEC D
         0x16: (7, ld8, 2, ('D',)),                            # LD D,n
         0x17: (4, rotate, 1, ('RL', 128, 'A')),               # RLA
-        0x18: (12, jr, 2, ('',)),                             # JR nn
+        0x18: (12, jr, 2, ('', 0x00, 0x00)),                  # JR nn
         0x19: (11, add16, 1, ('DE',)),                        # ADD HL,DE
         0x1A: (7, ld8, 1, ('A', '(DE)')),                     # LD A,(DE)
         0x1B: (6, inc_dec16, 1, ('DEC', 'DE')),               # DEC DE
@@ -1045,7 +1027,7 @@ class Simulator:
         0x1D: (4, inc_dec8, 1, ('DEC', 'E')),                 # DEC E
         0x1E: (7, ld8, 2, ('E',)),                            # LD E,n
         0x1F: (4, rotate, 1, ('RR', 1, 'A')),                 # RRA
-        0x20: ((12, 7), jr, 2, ('NZ',)),                      # JR NZ,nn
+        0x20: ((12, 7), jr, 2, ('NZ', 0x40, 0x40)),           # JR NZ,nn
         0x21: (10, ld16, 3, ('HL',)),                         # LD HL,nn
         0x22: (16, ld16addr, 3, ('HL', 1)),                   # LD (nn),HL
         0x23: (6, inc_dec16, 1, ('INC', 'HL')),               # INC HL
@@ -1053,7 +1035,7 @@ class Simulator:
         0x25: (4, inc_dec8, 1, ('DEC', 'H')),                 # DEC H
         0x26: (7, ld8, 2, ('H',)),                            # LD H,n
         0x27: (4, daa, 1, ()),                                # DAA
-        0x28: ((12, 7), jr, 2, ('Z',)),                       # JR Z,nn
+        0x28: ((12, 7), jr, 2, ('Z', 0x40, 0x00)),            # JR Z,nn
         0x29: (11, add16, 1, ('HL',)),                        # ADD HL,HL
         0x2A: (16, ld16addr, 3, ('HL', 0)),                   # LD HL,(nn)
         0x2B: (6, inc_dec16, 1, ('DEC', 'HL')),               # DEC HL
@@ -1061,7 +1043,7 @@ class Simulator:
         0x2D: (4, inc_dec8, 1, ('DEC', 'L')),                 # DEC L
         0x2E: (7, ld8, 2, ('L',)),                            # LD L,n
         0x2F: (4, cpl, 1, ()),                                # CPL
-        0x30: ((12, 7), jr, 2, ('NC',)),                      # JR NC,nn
+        0x30: ((12, 7), jr, 2, ('NC', 0x01, 0x01)),           # JR NC,nn
         0x31: (10, ld16, 3, ('SP',)),                         # LD SP,nn
         0x32: (13, ldann, 3, ()),                             # LD (nn),A
         0x33: (6, inc_dec16, 1, ('INC', 'SP')),               # INC SP
@@ -1069,7 +1051,7 @@ class Simulator:
         0x35: (11, inc_dec8, 1, ('DEC', '(HL)')),             # DEC (HL)
         0x36: (10, ld8, 2, ('(HL)',)),                        # LD (HL),n
         0x37: (4, cf, 1, ()),                                 # SCF
-        0x38: ((12, 7), jr, 2, ('C',)),                       # JR C,nn
+        0x38: ((12, 7), jr, 2, ('C', 0x01, 0x00)),            # JR C,nn
         0x39: (11, add16, 1, ('SP',)),                        # ADD HL,SP
         0x3A: (13, ldann, 3, ()),                             # LD A,(nn)
         0x3B: (6, inc_dec16, 1, ('DEC', 'SP')),               # DEC SP
@@ -1205,67 +1187,67 @@ class Simulator:
         0xBD: (4, cp, 1, ('L',)),                             # CP L
         0xBE: (7, cp, 1, ('(HL)',)),                          # CP (HL)
         0xBF: (4, cp, 1, ('A',)),                             # CP A
-        0xC0: ((11, 5), ret, 1, ('NZ',)),                     # RET NZ
+        0xC0: ((11, 5), ret, 1, ('RET NZ', 0x40, 0x40)),      # RET NZ
         0xC1: (10, pop, 1, ('BC',)),                          # POP BC
-        0xC2: (10, jp, 3, ('NZ',)),                           # JP NZ,nn
-        0xC3: (10, jp, 3, ()),                                # JP nn
-        0xC4: ((17, 10), call, 3, ('NZ',)),                   # CALL NZ,nn
+        0xC2: (10, jp, 3, ('NZ', 0x40, 0x40)),                # JP NZ,nn
+        0xC3: (10, jp, 3, ('', 0x00, 0x00)),                  # JP nn
+        0xC4: ((17, 10), call, 3, ('NZ', 0x40, 0x40)),        # CALL NZ,nn
         0xC5: (11, push, 1, ('BC',)),                         # PUSH BC
         0xC6: (7, add_a, 2, ()),                              # ADD A,n
         0xC7: (11, rst, 1, (0,)),                             # RST $00
-        0xC8: ((11, 5), ret, 1, ('Z',)),                      # RET Z
-        0xC9: (10, ret, 1, ()),                               # RET
-        0xCA: (10, jp, 3, ('Z',)),                            # JP Z,nn
+        0xC8: ((11, 5), ret, 1, ('RET Z', 0x40, 0x00)),       # RET Z
+        0xC9: (10, ret, 1, ('RET', 0x00, 0x00)),              # RET
+        0xCA: (10, jp, 3, ('Z', 0x40, 0x00)),                 # JP Z,nn
         0xCB: None,                                           # CB prefix
-        0xCC: ((17, 10), call, 3, ('Z',)),                    # CALL Z,nn
-        0xCD: (17, call, 3, ()),                              # CALL nn
+        0xCC: ((17, 10), call, 3, ('Z', 0x40, 0x00)),         # CALL Z,nn
+        0xCD: (17, call, 3, ('', 0x00, 0x00)),                # CALL nn
         0xCE: (7, add_a, 2, (None, 1, 1)),                    # ADC A,n
         0xCF: (11, rst, 1, (8,)),                             # RST $08
-        0xD0: ((11, 5), ret, 1, ('NC',)),                     # RET NC
+        0xD0: ((11, 5), ret, 1, ('RET NC', 0x01, 0x01)),      # RET NC
         0xD1: (10, pop, 1, ('DE',)),                          # POP DE
-        0xD2: (10, jp, 3, ('NC',)),                           # JP NC,nn
+        0xD2: (10, jp, 3, ('NC', 0x01, 0x01)),                # JP NC,nn
         0xD3: (11, outa, 2, ()),                              # OUT (n),A
-        0xD4: ((17, 10), call, 3, ('NC',)),                   # CALL NC,nn
+        0xD4: ((17, 10), call, 3, ('NC', 0x01, 0x01)),        # CALL NC,nn
         0xD5: (11, push, 1, ('DE',)),                         # PUSH DE
         0xD6: (7, add_a, 2, (None, 0, -1)),                   # SUB n
         0xD7: (11, rst, 1, (16,)),                            # RST $10
-        0xD8: ((11, 5), ret, 1, ('C',)),                      # RET C
+        0xD8: ((11, 5), ret, 1, ('RET C', 0x01, 0x00)),       # RET C
         0xD9: (4, exx, 1, ()),                                # EXX
-        0xDA: (10, jp, 3, ('C',)),                            # JP C,nn
+        0xDA: (10, jp, 3, ('C', 0x01, 0x00)),                 # JP C,nn
         0xDB: (11, in_a, 2, ()),                              # IN A,(n)
-        0xDC: ((17, 10), call, 3, ('C',)),                    # CALL C,nn
+        0xDC: ((17, 10), call, 3, ('C', 0x01, 0x00)),         # CALL C,nn
         0xDD: None,                                           # DD prefix
         0xDE: (7, add_a, 2, (None, 1, -1)),                   # SBC A,n
         0xDF: (11, rst, 1, (24,)),                            # RST $18
-        0xE0: ((11, 5), ret, 1, ('PO',)),                     # RET PO
+        0xE0: ((11, 5), ret, 1, ('RET PO', 0x04, 0x04)),      # RET PO
         0xE1: (10, pop, 1, ('HL',)),                          # POP HL
-        0xE2: (10, jp, 3, ('PO',)),                           # JP PO,nn
+        0xE2: (10, jp, 3, ('PO', 0x04, 0x04)),                # JP PO,nn
         0xE3: (19, ex_sp, 1, ()),                             # EX (SP),HL
-        0xE4: ((17, 10), call, 3, ('PO',)),                   # CALL PO,nn
+        0xE4: ((17, 10), call, 3, ('PO', 0x04, 0x04)),        # CALL PO,nn
         0xE5: (11, push, 1, ('HL',)),                         # PUSH HL
         0xE6: (7, anda, 2, ()),                               # AND n
         0xE7: (11, rst, 1, (32,)),                            # RST $20
-        0xE8: ((11, 5), ret, 1, ('PE',)),                     # RET PE
-        0xE9: (4, jp, 1, ()),                                 # JP (HL)
-        0xEA: (10, jp, 3, ('PE',)),                           # JP PE,nn
+        0xE8: ((11, 5), ret, 1, ('RET PE', 0x04, 0x00)),      # RET PE
+        0xE9: (4, jp, 1, ('', 0x00, 0x00)),                   # JP (HL)
+        0xEA: (10, jp, 3, ('PE', 0x04, 0x00)),                # JP PE,nn
         0xEB: (4, ex_de_hl, 1, ()),                           # EX DE,HL
-        0xEC: ((17, 10), call, 3, ('PE',)),                   # CALL PE,nn
+        0xEC: ((17, 10), call, 3, ('PE', 0x04, 0x00)),        # CALL PE,nn
         0xED: None,                                           # ED prefix
         0xEE: (7, xor, 2, ()),                                # XOR n
         0xEF: (11, rst, 1, (40,)),                            # RST $28
-        0xF0: ((11, 5), ret, 1, ('P',)),                      # RET P
+        0xF0: ((11, 5), ret, 1, ('RET P', 0x80, 0x80)),       # RET P
         0xF1: (10, pop, 1, ('AF',)),                          # POP AF
-        0xF2: (10, jp, 3, ('P',)),                            # JP P,nn
+        0xF2: (10, jp, 3, ('P', 0x80, 0x80)),                 # JP P,nn
         0xF3: (4, di_ei, 1, ('DI', 0)),                       # DI
-        0xF4: ((17, 10), call, 3, ('P',)),                    # CALL P,nn
+        0xF4: ((17, 10), call, 3, ('P', 0x80, 0x80)),         # CALL P,nn
         0xF5: (11, push, 1, ('AF',)),                         # PUSH AF
         0xF6: (7, ora, 2, ()),                                # OR n
         0xF7: (11, rst, 1, (48,)),                            # RST $30
-        0xF8: ((11, 5), ret, 1, ('M',)),                      # RET M
+        0xF8: ((11, 5), ret, 1, ('RET M', 0x80, 0x00)),       # RET M
         0xF9: (6, ldsprr, 1, ('HL',)),                        # LD SP,HL
-        0xFA: (10, jp, 3, ('M',)),                            # JP M,nn
+        0xFA: (10, jp, 3, ('M', 0x80, 0x00)),                 # JP M,nn
         0xFB: (4, di_ei, 1, ('EI', 1)),                       # EI
-        0xFC: ((17, 10), call, 3, ('M',)),                    # CALL M,nn
+        0xFC: ((17, 10), call, 3, ('M', 0x80, 0x00)),         # CALL M,nn
         0xFD: None,                                           # FD prefix
         0xFE: (7, cp, 2, ()),                                 # CP n
         0xFF: (11, rst, 1, (56,))                             # RST $38
@@ -1764,7 +1746,7 @@ class Simulator:
         0xE6: (4, defb, 1, ()),
         0xE7: (4, defb, 1, ()),
         0xE8: (4, defb, 1, ()),
-        0xE9: (8, jp, 2, ()),                                 # JP (IX)
+        0xE9: (8, jp, 2, ('', 0x00, 0x00)),                   # JP (IX)
         0xEA: (4, defb, 1, ()),
         0xEB: (4, defb, 1, ()),
         0xEC: (4, defb, 1, ()),
