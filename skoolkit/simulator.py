@@ -757,13 +757,12 @@ class Simulator:
         self.set_operand_value(data, reg, v2)
         if reg2 and reg2 in 'IR':
             a = self.registers['A']
-            self.set_flag('S', a & 0x80)
-            self.set_flag('Z', a == 0)
-            self.set_flag('5', a & 0x20)
-            self.set_flag('H', 0)
-            self.set_flag('3', a & 0x08)
-            self.set_flag('P', self.iff2)
-            self.set_flag('N', 0)
+            f = (a & 0xA8) | (self.registers['F'] & 0x01) # S.5H3.NC
+            if a == 0:
+                f |= 0x40 # .Z......
+            if self.iff2:
+                f |= 0x04 # .....P..
+            self.registers['F'] = f
         return f'LD {op1},{op2}', self.pc + len(data), timing
 
     def ld16(self, timing, data, reg):

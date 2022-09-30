@@ -307,3 +307,16 @@ class InTracer(BaseTracer):
 
     def read_port(self, simulator, port):
         return self.value
+
+class AIRTracer(BaseTracer):
+    def __init__(self, start, reg):
+        super().__init__(start, 'AF' + reg)
+        self.reg = reg
+        self.count = 0x1FF
+
+    def trace(self, simulator, instruction):
+        if self.collect_result(simulator, instruction):
+            return True
+        simulator.registers['F'] = (self.count >> 8) * 0xFF
+        simulator.registers[self.reg] = self.count & 0xFF
+        self.repeat(simulator)

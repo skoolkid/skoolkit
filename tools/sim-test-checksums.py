@@ -122,6 +122,11 @@ SUITES = {
         ('IN_r_C', InTracer, ('A',), (0xED, 0x78)),
         ('IN_F_C', InTracer, ('F',), (0xED, 0x70)),
     ),
+    'AIR': (
+        'LD A,I/R instructions',
+        ('LD_A_I', AIRTracer, ('I',), (0xED, 0x57)),
+        ('LD_A_R', AIRTracer, ('R',), (0xED, 0x5F)),
+    ),
 }
 
 def run(suites):

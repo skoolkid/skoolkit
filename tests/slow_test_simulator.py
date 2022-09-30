@@ -57,6 +57,8 @@ RRD = 'e7d8af319af4290502539c7cd3ecd5a7'
 RLD = '9c0cf9531835d5653f7c598ede23b0fc'
 IN_r_C = '992df729253b765ac34e36c70ae86421'
 IN_F_C = '120add13719329ab958149a62a6389eb'
+LD_A_I = 'ecf482769e49688cf301d86fdd117c15'
+LD_A_R = 'fc72798c9f28514445cbc375666fc873'
 
 class SimulatorTest(SkoolKitTestCase):
     def _test_instruction(self, op, tclass, targs, checksum, opcodes, snapshot=None):
@@ -71,24 +73,23 @@ class SimulatorTest(SkoolKitTestCase):
         simulator = Simulator(snapshot, {'HL': 16384, 'IX': 16385, 'IY': 16386})
         simulator.add_tracer(tracer)
         simulator.run(start)
-        reg = targs[-1] if targs and isinstance(targs[-1], str) else ''
-        self.assertEqual(tracer.checksum, checksum, f"Checksum failure for '{op}{reg}'")
+        self.assertEqual(tracer.checksum, checksum, f"Checksum failure for '{op}'")
 
 class ArithmeticLogicTest(SimulatorTest):
     def _test_alo(self, op, checksum, opcode):
         for i, reg in enumerate(('B', 'C', 'D', 'E', 'H', 'L', '(HL)')):
-            self._test_instruction(op, AFRTracer, (reg,), checksum, opcode + i)
+            self._test_instruction(f'{op}{reg}', AFRTracer, (reg,), checksum, opcode + i)
 
-        self._test_instruction(op, AFRTracer, ('n',), checksum, opcode + 0x46)
+        self._test_instruction(f'{op}n', AFRTracer, ('n',), checksum, opcode + 0x46)
 
-        self._test_instruction(op, AFRTracer, ('IXh',), checksum, (0xDD, opcode + 0x04))
-        self._test_instruction(op, AFRTracer, ('IYh',), checksum, (0xFD, opcode + 0x04))
+        self._test_instruction(f'{op}IXh', AFRTracer, ('IXh',), checksum, (0xDD, opcode + 0x04))
+        self._test_instruction(f'{op}IYh', AFRTracer, ('IYh',), checksum, (0xFD, opcode + 0x04))
 
-        self._test_instruction(op, AFRTracer, ('IXl',), checksum, (0xDD, opcode + 0x05))
-        self._test_instruction(op, AFRTracer, ('IYl',), checksum, (0xFD, opcode + 0x05))
+        self._test_instruction(f'{op}IXl', AFRTracer, ('IXl',), checksum, (0xDD, opcode + 0x05))
+        self._test_instruction(f'{op}IYl', AFRTracer, ('IYl',), checksum, (0xFD, opcode + 0x05))
 
-        self._test_instruction(op, AFRTracer, ('(IX+d)',), checksum, (0xDD, opcode + 0x06))
-        self._test_instruction(op, AFRTracer, ('(IY+d)',), checksum, (0xFD, opcode + 0x06))
+        self._test_instruction(f'{op}(IX+d)', AFRTracer, ('(IX+d)',), checksum, (0xDD, opcode + 0x06))
+        self._test_instruction(f'{op}(IY+d)', AFRTracer, ('(IY+d)',), checksum, (0xFD, opcode + 0x06))
 
     def test_add_a_r(self):
         self._test_alo('ADD A,', ADD_A_r, 0x80)
@@ -159,10 +160,10 @@ class CarryFlagTest(SimulatorTest):
 class ShiftRotateTest(SimulatorTest):
     def _test_sro(self, op, checksum, opcode):
         for i, reg in enumerate(('B', 'C', 'D', 'E', 'H', 'L', '(HL)', 'A')):
-            self._test_instruction(op, FRTracer, (reg,), checksum, (0xCB, opcode + i))
+            self._test_instruction(f'{op}{reg}', FRTracer, (reg,), checksum, (0xCB, opcode + i))
 
-        self._test_instruction(op, FRTracer, ('(IX+d)',), checksum, (0xDD, 0xCB, 0, opcode + 0x06))
-        self._test_instruction(op, FRTracer, ('(IY+d)',), checksum, (0xFD, 0xCB, 0, opcode + 0x06))
+        self._test_instruction(f'{op}(IX+d)', FRTracer, ('(IX+d)',), checksum, (0xDD, 0xCB, 0, opcode + 0x06))
+        self._test_instruction(f'{op}(IY+d)', FRTracer, ('(IY+d)',), checksum, (0xFD, 0xCB, 0, opcode + 0x06))
 
     def test_rlca(self):
         self._test_instruction('RLCA', AFTracer, (0xFFFF,), RLCA, 0x07)
@@ -202,17 +203,17 @@ class ShiftRotateTest(SimulatorTest):
 
 class IncDec8Test(SimulatorTest):
     def _test_inc_dec(self, op, checksum, opcode):
-        for i, reg in enumerate(('B', 'C', 'D', 'E', 'H', 'L', '(HL)')):
-            self._test_instruction(op, FRTracer, (reg,), checksum, opcode + 8 * i)
+        for i, reg in enumerate(('B', 'C', 'D', 'E', 'H', 'L', '(HL)', 'A')):
+            self._test_instruction(f'{op}{reg}', FRTracer, (reg,), checksum, opcode + 8 * i)
 
-        self._test_instruction(op, FRTracer, ('IXh',), checksum, (0xDD, opcode + 0x20))
-        self._test_instruction(op, FRTracer, ('IYh',), checksum, (0xFD, opcode + 0x20))
+        self._test_instruction(f'{op}IXh', FRTracer, ('IXh',), checksum, (0xDD, opcode + 0x20))
+        self._test_instruction(f'{op}IYh', FRTracer, ('IYh',), checksum, (0xFD, opcode + 0x20))
 
-        self._test_instruction(op, FRTracer, ('IXl',), checksum, (0xDD, opcode + 0x28))
-        self._test_instruction(op, FRTracer, ('IYl',), checksum, (0xFD, opcode + 0x28))
+        self._test_instruction(f'{op}IXl', FRTracer, ('IXl',), checksum, (0xDD, opcode + 0x28))
+        self._test_instruction(f'{op}IYl', FRTracer, ('IYl',), checksum, (0xFD, opcode + 0x28))
 
-        self._test_instruction(op, FRTracer, ('(IX+d)',), checksum, (0xDD, opcode + 0x30))
-        self._test_instruction(op, FRTracer, ('(IY+d)',), checksum, (0xFD, opcode + 0x30))
+        self._test_instruction(f'{op}(IX+d)', FRTracer, ('(IX+d)',), checksum, (0xDD, opcode + 0x30))
+        self._test_instruction(f'{op}(IX+d)', FRTracer, ('(IY+d)',), checksum, (0xFD, opcode + 0x30))
 
     def test_inc_r(self):
         self._test_inc_dec('INC ', INC_r, 0x04)
@@ -226,13 +227,13 @@ class Arithmetic16Test(SimulatorTest):
             if reg != 'HL':
                 codes = list(opcodes)
                 codes[-1] += 16 * i
-                self._test_instruction(op + ' HL,', HLRRFTracer, ('HL', reg), checksum, codes)
+                self._test_instruction(f'{op} HL,{reg}', HLRRFTracer, ('HL', reg), checksum, codes)
                 if op == 'ADD':
-                    self._test_instruction('ADD IX,', HLRRFTracer, (('IXh', 'IXl'), reg), checksum, [0xDD] + codes)
-                    self._test_instruction('ADD IY,', HLRRFTracer, (('IYh', 'IYl'), reg), checksum, [0xFD] + codes)
+                    self._test_instruction(f'ADD IX,{reg}', HLRRFTracer, (('IXh', 'IXl'), reg), checksum, [0xDD] + codes)
+                    self._test_instruction(f'ADD IY,{reg}', HLRRFTracer, (('IYh', 'IYl'), reg), checksum, [0xFD] + codes)
 
     def _test_hl_hl_arithmetic(self, op, checksum, opcodes):
-        self._test_instruction(op + ' HL,', HLFTracer, ('HL',), checksum, opcodes)
+        self._test_instruction(f'{op} HL,HL', HLFTracer, ('HL',), checksum, opcodes)
         if op == 'ADD':
             self._test_instruction('ADD IX,IX', HLFTracer, (('IXh', 'IXl'),), checksum, (0xDD,) + opcodes)
             self._test_instruction('ADD IY,IY', HLFTracer, (('IYh', 'IYl'),), checksum, (0xFD,) + opcodes)
@@ -307,15 +308,15 @@ class BlockTest(SimulatorTest):
 class BitTest(SimulatorTest):
     def test_bit_n_r(self):
         for reg in ('B', 'C', 'D', 'E', 'H', 'L', '(HL)', 'A'):
-            self._test_instruction('BIT n,', BitTracer, (reg,), BIT_n_r, (0xCB, 0x40))
+            self._test_instruction(f'BIT n,{reg}', BitTracer, (reg,), BIT_n_r, (0xCB, 0x40))
 
     def test_bit_n_ix(self):
         for r in range(8):
-            self._test_instruction('BIT n,', BitTracer, ('(IX+d)',), BIT_n_xy, (0xDD, 0xCB, 0x00, 0x40 + r))
+            self._test_instruction('BIT n,(IX+d)', BitTracer, ('(IX+d)',), BIT_n_xy, (0xDD, 0xCB, 0x00, 0x40 + r))
 
     def test_bit_n_iy(self):
         for r in range(8):
-            self._test_instruction('BIT n,', BitTracer, ('(IY+d)',), BIT_n_xy, (0xFD, 0xCB, 0x00, 0x40 + r))
+            self._test_instruction('BIT n,(IY+d)', BitTracer, ('(IY+d)',), BIT_n_xy, (0xFD, 0xCB, 0x00, 0x40 + r))
 
 class RRDRLDTest(SimulatorTest):
     def test_rrd(self):
@@ -331,4 +332,11 @@ class InTest(SimulatorTest):
                 self._test_instruction(f'IN {reg},(C)', InTracer, (reg,), IN_r_C, (0xED, 0x40 + 8 * i))
 
     def test_in_f_c(self):
-        self._test_instruction(f'IN F,(C)', InTracer, ('F',), IN_F_C, (0xED, 0x70))
+        self._test_instruction('IN F,(C)', InTracer, ('F',), IN_F_C, (0xED, 0x70))
+
+class AIRTest(SimulatorTest):
+    def test_ld_a_i(self):
+        self._test_instruction('LD A,I', AIRTracer, ('I',), LD_A_I, (0xED, 0x57))
+
+    def test_ld_a_r(self):
+        self._test_instruction('LD A,R', AIRTracer, ('R',), LD_A_R, (0xED, 0x5F))
