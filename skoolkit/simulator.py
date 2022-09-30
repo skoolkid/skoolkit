@@ -88,10 +88,12 @@ class Simulator:
         self.tstates = state.get('tstates', 0)
         self.tracers = []
         self.i_tracers = None
+        self.in_tracers = ()
 
     def add_tracer(self, tracer):
         self.tracers.append(tracer)
         self.i_tracers = [t.trace for t in self.tracers if hasattr(t, 'trace')]
+        self.in_tracers = [t.read_port for t in self.tracers if hasattr(t, 'read_port')]
 
     def run(self, pc=None):
         if pc is not None:
@@ -622,7 +624,9 @@ class Simulator:
         return f'IM {mode}', self.pc + 2, timing
 
     def _in(self, port):
-        reading = self._trace('read_port', port)
+        reading = None
+        for method in self.in_tracers:
+            reading = method(self, port)
         if reading is None:
             return 191
         return reading
