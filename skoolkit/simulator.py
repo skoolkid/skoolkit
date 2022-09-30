@@ -37,17 +37,6 @@ PARITY = (
     4, 0, 0, 4, 0, 4, 4, 0, 0, 4, 4, 0, 4, 0, 0, 4
 )
 
-FLAGS = {
-    'C': 1,
-    'N': 2,
-    'P': 4,
-    '3': 8,
-    'H': 16,
-    '5': 32,
-    'Z': 64,
-    'S': 128
-}
-
 CONDITIONS = {
     'NZ': -64,
     'Z': 64,
@@ -180,16 +169,6 @@ class Simulator:
         if cbit < 0:
             return value == 0
         return value > 0
-
-    def get_flag(self, flag):
-        return int(self.registers['F'] & FLAGS[flag] > 0)
-
-    def set_flag(self, flag, value):
-        bit = FLAGS[flag]
-        if value:
-            self.registers['F'] |= bit
-        else:
-            self.registers['F'] &= 255 - bit
 
     def index(self, data):
         offset = data[2]
@@ -496,93 +475,83 @@ class Simulator:
         return f'CALL ${addr:04X}', addr, timing
 
     def cf(self, timing, data):
+        f = self.registers['F'] & 0xC4 # SZ...PN.
         if data[0] == 63:
             operation = 'CCF'
-            old_c = self.get_flag('C')
-            self.set_flag('H', old_c)
-            self.set_flag('N', 0)
-            self.set_flag('C', 1 - old_c)
+            old_c = self.registers['F'] & 0x01
+            if old_c:
+                f |= 0x10 # ...H....
+            else:
+                f |= 0x01 # .......C
         else:
             operation = 'SCF'
-            self.set_flag('H', 0)
-            self.set_flag('N', 0)
-            self.set_flag('C', 1)
-        a = self.registers['A']
-        self.set_flag('5', a & 0x20)
-        self.set_flag('3', a & 0x08)
+            f |= 0x01 # .......C
+        f |= self.registers['A'] & 0x28 # ..5.3...
+        self.registers['F'] = f
         return operation, self.pc + 1, timing
 
     def cp(self, timing, data, reg=None):
         operand, value = self.get_operand_value(data, reg)
         a = self.registers['A']
         result = (a - value) & 0xFF
-        self.set_flag('S', result & 0x80)
-        self.set_flag('Z', result == 0)
-        self.set_flag('5', value & 0x20)
-        self.set_flag('H', ((a & 0x0F) - (value & 0x0F)) & 0x10)
-        self.set_flag('3', value & 0x08)
-        if ((a ^ ~value) ^ 0x80) & 0x80:
+        f = (result & 0x80) | (value & 0x28) | 0x02 # S.5.3.N.
+        if result == 0:
+            f |= 0x40 # .Z......
+        if ((a & 0x0F) - (value & 0x0F)) & 0x10:
+            f |= 0x10 # ...H....
+        if ((a ^ ~value) ^ 0x80) & 0x80 and (result ^ a) & 0x80:
             # Operand signs are the same - overflow if their sign differs from
             # the sign of the result
-            self.set_flag('P', (result ^ a) & 0x80)
-        else:
-            # Operand signs are different - no overflow
-            self.set_flag('P', 0)
-        self.set_flag('N', 1)
-        self.set_flag('C', a < value)
+            f |= 0x04 # .....P..
+        if a < value:
+            f |= 0x01 # .......C
+        self.registers['F'] = f
         return f'CP {operand}', self.pc + len(data), timing
 
     def cpl(self, timing, data):
         a = self.registers['A'] ^ 255
         self.registers['A'] = a
-        self.set_flag('H', 1)
-        self.set_flag('5', a & 0x20)
-        self.set_flag('3', a & 0x08)
-        self.set_flag('N', 1)
+        self.registers['F'] = (self.registers['F'] & 0xC5) | (a & 0x28) | 0x12
         return 'CPL', self.pc + 1, timing
 
     def daa(self, timing, data):
         a = self.registers['A']
-        h_flag = self.get_flag('H')
-        n_flag = self.get_flag('N')
+        hf = self.registers['F'] & 0x10
+        nf = self.registers['F'] & 0x02
         t = 0
+        f = nf
 
-        if h_flag or (a & 15) > 0x09:
+        if hf or a & 15 > 0x09:
             t += 1
-        if self.get_flag('C') or a > 0x99:
+        if self.registers['F'] & 0x01 or a > 0x99:
             t += 2
-            self.set_flag('C', 1)
+            f |= 0x01 # .......C
 
-        if n_flag and not h_flag:
-            self.set_flag('H', 0)
-        elif n_flag and h_flag:
-            self.set_flag('H', (a & 0x0F) < 6)
-        else:
-            self.set_flag('H', (a & 0x0F) >= 0x0A)
+        if (nf and hf and a & 0x0F < 6) or (nf == 0 and a & 0x0F >= 0x0A):
+            f |= 0x10 # ...H....
 
         if t == 1:
-            if n_flag:
+            if nf:
                 a += 0xFA
             else:
                 a += 0x06
         elif t == 2:
-            if n_flag:
+            if nf:
                 a += 0xA0
             else:
                 a += 0x60
         elif t == 3:
-            if n_flag:
+            if nf:
                 a += 0x9A
             else:
                 a += 0x66
 
         a &= 0xFF
         self.registers['A'] = a
-        self.set_flag('S', a & 0x80)
-        self.set_flag('Z', a == 0)
-        self.set_flag('5', a & 0x20)
-        self.set_flag('3', a & 0x08)
-        self.set_flag('P', PARITY[a])
+        f |= (a & 0xA8) | PARITY[a] # S.5.3P..
+        if a == 0:
+            f |= 0x40 # .Z......
+        self.registers['F'] = f
 
         return 'DAA', self.pc + 1, timing
 
@@ -829,14 +798,16 @@ class Simulator:
     def neg(self, timing, data):
         old_a = self.registers['A']
         a = self.registers['A'] = (256 - old_a) & 255
-        self.set_flag('S', a & 0x80)
-        self.set_flag('Z', a == 0)
-        self.set_flag('5', a & 0x20)
-        self.set_flag('H', old_a & 0x0F)
-        self.set_flag('3', a & 0x08)
-        self.set_flag('P', a == 0x80)
-        self.set_flag('N', 1)
-        self.set_flag('C', a > 0)
+        f = (a & 0xA8) | 0x02 # S.5.3.N.
+        if a == 0:
+            f |= 0x40 # .Z......
+        if old_a & 0x0F:
+            f |= 0x10 # ...H....
+        if a == 0x80:
+            f |= 0x04 # .....P..
+        if a > 0:
+            f |= 0x01 # .......C
+        self.registers['F'] = f
         return 'NEG', self.pc + 2, timing
 
     def nop(self, timing, data):
@@ -959,7 +930,7 @@ class Simulator:
 
     def rotate(self, timing, data, op, cbit, reg, carry='', dest=''):
         operand, value = self.get_operand_value(data, reg)
-        old_carry = self.get_flag('C')
+        old_carry = self.registers['F'] & 0x01
         new_carry = value & cbit
         if cbit == 1:
             cvalue = (value << 7) & 128
@@ -1000,7 +971,10 @@ class Simulator:
     def shift(self, timing, data, op, cbit, reg, dest=''):
         operand, value = self.get_operand_value(data, reg)
         ovalue = value
-        self.set_flag('C', value & cbit)
+        if value & cbit:
+            f = 0x01 # .......C
+        else:
+            f = 0x00 # .......C
         if cbit == 1:
             value >>= 1
         else:
@@ -1014,13 +988,10 @@ class Simulator:
         if dest:
             self.registers[dest] = value
             dest = ',' + dest
-        self.set_flag('S', value & 0x80)
-        self.set_flag('Z', value == 0)
-        self.set_flag('5', value & 0x20)
-        self.set_flag('H', 0)
-        self.set_flag('3', value & 0x08)
-        self.set_flag('P', PARITY[value])
-        self.set_flag('N', 0)
+        f |= (value & 0xA8) | PARITY[value] # S.5H3PN.
+        if value == 0:
+            f |= 0x40 # .Z......
+        self.registers['F'] = f
         return f'{op} {operand}{dest}', self.pc + len(data), timing
 
     def xor(self, timing, data, reg=None):
