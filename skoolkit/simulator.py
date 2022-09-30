@@ -720,6 +720,10 @@ class Simulator:
             return f'JP {condition},${addr:04X}', pc, timing
         return f'JP ${addr:04X}', addr, timing
 
+    def ld_r_r(self, timing, data, op, r1, r2):
+        self.registers[r1] = self.registers[r2]
+        return op, self.pc + 1, timing
+
     def ld8(self, timing, data, reg, reg2=None):
         op1, v1 = self.get_operand_value(data, reg)
         op2, v2 = self.get_operand_value(data, reg2)
@@ -1069,54 +1073,54 @@ class Simulator:
         0x3D: (4, inc_dec8, 1, ('DEC', 'A')),                 # DEC A
         0x3E: (7, ld8, 2, ('A',)),                            # LD A,n
         0x3F: (4, cf, 1, ()),                                 # CCF
-        0x40: (4, ld8, 1, ('B', 'B')),                        # LD B,B
-        0x41: (4, ld8, 1, ('B', 'C')),                        # LD B,C
-        0x42: (4, ld8, 1, ('B', 'D')),                        # LD B,D
-        0x43: (4, ld8, 1, ('B', 'E')),                        # LD B,E
-        0x44: (4, ld8, 1, ('B', 'H')),                        # LD B,H
-        0x45: (4, ld8, 1, ('B', 'L')),                        # LD B,L
+        0x40: (4, ld_r_r, 1, ('LD B,B', 'B', 'B')),           # LD B,B
+        0x41: (4, ld_r_r, 1, ('LD B,C', 'B', 'C')),           # LD B,C
+        0x42: (4, ld_r_r, 1, ('LD B,D', 'B', 'D')),           # LD B,D
+        0x43: (4, ld_r_r, 1, ('LD B,E', 'B', 'E')),           # LD B,E
+        0x44: (4, ld_r_r, 1, ('LD B,H', 'B', 'H')),           # LD B,H
+        0x45: (4, ld_r_r, 1, ('LD B,L', 'B', 'L')),           # LD B,L
         0x46: (7, ld8, 1, ('B', '(HL)')),                     # LD B,(HL)
-        0x47: (4, ld8, 1, ('B', 'A')),                        # LD B,A
-        0x48: (4, ld8, 1, ('C', 'B')),                        # LD C,B
-        0x49: (4, ld8, 1, ('C', 'C')),                        # LD C,C
-        0x4A: (4, ld8, 1, ('C', 'D')),                        # LD C,D
-        0x4B: (4, ld8, 1, ('C', 'E')),                        # LD C,E
-        0x4C: (4, ld8, 1, ('C', 'H')),                        # LD C,H
-        0x4D: (4, ld8, 1, ('C', 'L')),                        # LD C,L
+        0x47: (4, ld_r_r, 1, ('LD B,A', 'B', 'A')),           # LD B,A
+        0x48: (4, ld_r_r, 1, ('LD C,B', 'C', 'B')),           # LD C,B
+        0x49: (4, ld_r_r, 1, ('LD C,C', 'C', 'C')),           # LD C,C
+        0x4A: (4, ld_r_r, 1, ('LD C,D', 'C', 'D')),           # LD C,D
+        0x4B: (4, ld_r_r, 1, ('LD C,E', 'C', 'E')),           # LD C,E
+        0x4C: (4, ld_r_r, 1, ('LD C,H', 'C', 'H')),           # LD C,H
+        0x4D: (4, ld_r_r, 1, ('LD C,L', 'C', 'L')),           # LD C,L
         0x4E: (7, ld8, 1, ('C', '(HL)')),                     # LD C,(HL)
-        0x4F: (4, ld8, 1, ('C', 'A')),                        # LD C,A
-        0x50: (4, ld8, 1, ('D', 'B')),                        # LD D,B
-        0x51: (4, ld8, 1, ('D', 'C')),                        # LD D,C
-        0x52: (4, ld8, 1, ('D', 'D')),                        # LD D,D
-        0x53: (4, ld8, 1, ('D', 'E')),                        # LD D,E
-        0x54: (4, ld8, 1, ('D', 'H')),                        # LD D,H
-        0x55: (4, ld8, 1, ('D', 'L')),                        # LD D,L
+        0x4F: (4, ld_r_r, 1, ('LD C,A', 'C', 'A')),           # LD C,A
+        0x50: (4, ld_r_r, 1, ('LD D,B', 'D', 'B')),           # LD D,B
+        0x51: (4, ld_r_r, 1, ('LD D,C', 'D', 'C')),           # LD D,C
+        0x52: (4, ld_r_r, 1, ('LD D,D', 'D', 'D')),           # LD D,D
+        0x53: (4, ld_r_r, 1, ('LD D,E', 'D', 'E')),           # LD D,E
+        0x54: (4, ld_r_r, 1, ('LD D,H', 'D', 'H')),           # LD D,H
+        0x55: (4, ld_r_r, 1, ('LD D,L', 'D', 'L')),           # LD D,L
         0x56: (7, ld8, 1, ('D', '(HL)')),                     # LD D,(HL)
-        0x57: (4, ld8, 1, ('D', 'A')),                        # LD D,A
-        0x58: (4, ld8, 1, ('E', 'B')),                        # LD E,B
-        0x59: (4, ld8, 1, ('E', 'C')),                        # LD E,C
-        0x5A: (4, ld8, 1, ('E', 'D')),                        # LD E,D
-        0x5B: (4, ld8, 1, ('E', 'E')),                        # LD E,E
-        0x5C: (4, ld8, 1, ('E', 'H')),                        # LD E,H
-        0x5D: (4, ld8, 1, ('E', 'L')),                        # LD E,L
+        0x57: (4, ld_r_r, 1, ('LD D,A', 'D', 'A')),           # LD D,A
+        0x58: (4, ld_r_r, 1, ('LD E,B', 'E', 'B')),           # LD E,B
+        0x59: (4, ld_r_r, 1, ('LD E,C', 'E', 'C')),           # LD E,C
+        0x5A: (4, ld_r_r, 1, ('LD E,D', 'E', 'D')),           # LD E,D
+        0x5B: (4, ld_r_r, 1, ('LD E,E', 'E', 'E')),           # LD E,E
+        0x5C: (4, ld_r_r, 1, ('LD E,H', 'E', 'H')),           # LD E,H
+        0x5D: (4, ld_r_r, 1, ('LD E,L', 'E', 'L')),           # LD E,L
         0x5E: (7, ld8, 1, ('E', '(HL)')),                     # LD E,(HL)
-        0x5F: (4, ld8, 1, ('E', 'A')),                        # LD E,A
-        0x60: (4, ld8, 1, ('H', 'B')),                        # LD H,B
-        0x61: (4, ld8, 1, ('H', 'C')),                        # LD H,C
-        0x62: (4, ld8, 1, ('H', 'D')),                        # LD H,D
-        0x63: (4, ld8, 1, ('H', 'E')),                        # LD H,E
-        0x64: (4, ld8, 1, ('H', 'H')),                        # LD H,H
-        0x65: (4, ld8, 1, ('H', 'L')),                        # LD H,L
+        0x5F: (4, ld_r_r, 1, ('LD E,A', 'E', 'A')),           # LD E,A
+        0x60: (4, ld_r_r, 1, ('LD H,B', 'H', 'B')),           # LD H,B
+        0x61: (4, ld_r_r, 1, ('LD H,C', 'H', 'C')),           # LD H,C
+        0x62: (4, ld_r_r, 1, ('LD H,D', 'H', 'D')),           # LD H,D
+        0x63: (4, ld_r_r, 1, ('LD H,E', 'H', 'E')),           # LD H,E
+        0x64: (4, ld_r_r, 1, ('LD H,H', 'H', 'H')),           # LD H,H
+        0x65: (4, ld_r_r, 1, ('LD H,L', 'H', 'L')),           # LD H,L
         0x66: (7, ld8, 1, ('H', '(HL)')),                     # LD H,(HL)
-        0x67: (4, ld8, 1, ('H', 'A')),                        # LD H,A
-        0x68: (4, ld8, 1, ('L', 'B')),                        # LD L,B
-        0x69: (4, ld8, 1, ('L', 'C')),                        # LD L,C
-        0x6A: (4, ld8, 1, ('L', 'D')),                        # LD L,D
-        0x6B: (4, ld8, 1, ('L', 'E')),                        # LD L,E
-        0x6C: (4, ld8, 1, ('L', 'H')),                        # LD L,H
-        0x6D: (4, ld8, 1, ('L', 'L')),                        # LD L,L
+        0x67: (4, ld_r_r, 1, ('LD H,A', 'H', 'A')),           # LD H,A
+        0x68: (4, ld_r_r, 1, ('LD L,B', 'L', 'B')),           # LD L,B
+        0x69: (4, ld_r_r, 1, ('LD L,C', 'L', 'C')),           # LD L,C
+        0x6A: (4, ld_r_r, 1, ('LD L,D', 'L', 'D')),           # LD L,D
+        0x6B: (4, ld_r_r, 1, ('LD L,E', 'L', 'E')),           # LD L,E
+        0x6C: (4, ld_r_r, 1, ('LD L,H', 'L', 'H')),           # LD L,H
+        0x6D: (4, ld_r_r, 1, ('LD L,L', 'L', 'L')),           # LD L,L
         0x6E: (7, ld8, 1, ('L', '(HL)')),                     # LD L,(HL)
-        0x6F: (4, ld8, 1, ('L', 'A')),                        # LD L,A
+        0x6F: (4, ld_r_r, 1, ('LD L,A', 'L', 'A')),           # LD L,A
         0x70: (7, ld8, 1, ('(HL)', 'B')),                     # LD (HL),B
         0x71: (7, ld8, 1, ('(HL)', 'C')),                     # LD (HL),C
         0x72: (7, ld8, 1, ('(HL)', 'D')),                     # LD (HL),D
@@ -1125,14 +1129,14 @@ class Simulator:
         0x75: (7, ld8, 1, ('(HL)', 'L')),                     # LD (HL),L
         0x76: (4, halt, 1, ()),                               # HALT
         0x77: (7, ld8, 1, ('(HL)', 'A')),                     # LD (HL),A
-        0x78: (4, ld8, 1, ('A', 'B')),                        # LD A,B
-        0x79: (4, ld8, 1, ('A', 'C')),                        # LD A,C
-        0x7A: (4, ld8, 1, ('A', 'D')),                        # LD A,D
-        0x7B: (4, ld8, 1, ('A', 'E')),                        # LD A,E
-        0x7C: (4, ld8, 1, ('A', 'H')),                        # LD A,H
-        0x7D: (4, ld8, 1, ('A', 'L')),                        # LD A,L
+        0x78: (4, ld_r_r, 1, ('LD A,B', 'A', 'B')),           # LD A,B
+        0x79: (4, ld_r_r, 1, ('LD A,C', 'A', 'C')),           # LD A,C
+        0x7A: (4, ld_r_r, 1, ('LD A,D', 'A', 'D')),           # LD A,D
+        0x7B: (4, ld_r_r, 1, ('LD A,E', 'A', 'E')),           # LD A,E
+        0x7C: (4, ld_r_r, 1, ('LD A,H', 'A', 'H')),           # LD A,H
+        0x7D: (4, ld_r_r, 1, ('LD A,L', 'A', 'L')),           # LD A,L
         0x7E: (7, ld8, 1, ('A', '(HL)')),                     # LD A,(HL)
-        0x7F: (4, ld8, 1, ('A', 'A')),                        # LD A,A
+        0x7F: (4, ld_r_r, 1, ('LD A,A', 'A', 'A')),           # LD A,A
         0x80: (4, add_a, 1, ('B',)),                          # ADD A,B
         0x81: (4, add_a, 1, ('C',)),                          # ADD A,C
         0x82: (4, add_a, 1, ('D',)),                          # ADD A,D
