@@ -397,7 +397,10 @@ def sim_load(blocks, options):
     simulator = Simulator(snapshot, {'A': 0x0D, 'SP': 0xFF50})
     tracer = LoadTracer(blocks, options.start)
     simulator.add_tracer(tracer)
-    simulator.run(0x0F3B) # Entry point in EDITOR at 0F2C
+    try:
+        simulator.run(0x0F3B) # Entry point in EDITOR at 0F2C
+    except KeyboardInterrupt: # pragma: no cover
+        write_line(f'Simulation stopped (interrupted): PC={simulator.pc}')
     registers = simulator.registers
     registers['IX'] = registers['IXl'] + 256 * registers['IXh']
     registers['IY'] = registers['IYl'] + 256 * registers['IYh']

@@ -1320,7 +1320,8 @@ following conditions is satisfied:
 * more than one second of simulated Z80 CPU time has elapsed since the end of
   the tape was reached
 
-When a simulated LOAD has completed, the values of the registers (including the
+The simulation can also be aborted by pressing Ctrl-C. When a simulated LOAD
+has completed or been aborted, the values of the registers (including the
 program counter) in the simulator are used to populate the Z80 snapshot.
 
 In addition to loading specific blocks, the ``--ram`` option can also be used
