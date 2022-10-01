@@ -744,6 +744,11 @@ class Simulator:
             return f'JP {condition},${addr:04X}', pc, timing
         return f'JP ${addr:04X}', addr, timing
 
+    def ld_r_n(self, timing, size, reg):
+        n = self.snapshot[(self.pc + 1) & 0xFFFF]
+        self.registers[reg] = n
+        return f'LD {reg},${n:02X}', self.pc + 2, timing
+
     def ld_r_r(self, timing, size, op, r1, r2):
         self.registers[r1] = self.registers[r2]
         return op, self.pc + 1, timing
@@ -1028,7 +1033,7 @@ class Simulator:
         0x03: (6, inc_dec16, 1, ('INC', 'BC')),               # INC BC
         0x04: (4, inc_r, 1, ('B',)),                          # INC B
         0x05: (4, dec_r, 1, ('B',)),                          # DEC B
-        0x06: (7, ld8, 2, ('B',)),                            # LD B,n
+        0x06: (7, ld_r_n, 2, ('B',)),                         # LD B,n
         0x07: (4, rotate, 1, ('RLC', 128, 'A', 'C')),         # RLCA
         0x08: (4, ex_af, 1, ()),                              # EX AF,AF'
         0x09: (11, add16, 1, ('HL', 'BC')),                   # ADD HL,BC
@@ -1036,7 +1041,7 @@ class Simulator:
         0x0B: (6, inc_dec16, 1, ('DEC', 'BC')),               # DEC BC
         0x0C: (4, inc_r, 1, ('C',)),                          # INC C
         0x0D: (4, dec_r, 1, ('C',)),                          # DEC C
-        0x0E: (7, ld8, 2, ('C',)),                            # LD C,n
+        0x0E: (7, ld_r_n, 2, ('C',)),                         # LD C,n
         0x0F: (4, rotate, 1, ('RRC', 1, 'A', 'C')),           # RRCA
         0x10: ((13, 8), djnz, 2, ()),                         # DJNZ nn
         0x11: (10, ld16, 3, ('DE',)),                         # LD DE,nn
@@ -1044,7 +1049,7 @@ class Simulator:
         0x13: (6, inc_dec16, 1, ('INC', 'DE')),               # INC DE
         0x14: (4, inc_r, 1, ('D',)),                          # INC D
         0x15: (4, dec_r, 1, ('D',)),                          # DEC D
-        0x16: (7, ld8, 2, ('D',)),                            # LD D,n
+        0x16: (7, ld_r_n, 2, ('D',)),                         # LD D,n
         0x17: (4, rotate, 1, ('RL', 128, 'A')),               # RLA
         0x18: (12, jr, 2, ('', 0x00, 0x00)),                  # JR nn
         0x19: (11, add16, 1, ('HL', 'DE')),                   # ADD HL,DE
@@ -1052,7 +1057,7 @@ class Simulator:
         0x1B: (6, inc_dec16, 1, ('DEC', 'DE')),               # DEC DE
         0x1C: (4, inc_r, 1, ('E',)),                          # INC E
         0x1D: (4, dec_r, 1, ('E',)),                          # DEC E
-        0x1E: (7, ld8, 2, ('E',)),                            # LD E,n
+        0x1E: (7, ld_r_n, 2, ('E',)),                         # LD E,n
         0x1F: (4, rotate, 1, ('RR', 1, 'A')),                 # RRA
         0x20: ((12, 7), jr, 2, ('NZ', 0x40, 0x40)),           # JR NZ,nn
         0x21: (10, ld16, 3, ('HL',)),                         # LD HL,nn
@@ -1060,7 +1065,7 @@ class Simulator:
         0x23: (6, inc_dec16, 1, ('INC', 'HL')),               # INC HL
         0x24: (4, inc_r, 1, ('H',)),                          # INC H
         0x25: (4, dec_r, 1, ('H',)),                          # DEC H
-        0x26: (7, ld8, 2, ('H',)),                            # LD H,n
+        0x26: (7, ld_r_n, 2, ('H',)),                         # LD H,n
         0x27: (4, daa, 1, ()),                                # DAA
         0x28: ((12, 7), jr, 2, ('Z', 0x40, 0x00)),            # JR Z,nn
         0x29: (11, add16, 1, ('HL', 'HL')),                   # ADD HL,HL
@@ -1068,7 +1073,7 @@ class Simulator:
         0x2B: (6, inc_dec16, 1, ('DEC', 'HL')),               # DEC HL
         0x2C: (4, inc_r, 1, ('L',)),                          # INC L
         0x2D: (4, dec_r, 1, ('L',)),                          # DEC L
-        0x2E: (7, ld8, 2, ('L',)),                            # LD L,n
+        0x2E: (7, ld_r_n, 2, ('L',)),                         # LD L,n
         0x2F: (4, cpl, 1, ()),                                # CPL
         0x30: ((12, 7), jr, 2, ('NC', 0x01, 0x01)),           # JR NC,nn
         0x31: (10, ld16, 3, ('SP',)),                         # LD SP,nn
@@ -1084,7 +1089,7 @@ class Simulator:
         0x3B: (6, inc_dec16, 1, ('DEC', 'SP')),               # DEC SP
         0x3C: (4, inc_r, 1, ('A',)),                          # INC A
         0x3D: (4, dec_r, 1, ('A')),                           # DEC A
-        0x3E: (7, ld8, 2, ('A',)),                            # LD A,n
+        0x3E: (7, ld_r_n, 2, ('A',)),                         # LD A,n
         0x3F: (4, cf, 1, ()),                                 # CCF
         0x40: (4, ld_r_r, 1, ('LD B,B', 'B', 'B')),           # LD B,B
         0x41: (4, ld_r_r, 1, ('LD B,C', 'B', 'C')),           # LD B,C
