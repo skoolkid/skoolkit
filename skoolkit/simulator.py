@@ -547,6 +547,21 @@ class Simulator:
 
         return 'DAA', self.pc + 1, timing
 
+    def dec_r(self, timing, size, reg):
+        o_value = self.registers[reg]
+        value = (o_value - 1) & 0xFF
+        f = (self.registers['F'] & 0x01) | (value & 0xA8) # S.5.3..C
+        if o_value & 0x0F == 0x00:
+            f |= 0x10 # ...H....
+        if o_value == 0x80:
+            f |= 0x04 # .....P..
+        f |= 0x02 # ......N.
+        if value == 0:
+            f |= 0x40 # .Z......
+        self.registers['F'] = f
+        self.registers[reg] = value
+        return 'DEC ' + reg, self.pc + size, timing
+
     def defb(self, timing, size):
         end = self.pc + size
         values = ','.join(f'${self.snapshot[a & 0xFFFF]:02X}' for a in range(self.pc, end))
@@ -639,13 +654,22 @@ class Simulator:
         self.registers['F'] = f
         return f'IN {reg},(C)', self.pc + 2, timing
 
+    def inc_r(self, timing, size, reg):
+        o_value = self.registers[reg]
+        value = (o_value + 1) & 0xFF
+        f = (self.registers['F'] & 0x01) | (value & 0xA8) # S.5.3..C
+        if o_value & 0x0F == 0x0F:
+            f |= 0x10 # ...H....
+        if o_value == 0x7F:
+            f |= 0x04 # .....P..
+        if value == 0:
+            f |= 0x40 # .Z......
+        self.registers['F'] = f
+        self.registers[reg] = value
+        return 'INC ' + reg, self.pc + size, timing
+
     def inc_dec8(self, timing, size, op, reg):
-        try:
-            operand, o_value = reg, self.registers[reg]
-            quick = True
-        except KeyError:
-            operand, o_value = self.get_operand_value(size, reg)
-            quick = False
+        operand, o_value = self.get_operand_value(size, reg)
         if op == 'DEC':
             value = (o_value - 1) & 255
             f = (self.registers['F'] & 0x01) | (value & 0xA8) # S.5.3..C
@@ -664,11 +688,7 @@ class Simulator:
         if value == 0:
             f |= 0x40 # .Z......
         self.registers['F'] = f
-        if quick:
-            self.registers[reg] = value
-        else:
-            self.set_operand_value(reg, value)
-
+        self.set_operand_value(reg, value)
         return f'{op} {operand}', self.pc + size, timing
 
     def inc_dec16(self, timing, size, op, reg):
@@ -1006,48 +1026,48 @@ class Simulator:
         0x01: (10, ld16, 3, ('BC',)),                         # LD BC,nn
         0x02: (7, ld8, 1, ('(BC)', 'A')),                     # LD (BC),A
         0x03: (6, inc_dec16, 1, ('INC', 'BC')),               # INC BC
-        0x04: (4, inc_dec8, 1, ('INC', 'B')),                 # INC B
-        0x05: (4, inc_dec8, 1, ('DEC', 'B')),                 # DEC B
+        0x04: (4, inc_r, 1, ('B',)),                          # INC B
+        0x05: (4, dec_r, 1, ('B',)),                          # DEC B
         0x06: (7, ld8, 2, ('B',)),                            # LD B,n
         0x07: (4, rotate, 1, ('RLC', 128, 'A', 'C')),         # RLCA
         0x08: (4, ex_af, 1, ()),                              # EX AF,AF'
         0x09: (11, add16, 1, ('HL', 'BC')),                   # ADD HL,BC
         0x0A: (7, ld8, 1, ('A', '(BC)')),                     # LD A,(BC)
         0x0B: (6, inc_dec16, 1, ('DEC', 'BC')),               # DEC BC
-        0x0C: (4, inc_dec8, 1, ('INC', 'C')),                 # INC C
-        0x0D: (4, inc_dec8, 1, ('DEC', 'C')),                 # DEC C
+        0x0C: (4, inc_r, 1, ('C',)),                          # INC C
+        0x0D: (4, dec_r, 1, ('C',)),                          # DEC C
         0x0E: (7, ld8, 2, ('C',)),                            # LD C,n
         0x0F: (4, rotate, 1, ('RRC', 1, 'A', 'C')),           # RRCA
         0x10: ((13, 8), djnz, 2, ()),                         # DJNZ nn
         0x11: (10, ld16, 3, ('DE',)),                         # LD DE,nn
         0x12: (7, ld8, 1, ('(DE)', 'A')),                     # LD (DE),A
         0x13: (6, inc_dec16, 1, ('INC', 'DE')),               # INC DE
-        0x14: (4, inc_dec8, 1, ('INC', 'D')),                 # INC D
-        0x15: (4, inc_dec8, 1, ('DEC', 'D')),                 # DEC D
+        0x14: (4, inc_r, 1, ('D',)),                          # INC D
+        0x15: (4, dec_r, 1, ('D',)),                          # DEC D
         0x16: (7, ld8, 2, ('D',)),                            # LD D,n
         0x17: (4, rotate, 1, ('RL', 128, 'A')),               # RLA
         0x18: (12, jr, 2, ('', 0x00, 0x00)),                  # JR nn
         0x19: (11, add16, 1, ('HL', 'DE')),                   # ADD HL,DE
         0x1A: (7, ld8, 1, ('A', '(DE)')),                     # LD A,(DE)
         0x1B: (6, inc_dec16, 1, ('DEC', 'DE')),               # DEC DE
-        0x1C: (4, inc_dec8, 1, ('INC', 'E')),                 # INC E
-        0x1D: (4, inc_dec8, 1, ('DEC', 'E')),                 # DEC E
+        0x1C: (4, inc_r, 1, ('E',)),                          # INC E
+        0x1D: (4, dec_r, 1, ('E',)),                          # DEC E
         0x1E: (7, ld8, 2, ('E',)),                            # LD E,n
         0x1F: (4, rotate, 1, ('RR', 1, 'A')),                 # RRA
         0x20: ((12, 7), jr, 2, ('NZ', 0x40, 0x40)),           # JR NZ,nn
         0x21: (10, ld16, 3, ('HL',)),                         # LD HL,nn
         0x22: (16, ld16addr, 3, ('HL', 1)),                   # LD (nn),HL
         0x23: (6, inc_dec16, 1, ('INC', 'HL')),               # INC HL
-        0x24: (4, inc_dec8, 1, ('INC', 'H')),                 # INC H
-        0x25: (4, inc_dec8, 1, ('DEC', 'H')),                 # DEC H
+        0x24: (4, inc_r, 1, ('H',)),                          # INC H
+        0x25: (4, dec_r, 1, ('H',)),                          # DEC H
         0x26: (7, ld8, 2, ('H',)),                            # LD H,n
         0x27: (4, daa, 1, ()),                                # DAA
         0x28: ((12, 7), jr, 2, ('Z', 0x40, 0x00)),            # JR Z,nn
         0x29: (11, add16, 1, ('HL', 'HL')),                   # ADD HL,HL
         0x2A: (16, ld16addr, 3, ('HL', 0)),                   # LD HL,(nn)
         0x2B: (6, inc_dec16, 1, ('DEC', 'HL')),               # DEC HL
-        0x2C: (4, inc_dec8, 1, ('INC', 'L')),                 # INC L
-        0x2D: (4, inc_dec8, 1, ('DEC', 'L')),                 # DEC L
+        0x2C: (4, inc_r, 1, ('L',)),                          # INC L
+        0x2D: (4, dec_r, 1, ('L',)),                          # DEC L
         0x2E: (7, ld8, 2, ('L',)),                            # LD L,n
         0x2F: (4, cpl, 1, ()),                                # CPL
         0x30: ((12, 7), jr, 2, ('NC', 0x01, 0x01)),           # JR NC,nn
@@ -1062,8 +1082,8 @@ class Simulator:
         0x39: (11, add16, 1, ('HL', 'SP')),                   # ADD HL,SP
         0x3A: (13, ldann, 3, ()),                             # LD A,(nn)
         0x3B: (6, inc_dec16, 1, ('DEC', 'SP')),               # DEC SP
-        0x3C: (4, inc_dec8, 1, ('INC', 'A')),                 # INC A
-        0x3D: (4, inc_dec8, 1, ('DEC', 'A')),                 # DEC A
+        0x3C: (4, inc_r, 1, ('A',)),                          # INC A
+        0x3D: (4, dec_r, 1, ('A')),                           # DEC A
         0x3E: (7, ld8, 2, ('A',)),                            # LD A,n
         0x3F: (4, cf, 1, ()),                                 # CCF
         0x40: (4, ld_r_r, 1, ('LD B,B', 'B', 'B')),           # LD B,B
@@ -1556,16 +1576,16 @@ class Simulator:
         0x21: (14, ld16, 4, ('IX',)),                         # LD IX,nn
         0x22: (20, ld16addr, 4, ('IX', 1)),                   # LD (nn),IX
         0x23: (10, inc_dec16, 2, ('INC', 'IX')),              # INC IX
-        0x24: (8, inc_dec8, 2, ('INC', 'IXh')),               # INC IXh
-        0x25: (8, inc_dec8, 2, ('DEC', 'IXh')),               # DEC IXh
+        0x24: (8, inc_r, 2, ('IXh',)),                        # INC IXh
+        0x25: (8, dec_r, 2, ('IXh',)),                        # DEC IXh
         0x26: (11, ld8, 3, ('IXh',)),                         # LD IXh,n
         0x27: (4, defb, 1, ()),
         0x28: (4, defb, 1, ()),
         0x29: (15, add16, 2, ('IX', 'IX')),                   # ADD IX,IX
         0x2A: (20, ld16addr, 4, ('IX', 0)),                   # LD IX,(nn)
         0x2B: (10, inc_dec16, 2, ('DEC', 'IX')),              # DEC IX
-        0x2C: (8, inc_dec8, 2, ('INC', 'IXl')),               # INC IXl
-        0x2D: (8, inc_dec8, 2, ('DEC', 'IXl')),               # DEC IXl
+        0x2C: (8, inc_r, 2, ('IXl',)),                        # INC IXl
+        0x2D: (8, dec_r, 2, ('IXl',)),                        # DEC IXl
         0x2E: (11, ld8, 3, ('IXl',)),                         # LD IXl,n
         0x2F: (4, defb, 1, ()),
         0x30: (4, defb, 1, ()),
