@@ -73,7 +73,8 @@ class Simulator:
         if state is None:
             state = {}
         self.ppcount = state.get('ppcount', 0)
-        self.iff2 = state.get('iff2', 0)
+        self.imode = state.get('im', 1)
+        self.iff2 = state.get('iff', 0)
         self.tstates = state.get('tstates', 0)
         self.tracers = []
         self.i_tracers = None
@@ -604,6 +605,7 @@ class Simulator:
         return 'HALT', pc, timing
 
     def im(self, timing, data, mode):
+        self.imode = mode
         return f'IM {mode}', self.pc + 2, timing
 
     def _in(self, port):

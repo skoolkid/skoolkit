@@ -412,7 +412,7 @@ def sim_load(blocks, options):
     registers['PC'] = simulator.pc
     del registers['IXl'], registers['IXh'], registers['IYl'], registers['IYh']
     options.reg = [f'{r}={v}' for r, v in registers.items()] + options.reg
-    state = [f'iff={simulator.iff2}', f'border={tracer.border}']
+    state = [f'im={simulator.imode}', f'iff={simulator.iff2}', f'border={tracer.border}']
     options.state = state + options.state
     return simulator.snapshot[0x4000:]
 

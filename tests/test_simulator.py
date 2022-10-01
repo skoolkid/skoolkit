@@ -70,7 +70,8 @@ class TracerTwoOfTwo:
 TRACER = Tracer()
 
 class SimulatorTest(SkoolKitTestCase):
-    def _test_instruction(self, inst, data, timing, reg_in=None, reg_out=None, sna_in=None, sna_out=None, start=None, end=None, tracer=None):
+    def _test_instruction(self, inst, data, timing, reg_in=None, reg_out=None, sna_in=None, sna_out=None,
+                          start=None, end=None, state_in=None, state_out=None, tracer=None):
         if start is None:
             start = 65530
         if end is None:
@@ -87,7 +88,7 @@ class SimulatorTest(SkoolKitTestCase):
         if sna_in:
             for a, v in sna_in.items():
                 snapshot[a] = v
-        simulator = Simulator(snapshot, reg_in)
+        simulator = Simulator(snapshot, reg_in, state_in)
         simulator.add_tracer(TRACER)
         if tracer:
             simulator.add_tracer(tracer)
@@ -116,6 +117,11 @@ class SimulatorTest(SkoolKitTestCase):
             actual_snapshot = {a: simulator.snapshot[a] for a in sna_out}
             regvals = ', '.join(registers)
             self.assertEqual(actual_snapshot, sna_out, f"Snapshot mismatch for '{inst}' ({data_hex}); input: {regvals}")
+        if state_out:
+            if 'im' in state_out:
+                self.assertEqual(simulator.imode, state_out['im'])
+            if 'iff' in state_out:
+                self.assertEqual(simulator.iff2, state_out['iff'])
 
     def _test_arithmetic(self, op, opcode1, opcode2, *specs):
         if op in ('AND', 'CP', 'OR', 'SUB', 'XOR'):
@@ -1551,12 +1557,16 @@ class SimulatorTest(SkoolKitTestCase):
     def test_di(self):
         operation = 'DI'
         data = [243]
-        self._test_instruction(operation, data, 4)
+        state_in = {'iff': 1}
+        state_out = {'iff': 0}
+        self._test_instruction(operation, data, 4, state_in=state_in, state_out=state_out)
 
     def test_ei(self):
         operation = 'EI'
         data = [251]
-        self._test_instruction(operation, data, 4)
+        state_in = {'iff': 0}
+        state_out = {'iff': 1}
+        self._test_instruction(operation, data, 4, state_in=state_in, state_out=state_out)
 
     def test_halt(self):
         snapshot = [0] * 65536
@@ -1572,7 +1582,7 @@ class SimulatorTest(SkoolKitTestCase):
         snapshot = [0] * 65536
         start = 40000
         snapshot[start] = 0x76
-        simulator = Simulator(snapshot, state={'iff2': 1, 'tstates': 69882})
+        simulator = Simulator(snapshot, state={'iff': 1, 'tstates': 69882})
         simulator.run(start)
         self.assertEqual(simulator.pc, start)
         simulator.run()
@@ -1582,7 +1592,7 @@ class SimulatorTest(SkoolKitTestCase):
         snapshot = [0] * 65536
         start = 40000
         snapshot[start] = 0x76
-        simulator = Simulator(snapshot, state={'iff2': 0, 'tstates': 69882})
+        simulator = Simulator(snapshot, state={'iff': 0, 'tstates': 69882})
         simulator.run(start)
         self.assertEqual(simulator.pc, start)
         simulator.run()
@@ -1905,7 +1915,9 @@ class SimulatorTest(SkoolKitTestCase):
             for opcode in opcodes:
                 operation = f'IM {mode}'
                 data = (0xED, opcode)
-                self._test_instruction(operation, data, 8)
+                state_in = {'im': mode ^ 3}
+                state_out = {'im': mode}
+                self._test_instruction(operation, data, 8, state_in=state_in, state_out=state_out)
 
     def test_rld(self):
         operation = 'RLD'
@@ -2204,11 +2216,11 @@ class SimulatorTest(SkoolKitTestCase):
         self.assertEqual(simulator.pc, end)
         self.assertEqual(simulator.ppcount, -1)
 
-    def test_initial_iff2(self):
+    def test_initial_iff(self):
         snapshot = [0] * 65536
         start = 32768
         snapshot[start:start + 2] = (0xED, 0x57) # LD A,I
-        simulator = Simulator(snapshot, state={'iff2': 1})
+        simulator = Simulator(snapshot, state={'iff': 1})
         simulator.run(start)
         self.assertEqual(simulator.pc, start + 2)
         self.assertEqual(simulator.registers['F'], 0b00101100)
