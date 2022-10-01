@@ -16,7 +16,7 @@
 
 from collections import namedtuple
 
-Instruction = namedtuple('Instruction', 'time address operation data tstates')
+Instruction = namedtuple('Instruction', 'time address operation size tstates')
 
 PARITY = (
     4, 0, 0, 4, 0, 4, 4, 0, 0, 4, 4, 0, 4, 0, 0, 4,
@@ -114,17 +114,12 @@ class Simulator:
             else:
                 r_inc = 1
                 timing, f, size, args = self.opcodes[opcode]
-            eidx = self.pc + size
-            if eidx <= 65536:
-                data = self.snapshot[self.pc:eidx]
-            else:
-                data = self.snapshot[self.pc:] + self.snapshot[:eidx & 0xFFFF]
-            operation, pc, tstates = f(self, timing, data, *args)
+            operation, pc, tstates = f(self, timing, size, *args)
             r = self.registers['R']
             self.registers['R'] = (r & 0x80) + ((r + r_inc) & 0x7F)
             if self.i_tracers:
                 running = True
-                instruction = Instruction(self.tstates, self.pc, operation, data, tstates)
+                instruction = Instruction(self.tstates, self.pc, operation, size, tstates)
                 self.pc = pc & 0xFFFF
                 self.tstates += tstates
                 for method in self.i_tracers:
@@ -164,11 +159,11 @@ class Simulator:
                 retval = getattr(tracer, method_name)(self, *args)
         return retval
 
-    def index(self, data):
-        offset = data[2]
+    def index(self):
+        offset = self.snapshot[(self.pc + 2) & 0xFFFF]
         if offset >= 128:
             offset -= 256
-        if data[0] == 0xDD:
+        if self.snapshot[self.pc] == 0xDD:
             addr = (self.registers['IXl'] + 256 * self.registers['IXh'] + offset) & 0xFFFF
             ireg = 'IX'
         else:
@@ -178,7 +173,7 @@ class Simulator:
             return addr, f'({ireg}+${offset:02X})'
         return addr, f'({ireg}-${-offset:02X})'
 
-    def get_operand_value(self, data, reg):
+    def get_operand_value(self, size, reg):
         if reg in self.registers:
             return reg, self.registers[reg]
         if reg in ('(HL)', '(DE)', '(BC)'):
@@ -186,21 +181,21 @@ class Simulator:
             value = self.peek(rr)
             operand = reg
         elif reg in ('Xd', 'Yd'):
-            addr, operand = self.index(data)
+            addr, operand = self.index()
             value = self.peek(addr)
         else:
-            value = data[-1]
+            value = self.snapshot[(self.pc + size - 1) & 0xFFFF]
             operand = f'${value:02X}'
         return operand, value
 
-    def set_operand_value(self, data, reg, value):
+    def set_operand_value(self, reg, value):
         if reg in self.registers:
             self.registers[reg] = value
         elif reg in ('(HL)', '(DE)', '(BC)'):
             rr = self.registers[reg[2]] + 256 * self.registers[reg[1]]
             self.poke(rr, value)
         else:
-            addr, operand = self.index(data)
+            addr, operand = self.index()
             self.poke(addr, value)
 
     def peek(self, address, count=1):
@@ -218,8 +213,8 @@ class Simulator:
             if address > 0x3FFF:
                 self.snapshot[address] = values[1]
 
-    def add_a(self, timing, data, reg=None, carry=0, mult=1):
-        operand, value = self.get_operand_value(data, reg)
+    def add_a(self, timing, size, reg=None, carry=0, mult=1):
+        operand, value = self.get_operand_value(size, reg)
         old_c = self.registers['F'] & 0x01
         old_a = self.registers['A']
         addend = value + carry * old_c
@@ -231,6 +226,7 @@ class Simulator:
             f = a & 0xA8          # S.5.3..C
         if a == 0:
             f |= 0x40 # .Z......
+        opcode = self.snapshot[self.pc]
         if mult == 1:
             if carry:
                 op = f'ADC A,{operand}'
@@ -238,7 +234,7 @@ class Simulator:
                 op = f'ADD A,{operand}'
             s_value = value
             # 0x8F: ADC A,A
-            if (data[0] == 0x8F and old_a & 0x0F == 0x0F) or ((old_a & 0x0F) + (addend & 0x0F)) & 0x10:
+            if (opcode == 0x8F and old_a & 0x0F == 0x0F) or ((old_a & 0x0F) + (addend & 0x0F)) & 0x10:
                 f |= 0x10 # ...H....
         else:
             if carry:
@@ -247,7 +243,7 @@ class Simulator:
                 op = f'SUB {operand}'
             s_value = ~value # Flip sign bit when subtracting
             # 0x9F: SBC A,A
-            if data[0] == 0x9F and old_a & 0x0F == 0x0F:
+            if opcode == 0x9F and old_a & 0x0F == 0x0F:
                 f |= old_c << 4 # ...H....
             elif ((old_a & 0x0F) - (addend & 0x0F)) & 0x10:
                 f |= 0x10       # ...H....
@@ -259,18 +255,19 @@ class Simulator:
         self.registers['A'] = a
         self.registers['F'] = f
 
-        return op, self.pc + len(data), timing
+        return op, self.pc + size, timing
 
-    def add16(self, timing, data, augend, reg, carry=0, mult=1):
+    def add16(self, timing, size, augend, reg, carry=0, mult=1):
         if reg == 'SP':
             addend_v = self.registers['SP']
-        if data[0] == 0xDD:
+        opcode = self.snapshot[self.pc]
+        if opcode == 0xDD:
             augend_v = self.registers['IXl'] + 256 * self.registers['IXh']
             if reg == 'IX':
                 addend_v = augend_v
             elif reg != 'SP':
                 addend_v = self.registers[reg[1]] + 256 * self.registers[reg[0]]
-        elif data[0] == 0xFD:
+        elif opcode == 0xFD:
             augend_v = self.registers['IYl'] + 256 * self.registers['IYh']
             if reg == 'IY':
                 addend_v = augend_v
@@ -318,30 +315,30 @@ class Simulator:
         f |= (value >> 8) & 0x28 # ..5.3...
         self.registers['F'] = f
 
-        if data[0] == 0xDD:
+        if opcode == 0xDD:
             self.registers['IXl'] = value % 256
             self.registers['IXh'] = value // 256
-        elif data[0] == 0xFD:
+        elif opcode == 0xFD:
             self.registers['IYl'] = value % 256
             self.registers['IYh'] = value // 256
         else:
             self.registers['L'] = value % 256
             self.registers['H'] = value // 256
 
-        return f'{op} {augend},{reg}', self.pc + len(data), timing
+        return f'{op} {augend},{reg}', self.pc + size, timing
 
-    def anda(self, timing, data, reg=None):
-        operand, value = self.get_operand_value(data, reg)
+    def anda(self, timing, size, reg=None):
+        operand, value = self.get_operand_value(size, reg)
         self.registers['A'] &= value
         a = self.registers['A']
         f = (a & 0xA8) | 0x10 | PARITY[a] # S.5H3PNC
         if a == 0:
             f |= 0x40 # .Z......
         self.registers['F'] = f
-        return f'AND {operand}', self.pc + len(data), timing
+        return f'AND {operand}', self.pc + size, timing
 
-    def bit(self, timing, data, bit, reg):
-        operand, value = self.get_operand_value(data, reg)
+    def bit(self, timing, size, bit, reg):
+        operand, value = self.get_operand_value(size, reg)
         bitval = (value >> bit) & 1
         f = 0x10 | (self.registers['F'] & 0x01) # ...H..NC
         if bit == 7 and bitval:
@@ -349,17 +346,18 @@ class Simulator:
         if bitval == 0:
             f |= 0x44 # .Z...P..
         if reg in ('Xd', 'Yd'):
-            if data[0] == 0xDD:
-                v = (self.registers['IXl'] + 256 * self.registers['IXh'] + data[2]) & 0xFFFF
+            offset = self.snapshot[(self.pc + 2) & 0xFFFF]
+            if self.snapshot[self.pc] == 0xDD:
+                v = (self.registers['IXl'] + 256 * self.registers['IXh'] + offset) & 0xFFFF
             else:
-                v = (self.registers['IYl'] + 256 * self.registers['IYh'] + data[2]) & 0xFFFF
+                v = (self.registers['IYl'] + 256 * self.registers['IYh'] + offset) & 0xFFFF
             f |= (v >> 8) & 0x28 # ..5.3...
         else:
             f |= value & 0x28 # ..5.3...
         self.registers['F'] = f
-        return f'BIT {bit},{operand}', self.pc + len(data), timing
+        return f'BIT {bit},{operand}', self.pc + size, timing
 
-    def block(self, timing, data, op, inc, repeat):
+    def block(self, timing, size, op, inc, repeat):
         hl = self.registers['L'] + 256 * self.registers['H']
         bc = self.registers['C'] + 256 * self.registers['B']
         b = self.registers['B']
@@ -445,8 +443,8 @@ class Simulator:
 
         return op, addr, tstates
 
-    def call(self, timing, data, condition, c_and, c_xor):
-        addr = data[1] + 256 * data[2]
+    def call(self, timing, size, condition, c_and, c_xor):
+        addr = self.snapshot[(self.pc + 1) & 0xFFFF] + 256 * self.snapshot[(self.pc + 2) & 0xFFFF]
         ret_addr = (self.pc + 3) & 0xFFFF
         if condition:
             if self.registers['F'] & c_and ^ c_xor:
@@ -460,9 +458,9 @@ class Simulator:
         self._push(ret_addr % 256, ret_addr // 256)
         return f'CALL ${addr:04X}', addr, timing
 
-    def cf(self, timing, data):
+    def cf(self, timing, size):
         f = self.registers['F'] & 0xC4 # SZ...PN.
-        if data[0] == 63:
+        if self.snapshot[self.pc] == 63:
             operation = 'CCF'
             old_c = self.registers['F'] & 0x01
             if old_c:
@@ -476,8 +474,8 @@ class Simulator:
         self.registers['F'] = f
         return operation, self.pc + 1, timing
 
-    def cp(self, timing, data, reg=None):
-        operand, value = self.get_operand_value(data, reg)
+    def cp(self, timing, size, reg=None):
+        operand, value = self.get_operand_value(size, reg)
         a = self.registers['A']
         result = (a - value) & 0xFF
         f = (result & 0x80) | (value & 0x28) | 0x02 # S.5.3.N.
@@ -492,15 +490,15 @@ class Simulator:
         if a < value:
             f |= 0x01 # .......C
         self.registers['F'] = f
-        return f'CP {operand}', self.pc + len(data), timing
+        return f'CP {operand}', self.pc + size, timing
 
-    def cpl(self, timing, data):
+    def cpl(self, timing, size):
         a = self.registers['A'] ^ 255
         self.registers['A'] = a
         self.registers['F'] = (self.registers['F'] & 0xC5) | (a & 0x28) | 0x12
         return 'CPL', self.pc + 1, timing
 
-    def daa(self, timing, data):
+    def daa(self, timing, size):
         a = self.registers['A']
         hf = self.registers['F'] & 0x10
         nf = self.registers['F'] & 0x02
@@ -541,17 +539,18 @@ class Simulator:
 
         return 'DAA', self.pc + 1, timing
 
-    def defb(self, timing, data):
-        values = ','.join(f'${b:02X}' for b in data)
-        return f'DEFB {values}', self.pc + len(data), timing
+    def defb(self, timing, size):
+        end = self.pc + size
+        values = ','.join(f'${self.snapshot[a & 0xFFFF]:02X}' for a in range(self.pc, end))
+        return f'DEFB {values}', end, timing
 
-    def di_ei(self, timing, data, op, iff2):
+    def di_ei(self, timing, size, op, iff2):
         self.iff2 = iff2
         return op, self.pc + 1, timing
 
-    def djnz(self, timing, data):
+    def djnz(self, timing, size):
         self.registers['B'] = (self.registers['B'] - 1) & 255
-        offset = data[1]
+        offset = self.snapshot[(self.pc + 1) & 0xFFFF]
         if offset & 128:
             offset -= 256
         addr = (self.pc + 2 + offset) & 0xFFFF
@@ -563,23 +562,24 @@ class Simulator:
             tstates = timing[1]
         return f'DJNZ ${addr:04X}', pc, tstates
 
-    def ex_af(self, timing, data):
+    def ex_af(self, timing, size):
         for r in 'AF':
             self.registers[r], self.registers['^' + r] = self.registers['^' + r], self.registers[r]
         return "EX AF,AF'", self.pc + 1, timing
 
-    def ex_de_hl(self, timing, data):
+    def ex_de_hl(self, timing, size):
         for r1, r2 in (('D', 'H'), ('E', 'L')):
             self.registers[r1], self.registers[r2] = self.registers[r2], self.registers[r1]
         return 'EX DE,HL', self.pc + 1, timing
 
-    def ex_sp(self, timing, data):
+    def ex_sp(self, timing, size):
         sp = self.registers['SP']
         sp1, sp2 = self.peek(sp, 2)
-        if data[0] == 0xDD:
+        opcode = self.snapshot[self.pc]
+        if opcode == 0xDD:
             reg = 'IX'
             r1, r2 = 'IXl', 'IXh'
-        elif data[0] == 0xFD:
+        elif opcode == 0xFD:
             reg = 'IY'
             r1, r2 = 'IYl', 'IYh'
         else:
@@ -588,14 +588,14 @@ class Simulator:
         self.poke(sp, self.registers[r1], self.registers[r2])
         self.registers[r1] = sp1
         self.registers[r2] = sp2
-        return f'EX (SP),{reg}', self.pc + len(data), timing
+        return f'EX (SP),{reg}', self.pc + size, timing
 
-    def exx(self, timing, data):
+    def exx(self, timing, size):
         for r in 'BCDEHL':
             self.registers[r], self.registers['^' + r] = self.registers['^' + r], self.registers[r]
         return 'EXX', self.pc + 1, timing
 
-    def halt(self, timing, data):
+    def halt(self, timing, size):
         pc = self.pc
         if self.iff2:
             t1 = self.tstates % FRAME_DURATION
@@ -604,7 +604,7 @@ class Simulator:
                 pc += 1
         return 'HALT', pc, timing
 
-    def im(self, timing, data, mode):
+    def im(self, timing, size, mode):
         self.imode = mode
         return f'IM {mode}', self.pc + 2, timing
 
@@ -616,12 +616,12 @@ class Simulator:
             return 191
         return reading
 
-    def in_a(self, timing, data):
-        port = data[1] + 256 * self.registers['A']
-        self.registers['A'] = self._in(port)
-        return f'IN A,(${data[1]:02X})', self.pc + 2, timing
+    def in_a(self, timing, size):
+        operand = self.snapshot[(self.pc + 1) & 0xFFFF]
+        self.registers['A'] = self._in(operand + 256 * self.registers['A'])
+        return f'IN A,(${operand:02X})', self.pc + 2, timing
 
-    def in_c(self, timing, data, reg):
+    def in_c(self, timing, size, reg):
         value = self._in(self.registers['C'] + 256 * self.registers['B'])
         if reg != 'F':
             self.registers[reg] = value
@@ -631,12 +631,12 @@ class Simulator:
         self.registers['F'] = f
         return f'IN {reg},(C)', self.pc + 2, timing
 
-    def inc_dec8(self, timing, data, op, reg):
+    def inc_dec8(self, timing, size, op, reg):
         try:
             operand, o_value = reg, self.registers[reg]
             quick = True
         except KeyError:
-            operand, o_value = self.get_operand_value(data, reg)
+            operand, o_value = self.get_operand_value(size, reg)
             quick = False
         if op == 'DEC':
             value = (o_value - 1) & 255
@@ -659,11 +659,11 @@ class Simulator:
         if quick:
             self.registers[reg] = value
         else:
-            self.set_operand_value(data, reg, value)
+            self.set_operand_value(reg, value)
 
-        return f'{op} {operand}', self.pc + len(data), timing
+        return f'{op} {operand}', self.pc + size, timing
 
-    def inc_dec16(self, timing, data, op, reg):
+    def inc_dec16(self, timing, size, op, reg):
         if op == 'DEC':
             inc = -1
         else:
@@ -678,10 +678,10 @@ class Simulator:
             value = (self.registers[reg[1]] + 256 * self.registers[reg[0]] + inc) & 0xFFFF
             self.registers[reg[0]] = value // 256
             self.registers[reg[1]] = value % 256
-        return f'{op} {reg}', self.pc + len(data), timing
+        return f'{op} {reg}', self.pc + size, timing
 
-    def jr(self, timing, data, condition, c_and, c_xor):
-        offset = data[1]
+    def jr(self, timing, size, condition, c_and, c_xor):
+        offset = self.snapshot[(self.pc + 1) & 0xFFFF]
         if offset & 128:
             offset -= 256
         addr = (self.pc + 2 + offset) & 0xFFFF
@@ -695,18 +695,19 @@ class Simulator:
             return f'JR {condition},${addr:04X}', pc, tstates
         return f'JR ${addr:04X}', addr, timing
 
-    def jp(self, timing, data, condition, c_and, c_xor):
-        if data[0] == 0xDD:
+    def jp(self, timing, size, condition, c_and, c_xor):
+        opcode = self.snapshot[self.pc]
+        if opcode == 0xDD:
             addr = self.registers['IXl'] + 256 * self.registers['IXh']
             return 'JP (IX)', addr, timing
-        if data[0] == 0xFD:
+        if opcode == 0xFD:
             addr = self.registers['IYl'] + 256 * self.registers['IYh']
             return 'JP (IY)', addr, timing
-        if data[0] == 0xE9:
+        if opcode == 0xE9:
             addr = self.registers['L'] + 256 * self.registers['H']
             return 'JP (HL)', addr, timing
 
-        addr = data[1] + 256 * data[2]
+        addr = self.snapshot[(self.pc + 1) & 0xFFFF] + 256 * self.snapshot[(self.pc + 2) & 0xFFFF]
         if condition:
             if self.registers['F'] & c_and ^ c_xor:
                 pc = addr
@@ -715,14 +716,14 @@ class Simulator:
             return f'JP {condition},${addr:04X}', pc, timing
         return f'JP ${addr:04X}', addr, timing
 
-    def ld_r_r(self, timing, data, op, r1, r2):
+    def ld_r_r(self, timing, size, op, r1, r2):
         self.registers[r1] = self.registers[r2]
         return op, self.pc + 1, timing
 
-    def ld8(self, timing, data, reg, reg2=None):
-        op1, v1 = self.get_operand_value(data, reg)
-        op2, v2 = self.get_operand_value(data, reg2)
-        self.set_operand_value(data, reg, v2)
+    def ld8(self, timing, size, reg, reg2=None):
+        op1, v1 = self.get_operand_value(size, reg)
+        op2, v2 = self.get_operand_value(size, reg2)
+        self.set_operand_value(reg, v2)
         if reg2 and reg2 in 'IR':
             a = self.registers['A']
             f = (a & 0xA8) | (self.registers['F'] & 0x01) # S.5H3.NC
@@ -731,22 +732,24 @@ class Simulator:
             if self.iff2:
                 f |= 0x04 # .....P..
             self.registers['F'] = f
-        return f'LD {op1},{op2}', self.pc + len(data), timing
+        return f'LD {op1},{op2}', self.pc + size, timing
 
-    def ld16(self, timing, data, reg):
-        value = data[-2] + 256 * data[-1]
+    def ld16(self, timing, size, reg):
+        end = self.pc + size
+        value = self.snapshot[(end - 2) & 0xFFFF] + 256 * self.snapshot[(end - 1) & 0xFFFF]
         if reg == 'SP':
             self.registers['SP'] = value
         elif reg in ('IX', 'IY'):
-            self.registers[reg + 'l'] = data[2]
-            self.registers[reg + 'h'] = data[3]
+            self.registers[reg + 'l'] = self.snapshot[(self.pc + 2) & 0xFFFF]
+            self.registers[reg + 'h'] = self.snapshot[(self.pc + 3) & 0xFFFF]
         else:
-            self.registers[reg[1]] = data[1]
-            self.registers[reg[0]] = data[2]
-        return f'LD {reg},${value:04X}', self.pc + len(data), timing
+            self.registers[reg[1]] = self.snapshot[(self.pc + 1) & 0xFFFF]
+            self.registers[reg[0]] = self.snapshot[(self.pc + 2) & 0xFFFF]
+        return f'LD {reg},${value:04X}', end, timing
 
-    def ld16addr(self, timing, data, reg, poke):
-        addr = data[-2] + 256 * data[-1]
+    def ld16addr(self, timing, size, reg, poke):
+        end = self.pc + size
+        addr = self.snapshot[(end - 2) & 0xFFFF] + 256 * self.snapshot[(end - 1) & 0xFFFF]
         if poke:
             if reg == 'SP':
                 self.poke(addr, self.registers['SP'] % 256, self.registers['SP'] // 256)
@@ -764,11 +767,11 @@ class Simulator:
             else:
                 self.registers[reg[1]], self.registers[reg[0]] = self.peek(addr, 2)
             op = f'LD {reg},(${addr:04X})'
-        return op, self.pc + len(data), timing
+        return op, end, timing
 
-    def ldann(self, timing, data):
-        addr = data[1] + 256 * data[2]
-        if data[0] == 0x3A:
+    def ldann(self, timing, size):
+        addr = self.snapshot[(self.pc + 1) & 0xFFFF] + 256 * self.snapshot[(self.pc + 2) & 0xFFFF]
+        if self.snapshot[self.pc] == 0x3A:
             op = f'LD A,(${addr:04X})'
             self.registers['A'] = self.peek(addr)
         else:
@@ -776,16 +779,16 @@ class Simulator:
             self.poke(addr, self.registers['A'])
         return op, self.pc + 3, timing
 
-    def ldsprr(self, timing, data, reg):
+    def ldsprr(self, timing, size, reg):
         if reg == 'HL':
             self.registers['SP'] = self.registers['L'] + 256 * self.registers['H']
         else:
-            if data[0] == 0xFD:
+            if self.snapshot[self.pc] == 0xFD:
                 reg = 'IY'
             self.registers['SP'] = self.registers[reg + 'l'] + 256 * self.registers[reg + 'h']
-        return f'LD SP,{reg}', self.pc + len(data), timing
+        return f'LD SP,{reg}', self.pc + size, timing
 
-    def neg(self, timing, data):
+    def neg(self, timing, size):
         old_a = self.registers['A']
         a = self.registers['A'] = (256 - old_a) & 255
         f = (a & 0xA8) | 0x02 # S.5.3.N.
@@ -800,29 +803,29 @@ class Simulator:
         self.registers['F'] = f
         return 'NEG', self.pc + 2, timing
 
-    def nop(self, timing, data):
+    def nop(self, timing, size):
         return 'NOP', self.pc + 1, timing
 
-    def ora(self, timing, data, reg=None):
-        operand, value = self.get_operand_value(data, reg)
+    def ora(self, timing, size, reg=None):
+        operand, value = self.get_operand_value(size, reg)
         self.registers['A'] |= value
         a = self.registers['A']
         f = (a & 0xA8) | PARITY[a] # S.5H3PNC
         if a == 0:
             f |= 0x40 # .Z......
         self.registers['F'] = f
-        return f'OR {operand}', self.pc + len(data), timing
+        return f'OR {operand}', self.pc + size, timing
 
     def _out(self, port, value):
         self._trace('write_port', port, value)
 
-    def outa(self, timing, data):
+    def outa(self, timing, size):
         a = self.registers['A']
-        port = data[1] + 256 * a
-        self._out(port, a)
-        return f'OUT (${data[1]:02X}),A', self.pc + 2, timing
+        operand = self.snapshot[(self.pc + 1) & 0xFFFF]
+        self._out(operand + 256 * a, a)
+        return f'OUT (${operand:02X}),A', self.pc + 2, timing
 
-    def outc(self, timing, data, reg):
+    def outc(self, timing, size, reg):
         port = self.registers['C'] + 256 * self.registers['B']
         if reg:
             value = self.registers[reg]
@@ -838,12 +841,12 @@ class Simulator:
         self.ppcount -= 1
         return lsb, msb
 
-    def pop(self, timing, data, reg):
+    def pop(self, timing, size, reg):
         if reg in ('IX', 'IY'):
             self.registers[reg + 'l'], self.registers[reg + 'h'] = self._pop()
         else:
             self.registers[reg[1]], self.registers[reg[0]] = self._pop()
-        return f'POP {reg}', self.pc + len(data), timing
+        return f'POP {reg}', self.pc + size, timing
 
     def _push(self, lsb, msb):
         sp = (self.registers['SP'] - 2) & 0xFFFF
@@ -851,14 +854,14 @@ class Simulator:
         self.ppcount += 1
         self.registers['SP'] = sp
 
-    def push(self, timing, data, reg):
+    def push(self, timing, size, reg):
         if reg in ('IX', 'IY'):
             self._push(self.registers[reg + 'l'], self.registers[reg + 'h'])
         else:
             self._push(self.registers[reg[1]], self.registers[reg[0]])
-        return f'PUSH {reg}', self.pc + len(data), timing
+        return f'PUSH {reg}', self.pc + size, timing
 
-    def ret(self, timing, data, op, c_and, c_xor):
+    def ret(self, timing, size, op, c_and, c_xor):
         if c_and:
             if self.registers['F'] & c_and ^ c_xor:
                 lsb, msb = self._pop()
@@ -871,12 +874,12 @@ class Simulator:
         lsb, msb = self._pop()
         return op, lsb + 256 * msb, timing
 
-    def reti(self, timing, data, op):
+    def reti(self, timing, size, op):
         lsb, msb = self._pop()
         return op, lsb + 256 * msb, timing
 
-    def res_set(self, timing, data, bit, reg, bitval, dest=''):
-        operand, value = self.get_operand_value(data, reg)
+    def res_set(self, timing, size, bit, reg, bitval, dest=''):
+        operand, value = self.get_operand_value(size, reg)
         mask = 1 << bit
         if bitval:
             value |= mask
@@ -884,13 +887,13 @@ class Simulator:
         else:
             value &= mask ^ 255
             op = f'RES {bit},{operand}'
-        self.set_operand_value(data, reg, value)
+        self.set_operand_value(reg, value)
         if dest:
             self.registers[dest] = value
             op += f',{dest}'
-        return op, self.pc + len(data), timing
+        return op, self.pc + size, timing
 
-    def rld(self, timing, data):
+    def rld(self, timing, size):
         hl = self.registers['L'] + 256 * self.registers['H']
         a = self.registers['A']
         at_hl = self.peek(hl)
@@ -902,7 +905,7 @@ class Simulator:
         self.registers['F'] = f
         return 'RLD', self.pc + 2, timing
 
-    def rrd(self, timing, data):
+    def rrd(self, timing, size):
         hl = self.registers['L'] + 256 * self.registers['H']
         a = self.registers['A']
         at_hl = self.peek(hl)
@@ -914,8 +917,8 @@ class Simulator:
         self.registers['F'] = f
         return 'RRD', self.pc + 2, timing
 
-    def rotate(self, timing, data, op, cbit, reg, carry='', dest=''):
-        operand, value = self.get_operand_value(data, reg)
+    def rotate(self, timing, size, op, cbit, reg, carry='', dest=''):
+        operand, value = self.get_operand_value(size, reg)
         old_carry = self.registers['F'] & 0x01
         new_carry = value & cbit
         if cbit == 1:
@@ -930,11 +933,11 @@ class Simulator:
         else:
             value += old_carry
         value &= 255
-        self.set_operand_value(data, reg, value)
+        self.set_operand_value(reg, value)
         if dest:
             self.registers[dest] = value
             dest = ',' + dest
-        if data[0] in (0x07, 0x0F, 0x17, 0x1F):
+        if self.snapshot[self.pc] in (0x07, 0x0F, 0x17, 0x1F):
             # RLCA, RLA, RRCA, RRA
             op += 'A'
             f = self.registers['F'] & 0xC4 # SZ.H.PN.
@@ -947,15 +950,15 @@ class Simulator:
         if new_carry:
             f |= 0x01 # .......C
         self.registers['F'] = f
-        return f'{op}', self.pc + len(data), timing
+        return f'{op}', self.pc + size, timing
 
-    def rst(self, timing, data, addr):
+    def rst(self, timing, size, addr):
         ret_addr = (self.pc + 1) & 0xFFFF
         self._push(ret_addr % 256, ret_addr // 256)
         return f'RST ${addr:02X}', addr, timing
 
-    def shift(self, timing, data, op, cbit, reg, dest=''):
-        operand, value = self.get_operand_value(data, reg)
+    def shift(self, timing, size, op, cbit, reg, dest=''):
+        operand, value = self.get_operand_value(size, reg)
         ovalue = value
         if value & cbit:
             f = 0x01 # .......C
@@ -970,7 +973,7 @@ class Simulator:
         elif op == 'SLL':
             value |= 1
         value &= 255
-        self.set_operand_value(data, reg, value)
+        self.set_operand_value(reg, value)
         if dest:
             self.registers[dest] = value
             dest = ',' + dest
@@ -978,17 +981,17 @@ class Simulator:
         if value == 0:
             f |= 0x40 # .Z......
         self.registers['F'] = f
-        return f'{op} {operand}{dest}', self.pc + len(data), timing
+        return f'{op} {operand}{dest}', self.pc + size, timing
 
-    def xor(self, timing, data, reg=None):
-        operand, value = self.get_operand_value(data, reg)
+    def xor(self, timing, size, reg=None):
+        operand, value = self.get_operand_value(size, reg)
         self.registers['A'] ^= value
         a = self.registers['A']
         f = (a & 0xA8) | PARITY[a] # S.5H3PNC
         if a == 0:
             f |= 0x40 # .Z......
         self.registers['F'] = f
-        return f'XOR {operand}', self.pc + len(data), timing
+        return f'XOR {operand}', self.pc + size, timing
 
     opcodes = {
         0x00: (4, nop, 1, ()),                                # NOP
