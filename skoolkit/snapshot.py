@@ -1,4 +1,4 @@
-# Copyright 2009-2013, 2015-2021 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2009-2013, 2015-2022 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -20,7 +20,7 @@ import zlib
 from skoolkit import SkoolKitError, get_int_param, parse_int, read_bin_file
 from skoolkit.components import get_snapshot_reader, get_value
 
-# https://worldofspectrum.net/features/faq/reference/z80format.htm
+# https://worldofspectrum.net/faq/reference/z80format.htm
 Z80_REGISTERS = {
     'a': 0,
     'f': 1,

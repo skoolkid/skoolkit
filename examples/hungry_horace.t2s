@@ -6,7 +6,4 @@
 
 https://www.worldofspectrum.org/pub/sinclair/games/h/HungryHorace.tzx.zip
 hungry_horace.z80
---state border=7
---ram poke=23624,56 # BORDCR
---stack 24500
---start 24576
+--sim-load

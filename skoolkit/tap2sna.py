@@ -246,6 +246,7 @@ class LoadTracer:
         self.tape_end_time = 0
         self.pulse_type = None
         self.custom_loader = False
+        self.border = 7
 
     def trace(self, simulator, instruction):
         if self.tape_started is not None:
@@ -320,6 +321,10 @@ class LoadTracer:
                     self.pulse_type = pulse_type
 
                 return self.samples[self.index][1]
+
+    def write_port(self, simulator, port, value):
+        if port & 0x01 == 0:
+            self.border = value & 0x07
 
     def fast_load(self, simulator):
         block = self.blocks[self.samples[self.index][3]]
@@ -407,7 +412,8 @@ def sim_load(blocks, options):
     registers['PC'] = simulator.pc
     del registers['IXl'], registers['IXh'], registers['IYl'], registers['IYh']
     options.reg = [f'{r}={v}' for r, v in registers.items()] + options.reg
-    options.state = [f'iff={simulator.iff2}'] + options.state
+    state = [f'iff={simulator.iff2}', f'border={tracer.border}']
+    options.state = state + options.state
     return simulator.snapshot[0x4000:]
 
 def _get_load_params(param_str):

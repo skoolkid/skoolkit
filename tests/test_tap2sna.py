@@ -1140,6 +1140,49 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertLessEqual(exp_reg, set(options.reg))
 
     @patch.object(tap2sna, '_write_z80', mock_write_z80)
+    def test_sim_load_preserves_border_colour(self):
+        code_start = 32768
+        code_start_str = [ord(c) for c in str(code_start)]
+        basic_data = [
+            0, 10,            # Line 10
+            22, 0,            # Line length
+            239, 34, 34, 175, # LOAD ""CODE
+            58,               # :
+            231, 176,         # BORDER VAL
+            34, 51, 34,       # "3"
+            58,               # :
+            249, 192, 176,    # RANDOMIZE USR VAL
+            34,               # "
+            *code_start_str,  # start address
+            34,               # "
+            13                # ENTER
+        ]
+        code = [201]
+        blocks = [
+            create_tap_header_block("simloadbas", 10, len(basic_data), 0),
+            create_tap_data_block(basic_data),
+            create_tap_header_block("simloadbyt", code_start, len(code)),
+            create_tap_data_block(code)
+        ]
+        tapfile = self._write_tap(blocks)
+        z80file = '{}/out.z80'.format(self.make_directory())
+        output, error = self.run_tap2sna(f'--sim-load {tapfile} {z80file}')
+        out_lines = output.strip().split('\n')
+        exp_out_lines = [
+            'Program: simloadbas',
+            'Fast loading data block: 23755,26',
+            '',
+            'Bytes: simloadbyt',
+            'Fast loading data block: 32768,1',
+            '',
+            'Tape finished',
+            'Simulation stopped (PC in RAM): PC=32768',
+        ]
+        self.assertEqual(exp_out_lines, out_lines)
+        self.assertEqual(error, '')
+        self.assertIn('border=3', options.state)
+
+    @patch.object(tap2sna, '_write_z80', mock_write_z80)
     def test_sim_load_with_tzx_block_type_0x15(self):
         block = [
             21,          # Block ID
