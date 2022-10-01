@@ -24,22 +24,16 @@ class Options:
     state = []
 
 class Tracer:
-    def __init__(self, verbose, max_operations, end):
+    def __init__(self, verbose):
         self.verbose = verbose
-        self.max_operations = max_operations
-        self.end = end
         self.msg = ''
         self.count = 0
+        self.failed = False
 
     def trace(self, simulator, instruction):
         if self.verbose:
-            print(f'{instruction.time:>9}  ${instruction.address:04X} {instruction.operation:<15}')
+            print(f'${instruction.address:04X} {instruction.operation}')
         self.count += 1
-        if self.count >= self.max_operations > 0:
-            print(f'Stopped at {simulator.pc} after {self.count} operations')
-            return True
-        if simulator.pc == self.end:
-            return True
         if simulator.pc == 16:
             a = simulator.registers['A']
             if a >= 32:
@@ -48,7 +42,12 @@ class Tracer:
                 sys.stdout.flush()
             elif a == 13:
                 if self.msg.strip():
-                    print(f'{self.msg} ({self.count} operations)')
+                    print(self.msg)
+                    if self.msg.endswith(' tests failed.'):
+                        self.failed = True
+                        return True
+                    if self.msg.endswith('all tests passed.'):
+                        return True
                 else:
                     print()
                 self.msg = ''
@@ -65,6 +64,7 @@ def load_tap(tapfile):
 
 def run(tapfile, options):
     start, snapshot = load_tap(tapfile)
+    print()
     snapshot[23692] = 255 # Inhibit 'scroll?' prompt
     if options.test:
         addr = 32768
@@ -74,7 +74,7 @@ def run(tapfile, options):
         test_addr = 34938 + options.test * 2
         snapshot[addr + 4:addr + 6] = (test_addr % 256, test_addr // 256)
     simulator = Simulator(snapshot)
-    tracer = Tracer(options.verbose, options.max_operations, options.end)
+    tracer = Tracer(options.verbose)
     simulator.add_tracer(tracer)
     begin = time.time()
     simulator.run(start)
@@ -84,20 +84,17 @@ def run(tapfile, options):
     print(f'Z80 execution time: {simulator.tstates} T-states ({z80t:.03f}s)')
     print(f'Instructions executed: {tracer.count}')
     print(f'Simulation time: {rt:.03f}s (x{speed:.02f})')
+    return 1 if tracer.failed else 0
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
         usage='{} [options] FILE'.format(os.path.basename(sys.argv[0])),
         description="Run RAXOFT Z80 tests on a SkoolKit Simulator instance. "
-                    "FILE must be a TAP file that loads the tests (e.g. z80full.tap).",
+                    "FILE must be a TAP file that loads the tests (e.g. z80doc.tap).",
         add_help=False
     )
     parser.add_argument('tapfile', help=argparse.SUPPRESS, nargs='?')
     group = parser.add_argument_group('Options')
-    group.add_argument('--max-operations', metavar='MAX', type=int, default=0,
-                       help='Maximum number of instructions to execute.')
-    group.add_argument('-e', '--end', metavar='ADDR', type=integer, default=32912,
-                       help='End execution at this address (default: 32912).')
     group.add_argument('-t', '--test', metavar='TEST', type=int, default=0,
                        help='Start at this test (default: 0).')
     group.add_argument('-v', '--verbose', action='count', default=0,
@@ -105,4 +102,4 @@ if __name__ == '__main__':
     namespace, unknown_args = parser.parse_known_args()
     if unknown_args or namespace.tapfile is None:
         parser.exit(2, parser.format_help())
-    run(namespace.tapfile, namespace)
+    sys.exit(run(namespace.tapfile, namespace))
