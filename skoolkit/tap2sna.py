@@ -580,17 +580,17 @@ def _get_tzx_block(data, i, sim):
         i += 10 + length
     elif block_id == 21:
         # Direct recording block
-        if sim: # pragma: no cover
+        if sim:
             raise TapeError("TZX Direct Recording (0x15) not supported")
         i += get_word3(data, i + 5) + 8
     elif block_id == 24:
         # CSW recording block
-        if sim: # pragma: no cover
-            raise TapeError("TZX CSW Recording (0x15) not supported")
+        if sim:
+            raise TapeError("TZX CSW Recording (0x18) not supported")
         i += get_dword(data, i) + 4
     elif block_id == 25:
         # Generalized data block
-        if sim: # pragma: no cover
+        if sim:
             raise TapeError("TZX Generalized Data Block (0x19) not supported")
         i += get_dword(data, i) + 4
     elif block_id == 32:

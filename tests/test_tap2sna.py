@@ -1139,6 +1139,64 @@ class Tap2SnaTest(SkoolKitTestCase):
         exp_reg = set(('SP=65344', 'IX=49154', 'IY=23610', 'PC=32780', 'F=1'))
         self.assertLessEqual(exp_reg, set(options.reg))
 
+    @patch.object(tap2sna, '_write_z80', mock_write_z80)
+    def test_sim_load_with_tzx_block_type_0x15(self):
+        block = [
+            21,          # Block ID
+            79, 0,       # T-states per sample
+            0, 0,        # Pause
+            8,           # Used bits in last byte
+            3, 0, 0,     # Data length
+            1, 2, 3,     # Data
+        ]
+        tzxfile = self._write_tzx([block])
+        z80file = '{}/out.z80'.format(self.make_directory())
+        with self.assertRaises(SkoolKitError) as cm:
+            self.run_tap2sna(f'--sim-load {tzxfile} {z80file}')
+        self.assertEqual(cm.exception.args[0], 'Error while getting snapshot out.z80: TZX Direct Recording (0x15) not supported')
+        self.assertEqual(self.out.getvalue(), '')
+        self.assertEqual(self.err.getvalue(), '')
+
+    @patch.object(tap2sna, '_write_z80', mock_write_z80)
+    def test_sim_load_with_tzx_block_type_0x18(self):
+        block = [
+            24,          # Block ID
+            11, 0, 0, 0, # Block length
+            0, 0,        # Pause
+            68, 172,     # Sampling rate
+            1,           # Compression type
+            1, 0, 0, 0,  # Number of stored pulses
+            1,           # CSW Data
+        ]
+        tzxfile = self._write_tzx([block])
+        z80file = '{}/out.z80'.format(self.make_directory())
+        with self.assertRaises(SkoolKitError) as cm:
+            self.run_tap2sna(f'--sim-load {tzxfile} {z80file}')
+        self.assertEqual(cm.exception.args[0], 'Error while getting snapshot out.z80: TZX CSW Recording (0x18) not supported')
+        self.assertEqual(self.out.getvalue(), '')
+        self.assertEqual(self.err.getvalue(), '')
+
+    @patch.object(tap2sna, '_write_z80', mock_write_z80)
+    def test_sim_load_with_tzx_block_type_0x19(self):
+        block = [
+            25,          # Block ID
+            14, 0, 0, 0, # Block length
+            0, 0,        # Pause
+            0, 0, 0, 0,  # Number of symbols in pilot/sync block
+            1,           # Maximum number of pulses per pilot/sync symbol
+            1,           # Number of pilot/sync symbols in alphabet table
+            0, 0, 0, 0,  # Number of symbols in data stream
+            1,           # Maximum number of pulses per data symbol
+            1,           # Number of data symbols in alphabet table
+        ]
+        tzxfile = self._write_tzx([block])
+        z80file = '{}/out.z80'.format(self.make_directory())
+        with self.assertRaises(SkoolKitError) as cm:
+            self.run_tap2sna(f'--sim-load {tzxfile} {z80file}')
+        self.assertEqual(cm.exception.args[0], 'Error while getting snapshot out.z80: TZX Generalized Data Block (0x19) not supported')
+        self.assertEqual(self.out.getvalue(), '')
+        self.assertEqual(self.err.getvalue(), '')
+
     def test_default_state(self):
         block = create_tap_data_block([0])
         tapfile = self._write_tap([block])
