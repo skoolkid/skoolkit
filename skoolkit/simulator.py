@@ -14,10 +14,6 @@
 # You should have received a copy of the GNU General Public License along with
 # SkoolKit. If not, see <http://www.gnu.org/licenses/>.
 
-from collections import namedtuple
-
-Instruction = namedtuple('Instruction', 'time address operation size tstates')
-
 PARITY = (
     4, 0, 0, 4, 0, 4, 4, 0, 0, 4, 4, 0, 4, 0, 0, 4,
     0, 4, 4, 0, 4, 0, 0, 4, 4, 0, 0, 4, 0, 4, 4, 0,
@@ -38,6 +34,13 @@ PARITY = (
 )
 
 FRAME_DURATION = 69888
+
+class Instruction:
+    time = None
+    address = None
+    operation = None
+    size = None
+    tstates = None
 
 class Simulator:
     def __init__(self, snapshot, registers=None, state=None):
@@ -79,6 +82,7 @@ class Simulator:
         self.tracers = []
         self.i_tracers = None
         self.in_tracers = ()
+        self.instruction = Instruction()
 
     def add_tracer(self, tracer):
         self.tracers.append(tracer)
@@ -119,11 +123,15 @@ class Simulator:
             self.registers['R'] = (r & 0x80) + ((r + r_inc) & 0x7F)
             if self.i_tracers:
                 running = True
-                instruction = Instruction(self.tstates, self.pc, operation, size, tstates)
+                self.instruction.time = self.tstates
+                self.instruction.address = self.pc
+                self.instruction.operation = operation
+                self.instruction.size = size
+                self.instruction.tstates = tstates
                 self.pc = pc & 0xFFFF
                 self.tstates += tstates
                 for method in self.i_tracers:
-                    if method(self, instruction):
+                    if method(self, self.instruction):
                         running = False
             else:
                 running = False
