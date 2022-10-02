@@ -99,19 +99,18 @@ class Simulator:
             self.pc = pc
         running = True
         while running:
-            opcode = self.snapshot[self.pc]
-            r_inc = 2
-            if opcode == 0xCB:
-                f, args = self.after_CB[self.snapshot[(self.pc + 1) & 0xFFFF]]
-            elif opcode == 0xED:
-                f, args = self.after_ED[self.snapshot[(self.pc + 1) & 0xFFFF]]
-            elif opcode in (0xDD, 0xFD):
-                opcode2 = self.snapshot[(self.pc + 1) & 0xFFFF]
-                if opcode2 == 0xCB:
-                    f, iargs = self.after_DDCB[self.snapshot[(self.pc + 3) & 0xFFFF]]
-                else:
-                    f, iargs = self.after_DD[opcode2]
-                if opcode == 0xFD:
+            f, args = self.opcodes[self.snapshot[self.pc]]
+            if f:
+                r_inc = 1
+            elif args:
+                r_inc = 2
+                f, args = args[self.snapshot[(self.pc + 1) & 0xFFFF]]
+            else:
+                r_inc = 2
+                f, iargs = self.after_DD[self.snapshot[(self.pc + 1) & 0xFFFF]]
+                if f is None:
+                    f, iargs = iargs[self.snapshot[(self.pc + 3) & 0xFFFF]]
+                if self.snapshot[self.pc] == 0xFD:
                     args = []
                     for arg in iargs:
                         if isinstance(arg, str):
@@ -120,9 +119,6 @@ class Simulator:
                             args.append(arg)
                 else:
                     args = iargs
-            else:
-                r_inc = 1
-                f, args = self.opcodes[opcode]
             operation, pc, tstates = f(self, *args)
             r = self.registers['R']
             self.registers['R'] = (r & 0x80) + ((r + r_inc) & 0x7F)
@@ -1094,265 +1090,6 @@ class Simulator:
         self.registers['F'] = f
         return f'XOR {operand}', self.pc + size, timing
 
-    opcodes = {
-        0x00: (nop, ()),                                      # NOP
-        0x01: (ld16, ('BC',)),                                # LD BC,nn
-        0x02: (ld8, (7, 1, '(BC)', 'A')),                     # LD (BC),A
-        0x03: (inc_dec16, ('INC', 'BC')),                     # INC BC
-        0x04: (inc_r, ('B',)),                                # INC B
-        0x05: (dec_r, ('B')),                                 # DEC B
-        0x06: (ld_r_n, ('B')),                                # LD B,n
-        0x07: (rotate, (4, 1, 'RLC', 128, 'A', 'C')),         # RLCA
-        0x08: (ex_af, ()),                                    # EX AF,AF'
-        0x09: (add16, (11, 1, 'HL', 'BC')),                   # ADD HL,BC
-        0x0A: (ld8, (7, 1, 'A', '(BC)')),                     # LD A,(BC)
-        0x0B: (inc_dec16, ('DEC', 'BC')),                     # DEC BC
-        0x0C: (inc_r, ('C',)),                                # INC C
-        0x0D: (dec_r, ('C')),                                 # DEC C
-        0x0E: (ld_r_n, ('C')),                                # LD C,n
-        0x0F: (rotate, (4, 1, 'RRC', 1, 'A', 'C')),           # RRCA
-        0x10: (djnz, ()),                                     # DJNZ nn
-        0x11: (ld16, ('DE',)),                                # LD DE,nn
-        0x12: (ld8, (7, 1, '(DE)', 'A')),                     # LD (DE),A
-        0x13: (inc_dec16, ('INC', 'DE')),                     # INC DE
-        0x14: (inc_r, ('D',)),                                # INC D
-        0x15: (dec_r, ('D')),                                 # DEC D
-        0x16: (ld_r_n, ('D')),                                # LD D,n
-        0x17: (rotate, (4, 1, 'RL', 128, 'A')),               # RLA
-        0x18: (jr, ('', 0, 0)),                               # JR nn
-        0x19: (add16, (11, 1, 'HL', 'DE')),                   # ADD HL,DE
-        0x1A: (ld8, (7, 1, 'A', '(DE)')),                     # LD A,(DE)
-        0x1B: (inc_dec16, ('DEC', 'DE')),                     # DEC DE
-        0x1C: (inc_r, ('E',)),                                # INC E
-        0x1D: (dec_r, ('E')),                                 # DEC E
-        0x1E: (ld_r_n, ('E')),                                # LD E,n
-        0x1F: (rotate, (4, 1, 'RR', 1, 'A')),                 # RRA
-        0x20: (jr, ('NZ', 64, 64)),                           # JR NZ,nn
-        0x21: (ld16, ('HL',)),                                # LD HL,nn
-        0x22: (ld16addr, (16, 3, 'HL', 1)),                   # LD (nn),HL
-        0x23: (inc_dec16, ('INC', 'HL')),                     # INC HL
-        0x24: (inc_r, ('H',)),                                # INC H
-        0x25: (dec_r, ('H')),                                 # DEC H
-        0x26: (ld_r_n, ('H')),                                # LD H,n
-        0x27: (daa, ()),                                      # DAA
-        0x28: (jr, ('Z', 64, 0)),                             # JR Z,nn
-        0x29: (add16, (11, 1, 'HL', 'HL')),                   # ADD HL,HL
-        0x2A: (ld16addr, (16, 3, 'HL', 0)),                   # LD HL,(nn)
-        0x2B: (inc_dec16, ('DEC', 'HL')),                     # DEC HL
-        0x2C: (inc_r, ('L',)),                                # INC L
-        0x2D: (dec_r, ('L')),                                 # DEC L
-        0x2E: (ld_r_n, ('L')),                                # LD L,n
-        0x2F: (cpl, ()),                                      # CPL
-        0x30: (jr, ('NC', 1, 1)),                             # JR NC,nn
-        0x31: (ld16, ('SP',)),                                # LD SP,nn
-        0x32: (ldann, ()),                                    # LD (nn),A
-        0x33: (inc_dec16, ('INC', 'SP')),                     # INC SP
-        0x34: (inc_dec8, (11, 1, 'INC', '(HL)')),             # INC (HL)
-        0x35: (inc_dec8, (11, 1, 'DEC', '(HL)')),             # DEC (HL)
-        0x36: (ld8, (10, 2, '(HL)')),                         # LD (HL),n
-        0x37: (cf, ()),                                       # SCF
-        0x38: (jr, ('C', 1, 0)),                              # JR C,nn
-        0x39: (add16, (11, 1, 'HL', 'SP')),                   # ADD HL,SP
-        0x3A: (ldann, ()),                                    # LD A,(nn)
-        0x3B: (inc_dec16, ('DEC', 'SP')),                     # DEC SP
-        0x3C: (inc_r, ('A',)),                                # INC A
-        0x3D: (dec_r, ('A')),                                 # DEC A
-        0x3E: (ld_r_n, ('A')),                                # LD A,n
-        0x3F: (cf, ()),                                       # CCF
-        0x40: (ld_r_r, ('LD B,B', 'B', 'B')),                 # LD B,B
-        0x41: (ld_r_r, ('LD B,C', 'B', 'C')),                 # LD B,C
-        0x42: (ld_r_r, ('LD B,D', 'B', 'D')),                 # LD B,D
-        0x43: (ld_r_r, ('LD B,E', 'B', 'E')),                 # LD B,E
-        0x44: (ld_r_r, ('LD B,H', 'B', 'H')),                 # LD B,H
-        0x45: (ld_r_r, ('LD B,L', 'B', 'L')),                 # LD B,L
-        0x46: (ld8, (7, 1, 'B', '(HL)')),                     # LD B,(HL)
-        0x47: (ld_r_r, ('LD B,A', 'B', 'A')),                 # LD B,A
-        0x48: (ld_r_r, ('LD C,B', 'C', 'B')),                 # LD C,B
-        0x49: (ld_r_r, ('LD C,C', 'C', 'C')),                 # LD C,C
-        0x4A: (ld_r_r, ('LD C,D', 'C', 'D')),                 # LD C,D
-        0x4B: (ld_r_r, ('LD C,E', 'C', 'E')),                 # LD C,E
-        0x4C: (ld_r_r, ('LD C,H', 'C', 'H')),                 # LD C,H
-        0x4D: (ld_r_r, ('LD C,L', 'C', 'L')),                 # LD C,L
-        0x4E: (ld8, (7, 1, 'C', '(HL)')),                     # LD C,(HL)
-        0x4F: (ld_r_r, ('LD C,A', 'C', 'A')),                 # LD C,A
-        0x50: (ld_r_r, ('LD D,B', 'D', 'B')),                 # LD D,B
-        0x51: (ld_r_r, ('LD D,C', 'D', 'C')),                 # LD D,C
-        0x52: (ld_r_r, ('LD D,D', 'D', 'D')),                 # LD D,D
-        0x53: (ld_r_r, ('LD D,E', 'D', 'E')),                 # LD D,E
-        0x54: (ld_r_r, ('LD D,H', 'D', 'H')),                 # LD D,H
-        0x55: (ld_r_r, ('LD D,L', 'D', 'L')),                 # LD D,L
-        0x56: (ld8, (7, 1, 'D', '(HL)')),                     # LD D,(HL)
-        0x57: (ld_r_r, ('LD D,A', 'D', 'A')),                 # LD D,A
-        0x58: (ld_r_r, ('LD E,B', 'E', 'B')),                 # LD E,B
-        0x59: (ld_r_r, ('LD E,C', 'E', 'C')),                 # LD E,C
-        0x5A: (ld_r_r, ('LD E,D', 'E', 'D')),                 # LD E,D
-        0x5B: (ld_r_r, ('LD E,E', 'E', 'E')),                 # LD E,E
-        0x5C: (ld_r_r, ('LD E,H', 'E', 'H')),                 # LD E,H
-        0x5D: (ld_r_r, ('LD E,L', 'E', 'L')),                 # LD E,L
-        0x5E: (ld8, (7, 1, 'E', '(HL)')),                     # LD E,(HL)
-        0x5F: (ld_r_r, ('LD E,A', 'E', 'A')),                 # LD E,A
-        0x60: (ld_r_r, ('LD H,B', 'H', 'B')),                 # LD H,B
-        0x61: (ld_r_r, ('LD H,C', 'H', 'C')),                 # LD H,C
-        0x62: (ld_r_r, ('LD H,D', 'H', 'D')),                 # LD H,D
-        0x63: (ld_r_r, ('LD H,E', 'H', 'E')),                 # LD H,E
-        0x64: (ld_r_r, ('LD H,H', 'H', 'H')),                 # LD H,H
-        0x65: (ld_r_r, ('LD H,L', 'H', 'L')),                 # LD H,L
-        0x66: (ld8, (7, 1, 'H', '(HL)')),                     # LD H,(HL)
-        0x67: (ld_r_r, ('LD H,A', 'H', 'A')),                 # LD H,A
-        0x68: (ld_r_r, ('LD L,B', 'L', 'B')),                 # LD L,B
-        0x69: (ld_r_r, ('LD L,C', 'L', 'C')),                 # LD L,C
-        0x6A: (ld_r_r, ('LD L,D', 'L', 'D')),                 # LD L,D
-        0x6B: (ld_r_r, ('LD L,E', 'L', 'E')),                 # LD L,E
-        0x6C: (ld_r_r, ('LD L,H', 'L', 'H')),                 # LD L,H
-        0x6D: (ld_r_r, ('LD L,L', 'L', 'L')),                 # LD L,L
-        0x6E: (ld8, (7, 1, 'L', '(HL)')),                     # LD L,(HL)
-        0x6F: (ld_r_r, ('LD L,A', 'L', 'A')),                 # LD L,A
-        0x70: (ld8, (7, 1, '(HL)', 'B')),                     # LD (HL),B
-        0x71: (ld8, (7, 1, '(HL)', 'C')),                     # LD (HL),C
-        0x72: (ld8, (7, 1, '(HL)', 'D')),                     # LD (HL),D
-        0x73: (ld8, (7, 1, '(HL)', 'E')),                     # LD (HL),E
-        0x74: (ld8, (7, 1, '(HL)', 'H')),                     # LD (HL),H
-        0x75: (ld8, (7, 1, '(HL)', 'L')),                     # LD (HL),L
-        0x76: (halt, ()),                                     # HALT
-        0x77: (ld8, (7, 1, '(HL)', 'A')),                     # LD (HL),A
-        0x78: (ld_r_r, ('LD A,B', 'A', 'B')),                 # LD A,B
-        0x79: (ld_r_r, ('LD A,C', 'A', 'C')),                 # LD A,C
-        0x7A: (ld_r_r, ('LD A,D', 'A', 'D')),                 # LD A,D
-        0x7B: (ld_r_r, ('LD A,E', 'A', 'E')),                 # LD A,E
-        0x7C: (ld_r_r, ('LD A,H', 'A', 'H')),                 # LD A,H
-        0x7D: (ld_r_r, ('LD A,L', 'A', 'L')),                 # LD A,L
-        0x7E: (ld8, (7, 1, 'A', '(HL)')),                     # LD A,(HL)
-        0x7F: (ld_r_r, ('LD A,A', 'A', 'A')),                 # LD A,A
-        0x80: (add_a, (4, 1, 'B')),                           # ADD A,B
-        0x81: (add_a, (4, 1, 'C')),                           # ADD A,C
-        0x82: (add_a, (4, 1, 'D')),                           # ADD A,D
-        0x83: (add_a, (4, 1, 'E')),                           # ADD A,E
-        0x84: (add_a, (4, 1, 'H')),                           # ADD A,H
-        0x85: (add_a, (4, 1, 'L')),                           # ADD A,L
-        0x86: (add_a, (7, 1, '(HL)')),                        # ADD A,(HL)
-        0x87: (add_a, (4, 1, 'A')),                           # ADD A,A
-        0x88: (add_a, (4, 1, 'B', 1)),                        # ADC A,B
-        0x89: (add_a, (4, 1, 'C', 1)),                        # ADC A,C
-        0x8A: (add_a, (4, 1, 'D', 1)),                        # ADC A,D
-        0x8B: (add_a, (4, 1, 'E', 1)),                        # ADC A,E
-        0x8C: (add_a, (4, 1, 'H', 1)),                        # ADC A,H
-        0x8D: (add_a, (4, 1, 'L', 1)),                        # ADC A,L
-        0x8E: (add_a, (7, 1, '(HL)', 1)),                     # ADC A,(HL)
-        0x8F: (add_a, (4, 1, 'A', 1)),                        # ADC A,A
-        0x90: (add_a, (4, 1, 'B', 0, -1)),                    # SUB B
-        0x91: (add_a, (4, 1, 'C', 0, -1)),                    # SUB C
-        0x92: (add_a, (4, 1, 'D', 0, -1)),                    # SUB D
-        0x93: (add_a, (4, 1, 'E', 0, -1)),                    # SUB E
-        0x94: (add_a, (4, 1, 'H', 0, -1)),                    # SUB H
-        0x95: (add_a, (4, 1, 'L', 0, -1)),                    # SUB L
-        0x96: (add_a, (7, 1, '(HL)', 0, -1)),                 # SUB (HL)
-        0x97: (add_a, (4, 1, 'A', 0, -1)),                    # SUB A
-        0x98: (add_a, (4, 1, 'B', 1, -1)),                    # SBC A,B
-        0x99: (add_a, (4, 1, 'C', 1, -1)),                    # SBC A,C
-        0x9A: (add_a, (4, 1, 'D', 1, -1)),                    # SBC A,D
-        0x9B: (add_a, (4, 1, 'E', 1, -1)),                    # SBC A,E
-        0x9C: (add_a, (4, 1, 'H', 1, -1)),                    # SBC A,H
-        0x9D: (add_a, (4, 1, 'L', 1, -1)),                    # SBC A,L
-        0x9E: (add_a, (7, 1, '(HL)', 1, -1)),                 # SBC A,(HL)
-        0x9F: (add_a, (4, 1, 'A', 1, -1)),                    # SBC A,A
-        0xA0: (and_r, ('B',)),                                # AND B
-        0xA1: (and_r, ('C',)),                                # AND C
-        0xA2: (and_r, ('D',)),                                # AND D
-        0xA3: (and_r, ('E',)),                                # AND E
-        0xA4: (and_r, ('H',)),                                # AND H
-        0xA5: (and_r, ('L',)),                                # AND L
-        0xA6: (anda, (7, 1, '(HL)')),                         # AND (HL)
-        0xA7: (and_r, ('A',)),                                # AND A
-        0xA8: (xor_r, ('B',)),                                # XOR B
-        0xA9: (xor_r, ('C',)),                                # XOR C
-        0xAA: (xor_r, ('D',)),                                # XOR D
-        0xAB: (xor_r, ('E',)),                                # XOR E
-        0xAC: (xor_r, ('H',)),                                # XOR H
-        0xAD: (xor_r, ('L',)),                                # XOR L
-        0xAE: (xor, (7, 1, '(HL)')),                          # XOR (HL)
-        0xAF: (xor_r, ('A',)),                                # XOR A
-        0xB0: (or_r, ('B',)),                                 # OR B
-        0xB1: (or_r, ('C',)),                                 # OR C
-        0xB2: (or_r, ('D',)),                                 # OR D
-        0xB3: (or_r, ('E',)),                                 # OR E
-        0xB4: (or_r, ('H',)),                                 # OR H
-        0xB5: (or_r, ('L',)),                                 # OR L
-        0xB6: (ora, (7, 1, '(HL)')),                          # OR (HL)
-        0xB7: (or_r, ('A',)),                                 # OR A
-        0xB8: (cp, (4, 1, 'B')),                              # CP B
-        0xB9: (cp, (4, 1, 'C')),                              # CP C
-        0xBA: (cp, (4, 1, 'D')),                              # CP D
-        0xBB: (cp, (4, 1, 'E')),                              # CP E
-        0xBC: (cp, (4, 1, 'H')),                              # CP H
-        0xBD: (cp, (4, 1, 'L')),                              # CP L
-        0xBE: (cp, (7, 1, '(HL)')),                           # CP (HL)
-        0xBF: (cp, (4, 1, 'A')),                              # CP A
-        0xC0: (ret, ('RET NZ', 64, 64)),                      # RET NZ
-        0xC1: (pop, ('BC',)),                                 # POP BC
-        0xC2: (jp, ('NZ', 64, 64)),                           # JP NZ,nn
-        0xC3: (jp, ('', 0, 0)),                               # JP nn
-        0xC4: (call, ('NZ', 64, 64)),                         # CALL NZ,nn
-        0xC5: (push, ('BC',)),                                # PUSH BC
-        0xC6: (add_a, (7, 2, )),                              # ADD A,n
-        0xC7: (rst, (0,)),                                    # RST $00
-        0xC8: (ret, ('RET Z', 64, 0)),                        # RET Z
-        0xC9: (ret, ('RET', 0, 0)),                           # RET
-        0xCA: (jp, ('Z', 64, 0)),                             # JP Z,nn
-        0xCB: None,                                           # CB prefix
-        0xCC: (call, ('Z', 64, 0)),                           # CALL Z,nn
-        0xCD: (call, ('', 0, 0)),                             # CALL nn
-        0xCE: (add_a, (7, 2, None, 1, 1)),                    # ADC A,n
-        0xCF: (rst, (8,)),                                    # RST $08
-        0xD0: (ret, ('RET NC', 1, 1)),                        # RET NC
-        0xD1: (pop, ('DE',)),                                 # POP DE
-        0xD2: (jp, ('NC', 1, 1)),                             # JP NC,nn
-        0xD3: (outa, ()),                                     # OUT (n),A
-        0xD4: (call, ('NC', 1, 1)),                           # CALL NC,nn
-        0xD5: (push, ('DE',)),                                # PUSH DE
-        0xD6: (add_a, (7, 2, None, 0, -1)),                   # SUB n
-        0xD7: (rst, (16,)),                                   # RST $10
-        0xD8: (ret, ('RET C', 1, 0)),                         # RET C
-        0xD9: (exx, ()),                                      # EXX
-        0xDA: (jp, ('C', 1, 0)),                              # JP C,nn
-        0xDB: (in_a, ()),                                     # IN A,(n)
-        0xDC: (call, ('C', 1, 0)),                            # CALL C,nn
-        0xDD: None,                                           # DD prefix
-        0xDE: (add_a, (7, 2, None, 1, -1)),                   # SBC A,n
-        0xDF: (rst, (24,)),                                   # RST $18
-        0xE0: (ret, ('RET PO', 4, 4)),                        # RET PO
-        0xE1: (pop, ('HL',)),                                 # POP HL
-        0xE2: (jp, ('PO', 4, 4)),                             # JP PO,nn
-        0xE3: (ex_sp, ('HL',)),                               # EX (SP),HL
-        0xE4: (call, ('PO', 4, 4)),                           # CALL PO,nn
-        0xE5: (push, ('HL',)),                                # PUSH HL
-        0xE6: (and_n, ()),                                    # AND n
-        0xE7: (rst, (32,)),                                   # RST $20
-        0xE8: (ret, ('RET PE', 4, 0)),                        # RET PE
-        0xE9: (jp, ('', 0, 0)),                               # JP (HL)
-        0xEA: (jp, ('PE', 4, 0)),                             # JP PE,nn
-        0xEB: (ex_de_hl, ()),                                 # EX DE,HL
-        0xEC: (call, ('PE', 4, 0)),                           # CALL PE,nn
-        0xED: None,                                           # ED prefix
-        0xEE: (xor_n, ()),                                    # XOR n
-        0xEF: (rst, (40,)),                                   # RST $28
-        0xF0: (ret, ('RET P', 128, 128)),                     # RET P
-        0xF1: (pop, ('AF',)),                                 # POP AF
-        0xF2: (jp, ('P', 128, 128)),                          # JP P,nn
-        0xF3: (di_ei, ('DI', 0)),                             # DI
-        0xF4: (call, ('P', 128, 128)),                        # CALL P,nn
-        0xF5: (push, ('AF',)),                                # PUSH AF
-        0xF6: (or_n, ()),                                     # OR n
-        0xF7: (rst, (48,)),                                   # RST $30
-        0xF8: (ret, ('RET M', 128, 0)),                       # RET M
-        0xF9: (ldsprr, ('HL',)),                              # LD SP,HL
-        0xFA: (jp, ('M', 128, 0)),                            # JP M,nn
-        0xFB: (di_ei, ('EI', 1)),                             # EI
-        0xFC: (call, ('M', 128, 0)),                          # CALL M,nn
-        0xFD: None,                                           # FD prefix
-        0xFE: (cp, (7, 2, )),                                 # CP n
-        0xFF: (rst, (56,)),                                   # RST $38
-    }
-
     after_CB = {
         0x00: (rotate, (8, 2, 'RLC ', 128, 'B', 'C')),        # RLC B
         0x01: (rotate, (8, 2, 'RLC ', 128, 'C', 'C')),        # RLC C
@@ -1612,6 +1349,265 @@ class Simulator:
         0xFF: (res_set, (8, 2, 7, 'A', 1)),                   # SET 7,A
     }
 
+    after_DDCB = {
+        0x00: (rotate, (23, 4, 'RLC ', 128, 'Xd', 'C', 'B')), # RLC (IX+d),B
+        0x01: (rotate, (23, 4, 'RLC ', 128, 'Xd', 'C', 'C')), # RLC (IX+d),C
+        0x02: (rotate, (23, 4, 'RLC ', 128, 'Xd', 'C', 'D')), # RLC (IX+d),D
+        0x03: (rotate, (23, 4, 'RLC ', 128, 'Xd', 'C', 'E')), # RLC (IX+d),E
+        0x04: (rotate, (23, 4, 'RLC ', 128, 'Xd', 'C', 'H')), # RLC (IX+d),H
+        0x05: (rotate, (23, 4, 'RLC ', 128, 'Xd', 'C', 'L')), # RLC (IX+d),L
+        0x06: (rotate, (23, 4, 'RLC ', 128, 'Xd', 'C')),      # RLC (IX+d)
+        0x07: (rotate, (23, 4, 'RLC ', 128, 'Xd', 'C', 'A')), # RLC (IX+d),A
+        0x08: (rotate, (23, 4, 'RRC ', 1, 'Xd', 'C', 'B')),   # RRC (IX+d),B
+        0x09: (rotate, (23, 4, 'RRC ', 1, 'Xd', 'C', 'C')),   # RRC (IX+d),C
+        0x0A: (rotate, (23, 4, 'RRC ', 1, 'Xd', 'C', 'D')),   # RRC (IX+d),D
+        0x0B: (rotate, (23, 4, 'RRC ', 1, 'Xd', 'C', 'E')),   # RRC (IX+d),E
+        0x0C: (rotate, (23, 4, 'RRC ', 1, 'Xd', 'C', 'H')),   # RRC (IX+d),H
+        0x0D: (rotate, (23, 4, 'RRC ', 1, 'Xd', 'C', 'L')),   # RRC (IX+d),L
+        0x0E: (rotate, (23, 4, 'RRC ', 1, 'Xd', 'C')),        # RRC (IX+d)
+        0x0F: (rotate, (23, 4, 'RRC ', 1, 'Xd', 'C', 'A')),   # RRC (IX+d),A
+        0x10: (rotate, (23, 4, 'RL ', 128, 'Xd', '', 'B')),   # RL (IX+d),B
+        0x11: (rotate, (23, 4, 'RL ', 128, 'Xd', '', 'C')),   # RL (IX+d),C
+        0x12: (rotate, (23, 4, 'RL ', 128, 'Xd', '', 'D')),   # RL (IX+d),D
+        0x13: (rotate, (23, 4, 'RL ', 128, 'Xd', '', 'E')),   # RL (IX+d),E
+        0x14: (rotate, (23, 4, 'RL ', 128, 'Xd', '', 'H')),   # RL (IX+d),H
+        0x15: (rotate, (23, 4, 'RL ', 128, 'Xd', '', 'L')),   # RL (IX+d),L
+        0x16: (rotate, (23, 4, 'RL ', 128, 'Xd')),            # RL (IX+d)
+        0x17: (rotate, (23, 4, 'RL ', 128, 'Xd', '', 'A')),   # RL (IX+d),A
+        0x18: (rotate, (23, 4, 'RR ', 1, 'Xd', '', 'B')),     # RR (IX+d),B
+        0x19: (rotate, (23, 4, 'RR ', 1, 'Xd', '', 'C')),     # RR (IX+d),C
+        0x1A: (rotate, (23, 4, 'RR ', 1, 'Xd', '', 'D')),     # RR (IX+d),D
+        0x1B: (rotate, (23, 4, 'RR ', 1, 'Xd', '', 'E')),     # RR (IX+d),E
+        0x1C: (rotate, (23, 4, 'RR ', 1, 'Xd', '', 'H')),     # RR (IX+d),H
+        0x1D: (rotate, (23, 4, 'RR ', 1, 'Xd', '', 'L')),     # RR (IX+d),L
+        0x1E: (rotate, (23, 4, 'RR ', 1, 'Xd')),              # RR (IX+d)
+        0x1F: (rotate, (23, 4, 'RR ', 1, 'Xd', '', 'A')),     # RR (IX+d),A
+        0x20: (shift, (23, 4, 'SLA', 128, 'Xd', 'B')),        # SLA (IX+d),B
+        0x21: (shift, (23, 4, 'SLA', 128, 'Xd', 'C')),        # SLA (IX+d),C
+        0x22: (shift, (23, 4, 'SLA', 128, 'Xd', 'D')),        # SLA (IX+d),D
+        0x23: (shift, (23, 4, 'SLA', 128, 'Xd', 'E')),        # SLA (IX+d),E
+        0x24: (shift, (23, 4, 'SLA', 128, 'Xd', 'H')),        # SLA (IX+d),H
+        0x25: (shift, (23, 4, 'SLA', 128, 'Xd', 'L')),        # SLA (IX+d),L
+        0x26: (shift, (23, 4, 'SLA', 128, 'Xd')),             # SLA (IX+d)
+        0x27: (shift, (23, 4, 'SLA', 128, 'Xd', 'A')),        # SLA (IX+d),A
+        0x28: (shift, (23, 4, 'SRA', 1, 'Xd', 'B')),          # SRA (IX+d),B
+        0x29: (shift, (23, 4, 'SRA', 1, 'Xd', 'C')),          # SRA (IX+d),C
+        0x2A: (shift, (23, 4, 'SRA', 1, 'Xd', 'D')),          # SRA (IX+d),D
+        0x2B: (shift, (23, 4, 'SRA', 1, 'Xd', 'E')),          # SRA (IX+d),E
+        0x2C: (shift, (23, 4, 'SRA', 1, 'Xd', 'H')),          # SRA (IX+d),H
+        0x2D: (shift, (23, 4, 'SRA', 1, 'Xd', 'L')),          # SRA (IX+d),L
+        0x2E: (shift, (23, 4, 'SRA', 1, 'Xd')),               # SRA (IX+d)
+        0x2F: (shift, (23, 4, 'SRA', 1, 'Xd', 'A')),          # SRA (IX+d),A
+        0x30: (shift, (23, 4, 'SLL', 128, 'Xd', 'B')),        # SLL (IX+d),B
+        0x31: (shift, (23, 4, 'SLL', 128, 'Xd', 'C')),        # SLL (IX+d),C
+        0x32: (shift, (23, 4, 'SLL', 128, 'Xd', 'D')),        # SLL (IX+d),D
+        0x33: (shift, (23, 4, 'SLL', 128, 'Xd', 'E')),        # SLL (IX+d),E
+        0x34: (shift, (23, 4, 'SLL', 128, 'Xd', 'H')),        # SLL (IX+d),H
+        0x35: (shift, (23, 4, 'SLL', 128, 'Xd', 'L')),        # SLL (IX+d),L
+        0x36: (shift, (23, 4, 'SLL', 128, 'Xd')),             # SLL (IX+d)
+        0x37: (shift, (23, 4, 'SLL', 128, 'Xd', 'A')),        # SLL (IX+d),A
+        0x38: (shift, (23, 4, 'SRL', 1, 'Xd', 'B')),          # SRL (IX+d),B
+        0x39: (shift, (23, 4, 'SRL', 1, 'Xd', 'C')),          # SRL (IX+d),C
+        0x3A: (shift, (23, 4, 'SRL', 1, 'Xd', 'D')),          # SRL (IX+d),D
+        0x3B: (shift, (23, 4, 'SRL', 1, 'Xd', 'E')),          # SRL (IX+d),E
+        0x3C: (shift, (23, 4, 'SRL', 1, 'Xd', 'H')),          # SRL (IX+d),H
+        0x3D: (shift, (23, 4, 'SRL', 1, 'Xd', 'L')),          # SRL (IX+d),L
+        0x3E: (shift, (23, 4, 'SRL', 1, 'Xd')),               # SRL (IX+d)
+        0x3F: (shift, (23, 4, 'SRL', 1, 'Xd', 'A')),          # SRL (IX+d),A
+        0x40: (bit, (20, 4, 0, 'Xd')),                        # BIT 0,(IX+d)
+        0x41: (bit, (20, 4, 0, 'Xd')),                        # BIT 0,(IX+d)
+        0x42: (bit, (20, 4, 0, 'Xd')),                        # BIT 0,(IX+d)
+        0x43: (bit, (20, 4, 0, 'Xd')),                        # BIT 0,(IX+d)
+        0x44: (bit, (20, 4, 0, 'Xd')),                        # BIT 0,(IX+d)
+        0x45: (bit, (20, 4, 0, 'Xd')),                        # BIT 0,(IX+d)
+        0x46: (bit, (20, 4, 0, 'Xd')),                        # BIT 0,(IX+d)
+        0x47: (bit, (20, 4, 0, 'Xd')),                        # BIT 0,(IX+d)
+        0x48: (bit, (20, 4, 1, 'Xd')),                        # BIT 1,(IX+d)
+        0x49: (bit, (20, 4, 1, 'Xd')),                        # BIT 1,(IX+d)
+        0x4A: (bit, (20, 4, 1, 'Xd')),                        # BIT 1,(IX+d)
+        0x4B: (bit, (20, 4, 1, 'Xd')),                        # BIT 1,(IX+d)
+        0x4C: (bit, (20, 4, 1, 'Xd')),                        # BIT 1,(IX+d)
+        0x4D: (bit, (20, 4, 1, 'Xd')),                        # BIT 1,(IX+d)
+        0x4E: (bit, (20, 4, 1, 'Xd')),                        # BIT 1,(IX+d)
+        0x4F: (bit, (20, 4, 1, 'Xd')),                        # BIT 1,(IX+d)
+        0x50: (bit, (20, 4, 2, 'Xd')),                        # BIT 2,(IX+d)
+        0x51: (bit, (20, 4, 2, 'Xd')),                        # BIT 2,(IX+d)
+        0x52: (bit, (20, 4, 2, 'Xd')),                        # BIT 2,(IX+d)
+        0x53: (bit, (20, 4, 2, 'Xd')),                        # BIT 2,(IX+d)
+        0x54: (bit, (20, 4, 2, 'Xd')),                        # BIT 2,(IX+d)
+        0x55: (bit, (20, 4, 2, 'Xd')),                        # BIT 2,(IX+d)
+        0x56: (bit, (20, 4, 2, 'Xd')),                        # BIT 2,(IX+d)
+        0x57: (bit, (20, 4, 2, 'Xd')),                        # BIT 2,(IX+d)
+        0x58: (bit, (20, 4, 3, 'Xd')),                        # BIT 3,(IX+d)
+        0x59: (bit, (20, 4, 3, 'Xd')),                        # BIT 3,(IX+d)
+        0x5A: (bit, (20, 4, 3, 'Xd')),                        # BIT 3,(IX+d)
+        0x5B: (bit, (20, 4, 3, 'Xd')),                        # BIT 3,(IX+d)
+        0x5C: (bit, (20, 4, 3, 'Xd')),                        # BIT 3,(IX+d)
+        0x5D: (bit, (20, 4, 3, 'Xd')),                        # BIT 3,(IX+d)
+        0x5E: (bit, (20, 4, 3, 'Xd')),                        # BIT 3,(IX+d)
+        0x5F: (bit, (20, 4, 3, 'Xd')),                        # BIT 3,(IX+d)
+        0x60: (bit, (20, 4, 4, 'Xd')),                        # BIT 4,(IX+d)
+        0x61: (bit, (20, 4, 4, 'Xd')),                        # BIT 4,(IX+d)
+        0x62: (bit, (20, 4, 4, 'Xd')),                        # BIT 4,(IX+d)
+        0x63: (bit, (20, 4, 4, 'Xd')),                        # BIT 4,(IX+d)
+        0x64: (bit, (20, 4, 4, 'Xd')),                        # BIT 4,(IX+d)
+        0x65: (bit, (20, 4, 4, 'Xd')),                        # BIT 4,(IX+d)
+        0x66: (bit, (20, 4, 4, 'Xd')),                        # BIT 4,(IX+d)
+        0x67: (bit, (20, 4, 4, 'Xd')),                        # BIT 4,(IX+d)
+        0x68: (bit, (20, 4, 5, 'Xd')),                        # BIT 5,(IX+d)
+        0x69: (bit, (20, 4, 5, 'Xd')),                        # BIT 5,(IX+d)
+        0x6A: (bit, (20, 4, 5, 'Xd')),                        # BIT 5,(IX+d)
+        0x6B: (bit, (20, 4, 5, 'Xd')),                        # BIT 5,(IX+d)
+        0x6C: (bit, (20, 4, 5, 'Xd')),                        # BIT 5,(IX+d)
+        0x6D: (bit, (20, 4, 5, 'Xd')),                        # BIT 5,(IX+d)
+        0x6E: (bit, (20, 4, 5, 'Xd')),                        # BIT 5,(IX+d)
+        0x6F: (bit, (20, 4, 5, 'Xd')),                        # BIT 5,(IX+d)
+        0x70: (bit, (20, 4, 6, 'Xd')),                        # BIT 6,(IX+d)
+        0x71: (bit, (20, 4, 6, 'Xd')),                        # BIT 6,(IX+d)
+        0x72: (bit, (20, 4, 6, 'Xd')),                        # BIT 6,(IX+d)
+        0x73: (bit, (20, 4, 6, 'Xd')),                        # BIT 6,(IX+d)
+        0x74: (bit, (20, 4, 6, 'Xd')),                        # BIT 6,(IX+d)
+        0x75: (bit, (20, 4, 6, 'Xd')),                        # BIT 6,(IX+d)
+        0x76: (bit, (20, 4, 6, 'Xd')),                        # BIT 6,(IX+d)
+        0x77: (bit, (20, 4, 6, 'Xd')),                        # BIT 6,(IX+d)
+        0x78: (bit, (20, 4, 7, 'Xd')),                        # BIT 7,(IX+d)
+        0x79: (bit, (20, 4, 7, 'Xd')),                        # BIT 7,(IX+d)
+        0x7A: (bit, (20, 4, 7, 'Xd')),                        # BIT 7,(IX+d)
+        0x7B: (bit, (20, 4, 7, 'Xd')),                        # BIT 7,(IX+d)
+        0x7C: (bit, (20, 4, 7, 'Xd')),                        # BIT 7,(IX+d)
+        0x7D: (bit, (20, 4, 7, 'Xd')),                        # BIT 7,(IX+d)
+        0x7E: (bit, (20, 4, 7, 'Xd')),                        # BIT 7,(IX+d)
+        0x7F: (bit, (20, 4, 7, 'Xd')),                        # BIT 7,(IX+d)
+        0x80: (res_set, (23, 4, 0, 'Xd', 0, 'B')),            # RES 0,(IX+d),B
+        0x81: (res_set, (23, 4, 0, 'Xd', 0, 'C')),            # RES 0,(IX+d),C
+        0x82: (res_set, (23, 4, 0, 'Xd', 0, 'D')),            # RES 0,(IX+d),D
+        0x83: (res_set, (23, 4, 0, 'Xd', 0, 'E')),            # RES 0,(IX+d),E
+        0x84: (res_set, (23, 4, 0, 'Xd', 0, 'H')),            # RES 0,(IX+d),H
+        0x85: (res_set, (23, 4, 0, 'Xd', 0, 'L')),            # RES 0,(IX+d),L
+        0x86: (res_set, (23, 4, 0, 'Xd', 0)),                 # RES 0,(IX+d)
+        0x87: (res_set, (23, 4, 0, 'Xd', 0, 'A')),            # RES 0,(IX+d),A
+        0x88: (res_set, (23, 4, 1, 'Xd', 0, 'B')),            # RES 1,(IX+d),B
+        0x89: (res_set, (23, 4, 1, 'Xd', 0, 'C')),            # RES 1,(IX+d),C
+        0x8A: (res_set, (23, 4, 1, 'Xd', 0, 'D')),            # RES 1,(IX+d),D
+        0x8B: (res_set, (23, 4, 1, 'Xd', 0, 'E')),            # RES 1,(IX+d),E
+        0x8C: (res_set, (23, 4, 1, 'Xd', 0, 'H')),            # RES 1,(IX+d),H
+        0x8D: (res_set, (23, 4, 1, 'Xd', 0, 'L')),            # RES 1,(IX+d),L
+        0x8E: (res_set, (23, 4, 1, 'Xd', 0)),                 # RES 1,(IX+d)
+        0x8F: (res_set, (23, 4, 1, 'Xd', 0, 'A')),            # RES 1,(IX+d),A
+        0x90: (res_set, (23, 4, 2, 'Xd', 0, 'B')),            # RES 2,(IX+d),B
+        0x91: (res_set, (23, 4, 2, 'Xd', 0, 'C')),            # RES 2,(IX+d),C
+        0x92: (res_set, (23, 4, 2, 'Xd', 0, 'D')),            # RES 2,(IX+d),D
+        0x93: (res_set, (23, 4, 2, 'Xd', 0, 'E')),            # RES 2,(IX+d),E
+        0x94: (res_set, (23, 4, 2, 'Xd', 0, 'H')),            # RES 2,(IX+d),H
+        0x95: (res_set, (23, 4, 2, 'Xd', 0, 'L')),            # RES 2,(IX+d),L
+        0x96: (res_set, (23, 4, 2, 'Xd', 0)),                 # RES 2,(IX+d)
+        0x97: (res_set, (23, 4, 2, 'Xd', 0, 'A')),            # RES 2,(IX+d),A
+        0x98: (res_set, (23, 4, 3, 'Xd', 0, 'B')),            # RES 3,(IX+d),B
+        0x99: (res_set, (23, 4, 3, 'Xd', 0, 'C')),            # RES 3,(IX+d),C
+        0x9A: (res_set, (23, 4, 3, 'Xd', 0, 'D')),            # RES 3,(IX+d),D
+        0x9B: (res_set, (23, 4, 3, 'Xd', 0, 'E')),            # RES 3,(IX+d),E
+        0x9C: (res_set, (23, 4, 3, 'Xd', 0, 'H')),            # RES 3,(IX+d),H
+        0x9D: (res_set, (23, 4, 3, 'Xd', 0, 'L')),            # RES 3,(IX+d),L
+        0x9E: (res_set, (23, 4, 3, 'Xd', 0)),                 # RES 3,(IX+d)
+        0x9F: (res_set, (23, 4, 3, 'Xd', 0, 'A')),            # RES 3,(IX+d),A
+        0xA0: (res_set, (23, 4, 4, 'Xd', 0, 'B')),            # RES 4,(IX+d),B
+        0xA1: (res_set, (23, 4, 4, 'Xd', 0, 'C')),            # RES 4,(IX+d),C
+        0xA2: (res_set, (23, 4, 4, 'Xd', 0, 'D')),            # RES 4,(IX+d),D
+        0xA3: (res_set, (23, 4, 4, 'Xd', 0, 'E')),            # RES 4,(IX+d),E
+        0xA4: (res_set, (23, 4, 4, 'Xd', 0, 'H')),            # RES 4,(IX+d),H
+        0xA5: (res_set, (23, 4, 4, 'Xd', 0, 'L')),            # RES 4,(IX+d),L
+        0xA6: (res_set, (23, 4, 4, 'Xd', 0)),                 # RES 4,(IX+d)
+        0xA7: (res_set, (23, 4, 4, 'Xd', 0, 'A')),            # RES 4,(IX+d),A
+        0xA8: (res_set, (23, 4, 5, 'Xd', 0, 'B')),            # RES 5,(IX+d),B
+        0xA9: (res_set, (23, 4, 5, 'Xd', 0, 'C')),            # RES 5,(IX+d),C
+        0xAA: (res_set, (23, 4, 5, 'Xd', 0, 'D')),            # RES 5,(IX+d),D
+        0xAB: (res_set, (23, 4, 5, 'Xd', 0, 'E')),            # RES 5,(IX+d),E
+        0xAC: (res_set, (23, 4, 5, 'Xd', 0, 'H')),            # RES 5,(IX+d),H
+        0xAD: (res_set, (23, 4, 5, 'Xd', 0, 'L')),            # RES 5,(IX+d),L
+        0xAE: (res_set, (23, 4, 5, 'Xd', 0)),                 # RES 5,(IX+d)
+        0xAF: (res_set, (23, 4, 5, 'Xd', 0, 'A')),            # RES 5,(IX+d),A
+        0xB0: (res_set, (23, 4, 6, 'Xd', 0, 'B')),            # RES 6,(IX+d),B
+        0xB1: (res_set, (23, 4, 6, 'Xd', 0, 'C')),            # RES 6,(IX+d),C
+        0xB2: (res_set, (23, 4, 6, 'Xd', 0, 'D')),            # RES 6,(IX+d),D
+        0xB3: (res_set, (23, 4, 6, 'Xd', 0, 'E')),            # RES 6,(IX+d),E
+        0xB4: (res_set, (23, 4, 6, 'Xd', 0, 'H')),            # RES 6,(IX+d),H
+        0xB5: (res_set, (23, 4, 6, 'Xd', 0, 'L')),            # RES 6,(IX+d),L
+        0xB6: (res_set, (23, 4, 6, 'Xd', 0)),                 # RES 6,(IX+d)
+        0xB7: (res_set, (23, 4, 6, 'Xd', 0, 'A')),            # RES 6,(IX+d),A
+        0xB8: (res_set, (23, 4, 7, 'Xd', 0, 'B')),            # RES 7,(IX+d),B
+        0xB9: (res_set, (23, 4, 7, 'Xd', 0, 'C')),            # RES 7,(IX+d),C
+        0xBA: (res_set, (23, 4, 7, 'Xd', 0, 'D')),            # RES 7,(IX+d),D
+        0xBB: (res_set, (23, 4, 7, 'Xd', 0, 'E')),            # RES 7,(IX+d),E
+        0xBC: (res_set, (23, 4, 7, 'Xd', 0, 'H')),            # RES 7,(IX+d),H
+        0xBD: (res_set, (23, 4, 7, 'Xd', 0, 'L')),            # RES 7,(IX+d),L
+        0xBE: (res_set, (23, 4, 7, 'Xd', 0)),                 # RES 7,(IX+d)
+        0xBF: (res_set, (23, 4, 7, 'Xd', 0, 'A')),            # RES 7,(IX+d),A
+        0xC0: (res_set, (23, 4, 0, 'Xd', 1, 'B')),            # SET 0,(IX+d),B
+        0xC1: (res_set, (23, 4, 0, 'Xd', 1, 'C')),            # SET 0,(IX+d),C
+        0xC2: (res_set, (23, 4, 0, 'Xd', 1, 'D')),            # SET 0,(IX+d),D
+        0xC3: (res_set, (23, 4, 0, 'Xd', 1, 'E')),            # SET 0,(IX+d),E
+        0xC4: (res_set, (23, 4, 0, 'Xd', 1, 'H')),            # SET 0,(IX+d),H
+        0xC5: (res_set, (23, 4, 0, 'Xd', 1, 'L')),            # SET 0,(IX+d),L
+        0xC6: (res_set, (23, 4, 0, 'Xd', 1)),                 # SET 0,(IX+d)
+        0xC7: (res_set, (23, 4, 0, 'Xd', 1, 'A')),            # SET 0,(IX+d),A
+        0xC8: (res_set, (23, 4, 1, 'Xd', 1, 'B')),            # SET 1,(IX+d),B
+        0xC9: (res_set, (23, 4, 1, 'Xd', 1, 'C')),            # SET 1,(IX+d),C
+        0xCA: (res_set, (23, 4, 1, 'Xd', 1, 'D')),            # SET 1,(IX+d),D
+        0xCB: (res_set, (23, 4, 1, 'Xd', 1, 'E')),            # SET 1,(IX+d),E
+        0xCC: (res_set, (23, 4, 1, 'Xd', 1, 'H')),            # SET 1,(IX+d),H
+        0xCD: (res_set, (23, 4, 1, 'Xd', 1, 'L')),            # SET 1,(IX+d),L
+        0xCE: (res_set, (23, 4, 1, 'Xd', 1)),                 # SET 1,(IX+d)
+        0xCF: (res_set, (23, 4, 1, 'Xd', 1, 'A')),            # SET 1,(IX+d),A
+        0xD0: (res_set, (23, 4, 2, 'Xd', 1, 'B')),            # SET 2,(IX+d),B
+        0xD1: (res_set, (23, 4, 2, 'Xd', 1, 'C')),            # SET 2,(IX+d),C
+        0xD2: (res_set, (23, 4, 2, 'Xd', 1, 'D')),            # SET 2,(IX+d),D
+        0xD3: (res_set, (23, 4, 2, 'Xd', 1, 'E')),            # SET 2,(IX+d),E
+        0xD4: (res_set, (23, 4, 2, 'Xd', 1, 'H')),            # SET 2,(IX+d),H
+        0xD5: (res_set, (23, 4, 2, 'Xd', 1, 'L')),            # SET 2,(IX+d),L
+        0xD6: (res_set, (23, 4, 2, 'Xd', 1)),                 # SET 2,(IX+d)
+        0xD7: (res_set, (23, 4, 2, 'Xd', 1, 'A')),            # SET 2,(IX+d),A
+        0xD8: (res_set, (23, 4, 3, 'Xd', 1, 'B')),            # SET 3,(IX+d),B
+        0xD9: (res_set, (23, 4, 3, 'Xd', 1, 'C')),            # SET 3,(IX+d),C
+        0xDA: (res_set, (23, 4, 3, 'Xd', 1, 'D')),            # SET 3,(IX+d),D
+        0xDB: (res_set, (23, 4, 3, 'Xd', 1, 'E')),            # SET 3,(IX+d),E
+        0xDC: (res_set, (23, 4, 3, 'Xd', 1, 'H')),            # SET 3,(IX+d),H
+        0xDD: (res_set, (23, 4, 3, 'Xd', 1, 'L')),            # SET 3,(IX+d),L
+        0xDE: (res_set, (23, 4, 3, 'Xd', 1)),                 # SET 3,(IX+d)
+        0xDF: (res_set, (23, 4, 3, 'Xd', 1, 'A')),            # SET 3,(IX+d),A
+        0xE0: (res_set, (23, 4, 4, 'Xd', 1, 'B')),            # SET 4,(IX+d),B
+        0xE1: (res_set, (23, 4, 4, 'Xd', 1, 'C')),            # SET 4,(IX+d),C
+        0xE2: (res_set, (23, 4, 4, 'Xd', 1, 'D')),            # SET 4,(IX+d),D
+        0xE3: (res_set, (23, 4, 4, 'Xd', 1, 'E')),            # SET 4,(IX+d),E
+        0xE4: (res_set, (23, 4, 4, 'Xd', 1, 'H')),            # SET 4,(IX+d),H
+        0xE5: (res_set, (23, 4, 4, 'Xd', 1, 'L')),            # SET 4,(IX+d),L
+        0xE6: (res_set, (23, 4, 4, 'Xd', 1)),                 # SET 4,(IX+d)
+        0xE7: (res_set, (23, 4, 4, 'Xd', 1, 'A')),            # SET 4,(IX+d),A
+        0xE8: (res_set, (23, 4, 5, 'Xd', 1, 'B')),            # SET 5,(IX+d),B
+        0xE9: (res_set, (23, 4, 5, 'Xd', 1, 'C')),            # SET 5,(IX+d),C
+        0xEA: (res_set, (23, 4, 5, 'Xd', 1, 'D')),            # SET 5,(IX+d),D
+        0xEB: (res_set, (23, 4, 5, 'Xd', 1, 'E')),            # SET 5,(IX+d),E
+        0xEC: (res_set, (23, 4, 5, 'Xd', 1, 'H')),            # SET 5,(IX+d),H
+        0xED: (res_set, (23, 4, 5, 'Xd', 1, 'L')),            # SET 5,(IX+d),L
+        0xEE: (res_set, (23, 4, 5, 'Xd', 1)),                 # SET 5,(IX+d)
+        0xEF: (res_set, (23, 4, 5, 'Xd', 1, 'A')),            # SET 5,(IX+d),A
+        0xF0: (res_set, (23, 4, 6, 'Xd', 1, 'B')),            # SET 6,(IX+d),B
+        0xF1: (res_set, (23, 4, 6, 'Xd', 1, 'C')),            # SET 6,(IX+d),C
+        0xF2: (res_set, (23, 4, 6, 'Xd', 1, 'D')),            # SET 6,(IX+d),D
+        0xF3: (res_set, (23, 4, 6, 'Xd', 1, 'E')),            # SET 6,(IX+d),E
+        0xF4: (res_set, (23, 4, 6, 'Xd', 1, 'H')),            # SET 6,(IX+d),H
+        0xF5: (res_set, (23, 4, 6, 'Xd', 1, 'L')),            # SET 6,(IX+d),L
+        0xF6: (res_set, (23, 4, 6, 'Xd', 1)),                 # SET 6,(IX+d)
+        0xF7: (res_set, (23, 4, 6, 'Xd', 1, 'A')),            # SET 6,(IX+d),A
+        0xF8: (res_set, (23, 4, 7, 'Xd', 1, 'B')),            # SET 7,(IX+d),B
+        0xF9: (res_set, (23, 4, 7, 'Xd', 1, 'C')),            # SET 7,(IX+d),C
+        0xFA: (res_set, (23, 4, 7, 'Xd', 1, 'D')),            # SET 7,(IX+d),D
+        0xFB: (res_set, (23, 4, 7, 'Xd', 1, 'E')),            # SET 7,(IX+d),E
+        0xFC: (res_set, (23, 4, 7, 'Xd', 1, 'H')),            # SET 7,(IX+d),H
+        0xFD: (res_set, (23, 4, 7, 'Xd', 1, 'L')),            # SET 7,(IX+d),L
+        0xFE: (res_set, (23, 4, 7, 'Xd', 1)),                 # SET 7,(IX+d)
+        0xFF: (res_set, (23, 4, 7, 'Xd', 1, 'A')),            # SET 7,(IX+d),A
+    }
+
     after_DD = {
         0x00: (defb, (4, 1, )),
         0x01: (defb, (4, 1, )),
@@ -1816,7 +1812,7 @@ class Simulator:
         0xC8: (defb, (4, 1, )),
         0xC9: (defb, (4, 1, )),
         0xCA: (defb, (4, 1, )),
-        0xCB: None,                                           # DDCB prefix
+        0xCB: (None, after_DDCB),                             # DDCB prefix
         0xCC: (defb, (4, 1, )),
         0xCD: (defb, (4, 1, )),
         0xCE: (defb, (4, 1, )),
@@ -2130,261 +2126,261 @@ class Simulator:
         0xFF: (defb, (8, 2, )),
     }
 
-    after_DDCB = {
-        0x00: (rotate, (23, 4, 'RLC ', 128, 'Xd', 'C', 'B')), # RLC (IX+d),B
-        0x01: (rotate, (23, 4, 'RLC ', 128, 'Xd', 'C', 'C')), # RLC (IX+d),C
-        0x02: (rotate, (23, 4, 'RLC ', 128, 'Xd', 'C', 'D')), # RLC (IX+d),D
-        0x03: (rotate, (23, 4, 'RLC ', 128, 'Xd', 'C', 'E')), # RLC (IX+d),E
-        0x04: (rotate, (23, 4, 'RLC ', 128, 'Xd', 'C', 'H')), # RLC (IX+d),H
-        0x05: (rotate, (23, 4, 'RLC ', 128, 'Xd', 'C', 'L')), # RLC (IX+d),L
-        0x06: (rotate, (23, 4, 'RLC ', 128, 'Xd', 'C')),      # RLC (IX+d)
-        0x07: (rotate, (23, 4, 'RLC ', 128, 'Xd', 'C', 'A')), # RLC (IX+d),A
-        0x08: (rotate, (23, 4, 'RRC ', 1, 'Xd', 'C', 'B')),   # RRC (IX+d),B
-        0x09: (rotate, (23, 4, 'RRC ', 1, 'Xd', 'C', 'C')),   # RRC (IX+d),C
-        0x0A: (rotate, (23, 4, 'RRC ', 1, 'Xd', 'C', 'D')),   # RRC (IX+d),D
-        0x0B: (rotate, (23, 4, 'RRC ', 1, 'Xd', 'C', 'E')),   # RRC (IX+d),E
-        0x0C: (rotate, (23, 4, 'RRC ', 1, 'Xd', 'C', 'H')),   # RRC (IX+d),H
-        0x0D: (rotate, (23, 4, 'RRC ', 1, 'Xd', 'C', 'L')),   # RRC (IX+d),L
-        0x0E: (rotate, (23, 4, 'RRC ', 1, 'Xd', 'C')),        # RRC (IX+d)
-        0x0F: (rotate, (23, 4, 'RRC ', 1, 'Xd', 'C', 'A')),   # RRC (IX+d),A
-        0x10: (rotate, (23, 4, 'RL ', 128, 'Xd', '', 'B')),   # RL (IX+d),B
-        0x11: (rotate, (23, 4, 'RL ', 128, 'Xd', '', 'C')),   # RL (IX+d),C
-        0x12: (rotate, (23, 4, 'RL ', 128, 'Xd', '', 'D')),   # RL (IX+d),D
-        0x13: (rotate, (23, 4, 'RL ', 128, 'Xd', '', 'E')),   # RL (IX+d),E
-        0x14: (rotate, (23, 4, 'RL ', 128, 'Xd', '', 'H')),   # RL (IX+d),H
-        0x15: (rotate, (23, 4, 'RL ', 128, 'Xd', '', 'L')),   # RL (IX+d),L
-        0x16: (rotate, (23, 4, 'RL ', 128, 'Xd')),            # RL (IX+d)
-        0x17: (rotate, (23, 4, 'RL ', 128, 'Xd', '', 'A')),   # RL (IX+d),A
-        0x18: (rotate, (23, 4, 'RR ', 1, 'Xd', '', 'B')),     # RR (IX+d),B
-        0x19: (rotate, (23, 4, 'RR ', 1, 'Xd', '', 'C')),     # RR (IX+d),C
-        0x1A: (rotate, (23, 4, 'RR ', 1, 'Xd', '', 'D')),     # RR (IX+d),D
-        0x1B: (rotate, (23, 4, 'RR ', 1, 'Xd', '', 'E')),     # RR (IX+d),E
-        0x1C: (rotate, (23, 4, 'RR ', 1, 'Xd', '', 'H')),     # RR (IX+d),H
-        0x1D: (rotate, (23, 4, 'RR ', 1, 'Xd', '', 'L')),     # RR (IX+d),L
-        0x1E: (rotate, (23, 4, 'RR ', 1, 'Xd')),              # RR (IX+d)
-        0x1F: (rotate, (23, 4, 'RR ', 1, 'Xd', '', 'A')),     # RR (IX+d),A
-        0x20: (shift, (23, 4, 'SLA', 128, 'Xd', 'B')),        # SLA (IX+d),B
-        0x21: (shift, (23, 4, 'SLA', 128, 'Xd', 'C')),        # SLA (IX+d),C
-        0x22: (shift, (23, 4, 'SLA', 128, 'Xd', 'D')),        # SLA (IX+d),D
-        0x23: (shift, (23, 4, 'SLA', 128, 'Xd', 'E')),        # SLA (IX+d),E
-        0x24: (shift, (23, 4, 'SLA', 128, 'Xd', 'H')),        # SLA (IX+d),H
-        0x25: (shift, (23, 4, 'SLA', 128, 'Xd', 'L')),        # SLA (IX+d),L
-        0x26: (shift, (23, 4, 'SLA', 128, 'Xd')),             # SLA (IX+d)
-        0x27: (shift, (23, 4, 'SLA', 128, 'Xd', 'A')),        # SLA (IX+d),A
-        0x28: (shift, (23, 4, 'SRA', 1, 'Xd', 'B')),          # SRA (IX+d),B
-        0x29: (shift, (23, 4, 'SRA', 1, 'Xd', 'C')),          # SRA (IX+d),C
-        0x2A: (shift, (23, 4, 'SRA', 1, 'Xd', 'D')),          # SRA (IX+d),D
-        0x2B: (shift, (23, 4, 'SRA', 1, 'Xd', 'E')),          # SRA (IX+d),E
-        0x2C: (shift, (23, 4, 'SRA', 1, 'Xd', 'H')),          # SRA (IX+d),H
-        0x2D: (shift, (23, 4, 'SRA', 1, 'Xd', 'L')),          # SRA (IX+d),L
-        0x2E: (shift, (23, 4, 'SRA', 1, 'Xd')),               # SRA (IX+d)
-        0x2F: (shift, (23, 4, 'SRA', 1, 'Xd', 'A')),          # SRA (IX+d),A
-        0x30: (shift, (23, 4, 'SLL', 128, 'Xd', 'B')),        # SLL (IX+d),B
-        0x31: (shift, (23, 4, 'SLL', 128, 'Xd', 'C')),        # SLL (IX+d),C
-        0x32: (shift, (23, 4, 'SLL', 128, 'Xd', 'D')),        # SLL (IX+d),D
-        0x33: (shift, (23, 4, 'SLL', 128, 'Xd', 'E')),        # SLL (IX+d),E
-        0x34: (shift, (23, 4, 'SLL', 128, 'Xd', 'H')),        # SLL (IX+d),H
-        0x35: (shift, (23, 4, 'SLL', 128, 'Xd', 'L')),        # SLL (IX+d),L
-        0x36: (shift, (23, 4, 'SLL', 128, 'Xd')),             # SLL (IX+d)
-        0x37: (shift, (23, 4, 'SLL', 128, 'Xd', 'A')),        # SLL (IX+d),A
-        0x38: (shift, (23, 4, 'SRL', 1, 'Xd', 'B')),          # SRL (IX+d),B
-        0x39: (shift, (23, 4, 'SRL', 1, 'Xd', 'C')),          # SRL (IX+d),C
-        0x3A: (shift, (23, 4, 'SRL', 1, 'Xd', 'D')),          # SRL (IX+d),D
-        0x3B: (shift, (23, 4, 'SRL', 1, 'Xd', 'E')),          # SRL (IX+d),E
-        0x3C: (shift, (23, 4, 'SRL', 1, 'Xd', 'H')),          # SRL (IX+d),H
-        0x3D: (shift, (23, 4, 'SRL', 1, 'Xd', 'L')),          # SRL (IX+d),L
-        0x3E: (shift, (23, 4, 'SRL', 1, 'Xd')),               # SRL (IX+d)
-        0x3F: (shift, (23, 4, 'SRL', 1, 'Xd', 'A')),          # SRL (IX+d),A
-        0x40: (bit, (20, 4, 0, 'Xd')),                        # BIT 0,(IX+d)
-        0x41: (bit, (20, 4, 0, 'Xd')),                        # BIT 0,(IX+d)
-        0x42: (bit, (20, 4, 0, 'Xd')),                        # BIT 0,(IX+d)
-        0x43: (bit, (20, 4, 0, 'Xd')),                        # BIT 0,(IX+d)
-        0x44: (bit, (20, 4, 0, 'Xd')),                        # BIT 0,(IX+d)
-        0x45: (bit, (20, 4, 0, 'Xd')),                        # BIT 0,(IX+d)
-        0x46: (bit, (20, 4, 0, 'Xd')),                        # BIT 0,(IX+d)
-        0x47: (bit, (20, 4, 0, 'Xd')),                        # BIT 0,(IX+d)
-        0x48: (bit, (20, 4, 1, 'Xd')),                        # BIT 1,(IX+d)
-        0x49: (bit, (20, 4, 1, 'Xd')),                        # BIT 1,(IX+d)
-        0x4A: (bit, (20, 4, 1, 'Xd')),                        # BIT 1,(IX+d)
-        0x4B: (bit, (20, 4, 1, 'Xd')),                        # BIT 1,(IX+d)
-        0x4C: (bit, (20, 4, 1, 'Xd')),                        # BIT 1,(IX+d)
-        0x4D: (bit, (20, 4, 1, 'Xd')),                        # BIT 1,(IX+d)
-        0x4E: (bit, (20, 4, 1, 'Xd')),                        # BIT 1,(IX+d)
-        0x4F: (bit, (20, 4, 1, 'Xd')),                        # BIT 1,(IX+d)
-        0x50: (bit, (20, 4, 2, 'Xd')),                        # BIT 2,(IX+d)
-        0x51: (bit, (20, 4, 2, 'Xd')),                        # BIT 2,(IX+d)
-        0x52: (bit, (20, 4, 2, 'Xd')),                        # BIT 2,(IX+d)
-        0x53: (bit, (20, 4, 2, 'Xd')),                        # BIT 2,(IX+d)
-        0x54: (bit, (20, 4, 2, 'Xd')),                        # BIT 2,(IX+d)
-        0x55: (bit, (20, 4, 2, 'Xd')),                        # BIT 2,(IX+d)
-        0x56: (bit, (20, 4, 2, 'Xd')),                        # BIT 2,(IX+d)
-        0x57: (bit, (20, 4, 2, 'Xd')),                        # BIT 2,(IX+d)
-        0x58: (bit, (20, 4, 3, 'Xd')),                        # BIT 3,(IX+d)
-        0x59: (bit, (20, 4, 3, 'Xd')),                        # BIT 3,(IX+d)
-        0x5A: (bit, (20, 4, 3, 'Xd')),                        # BIT 3,(IX+d)
-        0x5B: (bit, (20, 4, 3, 'Xd')),                        # BIT 3,(IX+d)
-        0x5C: (bit, (20, 4, 3, 'Xd')),                        # BIT 3,(IX+d)
-        0x5D: (bit, (20, 4, 3, 'Xd')),                        # BIT 3,(IX+d)
-        0x5E: (bit, (20, 4, 3, 'Xd')),                        # BIT 3,(IX+d)
-        0x5F: (bit, (20, 4, 3, 'Xd')),                        # BIT 3,(IX+d)
-        0x60: (bit, (20, 4, 4, 'Xd')),                        # BIT 4,(IX+d)
-        0x61: (bit, (20, 4, 4, 'Xd')),                        # BIT 4,(IX+d)
-        0x62: (bit, (20, 4, 4, 'Xd')),                        # BIT 4,(IX+d)
-        0x63: (bit, (20, 4, 4, 'Xd')),                        # BIT 4,(IX+d)
-        0x64: (bit, (20, 4, 4, 'Xd')),                        # BIT 4,(IX+d)
-        0x65: (bit, (20, 4, 4, 'Xd')),                        # BIT 4,(IX+d)
-        0x66: (bit, (20, 4, 4, 'Xd')),                        # BIT 4,(IX+d)
-        0x67: (bit, (20, 4, 4, 'Xd')),                        # BIT 4,(IX+d)
-        0x68: (bit, (20, 4, 5, 'Xd')),                        # BIT 5,(IX+d)
-        0x69: (bit, (20, 4, 5, 'Xd')),                        # BIT 5,(IX+d)
-        0x6A: (bit, (20, 4, 5, 'Xd')),                        # BIT 5,(IX+d)
-        0x6B: (bit, (20, 4, 5, 'Xd')),                        # BIT 5,(IX+d)
-        0x6C: (bit, (20, 4, 5, 'Xd')),                        # BIT 5,(IX+d)
-        0x6D: (bit, (20, 4, 5, 'Xd')),                        # BIT 5,(IX+d)
-        0x6E: (bit, (20, 4, 5, 'Xd')),                        # BIT 5,(IX+d)
-        0x6F: (bit, (20, 4, 5, 'Xd')),                        # BIT 5,(IX+d)
-        0x70: (bit, (20, 4, 6, 'Xd')),                        # BIT 6,(IX+d)
-        0x71: (bit, (20, 4, 6, 'Xd')),                        # BIT 6,(IX+d)
-        0x72: (bit, (20, 4, 6, 'Xd')),                        # BIT 6,(IX+d)
-        0x73: (bit, (20, 4, 6, 'Xd')),                        # BIT 6,(IX+d)
-        0x74: (bit, (20, 4, 6, 'Xd')),                        # BIT 6,(IX+d)
-        0x75: (bit, (20, 4, 6, 'Xd')),                        # BIT 6,(IX+d)
-        0x76: (bit, (20, 4, 6, 'Xd')),                        # BIT 6,(IX+d)
-        0x77: (bit, (20, 4, 6, 'Xd')),                        # BIT 6,(IX+d)
-        0x78: (bit, (20, 4, 7, 'Xd')),                        # BIT 7,(IX+d)
-        0x79: (bit, (20, 4, 7, 'Xd')),                        # BIT 7,(IX+d)
-        0x7A: (bit, (20, 4, 7, 'Xd')),                        # BIT 7,(IX+d)
-        0x7B: (bit, (20, 4, 7, 'Xd')),                        # BIT 7,(IX+d)
-        0x7C: (bit, (20, 4, 7, 'Xd')),                        # BIT 7,(IX+d)
-        0x7D: (bit, (20, 4, 7, 'Xd')),                        # BIT 7,(IX+d)
-        0x7E: (bit, (20, 4, 7, 'Xd')),                        # BIT 7,(IX+d)
-        0x7F: (bit, (20, 4, 7, 'Xd')),                        # BIT 7,(IX+d)
-        0x80: (res_set, (23, 4, 0, 'Xd', 0, 'B')),            # RES 0,(IX+d),B
-        0x81: (res_set, (23, 4, 0, 'Xd', 0, 'C')),            # RES 0,(IX+d),C
-        0x82: (res_set, (23, 4, 0, 'Xd', 0, 'D')),            # RES 0,(IX+d),D
-        0x83: (res_set, (23, 4, 0, 'Xd', 0, 'E')),            # RES 0,(IX+d),E
-        0x84: (res_set, (23, 4, 0, 'Xd', 0, 'H')),            # RES 0,(IX+d),H
-        0x85: (res_set, (23, 4, 0, 'Xd', 0, 'L')),            # RES 0,(IX+d),L
-        0x86: (res_set, (23, 4, 0, 'Xd', 0)),                 # RES 0,(IX+d)
-        0x87: (res_set, (23, 4, 0, 'Xd', 0, 'A')),            # RES 0,(IX+d),A
-        0x88: (res_set, (23, 4, 1, 'Xd', 0, 'B')),            # RES 1,(IX+d),B
-        0x89: (res_set, (23, 4, 1, 'Xd', 0, 'C')),            # RES 1,(IX+d),C
-        0x8A: (res_set, (23, 4, 1, 'Xd', 0, 'D')),            # RES 1,(IX+d),D
-        0x8B: (res_set, (23, 4, 1, 'Xd', 0, 'E')),            # RES 1,(IX+d),E
-        0x8C: (res_set, (23, 4, 1, 'Xd', 0, 'H')),            # RES 1,(IX+d),H
-        0x8D: (res_set, (23, 4, 1, 'Xd', 0, 'L')),            # RES 1,(IX+d),L
-        0x8E: (res_set, (23, 4, 1, 'Xd', 0)),                 # RES 1,(IX+d)
-        0x8F: (res_set, (23, 4, 1, 'Xd', 0, 'A')),            # RES 1,(IX+d),A
-        0x90: (res_set, (23, 4, 2, 'Xd', 0, 'B')),            # RES 2,(IX+d),B
-        0x91: (res_set, (23, 4, 2, 'Xd', 0, 'C')),            # RES 2,(IX+d),C
-        0x92: (res_set, (23, 4, 2, 'Xd', 0, 'D')),            # RES 2,(IX+d),D
-        0x93: (res_set, (23, 4, 2, 'Xd', 0, 'E')),            # RES 2,(IX+d),E
-        0x94: (res_set, (23, 4, 2, 'Xd', 0, 'H')),            # RES 2,(IX+d),H
-        0x95: (res_set, (23, 4, 2, 'Xd', 0, 'L')),            # RES 2,(IX+d),L
-        0x96: (res_set, (23, 4, 2, 'Xd', 0)),                 # RES 2,(IX+d)
-        0x97: (res_set, (23, 4, 2, 'Xd', 0, 'A')),            # RES 2,(IX+d),A
-        0x98: (res_set, (23, 4, 3, 'Xd', 0, 'B')),            # RES 3,(IX+d),B
-        0x99: (res_set, (23, 4, 3, 'Xd', 0, 'C')),            # RES 3,(IX+d),C
-        0x9A: (res_set, (23, 4, 3, 'Xd', 0, 'D')),            # RES 3,(IX+d),D
-        0x9B: (res_set, (23, 4, 3, 'Xd', 0, 'E')),            # RES 3,(IX+d),E
-        0x9C: (res_set, (23, 4, 3, 'Xd', 0, 'H')),            # RES 3,(IX+d),H
-        0x9D: (res_set, (23, 4, 3, 'Xd', 0, 'L')),            # RES 3,(IX+d),L
-        0x9E: (res_set, (23, 4, 3, 'Xd', 0)),                 # RES 3,(IX+d)
-        0x9F: (res_set, (23, 4, 3, 'Xd', 0, 'A')),            # RES 3,(IX+d),A
-        0xA0: (res_set, (23, 4, 4, 'Xd', 0, 'B')),            # RES 4,(IX+d),B
-        0xA1: (res_set, (23, 4, 4, 'Xd', 0, 'C')),            # RES 4,(IX+d),C
-        0xA2: (res_set, (23, 4, 4, 'Xd', 0, 'D')),            # RES 4,(IX+d),D
-        0xA3: (res_set, (23, 4, 4, 'Xd', 0, 'E')),            # RES 4,(IX+d),E
-        0xA4: (res_set, (23, 4, 4, 'Xd', 0, 'H')),            # RES 4,(IX+d),H
-        0xA5: (res_set, (23, 4, 4, 'Xd', 0, 'L')),            # RES 4,(IX+d),L
-        0xA6: (res_set, (23, 4, 4, 'Xd', 0)),                 # RES 4,(IX+d)
-        0xA7: (res_set, (23, 4, 4, 'Xd', 0, 'A')),            # RES 4,(IX+d),A
-        0xA8: (res_set, (23, 4, 5, 'Xd', 0, 'B')),            # RES 5,(IX+d),B
-        0xA9: (res_set, (23, 4, 5, 'Xd', 0, 'C')),            # RES 5,(IX+d),C
-        0xAA: (res_set, (23, 4, 5, 'Xd', 0, 'D')),            # RES 5,(IX+d),D
-        0xAB: (res_set, (23, 4, 5, 'Xd', 0, 'E')),            # RES 5,(IX+d),E
-        0xAC: (res_set, (23, 4, 5, 'Xd', 0, 'H')),            # RES 5,(IX+d),H
-        0xAD: (res_set, (23, 4, 5, 'Xd', 0, 'L')),            # RES 5,(IX+d),L
-        0xAE: (res_set, (23, 4, 5, 'Xd', 0)),                 # RES 5,(IX+d)
-        0xAF: (res_set, (23, 4, 5, 'Xd', 0, 'A')),            # RES 5,(IX+d),A
-        0xB0: (res_set, (23, 4, 6, 'Xd', 0, 'B')),            # RES 6,(IX+d),B
-        0xB1: (res_set, (23, 4, 6, 'Xd', 0, 'C')),            # RES 6,(IX+d),C
-        0xB2: (res_set, (23, 4, 6, 'Xd', 0, 'D')),            # RES 6,(IX+d),D
-        0xB3: (res_set, (23, 4, 6, 'Xd', 0, 'E')),            # RES 6,(IX+d),E
-        0xB4: (res_set, (23, 4, 6, 'Xd', 0, 'H')),            # RES 6,(IX+d),H
-        0xB5: (res_set, (23, 4, 6, 'Xd', 0, 'L')),            # RES 6,(IX+d),L
-        0xB6: (res_set, (23, 4, 6, 'Xd', 0)),                 # RES 6,(IX+d)
-        0xB7: (res_set, (23, 4, 6, 'Xd', 0, 'A')),            # RES 6,(IX+d),A
-        0xB8: (res_set, (23, 4, 7, 'Xd', 0, 'B')),            # RES 7,(IX+d),B
-        0xB9: (res_set, (23, 4, 7, 'Xd', 0, 'C')),            # RES 7,(IX+d),C
-        0xBA: (res_set, (23, 4, 7, 'Xd', 0, 'D')),            # RES 7,(IX+d),D
-        0xBB: (res_set, (23, 4, 7, 'Xd', 0, 'E')),            # RES 7,(IX+d),E
-        0xBC: (res_set, (23, 4, 7, 'Xd', 0, 'H')),            # RES 7,(IX+d),H
-        0xBD: (res_set, (23, 4, 7, 'Xd', 0, 'L')),            # RES 7,(IX+d),L
-        0xBE: (res_set, (23, 4, 7, 'Xd', 0)),                 # RES 7,(IX+d)
-        0xBF: (res_set, (23, 4, 7, 'Xd', 0, 'A')),            # RES 7,(IX+d),A
-        0xC0: (res_set, (23, 4, 0, 'Xd', 1, 'B')),            # SET 0,(IX+d),B
-        0xC1: (res_set, (23, 4, 0, 'Xd', 1, 'C')),            # SET 0,(IX+d),C
-        0xC2: (res_set, (23, 4, 0, 'Xd', 1, 'D')),            # SET 0,(IX+d),D
-        0xC3: (res_set, (23, 4, 0, 'Xd', 1, 'E')),            # SET 0,(IX+d),E
-        0xC4: (res_set, (23, 4, 0, 'Xd', 1, 'H')),            # SET 0,(IX+d),H
-        0xC5: (res_set, (23, 4, 0, 'Xd', 1, 'L')),            # SET 0,(IX+d),L
-        0xC6: (res_set, (23, 4, 0, 'Xd', 1)),                 # SET 0,(IX+d)
-        0xC7: (res_set, (23, 4, 0, 'Xd', 1, 'A')),            # SET 0,(IX+d),A
-        0xC8: (res_set, (23, 4, 1, 'Xd', 1, 'B')),            # SET 1,(IX+d),B
-        0xC9: (res_set, (23, 4, 1, 'Xd', 1, 'C')),            # SET 1,(IX+d),C
-        0xCA: (res_set, (23, 4, 1, 'Xd', 1, 'D')),            # SET 1,(IX+d),D
-        0xCB: (res_set, (23, 4, 1, 'Xd', 1, 'E')),            # SET 1,(IX+d),E
-        0xCC: (res_set, (23, 4, 1, 'Xd', 1, 'H')),            # SET 1,(IX+d),H
-        0xCD: (res_set, (23, 4, 1, 'Xd', 1, 'L')),            # SET 1,(IX+d),L
-        0xCE: (res_set, (23, 4, 1, 'Xd', 1)),                 # SET 1,(IX+d)
-        0xCF: (res_set, (23, 4, 1, 'Xd', 1, 'A')),            # SET 1,(IX+d),A
-        0xD0: (res_set, (23, 4, 2, 'Xd', 1, 'B')),            # SET 2,(IX+d),B
-        0xD1: (res_set, (23, 4, 2, 'Xd', 1, 'C')),            # SET 2,(IX+d),C
-        0xD2: (res_set, (23, 4, 2, 'Xd', 1, 'D')),            # SET 2,(IX+d),D
-        0xD3: (res_set, (23, 4, 2, 'Xd', 1, 'E')),            # SET 2,(IX+d),E
-        0xD4: (res_set, (23, 4, 2, 'Xd', 1, 'H')),            # SET 2,(IX+d),H
-        0xD5: (res_set, (23, 4, 2, 'Xd', 1, 'L')),            # SET 2,(IX+d),L
-        0xD6: (res_set, (23, 4, 2, 'Xd', 1)),                 # SET 2,(IX+d)
-        0xD7: (res_set, (23, 4, 2, 'Xd', 1, 'A')),            # SET 2,(IX+d),A
-        0xD8: (res_set, (23, 4, 3, 'Xd', 1, 'B')),            # SET 3,(IX+d),B
-        0xD9: (res_set, (23, 4, 3, 'Xd', 1, 'C')),            # SET 3,(IX+d),C
-        0xDA: (res_set, (23, 4, 3, 'Xd', 1, 'D')),            # SET 3,(IX+d),D
-        0xDB: (res_set, (23, 4, 3, 'Xd', 1, 'E')),            # SET 3,(IX+d),E
-        0xDC: (res_set, (23, 4, 3, 'Xd', 1, 'H')),            # SET 3,(IX+d),H
-        0xDD: (res_set, (23, 4, 3, 'Xd', 1, 'L')),            # SET 3,(IX+d),L
-        0xDE: (res_set, (23, 4, 3, 'Xd', 1)),                 # SET 3,(IX+d)
-        0xDF: (res_set, (23, 4, 3, 'Xd', 1, 'A')),            # SET 3,(IX+d),A
-        0xE0: (res_set, (23, 4, 4, 'Xd', 1, 'B')),            # SET 4,(IX+d),B
-        0xE1: (res_set, (23, 4, 4, 'Xd', 1, 'C')),            # SET 4,(IX+d),C
-        0xE2: (res_set, (23, 4, 4, 'Xd', 1, 'D')),            # SET 4,(IX+d),D
-        0xE3: (res_set, (23, 4, 4, 'Xd', 1, 'E')),            # SET 4,(IX+d),E
-        0xE4: (res_set, (23, 4, 4, 'Xd', 1, 'H')),            # SET 4,(IX+d),H
-        0xE5: (res_set, (23, 4, 4, 'Xd', 1, 'L')),            # SET 4,(IX+d),L
-        0xE6: (res_set, (23, 4, 4, 'Xd', 1)),                 # SET 4,(IX+d)
-        0xE7: (res_set, (23, 4, 4, 'Xd', 1, 'A')),            # SET 4,(IX+d),A
-        0xE8: (res_set, (23, 4, 5, 'Xd', 1, 'B')),            # SET 5,(IX+d),B
-        0xE9: (res_set, (23, 4, 5, 'Xd', 1, 'C')),            # SET 5,(IX+d),C
-        0xEA: (res_set, (23, 4, 5, 'Xd', 1, 'D')),            # SET 5,(IX+d),D
-        0xEB: (res_set, (23, 4, 5, 'Xd', 1, 'E')),            # SET 5,(IX+d),E
-        0xEC: (res_set, (23, 4, 5, 'Xd', 1, 'H')),            # SET 5,(IX+d),H
-        0xED: (res_set, (23, 4, 5, 'Xd', 1, 'L')),            # SET 5,(IX+d),L
-        0xEE: (res_set, (23, 4, 5, 'Xd', 1)),                 # SET 5,(IX+d)
-        0xEF: (res_set, (23, 4, 5, 'Xd', 1, 'A')),            # SET 5,(IX+d),A
-        0xF0: (res_set, (23, 4, 6, 'Xd', 1, 'B')),            # SET 6,(IX+d),B
-        0xF1: (res_set, (23, 4, 6, 'Xd', 1, 'C')),            # SET 6,(IX+d),C
-        0xF2: (res_set, (23, 4, 6, 'Xd', 1, 'D')),            # SET 6,(IX+d),D
-        0xF3: (res_set, (23, 4, 6, 'Xd', 1, 'E')),            # SET 6,(IX+d),E
-        0xF4: (res_set, (23, 4, 6, 'Xd', 1, 'H')),            # SET 6,(IX+d),H
-        0xF5: (res_set, (23, 4, 6, 'Xd', 1, 'L')),            # SET 6,(IX+d),L
-        0xF6: (res_set, (23, 4, 6, 'Xd', 1)),                 # SET 6,(IX+d)
-        0xF7: (res_set, (23, 4, 6, 'Xd', 1, 'A')),            # SET 6,(IX+d),A
-        0xF8: (res_set, (23, 4, 7, 'Xd', 1, 'B')),            # SET 7,(IX+d),B
-        0xF9: (res_set, (23, 4, 7, 'Xd', 1, 'C')),            # SET 7,(IX+d),C
-        0xFA: (res_set, (23, 4, 7, 'Xd', 1, 'D')),            # SET 7,(IX+d),D
-        0xFB: (res_set, (23, 4, 7, 'Xd', 1, 'E')),            # SET 7,(IX+d),E
-        0xFC: (res_set, (23, 4, 7, 'Xd', 1, 'H')),            # SET 7,(IX+d),H
-        0xFD: (res_set, (23, 4, 7, 'Xd', 1, 'L')),            # SET 7,(IX+d),L
-        0xFE: (res_set, (23, 4, 7, 'Xd', 1)),                 # SET 7,(IX+d)
-        0xFF: (res_set, (23, 4, 7, 'Xd', 1, 'A')),            # SET 7,(IX+d),A
+    opcodes = {
+        0x00: (nop, ()),                                      # NOP
+        0x01: (ld16, ('BC',)),                                # LD BC,nn
+        0x02: (ld8, (7, 1, '(BC)', 'A')),                     # LD (BC),A
+        0x03: (inc_dec16, ('INC', 'BC')),                     # INC BC
+        0x04: (inc_r, ('B',)),                                # INC B
+        0x05: (dec_r, ('B')),                                 # DEC B
+        0x06: (ld_r_n, ('B')),                                # LD B,n
+        0x07: (rotate, (4, 1, 'RLC', 128, 'A', 'C')),         # RLCA
+        0x08: (ex_af, ()),                                    # EX AF,AF'
+        0x09: (add16, (11, 1, 'HL', 'BC')),                   # ADD HL,BC
+        0x0A: (ld8, (7, 1, 'A', '(BC)')),                     # LD A,(BC)
+        0x0B: (inc_dec16, ('DEC', 'BC')),                     # DEC BC
+        0x0C: (inc_r, ('C',)),                                # INC C
+        0x0D: (dec_r, ('C')),                                 # DEC C
+        0x0E: (ld_r_n, ('C')),                                # LD C,n
+        0x0F: (rotate, (4, 1, 'RRC', 1, 'A', 'C')),           # RRCA
+        0x10: (djnz, ()),                                     # DJNZ nn
+        0x11: (ld16, ('DE',)),                                # LD DE,nn
+        0x12: (ld8, (7, 1, '(DE)', 'A')),                     # LD (DE),A
+        0x13: (inc_dec16, ('INC', 'DE')),                     # INC DE
+        0x14: (inc_r, ('D',)),                                # INC D
+        0x15: (dec_r, ('D')),                                 # DEC D
+        0x16: (ld_r_n, ('D')),                                # LD D,n
+        0x17: (rotate, (4, 1, 'RL', 128, 'A')),               # RLA
+        0x18: (jr, ('', 0, 0)),                               # JR nn
+        0x19: (add16, (11, 1, 'HL', 'DE')),                   # ADD HL,DE
+        0x1A: (ld8, (7, 1, 'A', '(DE)')),                     # LD A,(DE)
+        0x1B: (inc_dec16, ('DEC', 'DE')),                     # DEC DE
+        0x1C: (inc_r, ('E',)),                                # INC E
+        0x1D: (dec_r, ('E')),                                 # DEC E
+        0x1E: (ld_r_n, ('E')),                                # LD E,n
+        0x1F: (rotate, (4, 1, 'RR', 1, 'A')),                 # RRA
+        0x20: (jr, ('NZ', 64, 64)),                           # JR NZ,nn
+        0x21: (ld16, ('HL',)),                                # LD HL,nn
+        0x22: (ld16addr, (16, 3, 'HL', 1)),                   # LD (nn),HL
+        0x23: (inc_dec16, ('INC', 'HL')),                     # INC HL
+        0x24: (inc_r, ('H',)),                                # INC H
+        0x25: (dec_r, ('H')),                                 # DEC H
+        0x26: (ld_r_n, ('H')),                                # LD H,n
+        0x27: (daa, ()),                                      # DAA
+        0x28: (jr, ('Z', 64, 0)),                             # JR Z,nn
+        0x29: (add16, (11, 1, 'HL', 'HL')),                   # ADD HL,HL
+        0x2A: (ld16addr, (16, 3, 'HL', 0)),                   # LD HL,(nn)
+        0x2B: (inc_dec16, ('DEC', 'HL')),                     # DEC HL
+        0x2C: (inc_r, ('L',)),                                # INC L
+        0x2D: (dec_r, ('L')),                                 # DEC L
+        0x2E: (ld_r_n, ('L')),                                # LD L,n
+        0x2F: (cpl, ()),                                      # CPL
+        0x30: (jr, ('NC', 1, 1)),                             # JR NC,nn
+        0x31: (ld16, ('SP',)),                                # LD SP,nn
+        0x32: (ldann, ()),                                    # LD (nn),A
+        0x33: (inc_dec16, ('INC', 'SP')),                     # INC SP
+        0x34: (inc_dec8, (11, 1, 'INC', '(HL)')),             # INC (HL)
+        0x35: (inc_dec8, (11, 1, 'DEC', '(HL)')),             # DEC (HL)
+        0x36: (ld8, (10, 2, '(HL)')),                         # LD (HL),n
+        0x37: (cf, ()),                                       # SCF
+        0x38: (jr, ('C', 1, 0)),                              # JR C,nn
+        0x39: (add16, (11, 1, 'HL', 'SP')),                   # ADD HL,SP
+        0x3A: (ldann, ()),                                    # LD A,(nn)
+        0x3B: (inc_dec16, ('DEC', 'SP')),                     # DEC SP
+        0x3C: (inc_r, ('A',)),                                # INC A
+        0x3D: (dec_r, ('A')),                                 # DEC A
+        0x3E: (ld_r_n, ('A')),                                # LD A,n
+        0x3F: (cf, ()),                                       # CCF
+        0x40: (ld_r_r, ('LD B,B', 'B', 'B')),                 # LD B,B
+        0x41: (ld_r_r, ('LD B,C', 'B', 'C')),                 # LD B,C
+        0x42: (ld_r_r, ('LD B,D', 'B', 'D')),                 # LD B,D
+        0x43: (ld_r_r, ('LD B,E', 'B', 'E')),                 # LD B,E
+        0x44: (ld_r_r, ('LD B,H', 'B', 'H')),                 # LD B,H
+        0x45: (ld_r_r, ('LD B,L', 'B', 'L')),                 # LD B,L
+        0x46: (ld8, (7, 1, 'B', '(HL)')),                     # LD B,(HL)
+        0x47: (ld_r_r, ('LD B,A', 'B', 'A')),                 # LD B,A
+        0x48: (ld_r_r, ('LD C,B', 'C', 'B')),                 # LD C,B
+        0x49: (ld_r_r, ('LD C,C', 'C', 'C')),                 # LD C,C
+        0x4A: (ld_r_r, ('LD C,D', 'C', 'D')),                 # LD C,D
+        0x4B: (ld_r_r, ('LD C,E', 'C', 'E')),                 # LD C,E
+        0x4C: (ld_r_r, ('LD C,H', 'C', 'H')),                 # LD C,H
+        0x4D: (ld_r_r, ('LD C,L', 'C', 'L')),                 # LD C,L
+        0x4E: (ld8, (7, 1, 'C', '(HL)')),                     # LD C,(HL)
+        0x4F: (ld_r_r, ('LD C,A', 'C', 'A')),                 # LD C,A
+        0x50: (ld_r_r, ('LD D,B', 'D', 'B')),                 # LD D,B
+        0x51: (ld_r_r, ('LD D,C', 'D', 'C')),                 # LD D,C
+        0x52: (ld_r_r, ('LD D,D', 'D', 'D')),                 # LD D,D
+        0x53: (ld_r_r, ('LD D,E', 'D', 'E')),                 # LD D,E
+        0x54: (ld_r_r, ('LD D,H', 'D', 'H')),                 # LD D,H
+        0x55: (ld_r_r, ('LD D,L', 'D', 'L')),                 # LD D,L
+        0x56: (ld8, (7, 1, 'D', '(HL)')),                     # LD D,(HL)
+        0x57: (ld_r_r, ('LD D,A', 'D', 'A')),                 # LD D,A
+        0x58: (ld_r_r, ('LD E,B', 'E', 'B')),                 # LD E,B
+        0x59: (ld_r_r, ('LD E,C', 'E', 'C')),                 # LD E,C
+        0x5A: (ld_r_r, ('LD E,D', 'E', 'D')),                 # LD E,D
+        0x5B: (ld_r_r, ('LD E,E', 'E', 'E')),                 # LD E,E
+        0x5C: (ld_r_r, ('LD E,H', 'E', 'H')),                 # LD E,H
+        0x5D: (ld_r_r, ('LD E,L', 'E', 'L')),                 # LD E,L
+        0x5E: (ld8, (7, 1, 'E', '(HL)')),                     # LD E,(HL)
+        0x5F: (ld_r_r, ('LD E,A', 'E', 'A')),                 # LD E,A
+        0x60: (ld_r_r, ('LD H,B', 'H', 'B')),                 # LD H,B
+        0x61: (ld_r_r, ('LD H,C', 'H', 'C')),                 # LD H,C
+        0x62: (ld_r_r, ('LD H,D', 'H', 'D')),                 # LD H,D
+        0x63: (ld_r_r, ('LD H,E', 'H', 'E')),                 # LD H,E
+        0x64: (ld_r_r, ('LD H,H', 'H', 'H')),                 # LD H,H
+        0x65: (ld_r_r, ('LD H,L', 'H', 'L')),                 # LD H,L
+        0x66: (ld8, (7, 1, 'H', '(HL)')),                     # LD H,(HL)
+        0x67: (ld_r_r, ('LD H,A', 'H', 'A')),                 # LD H,A
+        0x68: (ld_r_r, ('LD L,B', 'L', 'B')),                 # LD L,B
+        0x69: (ld_r_r, ('LD L,C', 'L', 'C')),                 # LD L,C
+        0x6A: (ld_r_r, ('LD L,D', 'L', 'D')),                 # LD L,D
+        0x6B: (ld_r_r, ('LD L,E', 'L', 'E')),                 # LD L,E
+        0x6C: (ld_r_r, ('LD L,H', 'L', 'H')),                 # LD L,H
+        0x6D: (ld_r_r, ('LD L,L', 'L', 'L')),                 # LD L,L
+        0x6E: (ld8, (7, 1, 'L', '(HL)')),                     # LD L,(HL)
+        0x6F: (ld_r_r, ('LD L,A', 'L', 'A')),                 # LD L,A
+        0x70: (ld8, (7, 1, '(HL)', 'B')),                     # LD (HL),B
+        0x71: (ld8, (7, 1, '(HL)', 'C')),                     # LD (HL),C
+        0x72: (ld8, (7, 1, '(HL)', 'D')),                     # LD (HL),D
+        0x73: (ld8, (7, 1, '(HL)', 'E')),                     # LD (HL),E
+        0x74: (ld8, (7, 1, '(HL)', 'H')),                     # LD (HL),H
+        0x75: (ld8, (7, 1, '(HL)', 'L')),                     # LD (HL),L
+        0x76: (halt, ()),                                     # HALT
+        0x77: (ld8, (7, 1, '(HL)', 'A')),                     # LD (HL),A
+        0x78: (ld_r_r, ('LD A,B', 'A', 'B')),                 # LD A,B
+        0x79: (ld_r_r, ('LD A,C', 'A', 'C')),                 # LD A,C
+        0x7A: (ld_r_r, ('LD A,D', 'A', 'D')),                 # LD A,D
+        0x7B: (ld_r_r, ('LD A,E', 'A', 'E')),                 # LD A,E
+        0x7C: (ld_r_r, ('LD A,H', 'A', 'H')),                 # LD A,H
+        0x7D: (ld_r_r, ('LD A,L', 'A', 'L')),                 # LD A,L
+        0x7E: (ld8, (7, 1, 'A', '(HL)')),                     # LD A,(HL)
+        0x7F: (ld_r_r, ('LD A,A', 'A', 'A')),                 # LD A,A
+        0x80: (add_a, (4, 1, 'B')),                           # ADD A,B
+        0x81: (add_a, (4, 1, 'C')),                           # ADD A,C
+        0x82: (add_a, (4, 1, 'D')),                           # ADD A,D
+        0x83: (add_a, (4, 1, 'E')),                           # ADD A,E
+        0x84: (add_a, (4, 1, 'H')),                           # ADD A,H
+        0x85: (add_a, (4, 1, 'L')),                           # ADD A,L
+        0x86: (add_a, (7, 1, '(HL)')),                        # ADD A,(HL)
+        0x87: (add_a, (4, 1, 'A')),                           # ADD A,A
+        0x88: (add_a, (4, 1, 'B', 1)),                        # ADC A,B
+        0x89: (add_a, (4, 1, 'C', 1)),                        # ADC A,C
+        0x8A: (add_a, (4, 1, 'D', 1)),                        # ADC A,D
+        0x8B: (add_a, (4, 1, 'E', 1)),                        # ADC A,E
+        0x8C: (add_a, (4, 1, 'H', 1)),                        # ADC A,H
+        0x8D: (add_a, (4, 1, 'L', 1)),                        # ADC A,L
+        0x8E: (add_a, (7, 1, '(HL)', 1)),                     # ADC A,(HL)
+        0x8F: (add_a, (4, 1, 'A', 1)),                        # ADC A,A
+        0x90: (add_a, (4, 1, 'B', 0, -1)),                    # SUB B
+        0x91: (add_a, (4, 1, 'C', 0, -1)),                    # SUB C
+        0x92: (add_a, (4, 1, 'D', 0, -1)),                    # SUB D
+        0x93: (add_a, (4, 1, 'E', 0, -1)),                    # SUB E
+        0x94: (add_a, (4, 1, 'H', 0, -1)),                    # SUB H
+        0x95: (add_a, (4, 1, 'L', 0, -1)),                    # SUB L
+        0x96: (add_a, (7, 1, '(HL)', 0, -1)),                 # SUB (HL)
+        0x97: (add_a, (4, 1, 'A', 0, -1)),                    # SUB A
+        0x98: (add_a, (4, 1, 'B', 1, -1)),                    # SBC A,B
+        0x99: (add_a, (4, 1, 'C', 1, -1)),                    # SBC A,C
+        0x9A: (add_a, (4, 1, 'D', 1, -1)),                    # SBC A,D
+        0x9B: (add_a, (4, 1, 'E', 1, -1)),                    # SBC A,E
+        0x9C: (add_a, (4, 1, 'H', 1, -1)),                    # SBC A,H
+        0x9D: (add_a, (4, 1, 'L', 1, -1)),                    # SBC A,L
+        0x9E: (add_a, (7, 1, '(HL)', 1, -1)),                 # SBC A,(HL)
+        0x9F: (add_a, (4, 1, 'A', 1, -1)),                    # SBC A,A
+        0xA0: (and_r, ('B',)),                                # AND B
+        0xA1: (and_r, ('C',)),                                # AND C
+        0xA2: (and_r, ('D',)),                                # AND D
+        0xA3: (and_r, ('E',)),                                # AND E
+        0xA4: (and_r, ('H',)),                                # AND H
+        0xA5: (and_r, ('L',)),                                # AND L
+        0xA6: (anda, (7, 1, '(HL)')),                         # AND (HL)
+        0xA7: (and_r, ('A',)),                                # AND A
+        0xA8: (xor_r, ('B',)),                                # XOR B
+        0xA9: (xor_r, ('C',)),                                # XOR C
+        0xAA: (xor_r, ('D',)),                                # XOR D
+        0xAB: (xor_r, ('E',)),                                # XOR E
+        0xAC: (xor_r, ('H',)),                                # XOR H
+        0xAD: (xor_r, ('L',)),                                # XOR L
+        0xAE: (xor, (7, 1, '(HL)')),                          # XOR (HL)
+        0xAF: (xor_r, ('A',)),                                # XOR A
+        0xB0: (or_r, ('B',)),                                 # OR B
+        0xB1: (or_r, ('C',)),                                 # OR C
+        0xB2: (or_r, ('D',)),                                 # OR D
+        0xB3: (or_r, ('E',)),                                 # OR E
+        0xB4: (or_r, ('H',)),                                 # OR H
+        0xB5: (or_r, ('L',)),                                 # OR L
+        0xB6: (ora, (7, 1, '(HL)')),                          # OR (HL)
+        0xB7: (or_r, ('A',)),                                 # OR A
+        0xB8: (cp, (4, 1, 'B')),                              # CP B
+        0xB9: (cp, (4, 1, 'C')),                              # CP C
+        0xBA: (cp, (4, 1, 'D')),                              # CP D
+        0xBB: (cp, (4, 1, 'E')),                              # CP E
+        0xBC: (cp, (4, 1, 'H')),                              # CP H
+        0xBD: (cp, (4, 1, 'L')),                              # CP L
+        0xBE: (cp, (7, 1, '(HL)')),                           # CP (HL)
+        0xBF: (cp, (4, 1, 'A')),                              # CP A
+        0xC0: (ret, ('RET NZ', 64, 64)),                      # RET NZ
+        0xC1: (pop, ('BC',)),                                 # POP BC
+        0xC2: (jp, ('NZ', 64, 64)),                           # JP NZ,nn
+        0xC3: (jp, ('', 0, 0)),                               # JP nn
+        0xC4: (call, ('NZ', 64, 64)),                         # CALL NZ,nn
+        0xC5: (push, ('BC',)),                                # PUSH BC
+        0xC6: (add_a, (7, 2, )),                              # ADD A,n
+        0xC7: (rst, (0,)),                                    # RST $00
+        0xC8: (ret, ('RET Z', 64, 0)),                        # RET Z
+        0xC9: (ret, ('RET', 0, 0)),                           # RET
+        0xCA: (jp, ('Z', 64, 0)),                             # JP Z,nn
+        0xCB: (None, after_CB),                               # CB prefix
+        0xCC: (call, ('Z', 64, 0)),                           # CALL Z,nn
+        0xCD: (call, ('', 0, 0)),                             # CALL nn
+        0xCE: (add_a, (7, 2, None, 1, 1)),                    # ADC A,n
+        0xCF: (rst, (8,)),                                    # RST $08
+        0xD0: (ret, ('RET NC', 1, 1)),                        # RET NC
+        0xD1: (pop, ('DE',)),                                 # POP DE
+        0xD2: (jp, ('NC', 1, 1)),                             # JP NC,nn
+        0xD3: (outa, ()),                                     # OUT (n),A
+        0xD4: (call, ('NC', 1, 1)),                           # CALL NC,nn
+        0xD5: (push, ('DE',)),                                # PUSH DE
+        0xD6: (add_a, (7, 2, None, 0, -1)),                   # SUB n
+        0xD7: (rst, (16,)),                                   # RST $10
+        0xD8: (ret, ('RET C', 1, 0)),                         # RET C
+        0xD9: (exx, ()),                                      # EXX
+        0xDA: (jp, ('C', 1, 0)),                              # JP C,nn
+        0xDB: (in_a, ()),                                     # IN A,(n)
+        0xDC: (call, ('C', 1, 0)),                            # CALL C,nn
+        0xDD: (None, None),                                   # DD prefix
+        0xDE: (add_a, (7, 2, None, 1, -1)),                   # SBC A,n
+        0xDF: (rst, (24,)),                                   # RST $18
+        0xE0: (ret, ('RET PO', 4, 4)),                        # RET PO
+        0xE1: (pop, ('HL',)),                                 # POP HL
+        0xE2: (jp, ('PO', 4, 4)),                             # JP PO,nn
+        0xE3: (ex_sp, ('HL',)),                               # EX (SP),HL
+        0xE4: (call, ('PO', 4, 4)),                           # CALL PO,nn
+        0xE5: (push, ('HL',)),                                # PUSH HL
+        0xE6: (and_n, ()),                                    # AND n
+        0xE7: (rst, (32,)),                                   # RST $20
+        0xE8: (ret, ('RET PE', 4, 0)),                        # RET PE
+        0xE9: (jp, ('', 0, 0)),                               # JP (HL)
+        0xEA: (jp, ('PE', 4, 0)),                             # JP PE,nn
+        0xEB: (ex_de_hl, ()),                                 # EX DE,HL
+        0xEC: (call, ('PE', 4, 0)),                           # CALL PE,nn
+        0xED: (None, after_ED),                               # ED prefix
+        0xEE: (xor_n, ()),                                    # XOR n
+        0xEF: (rst, (40,)),                                   # RST $28
+        0xF0: (ret, ('RET P', 128, 128)),                     # RET P
+        0xF1: (pop, ('AF',)),                                 # POP AF
+        0xF2: (jp, ('P', 128, 128)),                          # JP P,nn
+        0xF3: (di_ei, ('DI', 0)),                             # DI
+        0xF4: (call, ('P', 128, 128)),                        # CALL P,nn
+        0xF5: (push, ('AF',)),                                # PUSH AF
+        0xF6: (or_n, ()),                                     # OR n
+        0xF7: (rst, (48,)),                                   # RST $30
+        0xF8: (ret, ('RET M', 128, 0)),                       # RET M
+        0xF9: (ldsprr, ('HL',)),                              # LD SP,HL
+        0xFA: (jp, ('M', 128, 0)),                            # JP M,nn
+        0xFB: (di_ei, ('EI', 1)),                             # EI
+        0xFC: (call, ('M', 128, 0)),                          # CALL M,nn
+        0xFD: (None, None),                                   # FD prefix
+        0xFE: (cp, (7, 2, )),                                 # CP n
+        0xFF: (rst, (56,)),                                   # RST $38
     }
