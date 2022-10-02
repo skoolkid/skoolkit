@@ -18,8 +18,9 @@ from skoolkit import SkoolKitError, get_int_param, integer, read_bin_file
 from skoolkit.snapshot import make_snapshot, print_reg_help
 from skoolkit.simulator import Simulator
 
-TRACE1 = "{i.time:>9}  {bytes:<8} ${i.address:04X} {i.operation:<16}  [{i.tstates:>2}]"
-TRACE2 = TRACE1 + "  A={A:02X} F={F:08b} BC={BC:04X} DE={DE:04X} HL={HL:04X} A'={^A:02X} F'={^F:08b} BC'={BC':04X} DE'={DE':04X} HL'={HL':04X} SP={SP:04X}"
+TRACE1 = "{i.time:>9}  ${i.address:04X} {i.operation:<16}  [{i.tstates:>2}]"
+TRACE2 = TRACE1 + "  A={A:02X} F={F:08b} BC={BC:04X} DE={DE:04X} HL={HL:04X} IX={IX:04X} IY={IY:04X} IR={IR:04X}\n"
+TRACE2 += "                                         A'={^A:02X} F'={^F:08b} BC'={BC':04X} DE'={DE':04X} HL'={HL':04X} SP={SP:04X}"
 
 class Tracer:
     def __init__(self, verbose, end=-1, max_operations=0, max_tstates=0):
@@ -37,17 +38,19 @@ class Tracer:
                 fmt = TRACE2
             else:
                 fmt = TRACE1
-            bvals = ''.join(f'{b:02X}' for b in instruction.data)
             registers = simulator.registers.copy()
             registers.update({
                 "BC": registers['C'] + 256 * registers['B'],
                 "DE": registers['E'] + 256 * registers['D'],
                 "HL": registers['L'] + 256 * registers['H'],
+                "IX": registers['IXl'] + 256 * registers['IXh'],
+                "IY": registers['IYl'] + 256 * registers['IYh'],
+                "IR": registers['R'] + 256 * registers['I'],
                 "BC'": registers['^C'] + 256 * registers['^B'],
                 "DE'": registers['^E'] + 256 * registers['^D'],
                 "HL'": registers['^L'] + 256 * registers['^H']
             })
-            print(fmt.format(i=instruction, bytes=bvals, **registers))
+            print(fmt.format(i=instruction, **registers))
 
         self.operations += 1
 
@@ -65,19 +68,10 @@ class Tracer:
             print(f'Stopped at {addr}: PUSH-POP count is {simulator.ppcount}')
             return True
 
-    def read_port(self, simulator, port):
-        return 0xFF
-
     def write_port(self, simulator, port, value):
         if port & 0xFF == 0xFE and self.spkr is None or self.spkr != value & 0x10:
             self.spkr = value & 0x10
             self.out_times.append(simulator.tstates)
-
-    def read_memory(self, simulator, address, count):
-        pass
-
-    def write_memory(self, simulator, address, values):
-        pass
 
 def get_registers(specs):
     registers = {}
