@@ -384,12 +384,12 @@ class Simulator:
         self.registers['F'] = f
         return f'BIT {bit},{operand}', self.pc + size, timing
 
-    def block(self, timing, size, op, inc, repeat):
+    def block(self, op, inc, repeat):
         hl = self.registers['L'] + 256 * self.registers['H']
         bc = self.registers['C'] + 256 * self.registers['B']
         b = self.registers['B']
         a = self.registers['A']
-        tstates = timing
+        tstates = 16
         addr = self.pc + 2
         bc_inc = -1
 
@@ -409,12 +409,14 @@ class Simulator:
                 f |= 0x04 # .....P..
             if repeat and a != value and bc > 1:
                 addr = self.pc
+                tstates = 21
         elif op.startswith('IN'):
             value = self._in(bc)
             self.poke(hl, value)
             bc_inc = -256
             if repeat and b != 1:
                 addr = self.pc
+                tstates = 21
             b1 = (b - 1) & 0xFF
             j = value + ((self.registers['C'] + inc) & 0xFF)
             f = (b1 & 0xA8) | PARITY[(j & 7) ^ b1] # S.5.3P..
@@ -432,6 +434,7 @@ class Simulator:
             self.registers['E'], self.registers['D'] = de % 256, de // 256
             if repeat and bc != 1:
                 addr = self.pc
+                tstates = 21
             n = (self.registers['A'] + at_hl) & 0xFF
             f = self.registers['F'] & 0xC1 # SZ.H..NC
             if n & 0x02:
@@ -444,6 +447,7 @@ class Simulator:
             bc_inc = -256
             if repeat and b != 1:
                 addr = self.pc
+                tstates = 21
             outval = self.peek(hl)
             self._out((bc - 256) & 0xFFFF, outval)
             b1 = (b - 1) & 0xFF
@@ -456,12 +460,6 @@ class Simulator:
             if outval & 0x80:
                 f |= 0x02 # ......N.
 
-        if repeat:
-            if addr == self.pc:
-                tstates = timing[0]
-            else:
-                tstates = timing[1]
-
         hl = (hl + inc) & 0xFFFF
         bc = (bc + bc_inc) & 0xFFFF
         self.registers['L'], self.registers['H'] = hl % 256, hl // 256
@@ -470,22 +468,22 @@ class Simulator:
 
         return op, addr, tstates
 
-    def call(self, timing, size, condition, c_and, c_xor):
+    def call(self, condition, c_and, c_xor):
         addr = self.snapshot[(self.pc + 1) & 0xFFFF] + 256 * self.snapshot[(self.pc + 2) & 0xFFFF]
         ret_addr = (self.pc + 3) & 0xFFFF
         if condition:
             if self.registers['F'] & c_and ^ c_xor:
                 pc = addr
                 self._push(ret_addr % 256, ret_addr // 256)
-                tstates = timing[0]
+                tstates = 17
             else:
                 pc = self.pc + 3
-                tstates = timing[1]
+                tstates = 10
             return f'CALL {condition},${addr:04X}', pc, tstates
         self._push(ret_addr % 256, ret_addr // 256)
-        return f'CALL ${addr:04X}', addr, timing
+        return f'CALL ${addr:04X}', addr, 17
 
-    def cf(self, timing, size):
+    def cf(self):
         f = self.registers['F'] & 0xC4 # SZ...PN.
         if self.snapshot[self.pc] == 63:
             operation = 'CCF'
@@ -499,7 +497,7 @@ class Simulator:
             f |= 0x01 # .......C
         f |= self.registers['A'] & 0x28 # ..5.3...
         self.registers['F'] = f
-        return operation, self.pc + 1, timing
+        return operation, self.pc + 1, 4
 
     def cp(self, timing, size, reg=None):
         operand, value = self.get_operand_value(size, reg)
@@ -519,13 +517,13 @@ class Simulator:
         self.registers['F'] = f
         return f'CP {operand}', self.pc + size, timing
 
-    def cpl(self, timing, size):
+    def cpl(self):
         a = self.registers['A'] ^ 255
         self.registers['A'] = a
         self.registers['F'] = (self.registers['F'] & 0xC5) | (a & 0x28) | 0x12
-        return 'CPL', self.pc + 1, timing
+        return 'CPL', self.pc + 1, 4
 
-    def daa(self, timing, size):
+    def daa(self):
         a = self.registers['A']
         hf = self.registers['F'] & 0x10
         nf = self.registers['F'] & 0x02
@@ -564,9 +562,9 @@ class Simulator:
             f |= 0x40 # .Z......
         self.registers['F'] = f
 
-        return 'DAA', self.pc + 1, timing
+        return 'DAA', self.pc + 1, 4
 
-    def dec_r(self, timing, size, reg):
+    def dec_r(self, reg):
         o_value = self.registers[reg]
         value = (o_value - 1) & 0xFF
         f = (self.registers['F'] & 0x01) | (value & 0xA8) # S.5.3..C
@@ -579,18 +577,18 @@ class Simulator:
             f |= 0x40 # .Z......
         self.registers['F'] = f
         self.registers[reg] = value
-        return 'DEC ' + reg, self.pc + size, timing
+        return 'DEC ' + reg, self.pc + 1, 4
 
     def defb(self, timing, size):
         end = self.pc + size
         values = ','.join(f'${self.snapshot[a & 0xFFFF]:02X}' for a in range(self.pc, end))
         return f'DEFB {values}', end, timing
 
-    def di_ei(self, timing, size, op, iff2):
+    def di_ei(self, op, iff2):
         self.iff2 = iff2
-        return op, self.pc + 1, timing
+        return op, self.pc + 1, 4
 
-    def djnz(self, timing, size):
+    def djnz(self):
         self.registers['B'] = (self.registers['B'] - 1) & 255
         offset = self.snapshot[(self.pc + 1) & 0xFFFF]
         if offset & 128:
@@ -598,57 +596,53 @@ class Simulator:
         addr = (self.pc + 2 + offset) & 0xFFFF
         if self.registers['B']:
             pc = addr
-            tstates = timing[0]
+            tstates = 13
         else:
             pc = self.pc + 2
-            tstates = timing[1]
+            tstates = 8
         return f'DJNZ ${addr:04X}', pc, tstates
 
-    def ex_af(self, timing, size):
+    def ex_af(self):
         for r in 'AF':
             self.registers[r], self.registers['^' + r] = self.registers['^' + r], self.registers[r]
-        return "EX AF,AF'", self.pc + 1, timing
+        return "EX AF,AF'", self.pc + 1, 4
 
-    def ex_de_hl(self, timing, size):
+    def ex_de_hl(self):
         for r1, r2 in (('D', 'H'), ('E', 'L')):
             self.registers[r1], self.registers[r2] = self.registers[r2], self.registers[r1]
-        return 'EX DE,HL', self.pc + 1, timing
+        return 'EX DE,HL', self.pc + 1, 4
 
-    def ex_sp(self, timing, size):
+    def ex_sp(self, reg):
         sp = self.registers['SP']
         sp1, sp2 = self.peek(sp, 2)
-        opcode = self.snapshot[self.pc]
-        if opcode == 0xDD:
-            reg = 'IX'
-            r1, r2 = 'IXl', 'IXh'
-        elif opcode == 0xFD:
-            reg = 'IY'
-            r1, r2 = 'IYl', 'IYh'
-        else:
-            reg = 'HL'
+        if reg == 'HL':
             r1, r2 = 'L', 'H'
+            size, timing = 1, 19
+        else:
+            r1, r2 = reg + 'l', reg + 'h'
+            size, timing = 2, 23
         self.poke(sp, self.registers[r1], self.registers[r2])
         self.registers[r1] = sp1
         self.registers[r2] = sp2
         return f'EX (SP),{reg}', self.pc + size, timing
 
-    def exx(self, timing, size):
+    def exx(self):
         for r in 'BCDEHL':
             self.registers[r], self.registers['^' + r] = self.registers['^' + r], self.registers[r]
-        return 'EXX', self.pc + 1, timing
+        return 'EXX', self.pc + 1, 4
 
-    def halt(self, timing, size):
+    def halt(self):
         pc = self.pc
         if self.iff2:
             t1 = self.tstates % FRAME_DURATION
-            t2 = (self.tstates + timing) % FRAME_DURATION
+            t2 = (self.tstates + 4) % FRAME_DURATION
             if t2 < t1:
                 pc += 1
-        return 'HALT', pc, timing
+        return 'HALT', pc, 4
 
-    def im(self, timing, size, mode):
+    def im(self, mode):
         self.imode = mode
-        return f'IM {mode}', self.pc + 2, timing
+        return f'IM {mode}', self.pc + 2, 8
 
     def _in(self, port):
         reading = None
@@ -658,12 +652,12 @@ class Simulator:
             return 191
         return reading
 
-    def in_a(self, timing, size):
+    def in_a(self):
         operand = self.snapshot[(self.pc + 1) & 0xFFFF]
         self.registers['A'] = self._in(operand + 256 * self.registers['A'])
-        return f'IN A,(${operand:02X})', self.pc + 2, timing
+        return f'IN A,(${operand:02X})', self.pc + 2, 11
 
-    def in_c(self, timing, size, reg):
+    def in_c(self, reg):
         value = self._in(self.registers['C'] + 256 * self.registers['B'])
         if reg != 'F':
             self.registers[reg] = value
@@ -671,9 +665,9 @@ class Simulator:
         if value == 0:
             f |= 0x40 # .Z......
         self.registers['F'] = f
-        return f'IN {reg},(C)', self.pc + 2, timing
+        return f'IN {reg},(C)', self.pc + 2, 12
 
-    def inc_r(self, timing, size, reg):
+    def inc_r(self, reg):
         o_value = self.registers[reg]
         value = (o_value + 1) & 0xFF
         f = (self.registers['F'] & 0x01) | (value & 0xA8) # S.5.3..C
@@ -685,7 +679,7 @@ class Simulator:
             f |= 0x40 # .Z......
         self.registers['F'] = f
         self.registers[reg] = value
-        return 'INC ' + reg, self.pc + size, timing
+        return 'INC ' + reg, self.pc + 1, 4
 
     def inc_dec8(self, timing, size, op, reg):
         operand, o_value = self.get_operand_value(size, reg)
@@ -710,24 +704,27 @@ class Simulator:
         self.set_operand_value(reg, value)
         return f'{op} {operand}', self.pc + size, timing
 
-    def inc_dec16(self, timing, size, op, reg):
+    def inc_dec16(self, op, reg):
         if op == 'DEC':
             inc = -1
         else:
             inc = 1
         if reg == 'SP':
             self.registers[reg] = (self.registers[reg] + inc) & 0xFFFF
+            size, timing = 1, 6
         elif reg in ('IX', 'IY'):
             value = (self.registers[reg + 'l'] + 256 * self.registers[reg + 'h'] + inc) & 0xFFFF
             self.registers[reg + 'h'] = value // 256
             self.registers[reg + 'l'] = value % 256
+            size, timing = 2, 10
         else:
             value = (self.registers[reg[1]] + 256 * self.registers[reg[0]] + inc) & 0xFFFF
             self.registers[reg[0]] = value // 256
             self.registers[reg[1]] = value % 256
+            size, timing = 1, 6
         return f'{op} {reg}', self.pc + size, timing
 
-    def jr(self, timing, size, condition, c_and, c_xor):
+    def jr(self, condition, c_and, c_xor):
         offset = self.snapshot[(self.pc + 1) & 0xFFFF]
         if offset & 128:
             offset -= 256
@@ -735,24 +732,24 @@ class Simulator:
         if condition:
             if self.registers['F'] & c_and ^ c_xor:
                 pc = addr
-                tstates = timing[0]
+                tstates = 12
             else:
                 pc = self.pc + 2
-                tstates = timing[1]
+                tstates = 7
             return f'JR {condition},${addr:04X}', pc, tstates
-        return f'JR ${addr:04X}', addr, timing
+        return f'JR ${addr:04X}', addr, 12
 
-    def jp(self, timing, size, condition, c_and, c_xor):
+    def jp(self, condition, c_and, c_xor):
         opcode = self.snapshot[self.pc]
         if opcode == 0xDD:
             addr = self.registers['IXl'] + 256 * self.registers['IXh']
-            return 'JP (IX)', addr, timing
+            return 'JP (IX)', addr, 8
         if opcode == 0xFD:
             addr = self.registers['IYl'] + 256 * self.registers['IYh']
-            return 'JP (IY)', addr, timing
+            return 'JP (IY)', addr, 8
         if opcode == 0xE9:
             addr = self.registers['L'] + 256 * self.registers['H']
-            return 'JP (HL)', addr, timing
+            return 'JP (HL)', addr, 4
 
         addr = self.snapshot[(self.pc + 1) & 0xFFFF] + 256 * self.snapshot[(self.pc + 2) & 0xFFFF]
         if condition:
@@ -760,17 +757,17 @@ class Simulator:
                 pc = addr
             else:
                 pc = self.pc + 3
-            return f'JP {condition},${addr:04X}', pc, timing
-        return f'JP ${addr:04X}', addr, timing
+            return f'JP {condition},${addr:04X}', pc, 10
+        return f'JP ${addr:04X}', addr, 10
 
-    def ld_r_n(self, timing, size, reg):
+    def ld_r_n(self, r):
         n = self.snapshot[(self.pc + 1) & 0xFFFF]
-        self.registers[reg] = n
-        return f'LD {reg},${n:02X}', self.pc + 2, timing
+        self.registers[r] = n
+        return f'LD {r},${n:02X}', self.pc + 2, 7
 
-    def ld_r_r(self, timing, size, op, r1, r2):
+    def ld_r_r(self, op, r1, r2):
         self.registers[r1] = self.registers[r2]
-        return op, self.pc + 1, timing
+        return op, self.pc + 1, 4
 
     def ld8(self, timing, size, reg, reg2=None):
         op1, v1 = self.get_operand_value(size, reg)
@@ -786,18 +783,22 @@ class Simulator:
             self.registers['F'] = f
         return f'LD {op1},{op2}', self.pc + size, timing
 
-    def ld16(self, timing, size, reg):
-        end = self.pc + size
-        value = self.snapshot[(end - 2) & 0xFFFF] + 256 * self.snapshot[(end - 1) & 0xFFFF]
+    def ld16(self, reg):
         if reg == 'SP':
+            value = self.snapshot[(self.pc + 1) & 0xFFFF] + 256 * self.snapshot[(self.pc + 2) & 0xFFFF]
+            size, timing = 3, 10
             self.registers['SP'] = value
         elif reg in ('IX', 'IY'):
-            self.registers[reg + 'l'] = self.snapshot[(self.pc + 2) & 0xFFFF]
-            self.registers[reg + 'h'] = self.snapshot[(self.pc + 3) & 0xFFFF]
+            lsb, msb = self.snapshot[(self.pc + 2) & 0xFFFF], self.snapshot[(self.pc + 3) & 0xFFFF]
+            value = lsb + 256 * msb
+            size, timing = 4, 14
+            self.registers[reg + 'l'], self.registers[reg + 'h'] = lsb, msb
         else:
-            self.registers[reg[1]] = self.snapshot[(self.pc + 1) & 0xFFFF]
-            self.registers[reg[0]] = self.snapshot[(self.pc + 2) & 0xFFFF]
-        return f'LD {reg},${value:04X}', end, timing
+            lsb, msb = self.snapshot[(self.pc + 1) & 0xFFFF], self.snapshot[(self.pc + 2) & 0xFFFF]
+            value = lsb + 256 * msb
+            size, timing = 3, 10
+            self.registers[reg[1]], self.registers[reg[0]] = lsb, msb
+        return f'LD {reg},${value:04X}', self.pc + size, timing
 
     def ld16addr(self, timing, size, reg, poke):
         end = self.pc + size
@@ -821,7 +822,7 @@ class Simulator:
             op = f'LD {reg},(${addr:04X})'
         return op, end, timing
 
-    def ldann(self, timing, size):
+    def ldann(self):
         addr = self.snapshot[(self.pc + 1) & 0xFFFF] + 256 * self.snapshot[(self.pc + 2) & 0xFFFF]
         if self.snapshot[self.pc] == 0x3A:
             op = f'LD A,(${addr:04X})'
@@ -829,18 +830,18 @@ class Simulator:
         else:
             op = f'LD (${addr:04X}),A'
             self.poke(addr, self.registers['A'])
-        return op, self.pc + 3, timing
+        return op, self.pc + 3, 13
 
-    def ldsprr(self, timing, size, reg):
+    def ldsprr(self, reg):
         if reg == 'HL':
             self.registers['SP'] = self.registers['L'] + 256 * self.registers['H']
+            size, timing = 1, 6
         else:
-            if self.snapshot[self.pc] == 0xFD:
-                reg = 'IY'
             self.registers['SP'] = self.registers[reg + 'l'] + 256 * self.registers[reg + 'h']
+            size, timing = 2, 10
         return f'LD SP,{reg}', self.pc + size, timing
 
-    def neg(self, timing, size):
+    def neg(self):
         old_a = self.registers['A']
         a = self.registers['A'] = (256 - old_a) & 255
         f = (a & 0xA8) | 0x02 # S.5.3.N.
@@ -853,10 +854,10 @@ class Simulator:
         if a > 0:
             f |= 0x01 # .......C
         self.registers['F'] = f
-        return 'NEG', self.pc + 2, timing
+        return 'NEG', self.pc + 2, 8
 
-    def nop(self, timing, size):
-        return 'NOP', self.pc + 1, timing
+    def nop(self):
+        return 'NOP', self.pc + 1, 4
 
     def or_n(self):
         n = self.snapshot[(self.pc + 1) & 0xFFFF]
@@ -892,20 +893,20 @@ class Simulator:
     def _out(self, port, value):
         self._trace('write_port', port, value)
 
-    def outa(self, timing, size):
+    def outa(self):
         a = self.registers['A']
         operand = self.snapshot[(self.pc + 1) & 0xFFFF]
         self._out(operand + 256 * a, a)
-        return f'OUT (${operand:02X}),A', self.pc + 2, timing
+        return f'OUT (${operand:02X}),A', self.pc + 2, 11
 
-    def outc(self, timing, size, reg):
+    def outc(self, reg):
         port = self.registers['C'] + 256 * self.registers['B']
         if reg:
             value = self.registers[reg]
         else:
             reg = value = 0
         self._out(port, value)
-        return f'OUT (C),{reg}', self.pc + 2, timing
+        return f'OUT (C),{reg}', self.pc + 2, 12
 
     def _pop(self):
         sp = self.registers['SP']
@@ -914,11 +915,13 @@ class Simulator:
         self.ppcount -= 1
         return lsb, msb
 
-    def pop(self, timing, size, reg):
+    def pop(self, reg):
         if reg in ('IX', 'IY'):
             self.registers[reg + 'l'], self.registers[reg + 'h'] = self._pop()
+            size, timing = 2, 14
         else:
             self.registers[reg[1]], self.registers[reg[0]] = self._pop()
+            size, timing = 1, 10
         return f'POP {reg}', self.pc + size, timing
 
     def _push(self, lsb, msb):
@@ -927,29 +930,31 @@ class Simulator:
         self.ppcount += 1
         self.registers['SP'] = sp
 
-    def push(self, timing, size, reg):
+    def push(self, reg):
         if reg in ('IX', 'IY'):
             self._push(self.registers[reg + 'l'], self.registers[reg + 'h'])
+            size, timing = 2, 15
         else:
             self._push(self.registers[reg[1]], self.registers[reg[0]])
+            size, timing = 1, 11
         return f'PUSH {reg}', self.pc + size, timing
 
-    def ret(self, timing, size, op, c_and, c_xor):
+    def ret(self, op, c_and, c_xor):
         if c_and:
             if self.registers['F'] & c_and ^ c_xor:
                 lsb, msb = self._pop()
                 pc = lsb + 256 * msb
-                tstates = timing[0]
+                tstates = 11
             else:
                 pc = self.pc + 1
-                tstates = timing[1]
+                tstates = 5
             return op, pc, tstates
         lsb, msb = self._pop()
-        return op, lsb + 256 * msb, timing
+        return op, lsb + 256 * msb, 10
 
-    def reti(self, timing, size, op):
+    def reti(self, op):
         lsb, msb = self._pop()
-        return op, lsb + 256 * msb, timing
+        return op, lsb + 256 * msb, 14
 
     def res_set(self, timing, size, bit, reg, bitval, dest=''):
         operand, value = self.get_operand_value(size, reg)
@@ -966,7 +971,7 @@ class Simulator:
             op += f',{dest}'
         return op, self.pc + size, timing
 
-    def rld(self, timing, size):
+    def rld(self):
         hl = self.registers['L'] + 256 * self.registers['H']
         a = self.registers['A']
         at_hl = self.peek(hl)
@@ -976,9 +981,9 @@ class Simulator:
         if a_out == 0:
             f |= 0x40 # .Z......
         self.registers['F'] = f
-        return 'RLD', self.pc + 2, timing
+        return 'RLD', self.pc + 2, 18
 
-    def rrd(self, timing, size):
+    def rrd(self):
         hl = self.registers['L'] + 256 * self.registers['H']
         a = self.registers['A']
         at_hl = self.peek(hl)
@@ -988,7 +993,7 @@ class Simulator:
         if a_out == 0:
             f |= 0x40 # .Z......
         self.registers['F'] = f
-        return 'RRD', self.pc + 2, timing
+        return 'RRD', self.pc + 2, 18
 
     def rotate(self, timing, size, op, cbit, reg, carry='', dest=''):
         operand, value = self.get_operand_value(size, reg)
@@ -1025,10 +1030,10 @@ class Simulator:
         self.registers['F'] = f
         return f'{op}', self.pc + size, timing
 
-    def rst(self, timing, size, addr):
+    def rst(self, addr):
         ret_addr = (self.pc + 1) & 0xFFFF
         self._push(ret_addr % 256, ret_addr // 256)
-        return f'RST ${addr:02X}', addr, timing
+        return f'RST ${addr:02X}', addr, 11
 
     def shift(self, timing, size, op, cbit, reg, dest=''):
         operand, value = self.get_operand_value(size, reg)
@@ -1088,134 +1093,134 @@ class Simulator:
         return f'XOR {operand}', self.pc + size, timing
 
     opcodes = {
-        0x00: (nop, (4, 1, )),                                # NOP
-        0x01: (ld16, (10, 3, 'BC')),                          # LD BC,nn
+        0x00: (nop, ()),                                      # NOP
+        0x01: (ld16, ('BC',)),                                # LD BC,nn
         0x02: (ld8, (7, 1, '(BC)', 'A')),                     # LD (BC),A
-        0x03: (inc_dec16, (6, 1, 'INC', 'BC')),               # INC BC
-        0x04: (inc_r, (4, 1, 'B')),                           # INC B
-        0x05: (dec_r, (4, 1, 'B')),                           # DEC B
-        0x06: (ld_r_n, (7, 2, 'B')),                          # LD B,n
+        0x03: (inc_dec16, ('INC', 'BC')),                     # INC BC
+        0x04: (inc_r, ('B',)),                                # INC B
+        0x05: (dec_r, ('B')),                                 # DEC B
+        0x06: (ld_r_n, ('B')),                                # LD B,n
         0x07: (rotate, (4, 1, 'RLC', 128, 'A', 'C')),         # RLCA
-        0x08: (ex_af, (4, 1, )),                              # EX AF,AF'
+        0x08: (ex_af, ()),                                    # EX AF,AF'
         0x09: (add16, (11, 1, 'HL', 'BC')),                   # ADD HL,BC
         0x0A: (ld8, (7, 1, 'A', '(BC)')),                     # LD A,(BC)
-        0x0B: (inc_dec16, (6, 1, 'DEC', 'BC')),               # DEC BC
-        0x0C: (inc_r, (4, 1, 'C')),                           # INC C
-        0x0D: (dec_r, (4, 1, 'C')),                           # DEC C
-        0x0E: (ld_r_n, (7, 2, 'C')),                          # LD C,n
+        0x0B: (inc_dec16, ('DEC', 'BC')),                     # DEC BC
+        0x0C: (inc_r, ('C',)),                                # INC C
+        0x0D: (dec_r, ('C')),                                 # DEC C
+        0x0E: (ld_r_n, ('C')),                                # LD C,n
         0x0F: (rotate, (4, 1, 'RRC', 1, 'A', 'C')),           # RRCA
-        0x10: (djnz, ((13, 8), 2, )),                         # DJNZ nn
-        0x11: (ld16, (10, 3, 'DE')),                          # LD DE,nn
+        0x10: (djnz, ()),                                     # DJNZ nn
+        0x11: (ld16, ('DE',)),                                # LD DE,nn
         0x12: (ld8, (7, 1, '(DE)', 'A')),                     # LD (DE),A
-        0x13: (inc_dec16, (6, 1, 'INC', 'DE')),               # INC DE
-        0x14: (inc_r, (4, 1, 'D')),                           # INC D
-        0x15: (dec_r, (4, 1, 'D')),                           # DEC D
-        0x16: (ld_r_n, (7, 2, 'D')),                          # LD D,n
+        0x13: (inc_dec16, ('INC', 'DE')),                     # INC DE
+        0x14: (inc_r, ('D',)),                                # INC D
+        0x15: (dec_r, ('D')),                                 # DEC D
+        0x16: (ld_r_n, ('D')),                                # LD D,n
         0x17: (rotate, (4, 1, 'RL', 128, 'A')),               # RLA
-        0x18: (jr, (12, 2, '', 0, 0)),                        # JR nn
+        0x18: (jr, ('', 0, 0)),                               # JR nn
         0x19: (add16, (11, 1, 'HL', 'DE')),                   # ADD HL,DE
         0x1A: (ld8, (7, 1, 'A', '(DE)')),                     # LD A,(DE)
-        0x1B: (inc_dec16, (6, 1, 'DEC', 'DE')),               # DEC DE
-        0x1C: (inc_r, (4, 1, 'E')),                           # INC E
-        0x1D: (dec_r, (4, 1, 'E')),                           # DEC E
-        0x1E: (ld_r_n, (7, 2, 'E')),                          # LD E,n
+        0x1B: (inc_dec16, ('DEC', 'DE')),                     # DEC DE
+        0x1C: (inc_r, ('E',)),                                # INC E
+        0x1D: (dec_r, ('E')),                                 # DEC E
+        0x1E: (ld_r_n, ('E')),                                # LD E,n
         0x1F: (rotate, (4, 1, 'RR', 1, 'A')),                 # RRA
-        0x20: (jr, ((12, 7), 2, 'NZ', 64, 64)),               # JR NZ,nn
-        0x21: (ld16, (10, 3, 'HL')),                          # LD HL,nn
+        0x20: (jr, ('NZ', 64, 64)),                           # JR NZ,nn
+        0x21: (ld16, ('HL',)),                                # LD HL,nn
         0x22: (ld16addr, (16, 3, 'HL', 1)),                   # LD (nn),HL
-        0x23: (inc_dec16, (6, 1, 'INC', 'HL')),               # INC HL
-        0x24: (inc_r, (4, 1, 'H')),                           # INC H
-        0x25: (dec_r, (4, 1, 'H')),                           # DEC H
-        0x26: (ld_r_n, (7, 2, 'H')),                          # LD H,n
-        0x27: (daa, (4, 1, )),                                # DAA
-        0x28: (jr, ((12, 7), 2, 'Z', 64, 0)),                 # JR Z,nn
+        0x23: (inc_dec16, ('INC', 'HL')),                     # INC HL
+        0x24: (inc_r, ('H',)),                                # INC H
+        0x25: (dec_r, ('H')),                                 # DEC H
+        0x26: (ld_r_n, ('H')),                                # LD H,n
+        0x27: (daa, ()),                                      # DAA
+        0x28: (jr, ('Z', 64, 0)),                             # JR Z,nn
         0x29: (add16, (11, 1, 'HL', 'HL')),                   # ADD HL,HL
         0x2A: (ld16addr, (16, 3, 'HL', 0)),                   # LD HL,(nn)
-        0x2B: (inc_dec16, (6, 1, 'DEC', 'HL')),               # DEC HL
-        0x2C: (inc_r, (4, 1, 'L')),                           # INC L
-        0x2D: (dec_r, (4, 1, 'L')),                           # DEC L
-        0x2E: (ld_r_n, (7, 2, 'L')),                          # LD L,n
-        0x2F: (cpl, (4, 1, )),                                # CPL
-        0x30: (jr, ((12, 7), 2, 'NC', 1, 1)),                 # JR NC,nn
-        0x31: (ld16, (10, 3, 'SP')),                          # LD SP,nn
-        0x32: (ldann, (13, 3, )),                             # LD (nn),A
-        0x33: (inc_dec16, (6, 1, 'INC', 'SP')),               # INC SP
+        0x2B: (inc_dec16, ('DEC', 'HL')),                     # DEC HL
+        0x2C: (inc_r, ('L',)),                                # INC L
+        0x2D: (dec_r, ('L')),                                 # DEC L
+        0x2E: (ld_r_n, ('L')),                                # LD L,n
+        0x2F: (cpl, ()),                                      # CPL
+        0x30: (jr, ('NC', 1, 1)),                             # JR NC,nn
+        0x31: (ld16, ('SP',)),                                # LD SP,nn
+        0x32: (ldann, ()),                                    # LD (nn),A
+        0x33: (inc_dec16, ('INC', 'SP')),                     # INC SP
         0x34: (inc_dec8, (11, 1, 'INC', '(HL)')),             # INC (HL)
         0x35: (inc_dec8, (11, 1, 'DEC', '(HL)')),             # DEC (HL)
         0x36: (ld8, (10, 2, '(HL)')),                         # LD (HL),n
-        0x37: (cf, (4, 1, )),                                 # SCF
-        0x38: (jr, ((12, 7), 2, 'C', 1, 0)),                  # JR C,nn
+        0x37: (cf, ()),                                       # SCF
+        0x38: (jr, ('C', 1, 0)),                              # JR C,nn
         0x39: (add16, (11, 1, 'HL', 'SP')),                   # ADD HL,SP
-        0x3A: (ldann, (13, 3, )),                             # LD A,(nn)
-        0x3B: (inc_dec16, (6, 1, 'DEC', 'SP')),               # DEC SP
-        0x3C: (inc_r, (4, 1, 'A')),                           # INC A
-        0x3D: (dec_r, (4, 1, 'A')),                           # DEC A
-        0x3E: (ld_r_n, (7, 2, 'A')),                          # LD A,n
-        0x3F: (cf, (4, 1, )),                                 # CCF
-        0x40: (ld_r_r, (4, 1, 'LD B,B', 'B', 'B')),           # LD B,B
-        0x41: (ld_r_r, (4, 1, 'LD B,C', 'B', 'C')),           # LD B,C
-        0x42: (ld_r_r, (4, 1, 'LD B,D', 'B', 'D')),           # LD B,D
-        0x43: (ld_r_r, (4, 1, 'LD B,E', 'B', 'E')),           # LD B,E
-        0x44: (ld_r_r, (4, 1, 'LD B,H', 'B', 'H')),           # LD B,H
-        0x45: (ld_r_r, (4, 1, 'LD B,L', 'B', 'L')),           # LD B,L
+        0x3A: (ldann, ()),                                    # LD A,(nn)
+        0x3B: (inc_dec16, ('DEC', 'SP')),                     # DEC SP
+        0x3C: (inc_r, ('A',)),                                # INC A
+        0x3D: (dec_r, ('A')),                                 # DEC A
+        0x3E: (ld_r_n, ('A')),                                # LD A,n
+        0x3F: (cf, ()),                                       # CCF
+        0x40: (ld_r_r, ('LD B,B', 'B', 'B')),                 # LD B,B
+        0x41: (ld_r_r, ('LD B,C', 'B', 'C')),                 # LD B,C
+        0x42: (ld_r_r, ('LD B,D', 'B', 'D')),                 # LD B,D
+        0x43: (ld_r_r, ('LD B,E', 'B', 'E')),                 # LD B,E
+        0x44: (ld_r_r, ('LD B,H', 'B', 'H')),                 # LD B,H
+        0x45: (ld_r_r, ('LD B,L', 'B', 'L')),                 # LD B,L
         0x46: (ld8, (7, 1, 'B', '(HL)')),                     # LD B,(HL)
-        0x47: (ld_r_r, (4, 1, 'LD B,A', 'B', 'A')),           # LD B,A
-        0x48: (ld_r_r, (4, 1, 'LD C,B', 'C', 'B')),           # LD C,B
-        0x49: (ld_r_r, (4, 1, 'LD C,C', 'C', 'C')),           # LD C,C
-        0x4A: (ld_r_r, (4, 1, 'LD C,D', 'C', 'D')),           # LD C,D
-        0x4B: (ld_r_r, (4, 1, 'LD C,E', 'C', 'E')),           # LD C,E
-        0x4C: (ld_r_r, (4, 1, 'LD C,H', 'C', 'H')),           # LD C,H
-        0x4D: (ld_r_r, (4, 1, 'LD C,L', 'C', 'L')),           # LD C,L
+        0x47: (ld_r_r, ('LD B,A', 'B', 'A')),                 # LD B,A
+        0x48: (ld_r_r, ('LD C,B', 'C', 'B')),                 # LD C,B
+        0x49: (ld_r_r, ('LD C,C', 'C', 'C')),                 # LD C,C
+        0x4A: (ld_r_r, ('LD C,D', 'C', 'D')),                 # LD C,D
+        0x4B: (ld_r_r, ('LD C,E', 'C', 'E')),                 # LD C,E
+        0x4C: (ld_r_r, ('LD C,H', 'C', 'H')),                 # LD C,H
+        0x4D: (ld_r_r, ('LD C,L', 'C', 'L')),                 # LD C,L
         0x4E: (ld8, (7, 1, 'C', '(HL)')),                     # LD C,(HL)
-        0x4F: (ld_r_r, (4, 1, 'LD C,A', 'C', 'A')),           # LD C,A
-        0x50: (ld_r_r, (4, 1, 'LD D,B', 'D', 'B')),           # LD D,B
-        0x51: (ld_r_r, (4, 1, 'LD D,C', 'D', 'C')),           # LD D,C
-        0x52: (ld_r_r, (4, 1, 'LD D,D', 'D', 'D')),           # LD D,D
-        0x53: (ld_r_r, (4, 1, 'LD D,E', 'D', 'E')),           # LD D,E
-        0x54: (ld_r_r, (4, 1, 'LD D,H', 'D', 'H')),           # LD D,H
-        0x55: (ld_r_r, (4, 1, 'LD D,L', 'D', 'L')),           # LD D,L
+        0x4F: (ld_r_r, ('LD C,A', 'C', 'A')),                 # LD C,A
+        0x50: (ld_r_r, ('LD D,B', 'D', 'B')),                 # LD D,B
+        0x51: (ld_r_r, ('LD D,C', 'D', 'C')),                 # LD D,C
+        0x52: (ld_r_r, ('LD D,D', 'D', 'D')),                 # LD D,D
+        0x53: (ld_r_r, ('LD D,E', 'D', 'E')),                 # LD D,E
+        0x54: (ld_r_r, ('LD D,H', 'D', 'H')),                 # LD D,H
+        0x55: (ld_r_r, ('LD D,L', 'D', 'L')),                 # LD D,L
         0x56: (ld8, (7, 1, 'D', '(HL)')),                     # LD D,(HL)
-        0x57: (ld_r_r, (4, 1, 'LD D,A', 'D', 'A')),           # LD D,A
-        0x58: (ld_r_r, (4, 1, 'LD E,B', 'E', 'B')),           # LD E,B
-        0x59: (ld_r_r, (4, 1, 'LD E,C', 'E', 'C')),           # LD E,C
-        0x5A: (ld_r_r, (4, 1, 'LD E,D', 'E', 'D')),           # LD E,D
-        0x5B: (ld_r_r, (4, 1, 'LD E,E', 'E', 'E')),           # LD E,E
-        0x5C: (ld_r_r, (4, 1, 'LD E,H', 'E', 'H')),           # LD E,H
-        0x5D: (ld_r_r, (4, 1, 'LD E,L', 'E', 'L')),           # LD E,L
+        0x57: (ld_r_r, ('LD D,A', 'D', 'A')),                 # LD D,A
+        0x58: (ld_r_r, ('LD E,B', 'E', 'B')),                 # LD E,B
+        0x59: (ld_r_r, ('LD E,C', 'E', 'C')),                 # LD E,C
+        0x5A: (ld_r_r, ('LD E,D', 'E', 'D')),                 # LD E,D
+        0x5B: (ld_r_r, ('LD E,E', 'E', 'E')),                 # LD E,E
+        0x5C: (ld_r_r, ('LD E,H', 'E', 'H')),                 # LD E,H
+        0x5D: (ld_r_r, ('LD E,L', 'E', 'L')),                 # LD E,L
         0x5E: (ld8, (7, 1, 'E', '(HL)')),                     # LD E,(HL)
-        0x5F: (ld_r_r, (4, 1, 'LD E,A', 'E', 'A')),           # LD E,A
-        0x60: (ld_r_r, (4, 1, 'LD H,B', 'H', 'B')),           # LD H,B
-        0x61: (ld_r_r, (4, 1, 'LD H,C', 'H', 'C')),           # LD H,C
-        0x62: (ld_r_r, (4, 1, 'LD H,D', 'H', 'D')),           # LD H,D
-        0x63: (ld_r_r, (4, 1, 'LD H,E', 'H', 'E')),           # LD H,E
-        0x64: (ld_r_r, (4, 1, 'LD H,H', 'H', 'H')),           # LD H,H
-        0x65: (ld_r_r, (4, 1, 'LD H,L', 'H', 'L')),           # LD H,L
+        0x5F: (ld_r_r, ('LD E,A', 'E', 'A')),                 # LD E,A
+        0x60: (ld_r_r, ('LD H,B', 'H', 'B')),                 # LD H,B
+        0x61: (ld_r_r, ('LD H,C', 'H', 'C')),                 # LD H,C
+        0x62: (ld_r_r, ('LD H,D', 'H', 'D')),                 # LD H,D
+        0x63: (ld_r_r, ('LD H,E', 'H', 'E')),                 # LD H,E
+        0x64: (ld_r_r, ('LD H,H', 'H', 'H')),                 # LD H,H
+        0x65: (ld_r_r, ('LD H,L', 'H', 'L')),                 # LD H,L
         0x66: (ld8, (7, 1, 'H', '(HL)')),                     # LD H,(HL)
-        0x67: (ld_r_r, (4, 1, 'LD H,A', 'H', 'A')),           # LD H,A
-        0x68: (ld_r_r, (4, 1, 'LD L,B', 'L', 'B')),           # LD L,B
-        0x69: (ld_r_r, (4, 1, 'LD L,C', 'L', 'C')),           # LD L,C
-        0x6A: (ld_r_r, (4, 1, 'LD L,D', 'L', 'D')),           # LD L,D
-        0x6B: (ld_r_r, (4, 1, 'LD L,E', 'L', 'E')),           # LD L,E
-        0x6C: (ld_r_r, (4, 1, 'LD L,H', 'L', 'H')),           # LD L,H
-        0x6D: (ld_r_r, (4, 1, 'LD L,L', 'L', 'L')),           # LD L,L
+        0x67: (ld_r_r, ('LD H,A', 'H', 'A')),                 # LD H,A
+        0x68: (ld_r_r, ('LD L,B', 'L', 'B')),                 # LD L,B
+        0x69: (ld_r_r, ('LD L,C', 'L', 'C')),                 # LD L,C
+        0x6A: (ld_r_r, ('LD L,D', 'L', 'D')),                 # LD L,D
+        0x6B: (ld_r_r, ('LD L,E', 'L', 'E')),                 # LD L,E
+        0x6C: (ld_r_r, ('LD L,H', 'L', 'H')),                 # LD L,H
+        0x6D: (ld_r_r, ('LD L,L', 'L', 'L')),                 # LD L,L
         0x6E: (ld8, (7, 1, 'L', '(HL)')),                     # LD L,(HL)
-        0x6F: (ld_r_r, (4, 1, 'LD L,A', 'L', 'A')),           # LD L,A
+        0x6F: (ld_r_r, ('LD L,A', 'L', 'A')),                 # LD L,A
         0x70: (ld8, (7, 1, '(HL)', 'B')),                     # LD (HL),B
         0x71: (ld8, (7, 1, '(HL)', 'C')),                     # LD (HL),C
         0x72: (ld8, (7, 1, '(HL)', 'D')),                     # LD (HL),D
         0x73: (ld8, (7, 1, '(HL)', 'E')),                     # LD (HL),E
         0x74: (ld8, (7, 1, '(HL)', 'H')),                     # LD (HL),H
         0x75: (ld8, (7, 1, '(HL)', 'L')),                     # LD (HL),L
-        0x76: (halt, (4, 1, )),                               # HALT
+        0x76: (halt, ()),                                     # HALT
         0x77: (ld8, (7, 1, '(HL)', 'A')),                     # LD (HL),A
-        0x78: (ld_r_r, (4, 1, 'LD A,B', 'A', 'B')),           # LD A,B
-        0x79: (ld_r_r, (4, 1, 'LD A,C', 'A', 'C')),           # LD A,C
-        0x7A: (ld_r_r, (4, 1, 'LD A,D', 'A', 'D')),           # LD A,D
-        0x7B: (ld_r_r, (4, 1, 'LD A,E', 'A', 'E')),           # LD A,E
-        0x7C: (ld_r_r, (4, 1, 'LD A,H', 'A', 'H')),           # LD A,H
-        0x7D: (ld_r_r, (4, 1, 'LD A,L', 'A', 'L')),           # LD A,L
+        0x78: (ld_r_r, ('LD A,B', 'A', 'B')),                 # LD A,B
+        0x79: (ld_r_r, ('LD A,C', 'A', 'C')),                 # LD A,C
+        0x7A: (ld_r_r, ('LD A,D', 'A', 'D')),                 # LD A,D
+        0x7B: (ld_r_r, ('LD A,E', 'A', 'E')),                 # LD A,E
+        0x7C: (ld_r_r, ('LD A,H', 'A', 'H')),                 # LD A,H
+        0x7D: (ld_r_r, ('LD A,L', 'A', 'L')),                 # LD A,L
         0x7E: (ld8, (7, 1, 'A', '(HL)')),                     # LD A,(HL)
-        0x7F: (ld_r_r, (4, 1, 'LD A,A', 'A', 'A')),           # LD A,A
+        0x7F: (ld_r_r, ('LD A,A', 'A', 'A')),                 # LD A,A
         0x80: (add_a, (4, 1, 'B')),                           # ADD A,B
         0x81: (add_a, (4, 1, 'C')),                           # ADD A,C
         0x82: (add_a, (4, 1, 'D')),                           # ADD A,D
@@ -1280,70 +1285,70 @@ class Simulator:
         0xBD: (cp, (4, 1, 'L')),                              # CP L
         0xBE: (cp, (7, 1, '(HL)')),                           # CP (HL)
         0xBF: (cp, (4, 1, 'A')),                              # CP A
-        0xC0: (ret, ((11, 5), 1, 'RET NZ', 64, 64)),          # RET NZ
-        0xC1: (pop, (10, 1, 'BC')),                           # POP BC
-        0xC2: (jp, (10, 3, 'NZ', 64, 64)),                    # JP NZ,nn
-        0xC3: (jp, (10, 3, '', 0, 0)),                        # JP nn
-        0xC4: (call, ((17, 10), 3, 'NZ', 64, 64)),            # CALL NZ,nn
-        0xC5: (push, (11, 1, 'BC')),                          # PUSH BC
+        0xC0: (ret, ('RET NZ', 64, 64)),                      # RET NZ
+        0xC1: (pop, ('BC',)),                                 # POP BC
+        0xC2: (jp, ('NZ', 64, 64)),                           # JP NZ,nn
+        0xC3: (jp, ('', 0, 0)),                               # JP nn
+        0xC4: (call, ('NZ', 64, 64)),                         # CALL NZ,nn
+        0xC5: (push, ('BC',)),                                # PUSH BC
         0xC6: (add_a, (7, 2, )),                              # ADD A,n
-        0xC7: (rst, (11, 1, 0)),                              # RST $00
-        0xC8: (ret, ((11, 5), 1, 'RET Z', 64, 0)),            # RET Z
-        0xC9: (ret, (10, 1, 'RET', 0, 0)),                    # RET
-        0xCA: (jp, (10, 3, 'Z', 64, 0)),                      # JP Z,nn
+        0xC7: (rst, (0,)),                                    # RST $00
+        0xC8: (ret, ('RET Z', 64, 0)),                        # RET Z
+        0xC9: (ret, ('RET', 0, 0)),                           # RET
+        0xCA: (jp, ('Z', 64, 0)),                             # JP Z,nn
         0xCB: None,                                           # CB prefix
-        0xCC: (call, ((17, 10), 3, 'Z', 64, 0)),              # CALL Z,nn
-        0xCD: (call, (17, 3, '', 0, 0)),                      # CALL nn
+        0xCC: (call, ('Z', 64, 0)),                           # CALL Z,nn
+        0xCD: (call, ('', 0, 0)),                             # CALL nn
         0xCE: (add_a, (7, 2, None, 1, 1)),                    # ADC A,n
-        0xCF: (rst, (11, 1, 8)),                              # RST $08
-        0xD0: (ret, ((11, 5), 1, 'RET NC', 1, 1)),            # RET NC
-        0xD1: (pop, (10, 1, 'DE')),                           # POP DE
-        0xD2: (jp, (10, 3, 'NC', 1, 1)),                      # JP NC,nn
-        0xD3: (outa, (11, 2, )),                              # OUT (n),A
-        0xD4: (call, ((17, 10), 3, 'NC', 1, 1)),              # CALL NC,nn
-        0xD5: (push, (11, 1, 'DE')),                          # PUSH DE
+        0xCF: (rst, (8,)),                                    # RST $08
+        0xD0: (ret, ('RET NC', 1, 1)),                        # RET NC
+        0xD1: (pop, ('DE',)),                                 # POP DE
+        0xD2: (jp, ('NC', 1, 1)),                             # JP NC,nn
+        0xD3: (outa, ()),                                     # OUT (n),A
+        0xD4: (call, ('NC', 1, 1)),                           # CALL NC,nn
+        0xD5: (push, ('DE',)),                                # PUSH DE
         0xD6: (add_a, (7, 2, None, 0, -1)),                   # SUB n
-        0xD7: (rst, (11, 1, 16)),                             # RST $10
-        0xD8: (ret, ((11, 5), 1, 'RET C', 1, 0)),             # RET C
-        0xD9: (exx, (4, 1, )),                                # EXX
-        0xDA: (jp, (10, 3, 'C', 1, 0)),                       # JP C,nn
-        0xDB: (in_a, (11, 2, )),                              # IN A,(n)
-        0xDC: (call, ((17, 10), 3, 'C', 1, 0)),               # CALL C,nn
+        0xD7: (rst, (16,)),                                   # RST $10
+        0xD8: (ret, ('RET C', 1, 0)),                         # RET C
+        0xD9: (exx, ()),                                      # EXX
+        0xDA: (jp, ('C', 1, 0)),                              # JP C,nn
+        0xDB: (in_a, ()),                                     # IN A,(n)
+        0xDC: (call, ('C', 1, 0)),                            # CALL C,nn
         0xDD: None,                                           # DD prefix
         0xDE: (add_a, (7, 2, None, 1, -1)),                   # SBC A,n
-        0xDF: (rst, (11, 1, 24)),                             # RST $18
-        0xE0: (ret, ((11, 5), 1, 'RET PO', 4, 4)),            # RET PO
-        0xE1: (pop, (10, 1, 'HL')),                           # POP HL
-        0xE2: (jp, (10, 3, 'PO', 4, 4)),                      # JP PO,nn
-        0xE3: (ex_sp, (19, 1, )),                             # EX (SP),HL
-        0xE4: (call, ((17, 10), 3, 'PO', 4, 4)),              # CALL PO,nn
-        0xE5: (push, (11, 1, 'HL')),                          # PUSH HL
+        0xDF: (rst, (24,)),                                   # RST $18
+        0xE0: (ret, ('RET PO', 4, 4)),                        # RET PO
+        0xE1: (pop, ('HL',)),                                 # POP HL
+        0xE2: (jp, ('PO', 4, 4)),                             # JP PO,nn
+        0xE3: (ex_sp, ('HL',)),                               # EX (SP),HL
+        0xE4: (call, ('PO', 4, 4)),                           # CALL PO,nn
+        0xE5: (push, ('HL',)),                                # PUSH HL
         0xE6: (and_n, ()),                                    # AND n
-        0xE7: (rst, (11, 1, 32)),                             # RST $20
-        0xE8: (ret, ((11, 5), 1, 'RET PE', 4, 0)),            # RET PE
-        0xE9: (jp, (4, 1, '', 0, 0)),                         # JP (HL)
-        0xEA: (jp, (10, 3, 'PE', 4, 0)),                      # JP PE,nn
-        0xEB: (ex_de_hl, (4, 1, )),                           # EX DE,HL
-        0xEC: (call, ((17, 10), 3, 'PE', 4, 0)),              # CALL PE,nn
+        0xE7: (rst, (32,)),                                   # RST $20
+        0xE8: (ret, ('RET PE', 4, 0)),                        # RET PE
+        0xE9: (jp, ('', 0, 0)),                               # JP (HL)
+        0xEA: (jp, ('PE', 4, 0)),                             # JP PE,nn
+        0xEB: (ex_de_hl, ()),                                 # EX DE,HL
+        0xEC: (call, ('PE', 4, 0)),                           # CALL PE,nn
         0xED: None,                                           # ED prefix
         0xEE: (xor_n, ()),                                    # XOR n
-        0xEF: (rst, (11, 1, 40)),                             # RST $28
-        0xF0: (ret, ((11, 5), 1, 'RET P', 128, 128)),         # RET P
-        0xF1: (pop, (10, 1, 'AF')),                           # POP AF
-        0xF2: (jp, (10, 3, 'P', 128, 128)),                   # JP P,nn
-        0xF3: (di_ei, (4, 1, 'DI', 0)),                       # DI
-        0xF4: (call, ((17, 10), 3, 'P', 128, 128)),           # CALL P,nn
-        0xF5: (push, (11, 1, 'AF')),                          # PUSH AF
+        0xEF: (rst, (40,)),                                   # RST $28
+        0xF0: (ret, ('RET P', 128, 128)),                     # RET P
+        0xF1: (pop, ('AF',)),                                 # POP AF
+        0xF2: (jp, ('P', 128, 128)),                          # JP P,nn
+        0xF3: (di_ei, ('DI', 0)),                             # DI
+        0xF4: (call, ('P', 128, 128)),                        # CALL P,nn
+        0xF5: (push, ('AF',)),                                # PUSH AF
         0xF6: (or_n, ()),                                     # OR n
-        0xF7: (rst, (11, 1, 48)),                             # RST $30
-        0xF8: (ret, ((11, 5), 1, 'RET M', 128, 0)),           # RET M
-        0xF9: (ldsprr, (6, 1, 'HL')),                         # LD SP,HL
-        0xFA: (jp, (10, 3, 'M', 128, 0)),                     # JP M,nn
-        0xFB: (di_ei, (4, 1, 'EI', 1)),                       # EI
-        0xFC: (call, ((17, 10), 3, 'M', 128, 0)),             # CALL M,nn
+        0xF7: (rst, (48,)),                                   # RST $30
+        0xF8: (ret, ('RET M', 128, 0)),                       # RET M
+        0xF9: (ldsprr, ('HL',)),                              # LD SP,HL
+        0xFA: (jp, ('M', 128, 0)),                            # JP M,nn
+        0xFB: (di_ei, ('EI', 1)),                             # EI
+        0xFC: (call, ('M', 128, 0)),                          # CALL M,nn
         0xFD: None,                                           # FD prefix
         0xFE: (cp, (7, 2, )),                                 # CP n
-        0xFF: (rst, (11, 1, 56)),                             # RST $38
+        0xFF: (rst, (56,)),                                   # RST $38
     }
 
     after_CB = {
@@ -1639,19 +1644,19 @@ class Simulator:
         0x1E: (defb, (4, 1, )),
         0x1F: (defb, (4, 1, )),
         0x20: (defb, (4, 1, )),
-        0x21: (ld16, (14, 4, 'IX')),                          # LD IX,nn
+        0x21: (ld16, ('IX',)),                                # LD IX,nn
         0x22: (ld16addr, (20, 4, 'IX', 1)),                   # LD (nn),IX
-        0x23: (inc_dec16, (10, 2, 'INC', 'IX')),              # INC IX
-        0x24: (inc_r, (8, 2, 'IXh')),                         # INC IXh
-        0x25: (dec_r, (8, 2, 'IXh')),                         # DEC IXh
+        0x23: (inc_dec16, ('INC', 'IX')),                     # INC IX
+        0x24: (inc_dec8, (8, 2, 'INC', 'IXh')),               # INC IXh
+        0x25: (inc_dec8, (8, 2, 'DEC', 'IXh')),               # DEC IXh
         0x26: (ld8, (11, 3, 'IXh')),                          # LD IXh,n
         0x27: (defb, (4, 1, )),
         0x28: (defb, (4, 1, )),
         0x29: (add16, (15, 2, 'IX', 'IX')),                   # ADD IX,IX
         0x2A: (ld16addr, (20, 4, 'IX', 0)),                   # LD IX,(nn)
-        0x2B: (inc_dec16, (10, 2, 'DEC', 'IX')),              # DEC IX
-        0x2C: (inc_r, (8, 2, 'IXl')),                         # INC IXl
-        0x2D: (dec_r, (8, 2, 'IXl')),                         # DEC IXl
+        0x2B: (inc_dec16, ('DEC', 'IX')),                     # DEC IX
+        0x2C: (inc_dec8, (8, 2, 'INC', 'IXl')),               # INC IXl
+        0x2D: (inc_dec8, (8, 2, 'DEC', 'IXl')),               # DEC IXl
         0x2E: (ld8, (11, 3, 'IXl')),                          # LD IXl,n
         0x2F: (defb, (4, 1, )),
         0x30: (defb, (4, 1, )),
@@ -1831,15 +1836,15 @@ class Simulator:
         0xDE: (defb, (4, 1, )),
         0xDF: (defb, (4, 1, )),
         0xE0: (defb, (4, 1, )),
-        0xE1: (pop, (14, 2, 'IX')),                           # POP IX
+        0xE1: (pop, ('IX',)),                                 # POP IX
         0xE2: (defb, (4, 1, )),
-        0xE3: (ex_sp, (23, 2, )),                             # EX (SP),IX
+        0xE3: (ex_sp, ('IX',)),                               # EX (SP),IX
         0xE4: (defb, (4, 1, )),
-        0xE5: (push, (15, 2, 'IX')),                          # PUSH IX
+        0xE5: (push, ('IX',)),                                # PUSH IX
         0xE6: (defb, (4, 1, )),
         0xE7: (defb, (4, 1, )),
         0xE8: (defb, (4, 1, )),
-        0xE9: (jp, (8, 2, '', 0, 0)),                         # JP (IX)
+        0xE9: (jp, ('', 0, 0)),                               # JP (IX)
         0xEA: (defb, (4, 1, )),
         0xEB: (defb, (4, 1, )),
         0xEC: (defb, (4, 1, )),
@@ -1855,7 +1860,7 @@ class Simulator:
         0xF6: (defb, (4, 1, )),
         0xF7: (defb, (4, 1, )),
         0xF8: (defb, (4, 1, )),
-        0xF9: (ldsprr, (10, 2, 'IX')),                        # LD SP,IX
+        0xF9: (ldsprr, ('IX',)),                              # LD SP,IX
         0xFA: (defb, (4, 1, )),
         0xFB: (defb, (4, 1, )),
         0xFC: (defb, (4, 1, )),
@@ -1929,69 +1934,69 @@ class Simulator:
         0x3D: (defb, (8, 2, )),
         0x3E: (defb, (8, 2, )),
         0x3F: (defb, (8, 2, )),
-        0x40: (in_c, (12, 2, 'B')),                           # IN B,(C)
-        0x41: (outc, (12, 2, 'B')),                           # OUT (C),B
+        0x40: (in_c, ('B',)),                                 # IN B,(C)
+        0x41: (outc, ('B',)),                                 # OUT (C),B
         0x42: (add16, (15, 2, 'HL', 'BC', 1, -1)),            # SBC HL,BC
         0x43: (ld16addr, (20, 4, 'BC', 1)),                   # LD (nn),BC
-        0x44: (neg, (8, 2, )),                                # NEG
-        0x45: (reti, (14, 2, 'RETN')),                        # RETN
-        0x46: (im, (8, 2, 0)),                                # IM 0
+        0x44: (neg, ()),                                      # NEG
+        0x45: (reti, ('RETN',)),                              # RETN
+        0x46: (im, (0,)),                                     # IM 0
         0x47: (ld8, (9, 2, 'I', 'A')),                        # LD I,A
-        0x48: (in_c, (12, 2, 'C')),                           # IN C,(C)
-        0x49: (outc, (12, 2, 'C')),                           # OUT (C),C
+        0x48: (in_c, ('C',)),                                 # IN C,(C)
+        0x49: (outc, ('C',)),                                 # OUT (C),C
         0x4A: (add16, (15, 2, 'HL', 'BC', 1)),                # ADC HL,BC
         0x4B: (ld16addr, (20, 4, 'BC', 0)),                   # LD BC,(nn)
-        0x4C: (neg, (8, 2, )),                                # NEG
-        0x4D: (reti, (14, 2, 'RETI')),                        # RETI
-        0x4E: (im, (8, 2, 0)),                                # IM 0
+        0x4C: (neg, ()),                                      # NEG
+        0x4D: (reti, ('RETI',)),                              # RETI
+        0x4E: (im, (0,)),                                     # IM 0
         0x4F: (ld8, (9, 2, 'R', 'A')),                        # LD R,A
-        0x50: (in_c, (12, 2, 'D')),                           # IN D,(C)
-        0x51: (outc, (12, 2, 'D')),                           # OUT (C),D
+        0x50: (in_c, ('D',)),                                 # IN D,(C)
+        0x51: (outc, ('D',)),                                 # OUT (C),D
         0x52: (add16, (15, 2, 'HL', 'DE', 1, -1)),            # SBC HL,DE
         0x53: (ld16addr, (20, 4, 'DE', 1)),                   # LD (nn),DE
-        0x54: (neg, (8, 2, )),                                # NEG
-        0x55: (reti, (14, 2, 'RETN')),                        # RETN
-        0x56: (im, (8, 2, 1)),                                # IM 1
+        0x54: (neg, ()),                                      # NEG
+        0x55: (reti, ('RETN',)),                              # RETN
+        0x56: (im, (1,)),                                     # IM 1
         0x57: (ld8, (9, 2, 'A', 'I')),                        # LD A,I
-        0x58: (in_c, (12, 2, 'E')),                           # IN E,(C)
-        0x59: (outc, (12, 2, 'E')),                           # OUT (C),E
+        0x58: (in_c, ('E',)),                                 # IN E,(C)
+        0x59: (outc, ('E',)),                                 # OUT (C),E
         0x5A: (add16, (15, 2, 'HL', 'DE', 1)),                # ADC HL,DE
         0x5B: (ld16addr, (20, 4, 'DE', 0)),                   # LD DE,(nn)
-        0x5C: (neg, (8, 2, )),                                # NEG
-        0x5D: (reti, (14, 2, 'RETN')),                        # RETN
-        0x5E: (im, (8, 2, 2)),                                # IM 2
+        0x5C: (neg, ()),                                      # NEG
+        0x5D: (reti, ('RETN',)),                              # RETN
+        0x5E: (im, (2,)),                                     # IM 2
         0x5F: (ld8, (9, 2, 'A', 'R')),                        # LD A,R
-        0x60: (in_c, (12, 2, 'H')),                           # IN H,(C)
-        0x61: (outc, (12, 2, 'H')),                           # OUT (C),H
+        0x60: (in_c, ('H',)),                                 # IN H,(C)
+        0x61: (outc, ('H',)),                                 # OUT (C),H
         0x62: (add16, (15, 2, 'HL', 'HL', 1, -1)),            # SBC HL,HL
         0x63: (ld16addr, (20, 4, 'HL', 1)),                   # LD (nn),HL
-        0x64: (neg, (8, 2, )),                                # NEG
-        0x65: (reti, (14, 2, 'RETN')),                        # RETN
-        0x66: (im, (8, 2, 0)),                                # IM 0
-        0x67: (rrd, (18, 2, )),                               # RRD
-        0x68: (in_c, (12, 2, 'L')),                           # IN L,(C)
-        0x69: (outc, (12, 2, 'L')),                           # OUT (C),L
+        0x64: (neg, ()),                                      # NEG
+        0x65: (reti, ('RETN',)),                              # RETN
+        0x66: (im, (0,)),                                     # IM 0
+        0x67: (rrd, ()),                                      # RRD
+        0x68: (in_c, ('L',)),                                 # IN L,(C)
+        0x69: (outc, ('L',)),                                 # OUT (C),L
         0x6A: (add16, (15, 2, 'HL', 'HL', 1)),                # ADC HL,HL
         0x6B: (ld16addr, (20, 4, 'HL', 0)),                   # LD HL,(nn)
-        0x6C: (neg, (8, 2, )),                                # NEG
-        0x6D: (reti, (14, 2, 'RETN')),                        # RETN
-        0x6E: (im, (8, 2, 0)),                                # IM 0
-        0x6F: (rld, (18, 2, )),                               # RLD
-        0x70: (in_c, (12, 2, 'F')),                           # IN F,(C)
-        0x71: (outc, (12, 2, '')),                            # OUT (C),0
+        0x6C: (neg, ()),                                      # NEG
+        0x6D: (reti, ('RETN',)),                              # RETN
+        0x6E: (im, (0,)),                                     # IM 0
+        0x6F: (rld, ()),                                      # RLD
+        0x70: (in_c, ('F',)),                                 # IN F,(C)
+        0x71: (outc, ('',)),                                  # OUT (C),0
         0x72: (add16, (15, 2, 'HL', 'SP', 1, -1)),            # SBC HL,SP
         0x73: (ld16addr, (20, 4, 'SP', 1)),                   # LD (nn),SP
-        0x74: (neg, (8, 2, )),                                # NEG
-        0x75: (reti, (14, 2, 'RETN')),                        # RETN
-        0x76: (im, (8, 2, 1)),                                # IM 1
+        0x74: (neg, ()),                                      # NEG
+        0x75: (reti, ('RETN',)),                              # RETN
+        0x76: (im, (1,)),                                     # IM 1
         0x77: (defb, (8, 2, )),
-        0x78: (in_c, (12, 2, 'A')),                           # IN A,(C)
-        0x79: (outc, (12, 2, 'A')),                           # OUT (C),A
+        0x78: (in_c, ('A',)),                                 # IN A,(C)
+        0x79: (outc, ('A',)),                                 # OUT (C),A
         0x7A: (add16, (15, 2, 'HL', 'SP', 1)),                # ADC HL,SP
         0x7B: (ld16addr, (20, 4, 'SP', 0)),                   # LD SP,(nn)
-        0x7C: (neg, (8, 2, )),                                # NEG
-        0x7D: (reti, (14, 2, 'RETN')),                        # RETN
-        0x7E: (im, (8, 2, 2)),                                # IM 2
+        0x7C: (neg, ()),                                      # NEG
+        0x7D: (reti, ('RETN',)),                              # RETN
+        0x7E: (im, (2,)),                                     # IM 2
         0x7F: (defb, (8, 2, )),
         0x80: (defb, (8, 2, )),
         0x81: (defb, (8, 2, )),
@@ -2025,34 +2030,34 @@ class Simulator:
         0x9D: (defb, (8, 2, )),
         0x9E: (defb, (8, 2, )),
         0x9F: (defb, (8, 2, )),
-        0xA0: (block, (16, 2, 'LDI', 1, 0)),                  # LDI
-        0xA1: (block, (16, 2, 'CPI', 1, 0)),                  # CPI
-        0xA2: (block, (16, 2, 'INI', 1, 0)),                  # INI
-        0xA3: (block, (16, 2, 'OUTI', 1, 0)),                 # OUTI
+        0xA0: (block, ('LDI', 1, 0)),                         # LDI
+        0xA1: (block, ('CPI', 1, 0)),                         # CPI
+        0xA2: (block, ('INI', 1, 0)),                         # INI
+        0xA3: (block, ('OUTI', 1, 0)),                        # OUTI
         0xA4: (defb, (8, 2, )),
         0xA5: (defb, (8, 2, )),
         0xA6: (defb, (8, 2, )),
         0xA7: (defb, (8, 2, )),
-        0xA8: (block, (16, 2, 'LDD', -1, 0)),                 # LDD
-        0xA9: (block, (16, 2, 'CPD', -1, 0)),                 # CPD
-        0xAA: (block, (16, 2, 'IND', -1, 0)),                 # IND
-        0xAB: (block, (16, 2, 'OUTD', -1, 0)),                # OUTD
+        0xA8: (block, ('LDD', -1, 0)),                        # LDD
+        0xA9: (block, ('CPD', -1, 0)),                        # CPD
+        0xAA: (block, ('IND', -1, 0)),                        # IND
+        0xAB: (block, ('OUTD', -1, 0)),                       # OUTD
         0xAC: (defb, (8, 2, )),
         0xAD: (defb, (8, 2, )),
         0xAE: (defb, (8, 2, )),
         0xAF: (defb, (8, 2, )),
-        0xB0: (block, ((21, 16), 2, 'LDIR', 1, 1)),           # LDIR
-        0xB1: (block, ((21, 16), 2, 'CPIR', 1, 1)),           # CPIR
-        0xB2: (block, ((21, 16), 2, 'INIR', 1, 1)),           # INIR
-        0xB3: (block, ((21, 16), 2, 'OTIR', 1, 1)),           # OTIR
+        0xB0: (block, ('LDIR', 1, 1)),                        # LDIR
+        0xB1: (block, ('CPIR', 1, 1)),                        # CPIR
+        0xB2: (block, ('INIR', 1, 1)),                        # INIR
+        0xB3: (block, ('OTIR', 1, 1)),                        # OTIR
         0xB4: (defb, (8, 2, )),
         0xB5: (defb, (8, 2, )),
         0xB6: (defb, (8, 2, )),
         0xB7: (defb, (8, 2, )),
-        0xB8: (block, ((21, 16), 2, 'LDDR', -1, 1)),          # LDDR
-        0xB9: (block, ((21, 16), 2, 'CPDR', -1, 1)),          # CPDR
-        0xBA: (block, ((21, 16), 2, 'INDR', -1, 1)),          # INDR
-        0xBB: (block, ((21, 16), 2, 'OTDR', -1, 1)),          # OTDR
+        0xB8: (block, ('LDDR', -1, 1)),                       # LDDR
+        0xB9: (block, ('CPDR', -1, 1)),                       # CPDR
+        0xBA: (block, ('INDR', -1, 1)),                       # INDR
+        0xBB: (block, ('OTDR', -1, 1)),                       # OTDR
         0xBC: (defb, (8, 2, )),
         0xBD: (defb, (8, 2, )),
         0xBE: (defb, (8, 2, )),
