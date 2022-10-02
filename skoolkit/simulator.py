@@ -993,6 +993,55 @@ class Simulator:
         self.registers['F'] = f
         return 'RRD', self.pc + 2, 18
 
+    def rotate_a(self, op, cbit, carry=0):
+        a = self.registers['A']
+        old_f = self.registers['F']
+        if carry:
+            if cbit == 1:
+                # RRCA
+                value = ((a << 7) & 0x80) | ((a >> 1) & 0x7F)
+            else:
+                # RLCA
+                value = (a >> 7) | ((a << 1) & 0xFE)
+        elif cbit == 1:
+            # RRA
+            value = (old_f << 7) | (a >> 1)
+        else:
+            # RLA
+            value = (old_f & 0x01) | (a << 1)
+        self.registers['A'] = value & 0xFF
+        f = (old_f & 0xC4) | (value & 0x28) # SZ5H3PN.
+        if a & cbit:
+            self.registers['F'] = f | 0x01 # .......C
+        else:
+            self.registers['F'] = f
+        return op, self.pc + 1, 4
+
+    def rotate_r(self, op, cbit, reg, carry=0):
+        r = self.registers[reg]
+        if carry:
+            if cbit == 1:
+                # RRC r
+                value = ((r << 7) & 0x80) | ((r >> 1) & 0x7F)
+            else:
+                # RLC r
+                value = (r >> 7) | ((r << 1) & 0xFE)
+        elif cbit == 1:
+            # RR r
+            value = ((self.registers['F'] << 7) | (r >> 1)) & 0xFF
+        else:
+            # RL r
+            value = ((self.registers['F'] & 0x01) | (r << 1)) & 0xFF
+        self.registers[reg] = value
+        f = (value & 0xA8) | PARITY[value] # S.5H3PN.
+        if value == 0:
+            f |= 0x40 # .Z......
+        if r & cbit:
+            self.registers['F'] = f | 0x01 # .......C
+        else:
+            self.registers['F'] = f
+        return op, self.pc + 2, 8
+
     def rotate(self, timing, size, op, cbit, reg, carry='', dest=''):
         operand, value = self.get_operand_value(size, reg)
         old_carry = self.registers['F'] & 0x01
@@ -1026,7 +1075,7 @@ class Simulator:
         if new_carry:
             f |= 0x01 # .......C
         self.registers['F'] = f
-        return f'{op}', self.pc + size, timing
+        return op, self.pc + size, timing
 
     def rst(self, addr):
         ret_addr = (self.pc + 1) & 0xFFFF
@@ -1091,38 +1140,38 @@ class Simulator:
         return f'XOR {operand}', self.pc + size, timing
 
     after_CB = {
-        0x00: (rotate, (8, 2, 'RLC ', 128, 'B', 'C')),        # RLC B
-        0x01: (rotate, (8, 2, 'RLC ', 128, 'C', 'C')),        # RLC C
-        0x02: (rotate, (8, 2, 'RLC ', 128, 'D', 'C')),        # RLC D
-        0x03: (rotate, (8, 2, 'RLC ', 128, 'E', 'C')),        # RLC E
-        0x04: (rotate, (8, 2, 'RLC ', 128, 'H', 'C')),        # RLC H
-        0x05: (rotate, (8, 2, 'RLC ', 128, 'L', 'C')),        # RLC L
+        0x00: (rotate_r, ('RLC B', 128, 'B', 1)),             # RLC B
+        0x01: (rotate_r, ('RLC C', 128, 'C', 1)),             # RLC C
+        0x02: (rotate_r, ('RLC D', 128, 'D', 1)),             # RLC D
+        0x03: (rotate_r, ('RLC E', 128, 'E', 1)),             # RLC E
+        0x04: (rotate_r, ('RLC H', 128, 'H', 1)),             # RLC H
+        0x05: (rotate_r, ('RLC L', 128, 'L', 1)),             # RLC L
         0x06: (rotate, (15, 2, 'RLC ', 128, '(HL)', 'C')),    # RLC (HL)
-        0x07: (rotate, (8, 2, 'RLC ', 128, 'A', 'C')),        # RLC A
-        0x08: (rotate, (8, 2, 'RRC ', 1, 'B', 'C')),          # RRC B
-        0x09: (rotate, (8, 2, 'RRC ', 1, 'C', 'C')),          # RRC C
-        0x0A: (rotate, (8, 2, 'RRC ', 1, 'D', 'C')),          # RRC D
-        0x0B: (rotate, (8, 2, 'RRC ', 1, 'E', 'C')),          # RRC E
-        0x0C: (rotate, (8, 2, 'RRC ', 1, 'H', 'C')),          # RRC H
-        0x0D: (rotate, (8, 2, 'RRC ', 1, 'L', 'C')),          # RRC L
+        0x07: (rotate_r, ('RLC A', 128, 'A', 1)),             # RLC A
+        0x08: (rotate_r, ('RRC B', 1, 'B', 1)),               # RRC B
+        0x09: (rotate_r, ('RRC C', 1, 'C', 1)),               # RRC C
+        0x0A: (rotate_r, ('RRC D', 1, 'D', 1)),               # RRC D
+        0x0B: (rotate_r, ('RRC E', 1, 'E', 1)),               # RRC E
+        0x0C: (rotate_r, ('RRC H', 1, 'H', 1)),               # RRC H
+        0x0D: (rotate_r, ('RRC L', 1, 'L', 1)),               # RRC L
         0x0E: (rotate, (15, 2, 'RRC ', 1, '(HL)', 'C')),      # RRC (HL)
-        0x0F: (rotate, (8, 2, 'RRC ', 1, 'A', 'C')),          # RRC A
-        0x10: (rotate, (8, 2, 'RL ', 128, 'B')),              # RL B
-        0x11: (rotate, (8, 2, 'RL ', 128, 'C')),              # RL C
-        0x12: (rotate, (8, 2, 'RL ', 128, 'D')),              # RL D
-        0x13: (rotate, (8, 2, 'RL ', 128, 'E')),              # RL E
-        0x14: (rotate, (8, 2, 'RL ', 128, 'H')),              # RL H
-        0x15: (rotate, (8, 2, 'RL ', 128, 'L')),              # RL L
+        0x0F: (rotate_r, ('RRC A', 1, 'A', 1)),               # RRC A
+        0x10: (rotate_r, ('RL B', 128, 'B')),                 # RL B
+        0x11: (rotate_r, ('RL C', 128, 'C')),                 # RL C
+        0x12: (rotate_r, ('RL D', 128, 'D')),                 # RL D
+        0x13: (rotate_r, ('RL E', 128, 'E')),                 # RL E
+        0x14: (rotate_r, ('RL H', 128, 'H')),                 # RL H
+        0x15: (rotate_r, ('RL L', 128, 'L')),                 # RL L
         0x16: (rotate, (15, 2, 'RL ', 128, '(HL)')),          # RL (HL)
-        0x17: (rotate, (8, 2, 'RL ', 128, 'A')),              # RL A
-        0x18: (rotate, (8, 2, 'RR ', 1, 'B')),                # RR B
-        0x19: (rotate, (8, 2, 'RR ', 1, 'C')),                # RR C
-        0x1A: (rotate, (8, 2, 'RR ', 1, 'D')),                # RR D
-        0x1B: (rotate, (8, 2, 'RR ', 1, 'E')),                # RR E
-        0x1C: (rotate, (8, 2, 'RR ', 1, 'H')),                # RR H
-        0x1D: (rotate, (8, 2, 'RR ', 1, 'L')),                # RR L
+        0x17: (rotate_r, ('RL A', 128, 'A')),                 # RL A
+        0x18: (rotate_r, ('RR B', 1, 'B')),                   # RR B
+        0x19: (rotate_r, ('RR C', 1, 'C')),                   # RR C
+        0x1A: (rotate_r, ('RR D', 1, 'D')),                   # RR D
+        0x1B: (rotate_r, ('RR E', 1, 'E')),                   # RR E
+        0x1C: (rotate_r, ('RR H', 1, 'H')),                   # RR H
+        0x1D: (rotate_r, ('RR L', 1, 'L')),                   # RR L
         0x1E: (rotate, (15, 2, 'RR ', 1, '(HL)')),            # RR (HL)
-        0x1F: (rotate, (8, 2, 'RR ', 1, 'A')),                # RR A
+        0x1F: (rotate_r, ('RR A', 1, 'A')),                   # RR A
         0x20: (shift, (8, 2, 'SLA', 128, 'B')),               # SLA B
         0x21: (shift, (8, 2, 'SLA', 128, 'C')),               # SLA C
         0x22: (shift, (8, 2, 'SLA', 128, 'D')),               # SLA D
@@ -2134,7 +2183,7 @@ class Simulator:
         0x04: (inc_r, ('B',)),                                # INC B
         0x05: (dec_r, ('B')),                                 # DEC B
         0x06: (ld_r_n, ('B')),                                # LD B,n
-        0x07: (rotate, (4, 1, 'RLC', 128, 'A', 'C')),         # RLCA
+        0x07: (rotate_a, ('RLCA', 128, 1)),                   # RLCA
         0x08: (ex_af, ()),                                    # EX AF,AF'
         0x09: (add16, (11, 1, 'HL', 'BC')),                   # ADD HL,BC
         0x0A: (ld8, (7, 1, 'A', '(BC)')),                     # LD A,(BC)
@@ -2142,7 +2191,7 @@ class Simulator:
         0x0C: (inc_r, ('C',)),                                # INC C
         0x0D: (dec_r, ('C')),                                 # DEC C
         0x0E: (ld_r_n, ('C')),                                # LD C,n
-        0x0F: (rotate, (4, 1, 'RRC', 1, 'A', 'C')),           # RRCA
+        0x0F: (rotate_a, ('RRCA', 1, 1)),                     # RRCA
         0x10: (djnz, ()),                                     # DJNZ nn
         0x11: (ld16, ('DE',)),                                # LD DE,nn
         0x12: (ld8, (7, 1, '(DE)', 'A')),                     # LD (DE),A
@@ -2150,7 +2199,7 @@ class Simulator:
         0x14: (inc_r, ('D',)),                                # INC D
         0x15: (dec_r, ('D')),                                 # DEC D
         0x16: (ld_r_n, ('D')),                                # LD D,n
-        0x17: (rotate, (4, 1, 'RL', 128, 'A')),               # RLA
+        0x17: (rotate_a, ('RLA', 128)),                       # RLA
         0x18: (jr, ('', 0, 0)),                               # JR nn
         0x19: (add16, (11, 1, 'HL', 'DE')),                   # ADD HL,DE
         0x1A: (ld8, (7, 1, 'A', '(DE)')),                     # LD A,(DE)
@@ -2158,7 +2207,7 @@ class Simulator:
         0x1C: (inc_r, ('E',)),                                # INC E
         0x1D: (dec_r, ('E')),                                 # DEC E
         0x1E: (ld_r_n, ('E')),                                # LD E,n
-        0x1F: (rotate, (4, 1, 'RR', 1, 'A')),                 # RRA
+        0x1F: (rotate_a, ('RRA', 1)),                         # RRA
         0x20: (jr, ('NZ', 64, 64)),                           # JR NZ,nn
         0x21: (ld16, ('HL',)),                                # LD HL,nn
         0x22: (ld16addr, (16, 3, 'HL', 1)),                   # LD (nn),HL
