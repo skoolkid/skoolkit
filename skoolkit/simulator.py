@@ -333,6 +333,27 @@ class Simulator:
 
         return f'{op} {augend},{reg}', self.pc + size, timing
 
+    def and_n(self):
+        n = self.snapshot[(self.pc + 1) & 0xFFFF]
+        self.registers['A'] &= n
+        a = self.registers['A']
+        f = (a & 0xA8) | 0x10 | PARITY[a] # S.5H3PNC
+        if a == 0:
+            self.registers['F'] = f | 0x40 # .Z......
+        else:
+            self.registers['F'] = f
+        return f'AND ${n:02X}', self.pc + 2, 7
+
+    def and_r(self, r):
+        self.registers['A'] &= self.registers[r]
+        a = self.registers['A']
+        f = (a & 0xA8) | 0x10 | PARITY[a] # S.5H3PNC
+        if a == 0:
+            self.registers['F'] = f | 0x40 # .Z......
+        else:
+            self.registers['F'] = f
+        return f'AND {r}', self.pc + 1, 4
+
     def anda(self, timing, size, reg=None):
         operand, value = self.get_operand_value(size, reg)
         self.registers['A'] &= value
@@ -837,6 +858,27 @@ class Simulator:
     def nop(self, timing, size):
         return 'NOP', self.pc + 1, timing
 
+    def or_n(self):
+        n = self.snapshot[(self.pc + 1) & 0xFFFF]
+        self.registers['A'] |= n
+        a = self.registers['A']
+        f = (a & 0xA8) | PARITY[a] # S.5H3PNC
+        if a == 0:
+            self.registers['F'] = f | 0x40 # .Z......
+        else:
+            self.registers['F'] = f
+        return f'OR ${n:02X}', self.pc + 2, 7
+
+    def or_r(self, r):
+        self.registers['A'] |= self.registers[r]
+        a = self.registers['A']
+        f = (a & 0xA8) | PARITY[a] # S.5H3PNC
+        if a == 0:
+            self.registers['F'] = f | 0x40 # .Z......
+        else:
+            self.registers['F'] = f
+        return f'OR {r}', self.pc + 1, 4
+
     def ora(self, timing, size, reg=None):
         operand, value = self.get_operand_value(size, reg)
         self.registers['A'] |= value
@@ -1014,6 +1056,27 @@ class Simulator:
         self.registers['F'] = f
         return f'{op} {operand}{dest}', self.pc + size, timing
 
+    def xor_n(self):
+        n = self.snapshot[(self.pc + 1) & 0xFFFF]
+        self.registers['A'] ^= n
+        a = self.registers['A']
+        f = (a & 0xA8) | PARITY[a] # S.5H3PNC
+        if a == 0:
+            self.registers['F'] = f | 0x40 # .Z......
+        else:
+            self.registers['F'] = f
+        return f'XOR ${n:02X}', self.pc + 2, 7
+
+    def xor_r(self, r):
+        self.registers['A'] ^= self.registers[r]
+        a = self.registers['A']
+        f = (a & 0xA8) | PARITY[a] # S.5H3PNC
+        if a == 0:
+            self.registers['F'] = f | 0x40 # .Z......
+        else:
+            self.registers['F'] = f
+        return f'XOR {r}', self.pc + 1, 4
+
     def xor(self, timing, size, reg=None):
         operand, value = self.get_operand_value(size, reg)
         self.registers['A'] ^= value
@@ -1185,30 +1248,30 @@ class Simulator:
         0x9D: (add_a, (4, 1, 'L', 1, -1)),                    # SBC A,L
         0x9E: (add_a, (7, 1, '(HL)', 1, -1)),                 # SBC A,(HL)
         0x9F: (add_a, (4, 1, 'A', 1, -1)),                    # SBC A,A
-        0xA0: (anda, (4, 1, 'B')),                            # AND B
-        0xA1: (anda, (4, 1, 'C')),                            # AND C
-        0xA2: (anda, (4, 1, 'D')),                            # AND D
-        0xA3: (anda, (4, 1, 'E')),                            # AND E
-        0xA4: (anda, (4, 1, 'H')),                            # AND H
-        0xA5: (anda, (4, 1, 'L')),                            # AND L
+        0xA0: (and_r, ('B',)),                                # AND B
+        0xA1: (and_r, ('C',)),                                # AND C
+        0xA2: (and_r, ('D',)),                                # AND D
+        0xA3: (and_r, ('E',)),                                # AND E
+        0xA4: (and_r, ('H',)),                                # AND H
+        0xA5: (and_r, ('L',)),                                # AND L
         0xA6: (anda, (7, 1, '(HL)')),                         # AND (HL)
-        0xA7: (anda, (4, 1, 'A')),                            # AND A
-        0xA8: (xor, (4, 1, 'B')),                             # XOR B
-        0xA9: (xor, (4, 1, 'C')),                             # XOR C
-        0xAA: (xor, (4, 1, 'D')),                             # XOR D
-        0xAB: (xor, (4, 1, 'E')),                             # XOR E
-        0xAC: (xor, (4, 1, 'H')),                             # XOR H
-        0xAD: (xor, (4, 1, 'L')),                             # XOR L
+        0xA7: (and_r, ('A',)),                                # AND A
+        0xA8: (xor_r, ('B',)),                                # XOR B
+        0xA9: (xor_r, ('C',)),                                # XOR C
+        0xAA: (xor_r, ('D',)),                                # XOR D
+        0xAB: (xor_r, ('E',)),                                # XOR E
+        0xAC: (xor_r, ('H',)),                                # XOR H
+        0xAD: (xor_r, ('L',)),                                # XOR L
         0xAE: (xor, (7, 1, '(HL)')),                          # XOR (HL)
-        0xAF: (xor, (4, 1, 'A')),                             # XOR A
-        0xB0: (ora, (4, 1, 'B')),                             # OR B
-        0xB1: (ora, (4, 1, 'C')),                             # OR C
-        0xB2: (ora, (4, 1, 'D')),                             # OR D
-        0xB3: (ora, (4, 1, 'E')),                             # OR E
-        0xB4: (ora, (4, 1, 'H')),                             # OR H
-        0xB5: (ora, (4, 1, 'L')),                             # OR L
+        0xAF: (xor_r, ('A',)),                                # XOR A
+        0xB0: (or_r, ('B',)),                                 # OR B
+        0xB1: (or_r, ('C',)),                                 # OR C
+        0xB2: (or_r, ('D',)),                                 # OR D
+        0xB3: (or_r, ('E',)),                                 # OR E
+        0xB4: (or_r, ('H',)),                                 # OR H
+        0xB5: (or_r, ('L',)),                                 # OR L
         0xB6: (ora, (7, 1, '(HL)')),                          # OR (HL)
-        0xB7: (ora, (4, 1, 'A')),                             # OR A
+        0xB7: (or_r, ('A',)),                                 # OR A
         0xB8: (cp, (4, 1, 'B')),                              # CP B
         0xB9: (cp, (4, 1, 'C')),                              # CP C
         0xBA: (cp, (4, 1, 'D')),                              # CP D
@@ -1255,7 +1318,7 @@ class Simulator:
         0xE3: (ex_sp, (19, 1, )),                             # EX (SP),HL
         0xE4: (call, ((17, 10), 3, 'PO', 4, 4)),              # CALL PO,nn
         0xE5: (push, (11, 1, 'HL')),                          # PUSH HL
-        0xE6: (anda, (7, 2, )),                               # AND n
+        0xE6: (and_n, ()),                                    # AND n
         0xE7: (rst, (11, 1, 32)),                             # RST $20
         0xE8: (ret, ((11, 5), 1, 'RET PE', 4, 0)),            # RET PE
         0xE9: (jp, (4, 1, '', 0, 0)),                         # JP (HL)
@@ -1263,7 +1326,7 @@ class Simulator:
         0xEB: (ex_de_hl, (4, 1, )),                           # EX DE,HL
         0xEC: (call, ((17, 10), 3, 'PE', 4, 0)),              # CALL PE,nn
         0xED: None,                                           # ED prefix
-        0xEE: (xor, (7, 2, )),                                # XOR n
+        0xEE: (xor_n, ()),                                    # XOR n
         0xEF: (rst, (11, 1, 40)),                             # RST $28
         0xF0: (ret, ((11, 5), 1, 'RET P', 128, 128)),         # RET P
         0xF1: (pop, (10, 1, 'AF')),                           # POP AF
@@ -1271,7 +1334,7 @@ class Simulator:
         0xF3: (di_ei, (4, 1, 'DI', 0)),                       # DI
         0xF4: (call, ((17, 10), 3, 'P', 128, 128)),           # CALL P,nn
         0xF5: (push, (11, 1, 'AF')),                          # PUSH AF
-        0xF6: (ora, (7, 2, )),                                # OR n
+        0xF6: (or_n, ()),                                     # OR n
         0xF7: (rst, (11, 1, 48)),                             # RST $30
         0xF8: (ret, ((11, 5), 1, 'RET M', 128, 0)),           # RET M
         0xF9: (ldsprr, (6, 1, 'HL')),                         # LD SP,HL
