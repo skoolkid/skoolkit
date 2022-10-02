@@ -81,12 +81,18 @@ class Simulator:
         self.tracers = []
         self.i_tracers = None
         self.in_tracers = ()
+        self.out_tracers = ()
+        self.peek_tracers = ()
+        self.poke_tracers = ()
         self.instruction = Instruction()
 
     def add_tracer(self, tracer):
         self.tracers.append(tracer)
         self.i_tracers = [t.trace for t in self.tracers if hasattr(t, 'trace')]
         self.in_tracers = [t.read_port for t in self.tracers if hasattr(t, 'read_port')]
+        self.out_tracers = [t.write_port for t in self.tracers if hasattr(t, 'write_port')]
+        self.peek_tracers = [t.read_memory for t in self.tracers if hasattr(t, 'read_memory')]
+        self.poke_tracers = [t.write_memory for t in self.tracers if hasattr(t, 'write_memory')]
 
     def run(self, pc=None):
         if pc is not None:
@@ -158,13 +164,6 @@ class Simulator:
                 self.registers[reg[0]] = value // 256
                 self.registers[reg[1]] = value % 256
 
-    def _trace(self, method_name, *args):
-        retval = None
-        for tracer in self.tracers:
-            if hasattr(tracer, method_name):
-                retval = getattr(tracer, method_name)(self, *args)
-        return retval
-
     def index(self):
         offset = self.snapshot[(self.pc + 2) & 0xFFFF]
         if offset >= 128:
@@ -205,13 +204,15 @@ class Simulator:
             self.poke(addr, value)
 
     def peek(self, address, count=1):
-        self._trace('read_memory', address, count)
+        for method in self.peek_tracers:
+            method(self, address, count)
         if count == 1:
             return self.snapshot[address]
         return self.snapshot[address], self.snapshot[(address + 1) & 0xFFFF]
 
     def poke(self, address, *values):
-        self._trace('write_memory', address, values)
+        for method in self.poke_tracers:
+            method(self, address, values)
         if address > 0x3FFF:
             self.snapshot[address] = values[0]
         if len(values) > 1:
@@ -891,7 +892,8 @@ class Simulator:
         return f'OR {operand}', self.pc + size, timing
 
     def _out(self, port, value):
-        self._trace('write_port', port, value)
+        for method in self.out_tracers:
+            method(self, port, value)
 
     def outa(self):
         a = self.registers['A']
