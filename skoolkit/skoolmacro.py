@@ -533,7 +533,7 @@ def _flatten(elements):
     return f
 
 def _eval_delays(spec):
-    valid_chars = frozenset(' 0123456789,*+-%()[]')
+    valid_chars = frozenset(' 0123456789,*+-%()[]\n')
     if set(spec) <= valid_chars:
         try:
             return _flatten(eval(f'[{spec}]'))

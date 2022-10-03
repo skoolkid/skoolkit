@@ -925,8 +925,8 @@ file of duration 1131000 / 3500000 = 0.323s (assuming that no memory contention
 is simulated and interrupts are disabled, i.e. bits 0 and 1 of ``flags`` are
 reset).
 
-The characters allowed in the ``delays`` parameter are ' ' (space), the digits
-0-9, and any of ``,*+-%()[]``.
+The characters allowed in the ``delays`` parameter are ' ' (space), newline,
+the digits 0-9, and any of ``,*+-%()[]``.
 
 An alternative to supplying the delay values manually is to execute the code
 that produces the sound effect in a simulator, and let the simulator compute

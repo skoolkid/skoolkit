@@ -1555,7 +1555,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
     def test_macro_audio_with_delays(self):
         writer = self._get_writer(skool='', mock_file_info=True)
         fname = 'sound.wav'
-        delays = '[500,100+1,200-2,50+17*(300%256),(300,400)*2]*3'
+        delays = '[500, 100+1, 200-2,\n50+17*(300%256), (300,400)*2]*3'
         macro = f'#AUDIO({fname})({delays})'
         exp_src = f'../audio/{fname}'
         exp_path = f'audio/{fname}'
