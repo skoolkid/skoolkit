@@ -1042,7 +1042,7 @@ class Simulator:
             self.registers['F'] = f
         return op, self.pc + 2, 8
 
-    def rotate(self, timing, size, op, cbit, reg, carry='', dest=''):
+    def rotate(self, timing, size, op, cbit, reg, carry=0, dest=''):
         operand, value = self.get_operand_value(size, reg)
         old_carry = self.registers['F'] & 0x01
         new_carry = value & cbit
@@ -1062,20 +1062,14 @@ class Simulator:
         if dest:
             self.registers[dest] = value
             dest = ',' + dest
-        if self.snapshot[self.pc] in (0x07, 0x0F, 0x17, 0x1F):
-            # RLCA, RLA, RRCA, RRA
-            op += 'A'
-            f = self.registers['F'] & 0xC4 # SZ.H.PN.
-            f |= value & 0x28 # ..5.3...
-        else:
-            op += f'{operand}{dest}'
-            f = (value & 0xA8) | PARITY[value] # S.5H3PN.
-            if value == 0:
-                f |= 0x40 # .Z......
+        f = (value & 0xA8) | PARITY[value] # S.5H3PN.
+        if value == 0:
+            f |= 0x40 # .Z......
         if new_carry:
-            f |= 0x01 # .......C
-        self.registers['F'] = f
-        return op, self.pc + size, timing
+            self.registers['F'] = f | 0x01 # .......C
+        else:
+            self.registers['F'] = f
+        return f'{op} {operand}{dest}', self.pc + size, timing
 
     def rst(self, addr):
         ret_addr = (self.pc + 1) & 0xFFFF
@@ -1146,7 +1140,7 @@ class Simulator:
         0x03: (rotate_r, ('RLC E', 128, 'E', 1)),             # RLC E
         0x04: (rotate_r, ('RLC H', 128, 'H', 1)),             # RLC H
         0x05: (rotate_r, ('RLC L', 128, 'L', 1)),             # RLC L
-        0x06: (rotate, (15, 2, 'RLC ', 128, '(HL)', 'C')),    # RLC (HL)
+        0x06: (rotate, (15, 2, 'RLC', 128, '(HL)', 1)),       # RLC (HL)
         0x07: (rotate_r, ('RLC A', 128, 'A', 1)),             # RLC A
         0x08: (rotate_r, ('RRC B', 1, 'B', 1)),               # RRC B
         0x09: (rotate_r, ('RRC C', 1, 'C', 1)),               # RRC C
@@ -1154,7 +1148,7 @@ class Simulator:
         0x0B: (rotate_r, ('RRC E', 1, 'E', 1)),               # RRC E
         0x0C: (rotate_r, ('RRC H', 1, 'H', 1)),               # RRC H
         0x0D: (rotate_r, ('RRC L', 1, 'L', 1)),               # RRC L
-        0x0E: (rotate, (15, 2, 'RRC ', 1, '(HL)', 'C')),      # RRC (HL)
+        0x0E: (rotate, (15, 2, 'RRC', 1, '(HL)', 1)),         # RRC (HL)
         0x0F: (rotate_r, ('RRC A', 1, 'A', 1)),               # RRC A
         0x10: (rotate_r, ('RL B', 128, 'B')),                 # RL B
         0x11: (rotate_r, ('RL C', 128, 'C')),                 # RL C
@@ -1162,7 +1156,7 @@ class Simulator:
         0x13: (rotate_r, ('RL E', 128, 'E')),                 # RL E
         0x14: (rotate_r, ('RL H', 128, 'H')),                 # RL H
         0x15: (rotate_r, ('RL L', 128, 'L')),                 # RL L
-        0x16: (rotate, (15, 2, 'RL ', 128, '(HL)')),          # RL (HL)
+        0x16: (rotate, (15, 2, 'RL', 128, '(HL)')),           # RL (HL)
         0x17: (rotate_r, ('RL A', 128, 'A')),                 # RL A
         0x18: (rotate_r, ('RR B', 1, 'B')),                   # RR B
         0x19: (rotate_r, ('RR C', 1, 'C')),                   # RR C
@@ -1170,7 +1164,7 @@ class Simulator:
         0x1B: (rotate_r, ('RR E', 1, 'E')),                   # RR E
         0x1C: (rotate_r, ('RR H', 1, 'H')),                   # RR H
         0x1D: (rotate_r, ('RR L', 1, 'L')),                   # RR L
-        0x1E: (rotate, (15, 2, 'RR ', 1, '(HL)')),            # RR (HL)
+        0x1E: (rotate, (15, 2, 'RR', 1, '(HL)')),             # RR (HL)
         0x1F: (rotate_r, ('RR A', 1, 'A')),                   # RR A
         0x20: (shift, (8, 2, 'SLA', 128, 'B')),               # SLA B
         0x21: (shift, (8, 2, 'SLA', 128, 'C')),               # SLA C
@@ -1399,38 +1393,38 @@ class Simulator:
     }
 
     after_DDCB = {
-        0x00: (rotate, (23, 4, 'RLC ', 128, 'Xd', 'C', 'B')), # RLC (IX+d),B
-        0x01: (rotate, (23, 4, 'RLC ', 128, 'Xd', 'C', 'C')), # RLC (IX+d),C
-        0x02: (rotate, (23, 4, 'RLC ', 128, 'Xd', 'C', 'D')), # RLC (IX+d),D
-        0x03: (rotate, (23, 4, 'RLC ', 128, 'Xd', 'C', 'E')), # RLC (IX+d),E
-        0x04: (rotate, (23, 4, 'RLC ', 128, 'Xd', 'C', 'H')), # RLC (IX+d),H
-        0x05: (rotate, (23, 4, 'RLC ', 128, 'Xd', 'C', 'L')), # RLC (IX+d),L
-        0x06: (rotate, (23, 4, 'RLC ', 128, 'Xd', 'C')),      # RLC (IX+d)
-        0x07: (rotate, (23, 4, 'RLC ', 128, 'Xd', 'C', 'A')), # RLC (IX+d),A
-        0x08: (rotate, (23, 4, 'RRC ', 1, 'Xd', 'C', 'B')),   # RRC (IX+d),B
-        0x09: (rotate, (23, 4, 'RRC ', 1, 'Xd', 'C', 'C')),   # RRC (IX+d),C
-        0x0A: (rotate, (23, 4, 'RRC ', 1, 'Xd', 'C', 'D')),   # RRC (IX+d),D
-        0x0B: (rotate, (23, 4, 'RRC ', 1, 'Xd', 'C', 'E')),   # RRC (IX+d),E
-        0x0C: (rotate, (23, 4, 'RRC ', 1, 'Xd', 'C', 'H')),   # RRC (IX+d),H
-        0x0D: (rotate, (23, 4, 'RRC ', 1, 'Xd', 'C', 'L')),   # RRC (IX+d),L
-        0x0E: (rotate, (23, 4, 'RRC ', 1, 'Xd', 'C')),        # RRC (IX+d)
-        0x0F: (rotate, (23, 4, 'RRC ', 1, 'Xd', 'C', 'A')),   # RRC (IX+d),A
-        0x10: (rotate, (23, 4, 'RL ', 128, 'Xd', '', 'B')),   # RL (IX+d),B
-        0x11: (rotate, (23, 4, 'RL ', 128, 'Xd', '', 'C')),   # RL (IX+d),C
-        0x12: (rotate, (23, 4, 'RL ', 128, 'Xd', '', 'D')),   # RL (IX+d),D
-        0x13: (rotate, (23, 4, 'RL ', 128, 'Xd', '', 'E')),   # RL (IX+d),E
-        0x14: (rotate, (23, 4, 'RL ', 128, 'Xd', '', 'H')),   # RL (IX+d),H
-        0x15: (rotate, (23, 4, 'RL ', 128, 'Xd', '', 'L')),   # RL (IX+d),L
-        0x16: (rotate, (23, 4, 'RL ', 128, 'Xd')),            # RL (IX+d)
-        0x17: (rotate, (23, 4, 'RL ', 128, 'Xd', '', 'A')),   # RL (IX+d),A
-        0x18: (rotate, (23, 4, 'RR ', 1, 'Xd', '', 'B')),     # RR (IX+d),B
-        0x19: (rotate, (23, 4, 'RR ', 1, 'Xd', '', 'C')),     # RR (IX+d),C
-        0x1A: (rotate, (23, 4, 'RR ', 1, 'Xd', '', 'D')),     # RR (IX+d),D
-        0x1B: (rotate, (23, 4, 'RR ', 1, 'Xd', '', 'E')),     # RR (IX+d),E
-        0x1C: (rotate, (23, 4, 'RR ', 1, 'Xd', '', 'H')),     # RR (IX+d),H
-        0x1D: (rotate, (23, 4, 'RR ', 1, 'Xd', '', 'L')),     # RR (IX+d),L
-        0x1E: (rotate, (23, 4, 'RR ', 1, 'Xd')),              # RR (IX+d)
-        0x1F: (rotate, (23, 4, 'RR ', 1, 'Xd', '', 'A')),     # RR (IX+d),A
+        0x00: (rotate, (23, 4, 'RLC', 128, 'Xd', 1, 'B')),    # RLC (IX+d),B
+        0x01: (rotate, (23, 4, 'RLC', 128, 'Xd', 1, 'C')),    # RLC (IX+d),C
+        0x02: (rotate, (23, 4, 'RLC', 128, 'Xd', 1, 'D')),    # RLC (IX+d),D
+        0x03: (rotate, (23, 4, 'RLC', 128, 'Xd', 1, 'E')),    # RLC (IX+d),E
+        0x04: (rotate, (23, 4, 'RLC', 128, 'Xd', 1, 'H')),    # RLC (IX+d),H
+        0x05: (rotate, (23, 4, 'RLC', 128, 'Xd', 1, 'L')),    # RLC (IX+d),L
+        0x06: (rotate, (23, 4, 'RLC', 128, 'Xd', 1)),         # RLC (IX+d)
+        0x07: (rotate, (23, 4, 'RLC', 128, 'Xd', 1, 'A')),    # RLC (IX+d),A
+        0x08: (rotate, (23, 4, 'RRC', 1, 'Xd', 1, 'B')),      # RRC (IX+d),B
+        0x09: (rotate, (23, 4, 'RRC', 1, 'Xd', 1, 'C')),      # RRC (IX+d),C
+        0x0A: (rotate, (23, 4, 'RRC', 1, 'Xd', 1, 'D')),      # RRC (IX+d),D
+        0x0B: (rotate, (23, 4, 'RRC', 1, 'Xd', 1, 'E')),      # RRC (IX+d),E
+        0x0C: (rotate, (23, 4, 'RRC', 1, 'Xd', 1, 'H')),      # RRC (IX+d),H
+        0x0D: (rotate, (23, 4, 'RRC', 1, 'Xd', 1, 'L')),      # RRC (IX+d),L
+        0x0E: (rotate, (23, 4, 'RRC', 1, 'Xd', 1)),           # RRC (IX+d)
+        0x0F: (rotate, (23, 4, 'RRC', 1, 'Xd', 1, 'A')),      # RRC (IX+d),A
+        0x10: (rotate, (23, 4, 'RL', 128, 'Xd', 0, 'B')),     # RL (IX+d),B
+        0x11: (rotate, (23, 4, 'RL', 128, 'Xd', 0, 'C')),     # RL (IX+d),C
+        0x12: (rotate, (23, 4, 'RL', 128, 'Xd', 0, 'D')),     # RL (IX+d),D
+        0x13: (rotate, (23, 4, 'RL', 128, 'Xd', 0, 'E')),     # RL (IX+d),E
+        0x14: (rotate, (23, 4, 'RL', 128, 'Xd', 0, 'H')),     # RL (IX+d),H
+        0x15: (rotate, (23, 4, 'RL', 128, 'Xd', 0, 'L')),     # RL (IX+d),L
+        0x16: (rotate, (23, 4, 'RL', 128, 'Xd')),             # RL (IX+d)
+        0x17: (rotate, (23, 4, 'RL', 128, 'Xd', 0, 'A')),     # RL (IX+d),A
+        0x18: (rotate, (23, 4, 'RR', 1, 'Xd', 0, 'B')),       # RR (IX+d),B
+        0x19: (rotate, (23, 4, 'RR', 1, 'Xd', 0, 'C')),       # RR (IX+d),C
+        0x1A: (rotate, (23, 4, 'RR', 1, 'Xd', 0, 'D')),       # RR (IX+d),D
+        0x1B: (rotate, (23, 4, 'RR', 1, 'Xd', 0, 'E')),       # RR (IX+d),E
+        0x1C: (rotate, (23, 4, 'RR', 1, 'Xd', 0, 'H')),       # RR (IX+d),H
+        0x1D: (rotate, (23, 4, 'RR', 1, 'Xd', 0, 'L')),       # RR (IX+d),L
+        0x1E: (rotate, (23, 4, 'RR', 1, 'Xd')),               # RR (IX+d)
+        0x1F: (rotate, (23, 4, 'RR', 1, 'Xd', 0, 'A')),       # RR (IX+d),A
         0x20: (shift, (23, 4, 'SLA', 128, 'Xd', 'B')),        # SLA (IX+d),B
         0x21: (shift, (23, 4, 'SLA', 128, 'Xd', 'C')),        # SLA (IX+d),C
         0x22: (shift, (23, 4, 'SLA', 128, 'Xd', 'D')),        # SLA (IX+d),D
