@@ -25,7 +25,7 @@ from urllib.parse import urlparse
 from skoolkit import (SkoolKitError, get_dword, get_int_param, get_object,
                       get_word, get_word3, integer, open_file, read_bin_file,
                       warn, write, write_line, ROM48, VERSION)
-from skoolkit.basic import get_char
+from skoolkit.basic import TextReader
 from skoolkit.simulator import Simulator
 from skoolkit.snapshot import move, poke, print_reg_help, print_state_help, write_z80v3
 
@@ -155,6 +155,17 @@ SIM_LOAD_PATCH = {
     0xFF56: 0x3E00  # RAMTOP marker
 }
 
+SIM_LOAD_CODE_PATCH = {
+    0x5C5B: 0x5CD0, # K-CUR
+    0x5C61: 0x5CD2, # WORKSP
+    0x5C63: 0x5CD2, # STKBOT
+    0x5C65: 0x5CD2, # STKEND
+    0x5C82: 0x14,   # ECHO-E
+    0x5CCF: 0xAF,   # CODE
+    0x5CD0: 0x0D,   # ENTER
+    0x5CD1: 0x80    # End of program area
+}
+
 SILENCE = 0
 PILOT = 1
 SYNC = 2
@@ -247,6 +258,7 @@ class LoadTracer:
         self.pulse_type = None
         self.custom_loader = False
         self.border = 7
+        self.text = TextReader()
 
     def trace(self, simulator, instruction):
         if self.tape_started is not None:
@@ -334,12 +346,16 @@ class LoadTracer:
         a = registers['A']
         data_len = len(block) - 2
 
+        # Preload the machine stack with 0x053F (as done at 0x055E)
+        registers['H'], registers['L'] = 0x05, 0x3F # SA-LD-RET
+        simulator.push('HL')
+
         if a == block[0]:
             skipped = ''
         else:
             skipped = ' [skipped]\n'
-        if block[0] == 0 and data_len == 17 and block[1] <= 3:
-            name = ''.join(get_char(b, tokens=True) for b in block[2:12])
+        if block[0] == 0 and data_len >= 17 and block[1] <= 3:
+            name = ''.join(self.text.get_chars(b) for b in block[2:12])
             if block[1] == 3:
                 write_line(f'Bytes: {name}{skipped}')
             elif block[1] == 2:
@@ -370,6 +386,7 @@ class LoadTracer:
             registers['IXl'] = ix & 0xFF
             registers['D'] = (de >> 8) & 0xFF
             registers['E'] = de & 0xFF
+
         simulator.pc = 0x05E2
 
         block_num = self.samples[self.index][3]
@@ -398,6 +415,12 @@ def sim_load(blocks, options):
         snapshot[a] = b % 256
         if b > 0xFF:
             snapshot[a + 1] = b // 256
+    block1_data = blocks[0][1]
+    if len(block1_data) >= 19 and tuple(block1_data[0:2]) == (0, 3):
+        for a, b in SIM_LOAD_CODE_PATCH.items():
+            snapshot[a] = b % 256
+            if b > 0xFF:
+                snapshot[a + 1] = b // 256
     snapshot[0xFF58:] = snapshot[0x3E08:0x3EB0] # UDGs
     simulator = Simulator(snapshot, {'A': 0x0D, 'SP': 0xFF50})
     tracer = LoadTracer(blocks, options.start)

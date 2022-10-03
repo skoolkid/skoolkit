@@ -753,6 +753,31 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertLessEqual(exp_reg, set(options.reg))
 
     @patch.object(tap2sna, '_write_z80', mock_write_z80)
+    def test_sim_load_with_initial_code_block(self):
+        code_start = 65360 # Overwrite return address on stack with...
+        code = [128, 128]  # ...32896
+        blocks = [
+            create_tap_header_block("\xafblock", code_start, len(code)),
+            create_tap_data_block(code)
+        ]
+        tapfile = self._write_tap(blocks)
+        z80file = '{}/out.z80'.format(self.make_directory())
+        output, error = self.run_tap2sna(f'--sim-load {tapfile} {z80file}')
+        out_lines = output.strip().split('\n')
+        exp_out_lines = [
+            'Bytes: CODE block    ',
+            'Fast loading data block: 65360,2',
+            '',
+            'Tape finished',
+            'Simulation stopped (PC in RAM): PC=32896',
+        ]
+        self.assertEqual(exp_out_lines, out_lines)
+        self.assertEqual(error, '')
+        self.assertEqual(code, snapshot[code_start:code_start + len(code)])
+        exp_reg = set(('SP=65362', 'IX=65362', 'IY=23610', 'PC=32896'))
+        self.assertLessEqual(exp_reg, set(options.reg))
+
+    @patch.object(tap2sna, '_write_z80', mock_write_z80)
     def test_sim_load_with_given_start_address(self):
         code_start = 32768
         start = 32769
@@ -998,12 +1023,10 @@ class Tap2SnaTest(SkoolKitTestCase):
         output, error = self.run_tap2sna(f'--sim-load {tapfile} {z80file}')
         out_lines = output.strip().split('\n')
         exp_out_lines = [
-            'Fast loading data block: 23778,17',
-            '',
+            'Program: simloadbas',
             'Fast loading data block: 23755,20',
             '',
-            'Fast loading data block: 23798,17',
-            '',
+            'Bytes: simloadbyt',
             'Fast loading data block: 32768,2',
             '',
             'Tape finished',
@@ -1108,7 +1131,7 @@ class Tap2SnaTest(SkoolKitTestCase):
             create_tap_data_block(basic_data),
             create_tap_header_block("simloadbyt", code_start, len(code)),
             create_tap_data_block(code),
-            create_tap_header_block("IGN\xc5E ME", 49152, len(code2)), # Skipped
+            create_tap_header_block("IGNORE ME", 49152, len(code2)), # Skipped
             create_tap_data_block(code2)
         ]
         tapfile = self._write_tap(blocks)
@@ -1124,7 +1147,7 @@ class Tap2SnaTest(SkoolKitTestCase):
             'Bytes: simloadbyt',
             'Fast loading data block: 32768,18',
             '',
-            'Bytes: IGNORE ME   [skipped]',
+            'Bytes: IGNORE ME  [skipped]',
             '',
             'Fast loading data block: 49152,2',
             '',
