@@ -44,16 +44,8 @@ OPTIONS
   prefixed by '0x'.
 
 --sim-load
-  Simulate a 48K ZX Spectrum running LOAD "". This option can handle headerless
-  data blocks and custom loaders. It should work so long as the tape contains
-  only standard speed blocks.
-
---sim-load-fast
-  Simulate a 48K ZX Spectrum running LOAD "". This option intercepts calls to
-  the ROM's load routine at $0556, and will work only if every block on the
-  tape is loaded by that routine. It can handle headerless data blocks, and
-  automatically sets the start address to the first address jumped to outside
-  the ROM.
+  Simulate a 48K ZX Spectrum running LOAD "". See the section on ``SIMULATED
+  LOAD`` below.
 
 --state name=value
   Set a hardware state attribute. Do ``--state help`` for more information, or
@@ -65,6 +57,26 @@ OPTIONS
 
 -V, --version
   Show the SkoolKit version number and exit.
+
+SIMULATED LOAD
+==============
+The ``--sim-load`` option simulates a freshly booted 48K ZX Spectrum running
+LOAD "" (or LOAD ""CODE, if the first block on the tape is a 'Bytes' header).
+Whenever the Spectrum ROM's load routine at $0556 is called, a shortcut is
+taken by fast loading the next block on the tape. All other code (including any
+custom loader) is fully simulated. Simulation continues until the program
+counter hits the start address given by the ``--start`` option, or 10 minutes
+of simulated Z80 CPU time has elapsed, or the end of the tape is reached and
+one of the following conditions is satisfied:
+
+* a custom loader was detected
+* the program counter hits an address outside the ROM
+* more than one second of simulated Z80 CPU time has elapsed since the end of
+  the tape was reached
+
+The simulation can also be aborted by pressing Ctrl-C. When a simulated LOAD
+has completed or been aborted, the values of the registers (including the
+program counter) in the simulator are used to populate the Z80 snapshot.
 
 CALL OPERATIONS
 ===============
@@ -82,7 +94,7 @@ already in the module search path.
 For example:
 
 |
-|  ``--ram call=:ram.modify()`` # Call modify(snapshot) in ./ram.py
+|  ``--ram call=:ram.modify`` # Call modify(snapshot) in ./ram.py
 
 LOAD OPERATIONS
 ===============

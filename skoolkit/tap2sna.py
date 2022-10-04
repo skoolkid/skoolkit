@@ -771,7 +771,7 @@ snapshot in an arbitrary way.
 
   For example:
 
-  --ram call=:ram.modify() # Call modify(snapshot) in ./ram.py
+  --ram call=:ram.modify # Call modify(snapshot) in ./ram.py
 
 --ram load=[+]block[+],start[,length,step,offset,inc]
 
