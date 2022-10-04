@@ -71,7 +71,7 @@ TRACER = Tracer()
 
 class SimulatorTest(SkoolKitTestCase):
     def _test_instruction(self, inst, data, timing, reg_in=None, reg_out=None, sna_in=None, sna_out=None,
-                          start=None, end=None, state_in=None, state_out=None, tracer=None):
+                          start=None, end=None, state_in=None, state_out=None, tracer=None, config=None):
         if start is None:
             start = 65530
         if end is None:
@@ -88,7 +88,7 @@ class SimulatorTest(SkoolKitTestCase):
         if sna_in:
             for a, v in sna_in.items():
                 snapshot[a] = v
-        simulator = Simulator(snapshot, reg_in, state_in)
+        simulator = Simulator(snapshot, reg_in, state_in, config=config)
         simulator.add_tracer(TRACER)
         if tracer:
             simulator.add_tracer(tracer)
@@ -1553,6 +1553,22 @@ class SimulatorTest(SkoolKitTestCase):
             reg_in = {'B': 2}
             reg_out = {'B': 1}
             self._test_instruction(operation, data, timing, reg_in, reg_out, start=start, end=end)
+
+    def test_djnz_fast(self):
+        start = 35732
+        for offset, b_in, b_out, timing, r_out, end in (
+                (-2, 100, 0,   1295, 100, start + 2),
+                (-2, 1,   0,   8,    1,   start + 2),
+                (-2, 0,   0,   3323, 0,   start + 2),
+                (-3, 100, 99,  13,   1,   start - 1),
+                (-3, 1,   0,   8,    1,   start + 2),
+                (-3, 0,   255, 13,   1,   start - 1),
+        ):
+            operation = f'DJNZ ${start + 2 + offset:04X}'
+            data = (16, offset & 0xFF)
+            reg_in = {'B': b_in, 'R': 0}
+            reg_out = {'B': b_out, 'R': r_out}
+            self._test_instruction(operation, data, timing, reg_in, reg_out, start=start, end=end, config={'fast_djnz': True})
 
     def test_di(self):
         operation = 'DI'

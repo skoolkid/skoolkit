@@ -35,6 +35,10 @@ PARITY = (
 
 FRAME_DURATION = 69888
 
+CONFIG = {
+    'fast_djnz': False,
+}
+
 class Instruction:
     time = None
     address = None
@@ -42,7 +46,7 @@ class Instruction:
     tstates = None
 
 class Simulator:
-    def __init__(self, snapshot, registers=None, state=None):
+    def __init__(self, snapshot, registers=None, state=None, config=None):
         self.snapshot = snapshot
         self.registers = {
             'A': 0,
@@ -78,6 +82,11 @@ class Simulator:
         self.imode = state.get('im', 1)
         self.iff2 = state.get('iff', 0)
         self.tstates = state.get('tstates', 0)
+        cfg = CONFIG.copy()
+        if config:
+            cfg.update(config)
+        if cfg['fast_djnz']:
+            self.opcodes[0x10] = (Simulator.djnz_fast, ())
         self.tracers = []
         self.i_tracers = None
         self.in_tracers = ()
@@ -598,6 +607,15 @@ class Simulator:
             pc = self.pc + 2
             tstates = 8
         return f'DJNZ ${addr:04X}', pc, tstates
+
+    def djnz_fast(self):
+        if self.snapshot[(self.pc + 1) & 0xFFFF] == 0xFE:
+            b = (self.registers['B'] - 1) & 0xFF
+            self.registers['B'] = 0
+            r = self.registers['R']
+            self.registers['R'] = (r & 0x80) + ((r + b) & 0x7F)
+            return f'DJNZ ${self.pc:04X}', self.pc + 2, b * 13 + 8
+        return self.djnz()
 
     def ex_af(self):
         for r in 'AF':
