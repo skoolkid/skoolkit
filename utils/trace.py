@@ -138,7 +138,7 @@ def run(snafile, start, options):
     if options.rom:
         rom = read_bin_file(options.rom, 16384)
         snapshot[:len(rom)] = rom
-    config = {'fast_djnz': options.audio}
+    config = {'fast_djnz': options.audio, 'fast_ldir': True}
     simulator = Simulator(snapshot, get_registers(options.reg), config=config)
     tracer = Tracer(options.verbose, options.end, options.max_operations, options.max_tstates)
     simulator.add_tracer(tracer)

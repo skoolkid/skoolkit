@@ -558,7 +558,7 @@ def parse_audio(writer, text, index, need_audio=None):
     if flags & 4:
         end, start, stop = parse_ints(text, end, 2, fields=writer.fields)
         if eval_delays:
-            simulator = Simulator(writer.snapshot, config={'fast_djnz': True})
+            simulator = Simulator(writer.snapshot, config={'fast_djnz': True, 'fast_ldir': True})
             tracer = AudioTracer()
             simulator.add_tracer(tracer)
             simulator.run(start)
@@ -1146,7 +1146,7 @@ def parse_sim(writer, text, index, *cwd):
         if v >= 0:
             registers[r] = v
     tstates = registers.get('tstates', 0)
-    simulator = Simulator(writer.snapshot, registers, {'tstates': tstates})
+    simulator = Simulator(writer.snapshot, registers, {'tstates': tstates}, {'fast_djnz': True, 'fast_ldir': True})
     if start < 0:
         start = simulator.pc
     simulator.run(start)

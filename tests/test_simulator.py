@@ -59,13 +59,19 @@ class MemoryTracer:
     def write_memory(self, simulator, address, values):
         self.written.append((simulator.pc, address, *values))
 
-class TracerOneOfTwo:
-    def read_memory(self, simulator, address, count):
-        self.read = (address, count)
+class ReadMemoryTracer:
+    def __init__(self):
+        self.read = []
 
-class TracerTwoOfTwo:
+    def read_memory(self, simulator, address, count):
+        self.read.append((address, count))
+
+class WriteMemoryTracer:
+    def __init__(self):
+        self.written = []
+
     def write_memory(self, simulator, address, values):
-        self.written = (address, values)
+        self.written.append((address, values))
 
 TRACER = Tracer()
 
@@ -90,7 +96,10 @@ class SimulatorTest(SkoolKitTestCase):
                 snapshot[a] = v
         simulator = Simulator(snapshot, reg_in, state_in, config=config)
         simulator.add_tracer(TRACER)
-        if tracer:
+        if isinstance(tracer, tuple):
+            for t in tracer:
+                simulator.add_tracer(t)
+        elif tracer:
             simulator.add_tracer(tracer)
         exp_reg = simulator.registers.copy()
         if reg_out is None:
@@ -1797,6 +1806,86 @@ class SimulatorTest(SkoolKitTestCase):
     def test_ldir(self):
         self._test_block_ld('LDIR', 176, 1, True)
 
+    def test_lddr_fast(self):
+        data = (0xED, 0xB8)
+        start = 30000
+        at_hl = 250
+        for bc_in, bc_out, de_in, de_out, hl_in, hl_out, f_out, r_out, timing, end in (
+                #                                     SZ5H3PNC
+                (52, 1, 30051, 30000, 40000, 39949, 0b00101100, 102,    1066, start),     # 0xB8 overwritten
+                (51, 0, 30051, 30000, 40000, 39949, 0b00101000, 102,    1066, start + 2), # 0xB8 overwritten
+                (50, 0, 30051, 30001, 40000, 39950, 0b00101000, 100,    1045, start + 2),
+                ( 1, 0, 30051, 30050, 40000, 39999, 0b00101000,   2,      16, start + 2),
+                ( 0, 1, 29999, 30000, 29999, 30000, 0b00001100, 126, 1376230, start),     # 0xB8 overwritten
+        ):
+            reg_in = {'BC': bc_in, 'DE': de_in, 'HL': hl_in, 'R': 0}
+            reg_out = {}
+            reg_out = {
+                'B': bc_out // 256,
+                'C': bc_out % 256,
+                'D': de_out // 256,
+                'E': de_out % 256,
+                'H': hl_out // 256,
+                'L': hl_out % 256,
+                'F': f_out,
+                'R': r_out
+            }
+            if bc_in:
+                mem_read = list(range(hl_out + 1, hl_in + 1))
+                sna_in = {a: at_hl for a in mem_read}
+                mem_written = list(range(de_out + 1, de_in + 1))
+                sna_out = {a: at_hl for a in mem_written}
+                read_tracer = ReadMemoryTracer()
+                write_tracer = WriteMemoryTracer()
+                tracers = (read_tracer, write_tracer)
+            else:
+                sna_in = sna_out = None
+                tracers = None
+            self._test_instruction('LDDR', data, timing, reg_in, reg_out, sna_in, sna_out, start, end, tracer=tracers, config={'fast_ldir': True})
+            if tracers:
+                self.assertEqual([e[0] for e in reversed(read_tracer.read)], mem_read)
+                self.assertEqual([e[0] for e in reversed(write_tracer.written)], mem_written)
+
+    def test_ldir_fast(self):
+        data = (0xED, 0xB0)
+        start = 30000
+        at_hl = 250
+        for bc_in, bc_out, de_in, de_out, hl_in, hl_out, f_out, r_out, timing, end in (
+                #                                     SZ5H3PNC
+                (52, 1, 29950, 30001, 40000, 40051, 0b00101100, 102,    1066, start),     # 0xED overwritten
+                (51, 0, 29950, 30001, 40000, 40051, 0b00101000, 102,    1066, start + 2), # 0xED overwritten
+                (50, 0, 29950, 30000, 40000, 40050, 0b00101000, 100,    1045, start + 2),
+                ( 1, 0, 29950, 29951, 40000, 40001, 0b00101000,   2,      16, start + 2),
+                ( 0, 1, 30002, 30001, 30002, 30001, 0b00001100, 126, 1376230, start),     # 0xED overwritten
+        ):
+            reg_in = {'BC': bc_in, 'DE': de_in, 'HL': hl_in, 'R': 0}
+            reg_out = {}
+            reg_out = {
+                'B': bc_out // 256,
+                'C': bc_out % 256,
+                'D': de_out // 256,
+                'E': de_out % 256,
+                'H': hl_out // 256,
+                'L': hl_out % 256,
+                'F': f_out,
+                'R': r_out
+            }
+            if bc_in:
+                mem_read = list(range(hl_in, hl_out))
+                sna_in = {a: at_hl for a in mem_read}
+                mem_written = list(range(de_in, de_out))
+                sna_out = {a: at_hl for a in mem_written}
+                read_tracer = ReadMemoryTracer()
+                write_tracer = WriteMemoryTracer()
+                tracers = (read_tracer, write_tracer)
+            else:
+                sna_in = sna_out = None
+                tracers = None
+            self._test_instruction('LDIR', data, timing, reg_in, reg_out, sna_in, sna_out, start, end, tracer=tracers, config={'fast_ldir': True})
+            if tracers:
+                self.assertEqual([e[0] for e in read_tracer.read], mem_read)
+                self.assertEqual([e[0] for e in write_tracer.written], mem_written)
+
     def _test_block_out(self, operation, opcode, inc, repeat=False):
         data = (237, opcode)
         hl = 45287
@@ -2162,15 +2251,15 @@ class SimulatorTest(SkoolKitTestCase):
         )
         snapshot[40000:40000 + len(code)] = code
         simulator = Simulator(snapshot)
-        tracer1 = TracerOneOfTwo()
-        tracer2 = TracerTwoOfTwo()
+        tracer1 = ReadMemoryTracer()
+        tracer2 = WriteMemoryTracer()
         simulator.add_tracer(tracer1)
         simulator.add_tracer(tracer2)
         simulator.run(40000)
         while simulator.pc != 40004:
             simulator.run()
-        self.assertEqual(tracer1.read, (32768, 1))
-        self.assertEqual(tracer2.written, (32768, (65,)))
+        self.assertEqual(tracer1.read, [(32768, 1)])
+        self.assertEqual(tracer2.written, [(32768, (65,))])
 
     def test_rom_not_writable(self):
         snapshot = [0] * 65536

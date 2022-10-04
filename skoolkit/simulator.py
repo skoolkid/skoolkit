@@ -37,6 +37,7 @@ FRAME_DURATION = 69888
 
 CONFIG = {
     'fast_djnz': False,
+    'fast_ldir': False,
 }
 
 class Instruction:
@@ -85,8 +86,13 @@ class Simulator:
         cfg = CONFIG.copy()
         if config:
             cfg.update(config)
+        self.opcodes = Simulator.opcodes.copy()
         if cfg['fast_djnz']:
             self.opcodes[0x10] = (Simulator.djnz_fast, ())
+        if cfg['fast_ldir']:
+            self.opcodes[0xED] = (None, Simulator.after_ED.copy())
+            self.opcodes[0xED][1][0xB0] = (Simulator.ldir_fast, ('LDIR', 1))
+            self.opcodes[0xED][1][0xB8] = (Simulator.ldir_fast, ('LDDR', -1))
         self.tracers = []
         self.i_tracers = None
         self.in_tracers = ()
@@ -441,12 +447,10 @@ class Simulator:
             if repeat and bc != 1:
                 addr = self.pc
                 tstates = 21
-            n = (self.registers['A'] + at_hl) & 0xFF
-            f = self.registers['F'] & 0xC1 # SZ.H..NC
+            n = self.registers['A'] + at_hl
+            f = (self.registers['F'] & 0xC1) | (n & 0x08) # SZ.H3.NC
             if n & 0x02:
                 f |= 0x20 # ..5.....
-            if n & 0x08:
-                f |= 0x08 # ....3...
             if bc != 1:
                 f |= 0x04 # .....P..
         elif op.startswith('O'):
@@ -846,6 +850,38 @@ class Simulator:
             op = f'LD (${addr:04X}),A'
             self.poke(addr, self.registers['A'])
         return op, self.pc + 3, 13
+
+    def ldir_fast(self, op, inc):
+        de = self.registers['E'] + 256 * self.registers['D']
+        bc = self.registers['C'] + 256 * self.registers['B']
+        hl = self.registers['L'] + 256 * self.registers['H']
+        count = 0
+        repeat = True
+        while repeat:
+            self.poke(de, self.peek(hl))
+            bc = (bc - 1) & 0xFFFF
+            if bc == 0 or self.pc <= de <= self.pc + 1:
+                repeat = False
+            de = (de + inc) & 0xFFFF
+            hl = (hl + inc) & 0xFFFF
+            count += 1
+        self.registers['C'], self.registers['B'] = bc % 256, bc // 256
+        self.registers['E'], self.registers['D'] = de % 256, de // 256
+        self.registers['L'], self.registers['H'] = hl % 256, hl // 256
+        r = self.registers['R']
+        self.registers['R'] = (r & 0x80) + ((r + 2 * (count - 1)) & 0x7F)
+        n = self.registers['A'] + self.snapshot[(hl - inc) & 0xFFFF]
+        f = (self.registers['F'] & 0xC1) | (n & 0x08) # SZ.H3.NC
+        if bc:
+            f |= 0x04 # .....P..
+            pc = self.pc
+        else:
+            pc = self.pc + 2
+        if n & 0x02:
+            self.registers['F'] = f | 0x20 # ..5.....
+        else:
+            self.registers['F'] = f
+        return op, pc, 21 * count - 5
 
     def ldsprr(self, reg):
         if reg == 'HL':
