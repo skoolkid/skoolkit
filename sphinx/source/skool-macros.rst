@@ -896,8 +896,15 @@ Or, when bit 2 of ``flags`` is set::
 ``flags`` is the sum of the following values, chosen according to the desired
 outcome:
 
-* 1 (bit 0) - modify delays by simulating memory contention
-* 2 (bit 1) - modify delays as if interrupts were enabled
+* 1 (bit 0) - modify delays to approximate the effect of running in contended
+  memory; this increases any delays that occur during the contended period of a
+  frame by a given factor (as specified by the ``ContentionBegin``,
+  ``ContentionEnd`` and ``ContentionFactor`` parameters in the
+  :ref:`ref-AudioWriter` section)
+* 2 (bit 1) - modify delays as if interrupts were enabled; this increases any
+  delays that occur over a frame boundary by a given number of T-states (as
+  specified by the ``InterruptDelay`` parameter in the :ref:`ref-AudioWriter`
+  section)
 * 4 (bit 2) - execute instructions from ``start`` to ``stop`` in a simulator to
   obtain the delays between speaker state changes
 
@@ -945,9 +952,10 @@ example::
    32780 JR NZ,32771
    32782 RET
 
-Note that the simulator does not simulate memory contention effects or
-interrupt delays, so bits 0 and 1 of ``flags`` may still need to be set if
-desired.
+.. note::
+   The simulator does not simulate memory contention, I/O contention, or
+   interrupts. Use bits 0 and 1 of ``flags`` to approximate memory contention
+   effects and interrupt delays if desired.
 
 Note also that, by default, the internal memory snapshot constructed by
 :ref:`skool2asm.py` is entirely blank (all zeroes), and the snapshot
@@ -1582,6 +1590,12 @@ After the ``#EVAL`` macros have been expanded, the second mid-block comment
 here is rendered as 'At this point HL=13699', and the third is rendered as 'And
 now HL=14371'.
 
+.. note::
+   The simulator does not simulate memory contention, I/O contention, or
+   interrupts. This means that ``sim[tstates]`` may not be accurate if the code
+   being simulated runs in or accesses contended memory, or performs I/O
+   operations, or runs while interrupts are enabled.
+
 Note that, by default, the internal memory snapshot constructed by
 :ref:`skool2asm.py` is entirely blank (all zeroes), and the snapshot
 constructed by :ref:`skool2html.py` is populated only by ``DEFB``, ``DEFM``,
@@ -1807,6 +1821,12 @@ that are repeated in a loop. For example::
    32776 RET
 
 This instance of the ``#TSTATES`` macro expands to '1703941'.
+
+.. note::
+   The simulator does not simulate memory contention, I/O contention, or
+   interrupts. This means that ``#TSTATES`` may not provide accurate timing if
+   the code being timed runs in or accesses contended memory, or performs I/O
+   operations, or runs while interrupts are enabled.
 
 The integer parameters of the ``#TSTATES`` macro may contain
 :ref:`replacement fields <replacementFields>`.
