@@ -1038,9 +1038,9 @@ class HtmlWriter:
             fname = join(self.paths['AudioPath'], fname)
         for fmt in self.audio_writer.formats():
             if fname.lower().endswith(fmt.lower()):
-                basename = fname[:-len(fmt)]
+                bname = fname[:-len(fmt)]
                 for alt_fmt in self.audio_formats:
-                    alt_fname = basename + alt_fmt
+                    alt_fname = bname + alt_fmt
                     if self.file_info.file_exists(alt_fname):
                         return alt_fname, False
                 return fname, self.file_info.need_audio(fname)

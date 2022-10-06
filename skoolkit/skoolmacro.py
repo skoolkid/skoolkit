@@ -1224,23 +1224,22 @@ def parse_tstates(writer, text, index, *cwd):
         if msg is None:
             return end, str(simulator.tstates)
         return end, Template(msg).safe_substitute(tstates=simulator.tstates)
-    else:
-        if stop < start:
-            stop = start + 1
-        timings = writer.parser.get_instruction_timings(start, stop)
-        higher, lower = 0, 0
-        for address, timing in timings:
-            if timing is None:
-                raise MacroParsingError(f'Failed to get timing for instruction at {address}')
-            if isinstance(timing, int):
-                higher, lower = higher + timing, lower + timing
-            else:
-                higher, lower = higher + timing[0], lower + timing[1]
-        if msg is None:
-            if flags & 1:
-                return end, str(higher)
-            return end, str(lower)
-        return end, Template(msg).safe_substitute(min=lower, max=higher)
+    if stop < start:
+        stop = start + 1
+    timings = writer.parser.get_instruction_timings(start, stop)
+    higher, lower = 0, 0
+    for address, timing in timings:
+        if timing is None:
+            raise MacroParsingError(f'Failed to get timing for instruction at {address}')
+        if isinstance(timing, int):
+            higher, lower = higher + timing, lower + timing
+        else:
+            higher, lower = higher + timing[0], lower + timing[1]
+    if msg is None:
+        if flags & 1:
+            return end, str(higher)
+        return end, str(lower)
+    return end, Template(msg).safe_substitute(min=lower, max=higher)
 
 def parse_udg(text, index=0, fields=None):
     # #UDGaddr[,attr,scale,step,inc,flip,rotate,mask,tindex,alpha][:addr[,step]][{x,y,width,height}][(fname)]

@@ -63,10 +63,10 @@ class AudioWriter:
             d_offset = 0
             while 1:
                 if interrupts and cycle == 0:
-                   cycle = i_delay
-                   if i:
-                       delays[i] += i_delay
-                       d_offset += i_delay
+                    cycle = i_delay
+                    if i:
+                        delays[i] += i_delay
+                        d_offset += i_delay
                 d_remaining = delays[i] - d_offset
                 if contention and cycle < c_end:
                     if cycle < c_begin:
