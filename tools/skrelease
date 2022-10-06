@@ -372,10 +372,10 @@ _install_skoolkit() {
   tar xf $TARBALL -C $topdir
   mv $topdir/skoolkit-$VERSION{,-release}
   cd $topdir/skoolkit-$VERSION-release
+  _exec "Removing setup.py" "rm -vf setup.py" $topdir/sdist.log
 
   if [[ "$method" = "2" ]]; then
     _exec "Installing 'build' in virtual environment" "$venv/bin/python -m pip install build" $topdir/sdist.log
-    _exec "Removing setup.py" "rm -vf setup.py" $topdir/sdist.log
     _exec "Building source distribution" "$venv/bin/python -m build --sdist" $topdir/sdist.log
     tar xf dist/skoolkit-$VERSION.tar.gz -C $topdir
     cd $topdir/skoolkit-$VERSION
