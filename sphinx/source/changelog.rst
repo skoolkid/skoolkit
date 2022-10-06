@@ -1,7 +1,7 @@
 Changelog
 =========
 
-8.7b1
+8.7rc
 -----
 * Dropped support for Python 3.6
 * Added the :ref:`SIM` macro (for simulating the execution of machine code in
