@@ -14,7 +14,7 @@ if not os.path.isdir(SKOOLKIT_HOME):
     sys.exit(1)
 sys.path.insert(0, SKOOLKIT_HOME)
 
-from skoolkit import SkoolKitError, get_int_param, integer, read_bin_file
+from skoolkit import ROM48, SkoolKitError, get_int_param, integer, read_bin_file
 from skoolkit.snapshot import make_snapshot, print_reg_help
 from skoolkit.simulator import Simulator
 
@@ -136,8 +136,10 @@ def simplify(delays, depth):
 def run(snafile, start, options):
     snapshot, start = make_snapshot(snafile, options.org, start)[0:2]
     if options.rom:
-        rom = read_bin_file(options.rom, 16384)
-        snapshot[:len(rom)] = rom
+        rom = read_bin_file(options.rom)
+    else:
+        rom = read_bin_file(ROM48)
+    snapshot[:len(rom)] = rom
     config = {'fast_djnz': options.audio, 'fast_ldir': True}
     simulator = Simulator(snapshot, get_registers(options.reg), config=config)
     tracer = Tracer(options.verbose, options.end, options.max_operations, options.max_tstates)
@@ -191,7 +193,8 @@ def main(args):
                        help="Set the value of a register. Do '--reg help' for more information. "
                             "This option may be used multiple times.")
     group.add_argument('--rom', metavar='FILE',
-                       help='Patch in a ROM at address 0 from this file.')
+                       help='Patch in a ROM at address 0 from this file. '
+                            'By default the 48K ZX Spectrum ROM is used.')
     group.add_argument('--stats', action='store_true',
                        help="Show stats after execution.")
     group.add_argument('-v', '--verbose', action='count', default=0,
