@@ -85,34 +85,20 @@ def get_registers(specs):
     return registers
 
 def rle(s, length):
-    prev = s[:length]
     s2 = []
     count = 1
-    i = length
+    i = 0
     while i < len(s):
-        prev_s = ', '.join(prev)
-        if i + length - 1 < len(s):
-            if prev == s[i:i + length]:
-                count += 1
-            else:
-                if count > 1:
-                    s2.append(f'[{prev_s}]*{count}')
-                else:
-                    s2.extend(prev)
-                prev = s[i:i + length]
-                count = 1
+        while s[i:i + length] == s[i + length:i + length + length]:
+            count += 1
+            i += length
+        if count > 1:
+            s2.append('[{}]*{}'.format(', '.join(s[i:i + length]), count))
+            i += length
+            count = 1
         else:
-            if count > 1:
-                s2.append(f'[{prev_s}]*{count}')
-            else:
-                s2.extend(prev)
-            s2.extend(s[i:])
-            count = 0
-        i += length
-    if count > 1:
-        s2.append('[{}]*{}'.format(','.join(prev), count))
-    elif count == 1:
-        s2.extend(prev)
+            s2.append(s[i])
+            i += 1
     return s2
 
 def simplify(delays, depth):
@@ -121,8 +107,6 @@ def simplify(delays, depth):
         length = 1
         while length <= depth:
             s1 = rle(s0, length)
-            if s1 == s0:
-                break
             if length > 1:
                 while 1:
                     s0 = s1
