@@ -15,7 +15,7 @@ if not os.path.isdir(SKOOLKIT_HOME):
 sys.path.insert(0, SKOOLKIT_HOME)
 
 from skoolkit import ROM48, SkoolKitError, get_int_param, integer, read_bin_file
-from skoolkit.snapshot import make_snapshot, print_reg_help
+from skoolkit.snapshot import make_snapshot, poke, print_reg_help
 from skoolkit.simulator import Simulator
 
 TRACE1 = "{i.time:>9}  ${i.address:04X} {i.operation:<16}  [{i.tstates:>2}]"
@@ -140,6 +140,8 @@ def run(snafile, start, options):
     else:
         rom = read_bin_file(ROM48)
     snapshot[:len(rom)] = rom
+    for spec in options.pokes:
+        poke(snapshot, spec)
     config = {'fast_djnz': options.audio, 'fast_ldir': True}
     simulator = Simulator(snapshot, get_registers(options.reg), config=config)
     tracer = Tracer(options.verbose, options.end, options.max_operations, options.max_tstates)
@@ -189,7 +191,11 @@ def main(args):
                        help='Maximum number of T-states to run for.')
     group.add_argument('-o', '--org', dest='org', metavar='ADDR', type=integer,
                        help='Specify the origin address of a binary (.bin) file (default: 65536 - length).')
-    group.add_argument('--reg', metavar='name=value', action='append', default=[],
+    group.add_argument('-p', '--poke', dest='pokes', metavar='a[-b[-c]],[^+]v', action='append', default=[],
+                       help="POKE N,v for N in {a, a+c, a+2c..., b}. "
+                            "Prefix 'v' with '^' to perform an XOR operation, or '+' to perform an ADD operation. "
+                            "This option may be used multiple times.")
+    group.add_argument('-r', '--reg', metavar='name=value', action='append', default=[],
                        help="Set the value of a register. Do '--reg help' for more information. "
                             "This option may be used multiple times.")
     group.add_argument('--rom', metavar='FILE',
