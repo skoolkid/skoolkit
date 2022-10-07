@@ -59,7 +59,7 @@ class Tracer:
             print(f'Stopped at {addr}: {self.operations} operations')
             return True
         if simulator.tstates >= self.max_tstates > 0:
-            print(f'Stopped at {addr}: {simulator.time} T-states')
+            print(f'Stopped at {addr}: {simulator.tstates} T-states')
             return True
         if simulator.pc == self.end:
             print(f'Stopped at {addr}')
