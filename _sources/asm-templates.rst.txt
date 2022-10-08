@@ -114,7 +114,7 @@ register
 The ``register`` template is used to format lines in the register section of an
 entry header. ::
 
-  ; {prefix:>{prefix_len}}{reg:{reg_len}} {text}
+  ; {prefix:>{prefix_len}}{reg:<{reg_len}} {text}
 
 The following identifiers are available:
 
@@ -128,6 +128,10 @@ The following identifiers are available:
   register description continuation line)
 * ``reg_len`` - the length of the register name
 * ``text`` - the text of a line of the register description
+
+.. versionchanged:: 8.7
+   Added the '<' alignment specifier to the ``reg`` field (to handle the case
+   where ``reg_len`` is 0).
 
 .. versionchanged:: 8.0
    Added the ``max_reg_len`` identifier.

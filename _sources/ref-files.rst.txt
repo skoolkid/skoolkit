@@ -26,6 +26,45 @@ square brackets, like this::
 The contents of each section that may be found in a ref file are described
 below.
 
+.. _ref-AudioWriter:
+
+[AudioWriter]
+-------------
+The ``AudioWriter`` section contains configuration parameters that control
+audio file creation by the :ref:`AUDIO` macro. The parameters are in the
+format::
+
+  name=value
+
+Recognised parameters are:
+
+* ``ClockSpeed`` - Z80 clock speed in cycles per second (default: 3500000)
+* ``ContentionBegin`` - when memory contention begins, in T-states from the
+  start of a frame (default: 14334)
+* ``ContentionEnd`` - when memory contention ends, in T-states from the start
+  of a frame (default: 57248)
+* ``ContentionFactor`` - percentage slowdown when memory contention is in
+  effect (default: 51)
+* ``FrameDuration`` - length of a frame in T-states (default: 69888)
+* ``InterruptDelay`` - delay in T-states caused by an interrupt routine
+  (default: 942)
+* ``MaxAmplitude`` - maximum amplitude of the computed waveform before
+  conversion to sample values (default: 65536); see note below
+* ``SampleRate`` - sample rate in Hz (default: 44100)
+
+Note that the WAV files created by SkoolKit's audio writer use 16-bit samples
+with values ranging from -32768 to +32767, i.e. a maximum amplitude of 32768.
+This means that the default value of 65536 for the ``MaxAmplitude`` parameter
+gives rise to a clipped waveform, which more accurately reproduces the
+characteristic piercing quality of the ZX Spectrum speaker than a lower value
+such as 32768 would.
+
++---------+---------+
+| Version | Changes |
++=========+=========+
+| 8.7     | New     |
++---------+---------+
+
 .. _ref-Colours:
 
 [Colours]
@@ -105,9 +144,25 @@ Recognised parameters are:
   as the skool file, and before any others named on the :ref:`skool2html.py`
   command line)
 
-For information on how to create your own Python class for writing an HTML
-disassembly, see the documentation on
+The ``Expand`` parameter can be used along with the :ref:`INCLUDE` macro to
+place all the text to be expanded in its own section. This is particularly
+useful when that text cannot easily be placed on a single line. For example::
+
+  [Config]
+  Expand=#INCLUDE(Expand)
+
+  [Expand]
+  ; Multiple lines of text to be expanded here
+  ...
+
+For information on using the ``HtmlWriterClass`` parameter and creating your
+own Python class for writing an HTML disassembly, see the documentation on
 :ref:`extending SkoolKit <extendingSkoolKit>`.
+
+The ``InitModule`` parameter can be used to modify the built-in ``HtmlWriter``
+class before it is imported by :ref:`skool2html.py`. This is an alternative to
+creating your own ``HtmlWriter`` class that is suitable when the required
+modification is small.
 
 Note that the ``Config`` section must appear in a ref file that is read
 automatically by :ref:`skool2html.py` by virtue of having the same filename
@@ -204,6 +259,9 @@ Recognised parameters are:
   disassembly pages and entries on memory map pages (default: ``{address}``)
 * ``AsmSinglePage`` - ``1`` to write the disassembly on a single page, or ``0``
   to write a separate page for each routine and data block (default: ``0``)
+* ``AudioFormats`` - a comma separated list of audio file formats that the
+  :ref:`AUDIO` macro looks for before creating a WAV file (default:
+  ``flac,mp3,ogg``)
 * ``Bytes`` - the format specification for the ``bytes`` attribute of
   instruction objects in the :ref:`t_asm` and :ref:`t_asm_single_page`
   templates
@@ -268,6 +326,8 @@ hexadecimal addresses if the ``--hex`` option is used with
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 8.7     | Added the ``AudioFormats`` parameter                              |
++---------+-------------------------------------------------------------------+
 | 8.4     | Added the ``Address`` and ``Length`` parameters                   |
 +---------+-------------------------------------------------------------------+
 | 8.0     | Added the ``AsmSinglePage`` parameter                             |
@@ -762,6 +822,8 @@ Recognised file IDs and their default paths are:
 
 Recognised directory IDs and their default paths are:
 
+* ``AudioPath`` - the directory in which audio files are assumed to be by the
+  :ref:`AUDIO` macro (default: ``audio``)
 * ``CodePath`` - the directory in which the disassembly pages are written
   (default: ``asm``)
 * ``FontImagePath`` - the directory in which font images (created by the
@@ -796,6 +858,8 @@ decimal addresses otherwise: ``{address#IF({mode[base]}==16)(:04X)}.html``.
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 8.7     | Added the ``AudioPath`` directory ID                              |
++---------+-------------------------------------------------------------------+
 | 6.3     | Added the ``ImagePath`` directory ID and the ability to define    |
 |         | one image path ID in terms of another                             |
 +---------+-------------------------------------------------------------------+

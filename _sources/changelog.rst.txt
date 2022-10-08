@@ -1,6 +1,51 @@
 Changelog
 =========
 
+8.7 (2022-10-08)
+----------------
+* Dropped support for Python 3.6
+* Added the :ref:`SIM` macro (for simulating the execution of machine code in
+  the internal memory snapshot constructed from the contents of the skool file)
+* Added the :ref:`AUDIO` macro (for creating HTML5 ``<audio>`` elements, and
+  optionally creating audio files in WAV format)
+* Added the :ref:`TSTATES` macro (which expands to the time taken, in T-states,
+  to execute one or more instructions)
+* Added the ``--sim-load`` option to :ref:`tap2sna.py` (to simulate a 48K ZX
+  Spectrum running LOAD "")
+* Added the :ref:`rom` directive (for inserting a copy of the 48K ZX Spectrum
+  ROM into the internal memory snapshot constructed from the contents of the
+  skool file)
+* Added the ``AudioPath`` parameter to the :ref:`paths` section (for specifying
+  where the :ref:`AUDIO` macro should look for or create audio files by
+  default)
+* Added the :ref:`t_audio` template (for formatting the ``<audio>`` element
+  produced by the :ref:`AUDIO` macro)
+* Added the :ref:`ref-AudioWriter` section (for configuring audio files created
+  by the :ref:`AUDIO` macro)
+* Added the ``--rebuild-audio`` option to and the ``RebuildAudio``
+  configuration parameter for :ref:`skool2html.py` (to overwrite existing audio
+  files)
+* Added the ``AudioFormats`` parameter to the :ref:`ref-game` section (for
+  specifying the alternative audio file formats that the :ref:`AUDIO` macro
+  should look for before creating a WAV file)
+* Added the ``--defb`` option to :ref:`sna2skool.py` (to disassemble as DEFB
+  statements instead of as code)
+* Added the ``Timings`` configuration parameter for
+  :ref:`sna2skool.py <sna2skool-conf>` (for showing instruction timings in the
+  comment fields)
+* Added the ``flags`` parameter to the :ref:`FOR` macro (for affixing commas to
+  and replacing variable names in each separator)
+* Added support to the :ref:`mDirective` for applying its comment to each
+  instruction in its range
+* When :ref:`tap2sna.py` ignores a headerless block because no ``--ram load``
+  options have been specified, it now prints a warning
+* Amended the :ref:`t_register` ASM template so that it can handle empty
+  register names
+* Fixed the bug where the ``stop`` value of the :ref:`FOR` macro is used even
+  when it does not differ from ``start`` by a multiple of ``step``
+* Fixed the bug where an :ref:`mDirective` with an explicit length overrides
+  the sublengths of an earlier sub-block directive at the same address
+
 8.6 (2021-11-06)
 ----------------
 * Added the :ref:`STR` macro (for retrieving the text string at a given address

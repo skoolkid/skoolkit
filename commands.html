@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Commands &#8212; SkoolKit 8.6 documentation</title>
+    <title>Commands &#8212; SkoolKit 8.7 documentation</title>
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="_static/custom.css" />
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="diy.html" title="Disassembly DIY"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.6 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.7 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Commands</a></li> 
       </ul>
     </div>  
@@ -606,6 +606,7 @@ Options:
                         Concatenate CSS files into a single file with this name.
   -l, --lower           Write the disassembly in lower case.
   -o, --rebuild-images  Overwrite existing image files.
+  -O, --rebuild-audio   Overwrite existing audio files.
   -p, --package-dir     Show path to skoolkit package directory and exit.
   -P PAGES, --pages PAGES
                         Write only these pages (when using &#39;--write P&#39;).
@@ -694,6 +695,8 @@ other than the first in a routine or data block (default: <code class="docutils 
 this name</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">OutputDir</span></code> - write files in this directory (default: <code class="docutils literal notranslate"><span class="pre">.</span></code>)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">Quiet</span></code> - be quiet (<code class="docutils literal notranslate"><span class="pre">1</span></code>) or verbose (<code class="docutils literal notranslate"><span class="pre">0</span></code>, the default)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">RebuildAudio</span></code> - overwrite existing audio files (<code class="docutils literal notranslate"><span class="pre">1</span></code>), or leave them
+alone (<code class="docutils literal notranslate"><span class="pre">0</span></code>, the default)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">RebuildImages</span></code> - overwrite existing image files (<code class="docutils literal notranslate"><span class="pre">1</span></code>), or leave them
 alone (<code class="docutils literal notranslate"><span class="pre">0</span></code>, the default)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">Search</span></code> - directory to add to the resource search path; to specify two or
@@ -736,76 +739,80 @@ Base=16
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>8.5</p></td>
+<tr class="row-even"><td><p>8.7</p></td>
+<td><p>Added the <code class="docutils literal notranslate"><span class="pre">--rebuild-audio</span></code> option and the <code class="docutils literal notranslate"><span class="pre">RebuildAudio</span></code>
+configuration parameter</p></td>
+</tr>
+<tr class="row-odd"><td><p>8.5</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">EntryLabel</span></code> and <code class="docutils literal notranslate"><span class="pre">EntryPointLabel</span></code> configuration
 parameters</p></td>
 </tr>
-<tr class="row-odd"><td><p>7.0</p></td>
+<tr class="row-even"><td><p>7.0</p></td>
 <td><p>Writes a single disassembly from the skool file given by the
 first positional argument</p></td>
 </tr>
-<tr class="row-even"><td><p>6.4</p></td>
+<tr class="row-odd"><td><p>6.4</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">--var</span></code> option</p></td>
 </tr>
-<tr class="row-odd"><td><p>6.2</p></td>
+<tr class="row-even"><td><p>6.2</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">--show-config</span></code> option</p></td>
 </tr>
-<tr class="row-even"><td><p>6.1</p></td>
+<tr class="row-odd"><td><p>6.1</p></td>
 <td><p>Configuration is read from <cite>skoolkit.ini</cite> if present; added the
 <code class="docutils literal notranslate"><span class="pre">--ini</span></code> option</p></td>
 </tr>
-<tr class="row-odd"><td><p>5.4</p></td>
+<tr class="row-even"><td><p>5.4</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">--asm-one-page</span></code> option</p></td>
 </tr>
-<tr class="row-even"><td><p>5.0</p></td>
+<tr class="row-odd"><td><p>5.0</p></td>
 <td><p>The <code class="docutils literal notranslate"><span class="pre">--theme</span></code> option also looks for a CSS file whose base name
 matches the theme name</p></td>
 </tr>
-<tr class="row-odd"><td><p>4.1</p></td>
+<tr class="row-even"><td><p>4.1</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">--search</span></code> and <code class="docutils literal notranslate"><span class="pre">--writer</span></code> options</p></td>
 </tr>
-<tr class="row-even"><td><p>4.0</p></td>
+<tr class="row-odd"><td><p>4.0</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">--ref-sections</span></code> and <code class="docutils literal notranslate"><span class="pre">--ref-file</span></code> options</p></td>
 </tr>
-<tr class="row-odd"><td><p>3.6</p></td>
+<tr class="row-even"><td><p>3.6</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">--join-css</span></code> and <code class="docutils literal notranslate"><span class="pre">--search-dirs</span></code> options</p></td>
 </tr>
-<tr class="row-even"><td><p>3.5</p></td>
+<tr class="row-odd"><td><p>3.5</p></td>
 <td><p>Added support for multiple CSS themes</p></td>
 </tr>
-<tr class="row-odd"><td><p>3.4</p></td>
+<tr class="row-even"><td><p>3.4</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">-a</span></code> and <code class="docutils literal notranslate"><span class="pre">-C</span></code> options and the long options</p></td>
 </tr>
-<tr class="row-even"><td><p>3.3.2</p></td>
+<tr class="row-odd"><td><p>3.3.2</p></td>
 <td><p>Added <cite>$PACKAGE_DIR/resources</cite> to the search path; added the
 <code class="docutils literal notranslate"><span class="pre">-p</span></code> and <code class="docutils literal notranslate"><span class="pre">-T</span></code> options</p></td>
 </tr>
-<tr class="row-odd"><td><p>3.2</p></td>
+<tr class="row-even"><td><p>3.2</p></td>
 <td><p>Added <cite>~/.skoolkit</cite> to the search path</p></td>
 </tr>
-<tr class="row-even"><td><p>3.1</p></td>
+<tr class="row-odd"><td><p>3.1</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">-c</span></code> option</p></td>
 </tr>
-<tr class="row-odd"><td><p>3.0.2</p></td>
+<tr class="row-even"><td><p>3.0.2</p></td>
 <td><p>No longer shows timings by default; added the <code class="docutils literal notranslate"><span class="pre">-t</span></code> option</p></td>
 </tr>
-<tr class="row-even"><td><p>2.3.1</p></td>
+<tr class="row-odd"><td><p>2.3.1</p></td>
 <td><p>Added support for reading multiple ref files per disassembly</p></td>
 </tr>
-<tr class="row-odd"><td><p>2.2.2</p></td>
+<tr class="row-even"><td><p>2.2.2</p></td>
 <td><p>Added the ability to read a skool file from standard input</p></td>
 </tr>
-<tr class="row-even"><td><p>2.2</p></td>
+<tr class="row-odd"><td><p>2.2</p></td>
 <td><p>No longer writes the Skool Daze and Back to Skool disassemblies
 by default; added the <code class="docutils literal notranslate"><span class="pre">-d</span></code> option</p></td>
 </tr>
-<tr class="row-odd"><td><p>2.1.1</p></td>
+<tr class="row-even"><td><p>2.1.1</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">-l</span></code>, <code class="docutils literal notranslate"><span class="pre">-u</span></code>, <code class="docutils literal notranslate"><span class="pre">-D</span></code> and <code class="docutils literal notranslate"><span class="pre">-H</span></code> options</p></td>
 </tr>
-<tr class="row-even"><td><p>2.1</p></td>
+<tr class="row-odd"><td><p>2.1</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">-o</span></code> and <code class="docutils literal notranslate"><span class="pre">-P</span></code> options</p></td>
 </tr>
-<tr class="row-odd"><td><p>1.4</p></td>
+<tr class="row-even"><td><p>1.4</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">-V</span></code> option</p></td>
 </tr>
 </tbody>
@@ -998,6 +1005,7 @@ Options:
                         which to read control files. PATH may be &#39;-&#39; for
                         standard input, or &#39;0&#39; to use no control file. This
                         option may be used multiple times.
+  -d SIZE, --defb SIZE  Disassemble as DEFB statements of this size.
   -e ADDR, --end ADDR   Stop disassembling at this address (default=65536).
   -H, --hex             Write hexadecimal addresses and operands in the
                         disassembly.
@@ -1063,6 +1071,8 @@ referrers (default: <code class="docutils literal notranslate"><span class="pre"
 have no comment (default: <code class="docutils literal notranslate"><span class="pre">c</span></code>)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">Text</span></code> - show ASCII text in the comment fields (<code class="docutils literal notranslate"><span class="pre">1</span></code>), or don’t (<code class="docutils literal notranslate"><span class="pre">0</span></code>,
 the default)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Timings</span></code> - show instruction timings in the comment fields (<code class="docutils literal notranslate"><span class="pre">1</span></code>), or
+don’t (<code class="docutils literal notranslate"><span class="pre">0</span></code>, the default)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">Title-b</span></code> - template used to format the title for an untitled ‘b’ block
 (default: <code class="docutils literal notranslate"><span class="pre">Data</span> <span class="pre">block</span> <span class="pre">at</span> <span class="pre">{address}</span></code>)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">Title-c</span></code> - template used to format the title for an untitled ‘c’ block
@@ -1101,79 +1111,83 @@ LineWidth=120
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>8.5</p></td>
+<tr class="row-even"><td><p>8.7</p></td>
+<td><p>Added the <code class="docutils literal notranslate"><span class="pre">--defb</span></code> option and the <code class="docutils literal notranslate"><span class="pre">Timings</span></code> configuration
+parameter</p></td>
+</tr>
+<tr class="row-odd"><td><p>8.5</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">Wrap</span></code> configuration parameter and the ability to
 disassemble an instruction that wraps around the 64K boundary;
 added the <code class="docutils literal notranslate"><span class="pre">RefFormat</span></code> configuration parameter</p></td>
 </tr>
-<tr class="row-odd"><td><p>8.4</p></td>
+<tr class="row-even"><td><p>8.4</p></td>
 <td><p>Changed the default value of the <code class="docutils literal notranslate"><span class="pre">DefmSize</span></code> configuration
 parameter from 66 to 65</p></td>
 </tr>
-<tr class="row-even"><td><p>8.3</p></td>
+<tr class="row-odd"><td><p>8.3</p></td>
 <td><p>Added support for reading control files from a directory
 (<code class="docutils literal notranslate"><span class="pre">--ctl</span> <span class="pre">DIR</span></code>)</p></td>
 </tr>
-<tr class="row-odd"><td><p>8.1</p></td>
+<tr class="row-even"><td><p>8.1</p></td>
 <td><p>Added support for ignoring default control files (<code class="docutils literal notranslate"><span class="pre">--ctl</span> <span class="pre">0</span></code>)</p></td>
 </tr>
-<tr class="row-even"><td><p>8.0</p></td>
+<tr class="row-odd"><td><p>8.0</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">DefwSize</span></code> configuration parameter</p></td>
 </tr>
-<tr class="row-odd"><td><p>7.1</p></td>
+<tr class="row-even"><td><p>7.1</p></td>
 <td><p>Added support for reading multiple default control files, and for
 using the <code class="docutils literal notranslate"><span class="pre">--ctl</span></code> option multiple times; added the
 <code class="docutils literal notranslate"><span class="pre">CommentWidthMin</span></code>, <code class="docutils literal notranslate"><span class="pre">InstructionWidth</span></code> and <code class="docutils literal notranslate"><span class="pre">Semicolons</span></code>
 configuration parameters</p></td>
 </tr>
-<tr class="row-even"><td><p>7.0</p></td>
+<tr class="row-odd"><td><p>7.0</p></td>
 <td><p>The short option for <code class="docutils literal notranslate"><span class="pre">--lower</span></code> is <code class="docutils literal notranslate"><span class="pre">-l</span></code>; the long option for
 <code class="docutils literal notranslate"><span class="pre">-H</span></code> is <code class="docutils literal notranslate"><span class="pre">--hex</span></code></p></td>
 </tr>
-<tr class="row-odd"><td><p>6.2</p></td>
+<tr class="row-even"><td><p>6.2</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">--show-config</span></code> option; the <code class="docutils literal notranslate"><span class="pre">--end</span></code>, <code class="docutils literal notranslate"><span class="pre">--org</span></code> and
 <code class="docutils literal notranslate"><span class="pre">--start</span></code> options accept a hexadecimal integer prefixed by ‘0x’</p></td>
 </tr>
-<tr class="row-even"><td><p>6.1</p></td>
+<tr class="row-odd"><td><p>6.1</p></td>
 <td><p>Configuration is read from <cite>skoolkit.ini</cite> if present; added the
 <code class="docutils literal notranslate"><span class="pre">--ini</span></code> option</p></td>
 </tr>
-<tr class="row-odd"><td><p>4.4</p></td>
+<tr class="row-even"><td><p>4.4</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">--end</span></code> option</p></td>
 </tr>
-<tr class="row-even"><td><p>4.3</p></td>
+<tr class="row-odd"><td><p>4.3</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">--line-width</span></code> option</p></td>
 </tr>
-<tr class="row-odd"><td><p>3.4</p></td>
+<tr class="row-even"><td><p>3.4</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">-V</span></code> option and the long options, and the ability to
 add a comment listing referrers at every routine entry point</p></td>
 </tr>
-<tr class="row-even"><td><p>3.3</p></td>
+<tr class="row-odd"><td><p>3.3</p></td>
 <td><p>Added the ability to read 128K SNA snapshots</p></td>
 </tr>
-<tr class="row-odd"><td><p>3.2</p></td>
+<tr class="row-even"><td><p>3.2</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">-p</span></code> option, and the ability to read SZX snapshots
 and 128K Z80 snapshots</p></td>
 </tr>
-<tr class="row-even"><td><p>2.1.2</p></td>
+<tr class="row-odd"><td><p>2.1.2</p></td>
 <td><p>Added the ability to write the disassembly in lower case</p></td>
 </tr>
-<tr class="row-odd"><td><p>2.1</p></td>
+<tr class="row-even"><td><p>2.1</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">-H</span></code> option</p></td>
 </tr>
-<tr class="row-even"><td><p>2.0.1</p></td>
+<tr class="row-odd"><td><p>2.0.1</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">-o</span></code> option, and the ability to read binary files, to
 set the maximum number of characters in a DEFM statement, and to
 suppress comments that list routine entry point referrers</p></td>
 </tr>
-<tr class="row-odd"><td><p>2.0</p></td>
+<tr class="row-even"><td><p>2.0</p></td>
 <td><p>Added the ability to set the maximum number of bytes in a DEFB
 statement</p></td>
 </tr>
-<tr class="row-even"><td><p>1.0.5</p></td>
+<tr class="row-odd"><td><p>1.0.5</p></td>
 <td><p>Added the ability to show ASCII text in comment fields</p></td>
 </tr>
-<tr class="row-odd"><td><p>1.0.4</p></td>
+<tr class="row-even"><td><p>1.0.4</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">-s</span></code> option</p></td>
 </tr>
 </tbody>
@@ -1419,6 +1433,7 @@ Options:
                         information. This option may be used multiple times.
   -s START, --start START
                         Set the start address to JP to.
+  --sim-load            Simulate a 48K ZX Spectrum running LOAD &quot;&quot;.
   --state name=value    Set a hardware state attribute. Do &#39;--state help&#39; for
                         more information. This option may be used multiple
                         times.
@@ -1439,12 +1454,31 @@ the appropriate addresses. For example:</p>
 </div>
 <p>loads the third block on the tape at address 30000, and ignores all other
 blocks. (To see information on the blocks in a TAP or TZX file, use the
-<a class="reference internal" href="#tapinfo-py"><span class="std std-ref">tapinfo.py</span></a> command.) The <code class="docutils literal notranslate"><span class="pre">--ram</span></code> option can also be used to move
-blocks of bytes from one location to another, POKE values into individual
-addresses or address ranges, modify memory with XOR and ADD operations,
-initialise the system variables, or call a Python function to modify the memory
-snapshot in an arbitrary way before it is saved. For more information on these
-operations, run:</p>
+<a class="reference internal" href="#tapinfo-py"><span class="std std-ref">tapinfo.py</span></a> command.)</p>
+<p>An alternative to the <code class="docutils literal notranslate"><span class="pre">--ram</span> <span class="pre">load</span></code> approach is the <code class="docutils literal notranslate"><span class="pre">--sim-load</span></code> option. It
+simulates a freshly booted 48K ZX Spectrum running LOAD “” (or LOAD “”CODE, if
+the first block on the tape is a ‘Bytes’ header). Whenever the Spectrum ROM’s
+load routine at $0556 is called, a shortcut is taken by fast loading the next
+block on the tape. All other code (including any custom loader) is fully
+simulated. Simulation continues until the program counter hits the start
+address given by the <code class="docutils literal notranslate"><span class="pre">--start</span></code> option, or 10 minutes of simulated Z80 CPU
+time has elapsed, or the end of the tape is reached and one of the following
+conditions is satisfied:</p>
+<ul class="simple">
+<li><p>a custom loader was detected</p></li>
+<li><p>the program counter hits an address outside the ROM</p></li>
+<li><p>more than one second of simulated Z80 CPU time has elapsed since the end of
+the tape was reached</p></li>
+</ul>
+<p>The simulation can also be aborted by pressing Ctrl-C. When a simulated LOAD
+has completed or been aborted, the values of the registers (including the
+program counter) in the simulator are used to populate the Z80 snapshot.</p>
+<p>In addition to loading specific blocks, the <code class="docutils literal notranslate"><span class="pre">--ram</span></code> option can also be used
+to move blocks of bytes from one location to another, POKE values into
+individual addresses or address ranges, modify memory with XOR and ADD
+operations, initialise the system variables, or call a Python function to
+modify the memory snapshot in an arbitrary way before it is saved. For more
+information on these operations, run:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ tap2sna.py --ram help
 </pre></div>
 </div>
@@ -1478,29 +1512,34 @@ given on the command line.</p>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>8.6</p></td>
+<tr class="row-even"><td><p>8.7</p></td>
+<td><p>Added the <code class="docutils literal notranslate"><span class="pre">--sim-load</span></code> option; when a headerless block is
+ignored because no <code class="docutils literal notranslate"><span class="pre">--ram</span> <span class="pre">load</span></code> options have been specified, a
+warning is printed</p></td>
+</tr>
+<tr class="row-odd"><td><p>8.6</p></td>
 <td><p>Added support to the <code class="docutils literal notranslate"><span class="pre">--ram</span></code> option for the <code class="docutils literal notranslate"><span class="pre">call</span></code> operation</p></td>
 </tr>
-<tr class="row-odd"><td><p>8.4</p></td>
+<tr class="row-even"><td><p>8.4</p></td>
 <td><p>Added support to the <code class="docutils literal notranslate"><span class="pre">--ram</span></code> option for the <code class="docutils literal notranslate"><span class="pre">sysvars</span></code>
 operation</p></td>
 </tr>
-<tr class="row-even"><td><p>6.3</p></td>
+<tr class="row-odd"><td><p>6.3</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">--user-agent</span></code> option</p></td>
 </tr>
-<tr class="row-odd"><td><p>6.2</p></td>
+<tr class="row-even"><td><p>6.2</p></td>
 <td><p>The <code class="docutils literal notranslate"><span class="pre">--ram</span></code>, <code class="docutils literal notranslate"><span class="pre">--reg</span></code>, <code class="docutils literal notranslate"><span class="pre">--stack</span></code> and <code class="docutils literal notranslate"><span class="pre">--start</span></code> options
 accept hexadecimal integers prefixed by ‘0x’</p></td>
 </tr>
-<tr class="row-even"><td><p>5.3</p></td>
+<tr class="row-odd"><td><p>5.3</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">--stack</span></code> and <code class="docutils literal notranslate"><span class="pre">--start</span></code> options</p></td>
 </tr>
-<tr class="row-odd"><td><p>4.5</p></td>
+<tr class="row-even"><td><p>4.5</p></td>
 <td><p>Added support for TZX block type 0x14 (pure data), for loading
 the first and last bytes of a tape block, and for modifying
 memory with XOR and ADD operations</p></td>
 </tr>
-<tr class="row-even"><td><p>3.5</p></td>
+<tr class="row-odd"><td><p>3.5</p></td>
 <td><p>New</p></td>
 </tr>
 </tbody>
@@ -1651,12 +1690,12 @@ block type 0x14</p></td>
         <li class="right" >
           <a href="diy.html" title="Disassembly DIY"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.6 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.7 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Commands</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2021, Richard Dymond.
+        &#169; Copyright 2022, Richard Dymond.
       Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.4.3.
     </div>
   </body>

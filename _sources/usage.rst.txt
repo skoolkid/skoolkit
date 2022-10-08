@@ -3,7 +3,7 @@ Installing and using SkoolKit
 
 Requirements
 ------------
-SkoolKit requires `Python <https://www.python.org>`_ 3.6+. If you're running
+SkoolKit requires `Python <https://www.python.org>`_ 3.7+. If you're running
 Linux or one of the BSDs, you probably already have Python installed. If you're
 running Windows, you can get Python `here <https://www.python.org/downloads>`_.
 
@@ -19,7 +19,7 @@ There are various ways to install the latest stable release of SkoolKit:
 If you choose the zip archive or tarball, note that SkoolKit can be used
 wherever it is unpacked: it does not need to be installed in any particular
 location. However, if you would like to install SkoolKit as a Python package,
-you can do so by using the supplied ``setup.py`` script.
+you can do so by following the instructions below.
 
 .. _skoolkit.ca: https://skoolkit.ca/skoolkit/
 .. _PyPI: https://pypi.org/project/skoolkit/
@@ -33,7 +33,7 @@ To install SkoolKit as a Python package on Windows, open a command prompt,
 change to the directory where SkoolKit was unpacked, and run the following
 command::
 
-  > setup.py install
+  > python3 -m pip install .
 
 This will install the SkoolKit command scripts in `C:\\Python39\\Scripts`
 (assuming you have installed Python in `C:\\Python39`), which means you can
@@ -46,7 +46,7 @@ To install SkoolKit as a Python package on Linux/\*BSD, open a terminal window,
 change to the directory where SkoolKit was unpacked, and run the following
 command as root::
 
-  # ./setup.py install
+  # python3 -m pip install .
 
 This will install the SkoolKit command scripts in `/usr/local/bin` (or some
 other suitable location in your ``PATH``), which means you can run them from

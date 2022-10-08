@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Disassembly DIY &#8212; SkoolKit 8.6 documentation</title>
+    <title>Disassembly DIY &#8212; SkoolKit 8.7 documentation</title>
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="_static/custom.css" />
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="usage.html" title="Installing and using SkoolKit"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.6 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.7 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Disassembly DIY</a></li> 
       </ul>
     </div>  
@@ -50,7 +50,7 @@ Spectrum game disassembly.</p>
 <div class="section" id="getting-started">
 <h2>Getting started<a class="headerlink" href="#getting-started" title="Permalink to this headline">¶</a></h2>
 <p>The first thing to do is select a Spectrum game to disassemble. For the purpose
-of this discussion, we’ll use <a class="reference external" href="https://www.worldofspectrum.org/infoseekid.cgi?id=0002390">Hungry Horace</a>. To build a pristine snapshot of
+of this discussion, we’ll use <a class="reference external" href="https://spectrumcomputing.co.uk/entry/2390/">Hungry Horace</a>. To build a pristine snapshot of
 the game, run the following command in the directory where SkoolKit was
 unpacked:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ tap2sna.py @examples/hungry_horace.t2s
@@ -118,8 +118,8 @@ You can use it with <cite>sna2skool.py</cite> thus:</p>
 as code, data as data (DEFBs), and text as text (DEFMs). Much nicer.</p>
 <p>By default, <cite>sna2skool.py</cite> produces a disassembly with addresses and
 instruction operands in decimal notation. If you prefer to work in hexadecimal,
-however, use the <code class="docutils literal notranslate"><span class="pre">-H</span></code> option:</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ sna2skool.py -H -c examples/hungry_horace.ctl hungry_horace.z80 &gt; hungry_horace.skool
+use the <code class="docutils literal notranslate"><span class="pre">--hex</span></code> option:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ sna2skool.py --hex -c examples/hungry_horace.ctl hungry_horace.z80 &gt; hungry_horace.skool
 </pre></div>
 </div>
 <p>The next step is to create an HTML disassembly from this skool file:</p>
@@ -152,7 +152,7 @@ $ sna2skool.py -c game.ctl game.z80 &gt; game.skool
 </div>
 <p>This will do a reasonable job of splitting the snapshot into blocks, but won’t
 be 100% accurate (except by accident). You will need to examine the resultant
-skool file (<cite>game.skool</cite> ) to see which blocks have been incorrectly marked as
+skool file (<cite>game.skool</cite>) to see which blocks have been incorrectly marked as
 text, data or code, and then edit the control file (<cite>game.ctl</cite>) accordingly.</p>
 <p>To generate a better control file, you could use a code execution map produced
 by an emulator to tell <cite>sna2ctl.py</cite> where at least some of the code is in the
@@ -171,19 +171,19 @@ from the <a class="reference external" href="https://rzxarchive.co.uk">RZX Archi
 profiler or tracer going while the recording plays back.</p>
 <p>By default, <cite>sna2ctl.py</cite> and <cite>sna2skool.py</cite> generate control files and skool
 files with addresses and instruction operands in decimal notation. If you
-prefer to work in hexadecimal, however, use the <code class="docutils literal notranslate"><span class="pre">-h</span></code> option of <cite>sna2ctl.py</cite>
-to produce a hexadecimal control file, and the <code class="docutils literal notranslate"><span class="pre">-H</span></code> option of <cite>sna2skool.py</cite>
-to produce a hexadecimal skool file:</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ sna2ctl.py -h game.z80 &gt; game.ctl
-$ sna2skool.py -H -c game.ctl game.z80 &gt; game.skool
+prefer to work in hexadecimal, use the <code class="docutils literal notranslate"><span class="pre">--hex</span></code> option of each command to
+produce a hexadecimal control file and a hexadecimal skool file:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ sna2ctl.py --hex game.z80 &gt; game.ctl
+$ sna2skool.py --hex -c game.ctl game.z80 &gt; game.skool
 </pre></div>
 </div>
 </div>
-<div class="section" id="developing-the-skool-file">
-<h2>Developing the skool file<a class="headerlink" href="#developing-the-skool-file" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="developing-the-disassembly">
+<h2>Developing the disassembly<a class="headerlink" href="#developing-the-disassembly" title="Permalink to this headline">¶</a></h2>
 <p>When you’re happy that your control file does a decent job of distinguishing
 the code blocks from the data blocks in your memory snapshot, it’s time to
-start work on the skool file.</p>
+start work on adding annotations that describe what the code does and what the
+data is for.</p>
 <p>Figuring out what the code blocks do and what the data blocks contain can be a
 time-consuming job. It’s probably not a good idea to go through each block one
 by one, in order, and move to the next only when it’s fully documented - unless
@@ -201,9 +201,27 @@ figure out when, why and how it uses it.</p></li>
 </ol>
 <p>It also goes without saying that figuring out what a piece of code or data
 might be used for is easier if you’ve played the game to death already.</p>
+<p>As for where to write annotations, you now have a choice. You can add them
+either to the control file or to the skool file. The recommended approach,
+unless you are already familiar with the syntax of skool files, is to add
+annotations to the control file. The benefits of continuing to work on the
+control file are:</p>
+<ul class="simple">
+<li><p>its syntax is much simpler than that of the skool file</p></li>
+<li><p>you are never in danger of breaking the skool file, and potentially causing
+<a class="reference internal" href="commands.html#skool2asm-py"><span class="std std-ref">skool2asm.py</span></a> and <a class="reference internal" href="commands.html#skool2html-py"><span class="std std-ref">skool2html.py</span></a> to fail</p></li>
+<li><p>if you ever need to modify how an address range is disassembled, it is
+usually as simple as replacing one letter (e.g. <code class="docutils literal notranslate"><span class="pre">c</span></code> for code) with another
+(e.g. <code class="docutils literal notranslate"><span class="pre">t</span></code> for text)</p></li>
+</ul>
+<p>If you would rather edit the skool file, however, then it is highly recommended
+to do so only for the purpose of adding, removing or updating annotations.
+Don’t be tempted to manually convert code to data, or vice versa. Unless
+extreme care is taken, doing so could easily result in a broken skool file that
+is very difficult to fix.</p>
 <p>Annotating the code and data in a skool file is done by adding comments just as
-you would in a regular ASM file. For example, you might add a comment to the
-instruction at 26429 in <cite>hungry_horace.skool</cite> thus:</p>
+you would in a regular assembly language source file. For example, you might
+add a comment to the instruction at 26429 in <cite>hungry_horace.skool</cite> thus:</p>
 <div class="nonexistent highlight-none notranslate"><div class="highlight"><pre><span></span> 26429 DEC A         ; Decrement the number of lives
 </pre></div>
 </div>
@@ -214,10 +232,10 @@ can be used in comments and will be converted into hyperlinks and images (for
 example) in the HTML version of the disassembly.</p>
 <p>As you become more familiar with the layout of the code and data blocks in the
 disassembly, you may find that some blocks need to be split up, joined, or
-otherwise reorganised. You could do this manually in the skool file itself, or
-you could regenerate the skool file from a new control file. To ensure that you
-don’t lose all the annotations you’ve already added to the skool file, though,
-you should use <a class="reference internal" href="commands.html#skool2ctl-py"><span class="std std-ref">skool2ctl.py</span></a> to preserve them.</p>
+otherwise reorganised. If you are working on the skool file, the best way to do
+this is to regenerate the skool file from a new control file. To ensure that
+you don’t lose all the annotations you’ve already added to the skool file,
+though, you should use <a class="reference internal" href="commands.html#skool2ctl-py"><span class="std std-ref">skool2ctl.py</span></a> to preserve them.</p>
 <p>First, create a control file that keeps your annotations intact:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ skool2ctl.py game.skool &gt; game-2.ctl
 </pre></div>
@@ -316,7 +334,7 @@ versa.</p>
 <li><a class="reference internal" href="#the-control-file">The control file</a></li>
 <li><a class="reference internal" href="#a-skeleton-disassembly">A skeleton disassembly</a></li>
 <li><a class="reference internal" href="#generating-a-control-file">Generating a control file</a></li>
-<li><a class="reference internal" href="#developing-the-skool-file">Developing the skool file</a></li>
+<li><a class="reference internal" href="#developing-the-disassembly">Developing the disassembly</a></li>
 <li><a class="reference internal" href="#adding-pokes-bugs-and-trivia">Adding pokes, bugs and trivia</a></li>
 <li><a class="reference internal" href="#themes">Themes</a></li>
 <li><a class="reference internal" href="#base-switching">Base switching</a></li>
@@ -366,12 +384,12 @@ versa.</p>
         <li class="right" >
           <a href="usage.html" title="Installing and using SkoolKit"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.6 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.7 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Disassembly DIY</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2021, Richard Dymond.
+        &#169; Copyright 2022, Richard Dymond.
       Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.4.3.
     </div>
   </body>

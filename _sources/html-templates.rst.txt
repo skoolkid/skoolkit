@@ -224,6 +224,24 @@ To see the default ``asm_single_page`` template, run the following command::
 
 .. versionadded:: 8.0
 
+.. _t_audio:
+
+audio
+-----
+The ``audio`` template is used to format ``<audio>`` elements created by the
+:ref:`AUDIO` macro.
+
+The following identifier is available (in addition to the universal
+identifiers):
+
+* ``src`` - the relative path to the audio file
+
+To see the default ``audio`` template, run the following command::
+
+  $ skool2html.py -r Template:audio
+
+.. versionadded:: 8.7
+
 .. _t_box_entries:
 
 box_entries
@@ -683,6 +701,8 @@ template if it exists, or the stock :ref:`t_footer` template otherwise.
 +----------------------------+----------------------+--------------------+
 | Element type               | Preferred template   | Stock template     |
 +============================+======================+====================+
+| ``<audio>`` element        | ``PageID-audio``     | :ref:`t_audio`     |
++----------------------------+----------------------+--------------------+
 | Page footer                | ``PageID-footer``    | :ref:`t_footer`    |
 +----------------------------+----------------------+--------------------+
 | ``<img>`` element          | ``PageID-img``       | :ref:`t_img`       |

@@ -144,6 +144,7 @@ parameters of some macros:
 * ``html`` - 1 if in HTML mode, 0 otherwise
 * ``mode`` - a dictionary containing a copy of the ``asm``, ``base``, ``case``,
   ``fix`` and ``html`` fields
+* ``sim`` - a dictionary of register values populated by the :ref:`SIM` macro
 * ``vars`` - a dictionary of variables defined by the ``--var`` option of
   :ref:`skool2asm.py` or :ref:`skool2html.py`; accessing an undefined variable
   in this dictionary yields the integer value '0'
@@ -161,6 +162,9 @@ expands to ``hl`` if in lower case mode, or ``HL`` otherwise.
 
 Note that if a replacement field is used, the parameter string must be
 enclosed in parentheses.
+
+.. versionchanged:: 8.7
+   Added the ``sim`` dictionary.
 
 .. versionchanged:: 8.2
    Added the ``mode`` dictionary.
@@ -410,30 +414,40 @@ The parameter string of the ``#EVAL`` macro may contain
 The ``#FOR`` macro expands to a sequence of strings based on a range of
 integers. ::
 
-  #FORstart,stop[,step](var,string[,sep,fsep])
+  #FORstart,stop[,step,flags](var,string[,sep,fsep])
 
 * ``start`` is first integer in the range
 * ``stop`` is the final integer in the range
 * ``step`` is the gap between each integer in the range (default: 1)
+* ``flags`` controls whether to affix commas to or replace variable names in
+  each separator (see below)
 * ``var`` is the variable name; for each integer in the range, it evaluates to
   that integer
 * ``string`` is the output string that is evaluated for each integer in the
   range; wherever the variable name (``var``) appears, its value is substituted
 * ``sep`` is the separator placed between each output string (default: the
-  empty string)
+  empty string); this may be modified depending on the value of ``flags``
 * ``fsep`` is the separator placed between the final two output strings
   (default: ``sep``)
 
+``flags`` is the sum of the following values, chosen according to the desired
+outcome:
+
+* 1 - prefix each separator (``sep``) with a comma
+* 2 - suffix each separator (``sep``) with a comma
+* 4 - replace any variable name (``var``) in each separator (``sep``) with the
+  variable value
+
 For example::
 
-  ; The next three bytes (#FOR31734,31736||n|#PEEKn|, | and ||) define the
+  ; The next three bytes (#FOR31734,31736,,1(n,#PEEKn, , and )) define the
   ; item locations.
    31734 DEFB 24,17,156
 
 This instance of the ``#FOR`` macro expands to '24, 17 and 156'.
 
-The integer parameters of the ``#FOR`` macro (``start``, ``stop``, ``step``)
-may contain :ref:`replacement fields <replacementFields>`.
+The integer parameters of the ``#FOR`` macro (``start``, ``stop``, ``step``,
+``flags``) may contain :ref:`replacement fields <replacementFields>`.
 
 See :ref:`stringParameters` for details on alternative ways to supply the
 ``var``, ``string``, ``sep`` and ``fsep`` parameters.
@@ -441,6 +455,8 @@ See :ref:`stringParameters` for details on alternative ways to supply the
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 8.7     | Added the ``flags`` parameter                                     |
++---------+-------------------------------------------------------------------+
 | 8.2     | Added support for replacement fields in the integer parameters    |
 +---------+-------------------------------------------------------------------+
 | 5.1     | New                                                               |
@@ -569,7 +585,7 @@ arithmetic expression. ::
 
 For example::
 
-  ; #FOR0,7||n|#IF(#PEEK47134 & 2**(7-n))(X,O)||
+  ; #FOR0,7(n,#IF(#PEEK47134 & 2**(7-n))(X,O))
    47134 DEFB 170
 
 This instance of the ``#IF`` macro is used (in combination with a ``#FOR``
@@ -677,7 +693,7 @@ are integers. ::
 For example::
 
   ; The next three bytes specify the directions that are available from here:
-  ; #FOR56112,56114||q|#MAP(#PEEKq)(?,0:left,1:right,2:up,3:down)|, | and ||.
+  ; #FOR56112,56114,,1(q,#MAP(#PEEKq)(?,0:left,1:right,2:up,3:down), , and ).
    56112 DEFB 0,1,3
 
 This instance of the ``#MAP`` macro is used (in combination with a ``#FOR``
@@ -732,8 +748,8 @@ macro expands to the address of the last instruction in the entry.
 
 #PEEK
 -----
-The ``#PEEK`` macro expands to the contents of an address in the memory
-snapshot. ::
+The ``#PEEK`` macro expands to the contents of an address in the internal
+memory snapshot constructed from the contents of the skool file. ::
 
   #PEEKaddr
 
@@ -745,7 +761,14 @@ For example::
   ; At the start of the game, the number of lives remaining is #PEEK33879.
 
 This instance of the ``#PEEK`` macro expands to the contents of the address
-33879 in the memory snapshot.
+33879 in the internal memory snapshot.
+
+Note that, by default, the internal memory snapshot constructed by
+:ref:`skool2asm.py` is entirely blank (all zeroes), and the snapshot
+constructed by :ref:`skool2html.py` is populated only by ``DEFB``, ``DEFM``,
+``DEFS`` and ``DEFW`` statements, and by :ref:`defb`, :ref:`defs` and
+:ref:`defw` directives. To change this behaviour, use the :ref:`assemble`
+directive.
 
 See also :ref:`POKES`.
 
@@ -843,6 +866,137 @@ See :ref:`stringParameters` for details on alternative ways to supply the
 
 General macros
 ^^^^^^^^^^^^^^
+
+.. _AUDIO:
+
+#AUDIO
+------
+In HTML mode, the ``#AUDIO`` macro expands to an HTML5 ``<audio>`` element. ::
+
+  #AUDIO[flags,offset](fname)[(delays)]
+
+Or, when bit 2 of ``flags`` is set::
+
+  #AUDIO[flags,offset](fname)(start,stop)
+
+* ``flags`` controls various options (see below)
+* ``offset`` is the initial offset in T-states from the start of a frame
+  (default: 0); this value affects when contention and interrupt delays (if
+  enabled) first take effect
+* ``fname`` is the name of the audio file
+* ``delays`` is a comma-separated list of delays (in T-states) between speaker
+  state changes; this parameter may contain skool macros (which are expanded
+  first) and :ref:`replacement fields <replacementFields>` (which are replaced
+  after any skool macros have been expanded)
+* ``start`` is the address at which to start executing code in a simulator
+  (when bit 2 of ``flags`` is set)
+* ``stop`` is the address at which to stop executing code in a simulator (when
+  bit 2 of ``flags`` is set)
+
+``flags`` is the sum of the following values, chosen according to the desired
+outcome:
+
+* 1 (bit 0) - modify delays to approximate the effect of running in contended
+  memory; this increases any delays that occur during the contended period of a
+  frame by a given factor (as specified by the ``ContentionBegin``,
+  ``ContentionEnd`` and ``ContentionFactor`` parameters in the
+  :ref:`ref-AudioWriter` section)
+* 2 (bit 1) - modify delays as if interrupts were enabled; this increases any
+  delays that occur over a frame boundary by a given number of T-states (as
+  specified by the ``InterruptDelay`` parameter in the :ref:`ref-AudioWriter`
+  section)
+* 4 (bit 2) - execute instructions from ``start`` to ``stop`` in a simulator to
+  obtain the delays between speaker state changes
+
+If ``fname`` starts with a '/', the filename is taken to be relative to the
+root of the HTML disassembly. Otherwise the filename is taken to be relative to
+the audio directory (as defined by the ``AudioPath`` parameter in the
+:ref:`paths` section).
+
+If ``delays`` is specified and ``fname`` ends with '.wav', a corresponding
+audio file in WAV format is created. Each element in ``delays`` can be an
+integer, a list or tuple of integers, or a list/tuple of lists/tuples of
+integers etc. nested to arbitrary depth, expressed as Python literals. For
+example::
+
+  1000, [1500]*100, [(800, 1200)*2, 900]*200
+
+This would be flattened into a list of integers, as follows:
+
+* a single instance of '1000'
+* 100 instances of '1500'
+* 200 instances of the sequence '800, 1200, 800, 1200, 900'
+
+The sum of this list of integers being 1131000, this would result in an audio
+file of duration 1131000 / 3500000 = 0.323s (assuming that no memory contention
+is simulated and interrupts are disabled, i.e. bits 0 and 1 of ``flags`` are
+reset).
+
+The characters allowed in the ``delays`` parameter are ' ' (space), newline,
+the digits 0-9, and any of ``,*+-%()[]``.
+
+An alternative to supplying the delay values manually is to execute the code
+that produces the sound effect in a simulator, and let the simulator compute
+the delays. This can be done by setting bit 2 of ``flags`` and specifying the
+code to execute via the ``start`` and ``stop`` address parameters. For
+example::
+
+  ; #AUDIO4(beep.wav)(32768,32782)
+  @assemble=2
+  c32768 LD L,0
+  *32771 OUT (254),A
+   32773 XOR 16
+   32775 LD B,200
+   32777 DJNZ 32777
+   32779 DEC L
+   32780 JR NZ,32771
+   32782 RET
+
+.. note::
+   The simulator does not simulate memory contention, I/O contention, or
+   interrupts. Use bits 0 and 1 of ``flags`` to approximate memory contention
+   effects and interrupt delays if desired.
+
+Note also that, by default, the internal memory snapshot constructed by
+:ref:`skool2asm.py` is entirely blank (all zeroes), and the snapshot
+constructed by :ref:`skool2html.py` is populated only by ``DEFB``, ``DEFM``,
+``DEFS`` and ``DEFW`` statements, and by :ref:`defb`, :ref:`defs` and
+:ref:`defw` directives. To make sure that the internal memory snapshot actually
+contains the code to be executed, use the :ref:`assemble` directive (as shown
+in the example above).
+
+If ``delays`` or ``start`` and ``stop`` parameters are specified, but ``fname``
+does not end with '.wav', no audio file is written. This enables the parameters
+to be kept in place as a reminder of how an original WAV file was created by
+the ``#AUDIO`` macro before it was converted to another format.
+
+If neither ``delays`` nor ``start`` and ``stop`` parameters are specified, or
+``fname`` does not end with '.wav', the named audio file must already exist in
+the specified location, otherwise the ``<audio>`` element controls will not
+work. To make sure that a pre-built audio file is copied into the desired
+location when :ref:`skool2html.py` is run, it can be declared in the
+:ref:`resources` section.
+
+By default, if ``fname`` ends with '.wav', but a '.flac', '.mp3' or '.ogg' file
+with the same basename already exists, that file is used and no WAV file is
+written. This enables an original WAV file to be replaced by an alternative
+(compressed) version without having to modify the ``fname`` parameter of the
+``#AUDIO`` macro. The alternative audio file types that the ``#AUDIO`` macro
+looks for before writing a WAV file are specified by the ``AudioFormats``
+parameter in the :ref:`ref-game` section.
+
+The ``flags``, ``offset``, ``start`` and ``stop`` parameters of the ``#AUDIO``
+macro may contain :ref:`replacement fields <replacementFields>`.
+
+The :ref:`t_audio` template is used to format the ``<audio>`` element.
+
+Audio file creation can be configured via the :ref:`ref-AudioWriter` section.
+
++---------+---------+
+| Version | Changes |
++=========+=========+
+| 8.7     | New     |
++---------+---------+
 
 .. _CALL:
 
@@ -1357,6 +1511,109 @@ For example:
 | 5.1     | The ``reg`` parameter must be a valid register name |
 +---------+-----------------------------------------------------+
 
+.. _SIM:
+
+#SIM
+----
+The ``#SIM`` macro simulates the execution of machine code in the internal
+memory snapshot constructed from the contents of the skool file. ::
+
+  #SIMstop[,start,clear,a,f,bc,de,hl,xa,xf,xbc,xde,xhl,ix,iy,i,r,sp]
+
+* ``stop`` is the address at which to stop execution
+* ``start`` is the address at which to start execution (default: ``stop`` from
+  the previous invocation of the ``#SIM`` macro, or 0 if this is the first run)
+* ``clear`` is 0 to use the register values that resulted from the previous
+  invocation of the ``#SIM`` macro (the default), or 1 to reset them to their
+  default values (shown below)
+* ``a`` sets the value of the A (accumulator) register (default: 0)
+* ``f`` sets the value of the F (flags) register (default: 0)
+* ``bc`` sets the value of the BC register pair (default: 0)
+* ``de`` sets the value of the DE register pair (default: 0)
+* ``hl`` sets the value of the HL register pair (default: 0)
+* ``xa`` sets the value of the A' (shadow accumulator) register (default: 0)
+* ``xf`` sets the value of the F' (shadow flags) register (default: 0)
+* ``xbc`` sets the value of the shadow BC register pair (default: 0)
+* ``xde`` sets the value of the shadow DE register pair (default: 0)
+* ``xhl`` sets the value of the shadow HL register pair (default: 0)
+* ``ix`` sets the value of the IX register (default: 0)
+* ``iy`` sets the value of the IY register (default: 23610)
+* ``i`` sets the value of the I register (default: 63)
+* ``r`` sets the value of the R register (default: 0)
+* ``sp`` sets the value of the stack pointer (default: 23552)
+
+The parameters of the ``#SIM`` macro may contain
+:ref:`replacement fields <replacementFields>` and may also be given as keyword arguments.
+
+When execution stops, the simulator's register and clock values are copied to
+the ``sim`` dictionary, where they are accessible via replacement fields with
+the following names:
+
+* ``sim[A]``
+* ``sim[F]``
+* ``sim[BC]``
+* ``sim[DE]``
+* ``sim[HL]``
+* ``sim[^A]`` - the shadow A register
+* ``sim[^F]`` - the shadow flags register
+* ``sim[^BC]`` - the shadow BC register pair
+* ``sim[^DE]`` - the shadow DE register pair
+* ``sim[^HL]`` - the shadow HL register pair
+* ``sim[IX]``
+* ``sim[IY]``
+* ``sim[I]``
+* ``sim[R]``
+* ``sim[SP]``
+* ``sim[PC]`` - the program counter (equal to ``stop``); this is used as the
+  default value of ``start`` for the next invocation of the ``#SIM`` macro
+* ``sim[tstates]`` - the number of T-states elapsed
+
+For example::
+
+  @assemble=2,2
+  ; #SIM(start=32768,stop=32772,bc=13256,de=672)
+   32768 LD HL,443
+   32771 ADD HL,BC
+  ; At this point HL=#EVAL({sim[HL]}).
+  ; #SIM(32773)
+   32772 ADD HL,DE
+  ; And now HL=#EVAL({sim[HL]}).
+   32773 RET
+
+The first ``#SIM`` macro initialises the BC and DE register pairs to 13256 and
+672 respectively, starts executing code at 32768, and stops when it reaches the
+'ADD HL,DE' instruction at 32772. The second ``#SIM`` macro picks up execution
+where the first left off, and stops when it reaches the 'RET' instruction
+at 32773.
+
+After the ``#EVAL`` macros have been expanded, the second mid-block comment
+here is rendered as 'At this point HL=13699', and the third is rendered as 'And
+now HL=14371'.
+
+.. note::
+   The simulator does not simulate memory contention, I/O contention, or
+   interrupts. This means that ``sim[tstates]`` may not be accurate if the code
+   being simulated runs in or accesses contended memory, or performs I/O
+   operations, or runs while interrupts are enabled.
+
+Note that, by default, the internal memory snapshot constructed by
+:ref:`skool2asm.py` is entirely blank (all zeroes), and the snapshot
+constructed by :ref:`skool2html.py` is populated only by ``DEFB``, ``DEFM``,
+``DEFS`` and ``DEFW`` statements, and by :ref:`defb`, :ref:`defs` and
+:ref:`defw` directives. To make sure that the internal memory snapshot actually
+contains the code to be executed, use the :ref:`assemble` directive (as shown
+in the example above).
+
+Note also that code executed by the ``#SIM`` macro operates directly on the
+internal memory snapshot, and therefore can modify it. To avoid that, use the
+:ref:`PUSHS` and :ref:`POPS` macros to operate on a copy of the snapshot.
+
++---------+---------+
+| Version | Changes |
++=========+=========+
+| 8.7     | New     |
++---------+---------+
+
 .. _SPACE:
 
 #SPACE
@@ -1495,6 +1752,100 @@ See also :ref:`UDGTABLE`.
 | 6.4     | In ASM mode, ``#TABLE`` can be used in an instruction-level       |
 |         | comment and as a parameter of another macro                       |
 +---------+-------------------------------------------------------------------+
+
+.. _TSTATES:
+
+#TSTATES
+--------
+The ``#TSTATES`` macro expands to the time taken, in T-states, to execute one
+or more instructions. ::
+
+  #TSTATESstart[,stop,flags(text)]
+
+* ``start`` is the address of the instruction at which to start the clock
+* ``stop`` is the address of the instruction at which to stop the clock
+* ``flags`` controls various options (see below)
+* ``text`` is the text to expand to (when bit 1 of ``flags`` is set); this may
+  contain the placeholders ``$min`` and ``$max`` for the sums of the smaller
+  and larger timing values of the instructions in the given range, or
+  ``$tstates`` for the actual timing value when bit 2 of ``flags`` is set
+
+``flags`` is the sum of the following values, chosen according to the desired
+outcome:
+
+* 1 (bit 0) - use the larger timing value for an instruction whose timing is
+  variable
+* 2 (bit 1) - expand to ``text``
+* 4 (bit 2) - execute instructions in a simulator to get the actual timing
+
+For example::
+
+  c30000 LD A,1   ; This instruction takes #TSTATES30000 T-states
+
+This instance of the ``#TSTATES`` macros expands to '7'.
+
+For any instruction in the range ``start`` to ``stop`` whose timing is variable
+(e.g. a conditional call, return or relative jump), the smaller timing value is
+used by default::
+
+  c40000 RET Z    ; This instruction takes at least #TSTATES40000 T-states
+
+This instance of the ``#TSTATES`` macros expands to '5'.
+
+To use the larger timing values, set bit 0 of ``flags``. If both smaller and
+larger timing values are required, set bit 1 of ``flags`` and use the ``text``
+parameter::
+
+  c50000 LD B,100    ; Set the delay parameter
+   50002 DJNZ 50002  ; Delay for #TSTATES50002,,2(#EVAL(99*$max+$min)) T-states
+
+This instance of the ``#TSTATES`` macro expands to ``#EVAL(99*13+8)``, which in
+turn expands to '1295'.
+
+Note that an instruction's timing can be determined only if it has been
+assembled. To make sure that it is assembled, use the :ref:`assemble`
+directive. In addition, unless bit 2 of ``flags`` is set, only true
+instructions (i.e. not ``DEFB``, ``DEFM``, ``DEFS`` and ``DEFW`` statements)
+can be timed.
+
+If bit 2 of ``flags`` is set, the ``stop`` address must be specified, and the
+instructions are executed in a simulator to determine their actual timing. This
+is useful for computing the time taken by conditional operations and operations
+that are repeated in a loop. For example::
+
+  c32768 LD DE,0     ; {This creates a delay of #TSTATES(32768,32776,4)
+  *32771 DEC DE      ; T-states
+   32772 LD A,D      ;
+   32773 OR E        ;
+   32774 JR NZ,32771 ; }
+   32776 RET
+
+This instance of the ``#TSTATES`` macro expands to '1703941'.
+
+.. note::
+   The simulator does not simulate memory contention, I/O contention, or
+   interrupts. This means that ``#TSTATES`` may not provide accurate timing if
+   the code being timed runs in or accesses contended memory, or performs I/O
+   operations, or runs while interrupts are enabled.
+
+The integer parameters of the ``#TSTATES`` macro may contain
+:ref:`replacement fields <replacementFields>`.
+
+See :ref:`stringParameters` for details on alternative ways to supply the
+``text`` parameter.
+
+See also the :ref:`SIM` macro, which can not only time instructions, but also
+track changes to register values as code is executed.
+
+See also the ``Timings`` configuration parameter for
+:ref:`sna2skool.py <sna2skool-conf>`, which can be used to show instruction
+timings in comment fields when disassembling a snapshot.
+
++---------+---------+
+| Version | Changes |
++=========+=========+
+| 8.7     | New     |
++---------+---------+
 
 .. _UDGTABLE:
 
@@ -2411,8 +2762,8 @@ See also :ref:`PEEK`.
 
 #POPS
 -----
-The ``#POPS`` macro removes the current memory snapshot and replaces it with
-the one that was previously saved by a ``#PUSHS`` macro. ::
+The ``#POPS`` macro removes the current internal memory snapshot and replaces
+it with the one that was previously saved by a ``#PUSHS`` macro. ::
 
   #POPS
 
@@ -2426,8 +2777,8 @@ the one that was previously saved by a ``#PUSHS`` macro. ::
 
 #PUSHS
 ------
-The ``#PUSHS`` macro saves the current memory snapshot, and replaces it with an
-identical copy with a given name. ::
+The ``#PUSHS`` macro saves the current internal memory snapshot, and replaces
+it with an identical copy with a given name. ::
 
   #PUSHS[name]
 

@@ -897,8 +897,11 @@ started with ``*``), in addition to having its label set.
 If ``LABEL`` is just ``*`` (``@label=*``), the next instruction will be marked
 as an entry point, and have a label automatically generated.
 
-In addition to being processed when :ref:`skool2asm.py` or :ref:`skool2html.py`
-is run, ``@label`` directive values are checked by :ref:`sna2skool.py` while
+:ref:`skool2asm.py` automatically uses labels defined by the ``@label``
+directive. :ref:`skool2html.py` includes them in its output if the
+``--asm-labels`` option is used.
+
+``@label`` directive values are also checked by :ref:`sna2skool.py` while
 reading a control file. They can be used to prevent an entry point marker from
 being added to an instruction where it otherwise would be (``@label=``), or
 force one to be added where it otherwise wouldn't (``@label=*``).
@@ -1184,7 +1187,7 @@ were reversed::
 
 then ``#foo31`` would be replaced by ``#bar31``.
 
-See also the :ref:`DEFINE` macro, which is more flexible than ``@replace`` for
+See also the :ref:`DEF` macro, which is more flexible than ``@replace`` for
 defining new macros.
 
 +---------+--------------------------------------------+
@@ -1227,6 +1230,30 @@ The ``@rfix`` block directives define a block of lines that will be inserted or
 removed in :ref:`rfixMode`.
 
 The syntax is equivalent to that for the :ref:`bfixBlockDirectives`.
+
+.. _rom:
+
+@rom
+^^^^
+The ``@rom`` directive inserts a copy of the 48K ZX Spectrum ROM into the
+internal memory snapshot constructed from the contents of the skool file. ::
+
+  @rom
+
+Some reasons why you might want to do this are:
+
+* to simulate the execution of ROM code (whether called by game code or
+  otherwise) with the :ref:`SIM` macro
+* to create a WAV file of the ROM's 'BEEPER' subroutine in action with the
+  :ref:`AUDIO` macro
+* to gain access to the Spectrum character set at 0x3D00 for the purpose of
+  creating images of text
+
++---------+---------+
+| Version | Changes |
++=========+=========+
+| 8.7     | New     |
++---------+---------+
 
 .. _rsub:
 

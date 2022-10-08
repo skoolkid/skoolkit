@@ -40,7 +40,7 @@ Once you have figured out where the code and data blocks are, it would be handy
 if you could supply `sna2skool.py` with this information, so that it can
 disassemble the blocks accordingly. That is where the control file comes in.
 
-.. _Hungry Horace: https://www.worldofspectrum.org/infoseekid.cgi?id=0002390
+.. _Hungry Horace: https://spectrumcomputing.co.uk/entry/2390/
 
 The control file
 ----------------
@@ -83,9 +83,9 @@ as code, data as data (DEFBs), and text as text (DEFMs). Much nicer.
 
 By default, `sna2skool.py` produces a disassembly with addresses and
 instruction operands in decimal notation. If you prefer to work in hexadecimal,
-however, use the ``-H`` option::
+use the ``--hex`` option::
 
-  $ sna2skool.py -H -c examples/hungry_horace.ctl hungry_horace.z80 > hungry_horace.skool
+  $ sna2skool.py --hex -c examples/hungry_horace.ctl hungry_horace.z80 > hungry_horace.skool
 
 The next step is to create an HTML disassembly from this skool file::
 
@@ -119,7 +119,7 @@ snapshot file and generate a corresponding control file::
 
 This will do a reasonable job of splitting the snapshot into blocks, but won't
 be 100% accurate (except by accident). You will need to examine the resultant
-skool file (`game.skool` ) to see which blocks have been incorrectly marked as
+skool file (`game.skool`) to see which blocks have been incorrectly marked as
 text, data or code, and then edit the control file (`game.ctl`) accordingly.
 
 To generate a better control file, you could use a code execution map produced
@@ -140,18 +140,18 @@ profiler or tracer going while the recording plays back.
 
 By default, `sna2ctl.py` and `sna2skool.py` generate control files and skool
 files with addresses and instruction operands in decimal notation. If you
-prefer to work in hexadecimal, however, use the ``-h`` option of `sna2ctl.py`
-to produce a hexadecimal control file, and the ``-H`` option of `sna2skool.py`
-to produce a hexadecimal skool file::
+prefer to work in hexadecimal, use the ``--hex`` option of each command to
+produce a hexadecimal control file and a hexadecimal skool file::
 
-  $ sna2ctl.py -h game.z80 > game.ctl
-  $ sna2skool.py -H -c game.ctl game.z80 > game.skool
+  $ sna2ctl.py --hex game.z80 > game.ctl
+  $ sna2skool.py --hex -c game.ctl game.z80 > game.skool
 
-Developing the skool file
--------------------------
+Developing the disassembly
+--------------------------
 When you're happy that your control file does a decent job of distinguishing
 the code blocks from the data blocks in your memory snapshot, it's time to
-start work on the skool file.
+start work on adding annotations that describe what the code does and what the
+data is for.
 
 Figuring out what the code blocks do and what the data blocks contain can be a
 time-consuming job. It's probably not a good idea to go through each block one
@@ -171,9 +171,28 @@ like this:
 It also goes without saying that figuring out what a piece of code or data
 might be used for is easier if you’ve played the game to death already.
 
+As for where to write annotations, you now have a choice. You can add them
+either to the control file or to the skool file. The recommended approach,
+unless you are already familiar with the syntax of skool files, is to add
+annotations to the control file. The benefits of continuing to work on the
+control file are:
+
+* its syntax is much simpler than that of the skool file
+* you are never in danger of breaking the skool file, and potentially causing
+  :ref:`skool2asm.py` and :ref:`skool2html.py` to fail
+* if you ever need to modify how an address range is disassembled, it is
+  usually as simple as replacing one letter (e.g. ``c`` for code) with another
+  (e.g. ``t`` for text)
+
+If you would rather edit the skool file, however, then it is highly recommended
+to do so only for the purpose of adding, removing or updating annotations.
+Don't be tempted to manually convert code to data, or vice versa. Unless
+extreme care is taken, doing so could easily result in a broken skool file that
+is very difficult to fix.
+
 Annotating the code and data in a skool file is done by adding comments just as
-you would in a regular ASM file. For example, you might add a comment to the
-instruction at 26429 in `hungry_horace.skool` thus:
+you would in a regular assembly language source file. For example, you might
+add a comment to the instruction at 26429 in `hungry_horace.skool` thus:
 
 .. parsed-literal::
    :class: nonexistent
@@ -188,10 +207,10 @@ example) in the HTML version of the disassembly.
 
 As you become more familiar with the layout of the code and data blocks in the
 disassembly, you may find that some blocks need to be split up, joined, or
-otherwise reorganised. You could do this manually in the skool file itself, or
-you could regenerate the skool file from a new control file. To ensure that you
-don't lose all the annotations you've already added to the skool file, though,
-you should use :ref:`skool2ctl.py <skool2ctl.py>` to preserve them.
+otherwise reorganised. If you are working on the skool file, the best way to do
+this is to regenerate the skool file from a new control file. To ensure that
+you don't lose all the annotations you've already added to the skool file,
+though, you should use :ref:`skool2ctl.py <skool2ctl.py>` to preserve them.
 
 First, create a control file that keeps your annotations intact::
 

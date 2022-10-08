@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>HTML templates &#8212; SkoolKit 8.6 documentation</title>
+    <title>HTML templates &#8212; SkoolKit 8.7 documentation</title>
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="_static/custom.css" />
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="asm-templates.html" title="ASM templates"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.6 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.7 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">HTML templates</a></li> 
       </ul>
     </div>  
@@ -256,6 +256,23 @@ identifiers):</p>
 </div>
 <div class="versionadded">
 <p><span class="versionmodified added">New in version 8.0.</span></p>
+</div>
+</div>
+<div class="section" id="audio">
+<span id="t-audio"></span><h2>audio<a class="headerlink" href="#audio" title="Permalink to this headline">¶</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">audio</span></code> template is used to format <code class="docutils literal notranslate"><span class="pre">&lt;audio&gt;</span></code> elements created by the
+<a class="reference internal" href="skool-macros.html#audio"><span class="std std-ref">#AUDIO</span></a> macro.</p>
+<p>The following identifier is available (in addition to the universal
+identifiers):</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">src</span></code> - the relative path to the audio file</p></li>
+</ul>
+<p>To see the default <code class="docutils literal notranslate"><span class="pre">audio</span></code> template, run the following command:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ skool2html.py -r Template:audio
+</pre></div>
+</div>
+<div class="versionadded">
+<p><span class="versionmodified added">New in version 8.7.</span></p>
 </div>
 </div>
 <div class="section" id="box-entries">
@@ -728,34 +745,38 @@ template if it exists, or the stock <a class="reference internal" href="#t-foote
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>Page footer</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">&lt;audio&gt;</span></code> element</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">PageID-audio</span></code></p></td>
+<td><p><a class="reference internal" href="#t-audio"><span class="std std-ref">audio</span></a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Page footer</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">PageID-footer</span></code></p></td>
 <td><p><a class="reference internal" href="#t-footer"><span class="std std-ref">footer</span></a></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">&lt;img&gt;</span></code> element</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">&lt;img&gt;</span></code> element</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">PageID-img</span></code></p></td>
 <td><p><a class="reference internal" href="#t-img"><span class="std std-ref">img</span></a></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="ref-files.html#boxpages"><span class="std std-ref">Box page</span></a>
+<tr class="row-odd"><td><p><a class="reference internal" href="ref-files.html#boxpages"><span class="std std-ref">Box page</span></a>
 list entry</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">PageID-item_list</span></code></p></td>
 <td><p><a class="reference internal" href="#t-item-list"><span class="std std-ref">item_list</span></a></p></td>
 </tr>
-<tr class="row-odd"><td><p>Hyperlink</p></td>
+<tr class="row-even"><td><p>Hyperlink</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">PageID-link</span></code></p></td>
 <td><p><a class="reference internal" href="#t-link"><span class="std std-ref">link</span></a></p></td>
 </tr>
-<tr class="row-even"><td><p>List created by the
+<tr class="row-odd"><td><p>List created by the
 <a class="reference internal" href="skool-macros.html#list"><span class="std std-ref">#LIST</span></a> macro</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">PageID-list</span></code></p></td>
 <td><p><a class="reference internal" href="#t-list"><span class="std std-ref">list</span></a></p></td>
 </tr>
-<tr class="row-odd"><td><p>Register name rendered by
+<tr class="row-even"><td><p>Register name rendered by
 the <a class="reference internal" href="skool-macros.html#reg"><span class="std std-ref">#REG</span></a> macro</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">PageID-reg</span></code></p></td>
 <td><p><a class="reference internal" href="#t-reg"><span class="std std-ref">reg</span></a></p></td>
 </tr>
-<tr class="row-even"><td><p>Table created by the
+<tr class="row-odd"><td><p>Table created by the
 <a class="reference internal" href="skool-macros.html#table"><span class="std std-ref">#TABLE</span></a> macro</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">PageID-table</span></code></p></td>
 <td><p><a class="reference internal" href="#t-table"><span class="std std-ref">table</span></a></p></td>
@@ -778,6 +799,7 @@ the <a class="reference internal" href="skool-macros.html#reg"><span class="std 
 <li><a class="reference internal" href="#layout">Layout</a></li>
 <li><a class="reference internal" href="#asm">asm</a></li>
 <li><a class="reference internal" href="#asm-single-page">asm_single_page</a></li>
+<li><a class="reference internal" href="#audio">audio</a></li>
 <li><a class="reference internal" href="#box-entries">box_entries</a></li>
 <li><a class="reference internal" href="#box-list-entries">box_list_entries</a></li>
 <li><a class="reference internal" href="#footer">footer</a></li>
@@ -844,12 +866,12 @@ the <a class="reference internal" href="skool-macros.html#reg"><span class="std 
         <li class="right" >
           <a href="asm-templates.html" title="ASM templates"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.6 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.7 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">HTML templates</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2021, Richard Dymond.
+        &#169; Copyright 2022, Richard Dymond.
       Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.4.3.
     </div>
   </body>

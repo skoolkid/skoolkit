@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Ref files &#8212; SkoolKit 8.6 documentation</title>
+    <title>Ref files &#8212; SkoolKit 8.7 documentation</title>
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="_static/custom.css" />
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="skool-macros.html" title="Skool macros"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.6 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.7 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Ref files</a></li> 
       </ul>
     </div>  
@@ -68,6 +68,49 @@ square brackets, like this:</p>
 </div>
 <p>The contents of each section that may be found in a ref file are described
 below.</p>
+<div class="section" id="audiowriter">
+<span id="ref-audiowriter"></span><h2>[AudioWriter]<a class="headerlink" href="#audiowriter" title="Permalink to this headline">¶</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">AudioWriter</span></code> section contains configuration parameters that control
+audio file creation by the <a class="reference internal" href="skool-macros.html#audio"><span class="std std-ref">#AUDIO</span></a> macro. The parameters are in the
+format:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>name=value
+</pre></div>
+</div>
+<p>Recognised parameters are:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">ClockSpeed</span></code> - Z80 clock speed in cycles per second (default: 3500000)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ContentionBegin</span></code> - when memory contention begins, in T-states from the
+start of a frame (default: 14334)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ContentionEnd</span></code> - when memory contention ends, in T-states from the start
+of a frame (default: 57248)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ContentionFactor</span></code> - percentage slowdown when memory contention is in
+effect (default: 51)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">FrameDuration</span></code> - length of a frame in T-states (default: 69888)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">InterruptDelay</span></code> - delay in T-states caused by an interrupt routine
+(default: 942)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">MaxAmplitude</span></code> - maximum amplitude of the computed waveform before
+conversion to sample values (default: 65536); see note below</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">SampleRate</span></code> - sample rate in Hz (default: 44100)</p></li>
+</ul>
+<p>Note that the WAV files created by SkoolKit’s audio writer use 16-bit samples
+with values ranging from -32768 to +32767, i.e. a maximum amplitude of 32768.
+This means that the default value of 65536 for the <code class="docutils literal notranslate"><span class="pre">MaxAmplitude</span></code> parameter
+gives rise to a clipped waveform, which more accurately reproduces the
+characteristic piercing quality of the ZX Spectrum speaker than a lower value
+such as 32768 would.</p>
+<table class="docutils colwidths-auto align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Version</p></th>
+<th class="head"><p>Changes</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>8.7</p></td>
+<td><p>New</p></td>
+</tr>
+</tbody>
+</table>
+</div>
 <div class="section" id="colours">
 <span id="ref-colours"></span><h2>[Colours]<a class="headerlink" href="#colours" title="Permalink to this headline">¶</a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">Colours</span></code> section contains colour definitions that will be used when
@@ -150,9 +193,24 @@ any that are automatically read by virtue of having the same filename prefix
 as the skool file, and before any others named on the <a class="reference internal" href="commands.html#skool2html-py"><span class="std std-ref">skool2html.py</span></a>
 command line)</p></li>
 </ul>
-<p>For information on how to create your own Python class for writing an HTML
-disassembly, see the documentation on
+<p>The <code class="docutils literal notranslate"><span class="pre">Expand</span></code> parameter can be used along with the <a class="reference internal" href="skool-macros.html#include"><span class="std std-ref">#INCLUDE</span></a> macro to
+place all the text to be expanded in its own section. This is particularly
+useful when that text cannot easily be placed on a single line. For example:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>[Config]
+Expand=#INCLUDE(Expand)
+
+[Expand]
+; Multiple lines of text to be expanded here
+...
+</pre></div>
+</div>
+<p>For information on using the <code class="docutils literal notranslate"><span class="pre">HtmlWriterClass</span></code> parameter and creating your
+own Python class for writing an HTML disassembly, see the documentation on
 <a class="reference internal" href="extending.html#extendingskoolkit"><span class="std std-ref">extending SkoolKit</span></a>.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">InitModule</span></code> parameter can be used to modify the built-in <code class="docutils literal notranslate"><span class="pre">HtmlWriter</span></code>
+class before it is imported by <a class="reference internal" href="commands.html#skool2html-py"><span class="std std-ref">skool2html.py</span></a>. This is an alternative to
+creating your own <code class="docutils literal notranslate"><span class="pre">HtmlWriter</span></code> class that is suitable when the required
+modification is small.</p>
 <p>Note that the <code class="docutils literal notranslate"><span class="pre">Config</span></code> section must appear in a ref file that is read
 automatically by <a class="reference internal" href="commands.html#skool2html-py"><span class="std std-ref">skool2html.py</span></a> by virtue of having the same filename
 root as the skool file given on the command line (i.e. <cite>game*.ref</cite> if the skool
@@ -261,6 +319,9 @@ prefix)</p></li>
 disassembly pages and entries on memory map pages (default: <code class="docutils literal notranslate"><span class="pre">{address}</span></code>)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">AsmSinglePage</span></code> - <code class="docutils literal notranslate"><span class="pre">1</span></code> to write the disassembly on a single page, or <code class="docutils literal notranslate"><span class="pre">0</span></code>
 to write a separate page for each routine and data block (default: <code class="docutils literal notranslate"><span class="pre">0</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">AudioFormats</span></code> - a comma separated list of audio file formats that the
+<a class="reference internal" href="skool-macros.html#audio"><span class="std std-ref">#AUDIO</span></a> macro looks for before creating a WAV file (default:
+<code class="docutils literal notranslate"><span class="pre">flac,mp3,ogg</span></code>)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">Bytes</span></code> - the format specification for the <code class="docutils literal notranslate"><span class="pre">bytes</span></code> attribute of
 instruction objects in the <a class="reference internal" href="html-templates.html#t-asm"><span class="std std-ref">asm</span></a> and <a class="reference internal" href="html-templates.html#t-asm-single-page"><span class="std std-ref">asm_single_page</span></a>
 templates
@@ -327,47 +388,50 @@ hexadecimal addresses if the <code class="docutils literal notranslate"><span cl
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>8.4</p></td>
+<tr class="row-even"><td><p>8.7</p></td>
+<td><p>Added the <code class="docutils literal notranslate"><span class="pre">AudioFormats</span></code> parameter</p></td>
+</tr>
+<tr class="row-odd"><td><p>8.4</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">Address</span></code> and <code class="docutils literal notranslate"><span class="pre">Length</span></code> parameters</p></td>
 </tr>
-<tr class="row-odd"><td><p>8.0</p></td>
+<tr class="row-even"><td><p>8.0</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">AsmSinglePage</span></code> parameter</p></td>
 </tr>
-<tr class="row-even"><td><p>7.2</p></td>
+<tr class="row-odd"><td><p>7.2</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">Bytes</span></code> and <code class="docutils literal notranslate"><span class="pre">DisassemblyTableNumCols</span></code> parameters</p></td>
 </tr>
-<tr class="row-odd"><td><p>6.0</p></td>
+<tr class="row-even"><td><p>6.0</p></td>
 <td><p>Every parameter (not just <code class="docutils literal notranslate"><span class="pre">Logo</span></code>) may contain
 <a class="reference internal" href="skool-macros.html#skoolmacros"><span class="std std-ref">skool macros</span></a></p></td>
 </tr>
-<tr class="row-even"><td><p>4.3</p></td>
+<tr class="row-odd"><td><p>4.3</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">AddressAnchor</span></code> parameter</p></td>
 </tr>
-<tr class="row-odd"><td><p>4.1</p></td>
+<tr class="row-even"><td><p>4.1</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">LinkInternalOperands</span></code> parameter</p></td>
 </tr>
-<tr class="row-even"><td><p>4.0</p></td>
+<tr class="row-odd"><td><p>4.0</p></td>
 <td><p>Set default values for the <code class="docutils literal notranslate"><span class="pre">InputRegisterTableHeader</span></code> and
 <code class="docutils literal notranslate"><span class="pre">OutputRegisterTableHeader</span></code> parameters; added the
 <code class="docutils literal notranslate"><span class="pre">Copyright</span></code>, <code class="docutils literal notranslate"><span class="pre">Created</span></code> and <code class="docutils literal notranslate"><span class="pre">Release</span></code> parameters (which used
 to live in the <code class="docutils literal notranslate"><span class="pre">[Info]</span></code> section in SkoolKit 3)</p></td>
 </tr>
-<tr class="row-odd"><td><p>3.7</p></td>
+<tr class="row-even"><td><p>3.7</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">JavaScript</span></code> parameter</p></td>
 </tr>
-<tr class="row-even"><td><p>3.5</p></td>
+<tr class="row-odd"><td><p>3.5</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">Font</span></code>, <code class="docutils literal notranslate"><span class="pre">LogoImage</span></code> and <code class="docutils literal notranslate"><span class="pre">StyleSheet</span></code> parameters
 (all of which used to live in the <a class="reference internal" href="#paths"><span class="std std-ref">[Paths]</span></a> section,
 <code class="docutils literal notranslate"><span class="pre">LogoImage</span></code> by the name <code class="docutils literal notranslate"><span class="pre">Logo</span></code>)</p></td>
 </tr>
-<tr class="row-odd"><td><p>3.4</p></td>
+<tr class="row-even"><td><p>3.4</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">LinkOperands</span></code> parameter</p></td>
 </tr>
-<tr class="row-even"><td><p>3.1.2</p></td>
+<tr class="row-odd"><td><p>3.1.2</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">InputRegisterTableHeader</span></code> and
 <code class="docutils literal notranslate"><span class="pre">OutputRegisterTableHeader</span></code> parameters</p></td>
 </tr>
-<tr class="row-odd"><td><p>2.0.5</p></td>
+<tr class="row-even"><td><p>2.0.5</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">Logo</span></code> parameter</p></td>
 </tr>
 </tbody>
@@ -870,6 +934,8 @@ standard Python format string that recognises the macro parameters <code class="
 </ul>
 <p>Recognised directory IDs and their default paths are:</p>
 <ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">AudioPath</span></code> - the directory in which audio files are assumed to be by the
+<a class="reference internal" href="skool-macros.html#audio"><span class="std std-ref">#AUDIO</span></a> macro (default: <code class="docutils literal notranslate"><span class="pre">audio</span></code>)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">CodePath</span></code> - the directory in which the disassembly pages are written
 (default: <code class="docutils literal notranslate"><span class="pre">asm</span></code>)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">FontImagePath</span></code> - the directory in which font images (created by the
@@ -906,37 +972,40 @@ decimal addresses otherwise: <code class="docutils literal notranslate"><span cl
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>6.3</p></td>
+<tr class="row-even"><td><p>8.7</p></td>
+<td><p>Added the <code class="docutils literal notranslate"><span class="pre">AudioPath</span></code> directory ID</p></td>
+</tr>
+<tr class="row-odd"><td><p>6.3</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">ImagePath</span></code> directory ID and the ability to define
 one image path ID in terms of another</p></td>
 </tr>
-<tr class="row-odd"><td><p>6.0</p></td>
+<tr class="row-even"><td><p>6.0</p></td>
 <td><p>Paths may contain <a class="reference internal" href="skool-macros.html#skoolmacros"><span class="std std-ref">skool macros</span></a>; added the
 <code class="docutils literal notranslate"><span class="pre">UDGFilename</span></code> parameter (which used to live in the
 <a class="reference internal" href="#ref-game"><span class="std std-ref">[Game]</span></a> section)</p></td>
 </tr>
-<tr class="row-even"><td><p>5.3</p></td>
+<tr class="row-odd"><td><p>5.3</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">AsmSinglePage</span></code> file ID</p></td>
 </tr>
-<tr class="row-odd"><td><p>4.3</p></td>
+<tr class="row-even"><td><p>4.3</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">CodeFiles</span></code> file ID</p></td>
 </tr>
-<tr class="row-even"><td><p>3.1.1</p></td>
+<tr class="row-odd"><td><p>3.1.1</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">FontPath</span></code> directory ID</p></td>
 </tr>
-<tr class="row-odd"><td><p>2.5</p></td>
+<tr class="row-even"><td><p>2.5</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">UnusedMap</span></code> file ID</p></td>
 </tr>
-<tr class="row-even"><td><p>2.2.5</p></td>
+<tr class="row-odd"><td><p>2.2.5</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">Changelog</span></code> file ID</p></td>
 </tr>
-<tr class="row-odd"><td><p>2.1.1</p></td>
+<tr class="row-even"><td><p>2.1.1</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">CodePath</span></code> directory ID</p></td>
 </tr>
-<tr class="row-even"><td><p>2.0.5</p></td>
+<tr class="row-odd"><td><p>2.0.5</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">FontImagePath</span></code> directory ID</p></td>
 </tr>
-<tr class="row-odd"><td><p>2.0</p></td>
+<tr class="row-even"><td><p>2.0</p></td>
 <td><p>New</p></td>
 </tr>
 </tbody>
@@ -1261,6 +1330,7 @@ with the first one removed.</p>
   <h3><a href="index.html">Table of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">Ref files</a><ul>
+<li><a class="reference internal" href="#audiowriter">[AudioWriter]</a></li>
 <li><a class="reference internal" href="#colours">[Colours]</a></li>
 <li><a class="reference internal" href="#config">[Config]</a></li>
 <li><a class="reference internal" href="#entrygroups">[EntryGroups]</a></li>
@@ -1327,12 +1397,12 @@ with the first one removed.</p>
         <li class="right" >
           <a href="skool-macros.html" title="Skool macros"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.6 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.7 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Ref files</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2021, Richard Dymond.
+        &#169; Copyright 2022, Richard Dymond.
       Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.4.3.
     </div>
   </body>
