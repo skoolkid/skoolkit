@@ -1,8 +1,8 @@
 Changelog
 =========
 
-8.7rc
------
+8.7 (2022-10-08)
+----------------
 * Dropped support for Python 3.6
 * Added the :ref:`SIM` macro (for simulating the execution of machine code in
   the internal memory snapshot constructed from the contents of the skool file)

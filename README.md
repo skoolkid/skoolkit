@@ -75,6 +75,8 @@ you can also:
 
 * use the [image macros](https://skoolkid.github.io/skoolkit/skool-macros.html#image-macros)
   to build still and animated PNG images from graphic data
+* use the [#AUDIO](https://skoolkid.github.io/skoolkit/skool-macros.html#audio)
+  macro to build WAV files for sound effects and tunes
 * use the [#R](https://skoolkid.github.io/skoolkit/skool-macros.html#r) macro
   in annotations to create hyperlinks between routines and data blocks that
   refer to each other
