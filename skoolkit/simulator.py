@@ -110,22 +110,30 @@ class Simulator:
         self.poke_tracers = [t.write_memory for t in self.tracers if hasattr(t, 'write_memory')]
 
     def run(self, pc=None):
-        if pc is not None:
+        if pc is None:
+            pc = self.pc
+        else:
             self.pc = pc
+        opcodes = self.opcodes
+        after_DD = self.after_DD
+        snapshot = self.snapshot
+        registers = self.registers
+        i_tracers = self.i_tracers
+        instruction = self.instruction
         running = True
         while running:
-            f, args = self.opcodes[self.snapshot[self.pc]]
+            f, args = opcodes[snapshot[pc]]
             if f:
                 r_inc = 1
             elif args:
                 r_inc = 2
-                f, args = args[self.snapshot[(self.pc + 1) & 0xFFFF]]
+                f, args = args[snapshot[(pc + 1) & 0xFFFF]]
             else:
                 r_inc = 2
-                f, iargs = self.after_DD[self.snapshot[(self.pc + 1) & 0xFFFF]]
+                f, iargs = after_DD[snapshot[(pc + 1) & 0xFFFF]]
                 if f is None:
-                    f, iargs = iargs[self.snapshot[(self.pc + 3) & 0xFFFF]]
-                if self.snapshot[self.pc] == 0xFD:
+                    f, iargs = iargs[snapshot[(pc + 3) & 0xFFFF]]
+                if snapshot[pc] == 0xFD:
                     args = []
                     for arg in iargs:
                         if isinstance(arg, str):
@@ -135,22 +143,24 @@ class Simulator:
                 else:
                     args = iargs
             operation, pc, tstates = f(self, *args)
-            r = self.registers['R']
-            self.registers['R'] = (r & 0x80) + ((r + r_inc) & 0x7F)
-            if self.i_tracers:
+            r = registers['R']
+            registers['R'] = (r & 0x80) + ((r + r_inc) & 0x7F)
+            if i_tracers:
                 running = True
-                self.instruction.time = self.tstates
-                self.instruction.address = self.pc
-                self.instruction.operation = operation
-                self.instruction.tstates = tstates
+                instruction.time = self.tstates
+                instruction.address = self.pc
+                instruction.operation = operation
+                instruction.tstates = tstates
                 self.pc = pc & 0xFFFF
                 self.tstates += tstates
-                for method in self.i_tracers:
-                    if method(self, self.instruction):
+                for method in i_tracers:
+                    if method(self, instruction):
                         running = False
+                pc = self.pc
             else:
                 running = False
-                self.pc = pc & 0xFFFF
+                pc &= 0xFFFF
+                self.pc = pc
                 self.tstates += tstates
 
     def set_registers(self, registers):
