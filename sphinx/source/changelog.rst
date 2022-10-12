@@ -1,6 +1,9 @@
 Changelog
 =========
 
+8.8b1
+-----
+
 8.7 (2022-10-08)
 ----------------
 * Dropped support for Python 3.6
