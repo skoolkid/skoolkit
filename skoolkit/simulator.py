@@ -109,11 +109,12 @@ class Simulator:
         self.peek_tracers = [t.read_memory for t in self.tracers if hasattr(t, 'read_memory')]
         self.poke_tracers = [t.write_memory for t in self.tracers if hasattr(t, 'write_memory')]
 
-    def run(self, pc=None):
-        if pc is None:
+    def run(self, start=None, stop=None):
+        if start is None:
             pc = self.pc
         else:
-            self.pc = pc
+            self.pc = start
+            pc = start
         opcodes = self.opcodes
         after_DD = self.after_DD
         snapshot = self.snapshot
@@ -145,21 +146,24 @@ class Simulator:
             operation, pc, tstates = f(self, *args)
             r = registers['R']
             registers['R'] = (r & 0x80) + ((r + r_inc) & 0x7F)
+            pc &= 0xFFFF
             if i_tracers:
-                running = True
+                running = pc != stop
                 instruction.time = self.tstates
                 instruction.address = self.pc
                 instruction.operation = operation
                 instruction.tstates = tstates
-                self.pc = pc & 0xFFFF
+                self.pc = pc
                 self.tstates += tstates
                 for method in i_tracers:
                     if method(self, instruction):
                         running = False
                 pc = self.pc
             else:
-                running = False
-                pc &= 0xFFFF
+                if stop is None:
+                    running = False
+                else:
+                    running = pc != stop
                 self.pc = pc
                 self.tstates += tstates
 

@@ -2291,6 +2291,22 @@ class SimulatorTest(SkoolKitTestCase):
         self.assertEqual(simulator.pc, 2)
         self.assertEqual(simulator.tstates, 8)
 
+    def test_stop(self):
+        snapshot = [0] * 65536
+        simulator = Simulator(snapshot)
+        simulator.run(0, 2)
+        self.assertEqual(simulator.pc, 2)
+        self.assertEqual(simulator.tstates, 8)
+
+    def test_stop_overrides_tracer(self):
+        snapshot = [0] * 65536
+        simulator = Simulator(snapshot)
+        tracer = CountingTracer(100)
+        simulator.add_tracer(tracer)
+        simulator.run(0, 2)
+        self.assertEqual(simulator.pc, 2)
+        self.assertEqual(simulator.tstates, 8)
+
     def test_pc_register_value(self):
         snapshot = [0] * 65536
         simulator = Simulator(snapshot, {'PC': 1})

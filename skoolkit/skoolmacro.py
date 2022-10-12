@@ -561,9 +561,7 @@ def parse_audio(writer, text, index, need_audio=None):
             simulator = Simulator(writer.snapshot, config={'fast_djnz': True, 'fast_ldir': True})
             tracer = AudioTracer()
             simulator.add_tracer(tracer)
-            simulator.run(start)
-            while simulator.pc != stop:
-                simulator.run()
+            simulator.run(start, stop)
             delays = [t - tracer.out_times[i] for i, t in enumerate(tracer.out_times[1:])]
     else:
         if len(text) > end and text[end] == '(':
@@ -1149,9 +1147,7 @@ def parse_sim(writer, text, index, *cwd):
     simulator = Simulator(writer.snapshot, registers, {'tstates': tstates}, {'fast_djnz': True, 'fast_ldir': True})
     if start < 0:
         start = simulator.pc
-    simulator.run(start)
-    while simulator.pc != stop:
-        simulator.run()
+    simulator.run(start, stop)
     sim = {r: simulator.registers[r] for r in ('A', 'F', '^A', '^F', 'I', 'R', 'SP')}
     sim['BC'] = simulator.registers['C'] + 256 * simulator.registers['B']
     sim['DE'] = simulator.registers['E'] + 256 * simulator.registers['D']
@@ -1218,9 +1214,7 @@ def parse_tstates(writer, text, index, *cwd):
         if stop < 0:
             raise MacroParsingError(f"Missing stop address: '{text[index:end]}'")
         simulator = Simulator(writer.snapshot[:])
-        simulator.run(start)
-        while simulator.pc != stop:
-            simulator.run()
+        simulator.run(start, stop)
         if msg is None:
             return end, str(simulator.tstates)
         return end, Template(msg).safe_substitute(tstates=simulator.tstates)
