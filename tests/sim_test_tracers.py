@@ -6,9 +6,10 @@ class BaseTracer:
         self.watch = watch
         self.data = bytearray()
         self.checksum = None
+        self.operations = 0
 
-    def collect_result(self, simulator, instruction):
-        if instruction.time > 0:
+    def collect_result(self, simulator, address):
+        if self.operations:
             for reg in self.watch:
                 if reg in ('(DE)', '(HL)'):
                     rr = simulator.registers[reg[2]] + 256 * simulator.registers[reg[1]]
@@ -28,6 +29,7 @@ class BaseTracer:
                     self.data.append(rval)
                 else:
                     self.data.extend(rval)
+        self.operations += 1
         if self.count < 0:
             self.checksum = hashlib.md5(self.data).hexdigest()
             return True

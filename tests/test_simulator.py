@@ -3,11 +3,6 @@ from skoolkit.simulator import Simulator
 
 REGISTERS = ('B', 'C', 'D', 'E', 'H', 'L', '(HL)', 'A')
 
-class Tracer:
-    def trace(self, simulator, instruction):
-        self.operation = instruction.operation
-        return True
-
 class InTestTracer:
     value = 0
 
@@ -73,8 +68,6 @@ class WriteMemoryTracer:
     def write_memory(self, simulator, address, values):
         self.written.append((address, values))
 
-TRACER = Tracer()
-
 class SimulatorTest(SkoolKitTestCase):
     def _test_instruction(self, simulator, inst, data, timing, reg_out=None, sna_out=None,
                           start=None, end=None, state_out=None):
@@ -90,7 +83,6 @@ class SimulatorTest(SkoolKitTestCase):
             simulator.snapshot[start:] = data[:-wrapped]
             simulator.snapshot[:wrapped] = data[-wrapped:]
         data_hex = ''.join(f'{b:02X}' for b in data)
-        simulator.add_tracer(TRACER)
         exp_reg = simulator.registers.copy()
         if reg_out is None:
             reg_out = {}
@@ -101,7 +93,6 @@ class SimulatorTest(SkoolKitTestCase):
         simulator.tstates = 0
         simulator.run(start)
         regvals = ', '.join(f'{r}={v}' for r, v in simulator.registers.items())
-        self.assertEqual(inst, TRACER.operation, f"Operation mismatch for '{inst}' ({data_hex}); input: {regvals}")
         self.assertEqual(simulator.pc, end, f"End address mismatch for '{inst}' ({data_hex}); input: {regvals}")
         self.assertEqual(simulator.tstates, timing, f"Timing mismatch for '{inst}' ({data_hex}); input: {regvals}")
         if simulator.registers != exp_reg:
@@ -1897,10 +1888,9 @@ class SimulatorTest(SkoolKitTestCase):
         start = 40000
         snapshot[start] = 0x76
         simulator = Simulator(snapshot)
-        tracer = Tracer()
-        simulator.add_tracer(tracer)
         simulator.run(start)
-        self.assertEqual(tracer.operation, 'HALT')
+        self.assertEqual(simulator.pc, start)
+        self.assertEqual(simulator.tstates, 4)
 
     def test_halt_repeats_until_frame_boundary(self):
         snapshot = [0] * 65536

@@ -260,7 +260,7 @@ class LoadTracer:
         self.border = 7
         self.text = TextReader()
 
-    def trace(self, simulator, instruction):
+    def trace(self, simulator, address):
         if self.tape_started is not None:
             offset = simulator.tstates - self.tape_started
             block_num = self.samples[self.index][3]

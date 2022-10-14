@@ -24,15 +24,12 @@ class Options:
     state = []
 
 class Tracer:
-    def __init__(self, verbose):
-        self.verbose = verbose
+    def __init__(self):
         self.msg = ''
         self.count = 0
         self.failed = False
 
-    def trace(self, simulator, instruction):
-        if self.verbose:
-            print(f'${instruction.address:04X} {instruction.operation}')
+    def trace(self, simulator, address):
         self.count += 1
         if simulator.pc == 16:
             a = simulator.registers['A']
@@ -74,7 +71,7 @@ def run(tapfile, options):
         test_addr = 34938 + options.test * 2
         snapshot[addr + 4:addr + 6] = (test_addr % 256, test_addr // 256)
     simulator = Simulator(snapshot)
-    tracer = Tracer(options.verbose)
+    tracer = Tracer()
     simulator.add_tracer(tracer)
     begin = time.time()
     simulator.run(start)
@@ -97,8 +94,6 @@ if __name__ == '__main__':
     group = parser.add_argument_group('Options')
     group.add_argument('-t', '--test', metavar='TEST', type=int, default=0,
                        help='Start at this test (default: 0).')
-    group.add_argument('-v', '--verbose', action='count', default=0,
-                       help="Show executed instructions.")
     namespace, unknown_args = parser.parse_known_args()
     if unknown_args or namespace.tapfile is None:
         parser.exit(2, parser.format_help())
