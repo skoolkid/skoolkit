@@ -262,25 +262,29 @@ class LoadTracer:
 
     def trace(self, simulator, address):
         if self.tape_started is not None:
+            index = self.index
+            samples = self.samples
             offset = simulator.tstates - self.tape_started
-            block_num = self.samples[self.index][3]
-            while self.index < self.max_index and self.samples[self.index + 1][0] < offset:
-                self.index += 1 # pragma: no cover
-            if self.samples[self.index][3] > block_num:
+            block_num = samples[index][3]
+            while index < self.max_index and samples[index + 1][0] < offset:
+                index += 1 # pragma: no cover
+            sample = samples[index]
+            if sample[3] > block_num:
                 # Pause tape between blocks
                 self.tape_started = None # pragma: no cover
             else:
-                if self.index == self.max_index:
+                if index == self.max_index:
                     self.end_of_tape += 1
                     if self.end_of_tape == 1:
                         write_line('Tape finished')
                         self.tape_end_time = simulator.tstates
                 if self.custom_loader: # pragma: no cover
-                    progress = self.samples[self.index][0] // self.tape_length
+                    progress = sample[0] // self.tape_length
                     if progress > self.progress:
                         msg = f'[{progress/10:0.1f}%]'
                         write(msg + chr(8) * len(msg))
                         self.progress = progress
+            self.index = index
 
         if simulator.pc == self.stop:
             write_line(f'Simulation stopped (PC at start address): PC={simulator.pc}')
