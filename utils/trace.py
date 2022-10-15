@@ -143,7 +143,7 @@ def run(snafile, start, options):
     config = {'fast_djnz': options.audio, 'fast_ldir': True}
     simulator = Simulator(snapshot, get_registers(options.reg), config=config)
     tracer = Tracer(snapshot, options.verbose, options.end, options.max_operations, options.max_tstates)
-    simulator.add_tracer(tracer)
+    simulator.set_tracer(tracer)
     begin = time.time()
     simulator.run(start)
     rt = time.time() - begin
@@ -152,7 +152,7 @@ def run(snafile, start, options):
         speed = z80t / rt
         print(f'Z80 execution time: {simulator.tstates} T-states ({z80t:.03f}s)')
         print(f'Instructions executed: {tracer.operations}')
-        print(f'Emulation time: {rt:.03f}s (x{speed:.02f})')
+        print(f'Simulation time: {rt:.03f}s (x{speed:.02f})')
     if options.audio:
         delays = []
         for i, t in enumerate(tracer.out_times[1:]):

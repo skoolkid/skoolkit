@@ -14,12 +14,12 @@ class CountingTracer:
         self.max_operations = max_operations
         self.count = 0
 
-    def trace(self, simulator, instruction):
+    def trace(self, simulator, address):
         self.count += 1
         return self.count >= self.max_operations
 
 class PushPopCountTracer:
-    def trace(self, simulator, instruction):
+    def trace(self, simulator, address):
         return simulator.ppcount < 0
 
 class PortTracer:
@@ -29,7 +29,7 @@ class PortTracer:
         self.in_ports = []
         self.out_ports = []
 
-    def trace(self, simulator, instruction):
+    def trace(self, simulator, address):
         return self.end < 0 or simulator.pc == self.end
 
     def read_port(self, simulator, port):
@@ -40,33 +40,19 @@ class PortTracer:
         self.out_ports.append((port, value))
 
 class MemoryTracer:
-    def __init__(self, end):
+    def __init__(self, end=None):
         self.end = end
         self.read = []
         self.written = []
 
-    def trace(self, simulator, instruction):
-        return simulator.pc == self.end
+    def trace(self, simulator, address):
+        return self.end is None or simulator.pc == self.end
 
     def read_memory(self, simulator, address, count):
         self.read.append((simulator.pc, address, count))
 
     def write_memory(self, simulator, address, values):
         self.written.append((simulator.pc, address, *values))
-
-class ReadMemoryTracer:
-    def __init__(self):
-        self.read = []
-
-    def read_memory(self, simulator, address, count):
-        self.read.append((address, count))
-
-class WriteMemoryTracer:
-    def __init__(self):
-        self.written = []
-
-    def write_memory(self, simulator, address, values):
-        self.written.append((address, values))
 
 class SimulatorTest(SkoolKitTestCase):
     def _test_instruction(self, simulator, inst, data, timing, reg_out=None, sna_out=None,
@@ -1796,7 +1782,7 @@ class SimulatorTest(SkoolKitTestCase):
         simulator = Simulator([0] * 65536)
         registers = simulator.registers
         tracer = InTestTracer()
-        simulator.add_tracer(tracer)
+        simulator.set_tracer(tracer)
         in_value = 0
         c = 128
 
@@ -2132,10 +2118,8 @@ class SimulatorTest(SkoolKitTestCase):
         simulator = Simulator([0] * 65536, config={'fast_ldir': True})
         registers = simulator.registers
         snapshot = simulator.snapshot
-        read_tracer = ReadMemoryTracer()
-        write_tracer = WriteMemoryTracer()
-        simulator.add_tracer(read_tracer)
-        simulator.add_tracer(write_tracer)
+        tracer = MemoryTracer()
+        simulator.set_tracer(tracer)
         data = (0xED, 0xB8)
         start = 30000
         at_hl = 250
@@ -2171,25 +2155,21 @@ class SimulatorTest(SkoolKitTestCase):
                     snapshot[a] = at_hl
                 mem_written = list(range(de_out + 1, de_in + 1))
                 sna_out = {a: at_hl for a in mem_written}
-                tracers = True
-                read_tracer.read.clear()
-                write_tracer.written.clear()
+                tracer.read.clear()
+                tracer.written.clear()
             else:
                 sna_out = None
-                tracers = False
             self._test_instruction(simulator, 'LDDR', data, timing, reg_out, sna_out, start, end)
-            if tracers:
-                self.assertEqual([e[0] for e in reversed(read_tracer.read)], mem_read)
-                self.assertEqual([e[0] for e in reversed(write_tracer.written)], mem_written)
+            if bc_in:
+                self.assertEqual([e[1] for e in reversed(tracer.read)], mem_read)
+                self.assertEqual([e[1] for e in reversed(tracer.written)], mem_written)
 
     def test_ldir_fast(self):
         simulator = Simulator([0] * 65536, config={'fast_ldir': True})
         registers = simulator.registers
         snapshot = simulator.snapshot
-        read_tracer = ReadMemoryTracer()
-        write_tracer = WriteMemoryTracer()
-        simulator.add_tracer(read_tracer)
-        simulator.add_tracer(write_tracer)
+        tracer = MemoryTracer()
+        simulator.set_tracer(tracer)
         data = (0xED, 0xB0)
         start = 30000
         at_hl = 250
@@ -2225,16 +2205,14 @@ class SimulatorTest(SkoolKitTestCase):
                     snapshot[a] = at_hl
                 mem_written = list(range(de_in, de_out))
                 sna_out = {a: at_hl for a in mem_written}
-                tracers = True
-                read_tracer.read.clear()
-                write_tracer.written.clear()
+                tracer.read.clear()
+                tracer.written.clear()
             else:
                 sna_out = None
-                tracers = False
             self._test_instruction(simulator, 'LDIR', data, timing, reg_out, sna_out, start, end)
-            if tracers:
-                self.assertEqual([e[0] for e in read_tracer.read], mem_read)
-                self.assertEqual([e[0] for e in write_tracer.written], mem_written)
+            if bc_in:
+                self.assertEqual([e[1] for e in tracer.read], mem_read)
+                self.assertEqual([e[1] for e in tracer.written], mem_written)
 
     def _test_block_out(self, operation, opcode, inc, repeat=False):
         simulator = Simulator([0] * 65536)
@@ -2614,7 +2592,7 @@ class SimulatorTest(SkoolKitTestCase):
         snapshot = [0] * 65536
         simulator = Simulator(snapshot)
         tracer = CountingTracer(2)
-        simulator.add_tracer(tracer)
+        simulator.set_tracer(tracer)
         simulator.run(0)
         self.assertEqual(simulator.pc, 2)
         self.assertEqual(simulator.tstates, 8)
@@ -2637,7 +2615,7 @@ class SimulatorTest(SkoolKitTestCase):
         simulator = Simulator(snapshot, {'A': 170, 'BC': 65311})
         value = 128
         tracer = PortTracer(value, end)
-        simulator.add_tracer(tracer)
+        simulator.set_tracer(tracer)
         simulator.run(start)
         exp_ports = [43774, 65311, 65311, 65055, 510, 510]
         self.assertEqual(tracer.in_ports, exp_ports)
@@ -2664,7 +2642,7 @@ class SimulatorTest(SkoolKitTestCase):
         snapshot[hl:hl + 2] = (1, 2)
         simulator = Simulator(snapshot, {'A': 171, 'BC': 65055, 'HL': hl})
         tracer = PortTracer(end=end)
-        simulator.add_tracer(tracer)
+        simulator.set_tracer(tracer)
         simulator.run(start)
         exp_outs = [
             (44030, 171),
@@ -2690,7 +2668,7 @@ class SimulatorTest(SkoolKitTestCase):
         snapshot[start:end] = code
         simulator = Simulator(snapshot)
         tracer = MemoryTracer(end)
-        simulator.add_tracer(tracer)
+        simulator.set_tracer(tracer)
         simulator.run(start)
         exp_addresses = [
             (49158, 32768, 1),
@@ -2714,7 +2692,7 @@ class SimulatorTest(SkoolKitTestCase):
         snapshot[start:end] = code
         simulator = Simulator(snapshot)
         tracer = MemoryTracer(end)
-        simulator.add_tracer(tracer)
+        simulator.set_tracer(tracer)
         simulator.run(start)
         exp_addresses = [
             (49160, 32768, 255),
@@ -2722,25 +2700,6 @@ class SimulatorTest(SkoolKitTestCase):
             (49162, 32770, 0, 128),
         ]
         self.assertEqual(tracer.written, exp_addresses)
-
-    def test_multiple_tracers(self):
-        snapshot = [0] * 65536
-        snapshot[32768] = 64
-        code = (
-            0x21, 0x00, 0x80, # 40000 LD HL,32768
-            0x34,             # 40003 INC (HL)
-        )
-        snapshot[40000:40000 + len(code)] = code
-        simulator = Simulator(snapshot)
-        tracer1 = ReadMemoryTracer()
-        tracer2 = WriteMemoryTracer()
-        simulator.add_tracer(tracer1)
-        simulator.add_tracer(tracer2)
-        simulator.run(40000)
-        while simulator.pc != 40004:
-            simulator.run()
-        self.assertEqual(tracer1.read, [(32768, 1)])
-        self.assertEqual(tracer2.written, [(32768, (65,))])
 
     def test_rom_not_writable(self):
         snapshot = [0] * 65536
@@ -2754,7 +2713,7 @@ class SimulatorTest(SkoolKitTestCase):
         snapshot[start:end] = code
         simulator = Simulator(snapshot)
         tracer = MemoryTracer(end)
-        simulator.add_tracer(tracer)
+        simulator.set_tracer(tracer)
         simulator.run(start)
         exp_addresses = [
             (49155, 16383, 1, 2),
@@ -2783,7 +2742,7 @@ class SimulatorTest(SkoolKitTestCase):
         snapshot = [0] * 65536
         simulator = Simulator(snapshot)
         tracer = CountingTracer(100)
-        simulator.add_tracer(tracer)
+        simulator.set_tracer(tracer)
         simulator.run(0, 2)
         self.assertEqual(simulator.pc, 2)
         self.assertEqual(simulator.tstates, 8)
@@ -2813,7 +2772,7 @@ class SimulatorTest(SkoolKitTestCase):
         snapshot[start:end] = code
         simulator = Simulator(snapshot, state={'ppcount': 1})
         tracer = PushPopCountTracer()
-        simulator.add_tracer(tracer)
+        simulator.set_tracer(tracer)
         simulator.run(start)
         self.assertEqual(simulator.pc, end)
         self.assertEqual(simulator.ppcount, -1)

@@ -88,20 +88,33 @@ class Simulator:
         if cfg['fast_ldir']:
             self.after_ED[0xB0] = partial(self.ldir_fast, 1)
             self.after_ED[0xB8] = partial(self.ldir_fast, -1)
-        self.tracers = []
-        self.i_tracers = None
-        self.in_tracers = ()
-        self.out_tracers = ()
-        self.peek_tracers = ()
-        self.poke_tracers = ()
+        self.itracer = None
+        self.in_tracer = None
+        self.out_tracer = None
+        self.peek_tracer = None
+        self.poke_tracer = None
 
-    def add_tracer(self, tracer):
-        self.tracers.append(tracer)
-        self.i_tracers = [t.trace for t in self.tracers if hasattr(t, 'trace')]
-        self.in_tracers = [t.read_port for t in self.tracers if hasattr(t, 'read_port')]
-        self.out_tracers = [t.write_port for t in self.tracers if hasattr(t, 'write_port')]
-        self.peek_tracers = [t.read_memory for t in self.tracers if hasattr(t, 'read_memory')]
-        self.poke_tracers = [t.write_memory for t in self.tracers if hasattr(t, 'write_memory')]
+    def set_tracer(self, tracer):
+        if hasattr(tracer, 'trace'):
+            self.itracer = partial(tracer.trace, self)
+        else:
+            self.itracer = None
+        if hasattr(tracer, 'read_port'):
+            self.in_tracer = partial(tracer.read_port, self)
+        else:
+            self.in_tracer = None
+        if hasattr(tracer, 'write_port'):
+            self.out_tracer = partial(tracer.write_port, self)
+        else:
+            self.out_tracer = None
+        if hasattr(tracer, 'read_memory'):
+            self.peek_tracer = partial(tracer.read_memory, self)
+        else:
+            self.peek_tracer = None
+        if hasattr(tracer, 'write_memory'):
+            self.poke_tracer = partial(tracer.write_memory, self)
+        else:
+            self.poke_tracer = None
 
     def run(self, start=None, stop=None):
         if start is None:
@@ -118,7 +131,7 @@ class Simulator:
         after_FDCB = self.after_FDCB
         snapshot = self.snapshot
         registers = self.registers
-        i_tracers = self.i_tracers
+        itracer = self.itracer
         running = True
         while running:
             opcode = snapshot[pc]
@@ -145,14 +158,13 @@ class Simulator:
             r = registers['R']
             registers['R'] = (r & 0x80) + ((r + r_inc) & 0x7F)
             pc &= 0xFFFF
-            if i_tracers:
+            if itracer:
                 running = pc != stop
                 address = self.pc
                 self.pc = pc
                 self.tstates += tstates
-                for method in i_tracers:
-                    if method(self, address):
-                        running = False
+                if itracer(address):
+                    running = False
                 pc = self.pc
             else:
                 if stop is None:
@@ -210,15 +222,15 @@ class Simulator:
             self.poke(self.index(), value)
 
     def peek(self, address, count=1):
-        for method in self.peek_tracers:
-            method(self, address, count)
+        if self.peek_tracer:
+            self.peek_tracer(address, count)
         if count == 1:
             return self.snapshot[address]
         return self.snapshot[address], self.snapshot[(address + 1) & 0xFFFF]
 
     def poke(self, address, *values):
-        for method in self.poke_tracers:
-            method(self, address, values)
+        if self.poke_tracer:
+            self.poke_tracer(address, values)
         if address > 0x3FFF:
             self.snapshot[address] = values[0]
         if len(values) > 1:
@@ -636,9 +648,10 @@ class Simulator:
         return self.pc + 2, 8
 
     def _in(self, port):
-        reading = None
-        for method in self.in_tracers:
-            reading = method(self, port)
+        if self.in_tracer:
+            reading = self.in_tracer(port)
+        else:
+            reading = None
         if reading is None:
             return 191
         return reading
@@ -881,8 +894,8 @@ class Simulator:
         return self.pc + size, timing
 
     def _out(self, port, value):
-        for method in self.out_tracers:
-            method(self, port, value)
+        if self.out_tracer:
+            self.out_tracer(port, value)
 
     def outa(self):
         a = self.registers['A']

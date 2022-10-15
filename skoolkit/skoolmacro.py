@@ -560,7 +560,7 @@ def parse_audio(writer, text, index, need_audio=None):
         if eval_delays:
             simulator = Simulator(writer.snapshot, config={'fast_djnz': True, 'fast_ldir': True})
             tracer = AudioTracer()
-            simulator.add_tracer(tracer)
+            simulator.set_tracer(tracer)
             simulator.run(start, stop)
             delays = [t - tracer.out_times[i] for i, t in enumerate(tracer.out_times[1:])]
     else:

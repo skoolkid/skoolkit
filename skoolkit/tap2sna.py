@@ -424,7 +424,7 @@ def sim_load(blocks, options):
     snapshot[0xFF58:] = snapshot[0x3E08:0x3EB0] # UDGs
     simulator = Simulator(snapshot, {'A': 0x0D, 'SP': 0xFF50})
     tracer = LoadTracer(blocks, options.start)
-    simulator.add_tracer(tracer)
+    simulator.set_tracer(tracer)
     try:
         simulator.run(0x0F3B) # Entry point in EDITOR at 0F2C
     except KeyboardInterrupt: # pragma: no cover

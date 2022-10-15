@@ -72,7 +72,7 @@ def run(tapfile, options):
         snapshot[addr + 4:addr + 6] = (test_addr % 256, test_addr // 256)
     simulator = Simulator(snapshot)
     tracer = Tracer()
-    simulator.add_tracer(tracer)
+    simulator.set_tracer(tracer)
     begin = time.time()
     simulator.run(start)
     rt = time.time() - begin

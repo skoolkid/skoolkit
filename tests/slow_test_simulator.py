@@ -71,7 +71,7 @@ class SimulatorTest(SkoolKitTestCase):
             snapshot[start:start + len(opcodes)] = opcodes
         tracer = tclass(start, *targs)
         simulator = Simulator(snapshot, {'HL': 16384, 'IX': 16385, 'IY': 16386})
-        simulator.add_tracer(tracer)
+        simulator.set_tracer(tracer)
         simulator.run(start)
         self.assertEqual(tracer.checksum, checksum, f"Checksum failure for '{op}'")
 
