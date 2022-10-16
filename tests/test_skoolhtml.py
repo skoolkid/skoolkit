@@ -3945,6 +3945,28 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
                     output = writer.expand('#TABLE{}<{}> {{ A }} TABLE#'.format(params, flag))
                     self.assertEqual(html.format(exp_class_name), output)
 
+    def test_macro_table_with_cell_separators_followed_by_newline(self):
+        macro = """
+            #DEF(#ROW
+              Cell 1 |
+              Cell 2 |
+              Cell 3
+            )
+        """
+        writer = self._get_writer()
+        writer.expand(dedent(macro).strip())
+        output = writer.expand('#TABLE { #ROW } TABLE#')
+        exp_html = """
+            <table class="">
+            <tr>
+            <td class="" colspan="1" rowspan="1">Cell 1</td>
+            <td class="" colspan="1" rowspan="1">Cell 2</td>
+            <td class="" colspan="1" rowspan="1">Cell 3</td>
+            </tr>
+            </table>
+        """
+        self.assertEqual(dedent(exp_html).strip(), output)
+
     def test_macro_table_invalid(self):
         writer = self._get_writer()
         prefix = ERROR_PREFIX.format('TABLE')

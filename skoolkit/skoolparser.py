@@ -1306,12 +1306,8 @@ class TableParser:
         return end, self.parse_table(writer, text[index:end], *cwd)
 
     def parse_table(self, writer, table_def, *cwd):
-        text = table_def
-        for ws_char in '\n\r\t':
-            text = text.replace(ws_char, ' ')
-
         try:
-            index, params = parse_brackets(text, default='')
+            index, params = parse_brackets(table_def, default='')
         except ClosingBracketError:
             raise SkoolParsingError("Cannot find closing ')' in table CSS class list:\n{}".format(table_def))
         classes = [c.strip() for c in writer.expand(params, *cwd).split(',')]
@@ -1324,7 +1320,9 @@ class TableParser:
                 wrap_columns.append(i)
         table = Table(table_class, wrap_columns)
 
-        text = writer.expand(text[index:], *cwd)
+        text = writer.expand(table_def[index:], *cwd)
+        for ws_char in '\n\r\t':
+            text = text.replace(ws_char, ' ')
         index = 0
         prev_spans = {}
         while text.find('{', index) >= 0:
