@@ -7,15 +7,10 @@ USED_EXP_DIFFS=used-exp-diffs
 UTILS=$(dirname $0)
 [[ ${UTILS:0:1} = "/" ]] || UTILS=$(pwd)/$UTILS
 
-do_diff() {
-  [ -e $3 ] || return
+check_diffs() {
   diff_type=$1
-  oldf=$2
-  newf=$3
-  ofile=$4
-  shift 4
-  diff_opts=$*
-  diff -Naur $diff_opts $oldf $newf > $ofile
+  ofile=$2
+
   if [ $RM_EMPTY_DIFFS -eq 1 ] && [ ! -s $ofile ]; then
     rm $ofile
   fi
@@ -44,10 +39,15 @@ diff_files() {
     echo "no $file_type files in $old/$diff_type"
     return
   fi
+
+  diff_file=$out/$diff_type.diff
   for a in $old/$diff_type/*.$file_type; do
     b=$(basename $a)
-    do_diff $diff_type $a $new/$diff_type/$b $out/$b.diff
+    diff -Naur $a $new/$diff_type/$b >> $diff_file
+    echo >> $diff_file
   done
+  check_diffs $diff_type $diff_file
+
   $UTILS/unique-diffs.py $out/$USED_EXP_DIFFS-*.$file_type.txt > $out/$USED_EXP_DIFFS.txt
   echo "done"
 }
@@ -60,13 +60,14 @@ diff_html() {
   rm -rf $out
   mkdir -p $out
   echo -n "Writing diffs to $out..."
+
+  diff_file=$out/html.diff
   for d in $(ls -1 $new); do
-    diff_file=$out/$d.html.diff
-    do_diff html $old/$d $new/$d $diff_file -x '*.png' -x '*.wav'
-    if [ -f $diff_file ]; then
-      grep '^+++ ' $diff_file | grep -o "$d/.*.html" > $out/$d.files
-    fi
+    diff -Naur -x '*.png' -x '*.wav' $old/$d $new/$d >> $diff_file
+    echo >> $diff_file
   done
+  check_diffs html $diff_file
+
   $UTILS/unique-diffs.py $out/$USED_EXP_DIFFS-*.html.txt > $out/$USED_EXP_DIFFS.txt
   echo "done"
 }
@@ -89,10 +90,14 @@ diff_images() {
       done
     fi
   done
+
   rm -rf $out
   mkdir -p $out
   diff_file=$out/png.diff
-  do_diff png $old/png $new/png $diff_file
+  if [ -e $new/png ]; then
+    diff -Naur $old/png $new/png > $diff_file
+    check_diffs png $diff_file
+  fi
   $UTILS/unique-diffs.py $out/$USED_EXP_DIFFS-*.png.txt > $out/$USED_EXP_DIFFS.txt
   echo "done"
 }
