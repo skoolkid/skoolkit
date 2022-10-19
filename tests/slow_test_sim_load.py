@@ -3,7 +3,7 @@ from unittest.mock import patch
 from skoolkittest import (SkoolKitTestCase, create_data_block,
                           create_tap_header_block, create_tap_data_block,
                           create_tzx_header_block, create_tzx_data_block)
-from skoolkit import tap2sna, ROM48, read_bin_file
+from skoolkit import tap2sna, loadtracer, ROM48, read_bin_file
 
 def mock_write_z80(ram, namespace, z80):
     global snapshot, options
@@ -407,7 +407,7 @@ class SimLoadTest(SkoolKitTestCase):
         exp_reg = set(('SP=65344', 'IX=32769', 'IY=23610', 'PC=32768'))
         self.assertLessEqual(exp_reg, set(options.reg))
 
-    @patch.object(tap2sna, 'SIM_TIMEOUT', 2 * 3500000)
+    @patch.object(loadtracer, 'SIM_TIMEOUT', 2 * 3500000)
     @patch.object(tap2sna, '_write_z80', mock_write_z80)
     def test_simulation_timed_out(self):
         basic_data = [
