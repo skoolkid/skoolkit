@@ -475,8 +475,8 @@ class Simulator:
 
         return addr, tstates
 
-    def call(self, condition, c_and, c_xor):
-        if condition and self.registers['F'] & c_and ^ c_xor == 0:
+    def call(self, c_and, c_xor):
+        if c_and and self.registers['F'] & c_and ^ c_xor == 0:
             return self.pc + 3, 10
         ret_addr = (self.pc + 3) & 0xFFFF
         self._push(ret_addr % 256, ret_addr // 256)
@@ -580,9 +580,7 @@ class Simulator:
         return self.pc + 1, 4
 
     def defb(self, timing, size):
-        end = self.pc + size
-        values = ','.join(f'${self.snapshot[a & 0xFFFF]:02X}' for a in range(self.pc, end))
-        return end, timing
+        return self.pc + size, timing
 
     def di_ei(self, iff2):
         self.iff2 = iff2
@@ -725,16 +723,16 @@ class Simulator:
         self.registers[reg[1]] = value % 256
         return self.pc + 1, 6
 
-    def jr(self, condition, c_and, c_xor):
-        if condition and self.registers['F'] & c_and ^ c_xor == 0:
+    def jr(self, c_and, c_xor):
+        if c_and and self.registers['F'] & c_and ^ c_xor == 0:
             return self.pc + 2, 7
         offset = self.snapshot[(self.pc + 1) & 0xFFFF]
         if offset & 128:
             return (self.pc - 254 + offset) & 0xFFFF, 12
         return (self.pc + 2 + offset) & 0xFFFF, 12
 
-    def jp(self, condition, c_and, c_xor):
-        if condition and self.registers['F'] & c_and ^ c_xor == 0:
+    def jp(self, c_and, c_xor):
+        if c_and and self.registers['F'] & c_and ^ c_xor == 0:
             return self.pc + 3, 10
 
         opcode = self.snapshot[self.pc]
@@ -1054,7 +1052,6 @@ class Simulator:
         self.set_operand_value(reg, value)
         if dest:
             self.registers[dest] = value
-            dest = ',' + dest
         f = (value & 0xA8) | PARITY[value] # S.5H3PN.
         if value == 0:
             f |= 0x40 # .Z......
@@ -1090,7 +1087,6 @@ class Simulator:
         self.set_operand_value(reg, value)
         if dest:
             self.registers[dest] = value
-            dest = ',' + dest
         f |= (value & 0xA8) | PARITY[value] # S.5H3PN.
         if value == 0:
             self.registers['F'] = f | 0x40 # .Z......
@@ -1151,7 +1147,7 @@ class Simulator:
             partial(self.dec_r, 'D'),                        # 0x15 DEC D
             partial(self.ld_r_n, 'D'),                       # 0x16 LD D,n
             partial(self.rotate_a, 128),                     # 0x17 RLA
-            partial(self.jr, '', 0, 0),                      # 0x18 JR nn
+            partial(self.jr, 0, 0),                          # 0x18 JR nn
             partial(self.add16, 11, 1, 'HL', 'DE'),          # 0x19 ADD HL,DE
             partial(self.ld8, 7, 1, 'A', '(DE)'),            # 0x1A LD A,(DE)
             partial(self.inc_dec16, -1, 'DE'),               # 0x1B DEC DE
@@ -1159,7 +1155,7 @@ class Simulator:
             partial(self.dec_r, 'E'),                        # 0x1D DEC E
             partial(self.ld_r_n, 'E'),                       # 0x1E LD E,n
             partial(self.rotate_a, 1),                       # 0x1F RRA
-            partial(self.jr, 'NZ', 64, 64),                  # 0x20 JR NZ,nn
+            partial(self.jr, 64, 64),                        # 0x20 JR NZ,nn
             partial(self.ld16, 'HL'),                        # 0x21 LD HL,nn
             partial(self.ld16addr, 16, 3, 'HL', 1),          # 0x22 LD (nn),HL
             partial(self.inc_dec16, 1, 'HL'),                # 0x23 INC HL
@@ -1167,7 +1163,7 @@ class Simulator:
             partial(self.dec_r, 'H'),                        # 0x25 DEC H
             partial(self.ld_r_n, 'H'),                       # 0x26 LD H,n
             self.daa,                                        # 0x27 DAA
-            partial(self.jr, 'Z', 64, 0),                    # 0x28 JR Z,nn
+            partial(self.jr, 64, 0),                         # 0x28 JR Z,nn
             partial(self.add16, 11, 1, 'HL', 'HL'),          # 0x29 ADD HL,HL
             partial(self.ld16addr, 16, 3, 'HL', 0),          # 0x2A LD HL,(nn)
             partial(self.inc_dec16, -1, 'HL'),               # 0x2B DEC HL
@@ -1175,7 +1171,7 @@ class Simulator:
             partial(self.dec_r, 'L'),                        # 0x2D DEC L
             partial(self.ld_r_n, 'L'),                       # 0x2E LD L,n
             self.cpl,                                        # 0x2F CPL
-            partial(self.jr, 'NC', 1, 1),                    # 0x30 JR NC,nn
+            partial(self.jr, 1, 1),                          # 0x30 JR NC,nn
             partial(self.ld16, 'SP'),                        # 0x31 LD SP,nn
             self.ldann,                                      # 0x32 LD (nn),A
             partial(self.inc_dec16, 1, 'SP'),                # 0x33 INC SP
@@ -1183,7 +1179,7 @@ class Simulator:
             partial(self.inc_dec8, 11, 1, -1, '(HL)'),       # 0x35 DEC (HL)
             partial(self.ld8, 10, 2, '(HL)'),                # 0x36 LD (HL),n
             self.cf,                                         # 0x37 SCF
-            partial(self.jr, 'C', 1, 0),                     # 0x38 JR C,nn
+            partial(self.jr, 1, 0),                          # 0x38 JR C,nn
             partial(self.add16, 11, 1, 'HL', 'SP'),          # 0x39 ADD HL,SP
             self.ldann,                                      # 0x3A LD A,(nn)
             partial(self.inc_dec16, -1, 'SP'),               # 0x3B DEC SP
@@ -1321,65 +1317,65 @@ class Simulator:
             partial(self.cp, 4, 1, 'A'),                     # 0xBF CP A
             partial(self.ret, 64, 64),                       # 0xC0 RET NZ
             partial(self.pop, 'BC'),                         # 0xC1 POP BC
-            partial(self.jp, 'NZ', 64, 64),                  # 0xC2 JP NZ,nn
-            partial(self.jp, '', 0, 0),                      # 0xC3 JP nn
-            partial(self.call, 'NZ', 64, 64),                # 0xC4 CALL NZ,nn
+            partial(self.jp, 64, 64),                        # 0xC2 JP NZ,nn
+            partial(self.jp, 0, 0),                          # 0xC3 JP nn
+            partial(self.call, 64, 64),                      # 0xC4 CALL NZ,nn
             partial(self.push, 'BC'),                        # 0xC5 PUSH BC
             partial(self.add_a, 7, 2),                       # 0xC6 ADD A,n
             partial(self.rst, 0),                            # 0xC7 RST $00
             partial(self.ret, 64, 0),                        # 0xC8 RET Z
             partial(self.ret, 0, 0),                         # 0xC9 RET
-            partial(self.jp, 'Z', 64, 0),                    # 0xCA JP Z,nn
+            partial(self.jp, 64, 0),                         # 0xCA JP Z,nn
             None,                                            # 0xCB CB prefix
-            partial(self.call, 'Z', 64, 0),                  # 0xCC CALL Z,nn
-            partial(self.call, '', 0, 0),                    # 0xCD CALL nn
+            partial(self.call, 64, 0),                       # 0xCC CALL Z,nn
+            partial(self.call, 0, 0),                        # 0xCD CALL nn
             partial(self.add_a, 7, 2, None, 1, 1),           # 0xCE ADC A,n
             partial(self.rst, 8),                            # 0xCF RST $08
             partial(self.ret, 1, 1),                         # 0xD0 RET NC
             partial(self.pop, 'DE'),                         # 0xD1 POP DE
-            partial(self.jp, 'NC', 1, 1),                    # 0xD2 JP NC,nn
+            partial(self.jp, 1, 1),                          # 0xD2 JP NC,nn
             self.outa,                                       # 0xD3 OUT (n),A
-            partial(self.call, 'NC', 1, 1),                  # 0xD4 CALL NC,nn
+            partial(self.call, 1, 1),                        # 0xD4 CALL NC,nn
             partial(self.push, 'DE'),                        # 0xD5 PUSH DE
             partial(self.add_a, 7, 2, None, 0, -1),          # 0xD6 SUB n
             partial(self.rst, 16),                           # 0xD7 RST $10
             partial(self.ret, 1, 0),                         # 0xD8 RET C
             self.exx,                                        # 0xD9 EXX
-            partial(self.jp, 'C', 1, 0),                     # 0xDA JP C,nn
+            partial(self.jp, 1, 0),                          # 0xDA JP C,nn
             self.in_a,                                       # 0xDB IN A,(n)
-            partial(self.call, 'C', 1, 0),                   # 0xDC CALL C,nn
+            partial(self.call, 1, 0),                        # 0xDC CALL C,nn
             None,                                            # 0xDD DD prefix
             partial(self.add_a, 7, 2, None, 1, -1),          # 0xDE SBC A,n
             partial(self.rst, 24),                           # 0xDF RST $18
             partial(self.ret, 4, 4),                         # 0xE0 RET PO
             partial(self.pop, 'HL'),                         # 0xE1 POP HL
-            partial(self.jp, 'PO', 4, 4),                    # 0xE2 JP PO,nn
+            partial(self.jp, 4, 4),                          # 0xE2 JP PO,nn
             partial(self.ex_sp, 'HL'),                       # 0xE3 EX (SP),HL
-            partial(self.call, 'PO', 4, 4),                  # 0xE4 CALL PO,nn
+            partial(self.call, 4, 4),                        # 0xE4 CALL PO,nn
             partial(self.push, 'HL'),                        # 0xE5 PUSH HL
             self.and_n,                                      # 0xE6 AND n
             partial(self.rst, 32),                           # 0xE7 RST $20
             partial(self.ret, 4, 0),                         # 0xE8 RET PE
-            partial(self.jp, '', 0, 0),                      # 0xE9 JP (HL)
-            partial(self.jp, 'PE', 4, 0),                    # 0xEA JP PE,nn
+            partial(self.jp, 0, 0),                          # 0xE9 JP (HL)
+            partial(self.jp, 4, 0),                          # 0xEA JP PE,nn
             self.ex_de_hl,                                   # 0xEB EX DE,HL
-            partial(self.call, 'PE', 4, 0),                  # 0xEC CALL PE,nn
+            partial(self.call, 4, 0),                        # 0xEC CALL PE,nn
             None,                                            # 0xED ED prefix
             self.xor_n,                                      # 0xEE XOR n
             partial(self.rst, 40),                           # 0xEF RST $28
             partial(self.ret, 128, 128),                     # 0xF0 RET P
             partial(self.pop, 'AF'),                         # 0xF1 POP AF
-            partial(self.jp, 'P', 128, 128),                 # 0xF2 JP P,nn
+            partial(self.jp, 128, 128),                      # 0xF2 JP P,nn
             partial(self.di_ei, 0),                          # 0xF3 DI
-            partial(self.call, 'P', 128, 128),               # 0xF4 CALL P,nn
+            partial(self.call, 128, 128),                    # 0xF4 CALL P,nn
             partial(self.push, 'AF'),                        # 0xF5 PUSH AF
             self.or_n,                                       # 0xF6 OR n
             partial(self.rst, 48),                           # 0xF7 RST $30
             partial(self.ret, 128, 0),                       # 0xF8 RET M
             partial(self.ldsprr, 'HL'),                      # 0xF9 LD SP,HL
-            partial(self.jp, 'M', 128, 0),                   # 0xFA JP M,nn
+            partial(self.jp, 128, 0),                        # 0xFA JP M,nn
             partial(self.di_ei, 1),                          # 0xFB EI
-            partial(self.call, 'M', 128, 0),                 # 0xFC CALL M,nn
+            partial(self.call, 128, 0),                      # 0xFC CALL M,nn
             None,                                            # 0xFD FD prefix
             partial(self.cp, 7, 2),                          # 0xFE CP n
             partial(self.rst, 56),                           # 0xFF RST $38
@@ -2137,7 +2133,7 @@ class Simulator:
             partial(self.defb, 4, 1),                        # 0xE6
             partial(self.defb, 4, 1),                        # 0xE7
             partial(self.defb, 4, 1),                        # 0xE8
-            partial(self.jp, '', 0, 0),                      # 0xE9 JP (IX)
+            partial(self.jp, 0, 0),                          # 0xE9 JP (IX)
             partial(self.defb, 4, 1),                        # 0xEA
             partial(self.defb, 4, 1),                        # 0xEB
             partial(self.defb, 4, 1),                        # 0xEC
@@ -2655,7 +2651,7 @@ class Simulator:
             partial(self.defb, 4, 1),                        # 0xE6
             partial(self.defb, 4, 1),                        # 0xE7
             partial(self.defb, 4, 1),                        # 0xE8
-            partial(self.jp, '', 0, 0),                      # 0xE9 JP (IY)
+            partial(self.jp, 0, 0),                          # 0xE9 JP (IY)
             partial(self.defb, 4, 1),                        # 0xEA
             partial(self.defb, 4, 1),                        # 0xEB
             partial(self.defb, 4, 1),                        # 0xEC
