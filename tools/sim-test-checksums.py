@@ -23,29 +23,29 @@ def generate(name, tclass, args, opcodes):
     snapshot[start:start + len(opcodes)] = opcodes
     simulator = Simulator(snapshot)
     tracer = tclass(start, *args)
-    simulator.add_tracer(tracer)
+    simulator.set_tracer(tracer)
     simulator.run(start)
     print(f"{name} = '{tracer.checksum}'")
 
 SUITES = {
     'ALO': (
         'Arithmetic/logic operations on the accumulator',
-        ('ADD_A_r', AFRTracer, ('B',), (0x80,)),
-        ('ADD_A_A', AFTracer,  (),     (0x87,)),
-        ('ADC_A_r', AFRTracer, ('B',), (0x88,)),
-        ('ADC_A_A', AFTracer,  (),     (0x8F,)),
-        ('SUB_r',   AFRTracer, ('B',), (0x90,)),
-        ('SUB_A',   AFTracer,  (),     (0x97,)),
-        ('SBC_A_r', AFRTracer, ('B',), (0x98,)),
-        ('SBC_A_A', AFTracer,  (),     (0x9F,)),
-        ('AND_r',   AFRTracer, ('B',), (0xA0,)),
-        ('AND_A',   AFTracer,  (),     (0xA7,)),
-        ('XOR_r',   AFRTracer, ('B',), (0xA8,)),
-        ('XOR_A',   AFTracer,  (),     (0xAF,)),
-        ('OR_r',    AFRTracer, ('B',), (0xB0,)),
-        ('OR_A',    AFTracer,  (),     (0xB7,)),
-        ('CP_r',    AFRTracer, ('B',), (0xB8,)),
-        ('CP_A',    AFTracer,  (),     (0xBF,)),
+        ('ADD_A_r', AFRTracer, (B,), (0x80,)),
+        ('ADD_A_A', AFTracer,  (),   (0x87,)),
+        ('ADC_A_r', AFRTracer, (B,), (0x88,)),
+        ('ADC_A_A', AFTracer,  (),   (0x8F,)),
+        ('SUB_r',   AFRTracer, (B,), (0x90,)),
+        ('SUB_A',   AFTracer,  (),   (0x97,)),
+        ('SBC_A_r', AFRTracer, (B,), (0x98,)),
+        ('SBC_A_A', AFTracer,  (),   (0x9F,)),
+        ('AND_r',   AFRTracer, (B,), (0xA0,)),
+        ('AND_A',   AFTracer,  (),   (0xA7,)),
+        ('XOR_r',   AFRTracer, (B,), (0xA8,)),
+        ('XOR_A',   AFTracer,  (),   (0xAF,)),
+        ('OR_r',    AFRTracer, (B,), (0xB0,)),
+        ('OR_A',    AFTracer,  (),   (0xB7,)),
+        ('CP_r',    AFRTracer, (B,), (0xB8,)),
+        ('CP_A',    AFTracer,  (),   (0xBF,)),
     ),
     'DAA': (
         'DAA instruction',
@@ -73,19 +73,19 @@ SUITES = {
     ),
     'SRO': (
         'Shift/rotate instructions',
-        ('RLC_r', FRTracer, ('B',), (0xCB, 0x00)),
-        ('RRC_r', FRTracer, ('B',), (0xCB, 0x08)),
-        ('RL_r',  FRTracer, ('B',), (0xCB, 0x10)),
-        ('RR_r',  FRTracer, ('B',), (0xCB, 0x18)),
-        ('SLA_r', FRTracer, ('B',), (0xCB, 0x20)),
-        ('SRA_r', FRTracer, ('B',), (0xCB, 0x28)),
-        ('SLL_r', FRTracer, ('B',), (0xCB, 0x30)),
-        ('SRL_r', FRTracer, ('B',), (0xCB, 0x38)),
+        ('RLC_r', FRTracer, (B,), (0xCB, 0x00)),
+        ('RRC_r', FRTracer, (B,), (0xCB, 0x08)),
+        ('RL_r',  FRTracer, (B,), (0xCB, 0x10)),
+        ('RR_r',  FRTracer, (B,), (0xCB, 0x18)),
+        ('SLA_r', FRTracer, (B,), (0xCB, 0x20)),
+        ('SRA_r', FRTracer, (B,), (0xCB, 0x28)),
+        ('SLL_r', FRTracer, (B,), (0xCB, 0x30)),
+        ('SRL_r', FRTracer, (B,), (0xCB, 0x38)),
     ),
     'INC': (
         'INC/DEC instructions',
-        ('INC_r', FRTracer, ('B',), (0x04,)),
-        ('DEC_r', FRTracer, ('B',), (0x05,)),
+        ('INC_r', FRTracer, (B,), (0x04,)),
+        ('DEC_r', FRTracer, (B,), (0x05,)),
     ),
     'AHL': (
         '16-bit ADD/ADC/SBC instructions',
@@ -109,7 +109,7 @@ SUITES = {
     ),
     'BIT': (
         'BIT n,[r,xy] instructions',
-        ('BIT_n_r', BitTracer, ('B',), (0xCB, 0x40)),
+        ('BIT_n_r', BitTracer, (B,), (0xCB, 0x40)),
         ('BIT_n_xy', BitTracer, ('(IX+d)',), (0xDD, 0xCB, 0x00, 0x46)),
     ),
     'RRD': (
@@ -119,13 +119,13 @@ SUITES = {
     ),
     'INR': (
         'IN r,(C) instructions',
-        ('IN_r_C', InTracer, ('A',), (0xED, 0x78)),
-        ('IN_F_C', InTracer, ('F',), (0xED, 0x70)),
+        ('IN_r_C', InTracer, (A,), (0xED, 0x78)),
+        ('IN_F_C', InTracer, (F,), (0xED, 0x70)),
     ),
     'AIR': (
         'LD A,I/R instructions',
-        ('LD_A_I', AIRTracer, ('I',), (0xED, 0x57)),
-        ('LD_A_R', AIRTracer, ('R',), (0xED, 0x5F)),
+        ('LD_A_I', AIRTracer, (I,), (0xED, 0x57)),
+        ('LD_A_R', AIRTracer, (R,), (0xED, 0x5F)),
     ),
 }
 

@@ -26,7 +26,8 @@ from skoolkit import (SkoolKitError, get_dword, get_int_param, get_object,
                       get_word, get_word3, integer, open_file, read_bin_file,
                       warn, write_line, ROM48, VERSION)
 from skoolkit.loadtracer import LoadTracer
-from skoolkit.simulator import Simulator
+from skoolkit.simulator import (Simulator, A, F, B, C, D, E, H, L, IXh, IXl, IYh, IYl,
+                                SP, I, R, xA, xF, xB, xC, xD, xE, xH, xL)
 from skoolkit.snapshot import move, poke, print_reg_help, print_state_help, write_z80v3
 
 SYSVARS = (
@@ -219,11 +220,31 @@ def sim_load(blocks, options):
         simulator.run(0x0F3B) # Entry point in EDITOR at 0F2C
     except KeyboardInterrupt: # pragma: no cover
         write_line(f'Simulation stopped (interrupted): PC={simulator.pc}')
-    registers = simulator.registers
-    registers['IX'] = registers['IXl'] + 256 * registers['IXh']
-    registers['IY'] = registers['IYl'] + 256 * registers['IYh']
-    registers['PC'] = simulator.pc
-    del registers['IXl'], registers['IXh'], registers['IYl'], registers['IYh']
+    sim_registers = simulator.registers
+    registers = {
+        'A': sim_registers[A],
+        'F': sim_registers[F],
+        'B': sim_registers[B],
+        'C': sim_registers[C],
+        'D': sim_registers[D],
+        'E': sim_registers[E],
+        'H': sim_registers[H],
+        'L': sim_registers[L],
+        'IX': sim_registers[IXl] + 256 * sim_registers[IXh],
+        'IY': sim_registers[IYl] + 256 * sim_registers[IYh],
+        'I': sim_registers[I],
+        'R': sim_registers[R],
+        'SP': sim_registers[SP],
+        '^A': sim_registers[xA],
+        '^F': sim_registers[xF],
+        '^B': sim_registers[xB],
+        '^C': sim_registers[xC],
+        '^D': sim_registers[xD],
+        '^E': sim_registers[xE],
+        '^H': sim_registers[xH],
+        '^L': sim_registers[xL],
+        'PC': simulator.pc
+    }
     options.reg = [f'{r}={v}' for r, v in registers.items()] + options.reg
     state = [f'im={simulator.imode}', f'iff={simulator.iff2}', f'border={tracer.border}']
     options.state = state + options.state

@@ -18,7 +18,8 @@ sys.path.insert(0, SKOOLKIT_HOME)
 from skoolkit import ROM48, SkoolKitError, get_int_param, integer, read_bin_file
 from skoolkit.components import get_component
 from skoolkit.snapshot import make_snapshot, poke, print_reg_help
-from skoolkit.simulator import Simulator
+from skoolkit.simulator import (Simulator, A, F, B, C, D, E, H, L, IXh, IXl, IYh, IYl,
+                                SP, I, R, xA, xF, xB, xC, xD, xE, xH, xL)
 
 DisassemblerConfig = namedtuple('DisassemblerConfig', 'asm_hex asm_lower defb_size defm_size defw_size wrap')
 
@@ -51,18 +52,23 @@ class Tracer:
                 fmt = TRACE2
             else:
                 fmt = TRACE1
-            registers = simulator.registers.copy()
-            registers.update({
-                "BC": registers['C'] + 256 * registers['B'],
-                "DE": registers['E'] + 256 * registers['D'],
-                "HL": registers['L'] + 256 * registers['H'],
-                "IX": registers['IXl'] + 256 * registers['IXh'],
-                "IY": registers['IYl'] + 256 * registers['IYh'],
-                "IR": registers['R'] + 256 * registers['I'],
-                "BC'": registers['^C'] + 256 * registers['^B'],
-                "DE'": registers['^E'] + 256 * registers['^D'],
-                "HL'": registers['^L'] + 256 * registers['^H']
-            })
+            sim_registers = simulator.registers
+            registers = {
+                "A": sim_registers[A],
+                "F": sim_registers[F],
+                "BC": sim_registers[C] + 256 * sim_registers[B],
+                "DE": sim_registers[E] + 256 * sim_registers[D],
+                "HL": sim_registers[L] + 256 * sim_registers[H],
+                "IX": sim_registers[IXl] + 256 * sim_registers[IXh],
+                "IY": sim_registers[IYl] + 256 * sim_registers[IYh],
+                "IR": sim_registers[R] + 256 * sim_registers[I],
+                "SP": sim_registers[SP],
+                "^A": sim_registers[xA],
+                "^F": sim_registers[xF],
+                "BC'": sim_registers[xC] + 256 * sim_registers[xB],
+                "DE'": sim_registers[xE] + 256 * sim_registers[xD],
+                "HL'": sim_registers[xL] + 256 * sim_registers[xH],
+            }
             instruction = self.disassembler.disassemble(address, address + 1, 'n')[0]
             print(fmt.format(i=instruction, **registers))
 

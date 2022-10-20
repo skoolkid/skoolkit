@@ -24,7 +24,8 @@ from string import Template
 from skoolkit import (BASE_10, BASE_16, CASE_LOWER, CASE_UPPER, VERSION,
                       SkoolKitError, SkoolParsingError, eval_variable, evaluate)
 from skoolkit.graphics import Udg
-from skoolkit.simulator import Simulator
+from skoolkit.simulator import (Simulator, A, F, B, C, D, E, H, L, IXh, IXl, IYh, IYl,
+                                SP, I, R, xA, xF, xB, xC, xD, xE, xH, xL)
 
 _map_cache = {}
 
@@ -1148,18 +1149,26 @@ def parse_sim(writer, text, index, *cwd):
     if start < 0:
         start = simulator.pc
     simulator.run(start, stop)
-    sim = {r: simulator.registers[r] for r in ('A', 'F', '^A', '^F', 'I', 'R', 'SP')}
-    sim['BC'] = simulator.registers['C'] + 256 * simulator.registers['B']
-    sim['DE'] = simulator.registers['E'] + 256 * simulator.registers['D']
-    sim['HL'] = simulator.registers['L'] + 256 * simulator.registers['H']
-    sim['^BC'] = simulator.registers['^C'] + 256 * simulator.registers['^B']
-    sim['^DE'] = simulator.registers['^E'] + 256 * simulator.registers['^D']
-    sim['^HL'] = simulator.registers['^L'] + 256 * simulator.registers['^H']
-    sim['IX'] = simulator.registers['IXl'] + 256 * simulator.registers['IXh']
-    sim['IY'] = simulator.registers['IYl'] + 256 * simulator.registers['IYh']
-    sim['PC'] = simulator.pc
-    sim['tstates'] = simulator.tstates
-    writer.fields['sim'] = sim
+    sim_registers = simulator.registers
+    writer.fields['sim'] = {
+        'A': sim_registers[A],
+        'F': sim_registers[F],
+        'BC': sim_registers[C] + 256 * sim_registers[B],
+        'DE': sim_registers[E] + 256 * sim_registers[D],
+        'HL': sim_registers[L] + 256 * sim_registers[H],
+        '^A': sim_registers[xA],
+        '^F': sim_registers[xF],
+        '^BC': sim_registers[xC] + 256 * sim_registers[xB],
+        '^DE': sim_registers[xE] + 256 * sim_registers[xD],
+        '^HL': sim_registers[xL] + 256 * sim_registers[xH],
+        'IX': sim_registers[IXl] + 256 * sim_registers[IXh],
+        'IY': sim_registers[IYl] + 256 * sim_registers[IYh],
+        'I': sim_registers[I],
+        'R': sim_registers[R],
+        'SP': sim_registers[SP],
+        'PC': simulator.pc,
+        'tstates': simulator.tstates
+    }
     return end, ''
 
 def parse_space(writer, text, index, *cwd):

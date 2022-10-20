@@ -1,5 +1,5 @@
 from skoolkittest import SkoolKitTestCase
-from skoolkit.simulator import Simulator
+from skoolkit.simulator import Simulator, REGISTERS
 from sim_test_tracers import *
 
 ADD_A_r = '94d11617ef16363974532987b3d6435d'
@@ -78,15 +78,16 @@ class SimulatorTest(SkoolKitTestCase):
 class ArithmeticLogicTest(SimulatorTest):
     def _test_alo(self, op, checksum, opcode):
         for i, reg in enumerate(('B', 'C', 'D', 'E', 'H', 'L', '(HL)')):
-            self._test_instruction(f'{op}{reg}', AFRTracer, (reg,), checksum, opcode + i)
+            r_index = REGISTERS.get(reg, reg)
+            self._test_instruction(f'{op}{reg}', AFRTracer, (r_index,), checksum, opcode + i)
 
         self._test_instruction(f'{op}n', AFRTracer, ('n',), checksum, opcode + 0x46)
 
-        self._test_instruction(f'{op}IXh', AFRTracer, ('IXh',), checksum, (0xDD, opcode + 0x04))
-        self._test_instruction(f'{op}IYh', AFRTracer, ('IYh',), checksum, (0xFD, opcode + 0x04))
+        self._test_instruction(f'{op}IXh', AFRTracer, (IXh,), checksum, (0xDD, opcode + 0x04))
+        self._test_instruction(f'{op}IYh', AFRTracer, (IYh,), checksum, (0xFD, opcode + 0x04))
 
-        self._test_instruction(f'{op}IXl', AFRTracer, ('IXl',), checksum, (0xDD, opcode + 0x05))
-        self._test_instruction(f'{op}IYl', AFRTracer, ('IYl',), checksum, (0xFD, opcode + 0x05))
+        self._test_instruction(f'{op}IXl', AFRTracer, (IXl,), checksum, (0xDD, opcode + 0x05))
+        self._test_instruction(f'{op}IYl', AFRTracer, (IYl,), checksum, (0xFD, opcode + 0x05))
 
         self._test_instruction(f'{op}(IX+d)', AFRTracer, ('(IX+d)',), checksum, (0xDD, opcode + 0x06))
         self._test_instruction(f'{op}(IY+d)', AFRTracer, ('(IY+d)',), checksum, (0xFD, opcode + 0x06))
@@ -160,7 +161,8 @@ class CarryFlagTest(SimulatorTest):
 class ShiftRotateTest(SimulatorTest):
     def _test_sro(self, op, checksum, opcode):
         for i, reg in enumerate(('B', 'C', 'D', 'E', 'H', 'L', '(HL)', 'A')):
-            self._test_instruction(f'{op}{reg}', FRTracer, (reg,), checksum, (0xCB, opcode + i))
+            r_index = REGISTERS.get(reg, reg)
+            self._test_instruction(f'{op}{reg}', FRTracer, (r_index,), checksum, (0xCB, opcode + i))
 
         self._test_instruction(f'{op}(IX+d)', FRTracer, ('(IX+d)',), checksum, (0xDD, 0xCB, 0, opcode + 0x06))
         self._test_instruction(f'{op}(IY+d)', FRTracer, ('(IY+d)',), checksum, (0xFD, 0xCB, 0, opcode + 0x06))
@@ -204,13 +206,14 @@ class ShiftRotateTest(SimulatorTest):
 class IncDec8Test(SimulatorTest):
     def _test_inc_dec(self, op, checksum, opcode):
         for i, reg in enumerate(('B', 'C', 'D', 'E', 'H', 'L', '(HL)', 'A')):
-            self._test_instruction(f'{op}{reg}', FRTracer, (reg,), checksum, opcode + 8 * i)
+            r_index = REGISTERS.get(reg, reg)
+            self._test_instruction(f'{op}{reg}', FRTracer, (r_index,), checksum, opcode + 8 * i)
 
-        self._test_instruction(f'{op}IXh', FRTracer, ('IXh',), checksum, (0xDD, opcode + 0x20))
-        self._test_instruction(f'{op}IYh', FRTracer, ('IYh',), checksum, (0xFD, opcode + 0x20))
+        self._test_instruction(f'{op}IXh', FRTracer, (IXh,), checksum, (0xDD, opcode + 0x20))
+        self._test_instruction(f'{op}IYh', FRTracer, (IYh,), checksum, (0xFD, opcode + 0x20))
 
-        self._test_instruction(f'{op}IXl', FRTracer, ('IXl',), checksum, (0xDD, opcode + 0x28))
-        self._test_instruction(f'{op}IYl', FRTracer, ('IYl',), checksum, (0xFD, opcode + 0x28))
+        self._test_instruction(f'{op}IXl', FRTracer, (IXl,), checksum, (0xDD, opcode + 0x28))
+        self._test_instruction(f'{op}IYl', FRTracer, (IYl,), checksum, (0xFD, opcode + 0x28))
 
         self._test_instruction(f'{op}(IX+d)', FRTracer, ('(IX+d)',), checksum, (0xDD, opcode + 0x30))
         self._test_instruction(f'{op}(IX+d)', FRTracer, ('(IY+d)',), checksum, (0xFD, opcode + 0x30))
@@ -229,14 +232,14 @@ class Arithmetic16Test(SimulatorTest):
                 codes[-1] += 16 * i
                 self._test_instruction(f'{op} HL,{reg}', HLRRFTracer, ('HL', reg), checksum, codes)
                 if op == 'ADD':
-                    self._test_instruction(f'ADD IX,{reg}', HLRRFTracer, (('IXh', 'IXl'), reg), checksum, [0xDD] + codes)
-                    self._test_instruction(f'ADD IY,{reg}', HLRRFTracer, (('IYh', 'IYl'), reg), checksum, [0xFD] + codes)
+                    self._test_instruction(f'ADD IX,{reg}', HLRRFTracer, ((IXh, IXl), reg), checksum, [0xDD] + codes)
+                    self._test_instruction(f'ADD IY,{reg}', HLRRFTracer, ((IYh, IYl), reg), checksum, [0xFD] + codes)
 
     def _test_hl_hl_arithmetic(self, op, checksum, opcodes):
         self._test_instruction(f'{op} HL,HL', HLFTracer, ('HL',), checksum, opcodes)
         if op == 'ADD':
-            self._test_instruction('ADD IX,IX', HLFTracer, (('IXh', 'IXl'),), checksum, (0xDD,) + opcodes)
-            self._test_instruction('ADD IY,IY', HLFTracer, (('IYh', 'IYl'),), checksum, (0xFD,) + opcodes)
+            self._test_instruction('ADD IX,IX', HLFTracer, ((IXh, IXl),), checksum, (0xDD,) + opcodes)
+            self._test_instruction('ADD IY,IY', HLFTracer, ((IYh, IYl),), checksum, (0xFD,) + opcodes)
 
     def test_add_hl_rr(self):
         self._test_hl_rr_arithmetic('ADD', ADD_HL_rr, (0x09,))
@@ -308,7 +311,8 @@ class BlockTest(SimulatorTest):
 class BitTest(SimulatorTest):
     def test_bit_n_r(self):
         for reg in ('B', 'C', 'D', 'E', 'H', 'L', '(HL)', 'A'):
-            self._test_instruction(f'BIT n,{reg}', BitTracer, (reg,), BIT_n_r, (0xCB, 0x40))
+            r_index = REGISTERS.get(reg, reg)
+            self._test_instruction(f'BIT n,{reg}', BitTracer, (r_index,), BIT_n_r, (0xCB, 0x40))
 
     def test_bit_n_ix(self):
         for r in range(8):
@@ -329,14 +333,15 @@ class InTest(SimulatorTest):
     def test_in_r_c(self):
         for i, reg in enumerate(('B', 'C', 'D', 'E', 'H', 'L', None, 'A')):
             if reg:
-                self._test_instruction(f'IN {reg},(C)', InTracer, (reg,), IN_r_C, (0xED, 0x40 + 8 * i))
+                r_index = REGISTERS.get(reg, reg)
+                self._test_instruction(f'IN {reg},(C)', InTracer, (r_index,), IN_r_C, (0xED, 0x40 + 8 * i))
 
     def test_in_f_c(self):
-        self._test_instruction('IN F,(C)', InTracer, ('F',), IN_F_C, (0xED, 0x70))
+        self._test_instruction('IN F,(C)', InTracer, (F,), IN_F_C, (0xED, 0x70))
 
 class AIRTest(SimulatorTest):
     def test_ld_a_i(self):
-        self._test_instruction('LD A,I', AIRTracer, ('I',), LD_A_I, (0xED, 0x57))
+        self._test_instruction('LD A,I', AIRTracer, (I,), LD_A_I, (0xED, 0x57))
 
     def test_ld_a_r(self):
-        self._test_instruction('LD A,R', AIRTracer, ('R',), LD_A_R, (0xED, 0x5F))
+        self._test_instruction('LD A,R', AIRTracer, (R,), LD_A_R, (0xED, 0x5F))

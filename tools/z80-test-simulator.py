@@ -15,7 +15,7 @@ if not os.path.isdir(SKOOLKIT_HOME):
 sys.path.insert(0, SKOOLKIT_HOME)
 
 from skoolkit import ROM48, integer, read_bin_file
-from skoolkit.simulator import Simulator
+from skoolkit.simulator import Simulator, A
 from skoolkit.tap2sna import get_tap_blocks, sim_load
 
 class Options:
@@ -32,7 +32,7 @@ class Tracer:
     def trace(self, simulator, address):
         self.count += 1
         if simulator.pc == 16:
-            a = simulator.registers['A']
+            a = simulator.registers[A]
             if a >= 32:
                 self.msg += chr(a)
                 sys.stdout.write(self.msg + chr(8) * len(self.msg))

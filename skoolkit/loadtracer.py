@@ -16,6 +16,7 @@
 
 from skoolkit import write, write_line
 from skoolkit.basic import TextReader
+from skoolkit.simulator import (A, F, D, E, H, L, IXh, IXl, SP)
 
 SILENCE = 0
 PILOT = 1
@@ -173,14 +174,14 @@ class LoadTracer:
     def fast_load(self, simulator):
         block = self.blocks[self.samples[self.index][3]]
         registers = simulator.registers
-        ix = registers['IXl'] + 256 * registers['IXh'] # Start address
-        de = registers['E'] + 256 * registers['D'] # Block length
-        a = registers['A']
+        ix = registers[IXl] + 256 * registers[IXh] # Start address
+        de = registers[E] + 256 * registers[D] # Block length
+        a = registers[A]
         data_len = len(block) - 2
 
         # Preload the machine stack with 0x053F (as done at 0x055E)
-        registers['H'], registers['L'] = 0x05, 0x3F # SA-LD-RET
-        simulator.push('HL')
+        registers[H], registers[L] = 0x05, 0x3F # SA-LD-RET
+        simulator.push(H)
 
         if a == block[0]:
             skipped = ''
@@ -202,22 +203,22 @@ class LoadTracer:
             write_line(f'Fast loading data block: {ix},{de}\n')
 
         if skipped:
-            registers['F'] = 0x00 # Reset carry flag: error
+            registers[F] = 0x00 # Reset carry flag: error
         else:
             if de <= data_len:
                 simulator.snapshot[ix:ix + de] = block[1:1 + de]
-                registers['F'] = 0x01 # Set carry flag: success
+                registers[F] = 0x01 # Set carry flag: success
                 ix += de
                 de = 0
             else:
                 simulator.snapshot[ix:ix + data_len + 1] = block[1:]
-                registers['F'] = 0x00 # Reset carry flag: error
+                registers[F] = 0x00 # Reset carry flag: error
                 ix += data_len + 1
                 de -= data_len + 1
-            registers['IXh'] = (ix >> 8) & 0xFF
-            registers['IXl'] = ix & 0xFF
-            registers['D'] = (de >> 8) & 0xFF
-            registers['E'] = de & 0xFF
+            registers[IXh] = (ix >> 8) & 0xFF
+            registers[IXl] = ix & 0xFF
+            registers[D] = (de >> 8) & 0xFF
+            registers[E] = de & 0xFF
 
         simulator.pc = 0x05E2
 

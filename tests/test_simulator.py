@@ -1,7 +1,14 @@
 from skoolkittest import SkoolKitTestCase
-from skoolkit.simulator import Simulator
+from skoolkit.simulator import (Simulator,
+                                A, F, B, C, D, E, H, L, IXh, IXl, IYh, IYl, SP, I, R,
+                                xA, xF, xB, xC, xD, xE, xH, xL, Hd)
+from skoolkit.simulator import REGISTERS as SIMULATOR_REGISTERS
 
-REGISTERS = ('B', 'C', 'D', 'E', 'H', 'L', '(HL)', 'A')
+REGISTER_NAMES = {v: r for r, v in SIMULATOR_REGISTERS.items()}
+
+REGISTERS = (B, C, D, E, H, L, Hd, A)
+
+REGISTER_PAIRS = (('BC', B), ('DE', D), ('HL', H), ('SP', 0))
 
 class InTestTracer:
     value = 0
@@ -69,25 +76,27 @@ class SimulatorTest(SkoolKitTestCase):
             simulator.snapshot[start:] = data[:-wrapped]
             simulator.snapshot[:wrapped] = data[-wrapped:]
         data_hex = ''.join(f'{b:02X}' for b in data)
-        exp_reg = simulator.registers.copy()
+        exp_reg = {i: r for i, r in enumerate(simulator.registers)}
+        regvals = ', '.join(f'{REGISTER_NAMES[r]}={v}' for r, v in exp_reg.items() if r in REGISTER_NAMES)
         if reg_out is None:
             reg_out = {}
-        if 'R' not in reg_out:
-            r_in, r_inc = exp_reg['R'], 2  if data[0] in (0xCB, 0xDD, 0xED, 0xFD) else 1
-            reg_out['R'] = (r_in & 0x80) + ((r_in + r_inc) & 0x7F)
+        if R not in reg_out:
+            r_in, r_inc = exp_reg[R], 2  if data[0] in (0xCB, 0xDD, 0xED, 0xFD) else 1
+            reg_out[R] = (r_in & 0x80) + ((r_in + r_inc) & 0x7F)
         exp_reg.update(reg_out)
         simulator.tstates = 0
         simulator.run(start)
-        regvals = ', '.join(f'{r}={v}' for r, v in simulator.registers.items())
         self.assertEqual(simulator.pc, end, f"End address mismatch for '{inst}' ({data_hex}); input: {regvals}")
         self.assertEqual(simulator.tstates, timing, f"Timing mismatch for '{inst}' ({data_hex}); input: {regvals}")
-        if simulator.registers != exp_reg:
+        actual_reg = {i: r for i, r in enumerate(simulator.registers)}
+        if actual_reg != exp_reg:
             reg_exp = {}
             reg_new = {}
-            for r, v in simulator.registers.items():
+            for r, v in actual_reg.items():
                 if exp_reg[r] != v:
-                    reg_exp[r] = exp_reg[r]
-                    reg_new[r] = v
+                    reg_name = REGISTER_NAMES[r]
+                    reg_exp[reg_name] = exp_reg[r]
+                    reg_new[reg_name] = v
             self.assertEqual(reg_new, reg_exp, f"Register mismatch for '{inst}' ({data_hex}); input: {regvals}")
         if sna_out:
             actual_snapshot = {a: simulator.snapshot[a] for a in sna_out}
@@ -110,60 +119,60 @@ class SimulatorTest(SkoolKitTestCase):
 
         for a_in, opval, f_in, a_out, f_out in specs[0]:
             data = (opcode1, opval)
-            registers['A'] = a_in
-            registers['F'] = f_in
-            reg_out = {'A': a_out, 'F': f_out}
+            registers[A] = a_in
+            registers[F] = f_in
+            reg_out = {A: a_out, F: f_out}
             self._test_instruction(simulator, f'{op_a}${opval:02X}', data, 7, reg_out)
 
         hl = 49152
         for i, reg in enumerate(REGISTERS):
             data = [opcode2 + i]
             operation = f'{op_a}{reg}'
-            if reg == '(HL)':
-                registers['H'] = hl // 256
-                registers['L'] = hl % 256
+            if reg == Hd:
+                registers[H] = hl // 256
+                registers[L] = hl % 256
                 for a_in, opval, f_in, a_out, f_out in specs[0]:
-                    registers['A'] = a_in
-                    registers['F'] = f_in
-                    reg_out = {'A': a_out, 'F': f_out}
+                    registers[A] = a_in
+                    registers[F] = f_in
+                    reg_out = {A: a_out, F: f_out}
                     snapshot[hl] = opval
                     self._test_instruction(simulator, operation, data, 7, reg_out)
-            elif reg == 'A':
+            elif reg == A:
                 for a_in, f_in, a_out, f_out in specs[1]:
-                    registers['A'] = a_in
-                    registers['F'] = f_in
-                    reg_out = {'A': a_out, 'F': f_out}
+                    registers[A] = a_in
+                    registers[F] = f_in
+                    reg_out = {A: a_out, F: f_out}
                     self._test_instruction(simulator, operation, data, 4, reg_out)
             else:
                 for a_in, opval, f_in, a_out, f_out in specs[0]:
-                    registers['A'] = a_in
-                    registers['F'] = f_in
+                    registers[A] = a_in
+                    registers[F] = f_in
                     registers[reg] = opval
-                    reg_out = {'A': a_out, 'F': f_out}
+                    reg_out = {A: a_out, F: f_out}
                     self._test_instruction(simulator, operation, data, 4, reg_out)
 
-        for prefix, reg in ((0xDD, 'IX'), (0xFD, 'IY')):
-            for opcode, half in ((opcode2 + 4, 'h'), (opcode2 + 5, 'l')):
+        for prefix, reg, rh in ((0xDD, 'IX', IXh), (0xFD, 'IY', IYh)):
+            for opcode, half, hi in ((opcode2 + 4, 'h', 0), (opcode2 + 5, 'l', 1)):
                 for a_in, opval, f_in, a_out, f_out in specs[0]:
                     ireg = f'{reg}{half}'
                     operation = f'{op_a}{ireg}'
                     data = (prefix, opcode)
-                    registers['A'] = a_in
-                    registers['F'] = f_in
-                    registers[ireg] = opval
-                    reg_out = {'A': a_out, 'F': f_out}
+                    registers[A] = a_in
+                    registers[F] = f_in
+                    registers[rh + hi] = opval
+                    reg_out = {A: a_out, F: f_out}
                     self._test_instruction(simulator, operation, data, 8, reg_out)
 
         offset = -2
-        for prefix, reg, value in ((0xDD, 'IX', 32768), (0xFD, 'IY', 32769)):
+        for prefix, reg, rh, value in ((0xDD, 'IX', IXh, 32768), (0xFD, 'IY', IYh, 32769)):
             for a_in, opval, f_in, a_out, f_out in specs[0]:
                 operation = f'{op_a}({reg}-${-offset:02X})'
                 data = (prefix, opcode2 + 6, offset & 255)
-                registers['A'] = a_in
-                registers['F'] = f_in
-                registers[reg + 'h'] = value // 256
-                registers[reg + 'l'] = value % 256
-                reg_out = {'A': a_out, 'F': f_out}
+                registers[A] = a_in
+                registers[F] = f_in
+                registers[rh] = value // 256
+                registers[rh + 1] = value % 256
+                reg_out = {A: a_out, F: f_out}
                 snapshot[value + offset] = opval
                 self._test_instruction(simulator, operation, data, 19, reg_out)
 
@@ -190,10 +199,10 @@ class SimulatorTest(SkoolKitTestCase):
             for i, reg in enumerate(REGISTERS):
                 operation = f'{op} {bit},{reg}'
                 data = (203, base_opcode + 8 * bit + i)
-                if reg == '(HL)':
+                if reg == Hd:
                     timing = 15
-                    registers['H'] = hl // 256
-                    registers['L'] = hl % 256
+                    registers[H] = hl // 256
+                    registers[L] = hl % 256
                     reg_out = {}
                     snapshot[hl] = opval_in
                     sna_out = {hl: opval_out}
@@ -205,11 +214,11 @@ class SimulatorTest(SkoolKitTestCase):
                 self._test_instruction(simulator, operation, data, timing, reg_out, sna_out)
 
             offset = 4
-            for prefix, reg, value in ((0xDD, 'IX', 32768), (0xFD, 'IY', 32769)):
+            for prefix, reg, rh, value in ((0xDD, 'IX', IXh, 32768), (0xFD, 'IY', IYh, 32769)):
                 operation = f'{op} {bit},({reg}+${offset:02X})'
                 data = (prefix, 203, offset & 255, base_opcode + 8 * bit + 6)
-                registers[reg + 'h'] = value // 256
-                registers[reg + 'l'] = value % 256
+                registers[rh] = value // 256
+                registers[rh + 1] = value % 256
                 reg_out = {}
                 snapshot[value + offset] = opval_in
                 sna_out = {value + offset: opval_out}
@@ -224,31 +233,31 @@ class SimulatorTest(SkoolKitTestCase):
         for i, reg in enumerate(REGISTERS):
             data = (203, opcode + i)
             operation = f'{op} {reg}'
-            if reg == '(HL)':
-                registers['H'] = hl // 256
-                registers['L'] = hl % 256
+            if reg == Hd:
+                registers[H] = hl // 256
+                registers[L] = hl % 256
                 for r_in, f_in, r_out, f_out in specs:
-                    registers['F'] = f_in
-                    reg_out = {'F': f_out}
+                    registers[F] = f_in
+                    reg_out = {F: f_out}
                     snapshot[hl] = r_in
                     sna_out = {hl: r_out}
                     self._test_instruction(simulator, operation, data, 15, reg_out, sna_out)
             else:
                 for r_in, f_in, r_out, f_out in specs:
                     registers[reg] = r_in
-                    registers['F'] = f_in
-                    reg_out = {reg: r_out, 'F': f_out}
+                    registers[F] = f_in
+                    reg_out = {reg: r_out, F: f_out}
                     self._test_instruction(simulator, operation, data, 8, reg_out)
 
         offset = 1
-        for prefix, reg, value in ((0xDD, 'IX', 32768), (0xFD, 'IY', 32769)):
+        for prefix, reg, rh, value in ((0xDD, 'IX', IXh, 32768), (0xFD, 'IY', IYh, 32769)):
             for r_in, f_in, r_out, f_out in specs:
                 operation = f'{op} ({reg}+${offset:02X})'
                 data = (prefix, 203, offset & 255, opcode + 6)
-                registers['F'] = f_in
-                registers[reg + 'h'] = value // 256
-                registers[reg + 'l'] = value % 256
-                reg_out = {'F': f_out}
+                registers[F] = f_in
+                registers[rh] = value // 256
+                registers[rh + 1] = value % 256
+                reg_out = {F: f_out}
                 snapshot[value + offset] = r_in
                 sna_out = {value + offset: r_out}
                 self._test_instruction(simulator, operation, data, 23, reg_out, sna_out)
@@ -419,11 +428,11 @@ class SimulatorTest(SkoolKitTestCase):
                             f_out |= 0b10000000
                     else:
                         f_out |= 0b01000100
-                    reg_out = {'F': f_out}
-                    if reg == '(HL)':
+                    reg_out = {F: f_out}
+                    if reg == Hd:
                         timing = 12
-                        registers['H'] = hl // 256
-                        registers['L'] = hl % 256
+                        registers[H] = hl // 256
+                        registers[L] = hl % 256
                         snapshot[hl] = opval
                     else:
                         timing = 8
@@ -431,19 +440,19 @@ class SimulatorTest(SkoolKitTestCase):
                     self._test_instruction(simulator, operation, data, timing, reg_out)
 
                 offset = 3
-                for prefix, reg, value in ((0xDD, 'IX', 32768), (0xFD, 'IY', 32769)):
+                for prefix, reg, rh, value in ((0xDD, 'IX', IXh, 32768), (0xFD, 'IY', IYh, 32769)):
                     operation = f'BIT {bit},({reg}+${offset:02X})'
                     for opcode in range(0x40 + 8 * bit, 0x48 + 8 * bit):
                         data = (prefix, 0xCB, offset & 255, opcode)
-                        registers[reg + 'h'] = value // 256
-                        registers[reg + 'l'] = value % 256
+                        registers[rh] = value // 256
+                        registers[rh + 1] = value % 256
                         if bitval:
                             f_out = 0b00010000
                             if bit == 7:
                                 f_out |= 0b10000000
                         else:
                             f_out = 0b01010100
-                        reg_out = {'F': f_out}
+                        reg_out = {F: f_out}
                         snapshot[value + offset] = opval
                         self._test_instruction(simulator, operation, data, 20, reg_out)
 
@@ -458,13 +467,13 @@ class SimulatorTest(SkoolKitTestCase):
         at_ix = 255
 
         for i, reg in enumerate(REGISTERS):
-            if reg == '(HL)':
+            if reg == Hd:
                 continue
             for bit in range(8):
                 operation = f'RES {bit},(IX+$00),{reg}'
                 data = (0xDD, 0xCB, 0x00, 0x80 + 8 * bit + i)
-                registers['IXh'] = ix // 256
-                registers['IXl'] = ix % 256
+                registers[IXh] = ix // 256
+                registers[IXl] = ix % 256
                 reg_out = {reg: 255 - (1 << bit)}
                 snapshot[ix] = at_ix
                 sna_out = {ix: 255 - (1 << bit)}
@@ -481,13 +490,13 @@ class SimulatorTest(SkoolKitTestCase):
         at_ix = 0
 
         for i, reg in enumerate(REGISTERS):
-            if reg == '(HL)':
+            if reg == Hd:
                 continue
             for bit in range(8):
                 operation = f'SET {bit},(IX+$00),{reg}'
                 data = (0xDD, 0xCB, 0x00, 0xC0 + 8 * bit + i)
-                registers['IXh'] = ix // 256
-                registers['IXl'] = ix % 256
+                registers[IXh] = ix // 256
+                registers[IXl] = ix % 256
                 reg_out = {reg: 1 << bit}
                 snapshot[ix] = at_ix
                 sna_out = {ix: 1 << bit}
@@ -510,14 +519,14 @@ class SimulatorTest(SkoolKitTestCase):
         at_ix = 35
 
         for i, reg in enumerate(REGISTERS):
-            if reg == '(HL)':
+            if reg == Hd:
                 continue
             operation = f'RL (IX+$00),{reg}'
             data = (0xDD, 0xCB, 0x00, 0x10 + i)
-            registers['IXh'] = ix // 256
-            registers['IXl'] = ix % 256
-            registers['F'] = 0b00000001
-            reg_out = {reg: (at_ix << 1) + 1, 'F': 0b00000100}
+            registers[IXh] = ix // 256
+            registers[IXl] = ix % 256
+            registers[F] = 0b00000001
+            reg_out = {reg: (at_ix << 1) + 1, F: 0b00000100}
             snapshot[ix] = at_ix
             self._test_instruction(simulator, operation, data, 23, reg_out)
 
@@ -539,14 +548,14 @@ class SimulatorTest(SkoolKitTestCase):
         at_ix = 35
 
         for i, reg in enumerate(REGISTERS):
-            if reg == '(HL)':
+            if reg == Hd:
                 continue
             operation = f'RLC (IX+$00),{reg}'
             data = (0xDD, 0xCB, 0x00, i)
-            registers['IXh'] = ix // 256
-            registers['IXl'] = ix % 256
-            registers['F'] = 0b00000001
-            reg_out = {reg: at_ix << 1, 'F': 0b00000000}
+            registers[IXh] = ix // 256
+            registers[IXl] = ix % 256
+            registers[F] = 0b00000001
+            reg_out = {reg: at_ix << 1, F: 0b00000000}
             snapshot[ix] = at_ix
             self._test_instruction(simulator, operation, data, 23, reg_out)
 
@@ -567,14 +576,14 @@ class SimulatorTest(SkoolKitTestCase):
         at_ix = 34
 
         for i, reg in enumerate(REGISTERS):
-            if reg == '(HL)':
+            if reg == Hd:
                 continue
             operation = f'RR (IX+$00),{reg}'
             data = (0xDD, 0xCB, 0x00, 0x18 + i)
-            registers['IXh'] = ix // 256
-            registers['IXl'] = ix % 256
-            registers['F'] = 0b00000001
-            reg_out = {reg: 0x80 + (at_ix >> 1), 'F': 0b10000000}
+            registers[IXh] = ix // 256
+            registers[IXl] = ix % 256
+            registers[F] = 0b00000001
+            reg_out = {reg: 0x80 + (at_ix >> 1), F: 0b10000000}
             snapshot[ix] = at_ix
             self._test_instruction(simulator, operation, data, 23, reg_out)
 
@@ -596,14 +605,14 @@ class SimulatorTest(SkoolKitTestCase):
         at_ix = 34
 
         for i, reg in enumerate(REGISTERS):
-            if reg == '(HL)':
+            if reg == Hd:
                 continue
             operation = f'RRC (IX+$00),{reg}'
             data = (0xDD, 0xCB, 0x00, 0x08 + i)
-            registers['IXh'] = ix // 256
-            registers['IXl'] = ix % 256
-            registers['F'] = 0b00000001
-            reg_out = {reg: at_ix >> 1, 'F': 0b00000100}
+            registers[IXh] = ix // 256
+            registers[IXl] = ix % 256
+            registers[F] = 0b00000001
+            reg_out = {reg: at_ix >> 1, F: 0b00000100}
             snapshot[ix] = at_ix
             self._test_instruction(simulator, operation, data, 23, reg_out)
 
@@ -624,12 +633,12 @@ class SimulatorTest(SkoolKitTestCase):
         at_ix = 35
 
         for i, reg in enumerate(REGISTERS):
-            if reg == '(HL)':
+            if reg == Hd:
                 continue
             operation = f'SLA (IX+$00),{reg}'
             data = (0xDD, 0xCB, 0x00, 0x20 + i)
-            registers['IXh'] = ix // 256
-            registers['IXl'] = ix % 256
+            registers[IXh] = ix // 256
+            registers[IXl] = ix % 256
             reg_out = {reg: at_ix << 1}
             snapshot[ix] = at_ix
             self._test_instruction(simulator, operation, data, 23, reg_out)
@@ -651,13 +660,13 @@ class SimulatorTest(SkoolKitTestCase):
         at_ix = 35
 
         for i, reg in enumerate(REGISTERS):
-            if reg == '(HL)':
+            if reg == Hd:
                 continue
             operation = f'SLL (IX+$00),{reg}'
             data = (0xDD, 0xCB, 0x00, 0x30 + i)
-            registers['IXh'] = ix // 256
-            registers['IXl'] = ix % 256
-            reg_out = {reg: (at_ix << 1) + 1, 'F': 0b00000100}
+            registers[IXh] = ix // 256
+            registers[IXl] = ix % 256
+            reg_out = {reg: (at_ix << 1) + 1, F: 0b00000100}
             snapshot[ix] = at_ix
             self._test_instruction(simulator, operation, data, 23, reg_out)
 
@@ -680,13 +689,13 @@ class SimulatorTest(SkoolKitTestCase):
         at_ix = 35
 
         for i, reg in enumerate(REGISTERS):
-            if reg == '(HL)':
+            if reg == Hd:
                 continue
             operation = f'SRA (IX+$00),{reg}'
             data = (0xDD, 0xCB, 0x00, 0x28 + i)
-            registers['IXh'] = ix // 256
-            registers['IXl'] = ix % 256
-            reg_out = {reg: at_ix >> 1, 'F': 0b00000101}
+            registers[IXh] = ix // 256
+            registers[IXl] = ix % 256
+            reg_out = {reg: at_ix >> 1, F: 0b00000101}
             snapshot[ix] = at_ix
             self._test_instruction(simulator, operation, data, 23, reg_out)
 
@@ -707,13 +716,13 @@ class SimulatorTest(SkoolKitTestCase):
         at_ix = 35
 
         for i, reg in enumerate(REGISTERS):
-            if reg == '(HL)':
+            if reg == Hd:
                 continue
             operation = f'SRL (IX+$00),{reg}'
             data = (0xDD, 0xCB, 0x00, 0x38 + i)
-            registers['IXh'] = ix // 256
-            registers['IXl'] = ix % 256
-            reg_out = {reg: at_ix >> 1, 'F': 0b00000101}
+            registers[IXh] = ix // 256
+            registers[IXl] = ix % 256
+            reg_out = {reg: at_ix >> 1, F: 0b00000101}
             snapshot[ix] = at_ix
             self._test_instruction(simulator, operation, data, 23, reg_out)
 
@@ -728,9 +737,9 @@ class SimulatorTest(SkoolKitTestCase):
                 (128, 0b00000000, 0,   0b00000001),
                 (1,   0b00000001, 3,   0b00000000),
         ):
-            registers['A'] = a_in
-            registers['F'] = f_in
-            reg_out = {'A': a_out, 'F': f_out}
+            registers[A] = a_in
+            registers[F] = f_in
+            reg_out = {A: a_out, F: f_out}
             self._test_instruction(simulator, 'RLA', [23], 4, reg_out)
 
     def test_rlca(self):
@@ -745,9 +754,9 @@ class SimulatorTest(SkoolKitTestCase):
                 (1,   0b00000001, 2,   0b00000000),
                 (0,   0b00000001, 0,   0b00000000),
         ):
-            registers['A'] = a_in
-            registers['F'] = f_in
-            reg_out = {'A': a_out, 'F': f_out}
+            registers[A] = a_in
+            registers[F] = f_in
+            reg_out = {A: a_out, F: f_out}
             self._test_instruction(simulator, 'RLCA', [7], 4, reg_out)
 
     def test_rra(self):
@@ -761,9 +770,9 @@ class SimulatorTest(SkoolKitTestCase):
                 (1, 0b00000000, 0,   0b00000001),
                 (4, 0b00000001, 130, 0b00000000),
         ):
-            registers['A'] = a_in
-            registers['F'] = f_in
-            reg_out = {'A': a_out, 'F': f_out}
+            registers[A] = a_in
+            registers[F] = f_in
+            reg_out = {A: a_out, F: f_out}
             self._test_instruction(simulator, 'RRA', [31], 4, reg_out)
 
     def test_rrca(self):
@@ -778,9 +787,9 @@ class SimulatorTest(SkoolKitTestCase):
                 (4, 0b00000001, 2,   0b00000000),
                 (0, 0b00000001, 0,   0b00000000),
         ):
-            registers['A'] = a_in
-            registers['F'] = f_in
-            reg_out = {'A': a_out, 'F': f_out}
+            registers[A] = a_in
+            registers[F] = f_in
+            reg_out = {A: a_out, F: f_out}
             self._test_instruction(simulator, 'RRCA', [15], 4, reg_out)
 
     def _test_inc_dec8(self, op, opcode, specs):
@@ -792,42 +801,42 @@ class SimulatorTest(SkoolKitTestCase):
         for i, reg in enumerate(REGISTERS):
             data = [opcode + 8 * i]
             operation = f'{op} {reg}'
-            if reg == '(HL)':
-                registers['H'] = hl // 256
-                registers['L'] = hl % 256
+            if reg == Hd:
+                registers[H] = hl // 256
+                registers[L] = hl % 256
                 for r_in, f_in, r_out, f_out in specs:
-                    registers['F'] = f_in
-                    reg_out = {'F': f_out}
+                    registers[F] = f_in
+                    reg_out = {F: f_out}
                     snapshot[hl] = r_in
                     sna_out = {hl: r_out}
                     self._test_instruction(simulator, operation, data, 11, reg_out, sna_out)
             else:
                 for r_in, f_in, r_out, f_out in specs:
                     registers[reg] = r_in
-                    registers['F'] = f_in
-                    reg_out = {reg: r_out, 'F': f_out}
+                    registers[F] = f_in
+                    reg_out = {reg: r_out, F: f_out}
                     self._test_instruction(simulator, operation, data, 4, reg_out)
 
-        for prefix, reg in ((0xDD, 'IX'), (0xFD, 'IY')):
-            for iopcode, half in ((opcode + 32, 'h'), (opcode + 40, 'l')):
+        for prefix, reg, rh in ((0xDD, 'IX', IXh), (0xFD, 'IY', IYh)):
+            for iopcode, half, ri in ((opcode + 32, 'h', 0), (opcode + 40, 'l', 1)):
                 for r_in, f_in, r_out, f_out in specs:
                     ireg = f'{reg}{half}'
                     operation = f'{op} {ireg}'
                     data = (prefix, iopcode)
-                    registers['F'] = f_in
-                    registers[ireg] = r_in
-                    reg_out = {'F': f_out, ireg: r_out}
+                    registers[F] = f_in
+                    registers[rh + ri] = r_in
+                    reg_out = {F: f_out, rh + ri: r_out}
                     self._test_instruction(simulator, operation, data, 8, reg_out)
 
         offset = 2
-        for prefix, reg, value in ((0xDD, 'IX', 32768), (0xFD, 'IY', 32769)):
+        for prefix, reg, rh, value in ((0xDD, 'IX', IXh, 32768), (0xFD, 'IY', IYh, 32769)):
             for r_in, f_in, r_out, f_out in specs:
                 operation = f'{op} ({reg}+${offset:02X})'
                 data = (prefix, opcode + 48, offset & 255)
-                registers['F'] = f_in
-                registers[reg + 'h'] = value // 256
-                registers[reg + 'l'] = value % 256
-                reg_out = {'F': f_out}
+                registers[F] = f_in
+                registers[rh] = value // 256
+                registers[rh + 1] = value % 256
+                reg_out = {F: f_out}
                 snapshot[value + offset] = r_in
                 sna_out = {value + offset: r_out}
                 self._test_instruction(simulator, operation, data, 23, reg_out, sna_out)
@@ -860,25 +869,25 @@ class SimulatorTest(SkoolKitTestCase):
         registers = simulator.registers
 
         for rr_in, rr_out in ((61276, 61275), (0, 65535)):
-            for i, reg in enumerate(('BC', 'DE', 'HL', 'SP')):
+            for i, (reg, rh) in enumerate(REGISTER_PAIRS):
                 operation = f'DEC {reg}'
                 data = [11 + i * 16]
                 if reg == 'SP':
-                    registers['SP'] = rr_in
-                    reg_out = {reg: rr_out}
+                    registers[SP] = rr_in
+                    reg_out = {SP: rr_out}
                 else:
-                    registers[reg[0]] = rr_in // 256
-                    registers[reg[1]] = rr_in % 256
-                    reg_out = {reg[0]: rr_out // 256, reg[1]: rr_out % 256}
+                    registers[rh] = rr_in // 256
+                    registers[rh + 1] = rr_in % 256
+                    reg_out = {rh: rr_out // 256, rh + 1: rr_out % 256}
                 self._test_instruction(simulator, operation, data, 6, reg_out)
 
         for rr_in, rr_out in ((61276, 61275), (0, 65535)):
-            for prefix, reg in ((0xDD, 'IX'), (0xFD, 'IY')):
+            for prefix, reg, rh in ((0xDD, 'IX', IXh), (0xFD, 'IY', IYh)):
                 operation = f'DEC {reg}'
                 data = (prefix, 43)
-                registers[reg + 'h'] = rr_in // 256
-                registers[reg + 'l'] = rr_in % 256
-                reg_out = {reg + 'l': rr_out % 256, reg + 'h': rr_out // 256}
+                registers[rh] = rr_in // 256
+                registers[rh + 1] = rr_in % 256
+                reg_out = {rh + 1: rr_out % 256, rh: rr_out // 256}
                 self._test_instruction(simulator, operation, data, 10, reg_out)
 
     def test_inc16(self):
@@ -887,25 +896,25 @@ class SimulatorTest(SkoolKitTestCase):
         registers = simulator.registers
 
         for rr_in, rr_out in ((61275, 61276), (65535, 0)):
-            for i, reg in enumerate(('BC', 'DE', 'HL', 'SP')):
+            for i, (reg, rh) in enumerate(REGISTER_PAIRS):
                 operation = f'INC {reg}'
                 data = [3 + i * 16]
                 if reg == 'SP':
-                    registers['SP'] = rr_in
-                    reg_out = {reg: rr_out}
+                    registers[SP] = rr_in
+                    reg_out = {SP: rr_out}
                 else:
-                    registers[reg[0]] = rr_in // 256
-                    registers[reg[1]] = rr_in % 256
-                    reg_out = {reg[0]: rr_out // 256, reg[1]: rr_out % 256}
+                    registers[rh] = rr_in // 256
+                    registers[rh + 1] = rr_in % 256
+                    reg_out = {rh: rr_out // 256, rh + 1: rr_out % 256}
                 self._test_instruction(simulator, operation, data, 6, reg_out)
 
         for rr_in, rr_out in ((61275, 61276), (65535, 0)):
-            for prefix, reg in ((0xDD, 'IX'), (0xFD, 'IY')):
+            for prefix, reg, rh in ((0xDD, 'IX', IXh), (0xFD, 'IY', IYh)):
                 operation = f'INC {reg}'
                 data = (prefix, 35)
-                registers[reg + 'h'] = rr_in // 256
-                registers[reg + 'l'] = rr_in % 256
-                reg_out = {reg + 'l': rr_out % 256, reg + 'h': rr_out // 256}
+                registers[rh] = rr_in // 256
+                registers[rh + 1] = rr_in % 256
+                reg_out = {rh + 1: rr_out % 256, rh: rr_out // 256}
                 self._test_instruction(simulator, operation, data, 10, reg_out)
 
     def test_add16(self):
@@ -918,49 +927,49 @@ class SimulatorTest(SkoolKitTestCase):
                 (3, 1056,      0b00000000, 0b00000000),
                 (32887, 45172, 0b00100001, 0b00000001)
         ):
-            for i, reg in enumerate(('BC', 'DE', 'HL', 'SP')):
+            for i, (reg, rh) in enumerate(REGISTER_PAIRS):
                 operation = f'ADD HL,{reg}'
                 data = [9 + i * 16]
-                registers['H'] = r1 // 256
-                registers['L'] = r1 % 256
-                registers['F'] = 0b00000001
+                registers[H] = r1 // 256
+                registers[L] = r1 % 256
+                registers[F] = 0b00000001
                 if reg == 'HL':
                     s = r1 * 2
-                    reg_out = {'F': f_out_hl}
+                    reg_out = {F: f_out_hl}
                 else:
                     s = r1 + r2
                     if reg == 'SP':
-                        registers['SP'] = r2
+                        registers[SP] = r2
                     else:
-                        registers[reg[0]] = r2 // 256
-                        registers[reg[1]] = r2 % 256
-                    reg_out = {'F': f_out}
+                        registers[rh] = r2 // 256
+                        registers[rh + 1] = r2 % 256
+                    reg_out = {F: f_out}
                 s &= 0xFFFF
-                reg_out.update({'H': s // 256, 'L': s % 256})
+                reg_out.update({H: s // 256, L: s % 256})
                 self._test_instruction(simulator, operation, data, 11, reg_out)
 
-            for prefix, reg in ((0xDD, 'IX'), (0xFD, 'IY')):
-                for i, rr in enumerate(('BC', 'DE', 'HL', 'SP')):
+            for prefix, reg, rh in ((0xDD, 'IX', IXh), (0xFD, 'IY', IYh)):
+                for i, (rr, rrh) in enumerate(REGISTER_PAIRS):
                     if rr == 'HL':
                         rr = reg
                     operation = f'ADD {reg},{rr}'
                     data = [prefix, 9 + i * 16]
-                    registers['F'] = 0b00000001
-                    registers[reg + 'h'] = r1 // 256
-                    registers[reg + 'l'] = r1 % 256
+                    registers[F] = 0b00000001
+                    registers[rh] = r1 // 256
+                    registers[rh + 1] = r1 % 256
                     if rr == reg:
                         s = r1 * 2
-                        reg_out = {'F': f_out_hl}
+                        reg_out = {F: f_out_hl}
                     else:
                         s = r1 + r2
                         if rr == 'SP':
-                            registers['SP'] = r2
+                            registers[SP] = r2
                         else:
-                            registers[rr[0]] = r2 // 256
-                            registers[rr[1]] = r2 % 256
-                        reg_out = {'F': f_out}
+                            registers[rrh] = r2 // 256
+                            registers[rrh + 1] = r2 % 256
+                        reg_out = {F: f_out}
                     s &= 0xFFFF
-                    reg_out.update({reg + 'h': s // 256, reg + 'l': s % 256})
+                    reg_out.update({rh: s // 256, rh + 1: s % 256})
                     self._test_instruction(simulator, operation, data, 15, reg_out)
 
     def test_adc16(self):
@@ -975,26 +984,26 @@ class SimulatorTest(SkoolKitTestCase):
                 (32887, 45172, 0b00000000, 0b00100101, 0b00000101),
                 (32887, 45172, 0b00000001, 0b00100101, 0b00000101)
         ):
-            for i, reg in enumerate(('BC', 'DE', 'HL', 'SP')):
+            for i, (reg, rh) in enumerate(REGISTER_PAIRS):
                 operation = f'ADC HL,{reg}'
                 data = (237, 74 + i * 16)
-                registers['H'] = r1 // 256
-                registers['L'] = r1 % 256
-                registers['F'] = f_in
+                registers[H] = r1 // 256
+                registers[L] = r1 % 256
+                registers[F] = f_in
                 carry = f_in & 1
                 if reg == 'HL':
                     s = r1 * 2 + carry
-                    reg_out = {'F': f_out_hl}
+                    reg_out = {F: f_out_hl}
                 else:
                     s = r1 + r2 + carry
                     if reg == 'SP':
-                        registers['SP'] = r2
+                        registers[SP] = r2
                     else:
-                        registers[reg[0]] = r2 // 256
-                        registers[reg[1]] = r2 % 256
-                    reg_out = {'F': f_out}
+                        registers[rh] = r2 // 256
+                        registers[rh + 1] = r2 % 256
+                    reg_out = {F: f_out}
                 s &= 0xFFFF
-                reg_out.update({'H': s // 256, 'L': s % 256})
+                reg_out.update({H: s // 256, L: s % 256})
                 self._test_instruction(simulator, operation, data, 15, reg_out)
 
     def test_sbc16(self):
@@ -1009,25 +1018,25 @@ class SimulatorTest(SkoolKitTestCase):
                 (45172, 32887, 0b00000000, 0b00111010, 0b01000010),
                 (45172, 32887, 0b00000001, 0b00111010, 0b10111011)
         ):
-            for i, reg in enumerate(('BC', 'DE', 'HL', 'SP')):
+            for i, (reg, rh) in enumerate(REGISTER_PAIRS):
                 operation = f'SBC HL,{reg}'
                 data = (237, 66 + i * 16)
-                registers['H'] = r1 // 256
-                registers['L'] = r1 % 256
-                registers['F'] = f_in
+                registers[H] = r1 // 256
+                registers[L] = r1 % 256
+                registers[F] = f_in
                 carry = f_in & 1
                 if reg == 'HL':
                     d = -carry & 65535
-                    reg_out = {'F': f_out_hl}
+                    reg_out = {F: f_out_hl}
                 else:
                     if reg == 'SP':
-                        registers['SP'] = r2
+                        registers[SP] = r2
                     else:
-                        registers[reg[0]] = r2 // 256
-                        registers[reg[1]] = r2 % 256
+                        registers[rh] = r2 // 256
+                        registers[rh + 1] = r2 % 256
                     d = (r1 - r2 - carry) & 65535
-                    reg_out = {'F': f_out}
-                reg_out.update({'H': d // 256, 'L': d % 256})
+                    reg_out = {F: f_out}
+                reg_out.update({H: d // 256, L: d % 256})
                 self._test_instruction(simulator, operation, data, 15, reg_out)
 
     def test_ld_r_n(self):
@@ -1039,9 +1048,9 @@ class SimulatorTest(SkoolKitTestCase):
 
         for i, reg in enumerate(REGISTERS):
             data = (6 + 8 * i, i)
-            if reg == '(HL)':
-                registers['H'] = hl // 256
-                registers['L'] = hl % 256
+            if reg == Hd:
+                registers[H] = hl // 256
+                registers[L] = hl % 256
                 reg_out = {'H': hl // 256, 'L': hl % 256}
                 snapshot[hl] = 255
                 sna_out = {hl: i}
@@ -1061,30 +1070,32 @@ class SimulatorTest(SkoolKitTestCase):
 
         for reg1 in REGISTERS:
             for reg2 in REGISTERS:
-                if reg1 == '(HL)' and reg2 == '(HL)':
+                if reg1 == Hd and reg2 == Hd:
                     continue
                 data = [64 + 8 * REGISTERS.index(reg1) + REGISTERS.index(reg2)]
-                operation = f'LD {reg1},{reg2}'
-                if reg1 == '(HL)':
-                    registers['H'] = hl // 256
-                    registers['L'] = hl % 256
-                    if reg2 in 'HL':
+                if reg1 == Hd:
+                    operation = f'LD (HL),{REGISTER_NAMES[reg2]}'
+                    registers[H] = hl // 256
+                    registers[L] = hl % 256
+                    if reg2 in (H, L):
                         r2 = registers[reg2]
                     else:
                         registers[reg2] = r2
                     snapshot[hl] = r1
-                    reg_out = {'H': hl // 256, 'L': hl % 256}
+                    reg_out = {H: hl // 256, L: hl % 256}
                     sna_out = {hl: r2}
                     self._test_instruction(simulator, operation, data, 7, reg_out, sna_out)
-                elif reg2 == '(HL)':
-                    registers['H'] = hl // 256
-                    registers['L'] = hl % 256
-                    if reg1 not in 'HL':
+                elif reg2 == Hd:
+                    operation = f'LD {REGISTER_NAMES[reg1]},(HL)'
+                    registers[H] = hl // 256
+                    registers[L] = hl % 256
+                    if reg1 not in (H, L):
                         registers[reg1] = r1
                     snapshot[hl] = r2
                     reg_out = {reg1: r2}
                     self._test_instruction(simulator, operation, data, 7, reg_out)
                 else:
+                    operation = f'LD {REGISTER_NAMES[reg1]},{REGISTER_NAMES[reg2]}'
                     registers[reg1] = r1
                     registers[reg2] = r2
                     reg_out = {reg1: r2, reg2: r2}
@@ -1096,13 +1107,13 @@ class SimulatorTest(SkoolKitTestCase):
         registers = simulator.registers
         r_in, r_out = 37, 85
 
-        for prefix, reg in ((0xDD, 'IX'), (0xFD, 'IY')):
-            for opcode, half in ((38, 'h'), (46, 'l')):
+        for prefix, reg, rh in ((0xDD, 'IX', IXh), (0xFD, 'IY', IYh)):
+            for opcode, half, ri in ((38, 'h', 0), (46, 'l', 1)):
                 data = (prefix, opcode, r_out)
                 ireg = f'{reg}{half}'
                 operation = f'LD {ireg},${r_out:02X}'
-                registers[ireg] = r_in
-                reg_out = {ireg: r_out}
+                registers[rh + ri] = r_in
+                reg_out = {rh + ri: r_out}
                 self._test_instruction(simulator, operation, data, 11, reg_out)
 
     def test_ld_r_r_with_ix_iy_halves(self):
@@ -1112,29 +1123,41 @@ class SimulatorTest(SkoolKitTestCase):
         r1, r2 = 27, 99
 
         for reg1, reg2 in (
-                ('A', 'H'), ('A', 'L'), ('H', 'A'), ('L', 'A'),
-                ('B', 'H'), ('B', 'L'), ('H', 'B'), ('L', 'B'),
-                ('C', 'H'), ('C', 'L'), ('H', 'C'), ('L', 'C'),
-                ('D', 'H'), ('D', 'L'), ('H', 'D'), ('L', 'D'),
-                ('E', 'H'), ('E', 'L'), ('H', 'E'), ('L', 'E'),
-                ('H', 'H'), ('H', 'L'), ('H', 'H'), ('L', 'H'),
-                ('L', 'H'), ('L', 'L'), ('H', 'L'), ('L', 'L'),
+                (A, H), (A, L), (H, A), (L, A),
+                (B, H), (B, L), (H, B), (L, B),
+                (C, H), (C, L), (H, C), (L, C),
+                (D, H), (D, L), (H, D), (L, D),
+                (E, H), (E, L), (H, E), (L, E),
+                (H, H), (H, L), (H, H), (L, H),
+                (L, H), (L, L), (H, L), (L, L),
         ):
-            for prefix, reg in ((0xDD, 'IX'), (0xFD, 'IY')):
+            for prefix, reg, rh in ((0xDD, 'IX', IXh), (0xFD, 'IY', IYh)):
                 data = [prefix, 64 + 8 * REGISTERS.index(reg1) + REGISTERS.index(reg2)]
-                if reg1 in 'HL':
-                    op1 = reg + reg1.lower()
-                    registers[op1] = r1
+                if reg1 == H:
+                    op1 = reg + 'h'
+                    op1r = rh
+                    registers[rh] = r1
+                elif reg1 == L:
+                    op1 = reg + 'l'
+                    op1r = rh + 1
+                    registers[rh + 1] = r1
                 else:
-                    op1 = reg1
+                    op1 = REGISTER_NAMES[reg1]
+                    op1r = reg1
                     registers[reg1] = r1
-                if reg2 in 'HL':
-                    op2 = reg + reg2.lower()
-                    registers[op2] = r2
+                if reg2 == H:
+                    op2 = reg + 'h'
+                    op2r = rh
+                    registers[rh] = r2
+                elif reg2 == L:
+                    op2 = reg + 'l'
+                    op2r = rh + 1
+                    registers[rh + 1] = r2
                 else:
-                    op2 = reg2
+                    op2 = REGISTER_NAMES[reg2]
+                    op2r = reg2
                     registers[reg2] = r2
-                reg_out = {op1: r2, op2: r2}
+                reg_out = {op1r: r2, op2r: r2}
                 operation = f'LD {op1},{op2}'
                 self._test_instruction(simulator, operation, data, 8, reg_out)
 
@@ -1146,26 +1169,26 @@ class SimulatorTest(SkoolKitTestCase):
         offset = 5
         r1, r2 = 14, 207
 
-        for prefix, reg, value in ((0xDD, 'IX', 32768), (0xFD, 'IY', 32769)):
-            for r in ('B', 'C', 'D', 'E', 'H', 'L', 'A'):
-                operation = f'LD {r},({reg}+${offset:02X})'
+        for prefix, reg, rh, value in ((0xDD, 'IX', IXh, 32768), (0xFD, 'IY', IYh, 32769)):
+            for r in (B, C, D, E, H, L, A):
+                operation = f'LD {REGISTER_NAMES[r]},({reg}+${offset:02X})'
                 data = (prefix, 0x46 + 8 * REGISTERS.index(r), offset)
                 registers[r] = r1
-                registers[reg + 'h'] = value // 256
-                registers[reg + 'l'] = value % 256
+                registers[rh] = value // 256
+                registers[rh + 1] = value % 256
                 reg_out = {r: r2}
                 snapshot[value + offset] = r2
                 self._test_instruction(simulator, operation, data, 19, reg_out)
 
         offset = 3
         r1, r2 = 142, 27
-        for prefix, reg, value in ((0xDD, 'IX', 32768), (0xFD, 'IY', 32769)):
-            for r in ('B', 'C', 'D', 'E', 'H', 'L', 'A'):
-                operation = f'LD ({reg}+${offset:02X}),{r}'
+        for prefix, reg, rh, value in ((0xDD, 'IX', IXh, 32768), (0xFD, 'IY', IYh, 32769)):
+            for r in (B, C, D, E, H, L, A):
+                operation = f'LD ({reg}+${offset:02X}),{REGISTER_NAMES[r]}'
                 data = (prefix, 0x70 + REGISTERS.index(r), offset & 255)
                 registers[r] = r2
-                registers[reg + 'h'] = value // 256
-                registers[reg + 'l'] = value % 256
+                registers[rh] = value // 256
+                registers[rh + 1] = value % 256
                 reg_out = {r: r2}
                 snapshot[value + offset] = r1
                 sna_out = {value + offset: r2}
@@ -1178,19 +1201,20 @@ class SimulatorTest(SkoolKitTestCase):
         snapshot = simulator.snapshot
         r1, r2 = 14, 207
 
-        for prefix, reg in ((0xDD, 'IX'), (0xFD, 'IY')):
+        for prefix, reg, rh in ((0xDD, 'IX', IXh), (0xFD, 'IY', IYh)):
             for value, offset in ((65535, 2), (0, -2)):
-                for r in ('B', 'C', 'D', 'E', 'H', 'L', 'A'):
+                for r in (B, C, D, E, H, L, A):
+                    rname = REGISTER_NAMES[r]
                     if offset < 0:
                         operand = offset + 256
-                        operation = f'LD {r},({reg}-${-offset:02X})'
+                        operation = f'LD {rname},({reg}-${-offset:02X})'
                     else:
                         operand = offset
-                        operation = f'LD {r},({reg}+${offset:02X})'
+                        operation = f'LD {rname},({reg}+${offset:02X})'
                     data = (prefix, 0x46 + 8 * REGISTERS.index(r), operand)
                     registers[r] = r1
-                    registers[reg + 'h'] = value // 256
-                    registers[reg + 'l'] = value % 256
+                    registers[rh] = value // 256
+                    registers[rh + 1] = value % 256
                     reg_out = {r: r2}
                     snapshot[(value + offset) & 0xFFFF] = r2
                     self._test_instruction(simulator, operation, data, 19, reg_out)
@@ -1202,11 +1226,11 @@ class SimulatorTest(SkoolKitTestCase):
         snapshot = simulator.snapshot
         offset, n = 7, 21
 
-        for prefix, reg, value in ((0xDD, 'IX', 32768), (0xFD, 'IY', 32769)):
+        for prefix, reg, rh, value in ((0xDD, 'IX', IXh, 32768), (0xFD, 'IY', IYh, 32769)):
             operation = f'LD ({reg}+${offset:02X}),${n:02X}'
             data = (prefix, 0x36, offset & 255, n)
-            registers[reg + 'h'] = value // 256
-            registers[reg + 'l'] = value % 256
+            registers[rh] = value // 256
+            registers[rh + 1] = value % 256
             reg_out = {}
             snapshot[value + offset] = 255
             sna_out = {value + offset: n}
@@ -1221,16 +1245,16 @@ class SimulatorTest(SkoolKitTestCase):
 
         operation = f'LD (${addr:04X}),A'
         data = (50, addr % 256, addr // 256)
-        registers['A'] = a
-        reg_out = {'A': a}
+        registers[A] = a
+        reg_out = {A: a}
         snapshot[addr] = n
         sna_out = {addr: a}
         self._test_instruction(simulator, operation, data, 13, reg_out, sna_out)
 
         operation = f'LD A,(${addr:04X})'
         data = (58, addr % 256, addr // 256)
-        registers['A'] = a
-        reg_out = {'A': n}
+        registers[A] = a
+        reg_out = {A: n}
         snapshot[addr] = n
         sna_out = {addr: n}
         self._test_instruction(simulator, operation, data, 13, reg_out, sna_out)
@@ -1242,26 +1266,26 @@ class SimulatorTest(SkoolKitTestCase):
         snapshot = simulator.snapshot
         r1, r2, rr = 39, 102, 30000
 
-        for opcode, reg1, reg2 in (
-                (2, '(BC)', 'A'),
-                (10, 'A', '(BC)'),
-                (18, '(DE)', 'A'),
-                (26, 'A', '(DE)'),
+        for opcode, reg1, reg2, rh in (
+                (2, '(BC)', 'A', B),
+                (10, 'A', '(BC)', B),
+                (18, '(DE)', 'A', D),
+                (26, 'A', '(DE)', D),
         ):
             operation = f'LD {reg1},{reg2}'
             data = [opcode]
             if reg1 == 'A':
-                registers['A'] = r1
-                registers[reg2[1]] = rr // 256
-                registers[reg2[2]] = rr % 256
-                reg_out = {'A': r2}
+                registers[A] = r1
+                registers[rh] = rr // 256
+                registers[rh + 1] = rr % 256
+                reg_out = {A: r2}
                 snapshot[rr] = r2
                 sna_out = {}
             else:
-                registers['A'] = r2
-                registers[reg1[1]] = rr // 256
-                registers[reg1[2]] = rr % 256
-                reg_out = {'A': r2, reg1[1]: rr // 256, reg1[2]: rr % 256}
+                registers[A] = r2
+                registers[rh] = rr // 256
+                registers[rh + 1] = rr % 256
+                reg_out = {A: r2, rh: rr // 256, rh + 1: rr % 256}
                 snapshot[rr] = r1
                 sna_out = {rr: r2}
             self._test_instruction(simulator, operation, data, 7, reg_out, sna_out)
@@ -1272,7 +1296,7 @@ class SimulatorTest(SkoolKitTestCase):
         registers = simulator.registers
         a = 29
 
-        for opcode, reg in ((87, 'I'), (95, 'R')):
+        for opcode, reg, ri in ((87, 'I', I), (95, 'R', R)):
             for r_in, f_in, f_out in (
                     # I/R   SZ5H3PNC    SZ5H3PNC
                     (128, 0b00010110, 0b10000000),
@@ -1280,10 +1304,10 @@ class SimulatorTest(SkoolKitTestCase):
             ):
                 operation = f'LD A,{reg}'
                 data = (237, opcode)
-                registers['A'] = a
-                registers['F'] = f_in
-                registers[reg] = r_in
-                reg_out = {'A': r_in, 'F': f_out}
+                registers[A] = a
+                registers[F] = f_in
+                registers[ri] = r_in
+                reg_out = {A: r_in, F: f_out}
                 self._test_instruction(simulator, operation, data, 9, reg_out)
 
     def test_ld_special_a(self):
@@ -1292,15 +1316,15 @@ class SimulatorTest(SkoolKitTestCase):
         registers = simulator.registers
         r, a = 2, 99
 
-        for opcode, reg, r_out in (
-                (71, 'I', a),
-                (79, 'R', a + 2)
+        for opcode, reg, ri, r_out in (
+                (71, 'I', I, a),
+                (79, 'R', R, a + 2)
         ):
             operation = f'LD {reg},A'
             data = (237, opcode)
-            registers[reg] = r
-            registers['A'] = a
-            reg_out = {reg: r_out}
+            registers[ri] = r
+            registers[A] = a
+            reg_out = {ri: r_out}
             self._test_instruction(simulator, operation, data, 9, reg_out)
 
     def test_ld_rr_nn(self):
@@ -1308,24 +1332,24 @@ class SimulatorTest(SkoolKitTestCase):
         registers = simulator.registers
         lsb, msb = 3, 6
 
-        for i, reg in enumerate(('BC', 'DE', 'HL', 'SP')):
+        for i, (reg, rh) in enumerate(REGISTER_PAIRS):
             operation = f'LD {reg},${lsb + 256 * msb:04X}'
             data = (1 + i * 16, lsb, msb)
             if reg == 'SP':
-                registers['SP'] = 0
-                reg_out = {reg: lsb + 256 * msb}
+                registers[SP] = 0
+                reg_out = {SP: lsb + 256 * msb}
             else:
-                registers[reg[0]] = 0
-                registers[reg[1]] = 0
-                reg_out = {reg[1]: lsb, reg[0]: msb}
+                registers[rh] = 0
+                registers[rh + 1] = 0
+                reg_out = {rh + 1: lsb, rh: msb}
             self._test_instruction(simulator, operation, data, 10, reg_out)
 
-        for prefix, reg in ((0xDD, 'IX'), (0xFD, 'IY')):
+        for prefix, reg, rh in ((0xDD, 'IX', IXh), (0xFD, 'IY', IYh)):
             operation = f'LD {reg},${lsb + 256 * msb:04X}'
             data = (prefix, 33, lsb, msb)
-            registers[reg + 'h'] = 0
-            registers[reg + 'l'] = 0
-            reg_out = {reg + 'l': lsb, reg + 'h': msb}
+            registers[rh] = 0
+            registers[rh + 1] = 0
+            reg_out = {rh + 1: lsb, rh: msb}
             self._test_instruction(simulator, operation, data, 14, reg_out)
 
     def test_ld_addr_rr(self):
@@ -1335,29 +1359,29 @@ class SimulatorTest(SkoolKitTestCase):
         snapshot = simulator.snapshot
         rr, addr, nn = 35622, 52451, 257
 
-        for opcodes, reg, timing in (
-                ((237, 67), 'BC', 20),
-                ((237, 83), 'DE', 20),
-                ((34,), 'HL', 16),
-                ((237, 115), 'SP', 20)
+        for opcodes, reg, rh, timing in (
+                ((237, 67), 'BC', B, 20),
+                ((237, 83), 'DE', D, 20),
+                ((34,), 'HL', H, 16),
+                ((237, 115), 'SP', 0, 20)
         ):
             operation = f'LD (${addr:04X}),{reg}'
             data = opcodes + (addr % 256, addr // 256)
             if reg == 'SP':
-                registers['SP'] = rr
+                registers[SP] = rr
             else:
-                registers[reg[0]] = rr // 256
-                registers[reg[1]] = rr % 256
+                registers[rh] = rr // 256
+                registers[rh + 1] = rr % 256
             reg_out = {}
             snapshot[addr:addr + 2] = (nn % 256, nn // 256)
             sna_out = {addr: rr % 256, addr + 1: rr // 256}
             self._test_instruction(simulator, operation, data, timing, reg_out, sna_out)
 
-        for prefix, reg in ((0xDD, 'IX'), (0xFD, 'IY')):
+        for prefix, reg, rh in ((0xDD, 'IX', IXh), (0xFD, 'IY', IYh)):
             operation = f'LD (${addr:04X}),{reg}'
             data = (prefix, 34, addr % 256, addr // 256)
-            registers[reg + 'h'] = rr // 256
-            registers[reg + 'l'] = rr % 256
+            registers[rh] = rr // 256
+            registers[rh + 1] = rr % 256
             reg_out = {}
             snapshot[addr:addr + 2] = (nn % 256, nn // 256)
             sna_out = {addr: rr % 256, addr + 1: rr // 256}
@@ -1370,30 +1394,30 @@ class SimulatorTest(SkoolKitTestCase):
         snapshot = simulator.snapshot
         rr, addr, nn = 35622, 52451, 41783
 
-        for opcodes, reg, timing in (
-                ((237, 75), 'BC', 20),
-                ((237, 91), 'DE', 20),
-                ((42,), 'HL', 16),
-                ((237, 123), 'SP', 20)
+        for opcodes, reg, rh, timing in (
+                ((237, 75), 'BC', B, 20),
+                ((237, 91), 'DE', D, 20),
+                ((42,), 'HL', H, 16),
+                ((237, 123), 'SP', 0, 20)
         ):
             operation = f'LD {reg},(${addr:04X})'
             data = opcodes + (addr % 256, addr // 256)
             if reg == 'SP':
-                registers['SP'] = rr
-                reg_out = {reg: nn}
+                registers[SP] = rr
+                reg_out = {SP: nn}
             else:
-                registers[reg[0]] = rr // 256
-                registers[reg[1]] = rr % 256
-                reg_out = {reg[0]: nn // 256, reg[1]: nn % 256}
+                registers[rh] = rr // 256
+                registers[rh + 1] = rr % 256
+                reg_out = {rh: nn // 256, rh + 1: nn % 256}
             snapshot[addr:addr + 2] = (nn % 256, nn // 256)
             self._test_instruction(simulator, operation, data, timing, reg_out)
 
-        for prefix, reg in ((0xDD, 'IX'), (0xFD, 'IY')):
+        for prefix, reg, rh in ((0xDD, 'IX', IXh), (0xFD, 'IY', IYh)):
             operation = f'LD {reg},(${addr:04X})'
             data = (prefix, 42, addr % 256, addr // 256)
-            registers[reg + 'h'] = rr // 256
-            registers[reg + 'l'] = rr % 256
-            reg_out = {reg + 'l': nn % 256, reg + 'h': nn // 256}
+            registers[rh] = rr // 256
+            registers[rh + 1] = rr % 256
+            reg_out = {rh + 1: nn % 256, rh: nn // 256}
             snapshot[addr:addr + 2] = (nn % 256, nn // 256)
             self._test_instruction(simulator, operation, data, 20, reg_out)
 
@@ -1405,19 +1429,19 @@ class SimulatorTest(SkoolKitTestCase):
 
         operation = 'LD SP,HL'
         data = [249]
-        registers['SP'] = sp
-        registers['H'] = rr // 256
-        registers['L'] = rr % 256
-        reg_out = {'SP': rr}
+        registers[SP] = sp
+        registers[H] = rr // 256
+        registers[L] = rr % 256
+        reg_out = {SP: rr}
         self._test_instruction(simulator, operation, data, 6, reg_out)
 
-        for prefix, reg in ((0xDD, 'IX'), (0xFD, 'IY')):
+        for prefix, reg, rh in ((0xDD, 'IX', IXh), (0xFD, 'IY', IYh)):
             operation = f'LD SP,{reg}'
             data = (prefix, 249)
-            registers['SP'] = sp
-            registers[reg + 'h'] = rr // 256
-            registers[reg + 'l'] = rr % 256
-            reg_out = {'SP': rr}
+            registers[SP] = sp
+            registers[rh] = rr // 256
+            registers[rh + 1] = rr % 256
+            reg_out = {SP: rr}
             self._test_instruction(simulator, operation, data, 10, reg_out)
 
     def test_pop(self):
@@ -1428,23 +1452,23 @@ class SimulatorTest(SkoolKitTestCase):
         sp = 49152
 
         r_in, r_out = 257, 51421
-        for i, reg in enumerate(('BC', 'DE', 'HL', 'AF')):
+        for i, (reg, rh) in enumerate(REGISTER_PAIRS):
             operation = f'POP {reg}'
             data = [193 + 16 * i]
-            registers[reg[0]] = r_in // 256
-            registers[reg[1]] = r_in % 256
-            registers['SP'] = sp
-            reg_out = {reg[1]: r_out % 256, reg[0]: r_out // 256, 'SP': sp + 2}
+            registers[rh] = r_in // 256
+            registers[rh + 1] = r_in % 256
+            registers[SP] = sp
+            reg_out = {rh + 1: r_out % 256, rh: r_out // 256, SP: sp + 2}
             snapshot[sp:sp + 2] = (r_out % 256, r_out // 256)
             self._test_instruction(simulator, operation, data, 10, reg_out)
 
-        for prefix, reg in ((0xDD, 'IX'), (0xFD, 'IY')):
+        for prefix, reg, rh in ((0xDD, 'IX', IXh), (0xFD, 'IY', IYh)):
             operation = f'POP {reg}'
             data = (prefix, 225)
-            registers[reg + 'h'] = r_in // 256
-            registers[reg + 'l'] = r_in % 256
-            registers['SP'] = sp
-            reg_out = {reg + 'h': r_out // 256, reg + 'l': r_out % 256, 'SP': sp + 2}
+            registers[rh] = r_in // 256
+            registers[rh + 1] = r_in % 256
+            registers[SP] = sp
+            reg_out = {rh: r_out // 256, rh + 1: r_out % 256, SP: sp + 2}
             snapshot[sp:sp + 2] = (r_out % 256, r_out // 256)
             self._test_instruction(simulator, operation, data, 14, reg_out)
 
@@ -1456,24 +1480,24 @@ class SimulatorTest(SkoolKitTestCase):
         sp = 49152
 
         r_in, r_out = 257, 51421
-        for i, reg in enumerate(('BC', 'DE', 'HL', 'AF')):
+        for i, (reg, rh) in enumerate(REGISTER_PAIRS):
             operation = f'PUSH {reg}'
             data = [197 + 16 * i]
-            registers[reg[0]] = r_in // 256
-            registers[reg[1]] = r_in % 256
-            registers['SP'] = sp
-            reg_out = {'SP': sp - 2}
+            registers[rh] = r_in // 256
+            registers[rh + 1] = r_in % 256
+            registers[SP] = sp
+            reg_out = {SP: sp - 2}
             snapshot[sp - 2:sp] = (r_out % 256, r_out // 256)
             sna_out = {sp - 1: r_in // 256, sp - 2: r_in % 256}
             self._test_instruction(simulator, operation, data, 11, reg_out, sna_out)
 
-        for prefix, reg in ((0xDD, 'IX'), (0xFD, 'IY')):
+        for prefix, reg, rh in ((0xDD, 'IX', IXh), (0xFD, 'IY', IYh)):
             operation = f'PUSH {reg}'
             data = (prefix, 229)
-            registers[reg + 'h'] = r_in // 256
-            registers[reg + 'l'] = r_in % 256
-            registers['SP'] = sp
-            reg_out = {'SP': sp - 2}
+            registers[rh] = r_in // 256
+            registers[rh + 1] = r_in % 256
+            registers[SP] = sp
+            reg_out = {SP: sp - 2}
             snapshot[sp - 2:sp] = (r_out % 256, r_out // 256)
             sna_out = {sp - 1: r_in // 256, sp - 2: r_in % 256}
             self._test_instruction(simulator, operation, data, 15, reg_out, sna_out)
@@ -1484,18 +1508,16 @@ class SimulatorTest(SkoolKitTestCase):
         registers = simulator.registers
         addr = 46327
 
-        for prefix, reg in ((0, 'HL'), (0xDD, 'IX'), (0xFD, 'IY')):
+        for prefix, reg, rh in ((0, 'HL', H), (0xDD, 'IX', IXh), (0xFD, 'IY', IYh)):
             operation = f'JP ({reg})'
             if prefix:
                 data = (prefix, 233)
                 timing = 8
-                registers[reg + 'h'] = addr // 256
-                registers[reg + 'l'] = addr % 256
             else:
                 data = [233]
                 timing = 4
-                registers['H'] = addr // 256
-                registers['L'] = addr % 256
+            registers[rh] = addr // 256
+            registers[rh + 1] = addr % 256
             self._test_instruction(simulator, operation, data, timing, end=addr)
 
     def test_jr_nn(self):
@@ -1529,7 +1551,7 @@ class SimulatorTest(SkoolKitTestCase):
                 operation = f'JR {condition},${addr:04X}'
                 data = (opcode, offset if offset >= 0 else offset + 256)
                 timing = 12 if end == addr else 7
-                registers['F'] = flags
+                registers[F] = flags
                 self._test_instruction(simulator, operation, data, timing, start=start, end=end)
 
     def test_jr_jumping_across_64K_boundary(self):
@@ -1555,7 +1577,7 @@ class SimulatorTest(SkoolKitTestCase):
                 operation = f'JR ${end:04X}'
             data = (opcode, offset if offset >= 0 else offset + 256)
             timing = 12
-            registers['F'] = flags
+            registers[F] = flags
             self._test_instruction(simulator, operation, data, timing, start=start, end=end)
 
     def test_call_nn(self):
@@ -1566,8 +1588,8 @@ class SimulatorTest(SkoolKitTestCase):
         sp = 23456
         operation = f'CALL ${addr:04X}'
         data = (205, addr % 256, addr // 256)
-        registers['SP'] = sp
-        reg_out = {'SP': sp - 2}
+        registers[SP] = sp
+        reg_out = {SP: sp - 2}
         sna_out = {sp - 1: (start + 3) // 256, sp - 2: (start + 3) % 256}
         self._test_instruction(simulator, operation, data, 17, reg_out, sna_out, start=start, end=addr)
 
@@ -1598,11 +1620,11 @@ class SimulatorTest(SkoolKitTestCase):
                 (252, 'M',  0b10000000, addr),
         ):
             operation = f'CALL {condition},${addr:04X}'
-            registers['F'] = flags
-            registers['SP'] = sp
+            registers[F] = flags
+            registers[SP] = sp
             if end == addr:
                 timing = 17
-                reg_out = {'SP': sp - 2}
+                reg_out = {SP: sp - 2}
                 sna_out = {sp - 1: (start + 3) // 256, sp - 2: (start + 3) % 256}
             else:
                 timing = 10
@@ -1645,7 +1667,7 @@ class SimulatorTest(SkoolKitTestCase):
                 (250, 'M',  0b10000000, addr),
         ):
             operation = f'JP {condition},${addr:04X}'
-            registers['F'] = flags
+            registers[F] = flags
             data = (opcode, addr % 256, addr // 256)
             self._test_instruction(simulator, operation, data, 10, start=start, end=end)
 
@@ -1658,8 +1680,8 @@ class SimulatorTest(SkoolKitTestCase):
         sp = 32517
         operation = 'RET'
         data = [201]
-        registers['SP'] = sp
-        reg_out = {'SP': sp + 2}
+        registers[SP] = sp
+        reg_out = {SP: sp + 2}
         snapshot[sp:sp + 2] = (end % 256, end // 256)
         self._test_instruction(simulator, operation, data, 10, reg_out, start=start, end=end)
 
@@ -1692,11 +1714,11 @@ class SimulatorTest(SkoolKitTestCase):
         ):
             operation = f'RET {condition}'
             data = [opcode]
-            registers['SP'] = sp
-            registers['F'] = flags
+            registers[SP] = sp
+            registers[F] = flags
             if end == addr:
                 timing = 11
-                reg_out = {'SP': sp + 2}
+                reg_out = {SP: sp + 2}
             else:
                 timing = 5
                 reg_out = None
@@ -1712,8 +1734,8 @@ class SimulatorTest(SkoolKitTestCase):
         for addr in range(0, 64, 8):
             operation = f'RST ${addr:02X}'
             data = [199 + addr]
-            registers['SP'] = sp
-            reg_out = {'SP': sp - 2}
+            registers[SP] = sp
+            reg_out = {SP: sp - 2}
             sna_out = {sp - 1: (start + 1) // 256, sp - 2: (start + 1) % 256}
             self._test_instruction(simulator, operation, data, 11, reg_out, sna_out, start=start, end=addr)
 
@@ -1734,9 +1756,9 @@ class SimulatorTest(SkoolKitTestCase):
                 (154, 0b01000000, 0b01110010),
                 (0,   0b00000000, 0b00111010),
         ):
-            registers['A'] = a_in
-            registers['F'] = f_in
-            reg_out = {'A': a_in ^ 255, 'F': f_out}
+            registers[A] = a_in
+            registers[F] = f_in
+            reg_out = {A: a_in ^ 255, F: f_out}
             self._test_instruction(simulator, operation, data, 4, reg_out)
 
     def test_out_n_a(self):
@@ -1746,7 +1768,7 @@ class SimulatorTest(SkoolKitTestCase):
         n = 56
         operation = f'OUT (${n:02X}),A'
         data = (211, 56)
-        registers['A'] = a
+        registers[A] = a
         self._test_instruction(simulator, operation, data, 11)
 
     def test_out_c_r(self):
@@ -1756,11 +1778,11 @@ class SimulatorTest(SkoolKitTestCase):
         r = 56
 
         for i, reg in enumerate(REGISTERS):
-            if reg == '(HL)':
+            if reg == Hd:
                 continue
             operation = f'OUT (C),{reg}'
             data = (237, 65 + i * 8)
-            registers['C'] = c
+            registers[C] = c
             registers[reg] = r
             self._test_instruction(simulator, operation, data, 12)
 
@@ -1775,7 +1797,7 @@ class SimulatorTest(SkoolKitTestCase):
         n = 56
         operation = f'IN A,(${n:02X})'
         data = (0xDB, n)
-        reg_out = {'A': 191}
+        reg_out = {A: 191}
         self._test_instruction(simulator, operation, data, 11, reg_out)
 
     def test_in_r_c(self):
@@ -1787,17 +1809,17 @@ class SimulatorTest(SkoolKitTestCase):
         c = 128
 
         for i, reg in enumerate(REGISTERS):
-            if reg == '(HL)':
+            if reg == Hd:
                 continue
             operation = f'IN {reg},(C)'
             data = (237, 64 + i * 8)
-            registers['C'] = c
+            registers[C] = c
             tracer.value = in_value
             reg_out = {reg: in_value}
             if in_value == 0:
-                reg_out['F'] = 0b01000100
+                reg_out[F] = 0b01000100
             else:
-                reg_out['F'] = 0b10101100
+                reg_out[F] = 0b10101100
             in_value ^= 255
             self._test_instruction(simulator, operation, data, 12, reg_out)
 
@@ -1805,7 +1827,7 @@ class SimulatorTest(SkoolKitTestCase):
         simulator = Simulator([0] * 65536)
         operation = f'IN F,(C)'
         data = (0xED, 0x70)
-        reg_out = {'F': 0b10101000}
+        reg_out = {F: 0b10101000}
         self._test_instruction(simulator, operation, data, 12, reg_out)
 
     def test_djnz(self):
@@ -1816,8 +1838,8 @@ class SimulatorTest(SkoolKitTestCase):
         for b, timing, end in ((34, 13, addr), (1, 8, addr + 2)):
             operation = f'DJNZ ${addr:04X}'
             data = (16, 254)
-            registers['B'] = b
-            reg_out = {'B': b - 1}
+            registers[B] = b
+            reg_out = {B: b - 1}
             self._test_instruction(simulator, operation, data, timing, reg_out, start=addr, end=end)
 
     def test_djnz_jumping_across_64K_boundary(self):
@@ -1831,8 +1853,8 @@ class SimulatorTest(SkoolKitTestCase):
             operation = f'DJNZ ${end:04X}'
             data = (16, offset if offset >= 0 else offset + 256)
             timing = 13
-            registers['B'] = 2
-            reg_out = {'B': 1}
+            registers[B] = 2
+            reg_out = {B: 1}
             self._test_instruction(simulator, operation, data, timing, reg_out, start=start, end=end)
 
     def test_djnz_fast(self):
@@ -1850,9 +1872,9 @@ class SimulatorTest(SkoolKitTestCase):
         ):
             operation = f'DJNZ ${start + 2 + offset:04X}'
             data = (16, offset & 0xFF)
-            registers['B'] = b_in
-            registers['R'] = 0
-            reg_out = {'B': b_out, 'R': r_out}
+            registers[B] = b_in
+            registers[R] = 0
+            reg_out = {B: b_out, R: r_out}
             self._test_instruction(simulator, operation, data, timing, reg_out, start=start, end=end)
 
     def test_di(self):
@@ -1909,8 +1931,8 @@ class SimulatorTest(SkoolKitTestCase):
                 (0b00010000, 0b00000001),
                 (0b00000011, 0b00010000),
         ):
-            registers['F'] = f_in
-            reg_out = {'F': f_out}
+            registers[F] = f_in
+            reg_out = {F: f_out}
             self._test_instruction(simulator, operation, data, 4, reg_out)
 
     def test_scf(self):
@@ -1924,8 +1946,8 @@ class SimulatorTest(SkoolKitTestCase):
                 (0b00010000, 0b00000001),
                 (0b00000011, 0b00000001),
         ):
-            registers['F'] = f_in
-            reg_out = {'F': f_out}
+            registers[F] = f_in
+            reg_out = {F: f_out}
             self._test_instruction(simulator, operation, data, 4, reg_out)
 
     def _test_cpd_cpi(self, operation, opcode, inc, specs):
@@ -1937,17 +1959,17 @@ class SimulatorTest(SkoolKitTestCase):
         bc = 121
 
         for a, at_hl, f_out in specs:
-            registers['A'] = a
-            registers['B'] = bc // 256
-            registers['C'] = bc % 256
-            registers['H'] = hl // 256
-            registers['L'] = hl % 256
+            registers[A] = a
+            registers[B] = bc // 256
+            registers[C] = bc % 256
+            registers[H] = hl // 256
+            registers[L] = hl % 256
             reg_out = {
-                'B': (bc - 1) // 256,
-                'C': (bc - 1) % 256,
-                'H': (hl + inc) // 256,
-                'L': (hl + inc) % 256,
-                'F': f_out
+                B: (bc - 1) // 256,
+                C: (bc - 1) % 256,
+                H: (hl + inc) // 256,
+                L: (hl + inc) % 256,
+                F: f_out
             }
             snapshot[hl] = at_hl
             self._test_instruction(simulator, operation, data, 16, reg_out)
@@ -1983,17 +2005,17 @@ class SimulatorTest(SkoolKitTestCase):
             else:
                 timing = 16
                 end = start + 2
-            registers['A'] = a
-            registers['B'] = bc // 256
-            registers['C'] = bc % 256
-            registers['H'] = hl // 256
-            registers['L'] = hl % 256
+            registers[A] = a
+            registers[B] = bc // 256
+            registers[C] = bc % 256
+            registers[H] = hl // 256
+            registers[L] = hl % 256
             reg_out = {
-                'B': (bc - 1) // 256,
-                'C': (bc - 1) % 256,
-                'H': (hl + inc) // 256,
-                'L': (hl + inc) % 256,
-                'F': f_out
+                B: (bc - 1) // 256,
+                C: (bc - 1) % 256,
+                H: (hl + inc) // 256,
+                L: (hl + inc) % 256,
+                F: f_out
             }
             snapshot[hl] = at_hl
             self._test_instruction(simulator, operation, data, timing, reg_out, start=start, end=end)
@@ -2036,15 +2058,15 @@ class SimulatorTest(SkoolKitTestCase):
             if repeat and b != 1:
                 timing = 21
                 end = start
-            registers['B'] = b
-            registers['C'] = 1
-            registers['H'] = hl // 256
-            registers['L'] = hl % 256
+            registers[B] = b
+            registers[C] = 1
+            registers[H] = hl // 256
+            registers[L] = hl % 256
             reg_out = {
-                'B': (b - 1) & 255,
-                'H': (hl + inc) // 256,
-                'L': (hl + inc) % 256,
-                'F': f_out
+                B: (b - 1) & 255,
+                H: (hl + inc) // 256,
+                L: (hl + inc) % 256,
+                F: f_out
             }
             sna_out = {hl: 191}
             self._test_instruction(simulator, operation, data, timing, reg_out, sna_out, start=start, end=end)
@@ -2082,21 +2104,21 @@ class SimulatorTest(SkoolKitTestCase):
             if repeat and bc != 1:
                 timing = 21
                 end = start
-            registers['B'] = bc // 256
-            registers['C'] = bc % 256
-            registers['D'] = de // 256
-            registers['E'] = de % 256
-            registers['H'] = hl // 256
-            registers['L'] = hl % 256
+            registers[B] = bc // 256
+            registers[C] = bc % 256
+            registers[D] = de // 256
+            registers[E] = de % 256
+            registers[H] = hl // 256
+            registers[L] = hl % 256
             bc_out = (bc - 1) & 65535
             reg_out = {
-                'B': bc_out // 256,
-                'C': bc_out % 256,
-                'D': (de + inc) // 256,
-                'E': (de + inc) % 256,
-                'H': (hl + inc) // 256,
-                'L': (hl + inc) % 256,
-                'F': f_out
+                B: bc_out // 256,
+                C: bc_out % 256,
+                D: (de + inc) // 256,
+                E: (de + inc) % 256,
+                H: (hl + inc) // 256,
+                L: (hl + inc) % 256,
+                F: f_out
             }
             snapshot[hl] = at_hl
             sna_out = {de: at_hl}
@@ -2132,22 +2154,22 @@ class SimulatorTest(SkoolKitTestCase):
                 ( 1, 0, 30051, 30050, 40000, 39999, 0b00101000,   2,      16, start + 2),
                 ( 0, 1, 29999, 30000, 29999, 30000, 0b00001100, 126, 1376230, start),     # 0xB8 overwritten
         ):
-            registers['B'] = bc_in // 256
-            registers['C'] = bc_in % 256
-            registers['D'] = de_in // 256
-            registers['E'] = de_in % 256
-            registers['H'] = hl_in // 256
-            registers['L'] = hl_in % 256
-            registers['R'] = 0
+            registers[B] = bc_in // 256
+            registers[C] = bc_in % 256
+            registers[D] = de_in // 256
+            registers[E] = de_in % 256
+            registers[H] = hl_in // 256
+            registers[L] = hl_in % 256
+            registers[R] = 0
             reg_out = {
-                'B': bc_out // 256,
-                'C': bc_out % 256,
-                'D': de_out // 256,
-                'E': de_out % 256,
-                'H': hl_out // 256,
-                'L': hl_out % 256,
-                'F': f_out,
-                'R': r_out
+                B: bc_out // 256,
+                C: bc_out % 256,
+                D: de_out // 256,
+                E: de_out % 256,
+                H: hl_out // 256,
+                L: hl_out % 256,
+                F: f_out,
+                R: r_out
             }
             if bc_in:
                 mem_read = list(range(hl_out + 1, hl_in + 1))
@@ -2182,22 +2204,22 @@ class SimulatorTest(SkoolKitTestCase):
                 ( 1, 0, 29950, 29951, 40000, 40001, 0b00101000,   2,      16, start + 2),
                 ( 0, 1, 30002, 30001, 30002, 30001, 0b00001100, 126, 1376230, start),     # 0xED overwritten
         ):
-            registers['B'] = bc_in // 256
-            registers['C'] = bc_in % 256
-            registers['D'] = de_in // 256
-            registers['E'] = de_in % 256
-            registers['H'] = hl_in // 256
-            registers['L'] = hl_in % 256
-            registers['R'] = 0
+            registers[B] = bc_in // 256
+            registers[C] = bc_in % 256
+            registers[D] = de_in // 256
+            registers[E] = de_in % 256
+            registers[H] = hl_in // 256
+            registers[L] = hl_in % 256
+            registers[R] = 0
             reg_out = {
-                'B': bc_out // 256,
-                'C': bc_out % 256,
-                'D': de_out // 256,
-                'E': de_out % 256,
-                'H': hl_out // 256,
-                'L': hl_out % 256,
-                'F': f_out,
-                'R': r_out
+                B: bc_out // 256,
+                C: bc_out % 256,
+                D: de_out // 256,
+                E: de_out % 256,
+                H: hl_out // 256,
+                L: hl_out % 256,
+                F: f_out,
+                R: r_out
             }
             if bc_in:
                 mem_read = list(range(hl_in, hl_out))
@@ -2233,14 +2255,14 @@ class SimulatorTest(SkoolKitTestCase):
             if repeat and b != 1:
                 timing = 21
                 end = start
-            registers['B'] = b
-            registers['H'] = hl // 256
-            registers['L'] = hl % 256
+            registers[B] = b
+            registers[H] = hl // 256
+            registers[L] = hl % 256
             reg_out = {
-                'B': (b - 1) & 255,
-                'H': (hl + inc) // 256,
-                'L': (hl + inc) % 256,
-                'F': f_out
+                B: (b - 1) & 255,
+                H: (hl + inc) // 256,
+                L: (hl + inc) % 256,
+                F: f_out
             }
             snapshot[hl] = outval
             self._test_instruction(simulator, operation, data, timing, reg_out, start=start, end=end)
@@ -2264,20 +2286,15 @@ class SimulatorTest(SkoolKitTestCase):
         sp1, sp2 = 27, 231
         r1, r2 = 56, 89
 
-        for prefix, reg in (((), 'HL'), ((0xDD,), 'IX'), ((0xFD,), 'IY')):
+        for prefix, reg, rh in (((), 'HL', H), ((0xDD,), 'IX', IXh), ((0xFD,), 'IY', IYh)):
             for sp in (63312, 65535):
                 operation = f'EX (SP),{reg}'
                 data = prefix + (227,)
                 timing = 23 if prefix else 19
-                registers['SP'] = sp
-                if reg == 'HL':
-                    registers['H'] = r2
-                    registers['L'] = r1
-                    reg_out = {'L': sp1, 'H': sp2}
-                else:
-                    registers[reg + 'h'] = r2
-                    registers[reg + 'l'] = r1
-                    reg_out = {reg + 'l': sp1, reg + 'h': sp2}
+                registers[SP] = sp
+                registers[rh] = r2
+                registers[rh + 1] = r1
+                reg_out = {rh + 1: sp1, rh: sp2}
                 snapshot[sp] = sp1
                 snapshot[(sp + 1) & 0xFFFF] = sp2
                 sna_out = {sp: r1}
@@ -2293,21 +2310,25 @@ class SimulatorTest(SkoolKitTestCase):
         data = [217]
         bc, de, hl = 36711, 5351, 16781
         xbc, xde, xhl = 35129, 61121, 41113
-        registers.update({
-            'B': bc // 256, '^B': xbc // 256,
-            'C': bc % 256, '^C': xbc % 256,
-            'D': de // 256, '^D': xde // 256,
-            'E': de % 256, '^E': xde % 256,
-            'H': hl // 256, '^H': xhl // 256,
-            'L': hl % 256, '^L': xhl % 256,
-        })
+        registers[B] = bc // 256
+        registers[C] = bc % 256
+        registers[D] = de // 256
+        registers[E] = de % 256
+        registers[H] = hl // 256
+        registers[L] = hl % 256
+        registers[xB] = xbc // 256
+        registers[xC] = xbc % 256
+        registers[xD] = xde // 256
+        registers[xE] = xde % 256
+        registers[xH] = xhl // 256
+        registers[xL] = xhl % 256
         reg_out = {
-            'B': xbc // 256, '^B': bc // 256,
-            'C': xbc % 256, '^C': bc % 256,
-            'D': xde // 256, '^D': de // 256,
-            'E': xde % 256, '^E': de % 256,
-            'H': xhl // 256, '^H': hl // 256,
-            'L': xhl % 256, '^L': hl % 256,
+            B: xbc // 256, xB: bc // 256,
+            C: xbc % 256, xC: bc % 256,
+            D: xde // 256, xD: de // 256,
+            E: xde % 256, xE: de % 256,
+            H: xhl // 256, xH: hl // 256,
+            L: xhl % 256, xL: hl % 256,
         }
         self._test_instruction(simulator, operation, data, 4, reg_out)
 
@@ -2318,8 +2339,11 @@ class SimulatorTest(SkoolKitTestCase):
         data = [8]
         a, f = 4, 154
         xa, xf = 37, 17
-        registers.update({'A': a, 'F': f, '^A': xa, '^F': xf})
-        reg_out = {'A': xa, 'F': xf, '^A': a, '^F': f}
+        registers[A] = a
+        registers[F] = f
+        registers[xA] = xa
+        registers[xF] = xf
+        reg_out = {A: xa, F: xf, xA: a, xF: f}
         self._test_instruction(simulator, operation, data, 4, reg_out)
 
     def test_ex_de_hl(self):
@@ -2328,11 +2352,11 @@ class SimulatorTest(SkoolKitTestCase):
         operation = 'EX DE,HL'
         data = [235]
         de, hl = 28812, 56117
-        registers['D'] = de // 256
-        registers['E'] = de % 256
-        registers['H'] = hl // 256
-        registers['L'] = hl % 256
-        reg_out = {'D': hl // 256, 'E': hl % 256, 'H': de // 256, 'L': de % 256}
+        registers[D] = de // 256
+        registers[E] = de % 256
+        registers[H] = hl // 256
+        registers[L] = hl % 256
+        reg_out = {D: hl // 256, E: hl % 256, H: de // 256, L: de % 256}
         self._test_instruction(simulator, operation, data, 4, reg_out)
 
     def test_neg(self):
@@ -2353,8 +2377,8 @@ class SimulatorTest(SkoolKitTestCase):
                     f_out |= 0b00000100 # P/V
                 if a_out > 0:
                     f_out |= 0b00000001 # C
-                registers['A'] = a_in
-                reg_out = {'A': a_out, 'F': f_out}
+                registers[A] = a_in
+                reg_out = {A: a_out, F: f_out}
                 self._test_instruction(simulator, operation, data, 8, reg_out)
 
     def test_ret_from_interrupt(self):
@@ -2371,8 +2395,8 @@ class SimulatorTest(SkoolKitTestCase):
         ):
             for opcode in opcodes:
                 data = (0xED, opcode)
-                registers['SP'] = sp
-                reg_out = {'SP': sp + 2}
+                registers[SP] = sp
+                reg_out = {SP: sp + 2}
                 snapshot[sp:sp + 2] = (end % 256, end // 256)
                 self._test_instruction(simulator, operation, data, 14, reg_out, start=start, end=end)
 
@@ -2403,10 +2427,10 @@ class SimulatorTest(SkoolKitTestCase):
                 (0b10101001, 0b11000101, 0b10101100, 0b01011001, 0b10101100),
                 (0b00001001, 0b00000101, 0b00000000, 0b01011001, 0b01000100),
         ):
-            registers['A'] = a
-            registers['H'] = hl // 256
-            registers['L'] = hl % 256
-            reg_out = {'A': a_out, 'F': f_out}
+            registers[A] = a
+            registers[H] = hl // 256
+            registers[L] = hl % 256
+            reg_out = {A: a_out, F: f_out}
             snapshot[hl] = at_hl
             sna_out = {hl: at_hl_out}
             self._test_instruction(simulator, operation, data, 18, reg_out, sna_out)
@@ -2424,10 +2448,10 @@ class SimulatorTest(SkoolKitTestCase):
                 (0b10101001, 0b11000101, 0b10100101, 0b10011100, 0b10100100),
                 (0b00001001, 0b11100000, 0b00000000, 0b10011110, 0b01000100),
         ):
-            registers['A'] = a
-            registers['H'] = hl // 256
-            registers['L'] = hl % 256
-            reg_out = {'A': a_out, 'F': f_out}
+            registers[A] = a
+            registers[H] = hl // 256
+            registers[L] = hl % 256
+            reg_out = {A: a_out, F: f_out}
             snapshot[hl] = at_hl
             sna_out = {hl: at_hl_out}
             self._test_instruction(simulator, operation, data, 18, reg_out, sna_out)
@@ -2449,9 +2473,9 @@ class SimulatorTest(SkoolKitTestCase):
                 (0b00010010, 0b10111110, 250),
                 (0b00010011, 0b10011111, 154),
         ):
-            registers['A'] = 0
-            registers['F'] = f_in
-            reg_out = {'A': a_out, 'F': f_out}
+            registers[A] = 0
+            registers[F] = f_in
+            reg_out = {A: a_out, F: f_out}
             self._test_instruction(simulator, operation, data, 4, reg_out)
 
     def test_after_dd_fd_no_ix_iy(self):
@@ -2529,7 +2553,29 @@ class SimulatorTest(SkoolKitTestCase):
             '^L': 7,
         }
         simulator = Simulator([0] * 65536, registers)
-        self.assertEqual(simulator.registers, registers)
+        self.assertEqual(simulator.registers[A], 0)
+        self.assertEqual(simulator.registers[F], 1)
+        self.assertEqual(simulator.registers[B], 2)
+        self.assertEqual(simulator.registers[C], 3)
+        self.assertEqual(simulator.registers[D], 4)
+        self.assertEqual(simulator.registers[E], 5)
+        self.assertEqual(simulator.registers[H], 6)
+        self.assertEqual(simulator.registers[L], 7)
+        self.assertEqual(simulator.registers[IXh], 8)
+        self.assertEqual(simulator.registers[IXl], 9)
+        self.assertEqual(simulator.registers[IYh], 10)
+        self.assertEqual(simulator.registers[IYl], 11)
+        self.assertEqual(simulator.registers[I], 12)
+        self.assertEqual(simulator.registers[R], 13)
+        self.assertEqual(simulator.registers[SP], 14)
+        self.assertEqual(simulator.registers[xA], 0)
+        self.assertEqual(simulator.registers[xF], 1)
+        self.assertEqual(simulator.registers[xB], 2)
+        self.assertEqual(simulator.registers[xC], 3)
+        self.assertEqual(simulator.registers[xD], 4)
+        self.assertEqual(simulator.registers[xE], 5)
+        self.assertEqual(simulator.registers[xH], 6)
+        self.assertEqual(simulator.registers[xL], 7)
 
     def test_initial_register_pairs(self):
         registers = {
@@ -2546,39 +2592,40 @@ class SimulatorTest(SkoolKitTestCase):
             '^DE': 4882,
             '^HL': 5396,
         }
-        exp_registers = {
-            'A': 1,
-            'F': 0,
-            'B': 3,
-            'C': 2,
-            'D': 5,
-            'E': 4,
-            'H': 7,
-            'L': 6,
-            'IXh': 9,
-            'IXl': 8,
-            'IYh': 11,
-            'IYl': 10,
-            'I': 13,
-            'R': 12,
-            'SP': 14997,
-            '^A': 15,
-            '^F': 14,
-            '^B': 17,
-            '^C': 16,
-            '^D': 19,
-            '^E': 18,
-            '^H': 21,
-            '^L': 20,
+        exp_register_values = {
+            A: 1,
+            F: 0,
+            B: 3,
+            C: 2,
+            D: 5,
+            E: 4,
+            H: 7,
+            L: 6,
+            IXh: 9,
+            IXl: 8,
+            IYh: 11,
+            IYl: 10,
+            I: 13,
+            R: 12,
+            SP: 14997,
+            xA: 15,
+            xF: 14,
+            xB: 17,
+            xC: 16,
+            xD: 19,
+            xE: 18,
+            xH: 21,
+            xL: 20,
         }
         simulator = Simulator([0] * 65536, registers)
-        self.assertEqual(simulator.registers, exp_registers)
+        for r, v in exp_register_values.items():
+            self.assertEqual(simulator.registers[r], v)
 
     def test_instruction_crossing_64K_boundary(self):
         simulator = Simulator([0] * 65536)
         operation = 'LD BC,$0302'
         data = (1, 2, 3)
-        reg_out = {'B': 3, 'C': 2}
+        reg_out = {B: 3, C: 2}
         self._test_instruction(simulator, operation, data, 10, reg_out, start=65535, end=2)
 
     def test_no_tracer(self):
@@ -2619,8 +2666,8 @@ class SimulatorTest(SkoolKitTestCase):
         simulator.run(start)
         exp_ports = [43774, 65311, 65311, 65055, 510, 510]
         self.assertEqual(tracer.in_ports, exp_ports)
-        self.assertEqual(simulator.registers['A'], value)
-        self.assertEqual(simulator.registers['D'], value)
+        self.assertEqual(simulator.registers[A], value)
+        self.assertEqual(simulator.registers[D], value)
 
     def test_port_writing(self):
         snapshot = [0] * 65536
@@ -2784,4 +2831,4 @@ class SimulatorTest(SkoolKitTestCase):
         simulator = Simulator(snapshot, state={'iff': 1})
         simulator.run(start)
         self.assertEqual(simulator.pc, start + 2)
-        self.assertEqual(simulator.registers['F'], 0b00101100)
+        self.assertEqual(simulator.registers[F], 0b00101100)
