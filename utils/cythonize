@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+if [ -z "$SKOOLKIT_HOME" ]; then
+  echo "Error: SKOOLKIT_HOME not defined."
+  exit 1
+fi
+if [ ! -d "$SKOOLKIT_HOME" ]; then
+  echo "Error: directory not found: $SKOOLKIT_HOME"
+  exit 1
+fi
+
+cd $SKOOLKIT_HOME
+utils/cython-setup.py build_ext --inplace
