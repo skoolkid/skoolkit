@@ -198,26 +198,29 @@ class Simulator:
                 method()
             elif opcode == 0xCB:
                 r_inc = 2
-                after_CB[snapshot[(pc + 1) & 0xFFFF]]()
+                after_CB[snapshot[(pc + 1) % 65536]]()
             elif opcode == 0xED:
                 r_inc = 2
-                after_ED[snapshot[(pc + 1) & 0xFFFF]]()
+                after_ED[snapshot[(pc + 1) % 65536]]()
             elif opcode == 0xDD:
                 r_inc = 2
-                method = after_DD[snapshot[(pc + 1) & 0xFFFF]]
+                method = after_DD[snapshot[(pc + 1) % 65536]]
                 if method:
                     method()
                 else:
-                    after_DDCB[snapshot[(pc + 3) & 0xFFFF]]()
+                    after_DDCB[snapshot[(pc + 3) % 65536]]()
             else:
                 r_inc = 2
-                method = after_FD[snapshot[(pc + 1) & 0xFFFF]]
+                method = after_FD[snapshot[(pc + 1) % 65536]]
                 if method:
                     method()
                 else:
-                    after_FDCB[snapshot[(pc + 3) & 0xFFFF]]()
+                    after_FDCB[snapshot[(pc + 3) % 65536]]()
             r = registers[R]
-            registers[R] = (r & 0x80) + ((r + r_inc) & 0x7F)
+            if r < 128:
+                registers[R] = (r + r_inc) % 128
+            else:
+                registers[R] = 128 + ((r + r_inc) % 128)
             if itracer:
                 running = self.pc != stop
                 if itracer(pc):
@@ -248,12 +251,12 @@ class Simulator:
                 self.registers[rh + 1] = value % 256
 
     def index(self, reg):
-        offset = self.snapshot[(self.pc + 2) & 0xFFFF]
+        offset = self.snapshot[(self.pc + 2) % 65536]
         if offset >= 128:
             offset -= 256
         if reg == Xd:
-            return (self.registers[IXl] + 256 * self.registers[IXh] + offset) & 0xFFFF
-        return (self.registers[IYl] + 256 * self.registers[IYh] + offset) & 0xFFFF
+            return (self.registers[IXl] + 256 * self.registers[IXh] + offset) % 65536
+        return (self.registers[IYl] + 256 * self.registers[IYh] + offset) % 65536
 
     def get_operand_value(self, size, reg):
         if reg < xA:
@@ -261,7 +264,7 @@ class Simulator:
         if reg < Xd:
             return self.peek(self.registers[reg - 23] + 256 * self.registers[reg - 24])
         if reg == N:
-            return self.snapshot[(self.pc + size - 1) & 0xFFFF]
+            return self.snapshot[(self.pc + size - 1) % 65536]
         return self.peek(self.index(reg))
 
     def set_operand_value(self, reg, value):
@@ -277,7 +280,7 @@ class Simulator:
             self.peek_tracer(address, count)
         if count == 1:
             return self.snapshot[address]
-        return self.snapshot[address], self.snapshot[(address + 1) & 0xFFFF]
+        return self.snapshot[address], self.snapshot[(address + 1) % 65536]
 
     def poke(self, address, *values):
         if self.poke_tracer:
@@ -285,44 +288,44 @@ class Simulator:
         if address > 0x3FFF:
             self.snapshot[address] = values[0]
         if len(values) > 1:
-            address = (address + 1) & 0xFFFF
+            address = (address + 1) % 65536
             if address > 0x3FFF:
                 self.snapshot[address] = values[1]
 
     def add_a(self, timing, size, reg=N, carry=0, mult=1):
         value = self.get_operand_value(size, reg)
-        old_c = self.registers[F] & 0x01
+        old_c = self.registers[F] % 2
         old_a = self.registers[A]
         addend = value + carry * old_c
         a = old_a + mult * addend
         if a < 0 or a > 255:
-            a = a & 255
-            f = (a & 0xA8) | 0x01 # S.5.3..C
+            a %= 256
+            f = (a & 0xA8) + 0x01 # S.5.3..C
         else:
             f = a & 0xA8          # S.5.3..C
         if a == 0:
-            f |= 0x40 # .Z......
+            f += 0x40 # .Z......
         if mult == 1:
             s_value = value
-            if (carry and reg == A and old_a & 0x0F == 0x0F) or ((old_a & 0x0F) + (addend & 0x0F)) & 0x10:
-                f |= 0x10 # ...H....
+            if (carry and reg == A and old_a % 16 == 0x0F) or ((old_a % 16) + (addend % 16)) & 0x10:
+                f += 0x10 # ...H....
         else:
             s_value = ~value # Flip sign bit when subtracting
-            if carry and reg == A and old_a & 0x0F == 0x0F:
-                f |= old_c << 4 # ...H....
-            elif ((old_a & 0x0F) - (addend & 0x0F)) & 0x10:
-                f |= 0x10       # ...H....
-            f |= 0x02 # ......N. set for SBC/SUB, reset otherwise
+            if carry and reg == A and old_a % 16 == 0x0F:
+                f += old_c * 16 # ...H....
+            elif ((old_a % 16) - (addend % 16)) & 0x10:
+                f += 0x10       # ...H....
+            f += 0x02 # ......N. set for SBC/SUB, reset otherwise
         if ((old_a ^ s_value) ^ 0x80) & 0x80 and (a ^ old_a) & 0x80:
             # Augend and addend signs are the same - overflow if their sign
             # differs from the sign of the result
-            self.registers[F] = f | 0x04 # .....P..
+            self.registers[F] = f + 0x04 # .....P..
         else:
             self.registers[F] = f
         self.registers[A] = a
 
         self.tstates += timing
-        self.pc = (self.pc + size) & 0xFFFF
+        self.pc = (self.pc + size) % 65536
 
     def add16(self, timing, size, augend, reg, carry=0, mult=1):
         if reg == SP:
@@ -333,7 +336,7 @@ class Simulator:
 
         s_addend = addend_v
         old_f = self.registers[F]
-        addend_v += carry * (old_f & 0x01)
+        addend_v += carry * (old_f % 2)
 
         if mult == 1:
             if carry:
@@ -341,45 +344,45 @@ class Simulator:
             else:
                 f = old_f & 0b11000100 # Keep SZ...P..
         else:
-            f = 0b00000010 # ......N.
+            f = 0x02 # ......N.
             s_addend = ~s_addend
 
-        if ((augend_v & 0x0FFF) + mult * (addend_v & 0x0FFF)) & 0x1000:
-            f |= 0b00010000 # ...H....
+        if ((augend_v % 4096) + mult * (addend_v % 4096)) & 0x1000:
+            f += 0x10 # ...H....
 
         value = augend_v + mult * addend_v
         if value < 0 or value > 0xFFFF:
-            value &= 0xFFFF
-            f |= 0b00000001 # .......C
+            value %= 65536
+            f += 0x01 # .......C
 
         if carry:
             # ADC, SBC
             if value & 0x8000:
-                f |= 0b10000000 # S.......
+                f += 0x80 # S.......
             elif value == 0:
-                f |= 0b01000000 # .Z......
+                f += 0x40 # .Z......
             if ((augend_v ^ s_addend) ^ 0x8000) & 0x8000 and (value ^ augend_v) & 0x8000:
                 # Augend and addend signs are the same - overflow if their sign
                 # differs from the sign of the result
-                f |= 0b00000100 # .....P..
+                f += 0x04 # .....P..
 
-        self.registers[F] = f | (value >> 8) & 0x28 # ..5.3...
+        self.registers[F] = f + ((value // 256) & 0x28) # ..5.3...
 
         self.registers[augend + 1] = value % 256
         self.registers[augend] = value // 256
 
         self.tstates += timing
-        self.pc = (self.pc + size) & 0xFFFF
+        self.pc = (self.pc + size) % 65536
 
     def and_n(self):
-        self.registers[A] &= self.snapshot[(self.pc + 1) & 0xFFFF]
+        self.registers[A] &= self.snapshot[(self.pc + 1) % 65536]
         a = self.registers[A]
         if a == 0:
             self.registers[F] = 0x54 # SZ5H3PNC
         else:
-            self.registers[F] = (a & 0xA8) | 0x10 | PARITY[a] # SZ5H3PNC
+            self.registers[F] = (a & 0xA8) + 0x10 + PARITY[a] # SZ5H3PNC
         self.tstates += 7
-        self.pc = (self.pc + 2) & 0xFFFF
+        self.pc = (self.pc + 2) % 65536
 
     def and_r(self, r):
         self.registers[A] &= self.registers[r]
@@ -387,9 +390,9 @@ class Simulator:
         if a == 0:
             self.registers[F] = 0x54 # SZ5H3PNC
         else:
-            self.registers[F] = (a & 0xA8) | 0x10 | PARITY[a] # SZ5H3PNC
+            self.registers[F] = (a & 0xA8) + 0x10 + PARITY[a] # SZ5H3PNC
         self.tstates += 4
-        self.pc = (self.pc + 1) & 0xFFFF
+        self.pc = (self.pc + 1) % 65536
 
     def anda(self, timing, size, reg):
         self.registers[A] &= self.get_operand_value(size, reg)
@@ -397,29 +400,29 @@ class Simulator:
         if a == 0:
             self.registers[F] = 0x54 # SZ5H3PNC
         else:
-            self.registers[F] = (a & 0xA8) | 0x10 | PARITY[a] # SZ5H3PNC
+            self.registers[F] = (a & 0xA8) + 0x10 + PARITY[a] # SZ5H3PNC
         self.tstates += timing
-        self.pc = (self.pc + size) & 0xFFFF
+        self.pc = (self.pc + size) % 65536
 
     def bit(self, timing, size, mask, reg):
         value = self.get_operand_value(size, reg)
         bitval = value & mask
-        f = 0x10 | (self.registers[F] & 0x01) # ...H..NC
+        f = 0x10 + (self.registers[F] % 2) # ...H..NC
         if bitval == 0:
-            f |= 0x44 # .Z...P..
+            f += 0x44 # .Z...P..
         elif mask == 128:
-            f |= 0x80 # S.......
+            f += 0x80 # S.......
         if reg >= Xd:
-            offset = self.snapshot[(self.pc + 2) & 0xFFFF]
+            offset = self.snapshot[(self.pc + 2) % 65536]
             if reg == Xd:
-                v = (self.registers[IXl] + 256 * self.registers[IXh] + offset) & 0xFFFF
+                v = (self.registers[IXl] + 256 * self.registers[IXh] + offset) % 65536
             else:
-                v = (self.registers[IYl] + 256 * self.registers[IYh] + offset) & 0xFFFF
-            self.registers[F] = f | (v >> 8) & 0x28 # ..5.3...
+                v = (self.registers[IYl] + 256 * self.registers[IYh] + offset) % 65536
+            self.registers[F] = f + ((v // 256) & 0x28) # ..5.3...
         else:
-            self.registers[F] = f | value & 0x28 # ..5.3...
+            self.registers[F] = f + (value & 0x28) # ..5.3...
         self.tstates += timing
-        self.pc = (self.pc + size) & 0xFFFF
+        self.pc = (self.pc + size) % 65536
 
     def block(self, btype, inc, repeat):
         registers = self.registers
@@ -436,32 +439,32 @@ class Simulator:
             de = registers[E] + 256 * registers[D]
             at_hl = self.peek(hl)
             self.poke(de, at_hl)
-            de = (de + inc) & 0xFFFF
+            de = (de + inc) % 65536
             registers[E], registers[D] = de % 256, de // 256
             if repeat and bc != 1:
                 addr = self.pc
                 tstates = 21
             n = registers[A] + at_hl
-            f = (registers[F] & 0xC1) | (n & 0x08) # SZ.H3.NC
+            f = (registers[F] & 0xC1) + (n & 0x08) # SZ.H3.NC
             if n & 0x02:
-                f |= 0x20 # ..5.....
+                f += 0x20 # ..5.....
             if bc != 1:
-                f |= 0x04 # .....P..
+                f += 0x04 # .....P..
         elif btype == 1:
             # CPI, CPD, CPIR, CPDR
             value = self.peek(hl)
-            result = (a - value) & 0xFF
-            hf = ((a & 0x0F) - (value & 0x0F)) & 0x10
+            result = (a - value) % 256
+            hf = ((a % 16) - (value % 16)) & 0x10
             n = a - value - hf // 16
-            f = (result & 0x80) | hf | 0x02 | (registers[F] & 0x01) # S..H..NC
+            f = (result & 0x80) + hf + 0x02 + (registers[F] % 2) # S..H..NC
             if result == 0:
-                f |= 0x40 # .Z......
+                f += 0x40 # .Z......
             if n & 0x02:
-                f |= 0x20 # ..5.....
+                f += 0x20 # ..5.....
             if n & 0x08:
-                f |= 0x08 # ....3...
+                f += 0x08 # ....3...
             if bc != 1:
-                f |= 0x04 # .....P..
+                f += 0x04 # .....P..
             if repeat and a != value and bc > 1:
                 addr = self.pc
                 tstates = 21
@@ -473,15 +476,15 @@ class Simulator:
             if repeat and b != 1:
                 addr = self.pc
                 tstates = 21
-            b1 = (b - 1) & 0xFF
-            j = value + ((registers[C] + inc) & 0xFF)
-            f = (b1 & 0xA8) | PARITY[(j & 7) ^ b1] # S.5.3P..
+            b1 = (b - 1) % 256
+            j = value + ((registers[C] + inc) % 256)
+            f = (b1 & 0xA8) + PARITY[(j % 8) ^ b1] # S.5.3P..
             if b1 == 0:
-                f |= 0x40 # .Z......
+                f += 0x40 # .Z......
             if j > 255:
-                f |= 0x11 # ...H...C
+                f += 0x11 # ...H...C
             if value & 0x80:
-                f |= 0x02 # ......N.
+                f += 0x02 # ......N.
         else:
             # OUTI, OUTD, OTIR, OTDR
             bc_inc = -256
@@ -489,71 +492,71 @@ class Simulator:
                 addr = self.pc
                 tstates = 21
             outval = self.peek(hl)
-            self._out((bc - 256) & 0xFFFF, outval)
-            b1 = (b - 1) & 0xFF
-            k = ((hl + inc) & 0xFF) + outval
-            f = (b1 & 0xA8) | PARITY[(k & 7) ^ b1] # S.5.3P..
+            self._out((bc - 256) % 65536, outval)
+            b1 = (b - 1) % 256
+            k = ((hl + inc) % 256) + outval
+            f = (b1 & 0xA8) + PARITY[(k % 8) ^ b1] # S.5.3P..
             if b1 == 0:
-                f |= 0x40 # .Z......
+                f += 0x40 # .Z......
             if k > 255:
-                f |= 0x11 # ...H...C
+                f += 0x11 # ...H...C
             if outval & 0x80:
-                f |= 0x02 # ......N.
+                f += 0x02 # ......N.
 
-        hl = (hl + inc) & 0xFFFF
-        bc = (bc + bc_inc) & 0xFFFF
+        hl = (hl + inc) % 65536
+        bc = (bc + bc_inc) % 65536
         registers[L], registers[H] = hl % 256, hl // 256
         registers[C], registers[B] = bc % 256, bc // 256
         registers[F] = f
 
         self.tstates += tstates
-        self.pc = addr & 0xFFFF
+        self.pc = addr % 65536
 
     def call(self, c_and, c_xor):
         if c_and and self.registers[F] & c_and ^ c_xor == 0:
             self.tstates += 10
-            self.pc = (self.pc + 3) & 0xFFFF
+            self.pc = (self.pc + 3) % 65536
         else:
-            ret_addr = (self.pc + 3) & 0xFFFF
+            ret_addr = (self.pc + 3) % 65536
             self._push(ret_addr % 256, ret_addr // 256)
             self.tstates += 17
-            self.pc = self.snapshot[(self.pc + 1) & 0xFFFF] + 256 * self.snapshot[(self.pc + 2) & 0xFFFF]
+            self.pc = self.snapshot[(self.pc + 1) % 65536] + 256 * self.snapshot[(self.pc + 2) % 65536]
 
     def cf(self, flip):
         f = self.registers[F] & 0xC4 # SZ...PN.
-        if flip and self.registers[F] & 0x01:
-            self.registers[F] = f | self.registers[A] & 0x28 | 0x10 # ..5H3...
+        if flip and self.registers[F] % 2:
+            self.registers[F] = f + (self.registers[A] & 0x28) + 0x10 # ..5H3...
         else:
-            self.registers[F] = f | self.registers[A] & 0x28 | 0x01 # ..5.3..C
+            self.registers[F] = f + (self.registers[A] & 0x28) + 0x01 # ..5.3..C
         self.tstates += 4
-        self.pc = (self.pc + 1) & 0xFFFF
+        self.pc = (self.pc + 1) % 65536
 
     def cp(self, timing, size, reg=N):
         value = self.get_operand_value(size, reg)
         a = self.registers[A]
-        result = (a - value) & 0xFF
-        f = (result & 0x80) | (value & 0x28) | 0x02 # S.5.3.N.
+        result = (a - value) % 256
+        f = (result & 0x80) + (value & 0x28) + 0x02 # S.5.3.N.
         if result == 0:
-            f |= 0x40 # .Z......
-        if ((a & 0x0F) - (value & 0x0F)) & 0x10:
-            f |= 0x10 # ...H....
+            f += 0x40 # .Z......
+        if ((a % 16) - (value % 16)) & 0x10:
+            f += 0x10 # ...H....
         if ((a ^ ~value) ^ 0x80) & 0x80 and (result ^ a) & 0x80:
             # Operand signs are the same - overflow if their sign differs from
             # the sign of the result
-            f |= 0x04 # .....P..
+            f += 0x04 # .....P..
         if a < value:
-            self.registers[F] = f | 0x01 # .......C
+            self.registers[F] = f + 0x01 # .......C
         else:
             self.registers[F] = f
         self.tstates += timing
-        self.pc = (self.pc + size) & 0xFFFF
+        self.pc = (self.pc + size) % 65536
 
     def cpl(self):
         a = self.registers[A] ^ 255
         self.registers[A] = a
-        self.registers[F] = (self.registers[F] & 0xC5) | (a & 0x28) | 0x12
+        self.registers[F] = (self.registers[F] & 0xC5) + (a & 0x28) + 0x12
         self.tstates += 4
-        self.pc = (self.pc + 1) & 0xFFFF
+        self.pc = (self.pc + 1) % 65536
 
     def daa(self):
         a = self.registers[A]
@@ -563,86 +566,86 @@ class Simulator:
         t = 0
         f = nf
 
-        if hf or a & 15 > 0x09:
+        if hf or a % 16 > 0x09:
             t += 1
-        if old_f & 0x01 or a > 0x99:
+        if old_f % 2 or a > 0x99:
             t += 2
-            f |= 0x01 # .......C
+            f += 0x01 # .......C
 
-        if (nf and hf and a & 0x0F < 6) or (nf == 0 and a & 0x0F >= 0x0A):
-            f |= 0x10 # ...H....
+        if (nf and hf and a % 16 < 6) or (nf == 0 and a % 16 >= 0x0A):
+            f += 0x10 # ...H....
 
         if t == 1:
             if nf:
-                a = (a + 0xFA) & 0xFF
+                a = (a + 0xFA) % 256
             else:
-                a = (a + 0x06) & 0xFF
+                a = (a + 0x06) % 256
         elif t == 2:
             if nf:
-                a = (a + 0xA0) & 0xFF
+                a = (a + 0xA0) % 256
             else:
-                a = (a + 0x60) & 0xFF
+                a = (a + 0x60) % 256
         elif t == 3:
             if nf:
-                a = (a + 0x9A) & 0xFF
+                a = (a + 0x9A) % 256
             else:
-                a = (a + 0x66) & 0xFF
+                a = (a + 0x66) % 256
 
         self.registers[A] = a
         if a == 0:
-            self.registers[F] = f | 0x44 # .Z...P..
+            self.registers[F] = f + 0x44 # .Z...P..
         else:
-            self.registers[F] = f | (a & 0xA8) | PARITY[a] # S.5.3P..
+            self.registers[F] = f + (a & 0xA8) + PARITY[a] # S.5.3P..
 
         self.tstates += 4
-        self.pc = (self.pc + 1) & 0xFFFF
+        self.pc = (self.pc + 1) % 65536
 
     def dec_r(self, reg):
-        value = (self.registers[reg] - 1) & 0xFF
-        f = (self.registers[F] & 0x01) | (value & 0xA8) | 0x02 # S.5.3.NC
+        value = (self.registers[reg] - 1) % 256
+        f = (self.registers[F] % 2) + (value & 0xA8) + 0x02 # S.5.3.NC
         if value == 0x7F:
-            f |= 0x14 # ...H.P..
-        elif value & 0x0F == 0x0F:
-            f |= 0x10 # ...H....
+            f += 0x14 # ...H.P..
+        elif value % 16 == 0x0F:
+            f += 0x10 # ...H....
         if value == 0:
-            self.registers[F] = f | 0x40 # .Z......
+            self.registers[F] = f + 0x40 # .Z......
         else:
             self.registers[F] = f
         self.registers[reg] = value
         self.tstates += 4
-        self.pc = (self.pc + 1) & 0xFFFF
+        self.pc = (self.pc + 1) % 65536
 
     def defb(self, timing, size):
         self.tstates += timing
-        self.pc = (self.pc + size) & 0xFFFF
+        self.pc = (self.pc + size) % 65536
 
     def di_ei(self, iff2):
         self.iff2 = iff2
         self.tstates += 4
-        self.pc = (self.pc + 1) & 0xFFFF
+        self.pc = (self.pc + 1) % 65536
 
     def djnz(self):
-        b = (self.registers[B] - 1) & 0xFF
+        b = (self.registers[B] - 1) % 256
         self.registers[B] = b
         if b:
             self.tstates += 13
-            offset = self.snapshot[(self.pc + 1) & 0xFFFF]
+            offset = self.snapshot[(self.pc + 1) % 65536]
             if offset > 127:
-                self.pc = (self.pc - 254 + offset) & 0xFFFF
+                self.pc = (self.pc - 254 + offset) % 65536
             else:
-                self.pc = (self.pc + 2 + offset) & 0xFFFF
+                self.pc = (self.pc + 2 + offset) % 65536
         else:
             self.tstates += 8
-            self.pc = (self.pc + 2) & 0xFFFF
+            self.pc = (self.pc + 2) % 65536
 
     def djnz_fast(self):
-        if self.snapshot[(self.pc + 1) & 0xFFFF] == 0xFE:
-            b = (self.registers[B] - 1) & 0xFF
+        if self.snapshot[(self.pc + 1) % 65536] == 0xFE:
+            b = (self.registers[B] - 1) % 256
             self.registers[B] = 0
             r = self.registers[R]
-            self.registers[R] = (r & 0x80) + ((r + b) & 0x7F)
+            self.registers[R] = (r & 0x80) + ((r + b) % 128)
             self.tstates += b * 13 + 8
-            self.pc = (self.pc + 2) & 0xFFFF
+            self.pc = (self.pc + 2) % 65536
         else:
             self.djnz()
 
@@ -651,14 +654,14 @@ class Simulator:
         registers[A], registers[xA] = registers[xA], registers[A]
         registers[F], registers[xF] = registers[xF], registers[F]
         self.tstates += 4
-        self.pc = (self.pc + 1) & 0xFFFF
+        self.pc = (self.pc + 1) % 65536
 
     def ex_de_hl(self):
         registers = self.registers
         registers[D], registers[H] = registers[H], registers[D]
         registers[E], registers[L] = registers[L], registers[E]
         self.tstates += 4
-        self.pc = (self.pc + 1) & 0xFFFF
+        self.pc = (self.pc + 1) % 65536
 
     def ex_sp(self, reg):
         sp = self.registers[SP]
@@ -668,10 +671,10 @@ class Simulator:
         self.registers[reg] = sp2
         if reg == H:
             self.tstates += 19
-            self.pc = (self.pc + 1) & 0xFFFF
+            self.pc = (self.pc + 1) % 65536
         else:
             self.tstates += 23
-            self.pc = (self.pc + 2) & 0xFFFF
+            self.pc = (self.pc + 2) % 65536
 
     def exx(self):
         registers = self.registers
@@ -682,19 +685,19 @@ class Simulator:
         registers[H], registers[xH] = registers[xH], registers[H]
         registers[L], registers[xL] = registers[xL], registers[L]
         self.tstates += 4
-        self.pc = (self.pc + 1) & 0xFFFF
+        self.pc = (self.pc + 1) % 65536
 
     def halt(self):
         if self.iff2:
             t = self.tstates
             if (t + 4) % FRAME_DURATION < t % FRAME_DURATION:
-                self.pc = (self.pc + 1) & 0xFFFF
+                self.pc = (self.pc + 1) % 65536
         self.tstates += 4
 
     def im(self, mode):
         self.imode = mode
         self.tstates += 8
-        self.pc = (self.pc + 2) & 0xFFFF
+        self.pc = (self.pc + 2) % 65536
 
     def _in(self, port):
         if self.in_tracer:
@@ -705,98 +708,98 @@ class Simulator:
         return 191
 
     def in_a(self):
-        operand = self.snapshot[(self.pc + 1) & 0xFFFF]
+        operand = self.snapshot[(self.pc + 1) % 65536]
         self.registers[A] = self._in(operand + 256 * self.registers[A])
         self.tstates += 11
-        self.pc = (self.pc + 2) & 0xFFFF
+        self.pc = (self.pc + 2) % 65536
 
     def in_c(self, reg):
         value = self._in(self.registers[C] + 256 * self.registers[B])
         if reg != F:
             self.registers[reg] = value
         if value == 0:
-            self.registers[F] = 0x44 | (self.registers[F] & 0x01) # .Z...P.C
+            self.registers[F] = 0x44 + (self.registers[F] % 2) # .Z...P.C
         else:
-            self.registers[F] = (value & 0xA8) | PARITY[value] | (self.registers[F] & 0x01) # S.5H3PNC
+            self.registers[F] = (value & 0xA8) + PARITY[value] + (self.registers[F] % 2) # S.5H3PNC
         self.tstates += 12
-        self.pc = (self.pc + 2) & 0xFFFF
+        self.pc = (self.pc + 2) % 65536
 
     def inc_r(self, reg):
-        value = (self.registers[reg] + 1) & 0xFF
-        f = (self.registers[F] & 0x01) | (value & 0xA8) # S.5.3..C
+        value = (self.registers[reg] + 1) % 256
+        f = (self.registers[F] % 2) + (value & 0xA8) # S.5.3..C
         if value == 0x80:
-            f |= 0x14 # ...H.P..
-        elif value & 0x0F == 0x00:
-            f |= 0x10 # ...H....
+            f += 0x14 # ...H.P..
+        elif value % 16 == 0x00:
+            f += 0x10 # ...H....
         if value == 0:
-            self.registers[F] = f | 0x40 # .Z......
+            self.registers[F] = f + 0x40 # .Z......
         else:
             self.registers[F] = f
         self.registers[reg] = value
         self.tstates += 4
-        self.pc = (self.pc + 1) & 0xFFFF
+        self.pc = (self.pc + 1) % 65536
 
     def inc_dec8(self, timing, size, inc, reg):
-        value = (self.get_operand_value(size, reg) + inc) & 255
-        f = (self.registers[F] & 0x01) | (value & 0xA8) # S.5.3..C
+        value = (self.get_operand_value(size, reg) + inc) % 256
+        f = (self.registers[F] % 2) + (value & 0xA8) # S.5.3..C
         if inc < 0:
             if value == 0x7F:
-                f |= 0x16 # ...H.PN.
-            elif value & 0x0F == 0x0F:
-                f |= 0x12 # ...H..N.
+                f += 0x16 # ...H.PN.
+            elif value % 16 == 0x0F:
+                f += 0x12 # ...H..N.
             else:
-                f |= 0x02 # ......N.
+                f += 0x02 # ......N.
         else:
             if value == 0x80:
-                f |= 0x14 # ...H.P..
-            elif value & 0x0F == 0x00:
-                f |= 0x10 # ...H....
+                f += 0x14 # ...H.P..
+            elif value % 16 == 0x00:
+                f += 0x10 # ...H....
         if value == 0:
-            self.registers[F] = f | 0x40 # .Z......
+            self.registers[F] = f + 0x40 # .Z......
         else:
             self.registers[F] = f
         self.set_operand_value(reg, value)
         self.tstates += timing
-        self.pc = (self.pc + size) & 0xFFFF
+        self.pc = (self.pc + size) % 65536
 
     def inc_dec16(self, inc, reg):
         if reg == SP:
-            self.registers[SP] = (self.registers[SP] + inc) & 0xFFFF
+            self.registers[SP] = (self.registers[SP] + inc) % 65536
             self.tstates += 6
-            self.pc = (self.pc + 1) & 0xFFFF
+            self.pc = (self.pc + 1) % 65536
         else:
-            value = (self.registers[reg + 1] + 256 * self.registers[reg] + inc) & 0xFFFF
+            value = (self.registers[reg + 1] + 256 * self.registers[reg] + inc) % 65536
             self.registers[reg] = value // 256
             self.registers[reg + 1] = value % 256
             if reg < IXh:
                 self.tstates += 6
-                self.pc = (self.pc + 1) & 0xFFFF
+                self.pc = (self.pc + 1) % 65536
             else:
                 self.tstates += 10
-                self.pc = (self.pc + 2) & 0xFFFF
+                self.pc = (self.pc + 2) % 65536
 
     def jr(self, c_and, c_xor):
         if c_and and self.registers[F] & c_and ^ c_xor == 0:
             self.tstates += 7
-            self.pc = (self.pc + 2) & 0xFFFF
+            self.pc = (self.pc + 2) % 65536
         else:
             self.tstates += 12
-            offset = self.snapshot[(self.pc + 1) & 0xFFFF]
+            offset = self.snapshot[(self.pc + 1) % 65536]
             if offset > 127:
-                self.pc = (self.pc - 254 + offset) & 0xFFFF
+                self.pc = (self.pc - 254 + offset) % 65536
             else:
-                self.pc = (self.pc + 2 + offset) & 0xFFFF
+                self.pc = (self.pc + 2 + offset) % 65536
 
     def jp(self, c_and, c_xor):
         if c_and:
             self.tstates += 10
             if self.registers[F] & c_and ^ c_xor == 0:
-                self.pc = (self.pc + 3) & 0xFFFF
+                self.pc = (self.pc + 3) % 65536
             else:
-                self.pc = self.snapshot[(self.pc + 1) & 0xFFFF] + 256 * self.snapshot[(self.pc + 2) & 0xFFFF]
+                self.pc = self.snapshot[(self.pc + 1) % 65536] + 256 * self.snapshot[(self.pc + 2) % 65536]
         elif c_xor == 0:
             self.tstates += 10
-            self.pc = self.snapshot[(self.pc + 1) & 0xFFFF] + 256 * self.snapshot[(self.pc + 2) & 0xFFFF]
+            self.pc = self.snapshot[(self.pc + 1) % 65536] + 256 * self.snapshot[(self.pc + 2) % 65536]
         elif c_xor == H:
             self.tstates += 4
             self.pc = self.registers[L] + 256 * self.registers[H]
@@ -805,49 +808,49 @@ class Simulator:
             self.pc = self.registers[c_xor + 1] + 256 * self.registers[c_xor]
 
     def ld_r_n(self, r):
-        self.registers[r] = self.snapshot[(self.pc + 1) & 0xFFFF]
+        self.registers[r] = self.snapshot[(self.pc + 1) % 65536]
         self.tstates += 7
-        self.pc = (self.pc + 2) & 0xFFFF
+        self.pc = (self.pc + 2) % 65536
 
     def ld_r_r(self, r1, r2):
         self.registers[r1] = self.registers[r2]
         self.tstates += 4
-        self.pc = (self.pc + 1) & 0xFFFF
+        self.pc = (self.pc + 1) % 65536
 
     def ld8(self, timing, size, reg, reg2=N):
         self.set_operand_value(reg, self.get_operand_value(size, reg2))
         if reg2 in (I, R):
             a = self.registers[A]
             if a == 0:
-                f = 0x40 | (self.registers[F] & 0x01) # .Z.....C
+                f = 0x40 + (self.registers[F] % 2) # .Z.....C
             else:
-                f = (a & 0xA8) | (self.registers[F] & 0x01) # S.5H3.NC
+                f = (a & 0xA8) + (self.registers[F] % 2) # S.5H3.NC
             if self.iff2:
-                self.registers[F] = f | 0x04 # .....P..
+                self.registers[F] = f + 0x04 # .....P..
             else:
                 self.registers[F] = f
         self.tstates += timing
-        self.pc = (self.pc + size) & 0xFFFF
+        self.pc = (self.pc + size) % 65536
 
     def ld16(self, reg):
         if reg < IXh:
-            self.registers[reg + 1] = self.snapshot[(self.pc + 1) & 0xFFFF]
-            self.registers[reg] = self.snapshot[(self.pc + 2) & 0xFFFF]
+            self.registers[reg + 1] = self.snapshot[(self.pc + 1) % 65536]
+            self.registers[reg] = self.snapshot[(self.pc + 2) % 65536]
             self.tstates += 10
-            self.pc = (self.pc + 3) & 0xFFFF
+            self.pc = (self.pc + 3) % 65536
         elif reg == SP:
-            self.registers[SP] = self.snapshot[(self.pc + 1) & 0xFFFF] + 256 * self.snapshot[(self.pc + 2) & 0xFFFF]
+            self.registers[SP] = self.snapshot[(self.pc + 1) % 65536] + 256 * self.snapshot[(self.pc + 2) % 65536]
             self.tstates += 10
-            self.pc = (self.pc + 3) & 0xFFFF
+            self.pc = (self.pc + 3) % 65536
         else:
-            self.registers[reg + 1] = self.snapshot[(self.pc + 2) & 0xFFFF]
-            self.registers[reg] = self.snapshot[(self.pc + 3) & 0xFFFF]
+            self.registers[reg + 1] = self.snapshot[(self.pc + 2) % 65536]
+            self.registers[reg] = self.snapshot[(self.pc + 3) % 65536]
             self.tstates += 14
-            self.pc = (self.pc + 4) & 0xFFFF
+            self.pc = (self.pc + 4) % 65536
 
     def ld16addr(self, timing, size, reg, poke):
         end = self.pc + size
-        addr = self.snapshot[(end - 2) & 0xFFFF] + 256 * self.snapshot[(end - 1) & 0xFFFF]
+        addr = self.snapshot[(end - 2) % 65536] + 256 * self.snapshot[(end - 1) % 65536]
         if poke:
             if reg == SP:
                 self.poke(addr, self.registers[SP] % 256, self.registers[SP] // 256)
@@ -859,15 +862,15 @@ class Simulator:
         else:
             self.registers[reg + 1], self.registers[reg] = self.peek(addr, 2)
         self.tstates += timing
-        self.pc = end & 0xFFFF
+        self.pc = end % 65536
 
     def ldann(self, poke):
         if poke:
-            self.poke(self.snapshot[(self.pc + 1) & 0xFFFF] + 256 * self.snapshot[(self.pc + 2) & 0xFFFF], self.registers[A])
+            self.poke(self.snapshot[(self.pc + 1) % 65536] + 256 * self.snapshot[(self.pc + 2) % 65536], self.registers[A])
         else:
-            self.registers[A] = self.peek(self.snapshot[(self.pc + 1) & 0xFFFF] + 256 * self.snapshot[(self.pc + 2) & 0xFFFF])
+            self.registers[A] = self.peek(self.snapshot[(self.pc + 1) % 65536] + 256 * self.snapshot[(self.pc + 2) % 65536])
         self.tstates += 13
-        self.pc = (self.pc + 3) & 0xFFFF
+        self.pc = (self.pc + 3) % 65536
 
     def ldir_fast(self, inc):
         registers = self.registers
@@ -878,25 +881,25 @@ class Simulator:
         repeat = True
         while repeat:
             self.poke(de, self.peek(hl))
-            bc = (bc - 1) & 0xFFFF
+            bc = (bc - 1) % 65536
             if bc == 0 or self.pc <= de <= self.pc + 1:
                 repeat = False
-            de = (de + inc) & 0xFFFF
-            hl = (hl + inc) & 0xFFFF
+            de = (de + inc) % 65536
+            hl = (hl + inc) % 65536
             count += 1
         registers[C], registers[B] = bc % 256, bc // 256
         registers[E], registers[D] = de % 256, de // 256
         registers[L], registers[H] = hl % 256, hl // 256
         r = registers[R]
-        registers[R] = (r & 0x80) + ((r + 2 * (count - 1)) & 0x7F)
-        n = registers[A] + self.snapshot[(hl - inc) & 0xFFFF]
-        f = (registers[F] & 0xC1) | (n & 0x08) # SZ.H3.NC
+        registers[R] = (r & 0x80) + ((r + 2 * (count - 1)) % 128)
+        n = registers[A] + self.snapshot[(hl - inc) % 65536]
+        f = (registers[F] & 0xC1) + (n & 0x08) # SZ.H3.NC
         if bc:
-            f |= 0x04 # .....P..
+            f += 0x04 # .....P..
         else:
-            self.pc = (self.pc + 2) & 0xFFFF
+            self.pc = (self.pc + 2) % 65536
         if n & 0x02:
-            registers[F] = f | 0x20 # ..5.....
+            registers[F] = f + 0x20 # ..5.....
         else:
             registers[F] = f
         self.tstates += 21 * count - 5
@@ -905,39 +908,39 @@ class Simulator:
         self.registers[SP] = self.registers[reg + 1] + 256 * self.registers[reg]
         if reg == H:
             self.tstates += 6
-            self.pc = (self.pc + 1) & 0xFFFF
+            self.pc = (self.pc + 1) % 65536
         else:
             self.tstates += 10
-            self.pc = (self.pc + 2) & 0xFFFF
+            self.pc = (self.pc + 2) % 65536
 
     def neg(self):
         old_a = self.registers[A]
-        a = self.registers[A] = (256 - old_a) & 255
-        f = (a & 0xA8) | 0x02 # S.5.3.N.
-        if old_a & 0x0F:
-            f |= 0x10 # ...H....
+        a = self.registers[A] = (256 - old_a) % 256
+        f = (a & 0xA8) + 0x02 # S.5.3.N.
+        if old_a % 16:
+            f += 0x10 # ...H....
         if a == 0:
-            self.registers[F] = f | 0x40 # .Z......
+            self.registers[F] = f + 0x40 # .Z......
         elif a == 0x80:
-            self.registers[F] = f | 0x05 # .....P.C
+            self.registers[F] = f + 0x05 # .....P.C
         else:
-            self.registers[F] = f | 0x01 # .......C
+            self.registers[F] = f + 0x01 # .......C
         self.tstates += 8
-        self.pc = (self.pc + 2) & 0xFFFF
+        self.pc = (self.pc + 2) % 65536
 
     def nop(self):
         self.tstates += 4
-        self.pc = (self.pc + 1) & 0xFFFF
+        self.pc = (self.pc + 1) % 65536
 
     def or_n(self):
-        self.registers[A] |= self.snapshot[(self.pc + 1) & 0xFFFF]
+        self.registers[A] |= self.snapshot[(self.pc + 1) % 65536]
         a = self.registers[A]
         if a == 0:
             self.registers[F] = 0x44 # SZ5H3PNC
         else:
-            self.registers[F] = (a & 0xA8) | PARITY[a] # SZ5H3PNC
+            self.registers[F] = (a & 0xA8) + PARITY[a] # SZ5H3PNC
         self.tstates += 7
-        self.pc = (self.pc + 2) & 0xFFFF
+        self.pc = (self.pc + 2) % 65536
 
     def or_r(self, r):
         self.registers[A] |= self.registers[r]
@@ -945,9 +948,9 @@ class Simulator:
         if a == 0:
             self.registers[F] = 0x44 # SZ5H3PNC
         else:
-            self.registers[F] = (a & 0xA8) | PARITY[a] # SZ5H3PNC
+            self.registers[F] = (a & 0xA8) + PARITY[a] # SZ5H3PNC
         self.tstates += 4
-        self.pc = (self.pc + 1) & 0xFFFF
+        self.pc = (self.pc + 1) % 65536
 
     def ora(self, timing, size, reg=N):
         self.registers[A] |= self.get_operand_value(size, reg)
@@ -955,9 +958,9 @@ class Simulator:
         if a == 0:
             self.registers[F] = 0x44 # SZ5H3PNC
         else:
-            self.registers[F] = (a & 0xA8) | PARITY[a] # SZ5H3PNC
+            self.registers[F] = (a & 0xA8) + PARITY[a] # SZ5H3PNC
         self.tstates += timing
-        self.pc = (self.pc + size) & 0xFFFF
+        self.pc = (self.pc + size) % 65536
 
     def _out(self, port, value):
         if self.out_tracer:
@@ -965,9 +968,9 @@ class Simulator:
 
     def outa(self):
         a = self.registers[A]
-        self._out(self.snapshot[(self.pc + 1) & 0xFFFF] + 256 * a, a)
+        self._out(self.snapshot[(self.pc + 1) % 65536] + 256 * a, a)
         self.tstates += 11
-        self.pc = (self.pc + 2) & 0xFFFF
+        self.pc = (self.pc + 2) % 65536
 
     def outc(self, reg):
         if reg >= 0:
@@ -975,11 +978,11 @@ class Simulator:
         else:
             self._out(self.registers[C] + 256 * self.registers[B], 0)
         self.tstates += 12
-        self.pc = (self.pc + 2) & 0xFFFF
+        self.pc = (self.pc + 2) % 65536
 
     def _pop(self):
         sp = self.registers[SP]
-        self.registers[SP] = (sp + 2) & 0xFFFF
+        self.registers[SP] = (sp + 2) % 65536
         self.ppcount -= 1
         return self.peek(sp, 2)
 
@@ -987,13 +990,13 @@ class Simulator:
         self.registers[reg + 1], self.registers[reg] = self._pop()
         if reg < IXh:
             self.tstates += 10
-            self.pc = (self.pc + 1) & 0xFFFF
+            self.pc = (self.pc + 1) % 65536
         else:
             self.tstates += 14
-            self.pc = (self.pc + 2) & 0xFFFF
+            self.pc = (self.pc + 2) % 65536
 
     def _push(self, lsb, msb):
-        sp = (self.registers[SP] - 2) & 0xFFFF
+        sp = (self.registers[SP] - 2) % 65536
         self.poke(sp, lsb, msb)
         self.ppcount += 1
         self.registers[SP] = sp
@@ -1002,10 +1005,10 @@ class Simulator:
         self._push(self.registers[reg + 1], self.registers[reg])
         if reg < IXh:
             self.tstates += 11
-            self.pc = (self.pc + 1) & 0xFFFF
+            self.pc = (self.pc + 1) % 65536
         else:
             self.tstates += 15
-            self.pc = (self.pc + 2) & 0xFFFF
+            self.pc = (self.pc + 2) % 65536
 
     def ret(self, c_and, c_xor):
         if c_and:
@@ -1015,7 +1018,7 @@ class Simulator:
                 self.pc = lsb + 256 * msb
             else:
                 self.tstates += 5
-                self.pc = (self.pc + 1) & 0xFFFF
+                self.pc = (self.pc + 1) % 65536
         else:
             self.tstates += 10
             lsb, msb = self._pop()
@@ -1035,33 +1038,33 @@ class Simulator:
         if dest >= 0:
             self.registers[dest] = value
         self.tstates += timing
-        self.pc = (self.pc + size) & 0xFFFF
+        self.pc = (self.pc + size) % 65536
 
     def rld(self):
         hl = self.registers[L] + 256 * self.registers[H]
         a = self.registers[A]
         at_hl = self.peek(hl)
-        self.poke(hl, ((at_hl << 4) & 240) + (a & 15))
-        a_out = self.registers[A] = (a & 240) + ((at_hl >> 4) & 15)
+        self.poke(hl, ((at_hl * 16) % 256) + (a % 16))
+        a_out = self.registers[A] = (a & 240) + ((at_hl // 16) % 16)
         if a_out == 0:
-            self.registers[F] = 0x44 | (self.registers[F] & 0x01) # SZ5H3PNC
+            self.registers[F] = 0x44 + (self.registers[F] % 2) # SZ5H3PNC
         else:
-            self.registers[F] = (a_out & 0xA8) | PARITY[a_out] | (self.registers[F] & 0x01) # S.5H3PNC
+            self.registers[F] = (a_out & 0xA8) + PARITY[a_out] + (self.registers[F] % 2) # S.5H3PNC
         self.tstates += 18
-        self.pc = (self.pc + 2) & 0xFFFF
+        self.pc = (self.pc + 2) % 65536
 
     def rrd(self):
         hl = self.registers[L] + 256 * self.registers[H]
         a = self.registers[A]
         at_hl = self.peek(hl)
-        self.poke(hl, ((a << 4) & 240) + (at_hl >> 4))
-        a_out = self.registers[A] = (a & 240) + (at_hl & 15)
+        self.poke(hl, ((a * 16) % 256) + (at_hl // 16))
+        a_out = self.registers[A] = (a & 240) + (at_hl % 16)
         if a_out == 0:
-            self.registers[F] = 0x44 | (self.registers[F] & 0x01) # SZ5H3PNC
+            self.registers[F] = 0x44 + (self.registers[F] % 2) # SZ5H3PNC
         else:
-            self.registers[F] = (a_out & 0xA8) | PARITY[a_out] | (self.registers[F] & 0x01) # S.5H3PNC
+            self.registers[F] = (a_out & 0xA8) + PARITY[a_out] + (self.registers[F] % 2) # S.5H3PNC
         self.tstates += 18
-        self.pc = (self.pc + 2) & 0xFFFF
+        self.pc = (self.pc + 2) % 65536
 
     def rotate_a(self, cbit, carry=0):
         a = self.registers[A]
@@ -1069,81 +1072,81 @@ class Simulator:
         if carry:
             if cbit == 1:
                 # RRCA
-                value = ((a << 7) & 0x80) | ((a >> 1) & 0x7F)
+                value = ((a * 128) & 0x80) + ((a // 2) % 128)
             else:
                 # RLCA
-                value = (a >> 7) | ((a << 1) & 0xFE)
+                value = (a // 128) + ((a * 2) & 0xFE)
         elif cbit == 1:
             # RRA
-            value = (old_f << 7) | (a >> 1)
+            value = (old_f * 128) + (a // 2)
         else:
             # RLA
-            value = (old_f & 0x01) | (a << 1)
-        self.registers[A] = value & 0xFF
+            value = (old_f % 2) + (a * 2)
+        self.registers[A] = value % 256
         if a & cbit:
-            self.registers[F] = (old_f & 0xC4) | (value & 0x28) | 0x01 # SZ5H3PNC
+            self.registers[F] = (old_f & 0xC4) + (value & 0x28) + 0x01 # SZ5H3PNC
         else:
-            self.registers[F] = (old_f & 0xC4) | (value & 0x28) # SZ5H3PN.
+            self.registers[F] = (old_f & 0xC4) + (value & 0x28) # SZ5H3PN.
         self.tstates += 4
-        self.pc = (self.pc + 1) & 0xFFFF
+        self.pc = (self.pc + 1) % 65536
 
     def rotate_r(self, cbit, reg, carry=0):
         r = self.registers[reg]
         if carry:
             if cbit == 1:
                 # RRC r
-                value = ((r << 7) & 0x80) | ((r >> 1) & 0x7F)
+                value = ((r * 128) & 0x80) + ((r // 2) % 128)
             else:
                 # RLC r
-                value = (r >> 7) | ((r << 1) & 0xFE)
+                value = (r // 128) + ((r * 2) & 0xFE)
         elif cbit == 1:
             # RR r
-            value = ((self.registers[F] << 7) | (r >> 1)) & 0xFF
+            value = ((self.registers[F] * 128) + (r // 2)) % 256
         else:
             # RL r
-            value = ((self.registers[F] & 0x01) | (r << 1)) & 0xFF
+            value = ((self.registers[F] % 2) + (r * 2)) % 256
         self.registers[reg] = value
-        f = (value & 0xA8) | PARITY[value] # S.5H3PN.
+        f = (value & 0xA8) + PARITY[value] # S.5H3PN.
         if value == 0:
-            f |= 0x40 # .Z......
+            f += 0x40 # .Z......
         if r & cbit:
-            self.registers[F] = f | 0x01 # .......C
+            self.registers[F] = f + 0x01 # .......C
         else:
             self.registers[F] = f
         self.tstates += 8
-        self.pc = (self.pc + 2) & 0xFFFF
+        self.pc = (self.pc + 2) % 65536
 
     def rotate(self, timing, size, cbit, reg, carry=0, dest=-1):
         value = self.get_operand_value(size, reg)
-        old_carry = self.registers[F] & 0x01
+        old_carry = self.registers[F] % 2
         new_carry = value & cbit
         if cbit == 1:
-            cvalue = (value << 7) & 128
-            value >>= 1
+            cvalue = (value * 128) & 128
+            value //= 2
             old_carry *= 128
         else:
-            cvalue = value >> 7
-            value <<= 1
+            cvalue = value // 128
+            value *= 2
         if carry:
             value += cvalue
         else:
             value += old_carry
-        value &= 255
+        value %= 256
         self.set_operand_value(reg, value)
         if dest >= 0:
             self.registers[dest] = value
-        f = (value & 0xA8) | PARITY[value] # S.5H3PN.
+        f = (value & 0xA8) + PARITY[value] # S.5H3PN.
         if value == 0:
-            f |= 0x40 # .Z......
+            f += 0x40 # .Z......
         if new_carry:
-            self.registers[F] = f | 0x01 # .......C
+            self.registers[F] = f + 0x01 # .......C
         else:
             self.registers[F] = f
         self.tstates += timing
-        self.pc = (self.pc + size) & 0xFFFF
+        self.pc = (self.pc + size) % 65536
 
     def rst(self, addr):
-        ret_addr = (self.pc + 1) & 0xFFFF
+        ret_addr = (self.pc + 1) % 65536
         self._push(ret_addr % 256, ret_addr // 256)
         self.tstates += 11
         self.pc = addr
@@ -1156,35 +1159,35 @@ class Simulator:
         else:
             f = 0x00 # .......C
         if cbit == 1:
-            value >>= 1
+            value //= 2
         else:
-            value <<= 1
+            value *= 2
         if stype == 1:
             # SRA
             value += ovalue & 128
         elif stype == 2:
             # SLL
-            value |= 1
-        value &= 255
+            value += 1
+        value %= 256
         self.set_operand_value(reg, value)
         if dest >= 0:
             self.registers[dest] = value
         if value == 0:
-            self.registers[F] = f | 0x44 # .Z...P..
+            self.registers[F] = f + 0x44 # .Z...P..
         else:
-            self.registers[F] = f | (value & 0xA8) | PARITY[value] # S.5H3PN.
+            self.registers[F] = f + (value & 0xA8) + PARITY[value] # S.5H3PN.
         self.tstates += timing
-        self.pc = (self.pc + size) & 0xFFFF
+        self.pc = (self.pc + size) % 65536
 
     def xor_n(self):
-        self.registers[A] ^= self.snapshot[(self.pc + 1) & 0xFFFF]
+        self.registers[A] ^= self.snapshot[(self.pc + 1) % 65536]
         a = self.registers[A]
         if a == 0:
             self.registers[F] = 0x44 # SZ5H3PNC
         else:
-            self.registers[F] = (a & 0xA8) | PARITY[a] # SZ5H3PNC
+            self.registers[F] = (a & 0xA8) + PARITY[a] # SZ5H3PNC
         self.tstates += 7
-        self.pc = (self.pc + 2) & 0xFFFF
+        self.pc = (self.pc + 2) % 65536
 
     def xor_r(self, r):
         self.registers[A] ^= self.registers[r]
@@ -1192,9 +1195,9 @@ class Simulator:
         if a == 0:
             self.registers[F] = 0x44 # SZ5H3PNC
         else:
-            self.registers[F] = (a & 0xA8) | PARITY[a] # SZ5H3PNC
+            self.registers[F] = (a & 0xA8) + PARITY[a] # SZ5H3PNC
         self.tstates += 4
-        self.pc = (self.pc + 1) & 0xFFFF
+        self.pc = (self.pc + 1) % 65536
 
     def xor(self, timing, size, reg=N):
         self.registers[A] ^= self.get_operand_value(size, reg)
@@ -1202,9 +1205,9 @@ class Simulator:
         if a == 0:
             self.registers[F] = 0x44 # SZ5H3PNC
         else:
-            self.registers[F] = (a & 0xA8) | PARITY[a] # SZ5H3PNC
+            self.registers[F] = (a & 0xA8) + PARITY[a] # SZ5H3PNC
         self.tstates += timing
-        self.pc = (self.pc + size) & 0xFFFF
+        self.pc = (self.pc + size) % 65536
 
     def create_opcodes(self):
         self.opcodes = [
