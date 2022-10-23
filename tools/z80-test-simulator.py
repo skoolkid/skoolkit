@@ -71,22 +71,35 @@ def run(tapfile, options):
         test_addr = 34938 + options.test * 2
         snapshot[addr + 4:addr + 6] = (test_addr % 256, test_addr // 256)
     simulator = Simulator(snapshot)
-    tracer = Tracer()
-    simulator.set_tracer(tracer)
+    tracer = None
+    if options.quiet:
+        stop = 32850
+        print('Running tests')
+    else:
+        tracer = Tracer()
+        simulator.set_tracer(tracer)
+        stop = None
     begin = time.time()
-    simulator.run(start)
+    simulator.run(start, stop)
     rt = time.time() - begin
     z80t = simulator.tstates / 3500000
     speed = z80t / rt
+    if tracer is None:
+        failed = simulator.registers[A]
+        if failed:
+            print(f'{failed} test(s) failed')
+        else:
+            print('All tests passed')
     print(f'Z80 execution time: {simulator.tstates} T-states ({z80t:.03f}s)')
-    print(f'Instructions executed: {tracer.count}')
     print(f'Simulation time: {rt:.03f}s (x{speed:.02f})')
-    return 1 if tracer.failed else 0
+    if tracer:
+        failed = tracer.failed
+    return 1 if failed else 0
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
         usage='{} [options] FILE'.format(os.path.basename(sys.argv[0])),
-        description="Run RAXOFT Z80 tests on a SkoolKit Simulator instance. "
+        description="Run RAXOFT Z80 tests (v1.2) on a SkoolKit Simulator instance. "
                     "FILE must be a TAP file that loads the tests (e.g. z80doc.tap).",
         add_help=False
     )
@@ -94,6 +107,8 @@ if __name__ == '__main__':
     group = parser.add_argument_group('Options')
     group.add_argument('-t', '--test', metavar='TEST', type=int, default=0,
                        help='Start at this test (default: 0).')
+    group.add_argument('-q', '--quiet', action='store_true',
+                       help="Don't show test progress.")
     namespace, unknown_args = parser.parse_known_args()
     if unknown_args or namespace.tapfile is None:
         parser.exit(2, parser.format_help())
