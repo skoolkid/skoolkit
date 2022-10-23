@@ -2490,7 +2490,7 @@ class SimulatorTest(SkoolKitTestCase):
             reg_out = {A: a_out, F: f_out}
             self._test_instruction(simulator, operation, data, 4, reg_out)
 
-    def test_after_dd_fd_no_ix_iy(self):
+    def test_after_dd_fd_nop_dd_fd(self):
         simulator = Simulator([0] * 65536)
 
         for opcode in (
@@ -2513,9 +2513,11 @@ class SimulatorTest(SkoolKitTestCase):
                 operation = f'DEFB ${prefix:02X}'
                 data = (prefix, opcode)
                 start = 32768
-                self._test_instruction(simulator, operation, data, 4, start=start, end=start + 1)
+                simulator.registers[R] = 0
+                reg_out = {R: 1}
+                self._test_instruction(simulator, operation, data, 4, reg_out, start=start, end=start + 1)
 
-    def test_after_ed_defb(self):
+    def test_after_ed_nop_ed(self):
         simulator = Simulator([0] * 65536)
 
         for opcode in (
