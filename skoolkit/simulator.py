@@ -512,8 +512,8 @@ class Simulator:
         self.tstates += tstates
         self.pc = addr % 65536
 
-    def call(self, c_and, c_xor):
-        if c_and and self.registers[F] & c_and ^ c_xor == 0:
+    def call(self, c_and, c_val):
+        if c_and and self.registers[F] & c_and == c_val:
             self.tstates += 10
             self.pc = (self.pc + 3) % 65536
         else:
@@ -774,8 +774,8 @@ class Simulator:
                 self.tstates += 10
                 self.pc = (self.pc + 2) % 65536
 
-    def jr(self, c_and, c_xor):
-        if c_and and self.registers[F] & c_and ^ c_xor == 0:
+    def jr(self, c_and, c_val):
+        if c_and and self.registers[F] & c_and == c_val:
             self.tstates += 7
             self.pc = (self.pc + 2) % 65536
         else:
@@ -786,22 +786,22 @@ class Simulator:
             else:
                 self.pc = (self.pc + 2 + offset) % 65536
 
-    def jp(self, c_and, c_xor):
+    def jp(self, c_and, c_val):
         if c_and:
             self.tstates += 10
-            if self.registers[F] & c_and ^ c_xor == 0:
+            if self.registers[F] & c_and == c_val:
                 self.pc = (self.pc + 3) % 65536
             else:
                 self.pc = self.snapshot[(self.pc + 1) % 65536] + 256 * self.snapshot[(self.pc + 2) % 65536]
-        elif c_xor == 0:
+        elif c_val == 0:
             self.tstates += 10
             self.pc = self.snapshot[(self.pc + 1) % 65536] + 256 * self.snapshot[(self.pc + 2) % 65536]
-        elif c_xor == H:
+        elif c_val == H:
             self.tstates += 4
             self.pc = self.registers[L] + 256 * self.registers[H]
         else:
             self.tstates += 8
-            self.pc = self.registers[c_xor + 1] + 256 * self.registers[c_xor]
+            self.pc = self.registers[c_val + 1] + 256 * self.registers[c_val]
 
     def ld_r_n(self, r):
         self.registers[r] = self.snapshot[(self.pc + 1) % 65536]
@@ -1018,15 +1018,15 @@ class Simulator:
             self.tstates += 15
             self.pc = (self.pc + 2) % 65536
 
-    def ret(self, c_and, c_xor):
+    def ret(self, c_and, c_val):
         if c_and:
-            if self.registers[F] & c_and ^ c_xor:
+            if self.registers[F] & c_and == c_val:
+                self.tstates += 5
+                self.pc = (self.pc + 1) % 65536
+            else:
                 self.tstates += 11
                 lsb, msb = self._pop()
                 self.pc = lsb + 256 * msb
-            else:
-                self.tstates += 5
-                self.pc = (self.pc + 1) % 65536
         else:
             self.tstates += 10
             lsb, msb = self._pop()
