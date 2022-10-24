@@ -20,16 +20,16 @@ class BaseTracer:
             for reg in self.watch:
                 if reg == '(DE)':
                     rr = simulator.registers[E] + 256 * simulator.registers[D]
-                    rval = simulator.snapshot[rr]
+                    rval = simulator.memory[rr]
                 elif reg == '(HL)':
                     rr = simulator.registers[L] + 256 * simulator.registers[H]
-                    rval = simulator.snapshot[rr]
+                    rval = simulator.memory[rr]
                 elif reg == '(IX+d)':
                     ix = simulator.registers[IXl] + 256 * simulator.registers[IXh]
-                    rval = simulator.snapshot[ix]
+                    rval = simulator.memory[ix]
                 elif reg == '(IY+d)':
                     iy = simulator.registers[IYl] + 256 * simulator.registers[IYh]
-                    rval = simulator.snapshot[iy]
+                    rval = simulator.memory[iy]
                 elif reg == 'SP':
                     sp = simulator.registers[SP]
                     rval = (sp // 256, sp % 256)
@@ -62,15 +62,15 @@ class AFRTracer(BaseTracer):
         r = self.count & 0xFF
         if self.reg == '(HL)':
             hl = simulator.registers[L] + 256 * simulator.registers[H]
-            simulator.snapshot[hl] = r
+            simulator.memory[hl] = r
         elif self.reg == '(IX+d)':
             ix = simulator.registers[IXl] + 256 * simulator.registers[IXh]
-            simulator.snapshot[ix] = r
+            simulator.memory[ix] = r
         elif self.reg == '(IY+d)':
             iy = simulator.registers[IYl] + 256 * simulator.registers[IYh]
-            simulator.snapshot[iy] = r
+            simulator.memory[iy] = r
         elif self.reg == 'n':
-            simulator.snapshot[self.start + 1] = r
+            simulator.memory[self.start + 1] = r
         else:
             simulator.registers[self.reg] = r
         self.repeat(simulator)
@@ -88,13 +88,13 @@ class FRTracer(BaseTracer):
         r = self.count & 0xFF
         if self.reg == '(HL)':
             hl = simulator.registers[L] + 256 * simulator.registers[H]
-            simulator.snapshot[hl] = r
+            simulator.memory[hl] = r
         elif self.reg == '(IX+d)':
             ix = simulator.registers[IXl] + 256 * simulator.registers[IXh]
-            simulator.snapshot[ix] = r
+            simulator.memory[ix] = r
         elif self.reg == '(IY+d)':
             iy = simulator.registers[IYl] + 256 * simulator.registers[IYh]
-            simulator.snapshot[iy] = r
+            simulator.memory[iy] = r
         else:
             simulator.registers[self.reg] = r
         self.repeat(simulator)
@@ -208,10 +208,10 @@ class BlockTracer(BaseTracer):
         simulator.registers[H] = hl // 256
         simulator.registers[L] = hl % 256
         if self.count & 0x10000:
-            simulator.snapshot[hl] = simulator.registers[A]
+            simulator.memory[hl] = simulator.registers[A]
         else:
-            simulator.snapshot[hl] = simulator.registers[A] ^ 0xFF
-        simulator.snapshot[de] = simulator.snapshot[hl] ^ 0xFF
+            simulator.memory[hl] = simulator.registers[A] ^ 0xFF
+        simulator.memory[de] = simulator.memory[hl] ^ 0xFF
 
         self.repeat(simulator)
 
@@ -246,22 +246,22 @@ class BitTracer(BaseTracer):
             else:
                 simulator.registers[IYl] = rr % 256
                 simulator.registers[IYh] = rr // 256
-            simulator.snapshot[rr] = self.rval
+            simulator.memory[rr] = self.rval
         elif self.reg == '(HL)':
             hl = 0x6000
             simulator.registers[L] = hl % 256
             simulator.registers[H] = hl // 256
-            simulator.snapshot[hl] = self.rval
+            simulator.memory[hl] = self.rval
         else:
             simulator.registers[self.reg] = self.rval
 
         if self.reg in ('(IX+d)', '(IY+d)'):
-            r = simulator.snapshot[self.start + 3] & 0x07
+            r = simulator.memory[self.start + 3] & 0x07
             opcode = 0x40 + 8 * self.bit + r
-            simulator.snapshot[self.start + 3] = opcode
+            simulator.memory[self.start + 3] = opcode
         else:
             opcode = 0x40 + 8 * self.bit + self.registers.index(self.reg)
-            simulator.snapshot[self.start + 1] = opcode
+            simulator.memory[self.start + 1] = opcode
 
         if self.rval > 0:
             self.rval -= 1
@@ -291,7 +291,7 @@ class RRDRLDTracer(BaseTracer):
         hl = 0x6000
         simulator.registers[H] = hl // 256
         simulator.registers[L] = hl % 256
-        simulator.snapshot[hl] = self.count & 0xFF
+        simulator.memory[hl] = self.count & 0xFF
         self.repeat(simulator)
 
 class InTracer(BaseTracer):

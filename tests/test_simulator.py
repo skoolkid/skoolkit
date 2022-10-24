@@ -72,11 +72,11 @@ class SimulatorTest(SkoolKitTestCase):
             end = start + len(data)
         d_end = start + len(data)
         if d_end <= 65536:
-            simulator.snapshot[start:d_end] = data
+            simulator.memory[start:d_end] = data
         else:
             wrapped = d_end - 65536
-            simulator.snapshot[start:] = data[:-wrapped]
-            simulator.snapshot[:wrapped] = data[-wrapped:]
+            simulator.memory[start:] = data[:-wrapped]
+            simulator.memory[:wrapped] = data[-wrapped:]
         data_hex = ''.join(f'{b:02X}' for b in data)
         exp_reg = {i: r for i, r in enumerate(simulator.registers)}
         regvals = ', '.join(f'{REGISTER_NAMES[r]}={v}' for r, v in exp_reg.items() if r in REGISTER_NAMES)
@@ -101,8 +101,8 @@ class SimulatorTest(SkoolKitTestCase):
                     reg_new[reg_name] = v
             self.assertEqual(reg_new, reg_exp, f"Register mismatch for '{inst}' ({data_hex}); input: {regvals}")
         if sna_out:
-            actual_snapshot = {a: simulator.snapshot[a] for a in sna_out}
-            self.assertEqual(actual_snapshot, sna_out, f"Snapshot mismatch for '{inst}' ({data_hex}); input: {regvals}")
+            actual_memory = {a: simulator.memory[a] for a in sna_out}
+            self.assertEqual(actual_memory, sna_out, f"Memory mismatch for '{inst}' ({data_hex}); input: {regvals}")
         if state_out:
             if 'im' in state_out:
                 self.assertEqual(simulator.imode, state_out['im'])
@@ -112,7 +112,7 @@ class SimulatorTest(SkoolKitTestCase):
     def _test_arithmetic(self, op, opcode1, opcode2, *specs):
         simulator = Simulator([0] * 65536)
         registers = simulator.registers
-        snapshot = simulator.snapshot
+        memory = simulator.memory
 
         if op in ('AND', 'CP', 'OR', 'SUB', 'XOR'):
             op_a = op + ' '
@@ -137,7 +137,7 @@ class SimulatorTest(SkoolKitTestCase):
                     registers[A] = a_in
                     registers[F] = f_in
                     reg_out = {A: a_out, F: f_out}
-                    snapshot[hl] = opval
+                    memory[hl] = opval
                     self._test_instruction(simulator, operation, data, 7, reg_out)
             elif reg == 'A':
                 for a_in, f_in, a_out, f_out in specs[1]:
@@ -175,13 +175,13 @@ class SimulatorTest(SkoolKitTestCase):
                 registers[rh] = value // 256
                 registers[rl] = value % 256
                 reg_out = {A: a_out, F: f_out}
-                snapshot[value + offset] = opval
+                memory[value + offset] = opval
                 self._test_instruction(simulator, operation, data, 19, reg_out)
 
     def _test_res_set(self, op):
         simulator = Simulator([0] * 65536)
         registers = simulator.registers
-        snapshot = simulator.snapshot
+        memory = simulator.memory
 
         if op == 'RES':
             base_opcode = 128
@@ -206,7 +206,7 @@ class SimulatorTest(SkoolKitTestCase):
                     registers[H] = hl // 256
                     registers[L] = hl % 256
                     reg_out = {}
-                    snapshot[hl] = opval_in
+                    memory[hl] = opval_in
                     sna_out = {hl: opval_out}
                 else:
                     timing = 8
@@ -222,14 +222,14 @@ class SimulatorTest(SkoolKitTestCase):
                 registers[rh] = value // 256
                 registers[rl] = value % 256
                 reg_out = {}
-                snapshot[value + offset] = opval_in
+                memory[value + offset] = opval_in
                 sna_out = {value + offset: opval_out}
                 self._test_instruction(simulator, operation, data, 23, reg_out, sna_out)
 
     def _test_rotate_shift(self, op, opcode, specs):
         simulator = Simulator([0] * 65536)
         registers = simulator.registers
-        snapshot = simulator.snapshot
+        memory = simulator.memory
 
         hl = 49152
         for i, (reg, r) in enumerate(REGISTERS):
@@ -241,7 +241,7 @@ class SimulatorTest(SkoolKitTestCase):
                 for r_in, f_in, r_out, f_out in specs:
                     registers[F] = f_in
                     reg_out = {F: f_out}
-                    snapshot[hl] = r_in
+                    memory[hl] = r_in
                     sna_out = {hl: r_out}
                     self._test_instruction(simulator, operation, data, 15, reg_out, sna_out)
             else:
@@ -260,7 +260,7 @@ class SimulatorTest(SkoolKitTestCase):
                 registers[rh] = value // 256
                 registers[rl] = value % 256
                 reg_out = {F: f_out}
-                snapshot[value + offset] = r_in
+                memory[value + offset] = r_in
                 sna_out = {value + offset: r_out}
                 self._test_instruction(simulator, operation, data, 23, reg_out, sna_out)
 
@@ -415,7 +415,7 @@ class SimulatorTest(SkoolKitTestCase):
     def test_bit(self):
         simulator = Simulator([0] * 65536)
         registers = simulator.registers
-        snapshot = simulator.snapshot
+        memory = simulator.memory
         hl = 50000
 
         for bit in range(8):
@@ -435,7 +435,7 @@ class SimulatorTest(SkoolKitTestCase):
                         timing = 12
                         registers[H] = hl // 256
                         registers[L] = hl % 256
-                        snapshot[hl] = opval
+                        memory[hl] = opval
                     else:
                         timing = 8
                         registers[r] = opval
@@ -455,7 +455,7 @@ class SimulatorTest(SkoolKitTestCase):
                         else:
                             f_out = 0b01010100
                         reg_out = {F: f_out}
-                        snapshot[value + offset] = opval
+                        memory[value + offset] = opval
                         self._test_instruction(simulator, operation, data, 20, reg_out)
 
     def test_res(self):
@@ -464,7 +464,7 @@ class SimulatorTest(SkoolKitTestCase):
     def test_res_with_dest_reg(self):
         simulator = Simulator([0] * 65536)
         registers = simulator.registers
-        snapshot = simulator.snapshot
+        memory = simulator.memory
         ix = 32768
         at_ix = 255
 
@@ -477,7 +477,7 @@ class SimulatorTest(SkoolKitTestCase):
                 registers[IXh] = ix // 256
                 registers[IXl] = ix % 256
                 reg_out = {r: 255 - (1 << bit)}
-                snapshot[ix] = at_ix
+                memory[ix] = at_ix
                 sna_out = {ix: 255 - (1 << bit)}
                 self._test_instruction(simulator, operation, data, 23, reg_out, sna_out)
 
@@ -487,7 +487,7 @@ class SimulatorTest(SkoolKitTestCase):
     def test_set_with_dest_reg(self):
         simulator = Simulator([0] * 65536)
         registers = simulator.registers
-        snapshot = simulator.snapshot
+        memory = simulator.memory
         ix = 32768
         at_ix = 0
 
@@ -500,7 +500,7 @@ class SimulatorTest(SkoolKitTestCase):
                 registers[IXh] = ix // 256
                 registers[IXl] = ix % 256
                 reg_out = {r: 1 << bit}
-                snapshot[ix] = at_ix
+                memory[ix] = at_ix
                 sna_out = {ix: 1 << bit}
                 self._test_instruction(simulator, operation, data, 23, reg_out, sna_out)
 
@@ -516,7 +516,7 @@ class SimulatorTest(SkoolKitTestCase):
     def test_rl_with_dest_reg(self):
         simulator = Simulator([0] * 65536)
         registers = simulator.registers
-        snapshot = simulator.snapshot
+        memory = simulator.memory
         ix = 32768
         at_ix = 35
 
@@ -529,7 +529,7 @@ class SimulatorTest(SkoolKitTestCase):
             registers[IXl] = ix % 256
             registers[F] = 0b00000001
             reg_out = {r: (at_ix << 1) + 1, F: 0b00000100}
-            snapshot[ix] = at_ix
+            memory[ix] = at_ix
             self._test_instruction(simulator, operation, data, 23, reg_out)
 
     def test_rlc(self):
@@ -545,7 +545,7 @@ class SimulatorTest(SkoolKitTestCase):
     def test_rlc_with_dest_reg(self):
         simulator = Simulator([0] * 65536)
         registers = simulator.registers
-        snapshot = simulator.snapshot
+        memory = simulator.memory
         ix = 32768
         at_ix = 35
 
@@ -558,7 +558,7 @@ class SimulatorTest(SkoolKitTestCase):
             registers[IXl] = ix % 256
             registers[F] = 0b00000001
             reg_out = {r: at_ix << 1, F: 0b00000000}
-            snapshot[ix] = at_ix
+            memory[ix] = at_ix
             self._test_instruction(simulator, operation, data, 23, reg_out)
 
     def test_rr(self):
@@ -573,7 +573,7 @@ class SimulatorTest(SkoolKitTestCase):
     def test_rr_with_dest_reg(self):
         simulator = Simulator([0] * 65536)
         registers = simulator.registers
-        snapshot = simulator.snapshot
+        memory = simulator.memory
         ix = 32768
         at_ix = 34
 
@@ -586,7 +586,7 @@ class SimulatorTest(SkoolKitTestCase):
             registers[IXl] = ix % 256
             registers[F] = 0b00000001
             reg_out = {r: 0x80 + (at_ix >> 1), F: 0b10000000}
-            snapshot[ix] = at_ix
+            memory[ix] = at_ix
             self._test_instruction(simulator, operation, data, 23, reg_out)
 
     def test_rrc(self):
@@ -602,7 +602,7 @@ class SimulatorTest(SkoolKitTestCase):
     def test_rrc_with_dest_reg(self):
         simulator = Simulator([0] * 65536)
         registers = simulator.registers
-        snapshot = simulator.snapshot
+        memory = simulator.memory
         ix = 32768
         at_ix = 34
 
@@ -615,7 +615,7 @@ class SimulatorTest(SkoolKitTestCase):
             registers[IXl] = ix % 256
             registers[F] = 0b00000001
             reg_out = {r: at_ix >> 1, F: 0b00000100}
-            snapshot[ix] = at_ix
+            memory[ix] = at_ix
             self._test_instruction(simulator, operation, data, 23, reg_out)
 
     def test_sla(self):
@@ -630,7 +630,7 @@ class SimulatorTest(SkoolKitTestCase):
     def test_sla_with_dest_reg(self):
         simulator = Simulator([0] * 65536)
         registers = simulator.registers
-        snapshot = simulator.snapshot
+        memory = simulator.memory
         ix = 32768
         at_ix = 35
 
@@ -642,7 +642,7 @@ class SimulatorTest(SkoolKitTestCase):
             registers[IXh] = ix // 256
             registers[IXl] = ix % 256
             reg_out = {r: at_ix << 1}
-            snapshot[ix] = at_ix
+            memory[ix] = at_ix
             self._test_instruction(simulator, operation, data, 23, reg_out)
 
     def test_sll(self):
@@ -657,7 +657,7 @@ class SimulatorTest(SkoolKitTestCase):
     def test_sll_with_dest_reg(self):
         simulator = Simulator([0] * 65536)
         registers = simulator.registers
-        snapshot = simulator.snapshot
+        memory = simulator.memory
         ix = 32768
         at_ix = 35
 
@@ -669,7 +669,7 @@ class SimulatorTest(SkoolKitTestCase):
             registers[IXh] = ix // 256
             registers[IXl] = ix % 256
             reg_out = {r: (at_ix << 1) + 1, F: 0b00000100}
-            snapshot[ix] = at_ix
+            memory[ix] = at_ix
             self._test_instruction(simulator, operation, data, 23, reg_out)
 
     def test_sra(self):
@@ -686,7 +686,7 @@ class SimulatorTest(SkoolKitTestCase):
     def test_sra_with_dest_reg(self):
         simulator = Simulator([0] * 65536)
         registers = simulator.registers
-        snapshot = simulator.snapshot
+        memory = simulator.memory
         ix = 32768
         at_ix = 35
 
@@ -698,7 +698,7 @@ class SimulatorTest(SkoolKitTestCase):
             registers[IXh] = ix // 256
             registers[IXl] = ix % 256
             reg_out = {r: at_ix >> 1, F: 0b00000101}
-            snapshot[ix] = at_ix
+            memory[ix] = at_ix
             self._test_instruction(simulator, operation, data, 23, reg_out)
 
     def test_srl(self):
@@ -713,7 +713,7 @@ class SimulatorTest(SkoolKitTestCase):
     def test_srl_with_dest_reg(self):
         simulator = Simulator([0] * 65536)
         registers = simulator.registers
-        snapshot = simulator.snapshot
+        memory = simulator.memory
         ix = 32768
         at_ix = 35
 
@@ -725,7 +725,7 @@ class SimulatorTest(SkoolKitTestCase):
             registers[IXh] = ix // 256
             registers[IXl] = ix % 256
             reg_out = {r: at_ix >> 1, F: 0b00000101}
-            snapshot[ix] = at_ix
+            memory[ix] = at_ix
             self._test_instruction(simulator, operation, data, 23, reg_out)
 
     def test_rla(self):
@@ -797,7 +797,7 @@ class SimulatorTest(SkoolKitTestCase):
     def _test_inc_dec8(self, op, opcode, specs):
         simulator = Simulator([0] * 65536)
         registers = simulator.registers
-        snapshot = simulator.snapshot
+        memory = simulator.memory
         hl = 49152
 
         for i, (reg, r) in enumerate(REGISTERS):
@@ -809,7 +809,7 @@ class SimulatorTest(SkoolKitTestCase):
                 for r_in, f_in, r_out, f_out in specs:
                     registers[F] = f_in
                     reg_out = {F: f_out}
-                    snapshot[hl] = r_in
+                    memory[hl] = r_in
                     sna_out = {hl: r_out}
                     self._test_instruction(simulator, operation, data, 11, reg_out, sna_out)
             else:
@@ -840,7 +840,7 @@ class SimulatorTest(SkoolKitTestCase):
                 registers[rh] = value // 256
                 registers[rl] = value % 256
                 reg_out = {F: f_out}
-                snapshot[value + offset] = r_in
+                memory[value + offset] = r_in
                 sna_out = {value + offset: r_out}
                 self._test_instruction(simulator, operation, data, 23, reg_out, sna_out)
 
@@ -1046,7 +1046,7 @@ class SimulatorTest(SkoolKitTestCase):
         # LD r,n (r: A, B, C, D, E, H, L, (HL))
         simulator = Simulator([0] * 65536)
         registers = simulator.registers
-        snapshot = simulator.snapshot
+        memory = simulator.memory
         hl = 49152
 
         for i, (reg, r) in enumerate(REGISTERS):
@@ -1055,7 +1055,7 @@ class SimulatorTest(SkoolKitTestCase):
                 registers[H] = hl // 256
                 registers[L] = hl % 256
                 reg_out = {'H': hl // 256, 'L': hl % 256}
-                snapshot[hl] = 255
+                memory[hl] = 255
                 sna_out = {hl: i}
                 self._test_instruction(simulator, f'LD {reg},${i:02X}', data, 10, reg_out, sna_out)
             else:
@@ -1067,7 +1067,7 @@ class SimulatorTest(SkoolKitTestCase):
         # LD r,r (r: A, B, C, D, E, H, L, (HL))
         simulator = Simulator([0] * 65536)
         registers = simulator.registers
-        snapshot = simulator.snapshot
+        memory = simulator.memory
         hl = 32768
         v1, v2 = 12, 56
 
@@ -1084,7 +1084,7 @@ class SimulatorTest(SkoolKitTestCase):
                         v2 = registers[r2]
                     else:
                         registers[r2] = v2
-                    snapshot[hl] = v1
+                    memory[hl] = v1
                     reg_out = {H: hl // 256, L: hl % 256}
                     sna_out = {hl: v2}
                     self._test_instruction(simulator, operation, data, 7, reg_out, sna_out)
@@ -1094,7 +1094,7 @@ class SimulatorTest(SkoolKitTestCase):
                     registers[L] = hl % 256
                     if r1 not in (H, L):
                         registers[r1] = v1
-                    snapshot[hl] = v2
+                    memory[hl] = v2
                     reg_out = {r1: v2}
                     self._test_instruction(simulator, operation, data, 7, reg_out)
                 else:
@@ -1172,7 +1172,7 @@ class SimulatorTest(SkoolKitTestCase):
         # LD r,(i+d); LD (i+d),r (i: IX, IY; r: A, B, C, D, E, H, L)
         simulator = Simulator([0] * 65536)
         registers = simulator.registers
-        snapshot = simulator.snapshot
+        memory = simulator.memory
         offset = 5
         r1, r2 = 14, 207
 
@@ -1186,7 +1186,7 @@ class SimulatorTest(SkoolKitTestCase):
                 registers[rh] = value // 256
                 registers[rl] = value % 256
                 reg_out = {r: r2}
-                snapshot[value + offset] = r2
+                memory[value + offset] = r2
                 self._test_instruction(simulator, operation, data, 19, reg_out)
 
         offset = 3
@@ -1201,7 +1201,7 @@ class SimulatorTest(SkoolKitTestCase):
                 registers[rh] = value // 256
                 registers[rl] = value % 256
                 reg_out = {r: r2}
-                snapshot[value + offset] = r1
+                memory[value + offset] = r1
                 sna_out = {value + offset: r2}
                 self._test_instruction(simulator, operation, data, 19, reg_out, sna_out)
 
@@ -1209,7 +1209,7 @@ class SimulatorTest(SkoolKitTestCase):
         # LD r,(i+d); LD (i+d),r (i: IX, IY; r: A, B, C, D, E, H, L)
         simulator = Simulator([0] * 65536)
         registers = simulator.registers
-        snapshot = simulator.snapshot
+        memory = simulator.memory
         r1, r2 = 14, 207
 
         for prefix, reg, rh, rl in INDEX_REGISTERS:
@@ -1228,14 +1228,14 @@ class SimulatorTest(SkoolKitTestCase):
                     registers[rh] = value // 256
                     registers[rl] = value % 256
                     reg_out = {r: r2}
-                    snapshot[(value + offset) & 0xFFFF] = r2
+                    memory[(value + offset) & 0xFFFF] = r2
                     self._test_instruction(simulator, operation, data, 19, reg_out)
 
     def test_ld_ix_iy_d_n(self):
         # LD (IX+d),n; LD (IY+d),n
         simulator = Simulator([0] * 65536)
         registers = simulator.registers
-        snapshot = simulator.snapshot
+        memory = simulator.memory
         offset, n = 7, 21
 
         for value, (prefix, reg, rh, rl) in enumerate(INDEX_REGISTERS, 32768):
@@ -1244,7 +1244,7 @@ class SimulatorTest(SkoolKitTestCase):
             registers[rh] = value // 256
             registers[rl] = value % 256
             reg_out = {}
-            snapshot[value + offset] = 255
+            memory[value + offset] = 255
             sna_out = {value + offset: n}
             self._test_instruction(simulator, operation, data, 19, reg_out, sna_out)
 
@@ -1252,14 +1252,14 @@ class SimulatorTest(SkoolKitTestCase):
         # LD (nn),A; LD A,(nn)
         simulator = Simulator([0] * 65536)
         registers = simulator.registers
-        snapshot = simulator.snapshot
+        memory = simulator.memory
         a, addr, n = 5, 41278, 17
 
         operation = f'LD (${addr:04X}),A'
         data = (50, addr % 256, addr // 256)
         registers[A] = a
         reg_out = {A: a}
-        snapshot[addr] = n
+        memory[addr] = n
         sna_out = {addr: a}
         self._test_instruction(simulator, operation, data, 13, reg_out, sna_out)
 
@@ -1267,7 +1267,7 @@ class SimulatorTest(SkoolKitTestCase):
         data = (58, addr % 256, addr // 256)
         registers[A] = a
         reg_out = {A: n}
-        snapshot[addr] = n
+        memory[addr] = n
         sna_out = {addr: n}
         self._test_instruction(simulator, operation, data, 13, reg_out, sna_out)
 
@@ -1275,7 +1275,7 @@ class SimulatorTest(SkoolKitTestCase):
         # LD A,(BC); LD (BC),A; LD A,(DE); LD (DE),A
         simulator = Simulator([0] * 65536)
         registers = simulator.registers
-        snapshot = simulator.snapshot
+        memory = simulator.memory
         r1, r2, rr = 39, 102, 30000
 
         for opcode, reg1, reg2, rh, rl in (
@@ -1291,14 +1291,14 @@ class SimulatorTest(SkoolKitTestCase):
                 registers[rh] = rr // 256
                 registers[rl] = rr % 256
                 reg_out = {A: r2}
-                snapshot[rr] = r2
+                memory[rr] = r2
                 sna_out = {}
             else:
                 registers[A] = r2
                 registers[rh] = rr // 256
                 registers[rl] = rr % 256
                 reg_out = {A: r2, rh: rr // 256, rl: rr % 256}
-                snapshot[rr] = r1
+                memory[rr] = r1
                 sna_out = {rr: r2}
             self._test_instruction(simulator, operation, data, 7, reg_out, sna_out)
 
@@ -1368,7 +1368,7 @@ class SimulatorTest(SkoolKitTestCase):
         # LD (nn),BC/DE/HL/SP/IX/IY
         simulator = Simulator([0] * 65536)
         registers = simulator.registers
-        snapshot = simulator.snapshot
+        memory = simulator.memory
         rr, addr, nn = 35622, 52451, 257
 
         for opcodes, reg, rh, rl, timing in (
@@ -1385,7 +1385,7 @@ class SimulatorTest(SkoolKitTestCase):
                 registers[rh] = rr // 256
                 registers[rl] = rr % 256
             reg_out = {}
-            snapshot[addr:addr + 2] = (nn % 256, nn // 256)
+            memory[addr:addr + 2] = (nn % 256, nn // 256)
             sna_out = {addr: rr % 256, addr + 1: rr // 256}
             self._test_instruction(simulator, operation, data, timing, reg_out, sna_out)
 
@@ -1395,7 +1395,7 @@ class SimulatorTest(SkoolKitTestCase):
             registers[rh] = rr // 256
             registers[rl] = rr % 256
             reg_out = {}
-            snapshot[addr:addr + 2] = (nn % 256, nn // 256)
+            memory[addr:addr + 2] = (nn % 256, nn // 256)
             sna_out = {addr: rr % 256, addr + 1: rr // 256}
             self._test_instruction(simulator, operation, data, 20, reg_out, sna_out)
 
@@ -1403,7 +1403,7 @@ class SimulatorTest(SkoolKitTestCase):
         # LD BC/DE/HL/SP/IX/IY,(nn)
         simulator = Simulator([0] * 65536)
         registers = simulator.registers
-        snapshot = simulator.snapshot
+        memory = simulator.memory
         rr, addr, nn = 35622, 52451, 41783
 
         for opcodes, reg, rh, rl, timing in (
@@ -1421,7 +1421,7 @@ class SimulatorTest(SkoolKitTestCase):
                 registers[rh] = rr // 256
                 registers[rl] = rr % 256
                 reg_out = {rh: nn // 256, rl: nn % 256}
-            snapshot[addr:addr + 2] = (nn % 256, nn // 256)
+            memory[addr:addr + 2] = (nn % 256, nn // 256)
             self._test_instruction(simulator, operation, data, timing, reg_out)
 
         for prefix, reg, rh, rl in INDEX_REGISTERS:
@@ -1430,7 +1430,7 @@ class SimulatorTest(SkoolKitTestCase):
             registers[rh] = rr // 256
             registers[rl] = rr % 256
             reg_out = {rl: nn % 256, rh: nn // 256}
-            snapshot[addr:addr + 2] = (nn % 256, nn // 256)
+            memory[addr:addr + 2] = (nn % 256, nn // 256)
             self._test_instruction(simulator, operation, data, 20, reg_out)
 
     def test_ld_sp_rr(self):
@@ -1460,7 +1460,7 @@ class SimulatorTest(SkoolKitTestCase):
         # POP BC/DE/HL/AF/IX/IY
         simulator = Simulator([0] * 65536)
         registers = simulator.registers
-        snapshot = simulator.snapshot
+        memory = simulator.memory
         sp = 49152
 
         r_in, r_out = 257, 51421
@@ -1471,7 +1471,7 @@ class SimulatorTest(SkoolKitTestCase):
             registers[rl] = r_in % 256
             registers[SP] = sp
             reg_out = {rl: r_out % 256, rh: r_out // 256, SP: sp + 2}
-            snapshot[sp:sp + 2] = (r_out % 256, r_out // 256)
+            memory[sp:sp + 2] = (r_out % 256, r_out // 256)
             self._test_instruction(simulator, operation, data, 10, reg_out)
 
         for prefix, reg, rh, rl in INDEX_REGISTERS:
@@ -1481,14 +1481,14 @@ class SimulatorTest(SkoolKitTestCase):
             registers[rl] = r_in % 256
             registers[SP] = sp
             reg_out = {rh: r_out // 256, rl: r_out % 256, SP: sp + 2}
-            snapshot[sp:sp + 2] = (r_out % 256, r_out // 256)
+            memory[sp:sp + 2] = (r_out % 256, r_out // 256)
             self._test_instruction(simulator, operation, data, 14, reg_out)
 
     def test_push(self):
         # PUSH BC/DE/HL/AF/IX/IY
         simulator = Simulator([0] * 65536)
         registers = simulator.registers
-        snapshot = simulator.snapshot
+        memory = simulator.memory
         sp = 49152
 
         r_in, r_out = 257, 51421
@@ -1499,7 +1499,7 @@ class SimulatorTest(SkoolKitTestCase):
             registers[rl] = r_in % 256
             registers[SP] = sp
             reg_out = {SP: sp - 2}
-            snapshot[sp - 2:sp] = (r_out % 256, r_out // 256)
+            memory[sp - 2:sp] = (r_out % 256, r_out // 256)
             sna_out = {sp - 1: r_in // 256, sp - 2: r_in % 256}
             self._test_instruction(simulator, operation, data, 11, reg_out, sna_out)
 
@@ -1510,7 +1510,7 @@ class SimulatorTest(SkoolKitTestCase):
             registers[rl] = r_in % 256
             registers[SP] = sp
             reg_out = {SP: sp - 2}
-            snapshot[sp - 2:sp] = (r_out % 256, r_out // 256)
+            memory[sp - 2:sp] = (r_out % 256, r_out // 256)
             sna_out = {sp - 1: r_in // 256, sp - 2: r_in % 256}
             self._test_instruction(simulator, operation, data, 15, reg_out, sna_out)
 
@@ -1686,7 +1686,7 @@ class SimulatorTest(SkoolKitTestCase):
     def test_ret(self):
         simulator = Simulator([0] * 65536)
         registers = simulator.registers
-        snapshot = simulator.snapshot
+        memory = simulator.memory
         start = 40000
         end = 45271
         sp = 32517
@@ -1694,13 +1694,13 @@ class SimulatorTest(SkoolKitTestCase):
         data = [201]
         registers[SP] = sp
         reg_out = {SP: sp + 2}
-        snapshot[sp:sp + 2] = (end % 256, end // 256)
+        memory[sp:sp + 2] = (end % 256, end // 256)
         self._test_instruction(simulator, operation, data, 10, reg_out, start=start, end=end)
 
     def test_ret_conditional(self):
         simulator = Simulator([0] * 65536)
         registers = simulator.registers
-        snapshot = simulator.snapshot
+        memory = simulator.memory
         start = 40000
         addr = 45271
         sp = 32517
@@ -1734,7 +1734,7 @@ class SimulatorTest(SkoolKitTestCase):
             else:
                 timing = 5
                 reg_out = None
-            snapshot[sp:sp + 2] = (addr % 256, addr // 256)
+            memory[sp:sp + 2] = (addr % 256, addr // 256)
             self._test_instruction(simulator, operation, data, timing, reg_out, start=start, end=end)
 
     def test_rst(self):
@@ -1904,29 +1904,29 @@ class SimulatorTest(SkoolKitTestCase):
         self._test_instruction(simulator, operation, data, 4, state_out=state_out)
 
     def test_halt(self):
-        snapshot = [0] * 65536
+        memory = [0] * 65536
         start = 40000
-        snapshot[start] = 0x76
-        simulator = Simulator(snapshot)
+        memory[start] = 0x76
+        simulator = Simulator(memory)
         simulator.run(start)
         self.assertEqual(simulator.pc, start)
         self.assertEqual(simulator.tstates, 4)
 
     def test_halt_repeats_until_frame_boundary(self):
-        snapshot = [0] * 65536
+        memory = [0] * 65536
         start = 40000
-        snapshot[start] = 0x76
-        simulator = Simulator(snapshot, state={'iff': 1, 'tstates': 69882})
+        memory[start] = 0x76
+        simulator = Simulator(memory, state={'iff': 1, 'tstates': 69882})
         simulator.run(start)
         self.assertEqual(simulator.pc, start)
         simulator.run()
         self.assertEqual(simulator.pc, start + 1)
 
     def test_halt_repeats_at_frame_boundary_when_interrupts_disabled(self):
-        snapshot = [0] * 65536
+        memory = [0] * 65536
         start = 40000
-        snapshot[start] = 0x76
-        simulator = Simulator(snapshot, state={'iff': 0, 'tstates': 69882})
+        memory[start] = 0x76
+        simulator = Simulator(memory, state={'iff': 0, 'tstates': 69882})
         simulator.run(start)
         self.assertEqual(simulator.pc, start)
         simulator.run()
@@ -1965,7 +1965,7 @@ class SimulatorTest(SkoolKitTestCase):
     def _test_cpd_cpi(self, operation, opcode, inc, specs):
         simulator = Simulator([0] * 65536)
         registers = simulator.registers
-        snapshot = simulator.snapshot
+        memory = simulator.memory
         data = (237, opcode)
         hl = 45287
         bc = 121
@@ -1983,7 +1983,7 @@ class SimulatorTest(SkoolKitTestCase):
                 L: (hl + inc) % 256,
                 F: f_out
             }
-            snapshot[hl] = at_hl
+            memory[hl] = at_hl
             self._test_instruction(simulator, operation, data, 16, reg_out)
 
     def test_cpd(self):
@@ -2005,7 +2005,7 @@ class SimulatorTest(SkoolKitTestCase):
     def _test_cpdr_cpir(self, operation, opcode, inc, specs):
         simulator = Simulator([0] * 65536)
         registers = simulator.registers
-        snapshot = simulator.snapshot
+        memory = simulator.memory
         data = (237, opcode)
         hl = 45287
         start = 61212
@@ -2029,7 +2029,7 @@ class SimulatorTest(SkoolKitTestCase):
                 L: (hl + inc) % 256,
                 F: f_out
             }
-            snapshot[hl] = at_hl
+            memory[hl] = at_hl
             self._test_instruction(simulator, operation, data, timing, reg_out, start=start, end=end)
 
     def test_cpdr(self):
@@ -2098,7 +2098,7 @@ class SimulatorTest(SkoolKitTestCase):
     def _test_block_ld(self, operation, opcode, inc, repeat=False):
         simulator = Simulator([0] * 65536)
         registers = simulator.registers
-        snapshot = simulator.snapshot
+        memory = simulator.memory
         data = (237, opcode)
         hl = 31664
         de = 45331
@@ -2132,7 +2132,7 @@ class SimulatorTest(SkoolKitTestCase):
                 L: (hl + inc) % 256,
                 F: f_out
             }
-            snapshot[hl] = at_hl
+            memory[hl] = at_hl
             sna_out = {de: at_hl}
             self._test_instruction(simulator, operation, data, timing, reg_out, sna_out, start, end)
 
@@ -2151,7 +2151,7 @@ class SimulatorTest(SkoolKitTestCase):
     def test_lddr_fast(self):
         simulator = Simulator([0] * 65536, config={'fast_ldir': True})
         registers = simulator.registers
-        snapshot = simulator.snapshot
+        memory = simulator.memory
         tracer = MemoryTracer()
         simulator.set_tracer(tracer)
         data = (0xED, 0xB8)
@@ -2186,7 +2186,7 @@ class SimulatorTest(SkoolKitTestCase):
             if bc_in:
                 mem_read = list(range(hl_out + 1, hl_in + 1))
                 for a in mem_read:
-                    snapshot[a] = at_hl
+                    memory[a] = at_hl
                 mem_written = list(range(de_out + 1, de_in + 1))
                 sna_out = {a: at_hl for a in mem_written}
                 tracer.read.clear()
@@ -2201,7 +2201,7 @@ class SimulatorTest(SkoolKitTestCase):
     def test_ldir_fast(self):
         simulator = Simulator([0] * 65536, config={'fast_ldir': True})
         registers = simulator.registers
-        snapshot = simulator.snapshot
+        memory = simulator.memory
         tracer = MemoryTracer()
         simulator.set_tracer(tracer)
         data = (0xED, 0xB0)
@@ -2236,7 +2236,7 @@ class SimulatorTest(SkoolKitTestCase):
             if bc_in:
                 mem_read = list(range(hl_in, hl_out))
                 for a in mem_read:
-                    snapshot[a] = at_hl
+                    memory[a] = at_hl
                 mem_written = list(range(de_in, de_out))
                 sna_out = {a: at_hl for a in mem_written}
                 tracer.read.clear()
@@ -2251,7 +2251,7 @@ class SimulatorTest(SkoolKitTestCase):
     def _test_block_out(self, operation, opcode, inc, repeat=False):
         simulator = Simulator([0] * 65536)
         registers = simulator.registers
-        snapshot = simulator.snapshot
+        memory = simulator.memory
         data = (237, opcode)
         hl = 45287
         start = 41772
@@ -2276,7 +2276,7 @@ class SimulatorTest(SkoolKitTestCase):
                 L: (hl + inc) % 256,
                 F: f_out
             }
-            snapshot[hl] = outval
+            memory[hl] = outval
             self._test_instruction(simulator, operation, data, timing, reg_out, start=start, end=end)
 
     def test_outd(self):
@@ -2294,7 +2294,7 @@ class SimulatorTest(SkoolKitTestCase):
     def test_ex_sp(self):
         simulator = Simulator([0] * 65536)
         registers = simulator.registers
-        snapshot = simulator.snapshot
+        memory = simulator.memory
         sp1, sp2 = 27, 231
         r1, r2 = 56, 89
 
@@ -2307,8 +2307,8 @@ class SimulatorTest(SkoolKitTestCase):
                 registers[rh] = r2
                 registers[rl] = r1
                 reg_out = {rl: sp1, rh: sp2}
-                snapshot[sp] = sp1
-                snapshot[(sp + 1) & 0xFFFF] = sp2
+                memory[sp] = sp1
+                memory[(sp + 1) & 0xFFFF] = sp2
                 sna_out = {sp: r1}
                 sp = (sp + 1) & 0xFFFF
                 if sp > 0x3FFF:
@@ -2396,7 +2396,7 @@ class SimulatorTest(SkoolKitTestCase):
     def test_ret_from_interrupt(self):
         simulator = Simulator([0] * 65536)
         registers = simulator.registers
-        snapshot = simulator.snapshot
+        memory = simulator.memory
         start = 40000
         end = 45271
         sp = 32517
@@ -2409,11 +2409,11 @@ class SimulatorTest(SkoolKitTestCase):
                 data = (0xED, opcode)
                 registers[SP] = sp
                 reg_out = {SP: sp + 2}
-                snapshot[sp:sp + 2] = (end % 256, end // 256)
+                memory[sp:sp + 2] = (end % 256, end // 256)
                 self._test_instruction(simulator, operation, data, 14, reg_out, start=start, end=end)
 
     def test_im_n(self):
-        snapshot = [0] * 65536
+        memory = [0] * 65536
         for mode, opcodes in (
                 (0, (0x46, 0x4E, 0x66, 0x6E)),
                 (1, (0x56, 0x76)),
@@ -2422,14 +2422,14 @@ class SimulatorTest(SkoolKitTestCase):
             for opcode in opcodes:
                 operation = f'IM {mode}'
                 data = (0xED, opcode)
-                simulator = Simulator(snapshot, state = {'im': mode ^ 3})
+                simulator = Simulator(memory, state = {'im': mode ^ 3})
                 state_out = {'im': mode}
                 self._test_instruction(simulator, operation, data, 8, state_out=state_out)
 
     def test_rld(self):
         simulator = Simulator([0] * 65536)
         registers = simulator.registers
-        snapshot = simulator.snapshot
+        memory = simulator.memory
         operation = 'RLD'
         data = (237, 111)
         hl = 54672
@@ -2443,14 +2443,14 @@ class SimulatorTest(SkoolKitTestCase):
             registers[H] = hl // 256
             registers[L] = hl % 256
             reg_out = {A: a_out, F: f_out}
-            snapshot[hl] = at_hl
+            memory[hl] = at_hl
             sna_out = {hl: at_hl_out}
             self._test_instruction(simulator, operation, data, 18, reg_out, sna_out)
 
     def test_rrd(self):
         simulator = Simulator([0] * 65536)
         registers = simulator.registers
-        snapshot = simulator.snapshot
+        memory = simulator.memory
         operation = 'RRD'
         data = (237, 103)
         hl = 54672
@@ -2464,7 +2464,7 @@ class SimulatorTest(SkoolKitTestCase):
             registers[H] = hl // 256
             registers[L] = hl % 256
             reg_out = {A: a_out, F: f_out}
-            snapshot[hl] = at_hl
+            memory[hl] = at_hl
             sna_out = {hl: at_hl_out}
             self._test_instruction(simulator, operation, data, 18, reg_out, sna_out)
 
@@ -2643,15 +2643,15 @@ class SimulatorTest(SkoolKitTestCase):
         self._test_instruction(simulator, operation, data, 10, reg_out, start=65535, end=2)
 
     def test_no_tracer(self):
-        snapshot = [0] * 65536
-        simulator = Simulator(snapshot)
+        memory = [0] * 65536
+        simulator = Simulator(memory)
         simulator.run(0)
         self.assertEqual(simulator.pc, 1)
         self.assertEqual(simulator.tstates, 4)
 
     def test_tracer_runs_two_instructions(self):
-        snapshot = [0] * 65536
-        simulator = Simulator(snapshot)
+        memory = [0] * 65536
+        simulator = Simulator(memory)
         tracer = CountingTracer(2)
         simulator.set_tracer(tracer)
         simulator.run(0)
@@ -2659,7 +2659,7 @@ class SimulatorTest(SkoolKitTestCase):
         self.assertEqual(simulator.tstates, 8)
 
     def test_port_reading(self):
-        snapshot = [0] * 65536
+        memory = [0] * 65536
         start = 49152
         code = (
             0xDB, 0xFE,       # IN A,(254)
@@ -2672,8 +2672,8 @@ class SimulatorTest(SkoolKitTestCase):
             0xED, 0xBA,       # INDR
         )
         end = start + len(code)
-        snapshot[start:end] = code
-        simulator = Simulator(snapshot, {'A': 170, 'BC': 65311})
+        memory[start:end] = code
+        simulator = Simulator(memory, {'A': 170, 'BC': 65311})
         value = 128
         tracer = PortTracer(value, end)
         simulator.set_tracer(tracer)
@@ -2684,7 +2684,7 @@ class SimulatorTest(SkoolKitTestCase):
         self.assertEqual(simulator.registers[D], value)
 
     def test_port_writing(self):
-        snapshot = [0] * 65536
+        memory = [0] * 65536
         start = 49152
         port = 254
         code = (
@@ -2698,10 +2698,10 @@ class SimulatorTest(SkoolKitTestCase):
             0xED, 0xBB,       # OTDR
         )
         end = start + len(code)
-        snapshot[start:end] = code
+        memory[start:end] = code
         hl = 30000
-        snapshot[hl:hl + 2] = (1, 2)
-        simulator = Simulator(snapshot, {'A': 171, 'BC': 65055, 'HL': hl})
+        memory[hl:hl + 2] = (1, 2)
+        simulator = Simulator(memory, {'A': 171, 'BC': 65055, 'HL': hl})
         tracer = PortTracer(end=end)
         simulator.set_tracer(tracer)
         simulator.run(start)
@@ -2716,7 +2716,7 @@ class SimulatorTest(SkoolKitTestCase):
         self.assertEqual(tracer.out_ports, exp_outs)
 
     def test_memory_reading(self):
-        snapshot = [0] * 65536
+        memory = [0] * 65536
         start = 49152
         code = (
             0x01, 0x00, 0x80,       # 49152 LD BC,32768
@@ -2726,8 +2726,8 @@ class SimulatorTest(SkoolKitTestCase):
             0xED, 0x5B, 0x02, 0x80, # 49160 LD DE,(32770)
         )
         end = start + len(code)
-        snapshot[start:end] = code
-        simulator = Simulator(snapshot)
+        memory[start:end] = code
+        simulator = Simulator(memory)
         tracer = MemoryTracer(end)
         simulator.set_tracer(tracer)
         simulator.run(start)
@@ -2739,7 +2739,7 @@ class SimulatorTest(SkoolKitTestCase):
         self.assertEqual(tracer.read, exp_addresses)
 
     def test_memory_writing(self):
-        snapshot = [0] * 65536
+        memory = [0] * 65536
         start = 49152
         code = (
             0x01, 0x00, 0x80,       # 49152 LD BC,32768
@@ -2750,8 +2750,8 @@ class SimulatorTest(SkoolKitTestCase):
             0xED, 0x43, 0x02, 0x80, # 49162 LD (32770),BC
         )
         end = start + len(code)
-        snapshot[start:end] = code
-        simulator = Simulator(snapshot)
+        memory[start:end] = code
+        simulator = Simulator(memory)
         tracer = MemoryTracer(end)
         simulator.set_tracer(tracer)
         simulator.run(start)
@@ -2763,7 +2763,7 @@ class SimulatorTest(SkoolKitTestCase):
         self.assertEqual(tracer.written, exp_addresses)
 
     def test_rom_not_writable(self):
-        snapshot = [0] * 65536
+        memory = [0] * 65536
         start = 49152
         code = (
             0x21, 0x01, 0x02,       # 49152 LD HL,513
@@ -2771,8 +2771,8 @@ class SimulatorTest(SkoolKitTestCase):
             0x22, 0xFF, 0xFF,       # 49158 LD (65535),HL
         )
         end = start + len(code)
-        snapshot[start:end] = code
-        simulator = Simulator(snapshot)
+        memory[start:end] = code
+        simulator = Simulator(memory)
         tracer = MemoryTracer(end)
         simulator.set_tracer(tracer)
         simulator.run(start)
@@ -2781,27 +2781,27 @@ class SimulatorTest(SkoolKitTestCase):
             (49158, 65535, 1, 2),
         ]
         self.assertEqual(tracer.written, exp_addresses)
-        self.assertEqual(snapshot[0], 0)
-        self.assertEqual(snapshot[0x3FFF], 0)
+        self.assertEqual(memory[0], 0)
+        self.assertEqual(memory[0x3FFF], 0)
 
     def test_resume(self):
-        snapshot = [0] * 65536
-        simulator = Simulator(snapshot)
+        memory = [0] * 65536
+        simulator = Simulator(memory)
         simulator.run(0)
         simulator.run()
         self.assertEqual(simulator.pc, 2)
         self.assertEqual(simulator.tstates, 8)
 
     def test_stop(self):
-        snapshot = [0] * 65536
-        simulator = Simulator(snapshot)
+        memory = [0] * 65536
+        simulator = Simulator(memory)
         simulator.run(0, 2)
         self.assertEqual(simulator.pc, 2)
         self.assertEqual(simulator.tstates, 8)
 
     def test_stop_overrides_tracer(self):
-        snapshot = [0] * 65536
-        simulator = Simulator(snapshot)
+        memory = [0] * 65536
+        simulator = Simulator(memory)
         tracer = CountingTracer(100)
         simulator.set_tracer(tracer)
         simulator.run(0, 2)
@@ -2809,29 +2809,29 @@ class SimulatorTest(SkoolKitTestCase):
         self.assertEqual(simulator.tstates, 8)
 
     def test_pc_register_value(self):
-        snapshot = [0] * 65536
-        simulator = Simulator(snapshot, {'PC': 1})
+        memory = [0] * 65536
+        simulator = Simulator(memory, {'PC': 1})
         simulator.run()
         self.assertEqual(simulator.pc, 2)
         self.assertEqual(simulator.tstates, 4)
 
     def test_initial_time(self):
-        snapshot = [0] * 65536
-        simulator = Simulator(snapshot, state={'tstates': 100})
+        memory = [0] * 65536
+        simulator = Simulator(memory, state={'tstates': 100})
         simulator.run(0)
         self.assertEqual(simulator.pc, 1)
         self.assertEqual(simulator.tstates, 104)
 
     def test_initial_ppcount(self):
-        snapshot = [0] * 65536
+        memory = [0] * 65536
         code = (
             0xC1,  # POP BC
             0xC1,  # POP BC
         )
         start = 32768
         end = start + len(code)
-        snapshot[start:end] = code
-        simulator = Simulator(snapshot, state={'ppcount': 1})
+        memory[start:end] = code
+        simulator = Simulator(memory, state={'ppcount': 1})
         tracer = PushPopCountTracer()
         simulator.set_tracer(tracer)
         simulator.run(start)
@@ -2839,10 +2839,10 @@ class SimulatorTest(SkoolKitTestCase):
         self.assertEqual(simulator.ppcount, -1)
 
     def test_initial_iff(self):
-        snapshot = [0] * 65536
+        memory = [0] * 65536
         start = 32768
-        snapshot[start:start + 2] = (0xED, 0x57) # LD A,I
-        simulator = Simulator(snapshot, state={'iff': 1})
+        memory[start:start + 2] = (0xED, 0x57) # LD A,I
+        simulator = Simulator(memory, state={'iff': 1})
         simulator.run(start)
         self.assertEqual(simulator.pc, start + 2)
         self.assertEqual(simulator.registers[F], 0b00101100)

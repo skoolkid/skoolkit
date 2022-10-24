@@ -174,6 +174,7 @@ class LoadTracer:
     def fast_load(self, simulator):
         block = self.blocks[self.samples[self.index][3]]
         registers = simulator.registers
+        memory = simulator.memory
         ix = registers[IXl] + 256 * registers[IXh] # Start address
         de = registers[E] + 256 * registers[D] # Block length
         a = registers[A]
@@ -181,7 +182,7 @@ class LoadTracer:
 
         # Preload the machine stack with 0x053F (as done at 0x055E)
         registers[H], registers[L] = 0x05, 0x3F # SA-LD-RET
-        simulator.push(H)
+        simulator.push(registers, memory, H)
 
         if a == block[0]:
             skipped = ''
@@ -206,12 +207,12 @@ class LoadTracer:
             registers[F] = 0x00 # Reset carry flag: error
         else:
             if de <= data_len:
-                simulator.snapshot[ix:ix + de] = block[1:1 + de]
+                memory[ix:ix + de] = block[1:1 + de]
                 registers[F] = 0x01 # Set carry flag: success
                 ix += de
                 de = 0
             else:
-                simulator.snapshot[ix:ix + data_len + 1] = block[1:]
+                memory[ix:ix + data_len + 1] = block[1:]
                 registers[F] = 0x00 # Reset carry flag: error
                 ix += data_len + 1
                 de -= data_len + 1

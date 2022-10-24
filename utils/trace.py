@@ -28,7 +28,7 @@ TRACE2 = TRACE1 + "  A={A:02X} F={F:08b} BC={BC:04X} DE={DE:04X} HL={HL:04X} IX=
 TRACE2 += "                          A'={^A:02X} F'={^F:08b} BC'={BC':04X} DE'={DE':04X} HL'={HL':04X} SP={SP:04X}"
 
 class Tracer:
-    def __init__(self, snapshot, verbose, end=-1, max_operations=0, max_tstates=0):
+    def __init__(self, memory, verbose, end=-1, max_operations=0, max_tstates=0):
         self.verbose = verbose
         self.end = end
         self.max_operations = max_operations
@@ -44,7 +44,7 @@ class Tracer:
             1,     # DefwSize
             1,     # Wrap
         )
-        self.disassembler = get_component('Disassembler', snapshot, dconfig)
+        self.disassembler = get_component('Disassembler', memory, dconfig)
 
     def trace(self, simulator, address):
         if self.verbose:
@@ -138,17 +138,17 @@ def simplify(delays, depth):
     return ', '.join(s0)
 
 def run(snafile, start, options):
-    snapshot, start = make_snapshot(snafile, options.org, start)[0:2]
+    memory, start = make_snapshot(snafile, options.org, start)[0:2]
     if options.rom:
         rom = read_bin_file(options.rom)
     else:
         rom = read_bin_file(ROM48)
-    snapshot[:len(rom)] = rom
+    memory[:len(rom)] = rom
     for spec in options.pokes:
-        poke(snapshot, spec)
+        poke(memory, spec)
     config = {'fast_djnz': options.audio, 'fast_ldir': True}
-    simulator = Simulator(snapshot, get_registers(options.reg), config=config)
-    tracer = Tracer(snapshot, options.verbose, options.end, options.max_operations, options.max_tstates)
+    simulator = Simulator(memory, get_registers(options.reg), config=config)
+    tracer = Tracer(memory, options.verbose, options.end, options.max_operations, options.max_tstates)
     simulator.set_tracer(tracer)
     begin = time.time()
     simulator.run(start)
@@ -168,7 +168,7 @@ def run(snafile, start, options):
         print('Delays: {}'.format(simplify(delays, options.depth)))
     if options.dump:
         with open(options.dump, 'wb') as f:
-            f.write(bytearray(simulator.snapshot[16384:]))
+            f.write(bytearray(simulator.memory[16384:]))
         print(f'Snapshot dumped to {options.dump}')
 
 def main(args):

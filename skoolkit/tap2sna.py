@@ -248,7 +248,7 @@ def sim_load(blocks, options):
     options.reg = [f'{r}={v}' for r, v in registers.items()] + options.reg
     state = [f'im={simulator.imode}', f'iff={simulator.iff2}', f'border={tracer.border}']
     options.state = state + options.state
-    return simulator.snapshot[0x4000:]
+    return simulator.memory[0x4000:]
 
 def _get_load_params(param_str):
     params = []
