@@ -3,6 +3,8 @@ Changelog
 
 8.8b1
 -----
+* Removed the ``MaxAmplitude`` parameter from the :ref:`ref-AudioWriter`
+  section
 
 8.7 (2022-10-08)
 ----------------

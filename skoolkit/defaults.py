@@ -26,7 +26,6 @@ SECTIONS['AudioWriter'] = """
 ; ContentionFactor=51
 ; FrameDuration=69888
 ; InterruptDelay=942
-; MaxAmplitude=65536
 ; SampleRate=44100
 """
 

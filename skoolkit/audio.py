@@ -22,7 +22,6 @@ CONTENTION_END = 'ContentionEnd'
 CONTENTION_FACTOR = 'ContentionFactor'
 FRAME_DURATION = 'FrameDuration'
 INTERRUPT_DELAY = 'InterruptDelay'
-MAX_AMPLITUDE = 'MaxAmplitude'
 SAMPLE_RATE = 'SampleRate'
 
 class AudioWriter:
@@ -34,7 +33,6 @@ class AudioWriter:
             CONTENTION_FACTOR: 51,
             FRAME_DURATION: 69888,
             INTERRUPT_DELAY: 942,
-            MAX_AMPLITUDE: 65536,
             SAMPLE_RATE: 44100
         }
         if config:
@@ -101,32 +99,25 @@ class AudioWriter:
                     cycle = 0
 
     def _delays_to_samples(self, delays):
-        max_amplitude = self.options[MAX_AMPLITUDE]
         sample_delay = self.options[CLOCK_SPEED] / self.options[SAMPLE_RATE]
         samples = []
         direction = 1
         i = 0
-        d0 = 0
-        d1 = delays[i]
+        d = delays[0]
         t = 0
         while 1:
-            while t >= d1:
+            while t >= d:
                 i += 1
                 if i >= len(delays):
                     break
-                d0 = d1
-                d1 += delays[i]
+                d += delays[i]
                 direction *= -1
             if i >= len(delays):
                 break
-            sample = direction * int(max_amplitude * math.sin(math.pi * (t - d0) / (d1 - d0)))
-            if sample > 32767:
-                sample = 32767
-            elif sample < -32768:
-                sample = 32768
-            elif sample < 0:
-                sample += 65536
-            samples.append(sample)
+            if direction > 0:
+                samples.append(32767)
+            else:
+                samples.append(32768)
             t += sample_delay
         return samples
 

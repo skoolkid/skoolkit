@@ -1475,7 +1475,6 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
             'ContentionFactor': 51,
             'FrameDuration': 69888,
             'InterruptDelay': 942,
-            'MaxAmplitude': 65536,
             'SampleRate': 44100
         }
         if config:
@@ -1661,7 +1660,6 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
             'ContentionFactor': 58,
             'FrameDuration': 70000,
             'InterruptDelay': 1024,
-            'MaxAmplitude': 32768,
             'SampleRate': 22050
         }
         ref = '\n'.join(['[AudioWriter]'] + [f'{k}={v}' for k, v in config.items()])

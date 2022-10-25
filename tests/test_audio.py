@@ -52,7 +52,7 @@ class AudioWriterTest(SkoolKitTestCase):
         audio_writer = AudioWriter()
         audio_bytes = self._get_audio_data(audio_writer, [100] * 4)
         samples = self._check_header(audio_bytes)
-        self.assertEqual(samples, b'\x00\x00\xff\x7f\x00\x80\xff\x7f\x00\x80\x83\xe6')
+        self.assertEqual(samples, b'\xff\x7f\xff\x7f\x00\x80\xff\x7f\x00\x80\x00\x80')
 
     def test_contention(self):
         audio_writer = TestAudioWriter()
@@ -76,7 +76,6 @@ class AudioWriterTest(SkoolKitTestCase):
             'ContentionFactor': '!',
             'FrameDuration': '&',
             'InterruptDelay': '*',
-            'MaxAmplitude': '?',
             'SampleRate': 'NaN'
         })
         self.assertEqual(audio_writer.options['ClockSpeed'], 3500000)
@@ -85,7 +84,6 @@ class AudioWriterTest(SkoolKitTestCase):
         self.assertEqual(audio_writer.options['ContentionFactor'], 51)
         self.assertEqual(audio_writer.options['FrameDuration'], 69888)
         self.assertEqual(audio_writer.options['InterruptDelay'], 942)
-        self.assertEqual(audio_writer.options['MaxAmplitude'], 65536)
         self.assertEqual(audio_writer.options['SampleRate'], 44100)
 
     def test_custom_clock_speed(self):
@@ -93,7 +91,7 @@ class AudioWriterTest(SkoolKitTestCase):
         audio_writer = AudioWriter({'ClockSpeed': clock_speed})
         audio_bytes = self._get_audio_data(audio_writer, [100] * 4)
         samples = self._check_header(audio_bytes)
-        self.assertEqual(samples, b'\x00\x00\x00\x80\x00\x80')
+        self.assertEqual(samples, b'\xff\x7f\x00\x80\x00\x80')
 
     def test_custom_contention_period(self):
         contention_begin, contention_end = 10000, 20000
@@ -130,19 +128,12 @@ class AudioWriterTest(SkoolKitTestCase):
         exp_delays_out = _flatten([[10000] * 6, 11050, 10000])
         self.assertEqual(exp_delays_out, audio_writer.delays)
 
-    def test_custom_max_amplitude(self):
-        max_amplitude = 32768
-        audio_writer = AudioWriter({'MaxAmplitude': max_amplitude})
-        audio_bytes = self._get_audio_data(audio_writer, [100] * 3)
-        samples = self._check_header(audio_bytes)
-        self.assertEqual(samples, b'\x00\x00\x49\x4d\xc9\x84\x26\x77')
-
     def test_custom_sample_rate(self):
         sample_rate = 22050
         audio_writer = AudioWriter({'SampleRate': sample_rate})
         audio_bytes = self._get_audio_data(audio_writer, [100] * 4)
         samples = self._check_header(audio_bytes, sample_rate)
-        self.assertEqual(samples, b'\x00\x00\x00\x80\x00\x80')
+        self.assertEqual(samples, b'\xff\x7f\x00\x80\x00\x80')
 
     def test_offset(self):
         audio_writer = TestAudioWriter()
