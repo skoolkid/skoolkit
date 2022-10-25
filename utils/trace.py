@@ -16,19 +16,20 @@ if not os.path.isdir(SKOOLKIT_HOME):
 sys.path.insert(0, SKOOLKIT_HOME)
 
 from skoolkit import ROM48, SkoolKitError, get_int_param, integer, read_bin_file
-from skoolkit.components import get_component
 from skoolkit.snapshot import make_snapshot, poke, print_reg_help
 from skoolkit.simulator import (Simulator, A, F, B, C, D, E, H, L, IXh, IXl, IYh, IYl,
                                 SP, I, R, xA, xF, xB, xC, xD, xE, xH, xL)
 
-DisassemblerConfig = namedtuple('DisassemblerConfig', 'asm_hex asm_lower defb_size defm_size defw_size wrap')
+from disassembler import Disassembler
 
-TRACE1 = "${i[0]:04X} {i[1]:<16}  "
-TRACE2 = TRACE1 + "  A={A:02X} F={F:08b} BC={BC:04X} DE={DE:04X} HL={HL:04X} IX={IX:04X} IY={IY:04X} IR={IR:04X}\n"
-TRACE2 += "                          A'={^A:02X} F'={^F:08b} BC'={BC':04X} DE'={DE':04X} HL'={HL':04X} SP={SP:04X}"
+TRACE1 = "${address:04X} {data:<8} {i}"
+TRACE2 = """
+${address:04X} {data:<8} {i:<15}  A={A:02X} F={F:08b} BC={BC:04X} DE={DE:04X} HL={HL:04X} IX={IX:04X} IY={IY:04X} IR={IR:04X}
+                                A'={^A:02X} F'={^F:08b} BC'={BC':04X} DE'={DE':04X} HL'={HL':04X} SP={SP:04X}
+""".strip()
 
 class Tracer:
-    def __init__(self, memory, verbose, end=-1, max_operations=0, max_tstates=0):
+    def __init__(self, memory, start, verbose, end=-1, max_operations=0, max_tstates=0):
         self.verbose = verbose
         self.end = end
         self.max_operations = max_operations
@@ -36,15 +37,11 @@ class Tracer:
         self.operations = 0
         self.spkr = None
         self.out_times = []
-        dconfig = DisassemblerConfig(
-            True,  # asm_hex
-            False, # asm_lower
-            8,     # DefbSize
-            65,    # DefmSize
-            1,     # DefwSize
-            1,     # Wrap
-        )
-        self.disassembler = get_component('Disassembler', memory, dconfig)
+        if self.verbose:
+            self.address = start
+            self.disassembler = Disassembler()
+            self.instruction, size = self.disassembler.disassemble(memory, start)
+            self.data = ''.join(f'{memory[a % 65536]:02X}' for a in range(start, start + size))
 
     def trace(self, simulator, address):
         if self.verbose:
@@ -69,12 +66,15 @@ class Tracer:
                 "DE'": sim_registers[xE] + 256 * sim_registers[xD],
                 "HL'": sim_registers[xL] + 256 * sim_registers[xH],
             }
-            instruction = self.disassembler.disassemble(address, address + 1, 'n')[0]
-            print(fmt.format(i=instruction, **registers))
+            print(fmt.format(address=self.address, data=self.data, i=self.instruction, **registers))
+            memory, address = simulator.memory, simulator.pc
+            self.instruction, size = self.disassembler.disassemble(memory, address)
+            self.data = ''.join(f'{memory[a % 65536]:02X}' for a in range(address, address + size))
+            self.address = address
 
         self.operations += 1
 
-        addr = f'${address:04X}'
+        addr = f'${simulator.pc:04X}'
         if self.operations >= self.max_operations > 0:
             print(f'Stopped at {addr}: {self.operations} operations')
             return True
@@ -148,7 +148,7 @@ def run(snafile, start, options):
         poke(memory, spec)
     config = {'fast_djnz': options.audio, 'fast_ldir': True}
     simulator = Simulator(memory, get_registers(options.reg), config=config)
-    tracer = Tracer(memory, options.verbose, options.end, options.max_operations, options.max_tstates)
+    tracer = Tracer(memory, start, options.verbose, options.end, options.max_operations, options.max_tstates)
     simulator.set_tracer(tracer)
     begin = time.time()
     simulator.run(start)
