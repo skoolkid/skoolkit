@@ -20,7 +20,7 @@ from skoolkit.snapshot import make_snapshot, poke, print_reg_help
 from skoolkit.simulator import (Simulator, A, F, B, C, D, E, H, L, IXh, IXl, IYh, IYl,
                                 SP, I, R, xA, xF, xB, xC, xD, xE, xH, xL, PC, T)
 
-from disassembler import Disassembler
+from disassembler import disassemble
 
 TRACE1 = "${address:04X} {data:<8} {i}"
 TRACE2 = """
@@ -39,8 +39,7 @@ class Tracer:
         self.out_times = []
         if self.verbose:
             self.address = start
-            self.disassembler = Disassembler()
-            self.instruction, size = self.disassembler.disassemble(memory, start)
+            self.instruction, size = disassemble(memory, start)
             self.data = ''.join(f'{memory[a % 65536]:02X}' for a in range(start, start + size))
 
     def trace(self, simulator, address):
@@ -68,7 +67,7 @@ class Tracer:
             }
             print(fmt.format(address=self.address, data=self.data, i=self.instruction, **registers))
             memory, address = simulator.memory, sim_registers[PC]
-            self.instruction, size = self.disassembler.disassemble(memory, address)
+            self.instruction, size = disassemble(memory, address)
             self.data = ''.join(f'{memory[a % 65536]:02X}' for a in range(address, address + size))
             self.address = address
 
