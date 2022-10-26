@@ -16,7 +16,7 @@
 
 from skoolkit import write, write_line
 from skoolkit.basic import TextReader
-from skoolkit.simulator import (A, F, D, E, H, L, IXh, IXl, SP)
+from skoolkit.simulator import A, F, D, E, H, L, IXh, IXl, SP, PC, T
 
 SILENCE = 0
 PILOT = 1
@@ -90,10 +90,13 @@ class LoadTracer:
         self.text = TextReader()
 
     def trace(self, simulator, address):
+        pc = simulator.registers[PC]
+        tstates = simulator.registers[T]
+
         if self.tape_started is not None:
             index = self.index
             samples = self.samples
-            offset = simulator.tstates - self.tape_started
+            offset = tstates - self.tape_started
             block_num = samples[index][3]
             while index < self.max_index and samples[index + 1][0] < offset:
                 index += 1 # pragma: no cover
@@ -106,7 +109,7 @@ class LoadTracer:
                     self.end_of_tape += 1
                     if self.end_of_tape == 1:
                         write_line('Tape finished')
-                        self.tape_end_time = simulator.tstates
+                        self.tape_end_time = tstates
                 if self.custom_loader: # pragma: no cover
                     progress = sample[0] // self.tape_length
                     if progress > self.progress:
@@ -115,40 +118,40 @@ class LoadTracer:
                         self.progress = progress
             self.index = index
 
-        if simulator.pc == self.stop:
-            write_line(f'Simulation stopped (PC at start address): PC={simulator.pc}')
+        if pc == self.stop:
+            write_line(f'Simulation stopped (PC at start address): PC={pc}')
             return True
 
-        if simulator.pc == 0x0556:
+        if pc == 0x0556:
             return self.fast_load(simulator)
 
         if self.end_of_tape and self.stop is None:
             if self.custom_loader: # pragma: no cover
-                write_line(f'Simulation stopped (end of tape): PC={simulator.pc}')
+                write_line(f'Simulation stopped (end of tape): PC={pc}')
                 return True
-            if simulator.pc > 0x3FFF:
-                write_line(f'Simulation stopped (PC in RAM): PC={simulator.pc}')
+            if pc > 0x3FFF:
+                write_line(f'Simulation stopped (PC in RAM): PC={pc}')
                 return True
-            if simulator.tstates - self.tape_end_time > 3500000: # pragma: no cover
-                write_line(f'Simulation stopped (tape ended 1 second ago): PC={simulator.pc}')
+            if tstates - self.tape_end_time > 3500000: # pragma: no cover
+                write_line(f'Simulation stopped (tape ended 1 second ago): PC={pc}')
                 return True
 
-        if simulator.tstates > SIM_TIMEOUT: # pragma: no cover
-            write_line(f'Simulation stopped (timed out): PC={simulator.pc}')
+        if tstates > SIM_TIMEOUT: # pragma: no cover
+            write_line(f'Simulation stopped (timed out): PC={pc}')
             return True
 
     def read_port(self, simulator, port):
         if port & 0xFF == 0xFE:
             read_tape = False
-            if simulator.pc > 0x7FFF: # pragma: no cover
+            if simulator.registers[PC] > 0x7FFF: # pragma: no cover
                 self.custom_loader = True
                 read_tape = True
-            elif 0x0562 <= simulator.pc <= 0x05F1:
+            elif 0x0562 <= simulator.registers[PC] <= 0x05F1:
                 read_tape = True # pragma: no cover
 
             if read_tape: # pragma: no cover
                 if self.tape_started is None:
-                    self.tape_started = simulator.tstates - self.samples[self.index][0]
+                    self.tape_started = simulator.registers[T] - self.samples[self.index][0]
 
                 if self.index == self.max_index - 1:
                     ts, sample, stype, bnum = self.samples.pop()
@@ -221,7 +224,7 @@ class LoadTracer:
             registers[D] = (de >> 8) & 0xFF
             registers[E] = de & 0xFF
 
-        simulator.pc = 0x05E2
+        simulator.registers[PC] = 0x05E2
 
         block_num = self.samples[self.index][3]
         while self.index < self.max_index and self.samples[self.index][3] == block_num:
@@ -230,5 +233,5 @@ class LoadTracer:
             # Pause tape between blocks
             self.tape_started = None
         else:
-            self.tape_started = simulator.tstates - self.samples[self.index][0]
+            self.tape_started = simulator.registers[T] - self.samples[self.index][0]
         self.pulse_type = DATA

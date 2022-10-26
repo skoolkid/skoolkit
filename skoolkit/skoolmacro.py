@@ -25,7 +25,7 @@ from skoolkit import (BASE_10, BASE_16, CASE_LOWER, CASE_UPPER, VERSION,
                       SkoolKitError, SkoolParsingError, eval_variable, evaluate)
 from skoolkit.graphics import Udg
 from skoolkit.simulator import (Simulator, A, F, B, C, D, E, H, L, IXh, IXl, IYh, IYl,
-                                SP, I, R, xA, xF, xB, xC, xD, xE, xH, xL)
+                                SP, I, R, xA, xF, xB, xC, xD, xE, xH, xL, PC, T)
 
 _map_cache = {}
 
@@ -105,7 +105,7 @@ class AudioTracer:
     def write_port(self, simulator, port, value):
         if port & 0xFF == 0xFE and self.spkr is None or self.spkr != value & 0x10:
             self.spkr = value & 0x10
-            self.out_times.append(simulator.tstates)
+            self.out_times.append(simulator.registers[T])
 
 # API
 def parse_ints(text, index=0, num=0, defaults=(), names=(), fields=None):
@@ -1147,7 +1147,7 @@ def parse_sim(writer, text, index, *cwd):
     tstates = registers.get('tstates', 0)
     simulator = Simulator(writer.snapshot, registers, {'tstates': tstates}, {'fast_djnz': True, 'fast_ldir': True})
     if start < 0:
-        start = simulator.pc
+        start = simulator.registers[PC]
     simulator.run(start, stop)
     sim_registers = simulator.registers
     writer.fields['sim'] = {
@@ -1166,8 +1166,8 @@ def parse_sim(writer, text, index, *cwd):
         'I': sim_registers[I],
         'R': sim_registers[R],
         'SP': sim_registers[SP],
-        'PC': simulator.pc,
-        'tstates': simulator.tstates
+        'PC': sim_registers[PC],
+        'tstates': sim_registers[T]
     }
     return end, ''
 
@@ -1225,8 +1225,8 @@ def parse_tstates(writer, text, index, *cwd):
         simulator = Simulator(writer.snapshot[:])
         simulator.run(start, stop)
         if msg is None:
-            return end, str(simulator.tstates)
-        return end, Template(msg).safe_substitute(tstates=simulator.tstates)
+            return end, str(simulator.registers[T])
+        return end, Template(msg).safe_substitute(tstates=simulator.registers[T])
     if stop < start:
         stop = start + 1
     timings = writer.parser.get_instruction_timings(start, stop)

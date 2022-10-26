@@ -15,7 +15,7 @@ if not os.path.isdir(SKOOLKIT_HOME):
 sys.path.insert(0, SKOOLKIT_HOME)
 
 from skoolkit import ROM48, integer, read_bin_file
-from skoolkit.simulator import Simulator, A
+from skoolkit.simulator import Simulator, A, PC, T
 from skoolkit.tap2sna import get_tap_blocks, sim_load
 
 class Options:
@@ -31,7 +31,7 @@ class Tracer:
 
     def trace(self, simulator, address):
         self.count += 1
-        if simulator.pc == 16:
+        if simulator.registers[PC] == 16:
             a = simulator.registers[A]
             if a >= 32:
                 self.msg += chr(a)
@@ -82,7 +82,7 @@ def run(tapfile, options):
     begin = time.time()
     simulator.run(start, stop)
     rt = time.time() - begin
-    z80t = simulator.tstates / 3500000
+    z80t = simulator.registers[T] / 3500000
     speed = z80t / rt
     if tracer is None:
         failed = simulator.registers[A]
@@ -90,7 +90,7 @@ def run(tapfile, options):
             print(f'{failed} test(s) failed')
         else:
             print('All tests passed')
-    print(f'Z80 execution time: {simulator.tstates} T-states ({z80t:.03f}s)')
+    print(f'Z80 execution time: {simulator.registers[T]} T-states ({z80t:.03f}s)')
     print(f'Simulation time: {rt:.03f}s (x{speed:.02f})')
     if tracer:
         failed = tracer.failed

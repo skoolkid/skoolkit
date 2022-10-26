@@ -27,7 +27,7 @@ from skoolkit import (SkoolKitError, get_dword, get_int_param, get_object,
                       warn, write_line, ROM48, VERSION)
 from skoolkit.loadtracer import LoadTracer
 from skoolkit.simulator import (Simulator, A, F, B, C, D, E, H, L, IXh, IXl, IYh, IYl,
-                                SP, I, R, xA, xF, xB, xC, xD, xE, xH, xL)
+                                SP, I, R, xA, xF, xB, xC, xD, xE, xH, xL, PC, T)
 from skoolkit.snapshot import move, poke, print_reg_help, print_state_help, write_z80v3
 
 SYSVARS = (
@@ -219,7 +219,7 @@ def sim_load(blocks, options):
     try:
         simulator.run(0x0F3B) # Entry point in EDITOR at 0F2C
     except KeyboardInterrupt: # pragma: no cover
-        write_line(f'Simulation stopped (interrupted): PC={simulator.pc}')
+        write_line(f'Simulation stopped (interrupted): PC={simulator.registers[PC]}')
     sim_registers = simulator.registers
     registers = {
         'A': sim_registers[A],
@@ -243,7 +243,7 @@ def sim_load(blocks, options):
         '^E': sim_registers[xE],
         '^H': sim_registers[xH],
         '^L': sim_registers[xL],
-        'PC': simulator.pc
+        'PC': sim_registers[PC]
     }
     options.reg = [f'{r}={v}' for r, v in registers.items()] + options.reg
     state = [f'im={simulator.imode}', f'iff={simulator.iff2}', f'border={tracer.border}']

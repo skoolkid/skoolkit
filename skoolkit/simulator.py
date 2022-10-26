@@ -84,6 +84,8 @@ xD = 20
 xE = 21
 xH = 22
 xL = 23
+PC = 24
+T = 25
 Bd = 26
 Dd = 28
 Hd = 30
@@ -114,7 +116,9 @@ REGISTERS = {
     '^D': xD,
     '^E': xE,
     '^H': xH,
-    '^L': xL
+    '^L': xL,
+    'PC': PC,
+    'T': T
 }
 
 class Simulator:
@@ -144,9 +148,10 @@ class Simulator:
             0,     # xD
             0,     # xE
             0,     # xH
-            0      # xL
+            0,     # xL
+            0,     # PC
+            0      # T (T-states)
         ]
-        self.pc = 0
         if registers:
             self.set_registers(registers)
         if state is None:
@@ -154,7 +159,7 @@ class Simulator:
         self.ppcount = state.get('ppcount', 0)
         self.imode = state.get('im', 1)
         self.iff2 = state.get('iff', 0)
-        self.tstates = state.get('tstates', 0)
+        self.registers[25] = state.get('tstates', 0)
         cfg = CONFIG.copy()
         if config:
             cfg.update(config)
@@ -193,11 +198,6 @@ class Simulator:
             self.poke_tracer = None
 
     def run(self, start=None, stop=None):
-        if start is None:
-            pc = self.pc
-        else:
-            self.pc = start
-            pc = start
         opcodes = self.opcodes
         after_CB = self.after_CB
         after_DD = self.after_DD
@@ -208,6 +208,11 @@ class Simulator:
         memory = self.memory
         registers = self.registers
         itracer = self.itracer
+        if start is None:
+            pc = registers[24]
+        else:
+            registers[24] = start
+            pc = start
         running = True
         while running:
             opcode = memory[pc]
@@ -241,21 +246,19 @@ class Simulator:
             else:
                 registers[15] = 128 + ((r + r_inc) % 128)
             if itracer:
-                running = self.pc != stop
+                running = registers[24] != stop
                 if itracer(pc):
                     running = False
             elif stop is None:
                 running = False
             else:
-                running = self.pc != stop
-            pc = self.pc
+                running = registers[24] != stop
+            pc = registers[24]
 
     def set_registers(self, registers):
         for reg, value in registers.items():
             if reg in REGISTERS:
                 self.registers[REGISTERS[reg]] = value
-            elif reg == 'PC':
-                self.pc = value
             elif reg in ('IX', 'IY'):
                 rh = REGISTERS[reg + 'h']
                 self.registers[rh] = value // 256
@@ -270,7 +273,7 @@ class Simulator:
                 self.registers[rh + 1] = value % 256
 
     def index(self, registers, memory, reg):
-        offset = memory[(self.pc + 2) % 65536]
+        offset = memory[(registers[24] + 2) % 65536]
         if offset >= 128:
             offset -= 256
         if reg == 32:
@@ -283,7 +286,7 @@ class Simulator:
         if reg < 32:
             return self.peek(memory, registers[reg - 23] + 256 * registers[reg - 24])
         if reg == 34:
-            return memory[(self.pc + size - 1) % 65536]
+            return memory[(registers[24] + size - 1) % 65536]
         return self.peek(memory, self.index(registers, memory, reg))
 
     def set_operand_value(self, registers, memory, reg, value):
@@ -343,8 +346,8 @@ class Simulator:
             registers[1] = f
         registers[0] = a
 
-        self.tstates += timing
-        self.pc = (self.pc + size) % 65536
+        registers[25] += timing
+        registers[24] = (registers[24] + size) % 65536
 
     def add16(self, registers, timing, size, augend, reg, carry=0, mult=1):
         if reg == 12:
@@ -390,29 +393,29 @@ class Simulator:
         registers[augend + 1] = value % 256
         registers[augend] = value // 256
 
-        self.tstates += timing
-        self.pc = (self.pc + size) % 65536
+        registers[25] += timing
+        registers[24] = (registers[24] + size) % 65536
 
     def and_n(self, registers, memory):
-        a = registers[0] & memory[(self.pc + 1) % 65536]
+        a = registers[0] & memory[(registers[24] + 1) % 65536]
         registers[0] = a
         registers[1] = SZ53P[a] + 0x10
-        self.tstates += 7
-        self.pc = (self.pc + 2) % 65536
+        registers[25] += 7
+        registers[24] = (registers[24] + 2) % 65536
 
     def and_r(self, registers, r):
         a = registers[0] & registers[r]
         registers[0] = a
         registers[1] = SZ53P[a] + 0x10
-        self.tstates += 4
-        self.pc = (self.pc + 1) % 65536
+        registers[25] += 4
+        registers[24] = (registers[24] + 1) % 65536
 
     def anda(self, registers, memory, timing, size, reg):
         a = registers[0] & self.get_operand_value(registers, memory, size, reg)
         registers[0] = a
         registers[1] = SZ53P[a] + 0x10
-        self.tstates += timing
-        self.pc = (self.pc + size) % 65536
+        registers[25] += timing
+        registers[24] = (registers[24] + size) % 65536
 
     def bit(self, registers, memory, timing, size, mask, reg):
         value = self.get_operand_value(registers, memory, size, reg)
@@ -423,7 +426,7 @@ class Simulator:
         elif mask == 128:
             f += 0x80 # S.......
         if reg >= 32:
-            offset = memory[(self.pc + 2) % 65536]
+            offset = memory[(registers[24] + 2) % 65536]
             if reg == 32:
                 v = (registers[9] + 256 * registers[8] + offset) % 65536
             else:
@@ -431,8 +434,8 @@ class Simulator:
             registers[1] = f + ((v // 256) & 0x28) # ..5.3...
         else:
             registers[1] = f + (value & 0x28) # ..5.3...
-        self.tstates += timing
-        self.pc = (self.pc + size) % 65536
+        registers[25] += timing
+        registers[24] = (registers[24] + size) % 65536
 
     def block(self, registers, memory, btype, inc, repeat):
         hl = registers[7] + 256 * registers[6]
@@ -440,7 +443,7 @@ class Simulator:
         b = registers[2]
         a = registers[0]
         tstates = 16
-        addr = self.pc + 2
+        addr = registers[24] + 2
         bc_inc = -1
 
         if btype == 0:
@@ -451,7 +454,7 @@ class Simulator:
             de = (de + inc) % 65536
             registers[5], registers[4] = de % 256, de // 256
             if repeat and bc != 1:
-                addr = self.pc
+                addr = registers[24]
                 tstates = 21
             n = registers[0] + at_hl
             f = (registers[1] & 0xC1) + (n & 0x08) # SZ.H3.NC
@@ -475,7 +478,7 @@ class Simulator:
             if bc != 1:
                 f += 0x04 # .....P..
             if repeat and a != value and bc > 1:
-                addr = self.pc
+                addr = registers[24]
                 tstates = 21
         elif btype == 2:
             # INI, IND, INIR, INDR
@@ -483,7 +486,7 @@ class Simulator:
             self.poke(memory, hl, value)
             bc_inc = -256
             if repeat and b != 1:
-                addr = self.pc
+                addr = registers[24]
                 tstates = 21
             b1 = (b - 1) % 256
             j = value + ((registers[3] + inc) % 256)
@@ -498,7 +501,7 @@ class Simulator:
             # OUTI, OUTD, OTIR, OTDR
             bc_inc = -256
             if repeat and b != 1:
-                addr = self.pc
+                addr = registers[24]
                 tstates = 21
             outval = self.peek(memory, hl)
             self._out((bc - 256) % 65536, outval)
@@ -518,18 +521,18 @@ class Simulator:
         registers[3], registers[2] = bc % 256, bc // 256
         registers[1] = f
 
-        self.tstates += tstates
-        self.pc = addr % 65536
+        registers[25] += tstates
+        registers[24] = addr % 65536
 
     def call(self, registers, memory, c_and, c_val):
         if c_and and registers[1] & c_and == c_val:
-            self.tstates += 10
-            self.pc = (self.pc + 3) % 65536
+            registers[25] += 10
+            registers[24] = (registers[24] + 3) % 65536
         else:
-            ret_addr = (self.pc + 3) % 65536
+            ret_addr = (registers[24] + 3) % 65536
             self._push(registers, memory, ret_addr % 256, ret_addr // 256)
-            self.tstates += 17
-            self.pc = memory[(self.pc + 1) % 65536] + 256 * memory[(self.pc + 2) % 65536]
+            registers[25] += 17
+            registers[24] = memory[(registers[24] + 1) % 65536] + 256 * memory[(registers[24] + 2) % 65536]
 
     def cf(self, registers, flip):
         f = registers[1] & 0xC4 # SZ...PN.
@@ -537,8 +540,8 @@ class Simulator:
             registers[1] = f + (registers[0] & 0x28) + 0x10 # ..5H3...
         else:
             registers[1] = f + (registers[0] & 0x28) + 0x01 # ..5.3..C
-        self.tstates += 4
-        self.pc = (self.pc + 1) % 65536
+        registers[25] += 4
+        registers[24] = (registers[24] + 1) % 65536
 
     def cp(self, registers, memory, timing, size, reg=N):
         value = self.get_operand_value(registers, memory, size, reg)
@@ -557,15 +560,15 @@ class Simulator:
             registers[1] = f + 0x01 # .......C
         else:
             registers[1] = f
-        self.tstates += timing
-        self.pc = (self.pc + size) % 65536
+        registers[25] += timing
+        registers[24] = (registers[24] + size) % 65536
 
     def cpl(self, registers):
         a = registers[0] ^ 255
         registers[0] = a
         registers[1] = (registers[1] & 0xC5) + (a & 0x28) + 0x12
-        self.tstates += 4
-        self.pc = (self.pc + 1) % 65536
+        registers[25] += 4
+        registers[24] = (registers[24] + 1) % 65536
 
     def daa(self, registers):
         a = registers[0]
@@ -603,8 +606,8 @@ class Simulator:
         registers[0] = a
         registers[1] = f + SZ53P[a]
 
-        self.tstates += 4
-        self.pc = (self.pc + 1) % 65536
+        registers[25] += 4
+        registers[24] = (registers[24] + 1) % 65536
 
     def dec_r(self, registers, reg):
         value = (registers[reg] - 1) % 256
@@ -618,50 +621,50 @@ class Simulator:
         else:
             registers[1] = f
         registers[reg] = value
-        self.tstates += 4
-        self.pc = (self.pc + 1) % 65536
+        registers[25] += 4
+        registers[24] = (registers[24] + 1) % 65536
 
-    def di_ei(self, iff2):
+    def di_ei(self, registers, iff2):
         self.iff2 = iff2
-        self.tstates += 4
-        self.pc = (self.pc + 1) % 65536
+        registers[25] += 4
+        registers[24] = (registers[24] + 1) % 65536
 
     def djnz(self, registers, memory):
         b = (registers[2] - 1) % 256
         registers[2] = b
         if b:
-            self.tstates += 13
-            offset = memory[(self.pc + 1) % 65536]
+            registers[25] += 13
+            offset = memory[(registers[24] + 1) % 65536]
             if offset > 127:
-                self.pc = (self.pc - 254 + offset) % 65536
+                registers[24] = (registers[24] - 254 + offset) % 65536
             else:
-                self.pc = (self.pc + 2 + offset) % 65536
+                registers[24] = (registers[24] + 2 + offset) % 65536
         else:
-            self.tstates += 8
-            self.pc = (self.pc + 2) % 65536
+            registers[25] += 8
+            registers[24] = (registers[24] + 2) % 65536
 
     def djnz_fast(self, registers, memory):
-        if memory[(self.pc + 1) % 65536] == 0xFE:
+        if memory[(registers[24] + 1) % 65536] == 0xFE:
             b = (registers[2] - 1) % 256
             registers[2] = 0
             r = registers[15]
             registers[15] = (r & 0x80) + ((r + b) % 128)
-            self.tstates += b * 13 + 8
-            self.pc = (self.pc + 2) % 65536
+            registers[25] += b * 13 + 8
+            registers[24] = (registers[24] + 2) % 65536
         else:
             self.djnz(registers, memory)
 
     def ex_af(self, registers):
         registers[0], registers[16] = registers[16], registers[0]
         registers[1], registers[17] = registers[17], registers[1]
-        self.tstates += 4
-        self.pc = (self.pc + 1) % 65536
+        registers[25] += 4
+        registers[24] = (registers[24] + 1) % 65536
 
     def ex_de_hl(self, registers):
         registers[4], registers[6] = registers[6], registers[4]
         registers[5], registers[7] = registers[7], registers[5]
-        self.tstates += 4
-        self.pc = (self.pc + 1) % 65536
+        registers[25] += 4
+        registers[24] = (registers[24] + 1) % 65536
 
     def ex_sp(self, registers, memory, reg):
         sp = registers[12]
@@ -670,11 +673,11 @@ class Simulator:
         registers[reg + 1] = sp1
         registers[reg] = sp2
         if reg == 6:
-            self.tstates += 19
-            self.pc = (self.pc + 1) % 65536
+            registers[25] += 19
+            registers[24] = (registers[24] + 1) % 65536
         else:
-            self.tstates += 23
-            self.pc = (self.pc + 2) % 65536
+            registers[25] += 23
+            registers[24] = (registers[24] + 2) % 65536
 
     def exx(self, registers):
         registers[2], registers[18] = registers[18], registers[2]
@@ -683,20 +686,20 @@ class Simulator:
         registers[5], registers[21] = registers[21], registers[5]
         registers[6], registers[22] = registers[22], registers[6]
         registers[7], registers[23] = registers[23], registers[7]
-        self.tstates += 4
-        self.pc = (self.pc + 1) % 65536
+        registers[25] += 4
+        registers[24] = (registers[24] + 1) % 65536
 
-    def halt(self):
+    def halt(self, registers):
         if self.iff2:
-            t = self.tstates
+            t = registers[25]
             if (t + 4) % FRAME_DURATION < t % FRAME_DURATION:
-                self.pc = (self.pc + 1) % 65536
-        self.tstates += 4
+                registers[24] = (registers[24] + 1) % 65536
+        registers[25] += 4
 
-    def im(self, mode):
+    def im(self, registers, mode):
         self.imode = mode
-        self.tstates += 8
-        self.pc = (self.pc + 2) % 65536
+        registers[25] += 8
+        registers[24] = (registers[24] + 2) % 65536
 
     def _in(self, port):
         if self.in_tracer:
@@ -707,17 +710,17 @@ class Simulator:
         return 191
 
     def in_a(self, registers, memory):
-        registers[0] = self._in(memory[(self.pc + 1) % 65536] + 256 * registers[0])
-        self.tstates += 11
-        self.pc = (self.pc + 2) % 65536
+        registers[0] = self._in(memory[(registers[24] + 1) % 65536] + 256 * registers[0])
+        registers[25] += 11
+        registers[24] = (registers[24] + 2) % 65536
 
     def in_c(self, registers, reg):
         value = self._in(registers[3] + 256 * registers[2])
         if reg != F:
             registers[reg] = value
         registers[1] = SZ53P[value] + (registers[1] % 2)
-        self.tstates += 12
-        self.pc = (self.pc + 2) % 65536
+        registers[25] += 12
+        registers[24] = (registers[24] + 2) % 65536
 
     def inc_r(self, registers, reg):
         value = (registers[reg] + 1) % 256
@@ -731,8 +734,8 @@ class Simulator:
         else:
             registers[1] = f
         registers[reg] = value
-        self.tstates += 4
-        self.pc = (self.pc + 1) % 65536
+        registers[25] += 4
+        registers[24] = (registers[24] + 1) % 65536
 
     def inc_dec8(self, registers, memory, timing, size, inc, reg):
         value = (self.get_operand_value(registers, memory, size, reg) + inc) % 256
@@ -754,63 +757,63 @@ class Simulator:
         else:
             registers[1] = f
         self.set_operand_value(registers, memory, reg, value)
-        self.tstates += timing
-        self.pc = (self.pc + size) % 65536
+        registers[25] += timing
+        registers[24] = (registers[24] + size) % 65536
 
     def inc_dec16(self, registers, inc, reg):
         if reg == 12:
             registers[12] = (registers[12] + inc) % 65536
-            self.tstates += 6
-            self.pc = (self.pc + 1) % 65536
+            registers[25] += 6
+            registers[24] = (registers[24] + 1) % 65536
         else:
             value = (registers[reg + 1] + 256 * registers[reg] + inc) % 65536
             registers[reg] = value // 256
             registers[reg + 1] = value % 256
             if reg < 8:
-                self.tstates += 6
-                self.pc = (self.pc + 1) % 65536
+                registers[25] += 6
+                registers[24] = (registers[24] + 1) % 65536
             else:
-                self.tstates += 10
-                self.pc = (self.pc + 2) % 65536
+                registers[25] += 10
+                registers[24] = (registers[24] + 2) % 65536
 
     def jp(self, registers, memory, c_and, c_val):
         if c_and:
-            self.tstates += 10
+            registers[25] += 10
             if registers[1] & c_and == c_val:
-                self.pc = (self.pc + 3) % 65536
+                registers[24] = (registers[24] + 3) % 65536
             else:
-                self.pc = memory[(self.pc + 1) % 65536] + 256 * memory[(self.pc + 2) % 65536]
+                registers[24] = memory[(registers[24] + 1) % 65536] + 256 * memory[(registers[24] + 2) % 65536]
         elif c_val == 0:
-            self.tstates += 10
-            self.pc = memory[(self.pc + 1) % 65536] + 256 * memory[(self.pc + 2) % 65536]
+            registers[25] += 10
+            registers[24] = memory[(registers[24] + 1) % 65536] + 256 * memory[(registers[24] + 2) % 65536]
         elif c_val == 6:
-            self.tstates += 4
-            self.pc = registers[7] + 256 * registers[6]
+            registers[25] += 4
+            registers[24] = registers[7] + 256 * registers[6]
         else:
-            self.tstates += 8
-            self.pc = registers[c_val + 1] + 256 * registers[c_val]
+            registers[25] += 8
+            registers[24] = registers[c_val + 1] + 256 * registers[c_val]
 
     def jr(self, registers, memory, c_and, c_val):
         if c_and and registers[1] & c_and == c_val:
-            self.tstates += 7
-            self.pc = (self.pc + 2) % 65536
+            registers[25] += 7
+            registers[24] = (registers[24] + 2) % 65536
         else:
-            self.tstates += 12
-            offset = memory[(self.pc + 1) % 65536]
+            registers[25] += 12
+            offset = memory[(registers[24] + 1) % 65536]
             if offset > 127:
-                self.pc = (self.pc - 254 + offset) % 65536
+                registers[24] = (registers[24] - 254 + offset) % 65536
             else:
-                self.pc = (self.pc + 2 + offset) % 65536
+                registers[24] = (registers[24] + 2 + offset) % 65536
 
     def ld_r_n(self, registers, memory, r):
-        registers[r] = memory[(self.pc + 1) % 65536]
-        self.tstates += 7
-        self.pc = (self.pc + 2) % 65536
+        registers[r] = memory[(registers[24] + 1) % 65536]
+        registers[25] += 7
+        registers[24] = (registers[24] + 2) % 65536
 
     def ld_r_r(self, registers, r1, r2):
         registers[r1] = registers[r2]
-        self.tstates += 4
-        self.pc = (self.pc + 1) % 65536
+        registers[25] += 4
+        registers[24] = (registers[24] + 1) % 65536
 
     def ld8(self, registers, memory, timing, size, reg, reg2=N):
         self.set_operand_value(registers, memory, reg, self.get_operand_value(registers, memory, size, reg2))
@@ -825,27 +828,27 @@ class Simulator:
                 registers[1] = f + 0x04 # .....P..
             else:
                 registers[1] = f
-        self.tstates += timing
-        self.pc = (self.pc + size) % 65536
+        registers[25] += timing
+        registers[24] = (registers[24] + size) % 65536
 
     def ld16(self, registers, memory, reg):
         if reg < 8:
-            registers[reg + 1] = memory[(self.pc + 1) % 65536]
-            registers[reg] = memory[(self.pc + 2) % 65536]
-            self.tstates += 10
-            self.pc = (self.pc + 3) % 65536
+            registers[reg + 1] = memory[(registers[24] + 1) % 65536]
+            registers[reg] = memory[(registers[24] + 2) % 65536]
+            registers[25] += 10
+            registers[24] = (registers[24] + 3) % 65536
         elif reg == 12:
-            registers[12] = memory[(self.pc + 1) % 65536] + 256 * memory[(self.pc + 2) % 65536]
-            self.tstates += 10
-            self.pc = (self.pc + 3) % 65536
+            registers[12] = memory[(registers[24] + 1) % 65536] + 256 * memory[(registers[24] + 2) % 65536]
+            registers[25] += 10
+            registers[24] = (registers[24] + 3) % 65536
         else:
-            registers[reg + 1] = memory[(self.pc + 2) % 65536]
-            registers[reg] = memory[(self.pc + 3) % 65536]
-            self.tstates += 14
-            self.pc = (self.pc + 4) % 65536
+            registers[reg + 1] = memory[(registers[24] + 2) % 65536]
+            registers[reg] = memory[(registers[24] + 3) % 65536]
+            registers[25] += 14
+            registers[24] = (registers[24] + 4) % 65536
 
     def ld16addr(self, registers, memory, timing, size, reg, poke):
-        end = self.pc + size
+        end = registers[24] + size
         addr = memory[(end - 2) % 65536] + 256 * memory[(end - 1) % 65536]
         if poke:
             if reg == 12:
@@ -857,16 +860,16 @@ class Simulator:
             registers[12] = sp1 + 256 * sp2
         else:
             registers[reg + 1], registers[reg] = self.peek(memory, addr, 2)
-        self.tstates += timing
-        self.pc = end % 65536
+        registers[25] += timing
+        registers[24] = end % 65536
 
     def ldann(self, registers, memory, poke):
         if poke:
-            self.poke(memory, memory[(self.pc + 1) % 65536] + 256 * memory[(self.pc + 2) % 65536], registers[0])
+            self.poke(memory, memory[(registers[24] + 1) % 65536] + 256 * memory[(registers[24] + 2) % 65536], registers[0])
         else:
-            registers[0] = self.peek(memory, memory[(self.pc + 1) % 65536] + 256 * memory[(self.pc + 2) % 65536])
-        self.tstates += 13
-        self.pc = (self.pc + 3) % 65536
+            registers[0] = self.peek(memory, memory[(registers[24] + 1) % 65536] + 256 * memory[(registers[24] + 2) % 65536])
+        registers[25] += 13
+        registers[24] = (registers[24] + 3) % 65536
 
     def ldir_fast(self, registers, memory, inc):
         de = registers[5] + 256 * registers[4]
@@ -877,7 +880,7 @@ class Simulator:
         while repeat:
             self.poke(memory, de, self.peek(memory, hl))
             bc = (bc - 1) % 65536
-            if bc == 0 or self.pc <= de <= self.pc + 1:
+            if bc == 0 or registers[24] <= de <= registers[24] + 1:
                 repeat = False
             de = (de + inc) % 65536
             hl = (hl + inc) % 65536
@@ -892,21 +895,21 @@ class Simulator:
         if bc:
             f += 0x04 # .....P..
         else:
-            self.pc = (self.pc + 2) % 65536
+            registers[24] = (registers[24] + 2) % 65536
         if n & 0x02:
             registers[1] = f + 0x20 # ..5.....
         else:
             registers[1] = f
-        self.tstates += 21 * count - 5
+        registers[25] += 21 * count - 5
 
     def ldsprr(self, registers, reg):
         registers[12] = registers[reg + 1] + 256 * registers[reg]
         if reg == 6:
-            self.tstates += 6
-            self.pc = (self.pc + 1) % 65536
+            registers[25] += 6
+            registers[24] = (registers[24] + 1) % 65536
         else:
-            self.tstates += 10
-            self.pc = (self.pc + 2) % 65536
+            registers[25] += 10
+            registers[24] = (registers[24] + 2) % 65536
 
     def neg(self, registers):
         old_a = registers[0]
@@ -920,45 +923,45 @@ class Simulator:
             registers[1] = f + 0x05 # .....P.C
         else:
             registers[1] = f + 0x01 # .......C
-        self.tstates += 8
-        self.pc = (self.pc + 2) % 65536
+        registers[25] += 8
+        registers[24] = (registers[24] + 2) % 65536
 
-    def nop(self):
-        self.tstates += 4
-        self.pc = (self.pc + 1) % 65536
+    def nop(self, registers):
+        registers[25] += 4
+        registers[24] = (registers[24] + 1) % 65536
 
     def nop_dd_fd(self, registers):
-        self.tstates += 4
-        self.pc = (self.pc + 1) % 65536
+        registers[25] += 4
+        registers[24] = (registers[24] + 1) % 65536
 
         # Compensate for adding 2 to R in run()
         r = registers[15]
         registers[15] = (r & 128) + ((r - 1) % 128)
 
-    def nop_ed(self):
-        self.tstates += 8
-        self.pc = (self.pc + 2) % 65536
+    def nop_ed(self, registers):
+        registers[25] += 8
+        registers[24] = (registers[24] + 2) % 65536
 
     def or_n(self, registers, memory):
-        a = registers[0] | memory[(self.pc + 1) % 65536]
+        a = registers[0] | memory[(registers[24] + 1) % 65536]
         registers[0] = a
         registers[1] = SZ53P[a]
-        self.tstates += 7
-        self.pc = (self.pc + 2) % 65536
+        registers[25] += 7
+        registers[24] = (registers[24] + 2) % 65536
 
     def or_r(self, registers, r):
         a = registers[0] | registers[r]
         registers[0] = a
         registers[1] = SZ53P[a]
-        self.tstates += 4
-        self.pc = (self.pc + 1) % 65536
+        registers[25] += 4
+        registers[24] = (registers[24] + 1) % 65536
 
     def ora(self, registers, memory, timing, size, reg=N):
         a = registers[0] | self.get_operand_value(registers, memory, size, reg)
         registers[0] = a
         registers[1] = SZ53P[a]
-        self.tstates += timing
-        self.pc = (self.pc + size) % 65536
+        registers[25] += timing
+        registers[24] = (registers[24] + size) % 65536
 
     def _out(self, port, value):
         if self.out_tracer:
@@ -966,17 +969,17 @@ class Simulator:
 
     def outa(self, registers, memory):
         a = registers[0]
-        self._out(memory[(self.pc + 1) % 65536] + 256 * a, a)
-        self.tstates += 11
-        self.pc = (self.pc + 2) % 65536
+        self._out(memory[(registers[24] + 1) % 65536] + 256 * a, a)
+        registers[25] += 11
+        registers[24] = (registers[24] + 2) % 65536
 
     def outc(self, registers, reg):
         if reg >= 0:
             self._out(registers[3] + 256 * registers[2], registers[reg])
         else:
             self._out(registers[3] + 256 * registers[2], 0)
-        self.tstates += 12
-        self.pc = (self.pc + 2) % 65536
+        registers[25] += 12
+        registers[24] = (registers[24] + 2) % 65536
 
     def _pop(self, registers, memory):
         sp = registers[12]
@@ -987,11 +990,11 @@ class Simulator:
     def pop(self, registers, memory, reg):
         registers[reg + 1], registers[reg] = self._pop(registers, memory)
         if reg < 8:
-            self.tstates += 10
-            self.pc = (self.pc + 1) % 65536
+            registers[25] += 10
+            registers[24] = (registers[24] + 1) % 65536
         else:
-            self.tstates += 14
-            self.pc = (self.pc + 2) % 65536
+            registers[25] += 14
+            registers[24] = (registers[24] + 2) % 65536
 
     def _push(self, registers, memory, lsb, msb):
         sp = (registers[12] - 2) % 65536
@@ -1002,30 +1005,30 @@ class Simulator:
     def push(self, registers, memory, reg):
         self._push(registers, memory, registers[reg + 1], registers[reg])
         if reg < 8:
-            self.tstates += 11
-            self.pc = (self.pc + 1) % 65536
+            registers[25] += 11
+            registers[24] = (registers[24] + 1) % 65536
         else:
-            self.tstates += 15
-            self.pc = (self.pc + 2) % 65536
+            registers[25] += 15
+            registers[24] = (registers[24] + 2) % 65536
 
     def ret(self, registers, memory, c_and, c_val):
         if c_and:
             if registers[1] & c_and == c_val:
-                self.tstates += 5
-                self.pc = (self.pc + 1) % 65536
+                registers[25] += 5
+                registers[24] = (registers[24] + 1) % 65536
             else:
-                self.tstates += 11
+                registers[25] += 11
                 lsb, msb = self._pop(registers, memory)
-                self.pc = lsb + 256 * msb
+                registers[24] = lsb + 256 * msb
         else:
-            self.tstates += 10
+            registers[25] += 10
             lsb, msb = self._pop(registers, memory)
-            self.pc = lsb + 256 * msb
+            registers[24] = lsb + 256 * msb
 
     def reti(self, registers, memory):
-        self.tstates += 14
+        registers[25] += 14
         lsb, msb = self._pop(registers, memory)
-        self.pc = lsb + 256 * msb
+        registers[24] = lsb + 256 * msb
 
     def res_set(self, registers, memory, timing, size, bit, reg, bitval, dest=-1):
         if bitval:
@@ -1035,8 +1038,8 @@ class Simulator:
         self.set_operand_value(registers, memory, reg, value)
         if dest >= 0:
             registers[dest] = value
-        self.tstates += timing
-        self.pc = (self.pc + size) % 65536
+        registers[25] += timing
+        registers[24] = (registers[24] + size) % 65536
 
     def rld(self, registers, memory):
         hl = registers[7] + 256 * registers[6]
@@ -1045,8 +1048,8 @@ class Simulator:
         self.poke(memory, hl, ((at_hl * 16) % 256) + (a % 16))
         a_out = registers[0] = (a & 240) + ((at_hl // 16) % 16)
         registers[1] = SZ53P[a_out] + (registers[1] % 2)
-        self.tstates += 18
-        self.pc = (self.pc + 2) % 65536
+        registers[25] += 18
+        registers[24] = (registers[24] + 2) % 65536
 
     def rrd(self, registers, memory):
         hl = registers[7] + 256 * registers[6]
@@ -1055,8 +1058,8 @@ class Simulator:
         self.poke(memory, hl, ((a * 16) % 256) + (at_hl // 16))
         a_out = registers[0] = (a & 240) + (at_hl % 16)
         registers[1] = SZ53P[a_out] + (registers[1] % 2)
-        self.tstates += 18
-        self.pc = (self.pc + 2) % 65536
+        registers[25] += 18
+        registers[24] = (registers[24] + 2) % 65536
 
     def rotate_a(self, registers, cbit, carry=0):
         a = registers[0]
@@ -1079,8 +1082,8 @@ class Simulator:
             registers[1] = (old_f & 0xC4) + (value & 0x28) + 0x01
         else:
             registers[1] = (old_f & 0xC4) + (value & 0x28)
-        self.tstates += 4
-        self.pc = (self.pc + 1) % 65536
+        registers[25] += 4
+        registers[24] = (registers[24] + 1) % 65536
 
     def rotate_r(self, registers, cbit, reg, carry=0):
         r = registers[reg]
@@ -1102,8 +1105,8 @@ class Simulator:
             registers[1] = SZ53P[value] + 0x01 # .......C
         else:
             registers[1] = SZ53P[value]
-        self.tstates += 8
-        self.pc = (self.pc + 2) % 65536
+        registers[25] += 8
+        registers[24] = (registers[24] + 2) % 65536
 
     def rotate(self, registers, memory, timing, size, cbit, reg, carry=0, dest=-1):
         value = self.get_operand_value(registers, memory, size, reg)
@@ -1128,14 +1131,14 @@ class Simulator:
             registers[1] = SZ53P[value] + 0x01 # .......C
         else:
             registers[1] = SZ53P[value]
-        self.tstates += timing
-        self.pc = (self.pc + size) % 65536
+        registers[25] += timing
+        registers[24] = (registers[24] + size) % 65536
 
     def rst(self, registers, memory, addr):
-        ret_addr = (self.pc + 1) % 65536
+        ret_addr = (registers[24] + 1) % 65536
         self._push(registers, memory, ret_addr % 256, ret_addr // 256)
-        self.tstates += 11
-        self.pc = addr
+        registers[25] += 11
+        registers[24] = addr
 
     def shift(self, registers, memory, timing, size, stype, cbit, reg, dest=-1):
         value = self.get_operand_value(registers, memory, size, reg)
@@ -1159,36 +1162,36 @@ class Simulator:
         if dest >= 0:
             registers[dest] = value
         registers[1] = f + SZ53P[value] # S.5H3PN.
-        self.tstates += timing
-        self.pc = (self.pc + size) % 65536
+        registers[25] += timing
+        registers[24] = (registers[24] + size) % 65536
 
     def xor_n(self, registers, memory):
-        a = registers[0] ^ memory[(self.pc + 1) % 65536]
+        a = registers[0] ^ memory[(registers[24] + 1) % 65536]
         registers[0] = a
         registers[1] = SZ53P[a]
-        self.tstates += 7
-        self.pc = (self.pc + 2) % 65536
+        registers[25] += 7
+        registers[24] = (registers[24] + 2) % 65536
 
     def xor_r(self, registers, r):
         a = registers[0] ^ registers[r]
         registers[0] = a
         registers[1] = SZ53P[a]
-        self.tstates += 4
-        self.pc = (self.pc + 1) % 65536
+        registers[25] += 4
+        registers[24] = (registers[24] + 1) % 65536
 
     def xor(self, registers, memory, timing, size, reg=N):
         a = registers[0] ^ self.get_operand_value(registers, memory, size, reg)
         registers[0] = a
         registers[1] = SZ53P[a]
-        self.tstates += timing
-        self.pc = (self.pc + size) % 65536
+        registers[25] += timing
+        registers[24] = (registers[24] + size) % 65536
 
     def create_opcodes(self):
         r = self.registers
         m = self.memory
 
         self.opcodes = [
-            self.nop,                                          # 0x00 NOP
+            partial(self.nop, r),                              # 0x00 NOP
             partial(self.ld16, r, m, B),                       # 0x01 LD BC,nn
             partial(self.ld8, r, m, 7, 1, Bd, A),              # 0x02 LD (BC),A
             partial(self.inc_dec16, r, 1, B),                  # 0x03 INC BC
@@ -1306,7 +1309,7 @@ class Simulator:
             partial(self.ld8, r, m, 7, 1, Hd, E),              # 0x73 LD (HL),E
             partial(self.ld8, r, m, 7, 1, Hd, H),              # 0x74 LD (HL),H
             partial(self.ld8, r, m, 7, 1, Hd, L),              # 0x75 LD (HL),L
-            self.halt,                                         # 0x76 HALT
+            partial(self.halt, r),                             # 0x76 HALT
             partial(self.ld8, r, m, 7, 1, Hd, A),              # 0x77 LD (HL),A
             partial(self.ld_r_r, r, A, B),                     # 0x78 LD A,B
             partial(self.ld_r_r, r, A, C),                     # 0x79 LD A,C
@@ -1431,7 +1434,7 @@ class Simulator:
             partial(self.ret, r, m, 128, 128),                 # 0xF0 RET P
             partial(self.pop, r, m, A),                        # 0xF1 POP AF
             partial(self.jp, r, m, 128, 128),                  # 0xF2 JP P,nn
-            partial(self.di_ei, 0),                            # 0xF3 DI
+            partial(self.di_ei, r, 0),                         # 0xF3 DI
             partial(self.call, r, m, 128, 128),                # 0xF4 CALL P,nn
             partial(self.push, r, m, A),                       # 0xF5 PUSH AF
             partial(self.or_n, r, m),                          # 0xF6 OR n
@@ -1439,7 +1442,7 @@ class Simulator:
             partial(self.ret, r, m, 128, 0),                   # 0xF8 RET M
             partial(self.ldsprr, r, H),                        # 0xF9 LD SP,HL
             partial(self.jp, r, m, 128, 0),                    # 0xFA JP M,nn
-            partial(self.di_ei, 1),                            # 0xFB EI
+            partial(self.di_ei, r, 1),                         # 0xFB EI
             partial(self.call, r, m, 128, 0),                  # 0xFC CALL M,nn
             None,                                              # 0xFD FD prefix
             partial(self.cp, r, m, 7, 2),                      # 0xFE CP n
@@ -1706,77 +1709,77 @@ class Simulator:
         ]
 
         self.after_ED = [
-            self.nop_ed,                                       # 0x00
-            self.nop_ed,                                       # 0x01
-            self.nop_ed,                                       # 0x02
-            self.nop_ed,                                       # 0x03
-            self.nop_ed,                                       # 0x04
-            self.nop_ed,                                       # 0x05
-            self.nop_ed,                                       # 0x06
-            self.nop_ed,                                       # 0x07
-            self.nop_ed,                                       # 0x08
-            self.nop_ed,                                       # 0x09
-            self.nop_ed,                                       # 0x0A
-            self.nop_ed,                                       # 0x0B
-            self.nop_ed,                                       # 0x0C
-            self.nop_ed,                                       # 0x0D
-            self.nop_ed,                                       # 0x0E
-            self.nop_ed,                                       # 0x0F
-            self.nop_ed,                                       # 0x10
-            self.nop_ed,                                       # 0x11
-            self.nop_ed,                                       # 0x12
-            self.nop_ed,                                       # 0x13
-            self.nop_ed,                                       # 0x14
-            self.nop_ed,                                       # 0x15
-            self.nop_ed,                                       # 0x16
-            self.nop_ed,                                       # 0x17
-            self.nop_ed,                                       # 0x18
-            self.nop_ed,                                       # 0x19
-            self.nop_ed,                                       # 0x1A
-            self.nop_ed,                                       # 0x1B
-            self.nop_ed,                                       # 0x1C
-            self.nop_ed,                                       # 0x1D
-            self.nop_ed,                                       # 0x1E
-            self.nop_ed,                                       # 0x1F
-            self.nop_ed,                                       # 0x20
-            self.nop_ed,                                       # 0x21
-            self.nop_ed,                                       # 0x22
-            self.nop_ed,                                       # 0x23
-            self.nop_ed,                                       # 0x24
-            self.nop_ed,                                       # 0x25
-            self.nop_ed,                                       # 0x26
-            self.nop_ed,                                       # 0x27
-            self.nop_ed,                                       # 0x28
-            self.nop_ed,                                       # 0x29
-            self.nop_ed,                                       # 0x2A
-            self.nop_ed,                                       # 0x2B
-            self.nop_ed,                                       # 0x2C
-            self.nop_ed,                                       # 0x2D
-            self.nop_ed,                                       # 0x2E
-            self.nop_ed,                                       # 0x2F
-            self.nop_ed,                                       # 0x30
-            self.nop_ed,                                       # 0x31
-            self.nop_ed,                                       # 0x32
-            self.nop_ed,                                       # 0x33
-            self.nop_ed,                                       # 0x34
-            self.nop_ed,                                       # 0x35
-            self.nop_ed,                                       # 0x36
-            self.nop_ed,                                       # 0x37
-            self.nop_ed,                                       # 0x38
-            self.nop_ed,                                       # 0x39
-            self.nop_ed,                                       # 0x3A
-            self.nop_ed,                                       # 0x3B
-            self.nop_ed,                                       # 0x3C
-            self.nop_ed,                                       # 0x3D
-            self.nop_ed,                                       # 0x3E
-            self.nop_ed,                                       # 0x3F
+            partial(self.nop_ed, r),                           # 0x00
+            partial(self.nop_ed, r),                           # 0x01
+            partial(self.nop_ed, r),                           # 0x02
+            partial(self.nop_ed, r),                           # 0x03
+            partial(self.nop_ed, r),                           # 0x04
+            partial(self.nop_ed, r),                           # 0x05
+            partial(self.nop_ed, r),                           # 0x06
+            partial(self.nop_ed, r),                           # 0x07
+            partial(self.nop_ed, r),                           # 0x08
+            partial(self.nop_ed, r),                           # 0x09
+            partial(self.nop_ed, r),                           # 0x0A
+            partial(self.nop_ed, r),                           # 0x0B
+            partial(self.nop_ed, r),                           # 0x0C
+            partial(self.nop_ed, r),                           # 0x0D
+            partial(self.nop_ed, r),                           # 0x0E
+            partial(self.nop_ed, r),                           # 0x0F
+            partial(self.nop_ed, r),                           # 0x10
+            partial(self.nop_ed, r),                           # 0x11
+            partial(self.nop_ed, r),                           # 0x12
+            partial(self.nop_ed, r),                           # 0x13
+            partial(self.nop_ed, r),                           # 0x14
+            partial(self.nop_ed, r),                           # 0x15
+            partial(self.nop_ed, r),                           # 0x16
+            partial(self.nop_ed, r),                           # 0x17
+            partial(self.nop_ed, r),                           # 0x18
+            partial(self.nop_ed, r),                           # 0x19
+            partial(self.nop_ed, r),                           # 0x1A
+            partial(self.nop_ed, r),                           # 0x1B
+            partial(self.nop_ed, r),                           # 0x1C
+            partial(self.nop_ed, r),                           # 0x1D
+            partial(self.nop_ed, r),                           # 0x1E
+            partial(self.nop_ed, r),                           # 0x1F
+            partial(self.nop_ed, r),                           # 0x20
+            partial(self.nop_ed, r),                           # 0x21
+            partial(self.nop_ed, r),                           # 0x22
+            partial(self.nop_ed, r),                           # 0x23
+            partial(self.nop_ed, r),                           # 0x24
+            partial(self.nop_ed, r),                           # 0x25
+            partial(self.nop_ed, r),                           # 0x26
+            partial(self.nop_ed, r),                           # 0x27
+            partial(self.nop_ed, r),                           # 0x28
+            partial(self.nop_ed, r),                           # 0x29
+            partial(self.nop_ed, r),                           # 0x2A
+            partial(self.nop_ed, r),                           # 0x2B
+            partial(self.nop_ed, r),                           # 0x2C
+            partial(self.nop_ed, r),                           # 0x2D
+            partial(self.nop_ed, r),                           # 0x2E
+            partial(self.nop_ed, r),                           # 0x2F
+            partial(self.nop_ed, r),                           # 0x30
+            partial(self.nop_ed, r),                           # 0x31
+            partial(self.nop_ed, r),                           # 0x32
+            partial(self.nop_ed, r),                           # 0x33
+            partial(self.nop_ed, r),                           # 0x34
+            partial(self.nop_ed, r),                           # 0x35
+            partial(self.nop_ed, r),                           # 0x36
+            partial(self.nop_ed, r),                           # 0x37
+            partial(self.nop_ed, r),                           # 0x38
+            partial(self.nop_ed, r),                           # 0x39
+            partial(self.nop_ed, r),                           # 0x3A
+            partial(self.nop_ed, r),                           # 0x3B
+            partial(self.nop_ed, r),                           # 0x3C
+            partial(self.nop_ed, r),                           # 0x3D
+            partial(self.nop_ed, r),                           # 0x3E
+            partial(self.nop_ed, r),                           # 0x3F
             partial(self.in_c, r, B),                          # 0x40 IN B,(C)
             partial(self.outc, r, B),                          # 0x41 OUT (C),B
             partial(self.add16, r, 15, 2, H, B, 1, -1),        # 0x42 SBC HL,BC
             partial(self.ld16addr, r, m, 20, 4, B, 1),         # 0x43 LD (nn),BC
             partial(self.neg, r),                              # 0x44 NEG
             partial(self.reti, r, m),                          # 0x45 RETN
-            partial(self.im, 0),                               # 0x46 IM 0
+            partial(self.im, r, 0),                            # 0x46 IM 0
             partial(self.ld8, r, m, 9, 2, I, A),               # 0x47 LD I,A
             partial(self.in_c, r, C),                          # 0x48 IN C,(C)
             partial(self.outc, r, C),                          # 0x49 OUT (C),C
@@ -1784,7 +1787,7 @@ class Simulator:
             partial(self.ld16addr, r, m, 20, 4, B, 0),         # 0x4B LD BC,(nn)
             partial(self.neg, r),                              # 0x4C NEG
             partial(self.reti, r, m),                          # 0x4D RETI
-            partial(self.im, 0),                               # 0x4E IM 0
+            partial(self.im, r, 0),                            # 0x4E IM 0
             partial(self.ld8, r, m, 9, 2, R, A),               # 0x4F LD R,A
             partial(self.in_c, r, D),                          # 0x50 IN D,(C)
             partial(self.outc, r, D),                          # 0x51 OUT (C),D
@@ -1792,7 +1795,7 @@ class Simulator:
             partial(self.ld16addr, r, m, 20, 4, D, 1),         # 0x53 LD (nn),DE
             partial(self.neg, r),                              # 0x54 NEG
             partial(self.reti, r, m),                          # 0x55 RETN
-            partial(self.im, 1),                               # 0x56 IM 1
+            partial(self.im, r, 1),                            # 0x56 IM 1
             partial(self.ld8, r, m, 9, 2, A, I),               # 0x57 LD A,I
             partial(self.in_c, r, E),                          # 0x58 IN E,(C)
             partial(self.outc, r, E),                          # 0x59 OUT (C),E
@@ -1800,7 +1803,7 @@ class Simulator:
             partial(self.ld16addr, r, m, 20, 4, D, 0),         # 0x5B LD DE,(nn)
             partial(self.neg, r),                              # 0x5C NEG
             partial(self.reti, r, m),                          # 0x5D RETN
-            partial(self.im, 2),                               # 0x5E IM 2
+            partial(self.im, r, 2),                            # 0x5E IM 2
             partial(self.ld8, r, m, 9, 2, A, R),               # 0x5F LD A,R
             partial(self.in_c, r, H),                          # 0x60 IN H,(C)
             partial(self.outc, r, H),                          # 0x61 OUT (C),H
@@ -1808,7 +1811,7 @@ class Simulator:
             partial(self.ld16addr, r, m, 20, 4, H, 1),         # 0x63 LD (nn),HL
             partial(self.neg, r),                              # 0x64 NEG
             partial(self.reti, r, m),                          # 0x65 RETN
-            partial(self.im, 0),                               # 0x66 IM 0
+            partial(self.im, r, 0),                            # 0x66 IM 0
             partial(self.rrd, r, m),                           # 0x67 RRD
             partial(self.in_c, r, L),                          # 0x68 IN L,(C)
             partial(self.outc, r, L),                          # 0x69 OUT (C),L
@@ -1816,7 +1819,7 @@ class Simulator:
             partial(self.ld16addr, r, m, 20, 4, H, 0),         # 0x6B LD HL,(nn)
             partial(self.neg, r),                              # 0x6C NEG
             partial(self.reti, r, m),                          # 0x6D RETN
-            partial(self.im, 0),                               # 0x6E IM 0
+            partial(self.im, r, 0),                            # 0x6E IM 0
             partial(self.rld, r, m),                           # 0x6F RLD
             partial(self.in_c, r, F),                          # 0x70 IN F,(C)
             partial(self.outc, r, -1),                         # 0x71 OUT (C),0
@@ -1824,144 +1827,144 @@ class Simulator:
             partial(self.ld16addr, r, m, 20, 4, SP, 1),        # 0x73 LD (nn),SP
             partial(self.neg, r),                              # 0x74 NEG
             partial(self.reti, r, m),                          # 0x75 RETN
-            partial(self.im, 1),                               # 0x76 IM 1
-            self.nop_ed,                                       # 0x77
+            partial(self.im, r, 1),                            # 0x76 IM 1
+            partial(self.nop_ed, r),                           # 0x77
             partial(self.in_c, r, A),                          # 0x78 IN A,(C)
             partial(self.outc, r, A),                          # 0x79 OUT (C),A
             partial(self.add16, r, 15, 2, H, SP, 1),           # 0x7A ADC HL,SP
             partial(self.ld16addr, r, m, 20, 4, SP, 0),        # 0x7B LD SP,(nn)
             partial(self.neg, r),                              # 0x7C NEG
             partial(self.reti, r, m),                          # 0x7D RETN
-            partial(self.im, 2),                               # 0x7E IM 2
-            self.nop_ed,                                       # 0x7F
-            self.nop_ed,                                       # 0x80
-            self.nop_ed,                                       # 0x81
-            self.nop_ed,                                       # 0x82
-            self.nop_ed,                                       # 0x83
-            self.nop_ed,                                       # 0x84
-            self.nop_ed,                                       # 0x85
-            self.nop_ed,                                       # 0x86
-            self.nop_ed,                                       # 0x87
-            self.nop_ed,                                       # 0x88
-            self.nop_ed,                                       # 0x89
-            self.nop_ed,                                       # 0x8A
-            self.nop_ed,                                       # 0x8B
-            self.nop_ed,                                       # 0x8C
-            self.nop_ed,                                       # 0x8D
-            self.nop_ed,                                       # 0x8E
-            self.nop_ed,                                       # 0x8F
-            self.nop_ed,                                       # 0x90
-            self.nop_ed,                                       # 0x91
-            self.nop_ed,                                       # 0x92
-            self.nop_ed,                                       # 0x93
-            self.nop_ed,                                       # 0x94
-            self.nop_ed,                                       # 0x95
-            self.nop_ed,                                       # 0x96
-            self.nop_ed,                                       # 0x97
-            self.nop_ed,                                       # 0x98
-            self.nop_ed,                                       # 0x99
-            self.nop_ed,                                       # 0x9A
-            self.nop_ed,                                       # 0x9B
-            self.nop_ed,                                       # 0x9C
-            self.nop_ed,                                       # 0x9D
-            self.nop_ed,                                       # 0x9E
-            self.nop_ed,                                       # 0x9F
+            partial(self.im, r, 2),                            # 0x7E IM 2
+            partial(self.nop_ed, r),                           # 0x7F
+            partial(self.nop_ed, r),                           # 0x80
+            partial(self.nop_ed, r),                           # 0x81
+            partial(self.nop_ed, r),                           # 0x82
+            partial(self.nop_ed, r),                           # 0x83
+            partial(self.nop_ed, r),                           # 0x84
+            partial(self.nop_ed, r),                           # 0x85
+            partial(self.nop_ed, r),                           # 0x86
+            partial(self.nop_ed, r),                           # 0x87
+            partial(self.nop_ed, r),                           # 0x88
+            partial(self.nop_ed, r),                           # 0x89
+            partial(self.nop_ed, r),                           # 0x8A
+            partial(self.nop_ed, r),                           # 0x8B
+            partial(self.nop_ed, r),                           # 0x8C
+            partial(self.nop_ed, r),                           # 0x8D
+            partial(self.nop_ed, r),                           # 0x8E
+            partial(self.nop_ed, r),                           # 0x8F
+            partial(self.nop_ed, r),                           # 0x90
+            partial(self.nop_ed, r),                           # 0x91
+            partial(self.nop_ed, r),                           # 0x92
+            partial(self.nop_ed, r),                           # 0x93
+            partial(self.nop_ed, r),                           # 0x94
+            partial(self.nop_ed, r),                           # 0x95
+            partial(self.nop_ed, r),                           # 0x96
+            partial(self.nop_ed, r),                           # 0x97
+            partial(self.nop_ed, r),                           # 0x98
+            partial(self.nop_ed, r),                           # 0x99
+            partial(self.nop_ed, r),                           # 0x9A
+            partial(self.nop_ed, r),                           # 0x9B
+            partial(self.nop_ed, r),                           # 0x9C
+            partial(self.nop_ed, r),                           # 0x9D
+            partial(self.nop_ed, r),                           # 0x9E
+            partial(self.nop_ed, r),                           # 0x9F
             partial(self.block, r, m, 0, 1, 0),                # 0xA0 LDI
             partial(self.block, r, m, 1, 1, 0),                # 0xA1 CPI
             partial(self.block, r, m, 2, 1, 0),                # 0xA2 INI
             partial(self.block, r, m, 3, 1, 0),                # 0xA3 OUTI
-            self.nop_ed,                                       # 0xA4
-            self.nop_ed,                                       # 0xA5
-            self.nop_ed,                                       # 0xA6
-            self.nop_ed,                                       # 0xA7
+            partial(self.nop_ed, r),                           # 0xA4
+            partial(self.nop_ed, r),                           # 0xA5
+            partial(self.nop_ed, r),                           # 0xA6
+            partial(self.nop_ed, r),                           # 0xA7
             partial(self.block, r, m, 0, -1, 0),               # 0xA8 LDD
             partial(self.block, r, m, 1, -1, 0),               # 0xA9 CPD
             partial(self.block, r, m, 2, -1, 0),               # 0xAA IND
             partial(self.block, r, m, 3, -1, 0),               # 0xAB OUTD
-            self.nop_ed,                                       # 0xAC
-            self.nop_ed,                                       # 0xAD
-            self.nop_ed,                                       # 0xAE
-            self.nop_ed,                                       # 0xAF
+            partial(self.nop_ed, r),                           # 0xAC
+            partial(self.nop_ed, r),                           # 0xAD
+            partial(self.nop_ed, r),                           # 0xAE
+            partial(self.nop_ed, r),                           # 0xAF
             partial(self.block, r, m, 0, 1, 1),                # 0xB0 LDIR
             partial(self.block, r, m, 1, 1, 1),                # 0xB1 CPIR
             partial(self.block, r, m, 2, 1, 1),                # 0xB2 INIR
             partial(self.block, r, m, 3, 1, 1),                # 0xB3 OTIR
-            self.nop_ed,                                       # 0xB4
-            self.nop_ed,                                       # 0xB5
-            self.nop_ed,                                       # 0xB6
-            self.nop_ed,                                       # 0xB7
+            partial(self.nop_ed, r),                           # 0xB4
+            partial(self.nop_ed, r),                           # 0xB5
+            partial(self.nop_ed, r),                           # 0xB6
+            partial(self.nop_ed, r),                           # 0xB7
             partial(self.block, r, m, 0, -1, 1),               # 0xB8 LDDR
             partial(self.block, r, m, 1, -1, 1),               # 0xB9 CPDR
             partial(self.block, r, m, 2, -1, 1),               # 0xBA INDR
             partial(self.block, r, m, 3, -1, 1),               # 0xBB OTDR
-            self.nop_ed,                                       # 0xBC
-            self.nop_ed,                                       # 0xBD
-            self.nop_ed,                                       # 0xBE
-            self.nop_ed,                                       # 0xBF
-            self.nop_ed,                                       # 0xC0
-            self.nop_ed,                                       # 0xC1
-            self.nop_ed,                                       # 0xC2
-            self.nop_ed,                                       # 0xC3
-            self.nop_ed,                                       # 0xC4
-            self.nop_ed,                                       # 0xC5
-            self.nop_ed,                                       # 0xC6
-            self.nop_ed,                                       # 0xC7
-            self.nop_ed,                                       # 0xC8
-            self.nop_ed,                                       # 0xC9
-            self.nop_ed,                                       # 0xCA
-            self.nop_ed,                                       # 0xCB
-            self.nop_ed,                                       # 0xCC
-            self.nop_ed,                                       # 0xCD
-            self.nop_ed,                                       # 0xCE
-            self.nop_ed,                                       # 0xCF
-            self.nop_ed,                                       # 0xD0
-            self.nop_ed,                                       # 0xD1
-            self.nop_ed,                                       # 0xD2
-            self.nop_ed,                                       # 0xD3
-            self.nop_ed,                                       # 0xD4
-            self.nop_ed,                                       # 0xD5
-            self.nop_ed,                                       # 0xD6
-            self.nop_ed,                                       # 0xD7
-            self.nop_ed,                                       # 0xD8
-            self.nop_ed,                                       # 0xD9
-            self.nop_ed,                                       # 0xDA
-            self.nop_ed,                                       # 0xDB
-            self.nop_ed,                                       # 0xDC
-            self.nop_ed,                                       # 0xDD
-            self.nop_ed,                                       # 0xDE
-            self.nop_ed,                                       # 0xDF
-            self.nop_ed,                                       # 0xE0
-            self.nop_ed,                                       # 0xE1
-            self.nop_ed,                                       # 0xE2
-            self.nop_ed,                                       # 0xE3
-            self.nop_ed,                                       # 0xE4
-            self.nop_ed,                                       # 0xE5
-            self.nop_ed,                                       # 0xE6
-            self.nop_ed,                                       # 0xE7
-            self.nop_ed,                                       # 0xE8
-            self.nop_ed,                                       # 0xE9
-            self.nop_ed,                                       # 0xEA
-            self.nop_ed,                                       # 0xEB
-            self.nop_ed,                                       # 0xEC
-            self.nop_ed,                                       # 0xED
-            self.nop_ed,                                       # 0xEE
-            self.nop_ed,                                       # 0xEF
-            self.nop_ed,                                       # 0xF0
-            self.nop_ed,                                       # 0xF1
-            self.nop_ed,                                       # 0xF2
-            self.nop_ed,                                       # 0xF3
-            self.nop_ed,                                       # 0xF4
-            self.nop_ed,                                       # 0xF5
-            self.nop_ed,                                       # 0xF6
-            self.nop_ed,                                       # 0xF7
-            self.nop_ed,                                       # 0xF8
-            self.nop_ed,                                       # 0xF9
-            self.nop_ed,                                       # 0xFA
-            self.nop_ed,                                       # 0xFB
-            self.nop_ed,                                       # 0xFC
-            self.nop_ed,                                       # 0xFD
-            self.nop_ed,                                       # 0xFE
-            self.nop_ed,                                       # 0xFF
+            partial(self.nop_ed, r),                           # 0xBC
+            partial(self.nop_ed, r),                           # 0xBD
+            partial(self.nop_ed, r),                           # 0xBE
+            partial(self.nop_ed, r),                           # 0xBF
+            partial(self.nop_ed, r),                           # 0xC0
+            partial(self.nop_ed, r),                           # 0xC1
+            partial(self.nop_ed, r),                           # 0xC2
+            partial(self.nop_ed, r),                           # 0xC3
+            partial(self.nop_ed, r),                           # 0xC4
+            partial(self.nop_ed, r),                           # 0xC5
+            partial(self.nop_ed, r),                           # 0xC6
+            partial(self.nop_ed, r),                           # 0xC7
+            partial(self.nop_ed, r),                           # 0xC8
+            partial(self.nop_ed, r),                           # 0xC9
+            partial(self.nop_ed, r),                           # 0xCA
+            partial(self.nop_ed, r),                           # 0xCB
+            partial(self.nop_ed, r),                           # 0xCC
+            partial(self.nop_ed, r),                           # 0xCD
+            partial(self.nop_ed, r),                           # 0xCE
+            partial(self.nop_ed, r),                           # 0xCF
+            partial(self.nop_ed, r),                           # 0xD0
+            partial(self.nop_ed, r),                           # 0xD1
+            partial(self.nop_ed, r),                           # 0xD2
+            partial(self.nop_ed, r),                           # 0xD3
+            partial(self.nop_ed, r),                           # 0xD4
+            partial(self.nop_ed, r),                           # 0xD5
+            partial(self.nop_ed, r),                           # 0xD6
+            partial(self.nop_ed, r),                           # 0xD7
+            partial(self.nop_ed, r),                           # 0xD8
+            partial(self.nop_ed, r),                           # 0xD9
+            partial(self.nop_ed, r),                           # 0xDA
+            partial(self.nop_ed, r),                           # 0xDB
+            partial(self.nop_ed, r),                           # 0xDC
+            partial(self.nop_ed, r),                           # 0xDD
+            partial(self.nop_ed, r),                           # 0xDE
+            partial(self.nop_ed, r),                           # 0xDF
+            partial(self.nop_ed, r),                           # 0xE0
+            partial(self.nop_ed, r),                           # 0xE1
+            partial(self.nop_ed, r),                           # 0xE2
+            partial(self.nop_ed, r),                           # 0xE3
+            partial(self.nop_ed, r),                           # 0xE4
+            partial(self.nop_ed, r),                           # 0xE5
+            partial(self.nop_ed, r),                           # 0xE6
+            partial(self.nop_ed, r),                           # 0xE7
+            partial(self.nop_ed, r),                           # 0xE8
+            partial(self.nop_ed, r),                           # 0xE9
+            partial(self.nop_ed, r),                           # 0xEA
+            partial(self.nop_ed, r),                           # 0xEB
+            partial(self.nop_ed, r),                           # 0xEC
+            partial(self.nop_ed, r),                           # 0xED
+            partial(self.nop_ed, r),                           # 0xEE
+            partial(self.nop_ed, r),                           # 0xEF
+            partial(self.nop_ed, r),                           # 0xF0
+            partial(self.nop_ed, r),                           # 0xF1
+            partial(self.nop_ed, r),                           # 0xF2
+            partial(self.nop_ed, r),                           # 0xF3
+            partial(self.nop_ed, r),                           # 0xF4
+            partial(self.nop_ed, r),                           # 0xF5
+            partial(self.nop_ed, r),                           # 0xF6
+            partial(self.nop_ed, r),                           # 0xF7
+            partial(self.nop_ed, r),                           # 0xF8
+            partial(self.nop_ed, r),                           # 0xF9
+            partial(self.nop_ed, r),                           # 0xFA
+            partial(self.nop_ed, r),                           # 0xFB
+            partial(self.nop_ed, r),                           # 0xFC
+            partial(self.nop_ed, r),                           # 0xFD
+            partial(self.nop_ed, r),                           # 0xFE
+            partial(self.nop_ed, r),                           # 0xFF
         ]
 
         self.after_DD = [

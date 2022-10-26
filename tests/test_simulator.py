@@ -1,7 +1,7 @@
 from skoolkittest import SkoolKitTestCase
 from skoolkit.simulator import (Simulator,
                                 A, F, B, C, D, E, H, L, IXh, IXl, IYh, IYl, SP, I, R,
-                                xA, xF, xB, xC, xD, xE, xH, xL, Hd)
+                                xA, xF, xB, xC, xD, xE, xH, xL, PC, T, Hd)
 from skoolkit.simulator import REGISTERS as SIMULATOR_REGISTERS
 
 REGISTER_NAMES = {v: r for r, v in SIMULATOR_REGISTERS.items()}
@@ -39,7 +39,7 @@ class PortTracer:
         self.out_ports = []
 
     def trace(self, simulator, address):
-        return self.end < 0 or simulator.pc == self.end
+        return self.end < 0 or simulator.registers[PC] == self.end
 
     def read_port(self, simulator, port):
         self.in_ports.append(port)
@@ -55,13 +55,13 @@ class MemoryTracer:
         self.written = []
 
     def trace(self, simulator, address):
-        return self.end is None or simulator.pc == self.end
+        return self.end is None or simulator.registers[PC] == self.end
 
     def read_memory(self, simulator, address, count):
-        self.read.append((simulator.pc, address, count))
+        self.read.append((simulator.registers[PC], address, count))
 
     def write_memory(self, simulator, address, values):
-        self.written.append((simulator.pc, address, *values))
+        self.written.append((simulator.registers[PC], address, *values))
 
 class SimulatorTest(SkoolKitTestCase):
     def _test_instruction(self, simulator, inst, data, timing, reg_out=None, sna_out=None,
@@ -78,7 +78,7 @@ class SimulatorTest(SkoolKitTestCase):
             simulator.memory[start:] = data[:-wrapped]
             simulator.memory[:wrapped] = data[-wrapped:]
         data_hex = ''.join(f'{b:02X}' for b in data)
-        exp_reg = {i: r for i, r in enumerate(simulator.registers)}
+        exp_reg = {i: r for i, r in enumerate(simulator.registers[:PC])}
         regvals = ', '.join(f'{REGISTER_NAMES[r]}={v}' for r, v in exp_reg.items() if r in REGISTER_NAMES)
         if reg_out is None:
             reg_out = {}
@@ -86,11 +86,11 @@ class SimulatorTest(SkoolKitTestCase):
             r_in, r_inc = exp_reg[R], 2  if data[0] in (0xCB, 0xDD, 0xED, 0xFD) else 1
             reg_out[R] = (r_in & 0x80) + ((r_in + r_inc) & 0x7F)
         exp_reg.update(reg_out)
-        simulator.tstates = 0
+        simulator.registers[T] = 0
         simulator.run(start)
-        self.assertEqual(simulator.pc, end, f"End address mismatch for '{inst}' ({data_hex}); input: {regvals}")
-        self.assertEqual(simulator.tstates, timing, f"Timing mismatch for '{inst}' ({data_hex}); input: {regvals}")
-        actual_reg = {i: r for i, r in enumerate(simulator.registers)}
+        self.assertEqual(simulator.registers[PC], end, f"End address mismatch for '{inst}' ({data_hex}); input: {regvals}")
+        self.assertEqual(simulator.registers[T], timing, f"Timing mismatch for '{inst}' ({data_hex}); input: {regvals}")
+        actual_reg = {i: r for i, r in enumerate(simulator.registers[:PC])}
         if actual_reg != exp_reg:
             reg_exp = {}
             reg_new = {}
@@ -1909,8 +1909,8 @@ class SimulatorTest(SkoolKitTestCase):
         memory[start] = 0x76
         simulator = Simulator(memory)
         simulator.run(start)
-        self.assertEqual(simulator.pc, start)
-        self.assertEqual(simulator.tstates, 4)
+        self.assertEqual(simulator.registers[PC], start)
+        self.assertEqual(simulator.registers[T], 4)
 
     def test_halt_repeats_until_frame_boundary(self):
         memory = [0] * 65536
@@ -1918,9 +1918,9 @@ class SimulatorTest(SkoolKitTestCase):
         memory[start] = 0x76
         simulator = Simulator(memory, state={'iff': 1, 'tstates': 69882})
         simulator.run(start)
-        self.assertEqual(simulator.pc, start)
+        self.assertEqual(simulator.registers[PC], start)
         simulator.run()
-        self.assertEqual(simulator.pc, start + 1)
+        self.assertEqual(simulator.registers[PC], start + 1)
 
     def test_halt_repeats_at_frame_boundary_when_interrupts_disabled(self):
         memory = [0] * 65536
@@ -1928,9 +1928,9 @@ class SimulatorTest(SkoolKitTestCase):
         memory[start] = 0x76
         simulator = Simulator(memory, state={'iff': 0, 'tstates': 69882})
         simulator.run(start)
-        self.assertEqual(simulator.pc, start)
+        self.assertEqual(simulator.registers[PC], start)
         simulator.run()
-        self.assertEqual(simulator.pc, start)
+        self.assertEqual(simulator.registers[PC], start)
 
     def test_ccf(self):
         simulator = Simulator([0] * 65536)
@@ -2646,8 +2646,8 @@ class SimulatorTest(SkoolKitTestCase):
         memory = [0] * 65536
         simulator = Simulator(memory)
         simulator.run(0)
-        self.assertEqual(simulator.pc, 1)
-        self.assertEqual(simulator.tstates, 4)
+        self.assertEqual(simulator.registers[PC], 1)
+        self.assertEqual(simulator.registers[T], 4)
 
     def test_tracer_runs_two_instructions(self):
         memory = [0] * 65536
@@ -2655,8 +2655,8 @@ class SimulatorTest(SkoolKitTestCase):
         tracer = CountingTracer(2)
         simulator.set_tracer(tracer)
         simulator.run(0)
-        self.assertEqual(simulator.pc, 2)
-        self.assertEqual(simulator.tstates, 8)
+        self.assertEqual(simulator.registers[PC], 2)
+        self.assertEqual(simulator.registers[T], 8)
 
     def test_port_reading(self):
         memory = [0] * 65536
@@ -2789,15 +2789,15 @@ class SimulatorTest(SkoolKitTestCase):
         simulator = Simulator(memory)
         simulator.run(0)
         simulator.run()
-        self.assertEqual(simulator.pc, 2)
-        self.assertEqual(simulator.tstates, 8)
+        self.assertEqual(simulator.registers[PC], 2)
+        self.assertEqual(simulator.registers[T], 8)
 
     def test_stop(self):
         memory = [0] * 65536
         simulator = Simulator(memory)
         simulator.run(0, 2)
-        self.assertEqual(simulator.pc, 2)
-        self.assertEqual(simulator.tstates, 8)
+        self.assertEqual(simulator.registers[PC], 2)
+        self.assertEqual(simulator.registers[T], 8)
 
     def test_stop_overrides_tracer(self):
         memory = [0] * 65536
@@ -2805,22 +2805,22 @@ class SimulatorTest(SkoolKitTestCase):
         tracer = CountingTracer(100)
         simulator.set_tracer(tracer)
         simulator.run(0, 2)
-        self.assertEqual(simulator.pc, 2)
-        self.assertEqual(simulator.tstates, 8)
+        self.assertEqual(simulator.registers[PC], 2)
+        self.assertEqual(simulator.registers[T], 8)
 
     def test_pc_register_value(self):
         memory = [0] * 65536
         simulator = Simulator(memory, {'PC': 1})
         simulator.run()
-        self.assertEqual(simulator.pc, 2)
-        self.assertEqual(simulator.tstates, 4)
+        self.assertEqual(simulator.registers[PC], 2)
+        self.assertEqual(simulator.registers[T], 4)
 
     def test_initial_time(self):
         memory = [0] * 65536
         simulator = Simulator(memory, state={'tstates': 100})
         simulator.run(0)
-        self.assertEqual(simulator.pc, 1)
-        self.assertEqual(simulator.tstates, 104)
+        self.assertEqual(simulator.registers[PC], 1)
+        self.assertEqual(simulator.registers[T], 104)
 
     def test_initial_ppcount(self):
         memory = [0] * 65536
@@ -2835,7 +2835,7 @@ class SimulatorTest(SkoolKitTestCase):
         tracer = PushPopCountTracer()
         simulator.set_tracer(tracer)
         simulator.run(start)
-        self.assertEqual(simulator.pc, end)
+        self.assertEqual(simulator.registers[PC], end)
         self.assertEqual(simulator.ppcount, -1)
 
     def test_initial_iff(self):
@@ -2844,5 +2844,5 @@ class SimulatorTest(SkoolKitTestCase):
         memory[start:start + 2] = (0xED, 0x57) # LD A,I
         simulator = Simulator(memory, state={'iff': 1})
         simulator.run(start)
-        self.assertEqual(simulator.pc, start + 2)
+        self.assertEqual(simulator.registers[PC], start + 2)
         self.assertEqual(simulator.registers[F], 0b00101100)

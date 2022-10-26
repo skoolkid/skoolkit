@@ -18,7 +18,7 @@ sys.path.insert(0, SKOOLKIT_HOME)
 from skoolkit import ROM48, SkoolKitError, get_int_param, integer, read_bin_file
 from skoolkit.snapshot import make_snapshot, poke, print_reg_help
 from skoolkit.simulator import (Simulator, A, F, B, C, D, E, H, L, IXh, IXl, IYh, IYl,
-                                SP, I, R, xA, xF, xB, xC, xD, xE, xH, xL)
+                                SP, I, R, xA, xF, xB, xC, xD, xE, xH, xL, PC, T)
 
 from disassembler import Disassembler
 
@@ -67,21 +67,21 @@ class Tracer:
                 "HL'": sim_registers[xL] + 256 * sim_registers[xH],
             }
             print(fmt.format(address=self.address, data=self.data, i=self.instruction, **registers))
-            memory, address = simulator.memory, simulator.pc
+            memory, address = simulator.memory, sim_registers[PC]
             self.instruction, size = self.disassembler.disassemble(memory, address)
             self.data = ''.join(f'{memory[a % 65536]:02X}' for a in range(address, address + size))
             self.address = address
 
         self.operations += 1
 
-        addr = f'${simulator.pc:04X}'
+        addr = f'${simulator.registers[PC]:04X}'
         if self.operations >= self.max_operations > 0:
             print(f'Stopped at {addr}: {self.operations} operations')
             return True
-        if simulator.tstates >= self.max_tstates > 0:
-            print(f'Stopped at {addr}: {simulator.tstates} T-states')
+        if simulator.registers[T] >= self.max_tstates > 0:
+            print(f'Stopped at {addr}: {simulator.registers[T]} T-states')
             return True
-        if simulator.pc == self.end:
+        if simulator.registers[PC] == self.end:
             print(f'Stopped at {addr}')
             return True
         if simulator.ppcount < 0 and self.max_operations <= 0 and self.max_tstates <= 0 and self.end < 0:
@@ -91,7 +91,7 @@ class Tracer:
     def write_port(self, simulator, port, value):
         if port & 0xFF == 0xFE and self.spkr is None or self.spkr != value & 0x10:
             self.spkr = value & 0x10
-            self.out_times.append(simulator.tstates)
+            self.out_times.append(simulator.registers[T])
 
 def get_registers(specs):
     registers = {}
@@ -154,9 +154,9 @@ def run(snafile, start, options):
     simulator.run(start)
     rt = time.time() - begin
     if options.stats:
-        z80t = simulator.tstates / 3500000
+        z80t = simulator.registers[T] / 3500000
         speed = z80t / rt
-        print(f'Z80 execution time: {simulator.tstates} T-states ({z80t:.03f}s)')
+        print(f'Z80 execution time: {simulator.registers[T]} T-states ({z80t:.03f}s)')
         print(f'Instructions executed: {tracer.operations}')
         print(f'Simulation time: {rt:.03f}s (x{speed:.02f})')
     if options.audio:

@@ -5,7 +5,7 @@ import sys
 SKOOLKIT_HOME = abspath(dirname(dirname(__file__)))
 sys.path.insert(0, SKOOLKIT_HOME)
 
-from skoolkit.simulator import REGISTERS, A, F, B, C, D, E, H, L, IXh, IXl, IYh, IYl, SP, I, R
+from skoolkit.simulator import REGISTERS, A, F, B, C, D, E, H, L, IXh, IXl, IYh, IYl, SP, I, R, PC
 
 class BaseTracer:
     def __init__(self, start, watch=(A, F)):
@@ -45,7 +45,7 @@ class BaseTracer:
             return True
 
     def repeat(self, simulator):
-        simulator.pc = self.start
+        simulator.registers[PC] = self.start
         self.count -= 1
 
 class AFRTracer(BaseTracer):
