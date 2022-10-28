@@ -170,6 +170,38 @@ class FRTracer(BaseTracer):
             simulator.registers[reg] = r
         self.repeat(simulator)
 
+class RSTracer(BaseTracer):
+    def __init__(self, base_opcode):
+        super().__init__(0x3FF)
+        self.opcodes = (
+            (IXh, B, (0xDD, 0xCB, 0, base_opcode)),     # (IX+0),B
+            (IXh, C, (0xDD, 0xCB, 0, base_opcode + 1)), # (IX+0),C
+            (IXh, D, (0xDD, 0xCB, 0, base_opcode + 2)), # (IX+0),D
+            (IXh, E, (0xDD, 0xCB, 0, base_opcode + 3)), # (IX+0),E
+            (IXh, H, (0xDD, 0xCB, 0, base_opcode + 4)), # (IX+0),H
+            (IXh, L, (0xDD, 0xCB, 0, base_opcode + 5)), # (IX+0),L
+            (IXh, A, (0xDD, 0xCB, 0, base_opcode + 7)), # (IX+0),A
+            (IYh, B, (0xFD, 0xCB, 0, base_opcode)),     # (IY+0),B
+            (IYh, C, (0xFD, 0xCB, 0, base_opcode + 1)), # (IY+0),C
+            (IYh, D, (0xFD, 0xCB, 0, base_opcode + 2)), # (IY+0),D
+            (IYh, E, (0xFD, 0xCB, 0, base_opcode + 3)), # (IY+0),E
+            (IYh, H, (0xFD, 0xCB, 0, base_opcode + 4)), # (IY+0),H
+            (IYh, L, (0xFD, 0xCB, 0, base_opcode + 5)), # (IY+0),L
+            (IYh, A, (0xFD, 0xCB, 0, base_opcode + 7)), # (IY+0),A
+        )
+        self.max_index = len(self.opcodes)
+
+    def trace(self, simulator, instruction):
+        if self.collect_result(simulator, instruction):
+            return True
+        reg, dest, opcodes = self.opcodes[self.index]
+        simulator.memory[:len(opcodes)] = opcodes
+        simulator.registers[F] = (self.count // 512) * 255
+        simulator.registers[dest] = ((self.count // 256) % 2) * 255
+        xy = simulator.registers[reg] * 256 + simulator.registers[reg + 1]
+        simulator.memory[xy] = self.count % 256
+        self.repeat(simulator)
+
 class AFTracer(BaseTracer):
     def __init__(self, *opcodes):
         super().__init__(0xFFFF)
@@ -483,6 +515,14 @@ SUITES = {
         ('SRA_r', FRTracer, (0xCB, 0x28)),
         ('SLL_r', FRTracer, (0xCB, 0x30)),
         ('SRL_r', FRTracer, (0xCB, 0x38)),
+        ('RLC_r_r', RSTracer, (0x00,)),
+        ('RRC_r_r', RSTracer, (0x08,)),
+        ('RL_r_r',  RSTracer, (0x10,)),
+        ('RR_r_r',  RSTracer, (0x18,)),
+        ('SLA_r_r', RSTracer, (0x20,)),
+        ('SRA_r_r', RSTracer, (0x28,)),
+        ('SLL_r_r', RSTracer, (0x30,)),
+        ('SRL_r_r', RSTracer, (0x38,)),
     ),
     'INC': (
         'INC/DEC instructions',

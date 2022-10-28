@@ -108,6 +108,30 @@ class SimulatorTest(SkoolKitTestCase):
     def test_srl_r(self):
         self._verify(FRTracer(203, 56), '50dbb30b14a062ec0dcebc38013943cc')
 
+    def test_rlc_r_r(self):
+        self._verify(RSTracer(0), '5aa6d5daac71b2b2ad0952c091bc0090')
+
+    def test_rrc_r_r(self):
+        self._verify(RSTracer(8), 'ba776156c4f24099550c376d0bc3bbd9')
+
+    def test_rl_r_r(self):
+        self._verify(RSTracer(16), 'f2796e66a5d863126aa25dfe382c414e')
+
+    def test_rr_r_r(self):
+        self._verify(RSTracer(24), '2f8df4496394a2b91dd9ffea1471ed2a')
+
+    def test_sla_r_r(self):
+        self._verify(RSTracer(32), '9c665fa4c5ac09b17f97c7a44d9dc643')
+
+    def test_sra_r_r(self):
+        self._verify(RSTracer(40), '89b00b8d15e8f48b6bb9c6f4045ac4fa')
+
+    def test_sll_r_r(self):
+        self._verify(RSTracer(48), 'e39f2524b6ade5f61cc200ae51f6b6a1')
+
+    def test_srl_r_r(self):
+        self._verify(RSTracer(56), '99e18b4a1e9c8b00f44910181a6a9ae2')
+
     def test_inc_r(self):
         self._verify(FRTracer(4), '6f0fd59747a860949c9498ac41870aad')
 
