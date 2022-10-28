@@ -18,73 +18,64 @@ from skoolkit import write, write_line
 from skoolkit.basic import TextReader
 from skoolkit.simulator import A, F, D, E, H, L, IXh, IXl, SP, PC, T
 
-SILENCE = 0
-PILOT = 1
-SYNC = 2
-DATA = 3
-STOP = 4
-
 SIM_TIMEOUT = 10 * 60 * 3500000 # 10 minutes of Z80 CPU time
 
-def get_ear_samples(blocks):
-    samples = []
+def get_edges(blocks):
+    # Return a list of elements of the form
+    #   [edges, data]
+    # where each one corresponds to a block on the tape and
+    # - 'edges' is a list of integers, each of which can be interpreted as the
+    #   timestamp (in T-states) of an 'edge' in the tape block
+    # - 'data' is a list of the byte values in the tape block (used for fast
+    #   loading where possible)
+
+    tape_blocks = [[[], []]]
     tstates = -1
-    sample = 0xFF # EAR off (bit 6 set), no keys pressed
-    ear = 0x40
 
     for i, (timings, data) in enumerate(blocks):
+        edges = tape_blocks[-1][0]
+
         # Pilot tone
         for n in range(timings.pilot_len):
-            sample ^= ear
             if tstates < 0:
                 tstates = 0
             else:
                 tstates += timings.pilot
-            samples.append((tstates, sample, PILOT, i))
+            edges.append(tstates)
 
         # Sync pulses
         for s in timings.sync:
-            sample ^= ear
             tstates += s
-            samples.append((tstates, sample, SYNC, i))
+            edges.append(tstates)
 
         # Data
-        for b in data:
-            for j in range(8):
-                if b & 0x80:
-                    duration = timings.one
-                else:
-                    duration = timings.zero
-                for k in range(2):
-                    sample ^= ear
-                    tstates += duration
-                    samples.append((tstates, sample, DATA, i))
-                b <<= 1
+        if data:
+            for b in data:
+                for j in range(8):
+                    if b & 0x80:
+                        duration = timings.one
+                    else:
+                        duration = timings.zero
+                    for k in range(2):
+                        tstates += duration
+                        edges.append(tstates)
+                    b *= 2
+            tape_blocks[-1][1][:] = data
+            if i < len(blocks) - 1:
+                tape_blocks.append([[], []])
 
-        # Pause
-        if i + 1 < len(blocks) and timings.pause:
-            r = samples.pop()
-            samples.append((r[0], r[1], SILENCE, i + 1))
-            tstates += timings.pause
-
-    ts, sample, stype, bnum = samples[-1]
-    samples.append((ts + 3500, sample, STOP, bnum))
-
-    return samples
+    return tape_blocks
 
 class LoadTracer:
     def __init__(self, blocks, stop):
-        self.blocks = [b[1] for b in blocks]
-        self.samples = get_ear_samples(blocks)
-        self.index = 0
-        self.max_index = len(self.samples) - 1
+        self.blocks = get_edges(blocks)
+        self.block_index = -1
+        self.next_block()
         self.stop = stop
-        self.tape_started = None
         self.progress = 0
-        self.tape_length = self.samples[-1][0] // 1000
+        self.tape_length = self.blocks[-1][0][-1] // 1000
         self.end_of_tape = 0
         self.tape_end_time = 0
-        self.pulse_type = None
         self.custom_loader = False
         self.border = 7
         self.text = TextReader()
@@ -93,29 +84,22 @@ class LoadTracer:
         pc = simulator.registers[PC]
         tstates = simulator.registers[T]
 
-        if self.tape_started is not None:
+        if self.tape_running: # pragma: no cover
             index = self.index
-            samples = self.samples
-            offset = tstates - self.tape_started
-            block_num = samples[index][3]
-            while index < self.max_index and samples[index + 1][0] < offset:
-                index += 1 # pragma: no cover
-            sample = samples[index]
-            if sample[3] > block_num:
-                # Pause tape between blocks
-                self.tape_started = None # pragma: no cover
+            max_index = self.max_index
+            edges = self.edges
+            while index < max_index and edges[index + 1] < tstates:
+                index += 1
+            if index == max_index and tstates - edges[index] > 3500:
+                # Move to the next block on the tape if the final edge of the
+                # current block hasn't been read in over 1ms
+                self.next_block(simulator)
             else:
-                if index == self.max_index:
-                    self.end_of_tape += 1
-                    if self.end_of_tape == 1:
-                        write_line('Tape finished')
-                        self.tape_end_time = tstates
-                if self.custom_loader: # pragma: no cover
-                    progress = sample[0] // self.tape_length
-                    if progress > self.progress:
-                        msg = f'[{progress/10:0.1f}%]'
-                        write(msg + chr(8) * len(msg))
-                        self.progress = progress
+                progress = edges[index] // self.tape_length
+                if progress > self.progress:
+                    msg = f'[{progress/10:0.1f}%]'
+                    write(msg + chr(8) * len(msg))
+                    self.progress = progress
             self.index = index
 
         if pc == self.stop:
@@ -141,41 +125,41 @@ class LoadTracer:
             return True
 
     def read_port(self, simulator, port):
-        if port & 0xFF == 0xFE:
-            read_tape = False
-            if simulator.registers[PC] > 0x7FFF: # pragma: no cover
+        if port % 256 == 0xFE:
+            pc = simulator.registers[PC]
+            if pc > 0x7FFF or 0x0562 <= pc <= 0x05F1: # pragma: no cover
                 self.custom_loader = True
-                read_tape = True
-            elif 0x0562 <= simulator.registers[PC] <= 0x05F1:
-                read_tape = True # pragma: no cover
-
-            if read_tape: # pragma: no cover
-                if self.tape_started is None:
-                    self.tape_started = simulator.registers[T] - self.samples[self.index][0]
-
-                if self.index == self.max_index - 1:
-                    ts, sample, stype, bnum = self.samples.pop()
-                    self.samples.append((self.samples[-1][0], sample, STOP, bnum))
-
-                pulse_type = self.samples[self.index][2]
-                if pulse_type != self.pulse_type:
-                    if pulse_type == PILOT:
-                        write_line('Pilot tone')
-                    elif pulse_type == SYNC:
-                        write_line('Sync pulses')
-                    elif pulse_type == DATA:
-                        length = len(self.blocks[self.samples[self.index][3]])
-                        write_line(f'Data ({length} bytes)\n')
-                    self.pulse_type = pulse_type
-
-                return self.samples[self.index][1]
+                index = self.index
+                if not self.tape_running:
+                    self.tape_running = True
+                    simulator.registers[T] = self.edges[0]
+                    length = len(self.blocks[self.block_index][1])
+                    write_line(f'Data ({length} bytes)\n')
+                elif index == self.max_index:
+                    self.next_block(simulator)
+                if index % 2:
+                    return 255
+                return 191
 
     def write_port(self, simulator, port, value):
         if port & 0x01 == 0:
             self.border = value & 0x07
 
+    def next_block(self, simulator=None):
+        self.block_index += 1
+        if self.block_index >= len(self.blocks):
+            self.end_of_tape += 1
+            if self.end_of_tape == 1:
+                write_line('Tape finished')
+                self.tape_end_time = simulator.registers[T]
+        else:
+            self.edges = self.blocks[self.block_index][0]
+            self.index = 0
+            self.max_index = len(self.edges) - 1
+        self.tape_running = False
+
     def fast_load(self, simulator):
-        block = self.blocks[self.samples[self.index][3]]
+        block = self.blocks[self.block_index][1]
         registers = simulator.registers
         memory = simulator.memory
         ix = registers[IXl] + 256 * registers[IXh] # Start address
@@ -225,13 +209,4 @@ class LoadTracer:
             registers[E] = de & 0xFF
 
         simulator.registers[PC] = 0x05E2
-
-        block_num = self.samples[self.index][3]
-        while self.index < self.max_index and self.samples[self.index][3] == block_num:
-            self.index += 1
-        if self.samples[self.index][3] > block_num:
-            # Pause tape between blocks
-            self.tape_started = None
-        else:
-            self.tape_started = simulator.registers[T] - self.samples[self.index][0]
-        self.pulse_type = DATA
+        self.next_block(simulator)

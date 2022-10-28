@@ -131,8 +131,6 @@ class SimLoadTest(SkoolKitTestCase):
             'Bytes: simloadbyt',
             'Fast loading data block: 32759,184',
             '',
-            'Pilot tone',
-            'Sync pulses',
             'Data (12 bytes)',
             '',
             'Tape finished',
@@ -181,8 +179,6 @@ class SimLoadTest(SkoolKitTestCase):
             'Bytes: simloadbyt',
             'Fast loading data block: 32759,184',
             '',
-            'Pilot tone',
-            'Sync pulses',
             'Data (12 bytes)',
             '',
             'Tape finished',
@@ -254,8 +250,6 @@ class SimLoadTest(SkoolKitTestCase):
             'Bytes: simloadbyt',
             'Fast loading data block: 32759,184',
             '',
-            'Pilot tone',
-            'Sync pulses',
             'Data (12 bytes)',
             '',
             'Tape finished',
@@ -273,7 +267,7 @@ class SimLoadTest(SkoolKitTestCase):
             19,               # 49156 INC DE       [6]     ; 26 T-states
             122,              # 49157 LD A,D       [4]     ; per
             179,              # 49158 OR E         [4]     ; iteration
-            24, 251,          # 49159 JR NZ,49156  [12/7]  ;
+            32, 251,          # 49159 JR NZ,49156  [12/7]  ;
             12,               # 49161 INC C        [4]
             24, 248,          # 49162 JR 49156     [12]
         ]
@@ -309,8 +303,8 @@ class SimLoadTest(SkoolKitTestCase):
         self.assertEqual(code, snapshot[code_start:code_start + len(code)])
         self.assertEqual(code2, snapshot[code2_start:code2_end])
 
-        # CDE=648
-        exp_reg = set(('SP=65344', f'IX={code2_end}', 'IY=23610', 'PC=49156', 'E=136', 'D=2', 'C=0'))
+        # CDE=649
+        exp_reg = set(('SP=65344', f'IX={code2_end}', 'IY=23610', 'PC=49156', 'E=137', 'D=2', 'C=0'))
         self.assertLessEqual(exp_reg, set(options.reg))
 
         out_lines = self._format_output(output)
@@ -321,8 +315,6 @@ class SimLoadTest(SkoolKitTestCase):
             'Bytes: simloadbyt',
             'Fast loading data block: 32757,186',
             '',
-            'Pilot tone',
-            'Sync pulses',
             'Data (15 bytes)',
             '',
             'Tape finished',
