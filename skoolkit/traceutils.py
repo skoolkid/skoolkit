@@ -1,3 +1,19 @@
+# Copyright 2022 Richard Dymond (rjdymond@gmail.com)
+#
+# This file is part of SkoolKit.
+#
+# SkoolKit is free software: you can redistribute it and/or modify it under the
+# terms of the GNU General Public License as published by the Free Software
+# Foundation, either version 3 of the License, or (at your option) any later
+# version.
+#
+# SkoolKit is distributed in the hope that it will be useful, but WITHOUT ANY
+# WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+# A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along with
+# SkoolKit. If not, see <http://www.gnu.org/licenses/>.
+
 def disassemble(memory, address):
     opcode = memory[address]
     func, operation, size = OPCODES[opcode]
@@ -31,9 +47,9 @@ def word(memory, address, operation, size):
 def jump_offset(memory, address, operation, size):
     offset = memory[(address + 1) % 65536]
     if offset < 128:
-        jump_addr = address + 2 + offset
+        jump_addr = (address + 2 + offset) % 65536
     else:
-        jump_addr = address - 254 + offset
+        jump_addr = (address - 254 + offset) % 65536
     return operation.format(f'${jump_addr:04X}'), 2
 
 def offset(memory, address, operation, size):
@@ -50,7 +66,7 @@ def offset_byte(memory, address, operation, size):
     return operation.format(f'-${256-offset:02X}', f'${value:02X}'), 4
 
 def rst(memory, address, operation, size):
-    addr = (memory[address] - 0xC7) // 8
+    addr = memory[address] - 0xC7
     return operation.format(f'${addr:02X}'), 1
 
 def defb(memory, address, operation, size):
@@ -1870,4 +1886,3 @@ AFTER_FDCB = (
     (offset, "SET 7,(IY{})", 4),      # 0xFE
     (offset, "SET 7,(IY{}),A", 4),    # 0xFF
 )
-

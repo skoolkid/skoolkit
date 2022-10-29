@@ -19,8 +19,7 @@ from skoolkit import ROM48, SkoolKitError, get_int_param, integer, read_bin_file
 from skoolkit.snapshot import make_snapshot, poke, print_reg_help
 from skoolkit.simulator import (Simulator, A, F, B, C, D, E, H, L, IXh, IXl, IYh, IYl,
                                 SP, I, R, xA, xF, xB, xC, xD, xE, xH, xL, PC, T)
-
-from disassembler import disassemble
+from skoolkit.traceutils import disassemble
 
 TRACE1 = "${address:04X} {data:<8} {i}"
 TRACE2 = """

@@ -56,10 +56,10 @@ rm -rf ${ABSDIR}
 
 rsync -aR \
   {bin2{sna,tap},skool2{asm,bin,ctl,html},sna2{ctl,img,skool},snap{info,mod},tap{2sna,info}}.py \
-  skoolkit/{__init__,audio,basic,bin2{sna,tap},components,config,ctlparser,defaults,disassembler,graphics,image,loadtracer,opcodes,pngwriter,refparser,simulator,skool{{,2}{asm,ctl,html},2bin,macro,parser},sna2img,sna{,2}{ctl,skool},snap{info,mod,shot},tap{2sna,info},textutils,z80}.py \
+  skoolkit/{__init__,audio,basic,bin2{sna,tap},components,config,ctlparser,defaults,disassembler,graphics,image,loadtracer,opcodes,pngwriter,refparser,simulator,skool{{,2}{asm,ctl,html},2bin,macro,parser},sna2img,sna{,2}{ctl,skool},snap{info,mod,shot},tap{2sna,info},textutils,traceutils,z80}.py \
   examples/hungry_horace.{ctl,ref,t2s} \
   skoolkit/resources/{48.rom,skoolkit{,-dark,-green,-plum,-wide}.css} \
-  tests/{{macro,skoolkit}test,test_{audio,basic,bin2{sna,tap},ctlparser,disassembler,graphics,image,refparser,simulator,skool{{,2}{asm,ctl,html},2bin,macro,parser},skoolkit,sna2{ctl,img},sna{2,}skool,snap{info,mod,shot},tap{2sna,info},textutils,z80}}.py \
+  tests/{{macro,skoolkit}test,test_{audio,basic,bin2{sna,tap},ctlparser,disassembler,graphics,image,refparser,simulator,skool{{,2}{asm,ctl,html},2bin,macro,parser},skoolkit,sna2{ctl,img},sna{2,}skool,snap{info,mod,shot},tap{2sna,info},textutils,traceutils,z80}}.py \
   COPYING MANIFEST.in long_description.rst pyproject.toml setup.cfg \
   $ABSDIR
 
