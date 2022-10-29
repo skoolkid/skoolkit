@@ -16,7 +16,7 @@
 
 from skoolkit import write, write_line
 from skoolkit.basic import TextReader
-from skoolkit.simulator import A, F, D, E, H, L, IXh, IXl, SP, PC, T
+from skoolkit.simulator import A, F, D, E, H, L, IXh, IXl, PC, T, R_INC1, R_INC2
 
 SIM_TIMEOUT = 10 * 60 * 3500000 # 10 minutes of Z80 CPU time
 
@@ -67,68 +67,107 @@ def get_edges(blocks):
     return tape_blocks
 
 class LoadTracer:
-    def __init__(self, blocks, stop):
+    def __init__(self, blocks):
         self.blocks = get_edges(blocks)
         self.block_index = -1
         self.next_block()
-        self.stop = stop
-        self.progress = 0
-        self.tape_length = self.blocks[-1][0][-1] // 1000
         self.end_of_tape = 0
         self.tape_end_time = 0
         self.custom_loader = False
         self.border = 7
         self.text = TextReader()
 
-    def trace(self, simulator, address):
-        pc = simulator.registers[PC]
-        tstates = simulator.registers[T]
+    def run(self, simulator, start, stop):
+        opcodes = simulator.opcodes
+        after_CB = simulator.after_CB
+        after_DD = simulator.after_DD
+        after_DDCB = simulator.after_DDCB
+        after_ED = simulator.after_ED
+        after_FD = simulator.after_FD
+        after_FDCB = simulator.after_FDCB
+        memory = simulator.memory
+        registers = simulator.registers
+        registers[24] = start
+        pc = start
+        progress = 0
+        tape_length = self.blocks[-1][0][-1] // 1000
 
-        if self.tape_running and tstates > self.next_edge: # pragma: no cover
-            index = self.index
-            max_index = self.max_index
-            edges = self.edges
-            while index < max_index and edges[index + 1] < tstates:
-                index += 1
-            if index == max_index:
-                if tstates - edges[index] > 3500:
-                    # Move to the next block on the tape if the final edge of
-                    # the current block hasn't been read in over 1ms
-                    self.next_block(simulator)
+        while True:
+            opcode = memory[pc]
+            method = opcodes[opcode]
+            if method:
+                r_inc = R_INC1
+                method()
+            elif opcode == 0xCB:
+                r_inc = R_INC2
+                after_CB[memory[(pc + 1) % 65536]]()
+            elif opcode == 0xED:
+                r_inc = R_INC2
+                after_ED[memory[(pc + 1) % 65536]]()
+            elif opcode == 0xDD:
+                r_inc = R_INC2
+                method = after_DD[memory[(pc + 1) % 65536]]
+                if method:
+                    method()
+                else: # pragma: no cover
+                    after_DDCB[memory[(pc + 3) % 65536]]()
             else:
-                self.next_edge = edges[index + 1]
-                progress = edges[index] // self.tape_length
-                if progress > self.progress:
-                    msg = f'[{progress/10:0.1f}%]'
-                    write(msg + chr(8) * len(msg))
-                    self.progress = progress
-            self.index = index
+                r_inc = R_INC2
+                method = after_FD[memory[(pc + 1) % 65536]]
+                if method:
+                    method()
+                else:
+                    after_FDCB[memory[(pc + 3) % 65536]]()
+            registers[15] = r_inc[registers[15]]
 
-        if pc == self.stop:
-            write_line(f'Simulation stopped (PC at start address): PC={pc}')
-            return True
+            pc = registers[24]
+            tstates = registers[25]
 
-        if pc == 0x0556:
-            return self.fast_load(simulator)
+            if self.tape_running and tstates > self.next_edge: # pragma: no cover
+                index = self.index
+                max_index = self.max_index
+                edges = self.edges
+                while index < max_index and edges[index + 1] < tstates:
+                    index += 1
+                self.index = index
+                if index == max_index:
+                    if tstates - edges[index] > 3500:
+                        # Move to the next block on the tape if the final edge
+                        # of the current block hasn't been read in over 1ms
+                        self.next_block(simulator)
+                else:
+                    self.next_edge = edges[index + 1]
+                    p = edges[index] // tape_length
+                    if p > progress:
+                        msg = f'[{p/10:0.1f}%]'
+                        write(msg + chr(8) * len(msg))
+                        progress = p
 
-        if self.end_of_tape and self.stop is None:
-            if self.custom_loader: # pragma: no cover
-                write_line(f'Simulation stopped (end of tape): PC={pc}')
-                return True
-            if pc > 0x3FFF:
-                write_line(f'Simulation stopped (PC in RAM): PC={pc}')
-                return True
-            if tstates - self.tape_end_time > 3500000: # pragma: no cover
-                write_line(f'Simulation stopped (tape ended 1 second ago): PC={pc}')
-                return True
+            if pc == stop:
+                write_line(f'Simulation stopped (PC at start address): PC={pc}')
+                break
 
-        if tstates > SIM_TIMEOUT: # pragma: no cover
-            write_line(f'Simulation stopped (timed out): PC={pc}')
-            return True
+            if pc == 0x0556:
+                self.fast_load(simulator)
+                pc = registers[24]
+            else:
+                if self.end_of_tape and stop is None:
+                    if self.custom_loader: # pragma: no cover
+                        write_line(f'Simulation stopped (end of tape): PC={pc}')
+                        break
+                    if pc > 0x3FFF:
+                        write_line(f'Simulation stopped (PC in RAM): PC={pc}')
+                        break
+                    if tstates - self.tape_end_time > 3500000: # pragma: no cover
+                        write_line(f'Simulation stopped (tape ended 1 second ago): PC={pc}')
+                        break
+                if tstates > SIM_TIMEOUT: # pragma: no cover
+                    write_line(f'Simulation stopped (timed out): PC={pc}')
+                    break
 
     def read_port(self, simulator, port):
         if port % 256 == 0xFE:
-            pc = simulator.registers[PC]
+            pc = simulator.registers[24]
             if pc > 0x7FFF or 0x0562 <= pc <= 0x05F1: # pragma: no cover
                 self.custom_loader = True
                 index = self.index

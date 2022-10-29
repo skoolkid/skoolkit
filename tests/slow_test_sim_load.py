@@ -259,6 +259,80 @@ class SimLoadTest(SkoolKitTestCase):
         self.assertEqual(error, '')
 
     @patch.object(tap2sna, '_write_z80', mock_write_z80)
+    def test_unread_data_in_middle_of_tape(self):
+        code = [
+            221, 33, 0, 192,   # 32757 LD IX,49152
+            221, 229,          # 32761 PUSH IX
+            17, 22, 0,         # 32763 LD DE,22    ; code2 is 22 bytes
+            55,                # 32766 SCF
+            159,               # 32767 SBC A,A
+        ]
+        code2 = [
+            # Pause briefly while the tape continues playing the last byte
+            # of the code2 data block (which is unread), and then load the
+            # code3 data block
+            1, 0, 3,           # 49152 LD BC,768   ; Pause for 19973 T-states,
+            11,                # 49155 DEC BC      ; long enough for LoadTracer
+            120,               # 49156 LD A,B      ; to move past the last
+            177,               # 49157 OR C        ; (unread) byte of the code2
+            32, 251,           # 49158 JR NZ,49155 ; block and on to code3
+            221, 33, 255, 255, # 49160 LD IX,65535
+            221, 229,          # 49164 PUSH IX
+            17, 1, 0,          # 49166 LD DE,1     ; code3 is 1 byte
+            55,                # 49169 SCF
+            159,               # 49170 SBC A,A
+            195, 0, 128,       # 49171 JP 32768
+        ]
+        code3 = [201]
+        code2_start = 49152
+        code2_len = len(code2)
+        code2_end = code2_start + code2_len
+        loader_start = 32768
+        code_start = loader_start - len(code)
+        code += get_loader(loader_start)
+        basic_data = self._get_basic_data(code_start)
+        code2_data_block = create_tap_data_block(code2)
+        code2_data_block[0] += 1
+        code2_data_block.append(0)
+        blocks = [
+            create_tap_header_block("simloadbas", 10, len(basic_data), 0),
+            create_tap_data_block(basic_data),
+            create_tap_header_block("simloadbyt", code_start, len(code)),
+            create_tap_data_block(code),
+            code2_data_block,
+            create_tap_data_block(code3)
+        ]
+        tapfile = self._write_tap(blocks)
+        z80file = 'out.z80'
+        output, error = self.run_tap2sna(f'--sim-load --start 65535 {tapfile} {z80file}')
+
+        self.assertEqual(basic_data, snapshot[23755:23755 + len(basic_data)])
+        self.assertEqual(code, snapshot[code_start:code_start + len(code)])
+        self.assertEqual(code2, snapshot[code2_start:code2_end])
+        self.assertEqual(code3, snapshot[65535:])
+
+        exp_reg = set(('SP=65344', 'IX=0', 'IY=23610', 'PC=65535'))
+        self.assertLessEqual(exp_reg, set(options.reg))
+
+        out_lines = self._format_output(output)
+        exp_out_lines = [
+            'Program: simloadbas',
+            'Fast loading data block: 23755,20',
+            '',
+            'Bytes: simloadbyt',
+            'Fast loading data block: 32757,186',
+            '',
+            'Data (25 bytes)',
+            '',
+            'Data (3 bytes)',
+            '',
+            'Tape finished',
+            'Simulation stopped (PC at start address): PC=65535'
+        ]
+        self.assertEqual(exp_out_lines, out_lines)
+        self.assertEqual(error, '')
+
+    @patch.object(tap2sna, '_write_z80', mock_write_z80)
     def test_unread_data_at_end_of_tape(self):
         code2 = [
             # This loop runs while the tape continues playing
