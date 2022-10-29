@@ -84,17 +84,19 @@ class LoadTracer:
         pc = simulator.registers[PC]
         tstates = simulator.registers[T]
 
-        if self.tape_running: # pragma: no cover
+        if self.tape_running and tstates > self.next_edge: # pragma: no cover
             index = self.index
             max_index = self.max_index
             edges = self.edges
             while index < max_index and edges[index + 1] < tstates:
                 index += 1
-            if index == max_index and tstates - edges[index] > 3500:
-                # Move to the next block on the tape if the final edge of the
-                # current block hasn't been read in over 1ms
-                self.next_block(simulator)
+            if index == max_index:
+                if tstates - edges[index] > 3500:
+                    # Move to the next block on the tape if the final edge of
+                    # the current block hasn't been read in over 1ms
+                    self.next_block(simulator)
             else:
+                self.next_edge = edges[index + 1]
                 progress = edges[index] // self.tape_length
                 if progress > self.progress:
                     msg = f'[{progress/10:0.1f}%]'
@@ -154,6 +156,7 @@ class LoadTracer:
                 self.tape_end_time = simulator.registers[T]
         else:
             self.edges = self.blocks[self.block_index][0]
+            self.next_edge = self.edges[0]
             self.index = 0
             self.max_index = len(self.edges) - 1
         self.tape_running = False
@@ -208,5 +211,5 @@ class LoadTracer:
             registers[D] = (de >> 8) & 0xFF
             registers[E] = de & 0xFF
 
-        simulator.registers[PC] = 0x05E2
+        registers[PC] = 0x05E2
         self.next_block(simulator)
