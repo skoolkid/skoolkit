@@ -1,21 +1,23 @@
-#!/usr/bin/env python3
+# Copyright 2022 Richard Dymond (rjdymond@gmail.com)
+#
+# This file is part of SkoolKit.
+#
+# SkoolKit is free software: you can redistribute it and/or modify it under the
+# terms of the GNU General Public License as published by the Free Software
+# Foundation, either version 3 of the License, or (at your option) any later
+# version.
+#
+# SkoolKit is distributed in the hope that it will be useful, but WITHOUT ANY
+# WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+# A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along with
+# SkoolKit. If not, see <http://www.gnu.org/licenses/>.
 
 import argparse
-from collections import namedtuple
-import os
-import sys
 import time
 
-SKOOLKIT_HOME = os.environ.get('SKOOLKIT_HOME')
-if not SKOOLKIT_HOME:
-    sys.stderr.write('SKOOLKIT_HOME is not set; aborting\n')
-    sys.exit(1)
-if not os.path.isdir(SKOOLKIT_HOME):
-    sys.stderr.write('SKOOLKIT_HOME={}; directory not found\n'.format(SKOOLKIT_HOME))
-    sys.exit(1)
-sys.path.insert(0, SKOOLKIT_HOME)
-
-from skoolkit import ROM48, SkoolKitError, get_int_param, integer, read_bin_file
+from skoolkit import ROM48, VERSION, SkoolKitError, get_int_param, integer, read_bin_file
 from skoolkit.snapshot import make_snapshot, poke, print_reg_help
 from skoolkit.simulator import (Simulator, A, F, B, C, D, E, H, L, IXh, IXl, IYh, IYl,
                                 SP, I, R, xA, xF, xB, xC, xD, xE, xH, xL, PC, T)
@@ -184,15 +186,15 @@ def main(args):
     group.add_argument('--depth', type=int, default=2,
                        help='Simplify audio delays to this depth (default: 2).')
     group.add_argument('--dump', metavar='FILE',
-                       help='Dump snapshot to this file after execution.')
+                       help='Dump RAM to this file after execution.')
     group.add_argument('-e', '--end', metavar='ADDR', type=integer, default=-1,
                        help='End execution at this address.')
     group.add_argument('--max-operations', metavar='MAX', type=int, default=0,
                        help='Maximum number of instructions to execute.')
     group.add_argument('--max-tstates', metavar='MAX', type=int, default=0,
                        help='Maximum number of T-states to run for.')
-    group.add_argument('-o', '--org', dest='org', metavar='ADDR', type=integer,
-                       help='Specify the origin address of a binary (.bin) file (default: 65536 - length).')
+    group.add_argument('-o', '--org', metavar='ADDR', type=integer,
+                       help='Specify the origin address of a binary (raw memory) file (default: 65536 - length).')
     group.add_argument('-p', '--poke', dest='pokes', metavar='a[-b[-c]],[^+]v', action='append', default=[],
                        help="POKE N,v for N in {a, a+c, a+2c..., b}. "
                             "Prefix 'v' with '^' to perform an XOR operation, or '+' to perform an ADD operation. "
@@ -207,13 +209,12 @@ def main(args):
                        help="Show stats after execution.")
     group.add_argument('-v', '--verbose', action='count', default=0,
                        help="Show executed instructions. Repeat this option to show register values too.")
+    group.add_argument('-V', '--version', action='version', version='SkoolKit {}'.format(VERSION),
+                       help='Show SkoolKit version number and exit.')
     namespace, unknown_args = parser.parse_known_args(args)
     if 'help' in namespace.reg:
         print_reg_help()
-        sys.exit(0)
+        return
     if unknown_args or namespace.start is None:
         parser.exit(2, parser.format_help())
     run(namespace.snafile, namespace.start, namespace)
-
-if __name__ == '__main__':
-    main(sys.argv[1:])

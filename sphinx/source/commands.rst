@@ -1428,3 +1428,62 @@ To list the options supported by `tapinfo.py`, run it with no arguments::
 +---------+-------------------------------------------------------------------+
 | 5.0     | New                                                               |
 +---------+-------------------------------------------------------------------+
+
+.. _trace.py:
+
+trace.py
+--------
+`trace.py` simulates the execution of machine code in a 48K memory snapshot.
+For example::
+
+  $ trace.py game.z80 32768
+
+To list the options supported by `trace.py`, run it with no arguments::
+
+  usage: trace.py [options] FILE START
+
+  Trace Z80 machine code execution. FILE may be a binary (raw memory) file, or a
+  SNA, SZX or Z80 snapshot.
+
+  Options:
+    --audio               Show audio delays.
+    --depth DEPTH         Simplify audio delays to this depth (default: 2).
+    --dump FILE           Dump RAM to this file after execution.
+    -e ADDR, --end ADDR   End execution at this address.
+    --max-operations MAX  Maximum number of instructions to execute.
+    --max-tstates MAX     Maximum number of T-states to run for.
+    -o ADDR, --org ADDR   Specify the origin address of a binary (raw memory)
+                          file (default: 65536 - length).
+    -p a[-b[-c]],[^+]v, --poke a[-b[-c]],[^+]v
+                          POKE N,v for N in {a, a+c, a+2c..., b}. Prefix 'v'
+                          with '^' to perform an XOR operation, or '+' to
+                          perform an ADD operation. This option may be used
+                          multiple times.
+    -r name=value, --reg name=value
+                          Set the value of a register. Do '--reg help' for more
+                          information. This option may be used multiple times.
+    --rom FILE            Patch in a ROM at address 0 from this file. By default
+                          the 48K ZX Spectrum ROM is used.
+    --stats               Show stats after execution.
+    -v, --verbose         Show executed instructions. Repeat this option to show
+                          register values too.
+    -V, --version         Show SkoolKit version number and exit.
+
+By default, `trace.py` silently simulates code execution until the number of
+values popped off the stack exceeds the number of values pushed onto the stack
+(e.g. after the 'RET' instruction at the end of a routine). Use the
+``--verbose`` option to show each instruction executed, and the ``--end``
+option to specify an address at which to stop. Repeat the ``--verbose`` option
+(``-vv``) to show register values too.
+
+When the ``--audio`` option is given, `trace.py` tracks changes in the state
+of the ZX Spectrum speaker, and then prints a list of the delays (in T-states)
+between those changes. This list can be supplied to the :ref:`AUDIO` macro to
+produce a WAV file for the sound effect that would be produced by the same code
+running on a real ZX Spectrum.
+
++---------+---------+
+| Version | Changes |
++=========+=========+
+| 8.8     | New     |
++---------+---------+

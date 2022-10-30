@@ -14,7 +14,7 @@ SKOOLKIT_HOME = abspath(dirname(dirname(__file__)))
 sys.path.insert(0, SKOOLKIT_HOME)
 from skoolkit import (bin2sna, bin2tap, sna2img, skool2asm, skool2bin,
                       skool2ctl, skool2html, sna2ctl, sna2skool, snapinfo,
-                      snapmod, tap2sna, tapinfo)
+                      snapmod, tap2sna, tapinfo, trace)
 
 Z80_REGISTERS = {
     'a': 0, 'f': 1, 'bc': 2, 'c': 2, 'b': 3, 'hl': 4, 'l': 4, 'h': 5,
@@ -384,3 +384,6 @@ class SkoolKitTestCase(TestCase):
 
     def run_tapinfo(self, args='', catch_exit=None):
         return self._run_skoolkit_command(tapinfo.main, args, catch_exit)
+
+    def run_trace(self, args='', catch_exit=None):
+        return self._run_skoolkit_command(trace.main, args, catch_exit)

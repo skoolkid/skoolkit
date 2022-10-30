@@ -3,6 +3,8 @@ Changelog
 
 8.8b1
 -----
+* Added the :ref:`trace.py` command (for tracing the execution of machine code
+  in a 48K memory snapshot)
 * Removed the ``MaxAmplitude`` parameter from the :ref:`ref-AudioWriter`
   section
 
