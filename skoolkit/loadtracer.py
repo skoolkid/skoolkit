@@ -14,7 +14,7 @@
 # You should have received a copy of the GNU General Public License along with
 # SkoolKit. If not, see <http://www.gnu.org/licenses/>.
 
-from skoolkit import write, write_line
+from skoolkit import SkoolKitError, write, write_line
 from skoolkit.basic import TextReader
 from skoolkit.simulator import A, F, D, E, H, L, IXh, IXl, PC, T, R_INC1, R_INC2
 
@@ -201,7 +201,10 @@ class LoadTracer:
         self.tape_running = False
 
     def fast_load(self, simulator):
-        block = self.blocks[self.block_index][1]
+        if self.block_index < len(self.blocks):
+            block = self.blocks[self.block_index][1]
+        else:
+            raise SkoolKitError("Failed to fast load block: unexpected end of tape")
         registers = simulator.registers
         memory = simulator.memory
         ix = registers[IXl] + 256 * registers[IXh] # Start address

@@ -1233,8 +1233,7 @@ class Tap2SnaTest(SkoolKitTestCase):
             create_tap_data_block(code)
         ]
         tapfile = self._write_tap(blocks)
-        # z80file = '{}/out.z80'.format(self.make_directory())
-        z80file = 'out.z80'
+        z80file = '{}/out.z80'.format(self.make_directory())
         output, error = self.run_tap2sna(f'--sim-load --start {start} {tapfile} {z80file}')
         out_lines = output.strip().split('\n')
         exp_out_lines = [
@@ -1251,6 +1250,33 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(error, '')
         self.assertIn('im=2', options.state)
         self.assertIn('iff=0', options.state)
+
+    @patch.object(tap2sna, '_write_z80', mock_write_z80)
+    def test_sim_load_with_unexpected_end_of_tape(self):
+        basic_data = [
+            0, 10,       # Line 10
+            4, 0,        # Line length
+            239, 34, 34, # LOAD ""
+            13           # ENTER
+        ]
+        blocks = [
+            create_tap_header_block("simloadbas", 10, len(basic_data), 0),
+            create_tap_data_block(basic_data),
+        ]
+        tapfile = self._write_tap(blocks)
+        z80file = '{}/out.z80'.format(self.make_directory())
+        with self.assertRaises(SkoolKitError) as cm:
+            self.run_tap2sna(f'--sim-load {tapfile} {z80file}')
+        out_lines = self.out.getvalue().strip().split('\n')
+        exp_out_lines = [
+            'Program: simloadbas',
+            'Fast loading data block: 23755,8',
+            '',
+            'Tape finished'
+        ]
+        self.assertEqual(exp_out_lines, out_lines)
+        self.assertEqual(cm.exception.args[0], 'Error while getting snapshot out.z80: Failed to fast load block: unexpected end of tape')
+        self.assertEqual(self.err.getvalue(), '')
 
     @patch.object(tap2sna, '_write_z80', mock_write_z80)
     def test_sim_load_with_tzx_block_type_0x15(self):
