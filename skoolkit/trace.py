@@ -155,7 +155,7 @@ def run(snafile, start, options):
     rt = time.time() - begin
     if options.stats:
         z80t = simulator.registers[T] / 3500000
-        speed = z80t / rt
+        speed = z80t / (rt or 0.001) # Avoid division by zero
         print(f'Z80 execution time: {simulator.registers[T]} T-states ({z80t:.03f}s)')
         print(f'Instructions executed: {tracer.operations}')
         print(f'Simulation time: {rt:.03f}s (x{speed:.02f})')
