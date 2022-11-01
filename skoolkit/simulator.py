@@ -16,130 +16,134 @@
 
 from functools import partial
 
-PARITY = (
-    4, 0, 0, 4, 0, 4, 4, 0, 0, 4, 4, 0, 4, 0, 0, 4,
-    0, 4, 4, 0, 4, 0, 0, 4, 4, 0, 0, 4, 0, 4, 4, 0,
-    0, 4, 4, 0, 4, 0, 0, 4, 4, 0, 0, 4, 0, 4, 4, 0,
-    4, 0, 0, 4, 0, 4, 4, 0, 0, 4, 4, 0, 4, 0, 0, 4,
-    0, 4, 4, 0, 4, 0, 0, 4, 4, 0, 0, 4, 0, 4, 4, 0,
-    4, 0, 0, 4, 0, 4, 4, 0, 0, 4, 4, 0, 4, 0, 0, 4,
-    4, 0, 0, 4, 0, 4, 4, 0, 0, 4, 4, 0, 4, 0, 0, 4,
-    0, 4, 4, 0, 4, 0, 0, 4, 4, 0, 0, 4, 0, 4, 4, 0,
-    0, 4, 4, 0, 4, 0, 0, 4, 4, 0, 0, 4, 0, 4, 4, 0,
-    4, 0, 0, 4, 0, 4, 4, 0, 0, 4, 4, 0, 4, 0, 0, 4,
-    4, 0, 0, 4, 0, 4, 4, 0, 0, 4, 4, 0, 4, 0, 0, 4,
-    0, 4, 4, 0, 4, 0, 0, 4, 4, 0, 0, 4, 0, 4, 4, 0,
-    4, 0, 0, 4, 0, 4, 4, 0, 0, 4, 4, 0, 4, 0, 0, 4,
-    0, 4, 4, 0, 4, 0, 0, 4, 4, 0, 0, 4, 0, 4, 4, 0,
-    0, 4, 4, 0, 4, 0, 0, 4, 4, 0, 0, 4, 0, 4, 4, 0,
-    4, 0, 0, 4, 0, 4, 4, 0, 0, 4, 4, 0, 4, 0, 0, 4
+PARITY = tuple((1 - bin(r).count('1') % 2) * 4 for r in range(256))
+
+ADC = tuple(
+    tuple(
+        ((a + n + 1) & 0xA8)                                 # S.5.3.N.
+        + ((a + n + 1) % 256 == 0) * 0x40                    # .Z......
+        + (((a % 16) + ((n + 1) % 16)) & 0x10)               # ...H....
+        + ((a ^ n ^ 0x80) & (a ^ (a + n + 1)) & 0x80) // 32  # .....P..
+        + (a + n + 1 > 0xFF)                                 # .......C
+        for n in range(256)
+    ) for a in range(256)
 )
 
-SZ53P = (
-    0x44, 0x00, 0x00, 0x04, 0x00, 0x04, 0x04, 0x00, 0x08, 0x0C, 0x0C, 0x08, 0x0C, 0x08, 0x08, 0x0C,
-    0x00, 0x04, 0x04, 0x00, 0x04, 0x00, 0x00, 0x04, 0x0C, 0x08, 0x08, 0x0C, 0x08, 0x0C, 0x0C, 0x08,
-    0x20, 0x24, 0x24, 0x20, 0x24, 0x20, 0x20, 0x24, 0x2C, 0x28, 0x28, 0x2C, 0x28, 0x2C, 0x2C, 0x28,
-    0x24, 0x20, 0x20, 0x24, 0x20, 0x24, 0x24, 0x20, 0x28, 0x2C, 0x2C, 0x28, 0x2C, 0x28, 0x28, 0x2C,
-    0x00, 0x04, 0x04, 0x00, 0x04, 0x00, 0x00, 0x04, 0x0C, 0x08, 0x08, 0x0C, 0x08, 0x0C, 0x0C, 0x08,
-    0x04, 0x00, 0x00, 0x04, 0x00, 0x04, 0x04, 0x00, 0x08, 0x0C, 0x0C, 0x08, 0x0C, 0x08, 0x08, 0x0C,
-    0x24, 0x20, 0x20, 0x24, 0x20, 0x24, 0x24, 0x20, 0x28, 0x2C, 0x2C, 0x28, 0x2C, 0x28, 0x28, 0x2C,
-    0x20, 0x24, 0x24, 0x20, 0x24, 0x20, 0x20, 0x24, 0x2C, 0x28, 0x28, 0x2C, 0x28, 0x2C, 0x2C, 0x28,
-    0x80, 0x84, 0x84, 0x80, 0x84, 0x80, 0x80, 0x84, 0x8C, 0x88, 0x88, 0x8C, 0x88, 0x8C, 0x8C, 0x88,
-    0x84, 0x80, 0x80, 0x84, 0x80, 0x84, 0x84, 0x80, 0x88, 0x8C, 0x8C, 0x88, 0x8C, 0x88, 0x88, 0x8C,
-    0xA4, 0xA0, 0xA0, 0xA4, 0xA0, 0xA4, 0xA4, 0xA0, 0xA8, 0xAC, 0xAC, 0xA8, 0xAC, 0xA8, 0xA8, 0xAC,
-    0xA0, 0xA4, 0xA4, 0xA0, 0xA4, 0xA0, 0xA0, 0xA4, 0xAC, 0xA8, 0xA8, 0xAC, 0xA8, 0xAC, 0xAC, 0xA8,
-    0x84, 0x80, 0x80, 0x84, 0x80, 0x84, 0x84, 0x80, 0x88, 0x8C, 0x8C, 0x88, 0x8C, 0x88, 0x88, 0x8C,
-    0x80, 0x84, 0x84, 0x80, 0x84, 0x80, 0x80, 0x84, 0x8C, 0x88, 0x88, 0x8C, 0x88, 0x8C, 0x8C, 0x88,
-    0xA0, 0xA4, 0xA4, 0xA0, 0xA4, 0xA0, 0xA0, 0xA4, 0xAC, 0xA8, 0xA8, 0xAC, 0xA8, 0xAC, 0xAC, 0xA8,
-    0xA4, 0xA0, 0xA0, 0xA4, 0xA0, 0xA4, 0xA4, 0xA0, 0xA8, 0xAC, 0xAC, 0xA8, 0xAC, 0xA8, 0xA8, 0xAC
+ADD = tuple(
+    tuple(
+        ((a + n) & 0xA8)                                 # S.5.3.N.
+        + ((a + n) % 256 == 0) * 0x40                    # .Z......
+        + (((a % 16) + (n % 16)) & 0x10)                 # ...H....
+        + ((a ^ n ^ 0x80) & (a ^ (a + n)) & 0x80) // 32  # .....P..
+        + (a + n > 0xFF)                                 # .......C
+        for n in range(256)
+    ) for a in range(256)
 )
 
-AND_R = tuple(f + 0x10 for f in SZ53P)
-
-DEC_R = (
-    0x42, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x0A, 0x0A, 0x0A, 0x0A, 0x0A, 0x0A, 0x0A, 0x1A,
-    0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x0A, 0x0A, 0x0A, 0x0A, 0x0A, 0x0A, 0x0A, 0x1A,
-    0x22, 0x22, 0x22, 0x22, 0x22, 0x22, 0x22, 0x22, 0x2A, 0x2A, 0x2A, 0x2A, 0x2A, 0x2A, 0x2A, 0x3A,
-    0x22, 0x22, 0x22, 0x22, 0x22, 0x22, 0x22, 0x22, 0x2A, 0x2A, 0x2A, 0x2A, 0x2A, 0x2A, 0x2A, 0x3A,
-    0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x0A, 0x0A, 0x0A, 0x0A, 0x0A, 0x0A, 0x0A, 0x1A,
-    0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x0A, 0x0A, 0x0A, 0x0A, 0x0A, 0x0A, 0x0A, 0x1A,
-    0x22, 0x22, 0x22, 0x22, 0x22, 0x22, 0x22, 0x22, 0x2A, 0x2A, 0x2A, 0x2A, 0x2A, 0x2A, 0x2A, 0x3A,
-    0x22, 0x22, 0x22, 0x22, 0x22, 0x22, 0x22, 0x22, 0x2A, 0x2A, 0x2A, 0x2A, 0x2A, 0x2A, 0x2A, 0x3E,
-    0x82, 0x82, 0x82, 0x82, 0x82, 0x82, 0x82, 0x82, 0x8A, 0x8A, 0x8A, 0x8A, 0x8A, 0x8A, 0x8A, 0x9A,
-    0x82, 0x82, 0x82, 0x82, 0x82, 0x82, 0x82, 0x82, 0x8A, 0x8A, 0x8A, 0x8A, 0x8A, 0x8A, 0x8A, 0x9A,
-    0xA2, 0xA2, 0xA2, 0xA2, 0xA2, 0xA2, 0xA2, 0xA2, 0xAA, 0xAA, 0xAA, 0xAA, 0xAA, 0xAA, 0xAA, 0xBA,
-    0xA2, 0xA2, 0xA2, 0xA2, 0xA2, 0xA2, 0xA2, 0xA2, 0xAA, 0xAA, 0xAA, 0xAA, 0xAA, 0xAA, 0xAA, 0xBA,
-    0x82, 0x82, 0x82, 0x82, 0x82, 0x82, 0x82, 0x82, 0x8A, 0x8A, 0x8A, 0x8A, 0x8A, 0x8A, 0x8A, 0x9A,
-    0x82, 0x82, 0x82, 0x82, 0x82, 0x82, 0x82, 0x82, 0x8A, 0x8A, 0x8A, 0x8A, 0x8A, 0x8A, 0x8A, 0x9A,
-    0xA2, 0xA2, 0xA2, 0xA2, 0xA2, 0xA2, 0xA2, 0xA2, 0xAA, 0xAA, 0xAA, 0xAA, 0xAA, 0xAA, 0xAA, 0xBA,
-    0xA2, 0xA2, 0xA2, 0xA2, 0xA2, 0xA2, 0xA2, 0xA2, 0xAA, 0xAA, 0xAA, 0xAA, 0xAA, 0xAA, 0xAA, 0xBA
+AND = tuple(
+    (a & 0xA8)           # S.5.3...
+    + (a == 0) * 0x40    # .Z......
+    + 0x10               # ...H....
+    + PARITY[a]          # .....P..
+    for a in range(256)
 )
 
-INC_R = (
-    0x50, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08,
-    0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08,
-    0x30, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x28, 0x28, 0x28, 0x28, 0x28, 0x28, 0x28, 0x28,
-    0x30, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x28, 0x28, 0x28, 0x28, 0x28, 0x28, 0x28, 0x28,
-    0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08,
-    0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08,
-    0x30, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x28, 0x28, 0x28, 0x28, 0x28, 0x28, 0x28, 0x28,
-    0x30, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x28, 0x28, 0x28, 0x28, 0x28, 0x28, 0x28, 0x28,
-    0x94, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x88, 0x88, 0x88, 0x88, 0x88, 0x88, 0x88, 0x88,
-    0x90, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x88, 0x88, 0x88, 0x88, 0x88, 0x88, 0x88, 0x88,
-    0xB0, 0xA0, 0xA0, 0xA0, 0xA0, 0xA0, 0xA0, 0xA0, 0xA8, 0xA8, 0xA8, 0xA8, 0xA8, 0xA8, 0xA8, 0xA8,
-    0xB0, 0xA0, 0xA0, 0xA0, 0xA0, 0xA0, 0xA0, 0xA0, 0xA8, 0xA8, 0xA8, 0xA8, 0xA8, 0xA8, 0xA8, 0xA8,
-    0x90, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x88, 0x88, 0x88, 0x88, 0x88, 0x88, 0x88, 0x88,
-    0x90, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x88, 0x88, 0x88, 0x88, 0x88, 0x88, 0x88, 0x88,
-    0xB0, 0xA0, 0xA0, 0xA0, 0xA0, 0xA0, 0xA0, 0xA0, 0xA8, 0xA8, 0xA8, 0xA8, 0xA8, 0xA8, 0xA8, 0xA8,
-    0xB0, 0xA0, 0xA0, 0xA0, 0xA0, 0xA0, 0xA0, 0xA0, 0xA8, 0xA8, 0xA8, 0xA8, 0xA8, 0xA8, 0xA8, 0xA8
+CP = tuple(
+    tuple(
+        ((a - n) & 0x80)                          # S.......
+        + 0x40 * (a == n)                         # .Z......
+        + (n & 0x28)                              # ..5.3...
+        + (((a % 16) - (n % 16)) & 0x10)          # ...H....
+        + ((a ^ n) & (a ^ (a - n)) & 0x80) // 32  # .....P..
+        + 0x02                                    # ......N.
+        + (n > a)                                 # .......C
+        for n in range(256)
+    ) for a in range(256)
 )
 
-NEG = (
-    0x42, 0xBB, 0xBB, 0xBB, 0xBB, 0xBB, 0xBB, 0xBB, 0xBB, 0xB3, 0xB3, 0xB3, 0xB3, 0xB3, 0xB3, 0xB3,
-    0xA3, 0xBB, 0xBB, 0xBB, 0xBB, 0xBB, 0xBB, 0xBB, 0xBB, 0xB3, 0xB3, 0xB3, 0xB3, 0xB3, 0xB3, 0xB3,
-    0xA3, 0x9B, 0x9B, 0x9B, 0x9B, 0x9B, 0x9B, 0x9B, 0x9B, 0x93, 0x93, 0x93, 0x93, 0x93, 0x93, 0x93,
-    0x83, 0x9B, 0x9B, 0x9B, 0x9B, 0x9B, 0x9B, 0x9B, 0x9B, 0x93, 0x93, 0x93, 0x93, 0x93, 0x93, 0x93,
-    0x83, 0xBB, 0xBB, 0xBB, 0xBB, 0xBB, 0xBB, 0xBB, 0xBB, 0xB3, 0xB3, 0xB3, 0xB3, 0xB3, 0xB3, 0xB3,
-    0xA3, 0xBB, 0xBB, 0xBB, 0xBB, 0xBB, 0xBB, 0xBB, 0xBB, 0xB3, 0xB3, 0xB3, 0xB3, 0xB3, 0xB3, 0xB3,
-    0xA3, 0x9B, 0x9B, 0x9B, 0x9B, 0x9B, 0x9B, 0x9B, 0x9B, 0x93, 0x93, 0x93, 0x93, 0x93, 0x93, 0x93,
-    0x83, 0x9B, 0x9B, 0x9B, 0x9B, 0x9B, 0x9B, 0x9B, 0x9B, 0x93, 0x93, 0x93, 0x93, 0x93, 0x93, 0x93,
-    0x87, 0x3B, 0x3B, 0x3B, 0x3B, 0x3B, 0x3B, 0x3B, 0x3B, 0x33, 0x33, 0x33, 0x33, 0x33, 0x33, 0x33,
-    0x23, 0x3B, 0x3B, 0x3B, 0x3B, 0x3B, 0x3B, 0x3B, 0x3B, 0x33, 0x33, 0x33, 0x33, 0x33, 0x33, 0x33,
-    0x23, 0x1B, 0x1B, 0x1B, 0x1B, 0x1B, 0x1B, 0x1B, 0x1B, 0x13, 0x13, 0x13, 0x13, 0x13, 0x13, 0x13,
-    0x03, 0x1B, 0x1B, 0x1B, 0x1B, 0x1B, 0x1B, 0x1B, 0x1B, 0x13, 0x13, 0x13, 0x13, 0x13, 0x13, 0x13,
-    0x03, 0x3B, 0x3B, 0x3B, 0x3B, 0x3B, 0x3B, 0x3B, 0x3B, 0x33, 0x33, 0x33, 0x33, 0x33, 0x33, 0x33,
-    0x23, 0x3B, 0x3B, 0x3B, 0x3B, 0x3B, 0x3B, 0x3B, 0x3B, 0x33, 0x33, 0x33, 0x33, 0x33, 0x33, 0x33,
-    0x23, 0x1B, 0x1B, 0x1B, 0x1B, 0x1B, 0x1B, 0x1B, 0x1B, 0x13, 0x13, 0x13, 0x13, 0x13, 0x13, 0x13,
-    0x03, 0x1B, 0x1B, 0x1B, 0x1B, 0x1B, 0x1B, 0x1B, 0x1B, 0x13, 0x13, 0x13, 0x13, 0x13, 0x13, 0x13
+DEC = tuple(
+    (r & 0xA8)                 # S.5.3...
+    + (r == 0) * 0x40          # .Z......
+    + (r % 16 == 0x0F) * 0x10  # ...H....
+    + (r == 0x7F) * 0x04       # .....P..
+    + 0x02                     # ......N.
+    for r in range(256)
+)
+
+INC = tuple(
+    (r & 0xA8)                 # S.5.3.N.
+    + (r == 0) * 0x40          # .Z......
+    + (r % 16 == 0x00) * 0x10  # ...H....
+    + (r == 0x80) * 0x04       # .....P..
+    for r in range(256)
+)
+
+JR_OFFSETS = tuple(j + 2 if j < 128 else j - 254 for j in range(256))
+
+NEG = tuple(
+    ((256 - a) & 0xA8)     # S.5.3...
+    + (a == 0) * 0x40      # .Z......
+    + (a % 16 > 0) * 0x10  # ...H....
+    + (a == 0x80) * 0x04   # .....P..
+    + 0x02                 # ......N.
+    + (a > 0)              # .......C
+    for a in range(256)
 )
 
 R_INC1 = tuple((r & 0x80) + ((r + 1) % 128) for r in range(256))
 
 R_INC2 = tuple((r & 0x80) + ((r + 2) % 128) for r in range(256))
 
-JR_OFFSETS = tuple(j + 2 if j < 128 else j - 254 for j in range(256))
+RL = (
+    tuple((r * 2) % 256 for r in range(256)),
+    tuple((r * 2) % 256 + 1 for r in range(256))
+)
+
+RLC = tuple(r // 128 + ((r * 2) % 256) for r in range(256))
 
 RR = (
     tuple(r // 2 for r in range(256)),
     tuple(128 + r // 2 for r in range(256))
 )
 
-RL = (
-    tuple((r * 2) % 256 for r in range(256)),
-    tuple((r * 2) % 256 + 1 for r in range(256))
-)
-
 RRC = tuple(((r * 128) % 256) + r // 2 for r in range(256))
 
-RLC = tuple(r // 128 + ((r * 2) % 256) for r in range(256))
+SBC = tuple(
+    tuple(
+        ((a - n - 1) & 0xA8)                          # S.5.3...
+        + (a == (n + 1) % 256) * 0x40                 # .Z......
+        + (((a % 16) - ((n + 1) % 16)) & 0x10)        # ...H....
+        + ((a ^ n) & (a ^ (a - n - 1)) & 0x80) // 32  # .....P..
+        + 0x02                                        # ......N.
+        + (n + 1 > a) for n in range(256)             # .......C
+    ) for a in range(256)
+)
 
-SLA = tuple((r * 2) % 256 for r in range(256))
+SLA = RL[0]
+
+SLL = RL[1]
 
 SRA = tuple((r & 0x80) + r // 2 for r in range(256))
 
-SLL = tuple((r * 2) % 256 + 1 for r in range(256))
+SRL = RR[0]
 
-SRL = tuple(r // 2 for r in range(256))
+SUB = tuple(
+    tuple(
+        ((a - n) & 0xA8)                          # S.5.3...
+        + (a == n) * 0x40                         # .Z......
+        + (((a % 16) - (n % 16)) & 0x10)          # ...H....
+        + ((a ^ n) & (a ^ (a - n)) & 0x80) // 32  # .....P..
+        + 0x02                                    # ......N.
+        + (n > a) for n in range(256)             # .......C
+    ) for a in range(256)
+)
+
+SZ53P = tuple(
+    (r & 0xA8)           # S.5.3...
+    + (r == 0) * 0x40    # .Z......
+    + PARITY[r]          # .....P..
+    for r in range(256)
+)
 
 FRAME_DURATION = 69888
 
@@ -397,28 +401,29 @@ class Simulator:
             if address > 0x3FFF:
                 memory[address] = values[1]
 
-    def adc_a(self, registers, memory, timing, size, reg):
-        value = self.get_operand_value(registers, memory, size, reg)
-        old_a = registers[0]
-        addend = value + (registers[1] % 2)
-        a = old_a + addend
-        if a < 0 or a > 255:
-            a %= 256
-            f = (a & 0xA8) + 0x01 # S.5.3..C
+    def adc_a_a(self, registers):
+        a = registers[0]
+        if registers[1] % 2:
+            registers[0] = (a * 2 + 1) % 256
+            if a % 16 == 0x0F:
+                registers[1] = ADC[a][a] + 0x10
+            else:
+                registers[1] = ADC[a][a]
         else:
-            f = a & 0xA8          # S.5.3..C
-        if a == 0:
-            f += 0x40 # .Z......
-        if (reg == 0 and old_a % 16 == 0x0F) or ((old_a % 16) + (addend % 16)) & 0x10:
-            f += 0x10 # ...H....
-        if (old_a ^ value) & 0x80 == 0 and (a ^ old_a) & 0x80:
-            # Augend and addend signs are the same - overflow if their sign
-            # differs from the sign of the result
-            registers[1] = f + 0x04
-        else:
-            registers[1] = f
-        registers[0] = a
+            registers[0] = (a * 2) % 256
+            registers[1] = ADD[a][a]
+        registers[25] += 4
+        registers[24] = (registers[24] + 1) % 65536
 
+    def adc_a(self, registers, memory, timing, size, reg):
+        addend = self.get_operand_value(registers, memory, size, reg)
+        a = registers[0]
+        if registers[1] % 2:
+            registers[0] = (a + addend + 1) % 256
+            registers[1] = ADC[a][addend]
+        else:
+            registers[0] = (a + addend) % 256
+            registers[1] = ADD[a][addend]
         registers[25] += timing
         registers[24] = (registers[24] + size) % 65536
 
@@ -431,7 +436,7 @@ class Simulator:
         rr_c = rr + registers[1] % 2
         result = hl + rr_c
 
-        if result < 0 or result > 0xFFFF:
+        if result > 0xFFFF:
             result %= 65536
             f = 0x01 # .......C
         else:
@@ -457,25 +462,9 @@ class Simulator:
 
     def add_a(self, registers, memory, timing, size, reg):
         addend = self.get_operand_value(registers, memory, size, reg)
-        old_a = registers[0]
-        a = old_a + addend
-        if a < 0 or a > 255:
-            a %= 256
-            f = (a & 0xA8) + 0x01 # S.5.3..C
-        else:
-            f = a & 0xA8          # S.5.3..C
-        if a == 0:
-            f += 0x40 # .Z......
-        if ((old_a % 16) + (addend % 16)) & 0x10:
-            f += 0x10 # ...H....
-        if (old_a ^ addend) & 0x80 == 0 and (a ^ old_a) & 0x80:
-            # Augend and addend signs are the same - overflow if their sign
-            # differs from the sign of the result
-            registers[1] = f + 0x04
-        else:
-            registers[1] = f
-        registers[0] = a
-
+        a = registers[0]
+        registers[0] = (a + addend) % 256
+        registers[1] = ADD[a][addend]
         registers[25] += timing
         registers[24] = (registers[24] + size) % 65536
 
@@ -487,7 +476,7 @@ class Simulator:
         augend_v = registers[augend + 1] + 256 * registers[augend]
         result = augend_v + addend_v
 
-        if result < 0 or result > 0xFFFF:
+        if result > 0xFFFF:
             result %= 65536
             f = (registers[1] & 0xC4) + 0x01 # SZ...P.C
         else:
@@ -507,21 +496,21 @@ class Simulator:
         pcn = registers[24] + 1
         a = registers[0] & memory[pcn % 65536]
         registers[0] = a
-        registers[1] = AND_R[a]
+        registers[1] = AND[a]
         registers[25] += 7
         registers[24] = (pcn + 1) % 65536
 
     def and_r(self, registers, r):
         a = registers[0] & registers[r]
         registers[0] = a
-        registers[1] = AND_R[a]
+        registers[1] = AND[a]
         registers[25] += 4
         registers[24] = (registers[24] + 1) % 65536
 
     def anda(self, registers, memory, timing, size, reg):
         a = registers[0] & self.get_operand_value(registers, memory, size, reg)
         registers[0] = a
-        registers[1] = AND_R[a]
+        registers[1] = AND[a]
         registers[25] += timing
         registers[24] = (registers[24] + size) % 65536
 
@@ -562,23 +551,8 @@ class Simulator:
         registers[25] += 4
         registers[24] = (registers[24] + 1) % 65536
 
-    def cp(self, registers, memory, timing, size, reg=N):
-        value = self.get_operand_value(registers, memory, size, reg)
-        a = registers[0]
-        result = (a - value) % 256
-        f = (result & 0x80) + (value & 0x28) + 0x02 # S.5.3.N.
-        if result == 0:
-            f += 0x40 # .Z......
-        elif ((a % 16) - (value % 16)) & 0x10:
-            f += 0x10 # ...H....
-        if ((a ^ ~value) ^ 0x80) & 0x80 and (result ^ a) & 0x80:
-            # Operand signs are the same - overflow if their sign differs from
-            # the sign of the result
-            f += 0x04 # .....P..
-        if a < value:
-            registers[1] = f + 0x01
-        else:
-            registers[1] = f
+    def cp(self, registers, memory, timing, size, reg):
+        registers[1] = CP[registers[0]][self.get_operand_value(registers, memory, size, reg)]
         registers[25] += timing
         registers[24] = (registers[24] + size) % 65536
 
@@ -665,7 +639,7 @@ class Simulator:
 
     def dec_r(self, registers, reg):
         value = (registers[reg] - 1) % 256
-        registers[1] = (registers[1] % 2) + DEC_R[value]
+        registers[1] = (registers[1] % 2) + DEC[value]
         registers[reg] = value
         registers[25] += 4
         registers[24] = (registers[24] + 1) % 65536
@@ -768,17 +742,14 @@ class Simulator:
 
     def inc_r(self, registers, reg):
         value = (registers[reg] + 1) % 256
-        registers[1] = (registers[1] % 2) + INC_R[value]
+        registers[1] = (registers[1] % 2) + INC[value]
         registers[reg] = value
         registers[25] += 4
         registers[24] = (registers[24] + 1) % 65536
 
-    def inc_dec8(self, registers, memory, timing, size, inc, reg):
+    def inc_dec8(self, registers, memory, timing, size, inc, flags, reg):
         value = (self.get_operand_value(registers, memory, size, reg) + inc) % 256
-        if inc < 0:
-            registers[1] = (registers[1] % 2) + DEC_R[value]
-        else:
-            registers[1] = (registers[1] % 2) + INC_R[value]
+        registers[1] = (registers[1] % 2) + flags[value]
         self.set_operand_value(registers, memory, reg, value)
         registers[25] += timing
         registers[24] = (registers[24] + size) % 65536
@@ -1037,7 +1008,7 @@ class Simulator:
         registers[25] += 4
         registers[24] = (registers[24] + 1) % 65536
 
-    def ora(self, registers, memory, timing, size, reg=N):
+    def ora(self, registers, memory, timing, size, reg):
         a = registers[0] | self.get_operand_value(registers, memory, size, reg)
         registers[0] = a
         registers[1] = SZ53P[a]
@@ -1223,32 +1194,25 @@ class Simulator:
         registers[25] += 11
         registers[24] = addr
 
-    def sbc_a(self, registers, memory, timing, size, reg):
-        value = self.get_operand_value(registers, memory, size, reg)
-        old_c = registers[1] % 2
-        old_a = registers[0]
-        subtrahend = value + old_c
-        a = old_a - subtrahend
-        if a < 0 or a > 255:
-            a %= 256
-            f = (a & 0xA8) + 0x01 # S.5.3..C
+    def sbc_a_a(self, registers):
+        if registers[1] % 2:
+            registers[0] = 0xFF
+            registers[1] = 0xBB
         else:
-            f = a & 0xA8          # S.5.3..C
-        if a == 0:
-            f += 0x40 # .Z......
-        if reg == 0 and old_a % 16 == 0x0F:
-            f += old_c * 16 # ...H....
-        elif ((old_a % 16) - (subtrahend % 16)) & 0x10:
-            f += 0x10       # ...H....
-        f += 0x02 # ......N.
-        if (old_a ^ value) & 0x80 and (a ^ old_a) & 0x80:
-            # Minuend and operand signs are different - overflow if the
-            # minuend's sign differs from the sign of the result
-            registers[1] = f + 0x04
-        else:
-            registers[1] = f
-        registers[0] = a
+            registers[0] = 0x00
+            registers[1] = 0x42
+        registers[25] += 4
+        registers[24] = (registers[24] + 1) % 65536
 
+    def sbc_a(self, registers, memory, timing, size, reg):
+        subtrahend = self.get_operand_value(registers, memory, size, reg)
+        a = registers[0]
+        if registers[1] % 2:
+            registers[1] = SBC[a][subtrahend]
+            registers[0] = (a - subtrahend - 1) % 256
+        else:
+            registers[1] = SUB[a][subtrahend]
+            registers[0] = (a - subtrahend) % 256
         registers[25] += timing
         registers[24] = (registers[24] + size) % 65536
 
@@ -1261,7 +1225,7 @@ class Simulator:
         rr_c = rr + (registers[1] % 2)
         result = hl - rr_c
 
-        if result < 0 or result > 0xFFFF:
+        if result < 0:
             result %= 65536
             f = 0x03 # ......NC
         else:
@@ -1300,26 +1264,9 @@ class Simulator:
 
     def sub(self, registers, memory, timing, size, reg):
         subtrahend = self.get_operand_value(registers, memory, size, reg)
-        old_a = registers[0]
-        a = old_a - subtrahend
-        if a < 0 or a > 255:
-            a %= 256
-            f = (a & 0xA8) + 0x01 # S.5.3..C
-        else:
-            f = a & 0xA8          # S.5.3..C
-        if a == 0:
-            f += 0x40 # .Z......
-        if ((old_a % 16) - (subtrahend % 16)) & 0x10:
-            f += 0x10       # ...H....
-        f += 0x02 # ......N.
-        if (old_a ^ subtrahend) & 0x80 and (a ^ old_a) & 0x80:
-            # Minuend and subtrahend signs are different - overflow if the
-            # minuend's sign differs from the sign of the result
-            registers[1] = f + 0x04
-        else:
-            registers[1] = f
-        registers[0] = a
-
+        a = registers[0]
+        registers[1] = SUB[a][subtrahend]
+        registers[0] = (a - subtrahend) % 256
         registers[25] += timing
         registers[24] = (registers[24] + size) % 65536
 
@@ -1338,7 +1285,7 @@ class Simulator:
         registers[25] += 4
         registers[24] = (registers[24] + 1) % 65536
 
-    def xor(self, registers, memory, timing, size, reg=N):
+    def xor(self, registers, memory, timing, size, reg):
         a = registers[0] ^ self.get_operand_value(registers, memory, size, reg)
         registers[0] = a
         registers[1] = SZ53P[a]
@@ -1402,8 +1349,8 @@ class Simulator:
             partial(self.ld16, r, m, SP),                          # 0x31 LD SP,nn
             partial(self.ldann, r, m, 1),                          # 0x32 LD (nn),A
             partial(self.inc_dec16, r, 1, SP),                     # 0x33 INC SP
-            partial(self.inc_dec8, r, m, 11, 1, 1, Hd),            # 0x34 INC (HL)
-            partial(self.inc_dec8, r, m, 11, 1, -1, Hd),           # 0x35 DEC (HL)
+            partial(self.inc_dec8, r, m, 11, 1, 1, INC, Hd),       # 0x34 INC (HL)
+            partial(self.inc_dec8, r, m, 11, 1, -1, DEC, Hd),      # 0x35 DEC (HL)
             partial(self.ld8, r, m, 10, 2, Hd),                    # 0x36 LD (HL),n
             partial(self.cf, r, 0),                                # 0x37 SCF
             partial(self.jr, r, m, 1, 1),                          # 0x38 JR C,nn
@@ -1493,7 +1440,7 @@ class Simulator:
             partial(self.adc_a, r, m, 4, 1, H),                    # 0x8C ADC A,H
             partial(self.adc_a, r, m, 4, 1, L),                    # 0x8D ADC A,L
             partial(self.adc_a, r, m, 7, 1, Hd),                   # 0x8E ADC A,(HL)
-            partial(self.adc_a, r, m, 4, 1, A),                    # 0x8F ADC A,A
+            partial(self.adc_a_a, r),                              # 0x8F ADC A,A
             partial(self.sub, r, m, 4, 1, B),                      # 0x90 SUB B
             partial(self.sub, r, m, 4, 1, C),                      # 0x91 SUB C
             partial(self.sub, r, m, 4, 1, D),                      # 0x92 SUB D
@@ -1509,7 +1456,7 @@ class Simulator:
             partial(self.sbc_a, r, m, 4, 1, H),                    # 0x9C SBC A,H
             partial(self.sbc_a, r, m, 4, 1, L),                    # 0x9D SBC A,L
             partial(self.sbc_a, r, m, 7, 1, Hd),                   # 0x9E SBC A,(HL)
-            partial(self.sbc_a, r, m, 4, 1, A),                    # 0x9F SBC A,A
+            partial(self.sbc_a_a, r),                              # 0x9F SBC A,A
             partial(self.and_r, r, B),                             # 0xA0 AND B
             partial(self.and_r, r, C),                             # 0xA1 AND C
             partial(self.and_r, r, D),                             # 0xA2 AND D
@@ -1604,7 +1551,7 @@ class Simulator:
             partial(self.di_ei, r, 1),                             # 0xFB EI
             partial(self.call, r, m, 128, 0),                      # 0xFC CALL M,nn
             None,                                                  # 0xFD FD prefix
-            partial(self.cp, r, m, 7, 2),                          # 0xFE CP n
+            partial(self.cp, r, m, 7, 2, N),                       # 0xFE CP n
             partial(self.rst, r, m, 56),                           # 0xFF RST $38
         ]
 
@@ -2163,24 +2110,24 @@ class Simulator:
             partial(self.ld16, r, m, IXh),                         # 0x21 LD IX,nn
             partial(self.ld16addr, r, m, 20, 4, IXh, 1),           # 0x22 LD (nn),IX
             partial(self.inc_dec16, r, 1, IXh),                    # 0x23 INC IX
-            partial(self.inc_dec8, r, m, 8, 2, 1, IXh),            # 0x24 INC IXh
-            partial(self.inc_dec8, r, m, 8, 2, -1, IXh),           # 0x25 DEC IXh
+            partial(self.inc_dec8, r, m, 8, 2, 1, INC, IXh),       # 0x24 INC IXh
+            partial(self.inc_dec8, r, m, 8, 2, -1, DEC, IXh),      # 0x25 DEC IXh
             partial(self.ld8, r, m, 11, 3, IXh),                   # 0x26 LD IXh,n
             partial(self.nop_dd_fd, r),                            # 0x27
             partial(self.nop_dd_fd, r),                            # 0x28
             partial(self.add16, r, 15, 2, IXh, IXh),               # 0x29 ADD IX,IX
             partial(self.ld16addr, r, m, 20, 4, IXh, 0),           # 0x2A LD IX,(nn)
             partial(self.inc_dec16, r, -1, IXh),                   # 0x2B DEC IX
-            partial(self.inc_dec8, r, m, 8, 2, 1, IXl),            # 0x2C INC IXl
-            partial(self.inc_dec8, r, m, 8, 2, -1, IXl),           # 0x2D DEC IXl
+            partial(self.inc_dec8, r, m, 8, 2, 1, INC, IXl),       # 0x2C INC IXl
+            partial(self.inc_dec8, r, m, 8, 2, -1, DEC, IXl),      # 0x2D DEC IXl
             partial(self.ld8, r, m, 11, 3, IXl),                   # 0x2E LD IXl,n
             partial(self.nop_dd_fd, r),                            # 0x2F
             partial(self.nop_dd_fd, r),                            # 0x30
             partial(self.nop_dd_fd, r),                            # 0x31
             partial(self.nop_dd_fd, r),                            # 0x32
             partial(self.nop_dd_fd, r),                            # 0x33
-            partial(self.inc_dec8, r, m, 23, 3, 1, Xd),            # 0x34 INC (IX+d)
-            partial(self.inc_dec8, r, m, 23, 3, -1, Xd),           # 0x35 DEC (IX+d)
+            partial(self.inc_dec8, r, m, 23, 3, 1, INC, Xd),       # 0x34 INC (IX+d)
+            partial(self.inc_dec8, r, m, 23, 3, -1, DEC, Xd),      # 0x35 DEC (IX+d)
             partial(self.ld8, r, m, 19, 4, Xd),                    # 0x36 LD (IX+d),n
             partial(self.nop_dd_fd, r),                            # 0x37
             partial(self.nop_dd_fd, r),                            # 0x38
@@ -2681,24 +2628,24 @@ class Simulator:
             partial(self.ld16, r, m, IYh),                         # 0x21 LD IY,nn
             partial(self.ld16addr, r, m, 20, 4, IYh, 1),           # 0x22 LD (nn),IY
             partial(self.inc_dec16, r, 1, IYh),                    # 0x23 INC IY
-            partial(self.inc_dec8, r, m, 8, 2, 1, IYh),            # 0x24 INC IYh
-            partial(self.inc_dec8, r, m, 8, 2, -1, IYh),           # 0x25 DEC IYh
+            partial(self.inc_dec8, r, m, 8, 2, 1, INC, IYh),       # 0x24 INC IYh
+            partial(self.inc_dec8, r, m, 8, 2, -1, DEC, IYh),      # 0x25 DEC IYh
             partial(self.ld8, r, m, 11, 3, IYh),                   # 0x26 LD IYh,n
             partial(self.nop_dd_fd, r),                            # 0x27
             partial(self.nop_dd_fd, r),                            # 0x28
             partial(self.add16, r, 15, 2, IYh, IYh),               # 0x29 ADD IY,IY
             partial(self.ld16addr, r, m, 20, 4, IYh, 0),           # 0x2A LD IY,(nn)
             partial(self.inc_dec16, r, -1, IYh),                   # 0x2B DEC IY
-            partial(self.inc_dec8, r, m, 8, 2, 1, IYl),            # 0x2C INC IYl
-            partial(self.inc_dec8, r, m, 8, 2, -1, IYl),           # 0x2D DEC IYl
+            partial(self.inc_dec8, r, m, 8, 2, 1, INC, IYl),       # 0x2C INC IYl
+            partial(self.inc_dec8, r, m, 8, 2, -1, DEC, IYl),      # 0x2D DEC IYl
             partial(self.ld8, r, m, 11, 3, IYl),                   # 0x2E LD IYl,n
             partial(self.nop_dd_fd, r),                            # 0x2F
             partial(self.nop_dd_fd, r),                            # 0x30
             partial(self.nop_dd_fd, r),                            # 0x31
             partial(self.nop_dd_fd, r),                            # 0x32
             partial(self.nop_dd_fd, r),                            # 0x33
-            partial(self.inc_dec8, r, m, 23, 3, 1, Yd),            # 0x34 INC (IY+d)
-            partial(self.inc_dec8, r, m, 23, 3, -1, Yd),           # 0x35 DEC (IY+d)
+            partial(self.inc_dec8, r, m, 23, 3, 1, INC, Yd),       # 0x34 INC (IY+d)
+            partial(self.inc_dec8, r, m, 23, 3, -1, DEC, Yd),      # 0x35 DEC (IY+d)
             partial(self.ld8, r, m, 19, 4, Yd),                    # 0x36 LD (IY+d),n
             partial(self.nop_dd_fd, r),                            # 0x37
             partial(self.nop_dd_fd, r),                            # 0x38
