@@ -263,8 +263,6 @@ class Simulator:
         self.itracer = None
         self.in_tracer = None
         self.out_tracer = None
-        self.peek_tracer = None
-        self.poke_tracer = None
 
     def set_tracer(self, tracer):
         if hasattr(tracer, 'trace'):
@@ -279,14 +277,6 @@ class Simulator:
             self.out_tracer = partial(tracer.write_port, self)
         else:
             self.out_tracer = None
-        if hasattr(tracer, 'read_memory'):
-            self.peek_tracer = partial(tracer.read_memory, self)
-        else:
-            self.peek_tracer = None
-        if hasattr(tracer, 'write_memory'):
-            self.poke_tracer = partial(tracer.write_memory, self)
-        else:
-            self.poke_tracer = None
 
     def run(self, start=None, stop=None):
         opcodes = self.opcodes
@@ -346,10 +336,10 @@ class Simulator:
         if reg < 16:
             return registers[reg]
         if reg < 32:
-            return self.peek(memory, registers[reg - 23] + 256 * registers[reg - 24])
+            return memory[registers[reg - 23] + 256 * registers[reg - 24]]
         if reg == 34:
             return memory[(registers[24] + size - 1) % 65536]
-        return self.peek(memory, self.index(registers, memory, reg))
+        return memory[self.index(registers, memory, reg)]
 
     def set_operand_value(self, registers, memory, reg, value):
         if reg < 16:
@@ -359,16 +349,7 @@ class Simulator:
         else:
             self.poke(memory, self.index(registers, memory, reg), value)
 
-    def peek(self, memory, address, count=1):
-        if self.peek_tracer:
-            self.peek_tracer(address, count)
-        if count == 1:
-            return memory[address]
-        return memory[address], memory[(address + 1) % 65536]
-
     def poke(self, memory, address, *values):
-        if self.poke_tracer:
-            self.poke_tracer(address, values)
         if address > 0x3FFF:
             memory[address] = values[0]
         if len(values) > 1:
@@ -549,7 +530,7 @@ class Simulator:
         bc = registers[3] + 256 * registers[2]
         a = registers[0]
 
-        value = self.peek(memory, hl)
+        value = memory[hl]
         result = (a - value) % 256
         hf = ((a % 16) - (value % 16)) & 0x10
         n = a - value - hf // 16
@@ -679,7 +660,8 @@ class Simulator:
 
     def ex_sp(self, registers, memory, reg):
         sp = registers[12]
-        sp1, sp2 = self.peek(memory, sp, 2)
+        sp1 = memory[sp]
+        sp2 = memory[(sp + 1) % 65536]
         self.poke(memory, sp, registers[reg + 1], registers[reg])
         registers[reg + 1] = sp1
         registers[reg] = sp2
@@ -899,10 +881,10 @@ class Simulator:
             else:
                 self.poke(memory, addr, registers[reg + 1], registers[reg])
         elif reg == 12:
-            sp1, sp2 = self.peek(memory, addr, 2)
-            registers[12] = sp1 + 256 * sp2
+            registers[12] = memory[addr] + 256 * memory[(addr + 1) % 65536]
         else:
-            registers[reg + 1], registers[reg] = self.peek(memory, addr, 2)
+            registers[reg + 1] = memory[addr]
+            registers[reg] = memory[(addr + 1) % 65536]
         registers[15] = r_inc[registers[15]]
         registers[25] += timing
         registers[24] = end % 65536
@@ -912,7 +894,7 @@ class Simulator:
         if poke:
             self.poke(memory, memory[pcn % 65536] + 256 * memory[(pcn + 1) % 65536], registers[0])
         else:
-            registers[0] = self.peek(memory, memory[pcn % 65536] + 256 * memory[(pcn + 1) % 65536])
+            registers[0] = memory[memory[pcn % 65536] + 256 * memory[(pcn + 1) % 65536]]
         registers[15] = R1[registers[15]]
         registers[25] += 13
         registers[24] = (pcn + 2) % 65536
@@ -923,7 +905,7 @@ class Simulator:
         de = registers[5] + 256 * registers[4]
         bc = registers[3] + 256 * registers[2]
 
-        at_hl = self.peek(memory, hl)
+        at_hl = memory[hl]
         self.poke(memory, de, at_hl)
         n = registers[0] + at_hl
         f = (registers[1] & 0xC1) + (n & 0x08) # SZ.H3.NC
@@ -958,7 +940,7 @@ class Simulator:
         count = 0
         repeat = True
         while repeat:
-            self.poke(memory, de, self.peek(memory, hl))
+            self.poke(memory, de, memory[hl])
             bc = (bc - 1) % 65536
             if bc == 0 or registers[24] <= de <= registers[24] + 1:
                 repeat = False
@@ -1067,7 +1049,7 @@ class Simulator:
         hl = registers[7] + 256 * registers[6]
         b = (registers[2] - 1) % 256
 
-        outval = self.peek(memory, hl)
+        outval = memory[hl]
         self._out(registers[3] + 256 * b, outval)
         hl = (hl + inc) % 65536
         k = (hl % 256) + outval
@@ -1096,7 +1078,7 @@ class Simulator:
         sp = registers[12]
         registers[12] = (sp + 2) % 65536
         self.ppcount -= 1
-        return self.peek(memory, sp, 2)
+        return memory[sp], memory[(sp + 1) % 65536]
 
     def pop(self, registers, memory, reg):
         registers[reg + 1], registers[reg] = self._pop(registers, memory)
@@ -1162,7 +1144,7 @@ class Simulator:
     def rld(self, registers, memory):
         hl = registers[7] + 256 * registers[6]
         a = registers[0]
-        at_hl = self.peek(memory, hl)
+        at_hl = memory[hl]
         self.poke(memory, hl, ((at_hl * 16) % 256) + (a % 16))
         a_out = registers[0] = (a & 240) + ((at_hl // 16) % 16)
         registers[1] = SZ53P[a_out] + (registers[1] % 2)
@@ -1173,7 +1155,7 @@ class Simulator:
     def rrd(self, registers, memory):
         hl = registers[7] + 256 * registers[6]
         a = registers[0]
-        at_hl = self.peek(memory, hl)
+        at_hl = memory[hl]
         self.poke(memory, hl, ((a * 16) % 256) + (at_hl // 16))
         a_out = registers[0] = (a & 240) + (at_hl % 16)
         registers[1] = SZ53P[a_out] + (registers[1] % 2)

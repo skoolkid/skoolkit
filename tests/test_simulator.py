@@ -48,21 +48,6 @@ class PortTracer:
     def write_port(self, simulator, port, value):
         self.out_ports.append((port, value))
 
-class MemoryTracer:
-    def __init__(self, end=None):
-        self.end = end
-        self.read = []
-        self.written = []
-
-    def trace(self, simulator, address):
-        return self.end is None or simulator.registers[PC] == self.end
-
-    def read_memory(self, simulator, address, count):
-        self.read.append((simulator.registers[PC], address, count))
-
-    def write_memory(self, simulator, address, values):
-        self.written.append((simulator.registers[PC], address, *values))
-
 class SimulatorTest(SkoolKitTestCase):
     def _test_instruction(self, simulator, inst, data, timing, reg_out=None, sna_out=None,
                           start=None, end=None, state_out=None):
@@ -2158,8 +2143,6 @@ class SimulatorTest(SkoolKitTestCase):
         simulator = Simulator([0] * 65536, config={'fast_ldir': True})
         registers = simulator.registers
         memory = simulator.memory
-        tracer = MemoryTracer()
-        simulator.set_tracer(tracer)
         data = (0xED, 0xB8)
         start = 30000
         at_hl = 250
@@ -2195,21 +2178,14 @@ class SimulatorTest(SkoolKitTestCase):
                     memory[a] = at_hl
                 mem_written = list(range(de_out + 1, de_in + 1))
                 sna_out = {a: at_hl for a in mem_written}
-                tracer.read.clear()
-                tracer.written.clear()
             else:
                 sna_out = None
             self._test_instruction(simulator, 'LDDR', data, timing, reg_out, sna_out, start, end)
-            if bc_in:
-                self.assertEqual([e[1] for e in reversed(tracer.read)], mem_read)
-                self.assertEqual([e[1] for e in reversed(tracer.written)], mem_written)
 
     def test_ldir_fast(self):
         simulator = Simulator([0] * 65536, config={'fast_ldir': True})
         registers = simulator.registers
         memory = simulator.memory
-        tracer = MemoryTracer()
-        simulator.set_tracer(tracer)
         data = (0xED, 0xB0)
         start = 30000
         at_hl = 250
@@ -2245,14 +2221,9 @@ class SimulatorTest(SkoolKitTestCase):
                     memory[a] = at_hl
                 mem_written = list(range(de_in, de_out))
                 sna_out = {a: at_hl for a in mem_written}
-                tracer.read.clear()
-                tracer.written.clear()
             else:
                 sna_out = None
             self._test_instruction(simulator, 'LDIR', data, timing, reg_out, sna_out, start, end)
-            if bc_in:
-                self.assertEqual([e[1] for e in tracer.read], mem_read)
-                self.assertEqual([e[1] for e in tracer.written], mem_written)
 
     def _test_block_out(self, operation, opcode, inc, repeat=False):
         simulator = Simulator([0] * 65536)
@@ -2721,53 +2692,6 @@ class SimulatorTest(SkoolKitTestCase):
         ]
         self.assertEqual(tracer.out_ports, exp_outs)
 
-    def test_memory_reading(self):
-        memory = [0] * 65536
-        start = 49152
-        code = (
-            0x01, 0x00, 0x80,       # 49152 LD BC,32768
-            0x21, 0x01, 0x80,       # 49155 LD HL,32769
-            0x0A,                   # 49158 LD A,(BC)
-            0xBE,                   # 49159 CP (HL)
-            0xED, 0x5B, 0x02, 0x80, # 49160 LD DE,(32770)
-        )
-        end = start + len(code)
-        memory[start:end] = code
-        simulator = Simulator(memory)
-        tracer = MemoryTracer(end)
-        simulator.set_tracer(tracer)
-        simulator.run(start)
-        exp_addresses = [
-            (49158, 32768, 1),
-            (49159, 32769, 1),
-            (49160, 32770, 2),
-        ]
-        self.assertEqual(tracer.read, exp_addresses)
-
-    def test_memory_writing(self):
-        memory = [0] * 65536
-        start = 49152
-        code = (
-            0x01, 0x00, 0x80,       # 49152 LD BC,32768
-            0x21, 0x01, 0x80,       # 49155 LD HL,32769
-            0x3E, 0xFF,             # 49158 LD A,255
-            0x02,                   # 49160 LD (BC),A
-            0x70,                   # 49161 LD (HL),B
-            0xED, 0x43, 0x02, 0x80, # 49162 LD (32770),BC
-        )
-        end = start + len(code)
-        memory[start:end] = code
-        simulator = Simulator(memory)
-        tracer = MemoryTracer(end)
-        simulator.set_tracer(tracer)
-        simulator.run(start)
-        exp_addresses = [
-            (49160, 32768, 255),
-            (49161, 32769, 128),
-            (49162, 32770, 0, 128),
-        ]
-        self.assertEqual(tracer.written, exp_addresses)
-
     def test_rom_not_writable(self):
         memory = [0] * 65536
         start = 49152
@@ -2779,16 +2703,11 @@ class SimulatorTest(SkoolKitTestCase):
         end = start + len(code)
         memory[start:end] = code
         simulator = Simulator(memory)
-        tracer = MemoryTracer(end)
-        simulator.set_tracer(tracer)
-        simulator.run(start)
-        exp_addresses = [
-            (49155, 16383, 1, 2),
-            (49158, 65535, 1, 2),
-        ]
-        self.assertEqual(tracer.written, exp_addresses)
-        self.assertEqual(memory[0], 0)
-        self.assertEqual(memory[0x3FFF], 0)
+        simulator.run(start, end)
+        self.assertEqual(memory[0xFFFF], 0x01)
+        self.assertEqual(memory[0x0000], 0x00)
+        self.assertEqual(memory[0x3FFF], 0x00)
+        self.assertEqual(memory[0x4000], 0x02)
 
     def test_resume(self):
         memory = [0] * 65536
