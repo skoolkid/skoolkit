@@ -282,24 +282,27 @@ class Simulator:
         opcodes = self.opcodes
         memory = self.memory
         registers = self.registers
-        itracer = self.itracer
-        if start is None:
-            pc = registers[24]
-        else:
+        if start is not None:
             registers[24] = start
-            pc = start
-        running = True
-        while running:
-            opcodes[memory[pc]]()
-            if itracer:
-                running = registers[24] != stop
+
+        itracer = self.itracer
+        if itracer:
+            while True:
+                pc = registers[24]
+                opcodes[memory[pc]]()
                 if itracer(pc):
-                    running = False
-            elif stop is None:
-                running = False
-            else:
-                running = registers[24] != stop
+                    break
+            return
+
+        if stop is None:
+            return opcodes[memory[registers[24]]]()
+
+        pc = registers[24]
+        while True:
+            opcodes[memory[pc]]()
             pc = registers[24]
+            if pc == stop:
+                break
 
     def set_registers(self, registers):
         for reg, value in registers.items():

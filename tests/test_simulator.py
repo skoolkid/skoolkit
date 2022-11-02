@@ -2726,15 +2726,6 @@ class SimulatorTest(SkoolKitTestCase):
         self.assertEqual(simulator.registers[PC], 2)
         self.assertEqual(simulator.registers[T], 8)
 
-    def test_stop_overrides_tracer(self):
-        memory = [0] * 65536
-        simulator = Simulator(memory)
-        tracer = CountingTracer(100)
-        simulator.set_tracer(tracer)
-        simulator.run(0, 2)
-        self.assertEqual(simulator.registers[PC], 2)
-        self.assertEqual(simulator.registers[T], 8)
-
     def test_pc_register_value(self):
         memory = [0] * 65536
         simulator = Simulator(memory, {'PC': 1})
