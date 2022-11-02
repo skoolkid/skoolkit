@@ -16,7 +16,7 @@
 
 from skoolkit import SkoolKitError, write, write_line
 from skoolkit.basic import TextReader
-from skoolkit.simulator import A, F, D, E, H, L, IXh, IXl, PC, T, R_INC1, R_INC2
+from skoolkit.simulator import A, F, D, E, H, L, IXh, IXl, PC, T
 
 SIM_TIMEOUT = 10 * 60 * 3500000 # 10 minutes of Z80 CPU time
 
@@ -96,29 +96,23 @@ class LoadTracer:
             opcode = memory[pc]
             method = opcodes[opcode]
             if method:
-                r_inc = R_INC1
                 method()
             elif opcode == 0xCB:
-                r_inc = R_INC2
                 after_CB[memory[(pc + 1) % 65536]]()
             elif opcode == 0xED:
-                r_inc = R_INC2
                 after_ED[memory[(pc + 1) % 65536]]()
             elif opcode == 0xDD:
-                r_inc = R_INC2
                 method = after_DD[memory[(pc + 1) % 65536]]
                 if method:
                     method()
                 else: # pragma: no cover
                     after_DDCB[memory[(pc + 3) % 65536]]()
             else:
-                r_inc = R_INC2
                 method = after_FD[memory[(pc + 1) % 65536]]
                 if method:
                     method()
                 else:
                     after_FDCB[memory[(pc + 3) % 65536]]()
-            registers[15] = r_inc[registers[15]]
 
             pc = registers[24]
             tstates = registers[25]
