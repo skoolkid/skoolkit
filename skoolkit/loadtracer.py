@@ -79,12 +79,6 @@ class LoadTracer:
 
     def run(self, simulator, start, stop):
         opcodes = simulator.opcodes
-        after_CB = simulator.after_CB
-        after_DD = simulator.after_DD
-        after_DDCB = simulator.after_DDCB
-        after_ED = simulator.after_ED
-        after_FD = simulator.after_FD
-        after_FDCB = simulator.after_FDCB
         memory = simulator.memory
         registers = simulator.registers
         registers[24] = start
@@ -93,27 +87,7 @@ class LoadTracer:
         tape_length = self.blocks[-1][0][-1] // 1000
 
         while True:
-            opcode = memory[pc]
-            method = opcodes[opcode]
-            if method:
-                method()
-            elif opcode == 0xCB:
-                after_CB[memory[(pc + 1) % 65536]]()
-            elif opcode == 0xED:
-                after_ED[memory[(pc + 1) % 65536]]()
-            elif opcode == 0xDD:
-                method = after_DD[memory[(pc + 1) % 65536]]
-                if method:
-                    method()
-                else: # pragma: no cover
-                    after_DDCB[memory[(pc + 3) % 65536]]()
-            else:
-                method = after_FD[memory[(pc + 1) % 65536]]
-                if method:
-                    method()
-                else:
-                    after_FDCB[memory[(pc + 3) % 65536]]()
-
+            opcodes[memory[pc]]()
             pc = registers[24]
             tstates = registers[25]
 
