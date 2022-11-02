@@ -2667,6 +2667,7 @@ class SimulatorTest(SkoolKitTestCase):
         code = (
             0xD3, 0xFE,       # OUT (254),A
             0xED, 0x79,       # OUT (C),A
+            0xED, 0x71,       # OUT (C),0
             0xED, 0xA3,       # OUTI
             0xED, 0xAB,       # OUTD
             0x01, 0xFE, 0x01, # LD BC,510
@@ -2685,6 +2686,7 @@ class SimulatorTest(SkoolKitTestCase):
         exp_outs = [
             (44030, 171),
             (65055, 171),
+            (65055, 0),
             (64799, 1),
             (64543, 2),
             (254, 1),

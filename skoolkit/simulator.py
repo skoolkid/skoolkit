@@ -699,23 +699,21 @@ class Simulator:
         registers[25] += 8
         registers[24] = (registers[24] + 2) % 65536
 
-    def _in(self, port):
-        if self.in_tracer:
-            reading = self.in_tracer(port)
-            if reading is None:
-                return 191
-            return reading
-        return 191
-
     def in_a(self, registers, memory):
         pcn = registers[24] + 1
-        registers[0] = self._in(memory[pcn % 65536] + 256 * registers[0])
+        if self.in_tracer:
+            registers[0] = self.in_tracer(memory[pcn % 65536] + 256 * registers[0])
+        else:
+            registers[0] = 191
         registers[15] = R1[registers[15]]
         registers[25] += 11
         registers[24] = (pcn + 1) % 65536
 
     def in_c(self, registers, reg):
-        value = self._in(registers[3] + 256 * registers[2])
+        if self.in_tracer:
+            value = self.in_tracer(registers[3] + 256 * registers[2])
+        else:
+            value = 191
         if reg != F:
             registers[reg] = value
         registers[1] = SZ53P[value] + (registers[1] % 2)
@@ -765,7 +763,10 @@ class Simulator:
         c = registers[3]
         a = registers[0]
 
-        value = self._in(c + 256 * b)
+        if self.in_tracer:
+            value = self.in_tracer(c + 256 * b)
+        else:
+            value = 191
         self.poke(memory, hl, value)
         b = (b - 1) % 256
         j = value + ((c + inc) % 256)
@@ -1023,23 +1024,21 @@ class Simulator:
         registers[25] += timing
         registers[24] = (registers[24] + size) % 65536
 
-    def _out(self, port, value):
-        if self.out_tracer:
-            self.out_tracer(port, value)
-
     def outa(self, registers, memory):
-        a = registers[0]
         pcn = registers[24] + 1
-        self._out(memory[pcn % 65536] + 256 * a, a)
+        if self.out_tracer:
+            a = registers[0]
+            self.out_tracer(memory[pcn % 65536] + 256 * a, a)
         registers[15] = R1[registers[15]]
         registers[25] += 11
         registers[24] = (pcn + 1) % 65536
 
     def outc(self, registers, reg):
-        if reg >= 0:
-            self._out(registers[3] + 256 * registers[2], registers[reg])
-        else:
-            self._out(registers[3] + 256 * registers[2], 0)
+        if self.out_tracer:
+            if reg >= 0:
+                self.out_tracer(registers[3] + 256 * registers[2], registers[reg])
+            else:
+                self.out_tracer(registers[3] + 256 * registers[2], 0)
         registers[15] = R2[registers[15]]
         registers[25] += 12
         registers[24] = (registers[24] + 2) % 65536
@@ -1050,7 +1049,8 @@ class Simulator:
         b = (registers[2] - 1) % 256
 
         outval = memory[hl]
-        self._out(registers[3] + 256 * b, outval)
+        if self.out_tracer:
+            self.out_tracer(registers[3] + 256 * b, outval)
         hl = (hl + inc) % 65536
         k = (hl % 256) + outval
         f = (b & 0xA8) + PARITY[(k % 8) ^ b] # S.5.3P..

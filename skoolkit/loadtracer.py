@@ -148,7 +148,7 @@ class LoadTracer:
                     self.next_block(simulator)
                 if index % 2:
                     return 255
-                return 191
+        return 191
 
     def write_port(self, simulator, port, value):
         if port & 0x01 == 0:
