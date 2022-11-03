@@ -16,7 +16,7 @@
 
 from skoolkit import SkoolKitError, write, write_line
 from skoolkit.basic import TextReader
-from skoolkit.simulator import A, F, D, E, H, L, IXh, IXl, PC, T
+from skoolkit.simulator import A, F, D, E, H, L, IXh, IXl, PC, T, R1
 
 SIM_TIMEOUT = 10 * 60 * 3500000 # 10 minutes of Z80 CPU time
 
@@ -182,7 +182,7 @@ class LoadTracer:
 
         # Preload the machine stack with 0x053F (as done at 0x055E)
         registers[H], registers[L] = 0x05, 0x3F # SA-LD-RET
-        simulator.push(registers, memory, H)
+        simulator.push(registers, memory, R1, 11, 1, H)
 
         if a == block[0]:
             skipped = ''

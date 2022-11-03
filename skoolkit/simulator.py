@@ -740,24 +740,16 @@ class Simulator:
         registers[25] += timing
         registers[24] = (registers[24] + size) % 65536
 
-    def inc_dec16(self, registers, inc, reg):
+    def inc_dec16(self, registers, r_inc, timing, size, inc, reg):
         if reg == 12:
             registers[12] = (registers[12] + inc) % 65536
-            registers[15] = R1[registers[15]]
-            registers[25] += 6
-            registers[24] = (registers[24] + 1) % 65536
         else:
             value = (registers[reg + 1] + 256 * registers[reg] + inc) % 65536
             registers[reg] = value // 256
             registers[reg + 1] = value % 256
-            if reg < 8:
-                registers[15] = R1[registers[15]]
-                registers[25] += 6
-                registers[24] = (registers[24] + 1) % 65536
-            else:
-                registers[15] = R2[registers[15]]
-                registers[25] += 10
-                registers[24] = (registers[24] + 2) % 65536
+        registers[15] = r_inc[registers[15]]
+        registers[25] += timing
+        registers[24] = (registers[24] + size) % 65536
 
     def ini(self, registers, memory, inc, repeat):
         # INI, IND, INIR, INDR
@@ -795,26 +787,20 @@ class Simulator:
             registers[25] += 16
         registers[15] = R2[registers[15]]
 
-    def jp(self, registers, memory, c_and, c_val):
+    def jp(self, registers, memory, r_inc, timing, c_and, c_val):
         if c_and:
-            registers[15] = R1[registers[15]]
-            registers[25] += 10
             if registers[1] & c_and == c_val:
                 registers[24] = (registers[24] + 3) % 65536
             else:
                 registers[24] = memory[(registers[24] + 1) % 65536] + 256 * memory[(registers[24] + 2) % 65536]
         elif c_val == 0:
-            registers[15] = R1[registers[15]]
-            registers[25] += 10
             registers[24] = memory[(registers[24] + 1) % 65536] + 256 * memory[(registers[24] + 2) % 65536]
         elif c_val == 6:
-            registers[15] = R1[registers[15]]
-            registers[25] += 4
             registers[24] = registers[7] + 256 * registers[6]
         else:
-            registers[15] = R2[registers[15]]
-            registers[25] += 8
             registers[24] = registers[c_val + 1] + 256 * registers[c_val]
+        registers[15] = r_inc[registers[15]]
+        registers[25] += timing
 
     def jr(self, registers, memory, c_and, c_val):
         if registers[1] & c_and == c_val:
@@ -856,25 +842,16 @@ class Simulator:
         registers[25] += timing
         registers[24] = (registers[24] + size) % 65536
 
-    def ld16(self, registers, memory, reg):
-        pcn = registers[24] + 1
-        if reg < 8:
-            registers[reg + 1] = memory[pcn % 65536]
-            registers[reg] = memory[(pcn + 1) % 65536]
-            registers[15] = R1[registers[15]]
-            registers[25] += 10
-            registers[24] = (pcn + 2) % 65536
-        elif reg == 12:
-            registers[12] = memory[pcn % 65536] + 256 * memory[(pcn + 1) % 65536]
-            registers[15] = R1[registers[15]]
-            registers[25] += 10
-            registers[24] = (pcn + 2) % 65536
+    def ld16(self, registers, memory, r_inc, timing, size, reg):
+        end = registers[24] + size
+        if reg == 12:
+            registers[12] = memory[(end - 2) % 65536] + 256 * memory[(end - 1) % 65536]
         else:
-            registers[reg + 1] = memory[(pcn + 1) % 65536]
-            registers[reg] = memory[(pcn + 2) % 65536]
-            registers[15] = R2[registers[15]]
-            registers[25] += 14
-            registers[24] = (pcn + 3) % 65536
+            registers[reg + 1] = memory[(end - 2) % 65536]
+            registers[reg] = memory[(end - 1) % 65536]
+        registers[15] = r_inc[registers[15]]
+        registers[25] += timing
+        registers[24] = end % 65536
 
     def ld16addr(self, registers, memory, r_inc, timing, size, reg, poke):
         end = registers[24] + size
@@ -968,16 +945,11 @@ class Simulator:
             registers[1] = f
         registers[25] += 21 * count - 5
 
-    def ldsprr(self, registers, reg):
+    def ldsprr(self, registers, r_inc, timing, size, reg):
         registers[12] = registers[reg + 1] + 256 * registers[reg]
-        if reg == 6:
-            registers[15] = R1[registers[15]]
-            registers[25] += 6
-            registers[24] = (registers[24] + 1) % 65536
-        else:
-            registers[15] = R2[registers[15]]
-            registers[25] += 10
-            registers[24] = (registers[24] + 2) % 65536
+        registers[15] = r_inc[registers[15]]
+        registers[25] += timing
+        registers[24] = (registers[24] + size) % 65536
 
     def neg(self, registers):
         a = registers[0]
@@ -1083,16 +1055,11 @@ class Simulator:
         self.ppcount -= 1
         return memory[sp], memory[(sp + 1) % 65536]
 
-    def pop(self, registers, memory, reg):
+    def pop(self, registers, memory, r_inc, timing, size, reg):
         registers[reg + 1], registers[reg] = self._pop(registers, memory)
-        if reg < 8:
-            registers[15] = R1[registers[15]]
-            registers[25] += 10
-            registers[24] = (registers[24] + 1) % 65536
-        else:
-            registers[15] = R2[registers[15]]
-            registers[25] += 14
-            registers[24] = (registers[24] + 2) % 65536
+        registers[15] = r_inc[registers[15]]
+        registers[25] += timing
+        registers[24] = (registers[24] + size) % 65536
 
     def _push(self, registers, memory, lsb, msb):
         sp = (registers[12] - 2) % 65536
@@ -1100,16 +1067,11 @@ class Simulator:
         self.ppcount += 1
         registers[12] = sp
 
-    def push(self, registers, memory, reg):
+    def push(self, registers, memory, r_inc, timing, size, reg):
         self._push(registers, memory, registers[reg + 1], registers[reg])
-        if reg < 8:
-            registers[15] = R1[registers[15]]
-            registers[25] += 11
-            registers[24] = (registers[24] + 1) % 65536
-        else:
-            registers[15] = R2[registers[15]]
-            registers[25] += 15
-            registers[24] = (registers[24] + 2) % 65536
+        registers[15] = r_inc[registers[15]]
+        registers[25] += timing
+        registers[24] = (registers[24] + size) % 65536
 
     def ret(self, registers, memory, c_and, c_val):
         if c_and:
@@ -2141,9 +2103,9 @@ class Simulator:
             partial(self.nop_dd_fd, r),                            # DD1E
             partial(self.nop_dd_fd, r),                            # DD1F
             partial(self.nop_dd_fd, r),                            # DD20
-            partial(self.ld16, r, m, IXh),                         # DD21 LD IX,nn
+            partial(self.ld16, r, m, R2, 14, 4, IXh),              # DD21 LD IX,nn
             partial(self.ld16addr, r, m, R2, 20, 4, IXh, 1),       # DD22 LD (nn),IX
-            partial(self.inc_dec16, r, 1, IXh),                    # DD23 INC IX
+            partial(self.inc_dec16, r, R2, 10, 2, 1, IXh),         # DD23 INC IX
             partial(self.inc_dec8, r, m, R2, 8, 2, 1, INC, IXh),   # DD24 INC IXh
             partial(self.inc_dec8, r, m, R2, 8, 2, -1, DEC, IXh),  # DD25 DEC IXh
             partial(self.ld8, r, m, R2, 11, 3, IXh, N),            # DD26 LD IXh,n
@@ -2151,7 +2113,7 @@ class Simulator:
             partial(self.nop_dd_fd, r),                            # DD28
             partial(self.add16, r, R2, 15, 2, IXh, IXh),           # DD29 ADD IX,IX
             partial(self.ld16addr, r, m, R2, 20, 4, IXh, 0),       # DD2A LD IX,(nn)
-            partial(self.inc_dec16, r, -1, IXh),                   # DD2B DEC IX
+            partial(self.inc_dec16, r, R2, 10, 2, -1, IXh),        # DD2B DEC IX
             partial(self.inc_dec8, r, m, R2, 8, 2, 1, INC, IXl),   # DD2C INC IXl
             partial(self.inc_dec8, r, m, R2, 8, 2, -1, DEC, IXl),  # DD2D DEC IXl
             partial(self.ld8, r, m, R2, 11, 3, IXl, N),            # DD2E LD IXl,n
@@ -2333,15 +2295,15 @@ class Simulator:
             partial(self.nop_dd_fd, r),                            # DDDE
             partial(self.nop_dd_fd, r),                            # DDDF
             partial(self.nop_dd_fd, r),                            # DDE0
-            partial(self.pop, r, m, IXh),                          # DDE1 POP IX
+            partial(self.pop, r, m, R2, 14, 2, IXh),               # DDE1 POP IX
             partial(self.nop_dd_fd, r),                            # DDE2
             partial(self.ex_sp, r, m, IXh),                        # DDE3 EX (SP),IX
             partial(self.nop_dd_fd, r),                            # DDE4
-            partial(self.push, r, m, IXh),                         # DDE5 PUSH IX
+            partial(self.push, r, m, R2, 15, 2, IXh),              # DDE5 PUSH IX
             partial(self.nop_dd_fd, r),                            # DDE6
             partial(self.nop_dd_fd, r),                            # DDE7
             partial(self.nop_dd_fd, r),                            # DDE8
-            partial(self.jp, r, m, 0, IXh),                        # DDE9 JP (IX)
+            partial(self.jp, r, m, R2, 8, 0, IXh),                 # DDE9 JP (IX)
             partial(self.nop_dd_fd, r),                            # DDEA
             partial(self.nop_dd_fd, r),                            # DDEB
             partial(self.nop_dd_fd, r),                            # DDEC
@@ -2357,7 +2319,7 @@ class Simulator:
             partial(self.nop_dd_fd, r),                            # DDF6
             partial(self.nop_dd_fd, r),                            # DDF7
             partial(self.nop_dd_fd, r),                            # DDF8
-            partial(self.ldsprr, r, IXh),                          # DDF9 LD SP,IX
+            partial(self.ldsprr, r, R2, 10, 2, IXh),               # DDF9 LD SP,IX
             partial(self.nop_dd_fd, r),                            # DDFA
             partial(self.nop_dd_fd, r),                            # DDFB
             partial(self.nop_dd_fd, r),                            # DDFC
@@ -2659,9 +2621,9 @@ class Simulator:
             partial(self.nop_dd_fd, r),                            # FD1E
             partial(self.nop_dd_fd, r),                            # FD1F
             partial(self.nop_dd_fd, r),                            # FD20
-            partial(self.ld16, r, m, IYh),                         # FD21 LD IY,nn
+            partial(self.ld16, r, m, R2, 14, 4, IYh),              # FD21 LD IY,nn
             partial(self.ld16addr, r, m, R2, 20, 4, IYh, 1),       # FD22 LD (nn),IY
-            partial(self.inc_dec16, r, 1, IYh),                    # FD23 INC IY
+            partial(self.inc_dec16, r, R2, 10, 2, 1, IYh),         # FD23 INC IY
             partial(self.inc_dec8, r, m, R2, 8, 2, 1, INC, IYh),   # FD24 INC IYh
             partial(self.inc_dec8, r, m, R2, 8, 2, -1, DEC, IYh),  # FD25 DEC IYh
             partial(self.ld8, r, m, R2, 11, 3, IYh, N),            # FD26 LD IYh,n
@@ -2669,7 +2631,7 @@ class Simulator:
             partial(self.nop_dd_fd, r),                            # FD28
             partial(self.add16, r, R2, 15, 2, IYh, IYh),           # FD29 ADD IY,IY
             partial(self.ld16addr, r, m, R2, 20, 4, IYh, 0),       # FD2A LD IY,(nn)
-            partial(self.inc_dec16, r, -1, IYh),                   # FD2B DEC IY
+            partial(self.inc_dec16, r, R2, 10, 2, -1, IYh),        # FD2B DEC IY
             partial(self.inc_dec8, r, m, R2, 8, 2, 1, INC, IYl),   # FD2C INC IYl
             partial(self.inc_dec8, r, m, R2, 8, 2, -1, DEC, IYl),  # FD2D DEC IYl
             partial(self.ld8, r, m, R2, 11, 3, IYl, N),            # FD2E LD IYl,n
@@ -2851,15 +2813,15 @@ class Simulator:
             partial(self.nop_dd_fd, r),                            # FDDE
             partial(self.nop_dd_fd, r),                            # FDDF
             partial(self.nop_dd_fd, r),                            # FDE0
-            partial(self.pop, r, m, IYh),                          # FDE1 POP IY
+            partial(self.pop, r, m, R2, 14, 2, IYh),               # FDE1 POP IY
             partial(self.nop_dd_fd, r),                            # FDE2
             partial(self.ex_sp, r, m, IYh),                        # FDE3 EX (SP),IY
             partial(self.nop_dd_fd, r),                            # FDE4
-            partial(self.push, r, m, IYh),                         # FDE5 PUSH IY
+            partial(self.push, r, m, R2, 15, 2, IYh),              # FDE5 PUSH IY
             partial(self.nop_dd_fd, r),                            # FDE6
             partial(self.nop_dd_fd, r),                            # FDE7
             partial(self.nop_dd_fd, r),                            # FDE8
-            partial(self.jp, r, m, 0, IYh),                        # FDE9 JP (IY)
+            partial(self.jp, r, m, R2, 8, 0, IYh),                 # FDE9 JP (IY)
             partial(self.nop_dd_fd, r),                            # FDEA
             partial(self.nop_dd_fd, r),                            # FDEB
             partial(self.nop_dd_fd, r),                            # FDEC
@@ -2875,7 +2837,7 @@ class Simulator:
             partial(self.nop_dd_fd, r),                            # FDF6
             partial(self.nop_dd_fd, r),                            # FDF7
             partial(self.nop_dd_fd, r),                            # FDF8
-            partial(self.ldsprr, r, IYh),                          # FDF9 LD SP,IY
+            partial(self.ldsprr, r, R2, 10, 2, IYh),               # FDF9 LD SP,IY
             partial(self.nop_dd_fd, r),                            # FDFA
             partial(self.nop_dd_fd, r),                            # FDFB
             partial(self.nop_dd_fd, r),                            # FDFC
@@ -2886,9 +2848,9 @@ class Simulator:
 
         self.opcodes = [
             partial(self.nop, r),                                  # 00 NOP
-            partial(self.ld16, r, m, B),                           # 01 LD BC,nn
+            partial(self.ld16, r, m, R1, 10, 3, B),                # 01 LD BC,nn
             partial(self.ld8, r, m, R1, 7, 1, Bd, A),              # 02 LD (BC),A
-            partial(self.inc_dec16, r, 1, B),                      # 03 INC BC
+            partial(self.inc_dec16, r, R1, 6, 1, 1, B),            # 03 INC BC
             partial(self.inc_r, r, B),                             # 04 INC B
             partial(self.dec_r, r, B),                             # 05 DEC B
             partial(self.ld_r_n, r, m, B),                         # 06 LD B,n
@@ -2896,15 +2858,15 @@ class Simulator:
             partial(self.ex_af, r),                                # 08 EX AF,AF'
             partial(self.add16, r, R1, 11, 1, H, B),               # 09 ADD HL,BC
             partial(self.ld8, r, m, R1, 7, 1, A, Bd),              # 0A LD A,(BC)
-            partial(self.inc_dec16, r, -1, B),                     # 0B DEC BC
+            partial(self.inc_dec16, r, R1, 6, 1, -1, B),           # 0B DEC BC
             partial(self.inc_r, r, C),                             # 0C INC C
             partial(self.dec_r, r, C),                             # 0D DEC C
             partial(self.ld_r_n, r, m, C),                         # 0E LD C,n
             partial(self.rotate_a, r, 1, RRC, 1),                  # 0F RRCA
             partial(self.djnz, r, m),                              # 10 DJNZ nn
-            partial(self.ld16, r, m, D),                           # 11 LD DE,nn
+            partial(self.ld16, r, m, R1, 10, 3, D),                # 11 LD DE,nn
             partial(self.ld8, r, m, R1, 7, 1, Dd, A),              # 12 LD (DE),A
-            partial(self.inc_dec16, r, 1, D),                      # 13 INC DE
+            partial(self.inc_dec16, r, R1, 6, 1, 1, D),            # 13 INC DE
             partial(self.inc_r, r, D),                             # 14 INC D
             partial(self.dec_r, r, D),                             # 15 DEC D
             partial(self.ld_r_n, r, m, D),                         # 16 LD D,n
@@ -2912,15 +2874,15 @@ class Simulator:
             partial(self.jr, r, m, 0, 0),                          # 18 JR nn
             partial(self.add16, r, R1, 11, 1, H, D),               # 19 ADD HL,DE
             partial(self.ld8, r, m, R1, 7, 1, A, Dd),              # 1A LD A,(DE)
-            partial(self.inc_dec16, r, -1, D),                     # 1B DEC DE
+            partial(self.inc_dec16, r, R1, 6, 1, -1, D),           # 1B DEC DE
             partial(self.inc_r, r, E),                             # 1C INC E
             partial(self.dec_r, r, E),                             # 1D DEC E
             partial(self.ld_r_n, r, m, E),                         # 1E LD E,n
             partial(self.rotate_a, r, 1, RR),                      # 1F RRA
             partial(self.jr, r, m, 64, 0),                         # 20 JR NZ,nn
-            partial(self.ld16, r, m, H),                           # 21 LD HL,nn
+            partial(self.ld16, r, m, R1, 10, 3, H),                # 21 LD HL,nn
             partial(self.ld16addr, r, m, R1, 16, 3, H, 1),         # 22 LD (nn),HL
-            partial(self.inc_dec16, r, 1, H),                      # 23 INC HL
+            partial(self.inc_dec16, r, R1, 6, 1, 1, H),            # 23 INC HL
             partial(self.inc_r, r, H),                             # 24 INC H
             partial(self.dec_r, r, H),                             # 25 DEC H
             partial(self.ld_r_n, r, m, H),                         # 26 LD H,n
@@ -2928,15 +2890,15 @@ class Simulator:
             partial(self.jr, r, m, 64, 64),                        # 28 JR Z,nn
             partial(self.add16, r, R1, 11, 1, H, H),               # 29 ADD HL,HL
             partial(self.ld16addr, r, m, R1, 16, 3, H, 0),         # 2A LD HL,(nn)
-            partial(self.inc_dec16, r, -1, H),                     # 2B DEC HL
+            partial(self.inc_dec16, r, R1, 6, 1, -1, H),           # 2B DEC HL
             partial(self.inc_r, r, L),                             # 2C INC L
             partial(self.dec_r, r, L),                             # 2D DEC L
             partial(self.ld_r_n, r, m, L),                         # 2E LD L,n
             partial(self.cpl, r),                                  # 2F CPL
             partial(self.jr, r, m, 1, 0),                          # 30 JR NC,nn
-            partial(self.ld16, r, m, SP),                          # 31 LD SP,nn
+            partial(self.ld16, r, m, R1, 10, 3, SP),               # 31 LD SP,nn
             partial(self.ldann, r, m, 1),                          # 32 LD (nn),A
-            partial(self.inc_dec16, r, 1, SP),                     # 33 INC SP
+            partial(self.inc_dec16, r, R1, 6, 1, 1, SP),           # 33 INC SP
             partial(self.inc_dec8, r, m, R1, 11, 1, 1, INC, Hd),   # 34 INC (HL)
             partial(self.inc_dec8, r, m, R1, 11, 1, -1, DEC, Hd),  # 35 DEC (HL)
             partial(self.ld8, r, m, R1, 10, 2, Hd, N),             # 36 LD (HL),n
@@ -2944,7 +2906,7 @@ class Simulator:
             partial(self.jr, r, m, 1, 1),                          # 38 JR C,nn
             partial(self.add16, r, R1, 11, 1, H, SP),              # 39 ADD HL,SP
             partial(self.ldann, r, m, 0),                          # 3A LD A,(nn)
-            partial(self.inc_dec16, r, -1, SP),                    # 3B DEC SP
+            partial(self.inc_dec16, r, R1, 6, 1, -1, SP),          # 3B DEC SP
             partial(self.inc_r, r, A),                             # 3C INC A
             partial(self.dec_r, r, A),                             # 3D DEC A
             partial(self.ld_r_n, r, m, A),                         # 3E LD A,n
@@ -3078,64 +3040,64 @@ class Simulator:
             partial(self.cp, r, m, R1, 7, 1, Hd),                  # BE CP (HL)
             partial(self.cp, r, m, R1, 4, 1, A),                   # BF CP A
             partial(self.ret, r, m, 64, 64),                       # C0 RET NZ
-            partial(self.pop, r, m, B),                            # C1 POP BC
-            partial(self.jp, r, m, 64, 64),                        # C2 JP NZ,nn
-            partial(self.jp, r, m, 0, 0),                          # C3 JP nn
+            partial(self.pop, r, m, R1, 10, 1, B),                 # C1 POP BC
+            partial(self.jp, r, m, R1, 10, 64, 64),                # C2 JP NZ,nn
+            partial(self.jp, r, m, R1, 10, 0, 0),                  # C3 JP nn
             partial(self.call, r, m, 64, 64),                      # C4 CALL NZ,nn
-            partial(self.push, r, m, B),                           # C5 PUSH BC
+            partial(self.push, r, m, R1, 11, 1, B),                # C5 PUSH BC
             partial(self.add_a, r, m, R1, 7, 2, N),                # C6 ADD A,n
             partial(self.rst, r, m, 0),                            # C7 RST $00
             partial(self.ret, r, m, 64, 0),                        # C8 RET Z
             partial(self.ret, r, m, 0, 0),                         # C9 RET
-            partial(self.jp, r, m, 64, 0),                         # CA JP Z,nn
+            partial(self.jp, r, m, R1, 10, 64, 0),                 # CA JP Z,nn
             partial(self.prefix, self.after_CB, r, m),             # CB prefix
             partial(self.call, r, m, 64, 0),                       # CC CALL Z,nn
             partial(self.call, r, m, 0, 0),                        # CD CALL nn
             partial(self.adc_a, r, m, R1, 7, 2, N),                # CE ADC A,n
             partial(self.rst, r, m, 8),                            # CF RST $08
             partial(self.ret, r, m, 1, 1),                         # D0 RET NC
-            partial(self.pop, r, m, D),                            # D1 POP DE
-            partial(self.jp, r, m, 1, 1),                          # D2 JP NC,nn
+            partial(self.pop, r, m, R1, 10, 1, D),                 # D1 POP DE
+            partial(self.jp, r, m, R1, 10, 1, 1),                  # D2 JP NC,nn
             partial(self.outa, r, m),                              # D3 OUT (n),A
             partial(self.call, r, m, 1, 1),                        # D4 CALL NC,nn
-            partial(self.push, r, m, D),                           # D5 PUSH DE
+            partial(self.push, r, m, R1, 11, 1, D),                # D5 PUSH DE
             partial(self.sub, r, m, R1, 7, 2, N),                  # D6 SUB n
             partial(self.rst, r, m, 16),                           # D7 RST $10
             partial(self.ret, r, m, 1, 0),                         # D8 RET C
             partial(self.exx, r),                                  # D9 EXX
-            partial(self.jp, r, m, 1, 0),                          # DA JP C,nn
+            partial(self.jp, r, m, R1, 10, 1, 0),                  # DA JP C,nn
             partial(self.in_a, r, m),                              # DB IN A,(n)
             partial(self.call, r, m, 1, 0),                        # DC CALL C,nn
             partial(self.prefix, self.after_DD, r, m),             # DD prefix
             partial(self.sbc_a, r, m, R1, 7, 2, N),                # DE SBC A,n
             partial(self.rst, r, m, 24),                           # DF RST $18
             partial(self.ret, r, m, 4, 4),                         # E0 RET PO
-            partial(self.pop, r, m, H),                            # E1 POP HL
-            partial(self.jp, r, m, 4, 4),                          # E2 JP PO,nn
+            partial(self.pop, r, m, R1, 10, 1, H),                 # E1 POP HL
+            partial(self.jp, r, m, R1, 10, 4, 4),                  # E2 JP PO,nn
             partial(self.ex_sp, r, m, H),                          # E3 EX (SP),HL
             partial(self.call, r, m, 4, 4),                        # E4 CALL PO,nn
-            partial(self.push, r, m, H),                           # E5 PUSH HL
+            partial(self.push, r, m, R1, 11, 1, H),                # E5 PUSH HL
             partial(self.and_n, r, m),                             # E6 AND n
             partial(self.rst, r, m, 32),                           # E7 RST $20
             partial(self.ret, r, m, 4, 0),                         # E8 RET PE
-            partial(self.jp, r, m, 0, H),                          # E9 JP (HL)
-            partial(self.jp, r, m, 4, 0),                          # EA JP PE,nn
+            partial(self.jp, r, m, R1, 4, 0, H),                   # E9 JP (HL)
+            partial(self.jp, r, m, R1, 10, 4, 0),                  # EA JP PE,nn
             partial(self.ex_de_hl, r),                             # EB EX DE,HL
             partial(self.call, r, m, 4, 0),                        # EC CALL PE,nn
             partial(self.prefix, self.after_ED, r, m),             # ED prefix
             partial(self.xor_n, r, m),                             # EE XOR n
             partial(self.rst, r, m, 40),                           # EF RST $28
             partial(self.ret, r, m, 128, 128),                     # F0 RET P
-            partial(self.pop, r, m, A),                            # F1 POP AF
-            partial(self.jp, r, m, 128, 128),                      # F2 JP P,nn
+            partial(self.pop, r, m, R1, 10, 1, A),                 # F1 POP AF
+            partial(self.jp, r, m, R1, 10, 128, 128),              # F2 JP P,nn
             partial(self.di_ei, r, 0),                             # F3 DI
             partial(self.call, r, m, 128, 128),                    # F4 CALL P,nn
-            partial(self.push, r, m, A),                           # F5 PUSH AF
+            partial(self.push, r, m, R1, 11, 1, A),                # F5 PUSH AF
             partial(self.or_n, r, m),                              # F6 OR n
             partial(self.rst, r, m, 48),                           # F7 RST $30
             partial(self.ret, r, m, 128, 0),                       # F8 RET M
-            partial(self.ldsprr, r, H),                            # F9 LD SP,HL
-            partial(self.jp, r, m, 128, 0),                        # FA JP M,nn
+            partial(self.ldsprr, r, R1, 6, 1, H),                  # F9 LD SP,HL
+            partial(self.jp, r, m, R1, 10, 128, 0),                # FA JP M,nn
             partial(self.di_ei, r, 1),                             # FB EI
             partial(self.call, r, m, 128, 0),                      # FC CALL M,nn
             partial(self.prefix, self.after_FD, r, m),             # FD prefix
