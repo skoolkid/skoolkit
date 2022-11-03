@@ -327,14 +327,6 @@ class Simulator:
     def prefix2(self, opcodes, registers, memory):
         opcodes[memory[(registers[24] + 3) % 65536]]()
 
-    def index(self, registers, memory, reg):
-        offset = memory[(registers[24] + 2) % 65536]
-        if offset >= 128:
-            offset -= 256
-        if reg == 32:
-            return (registers[9] + 256 * registers[8] + offset) % 65536
-        return (registers[11] + 256 * registers[10] + offset) % 65536
-
     def get_operand_value(self, registers, memory, size, reg):
         if reg < 16:
             return registers[reg]
@@ -342,7 +334,12 @@ class Simulator:
             return memory[registers[reg - 23] + 256 * registers[reg - 24]]
         if reg == 34:
             return memory[(registers[24] + size - 1) % 65536]
-        return memory[self.index(registers, memory, reg)]
+        offset = memory[(registers[24] + 2) % 65536]
+        if offset >= 128:
+            offset -= 256
+        if reg == 32:
+            return memory[(registers[9] + 256 * registers[8] + offset) % 65536]
+        return memory[(registers[11] + 256 * registers[10] + offset) % 65536]
 
     def set_operand_value(self, registers, memory, reg, value):
         if reg < 16:
@@ -350,7 +347,13 @@ class Simulator:
         elif reg < 32:
             self.poke(memory, registers[reg - 23] + 256 * registers[reg - 24], value)
         else:
-            self.poke(memory, self.index(registers, memory, reg), value)
+            offset = memory[(registers[24] + 2) % 65536]
+            if offset >= 128:
+                offset -= 256
+            if reg == 32:
+                self.poke(memory, (registers[9] + 256 * registers[8] + offset) % 65536, value)
+            else:
+                self.poke(memory, (registers[11] + 256 * registers[10] + offset) % 65536, value)
 
     def poke(self, memory, address, *values):
         if address > 0x3FFF:
@@ -506,7 +509,10 @@ class Simulator:
         else:
             pc = registers[24]
             ret_addr = (pc + 3) % 65536
-            self._push(registers, memory, ret_addr % 256, ret_addr // 256)
+            self.ppcount += 1
+            sp = (registers[12] - 2) % 65536
+            registers[12] = sp
+            self.poke(memory, sp, ret_addr % 256, ret_addr // 256)
             registers[25] += 17
             registers[24] = memory[(pc + 1) % 65536] + 256 * memory[(pc + 2) % 65536]
         registers[15] = R1[registers[15]]
@@ -1049,26 +1055,21 @@ class Simulator:
             registers[24] = (registers[24] + 2) % 65536
         registers[15] = R2[registers[15]]
 
-    def _pop(self, registers, memory):
+    def pop(self, registers, memory, r_inc, timing, size, reg):
+        self.ppcount -= 1
         sp = registers[12]
         registers[12] = (sp + 2) % 65536
-        self.ppcount -= 1
-        return memory[sp], memory[(sp + 1) % 65536]
-
-    def pop(self, registers, memory, r_inc, timing, size, reg):
-        registers[reg + 1], registers[reg] = self._pop(registers, memory)
+        registers[reg + 1] = memory[sp]
+        registers[reg] = memory[(sp + 1) % 65536]
         registers[15] = r_inc[registers[15]]
         registers[25] += timing
         registers[24] = (registers[24] + size) % 65536
 
-    def _push(self, registers, memory, lsb, msb):
-        sp = (registers[12] - 2) % 65536
-        self.poke(memory, sp, lsb, msb)
-        self.ppcount += 1
-        registers[12] = sp
-
     def push(self, registers, memory, r_inc, timing, size, reg):
-        self._push(registers, memory, registers[reg + 1], registers[reg])
+        self.ppcount += 1
+        sp = (registers[12] - 2) % 65536
+        registers[12] = sp
+        self.poke(memory, sp, registers[reg + 1], registers[reg])
         registers[15] = r_inc[registers[15]]
         registers[25] += timing
         registers[24] = (registers[24] + size) % 65536
@@ -1080,19 +1081,25 @@ class Simulator:
                 registers[24] = (registers[24] + 1) % 65536
             else:
                 registers[25] += 11
-                lsb, msb = self._pop(registers, memory)
-                registers[24] = lsb + 256 * msb
+                self.ppcount -= 1
+                sp = registers[12]
+                registers[12] = (sp + 2) % 65536
+                registers[24] = memory[sp] + 256 * memory[(sp + 1) % 65536]
         else:
             registers[25] += 10
-            lsb, msb = self._pop(registers, memory)
-            registers[24] = lsb + 256 * msb
+            self.ppcount -= 1
+            sp = registers[12]
+            registers[12] = (sp + 2) % 65536
+            registers[24] = memory[sp] + 256 * memory[(sp + 1) % 65536]
         registers[15] = R1[registers[15]]
 
     def reti(self, registers, memory):
+        self.ppcount -= 1
         registers[15] = R2[registers[15]]
         registers[25] += 14
-        lsb, msb = self._pop(registers, memory)
-        registers[24] = lsb + 256 * msb
+        sp = registers[12]
+        registers[12] = (sp + 2) % 65536
+        registers[24] = memory[sp] + 256 * memory[(sp + 1) % 65536]
 
     def res_set(self, registers, memory, timing, size, bit, reg, bitval, dest=-1):
         if bitval:
@@ -1177,8 +1184,11 @@ class Simulator:
         registers[24] = (registers[24] + size) % 65536
 
     def rst(self, registers, memory, addr):
+        self.ppcount += 1
+        sp = (registers[12] - 2) % 65536
+        registers[12] = sp
         ret_addr = (registers[24] + 1) % 65536
-        self._push(registers, memory, ret_addr % 256, ret_addr // 256)
+        self.poke(memory, sp, ret_addr % 256, ret_addr // 256)
         registers[15] = R1[registers[15]]
         registers[25] += 11
         registers[24] = addr

@@ -1180,7 +1180,7 @@ class SimulatorTest(SkoolKitTestCase):
                 memory[value + offset] = r2
                 self._test_instruction(simulator, operation, data, 19, reg_out)
 
-        offset = 3
+        offset = -3
         r1, r2 = 142, 27
         for value, (prefix, reg, rh, rl) in enumerate(INDEX_REGISTERS, 32768):
             for i, (r8, r) in enumerate(REGISTERS):
