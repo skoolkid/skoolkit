@@ -247,7 +247,7 @@ class Simulator:
             self.set_registers(registers)
         if state is None:
             state = {}
-        self.ppcount = state.get('ppcount', 0)
+        self.ppcount = 0
         self.imode = state.get('im', 1)
         self.iff2 = state.get('iff', 0)
         self.registers[25] = state.get('tstates', 0)
@@ -260,15 +260,10 @@ class Simulator:
         if cfg['fast_ldir']:
             self.after_ED[0xB0] = partial(self.ldir_fast, self.registers, self.memory, 1)
             self.after_ED[0xB8] = partial(self.ldir_fast, self.registers, self.memory, -1)
-        self.itracer = None
         self.in_tracer = None
         self.out_tracer = None
 
     def set_tracer(self, tracer):
-        if hasattr(tracer, 'trace'):
-            self.itracer = partial(tracer.trace, self)
-        else:
-            self.itracer = None
         if hasattr(tracer, 'read_port'):
             self.in_tracer = partial(tracer.read_port, self)
         else:
@@ -284,25 +279,16 @@ class Simulator:
         registers = self.registers
         if start is not None:
             registers[24] = start
-
-        itracer = self.itracer
-        if itracer:
-            while True:
-                pc = registers[24]
-                opcodes[memory[pc]]()
-                if itracer(pc):
-                    break
-            return
+        pc = registers[24]
 
         if stop is None:
-            return opcodes[memory[registers[24]]]()
-
-        pc = registers[24]
-        while True:
             opcodes[memory[pc]]()
-            pc = registers[24]
-            if pc == stop:
-                break
+        else:
+            while True:
+                opcodes[memory[pc]]()
+                pc = registers[24]
+                if pc == stop:
+                    break
 
     def set_registers(self, registers):
         for reg, value in registers.items():

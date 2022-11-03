@@ -8,65 +8,65 @@ sys.path.insert(0, SKOOLKIT_HOME)
 from skoolkit.simulator import (REGISTERS, A, F, B, C, D, E, H, L, IXh, IXl,
                                 IYh, IYl, SP, I, R, PC, Hd, Xd, Yd, N)
 
-INITIAL_REGISTERS = [0] * PC
+INITIAL_REGISTERS = [0] * (PC + 1)
 
 class BaseTracer:
-    def __init__(self, max_count):
+    def __init__(self, max_count, opcodes):
         self.count = max_count
         self.max_count = max_count
+        self.opcodes = opcodes
         self.index = 0
-        self.max_index = 1
+        self.max_index = len(opcodes)
         self.data = bytearray()
         self.checksum = None
-        self.operations = 0
-        self.stop = False
 
-    def collect_result(self, simulator, address):
-        data = self.data
-        if self.operations:
-            registers = simulator.registers
-            memory = simulator.memory
-            bc = registers[C] + 256 * registers[B]
-            de = registers[E] + 256 * registers[D]
-            hl = registers[L] + 256 * registers[H]
-            ix = registers[IXl] + 256 * registers[IXh]
-            iy = registers[IYl] + 256 * registers[IYh]
-            sp = registers[SP]
-            data.extend(registers[:SP])
-            data.extend((sp // 256, sp % 256))
-            data.extend(registers[SP + 2:PC])
-            data.extend(memory[bc:bc + 2])
-            data.extend(memory[de:de + 2])
-            data.extend(memory[hl:hl + 2])
-            data.extend(memory[ix:ix + 2])
-            data.extend(memory[iy:iy + 2])
-            data.extend(memory[sp - 2:sp + 2])
+    def run(self, simulator):
+        opcodes = simulator.opcodes
+        memory = simulator.memory
+        registers = simulator.registers
 
-            registers[:PC] = INITIAL_REGISTERS
+        while True:
+            registers[:PC + 1] = INITIAL_REGISTERS
             registers[SP] = 32768
             registers[B] = 129
             registers[D] = 130
             registers[H] = 131
             registers[IXh] = 132
             registers[IYh] = 133
-        self.operations += 1
-        if self.stop:
-            self.checksum = hashlib.md5(data).hexdigest()
-            return True
+            self.prepare(simulator)
+            opcodes[memory[registers[24]]]()
+            self.collect_result(simulator)
+            self.count -= 1
+            if self.count < 0:
+                self.index += 1
+                self.count = self.max_count
+                if self.index >= self.max_index:
+                    self.checksum = hashlib.md5(self.data).hexdigest()
+                    break
 
-    def repeat(self, simulator):
-        simulator.registers[PC] = 0
-        self.count -= 1
-        if self.count < 0:
-            self.index += 1
-            self.count = self.max_count
-            if self.index >= self.max_index:
-                self.stop = True
+    def collect_result(self, simulator):
+        data = self.data
+        registers = simulator.registers
+        memory = simulator.memory
+        bc = registers[C] + 256 * registers[B]
+        de = registers[E] + 256 * registers[D]
+        hl = registers[L] + 256 * registers[H]
+        ix = registers[IXl] + 256 * registers[IXh]
+        iy = registers[IYl] + 256 * registers[IYh]
+        sp = registers[SP]
+        data.extend(registers[:SP])
+        data.extend((sp // 256, sp % 256))
+        data.extend(registers[SP + 2:PC])
+        data.extend(memory[bc:bc + 2])
+        data.extend(memory[de:de + 2])
+        data.extend(memory[hl:hl + 2])
+        data.extend(memory[ix:ix + 2])
+        data.extend(memory[iy:iy + 2])
+        data.extend(memory[sp - 2:sp + 2])
 
 class AFRTracer(BaseTracer):
     def __init__(self, base_opcode):
-        super().__init__(0x1FFFF)
-        self.opcodes = (
+        opcodes = (
             (B, (base_opcode,)),               # B
             (C, (base_opcode + 1,)),           # C
             (D, (base_opcode + 2,)),           # D
@@ -82,11 +82,9 @@ class AFRTracer(BaseTracer):
             (Xd, (0xDD, base_opcode + 6, 0)),  # (IX+0)
             (Yd, (0xFD, base_opcode + 6, 0)),  # (IY+0)
         )
-        self.max_index = len(self.opcodes)
+        super().__init__(0x1FFFF, opcodes)
 
-    def trace(self, simulator, instruction):
-        if self.collect_result(simulator, instruction):
-            return True
+    def prepare(self, simulator):
         registers = simulator.registers
         registers[F] = (self.count // 65536) * 255
         registers[A] = (self.count >> 8) & 0xFF
@@ -106,15 +104,13 @@ class AFRTracer(BaseTracer):
             simulator.memory[1] = r
         else:
             simulator.registers[reg] = r
-        self.repeat(simulator)
 
 class FRTracer(BaseTracer):
     def __init__(self, *base_opcodes):
-        super().__init__(0xFFFF)
         if len(base_opcodes) == 2:
             p = base_opcodes[0]
             base_opcode = base_opcodes[1]
-            self.opcodes = (
+            opcodes = (
                 (B, (p, base_opcode)),                # B
                 (C, (p, base_opcode + 1)),            # C
                 (D, (p, base_opcode + 2)),            # D
@@ -132,7 +128,7 @@ class FRTracer(BaseTracer):
             )
         else:
             base_opcode = base_opcodes[0]
-            self.opcodes = (
+            opcodes = (
                 (B, (base_opcode,)),                  # B
                 (C, (base_opcode + 1,)),              # C
                 (D, (base_opcode + 2,)),              # D
@@ -148,11 +144,9 @@ class FRTracer(BaseTracer):
                 (Xd, (0xDD, base_opcode + 6, 0)),     # (IX+0)
                 (Yd, (0xFD, base_opcode + 6, 0)),     # (IY+0)
             )
-        self.max_index = len(self.opcodes)
+        super().__init__(0xFFFF, opcodes)
 
-    def trace(self, simulator, instruction):
-        if self.collect_result(simulator, instruction):
-            return True
+    def prepare(self, simulator):
         simulator.registers[F] = self.count // 256
         r = self.count % 256
         reg, opcodes = self.opcodes[self.index]
@@ -168,12 +162,10 @@ class FRTracer(BaseTracer):
             simulator.memory[iy] = r
         else:
             simulator.registers[reg] = r
-        self.repeat(simulator)
 
 class RSTracer(BaseTracer):
     def __init__(self, base_opcode):
-        super().__init__(0x3FF)
-        self.opcodes = (
+        opcodes = (
             (IXh, B, (0xDD, 0xCB, 0, base_opcode)),     # (IX+0),B
             (IXh, C, (0xDD, 0xCB, 0, base_opcode + 1)), # (IX+0),C
             (IXh, D, (0xDD, 0xCB, 0, base_opcode + 2)), # (IX+0),D
@@ -189,50 +181,38 @@ class RSTracer(BaseTracer):
             (IYh, L, (0xFD, 0xCB, 0, base_opcode + 5)), # (IY+0),L
             (IYh, A, (0xFD, 0xCB, 0, base_opcode + 7)), # (IY+0),A
         )
-        self.max_index = len(self.opcodes)
+        super().__init__(0x3FF, opcodes)
 
-    def trace(self, simulator, instruction):
-        if self.collect_result(simulator, instruction):
-            return True
+    def prepare(self, simulator):
         reg, dest, opcodes = self.opcodes[self.index]
         simulator.memory[:len(opcodes)] = opcodes
         simulator.registers[F] = (self.count // 512) * 255
         simulator.registers[dest] = ((self.count // 256) % 2) * 255
         xy = simulator.registers[reg] * 256 + simulator.registers[reg + 1]
         simulator.memory[xy] = self.count % 256
-        self.repeat(simulator)
 
 class AFTracer(BaseTracer):
     def __init__(self, *opcodes):
-        super().__init__(0xFFFF)
-        self.opcodes = opcodes
+        super().__init__(0xFFFF, [opcodes])
 
-    def trace(self, simulator, instruction):
-        if self.collect_result(simulator, instruction):
-            return True
-        simulator.memory[:len(self.opcodes)] = self.opcodes
+    def prepare(self, simulator):
+        simulator.memory[:len(self.opcodes[0])] = self.opcodes[0]
         simulator.registers[F] = self.count // 256
         simulator.registers[A] = self.count % 256
-        self.repeat(simulator)
 
 class FTracer(BaseTracer):
     def __init__(self, opcode):
-        super().__init__(0xFF)
-        self.opcode = opcode
+        super().__init__(0xFF, [[opcode]])
 
-    def trace(self, simulator, instruction):
-        if self.collect_result(simulator, instruction):
-            return True
-        simulator.memory[0] = self.opcode
+    def prepare(self, simulator):
+        simulator.memory[:1] = self.opcodes[0]
         simulator.registers[F] = self.count
-        self.repeat(simulator)
 
 class HLRRFTracer(BaseTracer):
     def __init__(self, *base_opcodes):
-        super().__init__(0x07FFFF)
         if len(base_opcodes) == 1:
             base_opcode = base_opcodes[0]
-            self.opcodes = (
+            opcodes = (
                 (H, B, (base_opcode,)),              # HL,BC
                 (H, D, (base_opcode + 16,)),         # HL,DE
                 (H, SP, (base_opcode + 48,)),        # HL,SP
@@ -246,16 +226,14 @@ class HLRRFTracer(BaseTracer):
         else:
             p = base_opcodes[0]
             base_opcode = base_opcodes[1]
-            self.opcodes = (
+            opcodes = (
                 (H, B, (p, base_opcode)),            # HL,BC
                 (H, D, (p, base_opcode + 16)),       # HL,DE
                 (H, SP, (p, base_opcode + 48)),      # HL,SP
             )
-        self.max_index = len(self.opcodes)
+        super().__init__(0x07FFFF, opcodes)
 
-    def trace(self, simulator, instruction):
-        if self.collect_result(simulator, instruction):
-            return True
+    def prepare(self, simulator):
         r1h, r2h, opcodes = self.opcodes[self.index]
         simulator.memory[:len(opcodes)] = opcodes
         simulator.registers[F] = (self.count >> 18) * 255
@@ -268,14 +246,12 @@ class HLRRFTracer(BaseTracer):
         b = (v & 0x01) + 16 * (v & 0x02)
         simulator.registers[r1h] = b
         simulator.registers[r1h + 1] = b
-        self.repeat(simulator)
 
 class HLFTracer(BaseTracer):
     def __init__(self, *base_opcodes):
-        super().__init__(0x1FFFF)
         if len(base_opcodes) == 1:
             base_opcode = base_opcodes[0]
-            self.opcodes = (
+            opcodes = (
                 (H, (base_opcode,)),           # HL,HL
                 (IXh, (0xDD, base_opcode)),    # IX,IX
                 (IYh, (0xFD, base_opcode)),    # IY,IY
@@ -283,34 +259,27 @@ class HLFTracer(BaseTracer):
         else:
             p = base_opcodes[0]
             base_opcode = base_opcodes[1]
-            self.opcodes = (
+            opcodes = (
                 (H, (p, base_opcode)),         # HL,HL
                 (IXh, (0xDD, p, base_opcode)), # IX,IX
                 (IYh, (0xDD, p, base_opcode)), # IY,IY
             )
-        self.max_index = len(self.opcodes)
+        super().__init__(0x1FFFF, opcodes)
 
-    def trace(self, simulator, instruction):
-        if self.collect_result(simulator, instruction):
-            return True
+    def prepare(self, simulator):
         rh, opcodes = self.opcodes[self.index]
         simulator.memory[:len(opcodes)] = opcodes
         simulator.registers[F] = (self.count // 65536) * 255
         simulator.registers[rh] = (self.count // 256) % 256
         simulator.registers[rh + 1] = self.count % 256
-        self.repeat(simulator)
 
 class BlockTracer(BaseTracer):
     def __init__(self, *opcodes):
-        super().__init__(0x3FFFF)
-        self.opcodes = opcodes
+        super().__init__(0x3FFFF, [opcodes])
 
-    def trace(self, simulator, instruction):
-        if self.collect_result(simulator, instruction):
-            return True
-
+    def prepare(self, simulator):
         registers, memory = simulator.registers, simulator.memory
-        memory[:2] = self.opcodes
+        memory[:2] = self.opcodes[0]
         registers[A] = 0x03
         if self.count & 0x20000:
             # LDIR should not touch the S, Z and C flags
@@ -332,11 +301,8 @@ class BlockTracer(BaseTracer):
             memory[hl] = registers[A] ^ 0xFF
         simulator.memory[de] = simulator.memory[hl] ^ 0xFF
 
-        self.repeat(simulator)
-
 class BitTracer(BaseTracer):
     def __init__(self):
-        super().__init__(0x1FF)
         base_opcodes = (
             (B, (0xCB, 0x40)),           # B
             (C, (0xCB, 0x41)),           # C
@@ -363,16 +329,13 @@ class BitTracer(BaseTracer):
             (Yd, (0xFD, 0xCB, 0, 0x46)), # (IY+0)
             (Yd, (0xFD, 0xCB, 0, 0x47)), # (IY+0)
         )
-        self.opcodes = []
+        opcodes = []
         for bit in range(8):
-            for reg, opcodes in base_opcodes:
-                self.opcodes.append((reg, (*opcodes[:-1], opcodes[-1] + bit * 8)))
-        self.max_index = len(self.opcodes)
+            for reg, values in base_opcodes:
+                opcodes.append((reg, (*values[:-1], values[-1] + bit * 8)))
+        super().__init__(0x1FF, opcodes)
 
-    def trace(self, simulator, instruction):
-        if self.collect_result(simulator, instruction):
-            return True
-
+    def prepare(self, simulator):
         registers, memory = simulator.registers, simulator.memory
         reg, opcodes = self.opcodes[self.index]
         memory[:len(opcodes)] = opcodes
@@ -397,69 +360,55 @@ class BitTracer(BaseTracer):
             memory[hl] = self.count % 256
         else:
             registers[reg] = self.count % 256
-        self.repeat(simulator)
 
 class RRDRLDTracer(BaseTracer):
     def __init__(self, *opcodes):
-        super().__init__(0x1FFFF)
-        self.opcodes = opcodes
+        super().__init__(0x1FFFF, [opcodes])
 
-    def trace(self, simulator, instruction):
-        if self.collect_result(simulator, instruction):
-            return True
+    def prepare(self, simulator):
         registers, memory = simulator.registers, simulator.memory
-        memory[:len(self.opcodes)] = self.opcodes
+        memory[:2] = self.opcodes[0]
         registers[A] = (self.count // 256) % 256
         registers[F] = (self.count // 65536) * 255
         hl = 0x6000
         registers[H] = hl // 256
         registers[L] = hl % 256
         memory[hl] = self.count % 256
-        self.repeat(simulator)
 
 class InTracer(BaseTracer):
-    def __init__(self, *opcodes):
-        super().__init__(0x1FF)
-        self.opcodes = (
-            (B, (0xED, 0x40)), # IN B,(C)
-            (C, (0xED, 0x48)), # IN C,(C)
-            (D, (0xED, 0x50)), # IN D,(C)
-            (E, (0xED, 0x58)), # IN E,(C)
-            (H, (0xED, 0x60)), # IN H,(C)
-            (L, (0xED, 0x68)), # IN L,(C)
-            (F, (0xED, 0x70)), # IN F,(C)
-            (A, (0xED, 0x78)), # IN A,(C)
+    def __init__(self):
+        opcodes = (
+            (0xED, 0x40), # IN B,(C)
+            (0xED, 0x48), # IN C,(C)
+            (0xED, 0x50), # IN D,(C)
+            (0xED, 0x58), # IN E,(C)
+            (0xED, 0x60), # IN H,(C)
+            (0xED, 0x68), # IN L,(C)
+            (0xED, 0x70), # IN F,(C)
+            (0xED, 0x78), # IN A,(C)
         )
-        self.max_index = len(self.opcodes)
+        super().__init__(0x1FF, opcodes)
         self.value = 0
 
-    def trace(self, simulator, instruction):
-        if self.collect_result(simulator, instruction):
-            return True
-        reg, opcodes = self.opcodes[self.index]
-        simulator.memory[:2] = opcodes
+    def prepare(self, simulator):
+        simulator.memory[:2] = self.opcodes[self.index]
         simulator.registers[B] = 0xAA
         simulator.registers[C] = 0xFE
         simulator.registers[F] = (self.count // 256) * 255
         self.value = self.count % 256
-        self.repeat(simulator)
 
     def read_port(self, simulator, port):
         return self.value
 
 class AIRTracer(BaseTracer):
     def __init__(self, reg, *opcodes):
-        super().__init__(0x1FF)
-        self.opcodes = opcodes
+        super().__init__(0x1FF, [opcodes])
         self.reg = reg
 
-    def trace(self, simulator, instruction):
-        if self.collect_result(simulator, instruction):
-            return True
-        simulator.memory[:2] = self.opcodes
+    def prepare(self, simulator):
+        simulator.memory[:2] = self.opcodes[0]
         simulator.registers[F] = (self.count // 256) * 255
         simulator.registers[self.reg] = self.count % 256
-        self.repeat(simulator)
 
 SUITES = {
     'ALO': (
@@ -485,7 +434,7 @@ SUITES = {
         'DAA instruction',
         ('DAA', AFTracer, (0x27,)),
     ),
-    'CF': (
+    'SCF': (
         'SCF/CCF instructions',
         ('SCF', FTracer, (0x37,)),
         ('CCF', FTracer, (0x3F,)),

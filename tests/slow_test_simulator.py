@@ -6,194 +6,208 @@ class SimulatorTest(SkoolKitTestCase):
     def _verify(self, tracer, checksum):
         simulator = Simulator([0] * 65536)
         simulator.set_tracer(tracer)
-        simulator.run(0)
+        tracer.run(simulator)
         self.assertEqual(tracer.checksum, checksum)
 
+class ALOTest(SimulatorTest):
     def test_add_a_r(self):
-        self._verify(AFRTracer(128), '9afe277de639b935fafc8456f013f0fa')
+        self._verify(AFRTracer(128), '1c6a3e0f330119a63fd3d46cda7e7acc')
 
     def test_add_a_a(self):
-        self._verify(AFTracer(135), 'fb0d4abb4e8d4fd5cfaa217e779cf1a9')
+        self._verify(AFTracer(135), '8a5b656618120683ff1e8b2c91e55315')
 
     def test_adc_a_r(self):
-        self._verify(AFRTracer(136), '7d8c3924ba5f4360d4702220d6a7494e')
+        self._verify(AFRTracer(136), '0ae2d98f422d958f8ca77645a3b17aad')
 
     def test_adc_a_a(self):
-        self._verify(AFTracer(143), 'cdef42fc2700d32acfe9d386b1f86aea')
+        self._verify(AFTracer(143), 'af1966e41681c026ad6c9d6e12fc3ed8')
 
     def test_sub_r(self):
-        self._verify(AFRTracer(144), '9651ec05fc16873d052628e38ba8784c')
+        self._verify(AFRTracer(144), '7b83a54cdd1c371a61ab9a643f1b435f')
 
     def test_sub_a(self):
-        self._verify(AFTracer(151), 'e2005356ced7923690fe5ba5d8c6e5b2')
+        self._verify(AFTracer(151), 'f83836b3beef2cf62227b74fa2db50d5')
 
     def test_sbc_a_r(self):
-        self._verify(AFRTracer(152), '82a5257808fa94703d31ae0d8ba24f7a')
+        self._verify(AFRTracer(152), 'b4cbffcca3bdc458fd705d0b3dbcd3d9')
 
     def test_sbc_a_a(self):
-        self._verify(AFTracer(159), '678056ef932c11bdb44bcd39dcbb8f96')
+        self._verify(AFTracer(159), '56af67d5c20e1fe7956207a4059edcc6')
 
     def test_and_r(self):
-        self._verify(AFRTracer(160), 'a156f5c67aa471927729eb6f13ed638d')
+        self._verify(AFRTracer(160), 'a1b1b04170d249215f640d124901779a')
 
     def test_and_a(self):
-        self._verify(AFTracer(167), '5656eedf422c04e36dfbcabec442692c')
+        self._verify(AFTracer(167), '31ae45e207c05e600804ac1988828251')
 
     def test_xor_r(self):
-        self._verify(AFRTracer(168), 'ecc5b48b7cc84554a86b60d8af7ebdfd')
+        self._verify(AFRTracer(168), 'ff7501c5bc9d6ea6b2c097285e2d3d64')
 
     def test_xor_a(self):
-        self._verify(AFTracer(175), 'c18cd8dc96f251903d73f7d9757a3bad')
+        self._verify(AFTracer(175), '877412cf02e8552f3b834d8bcca0676f')
 
     def test_or_r(self):
-        self._verify(AFRTracer(176), 'fb6c40cc1d5aeeacaab30cd5f5f6f2fd')
+        self._verify(AFRTracer(176), 'ed3bf5d700d7a756a0e458eb82f7bf05')
 
     def test_or_a(self):
-        self._verify(AFTracer(183), '7b9198ee6e11ccac257a7d4a3a4b1b5d')
+        self._verify(AFTracer(183), '00d7b2313b6ea20857481badfa96b2a2')
 
     def test_cp_r(self):
-        self._verify(AFRTracer(184), '4a4c413096de68d3043aa6ca5efa306d')
+        self._verify(AFRTracer(184), 'dbd26489cd3c0bb8ec4693c291b41dce')
 
     def test_cp_a(self):
-        self._verify(AFTracer(191), '48d5726805ab6c108d0ad438cc751973')
+        self._verify(AFTracer(191), '63cec365d0cfddd18244fb6025402450')
 
+class DAATest(SimulatorTest):
     def test_daa(self):
-        self._verify(AFTracer(39), '03fcf0038e8955cbf04a89b6550b7aa9')
+        self._verify(AFTracer(39), '34cfcda66d6592aded581d6b96ba7362')
 
+class SCFTest(SimulatorTest):
     def test_scf(self):
-        self._verify(FTracer(55), '999ed20ae7df47a0845b24601debc892')
+        self._verify(FTracer(55), 'c9a7fca843329542556862e58024cc72')
 
     def test_ccf(self):
-        self._verify(FTracer(63), '5cce98362580dde26e01ee7754446f44')
+        self._verify(FTracer(63), '1a50e83953cd4846305c4eade745d647')
 
+class CPLTest(SimulatorTest):
     def test_cpl(self):
-        self._verify(AFTracer(47), '4e3833af3b4d1f825f79dfde637eb1df')
+        self._verify(AFTracer(47), 'deb05b693f42d3ec373590cd8feea460')
 
+class NEGTest(SimulatorTest):
     def test_neg(self):
-        self._verify(AFTracer(237, 68), 'ca3142ddbdfb60939eb40895f4a9939a')
+        self._verify(AFTracer(237, 68), '70ade5872635e86f4cacbdc84fe5b724')
 
+class RA1Test(SimulatorTest):
     def test_rlca(self):
-        self._verify(AFTracer(7), '0bb7a194ef2060d1a2429960d42ea82f')
+        self._verify(AFTracer(7), '9dc646a13ac28f1f95859834feb321fe')
 
     def test_rrca(self):
-        self._verify(AFTracer(15), 'bc463c5bf52c8e4869ffa5de70a98d54')
+        self._verify(AFTracer(15), 'ce72473474024199ea65180a94449845')
 
     def test_rla(self):
-        self._verify(AFTracer(23), 'ecc970ff4a83fa0c0cb6d3586c51d1a9')
+        self._verify(AFTracer(23), 'fe58ba7e2c997e99292b3c63e0346e53')
 
     def test_rra(self):
-        self._verify(AFTracer(31), '7128349be359517011763e7ba0c5ab8a')
+        self._verify(AFTracer(31), '875b8df4ff9b0be8f80c91ec6a81a37d')
 
+class SROTest(SimulatorTest):
     def test_rlc_r(self):
-        self._verify(FRTracer(203, 0), 'ed721840662b861550518f47c34e2f8c')
+        self._verify(FRTracer(203, 0), 'e512b2336da2db2924462a397db18989')
 
     def test_rrc_r(self):
-        self._verify(FRTracer(203, 8), 'e8ca7ba9842929f844629cec3c89714c')
+        self._verify(FRTracer(203, 8), 'fb629c7da21d006f883f15c868de36f2')
 
     def test_rl_r(self):
-        self._verify(FRTracer(203, 16), 'cebcb2448feff02bb62d8e7d32704033')
+        self._verify(FRTracer(203, 16), '94d76d52a9722dd4c4ff589d867b0ad4')
 
     def test_rr_r(self):
-        self._verify(FRTracer(203, 24), '81f5b727dd6696fc0252f2c1a364c555')
+        self._verify(FRTracer(203, 24), 'e867de27d6eb893eb0b61b3be7106c07')
 
     def test_sla_r(self):
-        self._verify(FRTracer(203, 32), 'c1cd09dd822fc913755500249d5b73a8')
+        self._verify(FRTracer(203, 32), 'aa0a3f81d903365ca3625adafcf8bf92')
 
     def test_sra_r(self):
-        self._verify(FRTracer(203, 40), '3978ac5e0144aa42fbac81fa47a28a84')
+        self._verify(FRTracer(203, 40), '7b356b838601a6dceb30292c4e301ffa')
 
     def test_sll_r(self):
-        self._verify(FRTracer(203, 48), '5b39f7612ffe24d044c823d966458b31')
+        self._verify(FRTracer(203, 48), '90c0972cab960ba80aed1059f9867160')
 
     def test_srl_r(self):
-        self._verify(FRTracer(203, 56), '50dbb30b14a062ec0dcebc38013943cc')
+        self._verify(FRTracer(203, 56), 'b4ae827e923d4a9cda244056b61ca65a')
 
     def test_rlc_r_r(self):
-        self._verify(RSTracer(0), '5aa6d5daac71b2b2ad0952c091bc0090')
+        self._verify(RSTracer(0), '1829457fc451db03fe9eafdd651b5d6b')
 
     def test_rrc_r_r(self):
-        self._verify(RSTracer(8), 'ba776156c4f24099550c376d0bc3bbd9')
+        self._verify(RSTracer(8), 'b958b9c7332b86cbe22f01fea9a2b10f')
 
     def test_rl_r_r(self):
-        self._verify(RSTracer(16), 'f2796e66a5d863126aa25dfe382c414e')
+        self._verify(RSTracer(16), '76242d1e4d0b9a1b0f8741bc80844367')
 
     def test_rr_r_r(self):
-        self._verify(RSTracer(24), '2f8df4496394a2b91dd9ffea1471ed2a')
+        self._verify(RSTracer(24), '66353d9456c554be329352640feed04f')
 
     def test_sla_r_r(self):
-        self._verify(RSTracer(32), '9c665fa4c5ac09b17f97c7a44d9dc643')
+        self._verify(RSTracer(32), 'd0c1118c36798b3f38817befce049383')
 
     def test_sra_r_r(self):
-        self._verify(RSTracer(40), '89b00b8d15e8f48b6bb9c6f4045ac4fa')
+        self._verify(RSTracer(40), '90f0511e54206c36f9ad7c2349df4360')
 
     def test_sll_r_r(self):
-        self._verify(RSTracer(48), 'e39f2524b6ade5f61cc200ae51f6b6a1')
+        self._verify(RSTracer(48), 'f618f40e4093f49f52c6e1d70e6f4cd4')
 
     def test_srl_r_r(self):
-        self._verify(RSTracer(56), '99e18b4a1e9c8b00f44910181a6a9ae2')
+        self._verify(RSTracer(56), 'ec2530a0940da922ad62680ee5cec23e')
 
+class INCTest(SimulatorTest):
     def test_inc_r(self):
-        self._verify(FRTracer(4), '6f0fd59747a860949c9498ac41870aad')
+        self._verify(FRTracer(4), '486b2838e58dd05b38b607d8817c0a3e')
 
     def test_dec_r(self):
-        self._verify(FRTracer(5), 'e5d2a987c2c21a7af1648c9721fd964d')
+        self._verify(FRTracer(5), '965cf60398a9a34a32b0870ba747e65e')
 
+class AHLTest(SimulatorTest):
     def test_add_hl_rr(self):
-        self._verify(HLRRFTracer(9), '789049808da2dfdc794dfb9fa1f1df83')
+        self._verify(HLRRFTracer(9), '150d6938ab4b36a65d444db86ed63126')
 
     def test_adc_hl_rr(self):
-        self._verify(HLRRFTracer(237, 74), '12622bf85fac94ed4d11839aff1b6090')
+        self._verify(HLRRFTracer(237, 74), '9643a4192ab8ed90466640564c821614')
 
     def test_sbc_hl_rr(self):
-        self._verify(HLRRFTracer(237, 66), 'b109b2492f87adf7af7b9a60996e952b')
+        self._verify(HLRRFTracer(237, 66), '6ee65de993e5650288da7ee1e0ad749d')
 
     def test_add_hl_hl(self):
-        self._verify(HLFTracer(41), '0f48f19bc496bb25260a105233dd5337')
+        self._verify(HLFTracer(41), 'c1e9d4ef148c912ed4d5ddbd3d761eb4')
 
     def test_adc_hl_hl(self):
-        self._verify(HLFTracer(237, 106), '69eded5109a49624aa9f3896698cfa83')
+        self._verify(HLFTracer(237, 106), '7540639ced53d305f2ebff71af813cc8')
 
     def test_sbc_hl_hl(self):
-        self._verify(HLFTracer(237, 98), '6af47f849e6857614c0f736e9751f4f5')
+        self._verify(HLFTracer(237, 98), 'b2352766d380075636c4cf0a38a7e7d8')
 
+class BLKTest(SimulatorTest):
     def test_ldi(self):
-        self._verify(BlockTracer(237, 160), 'b2f9ffbc4ad978abb609b521350bbf4f')
+        self._verify(BlockTracer(237, 160), 'b45a630491a39fe5e60b08e8654cf885')
 
     def test_ldd(self):
-        self._verify(BlockTracer(237, 168), '79c3cf9c6028a4804b148677b55ca7b9')
+        self._verify(BlockTracer(237, 168), '68e3af1acfad1b96383226598dc264bc')
 
     def test_cpi(self):
-        self._verify(BlockTracer(237, 161), '3b507013d9c139ccacda1b13e2f5233d')
+        self._verify(BlockTracer(237, 161), 'e95c3e26f058171f59c4dcf975850d5a')
 
     def test_cpd(self):
-        self._verify(BlockTracer(237, 169), 'df68d8c41fa163541f9c578e3a5088cb')
+        self._verify(BlockTracer(237, 169), 'bbb5ec40ffa641aaeae8f94a55e7a739')
 
     def test_ini(self):
-        self._verify(BlockTracer(237, 162), 'c746797f505ef6d76d584a14e7be5f52')
+        self._verify(BlockTracer(237, 162), '1e0fb5b9932f4df1a2d832d9aaa8ae3e')
 
     def test_ind(self):
-        self._verify(BlockTracer(237, 170), '842d359bf8fd0992ec8d90e63da5d185')
+        self._verify(BlockTracer(237, 170), 'ce2f4816f1fce43c5fe5a36b9f14b4c0')
 
     def test_outi(self):
-        self._verify(BlockTracer(237, 163), '8f7159ef1b315e0dcdee92f1d2cd97af')
+        self._verify(BlockTracer(237, 163), '212463fd8c672c6d2aadca3c6c047c55')
 
     def test_outd(self):
-        self._verify(BlockTracer(237, 171), 'ee2bace497c622d99df91a244ad70927')
+        self._verify(BlockTracer(237, 171), '1a944b9e160bb9232704479b70207f28')
 
+class BITTest(SimulatorTest):
     def test_bit_n(self):
-        self._verify(BitTracer(), 'e91bf78daa2180817191118dc7866d1c')
+        self._verify(BitTracer(), 'ed43b8246d6f0dd377d4c1451c98d7f6')
 
+class RRDTest(SimulatorTest):
     def test_rrd(self):
-        self._verify(RRDRLDTracer(237, 103), 'ca24ee139a7fb9697430ce9da6f79339')
+        self._verify(RRDRLDTracer(237, 103), 'd7b697dcdab00d201ac393244e9aebb2')
 
     def test_rld(self):
-        self._verify(RRDRLDTracer(237, 111), 'db8f7db66851400ac3f4ad8529bbdb76')
+        self._verify(RRDRLDTracer(237, 111), '34620204b96b6cd1769cf1190e0c1353')
 
+class INRTest(SimulatorTest):
     def test_in_r_c(self):
-        self._verify(InTracer(), '7ba7b0c55c35f3b58c43ab54ba2b5e55')
+        self._verify(InTracer(), 'b04d018542b09b48e749a0dc14344e38')
 
+class AIRTest(SimulatorTest):
     def test_ld_a_i(self):
-        self._verify(AIRTracer(14, 237, 87), 'a6c889a130646c2679af05630cb9a025')
+        self._verify(AIRTracer(14, 237, 87), 'c9d853ee965280e89f31716900609e01')
 
     def test_ld_a_r(self):
-        self._verify(AIRTracer(15, 237, 95), 'b78188cd26bbb72249135204af535c43')
+        self._verify(AIRTracer(15, 237, 95), '8f138736f29f3976d903f654bb65dfdf')

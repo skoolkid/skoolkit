@@ -18,28 +18,11 @@ class InTestTracer:
     def read_port(self, simulator, port):
         return self.value
 
-class CountingTracer:
-    def __init__(self, max_operations=1):
-        self.max_operations = max_operations
-        self.count = 0
-
-    def trace(self, simulator, address):
-        self.count += 1
-        return self.count >= self.max_operations
-
-class PushPopCountTracer:
-    def trace(self, simulator, address):
-        return simulator.ppcount < 0
-
 class PortTracer:
-    def __init__(self, in_value=0, end=-1):
+    def __init__(self, in_value=0):
         self.in_value = in_value
-        self.end = end
         self.in_ports = []
         self.out_ports = []
-
-    def trace(self, simulator, address):
-        return self.end < 0 or simulator.registers[PC] == self.end
 
     def read_port(self, simulator, port):
         self.in_ports.append(port)
@@ -2626,15 +2609,6 @@ class SimulatorTest(SkoolKitTestCase):
         self.assertEqual(simulator.registers[PC], 1)
         self.assertEqual(simulator.registers[T], 4)
 
-    def test_tracer_runs_two_instructions(self):
-        memory = [0] * 65536
-        simulator = Simulator(memory)
-        tracer = CountingTracer(2)
-        simulator.set_tracer(tracer)
-        simulator.run(0)
-        self.assertEqual(simulator.registers[PC], 2)
-        self.assertEqual(simulator.registers[T], 8)
-
     def test_port_reading(self):
         memory = [0] * 65536
         start = 49152
@@ -2652,9 +2626,9 @@ class SimulatorTest(SkoolKitTestCase):
         memory[start:end] = code
         simulator = Simulator(memory, {'A': 170, 'BC': 65311})
         value = 128
-        tracer = PortTracer(value, end)
+        tracer = PortTracer(value)
         simulator.set_tracer(tracer)
-        simulator.run(start)
+        simulator.run(start, end)
         exp_ports = [43774, 65311, 65311, 65055, 510, 510]
         self.assertEqual(tracer.in_ports, exp_ports)
         self.assertEqual(simulator.registers[A], value)
@@ -2680,9 +2654,9 @@ class SimulatorTest(SkoolKitTestCase):
         hl = 30000
         memory[hl:hl + 2] = (1, 2)
         simulator = Simulator(memory, {'A': 171, 'BC': 65055, 'HL': hl})
-        tracer = PortTracer(end=end)
+        tracer = PortTracer()
         simulator.set_tracer(tracer)
-        simulator.run(start)
+        simulator.run(start, end)
         exp_outs = [
             (44030, 171),
             (65055, 171),
@@ -2739,22 +2713,6 @@ class SimulatorTest(SkoolKitTestCase):
         simulator.run(0)
         self.assertEqual(simulator.registers[PC], 1)
         self.assertEqual(simulator.registers[T], 104)
-
-    def test_initial_ppcount(self):
-        memory = [0] * 65536
-        code = (
-            0xC1,  # POP BC
-            0xC1,  # POP BC
-        )
-        start = 32768
-        end = start + len(code)
-        memory[start:end] = code
-        simulator = Simulator(memory, state={'ppcount': 1})
-        tracer = PushPopCountTracer()
-        simulator.set_tracer(tracer)
-        simulator.run(start)
-        self.assertEqual(simulator.registers[PC], end)
-        self.assertEqual(simulator.ppcount, -1)
 
     def test_initial_iff(self):
         memory = [0] * 65536

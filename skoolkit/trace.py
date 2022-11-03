@@ -30,63 +30,73 @@ ${address:04X} {data:<8} {i:<15}  A={A:02X} F={F:08b} BC={BC:04X} DE={DE:04X} HL
 """.strip()
 
 class Tracer:
-    def __init__(self, memory, start, verbose, end=-1, max_operations=0, max_tstates=0):
-        self.verbose = verbose
-        self.end = end
-        self.max_operations = max_operations
-        self.max_tstates = max_tstates
+    def __init__(self):
         self.operations = 0
         self.spkr = None
         self.out_times = []
-        if self.verbose:
-            self.address = start
-            self.instruction, size = disassemble(memory, start)
-            self.data = ''.join(f'{memory[a % 65536]:02X}' for a in range(start, start + size))
 
-    def trace(self, simulator, address):
-        if self.verbose:
-            if self.verbose > 1:
-                fmt = TRACE2
-            else:
-                fmt = TRACE1
-            sim_registers = simulator.registers
-            registers = {
-                "A": sim_registers[A],
-                "F": sim_registers[F],
-                "BC": sim_registers[C] + 256 * sim_registers[B],
-                "DE": sim_registers[E] + 256 * sim_registers[D],
-                "HL": sim_registers[L] + 256 * sim_registers[H],
-                "IX": sim_registers[IXl] + 256 * sim_registers[IXh],
-                "IY": sim_registers[IYl] + 256 * sim_registers[IYh],
-                "IR": sim_registers[R] + 256 * sim_registers[I],
-                "SP": sim_registers[SP],
-                "^A": sim_registers[xA],
-                "^F": sim_registers[xF],
-                "BC'": sim_registers[xC] + 256 * sim_registers[xB],
-                "DE'": sim_registers[xE] + 256 * sim_registers[xD],
-                "HL'": sim_registers[xL] + 256 * sim_registers[xH],
+    def run(self, simulator, start, end, verbose, max_operations, max_tstates):
+        opcodes = simulator.opcodes
+        memory = simulator.memory
+        registers = simulator.registers
+        pc = registers[PC] = start
+        operations = 0
+
+        if verbose:
+            instruction, size = disassemble(memory, pc)
+            values = {
+                'address': pc,
+                'data': ''.join(f'{memory[a % 65536]:02X}' for a in range(pc, pc + size)),
+                'i': instruction
             }
-            print(fmt.format(address=self.address, data=self.data, i=self.instruction, **registers))
-            memory, address = simulator.memory, sim_registers[PC]
-            self.instruction, size = disassemble(memory, address)
-            self.data = ''.join(f'{memory[a % 65536]:02X}' for a in range(address, address + size))
-            self.address = address
 
-        self.operations += 1
+        while True:
+            opcodes[memory[pc]]()
+            pc = registers[24]
 
-        addr = f'${simulator.registers[PC]:04X}'
-        if self.operations >= self.max_operations > 0:
-            print(f'Stopped at {addr}: {self.operations} operations')
-            return True
-        if simulator.registers[T] >= self.max_tstates > 0:
-            print(f'Stopped at {addr}: {simulator.registers[T]} T-states')
-            return True
-        if simulator.registers[PC] == self.end:
-            print(f'Stopped at {addr}')
-            return True
-        if simulator.ppcount < 0 and self.max_operations <= 0 and self.max_tstates <= 0 and self.end < 0:
-            print(f'Stopped at {addr}: PUSH-POP count is {simulator.ppcount}')
-            return True
+            if verbose:
+                if verbose > 1:
+                    fmt = TRACE2
+                else:
+                    fmt = TRACE1
+                values.update({
+                    "A": registers[A],
+                    "F": registers[F],
+                    "BC": registers[C] + 256 * registers[B],
+                    "DE": registers[E] + 256 * registers[D],
+                    "HL": registers[L] + 256 * registers[H],
+                    "IX": registers[IXl] + 256 * registers[IXh],
+                    "IY": registers[IYl] + 256 * registers[IYh],
+                    "IR": registers[R] + 256 * registers[I],
+                    "SP": registers[SP],
+                    "^A": registers[xA],
+                    "^F": registers[xF],
+                    "BC'": registers[xC] + 256 * registers[xB],
+                    "DE'": registers[xE] + 256 * registers[xD],
+                    "HL'": registers[xL] + 256 * registers[xH]
+                })
+                print(fmt.format(**values))
+                instruction, size = disassemble(memory, pc)
+                values['address'] = pc
+                values['data'] = ''.join(f'{memory[a % 65536]:02X}' for a in range(pc, pc + size))
+                values['i'] = instruction
+
+            operations += 1
+
+            if operations >= max_operations > 0:
+                print(f'Stopped at ${pc:04X}: {operations} operations')
+                break
+            if registers[T] >= max_tstates > 0:
+                print(f'Stopped at ${pc:04X}: {registers[T]} T-states')
+                break
+            if pc == end:
+                print(f'Stopped at ${pc:04X}')
+                break
+            if simulator.ppcount < 0 and max_operations <= 0 and max_tstates <= 0 and end < 0:
+                print(f'Stopped at ${pc:04X}: PUSH-POP count is {simulator.ppcount}')
+                break
+
+        self.operations = operations
 
     def write_port(self, simulator, port, value):
         if port & 0xFF == 0xFE and self.spkr is None or self.spkr != value & 0x10:
@@ -148,10 +158,10 @@ def run(snafile, start, options):
         poke(memory, spec)
     config = {'fast_djnz': options.audio, 'fast_ldir': True}
     simulator = Simulator(memory, get_registers(options.reg), config=config)
-    tracer = Tracer(memory, start, options.verbose, options.end, options.max_operations, options.max_tstates)
+    tracer = Tracer()
     simulator.set_tracer(tracer)
     begin = time.time()
-    simulator.run(start)
+    tracer.run(simulator, start, options.end, options.verbose, options.max_operations, options.max_tstates)
     rt = time.time() - begin
     if options.stats:
         z80t = simulator.registers[T] / 3500000

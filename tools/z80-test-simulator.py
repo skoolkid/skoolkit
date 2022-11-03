@@ -25,29 +25,40 @@ class Options:
 
 class Tracer:
     def __init__(self):
-        self.msg = ''
         self.count = 0
         self.failed = False
 
-    def trace(self, simulator, address):
-        self.count += 1
-        if simulator.registers[PC] == 16:
-            a = simulator.registers[A]
-            if a >= 32:
-                self.msg += chr(a)
-                sys.stdout.write(self.msg + chr(8) * len(self.msg))
-                sys.stdout.flush()
-            elif a == 13:
-                if self.msg.strip():
-                    print(self.msg)
-                    if self.msg.endswith(' tests failed.'):
-                        self.failed = True
-                        return True
-                    if self.msg.endswith('all tests passed.'):
-                        return True
-                else:
-                    print()
-                self.msg = ''
+    def run(self, simulator):
+        opcodes = simulator.opcodes
+        memory = simulator.memory
+        registers = simulator.registers
+        pc = registers[PC]
+        count = 0
+        msg = ''
+
+        while True:
+            opcodes[memory[pc]]()
+            pc = registers[24]
+            count += 1
+            if pc == 16:
+                a = registers[0]
+                if a >= 32:
+                    msg += chr(a)
+                    sys.stdout.write(msg + chr(8) * len(msg))
+                    sys.stdout.flush()
+                elif a == 13:
+                    if msg.strip():
+                        print(msg)
+                        if msg.endswith(' tests failed.'):
+                            self.failed = True
+                            self.count = count
+                            break
+                        if msg.endswith('all tests passed.'):
+                            self.count = count
+                            break
+                    else:
+                        print()
+                    msg = ''
 
 def load_tap(tapfile):
     tap_blocks = get_tap_blocks(read_bin_file(tapfile))
@@ -70,18 +81,18 @@ def run(tapfile, options):
         snapshot[addr + 1] = options.test
         test_addr = 34938 + options.test * 2
         snapshot[addr + 4:addr + 6] = (test_addr % 256, test_addr // 256)
-    simulator = Simulator(snapshot)
+    simulator = Simulator(snapshot, {'PC': start})
     tracer = None
     if options.quiet:
-        stop = 32850
         print('Running tests')
+        begin = time.time()
+        simulator.run(stop=32850)
+        rt = time.time() - begin
     else:
         tracer = Tracer()
-        simulator.set_tracer(tracer)
-        stop = None
-    begin = time.time()
-    simulator.run(start, stop)
-    rt = time.time() - begin
+        begin = time.time()
+        tracer.run(simulator)
+        rt = time.time() - begin
     z80t = simulator.registers[T] / 3500000
     speed = z80t / rt
     if tracer is None:
