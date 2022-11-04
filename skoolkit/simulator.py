@@ -90,6 +90,8 @@ NEG = tuple(
     for a in range(256)
 )
 
+OFFSETS = tuple(d if d < 128 else d - 256 for d in range(256))
+
 R1 = tuple((r & 0x80) + ((r + 1) % 128) for r in range(256))
 
 R2 = tuple((r & 0x80) + ((r + 2) % 128) for r in range(256))
@@ -313,34 +315,6 @@ class Simulator:
     def prefix2(self, opcodes, registers, memory):
         opcodes[memory[(registers[24] + 3) % 65536]]()
 
-    def get_operand_value(self, registers, memory, size, reg):
-        if reg < 16:
-            return registers[reg]
-        if reg < 32:
-            return memory[registers[reg - 23] + 256 * registers[reg - 24]]
-        if reg == 34:
-            return memory[(registers[24] + size - 1) % 65536]
-        offset = memory[(registers[24] + 2) % 65536]
-        if offset >= 128:
-            offset -= 256
-        if reg == 32:
-            return memory[(registers[9] + 256 * registers[8] + offset) % 65536]
-        return memory[(registers[11] + 256 * registers[10] + offset) % 65536]
-
-    def set_operand_value(self, registers, memory, reg, value):
-        if reg < 16:
-            registers[reg] = value
-        elif reg < 32:
-            self.poke(memory, registers[reg - 23] + 256 * registers[reg - 24], value)
-        else:
-            offset = memory[(registers[24] + 2) % 65536]
-            if offset >= 128:
-                offset -= 256
-            if reg == 32:
-                self.poke(memory, (registers[9] + 256 * registers[8] + offset) % 65536, value)
-            else:
-                self.poke(memory, (registers[11] + 256 * registers[10] + offset) % 65536, value)
-
     def poke(self, memory, address, *values):
         if address > 0x3FFF:
             memory[address] = values[0]
@@ -365,7 +339,16 @@ class Simulator:
         registers[24] = (registers[24] + 1) % 65536
 
     def adc_a(self, registers, memory, r_inc, timing, size, reg):
-        addend = self.get_operand_value(registers, memory, size, reg)
+        if reg < 16:
+            addend = registers[reg]
+        elif reg < 32:
+            addend = memory[registers[reg - 23] + 256 * registers[reg - 24]]
+        elif reg == 34:
+            addend = memory[(registers[24] + size - 1) % 65536]
+        elif reg == 32:
+            addend = memory[(registers[9] + 256 * registers[8] + OFFSETS[memory[(registers[24] + 2) % 65536]]) % 65536]
+        else:
+            addend = memory[(registers[11] + 256 * registers[10] + OFFSETS[memory[(registers[24] + 2) % 65536]]) % 65536]
         a = registers[0]
         if registers[1] % 2:
             registers[0] = (a + addend + 1) % 256
@@ -412,7 +395,16 @@ class Simulator:
         registers[24] = (registers[24] + 2) % 65536
 
     def add_a(self, registers, memory, r_inc, timing, size, reg):
-        addend = self.get_operand_value(registers, memory, size, reg)
+        if reg < 16:
+            addend = registers[reg]
+        elif reg < 32:
+            addend = memory[registers[reg - 23] + 256 * registers[reg - 24]]
+        elif reg == 34:
+            addend = memory[(registers[24] + size - 1) % 65536]
+        elif reg == 32:
+            addend = memory[(registers[9] + 256 * registers[8] + OFFSETS[memory[(registers[24] + 2) % 65536]]) % 65536]
+        else:
+            addend = memory[(registers[11] + 256 * registers[10] + OFFSETS[memory[(registers[24] + 2) % 65536]]) % 65536]
         a = registers[0]
         registers[0] = (a + addend) % 256
         registers[1] = ADD[a][addend]
@@ -463,7 +455,14 @@ class Simulator:
         registers[24] = (registers[24] + 1) % 65536
 
     def anda(self, registers, memory, r_inc, timing, size, reg):
-        a = registers[0] & self.get_operand_value(registers, memory, size, reg)
+        if reg < 16:
+            a = registers[0] & registers[reg]
+        elif reg < 32:
+            a = registers[0] & memory[registers[reg - 23] + 256 * registers[reg - 24]]
+        elif reg == 32:
+            a = registers[0] & memory[(registers[9] + 256 * registers[8] + OFFSETS[memory[(registers[24] + 2) % 65536]]) % 65536]
+        else:
+            a = registers[0] & memory[(registers[11] + 256 * registers[10] + OFFSETS[memory[(registers[24] + 2) % 65536]]) % 65536]
         registers[0] = a
         registers[1] = AND[a]
         registers[15] = r_inc[registers[15]]
@@ -471,19 +470,25 @@ class Simulator:
         registers[24] = (registers[24] + size) % 65536
 
     def bit(self, registers, memory, timing, size, mask, reg):
-        value = self.get_operand_value(registers, memory, size, reg)
+        if reg < 16:
+            value = registers[reg]
+        elif reg < 32:
+            value = memory[registers[reg - 23] + 256 * registers[reg - 24]]
+        elif reg == 32:
+            xy = (registers[9] + 256 * registers[8] + OFFSETS[memory[(registers[24] + 2) % 65536]]) % 65536
+            value = memory[xy]
+        else:
+            xy = (registers[11] + 256 * registers[10] + OFFSETS[memory[(registers[24] + 2) % 65536]]) % 65536
+            value = memory[xy]
         f = 0x10 + (registers[1] % 2) # ...H..NC
         if value & mask == 0:
             f += 0x44 # .Z...P..
         elif mask == 128:
             f += 0x80 # S.......
-        if reg >= 32:
-            offset = memory[(registers[24] + 2) % 65536]
-            if reg == 32:
-                value = (registers[9] + 256 * registers[8] + offset) // 256
-            else:
-                value = (registers[11] + 256 * registers[10] + offset) // 256
-        registers[1] = f + (value & 0x28)
+        if reg < 32:
+            registers[1] = f + (value & 0x28)
+        else:
+            registers[1] = f + ((xy // 256) & 0x28)
         registers[15] = R2[registers[15]]
         registers[25] += timing
         registers[24] = (registers[24] + size) % 65536
@@ -514,7 +519,16 @@ class Simulator:
         registers[24] = (registers[24] + 1) % 65536
 
     def cp(self, registers, memory, r_inc, timing, size, reg):
-        registers[1] = CP[registers[0]][self.get_operand_value(registers, memory, size, reg)]
+        if reg < 16:
+            registers[1] = CP[registers[0]][registers[reg]]
+        elif reg < 32:
+            registers[1] = CP[registers[0]][memory[registers[reg - 23] + 256 * registers[reg - 24]]]
+        elif reg == 34:
+            registers[1] = CP[registers[0]][memory[(registers[24] + size - 1) % 65536]]
+        elif reg == 32:
+            registers[1] = CP[registers[0]][memory[(registers[9] + 256 * registers[8] + OFFSETS[memory[(registers[24] + 2) % 65536]]) % 65536]]
+        else:
+            registers[1] = CP[registers[0]][memory[(registers[11] + 256 * registers[10] + OFFSETS[memory[(registers[24] + 2) % 65536]]) % 65536]]
         registers[15] = r_inc[registers[15]]
         registers[25] += timing
         registers[24] = (registers[24] + size) % 65536
@@ -725,9 +739,19 @@ class Simulator:
         registers[24] = (registers[24] + 1) % 65536
 
     def inc_dec8(self, registers, memory, r_inc, timing, size, inc, flags, reg):
-        value = (self.get_operand_value(registers, memory, size, reg) + inc) % 256
+        if reg < 16:
+            value = (registers[reg] + inc) % 256
+            registers[reg] = value
+        else:
+            if reg < 32:
+                addr = registers[reg - 23] + 256 * registers[reg - 24]
+            elif reg == 32:
+                addr = (registers[9] + 256 * registers[8] + OFFSETS[memory[(registers[24] + 2) % 65536]]) % 65536
+            else:
+                addr = (registers[11] + 256 * registers[10] + OFFSETS[memory[(registers[24] + 2) % 65536]]) % 65536
+            value = (memory[addr] + inc) % 256
+            self.poke(memory, addr, value)
         registers[1] = (registers[1] % 2) + flags[value]
-        self.set_operand_value(registers, memory, reg, value)
         registers[15] = r_inc[registers[15]]
         registers[25] += timing
         registers[24] = (registers[24] + size) % 65536
@@ -818,7 +842,24 @@ class Simulator:
         registers[24] = (registers[24] + 1) % 65536
 
     def ld8(self, registers, memory, r_inc, timing, size, reg, reg2):
-        self.set_operand_value(registers, memory, reg, self.get_operand_value(registers, memory, size, reg2))
+        if reg2 < 16:
+            value = registers[reg2]
+        elif reg2 < 32:
+            value = memory[registers[reg2 - 23] + 256 * registers[reg2 - 24]]
+        elif reg2 == 34:
+            value = memory[(registers[24] + size - 1) % 65536]
+        elif reg2 == 32:
+            value = memory[(registers[9] + 256 * registers[8] + OFFSETS[memory[(registers[24] + 2) % 65536]]) % 65536]
+        else:
+            value = memory[(registers[11] + 256 * registers[10] + OFFSETS[memory[(registers[24] + 2) % 65536]]) % 65536]
+        if reg < 16:
+            registers[reg] = value
+        elif reg < 32:
+            self.poke(memory, registers[reg - 23] + 256 * registers[reg - 24], value)
+        elif reg == 32:
+            self.poke(memory, (registers[9] + 256 * registers[8] + OFFSETS[memory[(registers[24] + 2) % 65536]]) % 65536, value)
+        else:
+            self.poke(memory, (registers[11] + 256 * registers[10] + OFFSETS[memory[(registers[24] + 2) % 65536]]) % 65536, value)
         if reg2 in (14, 15):
             # LD A,I and LD A,R
             a = registers[0]
@@ -984,7 +1025,14 @@ class Simulator:
         registers[24] = (registers[24] + 1) % 65536
 
     def ora(self, registers, memory, r_inc, timing, size, reg):
-        a = registers[0] | self.get_operand_value(registers, memory, size, reg)
+        if reg < 16:
+            a = registers[0] | registers[reg]
+        elif reg < 32:
+            a = registers[0] | memory[registers[reg - 23] + 256 * registers[reg - 24]]
+        elif reg == 32:
+            a = registers[0] | memory[(registers[9] + 256 * registers[8] + OFFSETS[memory[(registers[24] + 2) % 65536]]) % 65536]
+        else:
+            a = registers[0] | memory[(registers[11] + 256 * registers[10] + OFFSETS[memory[(registers[24] + 2) % 65536]]) % 65536] 
         registers[0] = a
         registers[1] = SZ53P[a]
         registers[15] = r_inc[registers[15]]
@@ -1088,11 +1136,25 @@ class Simulator:
         registers[24] = memory[sp] + 256 * memory[(sp + 1) % 65536]
 
     def res_set(self, registers, memory, timing, size, bit, reg, bitval, dest=-1):
-        if bitval:
-            value = self.get_operand_value(registers, memory, size, reg) | bit
+        if reg < 16:
+            value = registers[reg]
+        elif reg < 32:
+            addr = registers[reg - 23] + 256 * registers[reg - 24]
+            value = memory[addr]
+        elif reg == 32:
+            addr = (registers[9] + 256 * registers[8] + OFFSETS[memory[(registers[24] + 2) % 65536]]) % 65536
+            value = memory[addr]
         else:
-            value = self.get_operand_value(registers, memory, size, reg) & bit
-        self.set_operand_value(registers, memory, reg, value)
+            addr = (registers[11] + 256 * registers[10] + OFFSETS[memory[(registers[24] + 2) % 65536]]) % 65536
+            value = memory[addr]
+        if bitval:
+            value |= bit
+        else:
+            value &= bit
+        if reg < 16:
+            registers[reg] = value
+        else:
+            self.poke(memory, addr, value)
         if dest >= 0:
             registers[dest] = value
         registers[15] = R2[registers[15]]
@@ -1153,12 +1215,20 @@ class Simulator:
         registers[24] = (registers[24] + 2) % 65536
 
     def rotate(self, registers, memory, timing, size, cbit, rotate, reg, circular=0, dest=-1):
-        r = self.get_operand_value(registers, memory, size, reg)
+        if reg < 32:
+            addr = registers[reg - 23] + 256 * registers[reg - 24]
+            r = memory[addr]
+        elif reg == 32:
+            addr = (registers[9] + 256 * registers[8] + OFFSETS[memory[(registers[24] + 2) % 65536]]) % 65536
+            r = memory[addr]
+        else:
+            addr = (registers[11] + 256 * registers[10] + OFFSETS[memory[(registers[24] + 2) % 65536]]) % 65536
+            r = memory[addr]
         if circular:
             value = rotate[r]
         else:
             value = rotate[registers[1] % 2][r]
-        self.set_operand_value(registers, memory, reg, value)
+        self.poke(memory, addr, value)
         if dest >= 0:
             registers[dest] = value
         if r & cbit:
@@ -1191,7 +1261,16 @@ class Simulator:
         registers[24] = (registers[24] + 1) % 65536
 
     def sbc_a(self, registers, memory, r_inc, timing, size, reg):
-        subtrahend = self.get_operand_value(registers, memory, size, reg)
+        if reg < 16:
+            subtrahend = registers[reg]
+        elif reg < 32:
+            subtrahend = memory[registers[reg - 23] + 256 * registers[reg - 24]]
+        elif reg == 34:
+            subtrahend = memory[(registers[24] + size - 1) % 65536]
+        elif reg == 32:
+            subtrahend = memory[(registers[9] + 256 * registers[8] + OFFSETS[memory[(registers[24] + 2) % 65536]]) % 65536]
+        else:
+            subtrahend = memory[(registers[11] + 256 * registers[10] + OFFSETS[memory[(registers[24] + 2) % 65536]]) % 65536]
         a = registers[0]
         if registers[1] % 2:
             registers[1] = SBC[a][subtrahend]
@@ -1237,9 +1316,22 @@ class Simulator:
         registers[24] = (registers[24] + 2) % 65536
 
     def shift(self, registers, memory, timing, size, shift, cbit, reg, dest=-1):
-        r = self.get_operand_value(registers, memory, size, reg)
+        if reg < 16:
+            r = registers[reg]
+        elif reg < 32:
+            addr = registers[reg - 23] + 256 * registers[reg - 24]
+            r = memory[addr]
+        elif reg == 32:
+            addr = (registers[9] + 256 * registers[8] + OFFSETS[memory[(registers[24] + 2) % 65536]]) % 65536
+            r = memory[addr]
+        else:
+            addr = (registers[11] + 256 * registers[10] + OFFSETS[memory[(registers[24] + 2) % 65536]]) % 65536
+            r = memory[addr]
         value = shift[r]
-        self.set_operand_value(registers, memory, reg, value)
+        if reg < 16:
+            registers[reg] = value
+        else:
+            self.poke(memory, addr, value)
         if dest >= 0:
             registers[dest] = value
         if r & cbit:
@@ -1251,7 +1343,16 @@ class Simulator:
         registers[24] = (registers[24] + size) % 65536
 
     def sub(self, registers, memory, r_inc, timing, size, reg):
-        subtrahend = self.get_operand_value(registers, memory, size, reg)
+        if reg < 16:
+            subtrahend = registers[reg]
+        elif reg < 32:
+            subtrahend = memory[registers[reg - 23] + 256 * registers[reg - 24]]
+        elif reg == 34:
+            subtrahend = memory[(registers[24] + size - 1) % 65536]
+        elif reg == 32:
+            subtrahend = memory[(registers[9] + 256 * registers[8] + OFFSETS[memory[(registers[24] + 2) % 65536]]) % 65536]
+        else:
+            subtrahend = memory[(registers[11] + 256 * registers[10] + OFFSETS[memory[(registers[24] + 2) % 65536]]) % 65536]
         a = registers[0]
         registers[1] = SUB[a][subtrahend]
         registers[0] = (a - subtrahend) % 256
@@ -1277,7 +1378,14 @@ class Simulator:
         registers[24] = (registers[24] + 1) % 65536
 
     def xor(self, registers, memory, r_inc, timing, size, reg):
-        a = registers[0] ^ self.get_operand_value(registers, memory, size, reg)
+        if reg < 16:
+            a = registers[0] ^ registers[reg]
+        elif reg < 32:
+            a = registers[0] ^ memory[registers[reg - 23] + 256 * registers[reg - 24]]
+        elif reg == 32:
+            a = registers[0] ^ memory[(registers[9] + 256 * registers[8] + OFFSETS[memory[(registers[24] + 2) % 65536]]) % 65536]
+        else:
+            a = registers[0] ^ memory[(registers[11] + 256 * registers[10] + OFFSETS[memory[(registers[24] + 2) % 65536]]) % 65536]
         registers[0] = a
         registers[1] = SZ53P[a]
         registers[15] = r_inc[registers[15]]
