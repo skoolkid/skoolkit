@@ -842,11 +842,16 @@ class Simulator:
         registers[25] += 4
         registers[24] = (registers[24] + 1) % 65536
 
+    def ld_r_rr(self, registers, memory, r, rr):
+        # LD r,(HL/DE/BC)
+        registers[r] = memory[registers[rr + 1] + 256 * registers[rr]]
+        registers[15] = R1[registers[15]]
+        registers[25] += 7
+        registers[24] = (registers[24] + 1) % 65536
+
     def ld8(self, registers, memory, r_inc, timing, size, reg, reg2):
         if reg2 < 16:
             value = registers[reg2]
-        elif reg2 < 32:
-            value = memory[registers[reg2 - 23] + 256 * registers[reg2 - 24]]
         elif reg2 == 34:
             value = memory[(registers[24] + size - 1) % 65536]
         elif reg2 == 32:
@@ -2972,7 +2977,7 @@ class Simulator:
             partial(self.rotate_a, r, 128, RLC, 1),                # 07 RLCA
             partial(self.ex_af, r),                                # 08 EX AF,AF'
             partial(self.add16, r, R1, 11, 1, H, B),               # 09 ADD HL,BC
-            partial(self.ld8, r, m, R1, 7, 1, A, Bd),              # 0A LD A,(BC)
+            partial(self.ld_r_rr, r, m, A, B),                     # 0A LD A,(BC)
             partial(self.inc_dec16, r, R1, 6, 1, -1, B),           # 0B DEC BC
             partial(self.inc_r, r, C),                             # 0C INC C
             partial(self.dec_r, r, C),                             # 0D DEC C
@@ -2988,7 +2993,7 @@ class Simulator:
             partial(self.rotate_a, r, 128, RL),                    # 17 RLA
             partial(self.jr, r, m, 0, 0),                          # 18 JR nn
             partial(self.add16, r, R1, 11, 1, H, D),               # 19 ADD HL,DE
-            partial(self.ld8, r, m, R1, 7, 1, A, Dd),              # 1A LD A,(DE)
+            partial(self.ld_r_rr, r, m, A, D),                     # 1A LD A,(DE)
             partial(self.inc_dec16, r, R1, 6, 1, -1, D),           # 1B DEC DE
             partial(self.inc_r, r, E),                             # 1C INC E
             partial(self.dec_r, r, E),                             # 1D DEC E
@@ -3032,7 +3037,7 @@ class Simulator:
             partial(self.ld_r_r, r, B, E),                         # 43 LD B,E
             partial(self.ld_r_r, r, B, H),                         # 44 LD B,H
             partial(self.ld_r_r, r, B, L),                         # 45 LD B,L
-            partial(self.ld8, r, m, R1, 7, 1, B, Hd),              # 46 LD B,(HL)
+            partial(self.ld_r_rr, r, m, B, H),                     # 46 LD B,(HL)
             partial(self.ld_r_r, r, B, A),                         # 47 LD B,A
             partial(self.ld_r_r, r, C, B),                         # 48 LD C,B
             partial(self.ld_r_r, r, C, C),                         # 49 LD C,C
@@ -3040,7 +3045,7 @@ class Simulator:
             partial(self.ld_r_r, r, C, E),                         # 4B LD C,E
             partial(self.ld_r_r, r, C, H),                         # 4C LD C,H
             partial(self.ld_r_r, r, C, L),                         # 4D LD C,L
-            partial(self.ld8, r, m, R1, 7, 1, C, Hd),              # 4E LD C,(HL)
+            partial(self.ld_r_rr, r, m, C, H),                     # 4E LD C,(HL)
             partial(self.ld_r_r, r, C, A),                         # 4F LD C,A
             partial(self.ld_r_r, r, D, B),                         # 50 LD D,B
             partial(self.ld_r_r, r, D, C),                         # 51 LD D,C
@@ -3048,7 +3053,7 @@ class Simulator:
             partial(self.ld_r_r, r, D, E),                         # 53 LD D,E
             partial(self.ld_r_r, r, D, H),                         # 54 LD D,H
             partial(self.ld_r_r, r, D, L),                         # 55 LD D,L
-            partial(self.ld8, r, m, R1, 7, 1, D, Hd),              # 56 LD D,(HL)
+            partial(self.ld_r_rr, r, m, D, H),                     # 56 LD D,(HL)
             partial(self.ld_r_r, r, D, A),                         # 57 LD D,A
             partial(self.ld_r_r, r, E, B),                         # 58 LD E,B
             partial(self.ld_r_r, r, E, C),                         # 59 LD E,C
@@ -3056,7 +3061,7 @@ class Simulator:
             partial(self.ld_r_r, r, E, E),                         # 5B LD E,E
             partial(self.ld_r_r, r, E, H),                         # 5C LD E,H
             partial(self.ld_r_r, r, E, L),                         # 5D LD E,L
-            partial(self.ld8, r, m, R1, 7, 1, E, Hd),              # 5E LD E,(HL)
+            partial(self.ld_r_rr, r, m, E, H),                     # 5E LD E,(HL)
             partial(self.ld_r_r, r, E, A),                         # 5F LD E,A
             partial(self.ld_r_r, r, H, B),                         # 60 LD H,B
             partial(self.ld_r_r, r, H, C),                         # 61 LD H,C
@@ -3064,7 +3069,7 @@ class Simulator:
             partial(self.ld_r_r, r, H, E),                         # 63 LD H,E
             partial(self.ld_r_r, r, H, H),                         # 64 LD H,H
             partial(self.ld_r_r, r, H, L),                         # 65 LD H,L
-            partial(self.ld8, r, m, R1, 7, 1, H, Hd),              # 66 LD H,(HL)
+            partial(self.ld_r_rr, r, m, H, H),                     # 66 LD H,(HL)
             partial(self.ld_r_r, r, H, A),                         # 67 LD H,A
             partial(self.ld_r_r, r, L, B),                         # 68 LD L,B
             partial(self.ld_r_r, r, L, C),                         # 69 LD L,C
@@ -3072,7 +3077,7 @@ class Simulator:
             partial(self.ld_r_r, r, L, E),                         # 6B LD L,E
             partial(self.ld_r_r, r, L, H),                         # 6C LD L,H
             partial(self.ld_r_r, r, L, L),                         # 6D LD L,L
-            partial(self.ld8, r, m, R1, 7, 1, L, Hd),              # 6E LD L,(HL)
+            partial(self.ld_r_rr, r, m, L, H),                     # 6E LD L,(HL)
             partial(self.ld_r_r, r, L, A),                         # 6F LD L,A
             partial(self.ld8, r, m, R1, 7, 1, Hd, B),              # 70 LD (HL),B
             partial(self.ld8, r, m, R1, 7, 1, Hd, C),              # 71 LD (HL),C
@@ -3088,7 +3093,7 @@ class Simulator:
             partial(self.ld_r_r, r, A, E),                         # 7B LD A,E
             partial(self.ld_r_r, r, A, H),                         # 7C LD A,H
             partial(self.ld_r_r, r, A, L),                         # 7D LD A,L
-            partial(self.ld8, r, m, R1, 7, 1, A, Hd),              # 7E LD A,(HL)
+            partial(self.ld_r_rr, r, m, A, H),                     # 7E LD A,(HL)
             partial(self.ld_r_r, r, A, A),                         # 7F LD A,A
             partial(self.add_a, r, m, R1, 4, 1, B),                # 80 ADD A,B
             partial(self.add_a, r, m, R1, 4, 1, C),                # 81 ADD A,C
