@@ -2,6 +2,318 @@ from skoolkittest import SkoolKitTestCase
 from skoolkit.simulator import Simulator
 from sim_test_tracers import *
 
+class ROMReadOnlyTest(SkoolKitTestCase):
+    def _test_read_only(self, code, start, value=0):
+        start = 0x8000
+        stop = 0x8000 + len(code)
+        memory = [value] * 65536
+        memory[start:stop] = code
+        simulator = Simulator(memory)
+        simulator.run(start, stop)
+        self.assertTrue(all(b == value for b in memory[:0x4000]))
+
+    def test_ld_8_bit(self):
+        code = (
+            0x21, 0x00, 0x00,       # $8000 LD HL,$0000
+            0x11, 0x00, 0x00,       # $8003 LD DE,$0000
+            0x01, 0x00, 0x00,       # $8006 LD BC,$0000
+            0xDD, 0x21, 0x00, 0x00, # $8009 LD IX,$0000
+            0xFD, 0x21, 0x00, 0x00, # $800D LD IY,$0000
+            0x3E, 0xAA,             # $8011 LD A,$AA
+            0x22, 0x17, 0x80,       # $8013 LD ($8017),HL
+            0x32, 0x00, 0x00,       # $8016 LD ($0000),A
+            0x02,                   # $8019 LD (BC),A
+            0x12,                   # $801A LD (DE),A
+            0x70,                   # $801B LD (HL),B
+            0x71,                   # $801C LD (HL),C
+            0x72,                   # $801D LD (HL),D
+            0x73,                   # $801E LD (HL),E
+            0x74,                   # $801F LD (HL),H
+            0x75,                   # $8020 LD (HL),L
+            0x77,                   # $8021 LD (HL),A
+            0x36, 0xAA,             # $8022 LD (HL),$AA
+            0xDD, 0x70, 0x00,       # $8024 LD (IX+$00),B
+            0xDD, 0x71, 0x00,       # $8027 LD (IX+$00),C
+            0xDD, 0x72, 0x00,       # $802A LD (IX+$00),D
+            0xDD, 0x73, 0x00,       # $802D LD (IX+$00),E
+            0xDD, 0x74, 0x00,       # $8030 LD (IX+$00),H
+            0xDD, 0x75, 0x00,       # $8033 LD (IX+$00),L
+            0xDD, 0x77, 0x00,       # $8036 LD (IX+$00),A
+            0xDD, 0x36, 0x00, 0xAA, # $8039 LD (IX+$00),$AA
+            0xFD, 0x70, 0x00,       # $803D LD (IY+$00),B
+            0xFD, 0x71, 0x00,       # $8040 LD (IY+$00),C
+            0xFD, 0x72, 0x00,       # $8043 LD (IY+$00),D
+            0xFD, 0x73, 0x00,       # $8046 LD (IY+$00),E
+            0xFD, 0x74, 0x00,       # $8049 LD (IY+$00),H
+            0xFD, 0x75, 0x00,       # $804C LD (IY+$00),L
+            0xFD, 0x77, 0x00,       # $804F LD (IY+$00),A
+            0xFD, 0x36, 0x00, 0xAA, # $8052 LD (IY+$00),$AA
+            0x23,                   # $8056 INC HL
+            0x13,                   # $8057 INC DE
+            0x03,                   # $8058 INC BC
+            0xDD, 0x23,             # $8059 INC IX
+            0xFD, 0x23,             # $805B INC IY
+            0xCB, 0x74,             # $805D BIT 6,H
+            0x28, 0xB0,             # $805F JR Z,$8011
+        )
+        self._test_read_only(code, 0x8000)
+
+    def test_inc(self):
+        code = (
+            0x21, 0x00, 0x00,       # $8000 LD HL,$0000
+            0xDD, 0x21, 0x00, 0x00, # $8003 LD IX,$0000
+            0xFD, 0x21, 0x00, 0x00, # $8007 LD IY,$0000
+            0x34,                   # $800B INC (HL)
+            0xDD, 0x34, 0x00,       # $800C INC (IX+$00)
+            0xFD, 0x34, 0x00,       # $800F INC (IY+$00)
+            0x23,                   # $8012 INC HL
+            0xDD, 0x23,             # $8013 INC IX
+            0xFD, 0x23,             # $8015 INC IY
+            0xCB, 0x74,             # $8017 BIT 6,H
+            0x28, 0xF0,             # $8019 JR Z,$800B
+        )
+        self._test_read_only(code, 0x8000)
+
+    def test_dec(self):
+        code = (
+            0x21, 0x00, 0x00,       # $8000 LD HL,$0000
+            0xDD, 0x21, 0x00, 0x00, # $8003 LD IX,$0000
+            0xFD, 0x21, 0x00, 0x00, # $8007 LD IY,$0000
+            0x35,                   # $800B DEC (HL)
+            0xDD, 0x35, 0x00,       # $800C DEC (IX+$00)
+            0xFD, 0x35, 0x00,       # $800F DEC (IY+$00)
+            0x23,                   # $8012 INC HL
+            0xDD, 0x23,             # $8013 INC IX
+            0xFD, 0x23,             # $8015 INC IY
+            0xCB, 0x74,             # $8017 BIT 6,H
+            0x28, 0xF0,             # $8019 JR Z,$800B
+        )
+        self._test_read_only(code, 0x8000)
+
+    def test_shift_left(self):
+        code = (
+            0x21, 0x00, 0x00,       # $8000 LD HL,$0000
+            0xDD, 0x21, 0x00, 0x00, # $8003 LD IX,$0000
+            0xFD, 0x21, 0x00, 0x00, # $8007 LD IY,$0000
+            0xCB, 0x26,             # $800B SLA (HL)
+            0xCB, 0x36,             # $800D SLL (HL)
+            0xDD, 0xCB, 0x00, 0x26, # $800F SLA (IX+$00)
+            0xDD, 0xCB, 0x00, 0x36, # $8013 SLL (IX+$00)
+            0xFD, 0xCB, 0x00, 0x26, # $8017 SLA (IY+$00)
+            0xFD, 0xCB, 0x00, 0x36, # $801B SLL (IY+$00)
+            0x23,                   # $801F INC HL
+            0xDD, 0x23,             # $8020 INC IX
+            0xFD, 0x23,             # $8022 INC IY
+            0xCB, 0x74,             # $8024 BIT 6,H
+            0x28, 0xE3,             # $8026 JR Z,$800B
+        )
+        self._test_read_only(code, 0x8000, 0x01)
+
+    def test_shift_right(self):
+        code = (
+            0x21, 0x00, 0x00,       # $8000 LD HL,$0000
+            0xDD, 0x21, 0x00, 0x00, # $8003 LD IX,$0000
+            0xFD, 0x21, 0x00, 0x00, # $8007 LD IY,$0000
+            0xCB, 0x2E,             # $800B SRA (HL)
+            0xCB, 0x3E,             # $800D SRL (HL)
+            0xDD, 0xCB, 0x00, 0x2E, # $800F SRA (IX+$00)
+            0xDD, 0xCB, 0x00, 0x3E, # $8013 SRL (IX+$00)
+            0xFD, 0xCB, 0x00, 0x2E, # $8017 SRA (IY+$00)
+            0xFD, 0xCB, 0x00, 0x3E, # $801B SRL (IY+$00)
+            0x23,                   # $801F INC HL
+            0xDD, 0x23,             # $8020 INC IX
+            0xFD, 0x23,             # $8022 INC IY
+            0xCB, 0x74,             # $8024 BIT 6,H
+            0x28, 0xE3,             # $8026 JR Z,$800B
+        )
+        self._test_read_only(code, 0x8000, 0x80)
+
+    def test_rotate_left(self):
+        code = (
+            0x21, 0x00, 0x00,       # $8000 LD HL,$0000
+            0xDD, 0x21, 0x00, 0x00, # $8003 LD IX,$0000
+            0xFD, 0x21, 0x00, 0x00, # $8007 LD IY,$0000
+            0xCB, 0x06,             # $800B RLC (HL)
+            0xCB, 0x16,             # $800D RL (HL)
+            0xDD, 0xCB, 0x00, 0x06, # $800F RLC (IX+$00)
+            0xDD, 0xCB, 0x00, 0x16, # $8013 RL (IX+$00)
+            0xFD, 0xCB, 0x00, 0x06, # $8017 RLC (IY+$00)
+            0xFD, 0xCB, 0x00, 0x16, # $801B RL (IY+$00)
+            0x23,                   # $801F INC HL
+            0xDD, 0x23,             # $8020 INC IX
+            0xFD, 0x23,             # $8022 INC IY
+            0xCB, 0x74,             # $8024 BIT 6,H
+            0x28, 0xE3,             # $8026 JR Z,$800B
+        )
+        self._test_read_only(code, 0x8000, 0x01)
+
+    def test_rotate_right(self):
+        code = (
+            0x21, 0x00, 0x00,       # $8000 LD HL,$0000
+            0xDD, 0x21, 0x00, 0x00, # $8003 LD IX,$0000
+            0xFD, 0x21, 0x00, 0x00, # $8007 LD IY,$0000
+            0xCB, 0x0E,             # $800B RRC (HL)
+            0xCB, 0x1E,             # $800D RR (HL)
+            0xDD, 0xCB, 0x00, 0x0E, # $800F RRC (IX+$00)
+            0xDD, 0xCB, 0x00, 0x1E, # $8013 RR (IX+$00)
+            0xFD, 0xCB, 0x00, 0x0E, # $8017 RRC (IY+$00)
+            0xFD, 0xCB, 0x00, 0x1E, # $801B RR (IY+$00)
+            0x23,                   # $801F INC HL
+            0xDD, 0x23,             # $8020 INC IX
+            0xFD, 0x23,             # $8022 INC IY
+            0xCB, 0x74,             # $8024 BIT 6,H
+            0x28, 0xE3,             # $8026 JR Z,$800B
+        )
+        self._test_read_only(code, 0x8000, 0x80)
+
+    def test_res(self):
+        code = (
+            0x21, 0x00, 0x00,       # $8000 LD HL,$0000
+            0xDD, 0x21, 0x00, 0x00, # $8003 LD IX,$0000
+            0xFD, 0x21, 0x00, 0x00, # $8007 LD IY,$0000
+            0xCB, 0xBE,             # $800B RES 7,(HL)
+            0xCB, 0xB6,             # $800D RES 6,(HL)
+            0xCB, 0xAE,             # $800F RES 5,(HL)
+            0xCB, 0xA6,             # $8011 RES 4,(HL)
+            0xCB, 0x9E,             # $8013 RES 3,(HL)
+            0xCB, 0x96,             # $8015 RES 2,(HL)
+            0xCB, 0x8E,             # $8017 RES 1,(HL)
+            0xCB, 0x86,             # $8019 RES 0,(HL)
+            0xDD, 0xCB, 0x00, 0xBE, # $801B RES 7,(IX+$00)
+            0xDD, 0xCB, 0x00, 0xB6, # $801F RES 6,(IX+$00)
+            0xDD, 0xCB, 0x00, 0xAE, # $8023 RES 5,(IX+$00)
+            0xDD, 0xCB, 0x00, 0xA6, # $8027 RES 4,(IX+$00)
+            0xDD, 0xCB, 0x00, 0x9E, # $802B RES 3,(IX+$00)
+            0xDD, 0xCB, 0x00, 0x96, # $802F RES 2,(IX+$00)
+            0xDD, 0xCB, 0x00, 0x8E, # $8033 RES 1,(IX+$00)
+            0xDD, 0xCB, 0x00, 0x86, # $8037 RES 0,(IX+$00)
+            0xFD, 0xCB, 0x00, 0xBE, # $803B RES 7,(IY+$00)
+            0xFD, 0xCB, 0x00, 0xB6, # $803F RES 6,(IY+$00)
+            0xFD, 0xCB, 0x00, 0xAE, # $8043 RES 5,(IY+$00)
+            0xFD, 0xCB, 0x00, 0xA6, # $8047 RES 4,(IY+$00)
+            0xFD, 0xCB, 0x00, 0x9E, # $804B RES 3,(IY+$00)
+            0xFD, 0xCB, 0x00, 0x96, # $804F RES 2,(IY+$00)
+            0xFD, 0xCB, 0x00, 0x8E, # $8053 RES 1,(IY+$00)
+            0xFD, 0xCB, 0x00, 0x86, # $8057 RES 0,(IY+$00)
+            0x23,                   # $805B INC HL
+            0xDD, 0x23,             # $805C INC IX
+            0xFD, 0x23,             # $805E INC IY
+            0xCB, 0x74,             # $8060 BIT 6,H
+            0x28, 0xA7,             # $8062 JR Z,$800B
+        )
+        self._test_read_only(code, 0x8000, 0xFF)
+
+    def test_set(self):
+        code = (
+            0x21, 0x00, 0x00,       # $8000 LD HL,$0000
+            0xDD, 0x21, 0x00, 0x00, # $8003 LD IX,$0000
+            0xFD, 0x21, 0x00, 0x00, # $8007 LD IY,$0000
+            0xCB, 0xFE,             # $800B SET 7,(HL)
+            0xCB, 0xF6,             # $800D SET 6,(HL)
+            0xCB, 0xEE,             # $800F SET 5,(HL)
+            0xCB, 0xE6,             # $8011 SET 4,(HL)
+            0xCB, 0xDE,             # $8013 SET 3,(HL)
+            0xCB, 0xD6,             # $8015 SET 2,(HL)
+            0xCB, 0xCE,             # $8017 SET 1,(HL)
+            0xCB, 0xC6,             # $8019 SET 0,(HL)
+            0xDD, 0xCB, 0x00, 0xFE, # $801B SET 7,(IX+$00)
+            0xDD, 0xCB, 0x00, 0xF6, # $801F SET 6,(IX+$00)
+            0xDD, 0xCB, 0x00, 0xEE, # $8023 SET 5,(IX+$00)
+            0xDD, 0xCB, 0x00, 0xE6, # $8027 SET 4,(IX+$00)
+            0xDD, 0xCB, 0x00, 0xDE, # $802B SET 3,(IX+$00)
+            0xDD, 0xCB, 0x00, 0xD6, # $802F SET 2,(IX+$00)
+            0xDD, 0xCB, 0x00, 0xCE, # $8033 SET 1,(IX+$00)
+            0xDD, 0xCB, 0x00, 0xC6, # $8037 SET 0,(IX+$00)
+            0xFD, 0xCB, 0x00, 0xFE, # $803B SET 7,(IY+$00)
+            0xFD, 0xCB, 0x00, 0xF6, # $803F SET 6,(IY+$00)
+            0xFD, 0xCB, 0x00, 0xEE, # $8043 SET 5,(IY+$00)
+            0xFD, 0xCB, 0x00, 0xE6, # $8047 SET 4,(IY+$00)
+            0xFD, 0xCB, 0x00, 0xDE, # $804B SET 3,(IY+$00)
+            0xFD, 0xCB, 0x00, 0xD6, # $804F SET 2,(IY+$00)
+            0xFD, 0xCB, 0x00, 0xCE, # $8053 SET 1,(IY+$00)
+            0xFD, 0xCB, 0x00, 0xC6, # $8057 SET 0,(IY+$00)
+            0x23,                   # $805B INC HL
+            0xDD, 0x23,             # $805C INC IX
+            0xFD, 0x23,             # $805E INC IY
+            0xCB, 0x74,             # $8060 BIT 6,H
+            0x28, 0xA7,             # $8062 JR Z,$800B
+        )
+        self._test_read_only(code, 0x8000)
+
+    def test_rld(self):
+        code = (
+            0x21, 0x00, 0x00,       # $8000 LD HL,$0000
+            0x3E, 0xFF,             # $8003 LD A,$FF
+            0xED, 0x6F,             # $8005 RLD
+            0x23,                   # $8007 INC HL
+            0xCB, 0x74,             # $8008 BIT 6,H
+            0x28, 0xF7,             # $800A JR Z,$8003
+        )
+        self._test_read_only(code, 0x8000)
+
+    def test_rrd(self):
+        code = (
+            0x21, 0x00, 0x00,       # $8000 LD HL,$0000
+            0x3E, 0xFF,             # $8003 LD A,$FF
+            0xED, 0x67,             # $8005 RRD
+            0x23,                   # $8007 INC HL
+            0xCB, 0x74,             # $8008 BIT 6,H
+            0x28, 0xF7,             # $800A JR Z,$8003
+        )
+        self._test_read_only(code, 0x8000)
+
+    def test_ldi(self):
+        code = (
+            0x11, 0x00, 0x00,       # $8000 LD DE,$0000
+            0x21, 0x00, 0x80,       # $8003 LD HL,$8000
+            0xED, 0xA0,             # $8006 LDI
+            0xCB, 0x72,             # $8008 BIT 6,D
+            0x28, 0xF7,             # $800A JR Z,$8003
+        )
+        self._test_read_only(code, 0x8000)
+
+    def test_ldd(self):
+        code = (
+            0x11, 0xFF, 0x3F,       # $8000 LD DE,$3FFF
+            0x21, 0x00, 0x80,       # $8003 LD HL,$8000
+            0xED, 0xA8,             # $8006 LDD
+            0xCB, 0x7A,             # $8008 BIT 7,D
+            0x28, 0xF7,             # $800A JR Z,$8003
+        )
+        self._test_read_only(code, 0x8000)
+
+    def test_ldir(self):
+        code = (
+            0x21, 0x00, 0xC0,       # $8000 LD HL,$C000
+            0x11, 0x00, 0x00,       # $8003 LD DE,$0000
+            0x01, 0x00, 0x40,       # $8006 LD BC,$4000
+            0xED, 0xB0,             # $8009 LDIR
+        )
+        start = 0x8000
+        stop = 0x8000 + len(code)
+        memory = [0] * 65536
+        memory[start:stop] = code
+        memory[0xC000:] = [0xFF] * 0x4000
+        simulator = Simulator(memory)
+        simulator.run(start, stop)
+        self.assertTrue(all(b == 0 for b in memory[:0x4000]))
+
+    def test_lddr(self):
+        code = (
+            0x21, 0xFF, 0xFF,       # $8000 LD HL,$FFFF
+            0x11, 0xFF, 0x3F,       # $8003 LD DE,$3FFF
+            0x01, 0x00, 0x40,       # $8006 LD BC,$4000
+            0xED, 0xB8,             # $8009 LDDR
+        )
+        start = 0x8000
+        stop = 0x8000 + len(code)
+        memory = [0] * 65536
+        memory[start:stop] = code
+        memory[0xC000:] = [0xFF] * 0x4000
+        simulator = Simulator(memory)
+        simulator.run(start, stop)
+        self.assertTrue(all(b == 0 for b in memory[:0x4000]))
+
 class SimulatorTest(SkoolKitTestCase):
     def _verify(self, tracer, checksum):
         simulator = Simulator([0] * 65536)

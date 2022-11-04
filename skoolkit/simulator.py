@@ -315,13 +315,12 @@ class Simulator:
     def prefix2(self, opcodes, registers, memory):
         opcodes[memory[(registers[24] + 3) % 65536]]()
 
-    def poke(self, memory, address, *values):
+    def poke(self, memory, address, v1, v2):
         if address > 0x3FFF:
-            memory[address] = values[0]
-        if len(values) > 1:
-            address = (address + 1) % 65536
-            if address > 0x3FFF:
-                memory[address] = values[1]
+            memory[address] = v1
+        address = (address + 1) % 65536
+        if address > 0x3FFF:
+            memory[address] = v2
 
     def adc_a_a(self, registers):
         a = registers[0]
@@ -750,7 +749,8 @@ class Simulator:
             else:
                 addr = (registers[11] + 256 * registers[10] + OFFSETS[memory[(registers[24] + 2) % 65536]]) % 65536
             value = (memory[addr] + inc) % 256
-            self.poke(memory, addr, value)
+            if addr > 0x3FFF:
+                memory[addr] = value
         registers[1] = (registers[1] % 2) + flags[value]
         registers[15] = r_inc[registers[15]]
         registers[25] += timing
@@ -778,7 +778,8 @@ class Simulator:
             value = self.in_tracer(c + 256 * b)
         else:
             value = 191
-        self.poke(memory, hl, value)
+        if hl > 0x3FFF:
+            memory[hl] = value
         b = (b - 1) % 256
         j = value + ((c + inc) % 256)
         f = (b & 0xA8) + PARITY[(j % 8) ^ b] # S.5.3P..
@@ -854,12 +855,15 @@ class Simulator:
             value = memory[(registers[11] + 256 * registers[10] + OFFSETS[memory[(registers[24] + 2) % 65536]]) % 65536]
         if reg < 16:
             registers[reg] = value
-        elif reg < 32:
-            self.poke(memory, registers[reg - 23] + 256 * registers[reg - 24], value)
-        elif reg == 32:
-            self.poke(memory, (registers[9] + 256 * registers[8] + OFFSETS[memory[(registers[24] + 2) % 65536]]) % 65536, value)
         else:
-            self.poke(memory, (registers[11] + 256 * registers[10] + OFFSETS[memory[(registers[24] + 2) % 65536]]) % 65536, value)
+            if reg < 32:
+                addr = registers[reg - 23] + 256 * registers[reg - 24]
+            elif reg == 32:
+                addr = (registers[9] + 256 * registers[8] + OFFSETS[memory[(registers[24] + 2) % 65536]]) % 65536
+            else:
+                addr = (registers[11] + 256 * registers[10] + OFFSETS[memory[(registers[24] + 2) % 65536]]) % 65536
+            if addr > 0x3FFF:
+                memory[addr] = value
         if reg2 in (14, 15):
             # LD A,I and LD A,R
             a = registers[0]
@@ -906,7 +910,9 @@ class Simulator:
     def ldann(self, registers, memory, poke):
         pcn = registers[24] + 1
         if poke:
-            self.poke(memory, memory[pcn % 65536] + 256 * memory[(pcn + 1) % 65536], registers[0])
+            addr = memory[pcn % 65536] + 256 * memory[(pcn + 1) % 65536]
+            if addr > 0x3FFF:
+                memory[addr] = registers[0]
         else:
             registers[0] = memory[memory[pcn % 65536] + 256 * memory[(pcn + 1) % 65536]]
         registers[15] = R1[registers[15]]
@@ -920,7 +926,8 @@ class Simulator:
         bc = registers[3] + 256 * registers[2]
 
         at_hl = memory[hl]
-        self.poke(memory, de, at_hl)
+        if de > 0x3FFF:
+            memory[de] = at_hl
         n = registers[0] + at_hl
         f = (registers[1] & 0xC1) + (n & 0x08) # SZ.H3.NC
         if n & 0x02:
@@ -954,7 +961,8 @@ class Simulator:
         count = 0
         repeat = True
         while repeat:
-            self.poke(memory, de, memory[hl])
+            if de > 0x3FFF:
+                memory[de] = memory[hl]
             bc = (bc - 1) % 65536
             if bc == 0 or registers[24] <= de <= registers[24] + 1:
                 repeat = False
@@ -1153,8 +1161,8 @@ class Simulator:
             value &= bit
         if reg < 16:
             registers[reg] = value
-        else:
-            self.poke(memory, addr, value)
+        elif addr > 0x3FFF:
+            memory[addr] = value
         if dest >= 0:
             registers[dest] = value
         registers[15] = R2[registers[15]]
@@ -1165,7 +1173,8 @@ class Simulator:
         hl = registers[7] + 256 * registers[6]
         a = registers[0]
         at_hl = memory[hl]
-        self.poke(memory, hl, ((at_hl * 16) % 256) + (a % 16))
+        if hl > 0x3FFF:
+            memory[hl] = ((at_hl * 16) % 256) + (a % 16)
         a_out = registers[0] = (a & 240) + ((at_hl // 16) % 16)
         registers[1] = SZ53P[a_out] + (registers[1] % 2)
         registers[15] = R2[registers[15]]
@@ -1176,7 +1185,8 @@ class Simulator:
         hl = registers[7] + 256 * registers[6]
         a = registers[0]
         at_hl = memory[hl]
-        self.poke(memory, hl, ((a * 16) % 256) + (at_hl // 16))
+        if hl > 0x3FFF:
+            memory[hl] = ((a * 16) % 256) + (at_hl // 16)
         a_out = registers[0] = (a & 240) + (at_hl % 16)
         registers[1] = SZ53P[a_out] + (registers[1] % 2)
         registers[15] = R2[registers[15]]
@@ -1228,7 +1238,8 @@ class Simulator:
             value = rotate[r]
         else:
             value = rotate[registers[1] % 2][r]
-        self.poke(memory, addr, value)
+        if addr > 0x3FFF:
+            memory[addr] = value
         if dest >= 0:
             registers[dest] = value
         if r & cbit:
@@ -1330,8 +1341,8 @@ class Simulator:
         value = shift[r]
         if reg < 16:
             registers[reg] = value
-        else:
-            self.poke(memory, addr, value)
+        elif addr > 0x3FFF:
+            memory[addr] = value
         if dest >= 0:
             registers[dest] = value
         if r & cbit:
