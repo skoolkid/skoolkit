@@ -264,11 +264,11 @@ class Simulator:
 
     def set_tracer(self, tracer):
         if hasattr(tracer, 'read_port'):
-            self.in_tracer = partial(tracer.read_port, self)
+            self.in_tracer = partial(tracer.read_port, self.registers)
         else:
             self.in_tracer = None
         if hasattr(tracer, 'write_port'):
-            self.out_tracer = partial(tracer.write_port, self)
+            self.out_tracer = partial(tracer.write_port, self.registers)
         else:
             self.out_tracer = None
 

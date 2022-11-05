@@ -102,7 +102,7 @@ class LoadTracer:
                     if tstates - edges[index] > 3500:
                         # Move to the next block on the tape if the final edge
                         # of the current block hasn't been read in over 1ms
-                        self.next_block(simulator)
+                        self.next_block(tstates)
                 else:
                     self.next_edge = edges[index + 1]
                     p = edges[index] // tape_length
@@ -133,34 +133,34 @@ class LoadTracer:
                     write_line(f'Simulation stopped (timed out): PC={pc}')
                     break
 
-    def read_port(self, simulator, port):
+    def read_port(self, registers, port):
         if port % 256 == 0xFE:
-            pc = simulator.registers[24]
+            pc = registers[24]
             if pc > 0x7FFF or 0x0562 <= pc <= 0x05F1: # pragma: no cover
                 self.custom_loader = True
                 index = self.index
                 if not self.tape_running:
                     self.tape_running = True
-                    simulator.registers[T] = self.edges[0]
+                    registers[T] = self.edges[0]
                     length = len(self.blocks[self.block_index][1])
                     write_line(f'Data ({length} bytes)\n')
                 elif index == self.max_index:
-                    self.next_block(simulator)
+                    self.next_block(registers[T])
                 if index % 2:
                     return 255
         return 191
 
-    def write_port(self, simulator, port, value):
-        if port & 0x01 == 0:
-            self.border = value & 0x07
+    def write_port(self, registers, port, value):
+        if port % 2 == 0:
+            self.border = value % 8
 
-    def next_block(self, simulator=None):
+    def next_block(self, tstates=None):
         self.block_index += 1
         if self.block_index >= len(self.blocks):
             self.end_of_tape += 1
             if self.end_of_tape == 1:
                 write_line('Tape finished')
-                self.tape_end_time = simulator.registers[T]
+                self.tape_end_time = tstates
         else:
             self.edges = self.blocks[self.block_index][0]
             self.next_edge = self.edges[0]
@@ -222,4 +222,4 @@ class LoadTracer:
             registers[E] = de & 0xFF
 
         registers[PC] = 0x05E2
-        self.next_block(simulator)
+        self.next_block(registers[T])

@@ -95,10 +95,10 @@ class Tracer:
 
         self.operations = operations
 
-    def write_port(self, simulator, port, value):
-        if port & 0xFF == 0xFE and self.spkr is None or self.spkr != value & 0x10:
+    def write_port(self, registers, port, value):
+        if port % 2 == 0 and self.spkr != value & 0x10:
             self.spkr = value & 0x10
-            self.out_times.append(simulator.registers[T])
+            self.out_times.append(registers[T])
 
 def get_registers(specs):
     registers = {}

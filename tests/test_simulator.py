@@ -15,7 +15,7 @@ INDEX_REGISTERS = ((0xDD, 'IX', IXh, IXl), (0xFD, 'IY', IYh, IYl))
 class InTestTracer:
     value = 0
 
-    def read_port(self, simulator, port):
+    def read_port(self, registers, port):
         return self.value
 
 class PortTracer:
@@ -24,11 +24,11 @@ class PortTracer:
         self.in_ports = []
         self.out_ports = []
 
-    def read_port(self, simulator, port):
+    def read_port(self, registers, port):
         self.in_ports.append(port)
         return self.in_value
 
-    def write_port(self, simulator, port, value):
+    def write_port(self, registers, port, value):
         self.out_ports.append((port, value))
 
 class SimulatorTest(SkoolKitTestCase):

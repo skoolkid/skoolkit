@@ -397,7 +397,7 @@ class InTracer(BaseTracer):
         simulator.registers[F] = (self.count // 256) * 255
         self.value = self.count % 256
 
-    def read_port(self, simulator, port):
+    def read_port(self, registers, port):
         return self.value
 
 class AIRTracer(BaseTracer):
