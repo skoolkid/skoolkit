@@ -1401,6 +1401,14 @@ class Simulator:
         registers[25] += timing
         registers[24] = (registers[24] + size) % 65536
 
+    def xor_hl(self, registers, memory):
+        a = registers[0] ^ memory[registers[7] + 256 * registers[6]]
+        registers[0] = a
+        registers[1] = SZ53P[a]
+        registers[15] = R1[registers[15]]
+        registers[25] += 7
+        registers[24] = (registers[24] + 1) % 65536
+
     def xor_n(self, registers, memory):
         pcn = registers[24] + 1
         a = registers[0] ^ memory[pcn % 65536]
@@ -1410,28 +1418,22 @@ class Simulator:
         registers[25] += 7
         registers[24] = (pcn + 1) % 65536
 
-    def xor_r(self, registers, r):
+    def xor_r(self, registers, r_inc, timing, size, r):
         a = registers[0] ^ registers[r]
-        registers[0] = a
-        registers[1] = SZ53P[a]
-        registers[15] = R1[registers[15]]
-        registers[25] += 4
-        registers[24] = (registers[24] + 1) % 65536
-
-    def xor(self, registers, memory, r_inc, timing, size, reg):
-        if reg < 16:
-            a = registers[0] ^ registers[reg]
-        elif reg == 30:
-            a = registers[0] ^ memory[registers[7] + 256 * registers[6]]
-        elif reg == 32:
-            a = registers[0] ^ memory[(registers[9] + 256 * registers[8] + OFFSETS[memory[(registers[24] + 2) % 65536]]) % 65536]
-        else:
-            a = registers[0] ^ memory[(registers[11] + 256 * registers[10] + OFFSETS[memory[(registers[24] + 2) % 65536]]) % 65536]
         registers[0] = a
         registers[1] = SZ53P[a]
         registers[15] = r_inc[registers[15]]
         registers[25] += timing
         registers[24] = (registers[24] + size) % 65536
+
+    def xor_xy(self, registers, memory, xy):
+        pcn = registers[24] + 3
+        a = registers[0] ^ memory[(registers[xy + 1] + 256 * registers[xy] + OFFSETS[memory[(pcn - 1) % 65536]]) % 65536]
+        registers[0] = a
+        registers[1] = SZ53P[a]
+        registers[15] = R2[registers[15]]
+        registers[25] += 19
+        registers[24] = pcn % 65536
 
     def create_opcodes(self):
         r = self.registers
@@ -2387,9 +2389,9 @@ class Simulator:
             partial(self.nop_dd_fd, r),                            # DDA9
             partial(self.nop_dd_fd, r),                            # DDAA
             partial(self.nop_dd_fd, r),                            # DDAB
-            partial(self.xor, r, m, R2, 8, 2, IXh),                # DDAC XOR IXh
-            partial(self.xor, r, m, R2, 8, 2, IXl),                # DDAD XOR IXl
-            partial(self.xor, r, m, R2, 19, 3, Xd),                # DDAE XOR (IX+d)
+            partial(self.xor_r, r, R2, 8, 2, IXh),                 # DDAC XOR IXh
+            partial(self.xor_r, r, R2, 8, 2, IXl),                 # DDAD XOR IXl
+            partial(self.xor_xy, r, m, IXh),                       # DDAE XOR (IX+d)
             partial(self.nop_dd_fd, r),                            # DDAF
             partial(self.nop_dd_fd, r),                            # DDB0
             partial(self.nop_dd_fd, r),                            # DDB1
@@ -2905,9 +2907,9 @@ class Simulator:
             partial(self.nop_dd_fd, r),                            # FDA9
             partial(self.nop_dd_fd, r),                            # FDAA
             partial(self.nop_dd_fd, r),                            # FDAB
-            partial(self.xor, r, m, R2, 8, 2, IYh),                # FDAC XOR IYh
-            partial(self.xor, r, m, R2, 8, 2, IYl),                # FDAD XOR IYl
-            partial(self.xor, r, m, R2, 19, 3, Yd),                # FDAE XOR (IY+d)
+            partial(self.xor_r, r, R2, 8, 2, IYh),                 # FDAC XOR IYh
+            partial(self.xor_r, r, R2, 8, 2, IYl),                 # FDAD XOR IYl
+            partial(self.xor_xy, r, m, IYh),                       # FDAE XOR (IY+d)
             partial(self.nop_dd_fd, r),                            # FDAF
             partial(self.nop_dd_fd, r),                            # FDB0
             partial(self.nop_dd_fd, r),                            # FDB1
@@ -3160,14 +3162,14 @@ class Simulator:
             partial(self.and_r, r, L),                             # A5 AND L
             partial(self.anda, r, m, R1, 7, 1, Hd),                # A6 AND (HL)
             partial(self.and_r, r, A),                             # A7 AND A
-            partial(self.xor_r, r, B),                             # A8 XOR B
-            partial(self.xor_r, r, C),                             # A9 XOR C
-            partial(self.xor_r, r, D),                             # AA XOR D
-            partial(self.xor_r, r, E),                             # AB XOR E
-            partial(self.xor_r, r, H),                             # AC XOR H
-            partial(self.xor_r, r, L),                             # AD XOR L
-            partial(self.xor, r, m, R1, 7, 1, Hd),                 # AE XOR (HL)
-            partial(self.xor_r, r, A),                             # AF XOR A
+            partial(self.xor_r, r, R1, 4, 1, B),                   # A8 XOR B
+            partial(self.xor_r, r, R1, 4, 1, C),                   # A9 XOR C
+            partial(self.xor_r, r, R1, 4, 1, D),                   # AA XOR D
+            partial(self.xor_r, r, R1, 4, 1, E),                   # AB XOR E
+            partial(self.xor_r, r, R1, 4, 1, H),                   # AC XOR H
+            partial(self.xor_r, r, R1, 4, 1, L),                   # AD XOR L
+            partial(self.xor_hl, r, m),                            # AE XOR (HL)
+            partial(self.xor_r, r, R1, 4, 1, A),                   # AF XOR A
             partial(self.or_r, r, B),                              # B0 OR B
             partial(self.or_r, r, C),                              # B1 OR C
             partial(self.or_r, r, D),                              # B2 OR D
