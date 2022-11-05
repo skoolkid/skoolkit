@@ -1020,20 +1020,10 @@ class Simulator:
         registers[25] += 8
         registers[24] = (registers[24] + 2) % 65536
 
-    def nop(self, registers):
-        registers[15] = R1[registers[15]]
-        registers[25] += 4
-        registers[24] = (registers[24] + 1) % 65536
-
-    def nop_dd_fd(self, registers):
-        registers[15] = R1[registers[15]]
-        registers[25] += 4
-        registers[24] = (registers[24] + 1) % 65536
-
-    def nop_ed(self, registers):
-        registers[15] = R2[registers[15]]
-        registers[25] += 8
-        registers[24] = (registers[24] + 2) % 65536
+    def nop(self, registers, r_inc, timing, size):
+        registers[15] = r_inc[registers[15]]
+        registers[25] += timing
+        registers[24] = (registers[24] + size) % 65536
 
     def or_n(self, registers, memory):
         pcn = registers[24] + 1
@@ -2209,102 +2199,102 @@ class Simulator:
         ]
 
         self.after_DD = [
-            partial(self.nop_dd_fd, r),                            # DD00
-            partial(self.nop_dd_fd, r),                            # DD01
-            partial(self.nop_dd_fd, r),                            # DD02
-            partial(self.nop_dd_fd, r),                            # DD03
-            partial(self.nop_dd_fd, r),                            # DD04
-            partial(self.nop_dd_fd, r),                            # DD05
-            partial(self.nop_dd_fd, r),                            # DD06
-            partial(self.nop_dd_fd, r),                            # DD07
-            partial(self.nop_dd_fd, r),                            # DD08
+            partial(self.nop, r, R1, 4, 1),                        # DD00
+            partial(self.nop, r, R1, 4, 1),                        # DD01
+            partial(self.nop, r, R1, 4, 1),                        # DD02
+            partial(self.nop, r, R1, 4, 1),                        # DD03
+            partial(self.nop, r, R1, 4, 1),                        # DD04
+            partial(self.nop, r, R1, 4, 1),                        # DD05
+            partial(self.nop, r, R1, 4, 1),                        # DD06
+            partial(self.nop, r, R1, 4, 1),                        # DD07
+            partial(self.nop, r, R1, 4, 1),                        # DD08
             partial(self.add16, r, R2, 15, 2, IXh, B),             # DD09 ADD IX,BC
-            partial(self.nop_dd_fd, r),                            # DD0A
-            partial(self.nop_dd_fd, r),                            # DD0B
-            partial(self.nop_dd_fd, r),                            # DD0C
-            partial(self.nop_dd_fd, r),                            # DD0D
-            partial(self.nop_dd_fd, r),                            # DD0E
-            partial(self.nop_dd_fd, r),                            # DD0F
-            partial(self.nop_dd_fd, r),                            # DD10
-            partial(self.nop_dd_fd, r),                            # DD11
-            partial(self.nop_dd_fd, r),                            # DD12
-            partial(self.nop_dd_fd, r),                            # DD13
-            partial(self.nop_dd_fd, r),                            # DD14
-            partial(self.nop_dd_fd, r),                            # DD15
-            partial(self.nop_dd_fd, r),                            # DD16
-            partial(self.nop_dd_fd, r),                            # DD17
-            partial(self.nop_dd_fd, r),                            # DD18
+            partial(self.nop, r, R1, 4, 1),                        # DD0A
+            partial(self.nop, r, R1, 4, 1),                        # DD0B
+            partial(self.nop, r, R1, 4, 1),                        # DD0C
+            partial(self.nop, r, R1, 4, 1),                        # DD0D
+            partial(self.nop, r, R1, 4, 1),                        # DD0E
+            partial(self.nop, r, R1, 4, 1),                        # DD0F
+            partial(self.nop, r, R1, 4, 1),                        # DD10
+            partial(self.nop, r, R1, 4, 1),                        # DD11
+            partial(self.nop, r, R1, 4, 1),                        # DD12
+            partial(self.nop, r, R1, 4, 1),                        # DD13
+            partial(self.nop, r, R1, 4, 1),                        # DD14
+            partial(self.nop, r, R1, 4, 1),                        # DD15
+            partial(self.nop, r, R1, 4, 1),                        # DD16
+            partial(self.nop, r, R1, 4, 1),                        # DD17
+            partial(self.nop, r, R1, 4, 1),                        # DD18
             partial(self.add16, r, R2, 15, 2, IXh, D),             # DD19 ADD IX,DE
-            partial(self.nop_dd_fd, r),                            # DD1A
-            partial(self.nop_dd_fd, r),                            # DD1B
-            partial(self.nop_dd_fd, r),                            # DD1C
-            partial(self.nop_dd_fd, r),                            # DD1D
-            partial(self.nop_dd_fd, r),                            # DD1E
-            partial(self.nop_dd_fd, r),                            # DD1F
-            partial(self.nop_dd_fd, r),                            # DD20
+            partial(self.nop, r, R1, 4, 1),                        # DD1A
+            partial(self.nop, r, R1, 4, 1),                        # DD1B
+            partial(self.nop, r, R1, 4, 1),                        # DD1C
+            partial(self.nop, r, R1, 4, 1),                        # DD1D
+            partial(self.nop, r, R1, 4, 1),                        # DD1E
+            partial(self.nop, r, R1, 4, 1),                        # DD1F
+            partial(self.nop, r, R1, 4, 1),                        # DD20
             partial(self.ld16, r, m, R2, 14, 4, IXh),              # DD21 LD IX,nn
             partial(self.ld16addr, r, m, R2, 20, 4, IXh, 1),       # DD22 LD (nn),IX
             partial(self.inc_dec16, r, R2, 10, 2, 1, IXh),         # DD23 INC IX
             partial(self.inc_dec8, r, m, R2, 8, 2, 1, INC, IXh),   # DD24 INC IXh
             partial(self.inc_dec8, r, m, R2, 8, 2, -1, DEC, IXh),  # DD25 DEC IXh
             partial(self.ld8, r, m, R2, 11, 3, IXh, N),            # DD26 LD IXh,n
-            partial(self.nop_dd_fd, r),                            # DD27
-            partial(self.nop_dd_fd, r),                            # DD28
+            partial(self.nop, r, R1, 4, 1),                        # DD27
+            partial(self.nop, r, R1, 4, 1),                        # DD28
             partial(self.add16, r, R2, 15, 2, IXh, IXh),           # DD29 ADD IX,IX
             partial(self.ld16addr, r, m, R2, 20, 4, IXh, 0),       # DD2A LD IX,(nn)
             partial(self.inc_dec16, r, R2, 10, 2, -1, IXh),        # DD2B DEC IX
             partial(self.inc_dec8, r, m, R2, 8, 2, 1, INC, IXl),   # DD2C INC IXl
             partial(self.inc_dec8, r, m, R2, 8, 2, -1, DEC, IXl),  # DD2D DEC IXl
             partial(self.ld8, r, m, R2, 11, 3, IXl, N),            # DD2E LD IXl,n
-            partial(self.nop_dd_fd, r),                            # DD2F
-            partial(self.nop_dd_fd, r),                            # DD30
-            partial(self.nop_dd_fd, r),                            # DD31
-            partial(self.nop_dd_fd, r),                            # DD32
-            partial(self.nop_dd_fd, r),                            # DD33
+            partial(self.nop, r, R1, 4, 1),                        # DD2F
+            partial(self.nop, r, R1, 4, 1),                        # DD30
+            partial(self.nop, r, R1, 4, 1),                        # DD31
+            partial(self.nop, r, R1, 4, 1),                        # DD32
+            partial(self.nop, r, R1, 4, 1),                        # DD33
             partial(self.inc_dec8, r, m, R2, 23, 3, 1, INC, Xd),   # DD34 INC (IX+d)
             partial(self.inc_dec8, r, m, R2, 23, 3, -1, DEC, Xd),  # DD35 DEC (IX+d)
             partial(self.ld8, r, m, R2, 19, 4, Xd, N),             # DD36 LD (IX+d),n
-            partial(self.nop_dd_fd, r),                            # DD37
-            partial(self.nop_dd_fd, r),                            # DD38
+            partial(self.nop, r, R1, 4, 1),                        # DD37
+            partial(self.nop, r, R1, 4, 1),                        # DD38
             partial(self.add16, r, R2, 15, 2, IXh, SP),            # DD39 ADD IX,SP
-            partial(self.nop_dd_fd, r),                            # DD3A
-            partial(self.nop_dd_fd, r),                            # DD3B
-            partial(self.nop_dd_fd, r),                            # DD3C
-            partial(self.nop_dd_fd, r),                            # DD3D
-            partial(self.nop_dd_fd, r),                            # DD3E
-            partial(self.nop_dd_fd, r),                            # DD3F
-            partial(self.nop_dd_fd, r),                            # DD40
-            partial(self.nop_dd_fd, r),                            # DD41
-            partial(self.nop_dd_fd, r),                            # DD42
-            partial(self.nop_dd_fd, r),                            # DD43
+            partial(self.nop, r, R1, 4, 1),                        # DD3A
+            partial(self.nop, r, R1, 4, 1),                        # DD3B
+            partial(self.nop, r, R1, 4, 1),                        # DD3C
+            partial(self.nop, r, R1, 4, 1),                        # DD3D
+            partial(self.nop, r, R1, 4, 1),                        # DD3E
+            partial(self.nop, r, R1, 4, 1),                        # DD3F
+            partial(self.nop, r, R1, 4, 1),                        # DD40
+            partial(self.nop, r, R1, 4, 1),                        # DD41
+            partial(self.nop, r, R1, 4, 1),                        # DD42
+            partial(self.nop, r, R1, 4, 1),                        # DD43
             partial(self.ld8, r, m, R2, 8, 2, B, IXh),             # DD44 LD B,IXh
             partial(self.ld8, r, m, R2, 8, 2, B, IXl),             # DD45 LD B,IXl
             partial(self.ld8, r, m, R2, 19, 3, B, Xd),             # DD46 LD B,(IX+d)
-            partial(self.nop_dd_fd, r),                            # DD47
-            partial(self.nop_dd_fd, r),                            # DD48
-            partial(self.nop_dd_fd, r),                            # DD49
-            partial(self.nop_dd_fd, r),                            # DD4A
-            partial(self.nop_dd_fd, r),                            # DD4B
+            partial(self.nop, r, R1, 4, 1),                        # DD47
+            partial(self.nop, r, R1, 4, 1),                        # DD48
+            partial(self.nop, r, R1, 4, 1),                        # DD49
+            partial(self.nop, r, R1, 4, 1),                        # DD4A
+            partial(self.nop, r, R1, 4, 1),                        # DD4B
             partial(self.ld8, r, m, R2, 8, 2, C, IXh),             # DD4C LD C,IXh
             partial(self.ld8, r, m, R2, 8, 2, C, IXl),             # DD4D LD C,IXl
             partial(self.ld8, r, m, R2, 19, 3, C, Xd),             # DD4E LD C,(IX+d)
-            partial(self.nop_dd_fd, r),                            # DD4F
-            partial(self.nop_dd_fd, r),                            # DD50
-            partial(self.nop_dd_fd, r),                            # DD51
-            partial(self.nop_dd_fd, r),                            # DD52
-            partial(self.nop_dd_fd, r),                            # DD53
+            partial(self.nop, r, R1, 4, 1),                        # DD4F
+            partial(self.nop, r, R1, 4, 1),                        # DD50
+            partial(self.nop, r, R1, 4, 1),                        # DD51
+            partial(self.nop, r, R1, 4, 1),                        # DD52
+            partial(self.nop, r, R1, 4, 1),                        # DD53
             partial(self.ld8, r, m, R2, 8, 2, D, IXh),             # DD54 LD D,IXh
             partial(self.ld8, r, m, R2, 8, 2, D, IXl),             # DD55 LD D,IXl
             partial(self.ld8, r, m, R2, 19, 3, D, Xd),             # DD56 LD D,(IX+d)
-            partial(self.nop_dd_fd, r),                            # DD57
-            partial(self.nop_dd_fd, r),                            # DD58
-            partial(self.nop_dd_fd, r),                            # DD59
-            partial(self.nop_dd_fd, r),                            # DD5A
-            partial(self.nop_dd_fd, r),                            # DD5B
+            partial(self.nop, r, R1, 4, 1),                        # DD57
+            partial(self.nop, r, R1, 4, 1),                        # DD58
+            partial(self.nop, r, R1, 4, 1),                        # DD59
+            partial(self.nop, r, R1, 4, 1),                        # DD5A
+            partial(self.nop, r, R1, 4, 1),                        # DD5B
             partial(self.ld8, r, m, R2, 8, 2, E, IXh),             # DD5C LD E,IXh
             partial(self.ld8, r, m, R2, 8, 2, E, IXl),             # DD5D LD E,IXl
             partial(self.ld8, r, m, R2, 19, 3, E, Xd),             # DD5E LD E,(IX+d)
-            partial(self.nop_dd_fd, r),                            # DD5F
+            partial(self.nop, r, R1, 4, 1),                        # DD5F
             partial(self.ld8, r, m, R2, 8, 2, IXh, B),             # DD60 LD IXh,B
             partial(self.ld8, r, m, R2, 8, 2, IXh, C),             # DD61 LD IXh,C
             partial(self.ld8, r, m, R2, 8, 2, IXh, D),             # DD62 LD IXh,D
@@ -2327,211 +2317,211 @@ class Simulator:
             partial(self.ld8, r, m, R2, 19, 3, Xd, E),             # DD73 LD (IX+d),E
             partial(self.ld8, r, m, R2, 19, 3, Xd, H),             # DD74 LD (IX+d),H
             partial(self.ld8, r, m, R2, 19, 3, Xd, L),             # DD75 LD (IX+d),L
-            partial(self.nop_dd_fd, r),                            # DD76
+            partial(self.nop, r, R1, 4, 1),                        # DD76
             partial(self.ld8, r, m, R2, 19, 3, Xd, A),             # DD77 LD (IX+d),A
-            partial(self.nop_dd_fd, r),                            # DD78
-            partial(self.nop_dd_fd, r),                            # DD79
-            partial(self.nop_dd_fd, r),                            # DD7A
-            partial(self.nop_dd_fd, r),                            # DD7B
+            partial(self.nop, r, R1, 4, 1),                        # DD78
+            partial(self.nop, r, R1, 4, 1),                        # DD79
+            partial(self.nop, r, R1, 4, 1),                        # DD7A
+            partial(self.nop, r, R1, 4, 1),                        # DD7B
             partial(self.ld8, r, m, R2, 8, 2, A, IXh),             # DD7C LD A,IXh
             partial(self.ld8, r, m, R2, 8, 2, A, IXl),             # DD7D LD A,IXl
             partial(self.ld8, r, m, R2, 19, 3, A, Xd),             # DD7E LD A,(IX+d)
-            partial(self.nop_dd_fd, r),                            # DD7F
-            partial(self.nop_dd_fd, r),                            # DD80
-            partial(self.nop_dd_fd, r),                            # DD81
-            partial(self.nop_dd_fd, r),                            # DD82
-            partial(self.nop_dd_fd, r),                            # DD83
+            partial(self.nop, r, R1, 4, 1),                        # DD7F
+            partial(self.nop, r, R1, 4, 1),                        # DD80
+            partial(self.nop, r, R1, 4, 1),                        # DD81
+            partial(self.nop, r, R1, 4, 1),                        # DD82
+            partial(self.nop, r, R1, 4, 1),                        # DD83
             partial(self.add_a, r, m, R2, 8, 2, IXh),              # DD84 ADD A,IXh
             partial(self.add_a, r, m, R2, 8, 2, IXl),              # DD85 ADD A,IXl
             partial(self.add_a, r, m, R2, 19, 3, Xd),              # DD86 ADD A,(IX+d)
-            partial(self.nop_dd_fd, r),                            # DD87
-            partial(self.nop_dd_fd, r),                            # DD88
-            partial(self.nop_dd_fd, r),                            # DD89
-            partial(self.nop_dd_fd, r),                            # DD8A
-            partial(self.nop_dd_fd, r),                            # DD8B
+            partial(self.nop, r, R1, 4, 1),                        # DD87
+            partial(self.nop, r, R1, 4, 1),                        # DD88
+            partial(self.nop, r, R1, 4, 1),                        # DD89
+            partial(self.nop, r, R1, 4, 1),                        # DD8A
+            partial(self.nop, r, R1, 4, 1),                        # DD8B
             partial(self.adc_a, r, m, R2, 8, 2, IXh),              # DD8C ADC A,IXh
             partial(self.adc_a, r, m, R2, 8, 2, IXl),              # DD8D ADC A,IXl
             partial(self.adc_a, r, m, R2, 19, 3, Xd),              # DD8E ADC A,(IX+d)
-            partial(self.nop_dd_fd, r),                            # DD8F
-            partial(self.nop_dd_fd, r),                            # DD90
-            partial(self.nop_dd_fd, r),                            # DD91
-            partial(self.nop_dd_fd, r),                            # DD92
-            partial(self.nop_dd_fd, r),                            # DD93
+            partial(self.nop, r, R1, 4, 1),                        # DD8F
+            partial(self.nop, r, R1, 4, 1),                        # DD90
+            partial(self.nop, r, R1, 4, 1),                        # DD91
+            partial(self.nop, r, R1, 4, 1),                        # DD92
+            partial(self.nop, r, R1, 4, 1),                        # DD93
             partial(self.sub, r, m, R2, 8, 2, IXh),                # DD94 SUB IXh
             partial(self.sub, r, m, R2, 8, 2, IXl),                # DD95 SUB IXl
             partial(self.sub, r, m, R2, 19, 3, Xd),                # DD96 SUB (IX+d)
-            partial(self.nop_dd_fd, r),                            # DD97
-            partial(self.nop_dd_fd, r),                            # DD98
-            partial(self.nop_dd_fd, r),                            # DD99
-            partial(self.nop_dd_fd, r),                            # DD9A
-            partial(self.nop_dd_fd, r),                            # DD9B
+            partial(self.nop, r, R1, 4, 1),                        # DD97
+            partial(self.nop, r, R1, 4, 1),                        # DD98
+            partial(self.nop, r, R1, 4, 1),                        # DD99
+            partial(self.nop, r, R1, 4, 1),                        # DD9A
+            partial(self.nop, r, R1, 4, 1),                        # DD9B
             partial(self.sbc_a, r, m, R2, 8, 2, IXh),              # DD9C SBC A,IXh
             partial(self.sbc_a, r, m, R2, 8, 2, IXl),              # DD9D SBC A,IXl
             partial(self.sbc_a, r, m, R2, 19, 3, Xd),              # DD9E SBC A,(IX+d)
-            partial(self.nop_dd_fd, r),                            # DD9F
-            partial(self.nop_dd_fd, r),                            # DDA0
-            partial(self.nop_dd_fd, r),                            # DDA1
-            partial(self.nop_dd_fd, r),                            # DDA2
-            partial(self.nop_dd_fd, r),                            # DDA3
+            partial(self.nop, r, R1, 4, 1),                        # DD9F
+            partial(self.nop, r, R1, 4, 1),                        # DDA0
+            partial(self.nop, r, R1, 4, 1),                        # DDA1
+            partial(self.nop, r, R1, 4, 1),                        # DDA2
+            partial(self.nop, r, R1, 4, 1),                        # DDA3
             partial(self.anda, r, m, R2, 8, 2, IXh),               # DDA4 AND IXh
             partial(self.anda, r, m, R2, 8, 2, IXl),               # DDA5 AND IXl
             partial(self.anda, r, m, R2, 19, 3, Xd),               # DDA6 AND (IX+d)
-            partial(self.nop_dd_fd, r),                            # DDA7
-            partial(self.nop_dd_fd, r),                            # DDA8
-            partial(self.nop_dd_fd, r),                            # DDA9
-            partial(self.nop_dd_fd, r),                            # DDAA
-            partial(self.nop_dd_fd, r),                            # DDAB
+            partial(self.nop, r, R1, 4, 1),                        # DDA7
+            partial(self.nop, r, R1, 4, 1),                        # DDA8
+            partial(self.nop, r, R1, 4, 1),                        # DDA9
+            partial(self.nop, r, R1, 4, 1),                        # DDAA
+            partial(self.nop, r, R1, 4, 1),                        # DDAB
             partial(self.xor_r, r, R2, 8, 2, IXh),                 # DDAC XOR IXh
             partial(self.xor_r, r, R2, 8, 2, IXl),                 # DDAD XOR IXl
             partial(self.xor_xy, r, m, IXh),                       # DDAE XOR (IX+d)
-            partial(self.nop_dd_fd, r),                            # DDAF
-            partial(self.nop_dd_fd, r),                            # DDB0
-            partial(self.nop_dd_fd, r),                            # DDB1
-            partial(self.nop_dd_fd, r),                            # DDB2
-            partial(self.nop_dd_fd, r),                            # DDB3
+            partial(self.nop, r, R1, 4, 1),                        # DDAF
+            partial(self.nop, r, R1, 4, 1),                        # DDB0
+            partial(self.nop, r, R1, 4, 1),                        # DDB1
+            partial(self.nop, r, R1, 4, 1),                        # DDB2
+            partial(self.nop, r, R1, 4, 1),                        # DDB3
             partial(self.ora, r, m, R2, 8, 2, IXh),                # DDB4 OR IXh
             partial(self.ora, r, m, R2, 8, 2, IXl),                # DDB5 OR IXl
             partial(self.ora, r, m, R2, 19, 3, Xd),                # DDB6 OR (IX+d)
-            partial(self.nop_dd_fd, r),                            # DDB7
-            partial(self.nop_dd_fd, r),                            # DDB8
-            partial(self.nop_dd_fd, r),                            # DDB9
-            partial(self.nop_dd_fd, r),                            # DDBA
-            partial(self.nop_dd_fd, r),                            # DDBB
+            partial(self.nop, r, R1, 4, 1),                        # DDB7
+            partial(self.nop, r, R1, 4, 1),                        # DDB8
+            partial(self.nop, r, R1, 4, 1),                        # DDB9
+            partial(self.nop, r, R1, 4, 1),                        # DDBA
+            partial(self.nop, r, R1, 4, 1),                        # DDBB
             partial(self.cp, r, m, R2, 8, 2, IXh),                 # DDBC CP IXh
             partial(self.cp, r, m, R2, 8, 2, IXl),                 # DDBD CP IXl
             partial(self.cp, r, m, R2, 19, 3, Xd),                 # DDBE CP (IX+d)
-            partial(self.nop_dd_fd, r),                            # DDBF
-            partial(self.nop_dd_fd, r),                            # DDC0
-            partial(self.nop_dd_fd, r),                            # DDC1
-            partial(self.nop_dd_fd, r),                            # DDC2
-            partial(self.nop_dd_fd, r),                            # DDC3
-            partial(self.nop_dd_fd, r),                            # DDC4
-            partial(self.nop_dd_fd, r),                            # DDC5
-            partial(self.nop_dd_fd, r),                            # DDC6
-            partial(self.nop_dd_fd, r),                            # DDC7
-            partial(self.nop_dd_fd, r),                            # DDC8
-            partial(self.nop_dd_fd, r),                            # DDC9
-            partial(self.nop_dd_fd, r),                            # DDCA
+            partial(self.nop, r, R1, 4, 1),                        # DDBF
+            partial(self.nop, r, R1, 4, 1),                        # DDC0
+            partial(self.nop, r, R1, 4, 1),                        # DDC1
+            partial(self.nop, r, R1, 4, 1),                        # DDC2
+            partial(self.nop, r, R1, 4, 1),                        # DDC3
+            partial(self.nop, r, R1, 4, 1),                        # DDC4
+            partial(self.nop, r, R1, 4, 1),                        # DDC5
+            partial(self.nop, r, R1, 4, 1),                        # DDC6
+            partial(self.nop, r, R1, 4, 1),                        # DDC7
+            partial(self.nop, r, R1, 4, 1),                        # DDC8
+            partial(self.nop, r, R1, 4, 1),                        # DDC9
+            partial(self.nop, r, R1, 4, 1),                        # DDCA
             partial(self.prefix2, self.after_DDCB, r, m),          # DDCB prefix
-            partial(self.nop_dd_fd, r),                            # DDCC
-            partial(self.nop_dd_fd, r),                            # DDCD
-            partial(self.nop_dd_fd, r),                            # DDCE
-            partial(self.nop_dd_fd, r),                            # DDCF
-            partial(self.nop_dd_fd, r),                            # DDD0
-            partial(self.nop_dd_fd, r),                            # DDD1
-            partial(self.nop_dd_fd, r),                            # DDD2
-            partial(self.nop_dd_fd, r),                            # DDD3
-            partial(self.nop_dd_fd, r),                            # DDD4
-            partial(self.nop_dd_fd, r),                            # DDD5
-            partial(self.nop_dd_fd, r),                            # DDD6
-            partial(self.nop_dd_fd, r),                            # DDD7
-            partial(self.nop_dd_fd, r),                            # DDD8
-            partial(self.nop_dd_fd, r),                            # DDD9
-            partial(self.nop_dd_fd, r),                            # DDDA
-            partial(self.nop_dd_fd, r),                            # DDDB
-            partial(self.nop_dd_fd, r),                            # DDDC
-            partial(self.nop_dd_fd, r),                            # DDDD
-            partial(self.nop_dd_fd, r),                            # DDDE
-            partial(self.nop_dd_fd, r),                            # DDDF
-            partial(self.nop_dd_fd, r),                            # DDE0
+            partial(self.nop, r, R1, 4, 1),                        # DDCC
+            partial(self.nop, r, R1, 4, 1),                        # DDCD
+            partial(self.nop, r, R1, 4, 1),                        # DDCE
+            partial(self.nop, r, R1, 4, 1),                        # DDCF
+            partial(self.nop, r, R1, 4, 1),                        # DDD0
+            partial(self.nop, r, R1, 4, 1),                        # DDD1
+            partial(self.nop, r, R1, 4, 1),                        # DDD2
+            partial(self.nop, r, R1, 4, 1),                        # DDD3
+            partial(self.nop, r, R1, 4, 1),                        # DDD4
+            partial(self.nop, r, R1, 4, 1),                        # DDD5
+            partial(self.nop, r, R1, 4, 1),                        # DDD6
+            partial(self.nop, r, R1, 4, 1),                        # DDD7
+            partial(self.nop, r, R1, 4, 1),                        # DDD8
+            partial(self.nop, r, R1, 4, 1),                        # DDD9
+            partial(self.nop, r, R1, 4, 1),                        # DDDA
+            partial(self.nop, r, R1, 4, 1),                        # DDDB
+            partial(self.nop, r, R1, 4, 1),                        # DDDC
+            partial(self.nop, r, R1, 4, 1),                        # DDDD
+            partial(self.nop, r, R1, 4, 1),                        # DDDE
+            partial(self.nop, r, R1, 4, 1),                        # DDDF
+            partial(self.nop, r, R1, 4, 1),                        # DDE0
             partial(self.pop, r, m, R2, 14, 2, IXh),               # DDE1 POP IX
-            partial(self.nop_dd_fd, r),                            # DDE2
+            partial(self.nop, r, R1, 4, 1),                        # DDE2
             partial(self.ex_sp, r, m, IXh),                        # DDE3 EX (SP),IX
-            partial(self.nop_dd_fd, r),                            # DDE4
+            partial(self.nop, r, R1, 4, 1),                        # DDE4
             partial(self.push, r, m, R2, 15, 2, IXh),              # DDE5 PUSH IX
-            partial(self.nop_dd_fd, r),                            # DDE6
-            partial(self.nop_dd_fd, r),                            # DDE7
-            partial(self.nop_dd_fd, r),                            # DDE8
+            partial(self.nop, r, R1, 4, 1),                        # DDE6
+            partial(self.nop, r, R1, 4, 1),                        # DDE7
+            partial(self.nop, r, R1, 4, 1),                        # DDE8
             partial(self.jp, r, m, R2, 8, 0, IXh),                 # DDE9 JP (IX)
-            partial(self.nop_dd_fd, r),                            # DDEA
-            partial(self.nop_dd_fd, r),                            # DDEB
-            partial(self.nop_dd_fd, r),                            # DDEC
-            partial(self.nop_dd_fd, r),                            # DDED
-            partial(self.nop_dd_fd, r),                            # DDEE
-            partial(self.nop_dd_fd, r),                            # DDEF
-            partial(self.nop_dd_fd, r),                            # DDF0
-            partial(self.nop_dd_fd, r),                            # DDF1
-            partial(self.nop_dd_fd, r),                            # DDF2
-            partial(self.nop_dd_fd, r),                            # DDF3
-            partial(self.nop_dd_fd, r),                            # DDF4
-            partial(self.nop_dd_fd, r),                            # DDF5
-            partial(self.nop_dd_fd, r),                            # DDF6
-            partial(self.nop_dd_fd, r),                            # DDF7
-            partial(self.nop_dd_fd, r),                            # DDF8
+            partial(self.nop, r, R1, 4, 1),                        # DDEA
+            partial(self.nop, r, R1, 4, 1),                        # DDEB
+            partial(self.nop, r, R1, 4, 1),                        # DDEC
+            partial(self.nop, r, R1, 4, 1),                        # DDED
+            partial(self.nop, r, R1, 4, 1),                        # DDEE
+            partial(self.nop, r, R1, 4, 1),                        # DDEF
+            partial(self.nop, r, R1, 4, 1),                        # DDF0
+            partial(self.nop, r, R1, 4, 1),                        # DDF1
+            partial(self.nop, r, R1, 4, 1),                        # DDF2
+            partial(self.nop, r, R1, 4, 1),                        # DDF3
+            partial(self.nop, r, R1, 4, 1),                        # DDF4
+            partial(self.nop, r, R1, 4, 1),                        # DDF5
+            partial(self.nop, r, R1, 4, 1),                        # DDF6
+            partial(self.nop, r, R1, 4, 1),                        # DDF7
+            partial(self.nop, r, R1, 4, 1),                        # DDF8
             partial(self.ldsprr, r, R2, 10, 2, IXh),               # DDF9 LD SP,IX
-            partial(self.nop_dd_fd, r),                            # DDFA
-            partial(self.nop_dd_fd, r),                            # DDFB
-            partial(self.nop_dd_fd, r),                            # DDFC
-            partial(self.nop_dd_fd, r),                            # DDFD
-            partial(self.nop_dd_fd, r),                            # DDFE
-            partial(self.nop_dd_fd, r),                            # DDFF
+            partial(self.nop, r, R1, 4, 1),                        # DDFA
+            partial(self.nop, r, R1, 4, 1),                        # DDFB
+            partial(self.nop, r, R1, 4, 1),                        # DDFC
+            partial(self.nop, r, R1, 4, 1),                        # DDFD
+            partial(self.nop, r, R1, 4, 1),                        # DDFE
+            partial(self.nop, r, R1, 4, 1),                        # DDFF
         ]
 
         self.after_ED = [
-            partial(self.nop_ed, r),                               # ED00
-            partial(self.nop_ed, r),                               # ED01
-            partial(self.nop_ed, r),                               # ED02
-            partial(self.nop_ed, r),                               # ED03
-            partial(self.nop_ed, r),                               # ED04
-            partial(self.nop_ed, r),                               # ED05
-            partial(self.nop_ed, r),                               # ED06
-            partial(self.nop_ed, r),                               # ED07
-            partial(self.nop_ed, r),                               # ED08
-            partial(self.nop_ed, r),                               # ED09
-            partial(self.nop_ed, r),                               # ED0A
-            partial(self.nop_ed, r),                               # ED0B
-            partial(self.nop_ed, r),                               # ED0C
-            partial(self.nop_ed, r),                               # ED0D
-            partial(self.nop_ed, r),                               # ED0E
-            partial(self.nop_ed, r),                               # ED0F
-            partial(self.nop_ed, r),                               # ED10
-            partial(self.nop_ed, r),                               # ED11
-            partial(self.nop_ed, r),                               # ED12
-            partial(self.nop_ed, r),                               # ED13
-            partial(self.nop_ed, r),                               # ED14
-            partial(self.nop_ed, r),                               # ED15
-            partial(self.nop_ed, r),                               # ED16
-            partial(self.nop_ed, r),                               # ED17
-            partial(self.nop_ed, r),                               # ED18
-            partial(self.nop_ed, r),                               # ED19
-            partial(self.nop_ed, r),                               # ED1A
-            partial(self.nop_ed, r),                               # ED1B
-            partial(self.nop_ed, r),                               # ED1C
-            partial(self.nop_ed, r),                               # ED1D
-            partial(self.nop_ed, r),                               # ED1E
-            partial(self.nop_ed, r),                               # ED1F
-            partial(self.nop_ed, r),                               # ED20
-            partial(self.nop_ed, r),                               # ED21
-            partial(self.nop_ed, r),                               # ED22
-            partial(self.nop_ed, r),                               # ED23
-            partial(self.nop_ed, r),                               # ED24
-            partial(self.nop_ed, r),                               # ED25
-            partial(self.nop_ed, r),                               # ED26
-            partial(self.nop_ed, r),                               # ED27
-            partial(self.nop_ed, r),                               # ED28
-            partial(self.nop_ed, r),                               # ED29
-            partial(self.nop_ed, r),                               # ED2A
-            partial(self.nop_ed, r),                               # ED2B
-            partial(self.nop_ed, r),                               # ED2C
-            partial(self.nop_ed, r),                               # ED2D
-            partial(self.nop_ed, r),                               # ED2E
-            partial(self.nop_ed, r),                               # ED2F
-            partial(self.nop_ed, r),                               # ED30
-            partial(self.nop_ed, r),                               # ED31
-            partial(self.nop_ed, r),                               # ED32
-            partial(self.nop_ed, r),                               # ED33
-            partial(self.nop_ed, r),                               # ED34
-            partial(self.nop_ed, r),                               # ED35
-            partial(self.nop_ed, r),                               # ED36
-            partial(self.nop_ed, r),                               # ED37
-            partial(self.nop_ed, r),                               # ED38
-            partial(self.nop_ed, r),                               # ED39
-            partial(self.nop_ed, r),                               # ED3A
-            partial(self.nop_ed, r),                               # ED3B
-            partial(self.nop_ed, r),                               # ED3C
-            partial(self.nop_ed, r),                               # ED3D
-            partial(self.nop_ed, r),                               # ED3E
-            partial(self.nop_ed, r),                               # ED3F
+            partial(self.nop, r, R2, 8, 2),                        # ED00
+            partial(self.nop, r, R2, 8, 2),                        # ED01
+            partial(self.nop, r, R2, 8, 2),                        # ED02
+            partial(self.nop, r, R2, 8, 2),                        # ED03
+            partial(self.nop, r, R2, 8, 2),                        # ED04
+            partial(self.nop, r, R2, 8, 2),                        # ED05
+            partial(self.nop, r, R2, 8, 2),                        # ED06
+            partial(self.nop, r, R2, 8, 2),                        # ED07
+            partial(self.nop, r, R2, 8, 2),                        # ED08
+            partial(self.nop, r, R2, 8, 2),                        # ED09
+            partial(self.nop, r, R2, 8, 2),                        # ED0A
+            partial(self.nop, r, R2, 8, 2),                        # ED0B
+            partial(self.nop, r, R2, 8, 2),                        # ED0C
+            partial(self.nop, r, R2, 8, 2),                        # ED0D
+            partial(self.nop, r, R2, 8, 2),                        # ED0E
+            partial(self.nop, r, R2, 8, 2),                        # ED0F
+            partial(self.nop, r, R2, 8, 2),                        # ED10
+            partial(self.nop, r, R2, 8, 2),                        # ED11
+            partial(self.nop, r, R2, 8, 2),                        # ED12
+            partial(self.nop, r, R2, 8, 2),                        # ED13
+            partial(self.nop, r, R2, 8, 2),                        # ED14
+            partial(self.nop, r, R2, 8, 2),                        # ED15
+            partial(self.nop, r, R2, 8, 2),                        # ED16
+            partial(self.nop, r, R2, 8, 2),                        # ED17
+            partial(self.nop, r, R2, 8, 2),                        # ED18
+            partial(self.nop, r, R2, 8, 2),                        # ED19
+            partial(self.nop, r, R2, 8, 2),                        # ED1A
+            partial(self.nop, r, R2, 8, 2),                        # ED1B
+            partial(self.nop, r, R2, 8, 2),                        # ED1C
+            partial(self.nop, r, R2, 8, 2),                        # ED1D
+            partial(self.nop, r, R2, 8, 2),                        # ED1E
+            partial(self.nop, r, R2, 8, 2),                        # ED1F
+            partial(self.nop, r, R2, 8, 2),                        # ED20
+            partial(self.nop, r, R2, 8, 2),                        # ED21
+            partial(self.nop, r, R2, 8, 2),                        # ED22
+            partial(self.nop, r, R2, 8, 2),                        # ED23
+            partial(self.nop, r, R2, 8, 2),                        # ED24
+            partial(self.nop, r, R2, 8, 2),                        # ED25
+            partial(self.nop, r, R2, 8, 2),                        # ED26
+            partial(self.nop, r, R2, 8, 2),                        # ED27
+            partial(self.nop, r, R2, 8, 2),                        # ED28
+            partial(self.nop, r, R2, 8, 2),                        # ED29
+            partial(self.nop, r, R2, 8, 2),                        # ED2A
+            partial(self.nop, r, R2, 8, 2),                        # ED2B
+            partial(self.nop, r, R2, 8, 2),                        # ED2C
+            partial(self.nop, r, R2, 8, 2),                        # ED2D
+            partial(self.nop, r, R2, 8, 2),                        # ED2E
+            partial(self.nop, r, R2, 8, 2),                        # ED2F
+            partial(self.nop, r, R2, 8, 2),                        # ED30
+            partial(self.nop, r, R2, 8, 2),                        # ED31
+            partial(self.nop, r, R2, 8, 2),                        # ED32
+            partial(self.nop, r, R2, 8, 2),                        # ED33
+            partial(self.nop, r, R2, 8, 2),                        # ED34
+            partial(self.nop, r, R2, 8, 2),                        # ED35
+            partial(self.nop, r, R2, 8, 2),                        # ED36
+            partial(self.nop, r, R2, 8, 2),                        # ED37
+            partial(self.nop, r, R2, 8, 2),                        # ED38
+            partial(self.nop, r, R2, 8, 2),                        # ED39
+            partial(self.nop, r, R2, 8, 2),                        # ED3A
+            partial(self.nop, r, R2, 8, 2),                        # ED3B
+            partial(self.nop, r, R2, 8, 2),                        # ED3C
+            partial(self.nop, r, R2, 8, 2),                        # ED3D
+            partial(self.nop, r, R2, 8, 2),                        # ED3E
+            partial(self.nop, r, R2, 8, 2),                        # ED3F
             partial(self.in_c, r, B),                              # ED40 IN B,(C)
             partial(self.outc, r, B),                              # ED41 OUT (C),B
             partial(self.sbc_hl, r, R2, B),                        # ED42 SBC HL,BC
@@ -2587,7 +2577,7 @@ class Simulator:
             partial(self.neg, r),                                  # ED74 NEG
             partial(self.reti, r, m),                              # ED75 RETN
             partial(self.im, r, 1),                                # ED76 IM 1
-            partial(self.nop_ed, r),                               # ED77
+            partial(self.nop, r, R2, 8, 2),                        # ED77
             partial(self.in_c, r, A),                              # ED78 IN A,(C)
             partial(self.outc, r, A),                              # ED79 OUT (C),A
             partial(self.adc_hl, r, SP),                           # ED7A ADC HL,SP
@@ -2595,234 +2585,234 @@ class Simulator:
             partial(self.neg, r),                                  # ED7C NEG
             partial(self.reti, r, m),                              # ED7D RETN
             partial(self.im, r, 2),                                # ED7E IM 2
-            partial(self.nop_ed, r),                               # ED7F
-            partial(self.nop_ed, r),                               # ED80
-            partial(self.nop_ed, r),                               # ED81
-            partial(self.nop_ed, r),                               # ED82
-            partial(self.nop_ed, r),                               # ED83
-            partial(self.nop_ed, r),                               # ED84
-            partial(self.nop_ed, r),                               # ED85
-            partial(self.nop_ed, r),                               # ED86
-            partial(self.nop_ed, r),                               # ED87
-            partial(self.nop_ed, r),                               # ED88
-            partial(self.nop_ed, r),                               # ED89
-            partial(self.nop_ed, r),                               # ED8A
-            partial(self.nop_ed, r),                               # ED8B
-            partial(self.nop_ed, r),                               # ED8C
-            partial(self.nop_ed, r),                               # ED8D
-            partial(self.nop_ed, r),                               # ED8E
-            partial(self.nop_ed, r),                               # ED8F
-            partial(self.nop_ed, r),                               # ED90
-            partial(self.nop_ed, r),                               # ED91
-            partial(self.nop_ed, r),                               # ED92
-            partial(self.nop_ed, r),                               # ED93
-            partial(self.nop_ed, r),                               # ED94
-            partial(self.nop_ed, r),                               # ED95
-            partial(self.nop_ed, r),                               # ED96
-            partial(self.nop_ed, r),                               # ED97
-            partial(self.nop_ed, r),                               # ED98
-            partial(self.nop_ed, r),                               # ED99
-            partial(self.nop_ed, r),                               # ED9A
-            partial(self.nop_ed, r),                               # ED9B
-            partial(self.nop_ed, r),                               # ED9C
-            partial(self.nop_ed, r),                               # ED9D
-            partial(self.nop_ed, r),                               # ED9E
-            partial(self.nop_ed, r),                               # ED9F
+            partial(self.nop, r, R2, 8, 2),                        # ED7F
+            partial(self.nop, r, R2, 8, 2),                        # ED80
+            partial(self.nop, r, R2, 8, 2),                        # ED81
+            partial(self.nop, r, R2, 8, 2),                        # ED82
+            partial(self.nop, r, R2, 8, 2),                        # ED83
+            partial(self.nop, r, R2, 8, 2),                        # ED84
+            partial(self.nop, r, R2, 8, 2),                        # ED85
+            partial(self.nop, r, R2, 8, 2),                        # ED86
+            partial(self.nop, r, R2, 8, 2),                        # ED87
+            partial(self.nop, r, R2, 8, 2),                        # ED88
+            partial(self.nop, r, R2, 8, 2),                        # ED89
+            partial(self.nop, r, R2, 8, 2),                        # ED8A
+            partial(self.nop, r, R2, 8, 2),                        # ED8B
+            partial(self.nop, r, R2, 8, 2),                        # ED8C
+            partial(self.nop, r, R2, 8, 2),                        # ED8D
+            partial(self.nop, r, R2, 8, 2),                        # ED8E
+            partial(self.nop, r, R2, 8, 2),                        # ED8F
+            partial(self.nop, r, R2, 8, 2),                        # ED90
+            partial(self.nop, r, R2, 8, 2),                        # ED91
+            partial(self.nop, r, R2, 8, 2),                        # ED92
+            partial(self.nop, r, R2, 8, 2),                        # ED93
+            partial(self.nop, r, R2, 8, 2),                        # ED94
+            partial(self.nop, r, R2, 8, 2),                        # ED95
+            partial(self.nop, r, R2, 8, 2),                        # ED96
+            partial(self.nop, r, R2, 8, 2),                        # ED97
+            partial(self.nop, r, R2, 8, 2),                        # ED98
+            partial(self.nop, r, R2, 8, 2),                        # ED99
+            partial(self.nop, r, R2, 8, 2),                        # ED9A
+            partial(self.nop, r, R2, 8, 2),                        # ED9B
+            partial(self.nop, r, R2, 8, 2),                        # ED9C
+            partial(self.nop, r, R2, 8, 2),                        # ED9D
+            partial(self.nop, r, R2, 8, 2),                        # ED9E
+            partial(self.nop, r, R2, 8, 2),                        # ED9F
             partial(self.ldi, r, m, 1, 0),                         # EDA0 LDI
             partial(self.cpi, r, m, 1, 0),                         # EDA1 CPI
             partial(self.ini, r, m, 1, 0),                         # EDA2 INI
             partial(self.outi, r, m, 1, 0),                        # EDA3 OUTI
-            partial(self.nop_ed, r),                               # EDA4
-            partial(self.nop_ed, r),                               # EDA5
-            partial(self.nop_ed, r),                               # EDA6
-            partial(self.nop_ed, r),                               # EDA7
+            partial(self.nop, r, R2, 8, 2),                        # EDA4
+            partial(self.nop, r, R2, 8, 2),                        # EDA5
+            partial(self.nop, r, R2, 8, 2),                        # EDA6
+            partial(self.nop, r, R2, 8, 2),                        # EDA7
             partial(self.ldi, r, m, -1, 0),                        # EDA8 LDD
             partial(self.cpi, r, m, -1, 0),                        # EDA9 CPD
             partial(self.ini, r, m, -1, 0),                        # EDAA IND
             partial(self.outi, r, m, -1, 0),                       # EDAB OUTD
-            partial(self.nop_ed, r),                               # EDAC
-            partial(self.nop_ed, r),                               # EDAD
-            partial(self.nop_ed, r),                               # EDAE
-            partial(self.nop_ed, r),                               # EDAF
+            partial(self.nop, r, R2, 8, 2),                        # EDAC
+            partial(self.nop, r, R2, 8, 2),                        # EDAD
+            partial(self.nop, r, R2, 8, 2),                        # EDAE
+            partial(self.nop, r, R2, 8, 2),                        # EDAF
             partial(self.ldi, r, m, 1, 1),                         # EDB0 LDIR
             partial(self.cpi, r, m, 1, 1),                         # EDB1 CPIR
             partial(self.ini, r, m, 1, 1),                         # EDB2 INIR
             partial(self.outi, r, m, 1, 1),                        # EDB3 OTIR
-            partial(self.nop_ed, r),                               # EDB4
-            partial(self.nop_ed, r),                               # EDB5
-            partial(self.nop_ed, r),                               # EDB6
-            partial(self.nop_ed, r),                               # EDB7
+            partial(self.nop, r, R2, 8, 2),                        # EDB4
+            partial(self.nop, r, R2, 8, 2),                        # EDB5
+            partial(self.nop, r, R2, 8, 2),                        # EDB6
+            partial(self.nop, r, R2, 8, 2),                        # EDB7
             partial(self.ldi, r, m, -1, 1),                        # EDB8 LDDR
             partial(self.cpi, r, m, -1, 1),                        # EDB9 CPDR
             partial(self.ini, r, m, -1, 1),                        # EDBA INDR
             partial(self.outi, r, m, -1, 1),                       # EDBB OTDR
-            partial(self.nop_ed, r),                               # EDBC
-            partial(self.nop_ed, r),                               # EDBD
-            partial(self.nop_ed, r),                               # EDBE
-            partial(self.nop_ed, r),                               # EDBF
-            partial(self.nop_ed, r),                               # EDC0
-            partial(self.nop_ed, r),                               # EDC1
-            partial(self.nop_ed, r),                               # EDC2
-            partial(self.nop_ed, r),                               # EDC3
-            partial(self.nop_ed, r),                               # EDC4
-            partial(self.nop_ed, r),                               # EDC5
-            partial(self.nop_ed, r),                               # EDC6
-            partial(self.nop_ed, r),                               # EDC7
-            partial(self.nop_ed, r),                               # EDC8
-            partial(self.nop_ed, r),                               # EDC9
-            partial(self.nop_ed, r),                               # EDCA
-            partial(self.nop_ed, r),                               # EDCB
-            partial(self.nop_ed, r),                               # EDCC
-            partial(self.nop_ed, r),                               # EDCD
-            partial(self.nop_ed, r),                               # EDCE
-            partial(self.nop_ed, r),                               # EDCF
-            partial(self.nop_ed, r),                               # EDD0
-            partial(self.nop_ed, r),                               # EDD1
-            partial(self.nop_ed, r),                               # EDD2
-            partial(self.nop_ed, r),                               # EDD3
-            partial(self.nop_ed, r),                               # EDD4
-            partial(self.nop_ed, r),                               # EDD5
-            partial(self.nop_ed, r),                               # EDD6
-            partial(self.nop_ed, r),                               # EDD7
-            partial(self.nop_ed, r),                               # EDD8
-            partial(self.nop_ed, r),                               # EDD9
-            partial(self.nop_ed, r),                               # EDDA
-            partial(self.nop_ed, r),                               # EDDB
-            partial(self.nop_ed, r),                               # EDDC
-            partial(self.nop_ed, r),                               # EDDD
-            partial(self.nop_ed, r),                               # EDDE
-            partial(self.nop_ed, r),                               # EDDF
-            partial(self.nop_ed, r),                               # EDE0
-            partial(self.nop_ed, r),                               # EDE1
-            partial(self.nop_ed, r),                               # EDE2
-            partial(self.nop_ed, r),                               # EDE3
-            partial(self.nop_ed, r),                               # EDE4
-            partial(self.nop_ed, r),                               # EDE5
-            partial(self.nop_ed, r),                               # EDE6
-            partial(self.nop_ed, r),                               # EDE7
-            partial(self.nop_ed, r),                               # EDE8
-            partial(self.nop_ed, r),                               # EDE9
-            partial(self.nop_ed, r),                               # EDEA
-            partial(self.nop_ed, r),                               # EDEB
-            partial(self.nop_ed, r),                               # EDEC
-            partial(self.nop_ed, r),                               # EDED
-            partial(self.nop_ed, r),                               # EDEE
-            partial(self.nop_ed, r),                               # EDEF
-            partial(self.nop_ed, r),                               # EDF0
-            partial(self.nop_ed, r),                               # EDF1
-            partial(self.nop_ed, r),                               # EDF2
-            partial(self.nop_ed, r),                               # EDF3
-            partial(self.nop_ed, r),                               # EDF4
-            partial(self.nop_ed, r),                               # EDF5
-            partial(self.nop_ed, r),                               # EDF6
-            partial(self.nop_ed, r),                               # EDF7
-            partial(self.nop_ed, r),                               # EDF8
-            partial(self.nop_ed, r),                               # EDF9
-            partial(self.nop_ed, r),                               # EDFA
-            partial(self.nop_ed, r),                               # EDFB
-            partial(self.nop_ed, r),                               # EDFC
-            partial(self.nop_ed, r),                               # EDFD
-            partial(self.nop_ed, r),                               # EDFE
-            partial(self.nop_ed, r),                               # EDFF
+            partial(self.nop, r, R2, 8, 2),                        # EDBC
+            partial(self.nop, r, R2, 8, 2),                        # EDBD
+            partial(self.nop, r, R2, 8, 2),                        # EDBE
+            partial(self.nop, r, R2, 8, 2),                        # EDBF
+            partial(self.nop, r, R2, 8, 2),                        # EDC0
+            partial(self.nop, r, R2, 8, 2),                        # EDC1
+            partial(self.nop, r, R2, 8, 2),                        # EDC2
+            partial(self.nop, r, R2, 8, 2),                        # EDC3
+            partial(self.nop, r, R2, 8, 2),                        # EDC4
+            partial(self.nop, r, R2, 8, 2),                        # EDC5
+            partial(self.nop, r, R2, 8, 2),                        # EDC6
+            partial(self.nop, r, R2, 8, 2),                        # EDC7
+            partial(self.nop, r, R2, 8, 2),                        # EDC8
+            partial(self.nop, r, R2, 8, 2),                        # EDC9
+            partial(self.nop, r, R2, 8, 2),                        # EDCA
+            partial(self.nop, r, R2, 8, 2),                        # EDCB
+            partial(self.nop, r, R2, 8, 2),                        # EDCC
+            partial(self.nop, r, R2, 8, 2),                        # EDCD
+            partial(self.nop, r, R2, 8, 2),                        # EDCE
+            partial(self.nop, r, R2, 8, 2),                        # EDCF
+            partial(self.nop, r, R2, 8, 2),                        # EDD0
+            partial(self.nop, r, R2, 8, 2),                        # EDD1
+            partial(self.nop, r, R2, 8, 2),                        # EDD2
+            partial(self.nop, r, R2, 8, 2),                        # EDD3
+            partial(self.nop, r, R2, 8, 2),                        # EDD4
+            partial(self.nop, r, R2, 8, 2),                        # EDD5
+            partial(self.nop, r, R2, 8, 2),                        # EDD6
+            partial(self.nop, r, R2, 8, 2),                        # EDD7
+            partial(self.nop, r, R2, 8, 2),                        # EDD8
+            partial(self.nop, r, R2, 8, 2),                        # EDD9
+            partial(self.nop, r, R2, 8, 2),                        # EDDA
+            partial(self.nop, r, R2, 8, 2),                        # EDDB
+            partial(self.nop, r, R2, 8, 2),                        # EDDC
+            partial(self.nop, r, R2, 8, 2),                        # EDDD
+            partial(self.nop, r, R2, 8, 2),                        # EDDE
+            partial(self.nop, r, R2, 8, 2),                        # EDDF
+            partial(self.nop, r, R2, 8, 2),                        # EDE0
+            partial(self.nop, r, R2, 8, 2),                        # EDE1
+            partial(self.nop, r, R2, 8, 2),                        # EDE2
+            partial(self.nop, r, R2, 8, 2),                        # EDE3
+            partial(self.nop, r, R2, 8, 2),                        # EDE4
+            partial(self.nop, r, R2, 8, 2),                        # EDE5
+            partial(self.nop, r, R2, 8, 2),                        # EDE6
+            partial(self.nop, r, R2, 8, 2),                        # EDE7
+            partial(self.nop, r, R2, 8, 2),                        # EDE8
+            partial(self.nop, r, R2, 8, 2),                        # EDE9
+            partial(self.nop, r, R2, 8, 2),                        # EDEA
+            partial(self.nop, r, R2, 8, 2),                        # EDEB
+            partial(self.nop, r, R2, 8, 2),                        # EDEC
+            partial(self.nop, r, R2, 8, 2),                        # EDED
+            partial(self.nop, r, R2, 8, 2),                        # EDEE
+            partial(self.nop, r, R2, 8, 2),                        # EDEF
+            partial(self.nop, r, R2, 8, 2),                        # EDF0
+            partial(self.nop, r, R2, 8, 2),                        # EDF1
+            partial(self.nop, r, R2, 8, 2),                        # EDF2
+            partial(self.nop, r, R2, 8, 2),                        # EDF3
+            partial(self.nop, r, R2, 8, 2),                        # EDF4
+            partial(self.nop, r, R2, 8, 2),                        # EDF5
+            partial(self.nop, r, R2, 8, 2),                        # EDF6
+            partial(self.nop, r, R2, 8, 2),                        # EDF7
+            partial(self.nop, r, R2, 8, 2),                        # EDF8
+            partial(self.nop, r, R2, 8, 2),                        # EDF9
+            partial(self.nop, r, R2, 8, 2),                        # EDFA
+            partial(self.nop, r, R2, 8, 2),                        # EDFB
+            partial(self.nop, r, R2, 8, 2),                        # EDFC
+            partial(self.nop, r, R2, 8, 2),                        # EDFD
+            partial(self.nop, r, R2, 8, 2),                        # EDFE
+            partial(self.nop, r, R2, 8, 2),                        # EDFF
         ]
 
         self.after_FD = [
-            partial(self.nop_dd_fd, r),                            # FD00
-            partial(self.nop_dd_fd, r),                            # FD01
-            partial(self.nop_dd_fd, r),                            # FD02
-            partial(self.nop_dd_fd, r),                            # FD03
-            partial(self.nop_dd_fd, r),                            # FD04
-            partial(self.nop_dd_fd, r),                            # FD05
-            partial(self.nop_dd_fd, r),                            # FD06
-            partial(self.nop_dd_fd, r),                            # FD07
-            partial(self.nop_dd_fd, r),                            # FD08
+            partial(self.nop, r, R1, 4, 1),                        # FD00
+            partial(self.nop, r, R1, 4, 1),                        # FD01
+            partial(self.nop, r, R1, 4, 1),                        # FD02
+            partial(self.nop, r, R1, 4, 1),                        # FD03
+            partial(self.nop, r, R1, 4, 1),                        # FD04
+            partial(self.nop, r, R1, 4, 1),                        # FD05
+            partial(self.nop, r, R1, 4, 1),                        # FD06
+            partial(self.nop, r, R1, 4, 1),                        # FD07
+            partial(self.nop, r, R1, 4, 1),                        # FD08
             partial(self.add16, r, R2, 15, 2, IYh, B),             # FD09 ADD IY,BC
-            partial(self.nop_dd_fd, r),                            # FD0A
-            partial(self.nop_dd_fd, r),                            # FD0B
-            partial(self.nop_dd_fd, r),                            # FD0C
-            partial(self.nop_dd_fd, r),                            # FD0D
-            partial(self.nop_dd_fd, r),                            # FD0E
-            partial(self.nop_dd_fd, r),                            # FD0F
-            partial(self.nop_dd_fd, r),                            # FD10
-            partial(self.nop_dd_fd, r),                            # FD11
-            partial(self.nop_dd_fd, r),                            # FD12
-            partial(self.nop_dd_fd, r),                            # FD13
-            partial(self.nop_dd_fd, r),                            # FD14
-            partial(self.nop_dd_fd, r),                            # FD15
-            partial(self.nop_dd_fd, r),                            # FD16
-            partial(self.nop_dd_fd, r),                            # FD17
-            partial(self.nop_dd_fd, r),                            # FD18
+            partial(self.nop, r, R1, 4, 1),                        # FD0A
+            partial(self.nop, r, R1, 4, 1),                        # FD0B
+            partial(self.nop, r, R1, 4, 1),                        # FD0C
+            partial(self.nop, r, R1, 4, 1),                        # FD0D
+            partial(self.nop, r, R1, 4, 1),                        # FD0E
+            partial(self.nop, r, R1, 4, 1),                        # FD0F
+            partial(self.nop, r, R1, 4, 1),                        # FD10
+            partial(self.nop, r, R1, 4, 1),                        # FD11
+            partial(self.nop, r, R1, 4, 1),                        # FD12
+            partial(self.nop, r, R1, 4, 1),                        # FD13
+            partial(self.nop, r, R1, 4, 1),                        # FD14
+            partial(self.nop, r, R1, 4, 1),                        # FD15
+            partial(self.nop, r, R1, 4, 1),                        # FD16
+            partial(self.nop, r, R1, 4, 1),                        # FD17
+            partial(self.nop, r, R1, 4, 1),                        # FD18
             partial(self.add16, r, R2, 15, 2, IYh, D),             # FD19 ADD IY,DE
-            partial(self.nop_dd_fd, r),                            # FD1A
-            partial(self.nop_dd_fd, r),                            # FD1B
-            partial(self.nop_dd_fd, r),                            # FD1C
-            partial(self.nop_dd_fd, r),                            # FD1D
-            partial(self.nop_dd_fd, r),                            # FD1E
-            partial(self.nop_dd_fd, r),                            # FD1F
-            partial(self.nop_dd_fd, r),                            # FD20
+            partial(self.nop, r, R1, 4, 1),                        # FD1A
+            partial(self.nop, r, R1, 4, 1),                        # FD1B
+            partial(self.nop, r, R1, 4, 1),                        # FD1C
+            partial(self.nop, r, R1, 4, 1),                        # FD1D
+            partial(self.nop, r, R1, 4, 1),                        # FD1E
+            partial(self.nop, r, R1, 4, 1),                        # FD1F
+            partial(self.nop, r, R1, 4, 1),                        # FD20
             partial(self.ld16, r, m, R2, 14, 4, IYh),              # FD21 LD IY,nn
             partial(self.ld16addr, r, m, R2, 20, 4, IYh, 1),       # FD22 LD (nn),IY
             partial(self.inc_dec16, r, R2, 10, 2, 1, IYh),         # FD23 INC IY
             partial(self.inc_dec8, r, m, R2, 8, 2, 1, INC, IYh),   # FD24 INC IYh
             partial(self.inc_dec8, r, m, R2, 8, 2, -1, DEC, IYh),  # FD25 DEC IYh
             partial(self.ld8, r, m, R2, 11, 3, IYh, N),            # FD26 LD IYh,n
-            partial(self.nop_dd_fd, r),                            # FD27
-            partial(self.nop_dd_fd, r),                            # FD28
+            partial(self.nop, r, R1, 4, 1),                        # FD27
+            partial(self.nop, r, R1, 4, 1),                        # FD28
             partial(self.add16, r, R2, 15, 2, IYh, IYh),           # FD29 ADD IY,IY
             partial(self.ld16addr, r, m, R2, 20, 4, IYh, 0),       # FD2A LD IY,(nn)
             partial(self.inc_dec16, r, R2, 10, 2, -1, IYh),        # FD2B DEC IY
             partial(self.inc_dec8, r, m, R2, 8, 2, 1, INC, IYl),   # FD2C INC IYl
             partial(self.inc_dec8, r, m, R2, 8, 2, -1, DEC, IYl),  # FD2D DEC IYl
             partial(self.ld8, r, m, R2, 11, 3, IYl, N),            # FD2E LD IYl,n
-            partial(self.nop_dd_fd, r),                            # FD2F
-            partial(self.nop_dd_fd, r),                            # FD30
-            partial(self.nop_dd_fd, r),                            # FD31
-            partial(self.nop_dd_fd, r),                            # FD32
-            partial(self.nop_dd_fd, r),                            # FD33
+            partial(self.nop, r, R1, 4, 1),                        # FD2F
+            partial(self.nop, r, R1, 4, 1),                        # FD30
+            partial(self.nop, r, R1, 4, 1),                        # FD31
+            partial(self.nop, r, R1, 4, 1),                        # FD32
+            partial(self.nop, r, R1, 4, 1),                        # FD33
             partial(self.inc_dec8, r, m, R2, 23, 3, 1, INC, Yd),   # FD34 INC (IY+d)
             partial(self.inc_dec8, r, m, R2, 23, 3, -1, DEC, Yd),  # FD35 DEC (IY+d)
             partial(self.ld8, r, m, R2, 19, 4, Yd, N),             # FD36 LD (IY+d),n
-            partial(self.nop_dd_fd, r),                            # FD37
-            partial(self.nop_dd_fd, r),                            # FD38
+            partial(self.nop, r, R1, 4, 1),                        # FD37
+            partial(self.nop, r, R1, 4, 1),                        # FD38
             partial(self.add16, r, R2, 15, 2, IYh, SP),            # FD39 ADD IY,SP
-            partial(self.nop_dd_fd, r),                            # FD3A
-            partial(self.nop_dd_fd, r),                            # FD3B
-            partial(self.nop_dd_fd, r),                            # FD3C
-            partial(self.nop_dd_fd, r),                            # FD3D
-            partial(self.nop_dd_fd, r),                            # FD3E
-            partial(self.nop_dd_fd, r),                            # FD3F
-            partial(self.nop_dd_fd, r),                            # FD40
-            partial(self.nop_dd_fd, r),                            # FD41
-            partial(self.nop_dd_fd, r),                            # FD42
-            partial(self.nop_dd_fd, r),                            # FD43
+            partial(self.nop, r, R1, 4, 1),                        # FD3A
+            partial(self.nop, r, R1, 4, 1),                        # FD3B
+            partial(self.nop, r, R1, 4, 1),                        # FD3C
+            partial(self.nop, r, R1, 4, 1),                        # FD3D
+            partial(self.nop, r, R1, 4, 1),                        # FD3E
+            partial(self.nop, r, R1, 4, 1),                        # FD3F
+            partial(self.nop, r, R1, 4, 1),                        # FD40
+            partial(self.nop, r, R1, 4, 1),                        # FD41
+            partial(self.nop, r, R1, 4, 1),                        # FD42
+            partial(self.nop, r, R1, 4, 1),                        # FD43
             partial(self.ld8, r, m, R2, 8, 2, B, IYh),             # FD44 LD B,IYh
             partial(self.ld8, r, m, R2, 8, 2, B, IYl),             # FD45 LD B,IYl
             partial(self.ld8, r, m, R2, 19, 3, B, Yd),             # FD46 LD B,(IY+d)
-            partial(self.nop_dd_fd, r),                            # FD47
-            partial(self.nop_dd_fd, r),                            # FD48
-            partial(self.nop_dd_fd, r),                            # FD49
-            partial(self.nop_dd_fd, r),                            # FD4A
-            partial(self.nop_dd_fd, r),                            # FD4B
+            partial(self.nop, r, R1, 4, 1),                        # FD47
+            partial(self.nop, r, R1, 4, 1),                        # FD48
+            partial(self.nop, r, R1, 4, 1),                        # FD49
+            partial(self.nop, r, R1, 4, 1),                        # FD4A
+            partial(self.nop, r, R1, 4, 1),                        # FD4B
             partial(self.ld8, r, m, R2, 8, 2, C, IYh),             # FD4C LD C,IYh
             partial(self.ld8, r, m, R2, 8, 2, C, IYl),             # FD4D LD C,IYl
             partial(self.ld8, r, m, R2, 19, 3, C, Yd),             # FD4E LD C,(IY+d)
-            partial(self.nop_dd_fd, r),                            # FD4F
-            partial(self.nop_dd_fd, r),                            # FD50
-            partial(self.nop_dd_fd, r),                            # FD51
-            partial(self.nop_dd_fd, r),                            # FD52
-            partial(self.nop_dd_fd, r),                            # FD53
+            partial(self.nop, r, R1, 4, 1),                        # FD4F
+            partial(self.nop, r, R1, 4, 1),                        # FD50
+            partial(self.nop, r, R1, 4, 1),                        # FD51
+            partial(self.nop, r, R1, 4, 1),                        # FD52
+            partial(self.nop, r, R1, 4, 1),                        # FD53
             partial(self.ld8, r, m, R2, 8, 2, D, IYh),             # FD54 LD D,IYh
             partial(self.ld8, r, m, R2, 8, 2, D, IYl),             # FD55 LD D,IYl
             partial(self.ld8, r, m, R2, 19, 3, D, Yd),             # FD56 LD D,(IY+d)
-            partial(self.nop_dd_fd, r),                            # FD57
-            partial(self.nop_dd_fd, r),                            # FD58
-            partial(self.nop_dd_fd, r),                            # FD59
-            partial(self.nop_dd_fd, r),                            # FD5A
-            partial(self.nop_dd_fd, r),                            # FD5B
+            partial(self.nop, r, R1, 4, 1),                        # FD57
+            partial(self.nop, r, R1, 4, 1),                        # FD58
+            partial(self.nop, r, R1, 4, 1),                        # FD59
+            partial(self.nop, r, R1, 4, 1),                        # FD5A
+            partial(self.nop, r, R1, 4, 1),                        # FD5B
             partial(self.ld8, r, m, R2, 8, 2, E, IYh),             # FD5C LD E,IYh
             partial(self.ld8, r, m, R2, 8, 2, E, IYl),             # FD5D LD E,IYl
             partial(self.ld8, r, m, R2, 19, 3, E, Yd),             # FD5E LD E,(IY+d)
-            partial(self.nop_dd_fd, r),                            # FD5F
+            partial(self.nop, r, R1, 4, 1),                        # FD5F
             partial(self.ld8, r, m, R2, 8, 2, IYh, B),             # FD60 LD IYh,B
             partial(self.ld8, r, m, R2, 8, 2, IYh, C),             # FD61 LD IYh,C
             partial(self.ld8, r, m, R2, 8, 2, IYh, D),             # FD62 LD IYh,D
@@ -2845,148 +2835,148 @@ class Simulator:
             partial(self.ld8, r, m, R2, 19, 3, Yd, E),             # FD73 LD (IY+d),E
             partial(self.ld8, r, m, R2, 19, 3, Yd, H),             # FD74 LD (IY+d),H
             partial(self.ld8, r, m, R2, 19, 3, Yd, L),             # FD75 LD (IY+d),L
-            partial(self.nop_dd_fd, r),                            # FD76
+            partial(self.nop, r, R1, 4, 1),                        # FD76
             partial(self.ld8, r, m, R2, 19, 3, Yd, A),             # FD77 LD (IY+d),A
-            partial(self.nop_dd_fd, r),                            # FD78
-            partial(self.nop_dd_fd, r),                            # FD79
-            partial(self.nop_dd_fd, r),                            # FD7A
-            partial(self.nop_dd_fd, r),                            # FD7B
+            partial(self.nop, r, R1, 4, 1),                        # FD78
+            partial(self.nop, r, R1, 4, 1),                        # FD79
+            partial(self.nop, r, R1, 4, 1),                        # FD7A
+            partial(self.nop, r, R1, 4, 1),                        # FD7B
             partial(self.ld8, r, m, R2, 8, 2, A, IYh),             # FD7C LD A,IYh
             partial(self.ld8, r, m, R2, 8, 2, A, IYl),             # FD7D LD A,IYl
             partial(self.ld8, r, m, R2, 19, 3, A, Yd),             # FD7E LD A,(IY+d)
-            partial(self.nop_dd_fd, r),                            # FD7F
-            partial(self.nop_dd_fd, r),                            # FD80
-            partial(self.nop_dd_fd, r),                            # FD81
-            partial(self.nop_dd_fd, r),                            # FD82
-            partial(self.nop_dd_fd, r),                            # FD83
+            partial(self.nop, r, R1, 4, 1),                        # FD7F
+            partial(self.nop, r, R1, 4, 1),                        # FD80
+            partial(self.nop, r, R1, 4, 1),                        # FD81
+            partial(self.nop, r, R1, 4, 1),                        # FD82
+            partial(self.nop, r, R1, 4, 1),                        # FD83
             partial(self.add_a, r, m, R2, 8, 2, IYh),              # FD84 ADD A,IYh
             partial(self.add_a, r, m, R2, 8, 2, IYl),              # FD85 ADD A,IYl
             partial(self.add_a, r, m, R2, 19, 3, Yd),              # FD86 ADD A,(IY+d)
-            partial(self.nop_dd_fd, r),                            # FD87
-            partial(self.nop_dd_fd, r),                            # FD88
-            partial(self.nop_dd_fd, r),                            # FD89
-            partial(self.nop_dd_fd, r),                            # FD8A
-            partial(self.nop_dd_fd, r),                            # FD8B
+            partial(self.nop, r, R1, 4, 1),                        # FD87
+            partial(self.nop, r, R1, 4, 1),                        # FD88
+            partial(self.nop, r, R1, 4, 1),                        # FD89
+            partial(self.nop, r, R1, 4, 1),                        # FD8A
+            partial(self.nop, r, R1, 4, 1),                        # FD8B
             partial(self.adc_a, r, m, R2, 8, 2, IYh),              # FD8C ADC A,IYh
             partial(self.adc_a, r, m, R2, 8, 2, IYl),              # FD8D ADC A,IYl
             partial(self.adc_a, r, m, R2, 19, 3, Yd),              # FD8E ADC A,(IY+d)
-            partial(self.nop_dd_fd, r),                            # FD8F
-            partial(self.nop_dd_fd, r),                            # FD90
-            partial(self.nop_dd_fd, r),                            # FD91
-            partial(self.nop_dd_fd, r),                            # FD92
-            partial(self.nop_dd_fd, r),                            # FD93
+            partial(self.nop, r, R1, 4, 1),                        # FD8F
+            partial(self.nop, r, R1, 4, 1),                        # FD90
+            partial(self.nop, r, R1, 4, 1),                        # FD91
+            partial(self.nop, r, R1, 4, 1),                        # FD92
+            partial(self.nop, r, R1, 4, 1),                        # FD93
             partial(self.sub, r, m, R2, 8, 2, IYh),                # FD94 SUB IYh
             partial(self.sub, r, m, R2, 8, 2, IYl),                # FD95 SUB IYl
             partial(self.sub, r, m, R2, 19, 3, Yd),                # FD96 SUB (IY+d)
-            partial(self.nop_dd_fd, r),                            # FD97
-            partial(self.nop_dd_fd, r),                            # FD98
-            partial(self.nop_dd_fd, r),                            # FD99
-            partial(self.nop_dd_fd, r),                            # FD9A
-            partial(self.nop_dd_fd, r),                            # FD9B
+            partial(self.nop, r, R1, 4, 1),                        # FD97
+            partial(self.nop, r, R1, 4, 1),                        # FD98
+            partial(self.nop, r, R1, 4, 1),                        # FD99
+            partial(self.nop, r, R1, 4, 1),                        # FD9A
+            partial(self.nop, r, R1, 4, 1),                        # FD9B
             partial(self.sbc_a, r, m, R2, 8, 2, IYh),              # FD9C SBC A,IYh
             partial(self.sbc_a, r, m, R2, 8, 2, IYl),              # FD9D SBC A,IYl
             partial(self.sbc_a, r, m, R2, 19, 3, Yd),              # FD9E SBC A,(IY+d)
-            partial(self.nop_dd_fd, r),                            # FD9F
-            partial(self.nop_dd_fd, r),                            # FDA0
-            partial(self.nop_dd_fd, r),                            # FDA1
-            partial(self.nop_dd_fd, r),                            # FDA2
-            partial(self.nop_dd_fd, r),                            # FDA3
+            partial(self.nop, r, R1, 4, 1),                        # FD9F
+            partial(self.nop, r, R1, 4, 1),                        # FDA0
+            partial(self.nop, r, R1, 4, 1),                        # FDA1
+            partial(self.nop, r, R1, 4, 1),                        # FDA2
+            partial(self.nop, r, R1, 4, 1),                        # FDA3
             partial(self.anda, r, m, R2, 8, 2, IYh),               # FDA4 AND IYh
             partial(self.anda, r, m, R2, 8, 2, IYl),               # FDA5 AND IYl
             partial(self.anda, r, m, R2, 19, 3, Yd),               # FDA6 AND (IY+d)
-            partial(self.nop_dd_fd, r),                            # FDA7
-            partial(self.nop_dd_fd, r),                            # FDA8
-            partial(self.nop_dd_fd, r),                            # FDA9
-            partial(self.nop_dd_fd, r),                            # FDAA
-            partial(self.nop_dd_fd, r),                            # FDAB
+            partial(self.nop, r, R1, 4, 1),                        # FDA7
+            partial(self.nop, r, R1, 4, 1),                        # FDA8
+            partial(self.nop, r, R1, 4, 1),                        # FDA9
+            partial(self.nop, r, R1, 4, 1),                        # FDAA
+            partial(self.nop, r, R1, 4, 1),                        # FDAB
             partial(self.xor_r, r, R2, 8, 2, IYh),                 # FDAC XOR IYh
             partial(self.xor_r, r, R2, 8, 2, IYl),                 # FDAD XOR IYl
             partial(self.xor_xy, r, m, IYh),                       # FDAE XOR (IY+d)
-            partial(self.nop_dd_fd, r),                            # FDAF
-            partial(self.nop_dd_fd, r),                            # FDB0
-            partial(self.nop_dd_fd, r),                            # FDB1
-            partial(self.nop_dd_fd, r),                            # FDB2
-            partial(self.nop_dd_fd, r),                            # FDB3
+            partial(self.nop, r, R1, 4, 1),                        # FDAF
+            partial(self.nop, r, R1, 4, 1),                        # FDB0
+            partial(self.nop, r, R1, 4, 1),                        # FDB1
+            partial(self.nop, r, R1, 4, 1),                        # FDB2
+            partial(self.nop, r, R1, 4, 1),                        # FDB3
             partial(self.ora, r, m, R2, 8, 2, IYh),                # FDB4 OR IYh
             partial(self.ora, r, m, R2, 8, 2, IYl),                # FDB5 OR IYl
             partial(self.ora, r, m, R2, 19, 3, Yd),                # FDB6 OR (IY+d)
-            partial(self.nop_dd_fd, r),                            # FDB7
-            partial(self.nop_dd_fd, r),                            # FDB8
-            partial(self.nop_dd_fd, r),                            # FDB9
-            partial(self.nop_dd_fd, r),                            # FDBA
-            partial(self.nop_dd_fd, r),                            # FDBB
+            partial(self.nop, r, R1, 4, 1),                        # FDB7
+            partial(self.nop, r, R1, 4, 1),                        # FDB8
+            partial(self.nop, r, R1, 4, 1),                        # FDB9
+            partial(self.nop, r, R1, 4, 1),                        # FDBA
+            partial(self.nop, r, R1, 4, 1),                        # FDBB
             partial(self.cp, r, m, R2, 8, 2, IYh),                 # FDBC CP IYh
             partial(self.cp, r, m, R2, 8, 2, IYl),                 # FDBD CP IYl
             partial(self.cp, r, m, R2, 19, 3, Yd),                 # FDBE CP (IY+d)
-            partial(self.nop_dd_fd, r),                            # FDBF
-            partial(self.nop_dd_fd, r),                            # FDC0
-            partial(self.nop_dd_fd, r),                            # FDC1
-            partial(self.nop_dd_fd, r),                            # FDC2
-            partial(self.nop_dd_fd, r),                            # FDC3
-            partial(self.nop_dd_fd, r),                            # FDC4
-            partial(self.nop_dd_fd, r),                            # FDC5
-            partial(self.nop_dd_fd, r),                            # FDC6
-            partial(self.nop_dd_fd, r),                            # FDC7
-            partial(self.nop_dd_fd, r),                            # FDC8
-            partial(self.nop_dd_fd, r),                            # FDC9
-            partial(self.nop_dd_fd, r),                            # FDCA
+            partial(self.nop, r, R1, 4, 1),                        # FDBF
+            partial(self.nop, r, R1, 4, 1),                        # FDC0
+            partial(self.nop, r, R1, 4, 1),                        # FDC1
+            partial(self.nop, r, R1, 4, 1),                        # FDC2
+            partial(self.nop, r, R1, 4, 1),                        # FDC3
+            partial(self.nop, r, R1, 4, 1),                        # FDC4
+            partial(self.nop, r, R1, 4, 1),                        # FDC5
+            partial(self.nop, r, R1, 4, 1),                        # FDC6
+            partial(self.nop, r, R1, 4, 1),                        # FDC7
+            partial(self.nop, r, R1, 4, 1),                        # FDC8
+            partial(self.nop, r, R1, 4, 1),                        # FDC9
+            partial(self.nop, r, R1, 4, 1),                        # FDCA
             partial(self.prefix2, self.after_FDCB, r, m),          # FDCB prefix
-            partial(self.nop_dd_fd, r),                            # FDCC
-            partial(self.nop_dd_fd, r),                            # FDCD
-            partial(self.nop_dd_fd, r),                            # FDCE
-            partial(self.nop_dd_fd, r),                            # FDCF
-            partial(self.nop_dd_fd, r),                            # FDD0
-            partial(self.nop_dd_fd, r),                            # FDD1
-            partial(self.nop_dd_fd, r),                            # FDD2
-            partial(self.nop_dd_fd, r),                            # FDD3
-            partial(self.nop_dd_fd, r),                            # FDD4
-            partial(self.nop_dd_fd, r),                            # FDD5
-            partial(self.nop_dd_fd, r),                            # FDD6
-            partial(self.nop_dd_fd, r),                            # FDD7
-            partial(self.nop_dd_fd, r),                            # FDD8
-            partial(self.nop_dd_fd, r),                            # FDD9
-            partial(self.nop_dd_fd, r),                            # FDDA
-            partial(self.nop_dd_fd, r),                            # FDDB
-            partial(self.nop_dd_fd, r),                            # FDDC
-            partial(self.nop_dd_fd, r),                            # FDDD
-            partial(self.nop_dd_fd, r),                            # FDDE
-            partial(self.nop_dd_fd, r),                            # FDDF
-            partial(self.nop_dd_fd, r),                            # FDE0
+            partial(self.nop, r, R1, 4, 1),                        # FDCC
+            partial(self.nop, r, R1, 4, 1),                        # FDCD
+            partial(self.nop, r, R1, 4, 1),                        # FDCE
+            partial(self.nop, r, R1, 4, 1),                        # FDCF
+            partial(self.nop, r, R1, 4, 1),                        # FDD0
+            partial(self.nop, r, R1, 4, 1),                        # FDD1
+            partial(self.nop, r, R1, 4, 1),                        # FDD2
+            partial(self.nop, r, R1, 4, 1),                        # FDD3
+            partial(self.nop, r, R1, 4, 1),                        # FDD4
+            partial(self.nop, r, R1, 4, 1),                        # FDD5
+            partial(self.nop, r, R1, 4, 1),                        # FDD6
+            partial(self.nop, r, R1, 4, 1),                        # FDD7
+            partial(self.nop, r, R1, 4, 1),                        # FDD8
+            partial(self.nop, r, R1, 4, 1),                        # FDD9
+            partial(self.nop, r, R1, 4, 1),                        # FDDA
+            partial(self.nop, r, R1, 4, 1),                        # FDDB
+            partial(self.nop, r, R1, 4, 1),                        # FDDC
+            partial(self.nop, r, R1, 4, 1),                        # FDDD
+            partial(self.nop, r, R1, 4, 1),                        # FDDE
+            partial(self.nop, r, R1, 4, 1),                        # FDDF
+            partial(self.nop, r, R1, 4, 1),                        # FDE0
             partial(self.pop, r, m, R2, 14, 2, IYh),               # FDE1 POP IY
-            partial(self.nop_dd_fd, r),                            # FDE2
+            partial(self.nop, r, R1, 4, 1),                        # FDE2
             partial(self.ex_sp, r, m, IYh),                        # FDE3 EX (SP),IY
-            partial(self.nop_dd_fd, r),                            # FDE4
+            partial(self.nop, r, R1, 4, 1),                        # FDE4
             partial(self.push, r, m, R2, 15, 2, IYh),              # FDE5 PUSH IY
-            partial(self.nop_dd_fd, r),                            # FDE6
-            partial(self.nop_dd_fd, r),                            # FDE7
-            partial(self.nop_dd_fd, r),                            # FDE8
+            partial(self.nop, r, R1, 4, 1),                        # FDE6
+            partial(self.nop, r, R1, 4, 1),                        # FDE7
+            partial(self.nop, r, R1, 4, 1),                        # FDE8
             partial(self.jp, r, m, R2, 8, 0, IYh),                 # FDE9 JP (IY)
-            partial(self.nop_dd_fd, r),                            # FDEA
-            partial(self.nop_dd_fd, r),                            # FDEB
-            partial(self.nop_dd_fd, r),                            # FDEC
-            partial(self.nop_dd_fd, r),                            # FDED
-            partial(self.nop_dd_fd, r),                            # FDEE
-            partial(self.nop_dd_fd, r),                            # FDEF
-            partial(self.nop_dd_fd, r),                            # FDF0
-            partial(self.nop_dd_fd, r),                            # FDF1
-            partial(self.nop_dd_fd, r),                            # FDF2
-            partial(self.nop_dd_fd, r),                            # FDF3
-            partial(self.nop_dd_fd, r),                            # FDF4
-            partial(self.nop_dd_fd, r),                            # FDF5
-            partial(self.nop_dd_fd, r),                            # FDF6
-            partial(self.nop_dd_fd, r),                            # FDF7
-            partial(self.nop_dd_fd, r),                            # FDF8
+            partial(self.nop, r, R1, 4, 1),                        # FDEA
+            partial(self.nop, r, R1, 4, 1),                        # FDEB
+            partial(self.nop, r, R1, 4, 1),                        # FDEC
+            partial(self.nop, r, R1, 4, 1),                        # FDED
+            partial(self.nop, r, R1, 4, 1),                        # FDEE
+            partial(self.nop, r, R1, 4, 1),                        # FDEF
+            partial(self.nop, r, R1, 4, 1),                        # FDF0
+            partial(self.nop, r, R1, 4, 1),                        # FDF1
+            partial(self.nop, r, R1, 4, 1),                        # FDF2
+            partial(self.nop, r, R1, 4, 1),                        # FDF3
+            partial(self.nop, r, R1, 4, 1),                        # FDF4
+            partial(self.nop, r, R1, 4, 1),                        # FDF5
+            partial(self.nop, r, R1, 4, 1),                        # FDF6
+            partial(self.nop, r, R1, 4, 1),                        # FDF7
+            partial(self.nop, r, R1, 4, 1),                        # FDF8
             partial(self.ldsprr, r, R2, 10, 2, IYh),               # FDF9 LD SP,IY
-            partial(self.nop_dd_fd, r),                            # FDFA
-            partial(self.nop_dd_fd, r),                            # FDFB
-            partial(self.nop_dd_fd, r),                            # FDFC
-            partial(self.nop_dd_fd, r),                            # FDFD
-            partial(self.nop_dd_fd, r),                            # FDFE
-            partial(self.nop_dd_fd, r),                            # FDFF
+            partial(self.nop, r, R1, 4, 1),                        # FDFA
+            partial(self.nop, r, R1, 4, 1),                        # FDFB
+            partial(self.nop, r, R1, 4, 1),                        # FDFC
+            partial(self.nop, r, R1, 4, 1),                        # FDFD
+            partial(self.nop, r, R1, 4, 1),                        # FDFE
+            partial(self.nop, r, R1, 4, 1),                        # FDFF
         ]
 
         self.opcodes = [
-            partial(self.nop, r),                                  # 00 NOP
+            partial(self.nop, r, R1, 4, 1),                        # 00 NOP
             partial(self.ld16, r, m, R1, 10, 3, B),                # 01 LD BC,nn
             partial(self.ld_rr_r, r, m, B, A),                     # 02 LD (BC),A
             partial(self.inc_dec16, r, R1, 6, 1, 1, B),            # 03 INC BC
