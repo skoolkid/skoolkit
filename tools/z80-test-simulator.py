@@ -44,8 +44,6 @@ class Tracer:
                 a = registers[0]
                 if a >= 32:
                     msg += chr(a)
-                    sys.stdout.write(msg + chr(8) * len(msg))
-                    sys.stdout.flush()
                 elif a == 13:
                     if msg.strip():
                         print(msg)
@@ -82,29 +80,28 @@ def run(tapfile, options):
         test_addr = 34938 + options.test * 2
         snapshot[addr + 4:addr + 6] = (test_addr % 256, test_addr // 256)
     simulator = Simulator(snapshot, {'PC': start})
-    tracer = None
     if options.quiet:
+        tracer = None
         print('Running tests')
         begin = time.time()
         simulator.run(stop=32850)
-        rt = time.time() - begin
     else:
         tracer = Tracer()
         begin = time.time()
         tracer.run(simulator)
-        rt = time.time() - begin
-    z80t = simulator.registers[T] / 3500000
-    speed = z80t / rt
-    if tracer is None:
+    rt = time.time() - begin
+    if tracer:
+        failed = tracer.failed
+    else:
         failed = simulator.registers[A]
         if failed:
             print(f'{failed} test(s) failed')
         else:
             print('All tests passed')
+    z80t = simulator.registers[T] / 3500000
+    speed = z80t / rt
     print(f'Z80 execution time: {simulator.registers[T]} T-states ({z80t:.03f}s)')
     print(f'Simulation time: {rt:.03f}s (x{speed:.02f})')
-    if tracer:
-        failed = tracer.failed
     return 1 if failed else 0
 
 if __name__ == '__main__':
