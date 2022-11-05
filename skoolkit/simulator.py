@@ -247,7 +247,6 @@ class Simulator:
             self.set_registers(registers)
         if state is None:
             state = {}
-        self.ppcount = 0
         self.imode = state.get('im', 1)
         self.iff2 = state.get('iff', 0)
         self.registers[25] = state.get('tstates', 0)
@@ -490,7 +489,6 @@ class Simulator:
         else:
             pc = registers[24]
             ret_addr = (pc + 3) % 65536
-            self.ppcount += 1
             sp = (registers[12] - 2) % 65536
             registers[12] = sp
             if sp > 0x3FFF:
@@ -1120,7 +1118,6 @@ class Simulator:
         registers[15] = R2[registers[15]]
 
     def pop(self, registers, memory, r_inc, timing, size, reg):
-        self.ppcount -= 1
         sp = registers[12]
         registers[12] = (sp + 2) % 65536
         registers[reg + 1] = memory[sp]
@@ -1130,7 +1127,6 @@ class Simulator:
         registers[24] = (registers[24] + size) % 65536
 
     def push(self, registers, memory, r_inc, timing, size, reg):
-        self.ppcount += 1
         sp = (registers[12] - 2) % 65536
         registers[12] = sp
         if sp > 0x3FFF:
@@ -1149,20 +1145,17 @@ class Simulator:
                 registers[24] = (registers[24] + 1) % 65536
             else:
                 registers[25] += 11
-                self.ppcount -= 1
                 sp = registers[12]
                 registers[12] = (sp + 2) % 65536
                 registers[24] = memory[sp] + 256 * memory[(sp + 1) % 65536]
         else:
             registers[25] += 10
-            self.ppcount -= 1
             sp = registers[12]
             registers[12] = (sp + 2) % 65536
             registers[24] = memory[sp] + 256 * memory[(sp + 1) % 65536]
         registers[15] = R1[registers[15]]
 
     def reti(self, registers, memory):
-        self.ppcount -= 1
         registers[15] = R2[registers[15]]
         registers[25] += 14
         sp = registers[12]
@@ -1277,7 +1270,6 @@ class Simulator:
         registers[24] = (registers[24] + size) % 65536
 
     def rst(self, registers, memory, addr):
-        self.ppcount += 1
         sp = (registers[12] - 2) % 65536
         registers[12] = sp
         ret_addr = (registers[24] + 1) % 65536

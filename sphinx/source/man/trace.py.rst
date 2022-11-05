@@ -6,7 +6,7 @@ trace.py
 
 SYNOPSIS
 ========
-``trace.py`` [options] FILE START
+``trace.py`` [options] FILE START [STOP]
 
 DESCRIPTION
 ===========
@@ -28,16 +28,13 @@ OPTIONS
 --dump `FILE`
   Dump RAM to this file after execution.
 
--e, --end `ADDR`
-  End execution at this address. By default, execution ends when the number of
-  values popped off the stack exceeds the number of values pushed onto the
-  stack (e.g. after the 'RET' instruction at the end of a routine).
-
 --max-operations `MAX`
-  Maximum number of instructions to execute.
+  Maximum number of instructions to execute. Overrides the `STOP` address (if
+  given).
 
 --max-tstates `MAX`
-  Maximum number of (simulated) T-states to run for.
+  Maximum number of (simulated) T-states to run for. Overrides the `STOP`
+  address (if given).
 
 -o, --org `ORG`
   Specify the origin address of a binary (raw memory) file. The default origin
@@ -96,13 +93,13 @@ Recognised register names are:
 
 EXAMPLES
 ========
-1. Execute and show instructions in the routine at 32768 in ``game.z80``:
+1. Execute and show instructions in the routine at 32768-32798 in ``game.z80``:
 
 |
-|   ``trace.py -v game.z80 32768``
+|   ``trace.py -v game.z80 32768 32798``
 
 2. Show delays between changes in the state of the ZX Spectrum speaker produced
-   by the sound effect routine at 49152 in ``game.z80``:
+   by the sound effect routine at 49152-49193 in ``game.z80``:
 
 |
-|   ``trace.py --audio game.z80 49152``
+|   ``trace.py --audio game.z80 49152 49193``

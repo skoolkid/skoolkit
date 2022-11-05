@@ -1436,11 +1436,11 @@ trace.py
 `trace.py` simulates the execution of machine code in a 48K memory snapshot.
 For example::
 
-  $ trace.py game.z80 32768
+  $ trace.py game.z80 32768 49152
 
 To list the options supported by `trace.py`, run it with no arguments::
 
-  usage: trace.py [options] FILE START
+  usage: trace.py [options] FILE START [STOP]
 
   Trace Z80 machine code execution. FILE may be a binary (raw memory) file, or a
   SNA, SZX or Z80 snapshot.
@@ -1449,7 +1449,6 @@ To list the options supported by `trace.py`, run it with no arguments::
     --audio               Show audio delays.
     --depth DEPTH         Simplify audio delays to this depth (default: 2).
     --dump FILE           Dump RAM to this file after execution.
-    -e ADDR, --end ADDR   End execution at this address.
     --max-operations MAX  Maximum number of instructions to execute.
     --max-tstates MAX     Maximum number of T-states to run for.
     -o ADDR, --org ADDR   Specify the origin address of a binary (raw memory)
@@ -1469,12 +1468,10 @@ To list the options supported by `trace.py`, run it with no arguments::
                           register values too.
     -V, --version         Show SkoolKit version number and exit.
 
-By default, `trace.py` silently simulates code execution until the number of
-values popped off the stack exceeds the number of values pushed onto the stack
-(e.g. after the 'RET' instruction at the end of a routine). Use the
-``--verbose`` option to show each instruction executed, and the ``--end``
-option to specify an address at which to stop. Repeat the ``--verbose`` option
-(``-vv``) to show register values too.
+By default, `trace.py` silently simulates code execution beginning with the
+instruction at ``START`` and ending when the instruction at ``STOP`` is
+reached. Use the ``--verbose`` option to show each instruction executed. Repeat
+the ``--verbose`` option (``-vv``) to show register values too.
 
 When the ``--audio`` option is given, `trace.py` tracks changes in the state
 of the ZX Spectrum speaker, and then prints a list of the delays (in T-states)

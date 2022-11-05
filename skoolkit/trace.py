@@ -35,7 +35,7 @@ class Tracer:
         self.spkr = None
         self.out_times = []
 
-    def run(self, simulator, start, end, verbose, max_operations, max_tstates):
+    def run(self, simulator, start, stop, verbose, max_operations, max_tstates):
         opcodes = simulator.opcodes
         memory = simulator.memory
         registers = simulator.registers
@@ -89,11 +89,8 @@ class Tracer:
             if registers[T] >= max_tstates > 0:
                 print(f'Stopped at ${pc:04X}: {registers[T]} T-states')
                 break
-            if pc == end:
+            if pc == stop:
                 print(f'Stopped at ${pc:04X}')
-                break
-            if simulator.ppcount < 0 and max_operations <= 0 and max_tstates <= 0 and end < 0:
-                print(f'Stopped at ${pc:04X}: PUSH-POP count is {simulator.ppcount}')
                 break
 
         self.operations = operations
@@ -147,7 +144,7 @@ def simplify(delays, depth):
             length += 1
     return ', '.join(s0)
 
-def run(snafile, start, options):
+def run(snafile, start, stop, options):
     memory, start = make_snapshot(snafile, options.org, start)[0:2]
     if options.rom:
         rom = read_bin_file(options.rom)
@@ -161,7 +158,7 @@ def run(snafile, start, options):
     tracer = Tracer()
     simulator.set_tracer(tracer)
     begin = time.time()
-    tracer.run(simulator, start, options.end, options.verbose, options.max_operations, options.max_tstates)
+    tracer.run(simulator, start, stop, options.verbose, options.max_operations, options.max_tstates)
     rt = time.time() - begin
     if options.stats:
         z80t = simulator.registers[T] / 3500000
@@ -183,13 +180,14 @@ def run(snafile, start, options):
 
 def main(args):
     parser = argparse.ArgumentParser(
-        usage='trace.py [options] FILE START',
+        usage='trace.py [options] FILE START [STOP]',
         description="Trace Z80 machine code execution. "
                     "FILE may be a binary (raw memory) file, or a SNA, SZX or Z80 snapshot.",
         add_help=False
     )
     parser.add_argument('snafile', help=argparse.SUPPRESS, nargs='?')
     parser.add_argument('start', type=integer, help=argparse.SUPPRESS, nargs='?')
+    parser.add_argument('stop', type=integer, help=argparse.SUPPRESS, nargs='?')
     group = parser.add_argument_group('Options')
     group.add_argument('--audio', action='store_true',
                        help="Show audio delays.")
@@ -197,8 +195,6 @@ def main(args):
                        help='Simplify audio delays to this depth (default: 2).')
     group.add_argument('--dump', metavar='FILE',
                        help='Dump RAM to this file after execution.')
-    group.add_argument('-e', '--end', metavar='ADDR', type=integer, default=-1,
-                       help='End execution at this address.')
     group.add_argument('--max-operations', metavar='MAX', type=int, default=0,
                        help='Maximum number of instructions to execute.')
     group.add_argument('--max-tstates', metavar='MAX', type=int, default=0,
@@ -227,4 +223,4 @@ def main(args):
         return
     if unknown_args or namespace.start is None:
         parser.exit(2, parser.format_help())
-    run(namespace.snafile, namespace.start, namespace)
+    run(namespace.snafile, namespace.start, namespace.stop, namespace)
