@@ -179,8 +179,6 @@ xH = 22
 xL = 23
 PC = 24
 T = 25
-Bd = 26
-Dd = 28
 Hd = 30
 Xd = 32
 Yd = 33
@@ -333,8 +331,8 @@ class Simulator:
     def adc_a(self, registers, memory, r_inc, timing, size, reg):
         if reg < 16:
             addend = registers[reg]
-        elif reg < 32:
-            addend = memory[registers[reg - 23] + 256 * registers[reg - 24]]
+        elif reg == 30:
+            addend = memory[registers[7] + 256 * registers[6]]
         elif reg == 34:
             addend = memory[(registers[24] + size - 1) % 65536]
         elif reg == 32:
@@ -389,8 +387,8 @@ class Simulator:
     def add_a(self, registers, memory, r_inc, timing, size, reg):
         if reg < 16:
             addend = registers[reg]
-        elif reg < 32:
-            addend = memory[registers[reg - 23] + 256 * registers[reg - 24]]
+        elif reg == 30:
+            addend = memory[registers[7] + 256 * registers[6]]
         elif reg == 34:
             addend = memory[(registers[24] + size - 1) % 65536]
         elif reg == 32:
@@ -449,8 +447,8 @@ class Simulator:
     def anda(self, registers, memory, r_inc, timing, size, reg):
         if reg < 16:
             a = registers[0] & registers[reg]
-        elif reg < 32:
-            a = registers[0] & memory[registers[reg - 23] + 256 * registers[reg - 24]]
+        elif reg == 30:
+            a = registers[0] & memory[registers[7] + 256 * registers[6]]
         elif reg == 32:
             a = registers[0] & memory[(registers[9] + 256 * registers[8] + OFFSETS[memory[(registers[24] + 2) % 65536]]) % 65536]
         else:
@@ -464,8 +462,8 @@ class Simulator:
     def bit(self, registers, memory, timing, size, mask, reg):
         if reg < 16:
             value = registers[reg]
-        elif reg < 32:
-            value = memory[registers[reg - 23] + 256 * registers[reg - 24]]
+        elif reg == 30:
+            value = memory[registers[7] + 256 * registers[6]]
         elif reg == 32:
             xy = (registers[9] + 256 * registers[8] + OFFSETS[memory[(registers[24] + 2) % 65536]]) % 65536
             value = memory[xy]
@@ -517,8 +515,8 @@ class Simulator:
     def cp(self, registers, memory, r_inc, timing, size, reg):
         if reg < 16:
             registers[1] = CP[registers[0]][registers[reg]]
-        elif reg < 32:
-            registers[1] = CP[registers[0]][memory[registers[reg - 23] + 256 * registers[reg - 24]]]
+        elif reg == 30:
+            registers[1] = CP[registers[0]][memory[registers[7] + 256 * registers[6]]]
         elif reg == 34:
             registers[1] = CP[registers[0]][memory[(registers[24] + size - 1) % 65536]]
         elif reg == 32:
@@ -743,8 +741,8 @@ class Simulator:
             value = (registers[reg] + inc) % 256
             registers[reg] = value
         else:
-            if reg < 32:
-                addr = registers[reg - 23] + 256 * registers[reg - 24]
+            if reg == 30:
+                addr = registers[7] + 256 * registers[6]
             elif reg == 32:
                 addr = (registers[9] + 256 * registers[8] + OFFSETS[memory[(registers[24] + 2) % 65536]]) % 65536
             else:
@@ -850,6 +848,15 @@ class Simulator:
         registers[25] += 7
         registers[24] = (registers[24] + 1) % 65536
 
+    def ld_rr_r(self, registers, memory, rr, r):
+        # LD (HL/DE/BC),r
+        addr = registers[rr + 1] + 256 * registers[rr]
+        if addr > 0x3FFF:
+             memory[addr] = registers[r]
+        registers[15] = R1[registers[15]]
+        registers[25] += 7
+        registers[24] = (registers[24] + 1) % 65536
+
     def ld8(self, registers, memory, r_inc, timing, size, reg, reg2):
         if reg2 < 16:
             value = registers[reg2]
@@ -862,8 +869,8 @@ class Simulator:
         if reg < 16:
             registers[reg] = value
         else:
-            if reg < 32:
-                addr = registers[reg - 23] + 256 * registers[reg - 24]
+            if reg == 30:
+                addr = registers[7] + 256 * registers[6]
             elif reg == 32:
                 addr = (registers[9] + 256 * registers[8] + OFFSETS[memory[(registers[24] + 2) % 65536]]) % 65536
             else:
@@ -1050,8 +1057,8 @@ class Simulator:
     def ora(self, registers, memory, r_inc, timing, size, reg):
         if reg < 16:
             a = registers[0] | registers[reg]
-        elif reg < 32:
-            a = registers[0] | memory[registers[reg - 23] + 256 * registers[reg - 24]]
+        elif reg == 30:
+            a = registers[0] | memory[registers[7] + 256 * registers[6]]
         elif reg == 32:
             a = registers[0] | memory[(registers[9] + 256 * registers[8] + OFFSETS[memory[(registers[24] + 2) % 65536]]) % 65536]
         else:
@@ -1165,8 +1172,8 @@ class Simulator:
     def res_set(self, registers, memory, timing, size, bit, reg, bitval, dest=-1):
         if reg < 16:
             value = registers[reg]
-        elif reg < 32:
-            addr = registers[reg - 23] + 256 * registers[reg - 24]
+        elif reg == 30:
+            addr = registers[7] + 256 * registers[6]
             value = memory[addr]
         elif reg == 32:
             addr = (registers[9] + 256 * registers[8] + OFFSETS[memory[(registers[24] + 2) % 65536]]) % 65536
@@ -1244,8 +1251,8 @@ class Simulator:
         registers[24] = (registers[24] + 2) % 65536
 
     def rotate(self, registers, memory, timing, size, cbit, rotate, reg, circular=0, dest=-1):
-        if reg < 32:
-            addr = registers[reg - 23] + 256 * registers[reg - 24]
+        if reg == 30:
+            addr = registers[7] + 256 * registers[6]
             r = memory[addr]
         elif reg == 32:
             addr = (registers[9] + 256 * registers[8] + OFFSETS[memory[(registers[24] + 2) % 65536]]) % 65536
@@ -1297,8 +1304,8 @@ class Simulator:
     def sbc_a(self, registers, memory, r_inc, timing, size, reg):
         if reg < 16:
             subtrahend = registers[reg]
-        elif reg < 32:
-            subtrahend = memory[registers[reg - 23] + 256 * registers[reg - 24]]
+        elif reg == 30:
+            subtrahend = memory[registers[7] + 256 * registers[6]]
         elif reg == 34:
             subtrahend = memory[(registers[24] + size - 1) % 65536]
         elif reg == 32:
@@ -1352,8 +1359,8 @@ class Simulator:
     def shift(self, registers, memory, timing, size, shift, cbit, reg, dest=-1):
         if reg < 16:
             r = registers[reg]
-        elif reg < 32:
-            addr = registers[reg - 23] + 256 * registers[reg - 24]
+        elif reg == 30:
+            addr = registers[7] + 256 * registers[6]
             r = memory[addr]
         elif reg == 32:
             addr = (registers[9] + 256 * registers[8] + OFFSETS[memory[(registers[24] + 2) % 65536]]) % 65536
@@ -1379,8 +1386,8 @@ class Simulator:
     def sub(self, registers, memory, r_inc, timing, size, reg):
         if reg < 16:
             subtrahend = registers[reg]
-        elif reg < 32:
-            subtrahend = memory[registers[reg - 23] + 256 * registers[reg - 24]]
+        elif reg == 30:
+            subtrahend = memory[registers[7] + 256 * registers[6]]
         elif reg == 34:
             subtrahend = memory[(registers[24] + size - 1) % 65536]
         elif reg == 32:
@@ -1414,8 +1421,8 @@ class Simulator:
     def xor(self, registers, memory, r_inc, timing, size, reg):
         if reg < 16:
             a = registers[0] ^ registers[reg]
-        elif reg < 32:
-            a = registers[0] ^ memory[registers[reg - 23] + 256 * registers[reg - 24]]
+        elif reg == 30:
+            a = registers[0] ^ memory[registers[7] + 256 * registers[6]]
         elif reg == 32:
             a = registers[0] ^ memory[(registers[9] + 256 * registers[8] + OFFSETS[memory[(registers[24] + 2) % 65536]]) % 65536]
         else:
@@ -2987,7 +2994,7 @@ class Simulator:
         self.opcodes = [
             partial(self.nop, r),                                  # 00 NOP
             partial(self.ld16, r, m, R1, 10, 3, B),                # 01 LD BC,nn
-            partial(self.ld8, r, m, R1, 7, 1, Bd, A),              # 02 LD (BC),A
+            partial(self.ld_rr_r, r, m, B, A),                     # 02 LD (BC),A
             partial(self.inc_dec16, r, R1, 6, 1, 1, B),            # 03 INC BC
             partial(self.inc_r, r, B),                             # 04 INC B
             partial(self.dec_r, r, B),                             # 05 DEC B
@@ -3003,7 +3010,7 @@ class Simulator:
             partial(self.rotate_a, r, 1, RRC, 1),                  # 0F RRCA
             partial(self.djnz, r, m),                              # 10 DJNZ nn
             partial(self.ld16, r, m, R1, 10, 3, D),                # 11 LD DE,nn
-            partial(self.ld8, r, m, R1, 7, 1, Dd, A),              # 12 LD (DE),A
+            partial(self.ld_rr_r, r, m, D, A),                     # 12 LD (DE),A
             partial(self.inc_dec16, r, R1, 6, 1, 1, D),            # 13 INC DE
             partial(self.inc_r, r, D),                             # 14 INC D
             partial(self.dec_r, r, D),                             # 15 DEC D
@@ -3097,14 +3104,14 @@ class Simulator:
             partial(self.ld_r_r, r, L, L),                         # 6D LD L,L
             partial(self.ld_r_rr, r, m, L, H),                     # 6E LD L,(HL)
             partial(self.ld_r_r, r, L, A),                         # 6F LD L,A
-            partial(self.ld8, r, m, R1, 7, 1, Hd, B),              # 70 LD (HL),B
-            partial(self.ld8, r, m, R1, 7, 1, Hd, C),              # 71 LD (HL),C
-            partial(self.ld8, r, m, R1, 7, 1, Hd, D),              # 72 LD (HL),D
-            partial(self.ld8, r, m, R1, 7, 1, Hd, E),              # 73 LD (HL),E
-            partial(self.ld8, r, m, R1, 7, 1, Hd, H),              # 74 LD (HL),H
-            partial(self.ld8, r, m, R1, 7, 1, Hd, L),              # 75 LD (HL),L
+            partial(self.ld_rr_r, r, m, H, B),                     # 70 LD (HL),B
+            partial(self.ld_rr_r, r, m, H, C),                     # 71 LD (HL),C
+            partial(self.ld_rr_r, r, m, H, D),                     # 72 LD (HL),D
+            partial(self.ld_rr_r, r, m, H, E),                     # 73 LD (HL),E
+            partial(self.ld_rr_r, r, m, H, H),                     # 74 LD (HL),H
+            partial(self.ld_rr_r, r, m, H, L),                     # 75 LD (HL),L
             partial(self.halt, r),                                 # 76 HALT
-            partial(self.ld8, r, m, R1, 7, 1, Hd, A),              # 77 LD (HL),A
+            partial(self.ld_rr_r, r, m, H, A),                     # 77 LD (HL),A
             partial(self.ld_r_r, r, A, B),                         # 78 LD A,B
             partial(self.ld_r_r, r, A, C),                         # 79 LD A,C
             partial(self.ld_r_r, r, A, D),                         # 7A LD A,D
