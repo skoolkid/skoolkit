@@ -1,5 +1,5 @@
 from skoolkittest import SkoolKitTestCase
-from skoolkit.simulator import Simulator
+from skoolkit.simulator import Simulator, F, SP, PC
 from sim_test_tracers import *
 
 class ROMReadOnlyTest(SkoolKitTestCase):
@@ -313,6 +313,136 @@ class ROMReadOnlyTest(SkoolKitTestCase):
         simulator = Simulator(memory)
         simulator.run(start, stop)
         self.assertTrue(all(b == 0 for b in memory[:0x4000]))
+
+    def test_call(self):
+        memory = [0] * 65536
+        simulator = Simulator(memory)
+        registers = simulator.registers
+        for sp in range(1, 16386):
+            for opcode, f in (
+                    (0xC4, 0b00000000), # CALL NZ
+                    (0xCC, 0b01000000), # CALL Z
+                    (0xCD, 0b00000000), # CALL
+                    (0xD4, 0b00000000), # CALL NC
+                    (0xDC, 0b00000001), # CALL C
+                    (0xE4, 0b00000000), # CALL PO
+                    (0xEC, 0b00000100), # CALL PE
+                    (0xF4, 0b00000000), # CALL P
+                    (0xFC, 0b10000000), # CALL M
+            ):
+                memory[0x8000] = opcode
+                registers[SP] = sp
+                registers[F] = f
+                simulator.run(0x8000)
+                self.assertEqual(registers[PC], 0)
+                if sp > 1:
+                    self.assertEqual(memory[sp - 2], 0)
+                if sp < 16385:
+                    self.assertEqual(memory[sp - 1], 0)
+
+    def test_ex_sp(self):
+        code = (
+            0x31, 0x00, 0x00,       # $8000 LD SP,$0000
+            0x21, 0xFF, 0xFF,       # $8003 LD HL,$FFFF
+            0xDD, 0x21, 0xFF, 0xFF, # $8006 LD IX,$FFFF
+            0xFD, 0x21, 0xFF, 0xFF, # $800A LD IY,$FFFF
+            0xE3,                   # $800E EX (SP),HL
+            0xDD, 0xE3,             # $800F EX (SP),IX
+            0xFD, 0xE3,             # $8011 EX (SP),IY
+            0x33,                   # $8013 INC SP
+            0x21, 0x00, 0x40,       # $8014 LD HL,$4000
+            0xA7,                   # $8017 AND A
+            0xED, 0x72,             # $8018 SBC HL,SP
+            0x20, 0xE7,             # $801A JR NZ,$8003
+        )
+        self._test_read_only(code, 0x8000)
+
+    def test_ld_16_bit(self):
+        code = (
+            0x21, 0x00, 0x00,       # $8000 LD HL,$0000
+            0x22, 0x2E, 0x80,       # $8003 LD ($802E),HL
+            0x22, 0x32, 0x80,       # $8006 LD ($8032),HL
+            0x22, 0x35, 0x80,       # $8009 LD ($8035),HL
+            0x22, 0x39, 0x80,       # $800C LD ($8039),HL
+            0x22, 0x3D, 0x80,       # $800F LD ($803D),HL
+            0x22, 0x41, 0x80,       # $8012 LD ($8041),HL
+            0x22, 0x45, 0x80,       # $8015 LD ($8045),HL
+            0x01, 0xFF, 0xFF,       # $8018 LD BC,$FFFF
+            0x11, 0xFF, 0xFF,       # $801B LD DE,$FFFF
+            0x21, 0xFF, 0xFF,       # $801E LD HL,$FFFF
+            0x31, 0xFF, 0xFF,       # $8021 LD SP,$FFFF
+            0xDD, 0x21, 0xFF, 0xFF, # $8024 LD IX,$FFFF
+            0xFD, 0x21, 0xFF, 0xFF, # $8028 LD IY,$FFFF
+            0xED, 0x43, 0x00, 0x00, # $802C LD ($0000),BC
+            0xED, 0x53, 0x00, 0x00, # $8030 LD ($0000),DE
+            0x22, 0x00, 0x00,       # $8034 LD ($0000),HL
+            0xED, 0x73, 0x00, 0x00, # $8037 LD ($0000),SP
+            0xDD, 0x22, 0x00, 0x00, # $803B LD ($0000),IX
+            0xFD, 0x22, 0x00, 0x00, # $803F LD ($0000),IY
+            0xED, 0x63, 0x00, 0x00, # $8043 LD ($0000),HL
+            0x2A, 0x01, 0x80,       # $8047 LD HL,($8001)
+            0x23,                   # $804A INC HL
+            0x22, 0x01, 0x80,       # $804B LD ($8001),HL
+            0xCB, 0x74,             # $804E BIT 6,H
+            0x28, 0xAE,             # $8050 JR Z,$8000
+        )
+        self._test_read_only(code, 0x8000)
+
+    def test_push(self):
+        code = (
+            0x21, 0x01, 0x00,       # $8000 LD HL,$0001
+            0x22, 0x1A, 0x80,       # $8003 LD ($801A),HL
+            0x37,                   # $8006 SCF
+            0x9F,                   # $8007 SBC A,A
+            0x01, 0xFF, 0xFF,       # $8008 LD BC,$FFFF
+            0x11, 0xFF, 0xFF,       # $800B LD DE,$FFFF
+            0x21, 0xFF, 0xFF,       # $800E LD HL,$FFFF
+            0xDD, 0x21, 0xFF, 0xFF, # $8011 LD IX,$FFFF
+            0xFD, 0x21, 0xFF, 0xFF, # $8015 LD IY,$FFFF
+            0x31, 0x00, 0x00,       # $8019 LD SP,$0000
+            0xF5,                   # $801C PUSH AF
+            0xED, 0x7B, 0x1A, 0x80, # $801D LD SP,($801A)
+            0xC5,                   # $8021 PUSH BC
+            0xED, 0x7B, 0x1A, 0x80, # $8022 LD SP,($801A)
+            0xD5,                   # $8026 PUSH DE
+            0xED, 0x7B, 0x1A, 0x80, # $8027 LD SP,($801A)
+            0xE5,                   # $802B PUSH HL
+            0xED, 0x7B, 0x1A, 0x80, # $802C LD SP,($801A)
+            0xDD, 0xE5,             # $8030 PUSH IX
+            0xED, 0x7B, 0x1A, 0x80, # $8032 LD SP,($801A)
+            0xFD, 0xE5,             # $8036 PUSH IY
+            0x2A, 0x1A, 0x80,       # $8038 LD HL,($801A)
+            0x23,                   # $803B INC HL
+            0xCB, 0x74,             # $803C BIT 6,H
+            0x28, 0xC3,             # $803E JR Z,$8003
+            0xCB, 0x4D,             # $8040 BIT 1,L
+            0x28, 0xBF,             # $8042 JR Z,$8003
+       )
+        self._test_read_only(code, 0x8000)
+
+    def test_rst(self):
+        memory = [0] * 65536
+        simulator = Simulator(memory)
+        registers = simulator.registers
+        for sp in range(1, 16386):
+            for opcode, exp_pc in (
+                    (0xC7, 0x00), # RST $00
+                    (0xCF, 0x08), # RST $08
+                    (0xD7, 0x10), # RST $10
+                    (0xDF, 0x18), # RST $18
+                    (0xE7, 0x20), # RST $20
+                    (0xEF, 0x28), # RST $28
+                    (0xF7, 0x30), # RST $30
+                    (0xFF, 0x38), # RST $38
+            ):
+                memory[0x8000] = opcode
+                registers[SP] = sp
+                simulator.run(0x8000)
+                self.assertEqual(registers[PC], exp_pc)
+                if sp > 1:
+                    self.assertEqual(memory[sp - 2], 0)
+                if sp < 16385:
+                    self.assertEqual(memory[sp - 1], 0)
 
 class SimulatorTest(SkoolKitTestCase):
     def _verify(self, tracer, checksum):

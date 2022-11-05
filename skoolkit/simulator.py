@@ -315,13 +315,6 @@ class Simulator:
     def prefix2(self, opcodes, registers, memory):
         opcodes[memory[(registers[24] + 3) % 65536]]()
 
-    def poke(self, memory, address, v1, v2):
-        if address > 0x3FFF:
-            memory[address] = v1
-        address = (address + 1) % 65536
-        if address > 0x3FFF:
-            memory[address] = v2
-
     def adc_a_a(self, registers):
         a = registers[0]
         if registers[1] % 2:
@@ -502,7 +495,11 @@ class Simulator:
             self.ppcount += 1
             sp = (registers[12] - 2) % 65536
             registers[12] = sp
-            self.poke(memory, sp, ret_addr % 256, ret_addr // 256)
+            if sp > 0x3FFF:
+                memory[sp] = ret_addr % 256
+            sp = (sp + 1) % 65536
+            if sp > 0x3FFF:
+                memory[sp] = ret_addr // 256
             registers[25] += 17
             registers[24] = memory[(pc + 1) % 65536] + 256 * memory[(pc + 2) % 65536]
         registers[15] = R1[registers[15]]
@@ -669,8 +666,12 @@ class Simulator:
     def ex_sp(self, registers, memory, reg):
         sp = registers[12]
         sp1 = memory[sp]
-        sp2 = memory[(sp + 1) % 65536]
-        self.poke(memory, sp, registers[reg + 1], registers[reg])
+        if sp > 0x3FFF:
+            memory[sp] = registers[reg + 1]
+        sp = (sp + 1) % 65536
+        sp2 = memory[sp]
+        if sp > 0x3FFF:
+            memory[sp] = registers[reg]
         registers[reg + 1] = sp1
         registers[reg] = sp2
         if reg == 6:
@@ -900,9 +901,18 @@ class Simulator:
         addr = memory[(end - 2) % 65536] + 256 * memory[(end - 1) % 65536]
         if poke:
             if reg == 12:
-                self.poke(memory, addr, registers[12] % 256, registers[12] // 256)
+                sp = registers[12]
+                if addr > 0x3FFF:
+                    memory[addr] = sp % 256
+                addr = (addr + 1) % 65536
+                if addr > 0x3FFF:
+                    memory[addr] = sp // 256
             else:
-                self.poke(memory, addr, registers[reg + 1], registers[reg])
+                if addr > 0x3FFF:
+                    memory[addr] = registers[reg + 1]
+                addr = (addr + 1) % 65536
+                if addr > 0x3FFF:
+                    memory[addr] = registers[reg]
         elif reg == 12:
             registers[12] = memory[addr] + 256 * memory[(addr + 1) % 65536]
         else:
@@ -1116,7 +1126,11 @@ class Simulator:
         self.ppcount += 1
         sp = (registers[12] - 2) % 65536
         registers[12] = sp
-        self.poke(memory, sp, registers[reg + 1], registers[reg])
+        if sp > 0x3FFF:
+            memory[sp] = registers[reg + 1]
+        sp = (sp + 1) % 65536
+        if sp > 0x3FFF:
+            memory[sp] = registers[reg]
         registers[15] = r_inc[registers[15]]
         registers[25] += timing
         registers[24] = (registers[24] + size) % 65536
@@ -1260,7 +1274,11 @@ class Simulator:
         sp = (registers[12] - 2) % 65536
         registers[12] = sp
         ret_addr = (registers[24] + 1) % 65536
-        self.poke(memory, sp, ret_addr % 256, ret_addr // 256)
+        if sp > 0x3FFF:
+            memory[sp] = ret_addr % 256
+        sp = (sp + 1) % 65536
+        if sp > 0x3FFF:
+            memory[sp] = ret_addr // 256
         registers[15] = R1[registers[15]]
         registers[25] += 11
         registers[24] = addr
