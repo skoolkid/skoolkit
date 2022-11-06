@@ -18,6 +18,13 @@ from functools import partial
 
 PARITY = tuple((1 - bin(r).count('1') % 2) * 4 for r in range(256))
 
+SZ53P = tuple(
+    (r & 0xA8)           # S.5.3...
+    + (r == 0) * 0x40    # .Z......
+    + PARITY[r]          # .....P..
+    for r in range(256)
+)
+
 ADC = tuple(tuple(tuple((
                 (a + n + c) % 256,
                 ((a + n + c) & 0xA8)                                 # S.5.3.N.
@@ -41,13 +48,7 @@ ADD = tuple(tuple((
     ) for a in range(256)
 )
 
-AND = tuple(
-    (a & 0xA8)           # S.5.3...
-    + (a == 0) * 0x40    # .Z......
-    + 0x10               # ...H....
-    + PARITY[a]          # .....P..
-    for a in range(256)
-)
+AND = tuple(tuple((a & n, SZ53P[a & n] + 0x10) for n in range(256)) for a in range(256))
 
 CP = tuple(tuple((
             a,
@@ -92,6 +93,8 @@ NEG = tuple(
 )
 
 OFFSETS = tuple(d if d < 128 else d - 256 for d in range(256))
+
+OR = tuple(tuple((a | n, SZ53P[a | n]) for n in range(256)) for a in range(256))
 
 R1 = tuple((r & 0x80) + ((r + 1) % 128) for r in range(256))
 
@@ -144,12 +147,7 @@ SUB = tuple(tuple((
     ) for a in range(256)
 )
 
-SZ53P = tuple(
-    (r & 0xA8)           # S.5.3...
-    + (r == 0) * 0x40    # .Z......
-    + PARITY[r]          # .....P..
-    for r in range(256)
-)
+XOR = tuple(tuple((a ^ n, SZ53P[a ^ n]) for n in range(256)) for a in range(256))
 
 FRAME_DURATION = 69888
 
@@ -443,38 +441,6 @@ class Simulator:
         registers[15] = R2[registers[15]]
         registers[25] += 19
         registers[24] = pcn % 65536
-
-    def and_n(self, registers, memory):
-        pcn = registers[24] + 1
-        a = registers[0] & memory[pcn % 65536]
-        registers[0] = a
-        registers[1] = AND[a]
-        registers[15] = R1[registers[15]]
-        registers[25] += 7
-        registers[24] = (pcn + 1) % 65536
-
-    def and_r(self, registers, r):
-        a = registers[0] & registers[r]
-        registers[0] = a
-        registers[1] = AND[a]
-        registers[15] = R1[registers[15]]
-        registers[25] += 4
-        registers[24] = (registers[24] + 1) % 65536
-
-    def anda(self, registers, memory, r_inc, timing, size, reg):
-        if reg < 16:
-            a = registers[0] & registers[reg]
-        elif reg == 30:
-            a = registers[0] & memory[registers[7] + 256 * registers[6]]
-        elif reg == 32:
-            a = registers[0] & memory[(registers[9] + 256 * registers[8] + OFFSETS[memory[(registers[24] + 2) % 65536]]) % 65536]
-        else:
-            a = registers[0] & memory[(registers[11] + 256 * registers[10] + OFFSETS[memory[(registers[24] + 2) % 65536]]) % 65536]
-        registers[0] = a
-        registers[1] = AND[a]
-        registers[15] = r_inc[registers[15]]
-        registers[25] += timing
-        registers[24] = (registers[24] + size) % 65536
 
     def bit(self, registers, memory, timing, size, mask, reg):
         if reg < 16:
@@ -1028,38 +994,6 @@ class Simulator:
         registers[25] += timing
         registers[24] = (registers[24] + size) % 65536
 
-    def or_n(self, registers, memory):
-        pcn = registers[24] + 1
-        a = registers[0] | memory[pcn % 65536]
-        registers[0] = a
-        registers[1] = SZ53P[a]
-        registers[15] = R1[registers[15]]
-        registers[25] += 7
-        registers[24] = (pcn + 1) % 65536
-
-    def or_r(self, registers, r):
-        a = registers[0] | registers[r]
-        registers[0] = a
-        registers[1] = SZ53P[a]
-        registers[15] = R1[registers[15]]
-        registers[25] += 4
-        registers[24] = (registers[24] + 1) % 65536
-
-    def ora(self, registers, memory, r_inc, timing, size, reg):
-        if reg < 16:
-            a = registers[0] | registers[reg]
-        elif reg == 30:
-            a = registers[0] | memory[registers[7] + 256 * registers[6]]
-        elif reg == 32:
-            a = registers[0] | memory[(registers[9] + 256 * registers[8] + OFFSETS[memory[(registers[24] + 2) % 65536]]) % 65536]
-        else:
-            a = registers[0] | memory[(registers[11] + 256 * registers[10] + OFFSETS[memory[(registers[24] + 2) % 65536]]) % 65536] 
-        registers[0] = a
-        registers[1] = SZ53P[a]
-        registers[15] = r_inc[registers[15]]
-        registers[25] += timing
-        registers[24] = (registers[24] + size) % 65536
-
     def outa(self, registers, memory):
         pcn = registers[24] + 1
         if self.out_tracer:
@@ -1345,40 +1279,6 @@ class Simulator:
         registers[15] = R2[registers[15]]
         registers[25] += timing
         registers[24] = (registers[24] + size) % 65536
-
-    def xor_hl(self, registers, memory):
-        a = registers[0] ^ memory[registers[7] + 256 * registers[6]]
-        registers[0] = a
-        registers[1] = SZ53P[a]
-        registers[15] = R1[registers[15]]
-        registers[25] += 7
-        registers[24] = (registers[24] + 1) % 65536
-
-    def xor_n(self, registers, memory):
-        pcn = registers[24] + 1
-        a = registers[0] ^ memory[pcn % 65536]
-        registers[0] = a
-        registers[1] = SZ53P[a]
-        registers[15] = R1[registers[15]]
-        registers[25] += 7
-        registers[24] = (pcn + 1) % 65536
-
-    def xor_r(self, registers, r_inc, timing, size, r):
-        a = registers[0] ^ registers[r]
-        registers[0] = a
-        registers[1] = SZ53P[a]
-        registers[15] = r_inc[registers[15]]
-        registers[25] += timing
-        registers[24] = (registers[24] + size) % 65536
-
-    def xor_xy(self, registers, memory, xy):
-        pcn = registers[24] + 3
-        a = registers[0] ^ memory[(registers[xy + 1] + 256 * registers[xy] + OFFSETS[memory[(pcn - 1) % 65536]]) % 65536]
-        registers[0] = a
-        registers[1] = SZ53P[a]
-        registers[15] = R2[registers[15]]
-        registers[25] += 19
-        registers[24] = pcn % 65536
 
     def create_opcodes(self):
         r = self.registers
@@ -2326,25 +2226,25 @@ class Simulator:
             partial(self.nop, r, R1, 4, 1),                        # DDA1
             partial(self.nop, r, R1, 4, 1),                        # DDA2
             partial(self.nop, r, R1, 4, 1),                        # DDA3
-            partial(self.anda, r, m, R2, 8, 2, IXh),               # DDA4 AND IXh
-            partial(self.anda, r, m, R2, 8, 2, IXl),               # DDA5 AND IXl
-            partial(self.anda, r, m, R2, 19, 3, Xd),               # DDA6 AND (IX+d)
+            partial(self.af_r, r, R2, 8, 2, AND, IXh),             # DDA4 AND IXh
+            partial(self.af_r, r, R2, 8, 2, AND, IXl),             # DDA5 AND IXl
+            partial(self.af_xy, r, m, AND, IXh),                   # DDA6 AND (IX+d)
             partial(self.nop, r, R1, 4, 1),                        # DDA7
             partial(self.nop, r, R1, 4, 1),                        # DDA8
             partial(self.nop, r, R1, 4, 1),                        # DDA9
             partial(self.nop, r, R1, 4, 1),                        # DDAA
             partial(self.nop, r, R1, 4, 1),                        # DDAB
-            partial(self.xor_r, r, R2, 8, 2, IXh),                 # DDAC XOR IXh
-            partial(self.xor_r, r, R2, 8, 2, IXl),                 # DDAD XOR IXl
-            partial(self.xor_xy, r, m, IXh),                       # DDAE XOR (IX+d)
+            partial(self.af_r, r, R2, 8, 2, XOR, IXh),             # DDAC XOR IXh
+            partial(self.af_r, r, R2, 8, 2, XOR, IXl),             # DDAD XOR IXl
+            partial(self.af_xy, r, m, XOR, IXh),                   # DDAE XOR (IX+d)
             partial(self.nop, r, R1, 4, 1),                        # DDAF
             partial(self.nop, r, R1, 4, 1),                        # DDB0
             partial(self.nop, r, R1, 4, 1),                        # DDB1
             partial(self.nop, r, R1, 4, 1),                        # DDB2
             partial(self.nop, r, R1, 4, 1),                        # DDB3
-            partial(self.ora, r, m, R2, 8, 2, IXh),                # DDB4 OR IXh
-            partial(self.ora, r, m, R2, 8, 2, IXl),                # DDB5 OR IXl
-            partial(self.ora, r, m, R2, 19, 3, Xd),                # DDB6 OR (IX+d)
+            partial(self.af_r, r, R2, 8, 2, OR, IXh),              # DDB4 OR IXh
+            partial(self.af_r, r, R2, 8, 2, OR, IXl),              # DDB5 OR IXl
+            partial(self.af_xy, r, m, OR, IXh),                    # DDB6 OR (IX+d)
             partial(self.nop, r, R1, 4, 1),                        # DDB7
             partial(self.nop, r, R1, 4, 1),                        # DDB8
             partial(self.nop, r, R1, 4, 1),                        # DDB9
@@ -2844,25 +2744,25 @@ class Simulator:
             partial(self.nop, r, R1, 4, 1),                        # FDA1
             partial(self.nop, r, R1, 4, 1),                        # FDA2
             partial(self.nop, r, R1, 4, 1),                        # FDA3
-            partial(self.anda, r, m, R2, 8, 2, IYh),               # FDA4 AND IYh
-            partial(self.anda, r, m, R2, 8, 2, IYl),               # FDA5 AND IYl
-            partial(self.anda, r, m, R2, 19, 3, Yd),               # FDA6 AND (IY+d)
+            partial(self.af_r, r, R2, 8, 2, AND, IYh),             # FDA4 AND IYh
+            partial(self.af_r, r, R2, 8, 2, AND, IYl),             # FDA5 AND IYl
+            partial(self.af_xy, r, m, AND, IYh),                   # FDA6 AND (IY+d)
             partial(self.nop, r, R1, 4, 1),                        # FDA7
             partial(self.nop, r, R1, 4, 1),                        # FDA8
             partial(self.nop, r, R1, 4, 1),                        # FDA9
             partial(self.nop, r, R1, 4, 1),                        # FDAA
             partial(self.nop, r, R1, 4, 1),                        # FDAB
-            partial(self.xor_r, r, R2, 8, 2, IYh),                 # FDAC XOR IYh
-            partial(self.xor_r, r, R2, 8, 2, IYl),                 # FDAD XOR IYl
-            partial(self.xor_xy, r, m, IYh),                       # FDAE XOR (IY+d)
+            partial(self.af_r, r, R2, 8, 2, XOR, IYh),             # FDAC XOR IYh
+            partial(self.af_r, r, R2, 8, 2, XOR, IYl),             # FDAD XOR IYl
+            partial(self.af_xy, r, m, XOR, IYh),                   # FDAE XOR (IY+d)
             partial(self.nop, r, R1, 4, 1),                        # FDAF
             partial(self.nop, r, R1, 4, 1),                        # FDB0
             partial(self.nop, r, R1, 4, 1),                        # FDB1
             partial(self.nop, r, R1, 4, 1),                        # FDB2
             partial(self.nop, r, R1, 4, 1),                        # FDB3
-            partial(self.ora, r, m, R2, 8, 2, IYh),                # FDB4 OR IYh
-            partial(self.ora, r, m, R2, 8, 2, IYl),                # FDB5 OR IYl
-            partial(self.ora, r, m, R2, 19, 3, Yd),                # FDB6 OR (IY+d)
+            partial(self.af_r, r, R2, 8, 2, OR, IYh),              # FDB4 OR IYh
+            partial(self.af_r, r, R2, 8, 2, OR, IYl),              # FDB5 OR IYl
+            partial(self.af_xy, r, m, OR, IYh),                    # FDB6 OR (IY+d)
             partial(self.nop, r, R1, 4, 1),                        # FDB7
             partial(self.nop, r, R1, 4, 1),                        # FDB8
             partial(self.nop, r, R1, 4, 1),                        # FDB9
@@ -3099,30 +2999,30 @@ class Simulator:
             partial(self.afc_r, r, R1, 4, 1, SBC, L),              # 9D SBC A,L
             partial(self.afc_hl, r, m, SBC),                       # 9E SBC A,(HL)
             partial(self.sbc_a_a, r),                              # 9F SBC A,A
-            partial(self.and_r, r, B),                             # A0 AND B
-            partial(self.and_r, r, C),                             # A1 AND C
-            partial(self.and_r, r, D),                             # A2 AND D
-            partial(self.and_r, r, E),                             # A3 AND E
-            partial(self.and_r, r, H),                             # A4 AND H
-            partial(self.and_r, r, L),                             # A5 AND L
-            partial(self.anda, r, m, R1, 7, 1, Hd),                # A6 AND (HL)
-            partial(self.and_r, r, A),                             # A7 AND A
-            partial(self.xor_r, r, R1, 4, 1, B),                   # A8 XOR B
-            partial(self.xor_r, r, R1, 4, 1, C),                   # A9 XOR C
-            partial(self.xor_r, r, R1, 4, 1, D),                   # AA XOR D
-            partial(self.xor_r, r, R1, 4, 1, E),                   # AB XOR E
-            partial(self.xor_r, r, R1, 4, 1, H),                   # AC XOR H
-            partial(self.xor_r, r, R1, 4, 1, L),                   # AD XOR L
-            partial(self.xor_hl, r, m),                            # AE XOR (HL)
-            partial(self.xor_r, r, R1, 4, 1, A),                   # AF XOR A
-            partial(self.or_r, r, B),                              # B0 OR B
-            partial(self.or_r, r, C),                              # B1 OR C
-            partial(self.or_r, r, D),                              # B2 OR D
-            partial(self.or_r, r, E),                              # B3 OR E
-            partial(self.or_r, r, H),                              # B4 OR H
-            partial(self.or_r, r, L),                              # B5 OR L
-            partial(self.ora, r, m, R1, 7, 1, Hd),                 # B6 OR (HL)
-            partial(self.or_r, r, A),                              # B7 OR A
+            partial(self.af_r, r, R1, 4, 1, AND, B),               # A0 AND B
+            partial(self.af_r, r, R1, 4, 1, AND, C),               # A1 AND C
+            partial(self.af_r, r, R1, 4, 1, AND, D),               # A2 AND D
+            partial(self.af_r, r, R1, 4, 1, AND, E),               # A3 AND E
+            partial(self.af_r, r, R1, 4, 1, AND, H),               # A4 AND H
+            partial(self.af_r, r, R1, 4, 1, AND, L),               # A5 AND L
+            partial(self.af_hl, r, m, AND),                        # A6 AND (HL)
+            partial(self.af_r, r, R1, 4, 1, AND, A),               # A7 AND A
+            partial(self.af_r, r, R1, 4, 1, XOR, B),               # A8 XOR B
+            partial(self.af_r, r, R1, 4, 1, XOR, C),               # A9 XOR C
+            partial(self.af_r, r, R1, 4, 1, XOR, D),               # AA XOR D
+            partial(self.af_r, r, R1, 4, 1, XOR, E),               # AB XOR E
+            partial(self.af_r, r, R1, 4, 1, XOR, H),               # AC XOR H
+            partial(self.af_r, r, R1, 4, 1, XOR, L),               # AD XOR L
+            partial(self.af_hl, r, m, XOR),                        # AE XOR (HL)
+            partial(self.af_r, r, R1, 4, 1, XOR, A),               # AF XOR A
+            partial(self.af_r, r, R1, 4, 1, OR, B),                # B0 OR B
+            partial(self.af_r, r, R1, 4, 1, OR, C),                # B1 OR C
+            partial(self.af_r, r, R1, 4, 1, OR, D),                # B2 OR D
+            partial(self.af_r, r, R1, 4, 1, OR, E),                # B3 OR E
+            partial(self.af_r, r, R1, 4, 1, OR, H),                # B4 OR H
+            partial(self.af_r, r, R1, 4, 1, OR, L),                # B5 OR L
+            partial(self.af_hl, r, m, OR),                         # B6 OR (HL)
+            partial(self.af_r, r, R1, 4, 1, OR, A),                # B7 OR A
             partial(self.af_r, r, R1, 4, 1, CP, B),                # B8 CP B
             partial(self.af_r, r, R1, 4, 1, CP, C),                # B9 CP C
             partial(self.af_r, r, R1, 4, 1, CP, D),                # BA CP D
@@ -3169,7 +3069,7 @@ class Simulator:
             partial(self.ex_sp, r, m, H),                          # E3 EX (SP),HL
             partial(self.call, r, m, 4, 4),                        # E4 CALL PO,nn
             partial(self.push, r, m, R1, 11, 1, H),                # E5 PUSH HL
-            partial(self.and_n, r, m),                             # E6 AND n
+            partial(self.af_n, r, m, AND),                         # E6 AND n
             partial(self.rst, r, m, 32),                           # E7 RST $20
             partial(self.ret, r, m, 4, 0),                         # E8 RET PE
             partial(self.jp, r, m, R1, 4, 0, H),                   # E9 JP (HL)
@@ -3177,7 +3077,7 @@ class Simulator:
             partial(self.ex_de_hl, r),                             # EB EX DE,HL
             partial(self.call, r, m, 4, 0),                        # EC CALL PE,nn
             partial(self.prefix, self.after_ED, r, m),             # ED prefix
-            partial(self.xor_n, r, m),                             # EE XOR n
+            partial(self.af_n, r, m, XOR),                         # EE XOR n
             partial(self.rst, r, m, 40),                           # EF RST $28
             partial(self.ret, r, m, 128, 128),                     # F0 RET P
             partial(self.pop, r, m, R1, 10, 1, A),                 # F1 POP AF
@@ -3185,7 +3085,7 @@ class Simulator:
             partial(self.di_ei, r, 0),                             # F3 DI
             partial(self.call, r, m, 128, 128),                    # F4 CALL P,nn
             partial(self.push, r, m, R1, 11, 1, A),                # F5 PUSH AF
-            partial(self.or_n, r, m),                              # F6 OR n
+            partial(self.af_n, r, m, OR),                          # F6 OR n
             partial(self.rst, r, m, 48),                           # F7 RST $30
             partial(self.ret, r, m, 128, 0),                       # F8 RET M
             partial(self.ldsprr, r, R1, 6, 1, H),                  # F9 LD SP,HL
