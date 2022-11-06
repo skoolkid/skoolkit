@@ -628,7 +628,7 @@ class Simulator:
         registers[25] += 4
         registers[24] = (registers[24] + 1) % 65536
 
-    def ex_sp(self, registers, memory, reg):
+    def ex_sp(self, registers, memory, r_inc, timing, size, reg):
         sp = registers[12]
         sp1 = memory[sp]
         if sp > 0x3FFF:
@@ -639,22 +639,12 @@ class Simulator:
             memory[sp] = registers[reg]
         registers[reg + 1] = sp1
         registers[reg] = sp2
-        if reg == 6:
-            registers[15] = R1[registers[15]]
-            registers[25] += 19
-            registers[24] = (registers[24] + 1) % 65536
-        else:
-            registers[15] = R2[registers[15]]
-            registers[25] += 23
-            registers[24] = (registers[24] + 2) % 65536
+        registers[15] = r_inc[registers[15]]
+        registers[25] += timing
+        registers[24] = (registers[24] + size) % 65536
 
     def exx(self, registers):
-        registers[2], registers[18] = registers[18], registers[2]
-        registers[3], registers[19] = registers[19], registers[3]
-        registers[4], registers[20] = registers[20], registers[4]
-        registers[5], registers[21] = registers[21], registers[5]
-        registers[6], registers[22] = registers[22], registers[6]
-        registers[7], registers[23] = registers[23], registers[7]
+        registers[2:8], registers[18:24] = registers[18:24], registers[2:8]
         registers[15] = R1[registers[15]]
         registers[25] += 4
         registers[24] = (registers[24] + 1) % 65536
@@ -2289,7 +2279,7 @@ class Simulator:
             partial(self.nop, r, R1, 4, 1),                        # DDE0
             partial(self.pop, r, m, R2, 14, 2, IXh),               # DDE1 POP IX
             partial(self.nop, r, R1, 4, 1),                        # DDE2
-            partial(self.ex_sp, r, m, IXh),                        # DDE3 EX (SP),IX
+            partial(self.ex_sp, r, m, R2, 23, 2, IXh),             # DDE3 EX (SP),IX
             partial(self.nop, r, R1, 4, 1),                        # DDE4
             partial(self.push, r, m, R2, 15, 2, IXh),              # DDE5 PUSH IX
             partial(self.nop, r, R1, 4, 1),                        # DDE6
@@ -2807,7 +2797,7 @@ class Simulator:
             partial(self.nop, r, R1, 4, 1),                        # FDE0
             partial(self.pop, r, m, R2, 14, 2, IYh),               # FDE1 POP IY
             partial(self.nop, r, R1, 4, 1),                        # FDE2
-            partial(self.ex_sp, r, m, IYh),                        # FDE3 EX (SP),IY
+            partial(self.ex_sp, r, m, R2, 23, 2, IYh),             # FDE3 EX (SP),IY
             partial(self.nop, r, R1, 4, 1),                        # FDE4
             partial(self.push, r, m, R2, 15, 2, IYh),              # FDE5 PUSH IY
             partial(self.nop, r, R1, 4, 1),                        # FDE6
@@ -3066,7 +3056,7 @@ class Simulator:
             partial(self.ret, r, m, 4, 4),                         # E0 RET PO
             partial(self.pop, r, m, R1, 10, 1, H),                 # E1 POP HL
             partial(self.jp, r, m, R1, 10, 4, 4),                  # E2 JP PO,nn
-            partial(self.ex_sp, r, m, H),                          # E3 EX (SP),HL
+            partial(self.ex_sp, r, m, R1, 19, 1, H),               # E3 EX (SP),HL
             partial(self.call, r, m, 4, 4),                        # E4 CALL PO,nn
             partial(self.push, r, m, R1, 11, 1, H),                # E5 PUSH HL
             partial(self.af_n, r, m, AND),                         # E6 AND n
