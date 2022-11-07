@@ -37,6 +37,13 @@ ADC = tuple(tuple(tuple((
     ) for c in (0, 1)
 )
 
+ADC_A_A = tuple(tuple((
+            ADC[f % 2][a][a][0],
+            ADC[f % 2][a][a][1] | ((a % 16 == 0x0F) * 0x10)
+        ) for f in range(256)
+    ) for a in range(256)
+)
+
 ADD = tuple(tuple((
             (a + n) % 256,
             ((a + n) & 0xA8)                                 # S.5.3.N.
@@ -172,6 +179,8 @@ SBC = tuple(tuple(tuple((
         ) for a in range(256)
     ) for c in (0, 1)
 )
+
+SBC_A_A = (((0x00, 0x42), (0xFF, 0xBB)) * 128,) * 256
 
 SLA = RL[0]
 
@@ -357,15 +366,6 @@ class Simulator:
 
     def prefix2(self, opcodes, registers, memory):
         opcodes[memory[(registers[24] + 3) % 65536]]()
-
-    def adc_a_a(self, registers):
-        a = registers[0]
-        registers[:2] = ADC[registers[1] % 2][a][a]
-        if a % 16 == 0x0F:
-            registers[1] |= 0x10
-        registers[15] = R1[registers[15]]
-        registers[25] += 4
-        registers[24] = (registers[24] + 1) % 65536
 
     def adc_hl(self, registers, reg):
         if reg == 12:
@@ -1203,17 +1203,6 @@ class Simulator:
         registers[15] = R1[registers[15]]
         registers[25] += 11
         registers[24] = addr
-
-    def sbc_a_a(self, registers):
-        if registers[1] % 2:
-            registers[0] = 0xFF
-            registers[1] = 0xBB
-        else:
-            registers[0] = 0x00
-            registers[1] = 0x42
-        registers[15] = R1[registers[15]]
-        registers[25] += 4
-        registers[24] = (registers[24] + 1) % 65536
 
     def sbc_hl(self, registers, r_inc, reg):
         if reg == 12:
@@ -2974,7 +2963,7 @@ class Simulator:
             partial(self.afc_r, r, R1, 4, 1, ADC, H),               # 8C ADC A,H
             partial(self.afc_r, r, R1, 4, 1, ADC, L),               # 8D ADC A,L
             partial(self.afc_hl, r, m, ADC),                        # 8E ADC A,(HL)
-            partial(self.adc_a_a, r),                               # 8F ADC A,A
+            partial(self.af_r, r, R1, 4, 1, ADC_A_A, F),            # 8F ADC A,A
             partial(self.af_r, r, R1, 4, 1, SUB, B),                # 90 SUB B
             partial(self.af_r, r, R1, 4, 1, SUB, C),                # 91 SUB C
             partial(self.af_r, r, R1, 4, 1, SUB, D),                # 92 SUB D
@@ -2990,7 +2979,7 @@ class Simulator:
             partial(self.afc_r, r, R1, 4, 1, SBC, H),               # 9C SBC A,H
             partial(self.afc_r, r, R1, 4, 1, SBC, L),               # 9D SBC A,L
             partial(self.afc_hl, r, m, SBC),                        # 9E SBC A,(HL)
-            partial(self.sbc_a_a, r),                               # 9F SBC A,A
+            partial(self.af_r, r, R1, 4, 1, SBC_A_A, F),            # 9F SBC A,A
             partial(self.af_r, r, R1, 4, 1, AND, B),                # A0 AND B
             partial(self.af_r, r, R1, 4, 1, AND, C),                # A1 AND C
             partial(self.af_r, r, R1, 4, 1, AND, D),                # A2 AND D
