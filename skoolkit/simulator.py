@@ -63,6 +63,15 @@ CP = tuple(tuple((
     ) for a in range(256)
 )
 
+CPL = tuple(tuple((
+            a ^ 255,
+            (f & 0xC5)            # SZ...P.C
+            + ((a ^ 255) & 0x28)  # ..5.3...
+            + 0x12                # ...H..N.
+        ) for f in range(256)
+    ) for a in range(256)
+)
+
 DEC = tuple(
     (r & 0xA8)                 # S.5.3...
     + (r == 0) * 0x40          # .Z......
@@ -82,14 +91,15 @@ INC = tuple(
 
 JR_OFFSETS = tuple(j + 2 if j < 128 else j - 254 for j in range(256))
 
-NEG = tuple(
-    ((256 - a) & 0xA8)     # S.5.3...
-    + (a == 0) * 0x40      # .Z......
-    + (a % 16 > 0) * 0x10  # ...H....
-    + (a == 0x80) * 0x04   # .....P..
-    + 0x02                 # ......N.
-    + (a > 0)              # .......C
-    for a in range(256)
+NEG = tuple((
+        (256 - a) % 256,
+        ((256 - a) & 0xA8)     # S.5.3...
+        + (a == 0) * 0x40      # .Z......
+        + (a % 16 > 0) * 0x10  # ...H....
+        + (a == 0x80) * 0x04   # .....P..
+        + 0x02                 # ......N.
+        + (a > 0)              # .......C
+    ) for a in range(256)
 )
 
 OFFSETS = tuple(d if d < 128 else d - 256 for d in range(256))
@@ -564,9 +574,7 @@ class Simulator:
         registers[15] = R2[registers[15]]
 
     def cpl(self, registers):
-        a = registers[0] ^ 255
-        registers[0] = a
-        registers[1] = (registers[1] & 0xC5) + (a & 0x28) + 0x12
+        registers[:2] = CPL[registers[0]][registers[1]]
         registers[15] = R1[registers[15]]
         registers[25] += 4
         registers[24] = (registers[24] + 1) % 65536
@@ -994,9 +1002,7 @@ class Simulator:
         registers[24] = (registers[24] + size) % 65536
 
     def neg(self, registers):
-        a = registers[0]
-        registers[0] = (256 - a) % 256
-        registers[1] = NEG[a]
+        registers[:2] = NEG[registers[0]]
         registers[15] = R2[registers[15]]
         registers[25] += 8
         registers[24] = (registers[24] + 2) % 65536
