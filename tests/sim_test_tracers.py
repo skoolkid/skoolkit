@@ -6,10 +6,12 @@ SKOOLKIT_HOME = abspath(dirname(dirname(__file__)))
 sys.path.insert(0, SKOOLKIT_HOME)
 
 from skoolkit.simulator import (REGISTERS, A, F, B, C, D, E, H, L, IXh, IXl,
-                                IYh, IYl, SP, I, R, PC, Hd, N)
+                                IYh, IYl, SP, I, R, PC)
 
+Hd = 30
 Xd = 32
 Yd = 33
+N = 34
 
 INITIAL_REGISTERS = [0] * (PC + 1)
 

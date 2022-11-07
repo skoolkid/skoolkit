@@ -1,12 +1,12 @@
 from skoolkittest import SkoolKitTestCase
 from skoolkit.simulator import (Simulator,
                                 A, F, B, C, D, E, H, L, IXh, IXl, IYh, IYl, SP, I, R,
-                                xA, xF, xB, xC, xD, xE, xH, xL, PC, T, Hd)
+                                xA, xF, xB, xC, xD, xE, xH, xL, PC, T)
 from skoolkit.simulator import REGISTERS as SIMULATOR_REGISTERS
 
 REGISTER_NAMES = {v: r for r, v in SIMULATOR_REGISTERS.items()}
 
-REGISTERS = (('B', B), ('C', C), ('D', D), ('E', E), ('H', H), ('L', L), ('(HL)', Hd), ('A', A))
+REGISTERS = (('B', B), ('C', C), ('D', D), ('E', E), ('H', H), ('L', L), ('(HL)', -1), ('A', A))
 
 REGISTER_PAIRS = (('BC', B, C), ('DE', D, E), ('HL', H, L), ('SP', 0, 0))
 
