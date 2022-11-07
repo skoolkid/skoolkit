@@ -79,21 +79,27 @@ CPL = tuple(tuple((
     ) for a in range(256)
 )
 
-DEC = tuple(
-    (r & 0xA8)                 # S.5.3...
-    + (r == 0) * 0x40          # .Z......
-    + (r % 16 == 0x0F) * 0x10  # ...H....
-    + (r == 0x7F) * 0x04       # .....P..
-    + 0x02                     # ......N.
-    for r in range(256)
+DEC = tuple(tuple((
+            (r - 1) % 256,
+            ((r - 1) & 0xA8)           # S.5.3...
+            + (r == 1) * 0x40          # .Z......
+            + (r % 16 == 0x00) * 0x10  # ...H....
+            + (r == 0x80) * 0x04       # .....P..
+            + 0x02                     # ......N.
+            + c                        # .......C
+        ) for r in range(256)
+    ) for c in (0, 1)
 )
 
-INC = tuple(
-    (r & 0xA8)                 # S.5.3.N.
-    + (r == 0) * 0x40          # .Z......
-    + (r % 16 == 0x00) * 0x10  # ...H....
-    + (r == 0x80) * 0x04       # .....P..
-    for r in range(256)
+INC = tuple(tuple((
+            (r + 1) % 256,
+            ((r + 1) & 0xA8)           # S.5.3.N.
+            + (r == 0xFF) * 0x40       # .Z......
+            + (r % 16 == 0x0F) * 0x10  # ...H....
+            + (r == 0x7F) * 0x04       # .....P..
+            + c                        # .......C
+        ) for r in range(256)
+    ) for c in (0, 1)
 )
 
 JR_OFFSETS = tuple(j + 2 if j < 128 else j - 254 for j in range(256))
@@ -117,52 +123,82 @@ R1 = tuple((r & 0x80) + ((r + 1) % 128) for r in range(256))
 
 R2 = tuple((r & 0x80) + ((r + 2) % 128) for r in range(256))
 
-RL = (
+RL_r = (
     tuple((r * 2) % 256 for r in range(256)),
     tuple((r * 2) % 256 + 1 for r in range(256))
 )
 
-RLC = tuple(r // 128 + ((r * 2) % 256) for r in range(256))
+RL = tuple(tuple((
+            RL_r[c][r],
+            SZ53P[RL_r[c][r]]     # SZ5H3PN.
+            + (r & 0x80) // 0x80  # .......C
+        ) for r in range(256)
+    ) for c in (0, 1)
+)
 
-RR = (
+RLC_r = tuple(r // 128 + ((r * 2) % 256) for r in range(256))
+
+RLC = tuple((
+        RLC_r[r],
+        SZ53P[RLC_r[r]]       # SZ5H3PN.
+        + (r & 0x80) // 0x80  # .......C
+    ) for r in range(256)
+)
+
+RR_r = (
     tuple(r // 2 for r in range(256)),
     tuple(128 + r // 2 for r in range(256))
 )
 
-RRC = tuple(((r * 128) % 256) + r // 2 for r in range(256))
+RR = tuple(tuple((
+            RR_r[c][r],
+            SZ53P[RR_r[c][r]]  # SZ5H3PN.
+            + (r & 0x01)       # .......C
+        ) for r in range(256)
+    ) for c in (0, 1)
+)
+
+RRC_r = tuple(((r * 128) % 256) + r // 2 for r in range(256))
+
+RRC = tuple((
+        RRC_r[r],
+        SZ53P[RRC_r[r]]  # SZ5H3PN.
+        + (r & 0x01)     # .......C
+    ) for r in range(256)
+)
 
 RLA = tuple(tuple((
-            RL[f % 2][a],
-            (f & 0xC4)               # SZ.H.PN.
-            + (RL[f % 2][a] & 0x28)  # ..5.3...
-            + (a & 0x80) // 0x80     # .......C
+            RL_r[f % 2][a],
+            (f & 0xC4)                 # SZ.H.PN.
+            + (RL_r[f % 2][a] & 0x28)  # ..5.3...
+            + (a & 0x80) // 0x80       # .......C
         ) for f in range(256)
     ) for a in range(256)
 )
 
 RLCA = tuple(tuple((
-            RLC[a],
-            (f & 0xC4)            # SZ.H.PN.
-            + (RLC[a] & 0x28)     # ..5.3...
-            + (a & 0x80) // 0x80  # .......C
+            RLC_r[a],
+            (f & 0xC4)              # SZ.H.PN.
+            + (RLC_r[a] & 0x28)     # ..5.3...
+            + (a & 0x80) // 0x80    # .......C
         ) for f in range(256)
     ) for a in range(256)
 )
 
 RRA = tuple(tuple((
-            RR[f % 2][a],
-            (f & 0xC4)               # SZ.H.PN.
-            + (RR[f % 2][a] & 0x28)  # ..5.3...
-            + (a & 0x01)             # .......C
+            RR_r[f % 2][a],
+            (f & 0xC4)                 # SZ.H.PN.
+            + (RR_r[f % 2][a] & 0x28)  # ..5.3...
+            + (a & 0x01)               # .......C
         ) for f in range(256)
     ) for a in range(256)
 )
 
 RRCA = tuple(tuple((
-            RRC[a],
-            (f & 0xC4)         # SZ.H.PN.
-            + (RRC[a] & 0x28)  # ..5.3...
-            + (a & 0x01)       # .......C
+            RRC_r[a],
+            (f & 0xC4)           # SZ.H.PN.
+            + (RRC_r[a] & 0x28)  # ..5.3...
+            + (a & 0x01)         # .......C
         ) for f in range(256)
     ) for a in range(256)
 )
@@ -186,7 +222,12 @@ SLA = RL[0]
 
 SLL = RL[1]
 
-SRA = tuple((r & 0x80) + r // 2 for r in range(256))
+SRA = tuple((
+        (r & 0x80) + r // 2,
+        SZ53P[(r & 0x80) + r // 2]  # SZ5H3PN.
+        + (r & 0x01)                # .......C
+   ) for r in range(256)
+)
 
 SRL = RR[0]
 
@@ -367,65 +408,6 @@ class Simulator:
     def prefix2(self, opcodes, registers, memory):
         opcodes[memory[(registers[24] + 3) % 65536]]()
 
-    def adc_hl(self, registers, reg):
-        if reg == 12:
-            rr = registers[12]
-        else:
-            rr = registers[reg + 1] + 256 * registers[reg]
-        hl = registers[7] + 256 * registers[6]
-        rr_c = rr + registers[1] % 2
-        result = hl + rr_c
-
-        if result > 0xFFFF:
-            result %= 65536
-            f = 0x01 # .......C
-        else:
-            f = 0
-        if ((hl % 4096) + (rr_c % 4096)) & 0x1000:
-            f += 0x10 # ...H....
-        if result & 0x8000:
-            f += 0x80 # S.......
-        elif result == 0:
-            f += 0x40 # .Z......
-        if (hl ^ rr) & 0x8000 == 0 and (result ^ hl) & 0x8000:
-            # Augend and addend signs are the same - overflow if their sign
-            # differs from the sign of the result
-            f += 0x04 # .....P..
-
-        h = result // 256
-        registers[1] = f + (h & 0x28)
-        registers[7] = result % 256
-        registers[6] = h
-
-        registers[15] = R2[registers[15]]
-        registers[25] += 15
-        registers[24] = (registers[24] + 2) % 65536
-
-    def add16(self, registers, r_inc, timing, size, augend, reg):
-        if reg == 12:
-            addend_v = registers[12]
-        else:
-            addend_v = registers[reg + 1] + 256 * registers[reg]
-        augend_v = registers[augend + 1] + 256 * registers[augend]
-        result = augend_v + addend_v
-
-        if result > 0xFFFF:
-            result %= 65536
-            f = (registers[1] & 0xC4) + 0x01 # SZ...P.C
-        else:
-            f = registers[1] & 0xC4 # SZ...P..
-        if ((augend_v % 4096) + (addend_v % 4096)) & 0x1000:
-            f += 0x10 # ...H....
-
-        result_hi = result // 256
-        registers[1] = f + (result_hi & 0x28)
-        registers[augend + 1] = result % 256
-        registers[augend] = result_hi
-
-        registers[15] = r_inc[registers[15]]
-        registers[25] += timing
-        registers[24] = (registers[24] + size) % 65536
-
     def af_hl(self, registers, memory, af):
         # ADD A,(HL) / AND (HL) / CP (HL) / OR (HL) / SUB (HL) / XOR (HL)
         registers[:2] = af[registers[0]][memory[registers[7] + 256 * registers[6]]]
@@ -487,6 +469,125 @@ class Simulator:
         registers[15] = R2[registers[15]]
         registers[25] += 19
         registers[24] = pcn % 65536
+
+    def f_hl(self, registers, memory, f):
+        # RLC/RRC/SLA/SLL/SRA/SRL (HL)
+        hl = registers[7] + 256 * registers[6]
+        value, registers[1] = f[memory[hl]]
+        if hl > 0x3FFF:
+            memory[hl] = value
+        registers[15] = R2[registers[15]]
+        registers[25] += 15
+        registers[24] = (registers[24] + 2) % 65536
+
+    def f_r(self, registers, f, r):
+        # RLC/RRC/SLA/SLL/SRA/SRL r
+        registers[r], registers[1] = f[registers[r]]
+        registers[15] = R2[registers[15]]
+        registers[25] += 8
+        registers[24] = (registers[24] + 2) % 65536
+
+    def f_xy(self, registers, memory, f, xy, dest=-1):
+        # RLC/RRC/SLA/SLL/SRA/SRL (IX/Y+d)[,r]
+        pcn = registers[24] + 4
+        addr = (registers[xy + 1] + 256 * registers[xy] + OFFSETS[memory[(pcn - 2) % 65536]]) % 65536
+        value, registers[1] = f[memory[addr]]
+        if addr > 0x3FFF:
+            memory[addr] = value
+        if dest >= 0:
+            registers[dest] = value
+        registers[15] = R2[registers[15]]
+        registers[25] += 23
+        registers[24] = pcn % 65536
+
+    def fc_hl(self, registers, memory, r_inc, timing, size, fc):
+        # DEC/INC/RL/RR (HL)
+        hl = registers[7] + 256 * registers[6]
+        value, registers[1] = fc[registers[1] % 2][memory[hl]]
+        if hl > 0x3FFF:
+            memory[hl] = value
+        registers[15] = r_inc[registers[15]]
+        registers[25] += timing
+        registers[24] = (registers[24] + size) % 65536
+
+    def fc_r(self, registers, r_inc, timing, size, fc, r):
+        # DEC/INC/RL/RR r
+        registers[r], registers[1] = fc[registers[1] % 2][registers[r]]
+        registers[15] = r_inc[registers[15]]
+        registers[25] += timing
+        registers[24] = (registers[24] + size) % 65536
+
+    def fc_xy(self, registers, memory, size, fc, xy, dest=-1):
+        # DEC/INC/RL/RR (IX/Y+d)[,r]
+        pc = registers[24]
+        addr = (registers[xy + 1] + 256 * registers[xy] + OFFSETS[memory[(pc + 2) % 65536]]) % 65536
+        value, registers[1] = fc[registers[1] % 2][memory[addr]]
+        if addr > 0x3FFF:
+            memory[addr] = value
+        if dest >= 0:
+            registers[dest] = value
+        registers[15] = R2[registers[15]]
+        registers[25] += 23
+        registers[24] = (pc + size) % 65536
+
+    def adc_hl(self, registers, reg):
+        if reg == 12:
+            rr = registers[12]
+        else:
+            rr = registers[reg + 1] + 256 * registers[reg]
+        hl = registers[7] + 256 * registers[6]
+        rr_c = rr + registers[1] % 2
+        result = hl + rr_c
+
+        if result > 0xFFFF:
+            result %= 65536
+            f = 0x01 # .......C
+        else:
+            f = 0
+        if ((hl % 4096) + (rr_c % 4096)) & 0x1000:
+            f += 0x10 # ...H....
+        if result & 0x8000:
+            f += 0x80 # S.......
+        elif result == 0:
+            f += 0x40 # .Z......
+        if (hl ^ rr) & 0x8000 == 0 and (result ^ hl) & 0x8000:
+            # Augend and addend signs are the same - overflow if their sign
+            # differs from the sign of the result
+            f += 0x04 # .....P..
+
+        h = result // 256
+        registers[1] = f + (h & 0x28)
+        registers[7] = result % 256
+        registers[6] = h
+
+        registers[15] = R2[registers[15]]
+        registers[25] += 15
+        registers[24] = (registers[24] + 2) % 65536
+
+    def add16(self, registers, r_inc, timing, size, augend, reg):
+        if reg == 12:
+            addend_v = registers[12]
+        else:
+            addend_v = registers[reg + 1] + 256 * registers[reg]
+        augend_v = registers[augend + 1] + 256 * registers[augend]
+        result = augend_v + addend_v
+
+        if result > 0xFFFF:
+            result %= 65536
+            f = (registers[1] & 0xC4) + 0x01 # SZ...P.C
+        else:
+            f = registers[1] & 0xC4 # SZ...P..
+        if ((augend_v % 4096) + (addend_v % 4096)) & 0x1000:
+            f += 0x10 # ...H....
+
+        result_hi = result // 256
+        registers[1] = f + (result_hi & 0x28)
+        registers[augend + 1] = result % 256
+        registers[augend] = result_hi
+
+        registers[15] = r_inc[registers[15]]
+        registers[25] += timing
+        registers[24] = (registers[24] + size) % 65536
 
     def bit(self, registers, memory, timing, size, mask, reg):
         if reg < 8:
@@ -717,28 +818,6 @@ class Simulator:
         registers[15] = R2[registers[15]]
         registers[25] += 12
         registers[24] = (registers[24] + 2) % 65536
-
-    def inc_dec_m(self, registers, memory, r_inc, timing, size, inc, flags, reg):
-        # INC/DEC (HL) / INC/DEC (IX/Y+d)
-        if reg == 6:
-            addr = registers[7] + 256 * registers[6]
-        else:
-            addr = (registers[reg + 1] + 256 * registers[reg] + OFFSETS[memory[(registers[24] + 2) % 65536]]) % 65536
-        value = (memory[addr] + inc) % 256
-        if addr > 0x3FFF:
-            memory[addr] = value
-        registers[1] = (registers[1] % 2) + flags[value]
-        registers[15] = r_inc[registers[15]]
-        registers[25] += timing
-        registers[24] = (registers[24] + size) % 65536
-
-    def inc_dec_r(self, registers, r_inc, timing, size, inc, flags, reg):
-        value = (registers[reg] + inc) % 256
-        registers[1] = (registers[1] % 2) + flags[value]
-        registers[reg] = value
-        registers[15] = r_inc[registers[15]]
-        registers[25] += timing
-        registers[24] = (registers[24] + size) % 65536
 
     def inc_dec16(self, registers, r_inc, timing, size, inc, reg):
         if reg == 12:
@@ -1154,43 +1233,6 @@ class Simulator:
         registers[25] += 18
         registers[24] = (registers[24] + 2) % 65536
 
-    def rotate_r(self, registers, cbit, rotate, reg, circular=0):
-        r = registers[reg]
-        if circular:
-            value = rotate[r]
-        else:
-            value = rotate[registers[1] % 2][r]
-        registers[reg] = value
-        if r & cbit:
-            registers[1] = SZ53P[value] + 0x01
-        else:
-            registers[1] = SZ53P[value]
-        registers[15] = R2[registers[15]]
-        registers[25] += 8
-        registers[24] = (registers[24] + 2) % 65536
-
-    def rotate(self, registers, memory, timing, size, cbit, rotate, reg, circular=0, dest=-1):
-        if reg == 6:
-            addr = registers[7] + 256 * registers[6]
-        else:
-            addr = (registers[reg + 1] + 256 * registers[reg] + OFFSETS[memory[(registers[24] + 2) % 65536]]) % 65536
-        r = memory[addr]
-        if circular:
-            value = rotate[r]
-        else:
-            value = rotate[registers[1] % 2][r]
-        if addr > 0x3FFF:
-            memory[addr] = value
-        if dest >= 0:
-            registers[dest] = value
-        if r & cbit:
-            registers[1] = SZ53P[value] + 0x01
-        else:
-            registers[1] = SZ53P[value]
-        registers[15] = R2[registers[15]]
-        registers[25] += timing
-        registers[24] = (registers[24] + size) % 65536
-
     def rst(self, registers, memory, addr):
         sp = (registers[12] - 2) % 65536
         registers[12] = sp
@@ -1237,99 +1279,75 @@ class Simulator:
         registers[25] += 15
         registers[24] = (registers[24] + 2) % 65536
 
-    def shift(self, registers, memory, timing, size, shift, cbit, reg, dest=-1):
-        if reg < 8:
-            r = registers[reg]
-        elif reg == 30:
-            addr = registers[7] + 256 * registers[6]
-            r = memory[addr]
-        else:
-            addr = (registers[reg + 1] + 256 * registers[reg] + OFFSETS[memory[(registers[24] + 2) % 65536]]) % 65536
-            r = memory[addr]
-        value = shift[r]
-        if reg < 8:
-            registers[reg] = value
-        elif addr > 0x3FFF:
-            memory[addr] = value
-        if dest >= 0:
-            registers[dest] = value
-        if r & cbit:
-            registers[1] = SZ53P[value] + 0x01
-        else:
-            registers[1] = SZ53P[value]
-        registers[15] = R2[registers[15]]
-        registers[25] += timing
-        registers[24] = (registers[24] + size) % 65536
-
     def create_opcodes(self):
         r = self.registers
         m = self.memory
 
         self.after_DDCB = [
-            partial(self.rotate, r, m, 23, 4, 128, RLC, IXh, 1, B), # DDCB..00 RLC (IX+d),B
-            partial(self.rotate, r, m, 23, 4, 128, RLC, IXh, 1, C), # DDCB..01 RLC (IX+d),C
-            partial(self.rotate, r, m, 23, 4, 128, RLC, IXh, 1, D), # DDCB..02 RLC (IX+d),D
-            partial(self.rotate, r, m, 23, 4, 128, RLC, IXh, 1, E), # DDCB..03 RLC (IX+d),E
-            partial(self.rotate, r, m, 23, 4, 128, RLC, IXh, 1, H), # DDCB..04 RLC (IX+d),H
-            partial(self.rotate, r, m, 23, 4, 128, RLC, IXh, 1, L), # DDCB..05 RLC (IX+d),L
-            partial(self.rotate, r, m, 23, 4, 128, RLC, IXh, 1),    # DDCB..06 RLC (IX+d)
-            partial(self.rotate, r, m, 23, 4, 128, RLC, IXh, 1, A), # DDCB..07 RLC (IX+d),A
-            partial(self.rotate, r, m, 23, 4, 1, RRC, IXh, 1, B),   # DDCB..08 RRC (IX+d),B
-            partial(self.rotate, r, m, 23, 4, 1, RRC, IXh, 1, C),   # DDCB..09 RRC (IX+d),C
-            partial(self.rotate, r, m, 23, 4, 1, RRC, IXh, 1, D),   # DDCB..0A RRC (IX+d),D
-            partial(self.rotate, r, m, 23, 4, 1, RRC, IXh, 1, E),   # DDCB..0B RRC (IX+d),E
-            partial(self.rotate, r, m, 23, 4, 1, RRC, IXh, 1, H),   # DDCB..0C RRC (IX+d),H
-            partial(self.rotate, r, m, 23, 4, 1, RRC, IXh, 1, L),   # DDCB..0D RRC (IX+d),L
-            partial(self.rotate, r, m, 23, 4, 1, RRC, IXh, 1),      # DDCB..0E RRC (IX+d)
-            partial(self.rotate, r, m, 23, 4, 1, RRC, IXh, 1, A),   # DDCB..0F RRC (IX+d),A
-            partial(self.rotate, r, m, 23, 4, 128, RL, IXh, 0, B),  # DDCB..10 RL (IX+d),B
-            partial(self.rotate, r, m, 23, 4, 128, RL, IXh, 0, C),  # DDCB..11 RL (IX+d),C
-            partial(self.rotate, r, m, 23, 4, 128, RL, IXh, 0, D),  # DDCB..12 RL (IX+d),D
-            partial(self.rotate, r, m, 23, 4, 128, RL, IXh, 0, E),  # DDCB..13 RL (IX+d),E
-            partial(self.rotate, r, m, 23, 4, 128, RL, IXh, 0, H),  # DDCB..14 RL (IX+d),H
-            partial(self.rotate, r, m, 23, 4, 128, RL, IXh, 0, L),  # DDCB..15 RL (IX+d),L
-            partial(self.rotate, r, m, 23, 4, 128, RL, IXh),        # DDCB..16 RL (IX+d)
-            partial(self.rotate, r, m, 23, 4, 128, RL, IXh, 0, A),  # DDCB..17 RL (IX+d),A
-            partial(self.rotate, r, m, 23, 4, 1, RR, IXh, 0, B),    # DDCB..18 RR (IX+d),B
-            partial(self.rotate, r, m, 23, 4, 1, RR, IXh, 0, C),    # DDCB..19 RR (IX+d),C
-            partial(self.rotate, r, m, 23, 4, 1, RR, IXh, 0, D),    # DDCB..1A RR (IX+d),D
-            partial(self.rotate, r, m, 23, 4, 1, RR, IXh, 0, E),    # DDCB..1B RR (IX+d),E
-            partial(self.rotate, r, m, 23, 4, 1, RR, IXh, 0, H),    # DDCB..1C RR (IX+d),H
-            partial(self.rotate, r, m, 23, 4, 1, RR, IXh, 0, L),    # DDCB..1D RR (IX+d),L
-            partial(self.rotate, r, m, 23, 4, 1, RR, IXh),          # DDCB..1E RR (IX+d)
-            partial(self.rotate, r, m, 23, 4, 1, RR, IXh, 0, A),    # DDCB..1F RR (IX+d),A
-            partial(self.shift, r, m, 23, 4, SLA, 128, IXh, B),     # DDCB..20 SLA (IX+d),B
-            partial(self.shift, r, m, 23, 4, SLA, 128, IXh, C),     # DDCB..21 SLA (IX+d),C
-            partial(self.shift, r, m, 23, 4, SLA, 128, IXh, D),     # DDCB..22 SLA (IX+d),D
-            partial(self.shift, r, m, 23, 4, SLA, 128, IXh, E),     # DDCB..23 SLA (IX+d),E
-            partial(self.shift, r, m, 23, 4, SLA, 128, IXh, H),     # DDCB..24 SLA (IX+d),H
-            partial(self.shift, r, m, 23, 4, SLA, 128, IXh, L),     # DDCB..25 SLA (IX+d),L
-            partial(self.shift, r, m, 23, 4, SLA, 128, IXh),        # DDCB..26 SLA (IX+d)
-            partial(self.shift, r, m, 23, 4, SLA, 128, IXh, A),     # DDCB..27 SLA (IX+d),A
-            partial(self.shift, r, m, 23, 4, SRA, 1, IXh, B),       # DDCB..28 SRA (IX+d),B
-            partial(self.shift, r, m, 23, 4, SRA, 1, IXh, C),       # DDCB..29 SRA (IX+d),C
-            partial(self.shift, r, m, 23, 4, SRA, 1, IXh, D),       # DDCB..2A SRA (IX+d),D
-            partial(self.shift, r, m, 23, 4, SRA, 1, IXh, E),       # DDCB..2B SRA (IX+d),E
-            partial(self.shift, r, m, 23, 4, SRA, 1, IXh, H),       # DDCB..2C SRA (IX+d),H
-            partial(self.shift, r, m, 23, 4, SRA, 1, IXh, L),       # DDCB..2D SRA (IX+d),L
-            partial(self.shift, r, m, 23, 4, SRA, 1, IXh),          # DDCB..2E SRA (IX+d)
-            partial(self.shift, r, m, 23, 4, SRA, 1, IXh, A),       # DDCB..2F SRA (IX+d),A
-            partial(self.shift, r, m, 23, 4, SLL, 128, IXh, B),     # DDCB..30 SLL (IX+d),B
-            partial(self.shift, r, m, 23, 4, SLL, 128, IXh, C),     # DDCB..31 SLL (IX+d),C
-            partial(self.shift, r, m, 23, 4, SLL, 128, IXh, D),     # DDCB..32 SLL (IX+d),D
-            partial(self.shift, r, m, 23, 4, SLL, 128, IXh, E),     # DDCB..33 SLL (IX+d),E
-            partial(self.shift, r, m, 23, 4, SLL, 128, IXh, H),     # DDCB..34 SLL (IX+d),H
-            partial(self.shift, r, m, 23, 4, SLL, 128, IXh, L),     # DDCB..35 SLL (IX+d),L
-            partial(self.shift, r, m, 23, 4, SLL, 128, IXh),        # DDCB..36 SLL (IX+d)
-            partial(self.shift, r, m, 23, 4, SLL, 128, IXh, A),     # DDCB..37 SLL (IX+d),A
-            partial(self.shift, r, m, 23, 4, SRL, 1, IXh, B),       # DDCB..38 SRL (IX+d),B
-            partial(self.shift, r, m, 23, 4, SRL, 1, IXh, C),       # DDCB..39 SRL (IX+d),C
-            partial(self.shift, r, m, 23, 4, SRL, 1, IXh, D),       # DDCB..3A SRL (IX+d),D
-            partial(self.shift, r, m, 23, 4, SRL, 1, IXh, E),       # DDCB..3B SRL (IX+d),E
-            partial(self.shift, r, m, 23, 4, SRL, 1, IXh, H),       # DDCB..3C SRL (IX+d),H
-            partial(self.shift, r, m, 23, 4, SRL, 1, IXh, L),       # DDCB..3D SRL (IX+d),L
-            partial(self.shift, r, m, 23, 4, SRL, 1, IXh),          # DDCB..3E SRL (IX+d)
-            partial(self.shift, r, m, 23, 4, SRL, 1, IXh, A),       # DDCB..3F SRL (IX+d),A
+            partial(self.f_xy, r, m, RLC, IXh, B),                  # DDCB..00 RLC (IX+d),B
+            partial(self.f_xy, r, m, RLC, IXh, C),                  # DDCB..01 RLC (IX+d),C
+            partial(self.f_xy, r, m, RLC, IXh, D),                  # DDCB..02 RLC (IX+d),D
+            partial(self.f_xy, r, m, RLC, IXh, E),                  # DDCB..03 RLC (IX+d),E
+            partial(self.f_xy, r, m, RLC, IXh, H),                  # DDCB..04 RLC (IX+d),H
+            partial(self.f_xy, r, m, RLC, IXh, L),                  # DDCB..05 RLC (IX+d),L
+            partial(self.f_xy, r, m, RLC, IXh),                     # DDCB..06 RLC (IX+d)
+            partial(self.f_xy, r, m, RLC, IXh, A),                  # DDCB..07 RLC (IX+d),A
+            partial(self.f_xy, r, m, RRC, IXh, B),                  # DDCB..08 RRC (IX+d),B
+            partial(self.f_xy, r, m, RRC, IXh, C),                  # DDCB..09 RRC (IX+d),C
+            partial(self.f_xy, r, m, RRC, IXh, D),                  # DDCB..0A RRC (IX+d),D
+            partial(self.f_xy, r, m, RRC, IXh, E),                  # DDCB..0B RRC (IX+d),E
+            partial(self.f_xy, r, m, RRC, IXh, H),                  # DDCB..0C RRC (IX+d),H
+            partial(self.f_xy, r, m, RRC, IXh, L),                  # DDCB..0D RRC (IX+d),L
+            partial(self.f_xy, r, m, RRC, IXh),                     # DDCB..0E RRC (IX+d)
+            partial(self.f_xy, r, m, RRC, IXh, A),                  # DDCB..0F RRC (IX+d),A
+            partial(self.fc_xy, r, m, 4, RL, IXh, B),               # DDCB..10 RL (IX+d),B
+            partial(self.fc_xy, r, m, 4, RL, IXh, C),               # DDCB..11 RL (IX+d),C
+            partial(self.fc_xy, r, m, 4, RL, IXh, D),               # DDCB..12 RL (IX+d),D
+            partial(self.fc_xy, r, m, 4, RL, IXh, E),               # DDCB..13 RL (IX+d),E
+            partial(self.fc_xy, r, m, 4, RL, IXh, H),               # DDCB..14 RL (IX+d),H
+            partial(self.fc_xy, r, m, 4, RL, IXh, L),               # DDCB..15 RL (IX+d),L
+            partial(self.fc_xy, r, m, 4, RL, IXh),                  # DDCB..16 RL (IX+d)
+            partial(self.fc_xy, r, m, 4, RL, IXh, A),               # DDCB..17 RL (IX+d),A
+            partial(self.fc_xy, r, m, 4, RR, IXh, B),               # DDCB..18 RR (IX+d),B
+            partial(self.fc_xy, r, m, 4, RR, IXh, C),               # DDCB..19 RR (IX+d),C
+            partial(self.fc_xy, r, m, 4, RR, IXh, D),               # DDCB..1A RR (IX+d),D
+            partial(self.fc_xy, r, m, 4, RR, IXh, E),               # DDCB..1B RR (IX+d),E
+            partial(self.fc_xy, r, m, 4, RR, IXh, H),               # DDCB..1C RR (IX+d),H
+            partial(self.fc_xy, r, m, 4, RR, IXh, L),               # DDCB..1D RR (IX+d),L
+            partial(self.fc_xy, r, m, 4, RR, IXh),                  # DDCB..1E RR (IX+d)
+            partial(self.fc_xy, r, m, 4, RR, IXh, A),               # DDCB..1F RR (IX+d),A
+            partial(self.f_xy, r, m, SLA, IXh, B),                  # DDCB..20 SLA (IX+d),B
+            partial(self.f_xy, r, m, SLA, IXh, C),                  # DDCB..21 SLA (IX+d),C
+            partial(self.f_xy, r, m, SLA, IXh, D),                  # DDCB..22 SLA (IX+d),D
+            partial(self.f_xy, r, m, SLA, IXh, E),                  # DDCB..23 SLA (IX+d),E
+            partial(self.f_xy, r, m, SLA, IXh, H),                  # DDCB..24 SLA (IX+d),H
+            partial(self.f_xy, r, m, SLA, IXh, L),                  # DDCB..25 SLA (IX+d),L
+            partial(self.f_xy, r, m, SLA, IXh),                     # DDCB..26 SLA (IX+d)
+            partial(self.f_xy, r, m, SLA, IXh, A),                  # DDCB..27 SLA (IX+d),A
+            partial(self.f_xy, r, m, SRA, IXh, B),                  # DDCB..28 SRA (IX+d),B
+            partial(self.f_xy, r, m, SRA, IXh, C),                  # DDCB..29 SRA (IX+d),C
+            partial(self.f_xy, r, m, SRA, IXh, D),                  # DDCB..2A SRA (IX+d),D
+            partial(self.f_xy, r, m, SRA, IXh, E),                  # DDCB..2B SRA (IX+d),E
+            partial(self.f_xy, r, m, SRA, IXh, H),                  # DDCB..2C SRA (IX+d),H
+            partial(self.f_xy, r, m, SRA, IXh, L),                  # DDCB..2D SRA (IX+d),L
+            partial(self.f_xy, r, m, SRA, IXh),                     # DDCB..2E SRA (IX+d)
+            partial(self.f_xy, r, m, SRA, IXh, A),                  # DDCB..2F SRA (IX+d),A
+            partial(self.f_xy, r, m, SLL, IXh, B),                  # DDCB..30 SLL (IX+d),B
+            partial(self.f_xy, r, m, SLL, IXh, C),                  # DDCB..31 SLL (IX+d),C
+            partial(self.f_xy, r, m, SLL, IXh, D),                  # DDCB..32 SLL (IX+d),D
+            partial(self.f_xy, r, m, SLL, IXh, E),                  # DDCB..33 SLL (IX+d),E
+            partial(self.f_xy, r, m, SLL, IXh, H),                  # DDCB..34 SLL (IX+d),H
+            partial(self.f_xy, r, m, SLL, IXh, L),                  # DDCB..35 SLL (IX+d),L
+            partial(self.f_xy, r, m, SLL, IXh),                     # DDCB..36 SLL (IX+d)
+            partial(self.f_xy, r, m, SLL, IXh, A),                  # DDCB..37 SLL (IX+d),A
+            partial(self.f_xy, r, m, SRL, IXh, B),                  # DDCB..38 SRL (IX+d),B
+            partial(self.f_xy, r, m, SRL, IXh, C),                  # DDCB..39 SRL (IX+d),C
+            partial(self.f_xy, r, m, SRL, IXh, D),                  # DDCB..3A SRL (IX+d),D
+            partial(self.f_xy, r, m, SRL, IXh, E),                  # DDCB..3B SRL (IX+d),E
+            partial(self.f_xy, r, m, SRL, IXh, H),                  # DDCB..3C SRL (IX+d),H
+            partial(self.f_xy, r, m, SRL, IXh, L),                  # DDCB..3D SRL (IX+d),L
+            partial(self.f_xy, r, m, SRL, IXh),                     # DDCB..3E SRL (IX+d)
+            partial(self.f_xy, r, m, SRL, IXh, A),                  # DDCB..3F SRL (IX+d),A
             partial(self.bit, r, m, 20, 4, 1, IXh),                 # DDCB..40 BIT 0,(IX+d)
             partial(self.bit, r, m, 20, 4, 1, IXh),                 # DDCB..41 BIT 0,(IX+d)
             partial(self.bit, r, m, 20, 4, 1, IXh),                 # DDCB..42 BIT 0,(IX+d)
@@ -1525,70 +1543,70 @@ class Simulator:
         ]
 
         self.after_FDCB = [
-            partial(self.rotate, r, m, 23, 4, 128, RLC, IYh, 1, B), # FDCB..00 RLC (IY+d),B
-            partial(self.rotate, r, m, 23, 4, 128, RLC, IYh, 1, C), # FDCB..01 RLC (IY+d),C
-            partial(self.rotate, r, m, 23, 4, 128, RLC, IYh, 1, D), # FDCB..02 RLC (IY+d),D
-            partial(self.rotate, r, m, 23, 4, 128, RLC, IYh, 1, E), # FDCB..03 RLC (IY+d),E
-            partial(self.rotate, r, m, 23, 4, 128, RLC, IYh, 1, H), # FDCB..04 RLC (IY+d),H
-            partial(self.rotate, r, m, 23, 4, 128, RLC, IYh, 1, L), # FDCB..05 RLC (IY+d),L
-            partial(self.rotate, r, m, 23, 4, 128, RLC, IYh, 1),    # FDCB..06 RLC (IY+d)
-            partial(self.rotate, r, m, 23, 4, 128, RLC, IYh, 1, A), # FDCB..07 RLC (IY+d),A
-            partial(self.rotate, r, m, 23, 4, 1, RRC, IYh, 1, B),   # FDCB..08 RRC (IY+d),B
-            partial(self.rotate, r, m, 23, 4, 1, RRC, IYh, 1, C),   # FDCB..09 RRC (IY+d),C
-            partial(self.rotate, r, m, 23, 4, 1, RRC, IYh, 1, D),   # FDCB..0A RRC (IY+d),D
-            partial(self.rotate, r, m, 23, 4, 1, RRC, IYh, 1, E),   # FDCB..0B RRC (IY+d),E
-            partial(self.rotate, r, m, 23, 4, 1, RRC, IYh, 1, H),   # FDCB..0C RRC (IY+d),H
-            partial(self.rotate, r, m, 23, 4, 1, RRC, IYh, 1, L),   # FDCB..0D RRC (IY+d),L
-            partial(self.rotate, r, m, 23, 4, 1, RRC, IYh, 1),      # FDCB..0E RRC (IY+d)
-            partial(self.rotate, r, m, 23, 4, 1, RRC, IYh, 1, A),   # FDCB..0F RRC (IY+d),A
-            partial(self.rotate, r, m, 23, 4, 128, RL, IYh, 0, B),  # FDCB..10 RL (IY+d),B
-            partial(self.rotate, r, m, 23, 4, 128, RL, IYh, 0, C),  # FDCB..11 RL (IY+d),C
-            partial(self.rotate, r, m, 23, 4, 128, RL, IYh, 0, D),  # FDCB..12 RL (IY+d),D
-            partial(self.rotate, r, m, 23, 4, 128, RL, IYh, 0, E),  # FDCB..13 RL (IY+d),E
-            partial(self.rotate, r, m, 23, 4, 128, RL, IYh, 0, H),  # FDCB..14 RL (IY+d),H
-            partial(self.rotate, r, m, 23, 4, 128, RL, IYh, 0, L),  # FDCB..15 RL (IY+d),L
-            partial(self.rotate, r, m, 23, 4, 128, RL, IYh),        # FDCB..16 RL (IY+d)
-            partial(self.rotate, r, m, 23, 4, 128, RL, IYh, 0, A),  # FDCB..17 RL (IY+d),A
-            partial(self.rotate, r, m, 23, 4, 1, RR, IYh, 0, B),    # FDCB..18 RR (IY+d),B
-            partial(self.rotate, r, m, 23, 4, 1, RR, IYh, 0, C),    # FDCB..19 RR (IY+d),C
-            partial(self.rotate, r, m, 23, 4, 1, RR, IYh, 0, D),    # FDCB..1A RR (IY+d),D
-            partial(self.rotate, r, m, 23, 4, 1, RR, IYh, 0, E),    # FDCB..1B RR (IY+d),E
-            partial(self.rotate, r, m, 23, 4, 1, RR, IYh, 0, H),    # FDCB..1C RR (IY+d),H
-            partial(self.rotate, r, m, 23, 4, 1, RR, IYh, 0, L),    # FDCB..1D RR (IY+d),L
-            partial(self.rotate, r, m, 23, 4, 1, RR, IYh),          # FDCB..1E RR (IY+d)
-            partial(self.rotate, r, m, 23, 4, 1, RR, IYh, 0, A),    # FDCB..1F RR (IY+d),A
-            partial(self.shift, r, m, 23, 4, SLA, 128, IYh, B),     # FDCB..20 SLA (IY+d),B
-            partial(self.shift, r, m, 23, 4, SLA, 128, IYh, C),     # FDCB..21 SLA (IY+d),C
-            partial(self.shift, r, m, 23, 4, SLA, 128, IYh, D),     # FDCB..22 SLA (IY+d),D
-            partial(self.shift, r, m, 23, 4, SLA, 128, IYh, E),     # FDCB..23 SLA (IY+d),E
-            partial(self.shift, r, m, 23, 4, SLA, 128, IYh, H),     # FDCB..24 SLA (IY+d),H
-            partial(self.shift, r, m, 23, 4, SLA, 128, IYh, L),     # FDCB..25 SLA (IY+d),L
-            partial(self.shift, r, m, 23, 4, SLA, 128, IYh),        # FDCB..26 SLA (IY+d)
-            partial(self.shift, r, m, 23, 4, SLA, 128, IYh, A),     # FDCB..27 SLA (IY+d),A
-            partial(self.shift, r, m, 23, 4, SRA, 1, IYh, B),       # FDCB..28 SRA (IY+d),B
-            partial(self.shift, r, m, 23, 4, SRA, 1, IYh, C),       # FDCB..29 SRA (IY+d),C
-            partial(self.shift, r, m, 23, 4, SRA, 1, IYh, D),       # FDCB..2A SRA (IY+d),D
-            partial(self.shift, r, m, 23, 4, SRA, 1, IYh, E),       # FDCB..2B SRA (IY+d),E
-            partial(self.shift, r, m, 23, 4, SRA, 1, IYh, H),       # FDCB..2C SRA (IY+d),H
-            partial(self.shift, r, m, 23, 4, SRA, 1, IYh, L),       # FDCB..2D SRA (IY+d),L
-            partial(self.shift, r, m, 23, 4, SRA, 1, IYh),          # FDCB..2E SRA (IY+d)
-            partial(self.shift, r, m, 23, 4, SRA, 1, IYh, A),       # FDCB..2F SRA (IY+d),A
-            partial(self.shift, r, m, 23, 4, SLL, 128, IYh, B),     # FDCB..30 SLL (IY+d),B
-            partial(self.shift, r, m, 23, 4, SLL, 128, IYh, C),     # FDCB..31 SLL (IY+d),C
-            partial(self.shift, r, m, 23, 4, SLL, 128, IYh, D),     # FDCB..32 SLL (IY+d),D
-            partial(self.shift, r, m, 23, 4, SLL, 128, IYh, E),     # FDCB..33 SLL (IY+d),E
-            partial(self.shift, r, m, 23, 4, SLL, 128, IYh, H),     # FDCB..34 SLL (IY+d),H
-            partial(self.shift, r, m, 23, 4, SLL, 128, IYh, L),     # FDCB..35 SLL (IY+d),L
-            partial(self.shift, r, m, 23, 4, SLL, 128, IYh),        # FDCB..36 SLL (IY+d)
-            partial(self.shift, r, m, 23, 4, SLL, 128, IYh, A),     # FDCB..37 SLL (IY+d),A
-            partial(self.shift, r, m, 23, 4, SRL, 1, IYh, B),       # FDCB..38 SRL (IY+d),B
-            partial(self.shift, r, m, 23, 4, SRL, 1, IYh, C),       # FDCB..39 SRL (IY+d),C
-            partial(self.shift, r, m, 23, 4, SRL, 1, IYh, D),       # FDCB..3A SRL (IY+d),D
-            partial(self.shift, r, m, 23, 4, SRL, 1, IYh, E),       # FDCB..3B SRL (IY+d),E
-            partial(self.shift, r, m, 23, 4, SRL, 1, IYh, H),       # FDCB..3C SRL (IY+d),H
-            partial(self.shift, r, m, 23, 4, SRL, 1, IYh, L),       # FDCB..3D SRL (IY+d),L
-            partial(self.shift, r, m, 23, 4, SRL, 1, IYh),          # FDCB..3E SRL (IY+d)
-            partial(self.shift, r, m, 23, 4, SRL, 1, IYh, A),       # FDCB..3F SRL (IY+d),A
+            partial(self.f_xy, r, m, RLC, IYh, B),                  # FDCB..00 RLC (IY+d),B
+            partial(self.f_xy, r, m, RLC, IYh, C),                  # FDCB..01 RLC (IY+d),C
+            partial(self.f_xy, r, m, RLC, IYh, D),                  # FDCB..02 RLC (IY+d),D
+            partial(self.f_xy, r, m, RLC, IYh, E),                  # FDCB..03 RLC (IY+d),E
+            partial(self.f_xy, r, m, RLC, IYh, H),                  # FDCB..04 RLC (IY+d),H
+            partial(self.f_xy, r, m, RLC, IYh, L),                  # FDCB..05 RLC (IY+d),L
+            partial(self.f_xy, r, m, RLC, IYh),                     # FDCB..06 RLC (IY+d)
+            partial(self.f_xy, r, m, RLC, IYh, A),                  # FDCB..07 RLC (IY+d),A
+            partial(self.f_xy, r, m, RRC, IYh, B),                  # FDCB..08 RRC (IY+d),B
+            partial(self.f_xy, r, m, RRC, IYh, C),                  # FDCB..09 RRC (IY+d),C
+            partial(self.f_xy, r, m, RRC, IYh, D),                  # FDCB..0A RRC (IY+d),D
+            partial(self.f_xy, r, m, RRC, IYh, E),                  # FDCB..0B RRC (IY+d),E
+            partial(self.f_xy, r, m, RRC, IYh, H),                  # FDCB..0C RRC (IY+d),H
+            partial(self.f_xy, r, m, RRC, IYh, L),                  # FDCB..0D RRC (IY+d),L
+            partial(self.f_xy, r, m, RRC, IYh),                     # FDCB..0E RRC (IY+d)
+            partial(self.f_xy, r, m, RRC, IYh, A),                  # FDCB..0F RRC (IY+d),A
+            partial(self.fc_xy, r, m, 4, RL, IYh, B),               # FDCB..10 RL (IY+d),B
+            partial(self.fc_xy, r, m, 4, RL, IYh, C),               # FDCB..11 RL (IY+d),C
+            partial(self.fc_xy, r, m, 4, RL, IYh, D),               # FDCB..12 RL (IY+d),D
+            partial(self.fc_xy, r, m, 4, RL, IYh, E),               # FDCB..13 RL (IY+d),E
+            partial(self.fc_xy, r, m, 4, RL, IYh, H),               # FDCB..14 RL (IY+d),H
+            partial(self.fc_xy, r, m, 4, RL, IYh, L),               # FDCB..15 RL (IY+d),L
+            partial(self.fc_xy, r, m, 4, RL, IYh),                  # FDCB..16 RL (IY+d)
+            partial(self.fc_xy, r, m, 4, RL, IYh, A),               # FDCB..17 RL (IY+d),A
+            partial(self.fc_xy, r, m, 4, RR, IYh, B),               # FDCB..18 RR (IY+d),B
+            partial(self.fc_xy, r, m, 4, RR, IYh, C),               # FDCB..19 RR (IY+d),C
+            partial(self.fc_xy, r, m, 4, RR, IYh, D),               # FDCB..1A RR (IY+d),D
+            partial(self.fc_xy, r, m, 4, RR, IYh, E),               # FDCB..1B RR (IY+d),E
+            partial(self.fc_xy, r, m, 4, RR, IYh, H),               # FDCB..1C RR (IY+d),H
+            partial(self.fc_xy, r, m, 4, RR, IYh, L),               # FDCB..1D RR (IY+d),L
+            partial(self.fc_xy, r, m, 4, RR, IYh),                  # FDCB..1E RR (IY+d)
+            partial(self.fc_xy, r, m, 4, RR, IYh, A),               # FDCB..1F RR (IY+d),A
+            partial(self.f_xy, r, m, SLA, IYh, B),                  # FDCB..20 SLA (IY+d),B
+            partial(self.f_xy, r, m, SLA, IYh, C),                  # FDCB..21 SLA (IY+d),C
+            partial(self.f_xy, r, m, SLA, IYh, D),                  # FDCB..22 SLA (IY+d),D
+            partial(self.f_xy, r, m, SLA, IYh, E),                  # FDCB..23 SLA (IY+d),E
+            partial(self.f_xy, r, m, SLA, IYh, H),                  # FDCB..24 SLA (IY+d),H
+            partial(self.f_xy, r, m, SLA, IYh, L),                  # FDCB..25 SLA (IY+d),L
+            partial(self.f_xy, r, m, SLA, IYh),                     # FDCB..26 SLA (IY+d)
+            partial(self.f_xy, r, m, SLA, IYh, A),                  # FDCB..27 SLA (IY+d),A
+            partial(self.f_xy, r, m, SRA, IYh, B),                  # FDCB..28 SRA (IY+d),B
+            partial(self.f_xy, r, m, SRA, IYh, C),                  # FDCB..29 SRA (IY+d),C
+            partial(self.f_xy, r, m, SRA, IYh, D),                  # FDCB..2A SRA (IY+d),D
+            partial(self.f_xy, r, m, SRA, IYh, E),                  # FDCB..2B SRA (IY+d),E
+            partial(self.f_xy, r, m, SRA, IYh, H),                  # FDCB..2C SRA (IY+d),H
+            partial(self.f_xy, r, m, SRA, IYh, L),                  # FDCB..2D SRA (IY+d),L
+            partial(self.f_xy, r, m, SRA, IYh),                     # FDCB..2E SRA (IY+d)
+            partial(self.f_xy, r, m, SRA, IYh, A),                  # FDCB..2F SRA (IY+d),A
+            partial(self.f_xy, r, m, SLL, IYh, B),                  # FDCB..30 SLL (IY+d),B
+            partial(self.f_xy, r, m, SLL, IYh, C),                  # FDCB..31 SLL (IY+d),C
+            partial(self.f_xy, r, m, SLL, IYh, D),                  # FDCB..32 SLL (IY+d),D
+            partial(self.f_xy, r, m, SLL, IYh, E),                  # FDCB..33 SLL (IY+d),E
+            partial(self.f_xy, r, m, SLL, IYh, H),                  # FDCB..34 SLL (IY+d),H
+            partial(self.f_xy, r, m, SLL, IYh, L),                  # FDCB..35 SLL (IY+d),L
+            partial(self.f_xy, r, m, SLL, IYh),                     # FDCB..36 SLL (IY+d)
+            partial(self.f_xy, r, m, SLL, IYh, A),                  # FDCB..37 SLL (IY+d),A
+            partial(self.f_xy, r, m, SRL, IYh, B),                  # FDCB..38 SRL (IY+d),B
+            partial(self.f_xy, r, m, SRL, IYh, C),                  # FDCB..39 SRL (IY+d),C
+            partial(self.f_xy, r, m, SRL, IYh, D),                  # FDCB..3A SRL (IY+d),D
+            partial(self.f_xy, r, m, SRL, IYh, E),                  # FDCB..3B SRL (IY+d),E
+            partial(self.f_xy, r, m, SRL, IYh, H),                  # FDCB..3C SRL (IY+d),H
+            partial(self.f_xy, r, m, SRL, IYh, L),                  # FDCB..3D SRL (IY+d),L
+            partial(self.f_xy, r, m, SRL, IYh),                     # FDCB..3E SRL (IY+d)
+            partial(self.f_xy, r, m, SRL, IYh, A),                  # FDCB..3F SRL (IY+d),A
             partial(self.bit, r, m, 20, 4, 1, IYh),                 # FDCB..40 BIT 0,(IY+d)
             partial(self.bit, r, m, 20, 4, 1, IYh),                 # FDCB..41 BIT 0,(IY+d)
             partial(self.bit, r, m, 20, 4, 1, IYh),                 # FDCB..42 BIT 0,(IY+d)
@@ -1784,70 +1802,70 @@ class Simulator:
         ]
 
         self.after_CB = [
-            partial(self.rotate_r, r, 128, RLC, B, 1),              # CB00 RLC B
-            partial(self.rotate_r, r, 128, RLC, C, 1),              # CB01 RLC C
-            partial(self.rotate_r, r, 128, RLC, D, 1),              # CB02 RLC D
-            partial(self.rotate_r, r, 128, RLC, E, 1),              # CB03 RLC E
-            partial(self.rotate_r, r, 128, RLC, H, 1),              # CB04 RLC H
-            partial(self.rotate_r, r, 128, RLC, L, 1),              # CB05 RLC L
-            partial(self.rotate, r, m, 15, 2, 128, RLC, H, 1),      # CB06 RLC (HL)
-            partial(self.rotate_r, r, 128, RLC, A, 1),              # CB07 RLC A
-            partial(self.rotate_r, r, 1, RRC, B, 1),                # CB08 RRC B
-            partial(self.rotate_r, r, 1, RRC, C, 1),                # CB09 RRC C
-            partial(self.rotate_r, r, 1, RRC, D, 1),                # CB0A RRC D
-            partial(self.rotate_r, r, 1, RRC, E, 1),                # CB0B RRC E
-            partial(self.rotate_r, r, 1, RRC, H, 1),                # CB0C RRC H
-            partial(self.rotate_r, r, 1, RRC, L, 1),                # CB0D RRC L
-            partial(self.rotate, r, m, 15, 2, 1, RRC, H, 1),        # CB0E RRC (HL)
-            partial(self.rotate_r, r, 1, RRC, A, 1),                # CB0F RRC A
-            partial(self.rotate_r, r, 128, RL, B),                  # CB10 RL B
-            partial(self.rotate_r, r, 128, RL, C),                  # CB11 RL C
-            partial(self.rotate_r, r, 128, RL, D),                  # CB12 RL D
-            partial(self.rotate_r, r, 128, RL, E),                  # CB13 RL E
-            partial(self.rotate_r, r, 128, RL, H),                  # CB14 RL H
-            partial(self.rotate_r, r, 128, RL, L),                  # CB15 RL L
-            partial(self.rotate, r, m, 15, 2, 128, RL, H),          # CB16 RL (HL)
-            partial(self.rotate_r, r, 128, RL, A),                  # CB17 RL A
-            partial(self.rotate_r, r, 1, RR, B),                    # CB18 RR B
-            partial(self.rotate_r, r, 1, RR, C),                    # CB19 RR C
-            partial(self.rotate_r, r, 1, RR, D),                    # CB1A RR D
-            partial(self.rotate_r, r, 1, RR, E),                    # CB1B RR E
-            partial(self.rotate_r, r, 1, RR, H),                    # CB1C RR H
-            partial(self.rotate_r, r, 1, RR, L),                    # CB1D RR L
-            partial(self.rotate, r, m, 15, 2, 1, RR, H),            # CB1E RR (HL)
-            partial(self.rotate_r, r, 1, RR, A),                    # CB1F RR A
-            partial(self.shift, r, m, 8, 2, SLA, 128, B),           # CB20 SLA B
-            partial(self.shift, r, m, 8, 2, SLA, 128, C),           # CB21 SLA C
-            partial(self.shift, r, m, 8, 2, SLA, 128, D),           # CB22 SLA D
-            partial(self.shift, r, m, 8, 2, SLA, 128, E),           # CB23 SLA E
-            partial(self.shift, r, m, 8, 2, SLA, 128, H),           # CB24 SLA H
-            partial(self.shift, r, m, 8, 2, SLA, 128, L),           # CB25 SLA L
-            partial(self.shift, r, m, 15, 2, SLA, 128, Hd),         # CB26 SLA (HL)
-            partial(self.shift, r, m, 8, 2, SLA, 128, A),           # CB27 SLA A
-            partial(self.shift, r, m, 8, 2, SRA, 1, B),             # CB28 SRA B
-            partial(self.shift, r, m, 8, 2, SRA, 1, C),             # CB29 SRA C
-            partial(self.shift, r, m, 8, 2, SRA, 1, D),             # CB2A SRA D
-            partial(self.shift, r, m, 8, 2, SRA, 1, E),             # CB2B SRA E
-            partial(self.shift, r, m, 8, 2, SRA, 1, H),             # CB2C SRA H
-            partial(self.shift, r, m, 8, 2, SRA, 1, L),             # CB2D SRA L
-            partial(self.shift, r, m, 15, 2, SRA, 1, Hd),           # CB2E SRA (HL)
-            partial(self.shift, r, m, 8, 2, SRA, 1, A),             # CB2F SRA A
-            partial(self.shift, r, m, 8, 2, SLL, 128, B),           # CB30 SLL B
-            partial(self.shift, r, m, 8, 2, SLL, 128, C),           # CB31 SLL C
-            partial(self.shift, r, m, 8, 2, SLL, 128, D),           # CB32 SLL D
-            partial(self.shift, r, m, 8, 2, SLL, 128, E),           # CB33 SLL E
-            partial(self.shift, r, m, 8, 2, SLL, 128, H),           # CB34 SLL H
-            partial(self.shift, r, m, 8, 2, SLL, 128, L),           # CB35 SLL L
-            partial(self.shift, r, m, 15, 2, SLL, 128, Hd),         # CB36 SLL (HL)
-            partial(self.shift, r, m, 8, 2, SLL, 128, A),           # CB37 SLL A
-            partial(self.shift, r, m, 8, 2, SRL, 1, B),             # CB38 SRL B
-            partial(self.shift, r, m, 8, 2, SRL, 1, C),             # CB39 SRL C
-            partial(self.shift, r, m, 8, 2, SRL, 1, D),             # CB3A SRL D
-            partial(self.shift, r, m, 8, 2, SRL, 1, E),             # CB3B SRL E
-            partial(self.shift, r, m, 8, 2, SRL, 1, H),             # CB3C SRL H
-            partial(self.shift, r, m, 8, 2, SRL, 1, L),             # CB3D SRL L
-            partial(self.shift, r, m, 15, 2, SRL, 1, Hd),           # CB3E SRL (HL)
-            partial(self.shift, r, m, 8, 2, SRL, 1, A),             # CB3F SRL A
+            partial(self.f_r, r, RLC, B),                           # CB00 RLC B
+            partial(self.f_r, r, RLC, C),                           # CB01 RLC C
+            partial(self.f_r, r, RLC, D),                           # CB02 RLC D
+            partial(self.f_r, r, RLC, E),                           # CB03 RLC E
+            partial(self.f_r, r, RLC, H),                           # CB04 RLC H
+            partial(self.f_r, r, RLC, L),                           # CB05 RLC L
+            partial(self.f_hl, r, m, RLC),                          # CB06 RLC (HL)
+            partial(self.f_r, r, RLC, A),                           # CB07 RLC A
+            partial(self.f_r, r, RRC, B),                           # CB08 RRC B
+            partial(self.f_r, r, RRC, C),                           # CB09 RRC C
+            partial(self.f_r, r, RRC, D),                           # CB0A RRC D
+            partial(self.f_r, r, RRC, E),                           # CB0B RRC E
+            partial(self.f_r, r, RRC, H),                           # CB0C RRC H
+            partial(self.f_r, r, RRC, L),                           # CB0D RRC L
+            partial(self.f_hl, r, m, RRC),                          # CB0E RRC (HL)
+            partial(self.f_r, r, RRC, A),                           # CB0F RRC A
+            partial(self.fc_r, r, R2, 8, 2, RL, B),                 # CB10 RL B
+            partial(self.fc_r, r, R2, 8, 2, RL, C),                 # CB11 RL C
+            partial(self.fc_r, r, R2, 8, 2, RL, D),                 # CB12 RL D
+            partial(self.fc_r, r, R2, 8, 2, RL, E),                 # CB13 RL E
+            partial(self.fc_r, r, R2, 8, 2, RL, H),                 # CB14 RL H
+            partial(self.fc_r, r, R2, 8, 2, RL, L),                 # CB15 RL L
+            partial(self.fc_hl, r, m, R2, 15, 2, RL),               # CB16 RL (HL)
+            partial(self.fc_r, r, R2, 8, 2, RL, A),                 # CB17 RL A
+            partial(self.fc_r, r, R2, 8, 2, RR, B),                 # CB18 RR B
+            partial(self.fc_r, r, R2, 8, 2, RR, C),                 # CB19 RR C
+            partial(self.fc_r, r, R2, 8, 2, RR, D),                 # CB1A RR D
+            partial(self.fc_r, r, R2, 8, 2, RR, E),                 # CB1B RR E
+            partial(self.fc_r, r, R2, 8, 2, RR, H),                 # CB1C RR H
+            partial(self.fc_r, r, R2, 8, 2, RR, L),                 # CB1D RR L
+            partial(self.fc_hl, r, m, R2, 15, 2, RR),               # CB1E RR (HL)
+            partial(self.fc_r, r, R2, 8, 2, RR, A),                 # CB1F RR A
+            partial(self.f_r, r, SLA, B),                           # CB20 SLA B
+            partial(self.f_r, r, SLA, C),                           # CB21 SLA C
+            partial(self.f_r, r, SLA, D),                           # CB22 SLA D
+            partial(self.f_r, r, SLA, E),                           # CB23 SLA E
+            partial(self.f_r, r, SLA, H),                           # CB24 SLA H
+            partial(self.f_r, r, SLA, L),                           # CB25 SLA L
+            partial(self.f_hl, r, m, SLA),                          # CB26 SLA (HL)
+            partial(self.f_r, r, SLA, A),                           # CB27 SLA A
+            partial(self.f_r, r, SRA, B),                           # CB28 SRA B
+            partial(self.f_r, r, SRA, C),                           # CB29 SRA C
+            partial(self.f_r, r, SRA, D),                           # CB2A SRA D
+            partial(self.f_r, r, SRA, E),                           # CB2B SRA E
+            partial(self.f_r, r, SRA, H),                           # CB2C SRA H
+            partial(self.f_r, r, SRA, L),                           # CB2D SRA L
+            partial(self.f_hl, r, m, SRA),                          # CB2E SRA (HL)
+            partial(self.f_r, r, SRA, A),                           # CB2F SRA A
+            partial(self.f_r, r, SLL, B),                           # CB30 SLL B
+            partial(self.f_r, r, SLL, C),                           # CB31 SLL C
+            partial(self.f_r, r, SLL, D),                           # CB32 SLL D
+            partial(self.f_r, r, SLL, E),                           # CB33 SLL E
+            partial(self.f_r, r, SLL, H),                           # CB34 SLL H
+            partial(self.f_r, r, SLL, L),                           # CB35 SLL L
+            partial(self.f_hl, r, m, SLL),                          # CB36 SLL (HL)
+            partial(self.f_r, r, SLL, A),                           # CB37 SLL A
+            partial(self.f_r, r, SRL, B),                           # CB38 SRL B
+            partial(self.f_r, r, SRL, C),                           # CB39 SRL C
+            partial(self.f_r, r, SRL, D),                           # CB3A SRL D
+            partial(self.f_r, r, SRL, E),                           # CB3B SRL E
+            partial(self.f_r, r, SRL, H),                           # CB3C SRL H
+            partial(self.f_r, r, SRL, L),                           # CB3D SRL L
+            partial(self.f_hl, r, m, SRL),                          # CB3E SRL (HL)
+            partial(self.f_r, r, SRL, A),                           # CB3F SRL A
             partial(self.bit, r, m, 8, 2, 1, B),                    # CB40 BIT 0,B
             partial(self.bit, r, m, 8, 2, 1, C),                    # CB41 BIT 0,C
             partial(self.bit, r, m, 8, 2, 1, D),                    # CB42 BIT 0,D
@@ -2079,24 +2097,24 @@ class Simulator:
             partial(self.ld16, r, m, R2, 14, 4, IXh),               # DD21 LD IX,nn
             partial(self.ld16addr, r, m, R2, 20, 4, IXh, 1),        # DD22 LD (nn),IX
             partial(self.inc_dec16, r, R2, 10, 2, 1, IXh),          # DD23 INC IX
-            partial(self.inc_dec_r, r, R2, 8, 2, 1, INC, IXh),      # DD24 INC IXh
-            partial(self.inc_dec_r, r, R2, 8, 2, -1, DEC, IXh),     # DD25 DEC IXh
+            partial(self.fc_r, r, R2, 8, 2, INC, IXh),              # DD24 INC IXh
+            partial(self.fc_r, r, R2, 8, 2, DEC, IXh),              # DD25 DEC IXh
             partial(self.ld_r_n, r, m, R2, 11, 3, IXh),             # DD26 LD IXh,n
             partial(self.nop, r, R1, 4, 1),                         # DD27
             partial(self.nop, r, R1, 4, 1),                         # DD28
             partial(self.add16, r, R2, 15, 2, IXh, IXh),            # DD29 ADD IX,IX
             partial(self.ld16addr, r, m, R2, 20, 4, IXh, 0),        # DD2A LD IX,(nn)
             partial(self.inc_dec16, r, R2, 10, 2, -1, IXh),         # DD2B DEC IX
-            partial(self.inc_dec_r, r, R2, 8, 2, 1, INC, IXl),      # DD2C INC IXl
-            partial(self.inc_dec_r, r, R2, 8, 2, -1, DEC, IXl),     # DD2D DEC IXl
+            partial(self.fc_r, r, R2, 8, 2, INC, IXl),              # DD2C INC IXl
+            partial(self.fc_r, r, R2, 8, 2, DEC, IXl),              # DD2D DEC IXl
             partial(self.ld_r_n, r, m, R2, 11, 3, IXl),             # DD2E LD IXl,n
             partial(self.nop, r, R1, 4, 1),                         # DD2F
             partial(self.nop, r, R1, 4, 1),                         # DD30
             partial(self.nop, r, R1, 4, 1),                         # DD31
             partial(self.nop, r, R1, 4, 1),                         # DD32
             partial(self.nop, r, R1, 4, 1),                         # DD33
-            partial(self.inc_dec_m, r, m, R2, 23, 3, 1, INC, IXh),  # DD34 INC (IX+d)
-            partial(self.inc_dec_m, r, m, R2, 23, 3, -1, DEC, IXh), # DD35 DEC (IX+d)
+            partial(self.fc_xy, r, m, 3, INC, IXh),                 # DD34 INC (IX+d)
+            partial(self.fc_xy, r, m, 3, DEC, IXh),                 # DD35 DEC (IX+d)
             partial(self.ld_xy, r, m, 4, IXh, N),                   # DD36 LD (IX+d),n
             partial(self.nop, r, R1, 4, 1),                         # DD37
             partial(self.nop, r, R1, 4, 1),                         # DD38
@@ -2597,24 +2615,24 @@ class Simulator:
             partial(self.ld16, r, m, R2, 14, 4, IYh),               # FD21 LD IY,nn
             partial(self.ld16addr, r, m, R2, 20, 4, IYh, 1),        # FD22 LD (nn),IY
             partial(self.inc_dec16, r, R2, 10, 2, 1, IYh),          # FD23 INC IY
-            partial(self.inc_dec_r, r, R2, 8, 2, 1, INC, IYh),      # FD24 INC IYh
-            partial(self.inc_dec_r, r, R2, 8, 2, -1, DEC, IYh),     # FD25 DEC IYh
+            partial(self.fc_r, r, R2, 8, 2, INC, IYh),              # FD24 INC IYh
+            partial(self.fc_r, r, R2, 8, 2, DEC, IYh),              # FD25 DEC IYh
             partial(self.ld_r_n, r, m, R2, 11, 3, IYh),             # FD26 LD IYh,n
             partial(self.nop, r, R1, 4, 1),                         # FD27
             partial(self.nop, r, R1, 4, 1),                         # FD28
             partial(self.add16, r, R2, 15, 2, IYh, IYh),            # FD29 ADD IY,IY
             partial(self.ld16addr, r, m, R2, 20, 4, IYh, 0),        # FD2A LD IY,(nn)
             partial(self.inc_dec16, r, R2, 10, 2, -1, IYh),         # FD2B DEC IY
-            partial(self.inc_dec_r, r, R2, 8, 2, 1, INC, IYl),      # FD2C INC IYl
-            partial(self.inc_dec_r, r, R2, 8, 2, -1, DEC, IYl),     # FD2D DEC IYl
+            partial(self.fc_r, r, R2, 8, 2, INC, IYl),              # FD2C INC IYl
+            partial(self.fc_r, r, R2, 8, 2, DEC, IYl),              # FD2D DEC IYl
             partial(self.ld_r_n, r, m, R2, 11, 3, IYl),             # FD2E LD IYl,n
             partial(self.nop, r, R1, 4, 1),                         # FD2F
             partial(self.nop, r, R1, 4, 1),                         # FD30
             partial(self.nop, r, R1, 4, 1),                         # FD31
             partial(self.nop, r, R1, 4, 1),                         # FD32
             partial(self.nop, r, R1, 4, 1),                         # FD33
-            partial(self.inc_dec_m, r, m, R2, 23, 3, 1, INC, IYh),  # FD34 INC (IY+d)
-            partial(self.inc_dec_m, r, m, R2, 23, 3, -1, DEC, IYh), # FD35 DEC (IY+d)
+            partial(self.fc_xy, r, m, 3, INC, IYh),                 # FD34 INC (IY+d)
+            partial(self.fc_xy, r, m, 3, DEC, IYh),                 # FD35 DEC (IY+d)
             partial(self.ld_xy, r, m, 4, IYh, N),                   # FD36 LD (IY+d),n
             partial(self.nop, r, R1, 4, 1),                         # FD37
             partial(self.nop, r, R1, 4, 1),                         # FD38
@@ -2824,64 +2842,64 @@ class Simulator:
             partial(self.ld16, r, m, R1, 10, 3, B),                 # 01 LD BC,nn
             partial(self.ld_rr_r, r, m, B, A),                      # 02 LD (BC),A
             partial(self.inc_dec16, r, R1, 6, 1, 1, B),             # 03 INC BC
-            partial(self.inc_dec_r, r, R1, 4, 1, 1, INC, B),        # 04 INC B
-            partial(self.inc_dec_r, r, R1, 4, 1, -1, DEC, B),       # 05 DEC B
+            partial(self.fc_r, r, R1, 4, 1, INC, B),                # 04 INC B
+            partial(self.fc_r, r, R1, 4, 1, DEC, B),                # 05 DEC B
             partial(self.ld_r_n, r, m, R1, 7, 2, B),                # 06 LD B,n
             partial(self.af_r, r, R1, 4, 1, RLCA, F),               # 07 RLCA
             partial(self.ex_af, r),                                 # 08 EX AF,AF'
             partial(self.add16, r, R1, 11, 1, H, B),                # 09 ADD HL,BC
             partial(self.ld_r_rr, r, m, A, B),                      # 0A LD A,(BC)
             partial(self.inc_dec16, r, R1, 6, 1, -1, B),            # 0B DEC BC
-            partial(self.inc_dec_r, r, R1, 4, 1, 1, INC, C),        # 0C INC C
-            partial(self.inc_dec_r, r, R1, 4, 1, -1, DEC, C),       # 0D DEC C
+            partial(self.fc_r, r, R1, 4, 1, INC, C),                # 0C INC C
+            partial(self.fc_r, r, R1, 4, 1, DEC, C),                # 0D DEC C
             partial(self.ld_r_n, r, m, R1, 7, 2, C),                # 0E LD C,n
             partial(self.af_r, r, R1, 4, 1, RRCA, F),               # 0F RRCA
             partial(self.djnz, r, m),                               # 10 DJNZ nn
             partial(self.ld16, r, m, R1, 10, 3, D),                 # 11 LD DE,nn
             partial(self.ld_rr_r, r, m, D, A),                      # 12 LD (DE),A
             partial(self.inc_dec16, r, R1, 6, 1, 1, D),             # 13 INC DE
-            partial(self.inc_dec_r, r, R1, 4, 1, 1, INC, D),        # 14 INC D
-            partial(self.inc_dec_r, r, R1, 4, 1, -1, DEC, D),       # 15 DEC D
+            partial(self.fc_r, r, R1, 4, 1, INC, D),                # 14 INC D
+            partial(self.fc_r, r, R1, 4, 1, DEC, D),                # 15 DEC D
             partial(self.ld_r_n, r, m, R1, 7, 2, D),                # 16 LD D,n
             partial(self.af_r, r, R1, 4, 1, RLA, F),                # 17 RLA
             partial(self.jr, r, m, 0, 0),                           # 18 JR nn
             partial(self.add16, r, R1, 11, 1, H, D),                # 19 ADD HL,DE
             partial(self.ld_r_rr, r, m, A, D),                      # 1A LD A,(DE)
             partial(self.inc_dec16, r, R1, 6, 1, -1, D),            # 1B DEC DE
-            partial(self.inc_dec_r, r, R1, 4, 1, 1, INC, E),        # 1C INC E
-            partial(self.inc_dec_r, r, R1, 4, 1, -1, DEC, E),       # 1D DEC E
+            partial(self.fc_r, r, R1, 4, 1, INC, E),                # 1C INC E
+            partial(self.fc_r, r, R1, 4, 1, DEC, E),                # 1D DEC E
             partial(self.ld_r_n, r, m, R1, 7, 2, E),                # 1E LD E,n
             partial(self.af_r, r, R1, 4, 1, RRA, F),                # 1F RRA
             partial(self.jr, r, m, 64, 0),                          # 20 JR NZ,nn
             partial(self.ld16, r, m, R1, 10, 3, H),                 # 21 LD HL,nn
             partial(self.ld16addr, r, m, R1, 16, 3, H, 1),          # 22 LD (nn),HL
             partial(self.inc_dec16, r, R1, 6, 1, 1, H),             # 23 INC HL
-            partial(self.inc_dec_r, r, R1, 4, 1, 1, INC, H),        # 24 INC H
-            partial(self.inc_dec_r, r, R1, 4, 1, -1, DEC, H),       # 25 DEC H
+            partial(self.fc_r, r, R1, 4, 1, INC, H),                # 24 INC H
+            partial(self.fc_r, r, R1, 4, 1, DEC, H),                # 25 DEC H
             partial(self.ld_r_n, r, m, R1, 7, 2, H),                # 26 LD H,n
             partial(self.daa, r),                                   # 27 DAA
             partial(self.jr, r, m, 64, 64),                         # 28 JR Z,nn
             partial(self.add16, r, R1, 11, 1, H, H),                # 29 ADD HL,HL
             partial(self.ld16addr, r, m, R1, 16, 3, H, 0),          # 2A LD HL,(nn)
             partial(self.inc_dec16, r, R1, 6, 1, -1, H),            # 2B DEC HL
-            partial(self.inc_dec_r, r, R1, 4, 1, 1, INC, L),        # 2C INC L
-            partial(self.inc_dec_r, r, R1, 4, 1, -1, DEC, L),       # 2D DEC L
+            partial(self.fc_r, r, R1, 4, 1, INC, L),                # 2C INC L
+            partial(self.fc_r, r, R1, 4, 1, DEC, L),                # 2D DEC L
             partial(self.ld_r_n, r, m, R1, 7, 2, L),                # 2E LD L,n
             partial(self.cpl, r),                                   # 2F CPL
             partial(self.jr, r, m, 1, 0),                           # 30 JR NC,nn
             partial(self.ld16, r, m, R1, 10, 3, SP),                # 31 LD SP,nn
             partial(self.ldann, r, m, 1),                           # 32 LD (nn),A
             partial(self.inc_dec16, r, R1, 6, 1, 1, SP),            # 33 INC SP
-            partial(self.inc_dec_m, r, m, R1, 11, 1, 1, INC, H),    # 34 INC (HL)
-            partial(self.inc_dec_m, r, m, R1, 11, 1, -1, DEC, H),   # 35 DEC (HL)
+            partial(self.fc_hl, r, m, R1, 11, 1, INC),              # 34 INC (HL)
+            partial(self.fc_hl, r, m, R1, 11, 1, DEC),              # 35 DEC (HL)
             partial(self.ld_hl_n, r, m),                            # 36 LD (HL),n
             partial(self.cf, r, 0),                                 # 37 SCF
             partial(self.jr, r, m, 1, 1),                           # 38 JR C,nn
             partial(self.add16, r, R1, 11, 1, H, SP),               # 39 ADD HL,SP
             partial(self.ldann, r, m, 0),                           # 3A LD A,(nn)
             partial(self.inc_dec16, r, R1, 6, 1, -1, SP),           # 3B DEC SP
-            partial(self.inc_dec_r, r, R1, 4, 1, 1, INC, A),        # 3C INC A
-            partial(self.inc_dec_r, r, R1, 4, 1, -1, DEC, A),       # 3D DEC A
+            partial(self.fc_r, r, R1, 4, 1, INC, A),                # 3C INC A
+            partial(self.fc_r, r, R1, 4, 1, DEC, A),                # 3D DEC A
             partial(self.ld_r_n, r, m, R1, 7, 2, A),                # 3E LD A,n
             partial(self.cf, r, 1),                                 # 3F CCF
             partial(self.nop, r, R1, 4, 1),                         # 40 LD B,B
