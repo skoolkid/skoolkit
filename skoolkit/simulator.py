@@ -48,6 +48,15 @@ ADD = ADC[0]
 
 AND = tuple(tuple((a & n, SZ53P[a & n] + 0x10) for n in range(256)) for a in range(256))
 
+CCF = tuple(tuple((
+            (f & 0xC4)           # SZ...PN.
+            + (a & 0x28)         # ..5.3...
+            + (f & 0x01) * 0x10  # ...H....
+            + (f & 0x01) ^ 0x01  # .......C
+        ) for a in range(256)
+    ) for f in range(256)
+)
+
 CP = tuple(tuple((
             a,
             ((a - n) & 0x80)                          # S.......
@@ -208,6 +217,14 @@ SBC = tuple(tuple(tuple((
 )
 
 SBC_A_A = (((0x00, 0x42), (0xFF, 0xBB)) * 128,) * 256
+
+SCF = tuple(tuple((
+            (f & 0xC4)    # SZ.H.PN.
+            + (a & 0x28)  # ..5.3...
+            + 0x01        # .......C
+        ) for a in range(256)
+    ) for f in range(256)
+)
 
 SLA = RL[0]
 
@@ -607,12 +624,8 @@ class Simulator:
             registers[24] = memory[(pc + 1) % 65536] + 256 * memory[(pc + 2) % 65536]
         registers[15] = R1[registers[15]]
 
-    def cf(self, registers, flip):
-        f = registers[1] & 0xC4 # SZ...PN.
-        if flip and registers[1] % 2:
-            registers[1] = f + (registers[0] & 0x28) + 0x10
-        else:
-            registers[1] = f + (registers[0] & 0x28) + 0x01
+    def cf(self, registers, cf):
+        registers[1] = cf[registers[1]][registers[0]]
         registers[15] = R1[registers[15]]
         registers[25] += 4
         registers[24] = (registers[24] + 1) % 65536
@@ -2872,7 +2885,7 @@ class Simulator:
             partial(self.fc_hl, r, m, R1, 11, 1, INC),              # 34 INC (HL)
             partial(self.fc_hl, r, m, R1, 11, 1, DEC),              # 35 DEC (HL)
             partial(self.ld_hl_n, r, m),                            # 36 LD (HL),n
-            partial(self.cf, r, 0),                                 # 37 SCF
+            partial(self.cf, r, SCF),                               # 37 SCF
             partial(self.jr, r, m, 1, 1),                           # 38 JR C,nn
             partial(self.add16, r, R1, 11, 1, H, SP),               # 39 ADD HL,SP
             partial(self.ldann, r, m, 0),                           # 3A LD A,(nn)
@@ -2880,7 +2893,7 @@ class Simulator:
             partial(self.fc_r, r, R1, 4, 1, INC, A),                # 3C INC A
             partial(self.fc_r, r, R1, 4, 1, DEC, A),                # 3D DEC A
             partial(self.ld_r_n, r, m, R1, 7, 2, A),                # 3E LD A,n
-            partial(self.cf, r, 1),                                 # 3F CCF
+            partial(self.cf, r, CCF),                               # 3F CCF
             partial(self.nop, r, R1, 4, 1),                         # 40 LD B,B
             partial(self.ld_r_r, r, R1, 4, 1, B, C),                # 41 LD B,C
             partial(self.ld_r_r, r, R1, 4, 1, B, D),                # 42 LD B,D
