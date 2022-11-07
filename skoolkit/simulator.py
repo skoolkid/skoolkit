@@ -114,6 +114,42 @@ RR = (
 
 RRC = tuple(((r * 128) % 256) + r // 2 for r in range(256))
 
+RLA = tuple(tuple((
+            RL[f % 2][a],
+            (f & 0xC4)               # SZ.H.PN.
+            + (RL[f % 2][a] & 0x28)  # ..5.3...
+            + (a & 0x80) // 0x80     # .......C
+        ) for f in range(256)
+    ) for a in range(256)
+)
+
+RLCA = tuple(tuple((
+            RLC[a],
+            (f & 0xC4)            # SZ.H.PN.
+            + (RLC[a] & 0x28)     # ..5.3...
+            + (a & 0x80) // 0x80  # .......C
+        ) for f in range(256)
+    ) for a in range(256)
+)
+
+RRA = tuple(tuple((
+            RR[f % 2][a],
+            (f & 0xC4)               # SZ.H.PN.
+            + (RR[f % 2][a] & 0x28)  # ..5.3...
+            + (a & 0x01)             # .......C
+        ) for f in range(256)
+    ) for a in range(256)
+)
+
+RRCA = tuple(tuple((
+            RRC[a],
+            (f & 0xC4)         # SZ.H.PN.
+            + (RRC[a] & 0x28)  # ..5.3...
+            + (a & 0x01)       # .......C
+        ) for f in range(256)
+    ) for a in range(256)
+)
+
 SBC = tuple(tuple(tuple((
                 (a - n - c) % 256,
                 ((a - n - c) & 0xA8)                          # S.5.3...
@@ -381,14 +417,14 @@ class Simulator:
         registers[24] = (registers[24] + size) % 65536
 
     def af_hl(self, registers, memory, af):
-        # ADD A,(HL) / CP (HL) / SUB (HL)
+        # ADD A,(HL) / AND (HL) / CP (HL) / OR (HL) / SUB (HL) / XOR (HL)
         registers[:2] = af[registers[0]][memory[registers[7] + 256 * registers[6]]]
         registers[15] = R1[registers[15]]
         registers[25] += 7
         registers[24] = (registers[24] + 1) % 65536
 
     def af_n(self, registers, memory, af):
-        # ADD A,n / CP n / SUB n
+        # ADD A,n / AND n / CP n / OR n / SUB n / XOR n
         pcn = registers[24] + 1
         registers[:2] = af[registers[0]][memory[pcn % 65536]]
         registers[15] = R1[registers[15]]
@@ -396,14 +432,16 @@ class Simulator:
         registers[24] = (pcn + 1) % 65536
 
     def af_r(self, registers, r_inc, timing, size, af, r):
-        # ADD A,r / CP r / SUB r
+        # ADD A,r / AND r / CP r / OR r / SUB r / XOR r
+        # RLA / RLCA / RRA / RRCA
         registers[:2] = af[registers[0]][registers[r]]
         registers[15] = r_inc[registers[15]]
         registers[25] += timing
         registers[24] = (registers[24] + size) % 65536
 
     def af_xy(self, registers, memory, af, xy):
-        # ADD A,(IX/Y+d) / CP (IX/Y+d) / SUB (IX/Y+d)
+        # ADD A,(IX/Y+d) / AND (IX/Y+d) / CP (IX/Y+d) / # OR (IX/Y+d)
+        # SUB (IX/Y+d) / XOR (IX/Y+d)
         pcn = registers[24] + 3
         registers[:2] = af[registers[0]][memory[(registers[xy + 1] + 256 * registers[xy] + OFFSETS[memory[(pcn - 1) % 65536]]) % 65536]]
         registers[15] = R2[registers[15]]
@@ -1109,22 +1147,6 @@ class Simulator:
         registers[15] = R2[registers[15]]
         registers[25] += 18
         registers[24] = (registers[24] + 2) % 65536
-
-    def rotate_a(self, registers, cbit, rotate, circular=0):
-        a = registers[0]
-        old_f = registers[1]
-        if circular:
-            value = rotate[a]
-        else:
-            value = rotate[old_f % 2][a]
-        registers[0] = value
-        if a & cbit:
-            registers[1] = (old_f & 0xC4) + (value & 0x28) + 0x01
-        else:
-            registers[1] = (old_f & 0xC4) + (value & 0x28)
-        registers[15] = R1[registers[15]]
-        registers[25] += 4
-        registers[24] = (registers[24] + 1) % 65536
 
     def rotate_r(self, registers, cbit, rotate, reg, circular=0):
         r = registers[reg]
@@ -2810,7 +2832,7 @@ class Simulator:
             partial(self.inc_dec_r, r, R1, 4, 1, 1, INC, B),        # 04 INC B
             partial(self.inc_dec_r, r, R1, 4, 1, -1, DEC, B),       # 05 DEC B
             partial(self.ld_r_n, r, m, R1, 7, 2, B),                # 06 LD B,n
-            partial(self.rotate_a, r, 128, RLC, 1),                 # 07 RLCA
+            partial(self.af_r, r, R1, 4, 1, RLCA, F),               # 07 RLCA
             partial(self.ex_af, r),                                 # 08 EX AF,AF'
             partial(self.add16, r, R1, 11, 1, H, B),                # 09 ADD HL,BC
             partial(self.ld_r_rr, r, m, A, B),                      # 0A LD A,(BC)
@@ -2818,7 +2840,7 @@ class Simulator:
             partial(self.inc_dec_r, r, R1, 4, 1, 1, INC, C),        # 0C INC C
             partial(self.inc_dec_r, r, R1, 4, 1, -1, DEC, C),       # 0D DEC C
             partial(self.ld_r_n, r, m, R1, 7, 2, C),                # 0E LD C,n
-            partial(self.rotate_a, r, 1, RRC, 1),                   # 0F RRCA
+            partial(self.af_r, r, R1, 4, 1, RRCA, F),               # 0F RRCA
             partial(self.djnz, r, m),                               # 10 DJNZ nn
             partial(self.ld16, r, m, R1, 10, 3, D),                 # 11 LD DE,nn
             partial(self.ld_rr_r, r, m, D, A),                      # 12 LD (DE),A
@@ -2826,7 +2848,7 @@ class Simulator:
             partial(self.inc_dec_r, r, R1, 4, 1, 1, INC, D),        # 14 INC D
             partial(self.inc_dec_r, r, R1, 4, 1, -1, DEC, D),       # 15 DEC D
             partial(self.ld_r_n, r, m, R1, 7, 2, D),                # 16 LD D,n
-            partial(self.rotate_a, r, 128, RL),                     # 17 RLA
+            partial(self.af_r, r, R1, 4, 1, RLA, F),                # 17 RLA
             partial(self.jr, r, m, 0, 0),                           # 18 JR nn
             partial(self.add16, r, R1, 11, 1, H, D),                # 19 ADD HL,DE
             partial(self.ld_r_rr, r, m, A, D),                      # 1A LD A,(DE)
@@ -2834,7 +2856,7 @@ class Simulator:
             partial(self.inc_dec_r, r, R1, 4, 1, 1, INC, E),        # 1C INC E
             partial(self.inc_dec_r, r, R1, 4, 1, -1, DEC, E),       # 1D DEC E
             partial(self.ld_r_n, r, m, R1, 7, 2, E),                # 1E LD E,n
-            partial(self.rotate_a, r, 1, RR),                       # 1F RRA
+            partial(self.af_r, r, R1, 4, 1, RRA, F),                # 1F RRA
             partial(self.jr, r, m, 64, 0),                          # 20 JR NZ,nn
             partial(self.ld16, r, m, R1, 10, 3, H),                 # 21 LD HL,nn
             partial(self.ld16addr, r, m, R1, 16, 3, H, 1),          # 22 LD (nn),HL
