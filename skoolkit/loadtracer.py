@@ -14,9 +14,11 @@
 # You should have received a copy of the GNU General Public License along with
 # SkoolKit. If not, see <http://www.gnu.org/licenses/>.
 
+from functools import partial
+
 from skoolkit import SkoolKitError, write, write_line
 from skoolkit.basic import TextReader
-from skoolkit.simulator import A, F, D, E, H, L, IXh, IXl, PC, T, R1
+from skoolkit.simulator import A, F, D, E, H, L, IXh, IXl, PC, T, R1, DEC
 
 SIM_TIMEOUT = 10 * 60 * 3500000 # 10 minutes of Z80 CPU time
 
@@ -81,6 +83,7 @@ class LoadTracer:
         opcodes = simulator.opcodes
         memory = simulator.memory
         registers = simulator.registers
+        opcodes[0x3D] = partial(self.dec_a, registers, memory)
         registers[24] = start
         pc = start
         progress = 0
@@ -132,6 +135,26 @@ class LoadTracer:
                 if tstates > SIM_TIMEOUT: # pragma: no cover
                     write_line(f'Simulation stopped (timed out): PC={pc}')
                     break
+
+    def dec_a(self, registers, memory):
+        # Speed up any
+        #   LD_DELAY: DEC A
+        #             JR NZ,LD_DELAY
+        # loop, which is common in tape loading routines
+        a = registers[0]
+        pcn = registers[24] + 1
+        if a and memory[pcn:pcn + 2] == [0x20, 0xFD]: # pragma: no cover
+            registers[0] = 0
+            registers[1] = 0x42 + (registers[1] % 2)
+            r = registers[15]
+            registers[15] = (r & 0x80) + ((r + a * 2) % 128)
+            registers[25] += 16 * a - 5
+            registers[24] = (pcn + 2) % 65536
+        else:
+            registers[:2] = DEC[registers[1] % 2][a]
+            registers[15] = R1[registers[15]]
+            registers[25] += 4
+            registers[24] = pcn % 65536
 
     def read_port(self, registers, port):
         if port % 256 == 0xFE:
