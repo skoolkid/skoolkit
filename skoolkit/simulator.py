@@ -97,9 +97,9 @@ DEC = tuple(tuple((
             + (r % 16 == 0x00) * 0x10  # ...H....
             + (r == 0x80) * 0x04       # .....P..
             + 0x02                     # ......N.
-            + c                        # .......C
+            + (f & 0x01)               # .......C
         ) for r in range(256)
-    ) for c in (0, 1)
+    ) for f in range(256)
 )
 
 INC = tuple(tuple((
@@ -108,9 +108,9 @@ INC = tuple(tuple((
             + (r == 0xFF) * 0x40       # .Z......
             + (r % 16 == 0x0F) * 0x10  # ...H....
             + (r == 0x7F) * 0x04       # .....P..
-            + c                        # .......C
+            + (f & 0x01)               # .......C
         ) for r in range(256)
-    ) for c in (0, 1)
+    ) for f in range(256)
 )
 
 JR_OFFSETS = tuple(j + 2 if j < 128 else j - 254 for j in range(256))
@@ -140,11 +140,11 @@ RL_r = (
 )
 
 RL = tuple(tuple((
-            RL_r[c][r],
-            SZ53P[RL_r[c][r]]     # SZ5H3PN.
-            + (r & 0x80) // 0x80  # .......C
+            RL_r[f % 2][r],
+            SZ53P[RL_r[f % 2][r]]  # SZ5H3PN.
+            + (r & 0x80) // 0x80   # .......C
         ) for r in range(256)
-    ) for c in (0, 1)
+    ) for f in range(256)
 )
 
 RLC_r = tuple(r // 128 + ((r * 2) % 256) for r in range(256))
@@ -162,11 +162,11 @@ RR_r = (
 )
 
 RR = tuple(tuple((
-            RR_r[c][r],
-            SZ53P[RR_r[c][r]]  # SZ5H3PN.
-            + (r & 0x01)       # .......C
+            RR_r[f % 2][r],
+            SZ53P[RR_r[f % 2][r]]  # SZ5H3PN.
+            + (r & 0x01)           # .......C
         ) for r in range(256)
-    ) for c in (0, 1)
+    ) for f in range(256)
 )
 
 RRC_r = tuple(((r * 128) % 256) + r // 2 for r in range(256))
@@ -511,7 +511,7 @@ class Simulator:
     def fc_hl(self, registers, memory, r_inc, timing, size, fc):
         # DEC/INC/RL/RR (HL)
         hl = registers[7] + 256 * registers[6]
-        value, registers[1] = fc[registers[1] % 2][memory[hl]]
+        value, registers[1] = fc[registers[1]][memory[hl]]
         if hl > 0x3FFF:
             memory[hl] = value
         registers[15] = r_inc[registers[15]]
@@ -520,7 +520,7 @@ class Simulator:
 
     def fc_r(self, registers, r_inc, timing, size, fc, r):
         # DEC/INC/RL/RR r
-        registers[r], registers[1] = fc[registers[1] % 2][registers[r]]
+        registers[r], registers[1] = fc[registers[1]][registers[r]]
         registers[15] = r_inc[registers[15]]
         registers[25] += timing
         registers[24] = (registers[24] + size) % 65536
@@ -529,7 +529,7 @@ class Simulator:
         # DEC/INC/RL/RR (IX/Y+d)[,r]
         pc = registers[24]
         addr = (registers[xyl] + 256 * registers[xyh] + OFFSETS[memory[(pc + 2) % 65536]]) % 65536
-        value, registers[1] = fc[registers[1] % 2][memory[addr]]
+        value, registers[1] = fc[registers[1]][memory[addr]]
         if addr > 0x3FFF:
             memory[addr] = value
         if dest >= 0:

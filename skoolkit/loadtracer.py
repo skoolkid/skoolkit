@@ -151,7 +151,7 @@ class LoadTracer:
             registers[25] += 16 * a - 5
             registers[24] = (pcn + 2) % 65536
         else:
-            registers[:2] = DEC[registers[1] % 2][a]
+            registers[:2] = DEC[registers[1]][a]
             registers[15] = R1[registers[15]]
             registers[25] += 4
             registers[24] = pcn % 65536
