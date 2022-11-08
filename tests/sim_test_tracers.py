@@ -242,7 +242,7 @@ class HLRRFTracer(BaseTracer):
         r1h, r2h, opcodes = self.opcodes[self.index]
         simulator.memory[:len(opcodes)] = opcodes
         simulator.registers[F] = (self.count >> 18) * 255
-        if r2h == 'SP':
+        if r2h == SP:
             simulator.registers[SP] = self.count % 65536
         else:
             simulator.registers[r2h] = (self.count & 0xFF00) // 256

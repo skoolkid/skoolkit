@@ -590,13 +590,13 @@ class INCTest(SimulatorTest):
 
 class AHLTest(SimulatorTest):
     def test_add_hl_rr(self):
-        self._verify(HLRRFTracer(9), '150d6938ab4b36a65d444db86ed63126')
+        self._verify(HLRRFTracer(9), '72f5c0ca1f607654448d41ba83f51c52')
 
     def test_adc_hl_rr(self):
-        self._verify(HLRRFTracer(237, 74), '9643a4192ab8ed90466640564c821614')
+        self._verify(HLRRFTracer(237, 74), '239e29da51c0bef37b131f3e0b1c731c')
 
     def test_sbc_hl_rr(self):
-        self._verify(HLRRFTracer(237, 66), '6ee65de993e5650288da7ee1e0ad749d')
+        self._verify(HLRRFTracer(237, 66), '0d97517afe1301cec29656ecd4a8d6aa')
 
     def test_add_hl_hl(self):
         self._verify(HLFTracer(41), 'c1e9d4ef148c912ed4d5ddbd3d761eb4')
