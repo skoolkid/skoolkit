@@ -495,10 +495,10 @@ class SimLoadTest(SkoolKitTestCase):
             'Program: simloadbas',
             'Fast loading data block: 23755,6',
             '',
-            'Simulation stopped (timed out): PC=3676',
+            'Simulation stopped (timed out): PC=3678',
         ]
         self.assertEqual(exp_out_lines, out_lines)
         self.assertEqual(error, '')
         self.assertEqual(basic_data, snapshot[23755:23755 + len(basic_data)])
-        exp_reg = set(('IX=23761', 'IY=23610', 'PC=3676'))
+        exp_reg = set(('IX=23761', 'IY=23610', 'PC=3678'))
         self.assertLessEqual(exp_reg, set(options.reg))
