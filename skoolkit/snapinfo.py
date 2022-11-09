@@ -1,4 +1,4 @@
-# Copyright 2013-2017, 2019-2021 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2013-2017, 2019-2022 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -65,6 +65,16 @@ class Registers:
                 return word // 256
             return word % 256
 
+def parse_snapshot(infile):
+    snapshot_type = infile[-4:].lower()
+    if snapshot_type == '.sna':
+        return _parse_sna(infile)
+    if snapshot_type == '.z80':
+        return _parse_z80(infile)
+    if snapshot_type == '.szx':
+        return _parse_szx(infile)
+    return None, None, None
+
 ###############################################################################
 
 # https://worldofspectrum.net/features/faq/reference/z80format.htm
@@ -112,7 +122,7 @@ MACHINES = {
     128: ('TS2068', 'TS2068', False),
 }
 
-def _analyse_z80(z80file):
+def _parse_z80(z80file):
     data = read_bin_file(z80file)
 
     # Extract header and RAM block(s)
@@ -126,32 +136,6 @@ def _analyse_z80(z80file):
         ram_blocks = data[header_len:]
         version = 2 if header_len == 55 else 3
 
-    # Print file name, version, machine, interrupt status, border, port $7FFD
-    print('Z80 file: {}'.format(z80file))
-    print('Version: {}'.format(version))
-    bank = None
-    if version == 1:
-        machine = '48K Spectrum'
-        block_dict = BLOCK_ADDRESSES_48K
-    else:
-        machine_dict = V2_MACHINES if version == 2 else V3_MACHINES
-        machine_id = header[34]
-        index = header[37] // 128
-        machine_spec = machine_dict.get(machine_id, MACHINES.get(machine_id, ('Unknown', 'Unknown', True)))
-        machine = machine_spec[index]
-        if machine_spec[2]:
-            block_dict = BLOCK_ADDRESSES_48K
-        else:
-            block_dict = BLOCK_ADDRESSES_128K
-            bank = header[35] & 7
-    print('Machine: {}'.format(machine))
-    print('Interrupts: {}abled'.format('en' if header[28] else 'dis'))
-    print('Interrupt mode: {}'.format(header[29] & 3))
-    print('Border: {}'.format((header[12] // 2) & 7))
-    if bank is not None:
-        print('Port $7FFD: {} - bank {} (block {}) paged into 49152-65535 C000-FFFF'.format(header[35], bank, bank + 3))
-
-    # Print register contents
     reg = Registers()
     reg.a = header[0]
     reg.f = header[1]
@@ -172,6 +156,43 @@ def _analyse_z80(z80file):
     reg.f2 = header[22]
     reg.iy = get_word(header, 23)
     reg.ix = get_word(header, 25)
+    reg.iff2 = header[28]
+    reg.im = header[29] & 3
+
+    return header, reg, ram_blocks
+
+def _analyse_z80(z80file, header, reg, ram_blocks):
+    if get_word(header, 6) > 0:
+        version = 1
+    else:
+        version = 2 if len(header) == 55 else 3
+
+    # Print file name, version, machine, interrupt status, border, port $7FFD
+    print('Z80 file: {}'.format(z80file))
+    print('Version: {}'.format(version))
+    bank = None
+    if version == 1:
+        machine = '48K Spectrum'
+        block_dict = BLOCK_ADDRESSES_48K
+    else:
+        machine_dict = V2_MACHINES if version == 2 else V3_MACHINES
+        machine_id = header[34]
+        index = header[37] // 128
+        machine_spec = machine_dict.get(machine_id, MACHINES.get(machine_id, ('Unknown', 'Unknown', True)))
+        machine = machine_spec[index]
+        if machine_spec[2]:
+            block_dict = BLOCK_ADDRESSES_48K
+        else:
+            block_dict = BLOCK_ADDRESSES_128K
+            bank = header[35] & 7
+    print('Machine: {}'.format(machine))
+    print('Interrupts: {}abled'.format('en' if reg.iff2 else 'dis'))
+    print('Interrupt mode: {}'.format(reg.im))
+    print('Border: {}'.format((header[12] // 2) & 7))
+    if bank is not None:
+        print('Port $7FFD: {} - bank {} (block {}) paged into 49152-65535 C000-FFFF'.format(header[35], bank, bank + 3))
+
+    # Print register contents
     print('Registers:')
     for line in reg.get_lines():
         print('  ' + line)
@@ -216,6 +237,46 @@ SZX_MACHINES = {
     6: 'ZX Spectrum +3e'
 }
 
+def _parse_szx(szxfile):
+    szx = read_bin_file(szxfile)
+    magic = _get_block_id(szx, 0)
+    if magic != 'ZXST':
+        raise SkoolKitError("{} is not an SZX file".format(szxfile))
+
+    header = szx[:8]
+
+    reg = None
+    blocks = []
+    i = 8
+    while i < len(szx):
+        block_id = _get_block_id(szx, i)
+        block_size = get_dword(szx, i + 4)
+        i += 8 + block_size
+        block = szx[i - block_size:i]
+        blocks.append((block_id, block))
+        if block_id == 'Z80R':
+            reg = Registers()
+            reg.f = block[0]
+            reg.a = block[1]
+            reg.bc = get_word(block, 2)
+            reg.de = get_word(block, 4)
+            reg.hl = get_word(block, 6)
+            reg.f2 = block[8]
+            reg.a2 = block[9]
+            reg.bc2 = get_word(block, 10)
+            reg.de2 = get_word(block, 12)
+            reg.hl2 = get_word(block, 14)
+            reg.ix = get_word(block, 16)
+            reg.iy = get_word(block, 18)
+            reg.sp = get_word(block, 20)
+            reg.pc = get_word(block, 22)
+            reg.i = block[24]
+            reg.r = block[25]
+            reg.iff2 = block[27]
+            reg.im = block[28]
+
+    return header, reg, blocks
+
 def _get_block_id(data, index):
     return ''.join([chr(b) for b in data[index:index+ 4]])
 
@@ -248,27 +309,10 @@ def _print_spcr(block, variables):
     lines.append('Port $7FFD: {} (bank {} paged into 49152-65535 C000-FFFF)'.format(ch7ffd, bank))
     return lines
 
-def _print_z80r(block, variables):
+def _print_z80r(reg):
     lines = []
-    lines.append('Interrupts: {}abled'.format('en' if block[27] else 'dis'))
-    lines.append('Interrupt mode: {}'.format(block[28]))
-    reg = Registers()
-    reg.f = block[0]
-    reg.a = block[1]
-    reg.bc = get_word(block, 2)
-    reg.de = get_word(block, 4)
-    reg.hl = get_word(block, 6)
-    reg.f2 = block[8]
-    reg.a2 = block[9]
-    reg.bc2 = get_word(block, 10)
-    reg.de2 = get_word(block, 12)
-    reg.hl2 = get_word(block, 14)
-    reg.ix = get_word(block, 16)
-    reg.iy = get_word(block, 18)
-    reg.sp = get_word(block, 20)
-    reg.pc = get_word(block, 22)
-    reg.i = block[24]
-    reg.r = block[25]
+    lines.append('Interrupts: {}abled'.format('en' if reg.iff2 else 'dis'))
+    lines.append('Interrupt mode: {}'.format(reg.im))
     return lines + reg.get_lines()
 
 SZX_BLOCK_PRINTERS = {
@@ -277,54 +321,32 @@ SZX_BLOCK_PRINTERS = {
     'Z80R': _print_z80r
 }
 
-def _analyse_szx(szxfile):
-    szx = read_bin_file(szxfile)
-
-    magic = _get_block_id(szx, 0)
-    if magic != 'ZXST':
-        raise SkoolKitError("{} is not an SZX file".format(szxfile))
-
-    print('Version: {}.{}'.format(szx[4], szx[5]))
-    machine_id = szx[6]
+def _analyse_szx(header, reg, blocks):
+    print('Version: {}.{}'.format(header[4], header[5]))
+    machine_id = header[6]
     print('Machine: {}'.format(SZX_MACHINES.get(machine_id, 'Unknown')))
     variables = {'chMachineId': machine_id}
 
-    i = 8
-    while i < len(szx):
-        block_id = _get_block_id(szx, i)
-        block_size = get_dword(szx, i + 4)
-        i += 8
-        print('{}: {} bytes'.format(block_id, block_size))
+    for block_id, block in blocks:
+        print('{}: {} bytes'.format(block_id, len(block)))
         printer = SZX_BLOCK_PRINTERS.get(block_id)
         if printer:
-            for line in printer(szx[i:i + block_size], variables):
+            if block_id == 'Z80R':
+                lines = printer(reg)
+            else:
+                lines = printer(block, variables)
+            for line in lines:
                 print("  " + line)
-        i += block_size
 
 ###############################################################################
 
 # https://worldofspectrum.net/features/faq/reference/formats.htm#SNA
 
-def _print_ram_banks(sna):
-    bank = sna[49181] & 7
-    print('RAM bank 5 (16384 bytes: 16384-32767 4000-7FFF)')
-    print('RAM bank 2 (16384 bytes: 32768-49151 8000-BFFF)')
-    print('RAM bank {} (16384 bytes: 49152-65535 C000-FFFF)'.format(bank))
-    for b in sorted({0, 1, 3, 4, 6, 7} - {bank}):
-        print('RAM bank {} (16384 bytes)'.format(b))
-
-def _analyse_sna(snafile):
+def _parse_sna(snafile):
     sna = read_bin_file(snafile, 147488)
     if len(sna) not in (49179, 131103, 147487):
         raise SkoolKitError('{}: not a SNA file'.format(snafile))
-    is128 = len(sna) > 49179
 
-    print('RAM: {}K'.format(128 if is128 else 48))
-    print('Interrupts: {}abled'.format('en' if sna[19] & 4 else 'dis'))
-    print('Interrupt mode: {}'.format(sna[25]))
-    print('Border: {}'.format(sna[26] & 7))
-
-    # Print register contents
     reg = Registers()
     reg.i = sna[0]
     reg.hl2 = get_word(sna, 1)
@@ -341,16 +363,36 @@ def _analyse_sna(snafile):
     reg.f = sna[21]
     reg.a = sna[22]
     reg.sp = get_word(sna, 23)
-    if is128:
+    if len(sna) > 49179:
         reg.pc = get_word(sna, 49179)
     else:
         reg.pc = get_word(sna, reg.sp - 16357)
+    reg.iff2 = (sna[19] & 4) // 4
+    reg.im = sna[25]
+
+    return sna[:27], reg, sna[27:]
+
+def _print_ram_banks(sna):
+    bank = sna[49154] & 7
+    print('RAM bank 5 (16384 bytes: 16384-32767 4000-7FFF)')
+    print('RAM bank 2 (16384 bytes: 32768-49151 8000-BFFF)')
+    print('RAM bank {} (16384 bytes: 49152-65535 C000-FFFF)'.format(bank))
+    for b in sorted({0, 1, 3, 4, 6, 7} - {bank}):
+        print('RAM bank {} (16384 bytes)'.format(b))
+
+def _analyse_sna(header, reg, ram):
+    is128 = len(ram) > 49152
+    print('RAM: {}K'.format(128 if is128 else 48))
+    print('Interrupts: {}abled'.format('en' if reg.iff2 else 'dis'))
+    print('Interrupt mode: {}'.format(reg.im))
+    print('Border: {}'.format(header[26] & 7))
+
     print('Registers:')
     for line in reg.get_lines():
         print('  ' + line)
 
     if is128:
-        _print_ram_banks(sna)
+        _print_ram_banks(ram)
 
 ###############################################################################
 
@@ -491,11 +533,11 @@ def run(infile, options, config):
     else:
         snapshot_type = infile[-4:].lower()
         if snapshot_type == '.sna':
-            _analyse_sna(infile)
+            _analyse_sna(*_parse_sna(infile))
         elif snapshot_type == '.z80':
-            _analyse_z80(infile)
+            _analyse_z80(infile, *_parse_z80(infile))
         elif snapshot_type == '.szx':
-            _analyse_szx(infile)
+            _analyse_szx(*_parse_szx(infile))
 
 def main(args):
     config = get_config('snapinfo')

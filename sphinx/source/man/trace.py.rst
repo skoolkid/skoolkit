@@ -6,12 +6,13 @@ trace.py
 
 SYNOPSIS
 ========
-``trace.py`` [options] FILE START [STOP]
+``trace.py`` [options] FILE
 
 DESCRIPTION
 ===========
 ``trace.py`` simulates the execution of machine code in a 48K binary (raw
-memory) file or a SNA, SZX or Z80 snapshot.
+memory) file or a SNA, SZX or Z80 snapshot. If FILE is '.', no snapshot is
+loaded, and the RAM is left blank (all zeroes).
 
 OPTIONS
 =======
@@ -56,8 +57,18 @@ OPTIONS
   Patch in a ROM at address 0 from this file. By default the 48K ZX Spectrum
   ROM is used.
 
+-s, --start `ADDR`
+  Start execution at this address. `ADDR` must be a decimal number, or a
+  hexadecimal number prefixed by '0x'. If this option is omitted, execution
+  starts either at the address given by the value of the program counter (for a
+  SNA, SZX or Z80 snapshot), or at the origin address of the raw memory file.
+
 --stats
   Show statistics after execution.
+
+-S, --stop `ADDR`
+  Stop execution at this address. `ADDR` must be a decimal number, or a
+  hexadecimal number prefixed by '0x'.
 
 -v, --verbose
   Show executed instructions. Repeat this option (``-vv``) to show register
@@ -96,10 +107,10 @@ EXAMPLES
 1. Execute and show instructions in the routine at 32768-32798 in ``game.z80``:
 
 |
-|   ``trace.py -v game.z80 32768 32798``
+|   ``trace.py -v -s 32768 -S 32798 game.z80``
 
 2. Show delays between changes in the state of the ZX Spectrum speaker produced
    by the sound effect routine at 49152-49193 in ``game.z80``:
 
 |
-|   ``trace.py --audio game.z80 49152 49193``
+|   ``trace.py --audio -s 49152 -S 49193 game.z80``

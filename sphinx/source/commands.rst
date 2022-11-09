@@ -1436,14 +1436,14 @@ trace.py
 `trace.py` simulates the execution of machine code in a 48K memory snapshot.
 For example::
 
-  $ trace.py game.z80 32768 49152
+  $ trace.py --start 32768 --stop 49152 game.z80
 
 To list the options supported by `trace.py`, run it with no arguments::
 
-  usage: trace.py [options] FILE START [STOP]
+  usage: trace.py [options] FILE
 
-  Trace Z80 machine code execution. FILE may be a binary (raw memory) file, or a
-  SNA, SZX or Z80 snapshot.
+  Trace Z80 machine code execution. FILE may be a binary (raw memory) file, a
+  SNA, SZX or Z80 snapshot, or '.' for no snapshot.
 
   Options:
     --audio               Show audio delays.
@@ -1463,15 +1463,20 @@ To list the options supported by `trace.py`, run it with no arguments::
                           information. This option may be used multiple times.
     --rom FILE            Patch in a ROM at address 0 from this file. By default
                           the 48K ZX Spectrum ROM is used.
+    -s ADDR, --start ADDR
+                          Start execution at this address.
     --stats               Show stats after execution.
+    -S ADDR, --stop ADDR  Stop execution at this address.
     -v, --verbose         Show executed instructions. Repeat this option to show
                           register values too.
     -V, --version         Show SkoolKit version number and exit.
 
 By default, `trace.py` silently simulates code execution beginning with the
-instruction at ``START`` and ending when the instruction at ``STOP`` is
-reached. Use the ``--verbose`` option to show each instruction executed. Repeat
-the ``--verbose`` option (``-vv``) to show register values too.
+instruction at the address specified by the ``--start`` option (or the program
+counter in the snapshot) and ending when the instruction at the address
+specified by ``--stop`` (if any) is reached. Use the ``--verbose`` option to
+show each instruction executed. Repeat the ``--verbose`` option (``-vv``) to
+show register values too.
 
 When the ``--audio`` option is given, `trace.py` tracks changes in the state
 of the ZX Spectrum speaker, and then prints a list of the delays (in T-states)

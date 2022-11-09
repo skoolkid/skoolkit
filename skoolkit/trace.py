@@ -21,6 +21,7 @@ from skoolkit import ROM48, VERSION, SkoolKitError, get_int_param, integer, read
 from skoolkit.snapshot import make_snapshot, poke, print_reg_help
 from skoolkit.simulator import (Simulator, A, F, B, C, D, E, H, L, IXh, IXl, IYh, IYl,
                                 SP, I, R, xA, xF, xB, xC, xD, xE, xH, xL, PC, T)
+from skoolkit.snapinfo import parse_snapshot
 from skoolkit.traceutils import disassemble
 
 TRACE1 = "${address:04X} {data:<8} {i}"
@@ -100,8 +101,29 @@ class Tracer:
             self.spkr = value & 0x10
             self.out_times.append(registers[T])
 
-def get_registers(specs):
-    registers = {}
+def get_registers(sna_reg, specs):
+    if sna_reg:
+        registers = {
+            'A': sna_reg.a,
+            'F': sna_reg.f,
+            'BC': sna_reg.bc,
+            'DE': sna_reg.de,
+            'HL': sna_reg.hl,
+            'IXh': sna_reg.ix // 256,
+            'IXl': sna_reg.ix % 256,
+            'IYh': sna_reg.iy // 256,
+            'IYl': sna_reg.iy % 256,
+            'SP': sna_reg.sp,
+            'I': sna_reg.i,
+            'R': sna_reg.r,
+            '^A': sna_reg.a2,
+            '^F': sna_reg.f2,
+            '^BC': sna_reg.bc2,
+            '^DE': sna_reg.de2,
+            '^HL': sna_reg.hl2
+        }
+    else:
+        registers = {}
     for spec in specs:
         reg, sep, val = spec.upper().partition('=')
         if sep:
@@ -144,8 +166,24 @@ def simplify(delays, depth):
             length += 1
     return ', '.join(s0)
 
-def run(snafile, start, stop, options):
-    memory, start = make_snapshot(snafile, options.org, start)[0:2]
+def run(snafile, options):
+    if snafile == '.':
+        memory = [0] * 65536
+        reg = None
+        org = 0
+    else:
+        memory, org = make_snapshot(snafile, options.org)[0:2]
+        reg = parse_snapshot(snafile)[1]
+        if snafile.lower()[-4:] == '.sna':
+            reg.sp = (reg.sp + 2) % 65536
+    start = options.start
+    if start is None:
+        if reg:
+            start = reg.pc
+        elif options.org is not None:
+            start = options.org
+        else:
+            start = org
     if options.rom:
         rom = read_bin_file(options.rom)
     else:
@@ -154,11 +192,11 @@ def run(snafile, start, stop, options):
     for spec in options.pokes:
         poke(memory, spec)
     config = {'fast_djnz': options.audio, 'fast_ldir': True}
-    simulator = Simulator(memory, get_registers(options.reg), config=config)
+    simulator = Simulator(memory, get_registers(reg, options.reg), config=config)
     tracer = Tracer()
     simulator.set_tracer(tracer)
     begin = time.time()
-    tracer.run(simulator, start, stop, options.verbose, options.max_operations, options.max_tstates)
+    tracer.run(simulator, start, options.stop, options.verbose, options.max_operations, options.max_tstates)
     rt = time.time() - begin
     if options.stats:
         z80t = simulator.registers[T] / 3500000
@@ -180,14 +218,12 @@ def run(snafile, start, stop, options):
 
 def main(args):
     parser = argparse.ArgumentParser(
-        usage='trace.py [options] FILE START [STOP]',
+        usage='trace.py [options] FILE',
         description="Trace Z80 machine code execution. "
-                    "FILE may be a binary (raw memory) file, or a SNA, SZX or Z80 snapshot.",
+                    "FILE may be a binary (raw memory) file, a SNA, SZX or Z80 snapshot, or '.' for no snapshot.",
         add_help=False
     )
     parser.add_argument('snafile', help=argparse.SUPPRESS, nargs='?')
-    parser.add_argument('start', type=integer, help=argparse.SUPPRESS, nargs='?')
-    parser.add_argument('stop', type=integer, help=argparse.SUPPRESS, nargs='?')
     group = parser.add_argument_group('Options')
     group.add_argument('--audio', action='store_true',
                        help="Show audio delays.")
@@ -211,8 +247,12 @@ def main(args):
     group.add_argument('--rom', metavar='FILE',
                        help='Patch in a ROM at address 0 from this file. '
                             'By default the 48K ZX Spectrum ROM is used.')
+    group.add_argument('-s', '--start', metavar='ADDR', type=integer,
+                       help='Start execution at this address.')
     group.add_argument('--stats', action='store_true',
                        help="Show stats after execution.")
+    group.add_argument('-S', '--stop', metavar='ADDR', type=integer,
+                       help='Stop execution at this address.')
     group.add_argument('-v', '--verbose', action='count', default=0,
                        help="Show executed instructions. Repeat this option to show register values too.")
     group.add_argument('-V', '--version', action='version', version='SkoolKit {}'.format(VERSION),
@@ -221,6 +261,6 @@ def main(args):
     if 'help' in namespace.reg:
         print_reg_help()
         return
-    if unknown_args or namespace.start is None:
+    if unknown_args or namespace.snafile is None:
         parser.exit(2, parser.format_help())
-    run(namespace.snafile, namespace.start, namespace.stop, namespace)
+    run(namespace.snafile, namespace)

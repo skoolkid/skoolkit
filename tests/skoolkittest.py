@@ -240,7 +240,46 @@ class SkoolKitTestCase(TestCase):
             return block + [0, 237, 237, 0]
         return block
 
-    def write_z80(self, ram, version=3, compress=False, machine_id=0, modify=False, out_7ffd=0, pages={}, header=None):
+    def _set_z80_registers(self, header, version, registers):
+        header[0] = registers.get('A', 0)
+        header[1] = registers.get('F', 0)
+        header[2] = registers.get('C', 0)
+        header[3] = registers.get('B', 0)
+        header[4] = registers.get('L', 0)
+        header[5] = registers.get('H', 0)
+        pc = registers.get('PC', 0)
+        if version == 1:
+            header[6] = pc % 256
+            header[7] = pc // 256
+        else:
+            header[32] = pc % 256
+            header[33] = pc // 256
+        sp = registers.get('SP', 0)
+        header[8] = sp % 256
+        header[9] = sp // 256
+        header[10] = registers.get('I', 0)
+        r = registers.get('R', 0)
+        header[11] = r % 0x80
+        header[12] = (header[12] & 0xFE) | (r // 0x80)
+        header[13] = registers.get('E', 0)
+        header[14] = registers.get('D', 0)
+        header[15] = registers.get('^C', 0)
+        header[16] = registers.get('^B', 0)
+        header[17] = registers.get('^E', 0)
+        header[18] = registers.get('^D', 0)
+        header[19] = registers.get('^L', 0)
+        header[20] = registers.get('^H', 0)
+        header[21] = registers.get('^A', 0)
+        header[22] = registers.get('^F', 0)
+        header[23] = registers.get('IXl', 0)
+        header[24] = registers.get('IXh', 0)
+        header[25] = registers.get('IYl', 0)
+        header[26] = registers.get('IYh', 0)
+        header[27] = registers.get('iff1', 0)
+        header[28] = registers.get('iff2', 0)
+        header[29] = (header[29] & 0xFC) | registers.get('im', 0)
+
+    def write_z80(self, ram, version=3, compress=False, machine_id=0, modify=False, out_7ffd=0, pages={}, header=None, registers=None):
         model = 1
         if version == 1:
             if header is None:
@@ -248,6 +287,8 @@ class SkoolKitTestCase(TestCase):
                 header[6] = 255 # Set PC > 0 to indicate a v1 Z80 snapshot
                 if compress:
                     header[12] |= 32 # Signal that the RAM data block is compressed
+            if registers:
+                self._set_z80_registers(header, version, registers)
             z80 = header + self._get_z80_ram_block(ram, compress)
         else:
             if header is None:
@@ -275,12 +316,14 @@ class SkoolKitTestCase(TestCase):
                 for bank in set(range(8)) - set(banks.keys()):
                     banks[bank] = [0] * 16384
             z80 = header[:]
+            if registers:
+                self._set_z80_registers(z80, version, registers)
             for bank in sorted(banks):
                 z80 += self._get_z80_ram_block(banks[bank], compress, bank + 3)
         return model, self.write_bin_file(z80, suffix='.z80')
 
-    def write_z80_file(self, header, ram, version=3, compress=False, machine_id=0, pages={}):
-        return self.write_z80(ram, version, compress, machine_id, pages=pages, header=header)[1]
+    def write_z80_file(self, header, ram, version=3, compress=False, machine_id=0, pages={}, registers=None):
+        return self.write_z80(ram, version, compress, machine_id, pages=pages, header=header, registers=registers)[1]
 
     def _get_szx_header(self, machine_id=1, ch7ffd=0, specregs=True, border=0):
         header = [90, 88, 83, 84] # ZXST
@@ -299,6 +342,7 @@ class SkoolKitTestCase(TestCase):
         z80r = [90, 56, 48, 82] # Z80R
         z80r.extend((37, 0, 0, 0)) # Size
         z80r.extend(registers)
+        z80r.extend([0] * (37 - len(registers)))
         return z80r
 
     def _get_zxstrampage(self, page, compress, data):
