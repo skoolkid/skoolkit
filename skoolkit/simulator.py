@@ -90,6 +90,16 @@ CPL = tuple(tuple((
     ) for a in range(256)
 )
 
+DAA = tuple(tuple((
+            (a + ((f & 16 > 0 or a % 16 > 9) * 6 + (f % 2 or a > 0x99) * 0x60) * (1 - (f & 2))) % 256,
+            SZ53P[(a+((f&16>0 or a%16>9)*6+(f%2 or a>0x99)*0x60)*(1-(f&2)))%256]         # SZ5.3P..
+            + ((f & 0x12 == 0x12 and a % 16 < 6) or (f & 2 == 0 and a % 16 > 9)) * 0x10  # ...H....
+            + (f & 0x02)                                                                 # ......N.
+            + (f % 2 or a > 0x99)                                                        # .......C
+        ) for f in range(256)
+    ) for a in range(256)
+)
+
 DEC = tuple(tuple((
             (r - 1) % 256,
             ((r - 1) & 0xA8)           # S.5.3...
@@ -432,8 +442,8 @@ class Simulator:
         registers[24] = (pcn + 1) % 65536
 
     def af_r(self, registers, r_inc, timing, size, af, r):
-        # ADD A,r / AND r / CP r / OR r / SUB r / XOR r
-        # RLA / RLCA / RRA / RRCA
+        # ADC A,A / ADD A,r / AND r / CP r / OR r / SBC A,A / SUB r / XOR r
+        # DAA / RLA / RLCA / RRA / RRCA
         registers[:2] = af[registers[0]][registers[r]]
         registers[15] = r_inc[registers[15]]
         registers[25] += timing
@@ -464,7 +474,7 @@ class Simulator:
         registers[24] = (pcn + 1) % 65536
 
     def afc_r(self, registers, r_inc, timing, size, afc, r):
-        # ADC/SBC A,r
+        # ADC/SBC A,r (r != A)
         registers[:2] = afc[registers[1] % 2][registers[0]][registers[r]]
         registers[15] = r_inc[registers[15]]
         registers[25] += timing
@@ -677,45 +687,6 @@ class Simulator:
 
     def cpl(self, registers):
         registers[:2] = CPL[registers[0]][registers[1]]
-        registers[15] = R1[registers[15]]
-        registers[25] += 4
-        registers[24] = (registers[24] + 1) % 65536
-
-    def daa(self, registers):
-        a = registers[0]
-        old_f = registers[1]
-        hf = old_f & 0x10
-        nf = old_f & 0x02
-        t = 0
-        f = nf
-
-        if hf or a % 16 > 0x09:
-            t += 1
-        if old_f % 2 or a > 0x99:
-            t += 2
-            f += 0x01 # .......C
-
-        if (nf and hf and a % 16 < 6) or (nf == 0 and a % 16 >= 0x0A):
-            f += 0x10 # ...H....
-
-        if t == 1:
-            if nf:
-                a = (a + 0xFA) % 256
-            else:
-                a = (a + 0x06) % 256
-        elif t == 2:
-            if nf:
-                a = (a + 0xA0) % 256
-            else:
-                a = (a + 0x60) % 256
-        elif t == 3:
-            if nf:
-                a = (a + 0x9A) % 256
-            else:
-                a = (a + 0x66) % 256
-
-        registers[0] = a
-        registers[1] = f + SZ53P[a]
         registers[15] = R1[registers[15]]
         registers[25] += 4
         registers[24] = (registers[24] + 1) % 65536
@@ -2927,7 +2898,7 @@ class Simulator:
             partial(self.fc_r, r, R1, 4, 1, INC, H),                # 24 INC H
             partial(self.fc_r, r, R1, 4, 1, DEC, H),                # 25 DEC H
             partial(self.ld_r_n, r, m, R1, 7, 2, H),                # 26 LD H,n
-            partial(self.daa, r),                                   # 27 DAA
+            partial(self.af_r, r, R1, 4, 1, DAA, F),                # 27 DAA
             partial(self.jr, r, m, 64, 64),                         # 28 JR Z,nn
             partial(self.add16, r, R1, 11, 1, H, L, H, L),          # 29 ADD HL,HL
             partial(self.ld16addr, r, m, R1, 16, 3, H, L, 0),       # 2A LD HL,(nn)
