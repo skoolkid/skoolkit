@@ -560,22 +560,19 @@ class Simulator:
             f = 0x01 # .......C
         else:
             f = 0
-        if ((hl % 4096) + (rr_c % 4096)) & 0x1000:
-            f += 0x10 # ...H....
-        if result & 0x8000:
-            f += 0x80 # S.......
-        elif result == 0:
+        if result == 0:
             f += 0x40 # .Z......
-        if (hl ^ rr) & 0x8000 == 0 and (result ^ hl) & 0x8000:
+        if (hl % 4096) + (rr_c % 4096) > 0x0FFF:
+            f += 0x10 # ...H....
+        if hl ^ rr < 0x8000 and hl ^ result > 0x7FFF:
             # Augend and addend signs are the same - overflow if their sign
             # differs from the sign of the result
             f += 0x04 # .....P..
 
         h = result // 256
-        registers[1] = f + (h & 0x28)
+        registers[1] = f + (h & 0xA8)
         registers[7] = result % 256
         registers[6] = h
-
         registers[15] = R2[registers[15]]
         registers[25] += 15
         registers[24] = (registers[24] + 2) % 65536
@@ -591,14 +588,13 @@ class Simulator:
             f = (registers[1] & 0xC4) + 0x01 # SZ...P.C
         else:
             f = registers[1] & 0xC4 # SZ...P..
-        if ((augend_v % 4096) + (addend_v % 4096)) & 0x1000:
+        if (augend_v % 4096) + (addend_v % 4096) > 0x0FFF:
             f += 0x10 # ...H....
 
         result_hi = result // 256
         registers[1] = f + (result_hi & 0x28)
         registers[al] = result % 256
         registers[ah] = result_hi
-
         registers[15] = r_inc[registers[15]]
         registers[25] += timing
         registers[24] = (registers[24] + size) % 65536
@@ -1259,26 +1255,23 @@ class Simulator:
         rr = registers[rl] + 256 * registers[rh]
         hl = registers[7] + 256 * registers[6]
         rr_c = rr + (registers[1] % 2)
-        result = hl - rr_c
+        result = (hl - rr_c) % 65536
 
-        if result < 0:
-            result %= 65536
+        if hl < rr_c:
             f = 0x03 # ......NC
         else:
             f = 0x02 # ......N.
-        if ((hl % 4096) - (rr_c % 4096)) & 0x1000:
-            f += 0x10 # ...H....
-        if result & 0x8000:
-            f += 0x80 # S.......
-        elif result == 0:
+        if result == 0:
             f += 0x40 # .Z......
-        if (hl ^ rr) & 0x8000 and (hl ^ result) & 0x8000:
+        if hl % 4096 < rr_c % 4096:
+            f += 0x10 # ...H....
+        if hl ^ rr > 0x7FFF and hl ^ result > 0x7FFF:
             # Minuend and subtrahend signs are different - overflow if the
             # minuend's sign differs from the sign of the result
             f += 0x04 # .....P..
 
         h = result // 256
-        registers[1] = f + (h & 0x28)
+        registers[1] = f + (h & 0xA8)
         registers[7] = result % 256
         registers[6] = h
         registers[15] = R2[registers[15]]
