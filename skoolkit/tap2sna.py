@@ -197,6 +197,24 @@ def _write_z80(ram, options, fname):
     write_line('Writing {0}'.format(fname))
     write_z80v3(fname, ram, options.reg, options.state)
 
+def _ram_operations(snapshot, ram_ops, blocks=None):
+    counters = {}
+    for spec in ram_ops:
+        op_type, sep, param_str = spec.partition('=')
+        if op_type == 'call':
+            _call(snapshot, param_str)
+        elif op_type == 'load':
+            if blocks:
+                _load(snapshot, counters, blocks, param_str)
+        elif op_type == 'move':
+            move(snapshot, param_str)
+        elif op_type == 'poke':
+            poke(snapshot, param_str)
+        elif op_type == 'sysvars':
+            snapshot[23552:23755] = SYSVARS
+        else:
+            raise SkoolKitError(f'Invalid operation: {spec}')
+
 def sim_load(blocks, options):
     snapshot = [0] * 65536
     rom = read_bin_file(ROM48, 16384)
@@ -219,6 +237,7 @@ def sim_load(blocks, options):
     simulator.set_tracer(tracer)
     try:
         tracer.run(simulator, 0x0F3B, options.start) # Entry point in EDITOR at 0F2C
+        _ram_operations(snapshot, options.ram_ops)
     except KeyboardInterrupt: # pragma: no cover
         write_line(f'Simulation stopped (interrupted): PC={simulator.registers[PC]}')
     sim_registers = simulator.registers
@@ -315,17 +334,11 @@ def _load(snapshot, counters, blocks, param_str):
 
 def _get_ram(blocks, options):
     snapshot = [0] * 65536
-
-    operations = []
     standard_load = True
     for spec in options.ram_ops:
-        op_type, sep, param_str = spec.partition('=')
-        if op_type in ('call', 'load', 'move', 'poke', 'sysvars'):
-            operations.append((op_type, param_str))
-            if op_type == 'load':
-                standard_load = False
-        else:
-            raise SkoolKitError("Invalid operation: {}".format(spec))
+        if spec.partition('=')[0] == 'load':
+            standard_load = False
+            break
 
     if standard_load:
         start = None
@@ -350,19 +363,7 @@ def _get_ram(blocks, options):
                         _load_block(snapshot, block, start)
                         start = None
 
-    counters = {}
-    for op_type, param_str in operations:
-        if op_type == 'call':
-            _call(snapshot, param_str)
-        elif op_type == 'load':
-            _load(snapshot, counters, blocks, param_str)
-        elif op_type == 'move':
-            move(snapshot, param_str)
-        elif op_type == 'poke':
-            poke(snapshot, param_str)
-        elif op_type == 'sysvars':
-            snapshot[23552:23755] = SYSVARS
-
+    _ram_operations(snapshot, options.ram_ops, blocks)
     return snapshot[16384:]
 
 def _get_tzx_block(data, i, sim):

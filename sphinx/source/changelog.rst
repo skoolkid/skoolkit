@@ -5,6 +5,10 @@ Changelog
 -----
 * Added the :ref:`trace.py` command (for tracing the execution of machine code
   in a 48K memory snapshot)
+* The ``--sim-load`` option of :ref:`tap2sna.py` now performs any ``call``,
+  ``move``, ``poke`` and ``sysvars`` operations specified by the ``--ram``
+  option
+* Improved the performance of the ``--sim-load`` option of :ref:`tap2sna.py`
 * Removed the ``MaxAmplitude`` parameter from the :ref:`ref-AudioWriter`
   section
 

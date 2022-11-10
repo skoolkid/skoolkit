@@ -20,6 +20,7 @@ from skoolkit.tap2sna import get_tap_blocks, sim_load
 
 class Options:
     start = None
+    ram_ops = ()
     reg = []
     state = []
 

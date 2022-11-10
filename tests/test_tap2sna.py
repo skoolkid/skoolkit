@@ -39,6 +39,27 @@ class Tap2SnaTest(SkoolKitTestCase):
             tzx_data.extend(block)
         return self.write_bin_file(tzx_data, suffix='.tzx')
 
+    def _write_basic_loader(self, start, data, program='simloadbas', code='simloadbyt'):
+        start_str = [ord(c) for c in str(start)]
+        basic_data = [
+            0, 10,            # Line 10
+            16, 0,            # Line length
+            239, 34, 34, 175, # LOAD ""CODE
+            58,               # :
+            249, 192, 176,    # RANDOMIZE USR VAL
+            34,               # "
+            *start_str,       # start address
+            34,               # "
+            13                # ENTER
+        ]
+        blocks = [
+            create_tap_header_block(program, 10, len(basic_data), 0),
+            create_tap_data_block(basic_data),
+            create_tap_header_block(code, start, len(data)),
+            create_tap_data_block(data)
+        ]
+        return self._write_tap(blocks), basic_data
+
     def _get_snapshot(self, start=16384, data=None, options='', load_options=None, blocks=None, tzx=False):
         if blocks is None:
             blocks = [create_tap_data_block(data)]
@@ -712,26 +733,8 @@ class Tap2SnaTest(SkoolKitTestCase):
     @patch.object(tap2sna, '_write_z80', mock_write_z80)
     def test_sim_load(self):
         code_start = 32768
-        code_start_str = [ord(c) for c in str(code_start)]
-        basic_data = [
-            0, 10,            # Line 10
-            16, 0,            # Line length
-            239, 34, 34, 175, # LOAD ""CODE
-            58,               # :
-            249, 192, 176,    # RANDOMIZE USR VAL
-            34,               # "
-            *code_start_str,  # start address
-            34,               # "
-            13                # ENTER
-        ]
         code = [4, 5]
-        blocks = [
-            create_tap_header_block("simloadbas", 10, len(basic_data), 0),
-            create_tap_data_block(basic_data),
-            create_tap_header_block("simloadbyt", code_start, len(code)),
-            create_tap_data_block(code)
-        ]
-        tapfile = self._write_tap(blocks)
+        tapfile, basic_data = self._write_basic_loader(code_start, code)
         z80file = '{}/out.z80'.format(self.make_directory())
         output, error = self.run_tap2sna(f'--sim-load {tapfile} {z80file}')
         out_lines = output.strip().split('\n')
@@ -781,26 +784,8 @@ class Tap2SnaTest(SkoolKitTestCase):
     def test_sim_load_with_given_start_address(self):
         code_start = 32768
         start = 32769
-        code_start_str = [ord(c) for c in str(code_start)]
-        basic_data = [
-            0, 10,            # Line 10
-            16, 0,            # Line length
-            239, 34, 34, 175, # LOAD ""CODE
-            58,               # :
-            249, 192, 176,    # RANDOMIZE USR VAL
-            34,               # "
-            *code_start_str,  # start address
-            34,               # "
-            13                # ENTER
-        ]
         code = [175, 201]
-        blocks = [
-            create_tap_header_block("simloadbas", 10, len(basic_data), 0),
-            create_tap_data_block(basic_data),
-            create_tap_header_block("simloadbyt", code_start, len(code)),
-            create_tap_data_block(code)
-        ]
-        tapfile = self._write_tap(blocks)
+        tapfile, basic_data = self._write_basic_loader(code_start, code)
         z80file = '{}/out.z80'.format(self.make_directory())
         output, error = self.run_tap2sna(f'--sim-load --start {start} {tapfile} {z80file}')
         out_lines = output.strip().split('\n')
@@ -1208,31 +1193,13 @@ class Tap2SnaTest(SkoolKitTestCase):
     @patch.object(tap2sna, '_write_z80', mock_write_z80)
     def test_sim_load_preserves_interrupt_mode_and_flip_flop(self):
         code_start = 32768
-        code_start_str = [ord(c) for c in str(code_start)]
-        basic_data = [
-            0, 10,            # Line 10
-            16, 0,            # Line length
-            239, 34, 34, 175, # LOAD ""CODE
-            58,               # :
-            249, 192, 176,    # RANDOMIZE USR VAL
-            34,               # "
-            *code_start_str,  # start address
-            34,               # "
-            13                # ENTER
-        ]
         code = [
             243,              # 32768 DI
             237, 94,          # 32769 IM 2
             201,              # 32771 RET
         ]
         start = 32771
-        blocks = [
-            create_tap_header_block("simloadbas", 10, len(basic_data), 0),
-            create_tap_data_block(basic_data),
-            create_tap_header_block("simloadbyt", code_start, len(code)),
-            create_tap_data_block(code)
-        ]
-        tapfile = self._write_tap(blocks)
+        tapfile, basic_data = self._write_basic_loader(code_start, code)
         z80file = '{}/out.z80'.format(self.make_directory())
         output, error = self.run_tap2sna(f'--sim-load --start {start} {tapfile} {z80file}')
         out_lines = output.strip().split('\n')
@@ -1250,6 +1217,114 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(error, '')
         self.assertIn('im=2', options.state)
         self.assertIn('iff=0', options.state)
+
+    @patch.object(tap2sna, '_write_z80', mock_write_z80)
+    def test_sim_load_with_ram_call(self):
+        ram_module = """
+            def fix(snapshot):
+                snapshot[32768:32772] = [1, 2, 3, 4]
+        """
+        module_dir = self.make_directory()
+        module_name = 'simloadram'
+        module_path = os.path.join(module_dir, f'{module_name}.py')
+        module = self.write_text_file(textwrap.dedent(ram_module).strip(), path=module_path)
+        code_start = 32768
+        code = [4, 5]
+        tapfile, basic_data = self._write_basic_loader(code_start, code)
+        output, error = self.run_tap2sna(f'--sim-load --ram call={module_dir}:{module_name}.fix {tapfile} out.z80')
+        out_lines = output.strip().split('\n')
+        exp_out_lines = [
+            'Program: simloadbas',
+            'Fast loading data block: 23755,20',
+            '',
+            'Bytes: simloadbyt',
+            'Fast loading data block: 32768,2',
+            '',
+            'Tape finished',
+            'Simulation stopped (PC in RAM): PC=32768',
+        ]
+        self.assertEqual(exp_out_lines, out_lines)
+        self.assertEqual(error, '')
+        self.assertEqual(basic_data, snapshot[23755:23755 + len(basic_data)])
+        self.assertEqual([1, 2, 3, 4], snapshot[32768:32772])
+        exp_reg = set(('SP=65344', 'IX=32770', 'IY=23610', 'PC=32768'))
+        self.assertLessEqual(exp_reg, set(options.reg))
+
+    @patch.object(tap2sna, '_write_z80', mock_write_z80)
+    def test_sim_load_with_ram_move(self):
+        code_start = 32768
+        code = [4, 5]
+        tapfile, basic_data = self._write_basic_loader(code_start, code)
+        output, error = self.run_tap2sna(f'--sim-load --ram move=32768,2,32770 {tapfile} out.z80')
+        out_lines = output.strip().split('\n')
+        exp_out_lines = [
+            'Program: simloadbas',
+            'Fast loading data block: 23755,20',
+            '',
+            'Bytes: simloadbyt',
+            'Fast loading data block: 32768,2',
+            '',
+            'Tape finished',
+            'Simulation stopped (PC in RAM): PC=32768',
+        ]
+        self.assertEqual(exp_out_lines, out_lines)
+        self.assertEqual(error, '')
+        self.assertEqual(basic_data, snapshot[23755:23755 + len(basic_data)])
+        self.assertEqual([4, 5, 4, 5], snapshot[32768:32772])
+        exp_reg = set(('SP=65344', 'IX=32770', 'IY=23610', 'PC=32768'))
+        self.assertLessEqual(exp_reg, set(options.reg))
+
+    @patch.object(tap2sna, '_write_z80', mock_write_z80)
+    def test_sim_load_with_ram_poke(self):
+        code_start = 32768
+        code = [4, 5]
+        tapfile, basic_data = self._write_basic_loader(code_start, code)
+        output, error = self.run_tap2sna(f'--sim-load --ram poke=32768-32770-2,1 {tapfile} out.z80')
+        out_lines = output.strip().split('\n')
+        exp_out_lines = [
+            'Program: simloadbas',
+            'Fast loading data block: 23755,20',
+            '',
+            'Bytes: simloadbyt',
+            'Fast loading data block: 32768,2',
+            '',
+            'Tape finished',
+            'Simulation stopped (PC in RAM): PC=32768',
+        ]
+        self.assertEqual(exp_out_lines, out_lines)
+        self.assertEqual(error, '')
+        self.assertEqual(basic_data, snapshot[23755:23755 + len(basic_data)])
+        self.assertEqual([1, 5, 1], snapshot[32768:32771])
+        exp_reg = set(('SP=65344', 'IX=32770', 'IY=23610', 'PC=32768'))
+        self.assertLessEqual(exp_reg, set(options.reg))
+
+    @patch.object(tap2sna, '_write_z80', mock_write_z80)
+    def test_sim_load_with_ram_sysvars(self):
+        code_start = 32768
+        code = [4, 5]
+        tapfile, basic_data = self._write_basic_loader(code_start, code)
+        output, error = self.run_tap2sna(f'--sim-load --ram sysvars {tapfile} out.z80')
+        out_lines = output.strip().split('\n')
+        exp_out_lines = [
+            'Program: simloadbas',
+            'Fast loading data block: 23755,20',
+            '',
+            'Bytes: simloadbyt',
+            'Fast loading data block: 32768,2',
+            '',
+            'Tape finished',
+            'Simulation stopped (PC in RAM): PC=32768',
+        ]
+        self.assertEqual(exp_out_lines, out_lines)
+        self.assertEqual(error, '')
+        self.assertEqual(basic_data, snapshot[23755:23755 + len(basic_data)])
+        self.assertEqual([203, 92], snapshot[23627:23629]) # VARS=23755
+        self.assertEqual([204, 92], snapshot[23641:23643]) # E-LINE=23756
+        self.assertEqual([206, 92], snapshot[23649:23651]) # WORKSP=23758
+        self.assertEqual([206, 92], snapshot[23651:23653]) # STKBOT=23758
+        self.assertEqual([206, 92], snapshot[23653:23655]) # STKEND=23758
+        exp_reg = set(('SP=65344', 'IX=32770', 'IY=23610', 'PC=32768'))
+        self.assertLessEqual(exp_reg, set(options.reg))
 
     @patch.object(tap2sna, '_write_z80', mock_write_z80)
     def test_sim_load_with_unexpected_end_of_tape(self):

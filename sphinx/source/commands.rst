@@ -1361,6 +1361,9 @@ given on the command line.
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 8.8     | The ``--sim-load`` option performs any ``call/move/poke/sysvars`` |
+|         | operations specified by ``--ram``                                 |
++---------+-------------------------------------------------------------------+
 | 8.7     | Added the ``--sim-load`` option; when a headerless block is       |
 |         | ignored because no ``--ram load`` options have been specified, a  |
 |         | warning is printed                                                |
