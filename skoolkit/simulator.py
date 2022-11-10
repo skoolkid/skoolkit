@@ -955,25 +955,29 @@ class Simulator:
         registers[25] += timing
         registers[24] = end % 65536
 
-    def ld16addr(self, registers, memory, r_inc, timing, size, rh, rl, poke):
-        # LD BC/DE/HL/SP/IX/IY,(nn) / LD (nn),BC/DE/HL/SP/IX/IY
+    def ld_a_m(self, registers, memory):
+        # LD A,(nn)
+        pcn = registers[24] + 1
+        registers[0] = memory[memory[pcn % 65536] + 256 * memory[(pcn + 1) % 65536]]
+        registers[15] = R1[registers[15]]
+        registers[25] += 13
+        registers[24] = (pcn + 2) % 65536
+
+    def ld_m_a(self, registers, memory):
+        # LD (nn),A
+        pcn = registers[24] + 1
+        addr = memory[pcn % 65536] + 256 * memory[(pcn + 1) % 65536]
+        if addr > 0x3FFF:
+            memory[addr] = registers[0]
+        registers[15] = R1[registers[15]]
+        registers[25] += 13
+        registers[24] = (pcn + 2) % 65536
+
+    def ld_rr_mm(self, registers, memory, r_inc, timing, size, rh, rl):
+        # LD BC/DE/HL/SP/IX/IY,(nn)
         end = registers[24] + size
         addr = memory[(end - 2) % 65536] + 256 * memory[(end - 1) % 65536]
-        if poke:
-            if rl == 12:
-                sp = registers[12]
-                if addr > 0x3FFF:
-                    memory[addr] = sp % 256
-                addr = (addr + 1) % 65536
-                if addr > 0x3FFF:
-                    memory[addr] = sp // 256
-            else:
-                if addr > 0x3FFF:
-                    memory[addr] = registers[rl]
-                addr = (addr + 1) % 65536
-                if addr > 0x3FFF:
-                    memory[addr] = registers[rh]
-        elif rl == 12:
+        if rl == 12:
             registers[12] = memory[addr] + 256 * memory[(addr + 1) % 65536]
         else:
             registers[rl] = memory[addr]
@@ -982,17 +986,26 @@ class Simulator:
         registers[25] += timing
         registers[24] = end % 65536
 
-    def ldann(self, registers, memory, poke):
-        pcn = registers[24] + 1
-        if poke:
-            addr = memory[pcn % 65536] + 256 * memory[(pcn + 1) % 65536]
+    def ld_mm_rr(self, registers, memory, r_inc, timing, size, rh, rl):
+        # LD (nn),BC/DE/HL/SP/IX/IY
+        end = registers[24] + size
+        addr = memory[(end - 2) % 65536] + 256 * memory[(end - 1) % 65536]
+        if rl == 12:
+            sp = registers[12]
             if addr > 0x3FFF:
-                memory[addr] = registers[0]
+                memory[addr] = sp % 256
+            addr = (addr + 1) % 65536
+            if addr > 0x3FFF:
+                memory[addr] = sp // 256
         else:
-            registers[0] = memory[memory[pcn % 65536] + 256 * memory[(pcn + 1) % 65536]]
-        registers[15] = R1[registers[15]]
-        registers[25] += 13
-        registers[24] = (pcn + 2) % 65536
+            if addr > 0x3FFF:
+                memory[addr] = registers[rl]
+            addr = (addr + 1) % 65536
+            if addr > 0x3FFF:
+                memory[addr] = registers[rh]
+        registers[15] = r_inc[registers[15]]
+        registers[25] += timing
+        registers[24] = end % 65536
 
     def ldi(self, registers, memory, inc, repeat):
         # LDI, LDD, LDIR, LDDR
@@ -2116,7 +2129,7 @@ class Simulator:
             partial(self.nop, r, R1, 4, 1),                         # DD1F
             partial(self.nop, r, R1, 4, 1),                         # DD20
             partial(self.ld16, r, m, R2, 14, 4, IXh, IXl),          # DD21 LD IX,nn
-            partial(self.ld16addr, r, m, R2, 20, 4, IXh, IXl, 1),   # DD22 LD (nn),IX
+            partial(self.ld_mm_rr, r, m, R2, 20, 4, IXh, IXl),      # DD22 LD (nn),IX
             partial(self.inc_dec16, r, R2, 10, 2, 1, IXh, IXl),     # DD23 INC IX
             partial(self.fc_r, r, R2, 8, 2, INC, IXh),              # DD24 INC IXh
             partial(self.fc_r, r, R2, 8, 2, DEC, IXh),              # DD25 DEC IXh
@@ -2124,7 +2137,7 @@ class Simulator:
             partial(self.nop, r, R1, 4, 1),                         # DD27
             partial(self.nop, r, R1, 4, 1),                         # DD28
             partial(self.add16, r, R2, 15, 2, IXh, IXl, IXh, IXl),  # DD29 ADD IX,IX
-            partial(self.ld16addr, r, m, R2, 20, 4, IXh, IXl, 0),   # DD2A LD IX,(nn)
+            partial(self.ld_rr_mm, r, m, R2, 20, 4, IXh, IXl),      # DD2A LD IX,(nn)
             partial(self.inc_dec16, r, R2, 10, 2, -1, IXh, IXl),    # DD2B DEC IX
             partial(self.fc_r, r, R2, 8, 2, INC, IXl),              # DD2C INC IXl
             partial(self.fc_r, r, R2, 8, 2, DEC, IXl),              # DD2D DEC IXl
@@ -2408,7 +2421,7 @@ class Simulator:
             partial(self.in_c, r, B),                               # ED40 IN B,(C)
             partial(self.outc, r, B),                               # ED41 OUT (C),B
             partial(self.sbc_hl, r, B, C),                          # ED42 SBC HL,BC
-            partial(self.ld16addr, r, m, R2, 20, 4, B, C, 1),       # ED43 LD (nn),BC
+            partial(self.ld_mm_rr, r, m, R2, 20, 4, B, C),          # ED43 LD (nn),BC
             partial(self.neg, r),                                   # ED44 NEG
             partial(self.reti, r, m),                               # ED45 RETN
             partial(self.im, r, 0),                                 # ED46 IM 0
@@ -2416,7 +2429,7 @@ class Simulator:
             partial(self.in_c, r, C),                               # ED48 IN C,(C)
             partial(self.outc, r, C),                               # ED49 OUT (C),C
             partial(self.adc_hl, r, B, C),                          # ED4A ADC HL,BC
-            partial(self.ld16addr, r, m, R2, 20, 4, B, C, 0),       # ED4B LD BC,(nn)
+            partial(self.ld_rr_mm, r, m, R2, 20, 4, B, C),          # ED4B LD BC,(nn)
             partial(self.neg, r),                                   # ED4C NEG
             partial(self.reti, r, m),                               # ED4D RETI
             partial(self.im, r, 0),                                 # ED4E IM 0
@@ -2424,7 +2437,7 @@ class Simulator:
             partial(self.in_c, r, D),                               # ED50 IN D,(C)
             partial(self.outc, r, D),                               # ED51 OUT (C),D
             partial(self.sbc_hl, r, D, E),                          # ED52 SBC HL,DE
-            partial(self.ld16addr, r, m, R2, 20, 4, D, E, 1),       # ED53 LD (nn),DE
+            partial(self.ld_mm_rr, r, m, R2, 20, 4, D, E),          # ED53 LD (nn),DE
             partial(self.neg, r),                                   # ED54 NEG
             partial(self.reti, r, m),                               # ED55 RETN
             partial(self.im, r, 1),                                 # ED56 IM 1
@@ -2432,7 +2445,7 @@ class Simulator:
             partial(self.in_c, r, E),                               # ED58 IN E,(C)
             partial(self.outc, r, E),                               # ED59 OUT (C),E
             partial(self.adc_hl, r, D, E),                          # ED5A ADC HL,DE
-            partial(self.ld16addr, r, m, R2, 20, 4, D, E, 0),       # ED5B LD DE,(nn)
+            partial(self.ld_rr_mm, r, m, R2, 20, 4, D, E),          # ED5B LD DE,(nn)
             partial(self.neg, r),                                   # ED5C NEG
             partial(self.reti, r, m),                               # ED5D RETN
             partial(self.im, r, 2),                                 # ED5E IM 2
@@ -2440,7 +2453,7 @@ class Simulator:
             partial(self.in_c, r, H),                               # ED60 IN H,(C)
             partial(self.outc, r, H),                               # ED61 OUT (C),H
             partial(self.sbc_hl, r, H, L),                          # ED62 SBC HL,HL
-            partial(self.ld16addr, r, m, R2, 20, 4, H, L, 1),       # ED63 LD (nn),HL
+            partial(self.ld_mm_rr, r, m, R2, 20, 4, H, L),          # ED63 LD (nn),HL
             partial(self.neg, r),                                   # ED64 NEG
             partial(self.reti, r, m),                               # ED65 RETN
             partial(self.im, r, 0),                                 # ED66 IM 0
@@ -2448,7 +2461,7 @@ class Simulator:
             partial(self.in_c, r, L),                               # ED68 IN L,(C)
             partial(self.outc, r, L),                               # ED69 OUT (C),L
             partial(self.adc_hl, r, H, L),                          # ED6A ADC HL,HL
-            partial(self.ld16addr, r, m, R2, 20, 4, H, L, 0),       # ED6B LD HL,(nn)
+            partial(self.ld_rr_mm, r, m, R2, 20, 4, H, L),          # ED6B LD HL,(nn)
             partial(self.neg, r),                                   # ED6C NEG
             partial(self.reti, r, m),                               # ED6D RETN
             partial(self.im, r, 0),                                 # ED6E IM 0
@@ -2456,7 +2469,7 @@ class Simulator:
             partial(self.in_c, r, F),                               # ED70 IN F,(C)
             partial(self.outc, r, -1),                              # ED71 OUT (C),0
             partial(self.sbc_hl, r, SP2, SP),                       # ED72 SBC HL,SP
-            partial(self.ld16addr, r, m, R2, 20, 4, SP2, SP, 1),    # ED73 LD (nn),SP
+            partial(self.ld_mm_rr, r, m, R2, 20, 4, SP2, SP),       # ED73 LD (nn),SP
             partial(self.neg, r),                                   # ED74 NEG
             partial(self.reti, r, m),                               # ED75 RETN
             partial(self.im, r, 1),                                 # ED76 IM 1
@@ -2464,7 +2477,7 @@ class Simulator:
             partial(self.in_c, r, A),                               # ED78 IN A,(C)
             partial(self.outc, r, A),                               # ED79 OUT (C),A
             partial(self.adc_hl, r, SP2, SP),                       # ED7A ADC HL,SP
-            partial(self.ld16addr, r, m, R2, 20, 4, SP2, SP, 0),    # ED7B LD SP,(nn)
+            partial(self.ld_rr_mm, r, m, R2, 20, 4, SP2, SP),       # ED7B LD SP,(nn)
             partial(self.neg, r),                                   # ED7C NEG
             partial(self.reti, r, m),                               # ED7D RETN
             partial(self.im, r, 2),                                 # ED7E IM 2
@@ -2634,7 +2647,7 @@ class Simulator:
             partial(self.nop, r, R1, 4, 1),                         # FD1F
             partial(self.nop, r, R1, 4, 1),                         # FD20
             partial(self.ld16, r, m, R2, 14, 4, IYh, IYl),          # FD21 LD IY,nn
-            partial(self.ld16addr, r, m, R2, 20, 4, IYh, IYl, 1),   # FD22 LD (nn),IY
+            partial(self.ld_mm_rr, r, m, R2, 20, 4, IYh, IYl),      # FD22 LD (nn),IY
             partial(self.inc_dec16, r, R2, 10, 2, 1, IYh, IYl),     # FD23 INC IY
             partial(self.fc_r, r, R2, 8, 2, INC, IYh),              # FD24 INC IYh
             partial(self.fc_r, r, R2, 8, 2, DEC, IYh),              # FD25 DEC IYh
@@ -2642,7 +2655,7 @@ class Simulator:
             partial(self.nop, r, R1, 4, 1),                         # FD27
             partial(self.nop, r, R1, 4, 1),                         # FD28
             partial(self.add16, r, R2, 15, 2, IYh, IYl, IYh, IYl),  # FD29 ADD IY,IY
-            partial(self.ld16addr, r, m, R2, 20, 4, IYh, IYl, 0),   # FD2A LD IY,(nn)
+            partial(self.ld_rr_mm, r, m, R2, 20, 4, IYh, IYl),      # FD2A LD IY,(nn)
             partial(self.inc_dec16, r, R2, 10, 2, -1, IYh, IYl),    # FD2B DEC IY
             partial(self.fc_r, r, R2, 8, 2, INC, IYl),              # FD2C INC IYl
             partial(self.fc_r, r, R2, 8, 2, DEC, IYl),              # FD2D DEC IYl
@@ -2893,7 +2906,7 @@ class Simulator:
             partial(self.af_r, r, R1, 4, 1, RRA, F),                # 1F RRA
             partial(self.jr, r, m, 64, 0),                          # 20 JR NZ,nn
             partial(self.ld16, r, m, R1, 10, 3, H, L),              # 21 LD HL,nn
-            partial(self.ld16addr, r, m, R1, 16, 3, H, L, 1),       # 22 LD (nn),HL
+            partial(self.ld_mm_rr, r, m, R1, 16, 3, H, L),          # 22 LD (nn),HL
             partial(self.inc_dec16, r, R1, 6, 1, 1, H, L),          # 23 INC HL
             partial(self.fc_r, r, R1, 4, 1, INC, H),                # 24 INC H
             partial(self.fc_r, r, R1, 4, 1, DEC, H),                # 25 DEC H
@@ -2901,7 +2914,7 @@ class Simulator:
             partial(self.af_r, r, R1, 4, 1, DAA, F),                # 27 DAA
             partial(self.jr, r, m, 64, 64),                         # 28 JR Z,nn
             partial(self.add16, r, R1, 11, 1, H, L, H, L),          # 29 ADD HL,HL
-            partial(self.ld16addr, r, m, R1, 16, 3, H, L, 0),       # 2A LD HL,(nn)
+            partial(self.ld_rr_mm, r, m, R1, 16, 3, H, L),          # 2A LD HL,(nn)
             partial(self.inc_dec16, r, R1, 6, 1, -1, H, L),         # 2B DEC HL
             partial(self.fc_r, r, R1, 4, 1, INC, L),                # 2C INC L
             partial(self.fc_r, r, R1, 4, 1, DEC, L),                # 2D DEC L
@@ -2909,7 +2922,7 @@ class Simulator:
             partial(self.cpl, r),                                   # 2F CPL
             partial(self.jr, r, m, 1, 0),                           # 30 JR NC,nn
             partial(self.ld16, r, m, R1, 10, 3, SP2, SP),           # 31 LD SP,nn
-            partial(self.ldann, r, m, 1),                           # 32 LD (nn),A
+            partial(self.ld_m_a, r, m),                             # 32 LD (nn),A
             partial(self.inc_dec16, r, R1, 6, 1, 1, SP2, SP),       # 33 INC SP
             partial(self.fc_hl, r, m, R1, 11, 1, INC),              # 34 INC (HL)
             partial(self.fc_hl, r, m, R1, 11, 1, DEC),              # 35 DEC (HL)
@@ -2917,7 +2930,7 @@ class Simulator:
             partial(self.cf, r, SCF),                               # 37 SCF
             partial(self.jr, r, m, 1, 1),                           # 38 JR C,nn
             partial(self.add16, r, R1, 11, 1, H, L, SP2, SP),       # 39 ADD HL,SP
-            partial(self.ldann, r, m, 0),                           # 3A LD A,(nn)
+            partial(self.ld_a_m, r, m),                             # 3A LD A,(nn)
             partial(self.inc_dec16, r, R1, 6, 1, -1, SP2, SP),      # 3B DEC SP
             partial(self.fc_r, r, R1, 4, 1, INC, A),                # 3C INC A
             partial(self.fc_r, r, R1, 4, 1, DEC, A),                # 3D DEC A
