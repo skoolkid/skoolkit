@@ -781,7 +781,7 @@ class Simulator:
             value = self.in_tracer(registers[3] + 256 * registers[2])
         else:
             value = 191
-        if reg != F:
+        if reg != 1:
             registers[reg] = value
         registers[1] = SZ53P[value] + (registers[1] % 2)
         registers[15] = R2[registers[15]]
