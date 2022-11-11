@@ -18,7 +18,7 @@ import argparse
 import time
 
 from skoolkit import ROM48, VERSION, SkoolKitError, get_int_param, integer, read_bin_file
-from skoolkit.snapshot import make_snapshot, poke, print_reg_help
+from skoolkit.snapshot import make_snapshot, poke, print_reg_help, write_z80v3
 from skoolkit.simulator import (Simulator, A, F, B, C, D, E, H, L, IXh, IXl, IYh, IYl,
                                 SP, I, R, xA, xF, xB, xC, xD, xE, xH, xL, PC, T)
 from skoolkit.snapinfo import parse_snapshot
@@ -31,8 +31,9 @@ ${address:04X} {data:<8} {i:<15}  A={A:02X} F={F:08b} BC={BC:04X} DE={DE:04X} HL
 """.strip()
 
 class Tracer:
-    def __init__(self):
+    def __init__(self, border):
         self.operations = 0
+        self.border = border
         self.spkr = None
         self.out_times = []
 
@@ -97,9 +98,11 @@ class Tracer:
         self.operations = operations
 
     def write_port(self, registers, port, value):
-        if port % 2 == 0 and self.spkr != value & 0x10:
-            self.spkr = value & 0x10
-            self.out_times.append(registers[T])
+        if port % 2 == 0:
+            self.border = value % 8
+            if self.spkr != value & 0x10:
+                self.spkr = value & 0x10
+                self.out_times.append(registers[T])
 
 def get_registers(sna_reg, specs):
     if sna_reg:
@@ -191,9 +194,18 @@ def run(snafile, options):
     memory[:len(rom)] = rom
     for spec in options.pokes:
         poke(memory, spec)
+    if reg:
+        im = reg.im
+        iff = reg.iff2
+        border = reg.border
+    else:
+        im = 1
+        iff = 1
+        border = 7
+    state = {'im': im, 'iff': iff}
     config = {'fast_djnz': options.audio, 'fast_ldir': True}
-    simulator = Simulator(memory, get_registers(reg, options.reg), config=config)
-    tracer = Tracer()
+    simulator = Simulator(memory, get_registers(reg, options.reg), state, config)
+    tracer = Tracer(border)
     simulator.set_tracer(tracer)
     begin = time.time()
     tracer.run(simulator, start, options.stop, options.verbose, options.max_operations, options.max_tstates)
@@ -212,9 +224,33 @@ def run(snafile, options):
         print('Sound duration: {} T-states ({:.03f}s)'.format(duration, duration / 3500000))
         print('Delays: {}'.format(simplify(delays, options.depth)))
     if options.dump:
-        with open(options.dump, 'wb') as f:
-            f.write(bytearray(simulator.memory[16384:]))
-        print(f'Snapshot dumped to {options.dump}')
+        ram = simulator.memory[16384:]
+        r = simulator.registers
+        registers = (
+            f'a={r[A]}',
+            f'f={r[F]}',
+            f'bc={r[C] + 256 * r[B]}',
+            f'de={r[E] + 256 * r[D]}',
+            f'hl={r[L] + 256 * r[H]}',
+            f'ix={r[IXl] + 256 * r[IXh]}',
+            f'iy={r[IYl] + 256 * r[IYh]}',
+            f'sp={r[SP]}',
+            f'i={r[I]}',
+            f'r={r[R]}',
+            f'^a={r[xA]}',
+            f'^f={r[xF]}',
+            f'^bc={r[xC] + 256 * r[xB]}',
+            f'^de={r[xE] + 256 * r[xD]}',
+            f'^hl={r[xL] + 256 * r[xH]}',
+            f'pc={r[PC]}'
+        )
+        state = (
+            f'border={tracer.border}',
+            f'iff={simulator.iff2}',
+            f'im={simulator.imode}'
+        )
+        write_z80v3(options.dump, ram, registers, state)
+        print(f'Z80 snapshot dumped to {options.dump}')
 
 def main(args):
     parser = argparse.ArgumentParser(
@@ -230,7 +266,7 @@ def main(args):
     group.add_argument('--depth', type=int, default=2,
                        help='Simplify audio delays to this depth (default: 2).')
     group.add_argument('--dump', metavar='FILE',
-                       help='Dump RAM to this file after execution.')
+                       help='Dump a Z80 snapshot to this file after execution.')
     group.add_argument('--max-operations', metavar='MAX', type=int, default=0,
                        help='Maximum number of instructions to execute.')
     group.add_argument('--max-tstates', metavar='MAX', type=int, default=0,

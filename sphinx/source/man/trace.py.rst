@@ -27,7 +27,7 @@ OPTIONS
   reduced to [1, 2, 3]*2.
 
 --dump `FILE`
-  Dump RAM to this file after execution.
+  Dump a Z80 snapshot to this file after execution.
 
 --max-operations `MAX`
   Maximum number of instructions to execute. Overrides the `STOP` address (if

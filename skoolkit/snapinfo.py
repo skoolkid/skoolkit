@@ -156,6 +156,7 @@ def _parse_z80(z80file):
     reg.f2 = header[22]
     reg.iy = get_word(header, 23)
     reg.ix = get_word(header, 25)
+    reg.border = (header[12] // 2) % 8
     reg.iff2 = header[28]
     reg.im = header[29] & 3
 
@@ -245,7 +246,7 @@ def _parse_szx(szxfile):
 
     header = szx[:8]
 
-    reg = None
+    reg = Registers()
     blocks = []
     i = 8
     while i < len(szx):
@@ -255,7 +256,6 @@ def _parse_szx(szxfile):
         block = szx[i - block_size:i]
         blocks.append((block_id, block))
         if block_id == 'Z80R':
-            reg = Registers()
             reg.f = block[0]
             reg.a = block[1]
             reg.bc = get_word(block, 2)
@@ -274,6 +274,8 @@ def _parse_szx(szxfile):
             reg.r = block[25]
             reg.iff2 = block[27]
             reg.im = block[28]
+        elif block_id == 'SPCR':
+            reg.border = block[0]
 
     return header, reg, blocks
 
@@ -367,6 +369,7 @@ def _parse_sna(snafile):
         reg.pc = get_word(sna, 49179)
     else:
         reg.pc = get_word(sna, reg.sp - 16357)
+    reg.border = sna[26]
     reg.iff2 = (sna[19] & 4) // 4
     reg.im = sna[25]
 

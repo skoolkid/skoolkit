@@ -9,6 +9,13 @@ def mock_run(*args):
     global run_args
     run_args = args
 
+def mock_write_z80v3(fname, ram, registers, state):
+    global z80fname, snapshot, z80reg, z80state
+    z80fname = fname
+    snapshot = [0] * 16384 + ram
+    z80reg = registers
+    z80state = state
+
 class TraceTest(SkoolKitTestCase):
     def _test_trace(self, args, exp_output):
         output, error = self.run_trace(args)
@@ -171,22 +178,63 @@ class TraceTest(SkoolKitTestCase):
         """
         self.assertEqual(dedent(exp_output).strip(), output.rstrip())
 
+    @patch.object(trace, 'write_z80v3', mock_write_z80v3)
     def test_option_dump(self):
         data = [
-            50, 0, 128, # LD (32768),A
+            0x37,                   # $8000 SCF
+            0x9F,                   # $8001 SBC A,A
+            0xF3,                   # $8002 DI
+            0xED, 0x5E,             # $8003 IM 2
+            0xED, 0x47,             # $8005 LD I,A
+            0xED, 0x4F,             # $8007 LD R,A
+            0x08,                   # $8009 EX AF,AF'
+            0x3E, 0x01,             # $800A LD A,$01
+            0xA7,                   # $800C AND A
+            0xD3, 0xFE,             # $800D OUT ($FE),A
+            0x01, 0x88, 0x10,       # $800F LD BC,$1088
+            0x11, 0xB8, 0x53,       # $8012 LD DE,$53B8
+            0x21, 0x57, 0x63,       # $8015 LD HL,$6357
+            0xD9,                   # $8018 EXX
+            0x01, 0x27, 0xEF,       # $8019 LD BC,$EF27
+            0x11, 0xF8, 0x13,       # $801C LD DE,$13F8
+            0x01, 0x77, 0x7D,       # $801F LD BC,$7D77
+            0x31, 0xE9, 0xBE,       # $8022 LD SP,$BEE9
+            0xDD, 0x21, 0x72, 0x0D, # $8025 LD IX,$0D72
+            0xFD, 0x21, 0x2E, 0x27, # $8029 LD IY,$272E
         ]
         infile = self.write_bin_file(data, suffix='.bin')
-        outfile = os.path.join(self.make_directory(), 'dump.bin')
-        start, stop = 32768, 32771
+        outfile = os.path.join(self.make_directory(), 'dump.z80')
+        start = 32768
+        stop = start + len(data)
         output, error = self.run_trace(f'-o {start} -S {stop} --dump {outfile} {infile}')
         exp_output = f"""
-            Stopped at $8003
-            Snapshot dumped to {outfile}
+            Stopped at ${stop:04X}
+            Z80 snapshot dumped to {outfile}
         """
+        exp_reg = (
+            'a=1',
+            'f=16',
+            'bc=32119',
+            'de=5112',
+            'hl=0',
+            'ix=3442',
+            'iy=10030',
+            'sp=48873',
+            'i=255',
+            'r=145',
+            '^a=255',
+            '^f=187',
+            '^bc=4232',
+            '^de=21432',
+            '^hl=25431',
+            f'pc={stop}'
+        )
+        exp_state = ('border=1', 'iff=0', 'im=2')
         self.assertEqual(dedent(exp_output).strip(), output.rstrip())
-        with open(outfile, 'rb') as f:
-            dump = list(f.read())
-        self.assertEqual([0, 0, 128], dump[16384:16387])
+        self.assertEqual(z80fname, outfile)
+        self.assertEqual(data, snapshot[start:stop])
+        self.assertEqual(exp_reg, z80reg)
+        self.assertEqual(exp_state, z80state)
 
     def test_option_max_operations(self):
         data = [
