@@ -861,13 +861,11 @@ class Simulator:
             registers[24] = (registers[24] + 2) % 65536
         registers[15] = R1[registers[15]]
 
-    def ld_air(self, registers, r1, r2):
-        # LD I,A / LD R,A / LD A,I / LD A,R
-        registers[r1] = registers[r2]
-        if r1 == 0:
-            # LD A,I / LD A,R
-            a = registers[0]
-            registers[1] = (a & 0xA8) + (a == 0) * 0x40 + self.iff2 * 0x04 + (registers[1] % 2)
+    def ld_a_ir(self, registers, r):
+        # LD A,I/R
+        a = registers[r]
+        registers[0] = a
+        registers[1] = (a & 0xA8) + (a == 0) * 0x40 + self.iff2 * 0x04 + (registers[1] % 2)
         registers[15] = R2[registers[15]]
         registers[25] += 9
         registers[24] = (registers[24] + 2) % 65536
@@ -2418,7 +2416,7 @@ class Simulator:
             partial(self.neg, r),                                   # ED44 NEG
             partial(self.reti, r, m),                               # ED45 RETN
             partial(self.im, r, 0),                                 # ED46 IM 0
-            partial(self.ld_air, r, I, A),                          # ED47 LD I,A
+            partial(self.ld_r_r, r, R2, 9, 2, I, A),                # ED47 LD I,A
             partial(self.in_c, r, C),                               # ED48 IN C,(C)
             partial(self.out_c, r, C),                              # ED49 OUT (C),C
             partial(self.adc_hl, r, B, C),                          # ED4A ADC HL,BC
@@ -2426,7 +2424,7 @@ class Simulator:
             partial(self.neg, r),                                   # ED4C NEG
             partial(self.reti, r, m),                               # ED4D RETI
             partial(self.im, r, 0),                                 # ED4E IM 0
-            partial(self.ld_air, r, R, A),                          # ED4F LD R,A
+            partial(self.ld_r_r, r, R2, 9, 2, R, A),                # ED4F LD R,A
             partial(self.in_c, r, D),                               # ED50 IN D,(C)
             partial(self.out_c, r, D),                              # ED51 OUT (C),D
             partial(self.sbc_hl, r, D, E),                          # ED52 SBC HL,DE
@@ -2434,7 +2432,7 @@ class Simulator:
             partial(self.neg, r),                                   # ED54 NEG
             partial(self.reti, r, m),                               # ED55 RETN
             partial(self.im, r, 1),                                 # ED56 IM 1
-            partial(self.ld_air, r, A, I),                          # ED57 LD A,I
+            partial(self.ld_a_ir, r, I),                            # ED57 LD A,I
             partial(self.in_c, r, E),                               # ED58 IN E,(C)
             partial(self.out_c, r, E),                              # ED59 OUT (C),E
             partial(self.adc_hl, r, D, E),                          # ED5A ADC HL,DE
@@ -2442,7 +2440,7 @@ class Simulator:
             partial(self.neg, r),                                   # ED5C NEG
             partial(self.reti, r, m),                               # ED5D RETN
             partial(self.im, r, 2),                                 # ED5E IM 2
-            partial(self.ld_air, r, A, R),                          # ED5F LD A,R
+            partial(self.ld_a_ir, r, R),                            # ED5F LD A,R
             partial(self.in_c, r, H),                               # ED60 IN H,(C)
             partial(self.out_c, r, H),                              # ED61 OUT (C),H
             partial(self.sbc_hl, r, H, L),                          # ED62 SBC HL,HL
