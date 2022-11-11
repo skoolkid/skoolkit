@@ -18,7 +18,19 @@ from functools import partial
 
 from skoolkit import SkoolKitError, write, write_line
 from skoolkit.basic import TextReader
-from skoolkit.simulator import A, F, D, E, H, L, IXh, IXl, PC, T, R1, DEC
+from skoolkit.simulator import A, F, D, E, H, L, IXh, IXl, PC, T, R1
+
+DEC = tuple(tuple((
+        (r - 1) % 256,
+        ((r - 1) & 0xA8)           # S.5.3...
+        + (r == 1) * 0x40          # .Z......
+        + (r % 16 == 0x00) * 0x10  # ...H....
+        + (r == 0x80) * 0x04       # .....P..
+        + 0x02                     # ......N.
+        + (f & 0x01)               # .......C
+    ) for r in range(256)
+    ) for f in range(256)
+)
 
 SIM_TIMEOUT = 10 * 60 * 3500000 # 10 minutes of Z80 CPU time
 
