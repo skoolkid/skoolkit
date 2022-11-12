@@ -24,10 +24,15 @@ from skoolkit.simulator import (Simulator, A, F, B, C, D, E, H, L, IXh, IXl, IYh
 from skoolkit.snapinfo import parse_snapshot
 from skoolkit.traceutils import disassemble
 
-TRACE1 = "${address:04X} {data:<8} {i}"
-TRACE2 = """
+TRACE1H = "${address:04X} {data:<8} {i}"
+TRACE1D = "{address:05} {data:<8} {i}"
+TRACE2H = """
 ${address:04X} {data:<8} {i:<15}  A={A:02X} F={F:08b} BC={BC:04X} DE={DE:04X} HL={HL:04X} IX={IX:04X} IY={IY:04X} IR={IR:04X}
                                 A'={^A:02X} F'={^F:08b} BC'={BC':04X} DE'={DE':04X} HL'={HL':04X} SP={SP:04X}
+""".strip()
+TRACE2D = """
+{address:05} {data:<8} {i:<15}  A={A:<3} F={F:08b} BC={BC:<5} DE={DE:<5} HL={HL:<5} IX={IX:<5} IY={IY:<5} I={I:<3} R={R:<3}
+                                A'={^A:<3} F'={^F:08b} BC'={BC':<5} DE'={DE':<5} HL'={HL':<5} SP={SP:<5}
 """.strip()
 
 class Tracer:
@@ -37,15 +42,27 @@ class Tracer:
         self.spkr = None
         self.out_times = []
 
-    def run(self, simulator, start, stop, verbose, max_operations, max_tstates):
+    def run(self, simulator, start, stop, verbose, max_operations, max_tstates, decimal):
         opcodes = simulator.opcodes
         memory = simulator.memory
         registers = simulator.registers
         pc = registers[PC] = start
         operations = 0
 
+        if decimal:
+            p = b = w = ''
+            if verbose > 1:
+                fmt = TRACE2D
+            else:
+                fmt = TRACE1D
+        else:
+            p, b, w = '$', '02X', '04X'
+            if verbose > 1:
+                fmt = TRACE2H
+            else:
+                fmt = TRACE1H
         if verbose:
-            instruction, size = disassemble(memory, pc)
+            instruction, size = disassemble(memory, pc, p, b, w)
             values = {
                 'address': pc,
                 'data': ''.join(f'{memory[a % 65536]:02X}' for a in range(pc, pc + size)),
@@ -57,10 +74,6 @@ class Tracer:
             pc = registers[24]
 
             if verbose:
-                if verbose > 1:
-                    fmt = TRACE2
-                else:
-                    fmt = TRACE1
                 values.update({
                     "A": registers[A],
                     "F": registers[F],
@@ -69,6 +82,8 @@ class Tracer:
                     "HL": registers[L] + 256 * registers[H],
                     "IX": registers[IXl] + 256 * registers[IXh],
                     "IY": registers[IYl] + 256 * registers[IYh],
+                    "I": registers[I],
+                    "R": registers[R],
                     "IR": registers[R] + 256 * registers[I],
                     "SP": registers[SP],
                     "^A": registers[xA],
@@ -78,7 +93,7 @@ class Tracer:
                     "HL'": registers[xL] + 256 * registers[xH]
                 })
                 print(fmt.format(**values))
-                instruction, size = disassemble(memory, pc)
+                instruction, size = disassemble(memory, pc, p, b, w)
                 values['address'] = pc
                 values['data'] = ''.join(f'{memory[a % 65536]:02X}' for a in range(pc, pc + size))
                 values['i'] = instruction
@@ -86,13 +101,13 @@ class Tracer:
             operations += 1
 
             if operations >= max_operations > 0:
-                print(f'Stopped at ${pc:04X}: {operations} operations')
+                print(f'Stopped at {p}{pc:{w}}: {operations} operations')
                 break
             if registers[T] >= max_tstates > 0:
-                print(f'Stopped at ${pc:04X}: {registers[T]} T-states')
+                print(f'Stopped at {p}{pc:{w}}: {registers[T]} T-states')
                 break
             if pc == stop:
-                print(f'Stopped at ${pc:04X}')
+                print(f'Stopped at {p}{pc:{w}}')
                 break
 
         self.operations = operations
@@ -208,7 +223,8 @@ def run(snafile, options):
     tracer = Tracer(border)
     simulator.set_tracer(tracer)
     begin = time.time()
-    tracer.run(simulator, start, options.stop, options.verbose, options.max_operations, options.max_tstates)
+    tracer.run(simulator, start, options.stop, options.verbose,
+               options.max_operations, options.max_tstates, options.decimal)
     rt = time.time() - begin
     if options.stats:
         z80t = simulator.registers[T] / 3500000
@@ -263,6 +279,8 @@ def main(args):
     group = parser.add_argument_group('Options')
     group.add_argument('--audio', action='store_true',
                        help="Show audio delays.")
+    group.add_argument('-D', '--decimal', action='store_true',
+                       help="Show decimal values in verbose mode.")
     group.add_argument('--depth', type=int, default=2,
                        help='Simplify audio delays to this depth (default: 2).')
     group.add_argument('--dump', metavar='FILE',

@@ -1451,6 +1451,7 @@ To list the options supported by `trace.py`, run it with no arguments::
   Options:
     --audio               Show audio delays.
     --depth DEPTH         Simplify audio delays to this depth (default: 2).
+    -D, --decimal         Show decimal values in verbose mode.
     --dump FILE           Dump a Z80 snapshot to this file after execution.
     --max-operations MAX  Maximum number of instructions to execute.
     --max-tstates MAX     Maximum number of T-states to run for.

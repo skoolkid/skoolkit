@@ -178,6 +178,89 @@ class TraceTest(SkoolKitTestCase):
         """
         self.assertEqual(dedent(exp_output).strip(), output.rstrip())
 
+    def test_option_decimal_verbose(self):
+        data = (
+            33, 7, 135,             # 65519 LD HL,34567
+            6, 1,                   # 65522 LD B,1
+            16, 254,                # 65524 DJNZ 65524
+            221, 117, 23,           # 65526 LD (IX+23),L
+            253, 54, 200, 100,      # 65529 LD (IY-56),100
+            237, 0,                 # 65533 DEFB 237,0
+            199,                    # 65535 RST 0
+        )
+        binfile = self.write_bin_file(data, suffix='.bin')
+        exp_output = """
+            65519 210787   LD HL,34567
+            65522 0601     LD B,1
+            65524 10FE     DJNZ 65524
+            65526 DD7517   LD (IX+23),L
+            65529 FD36C864 LD (IY-56),100
+            65533 ED00     DEFB 237,0
+            65535 C7       RST 0
+            Stopped at 0
+        """
+        for option in ('-D', '--decimal'):
+            output, error = self.run_trace(f'-v -S 0 {option} {binfile}')
+            self.assertEqual(error, '')
+            self.assertEqual(dedent(exp_output).strip(), output.rstrip())
+
+    def test_option_decimal_more_verbose(self):
+        data = (
+            1, 57, 48,              # 65499 LD BC,12345
+            17, 160, 91,            # 65502 LD DE,23456
+            33, 7, 135,             # 65505 LD HL,34567
+            221, 33, 110, 178,      # 65508 LD IX,45678
+            253, 33, 213, 221,      # 65512 LD IY,56789
+            144,                    # 65516 SUB B
+            237, 79,                # 65517 LD R,A
+            237, 71,                # 65519 LD I,A
+            217,                    # 65521 EXX
+            1, 152, 255,            # 65522 LD BC,65432
+            17, 49, 212,            # 65525 LD DE,54321
+            33, 202, 168,           # 65528 LD HL,43210
+            8,                      # 65531 EX AF,AF'
+            144,                    # 65532 SUB B
+            49, 109, 125,           # 65533 LD SP,32109
+        )
+        binfile = self.write_bin_file(data, suffix='.bin')
+        exp_output = """
+            65499 013930   LD BC,12345      A=0   F=00000000 BC=12345 DE=0     HL=0     IX=0     IY=23610 I=63  R=1  
+                                            A'=0   F'=00000000 BC'=0     DE'=0     HL'=0     SP=23552
+            65502 11A05B   LD DE,23456      A=0   F=00000000 BC=12345 DE=23456 HL=0     IX=0     IY=23610 I=63  R=2  
+                                            A'=0   F'=00000000 BC'=0     DE'=0     HL'=0     SP=23552
+            65505 210787   LD HL,34567      A=0   F=00000000 BC=12345 DE=23456 HL=34567 IX=0     IY=23610 I=63  R=3  
+                                            A'=0   F'=00000000 BC'=0     DE'=0     HL'=0     SP=23552
+            65508 DD216EB2 LD IX,45678      A=0   F=00000000 BC=12345 DE=23456 HL=34567 IX=45678 IY=23610 I=63  R=5  
+                                            A'=0   F'=00000000 BC'=0     DE'=0     HL'=0     SP=23552
+            65512 FD21D5DD LD IY,56789      A=0   F=00000000 BC=12345 DE=23456 HL=34567 IX=45678 IY=56789 I=63  R=7  
+                                            A'=0   F'=00000000 BC'=0     DE'=0     HL'=0     SP=23552
+            65516 90       SUB B            A=208 F=10000011 BC=12345 DE=23456 HL=34567 IX=45678 IY=56789 I=63  R=8  
+                                            A'=0   F'=00000000 BC'=0     DE'=0     HL'=0     SP=23552
+            65517 ED4F     LD R,A           A=208 F=10000011 BC=12345 DE=23456 HL=34567 IX=45678 IY=56789 I=63  R=210
+                                            A'=0   F'=00000000 BC'=0     DE'=0     HL'=0     SP=23552
+            65519 ED47     LD I,A           A=208 F=10000011 BC=12345 DE=23456 HL=34567 IX=45678 IY=56789 I=208 R=212
+                                            A'=0   F'=00000000 BC'=0     DE'=0     HL'=0     SP=23552
+            65521 D9       EXX              A=208 F=10000011 BC=0     DE=0     HL=0     IX=45678 IY=56789 I=208 R=213
+                                            A'=0   F'=00000000 BC'=12345 DE'=23456 HL'=34567 SP=23552
+            65522 0198FF   LD BC,65432      A=208 F=10000011 BC=65432 DE=0     HL=0     IX=45678 IY=56789 I=208 R=214
+                                            A'=0   F'=00000000 BC'=12345 DE'=23456 HL'=34567 SP=23552
+            65525 1131D4   LD DE,54321      A=208 F=10000011 BC=65432 DE=54321 HL=0     IX=45678 IY=56789 I=208 R=215
+                                            A'=0   F'=00000000 BC'=12345 DE'=23456 HL'=34567 SP=23552
+            65528 21CAA8   LD HL,43210      A=208 F=10000011 BC=65432 DE=54321 HL=43210 IX=45678 IY=56789 I=208 R=216
+                                            A'=0   F'=00000000 BC'=12345 DE'=23456 HL'=34567 SP=23552
+            65531 08       EX AF,AF'        A=0   F=00000000 BC=65432 DE=54321 HL=43210 IX=45678 IY=56789 I=208 R=217
+                                            A'=208 F'=10000011 BC'=12345 DE'=23456 HL'=34567 SP=23552
+            65532 90       SUB B            A=1   F=00010011 BC=65432 DE=54321 HL=43210 IX=45678 IY=56789 I=208 R=218
+                                            A'=208 F'=10000011 BC'=12345 DE'=23456 HL'=34567 SP=23552
+            65533 316D7D   LD SP,32109      A=1   F=00010011 BC=65432 DE=54321 HL=43210 IX=45678 IY=56789 I=208 R=219
+                                            A'=208 F'=10000011 BC'=12345 DE'=23456 HL'=34567 SP=32109
+            Stopped at 0
+        """
+        for option in ('-D', '--decimal'):
+            output, error = self.run_trace(f'-vv -S 0 {option} {binfile}')
+            self.assertEqual(error, '')
+            self.assertEqual(dedent(exp_output).strip(), output.rstrip())
+
     @patch.object(trace, 'write_z80v3', mock_write_z80v3)
     def test_option_dump(self):
         data = [

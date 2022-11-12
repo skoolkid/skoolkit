@@ -26,6 +26,9 @@ OPTIONS
   form. For example, if `N` is 3, the run of delay values [1, 2, 3, 1, 2, 3] is
   reduced to [1, 2, 3]*2.
 
+-D, --decimal
+  Show decimal values in verbose (``-v``, ``-vv``) mode.
+
 --dump `FILE`
   Dump a Z80 snapshot to this file after execution.
 
