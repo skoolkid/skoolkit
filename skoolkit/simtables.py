@@ -24,13 +24,13 @@ SZ53P = tuple(
 )
 
 ADC = tuple(tuple(tuple((
-        (a + n + c) % 256,
-        ((a + n + c) & 0xA8)                                 # S.5.3.N.
-        + ((a + n + c) % 256 == 0) * 0x40                    # .Z......
-        + (((a % 16) + ((n + c) % 16)) & 0x10)               # ...H....
-        + ((a ^ n ^ 0x80) & (a ^ (a + n + c)) & 0x80) // 32  # .....P..
-        + (a + n + c > 0xFF)                                 # .......C
-    ) for n in range(256)
+        v % 256,
+        (v & 0xA8)                                           # S.5.3.N.
+        + (v % 256 == 0) * 0x40                              # .Z......
+        + (((a % 16) + ((v - a) % 16)) & 0x10)               # ...H....
+        + ((a ^ (v - c - a) ^ 0x80) & (a ^ v) & 0x80) // 32  # .....P..
+        + (v > 0xFF)                                         # .......C
+    ) for v in range(a + c, a + c + 256)
     ) for a in range(256)
     ) for c in (0, 1)
 )
@@ -93,9 +93,15 @@ CPL = tuple(tuple((
     ) for a in range(256)
 )
 
+DAA_a = tuple(tuple(
+        (a + ((f & 16 > 0 or a % 16 > 9) * 6 + (f % 2 or a > 0x99) * 0x60) * (1 - (f & 2))) % 256
+    for f in range(32)
+    ) for a in range(256)
+)
+
 DAA = tuple(tuple((
-        (a + ((f & 16 > 0 or a % 16 > 9) * 6 + (f % 2 or a > 0x99) * 0x60) * (1 - (f & 2))) % 256,
-        SZ53P[(a+((f&16>0 or a%16>9)*6+(f%2 or a>0x99)*0x60)*(1-(f&2)))%256]         # SZ5.3P..
+        DAA_a[a][f % 32],
+        SZ53P[DAA_a[a][f % 32]]                                                      # SZ5.3P..
         + ((f & 0x12 == 0x12 and a % 16 < 6) or (f & 2 == 0 and a % 16 > 9)) * 0x10  # ...H....
         + (f & 0x02)                                                                 # ......N.
         + (f % 2 or a > 0x99)                                                        # .......C
@@ -103,28 +109,32 @@ DAA = tuple(tuple((
     ) for a in range(256)
 )
 
-DEC = tuple(tuple((
-        (r - 1) % 256,
-        ((r - 1) & 0xA8)           # S.5.3...
-        + (r == 1) * 0x40          # .Z......
-        + (r % 16 == 0x00) * 0x10  # ...H....
-        + (r == 0x80) * 0x04       # .....P..
+DEC_r = tuple(tuple((
+        v % 256,
+        (v & 0xA8)                 # S.5.3...
+        + (v == 0) * 0x40          # .Z......
+        + (v % 16 == 0x0F) * 0x10  # ...H....
+        + (v == 0x7F) * 0x04       # .....P..
         + 0x02                     # ......N.
-        + (f & 0x01)               # .......C
-    ) for r in range(256)
-    ) for f in range(256)
+        + c                        # .......C
+    ) for v in range(-1, 255)
+    ) for c in (0, 1)
 )
 
-INC = tuple(tuple((
-        (r + 1) % 256,
-        ((r + 1) & 0xA8)           # S.5.3.N.
-        + (r == 0xFF) * 0x40       # .Z......
-        + (r % 16 == 0x0F) * 0x10  # ...H....
-        + (r == 0x7F) * 0x04       # .....P..
-        + (f & 0x01)               # .......C
-    ) for r in range(256)
-    ) for f in range(256)
+DEC = tuple(tuple(DEC_r[f % 2][r] for r in range(256)) for f in range(256))
+
+INC_r = tuple(tuple((
+        v % 256,
+        (v & 0xA8)                 # S.5.3.N.
+        + (v == 256) * 0x40        # .Z......
+        + (v % 16 == 0x00) * 0x10  # ...H....
+        + (v == 0x80) * 0x04       # .....P..
+        + c                        # .......C
+    ) for v in range(1, 257)
+    ) for c in (0, 1)
 )
+
+INC = tuple(tuple(INC_r[f % 2][r] for r in range(256)) for f in range(256))
 
 NEG = tuple((
         (256 - a) % 256,
@@ -225,14 +235,14 @@ RRCA = tuple(tuple((
 )
 
 SBC = tuple(tuple(tuple((
-        (a - n - c) % 256,
-        ((a - n - c) & 0xA8)                          # S.5.3...
-        + (a == (n + c) % 256) * 0x40                 # .Z......
-        + (((a % 16) - ((n + c) % 16)) & 0x10)        # ...H....
-        + ((a ^ n) & (a ^ (a - n - c)) & 0x80) // 32  # .....P..
+        v % 256,
+        (v & 0xA8)                                    # S.5.3...
+        + (v % 256 == 0) * 0x40                       # .Z......
+        + (((a % 16) - ((a - v) % 16)) & 0x10)        # ...H....
+        + ((a ^ (a - v - c)) & (a ^ v) & 0x80) // 32  # .....P..
         + 0x02                                        # ......N.
-        + (n + c > a)                                 # .......C
-    ) for n in range(256)
+        + (v < 0)                                     # .......C
+    ) for v in range(a - c, a - c - 256, -1)
     ) for a in range(256)
     ) for c in (0, 1)
 )
