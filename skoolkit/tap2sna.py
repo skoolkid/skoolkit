@@ -27,7 +27,7 @@ from skoolkit import (SkoolKitError, get_dword, get_int_param, get_object,
                       warn, write_line, ROM48, VERSION)
 from skoolkit.loadtracer import LoadTracer
 from skoolkit.simulator import (Simulator, A, F, B, C, D, E, H, L, IXh, IXl, IYh, IYl,
-                                SP, I, R, xA, xF, xB, xC, xD, xE, xH, xL, PC, T)
+                                SP, I, R, xA, xF, xB, xC, xD, xE, xH, xL, PC)
 from skoolkit.snapshot import move, poke, print_reg_help, print_state_help, write_z80v3
 
 SYSVARS = (
