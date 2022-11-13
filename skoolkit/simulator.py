@@ -281,7 +281,7 @@ class Simulator:
     def fc_hl(self, registers, memory, r_inc, timing, size, fc):
         # DEC/INC/RL/RR (HL)
         hl = registers[7] + 256 * registers[6]
-        value, registers[1] = fc[registers[1]][memory[hl]]
+        value, registers[1] = fc[registers[1] % 2][memory[hl]]
         if hl > 0x3FFF:
             memory[hl] = value
         registers[15] = r_inc[registers[15]]
@@ -290,7 +290,7 @@ class Simulator:
 
     def fc_r(self, registers, r_inc, timing, size, fc, r):
         # DEC/INC/RL/RR r
-        registers[r], registers[1] = fc[registers[1]][registers[r]]
+        registers[r], registers[1] = fc[registers[1] % 2][registers[r]]
         registers[15] = r_inc[registers[15]]
         registers[25] += timing
         registers[24] = (registers[24] + size) % 65536
@@ -299,7 +299,7 @@ class Simulator:
         # DEC/INC/RL/RR (IX/Y+d)[,r]
         pc = registers[24]
         addr = (registers[xyl] + 256 * registers[xyh] + OFFSETS[memory[(pc + 2) % 65536]]) % 65536
-        value, registers[1] = fc[registers[1]][memory[addr]]
+        value, registers[1] = fc[registers[1] % 2][memory[addr]]
         if addr > 0x3FFF:
             memory[addr] = value
         if dest >= 0:
@@ -629,7 +629,7 @@ class Simulator:
         pcn = registers[24] + 1
         addr = registers[7] + 256 * registers[6]
         if addr > 0x3FFF:
-             memory[addr] = memory[pcn % 65536]
+            memory[addr] = memory[pcn % 65536]
         registers[15] = R1[registers[15]]
         registers[25] += 10
         registers[24] = (pcn + 1) % 65536
@@ -658,7 +658,7 @@ class Simulator:
         # LD (HL/DE/BC),r
         addr = registers[rl] + 256 * registers[rh]
         if addr > 0x3FFF:
-             memory[addr] = registers[r]
+            memory[addr] = registers[r]
         registers[15] = R1[registers[15]]
         registers[25] += 7
         registers[24] = (registers[24] + 1) % 65536
@@ -2765,7 +2765,7 @@ class Simulator:
             partial(self.afc_r, r, R1, 4, 1, ADC, H),               # 8C ADC A,H
             partial(self.afc_r, r, R1, 4, 1, ADC, L),               # 8D ADC A,L
             partial(self.afc_hl, r, m, ADC),                        # 8E ADC A,(HL)
-            partial(self.af_r, r, R1, 4, 1, ADC_A_A, F),            # 8F ADC A,A
+            partial(self.fc_r, r, R1, 4, 1, ADC_A_A, A),            # 8F ADC A,A
             partial(self.af_r, r, R1, 4, 1, SUB, B),                # 90 SUB B
             partial(self.af_r, r, R1, 4, 1, SUB, C),                # 91 SUB C
             partial(self.af_r, r, R1, 4, 1, SUB, D),                # 92 SUB D
@@ -2781,7 +2781,7 @@ class Simulator:
             partial(self.afc_r, r, R1, 4, 1, SBC, H),               # 9C SBC A,H
             partial(self.afc_r, r, R1, 4, 1, SBC, L),               # 9D SBC A,L
             partial(self.afc_hl, r, m, SBC),                        # 9E SBC A,(HL)
-            partial(self.af_r, r, R1, 4, 1, SBC_A_A, F),            # 9F SBC A,A
+            partial(self.fc_r, r, R1, 4, 1, SBC_A_A, A),            # 9F SBC A,A
             partial(self.af_r, r, R1, 4, 1, AND, B),                # A0 AND B
             partial(self.af_r, r, R1, 4, 1, AND, C),                # A1 AND C
             partial(self.af_r, r, R1, 4, 1, AND, D),                # A2 AND D

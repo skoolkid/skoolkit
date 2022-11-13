@@ -21,15 +21,15 @@ from skoolkit.basic import TextReader
 from skoolkit.simulator import A, F, D, E, H, L, IXh, IXl, PC, T, R1
 
 DEC = tuple(tuple((
-        (r - 1) % 256,
-        ((r - 1) & 0xA8)           # S.5.3...
-        + (r == 1) * 0x40          # .Z......
-        + (r % 16 == 0x00) * 0x10  # ...H....
-        + (r == 0x80) * 0x04       # .....P..
+        v % 256,
+        (v & 0xA8)                 # S.5.3...
+        + (v == 0) * 0x40          # .Z......
+        + (v % 16 == 0x0F) * 0x10  # ...H....
+        + (v == 0x7F) * 0x04       # .....P..
         + 0x02                     # ......N.
-        + (f & 0x01)               # .......C
-    ) for r in range(256)
-    ) for f in range(256)
+        + c                        # .......C
+    ) for v in range(-1, 255)
+    ) for c in (0, 1)
 )
 
 SIM_TIMEOUT = 10 * 60 * 3500000 # 10 minutes of Z80 CPU time
@@ -163,7 +163,7 @@ class LoadTracer:
             registers[25] += 16 * a - 5
             registers[24] = (pcn + 2) % 65536
         else:
-            registers[:2] = DEC[registers[1]][a]
+            registers[:2] = DEC[registers[1] % 2][a]
             registers[15] = R1[registers[15]]
             registers[25] += 4
             registers[24] = pcn % 65536

@@ -36,10 +36,10 @@ ADC = tuple(tuple(tuple((
 )
 
 ADC_A_A = tuple(tuple((
-        ADC[f % 2][a][a][0],
-        ADC[f % 2][a][a][1] | ((a % 16 == 0x0F) * 0x10)
-    ) for f in range(256)
+        ADC[c][a][a][0],
+        ADC[c][a][a][1] | ((a % 16 == 0x0F) * 0x10)
     ) for a in range(256)
+    ) for c in (0, 1)
 )
 
 ADD = ADC[0]
@@ -63,10 +63,9 @@ BIT = tuple(tuple(tuple(
 )
 
 CCF = tuple(tuple((
-        (f & 0xC4)           # SZ...PN.
-        + (a & 0x28)         # ..5.3...
-        + (f & 0x01) * 0x10  # ...H....
-        + (f & 0x01) ^ 0x01  # .......C
+        (f & 0xC4)          # SZ...PN.
+        + (a & 0x28)        # ..5.3...
+        + (f % 2) * 15 + 1  # ...H...C
     ) for a in range(256)
     ) for f in range(256)
 )
@@ -93,23 +92,26 @@ CPL = tuple(tuple((
     ) for a in range(256)
 )
 
-DAA_a = tuple(tuple(
-        (a + ((f & 16 > 0 or a % 16 > 9) * 6 + (f % 2 or a > 0x99) * 0x60) * (1 - (f & 2))) % 256
-    for f in range(32)
+HNC = tuple((f & 0x10) // 4 + (f % 4) for f in range(256))
+
+DAA_af = tuple(tuple((
+        (a + ((d > 3 or a % 16 > 9) * 6 + (d % 2 or a > 0x99) * 0x60) * (1 - (d & 2))) % 256,
+        ((d > 5 and a % 16 < 6) or (d & 2 == 0 and a % 16 > 9)) * 0x10  # ...H....
+        + (d & 0x02)                                                    # ......N.
+        + (d % 2 or a > 0x99)                                           # .......C
+    ) for d in range(8)
     ) for a in range(256)
 )
 
 DAA = tuple(tuple((
-        DAA_a[a][f % 32],
-        SZ53P[DAA_a[a][f % 32]]                                                      # SZ5.3P..
-        + ((f & 0x12 == 0x12 and a % 16 < 6) or (f & 2 == 0 and a % 16 > 9)) * 0x10  # ...H....
-        + (f & 0x02)                                                                 # ......N.
-        + (f % 2 or a > 0x99)                                                        # .......C
+        DAA_af[a][HNC[f]][0],
+        SZ53P[DAA_af[a][HNC[f]][0]]  # SZ5.3P..
+        + DAA_af[a][HNC[f]][1]       # ...H..NC
     ) for f in range(256)
     ) for a in range(256)
 )
 
-DEC_r = tuple(tuple((
+DEC = tuple(tuple((
         v % 256,
         (v & 0xA8)                 # S.5.3...
         + (v == 0) * 0x40          # .Z......
@@ -121,9 +123,7 @@ DEC_r = tuple(tuple((
     ) for c in (0, 1)
 )
 
-DEC = tuple(tuple(DEC_r[f % 2][r] for r in range(256)) for f in range(256))
-
-INC_r = tuple(tuple((
+INC = tuple(tuple((
         v % 256,
         (v & 0xA8)                 # S.5.3.N.
         + (v == 256) * 0x40        # .Z......
@@ -134,17 +134,15 @@ INC_r = tuple(tuple((
     ) for c in (0, 1)
 )
 
-INC = tuple(tuple(INC_r[f % 2][r] for r in range(256)) for f in range(256))
-
 NEG = tuple((
-        (256 - a) % 256,
-        ((256 - a) & 0xA8)     # S.5.3...
-        + (a == 0) * 0x40      # .Z......
-        + (a % 16 > 0) * 0x10  # ...H....
-        + (a == 0x80) * 0x04   # .....P..
+        v % 256,
+        (v & 0xA8)             # S.5.3...
+        + (v == 256) * 0x40    # .Z......
+        + (v % 16 > 0) * 0x10  # ...H....
+        + (v == 0x80) * 0x04   # .....P..
         + 0x02                 # ......N.
-        + (a > 0)              # .......C
-    ) for a in range(256)
+        + (v < 256)            # .......C
+    ) for v in range(256, 0, -1)
 )
 
 OR = tuple(tuple((
@@ -160,11 +158,11 @@ RL_r = (
 )
 
 RL = tuple(tuple((
-        RL_r[f % 2][r],
-        SZ53P[RL_r[f % 2][r]]  # SZ5H3PN.
-        + (r & 0x80) // 0x80   # .......C
+        RL_r[c][r],
+        SZ53P[RL_r[c][r]]     # SZ5H3PN.
+        + (r & 0x80) // 0x80  # .......C
     ) for r in range(256)
-    ) for f in range(256)
+    ) for c in (0, 1)
 )
 
 RLC_r = tuple(r // 128 + ((r * 2) % 256) for r in range(256))
@@ -182,11 +180,11 @@ RR_r = (
 )
 
 RR = tuple(tuple((
-        RR_r[f % 2][r],
-        SZ53P[RR_r[f % 2][r]]  # SZ5H3PN.
-        + (r & 0x01)           # .......C
+        RR_r[c][r],
+        SZ53P[RR_r[c][r]]  # SZ5H3PN.
+        + (r % 2)          # .......C
     ) for r in range(256)
-    ) for f in range(256)
+    ) for c in (0, 1)
 )
 
 RRC_r = tuple(((r * 128) % 256) + r // 2 for r in range(256))
@@ -194,7 +192,7 @@ RRC_r = tuple(((r * 128) % 256) + r // 2 for r in range(256))
 RRC = tuple((
         RRC_r[r],
         SZ53P[RRC_r[r]]  # SZ5H3PN.
-        + (r & 0x01)     # .......C
+        + (r % 2)        # .......C
     ) for r in range(256)
 )
 
@@ -202,16 +200,16 @@ RLA = tuple(tuple((
         RL_r[f % 2][a],
         (f & 0xC4)                 # SZ.H.PN.
         + (RL_r[f % 2][a] & 0x28)  # ..5.3...
-        + (a & 0x80) // 0x80       # .......C
+        + a // 0x80                # .......C
     ) for f in range(256)
     ) for a in range(256)
 )
 
 RLCA = tuple(tuple((
         RLC_r[a],
-        (f & 0xC4)              # SZ.H.PN.
-        + (RLC_r[a] & 0x28)     # ..5.3...
-        + (a & 0x80) // 0x80    # .......C
+        (f & 0xC4)           # SZ.H.PN.
+        + (RLC_r[a] & 0x28)  # ..5.3...
+        + a // 0x80          # .......C
     ) for f in range(256)
     ) for a in range(256)
 )
@@ -220,7 +218,7 @@ RRA = tuple(tuple((
         RR_r[f % 2][a],
         (f & 0xC4)                 # SZ.H.PN.
         + (RR_r[f % 2][a] & 0x28)  # ..5.3...
-        + (a & 0x01)               # .......C
+        + (a % 2)                  # .......C
     ) for f in range(256)
     ) for a in range(256)
 )
@@ -229,7 +227,7 @@ RRCA = tuple(tuple((
         RRC_r[a],
         (f & 0xC4)           # SZ.H.PN.
         + (RRC_r[a] & 0x28)  # ..5.3...
-        + (a & 0x01)         # .......C
+        + (a % 2)            # .......C
     ) for f in range(256)
     ) for a in range(256)
 )
@@ -247,7 +245,10 @@ SBC = tuple(tuple(tuple((
     ) for c in (0, 1)
 )
 
-SBC_A_A = (((0x00, 0x42), (0xFF, 0xBB)) * 128,) * 256
+SBC_A_A = (
+    ((0x00, 0x42),) * 256,
+    ((0xFF, 0xBB),) * 256
+)
 
 SCF = tuple(tuple((
         (f & 0xC4)    # SZ.H.PN.
@@ -264,7 +265,7 @@ SLL = RL[1]
 SRA = tuple((
         (r & 0x80) + r // 2,
         SZ53P[(r & 0x80) + r // 2]  # SZ5H3PN.
-        + (r & 0x01)                # .......C
+        + (r % 2)                   # .......C
    ) for r in range(256)
 )
 
