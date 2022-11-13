@@ -39,7 +39,7 @@ class Tap2SnaTest(SkoolKitTestCase):
             tzx_data.extend(block)
         return self.write_bin_file(tzx_data, suffix='.tzx')
 
-    def _write_basic_loader(self, start, data, program='simloadbas', code='simloadbyt'):
+    def _write_basic_loader(self, start, data, write=True, program='simloadbas', code='simloadbyt'):
         start_str = [ord(c) for c in str(start)]
         basic_data = [
             0, 10,            # Line 10
@@ -58,7 +58,9 @@ class Tap2SnaTest(SkoolKitTestCase):
             create_tap_header_block(code, start, len(data)),
             create_tap_data_block(data)
         ]
-        return self._write_tap(blocks), basic_data
+        if write:
+            return self._write_tap(blocks), basic_data
+        return blocks, basic_data
 
     def _get_snapshot(self, start=16384, data=None, options='', load_options=None, blocks=None, tzx=False):
         if blocks is None:
@@ -1145,6 +1147,32 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(code, snapshot[code_start:code_start + len(code)])
         self.assertEqual(code2, snapshot[49152:49152 + len(code2)])
         exp_reg = set(('SP=65344', 'IX=49154', 'IY=23610', 'PC=32780', 'F=1'))
+        self.assertLessEqual(exp_reg, set(options.reg))
+
+    @patch.object(tap2sna, '_write_z80', mock_write_z80)
+    def test_sim_load_ignores_extra_byte_at_end_of_tape(self):
+        code_start = 32768
+        code = [4, 5]
+        blocks, basic_data = self._write_basic_loader(code_start, code, False)
+        tapfile = self._write_tap(blocks + [[0]])
+        z80file = '{}/out.z80'.format(self.make_directory())
+        output, error = self.run_tap2sna(f'--sim-load {tapfile} {z80file}')
+        out_lines = output.strip().split('\n')
+        exp_out_lines = [
+            'Program: simloadbas',
+            'Fast loading data block: 23755,20',
+            '',
+            'Bytes: simloadbyt',
+            'Fast loading data block: 32768,2',
+            '',
+            'Tape finished',
+            'Simulation stopped (PC in RAM): PC=32768',
+        ]
+        self.assertEqual(exp_out_lines, out_lines)
+        self.assertEqual(error, '')
+        self.assertEqual(basic_data, snapshot[23755:23755 + len(basic_data)])
+        self.assertEqual(code, snapshot[code_start:code_start + len(code)])
+        exp_reg = set(('SP=65344', 'IX=32770', 'IY=23610', 'PC=32768'))
         self.assertLessEqual(exp_reg, set(options.reg))
 
     @patch.object(tap2sna, '_write_z80', mock_write_z80)

@@ -509,7 +509,7 @@ def _get_tzx_blocks(data, sim):
 def get_tap_blocks(tap, sim=False):
     blocks = []
     i = 0
-    while i < len(tap):
+    while i + 1 < len(tap):
         block_len = tap[i] + 256 * tap[i + 1]
         i += 2
         data = tap[i:i + block_len]
