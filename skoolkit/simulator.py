@@ -441,12 +441,6 @@ class Simulator:
             registers[24] = (registers[24] + 2) % 65536
         registers[15] = R2[registers[15]]
 
-    def cpl(self, registers, cpl):
-        registers[:2] = cpl[registers[0]][registers[1]]
-        registers[15] = R1[registers[15]]
-        registers[25] += 4
-        registers[24] = (registers[24] + 1) % 65536
-
     def di_ei(self, registers, iff2):
         self.iff2 = iff2
         registers[15] = R1[registers[15]]
@@ -2675,7 +2669,7 @@ class Simulator:
             partial(self.fc_r, r, R1, 4, 1, INC, L),                # 2C INC L
             partial(self.fc_r, r, R1, 4, 1, DEC, L),                # 2D DEC L
             partial(self.ld_r_n, r, m, R1, 7, 2, L),                # 2E LD L,n
-            partial(self.cpl, r, CPL),                              # 2F CPL
+            partial(self.af_r, r, R1, 4, 1, CPL, F),                # 2F CPL
             partial(self.jr, r, m, 1, 0),                           # 30 JR NC,nn
             partial(self.ld_rr_nn, r, m, R1, 10, 3, SP2, SP),       # 31 LD SP,nn
             partial(self.ld_m_a, r, m),                             # 32 LD (nn),A
