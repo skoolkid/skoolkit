@@ -322,6 +322,31 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(basic_data, snapshot[23755:23755 + len(basic_data)])
         self.assertEqual(code, snapshot[code_start:code_start + len(code)])
 
+    def test_empty_standard_speed_data_block_in_tzx_file_is_ignored(self):
+        basic_data = [6, 7]
+        code_start = 49152
+        code = [8, 9, 10]
+        empty_block = [
+            16,   # Standard speed data
+            0, 0, # Pause (0ms)
+            0, 0, # Data length (0)
+        ]
+        blocks = [
+            create_tzx_header_block(data_type=0),
+            create_tzx_data_block(basic_data),
+            empty_block,
+            create_tzx_header_block(start=code_start),
+            create_tzx_data_block(code)
+        ]
+
+        tzxfile = self._write_tzx(blocks)
+        z80file = self.write_bin_file(suffix='.z80')
+        output, error = self.run_tap2sna('--force {} {}'.format(tzxfile, z80file))
+        self.assertEqual(error, '')
+        snapshot = get_snapshot(z80file)
+        self.assertEqual(basic_data, snapshot[23755:23755 + len(basic_data)])
+        self.assertEqual(code, snapshot[code_start:code_start + len(code)])
+
     def test_ram_call(self):
         ram_module = """
             def fix(snapshot):

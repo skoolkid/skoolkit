@@ -379,10 +379,11 @@ def _get_tzx_block(data, i, sim):
         # Standard speed data block
         length = get_word(data, i + 2)
         tape_data = data[i + 4:i + 4 + length]
-        if tape_data[0] == 0:
-            timings = TAP_TIMINGS_HEADER
-        else:
-            timings = TAP_TIMINGS_DATA
+        if tape_data:
+            if tape_data[0] == 0:
+                timings = TAP_TIMINGS_HEADER
+            else:
+                timings = TAP_TIMINGS_DATA
         i += 4 + length
     elif block_id == 17:
         # Turbo speed data block
