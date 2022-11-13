@@ -50,6 +50,7 @@ In an HTML disassembly produced by skool2html.py_ you can also:
 
 * use the `image macros`_ to build still and animated PNG images from graphic
   data
+* use the `#AUDIO`_ macro to build WAV files for sound effects and tunes
 * use the `#R`_ macro in annotations to create hyperlinks between routines and
   data blocks that refer to each other
 * use `[Bug:*]`_, `[Fact:*]`_ and `[Poke:*]`_ sections in a ref file to neatly
@@ -74,6 +75,7 @@ disassemblies of `Skool Daze`_, `Back to Skool`_, `Contact Sam Cruise`_,
 .. _tapinfo.py: https://skoolkid.github.io/skoolkit/commands.html#tapinfo-py
 .. _image macros: https://skoolkid.github.io/skoolkit/skool-macros.html#image-macros
 .. _#R: https://skoolkid.github.io/skoolkit/skool-macros.html#r
+.. _#AUDIO: https://skoolkid.github.io/skoolkit/skool-macros.html#audio
 .. _[Bug:*]: https://skoolkid.github.io/skoolkit/ref-files.html#box-pages
 .. _[Fact:*]: https://skoolkid.github.io/skoolkit/ref-files.html#box-pages
 .. _[Poke:*]: https://skoolkid.github.io/skoolkit/ref-files.html#box-pages
