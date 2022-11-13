@@ -134,14 +134,17 @@ SIM_LOAD_PATCH = {
     0x5C04: 0x050D, # KSTATE4 0/1
     0x5C06: 0x0D23, # KSTATE4 2/3
     0x5C08: 0x0D,   # LAST-K
+    0x5C3A: 0xFF,   # ERR-NR
     0x5C3B: 0x0C,   # FLAGS
     0x5C3C: 0x01,   # TV-FLAG
-    0x5C3D: 0x50,   # ERR-SP
+    0x5C47: 0x01,   # SUBPPC
     0x5C5B: 0x5CCF, # K-CUR
+    0x5C5D: 0x5CCD, # CH-ADD
     0x5C61: 0x5CD1, # WORKSP
     0x5C63: 0x5CD1, # STKBOT
     0x5C65: 0x5CD1, # STKEND
     0x5C68: 0x5C92, # MEM
+    0x5C74: 0x1AE1, # T-ADDR
     0x5C82: 0x19,   # ECHO-E
     0x5C86: 0xE0,   # DF-CCL
     0x5C8A: 0x21,   # S-POSNL
@@ -150,9 +153,9 @@ SIM_LOAD_PATCH = {
     0x5CCD: 0x2222, # ""
     0x5CCF: 0x0D,   # ENTER
     0x5CD0: 0x80,   # End of program area
-    0xFF50: 0x107F, # Address of ED-ERROR
-    0xFF52: 0xFF54, # Address of next item on the stack
-    0xFF54: 0x12B4, # Address of entry point in 'MAIN EXECUTION' loop at 0x12A2
+    0xFF50: 0x1B52, # Address of SCAN-LOOP
+    0xFF52: 0x1B76, # Address of STMT-RET
+    0xFF54: 0x12B7, # Address of entry point in 'MAIN EXECUTION' loop at 0x12A2
     0xFF56: 0x3E00  # RAMTOP marker
 }
 
@@ -232,11 +235,11 @@ def sim_load(blocks, options):
                 snapshot[a + 1] = b // 256
     snapshot[0xFF58:] = snapshot[0x3E08:0x3EB0] # UDGs
     config = {'fast_djnz': True, 'fast_ldir': True}
-    simulator = Simulator(snapshot, {'A': 0x0D, 'SP': 0xFF50}, config=config)
+    simulator = Simulator(snapshot, {'SP': 0xFF50}, config=config)
     tracer = LoadTracer(blocks)
     simulator.set_tracer(tracer)
     try:
-        tracer.run(simulator, 0x0F3B, options.start) # Entry point in EDITOR at 0F2C
+        tracer.run(simulator, 0x0605, options.start) # SAVE-ETC
         _ram_operations(snapshot, options.ram_ops)
     except KeyboardInterrupt: # pragma: no cover
         write_line(f'Simulation stopped (interrupted): PC={simulator.registers[PC]}')
