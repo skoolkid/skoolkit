@@ -3,7 +3,7 @@ from textwrap import dedent
 from unittest.mock import patch
 
 from skoolkittest import SkoolKitTestCase
-from skoolkit import trace, SkoolKitError, VERSION
+from skoolkit import simulator, trace, SkoolKitError, VERSION
 
 def mock_run(*args):
     global run_args
@@ -15,6 +15,12 @@ def mock_write_z80v3(fname, ram, registers, state):
     snapshot = [0] * 16384 + ram
     z80reg = registers
     z80state = state
+
+class TestSimulator(simulator.Simulator):
+    def __init__(self, memory, registers=None, state=None, config=None):
+        global simulator
+        simulator = self
+        super().__init__(memory, registers, state, config)
 
 class TraceTest(SkoolKitTestCase):
     def _test_trace(self, args, exp_output):
@@ -46,6 +52,7 @@ class TraceTest(SkoolKitTestCase):
         self.assertEqual(output, '')
         self.assertTrue(error.startswith('usage:'))
 
+    @patch.object(trace, 'Simulator', TestSimulator)
     def test_sna(self):
         header = [
             1,      # I
@@ -74,7 +81,10 @@ class TraceTest(SkoolKitTestCase):
             Stopped at $6001
         """
         self._test_trace(f'-vv -S 24577 {snafile}', exp_output)
+        self.assertEqual(simulator.iff2, 1)
+        self.assertEqual(simulator.imode, 2)
 
+    @patch.object(trace, 'Simulator', TestSimulator)
     def test_z80(self):
         registers = {
             'A': 1,
@@ -100,7 +110,10 @@ class TraceTest(SkoolKitTestCase):
             '^E': 20,
             '^H': 21,
             '^L': 22,
-            'PC': 32768
+            'PC': 32768,
+            'iff1': 1,
+            'iff2': 1,
+            'im': 2
         }
         ram = [0] * 49152
         z80file = self.write_z80_file(None, ram, registers=registers)
@@ -110,7 +123,10 @@ class TraceTest(SkoolKitTestCase):
             Stopped at $8001
         """
         self._test_trace(f'-vv -S 32769 {z80file}', exp_output)
+        self.assertEqual(simulator.iff2, 1)
+        self.assertEqual(simulator.imode, 2)
 
+    @patch.object(trace, 'Simulator', TestSimulator)
     def test_szx(self):
         registers = (
             1, 2,   # AF
@@ -126,8 +142,9 @@ class TraceTest(SkoolKitTestCase):
             0, 128, # SP=32768
             0, 192, # PC=49152
             21,     # I
-            22      # R
-
+            22,     # R
+            1, 1,   # iff1, iff2
+            0,      # im
         )
         ram = [0] * 49152
         szxfile = self.write_szx(ram, registers=registers)
@@ -139,6 +156,8 @@ class TraceTest(SkoolKitTestCase):
             Stopped at $C001
         """
         self.assertEqual(dedent(exp_output).strip(), output.rstrip())
+        self.assertEqual(simulator.iff2, 1)
+        self.assertEqual(simulator.imode, 0)
 
     def test_no_snapshot(self):
         output, error = self.run_trace(f'-v -S 1 .')
@@ -260,6 +279,84 @@ class TraceTest(SkoolKitTestCase):
             output, error = self.run_trace(f'-vv -S 0 {option} {binfile}')
             self.assertEqual(error, '')
             self.assertEqual(dedent(exp_output).strip(), output.rstrip())
+
+    def test_option_depth_0(self):
+        data = (
+            6, 4,     # 32768 LD B,4
+            211, 254, # 32770 OUT (254),A
+            238, 16,  # 32772 XOR 16
+            16, 250,  # 32774 DJNZ 32770
+        )
+        binfile = self.write_bin_file(data, suffix='.bin')
+        start, stop = 32768, 32776
+        output, error = self.run_trace(f'-o {start} -S {stop} --audio --depth 0 {binfile}')
+        self.assertEqual(error, '')
+        exp_output = """
+            Stopped at $8008
+            Sound duration: 93 T-states (0.000s)
+            Delays: 31, 31, 31
+        """
+        self.assertEqual(dedent(exp_output).strip(), output.rstrip())
+
+    def test_option_depth_1(self):
+        data = (
+            6, 4,     # 32768 LD B,4
+            211, 254, # 32770 OUT (254),A
+            238, 16,  # 32772 XOR 16
+            16, 250,  # 32774 DJNZ 32770
+        )
+        binfile = self.write_bin_file(data, suffix='.bin')
+        start, stop = 32768, 32776
+        output, error = self.run_trace(f'-o {start} -S {stop} --audio --depth 1 {binfile}')
+        self.assertEqual(error, '')
+        exp_output = """
+            Stopped at $8008
+            Sound duration: 93 T-states (0.000s)
+            Delays: [31]*3
+        """
+        self.assertEqual(dedent(exp_output).strip(), output.rstrip())
+
+    def test_option_depth_2(self):
+        data = (
+            1, 16, 4, # 32768 LD BC,1040
+            211, 254, # 32771 OUT (254),A
+            238, 16,  # 32773 XOR 16
+            211, 254, # 32775 OUT (254),A
+            169,      # 32777 XOR C
+            16, 247,  # 32778 DJNZ 32771
+        )
+        binfile = self.write_bin_file(data, suffix='.bin')
+        start, stop = 32768, 32780
+        output, error = self.run_trace(f'-o {start} -S {stop} --audio --depth 2 {binfile}')
+        self.assertEqual(error, '')
+        exp_output = """
+            Stopped at $800C
+            Sound duration: 156 T-states (0.000s)
+            Delays: [18, 28]*3, 18
+        """
+        self.assertEqual(dedent(exp_output).strip(), output.rstrip())
+
+    def test_option_depth_3(self):
+        data = (
+            1, 16, 4, # 32768 LD BC,1040
+            211, 254, # 32771 OUT (254),A
+            238, 16,  # 32773 XOR 16
+            211, 254, # 32775 OUT (254),A
+            169,      # 32777 XOR C
+            211, 254, # 32778 OUT (254),A
+            238, 16,  # 32780 XOR 16
+            16, 243,  # 32782 DJNZ 32771
+        )
+        binfile = self.write_bin_file(data, suffix='.bin')
+        start, stop = 32768, 32784
+        output, error = self.run_trace(f'-o {start} -S {stop} --audio --depth 3 {binfile}')
+        self.assertEqual(error, '')
+        exp_output = """
+            Stopped at $8010
+            Sound duration: 225 T-states (0.000s)
+            Delays: [18, 15, 31]*3, 18, 15
+        """
+        self.assertEqual(dedent(exp_output).strip(), output.rstrip())
 
     @patch.object(trace, 'write_z80v3', mock_write_z80v3)
     def test_option_dump(self):
@@ -493,6 +590,29 @@ class TraceTest(SkoolKitTestCase):
         for option in ('-V', '--version'):
             output, error = self.run_trace(option, catch_exit=0)
             self.assertEqual(output, 'SkoolKit {}\n'.format(VERSION))
+
+    def test_self_modifying_code(self):
+        data = (
+            0x06, 0x02,             # $8000 LD B,$02
+            0x21, 0x03, 0x80,       # $8002 LD HL,$8003
+            0x70,                   # $8005 LD (HL),B
+            0x10, 0xFA,             # $8006 DJNZ $8002
+        )
+        binfile = self.write_bin_file(data, suffix='.bin')
+        start, stop = 0x8000, 0x8008
+        output, error = self.run_trace(f'-o {start} -S {stop} -v {binfile}')
+        self.assertEqual(error, '')
+        exp_output = """
+            $8000 0602     LD B,$02
+            $8002 210380   LD HL,$8003
+            $8005 70       LD (HL),B
+            $8006 10FA     DJNZ $8002
+            $8002 210280   LD HL,$8002
+            $8005 70       LD (HL),B
+            $8006 10FA     DJNZ $8002
+            Stopped at $8008
+        """
+        self.assertEqual(dedent(exp_output).strip(), output.rstrip())
 
     def test_invalid_register_value(self):
         binfile = self.write_bin_file([201], suffix='.bin')
