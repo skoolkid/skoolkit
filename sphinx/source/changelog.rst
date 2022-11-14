@@ -9,6 +9,9 @@ Changelog
   ``move``, ``poke`` and ``sysvars`` operations specified by the ``--ram``
   option
 * Improved the performance of the ``--sim-load`` option of :ref:`tap2sna.py`
+* Improved the performance of the :ref:`SIM` macro
+* Improved the performance of the :ref:`AUDIO` and :ref:`TSTATES` macros when
+  they execute instructions in a simulator
 * Removed the ``MaxAmplitude`` parameter from the :ref:`ref-AudioWriter`
   section
 
