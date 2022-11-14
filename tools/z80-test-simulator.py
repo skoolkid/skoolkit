@@ -80,6 +80,9 @@ def run(tapfile, options):
         snapshot[addr + 1] = options.test
         test_addr = 34938 + options.test * 2
         snapshot[addr + 4:addr + 6] = (test_addr % 256, test_addr // 256)
+    if options.stop > 0:
+        test_addr = 34938 + options.stop * 2
+        snapshot[test_addr:test_addr + 2] = (0, 0)
     simulator = Simulator(snapshot, {'PC': start})
     if options.quiet:
         tracer = None
@@ -116,6 +119,8 @@ if __name__ == '__main__':
     group = parser.add_argument_group('Options')
     group.add_argument('-t', '--test', metavar='TEST', type=int, default=0,
                        help='Start at this test (default: 0).')
+    group.add_argument('-T', '--stop', metavar='TEST', type=int, default=0,
+                       help='Stop at this test.')
     group.add_argument('-q', '--quiet', action='store_true',
                        help="Don't show test progress.")
     namespace, unknown_args = parser.parse_known_args()
