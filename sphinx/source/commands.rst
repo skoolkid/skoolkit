@@ -1469,8 +1469,8 @@ To list the options supported by `trace.py`, run it with no arguments::
                           the 48K ZX Spectrum ROM is used.
     -s ADDR, --start ADDR
                           Start execution at this address.
-    --stats               Show stats after execution.
     -S ADDR, --stop ADDR  Stop execution at this address.
+    --stats               Show stats after execution.
     -v, --verbose         Show executed instructions. Repeat this option to show
                           register values too.
     -V, --version         Show SkoolKit version number and exit.

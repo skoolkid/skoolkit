@@ -303,10 +303,10 @@ def main(args):
                             'By default the 48K ZX Spectrum ROM is used.')
     group.add_argument('-s', '--start', metavar='ADDR', type=integer,
                        help='Start execution at this address.')
-    group.add_argument('--stats', action='store_true',
-                       help="Show stats after execution.")
     group.add_argument('-S', '--stop', metavar='ADDR', type=integer,
                        help='Stop execution at this address.')
+    group.add_argument('--stats', action='store_true',
+                       help="Show stats after execution.")
     group.add_argument('-v', '--verbose', action='count', default=0,
                        help="Show executed instructions. Repeat this option to show register values too.")
     group.add_argument('-V', '--version', action='version', version='SkoolKit {}'.format(VERSION),

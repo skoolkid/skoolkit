@@ -66,12 +66,12 @@ OPTIONS
   starts either at the address given by the value of the program counter (for a
   SNA, SZX or Z80 snapshot), or at the origin address of the raw memory file.
 
---stats
-  Show statistics after execution.
-
 -S, --stop `ADDR`
   Stop execution at this address. `ADDR` must be a decimal number, or a
   hexadecimal number prefixed by '0x'.
+
+--stats
+  Show statistics after execution.
 
 -v, --verbose
   Show executed instructions. Repeat this option (``-vv``) to show register
