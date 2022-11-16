@@ -2029,16 +2029,19 @@ class SimulatorTest(SkoolKitTestCase):
 
     def _test_block_in(self, operation, opcode, inc, repeat=False):
         simulator = Simulator([0] * 65536)
+        tracer = InTestTracer()
         registers = simulator.registers
         data = (237, opcode)
         hl = 45287
         start = 34177
 
-        for b, f_out in (
-                #     SZ5H3PNC
-                (2, 0b00000110),
-                (1, 0b01000010),
-                (0, 0b10101010),
+        for b, c, in_value, f_out_i, f_out_ir, f_out_d, f_out_dr in (
+                #               SZ5H3PNC    SZ5H3PNC    SZ5H3PNC    SZ5H3PNC
+                (2, 254,  127, 0b00010001, 0b00000101, 0b00010101, 0b00000001),
+                (2, 254,  191, 0b00010011, 0b00000011, 0b00010111, 0b00000111),
+                (2,   1, None, 0b00000110, 0b00000010, 0b00000110, 0b00000010),
+                (1,   1, None, 0b01000010, 0b01000010, 0b01000010, 0b01000010),
+                (0,   1, None, 0b10101010, 0b10000110, 0b10101010, 0b10000110),
         ):
             end = start + 2
             timing = 16
@@ -2046,16 +2049,26 @@ class SimulatorTest(SkoolKitTestCase):
                 timing = 21
                 end = start
             registers[B] = b
-            registers[C] = 1
+            registers[C] = c
             registers[H] = hl // 256
             registers[L] = hl % 256
+            if repeat:
+                f_out = f_out_ir if inc > 0 else f_out_dr
+            else:
+                f_out = f_out_i if inc > 0 else f_out_d
             reg_out = {
                 B: (b - 1) & 255,
                 H: (hl + inc) // 256,
                 L: (hl + inc) % 256,
                 F: f_out
             }
-            sna_out = {hl: 191}
+            if in_value is None:
+                simulator.set_tracer(None)
+                in_value = 191
+            else:
+                simulator.set_tracer(tracer)
+                tracer.value = in_value
+            sna_out = {hl: in_value}
             self._test_instruction(simulator, operation, data, timing, reg_out, sna_out, start=start, end=end)
 
     def test_ind(self):
@@ -2080,11 +2093,11 @@ class SimulatorTest(SkoolKitTestCase):
         start = 54112
         at_hl = 147
 
-        for bc, f_out in (
-                #     SZ5H3PNC
-                (2, 0b00100100),
-                (1, 0b00100000),
-                (0, 0b00100100)
+        for bc, f_out, f_out_r in (
+                #     SZ5H3PNC    SZ5H3PNC
+                (2, 0b00100100, 0b00000100),
+                (1, 0b00100000, 0b00100000),
+                (0, 0b00100100, 0b00000100)
         ):
             end = start + 2
             timing = 16
@@ -2105,7 +2118,7 @@ class SimulatorTest(SkoolKitTestCase):
                 E: (de + inc) % 256,
                 H: (hl + inc) // 256,
                 L: (hl + inc) % 256,
-                F: f_out
+                F: f_out_r if repeat else f_out
             }
             memory[hl] = at_hl
             sna_out = {de: at_hl}
@@ -2133,11 +2146,11 @@ class SimulatorTest(SkoolKitTestCase):
 
         for bc_in, bc_out, de_in, de_out, hl_in, hl_out, f_out, r_out, timing, end in (
                 #                                     SZ5H3PNC
-                (52, 1, 30051, 30000, 40000, 39949, 0b00101100, 102,    1066, start),     # 0xB8 overwritten
+                (52, 1, 30051, 30000, 40000, 39949, 0b00100100, 102,    1066, start),     # 0xB8 overwritten
                 (51, 0, 30051, 30000, 40000, 39949, 0b00101000, 102,    1066, start + 2), # 0xB8 overwritten
                 (50, 0, 30051, 30001, 40000, 39950, 0b00101000, 100,    1045, start + 2),
                 ( 1, 0, 30051, 30050, 40000, 39999, 0b00101000,   2,      16, start + 2),
-                ( 0, 1, 29999, 30000, 29999, 30000, 0b00001100, 126, 1376230, start),     # 0xB8 overwritten
+                ( 0, 1, 29999, 30000, 29999, 30000, 0b00100100, 126, 1376230, start),     # 0xB8 overwritten
         ):
             registers[B] = bc_in // 256
             registers[C] = bc_in % 256
@@ -2176,11 +2189,11 @@ class SimulatorTest(SkoolKitTestCase):
 
         for bc_in, bc_out, de_in, de_out, hl_in, hl_out, f_out, r_out, timing, end in (
                 #                                     SZ5H3PNC
-                (52, 1, 29950, 30001, 40000, 40051, 0b00101100, 102,    1066, start),     # 0xED overwritten
+                (52, 1, 29950, 30001, 40000, 40051, 0b00100100, 102,    1066, start),     # 0xED overwritten
                 (51, 0, 29950, 30001, 40000, 40051, 0b00101000, 102,    1066, start + 2), # 0xED overwritten
                 (50, 0, 29950, 30000, 40000, 40050, 0b00101000, 100,    1045, start + 2),
                 ( 1, 0, 29950, 29951, 40000, 40001, 0b00101000,   2,      16, start + 2),
-                ( 0, 1, 30002, 30001, 30002, 30001, 0b00001100, 126, 1376230, start),     # 0xED overwritten
+                ( 0, 1, 30002, 30001, 30002, 30001, 0b00100100, 126, 1376230, start),     # 0xED overwritten
         ):
             registers[B] = bc_in // 256
             registers[C] = bc_in % 256

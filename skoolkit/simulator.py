@@ -568,25 +568,29 @@ class Simulator:
         if hl > 0x3FFF:
             memory[hl] = value
         b = (b - 1) % 256
-        j = value + ((c + inc) % 256)
-        f = (b & 0xA8) + parity[(j % 8) ^ b] # S.5.3P..
-        if value & 0x80:
-            f += 0x02  # ......N.
-        if j > 255:
-            f += 0x11 # ...H...C
-        if b == 0:
-            registers[1] = f + 0x40 # .Z......
-        else:
-            registers[1] = f
-
         hl = (hl + inc) % 65536
         registers[7] = hl % 256
         registers[6] = hl // 256
         registers[2] = b
 
+        j = value + ((c + inc) % 256)
+        n = (value & 0x80) // 64
+        c = j > 0xFF
         if repeat and b:
+            if c:
+                if n:
+                    h = (b % 16 == 0) * 0x10
+                    p = parity[(j % 8) ^ b ^ ((b - 1) % 8)]
+                else:
+                    h = (b % 16 == 15) * 0x10
+                    p = parity[(j % 8) ^ b ^ ((b + 1) % 8)]
+            else:
+                h = 0
+                p = parity[(j % 8) ^ b ^ (b % 8)]
+            registers[1] = (b & 0x80) + ((registers[24] // 256) & 0x28) + h + p + n + c
             registers[25] += 21
         else:
+            registers[1] = (b & 0xA8) + (b == 0) * 0x40 + c * 0x11 + parity[(j % 8) ^ b] + n
             registers[24] = (registers[24] + 2) % 65536
             registers[25] += 16
         registers[15] = R2[registers[15]]
@@ -764,10 +768,6 @@ class Simulator:
         at_hl = memory[hl]
         if de > 0x3FFF:
             memory[de] = at_hl
-        n = registers[0] + at_hl
-        f = (registers[1] & 0xC1) + (n & 0x08) # SZ.H3.NC
-        if n & 0x02:
-            f += 0x20 # ..5.....
 
         hl = (hl + inc) % 65536
         de = (de + inc) % 65536
@@ -778,14 +778,13 @@ class Simulator:
         registers[4] = de // 256
         registers[3] = bc % 256
         registers[2] = bc // 256
-        if bc:
-            registers[1] = f + 0x04 # .....P..
-        else:
-            registers[1] = f
 
         if repeat and bc:
+            registers[1] = (registers[1] & 0xC1) + ((registers[24] // 256) & 0x28) + 0x04
             registers[25] += 21
         else:
+            n = registers[0] + at_hl
+            registers[1] = (registers[1] & 0xC1) + (n & 0x02) * 16 + (n & 0x08) + (bc > 0) * 0x04
             registers[25] += 16
             registers[24] = (registers[24] + 2) % 65536
         registers[15] = R2[registers[15]]
@@ -810,16 +809,12 @@ class Simulator:
         registers[7], registers[6] = hl % 256, hl // 256
         r = registers[15]
         registers[15] = (r & 0x80) + ((r + 2 * count) % 128)
-        n = registers[0] + memory[(hl - inc) % 65536]
-        f = (registers[1] & 0xC1) + (n & 0x08) # SZ.H3.NC
         if bc:
-            f += 0x04 # .....P..
+            registers[1] = (registers[1] & 0xC1) + ((registers[24] // 256) & 0x28) + 0x04
         else:
+            n = registers[0] + memory[(hl - inc) % 65536]
+            registers[1] = (registers[1] & 0xC1) + (n & 0x02) * 16 + (n & 0x08)
             registers[24] = (registers[24] + 2) % 65536
-        if n & 0x02:
-            registers[1] = f + 0x20
-        else:
-            registers[1] = f
         registers[25] += 21 * count - 5
 
     def ld_sp_rr(self, registers, r_inc, timing, size, rh, rl):
