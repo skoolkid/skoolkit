@@ -960,7 +960,7 @@ class Simulator:
         at_hl = memory[hl]
         if hl > 0x3FFF:
             memory[hl] = ((at_hl * 16) % 256) + (a % 16)
-        a_out = registers[0] = (a & 240) + ((at_hl // 16) % 16)
+        a_out = registers[0] = (a & 240) + at_hl // 16
         registers[1] = sz53p[a_out] + (registers[1] % 2)
         registers[15] = R2[registers[15]]
         registers[25] += 18
