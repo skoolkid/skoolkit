@@ -549,7 +549,6 @@ class Simulator:
         hl = registers[7] + 256 * registers[6]
         b = registers[2]
         c = registers[3]
-        a = registers[0]
 
         if self.in_tracer:
             value = self.in_tracer(c + 256 * b)
