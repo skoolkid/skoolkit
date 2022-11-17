@@ -586,6 +586,64 @@ class TraceTest(SkoolKitTestCase):
         """
         self.assertEqual(dedent(exp_output).strip(), output.rstrip())
 
+    def test_option_verbose_with_djnz_and_ldir(self):
+        data = (
+            0x06, 0x02,             # $8000 LD B,$02
+            0x10, 0xFE,             # $8002 DJNZ $8002
+            0x21, 0x00, 0xC0,       # $8004 LD HL,$C000
+            0x11, 0x00, 0x60,       # $8007 LD DE,$6000
+            0x0E, 0x02,             # $800A LD C,$02
+            0xED, 0xB0,             # $800C LDIR
+        )
+        binfile = self.write_bin_file(data, suffix='.bin')
+        output, error = self.run_trace(f'-o 0x8000 -S 0x800E -v {binfile}')
+        self.assertEqual(error, '')
+        exp_output = """
+            $8000 0602     LD B,$02
+            $8002 10FE     DJNZ $8002
+            $8002 10FE     DJNZ $8002
+            $8004 2100C0   LD HL,$C000
+            $8007 110060   LD DE,$6000
+            $800A 0E02     LD C,$02
+            $800C EDB0     LDIR
+            $800C EDB0     LDIR
+            Stopped at $800E
+        """
+        self.assertEqual(dedent(exp_output).strip(), output.rstrip())
+
+    def test_option_vv_with_djnz_and_ldir(self):
+        data = (
+            0x06, 0x02,             # $FF00 LD B,$02
+            0x10, 0xFE,             # $FF02 DJNZ $FF02
+            0x21, 0x00, 0xC0,       # $FF04 LD HL,$C000
+            0x11, 0x00, 0x60,       # $FF07 LD DE,$6000
+            0x0E, 0x02,             # $FF0A LD C,$02
+            0xED, 0xB0,             # $FF0C LDIR
+        )
+        binfile = self.write_bin_file(data, suffix='.bin')
+        output, error = self.run_trace(f'-o 0xff00 -S 0xff0E -vv {binfile}')
+        self.assertEqual(error, '')
+        exp_output = """
+            $FF00 0602     LD B,$02         A=00 F=00000000 BC=0200 DE=0000 HL=0000 IX=0000 IY=5C3A IR=3F01
+                                            A'=00 F'=00000000 BC'=0000 DE'=0000 HL'=0000 SP=5C00
+            $FF02 10FE     DJNZ $FF02       A=00 F=00000000 BC=0100 DE=0000 HL=0000 IX=0000 IY=5C3A IR=3F02
+                                            A'=00 F'=00000000 BC'=0000 DE'=0000 HL'=0000 SP=5C00
+            $FF02 10FE     DJNZ $FF02       A=00 F=00000000 BC=0000 DE=0000 HL=0000 IX=0000 IY=5C3A IR=3F03
+                                            A'=00 F'=00000000 BC'=0000 DE'=0000 HL'=0000 SP=5C00
+            $FF04 2100C0   LD HL,$C000      A=00 F=00000000 BC=0000 DE=0000 HL=C000 IX=0000 IY=5C3A IR=3F04
+                                            A'=00 F'=00000000 BC'=0000 DE'=0000 HL'=0000 SP=5C00
+            $FF07 110060   LD DE,$6000      A=00 F=00000000 BC=0000 DE=6000 HL=C000 IX=0000 IY=5C3A IR=3F05
+                                            A'=00 F'=00000000 BC'=0000 DE'=0000 HL'=0000 SP=5C00
+            $FF0A 0E02     LD C,$02         A=00 F=00000000 BC=0002 DE=6000 HL=C000 IX=0000 IY=5C3A IR=3F06
+                                            A'=00 F'=00000000 BC'=0000 DE'=0000 HL'=0000 SP=5C00
+            $FF0C EDB0     LDIR             A=00 F=00101100 BC=0001 DE=6001 HL=C001 IX=0000 IY=5C3A IR=3F08
+                                            A'=00 F'=00000000 BC'=0000 DE'=0000 HL'=0000 SP=5C00
+            $FF0C EDB0     LDIR             A=00 F=00000000 BC=0000 DE=6002 HL=C002 IX=0000 IY=5C3A IR=3F0A
+                                            A'=00 F'=00000000 BC'=0000 DE'=0000 HL'=0000 SP=5C00
+            Stopped at $FF0E
+        """
+        self.assertEqual(dedent(exp_output).strip(), output.rstrip())
+
     def test_option_V(self):
         for option in ('-V', '--version'):
             output, error = self.run_trace(option, catch_exit=0)
