@@ -410,33 +410,23 @@ class Simulator:
         hl = registers[7] + 256 * registers[6]
         bc = registers[3] + 256 * registers[2]
         a = registers[0]
-
         value = memory[hl]
-        result = (a - value) % 256
-        hf = ((a % 16) - (value % 16)) & 0x10
-        n = a - value - hf // 16
-        f = (result & 0x80) + hf + 0x02 + (registers[1] % 2) # S..H..NC
-        if result == 0:
-            f += 0x40 # .Z......
-        if n & 0x02:
-            f += 0x20 # ..5.....
-        if n & 0x08:
-            f += 0x08 # ....3...
-
         hl = (hl + inc) % 65536
         bc = (bc - 1) % 65536
         registers[7] = hl % 256
         registers[6] = hl // 256
         registers[3] = bc % 256
         registers[2] = bc // 256
-        if bc:
-            registers[1] = f + 0x04
-        else:
-            registers[1] = f
 
-        if repeat and result and bc:
+        cp = a - value
+        hf = a % 16 < value % 16
+        f = (cp & 0x80) + hf * 0x10 + 0x02 + (registers[1] % 2) # S..H..NC
+        if repeat and cp and bc:
+            registers[1] = f + ((registers[24] // 256) & 0x28) + 0x04 # .Z5.3P..
             registers[25] += 21
         else:
+            n = cp - hf
+            registers[1] = f + (cp == 0) * 0x40 + (n & 0x02) * 16 + (n & 0x08) + (bc > 0) * 0x04 # .Z5.3P..
             registers[25] += 16
             registers[24] = (registers[24] + 2) % 65536
         registers[15] = R2[registers[15]]
@@ -859,30 +849,35 @@ class Simulator:
         hl = registers[7] + 256 * registers[6]
         b = (registers[2] - 1) % 256
 
-        outval = memory[hl]
+        value = memory[hl]
         if self.out_tracer:
-            self.out_tracer(registers[3] + 256 * b, outval)
+            self.out_tracer(registers[3] + 256 * b, value)
         hl = (hl + inc) % 65536
-        k = (hl % 256) + outval
-        f = (b & 0xA8) + parity[(k % 8) ^ b] # S.5.3P..
-        if b == 0:
-            f += 0x40 # .Z......
-        if k > 255:
-            f += 0x11 # ...H...C
-
-        registers[7] = hl % 256
+        l = hl % 256
+        registers[7] = l
         registers[6] = hl // 256
         registers[2] = b
-        if outval & 0x80:
-            registers[1] = f + 0x02 # ......N.
-        else:
-            registers[1] = f
 
+        j = l + value
+        n = (value & 0x80) // 64
+        c = j > 0xFF
         if repeat and b:
+            if c:
+                if n:
+                    h = (b % 16 == 0) * 0x10
+                    p = parity[(j % 8) ^ b ^ ((b - 1) % 8)]
+                else:
+                    h = (b % 16 == 15) * 0x10
+                    p = parity[(j % 8) ^ b ^ ((b + 1) % 8)]
+            else:
+                h = 0
+                p = parity[(j % 8) ^ b ^ (b % 8)]
+            registers[1] = (b & 0x80) + ((registers[24] // 256) & 0x28) + h + p + n + c
             registers[25] += 21
         else:
-            registers[25] += 16
+            registers[1] = (b & 0xA8) + (b == 0) * 0x40 + c * 0x11 + parity[(j % 8) ^ b] + n
             registers[24] = (registers[24] + 2) % 65536
+            registers[25] += 16
         registers[15] = R2[registers[15]]
 
     def pop(self, registers, memory, r_inc, timing, size, rh, rl):

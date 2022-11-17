@@ -2230,11 +2230,13 @@ class SimulatorTest(SkoolKitTestCase):
         hl = 45287
         start = 41772
 
-        for b, outval, f_out in (
-                #          SZ5H3PNC
-                (2, 0,   0b00000000),
-                (1, 128, 0b01010111),
-                (0, 0,   0b10101100),
+        for b, outval, f_out_i, f_out_ir, f_out_d, f_out_dr in (
+                #          SZ5H3PNC    SZ5H3PNC    SZ5H3PNC    SZ5H3PNC
+                (2, 255, 0b00010111, 0b00100111, 0b00010011, 0b00100011),
+                (2, 127, 0b00010101, 0b00100001, 0b00010001, 0b00100101),
+                (2, 0,   0b00000000, 0b00100100, 0b00000000, 0b00100100),
+                (1, 128, 0b01010111, 0b01010111, 0b01010111, 0b01010111),
+                (0, 0,   0b10101100, 0b10100000, 0b10101100, 0b10100000),
         ):
             end = start + 2
             timing = 16
@@ -2244,6 +2246,10 @@ class SimulatorTest(SkoolKitTestCase):
             registers[B] = b
             registers[H] = hl // 256
             registers[L] = hl % 256
+            if repeat:
+                f_out = f_out_ir if inc > 0 else f_out_dr
+            else:
+                f_out = f_out_i if inc > 0 else f_out_d
             reg_out = {
                 B: (b - 1) & 255,
                 H: (hl + inc) // 256,
