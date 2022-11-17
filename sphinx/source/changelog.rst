@@ -1,7 +1,7 @@
 Changelog
 =========
 
-8.8b1
+8.8rc
 -----
 * Added the :ref:`trace.py` command (for tracing the execution of machine code
   in a 48K memory snapshot)
