@@ -1,6 +1,20 @@
 Changelog
 =========
 
+8.8 (2022-11-19)
+----------------
+* Added the :ref:`trace.py` command (for tracing the execution of machine code
+  in a 48K memory snapshot)
+* The ``--sim-load`` option of :ref:`tap2sna.py` now performs any ``call``,
+  ``move``, ``poke`` and ``sysvars`` operations specified by the ``--ram``
+  option
+* Improved the performance of the ``--sim-load`` option of :ref:`tap2sna.py`
+* Improved the performance of the :ref:`SIM` macro
+* Improved the performance of the :ref:`AUDIO` and :ref:`TSTATES` macros when
+  they execute instructions in a simulator
+* Removed the ``MaxAmplitude`` parameter from the :ref:`ref-AudioWriter`
+  section
+
 8.7 (2022-10-08)
 ----------------
 * Dropped support for Python 3.6

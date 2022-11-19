@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Ref files &#8212; SkoolKit 8.7 documentation</title>
+    <title>Ref files &#8212; SkoolKit 8.8 documentation</title>
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="_static/custom.css" />
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="skool-macros.html" title="Skool macros"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.7 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.8 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Ref files</a></li> 
       </ul>
     </div>  
@@ -88,16 +88,8 @@ effect (default: 51)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">FrameDuration</span></code> - length of a frame in T-states (default: 69888)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">InterruptDelay</span></code> - delay in T-states caused by an interrupt routine
 (default: 942)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">MaxAmplitude</span></code> - maximum amplitude of the computed waveform before
-conversion to sample values (default: 65536); see note below</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">SampleRate</span></code> - sample rate in Hz (default: 44100)</p></li>
 </ul>
-<p>Note that the WAV files created by SkoolKit’s audio writer use 16-bit samples
-with values ranging from -32768 to +32767, i.e. a maximum amplitude of 32768.
-This means that the default value of 65536 for the <code class="docutils literal notranslate"><span class="pre">MaxAmplitude</span></code> parameter
-gives rise to a clipped waveform, which more accurately reproduces the
-characteristic piercing quality of the ZX Spectrum speaker than a lower value
-such as 32768 would.</p>
 <table class="docutils colwidths-auto align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>Version</p></th>
@@ -105,7 +97,10 @@ such as 32768 would.</p>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>8.7</p></td>
+<tr class="row-even"><td><p>8.8</p></td>
+<td><p>Removed the <code class="docutils literal notranslate"><span class="pre">MaxAmplitude</span></code> parameter</p></td>
+</tr>
+<tr class="row-odd"><td><p>8.7</p></td>
 <td><p>New</p></td>
 </tr>
 </tbody>
@@ -1397,7 +1392,7 @@ with the first one removed.</p>
         <li class="right" >
           <a href="skool-macros.html" title="Skool macros"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.7 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.8 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Ref files</a></li> 
       </ul>
     </div>

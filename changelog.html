@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Changelog &#8212; SkoolKit 8.7 documentation</title>
+    <title>Changelog &#8212; SkoolKit 8.8 documentation</title>
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="_static/custom.css" />
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="migration.html" title="Migrating from SkoolKit 7"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.7 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.8 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Changelog</a></li> 
       </ul>
     </div>  
@@ -46,7 +46,23 @@
   <div class="section" id="changelog">
 <h1>Changelog<a class="headerlink" href="#changelog" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="id1">
-<h2>8.7 (2022-10-08)<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<h2>8.8 (2022-11-19)<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>Added the <a class="reference internal" href="commands.html#trace-py"><span class="std std-ref">trace.py</span></a> command (for tracing the execution of machine code
+in a 48K memory snapshot)</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">--sim-load</span></code> option of <a class="reference internal" href="commands.html#tap2sna-py"><span class="std std-ref">tap2sna.py</span></a> now performs any <code class="docutils literal notranslate"><span class="pre">call</span></code>,
+<code class="docutils literal notranslate"><span class="pre">move</span></code>, <code class="docutils literal notranslate"><span class="pre">poke</span></code> and <code class="docutils literal notranslate"><span class="pre">sysvars</span></code> operations specified by the <code class="docutils literal notranslate"><span class="pre">--ram</span></code>
+option</p></li>
+<li><p>Improved the performance of the <code class="docutils literal notranslate"><span class="pre">--sim-load</span></code> option of <a class="reference internal" href="commands.html#tap2sna-py"><span class="std std-ref">tap2sna.py</span></a></p></li>
+<li><p>Improved the performance of the <a class="reference internal" href="skool-macros.html#sim"><span class="std std-ref">#SIM</span></a> macro</p></li>
+<li><p>Improved the performance of the <a class="reference internal" href="skool-macros.html#audio"><span class="std std-ref">#AUDIO</span></a> and <a class="reference internal" href="skool-macros.html#tstates"><span class="std std-ref">#TSTATES</span></a> macros when
+they execute instructions in a simulator</p></li>
+<li><p>Removed the <code class="docutils literal notranslate"><span class="pre">MaxAmplitude</span></code> parameter from the <a class="reference internal" href="ref-files.html#ref-audiowriter"><span class="std std-ref">[AudioWriter]</span></a>
+section</p></li>
+</ul>
+</div>
+<div class="section" id="id2">
+<h2>8.7 (2022-10-08)<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li><p>Dropped support for Python 3.6</p></li>
 <li><p>Added the <a class="reference internal" href="skool-macros.html#sim"><span class="std std-ref">#SIM</span></a> macro (for simulating the execution of machine code in
@@ -92,8 +108,8 @@ when it does not differ from <code class="docutils literal notranslate"><span cl
 the sublengths of an earlier sub-block directive at the same address</p></li>
 </ul>
 </div>
-<div class="section" id="id2">
-<h2>8.6 (2021-11-06)<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id3">
+<h2>8.6 (2021-11-06)<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li><p>Added the <a class="reference internal" href="skool-macros.html#str"><span class="std std-ref">#STR</span></a> macro (for retrieving the text string at a given address
 in the memory snapshot)</p></li>
@@ -121,8 +137,8 @@ specifying the transparent colour and its alpha value in the new frame)</p></li>
 expanded twice in HTML mode (which makes <a class="reference internal" href="skool-macros.html#raw"><span class="std std-ref">#RAW</span></a> ineffective)</p></li>
 </ul>
 </div>
-<div class="section" id="id3">
-<h2>8.5 (2021-07-03)<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id4">
+<h2>8.5 (2021-07-03)<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li><p>Dropped support for Python 3.5</p></li>
 <li><p>Added the <a class="reference internal" href="skool-macros.html#over"><span class="std std-ref">#OVER</span></a> macro (for superimposing one frame on another)</p></li>
@@ -165,8 +181,8 @@ macro may have incorrect colours when converted to an image</p></li>
 is followed by a sub-block that has sublengths</p></li>
 </ul>
 </div>
-<div class="section" id="id4">
-<h2>8.4 (2021-03-06)<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id5">
+<h2>8.4 (2021-03-06)<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li><p>Made the <a class="reference internal" href="components.html#imagewriter"><span class="std std-ref">image writer component</span></a> pluggable</p></li>
 <li><p>Added support for defining groups of entries (via the <a class="reference internal" href="ref-files.html#entrygroups"><span class="std std-ref">[EntryGroups]</span></a>
@@ -196,8 +212,8 @@ configuration parameter</p></li>
 below 16384 when converting a snapshot</p></li>
 </ul>
 </div>
-<div class="section" id="id5">
-<h2>8.3 (2020-11-08)<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id6">
+<h2>8.3 (2020-11-08)<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li><p>Added the <a class="reference internal" href="skool-macros.html#plot"><span class="std std-ref">#PLOT</span></a> macro (for setting, resetting or flipping a pixel in a
 frame already created by an image macro)</p></li>
@@ -221,8 +237,8 @@ in the integer parameters and cropping specification of the <a class="reference 
 when it appears in a BASIC program</p></li>
 </ul>
 </div>
-<div class="section" id="id6">
-<h2>8.2 (2020-07-19)<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id7">
+<h2>8.2 (2020-07-19)<a class="headerlink" href="#id7" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li><p>Added the <code class="docutils literal notranslate"><span class="pre">--call-graph</span></code> option to <a class="reference internal" href="commands.html#snapinfo-call-graph"><span class="std std-ref">snapinfo.py</span></a>
 (for generating a call graph in DOT format)</p></li>
@@ -256,8 +272,8 @@ jump to or call an entry point)</p></li>
 a 128K snapshot to map to 49152-65535)</p></li>
 </ul>
 </div>
-<div class="section" id="id7">
-<h2>8.1 (2020-03-29)<a class="headerlink" href="#id7" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id8">
+<h2>8.1 (2020-03-29)<a class="headerlink" href="#id8" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li><p>Added the <code class="docutils literal notranslate"><span class="pre">--rsub</span></code> and <code class="docutils literal notranslate"><span class="pre">--rfix</span></code> options to <a class="reference internal" href="commands.html#skool2bin-py"><span class="std std-ref">skool2bin.py</span></a> (for
 parsing the skool file in <a class="reference internal" href="asm.html#rsubmode"><span class="std std-ref">&#64;rsub mode</span></a> and <a class="reference internal" href="asm.html#rfixmode"><span class="std std-ref">&#64;rfix mode</span></a>)</p></li>
@@ -293,8 +309,8 @@ specifying <code class="docutils literal notranslate"><span class="pre">--ctl</s
 when an end address is specified</p></li>
 </ul>
 </div>
-<div class="section" id="id8">
-<h2>8.0 (2019-11-09)<a class="headerlink" href="#id8" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id9">
+<h2>8.0 (2019-11-09)<a class="headerlink" href="#id9" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li><p>Dropped support for Python 3.4</p></li>
 <li><p>Made several <a class="reference internal" href="components.html#components"><span class="std std-ref">SkoolKit components</span></a> pluggable</p></li>
@@ -354,14 +370,15 @@ comments</p></li>
   <h3><a href="index.html">Table of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">Changelog</a><ul>
-<li><a class="reference internal" href="#id1">8.7 (2022-10-08)</a></li>
-<li><a class="reference internal" href="#id2">8.6 (2021-11-06)</a></li>
-<li><a class="reference internal" href="#id3">8.5 (2021-07-03)</a></li>
-<li><a class="reference internal" href="#id4">8.4 (2021-03-06)</a></li>
-<li><a class="reference internal" href="#id5">8.3 (2020-11-08)</a></li>
-<li><a class="reference internal" href="#id6">8.2 (2020-07-19)</a></li>
-<li><a class="reference internal" href="#id7">8.1 (2020-03-29)</a></li>
-<li><a class="reference internal" href="#id8">8.0 (2019-11-09)</a></li>
+<li><a class="reference internal" href="#id1">8.8 (2022-11-19)</a></li>
+<li><a class="reference internal" href="#id2">8.7 (2022-10-08)</a></li>
+<li><a class="reference internal" href="#id3">8.6 (2021-11-06)</a></li>
+<li><a class="reference internal" href="#id4">8.5 (2021-07-03)</a></li>
+<li><a class="reference internal" href="#id5">8.4 (2021-03-06)</a></li>
+<li><a class="reference internal" href="#id6">8.3 (2020-11-08)</a></li>
+<li><a class="reference internal" href="#id7">8.2 (2020-07-19)</a></li>
+<li><a class="reference internal" href="#id8">8.1 (2020-03-29)</a></li>
+<li><a class="reference internal" href="#id9">8.0 (2019-11-09)</a></li>
 <li><a class="reference internal" href="#older-versions">Older versions</a></li>
 </ul>
 </li>
@@ -409,7 +426,7 @@ comments</p></li>
         <li class="right" >
           <a href="migration.html" title="Migrating from SkoolKit 7"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.7 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.8 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Changelog</a></li> 
       </ul>
     </div>

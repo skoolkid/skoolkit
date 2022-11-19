@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Commands &#8212; SkoolKit 8.7 documentation</title>
+    <title>Commands &#8212; SkoolKit 8.8 documentation</title>
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="_static/custom.css" />
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="diy.html" title="Disassembly DIY"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.7 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.8 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Commands</a></li> 
       </ul>
     </div>  
@@ -1512,34 +1512,38 @@ given on the command line.</p>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>8.7</p></td>
+<tr class="row-even"><td><p>8.8</p></td>
+<td><p>The <code class="docutils literal notranslate"><span class="pre">--sim-load</span></code> option performs any <code class="docutils literal notranslate"><span class="pre">call/move/poke/sysvars</span></code>
+operations specified by <code class="docutils literal notranslate"><span class="pre">--ram</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>8.7</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">--sim-load</span></code> option; when a headerless block is
 ignored because no <code class="docutils literal notranslate"><span class="pre">--ram</span> <span class="pre">load</span></code> options have been specified, a
 warning is printed</p></td>
 </tr>
-<tr class="row-odd"><td><p>8.6</p></td>
+<tr class="row-even"><td><p>8.6</p></td>
 <td><p>Added support to the <code class="docutils literal notranslate"><span class="pre">--ram</span></code> option for the <code class="docutils literal notranslate"><span class="pre">call</span></code> operation</p></td>
 </tr>
-<tr class="row-even"><td><p>8.4</p></td>
+<tr class="row-odd"><td><p>8.4</p></td>
 <td><p>Added support to the <code class="docutils literal notranslate"><span class="pre">--ram</span></code> option for the <code class="docutils literal notranslate"><span class="pre">sysvars</span></code>
 operation</p></td>
 </tr>
-<tr class="row-odd"><td><p>6.3</p></td>
+<tr class="row-even"><td><p>6.3</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">--user-agent</span></code> option</p></td>
 </tr>
-<tr class="row-even"><td><p>6.2</p></td>
+<tr class="row-odd"><td><p>6.2</p></td>
 <td><p>The <code class="docutils literal notranslate"><span class="pre">--ram</span></code>, <code class="docutils literal notranslate"><span class="pre">--reg</span></code>, <code class="docutils literal notranslate"><span class="pre">--stack</span></code> and <code class="docutils literal notranslate"><span class="pre">--start</span></code> options
 accept hexadecimal integers prefixed by ‘0x’</p></td>
 </tr>
-<tr class="row-odd"><td><p>5.3</p></td>
+<tr class="row-even"><td><p>5.3</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">--stack</span></code> and <code class="docutils literal notranslate"><span class="pre">--start</span></code> options</p></td>
 </tr>
-<tr class="row-even"><td><p>4.5</p></td>
+<tr class="row-odd"><td><p>4.5</p></td>
 <td><p>Added support for TZX block type 0x14 (pure data), for loading
 the first and last bytes of a tape block, and for modifying
 memory with XOR and ADD operations</p></td>
 </tr>
-<tr class="row-odd"><td><p>3.5</p></td>
+<tr class="row-even"><td><p>3.5</p></td>
 <td><p>New</p></td>
 </tr>
 </tbody>
@@ -1600,6 +1604,71 @@ block type 0x14</p></td>
 </tbody>
 </table>
 </div>
+<div class="section" id="trace-py">
+<span id="id20"></span><h2>trace.py<a class="headerlink" href="#trace-py" title="Permalink to this headline">¶</a></h2>
+<p><cite>trace.py</cite> simulates the execution of machine code in a 48K memory snapshot.
+For example:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ trace.py --start 32768 --stop 49152 game.z80
+</pre></div>
+</div>
+<p>To list the options supported by <cite>trace.py</cite>, run it with no arguments:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>usage: trace.py [options] FILE
+
+Trace Z80 machine code execution. FILE may be a binary (raw memory) file, a
+SNA, SZX or Z80 snapshot, or &#39;.&#39; for no snapshot.
+
+Options:
+  --audio               Show audio delays.
+  --depth DEPTH         Simplify audio delays to this depth (default: 2).
+  -D, --decimal         Show decimal values in verbose mode.
+  --dump FILE           Dump a Z80 snapshot to this file after execution.
+  --max-operations MAX  Maximum number of instructions to execute.
+  --max-tstates MAX     Maximum number of T-states to run for.
+  -o ADDR, --org ADDR   Specify the origin address of a binary (raw memory)
+                        file (default: 65536 - length).
+  -p a[-b[-c]],[^+]v, --poke a[-b[-c]],[^+]v
+                        POKE N,v for N in {a, a+c, a+2c..., b}. Prefix &#39;v&#39;
+                        with &#39;^&#39; to perform an XOR operation, or &#39;+&#39; to
+                        perform an ADD operation. This option may be used
+                        multiple times.
+  -r name=value, --reg name=value
+                        Set the value of a register. Do &#39;--reg help&#39; for more
+                        information. This option may be used multiple times.
+  --rom FILE            Patch in a ROM at address 0 from this file. By default
+                        the 48K ZX Spectrum ROM is used.
+  -s ADDR, --start ADDR
+                        Start execution at this address.
+  -S ADDR, --stop ADDR  Stop execution at this address.
+  --stats               Show stats after execution.
+  -v, --verbose         Show executed instructions. Repeat this option to show
+                        register values too.
+  -V, --version         Show SkoolKit version number and exit.
+</pre></div>
+</div>
+<p>By default, <cite>trace.py</cite> silently simulates code execution beginning with the
+instruction at the address specified by the <code class="docutils literal notranslate"><span class="pre">--start</span></code> option (or the program
+counter in the snapshot) and ending when the instruction at the address
+specified by <code class="docutils literal notranslate"><span class="pre">--stop</span></code> (if any) is reached. Use the <code class="docutils literal notranslate"><span class="pre">--verbose</span></code> option to
+show each instruction executed. Repeat the <code class="docutils literal notranslate"><span class="pre">--verbose</span></code> option (<code class="docutils literal notranslate"><span class="pre">-vv</span></code>) to
+show register values too.</p>
+<p>When the <code class="docutils literal notranslate"><span class="pre">--audio</span></code> option is given, <cite>trace.py</cite> tracks changes in the state
+of the ZX Spectrum speaker, and then prints a list of the delays (in T-states)
+between those changes. This list can be supplied to the <a class="reference internal" href="skool-macros.html#audio"><span class="std std-ref">#AUDIO</span></a> macro to
+produce a WAV file for the sound effect that would be produced by the same code
+running on a real ZX Spectrum.</p>
+<table class="docutils colwidths-auto align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Version</p></th>
+<th class="head"><p>Changes</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>8.8</p></td>
+<td><p>New</p></td>
+</tr>
+</tbody>
+</table>
+</div>
 </div>
 
 
@@ -1644,6 +1713,7 @@ block type 0x14</p></td>
 <li><a class="reference internal" href="#snapmod-py">snapmod.py</a></li>
 <li><a class="reference internal" href="#tap2sna-py">tap2sna.py</a></li>
 <li><a class="reference internal" href="#tapinfo-py">tapinfo.py</a></li>
+<li><a class="reference internal" href="#trace-py">trace.py</a></li>
 </ul>
 </li>
 </ul>
@@ -1690,7 +1760,7 @@ block type 0x14</p></td>
         <li class="right" >
           <a href="diy.html" title="Disassembly DIY"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.7 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.8 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Commands</a></li> 
       </ul>
     </div>

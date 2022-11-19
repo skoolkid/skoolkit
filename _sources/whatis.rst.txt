@@ -58,6 +58,7 @@ In an HTML disassembly produced by :ref:`skool2html.py` you can also:
 
 * use the :ref:`image macros <imageMacros>` to build still and animated PNG
   images from graphic data
+* use the :ref:`AUDIO` macro to build WAV files for sound effects and tunes
 * use the :ref:`R` macro in annotations to create hyperlinks between routines
   and data blocks that refer to each other
 * use :ref:`[Bug:*] <boxpages>`, :ref:`[Fact:*] <boxpages>` and
