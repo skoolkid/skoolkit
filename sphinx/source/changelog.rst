@@ -1,8 +1,8 @@
 Changelog
 =========
 
-8.8rc
------
+8.8 (2022-11-19)
+----------------
 * Added the :ref:`trace.py` command (for tracing the execution of machine code
   in a 48K memory snapshot)
 * The ``--sim-load`` option of :ref:`tap2sna.py` now performs any ``call``,
