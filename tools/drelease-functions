@@ -14,6 +14,13 @@ for vname in DHOME SKOOLKIT_ARCHIVE; do
   fi
 done
 
+DRELEASERC=$DHOME/.dreleaserc
+if [[ ! -f $DRELEASERC ]]; then
+  echo "Error: file not found: $DRELEASERC"
+  exit 1
+fi
+. $DRELEASERC
+
 BUILD=$DHOME/build
 DIFFSBUILD=$BUILD/disassembly-diff
 DIST=$DHOME/dist
@@ -186,13 +193,21 @@ update_ghpages() {
   cwd=$(pwd)
   tar xf $SKOOLKIT_TARBALL
   cd skoolkit-$SKOOLKIT_VERSION
-  htmldir=$cwd/html
-  args="-j style.css -c Config/InitModule=$SKOOLKIT_TOOLS:publish $SKOOL $SKOOLKIT_TOOLS/publish.ref"
-  _exec "Building hexadecimal disassembly" \
-    "./skool2html.py ${HEXCONFIG:--H} -d $cwd/hex -T dark --var pub=2 $args" $cwd/$GAME-hex-build.log
-  mv $cwd/hex/* $htmldir
-  _exec "Building decimal disassembly" \
-    "./skool2html.py $DECCONFIG -d $htmldir -c Config/GameDir=dec --var pub=4 $args" $cwd/$GAME-dec-build.log
+  ARGS="-j style.css -c Config/InitModule=$SKOOLKIT_TOOLS:publish $SKOOL $SKOOLKIT_TOOLS/publish.ref"
+  HEXARGS="${HEXCONFIG:--H} -d $cwd -c Config/GameDir=html -T dark --var pub=2 $ARGS"
+  DECARGS="$DECCONFIG -d $cwd/html -c Config/GameDir=dec --var pub=4 $ARGS"
+  _exec "Building hexadecimal disassembly" "./skool2html.py $HEXARGS" $cwd/$GAME-hex-build.log
+  _exec "Building decimal disassembly" "./skool2html.py $DECARGS" $cwd/$GAME-dec-build.log
+  if [[ -n $WAVCONVERT ]]; then
+    echo -n "Converting WAV files..."
+    for wav in $WAVCONVERT; do
+      oggenc -Q "${cwd}/html/audio/$wav"
+      rm "${cwd}/html/audio/$wav"
+    done
+    echo "done"
+    _exec "Rebuilding hexadecimal disassembly" "./skool2html.py $HEXARGS" $cwd/$GAME-hex-build-2.log
+    _exec "Rebuilding decimal disassembly" "./skool2html.py $DECARGS" $cwd/$GAME-dec-build-2.log
+  fi
 
   ghrepo=$(grep ^GameDir= $REF | cut -c9- | tr -d _)
   echo -n "Cloning $ghrepo repository: "
@@ -201,7 +216,7 @@ update_ghpages() {
   echo "OK"
   cd $ghrepo
   git checkout -q gh-pages
-  rsync -r $htmldir/ .
+  rsync -r $cwd/html/ .
   cd ..
   _exec "Checking links" "$SKOOLKIT_TOOLS/check-links.py $ghrepo" $cwd/$GAME-links.log
   cd $ghrepo
