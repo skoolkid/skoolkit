@@ -10,8 +10,8 @@ Usage: $(basename $0) [options] $GAMES [TYPE [TYPE ...]]
 
   Compares an old version of a disassembly with the current version. TYPE is
   the type of files to build and compare, which may be 'asm', 'bin', 'ctl',
-  'dot', 'genctl', 'html', 'png' or 'skool'; if TYPE is omitted, every type is
-  built and compared.
+  'dot', 'genctl', 'html', 'png', 'skool' or 'wav'; if TYPE is omitted, every
+  type is built and compared.
 
   Details on the old disassembly version number and the version of SkoolKit to
   use to build it are read from .ddiffsrc in the disassembly's home directory.
@@ -59,7 +59,7 @@ clean_disassembly() {
   [ -d "$d_dir" ] || return 0
   shift
   for diff_type in $*; do
-    if [ "$diff_type" = "html" ] || [ "$diff_type" = "png" ]; then
+    if [ "$diff_type" = "html" ] || [ "$diff_type" = "png" ] || [ "$diff_type" = "wav" ]; then
       rm -rf $d_dir/html
     else
       rm -f $d_dir/*.$diff_type
@@ -135,7 +135,7 @@ fi
 
 shift 1
 
-DIFF_TYPES=${*:-asm bin ctl dot genctl html png skool}
+DIFF_TYPES=${*:-asm bin ctl dot genctl html png skool wav}
 
 USE_SK_DEV=0
 if [ "$SKOOLKIT_VERSION" = "dev" ]; then
@@ -206,7 +206,7 @@ if [ $WRITE_NEW -eq 1 ] || [ ! -d $NEW_DIR ]; then
 fi
 
 for diff_type in $DIFF_TYPES; do
-  if [ $diff_type != "png" ]; then
+  if [ $diff_type != "png" ] && [ $diff_type != "wav" ]; then
     if [[ -d $OLD_DIR/$diff_type ]] && [[ $WRITE_OLD -eq 0 ]]; then
       echo -e "\e[0;36m$diff_type: Using existing old disassembly in $OLD_DIR\e[0m"
     else
@@ -219,7 +219,7 @@ for diff_type in $DIFF_TYPES; do
 done
 
 for diff_type in $DIFF_TYPES; do
-  if [ $diff_type != "png" ]; then
+  if [ $diff_type != "png" ] && [ $diff_type != "wav" ]; then
     if [[ -d $NEW_DIR/$diff_type ]] && [[ $WRITE_NEW -eq 0 ]]; then
       echo -e "\e[0;36m$diff_type: Using existing disassembly in $NEW_DIR\e[0m"
     else

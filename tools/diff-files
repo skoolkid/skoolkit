@@ -72,33 +72,34 @@ diff_html() {
   echo "done"
 }
 
-diff_images() {
-  old=$1
-  new=$2
+diff_media() {
+  mtype=$1 # png/wav
+  old=$2
+  new=$3
 
-  out=diffs-png
+  out=diffs-${mtype}
   echo -n "Writing diffs to $out..."
-  rm -rf $old/png $new/png
+  rm -rf $old/${mtype} $new/${mtype}
   game=$(ls -1 $new/html | head -1)
-  find $old/html/$game -name "*.png" | while read old_img; do
-    img_path=${old_img#$old/}
-    if [ -f $new/$img_path ] && ! cmp -s $old_img $new/$img_path; then
+  find $old/html/$game -name "*.${mtype}" | while read old_media; do
+    media_path=${old_media#$old/}
+    if [ -f $new/$media_path ] && ! cmp -s $old_media $new/$media_path; then
       for d in $old $new; do
-        dump_file=$d/png/${img_path#html/$game}.dump
+        dump_file=$d/${mtype}/${media_path#html/$game}.dump
         mkdir -p $(dirname $dump_file)
-        $UTILS/analyse-png.py --dump $d/$img_path > $dump_file
+        $UTILS/analyse-${mtype}.py --dump $d/$media_path > $dump_file
       done
     fi
   done
 
   rm -rf $out
   mkdir -p $out
-  diff_file=$out/png.diff
-  if [ -e $new/png ]; then
-    diff -Naur $old/png $new/png > $diff_file
-    check_diffs png $diff_file
+  diff_file=$out/${mtype}.diff
+  if [ -e $new/${mtype} ]; then
+    diff -Naur $old/${mtype} $new/${mtype} > $diff_file
+    check_diffs ${mtype} $diff_file
   fi
-  $UTILS/unique-diffs.py $out/$USED_EXP_DIFFS-*.png.txt > $out/$USED_EXP_DIFFS.txt
+  $UTILS/unique-diffs.py $out/$USED_EXP_DIFFS-*.${mtype}.txt > $out/$USED_EXP_DIFFS.txt
   echo "done"
 }
 
@@ -106,10 +107,10 @@ print_usage() {
   cat >&2 << EOM
 Usage: $(basename $0) [options] DIR1 DIR2 TYPE [TYPE...]
 
-  Runs 'diff' on the ASM, BIN, CTL, DOT, HTML, PNG or SKOOL files in two
+  Runs 'diff' on the ASM, BIN, CTL, DOT, HTML, PNG, SKOOL or WAV files in two
   directories and outputs the results to suitably named files.
 
-  TYPE can be one of: asm bin ctl dot genctl html png skool all
+  TYPE can be one of: asm bin ctl dot genctl html png skool wav all
 
 Options:
   -d DIR     Filter diff files through check-diffs.py using exp-diffs-TYPE.txt
@@ -161,8 +162,9 @@ while [ "$1" != "" ]; do
     dot) diff_files dot $OLD $NEW ;;
     genctl) diff_files genctl $OLD $NEW ctl ;;
     html) diff_html $OLD $NEW ;;
-    png) diff_images $OLD $NEW ;;
+    png) diff_media png $OLD $NEW;;
     skool) diff_files skool $OLD $NEW ;;
+    wav) diff_media wav $OLD $NEW;;
     all)
       diff_files asm $OLD $NEW
       diff_bins bin $OLD $NEW
@@ -170,8 +172,9 @@ while [ "$1" != "" ]; do
       diff_files dot $OLD $NEW
       diff_files genctl $OLD $NEW ctl
       diff_html $OLD $NEW
-      diff_images $OLD $NEW
+      diff_media png $OLD $NEW
       diff_files skool $OLD $NEW
+      diff_media wav $OLD $NEW
       ;;
     *) echo "Skipping unknown file type: '$1'" ;;
   esac
