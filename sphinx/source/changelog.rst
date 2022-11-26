@@ -1,6 +1,9 @@
 Changelog
 =========
 
+8.9b1
+-----
+
 8.8 (2022-11-19)
 ----------------
 * Added the :ref:`trace.py` command (for tracing the execution of machine code
