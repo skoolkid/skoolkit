@@ -3,6 +3,9 @@ Changelog
 
 8.9b1
 -----
+* Fixed how the ``--sim-load`` option of :ref:`tap2sna.py` transitions from a
+  tape block that ends with data to the next block when there is no pause
+  between them (as in the Speedlock loading scheme, for example)
 
 8.8 (2022-11-19)
 ----------------

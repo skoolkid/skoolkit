@@ -35,20 +35,12 @@ DEC = tuple(tuple((
 SIM_TIMEOUT = 10 * 60 * 3500000 # 10 minutes of Z80 CPU time
 
 def get_edges(blocks):
-    # Return a list of elements of the form
-    #   [edges, data]
-    # where each one corresponds to a block on the tape and
-    # - 'edges' is a list of integers, each of which can be interpreted as the
-    #   timestamp (in T-states) of an 'edge' in the tape block
-    # - 'data' is a list of the byte values in the tape block (used for fast
-    #   loading where possible)
-
-    tape_blocks = [[[], []]]
+    edges = []
+    indexes = []
+    data_blocks = []
     tstates = -1
 
     for i, (timings, data) in enumerate(blocks):
-        edges = tape_blocks[-1][0]
-
         # Pilot tone
         for n in range(timings.pilot_len):
             if tstates < 0:
@@ -74,17 +66,20 @@ def get_edges(blocks):
                         tstates += duration
                         edges.append(tstates)
                     b *= 2
-            tape_blocks[-1][1][:] = data
-            if i < len(blocks) - 1:
-                tape_blocks.append([[], []])
+            indexes.append(len(edges) - 1)
+            data_blocks.append(data)
 
-    return tape_blocks
+    return edges, indexes, data_blocks
 
 class LoadTracer:
     def __init__(self, blocks):
-        self.blocks = get_edges(blocks)
-        self.block_index = -1
-        self.next_block()
+        self.edges, self.indexes, self.blocks = get_edges(blocks)
+        self.next_edge = 0
+        self.block_index = 0
+        self.block_max_index = self.indexes[0]
+        self.index = 0
+        self.max_index = len(self.edges) - 1
+        self.tape_running = False
         self.end_of_tape = 0
         self.tape_end_time = 0
         self.custom_loader = False
@@ -99,7 +94,8 @@ class LoadTracer:
         registers[24] = start
         pc = start
         progress = 0
-        tape_length = self.blocks[-1][0][-1] // 1000
+        edges = self.edges
+        tape_length = edges[-1] // 1000
 
         while True:
             opcodes[memory[pc]]()
@@ -109,15 +105,16 @@ class LoadTracer:
             if self.tape_running and tstates > self.next_edge: # pragma: no cover
                 index = self.index
                 max_index = self.max_index
-                edges = self.edges
                 while index < max_index and edges[index + 1] < tstates:
                     index += 1
                 self.index = index
                 if index == max_index:
+                    # Allow 1ms for the final edge on the tape to be read
                     if tstates - edges[index] > 3500:
-                        # Move to the next block on the tape if the final edge
-                        # of the current block hasn't been read in over 1ms
                         self.next_block(tstates)
+                elif index > self.block_max_index:
+                    # Pause tape between blocks
+                    self.next_block(tstates)
                 else:
                     self.next_edge = edges[index + 1]
                     p = edges[index] // tape_length
@@ -176,10 +173,12 @@ class LoadTracer:
                 index = self.index
                 if not self.tape_running:
                     self.tape_running = True
-                    registers[T] = self.edges[0]
-                    length = len(self.blocks[self.block_index][1])
-                    write_line(f'Data ({length} bytes)\n')
+                    registers[T] = self.edges[index]
+                    length = len(self.blocks[self.block_index])
+                    if length:
+                        write_line(f'Data ({length} bytes)\n')
                 elif index == self.max_index:
+                    # Final edge, so stop the tape
                     self.next_block(registers[T])
                 if index % 2:
                     return 255
@@ -197,15 +196,14 @@ class LoadTracer:
                 write_line('Tape finished')
                 self.tape_end_time = tstates
         else:
-            self.edges = self.blocks[self.block_index][0]
-            self.next_edge = self.edges[0]
-            self.index = 0
-            self.max_index = len(self.edges) - 1
+            self.index = self.block_max_index + 1
+            self.next_edge = self.edges[self.index]
+            self.block_max_index = self.indexes[self.block_index]
         self.tape_running = False
 
     def fast_load(self, simulator):
         if self.block_index < len(self.blocks):
-            block = self.blocks[self.block_index][1]
+            block = self.blocks[self.block_index]
         else:
             raise SkoolKitError("Failed to fast load block: unexpected end of tape")
         registers = simulator.registers
