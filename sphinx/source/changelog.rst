@@ -8,6 +8,8 @@ Changelog
   between them (as in the Speedlock loading scheme, for example)
 * Fixed the bug that prevents the ``--find`` option of :ref:`snapinfo.py` from
   finding byte sequences below address 16384
+* Fixed the bug that prevents the ``--find-text`` option of :ref:`snapinfo.py`
+  from finding text strings below address 16384
 
 8.8 (2022-11-19)
 ----------------

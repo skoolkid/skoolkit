@@ -1744,6 +1744,17 @@ class SnapinfoTest(SkoolKitTestCase):
         exp_output = ''
         self._test_sna(ram, exp_output, '-t nowhere')
 
+    def test_option_t_with_address_below_16384(self):
+        data = [0] * 256
+        address = 204
+        text = 'hello'
+        data[address:address + len(text)] = [ord(c) for c in text]
+        binfile = self.write_bin_file(data, suffix='.bin')
+        exp_output = f'204-208 00CC-00D0: {text}'
+        output, error = self.run_snapinfo(f'-t {text} -o 0 {binfile}')
+        self.assertEqual(error, '')
+        self.assertEqual(output.strip(), exp_output)
+
     def test_option_T(self):
         ram = [0] * 49152
         tile_addr = 54212

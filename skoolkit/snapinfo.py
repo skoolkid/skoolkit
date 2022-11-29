@@ -492,10 +492,10 @@ def _find_tile(snapshot, coords):
         print('|{:08b}|'.format(b).replace('0', ' ').replace('1', '*'))
     _find(snapshot, '{}-{}'.format(','.join([str(b) for b in byte_seq]), steps), 23296)
 
-def _find_text(snapshot, text):
+def _find_text(snapshot, text, base_addr):
     size = len(text)
     byte_values = [ord(c) for c in text]
-    for a in range(16384, 65536 - size + 1):
+    for a in range(base_addr, 65536 - size + 1):
         if snapshot[a:a + size] == byte_values:
             print("{0}-{1} {0:04X}-{1:04X}: {2}".format(a, a + size - 1, text))
 
@@ -521,7 +521,7 @@ def run(infile, options, config):
         elif options.tile:
             _find_tile(snapshot, options.tile)
         elif options.text:
-            _find_text(snapshot, options.text)
+            _find_text(snapshot, options.text, start)
         elif options.call_graph:
             _call_graph(snapshot, options.ctlfiles, infile, start, end, config)
         elif options.peek:
