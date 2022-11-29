@@ -69,6 +69,10 @@ def get_edges(blocks):
             indexes.append(len(edges) - 1)
             data_blocks.append(data)
 
+            # Pause
+            if i + 1 < len(blocks) and timings.pause:
+                tstates += timings.pause
+
     return edges, indexes, data_blocks
 
 class LoadTracer:

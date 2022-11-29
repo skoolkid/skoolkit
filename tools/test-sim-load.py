@@ -47,16 +47,6 @@ class SimLoadTest(unittest.TestCase):
             if md5sum != z80sum:
                 self.fail(f'Checksum failure for {z80file}: expected {z80sum}, got {md5sum}')
 
-    def test_black_lamp(self):
-        # Firebird BleepLoad
-        self._test_sim_load(
-            'https://www.worldofspectrum.org/pub/sinclair/games/b/BlackLamp.tzx.zip',
-            'Black Lamp.tzx',
-            'fc9dd17a32679eeff80504af26e81d9b',
-            'c057416bf9337be90cb4975b27ba8f82',
-            '--start', '32768'
-        )
-
     def test_fairlight(self):
         # Alcatraz
         self._test_sim_load(
@@ -67,6 +57,16 @@ class SimLoadTest(unittest.TestCase):
             '--start', '50300'
         )
 
+    def test_black_lamp(self):
+        # Firebird BleepLoad
+        self._test_sim_load(
+            'https://www.worldofspectrum.org/pub/sinclair/games/b/BlackLamp.tzx.zip',
+            'Black Lamp.tzx',
+            'fc9dd17a32679eeff80504af26e81d9b',
+            'c057416bf9337be90cb4975b27ba8f82',
+            '--start', '32768'
+        )
+
     def test_skool_daze(self):
         # Microsphere
         self._test_sim_load(
@@ -75,6 +75,16 @@ class SimLoadTest(unittest.TestCase):
             '61d29396661cc0acfa8f3514010f641d',
             '03a148f65e1d6c4c0a131cb97ae8cf91',
             '--start', '24288'
+        )
+
+    def test_bruce_lee(self):
+        # Speedlock 1
+        self._test_sim_load(
+            'https://www.worldofspectrum.org/pub/sinclair/games/b/BruceLee.tzx.zip',
+            'Bruce Lee.tzx',
+            '51cb1a6e1fb58304a15a588b82d8e001',
+            '0577a5db475190d546ee3e8dc4dcb00a',
+            '--start', '49152'
         )
 
     def test_the_great_escape(self):
