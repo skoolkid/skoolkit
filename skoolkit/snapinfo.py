@@ -454,7 +454,7 @@ def _call_graph(snapshot, ctlfiles, prefix, start, end, config):
             print('{} -> {{{}}}'.format(node_id, ' '.join(ref_ids)))
     print('}')
 
-def _find(snapshot, byte_seq, base_addr=16384):
+def _find(snapshot, byte_seq, base_addr):
     steps = '1'
     if '-' in byte_seq:
         byte_seq, steps = byte_seq.split('-', 1)
@@ -517,7 +517,7 @@ def run(infile, options, config):
             options.word, options.basic, options.variables)):
         snapshot, start, end = make_snapshot(infile, options.org, page=options.page)
         if options.find:
-            _find(snapshot, options.find)
+            _find(snapshot, options.find, start)
         elif options.tile:
             _find_tile(snapshot, options.tile)
         elif options.text:

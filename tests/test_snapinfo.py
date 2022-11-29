@@ -985,6 +985,18 @@ class SnapinfoTest(SkoolKitTestCase):
         """
         self._test_sna(ram, exp_output, '-f {}-1-5'.format(seq_str))
 
+    def test_option_f_with_address_below_16384(self):
+        data = [0] * 256
+        address = 135
+        seq = (2, 4, 6)
+        data[address:address + len(seq)] = seq
+        seq_str = ','.join([str(b) for b in seq])
+        binfile = self.write_bin_file(data, suffix='.bin')
+        exp_output = '135-137-1 0087-0089-1: {}'.format(seq_str)
+        output, error = self.run_snapinfo(f'-f {seq_str} -o 0 {binfile}')
+        self.assertEqual(error, '')
+        self.assertEqual(output.strip(), exp_output)
+
     def test_option_f_with_hexadecimal_values(self):
         ram = [0] * 49152
         address = 47983

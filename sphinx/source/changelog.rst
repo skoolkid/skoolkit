@@ -6,6 +6,8 @@ Changelog
 * Fixed how the ``--sim-load`` option of :ref:`tap2sna.py` transitions from a
   tape block that ends with data to the next block when there is no pause
   between them (as in the Speedlock loading scheme, for example)
+* Fixed the bug that prevents the ``--find`` option of :ref:`snapinfo.py` from
+  finding byte sequences below address 16384
 
 8.8 (2022-11-19)
 ----------------
