@@ -47,7 +47,28 @@ class SimLoadTest(unittest.TestCase):
             if md5sum != z80sum:
                 self.fail(f'Checksum failure for {z80file}: expected {z80sum}, got {md5sum}')
 
+    def test_black_lamp(self):
+        # Firebird BleepLoad
+        self._test_sim_load(
+            'https://www.worldofspectrum.org/pub/sinclair/games/b/BlackLamp.tzx.zip',
+            'Black Lamp.tzx',
+            'fc9dd17a32679eeff80504af26e81d9b',
+            'c057416bf9337be90cb4975b27ba8f82',
+            '--start', '32768'
+        )
+
+    def test_fairlight(self):
+        # Alcatraz
+        self._test_sim_load(
+            'https://www.worldofspectrum.org/pub/sinclair/games/f/Fairlight48V1.tzx.zip',
+            'Fairlight - 48k - Release 1.tzx',
+            '1dba2ac53fd25f4cc1065e18e31a7b96',
+            'ff5a6c268b0750e9f445874964aaf8f7',
+            '--start', '50300'
+        )
+
     def test_skool_daze(self):
+        # Microsphere
         self._test_sim_load(
             'https://www.worldofspectrum.org/pub/sinclair/games/s/SkoolDaze.tzx.zip',
             'Skool Daze.tzx',
@@ -57,6 +78,7 @@ class SimLoadTest(unittest.TestCase):
         )
 
     def test_the_great_escape(self):
+        # Speedlock 2
         self._test_sim_load(
             'http://www.worldofspectrum.org/pub/sinclair/games/g/GreatEscapeThe.tzx.zip',
             'The Great Escape.tzx',
