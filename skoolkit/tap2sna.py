@@ -189,9 +189,12 @@ class TapeBlockTimings:
         self.one = one
         self.pause = pause
 
-TAP_TIMINGS_HEADER = TapeBlockTimings(8063, 2168, (667, 735), 855, 1710, 3500000)
-
-TAP_TIMINGS_DATA = TapeBlockTimings(3223, 2168, (667, 735), 855, 1710, 3500000)
+def get_tape_block_timings(first_byte, pause=3500000):
+    if first_byte == 0:
+        # Header block
+        return TapeBlockTimings(8063, 2168, (667, 735), 855, 1710, pause)
+    # Data block
+    return TapeBlockTimings(3223, 2168, (667, 735), 855, 1710, pause)
 
 def _write_z80(ram, options, fname):
     parent_dir = os.path.dirname(fname)
@@ -377,13 +380,11 @@ def _get_tzx_block(data, i, sim):
     i += 1
     if block_id == 16:
         # Standard speed data block
+        pause = get_word(data, i) * 3500
         length = get_word(data, i + 2)
         tape_data = data[i + 4:i + 4 + length]
         if tape_data:
-            if tape_data[0] == 0:
-                timings = TAP_TIMINGS_HEADER
-            else:
-                timings = TAP_TIMINGS_DATA
+            timings = get_tape_block_timings(tape_data[0], pause)
         i += 4 + length
     elif block_id == 17:
         # Turbo speed data block
@@ -515,10 +516,7 @@ def get_tap_blocks(tap, sim=False):
         i += 2
         data = tap[i:i + block_len]
         if data:
-            if data[0] == 0:
-                timings = TAP_TIMINGS_HEADER
-            else:
-                timings = TAP_TIMINGS_DATA
+            timings = get_tape_block_timings(data[0])
             blocks.append((timings, data))
         i += block_len
     return blocks

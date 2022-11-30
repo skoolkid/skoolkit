@@ -100,6 +100,7 @@ class LoadTracer:
         progress = 0
         edges = self.edges
         tape_length = edges[-1] // 1000
+        max_index = self.max_index
 
         while True:
             opcodes[memory[pc]]()
@@ -108,7 +109,6 @@ class LoadTracer:
 
             if self.tape_running and tstates > self.next_edge: # pragma: no cover
                 index = self.index
-                max_index = self.max_index
                 while index < max_index and edges[index + 1] < tstates:
                     index += 1
                 self.index = index
@@ -121,11 +121,12 @@ class LoadTracer:
                     self.next_block(tstates)
                 else:
                     self.next_edge = edges[index + 1]
-                    p = edges[index] // tape_length
-                    if p > progress:
-                        msg = f'[{p/10:0.1f}%]'
-                        write(msg + chr(8) * len(msg))
-                        progress = p
+                    if index < self.block_max_index:
+                        p = edges[index] // tape_length
+                        if p > progress:
+                            msg = f'[{p/10:0.1f}%]'
+                            write(msg + chr(8) * len(msg))
+                            progress = p
 
             if pc == stop:
                 write_line(f'Simulation stopped (PC at start address): PC={pc}')
@@ -133,6 +134,15 @@ class LoadTracer:
 
             if pc == 0x0556:
                 self.fast_load(simulator)
+                self.index = self.block_max_index
+                if self.index == max_index:
+                    # Final block, so stop the tape
+                    self.next_block(tstates)
+                else:
+                    # Otherwise continue to play the tape until this block's
+                    # 'pause' period (if any) has elapsed
+                    self.tape_running = True
+                    registers[25] = self.next_edge = edges[self.index]
                 pc = registers[24]
             else:
                 if self.end_of_tape and stop is None:
@@ -192,7 +202,7 @@ class LoadTracer:
         if port % 2 == 0:
             self.border = value % 8
 
-    def next_block(self, tstates=None):
+    def next_block(self, tstates):
         self.block_index += 1
         if self.block_index >= len(self.blocks):
             self.end_of_tape += 1
@@ -206,11 +216,13 @@ class LoadTracer:
         self.tape_running = False
 
     def fast_load(self, simulator):
+        registers = simulator.registers
+        if self.tape_running and self.index == self.block_max_index:
+            self.next_block(registers[T])
         if self.block_index < len(self.blocks):
             block = self.blocks[self.block_index]
         else:
             raise SkoolKitError("Failed to fast load block: unexpected end of tape")
-        registers = simulator.registers
         memory = simulator.memory
         ix = registers[IXl] + 256 * registers[IXh] # Start address
         de = registers[E] + 256 * registers[D] # Block length
@@ -259,4 +271,3 @@ class LoadTracer:
             registers[E] = de & 0xFF
 
         registers[PC] = 0x05E2
-        self.next_block(registers[T])

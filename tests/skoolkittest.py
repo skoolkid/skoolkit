@@ -55,9 +55,9 @@ def create_tap_data_block(data):
 def create_tap_header_block(title='', start=0, length=0, data_type=3):
     return [19, 0] + create_header_block(title, start, length, data_type)
 
-def create_tzx_data_block(data):
+def create_tzx_data_block(data, pause=0):
     block = [16] # Block ID
-    block.extend((0, 0)) # Pause duration
+    block.extend((pause % 256, pause // 256))
     data_block = create_data_block(data)
     length = len(data_block)
     block.extend((length % 256, length // 256))

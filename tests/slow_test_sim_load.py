@@ -342,6 +342,70 @@ class SimLoadTest(SkoolKitTestCase):
         self.assertEqual(error, '')
 
     @patch.object(tap2sna, '_write_z80', mock_write_z80)
+    def test_required_gap_between_data_blocks(self):
+        # Some loaders (e.g. Bruce Lee - Speedlock 1) require a period of
+        # silence between two blocks
+        code2 = [1, 2, 4, 8]
+        code3 = [16, 32, 64, 128]
+        pdata = create_data_block(code3)
+        code2_start = 49152
+        code3_start = code2_start + len(code2)
+        code3_end = code3_start + len(code3)
+        code = [
+            221, 33, 0, 192,  # LD IX,49152
+            17, 4, 0,         # LD DE,4
+            55,               # SCF
+            159,              # SBC A,A
+            205, 86, 5,       # CALL 1366   ; Load code2
+            6, 160,           # LD B,160
+            205, 227, 5,      # CALL 1507   ; LD-EDGE-2 - look for 2 edges
+            48, 4,            # JR NC,+4    ; Jump if not found - OK
+            221, 33, 0, 193,  # LD IX,49408 ; Change load address - FAIL
+            17, 4, 0,         # LD DE,4
+            55,               # SCF
+            159,              # SBC A,A
+            205, 86, 5,       # CALL 1366   ; Load code3
+            195, 0, 192       # JP 49152
+        ]
+        code_start = 32768
+        basic_data = self._get_basic_data(code_start)
+        blocks = [
+            create_tzx_header_block("simloadbas", 10, len(basic_data), 0),
+            create_tzx_data_block(basic_data),
+            create_tzx_header_block("simloadbyt", code_start, len(code), 3),
+            create_tzx_data_block(code),
+            create_tzx_data_block(code2, 500), # 500ms gap before next block
+            create_tzx_data_block(code3),
+        ]
+        tzxfile = self._write_tzx(blocks)
+        z80file = 'out.z80'
+        output, error = self.run_tap2sna(f'--sim-load --start 49152 {tzxfile} {z80file}')
+
+        self.assertEqual(basic_data, snapshot[23755:23755 + len(basic_data)])
+        self.assertEqual(code, snapshot[code_start:code_start + len(code)])
+        self.assertEqual(code2 + code3, snapshot[code2_start:code3_end])
+        exp_reg = set(('SP=65344', f'IX={code3_end}', 'IY=23610', 'PC=49152'))
+        self.assertLessEqual(exp_reg, set(options.reg))
+
+        out_lines = self._format_output(output)
+        exp_out_lines = [
+            'Program: simloadbas',
+            'Fast loading data block: 23755,20',
+            '',
+            'Bytes: simloadbyt',
+            'Fast loading data block: 32768,34',
+            '',
+            'Fast loading data block: 49152,4',
+            '',
+            'Fast loading data block: 49156,4',
+            '',
+            'Tape finished',
+            'Simulation stopped (PC at start address): PC=49152'
+        ]
+        self.assertEqual(exp_out_lines, out_lines)
+        self.assertEqual(error, '')
+
+    @patch.object(tap2sna, '_write_z80', mock_write_z80)
     def test_unread_data_in_middle_of_tape(self):
         code = [
             221, 33, 0, 192,   # 32757 LD IX,49152
@@ -556,7 +620,7 @@ class SimLoadTest(SkoolKitTestCase):
         exp_reg = set(('SP=65344', 'IX=32769', 'IY=23610', 'PC=32768'))
         self.assertLessEqual(exp_reg, set(options.reg))
 
-    @patch.object(loadtracer, 'SIM_TIMEOUT', 2 * 3500000)
+    @patch.object(loadtracer, 'SIM_TIMEOUT', 6 * 3500000)
     @patch.object(tap2sna, '_write_z80', mock_write_z80)
     def test_simulation_timed_out(self):
         basic_data = [
@@ -578,10 +642,10 @@ class SimLoadTest(SkoolKitTestCase):
             'Program: simloadbas',
             'Fast loading data block: 23755,6',
             '',
-            'Simulation stopped (timed out): PC=3678',
+            'Simulation stopped (timed out): PC=1343',
         ]
         self.assertEqual(exp_out_lines, out_lines)
         self.assertEqual(error, '')
         self.assertEqual(basic_data, snapshot[23755:23755 + len(basic_data)])
-        exp_reg = set(('IX=23761', 'IY=23610', 'PC=3678'))
+        exp_reg = set(('IX=23761', 'IY=23610', 'PC=1343'))
         self.assertLessEqual(exp_reg, set(options.reg))

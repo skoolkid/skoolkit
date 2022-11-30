@@ -40,60 +40,55 @@ class SimLoadTest(unittest.TestCase):
             with open(tapfile, 'wb') as t:
                 t.write(data)
             z80file = f'{d}/{tapname[:-4]}.z80'
-            tap2sna.main(('--sim-load', *options, tapfile, z80file))
+            tap2sna.main(('--sim-load', '--reg', 'r=0', *options, tapfile, z80file))
             with open(z80file, 'rb') as z:
                 data = z.read()
             md5sum = hashlib.md5(data).hexdigest()
             if md5sum != z80sum:
                 self.fail(f'Checksum failure for {z80file}: expected {z80sum}, got {md5sum}')
 
-    def test_fairlight(self):
-        # Alcatraz
+    def test_alcatraz(self):
         self._test_sim_load(
             'https://www.worldofspectrum.org/pub/sinclair/games/f/Fairlight48V1.tzx.zip',
             'Fairlight - 48k - Release 1.tzx',
             '1dba2ac53fd25f4cc1065e18e31a7b96',
-            'ff5a6c268b0750e9f445874964aaf8f7',
+            '551cd2d5ba4bf912987ccb1733c8e144',
             '--start', '50300'
         )
 
-    def test_black_lamp(self):
-        # Firebird BleepLoad
+    def test_firebird_bleepload(self):
         self._test_sim_load(
             'https://www.worldofspectrum.org/pub/sinclair/games/b/BlackLamp.tzx.zip',
             'Black Lamp.tzx',
             'fc9dd17a32679eeff80504af26e81d9b',
-            'c057416bf9337be90cb4975b27ba8f82',
+            '88fa2befca525004ae0aec8e6ac25ab6',
             '--start', '32768'
         )
 
-    def test_skool_daze(self):
-        # Microsphere
+    def test_microsphere(self):
         self._test_sim_load(
             'https://www.worldofspectrum.org/pub/sinclair/games/s/SkoolDaze.tzx.zip',
             'Skool Daze.tzx',
             '61d29396661cc0acfa8f3514010f641d',
-            '03a148f65e1d6c4c0a131cb97ae8cf91',
+            '58d31ae46b4739e7dd45f5db680ad521',
             '--start', '24288'
         )
 
-    def test_bruce_lee(self):
-        # Speedlock 1
+    def test_speedlock_1(self):
         self._test_sim_load(
             'https://www.worldofspectrum.org/pub/sinclair/games/b/BruceLee.tzx.zip',
             'Bruce Lee.tzx',
             '51cb1a6e1fb58304a15a588b82d8e001',
-            '0577a5db475190d546ee3e8dc4dcb00a',
+            '62a733f4f5f6c04fd239aed10f71a099',
             '--start', '49152'
         )
 
-    def test_the_great_escape(self):
-        # Speedlock 2
+    def test_speedlock_2(self):
         self._test_sim_load(
             'http://www.worldofspectrum.org/pub/sinclair/games/g/GreatEscapeThe.tzx.zip',
             'The Great Escape.tzx',
             '58d273a2c719da21a25b4af3d008c951',
-            'a1b300af35e7103ca221459adcb04196',
+            'b88e2ecec1935cb3183b95ba2b20a50c',
             '--start', '61795'
         )
 
