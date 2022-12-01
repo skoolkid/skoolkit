@@ -56,6 +56,32 @@ class SimLoadTest(unittest.TestCase):
             '--start', '50300'
         )
 
+    def test_digital_integration(self):
+        self._test_sim_load(
+            'https://www.worldofspectrum.org/pub/sinclair/games/t/Tomahawk.tzx.zip',
+            'Tomahawk.tzx',
+            '3189a34157750d9e4ad01d5a7b2e5722',
+            '8f7492f7f6030ef945b4045f2f2eefab',
+            '--start', '57349'
+        )
+
+    def test_edge(self):
+        self._test_sim_load(
+            'https://www.worldofspectrum.org/pub/sinclair/games/b/BrianBloodaxe.tzx.zip',
+            'Brian Bloodaxe.tzx',
+            '01b9b9454fc40eec0db0ba16ef2e6552',
+            '423156b42f6f4ca4f50aa47a099c7432',
+        )
+
+    def test_elite_uni_loader(self):
+        self._test_sim_load(
+            'https://www.worldofspectrum.org/pub/sinclair/games/b/BombJackII.tzx.zip',
+            'Bomb Jack 2.tzx',
+            'a481286503c7eb94a7d8e62a73088fb6',
+            '5addc5d94939d579cd8205a082329ad1',
+            '--start', '30720',
+        )
+
     def test_firebird_bleepload(self):
         self._test_sim_load(
             'https://www.worldofspectrum.org/pub/sinclair/games/b/BlackLamp.tzx.zip',
@@ -63,6 +89,23 @@ class SimLoadTest(unittest.TestCase):
             'fc9dd17a32679eeff80504af26e81d9b',
             '88fa2befca525004ae0aec8e6ac25ab6',
             '--start', '32768'
+        )
+
+    def test_headerless_block(self):
+        self._test_sim_load(
+            'https://www.worldofspectrum.org/pub/sinclair/games/g/GalacticPatrol.tzx.zip',
+            'Galactic Patrol.tzx',
+            '94827dbfba53fa26396d2d218990ed5b',
+            '492741f99234886dd4f4275f506deb5b',
+        )
+
+    def test_load_code(self):
+        self._test_sim_load(
+            'https://www.worldofspectrum.org/pub/sinclair/games/g/Gobstopper.tzx.zip',
+            'Gob Stopper (Calisto).tzx',
+            '43803187b78421dfe88bbfe3aa218b8d',
+            'e2f9a35c6df859fa42ec518becfddc11',
+            '--start', '40001'
         )
 
     def test_microsphere(self):
@@ -90,6 +133,14 @@ class SimLoadTest(unittest.TestCase):
             '58d273a2c719da21a25b4af3d008c951',
             'b88e2ecec1935cb3183b95ba2b20a50c',
             '--start', '61795'
+        )
+
+    def test_standard_load(self):
+        self._test_sim_load(
+            'https://www.worldofspectrum.org/pub/sinclair/games/m/ManicMiner.tzx.zip',
+            'Manic Miner.tzx',
+            '2750ccb6c240d14516c448e94f8d200e',
+            'f108f54410e9d7047b54bfa6cd25ce00',
         )
 
 if __name__ == '__main__':
