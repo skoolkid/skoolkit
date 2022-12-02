@@ -91,12 +91,30 @@ class SimLoadTest(unittest.TestCase):
             '--start', '32768'
         )
 
+    def test_ftl(self):
+        self._test_sim_load(
+            'https://www.worldofspectrum.org/pub/sinclair/games/h/Hydrofool.tzx.zip',
+            'Hydrofool.tzx',
+            'd3267bd1facb761c02efe0ddf4438ab4',
+            '45c4c04e69303c97d44f962474dfaf73',
+            '--start', '40252'
+        )
+
     def test_headerless_block(self):
         self._test_sim_load(
             'https://www.worldofspectrum.org/pub/sinclair/games/g/GalacticPatrol.tzx.zip',
             'Galactic Patrol.tzx',
             '94827dbfba53fa26396d2d218990ed5b',
             '492741f99234886dd4f4275f506deb5b',
+        )
+
+    def test_hewson_slowload(self):
+        self._test_sim_load(
+            'https://www.worldofspectrum.org/pub/sinclair/games/c/Cybernoid.tzx.zip',
+            'Cybernoid.tzx',
+            '50921a76ee625feb31c4195aac63d020',
+            '300bc544ff0f6194156b49eec4887780',
+            '--start', '65105'
         )
 
     def test_load_code(self):
@@ -117,6 +135,15 @@ class SimLoadTest(unittest.TestCase):
             '--start', '24288'
         )
 
+    def test_search_loader(self):
+        self._test_sim_load(
+            'https://www.worldofspectrum.org/pub/sinclair/games/t/TechnicianTed.tzx.zip',
+            'Technician Ted.tzx',
+            'b55a761f7d3733bc6ac958b10fab0c43',
+            'e375834a70166f774fc96a81e7c430d0',
+            '--start', '35892'
+        )
+
     def test_speedlock_1(self):
         self._test_sim_load(
             'https://www.worldofspectrum.org/pub/sinclair/games/b/BruceLee.tzx.zip',
@@ -133,6 +160,15 @@ class SimLoadTest(unittest.TestCase):
             '58d273a2c719da21a25b4af3d008c951',
             'b88e2ecec1935cb3183b95ba2b20a50c',
             '--start', '61795'
+        )
+
+    def test_speedlock_7(self):
+        self._test_sim_load(
+            'https://www.worldofspectrum.org/pub/sinclair/games/a/Aaargh.tzx.zip',
+            'Aaargh! - Side 1.tzx',
+            'cfe091069af70b7ad7eae377665ce284',
+            '7ddc438e3f8e3a5635b3e19615227ace',
+            '--start', '65283'
         )
 
     def test_standard_load(self):
