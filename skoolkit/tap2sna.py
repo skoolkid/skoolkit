@@ -181,13 +181,14 @@ class TapeError(Exception):
     pass
 
 class TapeBlockTimings:
-    def __init__(self, pilot_len=0, pilot=0, sync=(), zero=0, one=0, pause=0):
+    def __init__(self, pilot_len=0, pilot=0, sync=(), zero=0, one=0, pause=0, used_bits=8):
         self.pilot_len = pilot_len
         self.pilot = pilot
         self.sync = sync
         self.zero = zero
         self.one = one
         self.pause = pause
+        self.used_bits = used_bits
 
 def get_tape_block_timings(first_byte, pause=3500000):
     if first_byte == 0:
@@ -396,8 +397,9 @@ def _get_tzx_block(data, i, sim):
         zero = get_word(data, i + 6)
         one = get_word(data, i + 8)
         pilot_len = get_word(data, i + 10)
+        used_bits = data[i + 12]
         pause = get_word(data, i + 13) * 3500
-        timings = TapeBlockTimings(pilot_len, pilot, (sync1, sync2), zero, one, pause)
+        timings = TapeBlockTimings(pilot_len, pilot, (sync1, sync2), zero, one, pause, used_bits)
         i += 18 + length
     elif block_id == 18:
         # Pure tone
@@ -422,8 +424,9 @@ def _get_tzx_block(data, i, sim):
         if sim: # pragma: no cover
             zero = get_word(data, i)
             one = get_word(data, i + 2)
+            used_bits = data[i + 4]
             pause = get_word(data, i + 5) * 3500
-            timings = TapeBlockTimings(zero=zero, one=one, pause=pause)
+            timings = TapeBlockTimings(zero=zero, one=one, pause=pause, used_bits=used_bits)
         i += 10 + length
     elif block_id == 21:
         # Direct recording block

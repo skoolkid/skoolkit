@@ -122,7 +122,7 @@ class SimLoadTest(unittest.TestCase):
             'https://www.worldofspectrum.org/pub/sinclair/games/b/BruceLee.tzx.zip',
             'Bruce Lee.tzx',
             '51cb1a6e1fb58304a15a588b82d8e001',
-            '62a733f4f5f6c04fd239aed10f71a099',
+            'd61f1e9e168ebf4d3d9396ab3b0e8e0f',
             '--start', '49152'
         )
 

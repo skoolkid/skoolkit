@@ -56,8 +56,12 @@ def get_edges(blocks):
 
         # Data
         if data:
-            for b in data:
-                for j in range(8):
+            for k, b in enumerate(data, 1):
+                if k < len(data):
+                    num_bits = 8
+                else:
+                    num_bits = timings.used_bits
+                for j in range(num_bits):
                     if b & 0x80:
                         duration = timings.one
                     else:
