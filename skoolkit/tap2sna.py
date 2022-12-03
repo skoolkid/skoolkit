@@ -498,7 +498,7 @@ def _get_tzx_block(data, i, sim):
         i += 9
     else:
         raise TapeError('Unknown TZX block ID: 0x{:X}'.format(block_id))
-    return i, timings, tape_data
+    return i, block_id, timings, tape_data
 
 def _get_tzx_blocks(data, sim):
     signature = ''.join(chr(b) for b in data[:7])
@@ -506,9 +506,19 @@ def _get_tzx_blocks(data, sim):
         raise TapeError("Not a TZX file")
     i = 10
     blocks = []
+    loop = None
     while i < len(data):
-        i, timings, tape_data = _get_tzx_block(data, i, sim)
-        blocks.append((timings, tape_data))
+        i, block_id, timings, tape_data = _get_tzx_block(data, i, sim)
+        if sim and block_id == 0x24:
+            loop = []
+            repetitions = get_word(data, i - 2)
+        if loop is None:
+            blocks.append((timings, tape_data))
+        else:
+            loop.append((timings, tape_data))
+        if block_id == 0x25 and loop is not None:
+            blocks.extend(loop * repetitions)
+            loop = None
     return blocks
 
 def get_tap_blocks(tap, sim=False):

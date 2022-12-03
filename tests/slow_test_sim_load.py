@@ -259,6 +259,111 @@ class SimLoadTest(SkoolKitTestCase):
         self.assertEqual(error, '')
 
     @patch.object(tap2sna, '_write_z80', mock_write_z80)
+    def test_tzx_loop(self):
+        code2 = [1, 2, 4, 8, 16]
+        code2_start = 49152
+        code2_end = code2_start + 2 * len(code2)
+        code = [
+            221, 33, 0, 192,  # LD IX,49152
+            17, 10, 0,        # LD DE,10
+            55,               # SCF
+            159,              # SBC A,A
+            205, 0, 128,      # CALL 32768 ; Load code2
+            195, 0, 192       # JP 49152
+        ]
+        loader_start = 32768
+        code_start = loader_start - len(code)
+        code += get_loader(loader_start)
+        basic_data = self._get_basic_data(code_start)
+        pure_tone = [
+            0x12,             # Block ID (Pure Tone)
+            120, 8,           # 2168 (pulse length)
+            151, 12,          # 3223 (number of pulses)
+        ]
+        pulse_sequence = [
+            0x13,             # Block ID (Pulse Sequence)
+            2,                # Number of pulses
+            155, 2,           # Sync 1 (667)
+            223, 2,           # Sync 2 (735)
+        ]
+        flag_byte = [
+            0x14,             # Block ID (Pure Data)
+            87, 3,            # 855 (length of 0-bit pulse)
+            174, 6,           # 1710 (length of 1-bit pulse)
+            8,                # Used bits in last byte
+            0, 0,             # 0ms (pause)
+            1, 0, 0,          # Data length (1)
+            255,              # Data
+        ]
+        loop_start = [
+            0x24,             # Block ID (Loop start)
+            2, 0,             # Repetitions (2)
+        ]
+        pure_data = [
+            0x14,             # Block ID (Pure Data)
+            87, 3,            # 855 (length of 0-bit pulse)
+            174, 6,           # 1710 (length of 1-bit pulse)
+            8,                # Used bits in last byte
+            0, 0,             # 0ms (pause)
+            len(code2), 0, 0, # Data length
+            *code2,           # Data
+        ]
+        loop_end = [37]
+        parity_byte = [
+            0x14,             # Block ID (Pure Data)
+            87, 3,            # 855 (length of 0-bit pulse)
+            174, 6,           # 1710 (length of 1-bit pulse)
+            8,                # Used bits in last byte
+            0, 0,             # 0ms (pause)
+            1, 0, 0,          # Data length (1)
+            255,              # Data
+        ]
+        blocks = [
+            create_tzx_header_block("simloadbas", 10, len(basic_data), 0),
+            create_tzx_data_block(basic_data),
+            create_tzx_header_block("simloadbyt", code_start, len(code), 3),
+            create_tzx_data_block(code),
+            pure_tone,
+            pulse_sequence,
+            flag_byte,
+            loop_start,
+            pure_data,
+            loop_end,
+            parity_byte,
+        ]
+        tzxfile = self._write_tzx(blocks)
+        z80file = 'out.z80'
+        output, error = self.run_tap2sna(f'--sim-load --start 49152 {tzxfile} {z80file}')
+
+        self.assertEqual(basic_data, snapshot[23755:23755 + len(basic_data)])
+        self.assertEqual(code, snapshot[code_start:code_start + len(code)])
+        self.assertEqual(code2 + code2, snapshot[code2_start:code2_end])
+        exp_reg = set(('SP=65344', f'IX={code2_end}', 'IY=23610', 'PC=49152'))
+        self.assertLessEqual(exp_reg, set(options.reg))
+
+        out_lines = self._format_output(output)
+        exp_out_lines = [
+            'Program: simloadbas',
+            'Fast loading data block: 23755,20',
+            '',
+            'Bytes: simloadbyt',
+            'Fast loading data block: 32753,190',
+            '',
+            'Data (1 bytes)',
+            '',
+            'Data (5 bytes)',
+            '',
+            'Data (5 bytes)',
+            '',
+            'Data (1 bytes)',
+            '',
+            'Tape finished',
+            'Simulation stopped (PC at start address): PC=49152'
+        ]
+        self.assertEqual(exp_out_lines, out_lines)
+        self.assertEqual(error, '')
+
+    @patch.object(tap2sna, '_write_z80', mock_write_z80)
     def test_no_gap_between_data_blocks(self):
         code2 = [1, 2, 4, 8, 16, 32, 64, 128, 0, 255]
         code3 = [128, 64, 32, 16, 8, 4, 2, 1, 0, 255]
