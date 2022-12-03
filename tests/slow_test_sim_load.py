@@ -650,6 +650,55 @@ class SimLoadTest(SkoolKitTestCase):
         self.assertEqual(error, '')
 
     @patch.object(tap2sna, '_write_z80', mock_write_z80)
+    def test_port_read_after_tape_end(self):
+        code2 = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+        code2_start = 49152
+        code2_end = code2_start + len(code2)
+        code = [
+            221, 33, 0, 192,  # LD IX,49152
+            17, 10, 0,        # LD DE,10
+            55,               # SCF
+            159,              # SBC A,A
+            205, 86, 5,       # CALL 1366  ; Load code2
+            219, 254,         # IN A,(254)
+            195, 0, 192,      # JP 49152
+        ]
+        code_start = 32768
+        basic_data = self._get_basic_data(code_start)
+        blocks = [
+            create_tap_header_block("simloadbas", 10, len(basic_data), 0),
+            create_tap_data_block(basic_data),
+            create_tap_header_block("simloadbyt", code_start, len(code)),
+            create_tap_data_block(code),
+            create_tap_data_block(code2)
+        ]
+        tapfile = self._write_tap(blocks)
+        z80file = 'out.z80'
+        output, error = self.run_tap2sna(f'--sim-load --start 49152 {tapfile} {z80file}')
+
+        self.assertEqual(basic_data, snapshot[23755:23755 + len(basic_data)])
+        self.assertEqual(code, snapshot[code_start:code_start + len(code)])
+        self.assertEqual(code2, snapshot[code2_start:code2_end])
+        exp_reg = set(('SP=65344', f'IX={code2_end}', 'IY=23610', 'PC=49152'))
+        self.assertLessEqual(exp_reg, set(options.reg))
+
+        out_lines = self._format_output(output)
+        exp_out_lines = [
+            'Program: simloadbas',
+            'Fast loading data block: 23755,20',
+            '',
+            'Bytes: simloadbyt',
+            'Fast loading data block: 32768,17',
+            '',
+            'Fast loading data block: 49152,10',
+            '',
+            'Tape finished',
+            'Simulation stopped (PC at start address): PC=49152'
+        ]
+        self.assertEqual(exp_out_lines, out_lines)
+        self.assertEqual(error, '')
+
+    @patch.object(tap2sna, '_write_z80', mock_write_z80)
     def test_no_ram_execution(self):
         usr_str = [ord(c) for c in '10355'] # 10355 JR Z,10355
         basic_data = [

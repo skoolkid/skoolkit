@@ -189,7 +189,7 @@ class LoadTracer:
             if pc > 0x7FFF or 0x0562 <= pc <= 0x05F1: # pragma: no cover
                 self.custom_loader = True
                 index = self.index
-                if not self.tape_running:
+                if not self.tape_running and not self.end_of_tape:
                     self.tape_running = True
                     registers[T] = self.edges[index]
                     length = len(self.blocks[self.block_index])

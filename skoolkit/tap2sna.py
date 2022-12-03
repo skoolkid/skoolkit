@@ -509,14 +509,14 @@ def _get_tzx_blocks(data, sim):
     loop = None
     while i < len(data):
         i, block_id, timings, tape_data = _get_tzx_block(data, i, sim)
-        if sim and block_id == 0x24:
+        if sim and block_id == 0x24: # pragma: no cover
             loop = []
             repetitions = get_word(data, i - 2)
         if loop is None:
             blocks.append((timings, tape_data))
-        else:
+        else: # pragma: no cover
             loop.append((timings, tape_data))
-        if block_id == 0x25 and loop is not None:
+        if block_id == 0x25 and loop is not None: # pragma: no cover
             blocks.extend(loop * repetitions)
             loop = None
     return blocks
