@@ -135,6 +135,15 @@ class SimLoadTest(unittest.TestCase):
             '--start', '24288'
         )
 
+    def test_power_load(self):
+        self._test_sim_load(
+            'https://www.worldofspectrum.org/pub/sinclair/games/d/DynamiteDan.tzx.zip',
+            'Dynamite Dan - Side 1.tzx',
+            '38c2a7eb6c2ed9010e700063aedd3a3e',
+            '93e02b62589dcaf61df4e1bef3ef4231',
+            '--start', '65392'
+        )
+
     def test_search_loader(self):
         self._test_sim_load(
             'https://www.worldofspectrum.org/pub/sinclair/games/t/TechnicianTed.tzx.zip',
@@ -160,6 +169,15 @@ class SimLoadTest(unittest.TestCase):
             '58d273a2c719da21a25b4af3d008c951',
             'b88e2ecec1935cb3183b95ba2b20a50c',
             '--start', '61795'
+        )
+
+    def test_speedlock_3(self):
+        self._test_sim_load(
+            'https://www.worldofspectrum.org/pub/sinclair/games/d/Dogfight-2187.tzx.zip',
+            'Dogfight 2187.tzx',
+            '5d73a347e27e98bb5a235eeac6470d56',
+            '1957b7689fa347e86c0bb6b7cf8171c8',
+            '--start', '65317'
         )
 
     def test_speedlock_7(self):
