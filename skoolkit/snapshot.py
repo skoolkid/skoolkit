@@ -379,7 +379,7 @@ def _decompress_block(ramz):
     while i < len(ramz):
         b = ramz[i]
         i += 1
-        if b == 237:
+        if b == 237 and i < len(ramz):
             c = ramz[i]
             i += 1
             if c == 237:

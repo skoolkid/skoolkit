@@ -146,6 +146,11 @@ class Z80Test(SnapshotTest):
         pages = {4: [(n + 249) & 255 for n in range(16384)]}
         self._test_z80(exp_ram, 3, False, machine_id=4, pages=pages, page=4)
 
+    def test_z80v3_48k_compressed_block_ending_with_ED(self):
+        exp_ram = [0] * 49152
+        exp_ram[16383] = 237
+        self._test_z80(exp_ram, 3, True)
+
     def test_bad_z80(self):
         header = [0] * 30
         header[6] = 255 # Set PC > 0 to indicate a v1 Z80 snapshot

@@ -214,7 +214,7 @@ class SkoolKitTestCase(TestCase):
             block = []
             prev_b = None
             count = 0
-            for b in data + [-1]:
+            for b in data:
                 if b == prev_b or prev_b is None:
                     prev_b = b
                     if count < 255:
@@ -231,6 +231,10 @@ class SkoolKitTestCase(TestCase):
                     block += [prev_b] * count
                 prev_b = b
                 count = 1
+            if count > 4 or (count > 1 and prev_b == 237):
+                block.extend((237, 237, count, prev_b))
+            else:
+                block.extend((prev_b,) * count)
         else:
             block = data
         if page is not None:
