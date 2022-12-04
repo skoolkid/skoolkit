@@ -73,9 +73,9 @@ def get_edges(blocks):
             indexes.append(len(edges) - 1)
             data_blocks.append(data)
 
-            # Pause
-            if i + 1 < len(blocks) and timings.pause:
-                tstates += timings.pause
+        # Pause
+        if i + 1 < len(blocks) and timings.pause:
+            tstates += timings.pause
 
     return edges, indexes, data_blocks
 
@@ -275,3 +275,54 @@ class LoadTracer:
             registers[E] = de & 0xFF
 
         registers[PC] = 0x05E2
+
+class SimLoadTracer(LoadTracer): # pragma: no cover
+    def run(self, simulator, start, stop):
+        opcodes = simulator.opcodes
+        memory = simulator.memory
+        registers = simulator.registers
+        opcodes[0x3D] = partial(self.dec_a, registers, memory)
+        registers[24] = start
+        pc = start
+        progress = 0
+        edges = self.edges
+        tape_length = edges[-1] // 1000
+        max_index = self.max_index
+        next_edge = 0
+        tape_running = True
+
+        while True:
+            opcodes[memory[pc]]()
+            pc = registers[24]
+            tstates = registers[25]
+
+            if tstates > next_edge:
+                index = self.index
+                while index < max_index and edges[index + 1] < tstates:
+                    index += 1
+                self.index = index
+                if index == max_index:
+                    # Allow 1ms for the final edge on the tape to be read
+                    if tstates - edges[index] > 3500:
+                        tape_running = False
+                else:
+                    next_edge = edges[index + 1]
+                    p = edges[index] // tape_length
+                    if p > progress:
+                        msg = f'[{p/10:0.1f}%]'
+                        write(msg + chr(8) * len(msg))
+                        progress = p
+
+            if pc == stop:
+                write_line(f'Simulation stopped (PC at start address): PC={pc}')
+                break
+
+            if not tape_running and stop is None:
+                write_line(f'Simulation stopped (end of tape): PC={pc}')
+                break
+
+    def read_port(self, registers, port):
+        if port % 256 == 0xFE:
+            if self.index % 2:
+                return 255
+        return 191

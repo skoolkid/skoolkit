@@ -47,6 +47,10 @@ OPTIONS
   Simulate a 48K ZX Spectrum running LOAD "". See the section on ``SIMULATED
   LOAD`` below.
 
+--sim-load-all
+  Simulate a 48K ZX Spectrum running LOAD "". See the section on ``SIMULATED
+  LOAD`` below.
+
 --state name=value
   Set a hardware state attribute. Do ``--state help`` for more information, or
   see the section on ``HARDWARE STATE`` below. This option may be used multiple
@@ -74,7 +78,13 @@ one of the following conditions is satisfied:
 * more than one second of simulated Z80 CPU time has elapsed since the end of
   the tape was reached
 
-The simulation can also be aborted by pressing Ctrl-C. When a simulated LOAD
+The ``--sim-load-all`` option also simulates a freshly booted 48K ZX Spectrum
+running LOAD "" (or LOAD ""CODE), but does not take a shortcut when the ROM's
+load routine is called. Simulation continues until either the program counter
+hits the start address given by the ``--start`` option, or the end of the tape
+is reached.
+
+A simulated LOAD can also be aborted by pressing Ctrl-C. When a simulated LOAD
 has completed or been aborted, the values of the registers (including the
 program counter) in the simulator are used to populate the Z80 snapshot.
 

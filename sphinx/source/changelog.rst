@@ -3,8 +3,11 @@ Changelog
 
 8.9b1
 -----
-* Added support to the ``--sim-load`` option of :ref:`tap2sna.py` for TZX loops
-  (block types 0x24 and 0x25)
+* Added support to :ref:`tap2sna.py` for TZX loops (block types 0x24 and 0x25)
+  and pauses (block type 0x20)
+* Added the ``--sim-load-all`` option to :ref:`tap2sna.py` (to simulate a 48K
+  ZX Spectrum running LOAD "" without fast loading when the ROM load routine is
+  called)
 * Fixed how the ``--sim-load`` option of :ref:`tap2sna.py` transitions from a
   tape block that ends with data to the next block both when there is a
   specified pause between them and when there is no pause between them

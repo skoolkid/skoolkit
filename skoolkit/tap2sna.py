@@ -25,7 +25,7 @@ from urllib.parse import urlparse
 from skoolkit import (SkoolKitError, get_dword, get_int_param, get_object,
                       get_word, get_word3, integer, open_file, read_bin_file,
                       warn, write_line, ROM48, VERSION)
-from skoolkit.loadtracer import LoadTracer
+from skoolkit.loadtracer import LoadTracer, SimLoadTracer
 from skoolkit.simulator import (Simulator, A, F, B, C, D, E, H, L, IXh, IXl, IYh, IYl,
                                 SP, I, R, xA, xF, xB, xC, xD, xE, xH, xL, PC)
 from skoolkit.snapshot import move, poke, print_reg_help, print_state_help, write_z80v3
@@ -240,7 +240,10 @@ def sim_load(blocks, options):
     snapshot[0xFF58:] = snapshot[0x3E08:0x3EB0] # UDGs
     config = {'fast_djnz': True, 'fast_ldir': True}
     simulator = Simulator(snapshot, {'SP': 0xFF50}, config=config)
-    tracer = LoadTracer(blocks)
+    if options.sim_load_all:
+        tracer = SimLoadTracer(blocks) # pragma: no cover
+    else:
+        tracer = LoadTracer(blocks)
     simulator.set_tracer(tracer)
     try:
         tracer.run(simulator, 0x0605, options.start) # SAVE-ETC
@@ -445,6 +448,9 @@ def _get_tzx_block(data, i, sim):
         i += get_dword(data, i) + 4
     elif block_id == 32:
         # Pause (silence) or 'Stop the tape' command
+        if sim: # pragma: no cover
+            pause = get_word(data, i)
+            timings = TapeBlockTimings(pause=pause)
         i += 2
     elif block_id == 33:
         # Group start
@@ -509,9 +515,13 @@ def _get_tzx_blocks(data, sim):
     loop = None
     while i < len(data):
         i, block_id, timings, tape_data = _get_tzx_block(data, i, sim)
-        if sim and block_id == 0x24: # pragma: no cover
-            loop = []
-            repetitions = get_word(data, i - 2)
+        if sim: # pragma: no cover
+            if block_id == 0x20:
+                if timings.pause == 0:
+                    break
+            elif block_id == 0x24:
+                loop = []
+                repetitions = get_word(data, i - 2)
         if loop is None:
             blocks.append((timings, tape_data))
         else: # pragma: no cover
@@ -700,7 +710,10 @@ def main(args):
     group.add_argument('-s', '--start', dest='start', metavar='START', type=integer,
                        help="Set the start address to JP to.")
     group.add_argument('--sim-load', action='store_true',
-                       help='Simulate a 48K ZX Spectrum running LOAD "".')
+                       help='Simulate a 48K ZX Spectrum running LOAD "" '
+                            '(with fast loading when the ROM load routine is called).')
+    group.add_argument('--sim-load-all', action='store_true',
+                       help='Simulate a 48K ZX Spectrum running LOAD "" (no fast loading).')
     group.add_argument('--state', dest='state', metavar='name=value', action='append', default=[],
                        help="Set a hardware state attribute. Do '--state help' for more information. "
                             "This option may be used multiple times.")
@@ -727,6 +740,8 @@ def main(args):
         namespace.reg.append('sp={}'.format(namespace.stack))
     if namespace.start is not None:
         namespace.reg.append('pc={}'.format(namespace.start))
+    if namespace.sim_load_all:
+        namespace.sim_load = True # pragma: no cover
     if namespace.force or not os.path.isfile(z80):
         try:
             make_z80(url, namespace, z80)

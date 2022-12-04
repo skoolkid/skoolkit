@@ -1283,10 +1283,10 @@ To list the options supported by `tap2sna.py`, run it with no arguments::
                           information. This option may be used multiple times.
     -s START, --start START
                           Set the start address to JP to.
-    --sim-load            Simulate a 48K ZX Spectrum running LOAD "".
-    --state name=value    Set a hardware state attribute. Do '--state help' for
-                          more information. This option may be used multiple
-                          times.
+    --sim-load            Simulate a 48K ZX Spectrum running LOAD "" (with fast
+                          loading when the ROM load routine is called).
+    --sim-load-all        Simulate a 48K ZX Spectrum running LOAD "" (no fast
+                          loading).
     -u AGENT, --user-agent AGENT
                           Set the User-Agent header.
     -V, --version         Show SkoolKit version number and exit.
@@ -1321,7 +1321,13 @@ conditions is satisfied:
 * more than one second of simulated Z80 CPU time has elapsed since the end of
   the tape was reached
 
-The simulation can also be aborted by pressing Ctrl-C. When a simulated LOAD
+Another alternative is the ``--sim-load-all`` option, which also simulates a
+freshly booted 48K ZX Spectrum running LOAD "" (or LOAD ""CODE), but does not
+take a shortcut when the ROM's load routine is called. When this option is
+used, simulation continues until either the program counter hits the start
+address given by the ``--start`` option, or the end of the tape is reached.
+
+A simulated LOAD can also be aborted by pressing Ctrl-C. When a simulated LOAD
 has completed or been aborted, the values of the registers (including the
 program counter) in the simulator are used to populate the Z80 snapshot.
 
@@ -1361,8 +1367,8 @@ given on the command line.
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
-| 8.9     | Added support to the ``--sim-load`` option for TZX loops (block   |
-|         | types 0x24 and 0x25)                                              |
+| 8.9     | Added the ``--sim-load-all`` option; added support for TZX loops  |
+|         | (block types 0x24 and 0x25) and pauses (block type 0x20)          |
 +---------+-------------------------------------------------------------------+
 | 8.8     | The ``--sim-load`` option performs any ``call/move/poke/sysvars`` |
 |         | operations specified by ``--ram``                                 |
