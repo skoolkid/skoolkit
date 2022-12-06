@@ -8,6 +8,8 @@ Changelog
 * Added the ``--sim-load-all`` option to :ref:`tap2sna.py` (to simulate a 48K
   ZX Spectrum running LOAD "" without fast loading when the ROM load routine is
   called)
+* Fixed how the Z80 instruction set simulator handles a CALL instruction that
+  overwrites its own address operand
 * Fixed how a Z80 snapshot memory block that ends with a single 0xED byte is
   decompressed
 * Fixed how the ``--sim-load`` option of :ref:`tap2sna.py` transitions from a

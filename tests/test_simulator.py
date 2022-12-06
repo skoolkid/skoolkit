@@ -1580,6 +1580,19 @@ class SimulatorTest(SkoolKitTestCase):
         sna_out = {sp - 1: (start + 3) // 256, sp - 2: (start + 3) % 256}
         self._test_instruction(simulator, operation, data, 17, reg_out, sna_out, start=start, end=addr)
 
+    def test_call_nn_overwriting_its_operand(self):
+        simulator = Simulator([0] * 65536)
+        registers = simulator.registers
+        start = 30000
+        addr = 51426
+        sp = start + 3
+        operation = f'CALL ${addr:04X}'
+        data = (205, addr % 256, addr // 256)
+        registers[SP] = sp
+        reg_out = {SP: sp - 2}
+        sna_out = {sp - 1: (start + 3) // 256, sp - 2: (start + 3) % 256}
+        self._test_instruction(simulator, operation, data, 17, reg_out, sna_out, start=start, end=addr)
+
     def test_call_conditional(self):
         simulator = Simulator([0] * 65536)
         registers = simulator.registers
@@ -1619,6 +1632,32 @@ class SimulatorTest(SkoolKitTestCase):
                 sna_out = None
             data = (opcode, addr % 256, addr // 256)
             self._test_instruction(simulator, operation, data, timing, reg_out, sna_out, start=start, end=end)
+
+    def test_call_conditional_overwriting_its_operand(self):
+        simulator = Simulator([0] * 65536)
+        registers = simulator.registers
+        start = 40000
+        addr = 45271
+        sp = start + 3
+
+        for opcode, condition, flags in (
+                #             SZ5H3PNC
+                (196, 'NZ', 0b00000000),
+                (204, 'Z',  0b01000000),
+                (212, 'NC', 0b00000000),
+                (220, 'C',  0b00000001),
+                (228, 'PO', 0b00000000),
+                (236, 'PE', 0b00000100),
+                (244, 'P',  0b00000000),
+                (252, 'M',  0b10000000),
+        ):
+            operation = f'CALL {condition},${addr:04X}'
+            registers[F] = flags
+            registers[SP] = sp
+            reg_out = {SP: sp - 2}
+            sna_out = {sp - 1: (start + 3) // 256, sp - 2: (start + 3) % 256}
+            data = (opcode, addr % 256, addr // 256)
+            self._test_instruction(simulator, operation, data, 17, reg_out, sna_out, start=start, end=addr)
 
     def test_jp_nn(self):
         simulator = Simulator([0] * 65536)

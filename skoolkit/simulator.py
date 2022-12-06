@@ -387,6 +387,7 @@ class Simulator:
             registers[24] = (registers[24] + 3) % 65536
         else:
             pc = registers[24]
+            registers[24] = memory[(pc + 1) % 65536] + 256 * memory[(pc + 2) % 65536]
             ret_addr = (pc + 3) % 65536
             sp = (registers[12] - 2) % 65536
             registers[12] = sp
@@ -396,7 +397,6 @@ class Simulator:
             if sp > 0x3FFF:
                 memory[sp] = ret_addr // 256
             registers[25] += 17
-            registers[24] = memory[(pc + 1) % 65536] + 256 * memory[(pc + 2) % 65536]
         registers[15] = R1[registers[15]]
 
     def cf(self, registers, cf):
