@@ -3,18 +3,19 @@ Changelog
 
 8.9b1
 -----
-* Added support to :ref:`tap2sna.py` for TZX loops (block types 0x24 and 0x25)
-  and pauses (block type 0x20)
+* Added support to :ref:`tap2sna.py` for TZX loops (block types 0x24 and 0x25),
+  pauses (block types 0x10, 0x11, 0x14 and 0x20), and unused bits in data
+  blocks (block types 0x11 and 0x14)
 * Added the ``--sim-load-all`` option to :ref:`tap2sna.py` (to simulate a 48K
   ZX Spectrum running LOAD "" without fast loading when the ROM load routine is
-  called)
+  called, and with interrupt routines called when interrupts are enabled)
 * Fixed how the Z80 instruction set simulator handles a CALL instruction that
   overwrites its own address operand
 * Fixed how a Z80 snapshot memory block that ends with a single 0xED byte is
   decompressed
 * Fixed how the ``--sim-load`` option of :ref:`tap2sna.py` transitions from a
-  tape block that ends with data to the next block both when there is a
-  specified pause between them and when there is no pause between them
+  tape block that ends with data to the next block when there is no pause
+  between them
 * Fixed the bug that prevents the ``--find`` option of :ref:`snapinfo.py` from
   finding byte sequences below address 16384
 * Fixed the bug that prevents the ``--find-text`` option of :ref:`snapinfo.py`

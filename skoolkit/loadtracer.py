@@ -18,7 +18,7 @@ from functools import partial
 
 from skoolkit import SkoolKitError, write, write_line
 from skoolkit.basic import TextReader
-from skoolkit.simulator import A, F, D, E, H, L, IXh, IXl, PC, T, R1
+from skoolkit.simulator import A, F, D, E, H, L, IXh, IXl, PC, T, R1, FRAME_DURATION
 
 DEC = tuple(tuple((
         v % 256,
@@ -290,11 +290,37 @@ class SimLoadTracer(LoadTracer): # pragma: no cover
         max_index = self.max_index
         next_edge = 0
         tape_running = True
+        accept_int = False
 
         while True:
-            opcodes[memory[pc]]()
+            t0 = registers[25]
+            opcode = memory[pc]
+            opcodes[opcode]()
             pc = registers[24]
             tstates = registers[25]
+
+            if simulator.iff2:
+                if tstates % FRAME_DURATION < t0 % FRAME_DURATION:
+                    accept_int = True
+                if accept_int and opcode not in (0xF3, 0xFB):
+                    if simulator.imode == 2:
+                        vaddr = 256 * registers[14]
+                        iaddr = memory[vaddr] + 256 * memory[vaddr + 1]
+                        registers[25] += 19
+                    else:
+                        iaddr = 56
+                        registers[25] += 13
+                    sp = (registers[12] - 2) % 65536
+                    registers[12] = sp
+                    if sp > 0x3FFF:
+                        memory[sp] = pc % 256
+                    sp = (sp + 1) % 65536
+                    if sp > 0x3FFF:
+                        memory[sp] = pc // 256
+                    registers[24] = iaddr
+                    pc = iaddr
+                    accept_int = False
+                    simulator.iff2 = 0
 
             if tstates > next_edge:
                 index = self.index
