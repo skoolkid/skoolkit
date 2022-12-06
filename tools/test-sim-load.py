@@ -146,6 +146,15 @@ class SimLoadTest(unittest.TestCase):
             '--sim-load --start 24288'
         )
 
+    def test_paul_owens(self):
+        self._test_sim_load(
+            'https://www.worldofspectrum.org/pub/sinclair/games/u/UntouchablesThe.tzx.zip',
+            'The Untouchables - Side 1.tzx',
+            '7aed7cb0aa7a9be5a4c953eec1fc0dd1',
+            '3ddab5e5ade1fc259b8f64369698a077',
+            '--sim-load-all --start 32839'
+        )
+
     def test_power_load(self):
         self._test_sim_load(
             'https://www.worldofspectrum.org/pub/sinclair/games/d/DynamiteDan.tzx.zip',
