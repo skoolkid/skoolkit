@@ -56,6 +56,15 @@ class SimLoadTest(unittest.TestCase):
             '--sim-load --start 50300'
         )
 
+    def test_cyberlode_1_1(self):
+        self._test_sim_load(
+            'https://www.worldofspectrum.org/pub/sinclair/games/c/Cauldron(SilverbirdSoftwareLtd).tzx.zip',
+            'Cauldron (Silverbird).tzx',
+            'ebd4fa565c35af13f0aa3dc2f7556721',
+            'ccbbb5b5964fe071b7a87d7af6e0fad0',
+            '--sim-load --start 23296'
+        )
+
     def test_digital_integration(self):
         self._test_sim_load(
             'https://www.worldofspectrum.org/pub/sinclair/games/t/Tomahawk.tzx.zip',
@@ -63,6 +72,15 @@ class SimLoadTest(unittest.TestCase):
             '3189a34157750d9e4ad01d5a7b2e5722',
             '8f7492f7f6030ef945b4045f2f2eefab',
             '--sim-load --start 57349'
+        )
+
+    def test_dinaload(self):
+        self._test_sim_load(
+            'https://www.worldofspectrum.org/pub/sinclair/games/s/Satan.tzx.zip',
+            'Satan - Side 1.tzx',
+            '18afd7805b83ebc4974ccd8637d8a7b3',
+            'b4ef1345a3dee1efd27c11e1fc590ace',
+            '--sim-load --start 64031'
         )
 
     def test_edge(self):
@@ -83,6 +101,15 @@ class SimLoadTest(unittest.TestCase):
             '--sim-load --start 30720',
         )
 
+    def test_excelerator(self):
+        self._test_sim_load(
+            'https://www.worldofspectrum.org/pub/sinclair/games/l/LastMohican.tzx.zip',
+            'The Last Mohican - Side 1.tzx',
+            '13fd349168a4561dae88e6280b94eac9',
+            '6eb14a6122658245b7adf0a9003eee7e',
+            '--sim-load --start 65492'
+        )
+
     def test_firebird_bleepload(self):
         self._test_sim_load(
             'https://www.worldofspectrum.org/pub/sinclair/games/b/BlackLamp.tzx.zip',
@@ -99,6 +126,15 @@ class SimLoadTest(unittest.TestCase):
             'd3267bd1facb761c02efe0ddf4438ab4',
             '45c4c04e69303c97d44f962474dfaf73',
             '--sim-load --start 40252'
+        )
+
+    def test_gargoyle(self):
+        self._test_sim_load(
+            'https://www.worldofspectrum.org/pub/sinclair/games/h/HeavyOnTheMagick.tzx.zip',
+            'Heavy On The Magick - Side 1.tzx',
+            '203b36a9ffa241089cb2741043c6563a',
+            'bf0240ba95a094e1c853c34907f136ad',
+            '--sim-load --start 46193'
         )
 
     def test_headerless_block(self):
@@ -146,6 +182,15 @@ class SimLoadTest(unittest.TestCase):
             '--sim-load --start 24288'
         )
 
+    def test_microsphere_2(self):
+        self._test_sim_load(
+            'https://www.worldofspectrum.org/pub/sinclair/games/c/ContactSamCruise.tzx.zip',
+            'Contact Sam Cruise.tzx',
+            '873cb6de4edc2aa75b40b838981c6f72',
+            '403cfc4f5e3a1f3161e6398d39d4d797',
+            '--sim-load --start 61671'
+        )
+
     def test_paul_owens(self):
         self._test_sim_load(
             'https://www.worldofspectrum.org/pub/sinclair/games/u/UntouchablesThe.tzx.zip',
@@ -153,6 +198,15 @@ class SimLoadTest(unittest.TestCase):
             '7aed7cb0aa7a9be5a4c953eec1fc0dd1',
             '3ddab5e5ade1fc259b8f64369698a077',
             '--sim-load-all --start 32839'
+        )
+
+    def test_poliload(self):
+        self._test_sim_load(
+            'https://www.worldofspectrum.org/pub/sinclair/games/a/AstroMarineCorps.tzx.zip',
+            'Astro Marine Corps - Side 1.tzx',
+            'b31fd6232a865fbef93db8700ceeb931',
+            '0f8710bdf41fe3235a5cf4d8d8bbdd76',
+            '--sim-load --start 60928'
         )
 
     def test_power_load(self):
@@ -252,6 +306,15 @@ class SimLoadTest(unittest.TestCase):
             '2750ccb6c240d14516c448e94f8d200e',
             'f108f54410e9d7047b54bfa6cd25ce00',
             '--sim-load'
+        )
+
+    def test_zydroload(self):
+        self._test_sim_load(
+            'https://www.worldofspectrum.org/pub/sinclair/games/l/LightCorridorThe.tzx.zip',
+            'The Light Corridor.tzx',
+            '66674ee9c6b696404c5847be32796af4',
+            'af4a82be85d882064cdc30c7e336065a',
+            '--sim-load --start 32879'
         )
 
 if __name__ == '__main__':
