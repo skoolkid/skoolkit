@@ -93,6 +93,35 @@ class TapinfoTest(SkoolKitTestCase):
         """
         self.assertEqual(dedent(exp_output).lstrip(), output)
 
+    def test_tap_file_with_extraneous_byte(self):
+        data = [1, 2, 4]
+        tap_data = create_tap_data_block(data)
+        tap_data.append(0)
+        tapfile = self.write_bin_file(tap_data, suffix='.tap')
+        output, error = self.run_tapinfo(tapfile)
+        self.assertEqual(error, 'WARNING: Extraneous byte at end of file\n')
+        exp_output = """
+            1:
+              Type: Data block
+              Length: 5
+              Data: 255, 1, 2, 4, 248
+        """
+        self.assertEqual(dedent(exp_output).lstrip(), output)
+
+    def test_tap_file_with_missing_bytes(self):
+        data = [1, 2, 4]
+        tap_data = create_tap_data_block(data)[:-2]
+        tapfile = self.write_bin_file(tap_data, suffix='.tap')
+        output, error = self.run_tapinfo(tapfile)
+        self.assertEqual(error, 'WARNING: Missing 2 data byte(s) at end of file\n')
+        exp_output = """
+            1:
+              Type: Data block
+              Length: 3
+              Data: 255, 1, 2
+        """
+        self.assertEqual(dedent(exp_output).lstrip(), output)
+
     def test_tzx_file(self):
         blocks = []
         blocks.append(create_tzx_header_block('<TEST_tzx>', data_type=0, pause=1000))

@@ -16,7 +16,7 @@
 
 import argparse
 
-from skoolkit import SkoolKitError, get_word, get_word3, get_dword, get_int_param, VERSION
+from skoolkit import SkoolKitError, get_word, get_word3, get_dword, get_int_param, warn, VERSION
 from skoolkit.basic import BasicLister, get_char
 
 ARCHIVE_INFO = {
@@ -501,7 +501,7 @@ def _analyse_tzx(tzx, basic_block, options):
 def _analyse_tap(tap, basic_block, show_data):
     i = 0
     block_num = 1
-    while i < len(tap):
+    while i + 1 < len(tap):
         block_len = get_word(tap, i)
         data = tap[i + 2:i + 2 + block_len]
         if basic_block:
@@ -510,6 +510,11 @@ def _analyse_tap(tap, basic_block, show_data):
             _print_block(block_num, data, show_data)
         i += block_len + 2
         block_num += 1
+
+    if i < len(tap):
+        warn('Extraneous byte at end of file')
+    elif i > len(tap):
+        warn(f'Missing {i - len(tap)} data byte(s) at end of file')
 
 def main(args):
     parser = argparse.ArgumentParser(
