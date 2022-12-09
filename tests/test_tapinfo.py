@@ -10,6 +10,7 @@ TZX_DATA_BLOCK = (16, 0, 0, 3, 0, 255, 0, 0)
 
 TZX_DATA_BLOCK_DESC = """
 {}: Standard speed data (0x10)
+  Pause: 0ms
   Type: Data block
   Length: 3
   Data: 255, 0, 0
@@ -94,8 +95,8 @@ class TapinfoTest(SkoolKitTestCase):
 
     def test_tzx_file(self):
         blocks = []
-        blocks.append(create_tzx_header_block('<TEST_tzx>', data_type=0))
-        blocks.append(create_tzx_data_block([1, 4, 16]))
+        blocks.append(create_tzx_header_block('<TEST_tzx>', data_type=0, pause=1000))
+        blocks.append(create_tzx_data_block([1, 4, 16], pause=500))
         blocks.append(create_tzx_header_block('characters', data_type=2))
         blocks.append(create_tzx_data_block([64, 0]))
 
@@ -105,20 +106,24 @@ class TapinfoTest(SkoolKitTestCase):
         exp_output = """
             Version: 1.20
             1: Standard speed data (0x10)
+              Pause: 1000ms
               Type: Header block
               Program: <TEST_tzx>
               Length: 19
               Data: 0, 0, 60, 84, 69, 83, 84 ... 0, 0, 0, 0, 0, 0, 61
             2: Standard speed data (0x10)
+              Pause: 500ms
               Type: Data block
               Length: 5
               Data: 255, 1, 4, 16, 234
             3: Standard speed data (0x10)
+              Pause: 0ms
               Type: Header block
               Character array: characters
               Length: 19
               Data: 0, 2, 99, 104, 97, 114, 97 ... 0, 0, 0, 0, 0, 0, 8
             4: Standard speed data (0x10)
+              Pause: 0ms
               Type: Data block
               Length: 4
               Data: 255, 64, 0, 191
@@ -147,13 +152,30 @@ class TapinfoTest(SkoolKitTestCase):
 
     def test_tzx_block_0x11(self):
         data = [0, 1, 2]
-        block = [17] # Block ID
-        block.extend([0] * 15)
+        block = [
+            17,      # Block ID
+            119, 8,  # Pilot pulse length
+            154, 2,  # Sync pulse 1 length
+            224, 2,  # Sync pulse 2 length
+            170, 1,  # 0-pulse length
+            71, 3,   # 1-pulse length
+            152, 12, # Pilot tone pulses
+            5,       # Used bits in last byte
+            234, 3   # Pause
+        ]
         data_block = create_data_block(data)
         block.extend((len(data_block), 0, 0))
         block.extend(data_block)
         exp_output = """
             1: Turbo speed data (0x11)
+              Pilot pulse: 2167
+              Sync pulse 1: 666
+              Sync pulse 2: 736
+              0-pulse: 426
+              1-pulse: 839
+              Pilot length: 3224 pulses
+              Used bits in last byte: 5
+              Pause: 1002ms
               Length: 5
               Data: 255, 0, 1, 2, 252
         """
@@ -508,6 +530,7 @@ class TapinfoTest(SkoolKitTestCase):
         exp_output = """
             Version: 1.20
             1: Standard speed data (0x10)
+              Pause: 0ms
               Type: Data block
               Length: 4
               Data: 255, 0, 1, 254
@@ -532,6 +555,7 @@ class TapinfoTest(SkoolKitTestCase):
         exp_output = """
             Version: 1.20
             1: Standard speed data (0x10)
+              Pause: 0ms
               Type: Data block
               Length: 4
               Data: 255, 0, 1, 254
@@ -645,7 +669,7 @@ class TapinfoTest(SkoolKitTestCase):
         # Turbo speed data
         data = list(range(48, 94))
         block = [0x11] # Block ID
-        block.extend([0] * 15)
+        block.extend([1] * 15)
         data_block = create_data_block(data)
         block.extend((len(data_block), 0, 0))
         block.extend(data_block)
@@ -668,16 +692,26 @@ class TapinfoTest(SkoolKitTestCase):
         exp_output = """
             Version: 1.20
             1: Standard speed data (0x10)
+              Pause: 0ms
               Type: Header block
               Program: test_tzx02
               Length: 19
               0000  00 00 74 65 73 74 5F 74 7A 78 30 32 00 00 00 00  ..test_tzx02....
               0010  00 00 3D                                         ..=
             2: Standard speed data (0x10)
+              Pause: 0ms
               Type: Data block
               Length: 5
               0000  FF 01 04 10 EA                                   .....
             3: Turbo speed data (0x11)
+              Pilot pulse: 257
+              Sync pulse 1: 257
+              Sync pulse 2: 257
+              0-pulse: 257
+              1-pulse: 257
+              Pilot length: 257 pulses
+              Used bits in last byte: 1
+              Pause: 257ms
               Length: 48
               0000  FF 30 31 32 33 34 35 36 37 38 39 3A 3B 3C 3D 3E  .0123456789:;<=>
               0010  3F 40 41 42 43 44 45 46 47 48 49 4A 4B 4C 4D 4E  ?@ABCDEFGHIJKLMN

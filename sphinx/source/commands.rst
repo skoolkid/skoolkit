@@ -1427,6 +1427,8 @@ To list the options supported by `tapinfo.py`, run it with no arguments::
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 8.9     | Shows full info for TZX block types 0x10 and 0x11                 |
++---------+-------------------------------------------------------------------+
 | 8.3     | Added the ``--data`` option                                       |
 +---------+-------------------------------------------------------------------+
 | 8.1     | Shows contents of TZX block types 0x33 (hardware type) and 0x35   |

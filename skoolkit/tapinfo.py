@@ -1,4 +1,4 @@
-# Copyright 2013, 2015, 2017, 2020 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2013, 2015, 2017, 2020, 2022 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -264,11 +264,20 @@ def _get_block_info(data, i, block_num):
     i += 1
     if block_id == 16:
         header = 'Standard speed data'
+        info.append('Pause: {}ms'.format(get_word(data, i)))
         length = get_word(data, i + 2)
         tape_data = data[i + 4:i + 4 + length]
         i += 4 + length
     elif block_id == 17:
         header = 'Turbo speed data'
+        info.append('Pilot pulse: {}'.format(get_word(data, i)))
+        info.append('Sync pulse 1: {}'.format(get_word(data, i + 2)))
+        info.append('Sync pulse 2: {}'.format(get_word(data, i + 4)))
+        info.append('0-pulse: {}'.format(get_word(data, i + 6)))
+        info.append('1-pulse: {}'.format(get_word(data, i + 8)))
+        info.append('Pilot length: {} pulses'.format(get_word(data, i + 10)))
+        info.append('Used bits in last byte: {}'.format(data[i + 12]))
+        info.append('Pause: {}ms'.format(get_word(data, i + 13)))
         length = get_word3(data, i + 15)
         tape_data = data[i + 18:i + 18 + length]
         i += 18 + length

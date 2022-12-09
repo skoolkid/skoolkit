@@ -9,6 +9,8 @@ Changelog
 * Added the ``--sim-load-all`` option to :ref:`tap2sna.py` (to simulate a 48K
   ZX Spectrum running LOAD "" without fast loading when the ROM load routine is
   called, and with interrupt routines called when interrupts are enabled)
+* :ref:`tapinfo.py` now shows full info for TZX block types 0x10 (standard
+  speed data) and 0x11 (turbo speed data)
 * Fixed how the Z80 instruction set simulator handles a CALL instruction that
   overwrites its own address operand
 * Fixed how a Z80 snapshot memory block that ends with a single 0xED byte is
