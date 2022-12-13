@@ -1271,6 +1271,8 @@ To list the options supported by `tap2sna.py`, run it with no arguments::
   well as) being given on the command line.
 
   Options:
+    --accelerator NAME    Speed up simulation of the tape-sampling loop. Run
+                          with 'help' as the NAME for more information.
     -d DIR, --output-dir DIR
                           Write the snapshot file in this directory.
     -f, --force           Overwrite an existing snapshot.
@@ -1321,13 +1323,20 @@ conditions is satisfied:
 * more than one second of simulated Z80 CPU time has elapsed since the end of
   the tape was reached
 
+The ``--accelerator`` option may be used to speed up simulation of the
+tape-sampling loop in specific types of custom loader. The available
+accelerators are:
+
+* ``microsphere`` (Back to Skool, Skool Daze, Sky Ranger)
+* ``rom`` (any loader whose sampling loop is the same as the ROM's)
+
 Another alternative is the ``--sim-load-all`` option, which also simulates a
 freshly booted 48K ZX Spectrum running LOAD "" (or LOAD ""CODE), but does not
-take a shortcut when the ROM's load routine is called. In addition, it
-simulates the execution of interrupt routines when interrupts are enabled. When
-``--sim-load-all`` is used, simulation continues until either the program
-counter hits the start address given by the ``--start`` option, or the end of
-the tape is reached.
+take a shortcut when the ROM's load routine is called, and ignores any
+``--accelerator`` option. In addition, it simulates the execution of interrupt
+routines when interrupts are enabled. When ``--sim-load-all`` is used,
+simulation continues until either the program counter hits the start address
+given by the ``--start`` option, or the end of the tape is reached.
 
 A simulated LOAD can also be aborted by pressing Ctrl-C. When a simulated LOAD
 has completed or been aborted, the values of the registers (including the
@@ -1369,8 +1378,8 @@ given on the command line.
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
-| 8.9     | Added the ``--sim-load-all`` option; added support for TZX loops, |
-|         | pauses, and unused bits in data blocks                            |
+| 8.9     | Added the ``--accelerator`` and ``--sim-load-all`` options; added |
+|         | support for TZX loops, pauses, and unused bits in data blocks     |
 +---------+-------------------------------------------------------------------+
 | 8.8     | The ``--sim-load`` option performs any ``call/move/poke/sysvars`` |
 |         | operations specified by ``--ram``                                 |

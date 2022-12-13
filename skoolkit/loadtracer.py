@@ -32,6 +32,17 @@ DEC = tuple(tuple((
     ) for c in (0, 1)
 )
 
+INC = tuple(tuple((
+        v % 256,
+        (v & 0xA8)                 # S.5.3.N.
+        + (v == 256) * 0x40        # .Z......
+        + (v % 16 == 0x00) * 0x10  # ...H....
+        + (v == 0x80) * 0x04       # .....P..
+        + c                        # .......C
+    ) for v in range(1, 257)
+    ) for c in (0, 1)
+)
+
 SIM_TIMEOUT = 10 * 60 * 3500000 # 10 minutes of Z80 CPU time
 
 def get_edges(blocks):
@@ -80,8 +91,9 @@ def get_edges(blocks):
     return edges, indexes, data_blocks
 
 class LoadTracer:
-    def __init__(self, blocks):
+    def __init__(self, blocks, accelerator):
         self.edges, self.indexes, self.blocks = get_edges(blocks)
+        self.accelerator = accelerator
         self.next_edge = 0
         self.block_index = 0
         self.block_max_index = self.indexes[0]
@@ -99,6 +111,8 @@ class LoadTracer:
         memory = simulator.memory
         registers = simulator.registers
         opcodes[0x3D] = partial(self.dec_a, registers, memory)
+        if self.accelerator: # pragma: no cover
+            opcodes[0x04] = partial(self.inc_b, registers, memory, self.accelerator, len(self.accelerator.code))
         registers[24] = start
         pc = start
         progress = 0
@@ -182,6 +196,22 @@ class LoadTracer:
             registers[15] = R1[registers[15]]
             registers[25] += 4
             registers[24] = pcn % 65536
+
+    def inc_b(self, registers, memory, acc, code_len): # pragma: no cover
+        # Speed up the tape-sampling loop with a loader-specific accelerator
+        b = registers[2]
+        loops = 0
+        pcn = registers[24] + 1
+        if self.tape_running and memory[pcn:pcn + code_len] == acc.code:
+            if registers[3] & acc.ear_mask == (self.index % 2) * acc.ear_mask:
+                delta = self.next_edge - registers[25] - acc.in_time
+                if delta >= 0:
+                    loops = min(delta // acc.loop_time + 1, 256 - b - 1)
+        registers[2], registers[1] = INC[registers[1] % 2][b + loops]
+        r = registers[15]
+        registers[15] = (r & 0x80) + ((r + acc.loop_r_inc * loops + 1) % 0x80)
+        registers[25] += acc.loop_time * loops + 4
+        registers[24] = pcn % 65536
 
     def read_port(self, registers, port):
         if port % 256 == 0xFE:

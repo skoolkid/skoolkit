@@ -6,6 +6,8 @@ Changelog
 * Added support to :ref:`tap2sna.py` for TZX loops (block types 0x24 and 0x25),
   pauses (block types 0x10, 0x11, 0x14 and 0x20), and unused bits in data
   blocks (block types 0x11 and 0x14)
+* Added the ``--accelerator`` option to :ref:`tap2sna.py` (to speed up
+  simulation of the tape-sampling loop in specific types of loading routine)
 * Added the ``--sim-load-all`` option to :ref:`tap2sna.py` (to simulate a 48K
   ZX Spectrum running LOAD "" without fast loading when the ROM load routine is
   called, and with interrupt routines called when interrupts are enabled)

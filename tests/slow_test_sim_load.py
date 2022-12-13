@@ -140,6 +140,54 @@ class SimLoadTest(SkoolKitTestCase):
         self.assertEqual(error, '')
 
     @patch.object(tap2sna, '_write_z80', mock_write_z80)
+    def test_custom_standard_speed_loader_with_accelerator(self):
+        code2 = list(range(256))
+        code2_start = 49152
+        code2_end = code2_start + len(code2)
+        code = [
+            221, 33, 0, 192,  # LD IX,49152
+            17, 0, 1,         # LD DE,256
+            55,               # SCF
+            159,              # SBC A,A
+        ]
+        loader_start = 32768
+        code_start = loader_start - len(code)
+        code += get_loader(loader_start)
+        basic_data = self._get_basic_data(code_start)
+        blocks = [
+            create_tap_header_block("simloadbas", 10, len(basic_data), 0),
+            create_tap_data_block(basic_data),
+            create_tap_header_block("simloadbyt", code_start, len(code)),
+            create_tap_data_block(code),
+            create_tap_data_block(code2)
+        ]
+        tapfile = self._write_tap(blocks)
+        z80file = 'out.z80'
+        output, error = self.run_tap2sna(f'--accelerator rom --sim-load {tapfile} {z80file}')
+
+        self.assertEqual(basic_data, snapshot[23755:23755 + len(basic_data)])
+        self.assertEqual(code, snapshot[code_start:code_start + len(code)])
+        self.assertEqual(code2, snapshot[code2_start:code2_end])
+        exp_reg = set(('SP=65340', f'IX={code2_end}', 'IY=23610', 'PC=32925'))
+        self.assertLessEqual(exp_reg, set(options.reg))
+
+        out_lines = self._format_output(output)
+        exp_out_lines = [
+            'Program: simloadbas',
+            'Fast loading data block: 23755,20',
+            '',
+            'Bytes: simloadbyt',
+            'Fast loading data block: 32759,184',
+            '',
+            'Data (258 bytes)',
+            '',
+            'Tape finished',
+            'Simulation stopped (end of tape): PC=32925'
+        ]
+        self.assertEqual(exp_out_lines, out_lines)
+        self.assertEqual(error, '')
+
+    @patch.object(tap2sna, '_write_z80', mock_write_z80)
     def test_turbo_loader(self):
         code2 = [1, 2, 4, 8, 16, 32, 64, 128, 0, 255]
         code2_start = 49152

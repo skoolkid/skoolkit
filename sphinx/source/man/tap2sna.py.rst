@@ -18,6 +18,11 @@ instead of (or as well as) being given on the command line.
 
 OPTIONS
 =======
+--accelerator `NAME`
+  Use an accelerator to speed up the simulation of the tape-sampling loop in a
+  custom loading routine. Do ``--accelerator help`` for more information, or
+  see the section on ``ACCELERATORS`` below.
+
 -d, --output-dir `DIR`
   Write the snapshot file in this directory.
 
@@ -80,14 +85,25 @@ one of the following conditions is satisfied:
 
 The ``--sim-load-all`` option also simulates a freshly booted 48K ZX Spectrum
 running LOAD "" (or LOAD ""CODE), but does not take a shortcut when the ROM's
-load routine is called. In addition, it simulates the execution of interrupt
-routines when interrupts are enabled. When ``--sim-load-all`` is used,
-simulation continues until either the program counter hits the start address
-given by the ``--start`` option, or the end of the tape is reached.
+load routine is called, and ignores any ``--accelerator`` option. In addition,
+it simulates the execution of interrupt routines when interrupts are enabled.
+When ``--sim-load-all`` is used, simulation continues until either the program
+counter hits the start address given by the ``--start`` option, or the end of
+the tape is reached.
 
 A simulated LOAD can also be aborted by pressing Ctrl-C. When a simulated LOAD
 has completed or been aborted, the values of the registers (including the
 program counter) in the simulator are used to populate the Z80 snapshot.
+
+ACCELERATORS
+============
+The ``--accelerator`` option specifies an accelerator to use to speed up the
+simulation of the tape-sampling loop in a custom loading routine. Recognised
+accelerator names are:
+
+|
+|  ``microsphere`` - Back to Skool, Skool Daze, Sky Ranger
+|  ``rom`` - any loader whose sampling loop is the same as the ROM's
 
 CALL OPERATIONS
 ===============

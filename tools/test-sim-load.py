@@ -179,7 +179,7 @@ class SimLoadTest(unittest.TestCase):
             'Skool Daze.tzx',
             '61d29396661cc0acfa8f3514010f641d',
             '58d31ae46b4739e7dd45f5db680ad521',
-            '--sim-load --start 24288'
+            '--sim-load --accelerator microsphere --start 24288'
         )
 
     def test_microsphere_2(self):
@@ -188,7 +188,7 @@ class SimLoadTest(unittest.TestCase):
             'Contact Sam Cruise.tzx',
             '873cb6de4edc2aa75b40b838981c6f72',
             '403cfc4f5e3a1f3161e6398d39d4d797',
-            '--sim-load --start 61671'
+            '--sim-load --accelerator rom --start 61671'
         )
 
     def test_paul_owens(self):

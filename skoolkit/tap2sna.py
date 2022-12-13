@@ -25,6 +25,7 @@ from urllib.parse import urlparse
 from skoolkit import (SkoolKitError, get_dword, get_int_param, get_object,
                       get_word, get_word3, integer, open_file, read_bin_file,
                       warn, write_line, ROM48, VERSION)
+from skoolkit.loadsample import ACCELERATORS
 from skoolkit.loadtracer import LoadTracer, SimLoadTracer
 from skoolkit.simulator import (Simulator, A, F, B, C, D, E, H, L, IXh, IXl, IYh, IYl,
                                 SP, I, R, xA, xF, xB, xC, xD, xE, xH, xL, PC)
@@ -223,6 +224,12 @@ def _ram_operations(snapshot, ram_ops, blocks=None):
             raise SkoolKitError(f'Invalid operation: {spec}')
 
 def sim_load(blocks, options):
+    if options.accelerator:
+        accelerator = ACCELERATORS.get(options.accelerator)
+        if accelerator is None:
+            raise SkoolKitError(f'Unrecognised accelerator: {options.accelerator}')
+    else:
+        accelerator = None
     snapshot = [0] * 65536
     rom = read_bin_file(ROM48, 16384)
     snapshot[:len(rom)] = rom
@@ -243,7 +250,7 @@ def sim_load(blocks, options):
     if options.sim_load_all:
         tracer = SimLoadTracer(blocks) # pragma: no cover
     else:
-        tracer = LoadTracer(blocks)
+        tracer = LoadTracer(blocks, accelerator)
     simulator.set_tracer(tracer)
     try:
         tracer.run(simulator, 0x0605, options.start) # SAVE-ETC
@@ -586,6 +593,17 @@ def _get_tape(urlstring, user_agent, member=None):
     f.close()
     return tape_type, data
 
+def _print_accelerator_help():
+    names = '\n  '.join(sorted(ACCELERATORS))
+    print(f"""
+Usage: --accelerator NAME
+
+Use an accelerator to speed up the simulation of the tape-sampling loop in a
+custom loading routine. Recognised accelerator names are:
+
+  {names}
+""".lstrip())
+
 def _print_ram_help():
     sys.stdout.write("""
 Usage: --ram call=[/path/to/moduledir:]module.function
@@ -695,6 +713,9 @@ def main(args):
     )
     parser.add_argument('args', help=argparse.SUPPRESS, nargs='*')
     group = parser.add_argument_group('Options')
+    group.add_argument('--accelerator', metavar='NAME',
+                       help="Speed up simulation of the tape-sampling loop. "
+                            "Run with 'help' as the NAME for more information.")
     group.add_argument('-d', '--output-dir', dest='output_dir', metavar='DIR',
                        help="Write the snapshot file in this directory.")
     group.add_argument('-f', '--force', action='store_true',
@@ -730,6 +751,9 @@ def main(args):
         return
     if 'help' in namespace.state:
         print_state_help()
+        return
+    if namespace.accelerator == 'help':
+        _print_accelerator_help()
         return
     if unknown_args or len(namespace.args) != 2:
         parser.exit(2, parser.format_help())

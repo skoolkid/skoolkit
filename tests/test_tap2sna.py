@@ -110,6 +110,20 @@ class Tap2SnaTest(SkoolKitTestCase):
             self.assertEqual(output, '')
             self.assertTrue(error.startswith('usage:'))
 
+    def test_accelerator_help(self):
+        output, error = self.run_tap2sna('--accelerator help')
+        self.assertTrue(output.startswith('Usage: --accelerator NAME\n'))
+        self.assertEqual(error, '')
+
+    def test_accelerator_unrecognised(self):
+        blocks = [create_tap_data_block([0])]
+        tapfile = self._write_tap(blocks)
+        z80file = '{}/out.z80'.format(self.make_directory())
+        with self.assertRaises(SkoolKitError) as cm:
+            self.run_tap2sna(f'--accelerator nope --sim-load {tapfile} {z80file}')
+        self.assertEqual(cm.exception.args[0], 'Error while getting snapshot out.z80: Unrecognised accelerator: nope')
+        self.assertEqual(self.err.getvalue(), '')
+
     def test_option_d(self):
         odir = '{}/tap2sna'.format(self.make_directory())
         tapfile = self._write_tap((
