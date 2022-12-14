@@ -62,7 +62,7 @@ class SimLoadTest(unittest.TestCase):
             'Cauldron (Silverbird).tzx',
             'ebd4fa565c35af13f0aa3dc2f7556721',
             'ccbbb5b5964fe071b7a87d7af6e0fad0',
-            '--sim-load --start 23296'
+            '--sim-load --accelerator cyberlode --start 23296'
         )
 
     def test_digital_integration(self):
@@ -107,7 +107,7 @@ class SimLoadTest(unittest.TestCase):
             'The Last Mohican - Side 1.tzx',
             '13fd349168a4561dae88e6280b94eac9',
             '6eb14a6122658245b7adf0a9003eee7e',
-            '--sim-load --start 65492'
+            '--sim-load --accelerator excelerator --start 65492'
         )
 
     def test_firebird_bleepload(self):
@@ -116,7 +116,7 @@ class SimLoadTest(unittest.TestCase):
             'Black Lamp.tzx',
             'fc9dd17a32679eeff80504af26e81d9b',
             '88fa2befca525004ae0aec8e6ac25ab6',
-            '--sim-load --start 32768'
+            '--sim-load --accelerator bleepload --start 32768'
         )
 
     def test_ftl(self):
@@ -161,7 +161,7 @@ class SimLoadTest(unittest.TestCase):
             'Outcast.tzx',
             'c01b3ac0075f46f6a0b16d75c163b6b3',
             '8326a1ad896440cb476acbd73830e56a',
-            '--sim-load --start 23296'
+            '--sim-load --accelerator injectaload --start 23296'
         )
 
     def test_load_code(self):
@@ -215,7 +215,7 @@ class SimLoadTest(unittest.TestCase):
             'Dynamite Dan - Side 1.tzx',
             '38c2a7eb6c2ed9010e700063aedd3a3e',
             '93e02b62589dcaf61df4e1bef3ef4231',
-            '--sim-load --start 65392'
+            '--sim-load --accelerator power-load --start 65392'
         )
 
     def test_search_loader(self):

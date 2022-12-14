@@ -1327,8 +1327,18 @@ The ``--accelerator`` option may be used to speed up simulation of the
 tape-sampling loop in specific types of custom loader. The available
 accelerators are:
 
+* ``bleepload`` (Firebird BleepLoad)
+* ``cyberlode`` (Cyberlode 1.1)
+* ``elite-uni-loader`` (Elite Uni-Loader)
+* ``excelerator`` (The Excelerator Loader)
+* ``ftl`` (FTL)
+* ``gargoyle`` (Gargoyle)
+* ``injectaload`` (Injectaload)
 * ``microsphere`` (Back to Skool, Skool Daze, Sky Ranger)
+* ``power-load`` (Power-Load)
 * ``rom`` (any loader whose sampling loop is the same as the ROM's)
+* ``speedlock`` (Speedlock - all versions)
+* ``zydroload`` (Zydroload)
 
 Another alternative is the ``--sim-load-all`` option, which also simulates a
 freshly booted 48K ZX Spectrum running LOAD "" (or LOAD ""CODE), but does not

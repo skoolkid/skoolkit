@@ -102,8 +102,18 @@ simulation of the tape-sampling loop in a custom loading routine. Recognised
 accelerator names are:
 
 |
+|  ``bleepload`` - Firebird BleepLoad
+|  ``cyberlode`` - Cyberlode 1.1
+|  ``elite-uni-loader`` - Elite Uni-Loader
+|  ``excelerator`` - The Excelerator Loader
+|  ``ftl`` - FTL
+|  ``gargoyle`` - Gargoyle
+|  ``injectaload`` - Injectaload
 |  ``microsphere`` - Back to Skool, Skool Daze, Sky Ranger
+|  ``power-load`` - Power-Load
 |  ``rom`` - any loader whose sampling loop is the same as the ROM's
+|  ``speedlock`` - Speedlock (all versions)
+|  ``zydroload`` - Zydroload
 
 CALL OPERATIONS
 ===============
