@@ -98,7 +98,7 @@ class SimLoadTest(unittest.TestCase):
             'Bomb Jack 2.tzx',
             'a481286503c7eb94a7d8e62a73088fb6',
             '5addc5d94939d579cd8205a082329ad1',
-            '--sim-load --start 30720',
+            '--sim-load --accelerator elite-uni-loader --start 30720',
         )
 
     def test_excelerator(self):
@@ -125,7 +125,7 @@ class SimLoadTest(unittest.TestCase):
             'Hydrofool.tzx',
             'd3267bd1facb761c02efe0ddf4438ab4',
             '45c4c04e69303c97d44f962474dfaf73',
-            '--sim-load --start 40252'
+            '--sim-load --accelerator ftl --start 40252'
         )
 
     def test_gargoyle(self):
@@ -134,7 +134,7 @@ class SimLoadTest(unittest.TestCase):
             'Heavy On The Magick - Side 1.tzx',
             '203b36a9ffa241089cb2741043c6563a',
             'bf0240ba95a094e1c853c34907f136ad',
-            '--sim-load --start 46193'
+            '--sim-load --accelerator gargoyle --start 46193'
         )
 
     def test_headerless_block(self):
@@ -242,7 +242,7 @@ class SimLoadTest(unittest.TestCase):
             'Bruce Lee.tzx',
             '51cb1a6e1fb58304a15a588b82d8e001',
             'd61f1e9e168ebf4d3d9396ab3b0e8e0f',
-            '--sim-load --start 49152'
+            '--sim-load --accelerator speedlock --start 49152'
         )
 
     def test_speedlock_2(self):
@@ -251,7 +251,7 @@ class SimLoadTest(unittest.TestCase):
             'The Great Escape.tzx',
             '58d273a2c719da21a25b4af3d008c951',
             'b88e2ecec1935cb3183b95ba2b20a50c',
-            '--sim-load --start 61795'
+            '--sim-load --accelerator speedlock --start 61795'
         )
 
     def test_speedlock_3(self):
@@ -260,7 +260,7 @@ class SimLoadTest(unittest.TestCase):
             'Dogfight 2187.tzx',
             '5d73a347e27e98bb5a235eeac6470d56',
             '1957b7689fa347e86c0bb6b7cf8171c8',
-            '--sim-load --start 65317'
+            '--sim-load --accelerator speedlock --start 65317'
         )
 
     def test_speedlock_4(self):
@@ -269,7 +269,7 @@ class SimLoadTest(unittest.TestCase):
             'Outrun - Tape 1 - Side 1.tzx',
             '78fb2a6b82ca2dc7021a5762ea1491fb',
             '9c55792ec44f90b6d4717f8cceed91d2',
-            '--sim-load --start 44337'
+            '--sim-load --accelerator speedlock --start 44337'
         )
 
     def test_speedlock_5(self):
@@ -278,7 +278,7 @@ class SimLoadTest(unittest.TestCase):
             'Hysteria.tzx',
             '2f4485c0d0e98758f7da09b322ca0a0c',
             '541444a0b93ff969bec20d013ef43932',
-            '--sim-load --start 45066'
+            '--sim-load --accelerator speedlock --start 45066'
         )
 
     def test_speedlock_6(self):
@@ -287,7 +287,7 @@ class SimLoadTest(unittest.TestCase):
             'Vixen - Side A.tzx',
             '3075d03f63d20acf2ad029265f6f1746',
             'b424bb0f28cb05dbaf84afcd1e2a744c',
-            '--sim-load --start 51473'
+            '--sim-load --accelerator speedlock --start 51473'
         )
 
     def test_speedlock_7(self):
@@ -296,7 +296,7 @@ class SimLoadTest(unittest.TestCase):
             'Aaargh! - Side 1.tzx',
             'cfe091069af70b7ad7eae377665ce284',
             '7ddc438e3f8e3a5635b3e19615227ace',
-            '--sim-load --start 65283'
+            '--sim-load --accelerator speedlock --start 65283'
         )
 
     def test_standard_load(self):
@@ -314,7 +314,7 @@ class SimLoadTest(unittest.TestCase):
             'The Light Corridor.tzx',
             '66674ee9c6b696404c5847be32796af4',
             'af4a82be85d882064cdc30c7e336065a',
-            '--sim-load --start 32879'
+            '--sim-load --accelerator zydroload --start 32879'
         )
 
 if __name__ == '__main__':
