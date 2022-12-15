@@ -89,7 +89,7 @@ class SimLoadTest(unittest.TestCase):
             'Brian Bloodaxe.tzx',
             '01b9b9454fc40eec0db0ba16ef2e6552',
             '423156b42f6f4ca4f50aa47a099c7432',
-            '--sim-load'
+            '--sim-load --accelerator edge'
         )
 
     def test_elite_uni_loader(self):
@@ -117,6 +117,15 @@ class SimLoadTest(unittest.TestCase):
             'fc9dd17a32679eeff80504af26e81d9b',
             '88fa2befca525004ae0aec8e6ac25ab6',
             '--sim-load --accelerator bleepload --start 32768'
+        )
+
+    def test_flash_loader(self):
+        self._test_sim_load(
+            'https://www.worldofspectrum.org/pub/sinclair/games/c/CliffHanger.tzx.zip',
+            'Cliff Hanger.tzx',
+            '08b2d3867c9478e446c49217595239be',
+            '9a899546787a31eae484b360c5e8b0ae',
+            '--sim-load --accelerator flash-loader --start 25660'
         )
 
     def test_ftl(self):
@@ -152,7 +161,7 @@ class SimLoadTest(unittest.TestCase):
             'Cybernoid.tzx',
             '50921a76ee625feb31c4195aac63d020',
             '300bc544ff0f6194156b49eec4887780',
-            '--sim-load --start 65105'
+            '--sim-load --accelerator hewson-slowload --start 65105'
         )
 
     def test_injectaload(self):
@@ -233,7 +242,7 @@ class SimLoadTest(unittest.TestCase):
             'Elite - 48k.tzx',
             'f73379181e1a413ac6c22ffd4cc8122a',
             '736305fea2616efdc80109d23fd46ea3',
-            '--sim-load-all --start 49699'
+            '--sim-load-all --accelerator softlock --start 49699'
         )
 
     def test_speedlock_1(self):
