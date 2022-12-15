@@ -80,7 +80,7 @@ class SimLoadTest(unittest.TestCase):
             'Satan - Side 1.tzx',
             '18afd7805b83ebc4974ccd8637d8a7b3',
             'b4ef1345a3dee1efd27c11e1fc590ace',
-            '--sim-load --start 64031'
+            '--sim-load --accelerator dinaload --start 64031'
         )
 
     def test_edge(self):
@@ -215,7 +215,7 @@ class SimLoadTest(unittest.TestCase):
             'Astro Marine Corps - Side 1.tzx',
             'b31fd6232a865fbef93db8700ceeb931',
             '0f8710bdf41fe3235a5cf4d8d8bbdd76',
-            '--sim-load --start 60928'
+            '--sim-load --accelerator poliload --start 60928'
         )
 
     def test_power_load(self):

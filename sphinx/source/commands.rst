@@ -1341,6 +1341,7 @@ accelerators are:
 
 * ``bleepload`` (Firebird BleepLoad)
 * ``cyberlode`` (Cyberlode 1.1)
+* ``dinaload`` (Dinaload)
 * ``edge`` (Edge)
 * ``elite-uni-loader`` (Elite Uni-Loader)
 * ``excelerator`` (The Excelerator Loader)
@@ -1350,6 +1351,7 @@ accelerators are:
 * ``hewson-slowload`` (Hewson Slowload)
 * ``injectaload`` (Injectaload)
 * ``microsphere`` (Back to Skool, Skool Daze, Sky Ranger)
+* ``poliload`` (Poliload)
 * ``power-load`` (Power-Load)
 * ``rom`` (any loader whose sampling loop is the same as the ROM's)
 * ``softlock`` (SoftLock)

@@ -40,6 +40,23 @@ ACCELERATORS = {
         0x20  # EAR mask
     ),
 
+    'dinaload': Accelerator(
+        [               # LD_SAMPLE INC B          [4]
+            0xC8,       #           RET Z          [11/5]
+            0x3E, 0xFF, #           LD A,$FF       [7]
+            0xDB, 0xFE, #           IN A,($FE)     [11]
+            0x1F,       #           RRA            [4]
+            0xD0,       #           RET NC         [11/5]
+            0xA9,       #           XOR C          [4]
+            0xE6, 0x20, #           AND $20        [7]
+            0x28, 0xF3  #           JR Z,LD_SAMPLE [12/7]
+        ],
+        16,   # 16 T-states until first IN A,($FE)
+        59,   # 59 T-states per loop iteration
+        9,    # R register increment per loop iteration
+        0x20  # EAR mask
+    ),
+
     'microsphere': Accelerator(
         [               # LD_SAMPLE INC B          [4]
             0xC8,       #           RET Z          [11/5]
@@ -100,6 +117,7 @@ ACCELERATORS['ftl'] = ACCELERATORS['speedlock']
 ACCELERATORS['gargoyle'] = ACCELERATORS['speedlock']
 ACCELERATORS['hewson-slowload'] = ACCELERATORS['rom']
 ACCELERATORS['injectaload'] = ACCELERATORS['bleepload']
+ACCELERATORS['poliload'] = ACCELERATORS['dinaload']
 ACCELERATORS['power-load'] = ACCELERATORS['bleepload']
 ACCELERATORS['softlock'] = ACCELERATORS['rom']
 ACCELERATORS['zydroload'] = ACCELERATORS['speedlock']
