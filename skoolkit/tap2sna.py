@@ -248,7 +248,7 @@ def sim_load(blocks, options):
     config = {'fast_djnz': True, 'fast_ldir': True}
     simulator = Simulator(snapshot, {'SP': 0xFF50}, config=config)
     if options.sim_load_all:
-        tracer = SimLoadTracer(blocks) # pragma: no cover
+        tracer = SimLoadTracer(blocks, accelerator) # pragma: no cover
     else:
         tracer = LoadTracer(blocks, accelerator)
     simulator.set_tracer(tracer)

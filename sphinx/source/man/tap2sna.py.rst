@@ -85,11 +85,10 @@ one of the following conditions is satisfied:
 
 The ``--sim-load-all`` option also simulates a freshly booted 48K ZX Spectrum
 running LOAD "" (or LOAD ""CODE), but does not take a shortcut when the ROM's
-load routine is called, and ignores any ``--accelerator`` option. In addition,
-it simulates the execution of interrupt routines when interrupts are enabled.
-When ``--sim-load-all`` is used, simulation continues until either the program
-counter hits the start address given by the ``--start`` option, or the end of
-the tape is reached.
+load routine is called. In addition, it simulates the execution of interrupt
+routines when interrupts are enabled. When ``--sim-load-all`` is used,
+simulation continues until either the program counter hits the start address
+given by the ``--start`` option, or the end of the tape is reached.
 
 A simulated LOAD can also be aborted by pressing Ctrl-C. When a simulated LOAD
 has completed or been aborted, the values of the registers (including the

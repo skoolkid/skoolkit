@@ -312,14 +312,15 @@ class SimLoadTracer(LoadTracer): # pragma: no cover
         memory = simulator.memory
         registers = simulator.registers
         opcodes[0x3D] = partial(self.dec_a, registers, memory)
+        if self.accelerator:
+            opcodes[0x04] = partial(self.inc_b, registers, memory, self.accelerator, len(self.accelerator.code))
         registers[24] = start
         pc = start
         progress = 0
         edges = self.edges
         tape_length = edges[-1] // 1000
         max_index = self.max_index
-        next_edge = 0
-        tape_running = True
+        self.tape_running = True
         accept_int = False
 
         while True:
@@ -352,7 +353,7 @@ class SimLoadTracer(LoadTracer): # pragma: no cover
                     accept_int = False
                     simulator.iff2 = 0
 
-            if tstates > next_edge:
+            if tstates > self.next_edge:
                 index = self.index
                 while index < max_index and edges[index + 1] < tstates:
                     index += 1
@@ -360,9 +361,9 @@ class SimLoadTracer(LoadTracer): # pragma: no cover
                 if index == max_index:
                     # Allow 1ms for the final edge on the tape to be read
                     if tstates - edges[index] > 3500:
-                        tape_running = False
+                        self.tape_running = False
                 else:
-                    next_edge = edges[index + 1]
+                    self.next_edge = edges[index + 1]
                     p = edges[index] // tape_length
                     if p > progress:
                         msg = f'[{p/10:0.1f}%]'
@@ -373,7 +374,7 @@ class SimLoadTracer(LoadTracer): # pragma: no cover
                 write_line(f'Simulation stopped (PC at start address): PC={pc}')
                 break
 
-            if not tape_running and stop is None:
+            if not self.tape_running and stop is None:
                 write_line(f'Simulation stopped (end of tape): PC={pc}')
                 break
 

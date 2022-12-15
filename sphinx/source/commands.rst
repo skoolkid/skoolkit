@@ -1323,6 +1323,18 @@ conditions is satisfied:
 * more than one second of simulated Z80 CPU time has elapsed since the end of
   the tape was reached
 
+Another alternative is the ``--sim-load-all`` option, which also simulates a
+freshly booted 48K ZX Spectrum running LOAD "" (or LOAD ""CODE), but does not
+take a shortcut when the ROM's load routine is called. In addition, it
+simulates the execution of interrupt routines when interrupts are enabled.
+When ``--sim-load-all`` is used, simulation continues until either the program
+counter hits the start address given by the ``--start`` option, or the end of
+the tape is reached.
+
+A simulated LOAD can also be aborted by pressing Ctrl-C. When a simulated LOAD
+has completed or been aborted, the values of the registers (including the
+program counter) in the simulator are used to populate the Z80 snapshot.
+
 The ``--accelerator`` option may be used to speed up simulation of the
 tape-sampling loop in specific types of custom loader. The available
 accelerators are:
@@ -1339,18 +1351,6 @@ accelerators are:
 * ``rom`` (any loader whose sampling loop is the same as the ROM's)
 * ``speedlock`` (Speedlock - all versions)
 * ``zydroload`` (Zydroload)
-
-Another alternative is the ``--sim-load-all`` option, which also simulates a
-freshly booted 48K ZX Spectrum running LOAD "" (or LOAD ""CODE), but does not
-take a shortcut when the ROM's load routine is called, and ignores any
-``--accelerator`` option. In addition, it simulates the execution of interrupt
-routines when interrupts are enabled. When ``--sim-load-all`` is used,
-simulation continues until either the program counter hits the start address
-given by the ``--start`` option, or the end of the tape is reached.
-
-A simulated LOAD can also be aborted by pressing Ctrl-C. When a simulated LOAD
-has completed or been aborted, the values of the registers (including the
-program counter) in the simulator are used to populate the Z80 snapshot.
 
 In addition to loading specific blocks, the ``--ram`` option can also be used
 to move blocks of bytes from one location to another, POKE values into
