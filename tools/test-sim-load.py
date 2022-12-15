@@ -229,11 +229,11 @@ class SimLoadTest(unittest.TestCase):
 
     def test_search_loader(self):
         self._test_sim_load(
-            'https://www.worldofspectrum.org/pub/sinclair/games/t/TechnicianTed.tzx.zip',
-            'Technician Ted.tzx',
-            'b55a761f7d3733bc6ac958b10fab0c43',
-            'e375834a70166f774fc96a81e7c430d0',
-            '--sim-load --start 35892'
+            'https://www.worldofspectrum.org/pub/sinclair/games/b/BloodBrothers.tzx.zip',
+            'Blood Brothers.tzx',
+            'c4e7e151c4321b29c095abf1e547f9b5',
+            '28548a9187bb63526cb5c06fe7ecfd5f',
+            '--sim-load --accelerator search-loader --start 23552'
         )
 
     def test_softlock(self):

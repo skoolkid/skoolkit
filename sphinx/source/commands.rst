@@ -1356,6 +1356,7 @@ accelerators are:
 * ``poliload`` (Poliload)
 * ``power-load`` (Power-Load)
 * ``rom`` (any loader whose sampling loop is the same as the ROM's)
+* ``search-loader`` (Search Loader)
 * ``softlock`` (SoftLock)
 * ``speedlock`` (Speedlock - all versions)
 * ``zydroload`` (Zydroload)
