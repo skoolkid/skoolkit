@@ -16,7 +16,8 @@
 
 class Accelerator:
     def __init__(self, code, in_time, loop_time, loop_r_inc, ear_mask):
-        self.code = code
+        self.opcode = code[0]
+        self.code = code[1:]
         self.in_time = in_time
         self.loop_time = loop_time
         self.loop_r_inc = loop_r_inc
@@ -24,7 +25,8 @@ class Accelerator:
 
 ACCELERATORS = {
     'bleepload': Accelerator(
-        [               # LD_SAMPLE INC B          [4]
+        [
+            0x04,       # LD_SAMPLE INC B          [4]
             0xC8,       #           RET Z          [11/5]
             0x3E, 0x7F, #           LD A,$7F       [7]
             0xDB, 0xFE, #           IN A,($FE)     [11]
@@ -40,8 +42,24 @@ ACCELERATORS = {
         0x20  # EAR mask
     ),
 
+    'digital-integration': Accelerator(
+        [
+            0x05,       # LD_SAMPLE DEC B          [4]
+            0xC8,       #           RET Z          [11/5]
+            0xDB, 0xFE, #           IN A,($FE)     [11]
+            0xA9,       #           XOR C          [4]
+            0xE6, 0x40, #           AND $40        [7]
+            0xCA        #           JP Z,LD_SAMPLE [10]
+        ],
+        9,    # 9 T-states until first IN A,($FE)
+        41,   # 41 T-states per loop iteration
+        6,    # R register increment per loop iteration
+        0x40  # EAR mask
+    ),
+
     'dinaload': Accelerator(
-        [               # LD_SAMPLE INC B          [4]
+        [
+            0x04,       # LD_SAMPLE INC B          [4]
             0xC8,       #           RET Z          [11/5]
             0x3E, 0xFF, #           LD A,$FF       [7]
             0xDB, 0xFE, #           IN A,($FE)     [11]
@@ -58,7 +76,8 @@ ACCELERATORS = {
     ),
 
     'microsphere': Accelerator(
-        [               # LD_SAMPLE INC B          [4]
+        [
+            0x04,       # LD_SAMPLE INC B          [4]
             0xC8,       #           RET Z          [11/5]
             0x3E, 0x7F, #           LD A,$7F       [7]
             0xDB, 0xFE, #           IN A,($FE)     [11]
@@ -75,7 +94,8 @@ ACCELERATORS = {
     ),
 
     'rom': Accelerator(
-        [               # LD_SAMPLE INC B          [4]
+        [
+            0x04,       # LD_SAMPLE INC B          [4]
             0xC8,       #           RET Z          [11/5]
             0x3E, 0x7F, #           LD A,$7F       [7]
             0xDB, 0xFE, #           IN A,($FE)     [11]
@@ -92,7 +112,8 @@ ACCELERATORS = {
     ),
 
     'speedlock': Accelerator(
-        [               # LD_SAMPLE INC B          [4]
+        [
+            0x04,       # LD_SAMPLE INC B          [4]
             0xC8,       #           RET Z          [11/5]
             0x3E, 0x7F, #           LD A,$7F       [7]
             0xDB, 0xFE, #           IN A,($FE)     [11]

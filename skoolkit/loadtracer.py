@@ -91,9 +91,19 @@ def get_edges(blocks):
     return edges, indexes, data_blocks
 
 class LoadTracer:
-    def __init__(self, blocks, accelerator):
+    def __init__(self, simulator, blocks, accelerator):
+        self.simulator = simulator
         self.edges, self.indexes, self.blocks = get_edges(blocks)
         self.accelerator = accelerator
+        opcodes = simulator.opcodes
+        memory = simulator.memory
+        registers = simulator.registers
+        opcodes[0x3D] = partial(self.dec_a, registers, memory)
+        if accelerator: # pragma: no cover
+            if accelerator.opcode == 0x04:
+                opcodes[0x04] = partial(self.inc_b, registers, memory, accelerator, len(accelerator.code))
+            elif accelerator.opcode == 0x05:
+                opcodes[0x05] = partial(self.dec_b, registers, memory, accelerator, len(accelerator.code))
         self.next_edge = 0
         self.block_index = 0
         self.block_max_index = self.indexes[0]
@@ -106,13 +116,11 @@ class LoadTracer:
         self.border = 7
         self.text = TextReader()
 
-    def run(self, simulator, start, stop):
+    def run(self, start, stop):
+        simulator = self.simulator
         opcodes = simulator.opcodes
         memory = simulator.memory
         registers = simulator.registers
-        opcodes[0x3D] = partial(self.dec_a, registers, memory)
-        if self.accelerator: # pragma: no cover
-            opcodes[0x04] = partial(self.inc_b, registers, memory, self.accelerator, len(self.accelerator.code))
         registers[24] = start
         pc = start
         progress = 0
@@ -197,6 +205,22 @@ class LoadTracer:
             registers[25] += 4
             registers[24] = pcn % 65536
 
+    def dec_b(self, registers, memory, acc, code_len): # pragma: no cover
+        # Speed up the tape-sampling loop with a loader-specific accelerator
+        b = registers[2]
+        loops = 0
+        pcn = registers[24] + 1
+        if self.tape_running and memory[pcn:pcn + code_len] == acc.code:
+            if registers[3] & acc.ear_mask == (self.index % 2) * acc.ear_mask:
+                delta = self.next_edge - registers[25] - acc.in_time
+                if delta >= 0:
+                    loops = min(delta // acc.loop_time + 1, (b - 1) % 256)
+        registers[2], registers[1] = DEC[registers[1] % 2][(b - loops) % 256]
+        r = registers[15]
+        registers[15] = (r & 0x80) + ((r + acc.loop_r_inc * loops + 1) % 0x80)
+        registers[25] += acc.loop_time * loops + 4
+        registers[24] = pcn % 65536
+
     def inc_b(self, registers, memory, acc, code_len): # pragma: no cover
         # Speed up the tape-sampling loop with a loader-specific accelerator
         b = registers[2]
@@ -206,7 +230,7 @@ class LoadTracer:
             if registers[3] & acc.ear_mask == (self.index % 2) * acc.ear_mask:
                 delta = self.next_edge - registers[25] - acc.in_time
                 if delta >= 0:
-                    loops = min(delta // acc.loop_time + 1, 256 - b - 1)
+                    loops = min(delta // acc.loop_time + 1, 255 - b)
         registers[2], registers[1] = INC[registers[1] % 2][b + loops]
         r = registers[15]
         registers[15] = (r & 0x80) + ((r + acc.loop_r_inc * loops + 1) % 0x80)
@@ -307,13 +331,11 @@ class LoadTracer:
         registers[PC] = 0x05E2
 
 class SimLoadTracer(LoadTracer): # pragma: no cover
-    def run(self, simulator, start, stop):
+    def run(self, start, stop):
+        simulator = self.simulator
         opcodes = simulator.opcodes
         memory = simulator.memory
         registers = simulator.registers
-        opcodes[0x3D] = partial(self.dec_a, registers, memory)
-        if self.accelerator:
-            opcodes[0x04] = partial(self.inc_b, registers, memory, self.accelerator, len(self.accelerator.code))
         registers[24] = start
         pc = start
         progress = 0

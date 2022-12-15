@@ -1341,6 +1341,7 @@ accelerators are:
 
 * ``bleepload`` (Firebird BleepLoad)
 * ``cyberlode`` (Cyberlode 1.1)
+* ``digital-integration`` (Digital Integration)
 * ``dinaload`` (Dinaload)
 * ``edge`` (Edge)
 * ``elite-uni-loader`` (Elite Uni-Loader)

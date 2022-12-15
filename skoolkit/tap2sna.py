@@ -248,12 +248,12 @@ def sim_load(blocks, options):
     config = {'fast_djnz': True, 'fast_ldir': True}
     simulator = Simulator(snapshot, {'SP': 0xFF50}, config=config)
     if options.sim_load_all:
-        tracer = SimLoadTracer(blocks, accelerator) # pragma: no cover
+        tracer = SimLoadTracer(simulator, blocks, accelerator) # pragma: no cover
     else:
-        tracer = LoadTracer(blocks, accelerator)
+        tracer = LoadTracer(simulator, blocks, accelerator)
     simulator.set_tracer(tracer)
     try:
-        tracer.run(simulator, 0x0605, options.start) # SAVE-ETC
+        tracer.run(0x0605, options.start) # SAVE-ETC
         _ram_operations(snapshot, options.ram_ops)
     except KeyboardInterrupt: # pragma: no cover
         write_line(f'Simulation stopped (interrupted): PC={simulator.registers[PC]}')

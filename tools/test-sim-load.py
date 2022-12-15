@@ -71,7 +71,7 @@ class SimLoadTest(unittest.TestCase):
             'Tomahawk.tzx',
             '3189a34157750d9e4ad01d5a7b2e5722',
             '8f7492f7f6030ef945b4045f2f2eefab',
-            '--sim-load --start 57349'
+            '--sim-load --accelerator digital-integration --start 57349'
         )
 
     def test_dinaload(self):
