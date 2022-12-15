@@ -114,6 +114,7 @@ accelerator names are:
 |  ``hewson-slowload`` - Hewson Slowload
 |  ``injectaload`` - Injectaload
 |  ``microsphere`` - Back to Skool, Skool Daze, Sky Ranger
+|  ``paul-owens`` - Paul Owens Protection System
 |  ``poliload`` - Poliload
 |  ``power-load`` - Power-Load
 |  ``rom`` - any loader whose sampling loop is the same as the ROM's

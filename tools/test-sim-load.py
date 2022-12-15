@@ -206,7 +206,7 @@ class SimLoadTest(unittest.TestCase):
             'The Untouchables - Side 1.tzx',
             '7aed7cb0aa7a9be5a4c953eec1fc0dd1',
             '3ddab5e5ade1fc259b8f64369698a077',
-            '--sim-load-all --start 32839'
+            '--sim-load-all --accelerator paul-owens --start 32839'
         )
 
     def test_poliload(self):
