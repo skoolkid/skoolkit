@@ -822,6 +822,79 @@ class SimLoadTest(SkoolKitTestCase):
         exp_reg = set(('SP=65344', 'IX=32769', 'IY=23610', 'PC=32768'))
         self.assertLessEqual(exp_reg, set(options.reg))
 
+    @patch.object(tap2sna, '_write_z80', mock_write_z80)
+    def test_skip_data_before_fast_loading_next_block(self):
+        code2 = [1, 2, 4, 8]
+        code2_start = 49152
+        code2_end = code2_start + len(code2)
+        extra = [255] * 4
+        pdata = create_data_block(extra)
+        code3 = [16, 32, 64, 128]
+        code3_start = 49156
+        code3_end = code3_start + len(code3)
+        code = [
+            221, 33, 0, 192,  # LD IX,49152
+            17, 4, 0,         # LD DE,4
+            55,               # SCF
+            159,              # SBC A,A
+            8,                # EX AF,AF'
+            205, 89, 5,       # CALL 1369 ; Load code2 (bypassing fast load)
+            17, 4, 0,         # LD DE,4
+            55,               # SCF
+            159,              # SBC A,A
+            205, 86, 5,       # CALL 1366 ; Load code3 (fast load)
+            195, 0, 192       # JP 49152
+        ]
+        code_start = 32768
+        basic_data = self._get_basic_data(code_start)
+        pure_data = [
+            0x14,             # Block ID (Pure Data)
+            87, 3,            # 855 (length of 0-bit pulse)
+            174, 6,           # 1710 (length of 1-bit pulse)
+            8,                # Used bits in last byte
+            0, 0,             # 0ms (pause)
+            len(pdata), 0, 0, # Data length
+            *pdata,           # Data
+        ]
+        blocks = [
+            create_tzx_header_block("simloadbas", 10, len(basic_data), 0),
+            create_tzx_data_block(basic_data),
+            create_tzx_header_block("simloadbyt", code_start, len(code), 3),
+            create_tzx_data_block(code),
+            create_tzx_data_block(code2),
+            pure_data, # Extraneous data at the end of the second code block,
+                       # which should be skipped before fast loading the third
+            create_tzx_data_block(code3),
+        ]
+        tzxfile = self._write_tzx(blocks)
+        z80file = 'out.z80'
+        output, error = self.run_tap2sna(f'--sim-load --start 49152 {tzxfile} {z80file}')
+
+        self.assertEqual(basic_data, snapshot[23755:23755 + len(basic_data)])
+        self.assertEqual(code, snapshot[code_start:code_start + len(code)])
+        self.assertEqual(code2, snapshot[code2_start:code2_end])
+        self.assertEqual(code3, snapshot[code3_start:code3_end])
+        exp_reg = set(('SP=65344', f'IX={code3_end}', 'IY=23610', 'PC=49152'))
+        self.assertLessEqual(exp_reg, set(options.reg))
+
+        out_lines = self._format_output(output)
+        exp_out_lines = [
+            'Program: simloadbas',
+            'Fast loading data block: 23755,20',
+            '',
+            'Bytes: simloadbyt',
+            'Fast loading data block: 32768,24',
+            '',
+            'Data (6 bytes)',
+            '',
+            'Fast loading data block: 49156,4',
+            '',
+            'Tape finished',
+            'Simulation stopped (PC at start address): PC=49152'
+        ]
+        self.assertEqual(exp_out_lines, out_lines)
+        self.assertEqual(error, '')
+
     @patch.object(loadtracer, 'SIM_TIMEOUT', 6 * 3500000)
     @patch.object(tap2sna, '_write_z80', mock_write_z80)
     def test_simulation_timed_out(self):

@@ -259,8 +259,8 @@ class SimLoadTest(unittest.TestCase):
             'https://www.worldofspectrum.org/pub/sinclair/games/e/Elite.tzx.zip',
             'Elite - 48k.tzx',
             'f73379181e1a413ac6c22ffd4cc8122a',
-            '736305fea2616efdc80109d23fd46ea3',
-            '--sim-load-all --accelerator softlock --start 49699'
+            '9e97cd1fcc8c760fa26d0e82a6ba98e6',
+            '--sim-load --accelerator softlock --start 49699'
         )
 
     def test_speedlock_1(self):

@@ -67,6 +67,7 @@ def get_edges(blocks):
 
         # Data
         if data:
+            start = len(edges) - 1
             for k, b in enumerate(data, 1):
                 if k < len(data):
                     num_bits = 8
@@ -81,7 +82,7 @@ def get_edges(blocks):
                         tstates += duration
                         edges.append(tstates)
                     b *= 2
-            indexes.append(len(edges) - 1)
+            indexes.append((start, len(edges) - 1))
             data_blocks.append(data)
 
         # Pause
@@ -106,7 +107,7 @@ class LoadTracer:
                 opcodes[0x05] = partial(self.dec_b, registers, memory, accelerator, len(accelerator.code))
         self.next_edge = 0
         self.block_index = 0
-        self.block_max_index = self.indexes[0]
+        self.block_data_index, self.block_max_index = self.indexes[0]
         self.index = 0
         self.max_index = len(self.edges) - 1
         self.tape_running = False
@@ -270,12 +271,12 @@ class LoadTracer:
         else:
             self.index = self.block_max_index + 1
             self.next_edge = self.edges[self.index]
-            self.block_max_index = self.indexes[self.block_index]
+            self.block_data_index, self.block_max_index = self.indexes[self.block_index]
         self.tape_running = False
 
     def fast_load(self, simulator):
         registers = simulator.registers
-        if self.tape_running and self.index == self.block_max_index:
+        while self.block_data_index <= self.index < self.max_index:
             self.next_block(registers[T])
         if self.block_index < len(self.blocks):
             block = self.blocks[self.block_index]
