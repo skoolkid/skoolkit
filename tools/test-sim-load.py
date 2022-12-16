@@ -47,13 +47,22 @@ class SimLoadTest(unittest.TestCase):
             if md5sum != z80sum:
                 self.fail(f'Checksum failure for {z80file}: expected {z80sum}, got {md5sum}')
 
-    def test_alcatraz(self):
+    def test_alkatraz(self):
         self._test_sim_load(
             'https://www.worldofspectrum.org/pub/sinclair/games/f/Fairlight48V1.tzx.zip',
             'Fairlight - 48k - Release 1.tzx',
             '1dba2ac53fd25f4cc1065e18e31a7b96',
             '551cd2d5ba4bf912987ccb1733c8e144',
             '--sim-load --start 50300'
+        )
+
+    def test_alkatraz2_accelerator(self):
+        self._test_sim_load(
+            'https://www.worldofspectrum.org/pub/sinclair/games/s/ShadowDancer.tzx.zip',
+            'Shadow Dancer - Side 1.tzx',
+            '2515ea4bb465b2834a636007ed3b9138',
+            'bfa6fa51d5509dd3f278dd6cd6564195',
+            '--sim-load --accelerator alkatraz2 --start 24000'
         )
 
     def test_cyberlode_1_1(self):
