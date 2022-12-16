@@ -155,6 +155,15 @@ class SimLoadTest(unittest.TestCase):
             '--sim-load --accelerator gargoyle --start 46193'
         )
 
+    def test_gremlin_accelerator(self):
+        self._test_sim_load(
+            'https://www.worldofspectrum.org/pub/sinclair/games/s/SpaceCrusade.tzx.zip',
+            'Space Crusade - 48K.tzx',
+            '48cdfc186f94bf6382da93cbc4b70810',
+            '14fcd61588554a50a96e4d1988a8e798',
+            '--sim-load --accelerator gremlin --start 26807'
+        )
+
     def test_headerless_block(self):
         self._test_sim_load(
             'https://www.worldofspectrum.org/pub/sinclair/games/g/GalacticPatrol.tzx.zip',

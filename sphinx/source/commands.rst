@@ -1350,6 +1350,7 @@ accelerators are:
 * ``flash-loader`` (Flash Loader)
 * ``ftl`` (FTL)
 * ``gargoyle`` (Gargoyle)
+* ``gremlin`` (Lotus Esprit Turbo Challenge, Space Crusade)
 * ``hewson-slowload`` (Hewson Slowload)
 * ``injectaload`` (Injectaload)
 * ``microsphere`` (Back to Skool, Skool Daze, Sky Ranger)
