@@ -101,6 +101,7 @@ simulation of the tape-sampling loop in a custom loading routine. Recognised
 accelerator names are:
 
 |
+|  ``alkatraz`` - Alkatraz
 |  ``alkatraz2`` - Alkatraz 2
 |  ``bleepload`` - Firebird BleepLoad
 |  ``cyberlode`` - Cyberlode 1.1

@@ -1339,6 +1339,7 @@ The ``--accelerator`` option may be used to speed up simulation of the
 tape-sampling loop in specific types of custom loader. The available
 accelerators are:
 
+* ``alkatraz`` (Alkatraz)
 * ``alkatraz2`` (Alkatraz 2)
 * ``bleepload`` (Firebird BleepLoad)
 * ``cyberlode`` (Cyberlode 1.1)

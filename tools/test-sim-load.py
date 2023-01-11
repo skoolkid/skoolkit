@@ -53,10 +53,10 @@ class SimLoadTest(unittest.TestCase):
             'Fairlight - 48k - Release 1.tzx',
             '1dba2ac53fd25f4cc1065e18e31a7b96',
             '551cd2d5ba4bf912987ccb1733c8e144',
-            '--sim-load --start 50300'
+            '--sim-load --accelerator alkatraz --start 50300'
         )
 
-    def test_alkatraz2_accelerator(self):
+    def test_alkatraz2(self):
         self._test_sim_load(
             'https://www.worldofspectrum.org/pub/sinclair/games/s/ShadowDancer.tzx.zip',
             'Shadow Dancer - Side 1.tzx',
@@ -155,7 +155,7 @@ class SimLoadTest(unittest.TestCase):
             '--sim-load --accelerator gargoyle --start 46193'
         )
 
-    def test_gremlin_accelerator(self):
+    def test_gremlin(self):
         self._test_sim_load(
             'https://www.worldofspectrum.org/pub/sinclair/games/s/SpaceCrusade.tzx.zip',
             'Space Crusade - 48K.tzx',

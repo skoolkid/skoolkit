@@ -1,4 +1,4 @@
-# Copyright 2022 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2022, 2023 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -101,10 +101,13 @@ class LoadTracer:
         registers = simulator.registers
         opcodes[0x3D] = partial(self.dec_a, registers, memory)
         if accelerator: # pragma: no cover
-            if accelerator.opcode == 0x04:
-                opcodes[0x04] = partial(self.inc_b, registers, memory, accelerator, len(accelerator.code))
-            elif accelerator.opcode == 0x05:
-                opcodes[0x05] = partial(self.dec_b, registers, memory, accelerator, len(accelerator.code))
+            if accelerator.opcode == 0x05:
+                method = self.dec_b
+            elif None in accelerator.code:
+                method = self.inc_b_none
+            else:
+                method = self.inc_b
+            opcodes[accelerator.opcode] = partial(method, registers, memory, accelerator, len(accelerator.code))
         self.next_edge = 0
         self.block_index = 0
         self.block_data_index, self.block_max_index = self.indexes[0]
@@ -228,6 +231,22 @@ class LoadTracer:
         loops = 0
         pcn = registers[24] + 1
         if self.tape_running and memory[pcn:pcn + code_len] == acc.code:
+            if registers[3] & acc.ear_mask == (self.index % 2) * acc.ear_mask:
+                delta = self.next_edge - registers[25] - acc.in_time
+                if delta >= 0:
+                    loops = min(delta // acc.loop_time + 1, 255 - b)
+        registers[2], registers[1] = INC[registers[1] % 2][b + loops]
+        r = registers[15]
+        registers[15] = (r & 0x80) + ((r + acc.loop_r_inc * loops + 1) % 0x80)
+        registers[25] += acc.loop_time * loops + 4
+        registers[24] = pcn % 65536
+
+    def inc_b_none(self, registers, memory, acc, code_len): # pragma: no cover
+        # Speed up the tape-sampling loop with a loader-specific accelerator
+        b = registers[2]
+        loops = 0
+        pcn = registers[24] + 1
+        if self.tape_running and all(x == y or y is None for x, y in zip(memory[pcn:pcn + code_len], acc.code)):
             if registers[3] & acc.ear_mask == (self.index % 2) * acc.ear_mask:
                 delta = self.next_edge - registers[25] - acc.in_time
                 if delta >= 0:
