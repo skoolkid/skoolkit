@@ -420,11 +420,13 @@ class SimLoadTest(SkoolKitTestCase):
         code3_start = code2_start + len(code2)
         code3_end = code3_start + len(code3)
         code = [
+            243,              # DI
             221, 33, 0, 192,  # LD IX,49152
             17, 10, 0,        # LD DE,10
             55,               # SCF
             159,              # SBC A,A
-            205, 86, 5,       # CALL 1366 ; Load code2
+            8,                # EX AF,AF'
+            205, 98, 5,       # CALL 1378 ; Load code2
             17, 10, 0,        # LD DE,10
             55,               # SCF
             159,              # SBC A,A
@@ -482,9 +484,9 @@ class SimLoadTest(SkoolKitTestCase):
             'Fast loading data block: 23755,20',
             '',
             'Bytes: simloadbyt',
-            'Fast loading data block: 32768,38',
+            'Fast loading data block: 32768,40',
             '',
-            'Fast loading data block: 49152,10',
+            'Data (12 bytes)',
             '',
             'Data (12 bytes)',
             '',
@@ -677,8 +679,8 @@ class SimLoadTest(SkoolKitTestCase):
         self.assertEqual(code, snapshot[code_start:code_start + len(code)])
         self.assertEqual(code2, snapshot[code2_start:code2_end])
 
-        # CDE=649
-        exp_reg = set(('SP=65344', f'IX={code2_end}', 'IY=23610', 'PC=49156', 'E=137', 'D=2', 'C=0'))
+        # CDE=648
+        exp_reg = set(('SP=65344', f'IX={code2_end}', 'IY=23610', 'PC=49158', 'E=136', 'D=2', 'C=0'))
         self.assertLessEqual(exp_reg, set(options.reg))
 
         out_lines = self._format_output(output)
@@ -692,7 +694,7 @@ class SimLoadTest(SkoolKitTestCase):
             'Data (15 bytes)',
             '',
             'Tape finished',
-            'Simulation stopped (end of tape): PC=49156'
+            'Simulation stopped (end of tape): PC=49158'
         ]
         self.assertEqual(exp_out_lines, out_lines)
         self.assertEqual(error, '')

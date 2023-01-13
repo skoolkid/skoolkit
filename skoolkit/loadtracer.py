@@ -131,11 +131,20 @@ class LoadTracer:
         edges = self.edges
         tape_length = edges[-1] // 1000
         max_index = self.max_index
+        tstates = 0
+        accept_int = False
 
         while True:
+            t0 = tstates
             opcodes[memory[pc]]()
-            pc = registers[24]
             tstates = registers[25]
+
+            if simulator.iff2:
+                if tstates % FRAME_DURATION < t0 % FRAME_DURATION:
+                    accept_int = True
+                if accept_int and memory[pc] not in (0xF3, 0xFB):
+                    self.accept_interrupt(simulator, registers, memory)
+                    accept_int = False
 
             if self.tape_running and tstates > self.next_edge: # pragma: no cover
                 index = self.index
@@ -157,6 +166,8 @@ class LoadTracer:
                             msg = f'[{p/10:0.1f}%]'
                             write(msg + chr(8) * len(msg))
                             progress = p
+
+            pc = registers[24]
 
             if pc == stop:
                 write_line(f'Simulation stopped (PC at start address): PC={pc}')
@@ -188,6 +199,25 @@ class LoadTracer:
                 if tstates > SIM_TIMEOUT: # pragma: no cover
                     write_line(f'Simulation stopped (timed out): PC={pc}')
                     break
+
+    def accept_interrupt(self, simulator, registers, memory):
+        if simulator.imode == 2: # pragma: no cover
+            vaddr = 256 * registers[14]
+            iaddr = memory[vaddr] + 256 * memory[vaddr + 1]
+            registers[25] += 19
+        else:
+            iaddr = 56
+            registers[25] += 13
+        sp = (registers[12] - 2) % 65536
+        registers[12] = sp
+        pc = registers[24]
+        if sp > 0x3FFF:
+            memory[sp] = pc % 256
+        sp = (sp + 1) % 65536
+        if sp > 0x3FFF:
+            memory[sp] = pc // 256
+        registers[24] = iaddr
+        simulator.iff2 = 0
 
     def dec_a(self, registers, memory):
         # Speed up any
@@ -307,7 +337,9 @@ class LoadTracer:
         a = registers[A]
         data_len = len(block) - 2
 
-        # Preload the machine stack with 0x053F (as done at 0x055E)
+        # Disable interrupts (as done at 0x0559), and preload the machine stack
+        # with 0x053F (as done at 0x055E)
+        simulator.iff2 = 0
         registers[H], registers[L] = 0x05, 0x3F # SA-LD-RET
         simulator.push(registers, memory, R1, 11, 1, H, L)
 
@@ -363,37 +395,20 @@ class SimLoadTracer(LoadTracer): # pragma: no cover
         tape_length = edges[-1] // 1000
         max_index = self.max_index
         self.tape_running = True
+        tstates = 0
         accept_int = False
 
         while True:
-            t0 = registers[25]
-            opcode = memory[pc]
-            opcodes[opcode]()
-            pc = registers[24]
+            t0 = tstates
+            opcodes[memory[pc]]()
             tstates = registers[25]
 
             if simulator.iff2:
                 if tstates % FRAME_DURATION < t0 % FRAME_DURATION:
                     accept_int = True
-                if accept_int and opcode not in (0xF3, 0xFB):
-                    if simulator.imode == 2:
-                        vaddr = 256 * registers[14]
-                        iaddr = memory[vaddr] + 256 * memory[vaddr + 1]
-                        registers[25] += 19
-                    else:
-                        iaddr = 56
-                        registers[25] += 13
-                    sp = (registers[12] - 2) % 65536
-                    registers[12] = sp
-                    if sp > 0x3FFF:
-                        memory[sp] = pc % 256
-                    sp = (sp + 1) % 65536
-                    if sp > 0x3FFF:
-                        memory[sp] = pc // 256
-                    registers[24] = iaddr
-                    pc = iaddr
+                if accept_int and memory[pc] not in (0xF3, 0xFB):
+                    self.accept_interrupt(simulator, registers, memory)
                     accept_int = False
-                    simulator.iff2 = 0
 
             if tstates > self.next_edge:
                 index = self.index
@@ -411,6 +426,8 @@ class SimLoadTracer(LoadTracer): # pragma: no cover
                         msg = f'[{p/10:0.1f}%]'
                         write(msg + chr(8) * len(msg))
                         progress = p
+
+            pc = registers[24]
 
             if pc == stop:
                 write_line(f'Simulation stopped (PC at start address): PC={pc}')

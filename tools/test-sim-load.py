@@ -61,7 +61,7 @@ class SimLoadTest(unittest.TestCase):
             'https://www.worldofspectrum.org/pub/sinclair/games/s/ShadowDancer.tzx.zip',
             'Shadow Dancer - Side 1.tzx',
             '2515ea4bb465b2834a636007ed3b9138',
-            'bfa6fa51d5509dd3f278dd6cd6564195',
+            'c8cc738f70656021d61db52b869fc4c2',
             '--sim-load --accelerator alkatraz2 --start 24000'
         )
 
@@ -88,7 +88,7 @@ class SimLoadTest(unittest.TestCase):
             'https://www.worldofspectrum.org/pub/sinclair/games/s/Satan.tzx.zip',
             'Satan - Side 1.tzx',
             '18afd7805b83ebc4974ccd8637d8a7b3',
-            'b4ef1345a3dee1efd27c11e1fc590ace',
+            '159046940046fc9b2a18cc8c0667dc48',
             '--sim-load --accelerator dinaload --start 64031'
         )
 
@@ -97,7 +97,7 @@ class SimLoadTest(unittest.TestCase):
             'https://www.worldofspectrum.org/pub/sinclair/games/b/BrianBloodaxe.tzx.zip',
             'Brian Bloodaxe.tzx',
             '01b9b9454fc40eec0db0ba16ef2e6552',
-            '423156b42f6f4ca4f50aa47a099c7432',
+            '15f9b29d0e807d25f40a3c5d7815d539',
             '--sim-load --accelerator edge'
         )
 
@@ -124,7 +124,7 @@ class SimLoadTest(unittest.TestCase):
             'https://www.worldofspectrum.org/pub/sinclair/games/b/BlackLamp.tzx.zip',
             'Black Lamp.tzx',
             'fc9dd17a32679eeff80504af26e81d9b',
-            '88fa2befca525004ae0aec8e6ac25ab6',
+            'c478224e4c0fad02863d829a7aa2ba81',
             '--sim-load --accelerator bleepload --start 32768'
         )
 
@@ -133,7 +133,7 @@ class SimLoadTest(unittest.TestCase):
             'https://www.worldofspectrum.org/pub/sinclair/games/c/CliffHanger.tzx.zip',
             'Cliff Hanger.tzx',
             '08b2d3867c9478e446c49217595239be',
-            '9a899546787a31eae484b360c5e8b0ae',
+            '325b4b3eb08a2099eef495b1a41734b0',
             '--sim-load --accelerator flash-loader --start 25660'
         )
 
@@ -160,7 +160,7 @@ class SimLoadTest(unittest.TestCase):
             'https://www.worldofspectrum.org/pub/sinclair/games/s/SpaceCrusade.tzx.zip',
             'Space Crusade - 48K.tzx',
             '48cdfc186f94bf6382da93cbc4b70810',
-            '14fcd61588554a50a96e4d1988a8e798',
+            'd36a53524bff5b19aff82701e8787789',
             '--sim-load --accelerator gremlin --start 26807'
         )
 
@@ -169,7 +169,7 @@ class SimLoadTest(unittest.TestCase):
             'https://www.worldofspectrum.org/pub/sinclair/games/g/GalacticPatrol.tzx.zip',
             'Galactic Patrol.tzx',
             '94827dbfba53fa26396d2d218990ed5b',
-            '492741f99234886dd4f4275f506deb5b',
+            'ac4a195c41d66be33a3586c7580bca3f',
             '--sim-load'
         )
 
@@ -178,7 +178,7 @@ class SimLoadTest(unittest.TestCase):
             'https://www.worldofspectrum.org/pub/sinclair/games/c/Cybernoid.tzx.zip',
             'Cybernoid.tzx',
             '50921a76ee625feb31c4195aac63d020',
-            '300bc544ff0f6194156b49eec4887780',
+            '150dbd5d8ae7fa11a9c4ce8c2394925d',
             '--sim-load --accelerator hewson-slowload --start 65105'
         )
 
@@ -214,7 +214,7 @@ class SimLoadTest(unittest.TestCase):
             'https://www.worldofspectrum.org/pub/sinclair/games/c/ContactSamCruise.tzx.zip',
             'Contact Sam Cruise.tzx',
             '873cb6de4edc2aa75b40b838981c6f72',
-            '403cfc4f5e3a1f3161e6398d39d4d797',
+            '0d253fcd2757a22c30b98bebcb7a957e',
             '--sim-load --accelerator rom --start 61671'
         )
 
@@ -224,7 +224,7 @@ class SimLoadTest(unittest.TestCase):
             'The Untouchables - Side 1.tzx',
             '7aed7cb0aa7a9be5a4c953eec1fc0dd1',
             '3ddab5e5ade1fc259b8f64369698a077',
-            '--sim-load-all --accelerator paul-owens --start 32839'
+            '--sim-load --accelerator paul-owens --start 32839'
         )
 
     def test_poliload(self):
@@ -232,7 +232,7 @@ class SimLoadTest(unittest.TestCase):
             'https://www.worldofspectrum.org/pub/sinclair/games/a/AstroMarineCorps.tzx.zip',
             'Astro Marine Corps - Side 1.tzx',
             'b31fd6232a865fbef93db8700ceeb931',
-            '0f8710bdf41fe3235a5cf4d8d8bbdd76',
+            'ad9501d8789995943be482a27bc85943',
             '--sim-load --accelerator poliload --start 60928'
         )
 
@@ -259,7 +259,7 @@ class SimLoadTest(unittest.TestCase):
             'https://www.worldofspectrum.org/pub/sinclair/games/e/Elite.tzx.zip',
             'Elite - 48k.tzx',
             'f73379181e1a413ac6c22ffd4cc8122a',
-            '9e97cd1fcc8c760fa26d0e82a6ba98e6',
+            'ce70e90be11b5d68dad07dc98eb10e40',
             '--sim-load --accelerator softlock --start 49699'
         )
 
@@ -295,7 +295,7 @@ class SimLoadTest(unittest.TestCase):
             'https://www.worldofspectrum.org/pub/sinclair/games/o/OutRun.tzx.zip',
             'Outrun - Tape 1 - Side 1.tzx',
             '78fb2a6b82ca2dc7021a5762ea1491fb',
-            '9c55792ec44f90b6d4717f8cceed91d2',
+            '5128adccfc72ce90825929556a6afb67',
             '--sim-load --accelerator speedlock --start 44337'
         )
 
@@ -304,7 +304,7 @@ class SimLoadTest(unittest.TestCase):
             'https://www.worldofspectrum.org/pub/sinclair/games/h/Hysteria.tzx.zip',
             'Hysteria.tzx',
             '2f4485c0d0e98758f7da09b322ca0a0c',
-            '541444a0b93ff969bec20d013ef43932',
+            'b80e3bf7f678732a5b6e511a8094f8c2',
             '--sim-load --accelerator speedlock --start 45066'
         )
 
@@ -313,7 +313,7 @@ class SimLoadTest(unittest.TestCase):
             'https://www.worldofspectrum.org/pub/sinclair/games/v/Vixen.tzx.zip',
             'Vixen - Side A.tzx',
             '3075d03f63d20acf2ad029265f6f1746',
-            'b424bb0f28cb05dbaf84afcd1e2a744c',
+            'e51a85f6d3c043d1a62d09fad3a61b97',
             '--sim-load --accelerator speedlock --start 51473'
         )
 
@@ -322,7 +322,7 @@ class SimLoadTest(unittest.TestCase):
             'https://www.worldofspectrum.org/pub/sinclair/games/a/Aaargh.tzx.zip',
             'Aaargh! - Side 1.tzx',
             'cfe091069af70b7ad7eae377665ce284',
-            '7ddc438e3f8e3a5635b3e19615227ace',
+            '41a96f08fbab265954501658e00ab43a',
             '--sim-load --accelerator speedlock --start 65283'
         )
 
@@ -331,7 +331,7 @@ class SimLoadTest(unittest.TestCase):
             'https://www.worldofspectrum.org/pub/sinclair/games/m/ManicMiner.tzx.zip',
             'Manic Miner.tzx',
             '2750ccb6c240d14516c448e94f8d200e',
-            'f108f54410e9d7047b54bfa6cd25ce00',
+            '24bb22d264e97d3abf9117598ed83587',
             '--sim-load'
         )
 

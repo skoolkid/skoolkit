@@ -8,9 +8,11 @@ Changelog
   blocks (block types 0x11 and 0x14)
 * Added the ``--accelerator`` option to :ref:`tap2sna.py` (to speed up
   simulation of the tape-sampling loop in specific types of loading routine)
+* The ``--sim-load`` option of :ref:`tap2sna.py` now simulates the execution of
+  interrupt routines when interrupts are enabled
 * Added the ``--sim-load-all`` option to :ref:`tap2sna.py` (to simulate a 48K
   ZX Spectrum running LOAD "" without fast loading when the ROM load routine is
-  called, and with interrupt routines called when interrupts are enabled)
+  called)
 * :ref:`tapinfo.py` now shows full info for TZX block types 0x10 (standard
   speed data) and 0x11 (turbo speed data)
 * Fixed how the Z80 instruction set simulator handles a CALL instruction that
