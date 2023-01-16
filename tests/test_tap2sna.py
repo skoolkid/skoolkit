@@ -782,10 +782,8 @@ class Tap2SnaTest(SkoolKitTestCase):
         exp_out_lines = [
             'Program: simloadbas',
             'Fast loading data block: 23755,20',
-            '',
             'Bytes: simloadbyt',
             'Fast loading data block: 32768,2',
-            '',
             'Tape finished',
             'Simulation stopped (PC in RAM): PC=32768',
         ]
@@ -811,7 +809,6 @@ class Tap2SnaTest(SkoolKitTestCase):
         exp_out_lines = [
             'Bytes: CODE block    ',
             'Fast loading data block: 65360,2',
-            '',
             'Tape finished',
             'Simulation stopped (PC in RAM): PC=32896',
         ]
@@ -833,10 +830,8 @@ class Tap2SnaTest(SkoolKitTestCase):
         exp_out_lines = [
             'Program: simloadbas',
             'Fast loading data block: 23755,20',
-            '',
             'Bytes: simloadbyt',
             'Fast loading data block: 32768,2',
-            '',
             'Tape finished',
             'Simulation stopped (PC at start address): PC=32769',
         ]
@@ -883,13 +878,10 @@ class Tap2SnaTest(SkoolKitTestCase):
         exp_out_lines = [
             'Program: simloadbas',
             'Fast loading data block: 23755,29',
-            '',
             'Character array: characters',
             'Fast loading data block: 23787,8',
-            '',
             'Bytes: simloadbyt',
             'Fast loading data block: 32768,2',
-            '',
             'Tape finished',
             'Simulation stopped (PC in RAM): PC=32768',
         ]
@@ -937,13 +929,10 @@ class Tap2SnaTest(SkoolKitTestCase):
         exp_out_lines = [
             'Program: simloadbas',
             'Fast loading data block: 23755,28',
-            '',
             'Number array: numbers   ',
             'Fast loading data block: 23786,16',
-            '',
             'Bytes: simloadbyt',
             'Fast loading data block: 32768,2',
-            '',
             'Tape finished',
             'Simulation stopped (PC in RAM): PC=32768',
         ]
@@ -993,12 +982,9 @@ class Tap2SnaTest(SkoolKitTestCase):
         exp_out_lines = [
             'Program: simloadbas',
             'Fast loading data block: 23755,20',
-            '',
             'Bytes: simloadbyt',
             'Fast loading data block: 32768,14',
-            '',
             'Fast loading data block: 49152,2',
-            '',
             'Tape finished',
             'Simulation stopped (PC in RAM): PC=49152',
         ]
@@ -1051,10 +1037,8 @@ class Tap2SnaTest(SkoolKitTestCase):
         exp_out_lines = [
             'Program: simloadbas',
             'Fast loading data block: 23755,20',
-            '',
             'Bytes: simloadbyt',
             'Fast loading data block: 32768,2',
-            '',
             'Tape finished',
             'Simulation stopped (PC in RAM): PC=32768',
         ]
@@ -1114,12 +1098,9 @@ class Tap2SnaTest(SkoolKitTestCase):
         exp_out_lines = [
             'Program: simloadbas',
             'Fast loading data block: 23755,20',
-            '',
             'Bytes: simloadbyt',
             'Fast loading data block: 32768,14',
-            '',
             'Fast loading data block: 49152,5',
-            '',
             'Tape finished',
             'Simulation stopped (PC in RAM): PC=49152'
         ]
@@ -1166,17 +1147,12 @@ class Tap2SnaTest(SkoolKitTestCase):
         out_lines = output.strip().split('\n')
         exp_out_lines = [
             'Data block (18 bytes) [skipped]',
-            '',
             'Program: simloadbas',
             'Fast loading data block: 23755,20',
-            '',
             'Bytes: simloadbyt',
             'Fast loading data block: 32768,18',
-            '',
             'Bytes: IGNORE ME  [skipped]',
-            '',
             'Fast loading data block: 49152,2',
-            '',
             'Tape finished',
             'Simulation stopped (PC in RAM): PC=32780',
         ]
@@ -1200,10 +1176,8 @@ class Tap2SnaTest(SkoolKitTestCase):
         exp_out_lines = [
             'Program: simloadbas',
             'Fast loading data block: 23755,20',
-            '',
             'Bytes: simloadbyt',
             'Fast loading data block: 32768,2',
-            '',
             'Tape finished',
             'Simulation stopped (PC in RAM): PC=32768',
         ]
@@ -1246,10 +1220,8 @@ class Tap2SnaTest(SkoolKitTestCase):
         exp_out_lines = [
             'Program: simloadbas',
             'Fast loading data block: 23755,26',
-            '',
             'Bytes: simloadbyt',
             'Fast loading data block: 32768,1',
-            '',
             'Tape finished',
             'Simulation stopped (PC in RAM): PC=32768',
         ]
@@ -1273,10 +1245,8 @@ class Tap2SnaTest(SkoolKitTestCase):
         exp_out_lines = [
             'Program: simloadbas',
             'Fast loading data block: 23755,20',
-            '',
             'Bytes: simloadbyt',
             'Fast loading data block: 32768,4',
-            '',
             'Tape finished',
             'Simulation stopped (PC at start address): PC=32771',
         ]
@@ -1303,10 +1273,8 @@ class Tap2SnaTest(SkoolKitTestCase):
         exp_out_lines = [
             'Program: simloadbas',
             'Fast loading data block: 23755,20',
-            '',
             'Bytes: simloadbyt',
             'Fast loading data block: 32768,2',
-            '',
             'Tape finished',
             'Simulation stopped (PC in RAM): PC=32768',
         ]
@@ -1327,10 +1295,8 @@ class Tap2SnaTest(SkoolKitTestCase):
         exp_out_lines = [
             'Program: simloadbas',
             'Fast loading data block: 23755,20',
-            '',
             'Bytes: simloadbyt',
             'Fast loading data block: 32768,2',
-            '',
             'Tape finished',
             'Simulation stopped (PC in RAM): PC=32768',
         ]
@@ -1351,10 +1317,8 @@ class Tap2SnaTest(SkoolKitTestCase):
         exp_out_lines = [
             'Program: simloadbas',
             'Fast loading data block: 23755,20',
-            '',
             'Bytes: simloadbyt',
             'Fast loading data block: 32768,2',
-            '',
             'Tape finished',
             'Simulation stopped (PC in RAM): PC=32768',
         ]
@@ -1375,10 +1339,8 @@ class Tap2SnaTest(SkoolKitTestCase):
         exp_out_lines = [
             'Program: simloadbas',
             'Fast loading data block: 23755,20',
-            '',
             'Bytes: simloadbyt',
             'Fast loading data block: 32768,2',
-            '',
             'Tape finished',
             'Simulation stopped (PC in RAM): PC=32768',
         ]
@@ -1413,7 +1375,6 @@ class Tap2SnaTest(SkoolKitTestCase):
         exp_out_lines = [
             'Program: simloadbas',
             'Fast loading data block: 23755,8',
-            '',
             'Tape finished'
         ]
         self.assertEqual(exp_out_lines, out_lines)

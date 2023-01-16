@@ -337,7 +337,7 @@ class LoadTracer:
                     registers[T] = self.edges[index]
                     length = len(self.blocks[self.block_index])
                     if length:
-                        write_line(f'Data ({length} bytes)\n')
+                        write_line(f'Data ({length} bytes)')
                 elif index == self.max_index:
                     # Final edge, so stop the tape
                     self.next_block(registers[T])
@@ -385,7 +385,7 @@ class LoadTracer:
         if a == block[0]:
             skipped = ''
         else:
-            skipped = ' [skipped]\n'
+            skipped = ' [skipped]'
         if block[0] == 0 and data_len >= 17 and block[1] <= 3:
             name = ''.join(self.text.get_chars(b) for b in block[2:12])
             if block[1] == 3:
@@ -399,7 +399,7 @@ class LoadTracer:
         elif skipped:
             write_line(f'Data block ({data_len} bytes){skipped}')
         else:
-            write_line(f'Fast loading data block: {ix},{de}\n')
+            write_line(f'Fast loading data block: {ix},{de}')
 
         if skipped:
             registers[F] = 0x00 # Reset carry flag: error

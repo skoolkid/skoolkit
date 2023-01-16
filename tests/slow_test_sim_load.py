@@ -127,12 +127,9 @@ class SimLoadTest(SkoolKitTestCase):
         exp_out_lines = [
             'Program: simloadbas',
             'Fast loading data block: 23755,20',
-            '',
             'Bytes: simloadbyt',
             'Fast loading data block: 32759,184',
-            '',
             'Data (12 bytes)',
-            '',
             'Tape finished',
             'Simulation stopped (end of tape): PC=32925'
         ]
@@ -175,12 +172,9 @@ class SimLoadTest(SkoolKitTestCase):
         exp_out_lines = [
             'Program: simloadbas',
             'Fast loading data block: 23755,20',
-            '',
             'Bytes: simloadbyt',
             'Fast loading data block: 32759,184',
-            '',
             'Data (258 bytes)',
-            '',
             'Tape finished',
             'Simulation stopped (end of tape): PC=32925'
         ]
@@ -223,12 +217,9 @@ class SimLoadTest(SkoolKitTestCase):
         exp_out_lines = [
             'Program: simloadbas',
             'Fast loading data block: 23755,20',
-            '',
             'Bytes: simloadbyt',
             'Fast loading data block: 32759,184',
-            '',
             'Data (12 bytes)',
-            '',
             'Tape finished',
             'Simulation stopped (end of tape): PC=32925'
         ]
@@ -294,12 +285,9 @@ class SimLoadTest(SkoolKitTestCase):
         exp_out_lines = [
             'Program: simloadbas',
             'Fast loading data block: 23755,20',
-            '',
             'Bytes: simloadbyt',
             'Fast loading data block: 32759,184',
-            '',
             'Data (12 bytes)',
-            '',
             'Tape finished',
             'Simulation stopped (end of tape): PC=32925'
         ]
@@ -393,18 +381,12 @@ class SimLoadTest(SkoolKitTestCase):
         exp_out_lines = [
             'Program: simloadbas',
             'Fast loading data block: 23755,20',
-            '',
             'Bytes: simloadbyt',
             'Fast loading data block: 32753,190',
-            '',
             'Data (1 bytes)',
-            '',
             'Data (5 bytes)',
-            '',
             'Data (5 bytes)',
-            '',
             'Data (1 bytes)',
-            '',
             'Tape finished',
             'Simulation stopped (PC at start address): PC=49152'
         ]
@@ -482,14 +464,10 @@ class SimLoadTest(SkoolKitTestCase):
         exp_out_lines = [
             'Program: simloadbas',
             'Fast loading data block: 23755,20',
-            '',
             'Bytes: simloadbyt',
             'Fast loading data block: 32768,40',
-            '',
             'Data (12 bytes)',
-            '',
             'Data (12 bytes)',
-            '',
             'Tape finished',
             'Simulation stopped (PC at start address): PC=49152'
         ]
@@ -546,14 +524,10 @@ class SimLoadTest(SkoolKitTestCase):
         exp_out_lines = [
             'Program: simloadbas',
             'Fast loading data block: 23755,20',
-            '',
             'Bytes: simloadbyt',
             'Fast loading data block: 32768,34',
-            '',
             'Fast loading data block: 49152,4',
-            '',
             'Fast loading data block: 49156,4',
-            '',
             'Tape finished',
             'Simulation stopped (PC at start address): PC=49152'
         ]
@@ -620,14 +594,10 @@ class SimLoadTest(SkoolKitTestCase):
         exp_out_lines = [
             'Program: simloadbas',
             'Fast loading data block: 23755,20',
-            '',
             'Bytes: simloadbyt',
             'Fast loading data block: 32757,186',
-            '',
             'Data (25 bytes)',
-            '',
             'Data (3 bytes)',
-            '',
             'Tape finished',
             'Simulation stopped (PC at start address): PC=65535'
         ]
@@ -687,12 +657,9 @@ class SimLoadTest(SkoolKitTestCase):
         exp_out_lines = [
             'Program: simloadbas',
             'Fast loading data block: 23755,20',
-            '',
             'Bytes: simloadbyt',
             'Fast loading data block: 32757,186',
-            '',
             'Data (15 bytes)',
-            '',
             'Tape finished',
             'Simulation stopped (end of tape): PC=49158'
         ]
@@ -736,12 +703,9 @@ class SimLoadTest(SkoolKitTestCase):
         exp_out_lines = [
             'Program: simloadbas',
             'Fast loading data block: 23755,20',
-            '',
             'Bytes: simloadbyt',
             'Fast loading data block: 32768,17',
-            '',
             'Fast loading data block: 49152,10',
-            '',
             'Tape finished',
             'Simulation stopped (PC at start address): PC=49152'
         ]
@@ -771,7 +735,6 @@ class SimLoadTest(SkoolKitTestCase):
         exp_out_lines = [
             'Program: simloadbas',
             'Fast loading data block: 23755,15',
-            '',
             'Tape finished',
             'Simulation stopped (tape ended 1 second ago): PC=10355',
         ]
@@ -810,10 +773,8 @@ class SimLoadTest(SkoolKitTestCase):
         exp_out_lines = [
             'Program: simloadbas',
             'Fast loading data block: 23755,27',
-            '',
             'Bytes: simloadbyt',
             'Fast loading data block: 32768,1',
-            '',
             'Tape finished',
             'Simulation stopped (PC in RAM): PC=32768',
         ]
@@ -883,14 +844,10 @@ class SimLoadTest(SkoolKitTestCase):
         exp_out_lines = [
             'Program: simloadbas',
             'Fast loading data block: 23755,20',
-            '',
             'Bytes: simloadbyt',
             'Fast loading data block: 32768,24',
-            '',
             'Data (6 bytes)',
-            '',
             'Fast loading data block: 49156,4',
-            '',
             'Tape finished',
             'Simulation stopped (PC at start address): PC=49152'
         ]
@@ -918,7 +875,6 @@ class SimLoadTest(SkoolKitTestCase):
         exp_out_lines = [
             'Program: simloadbas',
             'Fast loading data block: 23755,6',
-            '',
             'Simulation stopped (timed out): PC=1343',
         ]
         self.assertEqual(exp_out_lines, out_lines)
