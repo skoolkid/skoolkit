@@ -1,4 +1,4 @@
-# Copyright 2013, 2015-2018, 2020-2022 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2013, 2015-2018, 2020-2023 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -226,10 +226,10 @@ def _ram_operations(snapshot, ram_ops, blocks=None):
 def sim_load(blocks, options):
     if options.accelerator:
         accelerator = ACCELERATORS.get(options.accelerator)
-        if accelerator is None:
+        if options.accelerator != 'none' and accelerator is None:
             raise SkoolKitError(f'Unrecognised accelerator: {options.accelerator}')
     else:
-        accelerator = None
+        accelerator = set(ACCELERATORS.values())
     snapshot = [0] * 65536
     rom = read_bin_file(ROM48, 16384)
     snapshot[:len(rom)] = rom
@@ -598,8 +598,9 @@ def _print_accelerator_help():
     print(f"""
 Usage: --accelerator NAME
 
-Use an accelerator to speed up the simulation of the tape-sampling loop in a
-custom loading routine. Recognised accelerator names are:
+Use a specific accelerator to speed up the simulation of the tape-sampling loop
+in a loading routine. (By default, an appropriate accelerator is automatically
+selected, if available.) Recognised accelerator names are:
 
   {names}
 """.lstrip())
@@ -714,7 +715,7 @@ def main(args):
     parser.add_argument('args', help=argparse.SUPPRESS, nargs='*')
     group = parser.add_argument_group('Options')
     group.add_argument('--accelerator', metavar='NAME',
-                       help="Speed up simulation of the tape-sampling loop. "
+                       help="Use a specific tape-sampling loop accelerator. "
                             "Run with 'help' as the NAME for more information.")
     group.add_argument('-d', '--output-dir', dest='output_dir', metavar='DIR',
                        help="Write the snapshot file in this directory.")

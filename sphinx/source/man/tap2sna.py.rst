@@ -19,8 +19,8 @@ instead of (or as well as) being given on the command line.
 OPTIONS
 =======
 --accelerator `NAME`
-  Use an accelerator to speed up the simulation of the tape-sampling loop in a
-  custom loading routine. Do ``--accelerator help`` for more information, or
+  Use a specific accelerator to speed up the simulation of the tape-sampling
+  loop in a loading routine. Do ``--accelerator help`` for more information, or
   see the section on ``ACCELERATORS`` below.
 
 -d, --output-dir `DIR`
@@ -95,9 +95,9 @@ program counter) in the simulator are used to populate the Z80 snapshot.
 
 ACCELERATORS
 ============
-The ``--accelerator`` option specifies an accelerator to use to speed up the
-simulation of the tape-sampling loop in a custom loading routine. Recognised
-accelerator names are:
+By default, ``--sim-load`` automatically selects an appropriate accelerator (if
+available) from the list below to speed up the simulation of the tape-sampling
+loop in a loading routine:
 
 |
 |  ``alkatraz`` - Alkatraz
@@ -116,6 +116,7 @@ accelerator names are:
 |  ``hewson-slowload`` - Hewson Slowload
 |  ``injectaload`` - Injectaload
 |  ``microsphere`` - Back to Skool, Skool Daze, Sky Ranger
+|  ``none`` - no accelerator
 |  ``paul-owens`` - Paul Owens Protection System
 |  ``poliload`` - Poliload
 |  ``power-load`` - Power-Load
@@ -124,6 +125,10 @@ accelerator names are:
 |  ``softlock`` - SoftLock
 |  ``speedlock`` - Speedlock (all versions)
 |  ``zydroload`` - Zydroload
+
+The ``--accelerator`` option may be used either to specify a particular
+accelerator (which may produce a faster simulated LOAD), or to disable
+acceleration entirely (``none``).
 
 CALL OPERATIONS
 ===============

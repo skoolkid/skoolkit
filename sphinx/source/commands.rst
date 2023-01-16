@@ -1271,7 +1271,7 @@ To list the options supported by `tap2sna.py`, run it with no arguments::
   well as) being given on the command line.
 
   Options:
-    --accelerator NAME    Speed up simulation of the tape-sampling loop. Run
+    --accelerator NAME    Use a specific tape-sampling loop accelerator. Run
                           with 'help' as the NAME for more information.
     -d DIR, --output-dir DIR
                           Write the snapshot file in this directory.
@@ -1333,9 +1333,9 @@ A simulated LOAD can also be aborted by pressing Ctrl-C. When a simulated LOAD
 has completed or been aborted, the values of the registers (including the
 program counter) in the simulator are used to populate the Z80 snapshot.
 
-The ``--accelerator`` option may be used to speed up simulation of the
-tape-sampling loop in specific types of custom loader. The available
-accelerators are:
+By default, ``--sim-load`` automatically selects an appropriate accelerator (if
+available) from the list below to speed up the simulation of the tape-sampling
+loop in a loading routine:
 
 * ``alkatraz`` (Alkatraz)
 * ``alkatraz2`` (Alkatraz 2)
@@ -1353,6 +1353,7 @@ accelerators are:
 * ``hewson-slowload`` (Hewson Slowload)
 * ``injectaload`` (Injectaload)
 * ``microsphere`` (Back to Skool, Skool Daze, Sky Ranger)
+* ``none`` (no accelerator)
 * ``paul-owens`` (Paul Owens Protection System)
 * ``poliload`` (Poliload)
 * ``power-load`` (Power-Load)
@@ -1361,6 +1362,10 @@ accelerators are:
 * ``softlock`` (SoftLock)
 * ``speedlock`` (Speedlock - all versions)
 * ``zydroload`` (Zydroload)
+
+The ``--accelerator`` option may be used either to specify a particular
+accelerator (which may produce a faster simulated LOAD), or to disable
+acceleration entirely (``none``).
 
 In addition to loading specific blocks, the ``--ram`` option can also be used
 to move blocks of bytes from one location to another, POKE values into
