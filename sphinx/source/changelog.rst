@@ -12,9 +12,8 @@ Changelog
 * Added the ``--accelerator`` option to :ref:`tap2sna.py` (to specify a
   particular tape-sampling loop accelerator, or to disable acceleration
   entirely)
-* Added the ``--sim-load-all`` option to :ref:`tap2sna.py` (to simulate a 48K
-  ZX Spectrum running LOAD "" without fast loading when the ROM load routine is
-  called)
+* Added the ``--no-fast-load`` option to :ref:`tap2sna.py` (to disable fast
+  loading when the ROM load routine is called during a simulated LOAD)
 * :ref:`tapinfo.py` now shows full info for TZX block types 0x10 (standard
   speed data) and 0x11 (turbo speed data)
 * Fixed how the Z80 instruction set simulator handles a CALL instruction that

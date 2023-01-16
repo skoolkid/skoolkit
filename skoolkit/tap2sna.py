@@ -247,7 +247,7 @@ def sim_load(blocks, options):
     snapshot[0xFF58:] = snapshot[0x3E08:0x3EB0] # UDGs
     config = {'fast_djnz': True, 'fast_ldir': True}
     simulator = Simulator(snapshot, {'SP': 0xFF50}, config=config)
-    if options.sim_load_all:
+    if options.no_fast_load:
         tracer = SimLoadTracer(simulator, blocks, accelerator) # pragma: no cover
     else:
         tracer = LoadTracer(simulator, blocks, accelerator)
@@ -721,6 +721,8 @@ def main(args):
                        help="Write the snapshot file in this directory.")
     group.add_argument('-f', '--force', action='store_true',
                        help="Overwrite an existing snapshot.")
+    group.add_argument('--no-fast-load', action='store_true',
+                       help='Disable fast loading.')
     group.add_argument('-p', '--stack', dest='stack', metavar='STACK', type=integer,
                        help="Set the stack pointer.")
     group.add_argument('--ram', dest='ram_ops', metavar='OPERATION', action='append', default=[],
@@ -732,10 +734,7 @@ def main(args):
     group.add_argument('-s', '--start', dest='start', metavar='START', type=integer,
                        help="Set the start address to JP to.")
     group.add_argument('--sim-load', action='store_true',
-                       help='Simulate a 48K ZX Spectrum running LOAD "" '
-                            '(with fast loading when the ROM load routine is called).')
-    group.add_argument('--sim-load-all', action='store_true',
-                       help='Simulate a 48K ZX Spectrum running LOAD "" (no fast loading).')
+                       help='Simulate a 48K ZX Spectrum running LOAD "".')
     group.add_argument('--state', dest='state', metavar='name=value', action='append', default=[],
                        help="Set a hardware state attribute. Do '--state help' for more information. "
                             "This option may be used multiple times.")
@@ -765,8 +764,6 @@ def main(args):
         namespace.reg.append('sp={}'.format(namespace.stack))
     if namespace.start is not None:
         namespace.reg.append('pc={}'.format(namespace.start))
-    if namespace.sim_load_all:
-        namespace.sim_load = True # pragma: no cover
     if namespace.force or not os.path.isfile(z80):
         try:
             make_z80(url, namespace, z80)

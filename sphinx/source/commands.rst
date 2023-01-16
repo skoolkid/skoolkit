@@ -1276,6 +1276,7 @@ To list the options supported by `tap2sna.py`, run it with no arguments::
     -d DIR, --output-dir DIR
                           Write the snapshot file in this directory.
     -f, --force           Overwrite an existing snapshot.
+    --no-fast-load        Disable fast loading.
     -p STACK, --stack STACK
                           Set the stack pointer.
     --ram OPERATION       Perform a load operation or otherwise modify the
@@ -1285,10 +1286,7 @@ To list the options supported by `tap2sna.py`, run it with no arguments::
                           information. This option may be used multiple times.
     -s START, --start START
                           Set the start address to JP to.
-    --sim-load            Simulate a 48K ZX Spectrum running LOAD "" (with fast
-                          loading when the ROM load routine is called).
-    --sim-load-all        Simulate a 48K ZX Spectrum running LOAD "" (no fast
-                          loading).
+    --sim-load            Simulate a 48K ZX Spectrum running LOAD "".
     -u AGENT, --user-agent AGENT
                           Set the User-Agent header.
     -V, --version         Show SkoolKit version number and exit.
@@ -1323,10 +1321,8 @@ conditions is satisfied:
 * more than one second of simulated Z80 CPU time has elapsed since the end of
   the tape was reached
 
-Another alternative is the ``--sim-load-all`` option, which also simulates a
-freshly booted 48K ZX Spectrum running LOAD "" (or LOAD ""CODE), but does not
-take a shortcut when the ROM's load routine is called. When ``--sim-load-all``
-is used, simulation continues until either the program counter hits the start
+Fast loading can be disabled by using the ``--no-fast-load`` option. In that
+case, simulation continues until either the program counter hits the start
 address given by the ``--start`` option, or the end of the tape is reached.
 
 A simulated LOAD can also be aborted by pressing Ctrl-C. When a simulated LOAD
@@ -1403,7 +1399,7 @@ given on the command line.
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
-| 8.9     | Added the ``--accelerator`` and ``--sim-load-all`` options; added |
+| 8.9     | Added the ``--accelerator`` and ``--no-fast-load`` options; added |
 |         | support for TZX loops, pauses, and unused bits in data blocks     |
 +---------+-------------------------------------------------------------------+
 | 8.8     | The ``--sim-load`` option performs any ``call/move/poke/sysvars`` |
