@@ -91,6 +91,15 @@ class SimLoadTest(SkoolKitTestCase):
                 out_lines.append(line.rstrip())
         return out_lines
 
+    def _test_sim_load(self, args, exp_data, exp_reg, exp_output):
+        output, error = self.run_tap2sna(args)
+        for data, addr in exp_data:
+            self.assertEqual(data, snapshot[addr:addr + len(data)])
+        self.assertLessEqual(exp_reg, set(options.reg))
+        out_lines = self._format_output(output)
+        self.assertEqual(exp_output, out_lines)
+        self.assertEqual(error, '')
+
     @patch.object(tap2sna, '_write_z80', mock_write_z80)
     def test_custom_standard_speed_loader(self):
         code2 = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
@@ -114,17 +123,14 @@ class SimLoadTest(SkoolKitTestCase):
             create_tap_data_block(code2)
         ]
         tapfile = self._write_tap(blocks)
-        z80file = 'out.z80'
-        output, error = self.run_tap2sna(f'--sim-load {tapfile} {z80file}')
 
-        self.assertEqual(basic_data, snapshot[23755:23755 + len(basic_data)])
-        self.assertEqual(code, snapshot[code_start:code_start + len(code)])
-        self.assertEqual(code2, snapshot[code2_start:code2_end])
+        exp_data = (
+            (basic_data, 23755),
+            (code, code_start),
+            (code2, code2_start)
+        )
         exp_reg = set(('SP=65340', f'IX={code2_end}', 'IY=23610', 'PC=32925'))
-        self.assertLessEqual(exp_reg, set(options.reg))
-
-        out_lines = self._format_output(output)
-        exp_out_lines = [
+        exp_output = [
             'Program: simloadbas',
             'Fast loading data block: 23755,20',
             'Bytes: simloadbyt',
@@ -133,8 +139,7 @@ class SimLoadTest(SkoolKitTestCase):
             'Tape finished',
             'Simulation stopped (end of tape): PC=32925'
         ]
-        self.assertEqual(exp_out_lines, out_lines)
-        self.assertEqual(error, '')
+        self._test_sim_load(f'--sim-load {tapfile} out.z80', exp_data, exp_reg, exp_output)
 
     @patch.object(tap2sna, '_write_z80', mock_write_z80)
     def test_custom_standard_speed_loader_with_accelerator(self):
@@ -159,17 +164,14 @@ class SimLoadTest(SkoolKitTestCase):
             create_tap_data_block(code2)
         ]
         tapfile = self._write_tap(blocks)
-        z80file = 'out.z80'
-        output, error = self.run_tap2sna(f'--accelerator rom --sim-load {tapfile} {z80file}')
 
-        self.assertEqual(basic_data, snapshot[23755:23755 + len(basic_data)])
-        self.assertEqual(code, snapshot[code_start:code_start + len(code)])
-        self.assertEqual(code2, snapshot[code2_start:code2_end])
+        exp_data = (
+            (basic_data, 23755),
+            (code, code_start),
+            (code2, code2_start)
+        )
         exp_reg = set(('SP=65340', f'IX={code2_end}', 'IY=23610', 'PC=32925'))
-        self.assertLessEqual(exp_reg, set(options.reg))
-
-        out_lines = self._format_output(output)
-        exp_out_lines = [
+        exp_output = [
             'Program: simloadbas',
             'Fast loading data block: 23755,20',
             'Bytes: simloadbyt',
@@ -178,8 +180,7 @@ class SimLoadTest(SkoolKitTestCase):
             'Tape finished',
             'Simulation stopped (end of tape): PC=32925'
         ]
-        self.assertEqual(exp_out_lines, out_lines)
-        self.assertEqual(error, '')
+        self._test_sim_load(f'--sim-load --accelerator rom {tapfile} out.z80', exp_data, exp_reg, exp_output)
 
     @patch.object(tap2sna, '_write_z80', mock_write_z80)
     def test_turbo_loader(self):
@@ -204,17 +205,14 @@ class SimLoadTest(SkoolKitTestCase):
             create_tzx_turbo_data_block(code2, 600, 1200)
         ]
         tzxfile = self._write_tzx(blocks)
-        z80file = 'out.z80'
-        output, error = self.run_tap2sna(f'--sim-load {tzxfile} {z80file}')
 
-        self.assertEqual(basic_data, snapshot[23755:23755 + len(basic_data)])
-        self.assertEqual(code, snapshot[code_start:code_start + len(code)])
-        self.assertEqual(code2, snapshot[code2_start:code2_end])
+        exp_data = (
+            (basic_data, 23755),
+            (code, code_start),
+            (code2, code2_start)
+        )
         exp_reg = set(('SP=65340', f'IX={code2_end}', 'IY=23610', 'PC=32925'))
-        self.assertLessEqual(exp_reg, set(options.reg))
-
-        out_lines = self._format_output(output)
-        exp_out_lines = [
+        exp_output = [
             'Program: simloadbas',
             'Fast loading data block: 23755,20',
             'Bytes: simloadbyt',
@@ -223,8 +221,7 @@ class SimLoadTest(SkoolKitTestCase):
             'Tape finished',
             'Simulation stopped (end of tape): PC=32925'
         ]
-        self.assertEqual(exp_out_lines, out_lines)
-        self.assertEqual(error, '')
+        self._test_sim_load(f'--sim-load {tzxfile} out.z80', exp_data, exp_reg, exp_output)
 
     @patch.object(tap2sna, '_write_z80', mock_write_z80)
     def test_tzx_block_types_0x12_0x13_0x14(self):
@@ -272,17 +269,14 @@ class SimLoadTest(SkoolKitTestCase):
             pure_data,
         ]
         tzxfile = self._write_tzx(blocks)
-        z80file = 'out.z80'
-        output, error = self.run_tap2sna(f'--sim-load {tzxfile} {z80file}')
 
-        self.assertEqual(basic_data, snapshot[23755:23755 + len(basic_data)])
-        self.assertEqual(code, snapshot[code_start:code_start + len(code)])
-        self.assertEqual(code2, snapshot[code2_start:code2_end])
+        exp_data = (
+            (basic_data, 23755),
+            (code, code_start),
+            (code2, code2_start)
+        )
         exp_reg = set(('SP=65340', f'IX={code2_end}', 'IY=23610', 'PC=32925'))
-        self.assertLessEqual(exp_reg, set(options.reg))
-
-        out_lines = self._format_output(output)
-        exp_out_lines = [
+        exp_output = [
             'Program: simloadbas',
             'Fast loading data block: 23755,20',
             'Bytes: simloadbyt',
@@ -291,8 +285,7 @@ class SimLoadTest(SkoolKitTestCase):
             'Tape finished',
             'Simulation stopped (end of tape): PC=32925'
         ]
-        self.assertEqual(exp_out_lines, out_lines)
-        self.assertEqual(error, '')
+        self._test_sim_load(f'--sim-load {tzxfile} out.z80', exp_data, exp_reg, exp_output)
 
     @patch.object(tap2sna, '_write_z80', mock_write_z80)
     def test_tzx_loop(self):
@@ -368,17 +361,14 @@ class SimLoadTest(SkoolKitTestCase):
             parity_byte,
         ]
         tzxfile = self._write_tzx(blocks)
-        z80file = 'out.z80'
-        output, error = self.run_tap2sna(f'--sim-load --start 49152 {tzxfile} {z80file}')
 
-        self.assertEqual(basic_data, snapshot[23755:23755 + len(basic_data)])
-        self.assertEqual(code, snapshot[code_start:code_start + len(code)])
-        self.assertEqual(code2 + code2, snapshot[code2_start:code2_end])
+        exp_data = (
+            (basic_data, 23755),
+            (code, code_start),
+            (code2 + code2, code2_start)
+        )
         exp_reg = set(('SP=65344', f'IX={code2_end}', 'IY=23610', 'PC=49152'))
-        self.assertLessEqual(exp_reg, set(options.reg))
-
-        out_lines = self._format_output(output)
-        exp_out_lines = [
+        exp_output = [
             'Program: simloadbas',
             'Fast loading data block: 23755,20',
             'Bytes: simloadbyt',
@@ -390,8 +380,7 @@ class SimLoadTest(SkoolKitTestCase):
             'Tape finished',
             'Simulation stopped (PC at start address): PC=49152'
         ]
-        self.assertEqual(exp_out_lines, out_lines)
-        self.assertEqual(error, '')
+        self._test_sim_load(f'--sim-load --start 49152 {tzxfile} out.z80', exp_data, exp_reg, exp_output)
 
     @patch.object(tap2sna, '_write_z80', mock_write_z80)
     def test_no_gap_between_data_blocks(self):
@@ -451,17 +440,14 @@ class SimLoadTest(SkoolKitTestCase):
             pure_data,
         ]
         tzxfile = self._write_tzx(blocks)
-        z80file = 'out.z80'
-        output, error = self.run_tap2sna(f'--sim-load --start 49152 {tzxfile} {z80file}')
 
-        self.assertEqual(basic_data, snapshot[23755:23755 + len(basic_data)])
-        self.assertEqual(code, snapshot[code_start:code_start + len(code)])
-        self.assertEqual(code2 + code3, snapshot[code2_start:code3_end])
+        exp_data = (
+            (basic_data, 23755),
+            (code, code_start),
+            (code2 + code3, code2_start)
+        )
         exp_reg = set(('SP=65344', f'IX={code3_end}', 'IY=23610', 'PC=49152'))
-        self.assertLessEqual(exp_reg, set(options.reg))
-
-        out_lines = self._format_output(output)
-        exp_out_lines = [
+        exp_output = [
             'Program: simloadbas',
             'Fast loading data block: 23755,20',
             'Bytes: simloadbyt',
@@ -471,8 +457,7 @@ class SimLoadTest(SkoolKitTestCase):
             'Tape finished',
             'Simulation stopped (PC at start address): PC=49152'
         ]
-        self.assertEqual(exp_out_lines, out_lines)
-        self.assertEqual(error, '')
+        self._test_sim_load(f'--sim-load --start 49152 {tzxfile} out.z80', exp_data, exp_reg, exp_output)
 
     @patch.object(tap2sna, '_write_z80', mock_write_z80)
     def test_required_gap_between_data_blocks(self):
@@ -511,17 +496,14 @@ class SimLoadTest(SkoolKitTestCase):
             create_tzx_data_block(code3),
         ]
         tzxfile = self._write_tzx(blocks)
-        z80file = 'out.z80'
-        output, error = self.run_tap2sna(f'--sim-load --start 49152 {tzxfile} {z80file}')
 
-        self.assertEqual(basic_data, snapshot[23755:23755 + len(basic_data)])
-        self.assertEqual(code, snapshot[code_start:code_start + len(code)])
-        self.assertEqual(code2 + code3, snapshot[code2_start:code3_end])
+        exp_data = (
+            (basic_data, 23755),
+            (code, code_start),
+            (code2 + code3, code2_start)
+        )
         exp_reg = set(('SP=65344', f'IX={code3_end}', 'IY=23610', 'PC=49152'))
-        self.assertLessEqual(exp_reg, set(options.reg))
-
-        out_lines = self._format_output(output)
-        exp_out_lines = [
+        exp_output = [
             'Program: simloadbas',
             'Fast loading data block: 23755,20',
             'Bytes: simloadbyt',
@@ -531,8 +513,7 @@ class SimLoadTest(SkoolKitTestCase):
             'Tape finished',
             'Simulation stopped (PC at start address): PC=49152'
         ]
-        self.assertEqual(exp_out_lines, out_lines)
-        self.assertEqual(error, '')
+        self._test_sim_load(f'--sim-load --start 49152 {tzxfile} out.z80', exp_data, exp_reg, exp_output)
 
     @patch.object(tap2sna, '_write_z80', mock_write_z80)
     def test_unread_data_in_middle_of_tape(self):
@@ -579,19 +560,15 @@ class SimLoadTest(SkoolKitTestCase):
             create_tap_data_block(code3)
         ]
         tapfile = self._write_tap(blocks)
-        z80file = 'out.z80'
-        output, error = self.run_tap2sna(f'--sim-load --start 65535 {tapfile} {z80file}')
 
-        self.assertEqual(basic_data, snapshot[23755:23755 + len(basic_data)])
-        self.assertEqual(code, snapshot[code_start:code_start + len(code)])
-        self.assertEqual(code2, snapshot[code2_start:code2_end])
-        self.assertEqual(code3, snapshot[65535:])
-
+        exp_data = (
+            (basic_data, 23755),
+            (code, code_start),
+            (code2, code2_start),
+            (code3, 65535)
+        )
         exp_reg = set(('SP=65344', 'IX=0', 'IY=23610', 'PC=65535'))
-        self.assertLessEqual(exp_reg, set(options.reg))
-
-        out_lines = self._format_output(output)
-        exp_out_lines = [
+        exp_output = [
             'Program: simloadbas',
             'Fast loading data block: 23755,20',
             'Bytes: simloadbyt',
@@ -601,8 +578,7 @@ class SimLoadTest(SkoolKitTestCase):
             'Tape finished',
             'Simulation stopped (PC at start address): PC=65535'
         ]
-        self.assertEqual(exp_out_lines, out_lines)
-        self.assertEqual(error, '')
+        self._test_sim_load(f'--sim-load --start 65535 {tapfile} out.z80', exp_data, exp_reg, exp_output)
 
     @patch.object(tap2sna, '_write_z80', mock_write_z80)
     def test_unread_data_at_end_of_tape(self):
@@ -642,19 +618,14 @@ class SimLoadTest(SkoolKitTestCase):
             code2_data_block
         ]
         tapfile = self._write_tap(blocks)
-        z80file = 'out.z80'
-        output, error = self.run_tap2sna(f'--sim-load {tapfile} {z80file}')
 
-        self.assertEqual(basic_data, snapshot[23755:23755 + len(basic_data)])
-        self.assertEqual(code, snapshot[code_start:code_start + len(code)])
-        self.assertEqual(code2, snapshot[code2_start:code2_end])
-
-        # CDE=648
-        exp_reg = set(('SP=65344', f'IX={code2_end}', 'IY=23610', 'PC=49158', 'E=136', 'D=2', 'C=0'))
-        self.assertLessEqual(exp_reg, set(options.reg))
-
-        out_lines = self._format_output(output)
-        exp_out_lines = [
+        exp_data = (
+            (basic_data, 23755),
+            (code, code_start),
+            (code2, code2_start)
+        )
+        exp_reg = set(('SP=65344', f'IX={code2_end}', 'IY=23610', 'PC=49158', 'E=136', 'D=2', 'C=0')) # CDE=648
+        exp_output = [
             'Program: simloadbas',
             'Fast loading data block: 23755,20',
             'Bytes: simloadbyt',
@@ -663,8 +634,7 @@ class SimLoadTest(SkoolKitTestCase):
             'Tape finished',
             'Simulation stopped (end of tape): PC=49158'
         ]
-        self.assertEqual(exp_out_lines, out_lines)
-        self.assertEqual(error, '')
+        self._test_sim_load(f'--sim-load {tapfile} out.z80', exp_data, exp_reg, exp_output)
 
     @patch.object(tap2sna, '_write_z80', mock_write_z80)
     def test_port_read_after_tape_end(self):
@@ -690,17 +660,14 @@ class SimLoadTest(SkoolKitTestCase):
             create_tap_data_block(code2)
         ]
         tapfile = self._write_tap(blocks)
-        z80file = 'out.z80'
-        output, error = self.run_tap2sna(f'--sim-load --start 49152 {tapfile} {z80file}')
 
-        self.assertEqual(basic_data, snapshot[23755:23755 + len(basic_data)])
-        self.assertEqual(code, snapshot[code_start:code_start + len(code)])
-        self.assertEqual(code2, snapshot[code2_start:code2_end])
+        exp_data = (
+            (basic_data, 23755),
+            (code, code_start),
+            (code2, code2_start)
+        )
         exp_reg = set(('SP=65344', f'IX={code2_end}', 'IY=23610', 'PC=49152'))
-        self.assertLessEqual(exp_reg, set(options.reg))
-
-        out_lines = self._format_output(output)
-        exp_out_lines = [
+        exp_output = [
             'Program: simloadbas',
             'Fast loading data block: 23755,20',
             'Bytes: simloadbyt',
@@ -709,8 +676,7 @@ class SimLoadTest(SkoolKitTestCase):
             'Tape finished',
             'Simulation stopped (PC at start address): PC=49152'
         ]
-        self.assertEqual(exp_out_lines, out_lines)
-        self.assertEqual(error, '')
+        self._test_sim_load(f'--sim-load --start 49152 {tapfile} out.z80', exp_data, exp_reg, exp_output)
 
     @patch.object(tap2sna, '_write_z80', mock_write_z80)
     def test_no_ram_execution(self):
@@ -729,20 +695,16 @@ class SimLoadTest(SkoolKitTestCase):
             create_tap_data_block(basic_data),
         ]
         tapfile = self._write_tap(blocks)
-        z80file = 'out.z80'
-        output, error = self.run_tap2sna(f'--sim-load {tapfile} {z80file}')
-        out_lines = output.strip().split('\n')
-        exp_out_lines = [
+
+        exp_data = [(basic_data, 23755)]
+        exp_reg = set(('SP=65344', 'IX=23770', 'IY=23610', 'PC=10355'))
+        exp_output = [
             'Program: simloadbas',
             'Fast loading data block: 23755,15',
             'Tape finished',
             'Simulation stopped (tape ended 1 second ago): PC=10355',
         ]
-        self.assertEqual(exp_out_lines, out_lines)
-        self.assertEqual(error, '')
-        self.assertEqual(basic_data, snapshot[23755:23755 + len(basic_data)])
-        exp_reg = set(('SP=65344', 'IX=23770', 'IY=23610', 'PC=10355'))
-        self.assertLessEqual(exp_reg, set(options.reg))
+        self._test_sim_load(f'--sim-load {tapfile} out.z80', exp_data, exp_reg, exp_output)
 
     @patch.object(tap2sna, '_write_z80', mock_write_z80)
     def test_tape_is_paused_between_blocks(self):
@@ -767,10 +729,13 @@ class SimLoadTest(SkoolKitTestCase):
             create_tap_data_block(code),
         ]
         tapfile = self._write_tap(blocks)
-        z80file = 'out.z80'
-        output, error = self.run_tap2sna(f'--sim-load {tapfile} {z80file}')
-        out_lines = output.strip().split('\n')
-        exp_out_lines = [
+
+        exp_data = (
+            (basic_data, 23755),
+            (code, code_start)
+        )
+        exp_reg = set(('SP=65344', 'IX=32769', 'IY=23610', 'PC=32768'))
+        exp_output = [
             'Program: simloadbas',
             'Fast loading data block: 23755,27',
             'Bytes: simloadbyt',
@@ -778,12 +743,7 @@ class SimLoadTest(SkoolKitTestCase):
             'Tape finished',
             'Simulation stopped (PC in RAM): PC=32768',
         ]
-        self.assertEqual(exp_out_lines, out_lines)
-        self.assertEqual(error, '')
-        self.assertEqual(basic_data, snapshot[23755:23755 + len(basic_data)])
-        self.assertEqual(code, snapshot[code_start:code_start + len(code)])
-        exp_reg = set(('SP=65344', 'IX=32769', 'IY=23610', 'PC=32768'))
-        self.assertLessEqual(exp_reg, set(options.reg))
+        self._test_sim_load(f'--sim-load {tapfile} out.z80', exp_data, exp_reg, exp_output)
 
     @patch.object(tap2sna, '_write_z80', mock_write_z80)
     def test_skip_data_before_fast_loading_next_block(self):
@@ -830,18 +790,15 @@ class SimLoadTest(SkoolKitTestCase):
             create_tzx_data_block(code3),
         ]
         tzxfile = self._write_tzx(blocks)
-        z80file = 'out.z80'
-        output, error = self.run_tap2sna(f'--sim-load --start 49152 {tzxfile} {z80file}')
 
-        self.assertEqual(basic_data, snapshot[23755:23755 + len(basic_data)])
-        self.assertEqual(code, snapshot[code_start:code_start + len(code)])
-        self.assertEqual(code2, snapshot[code2_start:code2_end])
-        self.assertEqual(code3, snapshot[code3_start:code3_end])
+        exp_data = (
+            (basic_data, 23755),
+            (code, code_start),
+            (code2, code2_start),
+            (code3, code3_start)
+        )
         exp_reg = set(('SP=65344', f'IX={code3_end}', 'IY=23610', 'PC=49152'))
-        self.assertLessEqual(exp_reg, set(options.reg))
-
-        out_lines = self._format_output(output)
-        exp_out_lines = [
+        exp_output = [
             'Program: simloadbas',
             'Fast loading data block: 23755,20',
             'Bytes: simloadbyt',
@@ -851,8 +808,7 @@ class SimLoadTest(SkoolKitTestCase):
             'Tape finished',
             'Simulation stopped (PC at start address): PC=49152'
         ]
-        self.assertEqual(exp_out_lines, out_lines)
-        self.assertEqual(error, '')
+        self._test_sim_load(f'--sim-load --start 49152 {tzxfile} out.z80', exp_data, exp_reg, exp_output)
 
     @patch.object(loadtracer, 'SIM_TIMEOUT', 6 * 3500000)
     @patch.object(tap2sna, '_write_z80', mock_write_z80)
@@ -869,16 +825,12 @@ class SimLoadTest(SkoolKitTestCase):
             create_tap_data_block([0]),
         ]
         tapfile = self._write_tap(blocks)
-        z80file = 'out.z80'
-        output, error = self.run_tap2sna(f'--sim-load {tapfile} {z80file}')
-        out_lines = output.strip().split('\n')
-        exp_out_lines = [
+
+        exp_data = [(basic_data, 23755)]
+        exp_reg = set(('IX=23761', 'IY=23610', 'PC=1343'))
+        exp_output = [
             'Program: simloadbas',
             'Fast loading data block: 23755,6',
             'Simulation stopped (timed out): PC=1343',
         ]
-        self.assertEqual(exp_out_lines, out_lines)
-        self.assertEqual(error, '')
-        self.assertEqual(basic_data, snapshot[23755:23755 + len(basic_data)])
-        exp_reg = set(('IX=23761', 'IY=23610', 'PC=1343'))
-        self.assertLessEqual(exp_reg, set(options.reg))
+        self._test_sim_load(f'--sim-load {tapfile} out.z80', exp_data, exp_reg, exp_output)
