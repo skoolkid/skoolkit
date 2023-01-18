@@ -26,7 +26,7 @@ from skoolkit import (SkoolKitError, get_dword, get_int_param, get_object,
                       get_word, get_word3, integer, open_file, read_bin_file,
                       warn, write_line, ROM48, VERSION)
 from skoolkit.loadsample import ACCELERATORS
-from skoolkit.loadtracer import LoadTracer, SimLoadTracer
+from skoolkit.loadtracer import LoadTracer
 from skoolkit.simulator import (Simulator, A, F, B, C, D, E, H, L, IXh, IXl, IYh, IYl,
                                 SP, I, R, xA, xF, xB, xC, xD, xE, xH, xL, PC)
 from skoolkit.snapshot import move, poke, print_reg_help, print_state_help, write_z80v3
@@ -247,13 +247,10 @@ def sim_load(blocks, options):
     snapshot[0xFF58:] = snapshot[0x3E08:0x3EB0] # UDGs
     config = {'fast_djnz': True, 'fast_ldir': True}
     simulator = Simulator(snapshot, {'SP': 0xFF50}, config=config)
-    if options.no_fast_load:
-        tracer = SimLoadTracer(simulator, blocks, accelerator) # pragma: no cover
-    else:
-        tracer = LoadTracer(simulator, blocks, accelerator)
+    tracer = LoadTracer(simulator, blocks, accelerator)
     simulator.set_tracer(tracer)
     try:
-        tracer.run(0x0605, options.start) # SAVE-ETC
+        tracer.run(0x0605, options.start, options.fast_load) # SAVE-ETC
         _ram_operations(snapshot, options.ram_ops)
     except KeyboardInterrupt: # pragma: no cover
         write_line(f'Simulation stopped (interrupted): PC={simulator.registers[PC]}')
@@ -721,7 +718,7 @@ def main(args):
                        help="Write the snapshot file in this directory.")
     group.add_argument('-f', '--force', action='store_true',
                        help="Overwrite an existing snapshot.")
-    group.add_argument('--no-fast-load', action='store_true',
+    group.add_argument('--no-fast-load', dest='fast_load', action='store_false',
                        help='Disable fast loading.')
     group.add_argument('-p', '--stack', dest='stack', metavar='STACK', type=integer,
                        help="Set the stack pointer.")

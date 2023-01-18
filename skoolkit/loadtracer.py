@@ -130,7 +130,7 @@ class LoadTracer:
         self.border = 7
         self.text = TextReader()
 
-    def run(self, start, stop):
+    def run(self, start, stop, fast_load):
         simulator = self.simulator
         opcodes = simulator.opcodes
         memory = simulator.memory
@@ -183,7 +183,7 @@ class LoadTracer:
                 write_line(f'Simulation stopped (PC at start address): PC={pc}')
                 break
 
-            if pc == 0x0556:
+            if pc == 0x0556 and fast_load:
                 self.fast_load(simulator)
                 self.index = self.block_max_index
                 if self.index == max_index:
@@ -420,64 +420,3 @@ class LoadTracer:
             registers[E] = de & 0xFF
 
         registers[PC] = 0x05E2
-
-class SimLoadTracer(LoadTracer): # pragma: no cover
-    def run(self, start, stop):
-        simulator = self.simulator
-        opcodes = simulator.opcodes
-        memory = simulator.memory
-        registers = simulator.registers
-        registers[24] = start
-        pc = start
-        progress = 0
-        edges = self.edges
-        tape_length = edges[-1] // 1000
-        max_index = self.max_index
-        self.tape_running = True
-        tstates = 0
-        accept_int = False
-
-        while True:
-            t0 = tstates
-            opcodes[memory[pc]]()
-            tstates = registers[25]
-
-            if simulator.iff2:
-                if tstates % FRAME_DURATION < t0 % FRAME_DURATION:
-                    accept_int = True
-                if accept_int and memory[pc] not in (0xF3, 0xFB):
-                    self.accept_interrupt(simulator, registers, memory)
-                    accept_int = False
-
-            if tstates > self.next_edge:
-                index = self.index
-                while index < max_index and edges[index + 1] < tstates:
-                    index += 1
-                self.index = index
-                if index == max_index:
-                    # Allow 1ms for the final edge on the tape to be read
-                    if tstates - edges[index] > 3500:
-                        self.tape_running = False
-                else:
-                    self.next_edge = edges[index + 1]
-                    p = edges[index] // tape_length
-                    if p > progress:
-                        msg = f'[{p/10:0.1f}%]'
-                        write(msg + chr(8) * len(msg))
-                        progress = p
-
-            pc = registers[24]
-
-            if pc == stop:
-                write_line(f'Simulation stopped (PC at start address): PC={pc}')
-                break
-
-            if not self.tape_running and stop is None:
-                write_line(f'Simulation stopped (end of tape): PC={pc}')
-                break
-
-    def read_port(self, registers, port):
-        if port % 256 == 0xFE:
-            if self.index % 2:
-                return 255
-        return 191

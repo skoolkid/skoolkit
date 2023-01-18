@@ -1321,13 +1321,11 @@ conditions is satisfied:
 * more than one second of simulated Z80 CPU time has elapsed since the end of
   the tape was reached
 
-Fast loading can be disabled by using the ``--no-fast-load`` option. In that
-case, simulation continues until either the program counter hits the start
-address given by the ``--start`` option, or the end of the tape is reached.
-
 A simulated LOAD can also be aborted by pressing Ctrl-C. When a simulated LOAD
 has completed or been aborted, the values of the registers (including the
 program counter) in the simulator are used to populate the Z80 snapshot.
+
+Fast loading can be disabled by using the ``--no-fast-load`` option.
 
 By default, ``--sim-load`` automatically selects an appropriate accelerator (if
 available) from the list below to speed up the simulation of the tape-sampling
