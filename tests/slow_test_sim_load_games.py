@@ -1,24 +1,12 @@
-#!/usr/bin/env python3
 import hashlib
-import os
-import sys
 import tempfile
-import unittest
 from urllib.request import Request, urlopen
 import zipfile
 
-SKOOLKIT_HOME = os.environ.get('SKOOLKIT_HOME')
-if not SKOOLKIT_HOME:
-    sys.stderr.write('SKOOLKIT_HOME is not set; aborting\n')
-    sys.exit(1)
-if not os.path.isdir(SKOOLKIT_HOME):
-    sys.stderr.write('SKOOLKIT_HOME={}; directory not found\n'.format(SKOOLKIT_HOME))
-    sys.exit(1)
-sys.path.insert(0, f'{SKOOLKIT_HOME}')
-
+from skoolkittest import SkoolKitTestCase
 from skoolkit import tap2sna
 
-class SimLoadTest(unittest.TestCase):
+class SimLoadGamesTest(SkoolKitTestCase):
     def _test_sim_load(self, url, tapname, tapsum, z80sum, options=''):
         r = Request(url)
         u = urlopen(r, timeout=30)
@@ -45,7 +33,8 @@ class SimLoadTest(unittest.TestCase):
                 data = z.read()
             md5sum = hashlib.md5(data).hexdigest()
             if md5sum != z80sum:
-                self.fail(f'Checksum failure for {z80file}: expected {z80sum}, got {md5sum}')
+                output = self.out.getvalue()
+                self.fail(f'\n{output}\nChecksum failure for {z80file}: expected {z80sum}, got {md5sum}')
 
     def test_alkatraz(self):
         self._test_sim_load(
@@ -124,7 +113,7 @@ class SimLoadTest(unittest.TestCase):
             'https://www.worldofspectrum.org/pub/sinclair/games/b/BlackLamp.tzx.zip',
             'Black Lamp.tzx',
             'fc9dd17a32679eeff80504af26e81d9b',
-            'c478224e4c0fad02863d829a7aa2ba81',
+            'cc8feba825f1ff5325ecd29b5bfaa58b',
             '--accelerator bleepload --start 32768'
         )
 
@@ -303,7 +292,7 @@ class SimLoadTest(unittest.TestCase):
             'https://www.worldofspectrum.org/pub/sinclair/games/h/Hysteria.tzx.zip',
             'Hysteria.tzx',
             '2f4485c0d0e98758f7da09b322ca0a0c',
-            'b80e3bf7f678732a5b6e511a8094f8c2',
+            '82ce8994ba547cc801dac2d94b6362cc',
             '--accelerator speedlock --start 45066'
         )
 
@@ -350,6 +339,3 @@ class SimLoadTest(unittest.TestCase):
             'af4a82be85d882064cdc30c7e336065a',
             '--accelerator zydroload --start 32879'
         )
-
-if __name__ == '__main__':
-    unittest.main()
