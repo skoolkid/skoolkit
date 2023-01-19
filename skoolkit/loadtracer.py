@@ -99,8 +99,8 @@ class LoadTracer:
         opcodes = simulator.opcodes
         memory = simulator.memory
         registers = simulator.registers
-        opcodes[0x3D] = partial(self.dec_a, registers, memory)
         if accelerator:
+            opcodes[0x3D] = partial(self.dec_a, registers, memory)
             if isinstance(accelerator, set):
                 inc_b_acc = []
                 for acc in accelerator:
