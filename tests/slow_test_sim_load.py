@@ -834,3 +834,64 @@ class SimLoadTest(SkoolKitTestCase):
             'Simulation stopped (timed out): PC=1343',
         ]
         self._test_sim_load(f'--sim-load {tapfile} out.z80', exp_data, exp_reg, exp_output)
+
+    @patch.object(tap2sna, '_write_z80', mock_write_z80)
+    def test_tzx_pause(self):
+        code2 = [1, 2, 4, 8]
+        code3 = [16, 32, 64, 128]
+        pdata = create_data_block(code3)
+        code2_start = 49152
+        code3_start = code2_start + len(code2)
+        code3_end = code3_start + len(code3)
+        code = [
+            243,              # DI
+            221, 33, 0, 192,  # LD IX,49152
+            17, 4, 0,         # LD DE,4
+            55,               # SCF
+            159,              # SBC A,A
+            8,                # EX AF,AF'
+            205, 98, 5,       # CALL 1378   ; Load code2
+            6, 0,             # LD B,0
+            205, 227, 5,      # CALL 1507   ; LD-EDGE-2 - look for 2 edges
+            48, 4,            # JR NC,+4    ; Jump if not found - OK
+            221, 33, 0, 193,  # LD IX,49408 ; Change load address - FAIL
+            17, 4, 0,         # LD DE,4
+            55,               # SCF
+            159,              # SBC A,A
+            205, 86, 5,       # CALL 1366   ; Load code3
+            195, 0, 192       # JP 49152
+        ]
+        pause = [
+            0x20,             # Block ID (Pause)
+            244, 1            # Duration (500ms)
+        ]
+        code_start = 32768
+        basic_data = self._get_basic_data(code_start)
+        blocks = [
+            create_tzx_header_block("simloadbas", 10, len(basic_data), 0),
+            create_tzx_data_block(basic_data),
+            create_tzx_header_block("simloadbyt", code_start, len(code), 3),
+            create_tzx_data_block(code),
+            create_tzx_data_block(code2),
+            pause,
+            create_tzx_data_block(code3),
+        ]
+        tzxfile = self._write_tzx(blocks)
+
+        exp_data = (
+            (basic_data, 23755),
+            (code, code_start),
+            (code2 + code3, code2_start)
+        )
+        exp_reg = set(('SP=65344', f'IX={code3_end}', 'IY=23610', 'PC=49152'))
+        exp_output = [
+            'Program: simloadbas',
+            'Fast loading data block: 23755,20',
+            'Bytes: simloadbyt',
+            'Fast loading data block: 32768,36',
+            'Data (6 bytes)',
+            'Fast loading data block: 49156,4',
+            'Tape finished',
+            'Simulation stopped (PC at start address): PC=49152'
+        ]
+        self._test_sim_load(f'--sim-load --start 49152 {tzxfile} out.z80', exp_data, exp_reg, exp_output)

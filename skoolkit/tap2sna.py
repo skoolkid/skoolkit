@@ -453,7 +453,7 @@ def _get_tzx_block(data, i, sim):
     elif block_id == 32:
         # Pause (silence) or 'Stop the tape' command
         if sim: # pragma: no cover
-            pause = get_word(data, i)
+            pause = get_word(data, i) * 3500
             timings = TapeBlockTimings(pause=pause)
         i += 2
     elif block_id == 33:
