@@ -95,7 +95,7 @@ class SimLoadGamesTest(SkoolKitTestCase):
             'https://www.worldofspectrum.org/pub/sinclair/games/b/BombJackII.tzx.zip',
             'Bomb Jack 2.tzx',
             'a481286503c7eb94a7d8e62a73088fb6',
-            '5addc5d94939d579cd8205a082329ad1',
+            '281deba8be7dd833d03fa00c97e206ff',
             '--accelerator elite-uni-loader --start 30720',
         )
 
@@ -283,7 +283,7 @@ class SimLoadGamesTest(SkoolKitTestCase):
             'https://www.worldofspectrum.org/pub/sinclair/games/o/OutRun.tzx.zip',
             'Outrun - Tape 1 - Side 1.tzx',
             '78fb2a6b82ca2dc7021a5762ea1491fb',
-            '5128adccfc72ce90825929556a6afb67',
+            '96fea752c0043da70211811ed234d1f6',
             '--accelerator speedlock --start 44337'
         )
 
@@ -292,7 +292,7 @@ class SimLoadGamesTest(SkoolKitTestCase):
             'https://www.worldofspectrum.org/pub/sinclair/games/h/Hysteria.tzx.zip',
             'Hysteria.tzx',
             '2f4485c0d0e98758f7da09b322ca0a0c',
-            '82ce8994ba547cc801dac2d94b6362cc',
+            'b80e3bf7f678732a5b6e511a8094f8c2',
             '--accelerator speedlock --start 45066'
         )
 

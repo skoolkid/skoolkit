@@ -1494,6 +1494,7 @@ To list the options supported by `trace.py`, run it with no arguments::
     --depth DEPTH         Simplify audio delays to this depth (default: 2).
     -D, --decimal         Show decimal values in verbose mode.
     --dump FILE           Dump a Z80 snapshot to this file after execution.
+    -i, --interrupts      Execute interrupt routines.
     --max-operations MAX  Maximum number of instructions to execute.
     --max-tstates MAX     Maximum number of T-states to run for.
     -o ADDR, --org ADDR   Specify the origin address of a binary (raw memory)
@@ -1519,9 +1520,10 @@ To list the options supported by `trace.py`, run it with no arguments::
 By default, `trace.py` silently simulates code execution beginning with the
 instruction at the address specified by the ``--start`` option (or the program
 counter in the snapshot) and ending when the instruction at the address
-specified by ``--stop`` (if any) is reached. Use the ``--verbose`` option to
-show each instruction executed. Repeat the ``--verbose`` option (``-vv``) to
-show register values too.
+specified by ``--stop`` (if any) is reached, and does not execute interrupt
+routines. Use the ``--verbose`` option to show each instruction executed.
+Repeat the ``--verbose`` option (``-vv``) to show register values too. Use the
+``--interrupts`` option to enable the execution of interrupt routines.
 
 When the ``--audio`` option is given, `trace.py` tracks changes in the state
 of the ZX Spectrum speaker, and then prints a list of the delays (in T-states)
@@ -1529,8 +1531,10 @@ between those changes. This list can be supplied to the :ref:`AUDIO` macro to
 produce a WAV file for the sound effect that would be produced by the same code
 running on a real ZX Spectrum.
 
-+---------+---------+
-| Version | Changes |
-+=========+=========+
-| 8.8     | New     |
-+---------+---------+
++---------+-----------------------------------+
+| Version | Changes                           |
++=========+===================================+
+| 8.9     | Added the ``--interrupts`` option |
++---------+-----------------------------------+
+| 8.8     | New                               |
++---------+-----------------------------------+

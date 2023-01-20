@@ -1,4 +1,4 @@
-# Copyright 2022 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2022, 2023 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -20,7 +20,7 @@ import time
 from skoolkit import ROM48, VERSION, SkoolKitError, get_int_param, integer, read_bin_file
 from skoolkit.snapshot import make_snapshot, poke, print_reg_help, write_z80v3
 from skoolkit.simulator import (Simulator, A, F, B, C, D, E, H, L, IXh, IXl, IYh, IYl,
-                                SP, I, R, xA, xF, xB, xC, xD, xE, xH, xL, PC, T)
+                                SP, I, R, xA, xF, xB, xC, xD, xE, xH, xL, PC, T, FRAME_DURATION)
 from skoolkit.snapinfo import parse_snapshot
 from skoolkit.traceutils import disassemble
 
@@ -42,12 +42,14 @@ class Tracer:
         self.spkr = None
         self.out_times = []
 
-    def run(self, simulator, start, stop, verbose, max_operations, max_tstates, decimal):
+    def run(self, simulator, start, stop, verbose, max_operations, max_tstates, decimal, interrupts):
         opcodes = simulator.opcodes
         memory = simulator.memory
         registers = simulator.registers
         pc = registers[PC] = start
         operations = 0
+        tstates = 0
+        accept_int = False
 
         if decimal:
             p = b = w = ''
@@ -70,7 +72,17 @@ class Tracer:
             }
 
         while True:
+            t0 = tstates
             opcodes[memory[pc]]()
+            tstates = registers[25]
+
+            if interrupts and simulator.iff2:
+                if tstates // FRAME_DURATION > t0 // FRAME_DURATION:
+                    accept_int = True
+                if accept_int and memory[pc] != 0xFB:
+                    simulator.accept_interrupt(registers, memory)
+                    accept_int = False
+
             pc = registers[24]
 
             if verbose:
@@ -227,7 +239,8 @@ def run(snafile, options):
     simulator.set_tracer(tracer)
     begin = time.time()
     tracer.run(simulator, start, options.stop, options.verbose,
-               options.max_operations, options.max_tstates, options.decimal)
+               options.max_operations, options.max_tstates, options.decimal,
+               options.interrupts)
     rt = time.time() - begin
     if options.stats:
         z80t = simulator.registers[T] / 3500000
@@ -288,6 +301,8 @@ def main(args):
                        help='Simplify audio delays to this depth (default: 2).')
     group.add_argument('--dump', metavar='FILE',
                        help='Dump a Z80 snapshot to this file after execution.')
+    group.add_argument('-i', '--interrupts', action='store_true',
+                       help='Execute interrupt routines.')
     group.add_argument('--max-operations', metavar='MAX', type=int, default=0,
                        help='Maximum number of instructions to execute.')
     group.add_argument('--max-tstates', metavar='MAX', type=int, default=0,

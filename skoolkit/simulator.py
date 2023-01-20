@@ -1,4 +1,4 @@
-# Copyright 2022 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2022, 2023 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -179,6 +179,25 @@ class Simulator:
                 rh = REGISTERS[reg[0]]
                 self.registers[rh] = value // 256
                 self.registers[rh + 1] = value % 256
+
+    def accept_interrupt(self, registers, memory):
+        if self.imode == 2:
+            vaddr = 256 * registers[14]
+            iaddr = memory[vaddr] + 256 * memory[vaddr + 1]
+            registers[25] += 19
+        else:
+            iaddr = 56
+            registers[25] += 13
+        sp = (registers[12] - 2) % 65536
+        registers[12] = sp
+        pc = registers[24]
+        if sp > 0x3FFF:
+            memory[sp] = pc % 256
+        sp = (sp + 1) % 65536
+        if sp > 0x3FFF:
+            memory[sp] = pc // 256
+        registers[24] = iaddr
+        self.iff2 = 0
 
     def prefix(self, opcodes, registers, memory):
         opcodes[memory[(registers[24] + 1) % 65536]]()

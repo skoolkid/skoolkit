@@ -38,6 +38,7 @@ class TraceTest(SkoolKitTestCase):
         self.assertFalse(options.audio)
         self.assertEqual(options.depth, 2)
         self.assertIsNone(options.dump)
+        self.assertFalse(options.interrupts)
         self.assertEqual(options.max_operations, 0)
         self.assertEqual(options.max_tstates, 0)
         self.assertIsNone(options.org)
@@ -415,6 +416,171 @@ class TraceTest(SkoolKitTestCase):
         self.assertEqual(data, snapshot[start:stop])
         self.assertEqual(exp_reg, z80reg)
         self.assertEqual(exp_state, z80state)
+
+    def test_option_interrupts_mode_0(self):
+        data = [
+            0xED, 0x46, # $8000 IM 0
+            0x76,       # $8002 HALT
+            0xAF,       # $8003 XOR A
+        ]
+        binfile = self.write_bin_file(data, suffix='.bin')
+        start = 0x8000
+        stop = 0x8004
+        output, error = self.run_trace(f'--interrupts -o {start} -S {stop} -v {binfile}')
+        self.assertEqual(error, '')
+        output_lines = output.split('\n')
+        self.assertEqual(output_lines[0], '$8000 ED46     IM 0')
+        self.assertEqual(output_lines[1:17471], ['$8002 76       HALT'] * 17470)
+        self.assertEqual(output_lines[17471], '$0038 F5       PUSH AF')
+        self.assertEqual(output_lines[17579], '$0052 C9       RET')
+        self.assertEqual(output_lines[17580], '$8003 AF       XOR A')
+        self.assertEqual(output_lines[17581], 'Stopped at $8004')
+
+    def test_option_interrupts_mode_1(self):
+        data = [
+            0xED, 0x56, # $8000 IM 1
+            0x76,       # $8002 HALT
+            0xAF,       # $8003 XOR A
+        ]
+        binfile = self.write_bin_file(data, suffix='.bin')
+        start = 0x8000
+        stop = 0x8004
+        output, error = self.run_trace(f'-i -o {start} -S {stop} -v {binfile}')
+        self.assertEqual(error, '')
+        output_lines = output.split('\n')
+        self.assertEqual(output_lines[0], '$8000 ED56     IM 1')
+        self.assertEqual(output_lines[1:17471], ['$8002 76       HALT'] * 17470)
+        self.assertEqual(output_lines[17471], '$0038 F5       PUSH AF')
+        self.assertEqual(output_lines[17579], '$0052 C9       RET')
+        self.assertEqual(output_lines[17580], '$8003 AF       XOR A')
+        self.assertEqual(output_lines[17581], 'Stopped at $8004')
+
+    def test_option_interrupts_mode_2(self):
+        data = [
+            0x3E, 0x80, # $7FF6 LD A,$80
+            0xED, 0x47, # $7FF8 LD I,A
+            0xED, 0x5E, # $7FFA IM 2
+            0x76,       # $7FFC HALT
+            0xAF,       # $7FFD XOR A
+            0x00,       # $7FFE NOP
+            0xC9,       # $7FFF RET
+            0xFF, 0x7F, # $8000 DEFW $7FFF
+        ]
+        binfile = self.write_bin_file(data, suffix='.bin')
+        start = 0x7ff6
+        stop = 0x7ffe
+        output, error = self.run_trace(f'--interrupts -o {start} -S {stop} -v {binfile}')
+        self.assertEqual(error, '')
+        output_lines = output.split('\n')
+        self.assertEqual(output_lines[0], '$7FF6 3E80     LD A,$80')
+        self.assertEqual(output_lines[1], '$7FF8 ED47     LD I,A')
+        self.assertEqual(output_lines[2], '$7FFA ED5E     IM 2')
+        self.assertEqual(output_lines[3:17469], ['$7FFC 76       HALT'] * 17466)
+        self.assertEqual(output_lines[17469], '$7FFF C9       RET')
+        self.assertEqual(output_lines[17470], '$7FFD AF       XOR A')
+        self.assertEqual(output_lines[17471], 'Stopped at $7FFE')
+
+    def test_option_interrupts_without_halt(self):
+        data = [
+            0x11, 0x7F, 0x0A, # $8000 LD DE,$0A7F  ; t=0 T-states
+            0x1B,             # $8003 DEC DE       ;
+            0x7A,             # $8004 LD A,D       ;
+            0xB3,             # $8005 OR E         ;
+            0x20, 0xFB,       # $8006 JR NZ,$8003  ;
+            0xDD, 0xA6, 0x00, # $8008 AND (IX+$00) ; t=69867
+            0x00,             # $800B NOP          ; t=69886 (interrupt follows)
+            0x00,             # $800C NOP
+        ]
+        binfile = self.write_bin_file(data, suffix='.bin')
+        start = 0x8000
+        stop = 0x800d
+        output, error = self.run_trace(f'-i -o {start} -S {stop} -v {binfile}')
+        self.assertEqual(error, '')
+        output_lines = output.split('\n')
+        self.assertEqual(output_lines[0], '$8000 117F0A   LD DE,$0A7F')
+        self.assertEqual(output_lines[10749], '$8008 DDA600   AND (IX+$00)')
+        self.assertEqual(output_lines[10750], '$800B 00       NOP')
+        self.assertEqual(output_lines[10751], '$0038 F5       PUSH AF')
+        self.assertEqual(output_lines[10859], '$0052 C9       RET')
+        self.assertEqual(output_lines[10860], '$800C 00       NOP')
+        self.assertEqual(output_lines[10861], 'Stopped at $800D')
+
+    def test_option_interrupts_with_ei(self):
+        data = [
+            0x11, 0x7F, 0x0A, # $8000 LD DE,$0A7F  ; t=0 T-states
+            0x1B,             # $8003 DEC DE
+            0x7A,             # $8004 LD A,D
+            0xB3,             # $8005 OR E
+            0x20, 0xFB,       # $8006 JR NZ,$8003
+            0xDD, 0xA6, 0x00, # $8008 AND (IX+$00) ; t=69867
+            0xFB,             # $800B EI           ; t=69886 (no interrupt accepted after EI)
+            0x00,             # $800C NOP          ; t=69890 (interrupt follows)
+            0x00,             # $800D NOP
+        ]
+        binfile = self.write_bin_file(data, suffix='.bin')
+        start = 0x8000
+        stop = 0x800e
+        output, error = self.run_trace(f'--interrupts -o {start} -S {stop} -v {binfile}')
+        self.assertEqual(error, '')
+        output_lines = output.split('\n')
+        self.assertEqual(output_lines[0], '$8000 117F0A   LD DE,$0A7F')
+        self.assertEqual(output_lines[10749], '$8008 DDA600   AND (IX+$00)')
+        self.assertEqual(output_lines[10750], '$800B FB       EI')
+        self.assertEqual(output_lines[10751], '$800C 00       NOP')
+        self.assertEqual(output_lines[10752], '$0038 F5       PUSH AF')
+        self.assertEqual(output_lines[10860], '$0052 C9       RET')
+        self.assertEqual(output_lines[10861], '$800D 00       NOP')
+        self.assertEqual(output_lines[10862], 'Stopped at $800E')
+
+    def test_option_interrupts_with_di(self):
+        data = [
+            0x11, 0x7F, 0x0A, # $8000 LD DE,$0A7F  ; t=0 T-states
+            0x1B,             # $8003 DEC DE
+            0x7A,             # $8004 LD A,D
+            0xB3,             # $8005 OR E
+            0x20, 0xFB,       # $8006 JR NZ,$8003
+            0xDD, 0xA6, 0x00, # $8008 AND (IX+$00) ; t=69867
+            0xF3,             # $800B DI           ; t=69886 (no interrupt accepted after DI)
+            0x00,             # $800C NOP          ; t=69890
+            0x00,             # $800D NOP          ; t=69894
+        ]
+        binfile = self.write_bin_file(data, suffix='.bin')
+        start = 0x8000
+        stop = 0x800e
+        output, error = self.run_trace(f'-i -o {start} -S {stop} -v {binfile}')
+        self.assertEqual(error, '')
+        output_lines = output.split('\n')
+        self.assertEqual(output_lines[0], '$8000 117F0A   LD DE,$0A7F')
+        self.assertEqual(output_lines[10749], '$8008 DDA600   AND (IX+$00)')
+        self.assertEqual(output_lines[10750], '$800B F3       DI')
+        self.assertEqual(output_lines[10751], '$800C 00       NOP')
+        self.assertEqual(output_lines[10752], '$800D 00       NOP')
+        self.assertEqual(output_lines[10753], 'Stopped at $800E')
+
+    def test_option_interrupts_at_exact_frame_boundary(self):
+        data = [
+            0x11, 0x7F, 0x0A, # $8000 LD DE,$0A7F  ; t=0 T-states
+            0x1B,             # $8003 DEC DE       ;
+            0x7A,             # $8004 LD A,D       ;
+            0xB3,             # $8005 OR E         ;
+            0x20, 0xFB,       # $8006 JR NZ,$8003  ;
+            0xED, 0x62,       # $8008 SBC HL,HL    ; t=69867 (+15=69882)
+            0x1B,             # $800A DEC DE       ; t=69882 (+6=69888: boundary)
+            0x00,             # $800B NOP          ;
+        ]
+        binfile = self.write_bin_file(data, suffix='.bin')
+        start = 0x8000
+        stop = 0x800c
+        output, error = self.run_trace(f'--interrupts -o {start} -S {stop} -v {binfile}')
+        self.assertEqual(error, '')
+        output_lines = output.split('\n')
+        self.assertEqual(output_lines[0], '$8000 117F0A   LD DE,$0A7F')
+        self.assertEqual(output_lines[10749], '$8008 ED62     SBC HL,HL')
+        self.assertEqual(output_lines[10750], '$800A 1B       DEC DE')
+        self.assertEqual(output_lines[10751], '$0038 F5       PUSH AF')
+        self.assertEqual(output_lines[10859], '$0052 C9       RET')
+        self.assertEqual(output_lines[10860], '$800B 00       NOP')
+        self.assertEqual(output_lines[10861], 'Stopped at $800C')
 
     def test_option_max_operations(self):
         data = [

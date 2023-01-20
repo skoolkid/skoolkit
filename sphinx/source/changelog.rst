@@ -14,6 +14,8 @@ Changelog
   entirely)
 * Added the ``--no-fast-load`` option to :ref:`tap2sna.py` (to disable fast
   loading when the ROM load routine is called during a simulated LOAD)
+* Added the ``--interrupts`` option to :ref:`trace.py` (to enable the execution
+  of interrupt routines)
 * :ref:`tapinfo.py` now shows full info for TZX block types 0x10 (standard
   speed data) and 0x11 (turbo speed data)
 * Fixed how the Z80 instruction set simulator handles a CALL instruction that

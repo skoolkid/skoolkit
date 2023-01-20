@@ -32,6 +32,9 @@ OPTIONS
 --dump `FILE`
   Dump a Z80 snapshot to this file after execution.
 
+-i, --interrupts
+  Execute interrupt routines.
+
 --max-operations `MAX`
   Maximum number of instructions to execute. Overrides the `STOP` address (if
   given).

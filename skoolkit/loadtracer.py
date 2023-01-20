@@ -150,10 +150,10 @@ class LoadTracer:
             tstates = registers[25]
 
             if simulator.iff2:
-                if tstates % FRAME_DURATION < t0 % FRAME_DURATION:
+                if tstates // FRAME_DURATION > t0 // FRAME_DURATION:
                     accept_int = True
-                if accept_int and memory[pc] not in (0xF3, 0xFB):
-                    self.accept_interrupt(simulator, registers, memory)
+                if accept_int and memory[pc] != 0xFB:
+                    simulator.accept_interrupt(registers, memory)
                     accept_int = False
 
             if self.tape_running and tstates > self.next_edge: # pragma: no cover
@@ -209,25 +209,6 @@ class LoadTracer:
                 if tstates > SIM_TIMEOUT: # pragma: no cover
                     write_line(f'Simulation stopped (timed out): PC={pc}')
                     break
-
-    def accept_interrupt(self, simulator, registers, memory):
-        if simulator.imode == 2: # pragma: no cover
-            vaddr = 256 * registers[14]
-            iaddr = memory[vaddr] + 256 * memory[vaddr + 1]
-            registers[25] += 19
-        else:
-            iaddr = 56
-            registers[25] += 13
-        sp = (registers[12] - 2) % 65536
-        registers[12] = sp
-        pc = registers[24]
-        if sp > 0x3FFF:
-            memory[sp] = pc % 256
-        sp = (sp + 1) % 65536
-        if sp > 0x3FFF:
-            memory[sp] = pc // 256
-        registers[24] = iaddr
-        simulator.iff2 = 0
 
     def dec_a(self, registers, memory):
         # Speed up any
