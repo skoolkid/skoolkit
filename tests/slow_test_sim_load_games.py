@@ -77,7 +77,7 @@ class SimLoadGamesTest(SkoolKitTestCase):
             'https://www.worldofspectrum.org/pub/sinclair/games/s/Satan.tzx.zip',
             'Satan - Side 1.tzx',
             '18afd7805b83ebc4974ccd8637d8a7b3',
-            '159046940046fc9b2a18cc8c0667dc48',
+            'b6538b4fbef4cf10b75ea02924f2f6c8',
             '--accelerator dinaload --start 64031'
         )
 
@@ -149,7 +149,7 @@ class SimLoadGamesTest(SkoolKitTestCase):
             'https://www.worldofspectrum.org/pub/sinclair/games/s/SpaceCrusade.tzx.zip',
             'Space Crusade - 48K.tzx',
             '48cdfc186f94bf6382da93cbc4b70810',
-            'd36a53524bff5b19aff82701e8787789',
+            'a3218945bf9ae36b9c2311471648c693',
             '--accelerator gremlin --start 26807'
         )
 
@@ -166,7 +166,7 @@ class SimLoadGamesTest(SkoolKitTestCase):
             'https://www.worldofspectrum.org/pub/sinclair/games/c/Cybernoid.tzx.zip',
             'Cybernoid.tzx',
             '50921a76ee625feb31c4195aac63d020',
-            '150dbd5d8ae7fa11a9c4ce8c2394925d',
+            '9b8bd5687b6334c4e6a53ff495e59f01',
             '--accelerator hewson-slowload --start 65105'
         )
 
@@ -247,7 +247,7 @@ class SimLoadGamesTest(SkoolKitTestCase):
             'https://www.worldofspectrum.org/pub/sinclair/games/e/Elite.tzx.zip',
             'Elite - 48k.tzx',
             'f73379181e1a413ac6c22ffd4cc8122a',
-            'ce70e90be11b5d68dad07dc98eb10e40',
+            '89d40a5c08bf1156a2201b5262b8bf8e',
             '--accelerator softlock --start 49699'
         )
 
@@ -292,7 +292,7 @@ class SimLoadGamesTest(SkoolKitTestCase):
             'https://www.worldofspectrum.org/pub/sinclair/games/h/Hysteria.tzx.zip',
             'Hysteria.tzx',
             '2f4485c0d0e98758f7da09b322ca0a0c',
-            'b80e3bf7f678732a5b6e511a8094f8c2',
+            '561c6e8b4000e9c9817c0033a73d00e1',
             '--accelerator speedlock --start 45066'
         )
 

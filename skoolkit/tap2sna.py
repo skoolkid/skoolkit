@@ -245,8 +245,7 @@ def sim_load(blocks, options):
             if b > 0xFF:
                 snapshot[a + 1] = b // 256
     snapshot[0xFF58:] = snapshot[0x3E08:0x3EB0] # UDGs
-    config = {'fast_djnz': True, 'fast_ldir': True}
-    simulator = Simulator(snapshot, {'SP': 0xFF50}, config=config)
+    simulator = Simulator(snapshot, {'SP': 0xFF50})
     tracer = LoadTracer(simulator, blocks, accelerator)
     simulator.set_tracer(tracer)
     try:

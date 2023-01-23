@@ -230,10 +230,8 @@ def run(snafile, options):
         iff = 1
         border = 7
     state = {'im': im, 'iff': iff}
-    config = {
-        'fast_djnz': options.verbose == 0,
-        'fast_ldir': options.verbose == 0
-    }
+    fast = options.verbose == 0 and not options.interrupts
+    config = {'fast_djnz': fast, 'fast_ldir': fast}
     simulator = Simulator(memory, get_registers(reg, options.reg), state, config)
     tracer = Tracer(border)
     simulator.set_tracer(tracer)

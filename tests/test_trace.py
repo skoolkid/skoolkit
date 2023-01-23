@@ -582,6 +582,87 @@ class TraceTest(SkoolKitTestCase):
         self.assertEqual(output_lines[10860], '$800B 00       NOP')
         self.assertEqual(output_lines[10861], 'Stopped at $800C')
 
+    @patch.object(trace, 'write_z80v3', mock_write_z80v3)
+    def test_option_interrupts_with_djnz(self):
+        data = [
+            0x21, 0x00, 0x80,       # $7FE7 LD HL,$8000   ; t=0 T-states
+            0x22, 0x00, 0xFF,       # $7FEA LD ($FF00),HL ; t=10
+            0x3E, 0xFF,             # $7FED LD A,$FF      ; t=26
+            0xED, 0x47,             # $7FEF LD I,A        ; t=33
+            0xED, 0x5E,             # $7FF1 IM 2          ; t=42
+            0x06, 0x04,             # $7FF3 LD B,$04      ; t=50
+            0x11, 0x7D, 0x0A,       # $7FF5 LD DE,$0A7D   ; t=57
+            0x1B,                   # $7FF8 DEC DE
+            0x7A,                   # $7FF9 LD A,D
+            0xB3,                   # $7FFA OR E
+            0x20, 0xFB,             # $7FFB JR NZ,$7FF8
+            0x10, 0xFE,             # $7FFD DJNZ $7FFD    ; t=69862/69875/interrupted
+            0x00,                   # $7FFF NOP
+            0xED, 0x43, 0x00, 0xC0, # $8000 LD ($C000),BC
+            0xC9,                   # $8004 RET
+        ]
+        binfile = self.write_bin_file(data, suffix='.bin')
+        outfile = os.path.join(self.make_directory(), 'dump.z80')
+        start = 0x7fe7
+        stop = 0x7fff
+        output, error = self.run_trace(f'--interrupts -o {start} -S {stop} --dump {outfile} {binfile}')
+        self.assertEqual(error, '')
+        self.assertEqual(snapshot[0xc001], 2) # DJNZ interrupted when B=2
+
+    @patch.object(trace, 'write_z80v3', mock_write_z80v3)
+    def test_option_interrupts_with_ldir(self):
+        data = [
+            0x21, 0x00, 0x80,       # $7FE6 LD HL,$8000   ; t=0 T-states
+            0x22, 0x00, 0xFF,       # $7FE9 LD ($FF00),HL ; t=10
+            0x3E, 0xFF,             # $7FEC LD A,$FF      ; t=26
+            0xED, 0x47,             # $7FEE LD I,A        ; t=33
+            0xED, 0x5E,             # $7FF0 IM 2          ; t=42
+            0x01, 0x04, 0x00,       # $7FF2 LD BC,$0004   ; t=50
+            0x11, 0x7C, 0x0A,       # $7FF5 LD DE,$0A7C   ; t=60
+            0x1B,                   # $7FF8 DEC DE
+            0x7A,                   # $7FF9 LD A,D
+            0xB3,                   # $7FFA OR E
+            0x20, 0xFB,             # $7FFB JR NZ,$7FF8
+            0xED, 0xB0,             # $7FFD LDIR          ; t=69865/69886/interrupted
+            0x00,                   # $7FFF NOP
+            0xED, 0x43, 0x00, 0xC0, # $8000 LD ($C000),BC
+            0xC9,                   # $8004 RET
+        ]
+        binfile = self.write_bin_file(data, suffix='.bin')
+        outfile = os.path.join(self.make_directory(), 'dump.z80')
+        start = 0x7fe6
+        stop = 0x7fff
+        output, error = self.run_trace(f'--interrupts -o {start} -S {stop} --dump {outfile} {binfile}')
+        self.assertEqual(error, '')
+        self.assertEqual(snapshot[0xc000], 2) # LDIR interrupted when BC=2
+
+    @patch.object(trace, 'write_z80v3', mock_write_z80v3)
+    def test_option_interrupts_with_lddr(self):
+        data = [
+            0x21, 0x00, 0x80,       # $7FE6 LD HL,$8000   ; t=0 T-states
+            0x22, 0x00, 0xFF,       # $7FE9 LD ($FF00),HL ; t=10
+            0x3E, 0xFF,             # $7FEC LD A,$FF      ; t=26
+            0xED, 0x47,             # $7FEE LD I,A        ; t=33
+            0xED, 0x5E,             # $7FF0 IM 2          ; t=42
+            0x01, 0x04, 0x00,       # $7FF2 LD BC,$0004   ; t=50
+            0x11, 0x7C, 0x0A,       # $7FF5 LD DE,$0A7C   ; t=60
+            0x1B,                   # $7FF8 DEC DE
+            0x7A,                   # $7FF9 LD A,D
+            0xB3,                   # $7FFA OR E
+            0x20, 0xFB,             # $7FFB JR NZ,$7FF8
+            0xED, 0xB8,             # $7FFD LDDR          ; t=69865/69886/interrupted
+            0x00,                   # $7FFF NOP
+            0xED, 0x43, 0x00, 0xC0, # $8000 LD ($C000),BC
+            0xC9,                   # $8004 RET
+        ]
+        binfile = self.write_bin_file(data, suffix='.bin')
+        outfile = os.path.join(self.make_directory(), 'dump.z80')
+        start = 0x7fe6
+        stop = 0x7fff
+        output, error = self.run_trace(f'--interrupts -o {start} -S {stop} --dump {outfile} {binfile}')
+        self.assertEqual(error, '')
+        self.assertEqual(snapshot[0xc000], 2) # LDDR interrupted when BC=2
+
     def test_option_max_operations(self):
         data = [
             0xAF, # XOR A
