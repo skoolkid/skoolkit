@@ -164,7 +164,7 @@ class LoadTracer:
                 if index == max_index:
                     # Allow 1ms for the final edge on the tape to be read
                     if tstates - edges[index] > 3500:
-                        self.next_block(tstates)
+                        self.stop_tape(tstates)
                 elif index > self.block_max_index:
                     # Pause tape between blocks
                     self.next_block(tstates)
@@ -188,7 +188,7 @@ class LoadTracer:
                 self.index = self.block_max_index
                 if self.index == max_index:
                     # Final block, so stop the tape
-                    self.next_block(tstates)
+                    self.stop_tape(tstates)
                 else:
                     # Otherwise continue to play the tape until this block's
                     # 'pause' period (if any) has elapsed
@@ -321,7 +321,7 @@ class LoadTracer:
                         write_line(f'Data ({length} bytes)')
                 elif index == self.max_index:
                     # Final edge, so stop the tape
-                    self.next_block(registers[T])
+                    self.stop_tape(registers[T])
                 if index % 2:
                     return 255
         return 191
@@ -333,14 +333,19 @@ class LoadTracer:
     def next_block(self, tstates):
         self.block_index += 1
         if self.block_index >= len(self.blocks):
-            self.end_of_tape += 1
-            if self.end_of_tape == 1:
-                write_line('Tape finished')
-                self.tape_end_time = tstates
+            self.stop_tape(tstates) # pragma: no cover
         else:
             self.index = self.block_max_index + 1
             self.next_edge = self.edges[self.index]
             self.block_data_index, self.block_max_index = self.indexes[self.block_index]
+            self.tape_running = False
+
+    def stop_tape(self, tstates):
+        self.block_index = len(self.blocks)
+        self.end_of_tape += 1
+        if self.end_of_tape == 1:
+            write_line('Tape finished')
+            self.tape_end_time = tstates
         self.tape_running = False
 
     def fast_load(self, simulator):
