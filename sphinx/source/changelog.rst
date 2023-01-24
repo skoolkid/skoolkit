@@ -16,6 +16,11 @@ Changelog
   loading when the ROM load routine is called during a simulated LOAD)
 * Added the ``--interrupts`` option to :ref:`trace.py` (to enable the execution
   of interrupt routines)
+* :ref:`trace.py` now reads and writes the T-states counter in Z80 snapshots
+  and reads the T-states counter in SZX snapshots
+* Added support to :ref:`bin2sna.py`, :ref:`snapmod.py` and :ref:`tap2sna.py`
+  for setting the ``tstates`` hardware attribute (i.e. the T-states counter in
+  Z80 snapshots)
 * :ref:`tapinfo.py` now shows full info for TZX block types 0x10 (standard
   speed data) and 0x11 (turbo speed data)
 * Fixed how the Z80 instruction set simulator handles a CALL instruction that

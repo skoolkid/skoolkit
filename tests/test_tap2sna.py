@@ -1495,13 +1495,39 @@ class Tap2SnaTest(SkoolKitTestCase):
     def test_state_border_bad_value(self):
         self._test_bad_spec('--state border=x!', 'Cannot parse integer: border=x!')
 
+    def test_state_tstates(self):
+        block = create_tap_data_block([0])
+        tapfile = self._write_tap([block])
+        z80file = os.path.join(self.make_directory(), 'out.z80')
+        tstates = 31445
+        output, error = self.run_tap2sna(f'--ram load=1,16384 --state tstates={tstates} {tapfile} {z80file}')
+        self.assertEqual(error, '')
+        with open(z80file, 'rb') as f:
+            z80_header = tuple(f.read(58))
+        t1 = (z80_header[55] + 256 * z80_header[56]) % 17472
+        t2 = (2 - z80_header[57]) % 4
+        self.assertEqual(69887 - t2 * 17472 - t1, tstates)
+
+    def test_state_tstates_bad_value(self):
+        self._test_bad_spec('--state tstates=?', 'Cannot parse integer: tstates=?')
+
     def test_state_invalid_parameter(self):
         self._test_bad_spec('--state baz=2', 'Invalid parameter: baz=2')
 
     def test_state_help(self):
         output, error = self.run_tap2sna('--state help')
-        self.assertTrue(output.startswith('Usage: --state name=value\n'))
         self.assertEqual(error, '')
+        exp_output = """
+            Usage: --state name=value
+
+            Set a hardware state attribute. Recognised names and their default values are:
+
+              border  - border colour (default=0)
+              iff     - interrupt flip-flop: 0=disabled, 1=enabled (default=1)
+              im      - interrupt mode (default=1)
+              tstates - T-states elapsed since start of frame (default=0)
+        """
+        self.assertEqual(textwrap.dedent(exp_output).lstrip(), output)
 
     def test_args_from_file(self):
         data = [1, 2, 3, 4]

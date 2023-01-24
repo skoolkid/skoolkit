@@ -387,7 +387,8 @@ class SnapmodTest(SkoolKitTestCase):
         exp_header[27] = 1 # IFF 1
         exp_header[28] = 1 # IFF 2
         exp_header[29] = (header[29] & 252) | 2 # IM 2
-        options = '-s border=2 -s iff=1 -s im=2'
+        exp_header[55:58] = (158, 4, 1) # T-states
+        options = '-s border=2 -s iff=1 -s im=2 -s tstates=51233'
         self._test_z80(options, header, exp_header)
 
     def test_option_s_invalid_values(self):
@@ -405,9 +406,10 @@ class SnapmodTest(SkoolKitTestCase):
 
             Set a hardware state attribute. Recognised names and their default values are:
 
-              border - border colour (default=0)
-              iff    - interrupt flip-flop: 0=disabled, 1=enabled (default=1)
-              im     - interrupt mode (default=1)
+              border  - border colour (default=0)
+              iff     - interrupt flip-flop: 0=disabled, 1=enabled (default=1)
+              im      - interrupt mode (default=1)
+              tstates - T-states elapsed since start of frame (default=0)
         """
         self.assertEqual(textwrap.dedent(exp_output).lstrip(), output)
 

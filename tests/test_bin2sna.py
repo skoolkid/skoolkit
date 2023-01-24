@@ -29,9 +29,9 @@ class Bin2SnaTest(SkoolKitTestCase):
         return outfile
 
     def _check_z80(self, z80file, data, org=None, sp=None, pc=None, border=7,
-                   iff=1, im=1):
+                   iff=1, im=1, tstates=34943):
         with open(z80file, 'rb') as f:
-            z80h = f.read(34)
+            z80h = f.read(58)
         if org is None:
             org = 65536 - len(data)
         if sp is None:
@@ -48,6 +48,9 @@ class Bin2SnaTest(SkoolKitTestCase):
         self.assertEqual(z80h[10], 63)                     # I
         self.assertEqual(z80h[23] + 256 * z80h[24], 23610) # IY
         self.assertEqual(z80h[32] + 256 * z80h[33], pc)    # PC
+        t1 = (z80h[55] + 256 * z80h[56]) % 17472
+        t2 = (2 - z80h[57]) % 4
+        self.assertEqual(69887 - t2 * 17472 - t1, tstates)
 
         snapshot = get_snapshot(z80file)
         self.assertEqual(data, snapshot[org:org + len(data)])
@@ -356,8 +359,8 @@ class Bin2SnaTest(SkoolKitTestCase):
     def test_option_S(self):
         data = [0]
         binfile = self.write_bin_file(data, suffix='.bin')
-        z80file = self._run("-S border=3 --state iff=0 -S im=2 {}".format(binfile))
-        self._check_z80(z80file, data, border=3, iff=0, im=2)
+        z80file = self._run("-S border=3 --state iff=0 -S im=2 --state tstates=100 {}".format(binfile))
+        self._check_z80(z80file, data, border=3, iff=0, im=2, tstates=100)
 
     def test_option_S_invalid_values(self):
         self._test_bad_spec('-S border=k', 'Cannot parse integer: border=k')
@@ -373,9 +376,10 @@ class Bin2SnaTest(SkoolKitTestCase):
 
             Set a hardware state attribute. Recognised names and their default values are:
 
-              border - border colour (default=0)
-              iff    - interrupt flip-flop: 0=disabled, 1=enabled (default=1)
-              im     - interrupt mode (default=1)
+              border  - border colour (default=0)
+              iff     - interrupt flip-flop: 0=disabled, 1=enabled (default=1)
+              im      - interrupt mode (default=1)
+              tstates - T-states elapsed since start of frame (default=0)
         """
         self.assertEqual(textwrap.dedent(exp_output).lstrip(), output)
 

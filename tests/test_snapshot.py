@@ -1,5 +1,5 @@
 from skoolkittest import SkoolKitTestCase
-from skoolkit.snapshot import get_snapshot, make_z80_ram_block, SnapshotError
+from skoolkit.snapshot import get_snapshot, make_z80_ram_block, set_z80_state, SnapshotError
 
 class SnapshotTest(SkoolKitTestCase):
     def _check_ram(self, ram, exp_ram, model, out_7ffd, pages, page):
@@ -179,6 +179,43 @@ class Z80CompressionTest(SkoolKitTestCase):
         data = [0, 237]
         exp_data = [2, 0, 0, 0, 237]
         self.assertEqual(exp_data, make_z80_ram_block(data, 0))
+
+class Z80StateTest(SkoolKitTestCase):
+    def test_iff(self):
+        header = [255] * 30
+        for iff in (0, 1):
+            set_z80_state(header, f'iff={iff}')
+            self.assertEqual([iff, iff], header[27:29])
+
+    def test_im(self):
+        header = [255] * 30
+        for im in (0, 1, 2):
+            set_z80_state(header, f'im={im}')
+            self.assertEqual(header[29], 252 + im)
+
+    def test_border(self):
+        header = [255] * 30
+        for border in range(8):
+            set_z80_state(header, f'border={border}')
+            self.assertEqual(header[12], 241 + border * 2)
+
+    def test_tstates(self):
+        header = [255] * 58
+        for tstates in (0, 1000, 17471, 17472, 20000, 38000, 56000, 69887, 69888):
+            set_z80_state(header, f'tstates={tstates}')
+            t_lo = header[55] + 256 * header[56]
+            t_hi = header[57]
+            t = 69887 - ((2 - t_hi) % 4) * 17472 - (t_lo % 17472)
+            self.assertEqual(t, tstates % 69888)
+
+    def test_all(self):
+        header = [255] * 58
+        set_z80_state(header, 'iff=0', 'im=2', 'border=3', 'tstates=17471')
+        self.assertEqual(header[27], 0) # IFF1
+        self.assertEqual(header[28], 0) # IFF2
+        self.assertEqual(header[29], 254) # IM (bits 0-1)
+        self.assertEqual(header[12], 247) # Border (bits 1-3)
+        self.assertEqual([0, 0, 3], header[55:58]) # T-states
 
 class SZXTest(SnapshotTest):
     def _test_szx(self, exp_ram, compress, machine_id=1, ch7ffd=0, pages={}, page=None):

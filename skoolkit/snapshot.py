@@ -1,4 +1,4 @@
-# Copyright 2009-2013, 2015-2022 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2009-2013, 2015-2023 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -19,6 +19,9 @@ import zlib
 
 from skoolkit import SkoolKitError, get_int_param, parse_int, read_bin_file
 from skoolkit.components import get_snapshot_reader, get_value
+
+FRAME_DURATION = 69888
+QFRAME_DURATION = FRAME_DURATION // 4
 
 # https://worldofspectrum.net/faq/reference/z80format.htm
 Z80_REGISTERS = {
@@ -161,6 +164,10 @@ def set_z80_state(z80, *specs):
             elif name == 'border':
                 z80[12] &= 241 # Clear bits 1-3
                 z80[12] |= (get_int_param(val) & 7) * 2 # Border colour
+            elif name == 'tstates':
+                t = FRAME_DURATION - 1 - (get_int_param(val) % FRAME_DURATION)
+                t1, t2 = t % QFRAME_DURATION, t // QFRAME_DURATION
+                z80[55:58] = (t1 % 256, t1 // 256, (2 - t2) % 4)
             else:
                 raise SkoolKitError("Invalid parameter: {}".format(spec))
         except ValueError:
@@ -175,9 +182,10 @@ Usage: {}
 
 Set a hardware state attribute. Recognised names and their default values are:
 
-  border - border colour (default=0)
-  iff    - interrupt flip-flop: 0=disabled, 1=enabled (default=1)
-  im     - interrupt mode (default=1)
+  border  - border colour (default=0)
+  iff     - interrupt flip-flop: 0=disabled, 1=enabled (default=1)
+  im      - interrupt mode (default=1)
+  tstates - T-states elapsed since start of frame (default=0)
 """.format(', '.join(options)).strip())
 
 def make_z80_ram_block(data, page):

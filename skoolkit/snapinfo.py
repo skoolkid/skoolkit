@@ -1,4 +1,4 @@
-# Copyright 2013-2017, 2019-2022 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2013-2017, 2019-2023 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -20,7 +20,7 @@ from skoolkit import SkoolKitError, get_dword, get_int_param, get_word, integer,
 from skoolkit.basic import BasicLister, VariableLister, get_char
 from skoolkit.config import get_config, show_config, update_options
 from skoolkit.opcodes import END, decode
-from skoolkit.snapshot import make_snapshot
+from skoolkit.snapshot import FRAME_DURATION, QFRAME_DURATION, make_snapshot
 from skoolkit.sna2skool import get_ctl_parser
 from skoolkit.snaskool import Disassembly
 
@@ -159,6 +159,12 @@ def _parse_z80(z80file):
     reg.border = (header[12] // 2) % 8
     reg.iff2 = header[28]
     reg.im = header[29] & 3
+    if version == 3:
+        t1 = (header[55] + 256 * header[56]) % QFRAME_DURATION
+        t2 = (2 - header[57]) % 4
+        reg.tstates = FRAME_DURATION - 1 - t2 * QFRAME_DURATION - t1
+    else:
+        reg.tstates = 0
 
     return header, reg, ram_blocks
 
@@ -274,6 +280,7 @@ def _parse_szx(szxfile):
             reg.r = block[25]
             reg.iff2 = block[27]
             reg.im = block[28]
+            reg.tstates = get_dword(block, 29)
         elif block_id == 'SPCR':
             reg.border = block[0]
 
@@ -372,6 +379,7 @@ def _parse_sna(snafile):
     reg.border = sna[26]
     reg.iff2 = (sna[19] & 4) // 4
     reg.im = sna[25]
+    reg.tstates = 0
 
     return sna[:27], reg, sna[27:]
 

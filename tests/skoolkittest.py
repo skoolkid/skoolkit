@@ -258,6 +258,10 @@ class SkoolKitTestCase(TestCase):
         else:
             header[32] = pc % 256
             header[33] = pc // 256
+            if version == 3:
+                t = 69887 - (registers.get('tstates', 0) % 69888)
+                t1, t2 = t % 17472, t // 17472
+                header[55:58] = (t1 % 256, t1 // 256, (2 - t2) % 4)
         sp = registers.get('SP', 0)
         header[8] = sp % 256
         header[9] = sp // 256

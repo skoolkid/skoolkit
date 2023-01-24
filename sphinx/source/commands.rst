@@ -52,6 +52,8 @@ it with no arguments to see the list of available options::
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 8.9     | Added the ``tstates`` hardware state attribute                    |
++---------+-------------------------------------------------------------------+
 | 6.3     | Added the ``--poke`` option                                       |
 +---------+-------------------------------------------------------------------+
 | 6.2     | Added the ``--reg`` and ``--state`` options; the ``--org``,       |
@@ -1244,6 +1246,8 @@ To list the options supported by `snapmod.py`, run it with no arguments::
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 8.9     | Added the ``tstates`` hardware state attribute                    |
++---------+-------------------------------------------------------------------+
 | 6.2     | The ``--move``, ``--poke`` and ``--reg`` options accept           |
 |         | hexadecimal integers prefixed by '0x'                             |
 +---------+-------------------------------------------------------------------+
@@ -1398,7 +1402,8 @@ given on the command line.
 | Version | Changes                                                           |
 +=========+===================================================================+
 | 8.9     | Added the ``--accelerator`` and ``--no-fast-load`` options; added |
-|         | support for TZX loops, pauses, and unused bits in data blocks     |
+|         | support for TZX loops, pauses, and unused bits in data blocks;    |
+|         | added the ``tstates`` hardware state attribute                    |
 +---------+-------------------------------------------------------------------+
 | 8.8     | The ``--sim-load`` option performs any ``call/move/poke/sysvars`` |
 |         | operations specified by ``--ram``                                 |
@@ -1531,10 +1536,12 @@ between those changes. This list can be supplied to the :ref:`AUDIO` macro to
 produce a WAV file for the sound effect that would be produced by the same code
 running on a real ZX Spectrum.
 
-+---------+-----------------------------------+
-| Version | Changes                           |
-+=========+===================================+
-| 8.9     | Added the ``--interrupts`` option |
-+---------+-----------------------------------+
-| 8.8     | New                               |
-+---------+-----------------------------------+
++---------+-------------------------------------------------------------------+
+| Version | Changes                                                           |
++=========+===================================================================+
+| 8.9     | Added the ``--interrupts`` option; reads and writes the T-states  |
+|         | counter in Z80 snapshots and reads the T-states counter in SZX    |
+|         | snapshots                                                         |
++---------+-------------------------------------------------------------------+
+| 8.8     | New                                                               |
++---------+-------------------------------------------------------------------+

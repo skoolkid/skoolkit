@@ -114,7 +114,8 @@ class TraceTest(SkoolKitTestCase):
             'PC': 32768,
             'iff1': 1,
             'iff2': 1,
-            'im': 2
+            'im': 2,
+            'tstates': 20000
         }
         ram = [0] * 49152
         z80file = self.write_z80_file(None, ram, registers=registers)
@@ -126,26 +127,28 @@ class TraceTest(SkoolKitTestCase):
         self._test_trace(f'-vv -S 32769 {z80file}', exp_output)
         self.assertEqual(simulator.iff2, 1)
         self.assertEqual(simulator.imode, 2)
+        self.assertEqual(simulator.registers[25], 20004)
 
     @patch.object(trace, 'Simulator', TestSimulator)
     def test_szx(self):
         registers = (
-            1, 2,   # AF
-            3, 4,   # BC
-            5, 6,   # DE
-            7, 8,   # HL
-            9, 10,  # AF'
-            11, 12, # BC'
-            13, 14, # DE'
-            15, 16, # HL'
-            17, 18, # IX
-            19, 20, # IY
-            0, 128, # SP=32768
-            0, 192, # PC=49152
-            21,     # I
-            22,     # R
-            1, 1,   # iff1, iff2
-            0,      # im
+            1, 2,       # AF
+            3, 4,       # BC
+            5, 6,       # DE
+            7, 8,       # HL
+            9, 10,      # AF'
+            11, 12,     # BC'
+            13, 14,     # DE'
+            15, 16,     # HL'
+            17, 18,     # IX
+            19, 20,     # IY
+            0, 128,     # SP=32768
+            0, 192,     # PC=49152
+            21,         # I
+            22,         # R
+            1, 1,       # iff1, iff2
+            0,          # im
+            1, 1, 0, 0, # dwCyclesStart=257
         )
         ram = [0] * 49152
         szxfile = self.write_szx(ram, registers=registers)
@@ -159,6 +162,7 @@ class TraceTest(SkoolKitTestCase):
         self.assertEqual(dedent(exp_output).strip(), output.rstrip())
         self.assertEqual(simulator.iff2, 1)
         self.assertEqual(simulator.imode, 0)
+        self.assertEqual(simulator.registers[25], 261)
 
     def test_no_snapshot(self):
         output, error = self.run_trace(f'-v -S 1 .')
@@ -410,7 +414,7 @@ class TraceTest(SkoolKitTestCase):
             '^hl=25431',
             f'pc={stop}'
         )
-        exp_state = ('border=1', 'iff=0', 'im=2')
+        exp_state = ('border=1', 'iff=0', 'im=2', 'tstates=166')
         self.assertEqual(dedent(exp_output).strip(), output.rstrip())
         self.assertEqual(z80fname, outfile)
         self.assertEqual(data, snapshot[start:stop])
@@ -482,184 +486,164 @@ class TraceTest(SkoolKitTestCase):
 
     def test_option_interrupts_without_halt(self):
         data = [
-            0x11, 0x7F, 0x0A, # $8000 LD DE,$0A7F  ; t=0 T-states
-            0x1B,             # $8003 DEC DE       ;
-            0x7A,             # $8004 LD A,D       ;
-            0xB3,             # $8005 OR E         ;
-            0x20, 0xFB,       # $8006 JR NZ,$8003  ;
-            0xDD, 0xA6, 0x00, # $8008 AND (IX+$00) ; t=69867
-            0x00,             # $800B NOP          ; t=69886 (interrupt follows)
-            0x00,             # $800C NOP
+            0x00, # $8000 NOP ; t=69882
+            0x00, # $8001 NOP ; t=69886 (interrupt follows)
+            0x00, # $8002 NOP
         ]
-        binfile = self.write_bin_file(data, suffix='.bin')
         start = 0x8000
-        stop = 0x800d
-        output, error = self.run_trace(f'-i -o {start} -S {stop} -v {binfile}')
+        stop = 0x8003
+        ram = [0] * 49152
+        ram[start - 0x4000:start - 0x4000 + len(data)] = data
+        registers = {'PC': start, 'iff2': 1, 'im': 1, 'tstates': 69882}
+        z80file = self.write_z80_file(None, ram, registers=registers)
+        output, error = self.run_trace(f'-i -S {stop} -v {z80file}')
         self.assertEqual(error, '')
         output_lines = output.split('\n')
-        self.assertEqual(output_lines[0], '$8000 117F0A   LD DE,$0A7F')
-        self.assertEqual(output_lines[10749], '$8008 DDA600   AND (IX+$00)')
-        self.assertEqual(output_lines[10750], '$800B 00       NOP')
-        self.assertEqual(output_lines[10751], '$0038 F5       PUSH AF')
-        self.assertEqual(output_lines[10859], '$0052 C9       RET')
-        self.assertEqual(output_lines[10860], '$800C 00       NOP')
-        self.assertEqual(output_lines[10861], 'Stopped at $800D')
+        self.assertEqual(output_lines[0], '$8000 00       NOP')
+        self.assertEqual(output_lines[1], '$8001 00       NOP')
+        self.assertEqual(output_lines[2], '$0038 F5       PUSH AF')
+        self.assertEqual(output_lines[110], '$0052 C9       RET')
+        self.assertEqual(output_lines[111], '$8002 00       NOP')
+        self.assertEqual(output_lines[112], 'Stopped at $8003')
 
     def test_option_interrupts_with_ei(self):
         data = [
-            0x11, 0x7F, 0x0A, # $8000 LD DE,$0A7F  ; t=0 T-states
-            0x1B,             # $8003 DEC DE
-            0x7A,             # $8004 LD A,D
-            0xB3,             # $8005 OR E
-            0x20, 0xFB,       # $8006 JR NZ,$8003
-            0xDD, 0xA6, 0x00, # $8008 AND (IX+$00) ; t=69867
-            0xFB,             # $800B EI           ; t=69886 (no interrupt accepted after EI)
-            0x00,             # $800C NOP          ; t=69890 (interrupt follows)
-            0x00,             # $800D NOP
+            0x00, # $8000 NOP ; t=69882
+            0xFB, # $8001 EI  ; t=69886 (no interrupt accepted after EI)
+            0x00, # $8002 NOP ; t=69890 (interrupt follows)
+            0x00, # $8003 NOP
         ]
-        binfile = self.write_bin_file(data, suffix='.bin')
         start = 0x8000
-        stop = 0x800e
-        output, error = self.run_trace(f'--interrupts -o {start} -S {stop} -v {binfile}')
+        stop = 0x8004
+        ram = [0] * 49152
+        ram[start - 0x4000:start - 0x4000 + len(data)] = data
+        registers = {'PC': start, 'iff2': 1, 'im': 1, 'tstates': 69882}
+        z80file = self.write_z80_file(None, ram, registers=registers)
+        output, error = self.run_trace(f'--interrupts -S {stop} -v {z80file}')
         self.assertEqual(error, '')
         output_lines = output.split('\n')
-        self.assertEqual(output_lines[0], '$8000 117F0A   LD DE,$0A7F')
-        self.assertEqual(output_lines[10749], '$8008 DDA600   AND (IX+$00)')
-        self.assertEqual(output_lines[10750], '$800B FB       EI')
-        self.assertEqual(output_lines[10751], '$800C 00       NOP')
-        self.assertEqual(output_lines[10752], '$0038 F5       PUSH AF')
-        self.assertEqual(output_lines[10860], '$0052 C9       RET')
-        self.assertEqual(output_lines[10861], '$800D 00       NOP')
-        self.assertEqual(output_lines[10862], 'Stopped at $800E')
+        self.assertEqual(output_lines[0], '$8000 00       NOP')
+        self.assertEqual(output_lines[1], '$8001 FB       EI')
+        self.assertEqual(output_lines[2], '$8002 00       NOP')
+        self.assertEqual(output_lines[3], '$0038 F5       PUSH AF')
+        self.assertEqual(output_lines[111], '$0052 C9       RET')
+        self.assertEqual(output_lines[112], '$8003 00       NOP')
+        self.assertEqual(output_lines[113], 'Stopped at $8004')
 
     def test_option_interrupts_with_di(self):
         data = [
-            0x11, 0x7F, 0x0A, # $8000 LD DE,$0A7F  ; t=0 T-states
-            0x1B,             # $8003 DEC DE
-            0x7A,             # $8004 LD A,D
-            0xB3,             # $8005 OR E
-            0x20, 0xFB,       # $8006 JR NZ,$8003
-            0xDD, 0xA6, 0x00, # $8008 AND (IX+$00) ; t=69867
-            0xF3,             # $800B DI           ; t=69886 (no interrupt accepted after DI)
-            0x00,             # $800C NOP          ; t=69890
-            0x00,             # $800D NOP          ; t=69894
+            0x00, # $8000 NOP ; t=69882
+            0xF3, # $8001 DI  ; t=69886 (no interrupt accepted after DI)
+            0x00, # $8002 NOP ; t=69890
+            0x00, # $8003 NOP ; t=69894
         ]
-        binfile = self.write_bin_file(data, suffix='.bin')
         start = 0x8000
-        stop = 0x800e
-        output, error = self.run_trace(f'-i -o {start} -S {stop} -v {binfile}')
+        stop = 0x8004
+        ram = [0] * 49152
+        ram[start - 0x4000:start - 0x4000 + len(data)] = data
+        registers = {'PC': start, 'iff2': 1, 'im': 1, 'tstates': 69882}
+        z80file = self.write_z80_file(None, ram, registers=registers)
+        output, error = self.run_trace(f'--interrupts -S {stop} -v {z80file}')
         self.assertEqual(error, '')
         output_lines = output.split('\n')
-        self.assertEqual(output_lines[0], '$8000 117F0A   LD DE,$0A7F')
-        self.assertEqual(output_lines[10749], '$8008 DDA600   AND (IX+$00)')
-        self.assertEqual(output_lines[10750], '$800B F3       DI')
-        self.assertEqual(output_lines[10751], '$800C 00       NOP')
-        self.assertEqual(output_lines[10752], '$800D 00       NOP')
-        self.assertEqual(output_lines[10753], 'Stopped at $800E')
+        self.assertEqual(output_lines[0], '$8000 00       NOP')
+        self.assertEqual(output_lines[1], '$8001 F3       DI')
+        self.assertEqual(output_lines[2], '$8002 00       NOP')
+        self.assertEqual(output_lines[3], '$8003 00       NOP')
+        self.assertEqual(output_lines[4], 'Stopped at $8004')
 
     def test_option_interrupts_at_exact_frame_boundary(self):
         data = [
-            0x11, 0x7F, 0x0A, # $8000 LD DE,$0A7F  ; t=0 T-states
-            0x1B,             # $8003 DEC DE       ;
-            0x7A,             # $8004 LD A,D       ;
-            0xB3,             # $8005 OR E         ;
-            0x20, 0xFB,       # $8006 JR NZ,$8003  ;
-            0xED, 0x62,       # $8008 SBC HL,HL    ; t=69867 (+15=69882)
-            0x1B,             # $800A DEC DE       ; t=69882 (+6=69888: boundary)
-            0x00,             # $800B NOP          ;
+            0x78, # $8000 LD A,B ; t=69884 (+4=69888: frame boundary)
+            0x78, # $8001 LD A,B
         ]
-        binfile = self.write_bin_file(data, suffix='.bin')
         start = 0x8000
-        stop = 0x800c
-        output, error = self.run_trace(f'--interrupts -o {start} -S {stop} -v {binfile}')
+        stop = 0x8002
+        ram = [0] * 49152
+        ram[start - 0x4000:start - 0x4000 + len(data)] = data
+        registers = {'PC': start, 'iff2': 1, 'im': 1, 'tstates': 69884}
+        z80file = self.write_z80_file(None, ram, registers=registers)
+        output, error = self.run_trace(f'--interrupts -S {stop} -v {z80file}')
         self.assertEqual(error, '')
         output_lines = output.split('\n')
-        self.assertEqual(output_lines[0], '$8000 117F0A   LD DE,$0A7F')
-        self.assertEqual(output_lines[10749], '$8008 ED62     SBC HL,HL')
-        self.assertEqual(output_lines[10750], '$800A 1B       DEC DE')
-        self.assertEqual(output_lines[10751], '$0038 F5       PUSH AF')
-        self.assertEqual(output_lines[10859], '$0052 C9       RET')
-        self.assertEqual(output_lines[10860], '$800B 00       NOP')
-        self.assertEqual(output_lines[10861], 'Stopped at $800C')
+        self.assertEqual(output_lines[0], '$8000 78       LD A,B')
+        self.assertEqual(output_lines[1], '$0038 F5       PUSH AF')
+        self.assertEqual(output_lines[109], '$0052 C9       RET')
+        self.assertEqual(output_lines[110], '$8001 78       LD A,B')
+        self.assertEqual(output_lines[111], 'Stopped at $8002')
 
     @patch.object(trace, 'write_z80v3', mock_write_z80v3)
     def test_option_interrupts_with_djnz(self):
         data = [
-            0x21, 0x00, 0x80,       # $7FE7 LD HL,$8000   ; t=0 T-states
-            0x22, 0x00, 0xFF,       # $7FEA LD ($FF00),HL ; t=10
-            0x3E, 0xFF,             # $7FED LD A,$FF      ; t=26
-            0xED, 0x47,             # $7FEF LD I,A        ; t=33
-            0xED, 0x5E,             # $7FF1 IM 2          ; t=42
-            0x06, 0x04,             # $7FF3 LD B,$04      ; t=50
-            0x11, 0x7D, 0x0A,       # $7FF5 LD DE,$0A7D   ; t=57
-            0x1B,                   # $7FF8 DEC DE
-            0x7A,                   # $7FF9 LD A,D
-            0xB3,                   # $7FFA OR E
-            0x20, 0xFB,             # $7FFB JR NZ,$7FF8
+            0x21, 0x00, 0x80,       # $7FEF LD HL,$8000   ; t=69805 T-states
+            0x22, 0x00, 0xFF,       # $7FF2 LD ($FF00),HL ; t=69815
+            0x3E, 0xFF,             # $7FF5 LD A,$FF      ; t=69831
+            0xED, 0x47,             # $7FF7 LD I,A        ; t=69838
+            0xED, 0x5E,             # $7FF9 IM 2          ; t=69847
+            0x06, 0x04,             # $7FFB LD B,$04      ; t=69855
             0x10, 0xFE,             # $7FFD DJNZ $7FFD    ; t=69862/69875/interrupted
             0x00,                   # $7FFF NOP
             0xED, 0x43, 0x00, 0xC0, # $8000 LD ($C000),BC
             0xC9,                   # $8004 RET
         ]
-        binfile = self.write_bin_file(data, suffix='.bin')
         outfile = os.path.join(self.make_directory(), 'dump.z80')
-        start = 0x7fe7
+        start = 0x7fef
         stop = 0x7fff
-        output, error = self.run_trace(f'--interrupts -o {start} -S {stop} --dump {outfile} {binfile}')
+        ram = [0] * 49152
+        ram[start - 0x4000:start - 0x4000 + len(data)] = data
+        registers = {'PC': start, 'iff2': 1, 'im': 1, 'tstates': 69805}
+        z80file = self.write_z80_file(None, ram, registers=registers)
+        output, error = self.run_trace(f'--interrupts -S {stop} --dump {outfile} -v {z80file}')
         self.assertEqual(error, '')
         self.assertEqual(snapshot[0xc001], 2) # DJNZ interrupted when B=2
 
     @patch.object(trace, 'write_z80v3', mock_write_z80v3)
     def test_option_interrupts_with_ldir(self):
         data = [
-            0x21, 0x00, 0x80,       # $7FE6 LD HL,$8000   ; t=0 T-states
-            0x22, 0x00, 0xFF,       # $7FE9 LD ($FF00),HL ; t=10
-            0x3E, 0xFF,             # $7FEC LD A,$FF      ; t=26
-            0xED, 0x47,             # $7FEE LD I,A        ; t=33
-            0xED, 0x5E,             # $7FF0 IM 2          ; t=42
-            0x01, 0x04, 0x00,       # $7FF2 LD BC,$0004   ; t=50
-            0x11, 0x7C, 0x0A,       # $7FF5 LD DE,$0A7C   ; t=60
-            0x1B,                   # $7FF8 DEC DE
-            0x7A,                   # $7FF9 LD A,D
-            0xB3,                   # $7FFA OR E
-            0x20, 0xFB,             # $7FFB JR NZ,$7FF8
+            0x21, 0x00, 0x80,       # $7FEE LD HL,$8000   ; t=69805 T-states
+            0x22, 0x00, 0xFF,       # $7FF1 LD ($FF00),HL ; t=69815
+            0x3E, 0xFF,             # $7FF4 LD A,$FF      ; t=69831
+            0xED, 0x47,             # $7FF6 LD I,A        ; t=69838
+            0xED, 0x5E,             # $7FF8 IM 2          ; t=69847
+            0x01, 0x04, 0x00,       # $7FFA LD BC,$0004   ; t=69855
             0xED, 0xB0,             # $7FFD LDIR          ; t=69865/69886/interrupted
             0x00,                   # $7FFF NOP
             0xED, 0x43, 0x00, 0xC0, # $8000 LD ($C000),BC
             0xC9,                   # $8004 RET
         ]
-        binfile = self.write_bin_file(data, suffix='.bin')
         outfile = os.path.join(self.make_directory(), 'dump.z80')
-        start = 0x7fe6
+        start = 0x7fee
         stop = 0x7fff
-        output, error = self.run_trace(f'--interrupts -o {start} -S {stop} --dump {outfile} {binfile}')
+        ram = [0] * 49152
+        ram[start - 0x4000:start - 0x4000 + len(data)] = data
+        registers = {'PC': start, 'iff2': 1, 'im': 1, 'tstates': 69805}
+        z80file = self.write_z80_file(None, ram, registers=registers)
+        output, error = self.run_trace(f'--interrupts -S {stop} --dump {outfile} -v {z80file}')
         self.assertEqual(error, '')
         self.assertEqual(snapshot[0xc000], 2) # LDIR interrupted when BC=2
 
     @patch.object(trace, 'write_z80v3', mock_write_z80v3)
     def test_option_interrupts_with_lddr(self):
         data = [
-            0x21, 0x00, 0x80,       # $7FE6 LD HL,$8000   ; t=0 T-states
-            0x22, 0x00, 0xFF,       # $7FE9 LD ($FF00),HL ; t=10
-            0x3E, 0xFF,             # $7FEC LD A,$FF      ; t=26
-            0xED, 0x47,             # $7FEE LD I,A        ; t=33
-            0xED, 0x5E,             # $7FF0 IM 2          ; t=42
-            0x01, 0x04, 0x00,       # $7FF2 LD BC,$0004   ; t=50
-            0x11, 0x7C, 0x0A,       # $7FF5 LD DE,$0A7C   ; t=60
-            0x1B,                   # $7FF8 DEC DE
-            0x7A,                   # $7FF9 LD A,D
-            0xB3,                   # $7FFA OR E
-            0x20, 0xFB,             # $7FFB JR NZ,$7FF8
+            0x21, 0x00, 0x80,       # $7FEE LD HL,$8000   ; t=69805 T-states
+            0x22, 0x00, 0xFF,       # $7FF1 LD ($FF00),HL ; t=69815
+            0x3E, 0xFF,             # $7FF4 LD A,$FF      ; t=69831
+            0xED, 0x47,             # $7FF6 LD I,A        ; t=69838
+            0xED, 0x5E,             # $7FF8 IM 2          ; t=69847
+            0x01, 0x04, 0x00,       # $7FFA LD BC,$0004   ; t=69855
             0xED, 0xB8,             # $7FFD LDDR          ; t=69865/69886/interrupted
             0x00,                   # $7FFF NOP
             0xED, 0x43, 0x00, 0xC0, # $8000 LD ($C000),BC
             0xC9,                   # $8004 RET
         ]
-        binfile = self.write_bin_file(data, suffix='.bin')
         outfile = os.path.join(self.make_directory(), 'dump.z80')
-        start = 0x7fe6
+        start = 0x7fee
         stop = 0x7fff
-        output, error = self.run_trace(f'--interrupts -o {start} -S {stop} --dump {outfile} {binfile}')
+        ram = [0] * 49152
+        ram[start - 0x4000:start - 0x4000 + len(data)] = data
+        registers = {'PC': start, 'iff2': 1, 'im': 1, 'tstates': 69805}
+        z80file = self.write_z80_file(None, ram, registers=registers)
+        output, error = self.run_trace(f'--interrupts -S {stop} --dump {outfile} -v {z80file}')
         self.assertEqual(error, '')
         self.assertEqual(snapshot[0xc000], 2) # LDDR interrupted when BC=2
 

@@ -225,11 +225,13 @@ def run(snafile, options):
         im = reg.im
         iff = reg.iff2
         border = reg.border
+        tstates = reg.tstates
     else:
         im = 1
         iff = 1
         border = 7
-    state = {'im': im, 'iff': iff}
+        tstates = 0
+    state = {'im': im, 'iff': iff, 'tstates': tstates}
     fast = options.verbose == 0 and not options.interrupts
     config = {'fast_djnz': fast, 'fast_ldir': fast}
     simulator = Simulator(memory, get_registers(reg, options.reg), state, config)
@@ -277,7 +279,8 @@ def run(snafile, options):
         state = (
             f'border={tracer.border}',
             f'iff={simulator.iff2}',
-            f'im={simulator.imode}'
+            f'im={simulator.imode}',
+            f'tstates={r[T]}'
         )
         write_z80v3(options.dump, ram, registers, state)
         print(f'Z80 snapshot dumped to {options.dump}')
