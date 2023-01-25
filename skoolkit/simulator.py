@@ -518,7 +518,7 @@ class Simulator:
     def halt(self, registers):
         if self.iff2:
             t = registers[25]
-            if (t + 4) % FRAME_DURATION < t % FRAME_DURATION:
+            if (t + 4) // FRAME_DURATION > t // FRAME_DURATION:
                 registers[24] = (registers[24] + 1) % 65536
         registers[15] = R1[registers[15]]
         registers[25] += 4
