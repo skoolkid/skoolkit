@@ -67,6 +67,12 @@ OPTIONS
 -V, --version
   Show the SkoolKit version number and exit.
 
+TZX SUPPORT
+===========
+``tap2sna.py`` can read data from TZX block types 0x10 (standard speed data),
+0x11 (turbo speed data) and 0x14 (pure data), but not block types 0x15 (direct
+recording), 0x18 (CSW recording) or 0x19 (generalized data block).
+
 SIMULATED LOAD
 ==============
 The ``--sim-load`` option simulates a freshly booted 48K ZX Spectrum running
@@ -311,11 +317,6 @@ then:
 
 will create ``game.z80`` as if the arguments specified in ``game.t2s`` had been
 given on the command line.
-
-TZX SUPPORT
-===========
-Support for TZX files is limited to block types 0x10 (standard speed data),
-0x11 (turbo speed data) and 0x14 (pure data).
 
 EXAMPLES
 ========

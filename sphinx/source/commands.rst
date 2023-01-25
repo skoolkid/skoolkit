@@ -1295,8 +1295,9 @@ To list the options supported by `tap2sna.py`, run it with no arguments::
                           Set the User-Agent header.
     -V, --version         Show SkoolKit version number and exit.
 
-Note that support for TZX files is limited to block types 0x10 (standard speed
-data), 0x11 (turbo speed data) and 0x14 (pure data).
+Note that `tap2sna.py` can read data from TZX block types 0x10 (standard speed
+data), 0x11 (turbo speed data) and 0x14 (pure data), but not block types 0x15
+(direct recording), 0x18 (CSW recording) or 0x19 (generalized data block).
 
 By default, `tap2sna.py` loads bytes from every data block on the tape, using
 the start address given in the corresponding header. For tapes that contain
