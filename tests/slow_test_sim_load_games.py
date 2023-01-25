@@ -54,6 +54,15 @@ class SimLoadGamesTest(SkoolKitTestCase):
             '--accelerator alkatraz2 --start 24000'
         )
 
+    def test_chromoload2(self):
+        self._test_sim_load(
+            'https://www.worldofspectrum.org/pub/sinclair/games/s/Skyway.tzx.zip',
+            'Skyway.tzx',
+            '78bc636a3eceff22141a26a720e2c0bb',
+            'beff4e5a1317d1054cf01a9692fd942b',
+            '--accelerator speedlock --start 64963'
+        )
+
     def test_cyberlode_1_1(self):
         self._test_sim_load(
             'https://www.worldofspectrum.org/pub/sinclair/games/c/Cauldron(SilverbirdSoftwareLtd).tzx.zip',
@@ -240,6 +249,15 @@ class SimLoadGamesTest(SkoolKitTestCase):
             'c4e7e151c4321b29c095abf1e547f9b5',
             '28548a9187bb63526cb5c06fe7ecfd5f',
             '--accelerator search-loader --start 23552'
+        )
+
+    def test_sinclair_user(self):
+        self._test_sim_load(
+            'https://www.worldofspectrum.org/pub/sinclair/games/p/PiecesOfEight.tzx.zip',
+            'Pieces Of Eight (1992)(Pirate Software - Sinclair User)[SU Loader].tzx',
+            '62da22ff8b0f6e704b4e1a509d285e40',
+            'd3c5577c6b28e1a0aca59e9f286abe3b',
+            '--accelerator bleepload --start 16394'
         )
 
     def test_softlock(self):
