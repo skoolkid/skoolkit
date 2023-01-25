@@ -243,9 +243,10 @@ def run(snafile, options):
                options.interrupts)
     rt = time.time() - begin
     if options.stats:
-        z80t = simulator.registers[T] / 3500000
-        speed = z80t / (rt or 0.001) # Avoid division by zero
-        print(f'Z80 execution time: {simulator.registers[T]} T-states ({z80t:.03f}s)')
+        z80t = simulator.registers[T] - tstates
+        z80s = z80t / 3500000
+        speed = z80s / (rt or 0.001) # Avoid division by zero
+        print(f'Z80 execution time: {z80t} T-states ({z80s:.03f}s)')
         print(f'Instructions executed: {tracer.operations}')
         print(f'Simulation time: {rt:.03f}s (x{speed:.02f})')
     if options.audio:

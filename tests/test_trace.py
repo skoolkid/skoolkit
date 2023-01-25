@@ -775,6 +775,24 @@ class TraceTest(SkoolKitTestCase):
         self.assertEqual(o_lines[2], 'Instructions executed: 2')
         self.assertEqual(o_lines[3][:17], 'Simulation time: ')
 
+    def test_option_stats_with_non_zero_start_time(self):
+        data = [
+            175, # XOR A
+            60,  # INC A
+        ]
+        start, stop = 32768, 32770
+        ram = [0] * 49152
+        ram[start - 0x4000:start - 0x4000 + len(data)] = data
+        registers = {'PC': start, 'tstates': 10000}
+        z80file = self.write_z80_file(None, ram, registers=registers)
+        output, error = self.run_trace(f'-S {stop} --stats {z80file}')
+        self.assertEqual(error, '')
+        o_lines = output.split('\n')
+        self.assertEqual(o_lines[0], 'Stopped at $8002')
+        self.assertEqual(o_lines[1], 'Z80 execution time: 8 T-states (0.000s)')
+        self.assertEqual(o_lines[2], 'Instructions executed: 2')
+        self.assertEqual(o_lines[3][:17], 'Simulation time: ')
+
     def test_option_stop(self):
         for option in ('-S 57', '--stop 0x0039'):
             output, error = self.run_trace(f'-v -s 56 {option} .')
