@@ -196,6 +196,7 @@ class Simulator:
         sp = (sp + 1) % 65536
         if sp > 0x3FFF:
             memory[sp] = pc // 256
+        registers[15] = R1[registers[15]] # R
         registers[24] = iaddr # PC
         self.iff2 = 0
 

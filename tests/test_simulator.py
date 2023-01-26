@@ -2781,3 +2781,43 @@ class SimulatorTest(SkoolKitTestCase):
         simulator.run(start)
         self.assertEqual(simulator.registers[PC], start + 2)
         self.assertEqual(simulator.registers[F], 0b00101100)
+
+    def test_accept_interrupt_mode_0(self):
+        pc = 30000
+        sp = 40000
+        simulator = Simulator([0] * 65536, {'PC': pc, 'SP': sp}, {'iff': 1, 'im': 0})
+        simulator.accept_interrupt(simulator.registers, simulator.memory)
+        self.assertEqual(simulator.registers[T], 13)
+        self.assertEqual(simulator.registers[PC], 56)
+        self.assertEqual(simulator.registers[R], 1)
+        self.assertEqual(simulator.registers[SP], sp - 2)
+        self.assertEqual([pc % 256, pc // 256], simulator.memory[sp - 2:sp])
+        self.assertEqual(simulator.iff2, 0)
+
+    def test_accept_interrupt_mode_1(self):
+        pc = 40000
+        sp = 50000
+        simulator = Simulator([0] * 65536, {'PC': pc, 'SP': sp}, {'iff': 1, 'im': 1})
+        simulator.accept_interrupt(simulator.registers, simulator.memory)
+        self.assertEqual(simulator.registers[T], 13)
+        self.assertEqual(simulator.registers[PC], 56)
+        self.assertEqual(simulator.registers[R], 1)
+        self.assertEqual(simulator.registers[SP], sp - 2)
+        self.assertEqual([pc % 256, pc // 256], simulator.memory[sp - 2:sp])
+        self.assertEqual(simulator.iff2, 0)
+
+    def test_accept_interrupt_mode_2(self):
+        memory = [0] * 65536
+        iaddr = 40000
+        i = 64
+        memory[256 * i:256 * i + 2] = (iaddr % 256, iaddr // 256)
+        pc = 50000
+        sp = 60000
+        simulator = Simulator(memory, {'PC': pc, 'SP': sp, 'I': i}, {'iff': 1, 'im': 2})
+        simulator.accept_interrupt(simulator.registers, simulator.memory)
+        self.assertEqual(simulator.registers[T], 19)
+        self.assertEqual(simulator.registers[PC], iaddr)
+        self.assertEqual(simulator.registers[R], 1)
+        self.assertEqual(simulator.registers[SP], sp - 2)
+        self.assertEqual([pc % 256, pc // 256], simulator.memory[sp - 2:sp])
+        self.assertEqual(simulator.iff2, 0)
