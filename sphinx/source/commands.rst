@@ -1291,6 +1291,9 @@ To list the options supported by `tap2sna.py`, run it with no arguments::
     -s START, --start START
                           Set the start address to JP to.
     --sim-load            Simulate a 48K ZX Spectrum running LOAD "".
+    --state name=value    Set a hardware state attribute. Do '--state help' for
+                          more information. This option may be used multiple
+                          times.
     -u AGENT, --user-agent AGENT
                           Set the User-Agent header.
     -V, --version         Show SkoolKit version number and exit.
