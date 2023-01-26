@@ -76,7 +76,7 @@ class Tracer:
             opcodes[memory[pc]]()
             tstates = registers[25]
 
-            if interrupts and simulator.iff2:
+            if interrupts and simulator.iff:
                 if tstates // FRAME_DURATION > t0 // FRAME_DURATION:
                     accept_int = True
                 if accept_int and memory[pc] != 0xFB:
@@ -279,7 +279,7 @@ def run(snafile, options):
         )
         state = (
             f'border={tracer.border}',
-            f'iff={simulator.iff2}',
+            f'iff={simulator.iff}',
             f'im={simulator.imode}',
             f'tstates={r[T]}'
         )

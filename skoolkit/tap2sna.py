@@ -279,7 +279,7 @@ def sim_load(blocks, options):
         'PC': sim_registers[PC]
     }
     options.reg = [f'{r}={v}' for r, v in registers.items()] + options.reg
-    state = [f'im={simulator.imode}', f'iff={simulator.iff2}', f'border={tracer.border}']
+    state = [f'im={simulator.imode}', f'iff={simulator.iff}', f'border={tracer.border}']
     options.state = state + options.state
     return simulator.memory[0x4000:]
 

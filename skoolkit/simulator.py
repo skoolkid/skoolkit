@@ -122,7 +122,7 @@ class Simulator:
         if state is None:
             state = {}
         self.imode = state.get('im', 1)
-        self.iff2 = state.get('iff', 0)
+        self.iff = state.get('iff', 0)
         self.registers[25] = state.get('tstates', 0)
         cfg = CONFIG.copy()
         if config:
@@ -198,7 +198,7 @@ class Simulator:
             memory[sp] = pc // 256
         registers[15] = R1[registers[15]] # R
         registers[24] = iaddr # PC
-        self.iff2 = 0
+        self.iff = 0
 
     def prefix(self, opcodes, registers, memory):
         opcodes[memory[(registers[24] + 1) % 65536]]()
@@ -453,9 +453,9 @@ class Simulator:
             registers[24] = (registers[24] + 2) % 65536 # PC
         registers[15] = R2[registers[15]] # R
 
-    def di_ei(self, registers, iff2):
+    def di_ei(self, registers, iff):
         # DI / EI
-        self.iff2 = iff2
+        self.iff = iff
         registers[15] = R1[registers[15]] # R
         registers[25] += 4 # T-states
         registers[24] = (registers[24] + 1) % 65536 # PC
@@ -525,7 +525,7 @@ class Simulator:
 
     def halt(self, registers):
         # HALT
-        if self.iff2:
+        if self.iff:
             t = registers[25]
             if (t + 4) // FRAME_DURATION > t // FRAME_DURATION:
                 registers[24] = (registers[24] + 1) % 65536 # PC
@@ -645,7 +645,7 @@ class Simulator:
         # LD A,I/R
         a = registers[r]
         registers[0] = a
-        registers[1] = (a & 0xA8) + (a == 0) * 0x40 + self.iff2 * 0x04 + (registers[1] % 2)
+        registers[1] = (a & 0xA8) + (a == 0) * 0x40 + self.iff * 0x04 + (registers[1] % 2)
         registers[15] = R2[registers[15]] # R
         registers[25] += 9 # T-states
         registers[24] = (registers[24] + 2) % 65536 # PC

@@ -149,7 +149,7 @@ class LoadTracer:
             opcodes[memory[pc]]()
             tstates = registers[25]
 
-            if simulator.iff2:
+            if simulator.iff:
                 if tstates // FRAME_DURATION > t0 // FRAME_DURATION:
                     accept_int = True
                 if accept_int and memory[pc] != 0xFB:
@@ -364,7 +364,7 @@ class LoadTracer:
 
         # Disable interrupts (as done at 0x0559), and preload the machine stack
         # with 0x053F (as done at 0x055E)
-        simulator.iff2 = 0
+        simulator.iff = 0
         registers[H], registers[L] = 0x05, 0x3F # SA-LD-RET
         simulator.push(registers, memory, R1, 11, 1, H, L)
 

@@ -82,7 +82,7 @@ class TraceTest(SkoolKitTestCase):
             Stopped at $6001
         """
         self._test_trace(f'-vv -S 24577 {snafile}', exp_output)
-        self.assertEqual(simulator.iff2, 1)
+        self.assertEqual(simulator.iff, 1)
         self.assertEqual(simulator.imode, 2)
 
     @patch.object(trace, 'Simulator', TestSimulator)
@@ -125,7 +125,7 @@ class TraceTest(SkoolKitTestCase):
             Stopped at $8001
         """
         self._test_trace(f'-vv -S 32769 {z80file}', exp_output)
-        self.assertEqual(simulator.iff2, 1)
+        self.assertEqual(simulator.iff, 1)
         self.assertEqual(simulator.imode, 2)
         self.assertEqual(simulator.registers[25], 20004)
 
@@ -160,7 +160,7 @@ class TraceTest(SkoolKitTestCase):
             Stopped at $C001
         """
         self.assertEqual(dedent(exp_output).strip(), output.rstrip())
-        self.assertEqual(simulator.iff2, 1)
+        self.assertEqual(simulator.iff, 1)
         self.assertEqual(simulator.imode, 0)
         self.assertEqual(simulator.registers[25], 261)
 

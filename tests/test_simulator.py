@@ -75,7 +75,7 @@ class SimulatorTest(SkoolKitTestCase):
             if 'im' in state_out:
                 self.assertEqual(simulator.imode, state_out['im'])
             if 'iff' in state_out:
-                self.assertEqual(simulator.iff2, state_out['iff'])
+                self.assertEqual(simulator.iff, state_out['iff'])
 
     def _test_arithmetic(self, op, opcode1, opcode2, *specs):
         simulator = Simulator([0] * 65536)
@@ -2792,7 +2792,7 @@ class SimulatorTest(SkoolKitTestCase):
         self.assertEqual(simulator.registers[R], 1)
         self.assertEqual(simulator.registers[SP], sp - 2)
         self.assertEqual([pc % 256, pc // 256], simulator.memory[sp - 2:sp])
-        self.assertEqual(simulator.iff2, 0)
+        self.assertEqual(simulator.iff, 0)
 
     def test_accept_interrupt_mode_1(self):
         pc = 40000
@@ -2804,7 +2804,7 @@ class SimulatorTest(SkoolKitTestCase):
         self.assertEqual(simulator.registers[R], 1)
         self.assertEqual(simulator.registers[SP], sp - 2)
         self.assertEqual([pc % 256, pc // 256], simulator.memory[sp - 2:sp])
-        self.assertEqual(simulator.iff2, 0)
+        self.assertEqual(simulator.iff, 0)
 
     def test_accept_interrupt_mode_2(self):
         memory = [0] * 65536
@@ -2820,4 +2820,4 @@ class SimulatorTest(SkoolKitTestCase):
         self.assertEqual(simulator.registers[R], 1)
         self.assertEqual(simulator.registers[SP], sp - 2)
         self.assertEqual([pc % 256, pc // 256], simulator.memory[sp - 2:sp])
-        self.assertEqual(simulator.iff2, 0)
+        self.assertEqual(simulator.iff, 0)
