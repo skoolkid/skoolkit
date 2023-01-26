@@ -151,7 +151,7 @@ class Simulator:
         memory = self.memory
         registers = self.registers
         if start is not None:
-            registers[24] = start
+            registers[24] = start # PC
         pc = registers[24]
 
         if stop is None:
@@ -184,10 +184,10 @@ class Simulator:
         if self.imode == 2:
             vaddr = 256 * registers[14]
             iaddr = memory[vaddr] + 256 * memory[vaddr + 1]
-            registers[25] += 19
+            registers[25] += 19 # T-states
         else:
             iaddr = 56
-            registers[25] += 13
+            registers[25] += 13 # T-states
         sp = (registers[12] - 2) % 65536
         registers[12] = sp
         pc = registers[24]
@@ -196,7 +196,7 @@ class Simulator:
         sp = (sp + 1) % 65536
         if sp > 0x3FFF:
             memory[sp] = pc // 256
-        registers[24] = iaddr
+        registers[24] = iaddr # PC
         self.iff2 = 0
 
     def prefix(self, opcodes, registers, memory):
@@ -208,64 +208,64 @@ class Simulator:
     def af_hl(self, registers, memory, af):
         # ADD A,(HL) / AND (HL) / CP (HL) / OR (HL) / SUB (HL) / XOR (HL)
         registers[:2] = af[registers[0]][memory[registers[7] + 256 * registers[6]]]
-        registers[15] = R1[registers[15]]
-        registers[25] += 7
-        registers[24] = (registers[24] + 1) % 65536
+        registers[15] = R1[registers[15]] # R
+        registers[25] += 7 # T-states
+        registers[24] = (registers[24] + 1) % 65536 # PC
 
     def af_n(self, registers, memory, af):
         # ADD A,n / AND n / CP n / OR n / SUB n / XOR n
         pcn = registers[24] + 1
         registers[:2] = af[registers[0]][memory[pcn % 65536]]
-        registers[15] = R1[registers[15]]
-        registers[25] += 7
-        registers[24] = (pcn + 1) % 65536
+        registers[15] = R1[registers[15]] # R
+        registers[25] += 7 # T-states
+        registers[24] = (pcn + 1) % 65536 # PC
 
     def af_r(self, registers, r_inc, timing, size, af, r):
         # ADD A,r / AND r / CP r / OR r / SUB r / XOR r
         # CPL / DAA / RLA / RLCA / RRA / RRCA
         registers[:2] = af[registers[0]][registers[r]]
-        registers[15] = r_inc[registers[15]]
-        registers[25] += timing
-        registers[24] = (registers[24] + size) % 65536
+        registers[15] = r_inc[registers[15]] # R
+        registers[25] += timing # T-states
+        registers[24] = (registers[24] + size) % 65536 # PC
 
     def af_xy(self, registers, memory, af, xyh, xyl):
         # ADD A,(IX/Y+d) / AND (IX/Y+d) / CP (IX/Y+d) / OR (IX/Y+d)
         # SUB (IX/Y+d) / XOR (IX/Y+d)
         pcn = registers[24] + 3
         registers[:2] = af[registers[0]][memory[(registers[xyl] + 256 * registers[xyh] + OFFSETS[memory[(pcn - 1) % 65536]]) % 65536]]
-        registers[15] = R2[registers[15]]
-        registers[25] += 19
-        registers[24] = pcn % 65536
+        registers[15] = R2[registers[15]] # R
+        registers[25] += 19 # T-states
+        registers[24] = pcn % 65536 # PC
 
     def afc_hl(self, registers, memory, afc):
         # ADC/SBC A,(HL)
         registers[:2] = afc[registers[1] % 2][registers[0]][memory[registers[7] + 256 * registers[6]]]
-        registers[15] = R1[registers[15]]
-        registers[25] += 7
-        registers[24] = (registers[24] + 1) % 65536
+        registers[15] = R1[registers[15]] # R
+        registers[25] += 7 # T-states
+        registers[24] = (registers[24] + 1) % 65536 # PC
 
     def afc_n(self, registers, memory, afc):
         # ADC/SBC A,n
         pcn = registers[24] + 1
         registers[:2] = afc[registers[1] % 2][registers[0]][memory[pcn % 65536]]
-        registers[15] = R1[registers[15]]
-        registers[25] += 7
-        registers[24] = (pcn + 1) % 65536
+        registers[15] = R1[registers[15]] # R
+        registers[25] += 7 # T-states
+        registers[24] = (pcn + 1) % 65536 # PC
 
     def afc_r(self, registers, r_inc, timing, size, afc, r):
         # ADC/SBC A,r (r != A)
         registers[:2] = afc[registers[1] % 2][registers[0]][registers[r]]
-        registers[15] = r_inc[registers[15]]
-        registers[25] += timing
-        registers[24] = (registers[24] + size) % 65536
+        registers[15] = r_inc[registers[15]] # R
+        registers[25] += timing # T-states
+        registers[24] = (registers[24] + size) % 65536 # PC
 
     def afc_xy(self, registers, memory, afc, xyh, xyl):
         # ADC/SBC A,(IX/Y+d)
         pcn = registers[24] + 3
         registers[:2] = afc[registers[1] % 2][registers[0]][memory[(registers[xyl] + 256 * registers[xyh] + OFFSETS[memory[(pcn - 1) % 65536]]) % 65536]]
-        registers[15] = R2[registers[15]]
-        registers[25] += 19
-        registers[24] = pcn % 65536
+        registers[15] = R2[registers[15]] # R
+        registers[25] += 19 # T-states
+        registers[24] = pcn % 65536 # PC
 
     def f_hl(self, registers, memory, f):
         # RLC/RRC/SLA/SLL/SRA/SRL (HL)
@@ -273,16 +273,16 @@ class Simulator:
         value, registers[1] = f[memory[hl]]
         if hl > 0x3FFF:
             memory[hl] = value
-        registers[15] = R2[registers[15]]
-        registers[25] += 15
-        registers[24] = (registers[24] + 2) % 65536
+        registers[15] = R2[registers[15]] # R
+        registers[25] += 15 # T-states
+        registers[24] = (registers[24] + 2) % 65536 # PC
 
     def f_r(self, registers, f, r):
         # RLC/RRC/SLA/SLL/SRA/SRL r
         registers[r], registers[1] = f[registers[r]]
-        registers[15] = R2[registers[15]]
-        registers[25] += 8
-        registers[24] = (registers[24] + 2) % 65536
+        registers[15] = R2[registers[15]] # R
+        registers[25] += 8 # T-states
+        registers[24] = (registers[24] + 2) % 65536 # PC
 
     def f_xy(self, registers, memory, f, xyh, xyl, dest=-1):
         # RLC/RRC/SLA/SLL/SRA/SRL (IX/Y+d)[,r]
@@ -293,9 +293,9 @@ class Simulator:
             memory[addr] = value
         if dest >= 0:
             registers[dest] = value
-        registers[15] = R2[registers[15]]
-        registers[25] += 23
-        registers[24] = pcn % 65536
+        registers[15] = R2[registers[15]] # R
+        registers[25] += 23 # T-states
+        registers[24] = pcn % 65536 # PC
 
     def fc_hl(self, registers, memory, r_inc, timing, size, fc):
         # DEC/INC/RL/RR (HL)
@@ -303,16 +303,16 @@ class Simulator:
         value, registers[1] = fc[registers[1] % 2][memory[hl]]
         if hl > 0x3FFF:
             memory[hl] = value
-        registers[15] = r_inc[registers[15]]
-        registers[25] += timing
-        registers[24] = (registers[24] + size) % 65536
+        registers[15] = r_inc[registers[15]] # R
+        registers[25] += timing # T-states
+        registers[24] = (registers[24] + size) % 65536 # PC
 
     def fc_r(self, registers, r_inc, timing, size, fc, r):
         # DEC/INC/RL/RR r / ADC A,A / SBC A,A
         registers[r], registers[1] = fc[registers[1] % 2][registers[r]]
-        registers[15] = r_inc[registers[15]]
-        registers[25] += timing
-        registers[24] = (registers[24] + size) % 65536
+        registers[15] = r_inc[registers[15]] # R
+        registers[25] += timing # T-states
+        registers[24] = (registers[24] + size) % 65536 # PC
 
     def fc_xy(self, registers, memory, size, fc, xyh, xyl, dest=-1):
         # DEC/INC/RL/RR (IX/Y+d)[,r]
@@ -323,9 +323,9 @@ class Simulator:
             memory[addr] = value
         if dest >= 0:
             registers[dest] = value
-        registers[15] = R2[registers[15]]
-        registers[25] += 23
-        registers[24] = (pc + size) % 65536
+        registers[15] = R2[registers[15]] # R
+        registers[25] += 23 # T-states
+        registers[24] = (pc + size) % 65536 # PC
 
     def adc_hl(self, registers, rh, rl):
         # ADC HL,BC/DE/HL/SP
@@ -352,9 +352,9 @@ class Simulator:
         registers[1] = f + (h & 0xA8)
         registers[7] = result % 256
         registers[6] = h
-        registers[15] = R2[registers[15]]
-        registers[25] += 15
-        registers[24] = (registers[24] + 2) % 65536
+        registers[15] = R2[registers[15]] # R
+        registers[25] += 15 # T-states
+        registers[24] = (registers[24] + 2) % 65536 # PC
 
     def add_rr(self, registers, r_inc, timing, size, ah, al, rh, rl):
         # ADD HL/IX/IY,BC/DE/HL/SP/IX/IY
@@ -374,40 +374,40 @@ class Simulator:
         registers[1] = f + (result_hi & 0x28)
         registers[al] = result % 256
         registers[ah] = result_hi
-        registers[15] = r_inc[registers[15]]
-        registers[25] += timing
-        registers[24] = (registers[24] + size) % 65536
+        registers[15] = r_inc[registers[15]] # R
+        registers[25] += timing # T-states
+        registers[24] = (registers[24] + size) % 65536 # PC
 
     def bit_hl(self, registers, memory, bit, b):
         # BIT n,(HL)
         registers[1] = bit[registers[1] % 2][b][memory[registers[7] + 256 * registers[6]]]
-        registers[15] = R2[registers[15]]
-        registers[25] += 12
-        registers[24] = (registers[24] + 2) % 65536
+        registers[15] = R2[registers[15]] # R
+        registers[25] += 12 # T-states
+        registers[24] = (registers[24] + 2) % 65536 # PC
 
     def bit_r(self, registers, bit, b, reg):
         # BIT n,r
         registers[1] = bit[registers[1] % 2][b][registers[reg]]
-        registers[15] = R2[registers[15]]
-        registers[25] += 8
-        registers[24] = (registers[24] + 2) % 65536
+        registers[15] = R2[registers[15]] # R
+        registers[25] += 8 # T-states
+        registers[24] = (registers[24] + 2) % 65536 # PC
 
     def bit_xy(self, registers, memory, bit, b, xyh, xyl):
         # BIT n,(IX/Y+d)
         xy = (registers[xyl] + 256 * registers[xyh] + OFFSETS[memory[(registers[24] + 2) % 65536]]) % 65536
         registers[1] = (bit[registers[1] % 2][b][memory[xy]] & 0xD7) + ((xy // 256) & 0x28)
-        registers[15] = R2[registers[15]]
-        registers[25] += 20
-        registers[24] = (registers[24] + 4) % 65536
+        registers[15] = R2[registers[15]] # R
+        registers[25] += 20 # T-states
+        registers[24] = (registers[24] + 4) % 65536 # PC
 
     def call(self, registers, memory, c_and, c_val):
         # CALL nn / CALL cc,nn
         if c_and and registers[1] & c_and == c_val:
-            registers[25] += 10
-            registers[24] = (registers[24] + 3) % 65536
+            registers[25] += 10 # T-states
+            registers[24] = (registers[24] + 3) % 65536 # PC
         else:
             pc = registers[24]
-            registers[24] = memory[(pc + 1) % 65536] + 256 * memory[(pc + 2) % 65536]
+            registers[24] = memory[(pc + 1) % 65536] + 256 * memory[(pc + 2) % 65536] # PC
             ret_addr = (pc + 3) % 65536
             sp = (registers[12] - 2) % 65536
             registers[12] = sp
@@ -416,15 +416,15 @@ class Simulator:
             sp = (sp + 1) % 65536
             if sp > 0x3FFF:
                 memory[sp] = ret_addr // 256
-            registers[25] += 17
-        registers[15] = R1[registers[15]]
+            registers[25] += 17 # T-states
+        registers[15] = R1[registers[15]] # R
 
     def cf(self, registers, cf):
         # CCF / SCF
         registers[1] = cf[registers[1]][registers[0]]
-        registers[15] = R1[registers[15]]
-        registers[25] += 4
-        registers[24] = (registers[24] + 1) % 65536
+        registers[15] = R1[registers[15]] # R
+        registers[25] += 4 # T-states
+        registers[24] = (registers[24] + 1) % 65536 # PC
 
     def cpi(self, registers, memory, inc, repeat):
         # CPI / CPD / CPIR / CPDR
@@ -444,42 +444,42 @@ class Simulator:
         f = (cp & 0x80) + hf * 0x10 + 0x02 + (registers[1] % 2) # S..H..NC
         if repeat and cp and bc:
             registers[1] = f + ((registers[24] // 256) & 0x28) + 0x04 # .Z5.3P..
-            registers[25] += 21
+            registers[25] += 21 # T-states
         else:
             n = cp - hf
             registers[1] = f + (cp == 0) * 0x40 + (n & 0x02) * 16 + (n & 0x08) + (bc > 0) * 0x04 # .Z5.3P..
-            registers[25] += 16
-            registers[24] = (registers[24] + 2) % 65536
-        registers[15] = R2[registers[15]]
+            registers[25] += 16 # T-states
+            registers[24] = (registers[24] + 2) % 65536 # PC
+        registers[15] = R2[registers[15]] # R
 
     def di_ei(self, registers, iff2):
         # DI / EI
         self.iff2 = iff2
-        registers[15] = R1[registers[15]]
-        registers[25] += 4
-        registers[24] = (registers[24] + 1) % 65536
+        registers[15] = R1[registers[15]] # R
+        registers[25] += 4 # T-states
+        registers[24] = (registers[24] + 1) % 65536 # PC
 
     def djnz(self, registers, memory):
         # DJNZ nn
         b = (registers[2] - 1) % 256
         registers[2] = b
         if b:
-            registers[25] += 13
+            registers[25] += 13 # T-states
             pc = registers[24]
-            registers[24] = (pc + JR_OFFSETS[memory[(pc + 1) % 65536]]) % 65536
+            registers[24] = (pc + JR_OFFSETS[memory[(pc + 1) % 65536]]) % 65536 # PC
         else:
-            registers[25] += 8
-            registers[24] = (registers[24] + 2) % 65536
-        registers[15] = R1[registers[15]]
+            registers[25] += 8 # T-states
+            registers[24] = (registers[24] + 2) % 65536 # PC
+        registers[15] = R1[registers[15]] # R
 
     def djnz_fast(self, registers, memory):
         if memory[(registers[24] + 1) % 65536] == 0xFE:
             b = (registers[2] - 1) % 256
             registers[2] = 0
             r = registers[15]
-            registers[15] = (r & 0x80) + ((r + b + 1) % 128)
-            registers[25] += b * 13 + 8
-            registers[24] = (registers[24] + 2) % 65536
+            registers[15] = (r & 0x80) + ((r + b + 1) % 128) # R
+            registers[25] += b * 13 + 8 # T-states
+            registers[24] = (registers[24] + 2) % 65536 # PC
         else:
             self.djnz(registers, memory)
 
@@ -487,17 +487,17 @@ class Simulator:
         # EX AF,AF'
         registers[0], registers[16] = registers[16], registers[0]
         registers[1], registers[17] = registers[17], registers[1]
-        registers[15] = R1[registers[15]]
-        registers[25] += 4
-        registers[24] = (registers[24] + 1) % 65536
+        registers[15] = R1[registers[15]] # R
+        registers[25] += 4 # T-states
+        registers[24] = (registers[24] + 1) % 65536 # PC
 
     def ex_de_hl(self, registers):
         # EX DE,HL
         registers[4], registers[6] = registers[6], registers[4]
         registers[5], registers[7] = registers[7], registers[5]
-        registers[15] = R1[registers[15]]
-        registers[25] += 4
-        registers[24] = (registers[24] + 1) % 65536
+        registers[15] = R1[registers[15]] # R
+        registers[25] += 4 # T-states
+        registers[24] = (registers[24] + 1) % 65536 # PC
 
     def ex_sp(self, registers, memory, r_inc, timing, size, rh, rl):
         # EX (SP),HL/IX/IY
@@ -511,32 +511,32 @@ class Simulator:
             memory[sp] = registers[rh]
         registers[rl] = sp1
         registers[rh] = sp2
-        registers[15] = r_inc[registers[15]]
-        registers[25] += timing
-        registers[24] = (registers[24] + size) % 65536
+        registers[15] = r_inc[registers[15]] # R
+        registers[25] += timing # T-states
+        registers[24] = (registers[24] + size) % 65536 # PC
 
     def exx(self, registers):
         # EXX
         registers[2:8], registers[18:24] = registers[18:24], registers[2:8]
-        registers[15] = R1[registers[15]]
-        registers[25] += 4
-        registers[24] = (registers[24] + 1) % 65536
+        registers[15] = R1[registers[15]] # R
+        registers[25] += 4 # T-states
+        registers[24] = (registers[24] + 1) % 65536 # PC
 
     def halt(self, registers):
         # HALT
         if self.iff2:
             t = registers[25]
             if (t + 4) // FRAME_DURATION > t // FRAME_DURATION:
-                registers[24] = (registers[24] + 1) % 65536
-        registers[15] = R1[registers[15]]
-        registers[25] += 4
+                registers[24] = (registers[24] + 1) % 65536 # PC
+        registers[15] = R1[registers[15]] # R
+        registers[25] += 4 # T-states
 
     def im(self, registers, mode):
         # IM 0/1/2
         self.imode = mode
-        registers[15] = R2[registers[15]]
-        registers[25] += 8
-        registers[24] = (registers[24] + 2) % 65536
+        registers[15] = R2[registers[15]] # R
+        registers[25] += 8 # T-states
+        registers[24] = (registers[24] + 2) % 65536 # PC
 
     def in_a(self, registers, memory):
         # IN A,(n)
@@ -545,9 +545,9 @@ class Simulator:
             registers[0] = self.in_tracer(memory[pcn % 65536] + 256 * registers[0])
         else:
             registers[0] = 191
-        registers[15] = R1[registers[15]]
-        registers[25] += 11
-        registers[24] = (pcn + 1) % 65536
+        registers[15] = R1[registers[15]] # R
+        registers[25] += 11 # T-states
+        registers[24] = (pcn + 1) % 65536 # PC
 
     def in_c(self, registers, reg, sz53p):
         # IN r,(C)
@@ -558,9 +558,9 @@ class Simulator:
         if reg != 1:
             registers[reg] = value
         registers[1] = sz53p[value] + (registers[1] % 2)
-        registers[15] = R2[registers[15]]
-        registers[25] += 12
-        registers[24] = (registers[24] + 2) % 65536
+        registers[15] = R2[registers[15]] # R
+        registers[25] += 12 # T-states
+        registers[24] = (registers[24] + 2) % 65536 # PC
 
     def inc_dec_rr(self, registers, r_inc, timing, size, inc, rh, rl):
         # INC/DEC BC/DE/HL/SP/IX/IY
@@ -570,9 +570,9 @@ class Simulator:
             value = (registers[rl] + 256 * registers[rh] + inc) % 65536
             registers[rh] = value // 256
             registers[rl] = value % 256
-        registers[15] = r_inc[registers[15]]
-        registers[25] += timing
-        registers[24] = (registers[24] + size) % 65536
+        registers[15] = r_inc[registers[15]] # R
+        registers[25] += timing # T-states
+        registers[24] = (registers[24] + size) % 65536 # PC
 
     def ini(self, registers, memory, inc, repeat, parity):
         # INI / IND / INIR / INDR
@@ -607,47 +607,47 @@ class Simulator:
                 h = 0
                 p = parity[(j % 8) ^ b ^ (b % 8)]
             registers[1] = (b & 0x80) + ((registers[24] // 256) & 0x28) + h + p + n + c
-            registers[25] += 21
+            registers[25] += 21 # T-states
         else:
             registers[1] = (b & 0xA8) + (b == 0) * 0x40 + c * 0x11 + parity[(j % 8) ^ b] + n
-            registers[24] = (registers[24] + 2) % 65536
-            registers[25] += 16
-        registers[15] = R2[registers[15]]
+            registers[24] = (registers[24] + 2) % 65536 # PC
+            registers[25] += 16 # T-states
+        registers[15] = R2[registers[15]] # R
 
     def jp(self, registers, memory, c_and, c_val):
         # JP nn / JP cc,nn
         if registers[1] & c_and == c_val:
-            registers[24] = memory[(registers[24] + 1) % 65536] + 256 * memory[(registers[24] + 2) % 65536]
+            registers[24] = memory[(registers[24] + 1) % 65536] + 256 * memory[(registers[24] + 2) % 65536] # PC
         else:
-            registers[24] = (registers[24] + 3) % 65536
-        registers[15] = R1[registers[15]]
-        registers[25] += 10
+            registers[24] = (registers[24] + 3) % 65536 # PC
+        registers[15] = R1[registers[15]] # R
+        registers[25] += 10 # T-states
 
     def jp_rr(self, registers, r_inc, timing, rh, rl):
         # JP (HL/IX/IY)
-        registers[15] = r_inc[registers[15]]
-        registers[25] += timing
-        registers[24] = registers[rl] + 256 * registers[rh]
+        registers[15] = r_inc[registers[15]] # R
+        registers[25] += timing # T-states
+        registers[24] = registers[rl] + 256 * registers[rh] # PC
 
     def jr(self, registers, memory, c_and, c_val):
         # JR nn / JR cc,nn
         if registers[1] & c_and == c_val:
-            registers[25] += 12
+            registers[25] += 12 # T-states
             pc = registers[24]
-            registers[24] = (pc + JR_OFFSETS[memory[(pc + 1) % 65536]]) % 65536
+            registers[24] = (pc + JR_OFFSETS[memory[(pc + 1) % 65536]]) % 65536 # PC
         else:
-            registers[25] += 7
-            registers[24] = (registers[24] + 2) % 65536
-        registers[15] = R1[registers[15]]
+            registers[25] += 7 # T-states
+            registers[24] = (registers[24] + 2) % 65536 # PC
+        registers[15] = R1[registers[15]] # R
 
     def ld_a_ir(self, registers, r):
         # LD A,I/R
         a = registers[r]
         registers[0] = a
         registers[1] = (a & 0xA8) + (a == 0) * 0x40 + self.iff2 * 0x04 + (registers[1] % 2)
-        registers[15] = R2[registers[15]]
-        registers[25] += 9
-        registers[24] = (registers[24] + 2) % 65536
+        registers[15] = R2[registers[15]] # R
+        registers[25] += 9 # T-states
+        registers[24] = (registers[24] + 2) % 65536 # PC
 
     def ld_hl_n(self, registers, memory):
         # LD (HL),n
@@ -655,48 +655,48 @@ class Simulator:
         addr = registers[7] + 256 * registers[6]
         if addr > 0x3FFF:
             memory[addr] = memory[pcn % 65536]
-        registers[15] = R1[registers[15]]
-        registers[25] += 10
-        registers[24] = (pcn + 1) % 65536
+        registers[15] = R1[registers[15]] # R
+        registers[25] += 10 # T-states
+        registers[24] = (pcn + 1) % 65536 # PC
 
     def ld_r_n(self, registers, memory, r_inc, timing, size, r):
         # LD r,n
         end = registers[24] + size
         registers[r] = memory[(end - 1) % 65536]
-        registers[15] = r_inc[registers[15]]
-        registers[25] += timing
-        registers[24] = end % 65536
+        registers[15] = r_inc[registers[15]] # R
+        registers[25] += timing # T-states
+        registers[24] = end % 65536 # PC
 
     def ld_r_r(self, registers, r_inc, timing, size, r1, r2):
         # LD r,r
         registers[r1] = registers[r2]
-        registers[15] = r_inc[registers[15]]
-        registers[25] += timing
-        registers[24] = (registers[24] + size) % 65536
+        registers[15] = r_inc[registers[15]] # R
+        registers[25] += timing # T-states
+        registers[24] = (registers[24] + size) % 65536 # PC
 
     def ld_r_rr(self, registers, memory, r, rh, rl):
         # LD r,(HL/DE/BC)
         registers[r] = memory[registers[rl] + 256 * registers[rh]]
-        registers[15] = R1[registers[15]]
-        registers[25] += 7
-        registers[24] = (registers[24] + 1) % 65536
+        registers[15] = R1[registers[15]] # R
+        registers[25] += 7 # T-states
+        registers[24] = (registers[24] + 1) % 65536 # PC
 
     def ld_rr_r(self, registers, memory, rh, rl, r):
         # LD (HL/DE/BC),r
         addr = registers[rl] + 256 * registers[rh]
         if addr > 0x3FFF:
             memory[addr] = registers[r]
-        registers[15] = R1[registers[15]]
-        registers[25] += 7
-        registers[24] = (registers[24] + 1) % 65536
+        registers[15] = R1[registers[15]] # R
+        registers[25] += 7 # T-states
+        registers[24] = (registers[24] + 1) % 65536 # PC
 
     def ld_r_xy(self, registers, memory, r, xyh, xyl):
         # LD r,(IX/Y+d)
         pcn = registers[24] + 3
         registers[r] = memory[(registers[xyl] + 256 * registers[xyh] + OFFSETS[memory[(pcn - 1) % 65536]]) % 65536]
-        registers[15] = R2[registers[15]]
-        registers[25] += 19
-        registers[24] = pcn % 65536
+        registers[15] = R2[registers[15]] # R
+        registers[25] += 19 # T-states
+        registers[24] = pcn % 65536 # PC
 
     def ld_xy_n(self, registers, memory, xyh, xyl):
         # LD (IX/Y+d),n
@@ -704,9 +704,9 @@ class Simulator:
         addr = (registers[xyl] + 256 * registers[xyh] + OFFSETS[memory[(pcn - 2) % 65536]]) % 65536
         if addr > 0x3FFF:
             memory[addr] = memory[(pcn - 1) % 65536]
-        registers[15] = R2[registers[15]]
-        registers[25] += 19
-        registers[24] = pcn % 65536
+        registers[15] = R2[registers[15]] # R
+        registers[25] += 19 # T-states
+        registers[24] = pcn % 65536 # PC
 
     def ld_xy_r(self, registers, memory, xyh, xyl, r):
         # LD (IX/Y+d),r
@@ -714,9 +714,9 @@ class Simulator:
         addr = (registers[xyl] + 256 * registers[xyh] + OFFSETS[memory[(pcn - 1) % 65536]]) % 65536
         if addr > 0x3FFF:
             memory[addr] = registers[r]
-        registers[15] = R2[registers[15]]
-        registers[25] += 19
-        registers[24] = pcn % 65536
+        registers[15] = R2[registers[15]] # R
+        registers[25] += 19 # T-states
+        registers[24] = pcn % 65536 # PC
 
     def ld_rr_nn(self, registers, memory, r_inc, timing, size, rh, rl):
         # LD BC/DE/HL/SP/IX/IY,nn
@@ -726,17 +726,17 @@ class Simulator:
         else:
             registers[rl] = memory[(end - 2) % 65536]
             registers[rh] = memory[(end - 1) % 65536]
-        registers[15] = r_inc[registers[15]]
-        registers[25] += timing
-        registers[24] = end % 65536
+        registers[15] = r_inc[registers[15]] # R
+        registers[25] += timing # T-states
+        registers[24] = end % 65536 # PC
 
     def ld_a_m(self, registers, memory):
         # LD A,(nn)
         pcn = registers[24] + 1
         registers[0] = memory[memory[pcn % 65536] + 256 * memory[(pcn + 1) % 65536]]
-        registers[15] = R1[registers[15]]
-        registers[25] += 13
-        registers[24] = (pcn + 2) % 65536
+        registers[15] = R1[registers[15]] # R
+        registers[25] += 13 # T-states
+        registers[24] = (pcn + 2) % 65536 # PC
 
     def ld_m_a(self, registers, memory):
         # LD (nn),A
@@ -744,9 +744,9 @@ class Simulator:
         addr = memory[pcn % 65536] + 256 * memory[(pcn + 1) % 65536]
         if addr > 0x3FFF:
             memory[addr] = registers[0]
-        registers[15] = R1[registers[15]]
-        registers[25] += 13
-        registers[24] = (pcn + 2) % 65536
+        registers[15] = R1[registers[15]] # R
+        registers[25] += 13 # T-states
+        registers[24] = (pcn + 2) % 65536 # PC
 
     def ld_rr_mm(self, registers, memory, r_inc, timing, size, rh, rl):
         # LD BC/DE/HL/SP/IX/IY,(nn)
@@ -757,9 +757,9 @@ class Simulator:
         else:
             registers[rl] = memory[addr]
             registers[rh] = memory[(addr + 1) % 65536]
-        registers[15] = r_inc[registers[15]]
-        registers[25] += timing
-        registers[24] = end % 65536
+        registers[15] = r_inc[registers[15]] # R
+        registers[25] += timing # T-states
+        registers[24] = end % 65536 # PC
 
     def ld_mm_rr(self, registers, memory, r_inc, timing, size, rh, rl):
         # LD (nn),BC/DE/HL/SP/IX/IY
@@ -778,9 +778,9 @@ class Simulator:
             addr = (addr + 1) % 65536
             if addr > 0x3FFF:
                 memory[addr] = registers[rh]
-        registers[15] = r_inc[registers[15]]
-        registers[25] += timing
-        registers[24] = end % 65536
+        registers[15] = r_inc[registers[15]] # R
+        registers[25] += timing # T-states
+        registers[24] = end % 65536 # PC
 
     def ldi(self, registers, memory, inc, repeat):
         # LDI / LDD / LDIR / LDDR
@@ -804,13 +804,13 @@ class Simulator:
 
         if repeat and bc:
             registers[1] = (registers[1] & 0xC1) + ((registers[24] // 256) & 0x28) + 0x04
-            registers[25] += 21
+            registers[25] += 21 # T-states
         else:
             n = registers[0] + at_hl
             registers[1] = (registers[1] & 0xC1) + (n & 0x02) * 16 + (n & 0x08) + (bc > 0) * 0x04
-            registers[25] += 16
-            registers[24] = (registers[24] + 2) % 65536
-        registers[15] = R2[registers[15]]
+            registers[25] += 16 # T-states
+            registers[24] = (registers[24] + 2) % 65536 # PC
+        registers[15] = R2[registers[15]] # R
 
     def ldir_fast(self, registers, memory, inc):
         de = registers[5] + 256 * registers[4]
@@ -831,34 +831,34 @@ class Simulator:
         registers[5], registers[4] = de % 256, de // 256
         registers[7], registers[6] = hl % 256, hl // 256
         r = registers[15]
-        registers[15] = (r & 0x80) + ((r + 2 * count) % 128)
+        registers[15] = (r & 0x80) + ((r + 2 * count) % 128) # R
         if bc:
             registers[1] = (registers[1] & 0xC1) + ((registers[24] // 256) & 0x28) + 0x04
         else:
             n = registers[0] + memory[(hl - inc) % 65536]
             registers[1] = (registers[1] & 0xC1) + (n & 0x02) * 16 + (n & 0x08)
-            registers[24] = (registers[24] + 2) % 65536
-        registers[25] += 21 * count - 5
+            registers[24] = (registers[24] + 2) % 65536 # PC
+        registers[25] += 21 * count - 5 # T-states
 
     def ld_sp_rr(self, registers, r_inc, timing, size, rh, rl):
         # LD SP,HL/IX/IY
         registers[12] = registers[rl] + 256 * registers[rh]
-        registers[15] = r_inc[registers[15]]
-        registers[25] += timing
-        registers[24] = (registers[24] + size) % 65536
+        registers[15] = r_inc[registers[15]] # R
+        registers[25] += timing # T-states
+        registers[24] = (registers[24] + size) % 65536 # PC
 
     def neg(self, registers, neg):
         # NEG
         registers[:2] = neg[registers[0]]
-        registers[15] = R2[registers[15]]
-        registers[25] += 8
-        registers[24] = (registers[24] + 2) % 65536
+        registers[15] = R2[registers[15]] # R
+        registers[25] += 8 # T-states
+        registers[24] = (registers[24] + 2) % 65536 # PC
 
     def nop(self, registers, r_inc, timing, size):
         # NOP and equivalents
-        registers[15] = r_inc[registers[15]]
-        registers[25] += timing
-        registers[24] = (registers[24] + size) % 65536
+        registers[15] = r_inc[registers[15]] # R
+        registers[25] += timing # T-states
+        registers[24] = (registers[24] + size) % 65536 # PC
 
     def out_a(self, registers, memory):
         # OUT (n),A
@@ -866,9 +866,9 @@ class Simulator:
         if self.out_tracer:
             a = registers[0]
             self.out_tracer(memory[pcn % 65536] + 256 * a, a)
-        registers[15] = R1[registers[15]]
-        registers[25] += 11
-        registers[24] = (pcn + 1) % 65536
+        registers[15] = R1[registers[15]] # R
+        registers[25] += 11 # T-states
+        registers[24] = (pcn + 1) % 65536 # PC
 
     def out_c(self, registers, reg):
         # OUT (C),r/0
@@ -877,9 +877,9 @@ class Simulator:
                 self.out_tracer(registers[3] + 256 * registers[2], registers[reg])
             else:
                 self.out_tracer(registers[3] + 256 * registers[2], 0)
-        registers[15] = R2[registers[15]]
-        registers[25] += 12
-        registers[24] = (registers[24] + 2) % 65536
+        registers[15] = R2[registers[15]] # R
+        registers[25] += 12 # T-states
+        registers[24] = (registers[24] + 2) % 65536 # PC
 
     def outi(self, registers, memory, inc, repeat, parity):
         # OUTI / OUTD / OTIR / OTDR
@@ -910,12 +910,12 @@ class Simulator:
                 h = 0
                 p = parity[(j % 8) ^ b ^ (b % 8)]
             registers[1] = (b & 0x80) + ((registers[24] // 256) & 0x28) + h + p + n + c
-            registers[25] += 21
+            registers[25] += 21 # T-states
         else:
             registers[1] = (b & 0xA8) + (b == 0) * 0x40 + c * 0x11 + parity[(j % 8) ^ b] + n
-            registers[24] = (registers[24] + 2) % 65536
-            registers[25] += 16
-        registers[15] = R2[registers[15]]
+            registers[24] = (registers[24] + 2) % 65536 # PC
+            registers[25] += 16 # T-states
+        registers[15] = R2[registers[15]] # R
 
     def pop(self, registers, memory, r_inc, timing, size, rh, rl):
         # POP AF/BC/DE/HL/IX/IY
@@ -923,9 +923,9 @@ class Simulator:
         registers[12] = (sp + 2) % 65536
         registers[rl] = memory[sp]
         registers[rh] = memory[(sp + 1) % 65536]
-        registers[15] = r_inc[registers[15]]
-        registers[25] += timing
-        registers[24] = (registers[24] + size) % 65536
+        registers[15] = r_inc[registers[15]] # R
+        registers[25] += timing # T-states
+        registers[24] = (registers[24] + size) % 65536 # PC
 
     def push(self, registers, memory, r_inc, timing, size, rh, rl):
         # PUSH AF/BC/DE/HL/IX/IY
@@ -936,25 +936,25 @@ class Simulator:
         sp = (sp + 1) % 65536
         if sp > 0x3FFF:
             memory[sp] = registers[rh]
-        registers[15] = r_inc[registers[15]]
-        registers[25] += timing
-        registers[24] = (registers[24] + size) % 65536
+        registers[15] = r_inc[registers[15]] # R
+        registers[25] += timing # T-states
+        registers[24] = (registers[24] + size) % 65536 # PC
 
     def res_hl(self, registers, memory, bit):
         # RES n,(HL)
         addr = registers[7] + 256 * registers[6]
         if addr > 0x3FFF:
             memory[addr] &= bit
-        registers[15] = R2[registers[15]]
-        registers[25] += 15
-        registers[24] = (registers[24] + 2) % 65536
+        registers[15] = R2[registers[15]] # R
+        registers[25] += 15 # T-states
+        registers[24] = (registers[24] + 2) % 65536 # PC
 
     def res_r(self, registers, bit, reg):
         # RES n,r
         registers[reg] &= bit
-        registers[15] = R2[registers[15]]
-        registers[25] += 8
-        registers[24] = (registers[24] + 2) % 65536
+        registers[15] = R2[registers[15]] # R
+        registers[25] += 8 # T-states
+        registers[24] = (registers[24] + 2) % 65536 # PC
 
     def res_xy(self, registers, memory, bit, xyh, xyl, dest=-1):
         # RES n,(IX/Y+d)
@@ -964,35 +964,35 @@ class Simulator:
             memory[addr] = value
         if dest >= 0:
             registers[dest] = value
-        registers[15] = R2[registers[15]]
-        registers[25] += 23
-        registers[24] = (registers[24] + 4) % 65536
+        registers[15] = R2[registers[15]] # R
+        registers[25] += 23 # T-states
+        registers[24] = (registers[24] + 4) % 65536 # PC
 
     def ret(self, registers, memory, c_and, c_val):
         # RET / RET cc
         if c_and:
             if registers[1] & c_and == c_val:
-                registers[25] += 5
-                registers[24] = (registers[24] + 1) % 65536
+                registers[25] += 5 # T-states
+                registers[24] = (registers[24] + 1) % 65536 # PC
             else:
-                registers[25] += 11
+                registers[25] += 11 # T-states
                 sp = registers[12]
                 registers[12] = (sp + 2) % 65536
-                registers[24] = memory[sp] + 256 * memory[(sp + 1) % 65536]
+                registers[24] = memory[sp] + 256 * memory[(sp + 1) % 65536] # PC
         else:
-            registers[25] += 10
+            registers[25] += 10 # T-states
             sp = registers[12]
             registers[12] = (sp + 2) % 65536
-            registers[24] = memory[sp] + 256 * memory[(sp + 1) % 65536]
-        registers[15] = R1[registers[15]]
+            registers[24] = memory[sp] + 256 * memory[(sp + 1) % 65536] # PC
+        registers[15] = R1[registers[15]] # R
 
     def reti(self, registers, memory):
         # RETI / RETN
-        registers[15] = R2[registers[15]]
-        registers[25] += 14
+        registers[15] = R2[registers[15]] # R
+        registers[25] += 14 # T-states
         sp = registers[12]
         registers[12] = (sp + 2) % 65536
-        registers[24] = memory[sp] + 256 * memory[(sp + 1) % 65536]
+        registers[24] = memory[sp] + 256 * memory[(sp + 1) % 65536] # PC
 
     def rld(self, registers, memory, sz53p):
         # RLD
@@ -1003,9 +1003,9 @@ class Simulator:
             memory[hl] = ((at_hl * 16) % 256) + (a % 16)
         a_out = registers[0] = (a & 240) + at_hl // 16
         registers[1] = sz53p[a_out] + (registers[1] % 2)
-        registers[15] = R2[registers[15]]
-        registers[25] += 18
-        registers[24] = (registers[24] + 2) % 65536
+        registers[15] = R2[registers[15]] # R
+        registers[25] += 18 # T-states
+        registers[24] = (registers[24] + 2) % 65536 # PC
 
     def rrd(self, registers, memory, sz53p):
         # RRD
@@ -1016,9 +1016,9 @@ class Simulator:
             memory[hl] = ((a * 16) % 256) + (at_hl // 16)
         a_out = registers[0] = (a & 240) + (at_hl % 16)
         registers[1] = sz53p[a_out] + (registers[1] % 2)
-        registers[15] = R2[registers[15]]
-        registers[25] += 18
-        registers[24] = (registers[24] + 2) % 65536
+        registers[15] = R2[registers[15]] # R
+        registers[25] += 18 # T-states
+        registers[24] = (registers[24] + 2) % 65536 # PC
 
     def rst(self, registers, memory, addr):
         # RST n
@@ -1030,9 +1030,9 @@ class Simulator:
         sp = (sp + 1) % 65536
         if sp > 0x3FFF:
             memory[sp] = ret_addr // 256
-        registers[15] = R1[registers[15]]
-        registers[25] += 11
-        registers[24] = addr
+        registers[15] = R1[registers[15]] # R
+        registers[25] += 11 # T-states
+        registers[24] = addr # PC
 
     def sbc_hl(self, registers, rh, rl):
         # SBC HL,BC/DE/HL/SP
@@ -1058,25 +1058,25 @@ class Simulator:
         registers[1] = f + (h & 0xA8)
         registers[7] = result % 256
         registers[6] = h
-        registers[15] = R2[registers[15]]
-        registers[25] += 15
-        registers[24] = (registers[24] + 2) % 65536
+        registers[15] = R2[registers[15]] # R
+        registers[25] += 15 # T-states
+        registers[24] = (registers[24] + 2) % 65536 # PC
 
     def set_hl(self, registers, memory, bit):
         # SET n,(HL)
         addr = registers[7] + 256 * registers[6]
         if addr > 0x3FFF:
             memory[addr] |= bit
-        registers[15] = R2[registers[15]]
-        registers[25] += 15
-        registers[24] = (registers[24] + 2) % 65536
+        registers[15] = R2[registers[15]] # R
+        registers[25] += 15 # T-states
+        registers[24] = (registers[24] + 2) % 65536 # PC
 
     def set_r(self, registers, bit, reg):
         # SET n,r
         registers[reg] |= bit
-        registers[15] = R2[registers[15]]
-        registers[25] += 8
-        registers[24] = (registers[24] + 2) % 65536
+        registers[15] = R2[registers[15]] # R
+        registers[25] += 8 # T-states
+        registers[24] = (registers[24] + 2) % 65536 # PC
 
     def set_xy(self, registers, memory, bit, xyh, xyl, dest=-1):
         # SET n,(IX/Y+d)
@@ -1086,9 +1086,9 @@ class Simulator:
             memory[addr] = value
         if dest >= 0:
             registers[dest] = value
-        registers[15] = R2[registers[15]]
-        registers[25] += 23
-        registers[24] = (registers[24] + 4) % 65536
+        registers[15] = R2[registers[15]] # R
+        registers[25] += 23 # T-states
+        registers[24] = (registers[24] + 4) % 65536 # PC
 
     def create_opcodes(self):
         from skoolkit.simtables import (
