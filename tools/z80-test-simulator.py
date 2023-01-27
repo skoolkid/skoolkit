@@ -23,6 +23,8 @@ class Options:
     ram_ops = ()
     reg = []
     state = []
+    accelerator = None
+    fast_load = True
 
 class Tracer:
     def __init__(self):
