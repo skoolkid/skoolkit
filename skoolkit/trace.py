@@ -79,9 +79,8 @@ class Tracer:
             if interrupts and simulator.iff:
                 if tstates // FRAME_DURATION > t0 // FRAME_DURATION:
                     accept_int = True
-                if accept_int and memory[pc] != 0xFB:
-                    simulator.accept_interrupt(registers, memory)
-                    accept_int = False
+                if accept_int:
+                    accept_int = simulator.accept_interrupt(registers, memory, pc)
 
             pc = registers[24]
 

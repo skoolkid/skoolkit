@@ -152,9 +152,8 @@ class LoadTracer:
             if simulator.iff:
                 if tstates // FRAME_DURATION > t0 // FRAME_DURATION:
                     accept_int = True
-                if accept_int and memory[pc] != 0xFB:
-                    simulator.accept_interrupt(registers, memory)
-                    accept_int = False
+                if accept_int:
+                    accept_int = simulator.accept_interrupt(registers, memory, pc)
 
             if self.tape_running and tstates > self.next_edge: # pragma: no cover
                 index = self.index

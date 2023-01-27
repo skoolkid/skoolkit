@@ -552,6 +552,81 @@ class TraceTest(SkoolKitTestCase):
         self.assertEqual(output_lines[3], '$8003 00       NOP')
         self.assertEqual(output_lines[4], 'Stopped at $8004')
 
+    def test_option_interrupts_with_dd_prefix(self):
+        data = [
+            0xDD, # $8000 DEFB $DD ; t=69886 (no interrupt accepted after DD)
+            0x00, # $8001 NOP      ; t=69890 (interrupt follows)
+            0x00, # $8002 NOP
+        ]
+        start = 0x8000
+        stop = 0x8003
+        ram = [0] * 49152
+        ram[0x1C00] = ram[0x1C04] = 0xFF # KSTATE0/4
+        ram[start - 0x4000:start - 0x4000 + len(data)] = data
+        registers = {'PC': start, 'iff2': 1, 'im': 1, 'tstates': 69886}
+        z80file = self.write_z80_file(None, ram, registers=registers)
+        output, error = self.run_trace(f'--interrupts -S {stop} -v {z80file}')
+        self.assertEqual(error, '')
+        output_lines = output.split('\n')
+        self.assertEqual(output_lines[0], '$8000 DD       DEFB $DD')
+        self.assertEqual(output_lines[1], '$8001 00       NOP')
+        self.assertEqual(output_lines[2], '$0038 F5       PUSH AF')
+        self.assertEqual(output_lines[102], '$0052 C9       RET')
+        self.assertEqual(output_lines[103], '$8002 00       NOP')
+        self.assertEqual(output_lines[104], 'Stopped at $8003')
+
+    def test_option_interrupts_with_fd_prefix(self):
+        data = [
+            0xFD, # $8000 DEFB $FD ; t=69886 (no interrupt accepted after FD)
+            0x00, # $8001 NOP      ; t=69890 (interrupt follows)
+            0x00, # $8002 NOP
+        ]
+        start = 0x8000
+        stop = 0x8003
+        ram = [0] * 49152
+        ram[0x1C00] = ram[0x1C04] = 0xFF # KSTATE0/4
+        ram[start - 0x4000:start - 0x4000 + len(data)] = data
+        registers = {'PC': start, 'iff2': 1, 'im': 1, 'tstates': 69886}
+        z80file = self.write_z80_file(None, ram, registers=registers)
+        output, error = self.run_trace(f'--interrupts -S {stop} -v {z80file}')
+        self.assertEqual(error, '')
+        output_lines = output.split('\n')
+        self.assertEqual(output_lines[0], '$8000 FD       DEFB $FD')
+        self.assertEqual(output_lines[1], '$8001 00       NOP')
+        self.assertEqual(output_lines[2], '$0038 F5       PUSH AF')
+        self.assertEqual(output_lines[102], '$0052 C9       RET')
+        self.assertEqual(output_lines[103], '$8002 00       NOP')
+        self.assertEqual(output_lines[104], 'Stopped at $8003')
+
+    def test_option_interrupts_with_ddfd_chain(self):
+        data = [
+            0xDD, # $8000 DEFB $DD ; t=69886 (no interrupt accepted after DD)
+            0xFD, # $8001 DEFB $FD ; t=69890 (no interrupt accepted after FD)
+            0xDD, # $8002 DEFB $DD ; t=69894 (no interrupt accepted after DD)
+            0xFD, # $8003 DEFB $FD ; t=69898 (no interrupt accepted after FD)
+            0x00, # $8004 NOP      ; t=69902 (interrupt follows)
+            0x00, # $8005 NOP
+        ]
+        start = 0x8000
+        stop = 0x8006
+        ram = [0] * 49152
+        ram[0x1C00] = ram[0x1C04] = 0xFF # KSTATE0/4
+        ram[start - 0x4000:start - 0x4000 + len(data)] = data
+        registers = {'PC': start, 'iff2': 1, 'im': 1, 'tstates': 69886}
+        z80file = self.write_z80_file(None, ram, registers=registers)
+        output, error = self.run_trace(f'--interrupts -S {stop} -v {z80file}')
+        self.assertEqual(error, '')
+        output_lines = output.split('\n')
+        self.assertEqual(output_lines[0], '$8000 DD       DEFB $DD')
+        self.assertEqual(output_lines[1], '$8001 FD       DEFB $FD')
+        self.assertEqual(output_lines[2], '$8002 DD       DEFB $DD')
+        self.assertEqual(output_lines[3], '$8003 FD       DEFB $FD')
+        self.assertEqual(output_lines[4], '$8004 00       NOP')
+        self.assertEqual(output_lines[5], '$0038 F5       PUSH AF')
+        self.assertEqual(output_lines[105], '$0052 C9       RET')
+        self.assertEqual(output_lines[106], '$8005 00       NOP')
+        self.assertEqual(output_lines[107], 'Stopped at $8006')
+
     def test_option_interrupts_at_exact_frame_boundary(self):
         data = [
             0x78, # $8000 LD A,B ; t=69884 (+4=69888: frame boundary)
