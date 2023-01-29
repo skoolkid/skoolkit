@@ -249,7 +249,8 @@ def sim_load(blocks, options):
     tracer = LoadTracer(simulator, blocks, accelerator)
     simulator.set_tracer(tracer)
     try:
-        tracer.run(0x0605, options.start, options.fast_load) # SAVE-ETC
+        # Begin execution at 0x0605 (SAVE-ETC)
+        tracer.run(0x0605, options.start, options.fast_load, options.trace)
         _ram_operations(snapshot, options.ram_ops)
     except KeyboardInterrupt: # pragma: no cover
         write_line(f'Simulation stopped (interrupted): PC={simulator.registers[PC]}')
@@ -734,6 +735,8 @@ def main(args):
     group.add_argument('--state', dest='state', metavar='name=value', action='append', default=[],
                        help="Set a hardware state attribute. Do '--state help' for more information. "
                             "This option may be used multiple times.")
+    group.add_argument('--trace', metavar='FILE',
+                       help='Log instructions executed during a simulated LOAD to FILE.')
     group.add_argument('-u', '--user-agent', dest='user_agent', metavar='AGENT', default='',
                        help="Set the User-Agent header.")
     group.add_argument('-V', '--version', action='version', version='SkoolKit {}'.format(VERSION),

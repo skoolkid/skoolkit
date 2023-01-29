@@ -97,6 +97,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertIsNone(options.start)
         self.assertFalse(options.sim_load)
         self.assertEqual([], options.state)
+        self.assertIsNone(options.trace)
         self.assertEqual(options.user_agent, '')
 
     def test_no_arguments(self):
@@ -1438,6 +1439,41 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(cm.exception.args[0], 'Error while getting snapshot out.z80: TZX Generalized Data Block (0x19) not supported')
         self.assertEqual(self.out.getvalue(), '')
         self.assertEqual(self.err.getvalue(), '')
+
+    @patch.object(tap2sna, '_write_z80', mock_write_z80)
+    def test_sim_load_with_trace(self):
+        basic_data = [
+            0, 10,               # Line 10
+            14, 0,               # Line length
+            249, 192,            # RANDOMIZE USR
+            51, 50, 55, 54, 56,  # 32768 in ASCII
+            14, 0, 0, 0, 128, 0, # 32768 in floating point form
+            13                   # ENTER
+        ]
+        blocks = [
+            create_tap_header_block("simloadbas", 10, len(basic_data), 0),
+            create_tap_data_block(basic_data),
+        ]
+        tapfile = self._write_tap(blocks)
+        tracefile = '{}/sim-load.trace'.format(self.make_directory())
+        output, error = self.run_tap2sna(f'--sim-load --trace {tracefile} {tapfile} out.z80')
+        out_lines = output.strip().split('\n')
+        exp_out_lines = [
+            'Program: simloadbas',
+            'Fast loading data block: 23755,18',
+            'Tape finished',
+            'Simulation stopped (PC in RAM): PC=32768',
+        ]
+        self.assertEqual(exp_out_lines, out_lines)
+        self.assertEqual(error, '')
+        self.assertEqual(basic_data, snapshot[23755:23755 + len(basic_data)])
+        exp_reg = set(('SP=65344', 'IX=23773', 'IY=23610', 'PC=32768'))
+        self.assertLessEqual(exp_reg, set(options.reg))
+        with open(tracefile, 'r') as f:
+            trace_lines = f.read().rstrip().split('\n')
+        self.assertEqual(len(trace_lines), 8101)
+        self.assertEqual(trace_lines[0], '$0605 POP AF')
+        self.assertEqual(trace_lines[8100], '$34BB RET')
 
     def test_default_state(self):
         block = create_tap_data_block([0])

@@ -1294,6 +1294,8 @@ To list the options supported by `tap2sna.py`, run it with no arguments::
     --state name=value    Set a hardware state attribute. Do '--state help' for
                           more information. This option may be used multiple
                           times.
+    --trace FILE          Log instructions executed during a simulated LOAD to
+                          FILE.
     -u AGENT, --user-agent AGENT
                           Set the User-Agent header.
     -V, --version         Show SkoolKit version number and exit.
@@ -1334,6 +1336,9 @@ has completed or been aborted, the values of the registers (including the
 program counter) in the simulator are used to populate the Z80 snapshot.
 
 Fast loading can be disabled by using the ``--no-fast-load`` option.
+
+To log the instructions executed during a simulated LOAD, use the ``--trace``
+option.
 
 By default, ``--sim-load`` automatically selects an appropriate accelerator (if
 available) from the list below to speed up the simulation of the tape-sampling
@@ -1405,9 +1410,9 @@ given on the command line.
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
-| 8.9     | Added the ``--accelerator`` and ``--no-fast-load`` options; added |
-|         | support for TZX loops, pauses, and unused bits in data blocks;    |
-|         | added the ``tstates`` hardware state attribute                    |
+| 8.9     | Added the ``--accelerator``, ``--no-fast-load`` and ``--trace``   |
+|         | options; added  support for TZX loops, pauses, and unused bits in |
+|         | data blocks; added the ``tstates`` hardware state attribute       |
 +---------+-------------------------------------------------------------------+
 | 8.8     | The ``--sim-load`` option performs any ``call/move/poke/sysvars`` |
 |         | operations specified by ``--ram``                                 |

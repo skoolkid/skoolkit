@@ -61,6 +61,10 @@ OPTIONS
   see the section on ``HARDWARE STATE`` below. This option may be used multiple
   times.
 
+--trace FILE
+  Log instructions executed during a simulated LOAD to FILE. See the section on
+  ``SIMULATED LOAD`` below.
+
 -u, --user-agent `AGENT`
   Set the User-Agent header used in an HTTP(S) request.
 
@@ -94,6 +98,9 @@ has completed or been aborted, the values of the registers (including the
 program counter) in the simulator are used to populate the Z80 snapshot.
 
 Fast loading can be disabled by using the ``--no-fast-load`` option.
+
+To log the instructions executed during a simulated LOAD, use the ``--trace``
+option.
 
 ACCELERATORS
 ============

@@ -16,9 +16,10 @@
 
 from functools import partial
 
-from skoolkit import SkoolKitError, write, write_line
+from skoolkit import SkoolKitError, open_file, write, write_line
 from skoolkit.basic import TextReader
 from skoolkit.simulator import A, F, D, E, H, L, IXh, IXl, PC, T, R1, FRAME_DURATION
+from skoolkit.traceutils import disassemble
 
 DEC = tuple(tuple((
         v % 256,
@@ -130,7 +131,7 @@ class LoadTracer:
         self.border = 7
         self.text = TextReader()
 
-    def run(self, start, stop, fast_load):
+    def run(self, start, stop, fast_load, trace):
         simulator = self.simulator
         opcodes = simulator.opcodes
         memory = simulator.memory
@@ -143,8 +144,14 @@ class LoadTracer:
         max_index = self.max_index
         tstates = 0
         accept_int = False
+        if trace:
+            tracefile = open_file(trace, 'w')
 
         while True:
+            if trace:
+                i = disassemble(memory, pc)[0]
+                tracefile.write(f'${pc:04X} {i}\n')
+
             t0 = tstates
             opcodes[memory[pc]]()
             tstates = registers[25]
@@ -208,6 +215,9 @@ class LoadTracer:
                 if tstates > SIM_TIMEOUT: # pragma: no cover
                     write_line(f'Simulation stopped (timed out): PC={pc}')
                     break
+
+        if trace:
+            tracefile.close()
 
     def dec_a(self, registers, memory):
         # Speed up any
