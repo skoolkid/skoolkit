@@ -2812,7 +2812,8 @@ class SimulatorTest(SkoolKitTestCase):
         memory = [0] * 65536
         iaddr = 40000
         i = 64
-        memory[256 * i:256 * i + 2] = (iaddr % 256, iaddr // 256)
+        vaddr = 255 + 256 * i
+        memory[vaddr:vaddr + 2] = (iaddr % 256, iaddr // 256)
         pc = 50000
         sp = 60000
         simulator = Simulator(memory, {'PC': pc, 'SP': sp, 'I': i}, {'iff': 1, 'im': 2})

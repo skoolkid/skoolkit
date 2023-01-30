@@ -186,8 +186,8 @@ class Simulator:
         if opcode == 0xFB or (opcode in (0xDD, 0xFD) and prev_pc == (pc - 1) % 65536):
             return True
         if self.imode == 2:
-            vaddr = 256 * registers[14]
-            iaddr = memory[vaddr] + 256 * memory[vaddr + 1]
+            vaddr = 255 + 256 * registers[14]
+            iaddr = memory[vaddr] + 256 * memory[(vaddr + 1) % 65536]
             registers[25] += 19 # T-states
         else:
             iaddr = 56

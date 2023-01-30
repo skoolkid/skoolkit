@@ -461,28 +461,27 @@ class TraceTest(SkoolKitTestCase):
 
     def test_option_interrupts_mode_2(self):
         data = [
-            0x3E, 0x80, # $7FF6 LD A,$80
-            0xED, 0x47, # $7FF8 LD I,A
-            0xED, 0x5E, # $7FFA IM 2
-            0x76,       # $7FFC HALT
-            0xAF,       # $7FFD XOR A
-            0x00,       # $7FFE NOP
-            0xC9,       # $7FFF RET
-            0xFF, 0x7F, # $8000 DEFW $7FFF
+            0x76,       # $7FFB HALT
+            0xAF,       # $7FFC XOR A
+            0x00,       # $7FFD NOP
+            0xC9,       # $7FFE RET
+            0xFE, 0x7F, # $7FFF DEFW $7FFE
         ]
         binfile = self.write_bin_file(data, suffix='.bin')
-        start = 0x7ff6
-        stop = 0x7ffe
-        output, error = self.run_trace(f'--interrupts -o {start} -S {stop} -v {binfile}')
+        start = 0x7ffb
+        stop = 0x7ffd
+        ram = [0] * 49152
+        ram[start - 0x4000:start - 0x4000 + len(data)] = data
+        registers = {'PC': start, 'I': 127, 'iff2': 1, 'im': 2, 'tstates': 69882}
+        z80file = self.write_z80_file(None, ram, registers=registers)
+        output, error = self.run_trace(f'--interrupts -S {stop} -v {z80file}')
         self.assertEqual(error, '')
         output_lines = output.split('\n')
-        self.assertEqual(output_lines[0], '$7FF6 3E80     LD A,$80')
-        self.assertEqual(output_lines[1], '$7FF8 ED47     LD I,A')
-        self.assertEqual(output_lines[2], '$7FFA ED5E     IM 2')
-        self.assertEqual(output_lines[3:17469], ['$7FFC 76       HALT'] * 17466)
-        self.assertEqual(output_lines[17469], '$7FFF C9       RET')
-        self.assertEqual(output_lines[17470], '$7FFD AF       XOR A')
-        self.assertEqual(output_lines[17471], 'Stopped at $7FFE')
+        self.assertEqual(output_lines[0], '$7FFB 76       HALT')
+        self.assertEqual(output_lines[1], '$7FFB 76       HALT')
+        self.assertEqual(output_lines[2], '$7FFE C9       RET')
+        self.assertEqual(output_lines[3], '$7FFC AF       XOR A')
+        self.assertEqual(output_lines[4], 'Stopped at $7FFD')
 
     def test_option_interrupts_without_halt(self):
         data = [
@@ -651,8 +650,8 @@ class TraceTest(SkoolKitTestCase):
     def test_option_interrupts_with_djnz(self):
         data = [
             0x21, 0x00, 0x80,       # $7FEF LD HL,$8000   ; t=69805 T-states
-            0x22, 0x00, 0xFF,       # $7FF2 LD ($FF00),HL ; t=69815
-            0x3E, 0xFF,             # $7FF5 LD A,$FF      ; t=69831
+            0x22, 0xFF, 0xFE,       # $7FF2 LD ($FEFF),HL ; t=69815
+            0x3E, 0xFE,             # $7FF5 LD A,$FE      ; t=69831
             0xED, 0x47,             # $7FF7 LD I,A        ; t=69838
             0xED, 0x5E,             # $7FF9 IM 2          ; t=69847
             0x06, 0x04,             # $7FFB LD B,$04      ; t=69855
@@ -676,8 +675,8 @@ class TraceTest(SkoolKitTestCase):
     def test_option_interrupts_with_ldir(self):
         data = [
             0x21, 0x00, 0x80,       # $7FEE LD HL,$8000   ; t=69805 T-states
-            0x22, 0x00, 0xFF,       # $7FF1 LD ($FF00),HL ; t=69815
-            0x3E, 0xFF,             # $7FF4 LD A,$FF      ; t=69831
+            0x22, 0xFF, 0xFE,       # $7FF1 LD ($FEFF),HL ; t=69815
+            0x3E, 0xFE,             # $7FF4 LD A,$FE      ; t=69831
             0xED, 0x47,             # $7FF6 LD I,A        ; t=69838
             0xED, 0x5E,             # $7FF8 IM 2          ; t=69847
             0x01, 0x04, 0x00,       # $7FFA LD BC,$0004   ; t=69855
@@ -701,8 +700,8 @@ class TraceTest(SkoolKitTestCase):
     def test_option_interrupts_with_lddr(self):
         data = [
             0x21, 0x00, 0x80,       # $7FEE LD HL,$8000   ; t=69805 T-states
-            0x22, 0x00, 0xFF,       # $7FF1 LD ($FF00),HL ; t=69815
-            0x3E, 0xFF,             # $7FF4 LD A,$FF      ; t=69831
+            0x22, 0xFF, 0xFE,       # $7FF1 LD ($FEFF),HL ; t=69815
+            0x3E, 0xFE,             # $7FF4 LD A,$FE      ; t=69831
             0xED, 0x47,             # $7FF6 LD I,A        ; t=69838
             0xED, 0x5E,             # $7FF8 IM 2          ; t=69847
             0x01, 0x04, 0x00,       # $7FFA LD BC,$0004   ; t=69855
