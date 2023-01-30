@@ -1281,6 +1281,7 @@ To list the options supported by `tap2sna.py`, run it with no arguments::
                           Write the snapshot file in this directory.
     -f, --force           Overwrite an existing snapshot.
     --no-fast-load        Disable fast loading.
+    --no-pause            Do not pause the tape between blocks.
     -p STACK, --stack STACK
                           Set the stack pointer.
     --ram OPERATION       Perform a load operation or otherwise modify the
@@ -1319,7 +1320,7 @@ blocks. (To see information on the blocks in a TAP or TZX file, use the
 An alternative to the ``--ram load`` approach is the ``--sim-load`` option. It
 simulates a freshly booted 48K ZX Spectrum running LOAD "" (or LOAD ""CODE, if
 the first block on the tape is a 'Bytes' header). Whenever the Spectrum ROM's
-load routine at $0556 is called, a shortcut is taken by fast loading the next
+load routine at $0556 is called, a shortcut is taken by "fast loading" the next
 block on the tape. All other code (including any custom loader) is fully
 simulated. Simulation continues until the program counter hits the start
 address given by the ``--start`` option, or 10 minutes of simulated Z80 CPU
@@ -1335,7 +1336,14 @@ A simulated LOAD can also be aborted by pressing Ctrl-C. When a simulated LOAD
 has completed or been aborted, the values of the registers (including the
 program counter) in the simulator are used to populate the Z80 snapshot.
 
-Fast loading can be disabled by using the ``--no-fast-load`` option.
+By default, ``--sim-load`` pauses the tape between blocks, and waits for port
+254 to be read before resuming playback. While this can help with tapes that
+require (but do not actually contain) long pauses between blocks, it can cause
+some loaders to fail. Use the ``--no-pause`` option to disable this behaviour.
+
+The "fast loading" shortcut significantly reduces the load time for many tapes,
+but can also cause some loaders to fail. Use the ``--no-fast-load`` option to
+disable fast loading.
 
 To log the instructions executed during a simulated LOAD, use the ``--trace``
 option.
@@ -1410,9 +1418,10 @@ given on the command line.
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
-| 8.9     | Added the ``--accelerator``, ``--no-fast-load`` and ``--trace``   |
-|         | options; added  support for TZX loops, pauses, and unused bits in |
-|         | data blocks; added the ``tstates`` hardware state attribute       |
+| 8.9     | Added the ``--accelerator``, ``--no-fast-load``, ``--no-pause``   |
+|         | and ``--trace`` options; added support for TZX loops, pauses, and |
+|         | unused bits in data blocks; added the ``tstates`` hardware state  |
+|         | attribute                                                         |
 +---------+-------------------------------------------------------------------+
 | 8.8     | The ``--sim-load`` option performs any ``call/move/poke/sysvars`` |
 |         | operations specified by ``--ram``                                 |

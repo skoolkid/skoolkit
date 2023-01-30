@@ -54,6 +54,15 @@ class SimLoadGamesTest(SkoolKitTestCase):
             '--accelerator alkatraz2 --start 24000'
         )
 
+    def test_battle_of_britain(self):
+        self._test_sim_load(
+            'https://www.worldofspectrum.org/pub/sinclair/games/b/BattleOfBritain_2.tzx.zip',
+            'Battle Of Britain (PSS).tzx',
+            '6b1005a547ede2687449cf11788e7dd3',
+            '2d0fb4ba5ff954644da46dc468ca2d3d',
+            '--no-pause --accelerator rom --start 27078'
+        )
+
     def test_chromoload2(self):
         self._test_sim_load(
             'https://www.worldofspectrum.org/pub/sinclair/games/s/Skyway.tzx.zip',

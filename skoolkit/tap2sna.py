@@ -246,7 +246,7 @@ def sim_load(blocks, options):
                 snapshot[a + 1] = b // 256
     snapshot[0xFF58:] = snapshot[0x3E08:0x3EB0] # UDGs
     simulator = Simulator(snapshot, {'SP': 0xFF50})
-    tracer = LoadTracer(simulator, blocks, accelerator)
+    tracer = LoadTracer(simulator, blocks, accelerator, options.pause)
     simulator.set_tracer(tracer)
     try:
         # Begin execution at 0x0605 (SAVE-ETC)
@@ -720,6 +720,8 @@ def main(args):
                        help="Overwrite an existing snapshot.")
     group.add_argument('--no-fast-load', dest='fast_load', action='store_false',
                        help='Disable fast loading.')
+    group.add_argument('--no-pause', dest='pause', action='store_false',
+                       help='Do not pause the tape between blocks.')
     group.add_argument('-p', '--stack', dest='stack', metavar='STACK', type=integer,
                        help="Set the stack pointer.")
     group.add_argument('--ram', dest='ram_ops', metavar='OPERATION', action='append', default=[],

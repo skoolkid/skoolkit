@@ -14,6 +14,8 @@ Changelog
   entirely)
 * Added the ``--no-fast-load`` option to :ref:`tap2sna.py` (to disable fast
   loading when the ROM load routine is called during a simulated LOAD)
+* Added the ``--no-pause`` option to :ref:`tap2sna.py` (to disable pausing the
+  tape between blocks during a simulated LOAD)
 * Added the ``--trace`` option to :ref:`tap2sna.py` (to log the instructions
   executed during a simulated LOAD to a file)
 * Added the ``--interrupts`` option to :ref:`trace.py` (to enable the execution

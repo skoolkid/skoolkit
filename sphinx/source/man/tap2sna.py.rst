@@ -33,6 +33,10 @@ OPTIONS
   Disable fast loading during a simulated LOAD. See the section on ``SIMULATED
   LOAD`` below.
 
+--no-pause
+  Do not pause the tape between blocks during a simulated LOAD. See the section
+  on ``SIMULATED LOAD`` below.
+
 -p, --stack `STACK`
   Set the stack pointer. This option is equivalent to ``--reg sp=STACK``.
   `STACK` must be a decimal number, or a hexadecimal number prefixed by '0x'.
@@ -82,8 +86,8 @@ SIMULATED LOAD
 The ``--sim-load`` option simulates a freshly booted 48K ZX Spectrum running
 LOAD "" (or LOAD ""CODE, if the first block on the tape is a 'Bytes' header).
 Whenever the Spectrum ROM's load routine at $0556 is called, a shortcut is
-taken by fast loading the next block on the tape. All other code (including any
-custom loader) is fully simulated. Simulation continues until the program
+taken by "fast loading" the next block on the tape. All other code (including
+any custom loader) is fully simulated. Simulation continues until the program
 counter hits the start address given by the ``--start`` option, or 10 minutes
 of simulated Z80 CPU time has elapsed, or the end of the tape is reached and
 one of the following conditions is satisfied:
@@ -97,7 +101,14 @@ A simulated LOAD can also be aborted by pressing Ctrl-C. When a simulated LOAD
 has completed or been aborted, the values of the registers (including the
 program counter) in the simulator are used to populate the Z80 snapshot.
 
-Fast loading can be disabled by using the ``--no-fast-load`` option.
+By default, ``--sim-load`` pauses the tape between blocks, and waits for port
+254 to be read before resuming playback. While this can help with tapes that
+require (but do not actually contain) long pauses between blocks, it can cause
+some loaders to fail. Use the ``--no-pause`` option to disable this behaviour.
+
+The "fast loading" shortcut significantly reduces the load time for many tapes,
+but can also cause some loaders to fail. Use the ``--no-fast-load`` option to
+disable fast loading.
 
 To log the instructions executed during a simulated LOAD, use the ``--trace``
 option.

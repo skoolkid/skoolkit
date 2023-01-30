@@ -93,10 +93,12 @@ def get_edges(blocks):
     return edges, indexes, data_blocks
 
 class LoadTracer:
-    def __init__(self, simulator, blocks, accelerator):
+    def __init__(self, simulator, blocks, accelerator, pause):
         self.simulator = simulator
         self.edges, self.indexes, self.blocks = get_edges(blocks)
         self.accelerator = accelerator
+        self.pause = pause
+        self.announce_data = True
         opcodes = simulator.opcodes
         memory = simulator.memory
         registers = simulator.registers
@@ -322,7 +324,8 @@ class LoadTracer:
             if pc > 0x7FFF or 0x0562 <= pc <= 0x05F1: # pragma: no cover
                 self.custom_loader = True
                 index = self.index
-                if not self.tape_running and not self.end_of_tape:
+                if self.announce_data and not self.end_of_tape:
+                    self.announce_data = False
                     self.tape_running = True
                     registers[T] = self.edges[index]
                     length = len(self.blocks[self.block_index])
@@ -347,7 +350,8 @@ class LoadTracer:
             self.index = self.block_max_index + 1
             self.next_edge = self.edges[self.index]
             self.block_data_index, self.block_max_index = self.indexes[self.block_index]
-            self.tape_running = False
+            self.tape_running = not self.pause
+            self.announce_data = True
 
     def stop_tape(self, tstates):
         self.block_index = len(self.blocks)
@@ -415,3 +419,4 @@ class LoadTracer:
             registers[E] = de & 0xFF
 
         registers[PC] = 0x05E2
+        self.announce_data = False
