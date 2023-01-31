@@ -549,7 +549,7 @@ class Simulator:
         if self.in_tracer:
             registers[0] = self.in_tracer(memory[pcn % 65536] + 256 * registers[0])
         else:
-            registers[0] = 191
+            registers[0] = 255
         registers[15] = R1[registers[15]] # R
         registers[25] += 11 # T-states
         registers[24] = (pcn + 1) % 65536 # PC
@@ -559,7 +559,7 @@ class Simulator:
         if self.in_tracer:
             value = self.in_tracer(registers[3] + 256 * registers[2])
         else:
-            value = 191
+            value = 255
         if reg != 1:
             registers[reg] = value
         registers[1] = sz53p[value] + (registers[1] % 2)

@@ -1823,7 +1823,7 @@ class SimulatorTest(SkoolKitTestCase):
         n = 56
         operation = f'IN A,(${n:02X})'
         data = (0xDB, n)
-        reg_out = {A: 191}
+        reg_out = {A: 255}
         self._test_instruction(simulator, operation, data, 11, reg_out)
 
     def test_in_r_c(self):
@@ -1853,7 +1853,7 @@ class SimulatorTest(SkoolKitTestCase):
         simulator = Simulator([0] * 65536)
         operation = f'IN F,(C)'
         data = (0xED, 0x70)
-        reg_out = {F: 0b10101000}
+        reg_out = {F: 0b10101100}
         self._test_instruction(simulator, operation, data, 12, reg_out)
 
     def test_djnz(self):

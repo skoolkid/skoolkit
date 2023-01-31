@@ -336,7 +336,7 @@ class LoadTracer:
                     # Final edge, so stop the tape
                     self.stop_tape(registers[T])
                 return self.ear[index % 2]
-        return 191
+        return 255
 
     def write_port(self, registers, port, value):
         if port % 2 == 0:

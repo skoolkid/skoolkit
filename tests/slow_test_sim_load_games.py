@@ -72,6 +72,15 @@ class SimLoadGamesTest(SkoolKitTestCase):
             '-c pause=0 -c accelerator=rom --start 27078'
         )
 
+    def test_cattell_iq_test(self):
+        # Reads port 65531 to detect a printer
+        self._test_sim_load(
+            'https://www.worldofspectrum.org/pub/sinclair/utils/CattellIQTest.tzx.zip',
+            'Cattel IQ Test.tzx',
+            'a3ad457e8f4b1bf9794b021678b9ce18',
+            'b870c1f58f3a6f5327b14b3186ede694'
+        )
+
     def test_chromoload2(self):
         self._test_sim_load(
             'https://www.worldofspectrum.org/pub/sinclair/games/s/Skyway.tzx.zip',
@@ -363,7 +372,7 @@ class SimLoadGamesTest(SkoolKitTestCase):
             'https://www.worldofspectrum.org/pub/sinclair/games/t/TechnicianTed.tzx.zip',
             'Technician Ted.tzx',
             'b55a761f7d3733bc6ac958b10fab0c43',
-            'a90cd18272ec2d270f9659f6be58f22d',
+            '6e5a843057270e4a84c74de609facd61',
             '-c accelerator=rom --start 35892'
         )
 
