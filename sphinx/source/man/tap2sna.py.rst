@@ -18,24 +18,16 @@ instead of (or as well as) being given on the command line.
 
 OPTIONS
 =======
---accelerator `NAME`
-  Use a specific accelerator to speed up the simulation of the tape-sampling
-  loop in a loading routine. Do ``--accelerator help`` for more information, or
-  see the section on ``ACCELERATORS`` below.
+-c, --sim-load-config name=value
+  Set the value of a ``--sim-load`` configuration option. Do ``-c help`` for
+  more information, and see the section on ``SIMULATED LOAD`` below. This
+  option may be used multiple times.
 
 -d, --output-dir `DIR`
   Write the snapshot file in this directory.
 
 -f, --force
   Overwrite an existing snapshot.
-
---no-fast-load
-  Disable fast loading during a simulated LOAD. See the section on ``SIMULATED
-  LOAD`` below.
-
---no-pause
-  Do not pause the tape between blocks during a simulated LOAD. See the section
-  on ``SIMULATED LOAD`` below.
 
 -p, --stack `STACK`
   Set the stack pointer. This option is equivalent to ``--reg sp=STACK``.
@@ -104,17 +96,15 @@ program counter) in the simulator are used to populate the Z80 snapshot.
 By default, ``--sim-load`` pauses the tape between blocks, and waits for port
 254 to be read before resuming playback. While this can help with tapes that
 require (but do not actually contain) long pauses between blocks, it can cause
-some loaders to fail. Use the ``--no-pause`` option to disable this behaviour.
+some loaders to fail. Use ``-c pause=0`` option to disable this behaviour.
 
 The "fast loading" shortcut significantly reduces the load time for many tapes,
-but can also cause some loaders to fail. Use the ``--no-fast-load`` option to
+but can also cause some loaders to fail. Use ``-c fast-load=0`` option to
 disable fast loading.
 
 To log the instructions executed during a simulated LOAD, use the ``--trace``
 option.
 
-ACCELERATORS
-============
 By default, ``--sim-load`` automatically selects an appropriate accelerator (if
 available) from the list below to speed up the simulation of the tape-sampling
 loop in a loading routine:
@@ -146,9 +136,9 @@ loop in a loading routine:
 |  ``speedlock`` - Speedlock (all versions)
 |  ``zydroload`` - Zydroload
 
-The ``--accelerator`` option may be used either to specify a particular
-accelerator (which may produce a faster simulated LOAD), or to disable
-acceleration entirely (``none``).
+Use ``-c accelerator=name`` to specify a particular accelerator (which may
+produce a faster simulated LOAD), or to disable acceleration entirely
+(``-c accelerator=none``).
 
 CALL OPERATIONS
 ===============

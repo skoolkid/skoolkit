@@ -9,13 +9,9 @@ Changelog
 * :ref:`tap2sna.py` now accelerates the simulation of tape-sampling loops in
   loading routines, and also simulates the execution of interrupt routines when
   interrupts are enabled
-* Added the ``--accelerator`` option to :ref:`tap2sna.py` (to specify a
-  particular tape-sampling loop accelerator, or to disable acceleration
-  entirely)
-* Added the ``--no-fast-load`` option to :ref:`tap2sna.py` (to disable fast
-  loading when the ROM load routine is called during a simulated LOAD)
-* Added the ``--no-pause`` option to :ref:`tap2sna.py` (to disable pausing the
-  tape between blocks during a simulated LOAD)
+* Added the ``--sim-load-config`` option to :ref:`tap2sna.py` (to set the value
+  of a ``--sim-load`` configuration option: ``accelerator``, ``fast-load``,
+  ``pause``)
 * Added the ``--trace`` option to :ref:`tap2sna.py` (to log the instructions
   executed during a simulated LOAD to a file)
 * Added the ``--interrupts`` option to :ref:`trace.py` (to enable the execution

@@ -191,7 +191,7 @@ class SimLoadTest(SkoolKitTestCase):
             'Tape finished',
             'Simulation stopped (end of tape): PC=32925'
         ]
-        self._test_sim_load(f'--sim-load --accelerator rom {tapfile} out.z80', exp_data, exp_reg, exp_output)
+        self._test_sim_load(f'--sim-load -c accelerator=rom {tapfile} out.z80', exp_data, exp_reg, exp_output)
 
     @patch.object(tap2sna, '_write_z80', mock_write_z80)
     def test_turbo_loader(self):

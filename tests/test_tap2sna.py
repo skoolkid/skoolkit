@@ -96,6 +96,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual([], options.reg)
         self.assertIsNone(options.start)
         self.assertFalse(options.sim_load)
+        self.assertEqual([], options.sim_load_config)
         self.assertEqual([], options.state)
         self.assertIsNone(options.trace)
         self.assertEqual(options.user_agent, '')
@@ -111,17 +112,12 @@ class Tap2SnaTest(SkoolKitTestCase):
             self.assertEqual(output, '')
             self.assertTrue(error.startswith('usage:'))
 
-    def test_accelerator_help(self):
-        output, error = self.run_tap2sna('--accelerator help')
-        self.assertTrue(output.startswith('Usage: --accelerator NAME\n'))
-        self.assertEqual(error, '')
-
     def test_accelerator_unrecognised(self):
         blocks = [create_tap_data_block([0])]
         tapfile = self._write_tap(blocks)
         z80file = '{}/out.z80'.format(self.make_directory())
         with self.assertRaises(SkoolKitError) as cm:
-            self.run_tap2sna(f'--accelerator nope --sim-load {tapfile} {z80file}')
+            self.run_tap2sna(f'-c accelerator=nope --sim-load {tapfile} {z80file}')
         self.assertEqual(cm.exception.args[0], 'Error while getting snapshot out.z80: Unrecognised accelerator: nope')
         self.assertEqual(self.err.getvalue(), '')
 
@@ -1474,6 +1470,12 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(len(trace_lines), 8101)
         self.assertEqual(trace_lines[0], '$0605 POP AF')
         self.assertEqual(trace_lines[8100], '$34BB RET')
+
+    def test_sim_load_config_help(self):
+        for option in ('-c', '--sim-load-config'):
+            output, error = self.run_tap2sna(f'{option} help')
+            self.assertTrue(output.startswith('Usage: --sim-load-config accelerator=name\n'))
+            self.assertEqual(error, '')
 
     def test_default_state(self):
         block = create_tap_data_block([0])

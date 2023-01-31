@@ -1275,13 +1275,13 @@ To list the options supported by `tap2sna.py`, run it with no arguments::
   well as) being given on the command line.
 
   Options:
-    --accelerator NAME    Use a specific tape-sampling loop accelerator. Run
-                          with 'help' as the NAME for more information.
+    -c name=value, --sim-load-config name=value
+                          Set the value of a --sim-load configuration option. Do
+                          '-c help' for more information. This option may be
+                          used multiple times.
     -d DIR, --output-dir DIR
                           Write the snapshot file in this directory.
     -f, --force           Overwrite an existing snapshot.
-    --no-fast-load        Disable fast loading.
-    --no-pause            Do not pause the tape between blocks.
     -p STACK, --stack STACK
                           Set the stack pointer.
     --ram OPERATION       Perform a load operation or otherwise modify the
@@ -1339,11 +1339,11 @@ program counter) in the simulator are used to populate the Z80 snapshot.
 By default, ``--sim-load`` pauses the tape between blocks, and waits for port
 254 to be read before resuming playback. While this can help with tapes that
 require (but do not actually contain) long pauses between blocks, it can cause
-some loaders to fail. Use the ``--no-pause`` option to disable this behaviour.
+some loaders to fail. Use ``-c pause=0`` to disable this behaviour.
 
 The "fast loading" shortcut significantly reduces the load time for many tapes,
-but can also cause some loaders to fail. Use the ``--no-fast-load`` option to
-disable fast loading.
+but can also cause some loaders to fail. Use ``-c fast-load=0`` to disable fast
+loading.
 
 To log the instructions executed during a simulated LOAD, use the ``--trace``
 option.
@@ -1378,9 +1378,9 @@ loop in a loading routine:
 * ``speedlock`` (Speedlock - all versions)
 * ``zydroload`` (Zydroload)
 
-The ``--accelerator`` option may be used either to specify a particular
-accelerator (which may produce a faster simulated LOAD), or to disable
-acceleration entirely (``none``).
+Use ``-c accelerator=name`` to specify a particular accelerator (which may
+produce a faster simulated LOAD), or to disable acceleration entirely
+(``-c accelerator=none``).
 
 In addition to loading specific blocks, the ``--ram`` option can also be used
 to move blocks of bytes from one location to another, POKE values into
@@ -1418,10 +1418,9 @@ given on the command line.
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
-| 8.9     | Added the ``--accelerator``, ``--no-fast-load``, ``--no-pause``   |
-|         | and ``--trace`` options; added support for TZX loops, pauses, and |
-|         | unused bits in data blocks; added the ``tstates`` hardware state  |
-|         | attribute                                                         |
+| 8.9     | Added the ``--sim-load-config`` and ``--trace`` options; added    |
+|         | support for TZX loops, pauses, and unused bits in data blocks;    |
+|         | added the ``tstates`` hardware state attribute                    |
 +---------+-------------------------------------------------------------------+
 | 8.8     | The ``--sim-load`` option performs any ``call/move/poke/sysvars`` |
 |         | operations specified by ``--ram``                                 |

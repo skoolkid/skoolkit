@@ -223,7 +223,22 @@ def _ram_operations(snapshot, ram_ops, blocks=None):
         else:
             raise SkoolKitError(f'Invalid operation: {spec}')
 
+def _set_sim_load_config(options):
+    options.accelerator = None
+    options.fast_load = True
+    options.pause = True
+    for spec in options.sim_load_config:
+        name, sep, value = spec.lower().partition('=')
+        if sep:
+            if name == 'accelerator':
+                options.accelerator = value
+            elif name == 'fast-load': # pragma: no cover
+                options.fast_load = value != '0'
+            elif name == 'pause': # pragma: no cover
+                options.pause = value != '0'
+
 def sim_load(blocks, options):
+    _set_sim_load_config(options)
     if options.accelerator:
         accelerator = ACCELERATORS.get(options.accelerator)
         if options.accelerator != 'none' and accelerator is None:
@@ -590,18 +605,6 @@ def _get_tape(urlstring, user_agent, member=None):
     f.close()
     return tape_type, data
 
-def _print_accelerator_help():
-    names = '\n  '.join(sorted(ACCELERATORS))
-    print(f"""
-Usage: --accelerator NAME
-
-Use a specific accelerator to speed up the simulation of the tape-sampling loop
-in a loading routine. (By default, an appropriate accelerator is automatically
-selected, if available.) Recognised accelerator names are:
-
-  {names}
-""".lstrip())
-
 def _print_ram_help():
     sys.stdout.write("""
 Usage: --ram call=[/path/to/moduledir:]module.function
@@ -689,6 +692,46 @@ snapshot in an arbitrary way.
   suitable for a 48K ZX Spectrum.
 """.lstrip())
 
+def _print_sim_load_config_help():
+    width = max(len(n) for n in ACCELERATORS) + 2
+    names = [n.ljust(width) for n in sorted(ACCELERATORS)]
+    num_cols = 3
+    names += [''] * (-len(names) % num_cols)
+    cl = len(names) // num_cols
+    columns = [names[i:i + cl] for i in range(0, len(names), cl)]
+    accelerators = '\n  '.join(''.join(n) for n in zip(*columns))
+    print(f"""
+Usage: --sim-load-config accelerator=name
+       --sim-load-config fast-load=0/1
+       --sim-load-config pause=0/1
+
+Use a specific tape-sampling loop accelerator, disable fast loading, or disable
+pausing between tape blocks.
+
+--sim-load-config accelerator=name
+
+  Use a specific accelerator to speed up the simulation of the tape-sampling
+  loop in a loading routine, or disable acceleration entirely. (By default, an
+  appropriate accelerator is automatically selected, if available.) Recognised
+  accelerator names are:
+
+  {accelerators}
+
+--sim-load-config fast-load=0/1
+
+  By default, whenever the Spectrum ROM's load routine is called, a shortcut is
+  taken by "fast loading" the next block on the tape. This significantly
+  reduces the load time for many tapes, but can also cause some loaders to
+  fail. Set fast-load=0 to disable fast loading.
+
+--sim-load-config pause=0/1
+
+  By default, the tape is paused between blocks, and resumed whenever port 254
+  is read. While this can help with tapes that require (but do not actually
+  contain) long pauses between blocks, it can cause some loaders to fail. Set
+  pause=0 to disable this behaviour and run the tape continuously.
+""".lstrip())
+
 def make_z80(url, options, z80):
     tape_type, tape = _get_tape(url, options.user_agent)
     tape_blocks = _get_tape_blocks(tape_type, tape, options.sim_load)
@@ -711,17 +754,13 @@ def main(args):
     )
     parser.add_argument('args', help=argparse.SUPPRESS, nargs='*')
     group = parser.add_argument_group('Options')
-    group.add_argument('--accelerator', metavar='NAME',
-                       help="Use a specific tape-sampling loop accelerator. "
-                            "Run with 'help' as the NAME for more information.")
+    group.add_argument('-c', '--sim-load-config', metavar='name=value', action='append', default=[],
+                       help="Set the value of a --sim-load configuration option. "
+                            "Do '-c help' for more information. This option may be used multiple times.")
     group.add_argument('-d', '--output-dir', dest='output_dir', metavar='DIR',
                        help="Write the snapshot file in this directory.")
     group.add_argument('-f', '--force', action='store_true',
                        help="Overwrite an existing snapshot.")
-    group.add_argument('--no-fast-load', dest='fast_load', action='store_false',
-                       help='Disable fast loading.')
-    group.add_argument('--no-pause', dest='pause', action='store_false',
-                       help='Do not pause the tape between blocks.')
     group.add_argument('-p', '--stack', dest='stack', metavar='STACK', type=integer,
                        help="Set the stack pointer.")
     group.add_argument('--ram', dest='ram_ops', metavar='OPERATION', action='append', default=[],
@@ -744,6 +783,9 @@ def main(args):
     group.add_argument('-V', '--version', action='version', version='SkoolKit {}'.format(VERSION),
                        help='Show SkoolKit version number and exit.')
     namespace, unknown_args = parser.parse_known_args(args)
+    if 'help' in namespace.sim_load_config:
+        _print_sim_load_config_help()
+        return
     if 'help' in namespace.ram_ops:
         _print_ram_help()
         return
@@ -752,9 +794,6 @@ def main(args):
         return
     if 'help' in namespace.state:
         print_state_help()
-        return
-    if namespace.accelerator == 'help':
-        _print_accelerator_help()
         return
     if unknown_args or len(namespace.args) != 2:
         parser.exit(2, parser.format_help())
