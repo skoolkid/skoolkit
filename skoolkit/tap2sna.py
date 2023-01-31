@@ -23,8 +23,8 @@ from urllib.request import Request, urlopen
 from urllib.parse import urlparse
 
 from skoolkit import (SkoolKitError, get_dword, get_int_param, get_object,
-                      get_word, get_word3, integer, open_file, read_bin_file,
-                      warn, write_line, ROM48, VERSION)
+                      get_word, get_word3, integer, open_file, parse_int,
+                      read_bin_file, warn, write_line, ROM48, VERSION)
 from skoolkit.loadsample import ACCELERATORS
 from skoolkit.loadtracer import LoadTracer
 from skoolkit.simulator import (Simulator, A, F, B, C, D, E, H, L, IXh, IXl, IYh, IYl,
@@ -227,6 +227,7 @@ def _set_sim_load_config(options):
     options.accelerator = None
     options.fast_load = True
     options.pause = True
+    options.polarity = 0
     for spec in options.sim_load_config:
         name, sep, value = spec.lower().partition('=')
         if sep:
@@ -236,6 +237,8 @@ def _set_sim_load_config(options):
                 options.fast_load = value != '0'
             elif name == 'pause': # pragma: no cover
                 options.pause = value != '0'
+            elif name == 'polarity': # pragma: no cover
+                options.polarity = parse_int(value, 0) % 2
 
 def sim_load(blocks, options):
     _set_sim_load_config(options)
@@ -261,7 +264,7 @@ def sim_load(blocks, options):
                 snapshot[a + 1] = b // 256
     snapshot[0xFF58:] = snapshot[0x3E08:0x3EB0] # UDGs
     simulator = Simulator(snapshot, {'SP': 0xFF50})
-    tracer = LoadTracer(simulator, blocks, accelerator, options.pause)
+    tracer = LoadTracer(simulator, blocks, accelerator, options.pause, options.polarity)
     simulator.set_tracer(tracer)
     try:
         # Begin execution at 0x0605 (SAVE-ETC)
@@ -704,9 +707,10 @@ def _print_sim_load_config_help():
 Usage: --sim-load-config accelerator=name
        --sim-load-config fast-load=0/1
        --sim-load-config pause=0/1
+       --sim-load-config polarity=0/1
 
-Use a specific tape-sampling loop accelerator, disable fast loading, or disable
-pausing between tape blocks.
+Use a specific tape-sampling loop accelerator, disable fast loading, disable
+pausing between tape blocks, or set the tape polarity.
 
 --sim-load-config accelerator=name
 
@@ -730,6 +734,12 @@ pausing between tape blocks.
   is read. While this can help with tapes that require (but do not actually
   contain) long pauses between blocks, it can cause some loaders to fail. Set
   pause=0 to disable this behaviour and run the tape continuously.
+
+--sim-load-config polarity=0/1
+
+  By default, the first pulse on the tape gives rise to an EAR bit reading of
+  0 (polarity=0), and subsequent pulses give readings that alternate between 1
+  and 0. This works for most loaders, but some require polarity=1.
 """.lstrip())
 
 def make_z80(url, options, z80):

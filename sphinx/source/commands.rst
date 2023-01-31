@@ -1382,6 +1382,10 @@ Use ``-c accelerator=name`` to specify a particular accelerator (which may
 produce a faster simulated LOAD), or to disable acceleration entirely
 (``-c accelerator=none``).
 
+By default, the first pulse on the tape gives rise to an EAR bit reading of 0,
+and subsequent pulses give readings that alternate between 1 and 0. This works
+for most loaders, but some require the opposite polarity (``-c polarity=1``).
+
 In addition to loading specific blocks, the ``--ram`` option can also be used
 to move blocks of bytes from one location to another, POKE values into
 individual addresses or address ranges, modify memory with XOR and ADD

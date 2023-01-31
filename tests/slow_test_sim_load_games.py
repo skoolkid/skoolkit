@@ -54,6 +54,15 @@ class SimLoadGamesTest(SkoolKitTestCase):
             '-c accelerator=alkatraz2 --start 24000'
         )
 
+    def test_basil_the_great_mouse_detective(self):
+        self._test_sim_load(
+            'https://www.worldofspectrum.org/pub/sinclair/games/b/BasilTheGreatMouseDetective.tzx.zip',
+            'Basil The Great Mouse Detective.tzx',
+            '5e213d8a847168db2a9721f88cb1e280',
+            '1bafcd0202d96db61dc8432ef68eeb7d',
+            '-c polarity=1 --start 32768'
+        )
+
     def test_battle_of_britain(self):
         self._test_sim_load(
             'https://www.worldofspectrum.org/pub/sinclair/games/b/BattleOfBritain_2.tzx.zip',

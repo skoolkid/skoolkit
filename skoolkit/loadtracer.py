@@ -93,11 +93,12 @@ def get_edges(blocks):
     return edges, indexes, data_blocks
 
 class LoadTracer:
-    def __init__(self, simulator, blocks, accelerator, pause):
+    def __init__(self, simulator, blocks, accelerator, pause, polarity):
         self.simulator = simulator
         self.edges, self.indexes, self.blocks = get_edges(blocks)
         self.accelerator = accelerator
         self.pause = pause
+        self.ear = (191 + 64 * polarity, 255 - 64 * polarity)
         self.announce_data = True
         opcodes = simulator.opcodes
         memory = simulator.memory
@@ -334,8 +335,7 @@ class LoadTracer:
                 elif index == self.max_index:
                     # Final edge, so stop the tape
                     self.stop_tape(registers[T])
-                if index % 2:
-                    return 255
+                return self.ear[index % 2]
         return 191
 
     def write_port(self, registers, port, value):
