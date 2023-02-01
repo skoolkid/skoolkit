@@ -19,7 +19,7 @@ instead of (or as well as) being given on the command line.
 OPTIONS
 =======
 -c, --sim-load-config name=value
-  Set the value of a ``--sim-load`` configuration option. Do ``-c help`` for
+  Set the value of a ``--sim-load`` configuration parameter. Do ``-c help`` for
   more information, and see the section on ``SIMULATED LOAD`` below. This
   option may be used multiple times.
 
@@ -61,10 +61,6 @@ OPTIONS
   Start the tape at this block number. In a TAP/TZX file, the first block is
   number 1, the second is 2, etc.
 
---trace FILE
-  Log instructions executed during a simulated LOAD to FILE. See the section on
-  ``SIMULATED LOAD`` below.
-
 -u, --user-agent `AGENT`
   Set the User-Agent header used in an HTTP(S) request.
 
@@ -97,21 +93,28 @@ A simulated LOAD can also be aborted by pressing Ctrl-C. When a simulated LOAD
 has completed or been aborted, the values of the registers (including the
 program counter) in the simulator are used to populate the Z80 snapshot.
 
-By default, ``--sim-load`` pauses the tape between blocks, and waits for port
-254 to be read before resuming playback. While this can help with tapes that
-require (but do not actually contain) long pauses between blocks, it can cause
-some loaders to fail. Use ``-c pause=0`` option to disable this behaviour.
+A simulated LOAD can be configured via parameters that are set by the
+by the ``--sim-load-config`` (or ``-c``) option. The recognised configuration
+parameters are:
 
-The "fast loading" shortcut significantly reduces the load time for many tapes,
-but can also cause some loaders to fail. Use ``-c fast-load=0`` option to
-disable fast loading.
+* ``accelerator`` - the tape-sampling loop accelerator to use (default:
+  automatically selected - see below); use this to specify a particular
+  accelerator (which may produce a faster simulated LOAD), or to disable
+  acceleration entirely (``accelerator=none``)
+* ``fast-load`` - enable fast loading (``1``, the default), or disable it
+  (``0``); fast loading significantly reduces the load time for many tapes, but
+  can also cause some loaders to fail
+* ``pause`` - pause the tape between blocks and resume playback when port 254
+  is read (``1``, the default), or run the tape continuously (``0``); pausing
+  can help with tapes that require (but do not actually contain) long pauses
+  between blocks, but can cause some loaders to fail
+* ``polarity`` - the EAR bit reading for the first pulse on the tape: ``0``
+  (the default) or ``1``; the default of ``0`` works for most tapes, but some
+  require ``polarity=1``
+* ``trace`` - the file to which to log all instructions executed during the
+  simulated LOAD (default: none)
 
-To log the instructions executed during a simulated LOAD, use the ``--trace``
-option.
-
-By default, ``--sim-load`` automatically selects an appropriate accelerator (if
-available) from the list below to speed up the simulation of the tape-sampling
-loop in a loading routine:
+The names of the available tape-sampling loop accelerators are:
 
 |
 |  ``alkatraz`` - Alkatraz
@@ -139,14 +142,6 @@ loop in a loading routine:
 |  ``softlock`` - SoftLock
 |  ``speedlock`` - Speedlock (all versions)
 |  ``zydroload`` - Zydroload
-
-Use ``-c accelerator=name`` to specify a particular accelerator (which may
-produce a faster simulated LOAD), or to disable acceleration entirely
-(``-c accelerator=none``).
-
-By default, the first pulse on the tape gives rise to an EAR bit reading of 0,
-and subsequent pulses give readings that alternate between 1 and 0. This works
-for most loaders, but some require the opposite polarity (``-c polarity=1``).
 
 CALL OPERATIONS
 ===============

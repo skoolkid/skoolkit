@@ -11,11 +11,9 @@ Changelog
   interrupts are enabled
 * Added the ``--sim-load-config`` option to :ref:`tap2sna.py` (to set the value
   of a ``--sim-load`` configuration option: ``accelerator``, ``fast-load``,
-  ``pause``, ``polarity``)
+  ``pause``, ``polarity``, ``trace``)
 * Added the ``--tape-start`` option to :ref:`tap2sna.py` (to start the tape at
   a specific block number)
-* Added the ``--trace`` option to :ref:`tap2sna.py` (to log the instructions
-  executed during a simulated LOAD to a file)
 * Added the ``--interrupts`` option to :ref:`trace.py` (to enable the execution
   of interrupt routines)
 * :ref:`trace.py` now reads and writes the T-states counter in Z80 snapshots

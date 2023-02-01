@@ -228,17 +228,20 @@ def _set_sim_load_config(options):
     options.fast_load = True
     options.pause = True
     options.polarity = 0
+    options.trace = None
     for spec in options.sim_load_config:
         name, sep, value = spec.lower().partition('=')
         if sep:
             if name == 'accelerator':
                 options.accelerator = value
             elif name == 'fast-load': # pragma: no cover
-                options.fast_load = value != '0'
+                options.fast_load = parse_int(value, options.fast_load)
             elif name == 'pause': # pragma: no cover
-                options.pause = value != '0'
+                options.pause = parse_int(value, options.pause)
             elif name == 'polarity': # pragma: no cover
-                options.polarity = parse_int(value, 0) % 2
+                options.polarity = parse_int(value, options.polarity) % 2
+            elif name == 'trace':
+                options.trace = value
 
 def sim_load(blocks, options):
     _set_sim_load_config(options)
@@ -711,15 +714,17 @@ def _print_sim_load_config_help():
     columns = [names[i:i + cl] for i in range(0, len(names), cl)]
     accelerators = '\n  '.join(''.join(n) for n in zip(*columns))
     print(f"""
-Usage: --sim-load-config accelerator=name
+Usage: --sim-load-config accelerator=NAME
        --sim-load-config fast-load=0/1
        --sim-load-config pause=0/1
        --sim-load-config polarity=0/1
+       --sim-load-config trace=FILE
 
 Use a specific tape-sampling loop accelerator, disable fast loading, disable
-pausing between tape blocks, or set the tape polarity.
+pausing between tape blocks, set the tape polarity, or log executed
+instructions to a file.
 
---sim-load-config accelerator=name
+--sim-load-config accelerator=NAME
 
   Use a specific accelerator to speed up the simulation of the tape-sampling
   loop in a loading routine, or disable acceleration entirely. (By default, an
@@ -747,7 +752,11 @@ pausing between tape blocks, or set the tape polarity.
   By default, the first pulse on the tape gives rise to an EAR bit reading of
   0 (polarity=0), and subsequent pulses give readings that alternate between 1
   and 0. This works for most loaders, but some require polarity=1.
-""".lstrip())
+
+--sim-load-config trace=FILE
+
+  Log to FILE all instructions executed during the simulated LOAD.
+""".strip())
 
 def make_z80(url, options, z80):
     tape_type, tape = _get_tape(url, options.user_agent)
@@ -772,7 +781,7 @@ def main(args):
     parser.add_argument('args', help=argparse.SUPPRESS, nargs='*')
     group = parser.add_argument_group('Options')
     group.add_argument('-c', '--sim-load-config', metavar='name=value', action='append', default=[],
-                       help="Set the value of a --sim-load configuration option. "
+                       help="Set the value of a --sim-load configuration parameter. "
                             "Do '-c help' for more information. This option may be used multiple times.")
     group.add_argument('-d', '--output-dir', dest='output_dir', metavar='DIR',
                        help="Write the snapshot file in this directory.")
@@ -795,8 +804,6 @@ def main(args):
                             "This option may be used multiple times.")
     group.add_argument('--tape-start', metavar='BLOCK', type=int, default=1,
                        help="Start the tape at this block number.")
-    group.add_argument('--trace', metavar='FILE',
-                       help='Log instructions executed during a simulated LOAD to FILE.')
     group.add_argument('-u', '--user-agent', dest='user_agent', metavar='AGENT', default='',
                        help="Set the User-Agent header.")
     group.add_argument('-V', '--version', action='version', version='SkoolKit {}'.format(VERSION),

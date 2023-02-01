@@ -99,7 +99,6 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual([], options.sim_load_config)
         self.assertEqual([], options.state)
         self.assertEqual(options.tape_start, 1)
-        self.assertIsNone(options.trace)
         self.assertEqual(options.user_agent, '')
 
     def test_no_arguments(self):
@@ -1487,7 +1486,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         ]
         tapfile = self._write_tap(blocks)
         tracefile = '{}/sim-load.trace'.format(self.make_directory())
-        output, error = self.run_tap2sna(f'--sim-load --trace {tracefile} {tapfile} out.z80')
+        output, error = self.run_tap2sna(f'--sim-load -c trace={tracefile} {tapfile} out.z80')
         out_lines = output.strip().split('\n')
         exp_out_lines = [
             'Program: simloadbas',
@@ -1509,7 +1508,7 @@ class Tap2SnaTest(SkoolKitTestCase):
     def test_sim_load_config_help(self):
         for option in ('-c', '--sim-load-config'):
             output, error = self.run_tap2sna(f'{option} help')
-            self.assertTrue(output.startswith('Usage: --sim-load-config accelerator=name\n'))
+            self.assertTrue(output.startswith('Usage: --sim-load-config accelerator=NAME\n'))
             self.assertEqual(error, '')
 
     def test_default_state(self):

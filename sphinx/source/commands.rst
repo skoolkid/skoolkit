@@ -1276,8 +1276,8 @@ To list the options supported by `tap2sna.py`, run it with no arguments::
 
   Options:
     -c name=value, --sim-load-config name=value
-                          Set the value of a --sim-load configuration option. Do
-                          '-c help' for more information. This option may be
+                          Set the value of a --sim-load configuration parameter.
+                          Do '-c help' for more information. This option may be
                           used multiple times.
     -d DIR, --output-dir DIR
                           Write the snapshot file in this directory.
@@ -1296,8 +1296,6 @@ To list the options supported by `tap2sna.py`, run it with no arguments::
                           more information. This option may be used multiple
                           times.
     --tape-start BLOCK    Start the tape at this block number.
-    --trace FILE          Log instructions executed during a simulated LOAD to
-                          FILE.
     -u AGENT, --user-agent AGENT
                           Set the User-Agent header.
     -V, --version         Show SkoolKit version number and exit.
@@ -1317,75 +1315,6 @@ the appropriate addresses. For example::
 loads the third block on the tape at address 30000, and ignores all other
 blocks. (To see information on the blocks in a TAP or TZX file, use the
 :ref:`tapinfo.py` command.)
-
-An alternative to the ``--ram load`` approach is the ``--sim-load`` option. It
-simulates a freshly booted 48K ZX Spectrum running LOAD "" (or LOAD ""CODE, if
-the first block on the tape is a 'Bytes' header). Whenever the Spectrum ROM's
-load routine at $0556 is called, a shortcut is taken by "fast loading" the next
-block on the tape. All other code (including any custom loader) is fully
-simulated. Simulation continues until the program counter hits the start
-address given by the ``--start`` option, or 10 minutes of simulated Z80 CPU
-time has elapsed, or the end of the tape is reached and one of the following
-conditions is satisfied:
-
-* a custom loader was detected
-* the program counter hits an address outside the ROM
-* more than one second of simulated Z80 CPU time has elapsed since the end of
-  the tape was reached
-
-A simulated LOAD can also be aborted by pressing Ctrl-C. When a simulated LOAD
-has completed or been aborted, the values of the registers (including the
-program counter) in the simulator are used to populate the Z80 snapshot.
-
-By default, ``--sim-load`` pauses the tape between blocks, and waits for port
-254 to be read before resuming playback. While this can help with tapes that
-require (but do not actually contain) long pauses between blocks, it can cause
-some loaders to fail. Use ``-c pause=0`` to disable this behaviour.
-
-The "fast loading" shortcut significantly reduces the load time for many tapes,
-but can also cause some loaders to fail. Use ``-c fast-load=0`` to disable fast
-loading.
-
-To log the instructions executed during a simulated LOAD, use the ``--trace``
-option.
-
-By default, ``--sim-load`` automatically selects an appropriate accelerator (if
-available) from the list below to speed up the simulation of the tape-sampling
-loop in a loading routine:
-
-* ``alkatraz`` (Alkatraz)
-* ``alkatraz2`` (Alkatraz 2)
-* ``bleepload`` (Firebird BleepLoad)
-* ``cyberlode`` (Cyberlode 1.1)
-* ``digital-integration`` (Digital Integration)
-* ``dinaload`` (Dinaload)
-* ``edge`` (Edge)
-* ``elite-uni-loader`` (Elite Uni-Loader)
-* ``excelerator`` (The Excelerator Loader)
-* ``flash-loader`` (Flash Loader)
-* ``ftl`` (FTL)
-* ``gargoyle`` (Gargoyle)
-* ``gremlin`` (Lotus Esprit Turbo Challenge, Space Crusade)
-* ``hewson-slowload`` (Hewson Slowload)
-* ``injectaload`` (Injectaload)
-* ``microsphere`` (Back to Skool, Skool Daze, Sky Ranger)
-* ``none`` (no accelerator)
-* ``paul-owens`` (Paul Owens Protection System)
-* ``poliload`` (Poliload)
-* ``power-load`` (Power-Load)
-* ``rom`` (any loader whose sampling loop is the same as the ROM's)
-* ``search-loader`` (Search Loader)
-* ``softlock`` (SoftLock)
-* ``speedlock`` (Speedlock - all versions)
-* ``zydroload`` (Zydroload)
-
-Use ``-c accelerator=name`` to specify a particular accelerator (which may
-produce a faster simulated LOAD), or to disable acceleration entirely
-(``-c accelerator=none``).
-
-By default, the first pulse on the tape gives rise to an EAR bit reading of 0,
-and subsequent pulses give readings that alternate between 1 and 0. This works
-for most loaders, but some require the opposite polarity (``-c polarity=1``).
 
 In addition to loading specific blocks, the ``--ram`` option can also be used
 to move blocks of bytes from one location to another, POKE values into
@@ -1420,12 +1349,82 @@ then::
 will create `game.z80` as if the arguments specified in `game.t2s` had been
 given on the command line.
 
+Simulated LOAD
+^^^^^^^^^^^^^^
+An alternative to the ``--ram load`` approach is the ``--sim-load`` option. It
+simulates a freshly booted 48K ZX Spectrum running LOAD "" (or LOAD ""CODE, if
+the first block on the tape is a 'Bytes' header). Whenever the Spectrum ROM's
+load routine at $0556 is called, a shortcut is taken by "fast loading" the next
+block on the tape. All other code (including any custom loader) is fully
+simulated. Simulation continues until the program counter hits the start
+address given by the ``--start`` option, or 10 minutes of simulated Z80 CPU
+time has elapsed, or the end of the tape is reached and one of the following
+conditions is satisfied:
+
+* a custom loader was detected
+* the program counter hits an address outside the ROM
+* more than one second of simulated Z80 CPU time has elapsed since the end of
+  the tape was reached
+
+A simulated LOAD can also be aborted by pressing Ctrl-C. When a simulated LOAD
+has completed or been aborted, the values of the registers (including the
+program counter) in the simulator are used to populate the Z80 snapshot.
+
+A simulated LOAD can be configured via parameters that are set by the
+``--sim-load-config`` (or ``-c``) option. The recognised configuration
+parameters are:
+
+* ``accelerator`` - the tape-sampling loop accelerator to use (default:
+  automatically selected - see below); use this to specify a particular
+  accelerator (which may produce a faster simulated LOAD), or to disable
+  acceleration entirely (``accelerator=none``)
+* ``fast-load`` - enable fast loading (``1``, the default), or disable it
+  (``0``); fast loading significantly reduces the load time for many tapes, but
+  can also cause some loaders to fail
+* ``pause`` - pause the tape between blocks and resume playback when port 254
+  is read (``1``, the default), or run the tape continuously (``0``); pausing
+  can help with tapes that require (but do not actually contain) long pauses
+  between blocks, but can cause some loaders to fail
+* ``polarity`` - the EAR bit reading for the first pulse on the tape: ``0``
+  (the default) or ``1``; the default of ``0`` works for most tapes, but some
+  require ``polarity=1``
+* ``trace`` - the file to which to log all instructions executed during the
+  simulated LOAD (default: none)
+
+The names of the available tape-sampling loop accelerators are:
+
+* ``alkatraz`` (Alkatraz)
+* ``alkatraz2`` (Alkatraz 2)
+* ``bleepload`` (Firebird BleepLoad)
+* ``cyberlode`` (Cyberlode 1.1)
+* ``digital-integration`` (Digital Integration)
+* ``dinaload`` (Dinaload)
+* ``edge`` (Edge)
+* ``elite-uni-loader`` (Elite Uni-Loader)
+* ``excelerator`` (The Excelerator Loader)
+* ``flash-loader`` (Flash Loader)
+* ``ftl`` (FTL)
+* ``gargoyle`` (Gargoyle)
+* ``gremlin`` (Lotus Esprit Turbo Challenge, Space Crusade)
+* ``hewson-slowload`` (Hewson Slowload)
+* ``injectaload`` (Injectaload)
+* ``microsphere`` (Back to Skool, Skool Daze, Sky Ranger)
+* ``none`` (no accelerator)
+* ``paul-owens`` (Paul Owens Protection System)
+* ``poliload`` (Poliload)
+* ``power-load`` (Power-Load)
+* ``rom`` (any loader whose sampling loop is the same as the ROM's)
+* ``search-loader`` (Search Loader)
+* ``softlock`` (SoftLock)
+* ``speedlock`` (Speedlock - all versions)
+* ``zydroload`` (Zydroload)
+
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
-| 8.9     | Added the ``--sim-load-config``, ``--tape-start`` and ``--trace`` |
-|         | options; added support for TZX loops, pauses, and unused bits in  |
-|         | data blocks; added the ``tstates`` hardware state attribute       |
+| 8.9     | Added the ``--sim-load-config`` and ``--tape-start`` options;     |
+|         | added support for TZX loops, pauses, and unused bits in data      |
+|         | blocks; added the ``tstates`` hardware state attribute            |
 +---------+-------------------------------------------------------------------+
 | 8.8     | The ``--sim-load`` option performs any ``call/move/poke/sysvars`` |
 |         | operations specified by ``--ram``                                 |
