@@ -98,6 +98,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertFalse(options.sim_load)
         self.assertEqual([], options.sim_load_config)
         self.assertEqual([], options.state)
+        self.assertEqual(options.tape_start, 1)
         self.assertIsNone(options.trace)
         self.assertEqual(options.user_agent, '')
 
@@ -200,6 +201,40 @@ class Tap2SnaTest(SkoolKitTestCase):
         with open(z80file, 'rb') as f:
             z80_header = f.read(34)
         self.assertEqual(z80_header[32] + 256 * z80_header[33], start)
+
+    @patch.object(tap2sna, '_write_z80', mock_write_z80)
+    def test_option_tape_start_with_tap_file(self):
+        code1_start = 24576
+        code2_start = 32768
+        code = [4, 5, 6]
+        blocks = [
+            create_tap_header_block(start=code1_start),
+            create_tap_data_block(code),
+            create_tap_header_block(start=code2_start),
+            create_tap_data_block(code)
+        ]
+        tapfile = self._write_tap(blocks)
+        output, error = self.run_tap2sna(f'--tape-start 3 {tapfile} out.z80')
+        self.assertEqual(error, '')
+        self.assertEqual([0] * len(code), snapshot[code1_start:code1_start + len(code)])
+        self.assertEqual(code, snapshot[code2_start:code2_start + len(code)])
+
+    @patch.object(tap2sna, '_write_z80', mock_write_z80)
+    def test_option_tape_start_with_tzx_file(self):
+        code1_start = 24576
+        code2_start = 32768
+        code = [4, 5, 6]
+        blocks = [
+            create_tzx_header_block(start=code1_start),
+            create_tzx_data_block(code),
+            create_tzx_header_block(start=code2_start),
+            create_tzx_data_block(code)
+        ]
+        tzxfile = self._write_tzx(blocks)
+        output, error = self.run_tap2sna(f'--tape-start 3 {tzxfile} out.z80')
+        self.assertEqual(error, '')
+        self.assertEqual([0] * len(code), snapshot[code1_start:code1_start + len(code)])
+        self.assertEqual(code, snapshot[code2_start:code2_start + len(code)])
 
     @patch.object(tap2sna, '_write_z80', mock_write_z80)
     @patch.object(tap2sna, 'urlopen')

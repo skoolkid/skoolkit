@@ -501,8 +501,6 @@ def _get_tzx_block(data, i, sim):
     elif block_id == 42:
         # Stop the tape if in 48K mode
         i += 4
-        if sim: # pragma: no cover
-            i = len(data)
     elif block_id == 43:
         # Set signal level
         i += 5
@@ -528,48 +526,57 @@ def _get_tzx_block(data, i, sim):
         raise TapeError('Unknown TZX block ID: 0x{:X}'.format(block_id))
     return i, block_id, timings, tape_data
 
-def _get_tzx_blocks(data, sim):
+def _get_tzx_blocks(data, sim, start):
     signature = ''.join(chr(b) for b in data[:7])
     if signature != 'ZXTape!':
         raise TapeError("Not a TZX file")
     i = 10
     blocks = []
+    block_num = 1
     loop = None
     while i < len(data):
         i, block_id, timings, tape_data = _get_tzx_block(data, i, sim)
-        if sim: # pragma: no cover
-            if block_id == 0x20:
-                if timings.pause == 0:
+        if block_num >= start:
+            if sim: # pragma: no cover
+                if block_id == 0x20:
+                    if timings.pause == 0:
+                        break
+                elif block_id == 0x24:
+                    loop = []
+                    repetitions = get_word(data, i - 2)
+                elif block_id == 0x2A:
+                    # Stop the tape if in 48K mode
                     break
-            elif block_id == 0x24:
-                loop = []
-                repetitions = get_word(data, i - 2)
-        if loop is None:
-            blocks.append((timings, tape_data))
-        else: # pragma: no cover
-            loop.append((timings, tape_data))
-        if block_id == 0x25 and loop is not None: # pragma: no cover
-            blocks.extend(loop * repetitions)
-            loop = None
+            if loop is None:
+                blocks.append((timings, tape_data))
+            else: # pragma: no cover
+                loop.append((timings, tape_data))
+            if block_id == 0x25 and loop is not None: # pragma: no cover
+                blocks.extend(loop * repetitions)
+                loop = None
+        block_num += 1
     return blocks
 
-def get_tap_blocks(tap, sim=False):
+def get_tap_blocks(tap, start=1):
     blocks = []
+    block_num = 1
     i = 0
     while i + 1 < len(tap):
         block_len = tap[i] + 256 * tap[i + 1]
         i += 2
-        data = tap[i:i + block_len]
-        if data:
-            timings = get_tape_block_timings(data[0])
-            blocks.append((timings, data))
+        if block_num >= start:
+            data = tap[i:i + block_len]
+            if data:
+                timings = get_tape_block_timings(data[0])
+                blocks.append((timings, data))
         i += block_len
+        block_num += 1
     return blocks
 
-def _get_tape_blocks(tape_type, tape, sim):
+def _get_tape_blocks(tape_type, tape, sim, start):
     if tape_type.lower() == 'tzx':
-        return _get_tzx_blocks(tape, sim)
-    return get_tap_blocks(tape, sim)
+        return _get_tzx_blocks(tape, sim, start)
+    return get_tap_blocks(tape, start)
 
 def _get_tape(urlstring, user_agent, member=None):
     url = urlparse(urlstring)
@@ -744,7 +751,7 @@ pausing between tape blocks, or set the tape polarity.
 
 def make_z80(url, options, z80):
     tape_type, tape = _get_tape(url, options.user_agent)
-    tape_blocks = _get_tape_blocks(tape_type, tape, options.sim_load)
+    tape_blocks = _get_tape_blocks(tape_type, tape, options.sim_load, options.tape_start)
     if options.sim_load:
         blocks = [b for b in tape_blocks if b[0]]
         ram = sim_load(blocks, options)
@@ -786,6 +793,8 @@ def main(args):
     group.add_argument('--state', dest='state', metavar='name=value', action='append', default=[],
                        help="Set a hardware state attribute. Do '--state help' for more information. "
                             "This option may be used multiple times.")
+    group.add_argument('--tape-start', metavar='BLOCK', type=int, default=1,
+                       help="Start the tape at this block number.")
     group.add_argument('--trace', metavar='FILE',
                        help='Log instructions executed during a simulated LOAD to FILE.')
     group.add_argument('-u', '--user-agent', dest='user_agent', metavar='AGENT', default='',

@@ -189,6 +189,15 @@ class SimLoadGamesTest(SkoolKitTestCase):
             '-c accelerator=gremlin --start 26807'
         )
 
+    def test_haxpoc_lock(self):
+        self._test_sim_load(
+            'https://www.worldofspectrum.org/pub/sinclair/games/s/StarWarsV1.tzx.zip',
+            'Star Wars - Release 1 - Side 1.tzx',
+            'e36c32fd456f65801d4abfd1af382a65',
+            '3099ce51ae2b2dad4c9d0fc01e8109d9',
+            '--tape-start 6 -c accelerator=rom --start 65451'
+        )
+
     def test_headerless_block(self):
         self._test_sim_load(
             'https://www.worldofspectrum.org/pub/sinclair/games/g/GalacticPatrol.tzx.zip',

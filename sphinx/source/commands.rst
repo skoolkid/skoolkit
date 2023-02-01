@@ -1295,6 +1295,7 @@ To list the options supported by `tap2sna.py`, run it with no arguments::
     --state name=value    Set a hardware state attribute. Do '--state help' for
                           more information. This option may be used multiple
                           times.
+    --tape-start BLOCK    Start the tape at this block number.
     --trace FILE          Log instructions executed during a simulated LOAD to
                           FILE.
     -u AGENT, --user-agent AGENT
@@ -1422,9 +1423,9 @@ given on the command line.
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
-| 8.9     | Added the ``--sim-load-config`` and ``--trace`` options; added    |
-|         | support for TZX loops, pauses, and unused bits in data blocks;    |
-|         | added the ``tstates`` hardware state attribute                    |
+| 8.9     | Added the ``--sim-load-config``, ``--tape-start`` and ``--trace`` |
+|         | options; added support for TZX loops, pauses, and unused bits in  |
+|         | data blocks; added the ``tstates`` hardware state attribute       |
 +---------+-------------------------------------------------------------------+
 | 8.8     | The ``--sim-load`` option performs any ``call/move/poke/sysvars`` |
 |         | operations specified by ``--ram``                                 |

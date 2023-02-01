@@ -57,6 +57,10 @@ OPTIONS
   see the section on ``HARDWARE STATE`` below. This option may be used multiple
   times.
 
+--tape-start BLOCK
+  Start the tape at this block number. In a TAP/TZX file, the first block is
+  number 1, the second is 2, etc.
+
 --trace FILE
   Log instructions executed during a simulated LOAD to FILE. See the section on
   ``SIMULATED LOAD`` below.
