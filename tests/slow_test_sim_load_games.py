@@ -50,7 +50,7 @@ class SimLoadGamesTest(SkoolKitTestCase):
             'https://www.worldofspectrum.org/pub/sinclair/games/s/ShadowDancer.tzx.zip',
             'Shadow Dancer - Side 1.tzx',
             '2515ea4bb465b2834a636007ed3b9138',
-            'c8cc738f70656021d61db52b869fc4c2',
+            '19fdd84ecb94724ad95f5983298fe90a',
             '-c accelerator=alkatraz2 --start 24000'
         )
 
@@ -113,7 +113,7 @@ class SimLoadGamesTest(SkoolKitTestCase):
             'https://www.worldofspectrum.org/pub/sinclair/games/s/Satan.tzx.zip',
             'Satan - Side 1.tzx',
             '18afd7805b83ebc4974ccd8637d8a7b3',
-            'b6538b4fbef4cf10b75ea02924f2f6c8',
+            '81a50399217957c91fd04334b099b7df',
             '-c accelerator=dinaload --start 64031'
         )
 
@@ -185,7 +185,7 @@ class SimLoadGamesTest(SkoolKitTestCase):
             'https://www.worldofspectrum.org/pub/sinclair/games/s/SpaceCrusade.tzx.zip',
             'Space Crusade - 48K.tzx',
             '48cdfc186f94bf6382da93cbc4b70810',
-            'a3218945bf9ae36b9c2311471648c693',
+            '17e91ab06a5a952661aa83f5ad06d18b',
             '-c accelerator=gremlin --start 26807'
         )
 
@@ -203,7 +203,7 @@ class SimLoadGamesTest(SkoolKitTestCase):
             'https://www.worldofspectrum.org/pub/sinclair/games/g/GalacticPatrol.tzx.zip',
             'Galactic Patrol.tzx',
             '94827dbfba53fa26396d2d218990ed5b',
-            'ac4a195c41d66be33a3586c7580bca3f'
+            '16bdfebafd6a2700e7936620f920e9ba'
         )
 
     def test_hewson_slowload(self):
@@ -211,7 +211,7 @@ class SimLoadGamesTest(SkoolKitTestCase):
             'https://www.worldofspectrum.org/pub/sinclair/games/c/Cybernoid.tzx.zip',
             'Cybernoid.tzx',
             '50921a76ee625feb31c4195aac63d020',
-            '9b8bd5687b6334c4e6a53ff495e59f01',
+            '2e00d53a761c1169ddefd078519e0438',
             '-c accelerator=hewson-slowload --start 65105'
         )
 
@@ -292,7 +292,7 @@ class SimLoadGamesTest(SkoolKitTestCase):
             'https://www.worldofspectrum.org/pub/sinclair/games/p/PiecesOfEight.tzx.zip',
             'Pieces Of Eight (1992)(Pirate Software - Sinclair User)[SU Loader].tzx',
             '62da22ff8b0f6e704b4e1a509d285e40',
-            'd3c5577c6b28e1a0aca59e9f286abe3b',
+            'e51a28f2efb4882055d091fe4c8c2911',
             '-c accelerator=bleepload --start 16394'
         )
 
@@ -310,7 +310,7 @@ class SimLoadGamesTest(SkoolKitTestCase):
             'https://www.worldofspectrum.org/pub/sinclair/games/b/BruceLee.tzx.zip',
             'Bruce Lee.tzx',
             '51cb1a6e1fb58304a15a588b82d8e001',
-            'd61f1e9e168ebf4d3d9396ab3b0e8e0f',
+            '55d57a83133f75e5a62e18ec2b9a0661',
             '-c accelerator=speedlock --start 49152'
         )
 
