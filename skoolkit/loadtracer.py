@@ -44,8 +44,6 @@ INC = tuple(tuple((
     ) for c in (0, 1)
 )
 
-SIM_TIMEOUT = 10 * 60 * 3500000 # 10 minutes of Z80 CPU time
-
 def get_edges(blocks):
     edges = []
     indexes = []
@@ -134,7 +132,7 @@ class LoadTracer:
         self.border = 7
         self.text = TextReader()
 
-    def run(self, start, stop, fast_load, trace):
+    def run(self, start, stop, fast_load, trace, timeout):
         simulator = self.simulator
         opcodes = simulator.opcodes
         memory = simulator.memory
@@ -215,7 +213,7 @@ class LoadTracer:
                     if tstates - self.tape_end_time > 3500000: # pragma: no cover
                         write_line(f'Simulation stopped (tape ended 1 second ago): PC={pc}')
                         break
-                if tstates > SIM_TIMEOUT: # pragma: no cover
+                if tstates > timeout: # pragma: no cover
                     write_line(f'Simulation stopped (timed out): PC={pc}')
                     break
 

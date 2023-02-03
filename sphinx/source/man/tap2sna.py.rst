@@ -111,6 +111,8 @@ parameters are:
 * ``polarity`` - the EAR bit reading for the first pulse on the tape: ``0``
   (the default) or ``1``; the default of ``0`` works for most tapes, but some
   require ``polarity=1``
+* ``timeout`` - the number of seconds of Z80 CPU time after which to abort the
+  simulated LOAD if it's still in progress (default: 900)
 * ``trace`` - the file to which to log all instructions executed during the
   simulated LOAD (default: none)
 

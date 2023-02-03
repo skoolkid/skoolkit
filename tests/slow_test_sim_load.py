@@ -786,7 +786,6 @@ class SimLoadTest(SkoolKitTestCase):
         ]
         self._test_sim_load(f'--sim-load --start 49152 {tzxfile} out.z80', exp_data, exp_reg, exp_output)
 
-    @patch.object(loadtracer, 'SIM_TIMEOUT', 6 * 3500000)
     @patch.object(tap2sna, '_write_z80', mock_write_z80)
     def test_simulation_timed_out(self):
         basic_data = [
@@ -809,7 +808,7 @@ class SimLoadTest(SkoolKitTestCase):
             'Fast loading data block: 23755,6',
             'Simulation stopped (timed out): PC=1343',
         ]
-        self._test_sim_load(f'--sim-load {tapfile} out.z80', exp_data, exp_reg, exp_output)
+        self._test_sim_load(f'--sim-load -c timeout=6 {tapfile} out.z80', exp_data, exp_reg, exp_output)
 
     @patch.object(tap2sna, '_write_z80', mock_write_z80)
     def test_tzx_pause(self):

@@ -228,6 +228,7 @@ def _set_sim_load_config(options):
     options.fast_load = True
     options.pause = True
     options.polarity = 0
+    options.timeout = 900
     options.trace = None
     for spec in options.sim_load_config:
         name, sep, value = spec.lower().partition('=')
@@ -240,6 +241,8 @@ def _set_sim_load_config(options):
                 options.pause = parse_int(value, options.pause)
             elif name == 'polarity': # pragma: no cover
                 options.polarity = parse_int(value, options.polarity) % 2
+            elif name == 'timeout': # pragma: no cover
+                options.timeout = parse_int(value, options.timeout)
             elif name == 'trace':
                 options.trace = value
 
@@ -271,7 +274,7 @@ def sim_load(blocks, options):
     simulator.set_tracer(tracer)
     try:
         # Begin execution at 0x0605 (SAVE-ETC)
-        tracer.run(0x0605, options.start, options.fast_load, options.trace)
+        tracer.run(0x0605, options.start, options.fast_load, options.trace, options.timeout * 3500000)
         _ram_operations(snapshot, options.ram_ops)
     except KeyboardInterrupt: # pragma: no cover
         write_line(f'Simulation stopped (interrupted): PC={simulator.registers[PC]}')
@@ -718,11 +721,12 @@ Usage: --sim-load-config accelerator=NAME
        --sim-load-config fast-load=0/1
        --sim-load-config pause=0/1
        --sim-load-config polarity=0/1
+       --sim-load-config timeout=N
        --sim-load-config trace=FILE
 
 Use a specific tape-sampling loop accelerator, disable fast loading, disable
-pausing between tape blocks, set the tape polarity, or log executed
-instructions to a file.
+pausing between tape blocks, set the tape polarity, set the timeout, or log
+executed instructions to a file.
 
 --sim-load-config accelerator=NAME
 
@@ -752,6 +756,11 @@ instructions to a file.
   By default, the first pulse on the tape gives rise to an EAR bit reading of
   0 (polarity=0), and subsequent pulses give readings that alternate between 1
   and 0. This works for most loaders, but some require polarity=1.
+
+--sim-load-config timeout=N
+
+  Set the timeout to N seconds (default: 900). A simulated LOAD still in
+  progress after this period of Z80 CPU time will automatically abort.
 
 --sim-load-config trace=FILE
 
