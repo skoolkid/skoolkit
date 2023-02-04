@@ -265,7 +265,7 @@ class SimLoadGamesTest(SkoolKitTestCase):
             'https://www.worldofspectrum.org/pub/sinclair/games/a/AstroMarineCorps.tzx.zip',
             'Astro Marine Corps - Side 1.tzx',
             'b31fd6232a865fbef93db8700ceeb931',
-            'bcd24b856be889bf48315345c52dcaa1',
+            'ae8d096824184308a7ecac0be1cd09f7',
             '-c accelerator=poliload --start 60928'
         )
 
@@ -390,6 +390,6 @@ class SimLoadGamesTest(SkoolKitTestCase):
             'https://www.worldofspectrum.org/pub/sinclair/games/l/LightCorridorThe.tzx.zip',
             'The Light Corridor.tzx',
             '66674ee9c6b696404c5847be32796af4',
-            '77d4669e90e309ef78e65e92641c8639',
+            '00bd9804e8fb80d97f81b7f9dec1f5fd',
             '-c accelerator=zydroload --start 32879'
         )

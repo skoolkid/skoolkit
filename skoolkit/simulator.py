@@ -647,10 +647,10 @@ class Simulator:
 
     def ld_a_ir(self, registers, r):
         # LD A,I/R
+        registers[15] = R2[registers[15]] # R
         a = registers[r]
         registers[0] = a
         registers[1] = (a & 0xA8) + (a == 0) * 0x40 + self.iff * 0x04 + (registers[1] % 2)
-        registers[15] = R2[registers[15]] # R
         registers[25] += 9 # T-states
         registers[24] = (registers[24] + 2) % 65536 # PC
 
@@ -674,8 +674,8 @@ class Simulator:
 
     def ld_r_r(self, registers, r_inc, timing, size, r1, r2):
         # LD r,r
-        registers[r1] = registers[r2]
         registers[15] = r_inc[registers[15]] # R
+        registers[r1] = registers[r2]
         registers[25] += timing # T-states
         registers[24] = (registers[24] + size) % 65536 # PC
 

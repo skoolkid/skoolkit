@@ -652,4 +652,4 @@ class AIRTest(SimulatorTest):
         self._verify(AIRTracer(14, 237, 87), 'c9d853ee965280e89f31716900609e01')
 
     def test_ld_a_r(self):
-        self._verify(AIRTracer(15, 237, 95), '8f138736f29f3976d903f654bb65dfdf')
+        self._verify(AIRTracer(15, 237, 95), '0e93965958b098fc226bd46de0818383')

@@ -23,6 +23,8 @@ Changelog
   Z80 snapshots)
 * :ref:`tapinfo.py` now shows full info for TZX block types 0x10 (standard
   speed data) and 0x11 (turbo speed data)
+* Fixed how the Z80 instruction set simulator updates the A and R registers in
+  the 'LD A,R' and 'LD R,A' instructions
 * Fixed how the Z80 instruction set simulator handles a CALL instruction that
   overwrites its own address operand
 * Fixed how a Z80 snapshot memory block that ends with a single 0xED byte is

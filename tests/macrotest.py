@@ -1999,15 +1999,15 @@ class CommonSkoolMacroTest:
 
         # First run
         self.assertEqual(writer.expand('#SIM32797,32793,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,23296'), '')
-        self.assertEqual(writer.expand(macro), "A=2,F=0,BC=260,DE=261,HL=265,A'=7,F'=1,BC'=265,DE'=266,HL'=275,IX=272,IY=272,I=2,R=5,SP=23294,PC=32797,tstates=164")
+        self.assertEqual(writer.expand(macro), "A=2,F=0,BC=260,DE=261,HL=265,A'=7,F'=1,BC'=265,DE'=266,HL'=275,IX=272,IY=272,I=2,R=3,SP=23294,PC=32797,tstates=164")
 
         # Resume
         self.assertEqual(writer.expand('#SIM32792'), '')
-        self.assertEqual(writer.expand(macro), "A=3,F=0,BC=517,DE=518,HL=782,A'=8,F'=9,BC'=522,DE'=523,HL'=797,IX=790,IY=789,I=3,R=5,SP=23294,PC=32792,tstates=300")
+        self.assertEqual(writer.expand(macro), "A=3,F=0,BC=517,DE=518,HL=782,A'=8,F'=9,BC'=522,DE'=523,HL'=797,IX=790,IY=789,I=3,R=3,SP=23294,PC=32792,tstates=300")
 
         # Clear
         self.assertEqual(writer.expand('#SIM32792,32768,1'), '')
-        self.assertEqual(writer.expand(macro), "A=1,F=0,BC=257,DE=257,HL=257,A'=1,F'=0,BC'=257,DE'=257,HL'=257,IX=257,IY=23867,I=1,R=3,SP=23552,PC=32792,tstates=126")
+        self.assertEqual(writer.expand(macro), "A=1,F=0,BC=257,DE=257,HL=257,A'=1,F'=0,BC'=257,DE'=257,HL'=257,IX=257,IY=23867,I=1,R=1,SP=23552,PC=32792,tstates=126")
 
     def test_macro_sim_modifies_internal_memory_snapshot(self):
         skool = """

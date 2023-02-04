@@ -1277,25 +1277,44 @@ class SimulatorTest(SkoolKitTestCase):
                 sna_out = {rr: r2}
             self._test_instruction(simulator, operation, data, 7, reg_out, sna_out)
 
-    def test_ld_a_special(self):
-        # LD A,I; LD A,R
+    def test_ld_a_i(self):
+        # LD A,I
         simulator = Simulator([0] * 65536)
         registers = simulator.registers
         a = 29
+        data = (237, 87)
 
-        for opcode, reg, ri in ((87, 'I', I), (95, 'R', R)):
-            for r_in, f_in, f_out in (
-                    # I/R   SZ5H3PNC    SZ5H3PNC
-                    (128, 0b00010110, 0b10000000),
-                    (0,   0b00000100, 0b01000000),
-            ):
-                operation = f'LD A,{reg}'
-                data = (237, opcode)
-                registers[A] = a
-                registers[F] = f_in
-                registers[ri] = r_in
-                reg_out = {A: r_in, F: f_out}
-                self._test_instruction(simulator, operation, data, 9, reg_out)
+        for i_in, f_in, f_out in (
+                # I     SZ5H3PNC    SZ5H3PNC
+                (128, 0b00010110, 0b10000000),
+                (0,   0b00000100, 0b01000000),
+        ):
+            operation = 'LD A,I'
+            registers[A] = a
+            registers[F] = f_in
+            registers[I] = i_in
+            reg_out = {A: i_in, F: f_out}
+            self._test_instruction(simulator, operation, data, 9, reg_out)
+
+    def test_ld_a_r(self):
+        # LD A,R
+        simulator = Simulator([0] * 65536)
+        registers = simulator.registers
+        a = 29
+        data = (237, 95)
+
+        for r_in, r_out, f_in, f_out in (
+                #            SZ5H3PNC    SZ5H3PNC
+                (126, 0,   0b10010110, 0b01000000),
+                (128, 130, 0b00010110, 0b10000000),
+                (254, 128, 0b00000100, 0b10000000),
+        ):
+            operation = 'LD A,R'
+            registers[A] = a
+            registers[F] = f_in
+            registers[R] = r_in
+            reg_out = {A: r_out, F: f_out}
+            self._test_instruction(simulator, operation, data, 9, reg_out)
 
     def test_ld_special_a(self):
         # LD I,A; LD R,A
@@ -1303,15 +1322,15 @@ class SimulatorTest(SkoolKitTestCase):
         registers = simulator.registers
         r, a = 2, 99
 
-        for opcode, reg, ri, r_out in (
-                (71, 'I', I, a),
-                (79, 'R', R, a + 2)
+        for opcode, reg, ri in (
+                (71, 'I', I),
+                (79, 'R', R)
         ):
             operation = f'LD {reg},A'
             data = (237, opcode)
             registers[ri] = r
             registers[A] = a
-            reg_out = {ri: r_out}
+            reg_out = {ri: a}
             self._test_instruction(simulator, operation, data, 9, reg_out)
 
     def test_ld_rr_nn(self):
