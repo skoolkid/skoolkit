@@ -44,19 +44,16 @@ INC = tuple(tuple((
     ) for c in (0, 1)
 )
 
-def get_edges(blocks):
-    edges = []
+def get_edges(blocks, first_edge):
+    edges = [first_edge]
     indexes = []
     data_blocks = []
-    tstates = -1
+    tstates = first_edge
 
     for i, (timings, data) in enumerate(blocks):
         # Pilot tone
         for n in range(timings.pilot_len):
-            if tstates < 0:
-                tstates = 0
-            else:
-                tstates += timings.pilot
+            tstates += timings.pilot
             edges.append(tstates)
 
         # Sync pulses
@@ -66,6 +63,8 @@ def get_edges(blocks):
 
         # Data
         if data:
+            while edges[0] < 0:
+                edges.pop(0)
             start = len(edges) - 1
             for k, b in enumerate(data, 1):
                 if k < len(data):
@@ -91,12 +90,11 @@ def get_edges(blocks):
     return edges, indexes, data_blocks
 
 class LoadTracer:
-    def __init__(self, simulator, blocks, accelerator, pause, polarity):
+    def __init__(self, simulator, blocks, accelerator, pause, first_edge):
         self.simulator = simulator
-        self.edges, self.indexes, self.blocks = get_edges(blocks)
+        self.edges, self.indexes, self.blocks = get_edges(blocks, first_edge)
         self.accelerator = accelerator
         self.pause = pause
-        self.ear = (191 + 64 * polarity, 255 - 64 * polarity)
         self.announce_data = True
         opcodes = simulator.opcodes
         memory = simulator.memory
@@ -333,7 +331,8 @@ class LoadTracer:
                 elif index == self.max_index:
                     # Final edge, so stop the tape
                     self.stop_tape(registers[T])
-                return self.ear[index % 2]
+                if index % 2 == 0:
+                    return 191
         return 255
 
     def write_port(self, registers, port, value):

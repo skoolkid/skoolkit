@@ -55,12 +55,13 @@ class SimLoadGamesTest(SkoolKitTestCase):
         )
 
     def test_basil_the_great_mouse_detective(self):
+        # The loader for this game is polarity-sensitive
         self._test_sim_load(
             'https://www.worldofspectrum.org/pub/sinclair/games/b/BasilTheGreatMouseDetective.tzx.zip',
             'Basil The Great Mouse Detective.tzx',
             '5e213d8a847168db2a9721f88cb1e280',
             '1bafcd0202d96db61dc8432ef68eeb7d',
-            '-c polarity=1 --start 32768'
+            '-c first-edge=0 --start 32768'
         )
 
     def test_battle_of_britain(self):
@@ -233,6 +234,16 @@ class SimLoadGamesTest(SkoolKitTestCase):
             '--start 40001'
         )
 
+    def test_mask(self):
+        # The loader for this game is polarity-sensitive
+        self._test_sim_load(
+            'https://www.worldofspectrum.org/pub/sinclair/games/m/MASK.tzx.zip',
+            'Mask.tzx',
+            'd69fa0a1d2bab53e27d4843cc129d83a',
+            '4eca00b307b2c7668d2bde172703e525',
+            '-c first-edge=0 --start 43657'
+        )
+
     def test_microsphere(self):
         self._test_sim_load(
             'https://www.worldofspectrum.org/pub/sinclair/games/s/SkoolDaze.tzx.zip',
@@ -276,6 +287,15 @@ class SimLoadGamesTest(SkoolKitTestCase):
             '38c2a7eb6c2ed9010e700063aedd3a3e',
             '93e02b62589dcaf61df4e1bef3ef4231',
             '-c accelerator=power-load --start 65392'
+        )
+
+    def test_sam_stoat_safebreaker(self):
+        self._test_sim_load(
+            'https://www.worldofspectrum.org/pub/sinclair/games/s/SamStoatSafebreaker.tzx.zip',
+            'Sam Stoat Safebreaker.tzx',
+            '5bbe64b84c53c148343435e000c31083',
+            '85d91d46b2530d1303eeddda978ee659',
+            '-c first-edge=0 -c accelerator=speedlock --start 64722'
         )
 
     def test_search_loader(self):

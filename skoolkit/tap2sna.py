@@ -261,8 +261,8 @@ def _ram_operations(snapshot, ram_ops, blocks=None):
 def _set_sim_load_config(options):
     options.accelerator = None
     options.fast_load = True
+    options.first_edge = -2168
     options.pause = True
-    options.polarity = 0
     options.timeout = 900
     options.trace = None
     for spec in options.sim_load_config:
@@ -272,10 +272,10 @@ def _set_sim_load_config(options):
                 options.accelerator = value
             elif name == 'fast-load': # pragma: no cover
                 options.fast_load = parse_int(value, options.fast_load)
+            elif name == 'first-edge': # pragma: no cover
+                options.first_edge = parse_int(value, options.first_edge)
             elif name == 'pause': # pragma: no cover
                 options.pause = parse_int(value, options.pause)
-            elif name == 'polarity': # pragma: no cover
-                options.polarity = parse_int(value, options.polarity) % 2
             elif name == 'timeout': # pragma: no cover
                 options.timeout = parse_int(value, options.timeout)
             elif name == 'trace':
@@ -305,7 +305,7 @@ def sim_load(blocks, options):
                 snapshot[a + 1] = b // 256
     snapshot[0xFF58:] = snapshot[0x3E08:0x3EB0] # UDGs
     simulator = Simulator(snapshot, {'SP': 0xFF50})
-    tracer = LoadTracer(simulator, blocks, accelerator, options.pause, options.polarity)
+    tracer = LoadTracer(simulator, blocks, accelerator, options.pause, options.first_edge)
     simulator.set_tracer(tracer)
     try:
         # Begin execution at 0x0605 (SAVE-ETC)
@@ -758,14 +758,14 @@ def _print_sim_load_config_help():
     print(f"""
 Usage: --sim-load-config accelerator=NAME
        --sim-load-config fast-load=0/1
+       --sim-load-config first-edge=N
        --sim-load-config pause=0/1
-       --sim-load-config polarity=0/1
        --sim-load-config timeout=N
        --sim-load-config trace=FILE
 
-Use a specific tape-sampling loop accelerator, disable fast loading, disable
-pausing between tape blocks, set the tape polarity, set the timeout, or log
-executed instructions to a file.
+Use a specific tape-sampling loop accelerator, disable fast loading, set the
+location of the leading edge of the first pulse on the tape, disable pausing
+between tape blocks, set the timeout, or log executed instructions to a file.
 
 --sim-load-config accelerator=NAME
 
@@ -783,18 +783,19 @@ executed instructions to a file.
   reduces the load time for many tapes, but can also cause some loaders to
   fail. Set fast-load=0 to disable fast loading.
 
+--sim-load-config first-edge=N
+
+  Set the time (in T-states) from the start of the tape at which to place the
+  leading edge of the first pulse (default: -2168). The default value places
+  the trailing edge of the first pulse at time 0, but some loaders (e.g.
+  polarity-sensitive loaders) require first-edge=0.
+
 --sim-load-config pause=0/1
 
   By default, the tape is paused between blocks, and resumed whenever port 254
   is read. While this can help with tapes that require (but do not actually
   contain) long pauses between blocks, it can cause some loaders to fail. Set
   pause=0 to disable this behaviour and run the tape continuously.
-
---sim-load-config polarity=0/1
-
-  By default, the first pulse on the tape gives rise to an EAR bit reading of
-  0 (polarity=0), and subsequent pulses give readings that alternate between 1
-  and 0. This works for most loaders, but some require polarity=1.
 
 --sim-load-config timeout=N
 

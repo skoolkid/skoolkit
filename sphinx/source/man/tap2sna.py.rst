@@ -108,13 +108,14 @@ parameters are:
 * ``fast-load`` - enable fast loading (``1``, the default), or disable it
   (``0``); fast loading significantly reduces the load time for many tapes, but
   can also cause some loaders to fail
+* ``first-edge`` - the time (in T-states) from the start of the tape at which
+  to place the leading edge of the first pulse (default: ``-2168``); the
+  default value places the trailing edge of the first pulse at time 0, but some
+  loaders (e.g. polarity-sensitive loaders) require ``first-edge=0``
 * ``pause`` - pause the tape between blocks and resume playback when port 254
   is read (``1``, the default), or run the tape continuously (``0``); pausing
   can help with tapes that require (but do not actually contain) long pauses
   between blocks, but can cause some loaders to fail
-* ``polarity`` - the EAR bit reading for the first pulse on the tape: ``0``
-  (the default) or ``1``; the default of ``0`` works for most tapes, but some
-  require ``polarity=1``
 * ``timeout`` - the number of seconds of Z80 CPU time after which to abort the
   simulated LOAD if it's still in progress (default: 900)
 * ``trace`` - the file to which to log all instructions executed during the
