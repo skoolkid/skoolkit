@@ -61,6 +61,10 @@ OPTIONS
   Start the tape at this block number. In a TAP/TZX file, the first block is
   number 1, the second is 2, etc.
 
+--tape-stop BLOCK
+  Stop the tape at this block number. In a TAP/TZX file, the first block is
+  number 1, the second is 2, etc.
+
 -u, --user-agent `AGENT`
   Set the User-Agent header used in an HTTP(S) request.
 

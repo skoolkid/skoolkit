@@ -376,6 +376,15 @@ class SimLoadGamesTest(SkoolKitTestCase):
             '24bb22d264e97d3abf9117598ed83587'
         )
 
+    def test_street_gang(self):
+        self._test_sim_load(
+            'https://www.worldofspectrum.org/pub/sinclair/games/s/StreetGang.tzx.zip',
+            'Street Gang.tzx',
+            '04a0a6b5c286a34b33285134903e9128',
+            'd17c10344afafa3899b04ccf661ab484',
+            '--tape-stop 8 -c accelerator=speedlock'
+        )
+
     def test_technician_ted(self):
         self._test_sim_load(
             'https://www.worldofspectrum.org/pub/sinclair/games/t/TechnicianTed.tzx.zip',

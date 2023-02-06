@@ -567,7 +567,7 @@ def _get_tzx_block(data, i, sim):
         raise TapeError('Unknown TZX block ID: 0x{:X}'.format(block_id))
     return i, block_id, timings, tape_data
 
-def _get_tzx_blocks(data, sim, start):
+def _get_tzx_blocks(data, sim, start, stop):
     signature = ''.join(chr(b) for b in data[:7])
     if signature != 'ZXTape!':
         raise TapeError("Not a TZX file")
@@ -576,16 +576,18 @@ def _get_tzx_blocks(data, sim, start):
     block_num = 1
     loop = None
     while i < len(data):
+        if block_num >= stop > 0:
+            break
         i, block_id, timings, tape_data = _get_tzx_block(data, i, sim)
         if block_num >= start:
             if sim: # pragma: no cover
                 if block_id == 0x20:
-                    if timings.pause == 0:
+                    if stop == 0 and timings.pause == 0:
                         break
                 elif block_id == 0x24:
                     loop = []
                     repetitions = get_word(data, i - 2)
-                elif block_id == 0x2A:
+                elif block_id == 0x2A and stop == 0:
                     # Stop the tape if in 48K mode
                     break
             if loop is None:
@@ -598,11 +600,13 @@ def _get_tzx_blocks(data, sim, start):
         block_num += 1
     return blocks
 
-def get_tap_blocks(tap, start=1):
+def get_tap_blocks(tap, start=1, stop=0):
     blocks = []
     block_num = 1
     i = 0
     while i + 1 < len(tap):
+        if block_num >= stop > 0:
+            break # pragma: no cover (tested but missed by coverage)
         block_len = tap[i] + 256 * tap[i + 1]
         i += 2
         if block_num >= start:
@@ -614,10 +618,10 @@ def get_tap_blocks(tap, start=1):
         block_num += 1
     return blocks
 
-def _get_tape_blocks(tape_type, tape, sim, start):
+def _get_tape_blocks(tape_type, tape, sim, start, stop):
     if tape_type.lower() == 'tzx':
-        return _get_tzx_blocks(tape, sim, start)
-    return get_tap_blocks(tape, start)
+        return _get_tzx_blocks(tape, sim, start, stop)
+    return get_tap_blocks(tape, start, stop)
 
 def _get_tape(urlstring, user_agent, member=None):
     url = urlparse(urlstring)
@@ -804,7 +808,7 @@ executed instructions to a file.
 
 def make_z80(url, options, z80):
     tape_type, tape = _get_tape(url, options.user_agent)
-    tape_blocks = _get_tape_blocks(tape_type, tape, options.sim_load, options.tape_start)
+    tape_blocks = _get_tape_blocks(tape_type, tape, options.sim_load, options.tape_start, options.tape_stop)
     if options.sim_load:
         blocks = [b for b in tape_blocks if b[0]]
         ram = sim_load(blocks, options)
@@ -848,6 +852,8 @@ def main(args):
                             "This option may be used multiple times.")
     group.add_argument('--tape-start', metavar='BLOCK', type=int, default=1,
                        help="Start the tape at this block number.")
+    group.add_argument('--tape-stop', metavar='BLOCK', type=int, default=0,
+                       help="Stop the tape at this block number.")
     group.add_argument('-u', '--user-agent', dest='user_agent', metavar='AGENT', default='',
                        help="Set the User-Agent header.")
     group.add_argument('-V', '--version', action='version', version='SkoolKit {}'.format(VERSION),

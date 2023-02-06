@@ -99,6 +99,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual([], options.sim_load_config)
         self.assertEqual([], options.state)
         self.assertEqual(options.tape_start, 1)
+        self.assertEqual(options.tape_stop, 0)
         self.assertEqual(options.user_agent, '')
 
     def test_no_arguments(self):
@@ -244,6 +245,40 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(error, '')
         self.assertEqual([0] * len(code), snapshot[code1_start:code1_start + len(code)])
         self.assertEqual(code, snapshot[code2_start:code2_start + len(code)])
+
+    @patch.object(tap2sna, '_write_z80', mock_write_z80)
+    def test_option_tape_stop_with_tap_file(self):
+        code1_start = 24576
+        code2_start = 32768
+        code = [4, 5, 6]
+        blocks = [
+            create_tap_header_block(start=code1_start),
+            create_tap_data_block(code),
+            create_tap_header_block(start=code2_start),
+            create_tap_data_block(code)
+        ]
+        tapfile = self._write_tap(blocks)
+        output, error = self.run_tap2sna(f'--tape-stop 3 {tapfile} out.z80')
+        self.assertEqual(error, '')
+        self.assertEqual(code, snapshot[code1_start:code1_start + len(code)])
+        self.assertEqual([0] * len(code), snapshot[code2_start:code2_start + len(code)])
+
+    @patch.object(tap2sna, '_write_z80', mock_write_z80)
+    def test_option_tape_stop_with_tzx_file(self):
+        code1_start = 24576
+        code2_start = 32768
+        code = [4, 5, 6]
+        blocks = [
+            create_tzx_header_block(start=code1_start),
+            create_tzx_data_block(code),
+            create_tzx_header_block(start=code2_start),
+            create_tzx_data_block(code)
+        ]
+        tzxfile = self._write_tzx(blocks)
+        output, error = self.run_tap2sna(f'--tape-stop 3 {tzxfile} out.z80')
+        self.assertEqual(error, '')
+        self.assertEqual(code, snapshot[code1_start:code1_start + len(code)])
+        self.assertEqual([0] * len(code), snapshot[code2_start:code2_start + len(code)])
 
     @patch.object(tap2sna, '_write_z80', mock_write_z80)
     @patch.object(tap2sna, 'urlopen')

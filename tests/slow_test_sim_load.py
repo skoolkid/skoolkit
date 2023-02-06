@@ -376,6 +376,80 @@ class SimLoadTest(SkoolKitTestCase):
         self._test_sim_load(f'--sim-load --start 49152 {tzxfile} out.z80', exp_data, exp_reg, exp_output)
 
     @patch.object(tap2sna, '_write_z80', mock_write_z80)
+    def test_tape_stop_option_overrides_stop_the_tape_command(self):
+        code = [
+            221, 33, 0, 192,  # LD IX,49152 ; Simulation should stop here
+            17, 1, 0,         # LD DE,1     ; because the tape has stopped
+            55,               # SCF
+            159,              # SBC A,A
+            195, 86, 5        # JP 1366
+        ]
+        code_start = 32768
+        code2 = [201]
+        basic_data = self._get_basic_data(code_start)
+        blocks = [
+            create_tzx_header_block("simloadbas", 10, len(basic_data), 0),
+            create_tzx_data_block(basic_data),
+            (0x20, 0, 0), # 0x20 - 'Stop the Tape' command
+            create_tzx_header_block("simloadbyt", code_start, len(code), 3),
+            create_tzx_data_block(code),
+            create_tzx_data_block(code2) # Block 6: ignored
+        ]
+        tzxfile = self._write_tzx(blocks)
+
+        exp_data = (
+            (basic_data, 23755),
+            (code, code_start)
+        )
+        exp_reg = set(('SP=65344', f'IX=32780', 'IY=23610', 'PC=32768'))
+        exp_output = [
+            'Program: simloadbas',
+            'Fast loading data block: 23755,20',
+            'Bytes: simloadbyt',
+            'Fast loading data block: 32768,12',
+            'Tape finished',
+            'Simulation stopped (PC in RAM): PC=32768'
+        ]
+        self._test_sim_load(f'--sim-load --tape-stop 6 {tzxfile} out.z80', exp_data, exp_reg, exp_output)
+
+    @patch.object(tap2sna, '_write_z80', mock_write_z80)
+    def test_tape_stop_option_overrides_stop_the_tape_if_in_48K_mode(self):
+        code = [
+            221, 33, 0, 192,  # LD IX,49152 ; Simulation should stop here
+            17, 1, 0,         # LD DE,1     ; because the tape has stopped
+            55,               # SCF
+            159,              # SBC A,A
+            195, 86, 5        # JP 1366
+        ]
+        code_start = 32768
+        code2 = [201]
+        basic_data = self._get_basic_data(code_start)
+        blocks = [
+            create_tzx_header_block("simloadbas", 10, len(basic_data), 0),
+            create_tzx_data_block(basic_data),
+            (0x2A, 0, 0, 0, 0), # 0x2A - Stop the tape if in 48K mode
+            create_tzx_header_block("simloadbyt", code_start, len(code), 3),
+            create_tzx_data_block(code),
+            create_tzx_data_block(code2) # Block 6: ignored
+        ]
+        tzxfile = self._write_tzx(blocks)
+
+        exp_data = (
+            (basic_data, 23755),
+            (code, code_start)
+        )
+        exp_reg = set(('SP=65344', f'IX=32780', 'IY=23610', 'PC=32768'))
+        exp_output = [
+            'Program: simloadbas',
+            'Fast loading data block: 23755,20',
+            'Bytes: simloadbyt',
+            'Fast loading data block: 32768,12',
+            'Tape finished',
+            'Simulation stopped (PC in RAM): PC=32768'
+        ]
+        self._test_sim_load(f'--sim-load --tape-stop 6 {tzxfile} out.z80', exp_data, exp_reg, exp_output)
+
+    @patch.object(tap2sna, '_write_z80', mock_write_z80)
     def test_no_gap_between_data_blocks(self):
         code2 = [1, 2, 4, 8, 16, 32, 64, 128, 0, 255]
         code3 = [128, 64, 32, 16, 8, 4, 2, 1, 0, 255]
