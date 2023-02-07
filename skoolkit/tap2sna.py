@@ -280,6 +280,8 @@ def _set_sim_load_config(options):
                 options.timeout = parse_int(value, options.timeout)
             elif name == 'trace':
                 options.trace = value
+            else:
+                raise SkoolKitError(f'Invalid sim-load configuration parameter: {name}')
 
 def sim_load(blocks, options):
     _set_sim_load_config(options)
