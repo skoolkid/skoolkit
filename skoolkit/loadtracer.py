@@ -400,16 +400,24 @@ class LoadTracer:
         if skipped:
             registers[F] = 0x00 # Reset carry flag: error
         else:
+            addr = ix
             if de <= data_len:
-                memory[ix:ix + de] = block[1:1 + de]
+                length = de
                 registers[F] = 0x01 # Set carry flag: success
                 ix += de
                 de = 0
             else:
-                memory[ix:ix + data_len + 1] = block[1:]
+                length = data_len + 1
                 registers[F] = 0x00 # Reset carry flag: error
                 ix += data_len + 1
                 de -= data_len + 1
+            i = 1
+            while length:
+                if addr > 0x3FFF:
+                    memory[addr] = block[i]
+                addr = (addr + 1) % 65536
+                i += 1
+                length -= 1
             registers[IXh] = (ix >> 8) & 0xFF
             registers[IXl] = ix & 0xFF
             registers[D] = (de >> 8) & 0xFF
