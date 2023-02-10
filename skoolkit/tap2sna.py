@@ -295,6 +295,7 @@ def sim_load(blocks, options):
     snapshot = [0] * 65536
     rom = read_bin_file(ROM48, 16384)
     snapshot[:len(rom)] = rom
+    snapshot[0x5800:0x5B00] = [56] * 768 # PAPER 7: INK 0
     snapshot[0x5C00:0x5C00 + len(SYSVARS)] = SYSVARS
     for a, b in SIM_LOAD_PATCH.items():
         snapshot[a] = b % 256
