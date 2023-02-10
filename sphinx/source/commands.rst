@@ -1295,6 +1295,7 @@ To list the options supported by `tap2sna.py`, run it with no arguments::
     --state name=value    Set a hardware state attribute. Do '--state help' for
                           more information. This option may be used multiple
                           times.
+    --tape-name NAME      Specify the name of a TAP/TZX file in a zip archive.
     --tape-start BLOCK    Start the tape at this block number.
     --tape-stop BLOCK     Stop the tape at this block number.
     -u AGENT, --user-agent AGENT
@@ -1426,10 +1427,10 @@ The names of the available tape-sampling loop accelerators are:
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
-| 8.9     | Added the ``--sim-load-config``, ``--tape-start`` and             |
-|         | ``--tape-stop`` options; added support for TZX loops, pauses, and |
-|         | unused bits in data blocks; added the ``tstates`` hardware state  |
-|         | attribute                                                         |
+| 8.9     | Added the ``--sim-load-config``, ``--tape-name``,                 |
+|         | ``--tape-start`` and ``--tape-stop`` options; added support for   |
+|         | TZX loops, pauses, and unused bits in data blocks; added the      |
+|         | ``tstates`` hardware state attribute                              |
 +---------+-------------------------------------------------------------------+
 | 8.8     | The ``--sim-load`` option performs any ``call/move/poke/sysvars`` |
 |         | operations specified by ``--ram``                                 |

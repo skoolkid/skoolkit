@@ -57,6 +57,10 @@ OPTIONS
   see the section on ``HARDWARE STATE`` below. This option may be used multiple
   times.
 
+--tape-name NAME
+  Specify the name of a TAP/TZX file in a zip archive. By default, the first
+  TAP/TZX file found in the zip archive is selected.
+
 --tape-start BLOCK
   Start the tape at this block number. In a TAP/TZX file, the first block is
   number 1, the second is 2, etc.

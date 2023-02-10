@@ -625,7 +625,7 @@ def _get_tape_blocks(tape_type, tape, sim, start, stop):
         return _get_tzx_blocks(tape, sim, start, stop)
     return get_tap_blocks(tape, start, stop)
 
-def _get_tape(urlstring, user_agent, member=None):
+def _get_tape(urlstring, user_agent, member):
     url = urlparse(urlstring)
     if url.scheme:
         write_line('Downloading {0}'.format(urlstring))
@@ -651,7 +651,10 @@ def _get_tape(urlstring, user_agent, member=None):
                 f.close()
                 raise TapeError('No TAP or TZX file found')
         write_line('Extracting {0}'.format(member))
-        tape = z.open(member)
+        try:
+            tape = z.open(member)
+        except KeyError:
+            raise TapeError(f'No file named "{member}" in the archive')
         data = bytearray(tape.read())
         tape_type = member[-3:]
     else:
@@ -810,7 +813,7 @@ between tape blocks, set the timeout, or log executed instructions to a file.
 """.strip())
 
 def make_z80(url, options, z80):
-    tape_type, tape = _get_tape(url, options.user_agent)
+    tape_type, tape = _get_tape(url, options.user_agent, options.tape_name)
     tape_blocks = _get_tape_blocks(tape_type, tape, options.sim_load, options.tape_start, options.tape_stop)
     if options.sim_load:
         blocks = [b for b in tape_blocks if b[0]]
@@ -853,6 +856,8 @@ def main(args):
     group.add_argument('--state', dest='state', metavar='name=value', action='append', default=[],
                        help="Set a hardware state attribute. Do '--state help' for more information. "
                             "This option may be used multiple times.")
+    group.add_argument('--tape-name', metavar='NAME',
+                       help="Specify the name of a TAP/TZX file in a zip archive.")
     group.add_argument('--tape-start', metavar='BLOCK', type=int, default=1,
                        help="Start the tape at this block number.")
     group.add_argument('--tape-stop', metavar='BLOCK', type=int, default=0,

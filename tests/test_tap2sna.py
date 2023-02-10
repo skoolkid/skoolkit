@@ -98,6 +98,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertFalse(options.sim_load)
         self.assertEqual([], options.sim_load_config)
         self.assertEqual([], options.state)
+        self.assertIsNone(options.tape_name)
         self.assertEqual(options.tape_start, 1)
         self.assertEqual(options.tape_stop, 0)
         self.assertEqual(options.user_agent, '')
@@ -220,6 +221,35 @@ class Tap2SnaTest(SkoolKitTestCase):
         with open(z80file, 'rb') as f:
             z80_header = f.read(34)
         self.assertEqual(z80_header[32] + 256 * z80_header[33], start)
+
+    @patch.object(tap2sna, '_write_z80', mock_write_z80)
+    def test_option_tape_name(self):
+        code1 = [1, 2, 3, 4, 5]
+        code1_start = 24576
+        tap1_data = create_tap_header_block(start=code1_start) + create_tap_data_block(code1)
+        tap1_fname = 'code1.tap'
+        code2 = [6, 7, 8]
+        code2_start = 32768
+        tap2_data = create_tap_header_block(start=code2_start) + create_tap_data_block(code2)
+        tap2_fname = 'code2.tap'
+        zipfile = '{}/tapes.zip'.format(self.make_directory())
+        with ZipFile(zipfile, 'w') as archive:
+            archive.writestr(tap1_fname, bytearray(tap1_data))
+            archive.writestr(tap2_fname, bytearray(tap2_data))
+        output, error = self.run_tap2sna(f'--tape-name {tap2_fname} {zipfile} out.z80')
+        self.assertEqual(error, '')
+        self.assertEqual([0] * len(code1), snapshot[code1_start:code1_start + len(code1)])
+        self.assertEqual(code2, snapshot[code2_start:code2_start + len(code2)])
+
+    def test_option_tape_name_with_invalid_name(self):
+        tap_data = create_tap_header_block(start=32768) + create_tap_data_block([1, 2, 3])
+        zipfile = '{}/tape.zip'.format(self.make_directory())
+        with ZipFile(zipfile, 'w') as archive:
+            archive.writestr('data.tap', bytearray(tap_data))
+        with self.assertRaises(SkoolKitError) as cm:
+            self.run_tap2sna(f'--tape-name code.tap {zipfile} out.z80')
+        self.assertEqual(cm.exception.args[0], 'Error while getting snapshot out.z80: No file named "code.tap" in the archive')
+        self.assertEqual(self.err.getvalue(), '')
 
     @patch.object(tap2sna, '_write_z80', mock_write_z80)
     def test_option_tape_start_with_tap_file(self):

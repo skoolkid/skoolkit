@@ -12,6 +12,8 @@ Changelog
 * Added the ``--sim-load-config`` option to :ref:`tap2sna.py` (to set the value
   of a ``--sim-load`` configuration parameter: ``accelerator``, ``fast-load``,
   ``first-edge``, ``pause``, ``timeout``, ``trace``)
+* Added the ``--tape-name`` option to :ref:`tap2sna.py` (to specify the name of
+  a TAP/TZX file in a zip archive, in case there is more than one)
 * Added the ``--tape-start`` and ``--tape-stop`` options to :ref:`tap2sna.py`
   (to start or stop the tape at a specific block number)
 * Added the ``--interrupts`` option to :ref:`trace.py` (to enable the execution
