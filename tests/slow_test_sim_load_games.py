@@ -1,34 +1,14 @@
 import hashlib
 import tempfile
-from urllib.request import Request, urlopen
-import zipfile
 
 from skoolkittest import SkoolKitTestCase
 from skoolkit import tap2sna
 
 class SimLoadGamesTest(SkoolKitTestCase):
     def _test_sim_load(self, url, tapname, tapsum, z80sum, options=''):
-        r = Request(url)
-        u = urlopen(r, timeout=30)
-        with tempfile.NamedTemporaryFile() as f:
-            while 1:
-                data = bytearray(u.read(4096))
-                if not data:
-                    break
-                f.write(data)
-            z = zipfile.ZipFile(f)
-            tape = z.open(tapname)
-            data = bytearray(tape.read())
-            md5sum = hashlib.md5(data).hexdigest()
-            if md5sum != tapsum:
-                self.fail(f'Checksum failure for {tapname}: expected {tapsum}, got {md5sum}')
-
         with tempfile.TemporaryDirectory() as d:
-            tapfile = f'{d}/{tapname}'
-            with open(tapfile, 'wb') as t:
-                t.write(data)
             z80file = f'{d}/{tapname[:-4]}.z80'
-            tap2sna.main(('--sim-load', '--reg', 'r=0', *options.split(), tapfile, z80file))
+            tap2sna.main(('--sim-load', '--reg', 'r=0', '--tape-name', tapname, '--tape-sum', tapsum, *options.split(), url, z80file))
             with open(z80file, 'rb') as z:
                 data = z.read()
             md5sum = hashlib.md5(data).hexdigest()

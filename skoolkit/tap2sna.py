@@ -17,6 +17,7 @@
 import sys
 import os
 import argparse
+import hashlib
 import tempfile
 import zipfile
 from urllib.request import Request, urlopen
@@ -814,6 +815,10 @@ between tape blocks, set the timeout, or log executed instructions to a file.
 
 def make_z80(url, options, z80):
     tape_type, tape = _get_tape(url, options.user_agent, options.tape_name)
+    if options.tape_sum:
+        md5sum = hashlib.md5(tape).hexdigest()
+        if md5sum != options.tape_sum:
+            raise TapeError(f'Checksum mismatch: Expected {options.tape_sum}, actually {md5sum}')
     tape_blocks = _get_tape_blocks(tape_type, tape, options.sim_load, options.tape_start, options.tape_stop)
     if options.sim_load:
         blocks = [b for b in tape_blocks if b[0]]
@@ -862,6 +867,8 @@ def main(args):
                        help="Start the tape at this block number.")
     group.add_argument('--tape-stop', metavar='BLOCK', type=int, default=0,
                        help="Stop the tape at this block number.")
+    group.add_argument('--tape-sum', metavar='MD5SUM',
+                       help="Specify the MD5 checksum of the TAP/TZX file.")
     group.add_argument('-u', '--user-agent', dest='user_agent', metavar='AGENT', default='',
                        help="Set the User-Agent header.")
     group.add_argument('-V', '--version', action='version', version='SkoolKit {}'.format(VERSION),

@@ -1,3 +1,4 @@
+import hashlib
 import os
 import textwrap
 import urllib
@@ -101,6 +102,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertIsNone(options.tape_name)
         self.assertEqual(options.tape_start, 1)
         self.assertEqual(options.tape_stop, 0)
+        self.assertIsNone(options.tape_sum)
         self.assertEqual(options.user_agent, '')
 
     def test_no_arguments(self):
@@ -318,6 +320,33 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(error, '')
         self.assertEqual(code, snapshot[code1_start:code1_start + len(code)])
         self.assertEqual([0] * len(code), snapshot[code2_start:code2_start + len(code)])
+
+    @patch.object(tap2sna, '_write_z80', mock_write_z80)
+    def test_option_tape_sum(self):
+        code = [1, 2, 3]
+        code_start = 49152
+        tap_data = create_tap_header_block(start=code_start) + create_tap_data_block(code)
+        md5sum = hashlib.md5(bytearray(tap_data)).hexdigest()
+        zipfile = '{}/tape.zip'.format(self.make_directory())
+        with ZipFile(zipfile, 'w') as archive:
+            archive.writestr('data.tap', bytearray(tap_data))
+        output, error = self.run_tap2sna(f'--tape-sum {md5sum} {zipfile} out.z80')
+        self.assertEqual(error, '')
+        self.assertEqual(code, snapshot[code_start:code_start + len(code)])
+
+    def test_option_tape_sum_with_incorrect_value(self):
+        code = [1, 2, 3]
+        code_start = 49152
+        tap_data = create_tap_header_block(start=code_start) + create_tap_data_block(code)
+        md5sum = hashlib.md5(bytearray(tap_data)).hexdigest()
+        zipfile = '{}/tape.zip'.format(self.make_directory())
+        wrongsum = '0' * 32
+        with ZipFile(zipfile, 'w') as archive:
+            archive.writestr('data.tap', bytearray(tap_data))
+        with self.assertRaises(SkoolKitError) as cm:
+            self.run_tap2sna(f'--tape-sum {wrongsum} {zipfile} out.z80')
+        self.assertEqual(cm.exception.args[0], f'Error while getting snapshot out.z80: Checksum mismatch: Expected {wrongsum}, actually {md5sum}')
+        self.assertEqual(self.err.getvalue(), '')
 
     @patch.object(tap2sna, '_write_z80', mock_write_z80)
     @patch.object(tap2sna, 'urlopen')

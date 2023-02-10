@@ -69,6 +69,10 @@ OPTIONS
   Stop the tape at this block number. In a TAP/TZX file, the first block is
   number 1, the second is 2, etc.
 
+--tape-sum MD5SUM
+  Specify the MD5 checksum of the TAP/TZX file. ``tap2sna.py`` will abort if
+  there is a checksum mismatch.
+
 -u, --user-agent `AGENT`
   Set the User-Agent header used in an HTTP(S) request.
 

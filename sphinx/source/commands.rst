@@ -1298,6 +1298,7 @@ To list the options supported by `tap2sna.py`, run it with no arguments::
     --tape-name NAME      Specify the name of a TAP/TZX file in a zip archive.
     --tape-start BLOCK    Start the tape at this block number.
     --tape-stop BLOCK     Stop the tape at this block number.
+    --tape-sum MD5SUM     Specify the MD5 checksum of the TAP/TZX file.
     -u AGENT, --user-agent AGENT
                           Set the User-Agent header.
     -V, --version         Show SkoolKit version number and exit.
@@ -1428,9 +1429,9 @@ The names of the available tape-sampling loop accelerators are:
 | Version | Changes                                                           |
 +=========+===================================================================+
 | 8.9     | Added the ``--sim-load-config``, ``--tape-name``,                 |
-|         | ``--tape-start`` and ``--tape-stop`` options; added support for   |
-|         | TZX loops, pauses, and unused bits in data blocks; added the      |
-|         | ``tstates`` hardware state attribute                              |
+|         | ``--tape-start``, ``--tape-stop`` and ``--tape-sum`` options;     |
+|         | added support for TZX loops, pauses, and unused bits in data      |
+|         | blocks; added the ``tstates`` hardware state attribute            |
 +---------+-------------------------------------------------------------------+
 | 8.8     | The ``--sim-load`` option performs any ``call/move/poke/sysvars`` |
 |         | operations specified by ``--ram``                                 |
