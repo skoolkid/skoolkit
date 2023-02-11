@@ -18,6 +18,7 @@ Changelog
   (to start or stop the tape at a specific block number)
 * Added the ``--tape-sum`` option to :ref:`tap2sna.py` (to specify the MD5
   checksum of the TAP/TZX file)
+* Added support to :ref:`tap2sna.py` for quoted arguments in an arguments file
 * Added the ``--interrupts`` option to :ref:`trace.py` (to enable the execution
   of interrupt routines)
 * :ref:`trace.py` now reads and writes the T-states counter in Z80 snapshots

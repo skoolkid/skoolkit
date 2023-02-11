@@ -1431,7 +1431,8 @@ The names of the available tape-sampling loop accelerators are:
 | 8.9     | Added the ``--sim-load-config``, ``--tape-name``,                 |
 |         | ``--tape-start``, ``--tape-stop`` and ``--tape-sum`` options;     |
 |         | added support for TZX loops, pauses, and unused bits in data      |
-|         | blocks; added the ``tstates`` hardware state attribute            |
+|         | blocks; added support for quoted arguments in an arguments file;  |
+|         | added the ``tstates`` hardware state attribute                    |
 +---------+-------------------------------------------------------------------+
 | 8.8     | The ``--sim-load`` option performs any ``call/move/poke/sysvars`` |
 |         | operations specified by ``--ram``                                 |

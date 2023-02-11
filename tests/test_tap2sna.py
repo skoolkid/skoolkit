@@ -1774,6 +1774,25 @@ class Tap2SnaTest(SkoolKitTestCase):
         snapshot = self._get_snapshot(start, data, '@{}'.format(args_file))
         self.assertEqual(data, snapshot[start:start + len(data)])
 
+    def test_quoted_args_from_file(self):
+        code = [1, 2, 3]
+        code_start = 24576
+        tap_data = create_tap_header_block(start=code_start) + create_tap_data_block(code)
+        odir = self.make_directory()
+        tapfile = self.write_bin_file(tap_data, f'{odir}/all the data.tap')
+        z80file = f'{odir}/my snapshot.z80'
+        args = f"""
+            --ram poke=32768,255
+            "{tapfile}"
+            '{z80file}'
+        """
+        args_file = self.write_text_file(textwrap.dedent(args).strip(), suffix='.t2s')
+        output, error = self.run_tap2sna(f'@{args_file}')
+        self.assertEqual(error, '')
+        snapshot = get_snapshot(z80file)
+        self.assertEqual(code, snapshot[code_start:code_start + len(code)])
+        self.assertEqual(snapshot[32768], 255)
+
     @patch.object(tap2sna, 'urlopen', Mock(return_value=BytesIO(bytearray(create_tap_data_block([2, 3])))))
     @patch.object(tap2sna, '_write_z80', mock_write_z80)
     def test_remote_download(self):

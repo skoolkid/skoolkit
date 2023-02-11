@@ -209,10 +209,27 @@ SIM_LOAD_CODE_PATCH = {
 
 class SkoolKitArgumentParser(argparse.ArgumentParser):
     def convert_arg_line_to_args(self, arg_line):
-        for arg in arg_line.split():
-            if arg in (';', '#'):
+        args = []
+        arg = ''
+        q = None
+        for c in arg_line:
+            if c == q:
+                args.append(arg)
+                arg = ''
+                q = None
+            elif c in '\'"' and q is None:
+                q = c
+            elif c.isspace() and q is None:
+                if arg:
+                    args.append(arg)
+                    arg = ''
+            elif c in ';#' and q is None:
                 break
-            yield arg
+            else:
+                arg += c
+        if arg:
+            args.append(arg)
+        return args
 
 class TapeError(Exception):
     pass
