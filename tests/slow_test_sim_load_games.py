@@ -103,7 +103,7 @@ class SimLoadGamesTest(SkoolKitTestCase):
             'https://www.worldofspectrum.org/pub/sinclair/games/b/BrianBloodaxe.tzx.zip',
             'Brian Bloodaxe.tzx',
             '01b9b9454fc40eec0db0ba16ef2e6552',
-            '15f9b29d0e807d25f40a3c5d7815d539',
+            '2f0947e2065443370ad83152ead73c72',
             '-c accelerator=edge'
         )
 
@@ -184,7 +184,7 @@ class SimLoadGamesTest(SkoolKitTestCase):
             'https://www.worldofspectrum.org/pub/sinclair/games/g/GalacticPatrol.tzx.zip',
             'Galactic Patrol.tzx',
             '94827dbfba53fa26396d2d218990ed5b',
-            '16bdfebafd6a2700e7936620f920e9ba'
+            '92a864dbd715c5acd95391a3cc4cddf5'
         )
 
     def test_hewson_slowload(self):

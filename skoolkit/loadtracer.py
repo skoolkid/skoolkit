@@ -398,26 +398,33 @@ class LoadTracer:
             write_line(f'Fast loading data block: {ix},{de}')
 
         if skipped:
-            registers[F] = 0x00 # Reset carry flag: error
+            registers[F] = 0x00 # Reset ZF, reset CF: flag byte mismatch
         else:
             addr = ix
             if de <= data_len:
                 length = de
-                registers[F] = 0x01 # Set carry flag: success
                 ix += de
                 de = 0
+                check_parity = True
             else:
                 length = data_len + 1
-                registers[F] = 0x00 # Reset carry flag: error
                 ix += data_len + 1
                 de -= data_len + 1
+                check_parity = False
+                registers[F] = 0x40 # Set ZF, reset CF: edge detection failed
             i = 1
+            parity = block[0]
             while length:
                 if addr > 0x3FFF:
                     memory[addr] = block[i]
+                parity ^= block[i]
                 addr = (addr + 1) % 65536
                 i += 1
                 length -= 1
+            if check_parity:
+                a = parity ^ block[i]
+                registers[A] = a
+                registers[F] = (a == 1) * 0x40 + (a == 0)
             registers[IXh] = (ix >> 8) & 0xFF
             registers[IXl] = ix & 0xFF
             registers[D] = (de >> 8) & 0xFF
