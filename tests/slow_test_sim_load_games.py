@@ -30,7 +30,7 @@ class SimLoadGamesTest(SkoolKitTestCase):
             'https://www.worldofspectrum.org/pub/sinclair/games/s/ShadowDancer.tzx.zip',
             'Shadow Dancer - Side 1.tzx',
             '2515ea4bb465b2834a636007ed3b9138',
-            '19fdd84ecb94724ad95f5983298fe90a',
+            'c977e29b068e720fc583471bd80f0ee3',
             '-c accelerator=alkatraz2 --start 24000'
         )
 
@@ -40,7 +40,7 @@ class SimLoadGamesTest(SkoolKitTestCase):
             'https://www.worldofspectrum.org/pub/sinclair/games/b/BasilTheGreatMouseDetective.tzx.zip',
             'Basil The Great Mouse Detective.tzx',
             '5e213d8a847168db2a9721f88cb1e280',
-            '1bafcd0202d96db61dc8432ef68eeb7d',
+            'e21d84d7d9254b7c9467ef6766ab96b7',
             '-c first-edge=0 --start 32768'
         )
 
@@ -59,7 +59,7 @@ class SimLoadGamesTest(SkoolKitTestCase):
             'https://www.worldofspectrum.org/pub/sinclair/utils/CattellIQTest.tzx.zip',
             'Cattel IQ Test.tzx',
             'a3ad457e8f4b1bf9794b021678b9ce18',
-            'b870c1f58f3a6f5327b14b3186ede694'
+            'f655c3440ac4129aa2ab2b818c2b4e1d'
         )
 
     def test_chromoload2(self):
@@ -85,7 +85,7 @@ class SimLoadGamesTest(SkoolKitTestCase):
             'https://www.worldofspectrum.org/pub/sinclair/games/t/Tomahawk.tzx.zip',
             'Tomahawk.tzx',
             '3189a34157750d9e4ad01d5a7b2e5722',
-            '8f7492f7f6030ef945b4045f2f2eefab',
+            '1c1313dba8612390fe853b735054aef4',
             '-c accelerator=digital-integration --start 57349'
         )
 
@@ -103,7 +103,7 @@ class SimLoadGamesTest(SkoolKitTestCase):
             'https://www.worldofspectrum.org/pub/sinclair/games/b/BrianBloodaxe.tzx.zip',
             'Brian Bloodaxe.tzx',
             '01b9b9454fc40eec0db0ba16ef2e6552',
-            '2f0947e2065443370ad83152ead73c72',
+            '691ba80cbd67ba7c34fb61f7ad5aee1e',
             '-c accelerator=edge'
         )
 
@@ -184,7 +184,7 @@ class SimLoadGamesTest(SkoolKitTestCase):
             'https://www.worldofspectrum.org/pub/sinclair/games/g/GalacticPatrol.tzx.zip',
             'Galactic Patrol.tzx',
             '94827dbfba53fa26396d2d218990ed5b',
-            '92a864dbd715c5acd95391a3cc4cddf5'
+            'f4a9253c61928d53998ddcce637824ba'
         )
 
     def test_hewson_slowload(self):
@@ -210,7 +210,7 @@ class SimLoadGamesTest(SkoolKitTestCase):
             'https://www.worldofspectrum.org/pub/sinclair/games/g/Gobstopper.tzx.zip',
             'Gob Stopper (Calisto).tzx',
             '43803187b78421dfe88bbfe3aa218b8d',
-            'e2f9a35c6df859fa42ec518becfddc11',
+            '174506bc3b442ccc0dffd72a21cca552',
             '--start 40001'
         )
 
@@ -301,7 +301,7 @@ class SimLoadGamesTest(SkoolKitTestCase):
             'https://www.worldofspectrum.org/pub/sinclair/games/e/Elite.tzx.zip',
             'Elite - 48k.tzx',
             'f73379181e1a413ac6c22ffd4cc8122a',
-            '89d40a5c08bf1156a2201b5262b8bf8e',
+            'c44cf4885bd8f84aa07b12b86b5ab8d0',
             '-c accelerator=softlock --start 49699'
         )
 
@@ -373,7 +373,7 @@ class SimLoadGamesTest(SkoolKitTestCase):
             'https://www.worldofspectrum.org/pub/sinclair/games/m/ManicMiner.tzx.zip',
             'Manic Miner.tzx',
             '2750ccb6c240d14516c448e94f8d200e',
-            '24bb22d264e97d3abf9117598ed83587'
+            '6c74b372be36a9f7c561e880c9a0ed28'
         )
 
     def test_street_gang(self):

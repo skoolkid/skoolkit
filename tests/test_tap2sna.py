@@ -934,7 +934,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(error, '')
         self.assertEqual(basic_data, snapshot[23755:23755 + len(basic_data)])
         self.assertEqual(code, snapshot[code_start:code_start + len(code)])
-        exp_reg = set(('SP=65344', 'IX=32770', 'IY=23610', 'PC=32768'))
+        exp_reg = set(('^F=129', 'SP=65344', 'IX=32770', 'IY=23610', 'PC=32768'))
         self.assertLessEqual(exp_reg, set(options.reg))
 
     @patch.object(tap2sna, '_write_z80', mock_write_z80)
@@ -958,7 +958,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(exp_out_lines, out_lines)
         self.assertEqual(error, '')
         self.assertEqual(code, snapshot[code_start:code_start + len(code)])
-        exp_reg = set(('SP=65362', 'IX=65362', 'IY=23610', 'PC=32896'))
+        exp_reg = set(('^F=129', 'SP=65362', 'IX=65362', 'IY=23610', 'PC=32896'))
         self.assertLessEqual(exp_reg, set(options.reg))
 
     @patch.object(tap2sna, '_write_z80', mock_write_z80)
@@ -982,7 +982,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(error, '')
         self.assertEqual(basic_data, snapshot[23755:23755 + len(basic_data)])
         self.assertEqual(code, snapshot[code_start:code_start + len(code)])
-        exp_reg = set(('SP=65344', 'IX=32770', 'IY=23610', 'PC=32769'))
+        exp_reg = set(('^F=129', 'SP=65344', 'IX=32770', 'IY=23610', 'PC=32769'))
         self.assertLessEqual(exp_reg, set(options.reg))
 
     @patch.object(tap2sna, '_write_z80', mock_write_z80)
@@ -1033,7 +1033,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(basic_data, snapshot[23755:23755 + len(basic_data)])
         self.assertEqual(ca_data, snapshot[23787:23787 + len(ca_data)])
         self.assertEqual(code, snapshot[code_start:code_start + len(code)])
-        exp_reg = set(('SP=65344', 'IX=32770', 'IY=23610', 'PC=32768'))
+        exp_reg = set(('^F=129', 'SP=65344', 'IX=32770', 'IY=23610', 'PC=32768'))
         self.assertLessEqual(exp_reg, set(options.reg))
 
     @patch.object(tap2sna, '_write_z80', mock_write_z80)
@@ -1084,7 +1084,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(basic_data, snapshot[23755:23755 + len(basic_data)])
         self.assertEqual(na_data, snapshot[23786:23786 + len(na_data)])
         self.assertEqual(code, snapshot[code_start:code_start + len(code)])
-        exp_reg = set(('SP=65344', 'IX=32770', 'IY=23610', 'PC=32768'))
+        exp_reg = set(('^F=129', 'SP=65344', 'IX=32770', 'IY=23610', 'PC=32768'))
         self.assertLessEqual(exp_reg, set(options.reg))
 
     @patch.object(tap2sna, '_write_z80', mock_write_z80)
@@ -1136,7 +1136,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(basic_data, snapshot[23755:23755 + len(basic_data)])
         self.assertEqual(code, snapshot[code_start:code_start + len(code)])
         self.assertEqual(code2, snapshot[49152:49152 + len(code2)])
-        exp_reg = set(('SP=65344', 'IX=49154', 'IY=23610', 'PC=49152'))
+        exp_reg = set(('^F=187', 'SP=65344', 'IX=49154', 'IY=23610', 'PC=49152'))
         self.assertLessEqual(exp_reg, set(options.reg))
 
     @patch.object(tap2sna, '_write_z80', mock_write_z80)
@@ -1189,7 +1189,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(error, '')
         self.assertEqual(basic_data + [128], snapshot[23755:23755 + len(basic_data) + 1])
         self.assertEqual(code + [0], snapshot[code_start:code_start + len(code) + 1])
-        exp_reg = set(('SP=65344', 'IX=32770', 'IY=23610', 'PC=32768'))
+        exp_reg = set(('^F=129', 'SP=65344', 'IX=32770', 'IY=23610', 'PC=32768'))
         self.assertLessEqual(exp_reg, set(options.reg))
 
     @patch.object(tap2sna, '_write_z80', mock_write_z80)
@@ -1234,7 +1234,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(code, snapshot[code_start:code_start + len(code)])
         self.assertEqual(code2, snapshot[code2_start:code2_end])
         self.assertEqual(snapshot[code2_end], code2_data_block[-1])
-        exp_reg = set(('SP=65344', f'IX={code2_end+1}', 'E=3', 'D=0', 'IY=23610', 'PC=49152', 'F=64'))
+        exp_reg = set(('^F=187', 'SP=65344', f'IX={code2_end+1}', 'E=3', 'D=0', 'IY=23610', 'PC=49152', 'F=64'))
         self.assertLessEqual(exp_reg, set(options.reg))
 
         out_lines = output.strip().split('\n')
@@ -1304,7 +1304,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(basic_data, snapshot[23755:23755 + len(basic_data)])
         self.assertEqual(code, snapshot[code_start:code_start + len(code)])
         self.assertEqual(code2, snapshot[49152:49152 + len(code2)])
-        exp_reg = set(('SP=65344', 'IX=49154', 'IY=23610', 'PC=32780', 'F=1'))
+        exp_reg = set(('^F=187', 'SP=65344', 'IX=49154', 'IY=23610', 'PC=32780', 'F=1'))
         self.assertLessEqual(exp_reg, set(options.reg))
 
     @patch.object(tap2sna, '_write_z80', mock_write_z80)
@@ -1328,7 +1328,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(error, '')
         self.assertEqual(basic_data, snapshot[23755:23755 + len(basic_data)])
         self.assertEqual(code, snapshot[code_start:code_start + len(code)])
-        exp_reg = set(('SP=65344', 'IX=32770', 'IY=23610', 'PC=32768'))
+        exp_reg = set(('^F=129', 'SP=65344', 'IX=32770', 'IY=23610', 'PC=32768'))
         self.assertLessEqual(exp_reg, set(options.reg))
 
     @patch.object(tap2sna, '_write_z80', mock_write_z80)
@@ -1443,7 +1443,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(error, '')
         self.assertEqual([161, 153, 66, 60], snapshot[32768:32772])
         self.assertEqual(code[4:], snapshot[start + 4:start + len(code)])
-        exp_reg = set(('SP=65344', 'IX=16396', 'IY=23610', 'PC=16395'))
+        exp_reg = set(('^F=129', 'SP=65344', 'IX=16396', 'IY=23610', 'PC=16395'))
         self.assertLessEqual(exp_reg, set(options.reg))
 
     @patch.object(tap2sna, '_write_z80', mock_write_z80)
@@ -1499,7 +1499,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(basic_data, snapshot[23755:23755 + len(basic_data)])
         self.assertEqual(code, snapshot[code_start:code_start + len(code)])
         self.assertEqual(code2, snapshot[49152:49152 + len(code2)])
-        exp_reg = set(('D=0', 'SP=65344', 'IX=49154', 'IY=23610', 'PC=32784'))
+        exp_reg = set(('^F=187', 'D=0', 'SP=65344', 'IX=49154', 'IY=23610', 'PC=32784'))
         self.assertLessEqual(exp_reg, set(options.reg))
 
     @patch.object(tap2sna, '_write_z80', mock_write_z80)
@@ -1529,7 +1529,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(error, '')
         self.assertEqual(basic_data, snapshot[23755:23755 + len(basic_data)])
         self.assertEqual([1, 2, 3, 4], snapshot[32768:32772])
-        exp_reg = set(('SP=65344', 'IX=32770', 'IY=23610', 'PC=32768'))
+        exp_reg = set(('^F=129', 'SP=65344', 'IX=32770', 'IY=23610', 'PC=32768'))
         self.assertLessEqual(exp_reg, set(options.reg))
 
     @patch.object(tap2sna, '_write_z80', mock_write_z80)
@@ -1551,7 +1551,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(error, '')
         self.assertEqual(basic_data, snapshot[23755:23755 + len(basic_data)])
         self.assertEqual([4, 5, 4, 5], snapshot[32768:32772])
-        exp_reg = set(('SP=65344', 'IX=32770', 'IY=23610', 'PC=32768'))
+        exp_reg = set(('^F=129', 'SP=65344', 'IX=32770', 'IY=23610', 'PC=32768'))
         self.assertLessEqual(exp_reg, set(options.reg))
 
     @patch.object(tap2sna, '_write_z80', mock_write_z80)
@@ -1573,7 +1573,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(error, '')
         self.assertEqual(basic_data, snapshot[23755:23755 + len(basic_data)])
         self.assertEqual([1, 5, 1], snapshot[32768:32771])
-        exp_reg = set(('SP=65344', 'IX=32770', 'IY=23610', 'PC=32768'))
+        exp_reg = set(('^F=129', 'SP=65344', 'IX=32770', 'IY=23610', 'PC=32768'))
         self.assertLessEqual(exp_reg, set(options.reg))
 
     @patch.object(tap2sna, '_write_z80', mock_write_z80)
@@ -1599,7 +1599,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual([206, 92], snapshot[23649:23651]) # WORKSP=23758
         self.assertEqual([206, 92], snapshot[23651:23653]) # STKBOT=23758
         self.assertEqual([206, 92], snapshot[23653:23655]) # STKEND=23758
-        exp_reg = set(('SP=65344', 'IX=32770', 'IY=23610', 'PC=32768'))
+        exp_reg = set(('^F=129', 'SP=65344', 'IX=32770', 'IY=23610', 'PC=32768'))
         self.assertLessEqual(exp_reg, set(options.reg))
 
     @patch.object(tap2sna, '_write_z80', mock_write_z80)
@@ -1713,7 +1713,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(exp_out_lines, out_lines)
         self.assertEqual(error, '')
         self.assertEqual(basic_data, snapshot[23755:23755 + len(basic_data)])
-        exp_reg = set(('SP=65344', 'IX=23773', 'IY=23610', 'PC=32768'))
+        exp_reg = set(('^F=69', 'SP=65344', 'IX=23773', 'IY=23610', 'PC=32768'))
         self.assertLessEqual(exp_reg, set(options.reg))
         with open(tracefile, 'r') as f:
             trace_lines = f.read().rstrip().split('\n')
