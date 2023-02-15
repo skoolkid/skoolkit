@@ -1411,7 +1411,7 @@ The names of the available tape-sampling loop accelerators are:
 * ``flash-loader`` (Flash Loader)
 * ``ftl`` (FTL)
 * ``gargoyle`` (Gargoyle)
-* ``gremlin`` (Lotus Esprit Turbo Challenge, Space Crusade)
+* ``gremlin`` (various games published by Gremlin Graphics)
 * ``hewson-slowload`` (Hewson Slowload)
 * ``injectaload`` (Injectaload)
 * ``microsphere`` (Back to Skool, Skool Daze, Sky Ranger)
@@ -1423,6 +1423,7 @@ The names of the available tape-sampling loop accelerators are:
 * ``search-loader`` (Search Loader)
 * ``softlock`` (SoftLock)
 * ``speedlock`` (Speedlock - all versions)
+* ``us-gold`` (various games published by U.S. Gold)
 * ``zydroload`` (Zydroload)
 
 +---------+-------------------------------------------------------------------+
