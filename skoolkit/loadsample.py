@@ -28,7 +28,7 @@ ACCELERATORS = {
         [
             0x04,             # LD_SAMPLE  INC B            [4]
             0x20, 0x03,       #            JR NZ,LD_SAMPLE2 [12/7]
-            0xC3, None, None, #            JP nn            [10]
+            None, None, None, #
             0xDB, 0xFE,       # LD_SAMPLE2 IN A,($FE)       [11]
             0x1F,             #            RRA              [4]
             0xC8,             #            RET Z            [11/5]
@@ -214,24 +214,6 @@ ACCELERATORS = {
         ],
         16,   # 16 T-states until first IN A,($FE)
         54,   # 54 T-states per loop iteration
-        8,    # R register increment per loop iteration
-        0x20  # EAR mask
-    ),
-
-    'us-gold': Accelerator(
-        [
-            0x04,             # LD_SAMPLE  INC B            [4]
-            0x20, 0x03,       #            JR NZ,LD_SAMPLE2 [12/7]
-            None, None, None, #
-            0xDB, 0xFE,       # LD_SAMPLE2 IN A,($FE)       [11]
-            0x1F,             #            RRA              [4]
-            0xC8,             #            RET Z            [11/5]
-            0xA9,             #            XOR C            [4]
-            0xE6, 0x20,       #            AND $20          [7]
-            0x28, 0xF1        #            JR Z,LD_SAMPLE   [12/7]
-        ],
-        16,   # 16 T-states until first IN A,($FE)
-        59,   # 59 T-states per loop iteration
         8,    # R register increment per loop iteration
         0x20  # EAR mask
     ),

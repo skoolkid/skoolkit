@@ -655,21 +655,6 @@ class SimLoadGamesTest(SkoolKitTestCase):
             '-c accelerator=rom --start 35892'
         )
 
-    def test_us_gold(self):
-        self._test_sim_load(
-            'https://www.worldofspectrum.org/pub/sinclair/games/s/StarringCharlieChaplin.tzx.zip',
-            'Charlie Chaplin.tzx',
-            '7d2844c78888e3e03759b2073050b708',
-            'd0e26d13e64aefa1f99cabd72c419707',
-            {
-                'AF,BC,DE,HL': '0044,063D,0000,2626',
-                "AF',BC',DE',HL'": 'FF45,0348,4022,FAFC',
-                'PC,SP,IX,IY': 'FBF4,FA15,FA18,5C3A',
-                'IR,iff,im,border': '3F00,0,1,0'
-            },
-            '-c accelerator=us-gold --start 64500'
-        )
-
     def test_zydroload(self):
         self._test_sim_load(
             'https://www.worldofspectrum.org/pub/sinclair/games/l/LightCorridorThe.tzx.zip',

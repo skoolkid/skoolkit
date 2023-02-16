@@ -156,7 +156,6 @@ The names of the available tape-sampling loop accelerators are:
 |  ``search-loader`` - Search Loader
 |  ``softlock`` - SoftLock
 |  ``speedlock`` - Speedlock (all versions)
-|  ``us-gold`` - various games published by U.S. Gold
 |  ``zydroload`` - Zydroload
 
 CALL OPERATIONS
