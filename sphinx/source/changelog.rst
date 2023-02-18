@@ -1,7 +1,7 @@
 Changelog
 =========
 
-8.9b1
+8.9rc
 -----
 * Added support to :ref:`tap2sna.py` for TZX loops (block types 0x24 and 0x25),
   pauses (block types 0x10, 0x11, 0x14 and 0x20), and unused bits in data
