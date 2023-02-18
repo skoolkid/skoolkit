@@ -60,6 +60,11 @@ class Tracer:
                         print()
                     msg = ''
 
+    def read_port(self, registers, port):
+        if port % 256 == 0xFE:
+            return 0xBF
+        return 0xFF
+
 def load_tap(tapfile):
     tap_blocks = get_tap_blocks(read_bin_file(tapfile))
     options = Options()
@@ -92,6 +97,7 @@ def run(tapfile, options):
         simulator.run(stop=32850)
     else:
         tracer = Tracer()
+        simulator.set_tracer(tracer)
         begin = time.time()
         tracer.run(simulator)
     rt = time.time() - begin
