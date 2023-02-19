@@ -1,6 +1,47 @@
 Changelog
 =========
 
+8.9 (2023-02-19)
+----------------
+* Added support to :ref:`tap2sna.py` for TZX loops (block types 0x24 and 0x25),
+  pauses (block types 0x10, 0x11, 0x14 and 0x20), and unused bits in data
+  blocks (block types 0x11 and 0x14)
+* :ref:`tap2sna.py` now accelerates the simulation of tape-sampling loops in
+  loading routines, and also simulates the execution of interrupt routines when
+  interrupts are enabled
+* Added the ``--sim-load-config`` option to :ref:`tap2sna.py` (to set the value
+  of a ``--sim-load`` configuration parameter: ``accelerator``, ``fast-load``,
+  ``first-edge``, ``pause``, ``timeout``, ``trace``)
+* Added the ``--tape-name`` option to :ref:`tap2sna.py` (to specify the name of
+  a TAP/TZX file in a zip archive, in case there is more than one)
+* Added the ``--tape-start`` and ``--tape-stop`` options to :ref:`tap2sna.py`
+  (to start or stop the tape at a specific block number)
+* Added the ``--tape-sum`` option to :ref:`tap2sna.py` (to specify the MD5
+  checksum of the TAP/TZX file)
+* Added support to :ref:`tap2sna.py` for quoted arguments in an arguments file
+* Added the ``--interrupts`` option to :ref:`trace.py` (to enable the execution
+  of interrupt routines)
+* :ref:`trace.py` now reads and writes the T-states counter in Z80 snapshots
+  and reads the T-states counter in SZX snapshots
+* Added support to :ref:`bin2sna.py`, :ref:`snapmod.py` and :ref:`tap2sna.py`
+  for setting the ``tstates`` hardware attribute (i.e. the T-states counter in
+  Z80 snapshots)
+* :ref:`tapinfo.py` now shows full info for TZX block types 0x10 (standard
+  speed data) and 0x11 (turbo speed data)
+* Fixed how the Z80 instruction set simulator updates the A and R registers in
+  the 'LD A,R' and 'LD R,A' instructions
+* Fixed how the Z80 instruction set simulator handles a CALL instruction that
+  overwrites its own address operand
+* Fixed how a Z80 snapshot memory block that ends with a single 0xED byte is
+  decompressed
+* Fixed how the ``--sim-load`` option of :ref:`tap2sna.py` transitions from a
+  tape block that ends with data to the next block when there is no pause
+  between them
+* Fixed the bug that prevents the ``--find`` option of :ref:`snapinfo.py` from
+  finding byte sequences below address 16384
+* Fixed the bug that prevents the ``--find-text`` option of :ref:`snapinfo.py`
+  from finding text strings below address 16384
+
 8.8 (2022-11-19)
 ----------------
 * Added the :ref:`trace.py` command (for tracing the execution of machine code

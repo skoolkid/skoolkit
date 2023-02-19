@@ -52,6 +52,8 @@ it with no arguments to see the list of available options::
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 8.9     | Added the ``tstates`` hardware state attribute                    |
++---------+-------------------------------------------------------------------+
 | 6.3     | Added the ``--poke`` option                                       |
 +---------+-------------------------------------------------------------------+
 | 6.2     | Added the ``--reg`` and ``--state`` options; the ``--org``,       |
@@ -1244,6 +1246,8 @@ To list the options supported by `snapmod.py`, run it with no arguments::
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 8.9     | Added the ``tstates`` hardware state attribute                    |
++---------+-------------------------------------------------------------------+
 | 6.2     | The ``--move``, ``--poke`` and ``--reg`` options accept           |
 |         | hexadecimal integers prefixed by '0x'                             |
 +---------+-------------------------------------------------------------------+
@@ -1271,6 +1275,10 @@ To list the options supported by `tap2sna.py`, run it with no arguments::
   well as) being given on the command line.
 
   Options:
+    -c name=value, --sim-load-config name=value
+                          Set the value of a --sim-load configuration parameter.
+                          Do '-c help' for more information. This option may be
+                          used multiple times.
     -d DIR, --output-dir DIR
                           Write the snapshot file in this directory.
     -f, --force           Overwrite an existing snapshot.
@@ -1287,12 +1295,17 @@ To list the options supported by `tap2sna.py`, run it with no arguments::
     --state name=value    Set a hardware state attribute. Do '--state help' for
                           more information. This option may be used multiple
                           times.
+    --tape-name NAME      Specify the name of a TAP/TZX file in a zip archive.
+    --tape-start BLOCK    Start the tape at this block number.
+    --tape-stop BLOCK     Stop the tape at this block number.
+    --tape-sum MD5SUM     Specify the MD5 checksum of the TAP/TZX file.
     -u AGENT, --user-agent AGENT
                           Set the User-Agent header.
     -V, --version         Show SkoolKit version number and exit.
 
-Note that support for TZX files is limited to block types 0x10 (standard speed
-data), 0x11 (turbo speed data) and 0x14 (pure data).
+Note that `tap2sna.py` can read data from TZX block types 0x10 (standard speed
+data), 0x11 (turbo speed data) and 0x14 (pure data), but not block types 0x15
+(direct recording), 0x18 (CSW recording) or 0x19 (generalized data block).
 
 By default, `tap2sna.py` loads bytes from every data block on the tape, using
 the start address given in the corresponding header. For tapes that contain
@@ -1305,25 +1318,6 @@ the appropriate addresses. For example::
 loads the third block on the tape at address 30000, and ignores all other
 blocks. (To see information on the blocks in a TAP or TZX file, use the
 :ref:`tapinfo.py` command.)
-
-An alternative to the ``--ram load`` approach is the ``--sim-load`` option. It
-simulates a freshly booted 48K ZX Spectrum running LOAD "" (or LOAD ""CODE, if
-the first block on the tape is a 'Bytes' header). Whenever the Spectrum ROM's
-load routine at $0556 is called, a shortcut is taken by fast loading the next
-block on the tape. All other code (including any custom loader) is fully
-simulated. Simulation continues until the program counter hits the start
-address given by the ``--start`` option, or 10 minutes of simulated Z80 CPU
-time has elapsed, or the end of the tape is reached and one of the following
-conditions is satisfied:
-
-* a custom loader was detected
-* the program counter hits an address outside the ROM
-* more than one second of simulated Z80 CPU time has elapsed since the end of
-  the tape was reached
-
-The simulation can also be aborted by pressing Ctrl-C. When a simulated LOAD
-has completed or been aborted, the values of the registers (including the
-program counter) in the simulator are used to populate the Z80 snapshot.
 
 In addition to loading specific blocks, the ``--ram`` option can also be used
 to move blocks of bytes from one location to another, POKE values into
@@ -1358,9 +1352,88 @@ then::
 will create `game.z80` as if the arguments specified in `game.t2s` had been
 given on the command line.
 
+Simulated LOAD
+^^^^^^^^^^^^^^
+An alternative to the ``--ram load`` approach is the ``--sim-load`` option. It
+simulates a freshly booted 48K ZX Spectrum running LOAD "" (or LOAD ""CODE, if
+the first block on the tape is a 'Bytes' header). Whenever the Spectrum ROM's
+load routine at $0556 is called, a shortcut is taken by "fast loading" the next
+block on the tape. All other code (including any custom loader) is fully
+simulated. Simulation continues until the program counter hits the start
+address given by the ``--start`` option, or 15 minutes of simulated Z80 CPU
+time has elapsed, or the end of the tape is reached and one of the following
+conditions is satisfied:
+
+* a custom loader was detected
+* the program counter hits an address outside the ROM
+* more than one second of simulated Z80 CPU time has elapsed since the end of
+  the tape was reached
+
+A simulated LOAD can also be aborted by pressing Ctrl-C. When a simulated LOAD
+has completed or been aborted, the values of the registers (including the
+program counter) in the simulator are used to populate the Z80 snapshot.
+
+A simulated LOAD can be configured via parameters that are set by the
+``--sim-load-config`` (or ``-c``) option. The recognised configuration
+parameters are:
+
+* ``accelerator`` - the tape-sampling loop accelerator to use (default:
+  automatically selected - see below); use this to specify a particular
+  accelerator (which may produce a faster simulated LOAD), or to disable
+  acceleration entirely (``accelerator=none``)
+* ``fast-load`` - enable fast loading (``1``, the default), or disable it
+  (``0``); fast loading significantly reduces the load time for many tapes, but
+  can also cause some loaders to fail
+* ``first-edge`` - the time (in T-states) from the start of the tape at which
+  to place the leading edge of the first pulse (default: ``-2168``); the
+  default value places the trailing edge of the first pulse at time 0, but some
+  loaders (e.g. polarity-sensitive loaders) require ``first-edge=0``
+* ``pause`` - pause the tape between blocks and resume playback when port 254
+  is read (``1``, the default), or run the tape continuously (``0``); pausing
+  can help with tapes that require (but do not actually contain) long pauses
+  between blocks, but can cause some loaders to fail
+* ``timeout`` - the number of seconds of Z80 CPU time after which to abort the
+  simulated LOAD if it's still in progress (default: 900)
+* ``trace`` - the file to which to log all instructions executed during the
+  simulated LOAD (default: none)
+
+The names of the available tape-sampling loop accelerators are:
+
+* ``alkatraz`` (Alkatraz)
+* ``alkatraz2`` (Alkatraz 2)
+* ``bleepload`` (Firebird BleepLoad)
+* ``cyberlode`` (Cyberlode 1.1)
+* ``digital-integration`` (Digital Integration)
+* ``dinaload`` (Dinaload)
+* ``edge`` (Edge)
+* ``elite-uni-loader`` (Elite Uni-Loader)
+* ``excelerator`` (The Excelerator Loader)
+* ``flash-loader`` (Flash Loader)
+* ``ftl`` (FTL)
+* ``gargoyle`` (Gargoyle)
+* ``gremlin`` (various games published by Gremlin Graphics)
+* ``hewson-slowload`` (Hewson Slowload)
+* ``injectaload`` (Injectaload)
+* ``microsphere`` (Back to Skool, Skool Daze, Sky Ranger)
+* ``none`` (no accelerator)
+* ``paul-owens`` (Paul Owens Protection System)
+* ``poliload`` (Poliload)
+* ``power-load`` (Power-Load)
+* ``rom`` (any loader whose sampling loop is the same as the ROM's)
+* ``search-loader`` (Search Loader)
+* ``softlock`` (SoftLock)
+* ``speedlock`` (Speedlock - all versions)
+* ``zydroload`` (Zydroload)
+
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 8.9     | Added the ``--sim-load-config``, ``--tape-name``,                 |
+|         | ``--tape-start``, ``--tape-stop`` and ``--tape-sum`` options;     |
+|         | added support for TZX loops, pauses, and unused bits in data      |
+|         | blocks; added support for quoted arguments in an arguments file;  |
+|         | added the ``tstates`` hardware state attribute                    |
++---------+-------------------------------------------------------------------+
 | 8.8     | The ``--sim-load`` option performs any ``call/move/poke/sysvars`` |
 |         | operations specified by ``--ram``                                 |
 +---------+-------------------------------------------------------------------+
@@ -1416,6 +1489,8 @@ To list the options supported by `tapinfo.py`, run it with no arguments::
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 8.9     | Shows full info for TZX block types 0x10 and 0x11                 |
++---------+-------------------------------------------------------------------+
 | 8.3     | Added the ``--data`` option                                       |
 +---------+-------------------------------------------------------------------+
 | 8.1     | Shows contents of TZX block types 0x33 (hardware type) and 0x35   |
@@ -1453,6 +1528,7 @@ To list the options supported by `trace.py`, run it with no arguments::
     --depth DEPTH         Simplify audio delays to this depth (default: 2).
     -D, --decimal         Show decimal values in verbose mode.
     --dump FILE           Dump a Z80 snapshot to this file after execution.
+    -i, --interrupts      Execute interrupt routines.
     --max-operations MAX  Maximum number of instructions to execute.
     --max-tstates MAX     Maximum number of T-states to run for.
     -o ADDR, --org ADDR   Specify the origin address of a binary (raw memory)
@@ -1478,9 +1554,10 @@ To list the options supported by `trace.py`, run it with no arguments::
 By default, `trace.py` silently simulates code execution beginning with the
 instruction at the address specified by the ``--start`` option (or the program
 counter in the snapshot) and ending when the instruction at the address
-specified by ``--stop`` (if any) is reached. Use the ``--verbose`` option to
-show each instruction executed. Repeat the ``--verbose`` option (``-vv``) to
-show register values too.
+specified by ``--stop`` (if any) is reached, and does not execute interrupt
+routines. Use the ``--verbose`` option to show each instruction executed.
+Repeat the ``--verbose`` option (``-vv``) to show register values too. Use the
+``--interrupts`` option to enable the execution of interrupt routines.
 
 When the ``--audio`` option is given, `trace.py` tracks changes in the state
 of the ZX Spectrum speaker, and then prints a list of the delays (in T-states)
@@ -1488,8 +1565,12 @@ between those changes. This list can be supplied to the :ref:`AUDIO` macro to
 produce a WAV file for the sound effect that would be produced by the same code
 running on a real ZX Spectrum.
 
-+---------+---------+
-| Version | Changes |
-+=========+=========+
-| 8.8     | New     |
-+---------+---------+
++---------+-------------------------------------------------------------------+
+| Version | Changes                                                           |
++=========+===================================================================+
+| 8.9     | Added the ``--interrupts`` option; reads and writes the T-states  |
+|         | counter in Z80 snapshots and reads the T-states counter in SZX    |
+|         | snapshots                                                         |
++---------+-------------------------------------------------------------------+
+| 8.8     | New                                                               |
++---------+-------------------------------------------------------------------+

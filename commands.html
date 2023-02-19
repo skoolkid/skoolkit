@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Commands &#8212; SkoolKit 8.8 documentation</title>
+    <title>Commands &#8212; SkoolKit 8.9 documentation</title>
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="_static/custom.css" />
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="diy.html" title="Disassembly DIY"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.8 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.9 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Commands</a></li> 
       </ul>
     </div>  
@@ -96,15 +96,18 @@ Options:
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>6.3</p></td>
+<tr class="row-even"><td><p>8.9</p></td>
+<td><p>Added the <code class="docutils literal notranslate"><span class="pre">tstates</span></code> hardware state attribute</p></td>
+</tr>
+<tr class="row-odd"><td><p>6.3</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">--poke</span></code> option</p></td>
 </tr>
-<tr class="row-odd"><td><p>6.2</p></td>
+<tr class="row-even"><td><p>6.2</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">--reg</span></code> and <code class="docutils literal notranslate"><span class="pre">--state</span></code> options; the <code class="docutils literal notranslate"><span class="pre">--org</span></code>,
 <code class="docutils literal notranslate"><span class="pre">--stack</span></code> and <code class="docutils literal notranslate"><span class="pre">--start</span></code> options accept a hexadecimal integer
 prefixed by ‘0x’</p></td>
 </tr>
-<tr class="row-even"><td><p>5.2</p></td>
+<tr class="row-odd"><td><p>5.2</p></td>
 <td><p>New</p></td>
 </tr>
 </tbody>
@@ -1393,11 +1396,14 @@ Options:
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>6.2</p></td>
+<tr class="row-even"><td><p>8.9</p></td>
+<td><p>Added the <code class="docutils literal notranslate"><span class="pre">tstates</span></code> hardware state attribute</p></td>
+</tr>
+<tr class="row-odd"><td><p>6.2</p></td>
 <td><p>The <code class="docutils literal notranslate"><span class="pre">--move</span></code>, <code class="docutils literal notranslate"><span class="pre">--poke</span></code> and <code class="docutils literal notranslate"><span class="pre">--reg</span></code> options accept
 hexadecimal integers prefixed by ‘0x’</p></td>
 </tr>
-<tr class="row-odd"><td><p>5.3</p></td>
+<tr class="row-even"><td><p>5.3</p></td>
 <td><p>New</p></td>
 </tr>
 </tbody>
@@ -1421,6 +1427,10 @@ or the path to a local file. Arguments may be read from FILE instead of (or as
 well as) being given on the command line.
 
 Options:
+  -c name=value, --sim-load-config name=value
+                        Set the value of a --sim-load configuration parameter.
+                        Do &#39;-c help&#39; for more information. This option may be
+                        used multiple times.
   -d DIR, --output-dir DIR
                         Write the snapshot file in this directory.
   -f, --force           Overwrite an existing snapshot.
@@ -1437,13 +1447,18 @@ Options:
   --state name=value    Set a hardware state attribute. Do &#39;--state help&#39; for
                         more information. This option may be used multiple
                         times.
+  --tape-name NAME      Specify the name of a TAP/TZX file in a zip archive.
+  --tape-start BLOCK    Start the tape at this block number.
+  --tape-stop BLOCK     Stop the tape at this block number.
+  --tape-sum MD5SUM     Specify the MD5 checksum of the TAP/TZX file.
   -u AGENT, --user-agent AGENT
                         Set the User-Agent header.
   -V, --version         Show SkoolKit version number and exit.
 </pre></div>
 </div>
-<p>Note that support for TZX files is limited to block types 0x10 (standard speed
-data), 0x11 (turbo speed data) and 0x14 (pure data).</p>
+<p>Note that <cite>tap2sna.py</cite> can read data from TZX block types 0x10 (standard speed
+data), 0x11 (turbo speed data) and 0x14 (pure data), but not block types 0x15
+(direct recording), 0x18 (CSW recording) or 0x19 (generalized data block).</p>
 <p>By default, <cite>tap2sna.py</cite> loads bytes from every data block on the tape, using
 the start address given in the corresponding header. For tapes that contain
 headerless data blocks, headers with incorrect start addresses, or irrelevant
@@ -1455,24 +1470,6 @@ the appropriate addresses. For example:</p>
 <p>loads the third block on the tape at address 30000, and ignores all other
 blocks. (To see information on the blocks in a TAP or TZX file, use the
 <a class="reference internal" href="#tapinfo-py"><span class="std std-ref">tapinfo.py</span></a> command.)</p>
-<p>An alternative to the <code class="docutils literal notranslate"><span class="pre">--ram</span> <span class="pre">load</span></code> approach is the <code class="docutils literal notranslate"><span class="pre">--sim-load</span></code> option. It
-simulates a freshly booted 48K ZX Spectrum running LOAD “” (or LOAD “”CODE, if
-the first block on the tape is a ‘Bytes’ header). Whenever the Spectrum ROM’s
-load routine at $0556 is called, a shortcut is taken by fast loading the next
-block on the tape. All other code (including any custom loader) is fully
-simulated. Simulation continues until the program counter hits the start
-address given by the <code class="docutils literal notranslate"><span class="pre">--start</span></code> option, or 10 minutes of simulated Z80 CPU
-time has elapsed, or the end of the tape is reached and one of the following
-conditions is satisfied:</p>
-<ul class="simple">
-<li><p>a custom loader was detected</p></li>
-<li><p>the program counter hits an address outside the ROM</p></li>
-<li><p>more than one second of simulated Z80 CPU time has elapsed since the end of
-the tape was reached</p></li>
-</ul>
-<p>The simulation can also be aborted by pressing Ctrl-C. When a simulated LOAD
-has completed or been aborted, the values of the registers (including the
-program counter) in the simulator are used to populate the Z80 snapshot.</p>
 <p>In addition to loading specific blocks, the <code class="docutils literal notranslate"><span class="pre">--ram</span></code> option can also be used
 to move blocks of bytes from one location to another, POKE values into
 individual addresses or address ranges, modify memory with XOR and ADD
@@ -1505,6 +1502,78 @@ game.z80
 </div>
 <p>will create <cite>game.z80</cite> as if the arguments specified in <cite>game.t2s</cite> had been
 given on the command line.</p>
+<div class="section" id="simulated-load">
+<h3>Simulated LOAD<a class="headerlink" href="#simulated-load" title="Permalink to this headline">¶</a></h3>
+<p>An alternative to the <code class="docutils literal notranslate"><span class="pre">--ram</span> <span class="pre">load</span></code> approach is the <code class="docutils literal notranslate"><span class="pre">--sim-load</span></code> option. It
+simulates a freshly booted 48K ZX Spectrum running LOAD “” (or LOAD “”CODE, if
+the first block on the tape is a ‘Bytes’ header). Whenever the Spectrum ROM’s
+load routine at $0556 is called, a shortcut is taken by “fast loading” the next
+block on the tape. All other code (including any custom loader) is fully
+simulated. Simulation continues until the program counter hits the start
+address given by the <code class="docutils literal notranslate"><span class="pre">--start</span></code> option, or 15 minutes of simulated Z80 CPU
+time has elapsed, or the end of the tape is reached and one of the following
+conditions is satisfied:</p>
+<ul class="simple">
+<li><p>a custom loader was detected</p></li>
+<li><p>the program counter hits an address outside the ROM</p></li>
+<li><p>more than one second of simulated Z80 CPU time has elapsed since the end of
+the tape was reached</p></li>
+</ul>
+<p>A simulated LOAD can also be aborted by pressing Ctrl-C. When a simulated LOAD
+has completed or been aborted, the values of the registers (including the
+program counter) in the simulator are used to populate the Z80 snapshot.</p>
+<p>A simulated LOAD can be configured via parameters that are set by the
+<code class="docutils literal notranslate"><span class="pre">--sim-load-config</span></code> (or <code class="docutils literal notranslate"><span class="pre">-c</span></code>) option. The recognised configuration
+parameters are:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">accelerator</span></code> - the tape-sampling loop accelerator to use (default:
+automatically selected - see below); use this to specify a particular
+accelerator (which may produce a faster simulated LOAD), or to disable
+acceleration entirely (<code class="docutils literal notranslate"><span class="pre">accelerator=none</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">fast-load</span></code> - enable fast loading (<code class="docutils literal notranslate"><span class="pre">1</span></code>, the default), or disable it
+(<code class="docutils literal notranslate"><span class="pre">0</span></code>); fast loading significantly reduces the load time for many tapes, but
+can also cause some loaders to fail</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">first-edge</span></code> - the time (in T-states) from the start of the tape at which
+to place the leading edge of the first pulse (default: <code class="docutils literal notranslate"><span class="pre">-2168</span></code>); the
+default value places the trailing edge of the first pulse at time 0, but some
+loaders (e.g. polarity-sensitive loaders) require <code class="docutils literal notranslate"><span class="pre">first-edge=0</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">pause</span></code> - pause the tape between blocks and resume playback when port 254
+is read (<code class="docutils literal notranslate"><span class="pre">1</span></code>, the default), or run the tape continuously (<code class="docutils literal notranslate"><span class="pre">0</span></code>); pausing
+can help with tapes that require (but do not actually contain) long pauses
+between blocks, but can cause some loaders to fail</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">timeout</span></code> - the number of seconds of Z80 CPU time after which to abort the
+simulated LOAD if it’s still in progress (default: 900)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">trace</span></code> - the file to which to log all instructions executed during the
+simulated LOAD (default: none)</p></li>
+</ul>
+<p>The names of the available tape-sampling loop accelerators are:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">alkatraz</span></code> (Alkatraz)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">alkatraz2</span></code> (Alkatraz 2)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">bleepload</span></code> (Firebird BleepLoad)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cyberlode</span></code> (Cyberlode 1.1)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">digital-integration</span></code> (Digital Integration)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">dinaload</span></code> (Dinaload)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">edge</span></code> (Edge)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">elite-uni-loader</span></code> (Elite Uni-Loader)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">excelerator</span></code> (The Excelerator Loader)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">flash-loader</span></code> (Flash Loader)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ftl</span></code> (FTL)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">gargoyle</span></code> (Gargoyle)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">gremlin</span></code> (various games published by Gremlin Graphics)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">hewson-slowload</span></code> (Hewson Slowload)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">injectaload</span></code> (Injectaload)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">microsphere</span></code> (Back to Skool, Skool Daze, Sky Ranger)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">none</span></code> (no accelerator)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">paul-owens</span></code> (Paul Owens Protection System)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">poliload</span></code> (Poliload)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">power-load</span></code> (Power-Load)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">rom</span></code> (any loader whose sampling loop is the same as the ROM’s)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">search-loader</span></code> (Search Loader)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">softlock</span></code> (SoftLock)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">speedlock</span></code> (Speedlock - all versions)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">zydroload</span></code> (Zydroload)</p></li>
+</ul>
 <table class="docutils colwidths-auto align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>Version</p></th>
@@ -1512,42 +1581,50 @@ given on the command line.</p>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>8.8</p></td>
+<tr class="row-even"><td><p>8.9</p></td>
+<td><p>Added the <code class="docutils literal notranslate"><span class="pre">--sim-load-config</span></code>, <code class="docutils literal notranslate"><span class="pre">--tape-name</span></code>,
+<code class="docutils literal notranslate"><span class="pre">--tape-start</span></code>, <code class="docutils literal notranslate"><span class="pre">--tape-stop</span></code> and <code class="docutils literal notranslate"><span class="pre">--tape-sum</span></code> options;
+added support for TZX loops, pauses, and unused bits in data
+blocks; added support for quoted arguments in an arguments file;
+added the <code class="docutils literal notranslate"><span class="pre">tstates</span></code> hardware state attribute</p></td>
+</tr>
+<tr class="row-odd"><td><p>8.8</p></td>
 <td><p>The <code class="docutils literal notranslate"><span class="pre">--sim-load</span></code> option performs any <code class="docutils literal notranslate"><span class="pre">call/move/poke/sysvars</span></code>
 operations specified by <code class="docutils literal notranslate"><span class="pre">--ram</span></code></p></td>
 </tr>
-<tr class="row-odd"><td><p>8.7</p></td>
+<tr class="row-even"><td><p>8.7</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">--sim-load</span></code> option; when a headerless block is
 ignored because no <code class="docutils literal notranslate"><span class="pre">--ram</span> <span class="pre">load</span></code> options have been specified, a
 warning is printed</p></td>
 </tr>
-<tr class="row-even"><td><p>8.6</p></td>
+<tr class="row-odd"><td><p>8.6</p></td>
 <td><p>Added support to the <code class="docutils literal notranslate"><span class="pre">--ram</span></code> option for the <code class="docutils literal notranslate"><span class="pre">call</span></code> operation</p></td>
 </tr>
-<tr class="row-odd"><td><p>8.4</p></td>
+<tr class="row-even"><td><p>8.4</p></td>
 <td><p>Added support to the <code class="docutils literal notranslate"><span class="pre">--ram</span></code> option for the <code class="docutils literal notranslate"><span class="pre">sysvars</span></code>
 operation</p></td>
 </tr>
-<tr class="row-even"><td><p>6.3</p></td>
+<tr class="row-odd"><td><p>6.3</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">--user-agent</span></code> option</p></td>
 </tr>
-<tr class="row-odd"><td><p>6.2</p></td>
+<tr class="row-even"><td><p>6.2</p></td>
 <td><p>The <code class="docutils literal notranslate"><span class="pre">--ram</span></code>, <code class="docutils literal notranslate"><span class="pre">--reg</span></code>, <code class="docutils literal notranslate"><span class="pre">--stack</span></code> and <code class="docutils literal notranslate"><span class="pre">--start</span></code> options
 accept hexadecimal integers prefixed by ‘0x’</p></td>
 </tr>
-<tr class="row-even"><td><p>5.3</p></td>
+<tr class="row-odd"><td><p>5.3</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">--stack</span></code> and <code class="docutils literal notranslate"><span class="pre">--start</span></code> options</p></td>
 </tr>
-<tr class="row-odd"><td><p>4.5</p></td>
+<tr class="row-even"><td><p>4.5</p></td>
 <td><p>Added support for TZX block type 0x14 (pure data), for loading
 the first and last bytes of a tape block, and for modifying
 memory with XOR and ADD operations</p></td>
 </tr>
-<tr class="row-even"><td><p>3.5</p></td>
+<tr class="row-odd"><td><p>3.5</p></td>
 <td><p>New</p></td>
 </tr>
 </tbody>
 </table>
+</div>
 </div>
 <div class="section" id="tapinfo-py">
 <span id="id19"></span><h2>tapinfo.py<a class="headerlink" href="#tapinfo-py" title="Permalink to this headline">¶</a></h2>
@@ -1580,25 +1657,28 @@ Options:
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>8.3</p></td>
+<tr class="row-even"><td><p>8.9</p></td>
+<td><p>Shows full info for TZX block types 0x10 and 0x11</p></td>
+</tr>
+<tr class="row-odd"><td><p>8.3</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">--data</span></code> option</p></td>
 </tr>
-<tr class="row-odd"><td><p>8.1</p></td>
+<tr class="row-even"><td><p>8.1</p></td>
 <td><p>Shows contents of TZX block types 0x33 (hardware type) and 0x35
 (custom info)</p></td>
 </tr>
-<tr class="row-even"><td><p>7.1</p></td>
+<tr class="row-odd"><td><p>7.1</p></td>
 <td><p>Shows pulse lengths in TZX block type 0x13 and full info for TZX
 block type 0x14</p></td>
 </tr>
-<tr class="row-odd"><td><p>6.2</p></td>
+<tr class="row-even"><td><p>6.2</p></td>
 <td><p>The <code class="docutils literal notranslate"><span class="pre">--basic</span></code> option accepts a hexadecimal address prefixed by
 ‘0x’</p></td>
 </tr>
-<tr class="row-even"><td><p>6.0</p></td>
+<tr class="row-odd"><td><p>6.0</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">--basic</span></code> option</p></td>
 </tr>
-<tr class="row-odd"><td><p>5.0</p></td>
+<tr class="row-even"><td><p>5.0</p></td>
 <td><p>New</p></td>
 </tr>
 </tbody>
@@ -1622,6 +1702,7 @@ Options:
   --depth DEPTH         Simplify audio delays to this depth (default: 2).
   -D, --decimal         Show decimal values in verbose mode.
   --dump FILE           Dump a Z80 snapshot to this file after execution.
+  -i, --interrupts      Execute interrupt routines.
   --max-operations MAX  Maximum number of instructions to execute.
   --max-tstates MAX     Maximum number of T-states to run for.
   -o ADDR, --org ADDR   Specify the origin address of a binary (raw memory)
@@ -1648,9 +1729,10 @@ Options:
 <p>By default, <cite>trace.py</cite> silently simulates code execution beginning with the
 instruction at the address specified by the <code class="docutils literal notranslate"><span class="pre">--start</span></code> option (or the program
 counter in the snapshot) and ending when the instruction at the address
-specified by <code class="docutils literal notranslate"><span class="pre">--stop</span></code> (if any) is reached. Use the <code class="docutils literal notranslate"><span class="pre">--verbose</span></code> option to
-show each instruction executed. Repeat the <code class="docutils literal notranslate"><span class="pre">--verbose</span></code> option (<code class="docutils literal notranslate"><span class="pre">-vv</span></code>) to
-show register values too.</p>
+specified by <code class="docutils literal notranslate"><span class="pre">--stop</span></code> (if any) is reached, and does not execute interrupt
+routines. Use the <code class="docutils literal notranslate"><span class="pre">--verbose</span></code> option to show each instruction executed.
+Repeat the <code class="docutils literal notranslate"><span class="pre">--verbose</span></code> option (<code class="docutils literal notranslate"><span class="pre">-vv</span></code>) to show register values too. Use the
+<code class="docutils literal notranslate"><span class="pre">--interrupts</span></code> option to enable the execution of interrupt routines.</p>
 <p>When the <code class="docutils literal notranslate"><span class="pre">--audio</span></code> option is given, <cite>trace.py</cite> tracks changes in the state
 of the ZX Spectrum speaker, and then prints a list of the delays (in T-states)
 between those changes. This list can be supplied to the <a class="reference internal" href="skool-macros.html#audio"><span class="std std-ref">#AUDIO</span></a> macro to
@@ -1663,7 +1745,12 @@ running on a real ZX Spectrum.</p>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>8.8</p></td>
+<tr class="row-even"><td><p>8.9</p></td>
+<td><p>Added the <code class="docutils literal notranslate"><span class="pre">--interrupts</span></code> option; reads and writes the T-states
+counter in Z80 snapshots and reads the T-states counter in SZX
+snapshots</p></td>
+</tr>
+<tr class="row-odd"><td><p>8.8</p></td>
 <td><p>New</p></td>
 </tr>
 </tbody>
@@ -1711,7 +1798,10 @@ running on a real ZX Spectrum.</p>
 </ul>
 </li>
 <li><a class="reference internal" href="#snapmod-py">snapmod.py</a></li>
-<li><a class="reference internal" href="#tap2sna-py">tap2sna.py</a></li>
+<li><a class="reference internal" href="#tap2sna-py">tap2sna.py</a><ul>
+<li><a class="reference internal" href="#simulated-load">Simulated LOAD</a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#tapinfo-py">tapinfo.py</a></li>
 <li><a class="reference internal" href="#trace-py">trace.py</a></li>
 </ul>
@@ -1760,12 +1850,12 @@ running on a real ZX Spectrum.</p>
         <li class="right" >
           <a href="diy.html" title="Disassembly DIY"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.8 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.9 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Commands</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2022, Richard Dymond.
+        &#169; Copyright 2023, Richard Dymond.
       Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.4.3.
     </div>
   </body>
