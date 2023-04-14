@@ -1,6 +1,9 @@
 Changelog
 =========
 
+8.10b1
+------
+
 8.9 (2023-02-19)
 ----------------
 * Added support to :ref:`tap2sna.py` for TZX loops (block types 0x24 and 0x25),
