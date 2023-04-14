@@ -3,6 +3,9 @@ Changelog
 
 8.10b1
 ------
+* Added the ``finish-tape`` parameter for the ``--sim-load-config`` option of
+  :ref:`tap2sna.py` (to specify whether to finish the tape before stopping the
+  simulation at the given start address)
 
 8.9 (2023-02-19)
 ----------------

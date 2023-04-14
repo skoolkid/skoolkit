@@ -1384,6 +1384,10 @@ parameters are:
 * ``fast-load`` - enable fast loading (``1``, the default), or disable it
   (``0``); fast loading significantly reduces the load time for many tapes, but
   can also cause some loaders to fail
+* ``finish-tape`` - run the tape to the end before stopping the simulation at
+  the address specified by the ``--start`` option (``1``), or stop the
+  simulation as soon as that address is reached, regardless of whether the tape
+  has finished (``0``, the default)
 * ``first-edge`` - the time (in T-states) from the start of the tape at which
   to place the leading edge of the first pulse (default: ``-2168``); the
   default value places the trailing edge of the first pulse at time 0, but some

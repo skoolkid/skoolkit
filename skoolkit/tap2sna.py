@@ -279,6 +279,7 @@ def _ram_operations(snapshot, ram_ops, blocks=None):
 def _set_sim_load_config(options):
     options.accelerator = None
     options.fast_load = True
+    options.finish_tape = False
     options.first_edge = -2168
     options.pause = True
     options.timeout = 900
@@ -290,6 +291,8 @@ def _set_sim_load_config(options):
                 options.accelerator = value
             elif name == 'fast-load': # pragma: no cover
                 options.fast_load = parse_int(value, options.fast_load)
+            elif name == 'finish-tape': # pragma: no cover
+                options.finish_tape = parse_int(value, options.finish_tape)
             elif name == 'first-edge': # pragma: no cover
                 options.first_edge = parse_int(value, options.first_edge)
             elif name == 'pause': # pragma: no cover
@@ -326,7 +329,7 @@ def sim_load(blocks, options):
                 snapshot[a + 1] = b // 256
     snapshot[0xFF58:] = snapshot[0x3E08:0x3EB0] # UDGs
     simulator = Simulator(snapshot, {'SP': 0xFF50})
-    tracer = LoadTracer(simulator, blocks, accelerator, options.pause, options.first_edge)
+    tracer = LoadTracer(simulator, blocks, accelerator, options.pause, options.first_edge, options.finish_tape)
     simulator.set_tracer(tracer)
     try:
         # Begin execution at 0x0605 (SAVE-ETC)
@@ -782,14 +785,13 @@ def _print_sim_load_config_help():
     print(f"""
 Usage: --sim-load-config accelerator=NAME
        --sim-load-config fast-load=0/1
+       --sim-load-config finish-tape=0/1
        --sim-load-config first-edge=N
        --sim-load-config pause=0/1
        --sim-load-config timeout=N
        --sim-load-config trace=FILE
 
-Use a specific tape-sampling loop accelerator, disable fast loading, set the
-location of the leading edge of the first pulse on the tape, disable pausing
-between tape blocks, set the timeout, or log executed instructions to a file.
+Configure various properties of a simulated LOAD.
 
 --sim-load-config accelerator=NAME
 
@@ -806,6 +808,13 @@ between tape blocks, set the timeout, or log executed instructions to a file.
   taken by "fast loading" the next block on the tape. This significantly
   reduces the load time for many tapes, but can also cause some loaders to
   fail. Set fast-load=0 to disable fast loading.
+
+--sim-load-config finish-tape=0/1
+
+  By default, the simulated LOAD stops as soon as the program counter hits the
+  address specified by the '--start' option (if any), regardless of whether the
+  tape has finished running. Set finish-tape=1 to ensure that the end of the
+  tape is reached before stopping the simulation at the given start address.
 
 --sim-load-config first-edge=N
 

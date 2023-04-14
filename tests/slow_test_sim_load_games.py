@@ -206,6 +206,22 @@ class SimLoadGamesTest(SkoolKitTestCase):
             '-c accelerator=excelerator --start 65492'
         )
 
+    def test_finish_tape(self):
+        # Hits the given start address (23367) before the tape has finished
+        self._test_sim_load(
+            'https://worldofspectrum.net/pub/sinclair/games/g/Gallipoli.tzx.zip',
+            'Gallipoli - 48k.tzx',
+            '1cdd5f519c467f434e67b910e171052d',
+            '1ba89616d2d1e9defbb68d13e8d4293e',
+            {
+                'AF,BC,DE,HL': '0001,0000,0000,053F',
+                "AF',BC',DE',HL'": 'FFA9,0021,369B,2758',
+                'PC,SP,IX,IY': '5B47,CEEA,AF01,5C3A',
+                'IR,iff,im,border': '3F00,1,1,3'
+            },
+            '-c finish-tape=1 --start 23367'
+        )
+
     def test_firebird_bleepload(self):
         self._test_sim_load(
             'https://www.worldofspectrum.org/pub/sinclair/games/b/BlackLamp.tzx.zip',

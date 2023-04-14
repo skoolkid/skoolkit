@@ -90,11 +90,12 @@ def get_edges(blocks, first_edge):
     return edges, indexes, data_blocks
 
 class LoadTracer:
-    def __init__(self, simulator, blocks, accelerator, pause, first_edge):
+    def __init__(self, simulator, blocks, accelerator, pause, first_edge, finish_tape):
         self.simulator = simulator
         self.edges, self.indexes, self.blocks = get_edges(blocks, first_edge)
         self.accelerator = accelerator
         self.pause = pause
+        self.finish_tape = finish_tape
         self.announce_data = True
         opcodes = simulator.opcodes
         memory = simulator.memory
@@ -184,7 +185,7 @@ class LoadTracer:
 
             pc = registers[24]
 
-            if pc == stop:
+            if pc == stop and (self.end_of_tape or not self.finish_tape):
                 write_line(f'Simulation stopped (PC at start address): PC={pc}')
                 break
 
