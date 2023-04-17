@@ -161,6 +161,9 @@ def set_z80_state(z80, *specs):
             elif name == 'im':
                 z80[29] &= 252 # Clear bits 0 and 1
                 z80[29] |= get_int_param(val) & 3
+            elif name == 'issue2':
+                z80[29] &= 251 # Clear bit 2
+                z80[29] |= (get_int_param(val) & 1) * 4
             elif name == 'border':
                 z80[12] &= 241 # Clear bits 1-3
                 z80[12] |= (get_int_param(val) & 7) * 2 # Border colour
@@ -185,6 +188,7 @@ Set a hardware state attribute. Recognised names and their default values are:
   border  - border colour (default=0)
   iff     - interrupt flip-flop: 0=disabled, 1=enabled (default=1)
   im      - interrupt mode (default=1)
+  issue2  - issue 2 emulation: 0=disabled, 1=enabled (default=0)
   tstates - T-states elapsed since start of frame (default=0)
 """.format(', '.join(options)).strip())
 

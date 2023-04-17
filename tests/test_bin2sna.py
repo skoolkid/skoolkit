@@ -29,7 +29,7 @@ class Bin2SnaTest(SkoolKitTestCase):
         return outfile
 
     def _check_z80(self, z80file, data, org=None, sp=None, pc=None, border=7,
-                   iff=1, im=1, tstates=34943):
+                   iff=1, im=1, issue2=0, tstates=34943):
         with open(z80file, 'rb') as f:
             z80h = f.read(58)
         if org is None:
@@ -43,6 +43,7 @@ class Bin2SnaTest(SkoolKitTestCase):
         self.assertEqual(z80h[27], iff)               # IFF1
         self.assertEqual(z80h[28], iff)               # IFF2
         self.assertEqual(z80h[29] & 3, im)            # Interrupt mode
+        self.assertEqual((z80h[29] >> 2) & 1, issue2) # Issue 2 emulation
 
         self.assertEqual(z80h[8] + 256 * z80h[9], sp)      # SP
         self.assertEqual(z80h[10], 63)                     # I
@@ -359,8 +360,8 @@ class Bin2SnaTest(SkoolKitTestCase):
     def test_option_S(self):
         data = [0]
         binfile = self.write_bin_file(data, suffix='.bin')
-        z80file = self._run("-S border=3 --state iff=0 -S im=2 --state tstates=100 {}".format(binfile))
-        self._check_z80(z80file, data, border=3, iff=0, im=2, tstates=100)
+        z80file = self._run("-S border=3 --state iff=0 -S im=2 -S issue2=1 --state tstates=100 {}".format(binfile))
+        self._check_z80(z80file, data, border=3, iff=0, im=2, issue2=1, tstates=100)
 
     def test_option_S_invalid_values(self):
         self._test_bad_spec('-S border=k', 'Cannot parse integer: border=k')
@@ -379,6 +380,7 @@ class Bin2SnaTest(SkoolKitTestCase):
               border  - border colour (default=0)
               iff     - interrupt flip-flop: 0=disabled, 1=enabled (default=1)
               im      - interrupt mode (default=1)
+              issue2  - issue 2 emulation: 0=disabled, 1=enabled (default=0)
               tstates - T-states elapsed since start of frame (default=0)
         """
         self.assertEqual(textwrap.dedent(exp_output).lstrip(), output)

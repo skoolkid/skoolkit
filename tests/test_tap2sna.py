@@ -1799,6 +1799,20 @@ class Tap2SnaTest(SkoolKitTestCase):
     def test_state_tstates_bad_value(self):
         self._test_bad_spec('--state tstates=?', 'Cannot parse integer: tstates=?')
 
+    def test_state_issue2(self):
+        block = create_tap_data_block([0])
+        tapfile = self._write_tap([block])
+        for issue2 in (0, 1):
+            z80file = os.path.join(self.make_directory(), 'out.z80')
+            output, error = self.run_tap2sna(f'--ram load=1,16384 --state issue2={issue2} {tapfile} {z80file}')
+            self.assertEqual(error, '')
+            with open(z80file, 'rb') as f:
+                z80_header = tuple(f.read(30))
+            self.assertEqual((z80_header[29] // 4) & 1, issue2)
+
+    def test_state_issue2_bad_value(self):
+        self._test_bad_spec('--state issue2=*', 'Cannot parse integer: issue2=*')
+
     def test_state_invalid_parameter(self):
         self._test_bad_spec('--state baz=2', 'Invalid parameter: baz=2')
 
@@ -1813,6 +1827,7 @@ class Tap2SnaTest(SkoolKitTestCase):
               border  - border colour (default=0)
               iff     - interrupt flip-flop: 0=disabled, 1=enabled (default=1)
               im      - interrupt mode (default=1)
+              issue2  - issue 2 emulation: 0=disabled, 1=enabled (default=0)
               tstates - T-states elapsed since start of frame (default=0)
         """
         self.assertEqual(textwrap.dedent(exp_output).lstrip(), output)

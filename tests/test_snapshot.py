@@ -208,12 +208,18 @@ class Z80StateTest(SkoolKitTestCase):
             t = 69887 - ((2 - t_hi) % 4) * 17472 - (t_lo % 17472)
             self.assertEqual(t, tstates % 69888)
 
+    def test_issue2(self):
+        header = [255] * 30
+        for issue2 in (0, 1):
+            set_z80_state(header, f'issue2={issue2}')
+            self.assertEqual(header[29], 251 + issue2 * 4)
+
     def test_all(self):
         header = [255] * 58
-        set_z80_state(header, 'iff=0', 'im=2', 'border=3', 'tstates=17471')
+        set_z80_state(header, 'iff=0', 'im=2', 'border=3', 'tstates=17471', 'issue2=0')
         self.assertEqual(header[27], 0) # IFF1
         self.assertEqual(header[28], 0) # IFF2
-        self.assertEqual(header[29], 254) # IM (bits 0-1)
+        self.assertEqual(header[29], 250) # IM (bits 0-1), issue 2 (bit 2)
         self.assertEqual(header[12], 247) # Border (bits 1-3)
         self.assertEqual([0, 0, 3], header[55:58]) # T-states
 

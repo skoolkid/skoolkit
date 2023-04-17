@@ -6,6 +6,9 @@ Changelog
 * Added the ``finish-tape`` parameter for the ``--sim-load-config`` option of
   :ref:`tap2sna.py` (to specify whether to finish the tape before stopping the
   simulation at the given start address)
+* Added support to :ref:`bin2sna.py`, :ref:`snapmod.py` and :ref:`tap2sna.py`
+  for setting the ``issue2`` hardware state attribute (to enable or disable
+  issue 2 emulation)
 
 8.9 (2023-02-19)
 ----------------

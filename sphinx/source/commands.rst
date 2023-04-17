@@ -52,6 +52,8 @@ it with no arguments to see the list of available options::
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 8.10    | Added the ``issue2`` hardware state attribute                     |
++---------+-------------------------------------------------------------------+
 | 8.9     | Added the ``tstates`` hardware state attribute                    |
 +---------+-------------------------------------------------------------------+
 | 6.3     | Added the ``--poke`` option                                       |
@@ -1246,6 +1248,8 @@ To list the options supported by `snapmod.py`, run it with no arguments::
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 8.10    | Added the ``issue2`` hardware state attribute                     |
++---------+-------------------------------------------------------------------+
 | 8.9     | Added the ``tstates`` hardware state attribute                    |
 +---------+-------------------------------------------------------------------+
 | 6.2     | The ``--move``, ``--poke`` and ``--reg`` options accept           |
@@ -1432,6 +1436,9 @@ The names of the available tape-sampling loop accelerators are:
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 8.10    | Added the ``finish-tape`` parameter for the ``--sim-load-config`` |
+|         | option; added the ``issue2`` hardware state attribute             |
++---------+-------------------------------------------------------------------+
 | 8.9     | Added the ``--sim-load-config``, ``--tape-name``,                 |
 |         | ``--tape-start``, ``--tape-stop`` and ``--tape-sum`` options;     |
 |         | added support for TZX loops, pauses, and unused bits in data      |

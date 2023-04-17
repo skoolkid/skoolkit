@@ -386,9 +386,10 @@ class SnapmodTest(SkoolKitTestCase):
         exp_header[12] |= 4 # BORDER 2
         exp_header[27] = 1 # IFF 1
         exp_header[28] = 1 # IFF 2
-        exp_header[29] = (header[29] & 252) | 2 # IM 2
+        exp_header[29] = (header[29] & 248) | 2 # IM 2
+        exp_header[29] = (exp_header[29] & 251) | 4 # Issue 2 emulation
         exp_header[55:58] = (158, 4, 1) # T-states
-        options = '-s border=2 -s iff=1 -s im=2 -s tstates=51233'
+        options = '-s border=2 -s iff=1 -s im=2 -s issue2=1 -s tstates=51233'
         self._test_z80(options, header, exp_header)
 
     def test_option_s_invalid_values(self):
@@ -396,6 +397,7 @@ class SnapmodTest(SkoolKitTestCase):
         self._test_bad_spec('-s border=k', infile, 'Cannot parse integer: border=k')
         self._test_bad_spec('-s iff=$', infile, 'Cannot parse integer: iff=$')
         self._test_bad_spec('-s im=?', infile, 'Cannot parse integer: im=?')
+        self._test_bad_spec('-s issue2=*', infile, 'Cannot parse integer: issue2=*')
         self._test_bad_spec('-s bar=1', infile, 'Invalid parameter: bar=1')
 
     def test_state_help(self):
@@ -409,6 +411,7 @@ class SnapmodTest(SkoolKitTestCase):
               border  - border colour (default=0)
               iff     - interrupt flip-flop: 0=disabled, 1=enabled (default=1)
               im      - interrupt mode (default=1)
+              issue2  - issue 2 emulation: 0=disabled, 1=enabled (default=0)
               tstates - T-states elapsed since start of frame (default=0)
         """
         self.assertEqual(textwrap.dedent(exp_output).lstrip(), output)
