@@ -82,6 +82,11 @@ def get_edges(blocks, first_edge):
                     b *= 2
             indexes.append((start, len(edges) - 1))
             data_blocks.append(data)
+        elif i == len(blocks) - 1: # pragma: no cover
+            # If the last block on the tape contains pulses but no data, add a
+            # dummy (empty) data block to ensure that the pulses are read
+            indexes.append((len(edges) - 1, len(edges) - 1))
+            data_blocks.append(())
 
         # Pause
         if i + 1 < len(blocks) and timings.pause:

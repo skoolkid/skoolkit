@@ -417,6 +417,22 @@ class SimLoadGamesTest(SkoolKitTestCase):
             '-c accelerator=rom --start 61671'
         )
 
+    def test_out_of_the_shadows(self):
+        # The last block on this tape contains pulses but no data
+        self._test_sim_load(
+            'https://worldofspectrum.net/pub/sinclair/games/o/OutOfTheShadows.tzx.zip',
+            'Out Of The Shadows.tzx',
+            '40f664f094ea41868793bffa59ebae95',
+            '034b7b141d4046430ac89894d1fac6ba',
+            {
+                'AF,BC,DE,HL': 'FC51,FEDB,5DDF,002B',
+                "AF',BC',DE',HL'": 'FF81,1621,369B,2758',
+                'PC,SP,IX,IY': '9010,6191,0000,5C3A',
+                'IR,iff,im,border': '3F00,1,1,3'
+            },
+            '--start 36880'
+        )
+
     def test_paul_owens(self):
         self._test_sim_load(
             'https://www.worldofspectrum.org/pub/sinclair/games/u/UntouchablesThe.tzx.zip',
