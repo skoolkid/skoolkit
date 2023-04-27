@@ -27,7 +27,7 @@ class SimLoadGamesTest(SkoolKitTestCase):
 
     def test_alkatraz(self):
         self._test_sim_load(
-            'https://www.worldofspectrum.org/pub/sinclair/games/f/Fairlight48V1.tzx.zip',
+            'https://worldofspectrum.net/pub/sinclair/games/f/Fairlight48V1.tzx.zip',
             'Fairlight - 48k - Release 1.tzx',
             '1dba2ac53fd25f4cc1065e18e31a7b96',
             '8f0e202556d8f0973546c9604e0cbffe',
@@ -42,7 +42,7 @@ class SimLoadGamesTest(SkoolKitTestCase):
 
     def test_alkatraz2(self):
         self._test_sim_load(
-            'https://www.worldofspectrum.org/pub/sinclair/games/s/ShadowDancer.tzx.zip',
+            'https://worldofspectrum.net/pub/sinclair/games/s/ShadowDancer.tzx.zip',
             'Shadow Dancer - Side 1.tzx',
             '2515ea4bb465b2834a636007ed3b9138',
             '06e31baae80d22a24d3885ffee5558ba',
@@ -58,7 +58,7 @@ class SimLoadGamesTest(SkoolKitTestCase):
     def test_basil_the_great_mouse_detective(self):
         # The loader for this game is polarity-sensitive
         self._test_sim_load(
-            'https://www.worldofspectrum.org/pub/sinclair/games/b/BasilTheGreatMouseDetective.tzx.zip',
+            'https://worldofspectrum.net/pub/sinclair/games/b/BasilTheGreatMouseDetective.tzx.zip',
             'Basil The Great Mouse Detective.tzx',
             '5e213d8a847168db2a9721f88cb1e280',
             '64f367b3cb90c4abca77026b60d42b47',
@@ -73,7 +73,7 @@ class SimLoadGamesTest(SkoolKitTestCase):
 
     def test_battle_of_britain(self):
         self._test_sim_load(
-            'https://www.worldofspectrum.org/pub/sinclair/games/b/BattleOfBritain_2.tzx.zip',
+            'https://worldofspectrum.net/pub/sinclair/games/b/BattleOfBritain_2.tzx.zip',
             'Battle Of Britain (PSS).tzx',
             '6b1005a547ede2687449cf11788e7dd3',
             'c838a20b3728761f4574a81069df6612',
@@ -89,7 +89,7 @@ class SimLoadGamesTest(SkoolKitTestCase):
     def test_cattell_iq_test(self):
         # Reads port 65531 to detect a printer
         self._test_sim_load(
-            'https://www.worldofspectrum.org/pub/sinclair/utils/CattellIQTest.tzx.zip',
+            'https://worldofspectrum.net/pub/sinclair/utils/c/CattellIQTest.tzx.zip',
             'Cattel IQ Test.tzx',
             'a3ad457e8f4b1bf9794b021678b9ce18',
             'c5d4e2ceb2cfa08dedd85587974909ac',
@@ -103,7 +103,7 @@ class SimLoadGamesTest(SkoolKitTestCase):
 
     def test_chromoload2(self):
         self._test_sim_load(
-            'https://www.worldofspectrum.org/pub/sinclair/games/s/Skyway.tzx.zip',
+            'https://worldofspectrum.net/pub/sinclair/games/s/Skyway.tzx.zip',
             'Skyway.tzx',
             '78bc636a3eceff22141a26a720e2c0bb',
             '66dc99668dc48298e7196eaa31be6df8',
@@ -118,7 +118,7 @@ class SimLoadGamesTest(SkoolKitTestCase):
 
     def test_cyberlode_1_1(self):
         self._test_sim_load(
-            'https://www.worldofspectrum.org/pub/sinclair/games/c/Cauldron(SilverbirdSoftwareLtd).tzx.zip',
+            'https://worldofspectrum.net/pub/sinclair/games/c/Cauldron(SilverbirdSoftwareLtd).tzx.zip',
             'Cauldron (Silverbird).tzx',
             'ebd4fa565c35af13f0aa3dc2f7556721',
             '8ce481286e084f0ff15bbae38e52cdb1',
@@ -133,7 +133,7 @@ class SimLoadGamesTest(SkoolKitTestCase):
 
     def test_digital_integration(self):
         self._test_sim_load(
-            'https://www.worldofspectrum.org/pub/sinclair/games/t/Tomahawk.tzx.zip',
+            'https://worldofspectrum.net/pub/sinclair/games/t/Tomahawk.tzx.zip',
             'Tomahawk.tzx',
             '3189a34157750d9e4ad01d5a7b2e5722',
             'c4c8e907d66af45eb011f927ae58a0ed',
@@ -148,7 +148,7 @@ class SimLoadGamesTest(SkoolKitTestCase):
 
     def test_dinaload(self):
         self._test_sim_load(
-            'https://www.worldofspectrum.org/pub/sinclair/games/s/Satan.tzx.zip',
+            'https://worldofspectrum.net/pub/sinclair/games/s/Satan.tzx.zip',
             'Satan - Side 1.tzx',
             '18afd7805b83ebc4974ccd8637d8a7b3',
             'e361a4d0cef9278f347b8268a709ec02',
@@ -163,7 +163,7 @@ class SimLoadGamesTest(SkoolKitTestCase):
 
     def test_edge(self):
         self._test_sim_load(
-            'https://www.worldofspectrum.org/pub/sinclair/games/b/BrianBloodaxe.tzx.zip',
+            'https://worldofspectrum.net/pub/sinclair/games/b/BrianBloodaxe.tzx.zip',
             'Brian Bloodaxe.tzx',
             '01b9b9454fc40eec0db0ba16ef2e6552',
             '914fcdc792accca76b3b269a0979e080',
@@ -178,7 +178,7 @@ class SimLoadGamesTest(SkoolKitTestCase):
 
     def test_elite_uni_loader(self):
         self._test_sim_load(
-            'https://www.worldofspectrum.org/pub/sinclair/games/b/BombJackII.tzx.zip',
+            'https://worldofspectrum.net/pub/sinclair/games/b/BombJackII.tzx.zip',
             'Bomb Jack 2.tzx',
             'a481286503c7eb94a7d8e62a73088fb6',
             'f50ddae742a407cc12b5bd47b5de4743',
@@ -193,7 +193,7 @@ class SimLoadGamesTest(SkoolKitTestCase):
 
     def test_excelerator(self):
         self._test_sim_load(
-            'https://www.worldofspectrum.org/pub/sinclair/games/l/LastMohican.tzx.zip',
+            'https://worldofspectrum.net/pub/sinclair/games/l/LastMohican.tzx.zip',
             'The Last Mohican - Side 1.tzx',
             '13fd349168a4561dae88e6280b94eac9',
             '1f6fb07d9f4c6d6451fe946421fa8c82',
@@ -224,7 +224,7 @@ class SimLoadGamesTest(SkoolKitTestCase):
 
     def test_firebird_bleepload(self):
         self._test_sim_load(
-            'https://www.worldofspectrum.org/pub/sinclair/games/b/BlackLamp.tzx.zip',
+            'https://worldofspectrum.net/pub/sinclair/games/b/BlackLamp.tzx.zip',
             'Black Lamp.tzx',
             'fc9dd17a32679eeff80504af26e81d9b',
             'f310acd8910eb26a3e76fc61c58aef77',
@@ -239,7 +239,7 @@ class SimLoadGamesTest(SkoolKitTestCase):
 
     def test_flash_loader(self):
         self._test_sim_load(
-            'https://www.worldofspectrum.org/pub/sinclair/games/c/CliffHanger.tzx.zip',
+            'https://worldofspectrum.net/pub/sinclair/games/c/CliffHanger.tzx.zip',
             'Cliff Hanger.tzx',
             '08b2d3867c9478e446c49217595239be',
             '219bc82579cb1f1cfb05b9291a095d70',
@@ -254,7 +254,7 @@ class SimLoadGamesTest(SkoolKitTestCase):
 
     def test_ftl(self):
         self._test_sim_load(
-            'https://www.worldofspectrum.org/pub/sinclair/games/h/Hydrofool.tzx.zip',
+            'https://worldofspectrum.net/pub/sinclair/games/h/Hydrofool.tzx.zip',
             'Hydrofool.tzx',
             'd3267bd1facb761c02efe0ddf4438ab4',
             '7bbab733e59c1aee81b8d1b2129e226d',
@@ -269,7 +269,7 @@ class SimLoadGamesTest(SkoolKitTestCase):
 
     def test_gargoyle(self):
         self._test_sim_load(
-            'https://www.worldofspectrum.org/pub/sinclair/games/h/HeavyOnTheMagick.tzx.zip',
+            'https://worldofspectrum.net/pub/sinclair/games/h/HeavyOnTheMagick.tzx.zip',
             'Heavy On The Magick - Side 1.tzx',
             '203b36a9ffa241089cb2741043c6563a',
             'a99bf5c299015ae496b3439487fbe7df',
@@ -284,7 +284,7 @@ class SimLoadGamesTest(SkoolKitTestCase):
 
     def test_gremlin(self):
         self._test_sim_load(
-            'https://www.worldofspectrum.org/pub/sinclair/games/s/SpaceCrusade.tzx.zip',
+            'https://worldofspectrum.net/pub/sinclair/games/s/SpaceCrusade.tzx.zip',
             'Space Crusade - 48K.tzx',
             '48cdfc186f94bf6382da93cbc4b70810',
             '3c16b10bfcce8973687153b3fe4c2953',
@@ -299,7 +299,7 @@ class SimLoadGamesTest(SkoolKitTestCase):
 
     def test_haxpoc_lock(self):
         self._test_sim_load(
-            'https://www.worldofspectrum.org/pub/sinclair/games/s/StarWarsV1.tzx.zip',
+            'https://worldofspectrum.net/pub/sinclair/games/s/StarWarsV1.tzx.zip',
             'Star Wars - Release 1 - Side 1.tzx',
             'e36c32fd456f65801d4abfd1af382a65',
             '9823f0a223e153cbb37edfbd8cc1a6a5',
@@ -314,7 +314,7 @@ class SimLoadGamesTest(SkoolKitTestCase):
 
     def test_headerless_block(self):
         self._test_sim_load(
-            'https://www.worldofspectrum.org/pub/sinclair/games/g/GalacticPatrol.tzx.zip',
+            'https://worldofspectrum.net/pub/sinclair/games/g/GalacticPatrol.tzx.zip',
             'Galactic Patrol.tzx',
             '94827dbfba53fa26396d2d218990ed5b',
             'e0738cf2a2ae3bbf1a34d59dfee59bf6',
@@ -328,7 +328,7 @@ class SimLoadGamesTest(SkoolKitTestCase):
 
     def test_hewson_slowload(self):
         self._test_sim_load(
-            'https://www.worldofspectrum.org/pub/sinclair/games/c/Cybernoid.tzx.zip',
+            'https://worldofspectrum.net/pub/sinclair/games/c/Cybernoid.tzx.zip',
             'Cybernoid.tzx',
             '50921a76ee625feb31c4195aac63d020',
             '03e01853b339e3a714bd75e31b44f751',
@@ -343,7 +343,7 @@ class SimLoadGamesTest(SkoolKitTestCase):
 
     def test_injectaload(self):
         self._test_sim_load(
-            'https://www.worldofspectrum.org/pub/sinclair/games/o/Outcast.tzx.zip',
+            'https://worldofspectrum.net/pub/sinclair/games/o/Outcast.tzx.zip',
             'Outcast.tzx',
             'c01b3ac0075f46f6a0b16d75c163b6b3',
             'b28e41e6612787862958c3e0f00b8dc4',
@@ -358,7 +358,7 @@ class SimLoadGamesTest(SkoolKitTestCase):
 
     def test_load_code(self):
         self._test_sim_load(
-            'https://www.worldofspectrum.org/pub/sinclair/games/g/Gobstopper.tzx.zip',
+            'https://worldofspectrum.net/pub/sinclair/games/g/Gobstopper.tzx.zip',
             'Gob Stopper (Calisto).tzx',
             '43803187b78421dfe88bbfe3aa218b8d',
             '85b1e6270f471bcdf913c7c1e7cfdc1b',
@@ -374,7 +374,7 @@ class SimLoadGamesTest(SkoolKitTestCase):
     def test_mask(self):
         # The loader for this game is polarity-sensitive
         self._test_sim_load(
-            'https://www.worldofspectrum.org/pub/sinclair/games/m/MASK.tzx.zip',
+            'https://worldofspectrum.net/pub/sinclair/games/m/MASK.tzx.zip',
             'Mask.tzx',
             'd69fa0a1d2bab53e27d4843cc129d83a',
             'b9731556bc9ca078dea167dc5b0539bf',
@@ -389,7 +389,7 @@ class SimLoadGamesTest(SkoolKitTestCase):
 
     def test_microsphere(self):
         self._test_sim_load(
-            'https://www.worldofspectrum.org/pub/sinclair/games/s/SkoolDaze.tzx.zip',
+            'https://worldofspectrum.net/pub/sinclair/games/s/SkoolDaze.tzx.zip',
             'Skool Daze.tzx',
             '61d29396661cc0acfa8f3514010f641d',
             '2ba19a83a175e834023cf5fcfd79a824',
@@ -404,7 +404,7 @@ class SimLoadGamesTest(SkoolKitTestCase):
 
     def test_microsphere_2(self):
         self._test_sim_load(
-            'https://www.worldofspectrum.org/pub/sinclair/games/c/ContactSamCruise.tzx.zip',
+            'https://worldofspectrum.net/pub/sinclair/games/c/ContactSamCruise.tzx.zip',
             'Contact Sam Cruise.tzx',
             '873cb6de4edc2aa75b40b838981c6f72',
             '10f01c72d47159bfb34da8cad47e967c',
@@ -435,7 +435,7 @@ class SimLoadGamesTest(SkoolKitTestCase):
 
     def test_paul_owens(self):
         self._test_sim_load(
-            'https://www.worldofspectrum.org/pub/sinclair/games/u/UntouchablesThe.tzx.zip',
+            'https://worldofspectrum.net/pub/sinclair/games/u/UntouchablesThe.tzx.zip',
             'The Untouchables - Side 1.tzx',
             '7aed7cb0aa7a9be5a4c953eec1fc0dd1',
             'fa2785b078e8f8cd53ab4ad9d1cf354b',
@@ -450,7 +450,7 @@ class SimLoadGamesTest(SkoolKitTestCase):
 
     def test_poliload(self):
         self._test_sim_load(
-            'https://www.worldofspectrum.org/pub/sinclair/games/a/AstroMarineCorps.tzx.zip',
+            'https://worldofspectrum.net/pub/sinclair/games/a/AstroMarineCorps.tzx.zip',
             'Astro Marine Corps - Side 1.tzx',
             'b31fd6232a865fbef93db8700ceeb931',
             'dad4b5319c06ebc076d75c39cfc2d738',
@@ -465,7 +465,7 @@ class SimLoadGamesTest(SkoolKitTestCase):
 
     def test_power_load(self):
         self._test_sim_load(
-            'https://www.worldofspectrum.org/pub/sinclair/games/d/DynamiteDan.tzx.zip',
+            'https://worldofspectrum.net/pub/sinclair/games/d/DynamiteDan.tzx.zip',
             'Dynamite Dan - Side 1.tzx',
             '38c2a7eb6c2ed9010e700063aedd3a3e',
             'aabc3f7367ee3b7fe0479614a52f182b',
@@ -480,7 +480,7 @@ class SimLoadGamesTest(SkoolKitTestCase):
 
     def test_sam_stoat_safebreaker(self):
         self._test_sim_load(
-            'https://www.worldofspectrum.org/pub/sinclair/games/s/SamStoatSafebreaker.tzx.zip',
+            'https://worldofspectrum.net/pub/sinclair/games/s/SamStoatSafebreaker.tzx.zip',
             'Sam Stoat Safebreaker.tzx',
             '5bbe64b84c53c148343435e000c31083',
             '2f1d92b099975c22db7a8039e4f5d3bc',
@@ -495,7 +495,7 @@ class SimLoadGamesTest(SkoolKitTestCase):
 
     def test_search_loader(self):
         self._test_sim_load(
-            'https://www.worldofspectrum.org/pub/sinclair/games/b/BloodBrothers.tzx.zip',
+            'https://worldofspectrum.net/pub/sinclair/games/b/BloodBrothers.tzx.zip',
             'Blood Brothers.tzx',
             'c4e7e151c4321b29c095abf1e547f9b5',
             'f597148bb6af12ddfeccc720ae8505f8',
@@ -510,7 +510,7 @@ class SimLoadGamesTest(SkoolKitTestCase):
 
     def test_sinclair_user(self):
         self._test_sim_load(
-            'https://www.worldofspectrum.org/pub/sinclair/games/p/PiecesOfEight.tzx.zip',
+            'https://worldofspectrum.net/pub/sinclair/games/p/PiecesOfEight.tzx.zip',
             'Pieces Of Eight (1992)(Pirate Software - Sinclair User)[SU Loader].tzx',
             '62da22ff8b0f6e704b4e1a509d285e40',
             '8b1d1d8b1e3b5563c4dc86421f875101',
@@ -525,7 +525,7 @@ class SimLoadGamesTest(SkoolKitTestCase):
 
     def test_softlock(self):
         self._test_sim_load(
-            'https://www.worldofspectrum.org/pub/sinclair/games/e/Elite.tzx.zip',
+            'https://worldofspectrum.net/pub/sinclair/games/e/Elite.tzx.zip',
             'Elite - 48k.tzx',
             'f73379181e1a413ac6c22ffd4cc8122a',
             'b5e2da0aedae1e1cbc3fc210ac6642de',
@@ -540,7 +540,7 @@ class SimLoadGamesTest(SkoolKitTestCase):
 
     def test_speedlock_1(self):
         self._test_sim_load(
-            'https://www.worldofspectrum.org/pub/sinclair/games/b/BruceLee.tzx.zip',
+            'https://worldofspectrum.net/pub/sinclair/games/b/BruceLee.tzx.zip',
             'Bruce Lee.tzx',
             '51cb1a6e1fb58304a15a588b82d8e001',
             'fe07022225e2348b8d9e4d19fc6f7b9a',
@@ -570,7 +570,7 @@ class SimLoadGamesTest(SkoolKitTestCase):
 
     def test_speedlock_3(self):
         self._test_sim_load(
-            'https://www.worldofspectrum.org/pub/sinclair/games/d/Dogfight-2187.tzx.zip',
+            'https://worldofspectrum.net/pub/sinclair/games/d/Dogfight-2187.tzx.zip',
             'Dogfight 2187.tzx',
             '5d73a347e27e98bb5a235eeac6470d56',
             '80d0dbd263514033a2a03c7063dd29e3',
@@ -585,7 +585,7 @@ class SimLoadGamesTest(SkoolKitTestCase):
 
     def test_speedlock_4(self):
         self._test_sim_load(
-            'https://www.worldofspectrum.org/pub/sinclair/games/o/OutRun.tzx.zip',
+            'https://worldofspectrum.net/pub/sinclair/games/o/OutRun.tzx.zip',
             'Outrun - Tape 1 - Side 1.tzx',
             '78fb2a6b82ca2dc7021a5762ea1491fb',
             '720fe3c658b04d10d174c467bce67639',
@@ -600,7 +600,7 @@ class SimLoadGamesTest(SkoolKitTestCase):
 
     def test_speedlock_5(self):
         self._test_sim_load(
-            'https://www.worldofspectrum.org/pub/sinclair/games/h/Hysteria.tzx.zip',
+            'https://worldofspectrum.net/pub/sinclair/games/h/Hysteria.tzx.zip',
             'Hysteria.tzx',
             '2f4485c0d0e98758f7da09b322ca0a0c',
             'd7d27aeaf2f87e247777a6cee0e9685c',
@@ -615,7 +615,7 @@ class SimLoadGamesTest(SkoolKitTestCase):
 
     def test_speedlock_6(self):
         self._test_sim_load(
-            'https://www.worldofspectrum.org/pub/sinclair/games/v/Vixen.tzx.zip',
+            'https://worldofspectrum.net/pub/sinclair/games/v/Vixen.tzx.zip',
             'Vixen - Side A.tzx',
             '3075d03f63d20acf2ad029265f6f1746',
             '1fe6e6ef535524dc78c5bd7bb558e030',
@@ -630,7 +630,7 @@ class SimLoadGamesTest(SkoolKitTestCase):
 
     def test_speedlock_7(self):
         self._test_sim_load(
-            'https://www.worldofspectrum.org/pub/sinclair/games/a/Aaargh.tzx.zip',
+            'https://worldofspectrum.net/pub/sinclair/games/a/Aaargh.tzx.zip',
             'Aaargh! - Side 1.tzx',
             'cfe091069af70b7ad7eae377665ce284',
             'f4c31550705bb8eda0694a1c893be7de',
@@ -645,7 +645,7 @@ class SimLoadGamesTest(SkoolKitTestCase):
 
     def test_standard_load(self):
         self._test_sim_load(
-            'https://www.worldofspectrum.org/pub/sinclair/games/m/ManicMiner.tzx.zip',
+            'https://worldofspectrum.net/pub/sinclair/games/m/ManicMiner.tzx.zip',
             'Manic Miner.tzx',
             '2750ccb6c240d14516c448e94f8d200e',
             'c0a196c2acccb5b03113b18e596fa575',
@@ -659,7 +659,7 @@ class SimLoadGamesTest(SkoolKitTestCase):
 
     def test_street_gang(self):
         self._test_sim_load(
-            'https://www.worldofspectrum.org/pub/sinclair/games/s/StreetGang.tzx.zip',
+            'https://worldofspectrum.net/pub/sinclair/games/s/StreetGang.tzx.zip',
             'Street Gang.tzx',
             '04a0a6b5c286a34b33285134903e9128',
             'de9f05abca3028c55e4bc9fff2ede79a',
@@ -674,7 +674,7 @@ class SimLoadGamesTest(SkoolKitTestCase):
 
     def test_technician_ted(self):
         self._test_sim_load(
-            'https://www.worldofspectrum.org/pub/sinclair/games/t/TechnicianTed.tzx.zip',
+            'https://worldofspectrum.net/pub/sinclair/games/t/TechnicianTed.tzx.zip',
             'Technician Ted.tzx',
             'b55a761f7d3733bc6ac958b10fab0c43',
             '030e5e9a2d555833296ba3a1ce5fb35e',
@@ -689,7 +689,7 @@ class SimLoadGamesTest(SkoolKitTestCase):
 
     def test_zydroload(self):
         self._test_sim_load(
-            'https://www.worldofspectrum.org/pub/sinclair/games/l/LightCorridorThe.tzx.zip',
+            'https://worldofspectrum.net/pub/sinclair/games/l/LightCorridorThe.tzx.zip',
             'The Light Corridor.tzx',
             '66674ee9c6b696404c5847be32796af4',
             '43046b049d10640009a9d3656c3e87e3',
