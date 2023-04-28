@@ -508,6 +508,23 @@ class SimLoadGamesTest(SkoolKitTestCase):
             '-c accelerator=search-loader --start 23552'
         )
 
+    def test_scaramouche(self):
+        # This game requires the H register to be 0 when the ROM load routine
+        # exits at $05B6 because of a mismatched flag byte
+        self._test_sim_load(
+            'https://worldofspectrum.net/pub/sinclair/games/s/Scaramouche.tzx.zip',
+            'Scaramouche.tzx',
+            '330e7b6ee3106f12d256a7874abe273d',
+            'c9ce9966ae506bc68bfd656a29399649',
+            {
+                'AF,BC,DE,HL': '0050,0021,0000,E301',
+                "AF',BC',DE',HL'": '2165,1621,0000,0000',
+                'PC,SP,IX,IY': '5D42,FFFD,FFF1,5C3A',
+                'IR,iff,im,border': '3F00,0,1,1'
+            },
+            '-c finish-tape=1 --start 23874'
+        )
+
     def test_sinclair_user(self):
         self._test_sim_load(
             'https://worldofspectrum.net/pub/sinclair/games/p/PiecesOfEight.tzx.zip',

@@ -407,6 +407,7 @@ class LoadTracer:
 
         if skipped:
             registers[F] = 0x00 # Reset ZF, reset CF: flag byte mismatch
+            registers[H] = 0
         else:
             addr = ix
             if de <= data_len:
