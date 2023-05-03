@@ -133,18 +133,21 @@ class Simulator:
         if cfg['fast_ldir']:
             self.after_ED[0xB0] = partial(self.ldir_fast, self.registers, self.memory, 1)
             self.after_ED[0xB8] = partial(self.ldir_fast, self.registers, self.memory, -1)
-        self.in_tracer = None
-        self.out_tracer = None
+        self.set_tracer(None)
 
-    def set_tracer(self, tracer):
+    def set_tracer(self, tracer, in_r_c=True, ini=True):
+        self.in_a_n_tracer = None
+        self.in_r_c_tracer = None
+        self.ini_tracer = None
+        self.out_tracer = None
         if hasattr(tracer, 'read_port'):
-            self.in_tracer = partial(tracer.read_port, self.registers)
-        else:
-            self.in_tracer = None
+            self.in_a_n_tracer = partial(tracer.read_port, self.registers)
+            if in_r_c:
+                self.in_r_c_tracer = partial(tracer.read_port, self.registers)
+            if ini:
+                self.ini_tracer = partial(tracer.read_port, self.registers)
         if hasattr(tracer, 'write_port'):
             self.out_tracer = partial(tracer.write_port, self.registers)
-        else:
-            self.out_tracer = None
 
     def run(self, start=None, stop=None):
         opcodes = self.opcodes
@@ -546,8 +549,8 @@ class Simulator:
     def in_a(self, registers, memory):
         # IN A,(n)
         pcn = registers[24] + 1
-        if self.in_tracer:
-            registers[0] = self.in_tracer(memory[pcn % 65536] + 256 * registers[0])
+        if self.in_a_n_tracer:
+            registers[0] = self.in_a_n_tracer(memory[pcn % 65536] + 256 * registers[0])
         else:
             registers[0] = 255
         registers[15] = R1[registers[15]] # R
@@ -556,8 +559,8 @@ class Simulator:
 
     def in_c(self, registers, reg, sz53p):
         # IN r,(C)
-        if self.in_tracer:
-            value = self.in_tracer(registers[3] + 256 * registers[2])
+        if self.in_r_c_tracer:
+            value = self.in_r_c_tracer(registers[3] + 256 * registers[2])
         else:
             value = 255
         if reg != 1:
@@ -585,8 +588,8 @@ class Simulator:
         b = registers[2]
         c = registers[3]
 
-        if self.in_tracer:
-            value = self.in_tracer(c + 256 * b)
+        if self.ini_tracer:
+            value = self.ini_tracer(c + 256 * b)
         else:
             value = 191
         if hl > 0x3FFF:

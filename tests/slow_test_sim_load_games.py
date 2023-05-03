@@ -660,6 +660,23 @@ class SimLoadGamesTest(SkoolKitTestCase):
             '-c accelerator=speedlock --start 65283'
         )
 
+    def test_square_head(self):
+        # This game uses 'IN r,(C)' instructions between tape blocks 6 and 7
+        # that should not be interpreted as reading the tape
+        self._test_sim_load(
+            'https://worldofspectrum.net/pub/sinclair/games/s/SquareHead.tzx.zip',
+            'SQR_HEAD.TZX',
+            '04b1b63a321dd817a67bafe4b85ce41b',
+            'f98298fd7e643737b94bf103a00ecb63',
+            {
+                'AF,BC,DE,HL': 'D054,5FD0,5E9B,2D2B',
+                "AF',BC',DE',HL'": 'FF81,0000,369B,2758',
+                'PC,SP,IX,IY': '5FD0,5F9E,0000,5C3A',
+                'IR,iff,im,border': '3F00,1,1,0'
+            },
+            '--start 24528'
+        )
+
     def test_standard_load(self):
         self._test_sim_load(
             'https://worldofspectrum.net/pub/sinclair/games/m/ManicMiner.tzx.zip',

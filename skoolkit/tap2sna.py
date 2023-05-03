@@ -330,7 +330,7 @@ def sim_load(blocks, options):
     snapshot[0xFF58:] = snapshot[0x3E08:0x3EB0] # UDGs
     simulator = Simulator(snapshot, {'SP': 0xFF50})
     tracer = LoadTracer(simulator, blocks, accelerator, options.pause, options.first_edge, options.finish_tape)
-    simulator.set_tracer(tracer)
+    simulator.set_tracer(tracer, False, False)
     try:
         # Begin execution at 0x0605 (SAVE-ETC)
         tracer.run(0x0605, options.start, options.fast_load, options.trace, options.timeout * 3500000)
