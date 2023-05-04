@@ -95,12 +95,13 @@ def get_edges(blocks, first_edge):
     return edges, indexes, data_blocks
 
 class LoadTracer:
-    def __init__(self, simulator, blocks, accelerator, pause, first_edge, finish_tape):
+    def __init__(self, simulator, blocks, accelerator, pause, first_edge, finish_tape, in_min_addr):
         self.simulator = simulator
         self.edges, self.indexes, self.blocks = get_edges(blocks, first_edge)
         self.accelerator = accelerator
         self.pause = pause
         self.finish_tape = finish_tape
+        self.in_min_addr = in_min_addr
         self.announce_data = True
         opcodes = simulator.opcodes
         memory = simulator.memory
@@ -324,7 +325,7 @@ class LoadTracer:
     def read_port(self, registers, port):
         if port % 256 == 0xFE:
             pc = registers[24]
-            if pc > 0x7FFF or 0x0562 <= pc <= 0x05F1: # pragma: no cover
+            if pc >= self.in_min_addr or 0x0562 <= pc <= 0x05F1: # pragma: no cover
                 self.custom_loader = True
                 index = self.index
                 if self.announce_data and not self.end_of_tape:

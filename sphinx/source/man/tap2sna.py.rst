@@ -92,7 +92,7 @@ LOAD "" (or LOAD ""CODE, if the first block on the tape is a 'Bytes' header).
 Whenever the Spectrum ROM's load routine at $0556 is called, a shortcut is
 taken by "fast loading" the next block on the tape. All other code (including
 any custom loader) is fully simulated. Simulation continues until the program
-counter hits the start address given by the ``--start`` option, or 10 minutes
+counter hits the start address given by the ``--start`` option, or 15 minutes
 of simulated Z80 CPU time has elapsed, or the end of the tape is reached and
 one of the following conditions is satisfied:
 
@@ -113,6 +113,8 @@ parameters are:
   automatically selected - see below); use this to specify a particular
   accelerator (which may produce a faster simulated LOAD), or to disable
   acceleration entirely (``accelerator=none``)
+* ``contended-in`` - interpret 'IN A,($FE)' instructions in the address range
+  $4000-$7FFF as reading the tape (``1``), or ignore them (``0``, the default)
 * ``fast-load`` - enable fast loading (``1``, the default), or disable it
   (``0``); fast loading significantly reduces the load time for many tapes, but
   can also cause some loaders to fail

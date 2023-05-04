@@ -23,7 +23,7 @@ class SimLoadGamesTest(SkoolKitTestCase):
                 "PC,SP,IX,IY": f'{r.pc:04X},{r.sp:04X},{r.ix:04X},{r.iy:04X}',
                 "IR,iff,im,border": f'{r.i:02X}{r.r:02X},{r.iff2},{r.im},{r.border}'
             }
-            self.assertEqual(rvals, reg)
+            self.assertEqual(reg, rvals)
 
     def test_alkatraz(self):
         self._test_sim_load(
@@ -114,6 +114,23 @@ class SimLoadGamesTest(SkoolKitTestCase):
                 'IR,iff,im,border': '3F00,1,1,0'
             },
             '-c accelerator=speedlock --start 64963'
+        )
+
+    def test_contended_in(self):
+        # Has a custom loading routine in what is contended memory on a
+        # standard 48K Spectrum
+        self._test_sim_load(
+            'https://worldofspectrum.net/pub/sinclair/games/s/Sapper.tzx.zip',
+            'sapper.tzx',
+            'e8f2e39a382c56c82318e1a92dd69274',
+            '038cabb1ffe56e8e9793e39b9808a597',
+            {
+                'AF,BC,DE,HL': '0093,B05E,0000,002E',
+                "AF',BC',DE',HL'": '5E4D,1621,369B,2758',
+                'PC,SP,IX,IY': '5EAB,5E87,FFE7,5C3A',
+                'IR,iff,im,border': '3F00,1,1,0'
+            },
+            '-c contended-in=1 --start 24235'
         )
 
     def test_cyberlode_1_1(self):

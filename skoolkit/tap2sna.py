@@ -278,6 +278,7 @@ def _ram_operations(snapshot, ram_ops, blocks=None):
 
 def _set_sim_load_config(options):
     options.accelerator = None
+    options.contended_in = False
     options.fast_load = True
     options.finish_tape = False
     options.first_edge = -2168
@@ -289,6 +290,8 @@ def _set_sim_load_config(options):
         if sep:
             if name == 'accelerator':
                 options.accelerator = value
+            elif name == 'contended-in': # pragma: no cover
+                options.contended_in = parse_int(value, options.contended_in)
             elif name == 'fast-load': # pragma: no cover
                 options.fast_load = parse_int(value, options.fast_load)
             elif name == 'finish-tape': # pragma: no cover
@@ -329,7 +332,11 @@ def sim_load(blocks, options):
                 snapshot[a + 1] = b // 256
     snapshot[0xFF58:] = snapshot[0x3E08:0x3EB0] # UDGs
     simulator = Simulator(snapshot, {'SP': 0xFF50})
-    tracer = LoadTracer(simulator, blocks, accelerator, options.pause, options.first_edge, options.finish_tape)
+    if options.contended_in: # pragma: no cover
+        in_min_addr = 0x4000
+    else:
+        in_min_addr = 0x8000
+    tracer = LoadTracer(simulator, blocks, accelerator, options.pause, options.first_edge, options.finish_tape, in_min_addr)
     simulator.set_tracer(tracer, False, False)
     try:
         # Begin execution at 0x0605 (SAVE-ETC)
@@ -784,6 +791,7 @@ def _print_sim_load_config_help():
     accelerators = '\n  '.join(''.join(n) for n in zip(*columns))
     print(f"""
 Usage: --sim-load-config accelerator=NAME
+       --sim-load-config contended-in=0/1
        --sim-load-config fast-load=0/1
        --sim-load-config finish-tape=0/1
        --sim-load-config first-edge=N
@@ -801,6 +809,13 @@ Configure various properties of a simulated LOAD.
   accelerator names are:
 
   {accelerators}
+
+--sim-load-config contended-in=0/1
+
+  By default, 'IN A,($FE)' instructions in RAM are ignored (i.e. are not
+  interpreted as reading the tape) unless they are at address $8000 or above.
+  Set contended-in=1 to enable 'IN A,($FE)' instructions in the address range
+  $4000-$7FFF to read the tape as well.
 
 --sim-load-config fast-load=0/1
 

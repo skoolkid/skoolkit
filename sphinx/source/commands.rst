@@ -1385,6 +1385,8 @@ parameters are:
   automatically selected - see below); use this to specify a particular
   accelerator (which may produce a faster simulated LOAD), or to disable
   acceleration entirely (``accelerator=none``)
+* ``contended-in`` - interpret 'IN A,($FE)' instructions in the address range
+  $4000-$7FFF as reading the tape (``1``), or ignore them (``0``, the default)
 * ``fast-load`` - enable fast loading (``1``, the default), or disable it
   (``0``); fast loading significantly reduces the load time for many tapes, but
   can also cause some loaders to fail
@@ -1436,8 +1438,9 @@ The names of the available tape-sampling loop accelerators are:
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
-| 8.10    | Added the ``finish-tape`` parameter for the ``--sim-load-config`` |
-|         | option; added the ``issue2`` hardware state attribute             |
+| 8.10    | Added the ``contended-in`` and ``finish-tape`` parameters for the |
+|         | ``--sim-load-config`` option; added the ``issue2`` hardware state |
+|         | attribute                                                         |
 +---------+-------------------------------------------------------------------+
 | 8.9     | Added the ``--sim-load-config``, ``--tape-name``,                 |
 |         | ``--tape-start``, ``--tape-stop`` and ``--tape-sum`` options;     |
