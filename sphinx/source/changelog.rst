@@ -12,6 +12,8 @@ Changelog
 * Added support to :ref:`bin2sna.py`, :ref:`snapmod.py` and :ref:`tap2sna.py`
   for setting the ``issue2`` hardware state attribute (to enable or disable
   issue 2 emulation)
+* :ref:`snapinfo.py` now shows the value of the T-states counter in SZX and Z80
+  snapshots
 * Fixed the bug that prevents :ref:`snapinfo.py` from displaying the value of a
   floating-point number in a BASIC line when the accompanying numeric string is
   a single decimal point (``.``)

@@ -375,11 +375,13 @@ class SnapinfoTest(SkoolKitTestCase):
         header.extend((54, 0)) # Remaining header length (version 3)
         header.extend((206, 250)) # PC=64206
         header += [0] * (header[-4] - 2)
+        header[55:58] = [1, 2, 3] # T-states
         exp_output = """
             Version: 3
             Machine: 48K Spectrum
             Interrupts: enabled
             Interrupt mode: 1
+            T-states: 16958
             Border: 3
             Registers:
               PC  64206 FACE    SP   2312 0908
@@ -416,6 +418,7 @@ class SnapinfoTest(SkoolKitTestCase):
             Machine: 48K Spectrum
             Interrupts: disabled
             Interrupt mode: 1
+            T-states: 34943
             Border: 7
             Registers:
               PC  51639 C9B7    SP  14648 3938
@@ -454,6 +457,7 @@ class SnapinfoTest(SkoolKitTestCase):
             Machine: 128K Spectrum
             Interrupts: enabled
             Interrupt mode: 1
+            T-states: 34943
             Border: 4
             Port $7FFD: 3 - bank 3 (block 6) paged into 49152-65535 C000-FFFF
             Registers:
@@ -492,12 +496,14 @@ class SnapinfoTest(SkoolKitTestCase):
         header.append(4) # 128K
         header.append(3) # Port 0x7ffd
         header += [0] * (header[-6] - 4)
+        header[55:58] = [63, 68, 3] # T-states
         pages = {bank: [0] * 16384 for bank in (1, 3, 4, 6, 7)}
         exp_output = """
             Version: 3
             Machine: 128K Spectrum
             Interrupts: enabled
             Interrupt mode: 1
+            T-states: 0
             Border: 7
             Port $7FFD: 3 - bank 3 (block 6) paged into 49152-65535 C000-FFFF
             Registers:
@@ -531,7 +537,8 @@ class SnapinfoTest(SkoolKitTestCase):
         registers = list(range(32, 58)) # Registers
         registers.extend((0, 0)) # IFF1, IFF2
         registers.append(1) # Interrupt mode
-        registers.extend((0, 0, 0, 0, 0, 0, 0, 0))
+        registers.extend((0, 0, 0, 0)) # dwCyclesStart
+        registers.extend((0, 0, 0, 0))
         exp_output = """
             Version: 1.4
             Machine: 16K ZX Spectrum
@@ -541,6 +548,7 @@ class SnapinfoTest(SkoolKitTestCase):
             Z80R: 37 bytes
               Interrupts: disabled
               Interrupt mode: 1
+              T-states: 0
               PC  14134 3736    SP  13620 3534
               IX  12592 3130    IY  13106 3332
               I      56   38    R      57   39
@@ -566,7 +574,8 @@ class SnapinfoTest(SkoolKitTestCase):
         registers = list(range(32, 58)) # Registers
         registers.extend((0, 0)) # IFF1, IFF2
         registers.append(1) # Interrupt mode
-        registers.extend((0, 0, 0, 0, 0, 0, 0, 0))
+        registers.extend((1, 0, 0, 0)) # dwCyclesStart
+        registers.extend((0, 0, 0, 0))
         exp_output = """
             Version: 1.4
             Machine: 16K ZX Spectrum
@@ -576,6 +585,7 @@ class SnapinfoTest(SkoolKitTestCase):
             Z80R: 37 bytes
               Interrupts: disabled
               Interrupt mode: 1
+              T-states: 1
               PC  14134 3736    SP  13620 3534
               IX  12592 3130    IY  13106 3332
               I      56   38    R      57   39
@@ -601,7 +611,8 @@ class SnapinfoTest(SkoolKitTestCase):
         registers = list(range(26)) # Registers
         registers.extend((1, 1)) # IFF1, IFF2
         registers.append(2) # Interrupt mode
-        registers.extend((0, 0, 0, 0, 0, 0, 0, 0))
+        registers.extend((255, 16, 1, 0)) # dwCyclesStart
+        registers.extend((0, 0, 0, 0))
         exp_output = """
             Version: 1.4
             Machine: 48K ZX Spectrum
@@ -611,6 +622,7 @@ class SnapinfoTest(SkoolKitTestCase):
             Z80R: 37 bytes
               Interrupts: enabled
               Interrupt mode: 2
+              T-states: 69887
               PC   5910 1716    SP   5396 1514
               IX   4368 1110    IY   4882 1312
               I      24   18    R      25   19
@@ -642,7 +654,8 @@ class SnapinfoTest(SkoolKitTestCase):
         registers = list(range(26)) # Registers
         registers.extend((1, 1)) # IFF1, IFF2
         registers.append(2) # Interrupt mode
-        registers.extend((0, 0, 0, 0, 0, 0, 0, 0))
+        registers.extend((1, 128, 0, 0)) # dwCyclesStart
+        registers.extend((0, 0, 0, 0))
         exp_output = """
             Version: 1.4
             Machine: 48K ZX Spectrum
@@ -652,6 +665,7 @@ class SnapinfoTest(SkoolKitTestCase):
             Z80R: 37 bytes
               Interrupts: enabled
               Interrupt mode: 2
+              T-states: 32769
               PC   5910 1716    SP   5396 1514
               IX   4368 1110    IY   4882 1312
               I      24   18    R      25   19
@@ -683,7 +697,8 @@ class SnapinfoTest(SkoolKitTestCase):
         registers = list(range(16, 42)) # Registers
         registers.extend((0, 0)) # IFF1, IFF2
         registers.append(1) # Interrupt mode
-        registers.extend((0, 0, 0, 0, 0, 0, 0, 0))
+        registers.extend((1, 0, 1, 0)) # dwCyclesStart
+        registers.extend((0, 0, 0, 0))
         exp_output = """
             Version: 1.4
             Machine: ZX Spectrum 128
@@ -693,6 +708,7 @@ class SnapinfoTest(SkoolKitTestCase):
             Z80R: 37 bytes
               Interrupts: disabled
               Interrupt mode: 1
+              T-states: 65537
               PC  10022 2726    SP   9508 2524
               IX   8480 2120    IY   8994 2322
               I      40   28    R      41   29
@@ -739,7 +755,8 @@ class SnapinfoTest(SkoolKitTestCase):
         registers = list(range(16, 42)) # Registers
         registers.extend((0, 0)) # IFF1, IFF2
         registers.append(1) # Interrupt mode
-        registers.extend((0, 0, 0, 0, 0, 0, 0, 0))
+        registers.extend((1, 2, 0, 0)) # dwCyclesStart
+        registers.extend((0, 0, 0, 0))
         exp_output = """
             Version: 1.4
             Machine: ZX Spectrum 128
@@ -749,6 +766,7 @@ class SnapinfoTest(SkoolKitTestCase):
             Z80R: 37 bytes
               Interrupts: disabled
               Interrupt mode: 1
+              T-states: 513
               PC  10022 2726    SP   9508 2524
               IX   8480 2120    IY   8994 2322
               I      40   28    R      41   29

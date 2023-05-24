@@ -195,6 +195,8 @@ def _analyse_z80(z80file, header, reg, ram_blocks):
     print('Machine: {}'.format(machine))
     print('Interrupts: {}abled'.format('en' if reg.iff2 else 'dis'))
     print('Interrupt mode: {}'.format(reg.im))
+    if version == 3:
+        print(f'T-states: {reg.tstates}')
     print('Border: {}'.format((header[12] // 2) & 7))
     if bank is not None:
         print('Port $7FFD: {} - bank {} (block {}) paged into 49152-65535 C000-FFFF'.format(header[35], bank, bank + 3))
@@ -322,6 +324,7 @@ def _print_z80r(reg):
     lines = []
     lines.append('Interrupts: {}abled'.format('en' if reg.iff2 else 'dis'))
     lines.append('Interrupt mode: {}'.format(reg.im))
+    lines.append(f'T-states: {reg.tstates}')
     return lines + reg.get_lines()
 
 SZX_BLOCK_PRINTERS = {
