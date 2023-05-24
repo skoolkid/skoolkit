@@ -181,9 +181,16 @@ class BasicListerTest(SkoolKitTestCase):
             245, 49, 32, 8,       # PRINT 1 {0x08}
             14, 129, 64, 0, 0, 0, # 1.5 in floating point form
             13,                   # ENTER
+            0, 20, 9, 0,          # Line 20, length
+            236, 46,              # GO TO .
+            14, 0, 0, 10, 0, 0,   # 10 in floating point form
+            13,                   # ENTER
             128                   # End of BASIC area
         ]
-        exp_output = ['  10 PRINT 1 {0x08}{1.5}']
+        exp_output = [
+            '  10 PRINT 1 {0x08}{1.5}',
+            '  20 GO TO .{10}'
+        ]
         self._test_basic(basic, exp_output)
 
     def test_non_ascii_characters(self):
