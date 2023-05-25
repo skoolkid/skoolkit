@@ -26,7 +26,7 @@ from urllib.parse import urlparse
 from skoolkit import (SkoolKitError, get_dword, get_int_param, get_object,
                       get_word, get_word3, integer, open_file, parse_int,
                       read_bin_file, warn, write_line, ROM48, VERSION)
-from skoolkit.config import get_config
+from skoolkit.config import get_config, update_options
 from skoolkit.loadsample import ACCELERATORS
 from skoolkit.loadtracer import LoadTracer
 from skoolkit.simulator import (Simulator, A, F, B, C, D, E, H, L, IXh, IXl, IYh, IYl,
@@ -890,6 +890,8 @@ def main(args):
                        help="Write the snapshot file in this directory.")
     group.add_argument('-f', '--force', action='store_true',
                        help="Overwrite an existing snapshot.")
+    group.add_argument('-I', '--ini', dest='params', metavar='p=v', action='append', default=[],
+                       help="Set the value of the configuration parameter 'p' to 'v'. This option may be used multiple times.")
     group.add_argument('-p', '--stack', dest='stack', metavar='STACK', type=integer,
                        help="Set the stack pointer.")
     group.add_argument('--ram', dest='ram_ops', metavar='OPERATION', action='append', default=[],
@@ -940,6 +942,7 @@ def main(args):
     if namespace.start is not None:
         namespace.reg.append('pc={}'.format(namespace.start))
     if namespace.force or not os.path.isfile(z80):
+        update_options('tap2sna', namespace, namespace.params, config)
         try:
             make_z80(url, namespace, z80, config)
         except Exception as e:

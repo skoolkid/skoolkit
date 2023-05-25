@@ -10,11 +10,15 @@ from skoolkittest import (SkoolKitTestCase, Z80_REGISTERS, create_data_block,
                           create_tap_header_block, create_tap_data_block,
                           create_tzx_header_block, create_tzx_data_block)
 from skoolkit import tap2sna, VERSION, SkoolKitError
+from skoolkit.config import COMMANDS
 from skoolkit.snapshot import get_snapshot
 
 def mock_make_z80(*args):
     global make_z80_args
     make_z80_args = args
+
+def mock_config(name):
+    return {k: v[0] for k, v in COMMANDS[name].items()}
 
 def mock_write_z80(ram, namespace, z80):
     global snapshot, options
@@ -104,6 +108,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(options.tape_stop, 0)
         self.assertIsNone(options.tape_sum)
         self.assertEqual(options.user_agent, '')
+        self.assertEqual([], options.params)
 
     @patch.object(tap2sna, 'make_z80', mock_make_z80)
     def test_config_read_from_file(self):
@@ -128,6 +133,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(options.tape_stop, 0)
         self.assertIsNone(options.tape_sum)
         self.assertEqual(options.user_agent, '')
+        self.assertEqual([], options.params)
         self.assertEqual(config['TraceLine'], '{pc} - {i}')
 
     def test_no_arguments(self):
@@ -182,6 +188,26 @@ class Tap2SnaTest(SkoolKitTestCase):
             self.assertEqual(len(error), 0)
             snapshot = get_snapshot(z80file)
             self.assertEqual(snapshot[16384], b)
+
+    @patch.object(tap2sna, 'make_z80', mock_make_z80)
+    @patch.object(tap2sna, 'get_config', mock_config)
+    def test_option_I(self):
+        self.run_tap2sna('-I TraceLine=Hello in.tap out.z80')
+        options, z80, config = make_z80_args[1:4]
+        self.assertEqual(['TraceLine=Hello'], options.params)
+        self.assertEqual(config['TraceLine'], 'Hello')
+
+    @patch.object(tap2sna, 'make_z80', mock_make_z80)
+    def test_option_I_overrides_config_read_from_file(self):
+        ini = """
+            [tap2sna]
+            TraceLine=0x{pc:04x} {i}
+        """
+        self.write_text_file(dedent(ini).strip(), 'skoolkit.ini')
+        self.run_tap2sna('--ini TraceLine=Goodbye in.tap out.z80')
+        options, z80, config = make_z80_args[1:4]
+        self.assertEqual(['TraceLine=Goodbye'], options.params)
+        self.assertEqual(config['TraceLine'], 'Goodbye')
 
     @patch.object(tap2sna, 'make_z80', mock_make_z80)
     def test_options_p_stack(self):
@@ -1884,6 +1910,31 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(len(trace_lines), 7281)
         self.assertEqual(trace_lines[0], '01541: POP AF')
         self.assertEqual(trace_lines[7280], '01506: RET')
+
+    @patch.object(tap2sna, '_write_z80', mock_write_z80)
+    def test_config_TraceLine_set_on_command_line(self):
+        basic_data = [
+            0, 10,               # Line 10
+            2, 0,                # Line length
+            234,                 # REM
+            13                   # ENTER
+        ]
+        blocks = [
+            create_tap_header_block("simloadbas", 10, len(basic_data), 0),
+            create_tap_data_block(basic_data),
+        ]
+        tapfile = self._write_tap(blocks)
+        tracefile = '{}/sim-load.trace'.format(self.make_directory())
+        trace_line = '{pc:>5}:{i}'
+        args = f'--sim-load -I TraceLine={trace_line} -c trace={tracefile} --start 1343 -c finish-tape=1 {tapfile} out.z80'
+        output, error = self.run_tap2sna(args)
+        self.assertEqual(error, '')
+        self.assertIn('PC=1343', options.reg)
+        with open(tracefile, 'r') as f:
+            trace_lines = f.read().rstrip().split('\n')
+        self.assertEqual(len(trace_lines), 7281)
+        self.assertEqual(trace_lines[0], ' 1541:POP AF')
+        self.assertEqual(trace_lines[7280], ' 1506:RET')
 
     def test_args_from_file(self):
         data = [1, 2, 3, 4]

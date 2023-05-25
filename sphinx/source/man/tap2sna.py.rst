@@ -29,6 +29,11 @@ OPTIONS
 -f, --force
   Overwrite an existing snapshot.
 
+-I, --ini `param=value`
+  Set the value of a configuration parameter (see ``CONFIGURATION``),
+  overriding any value found in ``skoolkit.ini``. This option may be used
+  multiple times.
+
 -p, --stack `STACK`
   Set the stack pointer. This option is equivalent to ``--reg sp=STACK``.
   `STACK` must be a decimal number, or a hexadecimal number prefixed by '0x'.
@@ -373,6 +378,10 @@ decimal format by default, add the following section to ``skoolkit.ini``::
 
   [tap2sna]
   TraceLine={pc:05} {i}
+
+Configuration parameters may also be set on the command line by using the
+``--ini`` option. Parameter values set this way will override any found in
+``skoolkit.ini``.
 
 EXAMPLES
 ========
