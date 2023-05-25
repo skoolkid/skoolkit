@@ -12,6 +12,8 @@ Changelog
 * Added support to :ref:`bin2sna.py`, :ref:`snapmod.py` and :ref:`tap2sna.py`
   for setting the ``issue2`` hardware state attribute (to enable or disable
   issue 2 emulation)
+* Added support to :ref:`tap2sna.py <tap2sna-conf>` for reading configuration
+  from `skoolkit.ini`
 * :ref:`snapinfo.py` now shows the value of the T-states counter in SZX and Z80
   snapshots
 * Fixed the bug that prevents :ref:`snapinfo.py` from displaying the value of a

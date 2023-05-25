@@ -1,4 +1,4 @@
-# Copyright 2017-2022 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2017-2023 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -112,6 +112,9 @@ COMMANDS = {
         'Quiet': (0, 'quiet'),
         'Templates': ('', ''),
         'Warnings': (1, 'warn')
+    },
+    'tap2sna': {
+        'TraceLine': ('${pc:04X} {i}', '')
     }
 }
 

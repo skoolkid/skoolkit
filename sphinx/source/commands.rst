@@ -1437,10 +1437,35 @@ The names of the available tape-sampling loop accelerators are:
 * ``speedlock`` (Speedlock - all versions)
 * ``zydroload`` (Zydroload)
 
+.. _tap2sna-conf:
+
+Configuration
+^^^^^^^^^^^^^
+`tap2sna.py` will read configuration from a file named `skoolkit.ini` in the
+current working directory or in `~/.skoolkit`, if present. The recognised
+configuration parameters are:
+
+* ``TraceLine`` - the format of each line in the trace log file for a simulated
+  LOAD (default: ``${pc:04X} {i}``)
+
+``TraceLine`` is a standard Python format string that recognises the following
+replacement fields:
+
+* ``i`` - the current instruction
+* ``pc`` - the address of the current instruction (program counter)
+
+Configuration parameters must appear in a ``[tap2sna]`` section. For example,
+to make `tap2sna.py` write instruction addresses in a trace log file in decimal
+format by default, add the following section to `skoolkit.ini`::
+
+  [tap2sna]
+  TraceLine={pc:05} {i}
+
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
-| 8.10    | Added the ``contended-in`` and ``finish-tape`` parameters for the |
+| 8.10    | Configuration is read from `skoolkit.ini` if present; added the   |
+|         | ``contended-in`` and ``finish-tape`` parameters for the           |
 |         | ``--sim-load-config`` option; added the ``issue2`` hardware state |
 |         | attribute                                                         |
 +---------+-------------------------------------------------------------------+

@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import argparse
+from collections import defaultdict
 import os
 import sys
 import time
@@ -68,7 +69,7 @@ class Tracer:
 def load_tap(tapfile):
     tap_blocks = get_tap_blocks(read_bin_file(tapfile))
     options = Options()
-    snapshot = [0] * 16384 + sim_load(tap_blocks, options)
+    snapshot = [0] * 16384 + sim_load(tap_blocks, options, defaultdict(str))
     rom = read_bin_file(ROM48)
     snapshot[:len(rom)] = rom
     for r in options.reg:

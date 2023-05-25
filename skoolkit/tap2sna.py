@@ -26,6 +26,7 @@ from urllib.parse import urlparse
 from skoolkit import (SkoolKitError, get_dword, get_int_param, get_object,
                       get_word, get_word3, integer, open_file, parse_int,
                       read_bin_file, warn, write_line, ROM48, VERSION)
+from skoolkit.config import get_config
 from skoolkit.loadsample import ACCELERATORS
 from skoolkit.loadtracer import LoadTracer
 from skoolkit.simulator import (Simulator, A, F, B, C, D, E, H, L, IXh, IXl, IYh, IYl,
@@ -307,7 +308,7 @@ def _set_sim_load_config(options):
             else:
                 raise SkoolKitError(f'Invalid sim-load configuration parameter: {name}')
 
-def sim_load(blocks, options):
+def sim_load(blocks, options, config):
     _set_sim_load_config(options)
     if options.accelerator:
         accelerator = ACCELERATORS.get(options.accelerator)
@@ -340,7 +341,7 @@ def sim_load(blocks, options):
     simulator.set_tracer(tracer, False, False)
     try:
         # Begin execution at 0x0605 (SAVE-ETC)
-        tracer.run(0x0605, options.start, options.fast_load, options.trace, options.timeout * 3500000)
+        tracer.run(0x0605, options.start, options.fast_load, options.timeout * 3500000, options.trace, config['TraceLine'] + '\n')
         _ram_operations(snapshot, options.ram_ops)
     except KeyboardInterrupt: # pragma: no cover
         write_line(f'Simulation stopped (interrupted): PC={simulator.registers[PC]}')
@@ -855,7 +856,7 @@ Configure various properties of a simulated LOAD.
   Log to FILE all instructions executed during the simulated LOAD.
 """.strip())
 
-def make_z80(url, options, z80):
+def make_z80(url, options, z80, config):
     tape_type, tape = _get_tape(url, options.user_agent, options.tape_name)
     if options.tape_sum:
         md5sum = hashlib.md5(tape).hexdigest()
@@ -864,13 +865,14 @@ def make_z80(url, options, z80):
     tape_blocks = _get_tape_blocks(tape_type, tape, options.sim_load, options.tape_start, options.tape_stop)
     if options.sim_load:
         blocks = [b for b in tape_blocks if b[0]]
-        ram = sim_load(blocks, options)
+        ram = sim_load(blocks, options, config)
     else:
         blocks = [b[1] for b in tape_blocks]
         ram = _get_ram(blocks, options)
     _write_z80(ram, options, z80)
 
 def main(args):
+    config = get_config('tap2sna')
     parser = SkoolKitArgumentParser(
         usage='\n  tap2sna.py [options] INPUT snapshot.z80\n  tap2sna.py @FILE',
         description="Convert a TAP or TZX file (which may be inside a zip archive) into a Z80 snapshot. "
@@ -939,7 +941,7 @@ def main(args):
         namespace.reg.append('pc={}'.format(namespace.start))
     if namespace.force or not os.path.isfile(z80):
         try:
-            make_z80(url, namespace, z80)
+            make_z80(url, namespace, z80, config)
         except Exception as e:
             raise SkoolKitError("Error while getting snapshot {}: {}".format(os.path.basename(z80), e.args[0] if e.args else e))
     else:

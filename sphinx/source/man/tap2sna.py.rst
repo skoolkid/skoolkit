@@ -351,6 +351,29 @@ then:
 will create ``game.z80`` as if the arguments specified in ``game.t2s`` had been
 given on the command line.
 
+CONFIGURATION
+=============
+``tap2sna.py`` will read configuration from a file named ``skoolkit.ini`` in
+the current working directory or in ``~/.skoolkit``, if present. The recognised
+configuration parameters are:
+
+  :TraceLine: The format of each line in the trace log file for a simulated
+    LOAD (default: ``${pc:04X} {i}``).
+
+``TraceLine`` is a standard Python format string that recognises the following
+replacement fields:
+
+|
+|  ``i``  - the current instruction
+|  ``pc`` - the address of the current instruction (program counter)
+
+Configuration parameters must appear in a ``[tap2sna]`` section. For example,
+to make ``tap2sna.py`` write instruction addresses in a trace log file in
+decimal format by default, add the following section to ``skoolkit.ini``::
+
+  [tap2sna]
+  TraceLine={pc:05} {i}
+
 EXAMPLES
 ========
 1. Extract the TAP or TZX file from a remote zip archive and convert it into a
