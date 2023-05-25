@@ -1297,6 +1297,7 @@ To list the options supported by `tap2sna.py`, run it with no arguments::
                           information. This option may be used multiple times.
     --reg name=value      Set the value of a register. Do '--reg help' for more
                           information. This option may be used multiple times.
+    --show-config         Show configuration parameter values.
     -s START, --start START
                           Set the start address to JP to.
     --sim-load            Simulate a 48K ZX Spectrum running LOAD "".
@@ -1471,9 +1472,10 @@ Configuration parameters may also be set on the command line by using the
 | Version | Changes                                                           |
 +=========+===================================================================+
 | 8.10    | Configuration is read from `skoolkit.ini` if present; added the   |
-|         | ``--ini`` option; added the ``contended-in`` and ``finish-tape``  |
-|         | parameters for the ``--sim-load-config`` option; added the        |
-|         | ``issue2`` hardware state attribute                               |
+|         | ``--ini`` and ``--show-config`` options; added the                |
+|         | ``contended-in`` and ``finish-tape`` parameters for the           |
+|         | ``--sim-load-config`` option; added the ``issue2`` hardware state |
+|         | attribute                                                         |
 +---------+-------------------------------------------------------------------+
 | 8.9     | Added the ``--sim-load-config``, ``--tape-name``,                 |
 |         | ``--tape-start``, ``--tape-stop`` and ``--tape-sum`` options;     |

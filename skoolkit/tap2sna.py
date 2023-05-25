@@ -26,7 +26,7 @@ from urllib.parse import urlparse
 from skoolkit import (SkoolKitError, get_dword, get_int_param, get_object,
                       get_word, get_word3, integer, open_file, parse_int,
                       read_bin_file, warn, write_line, ROM48, VERSION)
-from skoolkit.config import get_config, update_options
+from skoolkit.config import get_config, show_config, update_options
 from skoolkit.loadsample import ACCELERATORS
 from skoolkit.loadtracer import LoadTracer
 from skoolkit.simulator import (Simulator, A, F, B, C, D, E, H, L, IXh, IXl, IYh, IYl,
@@ -900,6 +900,8 @@ def main(args):
     group.add_argument('--reg', dest='reg', metavar='name=value', action='append', default=[],
                        help="Set the value of a register. Do '--reg help' for more information. "
                             "This option may be used multiple times.")
+    group.add_argument('--show-config', dest='show_config', action='store_true',
+                       help="Show configuration parameter values.")
     group.add_argument('-s', '--start', dest='start', metavar='START', type=integer,
                        help="Set the start address to JP to.")
     group.add_argument('--sim-load', action='store_true',
@@ -920,6 +922,8 @@ def main(args):
     group.add_argument('-V', '--version', action='version', version='SkoolKit {}'.format(VERSION),
                        help='Show SkoolKit version number and exit.')
     namespace, unknown_args = parser.parse_known_args(args)
+    if namespace.show_config:
+        show_config('tap2sna', config)
     if 'help' in namespace.sim_load_config:
         _print_sim_load_config_help()
         return

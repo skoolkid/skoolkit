@@ -48,6 +48,9 @@ OPTIONS
   Set the value of a register. Do ``--reg help`` for more information, or see
   the section on ``REGISTERS`` below. This option may be used multiple times.
 
+--show-config
+  Show configuration parameter values.
+
 -s, --start `START`
   Set the start address to JP to. This option is equivalent to
   ``--reg pc=START``. `START` must be a decimal number, or a hexadecimal number

@@ -240,6 +240,30 @@ class Tap2SnaTest(SkoolKitTestCase):
             z80_header = f.read(10)
         self.assertEqual(z80_header[8] + 256 * z80_header[9], stack)
 
+    @patch.object(tap2sna, 'get_config', mock_config)
+    def test_option_show_config(self):
+        output, error = self.run_tap2sna('--show-config', catch_exit=0)
+        self.assertEqual(error, '')
+        exp_output = r"""
+            [tap2sna]
+            TraceLine=${pc:04X} {i}
+        """
+        self.assertEqual(dedent(exp_output).strip(), output.rstrip())
+
+    def test_option_show_config_read_from_file(self):
+        ini = """
+            [tap2sna]
+            TraceLine={pc:05} {i}
+        """
+        self.write_text_file(dedent(ini).strip(), 'skoolkit.ini')
+        output, error = self.run_tap2sna('--show-config', catch_exit=0)
+        self.assertEqual(error, '')
+        exp_output = """
+            [tap2sna]
+            TraceLine={pc:05} {i}
+        """
+        self.assertEqual(dedent(exp_output).strip(), output.rstrip())
+
     @patch.object(tap2sna, 'make_z80', mock_make_z80)
     def test_options_s_start(self):
         start = 30000
