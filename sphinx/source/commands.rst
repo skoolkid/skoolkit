@@ -1450,6 +1450,11 @@ configuration parameters are:
 
 * ``TraceLine`` - the format of each line in the trace log file for a simulated
   LOAD (default: ``${pc:04X} {i}``)
+* ``TraceOperand`` - the prefix, byte format, and word format for the numeric
+  operands of instructions in the trace log file for a simulated LOAD,
+  separated by commas (default: ``$,02X,04X``); the byte and word formats are
+  standard Python format specifiers for numeric values, and default to empty
+  strings if not supplied
 
 ``TraceLine`` is a standard Python format string that recognises the following
 replacement fields:
@@ -1458,11 +1463,13 @@ replacement fields:
 * ``pc`` - the address of the current instruction (program counter)
 
 Configuration parameters must appear in a ``[tap2sna]`` section. For example,
-to make `tap2sna.py` write instruction addresses in a trace log file in decimal
-format by default, add the following section to `skoolkit.ini`::
+to make `tap2sna.py` write instruction addresses and operands in a trace log
+file in decimal format by default, add the following section to
+`skoolkit.ini`::
 
   [tap2sna]
   TraceLine={pc:05} {i}
+  TraceOperand=
 
 Configuration parameters may also be set on the command line by using the
 ``--ini`` option. Parameter values set this way will override any found in

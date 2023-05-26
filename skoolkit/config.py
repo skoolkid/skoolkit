@@ -114,7 +114,8 @@ COMMANDS = {
         'Warnings': (1, 'warn')
     },
     'tap2sna': {
-        'TraceLine': ('${pc:04X} {i}', '')
+        'TraceLine': ('${pc:04X} {i}', ''),
+        'TraceOperand': ('$,02X,04X', '')
     }
 }
 

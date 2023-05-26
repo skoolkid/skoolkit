@@ -137,7 +137,7 @@ class LoadTracer:
         self.border = 7
         self.text = TextReader()
 
-    def run(self, start, stop, fast_load, timeout, trace, trace_line):
+    def run(self, start, stop, fast_load, timeout, trace, trace_line, prefix, byte_fmt, word_fmt):
         simulator = self.simulator
         opcodes = simulator.opcodes
         memory = simulator.memory
@@ -156,7 +156,7 @@ class LoadTracer:
         while True:
             t0 = tstates
             if trace:
-                i = disassemble(memory, pc)[0]
+                i = disassemble(memory, pc, prefix, byte_fmt, word_fmt)[0]
                 opcodes[memory[pc]]()
                 tracefile.write(trace_line.format(pc=pc, i=i))
             else:

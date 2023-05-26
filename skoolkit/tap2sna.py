@@ -339,9 +339,12 @@ def sim_load(blocks, options, config):
         in_min_addr = 0x8000
     tracer = LoadTracer(simulator, blocks, accelerator, options.pause, options.first_edge, options.finish_tape, in_min_addr)
     simulator.set_tracer(tracer, False, False)
+    op_fmt = config['TraceOperand']
+    prefix, byte_fmt, word_fmt = (op_fmt + ',' * (2 - op_fmt.count(','))).split(',')[:3]
     try:
         # Begin execution at 0x0605 (SAVE-ETC)
-        tracer.run(0x0605, options.start, options.fast_load, options.timeout * 3500000, options.trace, config['TraceLine'] + '\n')
+        tracer.run(0x0605, options.start, options.fast_load, options.timeout * 3500000,
+                   options.trace, config['TraceLine'] + '\n', prefix, byte_fmt, word_fmt)
         _ram_operations(snapshot, options.ram_ops)
     except KeyboardInterrupt: # pragma: no cover
         write_line(f'Simulation stopped (interrupted): PC={simulator.registers[PC]}')

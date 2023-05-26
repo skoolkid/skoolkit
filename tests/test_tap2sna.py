@@ -247,6 +247,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         exp_output = r"""
             [tap2sna]
             TraceLine=${pc:04X} {i}
+            TraceOperand=$,02X,04X
         """
         self.assertEqual(dedent(exp_output).strip(), output.rstrip())
 
@@ -261,6 +262,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         exp_output = """
             [tap2sna]
             TraceLine={pc:05} {i}
+            TraceOperand=$,02X,04X
         """
         self.assertEqual(dedent(exp_output).strip(), output.rstrip())
 
@@ -1796,6 +1798,26 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(trace_lines[0], '$0605 POP AF')
         self.assertEqual(trace_lines[8100], '$34BB RET')
 
+    @patch.object(tap2sna, '_write_z80', mock_write_z80)
+    def test_sim_load_with_trace_and_self_modifying_code(self):
+        code = [
+            33, 55, 128,  # 32820 LD HL,32823
+            117,          # 32823 LD (HL),L   ; -> 32823 SCF
+            48, 253,      # 32824 JR NC,32823
+        ]
+        tapfile, basic_data = self._write_basic_loader(32820, code)
+        tracefile = '{}/sim-load.trace'.format(self.make_directory())
+        output, error = self.run_tap2sna(f'--sim-load --start 32826 -c trace={tracefile} {tapfile} out.z80')
+        out_lines = output.strip().split('\n')
+        self.assertIn('PC=32826', options.reg)
+        with open(tracefile, 'r') as f:
+            trace_lines = f.read().rstrip().split('\n')
+        self.assertEqual(len(trace_lines), 19502)
+        self.assertEqual(trace_lines[19497], '$8034 LD HL,$8037')
+        self.assertEqual(trace_lines[19498], '$8037 LD (HL),L')
+        self.assertEqual(trace_lines[19499], '$8038 JR NC,$8037')
+        self.assertEqual(trace_lines[19500], '$8037 SCF')
+
     def test_sim_load_config_help(self):
         for option in ('-c', '--sim-load-config'):
             output, error = self.run_tap2sna(f'{option} help')
@@ -1959,6 +1981,63 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(len(trace_lines), 7281)
         self.assertEqual(trace_lines[0], ' 1541:POP AF')
         self.assertEqual(trace_lines[7280], ' 1506:RET')
+
+    @patch.object(tap2sna, '_write_z80', mock_write_z80)
+    def test_config_TraceOperand(self):
+        tapfile = self._write_tap([create_tap_header_block("prog", 10, 1, 0)])
+        tracefile = '{}/sim-load.trace'.format(self.make_directory())
+        args = f'--sim-load -I TraceOperand=&,02x,04x -c trace={tracefile} --start 1343 {tapfile} out.z80'
+        output, error = self.run_tap2sna(args)
+        self.assertEqual(error, '')
+        self.assertIn('PC=1343', options.reg)
+        with open(tracefile, 'r') as f:
+            trace_lines = f.read().rstrip().split('\n')
+        self.assertEqual(len(trace_lines), 2265)
+        self.assertEqual(trace_lines[1], '$0606 LD A,(&5c74)')
+        self.assertEqual(trace_lines[2], '$0609 SUB &e0')
+        self.assertEqual(trace_lines[2264], '$05E2 RET')
+
+    @patch.object(tap2sna, '_write_z80', mock_write_z80)
+    def test_config_TraceOperand_with_no_commas(self):
+        tapfile = self._write_tap([create_tap_header_block("prog", 1, 1, 0)])
+        tracefile = '{}/sim-load.trace'.format(self.make_directory())
+        args = f'--sim-load -I TraceOperand=# -c trace={tracefile} --start 1547 {tapfile} out.z80'
+        output, error = self.run_tap2sna(args)
+        self.assertEqual(error, '')
+        self.assertIn('PC=1547', options.reg)
+        with open(tracefile, 'r') as f:
+            trace_lines = f.read().rstrip().split('\n')
+        self.assertEqual(len(trace_lines), 3)
+        self.assertEqual(trace_lines[1], '$0606 LD A,(#23668)')
+        self.assertEqual(trace_lines[2], '$0609 SUB #224')
+
+    @patch.object(tap2sna, '_write_z80', mock_write_z80)
+    def test_config_TraceOperand_with_one_comma(self):
+        tapfile = self._write_tap([create_tap_header_block("prog", 1, 1, 0)])
+        tracefile = '{}/sim-load.trace'.format(self.make_directory())
+        args = f'--sim-load -I TraceOperand=+,02x -c trace={tracefile} --start 1547 {tapfile} out.z80'
+        output, error = self.run_tap2sna(args)
+        self.assertEqual(error, '')
+        self.assertIn('PC=1547', options.reg)
+        with open(tracefile, 'r') as f:
+            trace_lines = f.read().rstrip().split('\n')
+        self.assertEqual(len(trace_lines), 3)
+        self.assertEqual(trace_lines[1], '$0606 LD A,(+23668)')
+        self.assertEqual(trace_lines[2], '$0609 SUB +e0')
+
+    @patch.object(tap2sna, '_write_z80', mock_write_z80)
+    def test_config_TraceOperand_with_three_commas(self):
+        tapfile = self._write_tap([create_tap_header_block("prog", 1, 1, 0)])
+        tracefile = '{}/sim-load.trace'.format(self.make_directory())
+        args = f'--sim-load -I TraceOperand=0x,02x,04x,??? -c trace={tracefile} --start 1547 {tapfile} out.z80'
+        output, error = self.run_tap2sna(args)
+        self.assertEqual(error, '')
+        self.assertIn('PC=1547', options.reg)
+        with open(tracefile, 'r') as f:
+            trace_lines = f.read().rstrip().split('\n')
+        self.assertEqual(len(trace_lines), 3)
+        self.assertEqual(trace_lines[1], '$0606 LD A,(0x5c74)')
+        self.assertEqual(trace_lines[2], '$0609 SUB 0xe0')
 
     def test_args_from_file(self):
         data = [1, 2, 3, 4]
