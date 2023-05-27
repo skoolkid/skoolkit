@@ -1449,7 +1449,7 @@ current working directory or in `~/.skoolkit`, if present. The recognised
 configuration parameters are:
 
 * ``TraceLine`` - the format of each line in the trace log file for a simulated
-  LOAD (default: ``${pc:04X} {i}``)
+  LOAD (default: ``${PC:04X} {i}``)
 * ``TraceOperand`` - the prefix, byte format, and word format for the numeric
   operands of instructions in the trace log file for a simulated LOAD,
   separated by commas (default: ``$,02X,04X``); the byte and word formats are
@@ -1460,7 +1460,30 @@ configuration parameters are:
 replacement fields:
 
 * ``i`` - the current instruction
-* ``pc`` - the address of the current instruction (program counter)
+* ``PC`` - the address of the current instruction (program counter)
+* ``r[A]`` - the A register (accumulator)
+* ``r[F]`` - the F (flags) register
+* ``r[B]`` - the B register
+* ``r[C]`` - the C register
+* ``r[D]`` - the D register
+* ``r[E]`` - the E register
+* ``r[H]`` - the H register
+* ``r[L]`` - the L register
+* ``r[^A]`` - the A' register (shadow accumulator)
+* ``r[^F]`` - the F' (shadow flags) register
+* ``r[^B]`` - the shadow B register
+* ``r[^C]`` - the shadow C register
+* ``r[^D]`` - the shadow D register
+* ``r[^E]`` - the shadow E register
+* ``r[^H]`` - the shadow H register
+* ``r[^L]`` - the shadow L register
+* ``r[IXh]`` - the high byte of the IX register pair
+* ``r[IXl]`` - the low byte of the IX register pair
+* ``r[IYh]`` - the high byte of the IY register pair
+* ``r[IYl]`` - the low byte of the IY register pair
+* ``r[I]`` - the I register
+* ``r[R]`` - the R register
+* ``r[SP]`` - the stack pointer
 
 Configuration parameters must appear in a ``[tap2sna]`` section. For example,
 to make `tap2sna.py` write instruction addresses and operands in a trace log
@@ -1468,7 +1491,7 @@ file in decimal format by default, add the following section to
 `skoolkit.ini`::
 
   [tap2sna]
-  TraceLine={pc:05} {i}
+  TraceLine={PC:05} {i}
   TraceOperand=
 
 Configuration parameters may also be set on the command line by using the

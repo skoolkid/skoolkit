@@ -18,7 +18,7 @@ from functools import partial
 
 from skoolkit import SkoolKitError, open_file, write, write_line
 from skoolkit.basic import TextReader
-from skoolkit.simulator import A, F, D, E, H, L, IXh, IXl, PC, T, R1, FRAME_DURATION
+from skoolkit.simulator import A, F, D, E, H, L, IXh, IXl, PC, T, R1, REGISTERS, FRAME_DURATION
 from skoolkit.traceutils import disassemble
 
 DEC = tuple(tuple((
@@ -43,6 +43,13 @@ INC = tuple(tuple((
     ) for v in range(1, 257)
     ) for c in (0, 1)
 )
+
+class Registers:
+    def __init__(self, registers):
+        self.registers = registers
+
+    def __getitem__(self, key):
+        return self.registers[REGISTERS[key]]
 
 def get_edges(blocks, first_edge):
     edges = [first_edge]
@@ -152,13 +159,14 @@ class LoadTracer:
         accept_int = False
         if trace:
             tracefile = open_file(trace, 'w')
+            r = Registers(registers)
 
         while True:
             t0 = tstates
             if trace:
                 i = disassemble(memory, pc, prefix, byte_fmt, word_fmt)[0]
                 opcodes[memory[pc]]()
-                tracefile.write(trace_line.format(pc=pc, i=i))
+                tracefile.write(trace_line.format(PC=pc, i=i, r=r))
             else:
                 opcodes[memory[pc]]()
             tstates = registers[25]
