@@ -176,21 +176,29 @@ def set_z80_state(z80, *specs):
         except ValueError:
             raise SkoolKitError("Cannot parse integer: {}".format(spec))
 
-def print_state_help(short_option=None):
+def print_state_help(short_option=None, show_defaults=True):
     options = ['--state name=value']
     if short_option:
         options.insert(0, '-{} name=value'.format(short_option))
-    print("""
-Usage: {}
+    opts = ', '.join(options)
+    if show_defaults:
+        infix = 'and their default values '
+        border = issue2 = ' (default=0)'
+        iff = im = ' (default=1)'
+        tstates = ' (default=34943)'
+    else:
+        infix = border = issue2 = iff = im = tstates = ''
+    print(f"""
+Usage: {opts}
 
-Set a hardware state attribute. Recognised names and their default values are:
+Set a hardware state attribute. Recognised names {infix}are:
 
-  border  - border colour (default=0)
-  iff     - interrupt flip-flop: 0=disabled, 1=enabled (default=1)
-  im      - interrupt mode (default=1)
-  issue2  - issue 2 emulation: 0=disabled, 1=enabled (default=0)
-  tstates - T-states elapsed since start of frame (default=0)
-""".format(', '.join(options)).strip())
+  border  - border colour{border}
+  iff     - interrupt flip-flop: 0=disabled, 1=enabled{iff}
+  im      - interrupt mode{im}
+  issue2  - issue 2 emulation: 0=disabled, 1=enabled{issue2}
+  tstates - T-states elapsed since start of frame{tstates}
+""".strip())
 
 def make_z80_ram_block(data, page):
     block = []

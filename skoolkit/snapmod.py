@@ -1,4 +1,4 @@
-# Copyright 2015-2017 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2015-2017, 2023 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -78,7 +78,7 @@ def main(args):
         print_reg_help('r')
         return
     if 'help' in namespace.state:
-        print_state_help('s')
+        print_state_help('s', False)
         return
     infile = namespace.infile
     outfile = namespace.outfile

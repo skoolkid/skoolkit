@@ -72,14 +72,14 @@ The ``--state`` option sets a hardware state attribute.
 |
 |  ``--state name=value``
 
-Recognised attribute names and their default values are:
+Recognised attribute names are:
 
 |
-|  ``border``  - border colour (default=0)
-|  ``iff``     - interrupt flip-flop: 0=disabled, 1=enabled (default=1)
-|  ``im``      - interrupt mode (default=1)
-|  ``issue2``  - issue 2 emulation: 0=disabled, 1=enabled (default=0)
-|  ``tstates`` - T-states elapsed since start of frame (default=0)
+|  ``border``  - border colour
+|  ``iff``     - interrupt flip-flop: 0=disabled, 1=enabled
+|  ``im``      - interrupt mode
+|  ``issue2``  - issue 2 emulation: 0=disabled, 1=enabled
+|  ``tstates`` - T-states elapsed since start of frame
 
 EXAMPLES
 ========

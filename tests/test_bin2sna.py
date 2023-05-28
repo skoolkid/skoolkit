@@ -381,7 +381,7 @@ class Bin2SnaTest(SkoolKitTestCase):
               iff     - interrupt flip-flop: 0=disabled, 1=enabled (default=1)
               im      - interrupt mode (default=1)
               issue2  - issue 2 emulation: 0=disabled, 1=enabled (default=0)
-              tstates - T-states elapsed since start of frame (default=0)
+              tstates - T-states elapsed since start of frame (default=34943)
         """
         self.assertEqual(textwrap.dedent(exp_output).lstrip(), output)
 
