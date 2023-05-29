@@ -1452,7 +1452,7 @@ current working directory or in `~/.skoolkit`, if present. The recognised
 configuration parameters are:
 
 * ``TraceLine`` - the format of each line in the trace log file for a simulated
-  LOAD (default: ``${PC:04X} {i}``)
+  LOAD (default: ``${pc:04X} {i}``)
 * ``TraceOperand`` - the prefix, byte format, and word format for the numeric
   operands of instructions in the trace log file for a simulated LOAD,
   separated by commas (default: ``$,02X,04X``); the byte and word formats are
@@ -1463,30 +1463,40 @@ configuration parameters are:
 replacement fields:
 
 * ``i`` - the current instruction
-* ``PC`` - the address of the current instruction (program counter)
-* ``r[A]`` - the A register (accumulator)
-* ``r[F]`` - the F (flags) register
-* ``r[B]`` - the B register
-* ``r[C]`` - the C register
-* ``r[D]`` - the D register
-* ``r[E]`` - the E register
-* ``r[H]`` - the H register
-* ``r[L]`` - the L register
-* ``r[^A]`` - the A' register (shadow accumulator)
-* ``r[^F]`` - the F' (shadow flags) register
-* ``r[^B]`` - the shadow B register
-* ``r[^C]`` - the shadow C register
-* ``r[^D]`` - the shadow D register
-* ``r[^E]`` - the shadow E register
-* ``r[^H]`` - the shadow H register
-* ``r[^L]`` - the shadow L register
-* ``r[IXh]`` - the high byte of the IX register pair
-* ``r[IXl]`` - the low byte of the IX register pair
-* ``r[IYh]`` - the high byte of the IY register pair
-* ``r[IYl]`` - the low byte of the IY register pair
-* ``r[I]`` - the I register
-* ``r[R]`` - the R register
-* ``r[SP]`` - the stack pointer
+* ``pc`` - the address of the current instruction (program counter)
+* ``r[a]`` - the A register (accumulator)
+* ``r[f]`` - the F (flags) register
+* ``r[b]`` - the B register
+* ``r[c]`` - the C register
+* ``r[d]`` - the D register
+* ``r[e]`` - the E register
+* ``r[h]`` - the H register
+* ``r[l]`` - the L register
+* ``r[^a]`` - the A' register (shadow accumulator)
+* ``r[^f]`` - the F' (shadow flags) register
+* ``r[^b]`` - the shadow B register
+* ``r[^c]`` - the shadow C register
+* ``r[^d]`` - the shadow D register
+* ``r[^e]`` - the shadow E register
+* ``r[^h]`` - the shadow H register
+* ``r[^l]`` - the shadow L register
+* ``r[ixh]`` - the high byte of the IX register pair
+* ``r[ixl]`` - the low byte of the IX register pair
+* ``r[iyh]`` - the high byte of the IY register pair
+* ``r[iyl]`` - the low byte of the IY register pair
+* ``r[i]`` - the I register
+* ``r[r]`` - the R register
+* ``r[sp]`` - the stack pointer
+* ``r[t]`` - the current timestamp
+
+The current timestamp (``r[t]``) is the number of T-states that have elapsed
+since the start of the simulation, according to the simulator's internal clock.
+In order to maintain synchronisation with the tape being loaded, the
+simulator's clock is adjusted to match the timestamp of the first pulse in each
+block (as shown by the ``--tape-analysis`` option) when that block is reached.
+(The simulator's clock may at times become desynchronised with the tape
+because, by default, the tape is paused between blocks, and resumed when port
+254 is read.)
 
 Configuration parameters must appear in a ``[tap2sna]`` section. For example,
 to make `tap2sna.py` write instruction addresses and operands in a trace log
@@ -1494,7 +1504,7 @@ file in decimal format by default, add the following section to
 `skoolkit.ini`::
 
   [tap2sna]
-  TraceLine={PC:05} {i}
+  TraceLine={pc:05} {i}
   TraceOperand=
 
 Configuration parameters may also be set on the command line by using the

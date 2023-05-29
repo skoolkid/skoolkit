@@ -115,7 +115,7 @@ class Tap2SnaTest(SkoolKitTestCase):
     def test_config_read_from_file(self):
         ini = """
             [tap2sna]
-            TraceLine={PC} - {i}
+            TraceLine={pc} - {i}
         """
         self.write_text_file(dedent(ini).strip(), 'skoolkit.ini')
         self.run_tap2sna('in.tap out.z80')
@@ -135,7 +135,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertIsNone(options.tape_sum)
         self.assertEqual(options.user_agent, '')
         self.assertEqual([], options.params)
-        self.assertEqual(config['TraceLine'], '{PC} - {i}')
+        self.assertEqual(config['TraceLine'], '{pc} - {i}')
 
     def test_no_arguments(self):
         output, error = self.run_tap2sna(catch_exit=2)
@@ -207,7 +207,7 @@ class Tap2SnaTest(SkoolKitTestCase):
     def test_option_I_overrides_config_read_from_file(self):
         ini = """
             [tap2sna]
-            TraceLine=0x{PC:04x} {i}
+            TraceLine=0x{pc:04x} {i}
         """
         self.write_text_file(dedent(ini).strip(), 'skoolkit.ini')
         self.run_tap2sna('--ini TraceLine=Goodbye in.tap out.z80')
@@ -252,7 +252,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(error, '')
         exp_output = r"""
             [tap2sna]
-            TraceLine=${PC:04X} {i}
+            TraceLine=${pc:04X} {i}
             TraceOperand=$,02X,04X
         """
         self.assertEqual(dedent(exp_output).strip(), output.rstrip())
@@ -260,14 +260,14 @@ class Tap2SnaTest(SkoolKitTestCase):
     def test_option_show_config_read_from_file(self):
         ini = """
             [tap2sna]
-            TraceLine={PC:05} {i}
+            TraceLine={pc:05} {i}
         """
         self.write_text_file(dedent(ini).strip(), 'skoolkit.ini')
         output, error = self.run_tap2sna('--show-config', catch_exit=0)
         self.assertEqual(error, '')
         exp_output = """
             [tap2sna]
-            TraceLine={PC:05} {i}
+            TraceLine={pc:05} {i}
             TraceOperand=$,02X,04X
         """
         self.assertEqual(dedent(exp_output).strip(), output.rstrip())
@@ -2061,7 +2061,7 @@ class Tap2SnaTest(SkoolKitTestCase):
     def test_config_TraceLine_read_from_file(self):
         ini = """
             [tap2sna]
-            TraceLine={PC:05}: {i}
+            TraceLine={pc:05}: {i}
         """
         self.write_text_file(dedent(ini).strip(), 'skoolkit.ini')
         basic_data = [
@@ -2099,7 +2099,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         ]
         tapfile = self._write_tap(blocks)
         tracefile = '{}/sim-load.trace'.format(self.make_directory())
-        trace_line = '{PC:>5}:{i}'
+        trace_line = '{pc:>5}:{i}'
         args = f'--sim-load -I TraceLine={trace_line} -c trace={tracefile} --start 1343 -c finish-tape=1 {tapfile} out.z80'
         output, error = self.run_tap2sna(args)
         self.assertEqual(error, '')
@@ -2114,9 +2114,9 @@ class Tap2SnaTest(SkoolKitTestCase):
     def test_config_TraceLine_with_register_values(self):
         tapfile = self._write_tap([create_tap_header_block("prog", 10, 1, 0)])
         tracefile = '{}/sim-load.trace'.format(self.make_directory())
-        trace_line = "${PC:04X} {i:<13} AFBCDEHL={r[A]:02X}{r[F]:02X}{r[B]:02X}{r[C]:02X}{r[D]:02X}{r[E]:02X}{r[H]:02X}{r[L]:02X}"
-        trace_line += " AFBCDEHL'={r[^A]:02X}{r[^F]:02X}{r[^B]:02X}{r[^C]:02X}{r[^D]:02X}{r[^E]:02X}{r[^H]:02X}{r[^L]:02X}"
-        trace_line += " IX={r[IXh]:02X}{r[IXl]:02X} IY={r[IYh]:02X}{r[IYl]:02X} SP={r[SP]:04X} IR={r[I]:02X}{r[R]:02X}"
+        trace_line = "${pc:04X} {i:<13} AFBCDEHL={r[a]:02X}{r[f]:02X}{r[b]:02X}{r[c]:02X}{r[d]:02X}{r[e]:02X}{r[h]:02X}{r[l]:02X}"
+        trace_line += " AFBCDEHL'={r[^a]:02X}{r[^f]:02X}{r[^b]:02X}{r[^c]:02X}{r[^d]:02X}{r[^e]:02X}{r[^h]:02X}{r[^l]:02X}"
+        trace_line += " IX={r[ixh]:02X}{r[ixl]:02X} IY={r[iyh]:02X}{r[iyl]:02X} SP={r[sp]:04X} IR={r[i]:02X}{r[r]:02X} T={r[t]}"
         args = ('--sim-load', '-I', f'TraceLine={trace_line}', '-c', f'trace={tracefile}', '--start', '0x250E', tapfile, 'out.z80')
         tap2sna.main(args)
         self.assertEqual(self.err.getvalue(), '')
@@ -2124,12 +2124,12 @@ class Tap2SnaTest(SkoolKitTestCase):
         with open(tracefile, 'r') as f:
             trace_lines = f.read().rstrip().split('\n')
         self.assertEqual(len(trace_lines), 31)
-        self.assertEqual(trace_lines[0], "$0605 POP AF        AFBCDEHL=1B52000000000000 AFBCDEHL'=0000000000000000 IX=0000 IY=5C3A SP=FF52 IR=3F01")
-        self.assertEqual(trace_lines[1], "$0606 LD A,($5C74)  AFBCDEHL=E152000000000000 AFBCDEHL'=0000000000000000 IX=0000 IY=5C3A SP=FF52 IR=3F02")
-        self.assertEqual(trace_lines[2], "$0609 SUB $E0       AFBCDEHL=0102000000000000 AFBCDEHL'=0000000000000000 IX=0000 IY=5C3A SP=FF52 IR=3F03")
-        self.assertEqual(trace_lines[28], "$250A LD B,$00      AFBCDEHL=2261002200002597 AFBCDEHL'=0000000000000000 IX=0000 IY=5C3A SP=FF4C IR=3F1D")
-        self.assertEqual(trace_lines[29], "$250C LD C,(HL)     AFBCDEHL=2261001C00002597 AFBCDEHL'=0000000000000000 IX=0000 IY=5C3A SP=FF4C IR=3F1E")
-        self.assertEqual(trace_lines[30], "$250D ADD HL,BC     AFBCDEHL=2260001C000025B3 AFBCDEHL'=0000000000000000 IX=0000 IY=5C3A SP=FF4C IR=3F1F")
+        self.assertEqual(trace_lines[0], "$0605 POP AF        AFBCDEHL=1B52000000000000 AFBCDEHL'=0000000000000000 IX=0000 IY=5C3A SP=FF52 IR=3F01 T=10")
+        self.assertEqual(trace_lines[1], "$0606 LD A,($5C74)  AFBCDEHL=E152000000000000 AFBCDEHL'=0000000000000000 IX=0000 IY=5C3A SP=FF52 IR=3F02 T=23")
+        self.assertEqual(trace_lines[2], "$0609 SUB $E0       AFBCDEHL=0102000000000000 AFBCDEHL'=0000000000000000 IX=0000 IY=5C3A SP=FF52 IR=3F03 T=30")
+        self.assertEqual(trace_lines[28], "$250A LD B,$00      AFBCDEHL=2261002200002597 AFBCDEHL'=0000000000000000 IX=0000 IY=5C3A SP=FF4C IR=3F1D T=274")
+        self.assertEqual(trace_lines[29], "$250C LD C,(HL)     AFBCDEHL=2261001C00002597 AFBCDEHL'=0000000000000000 IX=0000 IY=5C3A SP=FF4C IR=3F1E T=281")
+        self.assertEqual(trace_lines[30], "$250D ADD HL,BC     AFBCDEHL=2260001C000025B3 AFBCDEHL'=0000000000000000 IX=0000 IY=5C3A SP=FF4C IR=3F1F T=292")
 
     @patch.object(tap2sna, '_write_z80', mock_write_z80)
     def test_config_TraceOperand(self):

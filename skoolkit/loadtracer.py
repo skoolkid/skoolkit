@@ -18,7 +18,8 @@ from functools import partial
 
 from skoolkit import SkoolKitError, open_file, write, write_line
 from skoolkit.basic import TextReader
-from skoolkit.simulator import A, F, D, E, H, L, IXh, IXl, PC, T, R1, REGISTERS, FRAME_DURATION
+from skoolkit.simulator import (A, F, B, C, D, E, H, L, IXh, IXl, IYh, IYl, SP, I, R,
+                                xA, xF, xB, xC, xD, xE, xH, xL, PC, T, R1, FRAME_DURATION)
 from skoolkit.traceutils import disassemble
 
 DEC = tuple(tuple((
@@ -43,6 +44,33 @@ INC = tuple(tuple((
     ) for v in range(1, 257)
     ) for c in (0, 1)
 )
+
+REGISTERS = {
+    'a': A,
+    'f': F,
+    'b': B,
+    'c': C,
+    'd': D,
+    'e': E,
+    'h': H,
+    'l': L,
+    'ixh': IXh,
+    'ixl': IXl,
+    'iyh': IYh,
+    'iyl': IYl,
+    'sp': SP,
+    'i': I,
+    'r': R,
+    '^a': xA,
+    '^f': xF,
+    '^b': xB,
+    '^c': xC,
+    '^d': xD,
+    '^e': xE,
+    '^h': xH,
+    '^l': xL,
+    't': T
+}
 
 class Registers:
     def __init__(self, registers):
@@ -183,7 +211,7 @@ class LoadTracer:
             if trace:
                 i = disassemble(memory, pc, prefix, byte_fmt, word_fmt)[0]
                 opcodes[memory[pc]]()
-                tracefile.write(trace_line.format(PC=pc, i=i, r=r))
+                tracefile.write(trace_line.format(pc=pc, i=i, r=r))
             else:
                 opcodes[memory[pc]]()
             tstates = registers[25]
