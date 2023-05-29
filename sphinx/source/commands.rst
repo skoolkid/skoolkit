@@ -1273,6 +1273,7 @@ To list the options supported by `tap2sna.py`, run it with no arguments::
 
   usage:
     tap2sna.py [options] INPUT snapshot.z80
+    tap2sna.py --tape-analysis [options] INPUT
     tap2sna.py @FILE
 
   Convert a TAP or TZX file (which may be inside a zip archive) into a Z80
@@ -1304,6 +1305,8 @@ To list the options supported by `tap2sna.py`, run it with no arguments::
     --state name=value    Set a hardware state attribute. Do '--state help' for
                           more information. This option may be used multiple
                           times.
+    --tape-analysis       Show an analysis of the tape's tones, pulse sequences
+                          and data blocks.
     --tape-name NAME      Specify the name of a TAP/TZX file in a zip archive.
     --tape-start BLOCK    Start the tape at this block number.
     --tape-stop BLOCK     Stop the tape at this block number.
@@ -1502,8 +1505,8 @@ Configuration parameters may also be set on the command line by using the
 | Version | Changes                                                           |
 +=========+===================================================================+
 | 8.10    | Configuration is read from `skoolkit.ini` if present; added the   |
-|         | ``--ini`` and ``--show-config`` options; added the                |
-|         | ``contended-in`` and ``finish-tape`` parameters for the           |
+|         | ``--ini``, ``--show-config`` and ``--tape-analysis`` options;     |
+|         | added the ``contended-in`` and ``finish-tape`` parameters for the |
 |         | ``--sim-load-config`` option; added the ``issue2`` hardware state |
 |         | attribute                                                         |
 +---------+-------------------------------------------------------------------+

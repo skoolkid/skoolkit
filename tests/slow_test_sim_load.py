@@ -2,41 +2,14 @@ from unittest.mock import patch
 
 from skoolkittest import (SkoolKitTestCase, create_data_block,
                           create_tap_header_block, create_tap_data_block,
-                          create_tzx_header_block, create_tzx_data_block)
+                          create_tzx_header_block, create_tzx_data_block,
+                          create_tzx_turbo_data_block, create_tzx_pure_data_block)
 from skoolkit import tap2sna, loadtracer, ROM48, read_bin_file
 
 def mock_write_z80(ram, namespace, z80):
     global snapshot, options
     snapshot = [0] * 16384 + ram
     options = namespace
-
-def create_tzx_turbo_data_block(data, zero=855, one=1710, used_bits=8):
-    block = [
-        0x11,                    # Block ID
-        120, 8,                  # Length of PILOT pulse (2168)
-        155, 2,                  # Length of first SYNC pulse (667)
-        223, 2,                  # Length of second SYNC pulse (735)
-        zero % 256, zero // 256, # Length of ZERO bit pulse
-        one % 256, one // 256,   # Length of ONE bit pulse
-        151, 12,                 # Length of PILOT tone (3223)
-        used_bits,               # Used bits in the last byte
-        0, 0,                    # Pause after this block (0)
-    ]
-    data_block = create_data_block(data)
-    block.extend((len(data_block) % 256, len(data_block) // 256, 0))
-    block.extend(data_block)
-    return block
-
-def create_tzx_pure_data_block(data, used_bits=8):
-    return [
-        0x14,            # Block ID
-        87, 3,           # 855 (length of 0-bit pulse)
-        174, 6,          # 1710 (length of 1-bit pulse)
-        used_bits,       # Used bits in the last byte
-        0, 0,            # Pause after this block (0)
-        len(data), 0, 0, # Data length
-        *data,           # Data
-    ]
 
 def get_loader(addr, bits=(0xB0, 0xCB)):
     rom = list(read_bin_file(ROM48, 0x0605))

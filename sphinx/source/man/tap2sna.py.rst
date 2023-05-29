@@ -7,6 +7,7 @@ tap2sna.py
 SYNOPSIS
 ========
 | ``tap2sna.py`` [options] INPUT snapshot.z80
+| ``tap2sna.py`` --tape-analysis [options] INPUT
 | ``tap2sna.py`` @FILE [args]
 
 DESCRIPTION
@@ -64,6 +65,9 @@ OPTIONS
   Set a hardware state attribute. Do ``--state help`` for more information, or
   see the section on ``HARDWARE STATE`` below. This option may be used multiple
   times.
+
+--tape-analysis
+  Show an analysis of the tape's tones, pulse sequences and data blocks.
 
 --tape-name NAME
   Specify the name of a TAP/TZX file in a zip archive. By default, the first

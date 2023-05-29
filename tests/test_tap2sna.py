@@ -8,7 +8,8 @@ from unittest.mock import patch, Mock
 
 from skoolkittest import (SkoolKitTestCase, Z80_REGISTERS, create_data_block,
                           create_tap_header_block, create_tap_data_block,
-                          create_tzx_header_block, create_tzx_data_block)
+                          create_tzx_header_block, create_tzx_data_block,
+                          create_tzx_turbo_data_block, create_tzx_pure_data_block)
 from skoolkit import tap2sna, VERSION, SkoolKitError
 from skoolkit.config import COMMANDS
 from skoolkit.snapshot import get_snapshot
@@ -138,6 +139,11 @@ class Tap2SnaTest(SkoolKitTestCase):
 
     def test_no_arguments(self):
         output, error = self.run_tap2sna(catch_exit=2)
+        self.assertEqual(output, '')
+        self.assertTrue(error.startswith('usage:'))
+
+    def test_one_argument(self):
+        output, error = self.run_tap2sna('in.tap', catch_exit=2)
         self.assertEqual(output, '')
         self.assertTrue(error.startswith('usage:'))
 
@@ -300,6 +306,128 @@ class Tap2SnaTest(SkoolKitTestCase):
         with open(z80file, 'rb') as f:
             z80_header = f.read(34)
         self.assertEqual(z80_header[32] + 256 * z80_header[33], start)
+
+    def test_option_tape_analysis_with_no_tape(self):
+        output, error = self.run_tap2sna('--tape-analysis', catch_exit=2)
+        self.assertEqual(output, '')
+        self.assertTrue(error.startswith('usage:'))
+
+    def test_option_tape_analysis_with_tape_and_snapshot(self):
+        output, error = self.run_tap2sna('--tape-analysis in.tap out.z80', catch_exit=2)
+        self.assertEqual(output, '')
+        self.assertTrue(error.startswith('usage:'))
+
+    def test_option_tape_analysis(self):
+        blocks = [
+            create_tap_header_block(start=0),
+            create_tap_data_block([4, 5, 6]),
+        ]
+        tapfile = self._write_tap(blocks)
+        output, error = self.run_tap2sna(f'--tape-analysis {tapfile}', catch_exit=0)
+        self.assertEqual(error, '')
+        exp_output = """
+            T-states    Description
+                 -2168  Tone (8063 x 2168 T-states)
+              17478416  Pulse (667 T-states)
+              17479083  Pulse (735 T-states)
+              17479818  Data (19 bytes; 855/1710 T-states)
+              17763678  Pause (3500000 T-states)
+              21263678  Tone (3223 x 2168 T-states)
+              28251142  Pulse (667 T-states)
+              28251809  Pulse (735 T-states)
+              28252544  Data (5 bytes; 855/1710 T-states)
+        """
+        self.assertEqual(dedent(exp_output).lstrip(), output)
+
+    def test_option_tape_analysis_with_tape_start(self):
+        blocks = [
+            create_tap_header_block(start=0),
+            create_tap_data_block([4, 5, 6]),
+        ]
+        tapfile = self._write_tap(blocks)
+        output, error = self.run_tap2sna(f'--tape-analysis --tape-start 2 {tapfile}', catch_exit=0)
+        self.assertEqual(error, '')
+        exp_output = """
+            T-states    Description
+                 -2168  Tone (3223 x 2168 T-states)
+               6985296  Pulse (667 T-states)
+               6985963  Pulse (735 T-states)
+               6986698  Data (5 bytes; 855/1710 T-states)
+        """
+        self.assertEqual(dedent(exp_output).lstrip(), output)
+
+    def test_option_tape_analysis_with_tape_stop(self):
+        blocks = [
+            create_tap_header_block(start=0),
+            create_tap_data_block([4, 5, 6]),
+        ]
+        tapfile = self._write_tap(blocks)
+        output, error = self.run_tap2sna(f'--tape-analysis --tape-stop 2 {tapfile}', catch_exit=0)
+        self.assertEqual(error, '')
+        exp_output = """
+            T-states    Description
+                 -2168  Tone (8063 x 2168 T-states)
+              17478416  Pulse (667 T-states)
+              17479083  Pulse (735 T-states)
+              17479818  Data (19 bytes; 855/1710 T-states)
+        """
+        self.assertEqual(dedent(exp_output).lstrip(), output)
+
+    def test_option_tape_analysis_with_first_edge(self):
+        blocks = [
+            create_tap_header_block(start=0),
+            create_tap_data_block([4, 5, 6]),
+        ]
+        tapfile = self._write_tap(blocks)
+        output, error = self.run_tap2sna(f'--tape-analysis -c first-edge=0 {tapfile}', catch_exit=0)
+        self.assertEqual(error, '')
+        exp_output = """
+            T-states    Description
+                     0  Tone (8063 x 2168 T-states)
+              17480584  Pulse (667 T-states)
+              17481251  Pulse (735 T-states)
+              17481986  Data (19 bytes; 855/1710 T-states)
+              17765846  Pause (3500000 T-states)
+              21265846  Tone (3223 x 2168 T-states)
+              28253310  Pulse (667 T-states)
+              28253977  Pulse (735 T-states)
+              28254712  Data (5 bytes; 855/1710 T-states)
+        """
+        self.assertEqual(dedent(exp_output).lstrip(), output)
+
+    def test_option_tape_analysis_with_unused_bits_in_last_byte(self):
+        code = [1, 2, 3, 4]
+        blocks = [create_tzx_turbo_data_block(code, used_bits=4)]
+        tapfile = self._write_tzx(blocks)
+        output, error = self.run_tap2sna(f'--tape-analysis {tapfile}', catch_exit=0)
+        self.assertEqual(error, '')
+        exp_output = """
+            T-states    Description
+                 -2168  Tone (3223 x 2168 T-states)
+               6985296  Pulse (667 T-states)
+               6985963  Pulse (735 T-states)
+               6986698  Data (5 bytes + 4 bits; 855/1710 T-states)
+        """
+        self.assertEqual(dedent(exp_output).lstrip(), output)
+
+    def test_option_tape_analysis_with_pure_tone_and_pause_and_pulse_sequence_and_pure_data(self):
+        blocks = []
+        blocks.append((18, 76, 4, 208, 7)) # 0x12 Pure Tone
+        blocks.append((32, 1, 0))          # 0x20 Pause
+        blocks.append((19, 2, 0, 1, 0, 2)) # 0x13 Pulse sequence
+        blocks.append(create_tzx_pure_data_block((1, 2, 3, 4), 500, 1000))
+        tapfile = self._write_tzx(blocks)
+        output, error = self.run_tap2sna(f'--tape-analysis {tapfile}', catch_exit=0)
+        self.assertEqual(error, '')
+        exp_output = """
+            T-states    Description
+                 -2168  Tone (2000 x 1100 T-states)
+               2197832  Pause (3500 T-states)
+               2201332  Pulse (256 T-states)
+               2201588  Pulse (512 T-states)
+               2202100  Data (4 bytes; 500/1000 T-states)
+        """
+        self.assertEqual(dedent(exp_output).lstrip(), output)
 
     @patch.object(tap2sna, '_write_z80', mock_write_z80)
     def test_option_tape_name(self):

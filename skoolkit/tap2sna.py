@@ -28,7 +28,7 @@ from skoolkit import (SkoolKitError, get_dword, get_int_param, get_object,
                       read_bin_file, warn, write_line, ROM48, VERSION)
 from skoolkit.config import get_config, show_config, update_options
 from skoolkit.loadsample import ACCELERATORS
-from skoolkit.loadtracer import LoadTracer
+from skoolkit.loadtracer import LoadTracer, get_edges
 from skoolkit.simulator import (Simulator, A, F, B, C, D, E, H, L, IXh, IXl, IYh, IYl,
                                 SP, I, R, xA, xF, xB, xC, xD, xE, xH, xL, PC)
 from skoolkit.snapshot import move, poke, print_reg_help, print_state_help, write_z80v3
@@ -310,6 +310,9 @@ def _set_sim_load_config(options):
 
 def sim_load(blocks, options, config):
     _set_sim_load_config(options)
+    if options.tape_analysis:
+        get_edges(blocks, options.first_edge, True)
+        sys.exit(0)
     if options.accelerator:
         accelerator = ACCELERATORS.get(options.accelerator)
         if options.accelerator != 'none' and accelerator is None:
@@ -877,7 +880,7 @@ def make_z80(url, options, z80, config):
 def main(args):
     config = get_config('tap2sna')
     parser = SkoolKitArgumentParser(
-        usage='\n  tap2sna.py [options] INPUT snapshot.z80\n  tap2sna.py @FILE',
+        usage='\n  tap2sna.py [options] INPUT snapshot.z80\n  tap2sna.py --tape-analysis [options] INPUT\n  tap2sna.py @FILE [args]',
         description="Convert a TAP or TZX file (which may be inside a zip archive) into a Z80 snapshot. "
                     "INPUT may be the full URL to a remote zip archive or TAP/TZX file, or the path to a local file. "
                     "Arguments may be read from FILE instead of (or as well as) being given on the command line.",
@@ -912,6 +915,8 @@ def main(args):
     group.add_argument('--state', dest='state', metavar='name=value', action='append', default=[],
                        help="Set a hardware state attribute. Do '--state help' for more information. "
                             "This option may be used multiple times.")
+    group.add_argument('--tape-analysis', action='store_true',
+                       help="Show an analysis of the tape's tones, pulse sequences and data blocks.")
     group.add_argument('--tape-name', metavar='NAME',
                        help="Specify the name of a TAP/TZX file in a zip archive.")
     group.add_argument('--tape-start', metavar='BLOCK', type=int, default=1,
@@ -939,6 +944,11 @@ def main(args):
     if 'help' in namespace.state:
         print_state_help()
         return
+    if namespace.tape_analysis:
+        if unknown_args or len(namespace.args) != 1:
+            parser.exit(2, parser.format_help())
+        namespace.args.append(None)
+        namespace.sim_load = True
     if unknown_args or len(namespace.args) != 2:
         parser.exit(2, parser.format_help())
     url, z80 = namespace.args
@@ -948,7 +958,7 @@ def main(args):
         namespace.reg.append('sp={}'.format(namespace.stack))
     if namespace.start is not None:
         namespace.reg.append('pc={}'.format(namespace.start))
-    if namespace.force or not os.path.isfile(z80):
+    if z80 is None or namespace.force or not os.path.isfile(z80):
         update_options('tap2sna', namespace, namespace.params, config)
         try:
             make_z80(url, namespace, z80, config)

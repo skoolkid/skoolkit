@@ -51,25 +51,40 @@ class Registers:
     def __getitem__(self, key):
         return self.registers[REGISTERS[key]]
 
-def get_edges(blocks, first_edge):
+def get_edges(blocks, first_edge, analyse=False):
     edges = [first_edge]
     indexes = []
     data_blocks = []
     tstates = first_edge
 
+    if analyse:
+        print('T-states    Description')
+
     for i, (timings, data) in enumerate(blocks):
         # Pilot tone
+        if analyse and timings.pilot_len:
+            print(f'{tstates:>10}  Tone ({timings.pilot_len} x {timings.pilot} T-states)')
         for n in range(timings.pilot_len):
             tstates += timings.pilot
             edges.append(tstates)
 
         # Sync pulses
         for s in timings.sync:
+            if analyse:
+                print(f'{tstates:>10}  Pulse ({s} T-states)')
             tstates += s
             edges.append(tstates)
 
         # Data
         if data:
+            if analyse:
+                if timings.used_bits < 8:
+                    bits = f' + {timings.used_bits} bits'
+                    data_len = len(data) - 1
+                else:
+                    bits = ''
+                    data_len = len(data)
+                print(f'{tstates:>10}  Data ({data_len} bytes{bits}; {timings.zero}/{timings.one} T-states)')
             while edges[0] < 0:
                 edges.pop(0)
             start = len(edges) - 1
@@ -97,6 +112,8 @@ def get_edges(blocks, first_edge):
 
         # Pause
         if i + 1 < len(blocks) and timings.pause:
+            if analyse:
+                print(f'{tstates:>10}  Pause ({timings.pause} T-states)')
             tstates += timings.pause
 
     return edges, indexes, data_blocks

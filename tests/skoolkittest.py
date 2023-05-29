@@ -73,6 +73,34 @@ def create_tzx_header_block(title='', start=0, length=0, data_type=3, pause=0):
     block.extend(data_block)
     return block
 
+def create_tzx_turbo_data_block(data, zero=855, one=1710, used_bits=8):
+    block = [
+        0x11,                    # Block ID
+        120, 8,                  # Length of PILOT pulse (2168)
+        155, 2,                  # Length of first SYNC pulse (667)
+        223, 2,                  # Length of second SYNC pulse (735)
+        zero % 256, zero // 256, # Length of ZERO bit pulse
+        one % 256, one // 256,   # Length of ONE bit pulse
+        151, 12,                 # Length of PILOT tone (3223)
+        used_bits,               # Used bits in the last byte
+        0, 0,                    # Pause after this block (0)
+    ]
+    data_block = create_data_block(data)
+    block.extend((len(data_block) % 256, len(data_block) // 256, 0))
+    block.extend(data_block)
+    return block
+
+def create_tzx_pure_data_block(data, zero=855, one=1710, used_bits=8):
+    return [
+        0x14,                    # Block ID
+        zero % 256, zero // 256, # Length of 0-bit pulse
+        one % 256, one // 256,   # Length of 1-bit pulse
+        used_bits,               # Used bits in the last byte
+        0, 0,                    # Pause after this block (0)
+        len(data), 0, 0,         # Data length
+        *data,                   # Data
+    ]
+
 class Stream:
     def __init__(self, binary=False):
         self._buffer = BytesIO() if binary else StringIO()
