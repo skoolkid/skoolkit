@@ -394,8 +394,13 @@ class SkoolKitTestCase(TestCase):
         ramp.extend(ram)
         return ramp
 
-    def write_szx(self, exp_ram, compress=True, machine_id=1, ch7ffd=0, pages={}, registers=None, border=0):
+    def write_szx(self, exp_ram, compress=True, machine_id=1, ch7ffd=0, pages={}, registers=None, border=0, keyb=False, issue2=0):
         szx = self._get_szx_header(machine_id, ch7ffd, border=border)
+        if keyb:
+            szx.extend((75, 69, 89, 66)) # KEYB
+            szx.extend((5, 0, 0, 0)) # Size
+            szx.extend((issue2, 0, 0, 0)) # dwFlags
+            szx.append(0) # chKeyboardJoystick
         if registers:
             szx.extend(self._get_zxstz80regs(registers))
         rampages = {5: self._get_zxstrampage(5, compress, exp_ram[:16384])}

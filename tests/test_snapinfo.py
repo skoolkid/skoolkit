@@ -54,13 +54,13 @@ class SnapinfoTest(SkoolKitTestCase):
         self.assertEqual(error, '')
         self.assertEqual('Z80 file: {}{}'.format(z80file, dedent(exp_output)), output)
 
-    def _test_szx(self, exp_output, registers=None, border=0, ram=None, compress=False, machine_id=1, ch7ffd=0, pages=None):
+    def _test_szx(self, exp_output, registers=None, border=0, keyb=False, issue2=0, ram=None, compress=False, machine_id=1, ch7ffd=0, pages=None):
         if ram is None:
             ram = [0] * 49152
         if machine_id > 1 and pages is None:
             bank = (0,) * 16384
             pages = {p: bank for p in (1, 3, 4, 6, 7)}
-        szxfile = self.write_szx(ram, compress, machine_id, ch7ffd, pages, registers, border)
+        szxfile = self.write_szx(ram, compress, machine_id, ch7ffd, pages, registers, border, keyb, issue2)
         output, error = self.run_snapinfo(szxfile)
         self.assertEqual(error, '')
         self.assertEqual(dedent(exp_output).lstrip(), output)
@@ -243,11 +243,13 @@ class SnapinfoTest(SkoolKitTestCase):
     def test_z80v1_uncompressed(self):
         header = list(range(16, 46))
         header[12] = 12 # BORDER 6, uncompressed RAM
+        header[29] |= 4 # Issue 2 emulation enabled
         exp_output = """
             Version: 1
             Machine: 48K Spectrum
             Interrupts: enabled
             Interrupt mode: 1
+            Issue 2 emulation: enabled
             Border: 6
             Registers:
               PC   5910 1716    SP   6424 1918
@@ -272,11 +274,13 @@ class SnapinfoTest(SkoolKitTestCase):
     def test_z80v1_compressed(self):
         header = list(range(16, 46))
         header[12] = 42 # BORDER 5, compressed RAM
+        header[29] |= 4 # Issue 2 emulation enabled
         exp_output = """
             Version: 1
             Machine: 48K Spectrum
             Interrupts: enabled
             Interrupt mode: 1
+            Issue 2 emulation: enabled
             Border: 5
             Registers:
               PC   5910 1716    SP   6424 1918
@@ -302,6 +306,7 @@ class SnapinfoTest(SkoolKitTestCase):
         header = list(range(30))
         header[6:8] = [0, 0] # Version 2+
         header[12] = 8 # BORDER 4
+        header[29] &= 251 # Issue 2 emulation disabled
         header.extend((23, 0)) # Remaining header length (version 2)
         header.extend((173, 222)) # PC=57005
         header.extend([0] * (header[-4] - 2))
@@ -310,6 +315,7 @@ class SnapinfoTest(SkoolKitTestCase):
             Machine: 48K Spectrum
             Interrupts: enabled
             Interrupt mode: 1
+            Issue 2 emulation: disabled
             Border: 4
             Registers:
               PC  57005 DEAD    SP   2312 0908
@@ -337,6 +343,7 @@ class SnapinfoTest(SkoolKitTestCase):
         header = list(range(30))
         header[6:8] = [0, 0] # Version 2+
         header[12] = 10 # BORDER 5
+        header[29] |= 4 # Issue 2 emulation enabled
         header.extend((23, 0)) # Remaining header length (version 2)
         header.extend((239, 190)) # PC=48879
         header.extend([0] * (header[-4] - 2))
@@ -345,6 +352,7 @@ class SnapinfoTest(SkoolKitTestCase):
             Machine: 48K Spectrum
             Interrupts: enabled
             Interrupt mode: 1
+            Issue 2 emulation: enabled
             Border: 5
             Registers:
               PC  48879 BEEF    SP   2312 0908
@@ -372,6 +380,7 @@ class SnapinfoTest(SkoolKitTestCase):
         header = list(range(30))
         header[6:8] = [0, 0] # Version 2+
         header[12] = 6 # BORDER 3
+        header[29] &= 251 # Issue 2 emulation disabled
         header.extend((54, 0)) # Remaining header length (version 3)
         header.extend((206, 250)) # PC=64206
         header += [0] * (header[-4] - 2)
@@ -381,6 +390,7 @@ class SnapinfoTest(SkoolKitTestCase):
             Machine: 48K Spectrum
             Interrupts: enabled
             Interrupt mode: 1
+            Issue 2 emulation: disabled
             T-states: 16958
             Border: 3
             Registers:
@@ -410,6 +420,7 @@ class SnapinfoTest(SkoolKitTestCase):
         header[6:8] = [0, 0] # Version 2+
         header[12] = 14 # BORDER 7
         header[28] = 0 # Interrupts disabled
+        header[29] |= 4 # Issue 2 emulation enabled
         header.extend((54, 0)) # Remaining header length (version 3)
         header.extend((183, 201)) # PC=51639
         header += [0] * (header[-4] - 2)
@@ -418,6 +429,7 @@ class SnapinfoTest(SkoolKitTestCase):
             Machine: 48K Spectrum
             Interrupts: disabled
             Interrupt mode: 1
+            Issue 2 emulation: enabled
             T-states: 34943
             Border: 7
             Registers:
@@ -446,6 +458,7 @@ class SnapinfoTest(SkoolKitTestCase):
         header = list(range(32, 62))
         header[6:8] = [0, 0] # Version 2+
         header[12] = 8 # BORDER 4
+        header[29] &= 251 # Issue 2 emulation disabled
         header.extend((54, 0)) # Remaining header length (version 3)
         header.extend((27, 101)) # PC=25883
         header.append(4) # 128K
@@ -457,6 +470,7 @@ class SnapinfoTest(SkoolKitTestCase):
             Machine: 128K Spectrum
             Interrupts: enabled
             Interrupt mode: 1
+            Issue 2 emulation: disabled
             T-states: 34943
             Border: 4
             Port $7FFD: 3 - bank 3 (block 6) paged into 49152-65535 C000-FFFF
@@ -491,6 +505,7 @@ class SnapinfoTest(SkoolKitTestCase):
         header = list(range(32, 62))
         header[6:8] = [0, 0] # Version 2+
         header[12] = 14 # BORDER 7
+        header[29] |= 4 # Issue 2 emulation enabled
         header.extend((54, 0)) # Remaining header length (version 3)
         header.extend((237, 254)) # PC=65261
         header.append(4) # 128K
@@ -503,6 +518,7 @@ class SnapinfoTest(SkoolKitTestCase):
             Machine: 128K Spectrum
             Interrupts: enabled
             Interrupt mode: 1
+            Issue 2 emulation: enabled
             T-states: 0
             Border: 7
             Port $7FFD: 3 - bank 3 (block 6) paged into 49152-65535 C000-FFFF
@@ -582,6 +598,8 @@ class SnapinfoTest(SkoolKitTestCase):
             SPCR: 8 bytes
               Border: 2
               Port $7FFD: 0 (bank 0 paged into 49152-65535 C000-FFFF)
+            KEYB: 5 bytes
+              Issue 2 emulation: disabled
             Z80R: 37 bytes
               Interrupts: disabled
               Interrupt mode: 1
@@ -605,7 +623,7 @@ class SnapinfoTest(SkoolKitTestCase):
               Page: 5
               RAM: 16384-32767 4000-7FFF: 39 bytes, compressed
         """
-        self._test_szx(exp_output, registers, border=2, compress=True, machine_id=0)
+        self._test_szx(exp_output, registers, border=2, keyb=True, issue2=0, compress=True, machine_id=0)
 
     def test_szx_48k_uncompressed(self):
         registers = list(range(26)) # Registers
@@ -619,6 +637,8 @@ class SnapinfoTest(SkoolKitTestCase):
             SPCR: 8 bytes
               Border: 3
               Port $7FFD: 0 (bank 0 paged into 49152-65535 C000-FFFF)
+            KEYB: 5 bytes
+              Issue 2 emulation: enabled
             Z80R: 37 bytes
               Interrupts: enabled
               Interrupt mode: 2
@@ -648,7 +668,7 @@ class SnapinfoTest(SkoolKitTestCase):
               Page: 5
               RAM: 16384-32767 4000-7FFF: 16384 bytes, uncompressed
         """
-        self._test_szx(exp_output, registers, border=3, compress=False)
+        self._test_szx(exp_output, registers, border=3, keyb=True, issue2=1, compress=False)
 
     def test_szx_48k_compressed(self):
         registers = list(range(26)) # Registers
@@ -705,6 +725,8 @@ class SnapinfoTest(SkoolKitTestCase):
             SPCR: 8 bytes
               Border: 6
               Port $7FFD: 1 (bank 1 paged into 49152-65535 C000-FFFF)
+            KEYB: 5 bytes
+              Issue 2 emulation: disabled
             Z80R: 37 bytes
               Interrupts: disabled
               Interrupt mode: 1
@@ -749,7 +771,7 @@ class SnapinfoTest(SkoolKitTestCase):
               Page: 7
               RAM: 16384 bytes, uncompressed
         """
-        self._test_szx(exp_output, registers, border=6, compress=False, machine_id=2, ch7ffd=1, pages=None)
+        self._test_szx(exp_output, registers, border=6, keyb=True, issue2=0, compress=False, machine_id=2, ch7ffd=1, pages=None)
 
     def test_szx_128k_compressed(self):
         registers = list(range(16, 42)) # Registers

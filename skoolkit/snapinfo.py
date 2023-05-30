@@ -195,6 +195,7 @@ def _analyse_z80(z80file, header, reg, ram_blocks):
     print('Machine: {}'.format(machine))
     print('Interrupts: {}abled'.format('en' if reg.iff2 else 'dis'))
     print('Interrupt mode: {}'.format(reg.im))
+    print('Issue 2 emulation: {}abled'.format('en' if header[29] & 4 else 'dis'))
     if version == 3:
         print(f'T-states: {reg.tstates}')
     print('Border: {}'.format((header[12] // 2) & 7))
@@ -291,6 +292,10 @@ def _parse_szx(szxfile):
 def _get_block_id(data, index):
     return ''.join([chr(b) for b in data[index:index+ 4]])
 
+def _print_keyb(block, variables):
+    issue2 = get_dword(block, 0) & 1
+    return ['Issue 2 emulation: {}abled'.format('en' if issue2 else 'dis')]
+
 def _print_ramp(block, variables):
     lines = []
     flags = get_word(block, 0)
@@ -328,6 +333,7 @@ def _print_z80r(reg):
     return lines + reg.get_lines()
 
 SZX_BLOCK_PRINTERS = {
+    'KEYB': _print_keyb,
     'RAMP': _print_ramp,
     'SPCR': _print_spcr,
     'Z80R': _print_z80r

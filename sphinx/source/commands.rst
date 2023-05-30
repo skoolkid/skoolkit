@@ -1188,7 +1188,8 @@ Configuration parameters may also be set on the command line by using the
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
-| 8.10    | Shows the value of the T-states counter in SZX and Z80 snapshots  |
+| 8.10    | Shows the value of the T-states counter and the issue 2 emulation |
+|         | flag in SZX and Z80 snapshots                                     |
 +---------+-------------------------------------------------------------------+
 | 8.4     | Added the ``Peek`` and ``Word`` configuration parameters          |
 +---------+-------------------------------------------------------------------+

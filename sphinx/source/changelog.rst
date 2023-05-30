@@ -12,6 +12,8 @@ Changelog
 * Added support to :ref:`bin2sna.py`, :ref:`snapmod.py` and :ref:`tap2sna.py`
   for setting the ``issue2`` hardware state attribute (to enable or disable
   issue 2 emulation)
+* Added support to :ref:`tap2sna.py` for loading tapes that end with a pulse
+  sequence instead of data
 * Added support to :ref:`tap2sna.py <tap2sna-conf>` for reading configuration
   from `skoolkit.ini`
 * Added the ``--ini`` and ``--show-config`` options to :ref:`tap2sna.py` (for
@@ -19,8 +21,8 @@ Changelog
   configuration parameter values)
 * Added the ``--tape-analysis`` option to :ref:`tap2sna.py` (for showing an
   analysis of the tape's tones, pulse sequences and data blocks)
-* :ref:`snapinfo.py` now shows the value of the T-states counter in SZX and Z80
-  snapshots
+* :ref:`snapinfo.py` now shows the value of the T-states counter and the issue
+  2 emulation flag in SZX and Z80 snapshots
 * Fixed the bug that prevents :ref:`snapinfo.py` from displaying the value of a
   floating-point number in a BASIC line when the accompanying numeric string is
   a single decimal point (``.``)
