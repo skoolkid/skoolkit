@@ -278,6 +278,7 @@ def _ram_operations(snapshot, ram_ops, blocks=None):
             raise SkoolKitError(f'Invalid operation: {spec}')
 
 def _set_sim_load_config(options):
+    options.accelerate_dec_a = 1
     options.accelerator = None
     options.contended_in = False
     options.fast_load = True
@@ -289,7 +290,9 @@ def _set_sim_load_config(options):
     for spec in options.sim_load_config:
         name, sep, value = spec.lower().partition('=')
         if sep:
-            if name == 'accelerator':
+            if name == 'accelerate-dec-a': # pragma: no cover
+                options.accelerate_dec_a = parse_int(value, options.accelerate_dec_a)
+            elif name == 'accelerator':
                 options.accelerator = value
             elif name == 'contended-in': # pragma: no cover
                 options.contended_in = parse_int(value, options.contended_in)
@@ -340,7 +343,8 @@ def sim_load(blocks, options, config):
         in_min_addr = 0x4000
     else:
         in_min_addr = 0x8000
-    tracer = LoadTracer(simulator, blocks, accelerator, options.pause, options.first_edge, options.finish_tape, in_min_addr)
+    tracer = LoadTracer(simulator, blocks, accelerator, options.pause, options.first_edge,
+                        options.finish_tape, in_min_addr, options.accelerate_dec_a)
     simulator.set_tracer(tracer, False, False)
     op_fmt = config['TraceOperand']
     prefix, byte_fmt, word_fmt = (op_fmt + ',' * (2 - op_fmt.count(','))).split(',')[:3]
@@ -797,7 +801,8 @@ def _print_sim_load_config_help():
     columns = [names[i:i + cl] for i in range(0, len(names), cl)]
     accelerators = '\n  '.join(''.join(n) for n in zip(*columns))
     print(f"""
-Usage: --sim-load-config accelerator=NAME
+Usage: --sim-load-config accelerate-dec-a=0/1/2
+       --sim-load-config accelerator=NAME
        --sim-load-config contended-in=0/1
        --sim-load-config fast-load=0/1
        --sim-load-config finish-tape=0/1
@@ -807,6 +812,11 @@ Usage: --sim-load-config accelerator=NAME
        --sim-load-config trace=FILE
 
 Configure various properties of a simulated LOAD.
+
+--sim-load-config accelerate-dec-a=0/1/2
+
+  Specify whether to accelerate 'DEC A: JR NZ,$-1' loops (1, the default), or
+  'DEC A: JP NZ,$-1' loops (2), or neither (0).
 
 --sim-load-config accelerator=NAME
 

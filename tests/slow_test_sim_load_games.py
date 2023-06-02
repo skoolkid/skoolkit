@@ -25,6 +25,21 @@ class SimLoadGamesTest(SkoolKitTestCase):
             }
             self.assertEqual(reg, rvals)
 
+    def test_accelerate_dec_a(self):
+        self._test_sim_load(
+            'https://worldofspectrum.net/pub/sinclair/games/c/CostaCapers.tzx.zip',
+            'Costa Capers.tzx',
+            '79a56e80c6262f059808b1e7a1c83d63',
+            '89c0d86319337b23ab6c90d5a5202118',
+            {
+                'AF,BC,DE,HL': '0202,B100,0000,00A5',
+                "AF',BC',DE',HL'": 'FF45,0017,5AFD,EBB5',
+                'PC,SP,IX,IY': '6802,5C00,EAEF,5C3A',
+                'IR,iff,im,border': '3F00,0,1,4'
+            },
+            '-c accelerate-dec-a=2 --start 26626'
+        )
+
     def test_alkatraz(self):
         self._test_sim_load(
             'https://worldofspectrum.net/pub/sinclair/games/f/Fairlight48V1.tzx.zip',

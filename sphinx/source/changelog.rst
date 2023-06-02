@@ -9,6 +9,9 @@ Changelog
 * Added the ``contended-in`` parameter for the ``--sim-load-config`` option of
   :ref:`tap2sna.py` (to specify whether to interpret 'IN A,($FE)' instructions
   in the address range $4000-$7FFF as reading the tape)
+* Added the ``accelerate-dec-a`` parameter for the ``--sim-load-config`` option
+  of :ref:`tap2sna.py` (to specify whether to accelerate 'DEC A: JR NZ,$-1'
+  delay loops)
 * Added support to :ref:`bin2sna.py`, :ref:`snapmod.py` and :ref:`tap2sna.py`
   for setting the ``issue2`` hardware state attribute (to enable or disable
   issue 2 emulation)

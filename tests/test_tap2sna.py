@@ -1949,7 +1949,7 @@ class Tap2SnaTest(SkoolKitTestCase):
     def test_sim_load_config_help(self):
         for option in ('-c', '--sim-load-config'):
             output, error = self.run_tap2sna(f'{option} help')
-            self.assertTrue(output.startswith('Usage: --sim-load-config accelerator=NAME\n'))
+            self.assertTrue(output.startswith('Usage: --sim-load-config accelerate-dec-a=0/1/2\n'))
             self.assertEqual(error, '')
 
     def test_default_state(self):

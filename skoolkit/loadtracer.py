@@ -147,10 +147,9 @@ def get_edges(blocks, first_edge, analyse=False):
     return edges, indexes, data_blocks
 
 class LoadTracer:
-    def __init__(self, simulator, blocks, accelerator, pause, first_edge, finish_tape, in_min_addr):
+    def __init__(self, simulator, blocks, accelerator, pause, first_edge, finish_tape, in_min_addr, accel_dec_a):
         self.simulator = simulator
         self.edges, self.indexes, self.blocks = get_edges(blocks, first_edge)
-        self.accelerator = accelerator
         self.pause = pause
         self.finish_tape = finish_tape
         self.in_min_addr = in_min_addr
@@ -158,8 +157,11 @@ class LoadTracer:
         opcodes = simulator.opcodes
         memory = simulator.memory
         registers = simulator.registers
+        if accel_dec_a == 1:
+            opcodes[0x3D] = partial(self.dec_a_jr, registers, memory)
+        elif accel_dec_a == 2: # pragma: no cover
+            opcodes[0x3D] = partial(self.dec_a_jp, registers, memory)
         if accelerator:
-            opcodes[0x3D] = partial(self.dec_a, registers, memory)
             if isinstance(accelerator, set):
                 inc_b_acc = []
                 for acc in accelerator:
@@ -279,7 +281,7 @@ class LoadTracer:
         if trace:
             tracefile.close()
 
-    def dec_a(self, registers, memory):
+    def dec_a_jr(self, registers, memory):
         # Speed up any
         #   LD_DELAY: DEC A
         #             JR NZ,LD_DELAY
@@ -298,6 +300,26 @@ class LoadTracer:
             registers[15] = R1[registers[15]]
             registers[25] += 4
             registers[24] = pcn % 65536
+
+    def dec_a_jp(self, registers, memory): # pragma: no cover
+        # Speed up any
+        #   LD_DELAY: DEC A
+        #             JP NZ,LD_DELAY
+        # loop, which is used in a few tape loading routines
+        a = registers[0]
+        pc = registers[24]
+        if a and memory[pc + 1:pc + 4] == [0xC2, pc % 256, pc // 256]:
+            registers[0] = 0
+            registers[1] = 0x42 + (registers[1] % 2)
+            r = registers[15]
+            registers[15] = (r & 0x80) + ((r + a * 2) % 128)
+            registers[25] += 14 * a
+            registers[24] = (pc + 4) % 65536
+        else:
+            registers[:2] = DEC[registers[1] % 2][a]
+            registers[15] = R1[registers[15]]
+            registers[25] += 4
+            registers[24] = (pc + 1) % 65536
 
     def dec_b(self, registers, memory, acc, code_len): # pragma: no cover
         # Speed up the tape-sampling loop with a loader-specific accelerator
