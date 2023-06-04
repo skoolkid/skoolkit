@@ -1365,6 +1365,8 @@ then::
 will create `game.z80` as if the arguments specified in `game.t2s` had been
 given on the command line.
 
+.. _tap2sna-sim-load:
+
 Simulated LOAD
 ^^^^^^^^^^^^^^
 An alternative to the ``--ram load`` approach is the ``--sim-load`` option. It
@@ -1394,10 +1396,10 @@ parameters are:
   (``1``, the default), or 'DEC A: JP NZ,$-1' delay loops (``2``), or neither
   (``0``)
 * ``accelerator`` - the tape-sampling loop accelerator to use (default:
-  automatically selected - see below); the loading time for a game with a
-  custom loader may be reduced either by specifying a particular accelerator by
-  name, or by disabling acceleration entirely (``accelerator=none``) if the
-  game uses an unrecognised tape-sampling loop
+  ``auto``); the loading time for a game with a custom loader may be reduced
+  either by specifying a particular accelerator by name, or by disabling
+  acceleration entirely (``accelerator=none``) if the game uses an unrecognised
+  tape-sampling loop
 * ``contended-in`` - interpret 'IN A,($FE)' instructions in the address range
   $4000-$7FFF as reading the tape (``1``), or ignore them (``0``, the default)
 * ``fast-load`` - enable fast loading (``1``, the default), or disable it
@@ -1424,6 +1426,7 @@ The names of the available tape-sampling loop accelerators are:
 
 * ``alkatraz`` (Alkatraz)
 * ``alkatraz2`` (Alkatraz 2)
+* ``auto`` (automatically selected accelerator)
 * ``bleepload`` (Firebird BleepLoad)
 * ``cyberlode`` (Cyberlode 1.1)
 * ``digital-integration`` (Digital Integration)
@@ -1521,9 +1524,11 @@ Configuration parameters may also be set on the command line by using the
 +=========+===================================================================+
 | 8.10    | Configuration is read from `skoolkit.ini` if present; added the   |
 |         | ``--ini``, ``--show-config`` and ``--tape-analysis`` options;     |
-|         | added the ``accelerate-dec-a``, ``contended-in`` and              |
-|         | ``finish-tape`` parameters for the ``--sim-load-config`` option;  |
-|         | added the ``issue2`` hardware state attribute                     |
+|         | added the ``TraceLine`` and ``TraceOperand`` configuration        |
+|         | parameters; added the ``accelerate-dec-a``, ``contended-in`` and  |
+|         | ``finish-tape`` simulated LOAD configuration parameters; added    |
+|         | the ``issue2`` hardware state attribute; added the ``auto``       |
+|         | tape-sampling loop accelerator name                               |
 +---------+-------------------------------------------------------------------+
 | 8.9     | Added the ``--sim-load-config``, ``--tape-name``,                 |
 |         | ``--tape-start``, ``--tape-stop`` and ``--tape-sum`` options;     |

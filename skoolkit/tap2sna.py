@@ -279,7 +279,7 @@ def _ram_operations(snapshot, ram_ops, blocks=None):
 
 def _set_sim_load_config(options):
     options.accelerate_dec_a = 1
-    options.accelerator = None
+    options.accelerator = 'auto'
     options.contended_in = False
     options.fast_load = True
     options.finish_tape = False
@@ -316,12 +316,14 @@ def sim_load(blocks, options, config):
     if options.tape_analysis:
         get_edges(blocks, options.first_edge, True)
         sys.exit(0)
-    if options.accelerator:
-        accelerator = ACCELERATORS.get(options.accelerator)
-        if options.accelerator != 'none' and accelerator is None:
-            raise SkoolKitError(f'Unrecognised accelerator: {options.accelerator}')
-    else:
+    if options.accelerator == 'auto':
         accelerator = set(ACCELERATORS.values())
+    elif options.accelerator == 'none': # pragma: no cover
+        accelerator = None
+    elif options.accelerator in ACCELERATORS: # pragma: no cover
+        accelerator = ACCELERATORS[options.accelerator]
+    else:
+        raise SkoolKitError(f'Unrecognised accelerator: {options.accelerator}')
     snapshot = [0] * 65536
     rom = read_bin_file(ROM48, 16384)
     snapshot[:len(rom)] = rom
@@ -818,7 +820,7 @@ Configure various properties of a simulated LOAD.
   Specify whether to accelerate 'DEC A: JR NZ,$-1' loops (1, the default), or
   'DEC A: JP NZ,$-1' loops (2), or neither (0).
 
---sim-load-config accelerator=NAME
+--sim-load-config accelerator=auto/none/NAME
 
   Use a specific accelerator to speed up the simulation of the tape-sampling
   loop in a loading routine, or disable acceleration entirely. (By default, an

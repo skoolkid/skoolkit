@@ -125,10 +125,10 @@ parameters are:
   (``1``, the default), or 'DEC A: JP NZ,$-1' delay loops (``2``), or neither
   (``0``)
 * ``accelerator`` - the tape-sampling loop accelerator to use (default:
-  automatically selected - see below); the loading time for a game with a
-  custom loader may be reduced either by specifying a particular accelerator by
-  name, or by disabling acceleration entirely (``accelerator=none``) if the
-  game uses an unrecognised tape-sampling loop
+  ``auto``); the loading time for a game with a custom loader may be reduced
+  either by specifying a particular accelerator by name, or by disabling
+  acceleration entirely (``accelerator=none``) if the game uses an unrecognised
+  tape-sampling loop
 * ``contended-in`` - interpret 'IN A,($FE)' instructions in the address range
   $4000-$7FFF as reading the tape (``1``), or ignore them (``0``, the default)
 * ``fast-load`` - enable fast loading (``1``, the default), or disable it
@@ -156,6 +156,7 @@ The names of the available tape-sampling loop accelerators are:
 |
 |  ``alkatraz`` - Alkatraz
 |  ``alkatraz2`` - Alkatraz 2
+|  ``auto`` - automatically selected accelerator
 |  ``bleepload`` - Firebird BleepLoad
 |  ``cyberlode`` - Cyberlode 1.1
 |  ``digital-integration`` - Digital Integration

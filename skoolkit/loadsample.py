@@ -145,8 +145,6 @@ ACCELERATORS = {
         0x20  # EAR mask
     ),
 
-    'none': None,
-
     'paul-owens': Accelerator(
         [
             0x04,       # LD_SAMPLE INC B          [4]

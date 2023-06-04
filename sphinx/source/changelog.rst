@@ -3,15 +3,19 @@ Changelog
 
 8.10b1
 ------
-* Added the ``finish-tape`` parameter for the ``--sim-load-config`` option of
-  :ref:`tap2sna.py` (to specify whether to finish the tape before stopping the
-  simulation at the given start address)
-* Added the ``contended-in`` parameter for the ``--sim-load-config`` option of
-  :ref:`tap2sna.py` (to specify whether to interpret 'IN A,($FE)' instructions
-  in the address range $4000-$7FFF as reading the tape)
-* Added the ``accelerate-dec-a`` parameter for the ``--sim-load-config`` option
-  of :ref:`tap2sna.py` (to specify whether to accelerate 'DEC A: JR NZ,$-1'
-  delay loops)
+* Added the ``finish-tape`` simulated LOAD configuration parameter to
+  :ref:`tap2sna.py <tap2sna-sim-load>` (to specify whether to finish the tape
+  before stopping the simulation at the given start address)
+* Added the ``contended-in`` simulated LOAD configuration parameter to
+  :ref:`tap2sna.py <tap2sna-sim-load>` (to specify whether to interpret
+  'IN A,($FE)' instructions in the address range $4000-$7FFF as reading the
+  tape)
+* Added the ``accelerate-dec-a`` simulated LOAD configuration parameter to
+  :ref:`tap2sna.py <tap2sna-sim-load>` (to specify whether to accelerate
+  'DEC A: JR NZ,$-1' or 'DEC A: JP NZ,$-1' delay loops)
+* Added the ``auto`` tape-sampling loop accelerator name for use with the
+  ``accelerator`` simulated LOAD configuration parameter of
+  :ref:`tap2sna.py <tap2sna-sim-load>`
 * Added support to :ref:`bin2sna.py`, :ref:`snapmod.py` and :ref:`tap2sna.py`
   for setting the ``issue2`` hardware state attribute (to enable or disable
   issue 2 emulation)
@@ -22,6 +26,9 @@ Changelog
 * Added the ``--ini`` and ``--show-config`` options to :ref:`tap2sna.py` (for
   setting the value of a configuration parameter and for showing all
   configuration parameter values)
+* Added support to :ref:`tap2sna.py <tap2sna-conf>` for configuring the format
+  of a simulated LOAD trace log file via the ``TraceLine`` and ``TraceOperand``
+  configuration parameters
 * Added the ``--tape-analysis`` option to :ref:`tap2sna.py` (for showing an
   analysis of the tape's tones, pulse sequences and data blocks)
 * :ref:`snapinfo.py` now shows the value of the T-states counter and the issue
