@@ -13,6 +13,10 @@ Changelog
 * Added the ``accelerate-dec-a`` simulated LOAD configuration parameter to
   :ref:`tap2sna.py <tap2sna-sim-load>` (to specify whether to accelerate
   'DEC A: JR NZ,$-1' or 'DEC A: JP NZ,$-1' delay loops)
+* Added the ``alternative``, ``crl``, ``cybexlab``, ``design-design``,
+  ``raxoft``, ``suzy-soft``, ``tiny``, ``us-gold`` and ``weird-science``
+  tape-sampling loop accelerators for use with
+  :ref:`tap2sna.py <tap2sna-sim-load>`
 * Added the ``auto`` tape-sampling loop accelerator name for use with the
   ``accelerator`` simulated LOAD configuration parameter of
   :ref:`tap2sna.py <tap2sna-sim-load>`
