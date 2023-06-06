@@ -85,6 +85,21 @@ class SimLoadGamesTest(SkoolKitTestCase):
             '-c accelerator=alternative --start 64723'
         )
 
+    def test_alternative2(self):
+        self._test_sim_load(
+            'https://worldofspectrum.net/pub/sinclair/games/k/KentuckyRacing.tzx.zip',
+            'Kentucky Racing.tzx',
+            'ff94b9f96368ad69e684c6f478d5dc6f',
+            'ee34d8c9d33a22a643263c574ac3c879',
+            {
+                'AF,BC,DE,HL': '0093,B05D,0000,008F',
+                "AF',BC',DE',HL'": '5D4D,1621,369B,2758',
+                'PC,SP,IX,IY': 'FB8C,FFFF,E800,5C3A',
+                'IR,iff,im,border': '3F00,0,1,0'
+            },
+            '-c accelerator=alternative2 --start 64396'
+        )
+
     def test_basil_the_great_mouse_detective(self):
         # The loader for this game is polarity-sensitive
         self._test_sim_load(
@@ -114,6 +129,21 @@ class SimLoadGamesTest(SkoolKitTestCase):
                 'IR,iff,im,border': '3F00,0,1,1'
             },
             '-c pause=0 -c accelerator=rom --start 27078'
+        )
+
+    def test_boguslaw_juza(self):
+        self._test_sim_load(
+            'https://worldofspectrum.net/pub/sinclair/games/e/EuroBiznes.tzx.zip',
+            'EuroBiznes.tzx',
+            '9c2455c074bd1478bd3f6c624344b461',
+            'd802044c00541ea2cb62c5078a9c0ecd',
+            {
+                'AF,BC,DE,HL': '0093,B07E,0000,0050',
+                "AF',BC',DE',HL'": '7E6D,0614,FF38,2758',
+                'PC,SP,IX,IY': '5DF8,61A8,0000,5C3A',
+                'IR,iff,im,border': '3F00,1,1,1'
+            },
+            '-c accelerator=boguslaw-juza --start 24056'
         )
 
     def test_cattell_iq_test(self):
@@ -178,6 +208,51 @@ class SimLoadGamesTest(SkoolKitTestCase):
             '-c accelerator=crl --start 65142'
         )
 
+    def test_crl2(self):
+        self._test_sim_load(
+            'https://worldofspectrum.net/pub/sinclair/games/t/Terrahawks.tzx.zip',
+            'Terrahawks.tzx',
+            '40a3dc51627dca710eaec1107cbcbca7',
+            '036705b82022048769233de40a44ef38',
+            {
+                'AF,BC,DE,HL': '0093,BEDA,0000,0020',
+                "AF',BC',DE',HL'": '0044,7F00,369B,2758',
+                'PC,SP,IX,IY': 'EFFD,FFDC,FF1C,5C3A',
+                'IR,iff,im,border': '3F00,0,1,2'
+            },
+            '-c accelerator=crl2 --start 61437'
+        )
+
+    def test_crl3(self):
+        self._test_sim_load(
+            'https://worldofspectrum.net/pub/sinclair/games/o/Oink.tzx.zip',
+            'Oink.tzx',
+            '504ce9f5cdb173aaa523098842e9814d',
+            'dee8037bcaf611c0dfb197bf5cc57835',
+            {
+                'AF,BC,DE,HL': '0093,B05F,0000,00CB',
+                "AF',BC',DE',HL'": '5F4D,0100,48B6,59B5',
+                'PC,SP,IX,IY': '8045,0000,B537,5C3A',
+                'IR,iff,im,border': '3F00,0,1,0'
+            },
+            '-c accelerator=crl3 --tape-stop 8 --start 32837'
+        )
+
+    def test_crl4(self):
+        self._test_sim_load(
+            'https://worldofspectrum.net/pub/sinclair/games/q/QuannTulla(Federation)(CRLGroupPLC).tzx.zip',
+            'Federation.tzx',
+            '0a2a9400b9f131f2b5f69e2d2b396924',
+            '2fc01c8fc85b2d411d1d1411aa17ef13',
+            {
+                'AF,BC,DE,HL': '0093,B020,0000,0097',
+                "AF',BC',DE',HL'": '2065,0721,369B,2758',
+                'PC,SP,IX,IY': '5B3E,5DA8,0000,5C3A',
+                'IR,iff,im,border': '3F00,1,1,0'
+            },
+            '-c accelerator=crl4 --start 23358'
+        )
+
     def test_cyberlode_1_1(self):
         self._test_sim_load(
             'https://worldofspectrum.net/pub/sinclair/games/c/Cauldron(SilverbirdSoftwareLtd).tzx.zip',
@@ -208,6 +283,21 @@ class SimLoadGamesTest(SkoolKitTestCase):
             '-c accelerator=cybexlab -c finish-tape=1 --start 1343'
         )
 
+    def test_d_and_h(self):
+        self._test_sim_load(
+            'https://worldofspectrum.net/pub/sinclair/games/m/Multi-PlayerSoccerManager.tzx.zip',
+            'Multi-Player Soccer Manager.tzx',
+            'fb7990e3321646e5e8ec803a085bdd6c',
+            'dd711e1c1513580185c0b270ab5aa17a',
+            {
+                'AF,BC,DE,HL': '0093,C427,0000,0039',
+                "AF',BC',DE',HL'": '2765,1621,369B,2758',
+                'PC,SP,IX,IY': 'FE0E,0000,FDFD,5C3A',
+                'IR,iff,im,border': '3F00,0,1,0'
+            },
+            '-c accelerator=d-and-h --start 65038'
+        )
+
     def test_design_design(self):
         self._test_sim_load(
             'https://worldofspectrum.net/pub/sinclair/games/r/RommelsRevenge.tzx.zip',
@@ -233,7 +323,7 @@ class SimLoadGamesTest(SkoolKitTestCase):
                 'AF,BC,DE,HL': 'B342,FFF1,B35C,0000',
                 "AF',BC',DE',HL'": 'FF45,0000,369B,FFF2',
                 'PC,SP,IX,IY': 'E005,FFFE,FC69,FFD1',
-                'IR,iff,im,border': '3980,0,2,6'
+                'IR,iff,im,border': '3900,0,2,6'
             },
             '-c accelerator=digital-integration --start 57349'
         )
@@ -293,7 +383,7 @@ class SimLoadGamesTest(SkoolKitTestCase):
                 'AF,BC,DE,HL': '0193,D4FE,0000,00D2',
                 "AF',BC',DE',HL'": '0044,1621,369B,0000',
                 'PC,SP,IX,IY': 'FFD4,0000,FF10,9B21',
-                'IR,iff,im,border': 'FF80,0,1,1'
+                'IR,iff,im,border': 'FF00,0,1,1'
             },
             '-c accelerator=excelerator --start 65492'
         )
@@ -389,6 +479,21 @@ class SimLoadGamesTest(SkoolKitTestCase):
             '-c accelerator=gremlin --start 26807'
         )
 
+    def test_gremlin2(self):
+        self._test_sim_load(
+            'https://worldofspectrum.net/pub/sinclair/games/s/SuperCars.tzx.zip',
+            'Super Cars - Side 2.tzx',
+            'df563b00e1e147ef48582025943e974c',
+            'e8d745af94efd22fefc0f47c04075288',
+            {
+                'AF,BC,DE,HL': '0093,B0BE,0000,CCEE',
+                "AF',BC',DE',HL'": 'FF45,1621,369B,2758',
+                'PC,SP,IX,IY': 'A0EB,FFFA,CCEE,5C3A',
+                'IR,iff,im,border': '3F00,0,1,6'
+            },
+            '-c accelerator=gremlin2 -c accelerate-dec-a=2 --start 41195'
+        )
+
     def test_haxpoc_lock(self):
         self._test_sim_load(
             'https://worldofspectrum.net/pub/sinclair/games/s/StarWarsV1.tzx.zip',
@@ -443,7 +548,7 @@ class SimLoadGamesTest(SkoolKitTestCase):
                 'AF,BC,DE,HL': '0044,0000,0000,FFE1',
                 "AF',BC',DE',HL'": '0044,1621,369B,0000',
                 'PC,SP,IX,IY': '5B00,0000,FF19,9B21',
-                'IR,iff,im,border': 'FF80,0,1,0'
+                'IR,iff,im,border': 'FF00,0,1,0'
             },
             '-c accelerator=injectaload --start 23296'
         )
@@ -479,6 +584,21 @@ class SimLoadGamesTest(SkoolKitTestCase):
             '-c first-edge=0 --start 43657'
         )
 
+    def test_microprose(self):
+        self._test_sim_load(
+            'https://worldofspectrum.net/pub/sinclair/games/f/F-15StrikeEagle.tzx.zip',
+            'F15 Strike Eagle.tzx',
+            'c1283db376aef223855ca945af63686a',
+            '5b0007ebb7110d5463420b7f95e53cc1',
+            {
+                'AF,BC,DE,HL': '0050,0021,0000,AE01',
+                "AF',BC',DE',HL'": '0042,1421,0000,0000',
+                'PC,SP,IX,IY': 'F6A6,FF50,E080,5C3A',
+                'IR,iff,im,border': '3F00,0,1,1'
+            },
+            '-c accelerator=microprose --start 63142'
+        )
+
     def test_microsphere(self):
         self._test_sim_load(
             'https://worldofspectrum.net/pub/sinclair/games/s/SkoolDaze.tzx.zip',
@@ -507,6 +627,21 @@ class SimLoadGamesTest(SkoolKitTestCase):
                 'IR,iff,im,border': '3F00,1,1,6'
             },
             '-c accelerator=rom --start 61671'
+        )
+
+    def test_micro_style(self):
+        self._test_sim_load(
+            'https://worldofspectrum.net/pub/sinclair/games/x/Xenophobe.tzx.zip',
+            'Xenophobe - Side A.tzx',
+            '0154dc65b6395b35b2dd8bd9f9394c20',
+            '8ab87d9b2ea6375d5da696802e5ff6b2',
+            {
+                'AF,BC,DE,HL': '0044,BCF8,8900,0000',
+                "AF',BC',DE',HL'": 'FF45,1621,369B,2758',
+                'PC,SP,IX,IY': 'FE66,FFFE,6300,9600',
+                'IR,iff,im,border': '3F00,0,1,0'
+            },
+            '-c accelerator=micro-style --start 65126'
         )
 
     def test_out_of_the_shadows(self):
@@ -585,6 +720,21 @@ class SimLoadGamesTest(SkoolKitTestCase):
             '-c accelerator=raxoft --start 64851'
         )
 
+    def test_realtime(self):
+        self._test_sim_load(
+            'https://worldofspectrum.net/pub/sinclair/games/s/StarstrikeII.tzx.zip',
+            'Starstrike II.tzx',
+            'f0f757d9b9879227d729d45c786a09dc',
+            '3e26307a6e09789f106846b30e1d0b43',
+            {
+                'AF,BC,DE,HL': '0093,B07F,0000,0025',
+                "AF',BC',DE',HL'": '0809,1221,0000,0000',
+                'PC,SP,IX,IY': 'FFC0,0000,FF00,5C3A',
+                'IR,iff,im,border': '3F00,0,1,0'
+            },
+            '-c accelerator=realtime --start 65472'
+        )
+
     def test_sam_stoat_safebreaker(self):
         self._test_sim_load(
             'https://worldofspectrum.net/pub/sinclair/games/s/SamStoatSafebreaker.tzx.zip',
@@ -595,7 +745,7 @@ class SimLoadGamesTest(SkoolKitTestCase):
                 'AF,BC,DE,HL': '0042,C4DE,0000,0009',
                 "AF',BC',DE',HL'": 'D30D,421A,D844,FFD8',
                 'PC,SP,IX,IY': 'FCD2,FF56,FB00,FCFB',
-                'IR,iff,im,border': '3F80,0,2,0'
+                'IR,iff,im,border': '3F00,0,2,0'
             },
             '-c first-edge=0 -c accelerator=speedlock --start 64722'
         )
@@ -632,6 +782,21 @@ class SimLoadGamesTest(SkoolKitTestCase):
             '-c finish-tape=1 --start 23874'
         )
 
+    def test_silverbird(self):
+        self._test_sim_load(
+            'https://worldofspectrum.net/pub/sinclair/games/h/Halloween.tzx.zip',
+            'Olli & Lissa 2 - Halloween.tzx',
+            '476b60c17a8636eaebf7e3b67915a5e2',
+            '30572b5fdfa08dea33ad1cd91bd46ef6',
+            {
+                'AF,BC,DE,HL': '0054,B03E,0000,002E',
+                "AF',BC',DE',HL'": '0044,1621,369B,2758',
+                'PC,SP,IX,IY': 'D9E9,D9B7,0000,D9D4',
+                'IR,iff,im,border': '3F00,0,1,0'
+            },
+            '-c accelerator=silverbird --start 55785'
+        )
+
     def test_sinclair_user(self):
         self._test_sim_load(
             'https://worldofspectrum.net/pub/sinclair/games/p/PiecesOfEight.tzx.zip',
@@ -657,9 +822,24 @@ class SimLoadGamesTest(SkoolKitTestCase):
                 'AF,BC,DE,HL': '0018,1721,0000,50E0',
                 "AF',BC',DE',HL'": 'FF29,0221,369B,2758',
                 'PC,SP,IX,IY': 'C223,FFFD,C7B6,5C3A',
-                'IR,iff,im,border': '3F80,1,1,0'
+                'IR,iff,im,border': '3F00,1,1,0'
             },
             '-c accelerator=softlock --start 49699'
+        )
+
+    def test_sparklers(self):
+        self._test_sim_load(
+            'https://worldofspectrum.net/pub/sinclair/games/b/BargainBasement.tzx.zip',
+            'Bargain Basement.tzx',
+            'f9386e944959edc4b732734ab1f0ea6c',
+            '790bbd076151309aac4151e10354a9de',
+            {
+                'AF,BC,DE,HL': '0093,C401,0000,00F4',
+                "AF',BC',DE',HL'": '0144,C9AC,369B,0000',
+                'PC,SP,IX,IY': 'FE99,6393,E54C,3E00',
+                'IR,iff,im,border': '3F00,0,1,1'
+            },
+            '-c accelerator=sparklers --start 65177'
         )
 
     def test_speedlock_1(self):
@@ -672,7 +852,7 @@ class SimLoadGamesTest(SkoolKitTestCase):
                 'AF,BC,DE,HL': 'C340,0000,FEFE,C003',
                 "AF',BC',DE',HL'": 'D309,0000,EDFA,2758',
                 'PC,SP,IX,IY': 'C000,FFFF,E86C,5C3A',
-                'IR,iff,im,border': 'FD80,0,2,0'
+                'IR,iff,im,border': 'FD00,0,2,0'
             },
             '-c accelerator=speedlock --start 49152'
         )
@@ -826,6 +1006,21 @@ class SimLoadGamesTest(SkoolKitTestCase):
                 'IR,iff,im,border': '3F00,0,1,3'
             },
             '-c accelerator=suzy-soft --start 65517'
+        )
+
+    def test_suzy_soft2(self):
+        self._test_sim_load(
+            'https://worldofspectrum.net/pub/sinclair/games/w/WesternGirl.tzx.zip',
+            'WesternGirl.tzx',
+            '19d2656557386e4f2267bc415019ab89',
+            '1c73ccc1073c0b3c7162dbf077ee4935',
+            {
+                'AF,BC,DE,HL': '0150,00DD,019D,FF01',
+                "AF',BC',DE',HL'": 'FF81,0000,5A0A,8106',
+                'PC,SP,IX,IY': 'FFED,0000,8328,839C',
+                'IR,iff,im,border': '3F00,0,1,4'
+            },
+            '-c accelerator=suzy-soft2 --start 65517'
         )
 
     def test_technician_ted(self):

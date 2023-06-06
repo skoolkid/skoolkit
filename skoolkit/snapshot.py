@@ -125,8 +125,11 @@ def set_z80_registers(z80, *specs):
                     z80[offset] = lsb
                 elif size == 2:
                     z80[offset:offset + 2] = [lsb, msb]
-                if reg == 'r' and lsb & 128:
-                    z80[12] |= 1
+                if reg == 'r':
+                    if lsb & 128:
+                        z80[12] |= 1
+                    else:
+                        z80[12] &= 254
             else:
                 raise SkoolKitError('Invalid register: {}'.format(spec))
 

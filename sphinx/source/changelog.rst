@@ -13,10 +13,12 @@ Changelog
 * Added the ``accelerate-dec-a`` simulated LOAD configuration parameter to
   :ref:`tap2sna.py <tap2sna-sim-load>` (to specify whether to accelerate
   'DEC A: JR NZ,$-1' or 'DEC A: JP NZ,$-1' delay loops)
-* Added the ``alternative``, ``crl``, ``cybexlab``, ``design-design``,
-  ``raxoft``, ``suzy-soft``, ``tiny``, ``us-gold`` and ``weird-science``
-  tape-sampling loop accelerators for use with
-  :ref:`tap2sna.py <tap2sna-sim-load>`
+* Added the ``alternative``, ``alternative2``, ``boguslaw-juza``, ``crl``,
+  ``crl2``, ``crl3``, ``crl4``, ``cybexlab``, ``d-and-h``, ``design-design``,
+  ``gremlin2``, ``microprose``, ``micro-style``, ``raxoft``, ``realtime``,
+  ``silverbird``, ``sparklers``, ``suzy-soft``, ``suzy-soft2``, ``tiny``,
+  ``us-gold`` and ``weird-science`` tape-sampling loop accelerators for use
+  with :ref:`tap2sna.py <tap2sna-sim-load>`
 * Added the ``auto`` tape-sampling loop accelerator name for use with the
   ``accelerator`` simulated LOAD configuration parameter of
   :ref:`tap2sna.py <tap2sna-sim-load>`
@@ -40,6 +42,8 @@ Changelog
 * Fixed the bug that prevents :ref:`snapinfo.py` from displaying the value of a
   floating-point number in a BASIC line when the accompanying numeric string is
   a single decimal point (``.``)
+* Fixed how the value of the R register is set in a Z80 snapshot when bit 7 is
+  reset
 
 8.9 (2023-02-19)
 ----------------
