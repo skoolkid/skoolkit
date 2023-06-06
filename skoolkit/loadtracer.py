@@ -14,6 +14,7 @@
 # You should have received a copy of the GNU General Public License along with
 # SkoolKit. If not, see <http://www.gnu.org/licenses/>.
 
+from collections import defaultdict
 from functools import partial
 
 from skoolkit import SkoolKitError, open_file, write, write_line
@@ -147,7 +148,9 @@ def get_edges(blocks, first_edge, analyse=False):
     return edges, indexes, data_blocks
 
 class LoadTracer:
-    def __init__(self, simulator, blocks, accelerator, pause, first_edge, finish_tape, in_min_addr, accel_dec_a):
+    def __init__(self, simulator, blocks, accelerator, pause, first_edge, finish_tape, in_min_addr, accel_dec_a, list_accelerators):
+        self.accelerators = defaultdict(int)
+        self.misses = 0
         self.simulator = simulator
         self.edges, self.indexes, self.blocks = get_edges(blocks, first_edge)
         self.pause = pause
@@ -167,10 +170,16 @@ class LoadTracer:
                 for acc in accelerator:
                     if acc and acc.opcode == 0x05:
                         # There is exactly one accelerator that uses 'DEC B'
-                        opcodes[0x05] = partial(self.dec_b, registers, memory, acc, len(acc.code))
+                        if list_accelerators: # pragma: no cover
+                            opcodes[0x05] = partial(self.dec_b_list, registers, memory, acc, len(acc.code))
+                        else:
+                            opcodes[0x05] = partial(self.dec_b, registers, memory, acc, len(acc.code))
                     elif acc:
                         inc_b_acc.append(acc)
-                opcodes[0x04] = partial(self.inc_b_auto, registers, memory, inc_b_acc)
+                if list_accelerators: # pragma: no cover
+                    opcodes[0x04] = partial(self.inc_b_auto_list, registers, memory, inc_b_acc)
+                else:
+                    opcodes[0x04] = partial(self.inc_b_auto, registers, memory, inc_b_acc)
             else: # pragma: no cover
                 if accelerator.opcode == 0x05:
                     method = self.dec_b
@@ -278,6 +287,14 @@ class LoadTracer:
                     write_line(f'Simulation stopped (timed out): PC={pc}')
                     break
 
+        if self.accelerators or self.misses: # pragma: no cover
+            write('Accelerators: ')
+            if self.accelerators:
+                write('; '.join(f'{k} ({v})' for k, v in self.accelerators.items()))
+            else:
+                write('none')
+            write_line(f'; misses: {self.misses}')
+
         if trace:
             tracefile.close()
 
@@ -336,6 +353,16 @@ class LoadTracer:
         registers[15] = (r & 0x80) + ((r + acc.loop_r_inc * loops + 1) % 0x80)
         registers[25] += acc.loop_time * loops + 4
         registers[24] = pcn % 65536
+
+    def dec_b_list(self, registers, memory, acc, code_len): # pragma: no cover
+        # Speed up the tape-sampling loop with a loader-specific accelerator,
+        # and also count hits and misses
+        pcn = registers[24] + 1
+        if self.tape_running and memory[pcn:pcn + code_len] == acc.code:
+            self.accelerators[acc.name] += 1
+        else:
+            self.misses += 1
+        self.dec_b(registers, memory, acc, code_len)
 
     def inc_b(self, registers, memory, acc, code_len): # pragma: no cover
         # Speed up the tape-sampling loop with a loader-specific accelerator
@@ -397,6 +424,24 @@ class LoadTracer:
         registers[15] = R1[registers[15]]
         registers[25] += 4
         registers[24] = pcn % 65536
+
+    def inc_b_auto_list(self, registers, memory, accelerators): # pragma: no cover
+        # Speed up the tape-sampling loop with an automatically selected
+        # loader-specific accelerator, and also count hits and misses
+        pcn = registers[24] + 1
+        if self.tape_running:
+            for i, acc in enumerate(accelerators):
+                if all(x == y or y is None for x, y in zip(memory[pcn:pcn + len(acc.code)], acc.code)): # pragma: no cover
+                    self.accelerators[acc.name] += 1
+                    if i:
+                        # Move the selected accelerator to the beginning of the
+                        # list so that it can be found quicker by inc_b_auto()
+                        accelerators.remove(acc)
+                        accelerators.insert(0, acc)
+                    self.inc_b_auto(registers, memory, accelerators)
+                    return
+        self.misses += 1
+        self.inc_b_auto(registers, memory, ())
 
     def read_port(self, registers, port):
         if port % 256 == 0xFE:

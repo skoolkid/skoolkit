@@ -19,8 +19,8 @@ Changelog
   ``silverbird``, ``sparklers``, ``suzy-soft``, ``suzy-soft2``, ``tiny``,
   ``us-gold`` and ``weird-science`` tape-sampling loop accelerators for use
   with :ref:`tap2sna.py <tap2sna-sim-load>`
-* Added the ``auto`` tape-sampling loop accelerator name for use with the
-  ``accelerator`` simulated LOAD configuration parameter of
+* Added the special ``auto`` and ``list`` tape-sampling loop accelerator names
+  for use with the ``accelerator`` simulated LOAD configuration parameter of
   :ref:`tap2sna.py <tap2sna-sim-load>`
 * Added support to :ref:`bin2sna.py`, :ref:`snapmod.py` and :ref:`tap2sna.py`
   for setting the ``issue2`` hardware state attribute (to enable or disable

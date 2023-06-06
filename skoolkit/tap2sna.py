@@ -316,7 +316,8 @@ def sim_load(blocks, options, config):
     if options.tape_analysis:
         get_edges(blocks, options.first_edge, True)
         sys.exit(0)
-    if options.accelerator == 'auto':
+    list_accelerators = options.accelerator == 'list'
+    if options.accelerator == 'auto' or list_accelerators:
         accelerator = set(ACCELERATORS.values())
     elif options.accelerator == 'none': # pragma: no cover
         accelerator = None
@@ -346,7 +347,7 @@ def sim_load(blocks, options, config):
     else:
         in_min_addr = 0x8000
     tracer = LoadTracer(simulator, blocks, accelerator, options.pause, options.first_edge,
-                        options.finish_tape, in_min_addr, options.accelerate_dec_a)
+                        options.finish_tape, in_min_addr, options.accelerate_dec_a, list_accelerators)
     simulator.set_tracer(tracer, False, False)
     op_fmt = config['TraceOperand']
     prefix, byte_fmt, word_fmt = (op_fmt + ',' * (2 - op_fmt.count(','))).split(',')[:3]
@@ -820,12 +821,13 @@ Configure various properties of a simulated LOAD.
   Specify whether to accelerate 'DEC A: JR NZ,$-1' loops (1, the default), or
   'DEC A: JP NZ,$-1' loops (2), or neither (0).
 
---sim-load-config accelerator=auto/none/NAME
+--sim-load-config accelerator=auto/none/list/NAME
 
   Use a specific accelerator to speed up the simulation of the tape-sampling
-  loop in a loading routine, or disable acceleration entirely. (By default, an
-  appropriate accelerator is automatically selected, if available.) Recognised
-  accelerator names are:
+  loop in a loading routine, disable acceleration entirely, or list the
+  accelerators used during a simulated LOAD. (By default, an appropriate
+  accelerator is automatically selected, if available.) Recognised accelerator
+  names are:
 
   {accelerators}
 
