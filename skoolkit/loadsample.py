@@ -44,6 +44,86 @@ ACCELERATORS = {
         0x20  # EAR mask
     ),
 
+    'alkatraz-05': Accelerator(
+        'alkatraz-05',
+        [
+            0x04,                         # LD_SAMPLE  INC B            [4]
+            0x20, 0x05,                   #            JR NZ,LD_SAMPLE2 [12/7]
+            None, None, None, None, None, #
+            0xDB, 0xFE,                   # LD_SAMPLE2 IN A,($FE)       [11]
+            0x1F,                         #            RRA              [4]
+            0xC8,                         #            RET Z            [11/5]
+            0xA9,                         #            XOR C            [4]
+            0xE6, 0x20,                   #            AND $20          [7]
+            0x28, 0xEF                    #            JR Z,LD_SAMPLE   [12/7]
+        ],
+        16,   # 16 T-states until first IN A,($FE)
+        59,   # 59 T-states per loop iteration
+        8,    # R register increment per loop iteration
+        0x20  # EAR mask
+    ),
+
+    'alkatraz-09': Accelerator(
+        'alkatraz-09',
+        [
+            0x04,                         # LD_SAMPLE  INC B            [4]
+            0x20, 0x09,                   #            JR NZ,LD_SAMPLE2 [12/7]
+            None, None, None, None, None, #
+            None, None, None, None,       #
+            0xDB, 0xFE,                   # LD_SAMPLE2 IN A,($FE)       [11]
+            0x1F,                         #            RRA              [4]
+            0xC8,                         #            RET Z            [11/5]
+            0xA9,                         #            XOR C            [4]
+            0xE6, 0x20,                   #            AND $20          [7]
+            0x28, 0xEB                    #            JR Z,LD_SAMPLE   [12/7]
+        ],
+        16,   # 16 T-states until first IN A,($FE)
+        59,   # 59 T-states per loop iteration
+        8,    # R register increment per loop iteration
+        0x20  # EAR mask
+    ),
+
+    'alkatraz-0a': Accelerator(
+        'alkatraz-0a',
+        [
+            0x04,                         # LD_SAMPLE  INC B            [4]
+            0x20, 0x0A,                   #            JR NZ,LD_SAMPLE2 [12/7]
+            None, None, None, None, None, #
+            None, None, None, None, None, #
+            0xDB, 0xFE,                   # LD_SAMPLE2 IN A,($FE)       [11]
+            0x1F,                         #            RRA              [4]
+            0xC8,                         #            RET Z            [11/5]
+            0xA9,                         #            XOR C            [4]
+            0xE6, 0x20,                   #            AND $20          [7]
+            0x28, 0xEA,                   #            JR Z,LD_SAMPLE   [12/7]
+        ],
+        16,   # 16 T-states until first IN A,($FE)
+        59,   # 59 T-states per loop iteration
+        8,    # R register increment per loop iteration
+        0x20  # EAR mask
+    ),
+
+    'alkatraz-0b': Accelerator(
+        'alkatraz-0b',
+        [
+            0x04,                         # LD_SAMPLE  INC B            [4]
+            0x20, 0x0B,                   #            JR NZ,LD_SAMPLE2 [12/7]
+            None, None, None, None, None, #
+            None, None, None, None, None, #
+            None,                         #
+            0xDB, 0xFE,                   # LD_SAMPLE2 IN A,($FE)       [11]
+            0x1F,                         #            RRA              [4]
+            0xC8,                         #            RET Z            [11/5]
+            0xA9,                         #            XOR C            [4]
+            0xE6, 0x20,                   #            AND $20          [7]
+            0x28, 0xE9,                   #           JR Z,LD_SAMPLE    [12/7]
+        ],
+        16,   # 16 T-states until first IN A,($FE)
+        59,   # 59 T-states per loop iteration
+        8,    # R register increment per loop iteration
+        0x20  # EAR mask
+    ),
+
     'alkatraz2': Accelerator(
         'alkatraz2',
         [
@@ -252,6 +332,25 @@ ACCELERATORS = {
         0x40  # EAR mask
     ),
 
+    'delphine': Accelerator(
+        'delphine',
+        [
+            0x04,       # LD_SAMPLE INC B          [4]
+            0xC8,       #           RET Z          [11/5]
+            0x3E, 0x7F, #           LD A,$7F       [7]
+            0xDB, 0xFE, #           IN A,($FE)     [11]
+            0xA7,       #           AND A          [4]
+            0xD8,       #           RET C          [11/5]
+            0xA9,       #           XOR C          [4]
+            0xE6, 0x40, #           AND $40        [7]
+            0x28, 0xF3, #           JR Z,LD_SAMPLE [12/7]
+        ],
+        16,   # 16 T-states until first IN A,($FE)
+        59,   # 59 T-states per loop iteration
+        9,    # R register increment per loop iteration
+        0x40  # EAR mask
+    ),
+
     'design-design': Accelerator(
         'design-design',
         [
@@ -395,6 +494,25 @@ ACCELERATORS = {
         23,   # 23 T-states until first IN A,($FE)
         65,   # 65 T-states per loop iteration
         10,   # R register increment per loop iteration
+        0x20  # EAR mask
+    ),
+
+    'palas': Accelerator(
+        'palas',
+        [
+            0x04,       # LD_SAMPLE INC B          [4]
+            0xC8,       #           RET Z          [11/5]
+            0xAF,       #           XOR A          [4]
+            0xDB, 0xFE, #           IN A,($FE)     [11]
+            0x1F,       #           RRA            [4]
+            0xB7,       #           OR A           [4]
+            0xA9,       #           XOR C          [4]
+            0xE6, 0x20, #           AND $20        [7]
+            0x28, 0xF4, #           JR Z,LD_SAMPLE [12/7]
+        ],
+        13,   # 13 T-states until first IN A,($FE)
+        55,   # 55 T-states per loop iteration
+        9,    # R register increment per loop iteration
         0x20  # EAR mask
     ),
 
@@ -601,25 +719,6 @@ ACCELERATORS = {
         43,   # 43 T-states per loop iteration
         6,    # R register increment per loop iteration
         0x40  # EAR mask
-    ),
-
-    'us-gold': Accelerator(
-        'us-gold',
-        [
-            0x04,                         # LD_SAMPLE  INC B            [4]
-            0x20, 0x05,                   #            JR NZ,LD_SAMPLE2 [12/7]
-            None, None, None, None, None, #
-            0xDB, 0xFE,                   # LD_SAMPLE2 IN A,($FE)       [11]
-            0x1F,                         #            RRA              [4]
-            0xC8,                         #            RET Z            [11/5]
-            0xA9,                         #            XOR C            [4]
-            0xE6, 0x20,                   #            AND $20          [7]
-            0x28, 0xEF                    #            JR Z,LD_SAMPLE   [12/7]
-        ],
-        16,   # 16 T-states until first IN A,($FE)
-        59,   # 59 T-states per loop iteration
-        8,    # R register increment per loop iteration
-        0x20  # EAR mask
     ),
 
     'weird-science': Accelerator(

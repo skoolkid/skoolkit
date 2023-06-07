@@ -1427,6 +1427,10 @@ parameters are:
 The names of the available tape-sampling loop accelerators are:
 
 * ``alkatraz`` (Alkatraz)
+* ``alkatraz-05`` (Italy 1990, Italy 1990 - Winners Edition)
+* ``alkatraz-09`` (Italy 1990, Italy 1990 - Winners Edition)
+* ``alkatraz-0a`` (various games published by U.S. Gold)
+* ``alkatraz-0b`` (Fast 'n' Furious)
 * ``alkatraz2`` (Alkatraz 2)
 * ``alternative`` (Fireman Sam, Huxley Pig)
 * ``alternative2`` (Kentucky Racing)
@@ -1439,6 +1443,7 @@ The names of the available tape-sampling loop accelerators are:
 * ``cyberlode`` (Cyberlode 1.1 - same as ``bleepload``)
 * ``cybexlab`` (17.11.1989, Belegost, Starfox)
 * ``d-and-h`` (Multi-Player Soccer Manager)
+* ``delphine`` (Zakliaty zámok programátorov)
 * ``design-design`` (various games published by Design Design Software)
 * ``digital-integration`` (Digital Integration)
 * ``dinaload`` (Dinaload)
@@ -1453,8 +1458,9 @@ The names of the available tape-sampling loop accelerators are:
 * ``hewson-slowload`` (Hewson Slowload - same as ``rom``)
 * ``injectaload`` (Injectaload - same as ``bleepload``)
 * ``microprose`` (F-15 Strike Eagle)
-* ``microsphere`` (Back to Skool, Skool Daze, Sky Ranger)
+* ``microsphere`` (Back to Skool, Contact Sam Cruise, Skool Daze, Sky Ranger)
 * ``micro-style`` (Xenophobe)
+* ``palas`` (Bad Night)
 * ``paul-owens`` (Paul Owens Protection System)
 * ``poliload`` (Poliload - same as ``dinaload``)
 * ``power-load`` (Power-Load - same as ``bleepload``)
@@ -1469,7 +1475,6 @@ The names of the available tape-sampling loop accelerators are:
 * ``suzy-soft`` (Big Trouble, Joe Banker, The Drinker)
 * ``suzy-soft2`` (Western Girl)
 * ``tiny`` (Il Cobra di Cristallo, Negy a Nyero, Phantomasa, and others)
-* ``us-gold`` (Italy 1990, Italy 1990 - Winners Edition)
 * ``weird-science`` (Flash Beer Trilogy, Ghost Castles, TV-Game)
 * ``zydroload`` (Zydroload - same as ``speedlock``)
 
@@ -1551,12 +1556,14 @@ Configuration parameters may also be set on the command line by using the
 |         | ``finish-tape`` simulated LOAD configuration parameters; added    |
 |         | the ``issue2`` hardware state attribute; added the special        |
 |         | ``auto`` and ``list`` tape-sampling loop accelerator names; added |
-|         | the ``alternative``, ``alternative2``, ``boguslaw-juza``,         |
-|         | ``crl``, ``crl2``, ``crl3``, ``crl4``, ``cybexlab``, ``d-and-h``, |
-|         | ``design-design``, ``gremlin2``, ``microprose``, ``micro-style``, |
+|         | the ``alkatraz-05``, ``alkatraz-09``, ``alkatraz-0a``,            |
+|         | ``alkatraz-0b``, ``alternative``, ``alternative2``,               |
+|         | ``boguslaw-juza``, ``crl``, ``crl2``, ``crl3``, ``crl4``,         |
+|         | ``cybexlab``, ``d-and-h``, ``delphine``, ``design-design``,       |
+|         | ``gremlin2``, ``microprose``, ``micro-style``, ``palas``,         |
 |         | ``raxoft``, ``realtime``, ``silverbird``, ``sparklers``,          |
-|         | ``suzy-soft``, ``suzy-soft2``, ``tiny``, ``us-gold`` and          |
-|         | ``weird-science`` tape-sampling loop accelerators                 |
+|         | ``suzy-soft``, ``suzy-soft2``, ``tiny`` and ``weird-science``     |
+|         | tape-sampling loop accelerators                                   |
 +---------+-------------------------------------------------------------------+
 | 8.9     | Added the ``--sim-load-config``, ``--tape-name``,                 |
 |         | ``--tape-start``, ``--tape-stop`` and ``--tape-sum`` options;     |

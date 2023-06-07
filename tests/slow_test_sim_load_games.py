@@ -1053,21 +1053,6 @@ class SimLoadGamesTest(SkoolKitTestCase):
             '-c accelerator=tiny --start 48495'
         )
 
-    def test_us_gold(self):
-        self._test_sim_load(
-            'https://worldofspectrum.net/pub/sinclair/games/i/Italy1990-WinnersEdition.tzx.zip',
-            'Italy 1990 - Winners Edition.tzx',
-            '2c1f33949d567d344cc4082510556123',
-            'db9b3ae60d70a53d0edc546cc1a2659f',
-            {
-                'AF,BC,DE,HL': '0045,0A01,0000,B935',
-                "AF',BC',DE',HL'": 'FF45,1621,369B,2758',
-                'PC,SP,IX,IY': 'B7B0,464E,B935,5C3A',
-                'IR,iff,im,border': '3F00,0,1,0'
-            },
-            '-c accelerator=us-gold --tape-stop 13 --start 47024'
-        )
-
     def test_weird_science(self):
         self._test_sim_load(
             'https://worldofspectrum.net/pub/sinclair/games/f/FlashBeerTrilogy.tzx.zip',

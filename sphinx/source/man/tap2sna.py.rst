@@ -156,52 +156,57 @@ parameters are:
 The names of the available tape-sampling loop accelerators are:
 
 |
-|  ``alkatraz`` - Alkatraz
-|  ``alkatraz2`` - Alkatraz 2
-|  ``alternative`` - Fireman Sam, Huxley Pig
-|  ``alternative2`` - Kentucky Racing
-|  ``bleepload`` - Firebird BleepLoad
-|  ``boguslaw-juza`` - Euro Biznes
-|  ``crl`` - Ball Breaker, Ballbreaker II
-|  ``crl2`` - Terrahawks
-|  ``crl3`` - Oink
-|  ``crl4`` - Federation
-|  ``cyberlode`` - Cyberlode 1.1 (same as ``bleepload``)
-|  ``cybexlab`` - 17.11.1989, Belegost, Starfox
-|  ``d-and-h`` - Multi-Player Soccer Manager
-|  ``design-design`` - various games published by Design Design Software
-|  ``digital-integration`` - Digital Integration
-|  ``dinaload`` - Dinaload
-|  ``edge`` - Edge (same as ``rom``)
-|  ``elite-uni-loader`` - Elite Uni-Loader (same as ``speedlock``)
-|  ``excelerator`` - The Excelerator Loader (same as ``bleepload``)
-|  ``flash-loader`` - Flash Loader (same as ``rom``)
-|  ``ftl`` - FTL (same as ``speedlock``)
-|  ``gargoyle`` - Gargoyle (same as ``speedlock``)
-|  ``gremlin`` - various games published by Gremlin Graphics
-|  ``gremlin2`` - Super Cars
-|  ``hewson-slowload`` - Hewson Slowload (same as ``rom``)
-|  ``injectaload`` - Injectaload (same as ``bleepload``)
-|  ``microprose`` - F-15 Strike Eagle
-|  ``microsphere`` - Back to Skool, Skool Daze, Sky Ranger
-|  ``micro-style`` - Xenophobe
-|  ``paul-owens`` - Paul Owens Protection System
-|  ``poliload`` - Poliload (same as ``dinaload``)
-|  ``power-load`` - Power-Load (same as ``bleepload``)
-|  ``raxoft`` - Piskworks, Podraz 4
-|  ``realtime`` - Starstrike II
-|  ``rom`` - any loader whose sampling loop is the same as the ROM's
-|  ``search-loader`` - Search Loader
-|  ``silverbird`` - Olli & Lissa II: Halloween
-|  ``softlock`` - SoftLock (same as ``rom``)
-|  ``sparklers`` - Bargain Basement, Flunky
-|  ``speedlock`` - Speedlock (all versions)
-|  ``suzy-soft`` - Big Trouble, Joe Banker, The Drinker
-|  ``suzy-soft2`` - Western Girl
-|  ``tiny`` - Il Cobra di Cristallo, Negy a Nyero, Phantomasa, and others
-|  ``weird-science`` - Flash Beer Trilogy, Ghost Castles, TV-Game
-|  ``us-gold`` - Italy 1990, Italy 1990 - Winners Edition
-|  ``zydroload`` - Zydroload (same as ``speedlock``)
+|  ``alkatraz`` (Alkatraz)
+|  ``alkatraz-05`` (Italy 1990, Italy 1990 - Winners Edition)
+|  ``alkatraz-09`` (Italy 1990, Italy 1990 - Winners Edition)
+|  ``alkatraz-0a`` (various games published by U.S. Gold)
+|  ``alkatraz-0b`` (Fast 'n' Furious)
+|  ``alkatraz2`` (Alkatraz 2)
+|  ``alternative`` (Fireman Sam, Huxley Pig)
+|  ``alternative2`` (Kentucky Racing)
+|  ``bleepload`` (Firebird BleepLoad)
+|  ``boguslaw-juza`` (Euro Biznes)
+|  ``crl`` (Ball Breaker, Ballbreaker II)
+|  ``crl2`` (Terrahawks)
+|  ``crl3`` (Oink)
+|  ``crl4`` (Federation)
+|  ``cyberlode`` (Cyberlode 1.1 - same as ``bleepload``)
+|  ``cybexlab`` (17.11.1989, Belegost, Starfox)
+|  ``d-and-h`` (Multi-Player Soccer Manager)
+|  ``delphine`` (Zakliaty zámok programátorov)
+|  ``design-design`` (various games published by Design Design Software)
+|  ``digital-integration`` (Digital Integration)
+|  ``dinaload`` (Dinaload)
+|  ``edge`` (Edge - same as ``rom``)
+|  ``elite-uni-loader`` (Elite Uni-Loader - same as ``speedlock``)
+|  ``excelerator`` (The Excelerator Loader - same as ``bleepload``)
+|  ``flash-loader`` (Flash Loader - same as ``rom``)
+|  ``ftl`` (FTL - same as ``speedlock``)
+|  ``gargoyle`` (Gargoyle - same as ``speedlock``)
+|  ``gremlin`` (various games published by Gremlin Graphics)
+|  ``gremlin2`` (Super Cars)
+|  ``hewson-slowload`` (Hewson Slowload - same as ``rom``)
+|  ``injectaload`` (Injectaload - same as ``bleepload``)
+|  ``microprose`` (F-15 Strike Eagle)
+|  ``microsphere`` (Back to Skool, Contact Sam Cruise, Skool Daze, Sky Ranger)
+|  ``micro-style`` (Xenophobe)
+|  ``palas`` (Bad Night)
+|  ``paul-owens`` (Paul Owens Protection System)
+|  ``poliload`` (Poliload - same as ``dinaload``)
+|  ``power-load`` (Power-Load - same as ``bleepload``)
+|  ``raxoft`` (Piskworks, Podraz 4)
+|  ``realtime`` (Starstrike II)
+|  ``rom`` (any loader whose sampling loop is the same as the ROM's)
+|  ``search-loader`` (Search Loader)
+|  ``silverbird`` (Olli & Lissa II: Halloween)
+|  ``softlock`` (SoftLock - same as ``rom``)
+|  ``sparklers`` (Bargain Basement, Flunky)
+|  ``speedlock`` (Speedlock - all versions)
+|  ``suzy-soft`` (Big Trouble, Joe Banker, The Drinker)
+|  ``suzy-soft2`` (Western Girl)
+|  ``tiny`` (Il Cobra di Cristallo, Negy a Nyero, Phantomasa, and others)
+|  ``weird-science`` (Flash Beer Trilogy, Ghost Castles, TV-Game)
+|  ``zydroload`` (Zydroload - same as ``speedlock``)
 
 CALL OPERATIONS
 ===============
