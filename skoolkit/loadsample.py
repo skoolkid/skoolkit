@@ -116,7 +116,7 @@ ACCELERATORS = {
             0xC8,                         #            RET Z            [11/5]
             0xA9,                         #            XOR C            [4]
             0xE6, 0x20,                   #            AND $20          [7]
-            0x28, 0xE9,                   #           JR Z,LD_SAMPLE    [12/7]
+            0x28, 0xE9,                   #            JR Z,LD_SAMPLE   [12/7]
         ],
         16,   # 16 T-states until first IN A,($FE)
         59,   # 59 T-states per loop iteration
