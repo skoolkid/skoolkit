@@ -346,7 +346,7 @@ class LoadTracer:
         if self.tape_running and memory[pcn:pcn + code_len] == acc.code:
             if registers[3] & acc.ear_mask == (self.index % 2) * acc.ear_mask:
                 delta = self.next_edge - registers[25] - acc.in_time
-                if delta >= 0:
+                if delta > 0:
                     loops = min(delta // acc.loop_time + 1, (b - 1) % 256)
                 if loops:
                     # The carry flag is cleared on each loop iteration
@@ -375,7 +375,7 @@ class LoadTracer:
         if self.tape_running and memory[pcn:pcn + code_len] == acc.code:
             if registers[3] & acc.ear_mask == (self.index % 2) * acc.ear_mask:
                 delta = self.next_edge - registers[25] - acc.in_time
-                if delta >= 0:
+                if delta > 0:
                     loops = min(delta // acc.loop_time + 1, 255 - b)
                 if loops:
                     # The carry flag is cleared on each loop iteration
@@ -394,7 +394,7 @@ class LoadTracer:
         if self.tape_running and all(x == y or y is None for x, y in zip(memory[pcn:pcn + code_len], acc.code)):
             if registers[3] & acc.ear_mask == (self.index % 2) * acc.ear_mask:
                 delta = self.next_edge - registers[25] - acc.in_time
-                if delta >= 0:
+                if delta > 0:
                     loops = min(delta // acc.loop_time + 1, 255 - b)
                 if loops:
                     # The carry flag is cleared on each loop iteration
@@ -416,7 +416,7 @@ class LoadTracer:
                 if all(x == y or y is None for x, y in zip(memory[pcn:pcn + len(acc.code)], acc.code)): # pragma: no cover
                     if registers[3] & acc.ear_mask == (self.index % 2) * acc.ear_mask:
                         delta = self.next_edge - registers[25] - acc.in_time
-                        if delta >= 0:
+                        if delta > 0:
                             loops = min(delta // acc.loop_time + 1, 255 - b)
                         if loops:
                             # The carry flag is cleared on each loop iteration
