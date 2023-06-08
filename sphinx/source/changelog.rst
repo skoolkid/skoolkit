@@ -45,6 +45,8 @@ Changelog
   a single decimal point (``.``)
 * Fixed how the value of the R register is set in a Z80 snapshot when bit 7 is
   reset
+* Fixed how tape-sampling loop accelerators affect the carry flag after at
+  least one pass through the loop
 
 8.9 (2023-02-19)
 ----------------
