@@ -150,7 +150,8 @@ def get_edges(blocks, first_edge, analyse=False):
 class LoadTracer:
     def __init__(self, simulator, blocks, accelerator, pause, first_edge, finish_tape, in_min_addr, accel_dec_a, list_accelerators):
         self.accelerators = defaultdict(int)
-        self.misses = 0
+        self.inc_b_misses = 0
+        self.dec_b_misses = 0
         self.simulator = simulator
         self.edges, self.indexes, self.blocks = get_edges(blocks, first_edge)
         self.pause = pause
@@ -287,14 +288,6 @@ class LoadTracer:
                     write_line(f'Simulation stopped (timed out): PC={pc}')
                     break
 
-        if self.accelerators or self.misses: # pragma: no cover
-            write('Accelerators: ')
-            if self.accelerators:
-                write('; '.join(f'{k} ({v})' for k, v in self.accelerators.items()))
-            else:
-                write('none')
-            write_line(f'; misses: {self.misses}')
-
         if trace:
             tracefile.close()
 
@@ -364,7 +357,7 @@ class LoadTracer:
         if self.tape_running and memory[pcn:pcn + code_len] == acc.code:
             self.accelerators[acc.name] += 1
         else:
-            self.misses += 1
+            self.dec_b_misses += 1
         self.dec_b(registers, memory, acc, code_len)
 
     def inc_b(self, registers, memory, acc, code_len): # pragma: no cover
@@ -452,7 +445,7 @@ class LoadTracer:
                         accelerators.insert(0, acc)
                     self.inc_b_auto(registers, memory, accelerators)
                     return
-        self.misses += 1
+        self.inc_b_misses += 1
         self.inc_b_auto(registers, memory, ())
 
     def read_port(self, registers, port):

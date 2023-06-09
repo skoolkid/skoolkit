@@ -358,6 +358,9 @@ def sim_load(blocks, options, config):
         _ram_operations(snapshot, options.ram_ops)
     except KeyboardInterrupt: # pragma: no cover
         write_line(f'Simulation stopped (interrupted): PC={simulator.registers[PC]}')
+    if list_accelerators: # pragma: no cover
+        accelerators = '; '.join(f'{k}: {v}' for k, v in tracer.accelerators.items()) or 'none'
+        write_line(f'Accelerators: {accelerators}; misses: {tracer.inc_b_misses}/{tracer.dec_b_misses}')
     sim_registers = simulator.registers
     registers = {
         'A': sim_registers[A],
