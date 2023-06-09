@@ -1,5 +1,5 @@
 from skoolkittest import SkoolKitTestCase
-from skoolkit.snapshot import get_snapshot, make_z80_ram_block, set_z80_state, SnapshotError
+from skoolkit.snapshot import get_snapshot, make_z80_ram_block, set_z80_registers, set_z80_state, SnapshotError
 
 class SnapshotTest(SkoolKitTestCase):
     def _check_ram(self, ram, exp_ram, model, out_7ffd, pages, page):
@@ -222,6 +222,68 @@ class Z80StateTest(SkoolKitTestCase):
         self.assertEqual(header[29], 250) # IM (bits 0-1), issue 2 (bit 2)
         self.assertEqual(header[12], 247) # Border (bits 1-3)
         self.assertEqual([0, 0, 3], header[55:58]) # T-states
+
+class Z80RegistersTest(SkoolKitTestCase):
+    def test_8_bit_registers(self):
+        reg = {
+            'a': 1, 'f': 2, 'b': 3, 'c': 4, 'd': 5, 'e': 6, 'h': 7, 'l': 8, 'i': 9, 'r': 10,
+            '^a': 11, '^f': 12, '^b': 13, '^c':14, '^d': 15, '^e': 16, '^h': 17, '^l': 18
+        }
+        for p, f in (('', 'd'), ('$', '02x'), ('0x', '02x'), ('%', '08b')):
+            header = [0] * 33
+            specs = [f'{r}={p}{v:{f}}' for r, v in reg.items()]
+            set_z80_registers(header, *specs)
+            self.assertEqual(header[0], 1)   # A
+            self.assertEqual(header[1], 2)   # F
+            self.assertEqual(header[3], 3)   # B
+            self.assertEqual(header[2], 4)   # C
+            self.assertEqual(header[14], 5)  # D
+            self.assertEqual(header[13], 6)  # E
+            self.assertEqual(header[5], 7)   # H
+            self.assertEqual(header[4], 8)   # L
+            self.assertEqual(header[10], 9)  # I
+            self.assertEqual(header[11], 10) # R
+            self.assertEqual(header[12], 0)  # R (bit 7)
+            self.assertEqual(header[21], 11) # A'
+            self.assertEqual(header[22], 12) # F'
+            self.assertEqual(header[16], 13) # B'
+            self.assertEqual(header[15], 14) # C'
+            self.assertEqual(header[18], 15) # D'
+            self.assertEqual(header[17], 16) # E'
+            self.assertEqual(header[20], 17) # H'
+            self.assertEqual(header[19], 18) # L'
+
+    def test_16_bit_registers(self):
+        reg = {
+            'bc': 513, 'de': 1027, 'hl': 1541, 'sp': 2055, 'ix': 2569, 'iy': 3083,
+            '^bc': 3597, '^de': 4111, '^hl': 4625, 'pc': 5139
+        }
+        for p, f in (('', 'd'), ('$', '04x'), ('0x', '04x'), ('%', '016b')):
+            header = [0] * 33
+            specs = [f'{r}={p}{v:{f}}' for r, v in reg.items()]
+            set_z80_registers(header, *specs)
+            self.assertEqual([1, 2], header[2:4])     # BC
+            self.assertEqual([3, 4], header[13:15])   # DE
+            self.assertEqual([5, 6], header[4:6])     # HL
+            self.assertEqual([7, 8], header[8:10])    # SP
+            self.assertEqual([9, 10], header[25:27])  # IX
+            self.assertEqual([11, 12], header[23:25]) # IY
+            self.assertEqual([13, 14], header[15:17]) # BC'
+            self.assertEqual([15, 16], header[17:19]) # DE'
+            self.assertEqual([17, 18], header[19:21]) # HL'
+            self.assertEqual([19, 20], header[32:34]) # PC
+
+    def test_r_with_bit_7_reset(self):
+        header = [255] * 33
+        set_z80_registers(header, 'r=1')
+        self.assertEqual(header[11], 1)
+        self.assertEqual(header[12], 254)
+
+    def test_r_with_bit_7_set(self):
+        header = [0] * 33
+        set_z80_registers(header, 'r=240')
+        self.assertEqual(header[11], 240)
+        self.assertEqual(header[12], 1)
 
 class SZXTest(SnapshotTest):
     def _test_szx(self, exp_ram, compress, machine_id=1, ch7ffd=0, pages={}, page=None):
