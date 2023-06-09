@@ -233,7 +233,7 @@ class LoadTracer:
                 if accept_int:
                     accept_int = simulator.accept_interrupt(registers, memory, pc)
 
-            if self.tape_running and tstates > self.next_edge: # pragma: no cover
+            if self.tape_running and tstates >= self.next_edge: # pragma: no cover
                 index = self.index
                 while index < max_index and edges[index + 1] < tstates:
                     index += 1
