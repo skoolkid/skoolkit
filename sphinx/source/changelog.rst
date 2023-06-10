@@ -14,8 +14,8 @@ Changelog
   :ref:`tap2sna.py <tap2sna-sim-load>` (to specify whether to accelerate
   'DEC A: JR NZ,$-1' or 'DEC A: JP NZ,$-1' delay loops)
 * Added the ``alkatraz-05``, ``alkatraz-09``, ``alkatraz-0a``, ``alkatraz-0b``,
-  ``alternative``, ``alternative2``, ``boguslaw-juza``, ``crl``, ``crl2``,
-  ``crl3``, ``crl4``, ``cybexlab``, ``d-and-h``, ``delphine``,
+  ``alternative``, ``alternative2``, ``boguslaw-juza``, ``bulldog``, ``crl``,
+  ``crl2``, ``crl3``, ``crl4``, ``cybexlab``, ``d-and-h``, ``delphine``,
   ``design-design``, ``gremlin2``, ``microprose``, ``micro-style``,
   ``palas``, ``raxoft``, ``realtime``, ``silverbird``, ``sparklers``,
   ``suzy-soft``, ``suzy-soft2``, ``tiny`` and ``weird-science`` tape-sampling

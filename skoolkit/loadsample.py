@@ -219,6 +219,24 @@ ACCELERATORS = {
         0x20  # EAR mask
     ),
 
+    'bulldog': Accelerator(
+        'bulldog',
+        [
+            0x04,             # LD_SAMPLE INC B          [4]
+            0xC8,             #           RET Z          [11/5]
+            0x3A, 0x7F, 0x00, #           LD A,($007F)   [13]
+            0xDB, 0xFE,       #           IN A,($FE)     [11]
+            0x1F,             #           RRA            [4]
+            0xA9,             #           XOR C          [4]
+            0xE6, 0x20,       #           AND $20        [7]
+            0x28, 0xF3        #           JR Z,LD_SAMPLE [12/7]
+        ],
+        22,   # 22 T-states until first IN A,($FE)
+        60,   # 60 T-states per loop iteration
+        8,    # R register increment per loop iteration
+        0x20  # EAR mask
+    ),
+
     'crl': Accelerator(
         'crl',
         [

@@ -1451,6 +1451,7 @@ The names of the available tape-sampling loop accelerators are:
 * ``alternative2`` (Kentucky Racing)
 * ``bleepload`` (Firebird BleepLoad)
 * ``boguslaw-juza`` (Euro Biznes)
+* ``bulldog`` (Rigel's Revenge)
 * ``crl`` (Ball Breaker, Ballbreaker II)
 * ``crl2`` (Terrahawks)
 * ``crl3`` (Oink)
@@ -1573,12 +1574,12 @@ Configuration parameters may also be set on the command line by using the
 |         | ``auto`` and ``list`` tape-sampling loop accelerator names; added |
 |         | the ``alkatraz-05``, ``alkatraz-09``, ``alkatraz-0a``,            |
 |         | ``alkatraz-0b``, ``alternative``, ``alternative2``,               |
-|         | ``boguslaw-juza``, ``crl``, ``crl2``, ``crl3``, ``crl4``,         |
-|         | ``cybexlab``, ``d-and-h``, ``delphine``, ``design-design``,       |
-|         | ``gremlin2``, ``microprose``, ``micro-style``, ``palas``,         |
-|         | ``raxoft``, ``realtime``, ``silverbird``, ``sparklers``,          |
-|         | ``suzy-soft``, ``suzy-soft2``, ``tiny`` and ``weird-science``     |
-|         | tape-sampling loop accelerators                                   |
+|         | ``boguslaw-juza``, ``bulldog``, ``crl``, ``crl2``, ``crl3``,      |
+|         | ``crl4``, ``cybexlab``, ``d-and-h``, ``delphine``,                |
+|         | ``design-design``, ``gremlin2``, ``microprose``, ``micro-style``, |
+|         | ``palas``, ``raxoft``, ``realtime``, ``silverbird``,              |
+|         | ``sparklers``, ``suzy-soft``, ``suzy-soft2``, ``tiny`` and        |
+|         | ``weird-science`` tape-sampling loop accelerators                 |
 +---------+-------------------------------------------------------------------+
 | 8.9     | Added the ``--sim-load-config``, ``--tape-name``,                 |
 |         | ``--tape-start``, ``--tape-stop`` and ``--tape-sum`` options;     |

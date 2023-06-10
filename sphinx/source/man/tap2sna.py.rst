@@ -181,6 +181,7 @@ The names of the available tape-sampling loop accelerators are:
 |  ``alternative2`` (Kentucky Racing)
 |  ``bleepload`` (Firebird BleepLoad)
 |  ``boguslaw-juza`` (Euro Biznes)
+|  ``bulldog`` (Rigel's Revenge)
 |  ``crl`` (Ball Breaker, Ballbreaker II)
 |  ``crl2`` (Terrahawks)
 |  ``crl3`` (Oink)
