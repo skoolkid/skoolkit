@@ -15,10 +15,16 @@
 # SkoolKit. If not, see <http://www.gnu.org/licenses/>.
 
 class Accelerator:
-    def __init__(self, name, code, in_time, loop_time, loop_r_inc, ear_mask):
+    def __init__(self, name, code, offset, in_time, loop_time, loop_r_inc, ear_mask):
         self.name = name
-        self.opcode = code[0]
-        self.code = code[1:]
+        self.opcode = code[offset]
+        if offset == 0:
+            self.code = code[1:]
+            self.c0 = 0
+        else:
+            self.code = code
+            self.c0 = offset + 1
+        self.c1 = len(self.code) - self.c0
         self.in_time = in_time
         self.loop_time = loop_time
         self.loop_r_inc = loop_r_inc
@@ -38,7 +44,8 @@ ACCELERATORS = {
             0xE6, 0x20,       #            AND $20          [7]
             0x28, 0xF1        #            JR Z,LD_SAMPLE   [12/7]
         ],
-        16,   # 16 T-states until first IN A,($FE)
+        0,    # Offset of INC B instruction from start of loop
+        16,   # 16 T-states from INC B until IN A,($FE)
         59,   # 59 T-states per loop iteration
         8,    # R register increment per loop iteration
         0x20  # EAR mask
@@ -57,7 +64,8 @@ ACCELERATORS = {
             0xE6, 0x20,                   #            AND $20          [7]
             0x28, 0xEF                    #            JR Z,LD_SAMPLE   [12/7]
         ],
-        16,   # 16 T-states until first IN A,($FE)
+        0,    # Offset of INC B instruction from start of loop
+        16,   # 16 T-states from INC B until IN A,($FE)
         59,   # 59 T-states per loop iteration
         8,    # R register increment per loop iteration
         0x20  # EAR mask
@@ -77,7 +85,8 @@ ACCELERATORS = {
             0xE6, 0x20,                   #            AND $20          [7]
             0x28, 0xEB                    #            JR Z,LD_SAMPLE   [12/7]
         ],
-        16,   # 16 T-states until first IN A,($FE)
+        0,    # Offset of INC B instruction from start of loop
+        16,   # 16 T-states from INC B until IN A,($FE)
         59,   # 59 T-states per loop iteration
         8,    # R register increment per loop iteration
         0x20  # EAR mask
@@ -97,7 +106,8 @@ ACCELERATORS = {
             0xE6, 0x20,                   #            AND $20          [7]
             0x28, 0xEA,                   #            JR Z,LD_SAMPLE   [12/7]
         ],
-        16,   # 16 T-states until first IN A,($FE)
+        0,    # Offset of INC B instruction from start of loop
+        16,   # 16 T-states from INC B until IN A,($FE)
         59,   # 59 T-states per loop iteration
         8,    # R register increment per loop iteration
         0x20  # EAR mask
@@ -118,7 +128,8 @@ ACCELERATORS = {
             0xE6, 0x20,                   #            AND $20          [7]
             0x28, 0xE9,                   #            JR Z,LD_SAMPLE   [12/7]
         ],
-        16,   # 16 T-states until first IN A,($FE)
+        0,    # Offset of INC B instruction from start of loop
+        16,   # 16 T-states from INC B until IN A,($FE)
         59,   # 59 T-states per loop iteration
         8,    # R register increment per loop iteration
         0x20  # EAR mask
@@ -137,7 +148,8 @@ ACCELERATORS = {
             0xE6, 0x20, #            AND $20          [7]
             0x28, 0xF3  #            JR Z,LD_SAMPLE   [12/7]
         ],
-        16,   # 16 T-states until first IN A,($FE)
+        0,    # Offset of INC B instruction from start of loop
+        16,   # 16 T-states from INC B until IN A,($FE)
         59,   # 59 T-states per loop iteration
         8,    # R register increment per loop iteration
         0x20  # EAR mask
@@ -156,7 +168,8 @@ ACCELERATORS = {
             0xE6, 0x20, #           AND $20        [7]
             0x28, 0xF2  #           JR Z,LD_SAMPLE [12/7]
         ],
-        16,   # 16 T-states until first IN A,($FE)
+        0,    # Offset of INC B instruction from start of loop
+        16,   # 16 T-states from INC B until IN A,($FE)
         62,   # 62 T-states per loop iteration
         10,   # R register increment per loop iteration
         0x20  # EAR mask
@@ -175,7 +188,8 @@ ACCELERATORS = {
             0xE6, 0x20, #           AND $20        [7]
             0x28, 0xF2  #           JR Z,LD_SAMPLE [12/7]
         ],
-        16,   # 16 T-states until first IN A,($FE)
+        0,    # Offset of INC B instruction from start of loop
+        16,   # 16 T-states from INC B until IN A,($FE)
         63,   # 63 T-states per loop iteration
         10,   # R register increment per loop iteration
         0x20  # EAR mask
@@ -194,7 +208,8 @@ ACCELERATORS = {
             0xE6, 0x20, #           AND $20        [7]
             0x28, 0xF3  #           JR Z,LD_SAMPLE [12/7]
         ],
-        16,   # 16 T-states until first IN A,($FE)
+        0,    # Offset of INC B instruction from start of loop
+        16,   # 16 T-states from INC B until IN A,($FE)
         58,   # 58 T-states per loop iteration
         9,    # R register increment per loop iteration
         0x20  # EAR mask
@@ -213,7 +228,8 @@ ACCELERATORS = {
             0xE6, 0x20, #           AND $20        [7]
             0x28, 0xF2  #           JR Z,LD_SAMPLE [12/7]
         ],
-        16,   # 16 T-states until first IN A,($FE)
+        0,    # Offset of INC B instruction from start of loop
+        16,   # 16 T-states from INC B until IN A,($FE)
         61,   # 61 T-states per loop iteration
         9,    # R register increment per loop iteration
         0x20  # EAR mask
@@ -231,7 +247,8 @@ ACCELERATORS = {
             0xE6, 0x20,       #           AND $20        [7]
             0x28, 0xF3        #           JR Z,LD_SAMPLE [12/7]
         ],
-        22,   # 22 T-states until first IN A,($FE)
+        0,    # Offset of INC B instruction from start of loop
+        22,   # 22 T-states from INC B until IN A,($FE)
         60,   # 60 T-states per loop iteration
         8,    # R register increment per loop iteration
         0x20  # EAR mask
@@ -250,7 +267,8 @@ ACCELERATORS = {
             0xE6, 0x40, #           AND $40        [7]
             0x28, 0xF3  #           JR Z,LD_SAMPLE [12/7]
         ],
-        16,   # 16 T-states until first IN A,($FE)
+        0,    # Offset of INC B instruction from start of loop
+        16,   # 16 T-states from INC B until IN A,($FE)
         59,   # 59 T-states per loop iteration
         9,    # R register increment per loop iteration
         0x40  # EAR mask
@@ -269,7 +287,8 @@ ACCELERATORS = {
             0xE6, 0x20, #           AND $20        [7]
             0x28, 0xF3  #           JR Z,LD_SAMPLE [12/7]
         ],
-        21,   # 21 T-states until first IN A,($FE)
+        0,    # Offset of INC B instruction from start of loop
+        21,   # 21 T-states from INC B until IN A,($FE)
         59,   # 59 T-states per loop iteration
         9,    # R register increment per loop iteration
         0x20  # EAR mask
@@ -288,7 +307,8 @@ ACCELERATORS = {
             0xE6, 0x20, #           AND $20        [7]
             0x28, 0xF1, #           JR Z,LD_SAMPLE [12/7]
         ],
-        18,   # 18 T-states until first IN A,($FE)
+        0,    # Offset of INC B instruction from start of loop
+        18,   # 18 T-states from INC B until IN A,($FE)
         63,   # 63 T-states per loop iteration
         9,    # R register increment per loop iteration
         0x20  # EAR mask
@@ -307,7 +327,8 @@ ACCELERATORS = {
             0xE6, 0x20, #           AND $20        [7]
             0x28, 0xF2  #           JR Z,LD_SAMPLE [12/7]
         ],
-        16,   # 16 T-states until first IN A,($FE)
+        0,    # Offset of INC B instruction from start of loop
+        16,   # 16 T-states from INC B until IN A,($FE)
         61,   # 61 T-states per loop iteration
         9,    # R register increment per loop iteration
         0x20  # EAR mask
@@ -326,7 +347,8 @@ ACCELERATORS = {
             0xE6, 0x20, #           AND $20        [7]
             0x28, 0xF4  #           JR Z,LD_SAMPLE [12/7]
         ],
-        13,   # 13 T-states until first IN A,($FE)
+        0,    # Offset of INC B instruction from start of loop
+        13,   # 13 T-states from INC B until IN A,($FE)
         56,   # 56 T-states per loop iteration
         9,    # R register increment per loop iteration
         0x20  # EAR mask
@@ -344,7 +366,8 @@ ACCELERATORS = {
             0xE6, 0x40, #           AND $40        [7]
             0x28, 0xF3, #           JR Z,LD_SAMPLE [12/7]
         ],
-        16,   # 16 T-states until first IN A,($FE)
+        0,    # Offset of INC B instruction from start of loop
+        16,   # 16 T-states from INC B until IN A,($FE)
         59,   # 59 T-states per loop iteration
         0,    # R register increment per loop iteration (irrelevant)
         0x40  # EAR mask
@@ -363,7 +386,8 @@ ACCELERATORS = {
             0xE6, 0x40, #           AND $40        [7]
             0x28, 0xF3, #           JR Z,LD_SAMPLE [12/7]
         ],
-        16,   # 16 T-states until first IN A,($FE)
+        0,    # Offset of INC B instruction from start of loop
+        16,   # 16 T-states from INC B until IN A,($FE)
         59,   # 59 T-states per loop iteration
         9,    # R register increment per loop iteration
         0x40  # EAR mask
@@ -381,7 +405,8 @@ ACCELERATORS = {
             0xE6, 0x20,       #           AND $20        [7]
             0x28, 0xF2        #           JR Z,LD_SAMPLE [12/7]
         ],
-        21,   # 21 T-states until first IN A,($FE)
+        0,    # Offset of INC B instruction from start of loop
+        21,   # 21 T-states from INC B until IN A,($FE)
         59,   # 59 T-states per loop iteration
         8,    # R register increment per loop iteration
         0x20  # EAR mask
@@ -397,7 +422,8 @@ ACCELERATORS = {
             0xE6, 0x40, #           AND $40        [7]
             0xCA        #           JP Z,LD_SAMPLE [10]
         ],
-        9,    # 9 T-states until first IN A,($FE)
+        0,    # Offset of DEC B instruction from start of loop
+        9,    # 9 T-states from DEC B until IN A,($FE)
         41,   # 41 T-states per loop iteration
         6,    # R register increment per loop iteration
         0x40  # EAR mask
@@ -416,7 +442,8 @@ ACCELERATORS = {
             0xE6, 0x20, #           AND $20        [7]
             0x28, 0xF3  #           JR Z,LD_SAMPLE [12/7]
         ],
-        16,   # 16 T-states until first IN A,($FE)
+        0,    # Offset of INC B instruction from start of loop
+        16,   # 16 T-states from INC B until IN A,($FE)
         59,   # 59 T-states per loop iteration
         9,    # R register increment per loop iteration
         0x20  # EAR mask
@@ -433,7 +460,8 @@ ACCELERATORS = {
             0xE6, 0x40, #           AND $40        [7]
             0x28, 0xF5  #           JR Z,LD_SAMPLE [12/7]
         ],
-        16,   # 16 T-states until first IN A,($FE)
+        0,    # Offset of INC B instruction from start of loop
+        16,   # 16 T-states from INC B until IN A,($FE)
         50,   # 50 T-states per loop iteration
         7,    # R register increment per loop iteration
         0x40  # EAR mask
@@ -452,7 +480,8 @@ ACCELERATORS = {
             0x00,       #           NOP            [4]
             0x28, 0xF3  #           JR Z,LD_SAMPLE [12/7]
         ],
-        16,   # 16 T-states until first IN A,($FE)
+        0,    # Offset of INC B instruction from start of loop
+        16,   # 16 T-states from INC B until IN A,($FE)
         59,   # 59 T-states per loop iteration
         9,    # R register increment per loop iteration
         0x40  # EAR mask
@@ -470,7 +499,8 @@ ACCELERATORS = {
             0xE6, 0x20, #           AND $20        [7]
             0x28, 0xF5  #           JR Z,LD_SAMPLE [12/7]
         ],
-        9,    # 9 T-states until first IN A,($FE)
+        0,    # Offset of INC B instruction from start of loop
+        9,    # 9 T-states from INC B until IN A,($FE)
         52,   # 52 T-states per loop iteration
         8,    # R register increment per loop iteration
         0x20  # EAR mask
@@ -489,7 +519,8 @@ ACCELERATORS = {
             0xE6, 0x20, #           AND $20        [7]
             0x28, 0xF3  #           JR Z,LD_SAMPLE [12/7]
         ],
-        16,   # 16 T-states until first IN A,($FE)
+        0,    # Offset of INC B instruction from start of loop
+        16,   # 16 T-states from INC B until IN A,($FE)
         58,   # 58 T-states per loop iteration
         9,    # R register increment per loop iteration
         0x20  # EAR mask
@@ -509,9 +540,30 @@ ACCELERATORS = {
             0xE6, 0x20, #           AND $20        [7]
             0x28, 0xF1, #           JR Z,LD_SAMPLE [12/7]
         ],
-        23,   # 23 T-states until first IN A,($FE)
+        0,    # Offset of INC B instruction from start of loop
+        23,   # 23 T-states from INC B until IN A,($FE)
         65,   # 65 T-states per loop iteration
         10,   # R register increment per loop iteration
+        0x20  # EAR mask
+    ),
+
+    'mirrorsoft': Accelerator(
+        'mirrorsoft',
+        [
+            0xA7,       # LD_SAMPLE AND A          [4]
+            0x04,       #           INC B          [4]
+            0xC8,       #           RET Z          [11/5]
+            0x3E, 0x7F, #           LD A,$7F       [7]
+            0xDB, 0xFE, #           IN A,($FE)     [11]
+            0x1F,       #           RRA            [4]
+            0xA9,       #           XOR C          [4]
+            0xE6, 0x20, #           AND $20        [7]
+            0x28, 0xF3  #           JR Z,LD_SAMPLE [12/7]
+        ],
+        1,    # Offset of INC B instruction from start of loop
+        16,   # 16 T-states from INC B until IN A,($FE)
+        58,   # 58 T-states per loop iteration
+        9,    # R register increment per loop iteration
         0x20  # EAR mask
     ),
 
@@ -528,7 +580,8 @@ ACCELERATORS = {
             0xE6, 0x20, #           AND $20        [7]
             0x28, 0xF4, #           JR Z,LD_SAMPLE [12/7]
         ],
-        13,   # 13 T-states until first IN A,($FE)
+        0,    # Offset of INC B instruction from start of loop
+        13,   # 13 T-states from INC B until IN A,($FE)
         55,   # 55 T-states per loop iteration
         9,    # R register increment per loop iteration
         0x20  # EAR mask
@@ -547,7 +600,8 @@ ACCELERATORS = {
             0xE6, 0x20, #           AND $20        [7]
             0x28, 0xF3  #           JR Z,LD_SAMPLE [12/7]
         ],
-        16,   # 16 T-states until first IN A,($FE)
+        0,    # Offset of INC B instruction from start of loop
+        16,   # 16 T-states from INC B until IN A,($FE)
         59,   # 59 T-states per loop iteration
         9,    # R register increment per loop iteration
         0x20  # EAR mask
@@ -566,7 +620,8 @@ ACCELERATORS = {
             0xE6, 0x20, #           AND $20        [7]
             0x28, 0xF4  #           JR Z,LD_SAMPLE [12/7]
         ],
-        13,   # 13 T-states until first IN A,($FE)
+        0,    # Offset of INC B instruction from start of loop
+        13,   # 13 T-states from INC B until IN A,($FE)
         55,   # 55 T-states per loop iteration
         9,    # R register increment per loop iteration
         0x20  # EAR mask
@@ -586,7 +641,8 @@ ACCELERATORS = {
             0xE6, 0x20, #           AND $20        [7]
             0x28, 0xF3  #           JR Z,LD_SAMPLE [12/7]
         ],
-        21,   # 21 T-states until first IN A,($FE)
+        0,    # Offset of INC B instruction from start of loop
+        21,   # 21 T-states from INC B until IN A,($FE)
         59,   # 59 T-states per loop iteration
         10,   # R register increment per loop iteration
         0x20  # EAR mask
@@ -605,7 +661,8 @@ ACCELERATORS = {
             0xE6, 0x20, #           AND $20        [7]
             0x28, 0xF3  #           JR Z,LD_SAMPLE [12/7]
         ],
-        16,   # 16 T-states until first IN A,($FE)
+        0,    # Offset of INC B instruction from start of loop
+        16,   # 16 T-states from INC B until IN A,($FE)
         59,   # 59 T-states per loop iteration
         9,    # R register increment per loop iteration
         0x20  # EAR mask
@@ -624,7 +681,8 @@ ACCELERATORS = {
             0x00,       #           NOP            [4]
             0x28, 0xF3  #           JR Z,LD_SAMPLE [12/7]
         ],
-        16,   # 16 T-states until first IN A,($FE)
+        0,    # Offset of INC B instruction from start of loop
+        16,   # 16 T-states from INC B until IN A,($FE)
         59,   # 59 T-states per loop iteration
         9,    # R register increment per loop iteration
         0x40  # EAR mask
@@ -642,9 +700,28 @@ ACCELERATORS = {
             0xE6, 0x40,       #           AND $40        [7]
             0x28, 0xF2        #           JR Z,LD_SAMPLE [12/7]
         ],
-        28,   # 28 T-states until first IN A,($FE)
+        0,    # Offset of INC B instruction from start of loop
+        28,   # 28 T-states from INC B until IN A,($FE)
         62,   # 62 T-states per loop iteration
         8,    # R register increment per loop iteration
+        0x40  # EAR mask
+    ),
+
+    'software-projects': Accelerator(
+        'software-projects',
+        [
+            0x3E, 0x7F, # LD_SAMPLE LD A,$7F        [7]
+            0xDB, 0xFE, #           IN A,($FE)      [11]
+            0xA9,       #           XOR C           [4]
+            0xE6, 0x40, #           AND $40         [7]
+            0x20, 0x04, #           JR NZ,EDGE      [12/7]
+            0x05,       #           DEC B           [4]
+            0x20, 0xF4  #           JR NZ,LD_SAMPLE [12/7]
+        ],
+        9,    # Offset of DEC B instruction from start of loop
+        18,   # 18 T-states from DEC B until IN A,($FE)
+        52,   # 52 T-states per loop iteration
+        7,    # R register increment per loop iteration
         0x40  # EAR mask
     ),
 
@@ -662,7 +739,8 @@ ACCELERATORS = {
             0xE6, 0x20, #           AND $20        [7]
             0x28, 0xF3  #           JR Z,LD_SAMPLE [12/7]
         ],
-        13,   # 13 T-states until first IN A,($FE)
+        0,    # Offset of INC B instruction from start of loop
+        13,   # 13 T-states from INC B until IN A,($FE)
         59,   # 59 T-states per loop iteration
         10,   # R register increment per loop iteration
         0x20  # EAR mask
@@ -680,7 +758,8 @@ ACCELERATORS = {
             0xE6, 0x20, #           AND $20        [7]
             0x28, 0xF4  #           JR Z,LD_SAMPLE [12/7]
         ],
-        16,   # 16 T-states until first IN A,($FE)
+        0,    # Offset of INC B instruction from start of loop
+        16,   # 16 T-states from INC B until IN A,($FE)
         54,   # 54 T-states per loop iteration
         8,    # R register increment per loop iteration
         0x20  # EAR mask
@@ -699,7 +778,8 @@ ACCELERATORS = {
             0xE6, 0x20, #           AND $20        [7]
             0x28, 0xF3  #           JR Z,LD_SAMPLE [12/7]
         ],
-        16,   # 16 T-states until first IN A,($FE)
+        0,    # Offset of INC B instruction from start of loop
+        16,   # 16 T-states from INC B until IN A,($FE)
         59,   # 59 T-states per loop iteration
         9,    # R register increment per loop iteration
         0x20  # EAR mask
@@ -717,7 +797,8 @@ ACCELERATORS = {
             0xE6, 0x20, #           AND $20        [7]
             0x28, 0xF4  #           JR Z,LD_SAMPLE [12/7]
         ],
-        16,   # 16 T-states until first IN A,($FE)
+        0,    # Offset of INC B instruction from start of loop
+        16,   # 16 T-states from INC B until IN A,($FE)
         54,   # 54 T-states per loop iteration
         8,    # R register increment per loop iteration
         0x20  # EAR mask
@@ -733,7 +814,8 @@ ACCELERATORS = {
             0xE6, 0x40, #           AND $40        [7]
             0x28, 0xF7  #           JR Z,LD_SAMPLE [12/7]
         ],
-        9,    # 9 T-states until first IN A,($FE)
+        0,    # Offset of INC B instruction from start of loop
+        9,    # 9 T-states from INC B until IN A,($FE)
         43,   # 43 T-states per loop iteration
         6,    # R register increment per loop iteration
         0x40  # EAR mask
@@ -752,7 +834,8 @@ ACCELERATORS = {
             0xE6, 0x40, #           AND $40        [7]
             0x28, 0xF3  #           JR Z,LD_SAMPLE [12/7]
         ],
-        16,   # 16 T-states until first IN A,($FE)
+        0,    # Offset of INC B instruction from start of loop
+        16,   # 16 T-states from INC B until IN A,($FE)
         59,   # 59 T-states per loop iteration
         9,    # R register increment per loop iteration
         0x40  # EAR mask

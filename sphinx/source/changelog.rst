@@ -17,9 +17,10 @@ Changelog
   ``alternative``, ``alternative2``, ``boguslaw-juza``, ``bulldog``, ``crl``,
   ``crl2``, ``crl3``, ``crl4``, ``cybexlab``, ``d-and-h``, ``delphine``,
   ``design-design``, ``gremlin2``, ``microprose``, ``micro-style``,
-  ``palas``, ``raxoft``, ``realtime``, ``silverbird``, ``sparklers``,
-  ``suzy-soft``, ``suzy-soft2``, ``tiny`` and ``weird-science`` tape-sampling
-  loop accelerators for use with :ref:`tap2sna.py <tap2sna-sim-load>`
+  ``mirrorsoft``, ``palas``, ``raxoft``, ``realtime``, ``silverbird``,
+  ``software-projects``, ``sparklers``, ``suzy-soft``, ``suzy-soft2``, ``tiny``
+  and ``weird-science`` tape-sampling loop accelerators for use with
+  :ref:`tap2sna.py <tap2sna-sim-load>`
 * Added the special ``auto`` and ``list`` tape-sampling loop accelerator names
   for use with the ``accelerator`` simulated LOAD configuration parameter of
   :ref:`tap2sna.py <tap2sna-sim-load>`

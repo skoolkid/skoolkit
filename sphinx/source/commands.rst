@@ -1476,6 +1476,7 @@ The names of the available tape-sampling loop accelerators are:
 * ``microprose`` (F-15 Strike Eagle)
 * ``microsphere`` (Back to Skool, Contact Sam Cruise, Skool Daze, Sky Ranger)
 * ``micro-style`` (Xenophobe)
+* ``mirrorsoft`` (Action Reflex)
 * ``palas`` (Bad Night)
 * ``paul-owens`` (Paul Owens Protection System)
 * ``poliload`` (Poliload - same as ``dinaload``)
@@ -1486,6 +1487,7 @@ The names of the available tape-sampling loop accelerators are:
 * ``search-loader`` (Search Loader)
 * ``silverbird`` (Olli & Lissa II: Halloween)
 * ``softlock`` (SoftLock - same as ``rom``)
+* ``software-projects`` (BC's Quest for Tires)
 * ``sparklers`` (Bargain Basement, Flunky)
 * ``speedlock`` (Speedlock - all versions)
 * ``suzy-soft`` (Big Trouble, Joe Banker, The Drinker)
@@ -1577,9 +1579,10 @@ Configuration parameters may also be set on the command line by using the
 |         | ``boguslaw-juza``, ``bulldog``, ``crl``, ``crl2``, ``crl3``,      |
 |         | ``crl4``, ``cybexlab``, ``d-and-h``, ``delphine``,                |
 |         | ``design-design``, ``gremlin2``, ``microprose``, ``micro-style``, |
-|         | ``palas``, ``raxoft``, ``realtime``, ``silverbird``,              |
-|         | ``sparklers``, ``suzy-soft``, ``suzy-soft2``, ``tiny`` and        |
-|         | ``weird-science`` tape-sampling loop accelerators                 |
+|         | ``mirrorsoft``, ``palas``, ``raxoft``, ``realtime``,              |
+|         | ``silverbird``, ``software-projects``, ``sparklers``,             |
+|         | ``suzy-soft``, ``suzy-soft2``, ``tiny`` and ``weird-science``     |
+|         | tape-sampling loop accelerators                                   |
 +---------+-------------------------------------------------------------------+
 | 8.9     | Added the ``--sim-load-config``, ``--tape-name``,                 |
 |         | ``--tape-start``, ``--tape-stop`` and ``--tape-sum`` options;     |
