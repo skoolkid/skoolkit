@@ -148,7 +148,7 @@ def get_edges(blocks, first_edge, analyse=False):
     return edges, indexes, data_blocks
 
 class LoadTracer:
-    def __init__(self, simulator, blocks, accelerator, pause, first_edge, finish_tape, in_min_addr, accel_dec_a, list_accelerators):
+    def __init__(self, simulator, blocks, accelerators, pause, first_edge, finish_tape, in_min_addr, accel_dec_a, list_accelerators):
         self.accelerators = defaultdict(int)
         self.inc_b_misses = 0
         self.dec_b_misses = 0
@@ -165,29 +165,30 @@ class LoadTracer:
             opcodes[0x3D] = partial(self.dec_a_jr, registers, memory)
         elif accel_dec_a == 2: # pragma: no cover
             opcodes[0x3D] = partial(self.dec_a_jp, registers, memory)
-        if accelerator:
-            if isinstance(accelerator, set):
-                inc_b_acc = []
-                dec_b_acc = []
-                for acc in accelerator:
-                    if acc and acc.opcode == 0x04:
-                        inc_b_acc.append(acc)
-                    elif acc:
-                        dec_b_acc.append(acc)
-                if list_accelerators: # pragma: no cover
-                    opcodes[0x04] = partial(self.inc_b_auto_list, registers, memory, inc_b_acc)
-                    opcodes[0x05] = partial(self.dec_b_auto_list, registers, memory, dec_b_acc)
+        if accelerators:
+            inc_b_acc = []
+            dec_b_acc = []
+            for accelerator in accelerators:
+                if accelerator.opcode == 0x04:
+                    inc_b_acc.append(accelerator)
                 else:
+                    dec_b_acc.append(accelerator)
+            if list_accelerators: # pragma: no cover
+                opcodes[0x04] = partial(self.inc_b_auto_list, registers, memory, inc_b_acc)
+                opcodes[0x05] = partial(self.dec_b_auto_list, registers, memory, dec_b_acc)
+            else:
+                if len(inc_b_acc) == 1: # pragma: no cover
+                    accelerator = inc_b_acc[0]
+                    if None in accelerator.code:
+                        opcodes[0x04] = partial(self.inc_b_none, registers, memory, accelerator)
+                    else:
+                        opcodes[0x04] = partial(self.inc_b, registers, memory, accelerator)
+                elif inc_b_acc:
                     opcodes[0x04] = partial(self.inc_b_auto, registers, memory, inc_b_acc)
+                if len(dec_b_acc) == 1: # pragma: no cover
+                    opcodes[0x05] = partial(self.dec_b, registers, memory, dec_b_acc[0])
+                elif dec_b_acc:
                     opcodes[0x05] = partial(self.dec_b_auto, registers, memory, dec_b_acc)
-            else: # pragma: no cover
-                if accelerator.opcode == 0x05:
-                    method = self.dec_b
-                elif None in accelerator.code:
-                    method = self.inc_b_none
-                else:
-                    method = self.inc_b
-                opcodes[accelerator.opcode] = partial(method, registers, memory, accelerator)
         self.next_edge = 0
         self.block_index = 0
         self.block_data_index, self.block_max_index = self.indexes[0]
@@ -357,7 +358,7 @@ class LoadTracer:
         if self.tape_running:
             loops = 0
             for i, acc in enumerate(accelerators):
-                if all(x == y or y is None for x, y in zip(memory[pcn - acc.c0:pcn + acc.c1], acc.code)): # pragma: no cover
+                if memory[pcn - acc.c0:pcn + acc.c1] == acc.code: # pragma: no cover
                     if registers[3] & acc.ear_mask == ((self.index - acc.polarity) % 2) * acc.ear_mask:
                         delta = self.next_edge - registers[25] - acc.in_time
                         if delta > 0:

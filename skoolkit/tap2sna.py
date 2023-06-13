@@ -317,14 +317,15 @@ def sim_load(blocks, options, config):
         get_edges(blocks, options.first_edge, True)
         sys.exit(0)
     list_accelerators = options.accelerator == 'list'
+    accelerators = set()
     if options.accelerator == 'auto' or list_accelerators:
-        accelerator = set(ACCELERATORS.values())
-    elif options.accelerator == 'none': # pragma: no cover
-        accelerator = None
-    elif options.accelerator in ACCELERATORS: # pragma: no cover
-        accelerator = ACCELERATORS[options.accelerator]
-    else:
-        raise SkoolKitError(f'Unrecognised accelerator: {options.accelerator}')
+        accelerators.update(ACCELERATORS.values())
+    elif options.accelerator and options.accelerator != 'none':
+        for name in options.accelerator.split(','):
+            if name in ACCELERATORS:
+                accelerators.add(ACCELERATORS[name]) # pragma: no cover
+            else:
+                raise SkoolKitError(f'Unrecognised accelerator: {name}')
     snapshot = [0] * 65536
     rom = read_bin_file(ROM48, 16384)
     snapshot[:len(rom)] = rom
@@ -346,7 +347,7 @@ def sim_load(blocks, options, config):
         in_min_addr = 0x4000
     else:
         in_min_addr = 0x8000
-    tracer = LoadTracer(simulator, blocks, accelerator, options.pause, options.first_edge,
+    tracer = LoadTracer(simulator, blocks, accelerators, options.pause, options.first_edge,
                         options.finish_tape, in_min_addr, options.accelerate_dec_a, list_accelerators)
     simulator.set_tracer(tracer, False, False)
     op_fmt = config['TraceOperand']
@@ -824,13 +825,13 @@ Configure various properties of a simulated LOAD.
   Specify whether to accelerate 'DEC A: JR NZ,$-1' loops (1, the default), or
   'DEC A: JP NZ,$-1' loops (2), or neither (0).
 
---sim-load-config accelerator=auto/none/list/NAME
+--sim-load-config accelerator=auto/none/list/NAME[,NAME...]
 
-  Use a specific accelerator to speed up the simulation of the tape-sampling
-  loop in a loading routine, disable acceleration entirely, or list the
-  accelerators used during a simulated LOAD. (By default, an appropriate
-  accelerator is automatically selected, if available.) Recognised accelerator
-  names are:
+  Use one or more specific accelerators to speed up the simulation of the
+  tape-sampling loops in a loading routine, disable acceleration entirely, or
+  list the accelerators used during a simulated LOAD. (By default, appropriate
+  accelerators are automatically selected, if available.) Recognised
+  accelerator names are:
 
   {accelerators}
 

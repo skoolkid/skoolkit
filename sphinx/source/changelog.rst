@@ -23,7 +23,8 @@ Changelog
   loop accelerators for use with :ref:`tap2sna.py <tap2sna-sim-load>`
 * Added the special ``auto`` and ``list`` tape-sampling loop accelerator names
   for use with the ``accelerator`` simulated LOAD configuration parameter of
-  :ref:`tap2sna.py <tap2sna-sim-load>`
+  :ref:`tap2sna.py <tap2sna-sim-load>`, and the ability to specify multiple
+  accelerators
 * Added support to :ref:`bin2sna.py`, :ref:`snapmod.py` and :ref:`tap2sna.py`
   for setting the ``issue2`` hardware state attribute (to enable or disable
   issue 2 emulation)
