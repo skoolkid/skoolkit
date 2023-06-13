@@ -199,6 +199,7 @@ The names of the available tape-sampling loop accelerators are:
 |  ``flash-loader`` (Flash Loader - same as ``rom``)
 |  ``ftl`` (FTL - same as ``speedlock``)
 |  ``gargoyle`` (Gargoyle - same as ``speedlock``)
+|  ``gargoyle2`` (various games created or published by Gargoyle Games)
 |  ``gremlin`` (various games published by Gremlin Graphics)
 |  ``gremlin2`` (Super Cars)
 |  ``hewson-slowload`` (Hewson Slowload - same as ``rom``)
@@ -223,6 +224,7 @@ The names of the available tape-sampling loop accelerators are:
 |  ``suzy-soft`` (Big Trouble, Joe Banker, The Drinker)
 |  ``suzy-soft2`` (Western Girl)
 |  ``tiny`` (Il Cobra di Cristallo, Negy a Nyero, Phantomasa, and others)
+|  ``us-gold`` (Gauntlet II)
 |  ``weird-science`` (Flash Beer Trilogy, Ghost Castles, TV-Game)
 |  ``zydroload`` (Zydroload - same as ``speedlock``)
 

@@ -336,7 +336,7 @@ class LoadTracer:
         loops = 0
         pcn = registers[24] + 1
         if self.tape_running and memory[pcn - acc.c0:pcn + acc.c1] == acc.code:
-            if registers[3] & acc.ear_mask == (self.index % 2) * acc.ear_mask:
+            if registers[3] & acc.ear_mask == ((self.index - acc.polarity) % 2) * acc.ear_mask:
                 delta = self.next_edge - registers[25] - acc.in_time
                 if delta > 0:
                     loops = min(delta // acc.loop_time + 1, (b - 1) % 256)
@@ -358,7 +358,7 @@ class LoadTracer:
             loops = 0
             for i, acc in enumerate(accelerators):
                 if all(x == y or y is None for x, y in zip(memory[pcn - acc.c0:pcn + acc.c1], acc.code)): # pragma: no cover
-                    if registers[3] & acc.ear_mask == (self.index % 2) * acc.ear_mask:
+                    if registers[3] & acc.ear_mask == ((self.index - acc.polarity) % 2) * acc.ear_mask:
                         delta = self.next_edge - registers[25] - acc.in_time
                         if delta > 0:
                             loops = min(delta // acc.loop_time + 1, 255 - b)
@@ -405,7 +405,7 @@ class LoadTracer:
         loops = 0
         pcn = registers[24] + 1
         if self.tape_running and memory[pcn - acc.c0:pcn + acc.c1] == acc.code:
-            if registers[3] & acc.ear_mask == (self.index % 2) * acc.ear_mask:
+            if registers[3] & acc.ear_mask == ((self.index - acc.polarity) % 2) * acc.ear_mask:
                 delta = self.next_edge - registers[25] - acc.in_time
                 if delta > 0:
                     loops = min(delta // acc.loop_time + 1, 255 - b)
@@ -424,7 +424,7 @@ class LoadTracer:
         loops = 0
         pcn = registers[24] + 1
         if self.tape_running and all(x == y or y is None for x, y in zip(memory[pcn - acc.c0:pcn + acc.c1], acc.code)):
-            if registers[3] & acc.ear_mask == (self.index % 2) * acc.ear_mask:
+            if registers[3] & acc.ear_mask == ((self.index - acc.polarity) % 2) * acc.ear_mask:
                 delta = self.next_edge - registers[25] - acc.in_time
                 if delta > 0:
                     loops = min(delta // acc.loop_time + 1, 255 - b)
@@ -446,7 +446,7 @@ class LoadTracer:
             loops = 0
             for i, acc in enumerate(accelerators):
                 if all(x == y or y is None for x, y in zip(memory[pcn - acc.c0:pcn + acc.c1], acc.code)): # pragma: no cover
-                    if registers[3] & acc.ear_mask == (self.index % 2) * acc.ear_mask:
+                    if registers[3] & acc.ear_mask == ((self.index - acc.polarity) % 2) * acc.ear_mask:
                         delta = self.next_edge - registers[25] - acc.in_time
                         if delta > 0:
                             loops = min(delta // acc.loop_time + 1, 255 - b)

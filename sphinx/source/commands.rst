@@ -1434,8 +1434,8 @@ The output produced by ``accelerator=list`` looks something like this::
 
 This means that the ``microsphere`` and ``rom`` tape-sampling loops were
 detected, and were entered 6695 times and 794013 times respectively. In
-addition, 19 instances of 'INC B' outside a tape-sampling loop were executed,
-and the corresponding figure for 'DEC B' is 9.
+addition, 19 instances of 'INC B' outside a recognised tape-sampling loop were
+executed, and the corresponding figure for 'DEC B' is 9.
 
 If a game's custom loader uses exactly one type of tape-sampling loop,
 specifying the corresponding accelerator by name may reduce the loading time.
@@ -1469,6 +1469,7 @@ The names of the available tape-sampling loop accelerators are:
 * ``flash-loader`` (Flash Loader - same as ``rom``)
 * ``ftl`` (FTL - same as ``speedlock``)
 * ``gargoyle`` (Gargoyle - same as ``speedlock``)
+* ``gargoyle2`` (various games created or published by Gargoyle Games)
 * ``gremlin`` (various games published by Gremlin Graphics)
 * ``gremlin2`` (Super Cars)
 * ``hewson-slowload`` (Hewson Slowload - same as ``rom``)
@@ -1493,6 +1494,7 @@ The names of the available tape-sampling loop accelerators are:
 * ``suzy-soft`` (Big Trouble, Joe Banker, The Drinker)
 * ``suzy-soft2`` (Western Girl)
 * ``tiny`` (Il Cobra di Cristallo, Negy a Nyero, Phantomasa, and others)
+* ``us-gold`` (Gauntlet II)
 * ``weird-science`` (Flash Beer Trilogy, Ghost Castles, TV-Game)
 * ``zydroload`` (Zydroload - same as ``speedlock``)
 
@@ -1578,11 +1580,11 @@ Configuration parameters may also be set on the command line by using the
 |         | ``alkatraz-0b``, ``alternative``, ``alternative2``,               |
 |         | ``boguslaw-juza``, ``bulldog``, ``crl``, ``crl2``, ``crl3``,      |
 |         | ``crl4``, ``cybexlab``, ``d-and-h``, ``delphine``,                |
-|         | ``design-design``, ``gremlin2``, ``microprose``, ``micro-style``, |
-|         | ``mirrorsoft``, ``palas``, ``raxoft``, ``realtime``,              |
-|         | ``silverbird``, ``software-projects``, ``sparklers``,             |
-|         | ``suzy-soft``, ``suzy-soft2``, ``tiny`` and ``weird-science``     |
-|         | tape-sampling loop accelerators                                   |
+|         | ``design-design``, ``gargoyle2``, ``gremlin2``, ``microprose``,   |
+|         | ``micro-style``, ``mirrorsoft``, ``palas``, ``raxoft``,           |
+|         | ``realtime``, ``silverbird``, ``software-projects``,              |
+|         | ``sparklers``, ``suzy-soft``, ``suzy-soft2``, ``tiny``,           |
+|         | ``us-gold`` and ``weird-science`` tape-sampling loop accelerators |
 +---------+-------------------------------------------------------------------+
 | 8.9     | Added the ``--sim-load-config``, ``--tape-name``,                 |
 |         | ``--tape-start``, ``--tape-stop`` and ``--tape-sum`` options;     |
