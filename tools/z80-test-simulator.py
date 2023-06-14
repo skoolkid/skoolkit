@@ -25,6 +25,7 @@ class Options:
     reg = []
     state = []
     sim_load_config = []
+    tape_analysis = False
 
 class Tracer:
     def __init__(self):
