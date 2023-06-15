@@ -1489,7 +1489,7 @@ The names of the available tape-sampling loop accelerators are:
 * ``search-loader`` (Search Loader)
 * ``silverbird`` (Olli & Lissa II: Halloween)
 * ``softlock`` (SoftLock - same as ``rom``)
-* ``software-projects`` (BC's Quest for Tires)
+* ``software-projects`` (BC's Quest for Tires, Lode Runner)
 * ``sparklers`` (Bargain Basement, Flunky)
 * ``speedlock`` (Speedlock - all versions)
 * ``suzy-soft`` (Big Trouble, Joe Banker, The Drinker)
