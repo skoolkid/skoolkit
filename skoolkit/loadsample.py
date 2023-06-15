@@ -775,7 +775,7 @@ ACCELERATORS = {
             0x20, 0xF4  #           JR NZ,LD_SAMPLE [12/7]
         ],
         9,    # Offset of DEC B instruction from start of loop
-        18,   # 18 T-states from DEC B until IN A,($FE)
+        23,   # 23 T-states from DEC B until IN A,($FE)
         52,   # 52 T-states per loop iteration
         7,    # R register increment per loop iteration
         0x40, # EAR mask
