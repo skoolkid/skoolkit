@@ -174,8 +174,8 @@ class LoadTracer:
                 else:
                     dec_b_acc.append(accelerator)
             if list_accelerators: # pragma: no cover
-                opcodes[0x04] = partial(self.inc_b_auto_list, registers, memory, inc_b_acc)
-                opcodes[0x05] = partial(self.dec_b_auto_list, registers, memory, dec_b_acc)
+                opcodes[0x04] = partial(self.list_accelerators, registers, memory, inc_b_acc, self.inc_b_auto, 0x04)
+                opcodes[0x05] = partial(self.list_accelerators, registers, memory, dec_b_acc, self.dec_b_auto, 0x05)
             else:
                 if len(inc_b_acc) == 1: # pragma: no cover
                     accelerator = inc_b_acc[0]
@@ -382,24 +382,6 @@ class LoadTracer:
         registers[25] += 4
         registers[24] = pcn % 65536
 
-    def dec_b_auto_list(self, registers, memory, accelerators): # pragma: no cover
-        # Speed up the tape-sampling loop with a loader-specific accelerator,
-        # and also count hits and misses
-        pcn = registers[24] + 1
-        if self.tape_running:
-            for i, acc in enumerate(accelerators):
-                if all(x == y or y is None for x, y in zip(memory[pcn - acc.c0:pcn + acc.c1], acc.code)): # pragma: no cover
-                    self.accelerators[acc.name] += 1
-                    if i:
-                        # Move the selected accelerator to the beginning of the
-                        # list so that it can be found quicker by dec_b_auto()
-                        accelerators.remove(acc)
-                        accelerators.insert(0, acc)
-                    self.dec_b_auto(registers, memory, accelerators)
-                    return
-        self.dec_b_misses += 1
-        self.dec_b_auto(registers, memory, ())
-
     def inc_b(self, registers, memory, acc): # pragma: no cover
         # Speed up the tape-sampling loop with a loader-specific accelerator
         b = registers[2]
@@ -470,7 +452,7 @@ class LoadTracer:
         registers[25] += 4
         registers[24] = pcn % 65536
 
-    def inc_b_auto_list(self, registers, memory, accelerators): # pragma: no cover
+    def list_accelerators(self, registers, memory, accelerators, auto_method, opcode): # pragma: no cover
         # Speed up the tape-sampling loop with an automatically selected
         # loader-specific accelerator, and also count hits and misses
         pcn = registers[24] + 1
@@ -480,13 +462,16 @@ class LoadTracer:
                     self.accelerators[acc.name] += 1
                     if i:
                         # Move the selected accelerator to the beginning of the
-                        # list so that it can be found quicker by inc_b_auto()
+                        # list so that it can be found quicker by auto_method()
                         accelerators.remove(acc)
                         accelerators.insert(0, acc)
-                    self.inc_b_auto(registers, memory, accelerators)
+                    auto_method(registers, memory, accelerators)
                     return
-        self.inc_b_misses += 1
-        self.inc_b_auto(registers, memory, ())
+        if opcode == 0x04:
+            self.inc_b_misses += 1
+        else:
+            self.dec_b_misses += 1
+        auto_method(registers, memory, ())
 
     def read_port(self, registers, port):
         if port % 256 == 0xFE:
