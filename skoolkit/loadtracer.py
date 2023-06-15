@@ -362,7 +362,7 @@ class LoadTracer:
                     if registers[3] & acc.ear_mask == ((self.index - acc.polarity) % 2) * acc.ear_mask:
                         delta = self.next_edge - registers[25] - acc.in_time
                         if delta > 0:
-                            loops = min(delta // acc.loop_time + 1, 255 - b)
+                            loops = min(delta // acc.loop_time + 1, (b - 1) % 256)
                         if loops:
                             # The carry flag is cleared on each loop iteration
                             registers[1] &= 0xFE
@@ -371,7 +371,7 @@ class LoadTracer:
                         # list so that it can be found quicker next time
                         accelerators.remove(acc)
                         accelerators.insert(0, acc)
-                    registers[2], registers[1] = DEC[registers[1] % 2][b - loops]
+                    registers[2], registers[1] = DEC[registers[1] % 2][(b - loops) % 256]
                     r = registers[15]
                     registers[15] = (r & 0x80) + ((r + acc.loop_r_inc * loops + 1) % 0x80)
                     registers[25] += acc.loop_time * loops + 4
