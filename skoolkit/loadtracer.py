@@ -341,9 +341,9 @@ class LoadTracer:
                 delta = self.next_edge - registers[25] - acc.in_time
                 if delta > 0:
                     loops = min(delta // acc.loop_time + 1, (b - 1) % 256)
-                if loops:
-                    # The carry flag is cleared on each loop iteration
-                    registers[1] &= 0xFE
+                    if loops:
+                        # The carry flag is cleared on each loop iteration
+                        registers[1] &= 0xFE
         registers[2], registers[1] = DEC[registers[1] % 2][(b - loops) % 256]
         r = registers[15]
         registers[15] = (r & 0x80) + ((r + acc.loop_r_inc * loops + 1) % 0x80)
@@ -363,9 +363,9 @@ class LoadTracer:
                         delta = self.next_edge - registers[25] - acc.in_time
                         if delta > 0:
                             loops = min(delta // acc.loop_time + 1, (b - 1) % 256)
-                        if loops:
-                            # The carry flag is cleared on each loop iteration
-                            registers[1] &= 0xFE
+                            if loops:
+                                # The carry flag is cleared on each loop iteration
+                                registers[1] &= 0xFE
                     if i:
                         # Move the selected accelerator to the beginning of the
                         # list so that it can be found quicker next time
@@ -410,9 +410,9 @@ class LoadTracer:
                 delta = self.next_edge - registers[25] - acc.in_time
                 if delta > 0:
                     loops = min(delta // acc.loop_time + 1, 255 - b)
-                if loops:
-                    # The carry flag is cleared on each loop iteration
-                    registers[1] &= 0xFE
+                    if loops:
+                        # The carry flag is cleared on each loop iteration
+                        registers[1] &= 0xFE
         registers[2], registers[1] = INC[registers[1] % 2][b + loops]
         r = registers[15]
         registers[15] = (r & 0x80) + ((r + acc.loop_r_inc * loops + 1) % 0x80)
@@ -429,9 +429,9 @@ class LoadTracer:
                 delta = self.next_edge - registers[25] - acc.in_time
                 if delta > 0:
                     loops = min(delta // acc.loop_time + 1, 255 - b)
-                if loops:
-                    # The carry flag is cleared on each loop iteration
-                    registers[1] &= 0xFE
+                    if loops:
+                        # The carry flag is cleared on each loop iteration
+                        registers[1] &= 0xFE
         registers[2], registers[1] = INC[registers[1] % 2][b + loops]
         r = registers[15]
         registers[15] = (r & 0x80) + ((r + acc.loop_r_inc * loops + 1) % 0x80)
@@ -451,9 +451,9 @@ class LoadTracer:
                         delta = self.next_edge - registers[25] - acc.in_time
                         if delta > 0:
                             loops = min(delta // acc.loop_time + 1, 255 - b)
-                        if loops:
-                            # The carry flag is cleared on each loop iteration
-                            registers[1] &= 0xFE
+                            if loops:
+                                # The carry flag is cleared on each loop iteration
+                                registers[1] &= 0xFE
                     if i:
                         # Move the selected accelerator to the beginning of the
                         # list so that it can be found quicker next time
