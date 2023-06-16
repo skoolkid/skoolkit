@@ -1,7 +1,7 @@
 Changelog
 =========
 
-8.10b1
+8.10rc
 ------
 * Added the ``finish-tape`` simulated LOAD configuration parameter to
   :ref:`tap2sna.py <tap2sna-sim-load>` (to specify whether to finish the tape
