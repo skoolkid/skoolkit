@@ -167,9 +167,9 @@ detected, and were entered 6695 times and 794013 times respectively. In
 addition, 19 instances of 'INC B' outside a tape-sampling loop were executed,
 and the corresponding figure for 'DEC B' is 9.
 
-If a game's custom loader uses exactly one type of tape-sampling loop,
-specifying the corresponding accelerator by name may reduce the loading time.
-The names of the available tape-sampling loop accelerators are:
+Specifying by name the types of tape-sampling loop used by a game's custom
+loader may reduce the loading time. The names of the available tape-sampling
+loop accelerators are:
 
 |
 |  ``alkatraz`` (Alkatraz)
