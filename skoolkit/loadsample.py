@@ -312,11 +312,11 @@ ACCELERATORS = {
         'crl3',
         [
             0x04,       # LD_SAMPLE INC B          [4]
-            0x28, None, #           JR Z,nn        [12/7]
+            0x28, 0x1D, #           JR Z,NO_EDGE   [12/7]
             0x3E, 0x7F, #           LD A,$7F       [7]
             0xDB, 0xFE, #           IN A,($FE)     [11]
             0x1F,       #           RRA            [4]
-            0x30, None, #           JR NC,nn       [12/7]
+            0x30, 0x1B, #           JR NC,BREAK    [12/7]
             0xA9,       #           XOR C          [4]
             0xE6, 0x20, #           AND $20        [7]
             0x28, 0xF1, #           JR Z,LD_SAMPLE [12/7]
@@ -355,7 +355,7 @@ ACCELERATORS = {
         [
             0x04,       # LD_SAMPLE INC B          [4]
             0xC8,       #           RET Z          [11/5]
-            0xAF      , #           XOR A          [4]
+            0xAF,       #           XOR A          [4]
             0xDB, 0xFE, #           IN A,($FE)     [11]
             0x1F,       #           RRA            [4]
             0xD0,       #           RET NC         [11/5]
