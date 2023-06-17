@@ -1,6 +1,55 @@
 Changelog
 =========
 
+8.10 (2023-06-17)
+-----------------
+* Added the ``finish-tape`` simulated LOAD configuration parameter to
+  :ref:`tap2sna.py <tap2sna-sim-load>` (to specify whether to finish the tape
+  before stopping the simulation at the given start address)
+* Added the ``contended-in`` simulated LOAD configuration parameter to
+  :ref:`tap2sna.py <tap2sna-sim-load>` (to specify whether to interpret
+  'IN A,($FE)' instructions in the address range $4000-$7FFF as reading the
+  tape)
+* Added the ``accelerate-dec-a`` simulated LOAD configuration parameter to
+  :ref:`tap2sna.py <tap2sna-sim-load>` (to specify whether to accelerate
+  'DEC A: JR NZ,$-1' or 'DEC A: JP NZ,$-1' delay loops)
+* Added the ``alkatraz-05``, ``alkatraz-09``, ``alkatraz-0a``, ``alkatraz-0b``,
+  ``alternative``, ``alternative2``, ``boguslaw-juza``, ``bulldog``, ``crl``,
+  ``crl2``, ``crl3``, ``crl4``, ``cybexlab``, ``d-and-h``, ``delphine``,
+  ``design-design``, ``gargoyle2``, ``gremlin2``, ``microprose``,
+  ``micro-style``, ``mirrorsoft``, ``palas``, ``raxoft``, ``realtime``,
+  ``silverbird``, ``software-projects``, ``sparklers``, ``suzy-soft``,
+  ``suzy-soft2``, ``tiny``, ``us-gold`` and ``weird-science`` tape-sampling
+  loop accelerators for use with :ref:`tap2sna.py <tap2sna-sim-load>`
+* Added the special ``auto`` and ``list`` tape-sampling loop accelerator names
+  for use with the ``accelerator`` simulated LOAD configuration parameter of
+  :ref:`tap2sna.py <tap2sna-sim-load>`, and the ability to specify multiple
+  accelerators
+* Added support to :ref:`bin2sna.py`, :ref:`snapmod.py` and :ref:`tap2sna.py`
+  for setting the ``issue2`` hardware state attribute (to enable or disable
+  issue 2 emulation)
+* Added support to :ref:`tap2sna.py` for loading tapes that end with a pulse
+  sequence instead of data
+* Added support to :ref:`tap2sna.py <tap2sna-conf>` for reading configuration
+  from `skoolkit.ini`
+* Added the ``--ini`` and ``--show-config`` options to :ref:`tap2sna.py` (for
+  setting the value of a configuration parameter and for showing all
+  configuration parameter values)
+* Added support to :ref:`tap2sna.py <tap2sna-conf>` for configuring the format
+  of a simulated LOAD trace log file via the ``TraceLine`` and ``TraceOperand``
+  configuration parameters
+* Added the ``--tape-analysis`` option to :ref:`tap2sna.py` (for showing an
+  analysis of the tape's tones, pulse sequences and data blocks)
+* :ref:`snapinfo.py` now shows the value of the T-states counter and the issue
+  2 emulation flag in SZX and Z80 snapshots
+* Fixed the bug that prevents :ref:`snapinfo.py` from displaying the value of a
+  floating-point number in a BASIC line when the accompanying numeric string is
+  a single decimal point (``.``)
+* Fixed how the value of the R register is set in a Z80 snapshot when bit 7 is
+  reset
+* Fixed how tape-sampling loop accelerators affect the carry flag after at
+  least one pass through the loop
+
 8.9 (2023-02-19)
 ----------------
 * Added support to :ref:`tap2sna.py` for TZX loops (block types 0x24 and 0x25),

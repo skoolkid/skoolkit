@@ -52,6 +52,8 @@ it with no arguments to see the list of available options::
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 8.10    | Added the ``issue2`` hardware state attribute                     |
++---------+-------------------------------------------------------------------+
 | 8.9     | Added the ``tstates`` hardware state attribute                    |
 +---------+-------------------------------------------------------------------+
 | 6.3     | Added the ``--poke`` option                                       |
@@ -1186,6 +1188,9 @@ Configuration parameters may also be set on the command line by using the
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 8.10    | Shows the value of the T-states counter and the issue 2 emulation |
+|         | flag in SZX and Z80 snapshots                                     |
++---------+-------------------------------------------------------------------+
 | 8.4     | Added the ``Peek`` and ``Word`` configuration parameters          |
 +---------+-------------------------------------------------------------------+
 | 8.3     | Added support for reading control files from a directory          |
@@ -1246,6 +1251,8 @@ To list the options supported by `snapmod.py`, run it with no arguments::
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 8.10    | Added the ``issue2`` hardware state attribute                     |
++---------+-------------------------------------------------------------------+
 | 8.9     | Added the ``tstates`` hardware state attribute                    |
 +---------+-------------------------------------------------------------------+
 | 6.2     | The ``--move``, ``--poke`` and ``--reg`` options accept           |
@@ -1267,6 +1274,7 @@ To list the options supported by `tap2sna.py`, run it with no arguments::
 
   usage:
     tap2sna.py [options] INPUT snapshot.z80
+    tap2sna.py --tape-analysis [options] INPUT
     tap2sna.py @FILE
 
   Convert a TAP or TZX file (which may be inside a zip archive) into a Z80
@@ -1282,6 +1290,8 @@ To list the options supported by `tap2sna.py`, run it with no arguments::
     -d DIR, --output-dir DIR
                           Write the snapshot file in this directory.
     -f, --force           Overwrite an existing snapshot.
+    -I p=v, --ini p=v     Set the value of the configuration parameter 'p' to
+                          'v'. This option may be used multiple times.
     -p STACK, --stack STACK
                           Set the stack pointer.
     --ram OPERATION       Perform a load operation or otherwise modify the
@@ -1289,12 +1299,15 @@ To list the options supported by `tap2sna.py`, run it with no arguments::
                           information. This option may be used multiple times.
     --reg name=value      Set the value of a register. Do '--reg help' for more
                           information. This option may be used multiple times.
+    --show-config         Show configuration parameter values.
     -s START, --start START
                           Set the start address to JP to.
     --sim-load            Simulate a 48K ZX Spectrum running LOAD "".
     --state name=value    Set a hardware state attribute. Do '--state help' for
                           more information. This option may be used multiple
                           times.
+    --tape-analysis       Show an analysis of the tape's tones, pulse sequences
+                          and data blocks.
     --tape-name NAME      Specify the name of a TAP/TZX file in a zip archive.
     --tape-start BLOCK    Start the tape at this block number.
     --tape-stop BLOCK     Stop the tape at this block number.
@@ -1352,6 +1365,8 @@ then::
 will create `game.z80` as if the arguments specified in `game.t2s` had been
 given on the command line.
 
+.. _tap2sna-sim-load:
+
 Simulated LOAD
 ^^^^^^^^^^^^^^
 An alternative to the ``--ram load`` approach is the ``--sim-load`` option. It
@@ -1377,13 +1392,20 @@ A simulated LOAD can be configured via parameters that are set by the
 ``--sim-load-config`` (or ``-c``) option. The recognised configuration
 parameters are:
 
-* ``accelerator`` - the tape-sampling loop accelerator to use (default:
-  automatically selected - see below); use this to specify a particular
-  accelerator (which may produce a faster simulated LOAD), or to disable
-  acceleration entirely (``accelerator=none``)
+* ``accelerate-dec-a`` - enable acceleration of 'DEC A: JR NZ,$-1' delay loops
+  (``1``, the default), or 'DEC A: JP NZ,$-1' delay loops (``2``), or neither
+  (``0``)
+* ``accelerator`` - a comma-separated list of tape-sampling loop accelerators
+  to use (see below)
+* ``contended-in`` - interpret 'IN A,($FE)' instructions in the address range
+  $4000-$7FFF as reading the tape (``1``), or ignore them (``0``, the default)
 * ``fast-load`` - enable fast loading (``1``, the default), or disable it
   (``0``); fast loading significantly reduces the load time for many tapes, but
   can also cause some loaders to fail
+* ``finish-tape`` - run the tape to the end before stopping the simulation at
+  the address specified by the ``--start`` option (``1``), or stop the
+  simulation as soon as that address is reached, regardless of whether the tape
+  has finished (``0``, the default)
 * ``first-edge`` - the time (in T-states) from the start of the tape at which
   to place the leading edge of the first pulse (default: ``-2168``); the
   default value places the trailing edge of the first pulse at time 0, but some
@@ -1397,37 +1419,175 @@ parameters are:
 * ``trace`` - the file to which to log all instructions executed during the
   simulated LOAD (default: none)
 
-The names of the available tape-sampling loop accelerators are:
+The ``accelerator`` parameter must be either a comma-separated list of specific
+accelerator names or one of the following special values:
+
+* ``auto`` - select accelerators automatically (this is the default)
+* ``list`` - list the accelerators used during a simulated LOAD, along with the
+  hit/miss counts generated by the tape-sampling loop detector
+* ``none`` - disable acceleration; the loading time for a game with a custom
+  loader that uses an unrecognised tape-sampling loop may be reduced by
+  specifying this value
+
+The output produced by ``accelerator=list`` looks something like this::
+
+  Accelerators: microsphere: 6695; rom: 794013; misses: 19/9
+
+This means that the ``microsphere`` and ``rom`` tape-sampling loops were
+detected, and were entered 6695 times and 794013 times respectively. In
+addition, 19 instances of 'INC B' outside a recognised tape-sampling loop were
+executed, and the corresponding figure for 'DEC B' is 9.
+
+Specifying by name the types of tape-sampling loop used by a game's custom
+loader may reduce the loading time. The names of the available tape-sampling
+loop accelerators are:
 
 * ``alkatraz`` (Alkatraz)
+* ``alkatraz-05`` (Italy 1990, Italy 1990 - Winners Edition)
+* ``alkatraz-09`` (Italy 1990, Italy 1990 - Winners Edition)
+* ``alkatraz-0a`` (various games published by U.S. Gold)
+* ``alkatraz-0b`` (Fast 'n' Furious)
 * ``alkatraz2`` (Alkatraz 2)
+* ``alternative`` (Fireman Sam, Huxley Pig)
+* ``alternative2`` (Kentucky Racing)
 * ``bleepload`` (Firebird BleepLoad)
-* ``cyberlode`` (Cyberlode 1.1)
+* ``boguslaw-juza`` (Euro Biznes)
+* ``bulldog`` (Rigel's Revenge)
+* ``crl`` (Ball Breaker, Ballbreaker II)
+* ``crl2`` (Terrahawks)
+* ``crl3`` (Oink)
+* ``crl4`` (Federation)
+* ``cyberlode`` (Cyberlode 1.1 - same as ``bleepload``)
+* ``cybexlab`` (17.11.1989, Belegost, Starfox)
+* ``d-and-h`` (Multi-Player Soccer Manager)
+* ``delphine`` (Zakliaty zámok programátorov)
+* ``design-design`` (various games published by Design Design Software)
 * ``digital-integration`` (Digital Integration)
 * ``dinaload`` (Dinaload)
-* ``edge`` (Edge)
-* ``elite-uni-loader`` (Elite Uni-Loader)
-* ``excelerator`` (The Excelerator Loader)
-* ``flash-loader`` (Flash Loader)
-* ``ftl`` (FTL)
-* ``gargoyle`` (Gargoyle)
+* ``edge`` (Edge - same as ``rom``)
+* ``elite-uni-loader`` (Elite Uni-Loader - same as ``speedlock``)
+* ``excelerator`` (The Excelerator Loader - same as ``bleepload``)
+* ``flash-loader`` (Flash Loader - same as ``rom``)
+* ``ftl`` (FTL - same as ``speedlock``)
+* ``gargoyle`` (Gargoyle - same as ``speedlock``)
+* ``gargoyle2`` (various games created or published by Gargoyle Games)
 * ``gremlin`` (various games published by Gremlin Graphics)
-* ``hewson-slowload`` (Hewson Slowload)
-* ``injectaload`` (Injectaload)
-* ``microsphere`` (Back to Skool, Skool Daze, Sky Ranger)
-* ``none`` (no accelerator)
+* ``gremlin2`` (Super Cars)
+* ``hewson-slowload`` (Hewson Slowload - same as ``rom``)
+* ``injectaload`` (Injectaload - same as ``bleepload``)
+* ``microprose`` (F-15 Strike Eagle)
+* ``microsphere`` (Back to Skool, Contact Sam Cruise, Skool Daze, Sky Ranger)
+* ``micro-style`` (Xenophobe)
+* ``mirrorsoft`` (Action Reflex)
+* ``palas`` (Bad Night)
 * ``paul-owens`` (Paul Owens Protection System)
-* ``poliload`` (Poliload)
-* ``power-load`` (Power-Load)
+* ``poliload`` (Poliload - same as ``dinaload``)
+* ``power-load`` (Power-Load - same as ``bleepload``)
+* ``raxoft`` (Piskworks, Podraz 4)
+* ``realtime`` (Starstrike II)
 * ``rom`` (any loader whose sampling loop is the same as the ROM's)
 * ``search-loader`` (Search Loader)
-* ``softlock`` (SoftLock)
+* ``silverbird`` (Olli & Lissa II: Halloween)
+* ``softlock`` (SoftLock - same as ``rom``)
+* ``software-projects`` (BC's Quest for Tires, Lode Runner)
+* ``sparklers`` (Bargain Basement, Flunky)
 * ``speedlock`` (Speedlock - all versions)
-* ``zydroload`` (Zydroload)
+* ``suzy-soft`` (Big Trouble, Joe Banker, The Drinker)
+* ``suzy-soft2`` (Western Girl)
+* ``tiny`` (Il Cobra di Cristallo, Negy a Nyero, Phantomasa, and others)
+* ``us-gold`` (Gauntlet II)
+* ``weird-science`` (Flash Beer Trilogy, Ghost Castles, TV-Game)
+* ``zydroload`` (Zydroload - same as ``speedlock``)
+
+.. _tap2sna-conf:
+
+Configuration
+^^^^^^^^^^^^^
+`tap2sna.py` will read configuration from a file named `skoolkit.ini` in the
+current working directory or in `~/.skoolkit`, if present. The recognised
+configuration parameters are:
+
+* ``TraceLine`` - the format of each line in the trace log file for a simulated
+  LOAD (default: ``${pc:04X} {i}``)
+* ``TraceOperand`` - the prefix, byte format, and word format for the numeric
+  operands of instructions in the trace log file for a simulated LOAD,
+  separated by commas (default: ``$,02X,04X``); the byte and word formats are
+  standard Python format specifiers for numeric values, and default to empty
+  strings if not supplied
+
+``TraceLine`` is a standard Python format string that recognises the following
+replacement fields:
+
+* ``i`` - the current instruction
+* ``pc`` - the address of the current instruction (program counter)
+* ``r[a]`` - the A register (accumulator)
+* ``r[f]`` - the F (flags) register
+* ``r[b]`` - the B register
+* ``r[c]`` - the C register
+* ``r[d]`` - the D register
+* ``r[e]`` - the E register
+* ``r[h]`` - the H register
+* ``r[l]`` - the L register
+* ``r[^a]`` - the A' register (shadow accumulator)
+* ``r[^f]`` - the F' (shadow flags) register
+* ``r[^b]`` - the shadow B register
+* ``r[^c]`` - the shadow C register
+* ``r[^d]`` - the shadow D register
+* ``r[^e]`` - the shadow E register
+* ``r[^h]`` - the shadow H register
+* ``r[^l]`` - the shadow L register
+* ``r[ixh]`` - the high byte of the IX register pair
+* ``r[ixl]`` - the low byte of the IX register pair
+* ``r[iyh]`` - the high byte of the IY register pair
+* ``r[iyl]`` - the low byte of the IY register pair
+* ``r[i]`` - the I register
+* ``r[r]`` - the R register
+* ``r[sp]`` - the stack pointer
+* ``r[t]`` - the current timestamp
+
+The current timestamp (``r[t]``) is the number of T-states that have elapsed
+since the start of the simulation, according to the simulator's internal clock.
+In order to maintain synchronisation with the tape being loaded, the
+simulator's clock is adjusted to match the timestamp of the first pulse in each
+block (as shown by the ``--tape-analysis`` option) when that block is reached.
+(The simulator's clock may at times become desynchronised with the tape
+because, by default, the tape is paused between blocks, and resumed when port
+254 is read.)
+
+Configuration parameters must appear in a ``[tap2sna]`` section. For example,
+to make `tap2sna.py` write instruction addresses and operands in a trace log
+file in decimal format by default, add the following section to
+`skoolkit.ini`::
+
+  [tap2sna]
+  TraceLine={pc:05} {i}
+  TraceOperand=
+
+Configuration parameters may also be set on the command line by using the
+``--ini`` option. Parameter values set this way will override any found in
+`skoolkit.ini`.
 
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 8.10    | Configuration is read from `skoolkit.ini` if present; added the   |
+|         | ``--ini``, ``--show-config`` and ``--tape-analysis`` options;     |
+|         | added the ``TraceLine`` and ``TraceOperand`` configuration        |
+|         | parameters; added the ``accelerate-dec-a``, ``contended-in`` and  |
+|         | ``finish-tape`` simulated LOAD configuration parameters; added    |
+|         | the ``issue2`` hardware state attribute; added the special        |
+|         | ``auto`` and ``list`` tape-sampling loop accelerator names, and   |
+|         | the ability to specify multiple accelerators; added the           |
+|         | ``alkatraz-05``, ``alkatraz-09``, ``alkatraz-0a``,                |
+|         | ``alkatraz-0b``, ``alternative``, ``alternative2``,               |
+|         | ``boguslaw-juza``, ``bulldog``, ``crl``, ``crl2``, ``crl3``,      |
+|         | ``crl4``, ``cybexlab``, ``d-and-h``, ``delphine``,                |
+|         | ``design-design``, ``gargoyle2``, ``gremlin2``, ``microprose``,   |
+|         | ``micro-style``, ``mirrorsoft``, ``palas``, ``raxoft``,           |
+|         | ``realtime``, ``silverbird``, ``software-projects``,              |
+|         | ``sparklers``, ``suzy-soft``, ``suzy-soft2``, ``tiny``,           |
+|         | ``us-gold`` and ``weird-science`` tape-sampling loop accelerators |
++---------+-------------------------------------------------------------------+
 | 8.9     | Added the ``--sim-load-config``, ``--tape-name``,                 |
 |         | ``--tape-start``, ``--tape-stop`` and ``--tape-sum`` options;     |
 |         | added support for TZX loops, pauses, and unused bits in data      |

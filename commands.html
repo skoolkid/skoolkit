@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Commands &#8212; SkoolKit 8.9 documentation</title>
+    <title>Commands &#8212; SkoolKit 8.10 documentation</title>
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="_static/custom.css" />
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="diy.html" title="Disassembly DIY"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.9 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.10 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Commands</a></li> 
       </ul>
     </div>  
@@ -96,18 +96,21 @@ Options:
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>8.9</p></td>
+<tr class="row-even"><td><p>8.10</p></td>
+<td><p>Added the <code class="docutils literal notranslate"><span class="pre">issue2</span></code> hardware state attribute</p></td>
+</tr>
+<tr class="row-odd"><td><p>8.9</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">tstates</span></code> hardware state attribute</p></td>
 </tr>
-<tr class="row-odd"><td><p>6.3</p></td>
+<tr class="row-even"><td><p>6.3</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">--poke</span></code> option</p></td>
 </tr>
-<tr class="row-even"><td><p>6.2</p></td>
+<tr class="row-odd"><td><p>6.2</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">--reg</span></code> and <code class="docutils literal notranslate"><span class="pre">--state</span></code> options; the <code class="docutils literal notranslate"><span class="pre">--org</span></code>,
 <code class="docutils literal notranslate"><span class="pre">--stack</span></code> and <code class="docutils literal notranslate"><span class="pre">--start</span></code> options accept a hexadecimal integer
 prefixed by ‘0x’</p></td>
 </tr>
-<tr class="row-odd"><td><p>5.2</p></td>
+<tr class="row-even"><td><p>5.2</p></td>
 <td><p>New</p></td>
 </tr>
 </tbody>
@@ -1324,33 +1327,37 @@ GraphAttributes=bgcolor=cyan
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>8.4</p></td>
+<tr class="row-even"><td><p>8.10</p></td>
+<td><p>Shows the value of the T-states counter and the issue 2 emulation
+flag in SZX and Z80 snapshots</p></td>
+</tr>
+<tr class="row-odd"><td><p>8.4</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">Peek</span></code> and <code class="docutils literal notranslate"><span class="pre">Word</span></code> configuration parameters</p></td>
 </tr>
-<tr class="row-odd"><td><p>8.3</p></td>
+<tr class="row-even"><td><p>8.3</p></td>
 <td><p>Added support for reading control files from a directory
 (<code class="docutils literal notranslate"><span class="pre">--ctl</span> <span class="pre">DIR</span></code>)</p></td>
 </tr>
-<tr class="row-even"><td><p>8.2</p></td>
+<tr class="row-odd"><td><p>8.2</p></td>
 <td><p>Configuration is read from <cite>skoolkit.ini</cite> if present; added the
 ability to read binary files; added the <code class="docutils literal notranslate"><span class="pre">--call-graph</span></code>,
 <code class="docutils literal notranslate"><span class="pre">--ctl</span></code>, <code class="docutils literal notranslate"><span class="pre">--ini</span></code>, <code class="docutils literal notranslate"><span class="pre">--org</span></code>, <code class="docutils literal notranslate"><span class="pre">--page</span></code> and <code class="docutils literal notranslate"><span class="pre">--show-config</span></code>
 options</p></td>
 </tr>
-<tr class="row-odd"><td><p>6.2</p></td>
+<tr class="row-even"><td><p>6.2</p></td>
 <td><p>The <code class="docutils literal notranslate"><span class="pre">--find</span></code>, <code class="docutils literal notranslate"><span class="pre">--find-tile</span></code>, <code class="docutils literal notranslate"><span class="pre">--peek</span></code> and <code class="docutils literal notranslate"><span class="pre">--word</span></code>
 options accept hexadecimal integers prefixed by ‘0x’</p></td>
 </tr>
-<tr class="row-even"><td><p>6.0</p></td>
+<tr class="row-odd"><td><p>6.0</p></td>
 <td><p>Added support to the <code class="docutils literal notranslate"><span class="pre">--find</span></code> option for distance ranges; added
 the <code class="docutils literal notranslate"><span class="pre">--find-tile</span></code> and <code class="docutils literal notranslate"><span class="pre">--word</span></code> options; the <code class="docutils literal notranslate"><span class="pre">--peek</span></code> option
 shows UDGs and BASIC tokens</p></td>
 </tr>
-<tr class="row-odd"><td><p>5.4</p></td>
+<tr class="row-even"><td><p>5.4</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">--variables</span></code> option; UDGs in a BASIC program are
 shown as special symbols (e.g. <code class="docutils literal notranslate"><span class="pre">{UDG-A}</span></code>)</p></td>
 </tr>
-<tr class="row-even"><td><p>5.3</p></td>
+<tr class="row-odd"><td><p>5.3</p></td>
 <td><p>New</p></td>
 </tr>
 </tbody>
@@ -1396,14 +1403,17 @@ Options:
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>8.9</p></td>
+<tr class="row-even"><td><p>8.10</p></td>
+<td><p>Added the <code class="docutils literal notranslate"><span class="pre">issue2</span></code> hardware state attribute</p></td>
+</tr>
+<tr class="row-odd"><td><p>8.9</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">tstates</span></code> hardware state attribute</p></td>
 </tr>
-<tr class="row-odd"><td><p>6.2</p></td>
+<tr class="row-even"><td><p>6.2</p></td>
 <td><p>The <code class="docutils literal notranslate"><span class="pre">--move</span></code>, <code class="docutils literal notranslate"><span class="pre">--poke</span></code> and <code class="docutils literal notranslate"><span class="pre">--reg</span></code> options accept
 hexadecimal integers prefixed by ‘0x’</p></td>
 </tr>
-<tr class="row-even"><td><p>5.3</p></td>
+<tr class="row-odd"><td><p>5.3</p></td>
 <td><p>New</p></td>
 </tr>
 </tbody>
@@ -1419,6 +1429,7 @@ into a Z80 snapshot. For example:</p>
 <p>To list the options supported by <cite>tap2sna.py</cite>, run it with no arguments:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>usage:
   tap2sna.py [options] INPUT snapshot.z80
+  tap2sna.py --tape-analysis [options] INPUT
   tap2sna.py @FILE
 
 Convert a TAP or TZX file (which may be inside a zip archive) into a Z80
@@ -1434,6 +1445,8 @@ Options:
   -d DIR, --output-dir DIR
                         Write the snapshot file in this directory.
   -f, --force           Overwrite an existing snapshot.
+  -I p=v, --ini p=v     Set the value of the configuration parameter &#39;p&#39; to
+                        &#39;v&#39;. This option may be used multiple times.
   -p STACK, --stack STACK
                         Set the stack pointer.
   --ram OPERATION       Perform a load operation or otherwise modify the
@@ -1441,12 +1454,15 @@ Options:
                         information. This option may be used multiple times.
   --reg name=value      Set the value of a register. Do &#39;--reg help&#39; for more
                         information. This option may be used multiple times.
+  --show-config         Show configuration parameter values.
   -s START, --start START
                         Set the start address to JP to.
   --sim-load            Simulate a 48K ZX Spectrum running LOAD &quot;&quot;.
   --state name=value    Set a hardware state attribute. Do &#39;--state help&#39; for
                         more information. This option may be used multiple
                         times.
+  --tape-analysis       Show an analysis of the tape&#39;s tones, pulse sequences
+                        and data blocks.
   --tape-name NAME      Specify the name of a TAP/TZX file in a zip archive.
   --tape-start BLOCK    Start the tape at this block number.
   --tape-stop BLOCK     Stop the tape at this block number.
@@ -1503,7 +1519,7 @@ game.z80
 <p>will create <cite>game.z80</cite> as if the arguments specified in <cite>game.t2s</cite> had been
 given on the command line.</p>
 <div class="section" id="simulated-load">
-<h3>Simulated LOAD<a class="headerlink" href="#simulated-load" title="Permalink to this headline">¶</a></h3>
+<span id="tap2sna-sim-load"></span><h3>Simulated LOAD<a class="headerlink" href="#simulated-load" title="Permalink to this headline">¶</a></h3>
 <p>An alternative to the <code class="docutils literal notranslate"><span class="pre">--ram</span> <span class="pre">load</span></code> approach is the <code class="docutils literal notranslate"><span class="pre">--sim-load</span></code> option. It
 simulates a freshly booted 48K ZX Spectrum running LOAD “” (or LOAD “”CODE, if
 the first block on the tape is a ‘Bytes’ header). Whenever the Spectrum ROM’s
@@ -1526,13 +1542,20 @@ program counter) in the simulator are used to populate the Z80 snapshot.</p>
 <code class="docutils literal notranslate"><span class="pre">--sim-load-config</span></code> (or <code class="docutils literal notranslate"><span class="pre">-c</span></code>) option. The recognised configuration
 parameters are:</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">accelerator</span></code> - the tape-sampling loop accelerator to use (default:
-automatically selected - see below); use this to specify a particular
-accelerator (which may produce a faster simulated LOAD), or to disable
-acceleration entirely (<code class="docutils literal notranslate"><span class="pre">accelerator=none</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">accelerate-dec-a</span></code> - enable acceleration of ‘DEC A: JR NZ,$-1’ delay loops
+(<code class="docutils literal notranslate"><span class="pre">1</span></code>, the default), or ‘DEC A: JP NZ,$-1’ delay loops (<code class="docutils literal notranslate"><span class="pre">2</span></code>), or neither
+(<code class="docutils literal notranslate"><span class="pre">0</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">accelerator</span></code> - a comma-separated list of tape-sampling loop accelerators
+to use (see below)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">contended-in</span></code> - interpret ‘IN A,($FE)’ instructions in the address range
+$4000-$7FFF as reading the tape (<code class="docutils literal notranslate"><span class="pre">1</span></code>), or ignore them (<code class="docutils literal notranslate"><span class="pre">0</span></code>, the default)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">fast-load</span></code> - enable fast loading (<code class="docutils literal notranslate"><span class="pre">1</span></code>, the default), or disable it
 (<code class="docutils literal notranslate"><span class="pre">0</span></code>); fast loading significantly reduces the load time for many tapes, but
 can also cause some loaders to fail</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">finish-tape</span></code> - run the tape to the end before stopping the simulation at
+the address specified by the <code class="docutils literal notranslate"><span class="pre">--start</span></code> option (<code class="docutils literal notranslate"><span class="pre">1</span></code>), or stop the
+simulation as soon as that address is reached, regardless of whether the tape
+has finished (<code class="docutils literal notranslate"><span class="pre">0</span></code>, the default)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">first-edge</span></code> - the time (in T-states) from the start of the tape at which
 to place the leading edge of the first pulse (default: <code class="docutils literal notranslate"><span class="pre">-2168</span></code>); the
 default value places the trailing edge of the first pulse at time 0, but some
@@ -1546,34 +1569,150 @@ simulated LOAD if it’s still in progress (default: 900)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">trace</span></code> - the file to which to log all instructions executed during the
 simulated LOAD (default: none)</p></li>
 </ul>
-<p>The names of the available tape-sampling loop accelerators are:</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">accelerator</span></code> parameter must be either a comma-separated list of specific
+accelerator names or one of the following special values:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">auto</span></code> - select accelerators automatically (this is the default)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">list</span></code> - list the accelerators used during a simulated LOAD, along with the
+hit/miss counts generated by the tape-sampling loop detector</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">none</span></code> - disable acceleration; the loading time for a game with a custom
+loader that uses an unrecognised tape-sampling loop may be reduced by
+specifying this value</p></li>
+</ul>
+<p>The output produced by <code class="docutils literal notranslate"><span class="pre">accelerator=list</span></code> looks something like this:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Accelerators: microsphere: 6695; rom: 794013; misses: 19/9
+</pre></div>
+</div>
+<p>This means that the <code class="docutils literal notranslate"><span class="pre">microsphere</span></code> and <code class="docutils literal notranslate"><span class="pre">rom</span></code> tape-sampling loops were
+detected, and were entered 6695 times and 794013 times respectively. In
+addition, 19 instances of ‘INC B’ outside a recognised tape-sampling loop were
+executed, and the corresponding figure for ‘DEC B’ is 9.</p>
+<p>Specifying by name the types of tape-sampling loop used by a game’s custom
+loader may reduce the loading time. The names of the available tape-sampling
+loop accelerators are:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">alkatraz</span></code> (Alkatraz)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">alkatraz-05</span></code> (Italy 1990, Italy 1990 - Winners Edition)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">alkatraz-09</span></code> (Italy 1990, Italy 1990 - Winners Edition)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">alkatraz-0a</span></code> (various games published by U.S. Gold)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">alkatraz-0b</span></code> (Fast ‘n’ Furious)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">alkatraz2</span></code> (Alkatraz 2)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">alternative</span></code> (Fireman Sam, Huxley Pig)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">alternative2</span></code> (Kentucky Racing)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">bleepload</span></code> (Firebird BleepLoad)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">cyberlode</span></code> (Cyberlode 1.1)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">boguslaw-juza</span></code> (Euro Biznes)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">bulldog</span></code> (Rigel’s Revenge)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">crl</span></code> (Ball Breaker, Ballbreaker II)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">crl2</span></code> (Terrahawks)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">crl3</span></code> (Oink)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">crl4</span></code> (Federation)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cyberlode</span></code> (Cyberlode 1.1 - same as <code class="docutils literal notranslate"><span class="pre">bleepload</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cybexlab</span></code> (17.11.1989, Belegost, Starfox)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">d-and-h</span></code> (Multi-Player Soccer Manager)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">delphine</span></code> (Zakliaty zámok programátorov)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">design-design</span></code> (various games published by Design Design Software)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">digital-integration</span></code> (Digital Integration)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">dinaload</span></code> (Dinaload)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">edge</span></code> (Edge)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">elite-uni-loader</span></code> (Elite Uni-Loader)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">excelerator</span></code> (The Excelerator Loader)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">flash-loader</span></code> (Flash Loader)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">ftl</span></code> (FTL)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">gargoyle</span></code> (Gargoyle)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">edge</span></code> (Edge - same as <code class="docutils literal notranslate"><span class="pre">rom</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">elite-uni-loader</span></code> (Elite Uni-Loader - same as <code class="docutils literal notranslate"><span class="pre">speedlock</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">excelerator</span></code> (The Excelerator Loader - same as <code class="docutils literal notranslate"><span class="pre">bleepload</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">flash-loader</span></code> (Flash Loader - same as <code class="docutils literal notranslate"><span class="pre">rom</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ftl</span></code> (FTL - same as <code class="docutils literal notranslate"><span class="pre">speedlock</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">gargoyle</span></code> (Gargoyle - same as <code class="docutils literal notranslate"><span class="pre">speedlock</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">gargoyle2</span></code> (various games created or published by Gargoyle Games)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">gremlin</span></code> (various games published by Gremlin Graphics)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">hewson-slowload</span></code> (Hewson Slowload)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">injectaload</span></code> (Injectaload)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">microsphere</span></code> (Back to Skool, Skool Daze, Sky Ranger)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">none</span></code> (no accelerator)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">gremlin2</span></code> (Super Cars)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">hewson-slowload</span></code> (Hewson Slowload - same as <code class="docutils literal notranslate"><span class="pre">rom</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">injectaload</span></code> (Injectaload - same as <code class="docutils literal notranslate"><span class="pre">bleepload</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">microprose</span></code> (F-15 Strike Eagle)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">microsphere</span></code> (Back to Skool, Contact Sam Cruise, Skool Daze, Sky Ranger)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">micro-style</span></code> (Xenophobe)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">mirrorsoft</span></code> (Action Reflex)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">palas</span></code> (Bad Night)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">paul-owens</span></code> (Paul Owens Protection System)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">poliload</span></code> (Poliload)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">power-load</span></code> (Power-Load)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">poliload</span></code> (Poliload - same as <code class="docutils literal notranslate"><span class="pre">dinaload</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">power-load</span></code> (Power-Load - same as <code class="docutils literal notranslate"><span class="pre">bleepload</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">raxoft</span></code> (Piskworks, Podraz 4)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">realtime</span></code> (Starstrike II)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">rom</span></code> (any loader whose sampling loop is the same as the ROM’s)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">search-loader</span></code> (Search Loader)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">softlock</span></code> (SoftLock)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">silverbird</span></code> (Olli &amp; Lissa II: Halloween)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">softlock</span></code> (SoftLock - same as <code class="docutils literal notranslate"><span class="pre">rom</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">software-projects</span></code> (BC’s Quest for Tires, Lode Runner)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">sparklers</span></code> (Bargain Basement, Flunky)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">speedlock</span></code> (Speedlock - all versions)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">zydroload</span></code> (Zydroload)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">suzy-soft</span></code> (Big Trouble, Joe Banker, The Drinker)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">suzy-soft2</span></code> (Western Girl)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">tiny</span></code> (Il Cobra di Cristallo, Negy a Nyero, Phantomasa, and others)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">us-gold</span></code> (Gauntlet II)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">weird-science</span></code> (Flash Beer Trilogy, Ghost Castles, TV-Game)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">zydroload</span></code> (Zydroload - same as <code class="docutils literal notranslate"><span class="pre">speedlock</span></code>)</p></li>
 </ul>
+</div>
+<div class="section" id="tap2sna-conf">
+<span id="id19"></span><h3>Configuration<a class="headerlink" href="#tap2sna-conf" title="Permalink to this headline">¶</a></h3>
+<p><cite>tap2sna.py</cite> will read configuration from a file named <cite>skoolkit.ini</cite> in the
+current working directory or in <cite>~/.skoolkit</cite>, if present. The recognised
+configuration parameters are:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">TraceLine</span></code> - the format of each line in the trace log file for a simulated
+LOAD (default: <code class="docutils literal notranslate"><span class="pre">${pc:04X}</span> <span class="pre">{i}</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">TraceOperand</span></code> - the prefix, byte format, and word format for the numeric
+operands of instructions in the trace log file for a simulated LOAD,
+separated by commas (default: <code class="docutils literal notranslate"><span class="pre">$,02X,04X</span></code>); the byte and word formats are
+standard Python format specifiers for numeric values, and default to empty
+strings if not supplied</p></li>
+</ul>
+<p><code class="docutils literal notranslate"><span class="pre">TraceLine</span></code> is a standard Python format string that recognises the following
+replacement fields:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">i</span></code> - the current instruction</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">pc</span></code> - the address of the current instruction (program counter)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">r[a]</span></code> - the A register (accumulator)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">r[f]</span></code> - the F (flags) register</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">r[b]</span></code> - the B register</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">r[c]</span></code> - the C register</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">r[d]</span></code> - the D register</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">r[e]</span></code> - the E register</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">r[h]</span></code> - the H register</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">r[l]</span></code> - the L register</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">r[^a]</span></code> - the A’ register (shadow accumulator)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">r[^f]</span></code> - the F’ (shadow flags) register</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">r[^b]</span></code> - the shadow B register</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">r[^c]</span></code> - the shadow C register</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">r[^d]</span></code> - the shadow D register</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">r[^e]</span></code> - the shadow E register</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">r[^h]</span></code> - the shadow H register</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">r[^l]</span></code> - the shadow L register</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">r[ixh]</span></code> - the high byte of the IX register pair</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">r[ixl]</span></code> - the low byte of the IX register pair</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">r[iyh]</span></code> - the high byte of the IY register pair</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">r[iyl]</span></code> - the low byte of the IY register pair</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">r[i]</span></code> - the I register</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">r[r]</span></code> - the R register</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">r[sp]</span></code> - the stack pointer</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">r[t]</span></code> - the current timestamp</p></li>
+</ul>
+<p>The current timestamp (<code class="docutils literal notranslate"><span class="pre">r[t]</span></code>) is the number of T-states that have elapsed
+since the start of the simulation, according to the simulator’s internal clock.
+In order to maintain synchronisation with the tape being loaded, the
+simulator’s clock is adjusted to match the timestamp of the first pulse in each
+block (as shown by the <code class="docutils literal notranslate"><span class="pre">--tape-analysis</span></code> option) when that block is reached.
+(The simulator’s clock may at times become desynchronised with the tape
+because, by default, the tape is paused between blocks, and resumed when port
+254 is read.)</p>
+<p>Configuration parameters must appear in a <code class="docutils literal notranslate"><span class="pre">[tap2sna]</span></code> section. For example,
+to make <cite>tap2sna.py</cite> write instruction addresses and operands in a trace log
+file in decimal format by default, add the following section to
+<cite>skoolkit.ini</cite>:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>[tap2sna]
+TraceLine={pc:05} {i}
+TraceOperand=
+</pre></div>
+</div>
+<p>Configuration parameters may also be set on the command line by using the
+<code class="docutils literal notranslate"><span class="pre">--ini</span></code> option. Parameter values set this way will override any found in
+<cite>skoolkit.ini</cite>.</p>
 <table class="docutils colwidths-auto align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>Version</p></th>
@@ -1581,45 +1720,64 @@ simulated LOAD (default: none)</p></li>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>8.9</p></td>
+<tr class="row-even"><td><p>8.10</p></td>
+<td><p>Configuration is read from <cite>skoolkit.ini</cite> if present; added the
+<code class="docutils literal notranslate"><span class="pre">--ini</span></code>, <code class="docutils literal notranslate"><span class="pre">--show-config</span></code> and <code class="docutils literal notranslate"><span class="pre">--tape-analysis</span></code> options;
+added the <code class="docutils literal notranslate"><span class="pre">TraceLine</span></code> and <code class="docutils literal notranslate"><span class="pre">TraceOperand</span></code> configuration
+parameters; added the <code class="docutils literal notranslate"><span class="pre">accelerate-dec-a</span></code>, <code class="docutils literal notranslate"><span class="pre">contended-in</span></code> and
+<code class="docutils literal notranslate"><span class="pre">finish-tape</span></code> simulated LOAD configuration parameters; added
+the <code class="docutils literal notranslate"><span class="pre">issue2</span></code> hardware state attribute; added the special
+<code class="docutils literal notranslate"><span class="pre">auto</span></code> and <code class="docutils literal notranslate"><span class="pre">list</span></code> tape-sampling loop accelerator names, and
+the ability to specify multiple accelerators; added the
+<code class="docutils literal notranslate"><span class="pre">alkatraz-05</span></code>, <code class="docutils literal notranslate"><span class="pre">alkatraz-09</span></code>, <code class="docutils literal notranslate"><span class="pre">alkatraz-0a</span></code>,
+<code class="docutils literal notranslate"><span class="pre">alkatraz-0b</span></code>, <code class="docutils literal notranslate"><span class="pre">alternative</span></code>, <code class="docutils literal notranslate"><span class="pre">alternative2</span></code>,
+<code class="docutils literal notranslate"><span class="pre">boguslaw-juza</span></code>, <code class="docutils literal notranslate"><span class="pre">bulldog</span></code>, <code class="docutils literal notranslate"><span class="pre">crl</span></code>, <code class="docutils literal notranslate"><span class="pre">crl2</span></code>, <code class="docutils literal notranslate"><span class="pre">crl3</span></code>,
+<code class="docutils literal notranslate"><span class="pre">crl4</span></code>, <code class="docutils literal notranslate"><span class="pre">cybexlab</span></code>, <code class="docutils literal notranslate"><span class="pre">d-and-h</span></code>, <code class="docutils literal notranslate"><span class="pre">delphine</span></code>,
+<code class="docutils literal notranslate"><span class="pre">design-design</span></code>, <code class="docutils literal notranslate"><span class="pre">gargoyle2</span></code>, <code class="docutils literal notranslate"><span class="pre">gremlin2</span></code>, <code class="docutils literal notranslate"><span class="pre">microprose</span></code>,
+<code class="docutils literal notranslate"><span class="pre">micro-style</span></code>, <code class="docutils literal notranslate"><span class="pre">mirrorsoft</span></code>, <code class="docutils literal notranslate"><span class="pre">palas</span></code>, <code class="docutils literal notranslate"><span class="pre">raxoft</span></code>,
+<code class="docutils literal notranslate"><span class="pre">realtime</span></code>, <code class="docutils literal notranslate"><span class="pre">silverbird</span></code>, <code class="docutils literal notranslate"><span class="pre">software-projects</span></code>,
+<code class="docutils literal notranslate"><span class="pre">sparklers</span></code>, <code class="docutils literal notranslate"><span class="pre">suzy-soft</span></code>, <code class="docutils literal notranslate"><span class="pre">suzy-soft2</span></code>, <code class="docutils literal notranslate"><span class="pre">tiny</span></code>,
+<code class="docutils literal notranslate"><span class="pre">us-gold</span></code> and <code class="docutils literal notranslate"><span class="pre">weird-science</span></code> tape-sampling loop accelerators</p></td>
+</tr>
+<tr class="row-odd"><td><p>8.9</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">--sim-load-config</span></code>, <code class="docutils literal notranslate"><span class="pre">--tape-name</span></code>,
 <code class="docutils literal notranslate"><span class="pre">--tape-start</span></code>, <code class="docutils literal notranslate"><span class="pre">--tape-stop</span></code> and <code class="docutils literal notranslate"><span class="pre">--tape-sum</span></code> options;
 added support for TZX loops, pauses, and unused bits in data
 blocks; added support for quoted arguments in an arguments file;
 added the <code class="docutils literal notranslate"><span class="pre">tstates</span></code> hardware state attribute</p></td>
 </tr>
-<tr class="row-odd"><td><p>8.8</p></td>
+<tr class="row-even"><td><p>8.8</p></td>
 <td><p>The <code class="docutils literal notranslate"><span class="pre">--sim-load</span></code> option performs any <code class="docutils literal notranslate"><span class="pre">call/move/poke/sysvars</span></code>
 operations specified by <code class="docutils literal notranslate"><span class="pre">--ram</span></code></p></td>
 </tr>
-<tr class="row-even"><td><p>8.7</p></td>
+<tr class="row-odd"><td><p>8.7</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">--sim-load</span></code> option; when a headerless block is
 ignored because no <code class="docutils literal notranslate"><span class="pre">--ram</span> <span class="pre">load</span></code> options have been specified, a
 warning is printed</p></td>
 </tr>
-<tr class="row-odd"><td><p>8.6</p></td>
+<tr class="row-even"><td><p>8.6</p></td>
 <td><p>Added support to the <code class="docutils literal notranslate"><span class="pre">--ram</span></code> option for the <code class="docutils literal notranslate"><span class="pre">call</span></code> operation</p></td>
 </tr>
-<tr class="row-even"><td><p>8.4</p></td>
+<tr class="row-odd"><td><p>8.4</p></td>
 <td><p>Added support to the <code class="docutils literal notranslate"><span class="pre">--ram</span></code> option for the <code class="docutils literal notranslate"><span class="pre">sysvars</span></code>
 operation</p></td>
 </tr>
-<tr class="row-odd"><td><p>6.3</p></td>
+<tr class="row-even"><td><p>6.3</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">--user-agent</span></code> option</p></td>
 </tr>
-<tr class="row-even"><td><p>6.2</p></td>
+<tr class="row-odd"><td><p>6.2</p></td>
 <td><p>The <code class="docutils literal notranslate"><span class="pre">--ram</span></code>, <code class="docutils literal notranslate"><span class="pre">--reg</span></code>, <code class="docutils literal notranslate"><span class="pre">--stack</span></code> and <code class="docutils literal notranslate"><span class="pre">--start</span></code> options
 accept hexadecimal integers prefixed by ‘0x’</p></td>
 </tr>
-<tr class="row-odd"><td><p>5.3</p></td>
+<tr class="row-even"><td><p>5.3</p></td>
 <td><p>Added the <code class="docutils literal notranslate"><span class="pre">--stack</span></code> and <code class="docutils literal notranslate"><span class="pre">--start</span></code> options</p></td>
 </tr>
-<tr class="row-even"><td><p>4.5</p></td>
+<tr class="row-odd"><td><p>4.5</p></td>
 <td><p>Added support for TZX block type 0x14 (pure data), for loading
 the first and last bytes of a tape block, and for modifying
 memory with XOR and ADD operations</p></td>
 </tr>
-<tr class="row-odd"><td><p>3.5</p></td>
+<tr class="row-even"><td><p>3.5</p></td>
 <td><p>New</p></td>
 </tr>
 </tbody>
@@ -1627,7 +1785,7 @@ memory with XOR and ADD operations</p></td>
 </div>
 </div>
 <div class="section" id="tapinfo-py">
-<span id="id19"></span><h2>tapinfo.py<a class="headerlink" href="#tapinfo-py" title="Permalink to this headline">¶</a></h2>
+<span id="id20"></span><h2>tapinfo.py<a class="headerlink" href="#tapinfo-py" title="Permalink to this headline">¶</a></h2>
 <p><cite>tapinfo.py</cite> shows information on the blocks in a TAP or TZX file. For
 example:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ tapinfo.py game.tzx
@@ -1685,7 +1843,7 @@ block type 0x14</p></td>
 </table>
 </div>
 <div class="section" id="trace-py">
-<span id="id20"></span><h2>trace.py<a class="headerlink" href="#trace-py" title="Permalink to this headline">¶</a></h2>
+<span id="id21"></span><h2>trace.py<a class="headerlink" href="#trace-py" title="Permalink to this headline">¶</a></h2>
 <p><cite>trace.py</cite> simulates the execution of machine code in a 48K memory snapshot.
 For example:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ trace.py --start 32768 --stop 49152 game.z80
@@ -1800,6 +1958,7 @@ snapshots</p></td>
 <li><a class="reference internal" href="#snapmod-py">snapmod.py</a></li>
 <li><a class="reference internal" href="#tap2sna-py">tap2sna.py</a><ul>
 <li><a class="reference internal" href="#simulated-load">Simulated LOAD</a></li>
+<li><a class="reference internal" href="#tap2sna-conf">Configuration</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#tapinfo-py">tapinfo.py</a></li>
@@ -1850,7 +2009,7 @@ snapshots</p></td>
         <li class="right" >
           <a href="diy.html" title="Disassembly DIY"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.9 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 8.10 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Commands</a></li> 
       </ul>
     </div>
