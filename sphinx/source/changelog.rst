@@ -1,8 +1,8 @@
 Changelog
 =========
 
-8.10rc
-------
+8.10 (2023-06-17)
+-----------------
 * Added the ``finish-tape`` simulated LOAD configuration parameter to
   :ref:`tap2sna.py <tap2sna-sim-load>` (to specify whether to finish the tape
   before stopping the simulation at the given start address)
