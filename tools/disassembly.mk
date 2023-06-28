@@ -13,7 +13,7 @@ usage:
 	@echo "  html      build the HTML disassembly"
 	@echo "  asm       build the ASM disassembly"
 	@echo "  test      run tests with default Python 3 interpreter"
-	@echo "  test3X    run tests with Python 3.X (7<=X<=11)"
+	@echo "  test3X    run tests with Python 3.X (8<=X<=11)"
 	@$(MAKE) -s _targets
 	@echo ""
 	@echo "Variables:"

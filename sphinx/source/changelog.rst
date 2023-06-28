@@ -3,6 +3,7 @@ Changelog
 
 9.0b1
 -----
+* Dropped support for Python 3.7
 
 8.10 (2023-06-17)
 -----------------
