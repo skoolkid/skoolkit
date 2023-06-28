@@ -1,6 +1,9 @@
 Changelog
 =========
 
+9.0b1
+-----
+
 8.10 (2023-06-17)
 -----------------
 * Added the ``finish-tape`` simulated LOAD configuration parameter to
