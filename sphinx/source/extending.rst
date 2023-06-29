@@ -9,7 +9,7 @@ While creating a disassembly of a game, you may find that SkoolKit's suite of
 :ref:`skool macros <skoolMacros>` is inadequate for certain tasks. For example,
 the game might have large tile-based sprites that you want to create images of
 for the HTML disassembly, and composing long ``#UDGARRAY`` macros for them or
-defining a new sprite-building macro with the :ref:`DEFINE` macro would be too
+defining a new sprite-building macro with the :ref:`DEF` macro would be too
 tedious or impractical. Or you might want to insert a timestamp somewhere in
 the ASM disassembly so that you (or others) can keep track of when your ASM
 files were written.

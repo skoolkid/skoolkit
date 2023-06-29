@@ -1,4 +1,4 @@
-# Copyright 2012-2022 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2012-2023 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -460,7 +460,6 @@ def get_macros(writer):
         '#CHR': partial(parse_chr, writer),
         '#D': partial(parse_d, writer),
         '#DEF': partial(parse_def, writer),
-        '#DEFINE': partial(parse_define, writer),
         '#EVAL': partial(parse_eval, writer.fields, writer.case == CASE_LOWER),
         '#FOR': partial(parse_for, writer.fields),
         '#FOREACH': partial(parse_foreach, writer.parser),
@@ -743,24 +742,6 @@ def parse_def(writer, text, index, *cwd):
         sdefaults = [Template(s) for s in sdefaults]
         body = Template(body)
     writer.macros[name] = partial(_expand_def_macro, writer, inames, idefaults, snames, sdefaults, body, flags)
-    return end, ''
-
-def _expand(writer, iparams, sparams, value, text, index, *cwd):
-    end, ints, strings = index, [], []
-    if iparams > 0:
-        result = parse_ints(text, index, iparams, fields=writer.fields)
-        end, ints = result[0], result[1:]
-    if sparams > 0:
-        end, strings = parse_strings(text, end, sparams)
-        if sparams == 1:
-            strings = [strings]
-    return end, _format_params(value, value, *ints, *strings)
-
-def parse_define(writer, text, index, *cwd):
-    # #DEFINEiparams[,sparams](name, value)
-    end, iparams, sparams = parse_ints(text, index, 2, (0,))
-    end, (name, value) = parse_strings(text, end, 2)
-    writer.macros['#' + name] = partial(_expand, writer, iparams, sparams, value)
     return end, ''
 
 def parse_eval(fields, lower, text, index, *cwd):

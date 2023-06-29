@@ -277,56 +277,6 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
         """
         self._test_asm(skool, exp_asm)
 
-    def test_macro_define_with_list(self):
-        skool = """
-            @start
-            ; Stuff
-            ;
-            ; #DEFINE0,1(OLIST,
-            ;   #LET(n=1)
-            ;   #LIST
-            ;   #FOREACH({})(item,{{ #EVAL({{n}}). item }} #LET(n={{n}}+1))
-            ;   LIST#
-            ; )
-            ; #OLIST/a,b,c/
-            c32768 RET
-        """
-        exp_asm = """
-            ; Stuff
-            ;
-            ; * 1. a
-            ; * 2. b
-            ; * 3. c
-              RET
-        """
-        self._test_asm(skool, exp_asm)
-
-    def test_macro_define_with_table(self):
-        skool = """
-            @start
-            ; Stuff
-            ;
-            ; #DEFINE0,1(OTABLE,
-            ;   #LET(n=1)
-            ;   #TABLE
-            ;   #FOREACH({})(cell,{{ #EVAL({{n}}). cell }} #LET(n={{n}}+1))
-            ;   TABLE#
-            ; )
-            ; #OTABLE/a,b,c/
-            c32768 RET
-        """
-        exp_asm = """
-            ; Stuff
-            ;
-            ; +------+
-            ; | 1. a |
-            ; | 2. b |
-            ; | 3. c |
-            ; +------+
-              RET
-        """
-        self._test_asm(skool, exp_asm)
-
     def test_macro_eval_asm(self):
         for asm_mode in (0, 1, 2, 3):
             writer = self._get_writer('', asm_mode=asm_mode)
@@ -2184,7 +2134,7 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
     def test_expand_directives(self):
         skool = """
             @start
-            @expand=#DEFINE2(MAX,#IF({0}>{1})({0},{1}))
+            @expand=#DEF(#MAX(a,b) #IF($a>$b)($a,$b))
             @expand=#LET(foo=1)
             ; Routine
             ;
@@ -2203,8 +2153,8 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
         skool = """
             @start
             @expand=#LET(start=1)
-            @expand=#DEFINE2(COUNT,
-            @expand=+#FOR({},{})(n,n,-)
+            @expand=#DEF(#COUNT(a,b)
+            @expand=+#FOR($a,$b)(n,n,-)
             @expand=+)
             @expand=#LET(end=5)
             ; Routine

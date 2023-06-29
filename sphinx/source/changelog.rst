@@ -188,7 +188,7 @@ Changelog
 * Added the :ref:`COPY` macro (for copying all or part of an existing frame
   into a new frame)
 * Added the :ref:`DEF` macro (as a more powerful alternative to the
-  :ref:`DEFINE` macro, which is now deprecated)
+  ``#DEFINE`` macro, which is now deprecated)
 * Added the ``Wrap`` configuration parameter for
   :ref:`sna2skool.py <sna2skool-conf>` (for controlling whether to disassemble
   an instruction that wraps around the 64K boundary)
@@ -288,7 +288,7 @@ Changelog
 * Added the ``--ini`` and ``--show-config`` options to :ref:`snapinfo.py` (for
   setting the value of a configuration parameter and for showing all
   configuration parameter values)
-* Added the :ref:`DEFINE` macro (for defining new skool macros)
+* Added the ``#DEFINE`` macro (for defining new skool macros)
 * Added the :ref:`LET` macro (for defining variables that can be retrieved by
   other macros via replacement fields)
 * Added the :ref:`FORMAT` macro (for performing a Python-style string

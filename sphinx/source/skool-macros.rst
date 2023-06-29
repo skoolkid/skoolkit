@@ -128,8 +128,8 @@ Replacement fields
 ^^^^^^^^^^^^^^^^^^
 The following replacement fields are available for use in the integer
 parameters of the :ref:`asm-if` directive and every skool macro (including
-macros defined by :ref:`DEF` or :ref:`DEFINE`), and also in the string
-parameters of some macros:
+macros defined by :ref:`DEF`), and also in the string parameters of some
+macros:
 
 * ``asm`` - 1 if in :ref:`isubMode`, 2 if in :ref:`ssubMode`, 3 if in
   :ref:`rsubMode`, or 0 otherwise
@@ -329,48 +329,6 @@ keyword arguments.
 +---------+------------------------------------------------------------------+
 | 8.5     | New                                                              |
 +---------+------------------------------------------------------------------+
-
-.. _DEFINE:
-
-#DEFINE
--------
-The ``#DEFINE`` macro defines a new skool macro. ::
-
-  #DEFINEiparams[,sparams](name,value)
-
-* ``iparams`` is the number of integer parameters the macro expects
-* ``sparams`` is the number of string parameters the macro expects (default:
-  ``0``)
-* ``name`` is the macro name (which must be all upper case letters)
-* ``value`` is the macro's output value (a standard Python format string
-  containing replacement fields for the integer and string arguments)
-
-For example::
-
-  #DEFINE2(MIN,#IF({0}<{1})({0},{1}))
-
-This defines a ``#MIN`` macro that accepts two integer arguments and expands to
-the value of the smaller argument.
-
-To define a macro that will be available for use immediately anywhere in the
-skool file or ref files, consider using the :ref:`expand` directive, or the
-``Expand`` parameter in the :ref:`ref-Config` section.
-
-The integer parameters of a macro defined by ``#DEFINE`` may contain
-:ref:`replacement fields <replacementFields>`.
-
-See :ref:`stringParameters` for details on alternative ways to supply the
-``name`` and ``value`` parameters.
-
-.. note::
-   The ``#DEFINE`` macro is deprecated since version 8.5. Use the more powerful
-   :ref:`DEF` macro instead.
-
-+---------+---------+
-| Version | Changes |
-+=========+=========+
-| 8.2     | New     |
-+---------+---------+
 
 .. _EVAL:
 

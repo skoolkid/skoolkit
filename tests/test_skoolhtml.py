@@ -5088,7 +5088,7 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
 
     def test_expand_directives(self):
         skool = """
-            @expand=#DEFINE2(MIN,#IF({0}<{1})({0},{1}))
+            @expand=#DEF(#MIN(a,b) #IF($a<$b)($a,$b))
             @expand=#LET(foo=1)
             ; Routine
             ;
@@ -5129,8 +5129,8 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
     def test_expand_directives_over_multiple_lines(self):
         skool = """
             @expand=#LET(start=1)
-            @expand=#DEFINE2(COUNT,
-            @expand=+#FOR({},{})(n,n,-)
+            @expand=#DEF(#COUNT(a,b)
+            @expand=+#FOR($a,$b)(n,n,-)
             @expand=+)
             @expand=#LET(end=5)
             ; Routine
