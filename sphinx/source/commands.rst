@@ -1289,7 +1289,6 @@ To list the options supported by `tap2sna.py`, run it with no arguments::
                           option may be used multiple times.
     -d DIR, --output-dir DIR
                           Write the snapshot file in this directory.
-    -f, --force           Overwrite an existing snapshot.
     -I p=v, --ini p=v     Set the value of the configuration parameter 'p' to
                           'v'. This option may be used multiple times.
     -p STACK, --stack STACK
@@ -1563,7 +1562,8 @@ Configuration parameters may also be set on the command line by using the
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
-| 9.0     | A simulated LOAD is performed by default                          |
+| 9.0     | A simulated LOAD is performed by default; an existing snapshot    |
+|         | will be overwritten by default                                    |
 +---------+-------------------------------------------------------------------+
 | 8.10    | Configuration is read from `skoolkit.ini` if present; added the   |
 |         | ``--ini``, ``--show-config`` and ``--tape-analysis`` options;     |

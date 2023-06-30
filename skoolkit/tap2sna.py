@@ -884,8 +884,6 @@ def main(args):
                             "Do '-c help' for more information. This option may be used multiple times.")
     group.add_argument('-d', '--output-dir', dest='output_dir', metavar='DIR',
                        help="Write the snapshot file in this directory.")
-    group.add_argument('-f', '--force', action='store_true',
-                       help="Overwrite an existing snapshot.")
     group.add_argument('-I', '--ini', dest='params', metavar='p=v', action='append', default=[],
                        help="Set the value of the configuration parameter 'p' to 'v'. This option may be used multiple times.")
     group.add_argument('-p', '--stack', dest='stack', metavar='STACK', type=integer,
@@ -946,11 +944,8 @@ def main(args):
         namespace.reg.append('sp={}'.format(namespace.stack))
     if namespace.start is not None:
         namespace.reg.append('pc={}'.format(namespace.start))
-    if z80 is None or namespace.force or not os.path.isfile(z80):
-        update_options('tap2sna', namespace, namespace.params, config)
-        try:
-            make_z80(url, namespace, z80, config)
-        except Exception as e:
-            raise SkoolKitError("Error while getting snapshot {}: {}".format(os.path.basename(z80), e.args[0] if e.args else e))
-    else:
-        write_line('{0}: file already exists; use -f to overwrite'.format(z80))
+    update_options('tap2sna', namespace, namespace.params, config)
+    try:
+        make_z80(url, namespace, z80, config)
+    except Exception as e:
+        raise SkoolKitError("Error while getting snapshot {}: {}".format(os.path.basename(z80), e.args[0] if e.args else e))

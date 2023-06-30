@@ -29,3 +29,8 @@ In SkoolKit 8, :ref:`tap2sna.py` performed a
 given. In SkoolKit 9, `tap2sna.py` performs a simulated LOAD by default, and
 the ``--sim-load`` option is no longer supported. Simulated LOADing is disabled
 only if a ``--ram load`` option is given.
+
+In SkoolKit 8, :ref:`tap2sna.py` would refuse to overwrite an existing snapshot
+unless the ``--force`` option was given. In SkoolKit 9, `tap2sna.py` will
+overwrite an existing snapshot by default, and the ``--force`` option is no
+longer supported.

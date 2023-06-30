@@ -27,9 +27,6 @@ OPTIONS
 -d, --output-dir `DIR`
   Write the snapshot file in this directory.
 
--f, --force
-  Overwrite an existing snapshot.
-
 -I, --ini `param=value`
   Set the value of a configuration parameter (see ``CONFIGURATION``),
   overriding any value found in ``skoolkit.ini``. This option may be used

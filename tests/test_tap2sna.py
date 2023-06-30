@@ -96,7 +96,6 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.run_tap2sna('in.tap {}/out.z80'.format(self.make_directory()))
         options = make_z80_args[1]
         self.assertIsNone(options.output_dir)
-        self.assertFalse(options.force)
         self.assertIsNone(options.stack)
         self.assertEqual([], options.ram_ops)
         self.assertEqual([], options.reg)
@@ -120,7 +119,6 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.run_tap2sna('in.tap out.z80')
         options, z80, config = make_z80_args[1:4]
         self.assertIsNone(options.output_dir)
-        self.assertFalse(options.force)
         self.assertIsNone(options.stack)
         self.assertEqual([], options.ram_ops)
         self.assertEqual([], options.reg)
@@ -177,15 +175,6 @@ class Tap2SnaTest(SkoolKitTestCase):
             output, error = self.run_tap2sna('{} {} --ram load=1,16384 {} {}'.format(option, odir, tapfile, z80_fname))
             self.assertEqual(len(error), 0)
             self.assertTrue(os.path.isfile(os.path.join(odir, z80_fname)))
-
-    def test_option_f(self):
-        z80file = self.write_bin_file(suffix='.z80')
-        for option, b in (('-f', 1), ('--force', 255)):
-            tapfile = self._write_tap([create_tap_data_block([b])])
-            output, error = self.run_tap2sna(f'{option} --ram load=1,16384 {tapfile} {z80file}')
-            self.assertEqual(len(error), 0)
-            snapshot = get_snapshot(z80file)
-            self.assertEqual(snapshot[16384], b)
 
     @patch.object(tap2sna, 'make_z80', mock_make_z80)
     @patch.object(tap2sna, 'get_config', mock_config)
@@ -1992,15 +1981,16 @@ class Tap2SnaTest(SkoolKitTestCase):
     def test_args_from_file(self):
         data = [1, 2, 3, 4]
         start = 49152
-        args = """
+        args = f"""
             ; Comment
             # Another comment
-            --force ; Overwrite
-            --ram load=1,{} # Load first block
-        """.format(start)
+            --ram load=1,{start} # Load first block
+            --ram poke=32768,255 ; POKE 32768,255
+        """
         args_file = self.write_text_file(dedent(args).strip(), suffix='.t2s')
         snapshot = self._get_snapshot(start, data, '@{}'.format(args_file))
         self.assertEqual(data, snapshot[start:start + len(data)])
+        self.assertEqual(snapshot[32768], 255)
 
     def test_quoted_args_from_file(self):
         code = [1, 2, 3]
@@ -2037,11 +2027,3 @@ class Tap2SnaTest(SkoolKitTestCase):
     def test_http_error_on_remote_download(self):
         with self.assertRaisesRegex(SkoolKitError, '^Error while getting snapshot test.z80: HTTP Error 403: Forbidden$'):
             self.run_tap2sna('http://example.com/test.zip {}/test.z80'.format(self.make_directory()))
-
-    def test_no_clobber(self):
-        block = create_tap_data_block([0])
-        tapfile = self._write_tap([block])
-        z80file = self.write_bin_file(suffix='.z80')
-        output, error = self.run_tap2sna('--ram load=1,16384 {} {}'.format(tapfile, z80file))
-        self.assertTrue(output.startswith('{}: file already exists; use -f to overwrite\n'.format(z80file)))
-        self.assertEqual(error, '')
