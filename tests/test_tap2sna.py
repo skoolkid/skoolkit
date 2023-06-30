@@ -101,7 +101,6 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual([], options.ram_ops)
         self.assertEqual([], options.reg)
         self.assertIsNone(options.start)
-        self.assertFalse(options.sim_load)
         self.assertEqual([], options.sim_load_config)
         self.assertEqual([], options.state)
         self.assertIsNone(options.tape_name)
@@ -126,7 +125,6 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual([], options.ram_ops)
         self.assertEqual([], options.reg)
         self.assertIsNone(options.start)
-        self.assertFalse(options.sim_load)
         self.assertEqual([], options.sim_load_config)
         self.assertEqual([], options.state)
         self.assertIsNone(options.tape_name)
@@ -158,7 +156,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         tapfile = self._write_tap(blocks)
         z80file = '{}/out.z80'.format(self.make_directory())
         with self.assertRaises(SkoolKitError) as cm:
-            self.run_tap2sna(f'-c accelerator=nope --sim-load {tapfile} {z80file}')
+            self.run_tap2sna(f'-c accelerator=nope {tapfile} {z80file}')
         self.assertEqual(cm.exception.args[0], 'Error while getting snapshot out.z80: Unrecognised accelerator: nope')
         self.assertEqual(self.err.getvalue(), '')
 
@@ -167,30 +165,24 @@ class Tap2SnaTest(SkoolKitTestCase):
         tapfile = self._write_tap(blocks)
         z80file = '{}/out.z80'.format(self.make_directory())
         with self.assertRaises(SkoolKitError) as cm:
-            self.run_tap2sna(f'-c foo=bar --sim-load {tapfile} {z80file}')
+            self.run_tap2sna(f'-c foo=bar {tapfile} {z80file}')
         self.assertEqual(cm.exception.args[0], 'Error while getting snapshot out.z80: Invalid sim-load configuration parameter: foo')
         self.assertEqual(self.err.getvalue(), '')
 
     def test_option_d(self):
         odir = '{}/tap2sna'.format(self.make_directory())
-        tapfile = self._write_tap((
-            create_tap_header_block(start=16384),
-            create_tap_data_block([0])
-        ))
+        tapfile = self._write_tap([create_tap_data_block([0])])
         z80_fname = 'test.z80'
         for option in ('-d', '--output-dir'):
-            output, error = self.run_tap2sna('{} {} {} {}'.format(option, odir, tapfile, z80_fname))
+            output, error = self.run_tap2sna('{} {} --ram load=1,16384 {} {}'.format(option, odir, tapfile, z80_fname))
             self.assertEqual(len(error), 0)
             self.assertTrue(os.path.isfile(os.path.join(odir, z80_fname)))
 
     def test_option_f(self):
         z80file = self.write_bin_file(suffix='.z80')
         for option, b in (('-f', 1), ('--force', 255)):
-            tapfile = self._write_tap((
-                create_tap_header_block(start=16384),
-                create_tap_data_block([b])
-            ))
-            output, error = self.run_tap2sna(f'{option} {tapfile} {z80file}')
+            tapfile = self._write_tap([create_tap_data_block([b])])
+            output, error = self.run_tap2sna(f'{option} --ram load=1,16384 {tapfile} {z80file}')
             self.assertEqual(len(error), 0)
             snapshot = get_snapshot(z80file)
             self.assertEqual(snapshot[16384], b)
@@ -234,13 +226,10 @@ class Tap2SnaTest(SkoolKitTestCase):
             self.assertEqual(['sp={}'.format(int(stack[2:], 16))], options.reg)
 
     def test_option_p(self):
-        tapfile = self._write_tap((
-            create_tap_header_block(start=16384),
-            create_tap_data_block([0])
-        ))
+        tapfile = self._write_tap([create_tap_data_block([0])])
         z80file = '{}/out.z80'.format(self.make_directory())
         stack = 32768
-        output, error = self.run_tap2sna(f'-p {stack} {tapfile} {z80file}')
+        output, error = self.run_tap2sna(f'-p {stack} --ram load=1,16384 {tapfile} {z80file}')
         self.assertEqual(error, '')
         with open(z80file, 'rb') as f:
             z80_header = f.read(10)
@@ -295,13 +284,10 @@ class Tap2SnaTest(SkoolKitTestCase):
             self.assertEqual(exp_reg, options.reg)
 
     def test_option_s(self):
-        tapfile = self._write_tap((
-            create_tap_header_block(start=16384),
-            create_tap_data_block([0])
-        ))
+        tapfile = self._write_tap([create_tap_data_block([0])])
         z80file = '{}/out.z80'.format(self.make_directory())
         start = 40000
-        output, error = self.run_tap2sna(f'-s {start} {tapfile} {z80file}')
+        output, error = self.run_tap2sna(f'-s {start} --ram load=1,16384 {tapfile} {z80file}')
         self.assertEqual(error, '')
         with open(z80file, 'rb') as f:
             z80_header = f.read(34)
@@ -433,19 +419,18 @@ class Tap2SnaTest(SkoolKitTestCase):
     def test_option_tape_name(self):
         code1 = [1, 2, 3, 4, 5]
         code1_start = 24576
-        tap1_data = create_tap_header_block(start=code1_start) + create_tap_data_block(code1)
+        tap1_data = create_tap_data_block(code1)
         tap1_fname = 'code1.tap'
         code2 = [6, 7, 8]
         code2_start = 32768
-        tap2_data = create_tap_header_block(start=code2_start) + create_tap_data_block(code2)
+        tap2_data = create_tap_data_block(code2)
         tap2_fname = 'code2.tap'
         zipfile = '{}/tapes.zip'.format(self.make_directory())
         with ZipFile(zipfile, 'w') as archive:
             archive.writestr(tap1_fname, bytearray(tap1_data))
             archive.writestr(tap2_fname, bytearray(tap2_data))
-        output, error = self.run_tap2sna(f'--tape-name {tap2_fname} {zipfile} out.z80')
+        output, error = self.run_tap2sna(f'--tape-name {tap2_fname} --ram load=1,{code2_start} {zipfile} out.z80')
         self.assertEqual(error, '')
-        self.assertEqual([0] * len(code1), snapshot[code1_start:code1_start + len(code1)])
         self.assertEqual(code2, snapshot[code2_start:code2_start + len(code2)])
 
     def test_option_tape_name_with_invalid_name(self):
@@ -459,83 +444,15 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(self.err.getvalue(), '')
 
     @patch.object(tap2sna, '_write_z80', mock_write_z80)
-    def test_option_tape_start_with_tap_file(self):
-        code1_start = 24576
-        code2_start = 32768
-        code = [4, 5, 6]
-        blocks = [
-            create_tap_header_block(start=code1_start),
-            create_tap_data_block(code),
-            create_tap_header_block(start=code2_start),
-            create_tap_data_block(code)
-        ]
-        tapfile = self._write_tap(blocks)
-        output, error = self.run_tap2sna(f'--tape-start 3 {tapfile} out.z80')
-        self.assertEqual(error, '')
-        self.assertEqual([0] * len(code), snapshot[code1_start:code1_start + len(code)])
-        self.assertEqual(code, snapshot[code2_start:code2_start + len(code)])
-
-    @patch.object(tap2sna, '_write_z80', mock_write_z80)
-    def test_option_tape_start_with_tzx_file(self):
-        code1_start = 24576
-        code2_start = 32768
-        code = [4, 5, 6]
-        blocks = [
-            create_tzx_header_block(start=code1_start),
-            create_tzx_data_block(code),
-            create_tzx_header_block(start=code2_start),
-            create_tzx_data_block(code)
-        ]
-        tzxfile = self._write_tzx(blocks)
-        output, error = self.run_tap2sna(f'--tape-start 3 {tzxfile} out.z80')
-        self.assertEqual(error, '')
-        self.assertEqual([0] * len(code), snapshot[code1_start:code1_start + len(code)])
-        self.assertEqual(code, snapshot[code2_start:code2_start + len(code)])
-
-    @patch.object(tap2sna, '_write_z80', mock_write_z80)
-    def test_option_tape_stop_with_tap_file(self):
-        code1_start = 24576
-        code2_start = 32768
-        code = [4, 5, 6]
-        blocks = [
-            create_tap_header_block(start=code1_start),
-            create_tap_data_block(code),
-            create_tap_header_block(start=code2_start),
-            create_tap_data_block(code)
-        ]
-        tapfile = self._write_tap(blocks)
-        output, error = self.run_tap2sna(f'--tape-stop 3 {tapfile} out.z80')
-        self.assertEqual(error, '')
-        self.assertEqual(code, snapshot[code1_start:code1_start + len(code)])
-        self.assertEqual([0] * len(code), snapshot[code2_start:code2_start + len(code)])
-
-    @patch.object(tap2sna, '_write_z80', mock_write_z80)
-    def test_option_tape_stop_with_tzx_file(self):
-        code1_start = 24576
-        code2_start = 32768
-        code = [4, 5, 6]
-        blocks = [
-            create_tzx_header_block(start=code1_start),
-            create_tzx_data_block(code),
-            create_tzx_header_block(start=code2_start),
-            create_tzx_data_block(code)
-        ]
-        tzxfile = self._write_tzx(blocks)
-        output, error = self.run_tap2sna(f'--tape-stop 3 {tzxfile} out.z80')
-        self.assertEqual(error, '')
-        self.assertEqual(code, snapshot[code1_start:code1_start + len(code)])
-        self.assertEqual([0] * len(code), snapshot[code2_start:code2_start + len(code)])
-
-    @patch.object(tap2sna, '_write_z80', mock_write_z80)
     def test_option_tape_sum(self):
         code = [1, 2, 3]
         code_start = 49152
-        tap_data = create_tap_header_block(start=code_start) + create_tap_data_block(code)
+        tap_data = create_tap_data_block(code)
         md5sum = hashlib.md5(bytearray(tap_data)).hexdigest()
         zipfile = '{}/tape.zip'.format(self.make_directory())
         with ZipFile(zipfile, 'w') as archive:
             archive.writestr('data.tap', bytearray(tap_data))
-        output, error = self.run_tap2sna(f'--tape-sum {md5sum} {zipfile} out.z80')
+        output, error = self.run_tap2sna(f'--tape-sum {md5sum} --ram load=1,{code_start} {zipfile} out.z80')
         self.assertEqual(error, '')
         self.assertEqual(code, snapshot[code_start:code_start + len(code)])
 
@@ -596,120 +513,6 @@ class Tap2SnaTest(SkoolKitTestCase):
             self.run_tap2sna('{} {}/{}'.format(archive_fname, self.make_directory(), z80_fname))
         self.assertEqual(cm.exception.args[0], 'Error while getting snapshot {}: No TAP or TZX file found'.format(z80_fname))
 
-    def test_standard_load_from_tap_file(self):
-        basic_data = [1, 2, 3]
-        code_start = 32768
-        code = [4, 5]
-        blocks = [
-            create_tap_header_block(data_type=0),
-            create_tap_data_block(basic_data),
-            create_tap_header_block(start=code_start),
-            create_tap_data_block(code)
-        ]
-
-        tapfile = self._write_tap(blocks)
-        z80file = '{}/out.z80'.format(self.make_directory())
-        output, error = self.run_tap2sna(f'{tapfile} {z80file}')
-        self.assertEqual(error, '')
-        snapshot = get_snapshot(z80file)
-        self.assertEqual(basic_data, snapshot[23755:23755 + len(basic_data)])
-        self.assertEqual(code, snapshot[code_start:code_start + len(code)])
-
-    def test_standard_load_ignores_headerless_block(self):
-        code_start = 16384
-        code = [2]
-        blocks = [
-            create_tap_header_block(start=code_start),
-            create_tap_data_block(code),
-            create_tap_data_block([23]),
-            create_tap_data_block([97])
-        ]
-
-        tapfile = self._write_tap(blocks)
-        z80file = '{}/out.z80'.format(self.make_directory())
-        output, error = self.run_tap2sna(f'{tapfile} {z80file}')
-        self.assertEqual(
-            error,
-            'WARNING: Ignoring headerless block 3\n'
-            'WARNING: Ignoring headerless block 4\n'
-        )
-        snapshot = get_snapshot(z80file)
-        self.assertEqual(code, snapshot[code_start:code_start + len(code)])
-
-    def test_standard_load_ignores_truncated_header_block(self):
-        code_start = 30000
-        code = [2, 3, 4]
-        length = len(code)
-        blocks = [
-            create_tap_header_block(start=code_start)[:-1],
-            create_tap_data_block(code),
-        ]
-
-        tapfile = self._write_tap(blocks)
-        z80file = '{}/out.z80'.format(self.make_directory())
-        output, error = self.run_tap2sna(f'{tapfile} {z80file}')
-        self.assertEqual(error, '')
-        snapshot = get_snapshot(z80file)
-        self.assertEqual([0] * length, snapshot[code_start:code_start + length])
-
-    def test_standard_load_with_unknown_block_type(self):
-        block_type = 1 # Array of numbers
-        blocks = [
-            create_tap_header_block(data_type=block_type),
-            create_tap_data_block([1])
-        ]
-
-        tapfile = self._write_tap(blocks)
-        z80file = 'out.z80'
-        with self.assertRaises(SkoolKitError) as cm:
-            self.run_tap2sna('{} {}'.format(tapfile, z80file))
-        self.assertEqual(cm.exception.args[0], 'Error while getting snapshot {}: Unknown block type ({}) in header block 1'.format(z80file, block_type))
-
-    def test_standard_load_from_tzx_file(self):
-        basic_data = [6, 7]
-        code_start = 49152
-        code = [8, 9, 10]
-        blocks = [
-            [48, 3, 65, 66, 67], # Text description block (0x30): ABC
-            create_tzx_header_block(data_type=0),
-            create_tzx_data_block(basic_data),
-            create_tzx_header_block(start=code_start),
-            create_tzx_data_block(code)
-        ]
-
-        tzxfile = self._write_tzx(blocks)
-        z80file = '{}/out.z80'.format(self.make_directory())
-        output, error = self.run_tap2sna(f'{tzxfile} {z80file}')
-        self.assertEqual(error, '')
-        snapshot = get_snapshot(z80file)
-        self.assertEqual(basic_data, snapshot[23755:23755 + len(basic_data)])
-        self.assertEqual(code, snapshot[code_start:code_start + len(code)])
-
-    def test_empty_standard_speed_data_block_in_tzx_file_is_ignored(self):
-        basic_data = [6, 7]
-        code_start = 49152
-        code = [8, 9, 10]
-        empty_block = [
-            16,   # Standard speed data
-            0, 0, # Pause (0ms)
-            0, 0, # Data length (0)
-        ]
-        blocks = [
-            create_tzx_header_block(data_type=0),
-            create_tzx_data_block(basic_data),
-            empty_block,
-            create_tzx_header_block(start=code_start),
-            create_tzx_data_block(code)
-        ]
-
-        tzxfile = self._write_tzx(blocks)
-        z80file = '{}/out.z80'.format(self.make_directory())
-        output, error = self.run_tap2sna(f'{tzxfile} {z80file}')
-        self.assertEqual(error, '')
-        snapshot = get_snapshot(z80file)
-        self.assertEqual(basic_data, snapshot[23755:23755 + len(basic_data)])
-        self.assertEqual(code, snapshot[code_start:code_start + len(code)])
-
     def test_ram_call(self):
         ram_module = """
             def fix(snapshot):
@@ -718,11 +521,9 @@ class Tap2SnaTest(SkoolKitTestCase):
         module_dir = self.make_directory()
         module_path = os.path.join(module_dir, 'ram.py')
         module = self.write_text_file(dedent(ram_module).strip(), path=module_path)
-        blocks = [
-            create_tap_header_block(start=16384),
-            create_tap_data_block([0])
-        ]
-        snapshot = self._get_snapshot(load_options=f'--ram call={module_dir}:ram.fix', blocks=blocks)
+        blocks = [create_tap_data_block([0])]
+        load_options = f'--ram load=1,16384 --ram call={module_dir}:ram.fix'
+        snapshot = self._get_snapshot(load_options=load_options, blocks=blocks)
         self.assertEqual(list(range(256)), snapshot[65280:])
 
     def test_ram_call_nonexistent_module(self):
@@ -1125,7 +926,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         code = [4, 5]
         tapfile, basic_data = self._write_basic_loader(code_start, code)
         z80file = '{}/out.z80'.format(self.make_directory())
-        output, error = self.run_tap2sna(f'--sim-load {tapfile} {z80file}')
+        output, error = self.run_tap2sna(f'{tapfile} {z80file}')
         out_lines = output.strip().split('\n')
         exp_out_lines = [
             'Program: simloadbas',
@@ -1152,7 +953,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         ]
         tapfile = self._write_tap(blocks)
         z80file = '{}/out.z80'.format(self.make_directory())
-        output, error = self.run_tap2sna(f'--sim-load {tapfile} {z80file}')
+        output, error = self.run_tap2sna(f'{tapfile} {z80file}')
         out_lines = output.strip().split('\n')
         exp_out_lines = [
             'Bytes: CODE block    ',
@@ -1173,7 +974,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         code = [175, 201]
         tapfile, basic_data = self._write_basic_loader(code_start, code)
         z80file = '{}/out.z80'.format(self.make_directory())
-        output, error = self.run_tap2sna(f'--sim-load --start {start} {tapfile} {z80file}')
+        output, error = self.run_tap2sna(f'--start {start} {tapfile} {z80file}')
         out_lines = output.strip().split('\n')
         exp_out_lines = [
             'Program: simloadbas',
@@ -1221,7 +1022,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         ]
         tapfile = self._write_tap(blocks)
         z80file = '{}/out.z80'.format(self.make_directory())
-        output, error = self.run_tap2sna(f'--sim-load {tapfile} {z80file}')
+        output, error = self.run_tap2sna(f'{tapfile} {z80file}')
         out_lines = output.strip().split('\n')
         exp_out_lines = [
             'Program: simloadbas',
@@ -1272,7 +1073,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         ]
         tapfile = self._write_tap(blocks)
         z80file = '{}/out.z80'.format(self.make_directory())
-        output, error = self.run_tap2sna(f'--sim-load {tapfile} {z80file}')
+        output, error = self.run_tap2sna(f'{tapfile} {z80file}')
         out_lines = output.strip().split('\n')
         exp_out_lines = [
             'Program: simloadbas',
@@ -1325,7 +1126,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         ]
         tapfile = self._write_tap(blocks)
         z80file = '{}/out.z80'.format(self.make_directory())
-        output, error = self.run_tap2sna(f'--sim-load {tapfile} {z80file}')
+        output, error = self.run_tap2sna(f'{tapfile} {z80file}')
         out_lines = output.strip().split('\n')
         exp_out_lines = [
             'Program: simloadbas',
@@ -1380,7 +1181,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         ]
         tapfile = self._write_tap(blocks)
         z80file = '{}/out.z80'.format(self.make_directory())
-        output, error = self.run_tap2sna(f'--sim-load {tapfile} {z80file}')
+        output, error = self.run_tap2sna(f'{tapfile} {z80file}')
         out_lines = output.strip().split('\n')
         exp_out_lines = [
             'Program: simloadbas',
@@ -1433,7 +1234,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         ]
         tapfile = self._write_tap(blocks)
         z80file = '{}/out.z80'.format(self.make_directory())
-        output, error = self.run_tap2sna(f'--sim-load {tapfile} {z80file}')
+        output, error = self.run_tap2sna(f'{tapfile} {z80file}')
 
         self.assertEqual(basic_data, snapshot[23755:23755 + len(basic_data)])
         self.assertEqual(code, snapshot[code_start:code_start + len(code)])
@@ -1491,7 +1292,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         ]
         tapfile = self._write_tap(blocks)
         z80file = '{}/out.z80'.format(self.make_directory())
-        output, error = self.run_tap2sna(f'--sim-load {tapfile} {z80file}')
+        output, error = self.run_tap2sna(f'{tapfile} {z80file}')
         out_lines = output.strip().split('\n')
         exp_out_lines = [
             'Data block (18 bytes) [skipped]',
@@ -1519,7 +1320,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         blocks, basic_data = self._write_basic_loader(code_start, code, False)
         tapfile = self._write_tap(blocks + [[0]])
         z80file = '{}/out.z80'.format(self.make_directory())
-        output, error = self.run_tap2sna(f'--sim-load {tapfile} {z80file}')
+        output, error = self.run_tap2sna(f'{tapfile} {z80file}')
         out_lines = output.strip().split('\n')
         exp_out_lines = [
             'Program: simloadbas',
@@ -1563,7 +1364,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         ]
         tapfile = self._write_tap(blocks)
         z80file = '{}/out.z80'.format(self.make_directory())
-        output, error = self.run_tap2sna(f'--sim-load {tapfile} {z80file}')
+        output, error = self.run_tap2sna(f'{tapfile} {z80file}')
         out_lines = output.strip().split('\n')
         exp_out_lines = [
             'Program: simloadbas',
@@ -1588,7 +1389,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         start = 32771
         tapfile, basic_data = self._write_basic_loader(code_start, code)
         z80file = '{}/out.z80'.format(self.make_directory())
-        output, error = self.run_tap2sna(f'--sim-load --start {start} {tapfile} {z80file}')
+        output, error = self.run_tap2sna(f'--start {start} {tapfile} {z80file}')
         out_lines = output.strip().split('\n')
         exp_out_lines = [
             'Program: simloadbas',
@@ -1634,7 +1435,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         ]
         tapfile = self._write_tap(blocks)
         z80file = '{}/out.z80'.format(self.make_directory())
-        output, error = self.run_tap2sna(f'--sim-load --start 16395 {tapfile} {z80file}')
+        output, error = self.run_tap2sna(f'--start 16395 {tapfile} {z80file}')
         out_lines = output.strip().split('\n')
         exp_out_lines = [
             'Program: simloadbas',
@@ -1688,7 +1489,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         ]
         tapfile = self._write_tap(blocks)
         z80file = '{}/out.z80'.format(self.make_directory())
-        output, error = self.run_tap2sna(f'--sim-load --start 32784 {tapfile} {z80file}')
+        output, error = self.run_tap2sna(f'--start 32784 {tapfile} {z80file}')
         out_lines = output.strip().split('\n')
         exp_out_lines = [
             'Program: simloadbas',
@@ -1720,7 +1521,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         code_start = 32768
         code = [4, 5]
         tapfile, basic_data = self._write_basic_loader(code_start, code)
-        output, error = self.run_tap2sna(f'--sim-load --ram call={module_dir}:{module_name}.fix {tapfile} out.z80')
+        output, error = self.run_tap2sna(f'--ram call={module_dir}:{module_name}.fix {tapfile} out.z80')
         out_lines = output.strip().split('\n')
         exp_out_lines = [
             'Program: simloadbas',
@@ -1742,7 +1543,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         code_start = 32768
         code = [4, 5]
         tapfile, basic_data = self._write_basic_loader(code_start, code)
-        output, error = self.run_tap2sna(f'--sim-load --ram move=32768,2,32770 {tapfile} out.z80')
+        output, error = self.run_tap2sna(f'--ram move=32768,2,32770 {tapfile} out.z80')
         out_lines = output.strip().split('\n')
         exp_out_lines = [
             'Program: simloadbas',
@@ -1764,7 +1565,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         code_start = 32768
         code = [4, 5]
         tapfile, basic_data = self._write_basic_loader(code_start, code)
-        output, error = self.run_tap2sna(f'--sim-load --ram poke=32768-32770-2,1 {tapfile} out.z80')
+        output, error = self.run_tap2sna(f'--ram poke=32768-32770-2,1 {tapfile} out.z80')
         out_lines = output.strip().split('\n')
         exp_out_lines = [
             'Program: simloadbas',
@@ -1786,7 +1587,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         code_start = 32768
         code = [4, 5]
         tapfile, basic_data = self._write_basic_loader(code_start, code)
-        output, error = self.run_tap2sna(f'--sim-load --ram sysvars {tapfile} out.z80')
+        output, error = self.run_tap2sna(f'--ram sysvars {tapfile} out.z80')
         out_lines = output.strip().split('\n')
         exp_out_lines = [
             'Program: simloadbas',
@@ -1822,7 +1623,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         tapfile = self._write_tap(blocks)
         z80file = '{}/out.z80'.format(self.make_directory())
         with self.assertRaises(SkoolKitError) as cm:
-            self.run_tap2sna(f'--sim-load {tapfile} {z80file}')
+            self.run_tap2sna(f'{tapfile} {z80file}')
         out_lines = self.out.getvalue().strip().split('\n')
         exp_out_lines = [
             'Program: simloadbas',
@@ -1846,7 +1647,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         tzxfile = self._write_tzx([block])
         z80file = '{}/out.z80'.format(self.make_directory())
         with self.assertRaises(SkoolKitError) as cm:
-            self.run_tap2sna(f'--sim-load {tzxfile} {z80file}')
+            self.run_tap2sna(f'{tzxfile} {z80file}')
         self.assertEqual(cm.exception.args[0], 'Error while getting snapshot out.z80: TZX Direct Recording (0x15) not supported')
         self.assertEqual(self.out.getvalue(), '')
         self.assertEqual(self.err.getvalue(), '')
@@ -1865,7 +1666,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         tzxfile = self._write_tzx([block])
         z80file = '{}/out.z80'.format(self.make_directory())
         with self.assertRaises(SkoolKitError) as cm:
-            self.run_tap2sna(f'--sim-load {tzxfile} {z80file}')
+            self.run_tap2sna(f'{tzxfile} {z80file}')
         self.assertEqual(cm.exception.args[0], 'Error while getting snapshot out.z80: TZX CSW Recording (0x18) not supported')
         self.assertEqual(self.out.getvalue(), '')
         self.assertEqual(self.err.getvalue(), '')
@@ -1886,7 +1687,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         tzxfile = self._write_tzx([block])
         z80file = '{}/out.z80'.format(self.make_directory())
         with self.assertRaises(SkoolKitError) as cm:
-            self.run_tap2sna(f'--sim-load {tzxfile} {z80file}')
+            self.run_tap2sna(f'{tzxfile} {z80file}')
         self.assertEqual(cm.exception.args[0], 'Error while getting snapshot out.z80: TZX Generalized Data Block (0x19) not supported')
         self.assertEqual(self.out.getvalue(), '')
         self.assertEqual(self.err.getvalue(), '')
@@ -1907,7 +1708,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         ]
         tapfile = self._write_tap(blocks)
         tracefile = '{}/sim-load.trace'.format(self.make_directory())
-        output, error = self.run_tap2sna(f'--sim-load -c trace={tracefile} {tapfile} out.z80')
+        output, error = self.run_tap2sna(f'-c trace={tracefile} {tapfile} out.z80')
         out_lines = output.strip().split('\n')
         exp_out_lines = [
             'Program: simloadbas',
@@ -1935,7 +1736,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         ]
         tapfile, basic_data = self._write_basic_loader(32820, code)
         tracefile = '{}/sim-load.trace'.format(self.make_directory())
-        output, error = self.run_tap2sna(f'--sim-load --start 32826 -c trace={tracefile} {tapfile} out.z80')
+        output, error = self.run_tap2sna(f'--start 32826 -c trace={tracefile} {tapfile} out.z80')
         out_lines = output.strip().split('\n')
         self.assertIn('PC=32826', options.reg)
         with open(tracefile, 'r') as f:
@@ -2076,7 +1877,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         ]
         tapfile = self._write_tap(blocks)
         tracefile = '{}/sim-load.trace'.format(self.make_directory())
-        output, error = self.run_tap2sna(f'--sim-load -c trace={tracefile} --start 1343 -c finish-tape=1 {tapfile} out.z80')
+        output, error = self.run_tap2sna(f'-c trace={tracefile} --start 1343 -c finish-tape=1 {tapfile} out.z80')
         self.assertEqual(error, '')
         self.assertIn('PC=1343', options.reg)
         with open(tracefile, 'r') as f:
@@ -2100,7 +1901,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         tapfile = self._write_tap(blocks)
         tracefile = '{}/sim-load.trace'.format(self.make_directory())
         trace_line = '{pc:>5}:{i}'
-        args = f'--sim-load -I TraceLine={trace_line} -c trace={tracefile} --start 1343 -c finish-tape=1 {tapfile} out.z80'
+        args = f'-I TraceLine={trace_line} -c trace={tracefile} --start 1343 -c finish-tape=1 {tapfile} out.z80'
         output, error = self.run_tap2sna(args)
         self.assertEqual(error, '')
         self.assertIn('PC=1343', options.reg)
@@ -2117,7 +1918,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         trace_line = "${pc:04X} {i:<13} AFBCDEHL={r[a]:02X}{r[f]:02X}{r[b]:02X}{r[c]:02X}{r[d]:02X}{r[e]:02X}{r[h]:02X}{r[l]:02X}"
         trace_line += " AFBCDEHL'={r[^a]:02X}{r[^f]:02X}{r[^b]:02X}{r[^c]:02X}{r[^d]:02X}{r[^e]:02X}{r[^h]:02X}{r[^l]:02X}"
         trace_line += " IX={r[ixh]:02X}{r[ixl]:02X} IY={r[iyh]:02X}{r[iyl]:02X} SP={r[sp]:04X} IR={r[i]:02X}{r[r]:02X} T={r[t]}"
-        args = ('--sim-load', '-I', f'TraceLine={trace_line}', '-c', f'trace={tracefile}', '--start', '0x250E', tapfile, 'out.z80')
+        args = ('-I', f'TraceLine={trace_line}', '-c', f'trace={tracefile}', '--start', '0x250E', tapfile, 'out.z80')
         tap2sna.main(args)
         self.assertEqual(self.err.getvalue(), '')
         self.assertIn('PC=9486', options.reg)
@@ -2135,7 +1936,7 @@ class Tap2SnaTest(SkoolKitTestCase):
     def test_config_TraceOperand(self):
         tapfile = self._write_tap([create_tap_header_block("prog", 10, 1, 0)])
         tracefile = '{}/sim-load.trace'.format(self.make_directory())
-        args = f'--sim-load -I TraceOperand=&,02x,04x -c trace={tracefile} --start 1343 {tapfile} out.z80'
+        args = f'-I TraceOperand=&,02x,04x -c trace={tracefile} --start 1343 {tapfile} out.z80'
         output, error = self.run_tap2sna(args)
         self.assertEqual(error, '')
         self.assertIn('PC=1343', options.reg)
@@ -2150,7 +1951,7 @@ class Tap2SnaTest(SkoolKitTestCase):
     def test_config_TraceOperand_with_no_commas(self):
         tapfile = self._write_tap([create_tap_header_block("prog", 1, 1, 0)])
         tracefile = '{}/sim-load.trace'.format(self.make_directory())
-        args = f'--sim-load -I TraceOperand=# -c trace={tracefile} --start 1547 {tapfile} out.z80'
+        args = f'-I TraceOperand=# -c trace={tracefile} --start 1547 {tapfile} out.z80'
         output, error = self.run_tap2sna(args)
         self.assertEqual(error, '')
         self.assertIn('PC=1547', options.reg)
@@ -2164,7 +1965,7 @@ class Tap2SnaTest(SkoolKitTestCase):
     def test_config_TraceOperand_with_one_comma(self):
         tapfile = self._write_tap([create_tap_header_block("prog", 1, 1, 0)])
         tracefile = '{}/sim-load.trace'.format(self.make_directory())
-        args = f'--sim-load -I TraceOperand=+,02x -c trace={tracefile} --start 1547 {tapfile} out.z80'
+        args = f'-I TraceOperand=+,02x -c trace={tracefile} --start 1547 {tapfile} out.z80'
         output, error = self.run_tap2sna(args)
         self.assertEqual(error, '')
         self.assertIn('PC=1547', options.reg)
@@ -2178,7 +1979,7 @@ class Tap2SnaTest(SkoolKitTestCase):
     def test_config_TraceOperand_with_three_commas(self):
         tapfile = self._write_tap([create_tap_header_block("prog", 1, 1, 0)])
         tracefile = '{}/sim-load.trace'.format(self.make_directory())
-        args = f'--sim-load -I TraceOperand=0x,02x,04x,??? -c trace={tracefile} --start 1547 {tapfile} out.z80'
+        args = f'-I TraceOperand=0x,02x,04x,??? -c trace={tracefile} --start 1547 {tapfile} out.z80'
         output, error = self.run_tap2sna(args)
         self.assertEqual(error, '')
         self.assertIn('PC=1547', options.reg)
@@ -2204,11 +2005,12 @@ class Tap2SnaTest(SkoolKitTestCase):
     def test_quoted_args_from_file(self):
         code = [1, 2, 3]
         code_start = 24576
-        tap_data = create_tap_header_block(start=code_start) + create_tap_data_block(code)
+        tap_data = create_tap_data_block(code)
         odir = self.make_directory()
         tapfile = self.write_bin_file(tap_data, f'{odir}/all the data.tap')
         z80file = f'{odir}/my snapshot.z80'
         args = f"""
+            --ram load=1,{code_start}
             --ram poke=32768,255
             "{tapfile}"
             '{z80file}'

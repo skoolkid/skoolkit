@@ -456,35 +456,6 @@ def _load(snapshot, counters, blocks, param_str):
 
 def _get_ram(blocks, options):
     snapshot = [0] * 65536
-    standard_load = True
-    for spec in options.ram_ops:
-        if spec.partition('=')[0] == 'load':
-            standard_load = False
-            break
-
-    if standard_load:
-        start = None
-        for block_num, block in enumerate(blocks, 1):
-            if block:
-                if block[0] == 0 and len(block) >= 19:
-                    # Header
-                    block_type = block[1]
-                    if block_type == 3:
-                        # Bytes
-                        start = block[14] + 256 * block[15]
-                    elif block_type == 0:
-                        # Program
-                        start = 23755
-                    else:
-                        raise TapeError('Unknown block type ({}) in header block {}'.format(block_type, block_num))
-                elif block[0] == 255:
-                    if start is None:
-                        warn(f'Ignoring headerless block {block_num}')
-                    else:
-                        # Data
-                        _load_block(snapshot, block, start)
-                        start = None
-
     _ram_operations(snapshot, options.ram_ops, blocks)
     return snapshot[16384:]
 
@@ -626,7 +597,7 @@ def _get_tzx_blocks(data, sim, start, stop):
     loop = None
     while i < len(data):
         if block_num >= stop > 0:
-            break
+            break # pragma: no cover
         i, block_id, timings, tape_data = _get_tzx_block(data, i, sim)
         if block_num >= start:
             if sim: # pragma: no cover
@@ -886,6 +857,7 @@ def make_z80(url, options, z80, config):
         md5sum = hashlib.md5(tape).hexdigest()
         if md5sum != options.tape_sum:
             raise TapeError(f'Checksum mismatch: Expected {options.tape_sum}, actually {md5sum}')
+    options.sim_load = not any(s.startswith('load=') for s in options.ram_ops)
     tape_blocks = _get_tape_blocks(tape_type, tape, options.sim_load, options.tape_start, options.tape_stop)
     if options.sim_load:
         blocks = [b for b in tape_blocks if b[0]]
@@ -908,7 +880,7 @@ def main(args):
     parser.add_argument('args', help=argparse.SUPPRESS, nargs='*')
     group = parser.add_argument_group('Options')
     group.add_argument('-c', '--sim-load-config', metavar='name=value', action='append', default=[],
-                       help="Set the value of a --sim-load configuration parameter. "
+                       help="Set the value of a simulated LOAD configuration parameter. "
                             "Do '-c help' for more information. This option may be used multiple times.")
     group.add_argument('-d', '--output-dir', dest='output_dir', metavar='DIR',
                        help="Write the snapshot file in this directory.")
@@ -928,8 +900,7 @@ def main(args):
                        help="Show configuration parameter values.")
     group.add_argument('-s', '--start', dest='start', metavar='START', type=integer,
                        help="Set the start address to JP to.")
-    group.add_argument('--sim-load', action='store_true',
-                       help='Simulate a 48K ZX Spectrum running LOAD "".')
+    group.add_argument('--sim-load', action='store_true', help=argparse.SUPPRESS)
     group.add_argument('--state', dest='state', metavar='name=value', action='append', default=[],
                        help="Set a hardware state attribute. Do '--state help' for more information. "
                             "This option may be used multiple times.")
@@ -966,7 +937,6 @@ def main(args):
         if unknown_args or len(namespace.args) != 1:
             parser.exit(2, parser.format_help())
         namespace.args.append(None)
-        namespace.sim_load = True
     if unknown_args or len(namespace.args) != 2:
         parser.exit(2, parser.format_help())
     url, z80 = namespace.args

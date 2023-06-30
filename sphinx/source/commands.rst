@@ -1284,9 +1284,9 @@ To list the options supported by `tap2sna.py`, run it with no arguments::
 
   Options:
     -c name=value, --sim-load-config name=value
-                          Set the value of a --sim-load configuration parameter.
-                          Do '-c help' for more information. This option may be
-                          used multiple times.
+                          Set the value of a simulated LOAD configuration
+                          parameter. Do '-c help' for more information. This
+                          option may be used multiple times.
     -d DIR, --output-dir DIR
                           Write the snapshot file in this directory.
     -f, --force           Overwrite an existing snapshot.
@@ -1302,7 +1302,6 @@ To list the options supported by `tap2sna.py`, run it with no arguments::
     --show-config         Show configuration parameter values.
     -s START, --start START
                           Set the start address to JP to.
-    --sim-load            Simulate a 48K ZX Spectrum running LOAD "".
     --state name=value    Set a hardware state attribute. Do '--state help' for
                           more information. This option may be used multiple
                           times.
@@ -1320,11 +1319,10 @@ Note that `tap2sna.py` can read data from TZX block types 0x10 (standard speed
 data), 0x11 (turbo speed data) and 0x14 (pure data), but not block types 0x15
 (direct recording), 0x18 (CSW recording) or 0x19 (generalized data block).
 
-By default, `tap2sna.py` loads bytes from every data block on the tape, using
-the start address given in the corresponding header. For tapes that contain
-headerless data blocks, headers with incorrect start addresses, or irrelevant
-blocks, the ``--ram`` option can be used to load bytes from specific blocks at
-the appropriate addresses. For example::
+By default, `tap2sna.py` attempts to load a tape exactly as a 48K Spectrum
+would (see :ref:`tap2sna-sim-load`). If that doesn't work, the ``--ram`` option
+can be used to load bytes from specific tape blocks at the appropriate
+addresses. For example::
 
   $ tap2sna.py --ram load=3,30000 game.tzx game.z80
 
@@ -1332,12 +1330,11 @@ loads the third block on the tape at address 30000, and ignores all other
 blocks. (To see information on the blocks in a TAP or TZX file, use the
 :ref:`tapinfo.py` command.)
 
-In addition to loading specific blocks, the ``--ram`` option can also be used
-to move blocks of bytes from one location to another, POKE values into
-individual addresses or address ranges, modify memory with XOR and ADD
-operations, initialise the system variables, or call a Python function to
-modify the memory snapshot in an arbitrary way before it is saved. For more
-information on these operations, run::
+The ``--ram`` option can also be used to move blocks of bytes from one location
+to another, POKE values into individual addresses or address ranges, modify
+memory with XOR and ADD operations, initialise the system variables, or call a
+Python function to modify the memory snapshot in an arbitrary way before it is
+saved. For more information on these operations, run::
 
   $ tap2sna.py --ram help
 
@@ -1350,13 +1347,10 @@ the file `game.t2s` has the following contents::
   ;
   http://example.com/pub/games/GAME.zip
   game.z80
-  --ram load=4,32768         # Load the fourth block at 32768
-  --ram move=40960,512,43520 # Move 40960-41471 to 43520-44031
-  --ram call=:ram.modify     # Call modify(snapshot) in ./ram.py
-  --ram sysvars              # Initialise the system variables
-  --state iff=0              # Disable interrupts
-  --stack 32768              # Stack at 32768
-  --start 34816              # Start at 34816
+  -c fast-load=0       # Disable fast loading
+  -c accelerator=none  # Disable tape-sampling loop acceleration
+  --state issue2=1     # Enable issue 2 keyboard emulation
+  --start 34816        # Start at 34816
 
 then::
 
@@ -1369,15 +1363,14 @@ given on the command line.
 
 Simulated LOAD
 ^^^^^^^^^^^^^^
-An alternative to the ``--ram load`` approach is the ``--sim-load`` option. It
-simulates a freshly booted 48K ZX Spectrum running LOAD "" (or LOAD ""CODE, if
-the first block on the tape is a 'Bytes' header). Whenever the Spectrum ROM's
-load routine at $0556 is called, a shortcut is taken by "fast loading" the next
-block on the tape. All other code (including any custom loader) is fully
-simulated. Simulation continues until the program counter hits the start
-address given by the ``--start`` option, or 15 minutes of simulated Z80 CPU
-time has elapsed, or the end of the tape is reached and one of the following
-conditions is satisfied:
+By default, `tap2sna.py` simulates a freshly booted 48K ZX Spectrum running
+LOAD "" (or LOAD ""CODE, if the first block on the tape is a 'Bytes' header).
+Whenever the Spectrum ROM's load routine at $0556 is called, a shortcut is
+taken by "fast loading" the next block on the tape. All other code (including
+any custom loader) is fully simulated. Simulation continues until the program
+counter hits the start address given by the ``--start`` option, or 15 minutes
+of simulated Z80 CPU time has elapsed, or the end of the tape is reached and
+one of the following conditions is satisfied:
 
 * a custom loader was detected
 * the program counter hits an address outside the ROM
@@ -1570,6 +1563,8 @@ Configuration parameters may also be set on the command line by using the
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 9.0     | A simulated LOAD is performed by default                          |
++---------+-------------------------------------------------------------------+
 | 8.10    | Configuration is read from `skoolkit.ini` if present; added the   |
 |         | ``--ini``, ``--show-config`` and ``--tape-analysis`` options;     |
 |         | added the ``TraceLine`` and ``TraceOperand`` configuration        |
@@ -1594,12 +1589,12 @@ Configuration parameters may also be set on the command line by using the
 |         | blocks; added support for quoted arguments in an arguments file;  |
 |         | added the ``tstates`` hardware state attribute                    |
 +---------+-------------------------------------------------------------------+
-| 8.8     | The ``--sim-load`` option performs any ``call/move/poke/sysvars`` |
+| 8.8     | A simulated LOAD performs any ``call/move/poke/sysvars``          |
 |         | operations specified by ``--ram``                                 |
 +---------+-------------------------------------------------------------------+
-| 8.7     | Added the ``--sim-load`` option; when a headerless block is       |
-|         | ignored because no ``--ram load`` options have been specified, a  |
-|         | warning is printed                                                |
+| 8.7     | Added support for simulating a 48K Spectrum LOADing a tape; when  |
+|         | a headerless block is ignored because no ``--ram load`` options   |
+|         | have been specified, a warning is printed                         |
 +---------+-------------------------------------------------------------------+
 | 8.6     | Added support to the ``--ram`` option for the ``call`` operation  |
 +---------+-------------------------------------------------------------------+

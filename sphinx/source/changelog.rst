@@ -4,6 +4,8 @@ Changelog
 9.0b1
 -----
 * Dropped support for Python 3.7
+* :ref:`tap2sna.py` now performs a :ref:`simulated LOAD <tap2sna-sim-load>` by
+  default
 
 8.10 (2023-06-17)
 -----------------

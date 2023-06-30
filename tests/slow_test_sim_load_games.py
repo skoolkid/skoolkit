@@ -10,7 +10,7 @@ class SimLoadGamesTest(SkoolKitTestCase):
     def _test_sim_load(self, url, tapname, tapsum, reg, options=''):
         with tempfile.TemporaryDirectory() as d:
             z80file = f'{d}/{tapname[:-4]}.z80'
-            tap2sna.main(('--sim-load', '--tape-name', tapname, '--tape-sum', tapsum, *options.split(), url, z80file))
+            tap2sna.main(('--tape-name', tapname, '--tape-sum', tapsum, *options.split(), url, z80file))
             ram = get_snapshot(z80file)[16384:]
             md5sum = hashlib.md5(bytes(ram)).hexdigest()
             r = parse_snapshot(z80file)[1]

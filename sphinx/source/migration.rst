@@ -21,3 +21,11 @@ expands to the smaller of its two integer arguments::
 This can be redefined by using the ``#DEF`` macro::
 
   #DEF(#MIN(a,b) #IF($a<$b)($a,$b))
+
+tap2sna.py
+----------
+In SkoolKit 8, :ref:`tap2sna.py` performed a
+:ref:`simulated LOAD <tap2sna-sim-load>` only if the ``--sim-load`` option was
+given. In SkoolKit 9, `tap2sna.py` performs a simulated LOAD by default, and
+the ``--sim-load`` option is no longer supported. Simulated LOADing is disabled
+only if a ``--ram load`` option is given.

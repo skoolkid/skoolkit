@@ -20,7 +20,7 @@ instead of (or as well as) being given on the command line.
 OPTIONS
 =======
 -c, --sim-load-config name=value
-  Set the value of a ``--sim-load`` configuration parameter. Do ``-c help`` for
+  Set the value of a simulated LOAD configuration parameter. Do ``-c help`` for
   more information, and see the section on ``SIMULATED LOAD`` below. This
   option may be used multiple times.
 
@@ -56,10 +56,6 @@ OPTIONS
   Set the start address to JP to. This option is equivalent to
   ``--reg pc=START``. `START` must be a decimal number, or a hexadecimal number
   prefixed by '0x'.
-
---sim-load
-  Simulate a 48K ZX Spectrum running LOAD "". See the section on ``SIMULATED
-  LOAD`` below.
 
 --state name=value
   Set a hardware state attribute. Do ``--state help`` for more information, or
@@ -99,7 +95,7 @@ recording), 0x18 (CSW recording) or 0x19 (generalized data block).
 
 SIMULATED LOAD
 ==============
-The ``--sim-load`` option simulates a freshly booted 48K ZX Spectrum running
+By default, ``tap2sna.py`` simulates a freshly booted 48K ZX Spectrum running
 LOAD "" (or LOAD ""CODE, if the first block on the tape is a 'Bytes' header).
 Whenever the Spectrum ROM's load routine at $0556 is called, a shortcut is
 taken by "fast loading" the next block on the tape. All other code (including
@@ -249,11 +245,10 @@ For example:
 
 LOAD OPERATIONS
 ===============
-By default, ``tap2sna.py`` loads bytes from every data block on the tape, using
-the start address given in the corresponding header. For tapes that contain
-headerless data blocks, headers with incorrect start addresses, or irrelevant
-blocks, the ``--ram`` option can be used to load bytes from specific blocks at
-the appropriate addresses. The syntax is:
+By default, ``tap2sna.py`` attempts to load a tape exactly as a 48K Spectrum
+would (see the section on ``SIMULATED LOAD`` above). If that doesn't work, the
+``--ram`` option can be used to load bytes from specific tape blocks at the
+appropriate addresses. The syntax is:
 
 |
 |  ``--ram load=[+]block[+],start[,length,step,offset,inc]``
@@ -389,10 +384,9 @@ Recognised attribute names and their default values are:
 
 READING ARGUMENTS FROM A FILE
 =============================
-For complex snapshots that require many ``--ram``, ``--reg`` or ``--state``
-options to build, it may be more convenient to store the arguments to
-``tap2sna.py`` in a file. For example, if the file ``game.t2s`` has the
-following contents:
+For complex snapshots that require many options to build, it may be more
+convenient to store the arguments to ``tap2sna.py`` in a file. For example, if
+the file ``game.t2s`` has the following contents:
 
 |
 |    ;
@@ -400,13 +394,10 @@ following contents:
 |    ;
 |    \http://example.com/pub/games/GAME.zip
 |    game.z80
-|    --ram load=4,32768         # Load the fourth block at 32768
-|    --ram move=40960,512,43520 # Move 40960-41471 to 43520-44031
-|    --ram call=:ram.modify     # Call modify(snapshot) in ./ram.py
-|    --ram sysvars              # Initialise the system variables
-|    --state iff=0              # Disable interrupts
-|    --stack 32768              # Stack at 32768
-|    --start 34816              # Start at 34816
+|    -c fast-load=0      # Disable fast loading
+|    -c accelerator=none # Disable tape-sampling loop acceleration
+|    --state issue2=1    # Enable issue 2 keyboard emulation
+|    --start 34816       # Start at 34816
 
 then:
 
@@ -495,7 +486,7 @@ EXAMPLES
    snapshot with the program counter set to 32768:
 
    |
-   |   ``tap2sna.py --reg pc=32768 game.zip game.z80``
+   |   ``tap2sna.py --start 32768 game.zip game.z80``
 
 3. Convert a TZX file into a Z80 snapshot by loading the third block on the
    tape at 25000:

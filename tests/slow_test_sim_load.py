@@ -123,7 +123,7 @@ class SimLoadTest(SkoolKitTestCase):
             'Tape finished',
             'Simulation stopped (end of tape): PC=32925'
         ]
-        self._test_sim_load(f'--sim-load {tapfile} out.z80', exp_data, exp_reg, exp_output)
+        self._test_sim_load(f'{tapfile} out.z80', exp_data, exp_reg, exp_output)
 
     @patch.object(tap2sna, '_write_z80', mock_write_z80)
     def test_custom_standard_speed_loader_with_accelerator(self):
@@ -164,7 +164,7 @@ class SimLoadTest(SkoolKitTestCase):
             'Tape finished',
             'Simulation stopped (end of tape): PC=32925'
         ]
-        self._test_sim_load(f'--sim-load -c accelerator=rom {tapfile} out.z80', exp_data, exp_reg, exp_output)
+        self._test_sim_load(f'-c accelerator=rom {tapfile} out.z80', exp_data, exp_reg, exp_output)
 
     @patch.object(tap2sna, '_write_z80', mock_write_z80)
     def test_turbo_loader(self):
@@ -205,7 +205,7 @@ class SimLoadTest(SkoolKitTestCase):
             'Tape finished',
             'Simulation stopped (end of tape): PC=32925'
         ]
-        self._test_sim_load(f'--sim-load {tzxfile} out.z80', exp_data, exp_reg, exp_output)
+        self._test_sim_load(f'{tzxfile} out.z80', exp_data, exp_reg, exp_output)
 
     @patch.object(tap2sna, '_write_z80', mock_write_z80)
     def test_tzx_block_types_0x12_0x13_0x14(self):
@@ -260,7 +260,7 @@ class SimLoadTest(SkoolKitTestCase):
             'Tape finished',
             'Simulation stopped (end of tape): PC=32925'
         ]
-        self._test_sim_load(f'--sim-load {tzxfile} out.z80', exp_data, exp_reg, exp_output)
+        self._test_sim_load(f'{tzxfile} out.z80', exp_data, exp_reg, exp_output)
 
     @patch.object(tap2sna, '_write_z80', mock_write_z80)
     def test_tzx_loop(self):
@@ -346,7 +346,7 @@ class SimLoadTest(SkoolKitTestCase):
             'Tape finished',
             'Simulation stopped (PC at start address): PC=49152'
         ]
-        self._test_sim_load(f'--sim-load --start 49152 {tzxfile} out.z80', exp_data, exp_reg, exp_output)
+        self._test_sim_load(f'--start 49152 {tzxfile} out.z80', exp_data, exp_reg, exp_output)
 
     @patch.object(tap2sna, '_write_z80', mock_write_z80)
     def test_tape_stop_option_overrides_stop_the_tape_command(self):
@@ -383,7 +383,7 @@ class SimLoadTest(SkoolKitTestCase):
             'Tape finished',
             'Simulation stopped (PC in RAM): PC=32768'
         ]
-        self._test_sim_load(f'--sim-load --tape-stop 6 {tzxfile} out.z80', exp_data, exp_reg, exp_output)
+        self._test_sim_load(f'--tape-stop 6 {tzxfile} out.z80', exp_data, exp_reg, exp_output)
 
     @patch.object(tap2sna, '_write_z80', mock_write_z80)
     def test_tape_stop_option_overrides_stop_the_tape_if_in_48K_mode(self):
@@ -420,7 +420,7 @@ class SimLoadTest(SkoolKitTestCase):
             'Tape finished',
             'Simulation stopped (PC in RAM): PC=32768'
         ]
-        self._test_sim_load(f'--sim-load --tape-stop 6 {tzxfile} out.z80', exp_data, exp_reg, exp_output)
+        self._test_sim_load(f'--tape-stop 6 {tzxfile} out.z80', exp_data, exp_reg, exp_output)
 
     @patch.object(tap2sna, '_write_z80', mock_write_z80)
     def test_no_gap_between_data_blocks(self):
@@ -488,7 +488,7 @@ class SimLoadTest(SkoolKitTestCase):
             'Tape finished',
             'Simulation stopped (PC at start address): PC=49152'
         ]
-        self._test_sim_load(f'--sim-load --start 49152 {tzxfile} out.z80', exp_data, exp_reg, exp_output)
+        self._test_sim_load(f'--start 49152 {tzxfile} out.z80', exp_data, exp_reg, exp_output)
 
     @patch.object(tap2sna, '_write_z80', mock_write_z80)
     def test_required_gap_between_data_blocks(self):
@@ -544,7 +544,7 @@ class SimLoadTest(SkoolKitTestCase):
             'Tape finished',
             'Simulation stopped (PC at start address): PC=49152'
         ]
-        self._test_sim_load(f'--sim-load --start 49152 {tzxfile} out.z80', exp_data, exp_reg, exp_output)
+        self._test_sim_load(f'--start 49152 {tzxfile} out.z80', exp_data, exp_reg, exp_output)
 
     @patch.object(tap2sna, '_write_z80', mock_write_z80)
     def test_unread_data_in_middle_of_tape(self):
@@ -609,7 +609,7 @@ class SimLoadTest(SkoolKitTestCase):
             'Tape finished',
             'Simulation stopped (PC at start address): PC=65535'
         ]
-        self._test_sim_load(f'--sim-load --start 65535 {tapfile} out.z80', exp_data, exp_reg, exp_output)
+        self._test_sim_load(f'--start 65535 {tapfile} out.z80', exp_data, exp_reg, exp_output)
 
     @patch.object(tap2sna, '_write_z80', mock_write_z80)
     def test_unread_data_at_end_of_tape(self):
@@ -665,7 +665,7 @@ class SimLoadTest(SkoolKitTestCase):
             'Tape finished',
             'Simulation stopped (end of tape): PC=49158'
         ]
-        self._test_sim_load(f'--sim-load {tapfile} out.z80', exp_data, exp_reg, exp_output)
+        self._test_sim_load(f'{tapfile} out.z80', exp_data, exp_reg, exp_output)
 
     @patch.object(tap2sna, '_write_z80', mock_write_z80)
     def test_port_read_after_tape_end(self):
@@ -707,7 +707,7 @@ class SimLoadTest(SkoolKitTestCase):
             'Tape finished',
             'Simulation stopped (PC at start address): PC=49152'
         ]
-        self._test_sim_load(f'--sim-load --start 49152 {tapfile} out.z80', exp_data, exp_reg, exp_output)
+        self._test_sim_load(f'--start 49152 {tapfile} out.z80', exp_data, exp_reg, exp_output)
 
     @patch.object(tap2sna, '_write_z80', mock_write_z80)
     def test_no_ram_execution(self):
@@ -735,7 +735,7 @@ class SimLoadTest(SkoolKitTestCase):
             'Tape finished',
             'Simulation stopped (tape ended 1 second ago): PC=10355',
         ]
-        self._test_sim_load(f'--sim-load {tapfile} out.z80', exp_data, exp_reg, exp_output)
+        self._test_sim_load(f'{tapfile} out.z80', exp_data, exp_reg, exp_output)
 
     @patch.object(tap2sna, '_write_z80', mock_write_z80)
     def test_tape_is_paused_between_blocks(self):
@@ -774,7 +774,7 @@ class SimLoadTest(SkoolKitTestCase):
             'Tape finished',
             'Simulation stopped (PC in RAM): PC=32768',
         ]
-        self._test_sim_load(f'--sim-load {tapfile} out.z80', exp_data, exp_reg, exp_output)
+        self._test_sim_load(f'{tapfile} out.z80', exp_data, exp_reg, exp_output)
 
     @patch.object(tap2sna, '_write_z80', mock_write_z80)
     def test_skip_data_before_fast_loading_next_block(self):
@@ -831,7 +831,7 @@ class SimLoadTest(SkoolKitTestCase):
             'Tape finished',
             'Simulation stopped (PC at start address): PC=49152'
         ]
-        self._test_sim_load(f'--sim-load --start 49152 {tzxfile} out.z80', exp_data, exp_reg, exp_output)
+        self._test_sim_load(f'--start 49152 {tzxfile} out.z80', exp_data, exp_reg, exp_output)
 
     @patch.object(tap2sna, '_write_z80', mock_write_z80)
     def test_simulation_timed_out(self):
@@ -855,7 +855,7 @@ class SimLoadTest(SkoolKitTestCase):
             'Fast loading data block: 23755,6',
             'Simulation stopped (timed out): PC=1343',
         ]
-        self._test_sim_load(f'--sim-load -c timeout=6 {tapfile} out.z80', exp_data, exp_reg, exp_output)
+        self._test_sim_load(f'-c timeout=6 {tapfile} out.z80', exp_data, exp_reg, exp_output)
 
     @patch.object(tap2sna, '_write_z80', mock_write_z80)
     def test_tzx_pause(self):
@@ -916,7 +916,7 @@ class SimLoadTest(SkoolKitTestCase):
             'Tape finished',
             'Simulation stopped (PC at start address): PC=49152'
         ]
-        self._test_sim_load(f'--sim-load --start 49152 {tzxfile} out.z80', exp_data, exp_reg, exp_output)
+        self._test_sim_load(f'--start 49152 {tzxfile} out.z80', exp_data, exp_reg, exp_output)
 
     @patch.object(tap2sna, '_write_z80', mock_write_z80)
     def test_unused_bits_in_last_byte_of_tzx_block_0x11(self):
@@ -962,7 +962,7 @@ class SimLoadTest(SkoolKitTestCase):
             'Tape finished',
             'Simulation stopped (PC at start address): PC=49152'
         ]
-        self._test_sim_load(f'--sim-load --start 49152 {tzxfile} out.z80', exp_data, exp_reg, exp_output)
+        self._test_sim_load(f'--start 49152 {tzxfile} out.z80', exp_data, exp_reg, exp_output)
 
     @patch.object(tap2sna, '_write_z80', mock_write_z80)
     def test_unused_bits_in_last_byte_of_tzx_block_0x14(self):
@@ -1021,4 +1021,4 @@ class SimLoadTest(SkoolKitTestCase):
             'Tape finished',
             'Simulation stopped (PC at start address): PC=49152'
         ]
-        self._test_sim_load(f'--sim-load --start 49152 {tzxfile} out.z80', exp_data, exp_reg, exp_output)
+        self._test_sim_load(f'--start 49152 {tzxfile} out.z80', exp_data, exp_reg, exp_output)
