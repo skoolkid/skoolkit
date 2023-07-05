@@ -9,8 +9,10 @@ from skoolkit.snapshot import get_snapshot
 class SimLoadGamesTest(SkoolKitTestCase):
     def _test_sim_load(self, url, tapname, tapsum, reg, options=''):
         with tempfile.TemporaryDirectory() as d:
+            if isinstance(options, str):
+                options = options.split()
             z80file = f'{d}/{tapname[:-4]}.z80'
-            tap2sna.main(('--tape-name', tapname, '--tape-sum', tapsum, *options.split(), url, z80file))
+            tap2sna.main(('--tape-name', tapname, '--tape-sum', tapsum, *options, url, z80file))
             ram = get_snapshot(z80file)[16384:]
             md5sum = hashlib.md5(bytes(ram)).hexdigest()
             r = parse_snapshot(z80file)[1]
@@ -1049,6 +1051,21 @@ class SimLoadGamesTest(SkoolKitTestCase):
                 'ram': '25461848f0ae0b85b136a50131d1231a'
             },
             '-c accelerator=tiny --start 48495'
+        )
+
+    def test_tridex(self):
+        self._test_sim_load(
+            'https://worldofspectrum.net/pub/sinclair/games/t/Tridex.tzx.zip',
+            'Tridex.tzx',
+            '5141d234263b0255e8d4008eb1c2eec8',
+            {
+                'AF,BC,DE,HL': '0001,0004,0000,053F',
+                "AF',BC',DE',HL'": 'FF81,0221,0000,0000',
+                'PC,SP,IX,IY': '053F,88B1,FFFE,5C3A',
+                'IR,iff,im,border': '3F5F,0,1,7',
+                'ram': '6ec5a0bd1de1783a66ac6cb3c5405012'
+            },
+            ('--start', '1343', '-c', 'finish-tape=1', '-c', 'load=CLEAR 3 5 0 0 0 : LOAD " "')
         )
 
     def test_weird_science(self):

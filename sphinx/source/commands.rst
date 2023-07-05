@@ -1402,6 +1402,8 @@ parameters are:
   to place the leading edge of the first pulse (default: ``-2168``); the
   default value places the trailing edge of the first pulse at time 0, but some
   loaders (e.g. polarity-sensitive loaders) require ``first-edge=0``
+* ``load`` - a space-separated list of keys to press to build an alternative
+  command line to load the tape (see below)
 * ``pause`` - pause the tape between blocks and resume playback when port 254
   is read (``1``, the default), or run the tape continuously (``0``); pausing
   can help with tapes that require (but do not actually contain) long pauses
@@ -1491,6 +1493,35 @@ loop accelerators are:
 * ``weird-science`` (Flash Beer Trilogy, Ghost Castles, TV-Game)
 * ``zydroload`` (Zydroload - same as ``speedlock``)
 
+The ``load`` parameter may be used to specify an alternative command line to
+load the tape in cases where neither 'LOAD ""' nor 'LOAD ""CODE' works. Its
+value is a space-separated list of keys to press to build the command line.
+Each alphanumeric key is denoted by its digit or upper case letter. Multiple
+simultaneous keypresses are denoted by separating them with '+'. All BASIC
+tokens except those that contain a space are translated into their
+corresponding digit, letter, special key or combination thereof. The following
+special tokens are also recognised:
+
+* ``CS`` - CAPS SHIFT
+* ``SS`` - SYMBOL SHIFT
+* ``SPACE`` - SPACE
+* ``ENTER`` - ENTER
+* ``GOTO`` - GO TO ('G')
+* ``GOSUB`` - GO SUB ('H')
+* ``DEFFN`` - DEF FN ('CS+SS SS+1')
+* ``OPEN#`` - OPEN # ('CS+SS SS+4')
+* ``CLOSE#`` - CLOSE # ('CS+SS SS+5')
+
+``ENTER`` is automatically appended to the command line if not already present.
+
+For example::
+
+  CLEAR 3 5 0 0 0 : LOAD " "
+
+With this value, the ``load`` parameter sets the command line to::
+
+  CLEAR 35000: LOAD ""
+
 .. _tap2sna-conf:
 
 Configuration
@@ -1563,7 +1594,8 @@ Configuration parameters may also be set on the command line by using the
 | Version | Changes                                                           |
 +=========+===================================================================+
 | 9.0     | A simulated LOAD is performed by default; an existing snapshot    |
-|         | will be overwritten by default                                    |
+|         | will be overwritten by default; added the ``load`` simulated LOAD |
+|         | configuration parameter                                           |
 +---------+-------------------------------------------------------------------+
 | 8.10    | Configuration is read from `skoolkit.ini` if present; added the   |
 |         | ``--ini``, ``--show-config`` and ``--tape-analysis`` options;     |

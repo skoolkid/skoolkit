@@ -27,6 +27,7 @@ from skoolkit import (SkoolKitError, get_dword, get_int_param, get_object,
                       get_word, get_word3, integer, open_file, parse_int,
                       read_bin_file, warn, write_line, ROM48, VERSION)
 from skoolkit.config import get_config, show_config, update_options
+from skoolkit.kbtracer import KeyboardTracer
 from skoolkit.loadsample import ACCELERATORS
 from skoolkit.loadtracer import LoadTracer, get_edges
 from skoolkit.simulator import (Simulator, A, F, B, C, D, E, H, L, IXh, IXl, IYh, IYl,
@@ -284,11 +285,12 @@ def _set_sim_load_config(options):
     options.fast_load = True
     options.finish_tape = False
     options.first_edge = -2168
+    options.load = None
     options.pause = True
     options.timeout = 900
     options.trace = None
     for spec in options.sim_load_config:
-        name, sep, value = spec.lower().partition('=')
+        name, sep, value = spec.partition('=')
         if sep:
             if name == 'accelerate-dec-a': # pragma: no cover
                 options.accelerate_dec_a = parse_int(value, options.accelerate_dec_a)
@@ -302,6 +304,8 @@ def _set_sim_load_config(options):
                 options.finish_tape = parse_int(value, options.finish_tape)
             elif name == 'first-edge': # pragma: no cover
                 options.first_edge = parse_int(value, options.first_edge)
+            elif name == 'load': # pragma: no cover
+                options.load = value
             elif name == 'pause': # pragma: no cover
                 options.pause = parse_int(value, options.pause)
             elif name == 'timeout': # pragma: no cover
@@ -316,6 +320,7 @@ def sim_load(blocks, options, config):
     if options.tape_analysis:
         get_edges(blocks, options.first_edge, True)
         sys.exit(0)
+
     list_accelerators = options.accelerator == 'list'
     accelerators = set()
     if options.accelerator == 'auto' or list_accelerators:
@@ -326,42 +331,61 @@ def sim_load(blocks, options, config):
                 accelerators.add(ACCELERATORS[name]) # pragma: no cover
             else:
                 raise SkoolKitError(f'Unrecognised accelerator: {name}')
+
     snapshot = [0] * 65536
     rom = read_bin_file(ROM48, 16384)
     snapshot[:len(rom)] = rom
-    snapshot[0x5800:0x5B00] = [56] * 768 # PAPER 7: INK 0
-    snapshot[0x5C00:0x5C00 + len(SYSVARS)] = SYSVARS
-    for a, b in SIM_LOAD_PATCH.items():
-        snapshot[a] = b % 256
-        if b > 0xFF:
-            snapshot[a + 1] = b // 256
-    block1_data = blocks[0][1]
-    if len(block1_data) >= 19 and tuple(block1_data[0:2]) == (0, 3):
-        for a, b in SIM_LOAD_CODE_PATCH.items():
+    interrupted = False
+
+    if options.load: # pragma: no cover
+        if not options.load.endswith(' ENTER'):
+            options.load += ' ENTER'
+        simulator = Simulator(snapshot)
+        tracer = KeyboardTracer(simulator, options.load)
+        simulator.set_tracer(tracer)
+        try:
+            tracer.run(0x0605)
+            border = tracer.border
+        except KeyboardInterrupt:
+            write_line(f'Simulation stopped (interrupted): PC={simulator.registers[PC]}')
+            interrupted = True
+    else:
+        snapshot[0x5800:0x5B00] = [56] * 768 # PAPER 7: INK 0
+        snapshot[0x5C00:0x5C00 + len(SYSVARS)] = SYSVARS
+        for a, b in SIM_LOAD_PATCH.items():
             snapshot[a] = b % 256
             if b > 0xFF:
                 snapshot[a + 1] = b // 256
-    snapshot[0xFF58:] = snapshot[0x3E08:0x3EB0] # UDGs
-    simulator = Simulator(snapshot, {'SP': 0xFF50})
-    if options.contended_in: # pragma: no cover
-        in_min_addr = 0x4000
-    else:
-        in_min_addr = 0x8000
-    tracer = LoadTracer(simulator, blocks, accelerators, options.pause, options.first_edge,
-                        options.finish_tape, in_min_addr, options.accelerate_dec_a, list_accelerators)
-    simulator.set_tracer(tracer, False, False)
-    op_fmt = config['TraceOperand']
-    prefix, byte_fmt, word_fmt = (op_fmt + ',' * (2 - op_fmt.count(','))).split(',')[:3]
-    try:
-        # Begin execution at 0x0605 (SAVE-ETC)
-        tracer.run(0x0605, options.start, options.fast_load, options.timeout * 3500000,
-                   options.trace, config['TraceLine'] + '\n', prefix, byte_fmt, word_fmt)
-        _ram_operations(snapshot, options.ram_ops)
-    except KeyboardInterrupt: # pragma: no cover
-        write_line(f'Simulation stopped (interrupted): PC={simulator.registers[PC]}')
-    if list_accelerators: # pragma: no cover
-        accelerators = '; '.join(f'{k}: {v}' for k, v in tracer.accelerators.items()) or 'none'
-        write_line(f'Accelerators: {accelerators}; misses: {tracer.inc_b_misses}/{tracer.dec_b_misses}')
+        block1_data = blocks[0][1]
+        if len(block1_data) >= 19 and tuple(block1_data[0:2]) == (0, 3):
+            for a, b in SIM_LOAD_CODE_PATCH.items():
+                snapshot[a] = b % 256
+                if b > 0xFF:
+                    snapshot[a + 1] = b // 256
+        snapshot[0xFF58:] = snapshot[0x3E08:0x3EB0] # UDGs
+        simulator = Simulator(snapshot, {'PC': 0x0605, 'SP': 0xFF50})
+        border = 7
+
+    if not interrupted:
+        if options.contended_in: # pragma: no cover
+            in_min_addr = 0x4000
+        else:
+            in_min_addr = 0x8000
+        tracer = LoadTracer(simulator, blocks, accelerators, options.pause, options.first_edge,
+                            options.finish_tape, in_min_addr, options.accelerate_dec_a, list_accelerators, border)
+        simulator.set_tracer(tracer, False, False)
+        op_fmt = config['TraceOperand']
+        prefix, byte_fmt, word_fmt = (op_fmt + ',' * (2 - op_fmt.count(','))).split(',')[:3]
+        try:
+            tracer.run(options.start, options.fast_load, options.timeout * 3500000,
+                       options.trace, config['TraceLine'] + '\n', prefix, byte_fmt, word_fmt)
+            _ram_operations(snapshot, options.ram_ops)
+        except KeyboardInterrupt: # pragma: no cover
+            write_line(f'Simulation stopped (interrupted): PC={simulator.registers[PC]}')
+        if list_accelerators: # pragma: no cover
+            accelerators = '; '.join(f'{k}: {v}' for k, v in tracer.accelerators.items()) or 'none'
+            write_line(f'Accelerators: {accelerators}; misses: {tracer.inc_b_misses}/{tracer.dec_b_misses}')
+
     sim_registers = simulator.registers
     registers = {
         'A': sim_registers[A],
@@ -785,6 +809,7 @@ Usage: --sim-load-config accelerate-dec-a=0/1/2
        --sim-load-config fast-load=0/1
        --sim-load-config finish-tape=0/1
        --sim-load-config first-edge=N
+       --sim-load-config load=KEYS
        --sim-load-config pause=0/1
        --sim-load-config timeout=N
        --sim-load-config trace=FILE
@@ -833,6 +858,27 @@ Configure various properties of a simulated LOAD.
   leading edge of the first pulse (default: -2168). The default value places
   the trailing edge of the first pulse at time 0, but some loaders (e.g.
   polarity-sensitive loaders) require first-edge=0.
+
+--sim-load-config load=KEYS
+
+  By default, the simulated LOAD begins by executing either 'LOAD ""' or
+  'LOAD ""CODE' (depending on whether the tape begins with a Bytes block). If
+  an alternative command line is required to load the tape, it can be specified
+  by this parameter, where KEYS is a space-separated list of keys to press.
+  Each alphanumeric key is denoted by its digit or upper case letter. Multiple
+  simultaneous keypresses are denoted by separating them with '+'. All BASIC
+  tokens except those that contain a space are recognised. The following
+  special tokens are also recognised:
+
+    CS     - CAPS SHIFT
+    SS     - SYMBOL SHIFT
+    SPACE  - SPACE
+    ENTER  - ENTER
+    GOTO   - GO TO (G)
+    GOSUB  - GO SUB (H)
+    DEFFN  - DEF FN (CS+SS SS+1)
+    OPEN#  - OPEN # (CS+SS SS+4)
+    CLOSE# - CLOSE # (CS+SS SS+5)
 
 --sim-load-config pause=0/1
 

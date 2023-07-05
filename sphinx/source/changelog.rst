@@ -6,6 +6,9 @@ Changelog
 * Dropped support for Python 3.7
 * :ref:`tap2sna.py` now performs a :ref:`simulated LOAD <tap2sna-sim-load>` by
   default, and will also overwrite an existing snapshot by default
+* Added the ``load`` simulated LOAD configuration parameter to
+  :ref:`tap2sna.py <tap2sna-sim-load>` (to specify an alternative command line
+  to use to load the tape)
 
 8.10 (2023-06-17)
 -----------------

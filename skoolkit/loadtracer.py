@@ -148,7 +148,8 @@ def get_edges(blocks, first_edge, analyse=False):
     return edges, indexes, data_blocks
 
 class LoadTracer:
-    def __init__(self, simulator, blocks, accelerators, pause, first_edge, finish_tape, in_min_addr, accel_dec_a, list_accelerators):
+    def __init__(self, simulator, blocks, accelerators, pause, first_edge, finish_tape,
+                 in_min_addr, accel_dec_a, list_accelerators, border):
         self.accelerators = defaultdict(int)
         self.inc_b_misses = 0
         self.dec_b_misses = 0
@@ -198,16 +199,15 @@ class LoadTracer:
         self.end_of_tape = 0
         self.tape_end_time = 0
         self.custom_loader = False
-        self.border = 7
+        self.border = border
         self.text = TextReader()
 
-    def run(self, start, stop, fast_load, timeout, trace, trace_line, prefix, byte_fmt, word_fmt):
+    def run(self, stop, fast_load, timeout, trace, trace_line, prefix, byte_fmt, word_fmt):
         simulator = self.simulator
         opcodes = simulator.opcodes
         memory = simulator.memory
         registers = simulator.registers
-        registers[24] = start
-        pc = start
+        pc = registers[24]
         progress = 0
         edges = self.edges
         tape_length = edges[-1] // 1000
