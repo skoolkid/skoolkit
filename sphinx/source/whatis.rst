@@ -94,10 +94,10 @@ version.
 See the file 'COPYING' (distributed with SkoolKit) for the full text of the
 licence.
 
-48K ZX Spectrum ROM
--------------------
-A copy of the 48K ZX Spectrum ROM is included with SkoolKit
-(`skoolkit/resources/48.rom`). The copyright in this ROM is held by Amstrad,
-who have kindly `given permission`_ for it to be redistributed.
+ZX Spectrum ROMs
+----------------
+Copies of the 48K and 128K ZX Spectrum ROMs are included with SkoolKit (in the
+`skoolkit/resources` directory). The copyright in these ROMs is held by
+Amstrad, who have kindly `given permission`_ for them to be redistributed.
 
 .. _given permission: https://groups.google.com/g/comp.sys.amstrad.8bit/c/HtpBU2Bzv_U/m/HhNDSU3MksAJ

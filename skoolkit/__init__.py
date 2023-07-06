@@ -37,6 +37,11 @@ AE_CHARS = frozenset(' !=+-*/<>&|^%$ABCDEFabcdef0123456789()')
 
 ROM48 = os.path.join(PACKAGE_DIR, 'resources', '48.rom')
 
+ROM128 = (
+    os.path.join(PACKAGE_DIR, 'resources', '128-0.rom'),
+    os.path.join(PACKAGE_DIR, 'resources', '128-1.rom')
+)
+
 def error(msg):
     sys.stderr.write('ERROR: {0}\n'.format(msg))
     sys.exit(1)
