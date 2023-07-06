@@ -20,7 +20,7 @@ from skoolkit import SkoolKitError, get_dword, get_int_param, get_word, integer,
 from skoolkit.basic import BasicLister, VariableLister, get_char
 from skoolkit.config import get_config, show_config, update_options
 from skoolkit.opcodes import END, decode
-from skoolkit.snapshot import FRAME_DURATION, QFRAME_DURATION, make_snapshot
+from skoolkit.snapshot import FRAME_DURATIONS, make_snapshot
 from skoolkit.sna2skool import get_ctl_parser
 from skoolkit.snaskool import Disassembly
 
@@ -160,9 +160,11 @@ def _parse_z80(z80file):
     reg.iff2 = header[28]
     reg.im = header[29] & 3
     if version == 3:
-        t1 = (header[55] + 256 * header[56]) % QFRAME_DURATION
+        frame_duration = FRAME_DURATIONS[header[34] > 3]
+        qframe_duration = frame_duration // 4
+        t1 = (header[55] + 256 * header[56]) % qframe_duration
         t2 = (2 - header[57]) % 4
-        reg.tstates = FRAME_DURATION - 1 - t2 * QFRAME_DURATION - t1
+        reg.tstates = frame_duration - 1 - t2 * qframe_duration - t1
     else:
         reg.tstates = 0
 

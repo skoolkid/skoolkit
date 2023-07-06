@@ -199,14 +199,25 @@ class Z80StateTest(SkoolKitTestCase):
             set_z80_state(header, f'border={border}')
             self.assertEqual(header[12], 241 + border * 2)
 
-    def test_tstates(self):
+    def test_tstates_48k(self):
         header = [255] * 58
+        header[34] = 0 # 48K
         for tstates in (0, 1000, 17471, 17472, 20000, 38000, 56000, 69887, 69888):
             set_z80_state(header, f'tstates={tstates}')
             t_lo = header[55] + 256 * header[56]
             t_hi = header[57]
             t = 69887 - ((2 - t_hi) % 4) * 17472 - (t_lo % 17472)
             self.assertEqual(t, tstates % 69888)
+
+    def test_tstates_128k(self):
+        header = [255] * 58
+        header[34] = 4 # 128K
+        for tstates in (0, 1000, 17726, 17727, 20000, 38000, 56000, 70907, 70908):
+            set_z80_state(header, f'tstates={tstates}')
+            t_lo = header[55] + 256 * header[56]
+            t_hi = header[57]
+            t = 70907 - ((2 - t_hi) % 4) * 17727 - (t_lo % 17727)
+            self.assertEqual(t, tstates % 70908)
 
     def test_issue2(self):
         header = [255] * 30
@@ -216,6 +227,7 @@ class Z80StateTest(SkoolKitTestCase):
 
     def test_all(self):
         header = [255] * 58
+        header[34] = 0 # 48K
         set_z80_state(header, 'iff=0', 'im=2', 'border=3', 'tstates=17471', 'issue2=0')
         self.assertEqual(header[27], 0) # IFF1
         self.assertEqual(header[28], 0) # IFF2

@@ -20,8 +20,7 @@ import zlib
 from skoolkit import SkoolKitError, get_int_param, parse_int, read_bin_file
 from skoolkit.components import get_snapshot_reader, get_value
 
-FRAME_DURATION = 69888
-QFRAME_DURATION = FRAME_DURATION // 4
+FRAME_DURATIONS = (69888, 70908)
 
 # https://worldofspectrum.net/faq/reference/z80format.htm
 Z80_REGISTERS = {
@@ -53,6 +52,17 @@ Z80_REGISTERS = {
     'iy': 23,
     'ix': 25,
     'pc': 32
+}
+
+BANKS_128K = {
+    5: 0x4000,
+    2: 0x8000,
+    0: 0xC000,
+    1: 0x10000,
+    3: 0x14000,
+    4: 0x18000,
+    6: 0x1C000,
+    7: 0x20000
 }
 
 # Component API
@@ -171,9 +181,13 @@ def set_z80_state(z80, *specs):
                 z80[12] &= 241 # Clear bits 1-3
                 z80[12] |= (get_int_param(val) & 7) * 2 # Border colour
             elif name == 'tstates':
-                t = FRAME_DURATION - 1 - (get_int_param(val) % FRAME_DURATION)
-                t1, t2 = t % QFRAME_DURATION, t // QFRAME_DURATION
+                frame_duration = FRAME_DURATIONS[z80[34] > 3]
+                qframe_duration = frame_duration // 4
+                t = frame_duration - 1 - (get_int_param(val) % frame_duration)
+                t1, t2 = t % qframe_duration, t // qframe_duration
                 z80[55:58] = (t1 % 256, t1 // 256, (2 - t2) % 4)
+            elif name == '7ffd': # pragma: no cover
+                z80[35] = get_int_param(val) & 255
             else:
                 raise SkoolKitError("Invalid parameter: {}".format(spec))
         except ValueError:
@@ -196,6 +210,7 @@ Usage: {opts}
 
 Set a hardware state attribute. Recognised names {infix}are:
 
+  7ffd    - last OUT to port 0x7ffd (128K only)
   border  - border colour{border}
   iff     - interrupt flip-flop: 0=disabled, 1=enabled{iff}
   im      - interrupt mode{im}
@@ -231,19 +246,29 @@ def make_z80_ram_block(data, page):
     length = len(block)
     return [length % 256, length // 256, page] + block
 
-def make_z80v3_ram_blocks(ram):
+def make_z80v3_ram_blocks(ram, page=0):
     blocks = []
-    for bank, data in ((5, ram[:16384]), (1, ram[16384:32768]), (2, ram[32768:49152])):
-        blocks.extend(make_z80_ram_block(data, bank + 3))
+    if len(ram) == 131072: # pragma: no cover
+        if page:
+            # Restore bank 0 to its original location
+            addr = BANKS_128K[page]
+            ram[0x8000:0xC000], ram[addr - 0x4000:addr] = ram[addr - 0x4000:addr], ram[0x8000:0xC000]
+        for bank, addr in BANKS_128K.items():
+            blocks.extend(make_z80_ram_block(ram[addr - 0x4000:addr], bank + 3))
+    else:
+        for bank, data in ((5, ram[:0x4000]), (1, ram[0x4000:0x8000]), (2, ram[0x8000:0xC000])):
+            blocks.extend(make_z80_ram_block(data, bank + 3))
     return blocks
 
 def write_z80v3(fname, ram, registers, state):
     z80 = [0] * 86
     z80[30] = 54 # Indicate a v3 Z80 snapshot
+    if len(ram) == 131072: # pragma: no cover
+        z80[34] = 4 # 128K
     set_z80_registers(z80, 'i=63', 'iy=23610', *registers)
     set_z80_state(z80, 'iff=1', 'im=1', *state)
     with open(fname, 'wb') as f:
-        f.write(bytes(z80 + make_z80v3_ram_blocks(ram)))
+        f.write(bytes(z80 + make_z80v3_ram_blocks(ram, z80[35] & 7)))
 
 def move(snapshot, param_str):
     params = param_str.split(',', 2)

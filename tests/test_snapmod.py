@@ -408,6 +408,7 @@ class SnapmodTest(SkoolKitTestCase):
 
             Set a hardware state attribute. Recognised names are:
 
+              7ffd    - last OUT to port 0x7ffd (128K only)
               border  - border colour
               iff     - interrupt flip-flop: 0=disabled, 1=enabled
               im      - interrupt mode

@@ -471,7 +471,7 @@ class SnapinfoTest(SkoolKitTestCase):
             Interrupts: enabled
             Interrupt mode: 1
             Issue 2 emulation: disabled
-            T-states: 34943
+            T-states: 35453
             Border: 4
             Port $7FFD: 3 - bank 3 (block 6) paged into 49152-65535 C000-FFFF
             Registers:
@@ -511,7 +511,7 @@ class SnapinfoTest(SkoolKitTestCase):
         header.append(4) # 128K
         header.append(3) # Port 0x7ffd
         header += [0] * (header[-6] - 4)
-        header[55:58] = [63, 68, 3] # T-states
+        header[55:58] = [62, 69, 3] # T-states
         pages = {bank: [0] * 16384 for bank in (1, 3, 4, 6, 7)}
         exp_output = """
             Version: 3
