@@ -20,7 +20,7 @@ from functools import partial
 from skoolkit import SkoolKitError, open_file, write, write_line
 from skoolkit.basic import TextReader
 from skoolkit.simulator import (A, F, B, C, D, E, H, L, IXh, IXl, IYh, IYl, SP, I, R,
-                                xA, xF, xB, xC, xD, xE, xH, xL, PC, T, R1, FRAME_DURATION)
+                                xA, xF, xB, xC, xD, xE, xH, xL, PC, T, R1)
 from skoolkit.traceutils import disassemble
 
 DEC = tuple(tuple((
@@ -207,6 +207,7 @@ class LoadTracer:
         opcodes = simulator.opcodes
         memory = simulator.memory
         registers = simulator.registers
+        frame_duration = simulator.frame_duration
         pc = registers[24]
         progress = 0
         edges = self.edges
@@ -229,7 +230,7 @@ class LoadTracer:
             tstates = registers[25]
 
             if simulator.iff:
-                if tstates // FRAME_DURATION > t0 // FRAME_DURATION:
+                if tstates // frame_duration > t0 // frame_duration:
                     accept_int = True
                 if accept_int:
                     accept_int = simulator.accept_interrupt(registers, memory, pc)

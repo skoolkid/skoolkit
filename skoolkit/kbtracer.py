@@ -15,7 +15,6 @@
 # SkoolKit. If not, see <http://www.gnu.org/licenses/>.
 
 from skoolkit import SkoolKitError
-from skoolkit.simulator import FRAME_DURATION
 
 KEYS = {
     '1': (0xF7FE, 0b11111110),
@@ -237,6 +236,7 @@ class KeyboardTracer: # pragma: no cover
         opcodes = simulator.opcodes
         memory = simulator.memory
         registers = simulator.registers
+        frame_duration = simulator.frame_duration
         keys = self.keys
         pc = registers[24]
         tstates = 0
@@ -248,7 +248,7 @@ class KeyboardTracer: # pragma: no cover
             tstates = registers[25]
 
             if simulator.iff:
-                if tstates // FRAME_DURATION > t0 // FRAME_DURATION:
+                if tstates // frame_duration > t0 // frame_duration:
                     accept_int = True
                 if accept_int:
                     accept_int = simulator.accept_interrupt(registers, memory, pc)

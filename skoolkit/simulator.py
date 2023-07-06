@@ -24,11 +24,10 @@ R1 = tuple((r & 0x80) + ((r + 1) % 128) for r in range(256))
 
 R2 = tuple((r & 0x80) + ((r + 2) % 128) for r in range(256))
 
-FRAME_DURATION = 69888
-
 CONFIG = {
     'fast_djnz': False,
     'fast_ldir': False,
+    'frame_duration': 69888
 }
 
 A = 0
@@ -133,6 +132,7 @@ class Simulator:
         if cfg['fast_ldir']:
             self.after_ED[0xB0] = partial(self.ldir_fast, self.registers, self.memory, 1)
             self.after_ED[0xB8] = partial(self.ldir_fast, self.registers, self.memory, -1)
+        self.frame_duration = cfg['frame_duration']
         self.set_tracer(None)
 
     def set_tracer(self, tracer, in_r_c=True, ini=True):
@@ -534,7 +534,7 @@ class Simulator:
         # HALT
         if self.iff:
             t = registers[25]
-            if (t + 4) // FRAME_DURATION > t // FRAME_DURATION:
+            if (t + 4) // self.frame_duration > t // self.frame_duration:
                 registers[24] = (registers[24] + 1) % 65536 # PC
         registers[15] = R1[registers[15]] # R
         registers[25] += 4 # T-states

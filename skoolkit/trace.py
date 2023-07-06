@@ -20,7 +20,7 @@ import time
 from skoolkit import ROM48, VERSION, SkoolKitError, get_int_param, integer, read_bin_file
 from skoolkit.snapshot import make_snapshot, poke, print_reg_help, write_z80v3
 from skoolkit.simulator import (Simulator, A, F, B, C, D, E, H, L, IXh, IXl, IYh, IYl,
-                                SP, I, R, xA, xF, xB, xC, xD, xE, xH, xL, PC, T, FRAME_DURATION)
+                                SP, I, R, xA, xF, xB, xC, xD, xE, xH, xL, PC, T)
 from skoolkit.snapinfo import parse_snapshot
 from skoolkit.traceutils import disassemble
 
@@ -46,6 +46,7 @@ class Tracer:
         opcodes = simulator.opcodes
         memory = simulator.memory
         registers = simulator.registers
+        frame_duration = simulator.frame_duration
         pc = registers[PC] = start
         operations = 0
         tstates = 0
@@ -77,7 +78,7 @@ class Tracer:
             tstates = registers[25]
 
             if interrupts and simulator.iff:
-                if tstates // FRAME_DURATION > t0 // FRAME_DURATION:
+                if tstates // frame_duration > t0 // frame_duration:
                     accept_int = True
                 if accept_int:
                     accept_int = simulator.accept_interrupt(registers, memory, pc)
