@@ -19,8 +19,10 @@ from functools import partial
 
 from skoolkit import SkoolKitError, open_file, write, write_line
 from skoolkit.basic import TextReader
+from skoolkit.pagingtracer import PagingTracer
 from skoolkit.simulator import (A, F, B, C, D, E, H, L, IXh, IXl, IYh, IYl, SP, I, R,
                                 xA, xF, xB, xC, xD, xE, xH, xL, PC, T, R1)
+from skoolkit.snapshot import BANKS_128K
 from skoolkit.traceutils import disassemble
 
 DEC = tuple(tuple((
@@ -147,9 +149,9 @@ def get_edges(blocks, first_edge, analyse=False):
 
     return edges, indexes, data_blocks
 
-class LoadTracer:
+class LoadTracer(PagingTracer):
     def __init__(self, simulator, blocks, accelerators, pause, first_edge, finish_tape,
-                 in_min_addr, accel_dec_a, list_accelerators, border):
+                 in_min_addr, accel_dec_a, list_accelerators, border, out7ffd):
         self.accelerators = defaultdict(int)
         self.inc_b_misses = 0
         self.dec_b_misses = 0
@@ -200,6 +202,7 @@ class LoadTracer:
         self.tape_end_time = 0
         self.custom_loader = False
         self.border = border
+        self.out7ffd = out7ffd
         self.text = TextReader()
 
     def run(self, stop, fast_load, timeout, trace, trace_line, prefix, byte_fmt, word_fmt):
@@ -493,10 +496,6 @@ class LoadTracer:
                 if index % 2 == 0:
                     return 191
         return 255
-
-    def write_port(self, registers, port, value):
-        if port % 2 == 0:
-            self.border = value % 8
 
     def next_block(self, tstates):
         self.block_index += 1

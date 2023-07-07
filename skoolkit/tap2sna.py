@@ -25,14 +25,14 @@ from urllib.parse import urlparse
 
 from skoolkit import (SkoolKitError, get_dword, get_int_param, get_object,
                       get_word, get_word3, integer, open_file, parse_int,
-                      read_bin_file, warn, write_line, ROM48, VERSION)
+                      read_bin_file, warn, write_line, ROM48, ROM128, VERSION)
 from skoolkit.config import get_config, show_config, update_options
 from skoolkit.kbtracer import KeyboardTracer
 from skoolkit.loadsample import ACCELERATORS
 from skoolkit.loadtracer import LoadTracer, get_edges
 from skoolkit.simulator import (Simulator, A, F, B, C, D, E, H, L, IXh, IXl, IYh, IYl,
                                 SP, I, R, xA, xF, xB, xC, xD, xE, xH, xL, PC)
-from skoolkit.snapshot import move, poke, print_reg_help, print_state_help, write_z80v3
+from skoolkit.snapshot import FRAME_DURATIONS, move, poke, print_reg_help, print_state_help, write_z80v3
 
 SYSVARS = (
     255, 0, 0, 0,         # 23552 - KSTATE0
@@ -286,6 +286,7 @@ def _set_sim_load_config(options):
     options.finish_tape = False
     options.first_edge = -2168
     options.load = None
+    options.machine = '48'
     options.pause = True
     options.timeout = 900
     options.trace = None
@@ -306,6 +307,8 @@ def _set_sim_load_config(options):
                 options.first_edge = parse_int(value, options.first_edge)
             elif name == 'load': # pragma: no cover
                 options.load = value
+            elif name == 'machine': # pragma: no cover
+                options.machine = value
             elif name == 'pause': # pragma: no cover
                 options.pause = parse_int(value, options.pause)
             elif name == 'timeout': # pragma: no cover
@@ -332,20 +335,32 @@ def sim_load(blocks, options, config):
             else:
                 raise SkoolKitError(f'Unrecognised accelerator: {name}')
 
-    snapshot = [0] * 65536
-    rom = read_bin_file(ROM48, 16384)
-    snapshot[:len(rom)] = rom
     interrupted = False
+    if options.machine == '128': # pragma: no cover
+        if not options.load:
+            options.load = 'ENTER'
+        sim_cfg = {'frame_duration': FRAME_DURATIONS[1]}
+        snapshot = [0] * 163840
+        snapshot[:0x4000] = read_bin_file(ROM128[0], 16384)
+        snapshot[0x24000:] = read_bin_file(ROM128[1], 16384)
+        stop = 0x13BE
+    else:
+        sim_cfg = {}
+        snapshot = [0] * 65536
+        snapshot[:0x4000] = read_bin_file(ROM48, 16384)
+        stop = 0x0605 # SAVE-ETC
 
     if options.load: # pragma: no cover
-        if not options.load.endswith(' ENTER'):
-            options.load += ' ENTER'
-        simulator = Simulator(snapshot)
-        tracer = KeyboardTracer(simulator, options.load)
+        load = options.load.split()
+        if load[-1] != 'ENTER':
+            load.append('ENTER')
+        simulator = Simulator(snapshot, config=sim_cfg)
+        tracer = KeyboardTracer(simulator, load)
         simulator.set_tracer(tracer)
         try:
-            tracer.run(0x0605)
+            tracer.run(stop)
             border = tracer.border
+            out7ffd = tracer.out7ffd
         except KeyboardInterrupt:
             write_line(f'Simulation stopped (interrupted): PC={simulator.registers[PC]}')
             interrupted = True
@@ -365,6 +380,7 @@ def sim_load(blocks, options, config):
         snapshot[0xFF58:] = snapshot[0x3E08:0x3EB0] # UDGs
         simulator = Simulator(snapshot, {'PC': 0x0605, 'SP': 0xFF50})
         border = 7
+        out7ffd = 0
 
     if not interrupted:
         if options.contended_in: # pragma: no cover
@@ -372,7 +388,8 @@ def sim_load(blocks, options, config):
         else:
             in_min_addr = 0x8000
         tracer = LoadTracer(simulator, blocks, accelerators, options.pause, options.first_edge,
-                            options.finish_tape, in_min_addr, options.accelerate_dec_a, list_accelerators, border)
+                            options.finish_tape, in_min_addr, options.accelerate_dec_a, list_accelerators,
+                            border, out7ffd)
         simulator.set_tracer(tracer, False, False)
         op_fmt = config['TraceOperand']
         prefix, byte_fmt, word_fmt = (op_fmt + ',' * (2 - op_fmt.count(','))).split(',')[:3]
@@ -412,9 +429,14 @@ def sim_load(blocks, options, config):
         'PC': sim_registers[PC]
     }
     options.reg = [f'{r}={v}' for r, v in registers.items()] + options.reg
-    state = [f'im={simulator.imode}', f'iff={simulator.iff}', f'border={tracer.border}']
+    state = [
+        f'im={simulator.imode}',
+        f'iff={simulator.iff}',
+        f'border={tracer.border}',
+        f'7ffd={tracer.out7ffd}'
+    ]
     options.state = state + options.state
-    return simulator.memory[0x4000:]
+    return simulator.memory[0x4000:0x24000]
 
 def _get_load_params(param_str):
     params = []
@@ -810,6 +832,7 @@ Usage: --sim-load-config accelerate-dec-a=0/1/2
        --sim-load-config finish-tape=0/1
        --sim-load-config first-edge=N
        --sim-load-config load=KEYS
+       --sim-load-config machine=48/128
        --sim-load-config pause=0/1
        --sim-load-config timeout=N
        --sim-load-config trace=FILE
@@ -879,6 +902,11 @@ Configure various properties of a simulated LOAD.
     DEFFN  - DEF FN (CS+SS SS+1)
     OPEN#  - OPEN # (CS+SS SS+4)
     CLOSE# - CLOSE # (CS+SS SS+5)
+
+--sim-load-config machine=48/128
+
+  By default, tap2sna.py simulates a 48K Spectrum. Set machine=128 to simulate
+  a 128K Spectrum.
 
 --sim-load-config pause=0/1
 

@@ -1404,6 +1404,8 @@ parameters are:
   loaders (e.g. polarity-sensitive loaders) require ``first-edge=0``
 * ``load`` - a space-separated list of keys to press to build an alternative
   command line to load the tape (see below)
+* ``machine`` - the type of machine to simulate: a 48K Spectrum (``48``, the
+  default), or a 128K Spectrum (``128``)
 * ``pause`` - pause the tape between blocks and resume playback when port 254
   is read (``1``, the default), or run the tape continuously (``0``); pausing
   can help with tapes that require (but do not actually contain) long pauses
@@ -1594,8 +1596,8 @@ Configuration parameters may also be set on the command line by using the
 | Version | Changes                                                           |
 +=========+===================================================================+
 | 9.0     | A simulated LOAD is performed by default; an existing snapshot    |
-|         | will be overwritten by default; added the ``load`` simulated LOAD |
-|         | configuration parameter                                           |
+|         | will be overwritten by default; added the ``load`` and            |
+|         | ``machine`` simulated LOAD configuration parameters               |
 +---------+-------------------------------------------------------------------+
 | 8.10    | Configuration is read from `skoolkit.ini` if present; added the   |
 |         | ``--ini``, ``--show-config`` and ``--tape-analysis`` options;     |

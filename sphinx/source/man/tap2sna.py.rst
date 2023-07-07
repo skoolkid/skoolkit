@@ -134,6 +134,8 @@ parameters are:
   loaders (e.g. polarity-sensitive loaders) require ``first-edge=0``
 * ``load`` - a space-separated list of keys to press to build an alternative
   command line to load the tape (see below)
+* ``machine`` - the type of machine to simulate: a 48K Spectrum (``48``, the
+  default), or a 128K Spectrum (``128``)
 * ``pause`` - pause the tape between blocks and resume playback when port 254
   is read (``1``, the default), or run the tape continuously (``0``); pausing
   can help with tapes that require (but do not actually contain) long pauses

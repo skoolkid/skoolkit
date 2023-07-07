@@ -15,6 +15,7 @@
 # SkoolKit. If not, see <http://www.gnu.org/licenses/>.
 
 from skoolkit import SkoolKitError
+from skoolkit.pagingtracer import PagingTracer
 
 KEYS = {
     '1': (0xF7FE, 0b11111110),
@@ -206,7 +207,7 @@ def get_keys(keyspecs): # pragma: no cover
     keys = [NO_KEY] * BOOT_DELAY # Allow time for the boot to finish
 
     specs = []
-    for spec in keyspecs.split():
+    for spec in keyspecs:
         specs.extend(TOKENS.get(spec, spec).split())
 
     for spec in specs:
@@ -225,11 +226,12 @@ def get_keys(keyspecs): # pragma: no cover
 
     return keys
 
-class KeyboardTracer: # pragma: no cover
+class KeyboardTracer(PagingTracer): # pragma: no cover
     def __init__(self, simulator, keys):
         self.simulator = simulator
         self.keys = get_keys(keys)
         self.border = 7
+        self.out7ffd = 0
 
     def run(self, stop):
         simulator = self.simulator
@@ -265,7 +267,3 @@ class KeyboardTracer: # pragma: no cover
             if port in kb:
                 return kb.pop(port)
         return 255
-
-    def write_port(self, registers, port, value):
-        if port % 2 == 0:
-            self.border = value % 8
