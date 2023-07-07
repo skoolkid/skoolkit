@@ -3,20 +3,31 @@ from skoolkit.snapshot import get_snapshot, make_z80_ram_block, set_z80_register
 
 class SnapshotTest(SkoolKitTestCase):
     def _check_ram(self, ram, exp_ram, model, out_7ffd, pages, page):
-        self.assertEqual(len(ram), 49152)
         if model == 0:
             # 16K
+            self.assertEqual(len(ram), 49152)
             self.assertEqual(ram[:16384], exp_ram[:16384])
             self.assertEqual(ram[16384:], [0] * 32768)
         elif model == 1:
             # 48K
+            self.assertEqual(len(ram), 49152)
             self.assertEqual(ram, exp_ram)
         else:
             # 128K
-            self.assertEqual(ram[:32768], exp_ram[:32768])
             if page is None:
                 page = out_7ffd & 7
-            self.assertEqual(ram[32768:], pages.get(page, exp_ram[32768:]))
+            if page >= 0:
+                self.assertEqual(len(ram), 49152)
+                self.assertEqual(ram[:32768], exp_ram[:32768])
+                self.assertEqual(ram[32768:], pages.get(page, exp_ram[32768:]))
+            else:
+                self.assertEqual(len(ram), 0x20000)
+                self.assertEqual(ram[0x00000:0x0C000], exp_ram)
+                self.assertEqual(ram[0x0C000:0x10000], pages[1])
+                self.assertEqual(ram[0x10000:0x14000], pages[3])
+                self.assertEqual(ram[0x14000:0x18000], pages[4])
+                self.assertEqual(ram[0x18000:0x1C000], pages[6])
+                self.assertEqual(ram[0x1C000:0x20000], pages[7])
 
 class ErrorTest(SnapshotTest):
     def test_unknown_file_type(self):
@@ -92,6 +103,26 @@ class SNATest(SnapshotTest):
         self.assertEqual(len(ram), 49152)
         self.assertEqual(ram, page5 + page2 + page5)
 
+    def test_sna_128k_all_pages(self):
+        header = [0] * 27
+        pages = {p: [p] * 16384 for p in range(8)}
+        config = [0, 0] # PC
+        config.append(3) # Port 7ffd (page 3 mapped to 49152-65535)
+        config.append(0) # TR-DOS ROM not paged
+        sna = header + pages[5] + pages[2] + pages[3] + config + pages[0] + pages[1] + pages[4] + pages[6] + pages[7]
+        tmp_sna = self.write_bin_file(sna, suffix='.sna')
+        snapshot = get_snapshot(tmp_sna, -1)
+        ram = snapshot[16384:]
+        self.assertEqual(len(ram), 131072)
+        self.assertTrue(set(ram[0x00000:0x04000]), {5})
+        self.assertTrue(set(ram[0x04000:0x08000]), {2})
+        self.assertTrue(set(ram[0x08000:0x0C000]), {0})
+        self.assertTrue(set(ram[0x0C000:0x10000]), {1})
+        self.assertTrue(set(ram[0x10000:0x14000]), {3})
+        self.assertTrue(set(ram[0x14000:0x18000]), {4})
+        self.assertTrue(set(ram[0x18000:0x1C000]), {6})
+        self.assertTrue(set(ram[0x1C000:0x20000]), {7})
+
 class Z80Test(SnapshotTest):
     def _test_z80(self, exp_ram, version, compress, machine_id=0, modify=False, out_7ffd=0, pages={}, page=None):
         model, tmp_z80 = self.write_z80(exp_ram, version, compress, machine_id, modify, out_7ffd, pages)
@@ -145,6 +176,11 @@ class Z80Test(SnapshotTest):
         exp_ram = [(n + 37) & 255 for n in range(49152)]
         pages = {4: [(n + 249) & 255 for n in range(16384)]}
         self._test_z80(exp_ram, 3, False, machine_id=4, pages=pages, page=4)
+
+    def test_z80v3_128k_all_pages(self):
+        exp_ram = [(n + 37) & 255 for n in range(49152)]
+        pages = {p: [p] * 16384 for p in (1, 3, 4, 6, 7)}
+        self._test_z80(exp_ram, 3, False, machine_id=4, pages=pages, page=-1)
 
     def test_z80v3_48k_compressed_block_ending_with_ED(self):
         exp_ram = [0] * 49152
@@ -366,3 +402,8 @@ class SZXTest(SnapshotTest):
         exp_ram = [(n + 173) & 255 for n in range(49152)]
         pages = {1: [(n + 19) & 255 for n in range(16384)]}
         self._test_szx(exp_ram, False, machine_id=2, pages=pages, page=1)
+
+    def test_szx_128k_all_pages(self):
+        exp_ram = [(n + 173) & 255 for n in range(49152)]
+        pages = {p: [p] * 16384 for p in (1, 3, 4, 6, 7)}
+        self._test_szx(exp_ram, False, machine_id=2, pages=pages, page=-1)

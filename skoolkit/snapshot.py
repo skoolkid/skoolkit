@@ -92,7 +92,7 @@ def get_snapshot(fname, page=None):
         ram = _read_z80(data, page)
     elif ext == '.szx':
         ram = _read_szx(data, page)
-    if len(ram) != 49152:
+    if len(ram) not in (49152, 131072):
         raise SnapshotError("RAM size is {0}".format(len(ram)))
     mem = [0] * 16384
     mem.extend(ram)
@@ -309,16 +309,15 @@ def _read_sna(data, page=None):
     if len(data) <= 49179 or page is None:
         return data[27:49179]
     paged_bank = data[49181] & 7
-    banks = [5, 2, paged_bank]
+    pages = {5: data[27:16411], 2: data[16411:32795], paged_bank: data[32795:49179]}
+    offset = 49183
     for i in range(8):
-        if i not in banks:
-            banks.append(i)
-    page_index = banks.index(page)
-    if page_index < 3:
-        index = 27 + page_index * 16384
-    else:
-        index = 49183 + (page_index - 3) * 16384
-    return data[27:32795] + data[index:index + 16384]
+        if i not in pages:
+            pages[i] = data[offset:offset + 16384]
+            offset += 16384
+    if page >= 0:
+        return pages[5] + pages[2] + pages[page]
+    return pages[5] + pages[2] + pages[0] + pages[1] + pages[3] + pages[4] + pages[6] + pages[7]
 
 def _read_z80(data, page=None):
     if sum(data[6:8]) > 0:
@@ -344,8 +343,11 @@ def _read_z80(data, page=None):
             banks = (5, 1, 2) # 48K
     else:
         if page is None:
-            page = data[35] & 7
-        banks = (5, 2, page) # 128K
+            banks = (5, 2, data[35] & 7)
+        elif page < 0:
+            banks = (5, 2, 0, 1, 3, 4, 6, 7)
+        else:
+            banks = (5, 2, page)
     return _decompress(data[header_size:], banks, extension)
 
 def _read_szx(data, page=None):
@@ -361,8 +363,11 @@ def _read_szx(data, page=None):
             specregs = _get_zxstblock(data, 8, 'SPCR')[1]
             if specregs is None:
                 raise SnapshotError("SPECREGS (SPCR) block not found")
-            page = specregs[1] & 7
-        banks = (5, 2, page) # 128K
+            banks = (5, 2, specregs[1] & 7)
+        elif page < 0:
+            banks = (5, 2, 0, 1, 3, 4, 6, 7)
+        else:
+            banks = (5, 2, page)
     pages = {}
     for bank in banks:
         pages[bank] = None
