@@ -1930,6 +1930,85 @@ class CtlParserTest(SkoolKitTestCase):
         exp_directives = {start + 20: ['label=END']}
         self._check_instruction_asm_directives(exp_directives, blocks)
 
+    def test_loop_excluding_mid_block_comment_at_loop_start_address(self):
+        start = 30000
+        length = 25
+        count = 2
+        end = start + length * count
+        ctl = """
+            @ 30000 start
+            @ 30000 org=30000
+            c 30000 This entry should not be repeated
+            D 30000 This entry description should not be repeated
+            R 30000 HL This register should not be repeated
+            N 30000 This comment should not be repeated
+              30000,5 Begin
+            B 30005,5,1,2
+            N 30010 A mid-block comment
+            M 30010,10 A multi-line comment
+            S 30010,6
+            W 30016,4,4
+            @ 30020 label=END
+            T 30020,5,4:n1 End
+            E 30000 This end comment should not be repeated
+            L {},{},{},2
+        """.format(start, length, count)
+        ctl_parser = self._get_ctl_parser(ctl)
+        blocks = ctl_parser.get_blocks()
+        self.assertEqual(len(blocks), 1)
+        block = blocks[0]
+        sub_blocks = block.blocks
+        sub_block_map = {b.start: b for b in sub_blocks}
+
+        # Check B, C, S, T and W sub-blocks
+        i = 0
+        exp_subctls = {}
+        exp_sublengths = {}
+        for a in range(start, end, length):
+            for offset, subctl, sublengths in (
+                (0, 'c', ((0, 'n'),)),
+                (5, 'b', ((1, 'n'),)),
+                (6, 'b', ((2, 'n'),)),
+                (10, 's', ((0, 'n'),)),
+                (16, 'w', ((4, 'n'),)),
+                (20, 't', ((4, 'c'), (1, 'n')),),
+                (25, 'c', ((0, 'n'),))
+            ):
+                address = a + offset
+                exp_subctls[address] = subctl
+                exp_sublengths[address] = sublengths
+                i += 1
+        self._check_subctls(exp_subctls, blocks)
+        self._check_sublengths(exp_sublengths, blocks)
+
+        # Check mid-block comment at the start of the loop
+        self.assertEqual([['This comment should not be repeated']], sub_block_map[start].header)
+        for a in range(start + length, end, length):
+            self.assertEqual((), sub_block_map[a].header, f'Unexpected repeated mid-block comment at {a}')
+
+        # Check mid-block comments in the middle of the loop
+        offset = 10
+        for a in range(start + offset, end, length):
+            self.assertEqual([['A mid-block comment']], sub_block_map[a].header, f'Mid-block comment mismatch at {a}')
+
+        # Check multi-line comments
+        offset = 10
+        for a in range(start + offset, end, length):
+            self.assertEqual((a + offset, [(0, 'A multi-line comment')]), sub_block_map[a].multiline_comment)
+
+        # Check entry-level directives (c, D, E, R)
+        self._check_ctls({start: 'c'}, blocks)
+        self.assertEqual([['This entry description should not be repeated']], block.description)
+        self.assertEqual([['HL This register should not be repeated']], block.registers)
+        self.assertEqual([['This end comment should not be repeated']], block.end_comment)
+
+        # Check entry-level ASM directives
+        self.assertEqual(['start', 'org=30000'], block.asm_directives)
+
+        # Check instruction-level ASM directives
+        exp_directives = {start + 20: ['label=END']}
+        self._check_instruction_asm_directives(exp_directives, blocks)
+
     def test_loop_crossing_64k_boundary(self):
         ctl = """
             u 65532

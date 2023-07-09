@@ -1,4 +1,4 @@
-# Copyright 2009-2022 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2009-2023 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -158,13 +158,13 @@ class CtlParser:
                     count = lengths[0][0]
                     if count > 1:
                         if len(lengths) > 1:
-                            repeat_entries = lengths[1][0]
+                            flags = lengths[1][0]
                         else:
-                            repeat_entries = 0
+                            flags = 0
                         loop_end = start + count * (end - start)
                         if loop_end > 65536:
                             warn('Loop crosses 64K boundary:\n{}'.format(s_line))
-                        self._loops.append((start, end, count, repeat_entries))
+                        self._loops.append((start, end, count, flags))
                         self._subctls[loop_end] = None
                 else:
                     self._subctls[start] = ctl.lower()
@@ -293,17 +293,22 @@ class CtlParser:
                 self._multiline_comments[address] = (max_end, text, repeat)
 
     def _unroll_loops(self, max_address):
-        for start, end, count, repeat_entries in self._loops:
-            for directives in (self._subctls, self._mid_block_comments, self._instruction_comments, self._lengths):
+        for start, end, count, flags in self._loops:
+            for directives in (self._subctls, self._instruction_comments, self._lengths):
                 self._repeat_directives(directives, start, end, count, max_address)
+            self._repeat_directives(self._mid_block_comments, start, end, count, max_address, flags == 2)
             self._repeat_multiline_comments(start, end, count, max_address)
-            if repeat_entries:
+            if flags == 1:
+                # Repeat entries
                 for directives in (self._ctls, self._titles, self._descriptions, self._registers, self._end_comments):
                     self._repeat_directives(directives, start, end, count, max_address)
 
-    def _repeat_directives(self, directives, start, end, count, max_address):
+    def _repeat_directives(self, directives, start, end, count, max_address, exclude_start=False):
         interval = end - start
-        repeated = {k: v for k, v in directives.items() if start <= k < end}
+        if exclude_start:
+            repeated = {k: v for k, v in directives.items() if start < k < end}
+        else:
+            repeated = {k: v for k, v in directives.items() if start <= k < end}
         for addr, value in repeated.items():
             for i in range(1, count):
                 address = addr + i * interval

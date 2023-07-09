@@ -12,6 +12,8 @@ Changelog
 * Added the ``load`` simulated LOAD configuration parameter to
   :ref:`tap2sna.py <tap2sna-sim-load>` (to specify an alternative command line
   to use to load the tape)
+* Added support to :ref:`control directive loops <ctlLoops>` for avoiding
+  repetition of an ``N`` directive at the start of a loop
 
 8.10 (2023-06-17)
 -----------------
