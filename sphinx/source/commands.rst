@@ -1707,16 +1707,16 @@ For example::
 
 To list the options supported by `trace.py`, run it with no arguments::
 
-  usage: trace.py [options] FILE
+  usage: trace.py [options] FILE [file.z80]
 
   Trace Z80 machine code execution. FILE may be a binary (raw memory) file, a
-  SNA, SZX or Z80 snapshot, or '.' for no snapshot.
+  SNA, SZX or Z80 snapshot, or '.' for no snapshot. If 'file.z80' is given, a
+  Z80 snapshot is written after execution has completed.
 
   Options:
     --audio               Show audio delays.
     --depth DEPTH         Simplify audio delays to this depth (default: 2).
     -D, --decimal         Show decimal values in verbose mode.
-    --dump FILE           Dump a Z80 snapshot to this file after execution.
     -i, --interrupts      Execute interrupt routines.
     --max-operations MAX  Maximum number of instructions to execute.
     --max-tstates MAX     Maximum number of T-states to run for.

@@ -284,16 +284,18 @@ def run(snafile, options):
             f'tstates={r[T]}'
         )
         write_z80v3(options.dump, ram, registers, state)
-        print(f'Z80 snapshot dumped to {options.dump}')
+        print(f'Wrote {options.dump}')
 
 def main(args):
     parser = argparse.ArgumentParser(
-        usage='trace.py [options] FILE',
+        usage='trace.py [options] FILE [file.z80]',
         description="Trace Z80 machine code execution. "
-                    "FILE may be a binary (raw memory) file, a SNA, SZX or Z80 snapshot, or '.' for no snapshot.",
+                    "FILE may be a binary (raw memory) file, a SNA, SZX or Z80 snapshot, or '.' for no snapshot. "
+                    "If 'file.z80' is given, a Z80 snapshot is written after execution has completed.",
         add_help=False
     )
     parser.add_argument('snafile', help=argparse.SUPPRESS, nargs='?')
+    parser.add_argument('dump', help=argparse.SUPPRESS, nargs='?')
     group = parser.add_argument_group('Options')
     group.add_argument('--audio', action='store_true',
                        help="Show audio delays.")
@@ -301,8 +303,6 @@ def main(args):
                        help="Show decimal values in verbose mode.")
     group.add_argument('--depth', type=int, default=2,
                        help='Simplify audio delays to this depth (default: 2).')
-    group.add_argument('--dump', metavar='FILE',
-                       help='Dump a Z80 snapshot to this file after execution.')
     group.add_argument('-i', '--interrupts', action='store_true',
                        help='Execute interrupt routines.')
     group.add_argument('--max-operations', metavar='MAX', type=int, default=0,

@@ -34,3 +34,11 @@ In SkoolKit 8, :ref:`tap2sna.py` would refuse to overwrite an existing snapshot
 unless the ``--force`` option was given. In SkoolKit 9, `tap2sna.py` will
 overwrite an existing snapshot by default, and the ``--force`` option is no
 longer supported.
+
+trace.py
+--------
+In SkoolKit 8, :ref:`trace.py` had a ``--dump`` option for specifying an output
+Z80 snapshot file. In SkoolKit 9, this option has been removed; instead the
+output filename may be specified after the input filename. For example::
+
+  $ trace.py --stop 32768 in.z80 out.z80

@@ -6,13 +6,14 @@ trace.py
 
 SYNOPSIS
 ========
-``trace.py`` [options] FILE
+``trace.py`` [options] FILE [file.z80]
 
 DESCRIPTION
 ===========
 ``trace.py`` simulates the execution of machine code in a 48K binary (raw
 memory) file or a SNA, SZX or Z80 snapshot. If FILE is '.', no snapshot is
-loaded, and the RAM is left blank (all zeroes).
+loaded, and the RAM is left blank (all zeroes). If 'file.z80' is given, a Z80
+snapshot is written after execution has completed.
 
 OPTIONS
 =======
@@ -28,9 +29,6 @@ OPTIONS
 
 -D, --decimal
   Show decimal values in verbose (``-v``, ``-vv``) mode.
-
---dump `FILE`
-  Dump a Z80 snapshot to this file after execution.
 
 -i, --interrupts
   Execute interrupt routines.
