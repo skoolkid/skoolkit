@@ -108,32 +108,20 @@ class SnapmodTest(SkoolKitTestCase):
             self.run_snapmod('-r hl=0 {}'.format(infile))
         self.assertEqual(cm.exception.args[0], '{}: file not found'.format(infile))
 
-    def test_no_clobber_input_file(self):
-        infile = self.write_bin_file(suffix='.z80')
-        output, error = self.run_snapmod('-p 16384,0 {}'.format(infile))
-        self.assertEqual(output, '{}: file already exists; use -f to overwrite\n'.format(infile))
-        self.assertEqual(error, '')
-
-    def test_no_clobber_output_file(self):
-        outfile = self.write_bin_file(suffix='.z80')
-        output, error = self.run_snapmod('-p 16384,0 in.z80 {}'.format(outfile))
-        self.assertEqual(output, '{}: file already exists; use -f to overwrite\n'.format(outfile))
-        self.assertEqual(error, '')
-
-    def test_option_f_clobber_input_file(self):
+    def test_overwrite_input_file(self):
         header = [0] * 30
         header[6] = 1 # PC > 0
         exp_header = header[:]
         exp_header[12] |= 34 # RAM block compressed, BORDER 1
         ram = [0] * 49152
         infile = self.write_z80_file(header, ram, 1)
-        output, error = self.run_snapmod('-f -s border=1 {}'.format(infile))
+        output, error = self.run_snapmod('-s border=1 {}'.format(infile))
         self.assertEqual(output, '')
         self.assertEqual(error, '')
         z80_header = list(read_bin_file(infile, len(exp_header)))
         self.assertEqual(exp_header, z80_header)
 
-    def test_option_force_clobber_output_file(self):
+    def test_overwrite_output_file(self):
         header = [0] * 30
         header[6] = 1 # PC > 0
         exp_header = header[:]
@@ -141,7 +129,7 @@ class SnapmodTest(SkoolKitTestCase):
         ram = [0] * 49152
         infile = self.write_z80_file(header, ram, 1)
         outfile = self.write_bin_file(suffix='.z80')
-        output, error = self.run_snapmod('--force -s border=2 {} {}'.format(infile, outfile))
+        output, error = self.run_snapmod('-s border=2 {} {}'.format(infile, outfile))
         self.assertEqual(output, '')
         self.assertEqual(error, '')
         z80_header = list(read_bin_file(outfile, len(exp_header)))

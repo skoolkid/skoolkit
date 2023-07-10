@@ -59,8 +59,6 @@ def main(args):
     parser.add_argument('infile', help=argparse.SUPPRESS, nargs='?')
     parser.add_argument('outfile', help=argparse.SUPPRESS, nargs='?')
     group = parser.add_argument_group('Options')
-    group.add_argument('-f', '--force', dest='force', action='store_true',
-                       help="Overwrite an existing snapshot.")
     group.add_argument('-m', '--move', dest='moves', metavar='src,size,dest', action='append', default=[],
                        help='Move a block of bytes of the given size from src to dest. This option may be used multiple times.')
     group.add_argument('-p', '--poke', dest='pokes', metavar='a[-b[-c]],[^+]v', action='append', default=[],
@@ -89,7 +87,4 @@ def main(args):
 
     if outfile is None:
         outfile = infile
-    if namespace.force or not os.path.isfile(outfile):
-        run(infile, namespace, outfile)
-    else:
-        write_line('{}: file already exists; use -f to overwrite'.format(outfile))
+    run(infile, namespace, outfile)

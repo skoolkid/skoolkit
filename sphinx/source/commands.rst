@@ -1230,7 +1230,6 @@ To list the options supported by `snapmod.py`, run it with no arguments::
   Modify a 48K Z80 snapshot.
 
   Options:
-    -f, --force           Overwrite an existing snapshot.
     -m src,size,dest, --move src,size,dest
                           Move a block of bytes of the given size from src to
                           dest. This option may be used multiple times.

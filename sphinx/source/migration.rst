@@ -22,6 +22,13 @@ This can be redefined by using the ``#DEF`` macro::
 
   #DEF(#MIN(a,b) #IF($a<$b)($a,$b))
 
+snapmod.py
+----------
+In SkoolKit 8, :ref:`snapmod.py` would refuse to overwrite an existing snapshot
+unless the ``--force`` option was given. In SkoolKit 9, `snapmod.py` will
+overwrite an existing snapshot by default, and the ``--force`` option is no
+longer supported.
+
 tap2sna.py
 ----------
 In SkoolKit 8, :ref:`tap2sna.py` performed a

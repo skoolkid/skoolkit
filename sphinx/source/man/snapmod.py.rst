@@ -14,9 +14,6 @@ DESCRIPTION
 
 OPTIONS
 =======
--f, --force
-  Overwrite an existing snapshot.
-
 -m, --move `src,size,dest`
   Move a block of bytes of the given size from 'src' to 'dest'. This option may
   be used multiple times. 'src', 'size' and 'dest' must each be a decimal
@@ -87,7 +84,7 @@ EXAMPLES
 1. Set the value of the HL register pair to 0 in ``game.z80``:
 
    |
-   |   ``snapmod.py -f -r hl=0 game.z80``
+   |   ``snapmod.py -r hl=0 game.z80``
 
 2. POKE the value 23 into address 32768 in ``game.z80``, and write the
    resultant snapshot to ``poked.z80``:
